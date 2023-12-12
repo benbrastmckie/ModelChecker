@@ -1,0 +1,238 @@
+\documentclass[a4paper, 11pt]{article} % Font size (can be 10pt, 11pt or 12pt) and paper size (remove a4paper for US letter paper)
+
+\usepackage[protrusion=true,expansion=true]{microtype} % Better typography
+\usepackage{graphicx} % Required for including pictures
+\usepackage{wrapfig} % Allows in-line images
+\usepackage{enumitem} %%Enables control over enumerate and itemize environments
+\usepackage{setspace}
+\usepackage{amssymb, amsmath, mathrsfs, mathabx} %%Math packages
+\usepackage{stmaryrd}
+\usepackage{mathtools}
+\usepackage{mathpazo} % Use the Palatino font
+\usepackage[T1]{fontenc} % Required for accented characters
+\usepackage{array}
+\usepackage{bibentry}
+\usepackage[round]{natbib} %%Or change 'round' to 'square' for square backers
+\setcitestyle{aysep={}}
+
+\linespread{1.05} % Change line spacing here, Palatino benefits from a slight increase by default
+
+\DeclareSymbolFont{symbolsC}{U}{txsyc}{m}{n}
+\SetSymbolFont{symbolsC}{bold}{U}{txsyc}{bx}{n}
+\DeclareFontSubstitution{U}{txsyc}{m}{n}
+\DeclareMathSymbol{\boxright}{\mathrel}{symbolsC}{"80}
+\DeclareMathSymbol{\circleright}{\mathrel}{symbolsC}{"91}
+\DeclareMathSymbol{\diamondright}{\mathrel}{symbolsC}{"84}
+\DeclareMathSymbol{\medcirc}{\mathrel}{symbolsC}{"07}
+
+\newcommand{\corner}[1]{\ulcorner#1\urcorner} %%Corner quotes
+\newcommand{\tuple}[1]{\langle#1\rangle} %%Angle brackets
+\newcommand{\set}[1]{\lbrace#1\rbrace} %%Set brackets
+% \newcommand{\At}[1]{\texttt{At}(#1)} %%Set brackets
+\newcommand{\interpret}[1]{\llbracket#1\rrbracket} %%Double brackets
+\renewcommand{\P}[0]{\mathbb{P}}
+\renewcommand{\L}[0]{\mathbb{L}}
+\newcommand{\M}[0]{\mathcal{M}}
+\newcommand{\N}[0]{\mathbb{N}}
+\renewcommand{\O}[0]{\mathbb{O}}
+\renewcommand{\Vert}[1]{\ldbrack#1\rdbrack}
+\renewcommand{\vert}[1]{\lvert#1\rvert}
+%\DeclarePairedDelimiter\ceil{\lceil}{\rceil}    
+
+\makeatletter
+\renewcommand\@biblabel[1]{\textbf{#1.}} % Change the square brackets for each bibliography item from '[1]' to '1.'
+\renewcommand{\@listI}{\itemsep=0pt} % Reduce the space between items in the itemize and enumerate environments and the bibliography
+
+\renewcommand{\maketitle}{ % Customize the title - do not edit title and author name here, see the TITLE block below
+\begin{flushright} % Right align
+{\LARGE\@title} % Increase the font size of the title
+
+\vspace{10pt} % Some vertical space between the title and author name
+
+{\@author} % Author name
+\\\@date % Date
+
+\vspace{30pt} % Some vertical space between the author block and abstract
+\end{flushright}
+}
+
+%----------------------------------------------------------------------------------------
+%	TITLE
+%----------------------------------------------------------------------------------------
+
+\title{\textbf{Counterfactual Models}} % Subtitle
+
+\author{\textsc{UROP:} Miguel Buitrago\\ \em Benjamin Brast-McKie} % Institution
+
+\date{\today} % Date
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\maketitle % Print the title section
+
+\thispagestyle{empty}
+
+%----------------------------------------------------------------------------------------
+
+% TODO: reshape to focus on set evaluator
+  % mention integration with Z3
+  % mention integration with Leen
+
+\noindent
+\textbf{Overview:} 
+This is a preliminary outline of the scope of the project, not all of which would have to be completed, but nevertheless provides a sense of what motivates the construction.
+A first aim is to provide a means by which to effectively survey the logic of counterfactuals by evaluating the searching for models and countermodels for individual sentences.
+By generating a space of models organised by complexity, we may define a notion of \textit{$n$-entailment} $\Gamma \vDash^n \varphi$ which holds just in case all models which are not more complex than $n$ that satisfy $\Gamma$ also satisfy $\varphi$. 
+The notion of $n$-entailment $\vDash^n$ provides a means by which to identify candidate validities of the form $\Gamma \vDash \varphi$, where the greater the value of $n$, the stronger the evidence that $\Gamma\vDash\varphi$.
+Candidates may then be ranked and used to search for proofs with a theorem prover given a known axiom system.
+Candidates for which proofs cannot be found may then be checked by hand for validity and added to the logic accordingly.
+
+The project divides into a number of parts where the latter parts depend on the former.
+A preliminary outline for each part will be provided below and is subject to change.
+Settling the details given below constitutes the first part of the project, though these details may continue to change throughout.
+
+
+\section{Ordered Sentences}
+
+We begin by developing a definition of the sentences of a language for counterfactuals in python, providing a method for generating and storing sentences of increasing complexity in an extensible way.
+
+\begin{enumerate}
+  \item[\it Sentence Letters:] Let $\L_i=\set{p_j:j\in\N \text{ and } j\leq i}$ be the set of the first $i$ sentence letters. 
+  \item[\it Operators:] Let $\O=\set{\neg,\wedge,\vee,\boxright}$ be the set of primitive operators. 
+  \item[\it Sentences:] The well-formed sentences of a language with counterfactual and extensional operators do not permit counterfactual operators to occur in the antecedent of a counterfactual sentence. In order to devise versatile conventions it will be important to look at the syntax used in Prover9 or similar theorem provers.
+  \item[\it Rank:] A sentence has rank $r$ just in case it only includes sentence letters in $\L_r$. We may begin by restricting consideration to sentences with low rank, e.g., $r\leq5$ since rank will amplify the number of models.
+  \item[\it Complexity:] Second to rank, sentences can be ordered according to how many sentential operators they include, referring to this number as their complexity $c$. Rank should take president over complexity, though it is also important to restrict consideration to low complexity, e.g., $c\leq5$.
+  \item[\it Storage:] Beginning with rank $r=1$, sentences will need to be generated and stored in the order of their complexity before moving to rank $r=2$.
+  \item[\it Hash:] Each sentence should have a hash.
+  \item[\it $r$-Lists:] Beginning with $r=1$, the hash for each sentence should be stored in a list for $r=1$, ordered by complexity. We will need a separate $r$-list for each value $r\leq 5$ so that we may easily extend these lists to include higher complexity sentences. New lists for $r>5$ may be added later. 
+  \item[\it Bypass:] Each hash in an $r$-list should be stored with a bypass parameter that can be turned on or off so that sentences that are later deemed to be uninteresting can be skipped without removing them from the list.
+  \item[\it $r$-Sets:] Given a rank $r$, complexity $c$, and multiplicity $m$, populate and store all sets of at most $m$ hash codes for sentences with rank $k\leq r$ and complexity $l\leq c$ in a $(r,c,m)$-list which can be incrementally extended. 
+  \item[\it Valuations:] Each set of hash codes $\Gamma$ should be stored alongside a verifier list and a falsifier list that can later be populated with the hash codes for models which satisfy $\Gamma$ or which do not satisfy $\Gamma$, respectively. 
+    % \begin{itemize}
+    %   \item[\it Base:] Let $B_{(0,0,0)}=\set{\varnothing}$ be the set of all sets of $m=0$ sentences of rank $r=0$ and complexity $c=0$. 
+    %   \item[\it Rank:] Given $B_{(r,c,m)}$, let $B_{(r+1,c,m)}$ be the set of all sets of $m$ sentences of rank $r+1$ and complexity $c$ that do not occur in $B_{(r,c,m)}$. 
+    %   \item[\it Complexity:] Given $B_{(r,c,m)}$, let $B_{(r,c+1,m)}$ be the set of all sets of $m$ sentences of rank $r$ and complexity $c+1$ that do not occur in $B_{(r,c,m)}$. 
+    %   \item[\it Multiplicity:] Given $B_{(r,c,m)}$, let $B_{(r,c,m+1)}$ be the set of all sets of $m+1$ sentences of rank $r$ and complexity $c$ that do not occur in $B_{(r,c,m)}$.
+    % \end{itemize}
+  % \item[\it Aggregate:] In running the model checker on all sentences, we may begin with the list for $r=1$ moving up in complexity before moving to $r=2$, etc.
+  % \item[\it Copy:] If a set of sentences can be shown to be satisfiable, we will later want to store the hash for that sentence along with the hash for the model in a new list of falsifiable sentences of rank $r$. Something similar may be done if a sentence with rank $r$ is true in a model, storing the ordered pair of hashes in a list of satisfiable sentences of rank $r$. 
+  % \item[\it Summary:] We will need a separate list of sentences for at least each pair $\tuple{r,c}$, as well as a list of hash codes for each  ordered by complexity of the corresponding sentence. Once we start evaluating sentences at models, new lists will need to be created to record the findings.
+\end{enumerate}
+
+
+
+
+
+
+\section{Finite Atomic Frames}
+
+We now turn to define, generate, and store frames of increasing complexity.
+For simplicity, we may restrict to finite atomic frames. % where states may be identified with sets of atoms.
+% Consideration should be given to the simplicity, compatibility, and extendability of the definitions provided.
+
+\begin{enumerate}
+  \item[\it Atoms:] Let the natural numbers be the atoms where the set $A_n$ includes the first $n$ natural numbers.
+  \item[\it States:] Let $S_n$ be the power set of $A_n$ where the empty set is called the \textit{null state} and subset inclusion is called \textit{parthood}.
+  \item[\it Atomic Frames:] A finite atomic $n$-frame $\tuple{A_n,P}$ is said to be of order $n$ and consists of a set of atoms $A_n$ and a nonempty set of possible states $P\subseteq S_n$ where $P$ is required to include every part of every state in $P$.
+  \item[\it Compatible:] Given an $n$-frame, the states $s$ and $t$ are compatible--- i.e. $s\circ t$--- just in case their fusion (i.e., their union) is possible (i.e., a member of $P$).
+  \item[\it World States:] Given an $n$-frame, we may construct a set $W$ of maximal possible states, or world states. A world state is any possible state $w$ where every state $t$ that is compatible with $w$ is part of $w$. Each $n$-frame determines a unique set of world states $W$.
+  \item[\it Exhaustive:] Given an $n$-frame, the pair $\tuple{V,F}$ of sets of states $V,F\subseteq S$ is exhaustive just in case every $s\in P$ is compatible with a state $t$ in either $V$ or $F$. 
+  \item[\it Exclusive:] Given an $n$-frame, a pair $\tuple{V,F}$ of sets of states $V,F\subseteq S$ is exclusive just in case the states in $V$ are incompatible with the states in $F$. 
+  \item[\it Closed:] A set of states $X$ is closed just in case the fusion $\bigsqcup Y\in X$ for every $Y\subseteq X$. That is, given any states in $X$, their union is also a state in $X$.
+  \item[\it Propositions:] Given an $n$-frame, a proposition is an ordered pair $\tuple{V,F}$ of closed sets of states $V,F\subseteq S$ where $\tuple{V,F}$ is exhaustive and exclusive. Each $n$-frame determines a unique set of propositions $\P$ in that frame. 
+  \item[\it Order:] Given an $n$-frame $\tuple{A_n,P}$, the cardinality of $P$ is the possibility $p$ of the frame. Thus for each value of $n$, we may generate and store a list of all $n$-frames ordered by their possibility. Each $n$-frame should be given an hash and stored together with the set of states $S$, set of world states $W$, and set of propositions $\P$ that it determines.
+  \item[\it Bypass:] As above, each $n$-frame should be stored with a bypass parameter that can be turned on if later deemed to be uninteresting.
+  % \item[\it Summary:] Each atomic number $n$ will generate a list of $n$-frames ordered by possibility $p$, where these $n$-frames are to be stored together with the states $S$, worlds states $W$, and propositions $\P$ that they determine together with a hash and a bypass parameter. 
+\end{enumerate}
+
+
+
+
+\section{The Space of Models}
+
+Develop a method for generating and storing models for each sentence.
+
+\begin{enumerate}
+  \item[\it Model:] An $r$-model over an $n$-frame is any $\M^r_n=\tuple{A_n,P,\vert{\cdot}}$ where $\tuple{A_n,P}$ is an $n$-frame, $\P$ is the space of propositions in that $n$-frame, and $\vert{\cdot}$ assigns the sentence letters in $\L_r$ to propositions in $\P$.
+  \item[\it Propositional Operators:] We may then define the following operators:
+    \begin{itemize}
+      \item[($\otimes$)] $X \otimes Y \coloneq \set{s.t : s \in X,\ t \in Y}$.
+      \item[($\oplus$)] $X \oplus Y \coloneq X \cup Y \cup (X \otimes Y)$.
+      \item[($\neg$)] $\neg\tuple{V,F} \coloneq \tuple{F,V}$.
+      \item[($\wedge$)] $\tuple{V,F}\wedge\tuple{V',F'} \coloneq \tuple{V\otimes V',F\oplus F'}$.
+      \item[($\vee$)] $\tuple{V,F}\vee\tuple{V',F'} \coloneq \tuple{V\oplus V',F\otimes F'}$.
+    \end{itemize}
+    % These definitions provide operations on the space of propositions.
+  \item[\it Extensional Semantics:] Every $r$-model over an $n$-frame determines a unique proposition for the extensional sentences of rank $r$ by way of the following semantics: 
+    \begin{itemize}
+      \item[($\neg$)] $\vert{\neg\varphi}=\neg\vert{\varphi}$.
+      \item[($\wedge$)] $\vert{\varphi\wedge\psi}=\vert{\varphi}\wedge\vert{\psi}$.
+      \item[($\vee$)] $\vert{\varphi\vee\psi}=\vert{\varphi}\vee\vert{\psi}$.
+    \end{itemize}
+    The clauses above assign all extensional sentences to propositions.
+  \item[\it Compatible Parts:] Given a world state $w$ together with any other state $s$, we may consider the set of maximal parts of $w$ which are compatible with $s$:\\ 
+    $(w)_s\coloneq \set{t\sqsubseteq w:t\circ s \wedge \forall r\sqsubseteq w((r\circ s \wedge t \sqsubseteq r) \rightarrow t = r)}$.
+  \item[\it Minimal Changes] Given a proposition $\tuple{V,F}$, we may define the set of all world states that result from minimally changing $w$ to include a state $s\in V$:\\ 
+      $\tuple{V,F}^w\coloneq \set{w'\in W:\exists s\in V\exists t\in(w)_s(s.t\sqsubseteq w')}$.
+  \item[\it Counterfactual Semantics:] All sentences may then be evaluated for truth at world-model pairs where we assume the notation $\vert{\varphi}=\tuple{\vert{\varphi}^+,\vert{\varphi}^-}$:
+    \begin{itemize}
+      \item[] $\M, w \vDash p_i$ \textit{iff} there is some $s \sqsubseteq w$ where $s \in \vert{p_i}^+$.
+      \item[] $\M, w \vDash \neg A$ \textit{iff} $\M, w \nvDash A$.
+      \item[] $\M, w \vDash A \wedge B$ \textit{iff} $\M, w \vDash A$ and $\M, w \vDash B$.
+      \item[] $\M, w \vDash A \vee B$ \textit{iff} $\M, w \vDash A$ or $\M, w \vDash B$.
+      \item[] $\M, w \vDash \varphi\boxright C$ \textit{iff} $\M, w' \vDash C$ whenever $w'\in\Vert{\varphi}^w$.
+    \end{itemize}
+    We may read `$\M, w \vDash \varphi$' as `$\varphi$ is true in $w$ on $\M$'.
+  \item[\it Satisfaction:] A world-model pair satisfies a set of sentences $\Gamma$ just in case every sentence in $\Gamma$ is true in that world on that model.
+  \item[\it Unsatisfiable:] A set of sentences $\Gamma$ is satisfiable in an $n$-frame just in case there is a world-model pair that satisfies $\Gamma$, and is unsatisfiable otherwise.
+    % A world-model pair satisfies a sentence just in case it satisfies its singleton.
+  \item[\it $n$-Entailment:] $\Gamma \vDash^n \varphi$ just in case $\Gamma\cup\set{\neg\varphi}$ is unsatisfiable in all $n$-frames. 
+  % \item[\it Reduction:] Given a set of sentences $\Gamma$, we may consider the set of sentence letters $\Gamma_0$ that the sentences in $\Gamma$ contain, calling this $\Gamma$'s reduction. 
+  % \item[\it Restriction:] Given an $n$-frame, we may restrict consideration to the models which assign the sentence letters in $\Gamma_0$ to propositions defined over the frame. This will be a comparatively small set
+\end{enumerate}
+
+\noindent
+When $n$ is small, the number of states, $n$-frames, propositions, and world-states will be small.
+When $r$ is small, the space of models will be small.
+
+
+
+
+\section{Model Checker}
+
+This part aims to construct an efficient method for evaluating individual sets of sentences for unsatisfiability that are specifically provided, as well as constructing a search procedure for evaluating all sets of sentences for unsatisfiability, appropriately recording these findings.
+
+\begin{enumerate}
+  \item[\it Checker:] Given a set of sentences $\Gamma$ and order $n$ provided by the user, construct a method for evaluating the satisfiability of $\Gamma$ by determining its rank and searching the space of models over all $k$-frames for $k\leq n$.
+  % \item[\it Stages:] The checker should proceed in stages, checking all models over the $1$-frames before proceeding to the $2$-frames and so on up to some specified limit $n$.
+  \item[\it Exhaustive:] Search the space of all $k$-models for $k\leq n$ to see which satisfies $\Gamma$, storing those models in an output file which includes $\Gamma$. 
+  \item[\it Incremental:] Search the space of all $k$-models for $k\leq n$ to see which satisfies $\Gamma$ first, storing that model in an output file which includes $\Gamma$ and prompting the user whether to halt, continue searching for the next model that satisfies $\Gamma$ and updating the output file, or else to conduct an exhaustive search of the space of $k$-models that satisfy $\Gamma$ for $k\leq n$.
+  \item[\it Search:] For rank $r$, complexity $c$, multiplicity $m$, and order $n$, we may seek to determine which sets of $m$ sentences of rank $r$ and complexity $c$ are unsatisfiable over all $k$-frames for $k\leq n$. If a $(r,c,m)$-set of sentences $\Gamma$ is not satisfied by a model, store the hash for that model in the falsifier list for $\Gamma$ and continue searching for a model that satisfies $\Gamma$. If a model is found to satisfy $\Gamma$, store the hash for the model in question in the verifier list for $\Gamma$ and move to check the next set of sentences. If no model is found to satisfy $\Gamma$, store the hash for $\Gamma$ in a list of unsatisfiable sets of sentences and move to check the next set of sentences. 
+  \item[\it Logic:] The unsatisfiable sets of sentences determine the $n$-entailments which may then be fed into a theorem prover. If no proof is found within time $t$, we may check the $n$-entailment for validity by hand. If valid, the $n$-entailment may be added to the basic rules for the logic.
+\end{enumerate}
+
+
+
+\section{Representations}
+
+Organise and print findings provided by the model checker as well as means of graphically representing models for satisfiable sets of interest.
+
+  % \begin{enumerate}
+  % \item If a sentence is false at a model, the sentence should be moved to a list of invalid sentences where the hash of the associated model is included 
+  % \end{enumerate}
+
+
+
+% \section{Representations}
+
+
+
+% \vfill
+%
+% \bibliographystyle{Phil_Review} %%bib style found in bst folder, in bibtex folder, in texmf folder.
+% \nobibliography{Zotero} %%bib database found in bib folder, in bibtex folder
+
+
+\end{document}
