@@ -32,8 +32,9 @@
 \newcommand{\interpret}[1]{\llbracket#1\rrbracket} %%Double brackets
 \renewcommand{\P}[0]{\mathbb{P}}
 \renewcommand{\max}[0]{\texttt{Max}}
-\renewcommand{\L}[0]{\mathbb{L}}
+\newcommand{\Lit}[0]{\mathbb{Lit}}
 \newcommand{\M}[0]{\mathcal{M}}
+\renewcommand{\L}[0]{\mathcal{L}}
 \newcommand{\N}[0]{\mathbb{N}}
 \renewcommand{\O}[0]{\mathbb{O}}
 \renewcommand{\Vert}[1]{\ldbrack#1\rdbrack}
@@ -98,26 +99,25 @@ Settling the details given below constitutes the first part of the project, thou
 
 
 
-\section{Bitvector Models}
+\section{Bitvector Frames}
 
-In order to draw on the power of Z3, a state of the art SMT solver, this section will define bitvector models of complexity $n$ in terms of \textit{bitvectors} which are included as a primitive type in Z3.
+In order to draw on the power of Z3, a state of the art SMT solver, this section will define frames of complexity $n$ in terms of \textit{bitvectors} which are included as a primitive type in Z3.
 
 \begin{enumerate}
   \item[\it States:] A $n$-\textit{state} $s=\tuple{s_1,\ldots,s_n}$ is any sequence of 1s and 0s of length $n$.
+  % \item[\it Atomic States:] A state which includes exactly one occurrence of 1 may be said to be \textit{atomic} where this corresponds to some specific way of being, e.g., the cat is on the mat, the ball weighs 20g, or .
   \item[\it Parthood:] An $n$-state $s$ is \textit{part of} an $n$-state $t$ (i.e., $s\sqsubseteq t$) \textit{iff} $s_i\leq t_i$ for all $1\leq i\leq n$.
-  \item[\it Fusion:] Letting $X$ be any set of $n$-states and $\max_i(X)=\max(\set{s_i:s\in X})$ be the greatest value of the $i$\textsuperscript{th} entry of the members of $X$, the \textit{fusion} $\bigsqcup X=\tuple{\max_1(X),\ldots,\max_n(X)}$ is the largest entry for each state in $X$.
-  \item[\it Notation:] We may represent $\bigsqcup\set{s,t,\ldots}=s.t.\ldots$ for ease of exposition.
+  \item[\it Fusion:] Letting $X$ be a set of $n$-states and $\max_i(X)=\max(\set{s_i:s\in X})$ be the maximum of the $i$\textsuperscript{th} entries, the \textit{fusion} $\bigsqcup X=\tuple{\max_1(X),\ldots,\max_n(X)}$ includes the maximum entry for each of the states in $X$.
+    We may represent the fusion $\bigsqcup\set{s,t,\ldots}=s.t.\ldots$ for ease of exposition.
   \item[\it State Space:] A set of $n$-states $S$ forms a \textit{state space iff} $\bigsqcup X\in S$ for all $X\subseteq S$.
   \item[\it Possible:] $\tuple{S,P}$ is a \textit{modal $n$-frame iff} $S$ is a state space and $P\subseteq S$ is a nonempty set of \textit{possible states} where $s\in P$ whenever $s\sqsubseteq t$ for some $t\in P$.
   \item[\it Compatible:] $s$ and $t$ are \textit{compatible iff} their fusion is possible, i.e., $s\circ t\coloneq s.t\in P$.
   \item[\it World States:] $w$ is a \textit{world state} over the $n$-frame $\tuple{S,P}$ \textit{iff} $w$ is possible and every state $t$ that is compatible with $w$ is part of $w$. Thus each $n$-frame determines a set of world states $W=\set{w\in P: s\sqsubseteq w \text{ whenever } s\circ w}$.
-  \item[\it Exhaustive:] $V,F\subseteq S$ are exhaustive over the $n$-frame $\tuple{S,P}$ \textit{iff} every $s\in P$ is compatible with a state $t$ in either $V$ or $F$.
-  \item[\it Exclusive:] $V,F\subseteq S$ are exclusive over the $n$-frame $\tuple{S,P}$ \textit{iff} the states in $V$ are incompatible with the states in $F$.
+  \item[\it Exhaustive:] $V,F\subseteq S$ are \textit{exhaustive} over the $n$-frame $\tuple{S,P}$ \textit{iff} every $s\in P$ is compatible with a state $t$ in either $V$ or $F$.
+  \item[\it Exclusive:] $V,F\subseteq S$ are \textit{exclusive} over the $n$-frame $\tuple{S,P}$ \textit{iff} the states in $V$ are incompatible with the states in $F$.
   \item[\it Closed:] $X$ is closed over a state space $S$ \textit{iff} $\bigsqcup Y\in X$ whenever $Y\subseteq X$.
   \item[\it Propositions:] $\tuple{V,F}$ is a \textit{proposition} over the $n$-frame $\tuple{S,P}$ \textit{iff} $V,F\subseteq S$ are closed, exhaustive, and exclusive.
     Let $\P_{\tuple{S,P}}$ be the propositions over $\tuple{S,P}$.
-  \item[\it Sentence Letters:] Let $\L=\set{p_i:i\in\N}$ be the set of sentence letters.
-  \item[\it Model:] $\tuple{S,P,\vert{\cdot}}$ is a \textit{bitvector $n$-model} \textit{iff} $\vert{\cdot}:\L\to\P_{\tuple{S,P}}$ maps the sentence letters in $\L$ to propositions over the $n$-frame $\tuple{S,P}$.
   % \item[\it Order:] Given an $n$-frame $\tuple{A_n,P}$, the cardinality of $P$ is the possibility $p$ of the frame. Thus for each value of $n$, we may generate and store a list of all $n$-frames ordered by their possibility. Each $n$-frame should be given an hash and stored together with the set of states $S$, set of world states $W$, and set of propositions $\P$ that it determines.
   % \item[\it Bypass:] As above, each $n$-frame should be stored with a bypass parameter that can be turned on if later deemed to be uninteresting.
   % \item[\it Summary:] Each atomic number $n$ will generate a list of $n$-frames ordered by possibility $p$, where these $n$-frames are to be stored together with the states $S$, worlds states $W$, and propositions $\P$ that they determine together with a hash and a bypass parameter. 
@@ -126,11 +126,12 @@ In order to draw on the power of Z3, a state of the art SMT solver, this section
 
 
 
-\section{The Space of Models}
+\section{Semantics}
 
-Develop a method for generating and storing models for each sentence.
+This section defines $n$-models in terms of $n$-frames, providing the semantics for a propositional language with a counterfactual conditional operator.
 
 \begin{enumerate}
+  \item[\it Model:] Letting $\Lit=\set{p_i:i\in\N}$ be the set of sentence letters, $\tuple{S,P,\vert{\cdot}}$ is a \textit{bitvector $n$-model} \textit{iff} $\tuple{S,P}$ is an $n$-frame and $\vert{\cdot}:\L\to\P_{\tuple{S,P}}$ is a function mapping the sentence letters in $\Lit$ to propositions in $\P_{\tuple{S,P}}$.
   \item[\it Propositional Operators:] We may then define the following operators:
     \begin{itemize}
       \item[($\otimes$)] $X \otimes Y \coloneq \set{s.t : s \in X,\ t \in Y}$.
@@ -140,37 +141,37 @@ Develop a method for generating and storing models for each sentence.
       \item[($\vee$)] $\tuple{V,F}\vee\tuple{V',F'} \coloneq \tuple{V\oplus V',F\otimes F'}$.
     \end{itemize}
     % These definitions provide operations on the space of propositions.
-  \item[\it Extensional Semantics:] Every $r$-model over an $n$-frame determines a unique proposition for the extensional sentences of rank $r$ by way of the following semantics: 
+  \item[\it Extensional Semantics:] Letting $\L=\tuple{\Lit,\neg,\wedge,\vee}$ be an extensional language, every $n$-model over an $n$-frame determines a unique proposition for the extensional sentences $\varphi$ and $\psi$ of $\L$ by way of the following semantics: 
     \begin{itemize}
       \item[($\neg$)] $\vert{\neg\varphi}=\neg\vert{\varphi}$.
       \item[($\wedge$)] $\vert{\varphi\wedge\psi}=\vert{\varphi}\wedge\vert{\psi}$.
       \item[($\vee$)] $\vert{\varphi\vee\psi}=\vert{\varphi}\vee\vert{\psi}$.
     \end{itemize}
-    The clauses above assign all extensional sentences to propositions.
+    % The clauses above assign all extensional sentences to propositions.
   \item[\it Compatible Parts:] Given a world state $w$ together with any other state $s$, we may consider the set of maximal parts of $w$ which are compatible with $s$:\\ 
     $(w)_s\coloneq \set{t\sqsubseteq w:t\circ s \wedge \forall r\sqsubseteq w((r\circ s \wedge t \sqsubseteq r) \rightarrow t = r)}$.
   \item[\it Minimal Changes] Given a proposition $\tuple{V,F}$, we may define the set of all world states that result from minimally changing $w$ to include a state $s\in V$:\\ 
       $\tuple{V,F}^w\coloneq \set{w'\in W:\exists s\in V\exists t\in(w)_s(s.t\sqsubseteq w')}$.
-  \item[\it Counterfactual Semantics:] All sentences may then be evaluated for truth at world-model pairs where we assume the notation $\vert{\varphi}=\tuple{\vert{\varphi}^+,\vert{\varphi}^-}$:
+  \item[\it Counterfactual Semantics:] Letting $\L^+=\tuple{\L,\neg,\wedge,\vee,\boxright}$ be a counterfactual language, sentences $A$, $B$, and $C$ may be evaluated for truth at an $n$-model $\M$ together with a world $w$ where we assume the notation $\vert{\varphi}=\tuple{\vert{\varphi}^+,\vert{\varphi}^-}$:
     \begin{itemize}
       \item[] $\M, w \vDash p_i$ \textit{iff} there is some $s \sqsubseteq w$ where $s \in \vert{p_i}^+$.
       \item[] $\M, w \vDash \neg A$ \textit{iff} $\M, w \nvDash A$.
       \item[] $\M, w \vDash A \wedge B$ \textit{iff} $\M, w \vDash A$ and $\M, w \vDash B$.
       \item[] $\M, w \vDash A \vee B$ \textit{iff} $\M, w \vDash A$ or $\M, w \vDash B$.
-      \item[] $\M, w \vDash \varphi\boxright C$ \textit{iff} $\M, w' \vDash C$ whenever $w'\in\Vert{\varphi}^w$.
+      \item[] $\M, w \vDash \varphi\boxright C$ \textit{iff} $\M, w' \vDash C$ whenever $w'\in\vert{\varphi}^w$.
     \end{itemize}
     We may read `$\M, w \vDash \varphi$' as `$\varphi$ is true in $w$ on $\M$'.
-  \item[\it Satisfaction:] A world-model pair satisfies a set of sentences $\Gamma$ just in case every sentence in $\Gamma$ is true in that world on that model.
-  \item[\it Unsatisfiable:] A set of sentences $\Gamma$ is satisfiable in an $n$-frame just in case there is a world-model pair that satisfies $\Gamma$, and is unsatisfiable otherwise.
+  \item[\it Satisfaction:] A world-model pair \textit{satisfies} a set of sentences $\Gamma$ just in case every sentence in $\Gamma$ is true in that world on that model.
+  \item[\it Unsatisfiable:] A set of sentences $\Gamma$ is $n$-\textit{satisfiable} just in case there is a $n$-model $\M$ and world $w$ that satisfies $\Gamma$, and $n$-\textit{unsatisfiable} otherwise.
     % A world-model pair satisfies a sentence just in case it satisfies its singleton.
-  \item[\it $n$-Entailment:] $\Gamma \vDash^n \varphi$ just in case $\Gamma\cup\set{\neg\varphi}$ is unsatisfiable in all $n$-frames. 
+  \item[\it $n$-Entailment:] $\Gamma \vDash^n \varphi$ \textit{iff} $\Gamma\cup\set{\neg\varphi}$ is $n$-unsatisfiable. 
   % \item[\it Reduction:] Given a set of sentences $\Gamma$, we may consider the set of sentence letters $\Gamma_0$ that the sentences in $\Gamma$ contain, calling this $\Gamma$'s reduction. 
   % \item[\it Restriction:] Given an $n$-frame, we may restrict consideration to the models which assign the sentence letters in $\Gamma_0$ to propositions defined over the frame. This will be a comparatively small set
 \end{enumerate}
 
-\noindent
-When $n$ is small, the number of states, $n$-frames, propositions, and world-states will be small.
-When $r$ is small, the space of models will be small.
+% \noindent
+% When $n$ is small, the number of states, $n$-frames, propositions, and world-states will be small.
+% When $r$ is small, the space of models will be small.
 
 
 
