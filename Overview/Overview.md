@@ -191,7 +191,7 @@ $n$-unsatisfiability.
         $n$-satisfiable, check to see if an entry exists in `rank-r`. If
         there is an entry for $\Gamma$ with order number $m\geq n$, then
         return 'unsatisfiable' and halt. If there is an entry for
-        $\Gamma$ with order number $m<n$, then check for satisfiable
+        $\Gamma$ with order number $m < n$, then check for satisfiable
         models of order $k$ for $m\leq k\leq n$. If there is no entry
         for $\Gamma$, then proceed to check whether $\Gamma$ is
         $n$-unsatisfiable.
