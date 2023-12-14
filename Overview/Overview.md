@@ -1,6 +1,5 @@
-::: flushright
-\
-:::
+# Counterfactual Models
+
 
 **Overview:** This is a preliminary outline describing the scope of the
 project, not all of which would have to be completed, but nevertheless
@@ -51,7 +50,7 @@ which are included as a primitive type in Z3.
     $s\in P$ whenever $s\sqsubseteq t$ for some $t\in P$.
 
 6.  $s$ and $t$ are *compatible iff* their fusion is possible, i.e.,
-    $s\circ t\coloneq s.t\in P$.
+    $s\circ = s.t\in P$.
 
 7.  $w$ is a *world state* over the $n$-frame $\langle S,P\rangle$ *iff*
     $w$ is possible and every state $t$ that is compatible with $w$ is
@@ -89,15 +88,15 @@ operator.
 
 2.  We may then define the following operators:
 
-    -   $X \otimes Y \coloneq \lbrace s.t : s \in X,\ t \in Y\rbrace$.
+    -   $X \otimes Y = \lbrace s.t : s \in X,\ t \in Y\rbrace$.
 
-    -   $X \oplus Y \coloneq X \cup Y \cup (X \otimes Y)$.
+    -   $X \oplus Y = X \cup Y \cup (X \otimes Y)$.
 
-    -   $\neg\langle V,F\rangle \coloneq \langle F,V\rangle$.
+    -   $\neg\langle V,F\rangle = \langle F,V\rangle$.
 
-    -   $\langle V,F\rangle\wedge\langle V',F'\rangle \coloneq \langle V\otimes V',F\oplus F'\rangle$.
+    -   $\langle V,F\rangle\wedge\langle V',F'\rangle = \langle V\otimes V',F\oplus F'\rangle$.
 
-    -   $\langle V,F\rangle\vee\langle V',F'\rangle \coloneq \langle V\oplus V',F\otimes F'\rangle$.
+    -   $\langle V,F\rangle\vee\langle V',F'\rangle = \langle V\oplus V',F\otimes F'\rangle$.
 
 3.  Letting $\mathcal{L}=\langle\mathbb{Lit},\neg,\wedge,\vee\rangle$ be
     an extensional language, every $n$-model over an $n$-frame
@@ -114,15 +113,15 @@ operator.
 4.  Given a world state $w$ together with any other state $s$, we may
     consider the set of maximal parts of $w$ which are compatible with
     $s$:\
-    $(w)_s\coloneq \lbrace t\sqsubseteq w:t\circ s \wedge \forall r\sqsubseteq w((r\circ s \wedge t \sqsubseteq r) \rightarrow t = r)\rbrace$.
+    = \lbrace t\sqsubseteq w:t\circ s \wedge \forall r\sqsubseteq w((r\circ s \wedge t \sqsubseteq r) \rightarrow t = r)\rbrace$.
 
 5.  Given a proposition $\langle V,F\rangle$, we may define the set of
     all world states that result from minimally changing $w$ to include
     a state $s\in V$:\
-    $\langle V,F\rangle^w\coloneq \lbrace w'\in W:\exists s\in V\exists t\in(w)_s(s.t\sqsubseteq w')\rbrace$.
+    $\langle = \lbrace w'\in W:\exists s\in V\exists t\in(w)_s(s.t\sqsubseteq w')\rbrace$.
 
 6.  Letting
-    $\mathcal{L}^+=\langle\mathcal{L},\neg,\wedge,\vee,\boxright\rangle$
+    $\mathcal{L}^+=\langle\mathcal{L},\neg,\wedge,\vee,\Rightarrow\rangle$
     be a counterfactual language, sentences $A$, $B$, and $C$ may be
     evaluated for truth at an $n$-model $\mathcal{M}$ together with a
     world $w$ where we assume the notation
@@ -139,7 +138,7 @@ operator.
     -   $\mathcal{M}, w \vDash A \vee B$ *iff* $\mathcal{M}, w \vDash A$
         or $\mathcal{M}, w \vDash B$.
 
-    -   $\mathcal{M}, w \vDash \varphi\boxright C$ *iff*
+    -   $\mathcal{M}, w \vDash \varphi\Rightarrow C$ *iff*
         $\mathcal{M}, w' \vDash C$ whenever
         $w'\in\lvert\varphi\rvert^w$.
 
@@ -167,7 +166,7 @@ $n$-unsatisfiability.
     are constructed from the sentence letters $\mathbb{Lit}$ together
     with the extensional operators $\neg,\wedge,$ and $\vee$. (2)
     Counterfactual sentences are constructed from the extensional
-    sentences together with $\neg,\wedge,\vee,$ and $\boxright$.
+    sentences together with $\neg,\wedge,\vee,$ and $\Rightarrow$.
 
 3.  Sentence complexity is measured by the number of operators and sets
     of sentences are measured by the sum of the complexity of its
@@ -204,7 +203,7 @@ $n$-unsatisfiability.
 6.  If $\Gamma$ is found to be $n$-unsatisfiable, create an entry for
     $\Gamma$ in `rank-r` if none exists and store $n$ alongside
     $\Gamma$. If there is an entry for $\Gamma$ in `rank-r`, replace the
-    stored model order number $m$ with $n$ if $n>m$.
+    stored model order number $m$ with $n$ if $n > m$.
 
 # Ordered Sentences
 
@@ -214,7 +213,7 @@ TODO: continue revisions
     $\mathcal{L}_i=\lbrace p_j:j\in\mathbb{N}\text{ and } j\leq i\rbrace$
     be the set of the first $i$ sentence letters.
 
-2.  Let $\mathbb{O}=\lbrace\neg,\wedge,\vee,\boxright\rbrace$ be the set
+2.  Let $\mathbb{O}=\lbrace\neg,\wedge,\vee,\Rightarrow\rbrace$ be the set
     of primitive operators.
 
 3.  The well-formed sentences of a language with counterfactual and
