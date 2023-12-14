@@ -79,11 +79,11 @@ This section defines $n$-models in terms of $n$-frames, providing the
 semantics for a propositional language with a counterfactual conditional
 operator.
 
-1.  Letting $\mathbb{Lit}=\lbrace p_i:i\in\mathbb{N}\rbrace$ be the set
+1.  Letting $\mathbb{L}=\lbrace p_i:i\in\mathbb{N}\rbrace$ be the set
     of sentence letters, $\langle S,P,\lvert\cdot\rvert\rangle$ is a
     *bitvector $n$-model* *iff* $\langle S,P\rangle$ is an $n$-frame and
     $\lvert\cdot\rvert:\mathcal{L}\to\mathbb{P}_{\langle S,P\rangle}$ is
-    a function mapping the sentence letters in $\mathbb{Lit}$ to
+    a function mapping the sentence letters in $\mathbb{L}$ to
     propositions in $\mathbb{P}_{\langle S,P\rangle}$.
 
 2.  We may then define the following operators:
@@ -98,7 +98,7 @@ operator.
 
     -   $\langle V,F\rangle\vee\langle V',F'\rangle = \langle V\oplus V',F\otimes F'\rangle$.
 
-3.  Letting $\mathcal{L}=\langle\mathbb{Lit},\neg,\wedge,\vee\rangle$ be
+3.  Letting $\mathcal{L}=\langle\mathbb{L},\neg,\wedge,\vee\rangle$ be
     an extensional language, every $n$-model over an $n$-frame
     determines a unique proposition for the extensional sentences
     $\varphi$ and $\psi$ of $\mathcal{L}$ by way of the following
@@ -163,7 +163,7 @@ $n$-unsatisfiability.
 1.  Choose a theorem prover to decide sentence encoding.
 
 2.  Sentences are constructed in two stages. (1) Extensional sentences
-    are constructed from the sentence letters $\mathbb{Lit}$ together
+    are constructed from the sentence letters $\mathbb{L}$ together
     with the extensional operators $\neg,\wedge,$ and $\vee$. (2)
     Counterfactual sentences are constructed from the extensional
     sentences together with $\neg,\wedge,\vee,$ and $\Rightarrow$.
