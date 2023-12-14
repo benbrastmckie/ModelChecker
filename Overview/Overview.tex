@@ -154,13 +154,13 @@ This section defines $n$-models in terms of $n$-frames, providing the semantics 
       $\tuple{V,F}^w\coloneq \set{w'\in W:\exists s\in V\exists t\in(w)_s(s.t\sqsubseteq w')}$.
   \item[\it Counterfactual Semantics:] Letting $\L^+=\tuple{\L,\neg,\wedge,\vee,\boxright}$ be a counterfactual language, sentences $A$, $B$, and $C$ may be evaluated for truth at an $n$-model $\M$ together with a world $w$ where we assume the notation $\vert{\varphi}=\tuple{\vert{\varphi}^+,\vert{\varphi}^-}$:
     \begin{itemize}
-      \item[] $\M, w \vDash p_i$ \textit{iff} there is some $s \sqsubseteq w$ where $s \in \vert{p_i}^+$.
+      \item[] $\M, w \vDash \varphi$ \textit{iff} there is some $s \sqsubseteq w$ where $s \in \vert{\varphi}^+$.
       \item[] $\M, w \vDash \neg A$ \textit{iff} $\M, w \nvDash A$.
       \item[] $\M, w \vDash A \wedge B$ \textit{iff} $\M, w \vDash A$ and $\M, w \vDash B$.
       \item[] $\M, w \vDash A \vee B$ \textit{iff} $\M, w \vDash A$ or $\M, w \vDash B$.
       \item[] $\M, w \vDash \varphi\boxright C$ \textit{iff} $\M, w' \vDash C$ whenever $w'\in\vert{\varphi}^w$.
     \end{itemize}
-    We may read `$\M, w \vDash \varphi$' as `$\varphi$ is true in $w$ on $\M$'.
+    We may read `$\M, w \vDash A$' as `$A$ is true in $w$ on $\M$'.
   \item[\it Satisfaction:] A world-model pair \textit{satisfies} a set of sentences $\Gamma$ just in case every sentence in $\Gamma$ is true in that world on that model.
   \item[\it Unsatisfiable:] A set of sentences $\Gamma$ is $n$-\textit{satisfiable} just in case there is a $n$-model $\M$ and world $w$ that satisfies $\Gamma$, and $n$-\textit{unsatisfiable} otherwise.
     % A world-model pair satisfies a sentence just in case it satisfies its singleton.
@@ -178,15 +178,29 @@ This section defines $n$-models in terms of $n$-frames, providing the semantics 
 
 \section{Model Checker}
 
-This part aims to construct an efficient method for evaluating individual sets of sentences for unsatisfiability that are specifically provided, as well as constructing a search procedure for evaluating all sets of sentences for unsatisfiability, appropriately recording these findings.
+% This part aims to construct an efficient method for evaluating individual sets of sentences for unsatisfiability that are specifically provided, as well as constructing a search procedure for evaluating all sets of sentences for unsatisfiability, appropriately recording these findings.
+This section aims to deploy Z3 to check sets of sentences for $n$-unsatisfiability.
 
 \begin{enumerate}
-  \item[\it Checker:] Given a set of sentences $\Gamma$ and order $n$ provided by the user, construct a method for evaluating the satisfiability of $\Gamma$ by determining its rank and searching the space of models over all $k$-frames for $k\leq n$.
-  % \item[\it Stages:] The checker should proceed in stages, checking all models over the $1$-frames before proceeding to the $2$-frames and so on up to some specified limit $n$.
-  \item[\it Exhaustive:] Search the space of all $k$-models for $k\leq n$ to see which satisfies $\Gamma$, storing those models in an output file which includes $\Gamma$. 
-  \item[\it Incremental:] Search the space of all $k$-models for $k\leq n$ to see which satisfies $\Gamma$ first, storing that model in an output file which includes $\Gamma$ and prompting the user whether to halt, continue searching for the next model that satisfies $\Gamma$ and updating the output file, or else to conduct an exhaustive search of the space of $k$-models that satisfy $\Gamma$ for $k\leq n$.
-  \item[\it Search:] For rank $r$, complexity $c$, multiplicity $m$, and order $n$, we may seek to determine which sets of $m$ sentences of rank $r$ and complexity $c$ are unsatisfiable over all $k$-frames for $k\leq n$. If a $(r,c,m)$-set of sentences $\Gamma$ is not satisfied by a model, store the hash for that model in the falsifier list for $\Gamma$ and continue searching for a model that satisfies $\Gamma$. If a model is found to satisfy $\Gamma$, store the hash for the model in question in the verifier list for $\Gamma$ and move to check the next set of sentences. If no model is found to satisfy $\Gamma$, store the hash for $\Gamma$ in a list of unsatisfiable sets of sentences and move to check the next set of sentences. 
-  \item[\it Logic:] The unsatisfiable sets of sentences determine the $n$-entailments which may then be fed into a theorem prover. If no proof is found within time $t$, we may check the $n$-entailment for validity by hand. If valid, the $n$-entailment may be added to the basic rules for the logic.
+  \item[\it Prover:] Choose a theorem prover to decide sentence encoding. 
+  \item[\it Sentences:] Sentences are constructed in two stages.
+    (1) Extensional sentences are constructed from the sentence letters $\Lit$ together with the extensional operators $\neg,\wedge,$ and $\vee$.
+    (2) Counterfactual sentences are constructed from the extensional sentences together with $\neg,\wedge,\vee,$ and $\boxright$.
+  \item[\it Complexity:] Sentence complexity is measured by the number of operators and sets of sentences are measured by the sum of the complexity of its members.
+  % \item[\it Cardinality:] Sets of sentences are ranked by their cardinality.
+  \item[\it Checker:] Given a set of $r$ sentences $\Gamma$ and model order $n$, use Z3 to evaluate whether $\Gamma$ is $n$-satisfiable, storing all models that satisfy $\Gamma$ by updating a global file \texttt{rank-r} to record findings.
+    \begin{itemize}
+      \item Let \texttt{rank-r} be a file which begins empty and is updated to include entries for the sets of $r$ sentences that have been checked so far where entries are ordered according to their complexity.
+      \item Entries in \texttt{rank-r} should include: (1) a set of $r$ sentences $\Gamma$; (2) a model order number $n$ with a default value of 0; and (3) a table of countermodels organised by order if any.
+      \item Before checking whether a set of $r$ sentences $\Gamma$ is $n$-satisfiable, check to see if an entry exists in \texttt{rank-r}. If there is an entry for $\Gamma$ with order number $m\geq n$, then return `unsatisfiable' and halt. If there is an entry for $\Gamma$ with order number $m<n$, then check for satisfiable models of order $k$ for $m\leq k\leq n$. If there is no entry for $\Gamma$, then proceed to check whether $\Gamma$ is $n$-unsatisfiable. 
+    \end{itemize}
+  \item[\it Satisfiable:] If $\M$ is an $n$-model that has been found to satisfy the set of $r$ sentences $\Gamma$, store $\M$ in a new entry in \texttt{rank-r} if an entry for $\Gamma$ does not already exist, and otherwise add $\M$ to the entry in \texttt{rank-r} for $\Gamma$.
+  \item[\it Unsatisfiable:] If $\Gamma$ is found to be $n$-unsatisfiable, create an entry for $\Gamma$ in \texttt{rank-r} if none exists and store $n$ alongside $\Gamma$. If there is an entry for $\Gamma$ in \texttt{rank-r}, replace the stored model order number $m$ with $n$ if $n>m$.
+  % % \item[\it Stages:] The checker should proceed in stages, checking all models over the $1$-frames before proceeding to the $2$-frames and so on up to some specified limit $n$.
+  % \item[\it Exhaustive:] Search the space of all $k$-models for $k\leq n$ to see which satisfies $\Gamma$, storing those models in an output file which includes $\Gamma$. 
+  % \item[\it Incremental:] Search the space of all $k$-models for $k\leq n$ to see which satisfies $\Gamma$ first, storing that model in an output file which includes $\Gamma$ and prompting the user whether to halt, continue searching for the next model that satisfies $\Gamma$ and updating the output file, or else to conduct an exhaustive search of the space of $k$-models that satisfy $\Gamma$ for $k\leq n$.
+  % \item[\it Search:] For rank $r$, complexity $c$, multiplicity $m$, and order $n$, we may seek to determine which sets of $m$ sentences of rank $r$ and complexity $c$ are unsatisfiable over all $k$-frames for $k\leq n$. If a $(r,c,m)$-set of sentences $\Gamma$ is not satisfied by a model, store the hash for that model in the falsifier list for $\Gamma$ and continue searching for a model that satisfies $\Gamma$. If a model is found to satisfy $\Gamma$, store the hash for the model in question in the verifier list for $\Gamma$ and move to check the next set of sentences. If no model is found to satisfy $\Gamma$, store the hash for $\Gamma$ in a list of unsatisfiable sets of sentences and move to check the next set of sentences. 
+  % \item[\it Logic:] The unsatisfiable sets of sentences determine the $n$-entailments which may then be fed into a theorem prover. If no proof is found within time $t$, we may check the $n$-entailment for validity by hand. If valid, the $n$-entailment may be added to the basic rules for the logic.
 \end{enumerate}
 
 
