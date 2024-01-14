@@ -1,5 +1,6 @@
 # Counterfactual Models
 UROP: Miguel Buitrago
+
 Sponsor: Benjamin Brast-McKie
 
 **Overview:** This is a preliminary outline describing the scope of the
@@ -136,7 +137,7 @@ operator.
     for the extensional sentences $\varphi$ and $\psi$ of $\mathcal{L}$
     by way of the following semantics:
 
-    -   $\lvert p\rvert=\ldbrack p\rdbrack$ if $p\in\mathbb{Lit}_n$.
+    -   $\lvert p\rvert=\lbrack p\rdbrack$ if $p\in\mathbb{Lit}_n$.
 
     -   $\lvert\langle\neg,\varphi\rangle\rvert=\neg\lvert\varphi\rvert$.
 
