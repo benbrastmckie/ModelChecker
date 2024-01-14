@@ -1,10 +1,8 @@
-::: flushright
 # Counterfactual Models
 UROP: Miguel Buitrago
-Benjamin Brast-McKie
-:::
+Sponsor: Benjamin Brast-McKie
 
-**Overview:** This is a preliminary outline describing the scope of the
+*Overview:** This is a preliminary outline describing the scope of the
 project and providing a sense of what motivates the construction. The
 primary aim of the project is to use Z3 to evaluate entailments between
 counterfactual claims up to some limit in model complexity, providing
