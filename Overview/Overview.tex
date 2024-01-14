@@ -33,8 +33,10 @@
 \renewcommand{\P}[0]{\mathbb{P}}
 \renewcommand{\max}[0]{\texttt{Max}}
 \newcommand{\Lit}[0]{\mathbb{Lit}}
+\newcommand{\arity}[1]{\texttt{Arity}(#1)}
 \newcommand{\M}[0]{\mathcal{M}}
 \renewcommand{\L}[0]{\mathcal{L}}
+\newcommand{\Q}[0]{\mathcal{Q}}
 \newcommand{\N}[0]{\mathbb{N}}
 \renewcommand{\O}[0]{\mathbb{O}}
 \renewcommand{\Vert}[1]{\ldbrack#1\rdbrack}
@@ -54,7 +56,7 @@
 {\@author} % Author name
 \\\@date % Date
 
-\vspace{30pt} % Some vertical space between the author block and abstract
+\vspace{10pt} % Some vertical space between the author block and abstract
 \end{flushright}
 }
 
@@ -84,12 +86,12 @@
 
 \noindent
 \textbf{Overview:} 
-This is a preliminary outline describing the scope of the project, not all of which would have to be completed, but nevertheless provides a sense of what motivates the construction.
-A first aim is to provide a means by which to effectively evaluate entailments between counterfactual claims up to some limit in model complexity, providing countermodels when they exist.
-If an entailment does not have any countermodels below a specified value of complexity, there is good reason to belief that the entailment is of interest and is likely to be valid over the space of all models.
+This is a preliminary outline describing the scope of the project and providing a sense of what motivates the construction.
+The primary aim of the project is to use Z3 to evaluate entailments between counterfactual claims up to some limit in model complexity, providing countermodels when they exist.
+By ruling out countermodels up to a specified level of complexity, we may provide evidence that the entailment of interest is valid over all models.
 A second aim is to provide a method for identifying all entailments up to a specified level of syntactic complexity that do not admit countermodels below a specified value for model complexity.
-These entailments may then serve as the basis upon which to identify a logic corresponding to the semantics.
-A third aim is to connect a theorem prover in order identify a minimal set of axioms from which all other valid entailments may be derived.
+The entailments within the specified value of syntactic complexity may then serve as the basis upon which to identify a logic for the language.
+A third and final aim is to adequately document the project, taking steps towards generalising the methodology so that a user could investigate the logic for a language by defining its models and semantic clauses. 
 
 A preliminary outline for each part will be provided below and is subject to change.
 Settling the details given below constitutes the first part of the project, though these details may continue to change throughout.
@@ -99,9 +101,27 @@ Settling the details given below constitutes the first part of the project, thou
 
 
 
+\section{Sentence Encoding}
+
+% It will be important to fix a syntax for the propositional language $\L$ in question.
+% To avoid reinventing the wheel, some investigation should be conducted to see if there are standard ways to encode propositional sentences.
+The following definitions will use \textit{bitvectors} to encode the propositional sentences for a language which includes $n$ distinct sentence letters.
+
+\begin{enumerate}
+  \item[\it Signature:] The language is specified by providing a list of operators $\Q=\tuple{Q_1,Q_2,\ldots}$ where each $Q_i$ has a finite arity given by $\arity{Q_i}$.
+  \item[\it Language:] Let $\Lit_n=\set{i:1\leq i\leq n}$ be the first $n$ \textit{sentence letters} and $\L_n=\tuple{\Lit_n,\Q}$ be a propositional language of \textit{rank} $n$ with operators $\Q$.
+  \item[\it Grammar:] We may encode the sentences of $\L_n$ in Polish notation as follows:
+    \begin{itemize}
+      \item If $A\in\Lit_n$, then $\tuple{A}$ is a sentence of $\L_n$.
+      \item If $\arity{Q}=k$ and $B_i$ is a sentence of $\L_n$ for each $1\leq i\leq k$, then $\tuple{Q,B_1,\ldots,B_k}$ is a sentence of $\L_n$.
+    \end{itemize}
+  \item[\it Translation:] It would be convenient have an algorithm for translating sentences from standard notation into bitvector notation so that $( 1 \vee 2 ) \boxright 3$ can be transformed back and forth with $\tuple{\boxright, \tuple{\vee, \tuple{1}, \tuple{2}}, \tuple{3}}$.
+  % \item[\it Complexity:] It will also be important to have an algorithm for computing the complexity of the sentences of $\L_n$
+\end{enumerate}
+
 \section{Bitvector Frames}
 
-In order to draw on the power of Z3, a state of the art SMT solver, this section will define frames of complexity $n$ in terms of \textit{bitvectors} which are included as a primitive type in Z3.
+This section defines frames with $n$ primitive elements in terms of \textit{bitvectors} with Boolean values, where the $n$\textsuperscript{th} value of a bitvector may be interpreted as an \textit{atomic proposition} which is basic way for things things to be.
 
 \begin{enumerate}
   \item[\it States:] A $n$-\textit{state} $s=\tuple{s_1,\ldots,s_n}$ is any sequence of 1s and 0s of length $n$.
@@ -131,8 +151,8 @@ In order to draw on the power of Z3, a state of the art SMT solver, this section
 This section defines $n$-models in terms of $n$-frames, providing the semantics for a propositional language with a counterfactual conditional operator.
 
 \begin{enumerate}
-  \item[\it Model:] Letting $\Lit=\set{p_i:i\in\N}$ be the set of sentence letters, $\tuple{S,P,\vert{\cdot}}$ is a \textit{bitvector $n$-model} \textit{iff} $\tuple{S,P}$ is an $n$-frame and $\vert{\cdot}:\L\to\P_{\tuple{S,P}}$ is a function mapping the sentence letters in $\Lit$ to propositions in $\P_{\tuple{S,P}}$.
-  \item[\it Propositional Operators:] We may then define the following operators:
+  \item[\it Model:] $\tuple{S,P,\Vert{\cdot}}$ is a \textit{bitvector $n$-model} of the propositional language $\L_m$ \textit{iff} $\tuple{S,P}$ is an $n$-frame and $\Vert{p}\in\P_{\tuple{S,P}}$ for every sentence letter $p\in\Lit_m$.
+  \item[\it Propositional Operators:] We may then define the following operators for $X,Y,V,F\subseteq S$:
     \begin{itemize}
       \item[($\otimes$)] $X \otimes Y \coloneq \set{s.t : s \in X,\ t \in Y}$.
       \item[($\oplus$)] $X \oplus Y \coloneq X \cup Y \cup (X \otimes Y)$.
@@ -141,18 +161,20 @@ This section defines $n$-models in terms of $n$-frames, providing the semantics 
       \item[($\vee$)] $\tuple{V,F}\vee\tuple{V',F'} \coloneq \tuple{V\oplus V',F\otimes F'}$.
     \end{itemize}
     % These definitions provide operations on the space of propositions.
-  \item[\it Extensional Semantics:] Letting $\L=\tuple{\Lit,\neg,\wedge,\vee}$ be an extensional language, every $n$-model over an $n$-frame determines a unique proposition for the extensional sentences $\varphi$ and $\psi$ of $\L$ by way of the following semantics: 
+  \item[\it Extensional Semantics:] Letting $\L_n=\tuple{\Lit_n,\neg,\wedge,\vee}$ be an extensional language, each $n$-model determines a unique proposition for the extensional sentences $\varphi$ and $\psi$ of $\L$ by way of the following semantics: 
     \begin{itemize}
-      \item[($\neg$)] $\vert{\neg\varphi}=\neg\vert{\varphi}$.
-      \item[($\wedge$)] $\vert{\varphi\wedge\psi}=\vert{\varphi}\wedge\vert{\psi}$.
-      \item[($\vee$)] $\vert{\varphi\vee\psi}=\vert{\varphi}\vee\vert{\psi}$.
+      \item[($p$)] $\vert{p}=\Vert{p}$ if $p\in\Lit_n$.
+      \item[($\neg$)] $\vert{\tuple{\neg,\varphi}}=\neg\vert{\varphi}$.
+      \item[($\wedge$)] $\vert{\tuple{\wedge,\varphi,\psi}}=\vert{\varphi}\wedge\vert{\psi}$.
+      \item[($\vee$)] $\vert{\tuple{\vee,\varphi,\psi}}=\vert{\varphi}\vee\vert{\psi}$.
     \end{itemize}
     % The clauses above assign all extensional sentences to propositions.
   \item[\it Compatible Parts:] Given a world state $w$ together with any other state $s$, we may consider the set of maximal parts of $w$ which are compatible with $s$:\\ 
     $(w)_s\coloneq \set{t\sqsubseteq w:t\circ s \wedge \forall r\sqsubseteq w((r\circ s \wedge t \sqsubseteq r) \rightarrow t = r)}$.
   \item[\it Minimal Changes] Given a proposition $\tuple{V,F}$, we may define the set of all world states that result from minimally changing $w$ to include a state $s\in V$:\\ 
       $\tuple{V,F}^w\coloneq \set{w'\in W:\exists s\in V\exists t\in(w)_s(s.t\sqsubseteq w')}$.
-  \item[\it Counterfactual Semantics:] Letting $\L^+=\tuple{\L,\neg,\wedge,\vee,\boxright}$ be a counterfactual language, sentences $A$, $B$, and $C$ may be evaluated for truth at an $n$-model $\M$ together with a world $w$ where we assume the notation $\vert{\varphi}=\tuple{\vert{\varphi}^+,\vert{\varphi}^-}$:
+  \item[\it Bilateral Notation:] Given an extensional sentence $\varphi$ and $n$-model $\M=\tuple{S,P,\Vert{\cdot}}$, it will be convenient to adopt the notation $\vert{\varphi}=\tuple{\vert{\varphi}^+,\vert{\varphi}^-}$.
+  \item[\it Counterfactual Semantics:] Letting $\L_n^+=\tuple{\Lit_n,\neg,\wedge,\vee,\boxright}$ be a counterfactual language of rank $n$, the extensional sentence $\varphi$ and sentences $A$, $B$, and $C$ may be evaluated for truth at an $n$-model $\M$ together with a world $w$ as follows:
     \begin{itemize}
       \item[] $\M, w \vDash \varphi$ \textit{iff} there is some $s \sqsubseteq w$ where $s \in \vert{\varphi}^+$.
       \item[] $\M, w \vDash \neg A$ \textit{iff} $\M, w \nvDash A$.
@@ -160,7 +182,8 @@ This section defines $n$-models in terms of $n$-frames, providing the semantics 
       \item[] $\M, w \vDash A \vee B$ \textit{iff} $\M, w \vDash A$ or $\M, w \vDash B$.
       \item[] $\M, w \vDash \varphi\boxright C$ \textit{iff} $\M, w' \vDash C$ whenever $w'\in\vert{\varphi}^w$.
     \end{itemize}
-    We may read `$\M, w \vDash A$' as `$A$ is true in $w$ on $\M$'.
+  \item[\it Condition:] We may read `$\M, w \vDash A$' as `$A$ is true at $w$ in $\M$' which, given the definitions above, translates to a condition on bitvectors that is either true or false. Thus we may ask Z3 if there is an $n$-model $\M$ of $\L_n^+$ and world $w$ over its corresponding $n$-frame where $\M, w \vDash A$.
+  % \item[\it Example:] $\M,w\vDash \tuple{\boxright, \tuple{\vee, \tuple{1}, \tuple{2}}, \tuple{3}}$ just in case $\M, w' \vDash \tuple{3}$ for every $w'\in\vert{\tuple{\vee, \tuple{1}, \tuple{2}}}^w$ where $\vert{\tuple{\vee, \tuple{1}, \tuple{2}}}^w=(\vert{\tuple{1}}\vee\vert{\tuple{2}})^w$, etc.
   \item[\it Satisfaction:] A world-model pair \textit{satisfies} a set of sentences $\Gamma$ just in case every sentence in $\Gamma$ is true in that world on that model.
   \item[\it Unsatisfiable:] A set of sentences $\Gamma$ is $n$-\textit{satisfiable} just in case there is a $n$-model $\M$ and world $w$ that satisfies $\Gamma$, and $n$-\textit{unsatisfiable} otherwise.
     % A world-model pair satisfies a sentence just in case it satisfies its singleton.
@@ -176,61 +199,58 @@ This section defines $n$-models in terms of $n$-frames, providing the semantics 
 
 
 
-\section{Model Checker}
+\section{Logic Search}
+
+This section aims to provide a systematic way to find $n$-entailments without attempting to conduct an exhaustive search over all $n$-entailments given the size of this space.
+
+
 
 % This part aims to construct an efficient method for evaluating individual sets of sentences for unsatisfiability that are specifically provided, as well as constructing a search procedure for evaluating all sets of sentences for unsatisfiability, appropriately recording these findings.
-This section aims to deploy Z3 to check sets of sentences for $n$-unsatisfiability.
+% This section aims to deploy Z3 to check sets of sentences for $n$-unsatisfiability which may be used to define $n$-entailment.
 
-\begin{enumerate}
-  \item[\it Prover:] Choose a theorem prover to decide sentence encoding. 
-  \item[\it Sentences:] Sentences are constructed in two stages.
-    (1) Extensional sentences are constructed from the sentence letters $\Lit$ together with the extensional operators $\neg,\wedge,$ and $\vee$.
-    (2) Counterfactual sentences are constructed from the extensional sentences together with $\neg,\wedge,\vee,$ and $\boxright$.
-  \item[\it Complexity:] Sentence complexity is measured by the number of operators and sets of sentences are measured by the sum of the complexity of its members.
-  % \item[\it Cardinality:] Sets of sentences are ranked by their cardinality.
-  \item[\it Checker:] Given a set of $r$ sentences $\Gamma$ and model order $n$, use Z3 to evaluate whether $\Gamma$ is $n$-satisfiable, storing all models that satisfy $\Gamma$ by updating a global file \texttt{rank-r} to record findings.
-    \begin{itemize}
-      \item Let \texttt{rank-r} be a file which begins empty and is updated to include entries for the sets of $r$ sentences that have been checked so far where entries are ordered according to their complexity.
-      \item Entries in \texttt{rank-r} should include: (1) a set of $r$ sentences $\Gamma$; (2) a model order number $n$ with a default value of 0; and (3) a table of countermodels organised by order if any.
-      \item Before checking whether a set of $r$ sentences $\Gamma$ is $n$-satisfiable, check to see if an entry exists in \texttt{rank-r}. If there is an entry for $\Gamma$ with order number $m\geq n$, then return `unsatisfiable' and halt. If there is an entry for $\Gamma$ with order number $m<n$, then check for satisfiable models of order $k$ for $m\leq k\leq n$. If there is no entry for $\Gamma$, then proceed to check whether $\Gamma$ is $n$-unsatisfiable. 
-    \end{itemize}
-  \item[\it Satisfiable:] If $\M$ is an $n$-model that has been found to satisfy the set of $r$ sentences $\Gamma$, store $\M$ in a new entry in \texttt{rank-r} if an entry for $\Gamma$ does not already exist, and otherwise add $\M$ to the entry in \texttt{rank-r} for $\Gamma$.
-  \item[\it Unsatisfiable:] If $\Gamma$ is found to be $n$-unsatisfiable, create an entry for $\Gamma$ in \texttt{rank-r} if none exists and store $n$ alongside $\Gamma$. If there is an entry for $\Gamma$ in \texttt{rank-r}, replace the stored model order number $m$ with $n$ if $n>m$.
-  % % \item[\it Stages:] The checker should proceed in stages, checking all models over the $1$-frames before proceeding to the $2$-frames and so on up to some specified limit $n$.
-  % \item[\it Exhaustive:] Search the space of all $k$-models for $k\leq n$ to see which satisfies $\Gamma$, storing those models in an output file which includes $\Gamma$. 
-  % \item[\it Incremental:] Search the space of all $k$-models for $k\leq n$ to see which satisfies $\Gamma$ first, storing that model in an output file which includes $\Gamma$ and prompting the user whether to halt, continue searching for the next model that satisfies $\Gamma$ and updating the output file, or else to conduct an exhaustive search of the space of $k$-models that satisfy $\Gamma$ for $k\leq n$.
-  % \item[\it Search:] For rank $r$, complexity $c$, multiplicity $m$, and order $n$, we may seek to determine which sets of $m$ sentences of rank $r$ and complexity $c$ are unsatisfiable over all $k$-frames for $k\leq n$. If a $(r,c,m)$-set of sentences $\Gamma$ is not satisfied by a model, store the hash for that model in the falsifier list for $\Gamma$ and continue searching for a model that satisfies $\Gamma$. If a model is found to satisfy $\Gamma$, store the hash for the model in question in the verifier list for $\Gamma$ and move to check the next set of sentences. If no model is found to satisfy $\Gamma$, store the hash for $\Gamma$ in a list of unsatisfiable sets of sentences and move to check the next set of sentences. 
-  % \item[\it Logic:] The unsatisfiable sets of sentences determine the $n$-entailments which may then be fed into a theorem prover. If no proof is found within time $t$, we may check the $n$-entailment for validity by hand. If valid, the $n$-entailment may be added to the basic rules for the logic.
-\end{enumerate}
+% \begin{enumerate}
+%   \item[\it Complexity:] The complexity of a sentence is the number of its operators, where this may be defined recursively. The complexity of a set of sentences is the sum of the complexity of its members.
+%   \item[\it Checker:] Given a set of $r$ sentences $\Gamma$ and model order $n$, use Z3 to evaluate whether $\Gamma$ is $n$-satisfiable, storing all models that satisfy $\Gamma$ by updating a global file \texttt{rank-r} to record findings.
+%     \begin{itemize}
+%       \item Let \texttt{rank-r} be a file which begins empty and is updated to include entries for the sets of $r$ sentences that have been checked so far where entries are ordered according to their complexity.
+%       \item Entries in \texttt{rank-r} should include: (1) a set of $r$ sentences $\Gamma$; (2) a model order number $n$ with a default value of 0; and (3) a table of countermodels organised by order if any.
+%       \item Before checking whether a set of $r$ sentences $\Gamma$ is $n$-satisfiable, check to see if an entry exists in \texttt{rank-r}. If there is an entry for $\Gamma$ with order number $m\geq n$, then return `unsatisfiable' and halt. If there is an entry for $\Gamma$ with order number $m<n$, then check for satisfiable models of order $k$ for $m\leq k\leq n$. If there is no entry for $\Gamma$, then proceed to check whether $\Gamma$ is $n$-unsatisfiable. 
+%     \end{itemize}
+%   \item[\it Satisfiable:] If $\M$ is an $n$-model that has been found to satisfy the set of $r$ sentences $\Gamma$, store $\M$ in a new entry in \texttt{rank-r} if an entry for $\Gamma$ does not already exist, and otherwise add $\M$ to the entry in \texttt{rank-r} for $\Gamma$.
+%   \item[\it Unsatisfiable:] If $\Gamma$ is found to be $n$-unsatisfiable, create an entry for $\Gamma$ in \texttt{rank-r} if none exists and store $n$ alongside $\Gamma$. If there is an entry for $\Gamma$ in \texttt{rank-r}, replace the stored model order number $m$ with $n$ if $n>m$.
+%   % % \item[\it Stages:] The checker should proceed in stages, checking all models over the $1$-frames before proceeding to the $2$-frames and so on up to some specified limit $n$.
+%   % \item[\it Exhaustive:] Search the space of all $k$-models for $k\leq n$ to see which satisfies $\Gamma$, storing those models in an output file which includes $\Gamma$. 
+%   % \item[\it Incremental:] Search the space of all $k$-models for $k\leq n$ to see which satisfies $\Gamma$ first, storing that model in an output file which includes $\Gamma$ and prompting the user whether to halt, continue searching for the next model that satisfies $\Gamma$ and updating the output file, or else to conduct an exhaustive search of the space of $k$-models that satisfy $\Gamma$ for $k\leq n$.
+%   % \item[\it Search:] For rank $r$, complexity $c$, multiplicity $m$, and order $n$, we may seek to determine which sets of $m$ sentences of rank $r$ and complexity $c$ are unsatisfiable over all $k$-frames for $k\leq n$. If a $(r,c,m)$-set of sentences $\Gamma$ is not satisfied by a model, store the hash for that model in the falsifier list for $\Gamma$ and continue searching for a model that satisfies $\Gamma$. If a model is found to satisfy $\Gamma$, store the hash for the model in question in the verifier list for $\Gamma$ and move to check the next set of sentences. If no model is found to satisfy $\Gamma$, store the hash for $\Gamma$ in a list of unsatisfiable sets of sentences and move to check the next set of sentences. 
+%   % \item[\it Logic:] The unsatisfiable sets of sentences determine the $n$-entailments which may then be fed into a theorem prover. If no proof is found within time $t$, we may check the $n$-entailment for validity by hand. If valid, the $n$-entailment may be added to the basic rules for the logic.
+% \end{enumerate}
 
 
 
-\section{Ordered Sentences}
+% \section{Ordered Sentences}
 
-TODO: continue revisions 
-
-\begin{enumerate}
-  \item[\it Sentence Letters:] Let $\L_i=\set{p_j:j\in\N \text{ and } j\leq i}$ be the set of the first $i$ sentence letters. 
-  \item[\it Operators:] Let $\O=\set{\neg,\wedge,\vee,\boxright}$ be the set of primitive operators. 
-  \item[\it Sentences:] The well-formed sentences of a language with counterfactual and extensional operators do not permit counterfactual operators to occur in the antecedent of a counterfactual sentence. In order to devise versatile conventions it will be important to look at the syntax used in Prover9 or similar theorem provers.
-  \item[\it Rank:] A sentence has rank $r$ just in case it only includes sentence letters in $\L_r$. We may begin by restricting consideration to sentences with low rank, e.g., $r\leq5$ since rank will amplify the number of models.
-  \item[\it Complexity:] Second to rank, sentences can be ordered according to how many sentential operators they include, referring to this number as their complexity $c$. Rank should take president over complexity, though it is also important to restrict consideration to low complexity, e.g., $c\leq5$.
-  \item[\it Storage:] Beginning with rank $r=1$, sentences will need to be generated and stored in the order of their complexity before moving to rank $r=2$.
-  \item[\it Hash:] Each sentence should have a hash.
-  \item[\it $r$-Lists:] Beginning with $r=1$, the hash for each sentence should be stored in a list for $r=1$, ordered by complexity. We will need a separate $r$-list for each value $r\leq 5$ so that we may easily extend these lists to include higher complexity sentences. New lists for $r>5$ may be added later. 
-  \item[\it Bypass:] Each hash in an $r$-list should be stored with a bypass parameter that can be turned on or off so that sentences that are later deemed to be uninteresting can be skipped without removing them from the list.
-  \item[\it $r$-Sets:] Given a rank $r$, complexity $c$, and multiplicity $m$, populate and store all sets of at most $m$ hash codes for sentences with rank $k\leq r$ and complexity $l\leq c$ in a $(r,c,m)$-list which can be incrementally extended. 
-  \item[\it Valuations:] Each set of hash codes $\Gamma$ should be stored alongside a verifier list and a falsifier list that can later be populated with the hash codes for models which satisfy $\Gamma$ or which do not satisfy $\Gamma$, respectively. 
-    % \begin{itemize}
-    %   \item[\it Base:] Let $B_{(0,0,0)}=\set{\varnothing}$ be the set of all sets of $m=0$ sentences of rank $r=0$ and complexity $c=0$. 
-    %   \item[\it Rank:] Given $B_{(r,c,m)}$, let $B_{(r+1,c,m)}$ be the set of all sets of $m$ sentences of rank $r+1$ and complexity $c$ that do not occur in $B_{(r,c,m)}$. 
-    %   \item[\it Complexity:] Given $B_{(r,c,m)}$, let $B_{(r,c+1,m)}$ be the set of all sets of $m$ sentences of rank $r$ and complexity $c+1$ that do not occur in $B_{(r,c,m)}$. 
-    %   \item[\it Multiplicity:] Given $B_{(r,c,m)}$, let $B_{(r,c,m+1)}$ be the set of all sets of $m+1$ sentences of rank $r$ and complexity $c$ that do not occur in $B_{(r,c,m)}$.
-    % \end{itemize}
-  % \item[\it Aggregate:] In running the model checker on all sentences, we may begin with the list for $r=1$ moving up in complexity before moving to $r=2$, etc.
-  % \item[\it Copy:] If a set of sentences can be shown to be satisfiable, we will later want to store the hash for that sentence along with the hash for the model in a new list of falsifiable sentences of rank $r$. Something similar may be done if a sentence with rank $r$ is true in a model, storing the ordered pair of hashes in a list of satisfiable sentences of rank $r$. 
-  % \item[\it Summary:] We will need a separate list of sentences for at least each pair $\tuple{r,c}$, as well as a list of hash codes for each  ordered by complexity of the corresponding sentence. Once we start evaluating sentences at models, new lists will need to be created to record the findings.
-\end{enumerate}
+% \begin{enumerate}
+%   \item[\it Sentence Letters:] Let $\L_i=\set{p_j:j\in\N \text{ and } j\leq i}$ be the set of the first $i$ sentence letters. 
+%   \item[\it Operators:] Let $\O=\set{\neg,\wedge,\vee,\boxright}$ be the set of primitive operators. 
+%   \item[\it Sentences:] The well-formed sentences of a language with counterfactual and extensional operators do not permit counterfactual operators to occur in the antecedent of a counterfactual sentence. In order to devise versatile conventions it will be important to look at the syntax used in Prover9 or similar theorem provers.
+%   \item[\it Rank:] A sentence has rank $r$ just in case it only includes sentence letters in $\L_r$. We may begin by restricting consideration to sentences with low rank, e.g., $r\leq5$ since rank will amplify the number of models.
+%   \item[\it Complexity:] Second to rank, sentences can be ordered according to how many sentential operators they include, referring to this number as their complexity $c$. Rank should take president over complexity, though it is also important to restrict consideration to low complexity, e.g., $c\leq5$.
+%   \item[\it Storage:] Beginning with rank $r=1$, sentences will need to be generated and stored in the order of their complexity before moving to rank $r=2$.
+%   \item[\it Hash:] Each sentence should have a hash.
+%   \item[\it $r$-Lists:] Beginning with $r=1$, the hash for each sentence should be stored in a list for $r=1$, ordered by complexity. We will need a separate $r$-list for each value $r\leq 5$ so that we may easily extend these lists to include higher complexity sentences. New lists for $r>5$ may be added later. 
+%   \item[\it Bypass:] Each hash in an $r$-list should be stored with a bypass parameter that can be turned on or off so that sentences that are later deemed to be uninteresting can be skipped without removing them from the list.
+%   \item[\it $r$-Sets:] Given a rank $r$, complexity $c$, and multiplicity $m$, populate and store all sets of at most $m$ hash codes for sentences with rank $k\leq r$ and complexity $l\leq c$ in a $(r,c,m)$-list which can be incrementally extended. 
+%   \item[\it Valuations:] Each set of hash codes $\Gamma$ should be stored alongside a verifier list and a falsifier list that can later be populated with the hash codes for models which satisfy $\Gamma$ or which do not satisfy $\Gamma$, respectively. 
+%     % \begin{itemize}
+%     %   \item[\it Base:] Let $B_{(0,0,0)}=\set{\varnothing}$ be the set of all sets of $m=0$ sentences of rank $r=0$ and complexity $c=0$. 
+%     %   \item[\it Rank:] Given $B_{(r,c,m)}$, let $B_{(r+1,c,m)}$ be the set of all sets of $m$ sentences of rank $r+1$ and complexity $c$ that do not occur in $B_{(r,c,m)}$. 
+%     %   \item[\it Complexity:] Given $B_{(r,c,m)}$, let $B_{(r,c+1,m)}$ be the set of all sets of $m$ sentences of rank $r$ and complexity $c+1$ that do not occur in $B_{(r,c,m)}$. 
+%     %   \item[\it Multiplicity:] Given $B_{(r,c,m)}$, let $B_{(r,c,m+1)}$ be the set of all sets of $m+1$ sentences of rank $r$ and complexity $c$ that do not occur in $B_{(r,c,m)}$.
+%     % \end{itemize}
+%   % \item[\it Aggregate:] In running the model checker on all sentences, we may begin with the list for $r=1$ moving up in complexity before moving to $r=2$, etc.
+%   % \item[\it Copy:] If a set of sentences can be shown to be satisfiable, we will later want to store the hash for that sentence along with the hash for the model in a new list of falsifiable sentences of rank $r$. Something similar may be done if a sentence with rank $r$ is true in a model, storing the ordered pair of hashes in a list of satisfiable sentences of rank $r$. 
+%   % \item[\it Summary:] We will need a separate list of sentences for at least each pair $\tuple{r,c}$, as well as a list of hash codes for each  ordered by complexity of the corresponding sentence. Once we start evaluating sentences at models, new lists will need to be created to record the findings.
+% \end{enumerate}
 
 
 
@@ -240,7 +260,7 @@ TODO: continue revisions
 
 \section{Representations}
 
-Organise and print findings provided by the model checker as well as means of graphically representing models for satisfiable sets of interest.
+Organise and print found $n$-entailments as well as graphically representing countermodels.
 
   % \begin{enumerate}
   % \item If a sentence is false at a model, the sentence should be moved to a list of invalid sentences where the hash of the associated model is included 

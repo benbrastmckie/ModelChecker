@@ -1,32 +1,67 @@
+::: flushright
 # Counterfactual Models
-
+UROP: Miguel Buitrago
+Benjamin Brast-McKie
+:::
 
 **Overview:** This is a preliminary outline describing the scope of the
-project, not all of which would have to be completed, but nevertheless
-provides a sense of what motivates the construction. A first aim is to
-provide a means by which to effectively evaluate entailments between
+project and providing a sense of what motivates the construction. The
+primary aim of the project is to use Z3 to evaluate entailments between
 counterfactual claims up to some limit in model complexity, providing
-countermodels when they exist. If an entailment does not have any
-countermodels below a specified value of complexity, there is good
-reason to belief that the entailment is of interest and is likely to be
-valid over the space of all models. A second aim is to provide a method
-for identifying all entailments up to a specified level of syntactic
-complexity that do not admit countermodels below a specified value for
-model complexity. These entailments may then serve as the basis upon
-which to identify a logic corresponding to the semantics. A third aim is
-to connect a theorem prover in order identify a minimal set of axioms
-from which all other valid entailments may be derived.
+countermodels when they exist. By ruling out countermodels up to a
+specified level of complexity, we may provide evidence that the
+entailment of interest is valid over all models. A second aim is to
+provide a method for identifying all entailments up to a specified level
+of syntactic complexity that do not admit countermodels below a
+specified value for model complexity. The entailments within the
+specified value of syntactic complexity may then serve as the basis upon
+which to identify a logic for the language. A third and final aim is to
+adequately document the project, taking steps towards generalising the
+methodology so that a user could investigate the logic for a language by
+defining its models and semantic clauses.
 
 A preliminary outline for each part will be provided below and is
 subject to change. Settling the details given below constitutes the
 first part of the project, though these details may continue to change
 throughout.
 
+# Sentence Encoding
+
+The following definitions will use *bitvectors* to encode the
+propositional sentences for a language which includes $n$ distinct
+sentence letters.
+
+1.  The language is specified by providing a list of operators
+    $\mathcal{Q}=\langle Q_1,Q_2,\ldots\rangle$ where each $Q_i$ has a
+    finite arity given by $\texttt{Arity}(Q_i)$.
+
+2.  Let $\mathbb{Lit}_n=\lbrace i:1\leq i\leq n\rbrace$ be the first $n$
+    *sentence letters* and
+    $\mathcal{L}_n=\langle\mathbb{Lit}_n,\mathcal{Q}\rangle$ be a
+    propositional language of *rank* $n$ with operators $\mathcal{Q}$.
+
+3.  We may encode the sentences of $\mathcal{L}_n$ in Polish notation as
+    follows:
+
+    -   If $A\in\mathbb{Lit}_n$, then $\langle A\rangle$ is a sentence
+        of $\mathcal{L}_n$.
+
+    -   If $\texttt{Arity}(Q)=k$ and $B_i$ is a sentence of
+        $\mathcal{L}_n$ for each $1\leq i\leq k$, then
+        $\langle Q,B_1,\ldots,B_k\rangle$ is a sentence of
+        $\mathcal{L}_n$.
+
+4.  It would be convenient have an algorithm for translating sentences
+    from standard notation into bitvector notation so that
+    $( 1 \vee 2 ) \boxright 3$ can be transformed back and forth with
+    $\langle\boxright, \langle\vee, \langle 1\rangle, \langle 2\rangle\rangle, \langle 3\rangle\rangle$.
+
 # Bitvector Frames
 
-In order to draw on the power of Z3, a state of the art SMT solver, this
-section will define frames of complexity $n$ in terms of *bitvectors*
-which are included as a primitive type in Z3.
+This section defines frames with $n$ primitive elements in terms of
+*bitvectors* with Boolean values, where the $n$^th^ value of a bitvector
+may be interpreted as an *atomic proposition* which is basic way for
+things things to be.
 
 1.  A $n$-*state* $s=\langle s_1,\ldots,s_n\rangle$ is any sequence of
     1s and 0s of length $n$.
@@ -50,7 +85,7 @@ which are included as a primitive type in Z3.
     $s\in P$ whenever $s\sqsubseteq t$ for some $t\in P$.
 
 6.  $s$ and $t$ are *compatible iff* their fusion is possible, i.e.,
-    $s\circ = s.t\in P$.
+    $s\circ t\coloneq s.t\in P$.
 
 7.  $w$ is a *world state* over the $n$-frame $\langle S,P\rangle$ *iff*
     $w$ is possible and every state $t$ that is compatible with $w$ is
@@ -79,53 +114,58 @@ This section defines $n$-models in terms of $n$-frames, providing the
 semantics for a propositional language with a counterfactual conditional
 operator.
 
-1.  Letting $\mathbb{L}=\lbrace p_i:i\in\mathbb{N}\rbrace$ be the set
-    of sentence letters, $\langle S,P,\lvert\cdot\rvert\rangle$ is a
-    *bitvector $n$-model* *iff* $\langle S,P\rangle$ is an $n$-frame and
-    $\lvert\cdot\rvert:\mathcal{L}\to\mathbb{P}_{\langle S,P\rangle}$ is
-    a function mapping the sentence letters in $\mathbb{L}$ to
-    propositions in $\mathbb{P}_{\langle S,P\rangle}$.
+1.  $\langle S,P,\ldbrack\cdot\rdbrack\rangle$ is a *bitvector
+    $n$-model* of the propositional language $\mathcal{L}_m$ *iff*
+    $\langle S,P\rangle$ is an $n$-frame and
+    $\ldbrack p\rdbrack\in\mathbb{P}_{\langle S,P\rangle}$ for every
+    sentence letter $p\in\mathbb{Lit}_m$.
 
-2.  We may then define the following operators:
+2.  We may then define the following operators for $X,Y,V,F\subseteq S$:
 
-    -   $X \otimes Y = \lbrace s.t : s \in X,\ t \in Y\rbrace$.
+    -   $X \otimes Y \coloneq \lbrace s.t : s \in X,\ t \in Y\rbrace$.
 
-    -   $X \oplus Y = X \cup Y \cup (X \otimes Y)$.
+    -   $X \oplus Y \coloneq X \cup Y \cup (X \otimes Y)$.
 
-    -   $\neg\langle V,F\rangle = \langle F,V\rangle$.
+    -   $\neg\langle V,F\rangle \coloneq \langle F,V\rangle$.
 
-    -   $\langle V,F\rangle\wedge\langle V',F'\rangle = \langle V\otimes V',F\oplus F'\rangle$.
+    -   $\langle V,F\rangle\wedge\langle V',F'\rangle \coloneq \langle V\otimes V',F\oplus F'\rangle$.
 
-    -   $\langle V,F\rangle\vee\langle V',F'\rangle = \langle V\oplus V',F\otimes F'\rangle$.
+    -   $\langle V,F\rangle\vee\langle V',F'\rangle \coloneq \langle V\oplus V',F\otimes F'\rangle$.
 
-3.  Letting $\mathcal{L}=\langle\mathbb{L},\neg,\wedge,\vee\rangle$ be
-    an extensional language, every $n$-model over an $n$-frame
-    determines a unique proposition for the extensional sentences
-    $\varphi$ and $\psi$ of $\mathcal{L}$ by way of the following
-    semantics:
+3.  Letting
+    $\mathcal{L}_n=\langle\mathbb{Lit}_n,\neg,\wedge,\vee\rangle$ be an
+    extensional language, each $n$-model determines a unique proposition
+    for the extensional sentences $\varphi$ and $\psi$ of $\mathcal{L}$
+    by way of the following semantics:
 
-    -   $\lvert\neg\varphi\rvert=\neg\lvert\varphi\rvert$.
+    -   $\lvert p\rvert=\ldbrack p\rdbrack$ if $p\in\mathbb{Lit}_n$.
 
-    -   $\lvert\varphi\wedge\psi\rvert=\lvert\varphi\rvert\wedge\lvert\psi\rvert$.
+    -   $\lvert\langle\neg,\varphi\rangle\rvert=\neg\lvert\varphi\rvert$.
 
-    -   $\lvert\varphi\vee\psi\rvert=\lvert\varphi\rvert\vee\lvert\psi\rvert$.
+    -   $\lvert\langle\wedge,\varphi,\psi\rangle\rvert=\lvert\varphi\rvert\wedge\lvert\psi\rvert$.
+
+    -   $\lvert\langle\vee,\varphi,\psi\rangle\rvert=\lvert\varphi\rvert\vee\lvert\psi\rvert$.
 
 4.  Given a world state $w$ together with any other state $s$, we may
     consider the set of maximal parts of $w$ which are compatible with
     $s$:\
-    = \lbrace t\sqsubseteq w:t\circ s \wedge \forall r\sqsubseteq w((r\circ s \wedge t \sqsubseteq r) \rightarrow t = r)\rbrace$.
+    $(w)_s\coloneq \lbrace t\sqsubseteq w:t\circ s \wedge \forall r\sqsubseteq w((r\circ s \wedge t \sqsubseteq r) \rightarrow t = r)\rbrace$.
 
 5.  Given a proposition $\langle V,F\rangle$, we may define the set of
     all world states that result from minimally changing $w$ to include
     a state $s\in V$:\
-    $\langle = \lbrace w'\in W:\exists s\in V\exists t\in(w)_s(s.t\sqsubseteq w')\rbrace$.
+    $\langle V,F\rangle^w\coloneq \lbrace w'\in W:\exists s\in V\exists t\in(w)_s(s.t\sqsubseteq w')\rbrace$.
 
-6.  Letting
-    $\mathcal{L}^+=\langle\mathcal{L},\neg,\wedge,\vee,\Rightarrow\rangle$
-    be a counterfactual language, sentences $A$, $B$, and $C$ may be
-    evaluated for truth at an $n$-model $\mathcal{M}$ together with a
-    world $w$ where we assume the notation
-    $\lvert\varphi\rvert=\langle\lvert\varphi\rvert^+,\lvert\varphi\rvert^-\rangle$:
+6.  Given an extensional sentence $\varphi$ and $n$-model
+    $\mathcal{M}=\langle S,P,\ldbrack\cdot\rdbrack\rangle$, it will be
+    convenient to adopt the notation
+    $\lvert\varphi\rvert=\langle\lvert\varphi\rvert^+,\lvert\varphi\rvert^-\rangle$.
+
+7.  Letting
+    $\mathcal{L}_n^+=\langle\mathbb{Lit}_n,\neg,\wedge,\vee,\boxright\rangle$
+    be a counterfactual language of rank $n$, the extensional sentence
+    $\varphi$ and sentences $A$, $B$, and $C$ may be evaluated for truth
+    at an $n$-model $\mathcal{M}$ together with a world $w$ as follows:
 
     -   $\mathcal{M}, w \vDash \varphi$ *iff* there is some
         $s \sqsubseteq w$ where $s \in \lvert\varphi\rvert^+$.
@@ -138,129 +178,34 @@ operator.
     -   $\mathcal{M}, w \vDash A \vee B$ *iff* $\mathcal{M}, w \vDash A$
         or $\mathcal{M}, w \vDash B$.
 
-    -   $\mathcal{M}, w \vDash \varphi\Rightarrow C$ *iff*
+    -   $\mathcal{M}, w \vDash \varphi\boxright C$ *iff*
         $\mathcal{M}, w' \vDash C$ whenever
         $w'\in\lvert\varphi\rvert^w$.
 
-    We may read '$\mathcal{M}, w \vDash A$' as '$A$ is true in $w$ on
-    $\mathcal{M}$'.
+8.  We may read '$\mathcal{M}, w \vDash A$' as '$A$ is true at $w$ in
+    $\mathcal{M}$' which, given the definitions above, translates to a
+    condition on bitvectors that is either true or false. Thus we may
+    ask Z3 if there is an $n$-model $\mathcal{M}$ of $\mathcal{L}_n^+$
+    and world $w$ over its corresponding $n$-frame where
+    $\mathcal{M}, w \vDash A$.
 
-7.  A world-model pair *satisfies* a set of sentences $\Gamma$ just in
+9.  A world-model pair *satisfies* a set of sentences $\Gamma$ just in
     case every sentence in $\Gamma$ is true in that world on that model.
 
-8.  A set of sentences $\Gamma$ is $n$-*satisfiable* just in case there
+10. A set of sentences $\Gamma$ is $n$-*satisfiable* just in case there
     is a $n$-model $\mathcal{M}$ and world $w$ that satisfies $\Gamma$,
     and $n$-*unsatisfiable* otherwise.
 
-9.  $\Gamma \vDash^n \varphi$ *iff*
+11. $\Gamma \vDash^n \varphi$ *iff*
     $\Gamma\cup\lbrace\neg\varphi\rbrace$ is $n$-unsatisfiable.
 
-# Model Checker
+# Logic Search
 
-This section aims to deploy Z3 to check sets of sentences for
-$n$-unsatisfiability.
-
-1.  Choose a theorem prover to decide sentence encoding.
-
-2.  Sentences are constructed in two stages. (1) Extensional sentences
-    are constructed from the sentence letters $\mathbb{L}$ together
-    with the extensional operators $\neg,\wedge,$ and $\vee$. (2)
-    Counterfactual sentences are constructed from the extensional
-    sentences together with $\neg,\wedge,\vee,$ and $\Rightarrow$.
-
-3.  Sentence complexity is measured by the number of operators and sets
-    of sentences are measured by the sum of the complexity of its
-    members.
-
-4.  Given a set of $r$ sentences $\Gamma$ and model order $n$, use Z3 to
-    evaluate whether $\Gamma$ is $n$-satisfiable, storing all models
-    that satisfy $\Gamma$ by updating a global file `rank-r` to record
-    findings.
-
-    -   Let `rank-r` be a file which begins empty and is updated to
-        include entries for the sets of $r$ sentences that have been
-        checked so far where entries are ordered according to their
-        complexity.
-
-    -   Entries in `rank-r` should include: (1) a set of $r$ sentences
-        $\Gamma$; (2) a model order number $n$ with a default value of
-        0; and (3) a table of countermodels organised by order if any.
-
-    -   Before checking whether a set of $r$ sentences $\Gamma$ is
-        $n$-satisfiable, check to see if an entry exists in `rank-r`. If
-        there is an entry for $\Gamma$ with order number $m\geq n$, then
-        return 'unsatisfiable' and halt. If there is an entry for
-        $\Gamma$ with order number $m < n$, then check for satisfiable
-        models of order $k$ for $m\leq k\leq n$. If there is no entry
-        for $\Gamma$, then proceed to check whether $\Gamma$ is
-        $n$-unsatisfiable.
-
-5.  If $\mathcal{M}$ is an $n$-model that has been found to satisfy the
-    set of $r$ sentences $\Gamma$, store $\mathcal{M}$ in a new entry in
-    `rank-r` if an entry for $\Gamma$ does not already exist, and
-    otherwise add $\mathcal{M}$ to the entry in `rank-r` for $\Gamma$.
-
-6.  If $\Gamma$ is found to be $n$-unsatisfiable, create an entry for
-    $\Gamma$ in `rank-r` if none exists and store $n$ alongside
-    $\Gamma$. If there is an entry for $\Gamma$ in `rank-r`, replace the
-    stored model order number $m$ with $n$ if $n > m$.
-
-# Ordered Sentences
-
-TODO: continue revisions
-
-1.  Let
-    $\mathcal{L}_i=\lbrace p_j:j\in\mathbb{N}\text{ and } j\leq i\rbrace$
-    be the set of the first $i$ sentence letters.
-
-2.  Let $\mathbb{O}=\lbrace\neg,\wedge,\vee,\Rightarrow\rbrace$ be the set
-    of primitive operators.
-
-3.  The well-formed sentences of a language with counterfactual and
-    extensional operators do not permit counterfactual operators to
-    occur in the antecedent of a counterfactual sentence. In order to
-    devise versatile conventions it will be important to look at the
-    syntax used in Prover9 or similar theorem provers.
-
-4.  A sentence has rank $r$ just in case it only includes sentence
-    letters in $\mathcal{L}_r$. We may begin by restricting
-    consideration to sentences with low rank, e.g., $r\leq5$ since rank
-    will amplify the number of models.
-
-5.  Second to rank, sentences can be ordered according to how many
-    sentential operators they include, referring to this number as their
-    complexity $c$. Rank should take president over complexity, though
-    it is also important to restrict consideration to low complexity,
-    e.g., $c\leq5$.
-
-6.  Beginning with rank $r=1$, sentences will need to be generated and
-    stored in the order of their complexity before moving to rank $r=2$.
-
-7.  Each sentence should have a hash.
-
-8.  Beginning with $r=1$, the hash for each sentence should be stored in
-    a list for $r=1$, ordered by complexity. We will need a separate
-    $r$-list for each value $r\leq 5$ so that we may easily extend these
-    lists to include higher complexity sentences. New lists for $r>5$
-    may be added later.
-
-9.  Each hash in an $r$-list should be stored with a bypass parameter
-    that can be turned on or off so that sentences that are later deemed
-    to be uninteresting can be skipped without removing them from the
-    list.
-
-10. Given a rank $r$, complexity $c$, and multiplicity $m$, populate and
-    store all sets of at most $m$ hash codes for sentences with rank
-    $k\leq r$ and complexity $l\leq c$ in a $(r,c,m)$-list which can be
-    incrementally extended.
-
-11. Each set of hash codes $\Gamma$ should be stored alongside a
-    verifier list and a falsifier list that can later be populated with
-    the hash codes for models which satisfy $\Gamma$ or which do not
-    satisfy $\Gamma$, respectively.
+This section aims to provide a systematic way to find $n$-entailments
+without attempting to conduct an exhaustive search over all
+$n$-entailments given the size of this space.
 
 # Representations
 
-Organise and print findings provided by the model checker as well as
-means of graphically representing models for satisfiable sets of
-interest.
+Organise and print found $n$-entailments as well as graphically
+representing countermodels.
