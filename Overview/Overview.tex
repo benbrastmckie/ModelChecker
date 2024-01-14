@@ -31,8 +31,10 @@
 % \newcommand{\At}[1]{\texttt{At}(#1)} %%Set brackets
 \newcommand{\interpret}[1]{\llbracket#1\rrbracket} %%Double brackets
 \renewcommand{\P}[0]{\mathbb{P}}
-\renewcommand{\L}[0]{\mathbb{L}}
+\renewcommand{\max}[0]{\texttt{Max}}
+\newcommand{\Lit}[0]{\mathbb{Lit}}
 \newcommand{\M}[0]{\mathcal{M}}
+\renewcommand{\L}[0]{\mathcal{L}}
 \newcommand{\N}[0]{\mathbb{N}}
 \renewcommand{\O}[0]{\mathbb{O}}
 \renewcommand{\Vert}[1]{\ldbrack#1\rdbrack}
@@ -82,21 +84,130 @@
 
 \noindent
 \textbf{Overview:} 
-This is a preliminary outline of the scope of the project, not all of which would have to be completed, but nevertheless provides a sense of what motivates the construction.
-A first aim is to provide a means by which to effectively survey the logic of counterfactuals by evaluating the searching for models and countermodels for individual sentences.
-By generating a space of models organised by complexity, we may define a notion of \textit{$n$-entailment} $\Gamma \vDash^n \varphi$ which holds just in case all models which are not more complex than $n$ that satisfy $\Gamma$ also satisfy $\varphi$. 
-The notion of $n$-entailment $\vDash^n$ provides a means by which to identify candidate validities of the form $\Gamma \vDash \varphi$, where the greater the value of $n$, the stronger the evidence that $\Gamma\vDash\varphi$.
-Candidates may then be ranked and used to search for proofs with a theorem prover given a known axiom system.
-Candidates for which proofs cannot be found may then be checked by hand for validity and added to the logic accordingly.
+This is a preliminary outline describing the scope of the project, not all of which would have to be completed, but nevertheless provides a sense of what motivates the construction.
+A first aim is to provide a means by which to effectively evaluate entailments between counterfactual claims up to some limit in model complexity, providing countermodels when they exist.
+If an entailment does not have any countermodels below a specified value of complexity, there is good reason to belief that the entailment is of interest and is likely to be valid over the space of all models.
+A second aim is to provide a method for identifying all entailments up to a specified level of syntactic complexity that do not admit countermodels below a specified value for model complexity.
+These entailments may then serve as the basis upon which to identify a logic corresponding to the semantics.
+A third aim is to connect a theorem prover in order identify a minimal set of axioms from which all other valid entailments may be derived.
 
-The project divides into a number of parts where the latter parts depend on the former.
 A preliminary outline for each part will be provided below and is subject to change.
 Settling the details given below constitutes the first part of the project, though these details may continue to change throughout.
 
 
+
+
+
+
+\section{Bitvector Frames}
+
+In order to draw on the power of Z3, a state of the art SMT solver, this section will define frames of complexity $n$ in terms of \textit{bitvectors} which are included as a primitive type in Z3.
+
+\begin{enumerate}
+  \item[\it States:] A $n$-\textit{state} $s=\tuple{s_1,\ldots,s_n}$ is any sequence of 1s and 0s of length $n$.
+  % \item[\it Atomic States:] A state which includes exactly one occurrence of 1 may be said to be \textit{atomic} where this corresponds to some specific way of being, e.g., the cat is on the mat, the ball weighs 20g, or .
+  \item[\it Parthood:] An $n$-state $s$ is \textit{part of} an $n$-state $t$ (i.e., $s\sqsubseteq t$) \textit{iff} $s_i\leq t_i$ for all $1\leq i\leq n$.
+  \item[\it Fusion:] Letting $X$ be a set of $n$-states and $\max_i(X)=\max(\set{s_i:s\in X})$ be the maximum of the $i$\textsuperscript{th} entries, the \textit{fusion} $\bigsqcup X=\tuple{\max_1(X),\ldots,\max_n(X)}$ includes the maximum entry for each of the states in $X$.
+    We may represent the fusion $\bigsqcup\set{s,t,\ldots}=s.t.\ldots$ for ease of exposition.
+  \item[\it State Space:] A set of $n$-states $S$ forms a \textit{state space iff} $\bigsqcup X\in S$ for all $X\subseteq S$.
+  \item[\it Possible:] $\tuple{S,P}$ is a \textit{modal $n$-frame iff} $S$ is a state space and $P\subseteq S$ is a nonempty set of \textit{possible states} where $s\in P$ whenever $s\sqsubseteq t$ for some $t\in P$.
+  \item[\it Compatible:] $s$ and $t$ are \textit{compatible iff} their fusion is possible, i.e., $s\circ t\coloneq s.t\in P$.
+  \item[\it World States:] $w$ is a \textit{world state} over the $n$-frame $\tuple{S,P}$ \textit{iff} $w$ is possible and every state $t$ that is compatible with $w$ is part of $w$. Thus each $n$-frame determines a set of world states $W=\set{w\in P: s\sqsubseteq w \text{ whenever } s\circ w}$.
+  \item[\it Exhaustive:] $V,F\subseteq S$ are \textit{exhaustive} over the $n$-frame $\tuple{S,P}$ \textit{iff} every $s\in P$ is compatible with a state $t$ in either $V$ or $F$.
+  \item[\it Exclusive:] $V,F\subseteq S$ are \textit{exclusive} over the $n$-frame $\tuple{S,P}$ \textit{iff} the states in $V$ are incompatible with the states in $F$.
+  \item[\it Closed:] $X$ is closed over a state space $S$ \textit{iff} $\bigsqcup Y\in X$ whenever $Y\subseteq X$.
+  \item[\it Propositions:] $\tuple{V,F}$ is a \textit{proposition} over the $n$-frame $\tuple{S,P}$ \textit{iff} $V,F\subseteq S$ are closed, exhaustive, and exclusive.
+    Let $\P_{\tuple{S,P}}$ be the propositions over $\tuple{S,P}$.
+  % \item[\it Order:] Given an $n$-frame $\tuple{A_n,P}$, the cardinality of $P$ is the possibility $p$ of the frame. Thus for each value of $n$, we may generate and store a list of all $n$-frames ordered by their possibility. Each $n$-frame should be given an hash and stored together with the set of states $S$, set of world states $W$, and set of propositions $\P$ that it determines.
+  % \item[\it Bypass:] As above, each $n$-frame should be stored with a bypass parameter that can be turned on if later deemed to be uninteresting.
+  % \item[\it Summary:] Each atomic number $n$ will generate a list of $n$-frames ordered by possibility $p$, where these $n$-frames are to be stored together with the states $S$, worlds states $W$, and propositions $\P$ that they determine together with a hash and a bypass parameter. 
+\end{enumerate}
+
+
+
+
+\section{Counterfactual Semantics}
+
+This section defines $n$-models in terms of $n$-frames, providing the semantics for a propositional language with a counterfactual conditional operator.
+
+\begin{enumerate}
+  \item[\it Model:] Letting $\Lit=\set{p_i:i\in\N}$ be the set of sentence letters, $\tuple{S,P,\vert{\cdot}}$ is a \textit{bitvector $n$-model} \textit{iff} $\tuple{S,P}$ is an $n$-frame and $\vert{\cdot}:\L\to\P_{\tuple{S,P}}$ is a function mapping the sentence letters in $\Lit$ to propositions in $\P_{\tuple{S,P}}$.
+  \item[\it Propositional Operators:] We may then define the following operators:
+    \begin{itemize}
+      \item[($\otimes$)] $X \otimes Y \coloneq \set{s.t : s \in X,\ t \in Y}$.
+      \item[($\oplus$)] $X \oplus Y \coloneq X \cup Y \cup (X \otimes Y)$.
+      \item[($\neg$)] $\neg\tuple{V,F} \coloneq \tuple{F,V}$.
+      \item[($\wedge$)] $\tuple{V,F}\wedge\tuple{V',F'} \coloneq \tuple{V\otimes V',F\oplus F'}$.
+      \item[($\vee$)] $\tuple{V,F}\vee\tuple{V',F'} \coloneq \tuple{V\oplus V',F\otimes F'}$.
+    \end{itemize}
+    % These definitions provide operations on the space of propositions.
+  \item[\it Extensional Semantics:] Letting $\L=\tuple{\Lit,\neg,\wedge,\vee}$ be an extensional language, every $n$-model over an $n$-frame determines a unique proposition for the extensional sentences $\varphi$ and $\psi$ of $\L$ by way of the following semantics: 
+    \begin{itemize}
+      \item[($\neg$)] $\vert{\neg\varphi}=\neg\vert{\varphi}$.
+      \item[($\wedge$)] $\vert{\varphi\wedge\psi}=\vert{\varphi}\wedge\vert{\psi}$.
+      \item[($\vee$)] $\vert{\varphi\vee\psi}=\vert{\varphi}\vee\vert{\psi}$.
+    \end{itemize}
+    % The clauses above assign all extensional sentences to propositions.
+  \item[\it Compatible Parts:] Given a world state $w$ together with any other state $s$, we may consider the set of maximal parts of $w$ which are compatible with $s$:\\ 
+    $(w)_s\coloneq \set{t\sqsubseteq w:t\circ s \wedge \forall r\sqsubseteq w((r\circ s \wedge t \sqsubseteq r) \rightarrow t = r)}$.
+  \item[\it Minimal Changes] Given a proposition $\tuple{V,F}$, we may define the set of all world states that result from minimally changing $w$ to include a state $s\in V$:\\ 
+      $\tuple{V,F}^w\coloneq \set{w'\in W:\exists s\in V\exists t\in(w)_s(s.t\sqsubseteq w')}$.
+  \item[\it Counterfactual Semantics:] Letting $\L^+=\tuple{\L,\neg,\wedge,\vee,\boxright}$ be a counterfactual language, sentences $A$, $B$, and $C$ may be evaluated for truth at an $n$-model $\M$ together with a world $w$ where we assume the notation $\vert{\varphi}=\tuple{\vert{\varphi}^+,\vert{\varphi}^-}$:
+    \begin{itemize}
+      \item[] $\M, w \vDash \varphi$ \textit{iff} there is some $s \sqsubseteq w$ where $s \in \vert{\varphi}^+$.
+      \item[] $\M, w \vDash \neg A$ \textit{iff} $\M, w \nvDash A$.
+      \item[] $\M, w \vDash A \wedge B$ \textit{iff} $\M, w \vDash A$ and $\M, w \vDash B$.
+      \item[] $\M, w \vDash A \vee B$ \textit{iff} $\M, w \vDash A$ or $\M, w \vDash B$.
+      \item[] $\M, w \vDash \varphi\boxright C$ \textit{iff} $\M, w' \vDash C$ whenever $w'\in\vert{\varphi}^w$.
+    \end{itemize}
+    We may read `$\M, w \vDash A$' as `$A$ is true in $w$ on $\M$'.
+  \item[\it Satisfaction:] A world-model pair \textit{satisfies} a set of sentences $\Gamma$ just in case every sentence in $\Gamma$ is true in that world on that model.
+  \item[\it Unsatisfiable:] A set of sentences $\Gamma$ is $n$-\textit{satisfiable} just in case there is a $n$-model $\M$ and world $w$ that satisfies $\Gamma$, and $n$-\textit{unsatisfiable} otherwise.
+    % A world-model pair satisfies a sentence just in case it satisfies its singleton.
+  \item[\it $n$-Entailment:] $\Gamma \vDash^n \varphi$ \textit{iff} $\Gamma\cup\set{\neg\varphi}$ is $n$-unsatisfiable. 
+  % \item[\it Reduction:] Given a set of sentences $\Gamma$, we may consider the set of sentence letters $\Gamma_0$ that the sentences in $\Gamma$ contain, calling this $\Gamma$'s reduction. 
+  % \item[\it Restriction:] Given an $n$-frame, we may restrict consideration to the models which assign the sentence letters in $\Gamma_0$ to propositions defined over the frame. This will be a comparatively small set
+\end{enumerate}
+
+% \noindent
+% When $n$ is small, the number of states, $n$-frames, propositions, and world-states will be small.
+% When $r$ is small, the space of models will be small.
+
+
+
+
+\section{Model Checker}
+
+% This part aims to construct an efficient method for evaluating individual sets of sentences for unsatisfiability that are specifically provided, as well as constructing a search procedure for evaluating all sets of sentences for unsatisfiability, appropriately recording these findings.
+This section aims to deploy Z3 to check sets of sentences for $n$-unsatisfiability.
+
+\begin{enumerate}
+  \item[\it Prover:] Choose a theorem prover to decide sentence encoding. 
+  \item[\it Sentences:] Sentences are constructed in two stages.
+    (1) Extensional sentences are constructed from the sentence letters $\Lit$ together with the extensional operators $\neg,\wedge,$ and $\vee$.
+    (2) Counterfactual sentences are constructed from the extensional sentences together with $\neg,\wedge,\vee,$ and $\boxright$.
+  \item[\it Complexity:] Sentence complexity is measured by the number of operators and sets of sentences are measured by the sum of the complexity of its members.
+  % \item[\it Cardinality:] Sets of sentences are ranked by their cardinality.
+  \item[\it Checker:] Given a set of $r$ sentences $\Gamma$ and model order $n$, use Z3 to evaluate whether $\Gamma$ is $n$-satisfiable, storing all models that satisfy $\Gamma$ by updating a global file \texttt{rank-r} to record findings.
+    \begin{itemize}
+      \item Let \texttt{rank-r} be a file which begins empty and is updated to include entries for the sets of $r$ sentences that have been checked so far where entries are ordered according to their complexity.
+      \item Entries in \texttt{rank-r} should include: (1) a set of $r$ sentences $\Gamma$; (2) a model order number $n$ with a default value of 0; and (3) a table of countermodels organised by order if any.
+      \item Before checking whether a set of $r$ sentences $\Gamma$ is $n$-satisfiable, check to see if an entry exists in \texttt{rank-r}. If there is an entry for $\Gamma$ with order number $m\geq n$, then return `unsatisfiable' and halt. If there is an entry for $\Gamma$ with order number $m<n$, then check for satisfiable models of order $k$ for $m\leq k\leq n$. If there is no entry for $\Gamma$, then proceed to check whether $\Gamma$ is $n$-unsatisfiable. 
+    \end{itemize}
+  \item[\it Satisfiable:] If $\M$ is an $n$-model that has been found to satisfy the set of $r$ sentences $\Gamma$, store $\M$ in a new entry in \texttt{rank-r} if an entry for $\Gamma$ does not already exist, and otherwise add $\M$ to the entry in \texttt{rank-r} for $\Gamma$.
+  \item[\it Unsatisfiable:] If $\Gamma$ is found to be $n$-unsatisfiable, create an entry for $\Gamma$ in \texttt{rank-r} if none exists and store $n$ alongside $\Gamma$. If there is an entry for $\Gamma$ in \texttt{rank-r}, replace the stored model order number $m$ with $n$ if $n>m$.
+  % % \item[\it Stages:] The checker should proceed in stages, checking all models over the $1$-frames before proceeding to the $2$-frames and so on up to some specified limit $n$.
+  % \item[\it Exhaustive:] Search the space of all $k$-models for $k\leq n$ to see which satisfies $\Gamma$, storing those models in an output file which includes $\Gamma$. 
+  % \item[\it Incremental:] Search the space of all $k$-models for $k\leq n$ to see which satisfies $\Gamma$ first, storing that model in an output file which includes $\Gamma$ and prompting the user whether to halt, continue searching for the next model that satisfies $\Gamma$ and updating the output file, or else to conduct an exhaustive search of the space of $k$-models that satisfy $\Gamma$ for $k\leq n$.
+  % \item[\it Search:] For rank $r$, complexity $c$, multiplicity $m$, and order $n$, we may seek to determine which sets of $m$ sentences of rank $r$ and complexity $c$ are unsatisfiable over all $k$-frames for $k\leq n$. If a $(r,c,m)$-set of sentences $\Gamma$ is not satisfied by a model, store the hash for that model in the falsifier list for $\Gamma$ and continue searching for a model that satisfies $\Gamma$. If a model is found to satisfy $\Gamma$, store the hash for the model in question in the verifier list for $\Gamma$ and move to check the next set of sentences. If no model is found to satisfy $\Gamma$, store the hash for $\Gamma$ in a list of unsatisfiable sets of sentences and move to check the next set of sentences. 
+  % \item[\it Logic:] The unsatisfiable sets of sentences determine the $n$-entailments which may then be fed into a theorem prover. If no proof is found within time $t$, we may check the $n$-entailment for validity by hand. If valid, the $n$-entailment may be added to the basic rules for the logic.
+\end{enumerate}
+
+
+
 \section{Ordered Sentences}
 
-We begin by developing a definition of the sentences of a language for counterfactuals in python, providing a method for generating and storing sentences of increasing complexity in an extensible way.
+TODO: continue revisions 
 
 \begin{enumerate}
   \item[\it Sentence Letters:] Let $\L_i=\set{p_j:j\in\N \text{ and } j\leq i}$ be the set of the first $i$ sentence letters. 
@@ -124,94 +235,6 @@ We begin by developing a definition of the sentences of a language for counterfa
 
 
 
-
-
-\section{Finite Atomic Frames}
-
-We now turn to define, generate, and store frames of increasing complexity.
-For simplicity, we may restrict to finite atomic frames. % where states may be identified with sets of atoms.
-% Consideration should be given to the simplicity, compatibility, and extendability of the definitions provided.
-
-\begin{enumerate}
-  \item[\it Atoms:] Let the natural numbers be the atoms where the set $A_n$ includes the first $n$ natural numbers.
-  \item[\it States:] Let $S_n$ be the power set of $A_n$ where the empty set is called the \textit{null state} and subset inclusion is called \textit{parthood}.
-  \item[\it Atomic Frames:] A finite atomic $n$-frame $\tuple{A_n,P}$ is said to be of order $n$ and consists of a set of atoms $A_n$ and a nonempty set of possible states $P\subseteq S_n$ where $P$ is required to include every part of every state in $P$.
-  \item[\it Compatible:] Given an $n$-frame, the states $s$ and $t$ are compatible--- i.e. $s\circ t$--- just in case their fusion (i.e., their union) is possible (i.e., a member of $P$).
-  \item[\it World States:] Given an $n$-frame, we may construct a set $W$ of maximal possible states, or world states. A world state is any possible state $w$ where every state $t$ that is compatible with $w$ is part of $w$. Each $n$-frame determines a unique set of world states $W$.
-  \item[\it Exhaustive:] Given an $n$-frame, the pair $\tuple{V,F}$ of sets of states $V,F\subseteq S$ is exhaustive just in case every $s\in P$ is compatible with a state $t$ in either $V$ or $F$. 
-  \item[\it Exclusive:] Given an $n$-frame, a pair $\tuple{V,F}$ of sets of states $V,F\subseteq S$ is exclusive just in case the states in $V$ are incompatible with the states in $F$. 
-  \item[\it Closed:] A set of states $X$ is closed just in case the fusion $\bigsqcup Y\in X$ for every $Y\subseteq X$. That is, given any states in $X$, their union is also a state in $X$.
-  \item[\it Propositions:] Given an $n$-frame, a proposition is an ordered pair $\tuple{V,F}$ of closed sets of states $V,F\subseteq S$ where $\tuple{V,F}$ is exhaustive and exclusive. Each $n$-frame determines a unique set of propositions $\P$ in that frame. 
-  \item[\it Order:] Given an $n$-frame $\tuple{A_n,P}$, the cardinality of $P$ is the possibility $p$ of the frame. Thus for each value of $n$, we may generate and store a list of all $n$-frames ordered by their possibility. Each $n$-frame should be given an hash and stored together with the set of states $S$, set of world states $W$, and set of propositions $\P$ that it determines.
-  \item[\it Bypass:] As above, each $n$-frame should be stored with a bypass parameter that can be turned on if later deemed to be uninteresting.
-  % \item[\it Summary:] Each atomic number $n$ will generate a list of $n$-frames ordered by possibility $p$, where these $n$-frames are to be stored together with the states $S$, worlds states $W$, and propositions $\P$ that they determine together with a hash and a bypass parameter. 
-\end{enumerate}
-
-
-
-
-\section{The Space of Models}
-
-Develop a method for generating and storing models for each sentence.
-
-\begin{enumerate}
-  \item[\it Model:] An $r$-model over an $n$-frame is any $\M^r_n=\tuple{A_n,P,\vert{\cdot}}$ where $\tuple{A_n,P}$ is an $n$-frame, $\P$ is the space of propositions in that $n$-frame, and $\vert{\cdot}$ assigns the sentence letters in $\L_r$ to propositions in $\P$.
-  \item[\it Propositional Operators:] We may then define the following operators:
-    \begin{itemize}
-      \item[($\otimes$)] $X \otimes Y \coloneq \set{s.t : s \in X,\ t \in Y}$.
-      \item[($\oplus$)] $X \oplus Y \coloneq X \cup Y \cup (X \otimes Y)$.
-      \item[($\neg$)] $\neg\tuple{V,F} \coloneq \tuple{F,V}$.
-      \item[($\wedge$)] $\tuple{V,F}\wedge\tuple{V',F'} \coloneq \tuple{V\otimes V',F\oplus F'}$.
-      \item[($\vee$)] $\tuple{V,F}\vee\tuple{V',F'} \coloneq \tuple{V\oplus V',F\otimes F'}$.
-    \end{itemize}
-    % These definitions provide operations on the space of propositions.
-  \item[\it Extensional Semantics:] Every $r$-model over an $n$-frame determines a unique proposition for the extensional sentences of rank $r$ by way of the following semantics: 
-    \begin{itemize}
-      \item[($\neg$)] $\vert{\neg\varphi}=\neg\vert{\varphi}$.
-      \item[($\wedge$)] $\vert{\varphi\wedge\psi}=\vert{\varphi}\wedge\vert{\psi}$.
-      \item[($\vee$)] $\vert{\varphi\vee\psi}=\vert{\varphi}\vee\vert{\psi}$.
-    \end{itemize}
-    The clauses above assign all extensional sentences to propositions.
-  \item[\it Compatible Parts:] Given a world state $w$ together with any other state $s$, we may consider the set of maximal parts of $w$ which are compatible with $s$:\\ 
-    $(w)_s\coloneq \set{t\sqsubseteq w:t\circ s \wedge \forall r\sqsubseteq w((r\circ s \wedge t \sqsubseteq r) \rightarrow t = r)}$.
-  \item[\it Minimal Changes] Given a proposition $\tuple{V,F}$, we may define the set of all world states that result from minimally changing $w$ to include a state $s\in V$:\\ 
-      $\tuple{V,F}^w\coloneq \set{w'\in W:\exists s\in V\exists t\in(w)_s(s.t\sqsubseteq w')}$.
-  \item[\it Counterfactual Semantics:] All sentences may then be evaluated for truth at world-model pairs where we assume the notation $\vert{\varphi}=\tuple{\vert{\varphi}^+,\vert{\varphi}^-}$:
-    \begin{itemize}
-      \item[] $\M, w \vDash p_i$ \textit{iff} there is some $s \sqsubseteq w$ where $s \in \vert{p_i}^+$.
-      \item[] $\M, w \vDash \neg A$ \textit{iff} $\M, w \nvDash A$.
-      \item[] $\M, w \vDash A \wedge B$ \textit{iff} $\M, w \vDash A$ and $\M, w \vDash B$.
-      \item[] $\M, w \vDash A \vee B$ \textit{iff} $\M, w \vDash A$ or $\M, w \vDash B$.
-      \item[] $\M, w \vDash \varphi\boxright C$ \textit{iff} $\M, w' \vDash C$ whenever $w'\in\Vert{\varphi}^w$.
-    \end{itemize}
-    We may read `$\M, w \vDash \varphi$' as `$\varphi$ is true in $w$ on $\M$'.
-  \item[\it Satisfaction:] A world-model pair satisfies a set of sentences $\Gamma$ just in case every sentence in $\Gamma$ is true in that world on that model.
-  \item[\it Unsatisfiable:] A set of sentences $\Gamma$ is satisfiable in an $n$-frame just in case there is a world-model pair that satisfies $\Gamma$, and is unsatisfiable otherwise.
-    % A world-model pair satisfies a sentence just in case it satisfies its singleton.
-  \item[\it $n$-Entailment:] $\Gamma \vDash^n \varphi$ just in case $\Gamma\cup\set{\neg\varphi}$ is unsatisfiable in all $n$-frames. 
-  % \item[\it Reduction:] Given a set of sentences $\Gamma$, we may consider the set of sentence letters $\Gamma_0$ that the sentences in $\Gamma$ contain, calling this $\Gamma$'s reduction. 
-  % \item[\it Restriction:] Given an $n$-frame, we may restrict consideration to the models which assign the sentence letters in $\Gamma_0$ to propositions defined over the frame. This will be a comparatively small set
-\end{enumerate}
-
-\noindent
-When $n$ is small, the number of states, $n$-frames, propositions, and world-states will be small.
-When $r$ is small, the space of models will be small.
-
-
-
-
-\section{Model Checker}
-
-This part aims to construct an efficient method for evaluating individual sets of sentences for unsatisfiability that are specifically provided, as well as constructing a search procedure for evaluating all sets of sentences for unsatisfiability, appropriately recording these findings.
-
-\begin{enumerate}
-  \item[\it Checker:] Given a set of sentences $\Gamma$ and order $n$ provided by the user, construct a method for evaluating the satisfiability of $\Gamma$ by determining its rank and searching the space of models over all $k$-frames for $k\leq n$.
-  % \item[\it Stages:] The checker should proceed in stages, checking all models over the $1$-frames before proceeding to the $2$-frames and so on up to some specified limit $n$.
-  \item[\it Exhaustive:] Search the space of all $k$-models for $k\leq n$ to see which satisfies $\Gamma$, storing those models in an output file which includes $\Gamma$. 
-  \item[\it Incremental:] Search the space of all $k$-models for $k\leq n$ to see which satisfies $\Gamma$ first, storing that model in an output file which includes $\Gamma$ and prompting the user whether to halt, continue searching for the next model that satisfies $\Gamma$ and updating the output file, or else to conduct an exhaustive search of the space of $k$-models that satisfy $\Gamma$ for $k\leq n$.
-  \item[\it Search:] For rank $r$, complexity $c$, multiplicity $m$, and order $n$, we may seek to determine which sets of $m$ sentences of rank $r$ and complexity $c$ are unsatisfiable over all $k$-frames for $k\leq n$. If a $(r,c,m)$-set of sentences $\Gamma$ is not satisfied by a model, store the hash for that model in the falsifier list for $\Gamma$ and continue searching for a model that satisfies $\Gamma$. If a model is found to satisfy $\Gamma$, store the hash for the model in question in the verifier list for $\Gamma$ and move to check the next set of sentences. If no model is found to satisfy $\Gamma$, store the hash for $\Gamma$ in a list of unsatisfiable sets of sentences and move to check the next set of sentences. 
-  \item[\it Logic:] The unsatisfiable sets of sentences determine the $n$-entailments which may then be fed into a theorem prover. If no proof is found within time $t$, we may check the $n$-entailment for validity by hand. If valid, the $n$-entailment may be added to the basic rules for the logic.
-\end{enumerate}
 
 
 
