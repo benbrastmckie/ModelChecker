@@ -52,8 +52,8 @@ sentence letters.
 
 4.  It would be convenient have an algorithm for translating sentences
     from standard notation into bitvector notation so that
-    $( 1 \vee 2 ) \boxright 3$ can be transformed back and forth with
-    $\langle\boxright, \langle\vee, \langle 1\rangle, \langle 2\rangle\rangle, \langle 3\rangle\rangle$.
+    $( 1 \vee 2 ) \Rightarrow 3$ can be transformed back and forth with
+    $\langle\Rightarrow, \langle\vee, \langle 1\rangle, \langle 2\rangle\rangle, \langle 3\rangle\rangle$.
 
 # Bitvector Frames
 
@@ -84,7 +84,7 @@ things things to be.
     $s\in P$ whenever $s\sqsubseteq t$ for some $t\in P$.
 
 6.  $s$ and $t$ are *compatible iff* their fusion is possible, i.e.,
-    $s\circ t\coloneq s.t\in P$.
+    $s\circ = s.t\in P$.
 
 7.  $w$ is a *world state* over the $n$-frame $\langle S,P\rangle$ *iff*
     $w$ is possible and every state $t$ that is compatible with $w$ is
@@ -113,23 +113,23 @@ This section defines $n$-models in terms of $n$-frames, providing the
 semantics for a propositional language with a counterfactual conditional
 operator.
 
-1.  $\langle S,P,\ldbrack\cdot\rdbrack\rangle$ is a *bitvector
+1.  $\langle S,P,\lbrack\cdot\rbrack\rangle$ is a *bitvector
     $n$-model* of the propositional language $\mathcal{L}_m$ *iff*
     $\langle S,P\rangle$ is an $n$-frame and
-    $\ldbrack p\rdbrack\in\mathbb{P}_{\langle S,P\rangle}$ for every
+    $\lbrack p\rbrack\in\mathbb{P}_{\langle S,P\rangle}$ for every
     sentence letter $p\in\mathbb{Lit}_m$.
 
 2.  We may then define the following operators for $X,Y,V,F\subseteq S$:
 
-    -   $X \otimes Y \coloneq \lbrace s.t : s \in X,\ t \in Y\rbrace$.
+    -   $X \otimes Y = \lbrace s.t : s \in X,\ t \in Y\rbrace$.
 
-    -   $X \oplus Y \coloneq X \cup Y \cup (X \otimes Y)$.
+    -   $X \oplus Y = X \cup Y \cup (X \otimes Y)$.
 
-    -   $\neg\langle V,F\rangle \coloneq \langle F,V\rangle$.
+    -   $\neg\langle V,F\rangle = \langle F,V\rangle$.
 
-    -   $\langle V,F\rangle\wedge\langle V',F'\rangle \coloneq \langle V\otimes V',F\oplus F'\rangle$.
+    -   $\langle V,F\rangle\wedge\langle V',F'\rangle = \langle V\otimes V',F\oplus F'\rangle$.
 
-    -   $\langle V,F\rangle\vee\langle V',F'\rangle \coloneq \langle V\oplus V',F\otimes F'\rangle$.
+    -   $\langle V,F\rangle\vee\langle V',F'\rangle = \langle V\oplus V',F\otimes F'\rangle$.
 
 3.  Letting
     $\mathcal{L}_n=\langle\mathbb{Lit}_n,\neg,\wedge,\vee\rangle$ be an
@@ -137,7 +137,7 @@ operator.
     for the extensional sentences $\varphi$ and $\psi$ of $\mathcal{L}$
     by way of the following semantics:
 
-    -   $\lvert p\rvert=\lbrack p\rdbrack$ if $p\in\mathbb{Lit}_n$.
+    -   $\lvert p\rvert=\lbrack p\rbrack$ if $p\in\mathbb{Lit}_n$.
 
     -   $\lvert\langle\neg,\varphi\rangle\rvert=\neg\lvert\varphi\rvert$.
 
@@ -148,20 +148,20 @@ operator.
 4.  Given a world state $w$ together with any other state $s$, we may
     consider the set of maximal parts of $w$ which are compatible with
     $s$:\
-    $(w)_s\coloneq \lbrace t\sqsubseteq w:t\circ s \wedge \forall r\sqsubseteq w((r\circ s \wedge t \sqsubseteq r) \rightarrow t = r)\rbrace$.
+    = \lbrace t\sqsubseteq w:t\circ s \wedge \forall r\sqsubseteq w((r\circ s \wedge t \sqsubseteq r) \rightarrow t = r)\rbrace$.
 
 5.  Given a proposition $\langle V,F\rangle$, we may define the set of
     all world states that result from minimally changing $w$ to include
     a state $s\in V$:\
-    $\langle V,F\rangle^w\coloneq \lbrace w'\in W:\exists s\in V\exists t\in(w)_s(s.t\sqsubseteq w')\rbrace$.
+    $\langle = \lbrace w'\in W:\exists s\in V\exists t\in(w)_s(s.t\sqsubseteq w')\rbrace$.
 
 6.  Given an extensional sentence $\varphi$ and $n$-model
-    $\mathcal{M}=\langle S,P,\ldbrack\cdot\rdbrack\rangle$, it will be
+    $\mathcal{M}=\langle S,P,\lbrack\cdot\rbrack\rangle$, it will be
     convenient to adopt the notation
     $\lvert\varphi\rvert=\langle\lvert\varphi\rvert^+,\lvert\varphi\rvert^-\rangle$.
 
 7.  Letting
-    $\mathcal{L}_n^+=\langle\mathbb{Lit}_n,\neg,\wedge,\vee,\boxright\rangle$
+    $\mathcal{L}_n^+=\langle\mathbb{Lit}_n,\neg,\wedge,\vee,\Rightarrow\rangle$
     be a counterfactual language of rank $n$, the extensional sentence
     $\varphi$ and sentences $A$, $B$, and $C$ may be evaluated for truth
     at an $n$-model $\mathcal{M}$ together with a world $w$ as follows:
@@ -177,7 +177,7 @@ operator.
     -   $\mathcal{M}, w \vDash A \vee B$ *iff* $\mathcal{M}, w \vDash A$
         or $\mathcal{M}, w \vDash B$.
 
-    -   $\mathcal{M}, w \vDash \varphi\boxright C$ *iff*
+    -   $\mathcal{M}, w \vDash \varphi\Rightarrow C$ *iff*
         $\mathcal{M}, w' \vDash C$ whenever
         $w'\in\lvert\varphi\rvert^w$.
 
