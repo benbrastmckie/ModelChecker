@@ -6,6 +6,8 @@ This project aims to develop tools for finding countermodels for counterfactual 
 
 ### Z3
 
+Putting Z3 to work in simple and specific applications.
+
 - [ ] introduction to Z3
   - [ ] identify a range of resources for learning Z3
   - [ ] compile notes with basic facts about Z3 and links to resources
@@ -17,25 +19,28 @@ This project aims to develop tools for finding countermodels for counterfactual 
 
 ### Python
 
-- [ ] using python as a meta-language for interfacing with Z3
-  - [ ] design conventions for a `semantics file` containing the definitions:
-    - [ ] definition of the primitives and sentences of the language
-    - [ ] definition of a model of the language
-    - [ ] semantic clauses for the operators of the language
-    - [ ] optional axioms and rules to constrain the space of models
-    - [ ] needs to be relatively easy to read/tweak
-  - [ ] design conventions for a `project file` for a specific inquiry
-    - [ ] may include a set of sentences to check for satisfiability
-    - [ ] may include an entailment between a set of premises and a conclusion
-    - [ ] may specify options such as:
-      - [ ] halt after first model is found
-      - [ ] find all models up to some limit in time or complexity
-  - [ ] Z3 translator
-    - [ ] devise translation algorithms from the readable conventions into Z3 sentences
-    - [ ] use algorithms to create a `job file` from a `semantics file` and `project file`
-    - [ ] the `job file` should include the Z3 sentences and the outputs from Z3
+Using python as a meta-language for interfacing with Z3.
+
+- [ ] design conventions for a `semantics file` containing the definitions:
+  - [ ] definition of the primitives and sentences of the language
+  - [ ] definition of a model of the language
+  - [ ] semantic clauses for the operators of the language
+  - [ ] optional axioms and rules to constrain the space of models
+  - [ ] needs to be relatively easy to read/tweak
+- [ ] design conventions for a `project file` for a specific inquiry
+  - [ ] may include a set of sentences to check for satisfiability
+  - [ ] may include an entailment between a set of premises and a conclusion
+  - [ ] may specify options such as:
+    - [ ] halt after first model is found
+    - [ ] find all models up to some limit in time or complexity
+- [ ] Z3 translator
+  - [ ] devise translation algorithms from the readable conventions into Z3 sentences
+  - [ ] use algorithms to create a `job file` from a `semantics file` and `project file`
+  - [ ] the `job file` should include the Z3 sentences and the outputs from Z3
 
 ### Search (Bonus)
+
+Building tools for finding logics.
 
 - [ ] design method for searching for valid sentences
   - [ ] design syntactic filters to reduce the number of sentences below a given complexity
@@ -45,7 +50,12 @@ This project aims to develop tools for finding countermodels for counterfactual 
 
 ### Print (Bonus)
 
+Presenting models in a visually compelling manner.
+
 - [ ] devise algorithm for visually representing models
+  - [ ] design the desired visual output
+  - [ ] review the tools that already exist for representing models visually
+  - [ ] see what it would take to translate from a `job file` to a visual model using a given tool
 
 ## Resources
 
