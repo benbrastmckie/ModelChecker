@@ -7,11 +7,12 @@ This project aims to develop tools for finding countermodels for counterfactual 
 ### Z3
 
 - [ ] introduction to Z3
-  - [ ] identify a range of resources for learning z3
-  - [ ] complete relevant practice problems to gain familiarity with z3
-- [ ] define the predicates 'is a model' and 'satisfies' in a way that z3 understands
+  - [ ] identify a range of resources for learning Z3
+  - [ ] compile notes with basic facts about Z3 and links to resources
+  - [ ] complete relevant practice problems to gain familiarity with Z3
+- [ ] define the predicates 'is a model' and 'satisfies' in a way that Z3 understands
   - [ ] begin with propositional sentences
-  - [ ] design definitions and test
+  - [ ] design definitions and run tests to find models
   - [ ] extend to counterfactual sentences
 
 ### Python
