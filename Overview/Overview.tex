@@ -27,6 +27,7 @@
 
 \newcommand{\corner}[1]{\ulcorner#1\urcorner} %%Corner quotes
 \newcommand{\tuple}[1]{\langle#1\rangle} %%Angle brackets
+% \newcommand{\brak}[1]{[#1]} %%Angle brackets
 \newcommand{\set}[1]{\lbrace#1\rbrace} %%Set brackets
 % \newcommand{\At}[1]{\texttt{At}(#1)} %%Set brackets
 \newcommand{\interpret}[1]{\llbracket#1\rrbracket} %%Double brackets
@@ -105,34 +106,43 @@ Settling the details given below constitutes the first part of the project, thou
 
 % It will be important to fix a syntax for the propositional language $\L$ in question.
 % To avoid reinventing the wheel, some investigation should be conducted to see if there are standard ways to encode propositional sentences.
-The following definitions will use \textit{bitvectors} to encode the propositional sentences for a language which includes $n$ distinct sentence letters.
+The following definitions will use \textit{lists} to encode the propositional sentences for a language which includes $n$ distinct sentence letters.
 
 \begin{enumerate}
-  \item[\it Signature:] The language is specified by providing a list of operators $\Q=\tuple{Q_1,Q_2,\ldots}$ where each $Q_i$ has a finite arity given by $\arity{Q_i}$.
-  \item[\it Language:] Let $\Lit_n=\set{i:1\leq i\leq n}$ be the first $n$ \textit{sentence letters} and $\L_n=\tuple{\Lit_n,\Q}$ be a propositional language of \textit{rank} $n$ with operators $\Q$.
+  \item[\it Signature:] The language is specified by providing a list of operators $\Q=\tuple{Q_1,Q_2,\ldots}$ where each $Q_i$ has a finite $\arity{Q_i}$.
+  \item[\it Language:] Letting $\Lit_n=\set{p_i:1\leq i\leq n}$ be the first $n$ \textit{sentence letters}, we may refer to $\L_n=\tuple{\Lit_n,\Q}$ as a language of \textit{rank} $n$ with operators $\Q$.
   \item[\it Grammar:] We may encode the sentences of $\L_n$ in Polish notation as follows:
     \begin{itemize}
-      \item If $A\in\Lit_n$, then $\tuple{A}$ is a sentence of $\L_n$.
-      \item If $\arity{Q}=k$ and $B_i$ is a sentence of $\L_n$ for each $1\leq i\leq k$, then $\tuple{Q,B_1,\ldots,B_k}$ is a sentence of $\L_n$.
+      \item If $A\in\Lit_n$, then $[A]$ is a sentence of $\L_n$.
+      \item If $\arity{Q}=k$ and $B_i$ is a sentence of $\L_n$ for each $1\leq i\leq k$, then $[Q,B_1,\ldots,B_k]$ is a sentence of $\L_n$.
     \end{itemize}
-  \item[\it Translation:] It would be convenient have an algorithm for translating sentences from standard notation into bitvector notation so that $( 1 \vee 2 ) \boxright 3$ can be transformed back and forth with $\tuple{\boxright, \tuple{\vee, \tuple{1}, \tuple{2}}, \tuple{3}}$.
+  \item[\it Translation:] It would be convenient have an algorithm for translating sentences from standard notation into polish notation so that $( 1 \vee 2 ) \boxright 3$ can be transformed back and forth with $[\boxright, \tuple{\vee, \tuple{1}, \tuple{2}}, \tuple{3}]$.
   % \item[\it Complexity:] It will also be important to have an algorithm for computing the complexity of the sentences of $\L_n$
 \end{enumerate}
 
 \section{Bitvector Frames}
 
-This section defines frames with $n$ primitive elements in terms of \textit{bitvectors} with Boolean values, where the $n$\textsuperscript{th} value of a bitvector may be interpreted as an \textit{atomic proposition} which is basic way for things things to be.
+This section defines frames in terms of \textit{bitvectors}, i.e., sequences of $1$s and $0$s of length $n$, where a $1$ in the $i$\textsuperscript{th} value of a bitvector may be interpreted as the inclusion of an \textit{atomic specific proposition} which is a basic way for things things to be, and a $0$ in the $i$\textsuperscript{th} value indicates neutrality (not falsity).
 
 \begin{enumerate}
-  \item[\it States:] A $n$-\textit{state} $s=\tuple{s_1,\ldots,s_n}$ is any sequence of 1s and 0s of length $n$.
-  % \item[\it Atomic States:] A state which includes exactly one occurrence of 1 may be said to be \textit{atomic} where this corresponds to some specific way of being, e.g., the cat is on the mat, the ball weighs 20g, or .
+  \item[\it States:] An $n$-\textit{state} $s=\tuple{s_1,\ldots,s_n}$ is any bitvector of $1$s and $0$s of length $n$.
+  \item[\it Atomic States:] A state which includes exactly one occurrence of $1$ is \textit{atomic} where this corresponds to a specific way of being, e.g., the cat is on the mat.
+  % \item[\it Null State:] The \textit{null $n$-state} $\square=\tuple{0,\ldots,0}$ obtains trivially since it includes nothing.
   \item[\it Parthood:] An $n$-state $s$ is \textit{part of} an $n$-state $t$ (i.e., $s\sqsubseteq t$) \textit{iff} $s_i\leq t_i$ for all $1\leq i\leq n$.
-  \item[\it Fusion:] Letting $X$ be a set of $n$-states and $\max_i(X)=\max(\set{s_i:s\in X})$ be the maximum of the $i$\textsuperscript{th} entries, the \textit{fusion} $\bigsqcup X=\tuple{\max_1(X),\ldots,\max_n(X)}$ includes the maximum entry for each of the states in $X$.
+    \begin{itemize}
+      \item Alternatively, an $n$-state $s$ is \textit{part of} an $n$-state $t$ \textit{iff} $(s \texttt{ OR } t) = t$  where: $11101010 \texttt{ OR } 00000100 = 11101110$. %the bitwise operation \texttt{OR} may be used to define parthood , though : $11101010 \texttt{ AND } 11111101 = 11101000$.
+    \end{itemize}
+  \item[\it Fusion:] Letting $X$ be a set of $n$-states and $\max_i(X)=\max(\set{s_i:s\in X})$ be the maximum of the $i$\textsuperscript{th} entries, the \textit{fusion} $\bigsqcup X=\tuple{\max_1(X),\ldots,\max_n(X)}$ includes the maximum entry for each of the $n$-states in $X$.
     We may represent the fusion $\bigsqcup\set{s,t,\ldots}=s.t.\ldots$ for ease of exposition.
-  \item[\it State Space:] A set of $n$-states $S$ forms a \textit{state space iff} $\bigsqcup X\in S$ for all $X\subseteq S$.
+    \begin{itemize}
+      \item Note that the fusion $s.t = (s \texttt{ OR } t)$.
+      % \item The bitwise operations \texttt{AND} may also be useful, though it is not clear for what. % : $11101010 \texttt{ AND } 11111101 = 11101000$.
+    \end{itemize}
+  \item[\it State Space:] A set of $n$-states $S$ forms a \textit{state space iff} $\bigsqcup X\in S$ for all $X\subseteq S$. Trivially, the set of all parts of any $n$-state form a state space.
   \item[\it Possible:] $\tuple{S,P}$ is a \textit{modal $n$-frame iff} $S$ is a state space and $P\subseteq S$ is a nonempty set of \textit{possible states} where $s\in P$ whenever $s\sqsubseteq t$ for some $t\in P$.
   \item[\it Compatible:] $s$ and $t$ are \textit{compatible iff} their fusion is possible, i.e., $s\circ t\coloneq s.t\in P$.
-  \item[\it World States:] $w$ is a \textit{world state} over the $n$-frame $\tuple{S,P}$ \textit{iff} $w$ is possible and every state $t$ that is compatible with $w$ is part of $w$. Thus each $n$-frame determines a set of world states $W=\set{w\in P: s\sqsubseteq w \text{ whenever } s\circ w}$.
+  \item[\it World States:] $w$ is a \textit{world state} over the $n$-frame $\tuple{S,P}$ \textit{iff} $w$ is possible and every state $t$ that is compatible with $w$ is part of $w$. 
+    Thus each modal $n$-frame determines a set of world states $W=\set{w\in P: s\sqsubseteq w \text{ whenever } s\circ w}$.
   \item[\it Exhaustive:] $V,F\subseteq S$ are \textit{exhaustive} over the $n$-frame $\tuple{S,P}$ \textit{iff} every $s\in P$ is compatible with a state $t$ in either $V$ or $F$.
   \item[\it Exclusive:] $V,F\subseteq S$ are \textit{exclusive} over the $n$-frame $\tuple{S,P}$ \textit{iff} the states in $V$ are incompatible with the states in $F$.
   \item[\it Closed:] $X$ is closed over a state space $S$ \textit{iff} $\bigsqcup Y\in X$ whenever $Y\subseteq X$.
@@ -151,7 +161,7 @@ This section defines frames with $n$ primitive elements in terms of \textit{bitv
 This section defines $n$-models in terms of $n$-frames, providing the semantics for a propositional language with a counterfactual conditional operator.
 
 \begin{enumerate}
-  \item[\it Model:] $\tuple{S,P,\Vert{\cdot}}$ is a \textit{bitvector $n$-model} of the propositional language $\L_m$ \textit{iff} $\tuple{S,P}$ is an $n$-frame and $\Vert{p}\in\P_{\tuple{S,P}}$ for every sentence letter $p\in\Lit_m$.
+  \item[\it Model:] $\tuple{S,P,\vert{\cdot}}$ is a \textit{bitvector $n$-model} of the propositional language $\L_m$ \textit{iff} $\tuple{S,P}$ is an $n$-frame and $\vert{p}\in\P_{\tuple{S,P}}$ for every sentence letter $p\in\Lit_m$.
   \item[\it Propositional Operators:] We may then define the following operators for $X,Y,V,F\subseteq S$:
     \begin{itemize}
       \item[($\otimes$)] $X \otimes Y \coloneq \set{s.t : s \in X,\ t \in Y}$.
@@ -161,9 +171,9 @@ This section defines $n$-models in terms of $n$-frames, providing the semantics 
       \item[($\vee$)] $\tuple{V,F}\vee\tuple{V',F'} \coloneq \tuple{V\oplus V',F\otimes F'}$.
     \end{itemize}
     % These definitions provide operations on the space of propositions.
-  \item[\it Extensional Semantics:] Letting $\L_n=\tuple{\Lit_n,\neg,\wedge,\vee}$ be an extensional language, each $n$-model determines a unique proposition for the extensional sentences $\varphi$ and $\psi$ of $\L$ by way of the following semantics: 
+  \item[\it Extensional Semantics:] Letting $\L_n=\tuple{\Lit_n,\neg,\wedge,\vee}$ be an extensional language, each $n$-model determines a unique proposition for the extensional sentences $\varphi$ and $\psi$ of $\L$ by extending $\vert{\cdot}$ with the following semantic clauses: 
     \begin{itemize}
-      \item[($p$)] $\vert{p}=\Vert{p}$ if $p\in\Lit_n$.
+      % \item[($p$)] $\vert{p}=\Vert{p}$ if $p\in\Lit_n$.
       \item[($\neg$)] $\vert{\tuple{\neg,\varphi}}=\neg\vert{\varphi}$.
       \item[($\wedge$)] $\vert{\tuple{\wedge,\varphi,\psi}}=\vert{\varphi}\wedge\vert{\psi}$.
       \item[($\vee$)] $\vert{\tuple{\vee,\varphi,\psi}}=\vert{\varphi}\vee\vert{\psi}$.
@@ -182,7 +192,8 @@ This section defines $n$-models in terms of $n$-frames, providing the semantics 
       \item[] $\M, w \vDash A \vee B$ \textit{iff} $\M, w \vDash A$ or $\M, w \vDash B$.
       \item[] $\M, w \vDash \varphi\boxright C$ \textit{iff} $\M, w' \vDash C$ whenever $w'\in\vert{\varphi}^w$.
     \end{itemize}
-  \item[\it Condition:] We may read `$\M, w \vDash A$' as `$A$ is true at $w$ in $\M$' which, given the definitions above, translates to a condition on bitvectors that is either true or false. Thus we may ask Z3 if there is an $n$-model $\M$ of $\L_n^+$ and world $w$ over its corresponding $n$-frame where $\M, w \vDash A$.
+  \item[\it Condition:] We may read `$\M, w \vDash A$' as `$A$ is true at $w$ in $\M$'. 
+    The aim will be to ask Z3 if there is an $n$-model $\M$ of $\L_n^+$ and world $w$ over its corresponding $n$-frame where $\M, w \vDash A$.
   % \item[\it Example:] $\M,w\vDash \tuple{\boxright, \tuple{\vee, \tuple{1}, \tuple{2}}, \tuple{3}}$ just in case $\M, w' \vDash \tuple{3}$ for every $w'\in\vert{\tuple{\vee, \tuple{1}, \tuple{2}}}^w$ where $\vert{\tuple{\vee, \tuple{1}, \tuple{2}}}^w=(\vert{\tuple{1}}\vee\vert{\tuple{2}})^w$, etc.
   \item[\it Satisfaction:] A world-model pair \textit{satisfies} a set of sentences $\Gamma$ just in case every sentence in $\Gamma$ is true in that world on that model.
   \item[\it Unsatisfiable:] A set of sentences $\Gamma$ is $n$-\textit{satisfiable} just in case there is a $n$-model $\M$ and world $w$ that satisfies $\Gamma$, and $n$-\textit{unsatisfiable} otherwise.
