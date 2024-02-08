@@ -68,3 +68,4 @@ Presenting models in a visually compelling manner.
 ## Resources
 
 Z3 Python API - https://microsoft.github.io/z3guide/programming/Z3%20Python%20-%20Readonly/Introduction
+Very extensive resource for Z3 - https://smt.st/SAT_SMT_by_example.pdf
