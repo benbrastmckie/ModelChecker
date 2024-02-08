@@ -16,12 +16,14 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Z3
 
+- [x] clean up project directory
 - [.] compile a range of resources for learning Z3
   - [.] glossary of commands, basic types/sorts, etc.
-  - [ ] introductory examples and practice problems
+  - [ ] research Z3
     - [ ] _M_ add Z3 test examples with bitvectors to the `Z3Test/` directory
-    - [ ] _M_ add any questions to `Questions.md` that arise
-  - [ ] _B_ collect relevant information about how Z3 works
+    - [ ] _M_ add questions/answers to `Questions.md`
+    - [ ] _M_ read about how to use Z3 adding resources to `Resources.md`
+    - [ ] _B_ add information about how Z3 works to `Resources.md`
 - [ ] basic definitions in Z3
   - [ ] fusion
   - [ ] parthood
@@ -33,7 +35,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] exclusive
   - [ ] closed
   - [ ] propositions
-- [ ] semantic definitions in Z3
+- [ ] semantics in Z3
   - [ ] model
   - [ ] propositional operators
   - [ ] compatible parts
