@@ -9,8 +9,8 @@ This project aims to develop tools for finding countermodels for counterfactual 
 - review and revise plan for the project
 - create scaffolding for documentation, TODOS, and project updates
 - identify tooling (noting this in the docs)
-  - what else in addition to python3 and Z3 is needed?
-  - is latex ok for the overview?
+  - [ ] what else in addition to python3 and Z3 is needed?
+  - [x] is latex ok for the overview?
 
 ### Z3
 
@@ -66,6 +66,3 @@ Presenting models in a visually compelling manner.
   - [ ] see what it would take to translate from a `job file` to a visual model using a given tool
 
 ## Resources
-
-Z3 Python API - https://microsoft.github.io/z3guide/programming/Z3%20Python%20-%20Readonly/Introduction
-Very extensive resource for Z3 - https://smt.st/SAT_SMT_by_example.pdf
