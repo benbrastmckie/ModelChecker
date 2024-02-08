@@ -6,6 +6,8 @@ Questions should be organized under topic when possible.
 
 General
 
+- Suppose Z3 finds that ${ A, B, C, ~D }$ is unsatisfiable. How do we know how many models it tried and how big those models were? Knowing this tells us about the strength of the evidence that ${ A, B, C }$ entails $D$.
+
 Interpretation
 
 - what are the primitive types/sorts in Z3?

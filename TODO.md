@@ -39,8 +39,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] compatible parts
   - [ ] minimal changes
   - [ ] true at w in M
-  - [ ] satisfaction
-- [ ] define the predicates 'x is a model', 'y is a sentence', and 'x satisfies y' in Z3
-  - [ ] begin with propositional sentences
-  - [ ] design definitions and run tests
-  - [ ] extend approach to counterfactual sentences
+    - [ ] begin with propositional sentences
+    - [ ] design definitions and run tests
+    - [ ] extend approach to counterfactual sentences
+  - [ ] entailment
