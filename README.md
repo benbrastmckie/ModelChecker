@@ -2,7 +2,15 @@
 
 This project aims to develop tools for finding countermodels for counterfactual claims as well as establishing entailments over a restricted range of models up to a specified degree of complexity.
 
+## Resources
+
+The `Resources/` directory contains a number of files where we can compile resources throughout.
+This is a place to not only store what has been learned along the way for later reference, but to share knowledge.
+Ultimately, it would be nice to make these resources useful to those who are new to the project.
+
 ## Phases
+
+The phases are intended to roughly divide the project chronologically.
 
 ### Planning
 
@@ -64,5 +72,3 @@ Presenting models in a visually compelling manner.
   - [ ] design the desired visual output
   - [ ] review the tools that already exist for representing models visually
   - [ ] see what it would take to translate from a `job file` to a visual model using a given tool
-
-## Resources

@@ -12,7 +12,7 @@ SMT info with lots of Z3 examples:
 
 ## Python
 
-@Miguel: if you know of good python resources that you make use of, please add link them here
+@_M_: if you know of good python resources that you have used, please feel free to link some of them here.
 
 BitVector module
 
