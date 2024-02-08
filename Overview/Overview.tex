@@ -130,12 +130,13 @@ This section defines frames in terms of \textit{bitvectors}, i.e., sequences of 
   % \item[\it Null State:] The \textit{null $n$-state} $\square=\tuple{0,\ldots,0}$ obtains trivially since it includes nothing.
   \item[\it Parthood:] An $n$-state $s$ is \textit{part of} an $n$-state $t$ (i.e., $s\sqsubseteq t$) \textit{iff} $s_i\leq t_i$ for all $1\leq i\leq n$.
     \begin{itemize}
-      \item Alternatively, an $n$-state $s$ is \textit{part of} an $n$-state $t$ \textit{iff} $(s \texttt{ OR } t) = t$  where: $11101010 \texttt{ OR } 00000100 = 11101110$. %the bitwise operation \texttt{OR} may be used to define parthood , though : $11101010 \texttt{ AND } 11111101 = 11101000$.
+      \item An $n$-state $s$ is \textit{part of} an $n$-state $t$ \textit{iff} $(s \texttt{ OR } t) = t$  where \texttt{OR} is the bitwise operator where: $11101010 \texttt{ OR } 00000100 = 11101110$. %the bitwise operation \texttt{OR} may be used to define parthood , though : $11101010 \texttt{ AND } 11111101 = 11101000$.
     \end{itemize}
   \item[\it Fusion:] Letting $X$ be a set of $n$-states and $\max_i(X)=\max(\set{s_i:s\in X})$ be the maximum of the $i$\textsuperscript{th} entries, the \textit{fusion} $\bigsqcup X=\tuple{\max_1(X),\ldots,\max_n(X)}$ includes the maximum entry for each of the $n$-states in $X$.
     We may represent the fusion $\bigsqcup\set{s,t,\ldots}=s.t.\ldots$ for ease of exposition.
     \begin{itemize}
-      \item Note that the fusion $s.t = (s \texttt{ OR } t)$.
+      \item The \textit{fusion} $s.t = (s \texttt{ OR } t)$ is also easily defined, where the fusion of $\bigsqcup X$ may be defined by successive applications of \texttt{OR}.
+      \item Are their other bitwise operations that might be helpful?
       % \item The bitwise operations \texttt{AND} may also be useful, though it is not clear for what. % : $11101010 \texttt{ AND } 11111101 = 11101000$.
     \end{itemize}
   \item[\it State Space:] A set of $n$-states $S$ forms a \textit{state space iff} $\bigsqcup X\in S$ for all $X\subseteq S$. Trivially, the set of all parts of any $n$-state form a state space.
@@ -267,11 +268,9 @@ This section aims to provide a systematic way to find $n$-entailments without at
 
 
 
-
-
 \section{Representations}
 
-Organise and print found $n$-entailments as well as graphically representing countermodels.
+Organize and print found $n$-entailments as well as graphically representing countermodels.
 
   % \begin{enumerate}
   % \item If a sentence is false at a model, the sentence should be moved to a list of invalid sentences where the hash of the associated model is included 
