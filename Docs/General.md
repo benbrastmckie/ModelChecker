@@ -6,6 +6,14 @@ The aim is to provide references that may be helpful at a later time and to new 
 
 ## Git
 
+For adding an SSH Key and PAT to GitHub
+
+    https://github.com/benbrastmckie/.config?tab=readme-ov-file#adding-an-ssh-key-to-github
+
+For learning how to use LazyGit.
+
+    https://github.com/benbrastmckie/.config/blob/master/LearningGit.md
+
 ## Z3
 
 ### NixOS
