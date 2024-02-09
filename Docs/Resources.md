@@ -13,6 +13,8 @@ SMT info with lots of Z3 examples:
 Videos:
 
       https://m.youtube.com/watch?v=iz4c5F3sjI8&pp=ygUNWjMgYml0dmVjdG9ycw%3D%3D
+      
+- method for generating multiple models is discussed (12:00 min)
 
 ## Python
 
