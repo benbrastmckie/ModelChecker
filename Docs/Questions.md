@@ -1,6 +1,6 @@
 # Questions
 
-Questions should be organized under topic when possible.
+Questions should be organized under a topic when possible.
 
 ## Z3
 
