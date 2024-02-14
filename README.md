@@ -14,24 +14,19 @@ The phases are intended to roughly divide the project chronologically.
 
 ### Planning
 
-- review and revise plan for the project
-- create scaffolding for documentation, TODOS, and project updates
-- identify tooling (noting this in the docs)
-  - [ ] what else in addition to python3 and Z3 is needed?
+- [x] review and revise plan for the project
+- [x] create scaffolding for documentation, TODOS, and project updates
+- [x] identify tooling (noting this in the docs)
+  - [x] what else in addition to python3 and Z3 is needed?
   - [x] is latex ok for the overview?
 
 ### Z3
 
 Putting Z3 to work in simple and specific applications.
 
-- [ ] compile a range of resources for learning Z3
-  - [ ] glossary of commands, basic types/sorts, etc.
-  - [ ] introductory examples and practice problems
-  - [ ] relevant information about how Z3 works
-- [ ] define the predicates 'x is a model', 'y is a sentence', and 'x satisfies y' in Z3
-  - [ ] begin with propositional sentences
-  - [ ] design definitions and run tests
-  - [ ] extend approach to counterfactual sentences
+- [ ] research Z3
+- [ ] define models in Z3
+- [ ] get a basic model checker working in Z3
 
 ### Python
 

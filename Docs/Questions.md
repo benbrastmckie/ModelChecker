@@ -2,6 +2,10 @@
 
 Questions should be organized under a topic when possible.
 
+## General
+
+- What other tools are needed in addition to Z3, Python, and Git
+
 ## Z3
 
 General
