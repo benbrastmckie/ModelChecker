@@ -9,11 +9,18 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] identify tooling (noting this in the docs)
   - [x] what else in addition to python3 and Z3 is needed?
   - [x] is latex ok for the overview?
-- [ ] get git working
+- [x] get git working
 
 ## Overview
 
 - [ ] _B_ move from set-fusion to binary fusion throughout
+
+## Python
+
+- [ ] polish algorithm
+  - [ ] research what Z3 wants for sentences to be interpreted
+  - [ ] choose convenient notation in python that is readable
+  - [ ] build algorithm for going in either direction
 
 ## Z3
 
