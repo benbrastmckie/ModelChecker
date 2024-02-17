@@ -15,12 +15,19 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [ ] _B_ move from set-fusion to binary fusion throughout
 
+## Design
+
+- [:] _B_ outline model checker design strategies
+
 ## Python
 
-- [ ] polish algorithm
-  - [ ] research what Z3 wants for sentences to be interpreted
-  - [ ] choose convenient notation in python that is readable
-  - [ ] build algorithm for going in either direction
+- [ ] _M_ infix/prefix functions
+  - [ ] _M_ review `/Design/Strategies.md`, raising any questions in the corresponding GitHub issue.
+  - [ ] _M_ confirm whether LaTeX commands will serve as suitable notation in python
+  - [ ] _M_ build algorithm for going in either direction
+    - [ ] _M_ prefix function translating into prefix notation
+    - [ ] _M_ infix function translating back into infix notation
+  - [:] _B_ research what Z3 wants for sentences to be interpreted
 
 ## Z3
 
