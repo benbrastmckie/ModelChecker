@@ -18,11 +18,10 @@ Variables to be specified by the user include:
 1. Let `N` be the number of atomic states under consideration.
 2. Let `Atoms` be a finite set of sentence letters, e.g., `{A,B,C,D}`.
 3. Let `Gamma` be a finite set of infix sentences with sentence letters in `Atoms`.
-4. Let `Opts` be a finite set of sentential operators, e.g., `{\neg, \wedge, \vee, \rightarrow, \Box, \boxright}`.
 
 ### Glossary
 
-These definitions indicate the intended meanings of the elements employed blow.
+These definitions indicate the intended meanings of the elements employed below.
 
 1. `State(x)` includes the predicate `State` whose extension is to be determined by Z3 given the constraints below.
 2. `Or(x,y)` indicates the bitwise operation which takes the greatest value for each index of the bit vectors `x` and `y`.
@@ -43,7 +42,7 @@ The following constraints only depend on `N`, and are always to be included.
 
 ### Model Constraints
 
-The following constraints depend on the functions `Proposition(X)` and `Semantics(w,X)` defined in the following section for Python.
+The following constraints depend on the functions `Proposition()`, `Semantics()`, and `Prefix()` defined in the following section for Python.
 
 1. For each sentence letter `X` in `Atoms`, include the output of `Proposition(X)`.
 2. `Possible(w)` and `Or(x,w) = w` whenever `Possible(x)` and `Possible(Or(x,w))`.
