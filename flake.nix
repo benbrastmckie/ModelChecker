@@ -10,6 +10,7 @@
         pkgs.python311Packages.setuptools
         pkgs.python311Packages.pynvim
         pkgs.python311Packages.pip
+        pkgs.python311Packages.pylint
         pkgs.python311Packages.black
         pkgs.python311Packages.isort
       ];

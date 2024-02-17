@@ -33,7 +33,7 @@ These definitions indicate the intended meanings of the elements employed below.
 
 ### Frame Constraints
 
-The following constraints only depend on `N`, and are always to be included.
+The following constraints only depend on `N` where `x`
 
 1. If `State(x)`, then `BitVec(x,N)` i.e., 'x is a bitvector of length N'.
 2. If `State(x)` and `State(y)`, then `State(Or(x,y))`.
@@ -45,8 +45,9 @@ The following constraints only depend on `N`, and are always to be included.
 The following constraints depend on the functions `Proposition()`, `Semantics()`, and `Prefix()` defined in the following section for Python.
 
 1. For each sentence letter `X` in `Atoms`, include the output of `Proposition(X)`.
-2. `Possible(w)` and `Or(x,w) = w` whenever `Possible(x)` and `Possible(Or(x,w))`.
-3. For each sentence `X` in `Gamma`, include the output of `Semantics(w,Prefix(X))`.
+2. `Possible(w)`.
+3. If `Possible(x)` and `Possible(Or(x,w))`, then `Or(x,w) = w`.
+4. For each sentence `X` in `Gamma`, include the output of `Semantics(w,Prefix(X))`.
 
 Whereas (1) assigns sentence letters to a propositions, (2) requires `w` to be a world, and (3) requires each sentence included in `Gamma` to be true at `w`.
 
