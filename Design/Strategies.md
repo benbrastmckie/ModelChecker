@@ -16,8 +16,8 @@ Z3 looks for models that satisfy a set of specified constraints.
 Variables to be specified by the user include:
 
 1. Let `N` be the number of atomic states under consideration.
-2. Let `Atoms` be a finite set of sentence letters, e.g., `{A,B,C,D}`.
-3. Let `Gamma` be a finite set of infix sentences with sentence letters in `Atoms`.
+2. Let `Atoms` be a list of sentence letters, e.g., `{A,B,C,D}`.
+3. Let `Gamma` be a list of infix sentences with sentence letters in `Atoms`.
 
 ### Glossary
 
