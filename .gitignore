@@ -1,8 +1,8 @@
-Overview/Overview.aux
-Overview/Overview.bbl
-Overview/Overview.blg
-Overview/Overview.fdb_latexmk
-Overview/Overview.fls
-Overview/Overview.log
-Overview/Overview.pdf
-Overview/Overview.synctex.gz
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.pdf
+*.synctex.gz
