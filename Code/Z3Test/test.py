@@ -21,22 +21,6 @@ def prove(f):
 # print ("Proving demorgan...")
 # prove(demorgan)
 
-<<<<<<< HEAD
-p, q = Bools('p q')
-demorgan = And(p, q) == Not(Or(Not(p), Not(q)))
-print (demorgan)
-
-def prove(f):
-    s = Solver()
-    s.add(Not(f))
-    if s.check() == unsat:
-        print ("proved")
-    else:
-        print ("failed to prove")
-
-print ("Proving demorgan...")
-prove(demorgan)
-=======
 bitvec_attempt = BitVec('bitty',4)
 print(bitvec_attempt)
 x = BitVec('x', 16)
@@ -84,12 +68,10 @@ print(a)
 # here is another note
 
 def is_atomic(bit_vector):
-    pass
-    # if bitvector is a power of 2, it's an atomic state
+    return And(x != 0, 0 == (x & (x - 1)))
 
 def is_part_of(bit_s, bit_t):
     return fusion(bit_s, bit_t) == bit_t # I think this is the right OR operation?
 
 def fusion(bit_s, bit_t): 
     return bit_s | bit_t
->>>>>>> e7dcde1 (added a resource and some things on test.py)
