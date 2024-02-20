@@ -16,9 +16,9 @@ General
 
 Interpretation
 
-- what are the primitive types/sorts in Z3?
+- what are the primitive types/sorts in Z3? M: seems that BitVecVal is a more useful type than BitVec. It seems we'll need to initialize BitVec(Val)s as numbers (this adds another interesting meta-layer to the project, bc the states are effectively numbers, but we don't care about the facts they're numbers). There seems to also be a difference betewen #b (prefix for binary bitvectors) and bvor types (prefix for or-constructions, put loosely). I haven't been able to find where this is formalized in the documentation of Z3. Also, you can only do | (or) on bitvectors of the same number of bits. 
 - can types/sorts be defined and what does this mean/entail?
 
 Optimization
 
-- What size bitvector does it make sense to start with?
+- What size bitvector does it make sense to start with? M: not a power of 2 (those are represented in hexadecimal notation, for whatever reason). Based off our convo last Wednesday (2/12), 8 seems like a huge state space (and every other space) already, so maybe 5, 7, or 9? But I really don't know, defer to @B
