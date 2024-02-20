@@ -19,6 +19,8 @@ Variables to be specified by the user include:
 2. Let `Atoms` be a list of sentence letters, e.g., `{A,B,C,D}`.
 3. Let `Gamma` be a list of infix sentences with sentence letters in `Atoms`.
 
+- M: I think it may be easier to write up a semantics file and then make it pretty at the end (like make these variables easily accessible)
+
 ### Glossary
 
 These definitions indicate the intended meanings of the elements employed below.
