@@ -79,12 +79,14 @@ def fusion(bit_s, bit_t):
 # we can set a bitvector equal to a number iwth BitVecVal(value, bits).
 # THIS type of bitvector can be represented as a vector with self.sexpr()
 # I'm honestly not sure what the BitVec class by itself is good for.
+# also hexadecimal vs binary representation issue (easy fix, just need to be on same page)
 a = BitVec('a', 5)
 x = BitVecVal(5,5) # x.sexpr() = #b00101
 # print(type(a) == type(x)) # is False
 
 y = BitVecVal(4,5) # y.sexpr() = #b00100
 z = BitVecVal(2,5) # z.sexpr() = #b00010
-print(fusion(x,y)) # want to print a BitVecNumRef with sexpr #b00101
+alpha = fusion(x,y) # want to print a BitVecNumRef with sexpr #b00101
+print(alpha.sexpr()) # prints (bvor #b00101 #b00100)
 print(is_part_of(x,y)) # want this to print True
 print(is_part_of(x,z)) # want this to print False
