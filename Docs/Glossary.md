@@ -11,3 +11,4 @@ Bitwise operators: OR, AND,...
 
 - OR is binary state-fusion and helps define state-parthood
 - https://en.wikipedia.org/wiki/Bitwise_operation
+- | (x | y) command is used for OR between bit vectors and returns a bvor (not sure how Z3 classifies this in terms of classes/primitive objects). This is different from the Or(x,y), which takes bools and returns a bool. 
