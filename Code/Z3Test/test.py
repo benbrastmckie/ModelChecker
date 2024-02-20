@@ -74,6 +74,17 @@ def is_part_of(bit_s, bit_t):
     return fusion(bit_s, bit_t) == bit_t # I think this is the right OR operation?
 
 def fusion(bit_s, bit_t): 
-    return bit_s | bit_t
-# seems that we set bitvectors just by setting it equal to a number. 
-# I haven't found a way to actually see the bitvector itself. 
+    return bit_s | bit_t # looks like this or function isn't it
+
+# we can set a bitvector equal to a number iwth BitVecVal(value, bits).
+# THIS type of bitvector can be represented as a vector with self.sexpr()
+# I'm honestly not sure what the BitVec class by itself is good for.
+a = BitVec('a', 5)
+x = BitVecVal(5,5) # x.sexpr() = #b00101
+# print(type(a) == type(x)) # is False
+
+y = BitVecVal(4,5) # y.sexpr() = #b00100
+z = BitVecVal(2,5) # z.sexpr() = #b00010
+print(fusion(x,y)) # want to print a BitVecNumRef with sexpr #b00101
+print(is_part_of(x,y)) # want this to print True
+print(is_part_of(x,z)) # want this to print False
