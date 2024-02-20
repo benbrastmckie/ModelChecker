@@ -68,10 +68,12 @@ print(a)
 # here is another note
 
 def is_atomic(bit_vector):
-    return And(x != 0, 0 == (x & (x - 1)))
+    return And(x != 0, 0 == (x & (x - 1))) # this is taken from a Z3 documentation place thing
 
 def is_part_of(bit_s, bit_t):
     return fusion(bit_s, bit_t) == bit_t # I think this is the right OR operation?
 
 def fusion(bit_s, bit_t): 
     return bit_s | bit_t
+# seems that we set bitvectors just by setting it equal to a number. 
+# I haven't found a way to actually see the bitvector itself. 
