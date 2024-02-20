@@ -87,6 +87,7 @@ x = BitVecVal(5,5) # x.sexpr() = #b00101
 y = BitVecVal(4,5) # y.sexpr() = #b00100
 z = BitVecVal(2,5) # z.sexpr() = #b00010
 alpha = fusion(x,y) # want to print a BitVecNumRef with sexpr #b00101
+print(alpha.sort()) # return BitVec(5)
 print(alpha.sexpr()) # prints (bvor #b00101 #b00100)
 print(is_part_of(x,y)) # want this to print True
 print(is_part_of(x,z)) # want this to print False
