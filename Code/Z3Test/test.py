@@ -71,12 +71,14 @@ def is_atomic(bit_vector):
     return And(x != 0, 0 == (x & (x - 1))) # this is taken from a Z3 documentation place thing
 
 def is_part_of(bit_s, bit_t):
-    return fusion(bit_s, bit_t) == bit_t # I think this is the right OR operation?
+    return fusion(bit_s, bit_t).sexpr() == bit_t.sexpr() # I think this is the right OR operation?
+    # adding the sexpr()s above seemed to do the trick, not sure why.
 
 def fusion(bit_s, bit_t): 
-    return bit_s | bit_t # looks like this or function isn't it
+    fused = bit_s | bit_t # this 'or' function by itself isn't it
+    return simplify(fused) # this turns it from bvor to #b
 
-# we can set a bitvector equal to a number iwth BitVecVal(value, bits).
+# we can set a bitvector equal to a number with BitVecVal(value, bits).
 # THIS type of bitvector can be represented as a vector with self.sexpr()
 # I'm honestly not sure what the BitVec class by itself is good for.
 # also hexadecimal vs binary representation issue (easy fix, just need to be on same page)
@@ -87,7 +89,12 @@ x = BitVecVal(5,5) # x.sexpr() = #b00101
 y = BitVecVal(4,5) # y.sexpr() = #b00100
 z = BitVecVal(2,5) # z.sexpr() = #b00010
 alpha = fusion(x,y) # want to print a BitVecNumRef with sexpr #b00101
-print(alpha.sort()) # return BitVec(5)
-print(alpha.sexpr()) # prints (bvor #b00101 #b00100)
-print(is_part_of(x,y)) # want this to print True
-print(is_part_of(x,z)) # want this to print False
+print("THIs is alpha:",alpha, alpha.sexpr())
+# print(alpha.sort()) # return BitVec(5)
+# print(alpha.sexpr()) # prints (bvor #b00101 #b00100)
+alpha_simplified = simplify(alpha)
+print(alpha_simplified, alpha_simplified.sexpr()) # perfect! got it to work
+print(is_part_of(y,x)) # want this to print True
+print(is_part_of(z,x)) # want this to print False
+
+# next step could be making a class on python for states. 

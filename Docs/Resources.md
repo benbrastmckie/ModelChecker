@@ -26,6 +26,8 @@ Data types at 12:30 min
 
 M: I found this resource on bitvectors in Z3 in Python: https://z3prover.github.io/papers/programmingz3.html#sec-bit-vectors
 
+M: Here's the documentation for the BitVec class. This was very useful for figuring out initial basic functions we need: https://z3prover.github.io/api/html/classz3py_1_1_bit_vec_ref.html#a2dc603abe7ad823ab679e21f19f1233a
+
 BitVector module
 
     https://pypi.org/project/BitVector/
