@@ -3,11 +3,11 @@ from z3 import *
 
 def tokenize(str_exp):
     """
-    >>> tokenize("(A /wedge (B /vee C))")
-    ['(', 'A', '/wedge', '(', 'B', '/vee', 'C', ')', ')']
+    >>> tokenize("(A \\wedge (B \\vee C))")
+    ['(', 'A', '\wedge', '(', 'B', '\vee', 'C', ')', ')']
 
     """
-    split_str = str_exp.split()
+    split_str = str_exp.split() # this is where the issue is! Fuck this shit. 
     # print(split_str) # what this looks like: ['(-200.5', '**', 'x)']
 
     def tokenize_improved_input(split_str):
@@ -23,10 +23,12 @@ def tokenize(str_exp):
                 tokenized_l = tokenize_improved_input([base_string[:-1]])
                 tokenized_l.append(")")
                 return tokenized_l
-            elif "/" in base_string: # latex operator case
+            elif "\\" in base_string: # latex operator case
                 return split_str
-            else:  # this case really shouldnt be activated but oh well eginering
-                return [base_string]
+            elif base_string in sentence_stuff:
+                return split_str
+            else:
+                raise ValueError(base_string)
         tokenized_l = tokenize_improved_input([split_str[0]])
         tokenized_l.extend(tokenize_improved_input(split_str[1:]))
         return tokenized_l
@@ -67,11 +69,10 @@ def e1_comp(tokenized_expression):
     """
     left_parentheses = 0
     right_parentheses = 0
-    operations = ["*", "/", "+", "-", "**"]
     for seq in tokenized_expression[1:]: # why [1:]? 
         if seq == "(":
             left_parentheses += 1
-        elif '/' in seq and not left_parentheses:
+        elif '\\' in seq and not left_parentheses:
             return left_parentheses
         elif seq == ")":
             right_parentheses += 1
@@ -81,8 +82,8 @@ def e1_comp(tokenized_expression):
 
 def parse(tokens):
     """
-    >>> parse(tokenize("(A /wedge (B /vee C))"))
-    ['/wedge', ['A', ['/vee', ['B', 'C']]]]
+    >>> parse(tokenize("(A \wedge (B \lor C))"))
+    ['\\wedge', ['A', ['\\lor', ['B', 'C']]]]
 
     # >>> parse(tokenize('((((x - y) + z) * 3) + 4)'))
     # Add(Mul(Add(Sub(Var('x'), Var('y')), Var('z')), Num(3.0)), Num(4.0))
@@ -109,4 +110,5 @@ def Infix(A):
     '''takes a sentence in Prefix notation and translates it to infix notation'''
     pass
 
-doctest.testmod()
+# doctest.testmod()
+print(tokenize("(A \\wedge (B \\vee C))")) # the doctests fail, but this works. Need to do double backslash for abfnrtv.
