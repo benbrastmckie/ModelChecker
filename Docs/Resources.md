@@ -10,6 +10,10 @@ SMT info with lots of Z3 examples:
 
     https://smt.st/SAT_SMT_by_example.pdf
 
+BitVec operations:
+
+    https://graphics.stanford.edu/~seander/bithacks.html
+
 ### Videos:
 
     https://m.youtube.com/watch?v=iz4c5F3sjI8&pp=ygUNWjMgYml0dmVjdG9ycw%3D%3D
@@ -22,11 +26,13 @@ Data types at 12:30 min
 
 ## Python
 
-@_M_: if you know of good python resources that you have used, please feel free to link some of them here.
+Resource on bitvectors in Z3 in Python:
 
-M: I found this resource on bitvectors in Z3 in Python: https://z3prover.github.io/papers/programmingz3.html#sec-bit-vectors
+    https://z3prover.github.io/papers/programmingz3.html#sec-bit-vectors
 
-M: Here's the documentation for the BitVec class. This was very useful for figuring out initial basic functions we need: https://z3prover.github.io/api/html/classz3py_1_1_bit_vec_ref.html#a2dc603abe7ad823ab679e21f19f1233a
+Documentation for the BitVec class:
+
+    https://z3prover.github.io/api/html/classz3py_1_1_bit_vec_ref.html#a2dc603abe7ad823ab679e21f19f1233a
 
 BitVector module
 

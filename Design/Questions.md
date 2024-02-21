@@ -10,15 +10,23 @@ Questions should be organized under a topic when possible.
 
 General
 
+- What is the BitVec class by itself good for?
+- What does sexpr() do?
 - Suppose Z3 finds that ${ A, B, C, ~D }$ is unsatisfiable.
   - How do we know how many models it tried and how big those models were?
   - Knowing this tells us about the strength of the evidence that ${ A, B, C }$ entails $D$.
 
 Interpretation
 
-- what are the primitive types/sorts in Z3? M: seems that BitVecVal is a more useful type than BitVec. It seems we'll need to initialize BitVec(Val)s as numbers (this adds another interesting meta-layer to the project, bc the states are effectively numbers, but we don't care about the facts they're numbers). There seems to also be a difference betewen #b (prefix for binary bitvectors) and bvor types (prefix for or-constructions, put loosely). I haven't been able to find where this is formalized in the documentation of Z3. Also, you can only do | (or) on bitvectors of the same number of bits. 
+- what are the primitive types/sorts in Z3?
+  - _M_ seems that BitVecVal is a more useful type than BitVec.
+    - It seems we'll need to initialize BitVec(Val)s as numbers (this adds another interesting meta-layer to the project, bc the states are effectively numbers, but we don't care about the facts they're numbers).
+    - There seems to also be a difference betewen #b (prefix for binary bitvectors) and bvor types (prefix for or-constructions, put loosely).
+    - I haven't been able to find where this is formalized in the documentation of Z3.
+    - Also, you can only do | (or) on bitvectors of the same number of bits.
 - can types/sorts be defined and what does this mean/entail?
-- How transparent do we want the model to be? e.g., we can easily just make states bitvectors, but it'd be nice to actually vizualize states as bitvectors instead of seeing them as numbers (or the ugly format that Z3 .sexpr() gives)
+  - _M_ How transparent do we want the model to be?
+    - We can easily just make states bitvectors, but it'd be nice to actually vizualize states as bitvectors instead of seeing them as numbers (or the ugly format that Z3 .sexpr() gives)
 
 Optimization
 
@@ -26,5 +34,5 @@ Optimization
 
 ## Python
 
-- What do we want to do with Prefix notation? I have a version working with lists, but there's not much you can do with that (or, better said, we can turn it into something more powerful, functioning like a symbolic calculator, if need be). 
-- unfortunately the backslash character, as in Latex, is in Python a special character. I've made a infix-->prefix function that uses forward slashes. How much of a problem would that be? 
+- What do we want to do with Prefix notation? I have a version working with lists, but there's not much you can do with that (or, better said, we can turn it into something more powerful, functioning like a symbolic calculator, if need be).
+- unfortunately the backslash character, as in Latex, is in Python a special character. I've made a infix-->prefix function that uses forward slashes. How much of a problem would that be?

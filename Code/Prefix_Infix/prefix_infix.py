@@ -1,20 +1,23 @@
 import doctest
 from z3 import *
 
+
 def tokenize(str_exp):
     """
     >>> tokenize("(A \\wedge (B \\vee C))")
     ['(', 'A', '\wedge', '(', 'B', '\vee', 'C', ')', ')']
 
     """
-    split_str = str_exp.split() # this is where the issue is! Fuck this shit. 
+    split_str = str_exp.split()  # this is where the issue is! Fuck this shit.
     # print(split_str) # what this looks like: ['(-200.5', '**', 'x)']
 
     def tokenize_improved_input(split_str):
         sentence_stuff = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        if len(split_str) == 1: # split_str is a list with one elem (has been called recursively or is last elem)
-            base_string = split_str[0] # base_string is a string
+        if len(split_str) == 1:
+            # split_str is a list with one elem (has been called recursively or is last elem)
+            base_string = split_str[0]  # base_string is a string
             # 3 cases: either there is a parenthesis (2 cases, each treated differently), or there isn't
+            # NOTES: 4 cases? another for latex operator?
             if "(" in base_string:  # left parentheses in base_string
                 tokenized_l = ["("]
                 tokenized_l.extend(tokenize_improved_input([base_string[1:]]))
@@ -23,7 +26,7 @@ def tokenize(str_exp):
                 tokenized_l = tokenize_improved_input([base_string[:-1]])
                 tokenized_l.append(")")
                 return tokenized_l
-            elif "\\" in base_string: # latex operator case
+            elif "\\" in base_string:  # latex operator case
                 return split_str
             elif base_string in sentence_stuff:
                 return split_str
@@ -40,7 +43,8 @@ def comp(tokenized_expression):
     """
     finds complexity, defined by number of operators, in a tokenized_expression.
     In reality, it counts left parentheses. But it can easily be shown by induction
-    that this number and that of operators is equal. 
+    that this number and that of operators is equal.
+    # NOTES: what about negation? could it count `\\` instead?
 
     >>> comp(tokenize('(A /wedge (B /vee C))'))
     2
@@ -58,6 +62,8 @@ def e1_comp(tokenized_expression):
     first item. Starting after the expression's initial parenthesis, the point
     at which the number of left parentheses equals the number of right is the
     first expression (as it is closed there)
+    # NOTE: what is the first expression?
+    # consider: ((A \\op (B \\op C)) \\op (D \\op E))
     >>> e1_comp(tokenize('(A /wedge (B /vee C))'))
     0
 
@@ -69,10 +75,10 @@ def e1_comp(tokenized_expression):
     """
     left_parentheses = 0
     right_parentheses = 0
-    for seq in tokenized_expression[1:]: # why [1:]? 
+    for seq in tokenized_expression[1:]:  # why [1:]? # NOTE: curious about this
         if seq == "(":
             left_parentheses += 1
-        elif '\\' in seq and not left_parentheses:
+        elif "\\" in seq and not left_parentheses:
             return left_parentheses
         elif seq == ")":
             right_parentheses += 1
@@ -103,12 +109,16 @@ def parse(tokens):
 
 
 def Prefix(A):
-    '''takes a sentence in Infix notation and translates it to prefix notation'''
+    """takes a sentence in Infix notation and translates it to prefix notation"""
     return parse(tokenize(A))
 
+
 def Infix(A):
-    '''takes a sentence in Prefix notation and translates it to infix notation'''
+    """takes a sentence in Prefix notation and translates it to infix notation"""
     pass
 
+
 # doctest.testmod()
-print(tokenize("(A \\wedge (B \\vee C))")) # the doctests fail, but this works. Need to do double backslash for abfnrtv.
+print(
+    tokenize("(A \\wedge (B \\vee C))")
+)  # the doctests fail, but this works. Need to do double backslash for abfnrtv.
