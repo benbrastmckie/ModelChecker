@@ -57,10 +57,10 @@ def binary_comp(tokenized_expression):
     # this does limit how we demand the inputs be written, though (ie, no (/neg A) bc it'll count that as
     comp == 1. though we can edit the funcs to be able to handle this case)
 
-    >>> comp(tokenize('(A /wedge (B /vee C))'))
+    >>> binary_comp(tokenize('(A /wedge (B /vee C))'))
     2
 
-    >>> comp(tokenize('/neg (A /wedge (B /vee C))'))
+    >>> binary_comp(tokenize('/neg (A /wedge (B /vee C))'))
     2
     """
     left_parentheses = 0
@@ -142,4 +142,4 @@ def Infix(A):
     pass
 
 doctest.testmod()
-# print(tokenize("(A \\wedge (B \\vee C))")) # the doctests fail, but this works. Need to do double backslash for abfnrtv.
+print(tokenize("(A \\wedge (B \\vee C))")) # the doctests fail, but this works. Need to do double backslash for abfnrtv.
