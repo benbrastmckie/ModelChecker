@@ -47,12 +47,15 @@ def tokenize(str_exp):
     return tokenize_improved_input(split_str)
 
 
-def comp(tokenized_expression):
+def binary_comp(tokenized_expression):
     """
     finds complexity, defined by number of operators, in a tokenized_expression.
     In reality, it counts left parentheses. But it can easily be shown by induction
     that this number and that of operators is equal.
     # NOTES: what about negation? could it count `\\` instead?
+    # we can actually completely avoid factoring negation in. 
+    # this does limit how we demand the inputs be written, though (ie, no (/neg A) bc it'll count that as
+    comp == 1. though we can edit the funcs to be able to handle this case)
 
     >>> comp(tokenize('(A /wedge (B /vee C))'))
     2
@@ -113,11 +116,8 @@ def parse(tokens):
     >>> parse(tokenize("/neg A"))
     ['/neg', ['A']]
 
-    # >>> parse(tokenize('((((x - y) + z) * 3) + 4)'))
-    # Add(Mul(Add(Sub(Var('x'), Var('y')), Var('z')), Num(3.0)), Num(4.0))
-
     """
-    comp_tokens = comp(tokens)
+    comp_tokens = binary_comp(tokens)
     if 'neg' in tokens[0]:
         return [tokens[0], [parse(tokens[1:])]]
     if comp_tokens == 0:
