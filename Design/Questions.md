@@ -23,3 +23,8 @@ Interpretation
 Optimization
 
 - What size bitvector does it make sense to start with? M: not a power of 2 (those are represented in hexadecimal notation, for whatever reason). Based off our convo last Wednesday (2/12), 8 seems like a huge state space (and every other space) already, so maybe 5, 7, or 9? But I really don't know, defer to @B
+
+## Python
+
+- What do we want to do with Prefix notation? I have a version working with lists, but there's not much you can do with that (or, better said, we can turn it into something more powerful, functioning like a symbolic calculator, if need be). 
+- unfortunately the backslash character, as in Latex, is in Python a special character. I've made a infix-->prefix function that uses forward slashes. How much of a problem would that be? 
