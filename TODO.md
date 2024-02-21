@@ -15,19 +15,21 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [ ] _B_ move from set-fusion to binary fusion throughout
 
-## Design
+## Strategies
 
-- [:] _B_ outline model checker design strategies
+- [x] _B_ outline model checker design strategies
+- [ ] _B_ make doc follow py program
+  - [ ] _B_ replace `OR` with `fusion`
 
 ## Python
 
 - [ ] _M_ infix/prefix functions
   - [x] _M_ review `/Design/Strategies.md`, raising any questions in the corresponding GitHub issue.
-  - [ ] _M_ confirm whether LaTeX commands will serve as suitable notation in python
+  - [.] _M_ confirm whether LaTeX commands will serve as suitable notation in python
   - [ ] _M_ build algorithm for going in either direction
     - [x] _M_ prefix function translating into prefix notation
     - [ ] _M_ infix function translating back into infix notation
-  - [:] _B_ research what Z3 wants for sentences to be interpreted
+  - [:] research what Z3 wants for sentences to be interpreted
 
 ## Z3
 
@@ -40,8 +42,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] _M_ read about how to use Z3 adding resources to `Resources.md`
     - [ ] _B_ add information about how Z3 works to `Resources.md`
 - [ ] basic definitions in Z3
-  - [ ] fusion
-  - [ ] parthood
+  - [.] fusion
+  - [.] parthood
   - [ ] state space
   - [ ] modal frame
   - [ ] compatible
