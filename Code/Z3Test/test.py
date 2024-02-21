@@ -117,5 +117,7 @@ print(alpha_simplified, alpha_simplified.sexpr())  # perfect! got it to work
 print(is_part_of(y, x))  # want this to print True
 print(is_part_of(z, x))  # want this to print False
 
+beta = BitVecVal(21, 4)  # z.sexpr() = #b00010
+print(beta.sexpr())
 # next step could be making a class on python for states.
 # NOTES: discuss
