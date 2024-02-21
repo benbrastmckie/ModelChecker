@@ -17,6 +17,37 @@
 
 \linespread{1.05} % Change line spacing here, Palatino benefits from a slight increase by default
 
+
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\usepackage{listings}
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    % numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+
 \DeclareSymbolFont{symbolsC}{U}{txsyc}{m}{n}
 \SetSymbolFont{symbolsC}{bold}{U}{txsyc}{bx}{n}
 \DeclareFontSubstitution{U}{txsyc}{m}{n}
@@ -111,7 +142,7 @@ The following definitions will use \textit{lists} to encode the propositional se
 \begin{enumerate}
   \item[\it Signature:] The language is specified by providing a list of operators $\Q=\tuple{Q_1,Q_2,\ldots}$ where each $Q_i$ has a finite $\arity{Q_i}$.
   \item[\it Language:] Letting $\Lit_n=\set{p_i:1\leq i\leq n}$ be the first $n$ \textit{sentence letters}, we may refer to $\L_n=\tuple{\Lit_n,\Q}$ as a language of \textit{rank} $n$ with operators $\Q$.
-  \item[\it Grammar:] We may encode the sentences of $\L_n$ in Polish notation as follows:
+  \item[\it Grammar:] We may encode the sentences of $\L_n$ in infix notation as follows:
     \begin{itemize}
       \item If $A\in\Lit_n$, then $[A]$ is a sentence of $\L_n$.
       \item If $\arity{Q}=k$ and $B_i$ is a sentence of $\L_n$ for each $1\leq i\leq k$, then $[Q,B_1,\ldots,B_k]$ is a sentence of $\L_n$.
@@ -127,6 +158,14 @@ This section defines frames in terms of \textit{bitvectors}, i.e., sequences of 
 \begin{enumerate}
   \item[\it States:] An $n$-\textit{state} $s=\tuple{s_1,\ldots,s_n}$ is any bitvector of $1$s and $0$s of length $n$.
   \item[\it Atomic States:] A state which includes exactly one occurrence of $1$ is \textit{atomic} where this corresponds to a specific way of being, e.g., the cat is on the mat.
+    % The property \texttt{is_atomic} may be defined for states as follows:
+  \begin{lstlisting}[language=Python]
+
+      def is_atomic(bit_vector):
+        return And(
+            x != 0, 0 == (x & (x - 1))
+        )
+    \end{lstlisting}
   % \item[\it Null State:] The \textit{null $n$-state} $\square=\tuple{0,\ldots,0}$ obtains trivially since it includes nothing.
   \item[\it Parthood:] An $n$-state $s$ is \textit{part of} an $n$-state $t$ (i.e., $s\sqsubseteq t$) \textit{iff} $s_i\leq t_i$ for all $1\leq i\leq n$.
     \begin{itemize}
