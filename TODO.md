@@ -14,22 +14,30 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Overview
 
 - [ ] _B_ move from set-fusion to binary fusion throughout
+- [ ] _B_ set up test solvers in Z3 with constraints
 
 ## Strategies
 
 - [x] _B_ outline model checker design strategies
-- [ ] _B_ make doc follow py program
-  - [ ] _B_ replace `OR` with `fusion`
+- [ ] _B_ run strategies by Graham
+  - [ ] research what Z3 wants for predicates to be interpreted
+- [.] _B_ make doc follow py program
+  - [.] _B_ document purpose
+  - [x] _B_ replace `Or` with `fusion`
+- [x] _B_ representation function
+  - [x] document purpose
+  - [x] create issue
 
 ## Python
 
-- [ ] _M_ infix/prefix functions
+- [:] _M_ prefix function
   - [x] _M_ review `/Design/Strategies.md`, raising any questions in the corresponding GitHub issue.
-  - [.] _M_ confirm whether LaTeX commands will serve as suitable notation in python
-  - [ ] _M_ build algorithm for going in either direction
-    - [x] _M_ prefix function translating into prefix notation
-    - [ ] _M_ infix function translating back into infix notation
-  - [:] research what Z3 wants for sentences to be interpreted
+  - [x] _M_ confirm whether LaTeX commands will serve as suitable notation in python
+  - [:] _M_ prefix function translating into prefix notation
+    - [ ] _M_ clean up function names/stray parts
+    - [ ] _M_ check that `(A \\wedge B)` goes to `[Wedge, A, B]`
+      - No slashes are needed here since we just need a way to distinguish the operators from each other.
+    - [ ] _B_ move notes elsewhere
 
 ## Z3
 
@@ -42,8 +50,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] _M_ read about how to use Z3 adding resources to `Resources.md`
     - [ ] _B_ add information about how Z3 works to `Resources.md`
 - [ ] basic definitions in Z3
-  - [.] fusion
-  - [.] parthood
+  - [x] atomic
+  - [x] fusion
+  - [x] parthood
   - [ ] state space
   - [ ] modal frame
   - [ ] compatible

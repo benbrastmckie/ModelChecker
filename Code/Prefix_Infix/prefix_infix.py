@@ -35,7 +35,7 @@ def tokenize(str_exp):
                 tokenized_l = tokenize_improved_input([base_string[:-1]])
                 tokenized_l.append(")")
                 return tokenized_l
-            elif "\\" or '/' in base_string: # latex operator case
+            elif "\\" or "/" in base_string:  # latex operator case
                 return split_str
             elif base_string in sentence_stuff:
                 return split_str
@@ -53,7 +53,7 @@ def binary_comp(tokenized_expression):
     In reality, it counts left parentheses. But it can easily be shown by induction
     that this number and that of operators is equal.
     # NOTES: what about negation? could it count `\\` instead?
-    # we can actually completely avoid factoring negation in. 
+    # we can actually completely avoid factoring negation in.
     # this does limit how we demand the inputs be written, though (ie, no (/neg A) bc it'll count that as
     comp == 1. though we can edit the funcs to be able to handle this case)
 
@@ -93,19 +93,26 @@ def e1comp_and_matrixopindex(tokenized_expression):
     """
     left_parentheses = 0
     right_parentheses = 0
-    if tokenized_expression[0] != '(':
-        raise ValueError(tokenized_expression, 'this case probably shouldnt be being raised by this function')
-    for i, seq in enumerate(tokenized_expression[1:]): # [1:] to exclude the complexity of the matrix operator
+    if tokenized_expression[0] != "(":
+        raise ValueError(
+            tokenized_expression,
+            "this case probably shouldnt be being raised by this function",
+        )
+    for i, seq in enumerate(tokenized_expression[1:]):
+        # [1:] to exclude the complexity of the matrix operator
         if seq == "(":
             left_parentheses += 1
-        elif '\\' in seq and not left_parentheses:
-            return left_parentheses
+        # elif "\\" in seq and not left_parentheses:
+        #     return left_parentheses
+        # NOTE: check ignore
         elif seq == ")":
             right_parentheses += 1
-        elif seq == '\\neg' or seq == '/neg':
-            continue
+        # elif seq == "\\neg" or seq == "/neg":
+        #     continue
+        # NOTE: check ignore
         if left_parentheses == right_parentheses:
-            return left_parentheses, i + 2 # +1 bc list is [1:], and +1 bc it's next elem where the matrix op is
+            return left_parentheses, i + 2
+            # +1 bc list is [1:], and +1 bc it's next elem where the matrix op is
 
 
 def parse(tokens):
@@ -118,14 +125,14 @@ def parse(tokens):
 
     """
     comp_tokens = binary_comp(tokens)
-    if 'neg' in tokens[0]:
+    if "neg" in tokens[0]:
         return [tokens[0], [parse(tokens[1:])]]
     if comp_tokens == 0:
         token = tokens[0]
         return token
     comp_e1, matrix_index = e1comp_and_matrixopindex(tokens)
     op_str = tokens[matrix_index]  # determines how far the operation is
-    e1 = tokens[1 : matrix_index]  # from 1 (exclude first parenthesis) to the same
+    e1 = tokens[1:matrix_index]  # from 1 (exclude first parenthesis) to the same
     # pos of above, bc its exclusive
     e2 = tokens[matrix_index + 1 : -1]  # from pos of op plus 1 to the penultimate,
     # thus excluding the last parentheses, which belongs to the matrix expression
@@ -141,5 +148,9 @@ def Infix(A):
     """takes a sentence in Prefix notation and translates it to infix notation"""
     pass
 
-doctest.testmod()
-# print(tokenize("(A \\wedge (B \\vee C))")) # the doctests fail, but this works. Need to do double backslash for abfnrtv.
+
+# doctest.testmod()
+print(
+    Prefix("(A \\wedge (B \\vee C))")
+    # tokenize("(A \\wedge (B \\vee C))")
+)  # the doctests fail, but this works. Need to do double backslash for abfnrtv.
