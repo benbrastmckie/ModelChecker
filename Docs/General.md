@@ -18,12 +18,9 @@ For learning how to use LazyGit if relevant:
 
     https://github.com/benbrastmckie/.config/blob/master/LearningGit.md
 
-## Z3
-
 ### NixOS
 
 For loading Z3 libraries with nix/nixos.
 
 - run `nix develop` in directory containing `flake.nix` to load shell.
 
-## Python
