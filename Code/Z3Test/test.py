@@ -72,21 +72,22 @@ print(a)
 
 
 def is_atomic(bit_vector):
-    return And(
-        x != 0, 0 == (x & (x - 1))
-    )  # this is taken from a Z3 documentation place thing
-
+    return simplify(And(
+        bit_vector != 0, 0 == (bit_vector & (bit_vector - 1))))  # this is taken from a Z3 documentation place thing
+# for i in range(500): # this short for loop tests is_atomic. Uncomment it to use it; it works. 
+#     bitvec = BitVecVal(i,9)
+#     if is_atomic(bitvec):
+#         print(bitvec.sexpr())
 
 def fusion(bit_s, bit_t):
-    fused = bit_s | bit_t  # this 'or' function by itself isn't it
-    return simplify(fused)  # this turns it from bvor to #b
-    # NOTES: what do | and simplify do?
+        fused = bit_s | bit_t  # | is the or operator
+        return simplify(fused)  # this turns it from bvor to #b. The or operator | seems to return an "or" object of sorts, so simplify turns it into a bitvector object. 
 
 
 def is_part_of(bit_s, bit_t):
     return (
         fusion(bit_s, bit_t).sexpr() == bit_t.sexpr()
-    )  # I think this is the right OR operation?
+    )  # testing if fusion equals bit_t, as definition does
     # adding the sexpr()s above seemed to do the trick, not sure why.
 
 
