@@ -1,5 +1,7 @@
 # Resources
 
+This is place for references to further documentation and other resources.
+
 ## Z3
 
 Z3 Python API Info:
