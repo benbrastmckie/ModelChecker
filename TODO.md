@@ -2,22 +2,14 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
-## Planning
-
-- [x] review and revise plan for the project
-- [x] create scaffolding for documentation, TODOS, and project updates
-- [x] identify tooling (noting this in the docs)
-  - [x] what else in addition to python3 and Z3 is needed?
-  - [x] is latex ok for the overview?
-- [x] get git working
-
 ## Overview
 
 - [ ] _B_ move from set-fusion to binary fusion throughout
 
 ## Strategies
 
-- [x] _B_ outline model checker design strategies
+- [:] _B_ outline model checker design strategies
+  - [ ] _B_ revise
 - [:] _B_ run strategies by Graham
 - [.] research what Z3 wants for predicates to be interpreted
 - [x] _B_ fix docs for prefix
@@ -26,18 +18,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] _B_ representation function
   - [x] document purpose
   - [x] create issue
-
-## Python
-
-- [x] _M_ prefix function
-  - [x] _M_ review `/Design/Strategies.md`, raising any questions in the corresponding GitHub issue.
-  - [x] _M_ confirm whether LaTeX commands will serve as suitable notation in python
-  - [x] _M_ function translating into prefix notation
-    - [x] _M_ clean up function names/stray parts
-    - [x] _M_ check that `(A \\wedge B)` goes to `[Wedge, A, B]`
-      - _M_: it doesn't, but I think the way it is now is better. To get rid of the backslashes would involve another function that may take a lot of computation, but we could leave it like this (right now it accepts double backslash, forwardslash, and no slashes) so that there is maximum flexibility on the user end. Internally of course the issue will have to be resolved, but I think it's easier to map 3 versions of the same command to one function or semantic requirement (ie, \\wedge /wedge and wedge all to Wedge) than to fix them all to a string of that semantic requirement.
-      - _B_: sounds good.
-    - [x] _B_ move notes elsewhere
 
 ## Z3
 
@@ -61,3 +41,34 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] closed
   - [ ] propositions
   - [ ] semantics
+
+## Python
+
+- model builder
+- constraint generators
+  - model constraints
+  - semantic constraints
+  - evaluation constraints
+
+# OLD
+
+## Planning
+
+- [x] review and revise plan for the project
+- [x] create scaffolding for documentation, TODOS, and project updates
+- [x] identify tooling (noting this in the docs)
+  - [x] what else in addition to python3 and Z3 is needed?
+  - [x] is latex ok for the overview?
+- [x] get git working
+
+## Python
+
+- [x] _M_ prefix function
+  - [x] _M_ review `/Design/Strategies.md`, raising any questions in the corresponding GitHub issue.
+  - [x] _M_ confirm whether LaTeX commands will serve as suitable notation in python
+  - [x] _M_ function translating into prefix notation
+    - [x] _M_ clean up function names/stray parts
+    - [x] _M_ check that `(A \\wedge B)` goes to `[Wedge, A, B]`
+      - _M_: it doesn't, but I think the way it is now is better. To get rid of the backslashes would involve another function that may take a lot of computation, but we could leave it like this (right now it accepts double backslash, forwardslash, and no slashes) so that there is maximum flexibility on the user end. Internally of course the issue will have to be resolved, but I think it's easier to map 3 versions of the same command to one function or semantic requirement (ie, \\wedge /wedge and wedge all to Wedge) than to fix them all to a string of that semantic requirement.
+      - _B_: sounds good.
+    - [x] _B_ move notes elsewhere
