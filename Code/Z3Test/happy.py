@@ -3,6 +3,7 @@ from z3 import *
 # Define the variables
 happy = Function("happy", BitVecSort(8), BoolSort())
 dancing = Function("dancing", BitVecSort(8), BoolSort())
+# NOTE: what is a BitVecSort and BoolSort, and also Function type? looks like they'll be very useful
 
 # Create an instance of Z3 solver
 solver = Solver()
