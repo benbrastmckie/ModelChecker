@@ -40,7 +40,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Z3
 
-- [.] _B_ set up test solvers in Z3 with constraints
+- [.] set up test solvers in Z3 with constraints
+  - [ ] troubleshoot `is_part_of` in `parts.py`
+  - [ ] define `verify` and `falsify` predicates in `prop.py`
 - [x] clean up project directory
 - [.] compile a range of resources for learning Z3
   - [.] glossary of commands, basic types/sorts, etc.
@@ -48,7 +50,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] _M_ add Z3 test examples with bitvectors to the `Z3Test/` directory
     - [x] _M_ add questions/answers to `Questions.md`
     - [x] _M_ read about how to use Z3 adding resources to `Resources.md`
-    - [ ] _B_ add information about how Z3 works to `Resources.md`
+    - [.] _B_ add information about how Z3 works to `Resources.md`
 - [.] basic definitions in Z3
   - [x] atomic
   - [x] fusion
