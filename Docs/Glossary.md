@@ -7,8 +7,24 @@
 
 ## Z3
 
-Bitwise operators: OR, AND,...
+Checks whether a bit vector has a single non-zero value.
 
-- OR is binary state-fusion and helps define state-parthood
-- https://en.wikipedia.org/wiki/Bitwise_operation
-- | (x | y) command is used for OR between bit vectors and returns a bvor (not sure how Z3 classifies this in terms of classes/primitive objects). This is different from the Or(x,y), which takes bools and returns a bool. 
+    def is_atomic(bit_vector):
+        return And(
+            x != 0, 0 == (x & (x - 1))
+        )  # this is taken from a Z3 documentation place thing
+
+The fusion of two bit vectors takes the greatest value for each entry.
+
+    def fusion(bit_s, bit_t):
+        fused = bit_s | bit_t  # this 'or' function by itself isn't it
+        return simplify(fused)  # this turns it from bvor to #b
+        # NOTES: what do | and simplify do?
+
+This provides an algebraic definition of parthood in terms of binary fusion.
+
+    def is_part_of(bit_s, bit_t):
+        return (
+            fusion(bit_s, bit_t).sexpr() == bit_t.sexpr()
+        )  # I think this is the right OR operation?
+        # adding the sexpr()s above seemed to do the trick, not sure why.

@@ -45,7 +45,6 @@ b = BitVecVal(65535, 32)
 # -1 is not equal to 65535 for 32-bit integers bc it doesn't wrap around yet
 print(simplify(a == b))
 print(b.sexpr())
-# NOTES: bitvectors represent numbers in binary?
 # is there a difference between saying `b = 5` for a bitvector `b` and saying `b = a` for another bitvector `a`?
 
 # Create two bit-vectors of size 32
@@ -70,18 +69,12 @@ solve(
     x | y == 6, y != 0, x != 0
 )  # it just goes all the way down on one (x), and then goes to the other (y). Nvm, seems more complicated than that, but kinda loosely that if you squint
 print(a)
-# NOTES: what is going on here?
 
 
 def is_atomic(bit_vector):
     return And(
         x != 0, 0 == (x & (x - 1))
     )  # this is taken from a Z3 documentation place thing
-    # NOTES:
-    # 1001 & (1001 - 0001) == 1001 & 1000 == 1000 != 0000
-    # 1000 & (1000 - 0001) == 1000 & 0111 == 0000
-    # 0010 & (0010 - 0001) == 0010 & 0001 == 0000
-    # 1010 & (1010 - 0001) == 1010 & 1001 == 1000 != 0000
 
 
 def fusion(bit_s, bit_t):
@@ -95,7 +88,6 @@ def is_part_of(bit_s, bit_t):
         fusion(bit_s, bit_t).sexpr() == bit_t.sexpr()
     )  # I think this is the right OR operation?
     # adding the sexpr()s above seemed to do the trick, not sure why.
-    # NOTES: what does sexpr() do?
 
 
 # we can set a bitvector equal to a number with BitVecVal(value, bits).
@@ -121,4 +113,3 @@ print(is_part_of(z, x))  # want this to print False
 beta = BitVecVal(21, 4)  # z.sexpr() = #b00010
 print(beta.sexpr())
 # next step could be making a class on python for states.
-# NOTES: discuss
