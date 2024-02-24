@@ -1,6 +1,7 @@
 import doctest
 from z3 import *
 
+
 def tokenize(str_exp):
     """
     >>> tokenize("(A /wedge (B /vee C))")
@@ -16,7 +17,7 @@ def tokenize(str_exp):
     ['/neg', 'A']
 
     """
-    split_str = str_exp.split() # small issue here with doctest cases and backslashes
+    split_str = str_exp.split()  # small issue here with doctest cases and backslashes
 
     def tokenize_improved_input(split_str):
         sentence_stuff = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -33,9 +34,9 @@ def tokenize(str_exp):
                 return tokenized_l
             elif "\\" or "/" in base_string:  # latex operator case
                 return split_str
-            elif base_string in sentence_stuff: # sentence letter case
+            elif base_string in sentence_stuff:  # sentence letter case
                 return split_str
-            raise ValueError(base_string) # these cases should be exhaustive
+            raise ValueError(base_string)  # these cases should be exhaustive
         tokenized_l = tokenize_improved_input([split_str[0]])
         tokenized_l.extend(tokenize_improved_input(split_str[1:]))
         return tokenized_l
@@ -55,7 +56,7 @@ def binary_comp(tokenized_expression):
     >>> binary_comp(tokenize('/neg (A /wedge (B /vee C))'))
     2
     """
-    return len([char for char in tokenized_expression if char == '('])
+    return len([char for char in tokenized_expression if char == "("])
 
 
 def main_op_index(tokenized_expression):
@@ -81,19 +82,26 @@ def main_op_index(tokenized_expression):
     """
     left_parentheses = 0
     right_parentheses = 0
-    if tokenized_expression[0] != '(':
-        raise ValueError(tokenized_expression, 'this case probably shouldnt be being raised by this function')
-    for i, token in enumerate(tokenized_expression[1:]): # [1:] to exclude the complexity of the matrix operator
+    if tokenized_expression[0] != "(":
+        raise ValueError(
+            tokenized_expression,
+            "this case probably shouldnt be being raised by this function",
+        )
+    for i, token in enumerate(
+        tokenized_expression[1:]
+    ):  # [1:] to exclude the complexity of the matrix operator
         if token == "(":
             left_parentheses += 1
         # elif '\\' in seq and not left_parentheses:
         #     return left_parentheses
         elif token == ")":
             right_parentheses += 1
-        elif 'neg' in token:
+        elif "neg" in token:
             continue
         if left_parentheses == right_parentheses:
-            return i + 2 # +1 bc list is [1:], and +1 bc it's next elem where the matrix op is
+            return (
+                i + 2
+            )  # +1 bc list is [1:], and +1 bc it's next elem where the matrix op is
 
 
 def parse(tokens):
@@ -103,21 +111,25 @@ def parse(tokens):
 
     >>> parse(tokenize("/neg A"))
     ['/neg', 'A']
-    
+
     >>> parse(tokenize("A")) # note: atomic sentence should return a string
     'A'
     """
     comp_tokens = binary_comp(tokens)
-    if 'neg' in tokens[0]:
+    if "neg" in tokens[0]:
         return [tokens[0], parse(tokens[1:])]
     if comp_tokens == 0:
         token = tokens[0]
         return token
     matrix_index = main_op_index(tokens)
     op_str = tokens[matrix_index]  # determines how far the operation is
-    left_expression = tokens[1 : matrix_index]  # from 1 (exclude first parenthesis) to the same
+    left_expression = tokens[
+        1:matrix_index
+    ]  # from 1 (exclude first parenthesis) to the same
     # pos of above, bc its exclusive
-    right_expression = tokens[matrix_index + 1 : -1]  # from pos of op plus 1 to the penultimate,
+    right_expression = tokens[
+        matrix_index + 1 : -1
+    ]  # from pos of op plus 1 to the penultimate,
     # thus excluding the last parentheses, which belongs to the matrix expression
     return [op_str, parse(left_expression), parse(right_expression)]
 
@@ -132,5 +144,7 @@ def Infix(A):
     pass
 
 
-doctest.testmod()
-print(tokenize("(A \\wedge (B \\vee C))")) # the doctests fail, but this works. Need to do double backslash for abfnrtv.
+# doctest.testmod()
+# print(tokenize("(A \\wedge (B \\vee C))"))
+print(Prefix("(A \\wedge (B \\vee C))"))
+# the doctests fail, but this works. Need to do double backslash for abfnrtv.
