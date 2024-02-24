@@ -10,7 +10,7 @@ Questions should be organized under a topic when possible.
 
 - [ ] How should the user inputs be defined
   - M: I think it may be easier to write up a semantics file and then make it pretty at the end (like make these variables easily accessible)
-  - B: That sounds good! I added some rough thoughts for what might go in that file in `Strategies.md`.
+  - B: That sounds good. I added some rough thoughts for what might go in that file in `Strategies.md`.
 
 ## Z3
 
