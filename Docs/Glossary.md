@@ -11,15 +11,14 @@ Checks whether a bit vector has a single non-zero value.
 
     def is_atomic(bit_vector):
         return And(
-            x != 0, 0 == (x & (x - 1))
+            bit_vector != 0, 0 == (bit_vector & (bit_vector - 1))
         )  # this is taken from a Z3 documentation place thing
 
 The fusion of two bit vectors takes the greatest value for each entry.
 
     def fusion(bit_s, bit_t):
-        fused = bit_s | bit_t  # this 'or' function by itself isn't it
-        return simplify(fused)  # this turns it from bvor to #b
-        # NOTES: what do | and simplify do?
+        fused = bit_s | bit_t  # | is the or operator
+        return simplify(fused)  # this turns it from bvor to #b. The or operator | seems to return an "or" object of sorts, so simplify turns it into a bitvector object. 
 
 This provides an algebraic definition of parthood in terms of binary fusion.
 
