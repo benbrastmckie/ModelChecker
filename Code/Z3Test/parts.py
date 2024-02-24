@@ -12,7 +12,8 @@ def fusion(bit_s, bit_t):
 
 def is_part_of(bit_s, bit_t):
     return (
-        fusion(bit_s, bit_t).sexpr() == bit_t.sexpr()
+        fusion(bit_s, bit_t) == bit_t
+        # fusion(bit_s, bit_t).sexpr() == bit_t.sexpr()
     )  # I think this is the right OR operation?
     # adding the sexpr()s above seemed to do the trick, not sure why.
 
@@ -20,17 +21,21 @@ def is_part_of(bit_s, bit_t):
 # Create an instance of Z3 solver
 solver = Solver()
 
-# Define the constraint
+# Define the constraints
 x = BitVec("x", 8)
 y = BitVec("y", 8)
-solver.add(ForAll([x,y], Implies(And(is_part_of(x,y), possible(y)), possible(x))))
 
-# Add the constraint: someone is happy
 solver.add(
-    Exists(y, possible(y)),
-    Exists(y, Not(possible(y)))
+    # Exists(x, possible(x)),
+    Exists(y, Not(possible(y))),
+    ForAll([x,y], Implies(And(is_part_of(x,y), possible(y)), possible(x))),
+    Exists(x, And(
+        possible(x), 
+        ForAll(y, Implies(possible(fusion(y,x)), is_part_of(y,x)))
+    )),
     # Exists([x,y], And(possible(x), possible(y))),
-    # Exists([x,y], is_part_of(x,y)), # NOTE: is_part_of seems not to work in this context
+    # Exists([x,y], And(is_part_of(x,y),possible(y))) 
+    # NOTE: is_part_of seems not to work in this context
 )
 
 # Check if there exists a model
@@ -39,5 +44,6 @@ if solver.check() == sat:
     print("Model found:")
     for d in model.decls():
         print(f"{d.name()} = {model[d]}")
+        # NOTE: I don't think this prints all of what the model includes
 else:
     print("No model found")
