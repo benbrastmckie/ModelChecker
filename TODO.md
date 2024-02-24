@@ -34,8 +34,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] _M_ review `/Design/Strategies.md`, raising any questions in the corresponding GitHub issue.
   - [x] _M_ confirm whether LaTeX commands will serve as suitable notation in python
   - [:] _M_ prefix function translating into prefix notation
-    - [ ] _M_ clean up function names/stray parts
-    - [ ] _M_ check that `(A \\wedge B)` goes to `[Wedge, A, B]`
+    - [x] _M_ clean up function names/stray parts
+    - [:] _M_ check that `(A \\wedge B)` goes to `[Wedge, A, B]` _M_: it doesn't, but I think the way it is now is better. To get rid of the backslashes would involve another function that may take a lot of computation, but we could leave it like this (right now it accepts double backslash, forwardslash, and no slashes) so that there is maximum flexibility on the user end. Internally of course the issue will have to be resolved, but I think it's easier to map 3 versions of the same command to one function or semantic requirement (ie, \\wedge /wedge and wedge all to Wedge) than to fix them all to a string of that semantic requirement. 
       - No slashes are needed here since we just need a way to distinguish the operators from each other.
     - [ ] _B_ move notes elsewhere
 
