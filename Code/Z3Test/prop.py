@@ -39,9 +39,7 @@ def find_happy_dancing_model():
             "Model where someone is happy, and everyone who is happy is dancing but not everyone who is dancing is happy:"
         )
         for person in people:
-            print(
-                f"{person}: happy={model[happy[person]]}, dancing={model[dancing[person]]}"
-            )
+            print(f"{person}: happy={model[happy[person]]}, dancing={model[dancing[person]]}")
     else:
         print("No model found.")
 
