@@ -1,5 +1,7 @@
 from z3 import *
 
+# Bools, Solver, unsat, Not, Or, And, BitVec, simplify, BitVecVal, BitVecs, solve
+
 Tie, Shirt = Bools("Tie Shirt")
 s = Solver()
 s.add(Or(Tie, Shirt), Or(Not(Tie), Shirt), Or(Not(Tie), Not(Shirt)))
@@ -65,23 +67,29 @@ solve(x < 0)
 
 
 a, b = BitVecs("a b", 4)
-solve(
-    x | y == 6, y != 0, x != 0
-)  # it just goes all the way down on one (x), and then goes to the other (y). Nvm, seems more complicated than that, but kinda loosely that if you squint
+solve(x | y == 6, y != 0, x != 0)
+# it just goes all the way down on one (x), and then goes to the other (y).
+# Nvm, seems more complicated than that, but kinda loosely that if you squint
 print(a)
 
 
 def is_atomic(bit_vector):
-    return simplify(And(
-        bit_vector != 0, 0 == (bit_vector & (bit_vector - 1))))  # this is taken from a Z3 documentation place thing
-# for i in range(500): # this short for loop tests is_atomic. Uncomment it to use it; it works. 
+    return simplify(
+        And(bit_vector != 0, 0 == (bit_vector & (bit_vector - 1)))
+    )  # this is taken from a Z3 documentation place thing
+
+
+# for i in range(500): # this short for loop tests is_atomic. Uncomment it to use it; it works.
 #     bitvec = BitVecVal(i,9)
 #     if is_atomic(bitvec):
 #         print(bitvec.sexpr())
 
+
 def fusion(bit_s, bit_t):
-        fused = bit_s | bit_t  # | is the or operator
-        return simplify(fused)  # this turns it from bvor to #b. The or operator | seems to return an "or" object of sorts, so simplify turns it into a bitvector object. 
+    fused = bit_s | bit_t  # | is the or operator
+    return simplify(
+        fused
+    )  # this turns it from bvor to #b. The or operator | seems to return an "or" object of sorts, so simplify turns it into a bitvector object.
 
 
 def is_part_of(bit_s, bit_t):
