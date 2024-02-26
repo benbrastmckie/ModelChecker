@@ -8,7 +8,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Strategies
 
-- [:] _B_ outline model checker design strategies
+- [:] _B_ model checker design strategies
+  - [x] _B_ outline
+  - [x] _B_ email Graham
   - [ ] _B_ revise
 - [:] _B_ run strategies by Graham
 - [.] research what Z3 wants for predicates to be interpreted
@@ -44,7 +46,10 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Python
 
+- sentence letter extractor
 - model builder
+  - function for extracting, renaming, and saving the elements of a Z3 model
+  - function for printing the extracted model in a readable way
 - constraint generators
   - model constraints
   - semantic constraints
