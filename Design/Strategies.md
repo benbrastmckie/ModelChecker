@@ -34,44 +34,62 @@ Variables to be specified by the user are to be included in a file with the foll
 4. Although it is convenient to use LaTeX commands (or something near enough) as inputs, it does not matter what the output operators are, though it would simplify things if they were similar.
 5. If it is easier, slashes could be dropped for the just the output, or for both the input and output.
 
+### Function: sentence letters
+
+Given a list of prefix sentences `input_sentences`, we will need a list of the sentence letters that they contain.
+
+1. Let the list of sentence letters be called `sentence_letters`.
+2. There should not be any repeated entries in `sentence_letters`.
+
+### Definitions: explicit
+
+Drawing on operators already included in Z3 libraries, define the following:
+
+1. `fusion` returns a bitvector given two bitvectors as inputs.
+2. `is_part_of` returns a truth-value given two bitvectors as inputs.
+3. `is_atomic` returns a truth-value given one bitvector as input.
+
 ### Function: model constraints
 
-Given the prefix sentences from the inputs, we will need to know what sentence letters they contain.
-These sentence letters will then be used to generate Z3 constraints which require each sentence letter to be assigned to a proposition where it is up to Z3 to satisfy all of these constraints.
+Given any sentence letter `X`, the function `proposition(X)` generates Z3 constraints which require `X` to be a proposition.
 
-- For any prefix sentence `X`, the function `sentence_letters(X)` returns a set of the sentence letters in contains.
-- Let `Atoms` include all sentence letters in `sentence_letters(X)` for all `X` in `input_sentences`.
-- Given any `X` in `Atoms`, the function `proposition(X)` yields the following Z3 constraints as outputs:
+1. For all `x` and `y`, if `verify(x,X)` and `verify(y,X)`, then `verify(fusion(x,y),X)`.
+2. For all `x` and `y`, if `falsify(x,X)` and `falsify(y,X)`, then `falsify(fusion(x,y,X))`.
+3. For all `x` and `y`, if `verify(x,X)` and `falsify(y,X)`, then `Not(possible(fusion(x,y)))`.
+4. For all `x` and `y`, if `possible(x)`, then `possible(fusion(x,y))` where either `verify(y,X)` or `falsify(y,X)`.
 
-1. If `Verify(x,X)` or `Falsify(x,X)`, then `State(x)`.
-2. If `Verify(x,X)` and `Verify(y,X)`, then `Verify(fusion(x,y),X)`.
-3. If `Falsify(x,X)` and `Falsify(y,X)`, then `Falsify(fusion(x,y,X))`.
-4. If `Verify(x,X)` and `Falsify(y,X)`, then not `Possible(fusion(x,y))`.
-5. If `Possible(x)`, then `Possible(fusion(x,y))` where either `Verify(y,X)` or `Falsify(y,X)`.
-
-The predicates `Verify`, `Falsify`, and `Possible`
 The constraints above require `Verify` and `Falsify` to: (1) only relate states to `X`; (2/3) to be closed under fusion; (4) to be exclusive; and (5) to be exhaustive.
-See the `Overview.pdf` for these constraints.
+See the `Overview.pdf` for related discussion of these constraints.
+
+The constraints above require defining the variables `x` and `y` as well as the predicates included above in something like the following ways:
+  
+1. `x = BitVec("x", N)` and `y = BitVec("y", N)`.
+2. `possible = Function("possible", BitVecSort(N), BoolSort())`.
+3. `verify = Function("verify", BitVecSort(N), SENTENCE_SORT(), BoolSort())`.
+3. `falsify = Function("falsify", BitVecSort(N), SENTENCE_SORT(), BoolSort())`.
+
+We will need to identify what sort the sentence letters belong to.
+This may be something that is best specified all at once for the sentence letters included in `sentence_letters`.
+Alternatively, perhaps this specification for the sentence letter `X` can be included in the output of `proposition(X)`.
+That way, running `proposition(X)` for all sentence letters `X` in `sentence_letters` will adequately define the sort.
+
+### Function: frame constraints
+
+The following constraints only depend on `N`.
+
+1. `x = BitVec("x", N)` and `y = BitVec("y", N)`.
+2. If `possible(x)` and `fusion(x,y) = x`, then `possible(y)`.
 
 ### Function: evaluation constraints
 
 TODO: continue...
 
-1. `Possible(w)`.
-2. If `Possible(x)` and `Possible(fusion(x,w))`, then `fusion(x,w) = w`.
-3. For each sentence `X` in `Gamma`, include the output of `Semantics(w,Prefix(X))`.
+1. `possible(w)`.
+2. If `possible(x)` and `possible(fusion(x,w))`, then `fusion(x,w) = w`.
+3. For each sentence `X` in `input_sentences`, include the output of `Semantics(w,Prefix(X))`.
 
 Whereas (1) assigns sentence letters to a propositions, (2) requires `w` to be a world, and (3) requires each sentence included in `Gamma` to be true at `w`.
 
-### Frame Constraints
-
-The following constraints only depend on `N` where `x`
-
-1. If `State(x)`, then `BitVec(x,N)` i.e., 'x is a bitvector of length N'.
-2. s.add( for all x if state(x), then x is a bitVec(x) )
-3. If `State(x)` and `State(y)`, then `State(fusion(x,y))`.
-4. If `Possible(x)`, then `State(x)`.
-5. If `Possible(x)`, `State(y)`, and `fusion(x,y) = x`, then `Possible(y)`.
 
 ## Processing: finding models with Z3
 
