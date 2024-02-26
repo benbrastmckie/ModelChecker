@@ -1,4 +1,4 @@
-from z3 import *
+from z3 import BoolSort, BitVecSort, Function, simplify, Solver, BitVec, Not, Exists, And, Implies, ForAll, sat
 
 # Define the predicates
 possible = Function("possible", BitVecSort(8), BoolSort())
@@ -31,10 +31,10 @@ solver.add(
     ForAll([x,y], Implies(And(is_part_of(x,y), possible(y)), possible(x))),
     Exists(x, And(
         possible(x),
-        ForAll(y, Implies(possible(fusion(y,x)), is_part_of(y,x)))
+        # ForAll(y, Implies(possible(fusion(y,x)), is_part_of(y,x)))
     )),
     # Exists([x,y], And(possible(x), possible(y))),
-    # Exists([x,y], And(is_part_of(x,y),possible(y))) 
+    # Exists([x,y], And(is_part_of(x,y),possible(y)))
     # NOTE: is_part_of seems not to work in this context
 )
 
