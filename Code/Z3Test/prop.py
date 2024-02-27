@@ -3,12 +3,14 @@ from z3 import *
 # I was thinking this would be a good place to try to get a toy solver going for the predicates 'verify' and 'falsify'
 
 # NOTE: I think this makes X, Y have the sort Atoms... not sure this is useful
-# Atom = DeclareSort('Atom')
-# X, Y = Consts('X Y', Atom) 
+Atom = DeclareSort('Atom')
+X, Y = Consts('X Y', Atom) 
 
 # NOTE: want 'verify' to be a function that takes a bitvector and sentence as input and a truth-value as output
-# verify = Function("verify", BitVecSort(8), Atom, BoolSort()) 
-# falsify = Function("falsify", BitVecSort(8), Atom, BoolSort())
+verify = Function("verify", BitVecSort(8), Atom, BoolSort()) 
+falsify = Function("falsify", BitVecSort(8), Atom, BoolSort())
+
+
 
 def find_happy_dancing_model():
     # Define a set of people
