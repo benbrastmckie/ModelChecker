@@ -40,12 +40,13 @@ Given a list of prefix sentences `input_sentences`, we will need a list of the s
 
 1. Let the list of sentence letters be called `sentence_letters`.
 2. There should not be any repeated entries in `sentence_letters`.
+_M_: done—this is now at the bottom of the `prefix_infix.py` file
 
 ### Definitions: explicit
 
 Drawing on operators already included in Z3 libraries, define the following:
 
-1. `fusion` returns a bitvector given two bitvectors as inputs.
+1. `fusion` returns a bitvector given two bitvectors as inputs. _M_: total fusion also now defined in `test.py`
 2. `is_part_of` returns a truth-value given two bitvectors as inputs.
 3. `is_atomic` returns a truth-value given one bitvector as input.
 
