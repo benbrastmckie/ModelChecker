@@ -51,8 +51,15 @@ solver.add( # NOTE: right now it is not finding a model but should be able to
         # possible(y),
         # NOTE: once a model is found, uncomment the above to see if this makes it unsat
         # M: yeah it does
+           # B: That's great!
+           # B: This should allow to start setting up some of the other constraints
+           # B: Once we can use these to find countermodels by hand we can think about
+           # B: the functions that will generate these constraints (once it is working)
     ),)
     # M: I don't think we actually ever add any of our vars to the solver bc x and y above are bound by quantifiers. 
+        # B: I tried commenting out the variables, but then it throws errors
+        # B: Perhaps defining the variable is more like defining its sort/type?
+        # B: I'll add this to `Questions`
     # BONEYARD:
     # Exists(x, possible(x)),
     # Exists(y, Not(possible(y))),

@@ -1,6 +1,7 @@
 from z3 import * 
 (
     BoolSort,
+    Var,
     BitVecSort,
     Function,
     simplify,
