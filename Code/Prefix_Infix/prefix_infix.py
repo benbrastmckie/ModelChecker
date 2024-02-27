@@ -137,6 +137,31 @@ def Infix(A):
 
 doctest.testmod()
 # print(tokenize("(A \\wedge (B \\vee C))")) # the doctests fail, but this works. Need to do double backslash for abfnrtv.
-print(Prefix("(A \\wedge (B \\vee \\neg C))"))
-print(Prefix("A"))
-print(Prefix('((A \\op (B \\op C)) \\op (D \\op E))'))
+print(Prefix("(A \\wedge (B \\vee \\neg C))")) # ['\\wedge', ['A'], ['\\vee', ['B'], ['\\neg', ['C']]]]
+print(Prefix("A")) 
+print(Prefix('((A \\op (B \\op C)) \\op (D \\op E))')) # ['\\op', ['\\op', ['A'], ['\\op', ['B'], ['C']]], ['\\op', ['D'], ['E']]]
+
+def sentence_letters_in_compound(input_sentence):
+    '''finds all the sentence letters in ONE input sentence. returns a list'''
+    if len(input_sentence) == 1: # base case: atomic sentence
+        return input_sentence
+    if len(input_sentence) == 2:
+        return_list = []
+        return_list.extend(sentence_letters_in_compound(input_sentence[1]))
+        return return_list
+    if len(input_sentence) == 2:
+        return_list = []
+        return_list.extend(sentence_letters_in_compound(input_sentence[1]))
+        return_list.extend(sentence_letters_in_compound(input_sentence[1]))
+        return return_list
+    raise SyntaxError("An element with more than three things (more than binary) was inputted", input_sentence)
+
+
+def all_sentence_letters(input_sentences):
+    '''finds all the sentence letters in a list of input sentences'''
+    sentence_letters = set()
+    for input in input_sentences:
+        sentence_letters_in_input = sentence_letters_in_compound(input)
+        for sentence_letter in sentence_letters_in_input:
+            sentence_letters.add(sentence_letter)
+    return list(sentence_letters)
