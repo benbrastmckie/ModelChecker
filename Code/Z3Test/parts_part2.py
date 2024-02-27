@@ -131,4 +131,3 @@ output = And(
             )
         )
     )
-simplify(a)
