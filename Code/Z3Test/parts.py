@@ -19,33 +19,26 @@ from z3 import (
 )
 
 # Define the predicates
-possible = Function("possible", BitVecSort(8), BoolSort())
-# NOTE: what is a BitVecSort and BoolSort, and also Function type? looks like they'll be very useful
-# B: I think this defines functions from bitvectors to truth-values which is effectively a predicate
+possible = Function("possible", BitVecSort(7), BoolSort())
+# dummy_predicate = Function("dummy")
 
 
 def fusion(bit_s, bit_t):
-    fused = bit_s | bit_t  # | is the or operator
-    return simplify(
-        fused
-    )  # this turns it from bvor to #b. The or operator | seems to return an "or" object of sorts, so simplify turns it into a bitvector object.
+    return bit_s | bit_t  # | is the or operator
+    # seems like the issue was that BitVecs work different from BitVecVals. I think we want to work with BitVecs? so rn it's good
 
 
 def is_part_of(bit_s, bit_t):
-    return (
-        fusion(bit_s, bit_t).sexpr() == bit_t.sexpr()
-    )  # I think this is the right OR operation?
-    # adding the sexpr()s above seemed to do the trick, not sure why.
-
+    return fusion(bit_s, bit_t) == bit_t
 
 # Create an instance of Z3 solver
 solver = Solver()
 
 # Define the constraints
-x = BitVec("x", 8)
-y = BitVec("y", 8)
-z = BitVec("z", 8)
-w = BitVec("w", 8)
+x = BitVec("x", 7)
+y = BitVec("y", 7)
+z = BitVec("z", 7)
+w = BitVec("w", 7)
 
 solver.add( # NOTE: right now it is not finding a model but should be able to
     ForAll([x, y], Implies(
@@ -57,7 +50,9 @@ solver.add( # NOTE: right now it is not finding a model but should be able to
         is_part_of(x, y),
         # possible(y),
         # NOTE: once a model is found, uncomment the above to see if this makes it unsat
-    )),
+        # M: yeah it does
+    ),)
+    # M: I don't think we actually ever add any of our vars to the solver bc x and y above are bound by quantifiers. 
     # BONEYARD:
     # Exists(x, possible(x)),
     # Exists(y, Not(possible(y))),
@@ -81,8 +76,12 @@ solver.add( # NOTE: right now it is not finding a model but should be able to
 if solver.check() == sat:
     model = solver.model()
     print("Model found:")
-    for d in model.decls():
-        print(f"{d.name()} = {model[d]}")
+    for declaration in model.decls():
+        try: # do this to print bitvectors how we like to see them (as vectors)
+            print(f"{declaration.name()} = {model[declaration].sexpr()}")
+        except: # this is for the "else" case (ie, "map everything to x value")
+            print(f"{declaration.name()} = {model[declaration]}")
         # NOTE: I don't think this prints all of what the model includes
+        # M: I think it works. rn it prints "possible = [else -> False]", which means map everything (ie, x and y) to false
 else:
     print("No model found")
