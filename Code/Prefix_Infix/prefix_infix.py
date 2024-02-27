@@ -142,26 +142,23 @@ print(Prefix("A"))
 print(Prefix('((A \\op (B \\op C)) \\op (D \\op E))')) # ['\\op', ['\\op', ['A'], ['\\op', ['B'], ['C']]], ['\\op', ['D'], ['E']]]
 
 def sentence_letters_in_compound(input_sentence):
-    '''finds all the sentence letters in ONE input sentence. returns a list'''
+    '''finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS'''
     if len(input_sentence) == 1: # base case: atomic sentence
         return input_sentence
-    if len(input_sentence) == 2:
-        return_list = []
-        return_list.extend(sentence_letters_in_compound(input_sentence[1]))
-        return return_list
-    if len(input_sentence) == 2:
-        return_list = []
-        return_list.extend(sentence_letters_in_compound(input_sentence[1]))
-        return_list.extend(sentence_letters_in_compound(input_sentence[1]))
-        return return_list
-    raise SyntaxError("An element with more than three things (more than binary) was inputted", input_sentence)
-
+    # recursive case: complex sentence as input. Should have max 3 elems (binary operator) in this list, but figured eh why not not check, above code should ensure that never happens
+    return_list = []
+    for part in input_sentence[1:]:
+        return_list.extend(sentence_letters_in_compound(part))
+    return return_list
 
 def all_sentence_letters(input_sentences):
-    '''finds all the sentence letters in a list of input sentences'''
+    '''finds all the sentence letters in a list of input sentences. returns as a list with no repeats (sorted for consistency)'''
     sentence_letters = set()
     for input in input_sentences:
         sentence_letters_in_input = sentence_letters_in_compound(input)
         for sentence_letter in sentence_letters_in_input:
             sentence_letters.add(sentence_letter)
-    return list(sentence_letters)
+    return sorted(list(sentence_letters)) # sort just to make every output the same, given sets aren't hashable
+
+sentences = [Prefix("(A \\wedge (B \\vee \\neg C))"), Prefix("A"), Prefix('((A \\op (B \\op Z)) \\op (D \\op E))')]
+print(all_sentence_letters(sentences)) # correctly prints ['A', 'B', 'C', 'D', 'E', 'Z']
