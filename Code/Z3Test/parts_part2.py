@@ -34,20 +34,18 @@ y = BitVec("y", 7)
 z = BitVec("z", 7)
 w = BitVec("w", 7)
 
-solver.add( # NOTE: right now it is not finding a model but should be able to
+solver.add(
     ForAll([x, y], Implies(
         And(is_part_of(x, y), possible(y)),
         possible(x))
     ),
-    Not(possible(x)),
+    Not(possible(y)),
     is_part_of(x, y),
-        # possible(y),
-        # NOTE: once a model is found, uncomment the above to see if this makes it unsat
-    possible(z) == True,
+    possible(z),
     is_part_of(w,z),
     z == 5, # change this to 0 and no model is found. This is good and checks out with intuitive result
     w != 0,
-    x != y
+    x != y,
 )
 
 # Check if there exists a model
