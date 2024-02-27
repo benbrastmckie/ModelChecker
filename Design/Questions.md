@@ -9,13 +9,14 @@ Questions should be organized under a topic when possible.
 ## Input Parameters
 
 - [ ] How should the user inputs be defined
-  - M: I think it may be easier to write up a semantics file and then make it pretty at the end (like make these variables easily accessible)
-  - B: That sounds good. I added some rough thoughts for what might go in that file in `Strategies.md`.
+  - [x] M: I think it may be easier to write up a semantics file and then make it pretty at the end (like make these variables easily accessible)
+  - [x] B: That sounds good. I added some rough thoughts for what might go in that file in `Strategies.md`.
 
 ## Z3
 
 General
 
+- [ ] It appears that even bound variables must be defined in Z3. Why is this?
 - [ ] What is the BitVec class by itself good for?
 - [:] What does sexpr() do?
   - [x] prints bitvector as a string of numbers if the length is not a power of 2
