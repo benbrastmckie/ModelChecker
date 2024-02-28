@@ -108,6 +108,7 @@ def total_fusion(list_of_states):
     if len(list_of_states) == 2: # base case: fuse 2
         return fusion_of_first_two
     # recursive step: fuse first two and run the func on the next
+    return total_fusion([fusion_of_first_two]+list_of_states[2:])
     new_list_of_states = [fusion_of_first_two]
     new_list_of_states.extend(list_of_states[2:])
     return total_fusion(new_list_of_states)
