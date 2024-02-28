@@ -113,10 +113,10 @@ def parse(tokens):
     >>> parse(tokenize('((A /op (B /op C)) /op (D /op E))'))
     ['/op', ['/op', ['A'], ['/op', ['B'], ['C']]], ['/op', ['D'], ['E']]]
     """
-    comp_tokens = binary_comp(tokens)
+    bin_comp_tokens = binary_comp(tokens)
     if tokens[0] in unary_operators:
         return [tokens[0], parse(tokens[1:])]
-    if comp_tokens == 0:
+    if bin_comp_tokens == 0:
         token = tokens[0]
         return [token]
     main_operator_index = main_op_index(tokens)
