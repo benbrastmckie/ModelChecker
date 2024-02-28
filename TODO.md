@@ -11,7 +11,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [:] _B_ model checker design strategies
   - [x] _B_ outline
   - [x] _B_ email Graham
-  - [x] _B_ revise
+  - [ ] _B_ FINISH revise
+    - [ ] constraints
 - [:] _B_ run strategies by Graham
 - [.] research what Z3 wants for predicates to be interpreted
 - [x] _B_ fix docs for prefix
@@ -20,6 +21,15 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] _B_ representation function
   - [x] document purpose
   - [x] create issue
+
+## `states.py`
+
+- `is_new_world` working the way it should?
+-
+
+## `test_model.py`
+
+- printing states in number form
 
 ## Z3
 
