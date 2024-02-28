@@ -22,6 +22,17 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] document purpose
   - [x] create issue
 
+## Definitions
+
+- _M_ maximal
+- _M_ compatible
+- _M_ new/world
+- semantic clauses
+  - truth-functional clauses
+  - _B_ document in strategies
+- model for few truth-functional sentences
+  - print numbers
+
 ## `states.py`
 
 - `is_new_world` working the way it should?
