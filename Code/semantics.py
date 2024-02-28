@@ -1,5 +1,4 @@
-from z3 import *
-from states import *
+from states import * # no need to import z3 because that's already imported in states
 # DEFINE STATES (N is defined in states file)
 x = BitVec("x", N)
 y = BitVec("y", N)
