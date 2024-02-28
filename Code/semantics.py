@@ -34,8 +34,8 @@ z = BitVec("z", N)
 w = BitVec("w", N)
 
 # NOTE: want 'verify' to be a function from a bitvector and sentence to a truth-value
-verify = Function("verify", BitVecSort(8), AtomSort, BoolSort())
-falsify = Function("falsify", BitVecSort(8), AtomSort, BoolSort())
+verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
+falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
 
 # QUESTION: does this redefine X?
 def proposition(X):
