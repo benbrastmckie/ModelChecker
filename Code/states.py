@@ -36,9 +36,16 @@ def is_part_of(bit_s, bit_t):
     # adding the sexpr()s above seemed to do the trick, not sure why.
 
 
-    # compatible def
+    # TODO: compatible def
 
-    # maximality def
+    # TODO: maximality def
+        # NOTE: it might be OK to define the sort for a variable x here
+        # that variable could then be used in the def of maximal
+
+    # TODO: world def in terms of compatible and maximal defs
+
+    # TODO: alternative def
+        # NOTE: see strategies after revisions are made
 
 def is_new_world(bit_x,bit_w): # B: needs to quantify over all bit_x
     return And(
