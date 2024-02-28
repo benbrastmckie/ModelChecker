@@ -2,8 +2,9 @@ import doctest
 from z3 import *
 '''
 OVERVIEW
-All sentence letters are capital letters. All commands must be strictly in lowercase; they can have double backslash, a forward slash, or nothing (nothing so long as the first letter is lowercase)
-the unary operators are defined in a separate set for clarity in the code
+All sentence letters are capital letters.
+All commands must be strictly in lowercase; they can have double backslash, a forward slash, or nothing (nothing so long as the first letter is lowercase).
+The unary operators are defined in a separate set for clarity in the code.
 '''
 
 

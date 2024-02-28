@@ -40,7 +40,9 @@ Given a list of prefix sentences `input_sentences`, we will need a list of the s
 
 1. Let the list of sentence letters be called `sentence_letters`.
 2. There should not be any repeated entries in `sentence_letters`.
-_M_: done—this is now at the bottom of the `prefix_infix.py` file
+_M_: done-- this is now at the bottom of the `prefix_infix.py` file
+_B_: Looks great!
+
 
 ### Definitions: explicit
 
@@ -57,19 +59,18 @@ Given any sentence letter `X`, the function `proposition(X)` generates Z3 constr
 1. For all `x` and `y`, if `verify(x,X)` and `verify(y,X)`, then `verify(fusion(x,y),X)`.
 2. For all `x` and `y`, if `falsify(x,X)` and `falsify(y,X)`, then `falsify(fusion(x,y,X))`.
 3. For all `x` and `y`, if `verify(x,X)` and `falsify(y,X)`, then `Not(possible(fusion(x,y)))`.
-4. For all `x` and `y`, if `possible(x)`, then `possible(fusion(x,y))` where either `verify(y,X)` or `falsify(y,X)`.
+4. For all `x`, if `possible(x)`, then there is some `y` where `possible(fusion(x,y))` and: `verify(y,X)` or `falsify(y,X)`.
 
-The constraints above require `Verify` and `Falsify` to: (1) only relate states to `X`; (2/3) to be closed under fusion; (4) to be exclusive; and (5) to be exhaustive.
+The constraints above require `Verify` and `Falsify` to: (1/2) to be closed under fusion; (3) to be exclusive; and (4) to be exhaustive.
 See the `Overview.pdf` for related discussion of these constraints.
 
-The constraints above require defining the variables `x` and `y` as well as the predicates included above in something like the following ways:
+The constraints above require defining the variables `x` and `y` as well as the predicates included above in something like the following ways where the sort `AtomSort` is declared for sentence letters:
   
 1. `x = BitVec("x", N)` and `y = BitVec("y", N)`.
 2. `possible = Function("possible", BitVecSort(N), BoolSort())`.
-3. `verify = Function("verify", BitVecSort(N), SENTENCE_SORT(), BoolSort())`.
-3. `falsify = Function("falsify", BitVecSort(N), SENTENCE_SORT(), BoolSort())`.
+3. `verify = Function("verify", BitVecSort(N), AtomSort(), BoolSort())`.
+3. `falsify = Function("falsify", BitVecSort(N), AtomSort(), BoolSort())`.
 
-We will need to identify what sort the sentence letters belong to.
 This may be something that is best specified all at once for the sentence letters included in `sentence_letters`.
 Alternatively, perhaps this specification for the sentence letter `X` can be included in the output of `proposition(X)`.
 That way, running `proposition(X)` for all sentence letters `X` in `sentence_letters` will adequately define the sort.

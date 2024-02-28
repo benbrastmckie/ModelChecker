@@ -1,4 +1,12 @@
-from z3 import *
+from z3 import (
+    Solver,
+    DeclareSort,
+    Consts,
+    Function,
+)
+
+
+
 
 # From: https://ericpony.github.io/z3py-tutorial/advanced-examples.htm
 

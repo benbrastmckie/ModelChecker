@@ -1,6 +1,18 @@
-from z3 import *
+from z3 import (
+    Solver,
+    BitVec,
+    BitVecs,
+    BitVecVal,
+    Not,
+    And,
+    simplify,
+    Bools,
+    Or,
+    unsat,
+    solve,
+)
 
-# Bools, Solver, unsat, Not, Or, And, BitVec, simplify, BitVecVal, BitVecs, solve
+
 
 Tie, Shirt = Bools("Tie Shirt")
 s = Solver()

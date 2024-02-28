@@ -25,7 +25,8 @@ possible = Function("possible", BitVecSort(7), BoolSort())
 
 def fusion(bit_s, bit_t):
     return bit_s | bit_t  # | is the or operator
-    # seems like the issue was that BitVecs work different from BitVecVals. I think we want to work with BitVecs? so rn it's good
+    # seems like the issue was that BitVecs work different from BitVecVals.
+    # I think we want to work with BitVecs? so rn it's good
 
 
 def is_part_of(bit_s, bit_t):
@@ -40,7 +41,7 @@ y = BitVec("y", 7)
 z = BitVec("z", 7)
 w = BitVec("w", 7)
 
-solver.add( # NOTE: right now it is not finding a model but should be able to
+solver.add(
     ForAll([x, y], Implies(
         And(is_part_of(x, y), possible(y)),
         possible(x))
@@ -55,7 +56,7 @@ solver.add( # NOTE: right now it is not finding a model but should be able to
            # B: This should allow to start setting up some of the other constraints
            # B: Once we can use these to find countermodels by hand we can think about
            # B: the functions that will generate these constraints (once it is working)
-    ),)
+    ))
     # M: I don't think we actually ever add any of our vars to the solver bc x and y above are bound by quantifiers. 
         # B: I tried commenting out the variables, but then it throws errors
         # B: Perhaps defining the variable is more like defining its sort/type?

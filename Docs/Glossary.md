@@ -27,3 +27,15 @@ This provides an algebraic definition of parthood in terms of binary fusion.
             fusion(bit_s, bit_t).sexpr() == bit_t.sexpr()
         )  # I think this is the right OR operation?
         # adding the sexpr()s above seemed to do the trick, not sure why.
+
+This provides a fusion of a list of states.
+
+    def total_fusion(list_of_states):
+        '''returns the fusion of a list of states'''
+        fusion_of_first_two = fusion(list_of_states[0], list_of_states[1])
+        if len(list_of_states) == 2: # base case: fuse 2
+            return fusion_of_first_two
+        # recursive step: fuse first two and run the func on the next
+        new_list_of_states = [fusion_of_first_two]
+        new_list_of_states.extend(list_of_states[2:])
+        return total_fusion(new_list_of_states)
