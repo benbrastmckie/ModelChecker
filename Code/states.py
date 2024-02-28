@@ -12,21 +12,20 @@ from z3 import (
     simplify,
     And,
 )
-
+# this file will have all functions related to states
 
 N = 7
 
 
-# this file will have all functions related to states
 def is_atomic(bit_vector):
-    return simplify(
-        And(bit_vector != 0, 0 == (bit_vector & (bit_vector - 1)))
-    )  # this is taken from a Z3 documentation place thing
+    return And(bit_vector != 0, 0 == (bit_vector & (bit_vector - 1)))  
+    # this is taken from section 3.4 of https://z3prover.github.io/papers/programmingz3.html#sec-sorts
 
 
 def fusion(bit_s, bit_t):
-    fused = bit_s | bit_t  # | is the or operator
-    return simplify(fused)
+    return bit_s | bit_t
+    # fused = bit_s | bit_t  # | is the or operator
+    # return simplify(fused)
     # this turns it from bvor to #b. The or operator | seems to return an "or" object of sorts, so simplify turns it into a bitvector object.
 
 
@@ -57,9 +56,11 @@ def total_fusion(list_of_states):
     if len(list_of_states) == 2:  # base case: fuse 2
         return fusion_of_first_two
     # recursive step: fuse first two and run the func on the next
-    new_list_of_states = [fusion_of_first_two]
-    new_list_of_states.extend(list_of_states[2:])
-    return total_fusion(new_list_of_states)
+    return total_fusion([fusion_of_first_two] + list_of_states[2:]) # + is list concatenation
+
+
+def is_part_of(bit_s, bit_t):
+    return fusion(bit_s, bit_t) == bit_t
 
 
 possible = Function("possible", BitVecSort(N), BoolSort())
