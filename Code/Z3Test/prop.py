@@ -4,7 +4,7 @@ from z3 import *
 
 # NOTE: I think this makes X, Y have the sort Atoms... not sure this is useful
 AtomSort = DeclareSort('Atom')
-X, Y = Consts('X Y', Atom) 
+X, Y = Consts('X Y', AtomSort) 
 
 # NOTE: want 'verify' to be a function that takes a bitvector and sentence as input and a truth-value as output
 verify = Function("verify", BitVecSort(8), AtomSort, BoolSort()) 
