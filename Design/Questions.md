@@ -16,9 +16,10 @@ Questions should be organized under a topic when possible.
 
 General
 
+- [ ] Is it important to have bivectors with length not equal to a power of 2?
 - [ ] It appears that even bound variables must be defined in Z3. Why is this?
 - [ ] What is the BitVec class by itself good for?
-- [:] What does sexpr() do?
+- [x] What does sexpr() do?
   - [x] prints bitvector as a string of numbers if the length is not a power of 2
   - [x] if the bitvector has length with a power of 2, then it is in hexadecimal
   - [ ] is there a function that translates from hexadecimal to a string of numbers?
