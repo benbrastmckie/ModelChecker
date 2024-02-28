@@ -68,66 +68,66 @@ else:
     print("No model found")
 
 # below is the output (the monster). Seems that this defaults to nand format :(
-output = And(
-        Not(
-            And(
-                Not(Var(0) == 1),
-                Not(Var(0) == 5),
-                Not(Var(0) == 8),
-                Not(Var(0) == 52),
-                Not(Var(0) == 40),
-                Not(Var(0) == 0),
-                Not(Var(0) == 4),
-                Not(Var(0) == 54),
-                Not(Var(0) == 47),
-                Not(Var(0) == 116)
-            )
-        ),
-        Not(
-            And(
-                Var(0) == 54,
-                Not(Var(0) == 47),
-                Not(Var(0) == 116)
-            )
-        ),
-        Not(
-            And(
-                Var(0) == 40,
-                Not(Var(0) == 0),
-                Not(Var(0) == 4),
-                Not(Var(0) == 54),
-                Not(Var(0) == 47),
-                Not(Var(0) == 116)
-            )
-        ),
-        Not(Var(0) == 116),
-        Not(
-            And(
-                Var(0) == 52,
-                Not(Var(0) == 40),
-                Not(Var(0) == 0),
-                Not(Var(0) == 4),
-                Not(Var(0) == 54),
-                Not(Var(0) == 47),
-                Not(Var(0) == 116)
-            )
-        ),
-        Not(
-            And(
-                Var(0) == 47, 
-                Not(Var(0) == 116)
-            )
-        ),
-        Not(
-            And(
-                Var(0) == 8,
-                Not(Var(0) == 52),
-                Not(Var(0) == 40),
-                Not(Var(0) == 0),
-                Not(Var(0) == 4),
-                Not(Var(0) == 54),
-                Not(Var(0) == 47),
-                Not(Var(0) == 116)
-            )
-        )
-    )
+# output = And(
+#         Not(
+#             And(
+#                 Not(Var(0) == 1),
+#                 Not(Var(0) == 5),
+#                 Not(Var(0) == 8),
+#                 Not(Var(0) == 52),
+#                 Not(Var(0) == 40),
+#                 Not(Var(0) == 0),
+#                 Not(Var(0) == 4),
+#                 Not(Var(0) == 54),
+#                 Not(Var(0) == 47),
+#                 Not(Var(0) == 116)
+#             )
+#         ),
+#         Not(
+#             And(
+#                 Var(0) == 54,
+#                 Not(Var(0) == 47),
+#                 Not(Var(0) == 116)
+#             )
+#         ),
+#         Not(
+#             And(
+#                 Var(0) == 40,
+#                 Not(Var(0) == 0),
+#                 Not(Var(0) == 4),
+#                 Not(Var(0) == 54),
+#                 Not(Var(0) == 47),
+#                 Not(Var(0) == 116)
+#             )
+#         ),
+#         Not(Var(0) == 116),
+#         Not(
+#             And(
+#                 Var(0) == 52,
+#                 Not(Var(0) == 40),
+#                 Not(Var(0) == 0),
+#                 Not(Var(0) == 4),
+#                 Not(Var(0) == 54),
+#                 Not(Var(0) == 47),
+#                 Not(Var(0) == 116)
+#             )
+#         ),
+#         Not(
+#             And(
+#                 Var(0) == 47, 
+#                 Not(Var(0) == 116)
+#             )
+#         ),
+#         Not(
+#             And(
+#                 Var(0) == 8,
+#                 Not(Var(0) == 52),
+#                 Not(Var(0) == 40),
+#                 Not(Var(0) == 0),
+#                 Not(Var(0) == 4),
+#                 Not(Var(0) == 54),
+#                 Not(Var(0) == 47),
+#                 Not(Var(0) == 116)
+#             )
+#         )
+#     )
