@@ -32,6 +32,9 @@ ForAll([x,y], Implies(And(possible(x), fusion(x,y) == x), possible(y)))
 
 # evaluation constraints
 # not sure how to proceed. How are we making worlds?
+ForAll([w],Implies(is_world(w), possible(w))) # made an is_world Function (ie, not python function but Z3 Function) in states.py
+ForAll([x,w], Implies(And(is_world(w), possible(x), possible(fusion(x,w))), fusion(x,w) == w)) # added implicit is_world(w) constraint
+# the last evaluation constraint is already accounted for in the for loop above
 
 def Alternatives(u,w,X):
     '''Given a world w and sentence X, the function Alternatives(u,w,X) yields the following Z3 constraints:
@@ -39,8 +42,7 @@ def Alternatives(u,w,X):
             State(y) where fusion(y,w) = w and fusion(y,u) = u.
             If State(z), fusion(z,w) = w, Possible(fusion(x,z)), and fusion(y,z) = z, then y = z.'''
     pass #TODO
-    # M to B: what do you have in mind in terms of regimentation when you write "where"?
-
+    # M to B: what do you have in mind in terms of regimentation when you write "where"? have some thoughts in my notebook
 
 
 def Semantics(w,X):

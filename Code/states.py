@@ -1,5 +1,7 @@
 from z3 import *
 
+N=7
+
 #this file will have all functions related to states
 def is_atomic(bit_vector):
     return simplify(
@@ -28,4 +30,8 @@ def total_fusion(list_of_states):
     new_list_of_states.extend(list_of_states[2:])
     return total_fusion(new_list_of_states)
 
-possible = Function("possible", BitVecSort(7), BoolSort())
+possible = Function("possible", BitVecSort(N), BoolSort())
+is_world = Function("is_world", BitVecSort(N), BoolSort())
+# def is_world(state):
+#     '''func that defines if smth is a world'''
+#     pass
