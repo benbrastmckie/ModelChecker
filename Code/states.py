@@ -3,9 +3,9 @@ from z3 import (
     # BitVec,
     # Not,
     # Exists,
-    # Implies,
-    # ForAll,
     # sat,
+    ForAll,
+    Implies,
     BoolSort,
     BitVecSort,
     Function,
@@ -32,6 +32,21 @@ def fusion(bit_s, bit_t):
 
 def is_part_of(bit_s, bit_t):
     return fusion(bit_s, bit_t).sexpr() == bit_t.sexpr()
+    # testing if fusion equals bit_t, as definition does
+    # adding the sexpr()s above seemed to do the trick, not sure why.
+
+
+def is_new_world(bit_x, bit_w): # B: needs to quantify over all bit_x
+    return And(
+        possible(bit_w),
+        ForAll(
+            bit_x,
+            Implies(
+                And(possible(bit_x), possible(fusion(bit_x, bit_w))),
+                is_part_of(bit_x, bit_w),
+            ),
+        ),
+    )
     # testing if fusion equals bit_t, as definition does
     # adding the sexpr()s above seemed to do the trick, not sure why.
 
