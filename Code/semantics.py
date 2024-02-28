@@ -25,7 +25,7 @@ from states import (
     is_world,
 )
 
-# NOTE: I think this makes X, Y have the sort Atoms... not sure this is useful
+# NOTE: I think this makes atomic_sentence, Y have the sort Atoms... not sure this is useful
 AtomSort = DeclareSort('AtomSort')
 A, B = Consts('A B', AtomSort)
 
@@ -39,14 +39,13 @@ w = BitVec("w", N)
 verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
 falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
 
-# QUESTION: does this redefine X?
-def proposition(X):
+def proposition(atomic_sentence):
     return (
-        ForAll([x,y], Implies(And(verify(x,X), verify(y,X)), verify(fusion(x,y),X))),
-        ForAll([x,y], Implies(And(falsify(x,X), falsify(y,X)), falsify(fusion(x,y),X))),
-        ForAll([x,y], Implies(And(verify(x,X), falsify(y,X)), Not(possible(fusion(x,y))))),
+        ForAll([x,y], Implies(And(verify(x,atomic_sentence), verify(y,atomic_sentence)), verify(fusion(x,y),atomic_sentence))),
+        ForAll([x,y], Implies(And(falsify(x,atomic_sentence), falsify(y,atomic_sentence)), falsify(fusion(x,y),atomic_sentence))),
+        ForAll([x,y], Implies(And(verify(x,atomic_sentence), falsify(y,atomic_sentence)), Not(possible(fusion(x,y))))),
         ForAll(x, Implies(possible(x),
-                          Exists(y, And(possible(fusion(x,y)), Or(verify(y,X), falsify(y,X)))))),
+                          Exists(y, And(possible(fusion(x,y)), Or(verify(y,atomic_sentence), falsify(y,atomic_sentence)))))),
         # M: what do you have in mind in terms of regimentation when you write "where"?
         # B: Fixed this both here and in the Strategies.md
     )

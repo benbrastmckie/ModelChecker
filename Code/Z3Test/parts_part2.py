@@ -1,20 +1,20 @@
 from z3 import * 
-(
-    BoolSort,
-    Var,
-    BitVecSort,
-    Function,
-    simplify,
-    Solver,
-    BitVec,
-    Not,
-    Exists,
-    And,
-    Implies,
-    ForAll,
-    sat,
-    FuncInterp
-)
+# (
+#     BoolSort,
+#     Var,
+#     BitVecSort,
+#     Function,
+#     simplify,
+#     Solver,
+#     BitVec,
+#     Not,
+#     Exists,
+#     And,
+#     Implies,
+#     ForAll,
+#     sat,
+#     FuncInterp
+# )
 
 # Define the predicates
 possible = Function("possible", BitVecSort(7), BoolSort())
