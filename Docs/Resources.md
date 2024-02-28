@@ -7,6 +7,7 @@ This is place for references to further documentation and other resources.
 Z3 Python API Info:
 
     https://microsoft.github.io/z3guide/programming/Z3%20Python%20-%20Readonly/Introduction
+    https://z3prover.github.io/api/html/namespacez3py.html#a1ddb19c4007eac75508565dc03ce3917
 
 SMT info with lots of Z3 examples:
 
@@ -39,3 +40,7 @@ Documentation for the BitVec class:
 BitVector module
 
     https://pypi.org/project/BitVector/
+
+Documentation for Z3 in Pythonthat is digestible: 
+
+    https://z3prover.github.io/api/html/namespacez3py.html#a1ddb19c4007eac75508565dc03ce3917
