@@ -11,7 +11,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [:] _B_ model checker design strategies
   - [x] _B_ outline
   - [x] _B_ email Graham
-  - [ ] _B_ revise
+  - [x] _B_ revise
 - [:] _B_ run strategies by Graham
 - [.] research what Z3 wants for predicates to be interpreted
 - [x] _B_ fix docs for prefix
@@ -46,7 +46,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Python
 
-- sentence letter extractor
+- [:] sentence letter extractor
 - model builder
   - function for extracting, renaming, and saving the elements of a Z3 model
   - function for printing the extracted model in a readable way
