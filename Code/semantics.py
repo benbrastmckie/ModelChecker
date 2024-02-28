@@ -1,7 +1,15 @@
 from z3 import *
 from states import *
+# DEFINE STATES (N is defined in states file)
+x = BitVec("x", N)
+y = BitVec("y", N)
+z = BitVec("z", N)
+w = BitVec("w", N)
+# M: is this basically saying we're gonna make a scenario with one (possible?) world and three states states in that world, with N substates in each state?
+
 
 # NOTE: I think this makes X, Y have the sort Atoms... not sure this is useful
+# M: I think it is useful, but makes it such that we cannot define the constraints at the bottom of the strategies file, unless we define lists as AtomSorts as well or make a separate function for those
 AtomSort = DeclareSort('Atom')
 X, Y = Consts('X Y', AtomSort) 
 
@@ -45,14 +53,14 @@ def Alternatives(u,w,X):
     # M to B: what do you have in mind in terms of regimentation when you write "where"? have some thoughts in my notebook
 
 
-def Semantics(w,X):
+def Semantics(w,X): # we could redefine this function to take as input the the output of tokenize in prefix_infix, I think. Do we want?
     '''w is a world, X is a sentence'''
     if 'neg' in X[0]:
         return Not(Semantics(w,X[1]))
     elif 'wedge' in X[0]:
-        return And(Semantics(w,X[1]),Semantics(s,X[2]))
+        return And(Semantics(w,X[1]),Semantics(w,X[2]))
     elif 'vee' in X[0]:
-        return Or(Semantics(w,X[1]),Semantics(s,X[2]))
+        return Or(Semantics(w,X[1]),Semantics(w,X[2]))
     elif 'boxright' in X[0]:
         pass
         # what if box or boxright occur in Y?
@@ -60,6 +68,7 @@ def Semantics(w,X):
         pass
         # what if box or boxright occur in Y?
     elif isinstance(X[0],list): # atomic
-        return Exists([x], (verify(x,X), fusion(x,w) == w)) # Ben, can you check that I am interpreting this right? I think an existential is missing in the strat doc for this
+        return Exists([x], And(verify(x,X), fusion(x,w) == w)) # Ben, can you check that I am interpreting this right? I think an existential is missing in the strat doc for this
     
 # also missing general constraints at very bottom of Strategies
+# issue with these is that verify is constructed to take in AtomSorts, and complex sentences are lists, not AtomSorts. 
