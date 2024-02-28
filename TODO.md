@@ -2,6 +2,24 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
+## Frame Definitions
+
+- [ ] frame definitions
+  - [ ] _M_ maximal
+  - [ ] _M_ compatible
+  - [ ] _M_ new/world
+  - [ ] _M_ create test file
+  - [ ] _M_ fix print numbers
+
+## Concrete Model
+
+- [ ] _B_ build countermodel
+
+## Semantics
+
+- [ ] semantic clauses
+  - [ ] _M_ truth-functions
+
 ## Overview
 
 - [ ] _B_ move from set-fusion to binary fusion throughout
@@ -11,36 +29,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [:] _B_ model checker design strategies
   - [x] _B_ outline
   - [x] _B_ email Graham
-  - [ ] _B_ FINISH revise
-    - [ ] constraints
+  - [ ] _B_ revise constraints
 - [:] _B_ run strategies by Graham
-- [.] research what Z3 wants for predicates to be interpreted
-- [x] _B_ fix docs for prefix
-  - [x] _B_ document purpose
-  - [x] _B_ replace `Or` with `fusion`
-- [x] _B_ representation function
-  - [x] document purpose
-  - [x] create issue
-
-## Definitions
-
-- _M_ maximal
-- _M_ compatible
-- _M_ new/world
-- semantic clauses
-  - truth-functional clauses
-  - _B_ document in strategies
-- model for few truth-functional sentences
-  - print numbers
-
-## `states.py`
-
-- `is_new_world` working the way it should?
--
-
-## `test_model.py`
-
-- printing states in number form
 
 ## Z3
 
@@ -98,3 +88,13 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
       - _M_: it doesn't, but I think the way it is now is better. To get rid of the backslashes would involve another function that may take a lot of computation, but we could leave it like this (right now it accepts double backslash, forwardslash, and no slashes) so that there is maximum flexibility on the user end. Internally of course the issue will have to be resolved, but I think it's easier to map 3 versions of the same command to one function or semantic requirement (ie, \\wedge /wedge and wedge all to Wedge) than to fix them all to a string of that semantic requirement.
       - _B_: sounds good.
     - [x] _B_ move notes elsewhere
+
+## Strategies    
+
+- [x] _B_ fix docs for prefix
+  - [x] _B_ document purpose
+  - [x] _B_ replace `Or` with `fusion`
+- [x] _B_ representation function
+  - [x] document purpose
+  - [x] create issue
+- [x] research what Z3 wants for predicates to be interpreted
