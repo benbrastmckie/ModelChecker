@@ -137,7 +137,13 @@ Represent Z3 models in a way that is easy to interpret.
 Models will specify some number of states, saying which sentence letters are verified or falsified by each, and which states are possible.
 Given this information, it is possible to construct a representation, complete with world states, which assigns each sentence letter to a proposition, i.e, to an ordered pair of sets of states.
 
-**Example:** Say Z3 returns a model consisting of a bunch of bitvectors etc. Say `c = b#10001`. Having it written out this way is better than some kind of hex code, but it is still not that salient what is going on. But here we can see that `c` is the fusion of two atomic states, call them `a = b#00001` and `b = b#10000`. So a better representation would look like `c = a.b`. Honestly it doesn't matter that, thought of as numbers, `a < b`. All we care about is that they are both atomic and that `c` is their fusion.
+**Example:** 
+Say Z3 returns a model consisting of a bunch of bitvectors etc. Say `c = b#10001`.
+Having it written out this way is better than some kind of hex code, but it is still not that salient what is going on.
+But here we can see that `c` is the fusion of two atomic states, call them `a = b#00001` and `b = b#10000`.
+So a better representation would look like `c = a.b`.
+Honestly it doesn't matter that, thought of as numbers, `a < b`.
+All we care about is that they are both atomic and that `c` is their fusion.
 
 Given that there is a nice way to identify which states are atomic, it actually doesn't matter whether states are represented in hexadecimal or not since either way it would be nice to represent them in some cleaner way. Maybe you have thoughts about how to do this, but here is a rough idea:
 
@@ -145,21 +151,11 @@ Given that there is a nice way to identify which states are atomic, it actually 
 - name all input and atomic states in some nice way (more thoughts in `Strategies`).
 - then identify each input state with a fusion of atomic states using their new names.
 
-There will probably be some other natural pieces to add, but getting these identities is a good start. The thought is that eventually, the model representation could include things like `|A| = < { a, b, a.b}, {f.g} >` for each sentence letter which would make it clear what proposition each sentence letter is being assigned to. Knowing what the fusion relations are and getting nice conventions for naming states will be a key step.
+There will probably be some other natural pieces to add, but getting these identities is a good start.
+The thought is that eventually, the model representation could include things like `|A| = < { a, b, a.b}, {f.g} >` for each sentence letter which would make it clear what proposition each sentence letter is being assigned to.
+Knowing what the fusion relations are and getting nice conventions for naming states will be a key step.
 
 1. The python representation of a Z3 model should specify the states, possible states, worlds, and the propositions assigned to the sentence letters in question where further visualization can be added later.
 2. A function should specify the propositions assigned to all subsentences of the sentences under evaluation.
 3. These details may then be stored in an output file, prompting the user whether to search for another model to add to the file.
 
-FROM ABOVE
-
-These conditions may be extended to complex sentences by way of the following general constraints:
-
-1. If `Verify(z,[\neg, X])`, then `Falsify(z,X)`.
-2. If `Falsify(z,[\neg, X])`, then `Verify(z,X)`.
-3. If `Verify(z,[\wedge, X,Y])`, then `z = fusion(x,y)` where `Verify(x,X)` and `Verify(y,Y)`.
-4. If `Falsify(z,[\wedge, X,Y])`, then `Falsify(z,X)` or `Falsify(z,Y)` (or both).
-5. If `Verify(z,[\vee, X,Y])`, then `Verify(z,X)` or `Verify(z,Y)` (or both).
-6. If `Falsify(z,[\vee, X,Y])`, then `z  =  fusion(x,y)` where `Falsify(x,X)` and `Falsify(y,Y)`.
-7. If `Verify(z,[\rightarrow, X,Y])`, then `Falsify(z,X)` or `Verify(z,Y)` (or both).
-8. If `Falsify(z,[\rightarrow, X,Y])`, then `z  =  fusion(x,y)` where `Verify(x,X)` and `Falsify(y,Y)`.

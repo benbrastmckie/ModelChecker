@@ -94,7 +94,7 @@ def Alternatives(u,w,X):
     # M to B: what do you have in mind in terms of regimentation when you write "where"? have some thoughts in my notebook
 
 
-def Semantics(w,X): # we could redefine this function to take as input the the output of tokenize in prefix_infix, I think. Do we want?
+def Semantics(w,X): # we could redefine this function to take as input the output of tokenize in prefix_infix, I think. Do we want?
     '''w is a world, X is a sentence'''
     if 'neg' in X[0]:
         return Not(Semantics(w,X[1]))
@@ -113,3 +113,4 @@ def Semantics(w,X): # we could redefine this function to take as input the the o
     
 # also missing general constraints at very bottom of Strategies
 # issue with these is that verify is constructed to take in AtomSorts, and complex sentences are lists, not AtomSorts. 
+    # B: That makes sense. I think I sorted this out in the Strategies.md doc. Let me know what you think.
