@@ -6,54 +6,53 @@ from z3 import (
     Exists,
     ForAll,
     Implies,
-    Or,
-    BitVec,
-    Not,
-    DeclareSort,
-    Consts,
     Solver,
-    BoolSort,
-    BitVecSort,
-    Function,
     And,
+    # Or,
+    # BitVec,
+    # Not,
+    # DeclareSort,
+    # Consts,
+    # BoolSort,
+    # BitVecSort,
+    # Function,
 )
 
-from states import (
-    N,
+from definitions import (
+    # N,
+    x,
+    y,
+    z,
+    u,
+    v,
+    w,
+    AtomSort,
+    A,
+    B,
+    X,
+    Y,
     fusion,
-    is_new_world,
+    is_world,
     is_part_of,
     possible,
-    is_world,
+    verify,
+    # falsify,
 )
-
-AtomSort = DeclareSort("AtomSort")
-A, B = Consts("A B", AtomSort)
-
-# NOTE: N is defined in states.md
-x = BitVec("x", N)
-y = BitVec("y", N)
-z = BitVec("z", N)
-w = BitVec("w", N)
-
-
-verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
-falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
 
 
 solver = Solver()
 
 solver.add(
     # FRAME CONSTRAINT
-    # Exists(w,is_new_world(x,w)),
+    # Exists(w,is_world(x,w)),
     # verify(x,A),
     possible(z),
-    Exists(x, verify(x,A)),
+    Exists(x, verify(x, A)),
     # ForAll([x,y], Implies(And(possible(x), is_part_of(x,y)), possible(y))),
     # WORLD STATE EXISTS
     And(
         possible(w),
-        ForAll(x, Implies(And(possible(x), possible(fusion(x,w))), is_part_of(x,w)))
+        ForAll(x, Implies(And(possible(x), possible(fusion(x, w))), is_part_of(x, w))),
     ),
     # GENERAL WORLD CONSTRAINTS
     # ForAll(w, Implies(is_world(w), possible(w))),
@@ -70,29 +69,26 @@ solver.add(
     # ForAll(x, Implies(possible(x),
     #                   Exists(y, And(possible(fusion(x,y)), Or(verify(y,A), falsify(y,A)))))),
     # EVAL CONSTRAINT
-    Exists([w,z], And(is_new_world(x,w), is_part_of(z,w), verify(z,A)) )
-
+    Exists([w, z], And(is_world(x, w), is_part_of(z, w), verify(z, A))),
 )
 
 
-
-
-
-print (solver.check())
+print(solver.check())
 model = solver.model()
-print (model)
-print ("interpretations assigned to AtomSort and A:")
-print (model[AtomSort])
-print (model[A])
+print(model)
+print("interpretations assigned to AtomSort and A:")
+print(model[AtomSort])
+print(model[A])
 for declaration in model.decls():
-    try: # do this to print bitvectors how we like to see them (as vectors)
+    try:  # do this to print bitvectors how we like to see them (as vectors)
         print(f"{declaration.name()} = {model[declaration].sexpr()}")
-        print(f'is {model[declaration]} possible?: {possible(model[declaration])}')
-    except: # this is for the "else" case (ie, "map everything to x value")
+        print(f"is {model[declaration]} possible?: {possible(model[declaration])}")
+    except:  # this is for the "else" case (ie, "map everything to x value")
         function = model[declaration]
         # print(FuncInterp.as_list(function))
         # print(FuncInterp.else_value(function))
         # print(FuncInterp.num_entries(function))
-        print(f'this is the declaration name: {declaration.name()}')
+        print(f"this is the declaration name: {declaration.name()}")
         print(f"{declaration.name()} = {model[declaration]}")
         # rn this is printing a monster, not sure what to make of it
+        # TODO: fix printing so that numbers are readable
