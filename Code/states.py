@@ -44,8 +44,13 @@ def is_part_of(bit_s, bit_t):
 
     # TODO: world def in terms of compatible and maximal defs
 
+    # TODO: compatible_part def
+
     # TODO: alternative def
-        # NOTE: see strategies after revisions are made
+
+    # TODO: extended_verify and extended_falsify functions
+
+    # TODO: true def
 
 def is_new_world(bit_x,bit_w): # B: needs to quantify over all bit_x
     return And(
@@ -60,7 +65,6 @@ def is_new_world(bit_x,bit_w): # B: needs to quantify over all bit_x
     )
     # testing if fusion equals bit_t, as definition does
     # adding the sexpr()s above seemed to do the trick, not sure why.
-
 
 def total_fusion(list_of_states):
     """returns the fusion of a list of states"""
