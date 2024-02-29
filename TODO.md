@@ -26,10 +26,10 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Strategies
 
-- [:] _B_ model checker design strategies
+- [x] _B_ model checker design strategies
   - [x] _B_ outline
   - [x] _B_ email Graham
-  - [ ] _B_ revise constraints
+  - [x] _B_ revise constraints
 - [:] _B_ run strategies by Graham
 
 ## Z3
