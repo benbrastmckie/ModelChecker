@@ -7,12 +7,12 @@
 
 ## Z3
 
-Checks whether a bit vector has a single non-zero value.
+Checks whether a bit vector has a single non-zero value from [section 3.4](https://z3prover.github.io/papers/programmingz3.html#sec-sorts) of **Programming Z3**.
 
     def is_atomic(bit_vector):
         return And(
             bit_vector != 0, 0 == (bit_vector & (bit_vector - 1))
-        )  # this is taken from a Z3 documentation place thing
+        ) 
 
 The fusion of two bit vectors takes the greatest value for each entry.
 

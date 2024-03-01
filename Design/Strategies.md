@@ -65,7 +65,6 @@ Given a world state `u` and state `x`, `alternative()` identifies when a world s
 The following constraints hold independent of the sentences being evaluated.
 
 1. For every `x` and `y`, if `possible(y)` and `is_part_of(x,y)`, then `possible(x)`.
-2. For every `x`, if `possible(x)`, then there is some `y` where `world(y)` and `is_part_of(x,w)`.
 
 ### Model Constraints
 
@@ -78,7 +77,8 @@ Assuming it is possible to take `X` to be a bound variable of `AtomSort`, we may
 
 The constraints above require `X` to be a proposition by requiring `Verify` and `Falsify` to be: (1-2) closed under fusion; (3) exclusive; and (4) exhaustive.
 These constraints set limits on what verification and falsification relations can hold.
-If it is not possible to take `X` to be a bound variable as above, then copies of the following constraints could be included for each `X` in `sentence_letters`:
+
+NOTE: I couldn't get `X` to be a variable that ranges over AtomSort, so included instances of the following constraints for each `X` in `sentence_letters`:
 
 1. For all `x`, `y`, if `verify(x,X)` and `verify(y,X)`, then `verify(fusion(x,y),X)`.
 2. For all `x` and `y`, if `falsify(x,X)` and `falsify(y,X)`, then `falsify(fusion(x,y,X))`.

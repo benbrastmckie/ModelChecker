@@ -2,35 +2,42 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
-## Frame Definitions
+## Print Model Function
 
-- [ ] frame definitions
-  - [ ] _M_ maximal
-  - [ ] _M_ compatible
-  - [ ] _M_ new/world
-  - [ ] _M_ create test file
-  - [ ] _M_ fix print numbers
+- [ ] _M_ print states in number form
+- [ ] _M_ print which states verify which sentence letters
+- [ ] _M_ print which states are part of which states
+- [ ] _M_ remove extraneous elements from print model
 
 ## Concrete Model
 
-- [ ] _B_ build countermodel
+- [ ] countermodel for `A, B \vdash A \boxright B`
+  - [x] _B_ build concrete model
+  - [ ] _M_ try to debug issues in `test_model.py` TODOs
+  - [ ] _M_ try to use quantifiers over sentence letters in model constraints
 
-## Semantics
+## Semantic Definitions
 
-- [ ] semantic clauses
-  - [ ] _M_ truth-functions
+- [ ] _M_ `extended_verify` see strategies
+- [ ] _M_ `extended_falsify` see strategies
+- [ ] _M_ recursive definition of `true`
 
 ## Overview
 
 - [ ] _B_ move from set-fusion to binary fusion throughout
+- [ ] _B_ check that world-hood constraint is not needed for finite spaces
 
 ## Strategies
 
 - [x] _B_ model checker design strategies
-  - [x] _B_ outline
-  - [x] _B_ email Graham
-  - [x] _B_ revise constraints
-- [:] _B_ run strategies by Graham
+  - [:] model constraints
+    - [x] _B_ outline
+    - [x] _B_ email Graham
+    - [x] _B_ revise constraints
+    - [:] _B_ run strategies by Graham
+  - [.] _B_ model builder
+    - [x] _B_ outline
+    - [ ] _B_ revise
 
 ## Z3
 
@@ -57,7 +64,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Python
 
-- [:] sentence letter extractor
 - model builder
   - function for extracting, renaming, and saving the elements of a Z3 model
   - function for printing the extracted model in a readable way
@@ -66,7 +72,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - semantic constraints
   - evaluation constraints
 
-# OLD
+# Completed
 
 ## Planning
 
@@ -77,8 +83,16 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] is latex ok for the overview?
 - [x] get git working
 
+## Definitions
+
+- [x] _B_ maximal
+- [x] _B_ compatible
+- [x] _B_ world
+- [x] _B_ create test file
+
 ## Python
 
+- [x] sentence letter extractor
 - [x] _M_ prefix function
   - [x] _M_ review `/Design/Strategies.md`, raising any questions in the corresponding GitHub issue.
   - [x] _M_ confirm whether LaTeX commands will serve as suitable notation in python
@@ -89,7 +103,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
       - _B_: sounds good.
     - [x] _B_ move notes elsewhere
 
-## Strategies    
+## Strategies
 
 - [x] _B_ fix docs for prefix
   - [x] _B_ document purpose

@@ -4,19 +4,21 @@ This document outlines the next steps going forward.
 
 ## Concrete Model
 
-- build concrete model for simple example
-  - show A, B, \neg(A \boxright B) is sat
-  - identify groups of constraints
-    - frame constraints
-    - model constraints
-    - evaluation constraints
-- build constraint generators
-  - abstract from groups of constraints above
-  - the frame constraints only depend on how bit states are
-  - the model constraints depend on which sentence letters are involved
-  - the evaluation constraints depend on both:
-    - the sentences being evaluated
-    - the semantic clauses (held fixed for now purposes)
+- [.] build concrete models for simple examples
+  - [.] show A, B, \neg(A \boxright B) is sat
+    - [x] identify groups of constraints
+      - [x] frame constraints
+      - [.] model constraints
+        - [ ] debug why adding constraints for B fails
+      - [x] evaluation constraints
+    - [ ] make printed model readable
+- [ ] build constraint generators
+  - [ ] abstract from groups of constraints above
+  - [ ] the frame constraints only depend on how many atomic states there are
+  - [ ] the model constraints depend on which sentence letters are involved
+  - [ ] the evaluation constraints depend on both:
+    - [ ] the sentences being evaluated
+    - [ ] the semantic clauses (held fixed for now purposes)
   - testing and refinement
     - use constraint generators to explore models
 - model representations
