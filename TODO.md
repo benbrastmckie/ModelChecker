@@ -7,6 +7,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] _M_ print states in number form
 - [ ] _M_ print which states verify which sentence letters
 - [ ] _M_ print which states are part of which states
+- [ ] _M_ print which states are world states
 - [ ] _M_ remove extraneous elements from print model
 
 ## Concrete Model
