@@ -20,18 +20,18 @@ from z3 import (
 
 from definitions import (
     # N,
-    # c,
-    # r,
-    # s,
-    # t,
-    # z,
-    # u,
     a,
     b,
-    x,
-    y,
+    c,
+    r,
+    s,
+    t,
+    u,
     v,
     w,
+    x,
+    y,
+    z,
     A,
     B,
     fusion,
@@ -74,19 +74,21 @@ solver.add(
         # TODO: investigate why adding these constraints for B makes the program fail to halt
 
     # EVAL CONSTRAINTS
-    is_world(w), # there is a world
-    # And( # A is true in w
-        is_part_of(x,w),
-        verify(x,A),
-    # ),
-    # And( # B is true in w
-        is_part_of(y,w),
-        verify(y,B),
-    # ),
-    Not(ForAll([a,v], Implies( # in w it is not the case that if A were true then B would be true
+    is_world(w),
+    # there is a world w
+    is_part_of(s,w),
+    verify(s,A),
+    # A is true in w
+    is_part_of(t,w),
+    verify(t,B),
+    # B is true in w
+    Not(ForAll([a,v], Implies(
         And(verify(a,A), alternative(w,a,v)),
         Exists(b, And(is_part_of(b,v), verify(b,B)))
-    )))
+    ))),
+    # in w it is not the case that if A were true then B would be true
+    # NOTE: there should be a world state v where A is true and B is false
+    # so far it doesn't print the values of bound variables
 )
 
 
@@ -106,4 +108,3 @@ for declaration in model.decls():
         # print(FuncInterp.num_entries(function))
         # print(f"this is the declaration name: {declaration.name()}")
         print(f"{declaration.name()} = {model[declaration]}")
-        # rn this is printing a monster, not sure what to make of it
