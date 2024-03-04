@@ -34,6 +34,8 @@ from definitions import (
     z,
     A,
     B,
+    # X,
+    # Y,
     fusion,
     is_part_of,
     compatible,
@@ -61,10 +63,12 @@ solver.add(
         # first try didn't work
 
     # requires A to be a proposition
+    # ForAll(A, And( # TEST BOUND VAR
     ForAll([x,y], Implies(And(verify(x,A),verify(y,A)), verify(fusion(x,y),A))),
     ForAll([x,y], Implies(And(falsify(x,A),falsify(y,A)), falsify(fusion(x,y),A))),
     ForAll([x,y], Implies(And(verify(x,A),falsify(y,A)), Not(possible(fusion(x,y))))),
     ForAll(x, Implies(possible(x), Exists(y, And(compatible(x,y), Or(verify(y,A), falsify(y,A)))))),
+    # )), ### MATCH FORALL ABOVE
 
     # requires B to be a proposition
     # ForAll([x,y], Implies(And(verify(x,B),verify(y,B)), verify(fusion(x,y),B))),
@@ -74,6 +78,7 @@ solver.add(
         # TODO: investigate why adding these constraints for B makes the program fail to halt
 
     # EVAL CONSTRAINTS
+    # Exists([w,s,t], And( # TEST BOUND VAR
     is_world(w),
     # there is a world w
     is_part_of(s,w),
@@ -86,6 +91,7 @@ solver.add(
         And(verify(a,A), alternative(w,a,v)),
         Exists(b, And(is_part_of(b,v), verify(b,B)))
     ))),
+    # )), # MATCH EXIST ABOVE
     # in w it is not the case that if A were true then B would be true
     # NOTE: there should be a world state v where A is true and B is false
     # so far it doesn't print the values of bound variables

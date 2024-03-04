@@ -14,6 +14,7 @@ from z3 import (
     Function,
     And,
     # Var,
+    # Const,
 )
 
 
@@ -32,6 +33,13 @@ N = 3
 AtomSort = DeclareSort("AtomSort")
 A, B = Consts("A B", AtomSort)
 
+# X = AtomSort("X", AtomSort)
+
+# PropSort = DeclareSort("PropSort")
+# X, Y = Consts("X Y", PropSort)
+
+# A = Const("A", AtomSort)
+# B = Const("B", AtomSort)
 # B: Seems like the following could be useful to quantify over propositions
 # B: Couldn't get this to work
 # X = Var("X", AtomSort)
