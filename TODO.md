@@ -2,13 +2,17 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
-## Print Model Function
+## Print Function
 
-- [ ] _M_ print states in number form
-- [ ] _M_ print which states verify which sentence letters
-- [ ] _M_ print which states are part of which states
+NOTE: See post-processing in `Strategies.md`.
+It will be important to start on model representation to better understand the models it is building.
+Once Z3 is finding good models for explicit example inputs we can start on the constraint generator functions.
+
+- [ ] _M_ name all atomic states in the model with lowercase letters `a, b, c, ...`
+- [ ] _M_ represent all states in the model as fusions, e.g., `a.b.c, d.e, a, ...`
+- [ ] _M_ print which states verify/falsify which sentence letters
+  - [ ] this could take the form `|A| = < {a, b, a.b}, {c.d} >`
 - [ ] _M_ print which states are world states
-- [ ] _M_ remove extraneous elements from print model
 
 ## Concrete Model
 
@@ -23,10 +27,15 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] _M_ `extended_falsify` see strategies
 - [ ] _M_ recursive definition of `true`
 
+## Constraint Generators
+
+- model constraints from `sentence_letters`
+- evaluation constraints from `input_sentences`
+
 ## Overview
 
 - [ ] _B_ move from set-fusion to binary fusion throughout
-- [ ] _B_ check that world-hood constraint is not needed for finite spaces
+- [x] _B_ check that world-hood constraint is not needed for finite spaces
 
 ## Strategies
 
@@ -36,42 +45,11 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] _B_ email Graham
     - [x] _B_ revise constraints
     - [:] _B_ run strategies by Graham
-  - [.] _B_ model builder
+  - [x] _B_ model builder
     - [x] _B_ outline
-    - [ ] _B_ revise
+    - [x] _B_ revise
 
-## Z3
-
-- [.] set up test solvers in Z3 with constraints
-  - [ ] troubleshoot `is_part_of` in `parts.py`
-  - [ ] define `verify` and `falsify` predicates in `prop.py`
-- [x] clean up project directory
-- [.] compile a range of resources for learning Z3
-  - [.] glossary of commands, basic types/sorts, etc.
-  - [:] research Z3
-    - [x] _M_ add Z3 test examples with bitvectors to the `Z3Test/` directory
-    - [x] _M_ add questions/answers to `Questions.md`
-    - [x] _M_ read about how to use Z3 adding resources to `Resources.md`
-    - [.] _B_ add information about how Z3 works to `Resources.md`
-- [.] basic definitions in Z3
-  - [x] atomic
-  - [x] fusion
-  - [x] parthood
-  - [ ] exhaustive
-  - [ ] exclusive
-  - [ ] closed
-  - [ ] propositions
-  - [ ] semantics
-
-## Python
-
-- model builder
-  - function for extracting, renaming, and saving the elements of a Z3 model
-  - function for printing the extracted model in a readable way
-- constraint generators
-  - model constraints
-  - semantic constraints
-  - evaluation constraints
+<!-- BONEYARD -->
 
 # Completed
 
@@ -113,3 +91,25 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] document purpose
   - [x] create issue
 - [x] research what Z3 wants for predicates to be interpreted
+
+## Z3
+
+- [x] set up test solvers in Z3 with constraints
+  - [x] troubleshoot `is_part_of` in `parts.py`
+  - [x] define `verify` and `falsify` predicates in `prop.py`
+- [x] clean up project directory
+- [.] compile a range of resources for learning Z3
+  - [:] glossary of commands, basic types/sorts, etc.
+  - [:] research Z3
+    - [x] _M_ add Z3 test examples with bitvectors to the `Z3Test/` directory
+    - [x] _M_ add questions/answers to `Questions.md`
+    - [x] _M_ read about how to use Z3 adding resources to `Resources.md`
+    - [.] _B_ add information about how Z3 works to `Resources.md`
+- [:] basic definitions in Z3
+  - [x] atomic
+  - [x] fusion
+  - [x] parthood
+  - [x] exhaustive
+  - [x] exclusive
+  - [x] closed
+  - [x] propositions

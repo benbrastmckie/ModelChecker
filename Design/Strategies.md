@@ -122,40 +122,60 @@ For every `X` in `input_sentences`, we may require the following to be true at t
 
 1. There is some `w` where `world(w)` and `true(w,prefix(X))`.
 
-## Processing: finding models with Z3
+## Post-Processing: representing Z3 models
 
-Define a Z3 solver and add the frame constraints, model constraints, and evaluation constraints corresponding to the `input_sentences`.
-If the solver is satisfiable, store and print the model.
-It remains to represent this model in a readable manner, storing the output in an associated file.
+These sections cover the functions needed to represent Z3 models.
 
-TODO: CONTINUE
+### Function: model representation
 
-### Model Builder
+Make Z3 models readable. 
 
-Represent Z3 models in a way that is easy to interpret.
+1. Assign lowercase letters to all atomic states that occur in the stored model.
+2. Represent all states in the model as fusions of atomic states, e.g., `a.b.c` where `.` is used for fusion.
+3. Distinguish the world states from all other states, representing them separately.
 
-Models will specify some number of states, saying which sentence letters are verified or falsified by each, and which states are possible.
-Given this information, it is possible to construct a representation, complete with world states, which assigns each sentence letter to a proposition, i.e, to an ordered pair of sets of states.
+### Function: sub-sentences
 
-**Example:** 
+Generate a set of all subsentences from the input sentences.
+These sentences may then be interpreted by assigning them to propositions.
+
+1. Given the `input_sentences`, we may store a list of all `sub_sentences`.
+2. Store those `sub_sentences` that only include `\wedge`, `\vee`, and `\not` as a list of `extensional_sentences`.
+3. Store those counterfactual sentence of the form `A \boxright B` in a list `counterfactual_sentences`.
+
+### Function: proposition representation
+
+1. For each sentence in `extensional_sentences`, represent the ordered pair of sets of `extended_verifier` and `extended_falsifier` states.
+2. For each sentence in `counterfactual_sentences`, represent all `alternative` states that result from imposing an `extended_verifier` for the antecedent on `w`.
+3. For each world state, represent which of the sentences in `sub_sentences` are true/false at that world state.
+
+### Convention: input file
+
+Define a convention for presenting the `input_sentences`, semantics, and frame constraints in an input file.
+
+1. Definitions that will not be changed may be included in a definitions file.
+2. The `input_sentences`, semantics, and frame constraints should be presented in a standardized form.
+3. Documentation will be included here indicating how to tweak constraints.
+
+## Processing: running Z3 and representing the result
+
+This section outlines the overall structure of the algorithm.
+
+### Algorithm: solve and save
+
+Define an algorithm which takes an input file, generates Z3 model constraints, runs Z3, and, if satisfiable, stores the model in an output file in both a raw and readable way.
+
+1. Generate model constraints from the `sentence_letters` that occur in the `input_sentences`.
+2. Generate evaluation constraints from the `input_sentences` given the semantic functions and the semantics included in the file.
+3. Run Z3 on the resulting set of constraints.
+4. If satisfiable, store the model in raw form in an output file for further processing.
+5. Run the representation functions in order to generate a readable form of the model, storing the result at the beginning of the output file.
+
+**Example:**
+
 Say Z3 returns a model consisting of a bunch of bitvectors etc. Say `c = b#10001`.
 Having it written out this way is better than some kind of hex code, but it is still not that salient what is going on.
 But here we can see that `c` is the fusion of two atomic states, call them `a = b#00001` and `b = b#10000`.
 So a better representation would look like `c = a.b`.
-Honestly it doesn't matter that, thought of as numbers, `a < b`.
-All we care about is that they are both atomic and that `c` is their fusion.
-
-Given that there is a nice way to identify which states are atomic, it actually doesn't matter whether states are represented in hexadecimal or not since either way it would be nice to represent them in some cleaner way. Maybe you have thoughts about how to do this, but here is a rough idea:
-
-- given some number of states as inputs (these are outputs of the Z3 model), find all atomic states.
-- name all input and atomic states in some nice way (more thoughts in `Strategies`).
-- then identify each input state with a fusion of atomic states using their new names.
-
-There will probably be some other natural pieces to add, but getting these identities is a good start.
-The thought is that eventually, the model representation could include things like `|A| = < { a, b, a.b}, {f.g} >` for each sentence letter which would make it clear what proposition each sentence letter is being assigned to.
-Knowing what the fusion relations are and getting nice conventions for naming states will be a key step.
-
-1. The python representation of a Z3 model should specify the states, possible states, worlds, and the propositions assigned to the sentence letters in question where further visualization can be added later.
-2. A function should specify the propositions assigned to all subsentences of the sentences under evaluation.
-3. These details may then be stored in an output file, prompting the user whether to search for another model to add to the file.
+The proposition representations could include things like `|A| = < { a, b, a.b}, {f.g} >` for each sentence letter `A`.
 
