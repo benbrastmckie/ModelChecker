@@ -66,26 +66,33 @@ The following constraints hold independent of the sentences being evaluated.
 
 1. For every `x` and `y`, if `possible(y)` and `is_part_of(x,y)`, then `possible(x)`.
 
+### Definition: propositions
+
+Define what it is for a constant/variable of `AtomSort` to be a proposition.
+In particular, `proposition(X)` should hold iff:
+
+1. For all `x`, and `y`, if `verify(x,X)` and `verify(y,X)`, then `verify(fusion(x,y),X)`.
+2. For all `x`, and `y` if `falsify(x,X)` and `falsify(y,X)`, then `falsify(fusion(x,y,X))`.
+3. For all `x`, and `y` if `verify(x,X)` and `falsify(y,X)`, then `Not(possible(fusion(x,y)))`.
+4. For all `x`, if `possible(x)`, then there is some `y` where `possible(fusion(x,y))` and: `verify(y,X)` or `falsify(y,X)`.
+
 ### Model Constraints
 
-Assuming it is possible to take `X` to be a bound variable of `AtomSort`, we may include the following constraints:
+Assuming the definition of `proposition(X)` has been provided and works for concrete cases, we may require:
 
-1. For all `x`, `y`, `X`, if `verify(x,X)` and `verify(y,X)`, then `verify(fusion(x,y),X)`.
-2. For all `x`, `y`, `X`, if `falsify(x,X)` and `falsify(y,X)`, then `falsify(fusion(x,y,X))`.
-3. For all `x`, `y`, `X`, if `verify(x,X)` and `falsify(y,X)`, then `Not(possible(fusion(x,y)))`.
-4. For all `x` and `X`, if `possible(x)`, then there is some `y` where `possible(fusion(x,y))` and: `verify(y,X)` or `falsify(y,X)`.
+1. For all `X` in `sentence_letters`, `proposition(X)`.
 
-The constraints above require `X` to be a proposition by requiring `Verify` and `Falsify` to be: (1-2) closed under fusion; (3) exclusive; and (4) exhaustive.
-These constraints set limits on what verification and falsification relations can hold.
+The thought is that every sentence letter is assigned to a proposition.
 
-NOTE: I couldn't get `X` to be a variable that ranges over AtomSort, so included instances of the following constraints for each `X` in `sentence_letters`:
+NOTE: I couldn't get `X` to be a variable that ranges over `AtomSort`, so included instances of the following constraints for each `X` in `sentence_letters`:
 
 1. For all `x`, `y`, if `verify(x,X)` and `verify(y,X)`, then `verify(fusion(x,y),X)`.
 2. For all `x` and `y`, if `falsify(x,X)` and `falsify(y,X)`, then `falsify(fusion(x,y,X))`.
 3. For all `x` and `y`, if `verify(x,X)` and `falsify(y,X)`, then `Not(possible(fusion(x,y)))`.
 4. For all `x`, if `possible(x)`, then there is some `y` where `possible(fusion(x,y))` and: `verify(y,X)` or `falsify(y,X)`.
 
-If the latter strategy is required, then it may be worth defining a function `proposition(X)` which outputs the constraints above for any `X`.
+NOTE: attempting to include instances of the constraints above for multiple sentence letters (i.e., `A` and `B`) failed.
+I could get it to produce a model for just `B`.
 
 ### Functions: extensional constraints
 

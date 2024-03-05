@@ -31,7 +31,7 @@ N = 3
 # sentence letters: sort definition, constants, and variables
 # B: do we need a constant for each sentence letter in sentence_letters?
 AtomSort = DeclareSort("AtomSort")
-A, B = Consts("A B", AtomSort)
+A, B, X = Consts("A B X", AtomSort)
 
 # X = AtomSort("X", AtomSort)
 
@@ -127,6 +127,7 @@ def alternative(bit_w, bit_y, bit_u):
         Exists(z, And(is_part_of(z, bit_u), compatible_part(z, bit_w, bit_y))),
     )
 
+    # TODO: proposition (see Strategies)
 
     # TODO: extended_verify and extended_falsify functions (see Strategies)
 
