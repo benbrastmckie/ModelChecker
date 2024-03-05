@@ -34,7 +34,7 @@ from definitions import (
     z,
     A,
     B,
-    # X,
+    X,
     # Y,
     fusion,
     is_part_of,
@@ -64,37 +64,54 @@ solver.add(
 
     # requires A to be a proposition
     # ForAll(A, And( # TEST BOUND VAR
-    ForAll([x,y], Implies(And(verify(x,A),verify(y,A)), verify(fusion(x,y),A))),
-    ForAll([x,y], Implies(And(falsify(x,A),falsify(y,A)), falsify(fusion(x,y),A))),
-    ForAll([x,y], Implies(And(verify(x,A),falsify(y,A)), Not(possible(fusion(x,y))))),
-    ForAll(x, Implies(possible(x), Exists(y, And(compatible(x,y), Or(verify(y,A), falsify(y,A)))))),
+    # ForAll([x,y], Implies(And(verify(x,A),verify(y,A)), verify(fusion(x,y),A))),
+    # ForAll([x,y], Implies(And(falsify(x,A),falsify(y,A)), falsify(fusion(x,y),A))),
+    # ForAll([x,y], Implies(And(verify(x,A),falsify(y,A)), Not(possible(fusion(x,y))))),
+    # ForAll(x, Implies(possible(x), Exists(y, And(compatible(x,y), Or(verify(y,A), falsify(y,A)))))),
     # )), ### MATCH FORALL ABOVE
 
     # requires B to be a proposition
+    # ForAll(B, And( # TEST BOUND VAR
     # ForAll([x,y], Implies(And(verify(x,B),verify(y,B)), verify(fusion(x,y),B))),
     # ForAll([x,y], Implies(And(falsify(x,B),falsify(y,B)), falsify(fusion(x,y),B))),
     # ForAll([x,y], Implies(And(verify(x,B),falsify(y,B)), Not(possible(fusion(x,y))))),
     # ForAll(x, Implies(possible(x), Exists(y, And(compatible(x,y), Or(verify(y,B), falsify(y,B)))))),
-        # TODO: investigate why adding these constraints for B makes the program fail to halt
+    # )), ### MATCH FORALL ABOVE
+
+    # TODO: replace constraints below with proposition(X) from definitions
+    # requires X to be a proposition
+    ForAll(X, And( # TEST BOUND VAR
+    ForAll([x,y], Implies(And(verify(x,X),verify(y,X)), verify(fusion(x,y),X))),
+    ForAll([x,y], Implies(And(falsify(x,X),falsify(y,X)), falsify(fusion(x,y),X))),
+    ForAll([x,y], Implies(And(verify(x,X),falsify(y,X)), Not(possible(fusion(x,y))))),
+    # ForAll(x, Implies(possible(x), Exists(y, And(compatible(x,y), Or(verify(y,X), falsify(y,X)))))),
+        # NOTE: adding the constraint above makes Z3 crash
+        # without this constraint the logic is not classical (there could be truth-value gaps)
+    )), ### MATCH FORALL ABOVE
 
     # EVAL CONSTRAINTS
     # Exists([w,s,t], And( # TEST BOUND VAR
+
     is_world(w),
     # there is a world w
+
     is_part_of(s,w),
     verify(s,A),
     # A is true in w
+
     is_part_of(t,w),
     verify(t,B),
     # B is true in w
+
     Not(ForAll([a,v], Implies(
         And(verify(a,A), alternative(w,a,v)),
         Exists(b, And(is_part_of(b,v), verify(b,B)))
     ))),
+    # in w, it is not the case that if A were true then B would be true
+        # NOTE: there should be a world state v where A is true and B is false
+        # so far it doesn't print the values of bound variables
+
     # )), # MATCH EXIST ABOVE
-    # in w it is not the case that if A were true then B would be true
-    # NOTE: there should be a world state v where A is true and B is false
-    # so far it doesn't print the values of bound variables
 )
 
 

@@ -18,11 +18,14 @@ Once Z3 is finding good models for explicit example inputs we can start on the c
 
 - [ ] countermodel for `A, B \vdash A \boxright B`
   - [x] _B_ build concrete model
-  - [ ] _M_ try to debug issues in `test_model.py` TODOs
+  - [.] debug Z3 crashing issues in `test_model.py`
+    - [x] _B_ Locate the constraint that seems to be the problem
+    - [ ] figure out why this constraint is causing trouble
   - [ ] _M_ try to use quantifiers over sentence letters in model constraints
 
 ## Semantic Definitions
 
+- [ ] _M_ `proposition` see strategies
 - [ ] _M_ `extended_verify` see strategies
 - [ ] _M_ `extended_falsify` see strategies
 - [ ] _M_ recursive definition of `true`
