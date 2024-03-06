@@ -13,6 +13,7 @@ from z3 import (
     Consts,
     Function,
     And,
+    BitVecVal
     # Var,
     # Const,
 )
@@ -143,3 +144,19 @@ def total_fusion(list_of_states):
     return total_fusion(
         [fusion_of_first_two] + list_of_states[2:]
     )  # + is list concatenation
+
+def bitvec_to_substates(bit_vec):
+    bit_vec_as_string = bit_vec.sexpr()
+    #print(type(bit_vec_as_string))
+    bit_vec_backwards = bit_vec_as_string[::-1]
+    #print(bit_vec_backwards)
+    state_repr = ''
+    alphabet = 'abcdefghijklmnopqrstuvwxyz' # this will only work for 26 states. Should be enough, but if we want to make this completely generalizable, I could make a general function with a list, then taking the quotient and remaindr and with those making a thing where the number of letters depends on how many sets of 26 you are in deep
+    for i,char in enumerate(bit_vec_backwards):
+        if char == 'b':
+            if not state_repr:
+                return 'null' # my tentative representation for the null state
+            return state_repr[0:len(state_repr)-1]
+        if char == '1':
+            state_repr += alphabet[i]
+            state_repr += '.'

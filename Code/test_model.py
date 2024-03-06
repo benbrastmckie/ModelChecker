@@ -44,6 +44,7 @@ from definitions import (
     verify,
     falsify,
     alternative,
+    bitvec_to_substates,
 )
 
 
@@ -121,14 +122,32 @@ print(solver.check())
 model = solver.model()
 # print(model)
 print("Model:")
+states_dict = {}
+funcs_dict = {}
 for declaration in model.decls():
+
+    
+    
+    
     try:  # do this to print bitvectors how we like to see them (as vectors)
-        print(f"{declaration.name()} = {model[declaration].sexpr()}")
-        print(f"{possible(model[declaration])}")
+        model[declaration].sexpr()
+        states_dict[declaration.name()] = model[declaration] # model declaration is of type bitvec
+        #print(f"{declaration.name()} = {bitvec_to_substates(model[declaration])}")
+        #print(f"{declaration.name()} = {model[declaration]}")
+        #print(f"{possible(model[declaration])}")
     except:  # this is for the "else" case (ie, "map everything to x value")
-        function = model[declaration]
+        funcs_dict[declaration.name()] = model[declaration].as_list()
+        function = model[declaration].as_list
         # print(FuncInterp.as_list(function))
         # print(FuncInterp.else_value(function))
         # print(FuncInterp.num_entries(function))
         # print(f"this is the declaration name: {declaration.name()}")
-        print(f"{declaration.name()} = {model[declaration]}")
+        print(f"{declaration.name()} = {model[declaration].as_list()}") # now is a list with boolrefs inside
+
+Possible = funcs_dict['possible'][0]
+
+for state in states_dict:
+    state_solver = Solver()
+    state_solver.add(Possible)
+    state_solver.add(state)
+    print(solver.check())
