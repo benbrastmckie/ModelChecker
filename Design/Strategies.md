@@ -54,7 +54,7 @@ Drawing on the declarations above and the operators already included in Z3 libra
 5. `maximal(w)` returns a true iff for every `x`, if `compatible(x,w)`, then `is part_of(x,w)`.
 6. `is_world(w)` returns a true iff `possible(w)` and `maximal(w)`.
 7. `compatible_part(x,w,y)` returns true iff `is_part_of(x,w)`, `compatible(x,y)`, and for any `z`, if `is_part_of(z,w)`, `compatible(z,y)`, and `is_part_of(x,z)`, then `x == z`.
-8. `alternative(w,y,u)` returns a true iff `world(u)`, `is_part_of(y,u)`, and there is some `x` where `is_part_of(x,u)` and `compatible_part(x,w,y)`.
+8. `alternative(u,y,w)` returns a true iff `world(u)`, `is_part_of(y,u)`, and there is some `x` where `is_part_of(x,u)` and `compatible_part(x,w,y)`.
 
 Whereas every impossible state is maximal since nothing is compatible with it, a state that is both maximal and possible is a world state.
 Given any world state `w` and state `y`, `compatible_part()` identifies when a state `x` is a biggest part of `w` that is compatible with `y`.
@@ -85,14 +85,12 @@ Assuming the definition of `proposition(X)` has been provided and works for conc
 The thought is that every sentence letter is assigned to a proposition.
 
 NOTE: I couldn't get `X` to be a variable that ranges over `AtomSort`, so included instances of the following constraints for each `X` in `sentence_letters`:
+  - The fourth constraint seems to be the issue
 
 1. For all `x`, `y`, if `verify(x,X)` and `verify(y,X)`, then `verify(fusion(x,y),X)`.
 2. For all `x` and `y`, if `falsify(x,X)` and `falsify(y,X)`, then `falsify(fusion(x,y,X))`.
 3. For all `x` and `y`, if `verify(x,X)` and `falsify(y,X)`, then `Not(possible(fusion(x,y)))`.
 4. For all `x`, if `possible(x)`, then there is some `y` where `possible(fusion(x,y))` and: `verify(y,X)` or `falsify(y,X)`.
-
-NOTE: attempting to include instances of the constraints above for multiple sentence letters (i.e., `A` and `B`) failed.
-I could get it to produce a model for just `B`.
 
 ### Functions: extensional constraints
 
