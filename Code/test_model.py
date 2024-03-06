@@ -1,6 +1,7 @@
 # AIM: provide a concrete model that can be used to abstract from to build model generator functions
 from z3 import (
     # Solver,
+    Var,
     sat,
     # simplify,
     Exists,
@@ -44,6 +45,7 @@ from definitions import (
     verify,
     falsify,
     alternative,
+    proposition,
     bitvec_to_substates,
 )
 
@@ -51,44 +53,17 @@ from definitions import (
 solver = Solver()
 
 solver.add(
-    # FRAME CONSTRAINT
-    # 1. For every `x` and `y`, if `possible(y)` and `is_part_of(x,y)`, then `possible(x)`.
+    # FRAME CONSTRAINT: every part of a possible state is possible
     ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
-    # requires all X to be a proposition
-    ForAll(
-        X,
-        And(  # TEST BOUND VAR
-            ForAll(
-                [x, y],
-                Implies(And(verify(x, X), verify(y, X)), verify(fusion(x, y), X)),
-            ),
-            ForAll(
-                [x, y],
-                Implies(And(falsify(x, X), falsify(y, X)), falsify(fusion(x, y), X)),
-            ),
-            ForAll(
-                [x, y],
-                Implies(And(verify(x, X), falsify(y, X)), Not(possible(fusion(x, y)))),
-            ),
-            # ForAll(x, Implies(possible(x), Exists(y, And(compatible(x,y), Or(verify(y,X), falsify(y,X)))))),
-            # NOTE: adding the constraint above makes Z3 crash
-            # without this constraint the logic is not classical (there could be truth-value gaps)
-        ),
-    ),
+    # MODEL CONSTRAINT: every X of AtomSort is a proposition
+    ForAll(X, proposition(X)),
     # EVAL CONSTRAINTS
-    # Exists([w,s,t], And( # TEST BOUND VAR
-    is_world(w),
-    # is_world(v),
-    # there is a world w
-    is_part_of(s, w),
-    verify(s, A),
-    falsify(c, A),
-    # A is true in w
-    is_part_of(t, w),
-    verify(t, B),
-    falsify(r, B),
-    # B is true in w
-    Not(
+    is_world(w),  # there is a world w
+    is_part_of(s, w),  # s is a part of w
+    verify(s, A),  # s verifies A
+    is_part_of(t, w),  # t is part of w
+    verify(t, B),  # t verifies A
+    Not(  # in w, it is not the case that if A were true then B would be true
         ForAll(
             [a, v],
             Implies(
@@ -97,73 +72,40 @@ solver.add(
             ),
         ),
     ),
-    # in w, it is not the case that if A were true then B would be true
-    # NOTE: there should be a world state v where A is true and B is false
-    # so far it doesn't print the values of bound variables
-    # )), # MATCH EXIST ABOVE
 )
 
 
-# TODO: fix printing so that numbers are readable
-print(solver.check())
-model = solver.model()
-# print(model)
-print("Model:")
-states_dict = {}
-funcs_dict = {}
+if solver.check() == sat:
+    model = solver.model()
 
-for declaration in model.decls():
+    # TODO: replace ["A", "B"] with something more general
+    states = [d for d in model.decls() if d.arity() == 0 and d.name() not in ["A", "B"]]
 
-    try:  # do this to print bitvectors how we like to see them (as vectors)
-        model[declaration].sexpr()
-        states_dict[declaration.name()] = model[
-            declaration
-        ]  # model declaration is of type bitvec
-        # print(f"{declaration.name()} = {bitvec_to_substates(model[declaration])}")
-        # print(f"{declaration.name()} = {model[declaration]}")
-        # print(f"{possible(model[declaration])}")
-    except:  # this is for the "else" case (ie, "map everything to x value")
-        funcs_dict[declaration.name()] = model[declaration].as_list()
-        function = model[declaration].as_list
-        # print(FuncInterp.as_list(function))
-        # print(FuncInterp.else_value(function))
-        # print(FuncInterp.num_entries(function))
-        # print(f"this is the declaration name: {declaration.name()}")
-        print(
-            f"{declaration.name()} = {model[declaration].as_list()}"
-        )  # now is a list with boolrefs inside
+    # Print states
+    print("States:")
+    for decl in states:
+        # TODO: how can we print all the states and whether world/poss/imposs
+        print(f"{decl.name()} = {bitvec_to_substates(model[decl])}")
 
-Possible = funcs_dict["possible"][0]
+    # possible = [d for d in model.decls() if d.arity() == 1]
+    # # TODO: unlock var bool string
 
-for state in states_dict:
-    state_solver = Solver()
-    state_solver.add(Possible)
-    state_solver.add(state)
-    print(solver.check())
+    # print("Possible States:")
+    # for func in possible:
+    #     # TODO: store and print all verifiers/falsifiers for atom
+    #     print(f"{func.name()} = {model[func].as_list()}")
 
+    # proposition = [d for d in model.decls() if d.arity() == 2]
+    # # TODO: unlock var bool string
+    #
+    # print("Propositions:")
+    # for prop in possible:
+    #     # TODO: store and print all verifiers/falsifiers for atom
+    #     print(f"{func.name()} = {model[func].as_list()}")
 
-# # TODO: fix printing so that numbers are readable
-#
-# if solver.check() == sat:
-#     model = solver.model()
-#
-#     # TODO: replace ["A", "B"] with something more general
-#     arity_0_decls = [d for d in model.decls() if d.arity() == 0 and d.name() not in ["A", "B"]]
-#
-#     # Print states
-#     print("States:")
-#     for decl in arity_0_decls:
-#         # TODO: add world/possible/impossible after each state
-#         print(f"{decl.name()} = {model[decl].sexpr()}")
-# else:
-#     print("No model found.")
+else:
+    print("No model found.")
 
-# # Print propositions
-# print("Propositions:")
-# for atom in ["A", "B"]:
-#     # TODO: store all verifies for atom
-#     print(f"{atom.name()} = {model[atom]}")
-#
 # for decl in model.decls():
 #     if decl.arity() == 0:  # Filter out function declarations
 #         print(f"{decl.name()} = {model[decl]}")
@@ -176,3 +118,41 @@ for state in states_dict:
 #         for j in range(10):  # Adjust range as needed
 #             arg1, arg2 = IntVal(i), IntVal(j)
 #             print(f"{arg1}, {arg2}: {model.evaluate(decl(arg1, arg2))}")
+
+# # TODO: fix printing
+# print(solver.check())
+# model = solver.model()
+# # print(model)
+# print("Model:")
+# states_dict = {}
+# funcs_dict = {}
+#
+# for declaration in model.decls():
+#
+#     try:  # do this to print bitvectors how we like to see them (as vectors)
+#         model[declaration].sexpr()
+#         states_dict[declaration.name()] = model[
+#             declaration
+#         ]  # model declaration is of type bitvec
+#         # print(f"{declaration.name()} = {bitvec_to_substates(model[declaration])}")
+#         # print(f"{declaration.name()} = {model[declaration]}")
+#         # print(f"{possible(model[declaration])}")
+#     except:  # this is for the "else" case (ie, "map everything to x value")
+#         funcs_dict[declaration.name()] = model[declaration].as_list()
+#         function = model[declaration].as_list
+#         # print(FuncInterp.as_list(function))
+#         # print(FuncInterp.else_value(function))
+#         # print(FuncInterp.num_entries(function))
+#         # print(f"this is the declaration name: {declaration.name()}")
+#         print(
+#             f"{declaration.name()} = {model[declaration].as_list()}"
+#         )  # now is a list with boolrefs inside
+#
+# Possible = funcs_dict["possible"][0]
+#
+# for state in states_dict:
+#     state_solver = Solver()
+#     state_solver.add(Possible)
+#     state_solver.add(state)
+#     print(solver.check())
+#

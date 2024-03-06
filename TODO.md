@@ -4,15 +4,17 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Print Function
 
-NOTE: See post-processing in `Strategies.md`.
-It will be important to start on model representation to better understand the models it is building.
-Once Z3 is finding good models for explicit example inputs we can start on the constraint generator functions.
-
-- [x] _M_ name all atomic states in the model with lowercase letters `a, b, c, ...`
-- [x] _M_ represent all states in the model as fusions, e.g., `a.b.c, d.e, a, ...`
-- [ ] _M_ print which states verify/falsify which sentence letters
-  - [ ] this could take the form `|A| = < {a, b, a.b}, {c.d} >`
-- [ ] _M_ print which states are world states
+- [ ] _M_ print all states in the model (some seem to be hidden)
+- [ ] _M_ unlock `Var(0) == 1`; maybe there is a better way to find the extensions of predicates?
+- [ ] _M_ assign either `world`, `possible`, or `impossible` to each printed state
+- [ ] _M_ for each sentence letter `X`, print set of verifiers and set of falsify
+  - this could take the form `verify(A) = [a, b, a.b]` and `falsify(A) = [c.d]`
+  - ok to focus on just `A` and `B` for now, but at some point this will range over `sentence_letters`
+- [ ] _M_ for each counterfactual sentence `X \boxright Y`, print the set of `X` alternatives to `w`
+  - if `X \boxright Y` is true at `w`, then `Y` will be true in every `X` alternative to `w`
+  - if `X \boxright Y` is false at `w`, then `Y` will be false at some `X` alternative to `w`
+  - either way, it would be great to know what the `X` alternatives to `w` are
+  - but we don't need to know what the `Z` alternatives to `w` are for `Z` that is not the antecedent to a counterfactual
 
 ## Concrete Model
 
@@ -20,12 +22,13 @@ Once Z3 is finding good models for explicit example inputs we can start on the c
   - [x] _B_ build concrete model
   - [.] debug Z3 crashing issues in `test_model.py`
     - [x] _B_ Locate the constraint that seems to be the problem
-    - [ ] figure out why this constraint is causing trouble
-  - [ ] _M_ try to use quantifiers over sentence letters in model constraints
+    - [.] figure out why this constraint is causing trouble
+      - [x] _B_ email Graham
 
-## Semantic Definitions
+## Definitions
 
-- [ ] _M_ `proposition` see strategies
+- [x] _B_ `proposition` see strategies
+- [x] _B_ add docstrings to `definitions.py`
 - [ ] _M_ `extended_verify` see strategies
 - [ ] _M_ `extended_falsify` see strategies
 - [ ] _M_ recursive definition of `true`
@@ -55,6 +58,11 @@ Once Z3 is finding good models for explicit example inputs we can start on the c
 <!-- BONEYARD -->
 
 # Completed
+
+## Print
+
+- [x] _M_ name all atomic states in the model with lowercase letters `a, b, c, ...`
+- [x] _M_ represent all states in the model as fusions, e.g., `a.b.c, d.e, a, ...`
 
 ## Planning
 
