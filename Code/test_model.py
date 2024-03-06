@@ -44,6 +44,7 @@ from definitions import (
     verify,
     falsify,
     alternative,
+    bitvec_to_substates,
 )
 
 
@@ -126,78 +127,36 @@ solver.add(
 
 
 # TODO: fix printing so that numbers are readable
+print(solver.check())
+model = solver.model()
+# print(model)
+print("Model:")
+states_dict = {}
+funcs_dict = {}
+for declaration in model.decls():
 
-if solver.check() == sat:
-    model = solver.model()
+    
+    
+    
+    try:  # do this to print bitvectors how we like to see them (as vectors)
+        model[declaration].sexpr()
+        states_dict[declaration.name()] = model[declaration] # model declaration is of type bitvec
+        #print(f"{declaration.name()} = {bitvec_to_substates(model[declaration])}")
+        #print(f"{declaration.name()} = {model[declaration]}")
+        #print(f"{possible(model[declaration])}")
+    except:  # this is for the "else" case (ie, "map everything to x value")
+        funcs_dict[declaration.name()] = model[declaration].as_list()
+        function = model[declaration].as_list
+        # print(FuncInterp.as_list(function))
+        # print(FuncInterp.else_value(function))
+        # print(FuncInterp.num_entries(function))
+        # print(f"this is the declaration name: {declaration.name()}")
+        print(f"{declaration.name()} = {model[declaration].as_list()}") # now is a list with boolrefs inside
 
-    # TODO: replace ["A", "B"] with something more general
-    arity_0_decls = [d for d in model.decls() if d.arity() == 0 and d.name() not in ["A", "B"]]
+Possible = funcs_dict['possible'][0]
 
-    # Print states
-    print("States:")
-    for decl in arity_0_decls:
-        # TODO: add world/possible/impossible after each state
-        print(f"{decl.name()} = {model[decl].sexpr()}")
-
-    # Print propositions
-    print("Propositions:")
-    for atom in ["A", "B"]:
-        # TODO: store all verifies for atom
-        print(f"{atom.name()} = {model[atom]}")
-
-    # for decl in model.decls():
-    #     if decl.arity() == 0:  # Filter out function declarations
-    #         print(f"{decl.name()} = {model[decl]}")
-    #     elif decl.arity() == 1:
-    #         for i in range(10):  # Adjust range as needed
-        #         arg = IntVal(i)
-        #         print(f"{arg}: {model.evaluate(decl(arg))}")
-        # elif decl.arity() == 2:
-        #     for i in range(10):  # Adjust range as needed
-        #         for j in range(10):  # Adjust range as needed
-        #             arg1, arg2 = IntVal(i), IntVal(j)
-        #             print(f"{arg1}, {arg2}: {model.evaluate(decl(arg1, arg2))}")
-else:
-    print("No model found.")
-
-# # Check satisfiability
-# if solver.check() == sat:
-#     model = solver.model()
-#     # Iterate over all declarations in the model
-#     for decl in model.decls():
-#         if decl.arity() > 0:  # Filter out function declarations
-#             print(f"{decl.name()} extension:")
-#             # Iterate over all possible arguments
-#             if decl.arity() == 1:
-#                 for i in range(10):  # Adjust range as needed
-#                     arg = IntVal(i)
-#                     print(f"{arg}: {model.evaluate(decl(arg))}")
-#             elif decl.arity() == 2:
-#                 for i in range(10):  # Adjust range as needed
-#                     for j in range(10):  # Adjust range as needed
-#                         arg1, arg2 = IntVal(i), IntVal(j)
-#                         print(f"{arg1}, {arg2}: {model.evaluate(decl(arg1, arg2))}")
-# else:
-#     print("No model found.")
-
-# print(solver.check())
-# if solver.check() == sat:
-#     model = solver.model()
-#     # Print the model extensions for the predicates
-#     print("Model:")
-#     for decl in model.decls():
-#         # if decl.arity() == 0 and decl.kind() == Z3_OP_UNINTERPRETED:
-#         print(f"{decl.name()} = {model[decl]}")
-#         # print(f"{decl.name()} = {model[possible]}")
-
-# for declaration in model.decls():
-#     try:  # do this to print bitvectors how we like to see them (as vectors)
-#         print(f"{declaration.name()} = {model[declaration].sexpr()}")
-#         print(f"{model[declaration.possible]}")
-#     except:  # this is for the "else" case (ie, "map everything to x value")
-#         function = model[declaration]
-#         # print(FuncInterp.as_list(function))
-#         # print(FuncInterp.else_value(function))
-#         # print(FuncInterp.num_entries(function))
-#         # print(f"this is the declaration name: {declaration.name()}")
-#         print(f"{declaration.name()} = {model[declaration]}")
+for state in states_dict:
+    state_solver = Solver()
+    state_solver.add(Possible)
+    state_solver.add(state)
+    print(solver.check())
