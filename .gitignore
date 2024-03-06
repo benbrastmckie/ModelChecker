@@ -6,3 +6,4 @@
 *.log
 *.pdf
 *.synctex.gz
+Code/__pycache__
