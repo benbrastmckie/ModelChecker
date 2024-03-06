@@ -2,7 +2,6 @@
 file contains all definitions needed for finding Z3 models.
 '''
 from z3 import (
-    # simplify,
     Not,
     Exists,
     ForAll,
@@ -17,6 +16,7 @@ from z3 import (
     # BitVecVal,
     # Var,
     # Const,
+    # simplify,
 )
 
 
@@ -34,18 +34,6 @@ N = 3
 # B: do we need a constant for each sentence letter in sentence_letters?
 AtomSort = DeclareSort("AtomSort")
 A, B, X = Consts("A B X", AtomSort)
-
-# X = AtomSort("X", AtomSort)
-
-# PropSort = DeclareSort("PropSort")
-# X, Y = Consts("X Y", PropSort)
-
-# A = Const("A", AtomSort)
-# B = Const("B", AtomSort)
-# B: Seems like the following could be useful to quantify over propositions
-# B: Couldn't get this to work
-# X = Var("X", AtomSort)
-# Y = Var("Y", AtomSort)
 
 # declare bitvector variables used for states
 a = BitVec("a", N)
