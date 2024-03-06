@@ -120,7 +120,7 @@ def compatible_part(bit_x, bit_w, bit_y):
     )
 
 
-def alternative(bit_w, bit_y, bit_u):
+def alternative(bit_u, bit_y, bit_w):
     return And(
         is_world(bit_u),
         is_part_of(bit_y, bit_u),

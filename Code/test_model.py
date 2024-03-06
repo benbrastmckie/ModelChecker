@@ -81,18 +81,19 @@ solver.add(
     # TODO: replace constraints below with proposition(X) from definitions
     # requires X to be a proposition
     ForAll(X, And( # TEST BOUND VAR
-    ForAll([x,y], Implies(And(verify(x,X),verify(y,X)), verify(fusion(x,y),X))),
-    ForAll([x,y], Implies(And(falsify(x,X),falsify(y,X)), falsify(fusion(x,y),X))),
-    ForAll([x,y], Implies(And(verify(x,X),falsify(y,X)), Not(possible(fusion(x,y))))),
-    # ForAll(x, Implies(possible(x), Exists(y, And(compatible(x,y), Or(verify(y,X), falsify(y,X)))))),
-        # NOTE: adding the constraint above makes Z3 crash
-        # without this constraint the logic is not classical (there could be truth-value gaps)
+        ForAll([x,y], Implies(And(verify(x,X),verify(y,X)), verify(fusion(x,y),X))),
+        ForAll([x,y], Implies(And(falsify(x,X),falsify(y,X)), falsify(fusion(x,y),X))),
+        ForAll([x,y], Implies(And(verify(x,X),falsify(y,X)), Not(possible(fusion(x,y))))),
+        # ForAll(x, Implies(possible(x), Exists(y, And(compatible(x,y), Or(verify(y,X), falsify(y,X)))))),
+            # NOTE: adding the constraint above makes Z3 crash
+            # without this constraint the logic is not classical (there could be truth-value gaps)
     )), ### MATCH FORALL ABOVE
 
     # EVAL CONSTRAINTS
     # Exists([w,s,t], And( # TEST BOUND VAR
 
     is_world(w),
+    is_world(v),
     # there is a world w
 
     is_part_of(s,w),
@@ -104,7 +105,7 @@ solver.add(
     # B is true in w
 
     Not(ForAll([a,v], Implies(
-        And(verify(a,A), alternative(w,a,v)),
+        And(verify(a,A), alternative(v,a,w)),
         Exists(b, And(is_part_of(b,v), verify(b,B)))
     ))),
     # in w, it is not the case that if A were true then B would be true
