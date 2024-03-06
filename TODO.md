@@ -8,8 +8,8 @@ NOTE: See post-processing in `Strategies.md`.
 It will be important to start on model representation to better understand the models it is building.
 Once Z3 is finding good models for explicit example inputs we can start on the constraint generator functions.
 
-- [ ] _M_ name all atomic states in the model with lowercase letters `a, b, c, ...`
-- [ ] _M_ represent all states in the model as fusions, e.g., `a.b.c, d.e, a, ...`
+- [x] _M_ name all atomic states in the model with lowercase letters `a, b, c, ...`
+- [x] _M_ represent all states in the model as fusions, e.g., `a.b.c, d.e, a, ...`
 - [ ] _M_ print which states verify/falsify which sentence letters
   - [ ] this could take the form `|A| = < {a, b, a.b}, {c.d} >`
 - [ ] _M_ print which states are world states

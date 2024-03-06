@@ -17,7 +17,7 @@ from z3 import (
     And,
 )
 
-from states import (
+from definitions import (
     N,
     fusion,
     is_part_of,
