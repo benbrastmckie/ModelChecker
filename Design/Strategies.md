@@ -68,29 +68,21 @@ The following constraints hold independent of the sentences being evaluated.
 
 ### Definition: propositions
 
-Define what it is for a constant/variable of `AtomSort` to be a proposition.
-In particular, `proposition(X)` should hold iff:
+Given a constant of `AtomSort`, we may define what it is for `X` to be a proposition.
+In particular, `proposition(X)` holds iff:
 
 1. For all `x`, and `y`, if `verify(x,X)` and `verify(y,X)`, then `verify(fusion(x,y),X)`.
 2. For all `x`, and `y` if `falsify(x,X)` and `falsify(y,X)`, then `falsify(fusion(x,y,X))`.
 3. For all `x`, and `y` if `verify(x,X)` and `falsify(y,X)`, then `Not(possible(fusion(x,y)))`.
 4. For all `x`, if `possible(x)`, then there is some `y` where `possible(fusion(x,y))` and: `verify(y,X)` or `falsify(y,X)`.
 
+NOTE: the last condition cannot easily be met by Z3, and so has been left absent.
+
 ### Model Constraints
 
 Assuming the definition of `proposition(X)` has been provided and works for concrete cases, we may require:
 
 1. For all `X` in `sentence_letters`, `proposition(X)`.
-
-The thought is that every sentence letter is assigned to a proposition.
-
-NOTE: I couldn't get `X` to be a variable that ranges over `AtomSort`, so included instances of the following constraints for each `X` in `sentence_letters`:
-  - The fourth constraint seems to be the issue
-
-1. For all `x`, `y`, if `verify(x,X)` and `verify(y,X)`, then `verify(fusion(x,y),X)`.
-2. For all `x` and `y`, if `falsify(x,X)` and `falsify(y,X)`, then `falsify(fusion(x,y,X))`.
-3. For all `x` and `y`, if `verify(x,X)` and `falsify(y,X)`, then `Not(possible(fusion(x,y)))`.
-4. For all `x`, if `possible(x)`, then there is some `y` where `possible(fusion(x,y))` and: `verify(y,X)` or `falsify(y,X)`.
 
 ### Functions: extensional constraints
 
@@ -100,13 +92,16 @@ For extensional sentences in prefix notation, the `extended_verify` and `extende
 2. If `X = [X]` where `X` is a sentence letter, then `extended_falsify(x,X)` returns the constraint: `falsify(x,X)`.
 3. If `X = [\neg Y]`, then `extended_verify(x,X)` returns the constraint: `extended_falsify(x,Y)`.
 4. If `X = [\neg Y]`, then `extended_falsify(x,X)` returns the constraint: `extended_verify(x,Y)`.
-5. If `X = [\wedge, Y, Z]`, then `extended_verify(x,X)` returns the constraint: there is some `y` and `z` where `x = fusion(y,z)`, `extended_verify(y,Y)`, and `extended_verify(z,Z)`.
+5. If `X = [\wedge, Y, Z]`, then `extended_verify(x,X)` returns the constraint: `Exists` some `y` and `z` where `x = fusion(y,z)`, `extended_verify(y,Y)`, and `extended_verify(z,Z)`.
 6. If `X = [\wedge, Y, Z]`, then `extended_falsify(x,X)` returns the constraint: `extended_falsify(x,Y)`, `extended_falsify(x,Z)`, or `extended_falsify(x,[\vee, Y, Z])`.
 7. If `X = [\vee, Y, Z]`, then `extended_verify(x,X)` returns the constraint: `extended_verify(x,Y)`, `extended_verify(x,Z)`, or `extended_verify(x,[\wedge, Y, Z])`.
-8. If `X = [\vee, Y, Z]`, then `extended_falsify(x,X)` returns the constraint: there is some `y` and `z` where `x = fusion(y,z)`, `extended_falsify(y,Y)`, and `extended_falsify(z,Z)`.
-9. If `X = [\rightarrow, Y, Z]`, `X = [\leftrightarrow, Y, Z]`, or `X = [\boxright, Y, Z]`, then return error message.
+8. If `X = [\vee, Y, Z]`, then `extended_falsify(x,X)` returns the constraint: `Exists` some `y` and `z` where `x = fusion(y,z)`, `extended_falsify(y,Y)`, and `extended_falsify(z,Z)`.
+9. If `X = [\rightarrow, Y, Z]`, then `extended_verify(x,X)` returns the constraint: `extended_falsify(x,Y)`, `extended_verify(x,Z)`, or `extended_verify(x,[\wedge, [\neg, Y], Z])`.
+10. If `X = [\rightarrow, Y, Z]`, then `extended_falsify(x,X)` returns the constraint: `Exists` some `y` and `z` where `x = fusion(y,z)`, `extended_verify(y,Y)`, and `extended_falsify(z,Z)`.
+11. If `X = [\leftrightarrow, Y, Z]`, then `extended_verify(x,X)` returns the constraint: `extended_verify(x,[\wedge, Y, Z])` or `extended_falsify(x,[\vee, Y, Z])`.
+12. If `X = [\leftrightarrow, Y, Z]`, then `extended_falsify(x,X)` returns the constraint: `extended_verify(x,[\wedge, Y, [\neg, Z]])` or `extended_falsify(x,[\vee, [\neg Y], Z])`.
 
-Only extensional sentences including `\neg`, `\vee`, `\wedge` may occur in the antecedent of a counterfactual, returning an error otherwise.
+Only extensional sentences including `\neg`, `\vee`, `\wedge`, `\rightarrow`, and `\leftrightarrow` may occur in the antecedent of a counterfactual, returning an error otherwise.
 The functions `extended_verify(x,X)` and `extended_falsify(x,X)` return constraints which will be used to identify the states that exactly verify/falsify the antecedent of a counterfactual.
 
 ### Function: truth constraints
@@ -123,21 +118,22 @@ The truth of a sentence `X` at a designated world `w` may be defined recursively
 
 ### Function: evaluation constraints
 
-For every `X` in `input_sentences`, we may require the following to be true at the designated world state `w`:
+We may now require the `input_sentences` to be true at the designated world state `w`:
 
-1. There is some `w` where `world(w)` and `true(w,prefix(X))`.
+1. `ForAll` sentences `X` in `input_sentences`, `Exists` some `w` where `world(w)` and `true(w,prefix(X))`.
 
 ## Post-Processing: representing Z3 models
 
 These sections cover the functions needed to represent Z3 models.
 
-### Function: model representation
+### Function: frame representation
 
-Make Z3 models readable. 
+Z3 models are represented by assigning each state to a fusion of named atomic states.
+Each state is labeled as either a world, possible, or impossible.
 
 1. Assign lowercase letters to all atomic states that occur in the stored model.
 2. Represent all states in the model as fusions of atomic states, e.g., `a.b.c` where `.` is used for fusion.
-3. Distinguish the world states from all other states, representing them separately.
+3. Label states as either worlds, possible, or impossible.
 
 ### Function: sub-sentences
 
@@ -145,14 +141,14 @@ Generate a set of all subsentences from the input sentences.
 These sentences may then be interpreted by assigning them to propositions.
 
 1. Given the `input_sentences`, we may store a list of all `sub_sentences`.
-2. Store those `sub_sentences` that only include `\wedge`, `\vee`, and `\not` as a list of `extensional_sentences`.
-3. Store those counterfactual sentence of the form `A \boxright B` in a list `counterfactual_sentences`.
+2. Store those `sub_sentences` that only include `\wedge`, `\vee`, `\not`, `\rightarrow`, and `\leftrightarrow` as a list of `extensional_sentences`.
+3. Store those counterfactual `sub_sentences` of the form `A \boxright B` in a list `counterfactual_sentences`.
 
-### Function: proposition representation
+### Function: model representation
 
-1. For each sentence in `extensional_sentences`, represent the ordered pair of sets of `extended_verifier` and `extended_falsifier` states.
-2. For each sentence in `counterfactual_sentences`, represent all `alternative` states that result from imposing an `extended_verifier` for the antecedent on `w`.
-3. For each world state, represent which of the sentences in `sub_sentences` are true/false at that world state.
+1. For each sentence `X` in `extensional_sentences`, represent a set of `extended_verifier` states for `X` and a set of `extended_falsifier` states for `X`.
+2. For each sentence `X \boxright Y` in `counterfactual_sentences`, represent all `alternative` states that result from imposing an `extended_verifier` for the `X` on `w`.
+3. For each world state `w`, represent which of the sentences in `sub_sentences` are true/false at that world state.
 
 ### Convention: input file
 
