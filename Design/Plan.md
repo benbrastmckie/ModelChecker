@@ -12,9 +12,9 @@ This document outlines the next steps going forward.
         - [ ] debug why adding constraints for B fails
       - [x] evaluation constraints
 - [ ] represent Z3 models in a readable way
-  - [ ] name atomic states, representing all states as fusions
+  - [x] name atomic states, representing all states as fusions
+  - [ ] represent which states are world states, possible, impossible
   - [ ] represent which states verify/falsify which sentence letters
-  - [ ] represent which states are world states
 - [ ] build constraint generators
   - [ ] abstract from groups of constraints above
   - [ ] the frame constraints only depend on how many atomic states there are
