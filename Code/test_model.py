@@ -179,7 +179,7 @@ if solver.check() == sat:
     
 
     # hidden states attempt here
-    print('hidden states:')
+    print('Hidden States:')
     states_as_nums = [model[state].as_long() for state in all_states]
     max_num = max(states_as_nums)
     already_seen = set()
