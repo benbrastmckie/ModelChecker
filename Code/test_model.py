@@ -77,6 +77,7 @@ solver.add(
     is_part_of(s, w),  # s is a part of w
     verify(s, A),  # s verifies A
     falsify(c, A),  # s verifies A
+    falsify(c, A),  # s verifies A
     is_part_of(t, w),  # t is part of w
     verify(t, B),  # t verifies A
     falsify(z, B),  # t verifies A
@@ -142,13 +143,20 @@ if solver.check() == sat:
     
 
     # hidden states attempt here
+    print('hidden states:')
     states_as_nums = [model[state].as_long() for state in all_states]
     max_num = max(states_as_nums)
-    for val in range(max_num + 1): # bc stop is exclusive
+    already_seen = set()
+    for val in range(max_num*2): # bc binary; the best-case last one (stopped at) is the first one repeated, so we're good
         test_state = BitVecVal(val,N)
-        if model.evaluate(world(test_state)):
-            print(f"{state.name()} = {bitvec_to_substates(test_state)} (world)")
-        elif model.evaluate(possible(model[state])):
-            print(f"{state.name()} = {bitvec_to_substates(test_state)} (possible)")
+        as_substates = bitvec_to_substates(test_state)
+        #print(f"TEST STATE: {test_state}")
+        if as_substates in already_seen:
+            break
+        elif model.evaluate(world(test_state)):
+            print(f"{as_substates} (world)")
+        elif model.evaluate(possible(test_state)):
+            print(f"{as_substates} (possible)")
         else:
-            print(f"{state.name()} = {bitvec_to_substates(test_state)} (impossible)")
+            print(f"{as_substates} (impossible)")
+        already_seen.add(as_substates)
