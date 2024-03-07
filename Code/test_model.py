@@ -51,13 +51,12 @@ from definitions import (
     maximal,
 )
 
-dummy = BitVec('dummy',N)
 solver = Solver()
 
 solver.add(
     # M: a little testing area with some stuff
     # dummy == 9,
-    Not(possible(dummy)),
+    # Not(possible(dummy)),
     # ForAll([A,x], Implies(possible(x), Or(verify(x,A),falsify(x,A)))), #@B: adding this (which—I think—is a requirement that every possible state either verifies or falsifies every sentence) makes it unsat
     # FRAME CONSTRAINT: every part of a possible state is possible
     ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
@@ -92,14 +91,11 @@ solver.add(
     ),
 )
 
-def attempt_a(solver):
-    if solver.check() == sat:
-        model = solver.model()
-
-        # TODO: replace ["A", "B"] with something more general
-        states = [d for d in model.decls() if d.arity() == 0 and d.name() not in ["A", "B"]]
-
 ### BEGIN BEN'S ATTEMPT ###
+
+if solver.check() == sat:
+
+    model = solver.model()
 
     # TODO: eventually replace with something more general
     sentence_letters = ["A","B",]
@@ -154,6 +150,16 @@ def attempt_a(solver):
 ### END BEN'S ATTEMPT
 
 
+# dummy = BitVec('dummy',N)
+# solver = Solver()
+#
+# def attempt_a(solver):
+#     if solver.check() == sat:
+#         model = solver.model()
+#
+#         # TODO: replace ["A", "B"] with something more general
+#         states = [d for d in model.decls() if d.arity() == 0 and d.name() not in ["A", "B"]]
+#
 #         # Print states
 #         print("States:")
 #         for decl in states:
