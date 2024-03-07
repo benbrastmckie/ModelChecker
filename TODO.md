@@ -7,11 +7,11 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] _M_ print all states in the model (some seem to be hidden)
   - NOTE: this is high priority since I can't really tell what it is doing until I can see the full state space
 - [:] _B_ assign either `world`, `possible`, or `impossible` to each printed state
-  - [ ] _M_ revise state labeling strategy I hacked together
+  - [x] _M_ revise state labeling strategy I hacked together
   - [ ] _M_ unlock `Var(0) == 1`; maybe there is a better way to find the extensions of predicates?
   - [ ] NOTE: I had to declare `world` making it equivalent to the defined `is_world` but this seems bad (maybe I'm wrong)
 - [:] _B_ for each sentence letter `X`, print set of verifiers and set of falsify
-  - [ ] _M_ revise code I hacked together
+  - [x] _M_ revise code I hacked together
 - [ ] _M_ for each counterfactual sentence `X \boxright Y`, print the set of `X` alternatives to `w`
   - if `X \boxright Y` is true at `w`, then `Y` will be true in every `X` alternative to `w`
   - if `X \boxright Y` is false at `w`, then `Y` will be false at some `X` alternative to `w`
