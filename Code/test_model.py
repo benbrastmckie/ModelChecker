@@ -115,9 +115,11 @@ if solver.check() == sat:
     }  # set because we're only testing for membership
     # M: got the for loop issue working. It was a type mismatch issue.
     # needed to make a list of sentence letter objects and names
-    # QUESTION: this seems to be motivated by the role sentence_letter_names
+
+    # QUESTION: the above seems motivated by the role sentence_letter_names
     # plays in all_states below. I wonder if there is a better way to define
-    # all_states that does not need sentence_letter_names?
+    # all_states that does not need sentence_letter_names? perhaps we can
+    # filter directly by asking if d in model.decls() is a bitvec?
 
     all_states = [
         d
