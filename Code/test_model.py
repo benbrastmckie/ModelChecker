@@ -66,12 +66,13 @@ solver.add(
     # TODO: it would be good to make do with just one of these, preferably the defined 'is_world'
     ForAll(
         w,
-        Equivalent(is_world(w),world(w))
+        Equivalent(is_world(w),world(w)) # NOTE: I defined equivalent in definitions.py; it is not a Z3 func. Though I can look for a Z3 one
         # And(
         #     # TODO: is there an Equiv function? I couldn't find one
         #     # M: I don't know of one either but this should do the job
         #     # I mean we could define one...
               # just defined one at the bottom of definiitons and replaced it here. Maybe more transparent? we can use it for all biconditionals
+              # I'll look for a "real" one (ie in Z3) also
         #     Implies(is_world(w), world(w)),
         #     Implies(world(w), is_world(w)),
         # ),
@@ -84,7 +85,7 @@ solver.add(
             Implies(alternative(u,y,w), alt_world(u,y,w)),
             Implies(alt_world(u,y,w), alternative(u,y,w)),
         ),
-    ),
+    ), # this constraint seems to make the model not terminate :(
     # MODEL CONSTRAINT: every X of AtomSort is a proposition
     ForAll(X, proposition(X)),
     # EVAL CONSTRAINTS
@@ -106,10 +107,9 @@ solver.add(
     ),
 )
 
-def attempt_a(solver):
-    if solver.check() == sat:
+if solver.check() == sat:
 
-        model = solver.model()
+    model = solver.model()
 
     # TODO: eventually replace with something more general
     sentence_letter_objects = [A,B]
