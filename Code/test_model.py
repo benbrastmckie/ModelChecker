@@ -74,10 +74,10 @@ solver.add(
     is_world(w),  # there is a world w
     is_part_of(s, w),  # s is a part of w
     verify(s, A),  # s verifies A
-    # falsify(c, A),  # s verifies A
+    falsify(c, A),  # s verifies A
     is_part_of(t, w),  # t is part of w
     verify(t, B),  # t verifies A
-    # falsify(z, B),  # t verifies A
+    falsify(z, B),  # t verifies A
     Not(  # in w, it is not the case that if A were true then B would be true
         ForAll(
             [a, v],
@@ -97,7 +97,9 @@ if solver.check() == sat:
     sentence_letter_objects = [A,B]
     sentence_letter_names = {S.sexpr() for S in sentence_letter_objects} # set because we're only testing for membership
     all_states = [d for d in model.decls() if d.arity() == 0 and d.name() not in sentence_letter_names]
-    # M: got the for loop issue working. It was a type mismatch issue. Z3 types are a bit finicky lol. But to do so, needed to make a list of sentence letter objects and a list of the accompanying names
+    # M: got the for loop issue working. It was a type mismatch issue. Z3 types are a bit finicky lol. 
+    # But to do so, needed to make a list of sentence letter objects and a list of the accompanying names
+    # B: looks great!
 
     # TODO: how can we print all the states and not just the ones mentioned in the constraints?
     # if they weren't added to the solver, I don't think they'd be in the model
@@ -105,7 +107,8 @@ if solver.check() == sat:
     for state in all_states:
         # NOTE: looks like we can't use is_world since it is not a declared primitive
         # see hack above, introducing 'world' which is made equivalent
-        if model.evaluate(world(model[state])):  # TODO: why does it say invalid conditional operand? # M: right now it works. What was making it say that? It looks fine now, since .evaluate() returns a Bool
+        if model.evaluate(world(model[state])):
+            # TODO: why does it say invalid conditional operand? # M: right now it works. What was making it say that? It looks fine now, since .evaluate() returns a Bool
             print(f"{state.name()} = {bitvec_to_substates(model[state])} (world)")
         elif model.evaluate(possible(model[state])):
             print(f"{state.name()} = {bitvec_to_substates(model[state])} (possible)")
@@ -113,7 +116,7 @@ if solver.check() == sat:
             print(f"{state.name()} = {bitvec_to_substates(model[state])} (impossible)")
 
     # for loop over sentences
-    for S in sentence_letter_objects: 
+    for S in sentence_letter_objects:
         ver_states = {
             bitvec_to_substates(model[decl])
             for decl in all_states
@@ -126,7 +129,6 @@ if solver.check() == sat:
         }
 
         # Print propositions:
-        # TODO: use symbol for empty set if either of the below are empty
         if ver_states:
             print(f"Verifiers({S}) = {ver_states}")
         else:
@@ -135,22 +137,6 @@ if solver.check() == sat:
             print(f"Falsifiers({S}) = {fal_states}")
         else:
             print(f"Falsifiers({S}) = ∅")
-
-    # # TODO: delete once for loop over sentence letters works
-    # ver_states = {
-    #     bitvec_to_substates(model[decl])
-    #     for decl in all_states
-    #     if model.evaluate(verify(model[decl], model[B]))
-    # }
-    # fal_states = {  # TODO: use symbol for empty set if empty
-    #     bitvec_to_substates(model[decl])
-    #     for decl in all_states
-    #     if model.evaluate(falsify(model[decl], model[B]))
-    # }
-    # print(f"Verifiers({B}) = {ver_states}")
-    # print(f"Falsifiers({B}) = {fal_states}")
-
-### END BEN'S ATTEMPT
 
 
 # dummy = BitVec('dummy',N)
