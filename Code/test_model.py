@@ -65,7 +65,7 @@ solver.add(
     # Not(possible(dummy)),
     # FRAME CONSTRAINT: every part of a possible state is possible
     ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
-    # ForAll([x, y], Exists(z, fusion(x, y) == z)),
+    ForAll([x, y], Exists(z, fusion(x, y) == z)),
     # NOTE: the below draws an equivalence between the primitive 'world' and the defined term 'is_world'
     # TODO: it would be good to make do with just one of these, preferably the defined 'is_world'
     ForAll(w, Equivalent(is_world(w), world(w))),
@@ -88,7 +88,6 @@ solver.add(
     is_world(w),  # there is a world w
     is_part_of(s, w),  # s is a part of w
     verify(s, A),  # s verifies A
-    falsify(c, A),  # s verifies A
     falsify(c, A),  # s verifies A
     is_part_of(t, w),  # t is part of w
     verify(t, B),  # t verifies A
@@ -126,29 +125,26 @@ if solver.check() == sat:
         for d in model.decls()
         if d.arity() == 0 and d.name() not in sentence_letter_names
     ]
-
     states_as_nums = [model[state].as_long() for state in all_states]
     max_num = max(states_as_nums)
-    # B: this looks great! I'm still a little confused why I can't force all
-    # fusions to exist. seems like if it is printing a and b and c, it should
-    # also print a.b (it does), a.c (it doesn't), b.c (also doesn't), and a.b.c
-    # (also doesn't). I tried to fix this with a fusion closure constraint.
-    # it is not super important for the state space to be closed under fusion;
-    # just tried to figure out why this isn't working.
+    already_seen = set()
 
     print("States:")  # Print states
-    for val in range(max_num + 1):  # bc stop is exclusive
+    for val in range(max_num * 2):
+        # bc binary; the best-case last one (stopped at) is the first one repeated, so we're good
+        # B: that makes good sense!
         test_state = BitVecVal(val, N)
-        if model.evaluate(world(test_state)):
-            print(f"{test_state.sexpr()} = {bitvec_to_substates(test_state)} (world)")
+        as_substates = bitvec_to_substates(test_state)
+        # print(f"TEST STATE: {test_state}")
+        if as_substates in already_seen:
+            break
+        elif model.evaluate(world(test_state)):
+            print(f"{test_state.sexpr()} = {as_substates} (world)")
         elif model.evaluate(possible(test_state)):
-            print(
-                f"{test_state.sexpr()} = {bitvec_to_substates(test_state)} (possible)"
-            )
+            print(f"{test_state.sexpr()} = {as_substates} (possible)")
         else:
-            print(
-                f"{test_state.sexpr()} = {bitvec_to_substates(test_state)} (impossible)"
-            )
+            print(f"{test_state.sexpr()} = {as_substates} (impossible)")
+        already_seen.add(as_substates)
 
     print("Propositions:")  # Print states
     for S in sentence_letter_objects:
@@ -162,47 +158,28 @@ if solver.check() == sat:
             for state in all_states
             if model.evaluate(falsify(model[state], model[S]))
         }
-        # TODO: not sure if this is the right syntax but want to define there
-        # alternatives to w that result from including a verifier for S
-        # alt_states = {  # S-alternatives to designated world w
-        #     bitvec_to_substates(model[alt])
-        #     for state, alt in all_states
-        #     if model.evaluate(verify(model[state], model[S]))
-        #     and model.evaluate(alternative(model[alt], model[state], w))
-        # }
+        alt_states = {  # S-alternatives to designated world w
+            bitvec_to_substates(model[alt])
+            for alt in all_states
+            for state in all_states
+            if model.evaluate(verify(model[state], model[S]))
+            and model.evaluate(alternative(model[alt], model[state], w))
+        }
+
+        # TODO: not sure if the above has the right syntax but want to define the
+        # alternatives to w that result from imposing a verifier for S on w
+
 
         # Print propositions:
-        if ver_states:
-            print(f"Verifiers({S}) = {ver_states}")
+        if ver_states and fal_states:
+            print(f"|{S}| = < {ver_states}, {fal_states} >")
+        elif ver_states and not fal_states:
+            print(f"|{S}| = < {ver_states}, ∅ >")
+        elif not ver_states and fal_states:
+            print(f"|{S}| = < ∅, {fal_states} >")
         else:
-            print(f"Verifiers({S}) = ∅")
-        if fal_states:
-            print(f"Falsifiers({S}) = {fal_states}")
+            print(f"|{S}| = < ∅, ∅ >")
+        if alt_states:
+            print(f"{S}-alternatives to {bitvec_to_substates(model[w])} = {alt_states}")
         else:
-            print("∅")
-        # TODO: add once alt_states is defined
-        # if alt_states:
-        #     print(f"{S}-alternatives = {alt_states}")
-        # else:
-        #     print("∅")
-
-    # hidden states attempt here
-    print("Hidden States:")
-    states_as_nums = [model[state].as_long() for state in all_states]
-    max_num = max(states_as_nums)
-    already_seen = set()
-    for val in range(
-        max_num * 2
-    ):  # bc binary; the best-case last one (stopped at) is the first one repeated, so we're good
-        test_state = BitVecVal(val, N)
-        as_substates = bitvec_to_substates(test_state)
-        # print(f"TEST STATE: {test_state}")
-        if as_substates in already_seen:
-            break
-        elif model.evaluate(world(test_state)):
-            print(f"{as_substates} (world)")
-        elif model.evaluate(possible(test_state)):
-            print(f"{as_substates} (possible)")
-        else:
-            print(f"{as_substates} (impossible)")
-        already_seen.add(as_substates)
+            print(f"{S}-alternatives to {bitvec_to_substates(model[w])} = ∅")
