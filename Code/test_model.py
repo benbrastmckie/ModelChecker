@@ -64,38 +64,20 @@ solver.add(
     ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
     # NOTE: the below draws an equivalence between the primitive 'world' and the defined term 'is_world'
     # TODO: it would be good to make do with just one of these, preferably the defined 'is_world'
-    ForAll(
-        w,
-        Equivalent(is_world(w),world(w)) # NOTE: I defined equivalent in definitions.py; it is not a Z3 func. Though I can look for a Z3 one
-        # And(
-        #     # TODO: is there an Equiv function? I couldn't find one
-        #     # M: I don't know of one either but this should do the job
-        #     # I mean we could define one...
-              # just defined one at the bottom of definiitons and replaced it here. Maybe more transparent? we can use it for all biconditionals
-              # I'll look for a "real" one (ie in Z3) also
-        #     Implies(is_world(w), world(w)),
-        #     Implies(world(w), is_world(w)),
-        # ),
-    ),
-    # TODO: ditto above. perhaps this can be improved. remains to print all alt_worlds that result from imposing a verifier for A on w
-    ForAll(
-        [u,y,w],
-        And(
-            # TODO: is there an Equiv function? I couldn't find one
-            Implies(alternative(u,y,w), alt_world(u,y,w)),
-            Implies(alt_world(u,y,w), alternative(u,y,w)),
-        ),
-    ), # this constraint seems to make the model not terminate :(
+    ForAll(w,Equivalent(is_world(w),world(w))),
+    # NOTE: I defined equivalent in definitions.py; it is not a Z3 func. Though I can look for a Z3 one
+    # ForAll([u,y,w],Equivalent(alternative(u,y,w), alt_world(u,y,w))),
+    # NOTE: this constraint seems to make the model not terminate :(
     # MODEL CONSTRAINT: every X of AtomSort is a proposition
     ForAll(X, proposition(X)),
     # EVAL CONSTRAINTS
     is_world(w),  # there is a world w
     is_part_of(s, w),  # s is a part of w
     verify(s, A),  # s verifies A
-    falsify(c, A),  # s verifies A
+    # falsify(c, A),  # s verifies A
     is_part_of(t, w),  # t is part of w
     verify(t, B),  # t verifies A
-    falsify(z, B),  # t verifies A
+    # falsify(z, B),  # t verifies A
     Not(  # in w, it is not the case that if A were true then B would be true
         ForAll(
             [a, v],
@@ -148,11 +130,11 @@ if solver.check() == sat:
         if ver_states:
             print(f"Verifiers({S}) = {ver_states}")
         else:
-            print("∅")
+            print(f"Verifiers({S}) = ∅")
         if fal_states:
             print(f"Falsifiers({S}) = {fal_states}")
         else:
-            print("∅")
+            print(f"Falsifiers({S}) = ∅")
 
     # # TODO: delete once for loop over sentence letters works
     # ver_states = {
