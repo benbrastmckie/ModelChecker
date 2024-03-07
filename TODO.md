@@ -5,16 +5,20 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Print Function
 
 - [ ] _M_ print all states in the model (some seem to be hidden)
-- [ ] _M_ unlock `Var(0) == 1`; maybe there is a better way to find the extensions of predicates?
-- [ ] _M_ assign either `world`, `possible`, or `impossible` to each printed state
-- [ ] _M_ for each sentence letter `X`, print set of verifiers and set of falsify
-  - this could take the form `verify(A) = [a, b, a.b]` and `falsify(A) = [c.d]`
-  - ok to focus on just `A` and `B` for now, but at some point this will range over `sentence_letters`
+  - NOTE: this is high priority since I can't really tell what it is doing until I can see the full state space
+- [:] _B_ assign either `world`, `possible`, or `impossible` to each printed state
+  - [ ] _M_ revise state labeling strategy I hacked together
+  - [ ] _M_ unlock `Var(0) == 1`; maybe there is a better way to find the extensions of predicates?
+  - [ ] NOTE: I had to declare `world` making it equivalent to the defined `is_world` but this seems bad (maybe I'm wrong)
+- [:] _B_ for each sentence letter `X`, print set of verifiers and set of falsify
+  - [ ] _M_ revise code I hacked together
 - [ ] _M_ for each counterfactual sentence `X \boxright Y`, print the set of `X` alternatives to `w`
   - if `X \boxright Y` is true at `w`, then `Y` will be true in every `X` alternative to `w`
   - if `X \boxright Y` is false at `w`, then `Y` will be false at some `X` alternative to `w`
   - either way, it would be great to know what the `X` alternatives to `w` are
   - but we don't need to know what the `Z` alternatives to `w` are for `Z` that is not the antecedent to a counterfactual
+  - NOTE: I can see how to do all of this by also declaring `alt_world` making this equivalent to `alternative`
+  - it would be great to avoid this, but maybe there is no good way?
 
 ## Concrete Model
 

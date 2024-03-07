@@ -40,6 +40,7 @@ from definitions import (
     fusion,
     is_part_of,
     compatible,
+    world,
     is_world,
     possible,
     verify,
@@ -55,14 +56,26 @@ solver = Solver()
 solver.add(
     # FRAME CONSTRAINT: every part of a possible state is possible
     ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
+    # NOTE: the below draws an equivalence between the primitive 'world' and the defined term 'is_world'
+    # TODO: it would be good to make do with just one of these, preferably the defined 'is_world'
+    ForAll(
+        w,
+        And(
+            # TODO: is there an Equiv function? I couldn't find one
+            Implies(is_world(w), world(w)),
+            Implies(world(w), is_world(w)),
+        ),
+    ),
     # MODEL CONSTRAINT: every X of AtomSort is a proposition
     ForAll(X, proposition(X)),
     # EVAL CONSTRAINTS
     is_world(w),  # there is a world w
     is_part_of(s, w),  # s is a part of w
     verify(s, A),  # s verifies A
+    falsify(c, A),  # s verifies A
     is_part_of(t, w),  # t is part of w
     verify(t, B),  # t verifies A
+    falsify(z, B),  # t verifies A
     Not(  # in w, it is not the case that if A were true then B would be true
         ForAll(
             [a, v],
@@ -78,33 +91,62 @@ solver.add(
 if solver.check() == sat:
     model = solver.model()
 
-    # TODO: replace ["A", "B"] with something more general
-    states = [d for d in model.decls() if d.arity() == 0 and d.name() not in ["A", "B"]]
+    # TODO: eventually replace with something more general
+    sentence_letters = ["A","B",]
 
-    # Print states
-    print("States:")
-    for decl in states:
-        # TODO: how can we print all the states and whether world/poss/imposs
-        print(f"{decl.name()} = {bitvec_to_substates(model[decl])}")
+    all_states = [d for d in model.decls() if d.arity() == 0 and d.name() not in sentence_letters]
 
-    # possible = [d for d in model.decls() if d.arity() == 1]
-    # # TODO: unlock var bool string
+    # TODO: how can we print all the states and not just the ones mentioned in the constraints?
+    print("States:")  # Print states
+    for state in all_states:
+        # NOTE: looks like we can't use is_world since it is not a declared primitive
+        # see hack above, introducing 'world' which is made equivalent
+        if model.evaluate(world(model[state])):  # TODO: why does it say invalid conditional operand?
+            print(f"{state.name()} = {bitvec_to_substates(model[state])} (world)")
+        elif model.evaluate(possible(model[state])):
+            print(f"{state.name()} = {bitvec_to_substates(model[state])} (possible)")
+        else:
+            print(f"{state.name()} = {bitvec_to_substates(model[state])} (impossible)")
 
-    # print("Possible States:")
-    # for func in possible:
-    #     # TODO: store and print all verifiers/falsifiers for atom
-    #     print(f"{func.name()} = {model[func].as_list()}")
+    # TODO: can't get for loop over sentence_letters to work
+    # NOTE: I tried replacing 'A' with 'atom', un-commenting the line below, but no dice
+    # for atom in sentence_letters:
+    ver_states = {
+        bitvec_to_substates(model[decl])
+        for decl in all_states
+        if model.evaluate(verify(model[decl], model[A]))
+    }
+    fal_states = {
+        bitvec_to_substates(model[decl])
+        for decl in all_states
+        if model.evaluate(falsify(model[decl], model[A]))
+    }
 
-    # proposition = [d for d in model.decls() if d.arity() == 2]
-    # # TODO: unlock var bool string
-    #
-    # print("Propositions:")
-    # for prop in possible:
-    #     # TODO: store and print all verifiers/falsifiers for atom
-    #     print(f"{func.name()} = {model[func].as_list()}")
+    # Print propositions:
+    # TODO: use symbol for empty set if either of the below are empty
+    print(f"Verifiers({A}) = {ver_states}")
+    print(f"Falsifiers({A}) = {fal_states}")
+
+    # TODO: delete once for loop over sentence letters works
+    ver_states = {
+        bitvec_to_substates(model[decl])
+        for decl in all_states
+        if model.evaluate(verify(model[decl], model[B]))
+    }
+    fal_states = {  # TODO: use symbol for empty set if empty
+        bitvec_to_substates(model[decl])
+        for decl in all_states
+        if model.evaluate(falsify(model[decl], model[B]))
+    }
+    print(f"Verifiers({B}) = {ver_states}")
+    print(f"Falsifiers({B}) = {fal_states}")
 
 else:
     print("No model found.")
+
+
+# TODO: check scrap code and delete if not needed
+# can always look back through old commits if something is needed
 
 # for decl in model.decls():
 #     if decl.arity() == 0:  # Filter out function declarations
