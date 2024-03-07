@@ -56,6 +56,7 @@ w = BitVec("w", N)
 # primitive properties and relations
 possible = Function("possible", BitVecSort(N), BoolSort())
 world = Function("world", BitVecSort(N), BoolSort())
+alt_world = Function("alt_world", BitVecSort(N), BoolSort())
 verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
 falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
 

@@ -46,6 +46,7 @@ from definitions import (
     verify,
     falsify,
     alternative,
+    alt_world,
     proposition,
     bitvec_to_substates,
     maximal,
@@ -68,6 +69,15 @@ solver.add(
             # TODO: is there an Equiv function? I couldn't find one
             Implies(is_world(w), world(w)),
             Implies(world(w), is_world(w)),
+        ),
+    ),
+    # TODO: ditto above. perhaps this can be improved. remains to print all alt_worlds that result from imposing a verifier for A on w
+    ForAll(
+        [u,y,w],
+        And(
+            # TODO: is there an Equiv function? I couldn't find one
+            Implies(alternative(u,y,w), alt_world(u,y,w)),
+            Implies(alt_world(u,y,w), alternative(u,y,w)),
         ),
     ),
     # MODEL CONSTRAINT: every X of AtomSort is a proposition
