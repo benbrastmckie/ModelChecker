@@ -58,7 +58,6 @@ solver.add(
     # M: a little testing area with some stuff
     # dummy == 9,
     # Not(possible(dummy)),
-    # ForAll([A,x], Implies(possible(x), Or(verify(x,A),falsify(x,A)))), #@B: adding this (which—I think—is a requirement that every possible state either verifies or falsifies every sentence) makes it unsat
     # FRAME CONSTRAINT: every part of a possible state is possible
     ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
     # NOTE: the below draws an equivalence between the primitive 'world' and the defined term 'is_world'
@@ -153,13 +152,16 @@ def attempt_b(solver):
     if solver.check() == sat:
         model = solver.model() # is of sort ModelRef
         states_dict = {declaration: model[declaration] for declaration in model if declaration.arity() == 0 and declaration.name() not in ['A','B']}
+            # NOTE: I think the identities used above are OK for now since they are easy to read and can help us know what is going on in the model
+            # eventually we can drop any reference to the variables when printing the models, focusing on the bitvec_to_substates instead
+            # but if the dictionary is useful for printing the model, then by all means include it
         print(states_dict)
         for state in states_dict:
             # the .evaluate() method adds something to the model and evaluates it. We don't even need to look at the extensions! 
             print(f'{bitvec_to_substates(model[state])} is possible: {model.evaluate(possible(states_dict[state]))}')
             print(f'{bitvec_to_substates(model[state])} verifies A: {model.evaluate(verify(states_dict[state],A))}')
             print(f'{bitvec_to_substates(model[state])} falsifies A: {model.evaluate(falsify(states_dict[state],A))}') 
-            print('\n')           
+            print('\n')
             # print(f'{state} is a world: {simplify(is_world(states_dict[state]))}')
         # print(model[possible].as_list())
         # print(model.evaluate(possible(dummy)))
