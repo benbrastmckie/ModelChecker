@@ -50,6 +50,7 @@ from definitions import (
     proposition,
     bitvec_to_substates,
     maximal,
+    Equivalent,
 )
 
 # dummy = BitVec('dummy',N)
@@ -65,11 +66,15 @@ solver.add(
     # TODO: it would be good to make do with just one of these, preferably the defined 'is_world'
     ForAll(
         w,
-        And(
-            # TODO: is there an Equiv function? I couldn't find one
-            Implies(is_world(w), world(w)),
-            Implies(world(w), is_world(w)),
-        ),
+        Equivalent(is_world(w),world(w))
+        # And(
+        #     # TODO: is there an Equiv function? I couldn't find one
+        #     # M: I don't know of one either but this should do the job
+        #     # I mean we could define one...
+              # just defined one at the bottom of definiitons and replaced it here. Maybe more transparent? we can use it for all biconditionals
+        #     Implies(is_world(w), world(w)),
+        #     Implies(world(w), is_world(w)),
+        # ),
     ),
     # TODO: ditto above. perhaps this can be improved. remains to print all alt_worlds that result from imposing a verifier for A on w
     ForAll(
@@ -106,92 +111,119 @@ def attempt_a(solver):
 
         model = solver.model()
 
-        # TODO: eventually replace with something more general
-        sentence_letters = ["A","B",]
+    # TODO: eventually replace with something more general
+    sentence_letter_objects = [A,B]
+    sentence_letter_names = {S.sexpr() for S in sentence_letter_objects} # set because we're only testing for membership
+    all_states = [d for d in model.decls() if d.arity() == 0 and d.name() not in sentence_letter_names]
+    # M: got the for loop issue working. It was a type mismatch issue. Z3 types are a bit finicky lol. But to do so, needed to make a list of sentence letter objects and a list of the accompanying names
 
-        all_states = [d for d in model.decls() if d.arity() == 0 and d.name() not in sentence_letters]
+    # TODO: how can we print all the states and not just the ones mentioned in the constraints?
+    # if they weren't added to the solver, I don't think they'd be in the model
+    print("States:")  # Print states
+    for state in all_states:
+        # NOTE: looks like we can't use is_world since it is not a declared primitive
+        # see hack above, introducing 'world' which is made equivalent
+        if model.evaluate(world(model[state])):  # TODO: why does it say invalid conditional operand? # M: right now it works. What was making it say that? It looks fine now, since .evaluate() returns a Bool
+            print(f"{state.name()} = {bitvec_to_substates(model[state])} (world)")
+        elif model.evaluate(possible(model[state])):
+            print(f"{state.name()} = {bitvec_to_substates(model[state])} (possible)")
+        else:
+            print(f"{state.name()} = {bitvec_to_substates(model[state])} (impossible)")
 
-        # TODO: how can we print all the states and not just the ones mentioned in the constraints?
-        print("States:")  # Print states
-        for state in all_states:
-            # NOTE: looks like we can't use is_world since it is not a declared primitive
-            # see hack above, introducing 'world' which is made equivalent
-            if model.evaluate(world(model[state])):  # TODO: why does it say invalid conditional operand?
-                print(f"{state.name()} = {bitvec_to_substates(model[state])} (world)")
-            elif model.evaluate(possible(model[state])):
-                print(f"{state.name()} = {bitvec_to_substates(model[state])} (possible)")
-            else:
-                print(f"{state.name()} = {bitvec_to_substates(model[state])} (impossible)")
-
-        # TODO: can't get for loop over sentence_letters to work
-        # NOTE: I tried replacing 'A' with 'atom', un-commenting the line below, but no dice
-        # for atom in sentence_letters:
+    # for loop over sentences
+    for S in sentence_letter_objects: 
         ver_states = {
             bitvec_to_substates(model[decl])
             for decl in all_states
-            if model.evaluate(verify(model[decl], model[A]))
+            if model.evaluate(verify(model[decl], model[S]))
         }
         fal_states = {
             bitvec_to_substates(model[decl])
             for decl in all_states
-            if model.evaluate(falsify(model[decl], model[A]))
+            if model.evaluate(falsify(model[decl], model[S]))
         }
 
         # Print propositions:
         # TODO: use symbol for empty set if either of the below are empty
-        print(f"Verifiers({A}) = {ver_states}")
-        print(f"Falsifiers({A}) = {fal_states}")
+        if ver_states:
+            print(f"Verifiers({S}) = {ver_states}")
+        else:
+            print("∅")
+        if fal_states:
+            print(f"Falsifiers({S}) = {fal_states}")
+        else:
+            print("∅")
 
-        # TODO: delete once for loop over sentence letters works
-        ver_states = {
-            bitvec_to_substates(model[decl])
-            for decl in all_states
-            if model.evaluate(verify(model[decl], model[B]))
-        }
-        fal_states = {  # TODO: use symbol for empty set if empty
-            bitvec_to_substates(model[decl])
-            for decl in all_states
-            if model.evaluate(falsify(model[decl], model[B]))
-        }
-        print(f"Verifiers({B}) = {ver_states}")
-        print(f"Falsifiers({B}) = {fal_states}")
-    else:
-        print("No model found.")
+    # # TODO: delete once for loop over sentence letters works
+    # ver_states = {
+    #     bitvec_to_substates(model[decl])
+    #     for decl in all_states
+    #     if model.evaluate(verify(model[decl], model[B]))
+    # }
+    # fal_states = {  # TODO: use symbol for empty set if empty
+    #     bitvec_to_substates(model[decl])
+    #     for decl in all_states
+    #     if model.evaluate(falsify(model[decl], model[B]))
+    # }
+    # print(f"Verifiers({B}) = {ver_states}")
+    # print(f"Falsifiers({B}) = {fal_states}")
 
-def attempt_b(solver):
-    if solver.check() == sat:
-        model = solver.model() # is of sort ModelRef
-        states_dict = {declaration: model[declaration] for declaration in model if declaration.arity() == 0 and declaration.name() not in ['A','B']}
-            # NOTE: I think the identities used above are OK for now since they are easy to read and can help us know what is going on in the model
-            # eventually we can drop any reference to the variables when printing the models, focusing on the bitvec_to_substates instead
-            # but if the dictionary is useful for printing the model, then by all means include it
-        print(states_dict)
-        for state in states_dict:
-            # the .evaluate() method adds something to the model and evaluates it. We don't even need to look at the extensions! 
-            print(f'{bitvec_to_substates(model[state])} is possible: {model.evaluate(possible(states_dict[state]))}')
-            print(f'{bitvec_to_substates(model[state])} verifies A: {model.evaluate(verify(states_dict[state],A))}')
-            print(f'{bitvec_to_substates(model[state])} falsifies A: {model.evaluate(falsify(states_dict[state],A))}') 
-            print('\n')
-            # print(f'{state} is a world: {simplify(is_world(states_dict[state]))}')
-        # print(model[possible].as_list())
-        # print(model.evaluate(possible(dummy)))
-        # print(model.num_sorts())
-        # print(model.sexpr())
-        # print(model.decls)
-        # print(s)
-        # print(model[s])
-        # print(s.sort())
-        # print(model[s].sort())
-        # print(s == model[s])
+### END BEN'S ATTEMPT
 
 
-        # for declaration in model: # declarations are of type FuncDeclRef
-        #     if declaration.arity()==0:
-        #         pass
-    else:
-        print("No model found.")
-
-attempt_a(solver)
+# dummy = BitVec('dummy',N)
+# solver = Solver()
+#
+# def attempt_a(solver):
+#     if solver.check() == sat:
+#         model = solver.model()
+#
+#         # TODO: replace ["A", "B"] with something more general
+#         states = [d for d in model.decls() if d.arity() == 0 and d.name() not in ["A", "B"]]
+#
+#         # Print states
+#         print("States:")
+#         for decl in states:
+#             # TODO: how can we print all the states and whether world/poss/imposs
+#             print(f"{decl.name()} = {bitvec_to_substates(model[decl])}")
+#
+#         possible = [d for d in model.decls() if d.arity() == 1]
+#         # TODO: unlock var bool string
+#         
+#         print("Possible States:")
+#         for func in possible:
+#             # TODO: store and print all verifiers/falsifiers for atom
+#             print(f"{func.name()} = {model[func].as_list()}")
+#     else:
+#         print("No model found.")
+#
+# def attempt_b(solver):
+#     if solver.check() == sat:
+#         model = solver.model() # is of sort ModelRef
+#         states_dict = {declaration: model[declaration] for declaration in model if declaration.arity() == 0 and declaration.name() not in ['A','B']}
+#         print(states_dict)
+#         for state in states_dict:
+#             # the .evaluate() method adds something to the model and evaluates it. We don't even need to look at the extensions! 
+#             print(f'{bitvec_to_substates(model[state])} is possible: {model.evaluate(possible(states_dict[state]))}')
+#             print(f'{bitvec_to_substates(model[state])} verifies A: {model.evaluate(verify(states_dict[state],A))}')
+#             print(f'{bitvec_to_substates(model[state])} falsifies A: {model.evaluate(falsify(states_dict[state],A))}') 
+#             print('\n')           
+#             # print(f'{state} is a world: {simplify(is_world(states_dict[state]))}')
+#         # print(model[possible].as_list())
+#         # print(model.evaluate(possible(dummy)))
+#         # print(model.num_sorts())
+#         # print(model.sexpr())
+#         # print(model.decls)
+#         # print(s)
+#         # print(model[s])
+#         # print(s.sort())
+#         # print(model[s].sort())
+#         # print(s == model[s])
+#
+#
+#         # for declaration in model: # declarations are of type FuncDeclRef
+#         #     if declaration.arity()==0:
+#         #         pass
 # attempt_b(solver)
 
 #         a= [type(declaration) for declaration in model]

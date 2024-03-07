@@ -196,3 +196,5 @@ def bitvec_to_substates(bit_vec):
             state_repr += alphabet[i]
             state_repr += "."
 
+def Equivalent(a,b):
+    return And(Implies(a,b), Implies(b,a))
