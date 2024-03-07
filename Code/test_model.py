@@ -160,9 +160,11 @@ if solver.check() == sat:
             for state in all_states
             if model.evaluate(falsify(model[state], model[S]))
         }
+        # TODO: not sure if this is the right syntax but want to define there
+        # alternatives to w that result from including a verifier for S
         # alt_states = {  # S-alternatives to designated world w
         #     bitvec_to_substates(model[alt])
-        #     for state,alt in all_states
+        #     for state, alt in all_states
         #     if model.evaluate(verify(model[state], model[S]))
         #     and model.evaluate(alternative(model[alt], model[state], w))
         # }
