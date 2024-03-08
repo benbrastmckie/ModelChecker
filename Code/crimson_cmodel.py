@@ -204,11 +204,11 @@ if solver.check() == sat:
 
             # for alt in alt_world:
             #     true_in_alt = {
-            #         T for T in sentence_letteralt
-            #         if any(state for state in all_states
-            #             if model.evaluate(verify(model[state], model[T]))
-            #             and model.evaluate(parthood(model[state], model[alt]))
-            #         )
+            #         T for T in sentence_letters
+            #         # NOTE: need to check if there is some state in all_states
+            #         # that verifies T and is a part of the alt world
+            #         if model.evaluate(verify(model[state], model[T]))
+            #         and model.evaluate(parthood(model[state], model[alt]))
             #     }
             #     if true_in_alt:
             #         print(f"{true_in_alt} are true in {alt}")

@@ -56,6 +56,7 @@ from definitions import (
     bitvec_to_substates,
     maximal,
     Equivalent,
+    parthood,
 )
 
 solver = Solver()
@@ -167,10 +168,13 @@ if solver.check() == sat:
             if model.evaluate(verify(model[state], model[S]))
             and model.evaluate(alternative(model[alt], model[state], w))
         }
-        # true_states = {
+
+        # TODO: couldn't get this to work here
+        # true_states = {  # verifier states for S that are part of w
         #     bitvec_to_substates(model[state])
-        #     for state in ver_states
-        #     if model.evaluate(parthood(model[state], model[w]))
+        #     for state in all_states
+        #     if model.evaluate(verify(model[state], model[S]))
+        #     and model.evaluate(parthood(model[state], model[w]))
         # }
 
         # TODO: the aim above is to define a set of verifiers for S that are part
@@ -186,6 +190,11 @@ if solver.check() == sat:
             print(f"|{S}| = < ∅, {fal_states} >")
         else:
             print(f"|{S}| = < ∅, ∅ >")
+        # TODO: couldn't get true_states defined above to work here
+        # if true_states:
+        #     print(f"{S} is true in {bitvec_to_substates(model[w])}")
+        # else:
+        #     print(f"{S} is false in {bitvec_to_substates(model[w])}")
         if alt_states:
             print(f"{S}-alternatives to {bitvec_to_substates(model[w])} = {alt_states}")
         else:
