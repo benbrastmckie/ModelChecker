@@ -34,7 +34,7 @@ N = 3
 # sentence letters: sort definition, constants, and variables
 # B: do we need a constant for each sentence letter in sentence_letters?
 AtomSort = DeclareSort("AtomSort")
-A, B, X = Consts("A B X", AtomSort)
+A, B, C, X = Consts("A B C X", AtomSort)
 
 # declare bitvector variables used for states
 a = BitVec("a", N)
@@ -60,7 +60,7 @@ world = Function("world", BitVecSort(N), BoolSort())
 alternative = Function("alt_world", BitVecSort(N), BitVecSort(N), BitVecSort(N), BoolSort())
 verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
 falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
-parthood = Function("parthood", BitVecSort(N), BitVecSort(N), BoolSort())
+# parthood = Function("parthood", BitVecSort(N), BitVecSort(N), BoolSort())
 
 
 ### DEFINITIONS ###
