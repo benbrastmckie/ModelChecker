@@ -13,6 +13,7 @@ from z3 import (
     Consts,
     Function,
     And,
+    Or,
     # BitVecVal,
     # Var,
     # Const,
@@ -59,6 +60,7 @@ world = Function("world", BitVecSort(N), BoolSort())
 alternative = Function("alt_world", BitVecSort(N), BitVecSort(N), BitVecSort(N), BoolSort())
 verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
 falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
+parthood = Function("parthood", BitVecSort(N), BitVecSort(N), BoolSort())
 
 
 ### DEFINITIONS ###
@@ -123,6 +125,7 @@ def is_alternative(bit_u, bit_y, bit_w):
     bit_u is a world that is the alternative that results from imposing state bit_y on world bit_w.
     """
     return And(
+        is_world(bit_u),
         is_part_of(bit_y, bit_u),
         Exists(z, And(is_part_of(z, bit_u), compatible_part(z, bit_w, bit_y))),
     )
@@ -197,4 +200,3 @@ def bitvec_to_substates(bit_vec):
 
 def Equivalent(bit_a,bit_b):
     return And(Implies(bit_a,bit_b), Implies(bit_b,bit_a))
-
