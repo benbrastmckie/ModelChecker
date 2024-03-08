@@ -23,14 +23,15 @@ from definitions import (
 
 # TODO: eventually replace sentence_letters with something more general
 
-from crimson_cmodel import ( model )
+from crimson_cmodel import model
+
 sentence_letters = [A, B]
-'''
+"""
 A, B does not entail if A were the case then B would be the case.
 
 given that the ball is red and mary likes it does not follow that:
 if the ball were red then mary would like it
-'''
+"""
 
 # from simp_disj_ant import ( model )
 # sentence_letters = [A, B, C]
@@ -59,7 +60,6 @@ if model != "nil":
     max_num = max(states_as_nums)
     already_seen = set()
 
-
     print("\nStates:")  # Print states
     for val in range(max_num * 2):
         # bc binary; the best-case last one (stopped at) is the first one repeated, so we're good
@@ -77,7 +77,11 @@ if model != "nil":
             print(f"  {test_state.sexpr()} = {as_substates} (impossible)")
         already_seen.add(as_substates)
 
-    print("\nPropositions:")  # Print states
+    # Print evaluation world:
+    print(f"\nThe evaluation world is {bitvec_to_substates(model[w])}.")
+
+     # Print propositions
+    print("\nPropositions:") 
     for S in sentence_letters:
         ver_states = {  # verifier states for S
             bitvec_to_substates(model[state])
@@ -89,13 +93,24 @@ if model != "nil":
             for state in all_states
             if model.evaluate(falsify(model[state], model[S]))
         }
-        alt_world = {  # S-alternatives to the designated world w
-            bitvec_to_substates(model[alt])
+        alt_bitvectors = {  # S-alternatives to the designated world w
+            alt
             for alt in all_states
             for state in all_states
             if model.evaluate(verify(model[state], model[S]))
             and model.evaluate(alternative(model[alt], model[state], model[w]))
         }
+        alt_worlds = {  # S-alternatives to the designated world w
+            bitvec_to_substates(model[alt])
+            for alt in alt_bitvectors
+        }
+        # alt_worlds = {  # S-alternatives to the designated world w
+        #     bitvec_to_substates(model[alt])
+        #     for alt in all_states
+        #     for state in all_states
+        #     if model.evaluate(verify(model[state], model[S]))
+        #     and model.evaluate(alternative(model[alt], model[state], model[w]))
+        # }
         true_states = {  # verifier states for S that are part of w
             bitvec_to_substates(model[state])
             for state in all_states
@@ -116,8 +131,10 @@ if model != "nil":
             print(f"  {S} is true in {bitvec_to_substates(model[w])}")
         else:
             print(f"  {S} is false in {bitvec_to_substates(model[w])}")
-        if alt_world:
-            print(f"  {S}-alternatives to {bitvec_to_substates(model[w])} = {alt_world}\n")
+        if alt_worlds:
+            print(
+                f"  {S}-alternatives to {bitvec_to_substates(model[w])} = {alt_worlds}"
+            )
 
             # TODO: need something like the below to print all sentences
             # that are true in the alternative world. trouble seems to be the
@@ -125,21 +142,39 @@ if model != "nil":
             # not sure how to check to see if ANY part of the alternative world
             # verifies a given sentence.
 
-            # for alt in alt_world:
-            #     true_in_alt = {
-            #         T for T in sentence_letters
-            #         # NOTE: need to check if there is some state in all_states
-            #         # that verifies T and is a part of the alt world
-            #         if model.evaluate(verify(model[state], model[T]))
-            #         and model.evaluate(parthood(model[state], model[alt]))
-            #     }
+            # for alt in alt_bitvectors:
+            #     true_in_alt = set()
+            #     for T in sentence_letters:
+            #         if any(
+            #             model.evaluate(verify(model[state], model[T]))
+            #             and model.evaluate(parthood(model[state], model[alt]))
+            #             for state in all_states
+            #         ):
+            #             true_in_alt.add(T)
             #     if true_in_alt:
-            #         print(f"{true_in_alt} are true in {alt}")
+            #         print(f"  {true_in_alt} are true in {bitvec_to_substates(model[alt])}")
+            # print()
+
+            # NOTE: attempt #2
+            # for alt in alt_worlds:
+            #     true_in_alt = set()
+            #     for T in sentence_letters:
+            #         if any(
+            #             model.evaluate(verify(model[state], model[T]))
+            #             and model.evaluate(parthood(model[state], model[alt_bit]))
+            #             and alt == bitvec_to_substates(model[alt_bit])
+            #             for state in all_states
+            #             for alt_bit in alt_bitvectors
+            #         ):
+            #             true_in_alt.add(T)
+            #     if true_in_alt:
+            #         print(f"  {true_in_alt} are true in {bitvec_to_substates(model[alt])}")
+            # print()
 
         else:
             print(f"  {S}-alternatives to {bitvec_to_substates(model[w])} = ∅\n")
 
     print()  # Print states
-        # TODO: I couldn't figure out how to remove the quotes from the states
+    # TODO: I couldn't figure out how to remove the quotes from the states
 else:
     print("\nThere are no models.\n")
