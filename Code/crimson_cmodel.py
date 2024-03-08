@@ -196,19 +196,22 @@ if solver.check() == sat:
         if alt_world:
             print(f"{S}-alternatives to {bitvec_to_substates(model[w])} = {alt_world}")
 
+            # TODO: need something like the below to print all sentences
+            # that are true in the alternative world. trouble seems to be the
+            # elements in alt_world are fusions rather than bitvectors. also
+            # not sure how to check to see if ANY part of the alternative world
+            # verifies a given sentence.
+
             # for alt in alt_world:
-            #
-            #     true_in_alt = {  # sentences true in alternative world
-            #         T
-            #         for T in sentence_letters
-            #             alt_ver_states = {  # parts of alt that verify T
-            #                 bitvec_to_substates(model[state])
-            #                 for state in all_states
-            #                 if model.evaluate(verify(model[state], model[T]))
-            #                 and model.evaluate(parthood(model[state], model[alt]))
-            #             }
+            #     true_in_alt = {
+            #         T for T in sentence_letteralt
+            #         if any(state for state in all_states
+            #             if model.evaluate(verify(model[state], model[T]))
+            #             and model.evaluate(parthood(model[state], model[alt]))
+            #         )
             #     }
-            #     print(f"{true_in_alt} are true in {alt}")
+            #     if true_in_alt:
+            #         print(f"{true_in_alt} are true in {alt}")
 
         else:
             print(f"{S}-alternatives to {bitvec_to_substates(model[w])} = ∅")
