@@ -5,10 +5,12 @@ This document outlines the next steps going forward.
 ## Concrete Model
 
 - [.] build concrete models for simple examples
-  - [.] show A, B, \neg(A \boxright B) is sat
+  - [ ] countermodel for `A \boxright (B \vee C) \vdash (A \boxright B) \vee (A \boxright C)`
+  - [ ] no countermodel for `(A \vee B) \boxright C \vdash A \boxright B`
+  - [x] show `A, B, \neg(A \boxright B)` is sat
     - [x] identify groups of constraints
       - [x] frame constraints
-      - [.] model constraints
+      - [:] model constraints
         - [ ] debug why adding constraints for B fails
       - [x] evaluation constraints
 - [ ] represent Z3 models in a readable way

@@ -2,40 +2,16 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
-## Print Function
+## Models
 
-- [ ] _M_ print all states in the model (some seem to be hidden)
-  - NOTE: this is high priority since I can't really tell what it is doing until I can see the full state space
-- [:] _B_ assign either `world`, `possible`, or `impossible` to each printed state
-  - [x] _M_ revise state labeling strategy I hacked together
-  - [ ] _M_ unlock `Var(0) == 1`; maybe there is a better way to find the extensions of predicates?
-  - [ ] NOTE: I had to declare `world` making it equivalent to the defined `is_world` but this seems bad (maybe I'm wrong)
-- [:] _B_ for each sentence letter `X`, print set of verifiers and set of falsify
-  - [x] _M_ revise code I hacked together
-- [ ] _M_ for each counterfactual sentence `X \boxright Y`, print the set of `X` alternatives to `w`
-  - if `X \boxright Y` is true at `w`, then `Y` will be true in every `X` alternative to `w`
-  - if `X \boxright Y` is false at `w`, then `Y` will be false at some `X` alternative to `w`
-  - either way, it would be great to know what the `X` alternatives to `w` are
-  - but we don't need to know what the `Z` alternatives to `w` are for `Z` that is not the antecedent to a counterfactual
-  - NOTE: I can see how to do all of this by also declaring `alt_world` making this equivalent to `alternative`
-  - it would be great to avoid this, but maybe there is no good way?
-
-## Concrete Model
-
-- [ ] countermodel for `A, B \vdash A \boxright B`
-  - [x] _B_ build concrete model
-  - [.] debug Z3 crashing issues in `test_model.py`
-    - [x] _B_ Locate the constraint that seems to be the problem
-    - [.] figure out why this constraint is causing trouble
-      - [x] _B_ email Graham
+- [ ] show `{ A \boxright (B \vee C), \neg(A \boxright B), \neg(A \boxright C) }` is sat
+- [ ] show `{ (A \vee B) \boxright C, \neg(A \boxright B) }` is unsat
 
 ## Definitions
 
-- [x] _B_ `proposition` see strategies
-- [x] _B_ add docstrings to `definitions.py`
 - [ ] _M_ `extended_verify` see strategies
 - [ ] _M_ `extended_falsify` see strategies
-- [ ] _M_ recursive definition of `true`
+- [ ] _M_ recursive definition of `true` see strategies
 
 ## Constraint Generators
 
@@ -46,6 +22,18 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [ ] _B_ move from set-fusion to binary fusion throughout
 - [x] _B_ check that world-hood constraint is not needed for finite spaces
+
+
+
+
+
+
+
+
+
+<!-- BONEYARD -->
+
+# Completed
 
 ## Strategies
 
@@ -58,13 +46,25 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] _B_ model builder
     - [x] _B_ outline
     - [x] _B_ revise
+## Models
 
-<!-- BONEYARD -->
-
-# Completed
+- [x] countermodel for `A, B \vdash A \boxright B`
+  - [x] _B_ build concrete model
+  - [:] debug Z3 crashing issues in `test_model.py`
+    - [x] _B_ Locate the constraint that seems to be the problem
+    - [.] figure out why this constraint is causing trouble
+      - [x] _B_ email Graham
 
 ## Print
 
+- [x] _M_ print all states in the model (some seem to be hidden)
+- [x] _B_ assign either `world`, `possible`, or `impossible` to each printed state
+  - [x] _M_ revise state labeling strategy I hacked together
+  - [x] _M_ unlock `Var(0) == 1`; maybe there is a better way to find the extensions of predicates?
+- [x] _B_ for each sentence letter `X`, print set of verifiers and set of falsify
+  - [x] _M_ revise code I hacked together
+- [x] _B_ for each counterfactual sentence `X \boxright Y`, print the set of `X` alternatives to `w`
+  - B: I declared `alt_world` making this equivalent to `alternative`
 - [x] _M_ name all atomic states in the model with lowercase letters `a, b, c, ...`
 - [x] _M_ represent all states in the model as fusions, e.g., `a.b.c, d.e, a, ...`
 
@@ -79,6 +79,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Definitions
 
+- [x] _B_ `proposition` see strategies
+- [x] _B_ add docstrings to `definitions.py`
 - [x] _B_ maximal
 - [x] _B_ compatible
 - [x] _B_ world

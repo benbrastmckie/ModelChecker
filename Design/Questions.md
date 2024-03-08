@@ -14,7 +14,7 @@ Questions should be organized under a topic when possible.
 
 ## Z3
 
-General
+### General
 
 - [ ] Is it important to have bivectors with length not equal to a power of 2?
 - [ ] It appears that even bound variables must be defined in Z3. Why is this?
@@ -27,7 +27,83 @@ General
   - How do we know how many models it tried and how big those models were?
   - Knowing this tells us about the strength of the evidence that ${ A, B, C }$ entails $D$.
 
-Interpretation
+### No Alternatives and Exhaustivity
+
+Z3 finds a minimal countermodel for A, B \vdash A \boxright B by providing the following evaluation constraints:
+```
+    world(w),  # there is a world w
+
+    is_part_of(s, w),  # s is a part of w
+    verify(s, A),  # s verifies A
+
+    is_part_of(t, w),  # t is part of w
+    verify(t, B),  # t verifies B
+
+    # CF CONSTRAINT      
+    verify(y, A),
+    is_alternative(u, y, w),
+    Exists(b, And(is_part_of(b, u), falsify(b, B))),
+```
+This produces the output:
+```
+States:
+
+#b000 = □ (possible)
+#b001 = a (world)
+#b010 = b (world)
+#b011 = a.b (impossible)
+#b100 = c (world)
+#b101 = a.c (impossible)
+#b110 = b.c (impossible)
+#b111 = a.b.c (impossible)
+
+Propositions:
+
+|A| = < {'a', '□'}, ∅ >
+A-alternatives to c = {'a'}
+
+|B| = < {'c'}, {'a'} >
+B-alternatives to c = ∅
+```
+By contrast, no A-alternatives worlds are found if the CF CONSTRAINT given above is replaced with the following:
+```
+    Exists([y,u],
+        And(
+          verify(y, A),
+          is_alternative(u, y, w),
+          Exists(b, And(is_part_of(b, u), falsify(b, B))),
+        )
+    )
+```
+I am not sure why this is. Additionally, consider the following alternative to the CF CONSTRAINT originally given:
+```
+    # CF ALT-CONSTRAINT      
+    verify(y, A),
+    is_alternative(u, y, w),
+    ForAll(b, Implies(is_part_of(b, u), Not(verify(b, B)))),
+```
+These two constraints are equivalent modulo exhaustivity. Nevertheless, the CF ALT-CONSTRAINT above yields the following model:
+```
+States:
+
+#b000 = □ (possible)
+#b001 = a (world)
+#b010 = b (world)
+#b011 = a.b (impossible)
+
+Propositions:
+
+|A| = < {'b', '□'}, ∅ >
+A-alternatives to a = {'b'}
+
+|B| = < {'a'}, ∅ >
+B-alternatives to a = ∅
+```
+This is an example of a truth-value gap: although `B` is not true in world `b`, there is no falsifier that is a part of `b` which makes `B` false, and so not true in `b`. This is OK since the simple model above still counts as a countermodel to the inference in question. Nevertheless, we may avoid these truth-value gaps by using CF CONSTRAINT instead which amounts to applying the exhaustivity condition by hand.
+
+This suggests a different set of constraints for negated counterfactuals (as in this example) and true counterfactuals to get around the fact that exhaustivity has not been included.
+
+### Interpretation
 
 - what are the primitive types/sorts in Z3?
 - _M_ seems that BitVecVal is a more useful type than BitVec.
@@ -39,7 +115,7 @@ Interpretation
   - _M_ How transparent do we want the model to be?
     - We can easily just make states bitvectors, but it'd be nice to actually vizualize states as bitvectors instead of seeing them as numbers (or the ugly format that Z3 .sexpr() gives)
 
-Optimization
+### Optimization
 
 - What size bitvector does it make sense to start with? M: not a power of 2 (those are represented in hexadecimal notation, for whatever reason). Based off our convo last Wednesday (2/12), 8 seems like a huge state space (and every other space) already, so maybe 5, 7, or 9? But I really don't know, defer to @B
 
