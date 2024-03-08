@@ -26,6 +26,7 @@ from definitions import (
     a,
     b,
     c,
+    is_bitvector,
     r,
     s,
     t,
@@ -72,6 +73,7 @@ solver.add(
             And(possible(w), maximal(w)),
         ),
     ),
+    # constraints on world predicate
     ForAll(
         [u, y],
         Equivalent(  # TODO: replace with Z3 equiv if any?
@@ -83,35 +85,42 @@ solver.add(
             ),
         ),
     ),
+    # constraints on alternative predicate
     # MODEL CONSTRAINT
-    ForAll(X, proposition(X)),  # every X of AtomSort is a proposition
-    # EVAL CONSTRAINTS
-    world(w),  # there is a world w
-    ForAll(  # A \vee B \boxright C
+    ForAll(X, proposition(X)),
+    # every X of AtomSort is a proposition
+    world(w),
+    # there is a world w
+    ForAll(
         [s, v],
         Implies(
-            And(
+            And(verify(s, A), is_alternative(v, s, w)),
+            Exists(t, And(
+                is_part_of(t, v),
                 Or(
-                    verify(s, A),
                     verify(s, B),
+                    verify(s, C),
                     Exists(
                         [a, b],
                         And(
                             s == fusion(a, b),
-                            verify(a, A),
-                            verify(b, B),
+                            verify(a, B),
+                            verify(b, C),
                         ),
                     ),
                 ),
-                is_alternative(v, s, w),
-            ),
-            Exists(t, And(is_part_of(t, v), verify(t, C))),
+            )),
         ),
     ),
-
-    verify(r, A),
-    is_alternative(v, r, w),
-    Exists(t, And(is_part_of(t, v), falsify(t, C))),
+    # A \boxright B \vee C
+    verify(a, A),
+    is_alternative(u, a, w),
+    Exists(x, And(is_part_of(x, u), falsify(x, B))),
+    # \neg(A \boxright B)
+    verify(b, A),
+    is_alternative(v, b, w),
+    Exists(y, And(is_part_of(y, v), falsify(y, C))),
+    # \neg(A \boxright C)
 )
 
 if solver.check() == sat:
@@ -120,22 +129,7 @@ if solver.check() == sat:
 
     # TODO: eventually replace with something more general
     sentence_letter_objects = [A, B, C]
-    sentence_letter_names = {
-        S.sexpr() for S in sentence_letter_objects
-    }  # set because we're only testing for membership
-    # M: got the for loop issue working. It was a type mismatch issue.
-    # needed to make a list of sentence letter objects and names
-
-    # B: (QUESTION) the above seems motivated by the role sentence_letter_names
-    # plays in all_states below. I wonder if there is a better way to define
-    # all_states that does not need sentence_letter_names? perhaps we can
-    # filter directly by asking if d in model.decls() is a bitvec?
-
-    all_states = [
-        d
-        for d in model.decls()
-        if d.arity() == 0 and d.name() not in sentence_letter_names
-    ]
+    all_states = [element for element in model.decls() if is_bitvector(element)]
     states_as_nums = [model[state].as_long() for state in all_states]
     max_num = max(states_as_nums)
     already_seen = set()
@@ -154,7 +148,7 @@ if solver.check() == sat:
             print(f"{test_state.sexpr()} = {as_substates} (impossible)")
         already_seen.add(as_substates)
 
-    print("Propositions:")  # Print states
+    print("Propositions:")  # Print propositions and alternatives
     for S in sentence_letter_objects:
         ver_states = {
             bitvec_to_substates(model[state])

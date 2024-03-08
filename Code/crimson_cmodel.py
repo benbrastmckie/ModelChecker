@@ -54,10 +54,10 @@ from definitions import (
     bitvec_to_substates,
     maximal,
     Equivalent,
-    # parthood
+    is_bitvector,
+    parthood
 )
 
-# dummy = BitVec('dummy',N)
 solver = Solver()
 
 solver.add(
@@ -65,6 +65,8 @@ solver.add(
     ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
     # every part of a possible state is possible
     ForAll([x, y], Exists(z, fusion(x, y) == z)),
+    # states are closed under fusion
+    ForAll([x, y], Equivalent(parthood(x, y),is_part_of(x,y))),
     # states are closed under fusion
     ForAll(w, Equivalent(
         world(w),
@@ -128,28 +130,14 @@ if solver.check() == sat:
     model = solver.model()
 
     # TODO: eventually replace with something more general
-    sentence_letter_objects = [A, B]
-    sentence_letter_names = {
-        S.sexpr() for S in sentence_letter_objects
-    }  # set because we're only testing for membership
-    # M: got the for loop issue working. It was a type mismatch issue.
-    # needed to make a list of sentence letter objects and names
-
-    # QUESTION: the above seems motivated by the role sentence_letter_names
-    # plays in all_states below. I wonder if there is a better way to define
-    # all_states that does not need sentence_letter_names? perhaps we can
-    # filter directly by asking if d in model.decls() is a bitvec?
-
-    all_states = [
-        d
-        for d in model.decls()
-        if d.arity() == 0 and d.name() not in sentence_letter_names
-    ]
+    sentence_letters = [A, B]
+    all_states = [element for element in model.decls() if is_bitvector(element)]
     states_as_nums = [model[state].as_long() for state in all_states]
     max_num = max(states_as_nums)
     already_seen = set()
 
-    print("States:")  # Print states
+
+    print("\nStates:\n")  # Print states
     for val in range(max_num * 2):
         # bc binary; the best-case last one (stopped at) is the first one repeated, so we're good
         # B: that makes good sense!
@@ -166,47 +154,64 @@ if solver.check() == sat:
             print(f"{test_state.sexpr()} = {as_substates} (impossible)")
         already_seen.add(as_substates)
 
-    print("Propositions:")  # Print states
-    for S in sentence_letter_objects:
-        ver_states = {
+    print("\nPropositions:")  # Print states
+    for S in sentence_letters:
+        ver_states = {  # verifier states for S
             bitvec_to_substates(model[state])
             for state in all_states
             if model.evaluate(verify(model[state], model[S]))
         }
-        fal_states = {
+        fal_states = {  # falsifier states for S
             bitvec_to_substates(model[state])
             for state in all_states
             if model.evaluate(falsify(model[state], model[S]))
         }
-        alt_states = {  # S-alternatives to designated world w
+        alt_world = {  # S-alternatives to the designated world w
             bitvec_to_substates(model[alt])
             for alt in all_states
             for state in all_states
             if model.evaluate(verify(model[state], model[S]))
-            and model.evaluate(alternative(model[alt], model[state], w))
+            and model.evaluate(alternative(model[alt], model[state], model[w]))
         }
-        # true_states = {
-        #     bitvec_to_substates(model[state])
-        #     for state in ver_states
-        #     if model.evaluate(parthood(model[state], model[w]))
-        # }
-
-        # TODO: the aim here is to define a set of verifiers for S that are part
-        # of the designated world w so as to say whether S is true at w
-        # there may be a better way to do this
+        true_states = {  # verifier states for S that are part of w
+            bitvec_to_substates(model[state])
+            for state in all_states
+            if model.evaluate(verify(model[state], model[S]))
+            and model.evaluate(parthood(model[state], model[w]))
+        }
 
         # Print propositions:
         if ver_states and fal_states:
-            print(f"|{S}| = < {ver_states}, {fal_states} >")
+            print(f"\n|{S}| = < {ver_states}, {fal_states} >")
         elif ver_states and not fal_states:
-            print(f"|{S}| = < {ver_states}, ∅ >")
+            print(f"\n|{S}| = < {ver_states}, ∅ >")
         elif not ver_states and fal_states:
-            print(f"|{S}| = < ∅, {fal_states} >")
+            print(f"\n|{S}| = < ∅, {fal_states} >")
         else:
-            print(f"|{S}| = < ∅, ∅ >")
-        if alt_states:
-            print(f"{S}-alternatives to {bitvec_to_substates(model[w])} = {alt_states}")
+            print(f"\n|{S}| = < ∅, ∅ >")
+        if true_states:
+            print(f"{S} is true in {bitvec_to_substates(model[w])}")
+        else:
+            print(f"{S} is false in {bitvec_to_substates(model[w])}")
+        if alt_world:
+            print(f"{S}-alternatives to {bitvec_to_substates(model[w])} = {alt_world}")
+
+            # for alt in alt_world:
+            #
+            #     true_in_alt = {  # sentences true in alternative world
+            #         T
+            #         for T in sentence_letters
+            #             alt_ver_states = {  # parts of alt that verify T
+            #                 bitvec_to_substates(model[state])
+            #                 for state in all_states
+            #                 if model.evaluate(verify(model[state], model[T]))
+            #                 and model.evaluate(parthood(model[state], model[alt]))
+            #             }
+            #     }
+            #     print(f"{true_in_alt} are true in {alt}")
+
         else:
             print(f"{S}-alternatives to {bitvec_to_substates(model[w])} = ∅")
 
+    print()  # Print states
         # TODO: I couldn't figure out how to remove the quotes from the states
