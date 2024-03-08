@@ -2,6 +2,7 @@
 file contains all definitions needed for finding Z3 models.
 '''
 from z3 import (
+    Z3_BV_SORT,
     Not,
     Exists,
     ForAll,
@@ -60,10 +61,14 @@ world = Function("world", BitVecSort(N), BoolSort())
 alternative = Function("alt_world", BitVecSort(N), BitVecSort(N), BitVecSort(N), BoolSort())
 verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
 falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
-# parthood = Function("parthood", BitVecSort(N), BitVecSort(N), BoolSort())
+parthood = Function("parthood", BitVecSort(N), BitVecSort(N), BoolSort())
 
 
 ### DEFINITIONS ###
+
+def is_bitvector(bit_s):
+    '''bit_s is a bitvector'''
+    return bit_s.range().kind() == Z3_BV_SORT
 
 
 def is_atomic(bit_s):

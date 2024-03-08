@@ -120,25 +120,11 @@ if solver.check() == sat:
 
     # TODO: eventually replace with something more general
     sentence_letter_objects = [A, B, C]
-    sentence_letter_names = {
-        S.sexpr() for S in sentence_letter_objects
-    }  # set because we're only testing for membership
-    # M: got the for loop issue working. It was a type mismatch issue.
-    # needed to make a list of sentence letter objects and names
-
-    # B: (QUESTION) the above seems motivated by the role sentence_letter_names
-    # plays in all_states below. I wonder if there is a better way to define
-    # all_states that does not need sentence_letter_names? perhaps we can
-    # filter directly by asking if d in model.decls() is a bitvec?
-
-    all_states = [
-        d
-        for d in model.decls()
-        if d.arity() == 0 and d.name() not in sentence_letter_names
-    ]
+    all_states = [element for element in model.decls() if is_bitvector(element)]
     states_as_nums = [model[state].as_long() for state in all_states]
     max_num = max(states_as_nums)
     already_seen = set()
+
 
     print("States:")  # Print states
     for val in range(max_num * 2):
