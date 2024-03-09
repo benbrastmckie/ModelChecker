@@ -59,6 +59,10 @@ from definitions import (
     parthood,
 )
 
+from print import print_model
+
+sentence_letters = [A, B, C]
+
 solver = Solver()
 
 solver.add(
@@ -128,5 +132,6 @@ solver.add(
 
 if solver.check() == sat:
     model = solver.model()
+    print_model(model, sentence_letters)
 else:
-    model = "nil"
+    print("\nThere are no models.\n")

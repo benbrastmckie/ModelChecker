@@ -1,10 +1,7 @@
 # AIM: provide a concrete model that can be used to abstract from to build model generator functions
 from z3 import (
     # Solver,
-    Var,
     sat,
-    simplify,
-    help_simplify,
     Exists,
     ForAll,
     Implies,
@@ -12,17 +9,9 @@ from z3 import (
     And,
     Not,
     Or,
-    BitVec,
-    BitVecVal,
-    # DeclareSort,
-    # Consts,
-    # BoolSort,
-    BitVecSort,
-    # Function,
 )
 
 from definitions import (
-    N,
     a,
     b,
     c,
@@ -38,10 +27,8 @@ from definitions import (
     A,
     B,
     X,
-    # Y,
     fusion,
     is_part_of,
-    compatible,
     world,
     is_world,
     possible,
@@ -51,12 +38,14 @@ from definitions import (
     compatible_part,
     alternative,
     proposition,
-    bitvec_to_substates,
     maximal,
     Equivalent,
-    is_bitvector,
-    parthood
+    parthood,
 )
+
+from print import print_model
+
+sentence_letters = [A, B]
 
 solver = Solver()
 
@@ -113,6 +102,7 @@ solver.add(
         # models with no A-alternatives to w despite what the constraint would
         # seem to require. However, adding the constraint 'falsify(z, B)'
         # populates A-alternatives. I'm not sure why this is.
+
     # Not(  # in w, it is not the case that if A were true then B would be true
     #     ForAll(
     #         [a, v],
@@ -127,5 +117,6 @@ solver.add(
 
 if solver.check() == sat:
     model = solver.model()
+    print_model(model, sentence_letters)
 else:
-    model = "nil"
+    print("\nThere are no models.\n")
