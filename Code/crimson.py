@@ -1,6 +1,5 @@
 # AIM: provide a concrete model that can be used to abstract from to build model generator functions
 from z3 import (
-    # Solver,
     sat,
     Exists,
     ForAll,
@@ -54,18 +53,8 @@ solver.add(
     # every part of a possible state is possible
     ForAll([x, y], Exists(z, fusion(x, y) == z)),
     # states are closed under fusion
-
-    # NOTE: parthood has been added so as to determine when sentences are true
-    # in alternative worlds in the print function. it may be possible to check
-    # if a state b is a part of a state b.c by considering these as strings.
-    # that would avoid the need for the extra primitive. see also print.py
-    # ForAll([x, y], Equivalent(parthood(x, y),is_part_of(x,y))),
-    # parthood constraint
-
-    ForAll(w, Equivalent(
-        world(w),
-        And(possible(w), maximal(w))
-    )),
+    ForAll(w, Equivalent(world(w), And(possible(w), maximal(w)))),
+    # worlds are maximal possible states
     ForAll(
         [u, y],
         Equivalent(  # TODO: replace with Z3 equiv if any?
@@ -77,6 +66,8 @@ solver.add(
             ),
         ),
     ),
+    # a y-alternatives to w is a world u with y and z as parts where z is a
+    # biggest part of w that is compatible with y
 
     # MODEL CONSTRAINT
     ForAll(X, proposition(X)),  # every X of AtomSort is a proposition
