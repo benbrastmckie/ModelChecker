@@ -33,7 +33,6 @@ from definitions import (
 # """
 
 # from simp_disj_ant import ( model )
-# sentence_letters = [A, B, C]
 # '''
 # if A or B were the case then C would be the case entails both:
 # if A were the case then C would be the case;
@@ -44,15 +43,14 @@ from definitions import (
 # if lynda were to join then the part would be great
 # '''
 
-from cf_excl_mid import ( model )
-sentence_letters = [A, B, C]
-'''
-if A were the case then B or C would be the case does not entail either:
-if A were the case then B would be the case;
-if A were the case then C would be the case.
-'''
+# from cf_excl_mid import ( model )
+# '''
+# if A were the case then B or C would be the case does not entail either:
+# if A were the case then B would be the case;
+# if A were the case then C would be the case.
+# '''
 
-if model != "nil":
+def print_model(model, sentence_letters):
 
     all_states = [element for element in model.decls() if is_bitvector(element)]
     states_as_nums = [model[state].as_long() for state in all_states]
@@ -68,7 +66,7 @@ if model != "nil":
         # print(f"TEST STATE: {test_state}")
         if as_substates in already_seen:
             break
-        elif model.evaluate(world(test_state)):
+        elif model.evaluate(is_world(test_state)):
             print(f"  {test_state.sexpr()} = {as_substates} (world)")
         elif model.evaluate(possible(test_state)):
             print(f"  {test_state.sexpr()} = {as_substates} (possible)")
@@ -95,7 +93,7 @@ if model != "nil":
         print("  " + false_eval_string + f"  (not true in {bitvec_to_substates(model[w])})")
 
      # Print propositions
-    print("\nPropositions:") 
+    print("\nPropositions:")
     for S in sentence_letters:
         ver_states = {  # verifier states for S
             bitvec_to_substates(model[state])
@@ -160,5 +158,3 @@ if model != "nil":
 
     print()  # Print states
     # TODO: I couldn't figure out how to remove the quotes from the states
-else:
-    print("\nThere are no models.\n")
