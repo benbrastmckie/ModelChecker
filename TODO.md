@@ -2,6 +2,13 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
+## Optimize
+
+- [ ] `Equivalent` function in Z3?
+- [ ] too many branches in `print_propositions` in `print.py`
+- [ ] _M_ definitions `alt_worlds` etc in `print.py` can probably be improved
+  - B: seems like it would be better to use lists and to keep the sorted
+
 ## Models
 
 - [ ] show `{ A \boxright (B \vee C), \neg(A \boxright B), \neg(A \boxright C) }` is sat
@@ -9,6 +16,12 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Definitions
 
+- [ ] _M_ replace `bit_vec.sexpr()` with `bin(bit_vec)` in `bitvec_to_substates`?
+  - B: need some way to convert bitvectors to binary no matter what
+- [ ] _M_ remove quotes from output of `bitvec_to_substates`
+- [ ] _M_ `is_bitvector` in `print.py` for `N > 4` (see TODO in `print.py`)
+  - B: this might have to do with the 26 cap on atomic states?
+- [ ] _M_ allow for more than 26 atomic states in `bitvec_to_substates`
 - [ ] _M_ `extended_verify` see strategies
 - [ ] _M_ `extended_falsify` see strategies
 - [ ] _M_ recursive definition of `true` see strategies

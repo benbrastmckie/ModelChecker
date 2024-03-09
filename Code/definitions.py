@@ -15,10 +15,6 @@ from z3 import (
     Function,
     And,
     Or,
-    # BitVecVal,
-    # Var,
-    # Const,
-    # simplify,
 )
 
 
@@ -184,6 +180,7 @@ def total_fusion(list_of_states):
 
 def bitvec_to_substates(bit_vec):
     '''converts bitvectors to fusions of atomic states.'''
+    # TODO: can `sexpr()` be replaced with `bin(bit_vec)`
     bit_vec_as_string = bit_vec.sexpr()
     # print(type(bit_vec_as_string))
     bit_vec_backwards = bit_vec_as_string[::-1]
@@ -202,6 +199,10 @@ def bitvec_to_substates(bit_vec):
         if char == "1":
             state_repr += alphabet[i]
             state_repr += "."
+
+def string_part(bit_x,bit_y):
+    '''the string bit_x is a part of the string bit_y'''
+    return str(bitvec_to_substates(bit_x)) in str(bitvec_to_substates(bit_y))
 
 def Equivalent(bit_a,bit_b):
     return And(Implies(bit_a,bit_b), Implies(bit_b,bit_a))
