@@ -23,15 +23,14 @@ from definitions import (
 
 # TODO: eventually replace sentence_letters with something more general
 
-from crimson_cmodel import model
-
-sentence_letters = [A, B]
-"""
-A, B does not entail if A were the case then B would be the case.
-
-given that the ball is red and mary likes it does not follow that:
-if the ball were red then mary would like it
-"""
+# from crimson_cmodel import model
+# sentence_letters = [A, B]
+# """
+# A, B does not entail if A were the case then B would be the case.
+#
+# given that the ball is red and mary likes it does not follow that:
+# if the ball were red then mary would like it
+# """
 
 # from simp_disj_ant import ( model )
 # sentence_letters = [A, B, C]
@@ -45,13 +44,13 @@ if the ball were red then mary would like it
 # if lynda were to join then the part would be great
 # '''
 
-# from cf_excl_mid import ( model )
-# sentence_letters = [A, B, C]
-# '''
-# if A were the case then B or C would be the case does not entail either:
-# if A were the case then B would be the case;
-# if A were the case then C would be the case.
-# '''
+from cf_excl_mid import ( model )
+sentence_letters = [A, B, C]
+'''
+if A were the case then B or C would be the case does not entail either:
+if A were the case then B would be the case;
+if A were the case then C would be the case.
+'''
 
 if model != "nil":
 
@@ -78,7 +77,22 @@ if model != "nil":
         already_seen.add(as_substates)
 
     # Print evaluation world:
-    print(f"\nThe evaluation world is {bitvec_to_substates(model[w])}.")
+    print(f"\nThe evaluation world is {bitvec_to_substates(model[w])}:")
+    true_in_eval = set()
+    for T in sentence_letters:
+        for state in all_states:
+            if model.evaluate(verify(model[state], model[T])) and model.evaluate(parthood(model[state], model[w])):
+                true_in_eval.add(T)
+                break
+    false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
+    if true_in_eval:
+        true_eval_list = sorted([str(sent) for sent in true_in_eval])
+        true_eval_string = ", ".join(true_eval_list)
+        print("  " + true_eval_string + f"  (true in {bitvec_to_substates(model[w])})")
+    if false_in_eval:
+        false_eval_list = sorted([str(sent) for sent in false_in_eval])
+        false_eval_string = ", ".join(false_eval_list)
+        print("  " + false_eval_string + f"  (not true in {bitvec_to_substates(model[w])})")
 
      # Print propositions
     print("\nPropositions:") 
@@ -93,29 +107,16 @@ if model != "nil":
             for state in all_states
             if model.evaluate(falsify(model[state], model[S]))
         }
-        alt_bitvectors = {  # S-alternatives to the designated world w
-            alt
-            for alt in all_states
+        alt_num_worlds = {  # S-alternatives to the designated world w as numbers
+            model[alt_world]
+            for alt_world in all_states
             for state in all_states
             if model.evaluate(verify(model[state], model[S]))
-            and model.evaluate(alternative(model[alt], model[state], model[w]))
+            and model.evaluate(alternative(model[alt_world], model[state], model[w]))
         }
-        alt_worlds = {  # S-alternatives to the designated world w
-            bitvec_to_substates(model[alt])
-            for alt in alt_bitvectors
-        }
-        # alt_worlds = {  # S-alternatives to the designated world w
-        #     bitvec_to_substates(model[alt])
-        #     for alt in all_states
-        #     for state in all_states
-        #     if model.evaluate(verify(model[state], model[S]))
-        #     and model.evaluate(alternative(model[alt], model[state], model[w]))
-        # }
-        true_states = {  # verifier states for S that are part of w
-            bitvec_to_substates(model[state])
-            for state in all_states
-            if model.evaluate(verify(model[state], model[S]))
-            and model.evaluate(parthood(model[state], model[w]))
+        alt_worlds = {  # S-alternatives to the designated world w as states
+            bitvec_to_substates(alt_num)
+            for alt_num in alt_num_worlds
         }
 
         # Print propositions:
@@ -127,52 +128,35 @@ if model != "nil":
             print(f"  |{S}| = < ∅, {fal_states} >")
         else:
             print(f"  |{S}| = < ∅, ∅ >")
-        if true_states:
-            print(f"  {S} is true in {bitvec_to_substates(model[w])}")
-        else:
-            print(f"  {S} is false in {bitvec_to_substates(model[w])}")
         if alt_worlds:
-            print(
-                f"  {S}-alternatives to {bitvec_to_substates(model[w])} = {alt_worlds}"
-            )
-
-            # TODO: need something like the below to print all sentences
-            # that are true in the alternative world. trouble seems to be the
-            # elements in alt_world are fusions rather than bitvectors. also
-            # not sure how to check to see if ANY part of the alternative world
-            # verifies a given sentence.
-
-            # for alt in alt_bitvectors:
-            #     true_in_alt = set()
-            #     for T in sentence_letters:
-            #         if any(
-            #             model.evaluate(verify(model[state], model[T]))
-            #             and model.evaluate(parthood(model[state], model[alt]))
-            #             for state in all_states
-            #         ):
-            #             true_in_alt.add(T)
-            #     if true_in_alt:
-            #         print(f"  {true_in_alt} are true in {bitvec_to_substates(model[alt])}")
-            # print()
-
-            # NOTE: attempt #2
-            # for alt in alt_worlds:
-            #     true_in_alt = set()
-            #     for T in sentence_letters:
-            #         if any(
-            #             model.evaluate(verify(model[state], model[T]))
-            #             and model.evaluate(parthood(model[state], model[alt_bit]))
-            #             and alt == bitvec_to_substates(model[alt_bit])
-            #             for state in all_states
-            #             for alt_bit in alt_bitvectors
-            #         ):
-            #             true_in_alt.add(T)
-            #     if true_in_alt:
-            #         print(f"  {true_in_alt} are true in {bitvec_to_substates(model[alt])}")
-            # print()
+            print(f"  {S}-alternatives to {bitvec_to_substates(model[w])} = {alt_worlds}")
+            # TODO: not sure how to sort alt_worlds and alt_num_worlds so that they appear in order
+            for alt_num in alt_num_worlds:
+                true_in_alt = set()
+                for T in sentence_letters:
+                    for state in all_states:
+                        if model.evaluate(verify(model[state], model[T])) and model.evaluate(parthood(model[state], alt_num)):
+                            true_in_alt.add(T)
+                            break
+                false_in_alt = {R for R in sentence_letters if not R in true_in_alt}
+                if true_in_alt:
+                    true_alt_list = sorted([str(sent) for sent in true_in_alt])
+                    true_alt_string = ", ".join(true_alt_list)
+                    if len(true_in_alt) == 1:
+                        print(f"    {true_alt_string} is true in {bitvec_to_substates(alt_num)}")
+                    else:
+                        print(f"    {true_alt_string} are true in {bitvec_to_substates(alt_num)}")
+                if false_in_alt:
+                    false_alt_list = sorted([str(sent) for sent in false_in_alt])
+                    false_alt_string = ", ".join(false_alt_list)
+                    if len(false_in_alt) == 1:
+                        print(f"    {false_alt_string} is not true in {bitvec_to_substates(alt_num)}")
+                    else:
+                        print(f"    {false_alt_string} are not true in {bitvec_to_substates(alt_num)}")
+            print()
 
         else:
-            print(f"  {S}-alternatives to {bitvec_to_substates(model[w])} = ∅\n")
+            print(f"  There are no {S}-alternatives to {bitvec_to_substates(model[w])}\n")
 
     print()  # Print states
     # TODO: I couldn't figure out how to remove the quotes from the states
