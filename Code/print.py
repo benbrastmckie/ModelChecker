@@ -15,44 +15,18 @@ from definitions import (
     falsify,
     alternative,
     bitvec_to_substates,
-    parthood,
+    string_part,
 )
 
-# TODO: it would be better to be able to call a print function from the files
-# that include the solvers instead of importer their models here
 
-# TODO: eventually replace sentence_letters with something more general
-
-# from crimson_cmodel import model
-# sentence_letters = [A, B]
-# """
-# A, B does not entail if A were the case then B would be the case.
-#
-# given that the ball is red and mary likes it does not follow that:
-# if the ball were red then mary would like it
-# """
-
-# from simp_disj_ant import ( model )
-# '''
-# if A or B were the case then C would be the case entails both:
-# if A were the case then C would be the case;
-# if B were the case then C would be the case
-#
-# if jon or lynda were to join then the part would be great entails:
-# if jon were to join then the part would be great;
-# if lynda were to join then the part would be great
-# '''
-
-# from cf_excl_mid import ( model )
-# '''
-# if A were the case then B or C would be the case does not entail either:
-# if A were the case then B would be the case;
-# if A were the case then C would be the case.
-# '''
-
-def print_model(model, sentence_letters):
-
+def print_states(model):
+    '''print all fusions of atomic states in the model'''
+    # TODO: I suspect there is something wrong with is_bitvector since it
+    # seems to include outputs x, s, w, t, u, y, k!491 when N = 5
+    # is this related to the cap on states below 26? would be good to use
+    # subscripts if more states are needed
     all_states = [element for element in model.decls() if is_bitvector(element)]
+    # print(f"{all_states}")
     states_as_nums = [model[state].as_long() for state in all_states]
     max_num = max(states_as_nums)
     already_seen = set()
@@ -63,10 +37,9 @@ def print_model(model, sentence_letters):
         # B: that makes good sense!
         test_state = BitVecVal(val, N)
         as_substates = bitvec_to_substates(test_state)
-        # print(f"TEST STATE: {test_state}")
         if as_substates in already_seen:
             break
-        elif model.evaluate(is_world(test_state)):
+        if model.evaluate(world(test_state)):
             print(f"  {test_state.sexpr()} = {as_substates} (world)")
         elif model.evaluate(possible(test_state)):
             print(f"  {test_state.sexpr()} = {as_substates} (possible)")
@@ -74,13 +47,16 @@ def print_model(model, sentence_letters):
             print(f"  {test_state.sexpr()} = {as_substates} (impossible)")
         already_seen.add(as_substates)
 
-    # Print evaluation world:
+
+def print_evaluation(model, sentence_letters):
+    '''print the evaluation world and all sentences true/false in that world'''
+    all_states = [element for element in model.decls() if is_bitvector(element)]
     print(f"\nThe evaluation world is {bitvec_to_substates(model[w])}:")
     true_in_eval = set()
-    for T in sentence_letters:
+    for sent in sentence_letters:
         for state in all_states:
-            if model.evaluate(verify(model[state], model[T])) and model.evaluate(parthood(model[state], model[w])):
-                true_in_eval.add(T)
+            if model.evaluate(verify(model[state], model[sent])) and string_part(model[state],model[w]):
+                true_in_eval.add(sent)
                 break
     false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
     if true_in_eval:
@@ -92,7 +68,14 @@ def print_model(model, sentence_letters):
         false_eval_string = ", ".join(false_eval_list)
         print("  " + false_eval_string + f"  (not true in {bitvec_to_substates(model[w])})")
 
-     # Print propositions
+
+def print_propositions(model, sentence_letters):
+    # TODO: too many branches? can this be simplified?
+    # TODO: I couldn't figure out how to remove the quotes from the states
+    '''
+    print each propositions and the alternative worlds in which it is true
+    '''
+    all_states = [element for element in model.decls() if is_bitvector(element)]
     print("\nPropositions:")
     for S in sentence_letters:
         ver_states = {  # verifier states for S
@@ -131,10 +114,10 @@ def print_model(model, sentence_letters):
             # TODO: not sure how to sort alt_worlds and alt_num_worlds so that they appear in order
             for alt_num in alt_num_worlds:
                 true_in_alt = set()
-                for T in sentence_letters:
+                for sent in sentence_letters:
                     for state in all_states:
-                        if model.evaluate(verify(model[state], model[T])) and model.evaluate(parthood(model[state], alt_num)):
-                            true_in_alt.add(T)
+                        if model.evaluate(verify(model[state], model[sent])) and string_part(model[state], alt_num):
+                            true_in_alt.add(sent)
                             break
                 false_in_alt = {R for R in sentence_letters if not R in true_in_alt}
                 if true_in_alt:
@@ -154,7 +137,7 @@ def print_model(model, sentence_letters):
             print()
 
         else:
-            print(f"  There are no {S}-alternatives to {bitvec_to_substates(model[w])}\n")
+            print(f"  There are no {S}-alternatives to {bitvec_to_substates(model[w])}")
+            print()
 
-    print()  # Print states
-    # TODO: I couldn't figure out how to remove the quotes from the states
+    

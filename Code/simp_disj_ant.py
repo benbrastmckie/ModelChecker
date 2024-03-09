@@ -1,10 +1,6 @@
 # AIM: provide a concrete model that can be used to abstract from to build model generator functions
 from z3 import (
-    # Solver,
-    Var,
     sat,
-    simplify,
-    help_simplify,
     Exists,
     ForAll,
     Implies,
@@ -12,17 +8,9 @@ from z3 import (
     And,
     Not,
     Or,
-    BitVec,
-    BitVecVal,
-    # DeclareSort,
-    # Consts,
-    # BoolSort,
-    BitVecSort,
-    # Function,
 )
 
 from definitions import (
-    N,
     a,
     b,
     c,
@@ -42,9 +30,7 @@ from definitions import (
     # Y,
     fusion,
     is_part_of,
-    compatible,
     world,
-    is_world,
     possible,
     verify,
     falsify,
@@ -52,14 +38,13 @@ from definitions import (
     compatible_part,
     alternative,
     proposition,
-    bitvec_to_substates,
     maximal,
     Equivalent,
-    parthood,
 )
 
-from print import print_model
+from print import print_evaluation, print_propositions, print_states
 
+# TODO: eventually replace sentence_letters with something more general
 sentence_letters = [A, B, C]
 
 solver = Solver()
@@ -70,7 +55,7 @@ solver.add(
     # every part of a possible state is possible
     ForAll([x, y], Exists(z, fusion(x, y) == z)),
     # states are closed under fusion
-    ForAll([x, y], Equivalent(parthood(x, y),is_part_of(x,y))),
+    # ForAll([x, y], Equivalent(parthood(x, y),is_part_of(x,y))),
     # states are closed under fusion
     ForAll(
         w,
@@ -123,6 +108,8 @@ solver.add(
 
 if solver.check() == sat:
     model = solver.model()
-    print_model(model, sentence_letters)
+    print_states(model)
+    print_evaluation(model, sentence_letters)
+    print_propositions(model, sentence_letters)
 else:
     print("\nThere are no models.\n")

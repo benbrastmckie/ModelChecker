@@ -30,7 +30,6 @@ from definitions import (
     fusion,
     is_part_of,
     world,
-    is_world,
     possible,
     verify,
     falsify,
@@ -40,11 +39,11 @@ from definitions import (
     proposition,
     maximal,
     Equivalent,
-    parthood,
 )
 
-from print import print_model
+from print import print_evaluation, print_propositions, print_states
 
+# TODO: eventually replace sentence_letters with something more general
 sentence_letters = [A, B]
 
 solver = Solver()
@@ -55,21 +54,22 @@ solver.add(
     # every part of a possible state is possible
     ForAll([x, y], Exists(z, fusion(x, y) == z)),
     # states are closed under fusion
-    ForAll([x, y], Equivalent(parthood(x, y),is_part_of(x,y))),
-    # states are closed under fusion
+
+    # NOTE: parthood has been added so as to determine when sentences are true
+    # in alternative worlds in the print function. it may be possible to check
+    # if a state b is a part of a state b.c by considering these as strings.
+    # that would avoid the need for the extra primitive. see also print.py
+    # ForAll([x, y], Equivalent(parthood(x, y),is_part_of(x,y))),
+    # parthood constraint
+
     ForAll(w, Equivalent(
         world(w),
-        # is_world(w),  # NOTE: ditto to NOTE for is_alternative below
         And(possible(w), maximal(w))
     )),
     ForAll(
         [u, y],
         Equivalent(  # TODO: replace with Z3 equiv if any?
             alternative(u, y, w),
-            # is_alternative(u, y, w),
-            # NOTE: making constraints on alternative() explicit here could
-            # make things easier to tweak and keep track of rather than having
-            # two similar sounding terms, one defined and one primitive
             And(
                 world(u),
                 is_part_of(y, u),
@@ -117,6 +117,8 @@ solver.add(
 
 if solver.check() == sat:
     model = solver.model()
-    print_model(model, sentence_letters)
+    print_states(model)
+    print_evaluation(model, sentence_letters)
+    print_propositions(model, sentence_letters)
 else:
     print("\nThere are no models.\n")
