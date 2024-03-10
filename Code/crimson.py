@@ -8,9 +8,11 @@ from z3 import (
     And,
     Not,
     Or,
+    BitVecVal,
 )
 
 from definitions import (
+    N,
     a,
     b,
     c,
@@ -28,7 +30,7 @@ from definitions import (
     X,
     fusion,
     is_part_of,
-    world,
+    is_world,
     possible,
     verify,
     falsify,
@@ -36,7 +38,6 @@ from definitions import (
     compatible_part,
     alternative,
     proposition,
-    maximal,
     Equivalent,
 )
 
@@ -53,14 +54,14 @@ solver.add(
     # every part of a possible state is possible
     ForAll([x, y], Exists(z, fusion(x, y) == z)),
     # states are closed under fusion
-    ForAll(w, Equivalent(world(w), And(possible(w), maximal(w)))),
+    # ForAll(w, Equivalent(world(w), And(possible(w), maximal(w)))),
     # worlds are maximal possible states
     ForAll(
         [u, y],
         Equivalent(  # TODO: replace with Z3 equiv if any?
             alternative(u, y, w),
             And(
-                world(u),
+                is_world(u),
                 is_part_of(y, u),
                 Exists(z, And(is_part_of(z, u), compatible_part(z, w, y))),
             ),
@@ -73,7 +74,7 @@ solver.add(
     ForAll(X, proposition(X)),  # every X of AtomSort is a proposition
 
     # EVAL CONSTRAINTS
-    world(w),  # there is a world w
+    is_world(w),  # there is a world w
     is_part_of(s, w),  # s is a part of w
     verify(s, A),  # s verifies A
     is_part_of(t, w),  # t is part of w
