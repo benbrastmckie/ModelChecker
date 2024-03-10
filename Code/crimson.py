@@ -39,6 +39,8 @@ from definitions import (
     alternative,
     proposition,
     Equivalent,
+    world,
+    maximal,
 )
 
 from print import print_evaluation, print_propositions, print_states
@@ -109,8 +111,11 @@ solver.add(
 
 if solver.check() == sat:
     model = solver.model()
+    print("\nThere is a model of:")
+    print("A, B, ~(A => B)")
     print_states(model)
     print_evaluation(model, sentence_letters)
     print_propositions(model, sentence_letters)
 else:
-    print("\nThere are no models.\n")
+    print("\nThere are no models of:")
+    print("A, B, A => B\n")

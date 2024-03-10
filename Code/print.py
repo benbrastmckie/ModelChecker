@@ -64,7 +64,9 @@ def print_evaluation(model, sentence_letters):
     true_in_eval = set()
     for sent in sentence_letters:
         for state in all_states:
-            if model.evaluate(verify(model[state], model[sent])) and string_part(model[state],model[w]):
+            fusion = bitvec_to_substates(model[state])
+            world = bitvec_to_substates(model[w])
+            if model.evaluate(verify(model[state], model[sent])) and state_part(fusion,world):
                 true_in_eval.add(sent)
                 break
     false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
@@ -81,6 +83,7 @@ def print_evaluation(model, sentence_letters):
 def print_propositions(model, sentence_letters):
     # TODO: too many branches? can this be simplified?
     # TODO: I couldn't figure out how to remove the quotes from the states
+    # NOTE: seems like it might be better to use sorted lists than sets as below?
     '''
     print each propositions and the alternative worlds in which it is true
     '''
