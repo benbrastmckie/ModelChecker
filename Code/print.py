@@ -4,69 +4,51 @@ from z3 import (
 
 from definitions import (
     N,
-    is_bitvector,
     w,
     A,
     B,
     C,
-    world,
     possible,
     verify,
     falsify,
     alternative,
     bitvec_to_substates,
     string_part,
+    state_part,
+    is_bitvector,
 )
 
-# NOTE: one idea is to extract a model from Z3, working entirely with bitvectors
-# so that the output could be stored in this form by build_model. we could then
-# define the print_model function which will convert these elements to fusions
-# of appropriately named atomic states, printing the various elements. another
-# idea is to convert directly to to fusions, and then define parthood, etc., all
-# over again for these objects considered as strings. but I assume this will be
-# slower and less useful of an output except for the purposes of printing. here
-# is the former strategy described in greater detail.
+# TODO: define alternatives rather than declaring 'alternative' in Z3
 
-# TODO: define model_builder given the model and sentence_letters as inputs
-# 1. store all bitvectors in the model, e.g., #b010, in a sorted list
-    # NOTE: could store them as fusions a.b.c, b.c, etc., but probably easier
-    # to work with bitvectors in order to identify the worlds. below I used
-    # string_part but seems not as good as working with bitvectors directly.
-# 2. identify and store which bitvectors are possible in a sorted list
-    # NOTE: the aim is to avoid declaring the Z3 constant 'world'
-    # so worlds cannot be extracted from the model directly (as they are now)
-    # something similar may be said for 'alternative' currently being used
-# 3. for each sentence letter, store sorted lists of its verifiers/falsifiers
-# 4. identify and store the world states in a sorted list
-# 5. for each sentence letter, store a sorted list of alternatives to w
+# QUESTION: I wonder if it would be better to work with states in bitvector
+# form since I imagine it will be easier and faster to operate on them.
 
-# TODO: define print function given the output of the model_builder function
-# 1. print all states as fusions of atomic states
-# 2. print evaluation world w and all sentence letters verified by a part of w
-# 3. for each sentence letter, print its verifiers, falsifiers, and alternatives
-    # where for each alternative u, print all sentences verified by a part of u
+# TODO: I suspect there is something wrong with is_bitvector below since it
+# seems to include outputs x, s, w, t, u, y, k!491 when N = 5
+# is this related to the cap on states below 26? would be good to use
+# subscripts if more states are needed
 
 def print_states(model):
     '''print all fusions of atomic states in the model'''
-    # TODO: I suspect there is something wrong with is_bitvector since it
-    # seems to include outputs x, s, w, t, u, y, k!491 when N = 5
-    # is this related to the cap on states below 26? would be good to use
-    # subscripts if more states are needed
     all_states = [element for element in model.decls() if is_bitvector(element)]
-    # print(f"{all_states}")
     states_as_nums = [model[state].as_long() for state in all_states]
     max_num = max(states_as_nums)
-    already_seen = set()
+    possible_states = [bitvec_to_substates(BitVecVal(val, N)) for val in range(max_num * 2) if model.evaluate(possible(val))]
+    world_states = possible_states
+    for world in world_states:
+        for poss in possible_states:
+            if state_part(world,poss) and world != poss:
+                world_states.remove(world)
+                break
 
     print("\nStates:")  # Print states
+    already_seen = set()
     for val in range(max_num * 2):
-        # bc binary; the best-case last one (stopped at) is the first one repeated, so we're good
-        # B: that makes good sense!
         test_state = BitVecVal(val, N)
         as_substates = bitvec_to_substates(test_state)
         if as_substates in already_seen:
             break
-        if model.evaluate(world(test_state)):
+        if as_substates in world_states:
             print(f"  {test_state.sexpr()} = {as_substates} (world)")
         elif model.evaluate(possible(test_state)):
             print(f"  {test_state.sexpr()} = {as_substates} (possible)")

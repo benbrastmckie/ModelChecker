@@ -30,7 +30,7 @@ from definitions import (
     # Y,
     fusion,
     is_part_of,
-    world,
+    is_world,
     possible,
     verify,
     falsify,
@@ -38,7 +38,6 @@ from definitions import (
     compatible_part,
     alternative,
     proposition,
-    maximal,
     Equivalent,
 )
 
@@ -57,19 +56,19 @@ solver.add(
     # states are closed under fusion
     # ForAll([x, y], Equivalent(parthood(x, y),is_part_of(x,y))),
     # states are closed under fusion
-    ForAll(
-        w,
-        Equivalent(
-            world(w),
-            And(possible(w), maximal(w)),
-        ),
-    ),
+    # ForAll(
+    #     w,
+    #     Equivalent(
+    #         world(w),
+    #         And(possible(w), maximal(w)),
+    #     ),
+    # ),
     ForAll(
         [u, y],
         Equivalent(  # TODO: replace with Z3 equiv if any?
             alternative(u, y, w),
             And(
-                world(u),
+                is_world(u),
                 is_part_of(y, u),
                 Exists(z, And(is_part_of(z, u), compatible_part(z, w, y))),
             ),
@@ -78,7 +77,7 @@ solver.add(
     # MODEL CONSTRAINT
     ForAll(X, proposition(X)),  # every X of AtomSort is a proposition
     # EVAL CONSTRAINTS
-    world(w),  # there is a world w
+    is_world(w),  # there is a world w
     ForAll(  # A \vee B \boxright C
         [s, v],
         Implies(
@@ -113,3 +112,4 @@ if solver.check() == sat:
     print_propositions(model, sentence_letters)
 else:
     print("\nThere are no models.\n")
+    # print(solver.unsat_core())

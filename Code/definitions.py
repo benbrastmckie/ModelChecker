@@ -67,6 +67,16 @@ def is_bitvector(bit_s):
     return bit_s.range().kind() == Z3_BV_SORT
 
 
+def non_null_verify(bit_s,atom):
+    '''bit_s verifies atom and is not the null state'''
+    return And(bit_s != 0, verify(bit_s,atom))
+
+
+def non_null_falsify(bit_s,atom):
+    '''bit_s verifies atom and is not the null state'''
+    return And(bit_s != 0, falsify(bit_s,atom))
+
+
 def is_atomic(bit_s):
     '''bit_s has exactly one index with value 1'''
     return And(bit_s != 0, 0 == (bit_s & (bit_s - 1)))
@@ -199,6 +209,10 @@ def bitvec_to_substates(bit_vec):
         if char == "1":
             state_repr += alphabet[i]
             state_repr += "."
+
+def state_part(st_x,st_y):
+    '''the state st_x is a part of the state st_y'''
+    return str(st_x) in str(st_y) or st_x == "□"
 
 def string_part(bit_x,bit_y):
     '''the string bit_x is a part of the string bit_y'''
