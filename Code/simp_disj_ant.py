@@ -30,7 +30,7 @@ from definitions import (
     # Y,
     fusion,
     is_part_of,
-    world,
+    is_world,
     possible,
     verify,
     falsify,
@@ -50,36 +50,31 @@ sentence_letters = [A, B, C]
 solver = Solver()
 
 solver.add(
+
     # FRAME CONSTRAINTS:
     ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
     # every part of a possible state is possible
     ForAll([x, y], Exists(z, fusion(x, y) == z)),
     # states are closed under fusion
-    # ForAll([x, y], Equivalent(parthood(x, y),is_part_of(x,y))),
-    # states are closed under fusion
-    ForAll(
-        w,
-        Equivalent(
-            world(w),
-            And(possible(w), maximal(w)),
-        ),
-    ),
     ForAll(
         [u, y],
         Equivalent(  # TODO: replace with Z3 equiv if any?
             alternative(u, y, w),
             And(
-                world(u),
+                is_world(u),
                 is_part_of(y, u),
                 Exists(z, And(is_part_of(z, u), compatible_part(z, w, y))),
             ),
         ),
     ),
+    # constraints on alternative predicate
+
     # MODEL CONSTRAINT
-    ForAll(X, proposition(X)),  # every X of AtomSort is a proposition
-    # EVAL CONSTRAINTS
-    world(w),  # there is a world w
-    ForAll(  # A \vee B \boxright C
+    ForAll(X, proposition(X)),
+    # every X of AtomSort is a proposition
+    is_world(w),
+    # there is a world w
+    ForAll(
         [s, v],
         Implies(
             And(
@@ -100,10 +95,17 @@ solver.add(
             Exists(t, And(is_part_of(t, v), verify(t, C))),
         ),
     ),
-
-    verify(r, A),
-    is_alternative(v, r, w),
-    Exists(t, And(is_part_of(t, v), falsify(t, C))),
+    # A \vee B \boxright C
+    verify(a, A),
+    is_alternative(v, a, w),
+    is_part_of(s, v),
+    falsify(s, C),
+    # \neg(A \boxright C)
+    # verify(b, B),
+    # is_alternative(u, b, w),
+    # is_part_of(t, u),
+    # falsify(t, C),
+    # # \neg(B \boxright C)
 )
 
 if solver.check() == sat:
@@ -111,12 +113,12 @@ if solver.check() == sat:
     print("\nThere are models of:\n")
     print("A v B => C")
     print("~(A => C)")
-    print("~(B => C)")
+    # print("~(B => C)")
     print_states(model)
     print_evaluation(model, sentence_letters)
     print_propositions(model, sentence_letters)
 else:
     print("\nThere are no models of:\n")
     print("A v B => C")
-    print("~(A => C)")
-    print("~(B => C)\n")
+    print("~(A => C)\n")
+    # print("~(B => C)\n")

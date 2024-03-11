@@ -14,6 +14,12 @@ from definitions import (
     a,
     b,
     c,
+    d,
+    e,
+    f,
+    g,
+    h,
+    i,
     r,
     s,
     t,
@@ -57,7 +63,7 @@ solver.add(
     # states are closed under fusion
     ForAll(
         [u, y],
-        Equivalent(  # TODO: replace with Z3 equiv if any?
+        Equivalent(
             alternative(u, y, w),
             And(
                 is_world(u),
@@ -68,60 +74,58 @@ solver.add(
     ),
     # constraints on alternative predicate
 
+    # NOTE: the current output suggests that that w is not an A-alternative to
+    # itself even though A is true in w
+    # TODO: declared alternative with definition and recheck
+
     # MODEL CONSTRAINT
     ForAll(X, proposition(X)),
     # every X of AtomSort is a proposition
     is_world(w),
+    # NOTE: couldn't get these two constraints to add without crashing
+    # ForAll(x, Implies(is_part_of(x, w), Not(verify(x, A)))),
+    # is_part_of(h, w),
+    # falsify(h, B),
+    # is_part_of(i, w),
+    # falsify(i, C),
     # there is a world w
-    is_part_of(c, w),
-    falsify(c, A),
-    # \neg A in w
     ForAll(
         [s, v],
         Implies(
             And(verify(s, A), is_alternative(v, s, w)),
             Exists(t, And(
                 is_part_of(t, v),
-                Or(
-                    verify(s, B),
-                    verify(s, C),
-                    Exists(
-                        [a, b],
-                        And(
-                            s == fusion(a, b),
-                            verify(a, B),
-                            verify(b, C),
-                        ),
-                    ),
-                ),
+                verify(t, C),
             )),
         ),
     ),
-    # A \boxright B \vee C in w
+    # A \boxright C
     verify(a, A),
     is_alternative(u, a, w),
     is_part_of(b, u),
-    falsify(b, B),
-    # \neg(A \boxright B) in w
-    verify(s, A),
-    is_alternative(v, s, w),
-    is_part_of(t, v),
-    falsify(t, C),
-    # \neg(A \boxright C)
+    verify(b, B),
+    # \neg(A \boxright \neg B)
+    c == fusion(d, e),
+    verify(d, A),
+    verify(e, B),
+    is_alternative(v, c, w),
+    is_part_of(f, v),
+    falsify(f, C),
+    # \neg(A \wedge B \boxright C)
 )
 
 
 if solver.check() == sat:
     print("\nThere is a model of:")
-    print("A => B vee C")
-    print("~(A => B)")
-    print("~(A => C)")
+    print("A => C")
+    print("~(A => ~B)")
+    print("~(A & B => C)")
     model = solver.model()
     print_states(model)
     print_evaluation(model, sentence_letters)
     print_propositions(model, sentence_letters)
 else:
     print("\nThere are no models of:\n")
-    print("A => B vee C")
-    print("~(A => B)")
-    print("~(A => C)\n")
+    print("A => C")
+    print("~(A => ~B)")
+    print("~(A & B => C)\n")
