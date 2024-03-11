@@ -51,16 +51,15 @@ sentence_letters = [A, B]
 solver = Solver()
 
 solver.add(
+
     # FRAME CONSTRAINTS:
     ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
     # every part of a possible state is possible
     ForAll([x, y], Exists(z, fusion(x, y) == z)),
     # states are closed under fusion
-    # ForAll(w, Equivalent(world(w), And(possible(w), maximal(w)))),
-    # worlds are maximal possible states
     ForAll(
         [u, y],
-        Equivalent(  # TODO: replace with Z3 equiv if any?
+        Equivalent(
             alternative(u, y, w),
             And(
                 is_world(u),
@@ -69,23 +68,23 @@ solver.add(
             ),
         ),
     ),
-    # a y-alternatives to w is a world u with y and z as parts where z is a
-    # biggest part of w that is compatible with y
+    # constraints on alternative predicate
 
     # MODEL CONSTRAINT
     ForAll(X, proposition(X)),  # every X of AtomSort is a proposition
 
     # EVAL CONSTRAINTS
     is_world(w),  # there is a world w
-    is_part_of(s, w),  # s is a part of w
-    verify(s, A),  # s verifies A
-    is_part_of(t, w),  # t is part of w
-    verify(t, B),  # t verifies B
+    is_part_of(a, w),  # s is a part of w
+    verify(a, A),  # s verifies A
+    is_part_of(b, w),  # t is part of w
+    verify(b, B),  # t verifies B
 
     # CF constraints: it is not true that, if A were the case, B would be the case
-    verify(y, A),
-    is_alternative(u, y, w),
-    Exists(b, And(is_part_of(b, u), falsify(b, B))),
+    verify(c, A),
+    is_alternative(u, c, w),
+    is_part_of(s, u),
+    falsify(s, B),
 
     # NOTE: although the above is equivalent to the below modulo exhaustivity
     # the latter produces truth-value gaps (see issue on github)
