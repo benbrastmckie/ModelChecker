@@ -5,6 +5,7 @@ from z3 import (
 from definitions import (
     N,
     bit_part,
+    bit_proper_part,
     w,
     A,
     B,
@@ -34,12 +35,13 @@ def print_states(model):
     all_bits = {model[element] for element in model.decls() if is_bitvector(element)}
     bits_as_nums = [bit.as_long() for bit in all_bits]
     max_num = max(bits_as_nums)
-    possible_states = [bitvec_to_substates(BitVecVal(val, N)) for val in range(max_num * 2) if model.evaluate(possible(val))]
-    world_states = possible_states
-    for world in world_states:
-        for poss in possible_states:
-            if state_part(world,poss) and world != poss:
-                world_states.remove(world)
+    # possible_states = [bitvec_to_substates(BitVecVal(val, N)) for val in range(max_num * 2) if model.evaluate(possible(val))]
+    possible_bits = [bit for bit in all_bits if model.evaluate(possible(bit))]
+    world_bits = possible_bits
+    for world in world_bits:
+        for poss in possible_bits:
+            if bit_proper_part(world, poss):
+                world_bits.remove(world)
                 break
 
     print("\nStates:")  # Print states
@@ -47,9 +49,9 @@ def print_states(model):
     for val in range(max_num * 2):
         test_state = BitVecVal(val, N)
         as_substates = bitvec_to_substates(test_state)
-        if as_substates in already_seen:
+        if test_state in already_seen:
             break
-        if as_substates in world_states:
+        if test_state in world_bits:
             print(f"  {test_state.sexpr()} = {as_substates} (world)")
         elif model.evaluate(possible(test_state)):
             print(f"  {test_state.sexpr()} = {as_substates} (possible)")
