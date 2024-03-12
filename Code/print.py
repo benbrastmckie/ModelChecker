@@ -7,16 +7,12 @@ from definitions import (
     bit_part,
     bit_proper_part,
     w,
-    A,
-    B,
-    C,
     possible,
     verify,
     falsify,
     alternative,
     bitvec_to_substates,
     string_part,
-    state_part,
     is_bitvector,
 )
 
