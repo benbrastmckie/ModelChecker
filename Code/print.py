@@ -142,7 +142,7 @@ def print_alt_worlds(all_bits, S, sentence_letters, model, alt_num_worlds, alt_w
             for sent in sentence_letters:
                 for bit in all_bits:
                     # NOTE: replacing string_part with bit_part works but makes the linter angry
-                    if model.evaluate(verify(bit, model[sent])) and string_part(bit, alt_num):
+                    if model.evaluate(verify(bit, model[sent])) and bit_part(bit, alt_num):
                         true_in_alt.add(sent)
                         break
             false_in_alt = {R for R in sentence_letters if not R in true_in_alt}
