@@ -235,9 +235,10 @@ def bit_proper_part(bit_s, bit_t):
     return bit_part(bit_s, bit_t) and not bit_part(bit_t, bit_s)
 
 
+# these definitions will start getting inefficient after too many substates because they're in O(n)—where are they used?
 def state_part(st_x,st_y):
-    '''the state st_x is a part of the state st_y'''
-    return str(st_x) in str(st_y) or st_x == "□"
+    '''the state st_x is a part of the state st_y''' 
+    return str(st_x) in str(st_y) or st_x == "□" # what type is st_x before being casted as a str?
 
 
 def string_part(bit_x,bit_y):
@@ -246,4 +247,5 @@ def string_part(bit_x,bit_y):
 
 
 def Equivalent(bit_a,bit_b):
-    return And(Implies(bit_a,bit_b), Implies(bit_b,bit_a))
+    #return And(Implies(bit_a,bit_b), Implies(bit_b,bit_a))
+    return bit_a == bit_b

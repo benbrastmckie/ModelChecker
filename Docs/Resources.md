@@ -17,6 +17,10 @@ BitVec operations:
 
     https://graphics.stanford.edu/~seander/bithacks.html
 
+Propositional Logic in Z3 overview: 
+
+    https://microsoft.github.io/z3guide/docs/logic/propositional-logic
+
 ### Videos:
 
     https://m.youtube.com/watch?v=iz4c5F3sjI8&pp=ygUNWjMgYml0dmVjdG9ycw%3D%3D
