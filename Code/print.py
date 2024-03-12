@@ -33,7 +33,12 @@ def print_states(model):
     # possible_states = [bitvec_to_substates(BitVecVal(val, N)) for val in range(max_num * 2) if model.evaluate(possible(val))]
     possible_bits = [bit for bit in all_bits if model.evaluate(possible(bit))]
     world_bits = possible_bits
-    for world in world_bits: # what is this for loop doing?
+    for world in world_bits:
+    # what is this for loop doing?
+    # B: this is my attempt to define the worlds (as bits) given only possible_bits
+    # it starts with all possible_bits and then kicks out any that are proper parts
+    # of any possible_bit, thereby capturing the maximality of worlds. I trust there
+    # are better ways to do this.
         for poss in possible_bits:
             if bit_proper_part(world, poss):
                 world_bits.remove(world)
@@ -67,7 +72,14 @@ def print_evaluation(model, sentence_letters):
         for bit in all_bits:
             if model.evaluate(verify(bit, model[sent])) and bit_part(bit, eval_world):
                 true_in_eval.add(sent)
-                break # what is the for loop doing?
+                break
+    # what is the for loop doing?
+    # B: this is my attempt to determine which sentences have verifiers in the evaluation world,
+    # including just those sentences in true_in_eval. for each sentence letter and bit, the loop
+    # checks if that bit is a part of the eval_world and verifies the sentence letter. as soon as
+    # it finds a bit that is a part of the eval world that verifies the sentence, it adds it to
+    # the true_in_eval set and breaks out of the loop since we only need one verifier to make the
+    # sentence true and be a part of the eval_world.
     false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
     if true_in_eval:
         true_eval_list = sorted([str(sent) for sent in true_in_eval])
@@ -129,6 +141,7 @@ def print_alt_worlds(all_bits, S, sentence_letters, model, alt_num_worlds, alt_w
             true_in_alt = set()
             for sent in sentence_letters:
                 for bit in all_bits:
+                    # NOTE: replacing string_part with bit_part works but makes the linter angry
                     if model.evaluate(verify(bit, model[sent])) and string_part(bit, alt_num):
                         true_in_alt.add(sent)
                         break

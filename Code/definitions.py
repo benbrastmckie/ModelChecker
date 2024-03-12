@@ -246,6 +246,6 @@ def string_part(bit_x,bit_y):
     return str(bitvec_to_substates(bit_x)) in str(bitvec_to_substates(bit_y))
 
 
-def Equivalent(bit_a,bit_b):
+def Equivalent(cond_a,cond_b):
     #return And(Implies(bit_a,bit_b), Implies(bit_b,bit_a))
-    return bit_a == bit_b
+    return cond_a == cond_b
