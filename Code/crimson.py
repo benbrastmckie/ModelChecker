@@ -15,6 +15,7 @@ from definitions import (
     N,
     a,
     b,
+    bit_part,
     c,
     r,
     s,

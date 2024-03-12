@@ -4,6 +4,7 @@ from z3 import (
 
 from definitions import (
     N,
+    bit_part,
     w,
     A,
     B,
@@ -59,17 +60,13 @@ def print_states(model):
 
 def print_evaluation(model, sentence_letters):
     '''print the evaluation world and all sentences true/false in that world'''
-    # TODO: change all_states to all_bits as above?
-    # requires using bit_part in place of state_part but this seems good
-    # NOTE: tried but couldn't get it to work; something is off with bit_part
-    all_states = [element for element in model.decls() if is_bitvector(element)]
+    all_bits = [model[element] for element in model.decls() if is_bitvector(element)]
+    eval_world = model[w]
     print(f"\nThe evaluation world is {bitvec_to_substates(model[w])}:")
     true_in_eval = set()
     for sent in sentence_letters:
-        for state in all_states:
-            fusion = bitvec_to_substates(model[state])
-            world = bitvec_to_substates(model[w])
-            if model.evaluate(verify(model[state], model[sent])) and state_part(fusion,world):
+        for bit in all_bits:
+            if model.evaluate(verify(bit, model[sent])) and bit_part(bit, eval_world):
                 true_in_eval.add(sent)
                 break
     false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
