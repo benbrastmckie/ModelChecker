@@ -9,7 +9,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] _M_ allow for more than 26 atomic states in `bitvec_to_substates`
 - [ ] _M_ avoid having to make N not equal to a power of 2
 - [ ] _M_ remove quotes from output of `bitvec_to_substates` when printing
-- [ ] `Equivalent` function in Z3?
+- [ ] _M_ `Equivalent` function in Z3?
 
 ## Definitions
 

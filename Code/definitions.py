@@ -15,6 +15,7 @@ from z3 import (
     Function,
     And,
     Or,
+    simplify,
 )
 
 
