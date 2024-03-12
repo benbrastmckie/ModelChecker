@@ -5,17 +5,14 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Refine and Optimize
 
 - [ ] _M_ functions in `print.py` can probably be improved (see notes there)
+- [ ] _M_ `is_bitvector` in `print.py` for `N > 4` (see TODO in `print.py`)
+- [ ] _M_ allow for more than 26 atomic states in `bitvec_to_substates`
 - [ ] _M_ avoid having to make N not equal to a power of 2
 - [ ] _M_ remove quotes from output of `bitvec_to_substates` when printing
-- [ ] `simp_disj_ant.py` needs 'world' declared to halt (unsat)
-  - but removing 'world' from `crimson.py` seemed to make it halt faster (sat)
-  - ditto for `cf_excl_mid.py` (sat)
 - [ ] `Equivalent` function in Z3?
 
 ## Definitions
 
-- [ ] _M_ `is_bitvector` in `print.py` for `N > 4` (see TODO in `print.py`)
-- [ ] _M_ allow for more than 26 atomic states in `bitvec_to_substates`
 - [ ] _M_ `extended_verify` see strategies
 - [ ] _M_ `extended_falsify` see strategies
 - [ ] _M_ recursive definition of `true` see strategies
