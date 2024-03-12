@@ -107,11 +107,11 @@ def compatible(bit_x, bit_y):
 
 
 def maximal(bit_w):
-    '''bit_w includes all compatible states as parts.'''
+    """bit_w includes all compatible states as parts."""
     return ForAll(
         x,
         Implies(
-            And(possible(x), possible(fusion(x, bit_w))),
+            compatible(x, bit_w),
             is_part_of(x, bit_w),
         ),
     )
