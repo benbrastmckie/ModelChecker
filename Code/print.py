@@ -30,17 +30,17 @@ def print_states(model):
     '''print all fusions of atomic states in the model'''
     all_bits = {model[element] for element in model.decls() if is_bitvector(element)}
     bits_as_nums = [bit.as_long() for bit in all_bits]
-    max_num = max(bits_as_nums)
     # possible_states = [bitvec_to_substates(BitVecVal(val, N)) for val in range(max_num * 2) if model.evaluate(possible(val))]
     possible_bits = [bit for bit in all_bits if model.evaluate(possible(bit))]
     world_bits = possible_bits
-    for world in world_bits:
+    for world in world_bits: # what is this for loop doing?
         for poss in possible_bits:
             if bit_proper_part(world, poss):
                 world_bits.remove(world)
                 break
 
     print("\nStates:")  # Print states
+    max_num = max(bits_as_nums)
     already_seen = set()
     for val in range(max_num * 2):
         test_state = BitVecVal(val, N)
@@ -57,7 +57,8 @@ def print_states(model):
 
 
 def print_evaluation(model, sentence_letters):
-    '''print the evaluation world and all sentences true/false in that world'''
+    '''print the evaluation world and all sentences true/false in that world
+    sentence letters is an iterable (a list, I think?)'''
     all_bits = [model[element] for element in model.decls() if is_bitvector(element)]
     eval_world = model[w]
     print(f"\nThe evaluation world is {bitvec_to_substates(model[w])}:")
@@ -66,7 +67,7 @@ def print_evaluation(model, sentence_letters):
         for bit in all_bits:
             if model.evaluate(verify(bit, model[sent])) and bit_part(bit, eval_world):
                 true_in_eval.add(sent)
-                break
+                break # what is the for loop doing?
     false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
     if true_in_eval:
         true_eval_list = sorted([str(sent) for sent in true_in_eval])
@@ -78,6 +79,87 @@ def print_evaluation(model, sentence_letters):
         print("  " + false_eval_string + f"  (not true in {bitvec_to_substates(model[w])})")
 
 
+
+# BELOW is everything that was once in the big original function print_propositions.
+def relate_sents_and_states(all_bits, Sentence, model, relation):
+    '''helper function for finding verifier and falisifer states to sentences in a model'''
+    return {
+            bitvec_to_substates(bit)
+            for bit in all_bits
+            if model.evaluate(relation(bit, model[Sentence]))
+        }
+
+def find_relations(all_bits, S, model):
+    '''for a given sentence letter S and a list all_bits and a model, finds the relations verify, falsify, alt_num_worlds, and alt_worlds for that sentence in that model
+    returns a tuple (ver_states, fal_states, alt_num_worlds, alt_worlds)'''
+    ver_states = relate_sents_and_states(all_bits, S, model, verify)
+    fal_states = relate_sents_and_states(all_bits, S, model, falsify)
+    alt_num_worlds = {  # S-alternatives to the designated world w as numbers
+        alt_world
+        for alt_world in all_bits # it's currently iterating twice over `all_bits`... is that intentional?
+        for bit in all_bits
+        if model.evaluate(verify(bit, model[S]))
+        and model.evaluate(alternative(alt_world, bit, model[w]))
+    }
+    alt_worlds = {  # S-alternatives to the designated world w as states
+        bitvec_to_substates(alt_num)
+        for alt_num in alt_num_worlds
+    }
+    return (ver_states, fal_states, alt_num_worlds, alt_worlds)
+
+def print_vers_and_fals(S, ver_states, fal_states):
+    '''prints the verifiers and falsifier states for a Sentence.
+    inputs: the verifier states and falsifier states. 
+    Outputs: None, but prints the stuff we want printed'''
+    if ver_states and fal_states:
+        print(f"  |{S}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(ver_states)} >")
+    elif ver_states and not fal_states:
+        print(f"  |{S}| = < {make_set_pretty_for_print(ver_states)}, ∅ >")
+    elif not ver_states and fal_states:
+        print(f"  |{S}| = < ∅, {make_set_pretty_for_print(ver_states)} >")
+    else:
+        print(f"  |{S}| = < ∅, ∅ >")
+
+def print_alt_worlds(all_bits, S, sentence_letters, model, alt_num_worlds, alt_worlds):
+    '''prints everything that has to do with alt worlds'''
+    if alt_worlds:
+        print(f"  {S}-alternatives to {bitvec_to_substates(model[w])} = {make_set_pretty_for_print(alt_worlds)}")
+        # TODO: not sure how to sort alt_worlds and alt_num_worlds so that they appear in order
+        for alt_num in alt_num_worlds:
+            true_in_alt = set()
+            for sent in sentence_letters:
+                for bit in all_bits:
+                    if model.evaluate(verify(bit, model[sent])) and string_part(bit, alt_num):
+                        true_in_alt.add(sent)
+                        break
+            false_in_alt = {R for R in sentence_letters if not R in true_in_alt}
+            if true_in_alt:
+                true_alt_list = sorted([str(sent) for sent in true_in_alt])
+                true_alt_string = ", ".join(true_alt_list)
+                if len(true_in_alt) == 1:
+                    print(f"    {true_alt_string} is true in {bitvec_to_substates(alt_num)}")
+                else:
+                    print(f"    {true_alt_string} are true in {bitvec_to_substates(alt_num)}")
+            if false_in_alt:
+                false_alt_list = sorted([str(sent) for sent in false_in_alt])
+                false_alt_string = ", ".join(false_alt_list)
+                if len(false_in_alt) == 1:
+                    print(f"    {false_alt_string} is not true in {bitvec_to_substates(alt_num)}")
+                else:
+                    print(f"    {false_alt_string} are not true in {bitvec_to_substates(alt_num)}")
+        print()
+
+    else:
+        print(f"  There are no {S}-alternatives to {bitvec_to_substates(model[w])}")
+        print()
+
+def print_prop(all_bits, S, sentence_letters, model):
+    '''prints all the stuff for one proposition. returns None'''
+    ver_states, fal_states, alt_num_worlds, alt_worlds = find_relations(all_bits, S, model)
+    # Print propositions:
+    print_vers_and_fals(S, ver_states, fal_states)
+    print_alt_worlds(all_bits, S, sentence_letters, model, alt_num_worlds, alt_worlds)
+
 def print_propositions(model, sentence_letters):
     # TODO: too many branches? can this be simplified?
     # TODO: I couldn't figure out how to remove the quotes from the states
@@ -88,66 +170,17 @@ def print_propositions(model, sentence_letters):
     all_bits = {model[element] for element in model.decls() if is_bitvector(element)}
     print("\nPropositions:")
     for S in sentence_letters:
-        ver_states = {  # verifier states for S
-            bitvec_to_substates(bit)
-            for bit in all_bits
-            if model.evaluate(verify(bit, model[S]))
-        }
-        fal_states = {  # falsifier states for S
-            bitvec_to_substates(bit)
-            for bit in all_bits
-            if model.evaluate(falsify(bit, model[S]))
-        }
-        alt_num_worlds = {  # S-alternatives to the designated world w as numbers
-            alt_world
-            for alt_world in all_bits
-            for bit in all_bits
-            if model.evaluate(verify(bit, model[S]))
-            and model.evaluate(alternative(alt_world, bit, model[w]))
-        }
-        alt_worlds = {  # S-alternatives to the designated world w as states
-            bitvec_to_substates(alt_num)
-            for alt_num in alt_num_worlds
-        }
+        print_prop(all_bits, S, sentence_letters, model)
 
-        # Print propositions:
-        if ver_states and fal_states:
-            print(f"  |{S}| = < {ver_states}, {fal_states} >")
-        elif ver_states and not fal_states:
-            print(f"  |{S}| = < {ver_states}, ∅ >")
-        elif not ver_states and fal_states:
-            print(f"  |{S}| = < ∅, {fal_states} >")
-        else:
-            print(f"  |{S}| = < ∅, ∅ >")
-        if alt_worlds:
-            print(f"  {S}-alternatives to {bitvec_to_substates(model[w])} = {alt_worlds}")
-            # TODO: not sure how to sort alt_worlds and alt_num_worlds so that they appear in order
-            for alt_num in alt_num_worlds:
-                true_in_alt = set()
-                for sent in sentence_letters:
-                    for bit in all_bits:
-                        if model.evaluate(verify(bit, model[sent])) and string_part(bit, alt_num):
-                            true_in_alt.add(sent)
-                            break
-                false_in_alt = {R for R in sentence_letters if not R in true_in_alt}
-                if true_in_alt:
-                    true_alt_list = sorted([str(sent) for sent in true_in_alt])
-                    true_alt_string = ", ".join(true_alt_list)
-                    if len(true_in_alt) == 1:
-                        print(f"    {true_alt_string} is true in {bitvec_to_substates(alt_num)}")
-                    else:
-                        print(f"    {true_alt_string} are true in {bitvec_to_substates(alt_num)}")
-                if false_in_alt:
-                    false_alt_list = sorted([str(sent) for sent in false_in_alt])
-                    false_alt_string = ", ".join(false_alt_list)
-                    if len(false_in_alt) == 1:
-                        print(f"    {false_alt_string} is not true in {bitvec_to_substates(alt_num)}")
-                    else:
-                        print(f"    {false_alt_string} are not true in {bitvec_to_substates(alt_num)}")
-            print()
-
-        else:
-            print(f"  There are no {S}-alternatives to {bitvec_to_substates(model[w])}")
-            print()
-
-    
+def make_set_pretty_for_print(set_with_strings):
+    '''input a set with strings
+    print that same set but with no quotation marks around each individual string, and also with the set in order
+    returns the set as a string'''
+    sorted_set = sorted(list(set_with_strings)) # actually a list, unlike name suggests
+    print_str = "{"
+    for i, elem in enumerate(sorted_set):
+        print_str += elem
+        if i != len(sorted_set) - 1:
+            print_str += ', '
+    print_str += "}"
+    return print_str

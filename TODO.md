@@ -4,12 +4,12 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Refine and Optimize
 
-- [ ] _M_ functions in `print.py` can probably be improved (see notes there)
+- [:] _M_ functions in `print.py` can probably be improved (see notes there)
 - [ ] _M_ `is_bitvector` in `print.py` for `N > 4` (see TODO in `print.py`)
 - [ ] _M_ allow for more than 26 atomic states in `bitvec_to_substates`
 - [ ] _M_ avoid having to make N not equal to a power of 2
-- [ ] _M_ remove quotes from output of `bitvec_to_substates` when printing
-- [ ] _M_ `Equivalent` function in Z3?
+- [:] _M_ remove quotes from output of `bitvec_to_substates` when printing _M_: I think this is solved (with `make_set_pretty_for_print` function in `print.py`. Let me know if there's anything missing)
+- [X] _M_ `Equivalent` function in Z3? _M_: seems you can just use `==` (I'm pretty sure but not 100% sure). I left the `Equivalent` function we had and replaced its body to the new definition `==`; if you notice any changes or anything going wrong, we can always switch back to the old one. However, I am almost certain that if equivalence isn't represented by `==`, then there is no function for equivalence (cf: https://microsoft.github.io/z3guide/docs/logic/propositional-logic, and in the list of all funcs in Z3, could not find anything that looked like it'd reasonably be equivalence)
 
 ## Definitions
 
