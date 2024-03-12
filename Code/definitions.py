@@ -218,13 +218,31 @@ def bitvec_to_substates(bit_vec):
             state_repr += alphabet[i]
             state_repr += "."
 
+
+def bit_fusion(bit_s, bit_t):
+    """the result of taking the maximum for each index in _s and _t"""
+    return simplify(bit_s | bit_t)
+
+
+def bit_part(bit_s, bit_t):
+    """the fusion of _s and _t is identical to bit_t"""
+    return simplify(bit_fusion(bit_s, bit_t) == bit_t)
+
+
+def bit_proper_part(bit_s, bit_t):
+    """bit_s is a part of bit_t and bit_t is not a part of bit_s"""
+    return bit_part(bit_s, bit_t) and not bit_part(bit_t, bit_s)
+
+
 def state_part(st_x,st_y):
     '''the state st_x is a part of the state st_y'''
     return str(st_x) in str(st_y) or st_x == "□"
 
+
 def string_part(bit_x,bit_y):
     '''the string bit_x is a part of the string bit_y'''
     return str(bitvec_to_substates(bit_x)) in str(bitvec_to_substates(bit_y))
+
 
 def Equivalent(bit_a,bit_b):
     return And(Implies(bit_a,bit_b), Implies(bit_b,bit_a))
