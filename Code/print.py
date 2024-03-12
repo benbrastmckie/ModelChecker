@@ -30,9 +30,9 @@ from definitions import (
 
 def print_states(model):
     '''print all fusions of atomic states in the model'''
-    all_states = [element for element in model.decls() if is_bitvector(element)]
-    states_as_nums = [model[state].as_long() for state in all_states]
-    max_num = max(states_as_nums)
+    all_bits = {model[element] for element in model.decls() if is_bitvector(element)}
+    bits_as_nums = [bit.as_long() for bit in all_bits]
+    max_num = max(bits_as_nums)
     possible_states = [bitvec_to_substates(BitVecVal(val, N)) for val in range(max_num * 2) if model.evaluate(possible(val))]
     world_states = possible_states
     for world in world_states:
@@ -59,14 +59,14 @@ def print_states(model):
 
 def print_evaluation(model, sentence_letters):
     '''print the evaluation world and all sentences true/false in that world'''
-    all_states = [element for element in model.decls() if is_bitvector(element)]
+    all_bits = [model[element] for element in model.decls() if is_bitvector(element)]
     print(f"\nThe evaluation world is {bitvec_to_substates(model[w])}:")
     true_in_eval = set()
     for sent in sentence_letters:
-        for state in all_states:
-            fusion = bitvec_to_substates(model[state])
-            world = bitvec_to_substates(model[w])
-            if model.evaluate(verify(model[state], model[sent])) and state_part(fusion,world):
+        for bit in all_bits:
+            # fusion = bitvec_to_substates(bit)
+            # world = bitvec_to_substates(model[w])
+            if model.evaluate(verify(bit, model[sent])) and bit_part(fusion, world):
                 true_in_eval.add(sent)
                 break
     false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
@@ -87,25 +87,25 @@ def print_propositions(model, sentence_letters):
     '''
     print each propositions and the alternative worlds in which it is true
     '''
-    all_states = [element for element in model.decls() if is_bitvector(element)]
+    all_bits = {model[element] for element in model.decls() if is_bitvector(element)}
     print("\nPropositions:")
     for S in sentence_letters:
         ver_states = {  # verifier states for S
-            bitvec_to_substates(model[state])
-            for state in all_states
-            if model.evaluate(verify(model[state], model[S]))
+            bitvec_to_substates(bit)
+            for bit in all_bits
+            if model.evaluate(verify(bit, model[S]))
         }
         fal_states = {  # falsifier states for S
-            bitvec_to_substates(model[state])
-            for state in all_states
-            if model.evaluate(falsify(model[state], model[S]))
+            bitvec_to_substates(bit)
+            for bit in all_bits
+            if model.evaluate(falsify(bit, model[S]))
         }
         alt_num_worlds = {  # S-alternatives to the designated world w as numbers
-            model[alt_world]
-            for alt_world in all_states
-            for state in all_states
-            if model.evaluate(verify(model[state], model[S]))
-            and model.evaluate(alternative(model[alt_world], model[state], model[w]))
+            alt_world
+            for alt_world in all_bits
+            for bit in all_bits
+            if model.evaluate(verify(bit, model[S]))
+            and model.evaluate(alternative(alt_world, bit, model[w]))
         }
         alt_worlds = {  # S-alternatives to the designated world w as states
             bitvec_to_substates(alt_num)
@@ -127,8 +127,8 @@ def print_propositions(model, sentence_letters):
             for alt_num in alt_num_worlds:
                 true_in_alt = set()
                 for sent in sentence_letters:
-                    for state in all_states:
-                        if model.evaluate(verify(model[state], model[sent])) and string_part(model[state], alt_num):
+                    for bit in all_bits:
+                        if model.evaluate(verify(bit, model[sent])) and string_part(bit, alt_num):
                             true_in_alt.add(sent)
                             break
                 false_in_alt = {R for R in sentence_letters if not R in true_in_alt}
