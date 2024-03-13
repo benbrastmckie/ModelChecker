@@ -17,12 +17,14 @@ Questions should be organized under a topic when possible.
 ### General
 
 - [ ] Is it important to have bivectors with length not equal to a power of 2?
+  - (see long paragraph below) Seems unfortunately like yeah, and it's actually that it can't be multiple of 4. This may be a question for Graham. 
 - [ ] It appears that even bound variables must be defined in Z3. Why is this?
 - [ ] What is the BitVec class by itself good for?
 - [x] What does sexpr() do?
   - [x] prints bitvector as a string of numbers if the length is not a power of 2
   - [x] if the bitvector has length with a power of 2, then it is in hexadecimal
-  - [ ] is there a function that translates from hexadecimal to a string of numbers?
+  - [:] is there a function that translates from hexadecimal to a string of numbers?
+    - M: (moving from TODOs) I did some more digging around and it looks like there's no way around this, even within Z3 languages so to speak. There is a way to make all bitvecs in decimal format, but that's not something useful for us. My best source so far: https://microsoft.github.io/z3guide/docs/theories/Bitvectors/ (and other websites that say the same thing). This also makes sense given how .sexpr() works: it takes in the Z3 object in C and its location (https://z3prover.github.io/api/html/classz3py_1_1_ast_ref.html#ab41c56f8b1c61ace1b28a163103d86b4), making me think that the hexadecimal format for multiples of 4 (I thought it was powers of 2, but it's actually mults of 4) gets pretty down to low-level representation, meaning it's not like a more surface level thing we can flip. 
 - Suppose Z3 finds that ${ A, B, C, ~D }$ is unsatisfiable.
   - How do we know how many models it tried and how big those models were?
   - Knowing this tells us about the strength of the evidence that ${ A, B, C }$ entails $D$.
