@@ -23,6 +23,7 @@ from definitions import (
     is_part_of,
     poss,
     is_world,
+    alternative,
 )
 
 # NOTE: I think this makes atomic_sentence, Y have the sort Atoms... not sure this is useful
@@ -34,6 +35,7 @@ x = BitVec("x", N)
 y = BitVec("y", N)
 z = BitVec("z", N)
 w = BitVec("w", N)
+u = BitVec("u", N)
 
 # NOTE: want 'verify' to be a function from a bitvector and sentence to a truth-value
 verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
@@ -114,3 +116,60 @@ def Semantics(w,X): # we could redefine this function to take as input the outpu
 # also missing general constraints at very bottom of Strategies
 # issue with these is that verify is constructed to take in AtomSorts, and complex sentences are lists, not AtomSorts. 
     # B: That makes sense. I think I sorted this out in the Strategies.md doc. Let me know what you think.
+
+def extended_verify(x,X):
+    '''X is in prefix form. Same for extended_falsify'''
+    if len(X) == 1:
+        return verify(x,X)
+    op = X[0]
+    if 'neg' in op:
+        return extended_falsify(x,X[1])
+    Y = X[1]
+    Z = X[2]
+    if 'wedge' in op:
+        return Exists([y,z], And(x == fusion(y,z), extended_verify(y,Y), extended_verify(z,Z)))
+    elif 'vee' in op:
+        return Or(extended_verify(x,Y), extended_verify(x,Z), extended_verify(x,['wedge', Y, Z]))
+    elif 'leftrightarrow' in op:
+        return Or(extended_verify(x,['wedge', Y, Z]), extended_falsify(x,['vee', Y, Z]))
+    elif 'rightarrow' in op:
+        return Or(extended_falsify(x,Y), extended_verify(x,Z), extended_verify(x,['wedge', ['neg', Y], Z]))
+    raise ValueError(f'something went up in extended_verify, most likely operation not found: {op}')
+
+def extended_falsify(x,X):
+    if len(X) == 1:
+        return falsify(x,X)
+    op = X[0]
+    if 'neg' in op:
+        return extended_verify(x,X[1])
+    Y = X[1]
+    Z = X[2]
+    if 'wedge' in op:
+        return Or(extended_falsify(x,Y), extended_falsify(x,Z), extended_falsify(x,['wedge', Y, Z]))
+    elif 'vee' in op:
+        return Exists([y,z], And(x == fusion(y,z), extended_falsify(y,Y), extended_falsify(z,Z)))
+    elif 'leftrightarrow' in op:
+        return Or(extended_verify(x,['wedge', Y, ['neg', Z]]), extended_falsify(x, ['vee', ['neg', Y], Z]))
+    elif 'rightarrow' in op:
+        return Exists([y,z], And(x == fusion(y,z), extended_verify(y,Y), extended_falsify(z, Z)))
+    raise ValueError(f'something went up in extended_falsify, most likely operation not found: {op}')
+
+def true(w,X):
+    '''X is in prefix function'''
+    if len(X) == 1:
+        return Exists(x, And(is_part_of(x,w), verify(x,A)))
+    op = X[0]
+    if 'neg' in op:
+        return Not(true(w,X))
+    Y = X[1]
+    Z = X[2]
+    if 'wedge' in op:
+        return And(true(w,Y), true(w,Z))
+    if 'vee' in op:
+        return Or(true(w,Y), true(w,Z))
+    if 'leftrightarrow' in op:
+        return Or(And(true(w,Y), true(w,Z)), And(Not(true(w,Y)), Not(true(w,Z))))
+    if 'rightarrow' in op:
+        return Or(Not(true(w,Y)), true(w,Z))
+    if 'boxright' in op:
+        ForAll([x,u], Implies(And(extended_verify(x,Y),alternative(w,x,u)), true(u,Z)))

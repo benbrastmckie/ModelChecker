@@ -21,9 +21,11 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Definitions
 
-- [ ] _M_ `extended_verify` see strategies
-- [ ] _M_ `extended_falsify` see strategies
-- [ ] _M_ recursive definition of `true` see strategies
+- [x] _M_ `extended_verify` see strategies
+- [x] _M_ `extended_falsify` see strategies
+    - M: at the end of `semantics.py` (both extended verify and falsify)
+- [x] _M_ recursive definition of `true` see strategies
+    - M: at the end of `semantics.py`
 
 ## Models
 
