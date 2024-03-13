@@ -4,12 +4,14 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Refine and Optimize
 
-- [:] _M_ functions in `print.py` can probably be improved (see notes there)
+- [x] _M_ functions in `print.py` can probably be improved (see notes there)
   - B: looks much better!
   - B: replacing `string_part` in `print.py` with `bit_part` seems to work, but my linter doesn't like it. not sure if that is any concern.
+  - M: Cleaned up what I hadn't been able to get to before and left comments—feel free to delete any comments that are resolved/solved (linter issue unsolved, but I wasn't getting it on my end, maybe your linter is stricter than mine lol)
 - [ ] _M_ `is_bitvector` in `print.py` for `N > 4` (see TODO in `print.py`)
 - [ ] _M_ allow for more than 26 atomic states in `bitvec_to_substates`
-- [ ] _M_ avoid having to make N not equal to a power of 2
+- [:] _M_ avoid having to make N not equal to a power of 2
+  - M: I did some more digging around and it looks like there's no way around this, even within Z3 languages so to speak. There is a way to make all bitvecs in decimal format, but that's not something useful for us. My best source so far: https://microsoft.github.io/z3guide/docs/theories/Bitvectors/ (and other websites that say the same thing). This also makes sense given how .sexpr() works: it takes in the Z3 object in C and its location (https://z3prover.github.io/api/html/classz3py_1_1_ast_ref.html#ab41c56f8b1c61ace1b28a163103d86b4), making me think that the hexadecimal format for multiples of 4 (I thought it was powers of 2, but it's actually mults of 4). 
 - [x] _M_ remove quotes from output of `bitvec_to_substates` when printing
   - M: I think this is solved (with `make_set_pretty_for_print` function in `print.py`. Let me know if there's anything missing)
   - B: Looks perfect!

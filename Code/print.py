@@ -32,13 +32,16 @@ def print_states(model):
     bits_as_nums = [bit.as_long() for bit in all_bits]
     # possible_states = [bitvec_to_substates(BitVecVal(val, N)) for val in range(max_num * 2) if model.evaluate(possible(val))]
     possible_bits = [bit for bit in all_bits if model.evaluate(possible(bit))]
-    world_bits = possible_bits
+    world_bits = possible_bits[:]
     for world in world_bits:
     # what is this for loop doing?
     # B: this is my attempt to define the worlds (as bits) given only possible_bits
     # it starts with all possible_bits and then kicks out any that are proper parts
     # of any possible_bit, thereby capturing the maximality of worlds. I trust there
     # are better ways to do this.
+    # ohhh I understand (I missed the .remove() part). 
+    # This is actually a good way of doing it, it's really understandable/readable. 
+    # Looks good to me!
         for poss in possible_bits:
             if bit_proper_part(world, poss):
                 world_bits.remove(world)
@@ -108,7 +111,7 @@ def find_relations(all_bits, S, model):
     fal_states = relate_sents_and_states(all_bits, S, model, falsify)
     alt_num_worlds = {  # S-alternatives to the designated world w as numbers
         alt_world
-        for alt_world in all_bits # it's currently iterating twice over `all_bits`... is that intentional?
+        for alt_world in all_bits
         for bit in all_bits
         if model.evaluate(verify(bit, model[S]))
         and model.evaluate(alternative(alt_world, bit, model[w]))
@@ -132,39 +135,51 @@ def print_vers_and_fals(S, ver_states, fal_states):
     else:
         print(f"  |{S}| = < ∅, ∅ >")
 
+def find_true_and_false_in_alt(alt_num, sentence_letters, all_bits, model):
+    '''returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.'''
+    true_in_alt = set()
+    for R in sentence_letters:
+        for bit in all_bits:
+            # NOTE: replacing string_part with bit_part works but makes the linter angry
+            # what does the linter say? 
+            # I think bit comparisons may be more efficient—comparing strings like string_part does is potentially
+            # inefficient for long (very long) strings (may not be a problem), but I'm sure that however Z3 compares and
+            # simplifies bits is faster than what we have (since they are closer to the hardware representation).
+            # Was there any particular reason you wanted to use string_part instead of bit_part?
+            if model.evaluate(verify(bit, model[R])) and bit_part(bit, alt_num):
+                true_in_alt.add(R)
+                break # breaks the `for bit in all_bits` for loop, NOT the big for loop
+    false_in_alt = {R for R in sentence_letters if not R in true_in_alt}
+    return true_in_alt, false_in_alt
+
+def print_alt_relation(alt_relation_set, alt_num, relation_truth_value):
+    '''true is a string representing the relation ("true" for true_in_alt; m.m. for false) that is being used for
+    returns None, only prints'''
+    if not alt_relation_set:
+        return
+    alt_relation_list = sorted([str(sent) for sent in alt_relation_set])
+    alt_relation_string = ", ".join(alt_relation_list)
+    if len(alt_relation_set) == 1:
+        print(f"    {alt_relation_string} is {relation_truth_value} in {bitvec_to_substates(alt_num)}")
+    else:
+        print(f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_num)}")
+
+
 def print_alt_worlds(all_bits, S, sentence_letters, model, alt_num_worlds, alt_worlds):
     '''prints everything that has to do with alt worlds'''
     if alt_worlds:
         print(f"  {S}-alternatives to {bitvec_to_substates(model[w])} = {make_set_pretty_for_print(alt_worlds)}")
         # TODO: not sure how to sort alt_worlds and alt_num_worlds so that they appear in order
+        # if this is abt printing I think pretty_print should make them in order. Let me know if they're not in order tho (or if this is abt smth else)
         for alt_num in alt_num_worlds:
-            true_in_alt = set()
-            for sent in sentence_letters:
-                for bit in all_bits:
-                    # NOTE: replacing string_part with bit_part works but makes the linter angry
-                    if model.evaluate(verify(bit, model[sent])) and bit_part(bit, alt_num):
-                        true_in_alt.add(sent)
-                        break
-            false_in_alt = {R for R in sentence_letters if not R in true_in_alt}
-            if true_in_alt:
-                true_alt_list = sorted([str(sent) for sent in true_in_alt])
-                true_alt_string = ", ".join(true_alt_list)
-                if len(true_in_alt) == 1:
-                    print(f"    {true_alt_string} is true in {bitvec_to_substates(alt_num)}")
-                else:
-                    print(f"    {true_alt_string} are true in {bitvec_to_substates(alt_num)}")
-            if false_in_alt:
-                false_alt_list = sorted([str(sent) for sent in false_in_alt])
-                false_alt_string = ", ".join(false_alt_list)
-                if len(false_in_alt) == 1:
-                    print(f"    {false_alt_string} is not true in {bitvec_to_substates(alt_num)}")
-                else:
-                    print(f"    {false_alt_string} are not true in {bitvec_to_substates(alt_num)}")
-        print()
+            true_in_alt, false_in_alt = find_true_and_false_in_alt(alt_num, sentence_letters, all_bits, model)
+            print_alt_relation(true_in_alt, alt_num, 'true')
+            print_alt_relation(false_in_alt, alt_num, 'not true')
+        print() # for an extra blank line?
 
     else:
         print(f"  There are no {S}-alternatives to {bitvec_to_substates(model[w])}")
-        print()
+        print() # for an extra blank line?
 
 def print_prop(all_bits, S, sentence_letters, model):
     '''prints all the stuff for one proposition. returns None'''
@@ -189,7 +204,7 @@ def make_set_pretty_for_print(set_with_strings):
     '''input a set with strings
     print that same set but with no quotation marks around each individual string, and also with the set in order
     returns the set as a string'''
-    sorted_set = sorted(list(set_with_strings)) # actually a list, unlike name suggests
+    sorted_set = sorted(list(set_with_strings)) # actually type list, not set
     print_str = "{"
     for i, elem in enumerate(sorted_set):
         print_str += elem
