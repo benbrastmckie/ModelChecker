@@ -4,15 +4,14 @@ from z3 import (
 
 from definitions import (
     N,
+    bit_fusion,
     bit_part,
     bit_proper_part,
     w,
     possible,
     verify,
     falsify,
-    alternative,
     bitvec_to_substates,
-    string_part,
     is_bitvector,
 )
 
@@ -91,33 +90,102 @@ def print_evaluation(model, sentence_letters):
         print("  " + false_eval_string + f"  (not true in {bitvec_to_substates(model[w])})")
 
 
-
 # BELOW is everything that was once in the big original function print_propositions.
-def relate_sents_and_states(all_bits, Sentence, model, relation):
+def relate_sents_and_states(all_bits, sentence, model, relation):
     '''helper function for finding verifier and falisifer states to sentences in a model'''
     return {
-            bitvec_to_substates(bit)
+            bit
             for bit in all_bits
-            if model.evaluate(relation(bit, model[Sentence]))
+            if model.evaluate(relation(bit, model[sentence]))
         }
+
 
 def find_relations(all_bits, S, model):
     '''for a given sentence letter S and a list all_bits and a model, finds the relations verify, falsify, alt_num_worlds, and alt_worlds for that sentence in that model
     returns a tuple (ver_states, fal_states, alt_num_worlds, alt_worlds)'''
-    ver_states = relate_sents_and_states(all_bits, S, model, verify)
-    fal_states = relate_sents_and_states(all_bits, S, model, falsify)
-    alt_num_worlds = {  # S-alternatives to the designated world w as numbers
-        alt_world
-        for alt_world in all_bits # it's currently iterating twice over `all_bits`... is that intentional?
-        for bit in all_bits
-        if model.evaluate(verify(bit, model[S]))
-        and model.evaluate(alternative(alt_world, bit, model[w]))
+    ver_bits = relate_sents_and_states(all_bits, S, model, verify)
+    fal_bits = relate_sents_and_states(all_bits, S, model, falsify)
+    ver_states = {
+        bitvec_to_substates(bit)
+        for bit in ver_bits
     }
-    alt_worlds = {  # S-alternatives to the designated world w as states
-        bitvec_to_substates(alt_num)
-        for alt_num in alt_num_worlds
+    fal_states = {
+        bitvec_to_substates(bit)
+        for bit in fal_bits
+    }
+    poss_bits = [element for element in all_bits if model.evaluate(possible(element))]
+    world_bits = poss_bits
+    for world in world_bits:
+        for poss in poss_bits:
+            if bit_proper_part(world, poss):
+                world_bits.remove(world)
+                break
+    eval_world = model[w]
+    compatible_parts = {
+        bit_fusion(part,ver)
+        for part in poss_bits
+        for ver in ver_bits
+        if bit_part(part, eval_world)
+        and bit_fusion(part, ver) in poss_bits
+    }
+    max_comp_parts = compatible_parts
+    for max_bit in max_comp_parts:
+        for bit in compatible_parts:
+            if bit_proper_part(max_bit, bit):
+                max_comp_parts.remove(max_bit)
+                break
+    alt_num_worlds = {
+        alt
+        for alt in world_bits
+        for max_part in max_comp_parts
+        if bit_part(max_part, alt)
+    }
+    alt_worlds = {
+        bitvec_to_substates(alt)
+        for alt in alt_num_worlds
     }
     return (ver_states, fal_states, alt_num_worlds, alt_worlds)
+
+
+# def bit_possible(bit_s):
+#     """bit_s is a possible state in the model"""
+#     return bit_s in possible_bits
+#
+# def bit_compatible(bit_x, bit_y):
+#     """the fusion of bit_x and bit_y is possible"""
+#     return bit_fusion(bit_x, bit_y) in poss_states
+#
+#
+# def bit_compatible_part(bit_x, bit_w, bit_y):
+#     """bit_x is a part of bit_w that is compatible with bit_y"""
+#     return bit_part(bit_x, bit_w) and bit_fusion(bit_x, bit_y) in poss_states
+
+
+def bit_max_compatible_part(bit_x, bit_w, bit_y):
+    """bit_x is a biggest part of bit_w that is compatible with bit_y"""
+    compatible_parts = {
+        part for part in possible_bits
+        if bit_part(bit_x, bit_w)
+        and bit_fusion(bit_x, bit_y) in poss_states
+    }
+    max_parts = compatible_parts
+    for max_bit in max_parts:
+        for bit in compatible_parts:
+            if bit_proper_part(max_bit, bit):
+                max_parts.remove(max_bit)
+                break
+    return bit_x in max_parts
+
+
+def bit_alternative(bit_u, bit_y, bit_w):
+    """
+    bit_u is a world that is the alternative that results from imposing state bit_y on world bit_w.
+    """
+    max_compatible_parts = {bit for bit in possible_bits if bit_max_compatible_part(bit, bit_w, bit_y)}
+    return bit_u in world_bits and bit_part(bit_y, bit_u) and  max_compatible_parts
+# print(f"Test Bit Alternative: {bit_alternative(model[a],eval_world,eval_world)}")
+
+
 
 def print_vers_and_fals(S, ver_states, fal_states):
     '''prints the verifiers and falsifier states for a Sentence.
