@@ -196,9 +196,37 @@ def total_fusion(list_of_states):
         [fusion_of_first_two] + list_of_states[2:]
     )  # + is list concatenation
 
+def index_to_substate(index):
+    '''
+    @B: Here's one potential solution to the more-than-26 problem. I think it's good because
+    it makes examples less than 26 very readable, and only gets unreadable for more than like
+    100 states (bc lots of letters in a row). With the way python does subindices it might look
+    odd if we do subindices from the beginning (or we could do a prime type thing). 
+    In other words, let me know if there is a way you'd prefer this to be represented, and I'll
+    edit it to match that!
+    helper function for bitvec_to_substates
+    >>> index_to_substate(0)
+    'a'
+    >>> index_to_substate(26)
+    'aa'
+    >>> index_to_substate(27)
+    'bb'
+    >>> index_to_substate(194)
+    'mmmmmmmm'
+    '''
+    number = index + 1 # because python indices start at 0
+    letter_dict = {1:'a', 2:'b', 3:'c', 4:'d', 5:'e', 6:'f', 7:'g', 8:'h', 9:'i', 10:'j',
+                   11:'k', 12:'l', 13:'m', 14:'n', 15:'o', 16:'p', 17:'q', 18:'r', 19:'s', 20:'t',
+                   21:'u', 22:'v', 23:'w', 24:'x', 25:'y', 26:'z'} # could be make less hard-code-y
+                            # but this makes it clearer and more intuitive what we want to happen
+    letter = letter_dict[number%26]
+    return ((number//26) + 1) * letter
+
 
 def bitvec_to_substates(bit_vec):
-    '''converts bitvectors to fusions of atomic states.'''
+    '''converts bitvectors to fusions of atomic states.
+    @B: see index_to_substate() above
+    '''
     # TODO: can `sexpr()` be replaced with `bin(bit_vec)`
     bit_vec_as_string = bit_vec.sexpr()
     # print(type(bit_vec_as_string))
@@ -216,7 +244,7 @@ def bitvec_to_substates(bit_vec):
                 return "□"  #  null state
             return state_repr[0 : len(state_repr) - 1]
         if char == "1":
-            state_repr += alphabet[i]
+            state_repr += index_to_substate(i)
             state_repr += "."
 
 
