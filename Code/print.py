@@ -100,6 +100,7 @@ def relate_sents_and_states(all_bits, sentence, model, relation):
         }
 
 
+
 def find_relations(all_bits, S, model):
     '''for a given sentence letter S and a list all_bits and a model, finds the relations verify, falsify, alt_num_worlds, and alt_worlds for that sentence in that model
     returns a tuple (ver_states, fal_states, alt_num_worlds, alt_worlds)'''
@@ -114,9 +115,8 @@ def find_relations(all_bits, S, model):
         for bit in fal_bits
     }
     poss_bits = [element for element in all_bits if model.evaluate(possible(element))]
-    world_bits = poss_bits
-    copy_wbits = poss_bits
-    for world in copy_wbits:
+    world_bits = poss_bits[:]
+    for world in world_bits:
         for poss in poss_bits:
             if bit_proper_part(world, poss):
                 world_bits.remove(world)
