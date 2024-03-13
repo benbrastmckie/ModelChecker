@@ -121,6 +121,8 @@ def find_relations(all_bits, S, model):
                 world_bits.remove(world)
                 break
     eval_world = model[w]
+    # TODO: define alt_worlds in some better way
+    # TODO: use bits until printing states
     compatible_parts = {
         bit_fusion(part,ver)
         for part in poss_bits
@@ -145,46 +147,6 @@ def find_relations(all_bits, S, model):
         for alt in alt_num_worlds
     }
     return (ver_states, fal_states, alt_num_worlds, alt_worlds)
-
-
-# def bit_possible(bit_s):
-#     """bit_s is a possible state in the model"""
-#     return bit_s in possible_bits
-#
-# def bit_compatible(bit_x, bit_y):
-#     """the fusion of bit_x and bit_y is possible"""
-#     return bit_fusion(bit_x, bit_y) in poss_states
-#
-#
-# def bit_compatible_part(bit_x, bit_w, bit_y):
-#     """bit_x is a part of bit_w that is compatible with bit_y"""
-#     return bit_part(bit_x, bit_w) and bit_fusion(bit_x, bit_y) in poss_states
-
-
-def bit_max_compatible_part(bit_x, bit_w, bit_y):
-    """bit_x is a biggest part of bit_w that is compatible with bit_y"""
-    compatible_parts = {
-        part for part in possible_bits
-        if bit_part(bit_x, bit_w)
-        and bit_fusion(bit_x, bit_y) in poss_states
-    }
-    max_parts = compatible_parts
-    for max_bit in max_parts:
-        for bit in compatible_parts:
-            if bit_proper_part(max_bit, bit):
-                max_parts.remove(max_bit)
-                break
-    return bit_x in max_parts
-
-
-def bit_alternative(bit_u, bit_y, bit_w):
-    """
-    bit_u is a world that is the alternative that results from imposing state bit_y on world bit_w.
-    """
-    max_compatible_parts = {bit for bit in possible_bits if bit_max_compatible_part(bit, bit_w, bit_y)}
-    return bit_u in world_bits and bit_part(bit_y, bit_u) and  max_compatible_parts
-# print(f"Test Bit Alternative: {bit_alternative(model[a],eval_world,eval_world)}")
-
 
 
 def print_vers_and_fals(S, ver_states, fal_states):
