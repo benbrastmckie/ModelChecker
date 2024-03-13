@@ -1,5 +1,6 @@
 # AIM: provide a concrete model that can be used to abstract from to build model generator functions
 from z3 import (
+    BitVecVal,
     sat,
     Exists,
     ForAll,
@@ -14,6 +15,7 @@ from definitions import (
     N,
     a,
     b,
+    bit_fusion,
     c,
     r,
     s,
@@ -108,6 +110,9 @@ solver.add(
     # ),
 
 )
+
+print(type(bit_fusion(BitVecVal(5,5),BitVecVal(2,5))))
+print(bit_fusion(BitVecVal(5,5),BitVecVal(2,5)).sort())
 
 if solver.check() == sat:
     model = solver.model()
