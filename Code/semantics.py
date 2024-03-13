@@ -20,6 +20,7 @@ from z3 import (
 from definitions import (
     N,
     fusion,
+    is_alternative,
     is_part_of,
     possible,
     is_world,
@@ -36,6 +37,8 @@ y = BitVec("y", N)
 z = BitVec("z", N)
 w = BitVec("w", N)
 u = BitVec("u", N)
+v = BitVec("v", N)
+s = BitVec("s", N)
 
 # NOTE: want 'verify' to be a function from a bitvector and sentence to a truth-value
 verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
@@ -87,7 +90,7 @@ def Alternatives(u,w,X):
 # but maybe I missed your question?
 def Semantics(w,X): # LINT: all or none of the return statements should be an expression
     '''sentence X is true at world w'''
-    if isinstance(X[0],list):
+    if X[0] in sentence_letters:
         # B: should 'list' be 'sentence_letters'?
         return Exists([x], And(verify(x,X), is_part_of(x,w)))
         # B: better would be to use open sentences but then we need to keep
@@ -101,7 +104,7 @@ def Semantics(w,X): # LINT: all or none of the return statements should be an ex
         return Or(Semantics(w,X[1]),Semantics(w,X[2]))
     if 'boxright' in X[0]:
         return ForAll([s, v], Implies(And(extended_verify(s,X[1]), is_alternative(v, s, w)), Semantics(v,X[2])))
-    if 'neg' in X[0] and 'boxright' not in X[1][0]:
+    if 'neg' in X[0] and 'boxright' in X[1][0]:
         return Exists([s, v], And(extended_verify(s,X[1]), is_alternative(v, s, w), Not(Semantics(v,X[2]))))
     else:
         return print("Input Error")
@@ -115,16 +118,18 @@ def extended_verify(x,X):
         return verify(x,X)
     op = X[0]
     if 'neg' in op:
+        if 'boxright' in X[1][0]:
+            raise ValueError(f"Problem with sentences: {X}, {X[1]}, {X[1][0]}")
         return extended_falsify(x,X[1])
     Y = X[1]
     Z = X[2]
     if 'wedge' in op:
         return Exists([y,z], And(x == fusion(y,z), extended_verify(y,Y), extended_verify(z,Z)))
-    elif 'vee' in op:
+    if 'vee' in op:
         return Or(extended_verify(x,Y), extended_verify(x,Z), extended_verify(x,['wedge', Y, Z]))
-    elif 'leftrightarrow' in op:
+    if 'leftrightarrow' in op:
         return Or(extended_verify(x,['wedge', Y, Z]), extended_falsify(x,['vee', Y, Z]))
-    elif 'rightarrow' in op:
+    if 'rightarrow' in op:
         return Or(extended_falsify(x,Y), extended_verify(x,Z), extended_verify(x,['wedge', ['neg', Y], Z]))
     raise ValueError(f'something went up in extended_verify, most likely operation not found: {op}')
 
@@ -138,11 +143,11 @@ def extended_falsify(x,X):
     Z = X[2]
     if 'wedge' in op:
         return Or(extended_falsify(x,Y), extended_falsify(x,Z), extended_falsify(x,['wedge', Y, Z]))
-    elif 'vee' in op:
+    if 'vee' in op:
         return Exists([y,z], And(x == fusion(y,z), extended_falsify(y,Y), extended_falsify(z,Z)))
-    elif 'leftrightarrow' in op:
+    if 'leftrightarrow' in op:
         return Or(extended_verify(x,['wedge', Y, ['neg', Z]]), extended_falsify(x, ['vee', ['neg', Y], Z]))
-    elif 'rightarrow' in op:
+    if 'rightarrow' in op:
         return Exists([y,z], And(x == fusion(y,z), extended_verify(y,Y), extended_falsify(z, Z)))
     raise ValueError(f'something went up in extended_falsify, most likely operation not found: {op}')
 
@@ -164,4 +169,4 @@ def true(w,X):
     if 'rightarrow' in op:
         return Or(Not(true(w,Y)), true(w,Z))
     if 'boxright' in op:
-        ForAll([x,u], Implies(And(extended_verify(x,Y),alternative(w,x,u)), true(u,Z)))
+        return ForAll([x,u], Implies(And(extended_verify(x,Y),alternative(w,x,u)), true(u,Z)))

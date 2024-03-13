@@ -92,12 +92,32 @@ solver.add(
     # NOTE: although the above is equivalent to the below modulo exhaustivity
     # the latter produces truth-value gaps (see issue on github)
 
-    # ForAll(b, Implies(is_part_of(b, u), Not(verify(b, B)))),
 
         # NOTE: replacing the CF constraints above with the below produces
         # models with no A-alternatives to w despite what the constraint would
         # seem to require. However, adding the constraint 'falsify(z, B)'
         # populates A-alternatives. I'm not sure why this is.
+
+    # Exists(
+    #     [a, v],
+    #     And(verify(a, A), is_alternative(v, a, w),
+    #         ForAll(b, Or(
+    #             Not(is_part_of(b, v)),
+    #             Not(verify(b, B))
+    #             ),
+    #         ),
+    #     )
+    # ),
+
+    # Exists(
+    #     [a, v],
+    #     And(verify(a, A), is_alternative(v, a, w),
+    #         Exists(b, Implies(
+    #             is_part_of(b, v),
+    #             falsify(b, B)
+    #         )),
+    #     )
+    # ),
 
     # Not(  # in w, it is not the case that if A were true then B would be true
     #     ForAll(
@@ -111,8 +131,8 @@ solver.add(
 
 )
 
-print(type(bit_fusion(BitVecVal(5,5),BitVecVal(2,5))))
-print(bit_fusion(BitVecVal(5,5),BitVecVal(2,5)).sort())
+# print(type(bit_fusion(BitVecVal(5,5),BitVecVal(2,5))))
+# print(bit_fusion(BitVecVal(5,5),BitVecVal(2,5)).sort())
 
 if solver.check() == sat:
     model = solver.model()
