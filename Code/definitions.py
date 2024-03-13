@@ -27,7 +27,7 @@ from z3 import (
 ### DECLARATIONS ###
 
 # number of atomic states
-N = 3
+N = 9
 
 # sentence letters: sort definition, constants, and variables
 # B: do we need a constant for each sentence letter in sentence_letters?
