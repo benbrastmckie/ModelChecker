@@ -8,14 +8,12 @@ from z3 import (
     And,
     Not,
     Or,
-    BitVecVal,
 )
 
 from definitions import (
     N,
     a,
     b,
-    bit_part,
     c,
     r,
     s,
@@ -40,8 +38,6 @@ from definitions import (
     alternative,
     proposition,
     Equivalent,
-    world,
-    maximal,
 )
 
 from print import print_evaluation, print_propositions, print_states
@@ -69,23 +65,26 @@ solver.add(
             ),
         ),
     ),
-    # constraints on alternative predicate
+    # constraints on the alternative predicate
 
     # MODEL CONSTRAINT
     ForAll(X, proposition(X)),  # every X of AtomSort is a proposition
 
     # EVAL CONSTRAINTS
-    is_world(w),  # there is a world w
-    is_part_of(a, w),  # s is a part of w
-    verify(a, A),  # s verifies A
-    is_part_of(b, w),  # t is part of w
-    verify(b, B),  # t verifies B
+    is_world(w),
+    # there is a world w
+    is_part_of(a, w),
+    verify(a, A),
+    # A is true in w
+    is_part_of(b, w),
+    verify(b, B),
+    # B is true in w
 
-    # CF constraints: it is not true that, if A were the case, B would be the case
     verify(c, A),
     is_alternative(u, c, w),
     is_part_of(s, u),
     falsify(s, B),
+    # ~(A => B) is true in w
 
     # NOTE: although the above is equivalent to the below modulo exhaustivity
     # the latter produces truth-value gaps (see issue on github)
