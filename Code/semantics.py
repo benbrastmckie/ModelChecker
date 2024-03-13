@@ -42,16 +42,18 @@ verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
 falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
 
 def proposition(atomic_sentence):
+    """requires a sentence letter to be a proposition"""
     return (
         ForAll([x,y], Implies(And(verify(x,atomic_sentence), verify(y,atomic_sentence)), verify(fusion(x,y),atomic_sentence))),
         ForAll([x,y], Implies(And(falsify(x,atomic_sentence), falsify(y,atomic_sentence)), falsify(fusion(x,y),atomic_sentence))),
         ForAll([x,y], Implies(And(verify(x,atomic_sentence), falsify(y,atomic_sentence)), Not(possible(fusion(x,y))))),
-        ForAll(x, Implies(possible(x), Exists(y, And(possible(fusion(x,y)), Or(verify(y,atomic_sentence), falsify(y,atomic_sentence)))))),
+        # ForAll(x, Implies(possible(x), Exists(y, And(possible(fusion(x,y)), Or(verify(y,atomic_sentence), falsify(y,atomic_sentence)))))),
+        # B: we need to leave this last condition off until we know why it is crashing z3
     )
 
 solver = Solver()
 
-sentence_letters = [] # NOTE: adding A, B these seemed to crash the model
+sentence_letters = [A, B]
 for S in sentence_letters:
     for proposition_constraint in proposition(S):
         solver.add(proposition_constraint)
@@ -64,23 +66,10 @@ print (model[AtomSort])
 
 
 # frame constraints
-ForAll([x,y], Implies(And(possible(x), fusion(x,y) == x), possible(y)))
-# QUESTION: why not use is_part_of?
+solver.add(ForAll([x,y], Implies(And(possible(x), is_part_of(x,y)), possible(y))))
 
 # evaluation constraints
-# not sure how to proceed. How are we making worlds?
-ForAll(w,Implies(is_world(w), possible(w)))
-    # made an is_world Function (ie, not python function but Z3 Function) in states.py
-ForAll([x,w], Implies(And(is_world(w), possible(x), possible(fusion(x,w))), fusion(x,w) == w))
-    # added implicit is_world(w) constraint
-    # the last evaluation constraint is already accounted for in the for loop above
-    # B: why not use is_part_of here?
-    # B: can is_world be defined in states.md in a manner similar to is_part_of?
-    # B: or perhaps equivalence can be required with the following:
-ForAll(w, Implies(And(possible(w),
-                      ForAll(x, Implies(possible(fusion(x,w)),
-                                        is_part_of(x,w)))),
-                  is_world(w)))
+solver.add(is_world(w))
 
 def Alternatives(u,w,X):
     '''
@@ -90,38 +79,35 @@ def Alternatives(u,w,X):
         for any z, if is_part_of(z,w), compatible(z,x), and is_part_of(y,z), then y = z
     '''
     pass #TODO
-    # M: what do you have in mind in terms of regimentation when you write "where"? have some thoughts in my notebook
-    # B: fixed, though it might make more sense to define a function from possible_bits and sentence_letters to alternative_bits
 
 # M: we could redefine this function to take as input the output of tokenize in prefix_infix, I think. Do we want?
-# B: this says of an extensional sentence X (of any complexity) that it is true at w.
-# we will want to pass it sentences in prefix_infix notation, but it is of very general utility.
-# for this reason I'm thinking that it deserves to be its own function. but maybe I missed your question?
-
-def Semantics(w,X): 
+# B: this says of a sentence X (of any complexity) that it is true at w.
+# we will want to pass it sentences in prefix notation, but it is of very general utility.
+# for this reason I'm thinking that it deserves to be its own function.
+# but maybe I missed your question?
+def Semantics(w,X): # LINT: all or none of the return statements should be an expression
     '''sentence X is true at world w'''
-    if 'neg' in X[0]:
+    if isinstance(X[0],list):
+        # B: should 'list' be 'sentence_letters'?
+        return Exists([x], And(verify(x,X), is_part_of(x,w)))
+        # B: better would be to use open sentences but then we need to keep
+        # track of which constants have been used. I'm confused why Exists()
+        # claims don't seem to give good results.
+    if 'neg' in X[0] and 'boxright' not in X[1][0]:
         return Not(Semantics(w,X[1]))
-    elif 'wedge' in X[0]:
+    if 'wedge' in X[0]:
         return And(Semantics(w,X[1]),Semantics(w,X[2]))
-    elif 'vee' in X[0]:
+    if 'vee' in X[0]:
         return Or(Semantics(w,X[1]),Semantics(w,X[2]))
-    elif 'boxright' in X[0]:
-        pass
-        # M: what if box or boxright occur in Y?
-        # B: we will need clauses for those that employ extended_verify/extended_falsify
-        # the cleanest may be to think of the final elif as 'counterfactual or atomic'
-        # and replace verify with extended_verify... let's chat more about this
-    elif 'box' in X[0]:
-        pass
-        # M: what if box or boxright occur in Y?
-    elif isinstance(X[0],list): # atomic
-        return Exists([x], And(verify(x,X), is_part_of(x,w))) 
-    # M: can you check that I am interpreting this right? I think an existential is missing in the strat doc for this
+    if 'boxright' in X[0]:
+        return ForAll([s, v], Implies(And(extended_verify(s,X[1]), is_alternative(v, s, w)), Semantics(v,X[2])))
+    if 'neg' in X[0] and 'boxright' not in X[1][0]:
+        return Exists([s, v], And(extended_verify(s,X[1]), is_alternative(v, s, w), Not(Semantics(v,X[2]))))
+    else:
+        return print("Input Error")
     # B: this looks good, though there are some issues with existential quantifiers that I don't fully understand
     # might be better to just use new constants
 
-    # B: these seem to be shaping up nicely!
 
 def extended_verify(x,X):
     '''X is in prefix form. Same for extended_falsify'''
