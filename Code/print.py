@@ -115,7 +115,8 @@ def find_relations(all_bits, S, model):
     }
     poss_bits = [element for element in all_bits if model.evaluate(possible(element))]
     world_bits = poss_bits
-    for world in world_bits:
+    copy_wbits = poss_bits
+    for world in copy_wbits:
         for poss in poss_bits:
             if bit_proper_part(world, poss):
                 world_bits.remove(world)
@@ -123,25 +124,28 @@ def find_relations(all_bits, S, model):
     eval_world = model[w]
     # TODO: define alt_worlds in some better way
     # TODO: use bits until printing states
-    compatible_parts = {
-        bit_fusion(part,ver)
-        for part in poss_bits
-        for ver in ver_bits
-        if bit_part(part, eval_world)
-        and bit_fusion(part, ver) in poss_bits
-    }
-    max_comp_parts = compatible_parts
-    for max_bit in max_comp_parts:
-        for bit in compatible_parts:
-            if bit_proper_part(max_bit, bit):
-                max_comp_parts.remove(max_bit)
-                break
-    alt_num_worlds = {
-        alt
-        for alt in world_bits
-        for max_part in max_comp_parts
-        if bit_part(max_part, alt)
-    }
+    alt_num_worlds = set()
+    for ver in ver_bits:
+        comp_parts = set()
+        for part in poss_bits:
+            if bit_fusion(ver, part) in poss_bits:
+                if bit_part(part, eval_world):
+                    comp_parts.add(part)
+        max_comp_parts = comp_parts
+        copy_mcp = comp_parts
+        for max_part in copy_mcp:
+            for test in comp_parts:
+                if bit_proper_part(max_part, test):
+                    max_comp_parts.remove(max_part)
+                    break
+        max_comp_ver_parts = {
+            bit_fusion(ver, max)
+            for max in max_comp_parts
+        }
+        for world in world_bits:
+            for max_ver in max_comp_ver_parts:
+                if bit_part(max_ver, world):
+                    alt_num_worlds.add(world)
     alt_worlds = {
         bitvec_to_substates(alt)
         for alt in alt_num_worlds
