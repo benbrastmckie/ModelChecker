@@ -27,7 +27,6 @@ from definitions import (
     B,
     C,
     X,
-    # Y,
     fusion,
     is_part_of,
     is_world,
@@ -40,6 +39,8 @@ from definitions import (
     proposition,
     Equivalent,
 )
+
+# import multiprocessing
 
 from print import print_evaluation, print_propositions, print_states
 

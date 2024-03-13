@@ -12,14 +12,12 @@ from definitions import (
     falsify,
     alternative,
     bitvec_to_substates,
-    string_part,
     is_bitvector,
 )
 
 # TODO: define alternatives rather than declaring 'alternative' in Z3
 
-# QUESTION: I wonder if it would be better to work with states in bitvector
-# form since I imagine it will be easier and faster to operate on them.
+# TODO: convert to state_fusions only just before printing
 
 # TODO: I suspect there is something wrong with is_bitvector below since it
 # seems to include outputs x, s, w, t, u, y, k!491 when N = 5
@@ -31,17 +29,10 @@ def print_states(model):
     all_bits = {model[element] for element in model.decls() if is_bitvector(element)}
     bits_as_nums = [bit.as_long() for bit in all_bits]
     # possible_states = [bitvec_to_substates(BitVecVal(val, N)) for val in range(max_num * 2) if model.evaluate(possible(val))]
+    # B: is this not needed in the end? was confused about its purpose
     possible_bits = [bit for bit in all_bits if model.evaluate(possible(bit))]
     world_bits = possible_bits[:]
     for world in world_bits:
-    # what is this for loop doing?
-    # B: this is my attempt to define the worlds (as bits) given only possible_bits
-    # it starts with all possible_bits and then kicks out any that are proper parts
-    # of any possible_bit, thereby capturing the maximality of worlds. I trust there
-    # are better ways to do this.
-    # ohhh I understand (I missed the .remove() part). 
-    # This is actually a good way of doing it, it's really understandable/readable. 
-    # Looks good to me!
         for poss in possible_bits:
             if bit_proper_part(world, poss):
                 world_bits.remove(world)
@@ -94,8 +85,6 @@ def print_evaluation(model, sentence_letters):
         print("  " + false_eval_string + f"  (not true in {bitvec_to_substates(model[w])})")
 
 
-
-# BELOW is everything that was once in the big original function print_propositions.
 def relate_sents_and_states(all_bits, Sentence, model, relation):
     '''helper function for finding verifier and falisifer states to sentences in a model'''
     return {
@@ -127,11 +116,11 @@ def print_vers_and_fals(S, ver_states, fal_states):
     inputs: the verifier states and falsifier states. 
     Outputs: None, but prints the stuff we want printed'''
     if ver_states and fal_states:
-        print(f"  |{S}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(ver_states)} >")
+        print(f"  |{S}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(fal_states)} >")
     elif ver_states and not fal_states:
         print(f"  |{S}| = < {make_set_pretty_for_print(ver_states)}, ∅ >")
     elif not ver_states and fal_states:
-        print(f"  |{S}| = < ∅, {make_set_pretty_for_print(ver_states)} >")
+        print(f"  |{S}| = < ∅, {make_set_pretty_for_print(fal_states)} >")
     else:
         print(f"  |{S}| = < ∅, ∅ >")
 
@@ -141,11 +130,17 @@ def find_true_and_false_in_alt(alt_num, sentence_letters, all_bits, model):
     for R in sentence_letters:
         for bit in all_bits:
             # NOTE: replacing string_part with bit_part works but makes the linter angry
-            # what does the linter say? 
-            # I think bit comparisons may be more efficient—comparing strings like string_part does is potentially
+            # M: what does the linter say?
+            # B: Invalid conditional operand of type... then it lists some types
+            # M:I think bit comparisons may be more efficient—comparing strings like string_part does is potentially
             # inefficient for long (very long) strings (may not be a problem), but I'm sure that however Z3 compares and
             # simplifies bits is faster than what we have (since they are closer to the hardware representation).
             # Was there any particular reason you wanted to use string_part instead of bit_part?
+            # B: string_part was an artifact from where I was doing everything with state_fusions
+            # but it occurred to me that it would probably be better to do everything with
+            # bitvectors and only covert to state_fusions right before printing. currently
+            # it is converting to state fusions earlier than need be, but string_part is gone at least.
+
             if model.evaluate(verify(bit, model[R])) and bit_part(bit, alt_num):
                 true_in_alt.add(R)
                 break # breaks the `for bit in all_bits` for loop, NOT the big for loop
@@ -175,11 +170,13 @@ def print_alt_worlds(all_bits, S, sentence_letters, model, alt_num_worlds, alt_w
             true_in_alt, false_in_alt = find_true_and_false_in_alt(alt_num, sentence_letters, all_bits, model)
             print_alt_relation(true_in_alt, alt_num, 'true')
             print_alt_relation(false_in_alt, alt_num, 'not true')
-        print() # for an extra blank line?
+        print() # for an extra blank line? yes
 
     else:
         print(f"  There are no {S}-alternatives to {bitvec_to_substates(model[w])}")
-        print() # for an extra blank line?
+        print()
+        # M: for an extra blank line?
+        # B: yes, seemed like \n created two blank lines at the end, but maybe there is a better way
 
 def print_prop(all_bits, S, sentence_letters, model):
     '''prints all the stuff for one proposition. returns None'''
@@ -189,9 +186,6 @@ def print_prop(all_bits, S, sentence_letters, model):
     print_alt_worlds(all_bits, S, sentence_letters, model, alt_num_worlds, alt_worlds)
 
 def print_propositions(model, sentence_letters):
-    # TODO: too many branches? can this be simplified?
-    # TODO: I couldn't figure out how to remove the quotes from the states
-    # NOTE: seems like it might be better to use sorted lists than sets as below?
     '''
     print each propositions and the alternative worlds in which it is true
     '''
