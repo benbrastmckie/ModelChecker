@@ -105,7 +105,7 @@ def Semantics(w,X): # LINT: all or none of the return statements should be an ex
         return Exists([s, v], And(extended_verify(s,X[1]), is_alternative(v, s, w), Not(Semantics(v,X[2]))))
     else:
         return print("Input Error")
-    # B: this looks good, though there are some issues with existential quantifiers that I don't fully understand
+    # B: there are some issues with existential quantifiers that I don't fully understand
     # might be better to just use new constants
 
 
