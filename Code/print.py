@@ -126,22 +126,21 @@ def find_relations(all_bits, S, model):
     # TODO: use bits until printing states
     alt_num_worlds = set()
     for ver in ver_bits:
-        comp_parts = set()
+        comp_parts = []
         for part in poss_bits:
             if bit_fusion(ver, part) in poss_bits:
                 if bit_part(part, eval_world):
-                    comp_parts.add(part)
-        max_comp_parts = comp_parts
-        copy_mcp = comp_parts
-        for max_part in copy_mcp:
+                    comp_parts.append(part)
+        max_comp_parts = comp_parts[:]
+        for max_part in comp_parts:
             for test in comp_parts:
                 if bit_proper_part(max_part, test):
                     max_comp_parts.remove(max_part)
                     break
-        max_comp_ver_parts = {
+        max_comp_ver_parts = [
             bit_fusion(ver, max)
             for max in max_comp_parts
-        }
+        ]
         for world in world_bits:
             for max_ver in max_comp_ver_parts:
                 if bit_part(max_ver, world):
