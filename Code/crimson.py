@@ -54,6 +54,7 @@ solver.add(
     # every part of a possible state is possible
     ForAll([x, y], Exists(z, fusion(x, y) == z)),
     # states are closed under fusion
+    # ForAll(w, Equivalent(is_world(w), world(w))
     ForAll(
         [u, y],
         Equivalent(

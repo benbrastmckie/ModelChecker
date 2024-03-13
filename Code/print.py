@@ -64,16 +64,9 @@ def print_evaluation(model, sentence_letters):
     true_in_eval = set()
     for sent in sentence_letters:
         for bit in all_bits:
-            if model.evaluate(verify(bit, model[sent])) and bit_part(bit, eval_world): # invalid conditional operand?
+            if bool(model.evaluate(verify(bit, model[sent]))) and bool(bit_part(bit, eval_world)):
                 true_in_eval.add(sent)
                 break
-    # what is the for loop doing?
-    # B: this is my attempt to determine which sentences have verifiers in the evaluation world,
-    # including just those sentences in true_in_eval. for each sentence letter and bit, the loop
-    # checks if that bit is a part of the eval_world and verifies the sentence letter. as soon as
-    # it finds a bit that is a part of the eval world that verifies the sentence, it adds it to
-    # the true_in_eval set and breaks out of the loop since we only need one verifier to make the
-    # sentence true and be a part of the eval_world.
     false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
     if true_in_eval:
         true_eval_list = sorted([str(sent) for sent in true_in_eval])
