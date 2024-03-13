@@ -34,7 +34,7 @@ def print_states(model):
     world_bits = possible_bits[:]
     for world in world_bits:
         for poss in possible_bits:
-            if bit_proper_part(world, poss):
+            if bit_proper_part(world, poss): # invalid conditional operand?
                 world_bits.remove(world)
                 break
 
@@ -64,7 +64,7 @@ def print_evaluation(model, sentence_letters):
     true_in_eval = set()
     for sent in sentence_letters:
         for bit in all_bits:
-            if model.evaluate(verify(bit, model[sent])) and bit_part(bit, eval_world):
+            if model.evaluate(verify(bit, model[sent])) and bit_part(bit, eval_world): # invalid conditional operand?
                 true_in_eval.add(sent)
                 break
     # what is the for loop doing?
@@ -98,6 +98,9 @@ def find_relations(all_bits, S, model):
     returns a tuple (ver_states, fal_states, alt_num_worlds, alt_worlds)'''
     ver_states = relate_sents_and_states(all_bits, S, model, verify)
     fal_states = relate_sents_and_states(all_bits, S, model, falsify)
+    # TODO: I have been trying to define alt_num_worlds without using 
+    # alternative as below. I got something running, but it doesn't get the
+    # alt_worlds right. see the min_declare branch.
     alt_num_worlds = {  # S-alternatives to the designated world w as numbers
         alt_world
         for alt_world in all_bits
@@ -141,7 +144,7 @@ def find_true_and_false_in_alt(alt_num, sentence_letters, all_bits, model):
             # bitvectors and only covert to state_fusions right before printing. currently
             # it is converting to state fusions earlier than need be, but string_part is gone at least.
 
-            if model.evaluate(verify(bit, model[R])) and bit_part(bit, alt_num):
+            if model.evaluate(verify(bit, model[R])) and bit_part(bit, alt_num): # invalid conditional operand?
                 true_in_alt.add(R)
                 break # breaks the `for bit in all_bits` for loop, NOT the big for loop
     false_in_alt = {R for R in sentence_letters if not R in true_in_alt}
@@ -165,7 +168,8 @@ def print_alt_worlds(all_bits, S, sentence_letters, model, alt_num_worlds, alt_w
     if alt_worlds:
         print(f"  {S}-alternatives to {bitvec_to_substates(model[w])} = {make_set_pretty_for_print(alt_worlds)}")
         # TODO: not sure how to sort alt_worlds and alt_num_worlds so that they appear in order
-        # if this is abt printing I think pretty_print should make them in order. Let me know if they're not in order tho (or if this is abt smth else)
+        # M: if this is abt printing I think pretty_print should make them in order. Let me know if they're not in order tho (or if this is abt smth else)
+        # B: looks good!
         for alt_num in alt_num_worlds:
             true_in_alt, false_in_alt = find_true_and_false_in_alt(alt_num, sentence_letters, all_bits, model)
             print_alt_relation(true_in_alt, alt_num, 'true')
