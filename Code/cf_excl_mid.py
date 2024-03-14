@@ -34,10 +34,7 @@ from definitions import (
     verify,
     falsify,
     is_alternative,
-    compatible_part,
-    alternative,
     proposition,
-    Equivalent,
 )
 
 # import multiprocessing
@@ -56,18 +53,6 @@ solver.add(
     # every part of a possible state is possible
     ForAll([x, y], Exists(z, fusion(x, y) == z)),
     # states are closed under fusion
-    ForAll(
-        [u, y],
-        Equivalent(  # TODO: replace with Z3 equiv if any?
-            alternative(u, y, w),
-            And(
-                is_world(u),
-                is_part_of(y, u),
-                Exists(z, And(is_part_of(z, u), compatible_part(z, w, y))),
-            ),
-        ),
-    ),
-    # constraints on alternative predicate
 
     # MODEL CONSTRAINT
     ForAll(X, proposition(X)),
@@ -114,7 +99,7 @@ solver.add(
 
 if solver.check() == sat:
     print("\nThere is a model of:")
-    print("A => B vee C")
+    print("A => B v C")
     print("~(A => B)")
     print("~(A => C)")
     model = solver.model()
@@ -123,6 +108,6 @@ if solver.check() == sat:
     print_propositions(model, sentence_letters)
 else:
     print("\nThere are no models of:\n")
-    print("A => B vee C")
+    print("A => B v C")
     print("~(A => B)")
     print("~(A => C)\n")

@@ -96,9 +96,24 @@ def fusion(bit_s, bit_t):
     return bit_s | bit_t
 
 
+def bit_fusion(bit_s, bit_t):
+    """the result of taking the maximum for each index in _s and _t"""
+    return simplify(bit_s | bit_t)
+
+
 def is_part_of(bit_s, bit_t):
     '''the fusion of bit_s and bit_t is identical to bit_t'''
     return fusion(bit_s, bit_t) == bit_t
+
+
+def bit_part(bit_s, bit_t):
+    """the fusion of _s and _t is identical to bit_t"""
+    return simplify(bit_fusion(bit_s, bit_t) == bit_t)
+
+
+def bit_proper_part(bit_s, bit_t):
+    """bit_s is a part of bit_t and bit_t is not a part of bit_s"""
+    return bit_part(bit_s, bit_t) and not bit_part(bit_t, bit_s)
 
 
 def compatible(bit_x, bit_y):
@@ -198,13 +213,6 @@ def total_fusion(list_of_states):
 
 def index_to_substate(index):
     '''
-    @B: Here's one potential solution to the more-than-26 problem. I think it's good because
-    it makes examples less than 26 very readable, and only gets unreadable for more than like
-    100 states (bc lots of letters in a row). With the way python does subindices it might look
-    odd if we do subindices from the beginning (or we could do a prime type thing). 
-    In other words, let me know if there is a way you'd prefer this to be represented, and I'll
-    edit it to match that!
-    helper function for bitvec_to_substates
     >>> index_to_substate(0)
     'a'
     >>> index_to_substate(26)
@@ -225,19 +233,10 @@ def index_to_substate(index):
 
 def bitvec_to_substates(bit_vec):
     '''converts bitvectors to fusions of atomic states.
-    @B: see index_to_substate() above
     '''
-    # TODO: can `sexpr()` be replaced with `bin(bit_vec)`
     bit_vec_as_string = bit_vec.sexpr()
-    # print(type(bit_vec_as_string))
     bit_vec_backwards = bit_vec_as_string[::-1]
-    # print(bit_vec_backwards)
     state_repr = ""
-    alphabet = "abcdefghijklmnopqrstuvwxyz"
-    # NOTE: this will only work for 26 states
-    # could make a general function with a list, taking the quotient and remainder
-    # then make the number of letters depends on how many sets of 26 you are in deep
-    # TODO: this is ok for now, but we will want to be able to handle more than 26
     for i, char in enumerate(bit_vec_backwards):
         if char == "b":
             if not state_repr:
@@ -246,32 +245,6 @@ def bitvec_to_substates(bit_vec):
         if char == "1":
             state_repr += index_to_substate(i)
             state_repr += "."
-
-
-def bit_fusion(bit_s, bit_t):
-    """the result of taking the maximum for each index in _s and _t"""
-    return simplify(bit_s | bit_t)
-
-
-def bit_part(bit_s, bit_t):
-    """the fusion of _s and _t is identical to bit_t"""
-    return simplify(bit_fusion(bit_s, bit_t) == bit_t)
-
-
-def bit_proper_part(bit_s, bit_t):
-    """bit_s is a part of bit_t and bit_t is not a part of bit_s"""
-    return bit_part(bit_s, bit_t) and not bit_part(bit_t, bit_s)
-
-
-# these definitions will start getting inefficient after too many substates because they're in O(n)—where are they used?
-def state_part(st_x,st_y):
-    '''the state st_x is a part of the state st_y''' 
-    return str(st_x) in str(st_y) or st_x == "□" # what type is st_x before being casted as a str?
-
-
-def string_part(bit_x,bit_y):
-    '''the string bit_x is a part of the string bit_y'''
-    return str(bitvec_to_substates(bit_x)) in str(bitvec_to_substates(bit_y))
 
 
 def Equivalent(cond_a,cond_b):
