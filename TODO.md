@@ -8,7 +8,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - B: looks much better!
   - B: replacing `string_part` in `print.py` with `bit_part` seems to work, but my linter doesn't like it. not sure if that is any concern.
   - M: Cleaned up what I hadn't been able to get to before and left comments—feel free to delete any comments that are resolved/solved (linter issue unsolved, but I wasn't getting it on my end, maybe your linter is stricter than mine lol)
-- [ ] _M_ `is_bitvector` in `print.py` for `N > 4` (see TODO in `print.py`)
+- [x] _M_ `is_bitvector` in `print.py` for `N > 4` (see TODO in `print.py`)
 - [x] _M_ allow for more than 26 atomic states in `bitvec_to_substates`
   - M: I have a soln, something that seemed intuitive to me (not subindices), however let me know if
   you want a different one. It'd be a simple change, so whatever you want it to be represented as let

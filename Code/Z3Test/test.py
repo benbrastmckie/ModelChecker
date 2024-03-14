@@ -34,7 +34,7 @@ def prove(f):
     else:
         print("failed to prove")
 
-
+print(bool(BitVecVal(0,5)))
 # print ("Proving demorgan...")
 # prove(demorgan)
 
