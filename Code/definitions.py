@@ -67,7 +67,7 @@ w = BitVec("w", N)
 # primitive properties and relations
 possible = Function("possible", BitVecSort(N), BoolSort())
 # world = Function("world", BitVecSort(N), BoolSort())
-alternative = Function("alt_world", BitVecSort(N), BitVecSort(N), BitVecSort(N), BoolSort())
+# alternative = Function("alt_world", BitVecSort(N), BitVecSort(N), BitVecSort(N), BoolSort())
 verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
 falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
 # parthood = Function("parthood", BitVecSort(N), BitVecSort(N), BoolSort())
@@ -78,7 +78,7 @@ falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
 def is_bitvector(bit_s):
     '''bit_s is a bitvector'''
     if isinstance(bit_s, BitVecNumRef):
-        return True 
+        return True
     return False
 
 def non_null_verify(bit_s,atom):

@@ -150,18 +150,18 @@ def print_vers_and_fals(S, ver_bits, fal_bits):
     else:
         print(f"  |{S}| = < ∅, ∅ >")
 
-def find_true_and_false_in_alt(alt_num, sentence_letters, all_bits, model):
+def find_true_and_false_in_alt(alt_bit, sentence_letters, all_bits, model):
     '''returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.'''
     true_in_alt = set()
     for R in sentence_letters:
         for bit in all_bits:
-            if bool(model.evaluate(verify(bit, model[R]))) and bool(bit_part(bit, alt_num)):
+            if bool(model.evaluate(verify(bit, model[R]))) and bool(bit_part(bit, alt_bit)):
                 true_in_alt.add(R)
                 break # breaks the `for bit in all_bits` for loop, NOT the big for loop
     false_in_alt = {R for R in sentence_letters if not R in true_in_alt}
     return true_in_alt, false_in_alt
 
-def print_alt_relation(alt_relation_set, alt_num, relation_truth_value):
+def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value):
     '''true is a string representing the relation ("true" for true_in_alt; m.m. for false) that is being used for
     returns None, only prints'''
     if not alt_relation_set:
@@ -169,9 +169,9 @@ def print_alt_relation(alt_relation_set, alt_num, relation_truth_value):
     alt_relation_list = sorted([str(sent) for sent in alt_relation_set])
     alt_relation_string = ", ".join(alt_relation_list)
     if len(alt_relation_set) == 1:
-        print(f"    {alt_relation_string} is {relation_truth_value} in {bitvec_to_substates(alt_num)}")
+        print(f"    {alt_relation_string} is {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
     else:
-        print(f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_num)}")
+        print(f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
 
 
 def print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits):
@@ -182,10 +182,10 @@ def print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits):
     }
     if alt_worlds:
         print(f"  {S}-alternatives to {bitvec_to_substates(model[w])} = {make_set_pretty_for_print(alt_worlds)}")
-        for alt_num in alt_bits:
-            true_in_alt, false_in_alt = find_true_and_false_in_alt(alt_num, sentence_letters, all_bits, model)
-            print_alt_relation(true_in_alt, alt_num, 'true')
-            print_alt_relation(false_in_alt, alt_num, 'not true')
+        for alt_bit in alt_bits:
+            true_in_alt, false_in_alt = find_true_and_false_in_alt(alt_bit, sentence_letters, all_bits, model)
+            print_alt_relation(true_in_alt, alt_bit, 'true')
+            print_alt_relation(false_in_alt, alt_bit, 'not true')
         print() # for an extra blank line
     else:
         print(f"  There are no {S}-alternatives to {bitvec_to_substates(model[w])}")
