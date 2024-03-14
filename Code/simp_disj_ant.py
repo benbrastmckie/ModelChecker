@@ -35,11 +35,7 @@ from definitions import (
     verify,
     falsify,
     is_alternative,
-    compatible_part,
-    alternative,
     proposition,
-    maximal,
-    Equivalent,
 )
 
 from print import print_evaluation, print_propositions, print_states
@@ -56,18 +52,6 @@ solver.add(
     # every part of a possible state is possible
     ForAll([x, y], Exists(z, fusion(x, y) == z)),
     # states are closed under fusion
-    ForAll(
-        [u, y],
-        Equivalent(  # TODO: replace with Z3 equiv if any?
-            alternative(u, y, w),
-            And(
-                is_world(u),
-                is_part_of(y, u),
-                Exists(z, And(is_part_of(z, u), compatible_part(z, w, y))),
-            ),
-        ),
-    ),
-    # constraints on alternative predicate
 
     # MODEL CONSTRAINT
     ForAll(X, proposition(X)),

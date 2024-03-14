@@ -78,7 +78,7 @@ def print_evaluation(model, sentence_letters):
         print("  " + false_eval_string + f"  (not true in {bitvec_to_substates(model[w])})")
 
 
-def relate_sents_and_states(all_bits, Sentence, model, relation):
+def relate_sents_and_states(all_bits, sentence, model, relation):
     '''helper function for finding verifier and falisifer states to sentences in a model'''
     return {
             bit
