@@ -27,7 +27,9 @@ from z3 import (
 ### DECLARATIONS ###
 
 # number of atomic states
-N = 3
+# N = 3 # works
+# N = 4 # doesn't work
+N = 5 # works
 
 # sentence letters: sort definition, constants, and variables
 # B: do we need a constant for each sentence letter in sentence_letters?
@@ -176,22 +178,22 @@ def proposition(atom):
         ForAll(
             [x, y],
             Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
-        ),
+        ), # verifiers for atom are closed under fusion
         ForAll(
             [x, y],
             Implies(And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)),
-        ),
+        ), # falsifiers for atom are closed under fusion
         ForAll(
             [x, y],
-            Implies(And(verify(x, atom), falsify(y, atom)), Not(possible(fusion(x, y)))),
-        ),
+            Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
+        ), # verifiers and falsifiers for atom are incompatible
         # ForAll(
         #     x,
         #     Implies(
         #         possible(x),
         #         Exists(y, And(compatible(x, y), Or(verify(y, atom), falsify(y, atom)))),
         #     ),
-        # ),
+        # ), # every possible state is compatible with either a verifier or falsifier for atom
         # NOTE: adding the constraint above makes Z3 crash
         # without this constraint the logic is not classical (there could be truth-value gaps)
     )

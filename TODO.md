@@ -4,36 +4,24 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Refine and Optimize
 
-- [x] _M_ functions in `print.py` can probably be improved (see notes there)
-  - B: looks much better!
-  - B: replacing `string_part` in `print.py` with `bit_part` seems to work, but my linter doesn't like it. not sure if that is any concern.
-  - M: Cleaned up what I hadn't been able to get to before and left comments—feel free to delete any comments that are resolved/solved (linter issue unsolved, but I wasn't getting it on my end, maybe your linter is stricter than mine lol)
-- [ ] _M_ `is_bitvector` in `print.py` for `N > 4` (see TODO in `print.py`)
-- [x] _M_ allow for more than 26 atomic states in `bitvec_to_substates`
-  - M: I have a soln, something that seemed intuitive to me (not subindices), however let me know if
-  you want a different one. It'd be a simple change, so whatever you want it to be represented as let
-  me know and I can change it to that
-- [.] _M_ avoid having to make N not equal to a power of 2
-  - M: I did some more digging around and it looks like there's no way around this, even within Z3 languages so to speak. There is a way to make all bitvecs in decimal format, but that's not something useful for us. My best source so far: https://microsoft.github.io/z3guide/docs/theories/Bitvectors/ (and other websites that say the same thing). This also makes sense given how .sexpr() works: it takes in the Z3 object in C and its location (https://z3prover.github.io/api/html/classz3py_1_1_ast_ref.html#ab41c56f8b1c61ace1b28a163103d86b4), making me think that the hexadecimal format for multiples of 4 (I thought it was powers of 2, but it's actually mults of 4) gets pretty down to low-level representation, meaning it's not like a more surface level thing we can flip. (copied and pasted this to relevant part in Questions.md)
-- [x] _M_ remove quotes from output of `bitvec_to_substates` when printing
-  - M: I think this is solved (with `make_set_pretty_for_print` function in `print.py`. Let me know if there's anything missing)
-  - B: Looks perfect!
-- [x] _M_ `Equivalent` function in Z3?
-  - M: seems you can just use `==` (I'm pretty sure but not 100% sure). I left the `Equivalent` function we had and replaced its body to the new definition `==`; if you notice any changes or anything going wrong, we can always switch back to the old one. However, I am almost certain that if equivalence isn't represented by `==`, then there is no function for equivalence (cf: https://microsoft.github.io/z3guide/docs/logic/propositional-logic, and in the list of all funcs in Z3, could not find anything that looked like it'd reasonably be equivalence)
-  - B: Awesome! It works great!
+- [ ] add benchmarks tooling
+- [ ] ssh to supercomputer
+- [ ] multiprocessing
+- [ ] _B_ ask graham about
+  - [ ] existential quantifier claims
+  - [ ] trace
+  - [ ] hexadecimal for `N > 4`
+- [.] _M_ avoid having to make `N` not equal to a multiple of 4
+- [ ] extract helper function from `alt_bit` def in `print.py`
 
-## Definitions
+## Semantics
 
-- [x] _M_ `extended_verify` see strategies
-- [x] _M_ `extended_falsify` see strategies
-    - M: at the end of `semantics.py` (both extended verify and falsify)
-- [x] _M_ recursive definition of `true` see strategies
-    - M: at the end of `semantics.py`
+- [ ] _B_ organize semantics
 
 ## Models
 
-- [ ] show `{ A \boxright (B \vee C), \neg(A \boxright B), \neg(A \boxright C) }` is sat
-- [ ] show `{ (A \vee B) \boxright C, \neg(A \boxright B) }` is unsat
+- [ ] _M_ show `{ A \boxright B, A \wedge B \boxright C, \neg(A \boxright C) }` is unsat
+- [ ] _M_ show `{ A \boxright B, B \boxright C, \neg(A \boxright C) }` is sat
 
 ## Constraint Generators
 
@@ -57,6 +45,25 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 # Completed
 
+## Refine and Optimize
+
+- [x] _B_ push conversion from bits to states late in print
+- [x] _B_ integrate `alt_worlds`
+- [x] _M_ functions in `print.py` can probably be improved (see notes there)
+  - B: looks much better!
+  - B: replacing `string_part` in `print.py` with `bit_part` seems to work, but my linter doesn't like it. not sure if that is any concern.
+  - M: Cleaned up what I hadn't been able to get to before and left comments—feel free to delete any comments that are resolved/solved
+  - M: linter issue unsolved, but I wasn't getting it on my end, maybe your linter is stricter than mine lol
+- [x] _M_ allow for more than 26 atomic states in `bitvec_to_substates`
+  - M: I have a soln, something that seemed intuitive to me (not subindices)
+  - B: looks great!
+- [x] _M_ remove quotes from output of `bitvec_to_substates` when printing
+  - M: I think this is solved (with `make_set_pretty_for_print` function in `print.py`. Let me know if there's anything missing)
+  - B: Looks perfect!
+- [x] _M_ `Equivalent` function in Z3?
+  - M: seems you can just use `==` (I'm pretty sure but not 100% sure). I left the `Equivalent` function we had and replaced its body to the new definition `==`; if you notice any changes or anything going wrong, we can always switch back to the old one. However, I am almost certain that if equivalence isn't represented by `==`, then there is no function for equivalence (cf: https://microsoft.github.io/z3guide/docs/logic/propositional-logic, and in the list of all funcs in Z3, could not find anything that looked like it'd reasonably be equivalence)
+  - B: Awesome! It works great!
+
 ## Strategies
 
 - [x] _B_ model checker design strategies
@@ -70,6 +77,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] _B_ revise
 ## Models
 
+- [x] _B_ show `{ A \boxright (B \vee C), \neg(A \boxright B), \neg(A \boxright C) }` is sat
+- [x] _B_ show `{ (A \vee B) \boxright C, \neg(A \boxright B) }` is unsat
 - [x] countermodel for `A, B \vdash A \boxright B`
   - [x] _B_ build concrete model
   - [:] debug Z3 crashing issues in `test_model.py`
@@ -101,6 +110,11 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Definitions
 
+- [x] _M_ `extended_verify` see strategies
+- [x] _M_ `extended_falsify` see strategies
+    - M: at the end of `semantics.py` (both extended verify and falsify)
+- [x] _M_ recursive definition of `true` see strategies
+    - M: at the end of `semantics.py`
 - [x] _B_ `proposition` see strategies
 - [x] _B_ add docstrings to `definitions.py`
 - [x] _B_ maximal
