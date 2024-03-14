@@ -89,18 +89,10 @@ def relate_sents_and_states(all_bits, sentence, model, relation):
 
 
 def find_relations(all_bits, S, model):
-    '''for a given sentence letter S and a list all_bits and a model, finds the relations verify, falsify, alt_num_worlds, and alt_worlds for that sentence in that model
-    returns a tuple (ver_states, fal_states, alt_num_worlds, alt_worlds)'''
+    '''for a given sentence letter S and a list all_bits and a model, finds the relations verify, falsify, and alt_bits for that sentence in that model
+    returns a tuple (ver_states, fal_states, alt_bits)'''
     ver_bits = relate_sents_and_states(all_bits, S, model, verify)
     fal_bits = relate_sents_and_states(all_bits, S, model, falsify)
-    ver_states = {
-        bitvec_to_substates(bit)
-        for bit in ver_bits
-    }
-    fal_states = {
-        bitvec_to_substates(bit)
-        for bit in fal_bits
-    }
     poss_bits = [element for element in all_bits if model.evaluate(possible(element))]
     world_bits = poss_bits[:]
     for world in world_bits:
@@ -109,9 +101,9 @@ def find_relations(all_bits, S, model):
                 world_bits.remove(world)
                 break
     eval_world = model[w]
-    # TODO: define alt_worlds in some better way
     # TODO: use bits until printing states
-    alt_num_worlds = set()
+    # TODO: extract helper functions from this mess
+    alt_bits = set()
     for ver in ver_bits:
         comp_parts = []
         for part in poss_bits:
@@ -131,18 +123,23 @@ def find_relations(all_bits, S, model):
         for world in world_bits:
             for max_ver in max_comp_ver_parts:
                 if bit_part(max_ver, world):
-                    alt_num_worlds.add(world)
-    alt_worlds = {
-        bitvec_to_substates(alt)
-        for alt in alt_num_worlds
-    }
-    return (ver_states, fal_states, alt_num_worlds, alt_worlds)
+                    if not world == eval_world:
+                        alt_bits.add(world)
+    return (ver_bits, fal_bits, alt_bits)
 
 
-def print_vers_and_fals(S, ver_states, fal_states):
+def print_vers_and_fals(S, ver_bits, fal_bits):
     '''prints the verifiers and falsifier states for a Sentence.
     inputs: the verifier states and falsifier states. 
     Outputs: None, but prints the stuff we want printed'''
+    ver_states = {
+        bitvec_to_substates(bit)
+        for bit in ver_bits
+    }
+    fal_states = {
+        bitvec_to_substates(bit)
+        for bit in fal_bits
+    }
     if ver_states and fal_states:
         print(f"  |{S}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(fal_states)} >")
     elif ver_states and not fal_states:
@@ -188,14 +185,15 @@ def print_alt_relation(alt_relation_set, alt_num, relation_truth_value):
         print(f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_num)}")
 
 
-def print_alt_worlds(all_bits, S, sentence_letters, model, alt_num_worlds, alt_worlds):
+def print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits):
     '''prints everything that has to do with alt worlds'''
+    alt_worlds = {
+        bitvec_to_substates(alt)
+        for alt in alt_bits
+    }
     if alt_worlds:
         print(f"  {S}-alternatives to {bitvec_to_substates(model[w])} = {make_set_pretty_for_print(alt_worlds)}")
-        # TODO: not sure how to sort alt_worlds and alt_num_worlds so that they appear in order
-        # M: if this is abt printing I think pretty_print should make them in order. Let me know if they're not in order tho (or if this is abt smth else)
-        # B: looks good!
-        for alt_num in alt_num_worlds:
+        for alt_num in alt_bits:
             true_in_alt, false_in_alt = find_true_and_false_in_alt(alt_num, sentence_letters, all_bits, model)
             print_alt_relation(true_in_alt, alt_num, 'true')
             print_alt_relation(false_in_alt, alt_num, 'not true')
@@ -209,10 +207,10 @@ def print_alt_worlds(all_bits, S, sentence_letters, model, alt_num_worlds, alt_w
 
 def print_prop(all_bits, S, sentence_letters, model):
     '''prints all the stuff for one proposition. returns None'''
-    ver_states, fal_states, alt_num_worlds, alt_worlds = find_relations(all_bits, S, model)
+    ver_states, fal_states, alt_bits = find_relations(all_bits, S, model)
     # Print propositions:
     print_vers_and_fals(S, ver_states, fal_states)
-    print_alt_worlds(all_bits, S, sentence_letters, model, alt_num_worlds, alt_worlds)
+    print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits)
 
 def print_propositions(model, sentence_letters):
     '''
