@@ -26,15 +26,16 @@ from definitions import (
 
 def print_states(model):
     '''print all fusions of atomic states in the model'''
-    all_bits = {model[element] for element in model.decls() if is_bitvector(element)}
+    all_bits = {model[element] for element in model.decls() if is_bitvector(model[element])}
+    # print([type(bit) for bit in all_bits]) # these were mine from debugging; leave them (uncommented) for now, we might need them later if the N>4 issue hasn't been fixed
+    # print([bit for bit in all_bits])
+    # print([bit.sort() for bit in all_bits])
     bits_as_nums = [bit.as_long() for bit in all_bits]
-    # possible_states = [bitvec_to_substates(BitVecVal(val, N)) for val in range(max_num * 2) if model.evaluate(possible(val))]
-    # B: is this not needed in the end? was confused about its purpose
     possible_bits = [bit for bit in all_bits if model.evaluate(possible(bit))]
     world_bits = possible_bits[:]
     for world in world_bits:
         for poss in possible_bits:
-            if bit_proper_part(world, poss): # invalid conditional operand?
+            if bool(bit_proper_part(world, poss)):
                 world_bits.remove(world)
                 break
 
@@ -154,19 +155,7 @@ def find_true_and_false_in_alt(alt_num, sentence_letters, all_bits, model):
     true_in_alt = set()
     for R in sentence_letters:
         for bit in all_bits:
-            # NOTE: replacing string_part with bit_part works but makes the linter angry
-            # M: what does the linter say?
-            # B: Invalid conditional operand of type... then it lists some types
-            # M:I think bit comparisons may be more efficient—comparing strings like string_part does is potentially
-            # inefficient for long (very long) strings (may not be a problem), but I'm sure that however Z3 compares and
-            # simplifies bits is faster than what we have (since they are closer to the hardware representation).
-            # Was there any particular reason you wanted to use string_part instead of bit_part?
-            # B: string_part was an artifact from where I was doing everything with state_fusions
-            # but it occurred to me that it would probably be better to do everything with
-            # bitvectors and only covert to state_fusions right before printing. currently
-            # it is converting to state fusions earlier than need be, but string_part is gone at least.
-
-            if model.evaluate(verify(bit, model[R])) and bit_part(bit, alt_num): # invalid conditional operand?
+            if bool(model.evaluate(verify(bit, model[R]))) and bool(bit_part(bit, alt_num)):
                 true_in_alt.add(R)
                 break # breaks the `for bit in all_bits` for loop, NOT the big for loop
     false_in_alt = {R for R in sentence_letters if not R in true_in_alt}
@@ -197,13 +186,10 @@ def print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits):
             true_in_alt, false_in_alt = find_true_and_false_in_alt(alt_num, sentence_letters, all_bits, model)
             print_alt_relation(true_in_alt, alt_num, 'true')
             print_alt_relation(false_in_alt, alt_num, 'not true')
-        print() # for an extra blank line? yes
-
+        print() # for an extra blank line
     else:
         print(f"  There are no {S}-alternatives to {bitvec_to_substates(model[w])}")
-        print()
-        # M: for an extra blank line?
-        # B: yes, seemed like \n created two blank lines at the end, but maybe there is a better way
+        print() # for an extra blank line
 
 def print_prop(all_bits, S, sentence_letters, model):
     '''prints all the stuff for one proposition. returns None'''
