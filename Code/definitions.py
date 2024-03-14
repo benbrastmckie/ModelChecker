@@ -16,6 +16,8 @@ from z3 import (
     And,
     Or,
     simplify,
+    BitVecVal,
+    BitVecNumRef,
 )
 
 
@@ -27,7 +29,7 @@ from z3 import (
 ### DECLARATIONS ###
 
 # number of atomic states
-N = 3
+N = 7
 
 # sentence letters: sort definition, constants, and variables
 # B: do we need a constant for each sentence letter in sentence_letters?
@@ -73,8 +75,9 @@ falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
 
 def is_bitvector(bit_s):
     '''bit_s is a bitvector'''
-    return bit_s.range().kind() == Z3_BV_SORT
-
+    if isinstance(bit_s, BitVecNumRef):
+        return True 
+    return False
 
 def non_null_verify(bit_s,atom):
     '''bit_s verifies atom and is not the null state'''
