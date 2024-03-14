@@ -59,7 +59,7 @@ def print_states(model):
 def print_evaluation(model, sentence_letters):
     '''print the evaluation world and all sentences true/false in that world
     sentence letters is an iterable (a list, I think?)'''
-    all_bits = [model[element] for element in model.decls() if is_bitvector(element)]
+    all_bits = [model[element] for element in model.decls() if is_bitvector(model[element])]
     eval_world = model[w]
     print(f"\nThe evaluation world is {bitvec_to_substates(model[w])}:")
     true_in_eval = set()
@@ -202,7 +202,7 @@ def print_propositions(model, sentence_letters):
     '''
     print each propositions and the alternative worlds in which it is true
     '''
-    all_bits = {model[element] for element in model.decls() if is_bitvector(element)}
+    all_bits = {model[element] for element in model.decls() if is_bitvector(model[element])}
     print("\nPropositions:")
     for S in sentence_letters:
         print_prop(all_bits, S, sentence_letters, model)
