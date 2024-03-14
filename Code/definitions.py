@@ -29,7 +29,8 @@ from z3 import (
 ### DECLARATIONS ###
 
 # number of atomic states
-N = 3 # works
+N = 2 # works
+# N = 3 # works
 # N = 4 # doesn't work
 # N = 5 # works
 
