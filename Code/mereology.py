@@ -63,9 +63,11 @@ solver.add(
     # there is a world w
     is_part_of(a, w),
     non_null_verify(a, A),
+    Not(non_null_verify(a, B)),
     # A is true in w
     is_part_of(b, w),
-    non_null_falsify(b, B),
+    non_null_verify(b, B),
+    Not(non_null_verify(b, A)),
     # B is true in w
     is_world(u),
     # there is a world w

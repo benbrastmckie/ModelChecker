@@ -20,8 +20,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Models
 
-- [ ] _M_ show `{ A \boxright B, A \wedge B \boxright C, \neg(A \boxright C) }` is unsat
-- [ ] _M_ show `{ A \boxright B, B \boxright C, \neg(A \boxright C) }` is sat
+- [ ] _M_ show that `A \boxright B, A \wedge B \boxright C` entails `A \boxright C`
+- [ ] _M_ show that `A \boxright B, B \boxright C` do not entail ``A \boxright C`
 
 ## Constraint Generators
 
