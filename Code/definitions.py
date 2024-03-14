@@ -81,14 +81,15 @@ def is_bitvector(bit_s):
         return True
     return False
 
-def non_null_verify(bit_s,atom):
+
+def non_null_verify(bit_s, atom):
     '''bit_s verifies atom and is not the null state'''
-    return And(bit_s != 0, verify(bit_s,atom))
+    return And(Not(bit_s == 0), verify(bit_s, atom))
 
 
 def non_null_falsify(bit_s,atom):
     '''bit_s verifies atom and is not the null state'''
-    return And(bit_s != 0, falsify(bit_s,atom))
+    return And(Not(bit_s == 0), falsify(bit_s,atom))
 
 
 def is_atomic(bit_s):
