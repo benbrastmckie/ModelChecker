@@ -11,7 +11,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] existential quantifier claims
   - [ ] trace
   - [ ] hexadecimal for `N > 4`
-- [.] _M_ avoid having to make `N` not equal to a multiple of 4
+- [.] _M_ avoid having to make `N` not equal to a multiple of 4 (_M_ note to self: try manual route)
 - [ ] extract helper function from `alt_bit` def in `print.py`
 
 ## Semantics
