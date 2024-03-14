@@ -4,13 +4,13 @@ from z3 import (
 
 from definitions import (
     N,
+    bit_fusion,
     bit_part,
     bit_proper_part,
     w,
     possible,
     verify,
     falsify,
-    alternative,
     bitvec_to_substates,
     is_bitvector,
 )
@@ -81,31 +81,63 @@ def print_evaluation(model, sentence_letters):
 def relate_sents_and_states(all_bits, Sentence, model, relation):
     '''helper function for finding verifier and falisifer states to sentences in a model'''
     return {
-            bitvec_to_substates(bit)
+            bit
             for bit in all_bits
-            if model.evaluate(relation(bit, model[Sentence]))
+            if model.evaluate(relation(bit, model[sentence]))
         }
+
+
 
 def find_relations(all_bits, S, model):
     '''for a given sentence letter S and a list all_bits and a model, finds the relations verify, falsify, alt_num_worlds, and alt_worlds for that sentence in that model
     returns a tuple (ver_states, fal_states, alt_num_worlds, alt_worlds)'''
-    ver_states = relate_sents_and_states(all_bits, S, model, verify)
-    fal_states = relate_sents_and_states(all_bits, S, model, falsify)
-    # TODO: I have been trying to define alt_num_worlds without using 
-    # alternative as below. I got something running, but it doesn't get the
-    # alt_worlds right. see the min_declare branch.
-    alt_num_worlds = {  # S-alternatives to the designated world w as numbers
-        alt_world
-        for alt_world in all_bits
-        for bit in all_bits
-        if model.evaluate(verify(bit, model[S]))
-        and model.evaluate(alternative(alt_world, bit, model[w]))
+    ver_bits = relate_sents_and_states(all_bits, S, model, verify)
+    fal_bits = relate_sents_and_states(all_bits, S, model, falsify)
+    ver_states = {
+        bitvec_to_substates(bit)
+        for bit in ver_bits
     }
-    alt_worlds = {  # S-alternatives to the designated world w as states
-        bitvec_to_substates(alt_num)
-        for alt_num in alt_num_worlds
+    fal_states = {
+        bitvec_to_substates(bit)
+        for bit in fal_bits
+    }
+    poss_bits = [element for element in all_bits if model.evaluate(possible(element))]
+    world_bits = poss_bits[:]
+    for world in world_bits:
+        for poss in poss_bits:
+            if bit_proper_part(world, poss):
+                world_bits.remove(world)
+                break
+    eval_world = model[w]
+    # TODO: define alt_worlds in some better way
+    # TODO: use bits until printing states
+    alt_num_worlds = set()
+    for ver in ver_bits:
+        comp_parts = []
+        for part in poss_bits:
+            if bit_fusion(ver, part) in poss_bits:
+                if bit_part(part, eval_world):
+                    comp_parts.append(part)
+        max_comp_parts = comp_parts[:]
+        for max_part in comp_parts:
+            for test in comp_parts:
+                if bit_proper_part(max_part, test):
+                    max_comp_parts.remove(max_part)
+                    break
+        max_comp_ver_parts = [
+            bit_fusion(ver, max)
+            for max in max_comp_parts
+        ]
+        for world in world_bits:
+            for max_ver in max_comp_ver_parts:
+                if bit_part(max_ver, world):
+                    alt_num_worlds.add(world)
+    alt_worlds = {
+        bitvec_to_substates(alt)
+        for alt in alt_num_worlds
     }
     return (ver_states, fal_states, alt_num_worlds, alt_worlds)
+
 
 def print_vers_and_fals(S, ver_states, fal_states):
     '''prints the verifiers and falsifier states for a Sentence.
