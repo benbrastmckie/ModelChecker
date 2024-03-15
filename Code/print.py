@@ -13,6 +13,8 @@ from definitions import (
     falsify,
     bitvec_to_substates,
     is_bitvector,
+    summation,
+    int_to_binary,
 )
 
 # TODO: define alternatives rather than declaring 'alternative' in Z3
@@ -42,17 +44,19 @@ def print_states(model):
     print("\nStates:")  # Print states
     max_num = max(bits_as_nums)
     already_seen = set()
-    for val in range(max_num * 2):
+    biggest_state_possible_as_num = summation(N + 1,lambda x: 2**x) # this should hopefully be enough to cover all states
+    for val in range(biggest_state_possible_as_num):
         test_state = BitVecVal(val, N)
         as_substates = bitvec_to_substates(test_state)
-        if test_state in already_seen:
+        bin_rep = test_state.sexpr() if N%4!=0 else int_to_binary(int(test_state.sexpr()[2:],16), N)
+        if as_substates in already_seen: # this should hopefully work to break once repeats start occuring
             break
         if test_state in world_bits:
-            print(f"  {test_state.sexpr()} = {as_substates} (world)")
+            print(f"  {bin_rep} = {as_substates} (world)")
         elif model.evaluate(possible(test_state)):
-            print(f"  {test_state.sexpr()} = {as_substates} (possible)")
+            print(f"  {bin_rep} = {as_substates} (possible)")
         else:
-            print(f"  {test_state.sexpr()} = {as_substates} (impossible)")
+            print(f"  {bin_rep} = {as_substates} (impossible)")
         already_seen.add(as_substates)
 
 
