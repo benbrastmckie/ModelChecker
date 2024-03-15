@@ -11,11 +11,12 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] existential quantifier claims
   - [ ] trace
   - [ ] hexadecimal for `N > 4`
-- [.] _M_ avoid having to make `N` not equal to a multiple of 4
+- [:] _M_ avoid having to make `N` not equal to a multiple of 4
   - M: try manual route
   - B: I added an issue about this with some points from Graham
 - [ ] extract helper function from `alt_bit` def in `print.py`
 - [ ] `world_bits` sometimes includes non-maximal worlds
+  - M: @B do you have any examples (ie, file name and N value) for when this is true, to try to see what's going on?
 
 ## Semantics
 
