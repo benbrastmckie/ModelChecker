@@ -13,6 +13,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] hexadecimal for `N > 4`
 - [.] _M_ avoid having to make `N` not equal to a multiple of 4
 - [ ] extract helper function from `alt_bit` def in `print.py`
+- [ ] `world_bits` sometimes includes non-maximal worlds
 
 ## Semantics
 
@@ -20,8 +21,10 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Models
 
+- [ ] _M_ show that `A \boxright B` entails `A \rightarrow C`
+- [ ] _M_ show that `A \boxright B, B \boxright C` do not entail `A \boxright C`
 - [ ] _M_ show that `A \boxright B, A \wedge B \boxright C` entails `A \boxright C`
-- [ ] _M_ show that `A \boxright B, B \boxright C` do not entail ``A \boxright C`
+- [ ] _M_ show that `A \boxright B, \neg B` do not entail `\neg B \boxright \neg A`
 
 ## Constraint Generators
 

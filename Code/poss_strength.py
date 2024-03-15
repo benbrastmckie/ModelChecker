@@ -20,6 +20,7 @@ from definitions import (
     g,
     h,
     i,
+    non_null_verify,
     r,
     s,
     t,
@@ -38,13 +39,10 @@ from definitions import (
     is_part_of,
     is_world,
     possible,
-    verify,
+    non_null_verify,
     falsify,
     is_alternative,
-    compatible_part,
-    alternative,
     proposition,
-    Equivalent,
 )
 
 from print import print_evaluation, print_propositions, print_states
@@ -61,18 +59,6 @@ solver.add(
     # every part of a possible state is possible
     ForAll([x, y], Exists(z, fusion(x, y) == z)),
     # states are closed under fusion
-    ForAll(
-        [u, y],
-        Equivalent(
-            alternative(u, y, w),
-            And(
-                is_world(u),
-                is_part_of(y, u),
-                Exists(z, And(is_part_of(z, u), compatible_part(z, w, y))),
-            ),
-        ),
-    ),
-    # constraints on alternative predicate
 
     # NOTE: the current output suggests that that w is not an A-alternative to
     # itself even though A is true in w
@@ -83,31 +69,31 @@ solver.add(
     # every X of AtomSort is a proposition
     is_world(w),
     # NOTE: couldn't get these two constraints to add without crashing
-    # ForAll(x, Implies(is_part_of(x, w), Not(verify(x, A)))),
+    # ForAll(x, Implies(is_part_of(x, w), Not(non_null_verify(x, A)))),
     # is_part_of(h, w),
-    # falsify(h, B),
+    # falsify(h, A),
     # is_part_of(i, w),
     # falsify(i, C),
     # there is a world w
     ForAll(
         [s, v],
         Implies(
-            And(verify(s, A), is_alternative(v, s, w)),
+            And(non_null_verify(s, A), is_alternative(v, s, w)),
             Exists(t, And(
                 is_part_of(t, v),
-                verify(t, C),
+                non_null_verify(t, C),
             )),
         ),
     ),
     # A \boxright C
-    verify(a, A),
+    non_null_verify(a, A),
     is_alternative(u, a, w),
     is_part_of(b, u),
-    verify(b, B),
+    non_null_verify(b, B),
     # \neg(A \boxright \neg B)
     c == fusion(d, e),
-    verify(d, A),
-    verify(e, B),
+    non_null_verify(d, A),
+    non_null_verify(e, B),
     is_alternative(v, c, w),
     is_part_of(f, v),
     falsify(f, C),
