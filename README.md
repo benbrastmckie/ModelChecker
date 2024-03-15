@@ -1,6 +1,11 @@
 # Model Checker
 
-This project aims to develop tools for finding countermodels for counterfactual claims as well as establishing entailments over a restricted range of models up to a specified degree of complexity.
+This project aims to develop tools for finding countermodels for counterfactual claims as well as establishing entailments over finite models up to a specified degree of complexity.
+
+## Examples
+
+The `Code/` directory includes a range of example files which call functions from `definitions.py` and `print.py`.
+Running these files produces countermodels, or a statement that there are no countermodels accordingly.
 
 ## Resources
 
