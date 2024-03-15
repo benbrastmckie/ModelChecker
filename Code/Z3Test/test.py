@@ -20,11 +20,16 @@ s.add(Or(Tie, Shirt), Or(Not(Tie), Shirt), Or(Not(Tie), Not(Shirt)))
 print(s.check())
 print(s.model())
 
+a = BitVecVal(9,8)
+b = BitVecVal(15,8)
+c = simplify(a|b)
+print(simplify(a|b))
+print(c.sexpr())
+print(c.as_long())
 
 p, q = Bools("p q")
 demorgan = And(p, q) == Not(Or(Not(p), Not(q)))
 # print (demorgan)
-
 
 def prove(f):
     s = Solver()
@@ -34,7 +39,6 @@ def prove(f):
     else:
         print("failed to prove")
 
-print(bool(BitVecVal(0,5)))
 # print ("Proving demorgan...")
 # prove(demorgan)
 
