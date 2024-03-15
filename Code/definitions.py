@@ -26,13 +26,12 @@ from z3 import (
 ### DECLARATIONS ###
 
 # number of atomic states
-N = 4 # works
-# N = 3 # works
-# N = 4 # doesn't work
+N = 3 # works
+# N = 4 # works
 # N = 5 # works
 # N = 6 # works
 # N = 7 # works
-# N = 8 # doesn't work
+# N = 8 # works
 
 # sentence letters: sort definition, constants, and variables
 # B: do we need a constant for each sentence letter in sentence_letters?
