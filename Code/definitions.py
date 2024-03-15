@@ -236,14 +236,16 @@ def index_to_substate(index):
     letter = letter_dict[number%26]
     return ((number//26) + 1) * letter
 
-def int_to_binary(integer, backwards_binary_str = ''):
-    '''converts a #x string to a #b string'''
+def int_to_binary(integer, N, backwards_binary_str = ''):
+    '''converts a #x string to a #b string. follows the first algorithm that shows up on google
+    when you google how to do this'''
     rem = integer%2
     new_backwards_str = backwards_binary_str + str(rem)
-    if integer//2 == 0:
-        return '#b' + new_backwards_str[::-1]
+    if integer//2 == 0: # base case: we've reached the end
+        remaining_0s_to_tack_on = N - len(new_backwards_str) # to fill in the zeroes
+        return '#b' + remaining_0s_to_tack_on * '0' + new_backwards_str[::-1]
     new_int = integer//2
-    return int_to_binary(new_int, new_backwards_str)
+    return int_to_binary(new_int, N, new_backwards_str)
 
 def bitvec_to_substates(bit_vec):
     '''converts bitvectors to fusions of atomic states.
@@ -251,7 +253,7 @@ def bitvec_to_substates(bit_vec):
     bit_vec_as_string = bit_vec.sexpr()
     if 'x' in bit_vec_as_string: # if we have a hexadecimal, ie N=4m
         integer = int(bit_vec_as_string[2:],16)
-        bit_vec_as_string = int_to_binary(integer)
+        bit_vec_as_string = int_to_binary(integer, N)
     bit_vec_backwards = bit_vec_as_string[::-1]
     state_repr = ""
     for i, char in enumerate(bit_vec_backwards):
@@ -267,3 +269,8 @@ def bitvec_to_substates(bit_vec):
 def Equivalent(cond_a,cond_b):
     #return And(Implies(bit_a,bit_b), Implies(bit_b,bit_a))
     return cond_a == cond_b
+
+def summation(n, func, start = 0):
+    if start == n:
+        return func(start)
+    return func(start) + summation(n,func,start+1)
