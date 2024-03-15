@@ -68,12 +68,12 @@ solver.add(
     non_null_verify(b, B),
     # B is true in w
 
-    # non_null_verify(c, A),
-    # is_alternative(u, c, w),
-    # is_part_of(s, u),
-    # falsify(s, B),
-    # # ~(A => B) is true in w
-    #
+    non_null_verify(c, A),
+    is_alternative(u, c, w),
+    is_part_of(s, u),
+    falsify(s, B),
+    # ~(A => B) is true in w
+
     # NOTE: although the above is equivalent to the below modulo exhaustivity
     # the latter produces truth-value gaps (see issue on github)
 
@@ -104,15 +104,15 @@ solver.add(
     #     )
     # ),
 
-    Not(  # in w, it is not the case that if A were true then B would be true
-        ForAll(
-            [a, v],
-            Implies(
-                And(verify(a, A), is_alternative(v, a, w)),
-                Exists(b, And(is_part_of(b, v), verify(b, B))),
-            ),
-        ),
-    ),
+    # Not(  # in w, it is not the case that if A were true then B would be true
+    #     ForAll(
+    #         [a, v],
+    #         Implies(
+    #             And(verify(a, A), is_alternative(v, a, w)),
+    #             Exists(b, And(is_part_of(b, v), verify(b, B))),
+    #         ),
+    #     ),
+    # ),
 
 )
 
