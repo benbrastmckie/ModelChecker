@@ -16,6 +16,7 @@ from definitions import (
     a,
     b,
     c,
+    non_null_verify,
     r,
     s,
     t,
@@ -32,6 +33,7 @@ from definitions import (
     is_part_of,
     is_world,
     possible,
+    non_null_verify,
     verify,
     falsify,
     is_alternative,
@@ -60,18 +62,18 @@ solver.add(
     is_world(w),
     # there is a world w
     is_part_of(a, w),
-    verify(a, A),
+    non_null_verify(a, A),
     # A is true in w
     is_part_of(b, w),
-    verify(b, B),
+    non_null_verify(b, B),
     # B is true in w
 
-    verify(c, A),
-    is_alternative(u, c, w),
-    is_part_of(s, u),
-    falsify(s, B),
-    # ~(A => B) is true in w
-
+    # non_null_verify(c, A),
+    # is_alternative(u, c, w),
+    # is_part_of(s, u),
+    # falsify(s, B),
+    # # ~(A => B) is true in w
+    #
     # NOTE: although the above is equivalent to the below modulo exhaustivity
     # the latter produces truth-value gaps (see issue on github)
 
@@ -102,20 +104,21 @@ solver.add(
     #     )
     # ),
 
-    # Not(  # in w, it is not the case that if A were true then B would be true
-    #     ForAll(
-    #         [a, v],
-    #         Implies(
-    #             And(verify(a, A), is_alternative(v, a, w)),
-    #             Exists(b, And(is_part_of(b, v), verify(b, B))),
-    #         ),
-    #     ),
-    # ),
+    Not(  # in w, it is not the case that if A were true then B would be true
+        ForAll(
+            [a, v],
+            Implies(
+                And(verify(a, A), is_alternative(v, a, w)),
+                Exists(b, And(is_part_of(b, v), verify(b, B))),
+            ),
+        ),
+    ),
 
 )
 
 # print(type(bit_fusion(BitVecVal(5,5),BitVecVal(2,5))))
 # print(bit_fusion(BitVecVal(5,5),BitVecVal(2,5)).sort())
+
 
 if solver.check() == sat:
     model = solver.model()

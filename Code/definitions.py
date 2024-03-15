@@ -2,7 +2,6 @@
 file contains all definitions needed for finding Z3 models.
 '''
 from z3 import (
-    Z3_BV_SORT,
     Not,
     Exists,
     ForAll,
@@ -14,9 +13,7 @@ from z3 import (
     Consts,
     Function,
     And,
-    Or,
     simplify,
-    BitVecVal,
     BitVecNumRef,
 )
 
@@ -29,10 +26,13 @@ from z3 import (
 ### DECLARATIONS ###
 
 # number of atomic states
-N = 2 # works
+N = 3 # works
 # N = 3 # works
 # N = 4 # doesn't work
 # N = 5 # works
+# N = 6 # works
+# N = 7 # works
+# N = 8 # doesn't work
 
 # sentence letters: sort definition, constants, and variables
 # B: do we need a constant for each sentence letter in sentence_letters?

@@ -78,61 +78,12 @@ solver.add(
     non_null_verify(t, B),
     # B is true in w
 
-    # verify(c, A),
-    # is_alternative(u, c, w),
-    # is_part_of(s, u),
-    # falsify(s, B),
-    # # ~(A => B) is true in w
-
-    # NOTE: although the above is equivalent to the below modulo exhaustivity
-    # the latter produces truth-value gaps (see issue on github)
-
-
-        # NOTE: replacing the CF constraints above with the below produces
-        # models with no A-alternatives to w despite what the constraint would
-        # seem to require. However, adding the constraint 'falsify(z, B)'
-        # populates A-alternatives. I'm not sure why this is.
-
-    # Exists(
-    #     [a, v],
-    #     And(verify(a, A), is_alternative(v, a, w),
-    #         ForAll(b, Or(
-    #             Not(is_part_of(b, v)),
-    #             Not(verify(b, B))
-    #             ),
-    #         ),
-    #     )
-    # ),
-
-    # Exists(
-    #     [a, v],
-    #     And(verify(a, A), is_alternative(v, a, w),
-    #         Exists(b, Implies(
-    #             is_part_of(b, v),
-    #             falsify(b, B)
-    #         )),
-    #     )
-    # ),
-
-    # Not(  # in w, it is not the case that if A were true then B would be true
-    #     ForAll(
-    #         [a, v],
-    #         Implies(
-    #             And(verify(a, A), is_alternative(v, a, w)),
-    #             Exists(b, And(is_part_of(b, v), verify(b, B))),
-    #         ),
-    #     ),
-    # ),
-
 )
-
-# print(type(bit_fusion(BitVecVal(5,5),BitVecVal(2,5))))
-# print(bit_fusion(BitVecVal(5,5),BitVecVal(2,5)).sort())
 
 if solver.check() == sat:
     model = solver.model()
     print("\nThere is a model of:")
-    print("A, B, ~(A => B)")
+    print("A, B are true in w")
     print_states(model)
     print_evaluation(model, sentence_letters)
     print_propositions(model, sentence_letters)

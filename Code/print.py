@@ -31,10 +31,10 @@ def print_states(model):
     # print([bit for bit in all_bits])
     # print([bit.sort() for bit in all_bits])
     bits_as_nums = [bit.as_long() for bit in all_bits]
-    possible_bits = [bit for bit in all_bits if model.evaluate(possible(bit))]
-    world_bits = possible_bits[:]
+    poss_bits = [bit for bit in all_bits if model.evaluate(possible(bit))]
+    world_bits = poss_bits[:]
     for world in world_bits:
-        for poss in possible_bits:
+        for poss in poss_bits:
             if bool(bit_proper_part(world, poss)):
                 world_bits.remove(world)
                 break
