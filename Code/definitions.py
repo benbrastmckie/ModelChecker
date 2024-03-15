@@ -62,7 +62,7 @@ z = BitVec("z", N)
 # declare bitvector variables used for world states
 u = BitVec("u", N)
 v = BitVec("v", N)
-w = BitVec("w", N)
+w = BitVec("w", N) # this must ALWAYS be the eval world—see find_alt_bits() in print.py
 
 # primitive properties and relations
 possible = Function("possible", BitVecSort(N), BoolSort())

@@ -18,20 +18,18 @@ from definitions import (
 )
 
 # TODO: define alternatives rather than declaring 'alternative' in Z3
+# M: is this still a TODO?
 
 # TODO: convert to state_fusions only just before printing
+# M: I think this is taken care of, but just wanted to check
 
-# TODO: I suspect there is something wrong with is_bitvector below since it
-# seems to include outputs x, s, w, t, u, y, k!491 when N = 5
-# is this related to the cap on states below 26? would be good to use
-# subscripts if more states are needed
+# Organizational note
+# the three main functions are print_states(), print_evaluations(), and print_propositions().
+# all other functions feed into print_propositions()
 
 def print_states(model):
     '''print all fusions of atomic states in the model'''
     all_bits = {model[element] for element in model.decls() if is_bitvector(model[element])}
-    # print([type(bit) for bit in all_bits]) # these were mine from debugging; leave them (uncommented) for now, we might need them later if the N>4 issue hasn't been fixed
-    # print([bit for bit in all_bits])
-    # print([bit.sort() for bit in all_bits])
     bits_as_nums = [bit.as_long() for bit in all_bits]
     poss_bits = [bit for bit in all_bits if model.evaluate(possible(bit))]
     world_bits = poss_bits[:]
@@ -82,20 +80,59 @@ def print_evaluation(model, sentence_letters):
         false_eval_string = ", ".join(false_eval_list)
         print("  " + false_eval_string + f"  (not true in {bitvec_to_substates(model[w])})")
 
+################################
+#### END PRINT STATES/EVALS ####
+################################
 
+
+################################
+### START PRINT PROPOSITIONS ###
+################################
+        
 def relate_sents_and_states(all_bits, sentence, model, relation):
-    '''helper function for finding verifier and falisifer states to sentences in a model'''
-    return {
-            bit
-            for bit in all_bits
-            if model.evaluate(relation(bit, model[sentence]))
-        }
+    '''helper function for finding verifier and falisifer states to sentences in a model
+    Used in find_relations()'''
+    return {bit for bit in all_bits if model.evaluate(relation(bit, model[sentence]))}
 
+def find_compatible_parts(verifier_bit,poss_bits,eval_world):
+    '''Finds the compatible parts for a verifier given all possible bits as a list.
+    Used in find_alt_bits()'''
+    comp_parts = []
+    for part in poss_bits:
+        if bit_fusion(verifier_bit, part) in poss_bits and bit_part(part, eval_world):
+            comp_parts.append(part) # ie, if fusion is possible and the the bit part is in the eval_world
+    return comp_parts
 
+def find_max_comp_ver_parts(verifier_bit,comp_parts):
+    '''Finds the maximal compatible verifier parts, as a list
+    Used in find_alt_bits(), immediately after find_compatible_parts() above'''
+    max_comp_parts = comp_parts[:]
+    for max_part in comp_parts:
+        for test in comp_parts:
+            if bit_proper_part(max_part, test):
+                max_comp_parts.remove(max_part)
+                break # exits the first for loop
+    return [bit_fusion(verifier_bit, max) for max in max_comp_parts]
+
+def find_alt_bits(ver_bits,poss_bits,world_bits,model):
+    '''finds the alternative bits given verifier states, possible states, worlds, and the model.
+    Used in find_relations()'''
+    alt_bits = set()
+    eval_world = model[w] # this means that w is ALWAYS the eval world... we must ensure this
+    for ver in ver_bits:
+        comp_parts = find_compatible_parts(ver, poss_bits, eval_world)
+        max_comp_ver_parts = find_max_comp_ver_parts(ver,comp_parts)
+        for world in world_bits:
+            for max_ver in max_comp_ver_parts:
+                if bit_part(max_ver, world) and world is not eval_world:
+                    alt_bits.add(world)
+                    break # to break out of first for loop
+    return alt_bits
 
 def find_relations(all_bits, S, model):
     '''for a given sentence letter S and a list all_bits and a model, finds the relations verify, falsify, and alt_bits for that sentence in that model
-    returns a tuple (ver_states, fal_states, alt_bits)'''
+    returns a tuple (ver_states, fal_states, alt_bits)
+    Used in print_prop()'''
     ver_bits = relate_sents_and_states(all_bits, S, model, verify)
     fal_bits = relate_sents_and_states(all_bits, S, model, falsify)
     poss_bits = [element for element in all_bits if model.evaluate(possible(element))]
@@ -105,46 +142,18 @@ def find_relations(all_bits, S, model):
             if bit_proper_part(world, poss):
                 world_bits.remove(world)
                 break
-    eval_world = model[w]
     # TODO: use bits until printing states
-    # TODO: extract helper functions from this mess
-    alt_bits = set()
-    for ver in ver_bits:
-        comp_parts = []
-        for part in poss_bits:
-            if bit_fusion(ver, part) in poss_bits:
-                if bit_part(part, eval_world):
-                    comp_parts.append(part)
-        max_comp_parts = comp_parts[:]
-        for max_part in comp_parts:
-            for test in comp_parts:
-                if bit_proper_part(max_part, test):
-                    max_comp_parts.remove(max_part)
-                    break
-        max_comp_ver_parts = [
-            bit_fusion(ver, max)
-            for max in max_comp_parts
-        ]
-        for world in world_bits:
-            for max_ver in max_comp_ver_parts:
-                if bit_part(max_ver, world):
-                    if not world == eval_world:
-                        alt_bits.add(world)
+    alt_bits = find_alt_bits(ver_bits,poss_bits,world_bits,model)
     return (ver_bits, fal_bits, alt_bits)
 
 
 def print_vers_and_fals(S, ver_bits, fal_bits):
     '''prints the verifiers and falsifier states for a Sentence.
     inputs: the verifier states and falsifier states. 
-    Outputs: None, but prints the stuff we want printed'''
-    ver_states = {
-        bitvec_to_substates(bit)
-        for bit in ver_bits
-    }
-    fal_states = {
-        bitvec_to_substates(bit)
-        for bit in fal_bits
-    }
+    Outputs: None, but prints the stuff we want printed
+    Used in print_prop()'''
+    ver_states = {bitvec_to_substates(bit) for bit in ver_bits}
+    fal_states = {bitvec_to_substates(bit) for bit in fal_bits}
     if ver_states and fal_states:
         print(f"  |{S}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(fal_states)} >")
     elif ver_states and not fal_states:
@@ -155,7 +164,8 @@ def print_vers_and_fals(S, ver_bits, fal_bits):
         print(f"  |{S}| = < ∅, ∅ >")
 
 def find_true_and_false_in_alt(alt_bit, sentence_letters, all_bits, model):
-    '''returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.'''
+    '''returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.
+    Used in print_alt_worlds()'''
     true_in_alt = set()
     for R in sentence_letters:
         for bit in all_bits:
@@ -167,7 +177,8 @@ def find_true_and_false_in_alt(alt_bit, sentence_letters, all_bits, model):
 
 def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value):
     '''true is a string representing the relation ("true" for true_in_alt; m.m. for false) that is being used for
-    returns None, only prints'''
+    returns None, only prints
+    Used in print_alt_worlds()'''
     if not alt_relation_set:
         return
     alt_relation_list = sorted([str(sent) for sent in alt_relation_set])
@@ -179,11 +190,9 @@ def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value):
 
 
 def print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits):
-    '''prints everything that has to do with alt worlds'''
-    alt_worlds = {
-        bitvec_to_substates(alt)
-        for alt in alt_bits
-    }
+    '''prints everything that has to do with alt worlds
+    Used in print_prop()'''
+    alt_worlds = {bitvec_to_substates(alt) for alt in alt_bits}
     if alt_worlds:
         print(f"  {S}-alternatives to {bitvec_to_substates(model[w])} = {make_set_pretty_for_print(alt_worlds)}")
         for alt_bit in alt_bits:
@@ -196,16 +205,15 @@ def print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits):
         print() # for an extra blank line
 
 def print_prop(all_bits, S, sentence_letters, model):
-    '''prints all the stuff for one proposition. returns None'''
+    '''prints all the stuff for one proposition. returns None
+    Used in for loop in print_propositions()'''
     ver_states, fal_states, alt_bits = find_relations(all_bits, S, model)
     # Print propositions:
     print_vers_and_fals(S, ver_states, fal_states)
     print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits)
 
 def print_propositions(model, sentence_letters):
-    '''
-    print each propositions and the alternative worlds in which it is true
-    '''
+    '''print each propositions and the alternative worlds in which it is true'''
     all_bits = {model[element] for element in model.decls() if is_bitvector(model[element])}
     print("\nPropositions:")
     for S in sentence_letters:
@@ -214,7 +222,8 @@ def print_propositions(model, sentence_letters):
 def make_set_pretty_for_print(set_with_strings):
     '''input a set with strings
     print that same set but with no quotation marks around each individual string, and also with the set in order
-    returns the set as a string'''
+    returns the set as a string
+    Used in print_vers_and_fals() and print_alt_worlds()'''
     sorted_set = sorted(list(set_with_strings)) # actually type list, not set
     print_str = "{"
     for i, elem in enumerate(sorted_set):
