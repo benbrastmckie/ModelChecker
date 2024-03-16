@@ -7,16 +7,25 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] add benchmarks tooling
 - [ ] ssh to supercomputer
 - [ ] multiprocessing
-- [ ] _B_ ask graham about
-  - [ ] existential quantifier claims
-  - [ ] trace
-  - [ ] hexadecimal for `N > 4`
-- [:] _M_ avoid having to make `N` not equal to a multiple of 4
-  - M: try manual route
-  - B: I added an issue about this with some points from Graham
-- [x] extract helper function from `alt_bit` def in `print.py`
+- [.] `print.py`
+  - [x] _M_ extract helper function from `alt_bits` def in `print.py`
+  - [ ] abstract on `eval_world` to generalize `alt_bits` function
+  - [ ] abstract on multiple occurrences of `all_bits`
+  - [ ] separate model building, eval building, and printing elements (see NOTE in `print.py`)
 - [ ] `world_bits` sometimes includes non-maximal worlds
   - M: @B do you have any examples (ie, file name and N value) for when this is true, to try to see what's going on?
+  - [ ] B: It seems to have gone away, but I'll try to create it explicitly
+- [ ] `poss_strength.py`
+  - [ ] `A => C` is true though there is an `A`-alternative where `C` is false
+  - [ ] replacing `verify` with `non_null_verify` eliminates models
+    - [ ] _B_ check validity by hand
+- [.] _B_ ask graham about
+  - [ ] existential quantifier claims
+  - [ ] trace tools
+  - [x] hexadecimal for `N > 4`
+- [x] _M_ avoid having to make `N` not equal to a multiple of 4
+  - M: try manual route
+  - B: I added an issue about this with some points from Graham
 
 ## Semantics
 
