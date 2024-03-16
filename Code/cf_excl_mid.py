@@ -35,6 +35,7 @@ from definitions import (
     falsify,
     is_alternative,
     proposition,
+    non_null_verify,
 )
 
 # import multiprocessing
@@ -69,12 +70,12 @@ solver.add(
             Exists(t, And(
                 is_part_of(t, v),
                 Or(
-                    verify(s, B),
-                    verify(s, C),
+                    verify(s, B), # should this be s or t?
+                    verify(s, C), # should this be s or t?
                     Exists(
                         [a, b],
                         And(
-                            s == fusion(a, b),
+                            s == fusion(a, b), # should this be s or t?
                             verify(a, B),
                             verify(b, C),
                         ),

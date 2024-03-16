@@ -33,10 +33,12 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Models
 
-- [ ] _M_ show that `A \boxright B` entails `A \rightarrow C` (in `ent_1.py`)
-- [ ] _M_ show that `A \boxright B, B \boxright C` do not entail `A \boxright C` (in `ent_2.py`)
-- [ ] _M_ show that `A \boxright B, A \wedge B \boxright C` entails `A \boxright C` (in `ent_3.py`)
-- [ ] _M_ show that `A \boxright B, \neg B` do not entail `\neg B \boxright \neg A` (in `ent_4.py`)
+- [.] _M_ show that `A \boxright B` entails `A \rightarrow C` (in `ent_1.py`)
+- [:] _M_ show that `A \boxright B, B \boxright C` do not entail `A \boxright C` (in `ent_2.py`)
+  - I am getting a model (as desired); can you go over it just to make sure?
+- [:] _M_ show that `A \boxright B, A \wedge B \boxright C` entails `A \boxright C` (in `ent_3.py`)
+  - I am getting a model when I shouldn't be—can you check the constraints look alright?
+- [.] _M_ show that `A \boxright B, \neg B` do not entail `\neg B \boxright \neg A` (in `ent_4.py`)
 
 ## Constraint Generators
 
