@@ -30,6 +30,7 @@ from definitions import (
 # the thought is that model_builder and eval_builder can be used to build a data class where
 # the print functions will then operate on that data class. but it seems that we now have
 # all the key ingredients that we need.
+# Sounds good! I'm guessing that may be better to do once we finish semantics and all that?
 
 def print_states(model):
     """print all fusions of atomic states in the model"""
@@ -141,11 +142,11 @@ def find_max_comp_ver_parts(verifier_bit, comp_parts):
     return [bit_fusion(verifier_bit, max) for max in max_comp_parts]
 
 
-def find_alt_bits(ver_bits, poss_bits, world_bits, model):
+def find_alt_bits(ver_bits, poss_bits, world_bits, eval_world):
     """finds the alternative bits given verifier states, possible states, worlds, and the model.
     Used in find_relations()"""
     alt_bits = set()
-    eval_world = model[w]
+    # eval_world = model[w] moved eval_world to find_relations... is that what you had in mind?
     # this means that w is ALWAYS the eval world... we must ensure this
     # TODO: we may abstract on eval_world, adding it to the inputs
     # this will make the function useful for nested counterfactuals
@@ -173,7 +174,8 @@ def find_relations(all_bits, S, model):
             if bit_proper_part(world, poss):
                 world_bits.remove(world)
                 break
-    alt_bits = find_alt_bits(ver_bits, poss_bits, world_bits, model)
+    eval_world = model[w]
+    alt_bits = find_alt_bits(ver_bits, poss_bits, world_bits, eval_world)
     return (ver_bits, fal_bits, alt_bits)
 
 
