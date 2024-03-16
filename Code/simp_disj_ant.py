@@ -36,6 +36,7 @@ from definitions import (
     falsify,
     is_alternative,
     proposition,
+    non_null_verify,
 )
 
 from print import print_evaluation, print_propositions, print_states
