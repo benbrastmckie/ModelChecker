@@ -34,7 +34,7 @@ solver.add(
     # A => B is true in w
 
     ForAll(
-        [b, v],
+        [b, u], # B: changed v to u here
         Implies(
             And(Exists([y,z], And(b == fusion(y,z), verify(y,A), verify(z,B))), is_alternative(u, b, w)),
             Exists(t, And(

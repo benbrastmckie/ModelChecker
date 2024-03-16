@@ -70,12 +70,12 @@ solver.add(
             Exists(t, And(
                 is_part_of(t, v),
                 Or(
-                    verify(s, B), # should this be s or t?
-                    verify(s, C), # should this be s or t?
+                    verify(t, B), # should this be s or t?
+                    verify(t, C), # should this be s or t?
                     Exists(
                         [a, b],
                         And(
-                            s == fusion(a, b), # should this be s or t?
+                            t == fusion(a, b), # should this be s or t?
                             verify(a, B),
                             verify(b, C),
                         ),
