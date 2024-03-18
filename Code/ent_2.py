@@ -1,7 +1,47 @@
 # AIM: provide a concrete model that can be used to abstract from to build model generator functions
-from z3 import *
-from definitions import *
-from print import *
+from z3 import (
+    sat,
+    Solver,
+)
+from definitions import (
+    a,
+    b,
+    c,
+    r,
+    s,
+    t,
+    u,
+    v,
+    w,
+    x,
+    y,
+    z,
+    A,
+    B,
+    C,
+    X,
+    fusion,
+    possible,
+    is_part_of,
+    is_world,
+    is_alternative,
+    verify,
+    non_null_verify,
+    falsify,
+    # non_null_falsify,
+    proposition,
+    Exists,
+    ForAll,
+    And,
+    Implies,
+
+
+)
+from print import (
+    print_states,
+    print_propositions,
+    print_evaluation,
+)
 
 # TODO: eventually replace sentence_letters with something more general
 sentence_letters = [A, B, C]
@@ -66,3 +106,4 @@ else:
     print("A => B")
     print("B => C")
     print("~(A => C)")
+
