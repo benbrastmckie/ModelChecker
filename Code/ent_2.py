@@ -34,7 +34,7 @@ solver.add(
     # A => B is true in w
 
     ForAll(
-        [b, v],
+        [b, u], # changed v to u here
         Implies(
             And(verify(b, B), is_alternative(u, b, w)),
             Exists(t, And(
@@ -49,7 +49,7 @@ solver.add(
     is_alternative(r,c,w),
     is_part_of(s,r),
     falsify(s,C),
-    # ~(A => C) is true in w 
+    # ~(A => C) is true in w
 )
 
 if solver.check() == sat:
