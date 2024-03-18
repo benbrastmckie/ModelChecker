@@ -16,6 +16,7 @@ from definitions import (
     a,
     b,
     c,
+    is_proper_part_of,
     non_null_falsify,
     non_null_verify,
     r,
@@ -58,23 +59,25 @@ solver.add(
     # MODEL CONSTRAINT
     ForAll(X, proposition(X)),  # every X of AtomSort is a proposition
 
+    # TODO: right now there seems to be a world that is a proper part of another.
+
     # EVAL CONSTRAINTS
     is_world(w),
     # there is a world w
-    is_part_of(a, w),
+    is_proper_part_of(a, w),
     non_null_verify(a, A),
     Not(non_null_verify(a, B)),
     # A is true in w
-    is_part_of(b, w),
+    is_proper_part_of(b, w),
     non_null_verify(b, B),
     Not(non_null_verify(b, A)),
     # B is true in w
     is_world(u),
     # there is a world w
-    is_part_of(s, u),
+    is_proper_part_of(s, u),
     non_null_verify(s, A),
     # A is true in w
-    is_part_of(t, u),
+    is_proper_part_of(t, u),
     non_null_verify(t, B),
     # B is true in w
 

@@ -26,9 +26,9 @@ from z3 import (
 ### DECLARATIONS ###
 
 # number of atomic states
-N = 3 # works
+# N = 3 # works
 # N = 4 # works
-# N = 5 # works
+N = 5 # works
 # N = 6 # works
 # N = 7 # works
 # N = 8 # works
@@ -110,6 +110,11 @@ def bit_fusion(bit_s, bit_t):
 def is_part_of(bit_s, bit_t):
     '''the fusion of bit_s and bit_t is identical to bit_t'''
     return fusion(bit_s, bit_t) == bit_t
+
+
+def is_proper_part_of(bit_s, bit_t):
+    '''the fusion of bit_s and bit_t is identical to bit_t'''
+    return And(is_part_of(bit_s, bit_t), Not(is_part_of(bit_t,bit_s)))
 
 
 def bit_part(bit_s, bit_t):

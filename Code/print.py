@@ -70,7 +70,8 @@ def print_states(model):
         elif model.evaluate(possible(test_state)):
             print(f"  {bin_rep} = {as_substates} (possible)")
         else:
-            print(f"  {bin_rep} = {as_substates} (impossible)")
+            pass
+        # print(f"  {bin_rep} = {as_substates} (impossible)")
         already_seen.add(as_substates)
 
 
