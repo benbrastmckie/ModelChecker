@@ -14,6 +14,8 @@ from definitions import (
     a,
     b,
     c,
+    is_atomic,
+    non_null_falsify,
     r,
     s,
     t,
@@ -35,6 +37,7 @@ from definitions import (
     falsify,
     is_alternative,
     proposition,
+    is_proper_part_of,
     non_null_verify,
 )
 
@@ -60,9 +63,11 @@ solver.add(
     # every X of AtomSort is a proposition
     is_world(w),
     # there is a world w
-    is_part_of(c, w),
-    falsify(c, A),
+    is_proper_part_of(c, w),
+    # is_part_of(c, w),
+    non_null_falsify(c, A),
     # \neg A in w
+    # something remains unchanged
     ForAll(
         [s, v],
         Implies(
@@ -85,15 +90,17 @@ solver.add(
         ),
     ),
     # A \boxright B \vee C in w
-    verify(a, A),
+    non_null_verify(a, A),
     is_alternative(u, a, w),
-    is_part_of(b, u),
-    falsify(b, B),
+    is_proper_part_of(b, u),
+    # is_part_of(b, u),
+    non_null_falsify(b, B),
     # \neg(A \boxright B) in w
-    verify(s, A),
+    non_null_verify(s, A),
     is_alternative(v, s, w),
-    is_part_of(t, v),
-    falsify(t, C),
+    is_proper_part_of(t, v),
+    # is_part_of(t, v),
+    non_null_falsify(t, C),
     # \neg(A \boxright C)
 )
 

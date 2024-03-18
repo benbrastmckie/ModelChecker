@@ -16,6 +16,7 @@ from definitions import (
     a,
     b,
     c,
+    is_proper_part_of,
     non_null_verify,
     r,
     s,
@@ -61,16 +62,20 @@ solver.add(
     # EVAL CONSTRAINTS
     is_world(w),
     # there is a world w
-    is_part_of(a, w),
+    # is_proper_part_of(r, w),
+    # is_proper_part_of(r, u),
+    # # something is preserved NOTE: couldn't get this to work
+    # Not(w & u == 0), # NOTE: this killed the models
+    is_proper_part_of(a, w),
     non_null_verify(a, A),
     # A is true in w
-    is_part_of(b, w),
+    is_proper_part_of(b, w),
     non_null_verify(b, B),
     # B is true in w
 
     non_null_verify(c, A),
     is_alternative(u, c, w),
-    is_part_of(s, u),
+    is_proper_part_of(s, u),
     falsify(s, B),
     # ~(A => B) is true in w
 
