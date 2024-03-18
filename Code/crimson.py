@@ -62,10 +62,15 @@ solver.add(
     # EVAL CONSTRAINTS
     is_world(w),
     # there is a world w
+
     # is_proper_part_of(r, w),
     # is_proper_part_of(r, u),
-    # # something is preserved NOTE: couldn't get this to work
-    # Not(w & u == 0), # NOTE: this killed the models
+    # something is preserved
+    # NOTE: couldn't get this to work
+
+    # Not(w & u == 0),
+    # NOTE: this killed the models
+
     is_proper_part_of(a, w),
     non_null_verify(a, A),
     # A is true in w
