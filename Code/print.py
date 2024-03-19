@@ -30,9 +30,12 @@ from definitions import (
 # the thought is that model_builder and eval_builder can be used to build a data class where
 # the print functions will then operate on that data class. but it seems that we now have
 # all the key ingredients that we need.
-# Sounds good! I'm guessing that may be better to do once we finish semantics and all that?
+# M: Sounds good! I'm guessing that may be better to do once we finish semantics and all that?
+# B: Yes, that sounds good! I will start working on that now
 
 # TODO: define helper function from model to eval_world, all_bits, poss_bits, world_bits,
+
+# TODO: define helper function from model, sentence_letters, and eval_world to: true_in_eval, ver_bits, fal_vits, alt_bits, and true_in_alt
 
 def print_states(model):
     """print all fusions of atomic states in the model"""
@@ -42,22 +45,12 @@ def print_states(model):
         if is_bitvector(model[element])
     }
     poss_bits = [bit for bit in all_bits if model.evaluate(possible(bit))]
-    world_bits = poss_bits[:]
-    for world in world_bits:
+    world_bits = list(poss_bits)
+    for world in list(poss_bits):
         for poss in poss_bits:
             if bit_proper_part(world, poss):
-            # if bit_part(world, poss) and world != poss: # B: not sure why this syntax is bad?
                 world_bits.remove(world)
                 break
-    # NOTE: wrt `mereology.py`, it finds that 1 is a proper part of 17 but does not remove 1 from the set of world_bits
-
-    print("\nTest World Parthood:")  # Print states
-    print(f"Possible bvs {poss_bits}")
-    print(f"World bvs {world_bits}")
-    for wo in world_bits:
-        for p in poss_bits:
-            if bit_proper_part(wo,p):
-                print(f"World bv {wo} is a proper part of possible bv {p}")
 
     print("\nStates:")  # Print states
     already_seen = set()
@@ -168,6 +161,8 @@ def find_alt_bits(ver_bits, poss_bits, world_bits, eval_world):
                     alt_bits.add(world)
                     break  # to break out of first for loop
     return alt_bits
+    # TODO: seems to be adding eval_world anyhow to alt_bits
+    # TODO: seems to be adding states that are not worlds to alt_bits
 
 
 def find_relations(all_bits, S, model):
