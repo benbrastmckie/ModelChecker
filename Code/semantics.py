@@ -7,6 +7,7 @@ from z3 import (
     Implies,
     Or,
     BitVec,
+    BitVecs,
     Not,
     DeclareSort,
     Consts,
@@ -24,26 +25,36 @@ from definitions import (
     is_part_of,
     possible,
     is_world,
-    alternative,
+    AtomSort,
+    verify,
+    non_null_verify,
+    falsify,
+    non_null_falsify,
+    # alternative,
 )
 
-# NOTE: I think this makes atomic_sentence, Y have the sort Atoms... not sure this is useful
-AtomSort = DeclareSort('AtomSort')
+'''
+this file defines the functions needed to generate Z3 constraints from
+input_sentences in infix form.
+'''
+
+
+# TODO: use prefix definitions to move from input_sentences to prefix_sentences and sentence_letters
+
+# TODO: define function from sorted sentence_letters with no repeated entries to declarations of the following form
+
 A, B = Consts('A B', AtomSort)
 
-# NOTE: N is defined in states.md
-x = BitVec("x", N)
-y = BitVec("y", N)
-z = BitVec("z", N)
-w = BitVec("w", N)
-u = BitVec("u", N)
-v = BitVec("v", N)
-s = BitVec("s", N)
+# NOTE: for the time being, I will declare the following
+sentence_letters = [A, B]
 
-# NOTE: want 'verify' to be a function from a bitvector and sentence to a truth-value
-verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
-falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
+a, b, c = BitVecs("a b c", N)
+r, s, t = BitVecs("r s t", N)
+u, v, w = BitVecs("u v w", N)
+x, y, z = BitVecs("x y z", N)
 
+
+# NOTE: would this replace the definition of proposition in `definitions.py` at some point?
 def proposition(atomic_sentence):
     """requires a sentence letter to be a proposition"""
     return (
@@ -56,7 +67,6 @@ def proposition(atomic_sentence):
 
 solver = Solver()
 
-sentence_letters = [A, B]
 for S in sentence_letters:
     for proposition_constraint in proposition(S):
         solver.add(proposition_constraint)

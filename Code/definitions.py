@@ -114,7 +114,7 @@ def is_part_of(bit_s, bit_t):
 
 def is_proper_part_of(bit_s, bit_t):
     '''the fusion of bit_s and bit_t is identical to bit_t'''
-    return And(is_part_of(bit_s, bit_t), Not(is_part_of(bit_t,bit_s)))
+    return And(is_part_of(bit_s, bit_t), Not(bit_t == bit_s))
 
 
 def bit_part(bit_s, bit_t):
