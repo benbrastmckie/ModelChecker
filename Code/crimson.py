@@ -17,6 +17,7 @@ from definitions import (
     b,
     c,
     is_proper_part_of,
+    non_null_falsify,
     non_null_verify,
     r,
     s,
@@ -72,16 +73,19 @@ solver.add(
     # NOTE: this killed the models
 
     is_proper_part_of(a, w),
-    non_null_verify(a, A),
+    verify(a, A),
+    # non_null_verify(a, A),
     # A is true in w
     is_proper_part_of(b, w),
-    non_null_verify(b, B),
+    verify(b, B),
+    # non_null_verify(b, B),
     # B is true in w
 
     non_null_verify(c, A),
     is_alternative(u, c, w),
     is_proper_part_of(s, u),
     falsify(s, B),
+    # non_null_falsify(s, B),
     # ~(A => B) is true in w
 
     # NOTE: although the above is equivalent to the below modulo exhaustivity

@@ -13,8 +13,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] abstract on multiple occurrences of `all_bits`
   - [ ] separate model building, eval building, and printing elements (see NOTE in `print.py`)
 - [ ] `world_bits` sometimes includes non-maximal worlds
-  - M: @B do you have any examples (ie, file name and N value) for when this is true, to try to see what's going on?
-  - [ ] B: It seems to have gone away, but I'll try to create it explicitly
+  - M: do you have any examples (ie, file name and N value) for when this is true, to try to see what's going on?
+  - B: yes, I found a bunch of examples and created an issue to document
 - [ ] `poss_strength.py`
   - [ ] `A => C` is true though there is an `A`-alternative where `C` is false
   - [ ] replacing `verify` with `non_null_verify` eliminates models
