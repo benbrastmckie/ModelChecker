@@ -32,6 +32,8 @@ from definitions import (
 # all the key ingredients that we need.
 # Sounds good! I'm guessing that may be better to do once we finish semantics and all that?
 
+# TODO: define helper function from model to eval_world, all_bits, poss_bits, world_bits,
+
 def print_states(model):
     """print all fusions of atomic states in the model"""
     all_bits = {
@@ -39,17 +41,25 @@ def print_states(model):
         for element in model.decls()
         if is_bitvector(model[element])
     }
-    bits_as_nums = [bit.as_long() for bit in all_bits]
     poss_bits = [bit for bit in all_bits if model.evaluate(possible(bit))]
     world_bits = poss_bits[:]
     for world in world_bits:
         for poss in poss_bits:
-            if bool(bit_proper_part(world, poss)):
+            if bit_proper_part(world, poss):
+            # if bit_part(world, poss) and world != poss: # B: not sure why this syntax is bad?
                 world_bits.remove(world)
                 break
+    # NOTE: wrt `mereology.py`, it finds that 1 is a proper part of 17 but does not remove 1 from the set of world_bits
+
+    print("\nTest World Parthood:")  # Print states
+    print(f"Possible bvs {poss_bits}")
+    print(f"World bvs {world_bits}")
+    for wo in world_bits:
+        for p in poss_bits:
+            if bit_proper_part(wo,p):
+                print(f"World bv {wo} is a proper part of possible bv {p}")
 
     print("\nStates:")  # Print states
-    max_num = max(bits_as_nums) # NOTE: not accessed
     already_seen = set()
     biggest_state_possible_as_num = summation(
         N + 1, lambda x: 2**x
@@ -88,9 +98,7 @@ def print_evaluation(model, sentence_letters):
     true_in_eval = set()
     for sent in sentence_letters:
         for bit in all_bits:
-            if bool(model.evaluate(verify(bit, model[sent]))) and bool(
-                bit_part(bit, eval_world)
-            ):
+            if model.evaluate(verify(bit, model[sent])) and bit_part(bit, eval_world):
                 true_in_eval.add(sent)
                 break
     false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
@@ -205,9 +213,7 @@ def find_true_and_false_in_alt(alt_bit, sentence_letters, all_bits, model):
     true_in_alt = set()
     for R in sentence_letters:
         for bit in all_bits:
-            if bool(model.evaluate(verify(bit, model[R]))) and bool(
-                bit_part(bit, alt_bit)
-            ):
+            if model.evaluate(verify(bit, model[R])) and bit_part(bit, alt_bit):
                 true_in_alt.add(R)
                 break  # breaks the `for bit in all_bits` for loop, NOT the big for loop
     false_in_alt = {R for R in sentence_letters if not R in true_in_alt}

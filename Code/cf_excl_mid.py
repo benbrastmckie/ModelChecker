@@ -65,7 +65,8 @@ solver.add(
     # there is a world w
     is_proper_part_of(c, w),
     # is_part_of(c, w),
-    non_null_falsify(c, A),
+    falsify(c, A),
+    # non_null_falsify(c, A),
     # \neg A in w
     # something remains unchanged
     ForAll(
@@ -90,17 +91,21 @@ solver.add(
         ),
     ),
     # A \boxright B \vee C in w
-    non_null_verify(a, A),
+    verify(a, A),
+    # non_null_verify(a, A),
     is_alternative(u, a, w),
     is_proper_part_of(b, u),
     # is_part_of(b, u),
-    non_null_falsify(b, B),
+    falsify(b, B),
+    # non_null_falsify(b, B),
     # \neg(A \boxright B) in w
-    non_null_verify(s, A),
+    verify(s, A),
+    # non_null_verify(s, A),
     is_alternative(v, s, w),
     is_proper_part_of(t, v),
     # is_part_of(t, v),
-    non_null_falsify(t, C),
+    falsify(t, C),
+    # non_null_falsify(t, C),
     # \neg(A \boxright C)
 )
 
