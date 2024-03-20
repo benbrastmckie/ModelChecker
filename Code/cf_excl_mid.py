@@ -63,8 +63,12 @@ solver.add(
     # every X of AtomSort is a proposition
     is_world(w),
     # there is a world w
+
+    # NOTE: turning these off makes it produce a better model
+    # but I'm not sure why leaving them on flattens the model
     is_part_of(c, w),
     falsify(c, A),
+
     # non_null_falsify(c, A),
     # \neg A in w
     # something remains unchanged
