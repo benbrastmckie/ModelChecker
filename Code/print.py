@@ -40,12 +40,13 @@ from definitions import (
 def find_world_bits(poss_bits):
     '''finds the world bits from a list of possible bits.
     used in print_states() and find_relations()'''
-    world_bits = poss_bits[:]
+    not_worlds = []
     for potential_world in poss_bits:
-        for poss in poss_bits:
-            if bit_proper_part(potential_world, poss):
-                world_bits.remove(potential_world)
+        for test in poss_bits:
+            if bit_proper_part(potential_world, test):
+                not_worlds.append(potential_world)
                 break
+    world_bits = [world for world in poss_bits if world not in not_worlds]
     return world_bits
 
 def print_states(model):
@@ -98,7 +99,7 @@ def print_evaluation(model, sentence_letters):
         for bit in all_bits:
             if model.evaluate(verify(bit, model[sent])) and bool(bit_part(bit, eval_world)):
                 true_in_eval.add(sent)
-                break
+                break  # exits the first for loop
     false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
     if true_in_eval:
         true_eval_list = sorted([str(sent) for sent in true_in_eval])
@@ -127,26 +128,28 @@ def relate_sents_and_states(all_bits, sentence, model, relation):
 
 
 def find_compatible_parts(verifier_bit, poss_bits, eval_world):
-    """Finds the compatible parts for a verifier given all possible bits as a list.
+    """Finds the parts of the eval_world compatible with a verifier.
     Used in find_alt_bits()"""
     comp_parts = []
     for part in poss_bits:
         if bit_fusion(verifier_bit, part) in poss_bits and bool(bit_part(part, eval_world)):
             comp_parts.append(part)
-            # ie, if fusion is possible and the the bit part is in the eval_world
+            # ie, if fusion is possible and the bit part is in the eval_world
     return comp_parts
 
 
 def find_max_comp_ver_parts(verifier_bit, comp_parts):
-    """Finds the maximal compatible verifier parts, as a list
+    """Finds a list of fusions of the verifier_bit and a maximal compatible part 
     Used in find_alt_bits(), immediately after find_compatible_parts() above"""
-    max_comp_parts = comp_parts[:]
+    not_max_comp_part = []
     for max_part in comp_parts:
         for test in comp_parts:
             if bit_proper_part(max_part, test):
-                max_comp_parts.remove(max_part)
+                not_max_comp_part.append(max_part)
                 break  # exits the first for loop
-    return [bit_fusion(verifier_bit, max) for max in max_comp_parts]
+    max_comp_parts = [part for part in comp_parts if part not in not_max_comp_part]
+    max_comp_ver_parts = [bit_fusion(verifier_bit, max) for max in max_comp_parts]
+    return max_comp_ver_parts
 
 
 def find_alt_bits(ver_bits, poss_bits, world_bits, eval_world):

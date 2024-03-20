@@ -72,21 +72,25 @@ solver.add(
     # Not(w & u == 0),
     # NOTE: this killed the models
 
-    is_proper_part_of(a, w),
-    non_null_verify(a, A),
-    # non_null_verify(a, A),
     # A is true in w
-    is_proper_part_of(b, w),
-    non_null_verify(b, B),
-    # non_null_verify(b, B),
-    # B is true in w
+    is_part_of(a, w),
+    verify(a, A),
+    # is_proper_part_of(a, w),
+    # non_null_verify(a, A),
 
-    non_null_verify(c, A),
-    is_alternative(u, c, w),
-    is_proper_part_of(s, u),
-    non_null_falsify(s, B),
-    # non_null_falsify(s, B),
+    # B is true in w
+    is_part_of(b, w),
+    verify(b, B),
+    # non_null_verify(b, B),
+
     # ~(A => B) is true in w
+    verify(c, A),
+    # non_null_verify(c, A),
+    is_alternative(u, c, w),
+    is_part_of(s, u),
+    # is_proper_part_of(s, u),
+    falsify(s, B),
+    # non_null_falsify(s, B),
 
     # NOTE: although the above is equivalent to the below modulo exhaustivity
     # the latter produces truth-value gaps (see issue on github)

@@ -26,9 +26,9 @@ from z3 import (
 ### DECLARATIONS ###
 
 # number of atomic states
-# N = 3 # works
+N = 3 # works
 # N = 4 # works
-N = 5 # works
+# N = 5 # works
 # N = 6 # works
 # N = 7 # works
 # N = 8 # works
@@ -124,7 +124,7 @@ def bit_part(bit_s, bit_t):
 
 def bit_proper_part(bit_s, bit_t):
     """bit_s is a part of bit_t and bit_t is not a part of bit_s"""
-    return bit_part(bit_s, bit_t) and not bit_s == bit_t
+    return bool(bit_part(bit_s, bit_t)) and not bit_s == bit_t
 
 
 def compatible(bit_x, bit_y):
@@ -151,7 +151,7 @@ def is_world(bit_w):
     )
 
 
-def compatible_part(bit_x, bit_w, bit_y):
+def max_compatible_part(bit_x, bit_w, bit_y):
     '''bit_x is the biggest part of bit_w that is compatible with bit_y.'''
     return And(
         is_part_of(bit_x, bit_w),
@@ -161,6 +161,7 @@ def compatible_part(bit_x, bit_w, bit_y):
             Implies(
                 And(is_part_of(z, bit_w), compatible(z, bit_y), is_part_of(bit_x, z)),
                 bit_x == z,
+                # is_part_of(z, x), # this should be equivalent
             ),
         ),
     )
@@ -173,7 +174,7 @@ def is_alternative(bit_u, bit_y, bit_w):
     return And(
         is_world(bit_u),
         is_part_of(bit_y, bit_u),
-        Exists(z, And(is_part_of(z, bit_u), compatible_part(z, bit_w, bit_y))),
+        Exists(z, And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y))),
     )
 
 
