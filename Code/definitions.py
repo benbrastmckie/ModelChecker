@@ -28,7 +28,7 @@ from z3 import (
 # number of atomic states
 # N = 3 # works
 # N = 4 # works
-N = 5 # works
+N = 7 # works
 # N = 6 # works
 # N = 7 # works
 # N = 8 # works
@@ -160,7 +160,7 @@ def compatible_part(bit_x, bit_w, bit_y):
             z,
             Implies(
                 And(is_part_of(z, bit_w), compatible(z, bit_y), is_part_of(bit_x, z)),
-                x == z,
+                bit_x == z,
             ),
         ),
     )
