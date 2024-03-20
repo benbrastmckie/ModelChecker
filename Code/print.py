@@ -64,6 +64,10 @@ def print_states(model):
     biggest_state_possible_as_num = summation(
         N + 1, lambda x: 2**x
     )  # this should hopefully be enough to cover all states
+    # TEST PRINT
+    all_states = {bitvec_to_substates(bit) for bit in all_bits}
+    print(f"{all_states}")
+    # END TEST
     for val in range(biggest_state_possible_as_num):
         test_state = BitVecVal(val, N)
         as_substates = bitvec_to_substates(test_state)
