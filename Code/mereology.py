@@ -77,21 +77,21 @@ solver.add(
 
     # B is true in w
     is_part_of(b, w),
-    verify(b, B),
+    falsify(b, B),
 
     # C is true in w
     is_part_of(c, w),
-    verify(c, C),
+    falsify(c, C),
 
     # A, ~B, C are true in u
-    falsify(s, B),
+    verify(s, B),
     is_part_of(a, u),
     is_part_of(s, u),
     is_part_of(c, u),
     is_alternative(u,s,w),
 
     # A, B, ~C are true in v
-    falsify(t, C),
+    verify(t, C),
     is_part_of(a, v),
     is_part_of(b, v),
     is_part_of(t, v),
