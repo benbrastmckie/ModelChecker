@@ -28,7 +28,7 @@ from z3 import (
 # number of atomic states
 # N = 3 # works
 # N = 4 # works
-N = 7 # works
+N = 5 # works
 # N = 6 # works
 # N = 7 # works
 # N = 8 # works
