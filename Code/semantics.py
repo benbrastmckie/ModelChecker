@@ -34,6 +34,8 @@ from definitions import (
     # alternative,
 )
 
+# from sympy import symbols, Or, And, Implies, Not, to_cnf
+
 """
 this file defines the functions needed to generate Z3 constraints from
 input_sentences in infix form.
