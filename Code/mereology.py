@@ -30,6 +30,7 @@ from definitions import (
     z,
     A,
     B,
+    C,
     X,
     fusion,
     is_part_of,
@@ -44,7 +45,7 @@ from definitions import (
 from print import print_evaluation, print_propositions, print_states
 
 # TODO: eventually replace sentence_letters with something more general
-sentence_letters = [A, B]
+sentence_letters = [A, B, C]
 
 solver = Solver()
 
@@ -57,41 +58,54 @@ solver.add(
     # states are closed under fusion
 
     # MODEL CONSTRAINT
-    # ForAll(X, proposition(X)),  # every X of AtomSort is a proposition
-    proposition(A),
-    proposition(B),
+    ForAll(X, proposition(X)),  # every X of AtomSort is a proposition
+    # proposition(A),
+    # proposition(B),
+    # proposition(C),
 
-    # TODO: right now there seems to be a world that is a proper part of another.
+    # TODO: it should be possible to satisfy these constraints
+    # does't seem to be creating any alt_worlds
 
     # EVAL CONSTRAINTS
+
+    # there is a world w
     is_world(w),
-    # there is a world w
-    is_proper_part_of(a, w),
-    non_null_verify(a, A),
-    Not(non_null_verify(a, B)),
+
     # A is true in w
-    is_proper_part_of(b, w),
-    non_null_verify(b, B),
-    Not(non_null_verify(b, A)),
+    is_part_of(a, w),
+    verify(a, A),
+
     # B is true in w
-    is_world(u),
-    # there is a world w
-    is_proper_part_of(s, u),
-    non_null_verify(s, A),
-    # A is true in w
-    is_proper_part_of(t, u),
-    non_null_verify(t, B),
-    # B is true in w
+    is_part_of(b, w),
+    verify(b, B),
+
+    # C is true in w
+    is_part_of(c, w),
+    verify(c, C),
+
+    # A, ~B, C are true in u
+    falsify(s, B),
+    is_part_of(a, u),
+    is_part_of(s, u),
+    is_part_of(c, u),
+    is_alternative(u,s,w),
+
+    # A, B, ~C are true in v
+    falsify(t, C),
+    is_part_of(a, v),
+    is_part_of(b, v),
+    is_part_of(t, v),
+    is_alternative(v,t,w),
 
 )
 
 if solver.check() == sat:
     model = solver.model()
     print("\nThere is a model of:")
-    print("A, B are true in w")
+    print("A, B, C, ~(A => B), ~(A => C)")
     print_states(model)
     print_evaluation(model, sentence_letters)
     print_propositions(model, sentence_letters)
 else:
     print("\nThere are no models of:")
-    print("A, B, A => B\n")
+    print("A, B, C, ~(A => B), ~(A => C)\n")
