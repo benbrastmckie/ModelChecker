@@ -48,8 +48,9 @@ A, B, C = Consts('A B C', AtomSort)
 X, Y, Z = Consts('X Y Z', AtomSort)
 
 # NOTE: for the time being, I will declare the following
+# not sure if it's right to include strings 'boxright', 'vee', etc
+prefix_sentences = [['boxright', A, ['vee', B, C]], ['neg', ['boxright', A, B]], ['neg', ['boxright', A, C]]]
 sentence_letters = [A, B, C]
-
 
 # NOTE: for now we may declare a fixed set of variables
 # however, it is likely that at some point these definitions will have to be an
@@ -91,28 +92,68 @@ solver.add(ForAll(X, proposition(X)))
 # print ("interpretation assigned to AtomSort:")
 # print (model[AtomSort])
 
-
 # frame constraints
 solver.add(ForAll([x,y], Implies(And(possible(x), is_part_of(x,y)), possible(y))))
 
 # evaluation constraints
 solver.add(is_world(w))
 
-def Alternatives(u,w,X):
-    '''
-    Given a world w and sentence X, the function Alternatives(u,w,X) yields the following Z3 constraints:
-        verify(x,X) and is_part_of(x,u)
-        is_part_of(y,w), compatible(y,x), and is_part_of(y,u)
-        for any z, if is_part_of(z,w), compatible(z,x), and is_part_of(y,z), then y = z
-    '''
-    pass #TODO
+
+def true_at(X, w):
+    '''X is a sentence in prefix notation'''
+    if len(X) == 1:
+        return Exists(x, And(is_part_of(x,w), verify(x,A)))
+    op = X[0]
+    if 'neg' in op:
+        return false_at(X, w)
+    Y = X[1]
+    Z = X[2]
+    if 'wedge' in op:
+        return And(true_at(Y, w), true_at(Z, w))
+    if 'vee' in op:
+        return Or(true_at(Y, w), true_at(Z, w))
+    if 'leftrightarrow' in op:
+        return Or(And(true_at(Y, w), true_at(Z, w)), And(false_at(Y, w), false_at(Z, w)))
+    if 'rightarrow' in op:
+        return Or(false_at(Y, w), true_at(Z, w))
+    if 'boxright' in op:
+        return ForAll([x,u], Implies(And(extended_verify(x, Y), is_alternative(u, x, w)), true_at(u, Z)))
+
+def false_at(X, w):
+    '''X is a sentence in prefix notation'''
+    if len(X) == 1:
+        return Exists(x, And(is_part_of(x,w), falsify(x,A)))
+    op = X[0]
+    if 'neg' in op:
+        return true_at(X, w)
+    Y = X[1]
+    Z = X[2]
+    if 'wedge' in op:
+        return And(true_at(Y, w), true_at(Z, w))
+    if 'vee' in op:
+        return Or(true_at(Y, w), true_at(Z, w))
+    if 'leftrightarrow' in op:
+        return Or(And(true_at(Y, w), true_at(Z, w)), And(Not(true_at(Y, w)), Not(true_at(Z, w))))
+    if 'rightarrow' in op:
+        return Or(Not(true_at(Y, w)), true_at(Z, w))
+    if 'boxright' in op:
+        return ForAll([x,u], Implies(And(extended_verify(x,Y),alternative(x, w,u)), true_at(u,Z)))
+
+for sentence in prefix_sentences:
+    solver.add(true_at(sentence, w))
+
+
+
+
+
+
 
 # M: we could redefine this function to take as input the output of tokenize in prefix_infix, I think. Do we want?
 # B: this says of a sentence X (of any complexity) that it is true at w.
 # we will want to pass it sentences in prefix notation, but it is of very general utility.
 # for this reason I'm thinking that it deserves to be its own function.
 # but maybe I missed your question?
-def Semantics(w,X): # LINT: all or none of the return statements should be an expression
+def Semantics(X, w): # LINT: all or none of the return statements should be an expression
     '''sentence X is true at world w'''
     if X[0] in sentence_letters:
         # B: should 'list' be 'sentence_letters'?
@@ -121,11 +162,11 @@ def Semantics(w,X): # LINT: all or none of the return statements should be an ex
         # track of which constants have been used. I'm confused why Exists()
         # claims don't seem to give good results.
     if 'neg' in X[0] and 'boxright' not in X[1][0]:
-        return Not(Semantics(w,X[1]))
+        return Not(Semantics(X, w[1]))
     if 'wedge' in X[0]:
-        return And(Semantics(w,X[1]),Semantics(w,X[2]))
+        return And(Semantics(X, w[1]),Semantics(X, w[2]))
     if 'vee' in X[0]:
-        return Or(Semantics(w,X[1]),Semantics(w,X[2]))
+        return Or(Semantics(X, w[1]),Semantics(X, w[2]))
     if 'boxright' in X[0]:
         return ForAll([s, v], Implies(And(extended_verify(s,X[1]), is_alternative(v, s, w)), Semantics(v,X[2])))
     if 'neg' in X[0] and 'boxright' in X[1][0]:
@@ -136,6 +177,7 @@ def Semantics(w,X): # LINT: all or none of the return statements should be an ex
     # might be better to just use new constants
 
 
+# NOTE: should throw error if boxright occurs in X
 def extended_verify(x,X):
     '''X is in prefix form. Same for extended_falsify'''
     if len(X) == 1:
@@ -174,23 +216,3 @@ def extended_falsify(x,X):
     if 'rightarrow' in op:
         return Exists([y,z], And(x == fusion(y,z), extended_verify(y,Y), extended_falsify(z, Z)))
     raise ValueError(f'something went up in extended_falsify, most likely operation not found: {op}')
-
-def true(w,X):
-    '''X is in prefix function'''
-    if len(X) == 1:
-        return Exists(x, And(is_part_of(x,w), verify(x,A)))
-    op = X[0]
-    if 'neg' in op:
-        return Not(true(w,X))
-    Y = X[1]
-    Z = X[2]
-    if 'wedge' in op:
-        return And(true(w,Y), true(w,Z))
-    if 'vee' in op:
-        return Or(true(w,Y), true(w,Z))
-    if 'leftrightarrow' in op:
-        return Or(And(true(w,Y), true(w,Z)), And(Not(true(w,Y)), Not(true(w,Z))))
-    if 'rightarrow' in op:
-        return Or(Not(true(w,Y)), true(w,Z))
-    if 'boxright' in op:
-        return ForAll([x,u], Implies(And(extended_verify(x,Y),alternative(w,x,u)), true(u,Z)))
