@@ -37,6 +37,17 @@ from definitions import (
 
 # TODO: define helper function from model, sentence_letters, and eval_world to: true_in_eval, ver_bits, fal_vits, alt_bits, and true_in_alt
 
+def find_world_bits(poss_bits):
+    '''finds the world bits from a list of possible bits.
+    used in print_states() and find_relations()'''
+    world_bits = poss_bits[:]
+    for potential_world in poss_bits:
+        for poss in poss_bits:
+            if bit_proper_part(potential_world, poss):
+                world_bits.remove(potential_world)
+                break
+    return world_bits
+
 def print_states(model):
     """print all fusions of atomic states in the model"""
     all_bits = {
@@ -45,12 +56,7 @@ def print_states(model):
         if is_bitvector(model[element])
     }
     poss_bits = [bit for bit in all_bits if model.evaluate(possible(bit))]
-    world_bits = list(poss_bits)
-    for world in list(poss_bits):
-        for poss in poss_bits:
-            if bit_proper_part(world, poss):
-                world_bits.remove(world)
-                break
+    world_bits = find_world_bits(poss_bits)
 
     print("\nStates:")  # Print states
     already_seen = set()
@@ -157,12 +163,10 @@ def find_alt_bits(ver_bits, poss_bits, world_bits, eval_world):
         max_comp_ver_parts = find_max_comp_ver_parts(ver, comp_parts)
         for world in world_bits:
             for max_ver in max_comp_ver_parts:
-                if bit_part(max_ver, world) and world is not eval_world:
+                if bit_part(max_ver, world) and world.sexpr() != eval_world.sexpr():
                     alt_bits.add(world)
                     break  # to break out of first for loop
     return alt_bits
-    # TODO: seems to be adding eval_world anyhow to alt_bits
-    # TODO: seems to be adding states that are not worlds to alt_bits
 
 
 def find_relations(all_bits, S, model):
@@ -172,12 +176,7 @@ def find_relations(all_bits, S, model):
     ver_bits = relate_sents_and_states(all_bits, S, model, verify)
     fal_bits = relate_sents_and_states(all_bits, S, model, falsify)
     poss_bits = [element for element in all_bits if model.evaluate(possible(element))]
-    world_bits = poss_bits[:]
-    for world in world_bits:
-        for poss in poss_bits:
-            if bit_proper_part(world, poss):
-                world_bits.remove(world)
-                break
+    world_bits = find_world_bits(poss_bits)
     eval_world = model[w]
     alt_bits = find_alt_bits(ver_bits, poss_bits, world_bits, eval_world)
     return (ver_bits, fal_bits, alt_bits)
