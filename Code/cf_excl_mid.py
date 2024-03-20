@@ -63,8 +63,7 @@ solver.add(
     # every X of AtomSort is a proposition
     is_world(w),
     # there is a world w
-    is_proper_part_of(c, w),
-    # is_part_of(c, w),
+    is_part_of(c, w),
     falsify(c, A),
     # non_null_falsify(c, A),
     # \neg A in w
@@ -94,16 +93,14 @@ solver.add(
     verify(a, A),
     # non_null_verify(a, A),
     is_alternative(u, a, w),
-    is_proper_part_of(b, u),
-    # is_part_of(b, u),
+    is_part_of(b, u),
     falsify(b, B),
     # non_null_falsify(b, B),
     # \neg(A \boxright B) in w
     verify(s, A),
     # non_null_verify(s, A),
     is_alternative(v, s, w),
-    is_proper_part_of(t, v),
-    # is_part_of(t, v),
+    is_part_of(t, v),
     falsify(t, C),
     # non_null_falsify(t, C),
     # \neg(A \boxright C)
