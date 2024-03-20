@@ -50,9 +50,9 @@ X, Y, Z = Consts("X Y Z", AtomSort)
 # NOTE: for the time being, I will declare the following
 # not sure if it's right to include strings 'boxright', 'vee', etc
 prefix_sentences = [
-    ["boxright", A, ["vee", B, C]],
-    ["neg", ["boxright", A, B]],
-    ["neg", ["boxright", A, C]],
+    ["boxright", [A], ["vee", [B], [C]]],
+    ["neg", ["boxright", [A], [B]]],
+    ["neg", ["boxright", [A], [C]]],
 ]
 sentence_letters = [A, B, C]
 
@@ -238,6 +238,7 @@ for sentence in prefix_sentences:
 
 # TEST PRINT
 
+# print (solver.add())
 print (solver.check())
 model = solver.model()
 print (model)
