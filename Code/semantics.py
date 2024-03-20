@@ -26,6 +26,7 @@ from definitions import (
     possible,
     is_world,
     AtomSort,
+    proposition,
     verify,
     non_null_verify,
     falsify,
@@ -41,41 +42,54 @@ input_sentences in infix form.
 
 # TODO: use prefix definitions to move from input_sentences to prefix_sentences and sentence_letters
 
-# TODO: define function from sorted sentence_letters with no repeated entries to declarations of the following form
+# TODO: define function from sentence_letters (sorted with no repeated entries) to declarations of the following form
 
-A, B = Consts('A B', AtomSort)
+A, B, C = Consts('A B C', AtomSort)
+X, Y, Z = Consts('X Y Z', AtomSort)
 
 # NOTE: for the time being, I will declare the following
-sentence_letters = [A, B]
+sentence_letters = [A, B, C]
 
+
+# NOTE: for now we may declare a fixed set of variables
+# however, it is likely that at some point these definitions will have to be an
+# output along with the constraints generated
 a, b, c = BitVecs("a b c", N)
 r, s, t = BitVecs("r s t", N)
 u, v, w = BitVecs("u v w", N)
 x, y, z = BitVecs("x y z", N)
 
 
-# NOTE: would this replace the definition of proposition in `definitions.py` at some point?
-def proposition(atomic_sentence):
-    """requires a sentence letter to be a proposition"""
-    return (
-        ForAll([x,y], Implies(And(verify(x,atomic_sentence), verify(y,atomic_sentence)), verify(fusion(x,y),atomic_sentence))),
-        ForAll([x,y], Implies(And(falsify(x,atomic_sentence), falsify(y,atomic_sentence)), falsify(fusion(x,y),atomic_sentence))),
-        ForAll([x,y], Implies(And(verify(x,atomic_sentence), falsify(y,atomic_sentence)), Not(possible(fusion(x,y))))),
-        # ForAll(x, Implies(possible(x), Exists(y, And(possible(fusion(x,y)), Or(verify(y,atomic_sentence), falsify(y,atomic_sentence)))))),
-        # B: we need to leave this last condition off until we know why it is crashing z3
-    )
+# # NOTE: would this replace the definition of proposition in `definitions.py` at some point?
+# def proposition(atomic_sentence):
+#     """requires a sentence letter to be a proposition"""
+#     return (
+#         ForAll([x,y], Implies(And(verify(x,atomic_sentence), verify(y,atomic_sentence)), verify(fusion(x,y),atomic_sentence))),
+#         ForAll([x,y], Implies(And(falsify(x,atomic_sentence), falsify(y,atomic_sentence)), falsify(fusion(x,y),atomic_sentence))),
+#         ForAll([x,y], Implies(And(verify(x,atomic_sentence), falsify(y,atomic_sentence)), Not(possible(fusion(x,y))))),
+#         # ForAll(x, Implies(possible(x), Exists(y, And(possible(fusion(x,y)), Or(verify(y,atomic_sentence), falsify(y,atomic_sentence)))))),
+#         # B: we need to leave this last condition off until we know why it is crashing z3
+#     )
+# NOTE: why not use the definition of proposition in definitions.py?
+# for S in sentence_letters:
+#     for proposition_constraint in proposition(S):
+#         solver.add(proposition_constraint)
 
 solver = Solver()
 
-for S in sentence_letters:
-    for proposition_constraint in proposition(S):
-        solver.add(proposition_constraint)
+# TODO: check that this makes sense in place of the commented out alternative
+# above. maybe I missed what the idea was supposed to be
+# NOTE: alternatively we could use a for-loop through sentence_letters here
+# might be worth experimenting with: could this fix the fact that ver_bits
+# are not currently closed under fusion?
+solver.add(ForAll(X, proposition(X)))
 
-print (solver.check())
-model = solver.model()
-print (model)
-print ("interpretation assigned to AtomSort:")
-print (model[AtomSort])
+# TEST PRINT
+# print (solver.check())
+# model = solver.model()
+# print (model)
+# print ("interpretation assigned to AtomSort:")
+# print (model[AtomSort])
 
 
 # frame constraints

@@ -57,7 +57,9 @@ solver.add(
     # states are closed under fusion
 
     # MODEL CONSTRAINT
-    ForAll(X, proposition(X)),  # every X of AtomSort is a proposition
+    # ForAll(X, proposition(X)),  # every X of AtomSort is a proposition
+    proposition(A),
+    proposition(B),
 
     # TODO: right now there seems to be a world that is a proper part of another.
 
