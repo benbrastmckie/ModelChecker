@@ -96,7 +96,7 @@ def print_evaluation(model, sentence_letters):
     true_in_eval = set()
     for sent in sentence_letters:
         for bit in all_bits:
-            if model.evaluate(verify(bit, model[sent])) and bit_part(bit, eval_world):
+            if model.evaluate(verify(bit, model[sent])) and bool(bit_part(bit, eval_world)):
                 true_in_eval.add(sent)
                 break
     false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
@@ -131,7 +131,7 @@ def find_compatible_parts(verifier_bit, poss_bits, eval_world):
     Used in find_alt_bits()"""
     comp_parts = []
     for part in poss_bits:
-        if bit_fusion(verifier_bit, part) in poss_bits and bit_part(part, eval_world):
+        if bit_fusion(verifier_bit, part) in poss_bits and bool(bit_part(part, eval_world)):
             comp_parts.append(part)
             # ie, if fusion is possible and the the bit part is in the eval_world
     return comp_parts
@@ -162,7 +162,7 @@ def find_alt_bits(ver_bits, poss_bits, world_bits, eval_world):
         max_comp_ver_parts = find_max_comp_ver_parts(ver, comp_parts)
         for world in world_bits:
             for max_ver in max_comp_ver_parts:
-                if bit_part(max_ver, world) and world.sexpr() != eval_world.sexpr():
+                if bool(bit_part(max_ver, world)) and world.sexpr() != eval_world.sexpr():
                     alt_bits.add(world)
                     break  # to break out of first for loop
     return alt_bits
@@ -206,7 +206,7 @@ def find_true_and_false_in_alt(alt_bit, sentence_letters, all_bits, model):
     true_in_alt = set()
     for R in sentence_letters:
         for bit in all_bits:
-            if model.evaluate(verify(bit, model[R])) and bit_part(bit, alt_bit):
+            if model.evaluate(verify(bit, model[R])) and bool(bit_part(bit, alt_bit)):
                 true_in_alt.add(R)
                 break  # breaks the `for bit in all_bits` for loop, NOT the big for loop
     false_in_alt = {R for R in sentence_letters if not R in true_in_alt}
