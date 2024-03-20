@@ -119,7 +119,7 @@ def is_proper_part_of(bit_s, bit_t):
 
 def bit_part(bit_s, bit_t):
     """the fusion of _s and _t is identical to bit_t"""
-    return bit_fusion(bit_s, bit_t) == bit_t
+    return simplify(bit_fusion(bit_s, bit_t) == bit_t)
 
 
 def bit_proper_part(bit_s, bit_t):
