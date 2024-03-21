@@ -4,33 +4,39 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Refine and Optimize
 
-- [ ] add benchmarks tooling
-- [ ] ssh to supercomputer
-- [ ] multiprocessing
+- [ ] _M_ do we still need simplify?
+- [ ] _M_ semantics
+  - [ ] debug errors
+  - [ ] pipe constraints into new file
+- [ ] _B_ how to abstract on N throughout?
+- [ ] _B_ provide countermodels by hand
+  - [ ] `ent_2.py`
+  - [ ] `poss_strength.py`
 - [.] `print.py`
   - [x] _M_ extract helper function from `alt_bits` def in `print.py`
   - [ ] abstract on `eval_world` to generalize `alt_bits` function
-  - [ ] abstract on multiple occurrences of `all_bits`
-  - [ ] separate model building, eval building, and printing elements (see NOTE in `print.py`)
-- [:] `world_bits` sometimes includes non-maximal worlds
-  - M: do you have any examples (ie, file name and N value) for when this is true, to try to see what's going on?
-  - B: yes, I found a bunch of examples and created an issue to document
-  - M: if this is issue #13, I think this is now fixed!
+  - [ ] abstract on `N`
+  - [:] _B_ abstract on multiple occurrences of `all_bits`
+  - [.] _B_ separate model building, eval building, and printing elements (see NOTE in `print.py`)
 - [ ] `poss_strength.py`
   - [ ] `A => C` is true though there is an `A`-alternative where `C` is false
   - [ ] replacing `verify` with `non_null_verify` eliminates models
     - [ ] _B_ check validity by hand
+- [ ] speed
+  - [ ] add benchmarks tooling
+  - [ ] ssh to supercomputer
+  - [ ] multiprocessing
 - [.] _B_ ask graham about
   - [ ] existential quantifier claims
   - [ ] trace tools
   - [x] hexadecimal for `N > 4`
-- [x] _M_ avoid having to make `N` not equal to a multiple of 4
-  - M: try manual route
-  - B: I added an issue about this with some points from Graham
 
 ## Semantics
 
-- [ ] _B_ organize semantics
+- [x] _B_ organize semantics
+- [ ] pre-processing module
+  - [ ] design algorithm for simplifying prefix sentences before sending to 
+- [ ] post-processing
 
 ## Models
 
@@ -65,6 +71,13 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Refine and Optimize
 
+- [x] `world_bits` sometimes includes non-maximal worlds
+  - M: do you have any examples (ie, file name and N value) for when this is true, to try to see what's going on?
+  - B: yes, I found a bunch of examples and created an issue to document
+  - M: if this is issue #13, I think this is now fixed!
+- [x] _M_ avoid having to make `N` not equal to a multiple of 4
+  - M: try manual route
+  - B: I added an issue about this with some points from Graham
 - [x] _B_ push conversion from bits to states late in print
 - [x] _B_ integrate `alt_worlds`
 - [x] _M_ functions in `print.py` can probably be improved (see notes there)
