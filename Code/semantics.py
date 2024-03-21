@@ -102,7 +102,8 @@ solver.add(is_world(w))
 def extended_verify(state, ext_sent):
     """X is in prefix form. Same for extended_falsify"""
     if len(ext_sent) == 1:
-        return verify(state, ext_sent)
+        print(state,ext_sent,type(state),type(ext_sent))
+        return verify(state, ext_sent[0])
     op = ext_sent[0]
     if "boxright" in op:
         raise ValueError(f"The sentence {ext_sent} is not extensional.")
@@ -182,7 +183,7 @@ def true_at(sentence, world):
         return Exists(x, And(is_part_of(x, world), verify(x, A)))
     op = sentence[0]
     if "neg" in op:
-        return false_at(sentence, world)
+        return false_at(sentence[1], world)
     Y = sentence[1]
     Z = sentence[2]
     if "wedge" in op:
@@ -234,18 +235,19 @@ def false_at(sentence, world):
 
 
 for sentence in prefix_sentences:
-    solver.add(true_at(sentence, w))
+    # solver.add(true_at(sentence, w))
+    print(true_at(sentence, w))
 
 
 
 # TEST PRINT
 
-# print (solver.add())
-print (solver.check())
-model = solver.model()
-print (model)
-print ("interpretation assigned to AtomSort:")
-print (model[AtomSort])
+# # print (solver.add())
+# print (solver.check())
+# model = solver.model()
+# print (model)
+# print ("interpretation assigned to AtomSort:")
+# print (model[AtomSort])
 
 
 

@@ -65,8 +65,11 @@ solver.add(
     # TODO: declared alternative with definition and recheck
 
     # MODEL CONSTRAINT
-    ForAll(X, proposition(X)),
+
     # every X of AtomSort is a proposition
+    ForAll(X, proposition(X)),
+
+    # there is a world w
     is_world(w),
     # NOTE: couldn't get these two constraints to add without crashing
     # ForAll(x, Implies(is_part_of(x, w), Not(verify(x, A)))),
@@ -74,7 +77,8 @@ solver.add(
     # falsify(h, A),
     # is_part_of(i, w),
     # falsify(i, C),
-    # there is a world w
+
+    # A \boxright C
     ForAll(
         [s, v],
         Implies(
@@ -85,23 +89,23 @@ solver.add(
             )),
         ),
     ),
-    # A \boxright C
-    verify(a, A),
-    is_alternative(u, a, w),
-    is_part_of(b, u),
-    verify(b, B),
-    # \neg(A \boxright \neg B)
-    # verify(a,A),
-    # verify(b,B),
-    # compatible(a,b),
-    # \Diamond(A \wedge B)
+
+    # # \neg(A \boxright \neg B)
+    # verify(a, A),
+    # is_alternative(u, a, w),
+    # is_part_of(b, u),
+    # verify(b, B),
+    # # verify(a,A),
+    # # verify(b,B),
+    # # compatible(a,b),
+
+    # \neg(A \wedge B \boxright C)
     c == fusion(d, e),
     verify(d, A),
     verify(e, B),
     is_alternative(v, c, w),
     is_part_of(f, v),
     falsify(f, C),
-    # \neg(A \wedge B \boxright C)
 )
 
 
