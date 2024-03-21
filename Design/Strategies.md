@@ -7,29 +7,42 @@ Sections are ordered chronologically from user inputs to the representation of t
 
 These sections cover the functions needed to construct Z3 constraints from the inputs.
 
-### Convention: input parameters
+### Overview: inputs and outputs
 
 Variables to be specified by the user are to be included in a file with the following ingredients:
 
 1. A value `N` for the maximum number of atomic states under consideration.
 2. A list `input_sentences` of infix sentences to be evaluated.
-3. Semantic clauses for each of the operators.
-4. General model constraints.
+3. Definitions of general use stored in a `definitions` file.
+4. Semantic clauses for each of the operators stored in a `semantics` file.
+5. Frame constraints perhaps stored alongside the semantics.
+6. These values will be used to generate an output file which includes the appropriate Z3 constraints.
+7. The output files contain all declarations while importing definitions from the `definitions` and `semantics` files.
+8. If running the output file finds a model, the user will be prompted whether to append the model to the output file or find a different model.
+9. If no model is found, the user will be asked whether to search for models by successively increasing `N` up to a value provided by the user.
 
 ### Function: prefix conversion
 
 1. Given a sentence `X` in infix notation (e.g., `(A \wedge B) \boxright C`), the function `Prefix(X)` will output a unique sentences in prefix notation using lists (e.g., `[Boxright, [Wedge, A, B]]`).
 2. A single sentence letter `A` should return a list `[A]` so that all prefix sentences are lists.
-3. Converting the sentences in `input_sentences` to prefix notation will streamline the application of the semantic clauses below in producing Z3 constraints.
+3. Converting the sentences in `input_sentences` to a list `prefix_sentences` in prefix notation will streamline the application of the semantic clauses below in producing Z3 constraints.
 4. To avoid further translation, LaTeX commands will be used for the operators `\neg`, `\wedge`, `\vee`, `\rightarrow`, and `\boxright`.
 
 ### Function: sentence letters
 
-Given a list of prefix sentences `input_sentences`, we will need a separate sorted list of the sentence letters that they contain.
+Given `prefix_sentences`, we will need a separate sorted list of the sentence letters that they contain.
 
-1. Let the list of sentence letters be called `sentence_letters`.
-2. There should not be any repeated entries in `sentence_letters`.
-3. The list should be sorted.
+1. Define the sorted list `sentence_letters` with no repeated entries.
+
+### Function: simplification
+
+Given `prefix_sentences` define a list `simple_sentences` which will simplify the generation of Z3 constraints.
+The following can likely be extended and improved.
+
+1. Conjunctions of the form `(A \wedge B)` in `prefix_sentences` will be stored as separate entries `A, B` in `simple_sentences`.
+2. Negated conjunctions of the form `\neg(A \vee B)` in `prefix_sentences` will be stored as separate entries `\neg A, \neg B` in `simple_sentences`.
+3. Negated conditionals of the form `\neg(A \rightarrow B)` in `prefix_sentences` will be stored as separate entries `A, \neg B` in `simple_sentences`.
+4. Biconditionals of the form `(A \leftrightarrow B)` in `prefix_sentences` will be stored as separate entries `(A \rightarrow B), (B \rightarrow A)` in `simple_sentences`.
 
 ### Declarations
 
@@ -43,6 +56,8 @@ Given the number of atomic states `N` as input, we may make the following declar
 6. Declare `verify = Function("verify", BitVecSort(N), AtomSort(), BoolSort())` as a relation between states and sentence letters.
 7. Declare `falsify = Function("falsify", BitVecSort(N), AtomSort(), BoolSort())` as a relation between states and sentence letters.
 
+These declarations may occur in the same file in which the semantics and frame constraints are stored.
+
 ### Frame Definitions
 
 Drawing on the declarations above and the operators already included in Z3 libraries, we may define the following:
@@ -50,11 +65,11 @@ Drawing on the declarations above and the operators already included in Z3 libra
 1. `fusion(x,y)` returns a bitvector `z` where `z_i` is `max{x_i,y_i}` for each index `i` that is less than or equal to `N`.
 2. `is_part_of(x,y)` returns a true iff `fusion(x,y) == y`.
 3. `is_atomic(x)` returns a true iff `x_i == 1` for exactly one index `i` less than or equal to `N`.
-4. `compatible(x,y)` returns true iff `possible(fusion(x,y))` is true.
-5. `maximal(w)` returns a true iff for every `x`, if `compatible(x,w)`, then `is part_of(x,w)`.
+4. `is_compatible(x,y)` returns true iff `possible(fusion(x,y))` is true.
+5. `is_maximal(w)` returns a true iff for every `x`, if `compatible(x,w)`, then `is part_of(x,w)`.
 6. `is_world(w)` returns a true iff `possible(w)` and `maximal(w)`.
-7. `compatible_part(x,w,y)` returns true iff `is_part_of(x,w)`, `compatible(x,y)`, and for any `z`, if `is_part_of(z,w)`, `compatible(z,y)`, and `is_part_of(x,z)`, then `x == z`.
-8. `alternative(u,y,w)` returns a true iff `world(u)`, `is_part_of(y,u)`, and there is some `x` where `is_part_of(x,u)` and `compatible_part(x,w,y)`.
+7. `is_max_compatible_part(x,w,y)` returns true iff `is_part_of(x,w)`, `compatible(x,y)`, and for any `z`, if `is_part_of(z,w)`, `compatible(z,y)`, and `is_part_of(x,z)`, then `x == z`.
+8. `is_alternative(u,y,w)` returns a true iff `world(u)`, `is_part_of(y,u)`, and there is some `x` where `is_part_of(x,u)` and `compatible_part(x,w,y)`.
 
 Whereas every impossible state is maximal since nothing is compatible with it, a state that is both maximal and possible is a world state.
 Given any world state `w` and state `y`, `compatible_part()` identifies when a state `x` is a biggest part of `w` that is compatible with `y`.
@@ -65,6 +80,7 @@ Given a world state `u` and state `x`, `alternative()` identifies when a world s
 The following constraints hold independent of the sentences being evaluated.
 
 1. For every `x` and `y`, if `possible(y)` and `is_part_of(x,y)`, then `possible(x)`.
+2. `is_world(w)` holds for the designated world `w`.
 
 ### Definition: propositions
 
@@ -82,7 +98,9 @@ NOTE: the last condition cannot easily be met by Z3, and so has been left absent
 
 Assuming the definition of `proposition(X)` has been provided and works for concrete cases, we may require:
 
-1. For all `X` in `sentence_letters`, `proposition(X)`.
+1. `ForAll(X, proposition(X))` where `X` is of sort `AtomSort`.
+
+Alternatively, `proposition(X)` may be required to hold for all `X` in `sentence_letters`.
 
 ### Functions: extensional constraints
 
@@ -125,9 +143,9 @@ The truth or falsity of a sentence `X` at a designated world `w` may be defined 
 
 ### Function: evaluation constraints
 
-We may now require the `input_sentences` to be true at the designated world state `w`:
+We may now require the `simple_sentences` to be true at the designated world state `w`:
 
-1. `ForAll` sentences `X` in `input_sentences`, `Exists` some `w` where `world(w)` and `true(w,prefix(X))`.
+1. `true(w,prefix(X))` for all sentences `X` in `simple_sentences`.
 
 ## Post-Processing: representing Z3 models
 
@@ -142,28 +160,29 @@ Each state is labeled as either a world, possible, or impossible.
 2. Represent all states in the model as fusions of atomic states, e.g., `a.b.c` where `.` is used for fusion.
 3. Label states as either worlds, possible, or impossible.
 
-### Function: sub-sentences
+<!-- ### Function: sub-sentences -->
+<!---->
+<!-- Generate a set of all sub-sentences from the input sentences. -->
+<!-- These sentences may then be interpreted by assigning them to propositions. -->
+<!-- This will help to read each model. -->
+<!---->
+<!-- 1. Given any sentence in prefix form, we may store a list of all `sub_sentences` for that sentence. -->
+<!-- 2. Store those `sub_sentences` that only include `\wedge`, `\vee`, `\not`, `\rightarrow`, and `\leftrightarrow` as a list of `extensional_sentences`. -->
+<!-- 3. Store those counterfactual `sub_sentences` of the form `A \boxright B` in a list `counterfactual_sentences`. -->
 
-Generate a set of all subsentences from the input sentences.
-These sentences may then be interpreted by assigning them to propositions.
+<!-- ### Function: model representation -->
+<!---->
+<!-- 1. For each sentence `X` in `extensional_sentences`, represent a set of `extended_verifier` states for `X` and a set of `extended_falsifier` states for `X`. -->
+<!-- 2. For each sentence `X \boxright Y` in `counterfactual_sentences`, represent all `alternative` states that result from imposing an `extended_verifier` for the `X` on `w`. -->
+<!-- 3. For each world state `w`, represent which of the sentences in `sub_sentences` are true/false at that world state. -->
 
-1. Given the `input_sentences`, we may store a list of all `sub_sentences`.
-2. Store those `sub_sentences` that only include `\wedge`, `\vee`, `\not`, `\rightarrow`, and `\leftrightarrow` as a list of `extensional_sentences`.
-3. Store those counterfactual `sub_sentences` of the form `A \boxright B` in a list `counterfactual_sentences`.
-
-### Function: model representation
-
-1. For each sentence `X` in `extensional_sentences`, represent a set of `extended_verifier` states for `X` and a set of `extended_falsifier` states for `X`.
-2. For each sentence `X \boxright Y` in `counterfactual_sentences`, represent all `alternative` states that result from imposing an `extended_verifier` for the `X` on `w`.
-3. For each world state `w`, represent which of the sentences in `sub_sentences` are true/false at that world state.
-
-### Convention: input file
-
-Define a convention for presenting the `input_sentences`, semantics, and frame constraints in an input file.
-
-1. Definitions that will not be changed may be included in a definitions file.
-2. The `input_sentences`, semantics, and frame constraints should be presented in a standardized form.
-3. Documentation will be included here indicating how to tweak constraints.
+<!-- ### Convention: input file -->
+<!---->
+<!-- Define a convention for presenting the `input_sentences`, semantics, and frame constraints in an input file. -->
+<!---->
+<!-- 1. Definitions that will not be changed may be included in a definitions file. -->
+<!-- 2. The `input_sentences`, semantics, and frame constraints should be presented in a standardized form. -->
+<!-- 3. Documentation will be included here indicating how to tweak constraints. -->
 
 ## Processing: running Z3 and representing the result
 
