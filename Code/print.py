@@ -35,6 +35,11 @@ all other functions feed into print_propositions()
 # B: Yes, that sounds good! I will start working on that now
 
 
+################################
+### MODEL BUILDER DEFINITIONS ##
+################################
+
+
 def find_all_bits(size):
     '''extract all bitvectors from the input model'''
     all_bits = []
@@ -74,65 +79,6 @@ def find_world_bits(poss_bits):
                 break
     world_bits = [world for world in poss_bits if world not in not_worlds]
     return world_bits
-
-
-# NOTE: should N be included in the inputs?
-def print_states(model):
-    """print all fusions of atomic states in the model"""
-    all_bits = find_all_bits(N)
-    poss_bits = find_poss_bits(model,all_bits)
-    world_bits = find_world_bits(poss_bits)
-
-    print("\nStates:")  # Print states
-    for bit in all_bits:
-        # test_state = BitVecVal(val, size) # was instead of bit
-        state = bitvec_to_substates(bit)
-        bin_rep = (
-            bit.sexpr()
-            if N % 4 != 0
-            else int_to_binary(int(bit.sexpr()[2:], 16), N)
-        )
-        if bit in world_bits:
-            print(f"  {bin_rep} = {state} (world)")
-        elif model.evaluate(possible(bit)):
-            print(f"  {bin_rep} = {state} (possible)")
-        else:
-            # print(f"  {bin_rep} = {state} (impossible)")
-            continue
-
-
-# NOTE: should N be included in the inputs?
-def print_evaluation(model, sentence_letters):
-    """print the evaluation world and all sentences true/false in that world
-    sentence letters is an iterable (a list, I think?)"""
-    all_bits = find_all_bits(N)
-    eval_world = model[w]
-    print(f"\nThe evaluation world is {bitvec_to_substates(model[w])}:")
-    true_in_eval = set()
-    for sent in sentence_letters:
-        for bit in all_bits:
-            if model.evaluate(verify(bit, model[sent])) and bit_part(bit, eval_world):
-                true_in_eval.add(sent)
-                break  # exits the first for loop
-    false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
-    if true_in_eval:
-        true_eval_list = sorted([str(sent) for sent in true_in_eval])
-        true_eval_string = ", ".join(true_eval_list)
-        print(f"  {true_eval_string}  (true in {bitvec_to_substates(model[w])})")
-    if false_in_eval:
-        false_eval_list = sorted([str(sent) for sent in false_in_eval])
-        false_eval_string = ", ".join(false_eval_list)
-        print(f"  {false_eval_string}  (not true in {bitvec_to_substates(model[w])})")
-
-
-################################
-#### END PRINT STATES/EVALS ####
-################################
-
-
-################################
-### START PRINT PROPOSITIONS ###
-################################
 
 
 def find_compatible_parts(verifier_bit, poss_bits, eval_world):
@@ -199,6 +145,88 @@ def find_relations(all_bits, S, model):
     return (ver_bits, fal_bits, alt_bits)
 
 
+def find_true_and_false_in_alt(alt_bit, sentence_letters, all_bits, model):
+    """returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.
+    Used in print_alt_worlds()"""
+    true_in_alt = set()
+    for R in sentence_letters:
+        for bit in all_bits:
+            if model.evaluate(verify(bit, model[R])) and bit_part(bit, alt_bit):
+                true_in_alt.add(R)
+                break  # returns to the for loop over sentence_letters
+    false_in_alt = {R for R in sentence_letters if not R in true_in_alt}
+    return (true_in_alt, false_in_alt)
+
+
+def make_set_pretty_for_print(set_with_strings):
+    """input a set with strings
+    print that same set but with no quotation marks around each individual string, and also with the set in order
+    returns the set as a string
+    Used in print_vers_and_fals() and print_alt_worlds()"""
+    sorted_set = sorted(list(set_with_strings))  # actually type list, not set
+    print_str = "{"
+    for i, elem in enumerate(sorted_set):
+        print_str += elem
+        if i != len(sorted_set) - 1:
+            print_str += ", "
+    print_str += "}"
+    return print_str
+
+
+################################
+### START PRINT DEFINITIONS ####
+################################
+
+
+# NOTE: should N be included in the inputs?
+def print_states(model):
+    """print all fusions of atomic states in the model"""
+    all_bits = find_all_bits(N)
+    poss_bits = find_poss_bits(model,all_bits)
+    world_bits = find_world_bits(poss_bits)
+
+    print("\nStates:")  # Print states
+    for bit in all_bits:
+        # test_state = BitVecVal(val, size) # was instead of bit
+        state = bitvec_to_substates(bit)
+        bin_rep = (
+            bit.sexpr()
+            if N % 4 != 0
+            else int_to_binary(int(bit.sexpr()[2:], 16), N)
+        )
+        if bit in world_bits:
+            print(f"  {bin_rep} = {state} (world)")
+        elif model.evaluate(possible(bit)):
+            print(f"  {bin_rep} = {state} (possible)")
+        else:
+            # print(f"  {bin_rep} = {state} (impossible)")
+            continue
+
+
+# NOTE: should N be included in the inputs?
+def print_evaluation(model, sentence_letters):
+    """print the evaluation world and all sentences true/false in that world
+    sentence letters is an iterable (a list, I think?)"""
+    all_bits = find_all_bits(N)
+    eval_world = model[w]
+    print(f"\nThe evaluation world is {bitvec_to_substates(model[w])}:")
+    true_in_eval = set()
+    for sent in sentence_letters:
+        for bit in all_bits:
+            if model.evaluate(verify(bit, model[sent])) and bit_part(bit, eval_world):
+                true_in_eval.add(sent)
+                break  # exits the first for loop
+    false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
+    if true_in_eval:
+        true_eval_list = sorted([str(sent) for sent in true_in_eval])
+        true_eval_string = ", ".join(true_eval_list)
+        print(f"  {true_eval_string}  (true in {bitvec_to_substates(model[w])})")
+    if false_in_eval:
+        false_eval_list = sorted([str(sent) for sent in false_in_eval])
+        false_eval_string = ", ".join(false_eval_list)
+        print(f"  {false_eval_string}  (not true in {bitvec_to_substates(model[w])})")
+
+
 def print_vers_and_fals(model, S, ver_bits, fal_bits):
     """prints the possible verifiers and falsifier states for a sentence.
     inputs: the verifier states and falsifier states.
@@ -216,19 +244,6 @@ def print_vers_and_fals(model, S, ver_bits, fal_bits):
         print(f"  |{S}| = < ∅, {make_set_pretty_for_print(fal_states)} >")
     else:
         print(f"  |{S}| = < ∅, ∅ >")
-
-
-def find_true_and_false_in_alt(alt_bit, sentence_letters, all_bits, model):
-    """returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.
-    Used in print_alt_worlds()"""
-    true_in_alt = set()
-    for R in sentence_letters:
-        for bit in all_bits:
-            if model.evaluate(verify(bit, model[R])) and bit_part(bit, alt_bit):
-                true_in_alt.add(R)
-                break  # returns to the for loop over sentence_letters
-    false_in_alt = {R for R in sentence_letters if not R in true_in_alt}
-    return (true_in_alt, false_in_alt)
 
 
 def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value):
@@ -271,18 +286,3 @@ def print_propositions(model, sentence_letters):
         ver_states, fal_states, alt_bits = find_relations(all_bits, S, model)
         print_vers_and_fals(model, S, ver_states, fal_states)
         print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits)
-
-
-def make_set_pretty_for_print(set_with_strings):
-    """input a set with strings
-    print that same set but with no quotation marks around each individual string, and also with the set in order
-    returns the set as a string
-    Used in print_vers_and_fals() and print_alt_worlds()"""
-    sorted_set = sorted(list(set_with_strings))  # actually type list, not set
-    print_str = "{"
-    for i, elem in enumerate(sorted_set):
-        print_str += elem
-        if i != len(sorted_set) - 1:
-            print_str += ", "
-    print_str += "}"
-    return print_str
