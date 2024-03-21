@@ -103,6 +103,10 @@ if solver.check() == sat:
     model = solver.model()
     print("\nThere is a model of:")
     print("A, B, C, ~(A => B), ~(A => C)")
+
+    # all_bits, model_bits = find_bits(N, model)
+    # print(f"All bits: {all_bits}")
+    # print(f"Model bits: {model_bits}")
     print_states(model)
     print_evaluation(model, sentence_letters)
     print_propositions(model, sentence_letters)
