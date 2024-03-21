@@ -275,21 +275,14 @@ def print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits):
         print()  # for an extra blank line
 
 
-def print_prop(all_bits, S, sentence_letters, model):
-    """prints all the stuff for one proposition. returns None
-    Used in for loop in print_propositions()"""
-    ver_states, fal_states, alt_bits = find_relations(all_bits, S, model)
-    # Print propositions:
-    print_vers_and_fals(S, ver_states, fal_states)
-    print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits)
-
-
 def print_propositions(model, sentence_letters):
     """print each propositions and the alternative worlds in which it is true"""
     all_bits = find_all_bits(N)
     print("\nPropositions:")
     for S in sentence_letters:
-        print_prop(all_bits, S, sentence_letters, model)
+        ver_states, fal_states, alt_bits = find_relations(all_bits, S, model)
+        print_vers_and_fals(S, ver_states, fal_states)
+        print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits)
 
 
 def make_set_pretty_for_print(set_with_strings):
