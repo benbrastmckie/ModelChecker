@@ -106,15 +106,22 @@ The functions `extended_verify(x,X)` and `extended_falsify(x,X)` return constrai
 
 ### Function: truth constraints
 
-The truth of a sentence `X` at a designated world `w` may be defined recursively as follows:
+The truth or falsity of a sentence `X` at a designated world `w` may be defined recursively as follows:
 
 1. If `X = [A]` where `A` is a sentence letter, then `true(w,X)` returns the constraint: there is some `x` where `is_part_of(x,w)` and `verify(x,A)`.
-2. If `X = [\neg Y]`, then `true(w,X)` returns the constraint: `Not(true(w,Y))`.
-3. If `X = [\wedge, Y, Z]`, then `true(w,X)` returns the constraint: `And(true(w,Y), true(w,Z))`.
-4. If `X = [\vee, Y, Z]`, then `true(w,X)` returns the constraint: `Or(true(w,Y), true(w,Z))`.
-5. If `X = [\rightarrow, Y, Z]`, then `true(w,X)` returns the constraint: `Or(Not(true(w,Y)), true(w,Z))`.
-6. If `X = [\leftrightarrow, Y, Z]`, then `true(w,X)` returns the constraint: `Or(And(true(w,Y), true(w,Z)), And(Not(true(w,Y)), Not(true(w,Z))))`.
-7. If `X = [\boxright, Y, Z]`, then `true(w,X)` returns the constraint: for all `x` and `u`, if `extended_verify(x,Y)` and `alternative(w,x,u)`, then `true(u,Z)`.
+2. If `X = [A]` where `A` is a sentence letter, then `false(w,X)` returns the constraint: there is some `x` where `is_part_of(x,w)` and `falsify(x,A)`.
+3. If `X = [\neg Y]`, then `true(w,X)` returns the constraint: `false(w,Y)`.
+4. If `X = [\neg Y]`, then `false(w,X)` returns the constraint: `true(w,Y)`.
+5. If `X = [\wedge, Y, Z]`, then `true(w,X)` returns the constraint: `And(true(w,Y), true(w,Z))`.
+6. If `X = [\wedge, Y, Z]`, then `false(w,X)` returns the constraint: `Or(false(w,Y), false(w,Z))`.
+7. If `X = [\vee, Y, Z]`, then `true(w,X)` returns the constraint: `Or(true(w,Y), true(w,Z))`.
+8. If `X = [\vee, Y, Z]`, then `false(w,X)` returns the constraint: `And(false(w,Y), false(w,Z))`.
+9. If `X = [\rightarrow, Y, Z]`, then `true(w,X)` returns the constraint: `Or(false(w,Y), true(w,Z))`.
+10. If `X = [\rightarrow, Y, Z]`, then `false(w,X)` returns the constraint: `And(true(w,Y), false(w,Z))`.
+11. If `X = [\leftrightarrow, Y, Z]`, then `true(w,X)` returns the constraint: `Or(And(true(w,Y), true(w,Z)), And(Not(true(w,Y)), Not(true(w,Z))))`.
+12. If `X = [\leftrightarrow, Y, Z]`, then `false(w,X)` returns the constraint: `Or(And(true(w,Y), false(w,Z)), And(false(w,Y), true(w,Z)))`.
+13. If `X = [\boxright, Y, Z]`, then `true(w,X)` returns the constraint: for all `x` and `u`, if `extended_verify(x,Y)` and `alternative(w,x,u)`, then `true(u,Z)`.
+14. If `X = [\boxright, Y, Z]`, then `false(w,X)` returns the constraint: there is some `x` and `u` where `extended_verify(x,Y)` and `alternative(w,x,u)` and `false(u,Z)`.
 
 ### Function: evaluation constraints
 
