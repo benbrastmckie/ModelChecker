@@ -116,9 +116,15 @@ def print_evaluation(model, sentence_letters):
     true_in_eval = set()
     for sent in sentence_letters:
         for bit in all_bits:
+<<<<<<< HEAD
             # print(bit, type(bit))
             # print(sent, type(sent))
             # print(model[sent], type(model[sent]))
+=======
+            print(bit, type(bit))
+            print(sent)
+            print(model[sent], type(model[sent]))
+>>>>>>> 8e52390 (new branch for trying everything together)
             if model.evaluate(verify(bit, model[sent])) and bit_part(bit, eval_world):
                 true_in_eval.add(sent)
                 break  # exits the first for loop
