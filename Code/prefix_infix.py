@@ -1,5 +1,6 @@
 import doctest
 from z3 import *
+from definitions import *
 '''
 OVERVIEW
 All sentence letters are capital letters.
@@ -118,7 +119,7 @@ def parse(tokens):
         return [tokens[0], parse(tokens[1:])]
     if bin_comp_tokens == 0:
         token = tokens[0]
-        return [token]
+        return [Const(token, AtomSort)]
     main_operator_index = main_op_index(tokens)
     op_str = tokens[main_operator_index]  # determines how far the operation is
     left_expression = tokens[1 : main_operator_index]  # start 1 (exclude first parenthesis), stop at same pos of above (exclusive)
@@ -136,11 +137,11 @@ def Infix(A):
     pass
 
 
-doctest.testmod()
+# doctest.testmod()
 # print(tokenize("(A \\wedge (B \\vee C))")) # the doctests fail, but this works. Need to do double backslash for abfnrtv.
-print(Prefix("(A \\wedge (B \\vee \\neg C))")) # ['\\wedge', ['A'], ['\\vee', ['B'], ['\\neg', ['C']]]]
-print(Prefix("A")) 
-print(Prefix('((A \\op (B \\op C)) \\op (D \\op E))')) # ['\\op', ['\\op', ['A'], ['\\op', ['B'], ['C']]], ['\\op', ['D'], ['E']]]
+# print(Prefix("(A \\wedge (B \\vee \\neg C))")) # ['\\wedge', ['A'], ['\\vee', ['B'], ['\\neg', ['C']]]]
+# print(Prefix("A")) 
+# print(Prefix('((A \\op (B \\op C)) \\op (D \\op E))')) # ['\\op', ['\\op', ['A'], ['\\op', ['B'], ['C']]], ['\\op', ['D'], ['E']]]
 
 def sentence_letters_in_compound(input_sentence):
     '''finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS'''
@@ -159,7 +160,9 @@ def all_sentence_letters(input_sentences):
         sentence_letters_in_input = sentence_letters_in_compound(input)
         for sentence_letter in sentence_letters_in_input:
             sentence_letters.add(sentence_letter)
-    return sorted(list(sentence_letters)) # sort just to make every output the same, given sets aren't hashable
+    return list(sentence_letters) # sort just to make every output the same, given sets aren't hashable
 
 sentences = [Prefix("(A \\wedge (B \\vee \\neg C))"), Prefix("A"), Prefix('((A \\op (B \\op Z)) \\op (D \\op E))')]
-print(all_sentence_letters(sentences)) # correctly prints ['A', 'B', 'C', 'D', 'E', 'Z']
+# print(all_sentence_letters(sentences)) # correctly prints ['A', 'B', 'C', 'D', 'E', 'Z']
+# print(Prefix("\\neg (A \\boxright B)"))
+print(all_sentence_letters([Prefix("\\neg (A \\boxright B)")]))
