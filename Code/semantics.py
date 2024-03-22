@@ -98,11 +98,17 @@ solver.add(ForAll([x, y], Implies(And(possible(x), is_part_of(x, y)), possible(y
 solver.add(is_world(w))
 
 
+def add_general_constraints(solver):
+    '''adds the constraints that go in every solver'''
+    solver.add(ForAll(X, proposition(X)))
+    solver.add(ForAll([x, y], Implies(And(possible(x), is_part_of(x, y)), possible(y))))
+    solver.add(is_world(w))
+
 # NOTE: should throw error if boxright occurs in X
 def extended_verify(state, ext_sent):
     """X is in prefix form. Same for extended_falsify"""
     if len(ext_sent) == 1:
-        print(state,ext_sent,type(state),type(ext_sent))
+        # print(state,ext_sent,type(state),type(ext_sent))
         return verify(state, ext_sent[0])
     op = ext_sent[0]
     if "boxright" in op:
@@ -178,7 +184,7 @@ def extended_falsify(state, ext_sent):
 # that the exhaustivity constraint is not included in the definition of props
 # this should avoid the need for specific clauses for (un)negated CFs
 def true_at(sentence, world):
-    """X is a sentence in prefix notation"""
+    """sentence is a sentence in prefix notation"""
     if len(sentence) == 1:
         return Exists(x, And(is_part_of(x, world), verify(x, A)))
     op = sentence[0]
@@ -229,14 +235,17 @@ def false_at(sentence, world):
     if "boxright" in op:
         return Exists(
             [x, u],
-            And(extended_verify(x, Y), is_alternative(u, x, world)),
-            false_at(Z, u),
+            And(extended_verify(x, Y), is_alternative(u, x, world), false_at(Z, u)),
         )
 
-
-for sentence in prefix_sentences:
-    # solver.add(true_at(sentence, w))
-    print(true_at(sentence, w))
+def add_input_constraints(solver, prefix_sentences):
+    '''add input-specific constraints to the solver'''
+    for sentence in prefix_sentences:
+        print(sentence)
+        solver.add(true_at(sentence, w))
+# for sentence in prefix_sentences:
+#     solver.add(true_at(sentence, w))
+    # print(true_at(sentence, w))
 
 
 
