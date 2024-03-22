@@ -103,6 +103,7 @@ def add_general_constraints(solver):
     solver.add(ForAll(X, proposition(X)))
     solver.add(ForAll([x, y], Implies(And(possible(x), is_part_of(x, y)), possible(y))))
     solver.add(is_world(w))
+    solver.add(ForAll([x, y], Exists(z, fusion(x, y) == z)))
 
 # NOTE: should throw error if boxright occurs in X
 def extended_verify(state, ext_sent):
@@ -244,6 +245,7 @@ def add_input_constraints(solver, prefix_sentences):
     '''add input-specific constraints to the solver'''
     for sentence in prefix_sentences:
         # print(sentence)
+        print(true_at(sentence,w))
         solver.add(true_at(sentence, w))
 # for sentence in prefix_sentences:
 #     solver.add(true_at(sentence, w))
