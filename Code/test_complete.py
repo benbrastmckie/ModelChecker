@@ -25,3 +25,5 @@ if solver.check() == sat:
 else:
     print("\nThere are no models of:\n")
     print(input_sentences)
+
+# please just work
