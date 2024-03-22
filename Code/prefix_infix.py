@@ -165,4 +165,4 @@ def all_sentence_letters(input_sentences):
 sentences = [Prefix("(A \\wedge (B \\vee \\neg C))"), Prefix("A"), Prefix('((A \\op (B \\op Z)) \\op (D \\op E))')]
 # print(all_sentence_letters(sentences)) # correctly prints ['A', 'B', 'C', 'D', 'E', 'Z']
 # print(Prefix("\\neg (A \\boxright B)"))
-print(all_sentence_letters([Prefix("\\neg (A \\boxright B)")]))
+# print(all_sentence_letters([Prefix("\\neg (A \\boxright B)")]))

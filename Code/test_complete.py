@@ -1,15 +1,16 @@
 from z3 import *
 from prefix_infix import *
-from semantics import *
+from semantics_2 import *
 from definitions import *
 from print import *
-input_sentences = ['(A \\boxright B)','((A \\wedge B) \\boxright C)','\\neg (A \\boxright B)']
-prefix_sentences = [Prefix(input_sent) for input_sent in input_sentences]
-atomic_sentences = all_sentence_letters(prefix_sentences)
-print(atomic_sentences)
+# everything different is in prefix_infix and semantics. Everything else is the same.
+input_sentences = ['(A \\boxright (B \\wedge C))','\\neg (A \\boxright B)','\\neg (A \\boxright C)']
+prefix_sentences = [Prefix(input_sent) for input_sent in input_sentences] # this works
+atomic_sentences = all_sentence_letters(prefix_sentences) # this works
+
 solver = Solver()
-add_general_constraints(solver)
-add_input_constraints(solver, prefix_sentences)
+add_general_constraints(solver) # I presume this works
+add_input_constraints(solver, prefix_sentences) # I think this is where the problem's at
 
 if solver.check() == sat:
     print("\nThere is a model of:")
