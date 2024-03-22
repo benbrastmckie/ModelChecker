@@ -1,15 +1,15 @@
 from z3 import *
 from prefix_infix import *
-from semantics_2 import *
+from semantics import *
 from definitions import *
 from print import *
 # everything different is in prefix_infix and semantics. Everything else is the same.
-input_sentences = ['(A \\boxright (B \\wedge C))','\\neg (A \\boxright B)','\\neg (A \\boxright C)']
+input_sentences = ['(A \\boxright B)','(B \\boxright C)','\\neg (A \\boxright C)']
 prefix_sentences = [Prefix(input_sent) for input_sent in input_sentences] # this works
 atomic_sentences = all_sentence_letters(prefix_sentences) # this works
 
 solver = Solver()
-add_general_constraints(solver) # I presume this works
+add_general_constraints(solver) # I think this works
 add_input_constraints(solver, prefix_sentences) # I think this is where the problem's at
 
 if solver.check() == sat:
