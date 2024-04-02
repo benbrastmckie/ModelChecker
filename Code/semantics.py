@@ -98,12 +98,12 @@ solver.add(ForAll([x, y], Implies(And(possible(x), is_part_of(x, y)), possible(y
 solver.add(is_world(w))
 
 
-def add_general_constraints(solver):
+def add_general_constraints(solv):
     '''adds the constraints that go in every solver'''
-    solver.add(ForAll(X, proposition(X)))
-    solver.add(ForAll([x, y], Implies(And(possible(x), is_part_of(x, y)), possible(y))))
-    solver.add(is_world(w))
-    solver.add(ForAll([x, y], Exists(z, fusion(x, y) == z)))
+    solv.add(ForAll(X, proposition(X)))
+    solv.add(ForAll([x, y], Implies(And(possible(x), is_part_of(x, y)), possible(y))))
+    solv.add(is_world(w))
+    solv.add(ForAll([x, y], Exists(z, fusion(x, y) == z)))
 
 # NOTE: should throw error if boxright occurs in X
 def extended_verify(state, ext_sent):
@@ -181,7 +181,7 @@ def extended_falsify(state, ext_sent):
     )
 
 
-# NOTE: the true_at/false-at definitions are bilatteral to accommodate the fact
+# NOTE: the true_at/false-at definitions are bilateral to accommodate the fact
 # that the exhaustivity constraint is not included in the definition of props
 # this should avoid the need for specific clauses for (un)negated CFs
 def true_at(sentence, world):
@@ -245,50 +245,9 @@ def add_input_constraints(solver, prefix_sentences):
     '''add input-specific constraints to the solver'''
     for sentence in prefix_sentences:
         # print(sentence)
-        print(true_at(sentence,w))
-        solver.add(true_at(sentence, w))
+        sentence_constraint = true_at(sentence,w)
+        print(sentence_constraint)
+        solver.add(sentence_constraint)
 # for sentence in prefix_sentences:
 #     solver.add(true_at(sentence, w))
     # print(true_at(sentence, w))
-
-
-
-# TEST PRINT
-
-# # print (solver.add())
-# print (solver.check())
-# model = solver.model()
-# print (model)
-# print ("interpretation assigned to AtomSort:")
-# print (model[AtomSort])
-
-
-
-# NOTE: this should now be covered by the defs of true_at and false_at
-# # M: we could redefine this function to take as input the output of tokenize in prefix_infix, I think. Do we want?
-# # B: this says of a sentence X (of any complexity) that it is true at w.
-# # we will want to pass it sentences in prefix notation, but it is of very general utility.
-# # for this reason I'm thinking that it deserves to be its own function.
-# # but maybe I missed your question?
-# def Semantics(X, w): # LINT: all or none of the return statements should be an expression
-#     '''sentence X is true at world w'''
-#     if X[0] in sentence_letters:
-#         # B: should 'list' be 'sentence_letters'?
-#         return Exists([x], And(verify(x,X), is_part_of(x,w)))
-#         # B: better would be to use open sentences but then we need to keep
-#         # track of which constants have been used. I'm confused why Exists()
-#         # claims don't seem to give good results.
-#     if 'neg' in X[0] and 'boxright' not in X[1][0]:
-#         return Not(Semantics(X, w[1]))
-#     if 'wedge' in X[0]:
-#         return And(Semantics(X, w[1]),Semantics(X, w[2]))
-#     if 'vee' in X[0]:
-#         return Or(Semantics(X, w[1]),Semantics(X, w[2]))
-#     if 'boxright' in X[0]:
-#         return ForAll([s, v], Implies(And(extended_verify(s,X[1]), is_alternative(v, s, w)), Semantics(v,X[2])))
-#     if 'neg' in X[0] and 'boxright' in X[1][0]:
-#         return Exists([s, v], And(extended_verify(s,X[1]), is_alternative(v, s, w), Not(Semantics(v,X[2]))))
-#     else:
-#         return print("Input Error")
-#     # B: there are some issues with existential quantifiers that I don't fully understand
-#     # might be better to just use new constants
