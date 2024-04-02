@@ -257,7 +257,7 @@ def print_states(model):
     poss_bits = find_poss_bits(model,all_bits)
     world_bits = find_world_bits(model, poss_bits)
 
-    print("\nStates:")  # Print states
+    print("\n(Possible) States:")  # Print states
     for bit in all_bits:
         # test_state = BitVecVal(val, size) # was instead of bit
         state = bitvec_to_substates(bit)
