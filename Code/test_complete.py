@@ -4,7 +4,7 @@ from semantics import *
 from definitions import *
 from print import *
 # everything different is in prefix_infix and semantics. Everything else is the same.
-input_sentences = ['(A \\boxright B)','(B \\boxright C)','\\neg (A \\boxright C)']
+input_sentences = ['(A \\boxright B)','((A \\wedge B) \\boxright C)','\\neg (A \\boxright C)']
 prefix_sentences = [Prefix(input_sent) for input_sent in input_sentences] # this works
 sentence_letters = all_sentence_letters(prefix_sentences) # this works
 
