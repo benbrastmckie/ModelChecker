@@ -116,18 +116,18 @@ def extended_verify(state, ext_sent):
         raise ValueError(f"The sentence {ext_sent} is not extensional.")
     if "neg" in op:
         return extended_falsify(state, ext_sent[1])
-    Y = ext_sent[1]
-    Z = ext_sent[2]
+    Y = ext_sent[1] # should be a list itself
+    Z = ext_sent[2] # should be a list itself
     if "wedge" in op:
         return Exists(
             [y, z],
-            And(state == fusion(y, z), extended_verify(y, Y), extended_verify(z, Z)),
+            And(fusion(y, z) == state, extended_verify(y, Y), extended_verify(z, Z))
         )
     if "vee" in op:
         return Or(
             extended_verify(state, Y),
             extended_verify(state, Z),
-            extended_verify(state, ["wedge", Y, Z]),
+            extended_verify(state, ["wedge", Y, Z])
         )
     if "leftrightarrow" in op:
         return Or(
@@ -147,7 +147,7 @@ def extended_verify(state, ext_sent):
 
 def extended_falsify(state, ext_sent):
     if len(ext_sent) == 1:
-        return falsify(state, ext_sent)
+        return falsify(state, ext_sent[0])
     op = ext_sent[0]
     if "boxright" in op:
         raise ValueError(f"The sentence {ext_sent} is not extensional.")

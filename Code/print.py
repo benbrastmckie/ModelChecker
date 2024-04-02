@@ -1,5 +1,6 @@
 from z3 import (
     BitVecVal,
+    simplify,
 )
 
 from definitions import (
@@ -15,6 +16,7 @@ from definitions import (
     is_bitvector,
     summation,
     int_to_binary,
+    is_world
 )
 
 '''
@@ -59,12 +61,12 @@ def find_poss_bits(model,all_bits):
     '''extract all possible bitvectors from all_bits given the model'''
     poss_bits = []
     for bit in all_bits:
-        if model.evaluate(possible(bit)):
+        if model.evaluate(possible(bit)): # of type/sort BoolRef
             poss_bits.append(bit)
     return poss_bits
 
 
-def find_world_bits(poss_bits):
+def find_world_bits(model, poss_bits):
     '''finds the world bits from a list of possible bits.
     used in print_states() and find_relations()'''
     not_worlds = []
@@ -78,6 +80,14 @@ def find_world_bits(poss_bits):
                 not_worlds.append(potential_world)
                 break
     world_bits = [world for world in poss_bits if world not in not_worlds]
+    # for world in world_bits:
+    #     print(model.evaluate(is_world(world)))
+    #     if not model.evaluate(is_world(world)):
+    #         raise ValueError(f'{world} was in world_bits but is not a world per the model')
+    # for not_world in not_worlds:
+    #     print(model.evaluate(is_world(not_world)))
+    #     # if model.evaluate(is_world(not_world)):
+    #     #     raise ValueError(f'{not_world} was not in world_bits but is a world per the model')
     return world_bits
 
 
@@ -86,7 +96,7 @@ def print_states(model):
     """print all fusions of atomic states in the model"""
     all_bits = find_all_bits(N)
     poss_bits = find_poss_bits(model,all_bits)
-    world_bits = find_world_bits(poss_bits)
+    world_bits = find_world_bits(model, poss_bits)
 
     print("\nStates:")  # Print states
     for bit in all_bits:
@@ -201,7 +211,7 @@ def find_relations(all_bits, S, model):
     ver_bits = relate_sents_and_states(all_bits, S, model, verify)
     fal_bits = relate_sents_and_states(all_bits, S, model, falsify)
     poss_bits = find_poss_bits(model,all_bits)
-    world_bits = find_world_bits(poss_bits)
+    world_bits = find_world_bits(model, poss_bits)
     eval_world = model[w]
     alt_bits = find_alt_bits(ver_bits, poss_bits, world_bits, eval_world)
     return (ver_bits, fal_bits, alt_bits)
@@ -245,7 +255,7 @@ def print_states(model):
     """print all fusions of atomic states in the model"""
     all_bits = find_all_bits(N)
     poss_bits = find_poss_bits(model,all_bits)
-    world_bits = find_world_bits(poss_bits)
+    world_bits = find_world_bits(model, poss_bits)
 
     print("\nStates:")  # Print states
     for bit in all_bits:
