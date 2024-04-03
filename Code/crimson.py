@@ -74,9 +74,9 @@ solver.add(
 
     # A is true in w
     is_part_of(a, w),
-    verify(a, A),
+    # verify(a, A),
     # is_proper_part_of(a, w),
-    # non_null_verify(a, A),
+    non_null_verify(a, A),
 
     # B is true in w
     is_part_of(b, w),
@@ -84,8 +84,8 @@ solver.add(
     # non_null_verify(b, B),
 
     # ~(A => B) is true in w
-    verify(c, A),
-    # non_null_verify(c, A),
+    # verify(c, A),
+    non_null_verify(c, A),
     is_alternative(u, c, w),
     is_part_of(s, u),
     # is_proper_part_of(s, u),
