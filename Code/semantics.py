@@ -229,8 +229,7 @@ def false_at(sentence, world):
     if "boxright" in op:
         return Exists(
             [x, u],
-            And(extended_verify(x, Y), is_alternative(u, x, world)),
-            false_at(Z, u),
+            And(extended_verify(x, Y), is_alternative(u, x, world), false_at(Z,u))
         )
 
 

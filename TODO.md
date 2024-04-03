@@ -6,7 +6,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [ ] _M_ do we still need simplify?
 - [ ] _M_ semantics
-  - [ ] debug errors
+  - [x] debug errors
   - [ ] pipe constraints into new file
 - [ ] _B_ how to abstract on N throughout?
 - [ ] _B_ provide countermodels by hand
