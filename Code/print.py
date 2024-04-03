@@ -199,7 +199,7 @@ def print_states(model):
         elif model.evaluate(possible(bit)):
             print(f"  {bin_rep} = {state} (possible)")
         else:
-            # print(f"  {bin_rep} = {state} (impossible)")
+            print(f"  {bin_rep} = {state} (impossible)")
             continue
 
 
