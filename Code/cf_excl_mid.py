@@ -98,14 +98,14 @@ solver.add(
     verify(a, A),
     # non_null_verify(a, A),
     is_alternative(u, a, w),
-    is_part_of(b, u),
+    is_proper_part_of(b, u),
     falsify(b, B),
     # non_null_falsify(b, B),
     # \neg(A \boxright B) in w
     verify(s, A),
     # non_null_verify(s, A),
     is_alternative(v, s, w),
-    is_part_of(t, v),
+    is_proper_part_of(t, v),
     falsify(t, C),
     # non_null_falsify(t, C),
     # \neg(A \boxright C)

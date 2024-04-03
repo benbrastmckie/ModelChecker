@@ -67,11 +67,14 @@ uu, vv, w = BitVecs("u v w", N)
 xx, yy, zz = BitVecs("x y z", N)
 
 
-def add_general_constraints(solver):
+def add_general_constraints(solver, input_sentence_letters):
     '''adds the constraints that go in every solver'''
-    solver.add(ForAll(X, proposition(X)))
+    for sent_letter in input_sentence_letters:
+        solver.add(proposition(sent_letter))
     solver.add(ForAll([xx, yy], Implies(And(possible(xx), is_part_of(xx, yy)), possible(yy))))
+    solver.add(ForAll([xx, yy], Exists(zz, fusion(xx, yy) == zz)))
     solver.add(is_world(w))
+
 
 # NOTE: should throw error if boxright occurs in X
 def extended_verify(state, ext_sent):
@@ -209,5 +212,10 @@ def false_at(sentence, world):
 
 def add_input_constraints(solver, prefix_sentences):
     '''add input-specific constraints to the solver'''
+    # for sentence in prefix_sentences:
+    #     solver.add(true_at(sentence, w))
     for sentence in prefix_sentences:
-        solver.add(true_at(sentence, w))
+        # print(sentence)
+        sentence_constraint = true_at(sentence,w)
+        print(sentence_constraint)
+        solver.add(sentence_constraint)

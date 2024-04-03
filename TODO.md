@@ -6,9 +6,10 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [ ] _M_ do we still need simplify?
 - [ ] _M_ semantics
+  - [:] generate constraints from `infix_sentences`
+  - [ ] generate variables to be declared
   - [ ] debug errors
-  - [ ] pipe constraints into new file
-- [ ] _B_ how to abstract on N throughout?
+  - [ ] pipe constraints into output file
 - [ ] _B_ provide countermodels by hand
   - [ ] `ent_2.py`
   - [ ] `poss_strength.py`
@@ -16,8 +17,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] _M_ extract helper function from `alt_bits` def in `print.py`
   - [ ] abstract on `eval_world` to generalize `alt_bits` function
   - [ ] abstract on `N`
-  - [:] _B_ abstract on multiple occurrences of `all_bits`
-  - [.] _B_ separate model building, eval building, and printing elements (see NOTE in `print.py`)
+  - [x] _B_ abstract on multiple occurrences of `all_bits`
+  - [x] _B_ separate model building, eval building, and printing elements (see NOTE in `print.py`)
 - [ ] `poss_strength.py`
   - [ ] `A => C` is true though there is an `A`-alternative where `C` is false
   - [ ] replacing `verify` with `non_null_verify` eliminates models
@@ -34,8 +35,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Semantics
 
 - [x] _B_ organize semantics
+- [ ] generate constraints from infix sentences
 - [ ] pre-processing module
-  - [ ] design algorithm for simplifying prefix sentences before sending to 
+  - [ ] design algorithm for simplifying prefix sentences
 - [ ] post-processing
 
 ## Models
