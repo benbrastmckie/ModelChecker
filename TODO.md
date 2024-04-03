@@ -43,6 +43,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [ ] mit z3 master
   - [ ] design algorithm for simplifying prefix sentences
 - [ ] post-processing
+  - [ ] data structure
 
 ## Models
 
