@@ -27,6 +27,7 @@ from definitions import (
     is_world,
     AtomSort,
     proposition,
+    compatible,
     verify,
     non_null_verify,
     falsify,
@@ -61,6 +62,10 @@ sentence_letters = [A, B, C]
 # NOTE: for now we may declare a fixed set of variables
 # however, it is likely that at some point these definitions will have to be an
 # output along with the constraints generated
+
+aa, bb, cc = BitVecs("aa bb cc", N)
+stock = [aa, bb, cc]
+
 a, b, c = BitVecs("a b c", N)
 r, s, t = BitVecs("r s t", N)
 u, v, w = BitVecs("u v w", N)
@@ -82,28 +87,54 @@ x, y, z = BitVecs("x y z", N)
 #     for proposition_constraint in proposition(S):
 #         solver.add(proposition_constraint)
 
-solver = Solver()
+# solver = Solver()
+# # TODO: check that this makes sense in place of the commented out alternative
+# # above. maybe I missed what the idea was supposed to be
+# # NOTE: alternatively we could use a for-loop through sentence_letters here
+# # might be worth experimenting with: could this fix the fact that ver_bits
+# # are not currently closed under fusion?
+# solver.add(ForAll(X, proposition(X)))
+# # frame constraints
+# solver.add(ForAll([x, y], Implies(And(possible(x), is_part_of(x, y)), possible(y))))
+# # evaluation constraints
+# solver.add(is_world(w))
 
-# TODO: check that this makes sense in place of the commented out alternative
-# above. maybe I missed what the idea was supposed to be
-# NOTE: alternatively we could use a for-loop through sentence_letters here
-# might be worth experimenting with: could this fix the fact that ver_bits
-# are not currently closed under fusion?
-solver.add(ForAll(X, proposition(X)))
+# B: I'm not sure this is necessary but trying to play it safe
+# can probably simplify by going back to ForAll(X,proposition(X))
+def prop_const(atom):
+    sent_to_prop =[
+        ForAll(
+            [x, y],
+            Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
+        ),
+        ForAll(
+            [x, y],
+            Implies(And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)),
+        ),
+        ForAll(
+            [x, y],
+            Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
+        ),
+    ]
+    return sent_to_prop
 
-# frame constraints
-solver.add(ForAll([x, y], Implies(And(possible(x), is_part_of(x, y)), possible(y))))
-
-# evaluation constraints
-solver.add(is_world(w))
-
-
-def add_general_constraints(solv):
+def add_general_constraints(solv, input_sentence_letters):
     '''adds the constraints that go in every solver'''
-    solv.add(ForAll(X, proposition(X)))
-    solv.add(ForAll([x, y], Implies(And(possible(x), is_part_of(x, y)), possible(y))))
-    solv.add(is_world(w))
-    solv.add(ForAll([x, y], Exists(z, fusion(x, y) == z)))
+    possible_part = ForAll([x, y], Implies(And(possible(x), is_part_of(x, y)), possible(y)))
+    solv.add(possible_part)
+    print(f"\nPossibility constraint:\n {possible_part}\n")
+    fusion_closure = ForAll([x, y], Exists(z, fusion(x, y) == z))
+    solv.add(fusion_closure)
+    print(f"Fusion constraint:\n {fusion_closure}\n")
+    world_const = is_world(w)
+    solv.add(world_const)
+    print(f"World constraint: {world_const}")
+    for sent_letter in input_sentence_letters:
+        print(f"\nSentence {sent_letter} yields the general constraints:\n")
+        for const in prop_const(sent_letter):
+            solv.add(const)
+            print(f"{const}\n")
+
 
 # NOTE: should throw error if boxright occurs in X
 def extended_verify(state, ext_sent):
@@ -186,9 +217,14 @@ def extended_falsify(state, ext_sent):
 # this should avoid the need for specific clauses for (un)negated CFs
 def true_at(sentence, world):
     """sentence is a sentence in prefix notation"""
+    count = 0
+    var = []
     if len(sentence) == 1:
         sent = sentence[0]
-        return Exists(x, And(is_part_of(x, world), verify(x, sent)))
+        var.append(stock[0])
+        num = count
+        count += 1
+        return And(is_part_of(stock[num], world), verify(stock[num], sent))
     op = sentence[0]
     if "neg" in op:
         return false_at(sentence[1], world)
@@ -216,9 +252,14 @@ def true_at(sentence, world):
 
 def false_at(sentence, world):
     """X is a sentence in prefix notation"""
+    count = 0
+    var = []
     if len(sentence) == 1:
         sent = sentence[0]
-        return Exists(x, And(is_part_of(x, world), falsify(x, sent)))
+        var.append(stock[0])
+        num = count
+        count += 1
+        return And(is_part_of(stock[num], world), falsify(stock[num], sent))
     op = sentence[0]
     if "neg" in op:
         return true_at(sentence, world)
@@ -246,7 +287,7 @@ def add_input_constraints(solver, prefix_sentences):
     for sentence in prefix_sentences:
         # print(sentence)
         sentence_constraint = true_at(sentence,w)
-        print(sentence_constraint)
+        print(f"Sentence {sentence} yields the model constraint:\n {sentence_constraint}\n")
         solver.add(sentence_constraint)
 # for sentence in prefix_sentences:
 #     solver.add(true_at(sentence, w))
