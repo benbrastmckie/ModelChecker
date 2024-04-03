@@ -36,7 +36,11 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [x] _B_ organize semantics
 - [ ] generate constraints from infix sentences
+  - [ ] debug
 - [ ] pre-processing module
+  - [ ] hold until necessary
+    - [ ] ask graham
+    - [ ] mit z3 master
   - [ ] design algorithm for simplifying prefix sentences
 - [ ] post-processing
 
