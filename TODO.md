@@ -2,14 +2,30 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
+## Architecture
+
+- [ ] how should the algorithm be organized across files?
+  - [ ] sketch design in markdown
+    - `input_file` contains all relevant user inputs
+      - `infix_sentences`
+      - bitvector length `N`
+    - `definitions` without `N`
+    - `semantics` generates variable declarations
+    - `model_builder` functions for building a data structure
+    - `print` functions that operate on a data structure
+  - [ ] implement in new branch
+  - [ ] debug and merge
+
+## Data Structure
+
+- design data structure module
+- abstract elements from `print`
+- develop in new branch
+- debug and merge
+
 ## Refine and Optimize
 
 - [ ] _M_ do we still need simplify?
-- [ ] _M_ semantics
-  - [:] generate constraints from `infix_sentences`
-  - [ ] generate variables to be declared
-  - [ ] debug errors
-  - [ ] pipe constraints into output file
 - [ ] _B_ provide countermodels by hand
   - [ ] `ent_2.py`
   - [ ] `poss_strength.py`
@@ -34,8 +50,14 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Semantics
 
+- [ ] _M_ semantics
+  - [:] generate constraints from `infix_sentences`
+  - [ ] generate variables to be declared
+  - [ ] debug errors
+  - [ ] pipe constraints into output file
+  - [ ] try adding fourth prop constraint
 - [x] _B_ organize semantics
-- [ ] generate constraints from infix sentences
+- [:] generate constraints from infix sentences
   - [ ] debug
 - [ ] pre-processing module
   - [ ] hold until necessary
