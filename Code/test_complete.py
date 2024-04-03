@@ -4,10 +4,10 @@ from semantics import *
 from definitions import *
 from print import *
 # everything different is in prefix_infix and semantics. Everything else is the same.
-# input_sentences = ['(A \\boxright B)','((A \\wedge B) \\boxright C)','\\neg (A \\boxright C)']
-# input_sentences = ['A','B','\\neg (A \\wedge B)']
-input_sentences = ['A','\\neg A'] # finds a model for a contradiction, something seems to be wrong
-# input_sentences = ['A','B','(A \\wedge B)']
+input_sentences = ['(A \\boxright B)','((A \\wedge B) \\boxright C)','\\neg (A \\boxright C)']
+input_sentences = ['A','B','\\neg (A \\wedge B)']
+# input_sentences = ['A','\\neg A'] # finds a model for a contradiction, something seems to be wrong
+input_sentences = ['A','B','(A \\wedge B)']
 prefix_sentences = [Prefix(input_sent) for input_sent in input_sentences] # this works
 sentence_letters = all_sentence_letters(prefix_sentences) # this works
 

@@ -104,6 +104,7 @@ def add_general_constraints(solv):
     solv.add(ForAll([x, y], Implies(And(possible(x), is_part_of(x, y)), possible(y))))
     solv.add(is_world(w))
     solv.add(ForAll([x, y], Exists(z, fusion(x, y) == z)))
+    # solv.add(ForAll([w,X], And(Implies(verify(w,X),Not(falsify(w,X))), Implies(Not(falsify(w,X)),verify(w,X)))))
 
 # NOTE: should throw error if boxright occurs in X
 def extended_verify(state, ext_sent):
