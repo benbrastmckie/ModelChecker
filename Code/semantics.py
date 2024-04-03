@@ -269,7 +269,7 @@ def false_at(sentence, world):
 def add_input_constraints(solver, prefix_sentences):
     '''add input-specific constraints to the solver'''
     for sentence in prefix_sentences:
-        # print(sentence)
+        print(sentence)
         sentence_constraint = true_at(sentence,w)
         print(f"Sentence {sentence} yields the model constraint:\n {sentence_constraint}\n")
         solver.add(sentence_constraint)
