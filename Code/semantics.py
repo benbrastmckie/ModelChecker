@@ -101,26 +101,26 @@ x, y, z = BitVecs("x y z", N)
 
 # B: I'm not sure this is necessary but trying to play it safe
 # can probably simplify by going back to ForAll(X,proposition(X))
-def prop_const(atom):
-    sent_to_prop =[
-        ForAll(
-            [x, y],
-            Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
-        ),
-        ForAll(
-            [x, y],
-            Implies(And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)),
-        ),
-        ForAll(
-            [x, y],
-            Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
-        ),
-    ]
-    return sent_to_prop
+# def prop_const(atom):
+#     sent_to_prop =[
+#         ForAll(
+#             [x, y],
+#             Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
+#         ),
+#         ForAll(
+#             [x, y],
+#             Implies(And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)),
+#         ),
+#         ForAll(
+#             [x, y],
+#             Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
+#         ),
+#     ]
+#     return sent_to_prop
 
 def add_general_constraints(solv, input_sentence_letters):
     '''adds the constraints that go in every solver'''
-    possible_part = ForAll([x, y], Implies(And(possible(x), is_part_of(x, y)), possible(y)))
+    possible_part = ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x)))
     solv.add(possible_part)
     print(f"\nPossibility constraint:\n {possible_part}\n")
     fusion_closure = ForAll([x, y], Exists(z, fusion(x, y) == z))
@@ -130,10 +130,11 @@ def add_general_constraints(solv, input_sentence_letters):
     solv.add(world_const)
     print(f"World constraint: {world_const}")
     for sent_letter in input_sentence_letters:
-        print(f"\nSentence {sent_letter} yields the general constraints:\n")
-        for const in prop_const(sent_letter):
-            solv.add(const)
-            print(f"{const}\n")
+        # print(f"\nSentence {sent_letter} yields the general constraints:\n")
+        solv.add(proposition(sent_letter))
+    #     for const in prop_const(sent_letter):
+    #         solv.add(const)
+    #         print(f"{const}\n")
 
 
 # NOTE: should throw error if boxright occurs in X

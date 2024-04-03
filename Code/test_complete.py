@@ -40,7 +40,7 @@ x, y, z = BitVecs("x y z", N)
 # input_sentences = ['(A \\boxright B)','((A \\wedge B) \\boxright C)','\\neg (A \\boxright C)']
 # input_sentences = ['A','B','\\neg (A \\wedge B)']
 # input_sentences = ['A','\\neg A'] # finds a model for a contradiction, something seems to be wrong
-input_sentences = ['A','B','\\neg (A \\wedge B)']
+# input_sentences = ['A','B','\\neg (A \\wedge B)']
 prefix_sentences = [Prefix(input_sent) for input_sent in input_sentences] # this works
 print(f"Prefix Input Sentences:\n {prefix_sentences}")
 sentence_letters = all_sentence_letters(prefix_sentences) # this works
