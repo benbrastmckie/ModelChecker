@@ -62,10 +62,6 @@ sentence_letters = [A, B, C]
 # NOTE: for now we may declare a fixed set of variables
 # however, it is likely that at some point these definitions will have to be an
 # output along with the constraints generated
-
-aa, bb, cc = BitVecs("aa bb cc", N)
-stock = [aa, bb, cc]
-
 a, b, c = BitVecs("a b c", N)
 r, s, t = BitVecs("r s t", N)
 u, v, w = BitVecs("u v w", N)
@@ -99,24 +95,22 @@ x, y, z = BitVecs("x y z", N)
 # # evaluation constraints
 # solver.add(is_world(w))
 
-# B: I'm not sure this is necessary but trying to play it safe
-# can probably simplify by going back to ForAll(X,proposition(X))
-# def prop_const(atom):
-#     sent_to_prop =[
-#         ForAll(
-#             [x, y],
-#             Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
-#         ),
-#         ForAll(
-#             [x, y],
-#             Implies(And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)),
-#         ),
-#         ForAll(
-#             [x, y],
-#             Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
-#         ),
-#     ]
-#     return sent_to_prop
+def prop_const(atom):
+    sent_to_prop =[
+        ForAll(
+            [x, y],
+            Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
+        ),
+        ForAll(
+            [x, y],
+            Implies(And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)),
+        ),
+        ForAll(
+            [x, y],
+            Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
+        ),
+    ]
+    return sent_to_prop
 
 def add_general_constraints(solv, input_sentence_letters):
     '''adds the constraints that go in every solver'''
@@ -130,11 +124,10 @@ def add_general_constraints(solv, input_sentence_letters):
     solv.add(world_const)
     print(f"World constraint: {world_const}")
     for sent_letter in input_sentence_letters:
-        # print(f"\nSentence {sent_letter} yields the general constraints:\n")
-        solv.add(proposition(sent_letter))
-    #     for const in prop_const(sent_letter):
-    #         solv.add(const)
-    #         print(f"{const}\n")
+        print(f"\nSentence {sent_letter} yields the general constraints:\n")
+        for const in prop_const(sent_letter):
+            solv.add(const)
+            print(f"{const}\n")
 
 
 # NOTE: should throw error if boxright occurs in X
@@ -218,14 +211,9 @@ def extended_falsify(state, ext_sent):
 # this should avoid the need for specific clauses for (un)negated CFs
 def true_at(sentence, world):
     """sentence is a sentence in prefix notation"""
-    count = 0
-    var = []
     if len(sentence) == 1:
         sent = sentence[0]
-        var.append(stock[0])
-        num = count
-        count += 1
-        return And(is_part_of(stock[num], world), verify(stock[num], sent))
+        return Exists(x, And(is_part_of(x, world), verify(x, sent)))
     op = sentence[0]
     if "neg" in op:
         return false_at(sentence[1], world)
@@ -253,14 +241,9 @@ def true_at(sentence, world):
 
 def false_at(sentence, world):
     """X is a sentence in prefix notation"""
-    count = 0
-    var = []
     if len(sentence) == 1:
         sent = sentence[0]
-        var.append(stock[0])
-        num = count
-        count += 1
-        return And(is_part_of(stock[num], world), falsify(stock[num], sent))
+        return Exists(x, And(is_part_of(x, world), falsify(x, sent)))
     op = sentence[0]
     if "neg" in op:
         return true_at(sentence, world)

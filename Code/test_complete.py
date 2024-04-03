@@ -36,7 +36,7 @@ u, v, w = BitVecs("u v w", N)
 x, y, z = BitVecs("x y z", N)
 
 # everything different is in prefix_infix and semantics. Everything else is the same.
-# input_sentences = ['(A \\boxright (B \\vee C))','\\neg (A \\boxright B)','\\neg (A \\boxright C)']
+input_sentences = ['\\neg A','(A \\boxright (B \\vee C))','\\neg (A \\boxright B)','\\neg (A \\boxright C)']
 # input_sentences = ['(A \\boxright B)','((A \\wedge B) \\boxright C)','\\neg (A \\boxright C)']
 # input_sentences = ['A','B','\\neg (A \\wedge B)']
 # input_sentences = ['A','\\neg A'] # finds a model for a contradiction, something seems to be wrong
