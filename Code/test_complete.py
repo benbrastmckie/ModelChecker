@@ -4,7 +4,7 @@ converts infix_sentences to Z3 constraints and adds to solver, printing results
 import time
 # import multiprocessing
 from semantics import (
-    find_constraints,
+    find_all_constraints,
     solve_constraints,
 )
 from print import (
@@ -60,7 +60,7 @@ input_sentences = ['(A \\boxright C)','\\neg ((A \\wedge B) \\boxright C)']
 ################################
 
 
-constraints, sentence_letters = find_constraints(input_sentences)
+constraints, sentence_letters = find_all_constraints(input_sentences)
 
 start_time = time.time() # start benchmark timer
 model = solve_constraints(constraints)

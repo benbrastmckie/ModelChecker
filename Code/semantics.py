@@ -1,3 +1,7 @@
+"""
+contains all semantic functions
+"""
+
 from z3 import (
     sat,
     Exists,
@@ -10,10 +14,7 @@ from z3 import (
     Solver,
     And,
 )
-from prefix_infix import (
-    Prefix,
-    all_sentence_letters
-)
+from prefix_infix import Prefix, all_sentence_letters
 from definitions import (
     N,
     fusion,
@@ -91,21 +92,17 @@ def prop_const(atom):
     return sent_to_prop
 
 
-def find_general_constraints(input_sentence_letters):
+def find_frame_constraints(input_sentence_letters):
     """find the constraints that depend only on the sentence letters"""
-    gen_const = []
-    possible_part = ForAll(
-        [x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))
-    )
-    gen_const.append(possible_part)
-    fusion_closure = ForAll([x, y], Exists(z, fusion(x, y) == z))
-    gen_const.append(fusion_closure)
-    world_const = is_world(w)
-    gen_const.append(world_const)
+    frame_constraints = [
+        ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
+        ForAll([x, y], Exists(z, fusion(x, y) == z)),
+        is_world(w),
+    ]
     for sent_letter in input_sentence_letters:
         for const in prop_const(sent_letter):
-            gen_const.append(const)
-    return gen_const
+            frame_constraints.append(const)
+    return frame_constraints
 
 
 # def add_general_constraints(solv, input_sentence_letters):
@@ -267,8 +264,8 @@ def false_at(sentence, world):
         )
 
 
-def find_input_constraints(prefix_sent):
-    """find input-specific constraints"""
+def find_model_constraints(prefix_sent):
+    """find constraints corresponding to the input sentences"""
     input_const = []
     for sentence in prefix_sent:
         sentence_constraint = true_at(sentence, w)
@@ -287,12 +284,12 @@ def find_input_constraints(prefix_sent):
 #         solv.add(sentence_constraint)
 
 
-def find_constraints(input_sent):
+def find_all_constraints(input_sent):
     """find Z3 constraints for input sentences"""
-    prefix_sentences = [Prefix(input_sent) for input_sent in input_sent] # this works
-    input_const = find_input_constraints(prefix_sentences)
-    sentence_letters = all_sentence_letters(prefix_sentences) # this works
-    gen_const = find_general_constraints(sentence_letters)
+    prefix_sentences = [Prefix(input_sent) for input_sent in input_sent]  # this works
+    input_const = find_model_constraints(prefix_sentences)
+    sentence_letters = all_sentence_letters(prefix_sentences)  # this works
+    gen_const = find_frame_constraints(sentence_letters)
     const = gen_const + input_const
     return (const, sentence_letters)
 

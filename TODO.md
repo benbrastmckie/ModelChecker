@@ -50,6 +50,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Refine and Optimize
 
 - [ ] _M_ do we still need simplify?
+- [ ] move declarations out of `definitions.py`
 - [ ] do we need the closure under fusion constraint in `semantics.py`?
 - [ ] `poss_strength.py`
   - [ ] `A => C` is true though there is an `A`-alternative where `C` is false

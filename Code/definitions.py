@@ -1,9 +1,8 @@
 '''
-file contains all definitions needed for finding Z3 models.
+file contains all basic definitions
 '''
 from z3 import (
     Not,
-    Or,
     Exists,
     ForAll,
     Implies,
@@ -18,10 +17,6 @@ from z3 import (
     BitVecNumRef,
 )
 
-
-### INFO ###
-
-# this file will have all declarations and definitions needed to build models
 
 
 ### DECLARATIONS ###
