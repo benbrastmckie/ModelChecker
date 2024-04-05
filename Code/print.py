@@ -297,3 +297,19 @@ def print_propositions(model, sentence_letters):
         ver_states, fal_states, alt_bits = find_relations(all_bits, S, model)
         print_vers_and_fals(model, S, ver_states, fal_states)
         print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits)
+
+
+def print_model(model, input_sent, sentence_let):
+    """print the elements of the model"""
+    if model is not None:
+        print("\nThere is a model of:\n")
+        for sent in input_sent:
+            print(sent)
+        print_states(model)
+        print_evaluation(model, sentence_let)
+        print_propositions(model, sentence_let)
+    else:
+        print("\nThere are no models of:\n")
+        for sent in input_sent:
+            print(sent)
+        print()

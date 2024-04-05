@@ -41,7 +41,7 @@ solver.add(
 if solver.check() == sat:
     print("\nThere is a model of:")
     print("A => B")
-    print("~(B -> A)")
+    print("~(A -> B)")
     model = solver.model()
     print_states(model)
     print_evaluation(model, sentence_letters)

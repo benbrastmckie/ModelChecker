@@ -1,23 +1,19 @@
 from z3 import (
-    # Solver,
-    # sat,
-    # simplify,
+    sat,
     Exists,
     ForAll,
     Implies,
     Or,
-    BitVec,
     BitVecs,
     Not,
-    DeclareSort,
     Consts,
     Solver,
-    BoolSort,
-    BitVecSort,
-    Function,
     And,
 )
-
+from prefix_infix import (
+    Prefix,
+    all_sentence_letters
+)
 from definitions import (
     N,
     fusion,
@@ -26,13 +22,11 @@ from definitions import (
     possible,
     is_world,
     AtomSort,
-    proposition,
     compatible,
     verify,
     non_null_verify,
     falsify,
     non_null_falsify,
-    # alternative,
 )
 
 # from sympy import symbols, Or, And, Implies, Not, to_cnf
@@ -43,21 +37,10 @@ input_sentences in infix form.
 """
 
 
-# TODO: use prefix definitions to move from input_sentences to prefix_sentences and sentence_letters
-
 # TODO: define function from sentence_letters (sorted with no repeated entries) to declarations of the following form
 
 A, B, C = Consts("A B C", AtomSort)
 X, Y, Z = Consts("X Y Z", AtomSort)
-
-# NOTE: for the time being, I will declare the following
-# not sure if it's right to include strings 'boxright', 'vee', etc
-prefix_sentences = [
-    ["boxright", [A], ["vee", [B], [C]]],
-    ["neg", ["boxright", [A], [B]]],
-    ["neg", ["boxright", [A], [C]]],
-]
-sentence_letters = [A, B, C]
 
 # NOTE: for now we may declare a fixed set of variables
 # however, it is likely that at some point these definitions will have to be an
@@ -68,40 +51,15 @@ u, v, w = BitVecs("u v w", N)
 x, y, z = BitVecs("x y z", N)
 
 
-# # NOTE: would this replace the definition of proposition in `definitions.py` at some point?
-# def proposition(atomic_sentence):
-#     return (
-#         ForAll([x,y], Implies(And(verify(x,atomic_sentence), verify(y,atomic_sentence)), verify(fusion(x,y),atomic_sentence))),
-#         ForAll([x,y], Implies(And(falsify(x,atomic_sentence), falsify(y,atomic_sentence)), falsify(fusion(x,y),atomic_sentence))),
-#         ForAll([x,y], Implies(And(verify(x,atomic_sentence), falsify(y,atomic_sentence)), Not(possible(fusion(x,y))))),
-#         # ForAll(x, Implies(possible(x), Exists(y, And(possible(fusion(x,y)), Or(verify(y,atomic_sentence), falsify(y,atomic_sentence)))))),
-#         # B: we need to leave this last condition off until we know why it is crashing z3
-#     )
-# NOTE: why not use the definition of proposition in definitions.py?
-# for S in sentence_letters:
-#     for proposition_constraint in proposition(S):
-#         solver.add(proposition_constraint)
-
-# solver = Solver()
-# # TODO: check that this makes sense in place of the commented out alternative
-# # above. maybe I missed what the idea was supposed to be
-# # NOTE: alternatively we could use a for-loop through sentence_letters here
-# # might be worth experimenting with: could this fix the fact that ver_bits
-# # are not currently closed under fusion?
-# solver.add(ForAll(X, proposition(X)))
-# # frame constraints
-# solver.add(ForAll([x, y], Implies(And(possible(x), is_part_of(x, y)), possible(y))))
-# # evaluation constraints
-# solver.add(is_world(w))
-
-
 def prop_const(atom):
-    """requires atom to be a proposition"""
+    """
+    atom is a proposition since its verifiers and falsifiers are closed under
+    fusion respectively, and the verifiers and falsifiers for atom are
+    incompatible (exhaustivity). NOTE: exclusivity crashes Z3 so left off.
+    """
     sent_to_prop = [
-        # Exists(x, non_null_verify(x, atom)),
-        # Exists(y, non_null_falsify(x, atom)),
-        # non_null_verify(a,atom),
-        # non_null_falsify(b,atom),
+        Exists(x, non_null_verify(x, atom)),
+        Exists(y, non_null_falsify(x, atom)),
         ForAll(
             [x, y],
             Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
@@ -133,26 +91,43 @@ def prop_const(atom):
     return sent_to_prop
 
 
-def add_general_constraints(solv, input_sentence_letters):
-    """adds the constraints that go in every solver"""
+def find_general_constraints(input_sentence_letters):
+    """find the constraints that depend only on the sentence letters"""
+    gen_const = []
     possible_part = ForAll(
         [x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))
     )
-    solv.add(possible_part)
-    print(f"\nPossibility constraint:\n {possible_part}\n")
-    # NOTE: seems to slightly slow things down with no obvious gains but I'm
-    # still unsure if this is needed or not. would be good to confirm.
+    gen_const.append(possible_part)
     fusion_closure = ForAll([x, y], Exists(z, fusion(x, y) == z))
-    solv.add(fusion_closure)
-    print(f"Fusion constraint:\n {fusion_closure}\n")
+    gen_const.append(fusion_closure)
     world_const = is_world(w)
-    solv.add(world_const)
-    print(f"World constraint: {world_const}")
+    gen_const.append(world_const)
     for sent_letter in input_sentence_letters:
-        print(f"\nSentence {sent_letter} yields the general constraints:\n")
         for const in prop_const(sent_letter):
-            solv.add(const)
-            print(f"{const}\n")
+            gen_const.append(const)
+    return gen_const
+
+
+# def add_general_constraints(solv, input_sentence_letters):
+#     """adds the constraints that go in every solver"""
+#     possible_part = ForAll(
+#         [x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))
+#     )
+#     solv.add(possible_part)
+#     print(f"\nPossibility constraint:\n {possible_part}\n")
+#     # NOTE: seems to slightly slow things down with no obvious gains but I'm
+#     # still unsure if this is needed or not. would be good to confirm.
+#     fusion_closure = ForAll([x, y], Exists(z, fusion(x, y) == z))
+#     solv.add(fusion_closure)
+#     print(f"Fusion constraint:\n {fusion_closure}\n")
+#     world_const = is_world(w)
+#     solv.add(world_const)
+#     print(f"World constraint: {world_const}")
+#     for sent_letter in input_sentence_letters:
+#         print(f"\nSentence {sent_letter} yields the general constraints:\n")
+#         for const in prop_const(sent_letter):
+#             solv.add(const)
+#             print(f"{const}\n")
 
 
 # NOTE: should throw error if boxright occurs in X
@@ -292,17 +267,41 @@ def false_at(sentence, world):
         )
 
 
-def add_input_constraints(solver, prefix_sentences):
-    """add input-specific constraints to the solver"""
-    for sentence in prefix_sentences:
-        print(sentence)
+def find_input_constraints(prefix_sent):
+    """find input-specific constraints"""
+    input_const = []
+    for sentence in prefix_sent:
         sentence_constraint = true_at(sentence, w)
-        print(
-            f"Sentence {sentence} yields the model constraint:\n {sentence_constraint}\n"
-        )
-        solver.add(sentence_constraint)
+        input_const.append(sentence_constraint)
+    return input_const
 
 
-# for sentence in prefix_sentences:
-#     solver.add(true_at(sentence, w))
-# print(true_at(sentence, w))
+# def add_input_constraints(solv, prefix_sentences):
+#     """add input-specific constraints to the solver"""
+#     for sentence in prefix_sentences:
+#         print(sentence)
+#         sentence_constraint = true_at(sentence, w)
+#         print(
+#             f"Sentence {sentence} yields the model constraint:\n {sentence_constraint}\n"
+#         )
+#         solv.add(sentence_constraint)
+
+
+def find_constraints(input_sent):
+    """find Z3 constraints for input sentences"""
+    prefix_sentences = [Prefix(input_sent) for input_sent in input_sent] # this works
+    input_const = find_input_constraints(prefix_sentences)
+    sentence_letters = all_sentence_letters(prefix_sentences) # this works
+    gen_const = find_general_constraints(sentence_letters)
+    const = gen_const + input_const
+    return (const, sentence_letters)
+
+
+def solve_constraints(const):
+    """find model for the input constraints if there is any"""
+    solver = Solver()
+    solver.add(const)
+    check = solver.check()
+    if check == sat:
+        return solver.model()
+    return None
