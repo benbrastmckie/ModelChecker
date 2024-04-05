@@ -66,7 +66,7 @@ def find_poss_bits(model,all_bits):
     return poss_bits
 
 
-def find_world_bits(model, poss_bits):
+def find_world_bits(poss_bits):
     '''finds the world bits from a list of possible bits.
     used in print_states() and find_relations()'''
     not_worlds = []
@@ -133,7 +133,7 @@ def find_alt_bits(ver_bits, poss_bits, world_bits, eval_world):
 
 
 def relate_sents_and_states(all_bits, sentence, model, relation):
-    """helper function for finding verifier and falisifer states to sentences in a model
+    """helper function for finding verifier and falsifier states to sentences in a model
     Used in find_relations()"""
     relation_set = set()
     for bit in all_bits:
@@ -149,7 +149,7 @@ def find_relations(all_bits, S, model):
     ver_bits = relate_sents_and_states(all_bits, S, model, verify)
     fal_bits = relate_sents_and_states(all_bits, S, model, falsify)
     poss_bits = find_poss_bits(model,all_bits)
-    world_bits = find_world_bits(model, poss_bits)
+    world_bits = find_world_bits(poss_bits)
     eval_world = model[w]
     alt_bits = find_alt_bits(ver_bits, poss_bits, world_bits, eval_world)
     return (ver_bits, fal_bits, alt_bits)
@@ -193,9 +193,10 @@ def print_states(model):
     """print all fusions of atomic states in the model"""
     all_bits = find_all_bits(N)
     poss_bits = find_poss_bits(model,all_bits)
-    world_bits = find_world_bits(model, poss_bits)
+    world_bits = find_world_bits(poss_bits)
 
-    print("\n(Possible) States:")  # Print states
+    # print("\n(Possible) States:")  # Print states
+    print("\nStates:")  # Print states
     for bit in all_bits:
         # test_state = BitVecVal(val, size) # was instead of bit
         state = bitvec_to_substates(bit)
@@ -209,7 +210,7 @@ def print_states(model):
         elif model.evaluate(possible(bit)):
             print(f"  {bin_rep} = {state} (possible)")
         else:
-            # print(f"  {bin_rep} = {state} (impossible)")
+            print(f"  {bin_rep} = {state} (impossible)")
             continue
 
 

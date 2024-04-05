@@ -70,7 +70,6 @@ x, y, z = BitVecs("x y z", N)
 
 # # NOTE: would this replace the definition of proposition in `definitions.py` at some point?
 # def proposition(atomic_sentence):
-#     """requires a sentence letter to be a proposition"""
 #     return (
 #         ForAll([x,y], Implies(And(verify(x,atomic_sentence), verify(y,atomic_sentence)), verify(fusion(x,y),atomic_sentence))),
 #         ForAll([x,y], Implies(And(falsify(x,atomic_sentence), falsify(y,atomic_sentence)), falsify(fusion(x,y),atomic_sentence))),
@@ -95,28 +94,54 @@ x, y, z = BitVecs("x y z", N)
 # # evaluation constraints
 # solver.add(is_world(w))
 
+
 def prop_const(atom):
-    sent_to_prop =[
+    """requires atom to be a proposition"""
+    sent_to_prop = [
+        # Exists(x, non_null_verify(x, atom)),
+        # Exists(y, non_null_falsify(x, atom)),
+        # non_null_verify(a,atom),
+        # non_null_falsify(b,atom),
         ForAll(
             [x, y],
             Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
         ),
         ForAll(
             [x, y],
-            Implies(And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)),
+            Implies(
+                And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)
+            ),
         ),
         ForAll(
             [x, y],
             Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
         ),
+        # ForAll(
+        #     x,
+        #     Implies(
+        #         possible(x),
+        #         Exists(
+        #             y,
+        #             And(
+        #                 possible(fusion(x, y)),
+        #                 Or(verify(y, atom), falsify(y, atom)),
+        #             ),
+        #         ),
+        #     ),
+        # ),
     ]
     return sent_to_prop
 
+
 def add_general_constraints(solv, input_sentence_letters):
-    '''adds the constraints that go in every solver'''
-    possible_part = ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x)))
+    """adds the constraints that go in every solver"""
+    possible_part = ForAll(
+        [x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))
+    )
     solv.add(possible_part)
     print(f"\nPossibility constraint:\n {possible_part}\n")
+    # NOTE: seems to slightly slow things down with no obvious gains but I'm
+    # still unsure if this is needed or not. would be good to confirm.
     fusion_closure = ForAll([x, y], Exists(z, fusion(x, y) == z))
     solv.add(fusion_closure)
     print(f"Fusion constraint:\n {fusion_closure}\n")
@@ -135,24 +160,24 @@ def extended_verify(state, ext_sent):
     """X is in prefix form. Same for extended_falsify"""
     if len(ext_sent) == 1:
         # print(state,ext_sent,type(state),type(ext_sent))
-        return verify(state, ext_sent[0])
+        return non_null_verify(state, ext_sent[0])
     op = ext_sent[0]
     if "boxright" in op:
         raise ValueError(f"The sentence {ext_sent} is not extensional.")
     if "neg" in op:
         return extended_falsify(state, ext_sent[1])
-    Y = ext_sent[1] # should be a list itself
-    Z = ext_sent[2] # should be a list itself
+    Y = ext_sent[1]  # should be a list itself
+    Z = ext_sent[2]  # should be a list itself
     if "wedge" in op:
         return Exists(
             [y, z],
-            And(fusion(y, z) == state, extended_verify(y, Y), extended_verify(z, Z))
+            And(fusion(y, z) == state, extended_verify(y, Y), extended_verify(z, Z)),
         )
     if "vee" in op:
         return Or(
             extended_verify(state, Y),
             extended_verify(state, Z),
-            extended_verify(state, ["wedge", Y, Z])
+            extended_verify(state, ["wedge", Y, Z]),
         )
     if "leftrightarrow" in op:
         return Or(
@@ -172,7 +197,7 @@ def extended_verify(state, ext_sent):
 
 def extended_falsify(state, ext_sent):
     if len(ext_sent) == 1:
-        return falsify(state, ext_sent[0])
+        return non_null_falsify(state, ext_sent[0])
     op = ext_sent[0]
     if "boxright" in op:
         raise ValueError(f"The sentence {ext_sent} is not extensional.")
@@ -213,7 +238,7 @@ def true_at(sentence, world):
     """sentence is a sentence in prefix notation"""
     if len(sentence) == 1:
         sent = sentence[0]
-        return Exists(x, And(is_part_of(x, world), verify(x, sent)))
+        return Exists(x, And(is_part_of(x, world), non_null_verify(x, sent)))
     op = sentence[0]
     if "neg" in op:
         return false_at(sentence[1], world)
@@ -243,7 +268,7 @@ def false_at(sentence, world):
     """X is a sentence in prefix notation"""
     if len(sentence) == 1:
         sent = sentence[0]
-        return Exists(x, And(is_part_of(x, world), falsify(x, sent)))
+        return Exists(x, And(is_part_of(x, world), non_null_falsify(x, sent)))
     op = sentence[0]
     if "neg" in op:
         return true_at(sentence, world)
@@ -266,13 +291,18 @@ def false_at(sentence, world):
             And(extended_verify(x, Y), is_alternative(u, x, world), false_at(Z, u)),
         )
 
+
 def add_input_constraints(solver, prefix_sentences):
-    '''add input-specific constraints to the solver'''
+    """add input-specific constraints to the solver"""
     for sentence in prefix_sentences:
         print(sentence)
-        sentence_constraint = true_at(sentence,w)
-        print(f"Sentence {sentence} yields the model constraint:\n {sentence_constraint}\n")
+        sentence_constraint = true_at(sentence, w)
+        print(
+            f"Sentence {sentence} yields the model constraint:\n {sentence_constraint}\n"
+        )
         solver.add(sentence_constraint)
+
+
 # for sentence in prefix_sentences:
 #     solver.add(true_at(sentence, w))
-    # print(true_at(sentence, w))
+# print(true_at(sentence, w))
