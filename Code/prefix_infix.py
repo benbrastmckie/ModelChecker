@@ -1,6 +1,10 @@
 import doctest
-from z3 import *
-from definitions import *
+from z3 import (
+    Const,
+)
+from definitions import (
+    AtomSort,
+)
 '''
 OVERVIEW
 All sentence letters are capital letters.

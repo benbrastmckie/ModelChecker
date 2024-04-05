@@ -11,6 +11,7 @@ from print import (
     print_model,
 )
 
+# TODO: define N here
 
 
 ################################
@@ -34,7 +35,6 @@ from print import (
 
 
 
-
 ################################
 ######### NOT WORKING ##########
 ################################
@@ -51,7 +51,6 @@ input_sentences = ['(A \\boxright C)','\\neg ((A \\wedge B) \\boxright C)']
 # NOTE: likely to do with no alternatives issue
 # input_sentences = ['(A \\boxright B)','\\neg B','\\neg (\\neg B \\boxright \\neg A)']
 # input_sentences = ['\\neg A','\\neg (A \\boxright B)','\\neg (A \\boxright \\neg B)']
-
 
 
 

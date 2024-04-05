@@ -17,9 +17,10 @@ from z3 import (
     BitVecNumRef,
 )
 
-
-
 ### DECLARATIONS ###
+
+# NOTE: tried moving N to test_complete but created circular import error
+# from test_complete import N
 
 # number of atomic states
 N = 3 # works

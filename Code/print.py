@@ -3,6 +3,8 @@ from z3 import (
     simplify,
 )
 
+# from test_complete import N
+
 from definitions import (
     N,
     bit_fusion,

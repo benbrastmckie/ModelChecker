@@ -15,6 +15,7 @@ from z3 import (
     And,
 )
 from prefix_infix import Prefix, all_sentence_letters
+# from test_complete import N
 from definitions import (
     N,
     fusion,
