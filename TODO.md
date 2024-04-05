@@ -18,36 +18,16 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Data Structure
 
-- design data structure module
-- abstract elements from `print`
-- develop in new branch
-- debug and merge
-
-## Refine and Optimize
-
-- [ ] _M_ do we still need simplify?
-- [ ] do we need the closure under fusion constraint in `semantics.py`?
-- [ ] _B_ provide countermodels by hand
-  - [ ] `ent_2.py`
-  - [ ] `poss_strength.py`
-- [.] `print.py`
-  - [x] _M_ extract helper function from `alt_bits` def in `print.py`
+- design data structure module in markdown
+- [.] abstract elements from `print`
+  - [ ] refactor model builder functions to build data structure `model_builder.py`
   - [ ] abstract on `eval_world` to generalize `alt_bits` function
   - [ ] abstract on `N`
+  - [x] _M_ extract helper function from `alt_bits` def in `print.py`
   - [x] _B_ abstract on multiple occurrences of `all_bits`
   - [x] _B_ separate model building, eval building, and printing elements (see NOTE in `print.py`)
-- [ ] `poss_strength.py`
-  - [ ] `A => C` is true though there is an `A`-alternative where `C` is false
-  - [ ] replacing `verify` with `non_null_verify` eliminates models
-    - [ ] _B_ check validity by hand
-- [ ] speed
-  - [x] add benchmarks tooling
-  - [ ] ssh to supercomputer
-  - [ ] multiprocessing
-- [.] _B_ ask graham about
-  - [ ] existential quantifier claims
-  - [ ] trace tools
-  - [x] hexadecimal for `N > 4`
+- develop in new branch
+- debug and merge
 
 ## Semantics
 
@@ -61,13 +41,36 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [:] generate constraints from infix sentences
   - [ ] debug
 
+## Examples
+
+- [ ] _B_ provide countermodels by hand
+  - [ ] `ent_2.py`
+  - [ ] `poss_strength.py`
+
+## Refine and Optimize
+
+- [ ] _M_ do we still need simplify?
+- [ ] do we need the closure under fusion constraint in `semantics.py`?
+- [ ] `poss_strength.py`
+  - [ ] `A => C` is true though there is an `A`-alternative where `C` is false
+  - [ ] replacing `verify` with `non_null_verify` eliminates models
+    - [ ] _B_ check validity by hand
+- [ ] speed
+  - [x] add benchmarks tooling
+  - [ ] ssh to supercomputer
+  - [ ] multiprocessing
+- [.] _B_ ask graham about
+  - [ ] existential quantifier claims
+  - [ ] trace tools
+  - [x] hexadecimal for `N > 4`
+
 ## Pre/Post-Processing
-- [ ] pre-processing module
+ [ ] pre-processing module
   - [ ] hold until necessary
     - [ ] ask graham
     - [ ] mit z3 master
   - [ ] design algorithm for simplifying prefix sentences
-- [ ] post-processing
+ [ ] post-processing
   - [ ] data structure
 
 ## Models

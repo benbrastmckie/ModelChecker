@@ -1,49 +1,21 @@
-from z3 import (
-    Solver,
-    sat,
-    BitVecs,
-)
-from prefix_infix import (
-    Prefix,
-    all_sentence_letters,
-)
-# from semantics_2 import (
+'''
+converts infix_sentences to Z3 constraints and adds to solver, printing results
+'''
+import time
+# import multiprocessing
 from semantics import (
-    add_input_constraints,
-    add_general_constraints,
-)
-from definitions import (
-    N,
-    A,
-    B,
-    C,
+    find_constraints,
+    solve_constraints,
 )
 from print import (
-    print_states,
-    print_evaluation,
-    print_propositions,
+    print_model,
 )
 
-import time
-
-sentence_letters = [A, B, C]
-
-# NOTE: for now we may declare a fixed set of variables
-# however, it is likely that at some point these definitions will have to be an
-# output along with the constraints generated
-aa, bb, cc = BitVecs("aa bb cc", N)
-a, b, c = BitVecs("a b c", N)
-r, s, t = BitVecs("r s t", N)
-u, v, w = BitVecs("u v w", N)
-x, y, z = BitVecs("x y z", N)
-
 
 
 ################################
-############ TESTS #############
+########### WORKING ############
 ################################
-
-### WORKING ###
 
 # INVALID
 # input_sentences = ['\\neg A','(A \\boxright (B \\vee C))','\\neg (A \\boxright B)','\\neg (A \\boxright C)']
@@ -60,7 +32,12 @@ x, y, z = BitVecs("x y z", N)
 # input_sentences = ['(A \\boxright B)','(A \\boxright C)','\\neg (A \\boxright (B \\wedge C))']
 # input_sentences = ['(A \\boxright B)','((A \\wedge B) \\boxright C)','\\neg (A \\boxright C)']
 
-### NOT WORKING ###
+
+
+
+################################
+######### NOT WORKING ##########
+################################
 
 # NOTE: these are the highest priority
 input_sentences = ['(A \\boxright C)','\\neg ((A \\wedge B) \\boxright C)']
@@ -75,32 +52,45 @@ input_sentences = ['(A \\boxright C)','\\neg ((A \\wedge B) \\boxright C)']
 # input_sentences = ['(A \\boxright B)','\\neg B','\\neg (\\neg B \\boxright \\neg A)']
 # input_sentences = ['\\neg A','\\neg (A \\boxright B)','\\neg (A \\boxright \\neg B)']
 
-prefix_sentences = [Prefix(input_sent) for input_sent in input_sentences] # this works
-# print(f"Prefix Input Sentences:\n {prefix_sentences}")
-sentence_letters = all_sentence_letters(prefix_sentences) # this works
-# print(f"Sentence Letters: {sentence_letters}")
 
-solver = Solver()
-add_general_constraints(solver, sentence_letters) # should be working, it's nothing complicated
-add_input_constraints(solver, prefix_sentences) # I think this is where the problem's at
-# an issue may be whether the sentence letters are actually in the constraints. I think they are
-# but the issue may also be about states (ie, bitvecs) and quantifier binding. 
-# a new semantics file, semantics_2.py, with slightly different semantics, yields very different results
 
-start_time = time.time()
 
-if solver.check() == sat:
-    print("There is a model of:")
-    print(input_sentences)
-    model = solver.model()
-    print_states(model)
-    print_evaluation(model, sentence_letters)
-    print_propositions(model, sentence_letters)
-else:
-    print("\nThere are no models of:\n")
-    print(input_sentences)
+################################
+############ SOLVER ############
+################################
 
+
+constraints, sentence_letters = find_constraints(input_sentences)
+
+start_time = time.time() # start benchmark timer
+model = solve_constraints(constraints)
 end_time = time.time()
-execution_time = end_time - start_time
 
-print("Execution time:", execution_time)
+print_model(model, input_sentences, sentence_letters)
+execution_time = end_time - start_time
+print(f"Execution time: {execution_time}\n")
+
+# NOTE: adapt below to run multiprocessing
+# if __name__ == '__main__':
+#     # Create a multiprocessing pool
+#     constraints = find_constraints(input_sentences)
+#     num_processes = multiprocessing.cpu_count() - 2  # Use all but two of the number of CPU cores
+#     with multiprocessing.Pool(processes=num_processes) as pool:
+#         results = pool.map(solve_constraints, [constraints] * num_processes)
+#         # Run the solver concurrently for each set of constraints
+#
+#     # Close the pool to free up resources
+#     pool.close()
+#     pool.join()
+#
+#     # Process the results
+#     for result in results:
+#         if result is not None:
+#             print("There is a model of:")
+#             print(input_sentences)
+#             print_states(model)
+#             print_evaluation(model, sentence_letters)
+#             print_propositions(model, sentence_letters)
+#         else:
+#             print("\nThere are no models of:\n")
+#             print(input_sentences)

@@ -3,6 +3,7 @@ file contains all definitions needed for finding Z3 models.
 '''
 from z3 import (
     Not,
+    Or,
     Exists,
     ForAll,
     Implies,
@@ -185,35 +186,35 @@ def is_alternative(bit_u, bit_y, bit_w):
     )
 
 
-def proposition(atom):
-    """
-    atom is a proposition since its verifiers and falsifiers are closed under
-    fusion respectively, and the verifiers and falsifiers for atom are
-    incompatible (exhaustivity). NOTE: exclusivity crashes Z3 so left off.
-    """
-    return And(
-        ForAll(
-            [x, y],
-            Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
-        ), # verifiers for atom are closed under fusion
-        ForAll(
-            [x, y],
-            Implies(And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)),
-        ), # falsifiers for atom are closed under fusion
-        ForAll(
-            [x, y],
-            Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
-        ), # verifiers and falsifiers for atom are incompatible
-        # ForAll(
-        #     x,
-        #     Implies(
-        #         possible(x),
-        #         Exists(y, And(compatible(x, y), Or(verify(y, atom), falsify(y, atom)))),
-        #     ),
-        # ), # every possible state is compatible with either a verifier or falsifier for atom
-        # NOTE: adding the constraint above makes Z3 crash
-        # without this constraint the logic is not classical (there could be truth-value gaps)
-    )
+# def proposition(atom):
+#     """
+#     atom is a proposition since its verifiers and falsifiers are closed under
+#     fusion respectively, and the verifiers and falsifiers for atom are
+#     incompatible (exhaustivity). NOTE: exclusivity crashes Z3 so left off.
+#     """
+#     return And(
+#         ForAll(
+#             [x, y],
+#             Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
+#         ), # verifiers for atom are closed under fusion
+#         ForAll(
+#             [x, y],
+#             Implies(And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)),
+#         ), # falsifiers for atom are closed under fusion
+#         ForAll(
+#             [x, y],
+#             Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
+#         ), # verifiers and falsifiers for atom are incompatible
+#         # ForAll(
+#         #     x,
+#         #     Implies(
+#         #         possible(x),
+#         #         Exists(y, And(compatible(x, y), Or(verify(y, atom), falsify(y, atom)))),
+#         #     ),
+#         # ), # every possible state is compatible with either a verifier or falsifier for atom
+#         # NOTE: adding the constraint above makes Z3 crash
+#         # without this constraint the logic is not classical (there could be truth-value gaps)
+#     )
 
     # TODO: extended_verify and extended_falsify functions (see Strategies)
 
