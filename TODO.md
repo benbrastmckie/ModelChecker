@@ -66,7 +66,14 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [.] speed
   - [x] add benchmarks tooling
   - [.] multiprocessing
-  - [.] ssh to supercomputer
+  - [:] ssh to supercomputer
+    - [.] https://engaging-ood.mit.edu/pun/sys/dashboard
+      - [.] browser based only?
+      - [.] is there Z3 access?
+    - [ ] https://mybinder.org/
+      - [ ] explore ssh options
+      - [ ] setup a new public repo
+      - [ ] setup `enviornment.yml`
 - [ ] Z3 guru
   - [:] ask Graham
   - [.] email CS faculty
