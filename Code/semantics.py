@@ -60,8 +60,8 @@ def prop_const(atom):
     incompatible (exhaustivity). NOTE: exclusivity crashes Z3 so left off.
     """
     sent_to_prop = [
-        Exists(x, non_null_verify(x, atom)),
-        Exists(y, non_null_falsify(x, atom)),
+        # Exists(x, non_null_verify(x, atom)),
+        # Exists(y, non_null_falsify(x, atom)),
         ForAll(
             [x, y],
             Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),

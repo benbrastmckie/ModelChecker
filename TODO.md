@@ -63,12 +63,13 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] clear out unused
 - [ ] closure under fusion constraint in `semantics`?
   - see issue #16
-- [.] speed
+- [:] _B_ speed
   - [x] add benchmarks tooling
   - [.] multiprocessing
-- [.] trace tools
-  - [ ] `Pyinstrument` visualizes the execution flow of the code
-  - [ ] `cProfile` for fine-grained times
+    - B: couldn't get this to work
+- [x] _B_ trace tools
+  - [x] `Pyinstrument` visualizes the execution flow of the code
+  - [x] `cProfile` for fine-grained times
 - [ ] Z3 guru
   - [:] ask Graham
   - [.] email CS faculty
