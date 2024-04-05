@@ -15,10 +15,8 @@ from definitions import (
     verify,
     falsify,
     bitvec_to_substates,
-    is_bitvector,
     summation,
     int_to_binary,
-    is_world
 )
 
 '''

@@ -69,6 +69,16 @@ print_model(model, input_sentences, sentence_letters)
 execution_time = end_time - start_time
 print(f"Execution time: {execution_time}\n")
 
+
+# NOTE: external tool for studying execution flow
+# import pyinstrument
+#
+# profiler = pyinstrument.Profiler()
+# profiler.start()
+# your_algorithm()
+# profiler.stop()
+# print(profiler.output_text())
+
 # NOTE: adapt below to run multiprocessing
 # if __name__ == '__main__':
 #     # Create a multiprocessing pool
