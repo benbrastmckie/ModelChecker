@@ -2,6 +2,12 @@
 
 This is place for references to further documentation and other resources.
 
+## SymPy
+
+The logic module for SymPy allows to form and manipulate logic expressions using symbolic and Boolean values.
+
+    https://docs.sympy.org/latest/modules/logic.html#sympy.logic.boolalg.to_cnf
+
 ## Z3
 
 Z3 Python API Info:

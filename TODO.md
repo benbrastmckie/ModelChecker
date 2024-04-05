@@ -45,16 +45,16 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Examples
 
+- [ ] `test_complete` cases
+  - [ ] weakening
+  - [ ] absorption
+  - [ ] transitivity
 - [ ] _B_ provide countermodels by hand
   - [ ] `ent_2`
   - [ ] `poss_strength`
     - [ ] `A => C` is true though there is an `A`-alternative where `C` is false
     - [ ] replacing `verify` with `non_null_verify` eliminates models
       - [ ] _B_ check validity by hand
-- [.] _M_ show that `A \boxright B` entails `A \rightarrow C` (in `ent_1.py`)
-- [:] _M_ show that `A \boxright B, B \boxright C` do not entail `A \boxright C` (in `ent_2.py`)
-- [:] _M_ show that `A \boxright B, A \wedge B \boxright C` entails `A \boxright C` (in `ent_3.py`)
-- [.] _M_ show that `A \boxright B, \neg B` do not entail `\neg B \boxright \neg A` (in `ent_4.py`)
 
 ## Refine and Optimize
 
@@ -66,14 +66,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [.] speed
   - [x] add benchmarks tooling
   - [.] multiprocessing
-  - [:] ssh to supercomputer
-    - [.] https://engaging-ood.mit.edu/pun/sys/dashboard
-      - [.] browser based only?
-      - [.] is there Z3 access?
-    - [ ] https://mybinder.org/
-      - [ ] explore ssh options
-      - [ ] setup a new public repo
-      - [ ] setup `enviornment.yml`
+- [.] trace tools
+  - [ ] `Pyinstrument` visualizes the execution flow of the code
+  - [ ] `cProfile` for fine-grained times
 - [ ] Z3 guru
   - [:] ask Graham
   - [.] email CS faculty
@@ -82,18 +77,13 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [ ] (http://adam.chlipala.net/)[Adam Chlipala]
     - [ ] (https://www.csail.mit.edu/person/frans-kaashoek)[Frans Kaashoek]
     - [ ] (https://people.csail.mit.edu/mengjia/)[Megjia Yan]
-- [.] _B_ ask graham about
-  - [.] trace tools
-    - [ ] `Pyinstrument` visualizes the execution flow of the code
-    - [ ] `cProfile` for fine-grained times
-  - [x] existential quantifier claims
-  - [x] hexadecimal for `N > 4`
 
 ## Pre-Processing
 
 - [ ] pre-processing module
   - NOTE: hold until necessary
   - [ ] design algorithm for simplifying prefix sentences
+  - [ ] research `SymPy` for simplifying sentences
 
 ## Overview
 
@@ -124,6 +114,18 @@ Tasks that have been completed.
 
 ## Refine and Optimize
 
+  - [x] _B_ ssh to supercomputer
+    - [x] https://engaging-ood.mit.edu/pun/sys/dashboard
+      - [x] browser based only?
+      - [x] is there Z3 access?
+      - [x] add info to `general`
+    - [ ] https://mybinder.org/
+      - [ ] explore ssh options
+      - [ ] setup a new public repo
+      - [ ] setup `enviornment.yml`
+- [x] _B_ ask Graham about
+  - [x] existential quantifier claims
+  - [x] hexadecimal for `N > 4`
 - [x] do we still need simplify?
   - B: I think not; last instance was removed from `bit_fusion` in `definitions`
 - [x] `world_bits` sometimes includes non-maximal worlds
@@ -152,6 +154,10 @@ Tasks that have been completed.
 
 ## Models
 
+- [.] _M_ show that `A \boxright B` entails `A \rightarrow C` (in `ent_1.py`)
+- [:] _M_ show that `A \boxright B, B \boxright C` do not entail `A \boxright C` (in `ent_2.py`)
+- [:] _M_ show that `A \boxright B, A \wedge B \boxright C` entails `A \boxright C` (in `ent_3.py`)
+- [.] _M_ show that `A \boxright B, \neg B` do not entail `\neg B \boxright \neg A` (in `ent_4.py`)
 - [x] _B_ show `{ A \boxright (B \vee C), \neg(A \boxright B), \neg(A \boxright C) }` is sat
 - [x] _B_ show `{ (A \vee B) \boxright C, \neg(A \boxright B) }` is unsat
 - [x] countermodel for `A, B \vdash A \boxright B`
@@ -202,7 +208,7 @@ Tasks that have been completed.
 
 ## Python
 
-- [x] sentence letter extractor
+- [x] _M_ sentence letter extractor
 - [x] _M_ prefix function
   - [x] _M_ review `/Design/Strategies.md`, raising any questions in the corresponding GitHub issue.
   - [x] _M_ confirm whether LaTeX commands will serve as suitable notation in python

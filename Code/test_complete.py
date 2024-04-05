@@ -40,9 +40,9 @@ from print import (
 ################################
 
 # NOTE: these are the highest priority
-input_sentences = ['(A \\boxright C)','\\neg ((A \\wedge B) \\boxright C)']
-# input_sentences = ['(A \\boxright C)','(B \\boxright C)','\\neg ((A \\wedge B) \\boxright C)']
-# input_sentences = ['(A \\boxright B)','(B \\boxright C)','\\neg (A \\boxright C)']
+input_sentences = ['(A \\boxright C)','\\neg ((A \\wedge B) \\boxright C)'] # WEAKENING
+# input_sentences = ['(A \\boxright C)','(B \\boxright C)','\\neg ((A \\wedge B) \\boxright C)'] # ABSORPTION
+# input_sentences = ['(A \\boxright B)','(B \\boxright C)','\\neg (A \\boxright C)'] # TRANSITIVITY
 
 # NOTE: requires recursive consideration of alternatives
 # input_sentences = ['((A \\wedge B) \\boxright C)','\\neg (A \\boxright (B \\boxright C))']
