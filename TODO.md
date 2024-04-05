@@ -26,6 +26,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Refine and Optimize
 
 - [ ] _M_ do we still need simplify?
+- [ ] do we need the closure under fusion constraint in `semantics.py`?
 - [ ] _B_ provide countermodels by hand
   - [ ] `ent_2.py`
   - [ ] `poss_strength.py`
@@ -40,7 +41,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] replacing `verify` with `non_null_verify` eliminates models
     - [ ] _B_ check validity by hand
 - [ ] speed
-  - [ ] add benchmarks tooling
+  - [x] add benchmarks tooling
   - [ ] ssh to supercomputer
   - [ ] multiprocessing
 - [.] _B_ ask graham about
@@ -59,6 +60,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] _B_ organize semantics
 - [:] generate constraints from infix sentences
   - [ ] debug
+
+## Pre/Post-Processing
 - [ ] pre-processing module
   - [ ] hold until necessary
     - [ ] ask graham

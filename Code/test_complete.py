@@ -24,6 +24,8 @@ from print import (
     print_propositions,
 )
 
+import time
+
 sentence_letters = [A, B, C]
 
 # NOTE: for now we may declare a fixed set of variables
@@ -35,14 +37,45 @@ r, s, t = BitVecs("r s t", N)
 u, v, w = BitVecs("u v w", N)
 x, y, z = BitVecs("x y z", N)
 
-# everything different is in prefix_infix and semantics. Everything else is the same.
-input_sentences = ['\\neg A','(A \\boxright (B \\vee C))','\\neg (A \\boxright B)','\\neg (A \\boxright C)']
-# input_sentences = ['(A \\boxright B)','((A \\wedge B) \\boxright C)','\\neg (A \\boxright C)']
-# input_sentences = ['A','B','\\neg (A \\wedge B)']
-# input_sentences = ['A','\\neg A'] # finds a model for a contradiction, something seems to be wrong
-# input_sentences = ['A','B','\\neg (A \\wedge B)']
+
+
+################################
+############ TESTS #############
+################################
+
+### WORKING ###
+
+# INVALID
+# input_sentences = ['\\neg A','(A \\boxright (B \\vee C))','\\neg (A \\boxright B)','\\neg (A \\boxright C)']
+# input_sentences = ['(A \\boxright (B \\vee C))','\\neg ((A \\boxright B) \\vee (A \\boxright C))']
+# input_sentences = ['A','B','\\neg (A \\boxright B)']
+
+# VALID
+# input_sentences = ['(A \\rightarrow B)','A','\\neg B']
+# input_sentences = ['(A \\boxright B)','\\neg (A \\rightarrow B)']
+# input_sentences = ['((A \\vee B) \\boxright C)','\\neg (A \\boxright C)']
+# input_sentences = ['((A \\vee B) \\boxright C)','\\neg ((A \\wedge B) \\boxright C)']
+# input_sentences = ['(A \\boxright C)','(B \\boxright C)','((A \\wedge B) \\boxright C)','\\neg ((A \\vee B) \\boxright C)']
+# input_sentences = ['(A \\boxright (B \\wedge C))','\\neg (A \\boxright B)']
+# input_sentences = ['(A \\boxright B)','(A \\boxright C)','\\neg (A \\boxright (B \\wedge C))']
+input_sentences = ['(A \\boxright B)','((A \\wedge B) \\boxright C)','\\neg (A \\boxright C)']
+
+### NOT WORKING ###
+
+# input_sentences = ['(A \\boxright B)','(B \\boxright C)','\\neg (A \\boxright C)']
+# input_sentences = ['(A \\boxright C)','(B \\boxright C)','\\neg ((A \\wedge B) \\boxright C)']
+# input_sentences = ['(A \\boxright C)','\\neg ((A \\wedge B) \\boxright C)']
+
+# NOTE: requires recursive consideration of alternatives
+# input_sentences = ['((A \\wedge B) \\boxright C)','\\neg (A \\boxright (B \\boxright C))']
+# input_sentences = ['(A \\boxright (B \\boxright C))','\\neg ((A \\wedge B) \\boxright C)',]
+
+# NOTE: likely to do with no alternatives issue
+# input_sentences = ['(A \\boxright B)','\\neg B','\\neg (\\neg B \\boxright \\neg A)']
+# input_sentences = ['\\neg A','\\neg (A \\boxright B)','\\neg (A \\boxright \\neg B)']
+
 prefix_sentences = [Prefix(input_sent) for input_sent in input_sentences] # this works
-print(f"Prefix Input Sentences:\n {prefix_sentences}")
+# print(f"Prefix Input Sentences:\n {prefix_sentences}")
 sentence_letters = all_sentence_letters(prefix_sentences) # this works
 # print(f"Sentence Letters: {sentence_letters}")
 
@@ -52,6 +85,8 @@ add_input_constraints(solver, prefix_sentences) # I think this is where the prob
 # an issue may be whether the sentence letters are actually in the constraints. I think they are
 # but the issue may also be about states (ie, bitvecs) and quantifier binding. 
 # a new semantics file, semantics_2.py, with slightly different semantics, yields very different results
+
+start_time = time.time()
 
 if solver.check() == sat:
     print("There is a model of:")
@@ -63,3 +98,8 @@ if solver.check() == sat:
 else:
     print("\nThere are no models of:\n")
     print(input_sentences)
+
+end_time = time.time()
+execution_time = end_time - start_time
+
+print("Execution time:", execution_time)
