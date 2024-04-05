@@ -13,7 +13,6 @@ from z3 import (
     Consts,
     Function,
     And,
-    simplify,
     BitVecNumRef,
 )
 
@@ -101,7 +100,7 @@ def fusion(bit_s, bit_t):
 
 def bit_fusion(bit_s, bit_t):
     """the result of taking the maximum for each index in _s and _t"""
-    return simplify(bit_s | bit_t)
+    return bit_s | bit_t
     # NOTE: this does seem to make a difference and so has been left on
 
 

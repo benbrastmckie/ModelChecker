@@ -2,96 +2,96 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
+## Data Structure
+
+- [ ] design data structure module in markdown
+  - [ ] abstract model builder functions from `print` to build data structure functions in `model_builder`
+  - [ ] abstract on `eval_world` to generalize `alt_bits` function
+- [ ] develop in new branch
+- [ ] debug and merge
+
 ## Architecture
 
 - [ ] how should the algorithm be organized across files?
   - [ ] sketch design in markdown
-    - `input_file` contains all relevant user inputs
-      - `infix_sentences`
-      - bitvector length `N`
-    - `definitions` without `N`
-    - `semantics` generates variable declarations
+    - `test_complete` contains all relevant user inputs
+      - inputs include `infix_sentences`
+      - inputs include bitvector length `N`
+    - `definitions` includes all basic definitions
+      - move `N` from `definitions` to `test_complete`
+    - `semantics` contains all semantic functions
+      - recursively generate variable declarations
     - `model_builder` functions for building a data structure
     - `print` functions that operate on a data structure
   - [ ] implement in new branch
   - [ ] debug and merge
 
-## Data Structure
+## Print
 
-- design data structure module in markdown
-- [.] abstract elements from `print`
-  - [ ] refactor model builder functions to build data structure `model_builder.py`
-  - [ ] abstract on `eval_world` to generalize `alt_bits` function
-  - [ ] abstract on `N`
-  - [x] _M_ extract helper function from `alt_bits` def in `print.py`
-  - [x] _B_ abstract on multiple occurrences of `all_bits`
-  - [x] _B_ separate model building, eval building, and printing elements (see NOTE in `print.py`)
-- develop in new branch
-- debug and merge
+- print the proposition for each sub-sentence
+  - design
+  - define sub-sentences for input sentences
+  - define extensional operators for propositions
+  - redesign print proposition functions to be recursive
 
 ## Semantics
 
-- [ ] _M_ semantics
-  - [:] generate constraints from `infix_sentences`
-  - [ ] generate variables to be declared
-  - [ ] debug errors
-  - [ ] pipe constraints into output file
-  - [ ] try adding fourth prop constraint
-- [x] _B_ organize semantics
-- [:] generate constraints from infix sentences
-  - [ ] debug
+- [ ] _M_ generate variables to be declared alongside Z3 constraints
+- [ ] _B_ alternative worlds
+  - [ ] adapt semantics to admit of iterated counterfactuals
+  - [ ] debug no alternatives (issue #17)
+- [ ] pipe Z3 constraints into output file
+- [ ] _B_ investigate why exhaustivity constraint crashes
 
 ## Examples
 
 - [ ] _B_ provide countermodels by hand
-  - [ ] `ent_2.py`
-  - [ ] `poss_strength.py`
+  - [ ] `ent_2`
+  - [ ] `poss_strength`
+    - [ ] `A => C` is true though there is an `A`-alternative where `C` is false
+    - [ ] replacing `verify` with `non_null_verify` eliminates models
+      - [ ] _B_ check validity by hand
+- [.] _M_ show that `A \boxright B` entails `A \rightarrow C` (in `ent_1.py`)
+- [:] _M_ show that `A \boxright B, B \boxright C` do not entail `A \boxright C` (in `ent_2.py`)
+- [:] _M_ show that `A \boxright B, A \wedge B \boxright C` entails `A \boxright C` (in `ent_3.py`)
+- [.] _M_ show that `A \boxright B, \neg B` do not entail `\neg B \boxright \neg A` (in `ent_4.py`)
 
 ## Refine and Optimize
 
-- [ ] _M_ do we still need simplify?
-- [ ] move declarations out of `definitions.py`
-- [ ] do we need the closure under fusion constraint in `semantics.py`?
-- [ ] `poss_strength.py`
-  - [ ] `A => C` is true though there is an `A`-alternative where `C` is false
-  - [ ] replacing `verify` with `non_null_verify` eliminates models
-    - [ ] _B_ check validity by hand
-- [ ] speed
+- [ ] simplify `definitions`
+  - [ ] move declarations out of `definitions`
+  - [ ] clear out unused
+- [ ] closure under fusion constraint in `semantics`?
+  - see issue #16
+- [.] speed
   - [x] add benchmarks tooling
-  - [ ] ssh to supercomputer
-  - [ ] multiprocessing
+  - [.] multiprocessing
+  - [.] ssh to supercomputer
+- [ ] Z3 guru
+  - [:] ask Graham
+  - [.] email CS faculty
+    - [ ] (https://people.csail.mit.edu/mcarbin/)[Michael Carbin]
+    - [ ] (https://people.csail.mit.edu/henrycg/)[Henry Corrigan-Gibbs]
+    - [ ] (http://adam.chlipala.net/)[Adam Chlipala]
+    - [ ] (https://www.csail.mit.edu/person/frans-kaashoek)[Frans Kaashoek]
+    - [ ] (https://people.csail.mit.edu/mengjia/)[Megjia Yan]
 - [.] _B_ ask graham about
-  - [ ] existential quantifier claims
-  - [ ] trace tools
+  - [.] trace tools
+    - [ ] `Pyinstrument` visualizes the execution flow of the code
+    - [ ] `cProfile` for fine-grained times
+  - [x] existential quantifier claims
   - [x] hexadecimal for `N > 4`
 
-## Pre/Post-Processing
- [ ] pre-processing module
-  - [ ] hold until necessary
-    - [ ] ask graham
-    - [ ] mit z3 master
+## Pre-Processing
+
+- [ ] pre-processing module
+  - NOTE: hold until necessary
   - [ ] design algorithm for simplifying prefix sentences
- [ ] post-processing
-  - [ ] data structure
-
-## Models
-
-- [.] _M_ show that `A \boxright B` entails `A \rightarrow C` (in `ent_1.py`)
-- [:] _M_ show that `A \boxright B, B \boxright C` do not entail `A \boxright C` (in `ent_2.py`)
-  - I am getting a model (as desired); can you go over it just to make sure?
-- [:] _M_ show that `A \boxright B, A \wedge B \boxright C` entails `A \boxright C` (in `ent_3.py`)
-  - I am getting a model when I shouldn't be—can you check the constraints look alright?
-- [.] _M_ show that `A \boxright B, \neg B` do not entail `\neg B \boxright \neg A` (in `ent_4.py`)
-
-## Constraint Generators
-
-- model constraints from `sentence_letters`
-- evaluation constraints from `input_sentences`
 
 ## Overview
 
 - [ ] _B_ move from set-fusion to binary fusion throughout
-- [x] _B_ check that world-hood constraint is not needed for finite spaces
+- [:] _B_ check that world-hood constraint is not needed for finite spaces
 
 
 
@@ -105,8 +105,20 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 # Completed
 
+Tasks that have been completed.
+
+## Semantics
+
+- [x] _M_ model constraints from `sentence_letters`
+- [x] _M_ evaluation constraints from `input_sentences`
+- [x] generate constraints from `infix_sentences`
+  - [x] debug
+- [x] _B_ organize semantics
+
 ## Refine and Optimize
 
+- [x] do we still need simplify?
+  - B: I think not; last instance was removed from `bit_fusion` in `definitions`
 - [x] `world_bits` sometimes includes non-maximal worlds
   - M: do you have any examples (ie, file name and N value) for when this is true, to try to see what's going on?
   - B: yes, I found a bunch of examples and created an issue to document
@@ -131,17 +143,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - M: seems you can just use `==` (I'm pretty sure but not 100% sure). I left the `Equivalent` function we had and replaced its body to the new definition `==`; if you notice any changes or anything going wrong, we can always switch back to the old one. However, I am almost certain that if equivalence isn't represented by `==`, then there is no function for equivalence (cf: https://microsoft.github.io/z3guide/docs/logic/propositional-logic, and in the list of all funcs in Z3, could not find anything that looked like it'd reasonably be equivalence)
   - B: Awesome! It works great!
 
-## Strategies
-
-- [x] _B_ model checker design strategies
-  - [:] model constraints
-    - [x] _B_ outline
-    - [x] _B_ email Graham
-    - [x] _B_ revise constraints
-    - [:] _B_ run strategies by Graham
-  - [x] _B_ model builder
-    - [x] _B_ outline
-    - [x] _B_ revise
 ## Models
 
 - [x] _B_ show `{ A \boxright (B \vee C), \neg(A \boxright B), \neg(A \boxright C) }` is sat
@@ -155,6 +156,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Print
 
+- [x] _M_ extract helper function from `alt_bits` def in `print.py`
+- [x] _B_ abstract on multiple occurrences of `all_bits`
+- [x] _B_ separate model building, eval building, and printing elements (see NOTE in `print.py`)
 - [x] _M_ print all states in the model (some seem to be hidden)
 - [x] _B_ assign either `world`, `possible`, or `impossible` to each printed state
   - [x] _M_ revise state labeling strategy I hacked together
@@ -203,6 +207,16 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] _B_ move notes elsewhere
 
 ## Strategies
+
+- [x] _B_ model checker design strategies
+  - [:] model constraints
+    - [x] _B_ outline
+    - [x] _B_ email Graham
+    - [x] _B_ revise constraints
+    - [:] _B_ run strategies by Graham
+  - [x] _B_ model builder
+    - [x] _B_ outline
+    - [x] _B_ revise
 
 - [x] _B_ fix docs for prefix
   - [x] _B_ document purpose
