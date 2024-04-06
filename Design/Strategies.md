@@ -184,13 +184,15 @@ Each state is labeled as either a world, possible, or impossible.
 <!-- 2. The `input_sentences`, semantics, and frame constraints should be presented in a standardized form. -->
 <!-- 3. Documentation will be included here indicating how to tweak constraints. -->
 
-## Processing: running Z3 and representing the result
+## Processing: solving, storing, printing
 
 This section outlines the overall structure of the algorithm.
 
-### Algorithm: solve and save
+### Algorithm: data class
 
-Define an algorithm which takes an input file, generates Z3 model constraints, runs Z3, and, if satisfiable, stores the model in an output file in both a raw and readable way.
+### Algorithm: print
+
+Define an algorithm which draws on the data class to print the model in a readable way if any.
 
 1. Generate model constraints from the `sentence_letters` that occur in the `input_sentences`.
 2. Generate evaluation constraints from the `input_sentences` given the semantic functions and the semantics included in the file.

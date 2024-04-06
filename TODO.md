@@ -33,6 +33,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - define sub-sentences for input sentences
   - define extensional operators for propositions
   - redesign print proposition functions to be recursive
+    - _B_ add section to strategies
 
 ## Semantics
 

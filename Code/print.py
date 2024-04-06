@@ -24,17 +24,9 @@ the three main functions are print_states(), print_evaluations(), and print_prop
 all other functions feed into print_propositions()
 '''
 
-# TODO: restructure towards defining a data class
-# NOTE: this is looking really good! eventually we will want to be building a data class
-# or something like that. with an eye towards this, it would be good to separate the
-# printing functions from the model_builder functions (i.e., extracting all_bits, poss_bits,
-# and world_bits from the model) and the eval_builder elements (i.e., defining functions
-# from each atom to ver_bits,fal_bits, and a function from each atom and eval_world to alt_bits).
-# the thought is that model_builder and eval_builder can be used to build a data class where
-# the print functions will then operate on that data class. but it seems that we now have
-# all the key ingredients that we need.
-# M: Sounds good! I'm guessing that may be better to do once we finish semantics and all that?
-# B: Yes, that sounds good! I will start working on that now
+# TODO: abstract functions to define a data class in `model_builder.py`
+
+
 
 
 ################################
