@@ -8,6 +8,7 @@ import cProfile
 from semantics import (
     find_all_constraints,
     solve_constraints,
+    combine,
 )
 from print import (
     print_model,
@@ -16,24 +17,51 @@ from print import (
 # TODO: define N here
 
 
+
+
 ################################
 ########### WORKING ############
 ################################
 
-# INVALID
-# input_sentences = ['\\neg A','(A \\boxright (B \\vee C))','\\neg (A \\boxright B)','\\neg (A \\boxright C)']
-# input_sentences = ['(A \\boxright (B \\vee C))','\\neg ((A \\boxright B) \\vee (A \\boxright C))']
-# input_sentences = ['A','B','\\neg (A \\boxright B)']
 
-# VALID
-# input_sentences = ['(A \\rightarrow B)','A','\\neg B']
-# input_sentences = ['(A \\boxright B)','\\neg (A \\rightarrow B)']
-# input_sentences = ['((A \\vee B) \\boxright C)','\\neg (A \\boxright C)']
-# input_sentences = ['((A \\vee B) \\boxright C)','\\neg ((A \\wedge B) \\boxright C)']
-# input_sentences = ['(A \\boxright C)','(B \\boxright C)','((A \\wedge B) \\boxright C)','\\neg ((A \\vee B) \\boxright C)']
-# input_sentences = ['(A \\boxright (B \\wedge C))','\\neg (A \\boxright B)']
-# input_sentences = ['(A \\boxright B)','(A \\boxright C)','\\neg (A \\boxright (B \\wedge C))']
-# input_sentences = ['(A \\boxright B)','((A \\wedge B) \\boxright C)','\\neg (A \\boxright C)']
+### INVALID ###
+
+# premises = ['\\neg A','(A \\boxright (B \\vee C))','\\neg (A \\boxright B)']
+# conclusions = ['\\neg (A \\boxright C)']
+
+# premises = ['(A \\boxright (B \\vee C))']
+# conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
+
+# premises = ['A','B']
+# conclusions = ['(A \\boxright B)']
+
+
+### VALID ###
+
+# premises = ['(A \\rightarrow B)','A']
+# conclusions = ['B']
+
+# premises = ['(A \\boxright B)']
+# conclusions = ['(A \\rightarrow B)']
+
+# premises = ['((A \\vee B) \\boxright C)']
+# conclusions = ['(A \\boxright C)']
+
+# premises = ['((A \\vee B) \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+
+# premises = ['(A \\boxright C)','(B \\boxright C)','((A \\wedge B) \\boxright C)']
+# conclusions = ['((A \\vee B) \\boxright C)']
+
+# premises = ['(A \\boxright (B \\wedge C))']
+# conclusions = ['(A \\boxright B)']
+
+# premises = ['(A \\boxright B)','(A \\boxright C)']
+# conclusions = ['(A \\boxright (B \\wedge C))']
+
+# premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
+# conclusions = ['(A \\boxright C)']
+
 
 
 
@@ -41,25 +69,49 @@ from print import (
 ######### NOT WORKING ##########
 ################################
 
-# NOTE: these are the highest priority
-input_sentences = ['(A \\boxright C)','\\neg ((A \\wedge B) \\boxright C)'] # WEAKENING
-# input_sentences = ['(A \\boxright C)','(B \\boxright C)','\\neg ((A \\wedge B) \\boxright C)'] # ABSORPTION
-# input_sentences = ['(A \\boxright B)','(B \\boxright C)','\\neg (A \\boxright C)'] # TRANSITIVITY
+### HIGH PRIORITY ###
 
-# NOTE: requires recursive consideration of alternatives
-# input_sentences = ['((A \\wedge B) \\boxright C)','\\neg (A \\boxright (B \\boxright C))']
-# input_sentences = ['(A \\boxright (B \\boxright C))','\\neg ((A \\wedge B) \\boxright C)',]
+premises = ['(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
+
+# premises = ['(A \\boxright C)','(B \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+
+# premises = ['(A \\boxright B)','(B \\boxright C)']
+# conclusions = ['(A \\boxright C)']
+
+
+### MEDIUM PRIORITY ###
 
 # NOTE: likely to do with no alternatives issue
-# input_sentences = ['(A \\boxright B)','\\neg B','\\neg (\\neg B \\boxright \\neg A)']
-# input_sentences = ['\\neg A','\\neg (A \\boxright B)','\\neg (A \\boxright \\neg B)']
+# premises = ['(A \\boxright B)','\\neg B']
+# conclusions = ['(\\neg B \\boxright \\neg A)']
+
+# NOTE: likely to do with no alternatives issue
+# premises = ['\\neg A','\\neg (A \\boxright B)']
+# conclusions = ['(A \\boxright \\neg B)']
+
+
+### LOW PRIORITY ###
+
+# NOTE: requires recursive consideration of alternatives
+# premises = ['((A \\wedge B) \\boxright C)']
+# conclusions = ['(A \\boxright (B \\boxright C))']
+
+# NOTE: requires recursive consideration of alternatives
+# premises = ['(A \\boxright (B \\boxright C))']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+
+
+
+
 
 ################################
 ############ SOLVER ############
 ################################
 
-
-"""find constraints and sentence letters"""
+"""find input sentences, sentence letters, and constraints"""
+input_sentences = combine(premises,conclusions)
 constraints, sentence_letters = find_all_constraints(input_sentences)
 
 """find model in any in timed enviornment"""
@@ -80,35 +132,3 @@ print(f"Execution time: {execution_time}\n")
 # CODE
 # profiler.stop()
 # print(profiler.output_text(unicode=True, color=True))
-
-# NOTE: adapt below to run multiprocessing
-# if __name__ == '__main__':
-#     constraints, sentence_letters = find_all_constraints(input_sentences)
-#
-#     # Divide constraints into smaller subsets
-#     num_processes = multiprocessing.cpu_count() - 2  # Use all but two of the number of CPU cores
-#     chunk_size = len(constraints) // num_processes
-#     chunks = [constraints[i:i+chunk_size] for i in range(0, len(constraints), chunk_size)]
-#
-#     # Create a multiprocessing pool
-#     with multiprocessing.Pool(processes=num_processes) as pool:
-#         # Distribute solving tasks to different processes
-#         results = pool.map(solve_con, chunks)
-#
-#     # Combine results from different processes
-#     combined_results = combine_results(results)
-#
-#     # Close the pool to free up resources
-#     pool.close()
-#     pool.join()
-#
-#     # Process the results
-#     if combined_results:
-#         print("There is a model of:")
-#         print(input_sentences)
-#         print_states(model)
-#         print_evaluation(model, sentence_letters)
-#         print_propositions(model, sentence_letters)
-#     else:
-#         print("\nThere are no models of:\n")
-#         print(input_sentences)

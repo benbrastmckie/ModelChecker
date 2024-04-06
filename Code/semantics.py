@@ -60,8 +60,10 @@ def prop_const(atom):
     incompatible (exhaustivity). NOTE: exclusivity crashes Z3 so left off.
     """
     sent_to_prop = [
+        # non_null_verify(a, atom),
+        # non_null_falsify(b, atom),
         # Exists(x, non_null_verify(x, atom)),
-        # Exists(y, non_null_falsify(x, atom)),
+        # Exists(y, non_null_falsify(y, atom)),
         ForAll(
             [x, y],
             Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
@@ -303,3 +305,15 @@ def solve_constraints(const):
     if check == sat:
         return solver.model()
     return None
+
+
+def combine(prem,con):
+    '''combines the premises with the negation of the conclusion(s).'''
+    # if prem is None:
+    #     prem = []
+    input_sent = prem
+    for sent in con:
+        neg_sent = '\\neg ' + sent
+        input_sent.append(neg_sent)
+    return input_sent
+

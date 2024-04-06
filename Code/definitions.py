@@ -14,6 +14,7 @@ from z3 import (
     Function,
     And,
     BitVecNumRef,
+    simplify,
 )
 
 ### DECLARATIONS ###
@@ -96,13 +97,13 @@ def is_atomic(bit_s):
 
 def fusion(bit_s, bit_t):
     '''the result of taking the maximum for each index in bit_s and bit_t'''
-    return bit_s | bit_t
+    return simplify(bit_s | bit_t)
 
 
 def bit_fusion(bit_s, bit_t):
     """the result of taking the maximum for each index in _s and _t"""
-    return bit_s | bit_t
-    # NOTE: this does seem to make a difference and so has been left on
+    return simplify(bit_s | bit_t)
+    # NOTE: this does seem to make a difference, otherwise no comp_parts
 
 
 def is_part_of(bit_s, bit_t):
@@ -117,15 +118,13 @@ def is_proper_part_of(bit_s, bit_t):
 
 def bit_part(bit_s, bit_t):
     """the fusion of _s and _t is identical to bit_t"""
-    return bit_fusion(bit_s, bit_t) == bit_t
-    # NOTE: this does not seem to make a difference and so has been turned off
-    # in the interest of discovering if it is required or not
-    # return simplify(bit_fusion(bit_s, bit_t) == bit_t)
+    return bool(simplify(bit_fusion(bit_s, bit_t) == bit_t))
+    # NOTE: this does seem to make a difference, otherwise no comp_parts
 
 
 def bit_proper_part(bit_s, bit_t):
     """bit_s is a part of bit_t and bit_t is not a part of bit_s"""
-    return bit_part(bit_s, bit_t) and not bit_s == bit_t
+    return bool(bit_part(bit_s, bit_t)) and not bit_s == bit_t
     # NOTE: this does not seem to make a difference and so has been turned off
     # in the interest of discovering if it is required or not
     # return bool(bit_part(bit_s, bit_t)) and not bit_s == bit_t
@@ -280,7 +279,10 @@ def Equivalent(cond_a,cond_b):
     #return And(Implies(bit_a,bit_b), Implies(bit_b,bit_a))
     return cond_a == cond_b
 
+
 def summation(n, func, start = 0):
     if start == n:
         return func(start)
     return func(start) + summation(n,func,start+1)
+
+

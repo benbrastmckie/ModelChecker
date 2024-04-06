@@ -92,8 +92,10 @@ def find_world_bits(poss_bits):
 
 
 def find_compatible_parts(verifier_bit, poss_bits, eval_world):
-    """Finds the parts of the eval_world compatible with a verifier.
-    Used in find_alt_bits()"""
+    """
+    Finds the parts of the eval_world compatible with the verifier_bit.
+    Used in find_alt_bits()
+    """
     comp_parts = []
     for part in poss_bits:
         if bit_fusion(verifier_bit, part) in poss_bits and bit_part(part, eval_world):
@@ -103,8 +105,10 @@ def find_compatible_parts(verifier_bit, poss_bits, eval_world):
 
 
 def find_max_comp_ver_parts(verifier_bit, comp_parts):
-    """Finds a list of fusions of the verifier_bit and a maximal compatible part 
-    Used in find_alt_bits(), immediately after find_compatible_parts() above"""
+    """
+    Finds a list of fusions of the verifier_bit and a maximal compatible part.
+    Used in find_alt_bits(), immediately after find_compatible_parts() above.
+    """
     not_max_comp_part = []
     for max_part in comp_parts:
         for test in comp_parts:
@@ -117,17 +121,28 @@ def find_max_comp_ver_parts(verifier_bit, comp_parts):
 
 
 def find_alt_bits(ver_bits, poss_bits, world_bits, eval_world):
-    """finds the alternative bits given verifier states, possible states, worlds, and the model.
-    Used in find_relations()"""
+    """
+    Finds the alternative bits given verifier bits, possible states, worlds, and
+    the evaluation world. Used in find_relations().
+    """
     alt_bits = set()
+    # print(f"poss_bits = {poss_bits}")
+    # print(f"world_bits = {world_bits}")
+    # print(f"eval_world = {eval_world}")
     for ver in ver_bits:
+        # print(f"ver_bit = {ver}")
         comp_parts = find_compatible_parts(ver, poss_bits, eval_world)
+        # print(f"comp_parts = {comp_parts}")
         max_comp_ver_parts = find_max_comp_ver_parts(ver, comp_parts)
-        # TODO: test what the max_comp_ver_parts is in crimson
+        # print(f"max_comp_parts = {max_comp_ver_parts}")
         for world in world_bits:
+            if not bit_part(ver, world):
+                continue
             for max_ver in max_comp_ver_parts:
                 if bit_part(max_ver, world) and world.sexpr() != eval_world.sexpr():
                     alt_bits.add(world)
+                    # print(f"world = {world} = {world.sexpr()}")
+                    # print(f"eval_world = {eval_world} = {eval_world.sexpr()}")
                     break  # to return to the second for loop over world_bits
     return alt_bits
 
