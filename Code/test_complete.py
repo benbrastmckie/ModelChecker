@@ -38,8 +38,8 @@ from print import (
 
 ### VALID ###
 
-# premises = ['(A \\rightarrow B)','A']
-# conclusions = ['B']
+premises = ['(A \\rightarrow B)','A']
+conclusions = ['B']
 
 # premises = ['(A \\boxright B)']
 # conclusions = ['(A \\rightarrow B)']
@@ -71,8 +71,8 @@ from print import (
 
 ### HIGH PRIORITY ###
 
-premises = ['(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
+# premises = ['(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
 
 # premises = ['(A \\boxright C)','(B \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
