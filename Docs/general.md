@@ -28,6 +28,12 @@ Further information can be found here:
     https://engaging-web.mit.edu/eofe-wiki/software/python_packages/
     https://orcd-docs.mit.edu/getting-started/
 
+To be able to clone the GitHub repo onto the server, run for the email used in GitHub:
+
+    ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+
+Save the file, adding the contents to SSH keys in GitHub settings.
+
 ## Git
 
 For adding an SSH Key and PAT to GitHub:
