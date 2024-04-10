@@ -27,11 +27,11 @@ from print import (
 
 ### INVALID ###
 
-premises = ['\\neg A','(A \\boxright (B \\vee C))']
-conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
-# # NOTE: does not work with exhaustivity
-# # NOTE: only the following conclusion works with prop constraints applied to sentence letters
-# conclusions = ['(A \\boxright B)','(A \\boxright C)']
+# premises = ['\\neg A','(A \\boxright (B \\vee C))']
+# conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
+# # # NOTE: does not work with exhaustivity
+# # # NOTE: only the following conclusion works with prop constraints applied to sentence letters
+# # conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
 # # NOTE: only works with prop constraints applied to sentence letters
 # premises = ['A','B']
@@ -76,9 +76,9 @@ conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
 ### HIGH PRIORITY ###
 
 # NOTE: almost works with prop constraints applied to sentence letters
-# premises = ['(A \\boxright C)']
-# # premises = ['\\neg A','(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
+premises = ['(A \\boxright C)']
+# premises = ['\\neg A','(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
 
 # # NOTE: almost works with prop constraints applied to sentence letters
 # premises = ['(A \\boxright C)','(B \\boxright C)']
@@ -119,9 +119,12 @@ conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
 ################################
 
 """find input sentences, sentence letters, and constraints"""
+# constraints_start = time.time() # start benchmark timer
 input_sentences = combine(premises,conclusions)
 constraints, sentence_letters = find_all_constraints(input_sentences)
-# print_constraints(constraints)
+# constraints_end = time.time() # start benchmark timer
+# constraints_total = round(constraints_end - constraints_start,4)
+print_constraints(constraints)
 
 """find model in any in timed enviornment"""
 model_start = time.time() # start benchmark timer
@@ -135,6 +138,7 @@ print_start = time.time()
 print_model(model, input_sentences, sentence_letters)
 print_end = time.time()
 print_total = round(print_end - print_start,4)
+# print(f"Constraints time: {constraints_total}")
 print(f"Model time: {model_total}")
 print(f"Print time: {print_total}\n")
 

@@ -324,5 +324,5 @@ def print_model(model, input_sent, sentence_let):
 
 
 def print_constraints(consts):
-    for con in consts:
-        print(con)
+    for index, con in enumerate(consts, start=1):
+        print(f"{index}. {con}\n")
