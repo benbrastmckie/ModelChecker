@@ -97,7 +97,7 @@ def is_atomic(bit_s):
 
 def fusion(bit_s, bit_t):
     '''the result of taking the maximum for each index in bit_s and bit_t'''
-    return simplify(bit_s | bit_t)
+    return bit_s | bit_t
 
 
 def bit_fusion(bit_s, bit_t):
