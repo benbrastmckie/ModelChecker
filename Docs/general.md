@@ -23,6 +23,15 @@ This is for eofe10 with Rochy 8 OS. For eofe7 with CentOS 7, load the following 
 
     module load anaconda3/2023.07
 
+Z3 only needs to be installed once, but the Anaconda module must be loaded each time.
+To avoid this, add the following line to the `.bashrc`:
+
+    module load anaconda3/2022.05
+
+Additionally, if backspace does not work in the ssh terminal, add the following to the `.bashrc`:
+
+    export TERM=xterm-256color      
+
 Further information can be found here:
 
     https://engaging-web.mit.edu/eofe-wiki/software/python_packages/
