@@ -78,7 +78,7 @@ def prop_const(atom):
             [x, y],
             Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
         ),
-        # ForAll(
+        # ForAll( #exhaustivity
         #     x,
         #     Implies(
         #         possible(x),
