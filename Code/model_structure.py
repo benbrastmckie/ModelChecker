@@ -1,38 +1,6 @@
-from z3 import (
-    BitVecVal,
-    simplify,
-)
-
-# from test_complete import N
-
-from definitions import (
-    N,
-    bit_fusion,
-    bit_part,
-    bit_proper_part,
-    w,
-    possible,
-    verify,
-    falsify,
-    bitvec_to_substates,
-    summation,
-    int_to_binary,
-)
-
-'''
-the three main functions are print_states(), print_evaluations(), and print_propositions().
-all other functions feed into print_propositions()
-'''
-
-# TODO: abstract functions to define a data class in `model_builder.py`
-
-
-
-
-################################
-### MODEL BUILDER DEFINITIONS ##
-################################
-    
+from definitions import *
+from print import *
+from semantics import *
 
 def find_all_bits(size):
     '''extract all bitvectors from the input model'''
@@ -189,140 +157,14 @@ def make_set_pretty_for_print(set_with_strings):
     print_str += "}"
     return print_str
 
+class ModelStructure():
+    def __init__(self, input_premises, input_conclusions, N):
+        self.premises = input_premises
+        self.conclusions = input_conclusions
+        self.input_sentences = combine(input_premises, input_conclusions)
+        constraints, sentence_letters = find_all_constraints(self.input_sentences)
 
-################################
-### START PRINT DEFINITIONS ####
-################################
-
-
-# NOTE: should N be included in the inputs?
-def print_states(model):
-    """print all fusions of atomic states in the model"""
-    all_bits = find_all_bits(N)
-    poss_bits = find_poss_bits(model,all_bits)
-    world_bits = find_world_bits(poss_bits)
-
-    # print("\n(Possible) States:")  # Print states
-    print("\nStates:")  # Print states
-    for bit in all_bits:
-        # test_state = BitVecVal(val, size) # was instead of bit
-        state = bitvec_to_substates(bit)
-        bin_rep = (
-            bit.sexpr()
-            if N % 4 != 0
-            else int_to_binary(int(bit.sexpr()[2:], 16), N)
-        )
-        if bit in world_bits:
-            print(f"  {bin_rep} = {state} (world)")
-        elif model.evaluate(possible(bit)):
-            print(f"  {bin_rep} = {state} (possible)")
-        else:
-            # print(f"  {bin_rep} = {state} (impossible)")
-            continue
+    def print_model(self):
+        pass
 
 
-# NOTE: should N be included in the inputs?
-def print_evaluation(model, sentence_letters):
-    """print the evaluation world and all sentences true/false in that world
-    sentence letters is an iterable (a list, I think?)"""
-    all_bits = find_all_bits(N)
-    eval_world = model[w]
-    print(f"\nThe evaluation world is {bitvec_to_substates(model[w])}:")
-    true_in_eval = set()
-    for sent in sentence_letters:
-        for bit in all_bits:
-            if model.evaluate(verify(bit, model[sent])) and bit_part(bit, eval_world):
-                true_in_eval.add(sent)
-                break  # exits the first for loop
-    false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
-    if true_in_eval:
-        true_eval_list = sorted([str(sent) for sent in true_in_eval])
-        true_eval_string = ", ".join(true_eval_list)
-        print(f"  {true_eval_string}  (true in {bitvec_to_substates(model[w])})")
-    if false_in_eval:
-        false_eval_list = sorted([str(sent) for sent in false_in_eval])
-        false_eval_string = ", ".join(false_eval_list)
-        print(f"  {false_eval_string}  (not true in {bitvec_to_substates(model[w])})")
-
-
-def print_vers_and_fals(model, S, ver_bits, fal_bits):
-    """prints the possible verifiers and falsifier states for a sentence.
-    inputs: the verifier states and falsifier states.
-    Outputs: None, but prints the verifiers and falsifiers
-    Used in print_prop()"""
-    ver_states = {bitvec_to_substates(bit) for bit in ver_bits if model.evaluate(possible(bit))}
-    fal_states = {bitvec_to_substates(bit) for bit in fal_bits if model.evaluate(possible(bit))}
-    if ver_states and fal_states:
-        print(
-            f"  |{S}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(fal_states)} >"
-        )
-    elif ver_states and not fal_states:
-        print(f"  |{S}| = < {make_set_pretty_for_print(ver_states)}, ∅ >")
-    elif not ver_states and fal_states:
-        print(f"  |{S}| = < ∅, {make_set_pretty_for_print(fal_states)} >")
-    else:
-        print(f"  |{S}| = < ∅, ∅ >")
-
-
-def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value):
-    """true is a string representing the relation ("true" for true_in_alt; m.m. for false) that is being used for
-    returns None, only prints
-    Used in print_alt_worlds()"""
-    if not alt_relation_set:
-        return
-    alt_relation_list = sorted([str(sent) for sent in alt_relation_set])
-    alt_relation_string = ", ".join(alt_relation_list)
-    if len(alt_relation_set) == 1:
-        print(f"    {alt_relation_string} is {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
-    else:
-        print(f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
-
-
-def print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits):
-    """prints everything that has to do with alt worlds
-    Used in print_prop()"""
-    alt_worlds = {bitvec_to_substates(alt) for alt in alt_bits}
-    if alt_worlds:
-        print(f"  {S}-alternatives to {bitvec_to_substates(model[w])} = {make_set_pretty_for_print(alt_worlds)}")
-        for alt_bit in alt_bits:
-            true_in_alt, false_in_alt = find_true_and_false_in_alt(
-                alt_bit, sentence_letters, all_bits, model
-            )
-            print_alt_relation(true_in_alt, alt_bit, "true")
-            print_alt_relation(false_in_alt, alt_bit, "not true")
-        print()  # for an extra blank line
-    else:
-        print(f"  There are no {S}-alternatives to {bitvec_to_substates(model[w])}")
-        print()  # for an extra blank line
-
-
-def print_propositions(model, sentence_letters):
-    """print each propositions and the alternative worlds in which it is true"""
-    all_bits = find_all_bits(N)
-    print("\nPropositions:")
-    for S in sentence_letters:
-        ver_states, fal_states, alt_bits = find_relations(all_bits, S, model)
-        print_vers_and_fals(model, S, ver_states, fal_states)
-        print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits)
-
-
-def print_model(model, input_sent, sentence_let):
-    """print the elements of the model"""
-    if model is not None:
-        # print(f"\nModel time: {time}")
-        print(f"\nThere is an {N}-model of:\n")
-        for sent in input_sent:
-            print(sent)
-        print_states(model)
-        print_evaluation(model, sentence_let)
-        print_propositions(model, sentence_let)
-    else:
-        print(f"\nThere are no {N}-models of:\n")
-        for sent in input_sent:
-            print(sent)
-        print()
-
-
-def print_constraints(consts):
-    for index, con in enumerate(consts, start=1):
-        print(f"{index}. {con}\n")
