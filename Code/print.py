@@ -217,7 +217,7 @@ def print_states(model):
         elif model.evaluate(possible(bit)):
             print(f"  {bin_rep} = {state} (possible)")
         else:
-            print(f"  {bin_rep} = {state} (impossible)")
+            # print(f"  {bin_rep} = {state} (impossible)")
             continue
 
 
@@ -309,14 +309,20 @@ def print_propositions(model, sentence_letters):
 def print_model(model, input_sent, sentence_let):
     """print the elements of the model"""
     if model is not None:
-        print("\nThere is a model of:\n")
+        # print(f"\nModel time: {time}")
+        print(f"\nThere is an {N}-model of:\n")
         for sent in input_sent:
             print(sent)
         print_states(model)
         print_evaluation(model, sentence_let)
         print_propositions(model, sentence_let)
     else:
-        print("\nThere are no models of:\n")
+        print(f"\nThere are no {N}-models of:\n")
         for sent in input_sent:
             print(sent)
         print()
+
+
+def print_constraints(consts):
+    for con in consts:
+        print(con)
