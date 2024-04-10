@@ -26,8 +26,8 @@ from print import (
 
 ### INVALID ###
 
-# premises = ['\\neg A','(A \\boxright (B \\vee C))','\\neg (A \\boxright B)']
-# conclusions = ['\\neg (A \\boxright C)']
+premises = ['\\neg A','(A \\boxright (B \\vee C))','\\neg (A \\boxright B)']
+conclusions = ['\\neg (A \\boxright C)']
 
 # premises = ['(A \\boxright (B \\vee C))']
 # conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
@@ -38,8 +38,8 @@ from print import (
 
 ### VALID ###
 
-premises = ['(A \\rightarrow B)','A']
-conclusions = ['B']
+# premises = ['(A \\rightarrow B)','A']
+# conclusions = ['B']
 
 # premises = ['(A \\boxright B)']
 # conclusions = ['(A \\rightarrow B)']
