@@ -1,7 +1,7 @@
 # AIM: provide a concrete model that can be used to abstract from to build model generator functions
 from z3 import *
-from definitions import *
-from print import *
+from .. import definitions
+from .. import print
 
 # TODO: eventually replace sentence_letters with something more general
 sentence_letters = [A, B, C]

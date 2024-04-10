@@ -10,6 +10,9 @@ from z3 import (
     Or,
 )
 
+import sys
+sys.path.append('../')  # Add the parent directory to the Python path
+
 from definitions import (
     a,
     b,

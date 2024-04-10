@@ -124,7 +124,7 @@ input_sentences = combine(premises,conclusions)
 constraints, sentence_letters = find_all_constraints(input_sentences)
 # constraints_end = time.time() # start benchmark timer
 # constraints_total = round(constraints_end - constraints_start,4)
-print_constraints(constraints)
+# print_constraints(constraints)
 
 """find model in any in timed enviornment"""
 model_start = time.time() # start benchmark timer
