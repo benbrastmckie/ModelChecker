@@ -2,7 +2,7 @@
 converts infix_sentences to Z3 constraints and adds to solver, printing results
 '''
 import time
-import cProfile
+# import cProfile
 # from pyinstrument import Profiler
 # import multiprocessing # NOTE: couldn't get this to work (see below)
 from semantics import (
@@ -11,6 +11,7 @@ from semantics import (
     combine,
 )
 from print import (
+    print_constraints,
     print_model,
 )
 
@@ -26,19 +27,22 @@ from print import (
 
 ### INVALID ###
 
-premises = ['\\neg A','(A \\boxright (B \\vee C))','\\neg (A \\boxright B)']
-conclusions = ['\\neg (A \\boxright C)']
+premises = ['\\neg A','(A \\boxright (B \\vee C))']
+conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
+# # NOTE: does not work with exhaustivity
+# # NOTE: only the following conclusion works with prop constraints applied to sentence letters
+# conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
-# premises = ['(A \\boxright (B \\vee C))']
-# conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
-
+# # NOTE: only works with prop constraints applied to sentence letters
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
 
 
+
 ### VALID ###
 
-# premises = ['(A \\rightarrow B)','A']
+# # NOTE: only works with prop constraints applied to sentence letters
+# premises = ['A','(A \\rightarrow B)']
 # conclusions = ['B']
 
 # premises = ['(A \\boxright B)']
@@ -71,12 +75,16 @@ conclusions = ['\\neg (A \\boxright C)']
 
 ### HIGH PRIORITY ###
 
+# NOTE: almost works with prop constraints applied to sentence letters
 # premises = ['(A \\boxright C)']
+# # premises = ['\\neg A','(A \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
+# # NOTE: almost works with prop constraints applied to sentence letters
 # premises = ['(A \\boxright C)','(B \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
+# # NOTE: almost works with prop constraints applied to sentence letters
 # premises = ['(A \\boxright B)','(B \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
@@ -113,17 +121,22 @@ conclusions = ['\\neg (A \\boxright C)']
 """find input sentences, sentence letters, and constraints"""
 input_sentences = combine(premises,conclusions)
 constraints, sentence_letters = find_all_constraints(input_sentences)
+# print_constraints(constraints)
 
 """find model in any in timed enviornment"""
-start_time = time.time() # start benchmark timer
+model_start = time.time() # start benchmark timer
 # cProfile.run('model = solve_constraints(constraints)') # for detailed report
 model = solve_constraints(constraints)
-end_time = time.time()
+model_end = time.time()
+model_total = round(model_end - model_start,4)
 
 """print results"""
+print_start = time.time()
 print_model(model, input_sentences, sentence_letters)
-execution_time = end_time - start_time
-print(f"Execution time: {execution_time}\n")
+print_end = time.time()
+print_total = round(print_end - print_start,4)
+print(f"Model time: {model_total}")
+print(f"Print time: {print_total}\n")
 
 
 # NOTE: this works; must import pyinstrument

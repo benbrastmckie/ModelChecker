@@ -85,7 +85,7 @@ def prop_const(atom):
         #         Exists(
         #             y,
         #             And(
-        #                 possible(fusion(x, y)),
+        #                 compatible(x,y),
         #                 Or(verify(y, atom), falsify(y, atom)),
         #             ),
         #         ),
@@ -102,6 +102,10 @@ def find_frame_constraints(input_sentence_letters):
         ForAll([x, y], Exists(z, fusion(x, y) == z)),
         is_world(w),
     ]
+    # for const in prop_const(X):
+    #     frame_constraints.append(const)
+    # NOTE: above appears to admit models for weakening the antecedent
+    # NOTE: also appears to avoid crashing Z3 with the exhaustivity constraint
     for sent_letter in input_sentence_letters:
         for const in prop_const(sent_letter):
             frame_constraints.append(const)
