@@ -27,11 +27,11 @@ from print import (
 
 ### INVALID ###
 
-# premises = ['\\neg A','(A \\boxright (B \\vee C))']
-# conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
-# # # NOTE: does not work with exhaustivity
-# # # NOTE: only the following conclusion works with prop constraints applied to sentence letters
-# # conclusions = ['(A \\boxright B)','(A \\boxright C)']
+premises = ['\\neg A','(A \\boxright (B \\vee C))']
+conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
+# # NOTE: does not work with exhaustivity
+# # NOTE: only the following conclusion works with prop constraints applied to sentence letters
+# conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
 # # NOTE: only works with prop constraints applied to sentence letters
 # premises = ['A','B']
@@ -75,10 +75,10 @@ from print import (
 
 ### HIGH PRIORITY ###
 
-# NOTE: almost works with prop constraints applied to sentence letters
-premises = ['(A \\boxright C)']
-# premises = ['\\neg A','(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
+# # NOTE: almost works with prop constraints applied to sentence letters
+# premises = ['(A \\boxright C)']
+# # premises = ['\\neg A','(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
 
 # # NOTE: almost works with prop constraints applied to sentence letters
 # premises = ['(A \\boxright C)','(B \\boxright C)']

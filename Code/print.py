@@ -131,7 +131,7 @@ def find_alt_bits(ver_bits, poss_bits, world_bits, eval_world):
             if not bit_part(ver, world):
                 continue
             for max_ver in max_comp_ver_parts:
-                if bit_part(max_ver, world) and world.sexpr() != eval_world.sexpr():
+                if bit_part(max_ver, world): # and world.sexpr() != eval_world.sexpr():
                     alt_bits.add(world)
                     # print(f"world = {world} = {world.sexpr()}")
                     # print(f"eval_world = {eval_world} = {eval_world.sexpr()}")
