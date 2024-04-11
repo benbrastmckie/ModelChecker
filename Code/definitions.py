@@ -284,5 +284,3 @@ def summation(n, func, start = 0):
     if start == n:
         return func(start)
     return func(start) + summation(n,func,start+1)
-
-
