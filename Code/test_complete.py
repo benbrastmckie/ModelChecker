@@ -42,8 +42,8 @@ conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
 ### VALID ###
 
 # # NOTE: only works with prop constraints applied to sentence letters
-# premises = ['A','(A \\rightarrow B)']
-# conclusions = ['B']
+premises = ['A','(A \\rightarrow B)']
+conclusions = ['B']
 
 # premises = ['(A \\boxright B)']
 # conclusions = ['(A \\rightarrow B)']
@@ -112,8 +112,6 @@ conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
 
 
 
-
-
 ################################
 ############ SOLVER ############
 ################################
@@ -121,7 +119,7 @@ conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
 """find input sentences, sentence letters, and constraints"""
 # constraints_start = time.time() # start benchmark timer
 input_sentences = combine(premises,conclusions)
-constraints, sentence_letters = find_all_constraints(input_sentences)
+prefix_sentences, constraints, sentence_letters = find_all_constraints(input_sentences)
 # constraints_end = time.time() # start benchmark timer
 # constraints_total = round(constraints_end - constraints_start,4)
 # print_constraints(constraints)
