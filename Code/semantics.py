@@ -96,7 +96,8 @@ def prop_const(atom):
 
 
 def find_frame_constraints(input_sentence_letters):
-    """find the constraints that depend only on the sentence letters"""
+    """find the constraints that depend only on the sentence letters
+    returns a list of Z3 constraints"""
     frame_constraints = [
         ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
         ForAll([x, y], Exists(z, fusion(x, y) == z)),
