@@ -96,7 +96,8 @@ def prop_const(atom):
 
 
 def find_frame_constraints(input_sentence_letters):
-    """find the constraints that depend only on the sentence letters"""
+    """find the constraints that depend only on the sentence letters
+    returns a list of Z3 constraints"""
     frame_constraints = [
         ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
         ForAll([x, y], Exists(z, fusion(x, y) == z)),
@@ -271,10 +272,10 @@ def false_at(sentence, world):
         )
 
 
-def find_model_constraints(prefix_sent):
+def find_model_constraints(prefix_sents):
     """find constraints corresponding to the input sentences"""
     input_const = []
-    for sentence in prefix_sent:
+    for sentence in prefix_sents:
         sentence_constraint = true_at(sentence, w)
         input_const.append(sentence_constraint)
     return input_const
@@ -298,7 +299,7 @@ def find_all_constraints(input_sent):
     sentence_letters = all_sentence_letters(prefix_sentences)  # this works
     gen_const = find_frame_constraints(sentence_letters)
     const = gen_const + input_const
-    return (const, sentence_letters)
+    return (prefix_sentences, const, sentence_letters)
 
 
 def solve_constraints(const):
