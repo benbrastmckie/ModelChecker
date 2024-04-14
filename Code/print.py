@@ -306,9 +306,9 @@ def print_propositions(model, sentence_letters):
         print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits)
 
 
-def print_model(model, input_sent, sentence_let):
+def print_model(result, model, input_sent, sentence_let):
     """print the elements of the model"""
-    if model is not None:
+    if result:
         # print(f"\nModel time: {time}")
         print(f"\nThere is an {N}-model of:\n")
         for sent in input_sent:
@@ -316,11 +316,18 @@ def print_model(model, input_sent, sentence_let):
         print_states(model)
         print_evaluation(model, sentence_let)
         print_propositions(model, sentence_let)
+    # # NOTE: use to look for problem cases
     else:
         print(f"\nThere are no {N}-models of:\n")
+        print(f"Unsatisfiable core: {model}\n")
         for sent in input_sent:
             print(sent)
         print()
+    # else:
+    #     print(f"\nThere are no {N}-models of:\n")
+    #     for sent in input_sent:
+    #         print(sent)
+    #     print()
 
 
 def print_constraints(consts):
