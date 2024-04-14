@@ -4,6 +4,7 @@ contains all semantic functions
 
 from z3 import (
     sat,
+    unsat,
     Exists,
     ForAll,
     Implies,
@@ -306,10 +307,12 @@ def solve_constraints(const):
     """find model for the input constraints if there is any"""
     solver = Solver()
     solver.add(const)
-    check = solver.check()
-    if check == sat:
-        return solver.model()
-    return None
+    result = solver.check()
+    if result == sat:
+        return (True, solver.model())
+    if result == unsat:
+        return (False, solver.unsat_core())
+    return (result, None)
 
 
 def combine(prem,con):

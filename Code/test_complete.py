@@ -27,10 +27,10 @@ from print import (
 
 ### INVALID ###
 
-premises = ['\\neg A','(A \\boxright (B \\vee C))']
-conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
-# # NOTE: does not work with exhaustivity
-# # NOTE: only the following conclusion works with prop constraints applied to sentence letters
+# premises = ['\\neg A','(A \\boxright (B \\vee C))']
+# # conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
+# # # NOTE: does not work with exhaustivity
+# # # NOTE: only the following conclusion works with prop constraints applied to sentence letters
 # conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
 # # NOTE: only works with prop constraints applied to sentence letters
@@ -41,9 +41,9 @@ conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
 
 ### VALID ###
 
-# # NOTE: only works with prop constraints applied to sentence letters
-premises = ['A','(A \\rightarrow B)']
-conclusions = ['B']
+# # # NOTE: only works with prop constraints applied to sentence letters
+# premises = ['A','(A \\rightarrow B)']
+# conclusions = ['B']
 
 # premises = ['(A \\boxright B)']
 # conclusions = ['(A \\rightarrow B)']
@@ -55,7 +55,8 @@ conclusions = ['B']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
 # premises = ['(A \\boxright C)','(B \\boxright C)','((A \\wedge B) \\boxright C)']
-# conclusions = ['((A \\vee B) \\boxright C)']
+premises = ['(A \\boxright C)','(B \\boxright C)']
+conclusions = ['((A \\vee B) \\boxright C)']
 
 # premises = ['(A \\boxright (B \\wedge C))']
 # conclusions = ['(A \\boxright B)']
@@ -74,6 +75,9 @@ conclusions = ['B']
 ################################
 
 ### HIGH PRIORITY ###
+
+# premises = ['A',]
+# conclusions = ['\\neg A']
 
 # # NOTE: almost works with prop constraints applied to sentence letters
 # premises = ['(A \\boxright C)']
@@ -122,18 +126,18 @@ input_sentences = combine(premises,conclusions)
 prefix_sentences, constraints, sentence_letters = find_all_constraints(input_sentences)
 # constraints_end = time.time() # start benchmark timer
 # constraints_total = round(constraints_end - constraints_start,4)
-# print_constraints(constraints)
+print_constraints(constraints)
 
 """find model in any in timed enviornment"""
 model_start = time.time() # start benchmark timer
 # cProfile.run('model = solve_constraints(constraints)') # for detailed report
-model = solve_constraints(constraints)
+result, model = solve_constraints(constraints)
 model_end = time.time()
 model_total = round(model_end - model_start,4)
 
 """print results"""
 print_start = time.time()
-print_model(model, input_sentences, sentence_letters)
+print_model(result, model, input_sentences, sentence_letters)
 print_end = time.time()
 print_total = round(print_end - print_start,4)
 # print(f"Constraints time: {constraints_total}")
