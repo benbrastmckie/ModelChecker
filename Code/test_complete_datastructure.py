@@ -46,6 +46,9 @@ conclusions = ['B']
 # premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
+premises = ['(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
+
 mod = ModelStructure(premises, conclusions)
 mod.solve()
 
