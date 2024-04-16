@@ -1,6 +1,6 @@
+import time
 from definitions import *
 from semantics import *
-import time
 from model_builder_definitions import *
 
 class ModelStructure():
@@ -148,7 +148,7 @@ class Proposition():
 
     def __getitem__(self, key):
         return self.prop_dict[key]
-    
+
     def update_prop_after_running_model(self, parent_model_structure):
         self.parent = parent_model_structure
         verifiers, falisifiers = self.parent.find_complex_proposition(self['prefix_expr'])
@@ -156,6 +156,7 @@ class Proposition():
         self['verifiers'] = verifiers
         self['falsifieres'] = falisifiers
         self['alt_worlds'] = alt_worlds
-    
+
     def __str__(self):
         return self['infix_expr']
+
