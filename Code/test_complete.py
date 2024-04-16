@@ -102,7 +102,7 @@ from print import (
 # premises = ['((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
 
-# NOTE: requires recursive consideration of alternatives
+# NOTE: this is slow for N = 5 and does not find models for N = 3
 premises = ['(A \\boxright (B \\boxright C))']
 conclusions = ['((A \\wedge B) \\boxright C)']
 
