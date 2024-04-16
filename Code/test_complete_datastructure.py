@@ -50,7 +50,7 @@ mod = ModelStructure(premises, conclusions)
 mod.solve()
 
 # this is what used to be print_model, can easily make this an attribute if wanted
-if mod.model is not None:
+if mod.model_status:
     # print(f"\nModel time: {time}")
     print(f"\nThere is an {N}-model of:\n")
     for sent in mod.input_sentences:
@@ -62,4 +62,5 @@ else:
     print(f"\nThere are no {N}-models of:\n")
     for sent in mod.input_sentences:
         print(sent)
+    print(mod.model)
     print()
