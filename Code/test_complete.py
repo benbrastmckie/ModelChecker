@@ -37,11 +37,14 @@ from print import (
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
 
+# premises = ['A',]
+# conclusions = ['\\neg A']
+
 
 
 ### VALID ###
 
-# # # NOTE: only works with prop constraints applied to sentence letters
+# # NOTE: only works with prop constraints applied to sentence letters
 # premises = ['A','(A \\rightarrow B)']
 # conclusions = ['B']
 
@@ -76,22 +79,16 @@ from print import (
 
 ### HIGH PRIORITY ###
 
-premises = ['A',]
-conclusions = ['\\neg A']
-
-# # NOTE: almost works with prop constraints applied to sentence letters
-# premises = ['(A \\boxright C)']
-# # premises = ['\\neg A','(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-
-# # NOTE: almost works with prop constraints applied to sentence letters
 # premises = ['(A \\boxright C)','(B \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
-# # NOTE: almost works with prop constraints applied to sentence letters
 # premises = ['(A \\boxright B)','(B \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
+# NOTE: struggles to find unsat_core
+premises = ['(A \\boxright C)']
+# premises = ['\\neg A','(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
 
 ### MEDIUM PRIORITY ###
 
