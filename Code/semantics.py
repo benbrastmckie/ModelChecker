@@ -63,8 +63,8 @@ def prop_const(atom):
     sent_to_prop = [
         # non_null_verify(a, atom),
         # non_null_falsify(b, atom),
-        # Exists(x, non_null_verify(x, atom)),
-        # Exists(y, non_null_falsify(y, atom)),
+        Exists(x, non_null_verify(x, atom)),
+        Exists(y, non_null_falsify(y, atom)),
         ForAll(
             [x, y],
             Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),

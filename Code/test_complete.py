@@ -40,6 +40,9 @@ from print import (
 # premises = ['A',]
 # conclusions = ['\\neg A']
 
+# premises = ['\\neg A','\\neg (A \\boxright B)']
+# conclusions = ['(A \\boxright \\neg B)']
+
 
 
 ### VALID ###
@@ -85,31 +88,23 @@ from print import (
 # premises = ['(A \\boxright B)','(B \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
-# premises = ['(A \\boxright C)']
-# NOTE: struggles to find unsat_core
-premises = ['\\neg A','(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
+# # premises = ['(A \\boxright C)']
+# premises = ['\\neg A','(A \\boxright C)'] # NOTE: super slow
+# conclusions = ['((A \\wedge B) \\boxright C)']
 
 ### MEDIUM PRIORITY ###
 
-# NOTE: likely to do with no alternatives issue
+# # NOTE: this seems to work now but the print statement is hard to read
 # premises = ['(A \\boxright B)','\\neg B']
 # conclusions = ['(\\neg B \\boxright \\neg A)']
 
-# NOTE: likely to do with no alternatives issue
-# premises = ['\\neg A','\\neg (A \\boxright B)']
-# conclusions = ['(A \\boxright \\neg B)']
-
-
-### LOW PRIORITY ###
-
-# NOTE: requires recursive consideration of alternatives
+# # NOTE: this seems to work now but the print statement is hard to read
 # premises = ['((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
 
 # NOTE: requires recursive consideration of alternatives
-# premises = ['(A \\boxright (B \\boxright C))']
-# conclusions = ['((A \\wedge B) \\boxright C)']
+premises = ['(A \\boxright (B \\boxright C))']
+conclusions = ['((A \\wedge B) \\boxright C)']
 
 
 
