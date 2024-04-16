@@ -319,10 +319,10 @@ def print_model(result, model, input_sent, sentence_let):
     # # NOTE: use to look for problem cases
     else:
         print(f"\nThere are no {N}-models of:\n")
-        print(f"Unsatisfiable core: {model}\n") # NOTE: what is the unsat core supposed to do?
         for sent in input_sent:
             print(sent)
-        print()
+        print("\nUnsatisfiable core:\n") # NOTE: what is the unsat core supposed to do?
+        print_constraints(model)
     # else:
     #     print(f"\nThere are no {N}-models of:\n")
     #     for sent in input_sent:
@@ -331,5 +331,6 @@ def print_model(result, model, input_sent, sentence_let):
 
 
 def print_constraints(consts):
+    """prints constraints in an numbered list"""
     for index, con in enumerate(consts, start=1):
         print(f"{index}. {con}\n")

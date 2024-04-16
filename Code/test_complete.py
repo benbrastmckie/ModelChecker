@@ -54,9 +54,9 @@ from print import (
 # premises = ['((A \\vee B) \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
-# premises = ['(A \\boxright C)','(B \\boxright C)','((A \\wedge B) \\boxright C)']
-premises = ['(A \\boxright C)','(B \\boxright C)']
-conclusions = ['((A \\vee B) \\boxright C)']
+# # premises = ['(A \\boxright C)','(B \\boxright C)','((A \\wedge B) \\boxright C)']
+# premises = ['(A \\boxright C)','(B \\boxright C)']
+# conclusions = ['((A \\vee B) \\boxright C)']
 
 # premises = ['(A \\boxright (B \\wedge C))']
 # conclusions = ['(A \\boxright B)']
@@ -76,8 +76,8 @@ conclusions = ['((A \\vee B) \\boxright C)']
 
 ### HIGH PRIORITY ###
 
-# premises = ['A',]
-# conclusions = ['\\neg A']
+premises = ['A',]
+conclusions = ['\\neg A']
 
 # # NOTE: almost works with prop constraints applied to sentence letters
 # premises = ['(A \\boxright C)']
@@ -126,7 +126,7 @@ input_sentences = combine(premises,conclusions)
 prefix_sentences, constraints, sentence_letters = find_all_constraints(input_sentences)
 # constraints_end = time.time() # start benchmark timer
 # constraints_total = round(constraints_end - constraints_start,4)
-print_constraints(constraints)
+# print_constraints(constraints)
 
 """find model in any in timed enviornment"""
 model_start = time.time() # start benchmark timer
