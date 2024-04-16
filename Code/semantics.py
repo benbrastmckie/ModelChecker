@@ -303,16 +303,16 @@ def find_all_constraints(input_sent):
     return (prefix_sentences, const, sentence_letters)
 
 
-def solve_constraints(const):
+def solve_constraints(all_constraints): # all_constraints is a lsit
     """find model for the input constraints if there is any"""
     solver = Solver()
-    solver.add(const)
-    result = solver.check()
+    solver.add(all_constraints)
+    result = solver.check(*[all_constraints])
     if result == sat:
         return (True, solver.model())
     if result == unsat:
         return (False, solver.unsat_core())
-    return (result, None)
+    return (result, None) # NOTE: in what case would you expect this to be triggered?
 
 
 def combine(prem,con):

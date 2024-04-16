@@ -37,13 +37,17 @@ class ModelStructure():
         self.atomic_props_dict is a dictionary with keys AtomSorts and keys (V,F)
         '''
         model_start = time.time() # start benchmark timer
-        solved_model = solve_constraints(self.constraints)
+        solved_model_status, solved_model = solve_constraints(self.constraints)
+        self.model_status = solved_model_status
         self.model = solved_model
+        print(self.model)
+        print(len(self.model))
         model_end = time.time()
         model_total = round(model_end - model_start,4)
         self.model_runtime = model_total
-        if self.model:
+        if self.model_status:
             self.all_bits = find_all_bits(N) # var accessed from outside (not bad, just noting)
+            print(self.model)
             self.poss_bits = find_poss_bits(self.model,self.all_bits)
             self.world_bits = find_world_bits(self.poss_bits)
             self.eval_world = self.model[w] # var accessed from outside (not bad, just noting)

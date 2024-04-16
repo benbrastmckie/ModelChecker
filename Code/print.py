@@ -319,7 +319,7 @@ def print_model(result, model, input_sent, sentence_let):
     # # NOTE: use to look for problem cases
     else:
         print(f"\nThere are no {N}-models of:\n")
-        print(f"Unsatisfiable core: {model}\n")
+        print(f"Unsatisfiable core: {model}\n") # NOTE: what is the unsat core supposed to do?
         for sent in input_sent:
             print(sent)
         print()
