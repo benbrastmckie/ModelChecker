@@ -141,7 +141,7 @@ def extended_verify(state, ext_sent):
     """X is in prefix form. Same for extended_falsify"""
     if len(ext_sent) == 1:
         # print(state,ext_sent,type(state),type(ext_sent))
-        return non_null_verify(state, ext_sent[0])
+        return verify(state, ext_sent[0])
     op = ext_sent[0]
     if "boxright" in op:
         raise ValueError(f"The sentence {ext_sent} is not extensional.")
@@ -178,7 +178,7 @@ def extended_verify(state, ext_sent):
 
 def extended_falsify(state, ext_sent):
     if len(ext_sent) == 1:
-        return non_null_falsify(state, ext_sent[0])
+        return falsify(state, ext_sent[0])
     op = ext_sent[0]
     if "boxright" in op:
         raise ValueError(f"The sentence {ext_sent} is not extensional.")
@@ -219,7 +219,7 @@ def true_at(sentence, world):
     """sentence is a sentence in prefix notation"""
     if len(sentence) == 1:
         sent = sentence[0]
-        return Exists(x, And(is_part_of(x, world), non_null_verify(x, sent)))
+        return Exists(x, And(is_part_of(x, world), verify(x, sent)))
     op = sentence[0]
     if "neg" in op:
         return false_at(sentence[1], world)
@@ -249,10 +249,10 @@ def false_at(sentence, world):
     """X is a sentence in prefix notation"""
     if len(sentence) == 1:
         sent = sentence[0]
-        return Exists(x, And(is_part_of(x, world), non_null_falsify(x, sent)))
+        return Exists(x, And(is_part_of(x, world), falsify(x, sent)))
     op = sentence[0]
     if "neg" in op:
-        return true_at(sentence, world)
+        return true_at(sentence[1], world)
     Y = sentence[1]
     Z = sentence[2]
     if "wedge" in op:
@@ -303,16 +303,16 @@ def find_all_constraints(input_sent):
     return (prefix_sentences, const, sentence_letters)
 
 
-def solve_constraints(all_constraints): # all_constraints is a lsit
+def solve_constraints(all_constraints): # all_constraints is a list
     """find model for the input constraints if there is any"""
     solver = Solver()
     solver.add(all_constraints)
     result = solver.check(*[all_constraints])
     if result == sat:
         return (True, solver.model())
-    if result == unsat:
-        return (False, solver.unsat_core())
-    return (result, None) # NOTE: in what case would you expect this to be triggered?
+    # if result == unsat:
+    return (False, solver.unsat_core())
+    # return (result, None) # NOTE: in what case would you expect this to be triggered?
 
 
 def combine(prem,con):
@@ -324,4 +324,3 @@ def combine(prem,con):
         neg_sent = '\\neg ' + sent
         input_sent.append(neg_sent)
     return input_sent
-
