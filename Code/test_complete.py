@@ -85,9 +85,9 @@ from print import (
 # premises = ['(A \\boxright B)','(B \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
+# premises = ['(A \\boxright C)']
 # NOTE: struggles to find unsat_core
-premises = ['(A \\boxright C)']
-# premises = ['\\neg A','(A \\boxright C)']
+premises = ['\\neg A','(A \\boxright C)']
 conclusions = ['((A \\wedge B) \\boxright C)']
 
 ### MEDIUM PRIORITY ###

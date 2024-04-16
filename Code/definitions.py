@@ -56,6 +56,7 @@ t = BitVec("t", N)
 x = BitVec("x", N)
 y = BitVec("y", N)
 z = BitVec("z", N)
+zz = BitVec("zz", N)
 
 # declare bitvector variables used for world states
 u = BitVec("u", N)
@@ -160,10 +161,10 @@ def max_compatible_part(bit_x, bit_w, bit_y):
         is_part_of(bit_x, bit_w),
         compatible(bit_x, bit_y),
         ForAll(
-            z,
+            zz,
             Implies(
-                And(is_part_of(z, bit_w), compatible(z, bit_y), is_part_of(bit_x, z)),
-                bit_x == z,
+                And(is_part_of(zz, bit_w), compatible(zz, bit_y), is_part_of(bit_x, zz)),
+                bit_x == zz,
                 # is_part_of(z, x), # this should be equivalent
             ),
         ),
