@@ -22,8 +22,8 @@ from model_structure import *
 ### VALID ###
 
 # # NOTE: only works with prop constraints applied to sentence letters
-premises = ['A','(A \\rightarrow B)']
-conclusions = ['B']
+# premises = ['A','(A \\rightarrow B)']
+# conclusions = ['B']
 
 # premises = ['(A \\boxright B)']
 # conclusions = ['(A \\rightarrow B)']
@@ -43,8 +43,8 @@ conclusions = ['B']
 # premises = ['(A \\boxright B)','(A \\boxright C)']
 # conclusions = ['(A \\boxright (B \\wedge C))']
 
-# premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
-# conclusions = ['(A \\boxright C)']
+premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
+conclusions = ['(A \\boxright C)']
 
 premises = ['(A \\boxright C)']
 conclusions = ['((A \\wedge B) \\boxright C)']
