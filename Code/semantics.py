@@ -102,8 +102,8 @@ def prop_const(atom):
 def find_frame_constraints(input_sentence_letters):
     """find the constraints that depend only on the sentence letters
     returns a list of Z3 constraints"""
-    x =  BitVec('find_frame_constraints_x', N)
-    y =  BitVec('find_frame_constraints_y', N)
+    x =  BitVec('find_frame_constraints_dummy_x', N)
+    y =  BitVec('find_frame_constraints_dummy_y', N)
     frame_constraints = [
         ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
         ForAll([x, y], Exists(z, fusion(x, y) == z)),
@@ -155,8 +155,8 @@ def extended_verify(state, ext_sent):
     Y = ext_sent[1]  # should be a list itself
     Z = ext_sent[2]  # should be a list itself
     if "wedge" in op:
-        y =  BitVec('extended_verify_y', N)
-        z =  BitVec('extended_verify_z', N)
+        y =  BitVec('extended_verify_dummy_y', N)
+        z =  BitVec('extended_verify_dummy_z', N)
         return Exists(
             [y, z],
             And(fusion(y, z) == state, extended_verify(y, Y), extended_verify(z, Z)),
@@ -199,8 +199,8 @@ def extended_falsify(state, ext_sent):
             extended_falsify(state, Z),
             extended_falsify(state, ["vee", Y, Z]),
         )
-    y =  BitVec('extended_falsify_y', N)
-    z =  BitVec('extended_falsify_z', N) # both used in vee and rightarrow cases, but usage is mutually exclusive so can define up here
+    y =  BitVec('extended_falsify_dummy_y', N)
+    z =  BitVec('extended_falsify_dummy_z', N) # both used in vee and rightarrow cases, but usage is mutually exclusive so can define up here
     if "vee" in op:
         return Exists(
             [y, z],
