@@ -1,5 +1,7 @@
 '''This file includes all user inputs'''
 
+# TODO: make it so that this file can be run while including all user inputs
+
 # NOTE: aim was to import and use functions needed to find and print models
 # import runpy
 # import test_complete
@@ -25,6 +27,7 @@ N = 3
 # NOTE: aim was to provide all user settings here that adjust the print statement
 
 print_cons_bool = False
+print_unsat_core_bool = True
 
 
 
