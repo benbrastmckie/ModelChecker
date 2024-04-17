@@ -305,7 +305,7 @@ def print_propositions(model, sentence_letters):
         print_alt_worlds(all_bits, S, sentence_letters, model, alt_bits)
 
 
-def print_model(result, model, input_sent, sentence_let):
+def print_model(result, model, input_sent, sentence_let, print_unsat_core):
     """print the elements of the model"""
     if result:
         # print(f"\nModel time: {time}")
@@ -320,8 +320,9 @@ def print_model(result, model, input_sent, sentence_let):
         print(f"\nThere are no {N}-models of:\n")
         for sent in input_sent:
             print(sent)
-        print("\nUnsatisfiable core:\n") # NOTE: what is the unsat core supposed to do?
-        print_constraints(model)
+        if print_unsat_core:
+            print("\nUnsatisfiable core:\n") # NOTE: what is the unsat core supposed to do?
+            print_constraints(model)
     # else:
     #     print(f"\nThere are no {N}-models of:\n")
     #     for sent in input_sent:
@@ -329,8 +330,8 @@ def print_model(result, model, input_sent, sentence_let):
     #     print()
 
 
-def print_constraints(consts, time):
+def print_constraints(consts):
     """prints constraints in an numbered list"""
     for index, con in enumerate(consts, start=1):
         print(f"{index}. {con}\n")
-        print(f"Constraints time: {time}\n")
+        # print(f"Constraints time: {time}\n")

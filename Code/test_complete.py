@@ -15,9 +15,11 @@ from print import (
     print_model,
 )
 from user_input import (
+    # NOTE: add these once user_input can be run
     # premises,
     # conclusions,
     print_cons_bool,
+    print_unsat_core_bool,
 )
 
 # print_cons_bool = False
@@ -139,10 +141,10 @@ def model_search(constraints):
     model_total = round(model_end - model_start,4)
     return (result, model, model_total)
 
-def model_print(result, model, input_sentences, sentence_letters, model_total):
+def model_print(result, model, input_sentences, sentence_letters, print_unsat_core_bool):
     """print results"""
     print_start = time.time()
-    print_model(result, model, input_sentences, sentence_letters)
+    print_model(result, model, input_sentences, sentence_letters, print_unsat_core_bool)
     print_end = time.time()
     print_total = round(print_end - print_start,4)
     # print(f"Constraints time: {constraints_total}")
@@ -151,7 +153,7 @@ def model_print(result, model, input_sentences, sentence_letters, model_total):
 
 constraints, input_sentences, sentence_letters = model_constraints(premises, conclusions, print_cons_bool)
 result, model, model_total = model_search(constraints)
-model_print(result, model, input_sentences, sentence_letters, model_total)
+model_print(result, model, input_sentences, sentence_letters, print_unsat_core_bool)
 
 # NOTE: this works; must import pyinstrument
 # profiler = Profiler()
