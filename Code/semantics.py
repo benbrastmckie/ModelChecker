@@ -14,6 +14,7 @@ from z3 import (
     Consts,
     Solver,
     And,
+    BitVec, 
 )
 from prefix_infix import Prefix, all_sentence_letters
 # from test_complete import N
@@ -60,6 +61,8 @@ def prop_const(atom):
     fusion respectively, and the verifiers and falsifiers for atom are
     incompatible (exhaustivity). NOTE: exclusivity crashes Z3 so left off.
     """
+    x =  BitVec('prop_const_dummy_x', N)
+    y =  BitVec('prop_const_dummy_y', N)
     sent_to_prop = [
         # non_null_verify(a, atom),
         # non_null_falsify(b, atom),
@@ -99,6 +102,8 @@ def prop_const(atom):
 def find_frame_constraints(input_sentence_letters):
     """find the constraints that depend only on the sentence letters
     returns a list of Z3 constraints"""
+    x =  BitVec('find_frame_constraints_x', N)
+    y =  BitVec('find_frame_constraints_y', N)
     frame_constraints = [
         ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
         ForAll([x, y], Exists(z, fusion(x, y) == z)),
@@ -150,6 +155,8 @@ def extended_verify(state, ext_sent):
     Y = ext_sent[1]  # should be a list itself
     Z = ext_sent[2]  # should be a list itself
     if "wedge" in op:
+        y =  BitVec('extended_verify_y', N)
+        z =  BitVec('extended_verify_z', N)
         return Exists(
             [y, z],
             And(fusion(y, z) == state, extended_verify(y, Y), extended_verify(z, Z)),
@@ -192,6 +199,8 @@ def extended_falsify(state, ext_sent):
             extended_falsify(state, Z),
             extended_falsify(state, ["vee", Y, Z]),
         )
+    y =  BitVec('extended_falsify_y', N)
+    z =  BitVec('extended_falsify_z', N) # both used in vee and rightarrow cases, but usage is mutually exclusive so can define up here
     if "vee" in op:
         return Exists(
             [y, z],
@@ -217,6 +226,8 @@ def extended_falsify(state, ext_sent):
 # this should avoid the need for specific clauses for (un)negated CFs
 def true_at(sentence, world):
     """sentence is a sentence in prefix notation"""
+    x = BitVec('true_at_dummy_x', N)
+    u = BitVec('true_at_dummy_u', N)
     if len(sentence) == 1:
         sent = sentence[0]
         return Exists(x, And(is_part_of(x, world), verify(x, sent)))
@@ -247,6 +258,8 @@ def true_at(sentence, world):
 
 def false_at(sentence, world):
     """X is a sentence in prefix notation"""
+    x = BitVec('false_at_dummy_x', N)
+    u = BitVec('false_at_dummy_u', N)
     if len(sentence) == 1:
         sent = sentence[0]
         return Exists(x, And(is_part_of(x, world), falsify(x, sent)))
