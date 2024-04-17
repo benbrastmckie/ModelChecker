@@ -29,6 +29,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - `definitions` includes all basic definitions
       - move `N` from `definitions` to `test_complete`
       - [import loops](https://m.youtube.com/watch?v=UnKa_t-M_kM&list=PLBYZ1xfnKeDRqQLvg_tIx-hScTrUOFQVC&index=23&t=463s&pp=gAQBiAQB)
+    - `util` contains all helper functions
+      - move from semantics
     - `semantics` contains all semantic functions
       - recursively generate variable declarations
     - `model_builder` functions for building a data structure

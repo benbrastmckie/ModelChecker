@@ -1,27 +1,39 @@
-'''
-converts infix_sentences to Z3 constraints and adds to solver, printing results
-'''
-import time
-# import cProfile
-# from pyinstrument import Profiler
-# import multiprocessing # NOTE: couldn't get this to work (see below)
-from semantics import (
-    find_all_constraints,
-    solve_constraints,
-    combine,
-)
-from print import (
-    print_constraints,
-    print_model,
-)
-from user_input import (
-    # premises,
-    # conclusions,
-    print_cons_bool,
-)
+'''This file includes all user inputs'''
 
-# print_cons_bool = False
+# NOTE: aim was to import and use functions needed to find and print models
+# import runpy
+# import test_complete
+# from test_complete import (
+#     model_constraints,
+#     model_print,
+#     model_search,
+# )
 
+
+################################
+########## VARIABLES ###########
+################################
+
+# number of atomic states
+N = 3
+
+
+################################
+########## SETTINGS ############
+################################
+
+# NOTE: aim was to provide all user settings here that adjust the print statement
+
+print_cons_bool = False
+
+
+
+
+################################
+########## ARGUMENT ############
+################################
+
+# NOTE: aim was to provide input sentences here
 
 ################################
 ########### WORKING ############
@@ -30,9 +42,9 @@ from user_input import (
 
 ### INVALID ###
 
-premises = ['\\neg A','(A \\boxright (B \\vee C))']
-conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
-# conclusions = ['(A \\boxright B)','(A \\boxright C)']
+# premises = ['\\neg A','(A \\boxright (B \\vee C))']
+# conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
+# # conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
@@ -114,48 +126,18 @@ conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
 
 
 
+
 ################################
 ############ SOLVER ############
 ################################
 
+# NOTE: aim was to call functions here so that this file can be run
+# still hitting circular imports problem
 
-def model_constraints(premises, conclusions, print_cons_bool):
-    """find input sentences, sentence letters, and constraints"""
-    constraints_start = time.time() # start benchmark timer
-    input_sentences = combine(premises,conclusions)
-    prefix_sentences, constraints, sentence_letters = find_all_constraints(input_sentences)
-    constraints_end = time.time() # start benchmark timer
-    constraints_total = round(constraints_end - constraints_start,4)
-    if print_cons_bool:
-        print_constraints(constraints, constraints_total)
-    return (constraints, input_sentences, sentence_letters)
+# NOTE: this requires runpy import above but doesn't work
+# runpy.run_module('test_complete')
 
-def model_search(constraints):
-    """find model in a timed enviornment"""
-    model_start = time.time() # start benchmark timer
-    # cProfile.run('model = solve_constraints(constraints)') # for detailed report
-    result, model = solve_constraints(constraints)
-    model_end = time.time()
-    model_total = round(model_end - model_start,4)
-    return (result, model, model_total)
+# constraints, input_sentences, sentence_letters = test_complete.model_constraints(premises, conclusions, print_cons_bool)
+# result, model, model_total = test_complete.model_search(constraints)
+# test_complete.model_print(result, model, input_sentences, sentence_letters, model_total)
 
-def model_print(result, model, input_sentences, sentence_letters, model_total):
-    """print results"""
-    print_start = time.time()
-    print_model(result, model, input_sentences, sentence_letters)
-    print_end = time.time()
-    print_total = round(print_end - print_start,4)
-    # print(f"Constraints time: {constraints_total}")
-    print(f"Model time: {model_total}")
-    print(f"Print time: {print_total}\n")
-
-constraints, input_sentences, sentence_letters = model_constraints(premises, conclusions, print_cons_bool)
-result, model, model_total = model_search(constraints)
-model_print(result, model, input_sentences, sentence_letters, model_total)
-
-# NOTE: this works; must import pyinstrument
-# profiler = Profiler()
-# profiler.start()
-# CODE
-# profiler.stop()
-# print(profiler.output_text(unicode=True, color=True))

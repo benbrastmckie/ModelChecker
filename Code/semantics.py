@@ -4,28 +4,27 @@ contains all semantic functions
 
 from z3 import (
     sat,
-    unsat,
     Exists,
     ForAll,
     Implies,
     Or,
-    BitVecs,
     Not,
-    Consts,
     Solver,
     And,
-    BitVec, 
+    BitVec,
 )
-from prefix_infix import Prefix, all_sentence_letters
-# from test_complete import N
+from prefix_infix import (
+    Prefix,
+    all_sentence_letters,
+)
+from user_input import N
 from definitions import (
-    N,
+    # N,
     fusion,
     is_alternative,
     is_part_of,
     possible,
     is_world,
-    AtomSort,
     compatible,
     verify,
     non_null_verify,
@@ -41,19 +40,21 @@ input_sentences in infix form.
 """
 
 
-# TODO: define function from sentence_letters (sorted with no repeated entries) to declarations of the following form
+# NOTE: we used to have it where we declared a fixed set of variables.
+# a, b, c = BitVecs("a b c", N)
+# r, s, t = BitVecs("r s t", N)
+# u, v, w = BitVecs("u v w", N)
+# x, y, z = BitVecs("x y z", N)
 
-A, B, C = Consts("A B C", AtomSort)
-X, Y, Z = Consts("X Y Z", AtomSort)
+# NOTE: variables are now declared inside each function where they are used.
+# QUESTIONS: is there a clear reason to prefer one way over the other?
+# is it possible/desirable to avoid use of 'Exists' entirely?
 
-# NOTE: for now we may declare a fixed set of variables
-# however, it is likely that at some point these definitions will have to be an
-# output along with the constraints generated
-a, b, c = BitVecs("a b c", N)
-r, s, t = BitVecs("r s t", N)
-u, v, w = BitVecs("u v w", N)
-x, y, z = BitVecs("x y z", N)
-
+# TODO: the declaration of the evaluation world w should be moved to
+# test_complete since it belongs together with the other user inputs.
+# NOTE: I tried to include a more meaningful name for w but it didn't work
+# w = BitVec("eval_world_w", N)
+w = BitVec("w", N)
 
 def prop_const(atom):
     """
@@ -63,7 +64,11 @@ def prop_const(atom):
     """
     x =  BitVec('prop_const_dummy_x', N)
     y =  BitVec('prop_const_dummy_y', N)
+    # a =  BitVec('prop_const_dummy_a', N)
+    # b =  BitVec('prop_const_dummy_b', N)
     sent_to_prop = [
+        # NOTE: should we include declarations of a and b above to
+        # avoid 'Exists' below?
         # non_null_verify(a, atom),
         # non_null_falsify(b, atom),
         Exists(x, non_null_verify(x, atom)),
@@ -104,6 +109,7 @@ def find_frame_constraints(input_sentence_letters):
     returns a list of Z3 constraints"""
     x =  BitVec('find_frame_constraints_dummy_x', N)
     y =  BitVec('find_frame_constraints_dummy_y', N)
+    z =  BitVec('find_frame_constraints_dummy_z', N)
     frame_constraints = [
         ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
         ForAll([x, y], Exists(z, fusion(x, y) == z)),
