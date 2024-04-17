@@ -79,6 +79,8 @@ from print import (
 ################################
 ######### NOT WORKING ##########
 ################################
+# NOTE: for the not working ones, can you put what the current output is (not making or making a model), 
+# and what the desired output is?
 
 ### HIGH PRIORITY ###
 
