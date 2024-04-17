@@ -10,69 +10,36 @@ from z3 import (
     BitVecSort,
     DeclareSort,
     BitVec,
-    Consts,
     Function,
     And,
     BitVecNumRef,
     simplify,
 )
+from user_input import N
 
-### DECLARATIONS ###
+################################
+######## DECLARATIONS ##########
+################################
 
 # NOTE: tried moving N to test_complete but created circular import error
 # from test_complete import N
 
-# number of atomic states
-N = 3 # works
-# N = 4 # works
-# N = 5 # works
-# N = 6 # works
-# N = 7 # works
-# N = 8 # works
-# N = 16 # works
 
-# sentence letters: sort definition, constants, and variables
-# B: do we need a constant for each sentence letter in sentence_letters?
+# sentence letters sort definition
 AtomSort = DeclareSort("AtomSort")
-A, B, C, X = Consts("A B C X", AtomSort)
-
-# declare bitvector variables used for states
-a = BitVec("a", N)
-b = BitVec("b", N)
-c = BitVec("c", N)
-d = BitVec("d", N)
-e = BitVec("e", N)
-f = BitVec("f", N)
-g = BitVec("g", N)
-h = BitVec("h", N)
-i = BitVec("i", N)
-
-p = BitVec("p", N)
-q = BitVec("q", N)
-r = BitVec("r", N)
-s = BitVec("s", N)
-t = BitVec("t", N)
-
-x = BitVec("x", N)
-y = BitVec("y", N)
-z = BitVec("z", N)
-zz = BitVec("zz", N)
-
-# declare bitvector variables used for world states
-u = BitVec("u", N)
-v = BitVec("v", N)
-w = BitVec("w", N) # this must ALWAYS be the eval world—see find_alt_bits() in print.py
 
 # primitive properties and relations
 possible = Function("possible", BitVecSort(N), BoolSort())
-# world = Function("world", BitVecSort(N), BoolSort())
-# alternative = Function("alt_world", BitVecSort(N), BitVecSort(N), BitVecSort(N), BoolSort())
 verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
 falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
-# parthood = Function("parthood", BitVecSort(N), BitVecSort(N), BoolSort())
 
 
-### DEFINITIONS ###
+
+
+################################
+######### DEFINITIONS ##########
+################################
+
 
 def is_bitvector(bit_s):
     '''bit_s is a bitvector'''
@@ -158,16 +125,15 @@ def is_world(bit_w):
 
 def max_compatible_part(bit_x, bit_w, bit_y):
     '''bit_x is the biggest part of bit_w that is compatible with bit_y.'''
-    zz = BitVec('max_compatible_part_dummy', N)
+    z = BitVec('max_compatible_part_dummy', N)
     return And(
         is_part_of(bit_x, bit_w),
         compatible(bit_x, bit_y),
         ForAll(
-            zz,
+            z,
             Implies(
-                And(is_part_of(zz, bit_w), compatible(zz, bit_y), is_part_of(bit_x, zz)),
-                bit_x == zz,
-                # is_part_of(z, x), # this should be equivalent
+                And(is_part_of(z, bit_w), compatible(z, bit_y), is_part_of(bit_x, z)),
+                bit_x == z,
             ),
         ),
     )
@@ -217,10 +183,6 @@ def proposition(atom):
         # without this constraint the logic is not classical (there could be truth-value gaps)
     )
 
-    # TODO: extended_verify and extended_falsify functions (see Strategies)
-
-    # TODO: true def (see Strategies)
-
 
 def total_fusion(list_of_states):
     """returns the fusion of a list of states."""
@@ -251,20 +213,19 @@ def index_to_substate(index):
     letter = letter_dict[number%26]
     return ((number//26) + 1) * letter
 
-def int_to_binary(integer, N, backwards_binary_str = ''):
+def int_to_binary(integer, number, backwards_binary_str = ''):
     '''converts a #x string to a #b string. follows the first algorithm that shows up on google
     when you google how to do this'''
     rem = integer%2
     new_backwards_str = backwards_binary_str + str(rem)
     if integer//2 == 0: # base case: we've reached the end
-        remaining_0s_to_tack_on = N - len(new_backwards_str) # to fill in the zeroes
+        remaining_0s_to_tack_on = number - len(new_backwards_str) # to fill in the zeroes
         return '#b' + remaining_0s_to_tack_on * '0' + new_backwards_str[::-1]
     new_int = integer//2
-    return int_to_binary(new_int, N, new_backwards_str)
+    return int_to_binary(new_int, number, new_backwards_str)
 
 def bitvec_to_substates(bit_vec):
-    '''converts bitvectors to fusions of atomic states.
-    '''
+    '''converts bitvectors to fusions of atomic states.'''
     bit_vec_as_string = bit_vec.sexpr()
     if 'x' in bit_vec_as_string: # if we have a hexadecimal, ie N=4m
         integer = int(bit_vec_as_string[2:],16)
@@ -282,11 +243,12 @@ def bitvec_to_substates(bit_vec):
 
 
 def Equivalent(cond_a,cond_b):
-    #return And(Implies(bit_a,bit_b), Implies(bit_b,bit_a))
+    '''define the biconditional to make Z3 constraints intuitive to read'''
     return cond_a == cond_b
 
 
 def summation(n, func, start = 0):
+    '''used in print to find max bitvector'''
     if start == n:
         return func(start)
     return func(start) + summation(n,func,start+1)

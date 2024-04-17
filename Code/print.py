@@ -1,16 +1,15 @@
 from z3 import (
     BitVecVal,
-    simplify,
 )
-
-# from test_complete import N
-
+from semantics import (
+    w,
+)
+from user_input import N
 from definitions import (
-    N,
+    # N,
     bit_fusion,
     bit_part,
     bit_proper_part,
-    w,
     possible,
     verify,
     falsify,
@@ -32,7 +31,7 @@ all other functions feed into print_propositions()
 ################################
 ### MODEL BUILDER DEFINITIONS ##
 ################################
-    
+
 
 def find_all_bits(size):
     '''extract all bitvectors from the input model'''
@@ -330,7 +329,8 @@ def print_model(result, model, input_sent, sentence_let):
     #     print()
 
 
-def print_constraints(consts):
+def print_constraints(consts, time):
     """prints constraints in an numbered list"""
     for index, con in enumerate(consts, start=1):
         print(f"{index}. {con}\n")
+        print(f"Constraints time: {time}\n")
