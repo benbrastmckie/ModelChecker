@@ -120,6 +120,8 @@ conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
 ############ SOLVER ############
 ################################
 
+# TODO: can these functions be improved? It seems like prefix_sentences doesn't
+# do anything. also model_print has a lot of arguments. maybe these can be reduced?
 
 def model_constraints(premises, conclusions, print_cons_bool):
     """find input sentences, sentence letters, and constraints"""
