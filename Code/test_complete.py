@@ -82,8 +82,8 @@ from print import (
 
 ### HIGH PRIORITY ###
 
-# premises = ['(A \\boxright C)','(B \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
+premises = ['(A \\boxright C)','(B \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
 
 # premises = ['(A \\boxright B)','(B \\boxright C)']
 # conclusions = ['(A \\boxright C)']
@@ -94,9 +94,11 @@ from print import (
 
 ### MEDIUM PRIORITY ###
 
-# NOTE: this seems to work now but the print statement is hard to read
-premises = ['(A \\boxright B)','\\neg B']
-conclusions = ['(\\neg B \\boxright \\neg A)']
+# # NOTE: this isn't finding models still
+# # premises = ['(A \\boxright B)','\\neg B']
+# # NOTE: this seems to work now but the print statement is hard to read
+# premises = ['(A \\boxright B)']
+# conclusions = ['(\\neg B \\boxright \\neg A)']
 
 # # NOTE: this seems to work now but the print statement is hard to read
 # premises = ['((A \\wedge B) \\boxright C)']
