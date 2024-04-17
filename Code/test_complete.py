@@ -32,9 +32,9 @@ from user_input import (
 
 ### INVALID ###
 
-premises = ['\\neg A','(A \\boxright (B \\vee C))']
-conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
-# conclusions = ['(A \\boxright B)','(A \\boxright C)']
+# premises = ['\\neg A','(A \\boxright (B \\vee C))']
+# conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
+# # conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
@@ -44,6 +44,10 @@ conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
 
 # premises = ['\\neg A','\\neg (A \\boxright B)']
 # conclusions = ['(A \\boxright \\neg B)']
+
+# premises = ['(A \\boxright B)','(B \\boxright C)']
+# conclusions = ['(A \\boxright C)']
+
 
 
 
@@ -87,16 +91,11 @@ conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
 
 ### HIGH PRIORITY ###
 
-# premises = ['(A \\boxright C)']
-# # premises = ['(A \\boxright C)','(B \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-
-# premises = ['(A \\boxright B)','(B \\boxright C)']
-# conclusions = ['(A \\boxright C)']
-
-# # premises = ['(A \\boxright C)']
-# premises = ['\\neg A','(A \\boxright C)'] # NOTE: super slow
-# conclusions = ['((A \\wedge B) \\boxright C)']
+# NOTE: second premise set doesn't work. this is also a good example of where
+# recursive printing would be helpful.
+premises = ['(A \\boxright C)'] # works
+# premises = ['(A \\boxright C)','(B \\boxright C)'] # doesn't work
+conclusions = ['((A \\wedge B) \\boxright C)']
 
 ### MEDIUM PRIORITY ###
 
