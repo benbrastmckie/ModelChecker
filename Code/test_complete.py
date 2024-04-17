@@ -62,6 +62,7 @@ from user_input import (
 # premises = ['((A \\vee B) \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
+# takes very long with new semantics on my (M) machine
 # premises = ['((A \\vee B) \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
