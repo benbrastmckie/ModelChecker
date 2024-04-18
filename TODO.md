@@ -4,11 +4,11 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Data Structure
 
-- [ ] design data structure module in markdown
-  - [ ] abstract model builder functions from `print` to build data structure functions in `model_builder`
-  - [ ] abstract on `eval_world` to generalize `alt_bits` function
-- [ ] develop in new branch
-- [ ] debug and merge
+- [ ] abstract model builder functions from `print` to build data structure functions in `model_builder`
+  - [ ] develop in new branch
+  - [ ] debug and merge
+  - [ ] document data structure module in markdown
+- [ ] abstract on `eval_world` to generalize `alt_bits` function
 
 ## Print
 
@@ -23,9 +23,12 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [ ] how should the algorithm be organized across files?
   - [ ] sketch design in markdown
-    - `test_complete` contains all relevant user inputs
+    - `test_complete` contains all solver functions
       - inputs include `infix_sentences`
       - inputs include bitvector length `N`
+    - `user_input` contains all sentences and settings
+      - should be executable (I couldn't get this to work)
+      - could be combined with `test_complete`
     - `definitions` includes all basic definitions
       - move `N` from `definitions` to `test_complete`
       - [import loops](https://m.youtube.com/watch?v=UnKa_t-M_kM&list=PLBYZ1xfnKeDRqQLvg_tIx-hScTrUOFQVC&index=23&t=463s&pp=gAQBiAQB)
@@ -41,19 +44,20 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Semantics
 
 - [ ] _M_ generate variables to be declared alongside Z3 constraints
-  - HOLD
-- [ ] _B_ alternative worlds
-  - [ ] adapt semantics to admit of iterated counterfactuals
-  - [ ] debug no alternatives (issue #17)
+  - B: seems like we have hit a reason to proceed with some version of this
+  - B: OK to still hold on replacing `Exists` with constant declarations
 - [ ] pipe Z3 constraints into output file
 - [ ] _B_ investigate why exhaustivity constraint crashes
+- [x] _B_ alternative worlds
+  - [x] adapt semantics to admit of iterated counterfactuals
+  - [x] debug no alternatives (issue #17)
 
 ## Examples
 
 - [ ] `test_complete` cases
-  - [ ] weakening
-  - [ ] absorption
-  - [ ] transitivity
+  - [x] weakening
+  - [x] absorption
+  - [x] transitivity
 - [ ] _B_ provide countermodels by hand
   - [ ] `ent_2`
   - [ ] `poss_strength`
@@ -66,15 +70,15 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] simplify `definitions`
   - [ ] move declarations out of `definitions`
   - [ ] clear out unused
+  - [ ] divide between use cases: Z3 constraints vs print etc
 - [ ] closure under fusion constraint in `semantics`?
   - see issue #16
-- [:] _B_ speed
-  - [x] add benchmarks tooling
-  - [.] multiprocessing
-    - B: couldn't get this to work
 - [x] _B_ trace tools
   - [x] `Pyinstrument` visualizes the execution flow of the code
   - [x] `cProfile` for fine-grained times
+  - [x] `unsat_core`
+    - [x] _M_ debug
+    - [.] _M_ adjust variable declarations
 - [ ] Z3 guru
   - [:] ask Graham
   - [.] email CS faculty
@@ -120,6 +124,10 @@ Tasks that have been completed.
 
 ## Refine and Optimize
 
+- [x] _B_ speed
+  - [x] add benchmarks tooling
+  - [.] multiprocessing
+    - B: only useful for dividing tasks
   - [x] _B_ ssh to supercomputer
     - [x] https://engaging-ood.mit.edu/pun/sys/dashboard
       - [x] browser based only?

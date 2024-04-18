@@ -320,6 +320,7 @@ def find_all_constraints(input_sent):
     gen_const = find_frame_constraints(sentence_letters)
     const = gen_const + input_const
     return (prefix_sentences, const, sentence_letters)
+    # return (prefix_sentences, const, sentence_letters)
 
 
 def solve_constraints(all_constraints): # all_constraints is a list

@@ -22,7 +22,6 @@ from user_input import (
     print_unsat_core_bool,
 )
 
-# print_cons_bool = False
 
 
 ################################
@@ -47,6 +46,10 @@ from user_input import (
 
 # premises = ['(A \\boxright B)','(B \\boxright C)']
 # conclusions = ['(A \\boxright C)']
+
+# premises = ['\\neg A']
+# conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
+
 
 
 
@@ -97,7 +100,7 @@ from user_input import (
 premises = ['(A \\boxright C)','(B \\boxright C)'] # doesn't work
 conclusions = ['((A \\wedge B) \\boxright C)']
 
-# NOTE: should find a model. works without `\\neg A`.
+# # NOTE: should find a model. works without `\\neg A`.
 # premises = ['\\neg A','(A \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
@@ -108,6 +111,7 @@ conclusions = ['((A \\wedge B) \\boxright C)']
 # # NOTE: this seems to work now but the print statement is hard to read
 # premises = ['(A \\boxright B)']
 # conclusions = ['(\\neg B \\boxright \\neg A)']
+
 
 # # NOTE: this seems to work now but the print statement is hard to read
 # premises = ['((A \\wedge B) \\boxright C)']
