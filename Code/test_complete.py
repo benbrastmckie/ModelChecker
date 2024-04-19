@@ -95,11 +95,11 @@ from user_input import (
 
 ### HIGH PRIORITY ###
 
-# NOTE: second premise set doesn't work. this is also a good example of where
-# recursive printing would be helpful.
-# premises = ['(A \\boxright C)'] # works
-premises = ['(A \\boxright C)','(B \\boxright C)'] # doesn't work
-conclusions = ['((A \\wedge B) \\boxright C)']
+# # NOTE: second premise set doesn't work. this is also a good example of where
+# # recursive printing would be helpful.
+# # premises = ['(A \\boxright C)'] # works
+# premises = ['(A \\boxright C)','(B \\boxright C)'] # doesn't work
+# conclusions = ['((A \\wedge B) \\boxright C)']
 
 # # NOTE: should find a model. works without `\\neg A`.
 # premises = ['\\neg A','(A \\boxright C)']
@@ -114,9 +114,9 @@ conclusions = ['((A \\wedge B) \\boxright C)']
 # conclusions = ['(\\neg B \\boxright \\neg A)']
 
 
-# # NOTE: this seems to work now but the print statement is hard to read
-# premises = ['((A \\wedge B) \\boxright C)']
-# conclusions = ['(A \\boxright (B \\boxright C))']
+# NOTE: this seems to work now but the print statement is hard to read
+premises = ['((A \\wedge B) \\boxright C)']
+conclusions = ['(A \\boxright (B \\boxright C))']
 
 # # NOTE: this is slow for N = 5 and does not find models for N = 3
 # premises = ['(A \\boxright (B \\boxright C))']

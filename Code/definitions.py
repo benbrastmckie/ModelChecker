@@ -105,7 +105,7 @@ def compatible(bit_x, bit_y):
 
 def maximal(bit_w):
     """bit_w includes all compatible states as parts."""
-    x = BitVec('maximal_dummy', N)
+    x = BitVec('max_dummy', N)
     return ForAll(
         x,
         Implies(
@@ -125,7 +125,7 @@ def is_world(bit_w):
 
 def max_compatible_part(bit_x, bit_w, bit_y):
     '''bit_x is the biggest part of bit_w that is compatible with bit_y.'''
-    z = BitVec('max_compatible_part_dummy', N)
+    z = BitVec('max_part_dummy', N)
     return And(
         is_part_of(bit_x, bit_w),
         compatible(bit_x, bit_y),
@@ -143,7 +143,7 @@ def is_alternative(bit_u, bit_y, bit_w):
     """
     bit_u is a world that is the alternative that results from imposing state bit_y on world bit_w.
     """
-    z = BitVec("is_alternative_dummy", N)
+    z = BitVec("alt_dummy", N)
     return And(
         is_world(bit_u),
         is_part_of(bit_y, bit_u),
@@ -157,8 +157,8 @@ def proposition(atom):
     fusion respectively, and the verifiers and falsifiers for atom are
     incompatible (exhaustivity). NOTE: exclusivity crashes Z3 so left off.
     """
-    x = BitVec("proposition_dummy_x", N)
-    y = BitVec("proposition_dummy_y", N)
+    x = BitVec("prop_dummy_x", N)
+    y = BitVec("prop_dummy_y", N)
     return And(
         ForAll(
             [x, y],

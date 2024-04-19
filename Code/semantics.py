@@ -54,6 +54,7 @@ input_sentences in infix form.
 # test_complete since it belongs together with the other user inputs.
 # NOTE: I tried to include a more meaningful name for w but it didn't work
 # w = BitVec("eval_world_w", N)
+# TODO: make eval_world_w global variable
 w = BitVec("w", N)
 
 def prop_const(atom):
@@ -62,8 +63,8 @@ def prop_const(atom):
     fusion respectively, and the verifiers and falsifiers for atom are
     incompatible (exhaustivity). NOTE: exclusivity crashes Z3 so left off.
     """
-    x =  BitVec('prop_const_dummy_x', N)
-    y =  BitVec('prop_const_dummy_y', N)
+    x =  BitVec('prop_dummy_x', N)
+    y =  BitVec('prop_dummy_y', N)
     # a =  BitVec('prop_const_dummy_a', N)
     # b =  BitVec('prop_const_dummy_b', N)
     sent_to_prop = [
@@ -107,9 +108,9 @@ def prop_const(atom):
 def find_frame_constraints(input_sentence_letters):
     """find the constraints that depend only on the sentence letters
     returns a list of Z3 constraints"""
-    x =  BitVec('find_frame_constraints_dummy_x', N)
-    y =  BitVec('find_frame_constraints_dummy_y', N)
-    z =  BitVec('find_frame_constraints_dummy_z', N)
+    x =  BitVec('frame_dummy_x', N)
+    y =  BitVec('frame_dummy_y', N)
+    z =  BitVec('frame_dummy_z', N)
     frame_constraints = [
         ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
         ForAll([x, y], Exists(z, fusion(x, y) == z)),
@@ -161,8 +162,8 @@ def extended_verify(state, ext_sent):
     Y = ext_sent[1]  # should be a list itself
     Z = ext_sent[2]  # should be a list itself
     if "wedge" in op:
-        y =  BitVec('extended_verify_dummy_y', N)
-        z =  BitVec('extended_verify_dummy_z', N)
+        y =  BitVec('ex_ver_dummy_y', N)
+        z =  BitVec('ex_ver_dummy_z', N)
         return Exists(
             [y, z],
             And(fusion(y, z) == state, extended_verify(y, Y), extended_verify(z, Z)),
@@ -205,8 +206,8 @@ def extended_falsify(state, ext_sent):
             extended_falsify(state, Z),
             extended_falsify(state, ["vee", Y, Z]),
         )
-    y =  BitVec('extended_falsify_dummy_y', N)
-    z =  BitVec('extended_falsify_dummy_z', N) # both used in vee and rightarrow cases, but usage is mutually exclusive so can define up here
+    y =  BitVec('ex_fal_dummy_y', N)
+    z =  BitVec('ex_fal_dummy_z', N) # both used in vee and rightarrow cases, but usage is mutually exclusive so can define up here
     if "vee" in op:
         return Exists(
             [y, z],
@@ -232,8 +233,8 @@ def extended_falsify(state, ext_sent):
 # this should avoid the need for specific clauses for (un)negated CFs
 def true_at(sentence, world):
     """sentence is a sentence in prefix notation"""
-    x = BitVec('true_at_dummy_x', N)
-    u = BitVec('true_at_dummy_u', N)
+    x = BitVec('t_dummy_x', N)
+    u = BitVec('t_dummy_u', N)
     if len(sentence) == 1:
         sent = sentence[0]
         return Exists(x, And(is_part_of(x, world), verify(x, sent)))
@@ -264,8 +265,8 @@ def true_at(sentence, world):
 
 def false_at(sentence, world):
     """X is a sentence in prefix notation"""
-    x = BitVec('false_at_dummy_x', N)
-    u = BitVec('false_at_dummy_u', N)
+    x = BitVec('f_dummy_x', N)
+    u = BitVec('f_dummy_u', N)
     if len(sentence) == 1:
         sent = sentence[0]
         return Exists(x, And(is_part_of(x, world), falsify(x, sent)))
