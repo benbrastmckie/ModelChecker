@@ -1,4 +1,5 @@
 from model_structure import *
+from semantics import w
 
 ################################
 ########### WORKING ############
@@ -50,6 +51,7 @@ premises = ['(A \\boxright C)']
 conclusions = ['((A \\wedge B) \\boxright C)']
 
 mod = ModelStructure(premises, conclusions)
+print(mod)
 mod.solve()
 
 # this is what used to be print_model, can easily make this an attribute if wanted

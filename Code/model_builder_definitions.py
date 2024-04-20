@@ -1,4 +1,5 @@
 from definitions import *
+from semantics import w
 from z3 import *
 
 def find_all_bits(size):
@@ -160,7 +161,7 @@ def coproduct(set_A, set_B):
     return A_U_B.union(product(set_A, set_B))
 
 def atomic_propositions_dict(all_bits, sentence_letters, model):
-    atomic_VFs_dict = dict()
+    atomic_VFs_dict = {}
     for letter in sentence_letters:
         ver_bits = relate_sents_and_states(all_bits, letter, model, verify)
         fal_bits = relate_sents_and_states(all_bits, letter, model, falsify)

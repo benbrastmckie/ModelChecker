@@ -13,7 +13,7 @@ from z3 import (
     And,
     BitVec,
 )
-from prefix_infix import (
+from convert_syntax import (
     Prefix,
     all_sentence_letters,
 )
@@ -313,6 +313,7 @@ def find_model_constraints(prefix_sents):
 #         solv.add(sentence_constraint)
 
 
+# TODO: change prefix_sentences to what we want: ext_sub_sentences
 def find_all_constraints(input_sent):
     """find Z3 constraints for input sentences"""
     prefix_sentences = [Prefix(input_sent) for input_sent in input_sent]  # this works
