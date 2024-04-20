@@ -313,16 +313,14 @@ def find_model_constraints(prefix_sents):
 #         solv.add(sentence_constraint)
 
 
-# TODO: change prefix_sentences to what we want: ext_sub_sentences
-def find_all_constraints(input_sent):
+def find_all_constraints(input_sents):
     """find Z3 constraints for input sentences"""
-    prefix_sentences = [Prefix(input_sent) for input_sent in input_sent]  # this works
+    prefix_sentences = [Prefix(input_sent) for input_sent in input_sents]  # this works
     input_const = find_model_constraints(prefix_sentences)
     sentence_letters = all_sentence_letters(prefix_sentences)  # this works
     gen_const = find_frame_constraints(sentence_letters)
     const = gen_const + input_const
-    return (prefix_sentences, const, sentence_letters)
-    # return (prefix_sentences, const, sentence_letters)
+    return (const, sentence_letters)
 
 
 def solve_constraints(all_constraints): # all_constraints is a list

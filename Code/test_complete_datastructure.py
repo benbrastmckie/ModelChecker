@@ -44,8 +44,8 @@ from semantics import w
 # premises = ['(A \\boxright B)','(A \\boxright C)']
 # conclusions = ['(A \\boxright (B \\wedge C))']
 
-premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
-conclusions = ['(A \\boxright C)']
+# premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
+# conclusions = ['(A \\boxright C)']
 
 premises = ['(A \\boxright C)']
 conclusions = ['((A \\wedge B) \\boxright C)']

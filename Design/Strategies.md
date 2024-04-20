@@ -7,20 +7,22 @@ Sections are ordered chronologically from user inputs to the representation of t
 
 These sections cover the functions needed to construct Z3 constraints from the inputs.
 
-### Overview: inputs and outputs
+### Overview: inputs, outputs, and modules
 
-Variables to be specified by the user are to be included in a file with the following ingredients:
-
-1. A value `N` for the maximum number of atomic states under consideration.
-2. A list `input_sentences` of infix sentences to be evaluated.
-3. Settings for `print_constraints` and `print_unsat_core` for debugging.
-4. Definitions of general use stored in a `definitions` file.
-5. Syntactic functions for converting `input_sentences` to `prefix_sentences` and extracting `sub_sentences` in `prefix_infix`.
-5. Frame constraints and semantic clauses for each of the operators stored in a `semantics` file.
-6. Apply functions from `semantics` to the `input_sentences` in `test_complete` to generate Z3 constraints, storing the results in an output file.
-7. The output file from `test_complete` should import from `definitions` and `semantics` files.
-8. If running the output file finds a model, the user will be prompted whether to append the model to the output file or find a different model.
-9. If no model is found, the user will be asked whether to search for models by successively increasing `N` up to a value provided by the user.
+1. `user_inputs` is an executable file that contains:
+  - `premises` and `conslutions`
+  - bitvector length `N` for models
+  - settings for `print_constraints` and `print_unsat_core`
+  - `output` file name
+2. `definitions` includes all basic definitions
+3. `utils` contains all helper functions
+4. `convert_syntax` includes all syntactic functions
+5. `semantics` contains all semantic functions that generate Z3 constraints
+6. `model_builder` functions for building a data structure
+7. `model_structure` classes for sentences, model, and propositions
+  - finds sentences and constraints, runs solver, and stores all data including propositions
+8. `print` contains functions that operate on a data structure to print
+9. `test_complete` builds data structures from `user_input`, stores the result in an `output` file, and prints results
 
 ### Function: prefix conversion
 
@@ -189,23 +191,67 @@ Each state is labeled as either a world, possible, or impossible.
 
 This section outlines the overall structure of the algorithm.
 
-### Algorithm: data class
+### Data Class
+
+Store classes that include all relevant information for: 
+  1. Sentences:
+    - `premises`
+    - `conclusions`
+    - `input_sentences`
+    - `prefix_sentences`
+    - `prefix_sub_sentences`
+    - `infix_sub_sentences`
+    - `sentence_letters`
+    - `constraints`
+  2. Model:
+    - `z3_model`
+    - `model_status`
+    - `model_run_time`
+    - `all_bits`
+    - `poss_bits`
+    - `world_bits`
+    - `eval_world_bit`
+  3. Propositions:
+    - `props_dict` associates each `prefix_sub_sentences` with:  
+      - `extensional(prefix_sub_sentences)` is a Boolean
+      - `infix(prefix_sub_sentences)` for the purposes of printing
+      - `proposition(prefix_sub_sentences)`
+        - if `extensional(prefix_sub_sentences)` = true, then this is a `<V,F>`
+        - else, this is a set of worlds where `prefix_sub_sentences` is true
+    - `true_in_world_dict` associates each world `u` with the `prefix_sub_sentences` true in `u`
+    - `alt_worlds_dict` associates the antecedent of any counterfactuals with the alternatives to the world of evaluation
+
 
 ### Algorithm: print
 
 Define an algorithm which draws on the data class to print the model in a readable way if any.
 
-1. Generate model constraints from the `sentence_letters` that occur in the `input_sentences`.
-2. Generate evaluation constraints from the `input_sentences` given the semantic functions and the semantics included in the file.
-3. Run Z3 on the resulting set of constraints.
-4. If satisfiable, store the model in raw form in an output file for further processing.
-5. Run the representation functions in order to generate a readable form of the model, storing the result at the beginning of the output file.
-
-**Example:**
-
-Say Z3 returns a model consisting of a bunch of bitvectors etc. Say `c = b#10001`.
-Having it written out this way is better than some kind of hex code, but it is still not that salient what is going on.
-But here we can see that `c` is the fusion of two atomic states, call them `a = b#00001` and `b = b#10000`.
-So a better representation would look like `c = a.b`.
-The proposition representations could include things like `|A| = < { a, b, a.b}, {f.g} >` for each sentence letter `A`.
-
+- def `print_sort(A,w)`:
+    - if `A` in `ext_sentences`:
+      - print: `infix(A)` = `prop(A)` is `truth_value(A,w)` in `w`
+    - else:
+      - print: `infix(A)` is `truth_value(A,w)` in `w` because:
+      - if `A` is `[\neg, [B]]`:
+        - `print_sort(B,w)`
+      - if `A` is `[\wedge, [B, C]]`:
+        - `print_sort(B,w)`
+        - `print_sort(B,w)`
+      - if `A` is `[\vee, [B, C]]`:
+        - `print_sort(B,w)`
+        - `print_sort(B,w)`
+      - if `A` is `[\rightarrow, [B, C]]`:
+        - `print_sort(B,w)`
+        - `print_sort(B,w)`
+      - if `A` is `[\leftrightarrow, [B, C]]`:
+        - `print_sort(B,w)`
+        - `print_sort(B,w)`
+      - if `A` is `[\boxright, [B, C]]` then:
+        - assert `B` is in `ext_sentences`
+        - `print_sort(B,w)`
+        - print: `infix(B)`-alternatives to `w` = `alt_world(B,w)`
+        - for `u` in `alt_world(B,w)`:
+          - print atomic sentences that are true in `u`
+          - print `print_sort(C,u)`
+- def `print_all(prefix_input_sentences, w)`
+  - for `A` in `prefix_input_sentences`:
+    - `print_sort(A,w)`
