@@ -13,11 +13,12 @@ Variables to be specified by the user are to be included in a file with the foll
 
 1. A value `N` for the maximum number of atomic states under consideration.
 2. A list `input_sentences` of infix sentences to be evaluated.
-3. Definitions of general use stored in a `definitions` file.
-4. Semantic clauses for each of the operators stored in a `semantics` file.
-5. Frame constraints perhaps stored alongside the semantics.
-6. These values will be used to generate an output file which includes the appropriate Z3 constraints.
-7. The output files contain all declarations while importing definitions from the `definitions` and `semantics` files.
+3. Settings for `print_constraints` and `print_unsat_core` for debugging.
+4. Definitions of general use stored in a `definitions` file.
+5. Syntactic functions for converting `input_sentences` to `prefix_sentences` and extracting `sub_sentences` in `prefix_infix`.
+5. Frame constraints and semantic clauses for each of the operators stored in a `semantics` file.
+6. Apply functions from `semantics` to the `input_sentences` in `test_complete` to generate Z3 constraints, storing the results in an output file.
+7. The output file from `test_complete` should import from `definitions` and `semantics` files.
 8. If running the output file finds a model, the user will be prompted whether to append the model to the output file or find a different model.
 9. If no model is found, the user will be asked whether to search for models by successively increasing `N` up to a value provided by the user.
 

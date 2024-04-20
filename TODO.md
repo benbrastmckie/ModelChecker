@@ -2,6 +2,8 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
+- `prefix_sentences` in `find_all_constraints`
+
 ## Data Structure
 
 - [ ] abstract model builder functions from `print` to build data structure functions in `model_builder`

@@ -14,10 +14,12 @@ class ModelStructure():
         self.premises = input_premises
         self.conclusions = input_conclusions
         self.input_sentences = combine(input_premises, input_conclusions)
+        # TODO: replace prefix_sentences with ext_sub_sentences
         prefix_sentences, consts, sent_lets = find_all_constraints(self.input_sentences)
         self.sentence_letters = sent_lets
         self.constraints = consts
         # # initialize yet-undefined attributes
+        # TODO: add along with other method for error report
         # self.model = None
         # self.model_runtime = None
         # self.all_bits = None
@@ -40,8 +42,8 @@ class ModelStructure():
         solved_model_status, solved_model = solve_constraints(self.constraints)
         self.model_status = solved_model_status
         self.model = solved_model
-        print(self.model)
-        print(len(self.model))
+        # print(self.model)
+        # print(len(self.model))
         model_end = time.time()
         model_total = round(model_end - model_start,4)
         self.model_runtime = model_total
@@ -51,15 +53,15 @@ class ModelStructure():
             self.poss_bits = find_poss_bits(self.model,self.all_bits)
             self.world_bits = find_world_bits(self.poss_bits)
             self.eval_world = self.model[w] # var accessed from outside (not bad, just noting)
-
             self.atomic_props_dict = atomic_propositions_dict(self.all_bits, self.sentence_letters, self.model)
             # just missing the which-sentences-true-in-which-worlds
+        # else: # NOTE: maybe these should be defined as something for the sake of init above
 
     def find_complex_proposition(self,complex_sentence):
         """sentence is a sentence in prefix notation
         For a given complex proposition, returns the verifiers and falsifiers of that proposition
         given a solved model"""
-        if not self.atomic_props_dict: 
+        if not self.atomic_props_dict:
             raise ValueError("There is nothing in atomic_props_dict yet. Have you actually run the model?")
         if len(complex_sentence) == 1:
             sent = complex_sentence[0]
@@ -78,7 +80,7 @@ class ModelStructure():
         if "vee" in op:
             return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
         if "leftrightarrow" in op:
-            return (product(coproduct(Y_F, Z_V), coproduct(Y_V, Z_F)), 
+            return (product(coproduct(Y_F, Z_V), coproduct(Y_V, Z_F)),
                     coproduct(product(Y_V, Z_F), product(Y_F, Z_V)))
         if "rightarrow" in op:
             return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
@@ -100,6 +102,7 @@ class ModelStructure():
             )
             if bit in self.world_bits:
                 print(f"  {bin_rep} = {state} (world)")
+            # TODO: invalid conditional operand
             elif self.model.evaluate(possible(bit)):
                 print(f"  {bin_rep} = {state} (possible)")
             else:
@@ -136,11 +139,13 @@ class ModelStructure():
 # the Proposition class is unused because I haven't gotten to a couple of things that would enable it to be integrated, namely:
 #     1. I can easily set everything in the input_sentences to be a propositon. How to make subsentences and un-negated conclusions?
 #     2. I thought I had another issue but I can't think of it rn off the top of my head
+# TODO: inti with model to store props to ext_sub_sentences
 class Proposition():
     def __init__(self, infix_expr, prefix_expr):
-        self.prop_dict = dict()
+        self.prop_dict = {}
         self.prop_dict['infix_expr'] = infix_expr
         self.prop_dict['prefix_expr'] = prefix_expr
+        # TODO: assign VFs to ext_sub_sentences
         self.parent = None # because at initialization, the model has not been solved
 
     def __setitem__(self, key, value):
@@ -149,14 +154,15 @@ class Proposition():
     def __getitem__(self, key):
         return self.prop_dict[key]
 
-    def update_prop_after_running_model(self, parent_model_structure):
-        self.parent = parent_model_structure
-        verifiers, falisifiers = self.parent.find_complex_proposition(self['prefix_expr'])
-        alt_worlds = find_alt_bits(verifiers, self.parent.poss_bits, self.parent.world_bits, self.parent.eval_world)
-        self['verifiers'] = verifiers
-        self['falsifieres'] = falisifiers
-        self['alt_worlds'] = alt_worlds
+    # def update_prop_after_running_model(self, parent_model_structure):
+    #     self.parent = parent_model_structure
+    #     verifiers, falisifiers = self.parent.find_complex_proposition(self['prefix_expr'])
+    #     alt_worlds = find_alt_bits(verifiers, self.parent.poss_bits, self.parent.world_bits, self.parent.eval_world)
+    #     self['verifiers'] = verifiers
+    #     self['falsifieres'] = falisifiers
+    #     self['alt_worlds'] = alt_worlds
 
+    # TODO: what should this look like?
     def __str__(self):
         return self['infix_expr']
 

@@ -143,4 +143,3 @@ print_unsat_core_bool = True
 # constraints, input_sentences, sentence_letters = test_complete.model_constraints(premises, conclusions, print_cons_bool)
 # result, model, model_total = test_complete.model_search(constraints)
 # test_complete.model_print(result, model, input_sentences, sentence_letters, model_total)
-
