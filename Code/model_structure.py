@@ -3,6 +3,21 @@ from definitions import *
 from semantics import *
 from model_builder_definitions import *
 
+# TODO: the three types of objects that it would be good to store as classes
+# include: (1) premises, conclusions, input_sentences, prefix_sentences,
+# prefix_sub_sentences, infix_sub_sentences, sentence_letters, constraints;
+# (2) z3_model, model_status, model_run_time, all_bits, poss_bits, world_bits,
+# eval_world_bit; (3) ext_props_dict, true_in_world_dict, alt_worlds_dict.
+
+# NOTE: the ext_props_dict should associate each extensional prefix_sub_sentence
+# with its infix form, and its proposition. the true_in_world_dict should
+# associate each world with the set of prefix_sub_sentences (extensional or
+# otherwise) that are true in that world. the alt_worlds_dict should associate
+# the antecedent of any counterfactuals with the alternatives to the world of
+# evaluation in question (this will only differ from the eval_world_bit in the
+# case of nested counterfactuals).
+
+
 class ModelStructure():
     '''self.premises is a list of prefix sentences
     self.conclusions is a list of prefix sentences
@@ -15,7 +30,7 @@ class ModelStructure():
         self.conclusions = input_conclusions
         self.input_sentences = combine(input_premises, input_conclusions)
         # TODO: replace prefix_sentences with ext_sub_sentences
-        prefix_sentences, consts, sent_lets = find_all_constraints(self.input_sentences)
+        consts, sent_lets = find_all_constraints(self.input_sentences)
         self.sentence_letters = sent_lets
         self.constraints = consts
         # # initialize yet-undefined attributes
@@ -129,7 +144,7 @@ class ModelStructure():
             false_eval_list = sorted([str(sent) for sent in false_in_eval])
             false_eval_string = ", ".join(false_eval_list)
             print(f"  {false_eval_string}  (not true in {bitvec_to_substates(self.eval_world)})")
-    
+
     # this is exactly the old thing. Needs to be changed once figure out how to store Proposition info somewhere
     # and in a useable way
     def print_props(self):

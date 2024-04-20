@@ -2,29 +2,23 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
-- `prefix_sentences` in `find_all_constraints`
-
 ## Data Structure
 
-- [ ] abstract model builder functions from `print` to build data structure functions in `model_builder`
-  - [ ] develop in new branch
-  - [ ] debug and merge
-  - [ ] document data structure module in markdown
-- [ ] abstract on `eval_world` to generalize `alt_bits` function
+- [:] _M_ abstract model builder functions from `print` to build data structure functions in `model_builder`
+  - [:] document data structure module in markdown
+  - [ ] _M_ divide classes into `Sentences`, `ModelStructure`, and `Propositions`
+- [x] abstract on `eval_world` to generalize `alt_bits` function
 
 ## Print
 
-- [ ] print the proposition for each sub-sentence
-  - [ ] design recursive structure
-  - [ ] define sub-sentences for input sentences
-  - [ ] define extensional operators for propositions
-  - [ ] redesign print proposition functions to be recursive
-    - [ ] _B_ add section to strategies
+- [.] print the proposition for each sub-sentence
+  - [x] _B_ design recursive structure in `strategies`
+  - [ ] _M_ define print algorithm
 
 ## Architecture
 
 - [ ] how should the algorithm be organized across files?
-  - [ ] sketch design in markdown
+  - [ ] sketch design in `strategies`
     - `test_complete` contains all solver functions
       - inputs include `infix_sentences`
       - inputs include bitvector length `N`
@@ -47,8 +41,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [ ] _M_ generate variables to be declared alongside Z3 constraints
   - B: seems like we have hit a reason to proceed with some version of this
-  - B: OK to still hold on replacing `Exists` with constant declarations
-- [ ] pipe Z3 constraints into output file
+  - B: OK to hold on replacing `Exists` with constant declarations
+- [ ] move `N` to `user_input`
+  - [import loops](https://m.youtube.com/watch?v=UnKa_t-M_kM&list=PLBYZ1xfnKeDRqQLvg_tIx-hScTrUOFQVC&index=23&t=463s&pp=gAQBiAQB)
 - [ ] _B_ investigate why exhaustivity constraint crashes
 - [x] _B_ alternative worlds
   - [x] adapt semantics to admit of iterated counterfactuals
@@ -56,7 +51,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Examples
 
-- [ ] `test_complete` cases
+- [x] `test_complete` cases
   - [x] weakening
   - [x] absorption
   - [x] transitivity

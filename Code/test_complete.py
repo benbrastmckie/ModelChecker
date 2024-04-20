@@ -135,7 +135,7 @@ def model_constraints(premises, conclusions, print_cons_bool):
     """find input sentences, sentence letters, and constraints"""
     constraints_start = time.time() # start benchmark timer
     input_sentences = combine(premises,conclusions)
-    prefix_sentences, constraints, sentence_letters = find_all_constraints(input_sentences)
+    constraints, sentence_letters = find_all_constraints(input_sentences)
     constraints_end = time.time() # start benchmark timer
     constraints_total = round(constraints_end - constraints_start,4)
     if print_cons_bool:
