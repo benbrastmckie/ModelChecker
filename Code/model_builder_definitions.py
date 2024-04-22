@@ -95,7 +95,6 @@ def find_true_and_false_in_alt(alt_bit, parent_model_structure):
     Used in print_alt_worlds()"""
     extensional_sentences = parent_model_structure.extensional_subsentences
     all_bits = parent_model_structure.all_bits
-    model = parent_model_structure.model
     true_in_alt = []
     for R in extensional_sentences:
         for bit in all_bits:
@@ -126,7 +125,7 @@ def product(set_A, set_B):
     product_set = set()
     for a in set_A:
         for b in set_B:
-            product_set.add(bit_fusion(a,b)) # NOTE: pretty sure it should be bit_fusion and not fusion, but not certain
+            product_set.add(bit_fusion(a,b))
     return product_set
 
 def coproduct(set_A, set_B):
