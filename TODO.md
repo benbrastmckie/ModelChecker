@@ -11,30 +11,21 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Print
 
-- [ ] _B_ add enumeration to `test_complete_datastructure`
+- [x] _B_ add enumeration to `test_complete_datastructure`
 - [.] print the proposition for each sub-sentence
   - [x] _B_ design recursive structure in `strategies`
+  - [.] _B_ tested new `print_props`
   - [ ] _M_ define print algorithm
+- [ ] move model builder definitions that concern bits from `print` into `model_definitions`
+  - keep all definitions that concern states in `print`
 
 ## Architecture
 
-- [ ] how should the algorithm be organized across files?
-  - [ ] sketch design in `strategies`
-    - `test_complete` contains all solver functions
-      - inputs include `infix_sentences`
-      - inputs include bitvector length `N`
-    - `user_input` contains all sentences and settings
-      - should be executable (I couldn't get this to work)
-      - could be combined with `test_complete`
-    - `definitions` includes all basic definitions
-      - move `N` from `definitions` to `test_complete`
-      - [import loops](https://m.youtube.com/watch?v=UnKa_t-M_kM&list=PLBYZ1xfnKeDRqQLvg_tIx-hScTrUOFQVC&index=23&t=463s&pp=gAQBiAQB)
-    - `util` contains all helper functions
-      - move from semantics
-    - `semantics` contains all semantic functions
-      - recursively generate variable declarations
-    - `model_builder` functions for building a data structure
-    - `print` functions that operate on a data structure
+- [.] refactor
+  - [:] sketch design in `strategies` for how modules relate
+  - [.] move `N` to `test_complete`
+    - NOTE: I have included `N` in `mod.solve()` and `mod.print_all()` in `test_complete` to help with this
+    - [import loops](https://m.youtube.com/watch?v=UnKa_t-M_kM&list=PLBYZ1xfnKeDRqQLvg_tIx-hScTrUOFQVC&index=23&t=463s&pp=gAQBiAQB)
   - [ ] implement in new branch
   - [ ] debug and merge
 
@@ -43,19 +34,12 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] _M_ generate variables to be declared alongside Z3 constraints
   - B: seems like we have hit a reason to proceed with some version of this
   - B: OK to hold on replacing `Exists` with constant declarations
-- [ ] move `N` to `user_input`
-  - [import loops](https://m.youtube.com/watch?v=UnKa_t-M_kM&list=PLBYZ1xfnKeDRqQLvg_tIx-hScTrUOFQVC&index=23&t=463s&pp=gAQBiAQB)
 - [ ] _B_ investigate why exhaustivity constraint crashes
-- [x] _B_ alternative worlds
-  - [x] adapt semantics to admit of iterated counterfactuals
-  - [x] debug no alternatives (issue #17)
 
 ## Examples
 
-- [x] `test_complete` cases
-  - [x] weakening
-  - [x] absorption
-  - [x] transitivity
+- [ ] `test_complete` cases
+  - [ ] `A \boxright B, \neg B` does not entail `\neg B \boxright \neg A` 
 - [ ] _B_ provide countermodels by hand
   - [ ] `ent_2`
   - [ ] `poss_strength`
@@ -65,18 +49,20 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Refine and Optimize
 
-- [ ] simplify `definitions`
-  - [ ] move declarations out of `definitions`
-  - [ ] clear out unused
+- [ ] `definitions`
+  - [x] move declarations out of `definitions`
   - [ ] divide between use cases: Z3 constraints vs print etc
-- [ ] closure under fusion constraint in `semantics`?
-  - see issue #16
-- [x] _B_ trace tools
-  - [x] `Pyinstrument` visualizes the execution flow of the code
-  - [x] `cProfile` for fine-grained times
-  - [x] `unsat_core`
-    - [x] _M_ debug
-    - [.] _M_ adjust variable declarations
+  - [ ] clear out unused
+- [ ] `print`
+  - [ ] clear out unused
+- [ ] `semantics`
+  - [ ] clear out unused
+- [ ] `convert_syntax`
+  - [ ] clear out unused
+- [ ] `model_definitions`
+  - [ ] clear out unused
+- [ ] `model_structure`
+  - [ ] clear out unused
 - [ ] Z3 guru
   - [:] ask Graham
   - [.] email CS faculty
@@ -114,6 +100,9 @@ Tasks that have been completed.
 
 ## Semantics
 
+- [x] _B_ alternative worlds
+  - [x] adapt semantics to admit of iterated counterfactuals
+  - [x] debug no alternatives (issue #17)
 - [x] _M_ model constraints from `sentence_letters`
 - [x] _M_ evaluation constraints from `input_sentences`
 - [x] generate constraints from `infix_sentences`
@@ -122,6 +111,14 @@ Tasks that have been completed.
 
 ## Refine and Optimize
 
+- [x] closure under fusion constraint in `semantics`?
+  - see issue #16
+- [x] _B_ trace tools
+  - [x] `Pyinstrument` visualizes the execution flow of the code
+  - [x] `cProfile` for fine-grained times
+  - [x] `unsat_core`
+    - [x] _M_ debug
+    - [.] _M_ adjust variable declarations
 - [x] _B_ speed
   - [x] add benchmarks tooling
   - [.] multiprocessing
@@ -166,10 +163,12 @@ Tasks that have been completed.
 
 ## Models
 
-- [.] _M_ show that `A \boxright B` entails `A \rightarrow C` (in `ent_1.py`)
-- [:] _M_ show that `A \boxright B, B \boxright C` do not entail `A \boxright C` (in `ent_2.py`)
-- [:] _M_ show that `A \boxright B, A \wedge B \boxright C` entails `A \boxright C` (in `ent_3.py`)
-- [.] _M_ show that `A \boxright B, \neg B` do not entail `\neg B \boxright \neg A` (in `ent_4.py`)
+- [x] weakening
+- [x] absorption
+- [x] transitivity
+- [x] _M_ show that `A \boxright B` entails `A \rightarrow B` (in `ent_1.py`)
+- [x] _M_ show that `A \boxright B, B \boxright C` do not entail `A \boxright C` (in `ent_2.py`)
+- [x] _M_ show that `A \boxright B, A \wedge B \boxright C` entails `A \boxright C` (in `ent_3.py`)
 - [x] _B_ show `{ A \boxright (B \vee C), \neg(A \boxright B), \neg(A \boxright C) }` is sat
 - [x] _B_ show `{ (A \vee B) \boxright C, \neg(A \boxright B) }` is unsat
 - [x] countermodel for `A, B \vdash A \boxright B`
