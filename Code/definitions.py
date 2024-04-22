@@ -15,7 +15,18 @@ from z3 import (
     BitVecNumRef,
     simplify,
 )
-from user_input import N
+
+# TODO: move to test_complete without causing circular import
+N = 3
+
+# from user_input import N
+# from test_complete import N
+
+# def bit_vec_length():
+#     from test_complete import N
+#     return N
+
+# N = bit_vec_length()
 
 ################################
 ######## DECLARATIONS ##########
@@ -32,6 +43,11 @@ AtomSort = DeclareSort("AtomSort")
 possible = Function("possible", BitVecSort(N), BoolSort())
 verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
 falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
+
+# NOTE: I tried to include a more meaningful name for w but it didn't work
+# w = BitVec("eval_world_w", N)
+# TODO: make eval_world_w global variable
+w = BitVec("w", N)
 
 
 
