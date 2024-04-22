@@ -97,7 +97,7 @@ conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
 ### MEDIUM PRIORITY ###
 
-# NOTE: this isn't finding models still
+# # NOTE: this isn't finding models still
 # premises = ['(A \\boxright B)','\\neg B']
 # conclusions = ['(\\neg B \\boxright \\neg A)']
 
