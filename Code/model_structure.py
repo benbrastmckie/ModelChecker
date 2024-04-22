@@ -22,7 +22,7 @@ from model_definitions import (
     atomic_propositions_dict,
     coproduct,
     find_all_bits,
-    find_complex_proposition,
+    # find_complex_proposition,
     find_poss_bits,
     find_world_bits,
     print_vers_and_fals,
@@ -118,35 +118,35 @@ class ModelStructure():
                 # print(f"  {bin_rep} = {state} (impossible)")
                 continue
 
-    # def find_complex_proposition(self,complex_sentence):
-    #     """sentence is a sentence in prefix notation
-    #     For a given complex proposition, returns the verifiers and falsifiers of that proposition
-    #     given a solved model"""
-    #     if not self.atomic_props_dict:
-    #         raise ValueError("There is nothing in atomic_props_dict yet. Have you actually run the model?")
-    #     if len(complex_sentence) == 1:
-    #         sent = complex_sentence[0]
-    #         return self.atomic_props_dict[sent]
-    #     op = complex_sentence[0]
-    #     if "neg" in op:
-    #         return (self.atomic_props_dict[complex_sentence][1], self.atomic_props_dict[complex_sentence][0])
-    #     Y = complex_sentence[1]
-    #     Z = complex_sentence[2]
-    #     Y_V = self.find_complex_proposition(Y)[0]
-    #     Y_F = self.find_complex_proposition(Y)[1]
-    #     Z_V = self.find_complex_proposition(Z)[0]
-    #     Z_F = self.find_complex_proposition(Z)[1]
-    #     if "wedge" in op:
-    #         return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
-    #     if "vee" in op:
-    #         return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
-    #     if "leftrightarrow" in op:
-    #         return (product(coproduct(Y_F, Z_V), coproduct(Y_V, Z_F)),
-    #                 coproduct(product(Y_V, Z_F), product(Y_F, Z_V)))
-    #     if "rightarrow" in op:
-    #         return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
-    #     if "boxright" in op:
-    #         raise ValueError("don't knowhow to handle boxright case yet")
+    def find_complex_proposition(self,complex_sentence):
+        """sentence is a sentence in prefix notation
+        For a given complex proposition, returns the verifiers and falsifiers of that proposition
+        given a solved model"""
+        if not self.atomic_props_dict:
+            raise ValueError("There is nothing in atomic_props_dict yet. Have you actually run the model?")
+        if len(complex_sentence) == 1:
+            sent = complex_sentence[0]
+            return self.atomic_props_dict[sent]
+        op = complex_sentence[0]
+        if "neg" in op:
+            return (self.atomic_props_dict[complex_sentence][1], self.atomic_props_dict[complex_sentence][0])
+        Y = complex_sentence[1]
+        Z = complex_sentence[2]
+        Y_V = self.find_complex_proposition(Y)[0]
+        Y_F = self.find_complex_proposition(Y)[1]
+        Z_V = self.find_complex_proposition(Z)[0]
+        Z_F = self.find_complex_proposition(Z)[1]
+        if "wedge" in op:
+            return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
+        if "vee" in op:
+            return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
+        if "leftrightarrow" in op:
+            return (product(coproduct(Y_F, Z_V), coproduct(Y_V, Z_F)),
+                    coproduct(product(Y_V, Z_F), product(Y_F, Z_V)))
+        if "rightarrow" in op:
+            return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
+        if "boxright" in op:
+            raise ValueError("don't knowhow to handle boxright case yet")
 
     def print_evaluation(self):
         """print the evaluation world and all sentences true/false in that world
@@ -184,10 +184,11 @@ class ModelStructure():
         """print each propositions and the alternative worlds in which it is true"""
         all_bits = find_all_bits(N)
         print("\nPropositions:")
-        for S in self.sentence_letters:
-            # TODO: couldn't get these two lines to replace the below
-            # ver_bits, fal_bits = find_complex_proposition(S, self.atomic_props_dict)
+        # TODO: couldn't get these lines to replace the below
+        # for S in self.input_sentences:
+            # ver_bits, fal_bits = self.find_complex_proposition(S)
             # alt_bits = find_alt_bits(ver_bits, fal_bits, self.world_bit, self.eval_world)
+        for S in self.sentence_letters:
             ver_bits, fal_bits, alt_bits = find_relations(all_bits, S, self.model)
             print_vers_and_fals(self.model, S, ver_bits, fal_bits)
             print_alt_worlds(all_bits, S, self.sentence_letters, self.model, alt_bits)

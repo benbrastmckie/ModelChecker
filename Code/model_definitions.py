@@ -90,35 +90,35 @@ def find_max_comp_ver_parts(verifier_bit, comp_parts):
     max_comp_ver_parts = [bit_fusion(verifier_bit, max) for max in max_comp_parts]
     return max_comp_ver_parts
 
-def find_complex_proposition(complex_sentence, atomic_props_dict):
-    """sentence is a sentence in prefix notation
-    For a given complex proposition, returns the verifiers and falsifiers of that proposition
-    given a solved model"""
-    if not atomic_props_dict:
-        raise ValueError("There is nothing in atomic_props_dict yet. Have you actually run the model?")
-    if len(complex_sentence) == 1:
-        sent = complex_sentence[0]
-        return atomic_props_dict[sent]
-    op = complex_sentence[0]
-    if "neg" in op:
-        return (atomic_props_dict[complex_sentence][1], atomic_props_dict[complex_sentence][0])
-    Y = complex_sentence[1]
-    Z = complex_sentence[2]
-    Y_V = find_complex_proposition(Y)[0]
-    Y_F = find_complex_proposition(Y)[1]
-    Z_V = find_complex_proposition(Z)[0]
-    Z_F = find_complex_proposition(Z)[1]
-    if "wedge" in op:
-        return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
-    if "vee" in op:
-        return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
-    if "leftrightarrow" in op:
-        return (product(coproduct(Y_F, Z_V), coproduct(Y_V, Z_F)),
-                coproduct(product(Y_V, Z_F), product(Y_F, Z_V)))
-    if "rightarrow" in op:
-        return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
-    if "boxright" in op:
-        raise ValueError("don't knowhow to handle boxright case yet")
+# def find_complex_proposition(complex_sentence, atomic_props_dict):
+#     """sentence is a sentence in prefix notation
+#     For a given complex proposition, returns the verifiers and falsifiers of that proposition
+#     given a solved model"""
+#     if not atomic_props_dict:
+#         raise ValueError("There is nothing in atomic_props_dict yet. Have you actually run the model?")
+#     if len(complex_sentence) == 1:
+#         sent = complex_sentence[0]
+#         return atomic_props_dict[sent]
+#     op = complex_sentence[0]
+#     if "neg" in op:
+#         return (atomic_props_dict[complex_sentence][1], atomic_props_dict[complex_sentence][0])
+#     Y = complex_sentence[1]
+#     Z = complex_sentence[2]
+#     Y_V = find_complex_proposition(Y, atomic_props_dict)[0]
+#     Y_F = find_complex_proposition(Y, atomic_props_dict)[1]
+#     Z_V = find_complex_proposition(Z, atomic_props_dict)[0]
+#     Z_F = find_complex_proposition(Z, atomic_props_dict)[1]
+#     if "wedge" in op:
+#         return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
+#     if "vee" in op:
+#         return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
+#     if "leftrightarrow" in op:
+#         return (product(coproduct(Y_F, Z_V), coproduct(Y_V, Z_F)),
+#                 coproduct(product(Y_V, Z_F), product(Y_F, Z_V)))
+#     if "rightarrow" in op:
+#         return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
+#     if "boxright" in op:
+#         raise ValueError("don't knowhow to handle boxright case yet")
 
 
 def find_alt_bits(ver_bits, poss_bits, world_bits, eval_world):
