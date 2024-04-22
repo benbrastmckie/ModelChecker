@@ -19,7 +19,7 @@ solver.add(
     # MODEL CONSTRAINT
     ForAll(X, proposition(X)),
     # every X of AtomSort is a proposition
-    is_world(w),
+    is_world(eval_world),
     # there is a world w
 
 

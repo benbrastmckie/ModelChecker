@@ -1,7 +1,33 @@
 import time
-from definitions import *
-from semantics import *
-from model_builder_definitions import *
+from print import (
+    find_alt_bits,
+    find_relations,
+    print_alt_worlds,
+)
+from definitions import (
+    verify,
+    possible,
+    bit_part,
+    bitvec_to_substates,
+    int_to_binary,
+    w,
+)
+# from user_input import N
+from semantics import (
+    combine,
+    find_all_constraints,
+    solve_constraints,
+)
+from model_definitions import (
+    atomic_propositions_dict,
+    coproduct,
+    find_all_bits,
+    find_complex_proposition,
+    find_poss_bits,
+    find_world_bits,
+    print_vers_and_fals,
+    product,
+)
 
 # TODO: the three types of objects that it would be good to store as classes
 # include: (1) premises, conclusions, input_sentences, prefix_sentences,
@@ -42,8 +68,8 @@ class ModelStructure():
         # self.world_bits = None
         # self.eval_world = None
         # self.atomic_props_dict = None
-        
-    def solve(self):
+
+    def solve(self,N):
         '''solves the model, returns None
         self.model is the ModelRef object resulting from solving the model
         self.model_runtime is the runtime of the model as a float
@@ -57,14 +83,12 @@ class ModelStructure():
         solved_model_status, solved_model = solve_constraints(self.constraints)
         self.model_status = solved_model_status
         self.model = solved_model
-        # print(self.model)
-        # print(len(self.model))
         model_end = time.time()
         model_total = round(model_end - model_start,4)
         self.model_runtime = model_total
         if self.model_status:
             self.all_bits = find_all_bits(N) # var accessed from outside (not bad, just noting)
-            print(self.model)
+            # print(self.model)
             self.poss_bits = find_poss_bits(self.model,self.all_bits)
             self.world_bits = find_world_bits(self.poss_bits)
             self.eval_world = self.model[w] # var accessed from outside (not bad, just noting)
@@ -72,37 +96,7 @@ class ModelStructure():
             # just missing the which-sentences-true-in-which-worlds
         # else: # NOTE: maybe these should be defined as something for the sake of init above
 
-    def find_complex_proposition(self,complex_sentence):
-        """sentence is a sentence in prefix notation
-        For a given complex proposition, returns the verifiers and falsifiers of that proposition
-        given a solved model"""
-        if not self.atomic_props_dict:
-            raise ValueError("There is nothing in atomic_props_dict yet. Have you actually run the model?")
-        if len(complex_sentence) == 1:
-            sent = complex_sentence[0]
-            return self.atomic_props_dict[sent]
-        op = complex_sentence[0]
-        if "neg" in op:
-            return (self.atomic_props_dict[sent][1], self.atomic_props_dict[sent][0])
-        Y = complex_sentence[1]
-        Z = complex_sentence[2]
-        Y_V = self.find_complex_proposition(Y)[0]
-        Y_F = self.find_complex_proposition(Y)[1]
-        Z_V = self.find_complex_proposition(Z)[0]
-        Z_F = self.find_complex_proposition(Z)[1]
-        if "wedge" in op:
-            return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
-        if "vee" in op:
-            return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
-        if "leftrightarrow" in op:
-            return (product(coproduct(Y_F, Z_V), coproduct(Y_V, Z_F)),
-                    coproduct(product(Y_V, Z_F), product(Y_F, Z_V)))
-        if "rightarrow" in op:
-            return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
-        if "boxright" in op:
-            raise ValueError("don't knowhow to handle boxright case yet")
-
-    def print_states(self):
+    def print_states(self,N):
         """print all fusions of atomic states in the model
         first print function in print.py"""
         # print("\n(Possible) States:")  # Print states
@@ -117,22 +111,55 @@ class ModelStructure():
             )
             if bit in self.world_bits:
                 print(f"  {bin_rep} = {state} (world)")
-            # TODO: invalid conditional operand
+            # TODO: below has invalid conditional operand
             elif self.model.evaluate(possible(bit)):
                 print(f"  {bin_rep} = {state} (possible)")
             else:
                 # print(f"  {bin_rep} = {state} (impossible)")
                 continue
 
+    # def find_complex_proposition(self,complex_sentence):
+    #     """sentence is a sentence in prefix notation
+    #     For a given complex proposition, returns the verifiers and falsifiers of that proposition
+    #     given a solved model"""
+    #     if not self.atomic_props_dict:
+    #         raise ValueError("There is nothing in atomic_props_dict yet. Have you actually run the model?")
+    #     if len(complex_sentence) == 1:
+    #         sent = complex_sentence[0]
+    #         return self.atomic_props_dict[sent]
+    #     op = complex_sentence[0]
+    #     if "neg" in op:
+    #         return (self.atomic_props_dict[complex_sentence][1], self.atomic_props_dict[complex_sentence][0])
+    #     Y = complex_sentence[1]
+    #     Z = complex_sentence[2]
+    #     Y_V = self.find_complex_proposition(Y)[0]
+    #     Y_F = self.find_complex_proposition(Y)[1]
+    #     Z_V = self.find_complex_proposition(Z)[0]
+    #     Z_F = self.find_complex_proposition(Z)[1]
+    #     if "wedge" in op:
+    #         return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
+    #     if "vee" in op:
+    #         return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
+    #     if "leftrightarrow" in op:
+    #         return (product(coproduct(Y_F, Z_V), coproduct(Y_V, Z_F)),
+    #                 coproduct(product(Y_V, Z_F), product(Y_F, Z_V)))
+    #     if "rightarrow" in op:
+    #         return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
+    #     if "boxright" in op:
+    #         raise ValueError("don't knowhow to handle boxright case yet")
+
     def print_evaluation(self):
         """print the evaluation world and all sentences true/false in that world
-        sentence letters is an iterable (a list, I think?)
+        sentence letters is a list
         second print function in print.py"""
         print(f"\nThe evaluation world is {bitvec_to_substates(self.eval_world)}:")
         true_in_eval = set()
         for sent in self.sentence_letters:
             for bit in self.all_bits:
-                if self.model.evaluate(verify(bit, self.model[sent])) and bit_part(bit, self.eval_world):
+                ver_bool = verify(bit, self.model[sent])
+                part_bool = bit_part(bit, self.eval_world)
+                # TODO: below has invalid conditional operand
+                if self.model.evaluate(ver_bool) and part_bool:
                     true_in_eval.add(sent)
                     break  # exits the first for loop
         false_in_eval = {R for R in self.sentence_letters if not R in true_in_eval}
@@ -145,10 +172,49 @@ class ModelStructure():
             false_eval_string = ", ".join(false_eval_list)
             print(f"  {false_eval_string}  (not true in {bitvec_to_substates(self.eval_world)})")
 
+    def print_constraints(self,consts):
+        """prints constraints in an numbered list"""
+        for index, con in enumerate(consts, start=1):
+            print(f"{index}. {con}\n")
+            # print(f"Constraints time: {time}\n")
+
     # this is exactly the old thing. Needs to be changed once figure out how to store Proposition info somewhere
     # and in a useable way
-    def print_props(self):
-        print_propositions(self.model, self.sentence_letters)
+    def print_props(self,N):
+        """print each propositions and the alternative worlds in which it is true"""
+        all_bits = find_all_bits(N)
+        print("\nPropositions:")
+        for S in self.sentence_letters:
+            # TODO: couldn't get these two lines to replace the below
+            # ver_bits, fal_bits = find_complex_proposition(S, self.atomic_props_dict)
+            # alt_bits = find_alt_bits(ver_bits, fal_bits, self.world_bit, self.eval_world)
+            ver_bits, fal_bits, alt_bits = find_relations(all_bits, S, self.model)
+            print_vers_and_fals(self.model, S, ver_bits, fal_bits)
+            print_alt_worlds(all_bits, S, self.sentence_letters, self.model, alt_bits)
+
+    def print_all(self, N, print_cons_bool, print_unsat_core_bool):
+        """prints all elements of the model"""
+        if self.model_status:
+            print(f"\nThere is an {N}-model of:\n")
+            for sent in self.input_sentences:
+                print(sent)
+            self.print_states(N)
+            self.print_evaluation()
+            self.print_props(N)
+            if print_cons_bool:
+                print("Satisfiable core constraints:\n")
+                self.print_constraints(self.constraints)
+                print()
+        else:
+            print(f"\nThere are no {N}-models of:\n")
+            for sent in self.input_sentences:
+                print(sent)
+            print()
+            if print_unsat_core_bool:
+                print("Unsatisfiable core constraints:\n")
+                self.print_constraints(self.model)
+                print()
+
 
 
 # the Proposition class is unused because I haven't gotten to a couple of things that would enable it to be integrated, namely:
@@ -180,4 +246,3 @@ class Proposition():
     # TODO: what should this look like?
     def __str__(self):
         return self['infix_expr']
-

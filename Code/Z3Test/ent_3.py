@@ -18,13 +18,13 @@ solver.add(
     # MODEL CONSTRAINT
     ForAll(X, proposition(X)),
     # every X of AtomSort is a proposition
-    is_world(w),
+    is_world(eval_world),
     # there is a world w
 
     ForAll(
         [a, v],
         Implies(
-            And(verify(a, A), is_alternative(v, a, w)),
+            And(verify(a, A), is_alternative(v, a, eval_world)),
             Exists(t, And(
                 is_part_of(t, v),
                 verify(t, B),
@@ -36,7 +36,7 @@ solver.add(
     ForAll(
         [b, u], # B: changed v to u here
         Implies(
-            And(Exists([y,z], And(b == fusion(y,z), verify(y,A), verify(z,B))), is_alternative(u, b, w)),
+            And(Exists([y,z], And(b == fusion(y,z), verify(y,A), verify(z,B))), is_alternative(u, b, eval_world)),
             Exists(t, And(
                 is_part_of(t, u),
                 verify(t, C),
@@ -46,7 +46,7 @@ solver.add(
     # (A & B) => C is true in w
 
     non_null_verify(c,A),
-    is_alternative(r,c,w),
+    is_alternative(r,c,eval_world),
     is_part_of(s,r),
     falsify(s,C),
     # ~(A => C) is true in w 

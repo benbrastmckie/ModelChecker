@@ -11,6 +11,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Print
 
+- [ ] _B_ add enumeration to `test_complete_datastructure`
 - [.] print the proposition for each sub-sentence
   - [x] _B_ design recursive structure in `strategies`
   - [ ] _M_ define print algorithm

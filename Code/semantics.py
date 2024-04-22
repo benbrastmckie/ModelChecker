@@ -17,9 +17,9 @@ from convert_syntax import (
     Prefix,
     all_sentence_letters,
 )
-from user_input import N
 from definitions import (
-    # N,
+    N,
+    w,
     fusion,
     is_alternative,
     is_part_of,
@@ -39,6 +39,11 @@ this file defines the functions needed to generate Z3 constraints from
 input_sentences in infix form.
 """
 
+# def bit_vec_length():
+#     from test_complete import N
+#     return N
+# N = bit_vec_length()
+
 
 # NOTE: we used to have it where we declared a fixed set of variables.
 # a, b, c = BitVecs("a b c", N)
@@ -49,13 +54,6 @@ input_sentences in infix form.
 # NOTE: variables are now declared inside each function where they are used.
 # QUESTIONS: is there a clear reason to prefer one way over the other?
 # is it possible/desirable to avoid use of 'Exists' entirely?
-
-# TODO: the declaration of the evaluation world w should be moved to
-# test_complete since it belongs together with the other user inputs.
-# NOTE: I tried to include a more meaningful name for w but it didn't work
-# w = BitVec("eval_world_w", N)
-# TODO: make eval_world_w global variable
-w = BitVec("w", N)
 
 def prop_const(atom):
     """
