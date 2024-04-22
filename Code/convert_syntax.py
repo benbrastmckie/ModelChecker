@@ -123,7 +123,7 @@ def parse(tokens):
         return [tokens[0], parse(tokens[1:])]
     if bin_comp_tokens == 0:
         token = tokens[0]
-        return [Const(token, AtomSort)]
+        return [Const(token, AtomSort)] # Const is a function to make a constant
     main_operator_index = main_op_index(tokens)
     op_str = tokens[main_operator_index]  # determines how far the operation is
     left_expression = tokens[1 : main_operator_index]  # start 1 (exclude first parenthesis), stop at same pos of above (exclusive)
@@ -138,7 +138,14 @@ def Prefix(A):
 
 def Infix(A):
     """takes a sentence in Prefix notation and translates it to infix notation"""
-    pass
+    if len(A) == 1:
+        return str(A[0])
+    if len(A) == 2:
+        return f'\\neg A'
+    op = A[0]
+    left_expr = A[1]
+    right_expr = A[2]
+    return f'({Infix(left_expr)} {op} {Infix(right_expr)})'
 
 
 # doctest.testmod()
@@ -147,20 +154,20 @@ def Infix(A):
 # print(Prefix("A")) 
 # print(Prefix('((A \\op (B \\op C)) \\op (D \\op E))')) # ['\\op', ['\\op', ['A'], ['\\op', ['B'], ['C']]], ['\\op', ['D'], ['E']]]
 
-def sentence_letters_in_compound(input_sentence):
+def sentence_letters_in_compound(prefix_input_sentence):
     '''finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS'''
-    if len(input_sentence) == 1: # base case: atomic sentence
-        return input_sentence
+    if len(prefix_input_sentence) == 1: # base case: atomic sentence
+        return prefix_input_sentence
     # recursive case: complex sentence as input. Should have max 3 elems (binary operator) in this list, but figured eh why not not check, above code should ensure that never happens
     return_list = []
-    for part in input_sentence[1:]:
+    for part in prefix_input_sentence[1:]:
         return_list.extend(sentence_letters_in_compound(part))
     return return_list
 
-def all_sentence_letters(input_sentences):
+def all_sentence_letters(prefix_input_sentences):
     '''finds all the sentence letters in a list of input sentences. returns as a list with no repeats (sorted for consistency)'''
     sentence_letters = set()
-    for input in input_sentences:
+    for input in prefix_input_sentences:
         sentence_letters_in_input = sentence_letters_in_compound(input)
         for sentence_letter in sentence_letters_in_input:
             sentence_letters.add(sentence_letter)

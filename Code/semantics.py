@@ -149,7 +149,7 @@ def find_frame_constraints(input_sentence_letters):
 
 
 # NOTE: should throw error if boxright occurs in X
-def extended_verify(state, ext_sent):
+def extended_verify(state, ext_sent, evaluate=False):
     """X is in prefix form. Same for extended_falsify"""
     if len(ext_sent) == 1:
         # print(state,ext_sent,type(state),type(ext_sent))
@@ -164,6 +164,8 @@ def extended_verify(state, ext_sent):
     if "wedge" in op:
         y =  BitVec('ex_ver_dummy_y', N)
         z =  BitVec('ex_ver_dummy_z', N)
+        if evaluate == True:
+            return And(fusion(y, z) == state, extended_verify(y, Y), extended_verify(z, Z))
         return Exists(
             [y, z],
             And(fusion(y, z) == state, extended_verify(y, Y), extended_verify(z, Z)),
@@ -313,14 +315,63 @@ def find_model_constraints(prefix_sents):
 #         solv.add(sentence_constraint)
 
 
-def find_all_constraints(input_sents):
-    """find Z3 constraints for input sentences"""
-    prefix_sentences = [Prefix(input_sent) for input_sent in input_sents]  # this works
+def find_all_constraints(infix_input_sentences):
+    """find Z3 constraints for input sentences
+    input_sents are a list of infix sentences"""
+    # prefix_premises = [Prefix(input_sent) for input_sent in infix_premises]  # this works
+    # prefix_conclusions = [Prefix(input_sent) for input_sent in infix_conclusions]
+    # prefix_sentences = prefix_combine(prefix_premises, prefix_conclusions)
+    prefix_sentences = [Prefix(input_sent) for input_sent in infix_input_sentences]
     input_const = find_model_constraints(prefix_sentences)
     sentence_letters = all_sentence_letters(prefix_sentences)  # this works
+    # print(sentence_letters)
+    # print([type(let) for let in sentence_letters])
     gen_const = find_frame_constraints(sentence_letters)
     const = gen_const + input_const
-    return (const, sentence_letters)
+    ext_subsentences = repeats_removed(find_extensional_subsentences(prefix_sentences))
+    return (const, sentence_letters, ext_subsentences)
+
+def repeats_removed(L):
+    seen = []
+    for obj in L:
+        if obj not in seen:
+            seen.append(obj)
+    return seen
+
+def is_counterfactual(prefix_sentence):
+    '''returns a boolean to say whether a given sentence is a counterfactual'''
+    if len(prefix_sentence) == 1:
+        return False
+    if len(prefix_sentence) == 2:
+        return is_counterfactual(prefix_sentence[1])
+    if 'boxright' in prefix_sentence[0]:
+        return True
+    return is_counterfactual(prefix_sentence[1]) or is_counterfactual(prefix_sentence[2])
+
+def all_subsentences_of_a_sentence(prefix_sentence, progress=False):
+    '''finds all the subsentence of a prefix sentence
+    returns these as a set'''
+    if progress==False:
+        progress = []
+    progress.append(prefix_sentence)
+    if len(prefix_sentence) == 1:
+        return progress
+    if len(prefix_sentence) == 2:
+        return all_subsentences_of_a_sentence(prefix_sentence[1], progress)
+    if len(prefix_sentence) == 3:
+        left_subsentences = all_subsentences_of_a_sentence(prefix_sentence[1], progress)
+        right_subsentences = all_subsentences_of_a_sentence(prefix_sentence[2], progress)
+        all_subsentences = left_subsentences + right_subsentences
+        return all_subsentences
+
+def find_extensional_subsentences(prefix_sentences):
+    '''finds all the extensional subsentences in a list of prefix sentences'''
+    # all_subsentences = [all_subsentences_of_a_sentence(sent) for sent in prefix_sentences]
+    all_subsentences = []
+    for prefix_sent in prefix_sentences:
+        all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
+    extensional_subsentences = [sent for sent in all_subsentences if not is_counterfactual(sent)]
+    return extensional_subsentences
 
 
 def solve_constraints(all_constraints): # all_constraints is a list
@@ -335,12 +386,23 @@ def solve_constraints(all_constraints): # all_constraints is a list
     # return (result, None) # NOTE: in what case would you expect this to be triggered?
 
 
-def combine(prem,con):
-    '''combines the premises with the negation of the conclusion(s).'''
+def infix_combine(prem,con):
+    '''combines the premises with the negation of the conclusion(s).
+    premises are infix sentences, and so are the conclusions'''
     # if prem is None:
     #     prem = []
     input_sent = prem
     for sent in con:
         neg_sent = '\\neg ' + sent
         input_sent.append(neg_sent)
+    return input_sent
+
+def prefix_combine(prem,con):
+    '''combines the premises with the negation of the conclusion(s).
+    premises are prefix sentences, and so are the conclusions'''
+    # if prem is None:
+    #     prem = []
+    input_sent = prem
+    neg_conclusion_sents = [['\\neg ', sent] for sent in con]
+    input_sent.extend(neg_conclusion_sents)
     return input_sent

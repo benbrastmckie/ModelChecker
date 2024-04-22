@@ -18,6 +18,9 @@ from semantics import w
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
 
+premises = ['(A \\boxright C)'] # works
+conclusions = ['((A \\wedge B) \\boxright C)']
+
 
 
 ### VALID ###
@@ -47,11 +50,11 @@ from semantics import w
 # premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
-premises = ['(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
+# premises = ['(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
 
 mod = ModelStructure(premises, conclusions)
-print(mod)
+# print(mod)
 mod.solve()
 
 # this is what used to be print_model, can easily make this an attribute if wanted
@@ -67,5 +70,5 @@ else:
     print(f"\nThere are no {N}-models of:\n")
     for sent in mod.input_sentences:
         print(sent)
-    print(mod.model)
+    # print(mod.model)
     print()
