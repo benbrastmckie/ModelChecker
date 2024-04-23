@@ -62,6 +62,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] `model_definitions`
   - [ ] clear out unused
 - [ ] `model_structure`
+  - [ ] invalid conditional operands
   - [ ] clear out unused
 - [ ] Z3 guru
   - [:] ask Graham
