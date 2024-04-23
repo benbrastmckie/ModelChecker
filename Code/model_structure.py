@@ -112,7 +112,7 @@ class ModelStructure():
         Finds the alternative bits given verifier bits, possible states, worlds, and
         the evaluation world. Used in find_relations().
         """
-        if comparison_world == None:
+        if comparison_world is None:
             comparison_world = self.eval_world
         alt_bits = set()
         for ver in proposition_verifier_bits:
@@ -142,8 +142,13 @@ class ModelStructure():
             )
             if bit in self.world_bits:
                 print(f"  {bin_rep} = {state} (world)")
-            # TODO: below has invalid conditional operand
             elif self.model.evaluate(possible(bit)):
+                # TODO: above linter says: invalid conditional operand of type
+                # NOTE: the following comments are to debug
+                # result = self.model.evaluate(possible(bit))
+                # print(type(result))  # Debug to confirm it's a Boolean
+                # result_bool = bool(self.model.evaluate(possible(bit)))
+                # print(type(result_bool))  # Debug to confirm it's a Boolean
                 print(f"  {bin_rep} = {state} (possible)")
             else:
                 # print(f"  {bin_rep} = {state} (impossible)")
@@ -163,9 +168,9 @@ class ModelStructure():
         op = complex_sentence[0]
         Y = complex_sentence[1]
         if "neg" in op:
-            # TODO: linter says object of type "None" is not subscriptable
             # NOTE: was getting an error since Y need not be a sentence letter.
             # fixed by making this match the other cases below.
+            # TODO: linter says object of type "None" is not subscriptable for below
             Y_V = self.find_complex_proposition(Y)[0]
             Y_F = self.find_complex_proposition(Y)[1]
             return (Y_F,Y_V)
@@ -199,7 +204,7 @@ class ModelStructure():
             for bit in self.all_bits:
                 ver_bool = verify(bit, self.model[sent])
                 part_bool = bit_part(bit, self.eval_world)
-                # TODO: below has invalid conditional operand
+                # TODO: linter says below has invalid conditional operand
                 if self.model.evaluate(ver_bool) and part_bool:
                     true_in_eval.add(sent)
                     break  # exits the first for loop
@@ -221,6 +226,7 @@ class ModelStructure():
             # print(f"Constraints time: {time}\n")
 
     def print_props(self,N,world):
+        # B: do we need N to be specified here?
         # NOTE: I added a world-argument above which I think will be needed
         # when printing alt_worlds for nested counterfactuals. right now it
         # does nothing.

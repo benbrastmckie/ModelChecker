@@ -14,7 +14,6 @@ from definitions import (
     possible,
     verify,
     falsify,
-    w,
 )
 
 from convert_syntax import Infix
@@ -119,7 +118,7 @@ def find_true_and_false_in_alt(alt_bit, parent_model_structure):
             if bit in parent_model_structure.find_complex_proposition(R)[0] and bit_part(bit, alt_bit):
                 true_in_alt.append(R)
                 break  # returns to the for loop over sentence_letters
-    false_in_alt = [R for R in extensional_sentences if not R in true_in_alt] # replace with 
+    false_in_alt = [R for R in extensional_sentences if not R in true_in_alt] # replace with
     return (true_in_alt, false_in_alt)
 
 

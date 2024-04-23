@@ -241,6 +241,8 @@ def int_to_binary(integer, number, backwards_binary_str = ''):
     new_int = integer//2
     return int_to_binary(new_int, number, new_backwards_str)
 
+
+# TODO: linter says all or none of the returns should be an expression
 def bitvec_to_substates(bit_vec):
     '''converts bitvectors to fusions of atomic states.'''
     bit_vec_as_string = bit_vec.sexpr()
