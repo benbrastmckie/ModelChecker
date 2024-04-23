@@ -1,3 +1,11 @@
+'''
+file contains all syntactic definitions
+
+NOTES:
+All sentence letters are capital letters.
+All commands must be strictly in lowercase; they can have double backslash, a forward slash, or nothing (nothing so long as the first letter is lowercase).
+The unary operators are defined in a separate set for clarity in the code.
+'''
 import doctest
 from z3 import (
     Const,
@@ -5,12 +13,6 @@ from z3 import (
 from definitions import (
     AtomSort,
 )
-'''
-OVERVIEW
-All sentence letters are capital letters.
-All commands must be strictly in lowercase; they can have double backslash, a forward slash, or nothing (nothing so long as the first letter is lowercase).
-The unary operators are defined in a separate set for clarity in the code.
-'''
 
 
 # sentence_stuff = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','Z','W','Y','Z'}
