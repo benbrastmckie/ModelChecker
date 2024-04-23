@@ -104,8 +104,12 @@ class ModelStructure():
             self.extensional_propositions = [Proposition(ext_subsent, self, self.eval_world) for ext_subsent in self.extensional_subsentences]
             # just missing the which-sentences-true-in-which-worlds
         # else: # NOTE: maybe these should be defined as something for the sake of init above
-            
+
     # M: not sure where the best home for this is
+    # B: this is a general purpose function which will play a critical role in
+    # the print algorithm. I think it may end up making sense to separate
+    # this class into two with one for the model in terms of bits, and the
+    # other for the printed model, in which case it could live in the latter.
     def find_alt_bits(self, proposition_verifier_bits, comparison_world=None):
         """
         Finds the alternative bits given verifier bits, possible states, worlds, and
@@ -121,7 +125,7 @@ class ModelStructure():
                 if not bit_part(ver, world):
                     continue
                 for max_ver in max_comp_ver_parts:
-                    if bit_part(max_ver, world) and world.sexpr() != comparison_world.sexpr():
+                    if bit_part(max_ver, world) and world.sexpr():
                         alt_bits.add(world)
                         break  # to return to the second for loop over world_bits
         return alt_bits
@@ -211,6 +215,7 @@ class ModelStructure():
             false_eval_list = sorted([str(sent) for sent in false_in_eval])
             false_eval_string = ", ".join(false_eval_list)
             print(f"  {false_eval_string}  (not true in {bitvec_to_substates(self.eval_world)})")
+        print()
 
     def print_constraints(self,consts):
         """prints constraints in an numbered list"""
@@ -280,7 +285,7 @@ class Proposition():
 
     def __getitem__(self, key):
         return self.prop_dict[key]
-    
+
     def update_comparison_world(self, new_world):
         model_structure = self.parent_model_structure
         self['alternative worlds'] = model_structure.find_alt_bits(self['verifiers'],new_world)
