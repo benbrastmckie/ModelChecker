@@ -23,8 +23,8 @@ print_unsat_core_bool = True
 
 ### INVALID ###
 
-premises = ['\\neg A','(A \\boxright (B \\vee C))']
-conclusions = ['(A \\boxright B)','(A \\boxright C)']
+# premises = ['\\neg A','(A \\boxright (B \\vee C))']
+# conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
@@ -41,8 +41,8 @@ conclusions = ['(A \\boxright B)','(A \\boxright C)']
 # premises = ['\\neg A']
 # conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 
-# premises = ['(A \\boxright C)'] # works
-# conclusions = ['((A \\wedge B) \\boxright C)']
+premises = ['(A \\boxright C)'] # works
+conclusions = ['((A \\wedge B) \\boxright C)']
 
 # # NOTE: this seems to work now but the print statement is hard to read
 # premises = ['(A \\boxright B)']

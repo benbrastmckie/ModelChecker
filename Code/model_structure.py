@@ -1,8 +1,10 @@
 import time
 from print import (
-    find_alt_bits,
+    # find_alt_bits,
+    find_compatible_parts,
     find_relations,
     print_alt_worlds,
+    print_vers_and_fals,
 )
 from definitions import (
     verify,
@@ -12,9 +14,8 @@ from definitions import (
     int_to_binary,
     w,
 )
-# from user_input import N
 from semantics import (
-    combine,
+    infix_combine,
     find_all_constraints,
     solve_constraints,
 )
@@ -22,10 +23,9 @@ from model_definitions import (
     atomic_propositions_dict,
     coproduct,
     find_all_bits,
-    # find_complex_proposition,
+    find_max_comp_ver_parts,
     find_poss_bits,
     find_world_bits,
-    print_vers_and_fals,
     product,
 )
 
@@ -54,11 +54,13 @@ class ModelStructure():
     def __init__(self, input_premises, input_conclusions):
         self.premises = input_premises
         self.conclusions = input_conclusions
-        self.input_sentences = combine(input_premises, input_conclusions)
+        self.input_sentences = infix_combine(input_premises, input_conclusions)
         # TODO: replace prefix_sentences with ext_sub_sentences
-        consts, sent_lets = find_all_constraints(self.input_sentences)
+        consts, sent_lets, extensional_subsentences = find_all_constraints(self.input_sentences)
         self.sentence_letters = sent_lets
         self.constraints = consts
+        self.extensional_subsentences = extensional_subsentences # a list of prefix sentences (lists), not
+        # a list of Proposition objects. Cannot make it that in init because that would require having run the model
         # # initialize yet-undefined attributes
         # TODO: add along with other method for error report
         # self.model = None
@@ -93,8 +95,27 @@ class ModelStructure():
             self.world_bits = find_world_bits(self.poss_bits)
             self.eval_world = self.model[w] # var accessed from outside (not bad, just noting)
             self.atomic_props_dict = atomic_propositions_dict(self.all_bits, self.sentence_letters, self.model)
+            self.extensional_propositions = [Proposition(ext_subsent, self) for ext_subsent in self.extensional_subsentences]
             # just missing the which-sentences-true-in-which-worlds
         # else: # NOTE: maybe these should be defined as something for the sake of init above
+            
+    def find_alt_bits(self, proposition_verifier_bits, compare_world):
+        """
+        Finds the alternative bits given verifier bits, possible states, worlds, and
+        the evaluation world. Used in find_relations().
+        """
+        alt_bits = set()
+        for ver in proposition_verifier_bits:
+            comp_parts = find_compatible_parts(ver, self.poss_bits, compare_world)
+            max_comp_ver_parts = find_max_comp_ver_parts(ver, comp_parts)
+            for world in compare_world:
+                if not bit_part(ver, world):
+                    continue
+                for max_ver in max_comp_ver_parts:
+                    if bit_part(max_ver, world) and world.sexpr() != compare_world.sexpr():
+                        alt_bits.add(world)
+                        break  # to return to the second for loop over world_bits
+        return alt_bits
 
     def print_states(self,N):
         """print all fusions of atomic states in the model
@@ -122,15 +143,22 @@ class ModelStructure():
         """sentence is a sentence in prefix notation
         For a given complex proposition, returns the verifiers and falsifiers of that proposition
         given a solved model"""
+        if 'boxright' in complex_sentence:
+            raise ValueError("There is no proposition for non-extensional sentences.")
         if not self.atomic_props_dict:
             raise ValueError("There is nothing in atomic_props_dict yet. Have you actually run the model?")
         if len(complex_sentence) == 1:
             sent = complex_sentence[0]
             return self.atomic_props_dict[sent]
         op = complex_sentence[0]
-        if "neg" in op:
-            return (self.atomic_props_dict[complex_sentence][1], self.atomic_props_dict[complex_sentence][0])
         Y = complex_sentence[1]
+        if "neg" in op:
+            # TODO: linter says object of type "None" is not subscriptable
+            # NOTE: was getting an error since Y need not be a sentence letter.
+            # fixed by making this match the other cases below.
+            Y_V = self.find_complex_proposition(Y)[0]
+            Y_F = self.find_complex_proposition(Y)[1]
+            return (Y_F,Y_V)
         Z = complex_sentence[2]
         Y_V = self.find_complex_proposition(Y)[0]
         Y_F = self.find_complex_proposition(Y)[1]
@@ -145,8 +173,11 @@ class ModelStructure():
                     coproduct(product(Y_V, Z_F), product(Y_F, Z_V)))
         if "rightarrow" in op:
             return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
-        if "boxright" in op:
-            raise ValueError("don't knowhow to handle boxright case yet")
+        # NOTE: could assign the sentence to the worlds which make the
+        # counterfactual true in this final case. should probably call another
+        # function here which finds that set of worlds if we go this route.
+        # if "boxright" in op:
+        #     raise ValueError("don't knowhow to handle boxright case yet")
 
     def print_evaluation(self):
         """print the evaluation world and all sentences true/false in that world
@@ -180,18 +211,21 @@ class ModelStructure():
 
     # this is exactly the old thing. Needs to be changed once figure out how to store Proposition info somewhere
     # and in a useable way
-    def print_props(self,N):
+    def print_props(self,N,world):
         """print each propositions and the alternative worlds in which it is true"""
         all_bits = find_all_bits(N)
         print("\nPropositions:")
         # TODO: couldn't get these lines to replace the below
-        # for S in self.input_sentences:
-            # ver_bits, fal_bits = self.find_complex_proposition(S)
-            # alt_bits = find_alt_bits(ver_bits, fal_bits, self.world_bit, self.eval_world)
-        for S in self.sentence_letters:
-            ver_bits, fal_bits, alt_bits = find_relations(all_bits, S, self.model)
+        for S in self.input_sentences:
+            ver_bits = self.find_complex_proposition(S)[0]
+            fal_bits = self.find_complex_proposition(S)[1]
+            alt_bits = self.find_alt_bits(ver_bits, world)
             print_vers_and_fals(self.model, S, ver_bits, fal_bits)
             print_alt_worlds(all_bits, S, self.sentence_letters, self.model, alt_bits)
+        # for S in self.sentence_letters:
+        #     ver_bits, fal_bits, alt_bits = find_relations(all_bits, S, self.model)
+        #     print_vers_and_fals(self.model, S, ver_bits, fal_bits)
+        #     print_alt_worlds(all_bits, S, self.sentence_letters, self.model, alt_bits)
 
     def print_all(self, N, print_cons_bool, print_unsat_core_bool):
         """prints all elements of the model"""
@@ -201,7 +235,7 @@ class ModelStructure():
                 print(sent)
             self.print_states(N)
             self.print_evaluation()
-            self.print_props(N)
+            self.print_props(N,self.eval_world)
             if print_cons_bool:
                 print("Satisfiable core constraints:\n")
                 self.print_constraints(self.constraints)
@@ -216,6 +250,12 @@ class ModelStructure():
                 self.print_constraints(self.model)
                 print()
 
+    # NOTE: from _M_ commit
+    # def print_props(self):
+    #     # print(self.extensional_subsentences)
+    #     for ext_proposition in self.extensional_propositions:
+    #         ext_proposition.print_possible_verifiers_and_falsifiers()
+    #         ext_proposition.print_alt_worlds()
 
 
 # the Proposition class is unused because I haven't gotten to a couple of things that would enable it to be integrated, namely:
@@ -223,12 +263,15 @@ class ModelStructure():
 #     2. I thought I had another issue but I can't think of it rn off the top of my head
 # TODO: inti with model to store props to ext_sub_sentences
 class Proposition():
-    def __init__(self, infix_expr, prefix_expr):
+    def __init__(self, prefix_expr, model_structure):
+        '''prefix_expr is a prefix expression. model is a ModelStructure'''
         self.prop_dict = {}
-        self.prop_dict['infix_expr'] = infix_expr
-        self.prop_dict['prefix_expr'] = prefix_expr
-        # TODO: assign VFs to ext_sub_sentences
-        self.parent = None # because at initialization, the model has not been solved
+        self.prop_dict['prefix expression'] = prefix_expr
+        verifiers_in_model, falsifiers_in_model = model_structure.find_complex_proposition(prefix_expr)
+        self.prop_dict['verifiers'] = verifiers_in_model
+        self.prop_dict['falsifiers'] = falsifiers_in_model
+        self.prop_dict['alternative worlds'] = model_structure.find_alt_bits(verifiers_in_model)
+        self.parent_model_structure = model_structure
 
     def __setitem__(self, key, value):
         self.prop_dict[key] = value
@@ -236,14 +279,44 @@ class Proposition():
     def __getitem__(self, key):
         return self.prop_dict[key]
 
-    # def update_prop_after_running_model(self, parent_model_structure):
-    #     self.parent = parent_model_structure
-    #     verifiers, falisifiers = self.parent.find_complex_proposition(self['prefix_expr'])
-    #     alt_worlds = find_alt_bits(verifiers, self.parent.poss_bits, self.parent.world_bits, self.parent.eval_world)
-    #     self['verifiers'] = verifiers
-    #     self['falsifieres'] = falisifiers
-    #     self['alt_worlds'] = alt_worlds
+    def print_possible_verifiers_and_falsifiers(self):
+        """prints the possible verifiers and falsifier states for a sentence.
+        inputs: the verifier states and falsifier states.
+        Outputs: None, but prints the verifiers and falsifiers
+        Used in print_prop()"""
+        model = self.parent_model_structure.model
+        ver_states = {bitvec_to_substates(bit) for bit in self['verifiers'] if model.evaluate(possible(bit))}
+        fal_states = {bitvec_to_substates(bit) for bit in self['falsifiers'] if model.evaluate(possible(bit))}
+        if ver_states and fal_states:
+            print(
+                f"  |{self['infix expression']}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(fal_states)} >"
+            )
+        elif ver_states and not fal_states:
+            print(f"  |{self['infix expression']}| = < {make_set_pretty_for_print(ver_states)}, ∅ >")
+        elif not ver_states and fal_states:
+            print(f"  |{self['infix expression']}| = < ∅, {make_set_pretty_for_print(fal_states)} >")
+        else:
+            print(f"  |{self['infix expression']}| = < ∅, ∅ >")
+
+    def print_alt_worlds(self):
+        """prints everything that has to do with alt worlds
+        Used in print_prop()"""
+        model = self.parent_model_structure.model
+        alt_worlds = {bitvec_to_substates(alt) for alt in self['alternative worlds']}
+        if alt_worlds:
+            print(f"  {self['infix expression']}-alternatives to {bitvec_to_substates(model[w])} = {make_set_pretty_for_print(alt_worlds)}")
+            for alt_bit in self['alternative worlds']:
+                true_in_alt, false_in_alt = find_true_and_false_in_alt(
+                    alt_bit, self.parent_model_structure
+                )
+                print_alt_relation(true_in_alt, alt_bit, "true")
+                print_alt_relation(false_in_alt, alt_bit, "not true")
+            print()  # for an extra blank line
+        else:
+            print(f"  There are no {self['infix expression']}-alternatives to {bitvec_to_substates(model[w])}")
+            print()  # for an extra blank line
 
     # TODO: what should this look like?
     def __str__(self):
-        return self['infix_expr']
+        return Infix(self['prefix expression']) # it actually works out very nicely if this is it
+        # that way instead of doing |{self['infix expression']}| we can do |self|
