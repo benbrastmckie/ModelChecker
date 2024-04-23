@@ -1,6 +1,7 @@
 '''
 file contains all basic definitions
 '''
+
 from z3 import (
     Not,
     Exists,

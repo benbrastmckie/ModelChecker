@@ -1,3 +1,10 @@
+'''
+file contains all definitions for defining the model structure
+'''
+
+from z3 import (
+    BitVecVal,
+)
 from definitions import (
     bit_fusion,
     bit_part,
@@ -8,9 +15,6 @@ from definitions import (
     verify,
     falsify,
     w,
-)
-from z3 import (
-    BitVecVal,
 )
 
 from convert_syntax import Infix

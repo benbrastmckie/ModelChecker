@@ -1,3 +1,7 @@
+'''
+file defines model structure class given a Z3 model
+'''
+
 import time
 from definitions import (
     verify,
