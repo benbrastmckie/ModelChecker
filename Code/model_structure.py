@@ -1,13 +1,4 @@
 import time
-from print import ( # I think we can move all functions left in print to model_definitions
-    # find_alt_bits,
-    # find_compatible_parts, already in model_definitions
-    # find_relations, # supplanted by Proposition class
-    find_true_and_false_in_alt,
-    print_alt_relation,
-    # print_alt_worlds, # supplanted by Proposition class method print_alt_worlds
-    # print_vers_and_fals, # supplanted by Proposition class method print_possible_verifiers_and_falsifiers
-)
 from definitions import (
     verify,
     possible,
@@ -30,6 +21,8 @@ from model_definitions import (
     find_poss_bits,
     find_world_bits,
     make_set_pretty_for_print,
+    find_true_and_false_in_alt,
+    print_alt_relation,
     product,
 )
 
@@ -236,7 +229,7 @@ class ModelStructure():
             ext_proposition.print_possible_verifiers_and_falsifiers()
             ext_proposition.print_alt_worlds()
 
-    def print_all(self, N, print_cons_bool, print_unsat_core_bool):
+    def print_all(self, N, print_cons_bool=False, print_unsat_core_bool=False):
         """prints all elements of the model"""
         if self.model_status:
             print(f"\nThere is an {N}-model of:\n")
