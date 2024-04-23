@@ -355,13 +355,17 @@ def all_subsentences_of_a_sentence(prefix_sentence, progress=False):
     returns these as a set'''
     if progress is False:
         progress = []
+    # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
     progress.append(prefix_sentence)
     if len(prefix_sentence) == 1:
         return progress
     if len(prefix_sentence) == 2:
+        # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
         return all_subsentences_of_a_sentence(prefix_sentence[1], progress)
     if len(prefix_sentence) == 3:
+        # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
         left_subsentences = all_subsentences_of_a_sentence(prefix_sentence[1], progress)
+        # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
         right_subsentences = all_subsentences_of_a_sentence(prefix_sentence[2], progress)
         all_subsentences = left_subsentences + right_subsentences
         return all_subsentences
@@ -371,6 +375,7 @@ def find_extensional_subsentences(prefix_sentences):
     # all_subsentences = [all_subsentences_of_a_sentence(sent) for sent in prefix_sentences]
     all_subsentences = []
     for prefix_sent in prefix_sentences:
+        # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
         all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
     extensional_subsentences = [sent for sent in all_subsentences if not is_counterfactual(sent)]
     return extensional_subsentences
