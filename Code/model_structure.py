@@ -3,6 +3,8 @@ from print import (
     # find_alt_bits,
     find_compatible_parts,
     find_relations,
+    find_true_and_false_in_alt,
+    print_alt_relation,
     print_alt_worlds,
     print_vers_and_fals,
 )
@@ -26,6 +28,7 @@ from model_definitions import (
     find_max_comp_ver_parts,
     find_poss_bits,
     find_world_bits,
+    make_set_pretty_for_print,
     product,
 )
 
@@ -143,8 +146,8 @@ class ModelStructure():
         """sentence is a sentence in prefix notation
         For a given complex proposition, returns the verifiers and falsifiers of that proposition
         given a solved model"""
-        if 'boxright' in complex_sentence:
-            raise ValueError("There is no proposition for non-extensional sentences.")
+        # if 'boxright' in complex_sentence:
+        #     raise ValueError("There is no proposition for non-extensional sentences.")
         if not self.atomic_props_dict:
             raise ValueError("There is nothing in atomic_props_dict yet. Have you actually run the model?")
         if len(complex_sentence) == 1:
@@ -176,8 +179,8 @@ class ModelStructure():
         # NOTE: could assign the sentence to the worlds which make the
         # counterfactual true in this final case. should probably call another
         # function here which finds that set of worlds if we go this route.
-        # if "boxright" in op:
-        #     raise ValueError("don't knowhow to handle boxright case yet")
+        if "boxright" in op:
+            raise ValueError("don't knowhow to handle boxright case yet")
 
     def print_evaluation(self):
         """print the evaluation world and all sentences true/false in that world
@@ -209,23 +212,26 @@ class ModelStructure():
             print(f"{index}. {con}\n")
             # print(f"Constraints time: {time}\n")
 
-    # this is exactly the old thing. Needs to be changed once figure out how to store Proposition info somewhere
-    # and in a useable way
     def print_props(self,N,world):
+        # NOTE: I added a world-argument above which I think will be needed
+        # when printing alt_worlds for nested counterfactuals. right now it
+        # does nothing.
         """print each propositions and the alternative worlds in which it is true"""
         all_bits = find_all_bits(N)
         print("\nPropositions:")
-        # TODO: couldn't get these lines to replace the below
-        for S in self.input_sentences:
-            ver_bits = self.find_complex_proposition(S)[0]
-            fal_bits = self.find_complex_proposition(S)[1]
-            alt_bits = self.find_alt_bits(ver_bits, world)
+        # NOTE: these old lines work but only print sentence_letters
+        for S in self.sentence_letters:
+            ver_bits, fal_bits, alt_bits = find_relations(all_bits, S, self.model)
             print_vers_and_fals(self.model, S, ver_bits, fal_bits)
             print_alt_worlds(all_bits, S, self.sentence_letters, self.model, alt_bits)
-        # for S in self.sentence_letters:
-        #     ver_bits, fal_bits, alt_bits = find_relations(all_bits, S, self.model)
-        #     print_vers_and_fals(self.model, S, ver_bits, fal_bits)
-        #     print_alt_worlds(all_bits, S, self.sentence_letters, self.model, alt_bits)
+        # TODO: this is where the recursive print procedure should go, looping
+        # over the input_sentences, printing the parts accordingly
+        # WANT: for S in self.input_sentences:
+        # TODO: I couldn't get the following lines from your commit to work but
+        # saved them here. see TODO in print_possible_verifiers_and_falsifiers
+        # for ext_proposition in self.extensional_propositions:
+        #     ext_proposition.print_possible_verifiers_and_falsifiers()
+        #     ext_proposition.print_alt_worlds()
 
     def print_all(self, N, print_cons_bool, print_unsat_core_bool):
         """prints all elements of the model"""
@@ -250,14 +256,6 @@ class ModelStructure():
                 self.print_constraints(self.model)
                 print()
 
-    # NOTE: from _M_ commit
-    # def print_props(self):
-    #     # print(self.extensional_subsentences)
-    #     for ext_proposition in self.extensional_propositions:
-    #         ext_proposition.print_possible_verifiers_and_falsifiers()
-    #         ext_proposition.print_alt_worlds()
-
-
 # the Proposition class is unused because I haven't gotten to a couple of things that would enable it to be integrated, namely:
 #     1. I can easily set everything in the input_sentences to be a propositon. How to make subsentences and un-negated conclusions?
 #     2. I thought I had another issue but I can't think of it rn off the top of my head
@@ -270,7 +268,10 @@ class Proposition():
         verifiers_in_model, falsifiers_in_model = model_structure.find_complex_proposition(prefix_expr)
         self.prop_dict['verifiers'] = verifiers_in_model
         self.prop_dict['falsifiers'] = falsifiers_in_model
-        self.prop_dict['alternative worlds'] = model_structure.find_alt_bits(verifiers_in_model)
+        # NOTE: to find alt_worlds we need a comparison world which is not
+        # provided here. instead of including a comparison world, I think it
+        # might make sense to use a function instead.
+        # self.prop_dict['alternative worlds'] = model_structure.find_alt_bits(verifiers_in_model,world)
         self.parent_model_structure = model_structure
 
     def __setitem__(self, key, value):
@@ -289,6 +290,8 @@ class Proposition():
         fal_states = {bitvec_to_substates(bit) for bit in self['falsifiers'] if model.evaluate(possible(bit))}
         if ver_states and fal_states:
             print(
+                # TODO: not sure how to make sense of self['infix expression']
+                # I didn't see an entry for 'infix expressions'
                 f"  |{self['infix expression']}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(fal_states)} >"
             )
         elif ver_states and not fal_states:
@@ -306,6 +309,8 @@ class Proposition():
         if alt_worlds:
             print(f"  {self['infix expression']}-alternatives to {bitvec_to_substates(model[w])} = {make_set_pretty_for_print(alt_worlds)}")
             for alt_bit in self['alternative worlds']:
+                # TODO: note that not enough arguments are included below
+                # def find_true_and_false_in_alt(alt_bit, sentence_letters, all_bits, model):
                 true_in_alt, false_in_alt = find_true_and_false_in_alt(
                     alt_bit, self.parent_model_structure
                 )
