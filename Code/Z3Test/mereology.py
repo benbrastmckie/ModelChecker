@@ -42,7 +42,7 @@ from definitions import (
     proposition,
 )
 
-from print import print_evaluation, print_propositions, print_states
+from Code.OLD.print import print_evaluation, print_propositions, print_states
 
 # TODO: eventually replace sentence_letters with something more general
 sentence_letters = [A, B, C]
