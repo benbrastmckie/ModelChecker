@@ -141,12 +141,11 @@ def Infix(A):
     if len(A) == 1:
         return str(A[0])
     if len(A) == 2:
-        return f'\\neg A'
+        return f'\\neg {Infix(A[1])}'
     op = A[0]
     left_expr = A[1]
     right_expr = A[2]
     return f'({Infix(left_expr)} {op} {Infix(right_expr)})'
-
 
 # doctest.testmod()
 # print(tokenize("(A \\wedge (B \\vee C))")) # the doctests fail, but this works. Need to do double backslash for abfnrtv.

@@ -102,7 +102,7 @@ def relate_sents_and_states(all_bits, sentence, model, relation):
 
 def find_true_and_false_in_alt(alt_bit, parent_model_structure):
     """returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.
-    Used in print_alt_worlds()"""
+    Used in Proposition class print_alt_worlds"""
     extensional_sentences = parent_model_structure.extensional_subsentences
     all_bits = parent_model_structure.all_bits
     true_in_alt = []
@@ -150,15 +150,16 @@ def atomic_propositions_dict(all_bits, sentence_letters, model):
         atomic_VFs_dict[letter] = (ver_bits, fal_bits)
     return atomic_VFs_dict
 
-def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value):
-    """true is a string representing the relation ("true" for true_in_alt; m.m. for false) that is being used for
-    returns None, only prints
-    Used in print_alt_worlds()"""
-    if not alt_relation_set:
-        return
-    alt_relation_list = sorted([Infix(sent) for sent in alt_relation_set])
-    alt_relation_string = ", ".join(alt_relation_list)
-    if len(alt_relation_set) == 1:
-        print(f"    {alt_relation_string} is {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
-    else:
-        print(f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
+# this function is now in print
+# def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value):
+#     """true is a string representing the relation ("true" for true_in_alt; m.m. for false) that is being used for
+#     returns None, only prints
+#     Used in print_alt_worlds()"""
+#     if not alt_relation_set:
+#         return
+#     alt_relation_list = sorted([Infix(sent) for sent in alt_relation_set])
+#     alt_relation_string = ", ".join(alt_relation_list)
+#     if len(alt_relation_set) == 1:
+#         print(f"    {alt_relation_string} is {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
+#     else:
+#         print(f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
