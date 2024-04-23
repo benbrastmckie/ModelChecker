@@ -160,21 +160,21 @@ one function that's a print helper function still in use
 #     return (ver_bits, fal_bits, alt_bits)
 
 # imported into model_structure from this file, but identical function is in model_definitions
-def find_true_and_false_in_alt(alt_bit, parent_model_structure):
-    """returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.
-    Used in Proposition class print_alt_worlds"""
-    extensional_sentences = parent_model_structure.extensional_subsentences
-    all_bits = parent_model_structure.all_bits
-    true_in_alt = []
-    for R in extensional_sentences:
-        for bit in all_bits:
-            # print(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True))
-            # print(type(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True)))
-            if bit in parent_model_structure.find_complex_proposition(R)[0] and bit_part(bit, alt_bit):
-                true_in_alt.append(R)
-                break  # returns to the for loop over sentence_letters
-    false_in_alt = [R for R in extensional_sentences if not R in true_in_alt] # replace with 
-    return (true_in_alt, false_in_alt)
+# def find_true_and_false_in_alt(alt_bit, parent_model_structure):
+#     """returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.
+#     Used in Proposition class print_alt_worlds"""
+#     extensional_sentences = parent_model_structure.extensional_subsentences
+#     all_bits = parent_model_structure.all_bits
+#     true_in_alt = []
+#     for R in extensional_sentences:
+#         for bit in all_bits:
+#             # print(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True))
+#             # print(type(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True)))
+#             if bit in parent_model_structure.find_complex_proposition(R)[0] and bit_part(bit, alt_bit):
+#                 true_in_alt.append(R)
+#                 break  # returns to the for loop over sentence_letters
+#     false_in_alt = [R for R in extensional_sentences if not R in true_in_alt] # replace with 
+#     return (true_in_alt, false_in_alt)
 
 # unused from this file, already in model_definitions
 # def make_set_pretty_for_print(set_with_strings):
