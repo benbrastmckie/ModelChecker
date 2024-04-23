@@ -13,6 +13,8 @@ from z3 import (
     BitVecVal,
 )
 
+from convert_syntax import Infix
+
 def find_all_bits(size):
     '''extract all bitvectors from the input model'''
     all_bits = []
@@ -150,16 +152,17 @@ def atomic_propositions_dict(all_bits, sentence_letters, model):
         atomic_VFs_dict[letter] = (ver_bits, fal_bits)
     return atomic_VFs_dict
 
-# this function is now in print
-# def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value):
-#     """true is a string representing the relation ("true" for true_in_alt; m.m. for false) that is being used for
-#     returns None, only prints
-#     Used in print_alt_worlds()"""
-#     if not alt_relation_set:
-#         return
-#     alt_relation_list = sorted([Infix(sent) for sent in alt_relation_set])
-#     alt_relation_string = ", ".join(alt_relation_list)
-#     if len(alt_relation_set) == 1:
-#         print(f"    {alt_relation_string} is {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
-#     else:
-#         print(f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
+def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value):
+    """true is a string representing the relation ("true" for true_in_alt; m.m. for false) that is being used for
+    alt_relation_set is the set of prefix sentences that have truth value relation_truth_value in a
+    given alternative world alt_bit
+    returns None, only prints
+    Used in print_alt_worlds()"""
+    if not alt_relation_set:
+        return
+    alt_relation_list = sorted([Infix(sent) for sent in alt_relation_set])
+    alt_relation_string = ", ".join(alt_relation_list)
+    if len(alt_relation_set) == 1:
+        print(f"    {alt_relation_string} is {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
+    else:
+        print(f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
