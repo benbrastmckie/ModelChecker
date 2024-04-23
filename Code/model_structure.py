@@ -1,12 +1,12 @@
 import time
-from print import (
+from print import ( # I think we can move all functions left in print to model_definitions
     # find_alt_bits,
-    find_compatible_parts,
-    find_relations,
+    # find_compatible_parts, already in model_definitions
+    # find_relations, # supplanted by Proposition class
     find_true_and_false_in_alt,
     print_alt_relation,
-    print_alt_worlds,
-    print_vers_and_fals,
+    # print_alt_worlds, # supplanted by Proposition class method print_alt_worlds
+    # print_vers_and_fals, # supplanted by Proposition class method print_possible_verifiers_and_falsifiers
 )
 from definitions import (
     verify,
@@ -22,6 +22,7 @@ from semantics import (
     solve_constraints,
 )
 from model_definitions import (
+    find_compatible_parts, 
     atomic_propositions_dict,
     coproduct,
     find_all_bits,
@@ -31,6 +32,8 @@ from model_definitions import (
     make_set_pretty_for_print,
     product,
 )
+
+from convert_syntax import Infix
 
 # TODO: the three types of objects that it would be good to store as classes
 # include: (1) premises, conclusions, input_sentences, prefix_sentences,
@@ -98,24 +101,27 @@ class ModelStructure():
             self.world_bits = find_world_bits(self.poss_bits)
             self.eval_world = self.model[w] # var accessed from outside (not bad, just noting)
             self.atomic_props_dict = atomic_propositions_dict(self.all_bits, self.sentence_letters, self.model)
-            self.extensional_propositions = [Proposition(ext_subsent, self) for ext_subsent in self.extensional_subsentences]
+            self.extensional_propositions = [Proposition(ext_subsent, self, self.eval_world) for ext_subsent in self.extensional_subsentences]
             # just missing the which-sentences-true-in-which-worlds
         # else: # NOTE: maybe these should be defined as something for the sake of init above
             
-    def find_alt_bits(self, proposition_verifier_bits, compare_world):
+    # M: not sure where the best home for this is
+    def find_alt_bits(self, proposition_verifier_bits, comparison_world=None):
         """
         Finds the alternative bits given verifier bits, possible states, worlds, and
         the evaluation world. Used in find_relations().
         """
+        if comparison_world == None:
+            comparison_world = self.eval_world
         alt_bits = set()
         for ver in proposition_verifier_bits:
-            comp_parts = find_compatible_parts(ver, self.poss_bits, compare_world)
+            comp_parts = find_compatible_parts(ver, self.poss_bits, comparison_world)
             max_comp_ver_parts = find_max_comp_ver_parts(ver, comp_parts)
-            for world in compare_world:
+            for world in self.world_bits:
                 if not bit_part(ver, world):
                     continue
                 for max_ver in max_comp_ver_parts:
-                    if bit_part(max_ver, world) and world.sexpr() != compare_world.sexpr():
+                    if bit_part(max_ver, world) and world.sexpr() != comparison_world.sexpr():
                         alt_bits.add(world)
                         break  # to return to the second for loop over world_bits
         return alt_bits
@@ -216,22 +222,14 @@ class ModelStructure():
         # NOTE: I added a world-argument above which I think will be needed
         # when printing alt_worlds for nested counterfactuals. right now it
         # does nothing.
-        """print each propositions and the alternative worlds in which it is true"""
-        all_bits = find_all_bits(N)
-        print("\nPropositions:")
-        # NOTE: these old lines work but only print sentence_letters
-        for S in self.sentence_letters:
-            ver_bits, fal_bits, alt_bits = find_relations(all_bits, S, self.model)
-            print_vers_and_fals(self.model, S, ver_bits, fal_bits)
-            print_alt_worlds(all_bits, S, self.sentence_letters, self.model, alt_bits)
         # TODO: this is where the recursive print procedure should go, looping
         # over the input_sentences, printing the parts accordingly
         # WANT: for S in self.input_sentences:
         # TODO: I couldn't get the following lines from your commit to work but
         # saved them here. see TODO in print_possible_verifiers_and_falsifiers
-        # for ext_proposition in self.extensional_propositions:
-        #     ext_proposition.print_possible_verifiers_and_falsifiers()
-        #     ext_proposition.print_alt_worlds()
+        for ext_proposition in self.extensional_propositions:
+            ext_proposition.print_possible_verifiers_and_falsifiers()
+            ext_proposition.print_alt_worlds()
 
     def print_all(self, N, print_cons_bool, print_unsat_core_bool):
         """prints all elements of the model"""
@@ -261,9 +259,10 @@ class ModelStructure():
 #     2. I thought I had another issue but I can't think of it rn off the top of my head
 # TODO: inti with model to store props to ext_sub_sentences
 class Proposition():
-    def __init__(self, prefix_expr, model_structure):
+    def __init__(self, prefix_expr, model_structure, world):
         '''prefix_expr is a prefix expression. model is a ModelStructure'''
         self.prop_dict = {}
+        self.prop_dict['comparison world'] = world
         self.prop_dict['prefix expression'] = prefix_expr
         verifiers_in_model, falsifiers_in_model = model_structure.find_complex_proposition(prefix_expr)
         self.prop_dict['verifiers'] = verifiers_in_model
@@ -271,7 +270,9 @@ class Proposition():
         # NOTE: to find alt_worlds we need a comparison world which is not
         # provided here. instead of including a comparison world, I think it
         # might make sense to use a function instead.
-        # self.prop_dict['alternative worlds'] = model_structure.find_alt_bits(verifiers_in_model,world)
+        # M: That makes sense. I think we will need to talk about that on Wednesday.
+        # I think I have a workaround to that, lmk if something like this is what you have in mind.
+        self.prop_dict['alternative worlds'] = model_structure.find_alt_bits(verifiers_in_model,world)
         self.parent_model_structure = model_structure
 
     def __setitem__(self, key, value):
@@ -279,6 +280,13 @@ class Proposition():
 
     def __getitem__(self, key):
         return self.prop_dict[key]
+    
+    def update_comparison_world(self, new_world):
+        model_structure = self.parent_model_structure
+        self['alternative worlds'] = model_structure.find_alt_bits(self['verifiers'],new_world)
+        self['comparison world'] = new_world
+        # I think this may be a nice function to have to get around issue of eval worlds
+        
 
     def print_possible_verifiers_and_falsifiers(self):
         """prints the possible verifiers and falsifier states for a sentence.
@@ -290,24 +298,26 @@ class Proposition():
         fal_states = {bitvec_to_substates(bit) for bit in self['falsifiers'] if model.evaluate(possible(bit))}
         if ver_states and fal_states:
             print(
-                # TODO: not sure how to make sense of self['infix expression']
-                # I didn't see an entry for 'infix expressions'
-                f"  |{self['infix expression']}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(fal_states)} >"
+                f"  |{self}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(fal_states)} >"
             )
         elif ver_states and not fal_states:
-            print(f"  |{self['infix expression']}| = < {make_set_pretty_for_print(ver_states)}, ∅ >")
+            print(f"  |{self}| = < {make_set_pretty_for_print(ver_states)}, ∅ >")
         elif not ver_states and fal_states:
-            print(f"  |{self['infix expression']}| = < ∅, {make_set_pretty_for_print(fal_states)} >")
+            print(f"  |{self}| = < ∅, {make_set_pretty_for_print(fal_states)} >")
         else:
-            print(f"  |{self['infix expression']}| = < ∅, ∅ >")
+            print(f"  |{self}| = < ∅, ∅ >")
 
     def print_alt_worlds(self):
         """prints everything that has to do with alt worlds
-        Used in print_prop()"""
-        model = self.parent_model_structure.model
+        Used in print_prop()
+        Takes in a proposition. Note that this proposition has itself a comparison world.
+        This is not inputted into the method, but accessed. So, need to make sure, before the method
+        is called, that the proposition has the proper comparison world before calling the function"""
+        comp_world = self['comparison world']
+        model = self.parent_model_structure.model # ModelRef object
         alt_worlds = {bitvec_to_substates(alt) for alt in self['alternative worlds']}
         if alt_worlds:
-            print(f"  {self['infix expression']}-alternatives to {bitvec_to_substates(model[w])} = {make_set_pretty_for_print(alt_worlds)}")
+            print(f"  {self}-alternatives to {bitvec_to_substates(comp_world)} = {make_set_pretty_for_print(alt_worlds)}")
             for alt_bit in self['alternative worlds']:
                 # TODO: note that not enough arguments are included below
                 # def find_true_and_false_in_alt(alt_bit, sentence_letters, all_bits, model):
@@ -318,7 +328,7 @@ class Proposition():
                 print_alt_relation(false_in_alt, alt_bit, "not true")
             print()  # for an extra blank line
         else:
-            print(f"  There are no {self['infix expression']}-alternatives to {bitvec_to_substates(model[w])}")
+            print(f"  There are no {self}-alternatives to {bitvec_to_substates(model[w])}")
             print()  # for an extra blank line
 
     # TODO: what should this look like?
