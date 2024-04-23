@@ -162,7 +162,7 @@ def extended_verify(state, ext_sent, evaluate=False):
     if "wedge" in op:
         y =  BitVec('ex_ver_dummy_y', N)
         z =  BitVec('ex_ver_dummy_z', N)
-        if evaluate == True:
+        if evaluate is True:
             return And(fusion(y, z) == state, extended_verify(y, Y), extended_verify(z, Z))
         return Exists(
             [y, z],
@@ -231,6 +231,7 @@ def extended_falsify(state, ext_sent):
 # NOTE: the true_at/false-at definitions are bilateral to accommodate the fact
 # that the exhaustivity constraint is not included in the definition of props
 # this should avoid the need for specific clauses for (un)negated CFs
+# TODO: linter says all or none of the returns should be an expression
 def true_at(sentence, world):
     """sentence is a sentence in prefix notation"""
     x = BitVec('t_dummy_x', N)
@@ -263,6 +264,7 @@ def true_at(sentence, world):
         )
 
 
+# TODO: linter says all or none of the returns should be an expression
 def false_at(sentence, world):
     """X is a sentence in prefix notation"""
     x = BitVec('f_dummy_x', N)
@@ -346,10 +348,12 @@ def is_counterfactual(prefix_sentence):
         return True
     return is_counterfactual(prefix_sentence[1]) or is_counterfactual(prefix_sentence[2])
 
+
+# TODO: linter says all or none of the returns should be an expression
 def all_subsentences_of_a_sentence(prefix_sentence, progress=False):
     '''finds all the subsentence of a prefix sentence
     returns these as a set'''
-    if progress==False:
+    if progress is False:
         progress = []
     progress.append(prefix_sentence)
     if len(prefix_sentence) == 1:

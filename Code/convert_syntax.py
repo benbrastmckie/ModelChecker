@@ -42,7 +42,7 @@ def tokenize(str_exp):
                 tokenized_l = ["("]
                 tokenized_l.extend(tokenize_improved_input([base_string[1:]]))
                 return tokenized_l
-            elif ")" in base_string:  # right parentheses in base_string
+            if ")" in base_string:  # right parentheses in base_string
                 tokenized_l = tokenize_improved_input([base_string[:-1]])
                 tokenized_l.append(")")
                 return tokenized_l
@@ -69,6 +69,7 @@ def binary_comp(tokenized_expression):
     return len([char for char in tokenized_expression if char == "("])
 
 
+# TODO: linter says all or none of the returns should be an expression
 def main_op_index(tokenized_expression):
     """
     given an expression with complexity > 0, finds the index of the main operator.
