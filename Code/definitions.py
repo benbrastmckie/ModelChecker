@@ -17,7 +17,7 @@ from z3 import (
 )
 
 # TODO: move to test_complete without causing circular import
-N = 3
+N = 5
 
 # from user_input import N
 # from test_complete import N
