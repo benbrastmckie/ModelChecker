@@ -1,6 +1,6 @@
 from z3 import (Function, BitVecSort, BoolSort, BitVec)
 from model_structure import ModelStructure
-from definitions import *
+from definitions import AtomSort
 
 def make_model_for(N):
     def make_relations_and_solve(premises, conclusions):
