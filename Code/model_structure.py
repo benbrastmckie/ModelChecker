@@ -383,7 +383,7 @@ class Proposition():
                 print_alt_relation(false_in_alt, alt_bit, "not true", N)
             print()  # for an extra blank line
         else:
-            print(f"  There are no {self}-alternatives to {bitvec_to_substates(model[self.w], N)}")
+            print(f"  There are no {self}-alternatives to {bitvec_to_substates(comp_world, N)}")
             print()  # for an extra blank line
 
     # TODO: what should this look like?
