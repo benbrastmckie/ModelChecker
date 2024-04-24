@@ -28,8 +28,8 @@ print_unsat_core_bool = True
 
 ### INVALID ###
 
-# premises = ['\\neg A','(A \\boxright (B \\vee C))']
-# conclusions = ['(A \\boxright B)','(A \\boxright C)']
+premises = ['\\neg A','(A \\boxright (B \\vee C))']
+conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
@@ -103,10 +103,10 @@ print_unsat_core_bool = True
 # premises = ['\\neg A','(A \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
-# NOTE: doesn't work b/c should countermodel
-# recursive printing would be helpful.
-premises = ['(A \\boxright C)','(B \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
+# # NOTE: doesn't work b/c should countermodel
+# # recursive printing would be helpful.
+# premises = ['(A \\boxright C)','(B \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
 
 # # NOTE: should find a model. works without `\\neg A`.
 # premises = ['\\neg A','(A \\boxright C)']
