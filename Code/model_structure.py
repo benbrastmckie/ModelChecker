@@ -6,13 +6,9 @@ import time
 from definitions import (
     verify,
     possible,
-    bit_part,
-    bitvec_to_substates,
-    int_to_binary,
     w,
 )
 from semantics import (
-    infix_combine,
     find_all_constraints,
     solve_constraints,
 )
@@ -28,9 +24,12 @@ from model_definitions import (
     find_true_and_false_in_alt,
     print_alt_relation,
     product,
+    bit_part, 
+    bitvec_to_substates, 
+    int_to_binary,
 )
 
-from convert_syntax import Infix
+from convert_syntax import (Infix, infix_combine)
 
 # TODO: the three types of objects that it would be good to store as classes
 # include: (1) premises, conclusions, input_sentences, prefix_sentences,

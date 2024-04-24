@@ -3,14 +3,10 @@ file contains all definitions for defining the model structure
 '''
 
 from z3 import (
-    BitVecVal,
+    BitVecVal, simplify
 )
 from definitions import (
-    bit_fusion,
-    bit_part,
-    bit_proper_part,
-    bitvec_to_substates,
-    summation,
+    N,
     possible,
     verify,
     falsify,
@@ -169,3 +165,88 @@ def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value):
         print(f"    {alt_relation_string} is {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
     else:
         print(f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
+
+
+#############################################
+######### MOVED FROM DEFINITIONS.PY #########
+#############################################
+        
+
+
+def bit_fusion(bit_s, bit_t):
+    """the result of taking the maximum for each index in _s and _t"""
+    return simplify(bit_s | bit_t)
+    # NOTE: this does seem to make a difference, otherwise no comp_parts
+
+def bit_part(bit_s, bit_t):
+    """the fusion of _s and _t is identical to bit_t"""
+    return bool(simplify(bit_fusion(bit_s, bit_t) == bit_t))
+    # NOTE: this does seem to make a difference, otherwise no comp_parts
+
+def bit_proper_part(bit_s, bit_t):
+    """bit_s is a part of bit_t and bit_t is not a part of bit_s"""
+    return bool(bit_part(bit_s, bit_t)) and not bit_s == bit_t
+    # NOTE: this does not seem to make a difference and so has been turned off
+    # in the interest of discovering if it is required or not
+    # return bool(bit_part(bit_s, bit_t)) and not bit_s == bit_t
+
+def index_to_substate(index):
+    '''
+    >>> index_to_substate(0)
+    'a'
+    >>> index_to_substate(26)
+    'aa'
+    >>> index_to_substate(27)
+    'bb'
+    >>> index_to_substate(194)
+    'mmmmmmmm'
+    '''
+    number = index + 1 # because python indices start at 0
+    letter_dict = {1:'a', 2:'b', 3:'c', 4:'d', 5:'e', 6:'f', 7:'g', 8:'h', 9:'i', 10:'j',
+                   11:'k', 12:'l', 13:'m', 14:'n', 15:'o', 16:'p', 17:'q', 18:'r', 19:'s', 20:'t',
+                   21:'u', 22:'v', 23:'w', 24:'x', 25:'y', 26:'z'} # could be make less hard-code-y
+                            # but this makes it clearer and more intuitive what we want to happen
+    letter = letter_dict[number%26]
+    return ((number//26) + 1) * letter
+
+def int_to_binary(integer, number, backwards_binary_str = ''):
+    '''converts a #x string to a #b string. follows the first algorithm that shows up on google
+    when you google how to do this'''
+    rem = integer%2
+    new_backwards_str = backwards_binary_str + str(rem)
+    if integer//2 == 0: # base case: we've reached the end
+        remaining_0s_to_tack_on = number - len(new_backwards_str) # to fill in the zeroes
+        return '#b' + remaining_0s_to_tack_on * '0' + new_backwards_str[::-1]
+    new_int = integer//2
+    return int_to_binary(new_int, number, new_backwards_str)
+
+
+# TODO: linter says all or none of the returns should be an expression
+def bitvec_to_substates(bit_vec):
+    '''converts bitvectors to fusions of atomic states.'''
+    bit_vec_as_string = bit_vec.sexpr()
+    if 'x' in bit_vec_as_string: # if we have a hexadecimal, ie N=4m
+        integer = int(bit_vec_as_string[2:],16)
+        bit_vec_as_string = int_to_binary(integer, N)
+    bit_vec_backwards = bit_vec_as_string[::-1]
+    state_repr = ""
+    for i, char in enumerate(bit_vec_backwards):
+        if char == "b":
+            if not state_repr:
+                return "□"  #  null state
+            return state_repr[0 : len(state_repr) - 1]
+        if char == "1":
+            state_repr += index_to_substate(i)
+            state_repr += "."
+
+
+def Equivalent(cond_a,cond_b):
+    '''define the biconditional to make Z3 constraints intuitive to read'''
+    return cond_a == cond_b
+
+
+def summation(n, func, start = 0):
+    '''used in print to find max bitvector'''
+    if start == n:
+        return func(start)
+    return func(start) + summation(n,func,start+1)

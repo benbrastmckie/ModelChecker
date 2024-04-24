@@ -8,11 +8,9 @@ The unary operators are defined in a separate set for clarity in the code.
 '''
 import doctest
 from z3 import (
-    Const,
+    Const, DeclareSort
 )
-from definitions import (
-    AtomSort,
-)
+AtomSort = DeclareSort("AtomSort")
 
 
 # sentence_stuff = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','Z','W','Y','Z'}
@@ -175,7 +173,29 @@ def all_sentence_letters(prefix_input_sentences):
             sentence_letters.add(sentence_letter)
     return list(sentence_letters) # sort just to make every output the same, given sets aren't hashable
 
-sentences = [Prefix("(A \\wedge (B \\vee \\neg C))"), Prefix("A"), Prefix('((A \\op (B \\op Z)) \\op (D \\op E))')]
+# sentences = [Prefix("(A \\wedge (B \\vee \\neg C))"), Prefix("A"), Prefix('((A \\op (B \\op Z)) \\op (D \\op E))')]
 # print(all_sentence_letters(sentences)) # correctly prints ['A', 'B', 'C', 'D', 'E', 'Z']
 # print(Prefix("\\neg (A \\boxright B)"))
 # print(all_sentence_letters([Prefix("\\neg (A \\boxright B)")]))
+
+
+def infix_combine(prem,con):
+    '''combines the premises with the negation of the conclusion(s).
+    premises are infix sentences, and so are the conclusions'''
+    # if prem is None:
+    #     prem = []
+    input_sent = prem
+    for sent in con:
+        neg_sent = '\\neg ' + sent
+        input_sent.append(neg_sent)
+    return input_sent
+
+def prefix_combine(prem,con):
+    '''combines the premises with the negation of the conclusion(s).
+    premises are prefix sentences, and so are the conclusions'''
+    # if prem is None:
+    #     prem = []
+    input_sent = prem
+    neg_conclusion_sents = [['\\neg ', sent] for sent in con]
+    input_sent.extend(neg_conclusion_sents)
+    return input_sent
