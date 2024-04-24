@@ -233,10 +233,9 @@ class ModelStructure():
             print(f"{index}. {con}\n")
             # print(f"Constraints time: {time}\n")
 
-    def print_sort(comp_sent,world):
+    def print_sort(self,complex_sent,world):
         if comp_sent in self.extensional_subsentences:
             print(f"")
-
     # - def `print_sort(A,w)`:
     #     - if `A` in `ext_sentences`:
     #       - print: `infix(A)` = `prop(A)` is `truth_value(A,w)` in `w`
@@ -264,10 +263,6 @@ class ModelStructure():
     #           - print atomic sentences that are true in `u`
     #           - print `print_sort(C,u)`
 
-    # - def `print_all(prefix_input_sentences, w)`
-    #   - for `A` in `prefix_input_sentences`:
-    #     - `print_sort(A,w)`
-
     def print_props(self,world):
         # B: do we need N to be specified here?
         # NOTE: I added a world-argument above which I think will be needed
@@ -281,6 +276,11 @@ class ModelStructure():
         for ext_proposition in self.extensional_propositions:
             ext_proposition.print_possible_verifiers_and_falsifiers()
             ext_proposition.print_alt_worlds()
+    # TODO: will replace above
+    # - def `print_(prefix_input_sentences, w)`
+    #   - for `A` in `prefix_input_sentences`:
+    #     - `print_sort(A,w)`
+
 
     def print_all(self, print_cons_bool=False, print_unsat_core_bool=False):
         """prints all elements of the model"""
@@ -306,10 +306,7 @@ class ModelStructure():
                 self.print_constraints(self.model)
                 print()
 
-# the Proposition class is unused because I haven't gotten to a couple of things that would enable it to be integrated, namely:
-#     1. I can easily set everything in the input_sentences to be a propositon. How to make subsentences and un-negated conclusions?
-#     2. I thought I had another issue but I can't think of it rn off the top of my head
-# TODO: inti with model to store props to ext_sub_sentences
+# TODO: add counterfactuals to Proposition(), assigning them to sets of worlds they are true in
 class Proposition():
     def __init__(self, prefix_expr, model_structure, world):
         '''prefix_expr is a prefix expression. model is a ModelStructure'''
