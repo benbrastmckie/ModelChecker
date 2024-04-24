@@ -17,7 +17,7 @@ from semantics import (
     solve_constraints,
 )
 from model_definitions import (
-    find_compatible_parts, 
+    find_compatible_parts,
     atomic_propositions_dict,
     coproduct,
     find_all_bits,
@@ -242,7 +242,7 @@ class ModelStructure():
     def print_all(self, N, print_cons_bool=False, print_unsat_core_bool=False):
         """prints all elements of the model"""
         if self.model_status:
-            print(f"\nThere is an {N}-model of:\n")
+            print(f"\nThere is a {N}-model of:\n")
             for sent in self.input_sentences:
                 print(sent)
             self.print_states(N)

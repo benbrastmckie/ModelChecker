@@ -46,12 +46,15 @@ print_unsat_core_bool = True
 # premises = ['\\neg A']
 # conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 
-premises = ['(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
+# premises = ['(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
 
-# # NOTE: this seems to work now but the print statement is hard to read
 # premises = ['(A \\boxright B)']
 # conclusions = ['(\\neg B \\boxright \\neg A)']
+
+# premises = ['A \\boxright C', '\\neg (A \\boxright \\neg B)']
+# conclusions = ['\\neg ((A \\wedge B) \\boxright C)']
+
 
 
 ### VALID ###
@@ -91,8 +94,8 @@ conclusions = ['((A \\wedge B) \\boxright C)']
 
 ### HIGH PRIORITY ###
 
-# premises = ['\\neg A','(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
+premises = ['\\neg A','(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
 
 # # NOTE: doesn't work b/c should countermodel
 # # recursive printing would be helpful.
@@ -106,11 +109,12 @@ conclusions = ['((A \\wedge B) \\boxright C)']
 ### MEDIUM PRIORITY ###
 
 # # NOTE: this isn't finding models still
-# premises = ['(A \\boxright B)','\\neg B']
+# premises = ['\\neg B','(A \\boxright B)']
 # conclusions = ['(\\neg B \\boxright \\neg A)']
 
 
 # # NOTE: it is finding a model by making A and B incompatible
+# # premises = ['\\neg ((A \\wedge B) \\boxright D)','((A \\wedge B) \\boxright C)']
 # premises = ['((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
 
@@ -118,8 +122,6 @@ conclusions = ['((A \\wedge B) \\boxright C)']
 # # very slow for N = 5 (ran for minutes on the remote server)
 # premises = ['(A \\boxright (B \\boxright C))']
 # conclusions = ['((A \\wedge B) \\boxright C)']
-
-
 
 # this is what used to be print_model, can easily make this an attribute if wanted
 
