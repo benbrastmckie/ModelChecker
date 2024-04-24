@@ -34,8 +34,8 @@ print_unsat_core_bool = True
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
 
-premises = ['A',]
-conclusions = ['\\neg A']
+# premises = ['A',]
+# conclusions = ['\\neg A']
 
 # premises = ['\\neg A','\\neg (A \\boxright B)']
 # conclusions = ['(A \\boxright \\neg B)']
@@ -62,17 +62,22 @@ conclusions = ['\\neg A']
 # premises = ['A','(A \\rightarrow B)']
 # conclusions = ['B']
 
-premises = ['(A \\boxright B)']
-conclusions = ['(A \\rightarrow B)']
+# NOTE: very slow with non_triv_verify turned on in semantics
+# premises = ['(A \\boxright B)']
+# conclusions = ['(A \\rightarrow B)']
 
 # premises = ['((A \\vee B) \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
-# # takes very long with new semantics on my (M) machine
+# # NOTE: very slow with non_triv_verify turned on in semantics
 # premises = ['((A \\vee B) \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
-# # premises = ['(A \\boxright C)','(B \\boxright C)','((A \\wedge B) \\boxright C)']
+# # NOTE: slow with non_triv_verify turned on in semantics
+# premises = ['(A \\boxright C)','(B \\boxright C)','((A \\wedge B) \\boxright C)']
+# conclusions = ['((A \\vee B) \\boxright C)']
+
+# # NOTE: slow with non_triv_verify turned on in semantics
 # premises = ['(A \\boxright C)','(B \\boxright C)']
 # conclusions = ['((A \\vee B) \\boxright C)']
 
@@ -98,10 +103,10 @@ conclusions = ['(A \\rightarrow B)']
 # premises = ['\\neg A','(A \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
-# # NOTE: doesn't work b/c should countermodel
-# # recursive printing would be helpful.
-# premises = ['(A \\boxright C)','(B \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
+# NOTE: doesn't work b/c should countermodel
+# recursive printing would be helpful.
+premises = ['(A \\boxright C)','(B \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
 
 # # NOTE: should find a model. works without `\\neg A`.
 # premises = ['\\neg A','(A \\boxright C)']
