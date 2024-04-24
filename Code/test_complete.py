@@ -34,8 +34,8 @@ print_unsat_core_bool = True
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
 
-# premises = ['A',]
-# conclusions = ['\\neg A']
+premises = ['A',]
+conclusions = ['\\neg A']
 
 # premises = ['\\neg A','\\neg (A \\boxright B)']
 # conclusions = ['(A \\boxright \\neg B)']
@@ -94,8 +94,8 @@ print_unsat_core_bool = True
 
 ### HIGH PRIORITY ###
 
-premises = ['\\neg A','(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
+# premises = ['\\neg A','(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
 
 # # NOTE: doesn't work b/c should countermodel
 # # recursive printing would be helpful.
