@@ -3,7 +3,7 @@ file specifies premises, conclusions, and settings.
 running the file finds a model and prints the result.
 '''
 
-from workaround import make_model_for
+from model_structure import make_model_for
 
 
 ################################
