@@ -3,10 +3,6 @@ file specifies premises, conclusions, and settings.
 running the file finds a model and prints the result.
 '''
 
-from model_structure import (
-    ModelStructure,
-)
-
 from workaround import make_model_for
 
 

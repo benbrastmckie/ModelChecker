@@ -5,12 +5,6 @@ file contains all definitions for defining the model structure
 from z3 import (
     BitVecVal, simplify
 )
-# from definitions import (
-#     N,
-#     possible,
-#     verify,
-#     falsify,
-# )
 
 from syntax import Infix
 
