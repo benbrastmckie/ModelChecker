@@ -21,8 +21,8 @@ print_unsat_core_bool = True
 
 ### INVALID ###
 
-# premises = ['\\neg A','(A \\boxright (B \\vee C))']
-# conclusions = ['(A \\boxright B)','(A \\boxright C)']
+premises = ['\\neg A','(A \\boxright (B \\vee C))']
+conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
@@ -107,9 +107,9 @@ print_unsat_core_bool = True
 # premises = ['((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
 
-# NOTE: this is slow for N = 5 and does not find models for N = 3
-premises = ['(A \\boxright (B \\boxright C))']
-conclusions = ['((A \\wedge B) \\boxright C)']
+# # NOTE: this is slow for N = 5 and does not find models for N = 3
+# premises = ['(A \\boxright (B \\boxright C))']
+# conclusions = ['((A \\wedge B) \\boxright C)']
 
 
 
