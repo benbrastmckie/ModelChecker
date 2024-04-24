@@ -16,8 +16,9 @@ from z3 import (
     simplify,
 )
 
+# from test_complete import N
+
 # TODO: move to test_complete without causing circular import
-N = 5
 
 # from user_input import N
 # from test_complete import N
@@ -39,15 +40,15 @@ N = 5
 # sentence letters sort definition
 AtomSort = DeclareSort("AtomSort")
 
-# primitive properties and relations
-possible = Function("possible", BitVecSort(N), BoolSort())
-verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
-falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
+# # primitive properties and relations
+# possible = Function("possible", BitVecSort(N), BoolSort())
+# verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
+# falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
 
-# NOTE: I tried to include a more meaningful name for w but it didn't work
-# w = BitVec("eval_world_w", N)
-# TODO: make eval_world_w global variable
-w = BitVec("w", N)
+# # NOTE: I tried to include a more meaningful name for w but it didn't work
+# # w = BitVec("eval_world_w", N)
+# # TODO: make eval_world_w global variable
+# w = BitVec("w", N)
 
 
 
@@ -64,12 +65,12 @@ def is_bitvector(bit_s):
     return False
 
 
-def non_null_verify(bit_s, atom):
+def non_null_verify(bit_s, atom, verify):
     '''bit_s verifies atom and is not the null state'''
     return And(Not(bit_s == 0), verify(bit_s, atom))
 
 
-def non_null_falsify(bit_s,atom):
+def non_null_falsify(bit_s,atom, falsify):
     '''bit_s verifies atom and is not the null state'''
     return And(Not(bit_s == 0), falsify(bit_s,atom))
 
@@ -114,90 +115,90 @@ def bit_proper_part(bit_s, bit_t):
     # return bool(bit_part(bit_s, bit_t)) and not bit_s == bit_t
 
 
-def compatible(bit_x, bit_y):
+def compatible(bit_x, bit_y, possible):
     '''the fusion of bit_x and bit_y is possible'''
     return possible(fusion(bit_x, bit_y))
 
 
-def maximal(bit_w):
+def maximal(bit_w, possible, N):
     """bit_w includes all compatible states as parts."""
     x = BitVec('max_dummy', N)
     return ForAll(
         x,
         Implies(
-            compatible(x, bit_w),
+            compatible(x, bit_w, possible),
             is_part_of(x, bit_w),
         ),
     )
 
 
-def is_world(bit_w):
+def is_world(bit_w, possible, N):
     '''bit_w is both possible and maximal.'''
     return And(
         possible(bit_w),
-        maximal(bit_w),
+        maximal(bit_w, possible, N),
     )
 
 
-def max_compatible_part(bit_x, bit_w, bit_y):
+def max_compatible_part(bit_x, bit_w, bit_y, possible, N):
     '''bit_x is the biggest part of bit_w that is compatible with bit_y.'''
     z = BitVec('max_part_dummy', N)
     return And(
         is_part_of(bit_x, bit_w),
-        compatible(bit_x, bit_y),
+        compatible(bit_x, bit_y, possible),
         ForAll(
             z,
             Implies(
-                And(is_part_of(z, bit_w), compatible(z, bit_y), is_part_of(bit_x, z)),
+                And(is_part_of(z, bit_w), compatible(z, bit_y, possible), is_part_of(bit_x, z)),
                 bit_x == z,
             ),
         ),
     )
 
 
-def is_alternative(bit_u, bit_y, bit_w):
+def is_alternative(bit_u, bit_y, bit_w, possible, N):
     """
     bit_u is a world that is the alternative that results from imposing state bit_y on world bit_w.
     """
     z = BitVec("alt_dummy", N)
     return And(
-        is_world(bit_u),
+        is_world(bit_u, possible, N),
         is_part_of(bit_y, bit_u),
-        Exists(z, And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y))),
+        Exists(z, And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y, possible, N))),
     )
 
 
-def proposition(atom):
-    """
-    atom is a proposition since its verifiers and falsifiers are closed under
-    fusion respectively, and the verifiers and falsifiers for atom are
-    incompatible (exhaustivity). NOTE: exclusivity crashes Z3 so left off.
-    """
-    x = BitVec("prop_dummy_x", N)
-    y = BitVec("prop_dummy_y", N)
-    return And(
-        ForAll(
-            [x, y],
-            Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
-        ), # verifiers for atom are closed under fusion
-        ForAll(
-            [x, y],
-            Implies(And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)),
-        ), # falsifiers for atom are closed under fusion
-        ForAll(
-            [x, y],
-            Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
-        ), # verifiers and falsifiers for atom are incompatible
-        # ForAll(
-        #     x,
-        #     Implies(
-        #         possible(x),
-        #         Exists(y, And(compatible(x, y), Or(verify(y, atom), falsify(y, atom)))),
-        #     ),
-        # ), # every possible state is compatible with either a verifier or falsifier for atom
-        # NOTE: adding the constraint above makes Z3 crash
-        # without this constraint the logic is not classical (there could be truth-value gaps)
-    )
+# def proposition(atom, verify, falsify, possible, N):
+#     """
+#     atom is a proposition since its verifiers and falsifiers are closed under
+#     fusion respectively, and the verifiers and falsifiers for atom are
+#     incompatible (exhaustivity). NOTE: exclusivity crashes Z3 so left off.
+#     """
+#     x = BitVec("prop_dummy_x", N)
+#     y = BitVec("prop_dummy_y", N)
+#     return And(
+#         ForAll(
+#             [x, y],
+#             Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
+#         ), # verifiers for atom are closed under fusion
+#         ForAll(
+#             [x, y],
+#             Implies(And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)),
+#         ), # falsifiers for atom are closed under fusion
+#         ForAll(
+#             [x, y],
+#             Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y, possible))),
+#         ), # verifiers and falsifiers for atom are incompatible
+#         # ForAll(
+#         #     x,
+#         #     Implies(
+#         #         possible(x),
+#         #         Exists(y, And(compatible(x, y), Or(verify(y, atom), falsify(y, atom)))),
+#         #     ),
+#         # ), # every possible state is compatible with either a verifier or falsifier for atom
+#         # NOTE: adding the constraint above makes Z3 crash
+#         # without this constraint the logic is not classical (there could be truth-value gaps)
+#     )
 
 
 def total_fusion(list_of_states):
@@ -240,7 +241,7 @@ def int_to_binary(integer, number, backwards_binary_str = ''):
     new_int = integer//2
     return int_to_binary(new_int, number, new_backwards_str)
 
-def bitvec_to_substates(bit_vec):
+def bitvec_to_substates(bit_vec, N):
     '''converts bitvectors to fusions of atomic states.'''
     bit_vec_as_string = bit_vec.sexpr()
     if 'x' in bit_vec_as_string: # if we have a hexadecimal, ie N=4m

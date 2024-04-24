@@ -4,10 +4,10 @@ from definitions import (
     bit_proper_part,
     bitvec_to_substates,
     summation,
-    possible,
-    verify,
-    falsify,
-    w,
+    # possible,
+    # verify,
+    # falsify,
+    # w,
 )
 from z3 import (
     BitVecVal,
@@ -30,7 +30,7 @@ def find_all_bits(size):
     return all_bits
 
 
-def find_poss_bits(model,all_bits):
+def find_poss_bits(model,all_bits, possible):
     '''extract all possible bitvectors from all_bits given the model'''
     poss_bits = []
     for bit in all_bits:
@@ -144,7 +144,7 @@ def coproduct(set_A, set_B):
     A_U_B = set_A.union(set_B)
     return A_U_B.union(product(set_A, set_B))
 
-def atomic_propositions_dict(all_bits, sentence_letters, model):
+def atomic_propositions_dict(all_bits, sentence_letters, model, verify, falsify):
     atomic_VFs_dict = {}
     for letter in sentence_letters:
         ver_bits = relate_sents_and_states(all_bits, letter, model, verify)

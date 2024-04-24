@@ -1,11 +1,11 @@
 import time
 from definitions import (
-    verify,
-    possible,
+    # verify,
+    # possible,
     bit_part,
     bitvec_to_substates,
     int_to_binary,
-    w,
+    # w,
 )
 from semantics import (
     infix_combine,
@@ -50,15 +50,20 @@ class ModelStructure():
     self.sentence letters is a list of atomic sentence letters (each of sort AtomSort)
     self.constraints is a list (?) of constraints
     everything else is initialized as None'''
-    def __init__(self, input_premises, input_conclusions):
+    def __init__(self, input_premises, input_conclusions, possible, verify, falsify, N, w):
+        # self.N = N
+        # self.w = w
         self.premises = input_premises
         self.conclusions = input_conclusions
         self.input_sentences = infix_combine(input_premises, input_conclusions)
         # TODO: replace prefix_sentences with ext_sub_sentences
-        consts, sent_lets, extensional_subsentences = find_all_constraints(self.input_sentences)
+        consts, sent_lets, extensional_subsentences = find_all_constraints(self.input_sentences, possible, verify, falsify, N, w)
         self.sentence_letters = sent_lets
         self.constraints = consts
         self.extensional_subsentences = extensional_subsentences # a list of prefix sentences (lists), not
+        self.possible = possible
+        self.verify = verify
+        self.falsify = falsify
         # a list of Proposition objects. Cannot make it that in init because that would require having run the model
         # # initialize yet-undefined attributes
         # TODO: add along with other method for error report
@@ -70,7 +75,7 @@ class ModelStructure():
         # self.eval_world = None
         # self.atomic_props_dict = None
 
-    def solve(self,N):
+    def solve(self,N,w):
         '''solves the model, returns None
         self.model is the ModelRef object resulting from solving the model
         self.model_runtime is the runtime of the model as a float
@@ -80,6 +85,8 @@ class ModelStructure():
         self.eval_world is the eval world (as a BitVecVal)
         self.atomic_props_dict is a dictionary with keys AtomSorts and keys (V,F)
         '''
+        falsify = self.falsify
+        verify = self.verify
         model_start = time.time() # start benchmark timer
         solved_model_status, solved_model = solve_constraints(self.constraints)
         self.model_status = solved_model_status
@@ -93,7 +100,7 @@ class ModelStructure():
             self.poss_bits = find_poss_bits(self.model,self.all_bits)
             self.world_bits = find_world_bits(self.poss_bits)
             self.eval_world = self.model[w] # var accessed from outside (not bad, just noting)
-            self.atomic_props_dict = atomic_propositions_dict(self.all_bits, self.sentence_letters, self.model)
+            self.atomic_props_dict = atomic_propositions_dict(self.all_bits, self.sentence_letters, self.model, verify, falsify)
             self.extensional_propositions = [Proposition(ext_subsent, self, self.eval_world) for ext_subsent in self.extensional_subsentences]
             # just missing the which-sentences-true-in-which-worlds
         # else: # NOTE: maybe these should be defined as something for the sake of init above
@@ -126,6 +133,7 @@ class ModelStructure():
     def print_states(self,N):
         """print all fusions of atomic states in the model
         first print function in print.py"""
+        possible = self.possible
         # print("\n(Possible) States:")  # Print states
         print("\nStates:")  # Print states
         for bit in self.all_bits:
@@ -189,6 +197,7 @@ class ModelStructure():
         """print the evaluation world and all sentences true/false in that world
         sentence letters is a list
         second print function in print.py"""
+        verify = self.verify
         print(f"\nThe evaluation world is {bitvec_to_substates(self.eval_world)}:")
         true_in_eval = set()
         for sent in self.sentence_letters:
@@ -291,6 +300,7 @@ class Proposition():
         inputs: the verifier states and falsifier states.
         Outputs: None, but prints the verifiers and falsifiers
         Used in print_prop()"""
+        possible = self.possible
         model = self.parent_model_structure.model
         ver_states = {bitvec_to_substates(bit) for bit in self['verifiers'] if model.evaluate(possible(bit))}
         fal_states = {bitvec_to_substates(bit) for bit in self['falsifiers'] if model.evaluate(possible(bit))}
@@ -326,7 +336,7 @@ class Proposition():
                 print_alt_relation(false_in_alt, alt_bit, "not true")
             print()  # for an extra blank line
         else:
-            print(f"  There are no {self}-alternatives to {bitvec_to_substates(model[w])}")
+            print(f"  There are no {self}-alternatives to {bitvec_to_substates(comp_world)}")
             print()  # for an extra blank line
 
     # TODO: what should this look like?

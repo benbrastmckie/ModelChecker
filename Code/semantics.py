@@ -18,17 +18,17 @@ from convert_syntax import (
     all_sentence_letters,
 )
 from definitions import (
-    N,
-    w,
+    # N,
+    # w,
     fusion,
     is_alternative,
     is_part_of,
-    possible,
+    # possible,
     is_world,
     compatible,
-    verify,
+    # verify,
     non_null_verify,
-    falsify,
+    # falsify,
     non_null_falsify,
 )
 
@@ -55,7 +55,7 @@ input_sentences in infix form.
 # QUESTIONS: is there a clear reason to prefer one way over the other?
 # is it possible/desirable to avoid use of 'Exists' entirely?
 
-def prop_const(atom):
+def prop_const(atom, verify, falsify, N):
     """
     atom is a proposition since its verifiers and falsifiers are closed under
     fusion respectively, and the verifiers and falsifiers for atom are
@@ -103,7 +103,7 @@ def prop_const(atom):
     return sent_to_prop
 
 
-def find_frame_constraints(input_sentence_letters):
+def find_frame_constraints(input_sentence_letters, possible, verify, falsify, N, w):
     """find the constraints that depend only on the sentence letters
     returns a list of Z3 constraints"""
     x =  BitVec('frame_dummy_x', N)
@@ -119,7 +119,7 @@ def find_frame_constraints(input_sentence_letters):
     # NOTE: above appears to admit models for weakening the antecedent
     # NOTE: also appears to avoid crashing Z3 with the exhaustivity constraint
     for sent_letter in input_sentence_letters:
-        for const in prop_const(sent_letter):
+        for const in prop_const(sent_letter, verify, falsify, N):
             frame_constraints.append(const)
     return frame_constraints
 
@@ -147,7 +147,7 @@ def find_frame_constraints(input_sentence_letters):
 
 
 # NOTE: should throw error if boxright occurs in X
-def extended_verify(state, ext_sent, evaluate=False):
+def extended_verify(state, ext_sent, verify, falsify, N, evaluate=False):
     """X is in prefix form. Same for extended_falsify"""
     if len(ext_sent) == 1:
         # print(state,ext_sent,type(state),type(ext_sent))
@@ -156,72 +156,72 @@ def extended_verify(state, ext_sent, evaluate=False):
     if "boxright" in op:
         raise ValueError(f"The sentence {ext_sent} is not extensional.")
     if "neg" in op:
-        return extended_falsify(state, ext_sent[1])
+        return extended_falsify(state, ext_sent[1], verify, falsify, N)
     Y = ext_sent[1]  # should be a list itself
     Z = ext_sent[2]  # should be a list itself
     if "wedge" in op:
         y =  BitVec('ex_ver_dummy_y', N)
         z =  BitVec('ex_ver_dummy_z', N)
         if evaluate == True:
-            return And(fusion(y, z) == state, extended_verify(y, Y), extended_verify(z, Z))
+            return And(fusion(y, z) == state, extended_verify(y, Y, verify, falsify, N), extended_verify(z, Z, verify, falsify, N))
         return Exists(
             [y, z],
-            And(fusion(y, z) == state, extended_verify(y, Y), extended_verify(z, Z)),
+            And(fusion(y, z) == state, extended_verify(y, Y, verify, falsify, N), extended_verify(z, Z, verify, falsify, N)),
         )
     if "vee" in op:
         return Or(
-            extended_verify(state, Y),
-            extended_verify(state, Z),
-            extended_verify(state, ["wedge", Y, Z]),
+            extended_verify(state, Y, verify, falsify, N),
+            extended_verify(state, Z, verify, falsify, N),
+            extended_verify(state, ["wedge", Y, Z], verify, falsify, N),
         )
     if "leftrightarrow" in op:
         return Or(
-            extended_verify(state, ["wedge", Y, Z]),
-            extended_falsify(state, ["vee", Y, Z]),
+            extended_verify(state, ["wedge", Y, Z], verify, falsify, N),
+            extended_falsify(state, ["vee", Y, Z], verify, falsify, N),
         )
     if "rightarrow" in op:
         return Or(
-            extended_falsify(state, Y),
-            extended_verify(state, Z),
-            extended_verify(state, ["wedge", ["neg", Y], Z]),
+            extended_falsify(state, Y, verify, falsify, N),
+            extended_verify(state, Z, verify, falsify, N),
+            extended_verify(state, ["wedge", ["neg", Y], Z], verify, falsify, N),
         )
     raise ValueError(
         f"Something went wrong in extended_verify in evaluating the operator {op} in [{op}, {Y}, {Z}]"
     )
 
 
-def extended_falsify(state, ext_sent):
+def extended_falsify(state, ext_sent, verify, falsify, N):
     if len(ext_sent) == 1:
         return falsify(state, ext_sent[0])
     op = ext_sent[0]
     if "boxright" in op:
         raise ValueError(f"The sentence {ext_sent} is not extensional.")
     if "neg" in op:
-        return extended_verify(state, ext_sent[1])
+        return extended_verify(state, ext_sent[1], verify, falsify, N)
     Y = ext_sent[1]
     Z = ext_sent[2]
     if "wedge" in op:
         return Or(
-            extended_falsify(state, Y),
-            extended_falsify(state, Z),
-            extended_falsify(state, ["vee", Y, Z]),
+            extended_falsify(state, Y, verify, falsify, N),
+            extended_falsify(state, Z, verify, falsify, N),
+            extended_falsify(state, ["vee", Y, Z], verify, falsify, N),
         )
     y =  BitVec('ex_fal_dummy_y', N)
     z =  BitVec('ex_fal_dummy_z', N) # both used in vee and rightarrow cases, but usage is mutually exclusive so can define up here
     if "vee" in op:
         return Exists(
             [y, z],
-            And(state == fusion(y, z), extended_falsify(y, Y), extended_falsify(z, Z)),
+            And(state == fusion(y, z), extended_falsify(y, Y, verify, falsify, N), extended_falsify(z, Z, verify, falsify, N)),
         )
     if "leftrightarrow" in op:
         return Or(
-            extended_verify(state, ["wedge", Y, ["neg", Z]]),
-            extended_falsify(state, ["vee", Y, ["neg", Z]]),
+            extended_verify(state, ["wedge", Y, ["neg", Z]], verify, falsify, N),
+            extended_falsify(state, ["vee", Y, ["neg", Z]], verify, falsify, N),
         )
     if "rightarrow" in op:
         return Exists(
             [y, z],
-            And(state == fusion(y, z), extended_verify(y, Y), extended_falsify(z, Z)),
+            And(state == fusion(y, z), extended_verify(y, Y, verify, falsify, N), extended_falsify(z, Z, verify, falsify, N)),
         )
     raise ValueError(
         f"Something went wrong in extended_verify in evaluating the operator {op} in [{op}, {Y}, {Z}]"
@@ -231,7 +231,7 @@ def extended_falsify(state, ext_sent):
 # NOTE: the true_at/false-at definitions are bilateral to accommodate the fact
 # that the exhaustivity constraint is not included in the definition of props
 # this should avoid the need for specific clauses for (un)negated CFs
-def true_at(sentence, world):
+def true_at(sentence, world, verify, falsify, possible, N):
     """sentence is a sentence in prefix notation"""
     x = BitVec('t_dummy_x', N)
     u = BitVec('t_dummy_u', N)
@@ -240,30 +240,30 @@ def true_at(sentence, world):
         return Exists(x, And(is_part_of(x, world), verify(x, sent)))
     op = sentence[0]
     if "neg" in op:
-        return false_at(sentence[1], world)
+        return false_at(sentence[1], world, verify, falsify, possible, N)
     Y = sentence[1]
     Z = sentence[2]
     if "wedge" in op:
-        return And(true_at(Y, world), true_at(Z, world))
+        return And(true_at(Y, world, verify, falsify, possible, N), true_at(Z, world, verify, falsify, possible, N))
     if "vee" in op:
-        return Or(true_at(Y, world), true_at(Z, world))
+        return Or(true_at(Y, world, verify, falsify, possible, N), true_at(Z, world, verify, falsify, possible, N))
     if "leftrightarrow" in op:
         return Or(
-            And(true_at(Y, world), true_at(Z, world)),
-            And(false_at(Y, world), false_at(Z, world)),
+            And(true_at(Y, world, verify, falsify, possible, N), true_at(Z, world, verify, possible, N)),
+            And(false_at(Y, world, verify, falsify, possible, N), false_at(Z, world, verify, falsify, possible, N)),
         )
     if "rightarrow" in op:
-        return Or(false_at(Y, world), true_at(Z, world))
+        return Or(false_at(Y, world, verify, falsify, possible, N), true_at(Z, world, verify, falsify, possible, N))
     if "boxright" in op:
         return ForAll(
             [x, u],
             Implies(
-                And(extended_verify(x, Y), is_alternative(u, x, world)), true_at(Z, u)
+                And(extended_verify(x, Y, verify, falsify, N), is_alternative(u, x, world, possible, N)), true_at(Z, u, verify, falsify, possible, N)
             ),
         )
 
 
-def false_at(sentence, world):
+def false_at(sentence, world, verify, falsify, possible, N):
     """X is a sentence in prefix notation"""
     x = BitVec('f_dummy_x', N)
     u = BitVec('f_dummy_u', N)
@@ -272,32 +272,32 @@ def false_at(sentence, world):
         return Exists(x, And(is_part_of(x, world), falsify(x, sent)))
     op = sentence[0]
     if "neg" in op:
-        return true_at(sentence[1], world)
+        return true_at(sentence[1], world, verify, falsify, N)
     Y = sentence[1]
     Z = sentence[2]
     if "wedge" in op:
-        return Or(false_at(Y, world), false_at(Z, world))
+        return Or(false_at(Y, world, verify, falsify, possible, N), false_at(Z, world, verify, falsify, possible, N))
     if "vee" in op:
-        return And(false_at(Y, world), false_at(Z, world))
+        return And(false_at(Y, world, verify, falsify, possible, N), false_at(Z, world, verify, falsify, possible, N))
     if "leftrightarrow" in op:
         return Or(
-            And(true_at(Y, world), false_at(Z, world)),
-            And(false_at(Y, world), true_at(Z, world)),
+            And(true_at(Y, world, verify, falsify, possible, N), false_at(Z, world, verify, falsify, possible, N)),
+            And(false_at(Y, world, verify, falsify, possible, N), true_at(Z, world, verify, falsify, possible, N)),
         )
     if "rightarrow" in op:
-        return And(true_at(Y, world), false_at(Z, world))
+        return And(true_at(Y, world, verify, falsify, possible, N), false_at(Z, world, verify, falsify, possible, N))
     if "boxright" in op:
         return Exists(
             [x, u],
-            And(extended_verify(x, Y), is_alternative(u, x, world), false_at(Z, u)),
+            And(extended_verify(x, Y, verify, falsify, N), is_alternative(u, x, world, possible, N), false_at(Z, u, verify, falsify, possible, N)),
         )
 
 
-def find_model_constraints(prefix_sents):
+def find_model_constraints(prefix_sents, verify, falsify, possible, N, w):
     """find constraints corresponding to the input sentences"""
     input_const = []
     for sentence in prefix_sents:
-        sentence_constraint = true_at(sentence, w)
+        sentence_constraint = true_at(sentence, w, verify, falsify, possible, N)
         input_const.append(sentence_constraint)
     return input_const
 
@@ -313,18 +313,18 @@ def find_model_constraints(prefix_sents):
 #         solv.add(sentence_constraint)
 
 
-def find_all_constraints(infix_input_sentences):
+def find_all_constraints(infix_input_sentences, verify, falsify, possible, N, w):
     """find Z3 constraints for input sentences
     input_sents are a list of infix sentences"""
     # prefix_premises = [Prefix(input_sent) for input_sent in infix_premises]  # this works
     # prefix_conclusions = [Prefix(input_sent) for input_sent in infix_conclusions]
     # prefix_sentences = prefix_combine(prefix_premises, prefix_conclusions)
     prefix_sentences = [Prefix(input_sent) for input_sent in infix_input_sentences]
-    input_const = find_model_constraints(prefix_sentences)
+    input_const = find_model_constraints(prefix_sentences, verify, falsify, possible, N, w)
     sentence_letters = all_sentence_letters(prefix_sentences)  # this works
     # print(sentence_letters)
     # print([type(let) for let in sentence_letters])
-    gen_const = find_frame_constraints(sentence_letters)
+    gen_const = find_frame_constraints(sentence_letters, verify, falsify, possible, N, w)
     const = gen_const + input_const
     ext_subsentences = repeats_removed(find_extensional_subsentences(prefix_sentences))
     return (const, sentence_letters, ext_subsentences)

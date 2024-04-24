@@ -1,7 +1,5 @@
-from model_structure import (
-    ModelStructure,
-)
-from definitions import N
+from N_workaround import make_model_for
+
 
 
 ################################
@@ -10,7 +8,7 @@ from definitions import N
 
 # TODO: define bitvec length N here
 # NOTE: N needs to be removed from definitions.py
-# N = 3
+N = 3
 
 print_cons_bool = False
 print_unsat_core_bool = True
@@ -121,6 +119,7 @@ conclusions = ['((A \\wedge B) \\boxright C)']
 ############ SOLVER ############
 ################################
 
-mod = ModelStructure(premises, conclusions)
-mod.solve(N)
+# mod = ModelStructure(premises, conclusions)
+# mod.solve(N)
+mod = make_model_for(N)(premises, conclusions)
 mod.print_all(N, print_cons_bool, print_unsat_core_bool)
