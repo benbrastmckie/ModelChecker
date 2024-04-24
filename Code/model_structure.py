@@ -268,7 +268,7 @@ class ModelStructure():
     #   - for `A` in `prefix_input_sentences`:
     #     - `print_sort(A,w)`
 
-    def print_props(self,N,world):
+    def print_props(self,world):
         # B: do we need N to be specified here?
         # NOTE: I added a world-argument above which I think will be needed
         # when printing alt_worlds for nested counterfactuals. right now it

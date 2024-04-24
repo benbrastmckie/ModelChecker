@@ -48,25 +48,27 @@ input_sentences in infix form.
 # QUESTIONS: is there a clear reason to prefer one way over the other?
 # is it possible/desirable to avoid use of 'Exists' entirely?
 
-def prop_const(atom):
-    """
-    atom is a proposition since its verifiers and falsifiers are closed under
-    fusion respectively, and the verifiers and falsifiers for atom are
-    incompatible (exhaustivity). NOTE: exclusivity crashes Z3 so left off.
-    """
-    x =  BitVec('prop_dummy_x', N)
-    y =  BitVec('prop_dummy_y', N)
-    sent_to_prop = [
-        Exists(x, And(non_null_verify(x, atom), possible(x))),
-        Exists(y, And(non_null_falsify(y, atom), possible(y))),
-        ForAll(
-            [x, y],
-            Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
-        ),
-        ForAll(
-            [x, y],
-            Implies(
-                And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)
+def make_semantics(verify, falsify, possible, N, w):
+    def prop_const(atom):
+        """
+        atom is a proposition since its verifiers and falsifiers are closed under
+        fusion respectively, and the verifiers and falsifiers for atom are
+        incompatible (exhaustivity). NOTE: exclusivity crashes Z3 so left off.
+        """
+        x =  BitVec('prop_dummy_x', N)
+        y =  BitVec('prop_dummy_y', N)
+        sent_to_prop = [
+            Exists(x, And(non_null_verify(x, atom), possible(x))),
+            Exists(y, And(non_null_falsify(y, atom), possible(y))),
+            ForAll(
+                [x, y],
+                Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
+            ),
+            ForAll(
+                [x, y],
+                Implies(
+                    And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)
+                ),
             ),
             ForAll(
                 [x, y],
@@ -91,7 +93,7 @@ def prop_const(atom):
             #         ),
             #     ),
             # ),
-        ]
+            ]
         return sent_to_prop
 
 
@@ -461,3 +463,4 @@ def prop_const(atom):
             is_part_of(bit_y, bit_u),
             Exists(z, And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y))),
         )
+    return find_all_constraints, solve_constraints
