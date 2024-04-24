@@ -61,7 +61,7 @@ class ModelStructure():
         self.sentence_letters = sent_lets
         self.constraints = consts
         self.extensional_subsentences = extensional_subsentences # a list of prefix sentences (lists), not
-        self.possible = possible
+        self.possible = possible # make these into a dictionary, and then make setitem and getitem methods (? for hte latter)
         self.verify = verify
         self.falsify = falsify
         # a list of Proposition objects. Cannot make it that in init because that would require having run the model
