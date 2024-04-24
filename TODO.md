@@ -43,9 +43,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - works without `\neg B`.
   - [ ] `\neg A, A \boxright C` does not entail `(A \wedge B) \boxright C`
     - works without `\neg A`.
-  - [ ] `A \boxright C, B \boxright C` entails `(A \wedge B) \boxright C`
   - [ ] `\neg A, A \boxright C` does not entails `(A \wedge B) \boxright C`
     - works without `\neg A`.
+  - [ ] `A \boxright C, B \boxright C` entails `(A \wedge B) \boxright C`
   - [ ] `(A \wedge B) \boxright C` entails `A \boxright (B \boxright C)`
     - it is working by finding models where A and B incompatible
     - adding `\neg ((A \wedge B) \boxright D)` avoids this
@@ -67,7 +67,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] move declarations out of `definitions`
   - [ ] divide between use cases: Z3 constraints vs print etc
   - [ ] clear out unused
-- [ ] `print`
+- [x] `print`
   - [ ] clear out unused
 - [ ] `semantics`
   - [ ] clear out unused
