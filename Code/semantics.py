@@ -69,9 +69,11 @@ def prop_const(atom):
         # NOTE: should we include declarations of a and b above to
         # avoid 'Exists' below?
         # non_null_verify(a, atom),
+        # possible(a),
         # non_null_falsify(b, atom),
-        Exists(x, non_null_verify(x, atom)),
-        Exists(y, non_null_falsify(y, atom)),
+        # possible(b),
+        Exists(x, And(non_null_verify(x, atom), possible(x))),
+        Exists(y, And(non_null_falsify(y, atom), possible(y))),
         ForAll(
             [x, y],
             Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
