@@ -3,10 +3,7 @@ file specifies premises, conclusions, and settings.
 running the file finds a model and prints the result.
 '''
 
-from model_structure import (
-    ModelStructure,
-)
-from definitions import N
+from workaround import make_model_for
 
 
 ################################
@@ -15,7 +12,7 @@ from definitions import N
 
 # TODO: define bitvec length N here
 # NOTE: N needs to be removed from definitions.py
-# N = 3
+N = 3
 
 print_cons_bool = False
 print_unsat_core_bool = True
@@ -135,6 +132,5 @@ conclusions = ['(A \\boxright B)','(A \\boxright C)']
 ############ SOLVER ############
 ################################
 
-mod = ModelStructure(premises, conclusions)
-mod.solve(N)
-mod.print_all(N, print_cons_bool, print_unsat_core_bool)
+mod = make_model_for(N)(premises, conclusions)
+mod.print_all(print_cons_bool, print_unsat_core_bool)

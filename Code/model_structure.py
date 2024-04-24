@@ -3,18 +3,13 @@ file defines model structure class given a Z3 model
 '''
 
 import time
-from definitions import (
-    verify,
-    possible,
-    bit_part,
-    bitvec_to_substates,
-    int_to_binary,
-    w,
-)
+# from definitions import (
+#     verify,
+#     possible,
+#     w,
+# )
 from semantics import (
-    infix_combine,
-    find_all_constraints,
-    solve_constraints,
+    make_semantics
 )
 from model_definitions import (
     find_compatible_parts,
@@ -28,9 +23,12 @@ from model_definitions import (
     find_true_and_false_in_alt,
     print_alt_relation,
     product,
+    bit_part, 
+    bitvec_to_substates, 
+    int_to_binary,
 )
 
-from convert_syntax import Infix
+from syntax import (Infix, infix_combine)
 
 # TODO: the three types of objects that it would be good to store as classes
 # include: (1) premises, conclusions, input_sentences, prefix_sentences,
@@ -54,12 +52,22 @@ class ModelStructure():
     self.sentence letters is a list of atomic sentence letters (each of sort AtomSort)
     self.constraints is a list (?) of constraints
     everything else is initialized as None'''
-    def __init__(self, input_premises, input_conclusions):
+    def __init__(self, input_premises, input_conclusions, verify, falsify, possible, N, w):
+        self.relation_dict = {}
+        # self.relation_dict['verify'] = verify
+        # self.relation_dict['falsify'] = falsify
+        # self.relation_dict['possible'] = possible
+        self.verify = verify
+        self.falsify = falsify
+        self.possible = possible
+        self.N = N
+        self.w = w
         self.premises = input_premises
         self.conclusions = input_conclusions
         self.input_sentences = infix_combine(input_premises, input_conclusions)
+        self.find_all_constraints_func, self.solve_constraints_func = make_semantics(verify, falsify, possible, N, w)
         # TODO: replace prefix_sentences with ext_sub_sentences
-        consts, sent_lets, extensional_subsentences = find_all_constraints(self.input_sentences)
+        consts, sent_lets, extensional_subsentences = self.find_all_constraints_func(self.input_sentences)
         self.sentence_letters = sent_lets
         self.constraints = consts
         self.extensional_subsentences = extensional_subsentences # a list of prefix sentences (lists), not
@@ -74,7 +82,7 @@ class ModelStructure():
         # self.eval_world = None
         # self.atomic_props_dict = None
 
-    def solve(self,N):
+    def solve(self):
         '''solves the model, returns None
         self.model is the ModelRef object resulting from solving the model
         self.model_runtime is the runtime of the model as a float
@@ -85,19 +93,19 @@ class ModelStructure():
         self.atomic_props_dict is a dictionary with keys AtomSorts and keys (V,F)
         '''
         model_start = time.time() # start benchmark timer
-        solved_model_status, solved_model = solve_constraints(self.constraints)
+        solved_model_status, solved_model = self.solve_constraints_func(self.constraints)
         self.model_status = solved_model_status
         self.model = solved_model
         model_end = time.time()
         model_total = round(model_end - model_start,4)
         self.model_runtime = model_total
         if self.model_status:
-            self.all_bits = find_all_bits(N) # var accessed from outside (not bad, just noting)
+            self.all_bits = find_all_bits(self.N) # var accessed from outside (not bad, just noting)
             # print(self.model)
-            self.poss_bits = find_poss_bits(self.model,self.all_bits)
+            self.poss_bits = find_poss_bits(self.model, self.all_bits, self.possible)
             self.world_bits = find_world_bits(self.poss_bits)
-            self.eval_world = self.model[w] # var accessed from outside (not bad, just noting)
-            self.atomic_props_dict = atomic_propositions_dict(self.all_bits, self.sentence_letters, self.model)
+            self.eval_world = self.model[self.w] # var accessed from outside (not bad, just noting)
+            self.atomic_props_dict = atomic_propositions_dict(self.all_bits, self.sentence_letters, self.model, self.verify, self.falsify)
             self.extensional_propositions = [Proposition(ext_subsent, self, self.eval_world) for ext_subsent in self.extensional_subsentences]
             # just missing the which-sentences-true-in-which-worlds
         # else: # NOTE: maybe these should be defined as something for the sake of init above
@@ -127,14 +135,15 @@ class ModelStructure():
                         break  # to return to the second for loop over world_bits
         return alt_bits
 
-    def print_states(self,N):
+    def print_states(self):
         """print all fusions of atomic states in the model
         first print function in print.py"""
         # print("\n(Possible) States:")  # Print states
+        N = self.N
         print("\nStates:")  # Print states
         for bit in self.all_bits:
             # test_state = BitVecVal(val, size) # was instead of bit
-            state = bitvec_to_substates(bit)
+            state = bitvec_to_substates(bit, N)
             bin_rep = (
                 bit.sexpr()
                 if N % 4 != 0
@@ -142,7 +151,7 @@ class ModelStructure():
             )
             if bit in self.world_bits:
                 print(f"  {bin_rep} = {state} (world)")
-            elif self.model.evaluate(possible(bit)):
+            elif self.model.evaluate(self.possible(bit)):
                 # TODO: above linter says: invalid conditional operand of type
                 # NOTE: the following comments are to debug
                 # result = self.model.evaluate(possible(bit))
@@ -198,11 +207,12 @@ class ModelStructure():
         """print the evaluation world and all sentences true/false in that world
         sentence letters is a list
         second print function in print.py"""
-        print(f"\nThe evaluation world is {bitvec_to_substates(self.eval_world)}:")
+        N = self.N
+        print(f"\nThe evaluation world is {bitvec_to_substates(self.eval_world, N)}:")
         true_in_eval = set()
         for sent in self.sentence_letters:
             for bit in self.all_bits:
-                ver_bool = verify(bit, self.model[sent])
+                ver_bool = self.verify(bit, self.model[sent])
                 part_bool = bit_part(bit, self.eval_world)
                 # TODO: linter says below has invalid conditional operand
                 if self.model.evaluate(ver_bool) and part_bool:
@@ -212,11 +222,11 @@ class ModelStructure():
         if true_in_eval:
             true_eval_list = sorted([str(sent) for sent in true_in_eval])
             true_eval_string = ", ".join(true_eval_list)
-            print(f"  {true_eval_string}  (true in {bitvec_to_substates(self.eval_world)})")
+            print(f"  {true_eval_string}  (true in {bitvec_to_substates(self.eval_world, N)})")
         if false_in_eval:
             false_eval_list = sorted([str(sent) for sent in false_in_eval])
             false_eval_string = ", ".join(false_eval_list)
-            print(f"  {false_eval_string}  (not true in {bitvec_to_substates(self.eval_world)})")
+            print(f"  {false_eval_string}  (not true in {bitvec_to_substates(self.eval_world, N)})")
         print()
 
     def print_constraints(self,consts):
@@ -274,15 +284,16 @@ class ModelStructure():
             ext_proposition.print_possible_verifiers_and_falsifiers()
             ext_proposition.print_alt_worlds()
 
-    def print_all(self, N, print_cons_bool=False, print_unsat_core_bool=False):
+    def print_all(self, print_cons_bool=False, print_unsat_core_bool=False):
         """prints all elements of the model"""
+        N = self.N
         if self.model_status:
             print(f"\nThere is a {N}-model of:\n")
             for sent in self.input_sentences:
                 print(sent)
-            self.print_states(N)
+            self.print_states()
             self.print_evaluation()
-            self.print_props(N,self.eval_world)
+            self.print_props(self.eval_world)
             if print_cons_bool:
                 print("Satisfiable core constraints:\n")
                 self.print_constraints(self.constraints)
@@ -336,9 +347,11 @@ class Proposition():
         inputs: the verifier states and falsifier states.
         Outputs: None, but prints the verifiers and falsifiers
         Used in print_prop()"""
+        N = self.parent_model_structure.N
+        possible = self.parent_model_structure.possible
         model = self.parent_model_structure.model
-        ver_states = {bitvec_to_substates(bit) for bit in self['verifiers'] if model.evaluate(possible(bit))}
-        fal_states = {bitvec_to_substates(bit) for bit in self['falsifiers'] if model.evaluate(possible(bit))}
+        ver_states = {bitvec_to_substates(bit, N) for bit in self['verifiers'] if model.evaluate(possible(bit))}
+        fal_states = {bitvec_to_substates(bit, N) for bit in self['falsifiers'] if model.evaluate(possible(bit))}
         if ver_states and fal_states:
             print(
                 f"  |{self}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(fal_states)} >"
@@ -356,22 +369,23 @@ class Proposition():
         Takes in a proposition. Note that this proposition has itself a comparison world.
         This is not inputted into the method, but accessed. So, need to make sure, before the method
         is called, that the proposition has the proper comparison world before calling the function"""
+        N = self.parent_model_structure.N
         comp_world = self['comparison world']
         model = self.parent_model_structure.model # ModelRef object
-        alt_worlds = {bitvec_to_substates(alt) for alt in self['alternative worlds']}
+        alt_worlds = {bitvec_to_substates(alt, N) for alt in self['alternative worlds']}
         if alt_worlds:
-            print(f"  {self}-alternatives to {bitvec_to_substates(comp_world)} = {make_set_pretty_for_print(alt_worlds)}")
+            print(f"  {self}-alternatives to {bitvec_to_substates(comp_world, N)} = {make_set_pretty_for_print(alt_worlds)}")
             for alt_bit in self['alternative worlds']:
                 # TODO: note that not enough arguments are included below
                 # def find_true_and_false_in_alt(alt_bit, sentence_letters, all_bits, model):
                 true_in_alt, false_in_alt = find_true_and_false_in_alt(
                     alt_bit, self.parent_model_structure
                 )
-                print_alt_relation(true_in_alt, alt_bit, "true")
-                print_alt_relation(false_in_alt, alt_bit, "not true")
+                print_alt_relation(true_in_alt, alt_bit, "true", N)
+                print_alt_relation(false_in_alt, alt_bit, "not true", N)
             print()  # for an extra blank line
         else:
-            print(f"  There are no {self}-alternatives to {bitvec_to_substates(model[w])}")
+            print(f"  There are no {self}-alternatives to {bitvec_to_substates(model[self.w], N)}")
             print()  # for an extra blank line
 
     # TODO: what should this look like?
