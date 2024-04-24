@@ -13,7 +13,7 @@ from definitions import (
     summation,
 )
 
-from convert_syntax import Infix
+from Code.syntax import Infix
 
 '''
 the three main functions are print_states(), print_evaluations(), and print_propositions().

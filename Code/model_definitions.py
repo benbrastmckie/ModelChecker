@@ -5,14 +5,14 @@ file contains all definitions for defining the model structure
 from z3 import (
     BitVecVal, simplify
 )
-from definitions import (
-    N,
-    possible,
-    verify,
-    falsify,
-)
+# from definitions import (
+#     N,
+#     possible,
+#     verify,
+#     falsify,
+# )
 
-from convert_syntax import Infix
+from syntax import Infix
 
 def find_all_bits(size):
     '''extract all bitvectors from the input model'''
@@ -29,7 +29,7 @@ def find_all_bits(size):
     return all_bits
 
 
-def find_poss_bits(model,all_bits):
+def find_poss_bits(model,all_bits, possible):
     '''extract all possible bitvectors from all_bits given the model'''
     poss_bits = []
     for bit in all_bits:
@@ -143,7 +143,7 @@ def coproduct(set_A, set_B):
     A_U_B = set_A.union(set_B)
     return A_U_B.union(product(set_A, set_B))
 
-def atomic_propositions_dict(all_bits, sentence_letters, model):
+def atomic_propositions_dict(all_bits, sentence_letters, model, verify, falsify):
     atomic_VFs_dict = {}
     for letter in sentence_letters:
         ver_bits = relate_sents_and_states(all_bits, letter, model, verify)
@@ -151,7 +151,7 @@ def atomic_propositions_dict(all_bits, sentence_letters, model):
         atomic_VFs_dict[letter] = (ver_bits, fal_bits)
     return atomic_VFs_dict
 
-def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value):
+def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value, N):
     """true is a string representing the relation ("true" for true_in_alt; m.m. for false) that is being used for
     alt_relation_set is the set of prefix sentences that have truth value relation_truth_value in a
     given alternative world alt_bit
@@ -162,9 +162,9 @@ def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value):
     alt_relation_list = sorted([Infix(sent) for sent in alt_relation_set])
     alt_relation_string = ", ".join(alt_relation_list)
     if len(alt_relation_set) == 1:
-        print(f"    {alt_relation_string} is {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
+        print(f"    {alt_relation_string} is {relation_truth_value} in {bitvec_to_substates(alt_bit, N)}")
     else:
-        print(f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_bit)}")
+        print(f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_bit, N)}")
 
 
 #############################################
@@ -222,7 +222,7 @@ def int_to_binary(integer, number, backwards_binary_str = ''):
 
 
 # TODO: linter says all or none of the returns should be an expression
-def bitvec_to_substates(bit_vec):
+def bitvec_to_substates(bit_vec, N):
     '''converts bitvectors to fusions of atomic states.'''
     bit_vec_as_string = bit_vec.sexpr()
     if 'x' in bit_vec_as_string: # if we have a hexadecimal, ie N=4m
