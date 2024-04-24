@@ -34,8 +34,8 @@ print_unsat_core_bool = True
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
 
-# premises = ['A',]
-# conclusions = ['\\neg A']
+premises = ['A',]
+conclusions = ['\\neg A']
 
 # premises = ['\\neg A','\\neg (A \\boxright B)']
 # conclusions = ['(A \\boxright \\neg B)']
