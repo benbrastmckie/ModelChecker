@@ -20,16 +20,9 @@ from convert_syntax import (
 from definitions import (
     N,
     w,
-    fusion,
-    is_alternative,
-    is_part_of,
     possible,
-    is_world,
-    compatible,
     verify,
-    non_null_verify,
     falsify,
-    non_null_falsify,
 )
 
 # from sympy import symbols, Or, And, Implies, Not, to_cnf
@@ -395,23 +388,79 @@ def solve_constraints(all_constraints): # all_constraints is a list
     # return (result, None) # NOTE: in what case would you expect this to be triggered?
 
 
-def infix_combine(prem,con):
-    '''combines the premises with the negation of the conclusion(s).
-    premises are infix sentences, and so are the conclusions'''
-    # if prem is None:
-    #     prem = []
-    input_sent = prem
-    for sent in con:
-        neg_sent = '\\neg ' + sent
-        input_sent.append(neg_sent)
-    return input_sent
 
-def prefix_combine(prem,con):
-    '''combines the premises with the negation of the conclusion(s).
-    premises are prefix sentences, and so are the conclusions'''
-    # if prem is None:
-    #     prem = []
-    input_sent = prem
-    neg_conclusion_sents = [['\\neg ', sent] for sent in con]
-    input_sent.extend(neg_conclusion_sents)
-    return input_sent
+#############################################
+######### MOVED FROM DEFINITIONS.PY #########
+#############################################
+
+
+
+
+def non_null_verify(bit_s, atom):
+    '''bit_s verifies atom and is not the null state'''
+    return And(Not(bit_s == 0), verify(bit_s, atom))
+
+
+def non_null_falsify(bit_s,atom):
+    '''bit_s verifies atom and is not the null state'''
+    return And(Not(bit_s == 0), falsify(bit_s,atom))
+
+def fusion(bit_s, bit_t):
+    '''the result of taking the maximum for each index in bit_s and bit_t'''
+    return bit_s | bit_t
+
+def is_part_of(bit_s, bit_t):
+    '''the fusion of bit_s and bit_t is identical to bit_t'''
+    return fusion(bit_s, bit_t) == bit_t
+
+def compatible(bit_x, bit_y):
+    '''the fusion of bit_x and bit_y is possible'''
+    return possible(fusion(bit_x, bit_y))
+
+
+def maximal(bit_w):
+    """bit_w includes all compatible states as parts."""
+    x = BitVec('max_dummy', N)
+    return ForAll(
+        x,
+        Implies(
+            compatible(x, bit_w),
+            is_part_of(x, bit_w),
+        ),
+    )
+
+
+def is_world(bit_w):
+    '''bit_w is both possible and maximal.'''
+    return And(
+        possible(bit_w),
+        maximal(bit_w),
+    )
+
+
+def max_compatible_part(bit_x, bit_w, bit_y):
+    '''bit_x is the biggest part of bit_w that is compatible with bit_y.'''
+    z = BitVec('max_part_dummy', N)
+    return And(
+        is_part_of(bit_x, bit_w),
+        compatible(bit_x, bit_y),
+        ForAll(
+            z,
+            Implies(
+                And(is_part_of(z, bit_w), compatible(z, bit_y), is_part_of(bit_x, z)),
+                bit_x == z,
+            ),
+        ),
+    )
+
+
+def is_alternative(bit_u, bit_y, bit_w):
+    """
+    bit_u is a world that is the alternative that results from imposing state bit_y on world bit_w.
+    """
+    z = BitVec("alt_dummy", N)
+    return And(
+        is_world(bit_u),
+        is_part_of(bit_y, bit_u),
+        Exists(z, And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y))),
+    )
