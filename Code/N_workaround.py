@@ -9,6 +9,7 @@ def make_model_for(N):
         falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
         w = BitVec("w", N)
         mod = ModelStructure(premises, conclusions, possible, verify, falsify, N, w)
-        mod.solve(N, w)
+        mod.solve(N, w) # make these optional? technically, if they're saved within the model, they're not
+                        # needed. And, actually anything else would make this go wrong. 
         return mod
     return make_relations_and_solve
