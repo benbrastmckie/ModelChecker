@@ -225,6 +225,41 @@ class ModelStructure():
             print(f"{index}. {con}\n")
             # print(f"Constraints time: {time}\n")
 
+    def print_sort(comp_sent,world):
+        if comp_sent in self.extensional_subsentences:
+            print(f"")
+
+    # - def `print_sort(A,w)`:
+    #     - if `A` in `ext_sentences`:
+    #       - print: `infix(A)` = `prop(A)` is `truth_value(A,w)` in `w`
+    #     - else:
+    #       - print: `infix(A)` is `truth_value(A,w)` in `w` because:
+    #       - if `A` is `[\neg, [B]]`:
+    #         - `print_sort(B,w)`
+    #       - if `A` is `[\wedge, [B, C]]`:
+    #         - `print_sort(B,w)`
+    #         - `print_sort(B,w)`
+    #       - if `A` is `[\vee, [B, C]]`:
+    #         - `print_sort(B,w)`
+    #         - `print_sort(B,w)`
+    #       - if `A` is `[\rightarrow, [B, C]]`:
+    #         - `print_sort(B,w)`
+    #         - `print_sort(B,w)`
+    #       - if `A` is `[\leftrightarrow, [B, C]]`:
+    #         - `print_sort(B,w)`
+    #         - `print_sort(B,w)`
+    #       - if `A` is `[\boxright, [B, C]]` then:
+    #         - assert `B` is in `ext_sentences`
+    #         - `print_sort(B,w)`
+    #         - print: `infix(B)`-alternatives to `w` = `alt_world(B,w)`
+    #         - for `u` in `alt_world(B,w)`:
+    #           - print atomic sentences that are true in `u`
+    #           - print `print_sort(C,u)`
+
+    # - def `print_all(prefix_input_sentences, w)`
+    #   - for `A` in `prefix_input_sentences`:
+    #     - `print_sort(A,w)`
+
     def print_props(self,N,world):
         # B: do we need N to be specified here?
         # NOTE: I added a world-argument above which I think will be needed

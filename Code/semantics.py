@@ -63,15 +63,7 @@ def prop_const(atom):
     """
     x =  BitVec('prop_dummy_x', N)
     y =  BitVec('prop_dummy_y', N)
-    # a =  BitVec('prop_const_dummy_a', N)
-    # b =  BitVec('prop_const_dummy_b', N)
     sent_to_prop = [
-        # NOTE: should we include declarations of a and b above to
-        # avoid 'Exists' below?
-        # non_null_verify(a, atom),
-        # possible(a),
-        # non_null_falsify(b, atom),
-        # possible(b),
         Exists(x, And(non_null_verify(x, atom), possible(x))),
         Exists(y, And(non_null_falsify(y, atom), possible(y))),
         ForAll(
