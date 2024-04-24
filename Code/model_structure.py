@@ -2,15 +2,13 @@
 file defines model structure class given a Z3 model
 '''
 
-import time
-# from definitions import (
-#     verify,
-#     possible,
-#     w,
-# )
-from semantics import (
-    make_semantics
+from z3 import (
+    Function,
+    BitVecSort,
+    BoolSort, BitVec
 )
+import time
+from semantics import make_semantics
 from model_definitions import (
     find_compatible_parts,
     atomic_propositions_dict,
@@ -28,7 +26,7 @@ from model_definitions import (
     int_to_binary,
 )
 
-from syntax import (Infix, infix_combine)
+from syntax import (AtomSort, Infix, infix_combine)
 
 # TODO: the three types of objects that it would be good to store as classes
 # include: (1) premises, conclusions, input_sentences, prefix_sentences,
@@ -392,3 +390,16 @@ class Proposition():
     def __str__(self):
         return Infix(self['prefix expression']) # it actually works out very nicely if this is it
         # that way instead of doing |{self['infix expression']}| we can do |self|
+
+
+def make_model_for(N):
+    def make_relations_and_solve(premises, conclusions):
+        possible = Function("possible", BitVecSort(N), BoolSort())
+        verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
+        falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
+        w = BitVec("w", N)
+        mod = ModelStructure(premises, conclusions, verify, falsify, possible, N, w)
+        mod.solve() # make these optional? technically, if they're saved within the model, they're not
+                        # needed. And, actually anything else would make this go wrong. 
+        return mod
+    return make_relations_and_solve
