@@ -3,7 +3,7 @@ file contains all definitions for defining the model structure
 '''
 
 from z3 import (
-    BitVecVal, simplify, Solver, sat,
+    BitVecVal, simplify,
 )
 
 from syntax import Infix
@@ -244,3 +244,15 @@ def bitvec_to_substates(bit_vec, N):
         if char == "1":
             state_repr += index_to_substate(i)
             state_repr += "."
+
+def infix_combine(prem,con):
+    '''combines the premises with the negation of the conclusion(s).
+    premises are infix sentences, and so are the conclusions
+    imported by model_structure'''
+    # if prem is None:
+    #     prem = []
+    input_sent = prem
+    for sent in con:
+        neg_sent = '\\neg ' + sent
+        input_sent.append(neg_sent)
+    return input_sent

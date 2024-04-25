@@ -24,9 +24,10 @@ from model_definitions import (
     bit_part, 
     bitvec_to_substates, 
     int_to_binary,
+    infix_combine,
 )
 
-from syntax import (AtomSort, Infix, infix_combine)
+from syntax import AtomSort, Infix
 
 # TODO: the three types of objects that it would be good to store as classes
 # include: (1) premises, conclusions, input_sentences, prefix_sentences,
