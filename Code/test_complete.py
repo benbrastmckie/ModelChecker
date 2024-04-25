@@ -25,8 +25,8 @@ print_unsat_core_bool = True
 
 ### INVALID ###
 
-premises = ['\\neg A','(A \\boxright (B \\vee C))']
-conclusions = ['(A \\boxright B)','(A \\boxright C)']
+# premises = ['\\neg A','(A \\boxright (B \\vee C))']
+# conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
@@ -94,27 +94,17 @@ conclusions = ['(A \\boxright B)','(A \\boxright C)']
 ######### NOT WORKING ##########
 ################################
 
-### HIGH PRIORITY ###
+### HIGH PRIORITY: NEGATION PROBLEM ###
+
+# NOTE: this isn't finding models still
+premises = ['\\neg B','(A \\boxright B)']
+conclusions = ['(\\neg B \\boxright \\neg A)']
 
 # # NOTE: ssh finds unsat_core but should have countermodels
 # premises = ['\\neg A','(A \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
-# # NOTE: doesn't work b/c should countermodel
-# # recursive printing would be helpful.
-# premises = ['(A \\boxright C)','(B \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-
-# # NOTE: should find a model. works without `\\neg A`.
-# premises = ['\\neg A','(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-
 ### MEDIUM PRIORITY ###
-
-# # NOTE: this isn't finding models still
-# premises = ['\\neg B','(A \\boxright B)']
-# conclusions = ['(\\neg B \\boxright \\neg A)']
-
 
 # # NOTE: it is finding a model by making A and B incompatible
 # # premises = ['\\neg ((A \\wedge B) \\boxright D)','((A \\wedge B) \\boxright C)']
@@ -124,6 +114,11 @@ conclusions = ['(A \\boxright B)','(A \\boxright C)']
 # # NOTE: this does not find models for N = 3
 # # very slow for N = 5 (ran for minutes on the remote server)
 # premises = ['(A \\boxright (B \\boxright C))']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+
+# # NOTE: doesn't work b/c should countermodel
+# # recursive printing would be helpful.
+# premises = ['(A \\boxright C)','(B \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
 # this is what used to be print_model, can easily make this an attribute if wanted
