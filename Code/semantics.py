@@ -17,13 +17,6 @@ from syntax import (
     Prefix,
     all_sentence_letters,
 )
-# from definitions import (
-#     N,
-#     w,
-#     possible,
-#     verify,
-#     falsify,
-# )
 
 # from sympy import symbols, Or, And, Implies, Not, to_cnf
 
