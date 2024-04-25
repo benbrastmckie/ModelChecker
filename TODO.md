@@ -41,8 +41,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] `test_complete` cases
   - [ ] `\neg B, A \boxright B` does not entail `\neg B \boxright \neg A` 
     - works without `\neg B`.
-  - [ ] `\neg A, A \boxright C` does not entail `(A \wedge B) \boxright C`
-    - works without `\neg A`.
   - [ ] `\neg A, A \boxright C` does not entails `(A \wedge B) \boxright C`
     - works without `\neg A`.
   - [ ] `A \boxright C, B \boxright C` entails `(A \wedge B) \boxright C`
@@ -53,7 +51,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] `A \boxright (B \boxright C)` does not entail `(A \wedge B) \boxright C`
     - this does not find models for N = 3
     - very slow for N = 5 (ran for minutes on the remote server)
-  - [ ] `A \boxright C` and `\neg (A \boxright \neg B)` does not entail `\neg ((A \wedge B) \boxright C)`
+  - [x] `A \boxright C` and `\neg (A \boxright \neg B)` does not entail `\neg ((A \wedge B) \boxright C)`
 - [ ] _B_ provide countermodels by hand
   - [ ] `ent_2`
   - [ ] `poss_strength`

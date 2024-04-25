@@ -2,13 +2,16 @@
 file defines model structure class given a Z3 model
 '''
 
+import time
 from z3 import (
     Function,
     BitVecSort,
     BoolSort, BitVec
 )
-import time
-from semantics import make_constraints, solve_constraints
+from semantics import (
+    make_constraints,
+    solve_constraints,
+)
 from model_definitions import (
     find_compatible_parts,
     atomic_propositions_dict,
@@ -21,13 +24,15 @@ from model_definitions import (
     find_true_and_false_in_alt,
     print_alt_relation,
     product,
-    bit_part, 
-    bitvec_to_substates, 
+    bit_part,
+    bitvec_to_substates,
     int_to_binary,
     infix_combine,
 )
-
-from syntax import AtomSort, Infix
+from syntax import (
+    AtomSort,
+    Infix,
+)
 
 # TODO: the three types of objects that it would be good to store as classes
 # include: (1) premises, conclusions, input_sentences, prefix_sentences,
@@ -109,11 +114,6 @@ class ModelStructure():
             # just missing the which-sentences-true-in-which-worlds
         # else: # NOTE: maybe these should be defined as something for the sake of init above
 
-    # M: not sure where the best home for this is
-    # B: this is a general purpose function which will play a critical role in
-    # the print algorithm. I think it may end up making sense to separate
-    # this class into two with one for the model in terms of bits, and the
-    # other for the printed model, in which case it could live in the latter.
     def find_alt_bits(self, proposition_verifier_bits, comparison_world=None):
         """
         Finds the alternative bits given verifier bits, possible states, worlds, and
@@ -137,9 +137,8 @@ class ModelStructure():
     def print_states(self):
         """print all fusions of atomic states in the model
         first print function in print.py"""
-        # print("\n(Possible) States:")  # Print states
         N = self.N
-        print("\nStates:")  # Print states
+        print("\nPossible states:")  # Print states
         for bit in self.all_bits:
             # test_state = BitVecVal(val, size) # was instead of bit
             state = bitvec_to_substates(bit, N)
