@@ -8,7 +8,7 @@ from z3 import (
     BoolSort, BitVec
 )
 import time
-from semantics import make_semantics
+from semantics import make_constraints, solve_constraints
 from model_definitions import (
     find_compatible_parts,
     atomic_propositions_dict,
@@ -63,9 +63,9 @@ class ModelStructure():
         self.premises = input_premises
         self.conclusions = input_conclusions
         self.input_sentences = infix_combine(input_premises, input_conclusions)
-        self.find_all_constraints_func, self.solve_constraints_func = make_semantics(verify, falsify, possible, N, w)
+        find_all_constraints_func = make_constraints(verify, falsify, possible, N, w)
         # TODO: replace prefix_sentences with ext_sub_sentences
-        consts, sent_lets, extensional_subsentences = self.find_all_constraints_func(self.input_sentences)
+        consts, sent_lets, extensional_subsentences = find_all_constraints_func(self.input_sentences)
         self.sentence_letters = sent_lets
         self.constraints = consts
         self.extensional_subsentences = extensional_subsentences # a list of prefix sentences (lists), not
@@ -91,7 +91,7 @@ class ModelStructure():
         self.atomic_props_dict is a dictionary with keys AtomSorts and keys (V,F)
         '''
         model_start = time.time() # start benchmark timer
-        solved_model_status, solved_model = self.solve_constraints_func(self.constraints)
+        solved_model_status, solved_model = solve_constraints(self.constraints)
         self.model_status = solved_model_status
         self.model = solved_model
         model_end = time.time()

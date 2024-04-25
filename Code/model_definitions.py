@@ -3,13 +3,21 @@ file contains all definitions for defining the model structure
 '''
 
 from z3 import (
-    BitVecVal, simplify
+    BitVecVal, simplify, Solver, sat,
 )
 
 from syntax import Infix
 
+def summation(n, func, start = 0):
+    '''summation of i ranging from start to n of func(i)
+    used in find_all_bits'''
+    if start == n:
+        return func(start)
+    return func(start) + summation(n,func,start+1)
+
 def find_all_bits(size):
-    '''extract all bitvectors from the input model'''
+    '''extract all bitvectors from the input model
+    imported by model_structure'''
     all_bits = []
     max_bit_number = summation(
         size + 1, lambda x: 2**x
@@ -24,7 +32,8 @@ def find_all_bits(size):
 
 
 def find_poss_bits(model,all_bits, possible):
-    '''extract all possible bitvectors from all_bits given the model'''
+    '''extract all possible bitvectors from all_bits given the model
+    imported by model_structure'''
     poss_bits = []
     for bit in all_bits:
         if model.evaluate(possible(bit)): # of type/sort BoolRef
@@ -186,6 +195,7 @@ def bit_proper_part(bit_s, bit_t):
 
 def index_to_substate(index):
     '''
+    test cases should make evident what's going on
     >>> index_to_substate(0)
     'a'
     >>> index_to_substate(26)
@@ -194,6 +204,7 @@ def index_to_substate(index):
     'bb'
     >>> index_to_substate(194)
     'mmmmmmmm'
+    used in bitvec_to_substates
     '''
     number = index + 1 # because python indices start at 0
     letter_dict = {1:'a', 2:'b', 3:'c', 4:'d', 5:'e', 6:'f', 7:'g', 8:'h', 9:'i', 10:'j',
@@ -205,7 +216,8 @@ def index_to_substate(index):
 
 def int_to_binary(integer, number, backwards_binary_str = ''):
     '''converts a #x string to a #b string. follows the first algorithm that shows up on google
-    when you google how to do this'''
+    when you google how to do this
+    used in bitvec_to_substates'''
     rem = integer%2
     new_backwards_str = backwards_binary_str + str(rem)
     if integer//2 == 0: # base case: we've reached the end
@@ -232,15 +244,3 @@ def bitvec_to_substates(bit_vec, N):
         if char == "1":
             state_repr += index_to_substate(i)
             state_repr += "."
-
-
-def Equivalent(cond_a,cond_b):
-    '''define the biconditional to make Z3 constraints intuitive to read'''
-    return cond_a == cond_b
-
-
-def summation(n, func, start = 0):
-    '''used in print to find max bitvector'''
-    if start == n:
-        return func(start)
-    return func(start) + summation(n,func,start+1)

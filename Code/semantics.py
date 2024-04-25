@@ -48,98 +48,71 @@ input_sentences in infix form.
 # QUESTIONS: is there a clear reason to prefer one way over the other?
 # is it possible/desirable to avoid use of 'Exists' entirely?
 
-def make_semantics(verify, falsify, possible, N, w):
-    def prop_const(atom):
-        """
-        atom is a proposition since its verifiers and falsifiers are closed under
-        fusion respectively, and the verifiers and falsifiers for atom are
-        incompatible (exhaustivity). NOTE: exclusivity crashes Z3 so left off.
-        """
-        x =  BitVec('prop_dummy_x', N)
-        y =  BitVec('prop_dummy_y', N)
-        sent_to_prop = [
-            Exists(x, And(non_null_verify(x, atom), possible(x))),
-            Exists(y, And(non_null_falsify(y, atom), possible(y))),
-            ForAll(
-                [x, y],
-                Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
+def make_constraints(verify, falsify, possible, N, w):
+    def non_null_verify(bit_s, atom):
+        '''bit_s verifies atom and is not the null state'''
+        return And(Not(bit_s == 0), verify(bit_s, atom))
+
+    def non_null_falsify(bit_s,atom):
+        '''bit_s verifies atom and is not the null state'''
+        return And(Not(bit_s == 0), falsify(bit_s,atom))
+
+    def fusion(bit_s, bit_t):
+        '''the result of taking the maximum for each index in bit_s and bit_t'''
+        return bit_s | bit_t
+
+    def is_part_of(bit_s, bit_t):
+        '''the fusion of bit_s and bit_t is identical to bit_t'''
+        return fusion(bit_s, bit_t) == bit_t
+
+    def compatible(bit_x, bit_y):
+        '''the fusion of bit_x and bit_y is possible'''
+        return possible(fusion(bit_x, bit_y))
+
+    def maximal(bit_w):
+        """bit_w includes all compatible states as parts."""
+        x = BitVec('max_dummy', N)
+        return ForAll(
+            x,
+            Implies(
+                compatible(x, bit_w),
+                is_part_of(x, bit_w),
             ),
+        )
+
+    def is_world(bit_w):
+        '''bit_w is both possible and maximal.'''
+        return And(
+            possible(bit_w),
+            maximal(bit_w),
+        )
+
+    def max_compatible_part(bit_x, bit_w, bit_y):
+        '''bit_x is the biggest part of bit_w that is compatible with bit_y.'''
+        z = BitVec('max_part_dummy', N)
+        return And(
+            is_part_of(bit_x, bit_w),
+            compatible(bit_x, bit_y),
             ForAll(
-                [x, y],
+                z,
                 Implies(
-                    And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)
+                    And(is_part_of(z, bit_w), compatible(z, bit_y), is_part_of(bit_x, z)),
+                    bit_x == z,
                 ),
             ),
-            ForAll(
-                [x, y],
-                Implies(
-                    And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)
-                ),
-            ),
-            ForAll(
-                [x, y],
-                Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
-            ),
-            # ForAll( #exhaustivity
-            #     x,
-            #     Implies(
-            #         possible(x),
-            #         Exists(
-            #             y,
-            #             And(
-            #                 compatible(x,y),
-            #                 Or(verify(y, atom), falsify(y, atom)),
-            #             ),
-            #         ),
-            #     ),
-            # ),
-            ]
-        return sent_to_prop
+        )
 
-
-    def find_frame_constraints(input_sentence_letters):
-        """find the constraints that depend only on the sentence letters
-        returns a list of Z3 constraints"""
-        x =  BitVec('frame_dummy_x', N)
-        y =  BitVec('frame_dummy_y', N)
-        z =  BitVec('frame_dummy_z', N)
-        frame_constraints = [
-            ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
-            ForAll([x, y], Exists(z, fusion(x, y) == z)),
-            is_world(w),
-        ]
-        # for const in prop_const(X):
-        #     frame_constraints.append(const)
-        # NOTE: above appears to admit models for weakening the antecedent
-        # NOTE: also appears to avoid crashing Z3 with the exhaustivity constraint
-        for sent_letter in input_sentence_letters:
-            for const in prop_const(sent_letter):
-                frame_constraints.append(const)
-        return frame_constraints
-
-
-    # def add_general_constraints(solv, input_sentence_letters):
-    #     """adds the constraints that go in every solver"""
-    #     possible_part = ForAll(
-    #         [x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))
-    #     )
-    #     solv.add(possible_part)
-    #     print(f"\nPossibility constraint:\n {possible_part}\n")
-    #     # NOTE: seems to slightly slow things down with no obvious gains but I'm
-    #     # still unsure if this is needed or not. would be good to confirm.
-    #     fusion_closure = ForAll([x, y], Exists(z, fusion(x, y) == z))
-    #     solv.add(fusion_closure)
-    #     print(f"Fusion constraint:\n {fusion_closure}\n")
-    #     world_const = is_world(w)
-    #     solv.add(world_const)
-    #     print(f"World constraint: {world_const}")
-    #     for sent_letter in input_sentence_letters:
-    #         print(f"\nSentence {sent_letter} yields the general constraints:\n")
-    #         for const in prop_const(sent_letter):
-    #             solv.add(const)
-    #             print(f"{const}\n")
-
-
+    def is_alternative(bit_u, bit_y, bit_w):
+        """
+        bit_u is a world that is the alternative that results from imposing state bit_y on world bit_w.
+        """
+        z = BitVec("alt_dummy", N)
+        return And(
+            is_world(bit_u),
+            is_part_of(bit_y, bit_u),
+            Exists(z, And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y))),
+        )
+    
     # NOTE: should throw error if boxright occurs in X
     def extended_verify(state, ext_sent, evaluate=False):
         """X is in prefix form. Same for extended_falsify"""
@@ -287,6 +260,96 @@ def make_semantics(verify, falsify, possible, N, w):
                 [x, u],
                 And(extended_verify(x, Y), is_alternative(u, x, world), false_at(Z, u)),
             )
+    
+    def prop_const(atom):
+        """
+        atom is a proposition since its verifiers and falsifiers are closed under
+        fusion respectively, and the verifiers and falsifiers for atom are
+        incompatible (exhaustivity). NOTE: exclusivity crashes Z3 so left off.
+        """
+        x =  BitVec('prop_dummy_x', N)
+        y =  BitVec('prop_dummy_y', N)
+        sent_to_prop = [
+            Exists(x, And(non_null_verify(x, atom), possible(x))),
+            Exists(y, And(non_null_falsify(y, atom), possible(y))),
+            ForAll(
+                [x, y],
+                Implies(And(verify(x, atom), verify(y, atom)), verify(fusion(x, y), atom)),
+            ),
+            ForAll(
+                [x, y],
+                Implies(
+                    And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)
+                ),
+            ),
+            ForAll(
+                [x, y],
+                Implies(
+                    And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)
+                ),
+            ),
+            ForAll(
+                [x, y],
+                Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
+            ),
+            # ForAll( #exhaustivity
+            #     x,
+            #     Implies(
+            #         possible(x),
+            #         Exists(
+            #             y,
+            #             And(
+            #                 compatible(x,y),
+            #                 Or(verify(y, atom), falsify(y, atom)),
+            #             ),
+            #         ),
+            #     ),
+            # ),
+            ]
+        return sent_to_prop
+
+
+    def find_frame_constraints(input_sentence_letters):
+        """find the constraints that depend only on the sentence letters
+        returns a list of Z3 constraints"""
+        x =  BitVec('frame_dummy_x', N)
+        y =  BitVec('frame_dummy_y', N)
+        z =  BitVec('frame_dummy_z', N)
+        frame_constraints = [
+            ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
+            ForAll([x, y], Exists(z, fusion(x, y) == z)),
+            is_world(w),
+        ]
+        # for const in prop_const(X):
+        #     frame_constraints.append(const)
+        # NOTE: above appears to admit models for weakening the antecedent
+        # NOTE: also appears to avoid crashing Z3 with the exhaustivity constraint
+        for sent_letter in input_sentence_letters:
+            for const in prop_const(sent_letter):
+                frame_constraints.append(const)
+        return frame_constraints
+
+
+    # def add_general_constraints(solv, input_sentence_letters):
+    #     """adds the constraints that go in every solver"""
+    #     possible_part = ForAll(
+    #         [x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))
+    #     )
+    #     solv.add(possible_part)
+    #     print(f"\nPossibility constraint:\n {possible_part}\n")
+    #     # NOTE: seems to slightly slow things down with no obvious gains but I'm
+    #     # still unsure if this is needed or not. would be good to confirm.
+    #     fusion_closure = ForAll([x, y], Exists(z, fusion(x, y) == z))
+    #     solv.add(fusion_closure)
+    #     print(f"Fusion constraint:\n {fusion_closure}\n")
+    #     world_const = is_world(w)
+    #     solv.add(world_const)
+    #     print(f"World constraint: {world_const}")
+    #     for sent_letter in input_sentence_letters:
+    #         print(f"\nSentence {sent_letter} yields the general constraints:\n")
+    #         for const in prop_const(sent_letter):
+    #             solv.add(const)
+    #             print(f"{const}\n")
 
 
     def find_model_constraints(prefix_sents):
@@ -308,32 +371,9 @@ def make_semantics(verify, falsify, possible, N, w):
     #         )
     #         solv.add(sentence_constraint)
 
-
-    def find_all_constraints(infix_input_sentences):
-        """find Z3 constraints for input sentences
-        input_sents are a list of infix sentences"""
-        # prefix_premises = [Prefix(input_sent) for input_sent in infix_premises]  # this works
-        # prefix_conclusions = [Prefix(input_sent) for input_sent in infix_conclusions]
-        # prefix_sentences = prefix_combine(prefix_premises, prefix_conclusions)
-        prefix_sentences = [Prefix(input_sent) for input_sent in infix_input_sentences]
-        input_const = find_model_constraints(prefix_sentences)
-        sentence_letters = all_sentence_letters(prefix_sentences)  # this works
-        # print(sentence_letters)
-        # print([type(let) for let in sentence_letters])
-        gen_const = find_frame_constraints(sentence_letters)
-        const = gen_const + input_const
-        ext_subsentences = repeats_removed(find_extensional_subsentences(prefix_sentences))
-        return (const, sentence_letters, ext_subsentences)
-
-    def repeats_removed(L):
-        seen = []
-        for obj in L:
-            if obj not in seen:
-                seen.append(obj)
-        return seen
-
     def is_counterfactual(prefix_sentence):
-        '''returns a boolean to say whether a given sentence is a counterfactual'''
+        '''returns a boolean to say whether a given sentence is a counterfactual
+        used in find_extensional_subsentences'''
         if len(prefix_sentence) == 1:
             return False
         if len(prefix_sentence) == 2:
@@ -346,7 +386,8 @@ def make_semantics(verify, falsify, possible, N, w):
     # TODO: linter says all or none of the returns should be an expression
     def all_subsentences_of_a_sentence(prefix_sentence, progress=False):
         '''finds all the subsentence of a prefix sentence
-        returns these as a set'''
+        returns these as a set
+        used in find_extensional_subsentences'''
         if progress is False:
             progress = []
         # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
@@ -365,7 +406,8 @@ def make_semantics(verify, falsify, possible, N, w):
             return all_subsentences
 
     def find_extensional_subsentences(prefix_sentences):
-        '''finds all the extensional subsentences in a list of prefix sentences'''
+        '''finds all the extensional subsentences in a list of prefix sentences
+        used in find_all_constraints'''
         # all_subsentences = [all_subsentences_of_a_sentence(sent) for sent in prefix_sentences]
         all_subsentences = []
         for prefix_sent in prefix_sentences:
@@ -374,8 +416,34 @@ def make_semantics(verify, falsify, possible, N, w):
         extensional_subsentences = [sent for sent in all_subsentences if not is_counterfactual(sent)]
         return extensional_subsentences
 
+    def repeats_removed(L):
+        '''takes a list and removes the repeats in it.
+        used in find_all_constraints'''
+        seen = []
+        for obj in L:
+            if obj not in seen:
+                seen.append(obj)
+        return seen
+    
+    def find_all_constraints(infix_input_sentences):
+        """find Z3 constraints for input sentences
+        input_sents are a list of infix sentences"""
+        # prefix_premises = [Prefix(input_sent) for input_sent in infix_premises]  # this works
+        # prefix_conclusions = [Prefix(input_sent) for input_sent in infix_conclusions]
+        # prefix_sentences = prefix_combine(prefix_premises, prefix_conclusions)
+        prefix_sentences = [Prefix(input_sent) for input_sent in infix_input_sentences]
+        input_const = find_model_constraints(prefix_sentences)
+        sentence_letters = all_sentence_letters(prefix_sentences)  # this works
+        # print(sentence_letters)
+        # print([type(let) for let in sentence_letters])
+        gen_const = find_frame_constraints(sentence_letters)
+        const = gen_const + input_const
+        ext_subsentences = repeats_removed(find_extensional_subsentences(prefix_sentences))
+        return (const, sentence_letters, ext_subsentences)
 
-    def solve_constraints(all_constraints): # all_constraints is a list
+    return find_all_constraints
+
+def solve_constraints(all_constraints): # all_constraints is a list
         """find model for the input constraints if there is any"""
         solver = Solver()
         solver.add(all_constraints)
@@ -385,82 +453,3 @@ def make_semantics(verify, falsify, possible, N, w):
         # if result == unsat:
         return (False, solver.unsat_core())
         # return (result, None) # NOTE: in what case would you expect this to be triggered?
-
-
-
-    #############################################
-    ######### MOVED FROM DEFINITIONS.PY #########
-    #############################################
-
-
-
-
-    def non_null_verify(bit_s, atom):
-        '''bit_s verifies atom and is not the null state'''
-        return And(Not(bit_s == 0), verify(bit_s, atom))
-
-
-    def non_null_falsify(bit_s,atom):
-        '''bit_s verifies atom and is not the null state'''
-        return And(Not(bit_s == 0), falsify(bit_s,atom))
-
-    def fusion(bit_s, bit_t):
-        '''the result of taking the maximum for each index in bit_s and bit_t'''
-        return bit_s | bit_t
-
-    def is_part_of(bit_s, bit_t):
-        '''the fusion of bit_s and bit_t is identical to bit_t'''
-        return fusion(bit_s, bit_t) == bit_t
-
-    def compatible(bit_x, bit_y):
-        '''the fusion of bit_x and bit_y is possible'''
-        return possible(fusion(bit_x, bit_y))
-
-
-    def maximal(bit_w):
-        """bit_w includes all compatible states as parts."""
-        x = BitVec('max_dummy', N)
-        return ForAll(
-            x,
-            Implies(
-                compatible(x, bit_w),
-                is_part_of(x, bit_w),
-            ),
-        )
-
-
-    def is_world(bit_w):
-        '''bit_w is both possible and maximal.'''
-        return And(
-            possible(bit_w),
-            maximal(bit_w),
-        )
-
-
-    def max_compatible_part(bit_x, bit_w, bit_y):
-        '''bit_x is the biggest part of bit_w that is compatible with bit_y.'''
-        z = BitVec('max_part_dummy', N)
-        return And(
-            is_part_of(bit_x, bit_w),
-            compatible(bit_x, bit_y),
-            ForAll(
-                z,
-                Implies(
-                    And(is_part_of(z, bit_w), compatible(z, bit_y), is_part_of(bit_x, z)),
-                    bit_x == z,
-                ),
-            ),
-        )
-
-
-    def is_alternative(bit_u, bit_y, bit_w):
-        """
-        bit_u is a world that is the alternative that results from imposing state bit_y on world bit_w.
-        """
-        z = BitVec("alt_dummy", N)
-        return And(
-            is_world(bit_u),
-            is_part_of(bit_y, bit_u),
-            Exists(z, And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y))),
-        )
-    return find_all_constraints, solve_constraints
