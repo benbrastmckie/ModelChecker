@@ -154,48 +154,9 @@ def Infix(A):
 # print(Prefix("A")) 
 # print(Prefix('((A \\op (B \\op C)) \\op (D \\op E))')) # ['\\op', ['\\op', ['A'], ['\\op', ['B'], ['C']]], ['\\op', ['D'], ['E']]]
 
-def sentence_letters_in_compound(prefix_input_sentence):
-    '''finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS'''
-    if len(prefix_input_sentence) == 1: # base case: atomic sentence
-        return prefix_input_sentence
-    # recursive case: complex sentence as input. Should have max 3 elems (binary operator) in this list, but figured eh why not not check, above code should ensure that never happens
-    return_list = []
-    for part in prefix_input_sentence[1:]:
-        return_list.extend(sentence_letters_in_compound(part))
-    return return_list
-
-def all_sentence_letters(prefix_input_sentences):
-    '''finds all the sentence letters in a list of input sentences. returns as a list with no repeats (sorted for consistency)'''
-    sentence_letters = set()
-    for input in prefix_input_sentences:
-        sentence_letters_in_input = sentence_letters_in_compound(input)
-        for sentence_letter in sentence_letters_in_input:
-            sentence_letters.add(sentence_letter)
-    return list(sentence_letters) # sort just to make every output the same, given sets aren't hashable
-
 # sentences = [Prefix("(A \\wedge (B \\vee \\neg C))"), Prefix("A"), Prefix('((A \\op (B \\op Z)) \\op (D \\op E))')]
 # print(all_sentence_letters(sentences)) # correctly prints ['A', 'B', 'C', 'D', 'E', 'Z']
 # print(Prefix("\\neg (A \\boxright B)"))
 # print(all_sentence_letters([Prefix("\\neg (A \\boxright B)")]))
 
-
-def infix_combine(prem,con):
-    '''combines the premises with the negation of the conclusion(s).
-    premises are infix sentences, and so are the conclusions'''
-    # if prem is None:
-    #     prem = []
-    input_sent = prem
-    for sent in con:
-        neg_sent = '\\neg ' + sent
-        input_sent.append(neg_sent)
-    return input_sent
-
-def prefix_combine(prem,con):
-    '''combines the premises with the negation of the conclusion(s).
-    premises are prefix sentences, and so are the conclusions'''
-    # if prem is None:
-    #     prem = []
-    input_sent = prem
-    neg_conclusion_sents = [['\\neg ', sent] for sent in con]
-    input_sent.extend(neg_conclusion_sents)
-    return input_sent
+# moved unused prefix_combine to the boneyard

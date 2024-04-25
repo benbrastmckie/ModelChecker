@@ -13,10 +13,7 @@ from z3 import (
     And,
     BitVec,
 )
-from syntax import (
-    Prefix,
-    all_sentence_letters,
-)
+from syntax import Prefix
 
 # from sympy import symbols, Or, And, Implies, Not, to_cnf
 
@@ -418,6 +415,27 @@ def make_constraints(verify, falsify, possible, N, w):
                 seen.append(obj)
         return seen
     
+    def sentence_letters_in_compound(prefix_input_sentence):
+        '''finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
+        used in all_sentence_letters'''
+        if len(prefix_input_sentence) == 1: # base case: atomic sentence
+            return prefix_input_sentence
+        # recursive case: complex sentence as input. Should have max 3 elems (binary operator) in this list, but figured eh why not not check, above code should ensure that never happens
+        return_list = []
+        for part in prefix_input_sentence[1:]:
+            return_list.extend(sentence_letters_in_compound(part))
+        return return_list
+
+    def all_sentence_letters(prefix_input_sentences):
+        '''finds all the sentence letters in a list of input sentences. returns as a list with no repeats (sorted for consistency)
+        used in find_all_constraints'''
+        sentence_letters = set()
+        for input in prefix_input_sentences:
+            sentence_letters_in_input = sentence_letters_in_compound(input)
+            for sentence_letter in sentence_letters_in_input:
+                sentence_letters.add(sentence_letter)
+        return list(sentence_letters) # sort just to make every output the same, given sets aren't hashable
+    
     def find_all_constraints(infix_input_sentences):
         """find Z3 constraints for input sentences
         input_sents are a list of infix sentences"""
@@ -437,12 +455,12 @@ def make_constraints(verify, falsify, possible, N, w):
     return find_all_constraints
 
 def solve_constraints(all_constraints): # all_constraints is a list
-        """find model for the input constraints if there is any"""
-        solver = Solver()
-        solver.add(all_constraints)
-        result = solver.check(*[all_constraints])
-        if result == sat:
-            return (True, solver.model())
-        # if result == unsat:
-        return (False, solver.unsat_core())
-        # return (result, None) # NOTE: in what case would you expect this to be triggered?
+    """find model for the input constraints if there is any"""
+    solver = Solver()
+    solver.add(all_constraints)
+    result = solver.check(*[all_constraints])
+    if result == sat:
+        return (True, solver.model())
+    # if result == unsat:
+    return (False, solver.unsat_core())
+    # return (result, None) # NOTE: in what case would you expect this to be triggered?
