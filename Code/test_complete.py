@@ -96,13 +96,13 @@ print_unsat_core_bool = True
 
 ### HIGH PRIORITY: NEGATION PROBLEM ###
 
-# NOTE: this isn't finding models still
-premises = ['\\neg B','(A \\boxright B)']
-conclusions = ['(\\neg B \\boxright \\neg A)']
-
 # # NOTE: ssh finds unsat_core but should have countermodels
-# premises = ['\\neg A','(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
+# premises = ['\\neg B','(A \\boxright B)']
+# conclusions = ['(\\neg B \\boxright \\neg A)']
+
+# NOTE: ssh finds unsat_core but should have countermodels
+premises = ['\\neg A','(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
 
 ### MEDIUM PRIORITY ###
 
