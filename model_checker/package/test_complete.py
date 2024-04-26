@@ -10,10 +10,6 @@ import sys
 from string import Template
 from model_structure import make_model_for
 
-################################
-########### TEMPLATE ###########
-################################
-
 script_template = Template("""
 '''
 Model Checker: ${name}
@@ -49,10 +45,6 @@ conclusions = ['(A boxright B)','(A boxright C)']
 
 """)
 
-################################
-############ SOLVER ############
-################################
-
 # def main():
 #     """finds and prints model from user inputs given above"""
 #     mod = make_model_for(N)(premises, conclusions)
@@ -83,7 +75,6 @@ def optional_generate_test():
         print("You can run a test.py file that already exists with the command:\n")
         print("python3 model-checker test.py")
         return
-
     # Create an argument parser to get the file path
     parser = argparse.ArgumentParser(description="Import variables from another file")
     parser.add_argument(
