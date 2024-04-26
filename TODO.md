@@ -61,11 +61,11 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] Z3 guru
   - [:] ask Graham
   - [.] email CS faculty
-    - [ ] [https://people.csail.mit.edu/mcarbin/](Michael Carbin)
-    - [ ] (https://people.csail.mit.edu/henrycg/)[Henry Corrigan-Gibbs]
-    - [ ] (http://adam.chlipala.net/)[Adam Chlipala]
-    - [ ] (https://www.csail.mit.edu/person/frans-kaashoek)[Frans Kaashoek]
-    - [ ] (https://people.csail.mit.edu/mengjia/)[Megjia Yan]
+    - [ ] https://people.csail.mit.edu/mcarbin/ -- Michael Carbin
+    - [ ] https://people.csail.mit.edu/henrycg/ -- Henry Corrigan-Gibbs
+    - [ ] http://adam.chlipala.net/ -- Adam Chlipala
+    - [ ] https://www.csail.mit.edu/person/frans-kaashoek -- Frans Kaashoek
+    - [ ] https://people.csail.mit.edu/mengjia/ -- Megjia Yan
 
 ## Pre-Processing
 
