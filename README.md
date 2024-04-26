@@ -2,73 +2,43 @@
 
 This project aims to develop tools for finding countermodels for counterfactual claims as well as establishing entailments over finite models up to a specified degree of complexity.
 
+## Dependencies
+
+The model checker is built on [Z3](https://github.com/Z3Prover/z3) which can be installed with `pip install z3-solver` or as specified in the `flake.nix` for NixOS.
+[Python 3](https://www.python.org/downloads/) must also be installed, but there are no other dependencies.
+
 ## Examples
 
-The `Code/` directory includes a range of example files which call functions from `definitions.py` and `print.py`.
-Running these files produces countermodels, or a statement that there are no countermodels accordingly.
+The script `Code/test_complete.py` contains a number of examples that can be commented on and off.
+Running this file with `python3` produces countermodels or else provides the resulting core Z3 constraints that cannot be satisfied.
+Further examples can easily be added to this file.
+
+## Modules
+
+Here is a brief overview of the included modules.
+
+### Main Script: `test_complete.py`
+
+This script includes specifies the complexity of models `N`, `premises`, `conclusions`, and the print settings `print_cons_bool` and `print_unsat_core_bool` for debugging examples.
+This scrip imports from `model_structure.py`.
+
+### Model Module: `model_structure.py`
+
+This module... To be continued. 
 
 ## Resources
 
-The `Resources/` directory contains a number of files where we can compile resources throughout.
+The `Resources/` directory contains a number of files with various resources.
 This is a place to not only store what has been learned along the way for later reference, but to share knowledge.
 Ultimately, it would be nice to make these resources useful to those who are new to the project.
 
-## Phases
-
-The phases are intended to roughly divide the project chronologically.
-
-### Planning
-
-- [x] review and revise plan for the project
-- [x] create scaffolding for documentation, TODOS, and project updates
-- [x] identify tooling (noting this in the docs)
-  - [x] what else in addition to python3 and Z3 is needed?
-  - [x] is latex ok for the overview?
-
-### Z3
-
-Putting Z3 to work in simple and specific applications.
-
-- [ ] research Z3
-- [ ] define models in Z3
-- [ ] get a basic model checker working in Z3
-
-### Python
-
-Using python as a meta-language for interfacing with Z3.
-
-- [ ] design conventions for a `semantics file` containing the definitions:
-  - [ ] definition of the primitives and sentences of the language
-  - [ ] definition of a model of the language
-  - [ ] semantic clauses for the operators of the language
-  - [ ] optional axioms and rules to constrain the space of models
-  - [ ] needs to be relatively easy to read/tweak
-- [ ] design conventions for a `project file` for a specific inquiry
-  - [ ] may include a set of sentences to check for satisfiability
-  - [ ] may include an entailment between a set of premises and a conclusion
-  - [ ] may specify options such as:
-    - [ ] halt after first model is found
-    - [ ] find all models up to some limit in time or complexity
-- [ ] Z3 translator
-  - [ ] devise translation algorithms from the readable conventions into Z3 sentences
-  - [ ] use algorithms to create a `job file` from a `semantics file` and `project file`
-  - [ ] the `job file` should include the Z3 sentences and the outputs from Z3
-
-### Search (Bonus)
+## Axiom Search
 
 Building tools for finding axiom systems.
 
-- [ ] design method for searching for all valid sentences
+- [ ] design method for searching for entailments
   - [ ] design syntactic filters to reduce the number of sentences up to a given complexity
   - [ ] design methods for avoiding searching for valid sentences by brute force
 - [ ] given a set of valid sentences, devise method for identifying derivability relations
   - [ ] can lean be used to help?
 
-### Print (Bonus)
-
-Presenting models in a visually compelling manner.
-
-- [ ] devise algorithm for visually representing models
-  - [ ] design the desired visual output
-  - [ ] review the tools that already exist for representing models visually
-  - [ ] see what it would take to translate from a `job file` to a visual model using a given tool
