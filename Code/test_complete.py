@@ -33,8 +33,8 @@ print_unsat_core_bool = True
 # premises = ['A']
 # conclusions = []
 
-# premises = ['\\neg A','(A \\boxright (B \\vee C))']
-# conclusions = ['(A \\boxright B)','(A \\boxright C)']
+premises = ['\\neg A','(A \\boxright (B \\vee C))']
+conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
@@ -108,9 +108,9 @@ print_unsat_core_bool = True
 # premises = ['\\neg B','(A \\boxright B)']
 # conclusions = ['(\\neg B \\boxright \\neg A)']
 
-# NOTE: ssh finds unsat_core but should have countermodels
-premises = ['\\neg A','(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
+# # NOTE: ssh finds unsat_core but should have countermodels
+# premises = ['\\neg A','(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
 
 ### MEDIUM PRIORITY ###
 

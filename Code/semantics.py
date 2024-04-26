@@ -4,6 +4,7 @@ contains all semantic functions
 
 from z3 import (
     sat,
+    Const,
     Exists,
     ForAll,
     Implies,
@@ -13,7 +14,10 @@ from z3 import (
     And,
     BitVec,
 )
-from syntax import Prefix
+from syntax import (
+    AtomSort,
+    Prefix,
+)
 
 # from sympy import symbols, Or, And, Implies, Not, to_cnf
 
@@ -320,7 +324,7 @@ def make_constraints(verify, falsify, possible, N, w):
         ]
         return sent_to_prop
 
-    def find_frame_constraints(input_sentence_letters):
+    def find_frame_constraints():
         """find the constraints that depend only on the sentence letters
         returns a list of Z3 constraints"""
         x = BitVec("frame_dummy_x", N)
@@ -331,9 +335,6 @@ def make_constraints(verify, falsify, possible, N, w):
             ForAll([x, y], Exists(z, fusion(x, y) == z)),
             is_world(w),
         ]
-        for sent_letter in input_sentence_letters:
-            for const in prop_const(sent_letter):
-                frame_constraints.append(const)
         return frame_constraints
 
     # def add_general_constraints(solv, input_sentence_letters):
@@ -357,13 +358,24 @@ def make_constraints(verify, falsify, possible, N, w):
     #             solv.add(const)
     #             print(f"{const}\n")
 
-    def find_model_constraints(prefix_sents):
+    def find_model_constraints(prefix_sentences, sentence_letters):
         """find constraints corresponding to the input sentences"""
-        input_const = []
-        for sentence in prefix_sents:
+        Const('\\top', AtomSort)
+        x = BitVec("top_dummy_x", N)
+        y = BitVec("top_dummy_y", N)
+        top_constraints = [ForAll(x, verify(x, '\\top')), ForAll(y, Not(falsify(y, '\\top')))]
+        for const in prop_const('\\top'):
+            top_constraints.append(const)
+        prop_constraints = []
+        for sent_letter in sentence_letters:
+            for const in prop_const(sent_letter):
+                prop_constraints.append(const)
+        input_constraints = []
+        for sentence in prefix_sentences:
             sentence_constraint = true_at(sentence, w)
-            input_const.append(sentence_constraint)
-        return input_const
+            input_constraints.append(sentence_constraint)
+        model_constraints = top_constraints + prop_constraints + input_constraints
+        return model_constraints
 
     # def add_input_constraints(solv, prefix_sentences):
     #     """add input-specific constraints to the solver"""
@@ -451,8 +463,8 @@ def make_constraints(verify, falsify, possible, N, w):
         """finds all the sentence letters in a list of input sentences. returns as a list with no repeats (sorted for consistency)
         used in find_all_constraints"""
         sentence_letters = set()
-        for input in prefix_input_sentences:
-            sentence_letters_in_input = sentence_letters_in_compound(input)
+        for prefix_input in prefix_input_sentences:
+            sentence_letters_in_input = sentence_letters_in_compound(prefix_input)
             for sentence_letter in sentence_letters_in_input:
                 sentence_letters.add(sentence_letter)
         return list(sentence_letters)
@@ -465,11 +477,11 @@ def make_constraints(verify, falsify, possible, N, w):
         # prefix_conclusions = [Prefix(input_sent) for input_sent in infix_conclusions]
         # prefix_sentences = prefix_combine(prefix_premises, prefix_conclusions)
         prefix_sentences = [Prefix(input_sent) for input_sent in infix_input_sentences]
-        input_const = find_model_constraints(prefix_sentences)
         sentence_letters = all_sentence_letters(prefix_sentences)  # this works
+        input_const = find_model_constraints(prefix_sentences, sentence_letters)
         # print(sentence_letters)
         # print([type(let) for let in sentence_letters])
-        gen_const = find_frame_constraints(sentence_letters)
+        gen_const = find_frame_constraints()
         const = gen_const + input_const
         raw_ext_subsentences = find_extensional_subsentences(prefix_sentences)
         ext_subsentences = repeats_removed(raw_ext_subsentences)
