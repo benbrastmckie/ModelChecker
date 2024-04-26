@@ -363,7 +363,10 @@ def make_constraints(verify, falsify, possible, N, w):
         Const('\\top', AtomSort)
         x = BitVec("top_dummy_x", N)
         y = BitVec("top_dummy_y", N)
-        top_constraints = [ForAll(x, verify(x, '\\top')), ForAll(y, Not(falsify(y, '\\top')))]
+        top_constraints = [
+            ForAll(x, verify(x, '\\top')),
+            ForAll(y, Not(falsify(y, '\\top'))),
+        ]
         for const in prop_const('\\top'):
             top_constraints.append(const)
         prop_constraints = []
