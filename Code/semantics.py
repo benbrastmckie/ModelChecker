@@ -304,19 +304,19 @@ def make_constraints(verify, falsify, possible, N, w):
                 [x, y],
                 Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
             ),
-            # ForAll( #exhaustivity
-            #     x,
-            #     Implies(
-            #         possible(x),
-            #         Exists(
-            #             y,
-            #             And(
-            #                 compatible(x,y),
-            #                 Or(verify(y, atom), falsify(y, atom)),
-            #             ),
-            #         ),
-            #     ),
-            # ),
+            ForAll( #exhaustivity
+                x,
+                Implies(
+                    possible(x),
+                    Exists(
+                        y,
+                        And(
+                            compatible(x,y),
+                            Or(verify(y, atom), falsify(y, atom)),
+                        ),
+                    ),
+                ),
+            ),
         ]
         return sent_to_prop
 
