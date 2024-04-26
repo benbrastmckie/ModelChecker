@@ -7,6 +7,7 @@ There are no 3-models of:
 
 Unsatisfiable core constraints:
 
+```
 1. Exists(f_dummy_x,
        And(f_dummy_x | w == w, falsify(f_dummy_x, B)))
 
@@ -78,7 +79,7 @@ Unsatisfiable core constraints:
        And(And(Not(prop_dummy_x == 0),
                verify(prop_dummy_x, B)),
            possible(prop_dummy_x)))
-
+```
 
 
 There are no 3-models of:

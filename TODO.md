@@ -2,35 +2,29 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
-## Data Structure
+## Package v0
 
-- [:] _M_ abstract model builder functions from `print` to build data structure functions in `model_builder`
-  - [:] document data structure module in markdown
-  - [ ] _M_ divide classes into `Sentences`, `ModelStructure`, and `Propositions`
-- [x] abstract on `eval_world` to generalize `alt_bits` function
+- [ ] research and document packaging protocols
+- [ ] create package
+- [ ] submit to pip installer
 
 ## Print
 
-- [x] _B_ add enumeration to `test_complete_datastructure`
 - [.] print the proposition for each sub-sentence
   - [x] _B_ design recursive structure in `strategies`
-  - [.] _B_ tested new `print_props`
-  - [ ] _M_ define print algorithm
-- [ ] move model builder definitions that concern bits from `print` into `model_definitions`
-  - keep all definitions that concern states in `print`
+  - [x] _B_ tested new `print_props`
+  - [ ] _M_ define general print algorithm
+    - [ ] create new branch
+    - [ ] test and debug
+    - [ ] merge branch
 
 ## Architecture
 
-- [.] refactor
-  - [:] sketch design in `strategies` for how modules relate
-  - [.] move `N` to `test_complete`
-    - NOTE: I have included `N` in `mod.solve()` and `mod.print_all()` in `test_complete` to help with this
-    - [import loops](https://m.youtube.com/watch?v=UnKa_t-M_kM&list=PLBYZ1xfnKeDRqQLvg_tIx-hScTrUOFQVC&index=23&t=463s&pp=gAQBiAQB)
-  - [ ] implement in new branch
-  - [ ] debug and merge
+- [ ] document design in `architecture` for how modules relate
 
 ## Semantics
 
+- [ ] add designated top elements
 - [ ] _M_ generate variables to be declared alongside Z3 constraints
   - B: seems like we have hit a reason to proceed with some version of this
   - B: OK to hold on replacing `Exists` with constant declarations
@@ -41,6 +35,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] `test_complete` cases
   - [ ] `\neg B, A \boxright B` does not entail `\neg B \boxright \neg A` 
     - works without `\neg B`.
+    - [ ] _B_ step through `neg_unsat.md` building model
   - [ ] `\neg A, A \boxright C` does not entails `(A \wedge B) \boxright C`
     - works without `\neg A`.
   - [ ] `A \boxright C, B \boxright C` entails `(A \wedge B) \boxright C`
@@ -51,7 +46,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] `A \boxright (B \boxright C)` does not entail `(A \wedge B) \boxright C`
     - this does not find models for N = 3
     - very slow for N = 5 (ran for minutes on the remote server)
-  - [x] `A \boxright C` and `\neg (A \boxright \neg B)` does not entail `\neg ((A \wedge B) \boxright C)`
 - [ ] _B_ provide countermodels by hand
   - [ ] `ent_2`
   - [ ] `poss_strength`
@@ -61,25 +55,13 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Refine and Optimize
 
-- [ ] `definitions`
-  - [x] move declarations out of `definitions`
-  - [ ] divide between use cases: Z3 constraints vs print etc
-  - [ ] clear out unused
-- [x] `print`
-  - [ ] clear out unused
-- [ ] `semantics`
-  - [ ] clear out unused
-- [ ] `convert_syntax`
-  - [ ] clear out unused
-- [ ] `model_definitions`
-  - [ ] clear out unused
-- [ ] `model_structure`
+- [.] _M_ `model_structure`
   - [ ] invalid conditional operands
-  - [ ] clear out unused
+  - [x] clear out unused
 - [ ] Z3 guru
   - [:] ask Graham
   - [.] email CS faculty
-    - [ ] (https://people.csail.mit.edu/mcarbin/)[Michael Carbin]
+    - [ ] [https://people.csail.mit.edu/mcarbin/](Michael Carbin)
     - [ ] (https://people.csail.mit.edu/henrycg/)[Henry Corrigan-Gibbs]
     - [ ] (http://adam.chlipala.net/)[Adam Chlipala]
     - [ ] (https://www.csail.mit.edu/person/frans-kaashoek)[Frans Kaashoek]
@@ -109,6 +91,18 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 # Completed
 
+## Print
+
+- [x] _B_ add enumeration to `test_complete_datastructure`
+- [x] move model builder definitions that concern bits from `print` into `model_definitions`
+  - keep all definitions that concern states in `print`
+
+## Data Structure
+
+- [x] _M_ abstract model builder functions from `print` to build data structure functions in `model_builder`
+  - [x] sketch design in `strategies` for how modules relate
+  - [x] _M_ divide classes into `ModelStructure` and `Propositions`
+- [x] abstract on `eval_world` to generalize `alt_bits` function
 Tasks that have been completed.
 
 ## Semantics
@@ -124,6 +118,23 @@ Tasks that have been completed.
 
 ## Refine and Optimize
 
+- [x] _M_ `definitions`
+  - [x] move declarations out of `definitions`
+  - [x] divide between use cases: Z3 constraints vs print etc
+  - [x] clear out unused
+- [x] _M_ `print`
+  - [x] clear out unused
+- [x] _M_ `semantics`
+  - [x] clear out unused
+- [x] _M_ `syntax`
+  - [x] clear out unused
+- [x] _M_ `model_definitions`
+  - [x] clear out unused
+- [x] _M_ move `N` to `test_complete`
+  - B: I have included `N` in `mod.solve()` and `mod.print_all()` in `test_complete` to help with this
+  - [import loops](https://m.youtube.com/watch?v=UnKa_t-M_kM&list=PLBYZ1xfnKeDRqQLvg_tIx-hScTrUOFQVC&index=23&t=463s&pp=gAQBiAQB)
+  - [x] _M_ implement in new branch
+  - [x] _M_ debug and merge
 - [x] closure under fusion constraint in `semantics`?
   - see issue #16
 - [x] _B_ trace tools
@@ -176,6 +187,7 @@ Tasks that have been completed.
 
 ## Models
 
+- [x] _B_ `A \boxright C` and `\neg (A \boxright \neg B)` does not entail `\neg ((A \wedge B) \boxright C)`
 - [x] weakening
 - [x] absorption
 - [x] transitivity
