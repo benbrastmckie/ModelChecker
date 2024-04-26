@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "model_checker"
+version = "0.1"
+description = "A hyperintensional model checker for counterfactual conditionals"
+authors = [
+    { name = "Benjamin Brast-McKie", email = "benbrastmckie@gmail.com" },
+    { name = "Miguel Buitrago", email = "mfbuit46@mit.edu" },
+]
+license = { text = "MIT" }
+readme = "README.md"
+homepage = "https://github.com/benbrastmckie/ModelChecker"
+classifiers = [
+    "Programming Language :: Python :: 3.8",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+keywords = ["semantics", "Z3", "counterfactuals", "model checker"]
+dependencies = [
+    "z3-solver",
+]
+
+[project.urls]
+Homepage = "https://github.com/benbrastmckie/ModelChecker"
+Issues = "https://github.com/benbrastmckie/ModelChecker/issues"
