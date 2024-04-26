@@ -25,8 +25,11 @@ print_unsat_core_bool = True
 
 ### INVALID ###
 
-premises = ['\\neg A','(A \\boxright (B \\vee C))']
-conclusions = ['(A \\boxright B)','(A \\boxright C)']
+premises = ['A']
+conclusions = []
+
+# premises = ['\\neg A','(A \\boxright (B \\vee C))']
+# conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
