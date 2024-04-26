@@ -8,3 +8,4 @@
 *.synctex.gz
 Code/__pycache__
 Examples/__pycache__
+model_checker/package/__pycache__
