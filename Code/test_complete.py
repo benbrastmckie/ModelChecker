@@ -10,11 +10,13 @@ from model_structure import make_model_for
 ########## SETTINGS ############
 ################################
 
-# TODO: define bitvec length N here
-# NOTE: N needs to be removed from definitions.py
+# length of bitvectors
 N = 3
 
+# print all Z3 constraints if a model is found
 print_cons_bool = False
+
+# print core unsatisfiable Z3 constraints if no model exists
 print_unsat_core_bool = True
 
 
@@ -25,14 +27,14 @@ print_unsat_core_bool = True
 
 ### INVALID ###
 
-premises = []
-conclusions = []
+# premises = []
+# conclusions = []
 
-premises = ['A']
-conclusions = []
+# premises = ['A']
+# conclusions = []
 
-# premises = ['\\neg A','(A \\boxright (B \\vee C))']
-# conclusions = ['(A \\boxright B)','(A \\boxright C)']
+premises = ['\\neg A','(A \\boxright (B \\vee C))']
+conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
