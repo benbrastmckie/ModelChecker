@@ -9,22 +9,14 @@ The model checker is built on [Z3](https://github.com/Z3Prover/z3) which can be 
 
 ## Examples
 
-The script `Code/test_complete.py` contains a number of examples that can be commented on and off.
-Running this file with `python3` produces countermodels or else provides the resulting core Z3 constraints that cannot be satisfied.
-Further examples can easily be added to this file.
+To run the model checker, run `python3 path/to/test_complete.py` to generate a test file, or else run `python3 path/to/test_complete.py path/to/test_file.py`.
+The `examples.py` file contains a number of valid and invalid arguments that can be tested in this way.
 
 ## Modules
 
 Here is a brief overview of the included modules.
 
-### Main Script: `test_complete.py`
-
-This script includes specifies the complexity of models `N`, `premises`, `conclusions`, and the print settings `print_cons_bool` and `print_unsat_core_bool` for debugging examples.
-This scrip imports from `model_structure.py`.
-
-### Model Module: `model_structure.py`
-
-This module... To be continued. 
+To be continued...
 
 ## Resources
 
