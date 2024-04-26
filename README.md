@@ -28,17 +28,19 @@ This module... To be continued.
 
 ## Resources
 
-The `Resources/` directory contains a number of files with various resources.
-This is a place to not only store what has been learned along the way for later reference, but to share knowledge.
-Ultimately, it would be nice to make these resources useful to those who are new to the project.
+The `Resources/` directory contains a number of files with various resources including the paper which motivates and develops the hyperintensional semantics implemented here.
 
-## Axiom Search
+To be continued...
 
-Building tools for finding axiom systems.
+## Future Ambitions
 
-- [ ] design method for searching for entailments
+Here are a number of additions that remain to be included.
+
+### Axiom Search
+
+ [ ] design method for searching for entailments
   - [ ] design syntactic filters to reduce the number of sentences up to a given complexity
   - [ ] design methods for avoiding searching for valid sentences by brute force
-- [ ] given a set of valid sentences, devise method for identifying derivability relations
+ [ ] given a set of valid sentences, devise method for identifying derivability relations
   - [ ] can lean be used to help?
 
