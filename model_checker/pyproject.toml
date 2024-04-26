@@ -8,7 +8,7 @@ version = "0.1"
 description = "A hyperintensional model checker for counterfactual conditionals"
 authors = [
     { name = "Benjamin Brast-McKie", email = "benbrastmckie@gmail.com" },
-    { name = "Miguel Buitrago", email = "mfbuit46@mit.edu" },
+    { name = "Miguel Buitrago", email = "mbuit82@gmail.com" },
 ]
 license = { text = "MIT" }
 readme = "README.md"
