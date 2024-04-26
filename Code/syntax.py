@@ -16,7 +16,7 @@ AtomSort = DeclareSort("AtomSort")
 # sentence_stuff = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','Z','W','Y','Z'}
 # operator_stuff = {'\\','/','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'}
 unary_operators = {'\\neg', '/neg', 'neg'}
-extremal_operators = {'\\top', '/top', 'top'}
+# extremal_operators = {'\\top', '/top', 'top'}
 def tokenize(str_exp):
     """
     >>> tokenize("(A /wedge (B /vee C))")
@@ -121,9 +121,9 @@ def parse(tokens):
     ['/op', ['/op', ['A'], ['/op', ['B'], ['C']]], ['/op', ['D'], ['E']]]
     """
     bin_comp_tokens = binary_comp(tokens)
-    if tokens[0] in extremal_operators:
-        token = tokens[0]
-        return [Const(token, AtomSort)] # Const is a function to make a constant
+    # if tokens[0] in extremal_operators:
+    #     token = tokens[0]
+    #     return [Const(token, AtomSort)] # Const is a function to make a constant
     if tokens[0] in unary_operators:
         return [tokens[0], parse(tokens[1:])]
     if bin_comp_tokens == 0:

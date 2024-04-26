@@ -24,7 +24,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Semantics
 
-- [ ] add designated top elements
+- [.] add designated top elements
+  - B: I made an attempt but without success
 - [ ] _M_ generate variables to be declared alongside Z3 constraints
   - B: seems like we have hit a reason to proceed with some version of this
   - B: OK to hold on replacing `Exists` with constant declarations
