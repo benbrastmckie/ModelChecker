@@ -7,3 +7,4 @@
 *.pdf
 *.synctex.gz
 Code/__pycache__
+Examples/__pycache__
