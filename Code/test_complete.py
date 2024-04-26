@@ -25,6 +25,9 @@ print_unsat_core_bool = True
 
 ### INVALID ###
 
+premises = []
+conclusions = []
+
 premises = ['A']
 conclusions = []
 
