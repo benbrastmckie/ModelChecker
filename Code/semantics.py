@@ -275,7 +275,7 @@ def make_constraints(verify, falsify, possible, N, w):
         """
         atom is a proposition since its verifiers and falsifiers are closed under
         fusion respectively, and the verifiers and falsifiers for atom are
-        incompatible (exhaustivity). NOTE: exclusivity crashes Z3 so left off.
+        incompatible (exclusivity). NOTE: exhaustivity crashes Z3 so left off.
         """
         x = BitVec("prop_dummy_x", N)
         y = BitVec("prop_dummy_y", N)
@@ -304,19 +304,19 @@ def make_constraints(verify, falsify, possible, N, w):
                 [x, y],
                 Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
             ),
-            ForAll( #exhaustivity
-                x,
-                Implies(
-                    possible(x),
-                    Exists(
-                        y,
-                        And(
-                            compatible(x,y),
-                            Or(verify(y, atom), falsify(y, atom)),
-                        ),
-                    ),
-                ),
-            ),
+            # ForAll( #exhaustivity
+            #     x,
+            #     Implies(
+            #         possible(x),
+            #         Exists(
+            #             y,
+            #             And(
+            #                 compatible(x,y),
+            #                 Or(verify(y, atom), falsify(y, atom)),
+            #             ),
+            #         ),
+            #     ),
+            # ),
         ]
         return sent_to_prop
 
@@ -331,10 +331,6 @@ def make_constraints(verify, falsify, possible, N, w):
             ForAll([x, y], Exists(z, fusion(x, y) == z)),
             is_world(w),
         ]
-        # for const in prop_const(X):
-        #     frame_constraints.append(const)
-        # NOTE: above appears to admit models for weakening the antecedent
-        # NOTE: also appears to avoid crashing Z3 with the exhaustivity constraint
         for sent_letter in input_sentence_letters:
             for const in prop_const(sent_letter):
                 frame_constraints.append(const)
