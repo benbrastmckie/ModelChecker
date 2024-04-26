@@ -12,7 +12,6 @@ authors = [
 ]
 license = { text = "MIT" }
 readme = "README.md"
-homepage = "https://github.com/benbrastmckie/ModelChecker"
 classifiers = [
     "Programming Language :: Python :: 3.8",
     "License :: OSI Approved :: MIT License",

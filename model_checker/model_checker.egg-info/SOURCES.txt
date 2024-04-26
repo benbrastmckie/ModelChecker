@@ -1,0 +1,13 @@
+LICENCE
+pyproject.toml
+model_checker.egg-info/PKG-INFO
+model_checker.egg-info/SOURCES.txt
+model_checker.egg-info/dependency_links.txt
+model_checker.egg-info/requires.txt
+model_checker.egg-info/top_level.txt
+package/__init__.py
+package/model_definitions.py
+package/model_structure.py
+package/semantics.py
+package/syntax.py
+package/test_complete.py

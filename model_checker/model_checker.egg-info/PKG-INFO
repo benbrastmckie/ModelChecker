@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: model_checker
+Version: 0.1
+Summary: A hyperintensional model checker for counterfactual conditionals
+Author-email: Benjamin Brast-McKie <benbrastmckie@gmail.com>, Miguel Buitrago <mfbuit46@mit.edu>
+License: MIT
+Project-URL: Homepage, https://github.com/benbrastmckie/ModelChecker
+Project-URL: Issues, https://github.com/benbrastmckie/ModelChecker/issues
+Keywords: semantics,Z3,counterfactuals,model checker
+Classifier: Programming Language :: Python :: 3.8
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown
+License-File: LICENCE
+Requires-Dist: z3-solver
