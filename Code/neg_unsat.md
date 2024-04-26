@@ -82,12 +82,3 @@ Unsatisfiable core constraints:
 ```
 
 
-There are no 3-models of:
-
-\neg A
-(A \boxright C)
-\neg ((A \wedge B) \boxright C)
-
-Unsatisfiable core constraints:
-
-
