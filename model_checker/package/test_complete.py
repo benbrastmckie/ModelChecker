@@ -56,7 +56,6 @@ def make_print(length, prems, cons, print_cons, print_unsat):
     mod.print_to(print_cons, print_unsat)
     return mod
 
-# TODO: maybe there is a better way to avoid redundancy with make_print?
 def make_append(mod, file_path, cons_include):
     """finds and stores model from user inputs given above"""
     with open(f"{file_path}", 'a') as f:
@@ -78,9 +77,12 @@ def optional_generate_test():
             output_file_path = f'{test_name}.py'
             with open(output_file_path, 'w', encoding="utf-8") as f:
                 f.write(script_content)
+            print(f"\nThe {test_name}.py file has been created.")
+            print("You can run this file with the command:")
+            print(f"python3 test_complete.py {test_name}.py")
             return
         print("You can run a test.py file that already exists with the command:\n")
-        print("python3 model-checker test.py")
+        print("python3 test_complete.py test.py")
         return
     # Create an argument parser to get the file path
     parser = argparse.ArgumentParser(description="Import variables from another file")
@@ -123,7 +125,6 @@ def optional_generate_test():
     print_cons_bool = getattr(module, "print_cons_bool", False)
     print_unsat_core_bool = getattr(module, "print_unsat_core_bool", True)
     mod = make_print(N, premises, conclusions, print_cons_bool, print_unsat_core_bool)
-    # TODO: include once make_append is finished
     result = input("Would you like to append the output to the file? (y/n):\n")
     if not result in ['Yes', 'yes', 'y']:
         return
