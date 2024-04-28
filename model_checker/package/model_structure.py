@@ -7,7 +7,8 @@ import sys
 from z3 import (
     Function,
     BitVecSort,
-    BoolSort, BitVec
+    BoolSort,
+    BitVec,
 )
 from semantics import (
     make_constraints,
