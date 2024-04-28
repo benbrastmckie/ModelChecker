@@ -2,10 +2,14 @@
 
 This project aims to develop tools for finding countermodels for counterfactual claims as well as establishing entailments over finite models up to a specified degree of complexity.
 
-## Dependencies
+## Installation
 
-The model checker is built on [Z3](https://github.com/Z3Prover/z3) which can be installed with `pip install z3-solver` or as specified in the `flake.nix` for NixOS.
-[Python 3](https://www.python.org/downloads/) must also be installed, but there are no other dependencies.
+Install [Python 3](https://www.python.org/downloads/) and run the following commands in the terminal:
+
+```
+pip install z3-solver
+pip install model-checker
+```
 
 ## Examples
 
@@ -30,9 +34,9 @@ Here are a number of additions that remain to be included.
 
 ### Axiom Search
 
- [ ] design method for searching for entailments
+- [ ] design method for searching for entailments
   - [ ] design syntactic filters to reduce the number of sentences up to a given complexity
   - [ ] design methods for avoiding searching for valid sentences by brute force
- [ ] given a set of valid sentences, devise method for identifying derivability relations
+- [ ] given a set of valid sentences, devise method for identifying derivability relations
   - [ ] can lean be used to help?
 
