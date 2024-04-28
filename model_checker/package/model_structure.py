@@ -430,6 +430,7 @@ def make_model_for(N):
         possible = Function("possible", BitVecSort(N), BoolSort())
         verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
         falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
+        # assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
         w = BitVec("w", N)
         mod = ModelStructure(premises, conclusions, verify, falsify, possible, N, w)
         mod.solve() # make these optional? technically, if they're saved within the model, they're not
