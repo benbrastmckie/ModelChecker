@@ -3,6 +3,7 @@ file defines model structure class given a Z3 model
 '''
 
 import time
+import sys
 from z3 import (
     Function,
     BitVecSort,
@@ -134,11 +135,11 @@ class ModelStructure():
                         break  # to return to the second for loop over world_bits
         return alt_bits
 
-    def print_states(self):
+    def print_states(self,output=sys.__stdout__):
         """print all fusions of atomic states in the model
         first print function in print.py"""
         N = self.N
-        print("\nPossible states:")  # Print states
+        print("\nPossible states:", file=output)  # Print states
         for bit in self.all_bits:
             # test_state = BitVecVal(val, size) # was instead of bit
             state = bitvec_to_substates(bit, N)
@@ -148,7 +149,7 @@ class ModelStructure():
                 else int_to_binary(int(bit.sexpr()[2:], 16), N)
             )
             if bit in self.world_bits:
-                print(f"  {bin_rep} = {state} (world)")
+                print(f"  {bin_rep} = {state} (world)",file=output)
             # TODO: below linter says: invalid conditional operand of type
             elif self.model.evaluate(self.possible(bit)):
                 # NOTE: the following comments are to debug
@@ -156,7 +157,7 @@ class ModelStructure():
                 # print(type(result))  # Debug to confirm it's a Boolean
                 # result_bool = bool(self.model.evaluate(possible(bit)))
                 # print(type(result_bool))  # Debug to confirm it's a Boolean
-                print(f"  {bin_rep} = {state} (possible)")
+                print(f"  {bin_rep} = {state} (possible)",file=output)
             else:
                 # print(f"  {bin_rep} = {state} (impossible)")
                 continue
@@ -201,12 +202,12 @@ class ModelStructure():
         if "boxright" in op:
             raise ValueError("don't knowhow to handle boxright case yet")
 
-    def print_evaluation(self):
+    def print_evaluation(self,output=sys.__stdout__):
         """print the evaluation world and all sentences true/false in that world
         sentence letters is a list
         second print function in print.py"""
         N = self.N
-        print(f"\nThe evaluation world is {bitvec_to_substates(self.eval_world, N)}:")
+        print(f"\nThe evaluation world is {bitvec_to_substates(self.eval_world, N)}:", file=output)
         true_in_eval = set()
         for sent in self.sentence_letters:
             for bit in self.all_bits:
@@ -220,17 +221,17 @@ class ModelStructure():
         if true_in_eval:
             true_eval_list = sorted([str(sent) for sent in true_in_eval])
             true_eval_string = ", ".join(true_eval_list)
-            print(f"  {true_eval_string}  (true in {bitvec_to_substates(self.eval_world, N)})")
+            print(f"  {true_eval_string}  (true in {bitvec_to_substates(self.eval_world, N)})", file=output)
         if false_in_eval:
             false_eval_list = sorted([str(sent) for sent in false_in_eval])
             false_eval_string = ", ".join(false_eval_list)
-            print(f"  {false_eval_string}  (not true in {bitvec_to_substates(self.eval_world, N)})")
-        print()
+            print(f"  {false_eval_string}  (not true in {bitvec_to_substates(self.eval_world, N)})", file=output)
+        print(file=output)
 
-    def print_constraints(self,consts):
+    def print_constraints(self,consts,output=sys.__stdout__):
         """prints constraints in an numbered list"""
         for index, con in enumerate(consts, start=1):
-            print(f"{index}. {con}\n")
+            print(f"{index}. {con}\n", file=output)
             # print(f"Constraints time: {time}\n")
 
     def print_sort(self,complex_sent,world):
@@ -263,7 +264,7 @@ class ModelStructure():
     #           - print atomic sentences that are true in `u`
     #           - print `print_sort(C,u)`
 
-    def print_props(self,world):
+    def print_props(self,world,output=sys.__stdout__):
         # B: do we need N to be specified here?
         # NOTE: I added a world-argument above which I think will be needed
         # when printing alt_worlds for nested counterfactuals. right now it
@@ -274,62 +275,58 @@ class ModelStructure():
         # TODO: I couldn't get the following lines from your commit to work but
         # saved them here. see TODO in print_possible_verifiers_and_falsifiers
         for ext_proposition in self.extensional_propositions:
-            ext_proposition.print_possible_verifiers_and_falsifiers()
-            ext_proposition.print_alt_worlds()
+            ext_proposition.print_possible_verifiers_and_falsifiers(output)
+            ext_proposition.print_alt_worlds(output)
     # TODO: will replace above
     # - def `print_(prefix_input_sentences, w)`
     #   - for `A` in `prefix_input_sentences`:
     #     - `print_sort(A,w)`
 
-    def append_all(self, file_path, cons_include):
+    def print_to(self, print_cons_bool, print_unsat_core_bool, output=sys.__stdout__):
         """append all elements of the model to the file provided"""
         N = self.N
         if self.model_status:
-            with open(f"{file_path}", 'a') as f:
-                print(f"\nThere is a {N}-model of:\n", file=f)
-                for sent in self.input_sentences:
-                    print(sent, file=f)
-                # # TODO: have state class ready to print
-                # self.print_states()
-                # self.print_evaluation()
-                # self.print_props(self.eval_world)
-                # if cons_include:
-                #     print("Satisfiable core constraints:\n")
-                #     self.print_constraints(self.constraints)
-                #     print()
-                # else:
-                # print(f"\nThere are no {N}-models of:\n")
-                # for sent in self.input_sentences:
-                #     print(sent)
-                # print()
-                # if cons_include:
-                #     print("Unsatisfiable core constraints:\n")
-                #     self.print_constraints(self.model)
-                #     print()
-
-    def print_all(self, print_cons_bool=False, print_unsat_core_bool=True):
-        """prints all elements of the model"""
-        N = self.N
-        if self.model_status:
-            print(f"\nThere is a {N}-model of:\n")
+            print(f'\nThere is a {N}-model of:\n', file=output)
             for sent in self.input_sentences:
-                print(sent)
-            self.print_states()
-            self.print_evaluation()
-            self.print_props(self.eval_world)
+                print(sent, file=output)
+            self.print_states(output)
+            self.print_evaluation(output)
+            self.print_props(self.eval_world,output)
             if print_cons_bool:
-                print("Satisfiable core constraints:\n")
-                self.print_constraints(self.constraints)
-                print()
+                print("Satisfiable core constraints:\n",file=output)
+                self.print_constraints(self.constraints,output)
         else:
-            print(f"\nThere are no {N}-models of:\n")
+            print(f"\nThere are no {N}-models of:\n",file=output)
             for sent in self.input_sentences:
-                print(sent)
-            print()
+                print(sent,file=output)
+            print(file=output)
             if print_unsat_core_bool:
-                print("Unsatisfiable core constraints:\n")
-                self.print_constraints(self.model)
-                print()
+                print("Unsatisfiable core constraints:\n",file=output)
+                self.print_constraints(self.model,output)
+
+    # def print_all(self, print_cons_bool=False, print_unsat_core_bool=True):
+    #     """prints all elements of the model"""
+    #     N = self.N
+    #     if self.model_status:
+    #         print(f"\nThere is a {N}-model of:\n")
+    #         for sent in self.input_sentences:
+    #             print(sent)
+    #         self.print_states()
+    #         self.print_evaluation()
+    #         self.print_props(self.eval_world)
+    #         if print_cons_bool:
+    #             print("Satisfiable core constraints:\n")
+    #             self.print_constraints(self.constraints)
+    #             print()
+    #     else:
+    #         print(f"\nThere are no {N}-models of:\n")
+    #         for sent in self.input_sentences:
+    #             print(sent)
+    #         print()
+    #         if print_unsat_core_bool:
+    #             print("Unsatisfiable core constraints:\n")
+    #             self.print_constraints(self.model)
+    #             print()
 
 # TODO: add counterfactuals to Proposition(), assigning them to sets of worlds they are true in
 class Proposition():
@@ -362,7 +359,7 @@ class Proposition():
         # I think this may be a nice function to have to get around issue of eval worlds
         
 
-    def print_possible_verifiers_and_falsifiers(self):
+    def print_possible_verifiers_and_falsifiers(self,output=sys.__stdout__):
         """prints the possible verifiers and falsifier states for a sentence.
         inputs: the verifier states and falsifier states.
         Outputs: None, but prints the verifiers and falsifiers
@@ -374,16 +371,23 @@ class Proposition():
         fal_states = {bitvec_to_substates(bit, N) for bit in self['falsifiers'] if model.evaluate(possible(bit))}
         if ver_states and fal_states:
             print(
-                f"  |{self}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(fal_states)} >"
+                f"  |{self}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(fal_states)} >",
+                file=output
             )
         elif ver_states and not fal_states:
-            print(f"  |{self}| = < {make_set_pretty_for_print(ver_states)}, ∅ >")
+            print(
+                f"  |{self}| = < {make_set_pretty_for_print(ver_states)}, ∅ >",
+                file=output
+            )
         elif not ver_states and fal_states:
-            print(f"  |{self}| = < ∅, {make_set_pretty_for_print(fal_states)} >")
+            print(
+                f"  |{self}| = < ∅, {make_set_pretty_for_print(fal_states)} >",
+                file=output
+            )
         else:
-            print(f"  |{self}| = < ∅, ∅ >")
+            print(f"  |{self}| = < ∅, ∅ >", file=output)
 
-    def print_alt_worlds(self):
+    def print_alt_worlds(self,output=sys.__stdout__):
         """prints everything that has to do with alt worlds
         Used in print_prop()
         Takes in a proposition. Note that this proposition has itself a comparison world.
@@ -394,19 +398,25 @@ class Proposition():
         model = self.parent_model_structure.model # ModelRef object
         alt_worlds = {bitvec_to_substates(alt, N) for alt in self['alternative worlds']}
         if alt_worlds:
-            print(f"  {self}-alternatives to {bitvec_to_substates(comp_world, N)} = {make_set_pretty_for_print(alt_worlds)}")
+            print(
+                f"  {self}-alternatives to {bitvec_to_substates(comp_world, N)} = {make_set_pretty_for_print(alt_worlds)}",
+                file=output
+            )
             for alt_bit in self['alternative worlds']:
                 # TODO: note that not enough arguments are included below
                 # def find_true_and_false_in_alt(alt_bit, sentence_letters, all_bits, model):
                 true_in_alt, false_in_alt = find_true_and_false_in_alt(
                     alt_bit, self.parent_model_structure
                 )
-                print_alt_relation(true_in_alt, alt_bit, "true", N)
-                print_alt_relation(false_in_alt, alt_bit, "not true", N)
-            print()  # for an extra blank line
+                print_alt_relation(true_in_alt, alt_bit, "true", N, output)
+                print_alt_relation(false_in_alt, alt_bit, "not true", N, output)
+            print(file=output)  # for an extra blank line
         else:
-            print(f"  There are no {self}-alternatives to {bitvec_to_substates(comp_world, N)}")
-            print()  # for an extra blank line
+            print(
+                f"  There are no {self}-alternatives to {bitvec_to_substates(comp_world, N)}",
+                file=output
+            )
+            print(file=output)  # for an extra blank line
 
     # TODO: what should this look like?
     def __str__(self):

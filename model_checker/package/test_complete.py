@@ -53,13 +53,16 @@ conclusions = ['(A boxright B)','(A boxright C)']
 def make_print(length, prems, cons, print_cons, print_unsat):
     """finds and prints model from user inputs given above"""
     mod = make_model_for(length)(prems, cons)
-    mod.print_all(print_cons, print_unsat)
+    mod.print_to(print_cons, print_unsat)
+    return mod
 
 # TODO: maybe there is a better way to avoid redundancy with make_print?
-def make_append(file_path, length, prems, cons, cons_include):
+def make_append(mod, file_path, cons_include):
     """finds and stores model from user inputs given above"""
-    mod = make_model_for(length)(prems, cons)
-    mod.append_all(file_path, cons_include)
+    with open(f"{file_path}", 'a') as f:
+        print('\n"""', file=f)
+        mod.print_to(cons_include, cons_include, f)
+        print('"""', file=f)
 
 def optional_generate_test():
     """generate a test file when script is run without input"""
@@ -119,14 +122,14 @@ def optional_generate_test():
     conclusions = getattr(module, "conclusions")
     print_cons_bool = getattr(module, "print_cons_bool", False)
     print_unsat_core_bool = getattr(module, "print_unsat_core_bool", True)
-    make_print(N, premises, conclusions, print_cons_bool, print_unsat_core_bool)
+    mod = make_print(N, premises, conclusions, print_cons_bool, print_unsat_core_bool)
     # TODO: include once make_append is finished
-    # result = input("Would you like to append the output to the file? (y/n): ")
-    # if not result in ['Yes', 'yes', 'y']:
-    #     return
-    # cons_input = input("Would you like to include the Z3 constraints? (y/n): ")
-    # cons_include = bool(cons_input in ['Yes', 'yes', 'y'])
-    # make_append(file_path, N, premises, conclusions, cons_include)
+    result = input("Would you like to append the output to the file? (y/n):\n")
+    if not result in ['Yes', 'yes', 'y']:
+        return
+    cons_input = input("\nWould you like to include the Z3 constraints? (y/n):\n")
+    cons_include = bool(cons_input in ['Yes', 'yes', 'y'])
+    make_append(mod, file_path, cons_include)
 
 if __name__ == "__main__":
     # main()
