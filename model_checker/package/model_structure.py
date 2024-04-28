@@ -149,8 +149,8 @@ class ModelStructure():
             )
             if bit in self.world_bits:
                 print(f"  {bin_rep} = {state} (world)")
+            # TODO: below linter says: invalid conditional operand of type
             elif self.model.evaluate(self.possible(bit)):
-                # TODO: above linter says: invalid conditional operand of type
                 # NOTE: the following comments are to debug
                 # result = self.model.evaluate(possible(bit))
                 # print(type(result))  # Debug to confirm it's a Boolean
@@ -177,7 +177,7 @@ class ModelStructure():
         if "neg" in op:
             # NOTE: was getting an error since Y need not be a sentence letter.
             # fixed by making this match the other cases below.
-            # TODO: linter says object of type "None" is not subscriptable for below
+            # TODO: for below linter says object of type "None" is not subscriptable for below
             Y_V = self.find_complex_proposition(Y)[0]
             Y_F = self.find_complex_proposition(Y)[1]
             return (Y_F,Y_V)
@@ -281,8 +281,33 @@ class ModelStructure():
     #   - for `A` in `prefix_input_sentences`:
     #     - `print_sort(A,w)`
 
+    def append_all(self, file_path, cons_include):
+        """append all elements of the model to the file provided"""
+        N = self.N
+        if self.model_status:
+            with open(f"{file_path}", 'a') as f:
+                print(f"\nThere is a {N}-model of:\n", file=f)
+                for sent in self.input_sentences:
+                    print(sent, file=f)
+                # # TODO: have state class ready to print
+                # self.print_states()
+                # self.print_evaluation()
+                # self.print_props(self.eval_world)
+                # if cons_include:
+                #     print("Satisfiable core constraints:\n")
+                #     self.print_constraints(self.constraints)
+                #     print()
+                # else:
+                # print(f"\nThere are no {N}-models of:\n")
+                # for sent in self.input_sentences:
+                #     print(sent)
+                # print()
+                # if cons_include:
+                #     print("Unsatisfiable core constraints:\n")
+                #     self.print_constraints(self.model)
+                #     print()
 
-    def print_all(self, print_cons_bool=False, print_unsat_core_bool=False):
+    def print_all(self, print_cons_bool=False, print_unsat_core_bool=True):
         """prints all elements of the model"""
         N = self.N
         if self.model_status:
