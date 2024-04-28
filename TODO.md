@@ -4,9 +4,10 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Package v0
 
-- [ ] research and document packaging protocols
-- [ ] create package
-- [ ] submit to pip installer
+- [:] research and document packaging protocols
+  - [ ] 'Unable to import' ERRORS
+- [x] create package
+- [x] submit to pip installer
 
 ## Print
 

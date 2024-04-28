@@ -5,7 +5,6 @@ running the file finds a model and prints the result.
 
 import argparse
 import importlib.util
-# import importlib
 import sys
 from string import Template
 from model_structure import make_model_for
@@ -51,11 +50,16 @@ conclusions = ['(A boxright B)','(A boxright C)']
 #     mod.print_all(print_cons_bool, print_unsat_core_bool)
 
 
-def main_inputs(length, prems, cons, print_cons, print_unsat):
+def make_print(length, prems, cons, print_cons, print_unsat):
     """finds and prints model from user inputs given above"""
     mod = make_model_for(length)(prems, cons)
     mod.print_all(print_cons, print_unsat)
 
+# TODO: maybe there is a better way to avoid redundancy with make_print?
+def make_append(file_path, length, prems, cons, cons_include):
+    """finds and stores model from user inputs given above"""
+    mod = make_model_for(length)(prems, cons)
+    mod.append_all(file_path, cons_include)
 
 def optional_generate_test():
     """generate a test file when script is run without input"""
@@ -90,7 +94,7 @@ def optional_generate_test():
     spec = importlib.util.spec_from_file_location(module_name, file_path)
     if spec is None:
         print(f"Error: Unable to find '{file_path}'.")
-        exit(1)
+        sys.exit(1)
     module = importlib.util.module_from_spec(spec)
 
     # Load the module
@@ -98,7 +102,7 @@ def optional_generate_test():
         spec.loader.exec_module(module)
     except Exception as e:
         print(f"Error: Failed to load the module from '{file_path}'. Reason: {e}")
-        exit(1)
+        sys.exit(1)
 
     # check for models given the values in the imported module
     if not hasattr(module, "N"):
@@ -110,18 +114,19 @@ def optional_generate_test():
     if not hasattr(module, "conclusions"):
         print("The conclusions are absent")
         return
-    if not hasattr(module, "print_cons_bool"):
-        print_cons_bool = False
-        return
-    if not hasattr(module, "print_unsat_core_bool"):
-        print_unsat_core_bool = True
-        return
     N = getattr(module, "N")
     premises = getattr(module, "premises")
     conclusions = getattr(module, "conclusions")
-    print_cons_bool = getattr(module, "print_cons_bool")
-    print_unsat_core_bool = getattr(module, "print_unsat_core_bool")
-    main_inputs(N, premises, conclusions, print_cons_bool, print_unsat_core_bool)
+    print_cons_bool = getattr(module, "print_cons_bool", False)
+    print_unsat_core_bool = getattr(module, "print_unsat_core_bool", True)
+    make_print(N, premises, conclusions, print_cons_bool, print_unsat_core_bool)
+    # TODO: include once make_append is finished
+    # result = input("Would you like to append the output to the file? (y/n): ")
+    # if not result in ['Yes', 'yes', 'y']:
+    #     return
+    # cons_input = input("Would you like to include the Z3 constraints? (y/n): ")
+    # cons_include = bool(cons_input in ['Yes', 'yes', 'y'])
+    # make_append(file_path, N, premises, conclusions, cons_include)
 
 if __name__ == "__main__":
     # main()
