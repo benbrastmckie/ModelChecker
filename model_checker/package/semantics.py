@@ -12,6 +12,9 @@ from z3 import (
     Solver,
     And,
     BitVec,
+    BoolSort,
+    BitVecSort,
+    Function,
 )
 from syntax import Prefix
 
@@ -279,6 +282,7 @@ def make_constraints(verify, falsify, possible, N, w):
         """
         x = BitVec("prop_dummy_x", N)
         y = BitVec("prop_dummy_y", N)
+        # counterpart = Function("counterpart", BitVecSort(N), BitVecSort(N))
         sent_to_prop = [
             Exists(x, non_triv_verify(x, atom)),
             Exists(y, non_triv_falsify(y, atom)),
@@ -304,6 +308,20 @@ def make_constraints(verify, falsify, possible, N, w):
                 [x, y],
                 Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
             ),
+            # # SKOLEMIZATION
+            # Exists(counterpart, #exhaustivity
+            #     ForAll(
+            #         [x, y],
+            #         Implies(
+            #             And(possible(x), counterpart(x) == y),
+            #             And(
+            #                 compatible(x, y),
+            #                 Or(verify(y, atom), falsify(y, atom)),
+            #             ),
+            #         ),
+            #     ),
+            # ),
+            # # ORIGINAL: doesn't work
             # ForAll( #exhaustivity
             #     x,
             #     Implies(

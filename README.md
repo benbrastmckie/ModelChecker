@@ -13,7 +13,7 @@ pip install model-checker
 
 ## Examples
 
-To run the model checker, run `python3 path/to/test_complete.py` to generate a test file, or else run `python3 path/to/test_complete.py path/to/test_file.py`.
+To generate a test file, `python3 path/to/test_complete.py`, or else run `python3 path/to/test_complete.py path/to/test_file.py` if a test file already exists.
 The `examples.py` file contains a number of valid and invalid arguments that can be tested in this way.
 
 ## Modules
