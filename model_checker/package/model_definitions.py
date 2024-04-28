@@ -2,6 +2,7 @@
 file contains all definitions for defining the model structure
 '''
 
+import sys
 from z3 import (
     BitVecVal, simplify,
 )
@@ -154,7 +155,7 @@ def atomic_propositions_dict(all_bits, sentence_letters, model, verify, falsify)
         atomic_VFs_dict[letter] = (ver_bits, fal_bits)
     return atomic_VFs_dict
 
-def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value, N):
+def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value, N,output=sys.__stdout__):
     """true is a string representing the relation ("true" for true_in_alt; m.m. for false) that is being used for
     alt_relation_set is the set of prefix sentences that have truth value relation_truth_value in a
     given alternative world alt_bit
@@ -165,9 +166,15 @@ def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value, N):
     alt_relation_list = sorted([Infix(sent) for sent in alt_relation_set])
     alt_relation_string = ", ".join(alt_relation_list)
     if len(alt_relation_set) == 1:
-        print(f"    {alt_relation_string} is {relation_truth_value} in {bitvec_to_substates(alt_bit, N)}")
+        print(
+            f"    {alt_relation_string} is {relation_truth_value} in {bitvec_to_substates(alt_bit, N)}",
+            file=output
+        )
     else:
-        print(f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_bit, N)}")
+        print(
+            f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_bit, N)}",
+            file=output
+        )
 
 
 #############################################
