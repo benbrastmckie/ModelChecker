@@ -12,6 +12,7 @@ from z3 import (
     Solver,
     And,
     BitVec,
+    Const,
     BoolSort,
     BitVecSort,
     Function,
@@ -42,7 +43,7 @@ input_sentences in infix form.
 # is it possible/desirable to avoid use of 'Exists' entirely?
 
 
-def make_constraints(verify, falsify, possible, N, w):
+def make_constraints(verify, falsify, possible, assign, N, w):
     def non_null_verify(bit_s, atom):
         """bit_s verifies atom and is not the null state"""
         return And(Not(bit_s == 0), verify(bit_s, atom))
@@ -300,27 +301,19 @@ def make_constraints(verify, falsify, possible, N, w):
             ),
             ForAll(
                 [x, y],
-                Implies(
-                    And(falsify(x, atom), falsify(y, atom)), falsify(fusion(x, y), atom)
-                ),
-            ),
-            ForAll(
-                [x, y],
                 Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
             ),
-            # # SKOLEMIZATION
-            # Exists(counterpart, #exhaustivity
-            #     ForAll(
-            #         [x, y],
-            #         Implies(
-            #             And(possible(x), counterpart(x) == y),
-            #             And(
-            #                 compatible(x, y),
-            #                 Or(verify(y, atom), falsify(y, atom)),
-            #             ),
-            #         ),
-            #     ),
-            # ),
+            # exhaustivity skolemized by assign
+            ForAll(
+                [x, y],
+                Implies(
+                    And(possible(x), assign(x, atom) == y),
+                    And(
+                        compatible(x, y),
+                        Or(verify(y, atom), falsify(y, atom)),
+                    ),
+                ),
+            ),
             # # ORIGINAL: doesn't work
             # ForAll( #exhaustivity
             #     x,
@@ -349,7 +342,17 @@ def make_constraints(verify, falsify, possible, N, w):
             ForAll([x, y], Exists(z, fusion(x, y) == z)),
             is_world(w),
         ]
-        return frame_constraints
+        # test_atom = [Const("test_atom", AtomSort)]
+        # test_constraints = [
+        #     Exists(x,
+        #         And(
+        #            is_world(x),
+        #            Not(true_at(test_atom, x)),
+        #            Not(false_at(test_atom, x)),
+        #         )
+        #     ),
+        # ]
+        return frame_constraints # + test_constraints
 
     # def add_general_constraints(solv, input_sentence_letters):
     #     """adds the constraints that go in every solver"""
