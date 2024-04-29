@@ -87,6 +87,9 @@ append_bool = False
 # premises = ['(A \\boxright B)','(A \\boxright C)']
 # conclusions = ['(A \\boxright (B \\wedge C))']
 
+# NOTE: crashes with non_triv_verify/falsify and skolemized exhaustivity but works on ssh
+# NOTE: crashes with no non_triv_verify/falsify and no skolemized exhaustivity
+# NOTE: slow with no non_triv_verify/falsify and skolemized exhaustivity
 premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
 conclusions = ['(A \\boxright C)']
 
