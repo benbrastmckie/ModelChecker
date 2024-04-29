@@ -11,6 +11,9 @@ print_cons_bool = False
 # print core unsatisfiable Z3 constraints if no model exists
 print_unsat_core_bool = True
 
+# present option to append output to file
+append_bool = False
+
 
 ################################
 ########### WORKING ############
@@ -44,9 +47,10 @@ print_unsat_core_bool = True
 # premises = ['\\neg A']
 # conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 
-# NOTE: slow with skolemized exhaustivity
-premises = ['(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
+# # NOTE: slow with both skolemized exhaustivity and non_triv_verify/falsify constraints
+# # NOTE: not slow with either individually
+# premises = ['(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
 
 # premises = ['(A \\boxright B)']
 # conclusions = ['(\\neg B \\boxright \\neg A)']
@@ -60,30 +64,27 @@ conclusions = ['((A \\wedge B) \\boxright C)']
 # premises = ['A','(A \\rightarrow B)']
 # conclusions = ['B']
 
-# NOTE: very slow with non_triv_verify turned on in semantics
+# # NOTE: crashes with non_triv_verify/falsify and without skolemized exhaustivity
 # premises = ['(A \\boxright B)']
 # conclusions = ['(A \\rightarrow B)']
 
 # premises = ['((A \\vee B) \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
-# # NOTE: very slow with non_triv_verify turned on in semantics
 # premises = ['((A \\vee B) \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
-# # NOTE: slow with non_triv_verify turned on in semantics
 # premises = ['(A \\boxright C)','(B \\boxright C)','((A \\wedge B) \\boxright C)']
 # conclusions = ['((A \\vee B) \\boxright C)']
 
-# # NOTE: slow with non_triv_verify turned on in semantics
 # premises = ['(A \\boxright C)','(B \\boxright C)']
 # conclusions = ['((A \\vee B) \\boxright C)']
 
 # premises = ['(A \\boxright (B \\wedge C))']
 # conclusions = ['(A \\boxright B)']
 
-# premises = ['(A \\boxright B)','(A \\boxright C)']
-# conclusions = ['(A \\boxright (B \\wedge C))']
+premises = ['(A \\boxright B)','(A \\boxright C)']
+conclusions = ['(A \\boxright (B \\wedge C))']
 
 # premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright C)']

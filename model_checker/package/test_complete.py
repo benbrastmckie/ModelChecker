@@ -124,13 +124,15 @@ def optional_generate_test():
     conclusions = getattr(module, "conclusions")
     print_cons_bool = getattr(module, "print_cons_bool", False)
     print_unsat_core_bool = getattr(module, "print_unsat_core_bool", True)
+    append_bool = getattr(module, "append_bool", True)
     mod = make_print(N, premises, conclusions, print_cons_bool, print_unsat_core_bool)
-    result = input("Would you like to append the output to the file? (y/n):\n")
-    if not result in ['Yes', 'yes', 'y']:
-        return
-    cons_input = input("\nWould you like to include the Z3 constraints? (y/n):\n")
-    cons_include = bool(cons_input in ['Yes', 'yes', 'y'])
-    make_append(mod, file_path, cons_include)
+    if append_bool:
+        result = input("Would you like to append the output to the file? (y/n):\n")
+        if not result in ['Yes', 'yes', 'y']:
+            return
+        cons_input = input("\nWould you like to include the Z3 constraints? (y/n):\n")
+        cons_include = bool(cons_input in ['Yes', 'yes', 'y'])
+        make_append(mod, file_path, cons_include)
 
 if __name__ == "__main__":
     # main()
