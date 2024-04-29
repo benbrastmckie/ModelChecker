@@ -37,15 +37,16 @@ print_unsat_core_bool = True
 # premises = ['\\neg A','\\neg (A \\boxright B)']
 # conclusions = ['(A \\boxright \\neg B)']
 
-# NOTE: slow with skolemized constraint
-premises = ['(A \\boxright B)','(B \\boxright C)']
-conclusions = ['(A \\boxright C)']
+# # NOTE: slow with non_triv_verify/falsify constraints
+# premises = ['(A \\boxright B)','(B \\boxright C)']
+# conclusions = ['(A \\boxright C)']
 
 # premises = ['\\neg A']
 # conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 
-# premises = ['(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
+# NOTE: slow with skolemized exhaustivity
+premises = ['(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
 
 # premises = ['(A \\boxright B)']
 # conclusions = ['(\\neg B \\boxright \\neg A)']
