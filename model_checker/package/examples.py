@@ -3,7 +3,7 @@
 ################################
 
 # length of bitvectors
-N = 3
+N = 5
 
 # print all Z3 constraints if a model is found
 print_cons_bool = False
@@ -87,11 +87,11 @@ append_bool = False
 # premises = ['(A \\boxright B)','(A \\boxright C)']
 # conclusions = ['(A \\boxright (B \\wedge C))']
 
-# NOTE: crashes with non_triv_verify/falsify and skolemized exhaustivity but works on ssh
-# NOTE: crashes with no non_triv_verify/falsify and no skolemized exhaustivity
-# NOTE: slow with no non_triv_verify/falsify and skolemized exhaustivity
-premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
-conclusions = ['(A \\boxright C)']
+# # NOTE: killed on ssh with no non_triv_verify/falsify and no skolemized exhaustivity
+# # NOTE: crashes with non_triv_verify/falsify and skolemized exhaustivity but works on ssh
+# # NOTE: slow with no non_triv_verify/falsify and skolemized exhaustivity
+# premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
+# conclusions = ['(A \\boxright C)']
 
 
 ################################
@@ -101,11 +101,11 @@ conclusions = ['(A \\boxright C)']
 
 ### HIGH PRIORITY: NEGATION PROBLEM ###
 
-# # NOTE: ssh finds unsat_core but should have countermodels
+# # NOTE: only works without \neg B
 # premises = ['\\neg B','(A \\boxright B)']
 # conclusions = ['(\\neg B \\boxright \\neg A)']
 
-# # NOTE: ssh finds unsat_core but should have countermodels
+# # NOTE: only works without \neg A
 # premises = ['\\neg A','(A \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
@@ -117,10 +117,10 @@ conclusions = ['(A \\boxright C)']
 # premises = ['((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
 
-# # NOTE: this does not find models for N = 3
-# # very slow for N = 5 (ran for minutes on the remote server)
-# premises = ['(A \\boxright (B \\boxright C))']
-# conclusions = ['((A \\wedge B) \\boxright C)']
+# NOTE: this does not find models for N = 3
+# very slow for N = 5 (ran for minutes on the remote server)
+premises = ['(A \\boxright (B \\boxright C))']
+conclusions = ['((A \\wedge B) \\boxright C)']
 
 # # NOTE: doesn't work b/c should countermodel
 # # recursive printing would be helpful.
