@@ -25,11 +25,11 @@ print_unsat_core_bool = True
 # premises = ['A']
 # conclusions = []
 
-premises = ['\\neg A','(A \\boxright (B \\vee C))']
-conclusions = ['(A \\boxright B)','(A \\boxright C)']
+# premises = ['\\neg A','(A \\boxright (B \\vee C))']
+# conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
-# premises = ['A','B']
-# conclusions = ['(A \\boxright B)']
+# premises = ['Ball_is_red','Mary_loves_it']
+# conclusions = ['(Ball_is_red \\boxright Mary_loves_it)']
 
 # premises = ['A',]
 # conclusions = ['\\neg A']
@@ -37,8 +37,9 @@ conclusions = ['(A \\boxright B)','(A \\boxright C)']
 # premises = ['\\neg A','\\neg (A \\boxright B)']
 # conclusions = ['(A \\boxright \\neg B)']
 
-# premises = ['(A \\boxright B)','(B \\boxright C)']
-# conclusions = ['(A \\boxright C)']
+# NOTE: slow with skolemized constraint
+premises = ['(A \\boxright B)','(B \\boxright C)']
+conclusions = ['(A \\boxright C)']
 
 # premises = ['\\neg A']
 # conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']

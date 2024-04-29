@@ -58,7 +58,7 @@ class ModelStructure():
     self.sentence letters is a list of atomic sentence letters (each of sort AtomSort)
     self.constraints is a list (?) of constraints
     everything else is initialized as None'''
-    def __init__(self, input_premises, input_conclusions, verify, falsify, possible, N, w):
+    def __init__(self, input_premises, input_conclusions, verify, falsify, possible, assign, N, w):
         self.relation_dict = {}
         # self.relation_dict['verify'] = verify
         # self.relation_dict['falsify'] = falsify
@@ -66,12 +66,13 @@ class ModelStructure():
         self.verify = verify
         self.falsify = falsify
         self.possible = possible
+        self.assign = assign
         self.N = N
         self.w = w
         self.premises = input_premises
         self.conclusions = input_conclusions
         self.input_sentences = infix_combine(input_premises, input_conclusions)
-        find_all_constraints_func = make_constraints(verify, falsify, possible, N, w)
+        find_all_constraints_func = make_constraints(verify, falsify, possible, assign, N, w)
         # TODO: replace prefix_sentences with ext_sub_sentences
         consts, sent_lets, extensional_subsentences = find_all_constraints_func(self.input_sentences)
         self.sentence_letters = sent_lets
@@ -304,6 +305,7 @@ class ModelStructure():
             if print_unsat_core_bool:
                 print("Unsatisfiable core constraints:\n",file=output)
                 self.print_constraints(self.model,output)
+        print(f"Run time: {self.model_runtime} seconds\n",file=output)
 
     # def print_all(self, print_cons_bool=False, print_unsat_core_bool=True):
     #     """prints all elements of the model"""
@@ -430,9 +432,9 @@ def make_model_for(N):
         possible = Function("possible", BitVecSort(N), BoolSort())
         verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
         falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
-        # assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
+        assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
         w = BitVec("w", N)
-        mod = ModelStructure(premises, conclusions, verify, falsify, possible, N, w)
+        mod = ModelStructure(premises, conclusions, verify, falsify, possible, assign, N, w)
         mod.solve() # make these optional? technically, if they're saved within the model, they're not
                         # needed. And, actually anything else would make this go wrong. 
         return mod
