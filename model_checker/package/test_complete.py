@@ -27,6 +27,9 @@ print_cons_bool = False
 # print core unsatisfiable Z3 constraints if no model exists
 print_unsat_core_bool = True
 
+# present option to append output to file
+save_bool = False
+
 
 ################################
 ########### ARGUMENT ###########
@@ -44,34 +47,11 @@ conclusions = ['(A boxright B)','(A boxright C)']
 
 """)
 
-# def main():
-#     """finds and prints model from user inputs given above"""
-#     mod = make_model_for(N)(premises, conclusions)
-#     mod.print_all(print_cons_bool, print_unsat_core_bool)
-
-
 def make_print(length, prems, cons, print_cons, print_unsat):
     """finds and prints model from user inputs given above"""
     mod = make_model_for(length)(prems, cons)
     mod.print_to(print_cons, print_unsat)
     return mod
-
-# def save_output(mod, file_path, cons_include, output_file_name):
-#     """finds and stores model from user inputs given above"""
-#     if len(output_file_name) < 1:
-#         with open(f"{file_path}", 'a', encoding="utf-8") as f:
-#             print('\n"""', file=f)
-#             mod.print_to(cons_include, cons_include, f)
-#             print('"""', file=f)
-#     else:
-#         with open(f"{output_file_name}.py", 'w', encoding="utf-8") as n:
-#             # TODO: make the output file an executable script
-#             # TODO: save the output in the same folder as the file being run
-#             print('\n"""', file=n)
-#             mod.print_to(cons_include, cons_include, n)
-#             print('"""', file=n)
-#
-
 
 # TODO: abstract helper functions
 def optional_generate_test():
@@ -157,5 +137,4 @@ def optional_generate_test():
     print()
 
 if __name__ == "__main__":
-    # main()
     optional_generate_test()
