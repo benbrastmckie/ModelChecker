@@ -37,8 +37,8 @@ save_bool = False
 # premises = ['\\neg A','(A \\boxright (B \\vee C))']
 # conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
-# premises = ['Ball_is_red','Mary_loves_it']
-# conclusions = ['(Ball_is_red \\boxright Mary_loves_it)']
+premises = ['Ball_is_red','Mary_loves_it']
+conclusions = ['(Ball_is_red \\boxright Mary_loves_it)']
 
 # premises = ['A',]
 # conclusions = ['\\neg A']
@@ -67,8 +67,8 @@ save_bool = False
 
 ### VALID ###
 
-premises = ['A','(A \\rightarrow B)']
-conclusions = ['B']
+# premises = ['A','(A \\rightarrow B)']
+# conclusions = ['B']
 
 # # NOTE: crashes with non_triv_verify/falsify and without skolemized exhaustivity
 # premises = ['(A \\boxright B)']
