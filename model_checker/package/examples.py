@@ -9,7 +9,7 @@ parent_directory = os.path.dirname(__file__)
 ################################
 
 # length of bitvectors
-N = 3
+N = 4
 
 # print all Z3 constraints if a model is found
 print_cons_bool = False
