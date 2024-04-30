@@ -12,8 +12,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] include general print algorithm
   - [ ] expose and test package commands
   - [ ] change execution instructions once the package is working 
-  - [ ] include instructions in template
-  - [ ] document release process
+  - [ ] include help in template output
+  - [ ] document package release process
 
 ## Print
 
@@ -63,7 +63,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Refine and Optimize
 
-- [ ] divide `optional_generate_test` in `test_complete`
+- [ ] `optional_generate_test` in `test_complete`
+  - [ ] abstract helper functions
+  - [ ] change to make output file a script
 - [.] _M_ `model_structure`
   - [ ] invalid conditional operands
   - [x] clear out unused

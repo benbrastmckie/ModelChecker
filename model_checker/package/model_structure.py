@@ -284,6 +284,7 @@ class ModelStructure():
     #   - for `A` in `prefix_input_sentences`:
     #     - `print_sort(A,w)`
 
+    # TODO: how can print_to and save_to be cleaned up and made less redundant?
     def print_to(self, print_cons_bool, print_unsat_core_bool, output=sys.__stdout__):
         """append all elements of the model to the file provided"""
         N = self.N
@@ -295,7 +296,7 @@ class ModelStructure():
             self.print_evaluation(output)
             self.print_props(self.eval_world,output)
             if print_cons_bool:
-                print("Satisfiable core constraints:\n",file=output)
+                print("Satisfiable constraints:\n",file=output)
                 self.print_constraints(self.constraints,output)
         else:
             print(f"\nThere are no {N}-models of:\n",file=output)
@@ -307,29 +308,54 @@ class ModelStructure():
                 self.print_constraints(self.model,output)
         print(f"Run time: {self.model_runtime} seconds\n",file=output)
 
-    # def print_all(self, print_cons_bool=False, print_unsat_core_bool=True):
-    #     """prints all elements of the model"""
-    #     N = self.N
-    #     if self.model_status:
-    #         print(f"\nThere is a {N}-model of:\n")
-    #         for sent in self.input_sentences:
-    #             print(sent)
-    #         self.print_states()
-    #         self.print_evaluation()
-    #         self.print_props(self.eval_world)
-    #         if print_cons_bool:
-    #             print("Satisfiable core constraints:\n")
-    #             self.print_constraints(self.constraints)
-    #             print()
-    #     else:
-    #         print(f"\nThere are no {N}-models of:\n")
-    #         for sent in self.input_sentences:
-    #             print(sent)
-    #         print()
-    #         if print_unsat_core_bool:
-    #             print("Unsatisfiable core constraints:\n")
-    #             self.print_constraints(self.model)
-    #             print()
+    # TODO: move inputs block to helper function as above?
+    def save_to(self, doc_name, cons_include, output):
+        """append all elements of the model to the file provided"""
+        # print_inputs = self.inputs_block(self.premises, self.conclusions, self.N)
+        inputs_block = f"""
+# input sentences
+premises = {self.premises}
+conclusions = {self.conclusions}
+
+# number of atomic states
+N = {self.N}
+
+# print all Z3 constraints if a model is found
+print_cons_bool = False
+
+# print core unsatisfiable Z3 constraints if no model exists
+print_unsat_core_bool = True
+
+# present option to save output
+save_bool = False
+"""
+        if self.model_status:
+            print(f"# TITLE: {doc_name}\n", file=output)
+            print('"""', file=output)
+            print(f'There is a {self.N}-model of:\n', file=output)
+            for sent in self.input_sentences:
+                print(sent, file=output)
+            self.print_states(output)
+            self.print_evaluation(output)
+            self.print_props(self.eval_world,output)
+            print(f"Run time: {self.model_runtime} seconds",file=output)
+            print('"""', file=output)
+            print(inputs_block, file=output)
+            if cons_include:
+                print("\n# satisfiable constraints",file=output)
+                print(f"all_constraints = {self.constraints}", file=output)
+        else:
+            print(f"# TITLE: {doc_name}\n", file=output)
+            print('"""', file=output)
+            print(f"\nThere are no {self.N}-models of:\n",file=output)
+            for sent in self.input_sentences:
+                print(sent,file=output)
+            print("\n# unsatisfiable core constraints",file=output)
+            self.print_constraints(self.model, output)
+            print('"""', file=output)
+            print(inputs_block, file=output)
+            if cons_include:
+                print(f"all_constraints = {self.constraints}", file=output)
 
 # TODO: add counterfactuals to Proposition(), assigning them to sets of worlds they are true in
 class Proposition():

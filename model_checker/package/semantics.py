@@ -283,7 +283,6 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         """
         x = BitVec("prop_dummy_x", N)
         y = BitVec("prop_dummy_y", N)
-        # counterpart = Function("counterpart", BitVecSort(N), BitVecSort(N))
         sent_to_prop = [
             Exists(x, non_triv_verify(x, atom)),
             Exists(y, non_triv_falsify(y, atom)),
@@ -303,7 +302,6 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                 [x, y],
                 Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
             ),
-            # exhaustivity skolemized by assign
             ForAll(
                 [x, y],
                 Implies(
@@ -314,20 +312,6 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                     ),
                 ),
             ),
-            # # ORIGINAL: doesn't work
-            # ForAll( #exhaustivity
-            #     x,
-            #     Implies(
-            #         possible(x),
-            #         Exists(
-            #             y,
-            #             And(
-            #                 compatible(x,y),
-            #                 Or(verify(y, atom), falsify(y, atom)),
-            #             ),
-            #         ),
-            #     ),
-            # ),
         ]
         return sent_to_prop
 
