@@ -313,6 +313,10 @@ class ModelStructure():
         """append all elements of the model to the file provided"""
         # print_inputs = self.inputs_block(self.premises, self.conclusions, self.N)
         inputs_block = f"""
+# path to parent directory
+import os
+parent_directory = os.path.dirname(__file__)
+
 # input sentences
 premises = {self.premises}
 conclusions = {self.conclusions}

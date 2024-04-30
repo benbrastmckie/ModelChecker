@@ -4,16 +4,14 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Package
 
-- [:] research and document packaging protocols
-  - [ ] 'Unable to import' ERRORS
 - [x] create package v0.1
 - [x] submit to pip installer
 - [ ] release v0.2
   - [ ] include general print algorithm
   - [ ] expose and test package commands
-  - [ ] change execution instructions once the package is working 
+  - [ ] change execution instructions once the package is working
   - [ ] include help in template output
-  - [ ] document package release process
+  - [ ] document package release protocols
 
 ## Print
 
@@ -63,6 +61,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Refine and Optimize
 
+- [ ] test exhaustivity
+  - [ ] prove bivalence
 - [ ] `optional_generate_test` in `test_complete`
   - [ ] abstract helper functions
   - [ ] change to make output file a script
