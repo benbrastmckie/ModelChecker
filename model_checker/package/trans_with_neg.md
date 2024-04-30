@@ -9,6 +9,7 @@ There are no 3-models of:
 
 Unsatisfiable core constraints:
 
+```
 1. Exists(f_dummy_x,
        And(f_dummy_x | w == w, falsify(f_dummy_x, A)))
 
@@ -106,4 +107,4 @@ Unsatisfiable core constraints:
                       falsify(f_dummy_x, C)))))
 
 Run time: 126.3784 seconds
-
+```
