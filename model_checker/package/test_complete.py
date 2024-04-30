@@ -13,6 +13,8 @@ script_template = Template("""
 '''
 Model Checker: ${name}
 '''
+import os
+parent_directory = os.path.dirname(__file__)
 
 ################################
 ########## SETTINGS ############

@@ -18,7 +18,7 @@ print_cons_bool = False
 print_unsat_core_bool = True
 
 # present option to append output to file
-save_bool = False
+save_bool = True
 
 
 ################################
@@ -31,14 +31,14 @@ save_bool = False
 # premises = []
 # conclusions = []
 
-# premises = ['A']
-# conclusions = []
+premises = ['A']
+conclusions = []
 
 # premises = ['\\neg A','(A \\boxright (B \\vee C))']
 # conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
-premises = ['Ball_is_red','Mary_loves_it']
-conclusions = ['(Ball_is_red \\boxright Mary_loves_it)']
+# premises = ['Ball_is_red','Mary_loves_it']
+# conclusions = ['(Ball_is_red \\boxright Mary_loves_it)']
 
 # premises = ['A',]
 # conclusions = ['\\neg A']
@@ -136,4 +136,3 @@ conclusions = ['(Ball_is_red \\boxright Mary_loves_it)']
 # # premises = ['\\neg ((A \\wedge B) \\boxright D)','((A \\wedge B) \\boxright C)']
 # premises = ['((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
-
