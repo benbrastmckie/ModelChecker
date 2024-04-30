@@ -9,7 +9,7 @@ parent_directory = os.path.dirname(__file__)
 ################################
 
 # length of bitvectors
-N = 3
+N = 4
 
 # print all Z3 constraints if a model is found
 print_cons_bool = False
@@ -113,16 +113,16 @@ save_bool = False
 # premises = ['\\neg A','(A \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
-# NOTE: only works without \neg A and \neg B
-premises = ['\\neg A','\\neg B','(A \\boxright B)','(B \\boxright C)']
-conclusions = ['(A \\boxright C)']
+# # NOTE: only works without \neg A and \neg B
+# premises = ['\\neg A','\\neg B','(A \\boxright B)','(B \\boxright C)']
+# conclusions = ['(A \\boxright C)']
 
 ### MEDIUM PRIORITY: NESTED COUNTERFACTUALS ###
 
-# # NOTE: this does not find models for N = 3
-# # very slow for N = 5 (ran for minutes on the remote server)
-# premises = ['(A \\boxright (B \\boxright C))']
-# conclusions = ['((A \\wedge B) \\boxright C)']
+# NOTE: this does not find models for N = 3
+# very slow for N = 5 (ran for minutes on the remote server)
+premises = ['(A \\boxright (B \\boxright C))']
+conclusions = ['((A \\wedge B) \\boxright C)']
 
 # # NOTE: doesn't work b/c should countermodel
 # # recursive printing would be helpful.
