@@ -72,6 +72,7 @@ def make_print(length, prems, cons, print_cons, print_unsat):
 #             print('"""', file=n)
 #
 
+
 # TODO: abstract helper functions
 def optional_generate_test():
     """generate a test file when script is run without input"""
@@ -138,12 +139,12 @@ def optional_generate_test():
     mod = make_print(N, premises, conclusions, print_cons_bool, print_unsat_core_bool)
     if not save_bool:
         return
-    result = input("Would you like to save the output in a file? (y/n):\n")
+    result = input("Would you like to save the output? (y/n):\n")
     if not result in ['Yes', 'yes', 'y']:
         return
     cons_input = input("\nWould you like to include the Z3 constraints? (y/n):\n")
     cons_include = bool(cons_input in ['Yes', 'yes', 'y'])
-    output_file_name = input("Enter the file name or append to project file if blank:\n")
+    output_file_name = input("\nEnter the file name or leave blank to append the output to the project file:\n")
     if len(output_file_name) == 0:
         with open(f"{file_path}", 'a', encoding="utf-8") as f:
             print('\n"""', file=f)
@@ -152,9 +153,8 @@ def optional_generate_test():
         return
     parent_directory = getattr(module, "parent_directory", True)
     with open(f"{parent_directory}/{output_file_name}.py", 'w', encoding="utf-8") as n:
-        print('\n"""', file=n)
-        mod.print_to(cons_include, cons_include, n)
-        print('"""', file=n)
+        mod.save_to(output_file_name, cons_include, n)
+    print()
 
 if __name__ == "__main__":
     # main()
