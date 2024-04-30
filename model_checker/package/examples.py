@@ -105,9 +105,9 @@ save_bool = False
 
 ### HIGH PRIORITY: NEGATION PROBLEM ###
 
-# # NOTE: only works without \neg B
-# premises = ['\\neg B','(A \\boxright B)']
-# conclusions = ['(\\neg B \\boxright \\neg A)']
+# NOTE: only works without \neg B
+premises = ['\\neg B','(A \\boxright B)']
+conclusions = ['(\\neg B \\boxright \\neg A)']
 
 # # NOTE: only works without \neg A
 # premises = ['\\neg A','(A \\boxright C)']
