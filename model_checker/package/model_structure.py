@@ -159,7 +159,7 @@ class ModelStructure():
                 # print(type(result))  # Debug to confirm it's a Boolean
                 # result_bool = bool(self.model.evaluate(possible(bit)))
                 # print(type(result_bool))  # Debug to confirm it's a Boolean
-                print(f"  {bin_rep} = {state} (possible)",file=output)
+                print(f"  {bin_rep} = {state}",file=output)
             else:
                 # print(f"  {bin_rep} = {state} (impossible)")
                 continue

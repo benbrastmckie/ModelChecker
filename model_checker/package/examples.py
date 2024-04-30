@@ -18,7 +18,7 @@ print_cons_bool = False
 print_unsat_core_bool = True
 
 # present option to append output to file
-save_bool = True
+save_bool = False
 
 
 ################################
@@ -31,30 +31,29 @@ save_bool = True
 # premises = []
 # conclusions = []
 
-premises = ['A']
-conclusions = []
+# premises = ['A']
+# conclusions = []
 
 # premises = ['\\neg A','(A \\boxright (B \\vee C))']
 # conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
-# premises = ['Ball_is_red','Mary_loves_it']
-# conclusions = ['(Ball_is_red \\boxright Mary_loves_it)']
+# # NOTE: if null verifiers are permitted, then null state verifies A
+# # but possible state c does not?
+# premises = ['A','B']
+# conclusions = ['(A \\boxright B)']
 
 # premises = ['A',]
 # conclusions = ['\\neg A']
 
-# premises = ['\\neg A','\\neg (A \\boxright B)']
-# conclusions = ['(A \\boxright \\neg B)']
+# premises = ['\\neg A']
+# conclusions = ['A \\boxright B','(A \\boxright \\neg B)']
 
-# # NOTE: slow with non_triv_verify/falsify constraints
 # premises = ['(A \\boxright B)','(B \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
 # premises = ['\\neg A']
 # conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 
-# # NOTE: slow with both skolemized exhaustivity and non_triv_verify/falsify constraints
-# # NOTE: not slow with either individually
 # premises = ['(A \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
@@ -64,13 +63,16 @@ conclusions = []
 # premises = ['A \\boxright C', '\\neg (A \\boxright \\neg B)']
 # conclusions = ['\\neg ((A \\wedge B) \\boxright C)']
 
+# premises = ['((A \\wedge B) \\boxright C)']
+# conclusions = ['(A \\boxright (B \\boxright C))']
+
+
 
 ### VALID ###
 
 # premises = ['A','(A \\rightarrow B)']
 # conclusions = ['B']
 
-# # NOTE: crashes with non_triv_verify/falsify and without skolemized exhaustivity
 # premises = ['(A \\boxright B)']
 # conclusions = ['(A \\rightarrow B)']
 
@@ -89,13 +91,9 @@ conclusions = []
 # premises = ['(A \\boxright (B \\wedge C))']
 # conclusions = ['(A \\boxright B)']
 
-# # NOTE: slow without non_triv_verify/falsify but works on ssh
 # premises = ['(A \\boxright B)','(A \\boxright C)']
 # conclusions = ['(A \\boxright (B \\wedge C))']
 
-# # NOTE: killed on ssh with no non_triv_verify/falsify and no skolemized exhaustivity
-# # NOTE: crashes with non_triv_verify/falsify and skolemized exhaustivity but works on ssh
-# # NOTE: slow with no non_triv_verify/falsify and skolemized exhaustivity
 # premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
@@ -115,6 +113,9 @@ conclusions = []
 # premises = ['\\neg A','(A \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
+# # NOTE: only works without \neg A and \neg B
+# # premises = ['\\neg A','\\neg B','(A \\boxright B)','(B \\boxright C)']
+# conclusions = ['(A \\boxright C)']
 
 ### MEDIUM PRIORITY: NESTED COUNTERFACTUALS ###
 
@@ -128,11 +129,3 @@ conclusions = []
 # # NOTE: slow on all combinations of non_triv_verify/falsify and skolemized exhaustivity
 # premises = ['(A \\boxright C)','(B \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
-
-
-### LOW PRIORITY: ADD MODAL OPERATORS ###
-
-# # NOTE: it is finding a model by making A and B incompatible
-# # premises = ['\\neg ((A \\wedge B) \\boxright D)','((A \\wedge B) \\boxright C)']
-# premises = ['((A \\wedge B) \\boxright C)']
-# conclusions = ['(A \\boxright (B \\boxright C))']

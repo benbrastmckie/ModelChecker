@@ -284,8 +284,12 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         x = BitVec("prop_dummy_x", N)
         y = BitVec("prop_dummy_y", N)
         sent_to_prop = [
-            Exists(x, non_triv_verify(x, atom)),
-            Exists(y, non_triv_falsify(y, atom)),
+            Not(verify(0, atom)),
+            Not(falsify(0, atom)),
+            # Exists(x, non_null_verify(x, atom)),
+            # Exists(y, non_null_falsify(y, atom)),
+            # Exists(x, non_triv_verify(x, atom)),
+            # Exists(y, non_triv_falsify(y, atom)),
             ForAll(
                 [x, y],
                 Implies(
