@@ -63,6 +63,11 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [ ] test exhaustivity
   - [ ] prove bivalence
+- [ ] expose semantics
+  - [ ] `frame_constraints`
+  - [ ] `prop_constraints`
+  - [ ] `extra_constraints`
+  - [ ] `semantics`
 - [ ] `optional_generate_test` in `test_complete`
   - [ ] abstract helper functions
   - [ ] change to make output file a script
