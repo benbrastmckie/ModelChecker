@@ -18,7 +18,7 @@ print_cons_bool = False
 print_unsat_core_bool = True
 
 # present option to append output to file
-save_bool = False
+save_bool = True
 
 
 ################################
