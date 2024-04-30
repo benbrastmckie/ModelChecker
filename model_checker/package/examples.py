@@ -105,17 +105,17 @@ save_bool = False
 
 ### HIGH PRIORITY: NEGATION PROBLEM ###
 
-# NOTE: only works without \neg B
-premises = ['\\neg B','(A \\boxright B)']
-conclusions = ['(\\neg B \\boxright \\neg A)']
+# # NOTE: only works without \neg B
+# premises = ['\\neg B','(A \\boxright B)']
+# conclusions = ['(\\neg B \\boxright \\neg A)']
 
 # # NOTE: only works without \neg A
 # premises = ['\\neg A','(A \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
-# # NOTE: only works without \neg A and \neg B
-# # premises = ['\\neg A','\\neg B','(A \\boxright B)','(B \\boxright C)']
-# conclusions = ['(A \\boxright C)']
+# NOTE: only works without \neg A and \neg B
+premises = ['\\neg A','\\neg B','(A \\boxright B)','(B \\boxright C)']
+conclusions = ['(A \\boxright C)']
 
 ### MEDIUM PRIORITY: NESTED COUNTERFACTUALS ###
 
