@@ -70,6 +70,14 @@ save_bool = False
 
 ### VALID ###
 
+# # NOTE: unsat_core seems satisfiable
+# premises = []
+# conclusions = ['(A \\vee \\neg A)']
+
+# # NOTE: unsat_core seems satisfiable
+# premises = []
+# conclusions = ['\\neg (A \\wedge \\neg A)']
+
 # premises = ['A','(A \\rightarrow B)']
 # conclusions = ['B']
 
@@ -113,19 +121,17 @@ save_bool = False
 # premises = ['\\neg A','(A \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
-# NOTE: only works without \neg A and \neg B
-premises = ['\\neg A','\\neg B','(A \\boxright B)','(B \\boxright C)']
-conclusions = ['(A \\boxright C)']
+# # NOTE: only works without \neg A and \neg B
+# premises = ['\\neg A','\\neg B','(A \\boxright B)','(B \\boxright C)']
+# conclusions = ['(A \\boxright C)']
 
 ### MEDIUM PRIORITY: NESTED COUNTERFACTUALS ###
 
 # # NOTE: this does not find models for N = 3
-# # very slow for N = 5 (ran for minutes on the remote server)
+# # NOTE: N = 4 ran for minutes on ssh
 # premises = ['(A \\boxright (B \\boxright C))']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 
-# # NOTE: doesn't work b/c should countermodel
-# # recursive printing would be helpful.
-# # NOTE: slow on all combinations of non_triv_verify/falsify and skolemized exhaustivity
+# # NOTE: ssh killed process
 # premises = ['(A \\boxright C)','(B \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
