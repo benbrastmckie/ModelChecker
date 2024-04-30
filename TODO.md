@@ -66,6 +66,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] `optional_generate_test` in `test_complete`
   - [ ] abstract helper functions
   - [ ] change to make output file a script
+  - [ ] add flags for saving and printing
 - [.] _M_ `model_structure`
   - [ ] invalid conditional operands
   - [x] clear out unused
