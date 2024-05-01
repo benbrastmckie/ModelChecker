@@ -219,6 +219,10 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         u = BitVec("t_dummy_u", N)
         if len(sentence) == 1:
             sent = sentence[0]
+            if str(sent) == "\\top":
+                # print(sent)
+                # print(type(sent))
+                return ForAll(x, And(verify(x, sent),Not(falsify(x, sent))))
             return Exists(x, And(is_part_of(x, world), verify(x, sent)))
         op = sentence[0]
         if "neg" in op:
@@ -365,22 +369,19 @@ def make_constraints(verify, falsify, possible, assign, N, w):
 
     def find_model_constraints(prefix_sents,input_sentence_letters):
         """find constraints corresponding to the input sentences"""
-        x = BitVec("top_dummy_x", N)
-        y = BitVec("top_dummy_y", N)
-        top = Const("top", AtomSort)
-        top_constraints = [
-            ForAll(x, verify(x, top)),
-            ForAll(y, Not(falsify(x, top))),
-        ]
         prop_constraints = []
         for sent_letter in input_sentence_letters:
+            if str(sent_letter) == "\\top":
+                continue
             for const in prop_const(sent_letter):
                 prop_constraints.append(const)
         input_const = []
         for sentence in prefix_sents:
+            # print(sentence)
+            # print(type(sentence))
             sentence_constraint = true_at(sentence, w)
             input_const.append(sentence_constraint)
-        model_constraints = top_constraints + prop_constraints + input_const
+        model_constraints = prop_constraints + input_const
         return model_constraints
 
     # def add_input_constraints(solv, prefix_sentences):

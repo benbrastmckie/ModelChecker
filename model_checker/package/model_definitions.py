@@ -109,6 +109,8 @@ def find_true_and_false_in_alt(alt_bit, parent_model_structure):
     """returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.
     Used in Proposition class print_alt_worlds"""
     extensional_sentences = parent_model_structure.extensional_subsentences
+    # TODO: creates problem with nested counterfactuals
+    # extensional_sentences = parent_model_structure.all_subsentences
     all_bits = parent_model_structure.all_bits
     true_in_alt = []
     for R in extensional_sentences:
