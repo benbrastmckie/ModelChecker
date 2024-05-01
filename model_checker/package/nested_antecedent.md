@@ -6,6 +6,7 @@ There are no 3-models of:
 
 Unsatisfiable core constraints:
 
+```
 1. ForAll([t_dummy_x, t_dummy_u],
        Implies(And(verify(t_dummy_x, A),
                    And(And(possible(t_dummy_u),
@@ -103,4 +104,4 @@ Unsatisfiable core constraints:
                       falsify(f_dummy_x, C)))))
 
 Run time: 532.5659 seconds
-
+```
