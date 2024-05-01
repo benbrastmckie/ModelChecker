@@ -393,73 +393,11 @@ def make_constraints(verify, falsify, possible, assign, N, w):
     #         )
     #         solv.add(sentence_constraint)
 
-    def is_counterfactual(prefix_sentence):
-        """returns a boolean to say whether a given sentence is a counterfactual
-        used in find_extensional_subsentences"""
-        if len(prefix_sentence) == 1:
-            return False
-        if len(prefix_sentence) == 2:
-            return is_counterfactual(prefix_sentence[1])
-        if "boxright" in prefix_sentence[0]:
-            return True
-        return is_counterfactual(prefix_sentence[1]) or is_counterfactual(
-            prefix_sentence[2]
-        )
-
-    # TODO: linter says all or none of the returns should be an expression
-    def all_subsentences_of_a_sentence(prefix_sentence, progress=False):
-        """finds all the subsentence of a prefix sentence
-        returns these as a set
-        used in find_extensional_subsentences"""
-        if progress is False:
-            progress = []
-        # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
-        progress.append(prefix_sentence)
-        if len(prefix_sentence) == 1:
-            return progress
-        if len(prefix_sentence) == 2:
-            # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
-            return all_subsentences_of_a_sentence(prefix_sentence[1], progress)
-        if len(prefix_sentence) == 3:
-            # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
-            left_subsentences = all_subsentences_of_a_sentence(
-                prefix_sentence[1], progress
-            )
-            # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
-            right_subsentences = all_subsentences_of_a_sentence(
-                prefix_sentence[2], progress
-            )
-            all_subsentences = left_subsentences + right_subsentences
-            return all_subsentences
-
-    def find_extensional_subsentences(prefix_sentences):
-        """finds all the extensional subsentences in a list of prefix sentences
-        used in find_all_constraints"""
-        # all_subsentences = [all_subsentences_of_a_sentence(sent) for sent in prefix_sentences]
-        all_subsentences = []
-        for prefix_sent in prefix_sentences:
-            # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
-            all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
-        extensional_subsentences = [
-            sent for sent in all_subsentences if not is_counterfactual(sent)
-        ]
-        return extensional_subsentences
-
-    def repeats_removed(L):
-        """takes a list and removes the repeats in it.
-        used in find_all_constraints"""
-        seen = []
-        for obj in L:
-            if obj not in seen:
-                seen.append(obj)
-        return seen
-
     def sentence_letters_in_compound(prefix_input_sentence):
         """finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
         used in all_sentence_letters"""
         if len(prefix_input_sentence) == 1:  # base case: atomic sentence
             return prefix_input_sentence
-        # recursive case: complex sentence as input. Should have max 3 elems (binary operator) in this list, but figured eh why not not check, above code should ensure that never happens
         return_list = []
         for part in prefix_input_sentence[1:]:
             return_list.extend(sentence_letters_in_compound(part))
@@ -489,9 +427,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         # print([type(let) for let in sentence_letters])
         gen_const = find_frame_constraints()
         const = gen_const + input_const
-        raw_ext_subsentences = find_extensional_subsentences(prefix_sentences)
-        ext_subsentences = repeats_removed(raw_ext_subsentences)
-        return (const, sentence_letters, ext_subsentences)
+        return (const, sentence_letters, prefix_sentences)
 
     return find_all_constraints
 
