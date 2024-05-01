@@ -103,6 +103,7 @@ class ModelStructure():
         self.input_prefix_sentences = input_prefix_sentences
         self.extensional_subsentences = find_extensional_subsentences(input_prefix_sentences)
         self.counterfactual_subsentences = find_cf_subsentences(input_prefix_sentences) # a list of prefix sentences (lists), not
+        self.all_subsentences = self.extensional_subsentences + self.counterfactual_subsentences
         # a list of Proposition objects. Cannot make it that in init because that would require having run the model
         # # initialize yet-undefined attributes
         # TODO: add along with other method for error report
@@ -208,7 +209,10 @@ class ModelStructure():
         ant_prop = self.find_proposition_object(antecedent_expr, ext_only=True)
         ant_prop.update_comparison_world(eval_world)
         for u in ant_prop['alternative worlds']:
-            if consequent_expr not in find_true_and_false_in_alt(u, self):
+            # print(type(consequent_expr))
+            # print(type(find_true_and_false_in_alt(u, self)))
+            # QUESTION: why is string required? Is Z3 removing the lists?
+            if str(consequent_expr) not in str(find_true_and_false_in_alt(u, self)):
                 return False
         return True
     
@@ -238,7 +242,7 @@ class ModelStructure():
         if "wedge" in op:
             return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
         if "vee" in op:
-            return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
+            return (coproduct(Y_V, Z_V), product(Y_F, Z_F))
         if "leftrightarrow" in op:
             return (product(coproduct(Y_F, Z_V), coproduct(Y_V, Z_F)),
                     coproduct(product(Y_V, Z_F), product(Y_F, Z_V)))
@@ -305,15 +309,15 @@ class ModelStructure():
         # print(self.sentence_letters)
         if str(prop) in [str(atom) for atom in self.sentence_letters]:
             print(f'{prop} is {prop.truth_value_at(current_world)} in {bitvec_to_substates(current_world, N)}')
-            print([bitvec_to_substates(ver, N) for ver in prop['verifiers']])
-            print(bitvec_to_substates(prop['comparison world'], N))
-            print(bitvec_to_substates(current_world, N))
+            # print([bitvec_to_substates(ver, N) for ver in prop['verifiers']])
+            # print(bitvec_to_substates(prop['comparison world'], N))
+            # print(bitvec_to_substates(current_world, N))
             return
         else: # can assume this is a pretty simple sentence bc its gonna be from inputs
             print(f'{prop} is {prop.truth_value_at(current_world)} in {bitvec_to_substates(current_world, N)} because:')
-            print([bitvec_to_substates(ver, N) for ver in prop['verifiers']])
-            print(bitvec_to_substates(prop['comparison world'], N))
-            print(bitvec_to_substates(current_world, N))
+            # print([bitvec_to_substates(ver, N) for ver in prop['verifiers']])
+            # print(bitvec_to_substates(prop['comparison world'], N))
+            # print(bitvec_to_substates(current_world, N))
             prefix_expr = prop['prefix expression']
             op = prefix_expr[0]
             first_subprop = self.find_proposition_object(prefix_expr[1])
@@ -341,9 +345,10 @@ class ModelStructure():
         initial_eval_world = self.eval_world
         for input_prop in self.input_propositions:
             self.rec_print(input_prop, initial_eval_world)
-    
-    def print_props(self,world,output=sys.__stdout__):
+
+    def print_props(self, world, output=sys.__stdout__):
         for ext_proposition in self.extensional_propositions:
+            # print([bitvec_to_substates(bv, self.N) for bv in ext_proposition["verifiers"]])
             ext_proposition.print_possible_verifiers_and_falsifiers(output)
             ext_proposition.print_alt_worlds(output)
 
@@ -358,8 +363,9 @@ class ModelStructure():
             self.print_states(output)
             self.print_evaluation(output)
             self.print_props(self.eval_world,output)
-            for prop in self.all_propositions:
-                print(prop)
+            self.print_inputs_recursively()
+            # for prop in self.all_propositions:
+            #     print(prop)
             if print_cons_bool:
                 print("Satisfiable constraints:\n",file=output)
                 self.print_constraints(self.constraints,output)
@@ -395,6 +401,7 @@ class ModelStructure():
             print(inputs_content, file=output)
             if cons_include:
                 print("\n# satisfiable constraints",file=output)
+                # TODO: print constraint objects, not constraint strings
                 print(f"all_constraints = {self.constraints}", file=output)
         else:
             print(f"# TITLE: {doc_name}\n", file=output)

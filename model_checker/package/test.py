@@ -14,35 +14,35 @@ Possible states:
   #b010 = b (world)
   #b100 = c (world)
 
-The evaluation world is a:
-  A, B, C  (not true in a)
+The evaluation world is b:
+  A, B, C  (not true in b)
 
-  |\neg A| = < {a}, {b, c} >
-  \neg A-alternatives to a = {a}
-    \neg A is true in a
-    (B \vee C), A, B, C are not true in a
+  |\neg A| = < {b}, {a, c} >
+  \neg A-alternatives to b = {b}
+    \neg A is true in b
+    (B \vee C), A, B, C are not true in b
 
-  |A| = < {b, c}, {a} >
-  A-alternatives to a = {b, c}
-    A, C are true in b
-    (B \vee C), B, \neg A are not true in b
-    A, B are true in c
-    (B \vee C), C, \neg A are not true in c
+  |A| = < {a, c}, {b} >
+  A-alternatives to c = {a, c}
+    A, C are true in c
+    (B \vee C), B, \neg A are not true in c
+    A, B are true in a
+    (B \vee C), C, \neg A are not true in a
 
   |(B \vee C)| = < ∅, {a, b, c} >
-  There are no (B \vee C)-alternatives to a
+  There are no (B \vee C)-alternatives to b
 
-  |B| = < {c}, {a, b} >
-  B-alternatives to a = {c}
-    A, B are true in c
-    (B \vee C), C, \neg A are not true in c
+  |B| = < {a}, {b, c} >
+  B-alternatives to b = {a}
+    A, B are true in a
+    (B \vee C), C, \neg A are not true in a
 
-  |C| = < {b}, {a, c} >
-  C-alternatives to a = {b}
-    A, C are true in b
-    (B \vee C), B, \neg A are not true in b
+  |C| = < {c}, {a, b} >
+  C-alternatives to b = {c}
+    A, C are true in c
+    (B \vee C), B, \neg A are not true in c
 
-Run time: 0.5083 seconds
+Run time: 0.1831 seconds
 """
 
 # path to parent directory
@@ -79,7 +79,7 @@ all_constraints = [ForAll([frame_dummy_x, frame_dummy_y],
               frame_dummy_x | frame_dummy_y == frame_dummy_z)), And(possible(w),
     ForAll(max_dummy,
            Implies(possible(max_dummy | w),
-                   max_dummy | w == w))), Not(verify(0, C)), Not(falsify(0, C)), ForAll([prop_dummy_x, prop_dummy_y],
+                   max_dummy | w == w))), ForAll(top_dummy_x, verify(top_dummy_x, top)), ForAll(top_dummy_y, Not(falsify(top_dummy_x, top))), Not(verify(0, C)), Not(falsify(0, C)), ForAll([prop_dummy_x, prop_dummy_y],
        Implies(And(verify(prop_dummy_x, C),
                    verify(prop_dummy_y, C)),
                verify(prop_dummy_x | prop_dummy_y, C))), ForAll([prop_dummy_x, prop_dummy_y],

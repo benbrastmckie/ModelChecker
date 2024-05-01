@@ -124,12 +124,15 @@ def parse(tokens):
     ['/op', ['/op', ['A'], ['/op', ['B'], ['C']]], ['/op', ['D'], ['E']]]
     """
     bin_comp_tokens = binary_comp(tokens)
+    # if tokens[0] == "\\top":
+    #     return ["\\top"]
+    #     return [Const(token, AtomSort)]
     if tokens[0] in unary_operators:
         return [tokens[0], parse(tokens[1:])]
     if bin_comp_tokens == 0:
         token = tokens[0]
         # Const is a function to make a constant
-        return [Const(token, AtomSort)] 
+        return [Const(token, AtomSort)]
     main_operator_index = main_op_index(tokens)
     # determines how far the operation is
     op_str = tokens[main_operator_index]
