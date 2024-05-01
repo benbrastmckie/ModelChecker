@@ -3,23 +3,46 @@
 """
 There is a 3-model of:
 
-A
+\neg A
+(A \boxright (B \vee C))
+\neg (A \boxright B)
+\neg (A \boxright C)
 
 Possible states:
-  #b000 = □ (possible)
-  #b001 = a (possible)
+  #b000 = □
+  #b001 = a (world)
   #b010 = b (world)
-  #b100 = c (possible)
-  #b101 = a.c (world)
+  #b100 = c (world)
 
-The evaluation world is b:
-  A  (true in b)
+The evaluation world is a:
+  A, B, C  (not true in a)
 
-  |A| = < {b}, {a} >
-  A-alternatives to b = {b}
-    A is true in b
+  |\neg A| = < {a}, {b, c} >
+  \neg A-alternatives to a = {a}
+    \neg A is true in a
+    (B \vee C), A, B, C are not true in a
 
-Run time: 0.0358 seconds
+  |A| = < {b, c}, {a} >
+  A-alternatives to a = {b, c}
+    A, C are true in b
+    (B \vee C), B, \neg A are not true in b
+    A, B are true in c
+    (B \vee C), C, \neg A are not true in c
+
+  |(B \vee C)| = < ∅, {a, b, c} >
+  There are no (B \vee C)-alternatives to a
+
+  |B| = < {c}, {a, b} >
+  B-alternatives to a = {c}
+    A, B are true in c
+    (B \vee C), C, \neg A are not true in c
+
+  |C| = < {b}, {a, c} >
+  C-alternatives to a = {b}
+    A, C are true in b
+    (B \vee C), B, \neg A are not true in b
+
+Run time: 0.5083 seconds
 """
 
 # path to parent directory
@@ -27,8 +50,8 @@ import os
 parent_directory = os.path.dirname(__file__)
 
 # input sentences
-premises = ['A']
-conclusions = []
+premises = ['\\neg A', '(A \\boxright (B \\vee C))', '\\neg (A \\boxright B)', '\\neg (A \\boxright C)']
+conclusions = ['(A \\boxright B)', '(A \\boxright C)']
 
 # number of atomic states
 N = 3
@@ -42,3 +65,147 @@ print_unsat_core_bool = True
 # present option to save output
 save_bool = False
 
+# use constraints to find models in stead of premises and conclusions
+use_constraints_bool = False
+
+
+# satisfiable constraints
+all_constraints = [ForAll([frame_dummy_x, frame_dummy_y],
+       Implies(And(possible(frame_dummy_y),
+                   frame_dummy_x | frame_dummy_y ==
+                   frame_dummy_y),
+               possible(frame_dummy_x))), ForAll([frame_dummy_x, frame_dummy_y],
+       Exists(frame_dummy_z,
+              frame_dummy_x | frame_dummy_y == frame_dummy_z)), And(possible(w),
+    ForAll(max_dummy,
+           Implies(possible(max_dummy | w),
+                   max_dummy | w == w))), Not(verify(0, C)), Not(falsify(0, C)), ForAll([prop_dummy_x, prop_dummy_y],
+       Implies(And(verify(prop_dummy_x, C),
+                   verify(prop_dummy_y, C)),
+               verify(prop_dummy_x | prop_dummy_y, C))), ForAll([prop_dummy_x, prop_dummy_y],
+       Implies(And(falsify(prop_dummy_x, C),
+                   falsify(prop_dummy_y, C)),
+               falsify(prop_dummy_x | prop_dummy_y, C))), ForAll([prop_dummy_x, prop_dummy_y],
+       Implies(And(verify(prop_dummy_x, C),
+                   falsify(prop_dummy_y, C)),
+               Not(possible(prop_dummy_x | prop_dummy_y)))), ForAll([prop_dummy_x, prop_dummy_y],
+       Implies(And(possible(prop_dummy_x),
+                   assign(prop_dummy_x, C) == prop_dummy_y),
+               And(possible(prop_dummy_x | prop_dummy_y),
+                   Or(verify(prop_dummy_y, C),
+                      falsify(prop_dummy_y, C))))), Not(verify(0, A)), Not(falsify(0, A)), ForAll([prop_dummy_x, prop_dummy_y],
+       Implies(And(verify(prop_dummy_x, A),
+                   verify(prop_dummy_y, A)),
+               verify(prop_dummy_x | prop_dummy_y, A))), ForAll([prop_dummy_x, prop_dummy_y],
+       Implies(And(falsify(prop_dummy_x, A),
+                   falsify(prop_dummy_y, A)),
+               falsify(prop_dummy_x | prop_dummy_y, A))), ForAll([prop_dummy_x, prop_dummy_y],
+       Implies(And(verify(prop_dummy_x, A),
+                   falsify(prop_dummy_y, A)),
+               Not(possible(prop_dummy_x | prop_dummy_y)))), ForAll([prop_dummy_x, prop_dummy_y],
+       Implies(And(possible(prop_dummy_x),
+                   assign(prop_dummy_x, A) == prop_dummy_y),
+               And(possible(prop_dummy_x | prop_dummy_y),
+                   Or(verify(prop_dummy_y, A),
+                      falsify(prop_dummy_y, A))))), Not(verify(0, B)), Not(falsify(0, B)), ForAll([prop_dummy_x, prop_dummy_y],
+       Implies(And(verify(prop_dummy_x, B),
+                   verify(prop_dummy_y, B)),
+               verify(prop_dummy_x | prop_dummy_y, B))), ForAll([prop_dummy_x, prop_dummy_y],
+       Implies(And(falsify(prop_dummy_x, B),
+                   falsify(prop_dummy_y, B)),
+               falsify(prop_dummy_x | prop_dummy_y, B))), ForAll([prop_dummy_x, prop_dummy_y],
+       Implies(And(verify(prop_dummy_x, B),
+                   falsify(prop_dummy_y, B)),
+               Not(possible(prop_dummy_x | prop_dummy_y)))), ForAll([prop_dummy_x, prop_dummy_y],
+       Implies(And(possible(prop_dummy_x),
+                   assign(prop_dummy_x, B) == prop_dummy_y),
+               And(possible(prop_dummy_x | prop_dummy_y),
+                   Or(verify(prop_dummy_y, B),
+                      falsify(prop_dummy_y, B))))), Exists(f_dummy_x,
+       And(f_dummy_x | w == w, falsify(f_dummy_x, A))), ForAll([t_dummy_x, t_dummy_u],
+       Implies(And(verify(t_dummy_x, A),
+                   And(And(possible(t_dummy_u),
+                           ForAll(max_dummy,
+                                  Implies(possible(max_dummy |
+                                        t_dummy_u),
+                                        max_dummy |
+                                        t_dummy_u ==
+                                        t_dummy_u))),
+                       t_dummy_x | t_dummy_u == t_dummy_u,
+                       Exists(alt_dummy,
+                              And(alt_dummy | t_dummy_u ==
+                                  t_dummy_u,
+                                  And(alt_dummy | w == w,
+                                      possible(alt_dummy |
+                                        t_dummy_x),
+                                      ForAll(max_part_dummy,
+                                        Implies(And(max_part_dummy |
+                                        w ==
+                                        w,
+                                        possible(max_part_dummy |
+                                        t_dummy_x),
+                                        alt_dummy |
+                                        max_part_dummy ==
+                                        max_part_dummy),
+                                        alt_dummy ==
+                                        max_part_dummy))))))),
+               Or(Exists(t_dummy_x,
+                         And(t_dummy_x | t_dummy_u ==
+                             t_dummy_u,
+                             verify(t_dummy_x, B))),
+                  Exists(t_dummy_x,
+                         And(t_dummy_x | t_dummy_u ==
+                             t_dummy_u,
+                             verify(t_dummy_x, C)))))), Exists([f_dummy_x, f_dummy_u],
+       And(verify(f_dummy_x, A),
+           And(And(possible(f_dummy_u),
+                   ForAll(max_dummy,
+                          Implies(possible(max_dummy |
+                                        f_dummy_u),
+                                  max_dummy | f_dummy_u ==
+                                  f_dummy_u))),
+               f_dummy_x | f_dummy_u == f_dummy_u,
+               Exists(alt_dummy,
+                      And(alt_dummy | f_dummy_u == f_dummy_u,
+                          And(alt_dummy | w == w,
+                              possible(alt_dummy | f_dummy_x),
+                              ForAll(max_part_dummy,
+                                     Implies(And(max_part_dummy |
+                                        w ==
+                                        w,
+                                        possible(max_part_dummy |
+                                        f_dummy_x),
+                                        alt_dummy |
+                                        max_part_dummy ==
+                                        max_part_dummy),
+                                        alt_dummy ==
+                                        max_part_dummy)))))),
+           Exists(f_dummy_x,
+                  And(f_dummy_x | f_dummy_u == f_dummy_u,
+                      falsify(f_dummy_x, B))))), Exists([f_dummy_x, f_dummy_u],
+       And(verify(f_dummy_x, A),
+           And(And(possible(f_dummy_u),
+                   ForAll(max_dummy,
+                          Implies(possible(max_dummy |
+                                        f_dummy_u),
+                                  max_dummy | f_dummy_u ==
+                                  f_dummy_u))),
+               f_dummy_x | f_dummy_u == f_dummy_u,
+               Exists(alt_dummy,
+                      And(alt_dummy | f_dummy_u == f_dummy_u,
+                          And(alt_dummy | w == w,
+                              possible(alt_dummy | f_dummy_x),
+                              ForAll(max_part_dummy,
+                                     Implies(And(max_part_dummy |
+                                        w ==
+                                        w,
+                                        possible(max_part_dummy |
+                                        f_dummy_x),
+                                        alt_dummy |
+                                        max_part_dummy ==
+                                        max_part_dummy),
+                                        alt_dummy ==
+                                        max_part_dummy)))))),
+           Exists(f_dummy_x,
+                  And(f_dummy_x | f_dummy_u == f_dummy_u,
+                      falsify(f_dummy_x, C)))))]

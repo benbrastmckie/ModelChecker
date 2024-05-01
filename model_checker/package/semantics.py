@@ -13,11 +13,11 @@ from z3 import (
     And,
     BitVec,
     Const,
-    BoolSort,
-    BitVecSort,
-    Function,
 )
-from syntax import AtomSort, Prefix
+from syntax import (
+    AtomSort,
+    Prefix,
+)
 
 # from sympy import symbols, Or, And, Implies, Not, to_cnf
 
@@ -365,28 +365,22 @@ def make_constraints(verify, falsify, possible, assign, N, w):
 
     def find_model_constraints(prefix_sents,input_sentence_letters):
         """find constraints corresponding to the input sentences"""
+        x = BitVec("top_dummy_x", N)
+        y = BitVec("top_dummy_y", N)
+        top = Const("top", AtomSort)
+        top_constraints = [
+            ForAll(x, verify(x, top)),
+            ForAll(y, Not(falsify(x, top))),
+        ]
         prop_constraints = []
         for sent_letter in input_sentence_letters:
             for const in prop_const(sent_letter):
                 prop_constraints.append(const)
-            # NOTE: aim is to constrain the assign function so as to skolemize
-            # exhaustivity in prop_const
-            # x = BitVec("assign_dummy_x", N)
-            # y = BitVec("assign_dummy_y", N)
-            # poss_assign = [
-            #     ForAll([x, y],
-            #         Implies(
-            #             And(possible(x), assign(x, sent_letter) == y),
-            #             Or(verify(x, sent_letter), falsify(x, sent_letter))
-            #         )
-            #     )
-            # ]
-            # prop_constraints.append(poss_assign)
         input_const = []
         for sentence in prefix_sents:
             sentence_constraint = true_at(sentence, w)
             input_const.append(sentence_constraint)
-        model_constraints = prop_constraints + input_const
+        model_constraints = top_constraints + prop_constraints + input_const
         return model_constraints
 
     # def add_input_constraints(solv, prefix_sentences):

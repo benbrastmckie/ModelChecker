@@ -2,6 +2,7 @@
 file defines model structure class given a Z3 model
 '''
 
+from string import Template
 import time
 import sys
 from z3 import (
@@ -50,6 +51,30 @@ from syntax import (
 # evaluation in question (this will only differ from the eval_world_bit in the
 # case of nested counterfactuals).
 
+inputs_template = Template("""
+# path to parent directory
+import os
+parent_directory = os.path.dirname(__file__)
+
+# input sentences
+premises = ${premises}
+conclusions = ${conclusions}
+
+# number of atomic states
+N = ${N}
+
+# print all Z3 constraints if a model is found
+print_cons_bool = False
+
+# print core unsatisfiable Z3 constraints if no model exists
+print_unsat_core_bool = True
+
+# present option to save output
+save_bool = False
+
+# use constraints to find models in stead of premises and conclusions
+use_constraints_bool = False
+""")
 
 class ModelStructure():
     '''self.premises is a list of prefix sentences
@@ -308,31 +333,8 @@ class ModelStructure():
                 self.print_constraints(self.model,output)
         print(f"Run time: {self.model_runtime} seconds\n",file=output)
 
-    # TODO: move inputs block to helper function as above?
     def save_to(self, doc_name, cons_include, output):
         """append all elements of the model to the file provided"""
-        # print_inputs = self.inputs_block(self.premises, self.conclusions, self.N)
-        inputs_block = f"""
-# path to parent directory
-import os
-parent_directory = os.path.dirname(__file__)
-
-# input sentences
-premises = {self.premises}
-conclusions = {self.conclusions}
-
-# number of atomic states
-N = {self.N}
-
-# print all Z3 constraints if a model is found
-print_cons_bool = False
-
-# print core unsatisfiable Z3 constraints if no model exists
-print_unsat_core_bool = True
-
-# present option to save output
-save_bool = False
-"""
         if self.model_status:
             print(f"# TITLE: {doc_name}\n", file=output)
             print('"""', file=output)
@@ -344,7 +346,13 @@ save_bool = False
             self.print_props(self.eval_world,output)
             print(f"Run time: {self.model_runtime} seconds",file=output)
             print('"""', file=output)
-            print(inputs_block, file=output)
+            inputs_data = {
+                'N': self.N,
+                'premises': self.premises,
+                'conclusions': self.conclusions,
+            }
+            inputs_content = inputs_template.substitute(inputs_data)
+            print(inputs_content, file=output)
             if cons_include:
                 print("\n# satisfiable constraints",file=output)
                 print(f"all_constraints = {self.constraints}", file=output)
@@ -465,7 +473,6 @@ def make_model_for(N):
         assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
         w = BitVec("w", N)
         mod = ModelStructure(premises, conclusions, verify, falsify, possible, assign, N, w)
-        mod.solve() # make these optional? technically, if they're saved within the model, they're not
-                        # needed. And, actually anything else would make this go wrong. 
+        mod.solve()
         return mod
     return make_relations_and_solve

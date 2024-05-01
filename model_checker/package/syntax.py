@@ -93,16 +93,20 @@ def main_op_index(tokenized_expression):
     left_parentheses = 0
     right_parentheses = 0
     if tokenized_expression[0] != '(':
-        raise ValueError(tokenized_expression, 'this case probably shouldnt be being raised by this function')
-    for i, token in enumerate(tokenized_expression[1:]): # [1:] to exclude the left parenth (thus complexity) of the main operator
+        raise ValueError(tokenized_expression, 'Error: parentheses unmatched')
+    # [1:] to exclude the left parens (thus complexity) of the main operator
+    for i, token in enumerate(tokenized_expression[1:]):
         if token == "(":
             left_parentheses += 1
         elif token == ")":
             right_parentheses += 1
-        elif token in unary_operators: # ignore this case since we care about binary complexity
+        # ignore this case since we care about binary complexity
+        elif token in unary_operators:
             continue
         if left_parentheses == right_parentheses:
-            return i + 2 # +1 bc list is [1:] and we want original index, and +1 bc it's next elem where the main op is
+            # +1 bc list is [1:] and we want original index, and +1 bc it's next
+            # elem where the main op is
+            return i + 2
 
 
 def parse(tokens):
@@ -124,11 +128,18 @@ def parse(tokens):
         return [tokens[0], parse(tokens[1:])]
     if bin_comp_tokens == 0:
         token = tokens[0]
-        return [Const(token, AtomSort)] # Const is a function to make a constant
+        # Const is a function to make a constant
+        return [Const(token, AtomSort)] 
     main_operator_index = main_op_index(tokens)
-    op_str = tokens[main_operator_index]  # determines how far the operation is
-    left_expression = tokens[1 : main_operator_index]  # start 1 (exclude first parenthesis), stop at same pos of above (exclusive)
-    right_expression = tokens[main_operator_index + 1 : -1]  # from pos of op plus 1 to the penultimate, thus excluding the last parentheses, which belongs to the main expression
+    # determines how far the operation is
+    op_str = tokens[main_operator_index]
+    # start 1 (exclude first parenthesis), stop at same pos of above (exclusive)
+    left_expression = tokens[1 : main_operator_index]
+    # from pos of op plus 1 to the penultimate, thus excluding the last
+    # parentheses, which belongs to the main expression
+    if main_operator_index is None:
+        raise SyntaxError("Error: 'main_operator_index' is not set.")
+    right_expression = tokens[main_operator_index + 1 : -1]
     return [op_str, parse(left_expression), parse(right_expression)]
 
 
