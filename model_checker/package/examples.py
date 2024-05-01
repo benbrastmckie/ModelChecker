@@ -9,7 +9,7 @@ parent_directory = os.path.dirname(__file__)
 ################################
 
 # length of bitvectors
-N = 4
+N = 3
 
 # print all Z3 constraints if a model is found
 print_cons_bool = False
@@ -34,7 +34,7 @@ save_bool = False
 # premises = ['A']
 # conclusions = []
 
-premises = ['\\neg A','(A \\boxright (B \\vee C))']
+premises = ['top','\\neg A','(A \\boxright (B \\vee C))']
 conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
 # # NOTE: if null verifiers are permitted, then null state verifies A

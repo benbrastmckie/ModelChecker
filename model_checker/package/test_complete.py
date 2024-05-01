@@ -4,6 +4,7 @@ running the file finds a model and prints the result.
 '''
 
 import argparse
+import os
 import importlib.util
 import sys
 from string import Template
@@ -32,6 +33,8 @@ print_unsat_core_bool = True
 # present option to append output to file
 save_bool = False
 
+# use constraints to find models in stead of premises and conclusions
+use_constraints_bool = False
 
 ################################
 ########### ARGUMENT ###########
@@ -49,77 +52,13 @@ conclusions = ['(A boxright B)','(A boxright C)']
 
 """)
 
-def make_print(length, prems, cons, print_cons, print_unsat):
-    """finds and prints model from user inputs given above"""
-    mod = make_model_for(length)(prems, cons)
-    mod.print_to(print_cons, print_unsat)
-    return mod
-
-# TODO: abstract helper functions
-def optional_generate_test():
-    """generate a test file when script is run without input"""
-    # Check if a script name was provided
-    if len(sys.argv) < 2:
-        result = input("Would you like to generate a new test file? (y/n): ")
-        if result in ['Yes', 'yes', 'y']:
-            test_name = input("Enter the name of your test using snake_case: ")
-            template_data = {
-                'name': test_name
-            }
-            script_content = script_template.substitute(template_data)
-            output_file_path = f'{test_name}.py'
-            with open(output_file_path, 'w', encoding="utf-8") as f:
-                f.write(script_content)
-            print(f"\nThe {test_name}.py file has been created.")
-            print("You can run this file with the command:")
-            print(f"python3 test_complete.py {test_name}.py")
-            return
-        print("You can run a test.py file that already exists with the command:\n")
-        print("python3 test_complete.py test.py")
-        return
-    # Create an argument parser to get the file path
-    parser = argparse.ArgumentParser(description="Import variables from another file")
-    parser.add_argument(
-        "file_path",
-        type=str,
-        help="Path to the Python file to read."
-    )
-
-    # Parse the command-line argument to get the module path
-    args = parser.parse_args()
-    file_path = args.file_path
-    module_name = "dynamic_module"
-    spec = importlib.util.spec_from_file_location(module_name, file_path)
-    if spec is None:
-        print(f"Error: Unable to find '{file_path}'.")
-        sys.exit(1)
-    module = importlib.util.module_from_spec(spec)
-
-    # Load the module
-    try:
-        spec.loader.exec_module(module)
-    except Exception as e:
-        print(f"Error: Failed to load the module from '{file_path}'. Reason: {e}")
-        sys.exit(1)
-
-    # check for models given the values in the imported module
-    if not hasattr(module, "N"):
-        print("The value of 'N' is absent")
-        return
-    if not hasattr(module, "premises"):
-        print("The premises are absent")
-        return
-    if not hasattr(module, "conclusions"):
-        print("The conclusions are absent")
-        return
-    N = getattr(module, "N")
-    premises = getattr(module, "premises")
-    conclusions = getattr(module, "conclusions")
-    print_cons_bool = getattr(module, "print_cons_bool", False)
-    print_unsat_core_bool = getattr(module, "print_unsat_core_bool", True)
-    save_bool = getattr(module, "save_bool", True)
-    mod = make_print(N, premises, conclusions, print_cons_bool, print_unsat_core_bool)
-    if not save_bool:
+def print_or_save(module):
+    """print the model and prompt user to store the output"""
+    mod = make_model_for(module.N)(module.premises, module.conclusions)
+    if module.use_constraints_bool:
+        mod.constraints = module.all_constraints
+    mod.print_to(module.print_cons_bool, module.print_unsat_core_bool)
+    if not module.save_bool:
         return
     result = input("Would you like to save the output? (y/n):\n")
     if not result in ['Yes', 'yes', 'y']:
@@ -128,15 +67,99 @@ def optional_generate_test():
     cons_include = bool(cons_input in ['Yes', 'yes', 'y'])
     output_file_name = input("\nEnter the file name or leave blank to append the output to the project file:\n")
     if len(output_file_name) == 0:
-        with open(f"{file_path}", 'a', encoding="utf-8") as f:
+        with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
             print('\n"""', file=f)
             mod.print_to(cons_include, cons_include, f)
             print('"""', file=f)
         return
-    parent_directory = getattr(module, "parent_directory", True)
-    with open(f"{parent_directory}/{output_file_name}.py", 'w', encoding="utf-8") as n:
+    with open(f"{module.parent_directory}/{output_file_name}.py", 'w', encoding="utf-8") as n:
         mod.save_to(output_file_name, cons_include, n)
     print()
 
+class LoadModule:
+    """load module and store values as a class"""
+    def __init__(self, module_name, module_path):
+        self.module_name = module_name
+        self.module_path = module_path
+        self.module = self.load_module()
+        self.validate_attributes()
+        self.initialize_attributes()
+
+    def load_module(self):
+        try:
+            spec = importlib.util.spec_from_file_location(self.module_name, self.module_path)
+            if spec is None or spec.loader is None:
+                raise ImportError("Module spec could not be loaded.")
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+        except Exception as e:
+            raise ImportError(f"Failed to load the module '{self.module_name}': {e}")
+
+    def validate_attributes(self):
+        required_attrs = ["N", "premises", "conclusions"]
+        for attr in required_attrs:
+            if not hasattr(self.module, attr):
+                raise ImportError(f"The value of '{attr}' is absent")
+
+    def initialize_attributes(self):
+        self.parent_directory = getattr(self.module, "parent_directory", True)
+        self.N = getattr(self.module, "N")
+        self.premises = getattr(self.module, "premises")
+        self.conclusions = getattr(self.module, "conclusions")
+        self.print_cons_bool = getattr(self.module, "print_cons_bool", False)
+        self.print_unsat_core_bool = getattr(self.module, "print_unsat_core_bool", True)
+        self.save_bool = getattr(self.module, "save_bool", True)
+        self.use_constraints_bool = getattr(self.module, "use_constraints", False)
+        self.all_constraints = getattr(self.module, "all_constraints", [])
+
+def parse_script_name_and_path():
+    """returns the name and path for the current script"""
+    # create an ArgumentParser object
+    parser = argparse.ArgumentParser(description="Import variables from another file")
+    parser.add_argument(
+        "file_path",
+        type=str,
+        help="Path to the Python file to read."
+    )
+    # parse the command-line argument to get the module path
+    args = parser.parse_args()
+    module_path = args.file_path
+    module_name = os.path.splitext(os.path.basename(module_path))[0]
+    # module_name = "dynamic_module"
+    return module_name, module_path
+
+def generate_test(name):
+    """check if a script name was provided"""
+    template_data = {
+        'name': name
+    }
+    script_content = script_template.substitute(template_data)
+    output_file_path = f'{name}.py'
+    with open(output_file_path, 'w', encoding="utf-8") as f:
+        f.write(script_content)
+    print(f"\nThe {name}.py file has been created.")
+    print("You can run this file with the command:")
+    print(f"python3 test_complete.py {name}.py")
+
+def ask_generate_test():
+    """prompt user to create a test file"""
+    result = input("Would you like to generate a new test file? (y/n): ")
+    if result in ['Yes', 'yes', 'y']:
+        test_name = input("Enter the name of your test using snake_case: ")
+        generate_test(test_name)
+        return
+    print("You can run a test.py file that already exists with the command:\n")
+    print("python3 test_complete.py test.py\n")
+
+def main():
+    """load a test or generate a test when run without input"""
+    if len(sys.argv) < 2:
+        ask_generate_test()
+        return
+    module_name, module_path = parse_script_name_and_path()
+    module = LoadModule(module_name, module_path)
+    print_or_save(module)
+
 if __name__ == "__main__":
-    optional_generate_test()
+    main()
