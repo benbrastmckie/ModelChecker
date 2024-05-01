@@ -423,11 +423,11 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         # prefix_conclusions = [Prefix(input_sent) for input_sent in infix_conclusions]
         # prefix_sentences = prefix_combine(prefix_premises, prefix_conclusions)
         prefix_sentences = [Prefix(input_sent) for input_sent in infix_input_sentences]
-        input_const = find_model_constraints(prefix_sentences)
         sentence_letters = all_sentence_letters(prefix_sentences)  # this works
+        input_const = find_model_constraints(prefix_sentences, sentence_letters)
         # print(sentence_letters)
         # print([type(let) for let in sentence_letters])
-        gen_const = find_frame_constraints(sentence_letters)
+        gen_const = find_frame_constraints()
         const = gen_const + input_const
         return (const, sentence_letters, prefix_sentences)
 

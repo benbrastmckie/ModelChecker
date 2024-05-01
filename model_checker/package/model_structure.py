@@ -69,7 +69,7 @@ class ModelStructure():
         self.w = w
         self.premises = input_premises
         self.conclusions = input_conclusions
-        self.input_sentences = infix_combine(input_premises, input_conclusions)
+        self.input_infix_sentences = infix_combine(input_premises, input_conclusions)
         find_all_constraints_func = make_constraints(verify, falsify, possible, assign, N, w)
         # TODO: replace prefix_sentences with ext_sub_sentences
         consts, sent_lets, input_prefix_sentences = find_all_constraints_func(self.input_infix_sentences)
@@ -328,7 +328,7 @@ class ModelStructure():
         N = self.N
         if self.model_status:
             print(f'\nThere is a {N}-model of:\n', file=output)
-            for sent in self.input_sentences:
+            for sent in self.input_infix_sentences:
                 print(sent, file=output)
             self.print_states(output)
             self.print_evaluation(output)
@@ -340,7 +340,7 @@ class ModelStructure():
                 self.print_constraints(self.constraints,output)
         else:
             print(f"\nThere are no {N}-models of:\n",file=output)
-            for sent in self.input_sentences:
+            for sent in self.input_infix_sentences:
                 print(sent,file=output)
             print(file=output)
             if print_unsat_core_bool:
@@ -377,7 +377,7 @@ save_bool = False
             print(f"# TITLE: {doc_name}\n", file=output)
             print('"""', file=output)
             print(f'There is a {self.N}-model of:\n', file=output)
-            for sent in self.input_sentences:
+            for sent in self.input_infix_sentences:
                 print(sent, file=output)
             self.print_states(output)
             self.print_evaluation(output)
@@ -392,7 +392,7 @@ save_bool = False
             print(f"# TITLE: {doc_name}\n", file=output)
             print('"""', file=output)
             print(f"\nThere are no {self.N}-models of:\n",file=output)
-            for sent in self.input_sentences:
+            for sent in self.input_infix_sentences:
                 print(sent,file=output)
             print("\n# unsatisfiable core constraints",file=output)
             self.print_constraints(self.model, output)
