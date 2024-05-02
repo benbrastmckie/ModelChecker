@@ -90,9 +90,8 @@ class Uninitalized:
 
     def __iter__(self):
         raise AttributeError(
-            f"cannot iterate through {self.name} because it isnt initialized"
-        )
-    
+            f"cannot iterate through {self.name} because it isnt initialized")
+
     def __str__(self):
         return f'{self.name} (uninitialized)'
 
@@ -375,9 +374,9 @@ class ModelStructure:
         if substate_prop_comp_world != substate_current_world:
             prop.update_comparison_world(current_world)
         if str(prop) in [str(atom) for atom in self.sentence_letters]:
-            print(
-                f"{prop} is {prop.truth_value_at(current_world)} in {bitvec_to_substates(current_world, N)}"
-            )
+            prop_truth_val = prop.truth_value_at(current_world)
+            world_printable = bitvec_to_substates(current_world, N)
+            print(f"{prop} is {prop_truth_val} in {world_printable}")
             return
         # else:  # can assume this is a pretty simple sentence bc its gonna be from inputs
         print(
