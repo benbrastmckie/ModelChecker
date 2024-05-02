@@ -111,8 +111,15 @@ save_bool = False
 # premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
-premises = ['(\\top \\boxright A)']
-conclusions = ['A']
+# premises = ['(\\top \\boxright A)']
+# conclusions = ['A']
+
+# premises = ['(\\top \\boxright A)']
+# conclusions = ['(\\top \\boxright (\\top \\boxright A))']
+
+premises = ['A']
+conclusions = ['(\\top \\boxright \\neg (\\top \\boxright \\neg A))']
+
 
 ################################
 ######### NOT WORKING ##########

@@ -398,7 +398,12 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         for sent_letter in input_sentence_letters:
             if 'top' in str(sent_letter):
                 x = BitVec("top_x", N)
-                top_constraint = ForAll(x, And(verify(x,sent_letter), Not(falsify(x,sent_letter))))
+                top_constraint = ForAll(x,
+                    And(
+                        verify(x,sent_letter),
+                        Not(falsify(x,sent_letter))
+                    )
+                )
                 prop_constraints.append(top_constraint)
                 continue
             for const in prop_const(sent_letter):
