@@ -63,8 +63,8 @@ save_bool = False
 # premises = ['A \\boxright C', '\\neg (A \\boxright \\neg B)']
 # conclusions = ['\\neg ((A \\wedge B) \\boxright C)']
 
-premises = ['\\neg (\\top \\boxright \\neg (A \\wedge B))','((A \\wedge B) \\boxright C)']
-conclusions = ['(A \\boxright (B \\boxright C))']
+# premises = ['\\neg (\\top \\boxright \\neg (A \\wedge B))','((A \\wedge B) \\boxright C)']
+# conclusions = ['(A \\boxright (B \\boxright C))']
 
 
 
@@ -111,8 +111,8 @@ conclusions = ['(A \\boxright (B \\boxright C))']
 # premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
-# premises = ['(\\top \\boxright A)']
-# conclusions = ['A']
+premises = ['(\\top \\boxright A)']
+conclusions = ['A']
 
 ################################
 ######### NOT WORKING ##########
