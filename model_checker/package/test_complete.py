@@ -145,7 +145,7 @@ def generate_test(name):
 def ask_generate_test():
     """prompt user to create a test file"""
     result = input("Would you like to generate a new test file? (y/n): ")
-    if result in ['Yes', 'yes', 'y']:
+    if result in {'Yes', 'yes', 'y', 'Y'}:
         test_name = input("Enter the name of your test using snake_case: ")
         generate_test(test_name)
         return
