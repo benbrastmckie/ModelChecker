@@ -219,10 +219,10 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         u = BitVec("t_dummy_u", N)
         if len(sentence) == 1:
             sent = sentence[0]
-            if str(sent) == "\\top":
-                # print(sent)
-                # print(type(sent))
-                return ForAll(x, And(verify(x, sent),Not(falsify(x, sent))))
+            # if str(sent) == "\\top":
+            #     # print(sent)
+            #     # print(type(sent))
+            #     return ForAll(x, And(verify(x, sent),Not(falsify(x, sent))))
             return Exists(x, And(is_part_of(x, world), verify(x, sent)))
         op = sentence[0]
         if "neg" in op:
@@ -256,6 +256,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         u = BitVec("f_dummy_u", N)
         if len(sentence) == 1:
             sent = sentence[0]
+            # if str(sent) == "\\top":
+            #     return ForAll(x, And(verify(x, sent),Not(falsify(x, sent))))
             return Exists(x, And(is_part_of(x, world), falsify(x, sent)))
         op = sentence[0]
         if "neg" in op:
@@ -370,8 +372,14 @@ def make_constraints(verify, falsify, possible, assign, N, w):
     def find_model_constraints(prefix_sents,input_sentence_letters):
         """find constraints corresponding to the input sentences"""
         prop_constraints = []
+        # print(input_sentence_letters)
+        # print("\\top")
+        # if "\\top" in input_sentence_letters:
+        #     prop_constraints = [ForAll(x, And(verify(x, "\\top"), Not(falsify(x, "\\top"))))]
         for sent_letter in input_sentence_letters:
             if str(sent_letter) == "\\top":
+                x = BitVec("top_dummy_x", N)
+                prop_constraints.append(ForAll(x, And(verify(x, sent_letter), Not(falsify(x, sent_letter)))))
                 continue
             for const in prop_const(sent_letter):
                 prop_constraints.append(const)
