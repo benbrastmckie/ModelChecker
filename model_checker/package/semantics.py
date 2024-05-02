@@ -235,8 +235,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         u = BitVec("t_dummy_u", N)
         if len(sentence) == 1:
             sent = sentence[0]
-            if 'top' in str(sent)[0]:
-                raise ValueError('This is raised in principle when top is a proposition. @B, what should we do?')
+            # if 'top' in str(sent)[0]:
+            #     raise ValueError('This is raised in principle when top is a proposition. @B, what should we do?')
                 # if top is a sentence letter, its constraint is already in the model.
                 # It wouldn't hurt to add it again I think in principle, but if there's something
                 # else that should go here when top is passed in by itself then it would go here
