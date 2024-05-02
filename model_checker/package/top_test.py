@@ -1,6 +1,6 @@
 
 '''
-Model Checker: m_test.py
+Model Checker: top_test.py
 '''
 import os
 parent_directory = os.path.dirname(__file__)
