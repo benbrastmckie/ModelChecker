@@ -34,7 +34,7 @@ save_bool = False
 # premises = ['A']
 # conclusions = []
 
-# premises = ['\\top','\\neg A','(A \\boxright (B \\vee C))']
+# premises = ['\\neg A','(A \\boxright (B \\vee C))']
 # conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
 # # NOTE: if null verifiers are permitted, then null state verifies A
@@ -65,6 +65,12 @@ save_bool = False
 
 premises = ['\\neg (\\top \\boxright \\neg (A \\wedge B))','((A \\wedge B) \\boxright C)']
 conclusions = ['(A \\boxright (B \\boxright C))']
+
+
+
+
+
+
 
 
 
@@ -105,6 +111,8 @@ conclusions = ['(A \\boxright (B \\boxright C))']
 # premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
+# premises = ['(\\top \\boxright A)']
+# conclusions = ['A']
 
 ################################
 ######### NOT WORKING ##########
