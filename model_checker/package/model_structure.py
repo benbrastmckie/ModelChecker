@@ -317,14 +317,18 @@ class ModelStructure:
             Y_V = self.find_complex_proposition(Y)[0]
             Y_F = self.find_complex_proposition(Y)[1]
             return (Y_F, Y_V)
+        if 'Box' in op:
+            if not self.evaluate_modal_expr(complex_sentence):
+                return (set(), set(self.world_bits))
+            return (set(self.world_bits), set())
         if 'Diamond' in op:
             if self.evaluate_modal_expr(complex_sentence):
-                return (self.world_bits, [])
+                return (set(self.world_bits), set())
             return (set(), set(self.world_bits))
-        if len(complex_sentence) == 2 and 'Box' in op:
-            if self.evaluate_modal_expr(complex_sentence):
-                return (self.world_bits, [])
-            return (set(), set(self.world_bits))
+        # if len(complex_sentence) == 2: # and 'Box' in op:
+            # if self.evaluate_modal_expr(complex_sentence):
+            #     return (self.world_bits, [])
+            # return (set(), set(self.world_bits))
         Z = complex_sentence[2]
         Y_V = self.find_complex_proposition(Y)[0]
         Y_F = self.find_complex_proposition(Y)[1]
@@ -353,7 +357,7 @@ class ModelStructure:
                 world for world in self.world_bits if world not in worlds_true_at
             }
             return (worlds_true_at, worlds_false_at)
-        raise ValueError(f"don't know how to handle {op} operator")
+        raise ValueError(f"Don't know how to handle {op} operator")
 
     def find_input_propositions(self):
         """finds all the Proposition objects in a ModelStructure
@@ -482,8 +486,8 @@ class ModelStructure:
     def print_props(self, output=sys.__stdout__):
         """prints possible verifiers and falsifiers for every extensional proposition
         and also the prop-alt worlds to the main world of evaluation"""
-        test_print = [ext["prefix expression"] for ext in self.extensional_propositions]
-        print(test_print)
+        # test_print = [ext["prefix expression"] for ext in self.extensional_propositions]
+        # print(test_print)
         for ext_proposition in self.extensional_propositions:
             # print([bitvec_to_substates(bv, self.N) for bv in ext_proposition["verifiers"]])
             ext_proposition.print_possible_verifiers_and_falsifiers(output)
