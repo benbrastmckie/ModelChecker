@@ -354,7 +354,7 @@ def find_subsentences_of_kind(prefix_sentences, kind):
         all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
     if kind == 'extensional':
         return_list = [sent for sent in all_subsentences if is_extensional(sent)]
-    if kind == 'modal': 
+    if kind == 'modal':
         return_list = [sent for sent in all_subsentences if is_modal(sent)]
     if kind == 'counterfactual':
         return_list = [sent for sent in all_subsentences if is_counterfactual(sent)]
