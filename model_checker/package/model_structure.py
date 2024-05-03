@@ -275,30 +275,30 @@ class ModelStructure:
                 return False
         return True
     
-    def evaluate_modal_expr(self, prefix_modal, eval_world):
-        '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
-        used to initialize Counterfactuals
-        returns a bool representing whether the counterfactual is true at the world or not'''
-        op, argument = prefix_modal[0], prefix_modal[1]
-        if 'iamond' in op:
-            for world in self.world_bits:
-                if 
-        
-        
-        for world in self.world_bits:
-            if is_modal(argument):
-                if self.evaluate_modal_expr(argument, u) is 
-            if 'iamond' in op: # poss case
-                if self.model.evaluate()
-            
-
-
-        ant_prop = self.find_proposition_object(argument, ext_only=True)
-        ant_prop.update_comparison_world(eval_world)
-        for u in ant_prop["alternative worlds"]:
-            if str(argument) not in str(find_true_and_false_in_alt(u, self)[0]):
-                return False
-        return True
+    # def evaluate_modal_expr(self, prefix_modal, eval_world):
+    #     '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
+    #     used to initialize Counterfactuals
+    #     returns a bool representing whether the counterfactual is true at the world or not'''
+    #     op, argument = prefix_modal[0], prefix_modal[1]
+    #     if 'iamond' in op:
+    #         for world in self.world_bits:
+    #             if 
+    #     
+    #     
+    #     for world in self.world_bits:
+    #         if is_modal(argument):
+    #             if self.evaluate_modal_expr(argument, u) is 
+    #         if 'iamond' in op: # poss case
+    #             if self.model.evaluate()
+    #         
+    #
+    #
+    #     ant_prop = self.find_proposition_object(argument, ext_only=True)
+    #     ant_prop.update_comparison_world(eval_world)
+    #     for u in ant_prop["alternative worlds"]:
+    #         if str(argument) not in str(find_true_and_false_in_alt(u, self)[0]):
+    #             return False
+    #     return True
 
     def find_complex_proposition(self, complex_sentence):
         """sentence is a sentence in prefix notation
