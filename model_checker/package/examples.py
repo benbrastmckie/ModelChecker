@@ -63,9 +63,11 @@ save_bool = False
 # premises = ['A \\boxright C', '\\neg (A \\boxright \\neg B)']
 # conclusions = ['\\neg ((A \\wedge B) \\boxright C)']
 
-# premises = ['\\neg (\\top \\boxright \\neg (A \\wedge B))','((A \\wedge B) \\boxright C)']
-# conclusions = ['(A \\boxright (B \\boxright C))']
+premises = ['\\neg (\\top \\boxright \\neg (A \\wedge B))','((A \\wedge B) \\boxright C)']
+conclusions = ['(A \\boxright (B \\boxright C))']
 
+# premises = ['(A \\boxright (B \\boxright (C \\boxright D)))']
+# conclusions = []
 
 
 
@@ -111,14 +113,22 @@ save_bool = False
 # premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
+# # T axiom
 # premises = ['(\\top \\boxright A)']
 # conclusions = ['A']
 
+# # 4 axiom
 # premises = ['(\\top \\boxright A)']
 # conclusions = ['(\\top \\boxright (\\top \\boxright A))']
 
-premises = ['A']
-conclusions = ['(\\top \\boxright \\neg (\\top \\boxright \\neg A))']
+# # B axiom
+# # NOTE: this crashed
+# premises = ['A']
+# conclusions = ['(\\top \\boxright \\neg (\\top \\boxright \\neg A))']
+
+# # 5 axiom
+# premises = ['(\\top \\boxright A)']
+# conclusions = ['(\\top \\boxright \\neg (\\top \\boxright \\neg A))']
 
 
 ################################
