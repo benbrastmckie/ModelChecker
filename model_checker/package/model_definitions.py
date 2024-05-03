@@ -351,7 +351,6 @@ def find_subsentences_of_kind(prefix_sentences, kind):
     rr = repeats_removed
     all_subsentences = []
     for prefix_sent in prefix_sentences:
-        # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
         all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
     if kind == 'extensional':
         return_list = rr([sent for sent in all_subsentences if is_extensional(sent)])
