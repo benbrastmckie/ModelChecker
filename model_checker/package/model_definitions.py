@@ -364,7 +364,7 @@ def find_subsentences_of_kind(prefix_sentences, kind):
         modal = rr([sent for sent in all_subsentences if is_modal(sent)])
         extensional = rr([sent for sent in all_subsentences if sent not in counterfactual and sent not in modal])
         return (extensional, modal, counterfactual, all_subsentences)
-    return repeats_removed(return_list)
+    return return_list
 
 def repeats_removed(L):
     '''takes a list and removes the repeats in it.

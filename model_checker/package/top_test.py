@@ -51,7 +51,7 @@ conclusions = ['\\neg B']
 # premises = ['(\\top \\boxright A)', '((A \\wedge B) \\boxright C)']
 # conclusions = ['(B \\boxright C)']
 
-# premises = ['\\Box A'] # no models, as desired
+# premises =  ['\\Box A'] # no models, as desired
 # premises = ['\\Diamond A'] # model, as desired
 # conclusions = ['A']
 
