@@ -12,7 +12,7 @@ from z3 import Const, DeclareSort
 AtomSort = DeclareSort("AtomSort")
 # sentence_stuff = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','Z','W','Y','Z'}
 # operator_stuff = {'\\','/','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'}
-unary_operators = {"\\neg", "/neg", "neg"}
+unary_operators = {"\\neg", "/neg", "neg", "box", "Box", "\\Box", "\\box", "Diamond", "diamond", "\\diamond", "\\Diamond"}
 
 
 def tokenize(str_exp):
@@ -155,7 +155,11 @@ def Infix(A):
     if len(A) == 1:
         return str(A[0])
     if len(A) == 2:
-        return f"\\neg {Infix(A[1])}"
+        if 'neg' in A[0]:
+            return f"\\neg {Infix(A[1])}"
+        if 'iamond' in A[0]:
+            return f"\\Diamond {Infix(A[1])}"
+        return f"\\Box {Infix(A[1])}"
     op = A[0]
     left_expr = A[1]
     right_expr = A[2]
