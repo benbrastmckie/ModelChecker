@@ -210,50 +210,26 @@ class ModelStructure:
                         alt_bits.add(world)
                         break  # to return to the second for loop over world_bits
         return alt_bits
-
-    def find_proposition_object(self, prefix_expression, ext_only=False):
-        """given a prefix sentence, finds the Proposition object in the model that corresponds
-        to it. Can optionally search through only the extensional sentences
-        returns a Proposition object"""
-        search_list = self.extensional_propositions
-        if ext_only is False:
-            search_list = self.all_propositions
-        # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
-        for prop in search_list:
-            if prop["prefix expression"] == prefix_expression:
-                return prop
-        raise ValueError(
-            f"there is no proposition with prefix expression {prefix_expression}"
-        )
-
-    def print_states(self, output=sys.__stdout__):
-        """print all fusions of atomic states in the model
-        first print function in print.py"""
-        N = self.N
-        print("\nPossible states:", file=output)  # Print states
-        # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
-        for bit in self.all_bits:
-            # test_state = BitVecVal(val, size) # was instead of bit
-            state = bitvec_to_substates(bit, N)
-            bin_rep = (
-                bit.sexpr()
-                if N % 4 != 0
-                else int_to_binary(int(bit.sexpr()[2:], 16), N)
-            )
-            if bit in self.world_bits:
-                print(f"  {bin_rep} = {state} (world)", file=output)
-            # invalid conditional operand band-aid fixed with bool
-            # TODO: linter error: Cannot access member "evaluate" for type "AstVector"    Member "evalutate" is unknown
-            elif bool(self.model.evaluate(self.possible(bit))):
-                # NOTE: the following comments are to debug
-                # result = self.model.evaluate(possible(bit))
-                # print(type(result))  # Debug to confirm it's a Boolean
-                # result_bool = bool(self.model.evaluate(possible(bit)))
-                # print(type(result_bool))  # Debug to confirm it's a Boolean
-                print(f"  {bin_rep} = {state}", file=output)
-            else:
-                # print(f"  {bin_rep} = {state} (impossible)")
-                continue
+    
+    def evaluate_modal_expr(self, prefix_modal):
+        '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
+        used to initialize Counterfactuals
+        returns a bool representing whether the counterfactual is true at the world or not'''
+        op, argument = prefix_modal[0], prefix_modal[1]
+        if is_modal(argument):
+            if self.evaluate_modal_expr(prefix_modal) is True: # ie, verifiers is all worlds
+                return True # both Box and Diamond will return true, since verifiers is not empty
+            return False
+        if 'Diamond' in op:
+            for world in self.world_bits:
+                if world in self.find_complex_proposition(argument)[0]:
+                    return True
+            return False
+        if 'Box' in op:
+            for world in self.world_bits:
+                if world not in self.find_complex_proposition(argument)[0]:
+                    return False
+            return True
 
     def evaluate_cf_expr(self, prefix_cf, eval_world):
         """evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
@@ -274,26 +250,6 @@ class ModelStructure:
             elif str(consequent_expr) not in str(find_true_and_false_in_alt(u, self)[0]):
                 return False
         return True
-
-    def evaluate_modal_expr(self, prefix_modal):
-        '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
-        used to initialize Counterfactuals
-        returns a bool representing whether the counterfactual is true at the world or not'''
-        op, argument = prefix_modal[0], prefix_modal[1]
-        if is_modal(argument):
-            if self.evaluate_modal_expr(prefix_modal) is True: # ie, verifiers is all worlds
-                return True # both Box and Diamond will return true, since verifiers is not empty
-            return False
-        if 'Diamond' in op:
-            for world in self.world_bits:
-                if world in self.find_complex_proposition(argument)[0]:
-                    return True
-            return False
-        if 'Box' in op:
-            for world in self.world_bits:
-                if world not in self.find_complex_proposition(argument)[0]:
-                    return False
-            return True
 
     def find_complex_proposition(self, complex_sentence):
         """sentence is a sentence in prefix notation
@@ -355,6 +311,21 @@ class ModelStructure:
             return (worlds_true_at, worlds_false_at)
         raise ValueError(f"don't know how to handle {op} operator")
 
+    def find_proposition_object(self, prefix_expression, ext_only=False):
+        """given a prefix sentence, finds the Proposition object in the model that corresponds
+        to it. Can optionally search through only the extensional sentences
+        returns a Proposition object"""
+        search_list = self.extensional_propositions
+        if ext_only is False:
+            search_list = self.all_propositions
+        # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
+        for prop in search_list:
+            if prop["prefix expression"] == prefix_expression:
+                return prop
+        raise ValueError(
+            f"there is no proposition with prefix expression {prefix_expression}"
+        )
+
     def find_input_propositions(self):
         """finds all the Proposition objects in a ModelStructure
         that correspond to the input sentences.
@@ -363,6 +334,35 @@ class ModelStructure:
         for prefix_sent in self.input_prefix_sentences:
             input_propositions.append(self.find_proposition_object(prefix_sent))
         return input_propositions
+
+    def print_states(self, output=sys.__stdout__):
+        """print all fusions of atomic states in the model
+        first print function in print.py"""
+        N = self.N
+        print("\nPossible states:", file=output)  # Print states
+        # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
+        for bit in self.all_bits:
+            # test_state = BitVecVal(val, size) # was instead of bit
+            state = bitvec_to_substates(bit, N)
+            bin_rep = (
+                bit.sexpr()
+                if N % 4 != 0
+                else int_to_binary(int(bit.sexpr()[2:], 16), N)
+            )
+            if bit in self.world_bits:
+                print(f"  {bin_rep} = {state} (world)", file=output)
+            # invalid conditional operand band-aid fixed with bool
+            # TODO: linter error: Cannot access member "evaluate" for type "AstVector"    Member "evalutate" is unknown
+            elif bool(self.model.evaluate(self.possible(bit))):
+                # NOTE: the following comments are to debug
+                # result = self.model.evaluate(possible(bit))
+                # print(type(result))  # Debug to confirm it's a Boolean
+                # result_bool = bool(self.model.evaluate(possible(bit)))
+                # print(type(result_bool))  # Debug to confirm it's a Boolean
+                print(f"  {bin_rep} = {state}", file=output)
+            else:
+                # print(f"  {bin_rep} = {state} (impossible)")
+                continue
 
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences true/false in that world
@@ -571,6 +571,7 @@ class Proposition:
             falsifiers_in_model,
         ) = model_structure.find_complex_proposition(prefix_expr)
         # for CFs, verifiers are worlds true at and falsifiers are worlds not true at
+        # for modals, same as CFs, except it is either all worlds or no worlds in each
         self.prop_dict["verifiers"] = verifiers_in_model
         self.prop_dict["falsifiers"] = falsifiers_in_model
 

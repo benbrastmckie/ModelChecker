@@ -291,7 +291,7 @@ def is_modal(prefix_sentence):
         return False
     op = prefix_sentence[0]
     if len(prefix_sentence) == 2:
-        if 'ox' in op or 'iamond' in op:
+        if 'Box' in op or 'Diamond' in op:
             return True
         return is_modal(prefix_sentence[1])
     return is_modal(prefix_sentence[1]) or is_modal(prefix_sentence[2])
