@@ -121,7 +121,8 @@ def find_true_and_false_in_alt(alt_bit, parent_model_structure):
                 true_in_alt.append(R)
                 break  # returns to the for loop over sentence_letters
     false_in_alt = [R for R in extensional_sentences if not R in true_in_alt] # replace with
-    return (true_in_alt, false_in_alt)
+    return (repeats_removed(true_in_alt), repeats_removed(false_in_alt))
+    # was giving repeats for some reason? Wasn't previously. fixed it up with repeats_removed
 
 
 def make_set_pretty_for_print(set_with_strings):
@@ -283,6 +284,21 @@ def is_counterfactual(prefix_sentence):
         return True
     return is_counterfactual(prefix_sentence[1]) or is_counterfactual(prefix_sentence[2])
 
+def is_modal(prefix_sentence):
+    '''returns a boolean to say whether a given sentence is a counterfactual
+    used in find_extensional_subsentences'''
+    if len(prefix_sentence) == 1:
+        return False
+    op = prefix_sentence[0]
+    if len(prefix_sentence) == 2:
+        if 'ox' in op or 'iamond' in op:
+            return True
+        return is_modal(prefix_sentence[1])
+    return is_modal(prefix_sentence[1]) or is_modal(prefix_sentence[2])
+
+def is_extensional(prefix_sentence):
+    return not is_modal(prefix_sentence) and not is_counterfactual(prefix_sentence)
+
 # TODO: linter says all or none of the returns should be an expression
 def all_subsentences_of_a_sentence(prefix_sentence, progress=False):
     '''finds all the subsentence of a prefix sentence
@@ -305,27 +321,49 @@ def all_subsentences_of_a_sentence(prefix_sentence, progress=False):
         all_subsentences = left_subsentences + right_subsentences
         return all_subsentences
 
-def find_extensional_subsentences(prefix_sentences):
-        '''finds all the extensional subsentences in a list of prefix sentences
-        used in find_all_constraints'''
-        # all_subsentences = [all_subsentences_of_a_sentence(sent) for sent in prefix_sentences]
-        all_subsentences = []
-        for prefix_sent in prefix_sentences:
-            # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
-            all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
-        extensional_subsentences = [sent for sent in all_subsentences if not is_counterfactual(sent)]
-        return repeats_removed(extensional_subsentences)
+# def find_extensional_subsentences(prefix_sentences):
+#         '''finds all the extensional subsentences in a list of prefix sentences
+#         used in find_all_constraints'''
+#         # all_subsentences = [all_subsentences_of_a_sentence(sent) for sent in prefix_sentences]
+#         all_subsentences = []
+#         for prefix_sent in prefix_sentences:
+#             # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
+#             all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
+#         extensional_subsentences = [sent for sent in all_subsentences if not is_counterfactual(sent)]
+#         return repeats_removed(extensional_subsentences)
 
-def find_cf_subsentences(prefix_sentences):
-    '''finds all the counterfactual subsentences in a list of prefix sentences
-    used in find_all_constraints'''
-    # all_subsentences = [all_subsentences_of_a_sentence(sent) for sent in prefix_sentences]
+# def find_cf_subsentences(prefix_sentences):
+#     '''finds all the counterfactual subsentences in a list of prefix sentences
+#     used in find_all_constraints'''
+#     # all_subsentences = [all_subsentences_of_a_sentence(sent) for sent in prefix_sentences]
+#     all_subsentences = []
+#     for prefix_sent in prefix_sentences:
+#         # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
+#         all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
+#     cf_subsentences = [sent for sent in all_subsentences if is_counterfactual(sent)]
+#     return repeats_removed(cf_subsentences)
+
+def find_subsentences_of_kind(prefix_sentences, kind):
+    '''used to find the extensional, modal, and counterfactual sentences. 
+    kind is a string, either "extensional", "modal", "counterfactual", or 'all' for a tuple of
+    of the three kinds in the order extensional, modal, counterfactual, and then all the subsents
+    returns a list of that kind'''
     all_subsentences = []
     for prefix_sent in prefix_sentences:
         # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
         all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
-    cf_subsentences = [sent for sent in all_subsentences if is_counterfactual(sent)]
-    return repeats_removed(cf_subsentences)
+    if kind == 'extensional':
+        return_list = [sent for sent in all_subsentences if is_extensional(sent)]
+    if kind == 'modal': 
+        return_list = [sent for sent in all_subsentences if is_modal(sent)]
+    if kind == 'counterfactual':
+        return_list = [sent for sent in all_subsentences if is_counterfactual(sent)]
+    if kind == 'all':
+        counterfactual = [sent for sent in all_subsentences if is_counterfactual(sent)]
+        modal = [sent for sent in all_subsentences if is_modal(sent)]
+        extensional = [sent for sent in all_subsentences if sent not in counterfactual and sent not in modal]
+        return (extensional, modal, counterfactual, all_subsentences)
+    return repeats_removed(return_list)
 
 def repeats_removed(L):
     '''takes a list and removes the repeats in it.
