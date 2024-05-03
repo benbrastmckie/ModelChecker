@@ -436,12 +436,15 @@ class ModelStructure:
             self.rec_print(first_subprop, current_world, output, indent_num)
             return
         if 'Diamond' in op or 'Box' in op:
-            if prop_truth_val is False:
-                for u in prop['non arg worlds']:
-                    self.rec_print(first_subprop, u, output)
-                return
-            for u in prop['arg worlds']:
-                self.rec_print(first_subprop, u, output)
+            indent_num += 1
+            self.rec_print(first_subprop, current_world, output, indent_num)
+            # if prop_truth_val is False:
+            #     print(f"TEST: {prop['non arg worlds']}")
+            #     # for u in prop['non arg worlds']:
+            #     self.rec_print(first_subprop, current_world, output, indent_num)
+            #     return
+            # for u in prop['arg worlds']:
+            #     self.rec_print(first_subprop, u, output)
             return
         left_subprop = first_subprop
         right_subprop = self.find_proposition_object(prefix_expr[2])
