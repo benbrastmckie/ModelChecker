@@ -31,8 +31,10 @@ from model_definitions import (
     bitvec_to_substates,
     int_to_binary,
     infix_combine,
-    find_extensional_subsentences,
-    find_cf_subsentences,
+    find_subsentences_of_kind,
+    is_counterfactual,
+    is_modal,
+
 )
 from syntax import (
     AtomSort,
@@ -126,13 +128,11 @@ class ModelStructure:
         self.sentence_letters = sent_lets
         self.constraints = consts
         self.input_prefix_sentences = input_prefix_sents
-        self.extensional_subsentences = find_extensional_subsentences(
-            input_prefix_sents
-        )
-        self.counterfactual_subsentences = find_cf_subsentences(input_prefix_sents)
-        self.all_subsentences = (
-            self.extensional_subsentences + self.counterfactual_subsentences
-        )
+        ext, modal, cf, altogether = find_subsentences_of_kind(input_prefix_sents, 'all')
+        self.extensional_subsentences = ext
+        self.counterfactual_subsentences = cf
+        self.modal_subsentences = modal
+        self.all_subsentences = altogether
         # initialize yet-undefined attributes
         self.model_status = Uninitalized("model_status")
         self.model = Uninitalized("model")
@@ -180,6 +180,7 @@ class ModelStructure:
                                             for ext_subsent in self.extensional_subsentences]
             self.counterfactual_propositions = [Counterfactual(cf_subsent, self, self.eval_world)
                                             for cf_subsent in self.counterfactual_subsentences]
+            # self.modal_propositions = [Modal()]
             self.all_propositions = (self.extensional_propositions +
                                      self.counterfactual_propositions)
             self.input_propositions = self.find_input_propositions()
@@ -260,9 +261,30 @@ class ModelStructure:
             # print(type(consequent_expr))
             # print(type(find_true_and_false_in_alt(u, self)))
             # QUESTION: why is string required? Is Z3 removing the lists?
-            if str(consequent_expr) not in str(find_true_and_false_in_alt(u, self)):
+            if is_counterfactual(consequent_expr):
+                if self.evaluate_cf_expr(consequent_expr, u) is False:
+                    return False
+            elif str(consequent_expr) not in str(find_true_and_false_in_alt(u, self)[0]):
                 return False
         return True
+    
+    # def evaluate_modal_expr(self, prefix_modal, eval_world):
+    #     '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
+    #     used to initialize Counterfactuals
+    #     returns a bool representing whether the counterfactual is true at the world or not'''
+    #     op, argument = prefix_modal[0], prefix_modal[1]
+    #     for world in self.world_bits:
+    #         if 'iamond' in op: # poss case
+    #             if self.model.evaluate()
+            
+
+
+    #     ant_prop = self.find_proposition_object(argument, ext_only=True)
+    #     ant_prop.update_comparison_world(eval_world)
+    #     for u in ant_prop["alternative worlds"]:
+    #         if str(argument) not in str(find_true_and_false_in_alt(u, self)[0]):
+    #             return False
+    #     return True
 
     def find_complex_proposition(self, complex_sentence):
         """sentence is a sentence in prefix notation
@@ -285,6 +307,10 @@ class ModelStructure:
             Y_V = self.find_complex_proposition(Y)[0]
             Y_F = self.find_complex_proposition(Y)[1]
             return (Y_F, Y_V)
+        if 'iamond' in op:
+            DIAMOND
+        if len(complex_sentence) == 2 and 'ox' in op:
+            BOX
         Z = complex_sentence[2]
         Y_V = self.find_complex_proposition(Y)[0]
         Y_F = self.find_complex_proposition(Y)[1]
@@ -616,16 +642,17 @@ class Extensional(Proposition):
 class Counterfactual(Proposition):
     '''subclass of Proposition for counterfactuals'''
     # def __init__(self, prefix_expr, model_structure, world):
-    #     super().__init__(prefix_expr, model_structure, world)
-
-    # kinda empty rn; maybe also in here will go some print function specifically for CFs
-
     def truth_value_at(self, eval_world):
         '''finds whether a CF is true at a certain world
         returns a Boolean representing yes or no'''
         if eval_world in self["verifiers"]:
             return True
         return False
+
+class Modal(Proposition):
+    '''subclass of Proposition for modals'''
+    def truth_value_at(self, eval_world):
+        pass
 
 
 def make_model_for(N):
