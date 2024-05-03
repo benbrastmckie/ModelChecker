@@ -438,10 +438,10 @@ class ModelStructure:
         if 'Diamond' in op or 'Box' in op:
             if prop_truth_val is False:
                 for u in prop['non arg worlds']:
-                    self.rec_print(first_subprop, u)
+                    self.rec_print(first_subprop, u, output)
                 return
             for u in prop['arg worlds']:
-                self.rec_print(first_subprop, u)
+                self.rec_print(first_subprop, u, output)
             return
         left_subprop = first_subprop
         right_subprop = self.find_proposition_object(prefix_expr[2])
