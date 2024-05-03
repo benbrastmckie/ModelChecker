@@ -69,8 +69,8 @@ save_bool = False
 # premises = ['(A \\boxright (B \\boxright (C \\boxright D)))']
 # conclusions = []
 
-# premises = ['(\\Box A \\vee \\Box B)']
-# conclusions = []
+premises = ['(\\Box A \\vee \\Box B)']
+conclusions = []
 
 
 
