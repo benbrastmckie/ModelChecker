@@ -66,8 +66,20 @@ save_bool = False
 # premises = ['\\neg (\\top \\boxright \\neg (A \\wedge B))','((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
 
-premises = ['(A \\boxright (B \\boxright (C \\boxright D)))']
-conclusions = []
+# premises = ['(A \\boxright (B \\boxright (C \\boxright D)))']
+# conclusions = []
+
+# premises = ['(\\Box A \\vee \\Box B)']
+# conclusions = []
+
+
+
+
+
+
+
+
+
 
 
 
@@ -129,6 +141,15 @@ conclusions = []
 # # 5 axiom
 # premises = ['(\\top \\boxright A)']
 # conclusions = ['(\\top \\boxright \\neg (\\top \\boxright \\neg A))']
+
+# premises = ['\\Box A']
+# conclusions = ['A']
+
+# premises = ['A']
+# conclusions = ['\\Diamond A']
+
+
+
 
 
 ################################
