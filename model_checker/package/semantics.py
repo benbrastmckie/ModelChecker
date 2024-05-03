@@ -233,6 +233,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         returns a Z3 constraint"""
         x = BitVec("t_dummy_x", N)
         u = BitVec("t_dummy_u", N)
+        y = BitVec("t_dummy_y", N)
         if len(sentence) == 1:
             sent = sentence[0]
             if 'top' in str(sent)[0]:
@@ -245,6 +246,14 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         op = sentence[0]
         if "neg" in op:
             return false_at(sentence[1], world)
+        if len(sentence) == 2 and 'ox' in op:
+            print(sentence)
+            return ForAll(u, Implies(is_world(u), true_at(sentence[1], u)))
+            # return ForAll(x, Implies(possible(x), Exists(y, And(extended_verify(y,sentence[1]), compatible(x,y)))))
+        if 'iamond' in op:
+            print(sentence)
+            return Exists(u, And(is_world(u), true_at(sentence[1], u)))
+            # return Exists(x, And(possible(x), extended_verify(x,sentence[1])))
         Y = sentence[1]
         Z = sentence[2]
         if "wedge" in op:
@@ -281,6 +290,12 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         op = sentence[0]
         if "neg" in op:
             return true_at(sentence[1], world)
+        if len(sentence) == 2 and 'ox' in op:
+            print(sentence)
+            return Exists(u, And(is_world(u), false_at(sentence[1], u)))
+        if 'iamond' in op:
+            print(sentence)
+            return ForAll(u, Implies(is_world(u), false_at(sentence[1], u)))
         Y = sentence[1]
         Z = sentence[2]
         if "wedge" in op:
@@ -406,8 +421,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                 )
                 prop_constraints.append(top_constraint)
                 continue
-            for const in prop_const(sent_letter):
-                prop_constraints.append(const)
+            for constraint in prop_const(sent_letter):
+                prop_constraints.append(constraint)
         for sentence in prefix_sents:
             sentence_constraint = true_at(sentence, w)
             input_constraints.append(sentence_constraint)
