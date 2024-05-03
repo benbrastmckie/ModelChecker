@@ -51,9 +51,17 @@ conclusions = ['\\neg B']
 # premises = ['(\\top \\boxright A)', '((A \\wedge B) \\boxright C)']
 # conclusions = ['(B \\boxright C)']
 
-# premises = ['\\Box A']
-# premises = ['\\Diamond A']
+# premises = ['\\Box A'] # no models, as desired
+# premises = ['\\Diamond A'] # model, as desired
 # conclusions = ['A']
+
+# premises = ['\\Box A']
+# conclusions = ['(\\top \\boxright A)'] # works; flipped takes a while, and Diamond case takes a while too
+
+premises = ['(\\Box A \\vee \\Box B)']
+conclusions = ['(A \\wedge B)']
+
+
 
 mod = make_model_for(N)(premises, conclusions)
 # mod.print_inputs_recursively()
