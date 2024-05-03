@@ -315,9 +315,16 @@ class ModelStructure:
             Y_F = self.find_complex_proposition(Y)[1]
             return (Y_F, Y_V)
         if 'iamond' in op:
+            # NOTE: if there is any world where the argument Y is true, then
+            # Y_V is the set of all worlds and Y_F is empty. If Y is false in
+            # every world, then Y_F is the set of all worlds and Y_V is empty
             DIAMOND
-        if len(complex_sentence) == 2 and 'ox' in op:
-            BOX
+        # NOTE: 'ox' is not going to work since it occurs in 'boxright'
+        # if 'ox' in op:
+        #     # NOTE: if the argument Y is true in every world, then
+        #     # Y_V is the set of all worlds and Y_F is empty. If Y is false in
+        #     # any world, then Y_F is the set of all worlds and Y_V is empty
+        #     BOX
         Z = complex_sentence[2]
         Y_V = self.find_complex_proposition(Y)[0]
         Y_F = self.find_complex_proposition(Y)[1]
@@ -471,6 +478,8 @@ class ModelStructure:
     def print_props(self, output=sys.__stdout__):
         """prints possible verifiers and falsifiers for every extensional proposition
         and also the prop-alt worlds to the main world of evaluation"""
+        test_print = [ext["prefix expression"] for ext in self.extensional_propositions]
+        print(test_print)
         for ext_proposition in self.extensional_propositions:
             # print([bitvec_to_substates(bv, self.N) for bv in ext_proposition["verifiers"]])
             ext_proposition.print_possible_verifiers_and_falsifiers(output)

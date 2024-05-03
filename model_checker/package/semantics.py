@@ -250,8 +250,11 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             print(sentence)
             return ForAll(u, Implies(is_world(u), true_at(sentence[1], u)))
             # return ForAll(x, Implies(possible(x), Exists(y, And(extended_verify(y,sentence[1]), compatible(x,y)))))
-        if 'iamond' in op:
-            print(sentence)
+        if 'Box' in op:
+            # print(sentence)
+            return ForAll(u, Implies(is_world(u), true_at(sentence[1], u)))
+        if 'Diamond' in op:
+            # print(sentence)
             return Exists(u, And(is_world(u), true_at(sentence[1], u)))
             # return Exists(x, And(possible(x), extended_verify(x,sentence[1])))
         Y = sentence[1]
@@ -293,8 +296,12 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         if len(sentence) == 2 and 'ox' in op:
             print(sentence)
             return Exists(u, And(is_world(u), false_at(sentence[1], u)))
-        if 'iamond' in op:
-            print(sentence)
+        if 'Box' in op:
+            # print(sentence)
+            return Exists(u, And(is_world(u), false_at(sentence[1], u)))
+            # return Exists(x, And(possible(x), extended_verify(x,sentence[1])))
+        if 'Diamond' in op:
+            # print(sentence)
             return ForAll(u, Implies(is_world(u), false_at(sentence[1], u)))
         Y = sentence[1]
         Z = sentence[2]
