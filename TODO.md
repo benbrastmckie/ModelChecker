@@ -18,10 +18,10 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [.] print the proposition for each sub-sentence
   - [x] _B_ design recursive structure in `strategies`
   - [x] _B_ tested new `print_props`
-  - [ ] _M_ define general print algorithm
-    - [ ] create new branch
-    - [ ] test and debug
-    - [ ] merge branch
+  - [x] _M_ define general print algorithm
+    - [x] create new branch
+    - [x] test and debug
+    - [x] merge branch
 
 ## Architecture
 
@@ -29,8 +29,10 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Semantics
 
-- [.] add designated top elements
-  - B: tried in `add_top_nec` branch
+- [ ] require there to be an alternative world when evaluating counterfactuals
+- [ ] add modal operators
+  - [ ] semantics
+  - [ ] syntax
 - [ ] _M_ generate variables to be declared alongside Z3 constraints
   - B: seems like we have hit a reason to proceed with some version of this
   - B: OK to hold on replacing `Exists` with constant declarations
@@ -124,6 +126,9 @@ Tasks that have been completed.
 
 ## Semantics
 
+- [x] add designated top elements
+  - [x] _M_ fixed top constraints
+  - B: tried in `add_top_nec` branch
 - [x] _B_ alternative worlds
   - [x] adapt semantics to admit of iterated counterfactuals
   - [x] debug no alternatives (issue #17)

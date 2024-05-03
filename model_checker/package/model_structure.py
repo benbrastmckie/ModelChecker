@@ -90,10 +90,11 @@ class Uninitalized:
 
     def __iter__(self):
         raise AttributeError(
-            f"cannot iterate through {self.name} because it isnt initialized")
+            f"cannot iterate through {self.name} because it isnt initialized"
+        )
 
     def __str__(self):
-        return f'{self.name} (uninitialized)'
+        return f"{self.name} (uninitialized)"
 
 
 class ModelStructure:
@@ -176,12 +177,17 @@ class ModelStructure:
                 self.verify,
                 self.falsify,
             )
-            self.extensional_propositions = [Extensional(ext_subsent, self, self.eval_world)
-                                            for ext_subsent in self.extensional_subsentences]
-            self.counterfactual_propositions = [Counterfactual(cf_subsent, self, self.eval_world)
-                                            for cf_subsent in self.counterfactual_subsentences]
-            self.all_propositions = (self.extensional_propositions +
-                                     self.counterfactual_propositions)
+            self.extensional_propositions = [
+                Extensional(ext_subsent, self, self.eval_world)
+                for ext_subsent in self.extensional_subsentences
+            ]
+            self.counterfactual_propositions = [
+                Counterfactual(cf_subsent, self, self.eval_world)
+                for cf_subsent in self.counterfactual_subsentences
+            ]
+            self.all_propositions = (
+                self.extensional_propositions + self.counterfactual_propositions
+            )
             self.input_propositions = self.find_input_propositions()
             # just missing the which-sentences-true-in-which-worlds
         # else: # NOTE: maybe these should be defined as something for the sake of init above
@@ -198,6 +204,7 @@ class ModelStructure:
         for ver in proposition_verifier_bits:
             comp_parts = find_compatible_parts(ver, self.poss_bits, comparison_world)
             max_comp_ver_parts = find_max_comp_ver_parts(ver, comp_parts)
+            # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
             for world in self.world_bits:
                 if not bit_part(ver, world):
                     continue
@@ -208,12 +215,13 @@ class ModelStructure:
         return alt_bits
 
     def find_proposition_object(self, prefix_expression, ext_only=False):
-        '''given a prefix sentence, finds the Proposition object in the model that corresponds
+        """given a prefix sentence, finds the Proposition object in the model that corresponds
         to it. Can optionally search through only the extensional sentences
-        returns a Proposition object'''
+        returns a Proposition object"""
         search_list = self.extensional_propositions
         if ext_only is False:
             search_list = self.all_propositions
+        # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
         for prop in search_list:
             if prop["prefix expression"] == prefix_expression:
                 return prop
@@ -226,6 +234,7 @@ class ModelStructure:
         first print function in print.py"""
         N = self.N
         print("\nPossible states:", file=output)  # Print states
+        # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
         for bit in self.all_bits:
             # test_state = BitVecVal(val, size) # was instead of bit
             state = bitvec_to_substates(bit, N)
@@ -237,6 +246,7 @@ class ModelStructure:
             if bit in self.world_bits:
                 print(f"  {bin_rep} = {state} (world)", file=output)
             # invalid conditional operand band-aid fixed with bool
+            # TODO: linter error: Cannot access member "evaluate" for type "AstVector"    Member "evalutate" is unknown
             elif bool(self.model.evaluate(self.possible(bit))):
                 # NOTE: the following comments are to debug
                 # result = self.model.evaluate(possible(bit))
@@ -249,9 +259,10 @@ class ModelStructure:
                 continue
 
     def evaluate_cf_expr(self, prefix_cf, eval_world):
-        '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
+        """evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
         used to initialize Counterfactuals
-        returns a bool representing whether the counterfactual is true at the world or not'''
+        returns a bool representing whether the counterfactual is true at the world or not
+        """
         op, antecedent_expr, consequent_expr = prefix_cf[0], prefix_cf[1], prefix_cf[2]
         assert "boxright" in op, f"{prefix_cf} is not a counterfactual!"
         ant_prop = self.find_proposition_object(antecedent_expr, ext_only=True)
@@ -278,6 +289,7 @@ class ModelStructure:
             )
         if len(complex_sentence) == 1:
             sent = complex_sentence[0]
+            # TODO: linter error: "__getitem__" method not defined on type "Uninitalized"
             return self.atomic_props_dict[sent]
         op = complex_sentence[0]
         Y = complex_sentence[1]
@@ -306,19 +318,23 @@ class ModelStructure:
         # function here which finds that set of worlds if we go this route.
         if "boxright" in op:
             worlds_true_at = []
+            # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
             for world in self.world_bits:
                 if self.evaluate_cf_expr(complex_sentence, world):
                     worlds_true_at.append(world)
             worlds_false_at = [
-                world for world in self.world_bits if world not in worlds_true_at
+                # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
+                world
+                for world in self.world_bits
+                if world not in worlds_true_at
             ]
             return (worlds_true_at, worlds_false_at)
         raise ValueError(f"don't know how to handle {op} operator")
 
     def find_input_propositions(self):
-        '''finds all the Proposition objects in a ModelStructure
+        """finds all the Proposition objects in a ModelStructure
         that correspond to the input sentences.
-        returns them as a list'''
+        returns them as a list"""
         input_propositions = []
         for prefix_sent in self.input_prefix_sentences:
             input_propositions.append(self.find_proposition_object(prefix_sent))
@@ -335,10 +351,12 @@ class ModelStructure:
         )
         true_in_eval = set()
         for sent in self.sentence_letters:
+            # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
             for bit in self.all_bits:
+                # TODO: linter error: "__getitem__" method not defined on type "Uninitalized"
                 ver_bool = self.verify(bit, self.model[sent])
                 part_bool = bit_part(bit, self.eval_world)
-                # invalid conditional operand band-aid fixed with bool
+                # TODO: linter error: invalid conditional operand band-aid fixed with bool
                 if bool(self.model.evaluate(ver_bool) and part_bool):
                     true_in_eval.add(sent)
                     break  # exits the first for loop
@@ -365,10 +383,13 @@ class ModelStructure:
             print(f"{index}. {con}\n", file=output)
             # print(f"Constraints time: {time}\n")
 
-    def rec_print(self, prop, current_world):
-        '''recursive print function (previously print_sort)
-        returns None'''
+    # def print_ext_prop(self, prop, current_world, N):
+
+    def rec_print(self, prop, current_world, output, indent=0):
+        """recursive print function (previously print_sort)
+        returns None"""
         N = self.N
+        indent_num = indent
         substate_current_world = bitvec_to_substates(current_world, N)
         substate_prop_comp_world = bitvec_to_substates(prop["comparison world"], N)
         if substate_prop_comp_world != substate_current_world:
@@ -376,48 +397,59 @@ class ModelStructure:
         if str(prop) in [str(atom) for atom in self.sentence_letters]:
             prop_truth_val = prop.truth_value_at(current_world)
             world_printable = bitvec_to_substates(current_world, N)
-            print(f"{prop} is {prop_truth_val} in {world_printable}")
+            print(f"{'  ' * indent_num}{prop} is {prop_truth_val} in world {world_printable}", file=output)
             return
-        # else:  # can assume this is a pretty simple sentence bc its gonna be from inputs
         print(
-            f"{prop} is {prop.truth_value_at(current_world)} in {bitvec_to_substates(current_world, N)} because:"
+            f"{'  ' * indent_num}{prop} is {prop.truth_value_at(current_world)} in "
+            f"{bitvec_to_substates(current_world, N)}:",
+            file=output
         )
         prefix_expr = prop["prefix expression"]
         op = prefix_expr[0]
         first_subprop = self.find_proposition_object(prefix_expr[1])
         if "neg" in op:
-            self.rec_print(first_subprop, current_world)
+            indent_num += 1
+            self.rec_print(first_subprop, current_world, output, indent_num)
             return
         left_subprop = first_subprop
         right_subprop = self.find_proposition_object(prefix_expr[2])
-        if 'boxright' in op:
-            assert (left_subprop in self.extensional_propositions
-                ), "{prop} not a valid cf because antecedent {left_subprop} is not extensional"
-            self.rec_print(left_subprop, current_world) # rec_print extensional antecedent
+        if "boxright" in op:
+            indent_num += 1
+            assert (
+                left_subprop in self.extensional_propositions
+            ), "{prop} not a valid cf because antecedent {left_subprop} is not extensional"
+            # rec_print extensional antecedent
+            self.rec_print(left_subprop, current_world, output, indent_num)
             print(
-                f'{left_subprop}-alternatives to {bitvec_to_substates(current_world, N)} = {({bitvec_to_substates(u,N) for u in left_subprop["alternative worlds"]})}'
+                f'{"  " * indent_num}'
+                f'{left_subprop}-alternatives to {bitvec_to_substates(current_world, N)} = '
+                f'{({bitvec_to_substates(u,N) for u in left_subprop["alternative worlds"]})}',
+                file=output
             )
+            indent_num += 1
             for u in left_subprop["alternative worlds"]:
-                print(f"eval world is now {bitvec_to_substates(u, N)}")
-                self.rec_print(right_subprop, u)
+                # print(f"{'  ' * indent_num}eval world is now {bitvec_to_substates(u, N)}", file=output)
+                self.rec_print(right_subprop, u, output, indent_num)
             # print something to signify the end of this thing?
         # not negation nor boxright cases
         # assumes only one problematic operator. May need to be changed with modal stuff.
-        self.rec_print(left_subprop, current_world)
-        self.rec_print(right_subprop, current_world)
-        return
+        else:
+            indent_num += 1
+            self.rec_print(left_subprop, current_world, output, indent_num)
+            self.rec_print(right_subprop, current_world, output, indent_num)
 
-    def print_inputs_recursively(self):
-        '''does rec_print for every proposition in the input propositions
-        returns None'''
+    def print_inputs_recursively(self, output):
+        """does rec_print for every proposition in the input propositions
+        returns None"""
         initial_eval_world = self.eval_world
+        # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
         for input_prop in self.input_propositions:
-            self.rec_print(input_prop, initial_eval_world)
-            print()
+            self.rec_print(input_prop, initial_eval_world, output)
+            print(file=output)
 
     def print_props(self, output=sys.__stdout__):
-        '''prints possible verifiers and falsifiers for every extensional proposition
-        and also the prop-alt worlds to the main world of evaluation'''
+        """prints possible verifiers and falsifiers for every extensional proposition
+        and also the prop-alt worlds to the main world of evaluation"""
         for ext_proposition in self.extensional_propositions:
             # print([bitvec_to_substates(bv, self.N) for bv in ext_proposition["verifiers"]])
             ext_proposition.print_possible_verifiers_and_falsifiers(output)
@@ -434,7 +466,7 @@ class ModelStructure:
             self.print_states(output)
             self.print_evaluation(output)
             self.print_props(output)
-            self.print_inputs_recursively()
+            self.print_inputs_recursively(output)
             if print_cons_bool:
                 print("Satisfiable constraints:\n", file=output)
                 self.print_constraints(self.constraints, output)
@@ -459,6 +491,7 @@ class ModelStructure:
             self.print_states(output)
             self.print_evaluation(output)
             self.print_props(output)
+            self.print_inputs_recursively(output)
             print(f"Run time: {self.model_runtime} seconds", file=output)
             print('"""', file=output)
             inputs_data = {
@@ -489,9 +522,10 @@ class ModelStructure:
 
 
 class Proposition:
-    '''class for propositions to store their verifiers, falsifiers, alt worlds, etc
+    """class for propositions to store their verifiers, falsifiers, alt worlds, etc
     has two subclasses Extensional and Counterfactual—Counterfactual is a Proposition
-    subclass to make stuff easier'''
+    subclass to make stuff easier"""
+
     def __init__(self, prefix_expr, model_structure, world):
         """prefix_expr is a prefix expression. model is a ModelStructure"""
         self.prop_dict = {}
@@ -507,9 +541,9 @@ class Proposition:
         self.prop_dict["falsifiers"] = falsifiers_in_model
 
     def update_comparison_world(self, new_world):
-        '''updates the comparison world (which is a BitVecVal) to a new one; updates
+        """updates the comparison world (which is a BitVecVal) to a new one; updates
         the alt worlds based on that
-        returns None'''
+        returns None"""
         if new_world == self["comparison world"]:
             return
         model_structure = self.parent_model_structure
@@ -531,7 +565,8 @@ class Proposition:
 
 
 class Extensional(Proposition):
-    '''Subclass of Proposition for extensional sentences'''
+    """Subclass of Proposition for extensional sentences"""
+
     def __init__(self, prefix_expr, model_structure, world):
         super().__init__(prefix_expr, model_structure, world)
         self.prop_dict["alternative worlds"] = model_structure.find_alt_bits(
@@ -539,8 +574,8 @@ class Extensional(Proposition):
         )
 
     def truth_value_at(self, eval_world):
-        '''finds whether a CF is true at a certain world
-        returns a Boolean representing yes or no'''
+        """finds whether a CF is true at a certain world
+        returns a Boolean representing yes or no"""
         for verifier in self["verifiers"]:
             if bit_part(verifier, eval_world):
                 return True
@@ -614,24 +649,26 @@ class Extensional(Proposition):
 
 
 class Counterfactual(Proposition):
-    '''subclass of Proposition for counterfactuals'''
+    """subclass of Proposition for counterfactuals"""
+
     # def __init__(self, prefix_expr, model_structure, world):
     #     super().__init__(prefix_expr, model_structure, world)
 
     # kinda empty rn; maybe also in here will go some print function specifically for CFs
 
     def truth_value_at(self, eval_world):
-        '''finds whether a CF is true at a certain world
-        returns a Boolean representing yes or no'''
+        """finds whether a CF is true at a certain world
+        returns a Boolean representing yes or no"""
         if eval_world in self["verifiers"]:
             return True
         return False
 
 
 def make_model_for(N):
-    '''
+    """
     input: N
-    returns a function that will solve the premises and conclusions'''
+    returns a function that will solve the premises and conclusions"""
+
     def make_relations_and_solve(premises, conclusions):
         possible = Function("possible", BitVecSort(N), BoolSort())
         verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())

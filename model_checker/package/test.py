@@ -14,35 +14,80 @@ Possible states:
   #b010 = b (world)
   #b100 = c (world)
 
-The evaluation world is b:
-  A, B, C  (not true in b)
+The evaluation world is a:
+  A, B, C  (not true in a)
 
-  |\neg A| = < {b}, {a, c} >
-  \neg A-alternatives to b = {b}
-    \neg A is true in b
-    (B \vee C), A, B, C are not true in b
+  |\neg A| = < {a}, {b, c} >
+  \neg A-alternatives to a = {a}
+    \neg A is true in a
+    (B \vee C), A, B, C are not true in a
 
-  |A| = < {a, c}, {b} >
-  A-alternatives to c = {a, c}
-    A, C are true in c
-    (B \vee C), B, \neg A are not true in c
-    A, B are true in a
-    (B \vee C), C, \neg A are not true in a
+  |A| = < {b, c}, {a} >
+  A-alternatives to a = {b, c}
+    (B \vee C), A, C are true in b
+    B, \neg A are not true in b
+    (B \vee C), A, B are true in c
+    C, \neg A are not true in c
 
-  |(B \vee C)| = < ∅, {a, b, c} >
-  There are no (B \vee C)-alternatives to b
+  |(B \vee C)| = < {b, c}, {a} >
+  (B \vee C)-alternatives to a = {b, c}
+    (B \vee C), A, C are true in b
+    B, \neg A are not true in b
+    (B \vee C), A, B are true in c
+    C, \neg A are not true in c
 
-  |B| = < {a}, {b, c} >
-  B-alternatives to b = {a}
-    A, B are true in a
-    (B \vee C), C, \neg A are not true in a
+  |B| = < {c}, {a, b} >
+  B-alternatives to a = {c}
+    (B \vee C), A, B are true in c
+    C, \neg A are not true in c
 
-  |C| = < {c}, {a, b} >
-  C-alternatives to b = {c}
-    A, C are true in c
-    (B \vee C), B, \neg A are not true in c
+  |C| = < {b}, {a, c} >
+  C-alternatives to a = {b}
+    (B \vee C), A, C are true in b
+    B, \neg A are not true in b
 
-Run time: 0.1831 seconds
+\neg A is True in a because:
+A is False in a
+
+(A \boxright (B \vee C)) is True in a because:
+A is False in a
+A-alternatives to a = {'b', 'c'}
+eval world is now b
+(B \vee C) is True in b because:
+B is False in b
+C is True in b
+eval world is now c
+(B \vee C) is True in c because:
+B is True in c
+C is False in c
+A is False in a
+(B \vee C) is False in a because:
+B is False in a
+C is False in a
+
+\neg (A \boxright B) is False in a because:
+(A \boxright B) is True in a because:
+A is False in a
+A-alternatives to a = {'b', 'c'}
+eval world is now b
+B is False in b
+eval world is now c
+B is True in c
+A is False in a
+B is False in a
+
+\neg (A \boxright C) is False in a because:
+(A \boxright C) is True in a because:
+A is False in a
+A-alternatives to a = {'b', 'c'}
+eval world is now b
+C is True in b
+eval world is now c
+C is False in c
+A is False in a
+C is False in a
+
+Run time: 0.5092 seconds
 """
 
 # path to parent directory
@@ -79,7 +124,7 @@ all_constraints = [ForAll([frame_dummy_x, frame_dummy_y],
               frame_dummy_x | frame_dummy_y == frame_dummy_z)), And(possible(w),
     ForAll(max_dummy,
            Implies(possible(max_dummy | w),
-                   max_dummy | w == w))), ForAll(top_dummy_x, verify(top_dummy_x, top)), ForAll(top_dummy_y, Not(falsify(top_dummy_x, top))), Not(verify(0, C)), Not(falsify(0, C)), ForAll([prop_dummy_x, prop_dummy_y],
+                   max_dummy | w == w))), Not(verify(0, C)), Not(falsify(0, C)), ForAll([prop_dummy_x, prop_dummy_y],
        Implies(And(verify(prop_dummy_x, C),
                    verify(prop_dummy_y, C)),
                verify(prop_dummy_x | prop_dummy_y, C))), ForAll([prop_dummy_x, prop_dummy_y],
