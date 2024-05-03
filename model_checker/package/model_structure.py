@@ -275,6 +275,7 @@ class ModelStructure:
                 return False
         return True
     
+
     # def evaluate_modal_expr(self, prefix_modal, eval_world):
     #     '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
     #     used to initialize Counterfactuals
