@@ -70,7 +70,7 @@ save_bool = False
 # conclusions = []
 
 premises = ['(\\Box A \\vee \\Box B)']
-conclusions = []
+conclusions = ['(A \\wedge B)']
 
 
 
