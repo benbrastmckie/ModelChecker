@@ -281,10 +281,6 @@ class ModelStructure:
             if self.evaluate_modal_expr(complex_sentence):
                 return (set(self.world_bits), set())
             return (set(), set(self.world_bits))
-        # if len(complex_sentence) == 2: # and 'Box' in op:
-            # if self.evaluate_modal_expr(complex_sentence):
-            #     return (self.world_bits, [])
-            # return (set(), set(self.world_bits))
         Z = complex_sentence[2]
         Y_V = self.find_complex_proposition(Y)[0]
         Y_F = self.find_complex_proposition(Y)[1]
