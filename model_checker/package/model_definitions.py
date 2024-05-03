@@ -348,21 +348,23 @@ def find_subsentences_of_kind(prefix_sentences, kind):
     kind is a string, either "extensional", "modal", "counterfactual", or 'all' for a tuple of
     of the three kinds in the order extensional, modal, counterfactual, and then all the subsents
     returns a list of that kind'''
-    all_subsentences = []
+    all_subsentences = set()
     for prefix_sent in prefix_sentences:
         # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
-        all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
+        sub_sents = all_subsentences_of_a_sentence(prefix_sent)
+        all_subsentences.update(sub_sents)
+    list_subsentences = (list(all_subsentences)).sort()
     if kind == 'extensional':
-        return_list = [sent for sent in all_subsentences if is_extensional(sent)]
+        return_list = [sent for sent in list_subsentences if is_extensional(sent)]
     if kind == 'modal':
-        return_list = [sent for sent in all_subsentences if is_modal(sent)]
+        return_list = [sent for sent in list_subsentences if is_modal(sent)]
     if kind == 'counterfactual':
-        return_list = [sent for sent in all_subsentences if is_counterfactual(sent)]
+        return_list = [sent for sent in list_subsentences if is_counterfactual(sent)]
     if kind == 'all':
-        counterfactual = [sent for sent in all_subsentences if is_counterfactual(sent)]
-        modal = [sent for sent in all_subsentences if is_modal(sent)]
-        extensional = [sent for sent in all_subsentences if sent not in counterfactual and sent not in modal]
-        return (extensional, modal, counterfactual, all_subsentences)
+        counterfactual = [sent for sent in list_subsentences if is_counterfactual(sent)]
+        modal = [sent for sent in list_subsentences if is_modal(sent)]
+        extensional = [sent for sent in list_subsentences if sent not in counterfactual and sent not in modal]
+        return (extensional, modal, counterfactual, list_subsentences)
     return repeats_removed(return_list)
 
 def repeats_removed(L):
