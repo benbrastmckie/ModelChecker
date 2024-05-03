@@ -291,7 +291,7 @@ def is_modal(prefix_sentence):
         return False
     op = prefix_sentence[0]
     if len(prefix_sentence) == 2:
-        if 'ox' in op or 'iamond' in op:
+        if 'Box' in op or 'Diamond' in op:
             return True
         return is_modal(prefix_sentence[1])
     return is_modal(prefix_sentence[1]) or is_modal(prefix_sentence[2])
@@ -351,7 +351,6 @@ def find_subsentences_of_kind(prefix_sentences, kind):
     rr = repeats_removed
     all_subsentences = []
     for prefix_sent in prefix_sentences:
-        # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
         all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
     if kind == 'extensional':
         return_list = rr([sent for sent in all_subsentences if is_extensional(sent)])
@@ -364,7 +363,7 @@ def find_subsentences_of_kind(prefix_sentences, kind):
         modal = rr([sent for sent in all_subsentences if is_modal(sent)])
         extensional = rr([sent for sent in all_subsentences if sent not in counterfactual and sent not in modal])
         return (extensional, modal, counterfactual, all_subsentences)
-    return repeats_removed(return_list)
+    return return_list
 
 def repeats_removed(L):
     '''takes a list and removes the repeats in it.
