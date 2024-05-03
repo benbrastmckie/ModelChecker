@@ -180,9 +180,10 @@ class ModelStructure:
                                             for ext_subsent in self.extensional_subsentences]
             self.counterfactual_propositions = [Counterfactual(cf_subsent, self, self.eval_world)
                                             for cf_subsent in self.counterfactual_subsentences]
-            # self.modal_propositions = [Modal()]
+            self.modal_propositions = [Modal(modal_subsent, self, self.eval_world)
+                                            for modal_subsent in self.modal_subsentences]
             self.all_propositions = (self.extensional_propositions +
-                                     self.counterfactual_propositions)
+                                     self.counterfactual_propositions + self.modal_propositions)
             self.input_propositions = self.find_input_propositions()
             # just missing the which-sentences-true-in-which-worlds
         # else: # NOTE: maybe these should be defined as something for the sake of init above
@@ -268,23 +269,26 @@ class ModelStructure:
                 return False
         return True
     
-    # def evaluate_modal_expr(self, prefix_modal, eval_world):
-    #     '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
-    #     used to initialize Counterfactuals
-    #     returns a bool representing whether the counterfactual is true at the world or not'''
-    #     op, argument = prefix_modal[0], prefix_modal[1]
-    #     for world in self.world_bits:
-    #         if 'iamond' in op: # poss case
-    #             if self.model.evaluate()
+    def evaluate_modal_expr(self, prefix_modal, eval_world):
+        '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
+        used to initialize Counterfactuals
+        returns a bool representing whether the counterfactual is true at the world or not'''
+        op, argument = prefix_modal[0], prefix_modal[1]
+        
+        
+        
+        for world in self.world_bits:
+            if 'iamond' in op: # poss case
+                if self.model.evaluate()
             
 
 
-    #     ant_prop = self.find_proposition_object(argument, ext_only=True)
-    #     ant_prop.update_comparison_world(eval_world)
-    #     for u in ant_prop["alternative worlds"]:
-    #         if str(argument) not in str(find_true_and_false_in_alt(u, self)[0]):
-    #             return False
-    #     return True
+        ant_prop = self.find_proposition_object(argument, ext_only=True)
+        ant_prop.update_comparison_world(eval_world)
+        for u in ant_prop["alternative worlds"]:
+            if str(argument) not in str(find_true_and_false_in_alt(u, self)[0]):
+                return False
+        return True
 
     def find_complex_proposition(self, complex_sentence):
         """sentence is a sentence in prefix notation
@@ -308,9 +312,13 @@ class ModelStructure:
             Y_F = self.find_complex_proposition(Y)[1]
             return (Y_F, Y_V)
         if 'iamond' in op:
-            DIAMOND
+            if self.evaluate_modal_expr(complex_sentence):
+                return (self.world_bits, [])
+            return ([], self.world_bits)
         if len(complex_sentence) == 2 and 'ox' in op:
-            BOX
+            if self.evaluate_modal_expr(complex_sentence):
+                return (self.world_bits, [])
+            return ([], self.world_bits)
         Z = complex_sentence[2]
         Y_V = self.find_complex_proposition(Y)[0]
         Y_F = self.find_complex_proposition(Y)[1]
