@@ -274,10 +274,14 @@ class ModelStructure:
         used to initialize Counterfactuals
         returns a bool representing whether the counterfactual is true at the world or not'''
         op, argument = prefix_modal[0], prefix_modal[1]
-        
+        if 'iamond' in op:
+            for world in self.world_bits:
+                if 
         
         
         for world in self.world_bits:
+            if is_modal(argument):
+                if self.evaluate_modal_expr(argument, u) is 
             if 'iamond' in op: # poss case
                 if self.model.evaluate()
             
