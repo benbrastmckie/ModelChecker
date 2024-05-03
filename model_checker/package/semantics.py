@@ -296,12 +296,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         if len(sentence) == 2 and 'ox' in op:
             print(sentence)
             return Exists(u, And(is_world(u), false_at(sentence[1], u)))
-        if 'Box' in op:
-            # print(sentence)
-            return Exists(u, And(is_world(u), false_at(sentence[1], u)))
-            # return Exists(x, And(possible(x), extended_verify(x,sentence[1])))
-        if 'Diamond' in op:
-            # print(sentence)
+        if 'iamond' in op:
+            print(sentence)
             return ForAll(u, Implies(is_world(u), false_at(sentence[1], u)))
         Y = sentence[1]
         Z = sentence[2]

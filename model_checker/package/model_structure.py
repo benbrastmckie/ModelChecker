@@ -274,31 +274,26 @@ class ModelStructure:
             elif str(consequent_expr) not in str(find_true_and_false_in_alt(u, self)[0]):
                 return False
         return True
-    
-    # def evaluate_modal_expr(self, prefix_modal, eval_world):
-    #     '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
-    #     used to initialize Counterfactuals
-    #     returns a bool representing whether the counterfactual is true at the world or not'''
-    #     op, argument = prefix_modal[0], prefix_modal[1]
-    #     if 'iamond' in op:
-    #         for world in self.world_bits:
-    #             if 
-    #     
-    #     
-    #     for world in self.world_bits:
-    #         if is_modal(argument):
-    #             if self.evaluate_modal_expr(argument, u) is 
-    #         if 'iamond' in op: # poss case
-    #             if self.model.evaluate()
-    #         
-    #
-    #
-    #     ant_prop = self.find_proposition_object(argument, ext_only=True)
-    #     ant_prop.update_comparison_world(eval_world)
-    #     for u in ant_prop["alternative worlds"]:
-    #         if str(argument) not in str(find_true_and_false_in_alt(u, self)[0]):
-    #             return False
-    #     return True
+
+    def evaluate_modal_expr(self, prefix_modal):
+        '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
+        used to initialize Counterfactuals
+        returns a bool representing whether the counterfactual is true at the world or not'''
+        op, argument = prefix_modal[0], prefix_modal[1]
+        if is_modal(argument):
+            if self.evaluate_modal_expr(prefix_modal) is True: # ie, verifiers is all worlds
+                return True # both Box and Diamond will return true, since verifiers is not empty
+            return False
+        if 'Diamond' in op:
+            for world in self.world_bits:
+                if world in self.find_complex_proposition(argument)[0]:
+                    return True
+            return False
+        if 'Box' in op:
+            for world in self.world_bits:
+                if world not in self.find_complex_proposition(argument)[0]:
+                    return False
+            return True
 
     def find_complex_proposition(self, complex_sentence):
         """sentence is a sentence in prefix notation
@@ -322,14 +317,14 @@ class ModelStructure:
             Y_V = self.find_complex_proposition(Y)[0]
             Y_F = self.find_complex_proposition(Y)[1]
             return (Y_F, Y_V)
-        if 'iamond' in op:
+        if 'Diamond' in op:
             if self.evaluate_modal_expr(complex_sentence):
                 return (self.world_bits, [])
-            return ([], self.world_bits)
-        if len(complex_sentence) == 2 and 'ox' in op:
+            return (set(), set(self.world_bits))
+        if len(complex_sentence) == 2 and 'Box' in op:
             if self.evaluate_modal_expr(complex_sentence):
                 return (self.world_bits, [])
-            return ([], self.world_bits)
+            return (set(), set(self.world_bits))
         Z = complex_sentence[2]
         Y_V = self.find_complex_proposition(Y)[0]
         Y_F = self.find_complex_proposition(Y)[1]
@@ -350,17 +345,13 @@ class ModelStructure:
         # counterfactual true in this final case. should probably call another
         # function here which finds that set of worlds if we go this route.
         if "boxright" in op:
-            worlds_true_at = []
-            # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
+            worlds_true_at = set()
             for world in self.world_bits:
                 if self.evaluate_cf_expr(complex_sentence, world):
-                    worlds_true_at.append(world)
-            worlds_false_at = [
-                # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
-                world
-                for world in self.world_bits
-                if world not in worlds_true_at
-            ]
+                    worlds_true_at.add(world)
+            worlds_false_at = {
+                world for world in self.world_bits if world not in worlds_true_at
+            }
             return (worlds_true_at, worlds_false_at)
         raise ValueError(f"don't know how to handle {op} operator")
 
@@ -425,10 +416,10 @@ class ModelStructure:
         indent_num = indent
         substate_current_world = bitvec_to_substates(current_world, N)
         substate_prop_comp_world = bitvec_to_substates(prop["comparison world"], N)
+        prop_truth_val = prop.truth_value_at(current_world)
         if substate_prop_comp_world != substate_current_world:
             prop.update_comparison_world(current_world)
         if str(prop) in [str(atom) for atom in self.sentence_letters]:
-            prop_truth_val = prop.truth_value_at(current_world)
             world_printable = bitvec_to_substates(current_world, N)
             print(f"{'  ' * indent_num}{prop} is {prop_truth_val} in world {world_printable}", file=output)
             return
@@ -443,6 +434,14 @@ class ModelStructure:
         if "neg" in op:
             indent_num += 1
             self.rec_print(first_subprop, current_world, output, indent_num)
+            return
+        if 'Diamond' in op or 'Box' in op:
+            if prop_truth_val is False:
+                for u in prop['non arg worlds']:
+                    self.rec_print(first_subprop, u)
+                return
+            for u in prop['arg worlds']:
+                self.rec_print(first_subprop, u)
             return
         left_subprop = first_subprop
         right_subprop = self.find_proposition_object(prefix_expr[2])
@@ -696,8 +695,18 @@ class Counterfactual(Proposition):
 
 class Modal(Proposition):
     '''subclass of Proposition for modals'''
+    def __init__(self, prefix_expr, model_structure, world):
+        super().__init__(prefix_expr, model_structure, world)
+        arg = prefix_expr[1]
+        arg_worlds, non_arg_worlds = self.parent_model_structure.find_complex_proposition(arg)
+        self['arg worlds'] = arg_worlds
+        self['non arg worlds'] = non_arg_worlds
+
+
     def truth_value_at(self, eval_world):
-        pass
+        if eval_world in self["verifiers"]:
+            return True
+        return False
 
 
 def make_model_for(N):
