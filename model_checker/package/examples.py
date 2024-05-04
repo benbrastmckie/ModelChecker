@@ -63,8 +63,8 @@ save_bool = False
 # premises = ['A \\boxright C', '\\neg (A \\boxright \\neg B)']
 # conclusions = ['\\neg ((A \\wedge B) \\boxright C)']
 
-# premises = ['\\Diamond (A \\wedge B)','((A \\wedge B) \\boxright C)']
-# conclusions = ['(A \\boxright (B \\boxright C))']
+premises = ['\\Diamond (A \\wedge B)','((A \\wedge B) \\boxright C)']
+conclusions = ['(A \\boxright (B \\boxright C))']
 
 # premises = ['\\neg (\\top \\boxright \\neg (A \\wedge B))','((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
@@ -82,9 +82,6 @@ save_bool = False
 # premises = ['\\Diamond A', '\\Diamond B']
 # conclusions = ['\\Diamond (A \\wedge B)']
 
-# NOTE: Slow
-premises = ['(A \\boxright B)']
-conclusions = ['\\Box (A \\rightarrow B)']
 
 
 
@@ -136,11 +133,6 @@ conclusions = ['\\Box (A \\rightarrow B)']
 
 ### MODAL LOGIC ###
 
-# # NOTE: crashed
-# # K axiom (top)
-# premises = ['(\\top \\boxright (A \\rightarrow B))']
-# conclusions = ['((\\top \\boxright A) \\rightarrow (\\top \\boxright B))']
-
 # # K axiom (box)
 # premises = ['\\Box (A \\rightarrow B)']
 # conclusions = ['(\\Box A \\rightarrow \\Box B)']
@@ -181,11 +173,6 @@ conclusions = ['\\Box (A \\rightarrow B)']
 # # box-to-top equivalence
 # premises = ['\\Box A']
 # conclusions = ['(\\top \\boxright A)']
-
-# # NOTE: killed in ssh
-# # top-to-box equivalence
-# premises = ['(\\top \\boxright A)']
-# conclusions = ['\\Box A']
 
 # premises = ['\\Box A', '\\Diamond B']
 # conclusions = ['\\Diamond (A \\wedge B)']
@@ -242,3 +229,20 @@ conclusions = ['\\Box (A \\rightarrow B)']
 # # NOTE: ssh killed process
 # premises = ['(A \\boxright C)','(B \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
+
+### LOW PRIORITY: MODAL EQUIVALENCE ###
+
+# # NOTE: killed in ssh
+# # K axiom (top)
+# premises = ['(\\top \\boxright (A \\rightarrow B))']
+# conclusions = ['((\\top \\boxright A) \\rightarrow (\\top \\boxright B))']
+
+# # NOTE: killed in ssh
+# # top-to-box equivalence
+# premises = ['(\\top \\boxright A)']
+# conclusions = ['\\Box A']
+
+# # NOTE: killed in ssh
+# # countermodel: counterfactuals do not entail strict conditionals
+# premises = ['(A \\boxright B)']
+# conclusions = ['\\Box (A \\rightarrow B)']
