@@ -7,7 +7,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] create package v0.1
 - [x] submit to pip installer
 - [ ] release v0.2
-  - [ ] include general print algorithm
+  - [x] include general print algorithm
   - [ ] expose and test package commands
   - [ ] change execution instructions once the package is working
   - [ ] include help in template output
@@ -15,7 +15,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Print
 
-- [.] print the proposition for each sub-sentence
+- [:] print the proposition for each sub-sentence
+  - [ ] _B_ print proposition for extensional sentences immediately
   - [x] _B_ design recursive structure in `strategies`
   - [x] _B_ tested new `print_props`
   - [x] _M_ define general print algorithm
