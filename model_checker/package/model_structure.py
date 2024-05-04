@@ -209,7 +209,7 @@ class ModelStructure:
                         alt_bits.add(world)
                         break  # to return to the second for loop over world_bits
         return alt_bits
-    
+
     def evaluate_modal_expr(self, prefix_modal):
         '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
         used to initialize Counterfactuals
@@ -405,8 +405,6 @@ class ModelStructure:
             print(f"{index}. {con}\n", file=output)
             # print(f"Constraints time: {time}\n")
 
-    # def print_ext_prop(self, prop, current_world, N):
-
     def rec_print(self, prop, current_world, output, indent=0):
         """recursive print function (previously print_sort)
         returns None"""
@@ -463,8 +461,10 @@ class ModelStructure:
         returns None"""
         initial_eval_world = self.eval_world
         # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
-        for input_prop in self.input_propositions:
-            self.rec_print(input_prop, initial_eval_world, output)
+        # for input_prop in self.input_propositions:
+        for index, input_prop in enumerate(self.input_propositions, start=1):
+            print(f"{index}.", end="")
+            self.rec_print(input_prop, initial_eval_world, output, 1)
             print(file=output)
 
     # TODO: how can print_to and save_to be cleaned up and made less redundant?
@@ -472,9 +472,10 @@ class ModelStructure:
         """append all elements of the model to the file provided"""
         N = self.N
         if self.model_status:
+
             print(f"\nThere is a {N}-model of:\n", file=output)
-            for sent in self.input_infix_sentences:
-                print(sent, file=output)
+            for index, sent in enumerate(self.input_infix_sentences, start=1):
+                print(f"{index}. {sent}", file=output)
             self.print_states(output)
             self.print_evaluation(output)
             # self.print_props(output)
@@ -484,8 +485,8 @@ class ModelStructure:
                 self.print_constraints(self.constraints, output)
         else:
             print(f"\nThere are no {N}-models of:\n", file=output)
-            for sent in self.input_infix_sentences:
-                print(sent, file=output)
+            for index, sent in enumerate(self.input_infix_sentences, start=1):
+                print(f"{index}. {sent}", file=output)
             print(file=output)
             if print_unsat_core_bool:
                 print("Unsatisfiable core constraints:\n", file=output)
