@@ -45,8 +45,8 @@ save_bool = False
 # premises = ['A',]
 # conclusions = ['\\neg A']
 
-# premises = ['\\neg A']
-# conclusions = ['A \\boxright B','(A \\boxright \\neg B)']
+premises = ['\\neg A']
+conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 
 # premises = ['(A \\boxright B)','(B \\boxright C)']
 # conclusions = ['(A \\boxright C)']
@@ -69,8 +69,8 @@ save_bool = False
 # premises = ['(A \\boxright (B \\boxright (C \\boxright D)))']
 # conclusions = []
 
-premises = ['(\\Box A \\vee \\Box B)']
-conclusions = ['(A \\wedge B)']
+# premises = ['(\\Box A \\vee \\Box B)']
+# conclusions = ['(A \\wedge B)']
 
 
 
