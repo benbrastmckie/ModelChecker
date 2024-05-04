@@ -9,7 +9,7 @@ parent_directory = os.path.dirname(__file__)
 ################################
 
 # length of bitvectors
-N = 3
+N = 5
 
 # print all Z3 constraints if a model is found
 print_cons_bool = False
@@ -63,8 +63,8 @@ save_bool = False
 # premises = ['A \\boxright C', '\\neg (A \\boxright \\neg B)']
 # conclusions = ['\\neg ((A \\wedge B) \\boxright C)']
 
-premises = ['\\Diamond (A \\wedge B)','((A \\wedge B) \\boxright C)']
-conclusions = ['(A \\boxright (B \\boxright C))']
+# premises = ['\\Diamond (A \\wedge B)','((A \\wedge B) \\boxright C)']
+# conclusions = ['(A \\boxright (B \\boxright C))']
 
 # premises = ['\\neg (\\top \\boxright \\neg (A \\wedge B))','((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
@@ -82,6 +82,9 @@ conclusions = ['(A \\boxright (B \\boxright C))']
 # premises = ['\\Diamond A', '\\Diamond B']
 # conclusions = ['\\Diamond (A \\wedge B)']
 
+# NOTE: ssh finds a model
+premises = ['(A \\boxright B)']
+conclusions = ['\\Box (A \\rightarrow B)']
 
 
 
@@ -241,8 +244,3 @@ conclusions = ['(A \\boxright (B \\boxright C))']
 # # top-to-box equivalence
 # premises = ['(\\top \\boxright A)']
 # conclusions = ['\\Box A']
-
-# # NOTE: killed in ssh
-# # countermodel: counterfactuals do not entail strict conditionals
-# premises = ['(A \\boxright B)']
-# conclusions = ['\\Box (A \\rightarrow B)']

@@ -431,8 +431,14 @@ class ModelStructure:
             return
         if 'Diamond' in op or 'Box' in op:
             indent_num += 1
-            self.rec_print(first_subprop, current_world, output, indent_num)
+            for u in self.world_bits:
+                self.rec_print(first_subprop, u, output, indent_num)
             return
+        # if 'Box' in op:
+        #     indent_num += 1
+        #     for u in self.world_bits:
+        #         self.rec_print(first_subprop, u, output, indent_num)
+        #     return
         left_subprop = first_subprop
         right_subprop = self.find_proposition_object(prefix_expr[2])
         if "boxright" in op:
