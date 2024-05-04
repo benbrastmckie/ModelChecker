@@ -63,6 +63,9 @@ save_bool = False
 # premises = ['A \\boxright C', '\\neg (A \\boxright \\neg B)']
 # conclusions = ['\\neg ((A \\wedge B) \\boxright C)']
 
+# premises = ['\\Diamond (A \\wedge B)','((A \\wedge B) \\boxright C)']
+# conclusions = ['(A \\boxright (B \\boxright C))']
+
 # premises = ['\\neg (\\top \\boxright \\neg (A \\wedge B))','((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
 
@@ -78,6 +81,15 @@ save_bool = False
 
 # premises = ['\\Diamond A', '\\Diamond B']
 # conclusions = ['\\Diamond (A \\wedge B)']
+
+# NOTE: Slow
+premises = ['(A \\boxright B)']
+conclusions = ['\\Box (A \\rightarrow B)']
+
+
+
+
+
 
 
 
@@ -170,13 +182,26 @@ save_bool = False
 # premises = ['\\Box A']
 # conclusions = ['(\\top \\boxright A)']
 
-# NOTE: crashed
-# top-to-box equivalence
-premises = ['(\\top \\boxright A)']
-conclusions = ['\\Box A']
+# # NOTE: killed in ssh
+# # top-to-box equivalence
+# premises = ['(\\top \\boxright A)']
+# conclusions = ['\\Box A']
 
 # premises = ['\\Box A', '\\Diamond B']
 # conclusions = ['\\Diamond (A \\wedge B)']
+
+# premises = ['\\Box (A \\rightarrow B)']
+# conclusions = ['(A \\boxright B)']
+
+
+
+
+
+
+
+
+
+
 
 
 
