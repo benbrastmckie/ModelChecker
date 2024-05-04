@@ -45,8 +45,8 @@ save_bool = False
 # premises = ['A',]
 # conclusions = ['\\neg A']
 
-premises = ['\\neg A']
-conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
+# premises = ['\\neg A']
+# conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 
 # premises = ['(A \\boxright B)','(B \\boxright C)']
 # conclusions = ['(A \\boxright C)']
@@ -66,22 +66,18 @@ conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 # premises = ['\\neg (\\top \\boxright \\neg (A \\wedge B))','((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
 
-# premises = ['(A \\boxright (B \\boxright (C \\boxright D)))']
+# premises = ['A','(A \\boxright (B \\boxright (C \\boxright D)))']
 # conclusions = []
 
 # premises = ['(\\Box A \\vee \\Box B)']
 # conclusions = ['(A \\wedge B)']
 
+# # NOTE: slow
+# premises = ['(A \\boxright B)', '\\neg ((A \\wedge C) \\boxright B)', '(((A \\wedge C) \\wedge D) \\boxright B)']
+# conclusions = []
 
-
-
-
-
-
-
-
-
-
+# premises = ['\\Diamond A', '\\Diamond B']
+# conclusions = ['\\Diamond (A \\wedge B)']
 
 
 
@@ -125,28 +121,64 @@ conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 # premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright C)']
 
-# # T axiom
+
+### MODAL LOGIC ###
+
+# # NOTE: crashed
+# # K axiom (top)
+# premises = ['(\\top \\boxright (A \\rightarrow B))']
+# conclusions = ['((\\top \\boxright A) \\rightarrow (\\top \\boxright B))']
+
+# # K axiom (box)
+# premises = ['\\Box (A \\rightarrow B)']
+# conclusions = ['(\\Box A \\rightarrow \\Box B)']
+
+# # T axiom (top)
 # premises = ['(\\top \\boxright A)']
 # conclusions = ['A']
 
-# # 4 axiom
+# # T axiom (box)
+# premises = ['\\Box A']
+# conclusions = ['A']
+
+# # 4 axiom (top)
 # premises = ['(\\top \\boxright A)']
 # conclusions = ['(\\top \\boxright (\\top \\boxright A))']
 
-# # B axiom
+# # 4 axiom (box)
+# premises = ['\\Box A']
+# conclusions = ['\\Box \\Box A']
+
+# # B axiom (top)
 # # NOTE: this crashed
 # premises = ['A']
 # conclusions = ['(\\top \\boxright \\neg (\\top \\boxright \\neg A))']
 
-# # 5 axiom
+# # B axiom (box)
+# premises = ['A']
+# conclusions = ['\\Box \\Diamond A']
+
+# # 5 axiom (top)
 # premises = ['(\\top \\boxright A)']
 # conclusions = ['(\\top \\boxright \\neg (\\top \\boxright \\neg A))']
 
+# # 5 axiom (box)
 # premises = ['\\Box A']
-# conclusions = ['A']
+# conclusions = ['\\Box \\Diamond A']
 
-# premises = ['A']
-# conclusions = ['\\Diamond A']
+# # box-to-top equivalence
+# premises = ['\\Box A']
+# conclusions = ['(\\top \\boxright A)']
+
+# NOTE: crashed
+# top-to-box equivalence
+premises = ['(\\top \\boxright A)']
+conclusions = ['\\Box A']
+
+# premises = ['\\Box A', '\\Diamond B']
+# conclusions = ['\\Diamond (A \\wedge B)']
+
+
 
 
 
@@ -170,6 +202,10 @@ conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 # # NOTE: only works without \neg A and \neg B
 # premises = ['\\neg A','\\neg B','(A \\boxright B)','(B \\boxright C)']
 # conclusions = ['(A \\boxright C)']
+
+# # NOTE: only works without \neg A
+# premises = ['\\neg A', '(A \\boxright B)', '\\neg ((A \\wedge C) \\boxright B)']
+# conclusions = []
 
 ### MEDIUM PRIORITY: NESTED COUNTERFACTUALS ###
 
