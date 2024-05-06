@@ -8,7 +8,7 @@ import os
 import importlib.util
 import sys
 from string import Template
-from modules.model_structure import make_model_for
+from modules import model_structure
 
 script_template = Template("""
 '''
@@ -54,7 +54,7 @@ conclusions = ['(A boxright B)','(A boxright C)']
 
 def print_or_save(module):
     """print the model and prompt user to store the output"""
-    mod = make_model_for(module.N)(module.premises, module.conclusions)
+    mod = model_structure.make_model_for(module.N)(module.premises, module.conclusions)
     if module.use_constraints_bool:
         mod.constraints = module.all_constraints
     mod.print_to(module.print_cons_bool, module.print_unsat_core_bool)
