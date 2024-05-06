@@ -1,5 +1,9 @@
 """
-module for user inputs.
+Example module for user inputs.
+Premises are conjoined and conclusions are disjoined.
+To save the output, change 'save_bool' to 'True' below.
+The examples below can be turned on and off by (un)commenting the premises an conclusions.
+The final pair of premises and conclusions to be defined will be run when the file is tested.
 """
 import os
 parent_directory = os.path.dirname(__file__)
@@ -8,7 +12,7 @@ parent_directory = os.path.dirname(__file__)
 ########## SETTINGS ############
 ################################
 
-# length of bitvectors
+# number of atomic states included in the models
 N = 3
 
 # print all Z3 constraints if a model is found
@@ -18,32 +22,20 @@ print_cons_bool = False
 print_unsat_core_bool = True
 
 # present option to append output to file
-save_bool = True
+save_bool = False
 
 
 ################################
-########### WORKING ############
+######## COUNTER MODELS ########
 ################################
-
 
 ### INVALID ###
 
-# premises = []
-# conclusions = []
+premises = ['\\neg A','(A \\boxright (B \\vee C))']
+conclusions = ['(A \\boxright B)','(A \\boxright C)']
 
-# premises = ['A']
-# conclusions = []
-
-# premises = ['\\neg A','(A \\boxright (B \\vee C))']
-# conclusions = ['(A \\boxright B)','(A \\boxright C)']
-
-# # NOTE: if null verifiers are permitted, then null state verifies A
-# # but possible state c does not?
 # premises = ['A','B']
 # conclusions = ['(A \\boxright B)']
-
-# premises = ['A',]
-# conclusions = ['\\neg A']
 
 # premises = ['\\neg A']
 # conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
@@ -69,40 +61,23 @@ save_bool = True
 # premises = ['\\neg (\\top \\boxright \\neg (A \\wedge B))','((A \\wedge B) \\boxright C)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
 
-# premises = ['A','(A \\boxright (B \\boxright (C \\boxright D)))']
-# conclusions = []
-
 # premises = ['(\\Box A \\vee \\Box B)']
 # conclusions = ['(A \\wedge B)']
 
-# # NOTE: slow
-# premises = ['(A \\boxright B)', '\\neg ((A \\wedge C) \\boxright B)', '(((A \\wedge C) \\wedge D) \\boxright B)']
-# conclusions = []
+# premises = ['\\Diamond A', '\\Diamond B']
+# conclusions = ['\\Diamond (A \\wedge B)']
 
-premises = ['\\Diamond A', '\\Diamond B']
-conclusions = ['\\Diamond (A \\wedge B)']
-
-# # NOTE: ssh finds a model
 # premises = ['(A \\boxright B)']
 # conclusions = ['\\Box (A \\rightarrow B)']
 
 
+################################
+############ LOGIC #############
+################################
 
-
-
-
-
-
-
-
-
-### VALID ###
-
-# # NOTE: unsat_core seems satisfiable
 # premises = []
 # conclusions = ['(A \\vee \\neg A)']
 
-# # NOTE: unsat_core seems satisfiable
 # premises = []
 # conclusions = ['\\neg (A \\wedge \\neg A)']
 
@@ -182,65 +157,3 @@ conclusions = ['\\Diamond (A \\wedge B)']
 
 # premises = ['\\Box (A \\rightarrow B)']
 # conclusions = ['(A \\boxright B)']
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-################################
-######### NOT WORKING ##########
-################################
-
-
-### HIGH PRIORITY: NEGATION PROBLEM ###
-
-# # NOTE: only works without \neg B
-# premises = ['\\neg B','(A \\boxright B)']
-# conclusions = ['(\\neg B \\boxright \\neg A)']
-
-# # NOTE: only works without \neg A
-# premises = ['\\neg A','(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-
-# # NOTE: only works without \neg A and \neg B
-# premises = ['\\neg A','\\neg B','(A \\boxright B)','(B \\boxright C)']
-# conclusions = ['(A \\boxright C)']
-
-# # NOTE: only works without \neg A
-# premises = ['\\neg A', '(A \\boxright B)', '\\neg ((A \\wedge C) \\boxright B)']
-# conclusions = []
-
-### MEDIUM PRIORITY: NESTED COUNTERFACTUALS ###
-
-# # NOTE: this does not find models for N = 3
-# # NOTE: N = 4 ran for minutes on ssh
-# premises = ['(A \\boxright (B \\boxright C))']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-
-# # NOTE: ssh killed process
-# premises = ['(A \\boxright C)','(B \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-
-### LOW PRIORITY: MODAL EQUIVALENCE ###
-
-# # NOTE: killed in ssh
-# # K axiom (top)
-# premises = ['(\\top \\boxright (A \\rightarrow B))']
-# conclusions = ['((\\top \\boxright A) \\rightarrow (\\top \\boxright B))']
-
-# # NOTE: killed in ssh
-# # top-to-box equivalence
-# premises = ['(\\top \\boxright A)']
-# conclusions = ['\\Box A']
