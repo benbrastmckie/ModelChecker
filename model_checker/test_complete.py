@@ -8,7 +8,7 @@ import os
 import importlib.util
 import sys
 from string import Template
-from model_structure import make_model_for
+from package.model_structure import make_model_for
 
 script_template = Template("""
 '''

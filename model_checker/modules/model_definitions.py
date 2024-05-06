@@ -7,7 +7,7 @@ from z3 import (
     BitVecVal, simplify,
 )
 
-from syntax import Infix
+from .syntax import Infix
 
 def summation(n, func, start = 0):
     '''summation of i ranging from start to n of func(i)

@@ -12,3 +12,4 @@ model_checker/package/__pycache__
 model_checker/dist
 model_checker/model_checker.egg-info
 model_checker/model_checker.egg-info
+model_checker/modules/__pycache__
