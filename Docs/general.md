@@ -57,9 +57,12 @@ For learning how to use LazyGit if relevant:
 
     https://github.com/benbrastmckie/.config/blob/master/LearningGit.md
 
-### NixOS
+## Package
 
-For loading Z3 libraries with nix/nixos.
+To update the package, complete the following steps:
 
-- run `nix develop` in directory containing `flake.nix` to load shell.
+1. Increment the version number in accordance with `(major.minor.patch)`.
+2. Update the documentation to reflect any changes or new features.
+3. Rebuild the package by running `python3 -m build` in the project directory where `pyproject.toml` is located.
+4. Upload to `PyPI` by running `twine upload dist/*`
 

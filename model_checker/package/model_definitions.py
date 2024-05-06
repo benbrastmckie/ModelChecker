@@ -16,6 +16,10 @@ def summation(n, func, start = 0):
         return func(start)
     return func(start) + summation(n,func,start+1)
 
+def find_null_bit(size):
+    '''finds the null bit'''
+    return [BitVecVal(0, size)]
+
 def find_all_bits(size):
     '''extract all bitvectors from the input model
     imported by model_structure'''

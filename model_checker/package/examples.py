@@ -9,7 +9,7 @@ parent_directory = os.path.dirname(__file__)
 ################################
 
 # length of bitvectors
-N = 5
+N = 3
 
 # print all Z3 constraints if a model is found
 print_cons_bool = False
@@ -18,7 +18,7 @@ print_cons_bool = False
 print_unsat_core_bool = True
 
 # present option to append output to file
-save_bool = False
+save_bool = True
 
 
 ################################
@@ -79,12 +79,12 @@ save_bool = False
 # premises = ['(A \\boxright B)', '\\neg ((A \\wedge C) \\boxright B)', '(((A \\wedge C) \\wedge D) \\boxright B)']
 # conclusions = []
 
-# premises = ['\\Diamond A', '\\Diamond B']
-# conclusions = ['\\Diamond (A \\wedge B)']
+premises = ['\\Diamond A', '\\Diamond B']
+conclusions = ['\\Diamond (A \\wedge B)']
 
-# NOTE: ssh finds a model
-premises = ['(A \\boxright B)']
-conclusions = ['\\Box (A \\rightarrow B)']
+# # NOTE: ssh finds a model
+# premises = ['(A \\boxright B)']
+# conclusions = ['\\Box (A \\rightarrow B)']
 
 
 
