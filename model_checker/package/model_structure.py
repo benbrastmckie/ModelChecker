@@ -11,11 +11,11 @@ from z3 import (
     BoolSort,
     BitVec,
 )
-from .semantics import (
+from semantics import (
     make_constraints,
     solve_constraints,
 )
-from .model_definitions import (
+from model_definitions import (
     find_compatible_parts,
     atomic_propositions_dict,
     coproduct,
@@ -36,7 +36,7 @@ from .model_definitions import (
     is_modal,
 
 )
-from .syntax import (
+from syntax import (
     AtomSort,
     Infix,
 )
