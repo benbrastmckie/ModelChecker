@@ -21,6 +21,7 @@ from model_definitions import (
     coproduct,
     find_all_bits,
     find_max_comp_ver_parts,
+    find_null_bit,
     find_poss_bits,
     find_world_bits,
     make_set_pretty_for_print,
@@ -137,6 +138,7 @@ class ModelStructure:
         self.model_status = Uninitalized("model_status")
         self.model = Uninitalized("model")
         self.model_runtime = Uninitalized("model_runtime")
+        self.null_bit = Uninitalized("null_bit")
         self.all_bits = Uninitalized("all_bits")
         self.poss_bits = Uninitalized("poss_bits")
         self.world_bits = Uninitalized("world_bits")
@@ -165,6 +167,7 @@ class ModelStructure:
         model_total = round(model_end - model_start, 4)
         self.model_runtime = model_total
         if self.model_status:
+            self.null_bit = find_null_bit(self.N)
             self.all_bits = find_all_bits(self.N)
             self.poss_bits = find_poss_bits(self.model, self.all_bits, self.possible)
             self.world_bits = find_world_bits(self.poss_bits)
@@ -180,8 +183,10 @@ class ModelStructure:
                                             for ext_subsent in self.extensional_subsentences]
             self.counterfactual_propositions = [Counterfactual(cf_subsent, self, self.eval_world)
                                             for cf_subsent in self.counterfactual_subsentences]
-            self.modal_propositions = [Modal(modal_subsent, self, self.eval_world)
-                                            for modal_subsent in self.modal_subsentences]
+            self.modal_propositions = [
+                Modal(modal_subsent, self, self.eval_world)
+                for modal_subsent in self.modal_subsentences
+            ]
             self.all_propositions = (self.extensional_propositions +
                                      self.counterfactual_propositions + self.modal_propositions)
             self.input_propositions = self.find_input_propositions()
@@ -425,6 +430,7 @@ class ModelStructure:
         prefix_expr = prop["prefix expression"]
         op = prefix_expr[0]
         first_subprop = self.find_proposition_object(prefix_expr[1])
+        # print(f"TEST: {self.find_proposition_object(prefix_expr[1])}")
         if "neg" in op:
             indent_num += 1
             self.rec_print(first_subprop, current_world, output, indent_num)
@@ -436,8 +442,13 @@ class ModelStructure:
             return
         # if 'Box' in op:
         #     indent_num += 1
+        #     if self.evaluate_modal_expr(prefix_expr):
+        #         self.rec_print(first_subprop, current_world, output, indent_num)
+        #     # modal_prop = self.find_complex_proposition(prefix_expr) 
         #     for u in self.world_bits:
-        #         self.rec_print(first_subprop, u, output, indent_num)
+        #         self.rec_print(first_subprop, current_world, output, indent_num)
+        #         if 
+        #             self.rec_print(first_subprop, u, output, indent_num)
         #     return
         left_subprop = first_subprop
         right_subprop = self.find_proposition_object(prefix_expr[2])
@@ -469,7 +480,7 @@ class ModelStructure:
         # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
         # for input_prop in self.input_propositions:
         for index, input_prop in enumerate(self.input_propositions, start=1):
-            print(f"{index}.", end="")
+            print(f"{index}.", end="", file=output)
             self.rec_print(input_prop, initial_eval_world, output, 1)
             print(file=output)
 
