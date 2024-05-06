@@ -8,7 +8,7 @@ import os
 import importlib.util
 import sys
 from string import Template
-from model_structure import make_model_for
+from .model_structure import make_model_for
 
 script_template = Template("""
 '''
@@ -139,8 +139,8 @@ def generate_test(name):
     with open(output_file_path, 'w', encoding="utf-8") as f:
         f.write(script_content)
     print(f"\nThe {name}.py file has been created.")
-    print("You can run this file with the command:")
-    print(f"python3 test_complete.py {name}.py")
+    print("You can run this file with the command:\n")
+    print(f"model-checker {name}.py\n")
 
 def ask_generate_test():
     """prompt user to create a test file"""
@@ -150,7 +150,7 @@ def ask_generate_test():
         generate_test(test_name)
         return
     print("You can run a test.py file that already exists with the command:\n")
-    print("python3 test_complete.py test.py\n")
+    print("model-checker test.py\n")
 
 def main():
     """load a test or generate a test when run without input"""
