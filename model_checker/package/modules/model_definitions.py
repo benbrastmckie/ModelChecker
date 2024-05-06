@@ -4,7 +4,8 @@ file contains all definitions for defining the model structure
 
 import sys
 from z3 import (
-    BitVecVal, simplify,
+    BitVecVal,
+    simplify,
 )
 
 from .syntax import Infix
