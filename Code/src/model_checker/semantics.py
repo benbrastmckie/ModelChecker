@@ -15,7 +15,7 @@ from z3 import (
     And,
     BitVec,
 )
-from syntax import Prefix
+from .syntax import Prefix
 
 # from sympy import symbols, Or, And, Implies, Not, to_cnf
 

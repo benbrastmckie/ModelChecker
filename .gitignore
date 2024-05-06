@@ -15,3 +15,7 @@ model_checker/model_checker.egg-info
 model_checker/modules/__pycache__
 model_checker/examples/__pycache__
 model_checker/package/modules/__pycache__
+Code/dist
+Code/examples/__pycache__
+Code/src/model_checker/__pycache__
+Code/src/model_checker.egg-info

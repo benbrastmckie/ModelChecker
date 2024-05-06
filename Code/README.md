@@ -7,9 +7,10 @@ This project aims to develop tools for proving theorems and finding countermodel
 Install [Python 3](https://www.python.org/downloads/) and run the following commands in the terminal:
 
 ```
-pip install z3-solver
 pip install model-checker
 ```
+
+The package has `z3-solver` as a dependency.
 
 ## Examples
 
