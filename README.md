@@ -20,6 +20,7 @@ pip install z3-solver
 ## Instructions
 
 NOTE: These instructions have been written so as not to presume any prior experience working in the terminal.
+Experienced users can skip to the [following section](##Hyperintensional-Semantics).
 
 ### Navigation
 
@@ -43,12 +44,17 @@ Optionally, the user can specify whether to print the Z3 constraints when a mode
 Files can be edited with your choice of text editor, e.g., run `vim test_file.py` to edit the file in the terminal.
 It may be convenient to open a terminal for running the file in addition to a terminal/editor for making changes to the file.
 
-## Semantics
+## Hyperintensional Semantics
+
+This section provides an outline of the underlying semantics along with links to further information. 
+
+### Counterfactual Conditionals
+
+The language currently includes operators for the counterfactual conditional `boxright`, modal operators for necessity `Box` and possibility `Diamond`, and the extensional operators for conjunction `wedge`, disjunction `vee`, material conditional `rightarrow`, material biconditional `leftrightarrow`, and negation `neg`.
+
+### State Semantics
 
 The semantics included is hyperintensional insofar as sentences are evaluated at states which may be partial rather than total as in intensional semantic theories.
 States are modeled by bitvectors (e.g., `#b00101`) of a specified length, where state fusion is modeled by the bitwise OR operator `|`.
 
-## Syntax
-
-The language currently includes operators for the counterfactual conditional `boxright`, modal operators for necessity `Box` and possibility `Diamond`, and the extensional operators for conjunction `wedge`, disjunction `vee`, material conditional `rightarrow`, material biconditional `leftrightarrow`, and negation `neg`.
-
+### Code Architecture

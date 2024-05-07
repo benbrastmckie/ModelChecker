@@ -23,4 +23,4 @@ A number of [examples](https://github.com/benbrastmckie/ModelChecker/blob/master
 
 Each file must specify a set of `premises` which are treated conjunctively, `conclusions` which are treated disjunctively, and the number `N` of atomic states to include in each model.
 
-Optionally, the user can specify whether to print the Z3 constraints when a model is found, or the unsatisfiable core when no model exists.
+Optionally, the user can specify whether to print the Z3 constraints when a model is found, or the unsatisfiable core when no model exists, as well as an option to save the output.

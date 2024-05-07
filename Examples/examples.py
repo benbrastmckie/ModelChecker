@@ -18,7 +18,7 @@ print_cons_bool = False
 print_unsat_core_bool = True
 
 # present option to append output to file
-save_bool = True
+save_bool = False
 
 
 ################################
@@ -27,12 +27,6 @@ save_bool = True
 
 
 ### INVALID ###
-
-# premises = []
-# conclusions = []
-
-# premises = ['A']
-# conclusions = []
 
 # premises = ['\\neg A','(A \\boxright (B \\vee C))']
 # conclusions = ['(A \\boxright B)','(A \\boxright C)']
@@ -85,14 +79,6 @@ conclusions = ['\\Diamond (A \\wedge B)']
 # # NOTE: ssh finds a model
 # premises = ['(A \\boxright B)']
 # conclusions = ['\\Box (A \\rightarrow B)']
-
-
-
-
-
-
-
-
 
 
 
@@ -182,18 +168,6 @@ conclusions = ['\\Diamond (A \\wedge B)']
 
 # premises = ['\\Box (A \\rightarrow B)']
 # conclusions = ['(A \\boxright B)']
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
