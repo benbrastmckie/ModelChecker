@@ -125,7 +125,7 @@ class LoadModule:
             spec.loader.exec_module(module)
             return module
         except Exception as e:
-            raise ImportError(f"Failed to load the module '{self.module_name}': {e}")
+            raise ImportError(f"Failed to load the module '{self.module_name}': {e}") from e
 
     def validate_attributes(self):
         required_attrs = ["N", "premises", "conclusions"]
