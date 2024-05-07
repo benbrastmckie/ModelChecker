@@ -8,8 +8,8 @@ import argparse
 import importlib.util
 import sys
 import os
-from .model_structure import make_model_for
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from model_structure import make_model_for
+# from model_checker.model_structure import make_model_for # for packaging
 
 script_template = Template("""
 '''

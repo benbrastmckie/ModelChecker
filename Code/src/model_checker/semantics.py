@@ -15,7 +15,8 @@ from z3 import (
     And,
     BitVec,
 )
-from .syntax import Prefix
+from syntax import Prefix
+# from model_checker.syntax import Prefix # for packaging
 
 # from sympy import symbols, Or, And, Implies, Not, to_cnf
 
@@ -44,25 +45,25 @@ def make_constraints(verify, falsify, possible, assign, N, w):
     returns a function find_all_constraints that is used to find the constraints, the sentence letters,
     and prefix sentences.. 
     '''
-    def non_null_verify(bit_s, atom):
-        """bit_s verifies atom and is not the null state
-        returns a Z3 constraint"""
-        return And(Not(bit_s == 0), verify(bit_s, atom))
-
-    def non_null_falsify(bit_s, atom):
-        """bit_s verifies atom and is not the null state
-        returns a Z3 constraint"""
-        return And(Not(bit_s == 0), falsify(bit_s, atom))
-
-    def non_triv_verify(bit_s, atom):
-        """bit_s verifies atom and is not the null state
-        returns a Z3 constraint"""
-        return And(non_null_verify(bit_s, atom), possible(bit_s))
-
-    def non_triv_falsify(bit_s, atom):
-        """bit_s verifies atom and is not the null state
-        returns a Z3 constraint"""
-        return And(non_null_falsify(bit_s, atom), possible(bit_s))
+    # def non_null_verify(bit_s, atom):
+    #     """bit_s verifies atom and is not the null state
+    #     returns a Z3 constraint"""
+    #     return And(Not(bit_s == 0), verify(bit_s, atom))
+    #
+    # def non_null_falsify(bit_s, atom):
+    #     """bit_s verifies atom and is not the null state
+    #     returns a Z3 constraint"""
+    #     return And(Not(bit_s == 0), falsify(bit_s, atom))
+    #
+    # def non_triv_verify(bit_s, atom):
+    #     """bit_s verifies atom and is not the null state
+    #     returns a Z3 constraint"""
+    #     return And(non_null_verify(bit_s, atom), possible(bit_s))
+    #
+    # def non_triv_falsify(bit_s, atom):
+    #     """bit_s verifies atom and is not the null state
+    #     returns a Z3 constraint"""
+    #     return And(non_null_falsify(bit_s, atom), possible(bit_s))
 
     def fusion(bit_s, bit_t):
         """the result of taking the maximum for each index in bit_s and bit_t
@@ -233,11 +234,11 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         returns a Z3 constraint"""
         x = BitVec("t_dummy_x", N)
         u = BitVec("t_dummy_u", N)
-        y = BitVec("t_dummy_y", N)
+        # y = BitVec("t_dummy_y", N)
         if len(sentence) == 1:
             sent = sentence[0]
             if 'top' in str(sent)[0]:
-                raise ValueError('This is raised in principle when top is a proposition. @B, what should we do?')
+                raise ValueError('This is raised in principle when top is a proposition.')
                 # if top is a sentence letter, its constraint is already in the model.
                 # It wouldn't hurt to add it again I think in principle, but if there's something
                 # else that should go here when top is passed in by itself then it would go here
