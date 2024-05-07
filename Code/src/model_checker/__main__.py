@@ -37,7 +37,38 @@ save_bool = False
 use_constraints_bool = False
 
 ################################
-########### ARGUMENT ###########
+############ SYNTAX ############
+################################
+
+### SENTENCES ###
+
+# 'A', 'B', 'C',... can be used for sentence letters
+
+# Alternatively, 'RedBall', 'MarySings',... can be used for sentence letters.
+
+# 'top' is a designated sentence for the trivial truth verified by everything and falsified by nothing.
+
+
+### UNARY OPERATORS ###
+
+# Negation: 'neg', e.g., 'neg A'.
+# Necessity: 'Box', e.g., 'Box A'.
+# Possibility: 'Diamond', e.g., 'Diamond RedBall'. 
+
+
+### BINARY OPERATORS ###
+
+# Conjunction: 'wedge', e.g., '(A wedge B)'
+# Disjunction: 'vee', e.g., '(A vee B)'
+# Conditional: 'rightarrow', e.g., '(A rightarrow B)'
+# Biconditional: 'leftrightarrow', e.g., '(A leftrightarrow B)'
+# Counterfactual: 'boxright', e.g., '(A boxright B)' where 'A' cannot include 'Box', 'Diamond', or 'boxright'.
+
+# NOTE: parentheses must always be included for binary operators.
+
+
+################################
+########## ARGUMENTS ###########
 ################################
 
 ### INVALID ###
