@@ -6,12 +6,12 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [x] create package v0.1
 - [x] submit to pip installer
-- [ ] release v0.2
-  - [x] include general print algorithm
+- [:] release v0.2
   - [ ] expose and test package commands
-  - [ ] change execution instructions once the package is working
-  - [ ] include help in template output
-  - [ ] document package release protocols
+  - [x] include general print algorithm
+  - [x] change execution instructions once the package is working
+  - [x] include help in template output
+  - [x] document package release protocols
 
 ## Print
 
