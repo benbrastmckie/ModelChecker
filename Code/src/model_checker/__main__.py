@@ -3,12 +3,13 @@ file specifies premises, conclusions, and settings.
 running the file finds a model and prints the result.
 '''
 
+from string import Template
 import argparse
-import os
 import importlib.util
 import sys
-from string import Template
+import os
 from .model_structure import make_model_for
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 script_template = Template("""
 '''
