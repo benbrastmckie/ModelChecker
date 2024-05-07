@@ -19,3 +19,4 @@ Code/dist
 Code/examples/__pycache__
 Code/src/model_checker/__pycache__
 Code/src/model_checker.egg-info
+Code/src/model_checker/.pylintrc
