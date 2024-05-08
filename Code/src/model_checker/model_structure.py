@@ -413,21 +413,27 @@ class ModelStructure:
             print(f"{index}. {con}\n", file=output)
             # print(f"Constraints time: {time}\n")
 
-    def rec_print(self, prop, current_world, output, indent=0):
+    def rec_print(self, prop, world_bit, output, indent=0):
         """recursive print function (previously print_sort)
         returns None"""
         N = self.N
         indent_num = indent
-        substate_current_world = bitvec_to_substates(current_world, N)
+        world_state = bitvec_to_substates(world_bit, N)
+        # TODO: rename comparison world to "main world"
+        # B: isn't the below the same as just updating automatically?
+        # B: I'm confused why this update is needed and worried it might lose
+        # information, i.e., which one the main world is which should be stored
+        # in the ModelStructure and stay there
+        # B: can't the eval
         substate_prop_comp_world = bitvec_to_substates(prop["comparison world"], N)
-        if substate_prop_comp_world != substate_current_world:
-            prop.update_comparison_world(current_world)
+        if substate_prop_comp_world != world_state:
+            prop.update_comparison_world(world_bit)
         if str(prop) in [str(atom) for atom in self.sentence_letters]:
-            prop.print_verifiers_and_falsifiers(current_world, indent_num, output)
+            prop.print_verifiers_and_falsifiers(world_bit, indent_num, output)
             return
         print(
-            f"{'  ' * indent_num}{prop}  ({prop.truth_value_at(current_world)} in "
-            f"{bitvec_to_substates(current_world, N)})",
+            f"{'  ' * indent_num}{prop}  ({prop.truth_value_at(world_bit)} in "
+            f"{bitvec_to_substates(world_bit, N)})",
             file=output
         )
         prefix_expr = prop["prefix expression"]
@@ -436,7 +442,7 @@ class ModelStructure:
         # print(f"TEST: {self.find_proposition_object(prefix_expr[1])}")
         if "neg" in op:
             indent_num += 1
-            self.rec_print(first_subprop, current_world, output, indent_num)
+            self.rec_print(first_subprop, world_bit, output, indent_num)
             return
         if 'Diamond' in op or 'Box' in op:
             indent_num += 1
@@ -460,11 +466,11 @@ class ModelStructure:
             assert (
                 left_subprop in self.extensional_propositions
             ), "{prop} not a valid cf because antecedent {left_subprop} is not extensional"
-            self.rec_print(left_subprop, current_world, output, indent_num)
+            self.rec_print(left_subprop, world_bit, output, indent_num)
             alt_worlds = {bitvec_to_substates(u,N) for u in left_subprop["alternative worlds"]}
             print(
                 f'{"  " * indent_num}'
-                f'{left_subprop}-alternatives to {bitvec_to_substates(current_world, N)} = '
+                f'{left_subprop}-alternatives to {bitvec_to_substates(world_bit, N)} = '
                 f'{make_set_pretty_for_print(alt_worlds)}',
                 file=output
             )
@@ -473,8 +479,8 @@ class ModelStructure:
                 self.rec_print(right_subprop, u, output, indent_num)
         else:
             indent_num += 1
-            self.rec_print(left_subprop, current_world, output, indent_num)
-            self.rec_print(right_subprop, current_world, output, indent_num)
+            self.rec_print(left_subprop, world_bit, output, indent_num)
+            self.rec_print(right_subprop, world_bit, output, indent_num)
 
     def print_inputs_recursively(self, output):
         """does rec_print for every proposition in the input propositions
