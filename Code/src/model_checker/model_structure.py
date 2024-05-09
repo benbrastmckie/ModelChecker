@@ -209,23 +209,23 @@ class ModelStructure:
                         break  # to return to the second for loop over world_bits
         return alt_bits
 
-    def evaluate_modal_expr(self, prefix_modal):
+    def evaluate_modal_expr(self, prefix_modal, eval_world):
         '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
         used to initialize Counterfactuals
         returns a bool representing whether the counterfactual is true at the world or not'''
         op, argument = prefix_modal[0], prefix_modal[1]
         if is_modal(argument):
-            if self.evaluate_modal_expr(prefix_modal) is True: # ie, verifiers is all worlds
+            if self.evaluate_modal_expr(prefix_modal, eval_world) is True: # ie, verifiers is all worlds
                 return True # both Box and Diamond will return true, since verifiers is not empty
             return False
         if 'Diamond' in op:
             for world in self.world_bits:
-                if world in self.find_complex_proposition(argument)[0]:
+                if world in self.find_complex_proposition(argument, eval_world)[0]:
                     return True
             return False
         if 'Box' in op:
             for world in self.world_bits:
-                if world not in self.find_complex_proposition(argument)[0]:
+                if world not in self.find_complex_proposition(argument, eval_world)[0]:
                     return False
             return True
 
@@ -249,7 +249,7 @@ class ModelStructure:
                 return False
         return True
 
-    def find_complex_proposition(self, complex_sentence):
+    def find_complex_proposition(self, complex_sentence, eval_world):
         """sentence is a sentence in prefix notation
         For a given complex proposition, returns the verifiers and falsifiers of that proposition
         given a solved model
@@ -265,23 +265,23 @@ class ModelStructure:
         op = complex_sentence[0]
         Y = complex_sentence[1]
         if "neg" in op:
-            Y_V = self.find_complex_proposition(Y)[0]
-            Y_F = self.find_complex_proposition(Y)[1]
+            Y_V = self.find_complex_proposition(Y, eval_world)[0]
+            Y_F = self.find_complex_proposition(Y, eval_world)[1]
             return (Y_F, Y_V)
         null_state = {BitVecVal(0,self.N)}
         if 'Box' in op:
-            if not self.evaluate_modal_expr(complex_sentence):
+            if not self.evaluate_modal_expr(complex_sentence, eval_world):
                 return (set(), null_state)
             return (null_state, set())
         if 'Diamond' in op:
-            if self.evaluate_modal_expr(complex_sentence):
+            if self.evaluate_modal_expr(complex_sentence, eval_world):
                 return (set(), null_state)
             return (null_state, set())
         Z = complex_sentence[2]
-        Y_V = self.find_complex_proposition(Y)[0]
-        Y_F = self.find_complex_proposition(Y)[1]
-        Z_V = self.find_complex_proposition(Z)[0]
-        Z_F = self.find_complex_proposition(Z)[1]
+        Y_V = self.find_complex_proposition(Y, eval_world)[0]
+        Y_F = self.find_complex_proposition(Y, eval_world)[1]
+        Z_V = self.find_complex_proposition(Z, eval_world)[0]
+        Z_F = self.find_complex_proposition(Z, eval_world)[1]
         if "wedge" in op:
             return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
         if "vee" in op:
@@ -294,17 +294,17 @@ class ModelStructure:
         if "rightarrow" in op:
             return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
         if "boxright" in op:
-            # if self.evaluate_cf_expr(complex_sentence):
-            #     return (null_state, set())
-            # return (set(), null_state)
+            if self.evaluate_cf_expr(complex_sentence, eval_world):
+                return (null_state, set())
+            return (set(), null_state)
             # worlds_true_at = {world for world in self.world_bits if self.evaluate_cf_expr(complex_sentence, world)}
-            worlds_true_at, worlds_false_at = set(), set()
-            for world in self.world_bits:
-                if self.evaluate_cf_expr(complex_sentence, world):
-                    worlds_true_at.add(world)
-                    continue
-                worlds_false_at.add(world)
-            return (worlds_true_at, worlds_false_at)
+            # worlds_true_at, worlds_false_at = set(), set()
+            # for world in self.world_bits:
+            #     if self.evaluate_cf_expr(complex_sentence, world):
+            #         worlds_true_at.add(world)
+            #         continue
+            #     worlds_false_at.add(world)
+            # return (worlds_true_at, worlds_false_at)
         raise ValueError(f"Don't know how to handle {op} operator")
 
     def find_proposition_object(self, prefix_expression, ext_only=False):
@@ -389,7 +389,7 @@ class ModelStructure:
             false_eval_list = sorted([str(sent) for sent in false_in_eval])
             false_eval_string = ", ".join(false_eval_list)
             print(
-                f"  {false_eval_string}  (Not true in {bitvec_to_substates(self.main_world, N)})",
+                f"  {false_eval_string}  (False in {bitvec_to_substates(self.main_world, N)})",
                 file=output,
             )
         print(file=output)
@@ -542,13 +542,13 @@ class Proposition:
     has two subclasses Extensional and Counterfactual—Counterfactual is a Proposition
     subclass to make stuff easier"""
 
-    def __init__(self, prefix_expr, model_structure, world):
+    def __init__(self, prefix_expr, model_structure, eval_world):
         """prefix_expr is a prefix expression. model is a ModelStructure"""
         self.prop_dict = {}
         # self.prop_dict["input world"] = world
         self.prop_dict["prefix expression"] = prefix_expr
         self.parent_model_structure = model_structure
-        (verifiers, falsifiers) = model_structure.find_complex_proposition(prefix_expr)
+        (verifiers, falsifiers) = model_structure.find_complex_proposition(prefix_expr, eval_world)
         # for CFs, verifiers are worlds true at and falsifiers are worlds not true at
         # for modals, same as CFs, except it is either all worlds or no worlds in each
         self.prop_dict["verifiers"] = verifiers
@@ -735,10 +735,10 @@ class Counterfactual(Proposition):
 
 class Modal(Proposition):
     '''subclass of Proposition for modals'''
-    def __init__(self, prefix_expr, model_structure, world):
-        super().__init__(prefix_expr, model_structure, world)
+    def __init__(self, prefix_expr, model_structure, eval_world):
+        super().__init__(prefix_expr, model_structure, eval_world)
         arg = prefix_expr[1]
-        arg_worlds, non_arg_worlds = self.parent_model_structure.find_complex_proposition(arg)
+        arg_worlds, non_arg_worlds = self.parent_model_structure.find_complex_proposition(arg, eval_world)
         self['arg worlds'] = arg_worlds
         self['non arg worlds'] = non_arg_worlds
 
