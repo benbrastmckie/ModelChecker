@@ -30,7 +30,8 @@ If you do not know the full path, you can change directory one step at a time, r
 
 Alternatively, if you are on MacOS, write `cd` followed by a space in the terminal but do not hit return.
 Then you can open the desired project directory in Finder, dragging the Finder window onto the terminal.
-This should paste the path into the terminal, and so you can now hit return.
+This should paste the path into the terminal.
+You can now hit return to change to the desired directory.
 
 ### Generate Test
 
@@ -55,7 +56,7 @@ The language currently includes operators for the counterfactual conditional `bo
 ### State Semantics
 
 The semantics included is hyperintensional insofar as sentences are evaluated at states which may be partial rather than total as in intensional semantic theories.
-States are modeled by bitvectors (e.g., `#b00101`) of a specified length, where state fusion is modeled by the bitwise OR operator `|`.
+States are modeled by bitvectors of a specified length (e.g., `#b00101` has length `5`), where state fusion is modeled by the bitwise OR operator `|`.
 For instance, `#b00101 | #b11001 = #b11101`.
 The _atomic states_ have exactly one occurrence of `1` and the _null state_ has no occurrences of `1`.
 The space of states is closed under fusion and finite.
