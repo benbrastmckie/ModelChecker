@@ -404,13 +404,13 @@ class ModelStructure:
         N = self.N
         indent_num = indent
         world_state = bitvec_to_substates(world_bit, N)
-        # TODO: rename input world to "input world"
+        # TODO: rename input world to "designated world"
         # B: isn't the below the same as just updating automatically?
         # B: I'm confused why this update is needed and worried it might lose
         # information, i.e., which one the main world is which should be stored
         # in the ModelStructure and stay there
         # B: can't the eval
-        input_world_state = bitvec_to_substates(prop_obj["input world"], N)
+        input_world_state = bitvec_to_substates(prop_obj["designated world"], N)
         if input_world_state != world_state:
             prop_obj.update_comparison_world(world_bit)
         if str(prop_obj) in [str(atom) for atom in self.sentence_letters]:
@@ -557,7 +557,7 @@ class Proposition:
     def __init__(self, prefix_expr, model_structure, world):
         """prefix_expr is a prefix expression. model is a ModelStructure"""
         self.prop_dict = {}
-        self.prop_dict["input world"] = world
+        self.prop_dict["designated world"] = world
         self.prop_dict["prefix expression"] = prefix_expr
         self.parent_model_structure = model_structure
         (
@@ -570,17 +570,17 @@ class Proposition:
         self.prop_dict["falsifiers"] = falsifiers_in_model
 
     def update_comparison_world(self, new_world):
-        """updates the input world (which is a BitVecVal) to a new one; updates
+        """updates the designated world (which is a BitVecVal) to a new one; updates
         the alt worlds based on that
         returns None"""
-        if new_world == self["input world"]:
+        if new_world == self["designated world"]:
             return
         model_structure = self.parent_model_structure
         if isinstance(self, Extensional):
             self["alternative worlds"] = model_structure.find_alt_bits(
                 self["verifiers"], new_world
             )
-        self["input world"] = new_world
+        self["designated world"] = new_world
 
     def __setitem__(self, key, value):
         self.prop_dict[key] = value
@@ -708,7 +708,7 @@ class Extensional(Proposition):
     #     is called, that the proposition has the proper input world before calling the function
     #     """
     #     N = self.parent_model_structure.N
-    #     input_world = self["input world"]
+    #     input_world = self["designated world"]
     #     # model = self.parent_model_structure.model  # ModelRef object (unused)
     #     alt_worlds = {bitvec_to_substates(alt, N) for alt in self["alternative worlds"]}
     #     if alt_worlds:
