@@ -268,14 +268,15 @@ class ModelStructure:
             Y_V = self.find_complex_proposition(Y)[0]
             Y_F = self.find_complex_proposition(Y)[1]
             return (Y_F, Y_V)
+        null_state = {BitVecVal(0,self.N)}
         if 'Box' in op:
             if not self.evaluate_modal_expr(complex_sentence):
-                return (set(), {BitVecVal(0,self.N)}) # BitVecVal(0,self.N) is the null state
-            return ({BitVecVal(0,self.N)}, set())
+                return (set(), null_state) # BitVecVal(0,self.N) is the null state
+            return (null_state, set())
         if 'Diamond' in op:
             if self.evaluate_modal_expr(complex_sentence):
-                return (set(self.world_bits), set())
-            return (set(), set(self.world_bits))
+                return (set(), null_state) # BitVecVal(0,self.N) is the null state
+            return (null_state, set())
         Z = complex_sentence[2]
         Y_V = self.find_complex_proposition(Y)[0]
         Y_F = self.find_complex_proposition(Y)[1]
@@ -292,9 +293,6 @@ class ModelStructure:
             )
         if "rightarrow" in op:
             return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
-        # NOTE: could assign the sentence to the worlds which make the
-        # counterfactual true in this final case. should probably call another
-        # function here which finds that set of worlds if we go this route.
         if "boxright" in op:
             # worlds_true_at = {world for world in self.world_bits if self.evaluate_cf_expr(complex_sentence, world)}
             worlds_true_at, worlds_false_at = set(), set()
@@ -345,23 +343,21 @@ class ModelStructure:
             )
             if bit in self.world_bits:
                 print(f"  {bin_rep} = {state} (world)", file=output)
-            # invalid conditional operand band-aid fixed with bool
-            # TODO: linter error: Cannot access member "evaluate" for type "AstVector"    Member "evalutate" is unknown
-            elif bool(self.model.evaluate(self.possible(bit))):
-                # NOTE: the following comments are to debug
-                # result = self.model.evaluate(possible(bit))
-                # print(type(result))  # Debug to confirm it's a Boolean
-                # result_bool = bool(self.model.evaluate(possible(bit)))
-                # print(type(result_bool))  # Debug to confirm it's a Boolean
+                continue
+            # NOTE: can probably delete the line below
+            # elif bool(self.model.evaluate(self.possible(bit))):
+            if bit in self.poss_bits:
                 print(f"  {bin_rep} = {state}", file=output)
-            else:
-                # print(f"  {bin_rep} = {state} (impossible)")
                 continue
 
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences true/false in that world
         sentence letters is a list
         second print function in print.py"""
+        # TODO: all this seems to do is print the sentences true/false in each world.
+        # can this be simplified? might it make sense to store sentence letters true
+        # at the designated world and the sentence letters false at the designated
+        # world in the class? then those could be easily called here.
         N = self.N
         print(
             f"\nThe evaluation world is {bitvec_to_substates(self.main_world, N)}:",
@@ -371,6 +367,7 @@ class ModelStructure:
         for sent in self.sentence_letters:
             # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
             for bit in self.all_bits:
+                # TODO: linter error: expected 0 positional arguments
                 ver_bool = self.verify(bit, self.model[sent])
                 part_bool = bit_part(bit, self.main_world)
                 # TODO: linter error: invalid conditional operand band-aid fixed with bool
