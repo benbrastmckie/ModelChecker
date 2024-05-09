@@ -18,7 +18,7 @@ print_cons_bool = False
 print_unsat_core_bool = True
 
 # present option to append output to file
-save_bool = True
+save_bool = False
 
 
 ################################
@@ -28,8 +28,8 @@ save_bool = True
 
 ### INVALID ###
 
-# premises = ['\\neg A','(A boxright (B vee C))']
-# conclusions = ['(A boxright B)','(A boxright C)']
+premises = ['\\neg A','(A boxright (B vee C))']
+conclusions = ['(A boxright B)','(A boxright C)']
 
 # # NOTE: if null verifiers are permitted, then null state verifies A
 # # but possible state c does not?
