@@ -82,6 +82,11 @@ class Uninitalized:
         raise AttributeError(
             f"cannot iterate through {self.name} because it isnt initialized"
         )
+    
+    def __getitem__(self):
+        raise AttributeError(
+            f"cannot get an item from {self.name} because it isnt initialized"
+        )
 
     def __str__(self):
         return f"{self.name} (uninitialized)"
@@ -130,7 +135,7 @@ class ModelStructure:
         self.all_bits = Uninitalized("all_bits")
         self.poss_bits = Uninitalized("poss_bits")
         self.world_bits = Uninitalized("world_bits")
-        self.eval_world = Uninitalized("eval_world")
+        self.main_world = Uninitalized("eval_world")
         self.atomic_props_dict = Uninitalized("atomic_props_dict")
         self.extensional_propositions = Uninitalized("extensional_propositions")
         self.modal_propositions = Uninitalized("modal_propositions")
@@ -145,7 +150,7 @@ class ModelStructure:
         self.all_bits is a list of all bits (each of sort BitVecVal)
         self.poss_bits is a list of all possible bits
         self.world_bits is a lsit of all world bits
-        self.eval_world is the eval world (as a BitVecVal)
+        self.main_world is the eval world (as a BitVecVal)
         self.atomic_props_dict is a dictionary with keys AtomSorts and keys (V,F)
         """
         model_start = time.time()  # start benchmark timer
@@ -160,7 +165,7 @@ class ModelStructure:
             self.all_bits = find_all_bits(self.N)
             self.poss_bits = find_poss_bits(self.model, self.all_bits, self.possible)
             self.world_bits = find_world_bits(self.poss_bits)
-            self.eval_world = self.model[self.w]
+            self.main_world = self.model[self.w]
             self.atomic_props_dict = atomic_propositions_dict(
                 self.all_bits,
                 self.sentence_letters,
@@ -168,12 +173,12 @@ class ModelStructure:
                 self.verify,
                 self.falsify,
             )
-            self.extensional_propositions = [Extensional(ext_subsent, self, self.eval_world)
+            self.extensional_propositions = [Extensional(ext_subsent, self, self.main_world)
                                             for ext_subsent in self.extensional_subsentences]
-            self.counterfactual_propositions = [Counterfactual(cf_subsent, self, self.eval_world)
+            self.counterfactual_propositions = [Counterfactual(cf_subsent, self, self.main_world)
                                             for cf_subsent in self.counterfactual_subsentences]
             self.modal_propositions = [
-                Modal(modal_subsent, self, self.eval_world)
+                Modal(modal_subsent, self, self.main_world)
                 for modal_subsent in self.modal_subsentences
             ]
             self.all_propositions = (self.extensional_propositions +
@@ -188,7 +193,7 @@ class ModelStructure:
         class attribute update_comparison_world().
         """
         if comparison_world is None:
-            comparison_world = self.eval_world
+            comparison_world = self.main_world
         alt_bits = set()
         for ver in proposition_verifier_bits:
             comp_parts = find_compatible_parts(ver, self.poss_bits, comparison_world)
@@ -257,7 +262,6 @@ class ModelStructure:
             )
         if len(complex_sentence) == 1:
             sent = complex_sentence[0]
-            # TODO: linter error: "__getitem__" method not defined on type "Uninitalized"
             return self.atomic_props_dict[sent]
         op = complex_sentence[0]
         Y = complex_sentence[1]
@@ -361,16 +365,15 @@ class ModelStructure:
         second print function in print.py"""
         N = self.N
         print(
-            f"\nThe evaluation world is {bitvec_to_substates(self.eval_world, N)}:",
+            f"\nThe evaluation world is {bitvec_to_substates(self.main_world, N)}:",
             file=output,
         )
         true_in_eval = set()
         for sent in self.sentence_letters:
             # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
             for bit in self.all_bits:
-                # TODO: linter error: "__getitem__" method not defined on type "Uninitalized"
                 ver_bool = self.verify(bit, self.model[sent])
-                part_bool = bit_part(bit, self.eval_world)
+                part_bool = bit_part(bit, self.main_world)
                 # TODO: linter error: invalid conditional operand band-aid fixed with bool
                 if bool(self.model.evaluate(ver_bool) and part_bool):
                     true_in_eval.add(sent)
@@ -380,14 +383,14 @@ class ModelStructure:
             true_eval_list = sorted([str(sent) for sent in true_in_eval])
             true_eval_string = ", ".join(true_eval_list)
             print(
-                f"  {true_eval_string}  (True in {bitvec_to_substates(self.eval_world, N)})",
+                f"  {true_eval_string}  (True in {bitvec_to_substates(self.main_world, N)})",
                 file=output,
             )
         if false_in_eval:
             false_eval_list = sorted([str(sent) for sent in false_in_eval])
             false_eval_string = ", ".join(false_eval_list)
             print(
-                f"  {false_eval_string}  (Not true in {bitvec_to_substates(self.eval_world, N)})",
+                f"  {false_eval_string}  (Not true in {bitvec_to_substates(self.main_world, N)})",
                 file=output,
             )
         print(file=output)
@@ -470,9 +473,7 @@ class ModelStructure:
     def print_inputs_recursively(self, output):
         """does rec_print for every proposition in the input propositions
         returns None"""
-        initial_eval_world = self.eval_world
-        # TODO: linter error: "Uninitalized" is not iterable   "__iter__" method does not return an object
-        # for input_prop in self.input_propositions:
+        initial_eval_world = self.main_world
         for index, input_prop in enumerate(self.input_propositions, start=1):
             print(f"{index}.", end="", file=output)
             self.rec_print(input_prop, initial_eval_world, output, 1)
@@ -760,7 +761,7 @@ class Modal(Proposition):
 
 def make_model_for(N):
     """
-    input: N
+    input: N (int of number of atomic states you want in the model)
     returns a function that will solve the premises and conclusions"""
 
     def make_relations_and_solve(premises, conclusions):
