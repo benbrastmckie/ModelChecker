@@ -32,7 +32,9 @@ The semantics included is hyperintensional insofar as sentences are evaluated at
 States are modeled by bitvectors (e.g., `#b00101`) of a specified length, where state fusion is modeled by the bitwise OR operator `|`.
 States are named by lowercase letters for the sake of printing readable countermodels.
 
-More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker). For the background hyperintensional theory, see this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w).
+More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker). 
+The hyperintensional semantic theory for counterfactual conditionals is motivated and elaborated in this [draft](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf).
+For the background hyperintensional theory of propositions, see this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w).
 
 ## Syntax
 

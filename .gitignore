@@ -4,7 +4,6 @@
 *.fdb_latexmk
 *.fls
 *.log
-*.pdf
 *.synctex.gz
 Code/__pycache__
 Examples/__pycache__
@@ -20,3 +19,4 @@ Code/examples/__pycache__
 Code/src/model_checker/__pycache__
 Code/src/model_checker.egg-info
 Code/src/model_checker/.pylintrc
+Overview/Overview.pdf
