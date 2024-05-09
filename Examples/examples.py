@@ -28,8 +28,9 @@ save_bool = False
 
 ### INVALID ###
 
-premises = ['\\neg A','(A boxright (B vee C))']
-conclusions = ['(A boxright B)','(A boxright C)']
+
+# premises = ['neg A','(A boxright (B vee C))']
+# conclusions = ['(A boxright B)','(A boxright C)']
 
 # # NOTE: if null verifiers are permitted, then null state verifies A
 # # but possible state c does not?

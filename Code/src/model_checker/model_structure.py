@@ -409,11 +409,16 @@ class ModelStructure:
         if str(prop_obj) in [str(atom) for atom in self.sentence_letters]:
             prop_obj.print_verifiers_and_falsifiers(world_bit, indent_num, output)
             return
+        # TAG
         print(
             f"{'  ' * indent_num}{prop_obj}  ({prop_obj.truth_value_at(world_bit)} in "
             f"{world_state})",
             file=output
         )
+        # NOTE: I tried replacing the above up to TAG with the line below
+        # this would look better and be more consistent but it needs there to
+        # be verifiers and falsifiers in the counterfactual object.
+        # prop_obj.print_verifiers_and_falsifiers(world_bit, indent_num, output)
         prefix_expr = prop_obj["prefix expression"]
         op = prefix_expr[0]
         first_subprop = self.find_proposition_object(prefix_expr[1])
@@ -592,40 +597,52 @@ class Extensional(Proposition):
         indent_num = indent
         possible = self.parent_model_structure.possible
         model = self.parent_model_structure.model
+        ver_prints = '∅'
         ver_states = {
             bitvec_to_substates(bit, N)
             for bit in self["verifiers"]
             if model.evaluate(possible(bit))
         }
+        if ver_states:
+            ver_prints = make_set_pretty_for_print(ver_states)
+        fal_prints = '∅'
         fal_states = {
             bitvec_to_substates(bit, N)
             for bit in self["falsifiers"]
             if model.evaluate(possible(bit))
         }
+        if fal_states:
+            fal_prints = make_set_pretty_for_print(fal_states)
         world_state = bitvec_to_substates(current_world, N)
-        if ver_states and fal_states:
-            print(
-                f"{'  ' * indent_num}|{self}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(fal_states)} >"
-                f"  ({truth_value} in {world_state})",
-                file=output,
-            )
-        elif ver_states and not fal_states:
-            print(
-                f"{'  ' * indent_num}|{self}| = < {make_set_pretty_for_print(ver_states)}, ∅ >"
-                f"  ({truth_value} in {world_state})",
-                file=output,
-            )
-        elif not ver_states and fal_states:
-            print(
-                f"{'  ' * indent_num}|{self}| = < ∅, {make_set_pretty_for_print(fal_states)} >"
-                f"  ({truth_value} in {world_state})",
-                file=output,
-            )
-        else:
-            print(
-                f"{'  ' * indent_num}|{self}| = < ∅, ∅ >"
-                f"({truth_value} in {world_state})", file=output
-            )
+        print(
+            f"{'  ' * indent_num}|{self}| = < {ver_prints}, {fal_prints} >"
+            f"  ({truth_value} in {world_state})",
+            file=output,
+        )
+        # NOTE: I refactored the below. can probably be deleted
+        # if ver_states and fal_states:
+        #     print(
+        #         f"{'  ' * indent_num}|{self}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(fal_states)} >"
+        #         f"  ({truth_value} in {world_state})",
+        #         file=output,
+        #     )
+        # elif ver_states and not fal_states:
+        #     print(
+        #         f"{'  ' * indent_num}|{self}| = < {make_set_pretty_for_print(ver_states)}, ∅ >"
+        #         f"  ({truth_value} in {world_state})",
+        #         file=output,
+        #     )
+        # elif not ver_states and fal_states:
+        #     print(
+        #         f"{'  ' * indent_num}|{self}| = < ∅, {make_set_pretty_for_print(fal_states)} >"
+        #         f"  ({truth_value} in {world_state})",
+        #         file=output,
+        #     )
+        # else:
+        #     print(
+        #         f"{'  ' * indent_num}|{self}| = < ∅, ∅ >"
+        #         f"({truth_value} in {world_state})", file=output
+        #     )
 
     # def print_props(self, output=sys.__stdout__):
     #     """prints possible verifiers and falsifiers for every extensional proposition
