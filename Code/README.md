@@ -26,10 +26,14 @@ Each file must specify a set of `premises` and `conclusions` which are treated c
 
 Optionally, the user can specify whether to print the Z3 constraints when a model is found, or the unsatisfiable core when no model exists, as well as an option to save the output.
 
+## Syntax
+
+The language currently includes operators for the counterfactual conditional `boxright`, modal operators for necessity `Box` and possibility `Diamond`, and the extensional operators for conjunction `wedge`, disjunction `vee`, material conditional `rightarrow`, material biconditional `leftrightarrow`, and negation `neg`.
+
 ## Semantics
 
-The semantics included is hyperintensional insofar as sentences are evaluated at states which may be partial rather than total as in intensional semantic theories.
-States are modeled by bitvectors of a specified length (e.g., `#b00101` has length `5`), where state fusion is modeled by the bitwise OR operator `|`.
+The semantics included is hyperintensional insofar as sentences are evaluated at _states_ which may be partial rather than total as in intensional semantic theories.
+States are modeled by bitvectors of a specified length (e.g., `#b00101` has length `5`), where _state fusion_ is modeled by the bitwise OR operator `|`.
 For instance, `#b00101 | #b11001 = #b11101`.
 The _atomic states_ have exactly one occurrence of `1` and the _null state_ has no occurrences of `1`.
 The space of states is closed under fusion and finite.
@@ -50,8 +54,4 @@ The absorption laws do not hold, nor does conjunction distribute over disjunctio
 The hyperintensional semantic theory for counterfactual conditionals is motivated and further elaborated in this [draft](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf).
 For the background hyperintensional theory of propositions, see this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w).
 More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker). 
-
-## Syntax
-
-The language currently includes operators for the counterfactual conditional `boxright`, modal operators for necessity `Box` and possibility `Diamond`, and the extensional operators for conjunction `wedge`, disjunction `vee`, material conditional `rightarrow`, material biconditional `leftrightarrow`, and negation `neg`.
 
