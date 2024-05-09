@@ -58,6 +58,9 @@ use_constraints_bool = False
 premises = ['neg A','(A boxright (B vee C))']
 conclusions = ['(A boxright B)','(A boxright C)']
 
+# premises = ['Box A']
+# conclusions = ['neg Diamond A']
+
 ### VALID ###
 
 # premises = ['((A vee B) boxright C)']
