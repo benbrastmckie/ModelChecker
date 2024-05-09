@@ -2,42 +2,37 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
-## Package
+## v0.3 Release 
 
-- [x] create package v0.1
-- [x] submit to pip installer
-- [:] release v0.2
-  - [ ] expose and test package commands
-  - [x] include general print algorithm
-  - [x] change execution instructions once the package is working
-  - [x] include help in template output
-  - [x] document package release protocols
-
-## Print
-
-- [:] print the proposition for each sub-sentence
-  - [ ] _B_ print proposition for extensional sentences immediately
-  - [x] _B_ design recursive structure in `strategies`
-  - [x] _B_ tested new `print_props`
-  - [x] _M_ define general print algorithm
-    - [x] create new branch
-    - [x] test and debug
-    - [x] merge branch
-
-## Architecture
-
-- [ ] document design in `architecture` for how modules relate
+- [ ] printing
+  - [ ] _M_ refactor `rec_print`
+  - [ ] _M_ `cleanup_operators` function, adding double backslashes if none
+- [ ] documentation
+  - [ ] _M_ doc strings for functions
+  - [ ] _B_ architecture description
+- [ ] exposing imports
+  - [ ] _M_ test imports
+    - Q: are the exposed functions recursive?
+  - [ ] _M_ document workflow
+  - [ ] _B_ update package
+- [ ] wish list
+  - [ ] _M_ what would saving a data structure look like?
+    - B: what would the workflow look like
+  - [ ] _B_ expose semantics to toggle on and off constraints etc
+- [ ] cleanup
+  - [ ] _B_ refactor `print_to` and `save_to`
+  - [x] _B_ review TODOs throughout
+  - [x] _B_ replace dummy
+  - [x] _B_ replace "comparison world" with "input world"
 
 ## Semantics
 
-- [ ] require there to be an alternative world when evaluating counterfactuals
-- [ ] add modal operators
-  - [ ] semantics
-  - [ ] syntax
-- [ ] _M_ generate variables to be declared alongside Z3 constraints
-  - B: seems like we have hit a reason to proceed with some version of this
-  - B: OK to hold on replacing `Exists` with constant declarations
-- [ ] _B_ investigate why exhaustivity constraint crashes
+- [ ] print z3 constraints and declarations to `test_file` script
+- [ ] bypass semantics, printing semantic constrains to a `test_file`
+  - [ ] `frame_constraints`
+  - [ ] `prop_constraints`
+  - [ ] `extra_constraints`
+  - [ ] `semantics`
 
 ## Examples
 
@@ -66,11 +61,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [ ] test exhaustivity
   - [ ] prove bivalence
-- [ ] expose semantics
-  - [ ] `frame_constraints`
-  - [ ] `prop_constraints`
-  - [ ] `extra_constraints`
-  - [ ] `semantics`
 - [ ] `optional_generate_test` in `test_complete`
   - [x] abstract helper functions
   - [x] change to make output file a script
@@ -78,7 +68,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [.] _M_ `model_structure`
   - [ ] invalid conditional operands
   - [x] clear out unused
-- [ ] Z3 guru
+- [.] Z3 guru
+  - [ ] write Z3 GitHub issue
   - [:] ask Graham
   - [.] email CS faculty
     - [:] https://people.csail.mit.edu/mcarbin/ -- Michael Carbin
@@ -111,7 +102,27 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 # Completed
 
+## Package
+
+- [x] create package v0.1
+- [x] submit to pip installer
+- [:] release v0.2
+  - [x] expose and test package commands
+  - [x] include general print algorithm
+  - [x] change execution instructions once the package is working
+  - [x] include help in template output
+  - [x] document package release protocols
+
 ## Print
+
+- [x] print the proposition for each sub-sentence
+  - [x] _B_ print proposition for extensional sentences immediately
+  - [x] _B_ design recursive structure in `strategies`
+  - [x] _B_ tested new `print_props`
+  - [x] _M_ define general print algorithm
+    - [x] create new branch
+    - [x] test and debug
+    - [x] merge branch
 
 - [x] _B_ add enumeration to `test_complete_datastructure`
 - [x] move model builder definitions that concern bits from `print` into `model_definitions`
@@ -127,6 +138,10 @@ Tasks that have been completed.
 
 ## Semantics
 
+- [x] add modal operators
+  - [x] semantics
+  - [x] syntax
+- [x] _B_ investigate why exhaustivity constraint crashes
 - [x] add designated top elements
   - [x] _M_ fixed top constraints
   - B: tried in `add_top_nec` branch

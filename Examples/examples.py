@@ -18,7 +18,7 @@ print_cons_bool = False
 print_unsat_core_bool = True
 
 # present option to append output to file
-save_bool = False
+save_bool = True
 
 
 ################################
@@ -29,13 +29,16 @@ save_bool = False
 ### INVALID ###
 
 # # NOTE: neg backslash
-# premises = ['neg A','(A boxright (B vee C))']
+# premises = ['\\neg A','(A boxright (B vee C))']
 # conclusions = ['(A boxright B)','(A boxright C)']
 
 # # NOTE: if null verifiers are permitted, then null state verifies A
 # # but possible state c does not?
 # premises = ['A','B']
 # conclusions = ['(A boxright B)']
+
+# premises = ['Ball_is_red','Mary_likes_it']
+# conclusions = ['(Ball_is_red boxright Mary_likes_it)']
 
 # # NOTE: neg backslash
 # premises = ['A',]
@@ -56,7 +59,6 @@ save_bool = False
 # premises = ['(A boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 
-# # NOTE: doesn't print out complex alternatives
 # premises = ['(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 
@@ -70,8 +72,8 @@ save_bool = False
 # premises = ['neg (top boxright neg (A wedge B))','((A wedge B) boxright C)']
 # conclusions = ['(A boxright (B boxright C))']
 
-premises = ['A','(A boxright (B boxright (C boxright D)))']
-conclusions = []
+# premises = ['A','(A boxright (B boxright (C boxright D)))']
+# conclusions = []
 
 # premises = ['(Box A vee Box B)']
 # conclusions = ['(A wedge B)']
@@ -109,9 +111,9 @@ conclusions = []
 
 ### VALID ###
 
-# # NOTE: unsat_core seems satisfiable
-# premises = []
-# conclusions = ['(A vee neg A)']
+# NOTE: unsat_core seems satisfiable
+premises = []
+conclusions = ['(A vee neg A)']
 
 # # NOTE: unsat_core seems satisfiable
 # premises = []

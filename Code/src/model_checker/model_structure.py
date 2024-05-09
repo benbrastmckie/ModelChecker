@@ -44,21 +44,6 @@ from syntax import (
     Infix,
 )
 
-# TODO: the three types of objects that it would be good to store as classes
-# include: (1) premises, conclusions, input_sentences, prefix_sentences,
-# prefix_sub_sentences, infix_sub_sentences, sentence_letters, constraints;
-# (2) z3_model, model_status, model_run_time, all_bits, poss_bits, world_bits,
-# eval_world_bit; (3) ext_props_dict, true_in_world_dict, alt_worlds_dict.
-# NOTE: I think we've basically done this no? Just checking—was cleaning up this and other files
-
-# NOTE: the ext_props_dict should associate each extensional prefix_sub_sentence
-# with its infix form, and its proposition. the true_in_world_dict should
-# associate each world with the set of prefix_sub_sentences (extensional or
-# otherwise) that are true in that world. the alt_worlds_dict should associate
-# the antecedent of any counterfactuals with the alternatives to the world of
-# evaluation in question (this will only differ from the eval_world_bit in the
-# case of nested counterfactuals).
-
 inputs_template = Template(
     """
 # path to parent directory
@@ -148,6 +133,7 @@ class ModelStructure:
         self.eval_world = Uninitalized("eval_world")
         self.atomic_props_dict = Uninitalized("atomic_props_dict")
         self.extensional_propositions = Uninitalized("extensional_propositions")
+        self.modal_propositions = Uninitalized("modal_propositions")
         self.counterfactual_propositions = Uninitalized("counterfactual_propositions")
         self.all_propositions = Uninitalized("all_propositions")
         self.input_propositions = Uninitalized("input_propositions")
@@ -193,8 +179,7 @@ class ModelStructure:
             self.all_propositions = (self.extensional_propositions +
                                      self.counterfactual_propositions + self.modal_propositions)
             self.input_propositions = self.find_input_propositions()
-            # just missing the which-sentences-true-in-which-worlds
-        # else: # NOTE: maybe these should be defined as something for the sake of init above
+            # TODO: just missing the which-sentences-true-in-which-worlds
 
     def find_alt_bits(self, proposition_verifier_bits, comparison_world=None):
         """
@@ -413,30 +398,30 @@ class ModelStructure:
             print(f"{index}. {con}\n", file=output)
             # print(f"Constraints time: {time}\n")
 
-    def rec_print(self, prop, world_bit, output, indent=0):
+    def rec_print(self, prop_obj, world_bit, output, indent=0):
         """recursive print function (previously print_sort)
         returns None"""
         N = self.N
         indent_num = indent
         world_state = bitvec_to_substates(world_bit, N)
-        # TODO: rename comparison world to "main world"
+        # TODO: rename input world to "input world"
         # B: isn't the below the same as just updating automatically?
         # B: I'm confused why this update is needed and worried it might lose
         # information, i.e., which one the main world is which should be stored
         # in the ModelStructure and stay there
         # B: can't the eval
-        substate_prop_comp_world = bitvec_to_substates(prop["comparison world"], N)
-        if substate_prop_comp_world != world_state:
-            prop.update_comparison_world(world_bit)
-        if str(prop) in [str(atom) for atom in self.sentence_letters]:
-            prop.print_verifiers_and_falsifiers(world_bit, indent_num, output)
+        input_world_state = bitvec_to_substates(prop_obj["input world"], N)
+        if input_world_state != world_state:
+            prop_obj.update_comparison_world(world_bit)
+        if str(prop_obj) in [str(atom) for atom in self.sentence_letters]:
+            prop_obj.print_verifiers_and_falsifiers(world_bit, indent_num, output)
             return
         print(
-            f"{'  ' * indent_num}{prop}  ({prop.truth_value_at(world_bit)} in "
+            f"{'  ' * indent_num}{prop_obj}  ({prop_obj.truth_value_at(world_bit)} in "
             f"{bitvec_to_substates(world_bit, N)})",
             file=output
         )
-        prefix_expr = prop["prefix expression"]
+        prefix_expr = prop_obj["prefix expression"]
         op = prefix_expr[0]
         first_subprop = self.find_proposition_object(prefix_expr[1])
         # print(f"TEST: {self.find_proposition_object(prefix_expr[1])}")
@@ -466,7 +451,6 @@ class ModelStructure:
             assert (
                 left_subprop in self.extensional_propositions
             ), "{prop} not a valid cf because antecedent {left_subprop} is not extensional"
-            self.rec_print(left_subprop, world_bit, output, indent_num)
             alt_worlds = {bitvec_to_substates(u,N) for u in left_subprop["alternative worlds"]}
             print(
                 f'{"  " * indent_num}'
@@ -474,6 +458,7 @@ class ModelStructure:
                 f'{make_set_pretty_for_print(alt_worlds)}',
                 file=output
             )
+            self.rec_print(left_subprop, world_bit, output, indent_num)
             indent_num += 1
             for u in left_subprop["alternative worlds"]:
                 self.rec_print(right_subprop, u, output, indent_num)
@@ -553,9 +538,13 @@ class ModelStructure:
             print("\n# unsatisfiable core constraints", file=output)
             self.print_constraints(self.model, output)
             print('"""', file=output)
-            print(
-                inputs_block, file=output
-            )  # TODO: looks like inputs_block is undefined
+            inputs_data = {
+                "N": self.N,
+                "premises": self.premises,
+                "conclusions": self.conclusions,
+            }
+            inputs_content = inputs_template.substitute(inputs_data)
+            print(inputs_content, file=output)
             if cons_include:
                 print(f"all_constraints = {self.constraints}", file=output)
 
@@ -568,7 +557,7 @@ class Proposition:
     def __init__(self, prefix_expr, model_structure, world):
         """prefix_expr is a prefix expression. model is a ModelStructure"""
         self.prop_dict = {}
-        self.prop_dict["comparison world"] = world
+        self.prop_dict["input world"] = world
         self.prop_dict["prefix expression"] = prefix_expr
         self.parent_model_structure = model_structure
         (
@@ -581,17 +570,17 @@ class Proposition:
         self.prop_dict["falsifiers"] = falsifiers_in_model
 
     def update_comparison_world(self, new_world):
-        """updates the comparison world (which is a BitVecVal) to a new one; updates
+        """updates the input world (which is a BitVecVal) to a new one; updates
         the alt worlds based on that
         returns None"""
-        if new_world == self["comparison world"]:
+        if new_world == self["input world"]:
             return
         model_structure = self.parent_model_structure
         if isinstance(self, Extensional):
             self["alternative worlds"] = model_structure.find_alt_bits(
                 self["verifiers"], new_world
             )
-        self["comparison world"] = new_world
+        self["input world"] = new_world
 
     def __setitem__(self, key, value):
         self.prop_dict[key] = value
@@ -714,17 +703,17 @@ class Extensional(Proposition):
     # def print_alt_worlds(self, output=sys.__stdout__):
     #     """prints everything that has to do with alt worlds
     #     Used in print_prop()
-    #     Takes in a proposition. Note that this proposition has itself a comparison world.
+    #     Takes in a proposition. Note that this proposition has itself a input world.
     #     This is not inputted into the method, but accessed. So, need to make sure, before the method
-    #     is called, that the proposition has the proper comparison world before calling the function
+    #     is called, that the proposition has the proper input world before calling the function
     #     """
     #     N = self.parent_model_structure.N
-    #     comp_world = self["comparison world"]
+    #     input_world = self["input world"]
     #     # model = self.parent_model_structure.model  # ModelRef object (unused)
     #     alt_worlds = {bitvec_to_substates(alt, N) for alt in self["alternative worlds"]}
     #     if alt_worlds:
     #         print(
-    #             f"  {self}-alternatives to {bitvec_to_substates(comp_world, N)} = {make_set_pretty_for_print(alt_worlds)}",
+    #             f"  {self}-alternatives to {bitvec_to_substates(input_world, N)} = {make_set_pretty_for_print(alt_worlds)}",
     #             file=output,
     #         )
     #         for alt_bit in self["alternative worlds"]:
@@ -736,7 +725,7 @@ class Extensional(Proposition):
     #         print(file=output)  # for an extra blank line
     #     else:
     #         print(
-    #             f"  There are no {self}-alternatives to {bitvec_to_substates(comp_world, N)}",
+    #             f"  There are no {self}-alternatives to {bitvec_to_substates(input_world, N)}",
     #             file=output,
     #         )
     #         print(file=output)  # for an extra blank line
