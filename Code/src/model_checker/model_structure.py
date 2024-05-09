@@ -10,6 +10,7 @@ from z3 import (
     BitVecSort,
     BoolSort,
     BitVec,
+    BitVecVal
 )
 # from model_checker.semantics import ( # for packaging
 from semantics import (
@@ -236,8 +237,8 @@ class ModelStructure:
         op, antecedent_expr, consequent_expr = prefix_cf[0], prefix_cf[1], prefix_cf[2]
         assert "boxright" in op, f"{prefix_cf} is not a counterfactual!"
         ant_prop = self.find_proposition_object(antecedent_expr, ext_only=True)
-        ant_prop.update_comparison_world(eval_world)
-        for u in ant_prop["alternative worlds"]:
+        ant_alts_to_eval_world = self.find_alt_bits(ant_prop['verifiers'], eval_world)
+        for u in ant_alts_to_eval_world:
             # print(type(consequent_expr))
             # print(type(find_true_and_false_in_alt(u, self)))
             # QUESTION: why is string required? Is Z3 removing the lists?
@@ -254,8 +255,6 @@ class ModelStructure:
         given a solved model
         for a counterfactual, it'll just give the worlds it's true at and worlds it's not true at
         """
-        # if 'boxright' in complex_sentence:
-        #     raise ValueError("There is no proposition for non-extensional sentences.")
         if not self.atomic_props_dict:
             raise ValueError(
                 "There is nothing in atomic_props_dict yet. Have you actually run the model?"
@@ -271,8 +270,8 @@ class ModelStructure:
             return (Y_F, Y_V)
         if 'Box' in op:
             if not self.evaluate_modal_expr(complex_sentence):
-                return (set(), set(self.world_bits))
-            return (set(self.world_bits), set())
+                return (set(), {BitVecVal(0,self.N)}) # BitVecVal(0,self.N) is the null state
+            return ({BitVecVal(0,self.N)}, set())
         if 'Diamond' in op:
             if self.evaluate_modal_expr(complex_sentence):
                 return (set(self.world_bits), set())
@@ -297,13 +296,13 @@ class ModelStructure:
         # counterfactual true in this final case. should probably call another
         # function here which finds that set of worlds if we go this route.
         if "boxright" in op:
-            worlds_true_at = set()
+            # worlds_true_at = {world for world in self.world_bits if self.evaluate_cf_expr(complex_sentence, world)}
+            worlds_true_at, worlds_false_at = set(), set()
             for world in self.world_bits:
                 if self.evaluate_cf_expr(complex_sentence, world):
                     worlds_true_at.add(world)
-            worlds_false_at = {
-                world for world in self.world_bits if world not in worlds_true_at
-            }
+                    continue
+                worlds_false_at.add(world)
             return (worlds_true_at, worlds_false_at)
         raise ValueError(f"Don't know how to handle {op} operator")
 
@@ -407,27 +406,17 @@ class ModelStructure:
         N = self.N
         indent_num = indent
         world_state = bitvec_to_substates(world_bit, N)
-        # TODO: rename input world to "input world"
-        # B: isn't the below the same as just updating automatically?
-        # B: I'm confused why this update is needed and worried it might lose
-        # information, i.e., which one the main world is which should be stored
-        # in the ModelStructure and stay there
-        # B: can't the eval
-        input_world_state = bitvec_to_substates(prop_obj["input world"], N)
-        if input_world_state != world_state:
-            prop_obj.update_comparison_world(world_bit)
         if str(prop_obj) in [str(atom) for atom in self.sentence_letters]:
             prop_obj.print_verifiers_and_falsifiers(world_bit, indent_num, output)
             return
         print(
             f"{'  ' * indent_num}{prop_obj}  ({prop_obj.truth_value_at(world_bit)} in "
-            f"{bitvec_to_substates(world_bit, N)})",
+            f"{world_state})",
             file=output
         )
         prefix_expr = prop_obj["prefix expression"]
         op = prefix_expr[0]
         first_subprop = self.find_proposition_object(prefix_expr[1])
-        # print(f"TEST: {self.find_proposition_object(prefix_expr[1])}")
         if "neg" in op:
             indent_num += 1
             self.rec_print(first_subprop, world_bit, output, indent_num)
@@ -437,16 +426,6 @@ class ModelStructure:
             for u in self.world_bits:
                 self.rec_print(first_subprop, u, output, indent_num)
             return
-        # if 'Box' in op:
-        #     indent_num += 1
-        #     if self.evaluate_modal_expr(prefix_expr):
-        #         self.rec_print(first_subprop, current_world, output, indent_num)
-        #     # modal_prop = self.find_complex_proposition(prefix_expr) 
-        #     for u in self.world_bits:
-        #         self.rec_print(first_subprop, current_world, output, indent_num)
-        #         if 
-        #             self.rec_print(first_subprop, u, output, indent_num)
-        #     return
         left_subprop = first_subprop
         right_subprop = self.find_proposition_object(prefix_expr[2])
         if "boxright" in op:
@@ -454,16 +433,18 @@ class ModelStructure:
             assert (
                 left_subprop in self.extensional_propositions
             ), "{prop} not a valid cf because antecedent {left_subprop} is not extensional"
-            alt_worlds = {bitvec_to_substates(u,N) for u in left_subprop["alternative worlds"]}
+            left_subprop_vers = left_subprop['verifiers']
+            phi_alt_worlds_to_world_bit = self.find_alt_bits(left_subprop_vers, world_bit)
+            alt_worlds_as_strings = {bitvec_to_substates(u,N) for u in phi_alt_worlds_to_world_bit}
             print(
                 f'{"  " * indent_num}'
                 f'{left_subprop}-alternatives to {bitvec_to_substates(world_bit, N)} = '
-                f'{make_set_pretty_for_print(alt_worlds)}',
+                f'{make_set_pretty_for_print(alt_worlds_as_strings)}',
                 file=output
             )
             self.rec_print(left_subprop, world_bit, output, indent_num)
             indent_num += 1
-            for u in left_subprop["alternative worlds"]:
+            for u in phi_alt_worlds_to_world_bit:
                 self.rec_print(right_subprop, u, output, indent_num)
         else:
             indent_num += 1
@@ -558,30 +539,27 @@ class Proposition:
     def __init__(self, prefix_expr, model_structure, world):
         """prefix_expr is a prefix expression. model is a ModelStructure"""
         self.prop_dict = {}
-        self.prop_dict["input world"] = world
+        # self.prop_dict["input world"] = world
         self.prop_dict["prefix expression"] = prefix_expr
         self.parent_model_structure = model_structure
-        (
-            verifiers_in_model,
-            falsifiers_in_model,
-        ) = model_structure.find_complex_proposition(prefix_expr)
+        (verifiers, falsifiers) = model_structure.find_complex_proposition(prefix_expr)
         # for CFs, verifiers are worlds true at and falsifiers are worlds not true at
         # for modals, same as CFs, except it is either all worlds or no worlds in each
-        self.prop_dict["verifiers"] = verifiers_in_model
-        self.prop_dict["falsifiers"] = falsifiers_in_model
+        self.prop_dict["verifiers"] = verifiers
+        self.prop_dict["falsifiers"] = falsifiers
 
-    def update_comparison_world(self, new_world):
-        """updates the input world (which is a BitVecVal) to a new one; updates
-        the alt worlds based on that
-        returns None"""
-        if new_world == self["input world"]:
-            return
-        model_structure = self.parent_model_structure
-        if isinstance(self, Extensional):
-            self["alternative worlds"] = model_structure.find_alt_bits(
-                self["verifiers"], new_world
-            )
-        self["input world"] = new_world
+    # def update_comparison_world(self, new_world):
+    #     """updates the input world (which is a BitVecVal) to a new one; updates
+    #     the alt worlds based on that
+    #     returns None"""
+    #     if new_world == self["input world"]:
+    #         return
+    #     model_structure = self.parent_model_structure
+    #     if isinstance(self, Extensional):
+    #         self["alternative worlds"] = model_structure.find_alt_bits(
+    #             self["verifiers"], new_world
+    #         )
+    #     self["input world"] = new_world
 
     def __setitem__(self, key, value):
         self.prop_dict[key] = value
@@ -595,12 +573,6 @@ class Proposition:
 
 class Extensional(Proposition):
     """Subclass of Proposition for extensional sentences"""
-
-    def __init__(self, prefix_expr, model_structure, world):
-        super().__init__(prefix_expr, model_structure, world)
-        self.prop_dict["alternative worlds"] = model_structure.find_alt_bits(
-            self["verifiers"], world
-        )
 
     def truth_value_at(self, eval_world):
         """finds whether a CF is true at a certain world
