@@ -28,7 +28,6 @@ save_bool = True
 
 ### INVALID ###
 
-# # NOTE: neg backslash
 # premises = ['\\neg A','(A boxright (B vee C))']
 # conclusions = ['(A boxright B)','(A boxright C)']
 
@@ -40,29 +39,24 @@ save_bool = True
 # premises = ['Ball_is_red','Mary_likes_it']
 # conclusions = ['(Ball_is_red boxright Mary_likes_it)']
 
-# # NOTE: neg backslash
 # premises = ['A',]
 # conclusions = ['neg A']
 
-# # NOTE: neg backslash
 # premises = ['neg A']
 # conclusions = ['(A boxright B)','(A boxright neg B)']
 
 # premises = ['(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 
-# # NOTE: neg backslash
 # premises = ['neg A']
 # conclusions = ['(A boxright B)','(A boxright neg B)']
 
-# # NOTE: doesn't print out complex alternatives
 # premises = ['(A boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 
 # premises = ['(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 
-# # # NOTE: doesn't print out complex alternatives
 # premises = ['A boxright C', 'neg (A boxright neg B)']
 # conclusions = ['neg ((A wedge B) boxright C)']
 
@@ -89,31 +83,17 @@ save_bool = True
 # premises = ['Diamond A', 'Diamond B']
 # conclusions = ['Diamond (A wedge B)']
 
-# premises = ['Box A','(A boxright B)']
-# conclusions = []
-
 # # NOTE: ssh finds a model
 # premises = ['(A boxright B)']
 # conclusions = ['Box (A rightarrow B)']
-
-# premises = [
-#     'Diamond A',
-#     'Diamond B',
-#     'neg Box C',
-#     'neg A',
-#     'neg B',
-#     '(A boxright B)',
-# ]
-# conclusions = []
-
 
 
 
 ### VALID ###
 
-# NOTE: unsat_core seems satisfiable
-premises = []
-conclusions = ['(A vee neg A)']
+# # NOTE: unsat_core seems satisfiable
+# premises = []
+# conclusions = ['(A vee neg A)']
 
 # # NOTE: unsat_core seems satisfiable
 # premises = []
@@ -145,6 +125,7 @@ conclusions = ['(A vee neg A)']
 
 # premises = ['(A boxright B)','((A wedge B) boxright C)']
 # conclusions = ['(A boxright C)']
+
 
 
 ### MODAL LOGIC ###
