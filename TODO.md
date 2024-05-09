@@ -9,7 +9,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] _M_ `cleanup_operators` function, adding double backslashes if none
 - [ ] documentation
   - [ ] _M_ doc strings for functions
-  - [ ] _B_ architecture description
+  - [ ] _M_ revise architecture description
+  - [x] _B_ architecture description
+  - [x] _B_ expanded READMEs
 - [ ] exposing imports
   - [ ] _M_ test imports
     - Q: are the exposed functions recursive?
