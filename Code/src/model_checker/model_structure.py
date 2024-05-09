@@ -271,11 +271,11 @@ class ModelStructure:
         null_state = {BitVecVal(0,self.N)}
         if 'Box' in op:
             if not self.evaluate_modal_expr(complex_sentence):
-                return (set(), null_state) # BitVecVal(0,self.N) is the null state
+                return (set(), null_state)
             return (null_state, set())
         if 'Diamond' in op:
             if self.evaluate_modal_expr(complex_sentence):
-                return (set(), null_state) # BitVecVal(0,self.N) is the null state
+                return (set(), null_state)
             return (null_state, set())
         Z = complex_sentence[2]
         Y_V = self.find_complex_proposition(Y)[0]
@@ -294,14 +294,17 @@ class ModelStructure:
         if "rightarrow" in op:
             return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
         if "boxright" in op:
+            if self.evaluate_cf_expr(complex_sentence):
+                return (null_state, set())
+            return (set(), null_state)
             # worlds_true_at = {world for world in self.world_bits if self.evaluate_cf_expr(complex_sentence, world)}
-            worlds_true_at, worlds_false_at = set(), set()
-            for world in self.world_bits:
-                if self.evaluate_cf_expr(complex_sentence, world):
-                    worlds_true_at.add(world)
-                    continue
-                worlds_false_at.add(world)
-            return (worlds_true_at, worlds_false_at)
+            # worlds_true_at, worlds_false_at = set(), set()
+            # for world in self.world_bits:
+            #     if self.evaluate_cf_expr(complex_sentence, world):
+            #         worlds_true_at.add(world)
+            #         continue
+            #     worlds_false_at.add(world)
+            # return (worlds_true_at, worlds_false_at)
         raise ValueError(f"Don't know how to handle {op} operator")
 
     def find_proposition_object(self, prefix_expression, ext_only=False):
