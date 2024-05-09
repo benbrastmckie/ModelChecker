@@ -14,6 +14,7 @@ AtomSort = DeclareSort("AtomSort")
 # operator_stuff = {'\\','/','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'}
 unary_operators = {"\\neg", "/neg", "neg", "box", "Box", "\\Box", "\\box", "Diamond", "diamond", "\\diamond", "\\Diamond"}
 
+# TODO: cleanup operators function, adding double backslashes if none
 
 def tokenize(str_exp):
     """
@@ -157,7 +158,7 @@ def Infix(A):
     if len(A) == 2:
         if 'neg' in A[0]:
             return f"\\neg {Infix(A[1])}"
-        if 'iamond' in A[0]:
+        if 'Diamond' in A[0]:
             return f"\\Diamond {Infix(A[1])}"
         return f"\\Box {Infix(A[1])}"
     op = A[0]

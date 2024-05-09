@@ -83,7 +83,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
     def maximal(bit_w):
         """bit_w includes all compatible states as parts.
         returns a Z3 constraint"""
-        x = BitVec("max_dummy", N)
+        x = BitVec("max_x", N)
         return ForAll(
             x,
             Implies(
@@ -103,7 +103,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
     def max_compatible_part(bit_x, bit_w, bit_y):
         """bit_x is the biggest part of bit_w that is compatible with bit_y.
         returns a Z3 constraint"""
-        z = BitVec("max_part_dummy", N)
+        z = BitVec("max_part", N)
         return And(
             is_part_of(bit_x, bit_w),
             compatible(bit_x, bit_y),
@@ -124,7 +124,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         world bit_w.
         returns a Z3 constraint
         """
-        z = BitVec("alt_dummy", N)
+        z = BitVec("alt_z", N)
         return And(
             is_world(bit_u),
             is_part_of(bit_y, bit_u),
@@ -146,8 +146,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         Y = ext_sent[1]  # should be a list itself
         Z = ext_sent[2]  # should be a list itself
         if "wedge" in op:
-            y = BitVec("ex_ver_dummy_y", N)
-            z = BitVec("ex_ver_dummy_z", N)
+            y = BitVec("ex_ver_y", N)
+            z = BitVec("ex_ver_z", N)
             # if evaluate is True:
             #     return And(
             #         fusion(y, z) == state, extended_verify(y, Y), extended_verify(z, Z)
@@ -198,8 +198,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                 extended_falsify(state, Z),
                 extended_falsify(state, ["vee", Y, Z]),
             )
-        y = BitVec("ex_fal_dummy_y", N)
-        z = BitVec("ex_fal_dummy_z", N)
+        y = BitVec("ex_fal_y", N)
+        z = BitVec("ex_fal_z", N)
         # usage of these two in vee and right arrow is mutually exclusive, so can define uphere
         if "vee" in op:
             return Exists(
@@ -232,9 +232,9 @@ def make_constraints(verify, falsify, possible, assign, N, w):
     def true_at(sentence, world):
         """sentence is a sentence in prefix notation
         returns a Z3 constraint"""
-        x = BitVec("t_dummy_x", N)
-        u = BitVec("t_dummy_u", N)
-        # y = BitVec("t_dummy_y", N)
+        x = BitVec("t_x", N)
+        u = BitVec("t_u", N)
+        # y = BitVec("t_y", N)
         if len(sentence) == 1:
             sent = sentence[0]
             if 'top' in str(sent)[0]:
@@ -280,8 +280,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
     def false_at(sentence, world):
         """X is a sentence in prefix notation
         returns a Z3 constraint"""
-        x = BitVec("f_dummy_x", N)
-        u = BitVec("f_dummy_u", N)
+        x = BitVec("f_x", N)
+        u = BitVec("f_u", N)
         if len(sentence) == 1:
             sent = sentence[0]
             # if str(sent) == "\\top":
@@ -323,8 +323,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         incompatible (exclusivity). NOTE: exhaustivity crashes Z3 so left off.
         returns a Z3 constraint for the proposition atom
         """
-        x = BitVec("prop_dummy_x", N)
-        y = BitVec("prop_dummy_y", N)
+        x = BitVec("prop_x", N)
+        y = BitVec("prop_y", N)
         sent_to_prop = [
             Not(verify(0, atom)),
             Not(falsify(0, atom)),
@@ -364,9 +364,9 @@ def make_constraints(verify, falsify, possible, assign, N, w):
     def find_frame_constraints():
         """find the constraints that depend only on the sentence letters
         returns a list of Z3 constraints"""
-        x = BitVec("frame_dummy_x", N)
-        y = BitVec("frame_dummy_y", N)
-        z = BitVec("frame_dummy_z", N)
+        x = BitVec("frame_x", N)
+        y = BitVec("frame_y", N)
+        z = BitVec("frame_z", N)
         frame_constraints = [
             ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
             ForAll([x, y], Exists(z, fusion(x, y) == z)),
