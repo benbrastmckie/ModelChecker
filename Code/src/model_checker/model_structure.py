@@ -415,10 +415,11 @@ class ModelStructure:
             f"{world_state})",
             file=output
         )
-        # NOTE: I tried replacing the above up to TAG with the line below
+        # prop_obj.print_verifiers_and_falsifiers(world_bit, indent_num, output)
+        # NOTE: I tried replacing the print below TAG with the line above.
         # this would look better and be more consistent but it needs there to
         # be verifiers and falsifiers in the counterfactual object.
-        # prop_obj.print_verifiers_and_falsifiers(world_bit, indent_num, output)
+        # couldn't figure out what to add to get this working.
         prefix_expr = prop_obj["prefix expression"]
         op = prefix_expr[0]
         first_subprop = self.find_proposition_object(prefix_expr[1])
