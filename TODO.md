@@ -26,6 +26,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] _B_ review TODOs throughout
   - [x] _B_ replace dummy
   - [x] _B_ replace "comparison world" with "input world"
+- [ ] release to MIT philosophy
 
 ## Semantics
 
