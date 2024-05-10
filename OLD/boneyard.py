@@ -327,3 +327,37 @@ def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value, N,output
             f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_bit, N)}",
             file=output
         )
+
+
+# from semantics
+def add_general_constraints(solv, input_sentence_letters):
+    """adds the constraints that go in every solver"""
+    possible_part = ForAll(
+        [x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))
+    )
+    solv.add(possible_part)
+    print(f"\nPossibility constraint:\n {possible_part}\n")
+    # NOTE: seems to slightly slow things down with no obvious gains but I'm
+    # still unsure if this is needed or not. would be good to confirm.
+    fusion_closure = ForAll([x, y], Exists(z, fusion(x, y) == z))
+    solv.add(fusion_closure)
+    print(f"Fusion constraint:\n {fusion_closure}\n")
+    world_const = is_world(w)
+    solv.add(world_const)
+    print(f"World constraint: {world_const}")
+    for sent_letter in input_sentence_letters:
+        print(f"\nSentence {sent_letter} yields the general constraints:\n")
+        for const in prop_const(sent_letter):
+            solv.add(const)
+            print(f"{const}\n")
+
+# from semantics
+def add_input_constraints(solv, prefix_sentences):
+    """add input-specific constraints to the solver"""
+    for sentence in prefix_sentences:
+        print(sentence)
+        sentence_constraint = true_at(sentence, w)
+        print(
+            f"Sentence {sentence} yields the model constraint:\n {sentence_constraint}\n"
+        )
+        solv.add(sentence_constraint)

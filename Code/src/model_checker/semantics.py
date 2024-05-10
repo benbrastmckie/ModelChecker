@@ -142,7 +142,6 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             return verify(state, ext_sent[0])
         op = ext_sent[0]
         if "boxright" in op or "Box" in op or "neg" in op:
-            # return true_at(ext_sent, eval_world)
             raise ValueError(
                 f"\n\nThe antecedent of a counterfactual conditional must be extensional.\n"
                 f"The sentence '{Infix(ext_sent)}' is not extensional.\n"
@@ -252,6 +251,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                 # It wouldn't hurt to add it again I think in principle, but if there's something
                 # else that should go here when top is passed in by itself then it would go here
                 # return ForAll(x, And(verify(x, sent),Not(falsify(x, sent)))) # this is the top constraint
+                # NOTE: I (M) think this issue was resolved
             return Exists(x, And(is_part_of(x, eval_world), verify(x, sent)))
         op = sentence[0]
         if "neg" in op:

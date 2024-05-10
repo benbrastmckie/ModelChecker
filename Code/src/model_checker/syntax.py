@@ -12,7 +12,7 @@ from z3 import Const, DeclareSort
 AtomSort = DeclareSort("AtomSort")
 # sentence_stuff = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','Z','W','Y','Z'}
 # operator_stuff = {'\\','/','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'}
-unary_operators = {"\\neg", "/neg", "neg", "box", "Box", "\\Box", "\\box", "Diamond", "diamond", "\\diamond", "\\Diamond"}
+unary_operators = {"\\neg", "/neg", "neg", "Box", "\\Box", "Diamond", "\\Diamond"}
 
 # TODO: cleanup operators function, adding double backslashes if none
 
