@@ -532,7 +532,7 @@ class Proposition:
 
     def __str__(self):
         return Infix(self["prefix expression"])
-    
+
     def print_verifiers_and_falsifiers(self, current_world, indent=0, output=sys.__stdout__):
         """prints the possible verifiers and falsifier states for a sentence.
         inputs: the verifier states and falsifier states.
@@ -543,36 +543,28 @@ class Proposition:
         indent_num = indent
         possible = self.parent_model_structure.possible
         model = self.parent_model_structure.model
-        ver_states = {bitvec_to_substates(bit, N)
-                    for bit in self["verifiers"]
-                    if model.evaluate(possible(bit))}
-        fal_states = {bitvec_to_substates(bit, N)
-                    for bit in self["falsifiers"]
-                    if model.evaluate(possible(bit))}
+        ver_prints = '∅'
+        ver_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self["verifiers"]
+            if model.evaluate(possible(bit))
+        }
+        if ver_states:
+            ver_prints = pretty_set_print(ver_states)
+        fal_prints = '∅'
+        fal_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self["falsifiers"]
+            if model.evaluate(possible(bit))
+        }
+        if fal_states:
+            fal_prints = pretty_set_print(fal_states)
         world_state = bitvec_to_substates(current_world, N)
-        if ver_states and fal_states:
-            print(
-                f"{'  ' * indent_num}|{self}| = < {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >"
-                f"  ({truth_value} in {world_state})",
-                file=output,
-            )
-        elif ver_states and not fal_states:
-            print(
-                f"{'  ' * indent_num}|{self}| = < {pretty_set_print(ver_states)}, ∅ >"
-                f"  ({truth_value} in {world_state})",
-                file=output,
-            )
-        elif not ver_states and fal_states:
-            print(
-                f"{'  ' * indent_num}|{self}| = < ∅, {pretty_set_print(fal_states)} >"
-                f"  ({truth_value} in {world_state})",
-                file=output,
-            )
-        else:
-            print(
-                f"{'  ' * indent_num}|{self}| = < ∅, ∅ >"
-                f"({truth_value} in {world_state})", file=output
-            )
+        print(
+            f"{'  ' * indent_num}|{self}| = < {ver_prints}, {fal_prints} >"
+            f"  ({truth_value} in {world_state})",
+            file=output,
+        )
 
 class Extensional(Proposition):
     """Subclass of Proposition for extensional sentences"""
