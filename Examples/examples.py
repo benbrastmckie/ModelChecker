@@ -29,8 +29,8 @@ save_bool = False
 ### INVALID ###
 
 
-premises = ['(A boxright B)']
-conclusions = []
+# premises = ['(A boxright B)']
+# conclusions = []
 
 # premises = ['neg A','(A boxright (B vee C))']
 # conclusions = ['(A boxright B)','(A boxright C)']
@@ -95,9 +95,9 @@ conclusions = []
 
 ### VALID ###
 
-# # NOTE: unsat_core seems satisfiable
-# premises = []
-# conclusions = ['(A vee neg A)']
+# NOTE: unsat_core seems satisfiable
+premises = []
+conclusions = ['(A vee neg A)']
 
 # # NOTE: unsat_core seems satisfiable
 # premises = []
