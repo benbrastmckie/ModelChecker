@@ -141,6 +141,10 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         op = ext_sent[0]
         if "boxright" in op:
             raise ValueError(f"The sentence {ext_sent} is not extensional.")
+        if "Box" in op:
+            raise ValueError(f"The sentence {ext_sent} is not extensional.")
+        if "Diamond" in op:
+            raise ValueError(f"The sentence {ext_sent} is not extensional.")
         if "neg" in op:
             return extended_falsify(state, ext_sent[1])
         Y = ext_sent[1]  # should be a list itself
@@ -187,6 +191,10 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             return falsify(state, ext_sent[0])
         op = ext_sent[0]
         if "boxright" in op:
+            raise ValueError(f"The sentence {ext_sent} is not extensional.")
+        if "Box" in op:
+            raise ValueError(f"The sentence {ext_sent} is not extensional.")
+        if "Diamond" in op:
             raise ValueError(f"The sentence {ext_sent} is not extensional.")
         if "neg" in op:
             return extended_verify(state, ext_sent[1])

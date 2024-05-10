@@ -270,9 +270,9 @@ class ModelStructure:
             return (Y_F, Y_V)
         null_state = {BitVecVal(0,self.N)}
         if 'Box' in op:
-            if not self.evaluate_modal_expr(complex_sentence, eval_world):
-                return (set(), null_state)
-            return (null_state, set())
+            if self.evaluate_modal_expr(complex_sentence, eval_world):
+                return (null_state, set())
+            return (set(), null_state)
         if 'Diamond' in op:
             if self.evaluate_modal_expr(complex_sentence, eval_world):
                 return (set(), null_state)
@@ -297,7 +297,8 @@ class ModelStructure:
             if self.evaluate_cf_expr(complex_sentence, eval_world):
                 return (null_state, set())
             return (set(), null_state)
-            # worlds_true_at = {world for world in self.world_bits if self.evaluate_cf_expr(complex_sentence, world)}
+            # NOTE: this is the old way of assigning counterfactuals to sets of
+            # worlds rather than the null state and empty set
             # worlds_true_at, worlds_false_at = set(), set()
             # for world in self.world_bits:
             #     if self.evaluate_cf_expr(complex_sentence, world):
