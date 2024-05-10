@@ -46,7 +46,9 @@ from syntax import (
 )
 
 inputs_template = Template(
-    """
+'''Run time: ${runtime} seconds
+"""
+
 # path to parent directory
 import os
 parent_directory = os.path.dirname(__file__)
@@ -69,7 +71,7 @@ save_bool = False
 
 # use constraints to find models in stead of premises and conclusions
 use_constraints_bool = False
-"""
+'''
 )
 
 
@@ -100,9 +102,7 @@ class ModelStructure:
     self.constraints is a list (?) of constraints
     everything else is initialized as None"""
 
-    def __init__(
-        self, input_premises, input_conclusions, verify, falsify, possible, assign, N, w
-    ):
+    def __init__(self, input_premises, input_conclusions, verify, falsify, possible, assign, N, w):
         self.verify = verify
         self.falsify = falsify
         self.possible = possible
@@ -337,9 +337,8 @@ class ModelStructure:
                 continue
 
     def print_evaluation(self, output=sys.__stdout__):
-        """print the evaluation world and all sentences true/false in that world
-        sentence letters is a list
-        second print function in print.py"""
+        """print the evaluation world and all sentences letters that true/false
+        in that world"""
         # TODO: all this seems to do is print the sentences true/false in each world.
         # can this be simplified? might it make sense to store sentence letters true
         # at the designated world and the sentence letters false at the designated
@@ -446,6 +445,18 @@ class ModelStructure:
         self.print_evaluation(output)
         self.print_inputs_recursively(output)
 
+    def build_test_file(self, output):
+        """generates a test file from input to be saved"""
+        inputs_data = {
+            "N": self.N,
+            "premises": self.premises,
+            "conclusions": self.conclusions,
+            "runtime": self.model_runtime,
+        }
+        inputs_content = inputs_template.substitute(inputs_data)
+        print(inputs_content, file=output)
+
+
     # TODO: how can print_to and save_to be cleaned up and made less redundant?
     def print_to(self, print_cons_bool, print_unsat_core_bool, output=sys.__stdout__):
         """append all elements of the model to the file provided"""
@@ -467,24 +478,13 @@ class ModelStructure:
 
     def save_to(self, doc_name, cons_include, output):
         """append all elements of the model to the file provided"""
-        print(f"# TITLE: {doc_name}\n", file=output)
-        print('"""', file=output)
+        print(f'# TITLE: {doc_name}\n"""', file=output)
         if self.model_status:
             print(f"There is a {self.N}-model of:\n", file=output)
             self.print_all(output)
-
-            print(f"Run time: {self.model_runtime} seconds", file=output)
-            print('"""', file=output)
-            inputs_data = {
-                "N": self.N,
-                "premises": self.premises,
-                "conclusions": self.conclusions,
-            }
-            inputs_content = inputs_template.substitute(inputs_data)
-            print(inputs_content, file=output)
-
+            self.build_test_file(output)
             if cons_include:
-                print("\n# satisfiable constraints", file=output)
+                print("\n# Satisfiable constraints", file=output)
                 # TODO: print constraint objects, not constraint strings
                 print(f"all_constraints = {self.constraints}", file=output)
         else:
@@ -492,17 +492,7 @@ class ModelStructure:
             self.print_enumerate(output)
             print("\n# Unsatisfiable core constraints", file=output)
             self.print_constraints(self.model, output)
-
-            print(f"Run time: {self.model_runtime} seconds", file=output)
-            print('"""', file=output)
-            inputs_data = {
-                "N": self.N,
-                "premises": self.premises,
-                "conclusions": self.conclusions,
-            }
-            inputs_content = inputs_template.substitute(inputs_data)
-            print(inputs_content, file=output)
-
+            self.build_test_file(output)
             if cons_include:
                 print(f"all_constraints = {self.constraints}", file=output)
 
