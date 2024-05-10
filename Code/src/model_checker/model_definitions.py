@@ -7,9 +7,6 @@ from z3 import (
     simplify,
 )
 
-from syntax import Prefix
-# from model_checker.syntax import Infix # for packaging
-
 def summation(n, func, start = 0):
     '''summation of i ranging from start to n of func(i)
     used in find_all_bits'''
@@ -249,7 +246,7 @@ def infix_combine(premises, conclusions):
     '''combines the premises with the negation of the conclusion(s).
     premises are infix sentences, and so are the conclusions
     imported by model_structure'''
-    input_sentences = premises
+    input_sentences = premises[:]
     for sent in conclusions:
         neg_sent = '\\neg ' + sent
         input_sentences.append(neg_sent)
@@ -262,12 +259,9 @@ def disjoin_prefix(sentences):
     first_sent = sentences.pop(0)
     return ['\\vee ', first_sent, disjoin_prefix(sentences)]
 
-def prefix_combine(infix_premises, infix_conclusions):
-    '''converts the infix premises and conclusions to prefix form.
-    negates and disjoints the prefix conclusions.
-    adds the resulting disjunction to the prefix premises.'''
-    prefix_premises = [Prefix(prem) for prem in infix_premises]
-    prefix_conclusions = [Prefix(con) for con in infix_conclusions]
+def prefix_combine(prefix_premises, prefix_conclusions):
+    '''negates and disjoins the prefix conclusions, combining the result with
+    prefix premises to form a new list'''
     neg_conclusions = [['\\neg ', con] for con in prefix_conclusions]
     disjoin_neg_conclusions = disjoin_prefix(neg_conclusions)
     combined = prefix_premises + disjoin_neg_conclusions

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "model-checker"
-version = "0.2.17"
+version = "0.2.18"
 description = "A hyperintensional model checker for counterfactual conditionals"
 authors = [
     { name = "Benjamin Brast-McKie", email = "benbrastmckie@gmail.com" },
@@ -17,7 +17,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-keywords = ["semantics", "Z3", "counterfactuals", "model checker", "theorem prover"]
+keywords = ["semantics", "Z3", "counterfactuals", "model checker", "theorem prover", "hyperintensionality"]
 dependencies = [
     "z3-solver",
 ]

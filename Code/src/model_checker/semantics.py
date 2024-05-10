@@ -15,10 +15,10 @@ from z3 import (
     And,
     BitVec,
 )
+# from model_checker.syntax import ( # for packaging
 from syntax import (
     Infix,
 )
-# from model_checker.syntax import Prefix # for packaging
 
 # from sympy import symbols, Or, And, Implies, Not, to_cnf
 
