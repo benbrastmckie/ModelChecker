@@ -5,7 +5,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## v0.3 Release 
 
 - [ ] printing
-  - [ ] _M_ refactor `rec_print`
+  - [x] _M_ refactor `rec_print`
+  - [ ] _B_ refactor `print_to` and `save_to`
   - [ ] _M_ `cleanup_operators` function, adding double backslashes if none
 - [ ] documentation
   - [ ] _M_ doc strings for functions
@@ -22,7 +23,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - B: what would the workflow look like
   - [ ] _B_ expose semantics to toggle on and off constraints etc
 - [ ] cleanup
-  - [ ] _B_ refactor `print_to` and `save_to`
+  - [ ] move helper functions from `ModelStructure` to `model_definitions`
   - [x] _B_ review TODOs throughout
   - [x] _B_ replace dummy
   - [x] _B_ replace "comparison world" with "input world"
