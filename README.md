@@ -17,6 +17,18 @@ In case the dependency does not install automatically, you can run:
 pip install z3-solver
 ```
 
+To update to the latest version, run:
+
+```
+pip install --upgrade model-checker
+```
+
+You can check the version with:
+
+```
+pip show model-checker
+```
+
 ## Instructions
 
 NOTE: These instructions have been written so as not to presume any prior experience working in the terminal.
@@ -75,8 +87,8 @@ Conjunctions are verified by the pairwise fusions of verifiers for the conjuncts
 Conjunction and disjunction are dual operators obeying the standard De Morgan laws.
 The absorption laws do not hold, nor does conjunction distribute over disjunction, or _vice versa_.
 
-The hyperintensional semantic theory for counterfactual conditionals is motivated and further elaborated in this [draft](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf).
-For the background hyperintensional theory of propositions, see this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w).
+The semantic theory for counterfactual conditionals is motivated and further elaborated in this [draft](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf).
+For the background theory of hyperintensional propositions, see this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w).
 
 ### Code Architecture
 

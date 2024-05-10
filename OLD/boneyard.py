@@ -124,19 +124,25 @@ def total_fusion(list_of_states):
 
 
 # would go to semantics
-def Equivalent(cond_a,cond_b):
+def Equivalent(cond_a, cond_b):
     '''define the biconditional to make Z3 constraints intuitive to read'''
     return cond_a == cond_b
 
+def disjoin_prefix(sentences):
+    """disjoins the list of sentences in prefix form"""
+    if len(sentences):
+        return sentences
+    first_sent = sentences.pop(0)
+    return ['\\vee ', first_sent, disjoin_prefix(sentences)]
+
 # came from syntax, would go to either syntax, semantics, or model_definitions
-def prefix_combine(prem,con):
+def prefix_combine(premises, conclusions):
     '''combines the premises with the negation of the conclusion(s).
     premises are prefix sentences, and so are the conclusions'''
-    # if prem is None:
-    #     prem = []
-    input_sent = prem
-    neg_conclusion_sents = [['\\neg ', sent] for sent in con]
-    input_sent.extend(neg_conclusion_sents)
+    input_sent = premises
+    neg_conclusions = [['\\neg ', sent] for sent in conclusions]
+    disjoin_neg_conclusions = disjoin_prefix(neg_conclusions)
+    input_sent.extend(disjoin_neg_conclusions)
     return input_sent
 
 

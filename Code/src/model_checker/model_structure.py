@@ -5,6 +5,7 @@ file defines model structure class given a Z3 model
 from string import Template
 import time
 import sys
+import os
 from z3 import (
     Function,
     BitVecSort,
@@ -52,6 +53,7 @@ inputs_template = Template(
 # path to parent directory
 import os
 parent_directory = os.path.dirname(__file__)
+file_name = os.path.basename(__file__)
 
 # input sentences
 premises = ${premises}
@@ -68,11 +70,11 @@ print_unsat_core_bool = True
 
 # present option to save output
 save_bool = False
-
-# use constraints to find models in stead of premises and conclusions
-use_constraints_bool = False
 '''
 )
+# NOTE: include below in the template above when working
+# # use constraints to find models in stead of premises and conclusions
+# use_constraints_bool = False
 
 
 class Uninitalized:
@@ -377,6 +379,10 @@ class ModelStructure:
 
     def print_constraints(self, consts, output=sys.__stdout__):
         """prints constraints in an numbered list"""
+        if self.model_status:
+            print("Satisfiable constraints:\n", file=output)
+        else:
+            print("Unsatisfiable core constraints:\n", file=output)
         for index, con in enumerate(consts, start=1):
             print(f"{index}. {con}\n", file=output)
             # print(f"Constraints time: {time}\n")
@@ -440,6 +446,7 @@ class ModelStructure:
     def print_all(self, output):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
+        print(f"There is a {self.N}-model of:\n", file=output)
         self.print_enumerate(output)
         self.print_states(output)
         self.print_evaluation(output)
@@ -462,38 +469,37 @@ class ModelStructure:
         """append all elements of the model to the file provided"""
         N = self.N
         if self.model_status:
-            print(f"\nThere is a {N}-model of:\n", file=output)
             self.print_all(output)
             if print_cons_bool:
-                print("Satisfiable constraints:\n", file=output)
+                # print("Satisfiable constraints:\n", file=output)
                 self.print_constraints(self.constraints, output)
         else:
             print(f"\nThere are no {N}-models of:\n", file=output)
             self.print_enumerate(output)
             print(file=output)
             if print_unsat_core_bool:
-                print("Unsatisfiable core constraints:\n", file=output)
+                # print("Unsatisfiable core constraints:\n", file=output)
                 self.print_constraints(self.model, output)
         print(f"Run time: {self.model_runtime} seconds\n", file=output)
 
-    def save_to(self, doc_name, cons_include, output):
+    def save_to(self, doc_name, parent_file, cons_include, output):
         """append all elements of the model to the file provided"""
-        print(f'# TITLE: {doc_name}\n"""', file=output)
+        print(f'# TITLE: {doc_name}.py generated from {parent_file}\n"""', file=output)
         if self.model_status:
-            print(f"There is a {self.N}-model of:\n", file=output)
             self.print_all(output)
             self.build_test_file(output)
             if cons_include:
-                print("\n# Satisfiable constraints", file=output)
+                print("# Satisfiable constraints", file=output)
                 # TODO: print constraint objects, not constraint strings
                 print(f"all_constraints = {self.constraints}", file=output)
         else:
             print(f"\nThere are no {self.N}-models of:\n", file=output)
             self.print_enumerate(output)
-            print("\n# Unsatisfiable core constraints", file=output)
+            # print("\n# Unsatisfiable core constraints", file=output)
             self.print_constraints(self.model, output)
             self.build_test_file(output)
             if cons_include:
+                print("# Unsatisfiable constraints", file=output)
                 print(f"all_constraints = {self.constraints}", file=output)
 
 

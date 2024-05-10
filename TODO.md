@@ -5,9 +5,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## v0.3 Release 
 
 - [ ] printing
-  - [x] _M_ refactor `rec_print`
-  - [ ] _B_ refactor `print_to` and `save_to`
   - [ ] _M_ `cleanup_operators` function, adding double backslashes if none
+  - [x] _M_ refactor `rec_print`
+  - [x] _B_ refactor `print_to` and `save_to`
 - [ ] documentation
   - [ ] _M_ doc strings for functions
   - [ ] _M_ revise architecture description

@@ -3,6 +3,7 @@ module for user inputs.
 """
 import os
 parent_directory = os.path.dirname(__file__)
+file_name = os.path.basename(__file__)
 
 ################################
 ########## SETTINGS ############
@@ -28,6 +29,9 @@ save_bool = False
 
 ### INVALID ###
 
+
+# premises = ['top']
+# conclusions = []
 
 # premises = ['(Box A boxright B)']
 # conclusions = []
