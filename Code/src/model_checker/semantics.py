@@ -441,18 +441,18 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         return list(sentence_letters)
         # sort just to make every output the same, given sets aren't hashable
 
-    def find_all_constraints(infix_input_sentences):
+    def find_all_constraints(prefix_input_sentences):
         """find Z3 constraints for input sentences
         input_sents are a list of infix sentences
         returns a tuple with all Z3 constraints, for the model, the sentence letters
         (a list of AtomSorts), and the prefix_sentences (a list of lists, since prefix
         sentences are lists)"""
-        prefix_sentences = [Prefix(input_sent) for input_sent in infix_input_sentences]
-        sentence_letters = all_sentence_letters(prefix_sentences)  # this works
-        input_const = find_model_constraints(prefix_sentences, sentence_letters)
+        # prefix_sentences = [Prefix(input_sent) for input_sent in infix_input_sentences]
+        sentence_letters = all_sentence_letters(prefix_input_sentences)  # this works
+        input_const = find_model_constraints(prefix_input_sentences, sentence_letters)
         gen_const = find_frame_constraints()
         const = gen_const + input_const
-        return (const, sentence_letters, prefix_sentences)
+        return (const, sentence_letters, prefix_input_sentences)
 
     return find_all_constraints
 
