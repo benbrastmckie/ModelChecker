@@ -254,7 +254,7 @@ def infix_combine(premises, conclusions):
 
 def disjoin_prefix(sentences):
     """disjoins the list of sentences in prefix form"""
-    if len(sentences):
+    if len(sentences) == 0:
         return sentences
     first_sent = sentences.pop(0)
     return ['\\vee ', first_sent, disjoin_prefix(sentences)]
@@ -330,7 +330,7 @@ def find_subsentences_of_kind(prefix_sentences, kind):
         all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
     if kind == 'extensional':
         return_list = [sent for sent in all_subsentences if is_extensional(sent)]
-    if kind == 'modal': 
+    if kind == 'modal':
         return_list = [sent for sent in all_subsentences if is_modal(sent)]
     if kind == 'counterfactual':
         return_list = [sent for sent in all_subsentences if is_counterfactual(sent)]

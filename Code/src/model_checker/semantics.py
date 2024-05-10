@@ -142,7 +142,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         if len(ext_sent) == 1:
             return verify(state, ext_sent[0])
         op = ext_sent[0]
-        if "boxright" in op or "Box" in op or "neg" in op:
+        if "boxright" in op or "Box" in op or "Diamond" in op:
             raise ValueError(
                 f"\n\nThe antecedent of a counterfactual conditional must be extensional.\n"
                 f"The sentence '{Infix(ext_sent)}' is not extensional.\n"
