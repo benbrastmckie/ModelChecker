@@ -192,12 +192,11 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         if len(ext_sent) == 1:
             return falsify(state, ext_sent[0])
         op = ext_sent[0]
-        if "boxright" in op:
-            raise ValueError(f"The sentence {ext_sent} is not extensional.")
-        if "Box" in op:
-            raise ValueError(f"The sentence {ext_sent} is not extensional.")
-        if "Diamond" in op:
-            raise ValueError(f"The sentence {ext_sent} is not extensional.")
+        if "boxright" in op or "Box" in op or "neg" in op:
+            raise ValueError(
+                f"\n\nThe antecedent of a counterfactual conditional must be extensional.\n"
+                f"The sentence '{Infix(ext_sent)}' is not extensional.\n"
+            )
         if "neg" in op:
             return extended_verify(state, ext_sent[1], eval_world)
         Y = ext_sent[1]
@@ -324,7 +323,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                 [x, u],
                 And(extended_verify(x, Y, eval_world), is_alternative(u, x, eval_world), false_at(Z, u)),
             )
-        raise ValueError(f'No if statements triggered— false_at for {sentence} at world {eval_world}')
+        raise ValueError(f'No if statements triggered in false_at for {sentence} at world {eval_world}')
 
     def prop_const(atom):
         """
