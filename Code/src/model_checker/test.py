@@ -61,6 +61,9 @@ conclusions = ['(A boxright B)','(A boxright C)']
 # premises = ['Box A']
 # conclusions = ['neg Diamond A']
 
+# premises = ['(\\Box A \\vee \\Box B)']
+# conclusions = ['(A \\wedge B)']
+
 ### VALID ###
 
 # premises = ['((A vee B) boxright C)']
