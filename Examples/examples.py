@@ -29,41 +29,33 @@ save_bool = False
 
 ### INVALID ###
 
+premises = ['(A boxright C)']
+conclusions = ['((A wedge B) boxright C)']
 
-# premises = ['top']
-# conclusions = []
+# premises = ['(A boxright B)']
+# conclusions = ['(neg B boxright neg A)']
+
+# premises = ['(A boxright B)','(B boxright C)']
+# conclusions = ['(A boxright C)']
+
 
 # premises = ['(Box A boxright B)']
 # conclusions = []
 
-premises = ['neg A','(A boxright (B vee C))']
-conclusions = ['(A boxright B)','(A boxright C)']
+# premises = ['neg A','(A boxright (B vee C))']
+# conclusions = ['(A boxright B)','(A boxright C)']
 
 # # NOTE: if null verifiers are permitted, then null state verifies A
 # # but possible state c does not?
 # premises = ['A','B']
 # conclusions = ['(A boxright B)']
 
-# premises = ['Ball_is_red','Mary_likes_it']
-# conclusions = ['(Ball_is_red boxright Mary_likes_it)']
-
-# premises = ['A',]
-# conclusions = ['neg A']
+# premises = ['neg A']
+# conclusions = ['(A boxright B)','(A boxright neg B)']
 
 # premises = ['neg A']
 # conclusions = ['(A boxright B)','(A boxright neg B)']
 
-# premises = ['(A boxright B)','(B boxright C)']
-# conclusions = ['(A boxright C)']
-
-# premises = ['neg A']
-# conclusions = ['(A boxright B)','(A boxright neg B)']
-
-# premises = ['(A boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
-
-# premises = ['(A boxright B)']
-# conclusions = ['(neg B boxright neg A)']
 
 # premises = ['A boxright C', 'neg (A boxright neg B)']
 # conclusions = ['neg ((A wedge B) boxright C)']
@@ -74,12 +66,6 @@ conclusions = ['(A boxright B)','(A boxright C)']
 # premises = ['neg (top boxright neg (A wedge B))','((A wedge B) boxright C)']
 # conclusions = ['(A boxright (B boxright C))']
 
-# premises = ['A','(A boxright (B boxright (C boxright D)))']
-# conclusions = []
-
-# premises = ['(Box A vee Box B)']
-# conclusions = ['(A wedge B)']
-
 # # NOTE: slow
 # premises = [
 #     '(A boxright B)',
@@ -88,9 +74,11 @@ conclusions = ['(A boxright B)','(A boxright C)']
 # ]
 # conclusions = []
 
+# # ERROR: debug
 # premises = ['Diamond A', 'Diamond B']
 # conclusions = ['Diamond (A wedge B)']
 
+# # ERROR: debug
 # # NOTE: ssh finds a model
 # premises = ['(A boxright B)']
 # conclusions = ['Box (A rightarrow B)']
@@ -99,10 +87,12 @@ conclusions = ['(A boxright B)','(A boxright C)']
 
 ### VALID ###
 
+# # ERROR: debug
 # # NOTE: unsat_core seems satisfiable
 # premises = []
 # conclusions = ['(A vee neg A)']
 
+# # ERROR: debug
 # # NOTE: unsat_core seems satisfiable
 # premises = []
 # conclusions = ['neg (A wedge neg A)']
