@@ -15,7 +15,10 @@ from z3 import (
     And,
     BitVec,
 )
-from syntax import Prefix
+from syntax import (
+    Infix,
+    Prefix,
+)
 # from model_checker.syntax import Prefix # for packaging
 
 # from sympy import symbols, Or, And, Implies, Not, to_cnf
@@ -140,13 +143,10 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         op = ext_sent[0]
         if "boxright" in op or "Box" in op or "neg" in op:
             # return true_at(ext_sent, eval_world)
-            raise ValueError(f"The sentence {ext_sent} is not extensional.")
-        # if "Box" in op:
-        #     # return true_at(ext_sent, eval_world)
-        #     raise ValueError(f"The sentence {ext_sent} is not extensional.")
-        # if "Diamond" in op:
-        #     # return true_at(ext_sent, eval_world)
-        #     raise ValueError(f"The sentence {ext_sent} is not extensional.")
+            raise ValueError(
+                f"\n\nThe antecedent of a counterfactual conditional must be extensional.\n"
+                f"The sentence '{Infix(ext_sent)}' is not extensional.\n"
+            )
         if "neg" in op:
             return extended_falsify(state, ext_sent[1], eval_world)
         Y = ext_sent[1]  # should be a list itself
