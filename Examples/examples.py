@@ -38,9 +38,13 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 
-
-# premises = ['(Box A boxright B)']
+# premises = [
+#     '(A boxright B)',
+#     'neg ((A wedge C) boxright B)',
+#     '(((A wedge C) wedge D) boxright B)',
+# ]
 # conclusions = []
+
 
 # premises = ['neg A','(A boxright (B vee C))']
 # conclusions = ['(A boxright B)','(A boxright C)']
@@ -66,15 +70,6 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['neg (top boxright neg (A wedge B))','((A wedge B) boxright C)']
 # conclusions = ['(A boxright (B boxright C))']
 
-# # NOTE: slow
-# premises = [
-#     '(A boxright B)',
-#     'neg ((A wedge C) boxright B)',
-#     '(((A wedge C) wedge D) boxright B)',
-# ]
-# conclusions = []
-
-# # ERROR: debug
 # premises = ['Diamond A', 'Diamond B']
 # conclusions = ['Diamond (A wedge B)']
 

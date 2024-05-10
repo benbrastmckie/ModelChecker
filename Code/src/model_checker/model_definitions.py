@@ -254,16 +254,17 @@ def infix_combine(premises, conclusions):
 
 def disjoin_prefix(sentences):
     """disjoins the list of sentences in prefix form"""
-    if len(sentences) == 0:
-        return sentences
     first_sent = sentences.pop(0)
     return ['\\vee ', first_sent, disjoin_prefix(sentences)]
 
 def prefix_combine(prefix_premises, prefix_conclusions):
     '''negates and disjoins the prefix conclusions, combining the result with
     prefix premises to form a new list'''
-    neg_conclusions = [['\\neg ', con] for con in prefix_conclusions]
-    disjoin_neg_conclusions = disjoin_prefix(neg_conclusions)
+    disjoin_neg_conclusions = []
+    print(f"TEST: {prefix_conclusions}")
+    if len(prefix_conclusions) > 1:
+        neg_conclusions = [['\\neg ', con] for con in prefix_conclusions]
+        disjoin_neg_conclusions = disjoin_prefix(neg_conclusions)
     combined = prefix_premises + disjoin_neg_conclusions
     return combined
 
