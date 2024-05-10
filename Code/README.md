@@ -2,7 +2,7 @@
 
 This project draws on the [Z3](https://github.com/Z3Prover/z3) theorem prover to provide tools for proving theorems and finding countermodels for counterfactual conditional and modal claims.
 
-Detailed [installation instructions](https://github.com/benbrastmckie/ModelChecker?tab=readme-ov-file#instructions) are provided in the GitHub repository.
+Detailed [installation instructions](https://github.com/benbrastmckie/ModelChecker?tab=readme-ov-file#installation) are provided in the GitHub repository.
 
 ## Instructions
 
