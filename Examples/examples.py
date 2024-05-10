@@ -29,11 +29,11 @@ save_bool = False
 ### INVALID ###
 
 
-premises = ['(Box A boxright B)']
-conclusions = []
+# premises = ['(Box A boxright B)']
+# conclusions = []
 
-# premises = ['neg A','(A boxright (B vee C))']
-# conclusions = ['(A boxright B)','(A boxright C)']
+premises = ['neg A','(A boxright (B vee C))']
+conclusions = ['(A boxright B)','(A boxright C)']
 
 # # NOTE: if null verifiers are permitted, then null state verifies A
 # # but possible state c does not?
@@ -95,9 +95,9 @@ conclusions = []
 
 ### VALID ###
 
-# NOTE: unsat_core seems satisfiable
-premises = []
-conclusions = ['(A vee neg A)']
+# # NOTE: unsat_core seems satisfiable
+# premises = []
+# conclusions = ['(A vee neg A)']
 
 # # NOTE: unsat_core seems satisfiable
 # premises = []
