@@ -599,7 +599,8 @@ class Counterfactual(Proposition):
     def truth_value_at(self, eval_world):
         """finds whether a CF is true at a certain world
         returns a Boolean representing yes or no"""
-        if eval_world in self["verifiers"]:
+        null_state = {BitVecVal(0,N)}
+        if null_state in self["verifiers"]:
             return True
         return False
 
@@ -613,7 +614,8 @@ class Modal(Proposition):
         self['non arg worlds'] = non_arg_worlds
 
     def truth_value_at(self, eval_world):
-        if self["verifiers"]: # if null state in self["verifiers"]
+        null_state = {BitVecVal(0,N)}
+        if null_state in self["verifiers"]:
             return True
         return False
 
