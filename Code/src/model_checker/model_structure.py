@@ -417,7 +417,7 @@ class ModelStructure:
             file=output
         )
         # prop_obj.print_verifiers_and_falsifiers(world_bit, indent_num, output)
-        # NOTE: I tried replacing the print below TAG with the line above.
+        # NOTE: I tried replacing the print statement below TAG with the line above.
         # this would look better and be more consistent but it needs there to
         # be verifiers and falsifiers in the counterfactual object.
         # couldn't figure out what to add to get this working.
@@ -467,26 +467,31 @@ class ModelStructure:
             self.rec_print(input_prop, initial_eval_world, output, 1)
             print(file=output)
 
+    def print_enumerate(self, output):
+        for index, sent in enumerate(self.input_infix_sentences, start=1):
+            print(f"{index}. {sent}", file=output)
+
+    def print_all(self, output):
+        """prints states, sentence letters evaluated at the designated world and
+        recursively prints each sentence and its parts"""
+        self.print_enumerate(output)
+        self.print_states(output)
+        self.print_evaluation(output)
+        self.print_inputs_recursively(output)
+
     # TODO: how can print_to and save_to be cleaned up and made less redundant?
     def print_to(self, print_cons_bool, print_unsat_core_bool, output=sys.__stdout__):
         """append all elements of the model to the file provided"""
         N = self.N
         if self.model_status:
-
             print(f"\nThere is a {N}-model of:\n", file=output)
-            for index, sent in enumerate(self.input_infix_sentences, start=1):
-                print(f"{index}. {sent}", file=output)
-            self.print_states(output)
-            self.print_evaluation(output)
-            # self.print_props(output)
-            self.print_inputs_recursively(output)
+            self.print_all(output)
             if print_cons_bool:
                 print("Satisfiable constraints:\n", file=output)
                 self.print_constraints(self.constraints, output)
         else:
             print(f"\nThere are no {N}-models of:\n", file=output)
-            for index, sent in enumerate(self.input_infix_sentences, start=1):
-                print(f"{index}. {sent}", file=output)
+            self.print_enumerate(output)
             print(file=output)
             if print_unsat_core_bool:
                 print("Unsatisfiable core constraints:\n", file=output)
@@ -499,12 +504,7 @@ class ModelStructure:
             print(f"# TITLE: {doc_name}\n", file=output)
             print('"""', file=output)
             print(f"There is a {self.N}-model of:\n", file=output)
-            for sent in self.input_infix_sentences:
-                print(sent, file=output)
-            self.print_states(output)
-            self.print_evaluation(output)
-            # self.print_props(output)
-            self.print_inputs_recursively(output)
+            self.print_all(output)
             print(f"Run time: {self.model_runtime} seconds", file=output)
             print('"""', file=output)
             inputs_data = {
@@ -522,10 +522,10 @@ class ModelStructure:
             print(f"# TITLE: {doc_name}\n", file=output)
             print('"""', file=output)
             print(f"\nThere are no {self.N}-models of:\n", file=output)
-            for sent in self.input_infix_sentences:
-                print(sent, file=output)
-            print("\n# unsatisfiable core constraints", file=output)
+            self.print_enumerate(output)
+            print("\n# Unsatisfiable core constraints", file=output)
             self.print_constraints(self.model, output)
+            print(f"Run time: {self.model_runtime} seconds", file=output)
             print('"""', file=output)
             inputs_data = {
                 "N": self.N,
