@@ -320,7 +320,7 @@ class ModelStructure:
             if prop["prefix expression"] == prefix_expression:
                 return prop
         raise ValueError(
-            f"there is no proposition with prefix expression {prefix_expression}"
+            f"\n\nThere is no proposition with prefix expression '{Infix(prefix_expression)}'\n"
         )
 
     def find_input_propositions(self):
