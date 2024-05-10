@@ -28,6 +28,7 @@ from model_definitions import (
     find_null_bit,
     find_poss_bits,
     find_world_bits,
+    prefix_combine,
     pretty_set_print,
     find_true_and_false_in_alt,
     product,
@@ -104,21 +105,22 @@ class ModelStructure:
     self.constraints is a list (?) of constraints
     everything else is initialized as None"""
 
-    def __init__(self, input_premises, input_conclusions, verify, falsify, possible, assign, N, w):
+    def __init__(self, infix_premises, infix_conclusions, verify, falsify, possible, assign, N, w):
         self.verify = verify
         self.falsify = falsify
         self.possible = possible
         self.assign = assign
         self.N = N
         self.w = w
-        self.premises = input_premises
-        self.conclusions = input_conclusions
-        self.input_infix_sentences = infix_combine(input_premises, input_conclusions)
+        self.premises = infix_premises
+        self.conclusions = infix_conclusions
+        self.input_prefix_sentences = prefix_combine(infix_premises, infix_conclusions)
+        self.input_infix_sentences = infix_combine(infix_premises, infix_conclusions)
         find_constraints_func = make_constraints(
             verify, falsify, possible, assign, N, w
         )
         consts, sent_lets, input_prefix_sents = find_constraints_func(
-            self.input_infix_sentences
+            self.input_prefix_sentences
         )
         self.sentence_letters = sent_lets
         self.constraints = consts

@@ -8,7 +8,7 @@ from z3 import (
     simplify,
 )
 
-from syntax import Infix
+from syntax import Prefix
 # from model_checker.syntax import Infix # for packaging
 
 def summation(n, func, start = 0):
@@ -246,19 +246,32 @@ def bitvec_to_substates(bit_vec, N):
             state_repr += index_to_substate(i)
             state_repr += "."
 
-def infix_combine(prem,con):
+def infix_combine(premises, conclusions):
     '''combines the premises with the negation of the conclusion(s).
     premises are infix sentences, and so are the conclusions
     imported by model_structure'''
-    # if prem is None:
-    #     prem = []
-    input_sent = prem
-    for sent in con:
+    input_sentences = premises
+    for sent in conclusions:
         neg_sent = '\\neg ' + sent
-        input_sent.append(neg_sent)
-    return input_sent
+        input_sentences.append(neg_sent)
+    return input_sentences
 
+def disjoin_prefix(sentences):
+    """disjoins the list of sentences in prefix form"""
+    if len(sentences):
+        return sentences
+    first_sent = sentences.pop(0)
+    return ['\\vee ', first_sent, disjoin_prefix(sentences)]
 
+def prefix_combine(premises, conclusions):
+    '''converts the infix premises and conclusions to prefix form.
+    negates and disjoints the prefix conclusions.
+    adds the resulting disjunction to the prefix premises.'''
+    combined_inputs = [Prefix(prem) for prem in premises]
+    neg_conclusions = [['\\neg ', con] for con in conclusions]
+    disjoin_neg_conclusions = disjoin_prefix(neg_conclusions)
+    combined_inputs.extend(disjoin_neg_conclusions)
+    return combined_inputs
 
 #################################
 ##### MOVED FROM SEMANTICS ######
