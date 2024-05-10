@@ -397,6 +397,8 @@ class ModelStructure:
             self.rec_print(first_subprop, world_bit, output, indent)
             return
         if 'Diamond' in op or 'Box' in op:
+            # TODO: linter error: uninitalized is not iterable  "__iter__"
+            # method does not return an object
             for u in self.world_bits:
                 self.rec_print(first_subprop, u, output, indent)
             return
