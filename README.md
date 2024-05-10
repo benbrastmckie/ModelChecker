@@ -33,6 +33,8 @@ You can check the version with:
 pip show model-checker
 ```
 
+For updates about new releases, click the "Watch" button at the top right corner of the page.
+
 ## Instructions
 
 NOTE: These instructions have been written so as not to presume any prior experience working in the terminal.

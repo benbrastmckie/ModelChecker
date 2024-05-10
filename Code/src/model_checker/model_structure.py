@@ -44,6 +44,7 @@ from model_definitions import (
 from syntax import (
     AtomSort,
     Infix,
+    Prefix,
 )
 
 inputs_template = Template(
@@ -111,10 +112,12 @@ class ModelStructure:
         self.assign = assign
         self.N = N
         self.w = w
-        self.premises = infix_premises
-        self.conclusions = infix_conclusions
-        self.prefix_sentences = prefix_combine(infix_premises, infix_conclusions)
+        self.infix_premises = infix_premises
+        self.infix_conclusions = infix_conclusions
         self.infix_sentences = infix_combine(infix_premises, infix_conclusions)
+        self.prefix_premises = [Prefix(prem) for prem in infix_premises]
+        self.prefix_conclusions = [Prefix(con) for con in infix_conclusions]
+        self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
         find_constraints_func = make_constraints(
             verify, falsify, possible, assign, N, w
         )
@@ -140,7 +143,8 @@ class ModelStructure:
         self.modal_propositions = Uninitalized("modal_propositions")
         self.counterfactual_propositions = Uninitalized("counterfactual_propositions")
         self.all_propositions = Uninitalized("all_propositions")
-        self.input_propositions = Uninitalized("input_propositions")
+        self.premise_propositions = Uninitalized("premise_propositions")
+        self.conclusion_propositions = Uninitalized("premise_propositions")
 
     def solve(self):
         """solves the model, returns None
@@ -174,7 +178,8 @@ class ModelStructure:
                                         for modal_subsent in self.modal_subsentences]
             self.all_propositions = (self.extensional_propositions +
                                      self.counterfactual_propositions + self.modal_propositions)
-            self.input_propositions = self.find_input_propositions()
+            self.premise_propositions = self.find_propositions(self.prefix_premises)
+            self.conclusion_propositions = self.find_propositions(self.prefix_conclusions)
             # TODO: just missing the which-sentences-true-in-which-worlds
 
     def find_alt_bits(self, proposition_verifier_bits, comparison_world=None):
@@ -306,14 +311,14 @@ class ModelStructure:
         raise ValueError(
             f"there is no proposition with prefix expression {prefix_expression}")
 
-    def find_input_propositions(self):
+    def find_propositions(self, sentences):
         """finds all the Proposition objects in a ModelStructure
         that correspond to the input sentences.
         returns them as a list"""
-        input_propositions = []
-        for prefix_sent in self.prefix_sentences:
-            input_propositions.append(self.find_proposition_object(prefix_sent))
-        return input_propositions
+        propositions = []
+        for sent in sentences:
+            propositions.append(self.find_proposition_object(sent))
+        return propositions
 
     def print_states(self, output=sys.__stdout__):
         """print all fusions of atomic states in the model
@@ -414,13 +419,13 @@ class ModelStructure:
             left_subprop_vers = left_subprop['verifiers']
             phi_alt_worlds_to_world_bit = self.find_alt_bits(left_subprop_vers, world_bit)
             alt_worlds_as_strings = {bitvec_to_substates(u,N) for u in phi_alt_worlds_to_world_bit}
+            self.rec_print(left_subprop, world_bit, output, indent)
             print(
                 f'{"  " * indent}'
                 f'{left_subprop}-alternatives to {bitvec_to_substates(world_bit, N)} = '
                 f'{pretty_set_print(alt_worlds_as_strings)}',
                 file=output
             )
-            self.rec_print(left_subprop, world_bit, output, indent)
             indent += 1
             for u in phi_alt_worlds_to_world_bit:
                 self.rec_print(right_subprop, u, output, indent)
@@ -432,13 +437,25 @@ class ModelStructure:
         """does rec_print for every proposition in the input propositions
         returns None"""
         initial_eval_world = self.main_world
-        for index, input_prop in enumerate(self.input_propositions, start=1):
+        start_con_num = len(self.premise_propositions) + 1
+        print("Interpreted premises:\n")
+        for index, input_prop in enumerate(self.premise_propositions, start=1):
+            print(f"{index}.", end="", file=output)
+            self.rec_print(input_prop, initial_eval_world, output, 1)
+            print(file=output)
+        print("Interpreted conclusions:\n")
+        for index, input_prop in enumerate(self.conclusion_propositions, start=start_con_num):
             print(f"{index}.", end="", file=output)
             self.rec_print(input_prop, initial_eval_world, output, 1)
             print(file=output)
 
     def print_enumerate(self, output):
-        for index, sent in enumerate(self.infix_sentences, start=1):
+        start_con_num = len(self.infix_premises) + 1
+        print("Premises:")
+        for index, sent in enumerate(self.infix_premises, start=1):
+            print(f"{index}. {sent}", file=output)
+        print("\nConclusions:")
+        for index, sent in enumerate(self.infix_conclusions, start=start_con_num):
             print(f"{index}. {sent}", file=output)
 
     def print_all(self, output):
@@ -454,8 +471,8 @@ class ModelStructure:
         """generates a test file from input to be saved"""
         inputs_data = {
             "N": self.N,
-            "premises": self.premises,
-            "conclusions": self.conclusions,
+            "premises": self.infix_premises,
+            "conclusions": self.infix_conclusions,
             "runtime": self.model_runtime,
         }
         inputs_content = inputs_template.substitute(inputs_data)
