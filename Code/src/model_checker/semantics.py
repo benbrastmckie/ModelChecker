@@ -131,22 +131,24 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             Exists(z, And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y))),
         )
 
-    def extended_verify(state, ext_sent): # used to have default var evaluate=False, seems like
-        # it was unnecessary
+    def extended_verify(state, ext_sent, eval_world):
         """ext_sent is in prefix form. The state is the state that verifies ext_sent. 
         evaluate is an optional bool to evaluate something (now unused).
         returns a Z3 constraint"""
         if len(ext_sent) == 1:
             return verify(state, ext_sent[0])
         op = ext_sent[0]
-        if "boxright" in op:
+        if "boxright" in op or "Box" in op or "neg" in op:
+            # return true_at(ext_sent, eval_world)
             raise ValueError(f"The sentence {ext_sent} is not extensional.")
-        if "Box" in op:
-            raise ValueError(f"The sentence {ext_sent} is not extensional.")
-        if "Diamond" in op:
-            raise ValueError(f"The sentence {ext_sent} is not extensional.")
+        # if "Box" in op:
+        #     # return true_at(ext_sent, eval_world)
+        #     raise ValueError(f"The sentence {ext_sent} is not extensional.")
+        # if "Diamond" in op:
+        #     # return true_at(ext_sent, eval_world)
+        #     raise ValueError(f"The sentence {ext_sent} is not extensional.")
         if "neg" in op:
-            return extended_falsify(state, ext_sent[1])
+            return extended_falsify(state, ext_sent[1], eval_world)
         Y = ext_sent[1]  # should be a list itself
         Z = ext_sent[2]  # should be a list itself
         if "wedge" in op:
@@ -160,31 +162,31 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             return Exists(
                 [y, z],
                 And(
-                    fusion(y, z) == state, extended_verify(y, Y), extended_verify(z, Z)
+                    fusion(y, z) == state, extended_verify(y, Y, eval_world), extended_verify(z, Z, eval_world)
                 ),
             )
         if "vee" in op:
             return Or(
-                extended_verify(state, Y),
-                extended_verify(state, Z),
-                extended_verify(state, ["wedge", Y, Z]),
+                extended_verify(state, Y, eval_world),
+                extended_verify(state, Z, eval_world),
+                extended_verify(state, ["wedge", Y, Z], eval_world),
             )
         if "leftrightarrow" in op:
             return Or(
-                extended_verify(state, ["wedge", Y, Z]),
-                extended_falsify(state, ["vee", Y, Z]),
+                extended_verify(state, ["wedge", Y, Z], eval_world),
+                extended_falsify(state, ["vee", Y, Z], eval_world),
             )
         if "rightarrow" in op:
             return Or(
-                extended_falsify(state, Y),
-                extended_verify(state, Z),
-                extended_verify(state, ["wedge", ["neg", Y], Z]),
+                extended_falsify(state, Y, eval_world),
+                extended_verify(state, Z, eval_world),
+                extended_verify(state, ["wedge", ["neg", Y], Z], eval_world),
             )
         raise ValueError(
             f"Something went wrong in extended_verify in evaluating the operator {op} in [{op}, {Y}, {Z}]"
         )
 
-    def extended_falsify(state, ext_sent):
+    def extended_falsify(state, ext_sent, eval_world):
         """ext_sent is in prefix form. The state is the state that falsifies ext_sent. 
         returns a Z3 constraint"""
         if len(ext_sent) == 1:
@@ -197,14 +199,14 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         if "Diamond" in op:
             raise ValueError(f"The sentence {ext_sent} is not extensional.")
         if "neg" in op:
-            return extended_verify(state, ext_sent[1])
+            return extended_verify(state, ext_sent[1], eval_world)
         Y = ext_sent[1]
         Z = ext_sent[2]
         if "wedge" in op:
             return Or(
-                extended_falsify(state, Y),
-                extended_falsify(state, Z),
-                extended_falsify(state, ["vee", Y, Z]),
+                extended_falsify(state, Y, eval_world),
+                extended_falsify(state, Z, eval_world),
+                extended_falsify(state, ["vee", Y, Z], eval_world),
             )
         y = BitVec("ex_fal_y", N)
         z = BitVec("ex_fal_z", N)
@@ -214,20 +216,20 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                 [y, z],
                 And(
                     state == fusion(y, z),
-                    extended_falsify(y, Y),
-                    extended_falsify(z, Z),
+                    extended_falsify(y, Y, eval_world),
+                    extended_falsify(z, Z, eval_world),
                 ),
             )
         if "leftrightarrow" in op:
             return Or(
-                extended_verify(state, ["wedge", Y, ["neg", Z]]),
-                extended_falsify(state, ["vee", Y, ["neg", Z]]),
+                extended_verify(state, ["wedge", Y, ["neg", Z]], eval_world),
+                extended_falsify(state, ["vee", Y, ["neg", Z]], eval_world),
             )
         if "rightarrow" in op:
             return Exists(
                 [y, z],
                 And(
-                    state == fusion(y, z), extended_verify(y, Y), extended_falsify(z, Z)
+                    state == fusion(y, z), extended_verify(y, Y, eval_world), extended_falsify(z, Z, eval_world)
                 ),
             )
         raise ValueError(
@@ -237,7 +239,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
     # NOTE: the true_at/false-at definitions are bilateral to accommodate the fact
     # that the exhaustivity constraint is not included in the definition of props
     # this should avoid the need for specific clauses for (un)negated CFs
-    def true_at(sentence, world):
+    def true_at(sentence, eval_world):
         """sentence is a sentence in prefix notation
         returns a Z3 constraint"""
         x = BitVec("t_x", N)
@@ -251,10 +253,10 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                 # It wouldn't hurt to add it again I think in principle, but if there's something
                 # else that should go here when top is passed in by itself then it would go here
                 # return ForAll(x, And(verify(x, sent),Not(falsify(x, sent)))) # this is the top constraint
-            return Exists(x, And(is_part_of(x, world), verify(x, sent)))
+            return Exists(x, And(is_part_of(x, eval_world), verify(x, sent)))
         op = sentence[0]
         if "neg" in op:
-            return false_at(sentence[1], world)
+            return false_at(sentence[1], eval_world)
         if len(sentence) == 2 and 'Box' in op:
             return ForAll(u, Implies(is_world(u), true_at(sentence[1], u)))
             # return ForAll(x, Implies(possible(x), Exists(y, And(extended_verify(y,sentence[1]), compatible(x,y)))))
@@ -265,27 +267,27 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         Y = sentence[1]
         Z = sentence[2]
         if "wedge" in op:
-            return And(true_at(Y, world), true_at(Z, world))
+            return And(true_at(Y, eval_world), true_at(Z, eval_world))
         if "vee" in op:
-            return Or(true_at(Y, world), true_at(Z, world))
+            return Or(true_at(Y, eval_world), true_at(Z, eval_world))
         if "leftrightarrow" in op:
             return Or(
-                And(true_at(Y, world), true_at(Z, world)),
-                And(false_at(Y, world), false_at(Z, world)),
+                And(true_at(Y, eval_world), true_at(Z, eval_world)),
+                And(false_at(Y, eval_world), false_at(Z, eval_world)),
             )
         if "rightarrow" in op:
-            return Or(false_at(Y, world), true_at(Z, world))
+            return Or(false_at(Y, eval_world), true_at(Z, eval_world))
         if "boxright" in op:
             return ForAll(
                 [x, u],
                 Implies(
-                    And(extended_verify(x, Y), is_alternative(u, x, world)),
+                    And(extended_verify(x, Y, eval_world), is_alternative(u, x, eval_world)),
                     true_at(Z, u),
                 ),
             )
-        raise ValueError(f'No if statements triggered— true_at for {sentence} at world {world}')
+        raise ValueError(f'No if statements triggered— true_at for {sentence} at world {eval_world}')
 
-    def false_at(sentence, world):
+    def false_at(sentence, eval_world):
         """X is a sentence in prefix notation
         returns a Z3 constraint"""
         x = BitVec("f_x", N)
@@ -294,10 +296,10 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             sent = sentence[0]
             # if str(sent) == "\\top":
             #     return ForAll(x, And(verify(x, sent),Not(falsify(x, sent))))
-            return Exists(x, And(is_part_of(x, world), falsify(x, sent)))
+            return Exists(x, And(is_part_of(x, eval_world), falsify(x, sent)))
         op = sentence[0]
         if "neg" in op:
-            return true_at(sentence[1], world)
+            return true_at(sentence[1], eval_world)
         if len(sentence) == 2 and 'Box' in op:
             # print(sentence)
             return Exists(u, And(is_world(u), false_at(sentence[1], u)))
@@ -307,22 +309,22 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         Y = sentence[1]
         Z = sentence[2]
         if "wedge" in op:
-            return Or(false_at(Y, world), false_at(Z, world))
+            return Or(false_at(Y, eval_world), false_at(Z, eval_world))
         if "vee" in op:
-            return And(false_at(Y, world), false_at(Z, world))
+            return And(false_at(Y, eval_world), false_at(Z, eval_world))
         if "leftrightarrow" in op:
             return Or(
-                And(true_at(Y, world), false_at(Z, world)),
-                And(false_at(Y, world), true_at(Z, world)),
+                And(true_at(Y, eval_world), false_at(Z, eval_world)),
+                And(false_at(Y, eval_world), true_at(Z, eval_world)),
             )
         if "rightarrow" in op:
-            return And(true_at(Y, world), false_at(Z, world))
+            return And(true_at(Y, eval_world), false_at(Z, eval_world))
         if "boxright" in op:
             return Exists(
                 [x, u],
-                And(extended_verify(x, Y), is_alternative(u, x, world), false_at(Z, u)),
+                And(extended_verify(x, Y, eval_world), is_alternative(u, x, eval_world), false_at(Z, u)),
             )
-        raise ValueError(f'No if statements triggered— false_at for {sentence} at world {world}')
+        raise ValueError(f'No if statements triggered— false_at for {sentence} at world {eval_world}')
 
     def prop_const(atom):
         """
