@@ -2,6 +2,10 @@
 
 This project draws on the [Z3](https://github.com/Z3Prover/z3) theorem prover to provide tools for proving theorems and finding countermodels for counterfactual conditional and modal claims.
 
+### Syntax
+
+The language currently includes operators for the counterfactual conditional `boxright`, modal operators for necessity `Box` and possibility `Diamond`, and the extensional operators for conjunction `wedge`, disjunction `vee`, material conditional `rightarrow`, material biconditional `leftrightarrow`, and negation `neg`.
+
 ## Installation
 
 Install [Python 3](https://www.python.org/downloads/) and run the following commands in the terminal:
@@ -52,7 +56,7 @@ Alternatively, run `model-checker path/to/test_file.py` if the `test_file.py` al
 If you are in the directory in which the `test_file.py` exists, you can run `model-checker test_file.py` without specifying the full (or relative) path.
 A number of [examples](https://github.com/benbrastmckie/ModelChecker/blob/master/Examples/examples.py) are provided in the GitHub repository.
 
-Each file must specify a set of `premises` and `conclusions` which are treated conjunctively, and the number `N` of atomic states to include in each model.
+Each file must specify a set of `premises` which are treated conjunctively, `conclusions` which are treated disjunctively, and the number `N` of atomic states to include in each model.
 Optionally, the user can specify whether to print the Z3 constraints when a model is found, or the unsatisfiable core when no model exists, as well as an option to save the output.
 
 Files can be edited with your choice of text editor, e.g., run `vim test_file.py` to edit the file in the terminal.
@@ -62,11 +66,7 @@ It may be convenient to open a terminal for running the file in addition to a te
 
 This section provides an outline of the underlying semantics along with links to further information. 
 
-### Syntax
-
-The language currently includes operators for the counterfactual conditional `boxright`, modal operators for necessity `Box` and possibility `Diamond`, and the extensional operators for conjunction `wedge`, disjunction `vee`, material conditional `rightarrow`, material biconditional `leftrightarrow`, and negation `neg`.
-
-### State Semantics
+### States
 
 The semantics included is hyperintensional insofar as sentences are evaluated at _states_ which may be partial rather than total as in intensional semantic theories.
 States are modeled by bitvectors of a specified length (e.g., `#b00101` has length `5`), where _state fusion_ is modeled by the bitwise OR operator `|`.

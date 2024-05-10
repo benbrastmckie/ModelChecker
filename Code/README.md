@@ -12,7 +12,7 @@ Alternatively, run `model-checker path/to/test_file.py` if the `test_file.py` al
 
 A number of [examples](https://github.com/benbrastmckie/ModelChecker/blob/master/Examples/examples.py) are provided in the GitHub repository.
 
-Each file must specify a set of `premises` and `conclusions` which are treated conjunctively, and the number `N` of atomic states to include in each model.
+Each file must specify a set of `premises` which are treated conjunctively, `conclusions` which are treated disjunctively, and the number `N` of atomic states to include in each model.
 
 Optionally, the user can specify whether to print the Z3 constraints when a model is found, or the unsatisfiable core when no model exists, as well as an option to save the output.
 
