@@ -83,7 +83,8 @@ class Uninitalized:
         raise AttributeError(
             f"cannot iterate through {self.name} because it isnt initialized"
         )
-    
+
+    # TODO: linter error: the special method '__getitem__' expects 1 param(s), 0 was given
     def __getitem__(self):
         raise AttributeError(
             f"cannot get an item from {self.name} because it isnt initialized"
@@ -219,11 +220,13 @@ class ModelStructure:
                 return True # both Box and Diamond will return true, since verifiers is not empty
             return False
         if 'Diamond' in op:
+            # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
             for world in self.world_bits:
                 if world in self.find_complex_proposition(argument, eval_world)[0]:
                     return True
             return False
         if 'Box' in op:
+            # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
             for world in self.world_bits:
                 if world not in self.find_complex_proposition(argument, eval_world)[0]:
                     return False
@@ -261,6 +264,7 @@ class ModelStructure:
             )
         if len(complex_sentence) == 1:
             sent = complex_sentence[0]
+            # TODO: linter error: expected 0 arguments
             return self.atomic_props_dict[sent]
         op = complex_sentence[0]
         Y = complex_sentence[1]
@@ -430,6 +434,7 @@ class ModelStructure:
             return
         if 'Diamond' in op or 'Box' in op:
             indent_num += 1
+            # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
             for u in self.world_bits:
                 self.rec_print(first_subprop, u, output, indent_num)
             return
@@ -500,11 +505,12 @@ class ModelStructure:
 
     def save_to(self, doc_name, cons_include, output):
         """append all elements of the model to the file provided"""
+        print(f"# TITLE: {doc_name}\n", file=output)
+        print('"""', file=output)
         if self.model_status:
-            print(f"# TITLE: {doc_name}\n", file=output)
-            print('"""', file=output)
             print(f"There is a {self.N}-model of:\n", file=output)
             self.print_all(output)
+
             print(f"Run time: {self.model_runtime} seconds", file=output)
             print('"""', file=output)
             inputs_data = {
@@ -514,17 +520,17 @@ class ModelStructure:
             }
             inputs_content = inputs_template.substitute(inputs_data)
             print(inputs_content, file=output)
+
             if cons_include:
                 print("\n# satisfiable constraints", file=output)
                 # TODO: print constraint objects, not constraint strings
                 print(f"all_constraints = {self.constraints}", file=output)
         else:
-            print(f"# TITLE: {doc_name}\n", file=output)
-            print('"""', file=output)
             print(f"\nThere are no {self.N}-models of:\n", file=output)
             self.print_enumerate(output)
             print("\n# Unsatisfiable core constraints", file=output)
             self.print_constraints(self.model, output)
+
             print(f"Run time: {self.model_runtime} seconds", file=output)
             print('"""', file=output)
             inputs_data = {
@@ -534,6 +540,7 @@ class ModelStructure:
             }
             inputs_content = inputs_template.substitute(inputs_data)
             print(inputs_content, file=output)
+
             if cons_include:
                 print(f"all_constraints = {self.constraints}", file=output)
 
