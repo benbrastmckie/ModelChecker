@@ -4,10 +4,21 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## v0.3 Release 
 
+- [ ] final features
+  - [:] permit modals and counterfactuals to occur in the antecedent
+    - [x] implement
+    - [.] debug
+  - [x] evaluate conclusions disjunctively
 - [ ] printing
   - [ ] _M_ `cleanup_operators` function, adding double backslashes if none
+  - [x] _B_ separate premises and conclusions
   - [x] _M_ refactor `rec_print`
   - [x] _B_ refactor `print_to` and `save_to`
+- [ ] cleanup
+  - [ ] _M_ move helper functions from `ModelStructure` to `model_definitions`
+  - [x] _B_ review TODOs throughout
+  - [x] _B_ replace dummy
+  - [x] _B_ replace "comparison world" with "input world"
 - [ ] documentation
   - [ ] _M_ doc strings for functions
   - [ ] _M_ revise architecture description
@@ -22,12 +33,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] _M_ what would saving a data structure look like?
     - B: what would the workflow look like
   - [ ] _B_ expose semantics to toggle on and off constraints etc
-- [ ] cleanup
-  - [ ] move helper functions from `ModelStructure` to `model_definitions`
-  - [x] _B_ review TODOs throughout
-  - [x] _B_ replace dummy
-  - [x] _B_ replace "comparison world" with "input world"
-- [ ] release to MIT philosophy
+- [x] release to MIT philosophy
 
 ## Semantics
 
