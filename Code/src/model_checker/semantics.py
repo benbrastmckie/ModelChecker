@@ -17,7 +17,6 @@ from z3 import (
 )
 from syntax import (
     Infix,
-    Prefix,
 )
 # from model_checker.syntax import Prefix # for packaging
 
@@ -452,7 +451,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         input_const = find_model_constraints(prefix_input_sentences, sentence_letters)
         gen_const = find_frame_constraints()
         const = gen_const + input_const
-        return (const, sentence_letters, prefix_input_sentences)
+        return (const, sentence_letters)
 
     return find_all_constraints
 
