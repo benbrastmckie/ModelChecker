@@ -2,16 +2,6 @@
 
 This project draws on the [Z3](https://github.com/Z3Prover/z3) theorem prover to provide tools for proving theorems and finding countermodels for counterfactual conditional and modal claims.
 
-## Installation
-
-Install [Python 3](https://www.python.org/downloads/) and run the following commands in the terminal:
-
-```
-pip install model-checker
-```
-
-The project has the `z3-solver` as a dependency.
-
 Detailed [installation instructions](https://github.com/benbrastmckie/ModelChecker?tab=readme-ov-file#instructions) are provided in the GitHub repository.
 
 ## Instructions
@@ -51,7 +41,7 @@ Conjunctions are verified by the pairwise fusions of verifiers for the conjuncts
 Conjunction and disjunction are dual operators obeying the standard De Morgan laws.
 The absorption laws do not hold, nor does conjunction distribute over disjunction, or _vice versa_.
 
-The hyperintensional semantic theory for counterfactual conditionals is motivated and further elaborated in this [draft](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf).
-For the background hyperintensional theory of propositions, see this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w).
+The semantic theory for counterfactual conditionals is motivated and further elaborated in this [draft](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf).
+For the background theory of hyperintensional propositions, see this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w).
 More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker). 
 

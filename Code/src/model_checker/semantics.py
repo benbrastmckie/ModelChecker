@@ -114,7 +114,9 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                 z,
                 Implies(
                     And(
-                        is_part_of(z, bit_w), compatible(z, bit_y), is_part_of(bit_x, z)
+                        is_part_of(z, bit_w),
+                        compatible(z, bit_y),
+                        is_part_of(bit_x, z),
                     ),
                     bit_x == z,
                 ),
@@ -161,7 +163,9 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             return Exists(
                 [y, z],
                 And(
-                    fusion(y, z) == state, extended_verify(y, Y, eval_world), extended_verify(z, Z, eval_world)
+                    fusion(y, z) == state,
+                    extended_verify(y, Y, eval_world),
+                    extended_verify(z, Z, eval_world),
                 ),
             )
         if "vee" in op:
@@ -227,7 +231,9 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             return Exists(
                 [y, z],
                 And(
-                    state == fusion(y, z), extended_verify(y, Y, eval_world), extended_falsify(z, Z, eval_world)
+                    state == fusion(y, z),
+                    extended_verify(y, Y, eval_world),
+                    extended_falsify(z, Z, eval_world),
                 ),
             )
         raise ValueError(
@@ -242,27 +248,23 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         returns a Z3 constraint"""
         x = BitVec("t_x", N)
         u = BitVec("t_u", N)
-        # y = BitVec("t_y", N)
         if len(sentence) == 1:
             sent = sentence[0]
-            if 'top' in str(sent)[0]:
-                raise ValueError('This is raised in principle when top is a proposition.')
+            if 'top' not in str(sent)[0]:
+                return Exists(x, And(is_part_of(x, eval_world), verify(x, sent)))
+                # raise ValueError('This is raised in principle when top is a proposition.')
                 # if top is a sentence letter, its constraint is already in the model.
                 # It wouldn't hurt to add it again I think in principle, but if there's something
                 # else that should go here when top is passed in by itself then it would go here
                 # return ForAll(x, And(verify(x, sent),Not(falsify(x, sent)))) # this is the top constraint
                 # NOTE: I (M) think this issue was resolved
-            return Exists(x, And(is_part_of(x, eval_world), verify(x, sent)))
         op = sentence[0]
         if "neg" in op:
             return false_at(sentence[1], eval_world)
         if len(sentence) == 2 and 'Box' in op:
             return ForAll(u, Implies(is_world(u), true_at(sentence[1], u)))
-            # return ForAll(x, Implies(possible(x), Exists(y, And(extended_verify(y,sentence[1]), compatible(x,y)))))
         if len(sentence) == 2 and 'Diamond' in op:
-            # print(sentence)
             return Exists(u, And(is_world(u), true_at(sentence[1], u)))
-            # return Exists(x, And(possible(x), extended_verify(x,sentence[1])))
         Y = sentence[1]
         Z = sentence[2]
         if "wedge" in op:
@@ -293,8 +295,6 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         u = BitVec("f_u", N)
         if len(sentence) == 1:
             sent = sentence[0]
-            # if str(sent) == "\\top":
-            #     return ForAll(x, And(verify(x, sent),Not(falsify(x, sent))))
             return Exists(x, And(is_part_of(x, eval_world), falsify(x, sent)))
         op = sentence[0]
         if "neg" in op:

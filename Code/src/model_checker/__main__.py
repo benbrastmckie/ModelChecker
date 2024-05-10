@@ -17,6 +17,7 @@ Model Checker: ${name}
 '''
 import os
 parent_directory = os.path.dirname(__file__)
+file_name = os.path.basename(__file__)
 
 ################################
 ########## SETTINGS ############
@@ -105,7 +106,7 @@ def print_or_save(module):
             print('"""', file=f)
         return
     with open(f"{module.parent_directory}/{output_file_name}.py", 'w', encoding="utf-8") as n:
-        mod.save_to(output_file_name, cons_include, n)
+        mod.save_to(output_file_name, module.parent_file, cons_include, n)
     print()
 
 class LoadModule:
@@ -135,6 +136,7 @@ class LoadModule:
                 raise ImportError(f"The value of '{attr}' is absent")
 
     def initialize_attributes(self):
+        self.parent_file = getattr(self.module, "file_name", True)
         self.parent_directory = getattr(self.module, "parent_directory", True)
         self.N = getattr(self.module, "N")
         self.premises = getattr(self.module, "premises")
