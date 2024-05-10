@@ -132,7 +132,7 @@ def find_true_and_false_in_alt(alt_bit, parent_model_structure):
     # was giving repeats for some reason? Wasn't previously. fixed it up with repeats_removed
 
 
-def make_set_pretty_for_print(set_with_strings):
+def pretty_set_print(set_with_strings):
     """input a set with strings
     print that same set but with no quotation marks around each individual string, and also with the set in order
     returns the set as a string
@@ -157,34 +157,18 @@ def coproduct(set_A, set_B):
     A_U_B = set_A.union(set_B)
     return A_U_B.union(product(set_A, set_B))
 
-def atomic_propositions_dict(all_bits, sentence_letters, model, verify, falsify):
+def atomic_propositions_dict(ms_object):
+    all_bits = ms_object.all_bits
+    sentence_letters = ms_object.sentence_letters
+    model = ms_object.model
+    verify = ms_object.verify
+    falsify = ms_object.falsify
     atomic_VFs_dict = {}
     for letter in sentence_letters:
         ver_bits = relate_sents_and_states(all_bits, letter, model, verify)
         fal_bits = relate_sents_and_states(all_bits, letter, model, falsify)
         atomic_VFs_dict[letter] = (ver_bits, fal_bits)
     return atomic_VFs_dict
-
-def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value, N,output=sys.__stdout__):
-    """true is a string representing the relation ("true" for true_in_alt; m.m. for false) that is being used for
-    alt_relation_set is the set of prefix sentences that have truth value relation_truth_value in a
-    given alternative world alt_bit
-    returns None, only prints
-    Used in print_alt_worlds()"""
-    if not alt_relation_set:
-        return
-    alt_relation_list = sorted([Infix(sent) for sent in alt_relation_set])
-    alt_relation_string = ", ".join(alt_relation_list)
-    if len(alt_relation_set) == 1:
-        print(
-            f"    {alt_relation_string} is {relation_truth_value} in {bitvec_to_substates(alt_bit, N)}",
-            file=output
-        )
-    else:
-        print(
-            f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_bit, N)}",
-            file=output
-        )
 
 
 #############################################
@@ -328,28 +312,6 @@ def all_subsentences_of_a_sentence(prefix_sentence, progress=False):
         all_subsentences = left_subsentences + right_subsentences
         return all_subsentences
 
-# def find_extensional_subsentences(prefix_sentences):
-#         '''finds all the extensional subsentences in a list of prefix sentences
-#         used in find_all_constraints'''
-#         # all_subsentences = [all_subsentences_of_a_sentence(sent) for sent in prefix_sentences]
-#         all_subsentences = []
-#         for prefix_sent in prefix_sentences:
-#             # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
-#             all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
-#         extensional_subsentences = [sent for sent in all_subsentences if not is_counterfactual(sent)]
-#         return repeats_removed(extensional_subsentences)
-
-# def find_cf_subsentences(prefix_sentences):
-#     '''finds all the counterfactual subsentences in a list of prefix sentences
-#     used in find_all_constraints'''
-#     # all_subsentences = [all_subsentences_of_a_sentence(sent) for sent in prefix_sentences]
-#     all_subsentences = []
-#     for prefix_sent in prefix_sentences:
-#         # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
-#         all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
-#     cf_subsentences = [sent for sent in all_subsentences if is_counterfactual(sent)]
-#     return repeats_removed(cf_subsentences)
-
 def find_subsentences_of_kind(prefix_sentences, kind):
     '''used to find the extensional, modal, and counterfactual sentences. 
     kind is a string, either "extensional", "modal", "counterfactual", or 'all' for a tuple of
@@ -360,17 +322,17 @@ def find_subsentences_of_kind(prefix_sentences, kind):
     for prefix_sent in prefix_sentences:
         all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
     if kind == 'extensional':
-        return_list = rr([sent for sent in all_subsentences if is_extensional(sent)])
+        return_list = [sent for sent in all_subsentences if is_extensional(sent)]
     if kind == 'modal': 
-        return_list = rr([sent for sent in all_subsentences if is_modal(sent)])
+        return_list = [sent for sent in all_subsentences if is_modal(sent)]
     if kind == 'counterfactual':
-        return_list = rr([sent for sent in all_subsentences if is_counterfactual(sent)])
+        return_list = [sent for sent in all_subsentences if is_counterfactual(sent)]
     if kind == 'all':
         counterfactual = rr([sent for sent in all_subsentences if is_counterfactual(sent)])
         modal = rr([sent for sent in all_subsentences if is_modal(sent)])
         extensional = rr([sent for sent in all_subsentences if sent not in counterfactual and sent not in modal])
         return (extensional, modal, counterfactual, all_subsentences)
-    return return_list
+    return rr(return_list)
 
 def repeats_removed(L):
     '''takes a list and removes the repeats in it.
