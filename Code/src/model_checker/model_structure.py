@@ -5,7 +5,6 @@ file defines model structure class given a Z3 model
 from string import Template
 import time
 import sys
-import os
 from z3 import (
     Function,
     BitVecSort,
@@ -114,18 +113,15 @@ class ModelStructure:
         self.w = w
         self.premises = infix_premises
         self.conclusions = infix_conclusions
-        self.input_prefix_sentences = prefix_combine(infix_premises, infix_conclusions)
-        self.input_infix_sentences = infix_combine(infix_premises, infix_conclusions)
+        self.prefix_sentences = prefix_combine(infix_premises, infix_conclusions)
+        self.infix_sentences = infix_combine(infix_premises, infix_conclusions)
         find_constraints_func = make_constraints(
             verify, falsify, possible, assign, N, w
         )
-        consts, sent_lets, input_prefix_sents = find_constraints_func(
-            self.input_prefix_sentences
-        )
+        consts, sent_lets = find_constraints_func(self.prefix_sentences)
         self.sentence_letters = sent_lets
         self.constraints = consts
-        self.input_prefix_sentences = input_prefix_sents
-        ext, modal, cf, altogether = find_subsentences_of_kind(input_prefix_sents, 'all')
+        ext, modal, cf, altogether = find_subsentences_of_kind(self.prefix_sentences, 'all')
         self.extensional_subsentences = ext
         self.counterfactual_subsentences = cf
         self.modal_subsentences = modal
@@ -315,7 +311,7 @@ class ModelStructure:
         that correspond to the input sentences.
         returns them as a list"""
         input_propositions = []
-        for prefix_sent in self.input_prefix_sentences:
+        for prefix_sent in self.prefix_sentences:
             input_propositions.append(self.find_proposition_object(prefix_sent))
         return input_propositions
 
@@ -442,7 +438,7 @@ class ModelStructure:
             print(file=output)
 
     def print_enumerate(self, output):
-        for index, sent in enumerate(self.input_infix_sentences, start=1):
+        for index, sent in enumerate(self.infix_sentences, start=1):
             print(f"{index}. {sent}", file=output)
 
     def print_all(self, output):

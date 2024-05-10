@@ -2,7 +2,6 @@
 file contains all definitions for defining the model structure
 '''
 
-import sys
 from z3 import (
     BitVecVal,
     simplify,
@@ -263,15 +262,16 @@ def disjoin_prefix(sentences):
     first_sent = sentences.pop(0)
     return ['\\vee ', first_sent, disjoin_prefix(sentences)]
 
-def prefix_combine(premises, conclusions):
+def prefix_combine(infix_premises, infix_conclusions):
     '''converts the infix premises and conclusions to prefix form.
     negates and disjoints the prefix conclusions.
     adds the resulting disjunction to the prefix premises.'''
-    combined_inputs = [Prefix(prem) for prem in premises]
-    neg_conclusions = [['\\neg ', con] for con in conclusions]
+    prefix_premises = [Prefix(prem) for prem in infix_premises]
+    prefix_conclusions = [Prefix(con) for con in infix_conclusions]
+    neg_conclusions = [['\\neg ', con] for con in prefix_conclusions]
     disjoin_neg_conclusions = disjoin_prefix(neg_conclusions)
-    combined_inputs.extend(disjoin_neg_conclusions)
-    return combined_inputs
+    combined = prefix_premises + disjoin_neg_conclusions
+    return combined
 
 #################################
 ##### MOVED FROM SEMANTICS ######
