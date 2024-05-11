@@ -143,10 +143,11 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             return verify(state, ext_sent[0])
         op = ext_sent[0]
         if "boxright" in op or "Box" in op or "Diamond" in op:
-            raise ValueError(
-                f"\n\nThe antecedent of a counterfactual conditional must be extensional.\n"
-                f"The sentence '{Infix(ext_sent)}' is not extensional.\n"
-            )
+            return true_at(ext_sent, eval_world)
+            # raise ValueError(
+            #     f"\n\nThe antecedent of a counterfactual conditional must be extensional.\n"
+            #     f"The sentence '{Infix(ext_sent)}' is not extensional.\n"
+            # )
         if "neg" in op:
             return extended_falsify(state, ext_sent[1], eval_world)
         Y = ext_sent[1]  # should be a list itself
@@ -195,10 +196,11 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             return falsify(state, ext_sent[0])
         op = ext_sent[0]
         if "boxright" in op or "Box" in op or "neg" in op:
-            raise ValueError(
-                f"\n\nThe antecedent of a counterfactual conditional must be extensional.\n"
-                f"The sentence '{Infix(ext_sent)}' is not extensional.\n"
-            )
+            return false_at(ext_sent, eval_world)
+            # raise ValueError(
+            #     f"\n\nThe antecedent of a counterfactual conditional must be extensional.\n"
+            #     f"The sentence '{Infix(ext_sent)}' is not extensional.\n"
+            # )
         if "neg" in op:
             return extended_verify(state, ext_sent[1], eval_world)
         Y = ext_sent[1]

@@ -72,6 +72,11 @@ conclusions = ['(neg B boxright neg A)']
 # premises = ['(A boxright B)']
 # conclusions = ['Box (A rightarrow B)']
 
+premises = ['(Box A boxright B)']
+conclusions = []
+
+# premises = ['A','(A boxright ((B boxright C) wedge (D boxright E)))']
+# conclusions = ['C']
 
 
 ### VALID ###

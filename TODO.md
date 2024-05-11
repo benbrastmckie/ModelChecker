@@ -5,7 +5,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## v0.3 Release 
 
 - [ ] final features
-  - [ ] _B_ unit tests
+  - [.] _B_ unit tests
   - [:] permit modals and counterfactuals to occur in the antecedent
     - [:] implement
     - [.] debug

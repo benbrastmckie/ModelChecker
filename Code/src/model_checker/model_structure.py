@@ -413,9 +413,9 @@ class ModelStructure:
         left_subprop = first_subprop
         right_subprop = self.find_proposition_object(prefix_expr[2])
         if "boxright" in op:
-            assert (
-                left_subprop in self.extensional_propositions
-            ), "{prop} not a valid cf because antecedent {left_subprop} is not extensional"
+            # assert (
+            #     left_subprop in self.extensional_propositions
+            # ), f"{prop_obj} is not a valid cf because antecedent {left_subprop} is not extensional"
             left_subprop_vers = left_subprop['verifiers']
             phi_alt_worlds_to_world_bit = self.find_alt_bits(left_subprop_vers, world_bit)
             alt_worlds_as_strings = {bitvec_to_substates(u,N) for u in phi_alt_worlds_to_world_bit}
