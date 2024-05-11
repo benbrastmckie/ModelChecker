@@ -77,7 +77,15 @@ conclusions = ['(A boxright C)']
 premises = ['(A \\boxright B)','(B \\boxright C)']
 conclusions = ['(A \\boxright C)']
 
+premises = ['(A \\boxright ((B \\boxright C) \\wedge (D \\boxright E)))']
+conclusions = ['C']
+
+# premises = ['(A \\boxright (B \\boxright C))']
+# conclusions = ['B']
+
 
 mod = make_model_for(N)(premises, conclusions)
 mod.solve()
 mod.print_to(print_cons_bool, print_unsat_core_bool)
+# for prop in mod.all_propositions:
+#     mod.rec_print()

@@ -38,6 +38,8 @@ from model_definitions import (
     find_subsentences_of_kind,
     is_counterfactual,
     is_modal,
+    is_extensional,
+
 
 )
 # from model_checker.syntax import (
@@ -171,11 +173,11 @@ class ModelStructure:
             self.world_bits = find_world_bits(self.poss_bits)
             self.main_world = self.model[self.w]
             self.atomic_props_dict = atomic_propositions_dict(self)
-            self.extensional_propositions = [Extensional(ext_subsent, self, self.main_world)
+            self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
                                             for ext_subsent in self.extensional_subsentences]
-            self.counterfactual_propositions = [Counterfactual(cf_subsent, self, self.main_world)
+            self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
                                             for cf_subsent in self.counterfactual_subsentences]
-            self.modal_propositions = [Modal(modal_subsent, self, self.main_world)
+            self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
                                         for modal_subsent in self.modal_subsentences]
             self.all_propositions = (self.extensional_propositions +
                                      self.counterfactual_propositions + self.modal_propositions)
@@ -226,19 +228,22 @@ class ModelStructure:
                     return False
             return True
 
-    def evaluate_cf_expr(self, prefix_cf, eval_world):
+    def evaluate_mainclause_cf_expr(self, prefix_cf, eval_world):
         """evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
         used to initialize Counterfactuals
         returns a bool representing whether the counterfactual is true at the world or not
         """
-        op, antecedent_expr, consequent_expr = prefix_cf[0], prefix_cf[1], prefix_cf[2]
-        assert "boxright" in op, f"{prefix_cf} is not a counterfactual!"
-        ant_prop = self.find_proposition_object(antecedent_expr, ext_only=True)
-        ant_alts_to_eval_world = self.find_alt_bits(ant_prop['verifiers'], eval_world)
+        op = prefix_cf[0]
+        assert "boxright" in op, f"{prefix_cf} is not a main-clause counterfactual!"
+        ant_expr, consequent_expr = prefix_cf[1], prefix_cf[2]
+        assert is_extensional(ant_expr), f"the antecedent {ant_expr} is not extensional!"
+        ant_verifiers = self.find_complex_proposition(ant_expr, eval_world)[0]
+        # ant_prop = self.find_proposition_object(ant_verifiers, ext_only=True)
+        ant_alts_to_eval_world = self.find_alt_bits(ant_verifiers, eval_world)
         for u in ant_alts_to_eval_world:
             # QUESTION: why is string required? Is Z3 removing the lists?
             if is_counterfactual(consequent_expr):
-                if self.evaluate_cf_expr(consequent_expr, u) is False:
+                if not self.find_complex_proposition(consequent_expr, u)[0]:
                     return False
             elif str(consequent_expr) not in str(find_true_and_false_in_alt(u, self)[0]):
                 return False
@@ -246,9 +251,10 @@ class ModelStructure:
     
     def true_and_false_worlds_for_cf(self, complex_cf_sent):
         '''used in find_complex_proposition'''
+        # assert 'boxright' in complex_cf_sent[0], 'this func is only for main-clause cfs!'
         worlds_true_at, worlds_false_at = set(), set()
         for world in self.world_bits:
-            if self.evaluate_cf_expr(complex_cf_sent, world):
+            if self.find_complex_proposition(complex_cf_sent, world):
                 worlds_true_at.add(world)
                 continue
             worlds_false_at.add(world)
@@ -271,8 +277,7 @@ class ModelStructure:
         op = complex_sentence[0]
         Y = complex_sentence[1]
         if "neg" in op:
-            Y_V = self.find_complex_proposition(Y, eval_world)[0]
-            Y_F = self.find_complex_proposition(Y, eval_world)[1]
+            Y_V, Y_F = self.find_complex_proposition(Y, eval_world)
             return (Y_F, Y_V)
         null_state = {BitVecVal(0,self.N)}
         if 'Box' in op:
@@ -284,10 +289,8 @@ class ModelStructure:
                 return (set(), null_state)
             return (null_state, set())
         Z = complex_sentence[2]
-        Y_V = self.find_complex_proposition(Y, eval_world)[0]
-        Y_F = self.find_complex_proposition(Y, eval_world)[1]
-        Z_V = self.find_complex_proposition(Z, eval_world)[0]
-        Z_F = self.find_complex_proposition(Z, eval_world)[1]
+        Y_V, Y_F = self.find_complex_proposition(Y, eval_world)
+        Z_V, Z_F = self.find_complex_proposition(Z, eval_world)
         if "wedge" in op:
             return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
         if "vee" in op:
@@ -300,16 +303,9 @@ class ModelStructure:
         if "rightarrow" in op:
             return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
         if "boxright" in op:
-            if eval_world in self.true_and_false_worlds_for_cf(complex_sentence)[0]:
+            if self.evaluate_mainclause_cf_expr(complex_sentence, eval_world):
                 return (null_state, set())
             return (set(), null_state)
-            # worlds_true_at, worlds_false_at = set(), set()
-            # for world in self.world_bits:
-            #     if self.evaluate_cf_expr(complex_sentence, world):
-            #         worlds_true_at.add(world)
-            #         continue
-            #     worlds_false_at.add(world)
-            # return (worlds_true_at, worlds_false_at)
         raise ValueError(f"Don't know how to handle {op} operator")
 
     def find_proposition_object(self, prefix_expression, ext_only=False):
@@ -319,15 +315,15 @@ class ModelStructure:
         search_list = self.extensional_propositions
         if ext_only is False:
             search_list = self.all_propositions
-        for prop in search_list:
-            if prop["prefix expression"] == prefix_expression:
-                return prop
+        for prop_object in search_list:
+            if prop_object["prefix expression"] == prefix_expression:
+                return prop_object
         raise ValueError(
             f"there is no proposition with prefix expression {prefix_expression}")
 
     def find_propositions(self, sentences):
         """finds all the Proposition objects in a ModelStructure
-        that correspond to the input sentences.
+        that correspond to the prefix sentences in sentences.
         returns them as a list"""
         propositions = []
         for sent in sentences:
@@ -419,8 +415,6 @@ class ModelStructure:
             self.rec_print(first_subprop, world_bit, output, indent)
             return
         if 'Diamond' in op or 'Box' in op:
-            # TODO: linter error: uninitalized is not iterable  "__iter__"
-            # method does not return an object
             for u in self.world_bits:
                 self.rec_print(first_subprop, u, output, indent)
             return
@@ -560,11 +554,20 @@ class Proposition:
         self.prop_dict["prefix expression"] = prefix_expr
         self.parent_model_structure = model_structure
         (verifiers, falsifiers) = model_structure.find_complex_proposition(prefix_expr, eval_world)
-        # for CFs, verifiers are worlds true at and falsifiers are worlds not true at
-        # for modals, if they're true then the verifiers are only the null state and
+        # for modals and CFS, if they're true then the verifiers are only the null state and
         # falsifiers are nothing; if they're false the opposite
         self.prop_dict["verifiers"] = verifiers
         self.prop_dict["falsifiers"] = falsifiers
+        if is_modal(prefix_expr):
+            arg = prefix_expr[1]
+            arg_worlds, non_arg_worlds = self.parent_model_structure.find_complex_proposition(arg, eval_world)
+            self['arg worlds'] = arg_worlds
+            self['non arg worlds'] = non_arg_worlds
+        if is_counterfactual(prefix_expr):
+            self.current_eval_world = eval_world
+            true_worlds, false_worlds = model_structure.true_and_false_worlds_for_cf(prefix_expr)
+            self['worlds cf true at'] = true_worlds
+            self['worlds cf false at'] = false_worlds
 
     def __setitem__(self, key, value):
         self.prop_dict[key] = value
@@ -574,14 +577,29 @@ class Proposition:
 
     def __str__(self):
         return Infix(self["prefix expression"])
+    
+    def update_verifiers(self, new_world):
+        if not is_counterfactual(self['prefix expression']):
+            raise AttributeError(f'You can only update verifiers for CFs, and {self} is not a CF.')
+        N = self.parent_model_structure.N
+        if new_world == self.current_eval_world:
+            return 
+        if new_world in self['worlds cf true at']:
+            self['verifiers'], self['falsifiers'] = {BitVecVal(0,N)}, set()
+            return
+        self['verifiers'], self['falsifiers'] = set(), {BitVecVal(0,N)}
+        return
 
     def print_verifiers_and_falsifiers(self, current_world, indent=0, output=sys.__stdout__):
         """prints the possible verifiers and falsifier states for a sentence.
         inputs: the verifier states and falsifier states.
         Outputs: None, but prints the verifiers and falsifiers
-        Used in print_prop()"""
+        Used in rec_print()"""
         N = self.parent_model_structure.N
-        truth_value = self.truth_value_at(current_world)
+        truth_value = self.truth_value_at(current_world) # use in rec_print ensures current_world
+                                                         # is in fact the current world, for CFs
+        if self in self.parent_model_structure.counterfactual_propositions:
+            self.update_verifiers(current_world)
         indent_num = indent
         possible = self.parent_model_structure.possible
         model = self.parent_model_structure.model
@@ -607,44 +625,55 @@ class Proposition:
             f"  ({truth_value} in {world_state})",
             file=output,
         )
-
-class Extensional(Proposition):
-    """Subclass of Proposition for extensional sentences"""
-
-    def truth_value_at(self, eval_world):
-        """finds whether a CF is true at a certain world
-        returns a Boolean representing yes or no"""
+    
+    def truth_value_at(self,eval_world):
+        '''Given a world, returns the truth value of the Proposition at that world.
+        Used in print_verifiers_and_falsifiers.'''
+        prefix_expr = self['prefix expression']
+        if is_counterfactual(prefix_expr):
+            return True if eval_world in self['worlds cf true at'] else False
+        if is_modal(prefix_expr):
+            return True if self["verifiers"] else False
+         # else case: extensional. Last to be computationally efficient (see def of is_extensional)
         for verifier in self["verifiers"]:
             if bit_part(verifier, eval_world):
                 return True
         return False
 
-class Counterfactual(Proposition):
-    """subclass of Proposition for counterfactuals"""
-    def truth_value_at(self, eval_world):
-        """finds whether a CF is true at a certain world
-        returns a Boolean representing yes or no"""
-        # TODO: I suspect we need something more like this
-        # null_state = {BitVecVal(0,self.N)}
-        # if null_state in self["verifiers"]:
-        # if eval_world in self["verifiers"]:
-        #     return True
-        # return False
-        return True if self["verifiers"] else False # same as for Modals
 
-class Modal(Proposition):
-    '''subclass of Proposition for modals'''
-    def __init__(self, prefix_expr, model_structure, eval_world):
-        super().__init__(prefix_expr, model_structure, eval_world)
-        arg = prefix_expr[1]
-        arg_worlds, non_arg_worlds = self.parent_model_structure.find_complex_proposition(arg, eval_world)
-        self['arg worlds'] = arg_worlds
-        self['non arg worlds'] = non_arg_worlds
+# class Extensional(Proposition):
+#     """Subclass of Proposition for extensional sentences"""
+#     # NOTE: Extensional sentences have nothing special. 
 
-    def truth_value_at(self, eval_world):
-        if self["verifiers"]: # if null state in self["verifiers"]
-            return True
-        return False
+# class Modal(Proposition):
+#     '''subclass of Proposition for modals'''
+#     def __init__(self, prefix_expr, model_structure, eval_world):
+#         super().__init__(prefix_expr, model_structure, eval_world)
+#         arg = prefix_expr[1]
+#         arg_worlds, non_arg_worlds = self.parent_model_structure.find_complex_proposition(arg, eval_world)
+#         self['arg worlds'] = arg_worlds
+#         self['non arg worlds'] = non_arg_worlds
+#         # NOTE: arg worlds and non arg worlds are never used, but would be neat to have
+#         # for the user. But besides that, could be collapsed into
+
+# class Counterfactual(Proposition):
+#     """subclass of Proposition for counterfactuals"""
+#     def __init__(self, prefix_expr, model_structure, eval_world):
+#         super().__init__(prefix_expr, model_structure, eval_world)
+#         self.current_eval_world = eval_world
+#         true_worlds, false_worlds = model_structure.true_and_false_worlds_for_cf(prefix_expr)
+#         self['worlds cf true at'] = true_worlds
+#         self['worlds cf false at'] = false_worlds
+
+#     def update_verifiers(self, new_world):
+#         if new_world == self.current_eval_world:
+#             return 
+#         if new_world in self['worlds cf true at']:
+#             self['verifiers'], self['falsifiers'] = {BitVecVal(0,self.N)}, set()
+#             return
+#         self['verifiers'], self['falsifiers'] = set(), {BitVecVal(0,self.N)}
+#         return
+    
 
 def make_model_for(N):
     """
