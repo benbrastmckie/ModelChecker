@@ -89,3 +89,5 @@ mod.solve()
 mod.print_to(print_cons_bool, print_unsat_core_bool)
 # for prop in mod.all_propositions:
 #     mod.rec_print()
+for cf_prop in mod.counterfactual_propositions:
+    print((cf_prop['worlds cf true at'], cf_prop['worlds cf false at']))
