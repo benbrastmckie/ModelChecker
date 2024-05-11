@@ -13,7 +13,7 @@ N = 3
 print_cons_bool = False
 
 # print core unsatisfiable Z3 constraints if no model exists
-print_unsat_core_bool = True
+print_unsat_core_bool = False
 
 # present option to append output to file
 save_bool = False
@@ -63,8 +63,20 @@ conclusions = ['A']
 
 ### VALID ###
 
-# premises = ['((A vee B) boxright C)']
-# conclusions = ['(A boxright C)']
+premises = ['((A vee B) boxright C)']
+conclusions = ['(A boxright C)']
+
+# premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
+# conclusions = ['(A \\boxright C)']
+
+# premises = ['(A \\boxright (B \\wedge C))']
+# conclusions = ['(A \\boxright B)']
+# premises = ['((A \\vee B) \\boxright C)']
+# conclusions = ['(A \\boxright C)']
+
+premises = ['(A \\boxright B)','(B \\boxright C)']
+conclusions = ['(A \\boxright C)']
+
 
 mod = make_model_for(N)(premises, conclusions)
 mod.solve()
