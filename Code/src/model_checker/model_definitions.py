@@ -123,7 +123,7 @@ def find_true_and_false_in_alt(alt_bit, parent_model_structure):
         for bit in all_bits:
             # print(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True))
             # print(type(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True)))
-            if bit in parent_model_structure.find_complex_proposition(R, alt_bit)[0] and bit_part(bit, alt_bit):
+            if bit in find_complex_proposition(parent_model_structure, R, alt_bit)[0] and bit_part(bit, alt_bit):
                 true_in_alt.append(R)
                 break  # returns to the for loop over sentence_letters
     false_in_alt = [R for R in extensional_sentences if not R in true_in_alt] # replace with
@@ -249,7 +249,7 @@ def bitvec_to_substates(bit_vec, N):
 def infix_combine(premises, conclusions):
     '''combines the premises with the negation of the conclusion(s).
     premises are infix sentences, and so are the conclusions
-    imported by model_structure'''
+    imported by model_structure, in __init__ method of ModelStructure'''
     input_sentences = premises[:]
     for sent in conclusions:
         neg_sent = '\\neg ' + sent
@@ -257,7 +257,8 @@ def infix_combine(premises, conclusions):
     return input_sentences
 
 def disjoin_prefix(sentences):
-    """disjoins the list of sentences in prefix form"""
+    """disjoins the list of sentences in prefix form
+    helper for prefix_combine (immediately below)"""
     if len(sentences) > 2:
         copy_sentences = sentences[:]
         first_sent = copy_sentences.pop(0)
@@ -373,13 +374,13 @@ def evaluate_modal_expr(modelstructure, prefix_modal, eval_world):
     if 'Diamond' in op:
         # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
         for world in modelstructure.world_bits:
-            if world in modelstructure.find_complex_proposition(argument, eval_world)[0]:
+            if world in find_complex_proposition(modelstructure, argument, eval_world)[0]:
                 return True
         return False
     if 'Box' in op:
         # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
         for world in modelstructure.world_bits:
-            if world not in modelstructure.find_complex_proposition(argument, eval_world)[0]:
+            if world not in find_complex_proposition(modelstructure, argument, eval_world)[0]:
                 return False
         return True
     
@@ -392,13 +393,13 @@ def evaluate_mainclause_cf_expr(modelstructure, prefix_cf, eval_world):
     assert "boxright" in op, f"{prefix_cf} is not a main-clause counterfactual!"
     ant_expr, consequent_expr = prefix_cf[1], prefix_cf[2]
     assert is_extensional(ant_expr), f"the antecedent {ant_expr} is not extensional!"
-    ant_verifiers = modelstructure.find_complex_proposition(ant_expr, eval_world)[0]
+    ant_verifiers = find_complex_proposition(modelstructure, ant_expr, eval_world)[0]
     # ant_prop = self.find_proposition_object(ant_verifiers, ext_only=True)
     ant_alts_to_eval_world = modelstructure.find_alt_bits(ant_verifiers, eval_world)
     for u in ant_alts_to_eval_world:
         # QUESTION: why is string required? Is Z3 removing the lists?
         if is_counterfactual(consequent_expr):
-            if not modelstructure.find_complex_proposition(consequent_expr, u)[0]:
+            if not find_complex_proposition(modelstructure, consequent_expr, u)[0]:
                 return False
         elif str(consequent_expr) not in str(find_true_and_false_in_alt(u, modelstructure)[0]):
             return False
@@ -409,9 +410,52 @@ def true_and_false_worlds_for_cf(modelstructure, complex_cf_sent):
     # assert 'boxright' in complex_cf_sent[0], 'this func is only for main-clause cfs!'
     worlds_true_at, worlds_false_at = set(), set()
     for world in modelstructure.world_bits:
-        # print(f"TEST: {complex_cf_sent} is true at {world}")
-        if modelstructure.find_complex_proposition(complex_cf_sent, world):
+        if find_complex_proposition(modelstructure, complex_cf_sent, world)[0]:
             worlds_true_at.add(world)
             continue
         worlds_false_at.add(world)
     return (worlds_true_at, worlds_false_at)
+
+def find_complex_proposition(modelstructure, complex_sentence, eval_world):
+    """sentence is a sentence in prefix notation
+    For a given complex proposition, returns the verifiers and falsifiers of that proposition
+    given a solved model
+    for a counterfactual, it'll just give the worlds it's true at and worlds it's not true at
+    """
+    if not modelstructure.atomic_props_dict:
+        raise ValueError(
+            "There is nothing in atomic_props_dict yet. Have you actually run the model?"
+        )
+    if len(complex_sentence) == 1:
+        sent = complex_sentence[0]
+        # TODO: linter error: expected 0 arguments
+        return modelstructure.atomic_props_dict[sent]
+    op = complex_sentence[0]
+    Y = complex_sentence[1]
+    if "neg" in op:
+        Y_V, Y_F = find_complex_proposition(modelstructure, Y, eval_world)
+        return (Y_F, Y_V)
+    null_state = {BitVecVal(0,modelstructure.N)}
+    if 'Box' in op or 'Diamond' in op:
+        if evaluate_modal_expr(modelstructure, complex_sentence, eval_world):
+            return (null_state, set())
+        return (set(), null_state)
+    Z = complex_sentence[2]
+    Y_V, Y_F = find_complex_proposition(modelstructure, Y, eval_world)
+    Z_V, Z_F = find_complex_proposition(modelstructure, Z, eval_world)
+    if "wedge" in op:
+        return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
+    if "vee" in op:
+        return (coproduct(Y_V, Z_V), product(Y_F, Z_F))
+    if "leftrightarrow" in op:
+        return (
+            product(coproduct(Y_F, Z_V), coproduct(Y_V, Z_F)),
+            coproduct(product(Y_V, Z_F), product(Y_F, Z_V)),
+        )
+    if "rightarrow" in op:
+        return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
+    if "boxright" in op:
+        if evaluate_mainclause_cf_expr(modelstructure, complex_sentence, eval_world):
+            return (null_state, set())
+        return (set(), null_state)
+    raise ValueError(f"Don't know how to handle {op} operator")
