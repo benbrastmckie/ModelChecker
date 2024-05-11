@@ -394,7 +394,6 @@ def evaluate_mainclause_cf_expr(modelstructure, prefix_cf, eval_world):
     ant_expr, consequent_expr = prefix_cf[1], prefix_cf[2]
     assert is_extensional(ant_expr), f"the antecedent {ant_expr} is not extensional!"
     ant_verifiers = find_complex_proposition(modelstructure, ant_expr, eval_world)[0]
-    # ant_prop = self.find_proposition_object(ant_verifiers, ext_only=True)
     ant_alts_to_eval_world = modelstructure.find_alt_bits(ant_verifiers, eval_world)
     for u in ant_alts_to_eval_world:
         # QUESTION: why is string required? Is Z3 removing the lists?
