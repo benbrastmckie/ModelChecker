@@ -150,8 +150,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             # )
         if "neg" in op:
             return extended_falsify(state, ext_sent[1], eval_world)
-        Y = ext_sent[1]  # should be a list itself
-        Z = ext_sent[2]  # should be a list itself
+        Y = ext_sent[1]  # is a list itself
+        Z = ext_sent[2]  # is a list itself
         if "wedge" in op:
             y = BitVec("ex_ver_y", N)
             z = BitVec("ex_ver_z", N)
@@ -213,7 +213,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             )
         y = BitVec("ex_fal_y", N)
         z = BitVec("ex_fal_z", N)
-        # usage of these two in vee and right arrow is mutually exclusive, so can define uphere
+        # usage of these two in vee and right arrow is mutually exclusive,
+        # so can define the y and z dummy bitvecs up here
         if "vee" in op:
             return Exists(
                 [y, z],
@@ -241,24 +242,19 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             f"Something went wrong in extended_verify in evaluating the operator {op} in [{op}, {Y}, {Z}]"
         )
 
-    # NOTE: the true_at/false-at definitions are bilateral to accommodate the fact
-    # that the exhaustivity constraint is not included in the definition of props
-    # this should avoid the need for specific clauses for (un)negated CFs
     def true_at(sentence, eval_world):
-        """sentence is a sentence in prefix notation
+        """sentence is a sentence in prefix notation. Eval world is the world the sentence is
+        to be evaluated at (changes for counterfactuals). 
+        NOTE: the true_at/false-at definitions are bilateral to accommodate the fact
+        that the exhaustivity constraint is not included in the definition of props
+        this should avoid the need for specific clauses for (un)negated CFs. 
         returns a Z3 constraint"""
         x = BitVec("t_x", N)
         u = BitVec("t_u", N)
         if len(sentence) == 1:
             sent = sentence[0]
-            if 'top' not in str(sent)[0]:
+            if 'top' not in str(sent)[0]: # top const alr in model, see find_model_constraints
                 return Exists(x, And(is_part_of(x, eval_world), verify(x, sent)))
-                # raise ValueError('This is raised in principle when top is a proposition.')
-                # if top is a sentence letter, its constraint is already in the model.
-                # It wouldn't hurt to add it again I think in principle, but if there's something
-                # else that should go here when top is passed in by itself then it would go here
-                # return ForAll(x, And(verify(x, sent),Not(falsify(x, sent)))) # this is the top constraint
-                # NOTE: I (M) think this issue was resolved
         op = sentence[0]
         if "neg" in op:
             return false_at(sentence[1], eval_world)
@@ -290,7 +286,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         raise ValueError(f'No if statements triggered— true_at for {sentence} at world {eval_world}')
 
     def false_at(sentence, eval_world):
-        """X is a sentence in prefix notation
+        """X is a sentence in prefix notation, eval world is the world the sentence is to be
+        evaulated at. See true_at (above) for an important note on exhaustivity.
         returns a Z3 constraint"""
         x = BitVec("f_x", N)
         u = BitVec("f_u", N)
@@ -372,7 +369,10 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         return sent_to_prop
 
     def find_frame_constraints():
-        """find the constraints that depend only on the sentence letters
+        """returns constraints that govern how states act:
+        1. for any two states x and y, if y is possible and x is a part of y, then x is possible
+        2. for any two states x and y, there exists a state z that is the fusion of x and y
+        3. there is a state which is a world state (we call it w)
         returns a list of Z3 constraints"""
         x = BitVec("frame_x", N)
         y = BitVec("frame_y", N)
@@ -380,23 +380,15 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         frame_constraints = [
             ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
             ForAll([x, y], Exists(z, fusion(x, y) == z)),
-            is_world(w),
+            is_world(w), # w is passed in from the big outer function
         ]
-        # test_atom = [Const("test_atom", AtomSort)]
-        # test_constraints = [
-        #     Exists(x,
-        #         And(
-        #            is_world(x),
-        #            Not(true_at(test_atom, x)),
-        #            Not(false_at(test_atom, x)),
-        #         )
-        #     ),
-        # ]
-        return frame_constraints # + test_constraints
+        return frame_constraints
 
     def find_model_constraints(prefix_sents,input_sentence_letters):
         """find constraints corresponding to the input sentences
-        returns a list of Z3 constraints"""
+        takes in sentences in prefix form and the input sentence letters (a list of AtomSorts)
+        returns a list of Z3 constraints
+        used in find_all_constraints"""
         prop_constraints = []
         input_constraints = []
         for sent_letter in input_sentence_letters:
@@ -409,7 +401,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                     )
                 )
                 prop_constraints.append(top_constraint)
-                continue
+                continue # ie, prop_const should never be called on '\\top'
             for constraint in prop_const(sent_letter):
                 prop_constraints.append(constraint)
         for sentence in prefix_sents:
@@ -420,9 +412,10 @@ def make_constraints(verify, falsify, possible, assign, N, w):
 
     def sentence_letters_in_compound(prefix_input_sentence):
         """finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
-        used in all_sentence_letters
         returns a list of AtomSorts. CRUCIAL: IN THAT SENSE DOES NOT FOLLOW SYNTAX OF PREFIX SENTS.
-        But that's ok, just relevant to know"""
+        But that's ok, just relevant to know
+        used in all_sentence_letters
+        """
         if len(prefix_input_sentence) == 1:  # base case: atomic sentence
             return prefix_input_sentence
         return_list = []
@@ -447,7 +440,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         input_sents are a list of infix sentences
         returns a tuple with all Z3 constraints, for the model, the sentence letters
         (a list of AtomSorts), and the prefix_sentences (a list of lists, since prefix
-        sentences are lists)"""
+        sentences are lists)
+        function that is returned by the big outer function"""
         # prefix_sentences = [Prefix(input_sent) for input_sent in infix_input_sentences]
         sentence_letters = all_sentence_letters(prefix_input_sentences)  # this works
         input_const = find_model_constraints(prefix_input_sentences, sentence_letters)
