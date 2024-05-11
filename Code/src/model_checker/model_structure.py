@@ -111,24 +111,25 @@ class ModelStructure:
         self.possible = possible
         self.assign = assign
         self.N = N
-        self.w = w
+        self.w = w # NOTE: this isn't needed by the user, and is only used once in this file
+
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
         self.infix_sentences = infix_combine(infix_premises, infix_conclusions)
         self.prefix_premises = [Prefix(prem) for prem in infix_premises]
         self.prefix_conclusions = [Prefix(con) for con in infix_conclusions]
         self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
-        find_constraints_func = make_constraints(
-            verify, falsify, possible, assign, N, w
-        )
+
+        find_constraints_func = make_constraints(verify, falsify, possible, assign, N, w)
         consts, sent_lets = find_constraints_func(self.prefix_sentences)
         self.sentence_letters = sent_lets
         self.constraints = consts
         ext, modal, cf, altogether = find_subsentences_of_kind(self.prefix_sentences, 'all')
+        
         self.extensional_subsentences = ext
         self.counterfactual_subsentences = cf
         self.modal_subsentences = modal
-        self.all_subsentences = altogether
+        self.all_subsentences = altogether # in prefix form
         # initialize yet-undefined attributes
         self.model_status = Uninitalized("model_status")
         self.model = Uninitalized("model")
@@ -164,7 +165,7 @@ class ModelStructure:
         self.model = solved_model
         self.model_runtime = model_total
         if self.model_status:
-            self.null_bit = find_null_bit(self.N)
+            self.null_bit = find_null_bit(self.N) # why do we have this?
             self.all_bits = find_all_bits(self.N)
             self.poss_bits = find_poss_bits(self.model, self.all_bits, self.possible)
             self.world_bits = find_world_bits(self.poss_bits)
@@ -182,16 +183,16 @@ class ModelStructure:
             self.conclusion_propositions = self.find_propositions(self.prefix_conclusions)
             # TODO: just missing the which-sentences-true-in-which-worlds
 
-    def find_alt_bits(self, proposition_verifier_bits, comparison_world=None):
+    def find_alt_bits(self, ext_prop_verifier_bits, comparison_world=None):
         """
-        Finds the alternative bits given verifier bits, possible states, worlds, and
-        the evaluation world. Used in Proposition class alternative worlds and Proposition
-        class attribute update_comparison_world().
+        Finds the alternative bits given verifier bits of an extensional proposition,
+        possible states, worlds, and the evaluation world.
+        Used in evaluate_cf_expression() and rec_print().
         """
         if comparison_world is None:
             comparison_world = self.main_world
         alt_bits = set()
-        for ver in proposition_verifier_bits:
+        for ver in ext_prop_verifier_bits:
             comp_parts = find_compatible_parts(ver, self.poss_bits, comparison_world)
             max_comp_ver_parts = find_max_comp_ver_parts(ver, comp_parts)
             for world in self.world_bits:
@@ -242,6 +243,16 @@ class ModelStructure:
             elif str(consequent_expr) not in str(find_true_and_false_in_alt(u, self)[0]):
                 return False
         return True
+    
+    def true_and_false_worlds_for_cf(self, complex_cf_sent):
+        '''used in find_complex_proposition'''
+        worlds_true_at, worlds_false_at = set(), set()
+        for world in self.world_bits:
+            if self.evaluate_cf_expr(complex_cf_sent, world):
+                worlds_true_at.add(world)
+                continue
+            worlds_false_at.add(world)
+        return (worlds_true_at, worlds_false_at)
 
     def find_complex_proposition(self, complex_sentence, eval_world):
         """sentence is a sentence in prefix notation
@@ -289,13 +300,16 @@ class ModelStructure:
         if "rightarrow" in op:
             return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
         if "boxright" in op:
-            worlds_true_at, worlds_false_at = set(), set()
-            for world in self.world_bits:
-                if self.evaluate_cf_expr(complex_sentence, world):
-                    worlds_true_at.add(world)
-                    continue
-                worlds_false_at.add(world)
-            return (worlds_true_at, worlds_false_at)
+            if eval_world in self.true_and_false_worlds_for_cf(complex_sentence)[0]:
+                return (null_state, set())
+            return (set(), null_state)
+            # worlds_true_at, worlds_false_at = set(), set()
+            # for world in self.world_bits:
+            #     if self.evaluate_cf_expr(complex_sentence, world):
+            #         worlds_true_at.add(world)
+            #         continue
+            #     worlds_false_at.add(world)
+            # return (worlds_true_at, worlds_false_at)
         raise ValueError(f"Don't know how to handle {op} operator")
 
     def find_proposition_object(self, prefix_expression, ext_only=False):
@@ -607,16 +621,16 @@ class Extensional(Proposition):
 
 class Counterfactual(Proposition):
     """subclass of Proposition for counterfactuals"""
-    # def __init__(self, prefix_expr, model_structure, world):
     def truth_value_at(self, eval_world):
         """finds whether a CF is true at a certain world
         returns a Boolean representing yes or no"""
         # TODO: I suspect we need something more like this
         # null_state = {BitVecVal(0,self.N)}
         # if null_state in self["verifiers"]:
-        if eval_world in self["verifiers"]:
-            return True
-        return False
+        # if eval_world in self["verifiers"]:
+        #     return True
+        # return False
+        return True if self["verifiers"] else False # same as for Modals
 
 class Modal(Proposition):
     '''subclass of Proposition for modals'''
