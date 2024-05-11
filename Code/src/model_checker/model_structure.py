@@ -272,6 +272,7 @@ class ModelStructure:
         )
         true_in_eval = set()
         for sent in self.sentence_letters:
+            # TODO: linter error: "Uninitalized" is not iterable  "__iter__" method does not return an object
             for bit in self.all_bits:
                 # TODO: linter error: expected 0 positional arguments
                 ver_bool = self.verify(bit, self.model[sent])
@@ -486,7 +487,7 @@ class Proposition:
 
     def __str__(self):
         return Infix(self["prefix expression"])
-    
+
     def update_verifiers(self, new_world):
         if not is_counterfactual(self['prefix expression']):
             raise AttributeError(f'You can only update verifiers for CFs, and {self} is not a CF.')
@@ -534,7 +535,7 @@ class Proposition:
             f"  ({truth_value} in {world_state})",
             file=output,
         )
-    
+
     def truth_value_at(self,eval_world):
         '''Given a world, returns the truth value of the Proposition at that world.
         Used in print_verifiers_and_falsifiers.'''
