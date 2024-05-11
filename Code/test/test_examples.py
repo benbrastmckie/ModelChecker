@@ -2,7 +2,7 @@ from model_checker.model_structure import make_model_for
 
 N = 3
 premises = ['(A boxright B)']
-conclusions = ['(neg B boxright neg A)']
+conclusions = ['(A boxright (A vee B)']
 
 def test_models(prems, cons, length):
     """test if models are found for the examples"""
