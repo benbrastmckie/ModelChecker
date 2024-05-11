@@ -156,7 +156,7 @@ def coproduct(set_A, set_B):
     A_U_B = set_A.union(set_B)
     return A_U_B.union(product(set_A, set_B))
 
-def atomic_propositions_dict(ms_object):
+def atomic_propositions_dict_maker(ms_object):
     all_bits = ms_object.all_bits
     sentence_letters = ms_object.sentence_letters
     model = ms_object.model

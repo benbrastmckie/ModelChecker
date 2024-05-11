@@ -20,7 +20,7 @@ from semantics import (
 # from model_checker.model_definitions import ( # for packaging
 from model_definitions import (
     find_compatible_parts,
-    atomic_propositions_dict,
+    atomic_propositions_dict_maker,
     # coproduct,
     find_all_bits,
     find_max_comp_ver_parts,
@@ -173,7 +173,7 @@ class ModelStructure:
             self.poss_bits = find_poss_bits(self.model, self.all_bits, self.possible)
             self.world_bits = find_world_bits(self.poss_bits)
             self.main_world = self.model[self.w]
-            self.atomic_props_dict = atomic_propositions_dict(self)
+            self.atomic_props_dict = atomic_propositions_dict_maker(self)
             self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
                                             for ext_subsent in self.extensional_subsentences]
             self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
@@ -210,8 +210,11 @@ class ModelStructure:
     
     # Useful to user now that can search an infix expression
     def find_proposition_object(self, expression, prefix=False, ext_only=False):
-        """given a prefix sentence, finds the Proposition object in the model that corresponds
+        """given a sentence, finds the Proposition object in the model that corresponds
         to it. Can optionally search through only the extensional sentences
+        Also defaults to searching an infix sentence, though internally it always searches
+        prefix. 
+        If search infix, make sure you put double backslashes always!!
         returns a Proposition object"""
         search_list = self.extensional_propositions
         if ext_only is False:

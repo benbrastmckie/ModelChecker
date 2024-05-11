@@ -91,3 +91,10 @@ mod.print_to(print_cons_bool, print_unsat_core_bool)
 #     mod.rec_print()
 for cf_prop in mod.counterfactual_propositions:
     print((cf_prop['worlds cf true at'], cf_prop['worlds cf false at']))
+
+for infix_sent in premises:
+    prop = mod.find_proposition_object(infix_sent)
+    print(prop)
+
+prop_list = mod.find_propositions(premises+conclusions)
+print(prop_list)
