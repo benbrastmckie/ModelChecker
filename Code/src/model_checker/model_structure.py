@@ -182,8 +182,8 @@ class ModelStructure:
                                         for modal_subsent in self.modal_subsentences]
             self.all_propositions = (self.extensional_propositions +
                                      self.counterfactual_propositions + self.modal_propositions)
-            self.premise_propositions = self.find_propositions(self.prefix_premises)
-            self.conclusion_propositions = self.find_propositions(self.prefix_conclusions)
+            self.premise_propositions = self.find_propositions(self.prefix_premises, prefix=True)
+            self.conclusion_propositions = self.find_propositions(self.prefix_conclusions, prefix=True)
             # TODO: just missing the which-sentences-true-in-which-worlds
 
     # NOTE: could be relevant to user, so leaving it here. @B, what do you think?
@@ -208,7 +208,7 @@ class ModelStructure:
                         break  # to return to the second for loop over world_bits
         return alt_bits
     
-    # TODO: would be useful to user, with modifications—need to search for infix sents, not prefix sents
+    # Useful to user now that can search an infix expression
     def find_proposition_object(self, expression, prefix=False, ext_only=False):
         """given a prefix sentence, finds the Proposition object in the model that corresponds
         to it. Can optionally search through only the extensional sentences
@@ -227,14 +227,14 @@ class ModelStructure:
         raise ValueError(
             f"there is no proposition with expression {expression}")
 
-    # TODO: would be useful to user, with modification—need to search for infix sents, not prefix sents
-    def find_propositions(self, sentences):
+    # Useful to user now that can search infix expressions
+    def find_propositions(self, sentences, prefix=False):
         """finds all the Proposition objects in a ModelStructure
         that correspond to the prefix sentences in sentences.
         returns them as a list"""
         propositions = []
         for sent in sentences:
-            propositions.append(self.find_proposition_object(sent, prefix=True))
+            propositions.append(self.find_proposition_object(sent, prefix=prefix))
         return propositions
 
     def print_states(self, output=sys.__stdout__):
