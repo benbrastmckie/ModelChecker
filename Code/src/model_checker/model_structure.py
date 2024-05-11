@@ -209,18 +209,23 @@ class ModelStructure:
         return alt_bits
     
     # TODO: would be useful to user, with modifications—need to search for infix sents, not prefix sents
-    def find_proposition_object(self, prefix_expression, ext_only=False):
+    def find_proposition_object(self, expression, prefix=False, ext_only=False):
         """given a prefix sentence, finds the Proposition object in the model that corresponds
         to it. Can optionally search through only the extensional sentences
         returns a Proposition object"""
         search_list = self.extensional_propositions
         if ext_only is False:
             search_list = self.all_propositions
-        for prop_object in search_list:
-            if prop_object["prefix expression"] == prefix_expression:
-                return prop_object
+        if prefix == True:
+            for prop_object in search_list:
+                if prop_object["prefix expression"] == expression:
+                    return prop_object
+        else:
+            for prop_object in search_list:
+                if str(prop_object) == expression:
+                    return prop_object
         raise ValueError(
-            f"there is no proposition with prefix expression {prefix_expression}")
+            f"there is no proposition with expression {expression}")
 
     # TODO: would be useful to user, with modification—need to search for infix sents, not prefix sents
     def find_propositions(self, sentences):
@@ -229,7 +234,7 @@ class ModelStructure:
         returns them as a list"""
         propositions = []
         for sent in sentences:
-            propositions.append(self.find_proposition_object(sent))
+            propositions.append(self.find_proposition_object(sent, prefix=True))
         return propositions
 
     def print_states(self, output=sys.__stdout__):
@@ -311,7 +316,7 @@ class ModelStructure:
             return
         prefix_expr = prop_obj["prefix expression"]
         op = prefix_expr[0]
-        first_subprop = self.find_proposition_object(prefix_expr[1])
+        first_subprop = self.find_proposition_object(prefix_expr[1], prefix=True)
         indent += 1 # begin subcases, so indent
         if "neg" in op:
             self.rec_print(first_subprop, world_bit, output, indent)
@@ -321,7 +326,7 @@ class ModelStructure:
                 self.rec_print(first_subprop, u, output, indent)
             return
         left_subprop = first_subprop
-        right_subprop = self.find_proposition_object(prefix_expr[2])
+        right_subprop = self.find_proposition_object(prefix_expr[2], prefix=True)
         if "boxright" in op:
             assert (
                 left_subprop in self.extensional_propositions
@@ -404,7 +409,6 @@ class ModelStructure:
         }
         inputs_content = inputs_template.substitute(inputs_data)
         print(inputs_content, file=output)
-
 
     # TODO: how can print_to and save_to be cleaned up and made less redundant?
     def print_to(self, print_cons_bool, print_unsat_core_bool, output=sys.__stdout__):
