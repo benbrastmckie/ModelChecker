@@ -8,20 +8,28 @@ The language currently includes operators for the counterfactual conditional `bo
 
 ## Installation
 
-Install [Python 3](https://www.python.org/downloads/) and run the following commands in the terminal:
+Install [Python 3](https://www.python.org/downloads/) and run the following command in the terminal:
 
 ```
 pip install model-checker
 ```
 
-The project has the `z3-solver` as a dependency.
-In case the dependency does not install automatically, you can run:
+The project has the `z3-solver` as a dependency and should be installed automatically.
+You can confirm that `z3-solver` is installed with:
+
+```
+pip show z3-solver
+```
+
+In case the dependency did not install automatically, you can run:
 
 ```
 pip install z3-solver
 ```
 
-To update to the latest version, run:
+## Updating
+
+To update to the latest version of the `model-checker`, run:
 
 ```
 pip install --upgrade model-checker
@@ -33,7 +41,7 @@ You can check the version with:
 pip show model-checker
 ```
 
-For updates about new releases, click the "Watch" button at the top right corner of the page.
+To receive updates about new releases, click the "Watch" button at the top right corner of the page.
 
 ## Instructions
 
