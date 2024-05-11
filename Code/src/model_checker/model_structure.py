@@ -642,7 +642,7 @@ def make_model_for(N):
         verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
         falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
         assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
-        w = BitVec("w", N)
+        w = BitVec("w", N) # what will be the main world
         mod = ModelStructure(
             premises, conclusions, verify, falsify, possible, assign, N, w
         )
