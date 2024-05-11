@@ -437,28 +437,41 @@ class ModelStructure:
         """does rec_print for every proposition in the input propositions
         returns None"""
         initial_eval_world = self.main_world
-        start_con_num = len(self.premise_propositions) + 1
+        start_con_num = len(self.infix_premises) + 1
         if self.premise_propositions:
-            print("Interpreted premises:\n")
+            if len(self.infix_premises) < 2:
+                print("Interpreted premise:\n")
+            else:
+                print("Interpreted premises:\n")
             for index, input_prop in enumerate(self.premise_propositions, start=1):
                 print(f"{index}.", end="", file=output)
                 self.rec_print(input_prop, initial_eval_world, output, 1)
                 print(file=output)
         if self.conclusion_propositions:
-            print("Interpreted conclusions:\n")
+            if len(self.infix_conclusions) < 2:
+                print("Interpreted conclusion:\n")
+            else:
+                print("Interpreted conclusions:\n")
             for index, input_prop in enumerate(self.conclusion_propositions, start=start_con_num):
                 print(f"{index}.", end="", file=output)
                 self.rec_print(input_prop, initial_eval_world, output, 1)
                 print(file=output)
 
     def print_enumerate(self, output):
+        """prints the premises and conclusions with numbers"""
         start_con_num = len(self.infix_premises) + 1
         if self.infix_premises:
-            print("Premises:")
+            if len(self.infix_premises) < 2:
+                print("Premise:")
+            else:
+                print("Premises:")
             for index, sent in enumerate(self.infix_premises, start=1):
                 print(f"{index}. {sent}", file=output)
         if self.infix_conclusions:
-            print("\nConclusions:")
+            if len(self.infix_conclusions) < 2:
+                print("\nConclusion:")
+            else:
+                print("\nConclusions:")
             for index, sent in enumerate(self.infix_conclusions, start=start_con_num):
                 print(f"{index}. {sent}", file=output)
 

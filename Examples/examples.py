@@ -29,8 +29,8 @@ save_bool = False
 
 ### INVALID ###
 
-premises = ['(A boxright C)']
-conclusions = ['((A wedge B) boxright C)']
+# premises = ['(A boxright C)']
+# conclusions = ['((A wedge B) boxright C)']
 
 # premises = ['(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
@@ -73,8 +73,7 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['Diamond A', 'Diamond B']
 # conclusions = ['Diamond (A wedge B)']
 
-# # ERROR: debug
-# # NOTE: ssh finds a model
+# # NOTE: very slow but mit server finds a model
 # premises = ['(A boxright B)']
 # conclusions = ['Box (A rightarrow B)']
 
@@ -82,27 +81,11 @@ conclusions = ['((A wedge B) boxright C)']
 
 ### VALID ###
 
-# # ERROR: debug
-# # NOTE: unsat_core seems satisfiable
-# premises = []
-# conclusions = ['(A vee neg A)']
-
-# # ERROR: debug
-# # NOTE: unsat_core seems satisfiable
-# premises = []
-# conclusions = ['neg (A wedge neg A)']
-
 # premises = ['A','(A rightarrow B)']
 # conclusions = ['B']
 
-# premises = ['(A boxright B)']
-# conclusions = ['(A rightarrow B)']
-
 # premises = ['((A vee B) boxright C)']
 # conclusions = ['(A boxright C)']
-
-# premises = ['((A vee B) boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
 
 # premises = ['(A boxright C)','(B boxright C)','((A wedge B) boxright C)']
 # conclusions = ['((A vee B) boxright C)']
@@ -116,8 +99,27 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['(A boxright B)','(A boxright C)']
 # conclusions = ['(A boxright (B wedge C))']
 
+# # NOTE: unsat_core seems satisfiable
+# premises = []
+# conclusions = ['(A vee neg A)']
+
+# # NOTE: unsat_core seems satisfiable
+# premises = []
+# conclusions = ['neg (A wedge neg A)']
+
+# # NOTE: slow 13.8 sec locally
+# premises = ['(A boxright B)']
+# conclusions = ['(A rightarrow B)']
+
+# # NOTE: very slow 41.6 sec locally
 # premises = ['(A boxright B)','((A wedge B) boxright C)']
 # conclusions = ['(A boxright C)']
+
+# # NOTE: crashed locally
+# premises = ['((A vee B) boxright C)']
+# conclusions = ['((A wedge B) boxright C)']
+
+
 
 
 
@@ -170,6 +172,8 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['Box (A rightarrow B)']
 # conclusions = ['(A boxright B)']
 
+premises = ['Box A', '((A \\wedge B) \\boxright C)']
+conclusions = ['(B \\boxright C)']
 
 
 
