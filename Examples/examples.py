@@ -72,6 +72,8 @@ save_bool = False
 # premises = ['(A boxright B)']
 # conclusions = ['Box (A rightarrow B)']
 
+premises = ['(A boxright (B boxright (C boxright D)))']
+conclusions = ['D']
 
 
 ### VALID ###

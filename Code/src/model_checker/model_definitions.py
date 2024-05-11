@@ -409,6 +409,7 @@ def true_and_false_worlds_for_cf(modelstructure, complex_cf_sent):
     # assert 'boxright' in complex_cf_sent[0], 'this func is only for main-clause cfs!'
     worlds_true_at, worlds_false_at = set(), set()
     for world in modelstructure.world_bits:
+        # print(f"TEST: {complex_cf_sent} is true at {world}")
         if modelstructure.find_complex_proposition(complex_cf_sent, world):
             worlds_true_at.add(world)
             continue
