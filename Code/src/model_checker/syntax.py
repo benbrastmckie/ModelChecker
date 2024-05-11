@@ -129,8 +129,8 @@ def parse(tokens):
     #     return [Const(token, AtomSort)]
     # if isinstance(tokens, str):
     #     return tokens
-    if not tokens:
-        raise SyntaxError(f"Error: '{tokens}' is not a list.")
+    # if not tokens:
+    #     raise SyntaxError(f"Error: '{tokens}' is not a list.")
     if tokens[0] in unary_operators:
         return [tokens[0], parse(tokens[1:])]
     if bin_comp_tokens == 0:
