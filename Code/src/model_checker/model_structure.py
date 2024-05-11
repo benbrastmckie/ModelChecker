@@ -305,7 +305,7 @@ class ModelStructure:
         if "rightarrow" in op:
             return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
         if "boxright" in op:
-            if evaluate_mainclause_cf_expr(complex_sentence, eval_world):
+            if evaluate_mainclause_cf_expr(self, complex_sentence, eval_world):
                 return (null_state, set())
             return (set(), null_state)
         raise ValueError(f"Don't know how to handle {op} operator")
@@ -560,6 +560,7 @@ class Proposition:
         (verifiers, falsifiers) = model_structure.find_complex_proposition(prefix_expr, eval_world)
         # for modals and CFS, if they're true then the verifiers are only the null state and
         # falsifiers are nothing; if they're false the opposite
+        self.world_bits = model_structure.world_bits
         self.prop_dict["verifiers"] = verifiers
         self.prop_dict["falsifiers"] = falsifiers
         if is_modal(prefix_expr):
@@ -569,7 +570,7 @@ class Proposition:
             self['non arg worlds'] = non_arg_worlds
         if is_counterfactual(prefix_expr):
             self.current_eval_world = eval_world
-            true_worlds, false_worlds = true_and_false_worlds_for_cf(prefix_expr)
+            true_worlds, false_worlds = true_and_false_worlds_for_cf(model_structure, prefix_expr)
             self['worlds cf true at'] = true_worlds
             self['worlds cf false at'] = false_worlds
 
