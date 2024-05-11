@@ -29,8 +29,8 @@ save_bool = False
 
 ### INVALID ###
 
-# premises = ['(A boxright B)']
-# conclusions = ['(neg B boxright neg A)']
+premises = ['(A boxright B)']
+conclusions = ['(neg B boxright neg A)']
 
 # premises = ['(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
