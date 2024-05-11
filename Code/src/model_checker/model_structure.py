@@ -300,11 +300,6 @@ class ModelStructure:
         if "rightarrow" in op:
             return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
         if "boxright" in op:
-            # NOTE: change to null_state, nothing. 
-            # Would a counterfactual be true at a world w
-            # (and thus its verifiers should be {null_state})
-            # just in case the counterfactual is true at the current world of evaluation?
-
             if eval_world in self.true_and_false_worlds_for_cf(complex_sentence)[0]:
                 return (null_state, set())
             return (set(), null_state)
