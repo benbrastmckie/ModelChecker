@@ -24,12 +24,10 @@ from model_definitions import (
     coproduct,
     find_all_bits,
     find_max_comp_ver_parts,
-    find_null_bit,
     find_poss_bits,
     find_world_bits,
     prefix_combine,
     pretty_set_print,
-    find_true_and_false_in_alt,
     product,
     bit_part,
     bitvec_to_substates,
@@ -39,6 +37,10 @@ from model_definitions import (
     is_counterfactual,
     is_modal,
     is_extensional,
+    evaluate_mainclause_cf_expr,
+    evaluate_modal_expr,
+    true_and_false_worlds_for_cf,
+
 
 
 )
@@ -136,7 +138,6 @@ class ModelStructure:
         self.model_status = Uninitalized("model_status")
         self.model = Uninitalized("model")
         self.model_runtime = Uninitalized("model_runtime")
-        self.null_bit = Uninitalized("null_bit")
         self.all_bits = Uninitalized("all_bits")
         self.poss_bits = Uninitalized("poss_bits")
         self.world_bits = Uninitalized("world_bits")
@@ -167,7 +168,6 @@ class ModelStructure:
         self.model = solved_model
         self.model_runtime = model_total
         if self.model_status:
-            self.null_bit = find_null_bit(self.N) # why do we have this?
             self.all_bits = find_all_bits(self.N)
             self.poss_bits = find_poss_bits(self.model, self.all_bits, self.possible)
             self.world_bits = find_world_bits(self.poss_bits)
@@ -185,6 +185,7 @@ class ModelStructure:
             self.conclusion_propositions = self.find_propositions(self.prefix_conclusions)
             # TODO: just missing the which-sentences-true-in-which-worlds
 
+    # NOTE: could be relevant to user, so leaving it here. @B, what do you think?
     def find_alt_bits(self, ext_prop_verifier_bits, comparison_world=None):
         """
         Finds the alternative bits given verifier bits of an extensional proposition,
@@ -206,60 +207,65 @@ class ModelStructure:
                         break  # to return to the second for loop over world_bits
         return alt_bits
 
-    def evaluate_modal_expr(self, prefix_modal, eval_world):
-        '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
-        used to initialize Counterfactuals
-        returns a bool representing whether the counterfactual is true at the world or not'''
-        op, argument = prefix_modal[0], prefix_modal[1]
-        if is_modal(argument):
-            if self.evaluate_modal_expr(prefix_modal) is True: # ie, verifiers is null state
-                return True # both Box and Diamond will return true, since verifiers is not empty
-            return False
-        if 'Diamond' in op:
-            # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
-            for world in self.world_bits:
-                if world in self.find_complex_proposition(argument, eval_world)[0]:
-                    return True
-            return False
-        if 'Box' in op:
-            # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
-            for world in self.world_bits:
-                if world not in self.find_complex_proposition(argument, eval_world)[0]:
-                    return False
-            return True
+# not necessary for the user—can be moved to model_definitions
+    # def evaluate_modal_expr(self, prefix_modal, eval_world):
+    #     '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
+    #     used to initialize Counterfactuals
+    #     returns a bool representing whether the counterfactual is true at the world or not'''
+    #     op, argument = prefix_modal[0], prefix_modal[1]
+    #     if is_modal(argument):
+    #         if self.evaluate_modal_expr(prefix_modal) is True: # ie, verifiers is null state
+    #             return True # both Box and Diamond will return true, since verifiers is not empty
+    #         return False
+    #     if 'Diamond' in op:
+    #         # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
+    #         for world in self.world_bits:
+    #             if world in self.find_complex_proposition(argument, eval_world)[0]:
+    #                 return True
+    #         return False
+    #     if 'Box' in op:
+    #         # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
+    #         for world in self.world_bits:
+    #             if world not in self.find_complex_proposition(argument, eval_world)[0]:
+    #                 return False
+    #         return True
 
-    def evaluate_mainclause_cf_expr(self, prefix_cf, eval_world):
-        """evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
-        used to initialize Counterfactuals
-        returns a bool representing whether the counterfactual is true at the world or not
-        """
-        op = prefix_cf[0]
-        assert "boxright" in op, f"{prefix_cf} is not a main-clause counterfactual!"
-        ant_expr, consequent_expr = prefix_cf[1], prefix_cf[2]
-        assert is_extensional(ant_expr), f"the antecedent {ant_expr} is not extensional!"
-        ant_verifiers = self.find_complex_proposition(ant_expr, eval_world)[0]
-        # ant_prop = self.find_proposition_object(ant_verifiers, ext_only=True)
-        ant_alts_to_eval_world = self.find_alt_bits(ant_verifiers, eval_world)
-        for u in ant_alts_to_eval_world:
-            # QUESTION: why is string required? Is Z3 removing the lists?
-            if is_counterfactual(consequent_expr):
-                if not self.find_complex_proposition(consequent_expr, u)[0]:
-                    return False
-            elif str(consequent_expr) not in str(find_true_and_false_in_alt(u, self)[0]):
-                return False
-        return True
+# not necessary for the user. 
+    # def evaluate_mainclause_cf_expr(self, prefix_cf, eval_world):
+    #     """evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
+    #     used to initialize Counterfactuals
+    #     returns a bool representing whether the counterfactual is true at the world or not
+    #     """
+    #     op = prefix_cf[0]
+    #     assert "boxright" in op, f"{prefix_cf} is not a main-clause counterfactual!"
+    #     ant_expr, consequent_expr = prefix_cf[1], prefix_cf[2]
+    #     assert is_extensional(ant_expr), f"the antecedent {ant_expr} is not extensional!"
+    #     ant_verifiers = self.find_complex_proposition(ant_expr, eval_world)[0]
+    #     # ant_prop = self.find_proposition_object(ant_verifiers, ext_only=True)
+    #     ant_alts_to_eval_world = self.find_alt_bits(ant_verifiers, eval_world)
+    #     for u in ant_alts_to_eval_world:
+    #         # QUESTION: why is string required? Is Z3 removing the lists?
+    #         if is_counterfactual(consequent_expr):
+    #             if not self.find_complex_proposition(consequent_expr, u)[0]:
+    #                 return False
+    #         elif str(consequent_expr) not in str(find_true_and_false_in_alt(u, self)[0]):
+    #             return False
+    #     return True
     
-    def true_and_false_worlds_for_cf(self, complex_cf_sent):
-        '''used in find_complex_proposition'''
-        # assert 'boxright' in complex_cf_sent[0], 'this func is only for main-clause cfs!'
-        worlds_true_at, worlds_false_at = set(), set()
-        for world in self.world_bits:
-            if self.find_complex_proposition(complex_cf_sent, world):
-                worlds_true_at.add(world)
-                continue
-            worlds_false_at.add(world)
-        return (worlds_true_at, worlds_false_at)
+    # not necessary for user—there is a better way to do this in the Proposition class anyways
+    # def true_and_false_worlds_for_cf(self, complex_cf_sent):
+    #     '''used in find_complex_proposition'''
+    #     # assert 'boxright' in complex_cf_sent[0], 'this func is only for main-clause cfs!'
+    #     worlds_true_at, worlds_false_at = set(), set()
+    #     for world in self.world_bits:
+    #         if self.find_complex_proposition(complex_cf_sent, world):
+    #             worlds_true_at.add(world)
+    #             continue
+    #         worlds_false_at.add(world)
+    #     return (worlds_true_at, worlds_false_at)
 
+    # might be able to move this to model_definitions if find a way to get all its functions to
+    # the Prop class (barrier: eval world of CFs under this method forces take acct of eval_world)
     def find_complex_proposition(self, complex_sentence, eval_world):
         """sentence is a sentence in prefix notation
         For a given complex proposition, returns the verifiers and falsifiers of that proposition
@@ -280,14 +286,10 @@ class ModelStructure:
             Y_V, Y_F = self.find_complex_proposition(Y, eval_world)
             return (Y_F, Y_V)
         null_state = {BitVecVal(0,self.N)}
-        if 'Box' in op:
-            if self.evaluate_modal_expr(complex_sentence, eval_world):
+        if 'Box' in op or 'Diamond' in op:
+            if evaluate_modal_expr(self, complex_sentence, eval_world):
                 return (null_state, set())
             return (set(), null_state)
-        if 'Diamond' in op:
-            if self.evaluate_modal_expr(complex_sentence, eval_world):
-                return (set(), null_state)
-            return (null_state, set())
         Z = complex_sentence[2]
         Y_V, Y_F = self.find_complex_proposition(Y, eval_world)
         Z_V, Z_F = self.find_complex_proposition(Z, eval_world)
@@ -303,11 +305,12 @@ class ModelStructure:
         if "rightarrow" in op:
             return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
         if "boxright" in op:
-            if self.evaluate_mainclause_cf_expr(complex_sentence, eval_world):
+            if evaluate_mainclause_cf_expr(complex_sentence, eval_world):
                 return (null_state, set())
             return (set(), null_state)
         raise ValueError(f"Don't know how to handle {op} operator")
 
+    # would be useful to user, with modifications—need to search for infix sents, not prefix sents
     def find_proposition_object(self, prefix_expression, ext_only=False):
         """given a prefix sentence, finds the Proposition object in the model that corresponds
         to it. Can optionally search through only the extensional sentences
@@ -321,6 +324,7 @@ class ModelStructure:
         raise ValueError(
             f"there is no proposition with prefix expression {prefix_expression}")
 
+    # would be useful to user, with modification—need to search for infix sents, not prefix sents
     def find_propositions(self, sentences):
         """finds all the Proposition objects in a ModelStructure
         that correspond to the prefix sentences in sentences.
@@ -565,7 +569,7 @@ class Proposition:
             self['non arg worlds'] = non_arg_worlds
         if is_counterfactual(prefix_expr):
             self.current_eval_world = eval_world
-            true_worlds, false_worlds = model_structure.true_and_false_worlds_for_cf(prefix_expr)
+            true_worlds, false_worlds = true_and_false_worlds_for_cf(prefix_expr)
             self['worlds cf true at'] = true_worlds
             self['worlds cf false at'] = false_worlds
 
