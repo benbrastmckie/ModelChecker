@@ -14,9 +14,10 @@ def summation(n, func, start = 0):
         return func(start)
     return func(start) + summation(n,func,start+1)
 
-def find_null_bit(size):
-    '''finds the null bit'''
-    return [BitVecVal(0, size)]
+# unused
+# def find_null_bit(size):
+#     '''finds the null bit'''
+#     return [BitVecVal(0, size)]
 
 def find_all_bits(size):
     '''extract all bitvectors from the input model
@@ -72,7 +73,7 @@ def find_world_bits(poss_bits):
 def find_compatible_parts(verifier_bit, poss_bits, eval_world):
     """
     Finds the parts of the eval_world compatible with the verifier_bit.
-    Used in find_alt_bits()
+    Used in find_alt_bits() method in ModelStructure class
     """
     comp_parts = []
     for part in poss_bits:
@@ -85,7 +86,8 @@ def find_compatible_parts(verifier_bit, poss_bits, eval_world):
 def find_max_comp_ver_parts(verifier_bit, comp_parts):
     """
     Finds a list of fusions of the verifier_bit and a maximal compatible part.
-    Used in find_alt_bits(), immediately after find_compatible_parts() above.
+    Used in find_alt_bits() method of ModelStructure class,
+    immediately after find_compatible_parts() above.
     """
     not_max_comp_part = []
     for max_part in comp_parts:
@@ -99,7 +101,7 @@ def find_max_comp_ver_parts(verifier_bit, comp_parts):
 
 def relate_sents_and_states(all_bits, sentence, model, relation):
     """helper function for finding verifier and falsifier states to sentences in a model
-    Used in find_relations()
+    Used in atomic_propositions_dict
     DOES NOT CHECK IF THESE ARE POSSIBLE. """
     relation_set = set()
     for bit in all_bits:
@@ -109,10 +111,11 @@ def relate_sents_and_states(all_bits, sentence, model, relation):
 
 def find_true_and_false_in_alt(alt_bit, parent_model_structure):
     """returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.
-    Used in Proposition class print_alt_worlds"""
+    Used in evaluate_mainclause_cf_expr()"""
     extensional_sentences = parent_model_structure.extensional_subsentences
     # B: is this still true once modal and counterfactual prop_objects include verifiers and falsifiers?
     # TODO: below creates problem with nested counterfactuals
+    # TODO: I think this was resolved
     # extensional_sentences = parent_model_structure.all_subsentences
     all_bits = parent_model_structure.all_bits
     true_in_alt = []
@@ -120,7 +123,7 @@ def find_true_and_false_in_alt(alt_bit, parent_model_structure):
         for bit in all_bits:
             # print(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True))
             # print(type(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True)))
-            if bit in parent_model_structure.find_complex_proposition(R, alt_bit)[0] and bit_part(bit, alt_bit):
+            if bit in find_complex_proposition(parent_model_structure, R, alt_bit)[0] and bit_part(bit, alt_bit):
                 true_in_alt.append(R)
                 break  # returns to the for loop over sentence_letters
     false_in_alt = [R for R in extensional_sentences if not R in true_in_alt] # replace with
@@ -153,7 +156,7 @@ def coproduct(set_A, set_B):
     A_U_B = set_A.union(set_B)
     return A_U_B.union(product(set_A, set_B))
 
-def atomic_propositions_dict(ms_object):
+def atomic_propositions_dict_maker(ms_object):
     all_bits = ms_object.all_bits
     sentence_letters = ms_object.sentence_letters
     model = ms_object.model
@@ -224,7 +227,7 @@ def int_to_binary(integer, number, backwards_binary_str = ''):
     return int_to_binary(new_int, number, new_backwards_str)
 
 
-# TODO: linter says all or none of the returns should be an expression
+# has to do with printing
 def bitvec_to_substates(bit_vec, N):
     '''converts bitvectors to fusions of atomic states.'''
     bit_vec_as_string = bit_vec.sexpr()
@@ -241,11 +244,12 @@ def bitvec_to_substates(bit_vec, N):
         if char == "1":
             state_repr += index_to_substate(i)
             state_repr += "."
+    raise ValueError("should have run into 'b' at the end but didn't")
 
 def infix_combine(premises, conclusions):
     '''combines the premises with the negation of the conclusion(s).
     premises are infix sentences, and so are the conclusions
-    imported by model_structure'''
+    imported by model_structure, in __init__ method of ModelStructure'''
     input_sentences = premises[:]
     for sent in conclusions:
         neg_sent = '\\neg ' + sent
@@ -253,7 +257,8 @@ def infix_combine(premises, conclusions):
     return input_sentences
 
 def disjoin_prefix(sentences):
-    """disjoins the list of sentences in prefix form"""
+    """disjoins the list of sentences in prefix form
+    helper for prefix_combine (immediately below)"""
     if len(sentences) > 2:
         copy_sentences = sentences[:]
         first_sent = copy_sentences.pop(0)
