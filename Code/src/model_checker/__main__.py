@@ -57,6 +57,8 @@ use_constraints_bool = False
 # Necessity: 'Box', e.g., 'Box A'.
 # Possibility: 'Diamond', e.g., 'Diamond RedBall'. 
 
+# NOTE: parentheses must not be included for unary operators.
+
 
 ### BINARY OPERATORS ###
 
@@ -64,7 +66,7 @@ use_constraints_bool = False
 # Disjunction: 'vee', e.g., '(A vee B)'
 # Conditional: 'rightarrow', e.g., '(A rightarrow B)'
 # Biconditional: 'leftrightarrow', e.g., '(A leftrightarrow B)'
-# Counterfactual: 'boxright', e.g., '(A boxright B)' where 'A' cannot include 'Box', 'Diamond', or 'boxright'.
+# Counterfactual: 'boxright', e.g., '(A boxright B)'
 
 # NOTE: parentheses must always be included for binary operators.
 
