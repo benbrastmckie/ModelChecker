@@ -29,8 +29,8 @@ save_bool = False
 
 ### INVALID ###
 
-# premises = ['(A boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
+premises = ['(A boxright C)']
+conclusions = ['((A wedge B) boxright C)']
 
 # premises = ['(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
@@ -172,8 +172,8 @@ save_bool = False
 # premises = ['Box (A rightarrow B)']
 # conclusions = ['(A boxright B)']
 
-premises = ['Box A', '((A \\wedge B) \\boxright C)']
-conclusions = ['(B \\boxright C)']
+# premises = ['Box A', '((A wedge B) boxright C)']
+# conclusions = ['(B boxright C)']
 
 
 
