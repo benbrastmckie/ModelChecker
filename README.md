@@ -82,22 +82,27 @@ The semantics included is hyperintensional insofar as sentences are evaluated at
 States are modeled by bitvectors of a specified length (e.g., `#b00101` has length `5`), where _state fusion_ is modeled by the bitwise OR operator `|`.
 For instance, `#b00101 | #b11001 = #b11101`.
 The _atomic states_ have exactly one occurrence of `1` and the _null state_ has no occurrences of `1`.
-The space of states is closed under fusion and finite.
+The space of states is finite and closed under fusion.
 
 States are named by lowercase letters for the sake of printing readable countermodels.
-A state `a` is _part_ of a state `b` just in case `a | b = b`.
+Fusions are printed using `.` so that `a.b` is the fusion of the states `a` and `b`.
+A state `a` is _part_ of a state `b` just in case `a.b = b`.
 States may be either _possible_ or _impossible_ where the null state is required to be possible and every part of a possible state is possible.
-The states `a` and `b` are _compatible_ just in case `a | b` is possible.
+The states `a` and `b` are _compatible_ just in case `a.b` is possible.
 A _world state_ is any state that is both possible and includes every compatible state as a part.
 
 Sentences are assigned _verifier states_ and _falsifier states_ where the both the verifiers and falsifiers are required to be closed under fusion.
-True counterfactual and modal sentences are verified by the null state and falsified by no states.
+In order to ensure that sentence letters have at most one truth-value at each world state, a fusion `a.b` is required to be impossible whenever `a` is verifier for a sentence letter `A` and `b` is a falsifier for `A`.
+Additionally, sentence letters have at least one truth-value at each world state by requiring every possible state to be compatible with either a verifier or falsifier for any sentence letter.
+These definitions were originally provided in [Fine 2017](https://link.springer.com/article/10.1007/s10992-016-9413-y).
+
 Negated sentences are verified by the falsifiers for the sentence negated and falsified by the verifiers for the sentence negated.
 Conjunctions are verified by the pairwise fusions of verifiers for the conjuncts and falsified by falsifiers for either of the conjuncts or fusions thereof.
 Conjunction and disjunction are dual operators obeying the standard De Morgan laws.
 The absorption laws do not hold, nor does conjunction distribute over disjunction, or _vice versa_.
+True counterfactual and modal sentences are verified by the null state and falsified by no states.
 
-The semantic theory for counterfactual conditionals is motivated and further elaborated in this [draft](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf).
+The semantic theory for counterfactual conditionals is motivated and further elaborated in this [manuscript](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf).
 For the background theory of hyperintensional propositions, see this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w).
 
 ### Code Architecture
