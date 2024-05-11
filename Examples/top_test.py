@@ -35,8 +35,8 @@ use_constraints_bool = False
 
 ### VALID ###
 
-premises = ['(\\top \\boxright (A \\boxright B))', 'A']
-conclusions = ['\\neg B']
+# premises = ['(\\top \\boxright (A \\boxright B))', 'A']
+# conclusions = ['\\neg B']
 
 # premises = ['(\\top \\boxright A)', '((A \\wedge B) \\boxright C)', '\\neg (\\top \\boxright \\neg D)']
 # conclusions = ['\\neg A']
@@ -47,7 +47,7 @@ conclusions = ['\\neg B']
 # conclusions = ['\\neg (\\top \\boxright \\neg A)'] # no models, as desired
 
 # should this be valid? to me it seems intuitively it should be, but not sure
-premises = ['(\\top \\boxright A)', '((A \\wedge B) \\boxright C)']
+premises = ['Box A', '((A \\wedge B) \\boxright C)']
 conclusions = ['(B \\boxright C)']
 
 # premises = ['\\Box A']

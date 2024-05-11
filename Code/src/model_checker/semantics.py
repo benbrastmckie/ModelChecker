@@ -408,7 +408,6 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                 )
                 prop_constraints.append(top_constraint)
                 continue
-            # print(f"TEST: {sent_letter}")
             for constraint in prop_const(sent_letter):
                 prop_constraints.append(constraint)
         for sentence in prefix_sents:
