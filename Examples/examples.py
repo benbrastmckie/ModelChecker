@@ -29,9 +29,6 @@ save_bool = False
 
 ### INVALID ###
 
-premises = ['(A boxright C)']
-conclusions = ['((A wedge B) boxright C)']
-
 # premises = ['(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 
@@ -45,21 +42,14 @@ conclusions = ['((A wedge B) boxright C)']
 # ]
 # conclusions = []
 
-
 # premises = ['neg A','(A boxright (B vee C))']
 # conclusions = ['(A boxright B)','(A boxright C)']
 
-# # NOTE: if null verifiers are permitted, then null state verifies A
-# # but possible state c does not?
-# premises = ['A','B']
-# conclusions = ['(A boxright B)']
-
 # premises = ['neg A']
 # conclusions = ['(A boxright B)','(A boxright neg B)']
 
 # premises = ['neg A']
 # conclusions = ['(A boxright B)','(A boxright neg B)']
-
 
 # premises = ['A boxright C', 'neg (A boxright neg B)']
 # conclusions = ['neg ((A wedge B) boxright C)']
@@ -72,6 +62,11 @@ conclusions = ['((A wedge B) boxright C)']
 
 # premises = ['Diamond A', 'Diamond B']
 # conclusions = ['Diamond (A wedge B)']
+
+# # NOTE: if null verifiers are permitted, then null state verifies A
+# # but possible state c does not?
+# premises = ['A','B']
+# conclusions = ['(A boxright B)']
 
 # # NOTE: very slow but mit server finds a model
 # premises = ['(A boxright B)']
