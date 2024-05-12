@@ -312,11 +312,11 @@ class ModelStructure:
             print(f"{index}. {con}\n", file=output)
             # print(f"Constraints time: {time}\n")
 
-    def rec_print(self, prop_obj, world_bit, output, indent=0):
+    def rec_print(self, prop_obj, world_bit, print_impossible, output, indent=0):
         """recursive print function (previously print_sort)
         returns None"""
         N = self.N
-        prop_obj.print_verifiers_and_falsifiers(world_bit, indent, output)
+        prop_obj.print_verifiers_and_falsifiers(world_bit, print_impossible, indent, output)
         if str(prop_obj) in [str(atom) for atom in self.sentence_letters]:
             return
         prefix_expr = prop_obj["prefix expression"]
@@ -324,11 +324,11 @@ class ModelStructure:
         first_subprop = self.find_proposition_object(prefix_expr[1], prefix=True)
         indent += 1 # begin subcases, so indent
         if "neg" in op:
-            self.rec_print(first_subprop, world_bit, output, indent)
+            self.rec_print(first_subprop, world_bit, print_impossible, output, indent)
             return
         if 'Diamond' in op or 'Box' in op:
             for u in self.world_bits:
-                self.rec_print(first_subprop, u, output, indent)
+                self.rec_print(first_subprop, u, print_impossible, output, indent)
             return
         left_subprop = first_subprop
         right_subprop = self.find_proposition_object(prefix_expr[2], prefix=True)
@@ -339,7 +339,7 @@ class ModelStructure:
             left_subprop_vers = left_subprop['verifiers']
             phi_alt_worlds_to_world_bit = self.find_alt_bits(left_subprop_vers, world_bit)
             alt_worlds_as_strings = {bitvec_to_substates(u,N) for u in phi_alt_worlds_to_world_bit}
-            self.rec_print(left_subprop, world_bit, output, indent)
+            self.rec_print(left_subprop, world_bit, print_impossible, output, indent)
             print(
                 f'{"  " * indent}'
                 f'{left_subprop}-alternatives to {bitvec_to_substates(world_bit, N)} = '
@@ -348,12 +348,12 @@ class ModelStructure:
             )
             indent += 1
             for u in phi_alt_worlds_to_world_bit:
-                self.rec_print(right_subprop, u, output, indent)
+                self.rec_print(right_subprop, u, print_impossible, output, indent)
             return
-        self.rec_print(left_subprop, world_bit, output, indent)
-        self.rec_print(right_subprop, world_bit, output, indent)
+        self.rec_print(left_subprop, world_bit, print_impossible, output, indent)
+        self.rec_print(right_subprop, world_bit, print_impossible, output, indent)
 
-    def print_inputs_recursively(self, output):
+    def print_inputs_recursively(self, print_impossible, output):
         """does rec_print for every proposition in the input propositions
         returns None"""
         initial_eval_world = self.main_world
@@ -365,7 +365,7 @@ class ModelStructure:
                 print("Interpreted premises:\n")
             for index, input_prop in enumerate(self.premise_propositions, start=1):
                 print(f"{index}.", end="", file=output)
-                self.rec_print(input_prop, initial_eval_world, output, 1)
+                self.rec_print(input_prop, initial_eval_world, print_impossible, output, 1)
                 print(file=output)
         if self.conclusion_propositions:
             if len(self.infix_conclusions) < 2:
@@ -374,7 +374,7 @@ class ModelStructure:
                 print("Interpreted conclusions:\n")
             for index, input_prop in enumerate(self.conclusion_propositions, start=start_con_num):
                 print(f"{index}.", end="", file=output)
-                self.rec_print(input_prop, initial_eval_world, output, 1)
+                self.rec_print(input_prop, initial_eval_world, print_impossible, output, 1)
                 print(file=output)
 
     def print_enumerate(self, output):
@@ -402,7 +402,7 @@ class ModelStructure:
         self.print_enumerate(output)
         self.print_states(print_impossible, output)
         self.print_evaluation(output)
-        self.print_inputs_recursively(output)
+        self.print_inputs_recursively(print_impossible, output)
 
     def build_test_file(self, output):
         """generates a test file from input to be saved"""
@@ -504,7 +504,7 @@ class Proposition:
         self['verifiers'], self['falsifiers'] = set(), {BitVecVal(0,N)}
         return
 
-    def print_verifiers_and_falsifiers(self, current_world, indent=0, output=sys.__stdout__):
+    def print_verifiers_and_falsifiers(self, current_world, print_impossible=False, indent=0, output=sys.__stdout__):
         """prints the possible verifiers and falsifier states for a sentence.
         inputs: the verifier states and falsifier states.
         Outputs: None, but prints the verifiers and falsifiers
@@ -522,6 +522,7 @@ class Proposition:
             bitvec_to_substates(bit, N)
             for bit in self["verifiers"]
             if model.evaluate(possible(bit))
+            or print_impossible
         }
         if ver_states:
             ver_prints = pretty_set_print(ver_states)
@@ -530,6 +531,7 @@ class Proposition:
             bitvec_to_substates(bit, N)
             for bit in self["falsifiers"]
             if model.evaluate(possible(bit))
+            or print_impossible
         }
         if fal_states:
             fal_prints = pretty_set_print(fal_states)

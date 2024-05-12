@@ -38,6 +38,10 @@ save_bool = False
 # use constraints to find models in stead of premises and conclusions
 use_constraints_bool = False
 
+# print all states including impossible states
+print_impossible_states_bool = False
+
+
 ################################
 ############ SYNTAX ############
 ################################
@@ -97,7 +101,8 @@ def print_or_save(module, cons_flag, save_flag, imposs_flag):
     if cons_flag:
         print_cons = True
         print_unsat = True
-    mod.print_to(print_cons, print_unsat, imposs_flag)
+    print_imposs = module.print_impossible_states_bool or imposs_flag
+    mod.print_to(print_cons, print_unsat, print_imposs)
     if not module.save_bool and not save_flag:
         return
     result = input("Would you like to save the output? (y/n):\n")
@@ -150,6 +155,11 @@ class LoadModule:
         self.conclusions = getattr(self.module, "conclusions")
         self.print_cons_bool = getattr(self.module, "print_cons_bool", False)
         self.print_unsat_core_bool = getattr(self.module, "print_unsat_core_bool", True)
+        self.print_impossible_states_bool = getattr(
+            self.module,
+            "print_impossible_states_bool",
+            False
+        )
         self.save_bool = getattr(self.module, "save_bool", True)
         self.use_constraints_bool = getattr(self.module, "use_constraints", False)
         self.all_constraints = getattr(self.module, "all_constraints", [])
@@ -167,7 +177,6 @@ def parse_file_and_flags():
         epilog="""
         More information can be found at:
         https://github.com/benbrastmckie/ModelChecker/""",
-        # epilog='Example: run %(prog)s --verbose file.txt'
     )
     parser.add_argument(
         "file_path",
@@ -187,8 +196,8 @@ def parse_file_and_flags():
         help='Overrides to prompt user to save output.'
     )
     parser.add_argument(
-        '--verbose',
-        '-v',
+        '--impossible',
+        '-i',
         action='store_true',
         help='Overrides to print impossible states.'
     )
@@ -198,7 +207,7 @@ def parse_file_and_flags():
     module_name = os.path.splitext(os.path.basename(module_path))[0]
     cons_bool = args.constraints
     save_bool = args.save
-    imposs_bool = args.verbose
+    imposs_bool = args.impossible
     return module_name, module_path, cons_bool, save_bool, imposs_bool
 
 def generate_test(name):
