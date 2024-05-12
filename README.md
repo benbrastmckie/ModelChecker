@@ -1,6 +1,6 @@
 # Model Checker
 
-This project draws on the [Z3](https://github.com/Z3Prover/z3) theorem prover to provide tools for proving theorems and finding countermodels for counterfactual conditional and modal claims.
+This project draws on the [Z3](https://github.com/Z3Prover/z3) theorem prover to provide tooling for proving theorems and finding countermodels for counterfactual conditional and modal claims.
 
 ### Syntax
 
@@ -45,10 +45,30 @@ To receive updates about new releases, click the "Watch" button at the top right
 
 ## Instructions
 
-NOTE: These instructions have been written so as not to presume any prior experience working in the terminal.
-Experienced users can skip to the [following section](##Hyperintensional-Semantics).
+NOTE: For users new to working in the terminal, see the [Terminal](##Terminal) instructions below.
 
-### Navigation
+### Usage
+
+To generate a test file run `model-checker` in the terminal without arguments.
+Alternatively, run `model-checker path/to/test_file.py` if the `test_file.py` already exists.
+
+Each file must specify a set of `premises` which are treated conjunctively, `conclusions` which are treated disjunctively, and the number `N` of atomic states to include in each model.
+Optionally, the user can specify whether to print the Z3 constraints when a model is found, or the unsatisfiable core when no model exists, as well as an option to save the output.
+These settings are specified with the Boolean values `True` and `False`:
+
+- Print all Z3 constraints if a model is found: `print_cons_bool`
+- Print the Z3 unsatisfiable core constraints if no model exists: `print_unsat_core_bool`
+- Prompt the user to append the output to the current file in a new file: `save_bool`
+
+Users can override these settings by including the following flags:
+
+- Include `-s` to prompt the user to save the output in a new file.
+- Include `-c` to include Z3 constraints.
+- Include `-h` to print help information about the programs usage.
+
+A number of [examples](https://github.com/benbrastmckie/ModelChecker/blob/master/Examples/examples.py) are provided in the GitHub repository.
+
+### Terminal
 
 Open the terminal (e.g., `Cmd + Space` on MacOS) and list the directories with `ls`. 
 Navigate to your desired location with `cd directory/path/...`, replacing 'directory/path/...' accordingly.
@@ -58,19 +78,11 @@ Alternatively, if you are on MacOS, write `cd` followed by a space in the termin
 Then you can open the desired project directory in Finder, dragging the Finder window onto the terminal.
 This should paste the path into the terminal.
 You can now hit return to change to the desired directory.
+If you are in the directory in which the `test_file.py` exists, you can run `model-checker test_file.py` without specifying the full (or relative) path to that file.
 
-### Generate Test
-
-To generate a test file run `model-checker` in the terminal without arguments.
-Alternatively, run `model-checker path/to/test_file.py` if the `test_file.py` already exists.
-If you are in the directory in which the `test_file.py` exists, you can run `model-checker test_file.py` without specifying the full (or relative) path.
-A number of [examples](https://github.com/benbrastmckie/ModelChecker/blob/master/Examples/examples.py) are provided in the GitHub repository.
-
-Each file must specify a set of `premises` which are treated conjunctively, `conclusions` which are treated disjunctively, and the number `N` of atomic states to include in each model.
-Optionally, the user can specify whether to print the Z3 constraints when a model is found, or the unsatisfiable core when no model exists, as well as an option to save the output.
-
-Files can be edited with your choice of text editor, e.g., run `vim test_file.py` to edit the file in the terminal.
-It may be convenient to open a terminal for running the file in addition to a terminal/editor for making changes to the file.
+Files can be edited with your choice of text editor, e.g., run `vim test_file.py` to edit the named file in the terminal with Vim (for help, run `vimtutor`).
+If you do not want to use Vim, you can use any other text editor, e.g., TextEdit on MacOS.
+Alternatively, you might consider using [NeoVim](https://github.com/benbrastmckie/.config), [VSCode](https://code.visualstudio.com/), or [PyCharm](https://www.jetbrains.com/pycharm/).
 
 ## Hyperintensional Semantics
 

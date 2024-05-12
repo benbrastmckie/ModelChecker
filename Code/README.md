@@ -1,6 +1,6 @@
 # Model Checker
 
-This project draws on the [Z3](https://github.com/Z3Prover/z3) theorem prover to provide tools for proving theorems and finding countermodels for counterfactual conditional and modal claims.
+This project draws on the [Z3](https://github.com/Z3Prover/z3) theorem prover to provide tooling for proving theorems and finding countermodels for counterfactual conditional and modal claims.
 
 Detailed [installation instructions](https://github.com/benbrastmckie/ModelChecker?tab=readme-ov-file#installation) are provided in the GitHub repository.
 
@@ -14,7 +14,17 @@ A number of [examples](https://github.com/benbrastmckie/ModelChecker/blob/master
 
 Each file must specify a set of `premises` which are treated conjunctively, `conclusions` which are treated disjunctively, and the number `N` of atomic states to include in each model.
 
-Optionally, the user can specify whether to print the Z3 constraints when a model is found, or the unsatisfiable core when no model exists, as well as an option to save the output.
+Optionally, the user can specify the following settings in each file: 
+
+- Print all Z3 constraints if a model is found: `print_cons_bool`
+- Print the Z3 unsatisfiable core constraints if no model exists: `print_unsat_core_bool`
+- Prompt the user to append the output to the current file in a new file: `save_bool`
+
+Users can override these settings by including the following flags:
+
+- Include `-s` to prompt the user to save the output in a new file.
+- Include `-c` to include Z3 constraints.
+- Include `-h` to print help information about the programs usage.
 
 ## Syntax
 
