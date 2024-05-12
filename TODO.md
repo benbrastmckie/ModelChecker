@@ -6,10 +6,17 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [ ] final features
   - [.] _B_ unit tests
-  - [:] permit modals and counterfactuals to occur in the antecedent
-    - [:] implement
-    - [.] debug
+  - [x] permit modals and counterfactuals to occur in the antecedent
+    - [x] implement
+    - [x] debug
   - [x] evaluate conclusions disjunctively
+    - [x] test
+    - [x] debug
+    - [x] update READMEs
+  - [x] flags
+    - [x] test
+    - [x] update READMEs
+    - [ ] print impossible
 - [ ] printing
   - [ ] _M_ `cleanup_operators` function, adding double backslashes if none
   - [x] _B_ separate premises and conclusions

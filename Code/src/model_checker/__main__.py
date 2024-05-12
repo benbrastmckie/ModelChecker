@@ -87,13 +87,18 @@ conclusions = ['(A boxright B)','(A boxright C)']
 
 """)
 
-def print_or_save(module):
+def print_or_save(module, cons_flag, save_flag):
     """print the model and prompt user to store the output"""
     mod = make_model_for(module.N)(module.premises, module.conclusions)
     if module.use_constraints_bool:
         mod.constraints = module.all_constraints
-    mod.print_to(module.print_cons_bool, module.print_unsat_core_bool)
-    if not module.save_bool:
+    print_cons = module.print_cons_bool
+    print_unsat = module.print_unsat_core_bool
+    if cons_flag:
+        print_cons = True
+        print_unsat = True
+    mod.print_to(print_cons, print_unsat)
+    if not module.save_bool and not save_flag:
         return
     result = input("Would you like to save the output? (y/n):\n")
     if not result in ['Yes', 'yes', 'y']:
@@ -149,21 +154,45 @@ class LoadModule:
         self.use_constraints_bool = getattr(self.module, "use_constraints", False)
         self.all_constraints = getattr(self.module, "all_constraints", [])
 
-def parse_script_name_and_path():
+def parse_file_and_flags():
     """returns the name and path for the current script"""
     # create an ArgumentParser object
-    parser = argparse.ArgumentParser(description="Import variables from another file")
+    parser = argparse.ArgumentParser(
+        prog='model-checker',
+        usage='%(prog)s [options] input',
+        description="""
+        Running '%(prog)s' without options or an input will prompt the user
+        to generate a new test file. To run a test on an existing file, include
+        the path to that file as the input.""",
+        epilog="""
+        More information can be found at:
+        https://github.com/benbrastmckie/ModelChecker/""",
+        # epilog='Example: run %(prog)s --verbose file.txt'
+    )
     parser.add_argument(
         "file_path",
         type=str,
-        help="Path to the Python file to read."
+        help="Specifies the path to a Python.",
+    )
+    parser.add_argument(
+        '--constraints',
+        '-c',
+        action='store_true',
+        help='Overrides to include all Z3 constraints.'
+    )
+    parser.add_argument(
+        '--save',
+        '-s',
+        action='store_true',
+        help='Overrides to prompt user to save output.'
     )
     # parse the command-line argument to get the module path
     args = parser.parse_args()
     module_path = args.file_path
     module_name = os.path.splitext(os.path.basename(module_path))[0]
-    # module_name = "dynamic_module"
-    return module_name, module_path
+    cons_bool = args.constraints
+    save_bool = args.save
+    return module_name, module_path, cons_bool, save_bool
 
 def generate_test(name):
     """check if a script name was provided"""
@@ -193,9 +222,9 @@ def main():
     if len(sys.argv) < 2:
         ask_generate_test()
         return
-    module_name, module_path = parse_script_name_and_path()
+    module_name, module_path, cons_bool, save_bool = parse_file_and_flags()
     module = LoadModule(module_name, module_path)
-    print_or_save(module)
+    print_or_save(module, cons_bool, save_bool)
 
 if __name__ == "__main__":
     main()
