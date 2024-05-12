@@ -110,7 +110,10 @@ def print_or_save(module, cons_flag, save_flag, imposs_flag):
         return
     cons_input = input("\nWould you like to include the Z3 constraints? (y/n):\n")
     cons_include = bool(cons_input in ['Yes', 'yes', 'y'])
-    output_file_name = input("\nEnter the file name or leave blank to append the output to the project file:\n")
+    output_file_name = input(
+        "\nEnter the file name in snake_case without an extension."
+        "Alternatively, leave the file name blank to append the output to the project file:\n"
+    )
     if len(output_file_name) == 0:
         with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
             print('\n"""', file=f)
