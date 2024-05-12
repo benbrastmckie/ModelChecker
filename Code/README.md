@@ -18,12 +18,14 @@ Optionally, the user can specify the following settings in each file:
 
 - Print all Z3 constraints if a model is found: `print_cons_bool`
 - Print the Z3 unsatisfiable core constraints if no model exists: `print_unsat_core_bool`
+- Print all states including impossible states: `print_impossibe_states_bool`
 - Prompt the user to append the output to the current file in a new file: `save_bool`
 
 Users can override these settings by including the following flags:
 
 - Include `-s` to prompt the user to save the output in a new file.
 - Include `-c` to include Z3 constraints.
+- Include `-i` to print impossible states.
 - Include `-h` to print help information about the programs usage.
 
 ## Syntax
