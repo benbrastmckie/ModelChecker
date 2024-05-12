@@ -255,8 +255,6 @@ class ModelStructure:
             if bit in self.world_bits:
                 print(f"  {bin_rep} = {state} (world)", file=output)
                 continue
-            # NOTE: can probably delete the line below
-            # elif bool(self.model.evaluate(self.possible(bit))):
             if bit in self.poss_bits:
                 print(f"  {bin_rep} = {state}", file=output)
                 continue
@@ -466,7 +464,7 @@ class Proposition:
         (verifiers, falsifiers) = find_complex_proposition(model_structure, prefix_expr, eval_world)
         # for modals and CFS, if they're true then the verifiers are only the null state and
         # falsifiers are nothing; if they're false the opposite
-        self.world_bits = model_structure.world_bits
+        self.world_bits = model_structure.world_bits # NOTE: this isn't being called anywhere
         self.prop_dict["verifiers"] = verifiers
         self.prop_dict["falsifiers"] = falsifiers
         if is_modal(prefix_expr):
