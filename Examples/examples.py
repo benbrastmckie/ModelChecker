@@ -32,60 +32,79 @@ save_bool = False
 
 ### INVALID ###
 
+# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# premises = ['(A boxright C)']
+# conclusions = ['((A wedge B) boxright C)']
+
+# # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
+# premises = ['(A boxright C)', 'Diamond (A wedge B)']
+# conclusions = ['((A wedge B) boxright C)']
+
+# # COUNTERFACTUAL CONTRAPOSITION
 # premises = ['(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 
+# # TRANSITIVITY
 # premises = ['(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 
+# # SOBEL SEQUENCE
 # premises = [
-#     '(A boxright B)',
-#     'neg ((A wedge C) boxright B)',
-#     '(((A wedge C) wedge D) boxright B)',
+#     '(A boxright X)',
+#     'neg ((A wedge B) boxright X)',
+#     '(((A wedge B) wedge C) boxright X)',
+#     # 'neg ((((A wedge B) wedge C) wedge D) boxright X)',
+#     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)',
 # ]
 # conclusions = []
 
+# # COUNTERFACTUAL EXCLUDED MIDDLE
+# premises = ['neg A']
+# conclusions = ['(A boxright B)','(A boxright neg B)']
+
+# # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
 # premises = ['neg A','(A boxright (B vee C))']
 # conclusions = ['(A boxright B)','(A boxright C)']
 
-# premises = ['neg A']
-# conclusions = ['(A boxright B)','(A boxright neg B)']
-
-# premises = ['neg A']
-# conclusions = ['(A boxright B)','(A boxright neg B)']
-
-# premises = ['A boxright C', 'neg (A boxright neg B)']
-# conclusions = ['neg ((A wedge B) boxright C)']
-
-# premises = ['Diamond (A wedge B)','((A wedge B) boxright C)']
-# conclusions = ['(A boxright (B boxright C))']
-
-# premises = ['neg (top boxright neg (A wedge B))','((A wedge B) boxright C)']
-# conclusions = ['(A boxright (B boxright C))']
-
-# premises = ['Diamond A', 'Diamond B']
-# conclusions = ['Diamond (A wedge B)']
-
-# # NOTE: if null verifiers are permitted, then null state verifies A
-# # but possible state c does not?
+# FACTIVITY
 # premises = ['A','B']
 # conclusions = ['(A boxright B)']
 
-# # NOTE: very slow but mit server finds a model
+# # COUNTERFACTUAL EXPORTATION
+# premises = ['((A wedge B) boxright C)']
+# conclusions = ['(A boxright (B boxright C))']
+
+# # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
+# premises = ['((A wedge B) boxright C)','Diamond (A wedge B)']
+# conclusions = ['(A boxright (B boxright C))']
+
+# # SLOW: MIT servers found a model in 467 seconds
+# # COUNTERFACTUAL IMPORTATION
+# premises = ['(A boxright (B boxright C))']
+# conclusions = ['((A wedge B) boxright C)']
+
+# # COUNTERFACTUAL IMPORTATION WITH POSSIBILITY
+# premises = ['(A boxright (B boxright C))','Diamond (A wedge B)']
+# conclusions = ['((A wedge B) boxright C)']
+
+# # SLOW: MIT servers found a model in 473 seconds
+# premises = ['(A boxright C)','((A boxright C) boxright (A boxright (B vee neg C)))']
+# conclusions = ['(A boxright B)']
+
+# # CRASH: MIT servers killed process
+# # COUNTERFACTUAL IMPLIES STRICT CONDITIONAL
 # premises = ['(A boxright B)']
 # conclusions = ['Box (A rightarrow B)']
 
-premises = ['((A boxright C) boxright (A boxright (B vee neg C)))']
-conclusions = ['(A boxright B)']
-
-# premises = ['A','(A boxright ((B boxright C) wedge (D boxright E)))']
-# conclusions = ['C']
 
 
 ### VALID ###
 
 # premises = ['A','(A rightarrow B)']
 # conclusions = ['B']
+
+# premises = ['Box (A rightarrow B)']
+# conclusions = ['(A boxright B)']
 
 # premises = ['((A vee B) boxright C)']
 # conclusions = ['(A boxright C)']
@@ -102,19 +121,15 @@ conclusions = ['(A boxright B)']
 # premises = ['(A boxright B)','(A boxright C)']
 # conclusions = ['(A boxright (B wedge C))']
 
-# # NOTE: unsat_core seems satisfiable
-# premises = []
-# conclusions = ['(A vee neg A)']
+# # NOTE: slow  seconds locally
+# premises = ['Box A', '((A wedge B) boxright C)']
+# conclusions = ['(B boxright C)']
 
-# # NOTE: unsat_core seems satisfiable
-# premises = []
-# conclusions = ['neg (A wedge neg A)']
-
-# # NOTE: slow 13.8 sec locally
+# # NOTE: slow 13.8 seconds locally
 # premises = ['(A boxright B)']
 # conclusions = ['(A rightarrow B)']
 
-# # NOTE: very slow 41.6 sec locally
+# # NOTE: slow 41.6 seconds locally
 # premises = ['(A boxright B)','((A wedge B) boxright C)']
 # conclusions = ['(A boxright C)']
 
@@ -149,7 +164,7 @@ conclusions = ['(A boxright B)']
 # conclusions = ['Box Box A']
 
 # # B axiom (top)
-# # NOTE: this crashed
+# # NOTE: crashed locally
 # premises = ['A']
 # conclusions = ['(top boxright neg (top boxright neg A))']
 
@@ -169,14 +184,11 @@ conclusions = ['(A boxright B)']
 # premises = ['Box A']
 # conclusions = ['(top boxright A)']
 
-# premises = ['Box A', 'Diamond B']
-# conclusions = ['Diamond (A wedge B)']
+# # NOTE: killed in ssh
+# # top-to-box equivalence
+# premises = ['(top boxright A)']
+# conclusions = ['Box A']
 
-# premises = ['Box (A rightarrow B)']
-# conclusions = ['(A boxright B)']
-
-# premises = ['Box A', '((A wedge B) boxright C)']
-# conclusions = ['(B boxright C)']
 
 
 
@@ -221,8 +233,3 @@ conclusions = ['(A boxright B)']
 # # K axiom (top)
 # premises = ['(top boxright (A rightarrow B))']
 # conclusions = ['((top boxright A) rightarrow (top boxright B))']
-
-# # NOTE: killed in ssh
-# # top-to-box equivalence
-# premises = ['(top boxright A)']
-# conclusions = ['Box A']

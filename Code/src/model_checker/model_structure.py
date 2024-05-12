@@ -21,14 +21,12 @@ from semantics import (
 from model_definitions import (
     find_compatible_parts,
     atomic_propositions_dict_maker,
-    # coproduct,
     find_all_bits,
     find_max_comp_ver_parts,
     find_poss_bits,
     find_world_bits,
     prefix_combine,
     pretty_set_print,
-    # product,
     bit_part,
     bitvec_to_substates,
     int_to_binary,
@@ -36,16 +34,10 @@ from model_definitions import (
     find_subsentences_of_kind,
     is_counterfactual,
     is_modal,
-    # is_extensional,
-    # evaluate_mainclause_cf_expr,
-    # evaluate_modal_expr,
     true_and_false_worlds_for_cf,
     find_complex_proposition,
-
-
-
 )
-# from model_checker.syntax import (
+# from model_checker.syntax import ( # for packaging
 from syntax import (
     AtomSort,
     Infix,
@@ -73,6 +65,9 @@ print_cons_bool = False
 
 # print core unsatisfiable Z3 constraints if no model exists
 print_unsat_core_bool = True
+
+# print all states including impossible states
+print_impossible_states_bool = False
 
 # present option to save output
 save_bool = False

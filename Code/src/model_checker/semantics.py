@@ -15,29 +15,6 @@ from z3 import (
     And,
     BitVec,
 )
-# from model_checker.syntax import ( # for packaging
-from syntax import (
-    Infix,
-)
-
-# from sympy import symbols, Or, And, Implies, Not, to_cnf
-
-# def bit_vec_length():
-#     from test_complete import N
-#     return N
-# N = bit_vec_length()
-
-
-# NOTE: we used to have it where we declared a fixed set of variables.
-# a, b, c = BitVecs("a b c", N)
-# r, s, t = BitVecs("r s t", N)
-# u, v, w = BitVecs("u v w", N)
-# x, y, z = BitVecs("x y z", N)
-
-# NOTE: variables are now declared inside each function where they are used.
-# QUESTIONS: is there a clear reason to prefer one way over the other?
-# is it possible/desirable to avoid use of 'Exists' entirely?
-
 
 def make_constraints(verify, falsify, possible, assign, N, w):
     '''function that makes the function to make the constraints (and list of sentence letters
