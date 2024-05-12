@@ -255,8 +255,6 @@ class ModelStructure:
             if bit in self.world_bits:
                 print(f"  {bin_rep} = {state} (world)", file=output)
                 continue
-            # NOTE: can probably delete the line below
-            # elif bool(self.model.evaluate(self.possible(bit))):
             if bit in self.poss_bits:
                 print(f"  {bin_rep} = {state}", file=output)
                 continue
