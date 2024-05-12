@@ -87,7 +87,7 @@ conclusions = ['(A boxright B)','(A boxright C)']
 
 """)
 
-def print_or_save(module, cons_flag, save_flag):
+def print_or_save(module, cons_flag, save_flag, imposs_flag):
     """print the model and prompt user to store the output"""
     mod = make_model_for(module.N)(module.premises, module.conclusions)
     if module.use_constraints_bool:
@@ -97,7 +97,7 @@ def print_or_save(module, cons_flag, save_flag):
     if cons_flag:
         print_cons = True
         print_unsat = True
-    mod.print_to(print_cons, print_unsat)
+    mod.print_to(print_cons, print_unsat, imposs_flag)
     if not module.save_bool and not save_flag:
         return
     result = input("Would you like to save the output? (y/n):\n")
@@ -109,7 +109,7 @@ def print_or_save(module, cons_flag, save_flag):
     if len(output_file_name) == 0:
         with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
             print('\n"""', file=f)
-            mod.print_to(cons_include, cons_include, f)
+            mod.print_to(cons_include, cons_include, imposs_flag, f)
             print('"""', file=f)
         return
     with open(f"{module.parent_directory}/{output_file_name}.py", 'w', encoding="utf-8") as n:
@@ -186,13 +186,20 @@ def parse_file_and_flags():
         action='store_true',
         help='Overrides to prompt user to save output.'
     )
+    parser.add_argument(
+        '--verbose',
+        '-v',
+        action='store_true',
+        help='Overrides to print impossible states.'
+    )
     # parse the command-line argument to get the module path
     args = parser.parse_args()
     module_path = args.file_path
     module_name = os.path.splitext(os.path.basename(module_path))[0]
     cons_bool = args.constraints
     save_bool = args.save
-    return module_name, module_path, cons_bool, save_bool
+    imposs_bool = args.verbose
+    return module_name, module_path, cons_bool, save_bool, imposs_bool
 
 def generate_test(name):
     """check if a script name was provided"""
@@ -222,9 +229,9 @@ def main():
     if len(sys.argv) < 2:
         ask_generate_test()
         return
-    module_name, module_path, cons_bool, save_bool = parse_file_and_flags()
+    module_name, module_path, cons_bool, save_bool, imposs_bool = parse_file_and_flags()
     module = LoadModule(module_name, module_path)
-    print_or_save(module, cons_bool, save_bool)
+    print_or_save(module, cons_bool, save_bool, imposs_bool)
 
 if __name__ == "__main__":
     main()

@@ -240,7 +240,7 @@ class ModelStructure:
             propositions.append(self.find_proposition_object(sent, prefix=prefix))
         return propositions
 
-    def print_states(self, output=sys.__stdout__):
+    def print_states(self, print_impossible, output=sys.__stdout__):
         """print all fusions of atomic states in the model
         first print function in print.py"""
         N = self.N
@@ -258,6 +258,9 @@ class ModelStructure:
             if bit in self.poss_bits:
                 print(f"  {bin_rep} = {state}", file=output)
                 continue
+            if print_impossible:
+                print(f"  {bin_rep} = {state} (impossible)", file=output)
+
 
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
@@ -392,12 +395,12 @@ class ModelStructure:
             for index, sent in enumerate(self.infix_conclusions, start=start_con_num):
                 print(f"{index}. {sent}", file=output)
 
-    def print_all(self, output):
+    def print_all(self, print_impossible, output):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
         print(f"There is a {self.N}-model of:\n", file=output)
         self.print_enumerate(output)
-        self.print_states(output)
+        self.print_states(print_impossible, output)
         self.print_evaluation(output)
         self.print_inputs_recursively(output)
 
@@ -413,11 +416,11 @@ class ModelStructure:
         print(inputs_content, file=output)
 
     # TODO: how can print_to and save_to be cleaned up and made less redundant?
-    def print_to(self, print_cons_bool, print_unsat_core_bool, output=sys.__stdout__):
+    def print_to(self, print_cons_bool, print_unsat_core_bool, print_impossible, output=sys.__stdout__):
         """append all elements of the model to the file provided"""
         N = self.N
         if self.model_status:
-            self.print_all(output)
+            self.print_all(print_impossible, output)
             if print_cons_bool:
                 # print("Satisfiable constraints:\n", file=output)
                 self.print_constraints(self.constraints, output)
@@ -430,11 +433,11 @@ class ModelStructure:
                 self.print_constraints(self.model, output)
         print(f"Run time: {self.model_runtime} seconds\n", file=output)
 
-    def save_to(self, doc_name, parent_file, cons_include, output):
+    def save_to(self, doc_name, parent_file, cons_include, print_impossible, output):
         """append all elements of the model to the file provided"""
         print(f'# TITLE: {doc_name}.py generated from {parent_file}\n"""', file=output)
         if self.model_status:
-            self.print_all(output)
+            self.print_all(print_impossible, output)
             self.build_test_file(output)
             if cons_include:
                 print("# Satisfiable constraints", file=output)
