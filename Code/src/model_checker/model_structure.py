@@ -228,6 +228,7 @@ class ModelStructure:
             self.world_bits = find_world_bits(self.poss_bits)
             self.main_world = self.model[self.w]
             self.atomic_props_dict = atomic_propositions_dict_maker(self)
+            # TODO: one attribute for all propositions (check)
             self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
                                             for ext_subsent in self.extensional_subsentences]
             self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
@@ -240,39 +241,42 @@ class ModelStructure:
             self.conclusion_propositions = self.find_propositions(self.prefix_conclusions, prefix=True)
             # TODO: just missing the which-sentences-true-in-which-worlds
 
+    # TODO: fix 
     # NOTE: could be relevant to user, so leaving it here. @B, what do you think?
-    def find_alt_bits(self, ext_prop_verifier_bits, comparison_world=None):
+    def find_alt_bits(self, verifier_bits, evaulation_world=None):
         """
         Finds the alternative bits given verifier bits of an extensional proposition,
         possible states, worlds, and the evaluation world.
         Used in evaluate_cf_expression() and rec_print().
         """
-        if comparison_world is None:
-            comparison_world = self.main_world
+        if evaulation_world is None:
+            evaulation_world = self.main_world
         alt_bits = set()
-        for ver in ext_prop_verifier_bits:
-            comp_parts = find_compatible_parts(ver, self.poss_bits, comparison_world)
+        for ver in verifier_bits:
+            # print(f"TEST: {self.poss_bits}")
+            comp_parts = find_compatible_parts(ver, self.poss_bits, evaulation_world)
+            # print(f"TEST: {comp_parts}")
             max_comp_ver_parts = find_max_comp_ver_parts(ver, comp_parts)
+            # print(f"TEST: {max_comp_ver_parts}")
             for world in self.world_bits:
                 if not bit_part(ver, world):
                     continue
                 for max_ver in max_comp_ver_parts:
-                    if bit_part(max_ver, world) and world.sexpr():
+                    # TODO: RETURN TO THIS
+                    if bit_part(max_ver, world): # and world.sexpr():
                         alt_bits.add(world)
                         break  # to return to the second for loop over world_bits
         return alt_bits
-    
+
     # Useful to user now that can search an infix expression
-    def find_proposition_object(self, expression, prefix=False, ext_only=False):
+    def find_proposition_object(self, expression, prefix=False):
         """given a sentence, finds the Proposition object in the model that corresponds
         to it. Can optionally search through only the extensional sentences
         Also defaults to searching an infix sentence, though internally it always searches
         prefix. 
         If search infix, make sure you put double backslashes always!!
         returns a Proposition object"""
-        search_list = self.extensional_propositions
-        if ext_only is False:
-            search_list = self.all_propositions
+        search_list = self.all_propositions
         if prefix == True:
             for prop_object in search_list:
                 if prop_object["prefix expression"] == expression:
