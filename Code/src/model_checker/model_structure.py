@@ -124,9 +124,9 @@ class ModelSetup:
             self.N,
             self.w
         )
-        consts, sent_lets = self.find_constraints_func(self.prefix_sentences)
-        self.sentence_letters = sent_lets
-        self.constraints = consts
+        constraints, sentence_letters = self.find_constraints_func(self.prefix_sentences)
+        self.sentence_letters = sentence_letters
+        self.constraints = constraints
         ext, modal, cf, altogether = find_subsentences_of_kind(self.prefix_sentences, 'all')
         self.extensional_subsentences = ext
         self.counterfactual_subsentences = cf
@@ -163,39 +163,46 @@ class ModelStructure:
     self.constraints is a list (?) of constraints
     everything else is initialized as None"""
 
-    def __init__(self, model_status, model_setup, solved_model, model_total):
+    def __init__(self, model_status, model_setup, model, model_total):
         self.model_status = model_status
-        self.infix_premises = model_setup.infix_premises
-        self.infix_conclusions = model_setup.infix_conclusions
-        self.N = model_setup.N
-        self.model = solved_model
-        self.constraints = model_setup.constraints
-        self.possible = model_setup.possible
+        self.model_setup = model_setup
+        self.model = model
         self.model_runtime = model_total
-        self.sentence_letters = model_setup.sentence_letters
-        self.verify = model_setup.verify
-        self.falsify = model_setup.falsify
-        self.extensional_subsentences = model_setup.extensional_subsentences
-        self.prefix_premises = [prefix(prem) for prem in self.infix_premises]
+
+        # NOTE: I removed these by making 'model_setup' an attribute
+        # self.infix_premises = model_setup.infix_premises
+        # self.infix_conclusions = model_setup.infix_conclusions
+        # self.N = model_setup.N
+        # self.constraints = model_setup.constraints
+        # self.possible = model_setup.possible
+        # self.sentence_letters = model_setup.sentence_letters
+        # self.verify = model_setup.verify
+        # self.falsify = model_setup.falsify
+
+        self.prefix_premises = [prefix(prem) for prem in model_setup.infix_premises]
         # M: I think below is a problem
-        self.prefix_conclusions = [prefix(con) for con in self.infix_conclusions]
+        self.prefix_conclusions = [prefix(con) for con in model_setup.infix_conclusions]
         self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
-        self.all_bits = find_all_bits(self.N)
-        self.poss_bits = find_poss_bits(solved_model, self.all_bits, model_setup.possible)
-        self.world_bits = find_world_bits(self.poss_bits)
-        self.main_world = solved_model[model_setup.w]
-        self.atomic_props_dict = atomic_propositions_dict_maker(self)
-        # TODO: one attribute for all propositions (check)
-        self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
-                                        for ext_subsent in model_setup.extensional_subsentences]
-        self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
-                                        for cf_subsent in model_setup.counterfactual_subsentences]
-        self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
-                                    for modal_subsent in model_setup.modal_subsentences]
-        self.all_propositions = (self.extensional_propositions +
-                                 self.counterfactual_propositions + self.modal_propositions)
-        self.premise_propositions = self.find_propositions(self.prefix_premises, True)
-        self.conclusion_propositions = self.find_propositions(self.prefix_conclusions, True)
+
+        if model_status:
+            self.all_bits = find_all_bits(model_setup.N)
+            self.poss_bits = find_poss_bits(model, self.all_bits, model_setup.possible)
+            self.world_bits = find_world_bits(self.poss_bits)
+            self.main_world = model[model_setup.w]
+            self.atomic_props_dict = atomic_propositions_dict_maker(self)
+
+            # TODO: one attribute for all propositions (check)
+            self.extensional_subsentences = model_setup.extensional_subsentences
+            self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
+                                            for ext_subsent in model_setup.extensional_subsentences]
+            self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
+                                            for cf_subsent in model_setup.counterfactual_subsentences]
+            self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
+                                        for modal_subsent in model_setup.modal_subsentences]
+            self.all_propositions = (self.extensional_propositions +
+                                     self.counterfactual_propositions + self.modal_propositions)
+            self.premise_propositions = self.find_propositions(self.prefix_premises, True)
+            self.conclusion_propositions = self.find_propositions(self.prefix_conclusions, True)
 
 
     def find_alt_bits(self, verifier_bits, evaulation_world=None):
@@ -252,7 +259,7 @@ class ModelStructure:
     def print_states(self, print_impossible, output=sys.__stdout__):
         """print all fusions of atomic states in the model
         first print function in print.py"""
-        N = self.N
+        N = self.model_setup.N
         print("\nPossible states:", file=output)  # Print states
         for bit in self.all_bits:
             state = bitvec_to_substates(bit, N)
@@ -278,35 +285,37 @@ class ModelStructure:
         # can this be simplified? might it make sense to store sentence letters true
         # at the designated world and the sentence letters false at the designated
         # world in the class? then those could be easily called here.
-        N = self.N
+        N = self.model_setup.N
+        sentence_letters = self.model_setup.sentence_letters
+        main_world = self.main_world
         print(
-            f"\nThe evaluation world is {bitvec_to_substates(self.main_world, N)}:",
+            f"\nThe evaluation world is {bitvec_to_substates(main_world, N)}:",
             file=output,
         )
         true_in_eval = set()
-        for sent in self.sentence_letters:
+        for sent in sentence_letters:
             # TODO: linter error: "Uninitalized" is not iterable  "__iter__" method does not return an object
             for bit in self.all_bits:
                 # TODO: linter error: expected 0 positional arguments
-                ver_bool = self.verify(bit, self.model[sent])
-                part_bool = bit_part(bit, self.main_world)
+                ver_bool = self.model_setup.verify(bit, self.model[sent])
+                part_bool = bit_part(bit, main_world)
                 # TODO: linter error: invalid conditional operand band-aid fixed with bool
                 if bool(self.model.evaluate(ver_bool) and part_bool):
                     true_in_eval.add(sent)
                     break  # exits the first for loop
-        false_in_eval = {R for R in self.sentence_letters if not R in true_in_eval}
+        false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
         if true_in_eval:
             true_eval_list = sorted([str(sent) for sent in true_in_eval])
             true_eval_string = ", ".join(true_eval_list)
             print(
-                f"  {true_eval_string}  (True in {bitvec_to_substates(self.main_world, N)})",
+                f"  {true_eval_string}  (True in {bitvec_to_substates(main_world, N)})",
                 file=output,
             )
         if false_in_eval:
             false_eval_list = sorted([str(sent) for sent in false_in_eval])
             false_eval_string = ", ".join(false_eval_list)
             print(
-                f"  {false_eval_string}  (False in {bitvec_to_substates(self.main_world, N)})",
+                f"  {false_eval_string}  (False in {bitvec_to_substates(main_world, N)})",
                 file=output,
             )
         print(file=output)
@@ -324,9 +333,10 @@ class ModelStructure:
     def rec_print(self, prop_obj, world_bit, print_impossible, output, indent=0):
         """recursive print function (previously print_sort)
         returns None"""
-        N = self.N
+        N = self.model_setup.N
+        sentence_letters = self.model_setup.sentence_letters
         prop_obj.print_verifiers_and_falsifiers(world_bit, print_impossible, indent, output)
-        if str(prop_obj) in [str(atom) for atom in self.sentence_letters]:
+        if str(prop_obj) in [str(atom) for atom in sentence_letters]:
             return
         prefix_expr = prop_obj["prefix expression"]
         op = prefix_expr[0]
@@ -366,9 +376,11 @@ class ModelStructure:
         """does rec_print for every proposition in the input propositions
         returns None"""
         initial_eval_world = self.main_world
-        start_con_num = len(self.infix_premises) + 1
+        infix_premises = self.model_setup.infix_premises
+        infix_conclusions = self.model_setup.infix_conclusions
+        start_con_num = len(infix_premises) + 1
         if self.premise_propositions:
-            if len(self.infix_premises) < 2:
+            if len(infix_premises) < 2:
                 print("Interpreted premise:\n")
             else:
                 print("Interpreted premises:\n")
@@ -377,7 +389,7 @@ class ModelStructure:
                 self.rec_print(input_prop, initial_eval_world, print_impossible, output, 1)
                 print(file=output)
         if self.conclusion_propositions:
-            if len(self.infix_conclusions) < 2:
+            if len(infix_conclusions) < 2:
                 print("Interpreted conclusion:\n")
             else:
                 print("Interpreted conclusions:\n")
@@ -388,26 +400,29 @@ class ModelStructure:
 
     def print_enumerate(self, output):
         """prints the premises and conclusions with numbers"""
-        start_con_num = len(self.infix_premises) + 1
-        if self.infix_premises:
-            if len(self.infix_premises) < 2:
+        infix_premises = self.model_setup.infix_premises
+        infix_conclusions = self.model_setup.infix_conclusions
+        start_con_num = len(infix_premises) + 1
+        if infix_premises:
+            if len(infix_premises) < 2:
                 print("Premise:")
             else:
                 print("Premises:")
-            for index, sent in enumerate(self.infix_premises, start=1):
+            for index, sent in enumerate(infix_premises, start=1):
                 print(f"{index}. {sent}", file=output)
-        if self.infix_conclusions:
-            if len(self.infix_conclusions) < 2:
+        if infix_conclusions:
+            if len(infix_conclusions) < 2:
                 print("\nConclusion:")
             else:
                 print("\nConclusions:")
-            for index, sent in enumerate(self.infix_conclusions, start=start_con_num):
+            for index, sent in enumerate(infix_conclusions, start=start_con_num):
                 print(f"{index}. {sent}", file=output)
 
     def print_all(self, print_impossible, output):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
-        print(f"There is a {self.N}-model of:\n", file=output)
+        N = self.model_setup.N
+        print(f"There is a {N}-model of:\n", file=output)
         self.print_enumerate(output)
         self.print_states(print_impossible, output)
         self.print_evaluation(output)
@@ -416,9 +431,9 @@ class ModelStructure:
     def build_test_file(self, output):
         """generates a test file from input to be saved"""
         inputs_data = {
-            "N": self.N,
-            "premises": self.infix_premises,
-            "conclusions": self.infix_conclusions,
+            "N": self.model_setup.N,
+            "premises": self.model_setup.infix_premises,
+            "conclusions": self.model_setup.infix_conclusions,
             "runtime": self.model_runtime,
         }
         inputs_content = inputs_template.substitute(inputs_data)
@@ -427,12 +442,12 @@ class ModelStructure:
     # TODO: how can print_to and save_to be cleaned up and made less redundant?
     def print_to(self, print_cons_bool, print_unsat_core_bool, print_impossible, output=sys.__stdout__):
         """append all elements of the model to the file provided"""
-        N = self.N
+        N = self.model_setup.N
         if self.model_status:
             self.print_all(print_impossible, output)
             if print_cons_bool:
                 # print("Satisfiable constraints:\n", file=output)
-                self.print_constraints(self.constraints, output)
+                self.print_constraints(self.model_setup.constraints, output)
         else:
             print(f"\nThere are no {N}-models of:\n", file=output)
             self.print_enumerate(output)
@@ -445,22 +460,24 @@ class ModelStructure:
     def save_to(self, doc_name, parent_file, cons_include, print_impossible, output):
         """append all elements of the model to the file provided"""
         print(f'# TITLE: {doc_name}.py generated from {parent_file}\n"""', file=output)
+        N = self.model_setup.N
+        constraints = self.model_setup.constraints
         if self.model_status:
             self.print_all(print_impossible, output)
             self.build_test_file(output)
             if cons_include:
                 print("# Satisfiable constraints", file=output)
                 # TODO: print constraint objects, not constraint strings
-                print(f"all_constraints = {self.constraints}", file=output)
+                print(f"all_constraints = {constraints}", file=output)
         else:
-            print(f"\nThere are no {self.N}-models of:\n", file=output)
+            print(f"\nThere are no {N}-models of:\n", file=output)
             self.print_enumerate(output)
             # print("\n# Unsatisfiable core constraints", file=output)
             self.print_constraints(self.model, output)
             self.build_test_file(output)
             if cons_include:
                 print("# Unsatisfiable constraints", file=output)
-                print(f"all_constraints = {self.constraints}", file=output)
+                print(f"all_constraints = {constraints}", file=output)
 
 
 class Proposition:
@@ -565,6 +582,19 @@ class Proposition:
                 return True
         return False
 
+# class NoModel:
+#     """class which stores only the relevant data when no model is found"""
+#     def __init__(self, model_status, model_setup, unsat_model, model_total):
+#         self.model_status = model_status
+#         self.model_setup = model_setup
+#         self.model = unsat_model
+#         self.model_runtime = model_total
+#         self.prefix_premises = [prefix(prem) for prem in model_setup.infix_premises]
+#         # M: I think below is a problem
+#         self.prefix_conclusions = [prefix(con) for con in model_setup.infix_conclusions]
+#         self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
+
+
 def make_model_for(N, premises, conclusions):
     """
     input: N (int of number of atomic states you want in the model)
@@ -572,9 +602,9 @@ def make_model_for(N, premises, conclusions):
     backslash_premises = [add_backslashes_to_infix(prem) for prem in premises]
     backslash_conclusions = [add_backslashes_to_infix(concl) for concl in conclusions]
     model_setup = ModelSetup(N, backslash_premises, backslash_conclusions)
-    solved_model_status, solved_model, model_total = model_setup.solve()
-    if solved_model_status:
-        result = ModelStructure(solved_model_status, model_setup, solved_model, model_total)
+    solved_model_status, model, model_total = model_setup.solve()
+    # if solved_model_status:
+    result = ModelStructure(solved_model_status, model_setup, model, model_total)
     # result = NoModel(model_setup, solved_model, model_total)
-    result = ModelStructure(solved_model_status, model_setup, solved_model, model_total)
+    # result = NoModel(solved_model_status, model_setup, model, model_total)
     return result
