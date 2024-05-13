@@ -32,9 +32,9 @@ save_bool = False
 
 ### INVALID ###
 
-# COUNTERFACTUAL ANTECEDENT STRENGTHENING
-premises = ['(A boxright C)']
-conclusions = ['((A wedge B) boxright C)']
+# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# premises = ['(A boxright C)']
+# conclusions = ['((A wedge B) boxright C)']
 
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # premises = ['(A boxright C)', 'Diamond (A wedge B)']
@@ -65,7 +65,7 @@ conclusions = ['((A wedge B) boxright C)']
 #     'Diamond A',
 #     '(A boxright X)', # 0.7 seconds locally
 #     'Diamond (A wedge B)',
-#     'neg ((A wedge B) boxright X)', # 157.8 seconds on the MIT servers
+#     'neg ((A wedge B) boxright X)', # 155.4 seconds on the MIT servers
 #     # 'Diamond ((A wedge B) wedge C)',
 #     # '(((A wedge B) wedge C) boxright X)', # ? seconds
 #     # 'Diamond (((A wedge B) wedge C) wedge D)',
@@ -79,9 +79,9 @@ conclusions = ['((A wedge B) boxright C)']
 # ]
 # conclusions = []
 
-# # COUNTERFACTUAL EXCLUDED MIDDLE
-# premises = ['neg A']
-# conclusions = ['(A boxright B)','(A boxright neg B)']
+# COUNTERFACTUAL EXCLUDED MIDDLE
+premises = ['neg A']
+conclusions = ['(A boxright B)','(A boxright neg B)']
 
 # # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
 # premises = ['neg A','(A boxright (B vee C))']
