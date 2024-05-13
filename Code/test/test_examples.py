@@ -1,4 +1,4 @@
-from .model_structure import make_model_for
+from model_structure import make_model_for
 
 N = 3
 premises = ['(A boxright B)']

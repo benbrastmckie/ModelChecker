@@ -21,19 +21,19 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] test
     - [x] update READMEs
     - [x] print impossible
-- [ ] printing
-  - [ ] _M_ `backslash` function, adding double backslashes if none
+- [x] printing
+  - [x] _M_ `backslash` function, adding double backslashes if none
   - [x] _B_ separate premises and conclusions
   - [x] _M_ refactor `rec_print`
   - [x] _B_ refactor `print_to` and `save_to`
 - [ ] cleanup
   - [ ] `find_alt_bits` fix to make null state work
-  - [ ] _M_ move helper functions from `ModelStructure` to `model_definitions`
+  - [.] _M_ move helper functions from `ModelStructure` to `model_definitions`
   - [x] _B_ review TODOs throughout
   - [x] _B_ replace dummy
   - [x] _B_ replace "comparison world" with "input world"
 - [ ] documentation
-  - [ ] _M_ doc strings for functions
+  - [.] _M_ doc strings for functions
   - [ ] _M_ revise architecture description
   - [x] _B_ architecture description
   - [x] _B_ expanded READMEs
