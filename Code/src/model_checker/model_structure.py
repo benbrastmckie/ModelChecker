@@ -13,7 +13,7 @@ from z3 import (
     BitVecVal
 )
 
-from syntax import add_double_backslashes
+from syntax import add_backslashes_to_infix
 
 # from model_checker.semantics import ( # for packaging
 from semantics import (
@@ -116,11 +116,16 @@ class ModelStructure:
         self.N = N
         self.w = w # NOTE: this isn't needed by the user, and is only used once in this file
 
-        self.infix_premises = add_double_backslashes(infix_premises)
-        self.infix_conclusions = add_double_backslashes(infix_conclusions)
+        self.infix_premises = [add_backslashes_to_infix(prem) for prem in infix_premises]
+        print(infix_premises)
+        self.infix_conclusions = [add_backslashes_to_infix(concl) for concl in infix_conclusions]
+        print(infix_conclusions)
         self.infix_sentences = infix_combine(infix_premises, infix_conclusions)
         self.prefix_premises = [prefix(prem) for prem in infix_premises]
-        self.prefix_conclusions = [prefix(con) for con in infix_conclusions]
+        self.prefix_conclusions = [prefix(con) for con in infix_conclusions] # I think this is a problem
+        # Say A is in the premises and A is in the conclusions. Two different A objects will exist
+        # in the model
+        # will check by seeing what is in the z3 model object
         self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
 
         find_constraints_func = make_constraints(verify, falsify, possible, assign, N, w)

@@ -15,6 +15,7 @@ capital_alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", 
 unary_operators = {"\\neg", "neg", "Box", "\\Box", "Diamond", "\\Diamond"}
 binary_operators = {"\\wedge", 'wedge', '\\vee', 'vee', '\\rightarrow', 'rightarrow',
                     '\\leftrightarrow', 'leftrightarrow', '\\boxright', 'boxright'}
+all_operators = unary_operators.union(binary_operators)
 
 
 def add_double_backslashes(tokens):
@@ -26,13 +27,9 @@ def add_double_backslashes(tokens):
     """
     new_tokens = []
     for token in tokens:
-        if (
-            token in binary_operators
-            and "\\" not in token
-        ):
+        if (token in all_operators and "\\" not in token):
             token = "\\" + token
         new_tokens.append(token)
-        print(token)
     return new_tokens
 
 
@@ -71,6 +68,21 @@ def tokenize(str_exp):
 
     raw_tokens = tokenize_improved_input(split_str)
     return add_double_backslashes(raw_tokens)
+
+def rejoin_tokens(tokens):
+    infix_expr = ''
+    for token in tokens:
+        if token in binary_operators:
+            token = f' {token} '
+        if token in unary_operators:
+            token = f'{token} '
+        infix_expr += token
+    return infix_expr
+
+def add_backslashes_to_infix(infix_expr):
+    tokens_with_backslashes = tokenize(infix_expr)
+    rejoined_with_backslashes = rejoin_tokens(tokens_with_backslashes)
+    return rejoined_with_backslashes
 
 
 def binary_comp(tokenized_expression):
