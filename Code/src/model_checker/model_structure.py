@@ -99,39 +99,39 @@ class Uninitalized:
     def __str__(self):
         return f"{self.name} (uninitialized)"
 
-class UnsolvedModel:
-    """class which includes all elements provided by the user as well as those
-    needed to find a model if there is one"""
+# class UnsolvedModel:
+#     """class which includes all elements provided by the user as well as those
+#     needed to find a model if there is one"""
 
-    def __init__(self, infix_premises, infix_conclusions, N,):
-        self.infix_premises = [add_backslashes_to_infix(prem) for prem in infix_premises]
-        self.infix_conclusions = [add_backslashes_to_infix(concl) for concl in infix_conclusions]
-        self.N = N
-        self.possible = Function("possible", BitVecSort(N), BoolSort())
-        self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
-        self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
-        self.assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
-        self.w = BitVec("w", N) # what will be the main world
-        self.prefix_premises = [prefix(prem) for prem in self.infix_premises]
-        # M: I think below is a problem
-        self.prefix_conclusions = [prefix(con) for con in self.infix_conclusions]
-        self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
-        find_constraints_func = make_constraints(
-            self.verify,
-            self.falsify,
-            self.possible,
-            self.assign,
-            self.N,
-            self.w
-        )
-        consts, sent_lets = find_constraints_func(self.prefix_sentences)
-        self.sentence_letters = sent_lets
-        self.constraints = consts
-        ext, modal, cf, altogether = find_subsentences_of_kind(self.prefix_sentences, 'all')
-        self.extensional_subsentences = ext
-        self.counterfactual_subsentences = cf
-        self.modal_subsentences = modal
-        self.all_subsentences = altogether # in prefix form
+#     def __init__(self, infix_premises, infix_conclusions, N,):
+#         self.infix_premises = [add_backslashes_to_infix(prem) for prem in infix_premises]
+#         self.infix_conclusions = [add_backslashes_to_infix(concl) for concl in infix_conclusions]
+#         self.N = N
+#         self.possible = Function("possible", BitVecSort(N), BoolSort())
+#         self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
+#         self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
+#         self.assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
+#         self.w = BitVec("w", N) # what will be the main world
+#         self.prefix_premises = [prefix(prem) for prem in self.infix_premises]
+#         # M: I think below is a problem
+#         self.prefix_conclusions = [prefix(con) for con in self.infix_conclusions]
+#         self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
+#         find_constraints_func = make_constraints(
+#             self.verify,
+#             self.falsify,
+#             self.possible,
+#             self.assign,
+#             self.N,
+#             self.w
+#         )
+#         consts, sent_lets = find_constraints_func(self.prefix_sentences)
+#         self.sentence_letters = sent_lets
+#         self.constraints = consts
+#         ext, modal, cf, altogether = find_subsentences_of_kind(self.prefix_sentences, 'all')
+#         self.extensional_subsentences = ext
+#         self.counterfactual_subsentences = cf
+#         self.modal_subsentences = modal
+#         self.all_subsentences = altogether # in prefix form
 
     def solve(self):
         """solves for the model, returns None
