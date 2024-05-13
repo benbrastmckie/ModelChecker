@@ -246,7 +246,7 @@ class ModelStructure:
                 if str(prop_object) == add_backslashes_to_infix(expression):
                     return prop_object
         raise ValueError(
-            f"there is no proposition with expression {expression}")
+            f"there is no Proposition with expression {expression}")
 
     # Useful to user now that can search infix expressions
     def find_propositions(self, sentences, prefix_search=False):
