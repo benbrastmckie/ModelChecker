@@ -48,15 +48,17 @@ save_bool = False
 # premises = ['(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 
-# # SOBEL SEQUENCE
-# premises = [
-#     '(A boxright X)',
-#     'neg ((A wedge B) boxright X)',
-#     '(((A wedge B) wedge C) boxright X)',
-#     # 'neg ((((A wedge B) wedge C) wedge D) boxright X)',
-#     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)',
-# ]
-# conclusions = []
+# # SOBEL SEQUENCE (N = 3)
+premises = [
+    '(A boxright X)', # 0.03 seconds locally
+    'neg ((A wedge B) boxright X)', # 14.8 seconds locally
+    '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
+    'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
+    # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # 20.5 seconds locally
+    # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # 64 seconds on the MIT servers
+    # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # 327.2 seconds on the MIT servers
+]
+conclusions = []
 
 # # COUNTERFACTUAL EXCLUDED MIDDLE
 # premises = ['neg A']
@@ -83,6 +85,7 @@ save_bool = False
 # premises = ['(A boxright (B boxright C))']
 # conclusions = ['((A wedge B) boxright C)']
 
+# # CRASH: MIT servers killed process
 # # COUNTERFACTUAL IMPORTATION WITH POSSIBILITY
 # premises = ['(A boxright (B boxright C))','Diamond (A wedge B)']
 # conclusions = ['((A wedge B) boxright C)']
@@ -121,10 +124,6 @@ save_bool = False
 # premises = ['(A boxright B)','(A boxright C)']
 # conclusions = ['(A boxright (B wedge C))']
 
-# # NOTE: slow  seconds locally
-# premises = ['Box A', '((A wedge B) boxright C)']
-# conclusions = ['(B boxright C)']
-
 # # NOTE: slow 13.8 seconds locally
 # premises = ['(A boxright B)']
 # conclusions = ['(A rightarrow B)']
@@ -133,7 +132,7 @@ save_bool = False
 # premises = ['(A boxright B)','((A wedge B) boxright C)']
 # conclusions = ['(A boxright C)']
 
-# # NOTE: crashed locally
+# # SLOW: crashed locally; MIT servers found a model in 5 seconds
 # premises = ['((A vee B) boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 
@@ -164,7 +163,7 @@ save_bool = False
 # conclusions = ['Box Box A']
 
 # # B axiom (top)
-# # NOTE: crashed locally
+# # SLOW: crashed locally; MIT servers found a model in 1600 seconds
 # premises = ['A']
 # conclusions = ['(top boxright neg (top boxright neg A))']
 
@@ -184,7 +183,7 @@ save_bool = False
 # premises = ['Box A']
 # conclusions = ['(top boxright A)']
 
-# # NOTE: killed in ssh
+# # CRASH: MIT servers killed process
 # # top-to-box equivalence
 # premises = ['(top boxright A)']
 # conclusions = ['Box A']
@@ -216,16 +215,15 @@ save_bool = False
 # premises = ['neg A', '(A boxright B)', 'neg ((A wedge C) boxright B)']
 # conclusions = []
 
-### MEDIUM PRIORITY: NESTED COUNTERFACTUALS ###
+### MEDIUM PRIORITY: COUNTERFACTUALS AND CONJUNCTION ###
 
-# # NOTE: this does not find models for N = 3
-# # NOTE: N = 4 ran for minutes on ssh
-# premises = ['(A boxright (B boxright C))']
-# conclusions = ['((A wedge B) boxright C)']
-
-# # NOTE: ssh killed process
+# # CRASH: MIT servers killed process
 # premises = ['(A boxright C)','(B boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
+
+# # CRASH: MIT servers killed process
+# premises = ['Box A', '((A wedge B) boxright C)']
+# conclusions = ['(B boxright C)']
 
 ### LOW PRIORITY: MODAL EQUIVALENCE ###
 
@@ -233,3 +231,13 @@ save_bool = False
 # # K axiom (top)
 # premises = ['(top boxright (A rightarrow B))']
 # conclusions = ['((top boxright A) rightarrow (top boxright B))']
+
+# # CRASH: MIT servers killed process
+# # top-to-box equivalence
+# premises = ['(top boxright A)']
+# conclusions = ['Box A']
+
+# # CRASH: MIT servers killed process
+# # COUNTERFACTUAL IMPLIES STRICT CONDITIONAL
+# premises = ['(A boxright B)']
+# conclusions = ['Box (A rightarrow B)']
