@@ -194,8 +194,8 @@ class ModelStructure:
                                     for modal_subsent in model_setup.modal_subsentences]
         self.all_propositions = (self.extensional_propositions +
                                  self.counterfactual_propositions + self.modal_propositions)
-        self.premise_propositions = self.find_propositions(self.prefix_premises, prefix=True)
-        self.conclusion_propositions = self.find_propositions(self.prefix_conclusions, prefix=True)
+        self.premise_propositions = self.find_propositions(self.prefix_premises, True)
+        self.conclusion_propositions = self.find_propositions(self.prefix_conclusions, True)
 
 
     def find_alt_bits(self, verifier_bits, evaulation_world=None):
