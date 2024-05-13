@@ -184,6 +184,8 @@ class ModelStructure:
         self.prefix_conclusions = [prefix(con) for con in model_setup.infix_conclusions]
         self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
 
+        # TODO: I think this could be another natural join at which to further
+        # divide the class.
         if model_status:
             self.all_bits = find_all_bits(model_setup.N)
             self.poss_bits = find_poss_bits(model, self.all_bits, model_setup.possible)
@@ -582,18 +584,6 @@ class Proposition:
                 return True
         return False
 
-# class NoModel:
-#     """class which stores only the relevant data when no model is found"""
-#     def __init__(self, model_status, model_setup, unsat_model, model_total):
-#         self.model_status = model_status
-#         self.model_setup = model_setup
-#         self.model = unsat_model
-#         self.model_runtime = model_total
-#         self.prefix_premises = [prefix(prem) for prem in model_setup.infix_premises]
-#         # M: I think below is a problem
-#         self.prefix_conclusions = [prefix(con) for con in model_setup.infix_conclusions]
-#         self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
-
 
 def make_model_for(N, premises, conclusions):
     """
@@ -603,8 +593,5 @@ def make_model_for(N, premises, conclusions):
     backslash_conclusions = [add_backslashes_to_infix(concl) for concl in conclusions]
     model_setup = ModelSetup(N, backslash_premises, backslash_conclusions)
     solved_model_status, model, model_total = model_setup.solve()
-    # if solved_model_status:
     result = ModelStructure(solved_model_status, model_setup, model, model_total)
-    # result = NoModel(model_setup, solved_model, model_total)
-    # result = NoModel(solved_model_status, model_setup, model, model_total)
     return result
