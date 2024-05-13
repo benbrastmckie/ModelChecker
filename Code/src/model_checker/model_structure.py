@@ -108,13 +108,13 @@ class ModelStructure:
     self.constraints is a list (?) of constraints
     everything else is initialized as None"""
 
-    def __init__(self, infix_premises, infix_conclusions, verify, falsify, possible, assign, N, w):
-        self.verify = verify
-        self.falsify = falsify
-        self.possible = possible
-        self.assign = assign
+    def __init__(self, infix_premises, infix_conclusions, N):
         self.N = N
-        self.w = w # NOTE: this isn't needed by the user, and is only used once in this file
+        self.possible = Function("possible", BitVecSort(N), BoolSort())
+        self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
+        self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
+        self.assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
+        self.w = BitVec("w", N) # what will be the main world
 
         self.infix_premises = [add_backslashes_to_infix(prem) for prem in infix_premises]
         print(infix_premises)
@@ -128,7 +128,7 @@ class ModelStructure:
         # will check by seeing what is in the z3 model object
         self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
 
-        find_constraints_func = make_constraints(verify, falsify, possible, assign, N, w)
+        find_constraints_func = make_constraints(self.verify, self.falsify, self.possible, self.assign, N, self.w)
         consts, sent_lets = find_constraints_func(self.prefix_sentences)
         self.sentence_letters = sent_lets
         self.constraints = consts
@@ -565,14 +565,7 @@ def make_model_for(N):
     returns a function that will solve the premises and conclusions"""
 
     def make_relations_and_solve(premises, conclusions):
-        possible = Function("possible", BitVecSort(N), BoolSort())
-        verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
-        falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
-        assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
-        w = BitVec("w", N) # what will be the main world
-        mod = ModelStructure(
-            premises, conclusions, verify, falsify, possible, assign, N, w
-        )
+        mod = ModelStructure(premises, conclusions, N)
         mod.solve()
         return mod
 
