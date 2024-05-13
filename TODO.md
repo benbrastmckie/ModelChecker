@@ -18,7 +18,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] update READMEs
     - [x] print impossible
 - [ ] printing
-  - [ ] _M_ `cleanup_operators` function, adding double backslashes if none
+  - [ ] _M_ `backslash` function, adding double backslashes if none
   - [x] _B_ separate premises and conclusions
   - [x] _M_ refactor `rec_print`
   - [x] _B_ refactor `print_to` and `save_to`
