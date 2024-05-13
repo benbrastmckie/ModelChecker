@@ -93,7 +93,7 @@ conclusions = ['(A boxright B)','(A boxright C)']
 
 def print_or_save(module, cons_flag, save_flag, imposs_flag):
     """print the model and prompt user to store the output"""
-    mod = make_model_for(module.N)(module.premises, module.conclusions)
+    mod = make_model_for(module.N, module.premises, module.conclusions)
     if module.use_constraints_bool:
         mod.constraints = module.all_constraints
     print_cons = module.print_cons_bool
@@ -121,7 +121,7 @@ def print_or_save(module, cons_flag, save_flag, imposs_flag):
             print('"""', file=f)
         return
     with open(f"{module.parent_directory}/{output_file_name}.py", 'w', encoding="utf-8") as n:
-        mod.save_to(output_file_name, module.parent_file, cons_include, n)
+        mod.save_to(output_file_name, module.parent_file, cons_include, print_imposs, n)
     print()
 
 class LoadModule:
