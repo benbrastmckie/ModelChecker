@@ -82,8 +82,8 @@ save_bool = False
 # premises = ['(A wedge neg A)']
 # conclusions = []
 
-premises = ['Box A','(Box A boxright B)']
-conclusions = []
+# premises = ['Box A','(Box A boxright B)']
+# conclusions = []
 
 # # COUNTERFACTUAL EXCLUDED MIDDLE
 # premises = ['neg A']
@@ -128,8 +128,8 @@ conclusions = []
 
 ### VALID ###
 
-# premises = ['A','(A rightarrow B)']
-# conclusions = ['B']
+premises = ['A','(A rightarrow B)']
+conclusions = ['B']
 
 # premises = ['Box (A rightarrow B)']
 # conclusions = ['(A boxright B)']

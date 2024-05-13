@@ -95,7 +95,7 @@ def print_or_save(module, cons_flag, save_flag, imposs_flag):
     """print the model and prompt user to store the output"""
     mod = make_model_for(module.N, module.premises, module.conclusions)
     if module.use_constraints_bool:
-        mod.constraints = module.all_constraints
+        mod.model_setup.constraints = module.all_constraints
     print_cons = module.print_cons_bool
     print_unsat = module.print_unsat_core_bool
     if cons_flag:
