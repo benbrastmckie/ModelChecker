@@ -81,28 +81,28 @@ save_bool = False
 # use_constraints_bool = False
 
 
-class Uninitalized:
-    """class for uninitalized attributes"""
-
-    def __init__(self, name):
-        self.name = name
-
-    def __iter__(self):
-        raise AttributeError(
-            f"cannot iterate through {self.name} because it isnt initialized")
-    
-    def __getitem__(self):
-        raise AttributeError(
-            f"cannot get an item from {self.name} because it isnt initialized")
-
-    def __str__(self):
-        return f"{self.name} (uninitialized)"
+# class Uninitalized:
+#     """class for uninitalized attributes"""
+#
+#     def __init__(self, name):
+#         self.name = name
+#
+#     def __iter__(self):
+#         raise AttributeError(
+#             f"cannot iterate through {self.name} because it isnt initialized")
+#
+#     def __getitem__(self):
+#         raise AttributeError(
+#             f"cannot get an item from {self.name} because it isnt initialized")
+#
+#     def __str__(self):
+#         return f"{self.name} (uninitialized)"
 
 class ModelSetup:
     """class which includes all elements provided by the user as well as those
     needed to find a model if there is one"""
 
-    def __init__(self, infix_premises, infix_conclusions, N):
+    def __init__(self, N, infix_premises, infix_conclusions):
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
         self.N = N
@@ -151,7 +151,7 @@ class ModelSetup:
         model_end = time.time()
         model_total = round(model_end - model_start, 4)
         return (solved_model_status, solved_model, model_total)
-    
+
 
 class ModelStructure:
     """self.premises is a list of prefix sentences
@@ -162,35 +162,35 @@ class ModelStructure:
     self.constraints is a list (?) of constraints
     everything else is initialized as None"""
 
-    def __init__(self, infix_premises, infix_conclusions, N):
-        self.infix_premises = infix_premises
-        self.infix_conclusions = infix_conclusions
-        self.N = N
-        mod_setup = ModelSetup(infix_premises, infix_conclusions, N)
-        solved_model_status, solved_model, model_total = mod_setup.solve()
-        self.model_status = solved_model_status
+    def __init__(self, model_status, model_setup, solved_model, model_total):
+        self.model_status = model_status
+        self.infix_premises = model_setup.infix_premises
+        self.infix_conclusions = model_setup.infix_conclusions
+        self.N = model_setup.N
         self.model = solved_model
+        self.constraints = model_setup.constraints
+        self.possible = model_setup.possible
         self.model_runtime = model_total
-        self.sentence_letters = mod_setup.sentence_letters
-        self.verify = mod_setup.verify
-        self.falsify = mod_setup.falsify
-        self.extensional_subsentences = mod_setup.extensional_subsentences
-        self.prefix_premises = [prefix(prem) for prem in infix_premises]
+        self.sentence_letters = model_setup.sentence_letters
+        self.verify = model_setup.verify
+        self.falsify = model_setup.falsify
+        self.extensional_subsentences = model_setup.extensional_subsentences
+        self.prefix_premises = [prefix(prem) for prem in self.infix_premises]
         # M: I think below is a problem
-        self.prefix_conclusions = [prefix(con) for con in infix_conclusions]
+        self.prefix_conclusions = [prefix(con) for con in self.infix_conclusions]
         self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
-        self.all_bits = find_all_bits(N)
-        self.poss_bits = find_poss_bits(self.model, self.all_bits, mod_setup.possible)
+        self.all_bits = find_all_bits(self.N)
+        self.poss_bits = find_poss_bits(solved_model, self.all_bits, model_setup.possible)
         self.world_bits = find_world_bits(self.poss_bits)
-        self.main_world = mod_setup.w
+        self.main_world = solved_model[model_setup.w]
         self.atomic_props_dict = atomic_propositions_dict_maker(self)
         # TODO: one attribute for all propositions (check)
         self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
-                                        for ext_subsent in mod_setup.extensional_subsentences]
+                                        for ext_subsent in model_setup.extensional_subsentences]
         self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
-                                        for cf_subsent in mod_setup.counterfactual_subsentences]
+                                        for cf_subsent in model_setup.counterfactual_subsentences]
         self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
-                                    for modal_subsent in mod_setup.modal_subsentences]
+                                    for modal_subsent in model_setup.modal_subsentences]
         self.all_propositions = (self.extensional_propositions +
                                  self.counterfactual_propositions + self.modal_propositions)
         self.premise_propositions = self.find_propositions(self.prefix_premises, prefix=True)
@@ -568,16 +568,16 @@ class Proposition:
                 return True
         return False
 
-def make_model_for(N):
+def make_model_for(N, premises, conclusions):
     """
     input: N (int of number of atomic states you want in the model)
     returns a function that will solve the premises and conclusions"""
-
-    def make_relations_and_solve(premises, conclusions):
-        backslash_premises = [add_backslashes_to_infix(prem) for prem in premises]
-        backslash_conclusions = [add_backslashes_to_infix(concl) for concl in conclusions]
-        mod = ModelStructure(backslash_premises, backslash_conclusions, N)
-        # mod.solve()
-        return mod
-
-    return make_relations_and_solve
+    backslash_premises = [add_backslashes_to_infix(prem) for prem in premises]
+    backslash_conclusions = [add_backslashes_to_infix(concl) for concl in conclusions]
+    model_setup = ModelSetup(N, backslash_premises, backslash_conclusions)
+    solved_model_status, solved_model, model_total = model_setup.solve()
+    if solved_model_status:
+        result = ModelStructure(solved_model_status, model_setup, solved_model, model_total)
+    # result = NoModel(model_setup, solved_model, model_total)
+    result = ModelStructure(solved_model_status, model_setup, solved_model, model_total)
+    return result
