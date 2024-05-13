@@ -83,19 +83,19 @@ conclusions = ['C']
 # premises = ['(A \\boxright (B \\boxright C))']
 # conclusions = ['B']
 
-# premises = ['ball_is_red', '(ball_is_red boxright mary_likes_it)']
-# conclusions = ['mary_likes_it']
+premises = ['ball_is_red', '(ball_is_red rightarrow neg mary_likes_it)']
+conclusions = ['mary_likes_it']
 
 # premises = ['A', '(A \\boxright B)']
 # conclusions = ['B']
 
-premises = ['A', 'B']
-conclusions = ['\\neg B']
+# premises = ['A', 'B']
+# conclusions = ['\\neg B']
 
 
 mod = make_model_for(N)(premises, conclusions)
 mod.solve()
-mod.print_to(print_cons_bool, print_unsat_core_bool, True)
+mod.print_to(print_cons_bool, print_unsat_core_bool, False)
 # for prop in mod.all_propositions:
 #     mod.rec_print()
 # for cf_prop in mod.counterfactual_propositions:
