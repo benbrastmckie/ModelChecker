@@ -5,7 +5,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Questions
 
 
-- if `Const(token, AtomSort)` happens for `token = A` multiple times, does Z3 know those are the same?
 
 ## v0.3 Release 
 
@@ -83,6 +82,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Refine and Optimize
 
+- [ ] if `Const(token, AtomSort)` happens for `token = A` multiple times
+  - Z3 is able to eliminate the redundancy
+  - see issue #28
 - [ ] test exhaustivity
   - [ ] prove bivalence
 - [ ] `optional_generate_test` in `test_complete`
