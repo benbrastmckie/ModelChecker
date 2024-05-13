@@ -123,7 +123,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             return true_at(ext_sent, eval_world)
             # raise ValueError(
             #     f"\n\nThe antecedent of a counterfactual conditional must be extensional.\n"
-            #     f"The sentence '{Infix(ext_sent)}' is not extensional.\n"
+            #     f"The sentence '{infix(ext_sent)}' is not extensional.\n"
             # )
         if "neg" in op:
             return extended_falsify(state, ext_sent[1], eval_world)
@@ -176,7 +176,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             return false_at(ext_sent, eval_world)
             # raise ValueError(
             #     f"\n\nThe antecedent of a counterfactual conditional must be extensional.\n"
-            #     f"The sentence '{Infix(ext_sent)}' is not extensional.\n"
+            #     f"The sentence '{infix(ext_sent)}' is not extensional.\n"
             # )
         if "neg" in op:
             return extended_verify(state, ext_sent[1], eval_world)

@@ -406,7 +406,6 @@ def evaluate_mainclause_cf_expr(modelstructure, prefix_cf, eval_world):
 
 def true_and_false_worlds_for_cf(modelstructure, complex_cf_sent):
     '''used in find_complex_proposition'''
-    # assert 'boxright' in complex_cf_sent[0], 'this func is only for main-clause cfs!'
     worlds_true_at, worlds_false_at = set(), set()
     for world in modelstructure.world_bits:
         if find_complex_proposition(modelstructure, complex_cf_sent, world)[0]:
