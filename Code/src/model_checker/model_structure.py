@@ -98,6 +98,57 @@ class Uninitalized:
     def __str__(self):
         return f"{self.name} (uninitialized)"
 
+class UnsolvedModel:
+    """class which includes all elements provided by the user as well as those
+    needed to find a model if there is one"""
+
+    def __init__(self, infix_premises, infix_conclusions, N,):
+        self.infix_premises = [add_backslashes_to_infix(prem) for prem in infix_premises]
+        self.infix_conclusions = [add_backslashes_to_infix(concl) for concl in infix_conclusions]
+        self.N = N
+        self.possible = Function("possible", BitVecSort(N), BoolSort())
+        self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
+        self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
+        self.assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
+        self.w = BitVec("w", N) # what will be the main world
+        self.prefix_premises = [prefix(prem) for prem in infix_premises]
+        # M: I think below is a problem
+        self.prefix_conclusions = [prefix(con) for con in infix_conclusions]
+        self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
+        find_constraints_func = make_constraints(
+            self.verify,
+            self.falsify,
+            self.possible,
+            self.assign,
+            self.N,
+            self.w
+        )
+        consts, sent_lets = find_constraints_func(self.prefix_sentences)
+        self.sentence_letters = sent_lets
+        self.constraints = consts
+        ext, modal, cf, altogether = find_subsentences_of_kind(self.prefix_sentences, 'all')
+        self.extensional_subsentences = ext
+        self.counterfactual_subsentences = cf
+        self.modal_subsentences = modal
+        self.all_subsentences = altogether # in prefix form
+
+    def solve(self):
+        """solves for the model, returns None
+        self.model is the ModelRef object resulting from solving the model
+        self.model_runtime is the runtime of the model as a float
+        self.all_bits is a list of all bits (each of sort BitVecVal)
+        self.poss_bits is a list of all possible bits
+        self.world_bits is a lsit of all world bits
+        self.main_world is the eval world (as a BitVecVal)
+        self.atomic_props_dict is a dictionary with keys AtomSorts and keys (V,F)
+        """
+        model_start = time.time()  # start benchmark timer
+        solved_model_status, solved_model = solve_constraints(self.constraints)
+        model_end = time.time()
+        model_total = round(model_end - model_start, 4)
+        self.model_status = solved_model_status
+        self.model = solved_model
+        self.model_runtime = model_total
 
 class ModelStructure:
     """self.premises is a list of prefix sentences
@@ -117,9 +168,9 @@ class ModelStructure:
         self.w = BitVec("w", N) # what will be the main world
 
         self.infix_premises = [add_backslashes_to_infix(prem) for prem in infix_premises]
-        print(infix_premises)
+        # print(infix_premises)
         self.infix_conclusions = [add_backslashes_to_infix(concl) for concl in infix_conclusions]
-        print(infix_conclusions)
+        # print(infix_conclusions)
         self.infix_sentences = infix_combine(infix_premises, infix_conclusions)
         self.prefix_premises = [prefix(prem) for prem in infix_premises]
         self.prefix_conclusions = [prefix(con) for con in infix_conclusions] # I think this is a problem
@@ -177,6 +228,7 @@ class ModelStructure:
             self.world_bits = find_world_bits(self.poss_bits)
             self.main_world = self.model[self.w]
             self.atomic_props_dict = atomic_propositions_dict_maker(self)
+            # TODO: one attribute for all propositions (check)
             self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
                                             for ext_subsent in self.extensional_subsentences]
             self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
@@ -189,39 +241,42 @@ class ModelStructure:
             self.conclusion_propositions = self.find_propositions(self.prefix_conclusions, prefix=True)
             # TODO: just missing the which-sentences-true-in-which-worlds
 
+    # TODO: fix 
     # NOTE: could be relevant to user, so leaving it here. @B, what do you think?
-    def find_alt_bits(self, ext_prop_verifier_bits, comparison_world=None):
+    def find_alt_bits(self, verifier_bits, evaulation_world=None):
         """
         Finds the alternative bits given verifier bits of an extensional proposition,
         possible states, worlds, and the evaluation world.
         Used in evaluate_cf_expression() and rec_print().
         """
-        if comparison_world is None:
-            comparison_world = self.main_world
+        if evaulation_world is None:
+            evaulation_world = self.main_world
         alt_bits = set()
-        for ver in ext_prop_verifier_bits:
-            comp_parts = find_compatible_parts(ver, self.poss_bits, comparison_world)
+        for ver in verifier_bits:
+            # print(f"TEST: {self.poss_bits}")
+            comp_parts = find_compatible_parts(ver, self.poss_bits, evaulation_world)
+            # print(f"TEST: {comp_parts}")
             max_comp_ver_parts = find_max_comp_ver_parts(ver, comp_parts)
+            # print(f"TEST: {max_comp_ver_parts}")
             for world in self.world_bits:
                 if not bit_part(ver, world):
                     continue
                 for max_ver in max_comp_ver_parts:
-                    if bit_part(max_ver, world) and world.sexpr():
+                    # TODO: RETURN TO THIS
+                    if bit_part(max_ver, world): # and world.sexpr():
                         alt_bits.add(world)
                         break  # to return to the second for loop over world_bits
         return alt_bits
-    
+
     # Useful to user now that can search an infix expression
-    def find_proposition_object(self, expression, prefix=False, ext_only=False):
+    def find_proposition_object(self, expression, prefix=False):
         """given a sentence, finds the Proposition object in the model that corresponds
         to it. Can optionally search through only the extensional sentences
         Also defaults to searching an infix sentence, though internally it always searches
         prefix. 
         If search infix, make sure you put double backslashes always!!
         returns a Proposition object"""
-        search_list = self.extensional_propositions
-        if ext_only is False:
-            search_list = self.all_propositions
+        search_list = self.all_propositions
         if prefix == True:
             for prop_object in search_list:
                 if prop_object["prefix expression"] == expression:
@@ -563,6 +618,11 @@ def make_model_for(N):
     """
     input: N (int of number of atomic states you want in the model)
     returns a function that will solve the premises and conclusions"""
+    possible = Function("possible", BitVecSort(N), BoolSort())
+    verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
+    falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
+    assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
+    w = BitVec("w", N) # what will be the main world
 
     def make_relations_and_solve(premises, conclusions):
         mod = ModelStructure(premises, conclusions, N)

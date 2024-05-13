@@ -301,6 +301,7 @@ def find_extensional_subsentences(prefix_sentences):
             all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
         extensional_subsentences = [sent for sent in all_subsentences if not is_counterfactual(sent)]
         return repeats_removed(extensional_subsentences)
+
 def find_cf_subsentences(prefix_sentences):
     '''finds all the counterfactual subsentences in a list of prefix sentences
     used in find_all_constraints'''
@@ -333,7 +334,6 @@ def print_alt_relation(alt_relation_set, alt_bit, relation_truth_value, N,output
             f"    {alt_relation_string} are {relation_truth_value} in {bitvec_to_substates(alt_bit, N)}",
             file=output
         )
-
 
 # from semantics
 def add_general_constraints(solv, input_sentence_letters):
