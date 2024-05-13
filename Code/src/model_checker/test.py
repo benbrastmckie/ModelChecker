@@ -1,5 +1,5 @@
 from model_structure import *
-
+from syntax import *
 
 "don't delete this file yet, I'll delete it once I'm done debugging"
 ################################
@@ -95,18 +95,12 @@ conclusions = ['mary_likes_it']
 
 mod = make_model_for(N)(premises, conclusions)
 mod.solve()
-mod.print_to(print_cons_bool, print_unsat_core_bool, False)
-# for prop in mod.all_propositions:
-#     mod.rec_print()
-# for cf_prop in mod.counterfactual_propositions:
-#     print((cf_prop['worlds cf true at'], cf_prop['worlds cf false at']))
+mod.print_to(print_cons_bool, print_unsat_core_bool, True)
 if mod.model_status:
-    for infix_sent in premises:
-        prop = mod.find_proposition_object(infix_sent)
-        print(prop)
-
-    z3_model_object = mod.model
-    print(z3_model_object.decls())
-
-    prop_list = mod.find_propositions(premises+conclusions)
-    print(prop_list)
+    A = Const('ball_is_red', AtomSort)
+    print(mod.find_proposition_object(str(A), prefix_search=False))
+    red_prop = mod.find_proposition_object([A], prefix_search=True) # it finds a Proposition object
+    print([bitvec_to_substates(ver, mod.N) for ver in red_prop['verifiers']])
+    # prints ['b.c', 'a.b.c', 'b', 'a', 'c', 'a.c', 'a.b']
+    # so moreover, that Proposition object (red_prop) has the same verifiers as the one printed by
+    # the model before
