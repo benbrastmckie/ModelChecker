@@ -373,14 +373,14 @@ def evaluate_modal_expr(modelstructure, prefix_modal, eval_world):
         return False
     if 'Diamond' in op:
         # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
-        for world in modelstructure.world_bits:
-            if world in find_complex_proposition(modelstructure, argument, eval_world)[0]:
+        for poss in modelstructure.poss_bits:
+            if poss in find_complex_proposition(modelstructure, argument, eval_world)[0]:
                 return True
         return False
     if 'Box' in op:
         # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
-        for world in modelstructure.world_bits:
-            if world not in find_complex_proposition(modelstructure, argument, eval_world)[0]:
+        for poss in modelstructure.poss_bits:
+            if poss in find_complex_proposition(modelstructure, argument, eval_world)[1]:
                 return False
         return True
     

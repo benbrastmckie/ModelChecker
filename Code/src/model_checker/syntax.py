@@ -145,6 +145,10 @@ def main_op_index(tokenized_expression):
         f"Looks like nothing was passed into main_op_index ({tokenized_expression})",
     )
 
+def find_atom_strings(tokens):
+    """make list of all basic tokens to apply AtomSort to"""
+    pass
+
 
 def parse(tokens):
     """
