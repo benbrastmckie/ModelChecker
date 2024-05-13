@@ -2,6 +2,11 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
+## Questions
+
+
+- if `Const(token, AtomSort)` happens for `token = A` multiple times, does Z3 know those are the same?
+
 ## v0.3 Release 
 
 - [ ] final features
@@ -23,6 +28,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] _M_ refactor `rec_print`
   - [x] _B_ refactor `print_to` and `save_to`
 - [ ] cleanup
+  - [ ] `find_alt_bits` fix to make null state work
   - [ ] _M_ move helper functions from `ModelStructure` to `model_definitions`
   - [x] _B_ review TODOs throughout
   - [x] _B_ replace dummy
