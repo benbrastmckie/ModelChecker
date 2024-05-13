@@ -12,6 +12,9 @@ from z3 import (
     BitVec,
     BitVecVal
 )
+
+from syntax import add_double_backslashes
+
 # from model_checker.semantics import ( # for packaging
 from semantics import (
     make_constraints,
@@ -40,8 +43,8 @@ from model_definitions import (
 # from model_checker.syntax import ( # for packaging
 from syntax import (
     AtomSort,
-    Infix,
-    Prefix,
+    infix,
+    prefix,
 )
 
 inputs_template = Template(
@@ -113,11 +116,11 @@ class ModelStructure:
         self.N = N
         self.w = w # NOTE: this isn't needed by the user, and is only used once in this file
 
-        self.infix_premises = infix_premises
-        self.infix_conclusions = infix_conclusions
+        self.infix_premises = add_double_backslashes(infix_premises)
+        self.infix_conclusions = add_double_backslashes(infix_conclusions)
         self.infix_sentences = infix_combine(infix_premises, infix_conclusions)
-        self.prefix_premises = [Prefix(prem) for prem in infix_premises]
-        self.prefix_conclusions = [Prefix(con) for con in infix_conclusions]
+        self.prefix_premises = [prefix(prem) for prem in infix_premises]
+        self.prefix_conclusions = [prefix(con) for con in infix_conclusions]
         self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
 
         find_constraints_func = make_constraints(verify, falsify, possible, assign, N, w)
@@ -485,7 +488,7 @@ class Proposition:
         return self.prop_dict[key]
 
     def __str__(self):
-        return Infix(self["prefix expression"])
+        return infix(self["prefix expression"])
 
     def update_verifiers(self, new_world):
         if not is_counterfactual(self['prefix expression']):
