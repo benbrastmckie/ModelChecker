@@ -36,9 +36,9 @@ save_bool = False
 # premises = ['(A boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 
-# COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
-premises = ['(A boxright C)', 'Diamond (A wedge B)']
-conclusions = ['((A wedge B) boxright C)']
+# # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
+# premises = ['(A boxright C)', 'Diamond (A wedge B)']
+# conclusions = ['((A wedge B) boxright C)']
 
 # # COUNTERFACTUAL CONTRAPOSITION
 # premises = ['(A boxright B)']
@@ -82,8 +82,8 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['(A wedge neg A)']
 # conclusions = []
 
-# premises = ['Box A','(Box A boxright B)']
-# conclusions = []
+premises = ['Box A','(Box A boxright B)']
+conclusions = []
 
 # # COUNTERFACTUAL EXCLUDED MIDDLE
 # premises = ['neg A']
