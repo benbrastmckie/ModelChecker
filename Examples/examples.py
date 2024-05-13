@@ -32,9 +32,9 @@ save_bool = False
 
 ### INVALID ###
 
-# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# premises = ['(A boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
+# COUNTERFACTUAL ANTECEDENT STRENGTHENING
+premises = ['(A boxright C)']
+conclusions = ['((A wedge B) boxright C)']
 
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # premises = ['(A boxright C)', 'Diamond (A wedge B)']
@@ -60,10 +60,10 @@ save_bool = False
 # ]
 # conclusions = []
 
-# # SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
+# # SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
 # premises = [
 #     'Diamond A',
-#     '(A boxright X)', # 0.2 seconds locally
+#     '(A boxright X)', # 0.7 seconds locally
 #     'Diamond (A wedge B)',
 #     'neg ((A wedge B) boxright X)', # 157.8 seconds on the MIT servers
 #     # 'Diamond ((A wedge B) wedge C)',
