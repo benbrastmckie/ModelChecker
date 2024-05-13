@@ -83,11 +83,14 @@ conclusions = ['C']
 # premises = ['(A \\boxright (B \\boxright C))']
 # conclusions = ['B']
 
-premises = ['ball_is_red', '(ball_is_red boxright mary_likes_it)']
-conclusions = ['mary_likes_it']
+# premises = ['ball_is_red', '(ball_is_red boxright mary_likes_it)']
+# conclusions = ['mary_likes_it']
 
 # premises = ['A', '(A \\boxright B)']
 # conclusions = ['B']
+
+premises = ['A', 'B']
+conclusions = ['\\neg B']
 
 
 mod = make_model_for(N)(premises, conclusions)
@@ -95,12 +98,15 @@ mod.solve()
 mod.print_to(print_cons_bool, print_unsat_core_bool, True)
 # for prop in mod.all_propositions:
 #     mod.rec_print()
-for cf_prop in mod.counterfactual_propositions:
-    print((cf_prop['worlds cf true at'], cf_prop['worlds cf false at']))
+# for cf_prop in mod.counterfactual_propositions:
+#     print((cf_prop['worlds cf true at'], cf_prop['worlds cf false at']))
+if mod.model_status:
+    for infix_sent in premises:
+        prop = mod.find_proposition_object(infix_sent)
+        print(prop)
 
-for infix_sent in premises:
-    prop = mod.find_proposition_object(infix_sent)
-    print(prop)
+    z3_model_object = mod.model
+    print(z3_model_object.decls())
 
-prop_list = mod.find_propositions(premises+conclusions)
-print(prop_list)
+    prop_list = mod.find_propositions(premises+conclusions)
+    print(prop_list)
