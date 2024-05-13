@@ -84,7 +84,6 @@ def add_backslashes_to_infix(infix_expr):
     rejoined_with_backslashes = rejoin_tokens(tokens_with_backslashes)
     return rejoined_with_backslashes
 
-
 def binary_comp(tokenized_expression):
     """
     finds complexity, defined by number of operators, in a tokenized_expression.
@@ -145,9 +144,10 @@ def main_op_index(tokenized_expression):
         f"Looks like nothing was passed into main_op_index ({tokenized_expression})",
     )
 
-def find_atom_strings(tokens):
-    """make list of all basic tokens to apply AtomSort to"""
-    pass
+# # M: most likely not necessary, but leaving here in case later it is
+# def find_atom_strings(tokens):
+#     """make list of all basic tokens to apply AtomSort to"""
+#     pass
 
 
 def parse(tokens):
