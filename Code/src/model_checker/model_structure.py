@@ -98,6 +98,57 @@ class Uninitalized:
     def __str__(self):
         return f"{self.name} (uninitialized)"
 
+class UnsolvedModel:
+    """class which includes all elements provided by the user as well as those
+    needed to find a model if there is one"""
+
+    def __init__(self, infix_premises, infix_conclusions, N,):
+        self.infix_premises = [add_backslashes_to_infix(prem) for prem in infix_premises]
+        self.infix_conclusions = [add_backslashes_to_infix(concl) for concl in infix_conclusions]
+        self.N = N
+        self.possible = Function("possible", BitVecSort(N), BoolSort())
+        self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
+        self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
+        self.assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
+        self.w = BitVec("w", N) # what will be the main world
+        self.prefix_premises = [prefix(prem) for prem in infix_premises]
+        # M: I think below is a problem
+        self.prefix_conclusions = [prefix(con) for con in infix_conclusions]
+        self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
+        find_constraints_func = make_constraints(
+            self.verify,
+            self.falsify,
+            self.possible,
+            self.assign,
+            self.N,
+            self.w
+        )
+        consts, sent_lets = find_constraints_func(self.prefix_sentences)
+        self.sentence_letters = sent_lets
+        self.constraints = consts
+        ext, modal, cf, altogether = find_subsentences_of_kind(self.prefix_sentences, 'all')
+        self.extensional_subsentences = ext
+        self.counterfactual_subsentences = cf
+        self.modal_subsentences = modal
+        self.all_subsentences = altogether # in prefix form
+
+    def solve(self):
+        """solves for the model, returns None
+        self.model is the ModelRef object resulting from solving the model
+        self.model_runtime is the runtime of the model as a float
+        self.all_bits is a list of all bits (each of sort BitVecVal)
+        self.poss_bits is a list of all possible bits
+        self.world_bits is a lsit of all world bits
+        self.main_world is the eval world (as a BitVecVal)
+        self.atomic_props_dict is a dictionary with keys AtomSorts and keys (V,F)
+        """
+        model_start = time.time()  # start benchmark timer
+        solved_model_status, solved_model = solve_constraints(self.constraints)
+        model_end = time.time()
+        model_total = round(model_end - model_start, 4)
+        self.model_status = solved_model_status
+        self.model = solved_model
+        self.model_runtime = model_total
 
 class ModelStructure:
     """self.premises is a list of prefix sentences
@@ -117,9 +168,9 @@ class ModelStructure:
         self.w = w # NOTE: this isn't needed by the user, and is only used once in this file
 
         self.infix_premises = [add_backslashes_to_infix(prem) for prem in infix_premises]
-        print(infix_premises)
+        # print(infix_premises)
         self.infix_conclusions = [add_backslashes_to_infix(concl) for concl in infix_conclusions]
-        print(infix_conclusions)
+        # print(infix_conclusions)
         self.infix_sentences = infix_combine(infix_premises, infix_conclusions)
         self.prefix_premises = [prefix(prem) for prem in infix_premises]
         self.prefix_conclusions = [prefix(con) for con in infix_conclusions] # I think this is a problem
@@ -563,13 +614,13 @@ def make_model_for(N):
     """
     input: N (int of number of atomic states you want in the model)
     returns a function that will solve the premises and conclusions"""
+    possible = Function("possible", BitVecSort(N), BoolSort())
+    verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
+    falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
+    assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
+    w = BitVec("w", N) # what will be the main world
 
     def make_relations_and_solve(premises, conclusions):
-        possible = Function("possible", BitVecSort(N), BoolSort())
-        verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
-        falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
-        assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
-        w = BitVec("w", N) # what will be the main world
         mod = ModelStructure(
             premises, conclusions, verify, falsify, possible, assign, N, w
         )
