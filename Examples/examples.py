@@ -49,16 +49,35 @@ save_bool = False
 # conclusions = ['(A boxright C)']
 
 # # SOBEL SEQUENCE (N = 3)
-premises = [
-    '(A boxright X)', # 0.03 seconds locally
-    'neg ((A wedge B) boxright X)', # 14.8 seconds locally
-    '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
-    'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
-    # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # 20.5 seconds locally
-    # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # 64 seconds on the MIT servers
-    # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # 327.2 seconds on the MIT servers
-]
-conclusions = []
+# premises = [
+#     '(A boxright X)', # 0.03 seconds locally
+#     'neg ((A wedge B) boxright X)', # 14.8 seconds locally
+#     '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
+#     'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
+#     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # 20.5 seconds locally
+#     # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # 64 seconds on the MIT servers
+#     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # 327.2 seconds on the MIT servers
+# ]
+# conclusions = []
+
+# # SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
+# premises = [
+#     'Diamond A',
+#     '(A boxright X)', # 0.2 seconds locally
+#     'Diamond (A wedge B)',
+#     'neg ((A wedge B) boxright X)', # 157.8 seconds on the MIT servers
+#     # 'Diamond ((A wedge B) wedge C)',
+#     # '(((A wedge B) wedge C) boxright X)', # ? seconds
+#     # 'Diamond (((A wedge B) wedge C) wedge D)',
+#     # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # ? seconds
+#     # 'Diamond ((((A wedge B) wedge C) wedge D) wedge E)',
+#     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # ? seconds
+#     # 'Diamond (((((A wedge B) wedge C) wedge D) wedge E) wedge F)',
+#     # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # ? seconds
+#     # 'Diamond ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G)',
+#     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # ? seconds on the MIT servers
+# ]
+# conclusions = []
 
 # # COUNTERFACTUAL EXCLUDED MIDDLE
 # premises = ['neg A']
