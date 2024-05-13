@@ -242,8 +242,6 @@ class ModelStructure:
             self.conclusion_propositions = self.find_propositions(self.prefix_conclusions, prefix_search=True)
             # TODO: just missing the which-sentences-true-in-which-worlds
 
-    # TODO: fix 
-    # NOTE: could be relevant to user, so leaving it here. @B, what do you think?
     def find_alt_bits(self, verifier_bits, evaulation_world=None):
         """
         Finds the alternative bits given verifier bits of an extensional proposition,
@@ -254,17 +252,13 @@ class ModelStructure:
             evaulation_world = self.main_world
         alt_bits = set()
         for ver in verifier_bits:
-            # print(f"TEST: {self.poss_bits}")
             comp_parts = find_compatible_parts(ver, self.poss_bits, evaulation_world)
-            # print(f"TEST: {comp_parts}")
             max_comp_ver_parts = find_max_comp_ver_parts(ver, comp_parts)
-            # print(f"TEST: {max_comp_ver_parts}")
             for world in self.world_bits:
                 if not bit_part(ver, world):
                     continue
                 for max_ver in max_comp_ver_parts:
-                    # TODO: RETURN TO THIS
-                    if bit_part(max_ver, world): # and world.sexpr():
+                    if bit_part(max_ver, world):
                         alt_bits.add(world)
                         break  # to return to the second for loop over world_bits
         return alt_bits
