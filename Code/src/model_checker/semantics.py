@@ -394,7 +394,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         used in all_sentence_letters
         """
         if len(prefix_input_sentence) == 1:  # base case: atomic sentence
-            return prefix_input_sentence
+            return [prefix_input_sentence[0]] # redundant but conceptually clear
         return_list = []
         for part in prefix_input_sentence[1:]:
             return_list.extend(sentence_letters_in_compound(part))

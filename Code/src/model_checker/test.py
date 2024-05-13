@@ -83,8 +83,11 @@ conclusions = ['C']
 # premises = ['(A \\boxright (B \\boxright C))']
 # conclusions = ['B']
 
-# premises = ['ball_is_red', 'ball_is_red boxright mary_likes_it']
-# conclusions = ['mary_likes_it']
+premises = ['ball_is_red', '(ball_is_red boxright mary_likes_it)']
+conclusions = ['mary_likes_it']
+
+# premises = ['A', '(A \\boxright B)']
+# conclusions = ['B']
 
 
 mod = make_model_for(N)(premises, conclusions)
