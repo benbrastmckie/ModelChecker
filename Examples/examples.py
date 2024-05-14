@@ -82,9 +82,9 @@ save_bool = False
 # premises = ['Box A','(Box A boxright B)']
 # conclusions = []
 
-# # COUNTERFACTUAL EXCLUDED MIDDLE
-# premises = ['neg A']
-# conclusions = ['(A boxright B)','(A boxright neg B)']
+# COUNTERFACTUAL EXCLUDED MIDDLE
+premises = ['neg A']
+conclusions = ['(A boxright B)','(A boxright neg B)']
 
 # # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
 # premises = ['neg A','(A boxright (B vee C))']
@@ -125,8 +125,8 @@ save_bool = False
 
 ### VALID ###
 
-premises = ['A','(A rightarrow B)']
-conclusions = ['B']
+# premises = ['A','(A rightarrow B)']
+# conclusions = ['B']
 
 # premises = ['Box (A rightarrow B)']
 # conclusions = ['(A boxright B)']

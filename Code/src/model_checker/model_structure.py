@@ -145,10 +145,10 @@ class ModelSetup:
         self.atomic_props_dict is a dictionary with keys AtomSorts and keys (V,F)
         """
         model_start = time.time()  # start benchmark timer
-        solved_model_status, solved_model = solve_constraints(self.constraints)
+        z3_model_status, z3_model = solve_constraints(self.constraints)
         model_end = time.time()
         model_runtime = round(model_end - model_start, 4)
-        return (solved_model_status, solved_model, model_runtime)
+        return (z3_model_status, z3_model, model_runtime)
 
 
 class ModelStructure:
@@ -160,47 +160,18 @@ class ModelStructure:
     self.constraints is a list (?) of constraints
     everything else is initialized as None"""
 
-    def __init__(self, model_status, model_setup, model, model_runtime):
+    def __init__(self, model_status, model_setup, z3_model, model_runtime):
         self.model_status = model_status
         self.model_setup = model_setup
-        self.model = model
+        self.z3_model = z3_model
         self.model_runtime = model_runtime
-
-        # NOTE: I removed these by making 'model_setup' an attribute
         self.infix_premises = model_setup.infix_premises
         self.infix_conclusions = model_setup.infix_conclusions
         self.N = model_setup.N
-        # self.constraints = model_setup.constraints
-        # self.possible = model_setup.possible
-        # self.sentence_letters = model_setup.sentence_letters
-        # self.verify = model_setup.verify
-        # self.falsify = model_setup.falsify
-
         self.prefix_premises = [prefix(prem) for prem in model_setup.infix_premises]
         # M: I think below is a problem
         self.prefix_conclusions = [prefix(con) for con in model_setup.infix_conclusions]
         self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
-
-        # # TODO: I think this could be another natural join at which to further
-        # # divide the class.
-        # if model_status:
-        #     self.all_bits = find_all_bits(model_setup.N)
-        #     self.poss_bits = find_poss_bits(model, self.all_bits, model_setup.possible)
-        #     self.world_bits = find_world_bits(self.poss_bits)
-        #     self.main_world = model[model_setup.w]
-        #     self.atomic_props_dict = atomic_propositions_dict_maker(self)
-        #     # TODO: one attribute for all propositions (check)
-        #     self.extensional_subsentences = model_setup.extensional_subsentences
-        #     self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
-        #                                     for ext_subsent in model_setup.extensional_subsentences]
-        #     self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
-        #                                     for cf_subsent in model_setup.counterfactual_subsentences]
-        #     self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
-        #                                 for modal_subsent in model_setup.modal_subsentences]
-        #     self.all_propositions = (self.extensional_propositions +
-        #                              self.counterfactual_propositions + self.modal_propositions)
-        #     self.premise_propositions = self.find_propositions(self.prefix_premises, True)
-        #     self.conclusion_propositions = self.find_propositions(self.prefix_conclusions, True)
 
     def build_test_file(self, output):
         """generates a test file from input to be saved"""
@@ -234,14 +205,18 @@ class ModelStructure:
                 print(f"{index}. {sent}", file=output)
 
     def print_to(self, print_unsat_core_bool, print_impossible, output=sys.__stdout__):
+        """prints the argument when there is no model with the option to
+        include Z3 constraints."""
         print(f"There are no {self.N}-models of:\n", file=output)
         self.print_enumerate(output)
         print(file=output)
         if print_unsat_core_bool:
-            self.print_constraints(self.model, output)
+            self.print_constraints(self.z3_model, output)
         print(f"Run time: {self.model_runtime} seconds\n", file=output)
 
     def save_to(self, print_unsat_core_bool, print_impossible, output):
+        """saves the arguments to a new file when there is no model with the
+        option to include Z3 constraints."""
         constraints = self.model_setup.constraints
         print(f"There are no {self.N}-models of:\n", file=output)
         self.print_enumerate(output)
@@ -268,15 +243,15 @@ class StateSpace:
     def __init__(self, model_setup, model_structure):
         self.model_setup = model_setup
         self.model_structure = model_structure
-        self.model = model_structure.model
+        self.z3_model = model_structure.z3_model
         self.model_runtime = model_structure.model_runtime
         self.model_status = model_structure.model_status
         self.N = model_setup.N
         self.main_world = model_setup.w
         self.all_bits = find_all_bits(self.N)
-        self.poss_bits = find_poss_bits(self.model, self.all_bits, model_setup.possible)
+        self.poss_bits = find_poss_bits(self.z3_model, self.all_bits, model_setup.possible)
         self.world_bits = find_world_bits(self.poss_bits)
-        self.main_world = self.model[self.main_world]
+        self.main_world = self.z3_model[self.main_world]
         self.sentence_letters = model_setup.sentence_letters
         self.verify = model_setup.verify
         self.falsify = model_setup.falsify
@@ -365,10 +340,10 @@ class StateSpace:
             # TODO: linter error: "Uninitalized" is not iterable  "__iter__" method does not return an object
             for bit in self.all_bits:
                 # TODO: linter error: expected 0 positional arguments
-                ver_bool = self.model_setup.verify(bit, self.model[sent])
+                ver_bool = self.model_setup.verify(bit, self.z3_model[sent])
                 part_bool = bit_part(bit, main_world)
                 # TODO: linter error: invalid conditional operand band-aid fixed with bool
-                if bool(self.model.evaluate(ver_bool) and part_bool):
+                if bool(self.z3_model.evaluate(ver_bool) and part_bool):
                     true_in_eval.add(sent)
                     break  # exits the first for loop
         false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
@@ -392,7 +367,7 @@ class StateSpace:
         """append all elements of the model to the file provided"""
         self.print_all(print_impossible, output)
         if print_cons_bool:
-            self.model.print_constraints(self.model_setup.constraints, output)
+            self.z3_model.print_constraints(self.model_setup.constraints, output)
         print(f"Run time: {self.model_runtime} seconds\n", file=output)
 
     def save_to(self, cons_include, print_impossible, output):
@@ -569,12 +544,12 @@ class Proposition:
             self.update_verifiers(current_world)
         indent_num = indent
         possible = self.model_structure.model_setup.possible
-        model = self.model_structure.model
+        z3_model = self.model_structure.z3_model
         ver_prints = '∅'
         ver_states = {
             bitvec_to_substates(bit, N)
             for bit in self["verifiers"]
-            if model.evaluate(possible(bit))
+            if z3_model.evaluate(possible(bit))
             or print_impossible
         }
         if ver_states:
@@ -583,7 +558,7 @@ class Proposition:
         fal_states = {
             bitvec_to_substates(bit, N)
             for bit in self["falsifiers"]
-            if model.evaluate(possible(bit))
+            if z3_model.evaluate(possible(bit))
             or print_impossible
         }
         if fal_states:
@@ -617,6 +592,6 @@ def make_model_for(N, premises, conclusions):
     backslash_premises = [add_backslashes_to_infix(prem) for prem in premises]
     backslash_conclusions = [add_backslashes_to_infix(concl) for concl in conclusions]
     model_setup = ModelSetup(N, backslash_premises, backslash_conclusions)
-    solved_model_status, model, model_runtime = model_setup.solve()
-    model_structure = ModelStructure(solved_model_status, model_setup, model, model_runtime)
+    z3_model_status, z3_model, model_runtime = model_setup.solve()
+    model_structure = ModelStructure(z3_model_status, model_setup, z3_model, model_runtime)
     return model_setup, model_structure
