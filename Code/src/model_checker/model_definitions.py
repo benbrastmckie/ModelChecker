@@ -35,12 +35,12 @@ def find_all_bits(size):
     return all_bits
 
 
-def find_poss_bits(model, all_bits, possible):
+def find_poss_bits(z3_model, all_bits, possible):
     '''extract all possible bitvectors from all_bits given the model
     imported by model_structure'''
     poss_bits = []
     for bit in all_bits:
-        if model.evaluate(possible(bit)): # of type/sort BoolRef
+        if z3_model.evaluate(possible(bit)): # of type/sort BoolRef
             poss_bits.append(bit)
     return poss_bits
 
@@ -99,31 +99,31 @@ def find_max_comp_ver_parts(verifier_bit, comp_parts):
     max_comp_ver_parts = [bit_fusion(verifier_bit, max) for max in max_comp_parts]
     return max_comp_ver_parts
 
-def relate_sents_and_states(all_bits, sentence, model, relation):
+def relate_sents_and_states(all_bits, sentence, z3_model, relation):
     """helper function for finding verifier and falsifier states to sentences in a model
     Used in atomic_propositions_dict
     DOES NOT CHECK IF THESE ARE POSSIBLE. """
     relation_set = set()
     for bit in all_bits:
-        if model.evaluate(relation(bit, model[sentence])):
+        if z3_model.evaluate(relation(bit, z3_model[sentence])):
             relation_set.add(bit)
     return relation_set
 
-def find_true_and_false_in_alt(alt_bit, parent_model_structure):
+def find_true_and_false_in_alt(alt_bit, model_structure):
     """returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.
     Used in evaluate_mainclause_cf_expr()"""
-    extensional_sentences = parent_model_structure.extensional_subsentences
+    extensional_sentences = model_structure.extensional_subsentences
     # B: is this still true once modal and counterfactual prop_objects include verifiers and falsifiers?
     # TODO: below creates problem with nested counterfactuals
     # TODO: I think this was resolved
     # extensional_sentences = parent_model_structure.all_subsentences
-    all_bits = parent_model_structure.all_bits
+    all_bits = model_structure.all_bits
     true_in_alt = []
     for R in extensional_sentences:
         for bit in all_bits:
             # print(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True))
             # print(type(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True)))
-            if bit in find_complex_proposition(parent_model_structure, R, alt_bit)[0] and bit_part(bit, alt_bit):
+            if bit in find_complex_proposition(model_structure, R, alt_bit)[0] and bit_part(bit, alt_bit):
                 true_in_alt.append(R)
                 break  # returns to the for loop over sentence_letters
     false_in_alt = [R for R in extensional_sentences if not R in true_in_alt] # replace with
@@ -159,13 +159,13 @@ def coproduct(set_A, set_B):
 def atomic_propositions_dict_maker(ms_object):
     all_bits = ms_object.all_bits
     sentence_letters = ms_object.sentence_letters
-    model = ms_object.model
+    z3_model = ms_object.z3_model
     verify = ms_object.verify
     falsify = ms_object.falsify
     atomic_VFs_dict = {}
     for letter in sentence_letters:
-        ver_bits = relate_sents_and_states(all_bits, letter, model, verify)
-        fal_bits = relate_sents_and_states(all_bits, letter, model, falsify)
+        ver_bits = relate_sents_and_states(all_bits, letter, z3_model, verify)
+        fal_bits = relate_sents_and_states(all_bits, letter, z3_model, falsify)
         atomic_VFs_dict[letter] = (ver_bits, fal_bits)
     return atomic_VFs_dict
 
@@ -362,29 +362,29 @@ def repeats_removed(L):
 ###### MOVED FROM model_structure ######
 ########################################
 
-def evaluate_modal_expr(modelstructure, prefix_modal, eval_world):
+def evaluate_modal_expr(model_structure, prefix_modal, eval_world):
     '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
     used to initialize Counterfactuals
     returns a bool representing whether the counterfactual is true at the world or not'''
     op, argument = prefix_modal[0], prefix_modal[1]
     if is_modal(argument):
-        if modelstructure.evaluate_modal_expr(prefix_modal) is True: # ie, verifiers is null state
+        if model_structure.evaluate_modal_expr(prefix_modal) is True: # ie, verifiers is null state
             return True # both Box and Diamond will return true, since verifiers is not empty
         return False
     if 'Diamond' in op:
         # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
-        for poss in modelstructure.poss_bits:
-            if poss in find_complex_proposition(modelstructure, argument, eval_world)[0]:
+        for poss in model_structure.poss_bits:
+            if poss in find_complex_proposition(model_structure, argument, eval_world)[0]:
                 return True
         return False
     if 'Box' in op:
         # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
-        for poss in modelstructure.poss_bits:
-            if poss in find_complex_proposition(modelstructure, argument, eval_world)[1]:
+        for poss in model_structure.poss_bits:
+            if poss in find_complex_proposition(model_structure, argument, eval_world)[1]:
                 return False
         return True
-    
-def evaluate_mainclause_cf_expr(modelstructure, prefix_cf, eval_world):
+
+def evaluate_mainclause_cf_expr(model_structure, prefix_cf, eval_world):
     """evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
     used to initialize Counterfactuals
     returns a bool representing whether the counterfactual is true at the world or not
@@ -393,54 +393,54 @@ def evaluate_mainclause_cf_expr(modelstructure, prefix_cf, eval_world):
     assert "boxright" in op, f"{prefix_cf} is not a main-clause counterfactual!"
     ant_expr, consequent_expr = prefix_cf[1], prefix_cf[2]
     # assert is_extensional(ant_expr), f"the antecedent {ant_expr} is not extensional!"
-    ant_verifiers = find_complex_proposition(modelstructure, ant_expr, eval_world)[0]
-    ant_alts_to_eval_world = modelstructure.find_alt_bits(ant_verifiers, eval_world)
+    ant_verifiers = find_complex_proposition(model_structure, ant_expr, eval_world)[0]
+    ant_alts_to_eval_world = model_structure.find_alt_bits(ant_verifiers, eval_world)
     for u in ant_alts_to_eval_world:
         # QUESTION: why is string required? Is Z3 removing the lists?
         if is_counterfactual(consequent_expr):
-            if not find_complex_proposition(modelstructure, consequent_expr, u)[0]:
+            if not find_complex_proposition(model_structure, consequent_expr, u)[0]:
                 return False
-        elif str(consequent_expr) not in str(find_true_and_false_in_alt(u, modelstructure)[0]):
+        elif str(consequent_expr) not in str(find_true_and_false_in_alt(u, model_structure)[0]):
             return False
     return True
 
-def true_and_false_worlds_for_cf(modelstructure, complex_cf_sent):
+def true_and_false_worlds_for_cf(model_structure, complex_cf_sent):
     '''used in find_complex_proposition'''
     worlds_true_at, worlds_false_at = set(), set()
-    for world in modelstructure.world_bits:
-        if find_complex_proposition(modelstructure, complex_cf_sent, world)[0]:
+    for world in model_structure.world_bits:
+        if find_complex_proposition(model_structure, complex_cf_sent, world)[0]:
             worlds_true_at.add(world)
             continue
         worlds_false_at.add(world)
     return (worlds_true_at, worlds_false_at)
 
-def find_complex_proposition(modelstructure, complex_sentence, eval_world):
+def find_complex_proposition(model_structure, complex_sentence, eval_world):
     """sentence is a sentence in prefix notation
     For a given complex proposition, returns the verifiers and falsifiers of that proposition
     given a solved model
     for a counterfactual, it'll just give the worlds it's true at and worlds it's not true at
     """
-    if not modelstructure.atomic_props_dict:
+    if not model_structure.atomic_props_dict:
         raise ValueError(
             "There is nothing in atomic_props_dict yet. Have you actually run the model?"
         )
     if len(complex_sentence) == 1:
         sent = complex_sentence[0]
         # TODO: linter error: expected 0 arguments
-        return modelstructure.atomic_props_dict[sent]
+        return model_structure.atomic_props_dict[sent]
     op = complex_sentence[0]
     Y = complex_sentence[1]
     if "neg" in op:
-        Y_V, Y_F = find_complex_proposition(modelstructure, Y, eval_world)
+        Y_V, Y_F = find_complex_proposition(model_structure, Y, eval_world)
         return (Y_F, Y_V)
-    null_state = {BitVecVal(0,modelstructure.N)}
+    null_state = {BitVecVal(0,model_structure.N)}
     if 'Box' in op or 'Diamond' in op:
-        if evaluate_modal_expr(modelstructure, complex_sentence, eval_world):
+        if evaluate_modal_expr(model_structure, complex_sentence, eval_world):
             return (null_state, set())
         return (set(), null_state)
     Z = complex_sentence[2]
-    Y_V, Y_F = find_complex_proposition(modelstructure, Y, eval_world)
-    Z_V, Z_F = find_complex_proposition(modelstructure, Z, eval_world)
+    Y_V, Y_F = find_complex_proposition(model_structure, Y, eval_world)
+    Z_V, Z_F = find_complex_proposition(model_structure, Z, eval_world)
     if "wedge" in op:
         return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
     if "vee" in op:
@@ -453,7 +453,7 @@ def find_complex_proposition(modelstructure, complex_sentence, eval_world):
     if "rightarrow" in op:
         return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
     if "boxright" in op:
-        if evaluate_mainclause_cf_expr(modelstructure, complex_sentence, eval_world):
+        if evaluate_mainclause_cf_expr(model_structure, complex_sentence, eval_world):
             return (null_state, set())
         return (set(), null_state)
     raise ValueError(f"Don't know how to handle {op} operator")
