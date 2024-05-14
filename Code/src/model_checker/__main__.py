@@ -93,16 +93,16 @@ conclusions = ['(A boxright B)','(A boxright C)']
 
 def print_or_save(module, cons_flag, save_flag, imposs_flag):
     """print the model and prompt user to store the output"""
-    mod = make_model_for(module.N, module.premises, module.conclusions)
+    model_structure, states_print = make_model_for(module.N, module.premises, module.conclusions)
     if module.use_constraints_bool:
-        mod.model_setup.constraints = module.all_constraints
+        model_structure.model_setup.constraints = module.all_constraints
     print_cons = module.print_cons_bool
     print_unsat = module.print_unsat_core_bool
     if cons_flag:
         print_cons = True
         print_unsat = True
     print_imposs = module.print_impossible_states_bool or imposs_flag
-    mod.print_to(print_cons, print_unsat, print_imposs)
+    states_print.print_to(print_cons, print_unsat, print_imposs)
     if not module.save_bool and not save_flag:
         return
     result = input("Would you like to save the output? (y/n):\n")
@@ -117,11 +117,11 @@ def print_or_save(module, cons_flag, save_flag, imposs_flag):
     if len(output_file_name) == 0:
         with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
             print('\n"""', file=f)
-            mod.print_to(cons_include, cons_include, imposs_flag, f)
+            states_print.print_to(cons_include, cons_include, imposs_flag, f)
             print('"""', file=f)
         return
     with open(f"{module.parent_directory}/{output_file_name}.py", 'w', encoding="utf-8") as n:
-        mod.save_to(output_file_name, module.parent_file, cons_include, print_imposs, n)
+        states_print.save_to(output_file_name, module.parent_file, cons_include, print_imposs, n)
     print()
 
 class LoadModule:
