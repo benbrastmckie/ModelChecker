@@ -8,7 +8,7 @@ import argparse
 import importlib.util
 import sys
 import os
-from model_structure import make_model_for
+from model_structure import StateSpace, make_model_for
 # from model_checker.model_structure import make_model_for # for packaging
 
 script_template = Template("""
@@ -34,9 +34,6 @@ print_unsat_core_bool = True
 
 # present option to append output to file
 save_bool = False
-
-# use constraints to find models in stead of premises and conclusions
-use_constraints_bool = False
 
 # print all states including impossible states
 print_impossible_states_bool = False
@@ -91,39 +88,6 @@ conclusions = ['(A boxright B)','(A boxright C)']
 
 """)
 
-def print_or_save(module, cons_flag, save_flag, imposs_flag):
-    """print the model and prompt user to store the output"""
-    model_structure, states_print = make_model_for(module.N, module.premises, module.conclusions)
-    if module.use_constraints_bool:
-        model_structure.model_setup.constraints = module.all_constraints
-    print_cons = module.print_cons_bool
-    print_unsat = module.print_unsat_core_bool
-    if cons_flag:
-        print_cons = True
-        print_unsat = True
-    print_imposs = module.print_impossible_states_bool or imposs_flag
-    states_print.print_to(print_cons, print_unsat, print_imposs)
-    if not module.save_bool and not save_flag:
-        return
-    result = input("Would you like to save the output? (y/n):\n")
-    if not result in ['Yes', 'yes', 'y']:
-        return
-    cons_input = input("\nWould you like to include the Z3 constraints? (y/n):\n")
-    cons_include = bool(cons_input in ['Yes', 'yes', 'y'])
-    output_file_name = input(
-        "\nEnter the file name in snake_case without an extension."
-        "Alternatively, leave the file name blank to append the output to the project file:\n"
-    )
-    if len(output_file_name) == 0:
-        with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
-            print('\n"""', file=f)
-            states_print.print_to(cons_include, cons_include, imposs_flag, f)
-            print('"""', file=f)
-        return
-    with open(f"{module.parent_directory}/{output_file_name}.py", 'w', encoding="utf-8") as n:
-        states_print.save_to(output_file_name, module.parent_file, cons_include, print_imposs, n)
-    print()
-
 class LoadModule:
     """load module and store values as a class"""
     def __init__(self, module_name, module_path):
@@ -164,7 +128,7 @@ class LoadModule:
             False
         )
         self.save_bool = getattr(self.module, "save_bool", True)
-        self.use_constraints_bool = getattr(self.module, "use_constraints", False)
+        # self.use_constraints_bool = getattr(self.module, "use_constraints", False)
         self.all_constraints = getattr(self.module, "all_constraints", [])
 
 def parse_file_and_flags():
@@ -236,14 +200,58 @@ def ask_generate_test():
     print("You can run a test.py file that already exists with the command:\n")
     print("model-checker test.py\n")
 
+def ask_save():
+    """print the model and prompt user to store the output"""
+    result = input("Would you like to save the output? (y/n):\n")
+    if not result in ['Yes', 'yes', 'y']:
+        return None, None
+    cons_input = input("\nWould you like to include the Z3 constraints? (y/n):\n")
+    print_cons = bool(cons_input in ['Yes', 'yes', 'y'])
+    file_name = input(
+        "\nEnter the file name in snake_case without an extension.\n"
+        "Leave the file name blank to append the output to the project file.\n"
+        "\nFile name:\n"
+    )
+    return file_name, print_cons
+
+def save_or_append(module, structure, file_name, print_cons, print_imposs):
+    if len(file_name) == 0:
+        with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
+            print('\n"""', file=f)
+            structure.print_to(print_cons, print_imposs, f)
+            print('"""', file=f)
+        return
+    with open(f"{module.parent_directory}/{file_name}.py", 'w', encoding="utf-8") as n:
+        print(f'# TITLE: {file_name}.py generated from {module.parent_file}\n"""', file=n)
+        structure.save_to(print_cons, print_imposs, n)
+    print()
+
 def main():
     """load a test or generate a test when run without input"""
     if len(sys.argv) < 2:
         ask_generate_test()
         return
-    module_name, module_path, cons_bool, save_bool, imposs_bool = parse_file_and_flags()
+    # TODO: can module_name and module_path be extracted from the sys.argv?
+    # this would reduce the number of arguments returned by parse_file_and_flags()
+    module_name, module_path, cons_flag, save_flag, imposs_flag = parse_file_and_flags()
     module = LoadModule(module_name, module_path)
-    print_or_save(module, cons_bool, save_bool, imposs_bool)
+    print_imposs = module.print_impossible_states_bool or imposs_flag
+    print_cons = module.print_cons_bool or cons_flag
+    save_model = module.save_bool or save_flag
+    model_setup, model_structure = make_model_for(module.N, module.premises, module.conclusions)
+    if model_structure.model_status:
+        states_print = StateSpace(model_setup, model_structure)
+        states_print.print_to(print_cons, print_imposs)
+        if save_model:
+            file_name, print_cons = ask_save()
+            save_or_append(module, states_print, file_name, print_cons, print_imposs)
+        return
+    print_unsat = module.print_unsat_core_bool or cons_flag
+    model_structure.print_to(print_unsat, print_imposs)
+    if save_model:
+        file_name, print_cons = ask_save()
+        save_or_append(module, model_structure, file_name, print_unsat, print_imposs)
+
 
 if __name__ == "__main__":
     main()
