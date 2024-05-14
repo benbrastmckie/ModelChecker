@@ -35,7 +35,7 @@ def find_all_bits(size):
     return all_bits
 
 
-def find_poss_bits(model,all_bits, possible):
+def find_poss_bits(model, all_bits, possible):
     '''extract all possible bitvectors from all_bits given the model
     imported by model_structure'''
     poss_bits = []
