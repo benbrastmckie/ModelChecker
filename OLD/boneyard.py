@@ -148,13 +148,13 @@ def prefix_combine(premises, conclusions):
 
 # removed from model_structure after redid how we do alt worlds and what not
 # was a method of Proposition objects
-def print_verifiers_and_falsifiers(self, current_world, indent=0, output=sys.__stdout__):
+def print_verifiers_and_falsifiers(self, eval_world, indent=0, output=sys.__stdout__):
     """prints the possible verifiers and falsifier states for a sentence.
     inputs: the verifier states and falsifier states.
     Outputs: None, but prints the verifiers and falsifiers
     Used in print_prop()"""
     N = self.parent_model_structure.N
-    truth_value = self.truth_value_at(current_world)
+    truth_value = self.truth_value_at(eval_world)
     indent_num = indent
     possible = self.parent_model_structure.possible
     model = self.parent_model_structure.model
@@ -168,7 +168,7 @@ def print_verifiers_and_falsifiers(self, current_world, indent=0, output=sys.__s
         for bit in self["falsifiers"]
         if model.evaluate(possible(bit))
     }
-    world_state = bitvec_to_substates(current_world, N)
+    world_state = bitvec_to_substates(eval_world, N)
     if ver_states and fal_states:
         print(
             f"{'  ' * indent_num}|{self}| = < {make_set_pretty_for_print(ver_states)}, {make_set_pretty_for_print(fal_states)} >"
