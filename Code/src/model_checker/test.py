@@ -18,9 +18,6 @@ print_unsat_core_bool = False
 # present option to append output to file
 save_bool = False
 
-# use constraints to find models in stead of premises and conclusions
-use_constraints_bool = False
-
 ################################
 ############ SYNTAX ############
 ################################

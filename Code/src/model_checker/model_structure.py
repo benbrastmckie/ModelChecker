@@ -77,9 +77,6 @@ print_impossible_states_bool = False
 save_bool = False
 '''
 )
-# NOTE: include below in the template above when working
-# # use constraints to find models in stead of premises and conclusions
-# use_constraints_bool = False
 
 
 # class Uninitalized:
@@ -150,8 +147,8 @@ class ModelSetup:
         model_start = time.time()  # start benchmark timer
         solved_model_status, solved_model = solve_constraints(self.constraints)
         model_end = time.time()
-        model_total = round(model_end - model_start, 4)
-        return (solved_model_status, solved_model, model_total)
+        model_runtime = round(model_end - model_start, 4)
+        return (solved_model_status, solved_model, model_runtime)
 
 
 class ModelStructure:
@@ -163,16 +160,16 @@ class ModelStructure:
     self.constraints is a list (?) of constraints
     everything else is initialized as None"""
 
-    def __init__(self, model_status, model_setup, model, model_total):
+    def __init__(self, model_status, model_setup, model, model_runtime):
         self.model_status = model_status
         self.model_setup = model_setup
         self.model = model
-        self.model_runtime = model_total
+        self.model_runtime = model_runtime
 
         # NOTE: I removed these by making 'model_setup' an attribute
-        # self.infix_premises = model_setup.infix_premises
-        # self.infix_conclusions = model_setup.infix_conclusions
-        # self.N = model_setup.N
+        self.infix_premises = model_setup.infix_premises
+        self.infix_conclusions = model_setup.infix_conclusions
+        self.N = model_setup.N
         # self.constraints = model_setup.constraints
         # self.possible = model_setup.possible
         # self.sentence_letters = model_setup.sentence_letters
@@ -184,28 +181,119 @@ class ModelStructure:
         self.prefix_conclusions = [prefix(con) for con in model_setup.infix_conclusions]
         self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
 
-        # TODO: I think this could be another natural join at which to further
-        # divide the class.
-        if model_status:
-            self.all_bits = find_all_bits(model_setup.N)
-            self.poss_bits = find_poss_bits(model, self.all_bits, model_setup.possible)
-            self.world_bits = find_world_bits(self.poss_bits)
-            self.main_world = model[model_setup.w]
-            self.atomic_props_dict = atomic_propositions_dict_maker(self)
+        # # TODO: I think this could be another natural join at which to further
+        # # divide the class.
+        # if model_status:
+        #     self.all_bits = find_all_bits(model_setup.N)
+        #     self.poss_bits = find_poss_bits(model, self.all_bits, model_setup.possible)
+        #     self.world_bits = find_world_bits(self.poss_bits)
+        #     self.main_world = model[model_setup.w]
+        #     self.atomic_props_dict = atomic_propositions_dict_maker(self)
+        #     # TODO: one attribute for all propositions (check)
+        #     self.extensional_subsentences = model_setup.extensional_subsentences
+        #     self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
+        #                                     for ext_subsent in model_setup.extensional_subsentences]
+        #     self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
+        #                                     for cf_subsent in model_setup.counterfactual_subsentences]
+        #     self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
+        #                                 for modal_subsent in model_setup.modal_subsentences]
+        #     self.all_propositions = (self.extensional_propositions +
+        #                              self.counterfactual_propositions + self.modal_propositions)
+        #     self.premise_propositions = self.find_propositions(self.prefix_premises, True)
+        #     self.conclusion_propositions = self.find_propositions(self.prefix_conclusions, True)
 
-            # TODO: one attribute for all propositions (check)
-            self.extensional_subsentences = model_setup.extensional_subsentences
-            self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
-                                            for ext_subsent in model_setup.extensional_subsentences]
-            self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
-                                            for cf_subsent in model_setup.counterfactual_subsentences]
-            self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
-                                        for modal_subsent in model_setup.modal_subsentences]
-            self.all_propositions = (self.extensional_propositions +
-                                     self.counterfactual_propositions + self.modal_propositions)
-            self.premise_propositions = self.find_propositions(self.prefix_premises, True)
-            self.conclusion_propositions = self.find_propositions(self.prefix_conclusions, True)
+    def build_test_file(self, output):
+        """generates a test file from input to be saved"""
+        inputs_data = {
+            "N": self.model_setup.N,
+            "premises": self.infix_premises,
+            "conclusions": self.infix_conclusions,
+            "runtime": self.model_runtime,
+        }
+        inputs_content = inputs_template.substitute(inputs_data)
+        print(inputs_content, file=output)
 
+    def print_enumerate(self, output):
+        """prints the premises and conclusions with numbers"""
+        infix_premises = self.infix_premises
+        infix_conclusions = self.infix_conclusions
+        start_con_num = len(infix_premises) + 1
+        if infix_premises:
+            if len(infix_premises) < 2:
+                print("Premise:", file=output)
+            else:
+                print("Premises:", file=output)
+            for index, sent in enumerate(infix_premises, start=1):
+                print(f"{index}. {sent}", file=output)
+        if infix_conclusions:
+            if len(infix_conclusions) < 2:
+                print("\nConclusion:", file=output)
+            else:
+                print("\nConclusions:", file=output)
+            for index, sent in enumerate(infix_conclusions, start=start_con_num):
+                print(f"{index}. {sent}", file=output)
+
+    def print_to(self, print_unsat_core_bool, print_impossible, output=sys.__stdout__):
+        print(f"There are no {self.N}-models of:\n", file=output)
+        self.print_enumerate(output)
+        print(file=output)
+        if print_unsat_core_bool:
+            self.print_constraints(self.model, output)
+        print(f"Run time: {self.model_runtime} seconds\n", file=output)
+
+    def save_to(self, print_unsat_core_bool, print_impossible, output):
+        constraints = self.model_setup.constraints
+        print(f"There are no {self.N}-models of:\n", file=output)
+        self.print_enumerate(output)
+        self.build_test_file(output)
+        if print_unsat_core_bool:
+            print("# Unsatisfiable constraints", file=output)
+            print(f"all_constraints = {constraints}", file=output)
+
+
+    def print_constraints(self, consts, output=sys.__stdout__):
+        """prints constraints in an numbered list"""
+        if self.model_status:
+            print("Satisfiable constraints:\n", file=output)
+        else:
+            print("Unsatisfiable core constraints:\n", file=output)
+        for index, con in enumerate(consts, start=1):
+            print(f"{index}. {con}\n", file=output)
+            # print(f"Constraints time: {time}\n")
+
+
+class StateSpace:
+    """class for all states and their attributes"""
+
+    def __init__(self, model_setup, model_structure):
+        self.model_setup = model_setup
+        self.model_structure = model_structure
+        self.model = model_structure.model
+        self.model_runtime = model_structure.model_runtime
+        self.model_status = model_structure.model_status
+        self.N = model_setup.N
+        self.main_world = model_setup.w
+        self.all_bits = find_all_bits(self.N)
+        self.poss_bits = find_poss_bits(self.model, self.all_bits, model_setup.possible)
+        self.world_bits = find_world_bits(self.poss_bits)
+        self.main_world = self.model[self.main_world]
+        self.sentence_letters = model_setup.sentence_letters
+        self.verify = model_setup.verify
+        self.falsify = model_setup.falsify
+        self.atomic_props_dict = atomic_propositions_dict_maker(self)
+
+        # TODO: one attribute for all propositions (check)
+        self.extensional_subsentences = model_setup.extensional_subsentences
+        self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
+                                        for ext_subsent in model_setup.extensional_subsentences]
+        self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
+                                        for cf_subsent in model_setup.counterfactual_subsentences]
+        self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
+                                    for modal_subsent in model_setup.modal_subsentences]
+        self.all_propositions = (self.extensional_propositions +
+                                 self.counterfactual_propositions + self.modal_propositions)
+        self.premise_propositions = self.find_propositions(model_structure.prefix_premises, True)
+        self.conclusion_propositions = self.find_propositions(model_structure.prefix_conclusions, True)
 
     def find_alt_bits(self, verifier_bits, evaulation_world=None):
         """
@@ -258,28 +346,6 @@ class ModelStructure:
             propositions.append(self.find_proposition_object(sent, prefix_search=prefix_search))
         return propositions
 
-    def print_states(self, print_impossible, output=sys.__stdout__):
-        """print all fusions of atomic states in the model
-        first print function in print.py"""
-        N = self.model_setup.N
-        print("\nPossible states:", file=output)  # Print states
-        for bit in self.all_bits:
-            state = bitvec_to_substates(bit, N)
-            bin_rep = (
-                bit.sexpr()
-                if N % 4 != 0
-                else int_to_binary(int(bit.sexpr()[2:], 16), N)
-            )
-            if bit in self.world_bits:
-                print(f"  {bin_rep} = {state} (world)", file=output)
-                continue
-            if bit in self.poss_bits:
-                print(f"  {bin_rep} = {state}", file=output)
-                continue
-            if print_impossible:
-                print(f"  {bin_rep} = {state} (impossible)", file=output)
-
-
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
         in that world"""
@@ -322,15 +388,43 @@ class ModelStructure:
             )
         print(file=output)
 
-    def print_constraints(self, consts, output=sys.__stdout__):
-        """prints constraints in an numbered list"""
-        if self.model_status:
-            print("Satisfiable constraints:\n", file=output)
-        else:
-            print("Unsatisfiable core constraints:\n", file=output)
-        for index, con in enumerate(consts, start=1):
-            print(f"{index}. {con}\n", file=output)
-            # print(f"Constraints time: {time}\n")
+    def print_to(self, print_cons_bool, print_impossible, output=sys.__stdout__):
+        """append all elements of the model to the file provided"""
+        self.print_all(print_impossible, output)
+        if print_cons_bool:
+            self.model.print_constraints(self.model_setup.constraints, output)
+        print(f"Run time: {self.model_runtime} seconds\n", file=output)
+
+    def save_to(self, cons_include, print_impossible, output):
+        """append all elements of the model to the file provided"""
+        constraints = self.model_setup.constraints
+        self.print_all(print_impossible, output)
+        self.model_structure.build_test_file(output)
+        if cons_include:
+            print("# Satisfiable constraints", file=output)
+            # TODO: print constraint objects, not constraint strings
+            print(f"all_constraints = {constraints}", file=output)
+
+    def print_states(self, print_impossible, output=sys.__stdout__):
+        """print all fusions of atomic states in the model
+        first print function in print.py"""
+        N = self.model_setup.N
+        print("\nPossible states:", file=output)  # Print states
+        for bit in self.all_bits:
+            state = bitvec_to_substates(bit, N)
+            bin_rep = (
+                bit.sexpr()
+                if N % 4 != 0
+                else int_to_binary(int(bit.sexpr()[2:], 16), N)
+            )
+            if bit in self.world_bits:
+                print(f"  {bin_rep} = {state} (world)", file=output)
+                continue
+            if bit in self.poss_bits:
+                print(f"  {bin_rep} = {state}", file=output)
+                continue
+            if print_impossible:
+                print(f"  {bin_rep} = {state} (impossible)", file=output)
 
     def rec_print(self, prop_obj, world_bit, print_impossible, output, indent=0):
         """recursive print function (previously print_sort)
@@ -383,103 +477,34 @@ class ModelStructure:
         start_con_num = len(infix_premises) + 1
         if self.premise_propositions:
             if len(infix_premises) < 2:
-                print("Interpreted premise:\n")
+                print("Interpreted premise:\n", file=output)
             else:
-                print("Interpreted premises:\n")
+                print("Interpreted premises:\n", file=output)
             for index, input_prop in enumerate(self.premise_propositions, start=1):
                 print(f"{index}.", end="", file=output)
                 self.rec_print(input_prop, initial_eval_world, print_impossible, output, 1)
                 print(file=output)
         if self.conclusion_propositions:
             if len(infix_conclusions) < 2:
-                print("Interpreted conclusion:\n")
+                print("Interpreted conclusion:\n", file=output)
             else:
-                print("Interpreted conclusions:\n")
+                print("Interpreted conclusions:\n", file=output)
             for index, input_prop in enumerate(self.conclusion_propositions, start=start_con_num):
                 print(f"{index}.", end="", file=output)
                 self.rec_print(input_prop, initial_eval_world, print_impossible, output, 1)
                 print(file=output)
-
-    def print_enumerate(self, output):
-        """prints the premises and conclusions with numbers"""
-        infix_premises = self.model_setup.infix_premises
-        infix_conclusions = self.model_setup.infix_conclusions
-        start_con_num = len(infix_premises) + 1
-        if infix_premises:
-            if len(infix_premises) < 2:
-                print("Premise:")
-            else:
-                print("Premises:")
-            for index, sent in enumerate(infix_premises, start=1):
-                print(f"{index}. {sent}", file=output)
-        if infix_conclusions:
-            if len(infix_conclusions) < 2:
-                print("\nConclusion:")
-            else:
-                print("\nConclusions:")
-            for index, sent in enumerate(infix_conclusions, start=start_con_num):
-                print(f"{index}. {sent}", file=output)
 
     def print_all(self, print_impossible, output):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
         N = self.model_setup.N
         print(f"There is a {N}-model of:\n", file=output)
-        self.print_enumerate(output)
+        self.model_structure.print_enumerate(output)
         self.print_states(print_impossible, output)
         self.print_evaluation(output)
         self.print_inputs_recursively(print_impossible, output)
 
-    def build_test_file(self, output):
-        """generates a test file from input to be saved"""
-        inputs_data = {
-            "N": self.model_setup.N,
-            "premises": self.model_setup.infix_premises,
-            "conclusions": self.model_setup.infix_conclusions,
-            "runtime": self.model_runtime,
-        }
-        inputs_content = inputs_template.substitute(inputs_data)
-        print(inputs_content, file=output)
 
-    # TODO: how can print_to and save_to be cleaned up and made less redundant?
-    def print_to(self, print_cons_bool, print_unsat_core_bool, print_impossible, output=sys.__stdout__):
-        """append all elements of the model to the file provided"""
-        N = self.model_setup.N
-        if self.model_status:
-            self.print_all(print_impossible, output)
-            if print_cons_bool:
-                # print("Satisfiable constraints:\n", file=output)
-                self.print_constraints(self.model_setup.constraints, output)
-        else:
-            print(f"\nThere are no {N}-models of:\n", file=output)
-            self.print_enumerate(output)
-            print(file=output)
-            if print_unsat_core_bool:
-                # print("Unsatisfiable core constraints:\n", file=output)
-                self.print_constraints(self.model, output)
-        print(f"Run time: {self.model_runtime} seconds\n", file=output)
-
-    def save_to(self, doc_name, parent_file, cons_include, print_impossible, output):
-        """append all elements of the model to the file provided"""
-        print(f'# TITLE: {doc_name}.py generated from {parent_file}\n"""', file=output)
-        N = self.model_setup.N
-        constraints = self.model_setup.constraints
-        if self.model_status:
-            self.print_all(print_impossible, output)
-            self.build_test_file(output)
-            if cons_include:
-                print("# Satisfiable constraints", file=output)
-                # TODO: print constraint objects, not constraint strings
-                print(f"all_constraints = {constraints}", file=output)
-        else:
-            print(f"\nThere are no {N}-models of:\n", file=output)
-            self.print_enumerate(output)
-            # print("\n# Unsatisfiable core constraints", file=output)
-            self.print_constraints(self.model, output)
-            self.build_test_file(output)
-            if cons_include:
-                print("# Unsatisfiable constraints", file=output)
-                print(f"all_constraints = {constraints}", file=output)
 
 
 class Proposition:
@@ -491,7 +516,7 @@ class Proposition:
         """prefix_expr is a prefix expression. model is a ModelStructure"""
         self.prop_dict = {}
         self.prop_dict["prefix expression"] = prefix_expr
-        self.parent_model_structure = model_structure
+        self.model_structure = model_structure
         (verifiers, falsifiers) = find_complex_proposition(model_structure, prefix_expr, eval_world)
         # for modals and CFS, if they're true then the verifiers are only the null state and
         # falsifiers are nothing; if they're false the opposite
@@ -523,7 +548,7 @@ class Proposition:
     def update_verifiers(self, new_world):
         if not is_counterfactual(self['prefix expression']):
             raise AttributeError(f'You can only update verifiers for CFs, and {self} is not a CF.')
-        N = self.parent_model_structure.N
+        N = self.model_structure.N
         if new_world == self.current_eval_world:
             return 
         if new_world in self['worlds cf true at']:
@@ -537,14 +562,14 @@ class Proposition:
         inputs: the verifier states and falsifier states.
         Outputs: None, but prints the verifiers and falsifiers
         Used in rec_print()"""
-        N = self.parent_model_structure.N
+        N = self.model_structure.N
         truth_value = self.truth_value_at(current_world) # use in rec_print ensures current_world
                                                          # is in fact the current world, for CFs
-        if self in self.parent_model_structure.counterfactual_propositions:
+        if self in self.model_structure.counterfactual_propositions:
             self.update_verifiers(current_world)
         indent_num = indent
-        possible = self.parent_model_structure.possible
-        model = self.parent_model_structure.model
+        possible = self.model_structure.model_setup.possible
+        model = self.model_structure.model
         ver_prints = '∅'
         ver_states = {
             bitvec_to_substates(bit, N)
@@ -592,6 +617,6 @@ def make_model_for(N, premises, conclusions):
     backslash_premises = [add_backslashes_to_infix(prem) for prem in premises]
     backslash_conclusions = [add_backslashes_to_infix(concl) for concl in conclusions]
     model_setup = ModelSetup(N, backslash_premises, backslash_conclusions)
-    solved_model_status, model, model_total = model_setup.solve()
-    result = ModelStructure(solved_model_status, model_setup, model, model_total)
-    return result
+    solved_model_status, model, model_runtime = model_setup.solve()
+    model_structure = ModelStructure(solved_model_status, model_setup, model, model_runtime)
+    return model_setup, model_structure
