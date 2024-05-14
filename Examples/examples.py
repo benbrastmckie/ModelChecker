@@ -79,9 +79,6 @@ save_bool = False
 # ]
 # conclusions = []
 
-# premises = ['(A wedge neg A)']
-# conclusions = []
-
 # premises = ['Box A','(Box A boxright B)']
 # conclusions = []
 
