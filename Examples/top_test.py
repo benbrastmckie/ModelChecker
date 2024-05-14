@@ -44,6 +44,7 @@ save_bool = False
 # conclusions = ['\\neg (\\top \\boxright \\neg A)'] # no models, as desired
 
 # should this be valid? to me it seems intuitively it should be, but not sure
+# B: yes this should be valid but it crashed the mit servers. I added it to examples
 premises = ['Box A', '((A \\wedge B) \\boxright C)']
 conclusions = ['(B \\boxright C)']
 

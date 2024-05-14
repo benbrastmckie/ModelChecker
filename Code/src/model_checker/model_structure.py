@@ -113,7 +113,7 @@ class ModelSetup:
         # M: I think below is a problem
         self.prefix_conclusions = [prefix(con) for con in infix_conclusions]
         self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
-        self.find_constraints_func = make_constraints(
+        find_constraints_func = make_constraints(
             self.verify,
             self.falsify,
             self.possible,
@@ -121,7 +121,7 @@ class ModelSetup:
             self.N,
             self.w
         )
-        constraints, sentence_letters = self.find_constraints_func(self.prefix_sentences)
+        constraints, sentence_letters = find_constraints_func(self.prefix_sentences)
         self.sentence_letters = sentence_letters
         self.constraints = constraints
         ext, modal, cf, altogether = find_subsentences_of_kind(self.prefix_sentences, 'all')
@@ -189,12 +189,12 @@ class ModelStructure:
         infix_premises = self.infix_premises
         infix_conclusions = self.infix_conclusions
         start_con_num = len(infix_premises) + 1
-        if infix_premises:
-            if len(infix_premises) < 2:
+        if self.infix_premises:
+            if len(self.infix_premises) < 2:
                 print("Premise:", file=output)
             else:
                 print("Premises:", file=output)
-            for index, sent in enumerate(infix_premises, start=1):
+            for index, sent in enumerate(self.infix_premises, start=1):
                 print(f"{index}. {sent}", file=output)
         if infix_conclusions:
             if len(infix_conclusions) < 2:
@@ -204,7 +204,7 @@ class ModelStructure:
             for index, sent in enumerate(infix_conclusions, start=start_con_num):
                 print(f"{index}. {sent}", file=output)
 
-    def print_to(self, print_unsat_core_bool, print_impossible, output=sys.__stdout__):
+    def no_model_print(self, print_unsat_core_bool, output=sys.__stdout__):
         """prints the argument when there is no model with the option to
         include Z3 constraints."""
         print(f"There are no {self.N}-models of:\n", file=output)
@@ -214,7 +214,7 @@ class ModelStructure:
             self.print_constraints(self.z3_model, output)
         print(f"Run time: {self.model_runtime} seconds\n", file=output)
 
-    def save_to(self, print_unsat_core_bool, print_impossible, output):
+    def no_model_save(self, print_unsat_core_bool, output):
         """saves the arguments to a new file when there is no model with the
         option to include Z3 constraints."""
         constraints = self.model_setup.constraints
@@ -224,7 +224,6 @@ class ModelStructure:
         if print_unsat_core_bool:
             print("# Unsatisfiable constraints", file=output)
             print(f"all_constraints = {constraints}", file=output)
-
 
     def print_constraints(self, consts, output=sys.__stdout__):
         """prints constraints in an numbered list"""
@@ -258,6 +257,7 @@ class StateSpace:
         self.atomic_props_dict = atomic_propositions_dict_maker(self)
 
         # TODO: one attribute for all propositions (check)
+        # self.all_subsentences = model_setup.all_subsentences
         self.extensional_subsentences = model_setup.extensional_subsentences
         self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
                                         for ext_subsent in model_setup.extensional_subsentences]
@@ -329,7 +329,7 @@ class StateSpace:
         # at the designated world and the sentence letters false at the designated
         # world in the class? then those could be easily called here.
         N = self.model_setup.N
-        sentence_letters = self.model_setup.sentence_letters
+        sentence_letters = self.sentence_letters
         main_world = self.main_world
         print(
             f"\nThe evaluation world is {bitvec_to_substates(main_world, N)}:",
@@ -405,7 +405,7 @@ class StateSpace:
         """recursive print function (previously print_sort)
         returns None"""
         N = self.model_setup.N
-        sentence_letters = self.model_setup.sentence_letters
+        sentence_letters = self.sentence_letters
         prop_obj.print_verifiers_and_falsifiers(world_bit, print_impossible, indent, output)
         if str(prop_obj) in [str(atom) for atom in sentence_letters]:
             return
@@ -488,21 +488,20 @@ class Proposition:
     subclass to make stuff easier"""
 
     def __init__(self, prefix_expr, model_structure, eval_world):
-        """prefix_expr is a prefix expression. model is a ModelStructure"""
+        """for modals and counterfactuals, if they're true then the verifiers
+        are only the null state and falsifiers are nothing; if they're false the opposite"""
         self.prop_dict = {}
         self.prop_dict["prefix expression"] = prefix_expr
         self.model_structure = model_structure
-        (verifiers, falsifiers) = find_complex_proposition(model_structure, prefix_expr, eval_world)
-        # for modals and CFS, if they're true then the verifiers are only the null state and
-        # falsifiers are nothing; if they're false the opposite
+        verifiers, falsifiers = find_complex_proposition(model_structure, prefix_expr, eval_world)
         self.world_bits = model_structure.world_bits # NOTE: this isn't being called anywhere
         self.prop_dict["verifiers"] = verifiers
         self.prop_dict["falsifiers"] = falsifiers
-        if is_modal(prefix_expr):
-            arg = prefix_expr[1]
-            arg_worlds, non_arg_worlds = find_complex_proposition(model_structure, arg, eval_world)
-            self['arg worlds'] = arg_worlds
-            self['non arg worlds'] = non_arg_worlds
+        # if is_modal(prefix_expr):
+        #     arg = prefix_expr[1]
+        #     arg_worlds, non_arg_worlds = find_complex_proposition(model_structure, arg, eval_world)
+        #     self['arg worlds'] = arg_worlds
+        #     self['non arg worlds'] = non_arg_worlds
         if is_counterfactual(prefix_expr):
             self.current_eval_world = eval_world
             true_worlds, false_worlds = true_and_false_worlds_for_cf(model_structure, prefix_expr)
@@ -532,16 +531,14 @@ class Proposition:
         self['verifiers'], self['falsifiers'] = set(), {BitVecVal(0,N)}
         return
 
-    def print_verifiers_and_falsifiers(self, current_world, print_impossible=False, indent=0, output=sys.__stdout__):
+    def print_verifiers_and_falsifiers(self, eval_world, print_impossible=False, indent=0, output=sys.__stdout__):
         """prints the possible verifiers and falsifier states for a sentence.
-        inputs: the verifier states and falsifier states.
-        Outputs: None, but prints the verifiers and falsifiers
-        Used in rec_print()"""
+        used in: rec_print() 
+        ensures eval_world is in fact the eval_world for CFs"""
         N = self.model_structure.N
-        truth_value = self.truth_value_at(current_world) # use in rec_print ensures current_world
-                                                         # is in fact the current world, for CFs
+        truth_value = self.truth_value_at(eval_world)
         if self in self.model_structure.counterfactual_propositions:
-            self.update_verifiers(current_world)
+            self.update_verifiers(eval_world)
         indent_num = indent
         possible = self.model_structure.model_setup.possible
         z3_model = self.model_structure.z3_model
@@ -563,21 +560,21 @@ class Proposition:
         }
         if fal_states:
             fal_prints = pretty_set_print(fal_states)
-        world_state = bitvec_to_substates(current_world, N)
+        world_state = bitvec_to_substates(eval_world, N)
         print(
             f"{'  ' * indent_num}|{self}| = < {ver_prints}, {fal_prints} >"
             f"  ({truth_value} in {world_state})",
             file=output,
         )
 
-    def truth_value_at(self,eval_world):
+    def truth_value_at(self, eval_world):
         '''Given a world, returns the truth value of the Proposition at that world.
         Used in print_verifiers_and_falsifiers.'''
         prefix_expr = self['prefix expression']
         if is_counterfactual(prefix_expr):
             return True if eval_world in self['worlds cf true at'] else False
-        if is_modal(prefix_expr):
-            return True if self["verifiers"] else False
+        # if is_modal(prefix_expr):
+        #     return True if self["verifiers"] else False
          # else case: extensional. Last to be computationally efficient (see def of is_extensional)
         for verifier in self["verifiers"]:
             if bit_part(verifier, eval_world):

@@ -214,6 +214,19 @@ def ask_save():
     )
     return file_name, print_cons
 
+def no_model_save_or_append(module, model_structure, file_name, print_cons, print_imposs):
+    if len(file_name) == 0:
+        with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
+            print('\n"""', file=f)
+            model_structure.no_model_print(print_cons, f)
+            print('"""', file=f)
+        return
+    with open(f"{module.parent_directory}/{file_name}.py", 'w', encoding="utf-8") as n:
+        print(f'# TITLE: {file_name}.py generated from {module.parent_file}\n"""', file=n)
+        model_structure.no_model_save(print_cons, n)
+    print()
+
+
 def save_or_append(module, structure, file_name, print_cons, print_imposs):
     if len(file_name) == 0:
         with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
@@ -247,10 +260,10 @@ def main():
             save_or_append(module, states_print, file_name, print_cons, print_imposs)
         return
     print_unsat = module.print_unsat_core_bool or cons_flag
-    model_structure.print_to(print_unsat, print_imposs)
+    model_structure.no_model_print(print_unsat)
     if save_model:
         file_name, print_cons = ask_save()
-        save_or_append(module, model_structure, file_name, print_unsat, print_imposs)
+        no_model_save_or_append(module, model_structure, file_name, print_unsat, print_imposs)
 
 
 if __name__ == "__main__":
