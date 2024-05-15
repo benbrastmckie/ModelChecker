@@ -34,9 +34,10 @@ from model_definitions import (
     bitvec_to_substates,
     int_to_binary,
     infix_combine,
-    find_subsentences_of_kind,
+    # find_subsentences_of_kind,
     is_counterfactual,
     is_modal,
+    subsentences_of,
     true_and_false_worlds_for_cf,
     find_complex_proposition,
 )
@@ -124,11 +125,11 @@ class ModelSetup:
         constraints, sentence_letters = find_constraints_func(self.prefix_sentences)
         self.sentence_letters = sentence_letters
         self.constraints = constraints
-        ext, modal, cf, altogether = find_subsentences_of_kind(self.prefix_sentences, 'all')
-        self.extensional_subsentences = ext
-        self.counterfactual_subsentences = cf
-        self.modal_subsentences = modal
-        self.all_subsentences = altogether # in prefix form
+        # ext, modal, cf, altogether = find_subsentences_of_kind(self.prefix_sentences, 'all')
+        # self.extensional_subsentences = ext
+        # self.counterfactual_subsentences = cf
+        # self.modal_subsentences = modal
+        # self.all_subsentences = subsentences_of(self.prefix_sentences)
 
     # def constraints_func(self):
     #     """returns constraints_func"""
@@ -171,7 +172,8 @@ class ModelStructure:
         self.prefix_premises = [prefix(prem) for prem in model_setup.infix_premises]
         # M: I think below is a problem
         self.prefix_conclusions = [prefix(con) for con in model_setup.infix_conclusions]
-        self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
+        self.prefix_sentences = model_setup.prefix_sentences
+        # self.all_subsentences = subsentences_of(self.prefix_sentences)
 
     def build_test_file(self, output):
         """generates a test file from input to be saved"""
@@ -257,16 +259,19 @@ class StateSpace:
         self.atomic_props_dict = atomic_propositions_dict_maker(self)
 
         # TODO: one attribute for all propositions (check)
-        # self.all_subsentences = model_setup.all_subsentences
-        self.extensional_subsentences = model_setup.extensional_subsentences
-        self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
-                                        for ext_subsent in model_setup.extensional_subsentences]
-        self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
-                                        for cf_subsent in model_setup.counterfactual_subsentences]
-        self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
-                                    for modal_subsent in model_setup.modal_subsentences]
-        self.all_propositions = (self.extensional_propositions +
-                                 self.counterfactual_propositions + self.modal_propositions)
+        # self.all_subsentences = model_structure.all_subsentences
+        self.all_subsentences = subsentences_of(model_setup.prefix_sentences)
+        self.all_propositions = [Proposition(subsent, self, self.main_world)
+                                        for subsent in self.all_subsentences]
+        # self.extensional_subsentences = model_setup.extensional_subsentences
+        # self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
+        #                                 for ext_subsent in model_setup.extensional_subsentences]
+        # self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
+        #                                 for cf_subsent in model_setup.counterfactual_subsentences]
+        # self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
+        #                             for modal_subsent in model_setup.modal_subsentences]
+        # self.all_propositions = (self.extensional_propositions +
+        #                          self.counterfactual_propositions + self.modal_propositions)
         self.premise_propositions = self.find_propositions(model_structure.prefix_premises, True)
         self.conclusion_propositions = self.find_propositions(model_structure.prefix_conclusions, True)
 
@@ -487,14 +492,14 @@ class Proposition:
     has two subclasses Extensional and Counterfactual—Counterfactual is a Proposition
     subclass to make stuff easier"""
 
-    def __init__(self, prefix_expr, model_structure, eval_world):
+    def __init__(self, prefix_expr, state_space, eval_world):
         """for modals and counterfactuals, if they're true then the verifiers
         are only the null state and falsifiers are nothing; if they're false the opposite"""
         self.prop_dict = {}
         self.prop_dict["prefix expression"] = prefix_expr
-        self.model_structure = model_structure
-        verifiers, falsifiers = find_complex_proposition(model_structure, prefix_expr, eval_world)
-        self.world_bits = model_structure.world_bits # NOTE: this isn't being called anywhere
+        self.model_structure = state_space
+        verifiers, falsifiers = find_complex_proposition(state_space, prefix_expr, eval_world)
+        self.world_bits = state_space.world_bits # NOTE: this isn't being called anywhere
         self.prop_dict["verifiers"] = verifiers
         self.prop_dict["falsifiers"] = falsifiers
         # if is_modal(prefix_expr):
@@ -504,7 +509,7 @@ class Proposition:
         #     self['non arg worlds'] = non_arg_worlds
         if is_counterfactual(prefix_expr):
             self.current_eval_world = eval_world
-            true_worlds, false_worlds = true_and_false_worlds_for_cf(model_structure, prefix_expr)
+            true_worlds, false_worlds = true_and_false_worlds_for_cf(state_space, prefix_expr)
             self['worlds cf true at'] = true_worlds
             self['worlds cf false at'] = false_worlds
 
