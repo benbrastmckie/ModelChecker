@@ -27,6 +27,7 @@ from model_definitions import (
     find_all_bits,
     find_max_comp_ver_parts,
     find_poss_bits,
+    find_subsentences,
     find_world_bits,
     prefix_combine,
     pretty_set_print,
@@ -127,7 +128,7 @@ class ModelSetup:
         self.constraints = constraints
         # ext, modal, cf, altogether = find_subsentences_of_kind(self.prefix_sentences, 'all')
         # self.extensional_subsentences = ext
-        # self.counterfactual_subsentences = cf
+        # self.cf_subsentences = cf
         # self.modal_subsentences = modal
         # self.all_subsentences = subsentences_of(self.prefix_sentences)
 
@@ -259,15 +260,16 @@ class StateSpace:
         self.atomic_props_dict = atomic_propositions_dict_maker(self)
 
         # TODO: one attribute for all propositions (check)
-        # self.all_subsentences = model_structure.all_subsentences
-        self.all_subsentences = subsentences_of(model_setup.prefix_sentences)
+        self.all_subsentences = find_subsentences(model_setup.prefix_sentences)
+        # print(self.all_subsentences)
+        # self.cf_subsentences = [sent for sent in self.all_subsentences if 'boxright' in sent[0]]
         self.all_propositions = [Proposition(subsent, self, self.main_world)
-                                        for subsent in self.all_subsentences]
+                                for subsent in self.all_subsentences]
         # self.extensional_subsentences = model_setup.extensional_subsentences
         # self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
         #                                 for ext_subsent in model_setup.extensional_subsentences]
         # self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
-        #                                 for cf_subsent in model_setup.counterfactual_subsentences]
+        #                                    for cf_subsent in self.cf_subsentences]
         # self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
         #                             for modal_subsent in model_setup.modal_subsentences]
         # self.all_propositions = (self.extensional_propositions +
@@ -495,11 +497,12 @@ class Proposition:
     def __init__(self, prefix_expr, state_space, eval_world):
         """for modals and counterfactuals, if they're true then the verifiers
         are only the null state and falsifiers are nothing; if they're false the opposite"""
+        self.state_space = state_space
         self.prop_dict = {}
         self.prop_dict["prefix expression"] = prefix_expr
-        self.model_structure = state_space
+        self.state_space = state_space
         verifiers, falsifiers = find_complex_proposition(state_space, prefix_expr, eval_world)
-        self.world_bits = state_space.world_bits # NOTE: this isn't being called anywhere
+        # self.world_bits = state_space.world_bits # NOTE: this isn't being called anywhere
         self.prop_dict["verifiers"] = verifiers
         self.prop_dict["falsifiers"] = falsifiers
         # if is_modal(prefix_expr):
@@ -527,7 +530,7 @@ class Proposition:
     def update_verifiers(self, new_world):
         if not is_counterfactual(self['prefix expression']):
             raise AttributeError(f'You can only update verifiers for CFs, and {self} is not a CF.')
-        N = self.model_structure.N
+        N = self.state_space.N
         if new_world == self.current_eval_world:
             return 
         if new_world in self['worlds cf true at']:
@@ -540,13 +543,21 @@ class Proposition:
         """prints the possible verifiers and falsifier states for a sentence.
         used in: rec_print() 
         ensures eval_world is in fact the eval_world for CFs"""
-        N = self.model_structure.N
+        N = self.state_space.N
         truth_value = self.truth_value_at(eval_world)
-        if self in self.model_structure.counterfactual_propositions:
+        # TODO: need to check if self is counterfactual
+        # cf_props = []
+        # for sent in self.state_space.all_subsentences:
+        #     if 'boxright' in sent[0]:
+        #         cf_props.append(Proposition(sent, self.state_space, eval_world))
+        # if self in self.state_space.counterfactual_propositions:
+        if 'boxright' in str(self["prefix expression"][0]):
+            test = str(self["prefix expression"])
+            print(f"TEST: {test}")
             self.update_verifiers(eval_world)
         indent_num = indent
-        possible = self.model_structure.model_setup.possible
-        z3_model = self.model_structure.z3_model
+        possible = self.state_space.model_setup.possible
+        z3_model = self.state_space.z3_model
         ver_prints = '∅'
         ver_states = {
             bitvec_to_substates(bit, N)

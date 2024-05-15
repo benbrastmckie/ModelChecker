@@ -318,7 +318,7 @@ def subsentences_of(prefix_sentence):
         left_subsentences = subsentences_of(prefix_sentence[1])
         right_subsentences = subsentences_of(prefix_sentence[2])
         all_subsentences = left_subsentences + right_subsentences + progress
-        return all_subsentences
+        return repeats_removed(all_subsentences)
     return progress
 
 # def subsentences_of(prefix_sentence, progress=[]):
@@ -344,6 +344,7 @@ def find_subsentences(prefix_sentences):
     for prefix_sent in prefix_sentences:
         all_prefix_subs = subsentences_of(prefix_sent)
         all_subsentences.extend(all_prefix_subs)
+    return repeats_removed(all_subsentences)
 
 # def find_subsentences_of_kind(prefix_sentences, kind):
 #     '''used to find the extensional, modal, and counterfactual sentences. 
@@ -391,13 +392,11 @@ def evaluate_modal_expr(state_space, prefix_modal, eval_world):
             return True # both Box and Diamond will return true, since verifiers is not empty
         return False
     if 'Diamond' in op:
-        # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
         for poss in state_space.poss_bits:
             if poss in find_complex_proposition(state_space, argument, eval_world)[0]:
                 return True
         return False
     if 'Box' in op:
-        # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
         for poss in state_space.poss_bits:
             if poss in find_complex_proposition(state_space, argument, eval_world)[1]:
                 return False
@@ -445,6 +444,8 @@ def find_complex_proposition(state_space, complex_sentence, eval_world):
         )
     if len(complex_sentence) == 1:
         sent = complex_sentence[0]
+        print(f"TEST: {sent}")
+        print(f"TYPE: {type(sent)}")
         return state_space.atomic_props_dict[sent]
     op = complex_sentence[0]
     Y = complex_sentence[1]
