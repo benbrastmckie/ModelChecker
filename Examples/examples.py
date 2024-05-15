@@ -79,10 +79,17 @@ save_bool = False
 # ]
 # conclusions = []
 
-# premises = ['neg A']
+# premises = ['Box A', 'Box A']
 # conclusions = []
 
-premises = ['Box A','(Box A boxright B)']
+# premises = ['Box A','(A boxright B)'] # no
+# premises = ['neg A','(A boxright B)'] # yes
+# premises = ['neg A','(neg A boxright B)'] # no
+# premises = ['A','(neg A boxright B)'] # yes
+# premises = ['A','(Box A boxright B)'] # yes
+# premises = ['Box A','(Box A boxright B)'] # no
+# premises = ['((C boxright D) boxright B)'] # no
+premises = ['(neg (C boxright D) boxright B)'] # yes
 conclusions = []
 
 # # COUNTERFACTUAL EXCLUDED MIDDLE

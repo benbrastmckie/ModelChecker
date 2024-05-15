@@ -553,7 +553,7 @@ class Proposition:
         # if self in self.state_space.counterfactual_propositions:
         if 'boxright' in str(self["prefix expression"][0]):
             test = str(self["prefix expression"])
-            print(f"TEST: {test}")
+            # print(f"TEST: {test}")
             self.update_verifiers(eval_world)
         indent_num = indent
         possible = self.state_space.model_setup.possible

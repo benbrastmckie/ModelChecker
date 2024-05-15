@@ -7,6 +7,8 @@ from z3 import (
     simplify,
 )
 
+from syntax import prefix
+
 def summation(n, func, start = 0):
     '''summation of i ranging from start to n of func(i)
     used in find_all_bits'''
@@ -113,22 +115,16 @@ def find_true_and_false_in_alt(alt_bit, state_space):
     """returns two sets as a tuple, one being the set of sentences true in the alt world and the
     other the set being false. Used in evaluate_mainclause_cf_expr()"""
     all_subsentences = state_space.all_subsentences
-    # B: is this still true once modal and counterfactual prop_objects include verifiers and falsifiers?
-    # TODO: below creates problem with nested counterfactuals
-    # TODO: I think this was resolved
-    # extensional_sentences = parent_model_structure.all_subsentences
     all_bits = state_space.all_bits
     true_in_alt = []
     for R in all_subsentences:
         for bit in all_bits:
-            # print(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True))
-            # print(type(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True)))
+            # PROB
             if bit in find_complex_proposition(state_space, R, alt_bit)[0] and bit_part(bit, alt_bit):
                 true_in_alt.append(R)
                 break  # returns to the for loop over sentence_letters
-    false_in_alt = [R for R in all_subsentences if not R in true_in_alt] # replace with
+    false_in_alt = [R for R in all_subsentences if not R in true_in_alt]
     return repeats_removed(true_in_alt), repeats_removed(false_in_alt)
-    # was giving repeats for some reason? Wasn't previously. fixed it up with repeats_removed
 
 
 def pretty_set_print(set_with_strings):
@@ -302,6 +298,15 @@ def is_modal(prefix_sentence):
         return is_modal(prefix_sentence[1])
     return is_modal(prefix_sentence[1]) or is_modal(prefix_sentence[2])
 
+def repeats_removed(start_list):
+    '''takes a list and removes the repeats in it.
+    used in find_all_constraints'''
+    seen = []
+    for obj in start_list:
+        if obj not in seen:
+            seen.append(obj)
+    return seen
+
 def is_extensional(prefix_sentence):
     return not is_modal(prefix_sentence) and not is_counterfactual(prefix_sentence)
 
@@ -321,6 +326,27 @@ def subsentences_of(prefix_sentence):
         return repeats_removed(all_subsentences)
     return progress
 
+def find_subsentences(prefix_sentences):
+    all_subsentences = []
+    for prefix_sent in prefix_sentences:
+        all_prefix_subs = subsentences_of(prefix_sent)
+        all_subsentences.extend(all_prefix_subs)
+    return repeats_removed(all_subsentences)
+
+# premise = [
+#     '(Box A boxright B)',
+#     'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)',
+# ]
+# prefix_prems = [prefix(sent) for sent in premise]
+# sub_prefix_prems = find_subsentences(prefix_prems)
+# for sub in sub_prefix_prems:
+#     print(sub)
+
+# check = prefix('(Box A boxright B)')
+# print(check)
+# sub_check = subsentences_of(check)
+# print(sub_check)
+
 # def subsentences_of(prefix_sentence, progress=[]):
 #     '''finds all the subsentence of a prefix sentence
 #     returns these as a set
@@ -338,13 +364,6 @@ def subsentences_of(prefix_sentence):
 #         all_subsentences = left_subsentences + right_subsentences + progress
 #         return all_subsentences
 #     return progress
-
-def find_subsentences(prefix_sentences):
-    all_subsentences = []
-    for prefix_sent in prefix_sentences:
-        all_prefix_subs = subsentences_of(prefix_sent)
-        all_subsentences.extend(all_prefix_subs)
-    return repeats_removed(all_subsentences)
 
 # def find_subsentences_of_kind(prefix_sentences, kind):
 #     '''used to find the extensional, modal, and counterfactual sentences. 
@@ -368,16 +387,6 @@ def find_subsentences(prefix_sentences):
 #         return (extensional, modal, counterfactual, all_subsentences)
 #     return rr(return_list)
 
-def repeats_removed(L):
-    '''takes a list and removes the repeats in it.
-    used in find_all_constraints'''
-    seen = []
-    for obj in L:
-        if obj not in seen:
-            seen.append(obj)
-    return seen
-
-
 ########################################
 ###### MOVED FROM model_structure ######
 ########################################
@@ -387,10 +396,12 @@ def evaluate_modal_expr(state_space, prefix_modal, eval_world):
     used to initialize Counterfactuals
     returns a bool representing whether the counterfactual is true at the world or not'''
     op, argument = prefix_modal[0], prefix_modal[1]
-    if is_modal(argument):
-        if state_space.evaluate_modal_expr(prefix_modal) is True: # ie, verifiers is null state
-            return True # both Box and Diamond will return true, since verifiers is not empty
-        return False
+    # if is_modal(argument):
+    #     if state_space.evaluate_modal_expr(prefix_modal) is True:
+    #     # ie, verifiers is null state
+    #         return True
+    #         # both Box and Diamond will return true, since verifiers is not empty
+    #     return False
     if 'Diamond' in op:
         for poss in state_space.poss_bits:
             if poss in find_complex_proposition(state_space, argument, eval_world)[0]:
@@ -398,6 +409,7 @@ def evaluate_modal_expr(state_space, prefix_modal, eval_world):
         return False
     if 'Box' in op:
         for poss in state_space.poss_bits:
+            # PROB
             if poss in find_complex_proposition(state_space, argument, eval_world)[1]:
                 return False
         return True
@@ -411,6 +423,7 @@ def evaluate_cf_expr(state_space, prefix_cf, eval_world):
     assert "boxright" in op, f"{prefix_cf} is not a main-clause counterfactual!"
     antecedent, consequent = prefix_cf[1], prefix_cf[2]
     # assert is_extensional(ant_expr), f"the antecedent {ant_expr} is not extensional!"
+    # PROB
     ant_verifiers = find_complex_proposition(state_space, antecedent, eval_world)[0]
     antecedent_alts = state_space.find_alt_bits(ant_verifiers, eval_world)
     for u in antecedent_alts:
@@ -418,7 +431,8 @@ def evaluate_cf_expr(state_space, prefix_cf, eval_world):
         # if is_counterfactual(consequent):
         #     if not find_complex_proposition(state_space, consequent, u)[0]:
         #         return False
-        if consequent not in find_true_and_false_in_alt(u, state_space)[0]:
+        # PROB
+        if consequent in find_true_and_false_in_alt(u, state_space)[1]:
             return False
     return True
 
@@ -444,14 +458,15 @@ def find_complex_proposition(state_space, complex_sentence, eval_world):
         )
     if len(complex_sentence) == 1:
         sent = complex_sentence[0]
-        print(f"TEST: {sent}")
-        print(f"TYPE: {type(sent)}")
-        return state_space.atomic_props_dict[sent]
+        # PROB
+        prop = state_space.atomic_props_dict[sent]
+        return prop
     op = complex_sentence[0]
     Y = complex_sentence[1]
     if "neg" in op:
         Y_V, Y_F = find_complex_proposition(state_space, Y, eval_world)
         return (Y_F, Y_V)
+    # PROB
     null_state = {BitVecVal(0,state_space.N)}
     if 'Box' in op or 'Diamond' in op:
         if evaluate_modal_expr(state_space, complex_sentence, eval_world):
@@ -472,6 +487,7 @@ def find_complex_proposition(state_space, complex_sentence, eval_world):
     if "rightarrow" in op:
         return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
     if "boxright" in op:
+        # PROB
         if evaluate_cf_expr(state_space, complex_sentence, eval_world):
             return (null_state, set())
         return (set(), null_state)
