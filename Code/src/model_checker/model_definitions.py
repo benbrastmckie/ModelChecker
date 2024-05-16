@@ -79,6 +79,7 @@ def find_compatible_parts(verifier_bit, poss_bits, eval_world):
     """
     comp_parts = []
     for part in poss_bits:
+        # print(f"TEST: {part} is part of {eval_world}")
         if bit_fusion(verifier_bit, part) in poss_bits and bit_part(part, eval_world):
             comp_parts.append(part)
             # ie, if fusion is possible and the bit part is in the eval_world
@@ -121,6 +122,7 @@ def find_true_and_false_in_alt(alt_bit, state_space):
         for bit in all_bits:
             # PROB
             if bit in find_complex_proposition(state_space, R, alt_bit)[0] and bit_part(bit, alt_bit):
+                # print(f"TEST: {bit} part of {alt_bit}")
                 true_in_alt.append(R)
                 break  # returns to the for loop over sentence_letters
     false_in_alt = [R for R in all_subsentences if not R in true_in_alt]
@@ -170,12 +172,14 @@ def atomic_propositions_dict_maker(state_space):
 #############################################
 ######### MOVED FROM DEFINITIONS.PY #########
 #############################################
-        
+
 
 
 def bit_fusion(bit_s, bit_t):
     """the result of taking the maximum for each index in _s and _t"""
-    return simplify(bit_s | bit_t)
+    fusion = simplify(bit_s | bit_t)
+    # print(f"TEST: fusion {fusion} of {bit_s} and {bit_t}")
+    return fusion
     # NOTE: this does seem to make a difference, otherwise no comp_parts
 
 def bit_part(bit_s, bit_t):
@@ -425,6 +429,7 @@ def evaluate_cf_expr(state_space, prefix_cf, eval_world):
     # assert is_extensional(ant_expr), f"the antecedent {ant_expr} is not extensional!"
     # PROB
     ant_verifiers = find_complex_proposition(state_space, antecedent, eval_world)[0]
+    con_falsifiers = find_complex_proposition(state_space, consequent, eval_world)[1]
     antecedent_alts = state_space.find_alt_bits(ant_verifiers, eval_world)
     for u in antecedent_alts:
         # QUESTION: why is string required? Is Z3 removing the lists?
@@ -432,8 +437,10 @@ def evaluate_cf_expr(state_space, prefix_cf, eval_world):
         #     if not find_complex_proposition(state_space, consequent, u)[0]:
         #         return False
         # PROB
-        if consequent in find_true_and_false_in_alt(u, state_space)[1]:
-            return False
+        # if consequent in find_true_and_false_in_alt(u, state_space)[1]:
+        for con_fal in con_falsifiers:
+            if bit_part(con_fal, u):
+                return False
     return True
 
 def true_and_false_worlds_for_cf(state_space, complex_cf_sent):
@@ -487,7 +494,6 @@ def find_complex_proposition(state_space, complex_sentence, eval_world):
     if "rightarrow" in op:
         return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
     if "boxright" in op:
-        # PROB
         if evaluate_cf_expr(state_space, complex_sentence, eval_world):
             return (null_state, set())
         return (set(), null_state)

@@ -277,14 +277,14 @@ class StateSpace:
         self.premise_propositions = self.find_propositions(model_structure.prefix_premises, True)
         self.conclusion_propositions = self.find_propositions(model_structure.prefix_conclusions, True)
 
-    def find_alt_bits(self, verifier_bits, evaulation_world=None):
+    def find_alt_bits(self, verifier_bits, evaulation_world):
         """
         Finds the alternative bits given verifier bits of an extensional proposition,
         possible states, worlds, and the evaluation world.
         Used in evaluate_cf_expression() and rec_print().
         """
-        if evaulation_world is None:
-            evaulation_world = self.main_world
+        # if evaulation_world is None:
+        #     evaulation_world = self.main_world
         alt_bits = set()
         for ver in verifier_bits:
             comp_parts = find_compatible_parts(ver, self.poss_bits, evaulation_world)
@@ -408,12 +408,12 @@ class StateSpace:
             if print_impossible:
                 print(f"  {bin_rep} = {state} (impossible)", file=output)
 
-    def rec_print(self, prop_obj, world_bit, print_impossible, output, indent=0):
+    def rec_print(self, prop_obj, eval_world, print_impossible, output, indent=0):
         """recursive print function (previously print_sort)
         returns None"""
         N = self.model_setup.N
         sentence_letters = self.sentence_letters
-        prop_obj.print_verifiers_and_falsifiers(world_bit, print_impossible, indent, output)
+        prop_obj.print_verifiers_and_falsifiers(eval_world, print_impossible, indent, output)
         if str(prop_obj) in [str(atom) for atom in sentence_letters]:
             return
         prefix_expr = prop_obj["prefix expression"]
@@ -421,7 +421,7 @@ class StateSpace:
         first_subprop = self.find_proposition_object(prefix_expr[1], prefix_search=True)
         indent += 1 # begin subcases, so indent
         if "neg" in op:
-            self.rec_print(first_subprop, world_bit, print_impossible, output, indent)
+            self.rec_print(first_subprop, eval_world, print_impossible, output, indent)
             return
         if 'Diamond' in op or 'Box' in op:
             for u in self.world_bits:
@@ -434,21 +434,21 @@ class StateSpace:
             #     left_subprop in self.extensional_propositions
             # ), f"{prop_obj} is not a valid cf because antecedent {left_subprop} is not extensional"
             left_subprop_vers = left_subprop['verifiers']
-            phi_alt_worlds_to_world_bit = self.find_alt_bits(left_subprop_vers, world_bit)
-            alt_worlds_as_strings = {bitvec_to_substates(u,N) for u in phi_alt_worlds_to_world_bit}
-            self.rec_print(left_subprop, world_bit, print_impossible, output, indent)
+            alt_worlds = self.find_alt_bits(left_subprop_vers, eval_world)
+            alt_worlds_as_strings = {bitvec_to_substates(u,N) for u in alt_worlds}
+            self.rec_print(left_subprop, eval_world, print_impossible, output, indent)
             print(
                 f'{"  " * indent}'
-                f'{left_subprop}-alternatives to {bitvec_to_substates(world_bit, N)} = '
+                f'{left_subprop}-alternatives to {bitvec_to_substates(eval_world, N)} = '
                 f'{pretty_set_print(alt_worlds_as_strings)}',
                 file=output
             )
             indent += 1
-            for u in phi_alt_worlds_to_world_bit:
+            for u in alt_worlds:
                 self.rec_print(right_subprop, u, print_impossible, output, indent)
             return
-        self.rec_print(left_subprop, world_bit, print_impossible, output, indent)
-        self.rec_print(right_subprop, world_bit, print_impossible, output, indent)
+        self.rec_print(left_subprop, eval_world, print_impossible, output, indent)
+        self.rec_print(right_subprop, eval_world, print_impossible, output, indent)
 
     def print_inputs_recursively(self, print_impossible, output):
         """does rec_print for every proposition in the input propositions
@@ -511,7 +511,7 @@ class Proposition:
         #     self['arg worlds'] = arg_worlds
         #     self['non arg worlds'] = non_arg_worlds
         if is_counterfactual(prefix_expr):
-            self.current_eval_world = eval_world
+            self.prop_eval_world = eval_world
             true_worlds, false_worlds = true_and_false_worlds_for_cf(state_space, prefix_expr)
             self['worlds cf true at'] = true_worlds
             self['worlds cf false at'] = false_worlds
@@ -531,8 +531,8 @@ class Proposition:
         if not is_counterfactual(self['prefix expression']):
             raise AttributeError(f'You can only update verifiers for CFs, and {self} is not a CF.')
         N = self.state_space.N
-        if new_world == self.current_eval_world:
-            return 
+        if new_world == self.prop_eval_world:
+            return
         if new_world in self['worlds cf true at']:
             self['verifiers'], self['falsifiers'] = {BitVecVal(0,N)}, set()
             return
@@ -545,15 +545,7 @@ class Proposition:
         ensures eval_world is in fact the eval_world for CFs"""
         N = self.state_space.N
         truth_value = self.truth_value_at(eval_world)
-        # TODO: need to check if self is counterfactual
-        # cf_props = []
-        # for sent in self.state_space.all_subsentences:
-        #     if 'boxright' in sent[0]:
-        #         cf_props.append(Proposition(sent, self.state_space, eval_world))
-        # if self in self.state_space.counterfactual_propositions:
         if 'boxright' in str(self["prefix expression"][0]):
-            test = str(self["prefix expression"])
-            # print(f"TEST: {test}")
             self.update_verifiers(eval_world)
         indent_num = indent
         possible = self.state_space.model_setup.possible
@@ -586,9 +578,9 @@ class Proposition:
     def truth_value_at(self, eval_world):
         '''Given a world, returns the truth value of the Proposition at that world.
         Used in print_verifiers_and_falsifiers.'''
-        prefix_expr = self['prefix expression']
-        if is_counterfactual(prefix_expr):
-            return True if eval_world in self['worlds cf true at'] else False
+        # prefix_expr = self['prefix expression']
+        # if is_counterfactual(prefix_expr):
+        #     return True if eval_world in self['worlds cf true at'] else False
         # if is_modal(prefix_expr):
         #     return True if self["verifiers"] else False
          # else case: extensional. Last to be computationally efficient (see def of is_extensional)

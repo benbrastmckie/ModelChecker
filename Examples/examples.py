@@ -32,9 +32,9 @@ save_bool = False
 
 ### INVALID ###
 
-# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# premises = ['(A boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
+# COUNTERFACTUAL ANTECEDENT STRENGTHENING
+premises = ['(A boxright C)']
+conclusions = ['((A wedge B) boxright C)']
 
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # premises = ['(A boxright C)', 'Diamond (A wedge B)']
@@ -89,8 +89,9 @@ save_bool = False
 # premises = ['A','(Box A boxright B)'] # yes
 # premises = ['Box A','(Box A boxright B)'] # no
 # premises = ['((C boxright D) boxright B)'] # no
-premises = ['(neg (C boxright D) boxright B)'] # yes
-conclusions = []
+# premises = ['(neg (C boxright D) boxright B)'] # yes
+# premises = ['(A boxright (B boxright C))'] # yes
+# conclusions = []
 
 # # COUNTERFACTUAL EXCLUDED MIDDLE
 # premises = ['neg A']
