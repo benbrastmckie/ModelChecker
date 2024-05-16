@@ -257,6 +257,7 @@ class StateSpace:
         self.all_subsentences = find_subsentences(model_setup.prefix_sentences)
         # print(self.all_subsentences)
         # self.cf_subsentences = [sent for sent in self.all_subsentences if 'boxright' in sent[0]]
+        # self.all_propositions = self.find_propositions(self.all_subsentences)
         self.all_propositions = [Proposition(subsent, self, self.main_world)
                                 for subsent in self.all_subsentences]
         # self.extensional_subsentences = model_setup.extensional_subsentences
@@ -268,8 +269,8 @@ class StateSpace:
         #                             for modal_subsent in model_setup.modal_subsentences]
         # self.all_propositions = (self.extensional_propositions +
         #                          self.counterfactual_propositions + self.modal_propositions)
-        self.premise_propositions = self.find_propositions(model_structure.prefix_premises, True)
-        self.conclusion_propositions = self.find_propositions(model_structure.prefix_conclusions, True)
+        self.premise_propositions = self.find_propositions(model_structure.prefix_premises)
+        self.conclusion_propositions = self.find_propositions(model_structure.prefix_conclusions)
 
     def find_alt_bits(self, verifier_bits, evaulation_world):
         """
@@ -293,33 +294,34 @@ class StateSpace:
         return alt_bits
 
     # Useful to user now that can search an infix expression
-    def find_proposition_object(self, expression, prefix_search=False):
+    def find_proposition_object(self, expression):
         """given a sentence, finds the Proposition object in the model that corresponds
         to it. Can optionally search through only the extensional sentences
         Also defaults to searching an infix sentence, though internally it always searches
         prefix. 
         If search infix, make sure you put double backslashes always!!
         returns a Proposition object"""
-        search_list = self.all_propositions
-        if prefix_search:
-            for prop_object in search_list:
-                if prop_object["prefix expression"] == expression:
-                    return prop_object
-        else:
-            for prop_object in search_list:
-                if str(prop_object) == add_backslashes_to_infix(expression):
-                    return prop_object
+        # search_list = self.all_propositions
+        # if prefix_search:
+        #     for prop_object in search_list:
+        #         if prop_object["prefix expression"] == expression:
+        #             return prop_object
+        # else:
+        # props = [Proposition(subsent, self, self.main_world) for subsent in self.all_subsentences]
+        for prop_object in self.all_propositions:
+            if str(prop_object) == add_backslashes_to_infix(expression):
+                return prop_object
         raise ValueError(
             f"there is no Proposition with expression {expression}")
 
     # Useful to user now that can search infix expressions
-    def find_propositions(self, sentences, prefix_search=False):
+    def find_propositions(self, sentences):
         """finds all the Proposition objects in a ModelStructure
         that correspond to the prefix sentences in sentences.
         returns them as a list"""
         propositions = []
         for sent in sentences:
-            propositions.append(self.find_proposition_object(sent, prefix_search=prefix_search))
+            propositions.append(self.find_proposition_object(sent))
         return propositions
 
     def print_evaluation(self, output=sys.__stdout__):
@@ -412,7 +414,7 @@ class StateSpace:
             return
         prefix_expr = prop_obj["prefix expression"]
         op = prefix_expr[0]
-        first_subprop = self.find_proposition_object(prefix_expr[1], prefix_search=True)
+        first_subprop = self.find_proposition_object(prefix_expr[1])
         indent += 1 # begin subcases, so indent
         if "neg" in op:
             self.rec_print(first_subprop, eval_world, print_impossible, output, indent)
@@ -422,7 +424,7 @@ class StateSpace:
                 self.rec_print(first_subprop, u, print_impossible, output, indent)
             return
         left_subprop = first_subprop
-        right_subprop = self.find_proposition_object(prefix_expr[2], prefix_search=True)
+        right_subprop = self.find_proposition_object(prefix_expr[2])
         if "boxright" in op:
             left_subprop_vers = left_subprop['verifiers']
             alt_worlds = self.find_alt_bits(left_subprop_vers, eval_world)
