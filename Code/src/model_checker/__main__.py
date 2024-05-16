@@ -3,6 +3,7 @@ file specifies premises, conclusions, and settings.
 running the file finds a model and prints the result.
 '''
 
+import cProfile
 from string import Template
 import argparse
 import importlib.util
@@ -267,4 +268,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    cProfile.run('main()') # run this to check for bottle necks

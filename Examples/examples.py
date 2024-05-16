@@ -32,13 +32,13 @@ save_bool = False
 
 ### INVALID ###
 
-# COUNTERFACTUAL ANTECEDENT STRENGTHENING
-premises = ['(A boxright C)']
-conclusions = ['((A wedge B) boxright C)']
-
-# # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
-# premises = ['(A boxright C)', 'Diamond (A wedge B)']
+# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# premises = ['(A boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
+
+# COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
+premises = ['(A boxright C)', 'Diamond (A wedge B)']
+conclusions = ['((A wedge B) boxright C)']
 
 # # COUNTERFACTUAL CONTRAPOSITION
 # premises = ['(A boxright B)']
@@ -92,6 +92,9 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['(neg (C boxright D) boxright B)'] # yes
 # premises = ['(A boxright (B boxright C))'] # yes
 # conclusions = []
+
+# premises = ['(A boxright (B boxright C))']
+# conclusions = ['(B boxright C)']
 
 # # COUNTERFACTUAL EXCLUDED MIDDLE
 # premises = ['neg A']
@@ -168,6 +171,7 @@ conclusions = ['((A wedge B) boxright C)']
 # # SLOW: crashed locally; MIT servers found a model in 5 seconds
 # premises = ['((A vee B) boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
+
 
 
 
@@ -259,6 +263,10 @@ conclusions = ['((A wedge B) boxright C)']
 # conclusions = ['(B boxright C)']
 
 ### LOW PRIORITY: MODAL EQUIVALENCE ###
+
+# NOTE: comes out valid
+# premises = ['Diamond A','(A boxright (B boxright C))']
+# conclusions = ['(B boxright C)']
 
 # # NOTE: killed in ssh
 # # K axiom (top)

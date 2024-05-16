@@ -13,8 +13,6 @@ from z3 import (
     BitVecVal
 )
 
-from syntax import add_backslashes_to_infix
-
 # from model_checker.semantics import ( # for packaging
 from semantics import (
     make_constraints,
@@ -34,11 +32,7 @@ from model_definitions import (
     bit_part,
     bitvec_to_substates,
     int_to_binary,
-    infix_combine,
-    # find_subsentences_of_kind,
     is_counterfactual,
-    is_modal,
-    subsentences_of,
     true_and_false_worlds_for_cf,
     find_complex_proposition,
 )
@@ -430,9 +424,6 @@ class StateSpace:
         left_subprop = first_subprop
         right_subprop = self.find_proposition_object(prefix_expr[2], prefix_search=True)
         if "boxright" in op:
-            # assert (
-            #     left_subprop in self.extensional_propositions
-            # ), f"{prop_obj} is not a valid cf because antecedent {left_subprop} is not extensional"
             left_subprop_vers = left_subprop['verifiers']
             alt_worlds = self.find_alt_bits(left_subprop_vers, eval_world)
             alt_worlds_as_strings = {bitvec_to_substates(u,N) for u in alt_worlds}
@@ -510,6 +501,7 @@ class Proposition:
         #     arg_worlds, non_arg_worlds = find_complex_proposition(model_structure, arg, eval_world)
         #     self['arg worlds'] = arg_worlds
         #     self['non arg worlds'] = non_arg_worlds
+        # CHECK: I think this does no work
         if is_counterfactual(prefix_expr):
             self.prop_eval_world = eval_world
             true_worlds, false_worlds = true_and_false_worlds_for_cf(state_space, prefix_expr)
@@ -527,9 +519,10 @@ class Proposition:
     def __str__(self):
         return infix(self["prefix expression"])
 
+    # CHECK: I think this does no work
     def update_verifiers(self, new_world):
-        if not is_counterfactual(self['prefix expression']):
-            raise AttributeError(f'You can only update verifiers for CFs, and {self} is not a CF.')
+        # if not is_counterfactual(self['prefix expression']):
+        #     raise AttributeError(f'You can only update verifiers for CFs, and {self} is not a CF.')
         N = self.state_space.N
         if new_world == self.prop_eval_world:
             return
@@ -544,9 +537,12 @@ class Proposition:
         used in: rec_print() 
         ensures eval_world is in fact the eval_world for CFs"""
         N = self.state_space.N
+        prefix_expr = self["prefix expression"]
         truth_value = self.truth_value_at(eval_world)
-        if 'boxright' in str(self["prefix expression"][0]):
+        # CHECK: I think this does no work
+        if 'boxright' in str(prefix_expr):
             self.update_verifiers(eval_world)
+            # self['verifiers'], self['falsifiers'] = find_complex_proposition(self.state_space, prefix_expr, eval_world)
         indent_num = indent
         possible = self.state_space.model_setup.possible
         z3_model = self.state_space.z3_model
