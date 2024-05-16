@@ -13,8 +13,6 @@ from z3 import (
     BitVecVal
 )
 
-from syntax import add_backslashes_to_infix
-
 # from model_checker.semantics import ( # for packaging
 from semantics import (
     make_constraints,
@@ -33,10 +31,8 @@ from model_definitions import (
     bit_part,
     bitvec_to_substates,
     int_to_binary,
-    infix_combine,
     find_subsentences_of_kind,
     is_counterfactual,
-    is_modal,
     true_and_false_worlds_for_cf,
     find_complex_proposition,
 )
