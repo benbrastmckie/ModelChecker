@@ -112,21 +112,21 @@ def relate_sents_and_states(all_bits, sentence, z3_model, relation):
             relation_set.add(bit)
     return relation_set
 
-def find_true_and_false_in_alt(alt_bit, state_space):
-    """returns two sets as a tuple, one being the set of sentences true in the alt world and the
-    other the set being false. Used in evaluate_mainclause_cf_expr()"""
-    all_subsentences = state_space.all_subsentences
-    all_bits = state_space.all_bits
-    true_in_alt = []
-    for R in all_subsentences:
-        for bit in all_bits:
-            # PROB
-            if bit in find_complex_proposition(state_space, R, alt_bit)[0] and bit_part(bit, alt_bit):
-                # print(f"TEST: {bit} part of {alt_bit}")
-                true_in_alt.append(R)
-                break  # returns to the for loop over sentence_letters
-    false_in_alt = [R for R in all_subsentences if not R in true_in_alt]
-    return repeats_removed(true_in_alt), repeats_removed(false_in_alt)
+# def find_true_and_false_in_alt(alt_bit, state_space):
+#     """returns two sets as a tuple, one being the set of sentences true in the alt world and the
+#     other the set being false. Used in evaluate_mainclause_cf_expr()"""
+#     all_subsentences = state_space.all_subsentences
+#     all_bits = state_space.all_bits
+#     true_in_alt = []
+#     for R in all_subsentences:
+#         for bit in all_bits:
+#             # PROB
+#             if bit in find_complex_proposition(state_space, R, alt_bit)[0] and bit_part(bit, alt_bit):
+#                 # print(f"TEST: {bit} part of {alt_bit}")
+#                 true_in_alt.append(R)
+#                 break  # returns to the for loop over sentence_letters
+#     false_in_alt = [R for R in all_subsentences if not R in true_in_alt]
+#     return repeats_removed(true_in_alt), repeats_removed(false_in_alt)
 
 
 def pretty_set_print(set_with_strings):
@@ -423,24 +423,28 @@ def evaluate_cf_expr(state_space, prefix_cf, eval_world):
     used to initialize Counterfactuals
     returns a bool representing whether the counterfactual is true at the world or not
     """
-    op = prefix_cf[0]
-    assert "boxright" in op, f"{prefix_cf} is not a main-clause counterfactual!"
+    # op = prefix_cf[0]
+    # assert "boxright" in op, f"{prefix_cf} is not a main-clause counterfactual!"
     antecedent, consequent = prefix_cf[1], prefix_cf[2]
     # assert is_extensional(ant_expr), f"the antecedent {ant_expr} is not extensional!"
     # PROB
     ant_verifiers = find_complex_proposition(state_space, antecedent, eval_world)[0]
     con_falsifiers = find_complex_proposition(state_space, consequent, eval_world)[1]
     antecedent_alts = state_space.find_alt_bits(ant_verifiers, eval_world)
-    for u in antecedent_alts:
+    # for u in antecedent_alts:
         # QUESTION: why is string required? Is Z3 removing the lists?
         # if is_counterfactual(consequent):
         #     if not find_complex_proposition(state_space, consequent, u)[0]:
         #         return False
         # PROB
         # if consequent in find_true_and_false_in_alt(u, state_space)[1]:
-        for con_fal in con_falsifiers:
-            if bit_part(con_fal, u):
-                return False
+        # if any(con_fal for con_fal in con_falsifiers if bit_part(con_fal, u))
+    if any(bit_part(con_fal, u) for u in antecedent_alts for con_fal in con_falsifiers):
+        return False
+    # for u in antecedent_alts:
+    #     for con_fal in con_falsifiers:
+    #         if bit_part(con_fal, u):
+    #             return False
     return True
 
 def true_and_false_worlds_for_cf(state_space, complex_cf_sent):
