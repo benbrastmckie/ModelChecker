@@ -23,13 +23,10 @@ def find_all_bits(size):
     '''extract all bitvectors from the input model
     imported by model_structure'''
     all_bits = []
-    max_bit_number = summation(
-        size + 1, lambda x: 2**x
-    )  # this should hopefully be enough to cover all states
+    max_bit_number = summation(size + 1, lambda x: 2**x)
     for val in range(max_bit_number):
         test_bit = BitVecVal(val, size)
         if test_bit in all_bits:
-        # break once bits start to repeat
             continue
         all_bits.append(test_bit)
     return all_bits
@@ -113,9 +110,6 @@ def relate_sents_and_states(all_bits, sentence, z3_model, relation):
 #     """returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.
 #     Used in evaluate_mainclause_cf_expr()"""
 #     all_subsentences = model_structure.all_subsentences
-#     # B: is this still true once modal and counterfactual prop_objects include verifiers and falsifiers?
-#     # TODO: below creates problem with nested counterfactuals
-#     # TODO: I think this was resolved
 #     # extensional_sentences = parent_model_structure.all_subsentences
 #     all_bits = model_structure.all_bits
 #     true_in_alt = []
@@ -132,9 +126,8 @@ def relate_sents_and_states(all_bits, sentence, z3_model, relation):
 
 
 def pretty_set_print(set_with_strings):
-    """input a set with strings
-    print that same set but with no quotation marks around each individual string, and also with the set in order
-    returns the set as a string
+    """input a set with strings print that same set but with no quotation marks around each
+    individual string, and also with the set in order returns the set as a string
     Used in print_vers_and_fals() and print_alt_worlds()"""
     sorted_set = sorted(list(set_with_strings))  # actually type list, not set
     print_str = "{"
@@ -146,6 +139,7 @@ def pretty_set_print(set_with_strings):
     return print_str
 
 def product(set_A, set_B):
+    """set of pairwise fusions of elements in set_A and set_B"""
     product_set = set()
     for a in set_A:
         for b in set_B:
@@ -153,15 +147,17 @@ def product(set_A, set_B):
     return product_set
 
 def coproduct(set_A, set_B):
+    """union closed under pairwise fusion"""
     A_U_B = set_A.union(set_B)
     return A_U_B.union(product(set_A, set_B))
 
-def atomic_propositions_dict_maker(ms_object):
-    all_bits = ms_object.all_bits
-    sentence_letters = ms_object.sentence_letters
-    z3_model = ms_object.z3_model
-    verify = ms_object.verify
-    falsify = ms_object.falsify
+def atomic_propositions_dict_maker(state_space):
+    """assigns sentence_letters to propositions"""
+    all_bits = state_space.all_bits
+    sentence_letters = state_space.sentence_letters
+    z3_model = state_space.z3_model
+    verify = state_space.verify
+    falsify = state_space.falsify
     atomic_VFs_dict = {}
     for letter in sentence_letters:
         ver_bits = relate_sents_and_states(all_bits, letter, z3_model, verify)
@@ -274,10 +270,6 @@ def prefix_combine(prefix_premises, prefix_conclusions):
     disjoin_neg_conclusions = disjoin_prefix(neg_conclusions)
     return prefix_premises + disjoin_neg_conclusions
 
-#################################
-##### MOVED FROM SEMANTICS ######
-#################################
-
 def is_counterfactual(prefix_sentence):
     '''returns a boolean to say whether a given sentence is a counterfactual
     used in find_extensional_subsentences'''
@@ -289,71 +281,65 @@ def is_counterfactual(prefix_sentence):
         return True
     return is_counterfactual(prefix_sentence[1]) or is_counterfactual(prefix_sentence[2])
 
-def is_modal(prefix_sentence):
-    '''returns a boolean to say whether a given sentence is a counterfactual
-    used in find_extensional_subsentences'''
-    if len(prefix_sentence) == 1:
-        return False
-    op = prefix_sentence[0]
-    if len(prefix_sentence) == 2:
-        if 'Box' in op or 'Diamond' in op:
-            return True
-        return is_modal(prefix_sentence[1])
-    return is_modal(prefix_sentence[1]) or is_modal(prefix_sentence[2])
+# def is_modal(prefix_sentence):
+#     '''returns a boolean to say whether a given sentence is a counterfactual
+#     used in find_extensional_subsentences'''
+#     if len(prefix_sentence) == 1:
+#         return False
+#     op = prefix_sentence[0]
+#     if len(prefix_sentence) == 2:
+#         if 'Box' in op or 'Diamond' in op:
+#             return True
+#         return is_modal(prefix_sentence[1])
+#     return is_modal(prefix_sentence[1]) or is_modal(prefix_sentence[2])
 
-def is_extensional(prefix_sentence):
-    return not is_modal(prefix_sentence) and not is_counterfactual(prefix_sentence)
+# def is_extensional(prefix_sentence):
+#     return not is_modal(prefix_sentence) and not is_counterfactual(prefix_sentence)
 
-# TODO: linter says all or none of the returns should be an expression
-def all_subsentences_of_a_sentence(prefix_sentence, progress=False):
-    '''finds all the subsentence of a prefix sentence
-    returns these as a set
-    used in find_extensional_subsentences'''
-    if progress is False:
-        progress = []
-    # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
-    progress.append(prefix_sentence)
-    if len(prefix_sentence) == 1:
-        return progress
-    if len(prefix_sentence) == 2:
-        # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
-        return all_subsentences_of_a_sentence(prefix_sentence[1], progress)
-    if len(prefix_sentence) == 3:
-        # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
-        left_subsentences = all_subsentences_of_a_sentence(prefix_sentence[1], progress)
-        # TODO: linter says cannot access member "append" for type "Literal[True]" Member "append" is unknown
-        right_subsentences = all_subsentences_of_a_sentence(prefix_sentence[2], progress)
-        all_subsentences = left_subsentences + right_subsentences
-        return all_subsentences
+# def all_subsentences_of_a_sentence(prefix_sentence, progress=False):
+#     '''finds all the subsentence of a prefix sentence
+#     returns these as a set
+#     used in find_extensional_subsentences'''
+#     if progress is False:
+#         progress = []
+#     progress.append(prefix_sentence)
+#     if len(prefix_sentence) == 1:
+#         return progress
+#     if len(prefix_sentence) == 2:
+#         return all_subsentences_of_a_sentence(prefix_sentence[1], progress)
+#     if len(prefix_sentence) == 3:
+#         left_subsentences = all_subsentences_of_a_sentence(prefix_sentence[1], progress)
+#         right_subsentences = all_subsentences_of_a_sentence(prefix_sentence[2], progress)
+#         all_subsentences = left_subsentences + right_subsentences
+#         return all_subsentences
 
-def find_subsentences_of_kind(prefix_sentences, kind):
-    '''used to find the extensional, modal, and counterfactual sentences. 
-    kind is a string, either "extensional", "modal", "counterfactual", or 'all' for a tuple of
-    of the three kinds in the order extensional, modal, counterfactual, and then all the subsents
-    returns a list of that kind'''
-    rr = repeats_removed
-    all_subsentences = []
-    for prefix_sent in prefix_sentences:
-        all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
-    if kind == 'extensional':
-        return_list = [sent for sent in all_subsentences if is_extensional(sent)]
-    if kind == 'modal':
-        return_list = [sent for sent in all_subsentences if is_modal(sent)]
-    if kind == 'counterfactual':
-        return_list = [sent for sent in all_subsentences if is_counterfactual(sent)]
-    if kind == 'all':
-        counterfactual = rr([sent for sent in all_subsentences if is_counterfactual(sent)])
-        modal = rr([sent for sent in all_subsentences if is_modal(sent)])
-        extensional = rr([sent for sent in all_subsentences if sent not in counterfactual and sent not in modal])
-        return (extensional, modal, counterfactual, all_subsentences)
-    return rr(return_list)
+# def find_subsentences_of_kind(prefix_sentences, kind):
+#     '''used to find the extensional, modal, and counterfactual sentences. 
+#     kind is a string, either "extensional", "modal", "counterfactual", or 'all' for a tuple of
+#     of the three kinds in the order extensional, modal, counterfactual, and then all the subsents
+#     returns a list of that kind'''
+#     rr = repeats_removed
+#     all_subsentences = []
+#     for prefix_sent in prefix_sentences:
+#         all_subsentences.extend(all_subsentences_of_a_sentence(prefix_sent))
+#     if kind == 'extensional':
+#         return_list = [sent for sent in all_subsentences if is_extensional(sent)]
+#     if kind == 'modal':
+#         return_list = [sent for sent in all_subsentences if is_modal(sent)]
+#     if kind == 'counterfactual':
+#         return_list = [sent for sent in all_subsentences if is_counterfactual(sent)]
+#     if kind == 'all':
+#         counterfactual = rr([sent for sent in all_subsentences if is_counterfactual(sent)])
+#         modal = rr([sent for sent in all_subsentences if is_modal(sent)])
+#         extensional = rr([sent for sent in all_subsentences if sent not in counterfactual and sent not in modal])
+#         return (extensional, modal, counterfactual, all_subsentences)
+#     return rr(return_list)
 
 def subsentences_of(prefix_sentence):
     '''finds all the subsentence of a prefix sentence
     returns these as a set
     used in find_extensional_subsentences'''
     progress = []
-    # print(f"TEST sent: {prefix_sentence}")
     progress.append(prefix_sentence)
     if len(prefix_sentence) == 2:
         sub_sentsentences = subsentences_of(prefix_sentence[1])
@@ -366,47 +352,42 @@ def subsentences_of(prefix_sentence):
     return progress
 
 def find_subsentences(prefix_sentences):
+    """take a set of prefix sentences and returns a set of all subsentences"""
     all_subsentences = []
     for prefix_sent in prefix_sentences:
         all_prefix_subs = subsentences_of(prefix_sent)
         all_subsentences.extend(all_prefix_subs)
     return repeats_removed(all_subsentences)
 
-def repeats_removed(L):
+def repeats_removed(sentences):
     '''takes a list and removes the repeats in it.
     used in find_all_constraints'''
     seen = []
-    for obj in L:
+    for obj in sentences:
         if obj not in seen:
             seen.append(obj)
     return seen
 
 
-########################################
-###### MOVED FROM model_structure ######
-########################################
-
-def evaluate_modal_expr(model_structure, prefix_modal, eval_world):
-    '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
-    used to initialize Counterfactuals
-    returns a bool representing whether the counterfactual is true at the world or not'''
-    op, argument = prefix_modal[0], prefix_modal[1]
-    if is_modal(argument):
-        if model_structure.evaluate_modal_expr(prefix_modal) is True: # ie, verifiers is null state
-            return True # both Box and Diamond will return true, since verifiers is not empty
-        return False
-    if 'Diamond' in op:
-        # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
-        for poss in model_structure.poss_bits:
-            if poss in find_complex_proposition(model_structure, argument, eval_world)[0]:
-                return True
-        return False
-    if 'Box' in op:
-        # TODO: linter error: uninitalized is not iterable  "__iter__" does not return object
-        for poss in model_structure.poss_bits:
-            if poss in find_complex_proposition(model_structure, argument, eval_world)[1]:
-                return False
-        return True
+# def evaluate_modal_expr(model_structure, prefix_modal, eval_world):
+#     '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
+#     used to initialize Counterfactuals
+#     returns a bool representing whether the counterfactual is true at the world or not'''
+#     op, argument = prefix_modal[0], prefix_modal[1]
+#     if is_modal(argument):
+#         if model_structure.evaluate_modal_expr(prefix_modal) is True: # ie, verifiers is null state
+#             return True # both Box and Diamond will return true, since verifiers is not empty
+#         return False
+#     if 'Diamond' in op:
+#         for poss in model_structure.poss_bits:
+#             if poss in find_complex_proposition(model_structure, argument, eval_world)[0]:
+#                 return True
+#         return False
+#     if 'Box' in op:
+#         for poss in model_structure.poss_bits:
+#             if poss in find_complex_proposition(model_structure, argument, eval_world)[1]:
+#                 return False
+#         return True
 
 def evaluate_cf_expr(state_space, prefix_cf, eval_world):
     """evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).

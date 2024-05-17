@@ -79,18 +79,15 @@ conclusions = ['((A wedge B) boxright C)']
 # ]
 # conclusions = []
 
-# premises = ['Box A','(Box A boxright B)']
-# conclusions = []
-
-# COUNTERFACTUAL EXCLUDED MIDDLE
-premises = ['neg A']
-conclusions = ['(A boxright B)','(A boxright neg B)']
+# # COUNTERFACTUAL EXCLUDED MIDDLE
+# premises = ['neg A']
+# conclusions = ['(A boxright B)','(A boxright neg B)']
 
 # # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
 # premises = ['neg A','(A boxright (B vee C))']
 # conclusions = ['(A boxright B)','(A boxright C)']
 
-# FACTIVITY
+# # FACTIVITY
 # premises = ['A','B']
 # conclusions = ['(A boxright B)']
 

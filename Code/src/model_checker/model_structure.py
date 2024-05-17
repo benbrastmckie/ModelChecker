@@ -32,7 +32,6 @@ from model_definitions import (
     bit_part,
     bitvec_to_substates,
     int_to_binary,
-    find_subsentences_of_kind,
     is_counterfactual,
     true_and_false_worlds_for_cf,
     find_complex_proposition,
@@ -478,15 +477,15 @@ class Proposition:
         self.prop_dict["prefix expression"] = prefix_expr
         self.model_structure = model_structure
         verifiers, falsifiers = find_complex_proposition(model_structure, prefix_expr, eval_world)
-        self.world_bits = model_structure.world_bits # NOTE: this isn't being called anywhere
+        # self.world_bits = model_structure.world_bits # NOTE: this isn't being called anywhere
         self.prop_dict["verifiers"] = verifiers
         self.prop_dict["falsifiers"] = falsifiers
-        self.eval_world = eval_world
-        # if is_counterfactual(prefix_expr):
-        #     self.current_eval_world = eval_world
-        #     true_worlds, false_worlds = true_and_false_worlds_for_cf(model_structure, prefix_expr)
-        #     self['worlds cf true at'] = true_worlds
-        #     self['worlds cf false at'] = false_worlds
+        # self.eval_world = eval_world
+        if is_counterfactual(prefix_expr):
+            self.current_eval_world = eval_world
+            true_worlds, false_worlds = true_and_false_worlds_for_cf(model_structure, prefix_expr)
+            self['worlds cf true at'] = true_worlds
+            self['worlds cf false at'] = false_worlds
 
     def __setitem__(self, key, value):
         self.prop_dict[key] = value
@@ -503,7 +502,7 @@ class Proposition:
         if not is_counterfactual(self['prefix expression']):
             raise AttributeError(f'You can only update verifiers for CFs, and {self} is not a CF.')
         N = self.model_structure.N
-        if eval_world == self.main_world:
+        if eval_world == self.current_eval_world:
             return
         if eval_world in self['worlds cf true at']:
             self['verifiers'], self['falsifiers'] = {BitVecVal(0,N)}, set()
