@@ -311,14 +311,15 @@ def repeats_removed(start_list):
             seen.append(obj)
     return seen
 
-def is_extensional(prefix_sentence):
-    return not is_modal(prefix_sentence) and not is_counterfactual(prefix_sentence)
+# def is_extensional(prefix_sentence):
+#     return not is_modal(prefix_sentence) and not is_counterfactual(prefix_sentence)
 
 def subsentences_of(prefix_sentence):
     '''finds all the subsentence of a prefix sentence
     returns these as a set
     used in find_extensional_subsentences'''
     progress = []
+    # print(f"TEST sent: {prefix_sentence}")
     progress.append(prefix_sentence)
     if len(prefix_sentence) == 2:
         sub_sentsentences = subsentences_of(prefix_sentence[1])

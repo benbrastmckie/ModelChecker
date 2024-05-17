@@ -47,7 +47,7 @@ def tokenize(str_exp):
     >>> tokenize('/neg A')
     ['/neg', 'A']
     """
-    print(f"TEST: {str_exp}")
+    # print(f"TEST: {str_exp}")
     split_str = str_exp.split()  # small issue here with doctest cases and backslashes
 
     def tokenize_improved_input(split_str):

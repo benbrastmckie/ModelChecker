@@ -255,11 +255,12 @@ class StateSpace:
 
         # TODO: one attribute for all propositions (check)
         self.all_subsentences = find_subsentences(model_setup.prefix_sentences)
-        # print(self.all_subsentences)
+        self.all_propositions = [
+            Proposition(subsent, self, self.main_world) for subsent in self.all_subsentences
+        ]
+        self.premise_propositions = self.find_propositions(model_setup.prefix_premises)
+        self.conclusion_propositions = self.find_propositions(model_setup.prefix_conclusions)
         # self.cf_subsentences = [sent for sent in self.all_subsentences if 'boxright' in sent[0]]
-        # self.all_propositions = self.find_propositions(self.all_subsentences)
-        self.all_propositions = [Proposition(subsent, self, self.main_world)
-                                for subsent in self.all_subsentences]
         # self.extensional_subsentences = model_setup.extensional_subsentences
         # self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
         #                                 for ext_subsent in model_setup.extensional_subsentences]
@@ -269,8 +270,6 @@ class StateSpace:
         #                             for modal_subsent in model_setup.modal_subsentences]
         # self.all_propositions = (self.extensional_propositions +
         #                          self.counterfactual_propositions + self.modal_propositions)
-        self.premise_propositions = self.find_propositions(model_structure.prefix_premises)
-        self.conclusion_propositions = self.find_propositions(model_structure.prefix_conclusions)
 
     def find_alt_bits(self, verifier_bits, evaulation_world):
         """
@@ -309,7 +308,9 @@ class StateSpace:
         # else:
         # props = [Proposition(subsent, self, self.main_world) for subsent in self.all_subsentences]
         for prop_object in self.all_propositions:
-            if str(prop_object) == add_backslashes_to_infix(expression):
+            if prop_object["prefix expression"] == expression:
+            # print(f"TEST 2: {expression}")
+            # if str(prop_object) == add_backslashes_to_infix(expression):
                 return prop_object
         raise ValueError(
             f"there is no Proposition with expression {expression}")
@@ -321,6 +322,7 @@ class StateSpace:
         returns them as a list"""
         propositions = []
         for sent in sentences:
+            # print(f"TEST TYPE: {sent} of type {type(sent)}")
             propositions.append(self.find_proposition_object(sent))
         return propositions
 

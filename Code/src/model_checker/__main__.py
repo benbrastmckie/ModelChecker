@@ -268,5 +268,5 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
-    cProfile.run('main()') # run this to check for bottle necks
+    main()
+    # cProfile.run('main()') # run this to check for bottle necks
