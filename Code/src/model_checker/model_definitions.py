@@ -165,13 +165,6 @@ def atomic_propositions_dict_maker(state_space):
         atomic_VFs_dict[letter] = (ver_bits, fal_bits)
     return atomic_VFs_dict
 
-
-#############################################
-######### MOVED FROM DEFINITIONS.PY #########
-#############################################
-        
-
-
 def bit_fusion(bit_s, bit_t):
     """the result of taking the maximum for each index in _s and _t"""
     return simplify(bit_s | bit_t)
@@ -270,16 +263,16 @@ def prefix_combine(prefix_premises, prefix_conclusions):
     disjoin_neg_conclusions = disjoin_prefix(neg_conclusions)
     return prefix_premises + disjoin_neg_conclusions
 
-def is_counterfactual(prefix_sentence):
-    '''returns a boolean to say whether a given sentence is a counterfactual
-    used in find_extensional_subsentences'''
-    if len(prefix_sentence) == 1:
-        return False
-    if len(prefix_sentence) == 2:
-        return is_counterfactual(prefix_sentence[1])
-    if 'boxright' in prefix_sentence[0]:
-        return True
-    return is_counterfactual(prefix_sentence[1]) or is_counterfactual(prefix_sentence[2])
+# def is_counterfactual(prefix_sentence):
+#     '''returns a boolean to say whether a given sentence is a counterfactual
+#     used in find_extensional_subsentences'''
+#     if len(prefix_sentence) == 1:
+#         return False
+#     if len(prefix_sentence) == 2:
+#         return is_counterfactual(prefix_sentence[1])
+#     if 'boxright' in prefix_sentence[0]:
+#         return True
+#     return is_counterfactual(prefix_sentence[1]) or is_counterfactual(prefix_sentence[2])
 
 # def is_modal(prefix_sentence):
 #     '''returns a boolean to say whether a given sentence is a counterfactual
@@ -296,7 +289,7 @@ def is_counterfactual(prefix_sentence):
 # def is_extensional(prefix_sentence):
 #     return not is_modal(prefix_sentence) and not is_counterfactual(prefix_sentence)
 
-# def all_subsentences_of_a_sentence(prefix_sentence, progress=False):
+# def all_subsentences_of_a_sentence(prefix_sentence, progress=[]):
 #     '''finds all the subsentence of a prefix sentence
 #     returns these as a set
 #     used in find_extensional_subsentences'''
