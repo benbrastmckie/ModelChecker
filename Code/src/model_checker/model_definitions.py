@@ -56,14 +56,6 @@ def find_world_bits(poss_bits):
                 not_worlds.append(potential_world)
                 break
     world_bits = [world for world in poss_bits if world not in not_worlds]
-    # for world in world_bits:
-    #     print(model.evaluate(is_world(world)))
-    #     if not model.evaluate(is_world(world)):
-    #         raise ValueError(f'{world} was in world_bits but is not a world per the model')
-    # for not_world in not_worlds:
-    #     print(model.evaluate(is_world(not_world)))
-    #     # if model.evaluate(is_world(not_world)):
-    #     #     raise ValueError(f'{not_world} was not in world_bits but is a world per the model')
     return world_bits
 
 
