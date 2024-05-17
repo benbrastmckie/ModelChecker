@@ -112,21 +112,21 @@ def relate_sents_and_states(all_bits, sentence, z3_model, relation):
 def find_true_and_false_in_alt(alt_bit, model_structure):
     """returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.
     Used in evaluate_mainclause_cf_expr()"""
-    extensional_sentences = model_structure.extensional_subsentences
+    all_subsentences = model_structure.all_subsentences
     # B: is this still true once modal and counterfactual prop_objects include verifiers and falsifiers?
     # TODO: below creates problem with nested counterfactuals
     # TODO: I think this was resolved
     # extensional_sentences = parent_model_structure.all_subsentences
     all_bits = model_structure.all_bits
     true_in_alt = []
-    for R in extensional_sentences:
+    for sub in all_subsentences:
         for bit in all_bits:
             # print(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True))
             # print(type(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True)))
-            if bit in find_complex_proposition(model_structure, R, alt_bit)[0] and bit_part(bit, alt_bit):
-                true_in_alt.append(R)
+            if bit in find_complex_proposition(model_structure, sub, alt_bit)[0] and bit_part(bit, alt_bit):
+                true_in_alt.append(sub)
                 break  # returns to the for loop over sentence_letters
-    false_in_alt = [R for R in extensional_sentences if not R in true_in_alt] # replace with
+    false_in_alt = [R for R in all_subsentences if not R in true_in_alt] # replace with
     return (repeats_removed(true_in_alt), repeats_removed(false_in_alt))
     # was giving repeats for some reason? Wasn't previously. fixed it up with repeats_removed
 

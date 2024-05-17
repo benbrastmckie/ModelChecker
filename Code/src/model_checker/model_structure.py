@@ -251,15 +251,16 @@ class StateSpace:
         self.sentence_letters = model_setup.sentence_letters
         self.verify = model_setup.verify
         self.falsify = model_setup.falsify
+        self.all_subsentences = model_setup.all_subsentences
         self.atomic_props_dict = atomic_propositions_dict_maker(self)
 
         # TODO: one attribute for all propositions (check)
         # self.all_subsentences = model_setup.all_subsentences
-        self.extensional_subsentences = model_setup.extensional_subsentences
-        self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
-                                        for ext_subsent in model_setup.extensional_subsentences]
-        # self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
-        #                                 for cf_subsent in model_setup.counterfactual_subsentences]
+        # self.extensional_subsentences = model_setup.extensional_subsentences
+        # self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
+        #                                 for ext_subsent in model_setup.extensional_subsentences]
+        self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
+                                        for cf_subsent in model_setup.counterfactual_subsentences]
         # self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
         #                             for modal_subsent in model_setup.modal_subsentences]
         # self.all_propositions = (self.extensional_propositions +
