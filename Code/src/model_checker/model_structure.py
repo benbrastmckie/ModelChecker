@@ -261,8 +261,11 @@ class StateSpace:
                                         for cf_subsent in model_setup.counterfactual_subsentences]
         self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
                                     for modal_subsent in model_setup.modal_subsentences]
-        self.all_propositions = (self.extensional_propositions +
-                                 self.counterfactual_propositions + self.modal_propositions)
+        # self.all_propositions = (self.extensional_propositions +
+        #                          self.counterfactual_propositions + self.modal_propositions)
+        self.all_propositions = [
+            Proposition(sent, self, self.main_world) for sent in model_setup.all_subsentences
+        ]
         self.premise_propositions = self.find_propositions(model_structure.prefix_premises, True)
         self.conclusion_propositions = self.find_propositions(model_structure.prefix_conclusions, True)
 
