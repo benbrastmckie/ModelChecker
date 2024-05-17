@@ -109,26 +109,26 @@ def relate_sents_and_states(all_bits, sentence, z3_model, relation):
             relation_set.add(bit)
     return relation_set
 
-def find_true_and_false_in_alt(alt_bit, model_structure):
-    """returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.
-    Used in evaluate_mainclause_cf_expr()"""
-    all_subsentences = model_structure.all_subsentences
-    # B: is this still true once modal and counterfactual prop_objects include verifiers and falsifiers?
-    # TODO: below creates problem with nested counterfactuals
-    # TODO: I think this was resolved
-    # extensional_sentences = parent_model_structure.all_subsentences
-    all_bits = model_structure.all_bits
-    true_in_alt = []
-    for sub in all_subsentences:
-        for bit in all_bits:
-            # print(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True))
-            # print(type(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True)))
-            if bit in find_complex_proposition(model_structure, sub, alt_bit)[0] and bit_part(bit, alt_bit):
-                true_in_alt.append(sub)
-                break  # returns to the for loop over sentence_letters
-    false_in_alt = [R for R in all_subsentences if not R in true_in_alt] # replace with
-    return (repeats_removed(true_in_alt), repeats_removed(false_in_alt))
-    # was giving repeats for some reason? Wasn't previously. fixed it up with repeats_removed
+# def find_true_and_false_in_alt(alt_bit, model_structure):
+#     """returns two sets as a tuple, one being the set of sentences true in the alt world and the other the set being false.
+#     Used in evaluate_mainclause_cf_expr()"""
+#     all_subsentences = model_structure.all_subsentences
+#     # B: is this still true once modal and counterfactual prop_objects include verifiers and falsifiers?
+#     # TODO: below creates problem with nested counterfactuals
+#     # TODO: I think this was resolved
+#     # extensional_sentences = parent_model_structure.all_subsentences
+#     all_bits = model_structure.all_bits
+#     true_in_alt = []
+#     for sub in all_subsentences:
+#         for bit in all_bits:
+#             # print(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True))
+#             # print(type(model.evaluate(extended_verify(bit, R, evaluate=True), model_completion=True)))
+#             if bit in find_complex_proposition(model_structure, sub, alt_bit)[0] and bit_part(bit, alt_bit):
+#                 true_in_alt.append(sub)
+#                 break  # returns to the for loop over sentence_letters
+#     false_in_alt = [R for R in all_subsentences if not R in true_in_alt] # replace with
+#     return (repeats_removed(true_in_alt), repeats_removed(false_in_alt))
+#     # was giving repeats for some reason? Wasn't previously. fixed it up with repeats_removed
 
 
 def pretty_set_print(set_with_strings):
@@ -408,25 +408,38 @@ def evaluate_modal_expr(model_structure, prefix_modal, eval_world):
                 return False
         return True
 
-def evaluate_mainclause_cf_expr(model_structure, prefix_cf, eval_world):
+def evaluate_cf_expr(state_space, prefix_cf, eval_world):
     """evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
     used to initialize Counterfactuals
     returns a bool representing whether the counterfactual is true at the world or not
     """
-    op = prefix_cf[0]
-    assert "boxright" in op, f"{prefix_cf} is not a main-clause counterfactual!"
-    ant_expr, consequent_expr = prefix_cf[1], prefix_cf[2]
-    # assert is_extensional(ant_expr), f"the antecedent {ant_expr} is not extensional!"
-    ant_verifiers = find_complex_proposition(model_structure, ant_expr, eval_world)[0]
-    ant_alts_to_eval_world = model_structure.find_alt_bits(ant_verifiers, eval_world)
-    for u in ant_alts_to_eval_world:
-        # QUESTION: why is string required? Is Z3 removing the lists?
-        if is_counterfactual(consequent_expr):
-            if not find_complex_proposition(model_structure, consequent_expr, u)[0]:
-                return False
-        elif str(consequent_expr) not in str(find_true_and_false_in_alt(u, model_structure)[0]):
-            return False
+    antecedent, consequent = prefix_cf[1], prefix_cf[2]
+    ant_verifiers = find_complex_proposition(state_space, antecedent, eval_world)[0]
+    con_falsifiers = find_complex_proposition(state_space, consequent, eval_world)[1]
+    antecedent_alts = state_space.find_alt_bits(ant_verifiers, eval_world)
+    if any(bit_part(con_fal, u) for u in antecedent_alts for con_fal in con_falsifiers):
+        return False
     return True
+
+# def evaluate_mainclause_cf_expr(model_structure, prefix_cf, eval_world):
+#     """evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
+#     used to initialize Counterfactuals
+#     returns a bool representing whether the counterfactual is true at the world or not
+#     """
+#     op = prefix_cf[0]
+#     assert "boxright" in op, f"{prefix_cf} is not a main-clause counterfactual!"
+#     ant_expr, consequent_expr = prefix_cf[1], prefix_cf[2]
+#     # assert is_extensional(ant_expr), f"the antecedent {ant_expr} is not extensional!"
+#     ant_verifiers = find_complex_proposition(model_structure, ant_expr, eval_world)[0]
+#     ant_alts_to_eval_world = model_structure.find_alt_bits(ant_verifiers, eval_world)
+#     for u in ant_alts_to_eval_world:
+#         # QUESTION: why is string required? Is Z3 removing the lists?
+#         if is_counterfactual(consequent_expr):
+#             if not find_complex_proposition(model_structure, consequent_expr, u)[0]:
+#                 return False
+#         elif str(consequent_expr) not in str(find_true_and_false_in_alt(u, model_structure)[0]):
+#             return False
+#     return True
 
 def true_and_false_worlds_for_cf(model_structure, complex_cf_sent):
     '''used in find_complex_proposition'''
@@ -477,7 +490,8 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
     if "rightarrow" in op:
         return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
     if "boxright" in op:
-        if evaluate_mainclause_cf_expr(model_structure, complex_sentence, eval_world):
+        # if evaluate_mainclause_cf_expr(model_structure, complex_sentence, eval_world):
+        if evaluate_cf_expr(model_structure, complex_sentence, eval_world):
             return (null_state, set())
         return (set(), null_state)
     raise ValueError(f"Don't know how to handle {op} operator")
