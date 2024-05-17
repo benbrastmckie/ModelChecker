@@ -25,6 +25,7 @@ from model_definitions import (
     find_all_bits,
     find_max_comp_ver_parts,
     find_poss_bits,
+    find_subsentences,
     find_world_bits,
     prefix_combine,
     pretty_set_print,
@@ -123,8 +124,8 @@ class ModelSetup:
         ext, modal, cf, altogether = find_subsentences_of_kind(self.prefix_sentences, 'all')
         self.extensional_subsentences = ext
         self.counterfactual_subsentences = cf
-        self.modal_subsentences = modal
-        self.all_subsentences = altogether # in prefix form
+        # self.modal_subsentences = modal
+        self.all_subsentences = find_subsentences(self.prefix_sentences)
 
     # def constraints_func(self):
     #     """returns constraints_func"""
@@ -257,10 +258,10 @@ class StateSpace:
         self.extensional_subsentences = model_setup.extensional_subsentences
         self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
                                         for ext_subsent in model_setup.extensional_subsentences]
-        self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
-                                        for cf_subsent in model_setup.counterfactual_subsentences]
-        self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
-                                    for modal_subsent in model_setup.modal_subsentences]
+        # self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
+        #                                 for cf_subsent in model_setup.counterfactual_subsentences]
+        # self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
+        #                             for modal_subsent in model_setup.modal_subsentences]
         # self.all_propositions = (self.extensional_propositions +
         #                          self.counterfactual_propositions + self.modal_propositions)
         self.all_propositions = [
