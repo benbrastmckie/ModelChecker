@@ -32,6 +32,7 @@ from model_definitions import (
     bit_part,
     bitvec_to_substates,
     int_to_binary,
+    find_subsentences_of_kind,
     is_counterfactual,
     true_and_false_worlds_for_cf,
     find_complex_proposition,
@@ -120,11 +121,11 @@ class ModelSetup:
         constraints, sentence_letters = find_constraints_func(self.prefix_sentences)
         self.sentence_letters = sentence_letters
         self.constraints = constraints
-        # ext, modal, cf, altogether = find_subsentences_of_kind(self.prefix_sentences, 'all')
-        # self.extensional_subsentences = ext
-        # self.cf_subsentences = cf
+        ext, modal, cf, altogether = find_subsentences_of_kind(self.prefix_sentences, 'all')
+        self.extensional_subsentences = ext
+        self.counterfactual_subsentences = cf
         # self.modal_subsentences = modal
-        # self.all_subsentences = subsentences_of(self.prefix_sentences)
+        self.all_subsentences = find_subsentences(self.prefix_sentences)
 
     # def constraints_func(self):
     #     """returns constraints_func"""
@@ -167,8 +168,7 @@ class ModelStructure:
         self.prefix_premises = [prefix(prem) for prem in model_setup.infix_premises]
         # M: I think below is a problem
         self.prefix_conclusions = [prefix(con) for con in model_setup.infix_conclusions]
-        self.prefix_sentences = model_setup.prefix_sentences
-        # self.all_subsentences = subsentences_of(self.prefix_sentences)
+        self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
 
     def build_test_file(self, output):
         """generates a test file from input to be saved"""
@@ -254,31 +254,30 @@ class StateSpace:
         self.atomic_props_dict = atomic_propositions_dict_maker(self)
 
         # TODO: one attribute for all propositions (check)
-        self.all_subsentences = find_subsentences(model_setup.prefix_sentences)
-        self.all_propositions = [
-            Proposition(subsent, self, self.main_world) for subsent in self.all_subsentences
-        ]
-        self.premise_propositions = self.find_propositions(model_setup.prefix_premises)
-        self.conclusion_propositions = self.find_propositions(model_setup.prefix_conclusions)
-        # self.cf_subsentences = [sent for sent in self.all_subsentences if 'boxright' in sent[0]]
-        # self.extensional_subsentences = model_setup.extensional_subsentences
-        # self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
-        #                                 for ext_subsent in model_setup.extensional_subsentences]
+        # self.all_subsentences = model_setup.all_subsentences
+        self.extensional_subsentences = model_setup.extensional_subsentences
+        self.extensional_propositions = [Proposition(ext_subsent, self, self.main_world)
+                                        for ext_subsent in model_setup.extensional_subsentences]
         # self.counterfactual_propositions = [Proposition(cf_subsent, self, self.main_world)
-        #                                    for cf_subsent in self.cf_subsentences]
+        #                                 for cf_subsent in model_setup.counterfactual_subsentences]
         # self.modal_propositions = [Proposition(modal_subsent, self, self.main_world)
         #                             for modal_subsent in model_setup.modal_subsentences]
         # self.all_propositions = (self.extensional_propositions +
         #                          self.counterfactual_propositions + self.modal_propositions)
+        self.all_propositions = [
+            Proposition(sent, self, self.main_world) for sent in model_setup.all_subsentences
+        ]
+        self.premise_propositions = self.find_propositions(model_structure.prefix_premises, True)
+        self.conclusion_propositions = self.find_propositions(model_structure.prefix_conclusions, True)
 
-    def find_alt_bits(self, verifier_bits, evaulation_world):
+    def find_alt_bits(self, verifier_bits, evaulation_world=None):
         """
         Finds the alternative bits given verifier bits of an extensional proposition,
         possible states, worlds, and the evaluation world.
         Used in evaluate_cf_expression() and rec_print().
         """
-        # if evaulation_world is None:
-        #     evaulation_world = self.main_world
+        if evaulation_world is None:
+            evaulation_world = self.main_world
         alt_bits = set()
         for ver in verifier_bits:
             comp_parts = find_compatible_parts(ver, self.poss_bits, evaulation_world)
@@ -293,37 +292,33 @@ class StateSpace:
         return alt_bits
 
     # Useful to user now that can search an infix expression
-    def find_proposition_object(self, expression):
+    def find_proposition_object(self, expression, prefix_search=False):
         """given a sentence, finds the Proposition object in the model that corresponds
         to it. Can optionally search through only the extensional sentences
         Also defaults to searching an infix sentence, though internally it always searches
         prefix. 
         If search infix, make sure you put double backslashes always!!
         returns a Proposition object"""
-        # search_list = self.all_propositions
-        # if prefix_search:
-        #     for prop_object in search_list:
-        #         if prop_object["prefix expression"] == expression:
-        #             return prop_object
-        # else:
-        # props = [Proposition(subsent, self, self.main_world) for subsent in self.all_subsentences]
-        for prop_object in self.all_propositions:
-            if prop_object["prefix expression"] == expression:
-            # print(f"TEST 2: {expression}")
-            # if str(prop_object) == add_backslashes_to_infix(expression):
-                return prop_object
+        search_list = self.all_propositions
+        if prefix_search:
+            for prop_object in search_list:
+                if prop_object["prefix expression"] == expression:
+                    return prop_object
+        else:
+            for prop_object in search_list:
+                if str(prop_object) == add_backslashes_to_infix(expression):
+                    return prop_object
         raise ValueError(
             f"there is no Proposition with expression {expression}")
 
     # Useful to user now that can search infix expressions
-    def find_propositions(self, sentences):
+    def find_propositions(self, sentences, prefix_search=False):
         """finds all the Proposition objects in a ModelStructure
         that correspond to the prefix sentences in sentences.
         returns them as a list"""
         propositions = []
         for sent in sentences:
-            # print(f"TEST TYPE: {sent} of type {type(sent)}")
-            propositions.append(self.find_proposition_object(sent))
+            propositions.append(self.find_proposition_object(sent, prefix_search=prefix_search))
         return propositions
 
     def print_evaluation(self, output=sys.__stdout__):
@@ -406,44 +401,47 @@ class StateSpace:
             if print_impossible:
                 print(f"  {bin_rep} = {state} (impossible)", file=output)
 
-    def rec_print(self, prop_obj, eval_world, print_impossible, output, indent=0):
+    def rec_print(self, prop_obj, world_bit, print_impossible, output, indent=0):
         """recursive print function (previously print_sort)
         returns None"""
         N = self.model_setup.N
         sentence_letters = self.sentence_letters
-        prop_obj.print_verifiers_and_falsifiers(eval_world, print_impossible, indent, output)
+        prop_obj.print_verifiers_and_falsifiers(world_bit, print_impossible, indent, output)
         if str(prop_obj) in [str(atom) for atom in sentence_letters]:
             return
         prefix_expr = prop_obj["prefix expression"]
         op = prefix_expr[0]
-        first_subprop = self.find_proposition_object(prefix_expr[1])
+        first_subprop = self.find_proposition_object(prefix_expr[1], prefix_search=True)
         indent += 1 # begin subcases, so indent
         if "neg" in op:
-            self.rec_print(first_subprop, eval_world, print_impossible, output, indent)
+            self.rec_print(first_subprop, world_bit, print_impossible, output, indent)
             return
         if 'Diamond' in op or 'Box' in op:
             for u in self.world_bits:
                 self.rec_print(first_subprop, u, print_impossible, output, indent)
             return
         left_subprop = first_subprop
-        right_subprop = self.find_proposition_object(prefix_expr[2])
+        right_subprop = self.find_proposition_object(prefix_expr[2], prefix_search=True)
         if "boxright" in op:
+            # assert (
+            #     left_subprop in self.extensional_propositions
+            # ), f"{prop_obj} is not a valid cf because antecedent {left_subprop} is not extensional"
             left_subprop_vers = left_subprop['verifiers']
-            alt_worlds = self.find_alt_bits(left_subprop_vers, eval_world)
-            alt_worlds_as_strings = {bitvec_to_substates(u,N) for u in alt_worlds}
-            self.rec_print(left_subprop, eval_world, print_impossible, output, indent)
+            phi_alt_worlds_to_world_bit = self.find_alt_bits(left_subprop_vers, world_bit)
+            alt_worlds_as_strings = {bitvec_to_substates(u,N) for u in phi_alt_worlds_to_world_bit}
+            self.rec_print(left_subprop, world_bit, print_impossible, output, indent)
             print(
                 f'{"  " * indent}'
-                f'{left_subprop}-alternatives to {bitvec_to_substates(eval_world, N)} = '
+                f'{left_subprop}-alternatives to {bitvec_to_substates(world_bit, N)} = '
                 f'{pretty_set_print(alt_worlds_as_strings)}',
                 file=output
             )
             indent += 1
-            for u in alt_worlds:
+            for u in phi_alt_worlds_to_world_bit:
                 self.rec_print(right_subprop, u, print_impossible, output, indent)
             return
-        self.rec_print(left_subprop, eval_world, print_impossible, output, indent)
-        self.rec_print(right_subprop, eval_world, print_impossible, output, indent)
+        self.rec_print(left_subprop, world_bit, print_impossible, output, indent)
+        self.rec_print(right_subprop, world_bit, print_impossible, output, indent)
 
     def print_inputs_recursively(self, print_impossible, output):
         """does rec_print for every proposition in the input propositions
@@ -489,15 +487,14 @@ class Proposition:
     has two subclasses Extensional and Counterfactual—Counterfactual is a Proposition
     subclass to make stuff easier"""
 
-    def __init__(self, prefix_expr, state_space, eval_world):
+    def __init__(self, prefix_expr, model_structure, eval_world):
         """for modals and counterfactuals, if they're true then the verifiers
         are only the null state and falsifiers are nothing; if they're false the opposite"""
-        self.state_space = state_space
         self.prop_dict = {}
         self.prop_dict["prefix expression"] = prefix_expr
-        self.state_space = state_space
-        verifiers, falsifiers = find_complex_proposition(state_space, prefix_expr, eval_world)
-        # self.world_bits = state_space.world_bits # NOTE: this isn't being called anywhere
+        self.model_structure = model_structure
+        verifiers, falsifiers = find_complex_proposition(model_structure, prefix_expr, eval_world)
+        self.world_bits = model_structure.world_bits # NOTE: this isn't being called anywhere
         self.prop_dict["verifiers"] = verifiers
         self.prop_dict["falsifiers"] = falsifiers
         # if is_modal(prefix_expr):
@@ -505,10 +502,9 @@ class Proposition:
         #     arg_worlds, non_arg_worlds = find_complex_proposition(model_structure, arg, eval_world)
         #     self['arg worlds'] = arg_worlds
         #     self['non arg worlds'] = non_arg_worlds
-        # CHECK: I think this does no work
         if is_counterfactual(prefix_expr):
-            self.prop_eval_world = eval_world
-            true_worlds, false_worlds = true_and_false_worlds_for_cf(state_space, prefix_expr)
+            self.current_eval_world = eval_world
+            true_worlds, false_worlds = true_and_false_worlds_for_cf(model_structure, prefix_expr)
             self['worlds cf true at'] = true_worlds
             self['worlds cf false at'] = false_worlds
 
@@ -523,13 +519,12 @@ class Proposition:
     def __str__(self):
         return infix(self["prefix expression"])
 
-    # CHECK: I think this does no work
     def update_verifiers(self, new_world):
-        # if not is_counterfactual(self['prefix expression']):
-        #     raise AttributeError(f'You can only update verifiers for CFs, and {self} is not a CF.')
-        N = self.state_space.N
-        if new_world == self.prop_eval_world:
-            return
+        if not is_counterfactual(self['prefix expression']):
+            raise AttributeError(f'You can only update verifiers for CFs, and {self} is not a CF.')
+        N = self.model_structure.N
+        if new_world == self.current_eval_world:
+            return 
         if new_world in self['worlds cf true at']:
             self['verifiers'], self['falsifiers'] = {BitVecVal(0,N)}, set()
             return
@@ -540,16 +535,15 @@ class Proposition:
         """prints the possible verifiers and falsifier states for a sentence.
         used in: rec_print() 
         ensures eval_world is in fact the eval_world for CFs"""
-        N = self.state_space.N
-        prefix_expr = self["prefix expression"]
+        N = self.model_structure.N
         truth_value = self.truth_value_at(eval_world)
-        # CHECK: I think this does no work
+        # if self in self.model_structure.counterfactual_propositions:
+        #     self.update_verifiers(eval_world)
         if 'boxright' in str(prefix_expr):
             self.update_verifiers(eval_world)
-            # self['verifiers'], self['falsifiers'] = find_complex_proposition(self.state_space, prefix_expr, eval_world)
         indent_num = indent
-        possible = self.state_space.model_setup.possible
-        z3_model = self.state_space.z3_model
+        possible = self.model_structure.model_setup.possible
+        z3_model = self.model_structure.z3_model
         ver_prints = '∅'
         ver_states = {
             bitvec_to_substates(bit, N)
@@ -578,9 +572,9 @@ class Proposition:
     def truth_value_at(self, eval_world):
         '''Given a world, returns the truth value of the Proposition at that world.
         Used in print_verifiers_and_falsifiers.'''
-        # prefix_expr = self['prefix expression']
-        # if is_counterfactual(prefix_expr):
-        #     return True if eval_world in self['worlds cf true at'] else False
+        prefix_expr = self['prefix expression']
+        if is_counterfactual(prefix_expr):
+            return True if eval_world in self['worlds cf true at'] else False
         # if is_modal(prefix_expr):
         #     return True if self["verifiers"] else False
          # else case: extensional. Last to be computationally efficient (see def of is_extensional)
