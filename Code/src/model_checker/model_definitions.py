@@ -348,6 +348,30 @@ def find_subsentences_of_kind(prefix_sentences, kind):
         return (extensional, modal, counterfactual, all_subsentences)
     return rr(return_list)
 
+def subsentences_of(prefix_sentence):
+    '''finds all the subsentence of a prefix sentence
+    returns these as a set
+    used in find_extensional_subsentences'''
+    progress = []
+    # print(f"TEST sent: {prefix_sentence}")
+    progress.append(prefix_sentence)
+    if len(prefix_sentence) == 2:
+        sub_sentsentences = subsentences_of(prefix_sentence[1])
+        return progress + sub_sentsentences
+    if len(prefix_sentence) == 3:
+        left_subsentences = subsentences_of(prefix_sentence[1])
+        right_subsentences = subsentences_of(prefix_sentence[2])
+        all_subsentences = left_subsentences + right_subsentences + progress
+        return repeats_removed(all_subsentences)
+    return progress
+
+def find_subsentences(prefix_sentences):
+    all_subsentences = []
+    for prefix_sent in prefix_sentences:
+        all_prefix_subs = subsentences_of(prefix_sent)
+        all_subsentences.extend(all_prefix_subs)
+    return repeats_removed(all_subsentences)
+
 def repeats_removed(L):
     '''takes a list and removes the repeats in it.
     used in find_all_constraints'''
