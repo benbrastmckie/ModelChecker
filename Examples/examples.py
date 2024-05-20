@@ -53,7 +53,7 @@ conclusions = ['((A wedge B) boxright C)']
 #     '(A boxright X)', # 0.03 seconds locally
 #     'neg ((A wedge B) boxright X)', # 14.8 seconds locally
 #     '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
-#     # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
+#     'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
 #     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # 20.5 seconds locally
 #     # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # 64 seconds on the MIT servers
 #     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # 327.2 seconds on the MIT servers
@@ -79,6 +79,9 @@ conclusions = ['((A wedge B) boxright C)']
 # ]
 # conclusions = []
 
+# premises = ['Box A','(Box A boxright B)']
+# conclusions = []
+
 # # COUNTERFACTUAL EXCLUDED MIDDLE
 # premises = ['neg A']
 # conclusions = ['(A boxright B)','(A boxright neg B)']
@@ -87,7 +90,7 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['neg A','(A boxright (B vee C))']
 # conclusions = ['(A boxright B)','(A boxright C)']
 
-# # FACTIVITY
+# FACTIVITY
 # premises = ['A','B']
 # conclusions = ['(A boxright B)']
 
