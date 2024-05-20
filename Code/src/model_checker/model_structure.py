@@ -13,13 +13,11 @@ from z3 import (
     BitVecVal
 )
 
-from model_checker.semantics import ( # for packaging
-# from semantics import (
+from model_checker.semantics import (
     make_constraints,
     solve_constraints,
 )
-from model_checker.model_definitions import ( # for packaging
-# from model_definitions import (
+from model_checker.model_definitions import (
     find_compatible_parts,
     atomic_propositions_dict_maker,
     find_all_bits,
@@ -35,8 +33,7 @@ from model_checker.model_definitions import ( # for packaging
     true_and_false_worlds_for_cf,
     find_complex_proposition,
 )
-from model_checker.syntax import ( # for packaging
-# from syntax import (
+from model_checker.syntax import (
     AtomSort,
     infix,
     prefix,
