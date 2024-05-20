@@ -53,7 +53,7 @@ conclusions = ['((A wedge B) boxright C)']
 #     '(A boxright X)', # 0.03 seconds locally
 #     'neg ((A wedge B) boxright X)', # 14.8 seconds locally
 #     '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
-#     'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
+#     # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
 #     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # 20.5 seconds locally
 #     # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # 64 seconds on the MIT servers
 #     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # 327.2 seconds on the MIT servers
