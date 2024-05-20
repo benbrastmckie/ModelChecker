@@ -3,6 +3,8 @@ file specifies premises, conclusions, and settings.
 running the file finds a model and prints the result.
 '''
 
+# import cProfile
+# import pstats
 from string import Template
 import argparse
 import importlib.util
@@ -271,3 +273,15 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # cProfile.run('main()')
+    # cProfile.run('main()', 'profile_results')
+
+
+# # Load the profiling data
+# with open('profile_results', 'r') as f:
+#     # profiler = pstats.Stats(f)
+#     filename = 'profile_results'
+#     profiler = pstats.Stats(filename)
+#
+# # Sort and print the profiling data by time
+# profiler.sort_stats('time').print_stats()
