@@ -4,4 +4,4 @@ from model_checker.model_structure import (
     make_model_for,
 )
 
-__version__ = "0.3.10"
+__version__ = "0.3.11"

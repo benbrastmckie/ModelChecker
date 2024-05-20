@@ -1,8 +1,9 @@
 # run with: bash update.sh
+# this script updates the package on PyPI given appropriate permissions
 
 # Increase the patch number in pyproject.toml
 current_version=$(grep -Po '(?<=version = ")[^"]*' pyproject.toml)
-new_version=$(echo $current_version | awk -F. '{$NF=$NF+1; OFS="."; print $0}')
+new_version=$(echo $current_version | awk -F. -v OFS='.' '{$NF=$NF+1; print $0}')
 sed -i "s/version = \"$current_version\"/version = \"$new_version\"/" pyproject.toml
 
 # Increase the patch number in __init__.py
@@ -10,7 +11,7 @@ sed -i "s/__version__ = \"$current_version\"/__version__ = \"$new_version\"/" sr
 
 # Delete the dist directory and model_checker.egg-info directory
 rm -rf dist 
-rm -rf /src/model_checker.egg-info
+rm -rf src/model_checker.egg-info
 
 # Run python3 -m build
 python3 -m build
