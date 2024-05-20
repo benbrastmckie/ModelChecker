@@ -184,7 +184,8 @@ def parse_file_and_flags():
     parser.add_argument(
         '--version',
         '-v',
-        action='store_true',
+        action='version',
+        version='%(prog)s: ' + __version__,
         help='Prints the version number.'
     )
     # parse the command-line argument to get the module path
@@ -266,10 +267,7 @@ def main():
         return
     # TODO: can module_name and module_path be extracted from the sys.argv?
     # this would reduce the number of arguments returned by parse_file_and_flags()
-    module_name, module_path, cons_flag, save_flag, imposs_flag, version = parse_file_and_flags()
-    if version:
-        print(f"model-checker {__version__}")
-        return
+    module_name, module_path, cons_flag, save_flag, imposs_flag = parse_file_and_flags()
     module = LoadModule(module_name, module_path)
     print_imposs = module.print_impossible_states_bool or imposs_flag
     print_cons = module.print_cons_bool or cons_flag

@@ -69,6 +69,7 @@ Users can override these settings by including the following flags:
 - Include `-c` to include Z3 constraints.
 - Include `-i` to print impossible states.
 - Include `-h` to print help information about the programs usage.
+- Include `-v` to print the version number.
 
 A number of [examples](https://github.com/benbrastmckie/ModelChecker/blob/master/Examples/examples.py) are provided in the GitHub repository.
 
