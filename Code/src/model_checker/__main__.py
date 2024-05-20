@@ -8,7 +8,7 @@ import argparse
 import importlib.util
 import sys
 import os
-from model_structure import StateSpace, make_model_for
+from model_structure import (
 # from model_checker.model_structure import ( # for packaging
     StateSpace,
     make_model_for,
