@@ -9,6 +9,7 @@ The language currently includes operators for the counterfactual conditional `bo
 ## Installation
 
 Install [Python 3](https://www.python.org/downloads/) and run the following command in the terminal:
+More information can be found [here](https://packaging.python.org/en/latest/tutorials/installing-packages/).
 
 ```
 pip install model-checker
