@@ -17,7 +17,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-keywords = ["semantics", "Z3", "counterfactuals", "model checker", "theorem prover", "hyperintensionality"]
+keywords = ["semantics", "Z3", "logic", "counterfactuals", "modality", "model checker", "theorem prover", "hyperintensionality"]
 dependencies = [
     "z3-solver",
 ]
