@@ -40,7 +40,7 @@ save_bool = False
 # premises = ['(A boxright C)', 'Diamond (A wedge B)']
 # conclusions = ['((A wedge B) boxright C)']
 
-# # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATED ANTECEDENT
+# # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
 # # # NOTE: requires N = 4; 242 seconds on the MIT server
 # premises = ['neg A','(A boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
@@ -49,7 +49,7 @@ save_bool = False
 # premises = ['(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 
-# # COUNTERFACTUAL CONTRAPOSITION WITH NEGATED CONSEQUENT
+# # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
 # # NOTE: requires N = 4; 125 seconds on MIT servers
 # premises = ['neg B','(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
@@ -89,9 +89,6 @@ save_bool = False
 # ]
 # conclusions = []
 
-# premises = ['neg A','neg B','neg C','neg (A boxright (B boxright C))']
-# conclusions = []
-
 # # COUNTERFACTUAL EXCLUDED MIDDLE
 # premises = ['neg A']
 # conclusions = ['(A boxright B)','(A boxright neg B)']
@@ -112,14 +109,11 @@ save_bool = False
 # premises = ['((A wedge B) boxright C)','Diamond (A wedge B)']
 # conclusions = ['(A boxright (B boxright C))']
 
-# # SLOW: MIT servers found a model in 467 seconds
 # # COUNTERFACTUAL IMPORTATION
+# # SLOW: MIT servers found a model in 467 seconds
 # premises = ['(A boxright (B boxright C))']
 # conclusions = ['((A wedge B) boxright C)']
 
-# # SLOW: MIT servers found a model in 473 seconds
-# premises = ['(A boxright C)','((A boxright C) boxright (A boxright (B vee neg C)))']
-# conclusions = ['(A boxright B)']
 
 
 
@@ -215,16 +209,7 @@ save_bool = False
 ######### NOT WORKING ##########
 ################################
 
-
-### HIGH PRIORITY: NEGATION PROBLEM ###
-
-
-
-### MEDIUM PRIORITY: COUNTERFACTUALS AND CONJUNCTION ###
-
-
-
-### LOW PRIORITY: CRASHED ###
+### CRASHED: MODALITY ###
 
 # # CRASH: MIT servers killed process
 # # TOP-TO-BOX EQUIVALENCE
@@ -237,14 +222,13 @@ save_bool = False
 # conclusions = ['((top boxright A) rightarrow (top boxright B))']
 
 # # CRASH: MIT servers killed process
-# # TOP-TO-BOX EQUIVALENCE
-# premises = ['(top boxright A)']
-# conclusions = ['Box A']
-
-# # CRASH: MIT servers killed process
 # # COUNTERFACTUAL IMPLIES STRICT CONDITIONAL
 # premises = ['(A boxright B)']
 # conclusions = ['Box (A rightarrow B)']
+
+
+
+### CRASHED: ANTECEDENT STRENGTHENING/WEAKENING ###
 
 # # CRASH: MIT servers killed process
 # # DOUBLE COUNTERFACTUAL ANTECEDENT STRENGTHENING
@@ -256,17 +240,20 @@ save_bool = False
 # premises = ['Box A', '((A wedge B) boxright C)']
 # conclusions = ['(B boxright C)']
 
+
+
+### CRASHED: IMPORTATION ###
+
 # # CRASH: MIT servers killed process
 # # COUNTERFACTUAL IMPORTATION WITH POSSIBILITY
 # premises = ['(A boxright (B boxright C))','Diamond (A wedge B)']
 # conclusions = ['((A wedge B) boxright C)']
 
-# # CRASH: MIT servers killed process
-# # COUNTERFACTUAL IMPLIES STRICT CONDITIONAL
-# premises = ['(A boxright B)']
-# conclusions = ['Box (A rightarrow B)']
+
+
+### CRASHED: TRANSITIVITY ###
 
 # # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
 # # SLOW: requires N = 4;
-# premises = ['neg A','neg B','neg C','(A boxright B)','(B boxright C)']
+# premises = ['neg A','neg B','(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
