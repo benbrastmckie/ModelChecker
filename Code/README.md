@@ -48,20 +48,21 @@ The states `a` and `b` are _compatible_ just in case `a.b` is possible.
 A _world state_ is any state that is both possible and includes every compatible state as a part.
 
 Sentences are assigned _verifier states_ and _falsifier states_ where the both the verifiers and falsifiers are required to be closed under fusion.
+A sentence is _true at_ a world state `w` just in case `w` includes a verifier for that sentence as a part and _false at_ `w` just in case `w` includes a falsifier for that sentence as a part.
 In order to ensure that sentence letters have at most one truth-value at each world state, a fusion `a.b` is required to be impossible whenever `a` is verifier for a sentence letter `A` and `b` is a falsifier for `A`.
 Additionally, sentence letters have at least one truth-value at each world state by requiring every possible state to be compatible with either a verifier or falsifier for any sentence letter.
-Given a world state `w` and further state `s`, an `s`-_alternative world_ is any world state which includes `s` as a part along with a maximally
 
 Negated sentences are verified by the falsifiers for the sentence negated and falsified by the verifiers for the sentence negated.
 Conjunctions are verified by the pairwise fusions of verifiers for the conjuncts and falsified by falsifiers for either of the conjuncts or fusions thereof.
-Conjunction and disjunction are dual operators obeying the standard De Morgan laws.
-The absorption laws do not hold, nor does conjunction distribute over disjunction, or _vice versa_.
+Conjunction and disjunction are dual operators obeying the standard idempotent and De Morgan laws.
+The absorption laws do not hold, nor does conjunction distribute over disjunction, nor _vice versa_.
+For a defense of the background theory of hyperintensional propositions, see this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w).
 
-Counterfactual conditional sentences are verified by the null state just in case every verifier 
-True counterfactual and modal sentences are verified by the null state and falsified by no states.
+A modal sentence `Box A` is true at a world just in case every world state includes a part that verifies `A`, where `Diamond A` is true at a world just in case some world state includes a part that verifies `A`.
+Given a world state `w` and state `s`, an `s`_-alternative_ to `w` is any world state to include `s` along with a maximal part of `w` that is compatible with `s` as parts.
+A counterfactual conditional sentences `A boxright B` is true at a world state `w` just in case its consequent is true at any `s`-alternative to `w` for any verifier `s` for the antecedent of the counterfactual.
 
-The semantic theory for counterfactual conditionals is motivated and further elaborated in this [manuscript](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf).
+The semantic theory for counterfactual conditionals is motivated and further elaborated in this [draft](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf).
 This account builds on [Fine 2012](https://www.pdcnet.org/jphil/content/jphil_2012_0109_0003_0221_0246) and [Fine 2017](https://link.springer.com/article/10.1007/s10992-016-9413-y).
-For a defence of the background theory of hyperintensional propositions, see this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w).
 More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker). 
 
