@@ -2,37 +2,11 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
-## Questions
-
-
-
-## v0.3 Release 
+## v0.4 Release 
 
 - [ ] final features
   - [.] _B_ unit tests
-  - [x] permit modals and counterfactuals to occur in the antecedent
-    - [x] implement
-    - [x] debug
-  - [x] evaluate conclusions disjunctively
-    - [x] test
-    - [x] debug
-    - [x] update READMEs
-  - [x] flags
-    - [x] test
-    - [x] update READMEs
-    - [x] print impossible
-- [x] printing
-  - [x] _M_ `backslash` function, adding double backslashes if none
-  - [x] _B_ separate premises and conclusions
-  - [x] _M_ refactor `rec_print`
-  - [x] _B_ refactor `print_to` and `save_to`
-- [ ] cleanup
-  - [ ] `find_alt_bits` fix to make null state work
-  - [.] _M_ move helper functions from `ModelStructure` to `model_definitions`
-  - [x] _B_ review TODOs throughout
-  - [x] _B_ replace dummy
-  - [x] _B_ replace "comparison world" with "input world"
-- [ ] documentation
+- [.] documentation
   - [.] _M_ doc strings for functions
   - [ ] _M_ revise architecture description
   - [x] _B_ architecture description
@@ -42,74 +16,57 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - Q: are the exposed functions recursive?
   - [ ] _M_ document workflow
   - [ ] _B_ update package
-- [ ] wish list
-  - [ ] _M_ what would saving a data structure look like?
-    - B: what would the workflow look like
-  - [ ] _B_ expose semantics to toggle on and off constraints etc
-- [x] release to MIT philosophy
+- [.] `test_file` script builder
+  - [x] z3 constraints
+  - [ ] declarations
+- [ ] bypass semantics
+  - [ ] generate `semantics` module
+  - [ ] include bypass option
+- [ ] API
+  - [ ] save model data structures
+  - [ ] design workflow
+- [.] pre-processing module
+  - [x] add backslashes
+  - [ ] design algorithm for simplifying prefix sentences
+    - NOTE: research `SymPy` for simplifying sentences
+
 
 ## Semantics
 
-- [ ] print z3 constraints and declarations to `test_file` script
-- [ ] bypass semantics, printing semantic constrains to a `test_file`
-  - [ ] `frame_constraints`
-  - [ ] `prop_constraints`
-  - [ ] `extra_constraints`
-  - [ ] `semantics`
-
-## Examples
-
-- [ ] `test_complete` cases
-  - [ ] `\neg B, A \boxright B` does not entail `\neg B \boxright \neg A` 
-    - works without `\neg B`.
-    - [ ] _B_ step through `neg_unsat.md` building model
-  - [ ] `\neg A, A \boxright C` does not entails `(A \wedge B) \boxright C`
-    - works without `\neg A`.
-  - [ ] `A \boxright C, B \boxright C` entails `(A \wedge B) \boxright C`
-  - [ ] `(A \wedge B) \boxright C` entails `A \boxright (B \boxright C)`
-    - it is working by finding models where A and B incompatible
-    - adding `\neg ((A \wedge B) \boxright D)` avoids this
-    - will this come out in the wash once model checker can step through multiple models?
-  - [ ] `A \boxright (B \boxright C)` does not entail `(A \wedge B) \boxright C`
-    - this does not find models for N = 3
-    - very slow for N = 5 (ran for minutes on the remote server)
-- [ ] _B_ provide countermodels by hand
-  - [ ] `ent_2`
-  - [ ] `poss_strength`
-    - [ ] `A => C` is true though there is an `A`-alternative where `C` is false
-    - [ ] replacing `verify` with `non_null_verify` eliminates models
-      - [ ] _B_ check validity by hand
-
 ## Refine and Optimize
 
+- [ ] paper
+  - [ ] submit to JPL
+  - [ ] publish to xarchive
+  - [ ] share with Lucas
+- [ ] clean up project directory
+  - [ ] todos
+  - [ ] docs
+  - [ ] pdf
 - [ ] if `Const(token, AtomSort)` happens for `token = A` multiple times
   - Z3 is able to eliminate the redundancy
   - see issue #28
 - [ ] test exhaustivity
   - [ ] prove bivalence
-- [ ] `optional_generate_test` in `test_complete`
+- [x] `optional_generate_test` in `test_complete`
   - [x] abstract helper functions
   - [x] change to make output file a script
-  - [ ] add flags for saving and printing
-- [.] _M_ `model_structure`
-  - [ ] invalid conditional operands
+  - [x] add flags for saving and printing
+- [x] _M_ `model_structure`
+  - [x] invalid conditional operands
   - [x] clear out unused
 - [.] Z3 guru
-  - [ ] write Z3 GitHub issue
+  - [ ] write Z3 crash report GitHub issue
   - [:] ask Graham
   - [.] email CS faculty
-    - [:] https://people.csail.mit.edu/mcarbin/ -- Michael Carbin
-    - [:] http://adam.chlipala.net/ -- Adam Chlipala
+    - [x] https://people.csail.mit.edu/mcarbin/ -- Michael Carbin
+    - [x] http://adam.chlipala.net/ -- Adam Chlipala
+    - [.] https://people.csail.mit.edu/asolar/ -- Armando Solar-Lezama
     - [ ] https://people.csail.mit.edu/henrycg/ -- Henry Corrigan-Gibbs
     - [ ] https://www.csail.mit.edu/person/frans-kaashoek -- Frans Kaashoek
     - [ ] https://people.csail.mit.edu/mengjia/ -- Megjia Yan
 
 ## Pre-Processing
-
-- [ ] pre-processing module
-  - NOTE: hold until necessary
-  - [ ] design algorithm for simplifying prefix sentences
-  - [ ] research `SymPy` for simplifying sentences
 
 ## Overview
 
@@ -128,11 +85,46 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 # Completed
 
+## Examples
+
+- [x] `\neg B, A \boxright B` does not entail `\neg B \boxright \neg A` 
+  - works without `\neg B`.
+  - [ ] _B_ step through `neg_unsat.md` building model
+- [x] `\neg A, A \boxright C` does not entails `(A \wedge B) \boxright C`
+  - works without `\neg A`.
+- [ ] `A \boxright C, B \boxright C` entails `(A \wedge B) \boxright C`
+- [x] `(A \wedge B) \boxright C` entails `A \boxright (B \boxright C)`
+  - it is working by finding models where A and B incompatible
+  - adding `\neg ((A \wedge B) \boxright D)` avoids this
+  - will this come out in the wash once model checker can step through multiple models?
+- [x] `A \boxright (B \boxright C)` does not entail `(A \wedge B) \boxright C`
+  - this does not find models for N = 3
+  - very slow for N = 5 (ran for minutes on the remote server)
+
 ## Package
 
-- [x] create package v0.1
-- [x] submit to pip installer
-- [:] release v0.2
+- [x] release to MIT philosophy
+- [x] final features
+  - [x] permit modals and counterfactuals to occur in the antecedent
+    - [x] implement
+    - [x] debug
+  - [x] evaluate conclusions disjunctively
+    - [x] test
+    - [x] debug
+    - [x] update READMEs
+  - [x] flags
+    - [x] test
+    - [x] update READMEs
+    - [x] print impossible
+- [x] cleanup
+  - [x] `find_alt_bits` fix to make null state work
+  - [x] _M_ move helper functions from `ModelStructure` to `model_definitions`
+  - [x] _B_ review TODOs throughout
+  - [x] _B_ replace dummy
+  - [x] _B_ replace "comparison world" with "input world"
+- [x] _B_ create package v0.1
+- [x] _B_ submit to pip installer
+- [:] _B_ release v0.2
   - [x] expose and test package commands
   - [x] include general print algorithm
   - [x] change execution instructions once the package is working
@@ -141,6 +133,11 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Print
 
+- [x] printing
+  - [x] _M_ `backslash` function, adding double backslashes if none
+  - [x] _B_ separate premises and conclusions
+  - [x] _M_ refactor `rec_print`
+  - [x] _B_ refactor `print_to` and `save_to`
 - [x] print the proposition for each sub-sentence
   - [x] _B_ print proposition for extensional sentences immediately
   - [x] _B_ design recursive structure in `strategies`
