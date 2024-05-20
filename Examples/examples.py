@@ -9,7 +9,7 @@ file_name = os.path.basename(__file__)
 ########## SETTINGS ############
 ################################
 
-# length of bitvectors
+# number of atomic states
 N = 3
 
 # print all Z3 constraints if a model is found
@@ -40,12 +40,27 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['(A boxright C)', 'Diamond (A wedge B)']
 # conclusions = ['((A wedge B) boxright C)']
 
+# # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATED ANTECEDENT
+# # # NOTE: requires N = 4; 242 seconds on the MIT server
+# premises = ['neg A','(A boxright C)']
+# conclusions = ['((A wedge B) boxright C)']
+
 # # COUNTERFACTUAL CONTRAPOSITION
 # premises = ['(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 
+# # COUNTERFACTUAL CONTRAPOSITION WITH NEGATED CONSEQUENT
+# # NOTE: requires N = 4; 125 seconds on MIT servers
+# premises = ['neg B','(A boxright B)']
+# conclusions = ['(neg B boxright neg A)']
+
 # # TRANSITIVITY
 # premises = ['(A boxright B)','(B boxright C)']
+# conclusions = ['(A boxright C)']
+
+# # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
+# # SLOW: requires N = 4; 
+# premises = ['neg A','neg B','neg C','(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 
 # # SOBEL SEQUENCE (N = 3)
@@ -75,11 +90,11 @@ conclusions = ['((A wedge B) boxright C)']
 #     # 'Diamond (((((A wedge B) wedge C) wedge D) wedge E) wedge F)',
 #     # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # ? seconds
 #     # 'Diamond ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G)',
-#     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # ? seconds on the MIT servers
+#     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # ? seconds
 # ]
 # conclusions = []
 
-# premises = ['Box A','(Box A boxright B)']
+# premises = ['neg A','neg B','neg C','neg (A boxright (B boxright C))']
 # conclusions = []
 
 # # COUNTERFACTUAL EXCLUDED MIDDLE
@@ -107,14 +122,14 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['(A boxright (B boxright C))']
 # conclusions = ['((A wedge B) boxright C)']
 
+# # SLOW: MIT servers found a model in 473 seconds
+# premises = ['(A boxright C)','((A boxright C) boxright (A boxright (B vee neg C)))']
+# conclusions = ['(A boxright B)']
+
 # # CRASH: MIT servers killed process
 # # COUNTERFACTUAL IMPORTATION WITH POSSIBILITY
 # premises = ['(A boxright (B boxright C))','Diamond (A wedge B)']
 # conclusions = ['((A wedge B) boxright C)']
-
-# # SLOW: MIT servers found a model in 473 seconds
-# premises = ['(A boxright C)','((A boxright C) boxright (A boxright (B vee neg C)))']
-# conclusions = ['(A boxright B)']
 
 # # CRASH: MIT servers killed process
 # # COUNTERFACTUAL IMPLIES STRICT CONDITIONAL
@@ -221,21 +236,6 @@ conclusions = ['((A wedge B) boxright C)']
 
 ### HIGH PRIORITY: NEGATION PROBLEM ###
 
-# # NOTE: only works without \neg B
-# premises = ['neg B','(A boxright B)']
-# conclusions = ['(neg B boxright neg A)']
-
-# # NOTE: only works without \neg A
-# premises = ['neg A','(A boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
-
-# # NOTE: only works without \neg A and \neg B
-# premises = ['neg A','neg B','(A boxright B)','(B boxright C)']
-# conclusions = ['(A boxright C)']
-
-# # NOTE: only works without \neg A
-# premises = ['neg A', '(A boxright B)', 'neg ((A wedge C) boxright B)']
-# conclusions = []
 
 ### MEDIUM PRIORITY: COUNTERFACTUALS AND CONJUNCTION ###
 
