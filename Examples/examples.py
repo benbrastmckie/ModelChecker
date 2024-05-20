@@ -32,9 +32,9 @@ save_bool = False
 
 ### INVALID ###
 
-# COUNTERFACTUAL ANTECEDENT STRENGTHENING
-premises = ['(A boxright C)']
-conclusions = ['((A wedge B) boxright C)']
+# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# premises = ['(A boxright C)']
+# conclusions = ['((A wedge B) boxright C)']
 
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # premises = ['(A boxright C)', 'Diamond (A wedge B)']
@@ -56,11 +56,6 @@ conclusions = ['((A wedge B) boxright C)']
 
 # # TRANSITIVITY
 # premises = ['(A boxright B)','(B boxright C)']
-# conclusions = ['(A boxright C)']
-
-# # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
-# # SLOW: requires N = 4; 
-# premises = ['neg A','neg B','neg C','(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 
 # # SOBEL SEQUENCE (N = 3)
@@ -126,15 +121,6 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['(A boxright C)','((A boxright C) boxright (A boxright (B vee neg C)))']
 # conclusions = ['(A boxright B)']
 
-# # CRASH: MIT servers killed process
-# # COUNTERFACTUAL IMPORTATION WITH POSSIBILITY
-# premises = ['(A boxright (B boxright C))','Diamond (A wedge B)']
-# conclusions = ['((A wedge B) boxright C)']
-
-# # CRASH: MIT servers killed process
-# # COUNTERFACTUAL IMPLIES STRICT CONDITIONAL
-# premises = ['(A boxright B)']
-# conclusions = ['Box (A rightarrow B)']
 
 
 
@@ -161,11 +147,11 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['(A boxright B)','(A boxright C)']
 # conclusions = ['(A boxright (B wedge C))']
 
-# # NOTE: slow 13.8 seconds locally
+# # SLOW: slow 13.8 seconds locally
 # premises = ['(A boxright B)']
 # conclusions = ['(A rightarrow B)']
 
-# # NOTE: slow 41.6 seconds locally
+# # SLOW: slow 41.6 seconds locally
 # premises = ['(A boxright B)','((A wedge B) boxright C)']
 # conclusions = ['(A boxright C)']
 
@@ -220,10 +206,6 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['Box A']
 # conclusions = ['(top boxright A)']
 
-# # CRASH: MIT servers killed process
-# # top-to-box equivalence
-# premises = ['(top boxright A)']
-# conclusions = ['Box A']
 
 
 
@@ -237,25 +219,25 @@ conclusions = ['((A wedge B) boxright C)']
 ### HIGH PRIORITY: NEGATION PROBLEM ###
 
 
+
 ### MEDIUM PRIORITY: COUNTERFACTUALS AND CONJUNCTION ###
 
-# # CRASH: MIT servers killed process
-# premises = ['(A boxright C)','(B boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
+
+
+### LOW PRIORITY: CRASHED ###
 
 # # CRASH: MIT servers killed process
-# premises = ['Box A', '((A wedge B) boxright C)']
-# conclusions = ['(B boxright C)']
+# # TOP-TO-BOX EQUIVALENCE
+# premises = ['(top boxright A)']
+# conclusions = ['Box A']
 
-### LOW PRIORITY: MODAL EQUIVALENCE ###
-
-# # NOTE: killed in ssh
-# # K axiom (top)
+# # CRASH: MIT servers killed process
+# # K AXIOM (TOP)
 # premises = ['(top boxright (A rightarrow B))']
 # conclusions = ['((top boxright A) rightarrow (top boxright B))']
 
 # # CRASH: MIT servers killed process
-# # top-to-box equivalence
+# # TOP-TO-BOX EQUIVALENCE
 # premises = ['(top boxright A)']
 # conclusions = ['Box A']
 
@@ -263,3 +245,28 @@ conclusions = ['((A wedge B) boxright C)']
 # # COUNTERFACTUAL IMPLIES STRICT CONDITIONAL
 # premises = ['(A boxright B)']
 # conclusions = ['Box (A rightarrow B)']
+
+# # CRASH: MIT servers killed process
+# # DOUBLE COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# premises = ['(A boxright C)','(B boxright C)']
+# conclusions = ['((A wedge B) boxright C)']
+
+# # CRASH: MIT servers killed process
+# # COUNTERFACTUAL ANTECEDENT WEAKENING
+# premises = ['Box A', '((A wedge B) boxright C)']
+# conclusions = ['(B boxright C)']
+
+# # CRASH: MIT servers killed process
+# # COUNTERFACTUAL IMPORTATION WITH POSSIBILITY
+# premises = ['(A boxright (B boxright C))','Diamond (A wedge B)']
+# conclusions = ['((A wedge B) boxright C)']
+
+# # CRASH: MIT servers killed process
+# # COUNTERFACTUAL IMPLIES STRICT CONDITIONAL
+# premises = ['(A boxright B)']
+# conclusions = ['Box (A rightarrow B)']
+
+# # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
+# # SLOW: requires N = 4;
+# premises = ['neg A','neg B','neg C','(A boxright B)','(B boxright C)']
+# conclusions = ['(A boxright C)']

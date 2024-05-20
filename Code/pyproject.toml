@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "model-checker"
 version = "0.3.6"
-description = "A hyperintensional model checker for counterfactual conditionals"
+description = "A hyperintensional theorem prover for counterfactual conditionals and modality"
 authors = [
     { name = "Benjamin Brast-McKie", email = "benbrastmckie@gmail.com" },
     { name = "Miguel Buitrago", email = "mbuit82@gmail.com" },
