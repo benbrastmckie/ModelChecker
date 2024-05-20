@@ -28,7 +28,7 @@ file_name = os.path.basename(__file__)
 ########## SETTINGS ############
 ################################
 
-# length of bitvectors
+# number of atomic states
 N = 3
 
 # print all Z3 constraints if a model is found

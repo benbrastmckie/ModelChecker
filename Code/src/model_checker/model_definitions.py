@@ -354,25 +354,25 @@ def repeats_removed(sentences):
     return seen
 
 
-# def evaluate_modal_expr(model_structure, prefix_modal, eval_world):
-#     '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
-#     used to initialize Counterfactuals
-#     returns a bool representing whether the counterfactual is true at the world or not'''
-#     op, argument = prefix_modal[0], prefix_modal[1]
-#     if is_modal(argument):
-#         if model_structure.evaluate_modal_expr(prefix_modal) is True: # ie, verifiers is null state
-#             return True # both Box and Diamond will return true, since verifiers is not empty
-#         return False
-#     if 'Diamond' in op:
-#         for poss in model_structure.poss_bits:
-#             if poss in find_complex_proposition(model_structure, argument, eval_world)[0]:
-#                 return True
-#         return False
-#     if 'Box' in op:
-#         for poss in model_structure.poss_bits:
-#             if poss in find_complex_proposition(model_structure, argument, eval_world)[1]:
-#                 return False
-#         return True
+def evaluate_modal_expr(model_structure, prefix_modal, eval_world):
+    '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
+    used to initialize Counterfactuals
+    returns a bool representing whether the counterfactual is true at the world or not'''
+    op, argument = prefix_modal[0], prefix_modal[1]
+    # if is_modal(argument):
+    #     if model_structure.evaluate_modal_expr(prefix_modal) is True: # ie, verifiers is null state
+    #         return True # both Box and Diamond will return true, since verifiers is not empty
+    #     return False
+    if 'Diamond' in op:
+        for poss in model_structure.poss_bits:
+            if poss in find_complex_proposition(model_structure, argument, eval_world)[0]:
+                return True
+        return False
+    if 'Box' in op:
+        for poss in model_structure.poss_bits:
+            if poss in find_complex_proposition(model_structure, argument, eval_world)[1]:
+                return False
+        return True
 
 def evaluate_cf_expr(state_space, prefix_cf, eval_world):
     """evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
