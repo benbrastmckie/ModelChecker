@@ -100,6 +100,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Package
 
+- [x] added an update bash script
 - [x] _B_ add version flag
 - [x] release to MIT philosophy
 - [x] final features
