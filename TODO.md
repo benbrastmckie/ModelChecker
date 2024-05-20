@@ -4,8 +4,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## v0.4 Release 
 
-- [ ] final features
-  - [.] _B_ unit tests
+- [.] _B_ unit tests
 - [.] documentation
   - [.] _M_ doc strings for functions
   - [ ] _M_ revise architecture description
@@ -30,8 +29,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] design algorithm for simplifying prefix sentences
     - NOTE: research `SymPy` for simplifying sentences
 
-
-## Semantics
 
 ## Refine and Optimize
 
@@ -103,6 +100,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Package
 
+- [x] _B_ add version flag
 - [x] release to MIT philosophy
 - [x] final features
   - [x] permit modals and counterfactuals to occur in the antecedent

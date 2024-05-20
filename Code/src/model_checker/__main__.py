@@ -18,6 +18,7 @@ project_root = os.path.abspath(os.path.join(current_dir, ".."))
 # Add the project root to the Python path
 sys.path.append(project_root)
 
+from model_checker.__init__ import __version__
 from model_checker.model_structure import ( # for packaging
     StateSpace,
     make_model_for,
@@ -180,6 +181,12 @@ def parse_file_and_flags():
         action='store_true',
         help='Overrides to print impossible states.'
     )
+    parser.add_argument(
+        '--version',
+        '-v',
+        action='store_true',
+        help='Prints the version number.'
+    )
     # parse the command-line argument to get the module path
     args = parser.parse_args()
     module_path = args.file_path
@@ -187,7 +194,8 @@ def parse_file_and_flags():
     cons_bool = args.constraints
     save_bool = args.save
     imposs_bool = args.impossible
-    return module_name, module_path, cons_bool, save_bool, imposs_bool
+    version_bool = args.version
+    return module_name, module_path, cons_bool, save_bool, imposs_bool, version_bool
 
 def generate_test(name):
     """check if a script name was provided"""
@@ -258,7 +266,10 @@ def main():
         return
     # TODO: can module_name and module_path be extracted from the sys.argv?
     # this would reduce the number of arguments returned by parse_file_and_flags()
-    module_name, module_path, cons_flag, save_flag, imposs_flag = parse_file_and_flags()
+    module_name, module_path, cons_flag, save_flag, imposs_flag, version = parse_file_and_flags()
+    if version:
+        print(f"model-checker {__version__}")
+        return
     module = LoadModule(module_name, module_path)
     print_imposs = module.print_impossible_states_bool or imposs_flag
     print_cons = module.print_cons_bool or cons_flag
