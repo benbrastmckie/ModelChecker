@@ -195,8 +195,8 @@ def parse_file_and_flags():
     cons_bool = args.constraints
     save_bool = args.save
     imposs_bool = args.impossible
-    version_bool = args.version
-    return module_name, module_path, cons_bool, save_bool, imposs_bool, version_bool
+    # version_bool = args.version
+    return module_name, module_path, cons_bool, save_bool, imposs_bool
 
 def generate_test(name):
     """check if a script name was provided"""
