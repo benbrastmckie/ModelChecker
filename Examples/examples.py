@@ -41,7 +41,7 @@ conclusions = ['((A wedge B) boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
-# # # NOTE: requires N = 4; 242 seconds on the MIT server
+# # SLOW: requires N = 4 and 242 seconds on the MIT server
 # premises = ['neg A','(A boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 
@@ -50,12 +50,17 @@ conclusions = ['((A wedge B) boxright C)']
 # conclusions = ['(neg B boxright neg A)']
 
 # # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
-# # NOTE: requires N = 4; 125 seconds on MIT servers
+# # SLOW: requires N = 4 and 125 seconds on the MIT server
 # premises = ['neg B','(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 
 # # TRANSITIVITY
 # premises = ['(A boxright B)','(B boxright C)']
+# conclusions = ['(A boxright C)']
+
+# # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
+# # SLOW: 78 seconds on the MIT server
+# premises = ['neg A','(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 
 # # SOBEL SEQUENCE (N = 3)
@@ -253,7 +258,8 @@ conclusions = ['((A wedge B) boxright C)']
 
 ### CRASHED: TRANSITIVITY ###
 
-# # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
-# # SLOW: requires N = 4;
+# # COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
+# # NOTE: does not find counter models with N = 3
 # premises = ['neg A','neg B','(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
+
