@@ -6,15 +6,13 @@ Accessible [installation instructions](https://github.com/benbrastmckie/ModelChe
 
 ## Instructions
 
-To generate a test file run `model-checker` without arguments.
-
+To generate a test file run `model-checker` in the terminal without arguments.
 Alternatively, run `model-checker path/to/test_file.py` if the `test_file.py` already exists.
-
 A number of [examples](https://github.com/benbrastmckie/ModelChecker/blob/master/Examples/examples.py) are provided in the GitHub repository.
 
 Each file must specify a set of `premises` which are treated conjunctively, `conclusions` which are treated disjunctively, and the number `N` of atomic states to include in each model.
-
-Optionally, the user can specify the following settings in each file: 
+Optionally, the user can specify whether to print the Z3 constraints when a model is found, or the unsatisfiable core when no model exists, as well as an option to save the output.
+These settings are specified with the Boolean values `True` and `False`:
 
 - Print all Z3 constraints if a model is found: `print_cons_bool`
 - Print the Z3 unsatisfiable core constraints if no model exists: `print_unsat_core_bool`
@@ -23,11 +21,15 @@ Optionally, the user can specify the following settings in each file:
 
 Users can override these settings by including the following flags:
 
-- Include `-s` to prompt the user to save the output in a new file.
 - Include `-c` to include Z3 constraints.
 - Include `-i` to print impossible states.
+- Include `-s` to prompt the user to save the output in a new file.
+
+Users can print help information, the current version, and upgrade to the latest version by including the following flags:
+
 - Include `-h` to print help information about the programs usage.
-- Include `-v` to print the version number.
+- Include `-v` to print the installed version number.
+- Include `-u` to upgrade to the latest version.
 
 ## Syntax
 

@@ -5,6 +5,7 @@ running the file finds a model and prints the result.
 
 import sys
 import os
+import subprocess
 from string import Template
 import argparse
 import importlib.util
@@ -160,6 +161,8 @@ def parse_file_and_flags():
     )
     parser.add_argument(
         "file_path",
+        nargs='?',
+        default=None,
         type=str,
         help="Specifies the path to a Python.",
     )
@@ -185,18 +188,66 @@ def parse_file_and_flags():
         '--version',
         '-v',
         action='version',
-        version='%(prog)s: ' + __version__,
+        version=f"%(prog)s:  {__version__}",
         help='Prints the version number.'
+    )
+    # parser.add_argument(
+    #     '--latest',
+    #     '-l',
+    #     action='store_true',
+    #     help='Checks the version number of the latest release.'
+    # )
+    parser.add_argument(
+        '--upgrade',
+        '-u',
+        action='store_true',
+        help='Upgrade the package.'
     )
     # parse the command-line argument to get the module path
     args = parser.parse_args()
-    module_path = args.file_path
-    module_name = os.path.splitext(os.path.basename(module_path))[0]
-    cons_bool = args.constraints
-    save_bool = args.save
-    imposs_bool = args.impossible
-    # version_bool = args.version
-    return module_name, module_path, cons_bool, save_bool, imposs_bool
+    package_name = parser.prog  # Get the package name from the parser
+    return args, package_name
+
+# NOTE: the below was in attempt to check for the most recent version before upgrade
+# having trouble getting the most recent version from PyPI
+# everything else seems to work
+
+# def get_installed_version(package_name):
+#     """returns the current version of the package"""
+#     try:
+#         installed_version = __version__
+#         # installed_version = subprocess.check_output(['pip', 'show', package_name]).decode().split('\n')[1].split(': ')[1]
+#         return installed_version
+#     except ValueError as e:
+#         print(f"Error getting installed version: {e}")
+#         return False
+
+# def get_latest_version(package_name):
+#     """returns the latest version of the package"""
+#     try:
+#         output = subprocess.check_output(['pip', 'show', package_name, '--no-cache-dir']).decode()
+#         version_line = [
+#             line for line in output.split('\n')
+#             if line.lower().startswith('version:')
+#         ][0]
+#         latest_version = version_line.split(': ')[1].strip()
+#         return latest_version
+#     except ValueError as e:
+#         print(f"Error getting latest version: {e}")
+#         return None
+
+# def check_update(package_name):
+#     """finds and compares the latest version to the installed version."""
+#     # Get the installed version of the package
+#     installed_version = get_installed_version(package_name)
+#     # Get the latest version of the package from PyPI
+#     latest_version = get_latest_version(package_name)
+#     # Compare the installed version with the latest version
+#     if installed_version == latest_version:
+#         print(f"{package_name} is already up to date (version {installed_version})")
+#         return True
+#     print(f"{package_name} is not up to date (installed version: {installed_version}, latest version: {latest_version})")
+#     return False
 
 def generate_test(name):
     """check if a script name was provided"""
@@ -235,7 +286,8 @@ def ask_save():
     )
     return file_name, print_cons
 
-def no_model_save_or_append(module, model_structure, file_name, print_cons, print_imposs):
+def no_model_save_or_append(module, model_structure, file_name, print_cons):
+    """option to save or append if no model is found"""
     if len(file_name) == 0:
         with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
             print('\n"""', file=f)
@@ -249,6 +301,7 @@ def no_model_save_or_append(module, model_structure, file_name, print_cons, prin
 
 
 def save_or_append(module, structure, file_name, print_cons, print_imposs):
+    """option to save or append if a model is found"""
     if len(file_name) == 0:
         with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
             print('\n"""', file=f)
@@ -262,12 +315,34 @@ def save_or_append(module, structure, file_name, print_cons, print_imposs):
 
 def main():
     """load a test or generate a test when run without input"""
+    # TODO: can module_name and module_path be extracted from the sys.argv?
+    # this would reduce the number of arguments returned by parse_file_and_flags()
+    args, package_name = parse_file_and_flags()
+    cons_flag = args.constraints
+    save_flag = args.save
+    imposs_flag = args.impossible
+    upgrade_flag = args.upgrade
+    # latest_flag = args.latest
+    # NOTE: the checker is not working
+    # if latest_flag:
+    #     latest_version = get_latest_version(package_name)
+    #     print(f"Latest version on PyPI: {latest_version}")
+    #     return
+    if upgrade_flag:
+        # # NOTE: the checker is not working
+        # if check_update(package_name):
+        #     return
+        # Upgrade the package if it is not up to date
+        try:
+            subprocess.run(['pip', 'install', '--upgrade', package_name], check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to upgrade {package_name}: {e}")
+        return
     if len(sys.argv) < 2:
         ask_generate_test()
         return
-    # TODO: can module_name and module_path be extracted from the sys.argv?
-    # this would reduce the number of arguments returned by parse_file_and_flags()
-    module_name, module_path, cons_flag, save_flag, imposs_flag = parse_file_and_flags()
+    module_path = args.file_path
+    module_name = os.path.splitext(os.path.basename(module_path))[0]
     module = LoadModule(module_name, module_path)
     print_imposs = module.print_impossible_states_bool or imposs_flag
     print_cons = module.print_cons_bool or cons_flag
@@ -284,7 +359,7 @@ def main():
     model_structure.no_model_print(print_unsat)
     if save_model:
         file_name, print_cons = ask_save()
-        no_model_save_or_append(module, model_structure, file_name, print_unsat, print_imposs)
+        no_model_save_or_append(module, model_structure, file_name, print_unsat)
 
 
 if __name__ == "__main__":
