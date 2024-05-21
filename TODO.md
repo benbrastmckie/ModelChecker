@@ -40,6 +40,16 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] todos
   - [ ] docs
   - [ ] pdf
+- [.] Z3 guru
+  - [ ] write Z3 crash report GitHub issue
+  - [:] ask Graham
+  - [.] email CS faculty
+    - [x] https://people.csail.mit.edu/mcarbin/ -- Michael Carbin
+    - [x] http://adam.chlipala.net/ -- Adam Chlipala
+    - [.] https://people.csail.mit.edu/asolar/ -- Armando Solar-Lezama
+    - [ ] https://people.csail.mit.edu/henrycg/ -- Henry Corrigan-Gibbs
+    - [ ] https://www.csail.mit.edu/person/frans-kaashoek -- Frans Kaashoek
+    - [ ] https://people.csail.mit.edu/mengjia/ -- Megjia Yan
 - [ ] if `Const(token, AtomSort)` happens for `token = A` multiple times
   - Z3 is able to eliminate the redundancy
   - see issue #28
@@ -52,16 +62,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] _M_ `model_structure`
   - [x] invalid conditional operands
   - [x] clear out unused
-- [.] Z3 guru
-  - [ ] write Z3 crash report GitHub issue
-  - [:] ask Graham
-  - [.] email CS faculty
-    - [x] https://people.csail.mit.edu/mcarbin/ -- Michael Carbin
-    - [x] http://adam.chlipala.net/ -- Adam Chlipala
-    - [.] https://people.csail.mit.edu/asolar/ -- Armando Solar-Lezama
-    - [ ] https://people.csail.mit.edu/henrycg/ -- Henry Corrigan-Gibbs
-    - [ ] https://www.csail.mit.edu/person/frans-kaashoek -- Frans Kaashoek
-    - [ ] https://people.csail.mit.edu/mengjia/ -- Megjia Yan
 
 ## Pre-Processing
 

@@ -31,21 +31,27 @@ More information can be found [here](https://packaging.python.org/en/latest/tuto
 
 ## Updating
 
-To update to the latest version of the `model-checker`, run:
+You can check the current version with:
 
 ```
-pip install --upgrade model-checker
+model-checker -v
 ```
 
-You can check the version with:
+For more information, you can run:
 
 ```
 pip show model-checker
 ```
 
-To receive updates about new releases, click the "Watch" button at the top right corner of the page.
+To update to the latest version of the `model-checker`, run:
 
-## Detailed Instructions
+```
+model-checker -u
+```
+
+To receive updates about new releases, click the "Watch" button at the top right corner of this page.
+
+## Instructions
 
 NOTE: For users new to working in the terminal, see the [Terminal](##Terminal) instructions below.
 
