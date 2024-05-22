@@ -5,6 +5,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## v0.4 Release 
 
 - [.] _B_ unit tests
+- [:] semantics
+  - [x] added exclude for `not` operator
+  - [.] test
 - [.] documentation
   - [.] _M_ doc strings for functions
   - [ ] _M_ revise architecture description

@@ -29,8 +29,9 @@ save_bool = False
 ########### WORKING ############
 ################################
 
-premises = ['neg A']
-conclusions = ['not A']
+N = 3
+premises = ['neg A','(not A boxright B)']
+conclusions = ['B']
 
 
 ### INVALID ###
