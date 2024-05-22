@@ -33,7 +33,6 @@ N = 3
 premises = ['neg A','(not A boxright B)']
 conclusions = ['B']
 
-
 ### INVALID ###
 
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING

@@ -378,11 +378,16 @@ def evaluate_cf_expr(state_space, prefix_cf, eval_world):
     returns a bool representing whether the counterfactual is true at the world or not
     """
     antecedent, consequent = prefix_cf[1], prefix_cf[2]
-    ant_verifiers = find_complex_proposition(state_space, antecedent, eval_world)[0]
-    con_falsifiers = find_complex_proposition(state_space, consequent, eval_world)[1]
-    antecedent_alts = state_space.find_alt_bits(ant_verifiers, eval_world)
-    if any(bit_part(con_fal, u) for u in antecedent_alts for con_fal in con_falsifiers):
-        return False
+    antecedent_vers = find_complex_proposition(state_space, antecedent, eval_world)[0]
+    # print(f"TEST: ant_ver = {antecedent_vers}")
+    consequent_fals = find_complex_proposition(state_space, consequent, eval_world)[1]
+    # print(f"TEST: con_fal = {consequent_fals}")
+    antecedent_alts = state_space.find_alt_bits(antecedent_vers, eval_world)
+    # print(f"TEST: ant_alts = {antecedent_alts}")
+    for alt_world in antecedent_alts:
+        for falsifier in consequent_fals:
+            if bit_part(falsifier, alt_world):
+                return False
     return True
 
 # def evaluate_mainclause_cf_expr(model_structure, prefix_cf, eval_world):
@@ -405,11 +410,11 @@ def evaluate_cf_expr(state_space, prefix_cf, eval_world):
 #             return False
 #     return True
 
-def true_and_false_worlds_for_cf(model_structure, complex_cf_sent):
+def true_and_false_worlds_for_cf(model_structure, cf_sentence):
     '''used in find_complex_proposition'''
     worlds_true_at, worlds_false_at = set(), set()
     for world in model_structure.world_bits:
-        if find_complex_proposition(model_structure, complex_cf_sent, world)[0]:
+        if find_complex_proposition(model_structure, cf_sentence, world)[0]:
             worlds_true_at.add(world)
             continue
         worlds_false_at.add(world)
@@ -423,11 +428,10 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
     """
     if not model_structure.atomic_props_dict:
         raise ValueError(
-            "There is nothing in atomic_props_dict yet. Have you actually run the model?"
+            "There is nothing in atomic_props_dict yet. Has a model been found?"
         )
     if len(complex_sentence) == 1:
         sent = complex_sentence[0]
-        # TODO: linter error: expected 0 arguments
         return model_structure.atomic_props_dict[sent]
     op = complex_sentence[0]
     Y = complex_sentence[1]
@@ -456,6 +460,8 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
     if "boxright" in op:
         # if evaluate_mainclause_cf_expr(model_structure, complex_sentence, eval_world):
         if evaluate_cf_expr(model_structure, complex_sentence, eval_world):
+            val = evaluate_cf_expr(model_structure, complex_sentence, eval_world)
+            print(f"TEST: truth_vf of cf = {val}")
             return (null_state, set())
         return (set(), null_state)
     raise ValueError(f"Don't know how to handle {op} operator")
