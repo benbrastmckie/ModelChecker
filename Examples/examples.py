@@ -29,12 +29,14 @@ save_bool = False
 ########### WORKING ############
 ################################
 
+premises = ['neg A','(neg A boxright C)']
+conclusions = ['C']
 
 ### INVALID ###
 
-# COUNTERFACTUAL ANTECEDENT STRENGTHENING
-premises = ['(A boxright C)']
-conclusions = ['((A wedge B) boxright C)']
+# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# premises = ['(A boxright C)']
+# conclusions = ['((A wedge B) boxright C)']
 
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # premises = ['(A boxright C)', 'Diamond (A wedge B)']
