@@ -227,15 +227,15 @@ def bitvec_to_substates(bit_vec, N):
             state_repr += "."
     raise ValueError("should have run into 'b' at the end but didn't")
 
-def infix_combine(premises, conclusions):
-    '''combines the premises with the negation of the conclusion(s).
-    premises are infix sentences, and so are the conclusions
-    imported by model_structure, in __init__ method of ModelStructure'''
-    input_sentences = premises[:]
-    for sent in conclusions:
-        neg_sent = '\\neg ' + sent
-        input_sentences.append(neg_sent)
-    return input_sentences
+# def infix_combine(premises, conclusions):
+#     '''combines the premises with the negation of the conclusion(s).
+#     premises are infix sentences, and so are the conclusions
+#     imported by model_structure, in __init__ method of ModelStructure'''
+#     input_sentences = premises[:]
+#     for sent in conclusions:
+#         neg_sent = '\\neg ' + sent
+#         input_sentences.append(neg_sent)
+#     return input_sentences
 
 def disjoin_prefix(sentences):
     """disjoins the list of sentences in prefix form
@@ -248,6 +248,7 @@ def disjoin_prefix(sentences):
     #     return sentences[0]
     return sentences
 
+# # TODO: instead of combining, better to require the conclusions to be false_at
 def prefix_combine(prefix_premises, prefix_conclusions):
     '''negates and disjoins the prefix conclusions, combining the result with
     prefix premises to form a new list'''
@@ -433,7 +434,7 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
         return model_structure.atomic_props_dict[sent]
     op = complex_sentence[0]
     Y = complex_sentence[1]
-    if "neg" in op:
+    if "neg" in op or "not" in op:
         Y_V, Y_F = find_complex_proposition(model_structure, Y, eval_world)
         return (Y_F, Y_V)
     null_state = {BitVecVal(0,model_structure.N)}
