@@ -16,9 +16,9 @@ from z3 import (
 from model_checker.semantics import (
     make_constraints,
     solve_constraints,
+    all_sentence_letters,
 )
 from model_checker.model_definitions import (
-    all_sentence_letters,
     find_compatible_parts,
     atomic_propositions_dict_maker,
     find_all_bits,

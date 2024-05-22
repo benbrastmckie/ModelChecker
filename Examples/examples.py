@@ -29,8 +29,8 @@ save_bool = False
 ########### WORKING ############
 ################################
 
-premises = ['not A']
-conclusions = ['neg A']
+premises = ['neg A']
+conclusions = ['not A']
 
 
 ### INVALID ###

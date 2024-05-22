@@ -16,7 +16,35 @@ from z3 import (
     BitVec,
 )
 
-from model_checker.model_definitions import all_sentence_letters
+# from model_checker.model_definitions import (
+#     all_sentence_letters,
+# )
+
+def sentence_letters_in_compound(prefix_input_sentence):
+    """finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
+    returns a list of AtomSorts. CRUCIAL: IN THAT SENSE DOES NOT FOLLOW SYNTAX OF PREFIX SENTS.
+    But that's ok, just relevant to know
+    used in all_sentence_letters
+    """
+    if len(prefix_input_sentence) == 1:  # base case: atomic sentence
+        return [prefix_input_sentence[0]] # redundant but conceptually clear
+    return_list = []
+    for part in prefix_input_sentence[1:]:
+        return_list.extend(sentence_letters_in_compound(part))
+    return return_list
+
+def all_sentence_letters(prefix_sentences):
+    """finds all the sentence letters in a list of input sentences.
+    returns as a list with no repeats (sorted for consistency)
+    used in find_all_constraints and StateSpace __init__"""
+    sentence_letters = set()
+    for prefix_input in prefix_sentences:
+        sentence_letters_in_input = sentence_letters_in_compound(prefix_input)
+        for sentence_letter in sentence_letters_in_input:
+            sentence_letters.add(sentence_letter)
+    return list(sentence_letters)
+    # sort just to make every output the same, given sets aren't hashable
+
 
 def make_constraints(verify, falsify, possible, assign, N, w):
     '''function that makes the function to make the constraints (and list of sentence letters
