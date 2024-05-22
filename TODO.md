@@ -8,6 +8,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [:] semantics
   - [x] added exclude for `not` operator
   - [.] test
+- [ ] check syntax flag
+  - runs infix after prefix, printing both
 - [.] documentation
   - [.] _M_ doc strings for functions
   - [ ] _M_ revise architecture description

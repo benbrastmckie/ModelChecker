@@ -112,10 +112,12 @@ class ModelSetup:
             self.N,
             self.w
         )
-        model_constraints = find_constraints_func(self.prefix_premises, self.prefix_conclusions)
-        self.constraints = model_constraints
+        frame_constraints, prop_constraints, premise_constraints, conclusion_constraints = find_constraints_func(self.prefix_premises, self.prefix_conclusions)
+        self.frame_constraints = frame_constraints
+        self.prop_constraints = prop_constraints
+        self.premise_constraints = premise_constraints
+        self.conclusion_constraints = conclusion_constraints
         prefix_sentences = self.prefix_premises + self.prefix_conclusions
-        # self.sentence_letters = all_sentence_letters(prefix_sentences)
         self.all_subsentences = find_subsentences(prefix_sentences)
 
     # def constraints_func(self):
@@ -133,7 +135,8 @@ class ModelSetup:
         self.atomic_props_dict is a dictionary with keys AtomSorts and keys (V,F)
         """
         model_start = time.time()  # start benchmark timer
-        z3_model_status, z3_model = solve_constraints(self.constraints)
+        constraints = self.frame_constraints + self.prop_constraints + self.premise_constraints + self.conclusion_constraints
+        z3_model_status, z3_model = solve_constraints(constraints)
         model_end = time.time()
         model_runtime = round(model_end - model_start, 4)
         return (z3_model_status, z3_model, model_runtime)
@@ -195,7 +198,7 @@ class ModelStructure:
         self.print_enumerate(output)
         print(file=output)
         if print_unsat_core_bool:
-            self.print_constraints(self.z3_model, output)
+            self.print_constraints(self.z3_model, 'UNSAT CORE', output)
         print(f"Run time: {self.model_runtime} seconds\n", file=output)
 
     def no_model_save(self, print_unsat_core_bool, output):
@@ -209,12 +212,12 @@ class ModelStructure:
             print("# Unsatisfiable constraints", file=output)
             print(f"all_constraints = {constraints}", file=output)
 
-    def print_constraints(self, consts, output=sys.__stdout__):
+    def print_constraints(self, consts, name, output=sys.__stdout__):
         """prints constraints in an numbered list"""
         if self.model_status:
-            print("Satisfiable constraints:\n", file=output)
+            print(f"Satisfiable {name} constraints:\n", file=output)
         else:
-            print("Unsatisfiable core constraints:\n", file=output)
+            print(f"Unsatisfiable {name} core constraints:\n", file=output)
         for index, con in enumerate(consts, start=1):
             print(f"{index}. {con}\n", file=output)
             # print(f"Constraints time: {time}\n")
@@ -275,7 +278,7 @@ class StateSpace:
         return alt_bits
 
     # Useful to user now that can search an infix expression
-    def find_proposition_object(self, expression, prefix_search=False):
+    def find_proposition_object(self, expression):
         """given a sentence, finds the Proposition object in the model that corresponds
         to it. Can optionally search through only the extensional sentences
         Also defaults to searching an infix sentence, though internally it always searches
@@ -283,7 +286,7 @@ class StateSpace:
         If search infix, make sure you put double backslashes always!!
         returns a Proposition object"""
         # search_list = self.all_propositions
-        # if prefix_search:
+        # if infix_search:
         #     for prop_object in search_list:
         #         if prop_object["prefix expression"] == expression:
         #             return prop_object
@@ -345,8 +348,13 @@ class StateSpace:
     def print_to(self, print_cons_bool, print_impossible, output=sys.__stdout__):
         """append all elements of the model to the file provided"""
         self.print_all(print_impossible, output)
+        structure = self.model_structure
+        setup = self.model_setup
         if print_cons_bool:
-            self.model_structure.print_constraints(self.model_setup.constraints, output)
+            structure.print_constraints(setup.frame_constraints, 'FRAME', output)
+            structure.print_constraints(setup.prop_constraints, 'PROPOSTION', output)
+            structure.print_constraints(setup.premise_constraints, 'PREMISE', output)
+            structure.print_constraints(setup.conclusion_constraints, 'CONCLUSION', output)
         print(f"Run time: {self.model_runtime} seconds\n", file=output)
 
     def save_to(self, cons_include, print_impossible, output):
@@ -390,7 +398,7 @@ class StateSpace:
             return
         prefix_expr = prop_obj["prefix expression"]
         op = prefix_expr[0]
-        first_subprop = self.find_proposition_object(prefix_expr[1], prefix_search=True)
+        first_subprop = self.find_proposition_object(prefix_expr[1])
         indent += 1 # begin subcases, so indent
         if "neg" in op or "not" in op:
             self.rec_print(first_subprop, world_bit, print_impossible, output, indent)
@@ -400,7 +408,7 @@ class StateSpace:
                 self.rec_print(first_subprop, u, print_impossible, output, indent)
             return
         left_subprop = first_subprop
-        right_subprop = self.find_proposition_object(prefix_expr[2], prefix_search=True)
+        right_subprop = self.find_proposition_object(prefix_expr[2])
         if "boxright" in op:
             left_subprop_vers = left_subprop['verifiers']
             phi_alt_worlds_to_world_bit = self.find_alt_bits(left_subprop_vers, world_bit)
@@ -469,10 +477,12 @@ class Proposition:
         verifiers, falsifiers = find_complex_proposition(model_structure, prefix_expr, eval_world)
         self.prop_dict["verifiers"] = verifiers
         self.prop_dict["falsifiers"] = falsifiers
-        # if is_counterfactual(prefix_expr):
+        # TODO: can cf_sentences be treated in a more uniform way, avoiding the if clause below?
         if 'boxright' in str(prefix_expr[0]):
-            self.current_eval_world = eval_world
+            # print(f"TEST: check condition")
+            self.cf_world = eval_world
             true_worlds, false_worlds = true_and_false_worlds_for_cf(model_structure, prefix_expr)
+            # print(f"TEST WORLDS: true {true_worlds}; false {false_worlds}")
             self['worlds cf true at'] = true_worlds
             self['worlds cf false at'] = false_worlds
 
@@ -487,18 +497,36 @@ class Proposition:
     def __str__(self):
         return infix(self["prefix expression"])
 
-    def update_verifiers(self, eval_world):
+    def update_proposition(self, eval_world):
         """updates the evaluation world for counterfactuals"""
         # if not is_counterfactual(self['prefix expression']):
         #     raise AttributeError(f'You can only update verifiers for CFs, and {self} is not a CF.')
         N = self.model_structure.N
-        if eval_world == self.current_eval_world:
+        if eval_world == self.cf_world:
             return
         if eval_world in self['worlds cf true at']:
             self['verifiers'], self['falsifiers'] = {BitVecVal(0,N)}, set()
             return
         self['verifiers'], self['falsifiers'] = set(), {BitVecVal(0,N)}
         return
+
+    def truth_value_at(self, eval_world):
+        '''Given a world, returns the truth value of the Proposition at that world.
+        Used in print_verifiers_and_falsifiers.'''
+        for verifier in self["verifiers"]:
+            if bit_part(verifier, eval_world):
+                return True
+        for falsifier in self["falsifiers"]:
+            # test = self["falsifiers"]
+            # print(f"TEST: {test}")
+            if bit_part(falsifier, eval_world):
+                # N = self.model_structure.N
+                # print(f"TEST: falsifier = {bitvec_to_substates(falsifier, N)}")
+                return False
+        raise ValueError(
+            "Something has gone wrong.\n"
+            f'No verifier or falsifier for {self["prefix expression"]} at world {eval_world}'
+        )
 
     def print_verifiers_and_falsifiers(self, eval_world, print_impossible=False, indent=0, output=sys.__stdout__):
         """prints the possible verifiers and falsifier states for a sentence.
@@ -508,6 +536,7 @@ class Proposition:
         truth_value = self.truth_value_at(eval_world)
         # prefix_expr_op = self.prop_dict["prefix expression"][0]
         # if 'boxright' in str(prefix_expr_op):
+        #     # print('TEST: CONFIRM')
         #     self.update_verifiers(eval_world)
         indent_num = indent
         possible = self.model_structure.model_setup.possible
@@ -536,15 +565,6 @@ class Proposition:
             f"  ({truth_value} in {world_state})",
             file=output,
         )
-
-    def truth_value_at(self, eval_world):
-        '''Given a world, returns the truth value of the Proposition at that world.
-        Used in print_verifiers_and_falsifiers.'''
-        for verifier in self["verifiers"]:
-            if bit_part(verifier, eval_world):
-                return True
-        return False
-
 
 def make_model_for(N, premises, conclusions):
     """
