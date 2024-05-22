@@ -346,7 +346,7 @@ class StateSpace:
         """append all elements of the model to the file provided"""
         self.print_all(print_impossible, output)
         if print_cons_bool:
-            self.z3_model.print_constraints(self.model_setup.constraints, output)
+            self.model_structure.print_constraints(self.model_setup.constraints, output)
         print(f"Run time: {self.model_runtime} seconds\n", file=output)
 
     def save_to(self, cons_include, print_impossible, output):
