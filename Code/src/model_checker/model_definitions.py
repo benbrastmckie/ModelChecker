@@ -237,24 +237,48 @@ def bitvec_to_substates(bit_vec, N):
 #         input_sentences.append(neg_sent)
 #     return input_sentences
 
-def disjoin_prefix(sentences):
-    """disjoins the list of sentences in prefix form
-    helper for prefix_combine (immediately below)"""
-    if len(sentences) > 2:
-        copy_sentences = sentences[:]
-        first_sent = copy_sentences.pop(0)
-        return ['\\vee ', first_sent, disjoin_prefix(copy_sentences)]
-    # if len(sentences) == 1:
-    #     return sentences[0]
-    return sentences
+# def disjoin_prefix(sentences):
+#     """disjoins the list of sentences in prefix form
+#     helper for prefix_combine (immediately below)"""
+#     if len(sentences) > 2:
+#         copy_sentences = sentences[:]
+#         first_sent = copy_sentences.pop(0)
+#         return ['\\vee ', first_sent, disjoin_prefix(copy_sentences)]
+#     # if len(sentences) == 1:
+#     #     return sentences[0]
+#     return sentences
 
-# # TODO: instead of combining, better to require the conclusions to be false_at
-def prefix_combine(prefix_premises, prefix_conclusions):
-    '''negates and disjoins the prefix conclusions, combining the result with
-    prefix premises to form a new list'''
-    neg_conclusions = [['\\neg ', con] for con in prefix_conclusions]
-    disjoin_neg_conclusions = disjoin_prefix(neg_conclusions)
-    return prefix_premises + disjoin_neg_conclusions
+# def prefix_combine(prefix_premises, prefix_conclusions):
+#     '''negates and disjoins the prefix conclusions, combining the result with
+#     prefix premises to form a new list'''
+#     neg_conclusions = [['\\neg ', con] for con in prefix_conclusions]
+#     disjoin_neg_conclusions = disjoin_prefix(neg_conclusions)
+#     return prefix_premises + disjoin_neg_conclusions
+
+def sentence_letters_in_compound(prefix_input_sentence):
+    """finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
+    returns a list of AtomSorts. CRUCIAL: IN THAT SENSE DOES NOT FOLLOW SYNTAX OF PREFIX SENTS.
+    But that's ok, just relevant to know
+    used in all_sentence_letters
+    """
+    if len(prefix_input_sentence) == 1:  # base case: atomic sentence
+        return [prefix_input_sentence[0]] # redundant but conceptually clear
+    return_list = []
+    for part in prefix_input_sentence[1:]:
+        return_list.extend(sentence_letters_in_compound(part))
+    return return_list
+
+def all_sentence_letters(prefix_sentences):
+    """finds all the sentence letters in a list of input sentences.
+    returns as a list with no repeats (sorted for consistency)
+    used in find_all_constraints and StateSpace __init__"""
+    sentence_letters = set()
+    for prefix_input in prefix_sentences:
+        sentence_letters_in_input = sentence_letters_in_compound(prefix_input)
+        for sentence_letter in sentence_letters_in_input:
+            sentence_letters.add(sentence_letter)
+    return list(sentence_letters)
+    # sort just to make every output the same, given sets aren't hashable
 
 # def is_counterfactual(prefix_sentence):
 #     '''returns a boolean to say whether a given sentence is a counterfactual
