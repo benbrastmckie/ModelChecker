@@ -271,7 +271,7 @@ def sentence_letters_in_compound(prefix_input_sentence):
 def all_sentence_letters(prefix_sentences):
     """finds all the sentence letters in a list of input sentences.
     returns as a list with no repeats (sorted for consistency)
-    used in find_all_constraints"""
+    used in find_all_constraints and StateSpace __init__"""
     sentence_letters = set()
     for prefix_input in prefix_sentences:
         sentence_letters_in_input = sentence_letters_in_compound(prefix_input)
