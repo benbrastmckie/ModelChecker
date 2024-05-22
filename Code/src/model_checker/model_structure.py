@@ -104,7 +104,6 @@ class ModelSetup:
         self.prefix_premises = [prefix(prem) for prem in infix_premises]
         # M: I think below is a problem
         self.prefix_conclusions = [prefix(con) for con in infix_conclusions]
-        # self.prefix_sentences = prefix_combine(self.prefix_premises, self.prefix_conclusions)
         find_constraints_func = make_constraints(
             self.verify,
             self.falsify,
@@ -116,7 +115,7 @@ class ModelSetup:
         model_constraints = find_constraints_func(self.prefix_premises, self.prefix_conclusions)
         self.constraints = model_constraints
         prefix_sentences = self.prefix_premises + self.prefix_conclusions
-        self.sentence_letters = all_sentence_letters(prefix_sentences)
+        # self.sentence_letters = all_sentence_letters(prefix_sentences)
         self.all_subsentences = find_subsentences(prefix_sentences)
 
     # def constraints_func(self):
@@ -236,10 +235,11 @@ class StateSpace:
         self.poss_bits = find_poss_bits(self.z3_model, self.all_bits, model_setup.possible)
         self.world_bits = find_world_bits(self.poss_bits)
         self.main_world = self.z3_model[self.main_world]
-        self.sentence_letters = model_setup.sentence_letters
         self.verify = model_setup.verify
         self.falsify = model_setup.falsify
         self.all_subsentences = model_setup.all_subsentences
+        prefix_sentences = model_setup.prefix_premises + model_setup.prefix_conclusions
+        self.sentence_letters = all_sentence_letters(prefix_sentences)
         self.atomic_props_dict = atomic_propositions_dict_maker(self)
         self.all_propositions = [
             Proposition(sent, self, self.main_world) for sent in model_setup.all_subsentences
