@@ -391,7 +391,7 @@ class StateSpace:
         op = prefix_expr[0]
         first_subprop = self.find_proposition_object(prefix_expr[1], prefix_search=True)
         indent += 1 # begin subcases, so indent
-        if "neg" in op:
+        if "neg" in op or "not" in op:
             self.rec_print(first_subprop, world_bit, print_impossible, output, indent)
             return
         if 'Diamond' in op or 'Box' in op:

@@ -12,7 +12,7 @@ from z3 import Const, DeclareSort
 AtomSort = DeclareSort("AtomSort")
 capital_alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
                     "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",}
-unary_operators = {"\\neg", "neg", "Box", "\\Box", "Diamond", "\\Diamond"}
+unary_operators = {"\\neg", "neg", "\\not", "not", "Box", "\\Box", "Diamond", "\\Diamond"}
 binary_operators = {"\\wedge", 'wedge', '\\vee', 'vee', '\\rightarrow', 'rightarrow',
                     '\\leftrightarrow', 'leftrightarrow', '\\boxright', 'boxright'}
 all_operators = unary_operators.union(binary_operators)

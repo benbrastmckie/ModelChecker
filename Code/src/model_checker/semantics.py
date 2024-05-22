@@ -112,31 +112,58 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             Exists(z, And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y))),
         )
 
-    def extended_verify(state, ext_sent, eval_world):
+    def exclude(state, sentence, eval_world):
+        """to simulate bilateral semantics"""
+        x = BitVec("exclud_fal_x", N)
+        y = BitVec("exclud_fal_y", N)
+        return And(
+            ForAll(
+                x,
+                Implies(
+                    is_part_of(x, state),
+                    Exists(
+                        y,
+                        And(
+                            extended_verify(y, sentence, eval_world),
+                            Not(compatible(x, y))
+                        )
+                    )
+                )
+            ),
+            ForAll(
+                x,
+                Implies(
+                    extended_verify(x, sentence, eval_world),
+                    Exists(
+                        y,
+                        And(
+                            is_part_of(y, state),
+                            Not(compatible(x, y))
+                        )
+                    )
+                )
+            )
+
+        )
+
+    def extended_verify(state, sentence, eval_world):
         """ext_sent is in prefix form. The state is the state that verifies ext_sent. 
         evaluate is an optional bool to evaluate something (now unused).
         returns a Z3 constraint"""
-        if len(ext_sent) == 1:
-            return verify(state, ext_sent[0])
-        op = ext_sent[0]
+        if len(sentence) == 1:
+            return verify(state, sentence[0])
+        op = sentence[0]
         if "boxright" in op or "Box" in op or "Diamond" in op:
-            return true_at(ext_sent, eval_world)
-            # raise ValueError(
-            #     f"\n\nThe antecedent of a counterfactual conditional must be extensional.\n"
-            #     f"The sentence '{infix(ext_sent)}' is not extensional.\n"
-            # )
+            return true_at(sentence, eval_world)
         if "neg" in op:
-            return extended_falsify(state, ext_sent[1], eval_world)
-        Y = ext_sent[1]  # is a list itself
-        Z = ext_sent[2]  # is a list itself
+            return extended_falsify(state, sentence[1], eval_world)
+        if "not" in op:
+            return exclude(state, sentence[1], eval_world)
+        Y = sentence[1]
+        Z = sentence[2]
         if "wedge" in op:
             y = BitVec("ex_ver_y", N)
             z = BitVec("ex_ver_z", N)
-            # if evaluate is True:
-            #     return And(
-            #         fusion(y, z) == state, extended_verify(y, Y), extended_verify(z, Z)
-            #     )
-            # had this in here for some reason. Don't remember why.
             return Exists(
                 [y, z],
                 And(
@@ -174,10 +201,6 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         op = ext_sent[0]
         if "boxright" in op or "Box" in op or "neg" in op:
             return false_at(ext_sent, eval_world)
-            # raise ValueError(
-            #     f"\n\nThe antecedent of a counterfactual conditional must be extensional.\n"
-            #     f"The sentence '{infix(ext_sent)}' is not extensional.\n"
-            # )
         if "neg" in op:
             return extended_verify(state, ext_sent[1], eval_world)
         Y = ext_sent[1]
@@ -190,8 +213,6 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             )
         y = BitVec("ex_fal_y", N)
         z = BitVec("ex_fal_z", N)
-        # usage of these two in vee and right arrow is mutually exclusive,
-        # so can define the y and z dummy bitvecs up here
         if "vee" in op:
             return Exists(
                 [y, z],
@@ -233,7 +254,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             if 'top' not in str(sent)[0]: # top const alr in model, see find_model_constraints
                 return Exists(x, And(is_part_of(x, eval_world), verify(x, sent)))
         op = sentence[0]
-        if "neg" in op:
+        if "neg" in op or "not" in op:
             return false_at(sentence[1], eval_world)
         if len(sentence) == 2 and 'Box' in op:
             return ForAll(u, Implies(is_world(u), true_at(sentence[1], u)))
@@ -272,7 +293,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             sent = sentence[0]
             return Exists(x, And(is_part_of(x, eval_world), falsify(x, sent)))
         op = sentence[0]
-        if "neg" in op:
+        if "neg" in op or "not" in op:
             return true_at(sentence[1], eval_world)
         if len(sentence) == 2 and 'Box' in op:
             # print(sentence)
