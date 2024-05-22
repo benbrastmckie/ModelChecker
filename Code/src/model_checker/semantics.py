@@ -16,6 +16,8 @@ from z3 import (
     BitVec,
 )
 
+from model_checker.model_definitions import all_sentence_letters
+
 def make_constraints(verify, falsify, possible, assign, N, w):
     '''function that makes the function to make the constraints (and list of sentence letters
     and prefix sentences) This has to be done in order to define N in an input file—you'll see
@@ -361,14 +363,9 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         ]
         return frame_constraints
 
-    def find_model_constraints(prefix_sents,input_sentence_letters):
-        """find constraints corresponding to the input sentences
-        takes in sentences in prefix form and the input sentence letters (a list of AtomSorts)
-        returns a list of Z3 constraints
-        used in find_all_constraints"""
+    def find_prop_constraints(sentence_letters):
         prop_constraints = []
-        input_constraints = []
-        for sent_letter in input_sentence_letters:
+        for sent_letter in sentence_letters:
             if 'top' in str(sent_letter):
                 x = BitVec("top_x", N)
                 top_constraint = ForAll(x,
@@ -381,50 +378,38 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                 continue # ie, prop_const should never be called on '\\top'
             for constraint in prop_const(sent_letter):
                 prop_constraints.append(constraint)
-        for sentence in prefix_sents:
-            sentence_constraint = true_at(sentence, w)
-            input_constraints.append(sentence_constraint)
-        model_constraints = prop_constraints + input_constraints
+        return prop_constraints
+
+    def find_sent_constraints(prefix_premises,prefix_conclusions):
+        """find constraints corresponding to the input sentences
+        takes in sentences in prefix form and the input sentence letters (a list of AtomSorts)
+        returns a list of Z3 constraints
+        used in find_all_constraints"""
+        premise_constraints = []
+        conclusion_constraints = []
+        for premise in prefix_premises:
+            premise_constraint = true_at(premise, w)
+            premise_constraints.append(premise_constraint)
+        for conclusion in prefix_conclusions:
+            conclusion_constraint = false_at(conclusion, w)
+            conclusion_constraints.append(conclusion_constraint)
+        model_constraints = premise_constraints + conclusion_constraints
         return model_constraints
 
-    def sentence_letters_in_compound(prefix_input_sentence):
-        """finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
-        returns a list of AtomSorts. CRUCIAL: IN THAT SENSE DOES NOT FOLLOW SYNTAX OF PREFIX SENTS.
-        But that's ok, just relevant to know
-        used in all_sentence_letters
-        """
-        if len(prefix_input_sentence) == 1:  # base case: atomic sentence
-            return [prefix_input_sentence[0]] # redundant but conceptually clear
-        return_list = []
-        for part in prefix_input_sentence[1:]:
-            return_list.extend(sentence_letters_in_compound(part))
-        return return_list
-
-    def all_sentence_letters(prefix_input_sentences):
-        """finds all the sentence letters in a list of input sentences.
-        returns as a list with no repeats (sorted for consistency)
-        used in find_all_constraints"""
-        sentence_letters = set()
-        for prefix_input in prefix_input_sentences:
-            sentence_letters_in_input = sentence_letters_in_compound(prefix_input)
-            for sentence_letter in sentence_letters_in_input:
-                sentence_letters.add(sentence_letter)
-        return list(sentence_letters)
-        # sort just to make every output the same, given sets aren't hashable
-
-    def find_all_constraints(prefix_input_sentences):
+    def find_all_constraints(prefix_premises,prefix_conclusions):
         """find Z3 constraints for input sentences
         input_sents are a list of infix sentences
         returns a tuple with all Z3 constraints, for the model, the sentence letters
         (a list of AtomSorts), and the prefix_sentences (a list of lists, since prefix
         sentences are lists)
         function that is returned by the big outer function"""
-        # prefix_sentences = [Prefix(input_sent) for input_sent in infix_input_sentences]
-        sentence_letters = all_sentence_letters(prefix_input_sentences)  # this works
-        input_const = find_model_constraints(prefix_input_sentences, sentence_letters)
-        gen_const = find_frame_constraints()
-        const = gen_const + input_const
-        return (const, sentence_letters)
+        prefix_sentences = prefix_premises + prefix_conclusions
+        sentence_letters = all_sentence_letters(prefix_sentences)
+        frame_constraints = find_frame_constraints()
+        proposition_constraints = find_prop_constraints(sentence_letters)
+        sentence_constraints = find_sent_constraints(prefix_premises, prefix_conclusions)
+        model_constraints = frame_constraints + proposition_constraints + sentence_constraints
+        return model_constraints
 
     return find_all_constraints
 

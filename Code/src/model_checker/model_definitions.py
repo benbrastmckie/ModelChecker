@@ -227,33 +227,58 @@ def bitvec_to_substates(bit_vec, N):
             state_repr += "."
     raise ValueError("should have run into 'b' at the end but didn't")
 
-def infix_combine(premises, conclusions):
-    '''combines the premises with the negation of the conclusion(s).
-    premises are infix sentences, and so are the conclusions
-    imported by model_structure, in __init__ method of ModelStructure'''
-    input_sentences = premises[:]
-    for sent in conclusions:
-        neg_sent = '\\neg ' + sent
-        input_sentences.append(neg_sent)
-    return input_sentences
+# def infix_combine(premises, conclusions):
+#     '''combines the premises with the negation of the conclusion(s).
+#     premises are infix sentences, and so are the conclusions
+#     imported by model_structure, in __init__ method of ModelStructure'''
+#     input_sentences = premises[:]
+#     for sent in conclusions:
+#         neg_sent = '\\neg ' + sent
+#         input_sentences.append(neg_sent)
+#     return input_sentences
 
-def disjoin_prefix(sentences):
-    """disjoins the list of sentences in prefix form
-    helper for prefix_combine (immediately below)"""
-    if len(sentences) > 2:
-        copy_sentences = sentences[:]
-        first_sent = copy_sentences.pop(0)
-        return ['\\vee ', first_sent, disjoin_prefix(copy_sentences)]
-    # if len(sentences) == 1:
-    #     return sentences[0]
-    return sentences
+# def disjoin_prefix(sentences):
+#     """disjoins the list of sentences in prefix form
+#     helper for prefix_combine (immediately below)"""
+#     if len(sentences) > 2:
+#         copy_sentences = sentences[:]
+#         first_sent = copy_sentences.pop(0)
+#         return ['\\vee ', first_sent, disjoin_prefix(copy_sentences)]
+#     # if len(sentences) == 1:
+#     #     return sentences[0]
+#     return sentences
 
-def prefix_combine(prefix_premises, prefix_conclusions):
-    '''negates and disjoins the prefix conclusions, combining the result with
-    prefix premises to form a new list'''
-    neg_conclusions = [['\\neg ', con] for con in prefix_conclusions]
-    disjoin_neg_conclusions = disjoin_prefix(neg_conclusions)
-    return prefix_premises + disjoin_neg_conclusions
+# def prefix_combine(prefix_premises, prefix_conclusions):
+#     '''negates and disjoins the prefix conclusions, combining the result with
+#     prefix premises to form a new list'''
+#     neg_conclusions = [['\\neg ', con] for con in prefix_conclusions]
+#     disjoin_neg_conclusions = disjoin_prefix(neg_conclusions)
+#     return prefix_premises + disjoin_neg_conclusions
+
+def sentence_letters_in_compound(prefix_input_sentence):
+    """finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
+    returns a list of AtomSorts. CRUCIAL: IN THAT SENSE DOES NOT FOLLOW SYNTAX OF PREFIX SENTS.
+    But that's ok, just relevant to know
+    used in all_sentence_letters
+    """
+    if len(prefix_input_sentence) == 1:  # base case: atomic sentence
+        return [prefix_input_sentence[0]] # redundant but conceptually clear
+    return_list = []
+    for part in prefix_input_sentence[1:]:
+        return_list.extend(sentence_letters_in_compound(part))
+    return return_list
+
+def all_sentence_letters(prefix_sentences):
+    """finds all the sentence letters in a list of input sentences.
+    returns as a list with no repeats (sorted for consistency)
+    used in find_all_constraints"""
+    sentence_letters = set()
+    for prefix_input in prefix_sentences:
+        sentence_letters_in_input = sentence_letters_in_compound(prefix_input)
+        for sentence_letter in sentence_letters_in_input:
+            sentence_letters.add(sentence_letter)
+    return list(sentence_letters)
+    # sort just to make every output the same, given sets aren't hashable
 
 # def is_counterfactual(prefix_sentence):
 #     '''returns a boolean to say whether a given sentence is a counterfactual
