@@ -19,7 +19,7 @@ print_cons_bool = False
 print_unsat_core_bool = True
 
 # print all states including impossible states
-print_impossible_states_bool = False
+print_impossible_states_bool = True
 
 # present option to append output to file
 save_bool = False
@@ -30,25 +30,22 @@ save_bool = False
 ################################
 
 # # NOTE: this works
-# premises = ['not A','(neg A boxright B)']
 # premises = ['neg A','(neg A boxright B)']
-# conclusions = ['B']
-
-# # NOTE: false premise model?
-premises = ['neg A','(not A boxright B)']
-# premises = ['not A','(not A boxright B)']
-# premises = ['A','(not neg A boxright B)']
-# premises = ['A','(neg not A boxright B)']
-# premises = ['neg A','(not neg neg A boxright B)']
-# premises = ['neg A','(neg not neg A boxright B)']
-# premises = ['neg A','(neg neg not A boxright B)']
-conclusions = ['B']
-
-# # NOTE: this works
+# premises = ['A','(neg neg A boxright B)']
 # premises = ['neg A','(neg neg neg A boxright B)']
 # conclusions = ['B']
 
-# premises = ['A','(neg not neg not A boxright B)']
+# # # NOTE: false premise model?
+# premises = ['neg A','(not A boxright B)']
+# # premises = ['A','(not neg A boxright B)']
+# # premises = ['A','(neg not A boxright B)']
+# # premises = ['neg A','(not neg neg A boxright B)']
+# # premises = ['neg A','(neg not neg A boxright B)']
+# # premises = ['neg A','(neg neg not A boxright B)']
+premises = ['neg A','Diamond A','Diamond B','(not A boxright B)']
+conclusions = ['B']
+
+# premises = ['A','Box (A leftrightarrow B)']
 # conclusions = ['B']
 
 
@@ -102,7 +99,7 @@ conclusions = ['B']
 #     'Diamond A',
 #     '(A boxright X)', # 0.7 seconds locally
 #     'Diamond (A wedge B)',
-#     'neg ((A wedge B) boxright X)', # 155.4 seconds on the MIT servers
+#     'neg ((A wedge B) boxright X)', # N = 3 took 4.8 seconds N = 4 took 155.4 seconds on the MIT servers
 #     # 'Diamond ((A wedge B) wedge C)',
 #     # '(((A wedge B) wedge C) boxright X)', # ? seconds
 #     # 'Diamond (((A wedge B) wedge C) wedge D)',
@@ -241,14 +238,14 @@ conclusions = ['B']
 
 ### FALSE PREMISE MODEL ###
 
-# SOBEL SEQUENCE (N = 3)
-premises = [
-    '(A boxright X)', # 0.03 seconds locally
-    'neg ((A wedge B) boxright X)', # 14.8 seconds locally
-    '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
-    'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
-]
-conclusions = []
+# # SOBEL SEQUENCE (N = 3)
+# premises = [
+#     '(A boxright X)', # 0.03 seconds locally
+#     'neg ((A wedge B) boxright X)', # 14.8 seconds locally
+#     '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
+#     'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
+# ]
+# conclusions = []
 
 
 
@@ -300,4 +297,3 @@ conclusions = []
 # # NOTE: does not find counter models with N = 3
 # premises = ['neg A','neg B','(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
-
