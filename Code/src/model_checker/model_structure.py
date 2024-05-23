@@ -364,6 +364,12 @@ class StateSpace:
         first print function in print.py"""
         N = self.model_setup.N
         print("\nPossible states:", file=output)  # Print states
+        RED = '\033[31m'
+        YELLOW = '\033[33m'
+        MAGENTA = '\033[35m'
+        BLUE = '\033[34m'
+        CYAN = '\033[36m'
+        RESET = '\033[0m'
         for bit in self.all_bits:
             state = bitvec_to_substates(bit, N)
             bin_rep = (
@@ -371,14 +377,17 @@ class StateSpace:
                 if N % 4 != 0
                 else int_to_binary(int(bit.sexpr()[2:], 16), N)
             )
+            if bit == 0:
+                print(f"  {bin_rep} = {YELLOW}{state}{RESET}", file=output)
+                continue
             if bit in self.world_bits:
-                print(f"  {bin_rep} = {state} (world)", file=output)
+                print(f"  {bin_rep} = {BLUE}{state}{RESET} (world)", file=output)
                 continue
             if bit in self.poss_bits:
-                print(f"  {bin_rep} = {state}", file=output)
+                print(f"  {bin_rep} = {CYAN}{state}{RESET}", file=output)
                 continue
             if print_impossible:
-                print(f"  {bin_rep} = {state} (impossible)", file=output)
+                print(f"  {bin_rep} = {MAGENTA}{state}{RESET} (impossible)", file=output)
 
     def rec_print(self, prop_obj, world_bit, print_impossible, output, indent=0):
         """recursive print function (previously print_sort)
@@ -532,9 +541,13 @@ class Proposition:
         if fal_states:
             fal_prints = pretty_set_print(fal_states)
         world_state = bitvec_to_substates(eval_world, N)
+        RESET = '\033[0m'
+        COLOR = '\033[0m'
+        if indent_num == 1:
+            COLOR = '\033[32m'
         print(
             f"{'  ' * indent_num}|{self}| = < {ver_prints}, {fal_prints} >"
-            f"  ({truth_value} in {world_state})",
+            f"  {COLOR}({truth_value} in {world_state}){RESET}",
             file=output,
         )
 
