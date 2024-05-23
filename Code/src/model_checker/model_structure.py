@@ -380,6 +380,7 @@ class StateSpace:
         BLUE = '\033[34m'
         MAGENTA = '\033[35m'
         CYAN = '\033[36m'
+        WHITE = '\033[37m'
         RESET = '\033[0m'
         for bit in self.all_bits:
             state = bitvec_to_substates(bit, N)
@@ -389,16 +390,16 @@ class StateSpace:
                 else int_to_binary(int(bit.sexpr()[2:], 16), N)
             )
             if bit == 0:
-                print(f"  {bin_rep} = {YELLOW}{state}{RESET}", file=output)
+                print(f"  {WHITE}{bin_rep} = {YELLOW}{state}{RESET}", file=output)
                 continue
             if bit in self.world_bits:
-                print(f"  {bin_rep} = {BLUE}{state}{RESET} (world)", file=output)
+                print(f"  {WHITE}{bin_rep} = {BLUE}{state}{WHITE} (world){RESET}", file=output)
                 continue
             if bit in self.poss_bits:
-                print(f"  {bin_rep} = {CYAN}{state}{RESET}", file=output)
+                print(f"  {WHITE}{bin_rep} = {CYAN}{state}{RESET}", file=output)
                 continue
             if print_impossible:
-                print(f"  {bin_rep} = {MAGENTA}{state}{RESET} (impossible)", file=output)
+                print(f"  {WHITE}{bin_rep} = {MAGENTA}{state}{WHITE} (impossible){RESET}", file=output)
 
     def rec_print(self, prop_obj, world_bit, print_impossible, output, indent=0):
         """recursive print function (previously print_sort)
@@ -422,14 +423,16 @@ class StateSpace:
         left_subprop = first_subprop
         right_subprop = self.find_proposition_object(prefix_expr[2])
         if "boxright" in op:
+            CYAN = '\033[36m'
+            RESET = '\033[0m'
             left_subprop_vers = left_subprop['verifiers']
             phi_alt_worlds_to_world_bit = self.find_alt_bits(left_subprop_vers, world_bit)
             alt_worlds_as_strings = {bitvec_to_substates(u,N) for u in phi_alt_worlds_to_world_bit}
             self.rec_print(left_subprop, world_bit, print_impossible, output, indent)
             print(
                 f'{"  " * indent}'
-                f'({left_subprop})-alternatives to {bitvec_to_substates(world_bit, N)} = '
-                f'{pretty_set_print(alt_worlds_as_strings)}',
+                f'{CYAN}({left_subprop})-alternatives to {bitvec_to_substates(world_bit, N)} = '
+                f'{pretty_set_print(alt_worlds_as_strings)}{RESET}',
                 file=output
             )
             indent += 1
@@ -448,18 +451,18 @@ class StateSpace:
         start_con_num = len(infix_premises) + 1
         if self.premise_propositions:
             if len(infix_premises) < 2:
-                print("Interpreted premise:\n", file=output)
+                print("INTERPRETED PREMISE:\n", file=output)
             else:
-                print("Interpreted premises:\n", file=output)
+                print("INTERPRETED PREMISES:\n", file=output)
             for index, input_prop in enumerate(self.premise_propositions, start=1):
                 print(f"{index}.", end="", file=output)
                 self.rec_print(input_prop, initial_eval_world, print_impossible, output, 1)
                 print(file=output)
         if self.conclusion_propositions:
             if len(infix_conclusions) < 2:
-                print("Interpreted conclusion:\n", file=output)
+                print("INTERPRETED CONCLUSION:\n", file=output)
             else:
-                print("Interpreted conclusions:\n", file=output)
+                print("INTERPRETED CONCLUSIONS:\n", file=output)
             for index, input_prop in enumerate(self.conclusion_propositions, start=start_con_num):
                 print(f"{index}.", end="", file=output)
                 self.rec_print(input_prop, initial_eval_world, print_impossible, output, 1)

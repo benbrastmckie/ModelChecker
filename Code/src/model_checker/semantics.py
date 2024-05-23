@@ -348,7 +348,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                 return Exists(u, And(is_world(u), false_at(sentence[1], u)))
             if 'Diamond' in op:
                 return ForAll(u, Implies(is_world(u), false_at(sentence[1], u)))
-        if len(sentence) == 2:
+        if len(sentence) == 3:
             op = sentence[0]
             Y = sentence[1]
             Z = sentence[2]
