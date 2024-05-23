@@ -458,10 +458,9 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
     if "rightarrow" in op:
         return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
     if "boxright" in op:
-        # if evaluate_mainclause_cf_expr(model_structure, complex_sentence, eval_world):
         if evaluate_cf_expr(model_structure, complex_sentence, eval_world):
-            val = evaluate_cf_expr(model_structure, complex_sentence, eval_world)
-            print(f"TEST: truth_vf of cf = {val}")
+            # val = evaluate_cf_expr(model_structure, complex_sentence, eval_world)
+            # print(f"TEST: truth_vf of cf = {val}")
             return (null_state, set())
         return (set(), null_state)
     raise ValueError(f"Don't know how to handle {op} operator")
