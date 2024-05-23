@@ -181,17 +181,19 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         evaluate is an optional bool to evaluate something (now unused).
         returns a Z3 constraint"""
         if len(sentence) == 1:
-            return verify(state, sentence[0])
+            sentence_letter = sentence[0]
+            return verify(state, sentence_letter)
         op = sentence[0]
+        Y = sentence[1]
         if "boxright" in op or "Box" in op or "Diamond" in op:
             return true_at(sentence, eval_world)
         if "neg" in op:
-            # print(f"TEST: neg operator = {op}")
-            return extended_falsify(state, sentence[1], eval_world)
+            return extended_falsify(state, Y, eval_world)
         if "not" in op:
-            # print(f"TEST: not operator = {op}")
-            return exclude(state, sentence[1], eval_world)
-        Y = sentence[1]
+            # print(f"TEST: op = {op}; arg = {Y}")
+            # TEST = exclude(state, Y, eval_world)
+            # print(TEST)
+            return exclude(state, Y, eval_world)
         Z = sentence[2]
         if "wedge" in op:
             y = BitVec("ex_ver_y", N)
@@ -311,7 +313,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             if "rightarrow" in op:
                 return Or(false_at(Y, eval_world), true_at(Z, eval_world))
             if "boxright" in op:
-                # print(f"TEST: cf operator = {op}, ant = {Y}, con = {Z}")
+                print(f"TEST: cf operator = {op}, ant = {Y}, con = {Z}")
                 return ForAll(
                     [x, u],
                     Implies(
