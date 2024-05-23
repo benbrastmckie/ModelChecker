@@ -29,6 +29,29 @@ save_bool = False
 ########### WORKING ############
 ################################
 
+# # NOTE: this works
+# premises = ['not A','(neg A boxright B)']
+# premises = ['neg A','(neg A boxright B)']
+# conclusions = ['B']
+
+# # NOTE: false premise model?
+premises = ['neg A','(not A boxright B)']
+# premises = ['not A','(not A boxright B)']
+# premises = ['A','(not neg A boxright B)']
+# premises = ['A','(neg not A boxright B)']
+# premises = ['neg A','(not neg neg A boxright B)']
+# premises = ['neg A','(neg not neg A boxright B)']
+# premises = ['neg A','(neg neg not A boxright B)']
+conclusions = ['B']
+
+# # NOTE: this works
+# premises = ['neg A','(neg neg neg A boxright B)']
+# conclusions = ['B']
+
+# premises = ['A','(neg not neg not A boxright B)']
+# conclusions = ['B']
+
+
 ### INVALID ###
 
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING

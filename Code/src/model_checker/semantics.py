@@ -16,7 +16,35 @@ from z3 import (
     BitVec,
 )
 
-from model_checker.model_definitions import all_sentence_letters
+# from model_checker.model_definitions import (
+#     all_sentence_letters,
+# )
+
+def sentence_letters_in_compound(prefix_input_sentence):
+    """finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
+    returns a list of AtomSorts. CRUCIAL: IN THAT SENSE DOES NOT FOLLOW SYNTAX OF PREFIX SENTS.
+    But that's ok, just relevant to know
+    used in all_sentence_letters
+    """
+    if len(prefix_input_sentence) == 1:  # base case: atomic sentence
+        return [prefix_input_sentence[0]] # redundant but conceptually clear
+    return_list = []
+    for part in prefix_input_sentence[1:]:
+        return_list.extend(sentence_letters_in_compound(part))
+    return return_list
+
+def all_sentence_letters(prefix_sentences):
+    """finds all the sentence letters in a list of input sentences.
+    returns as a list with no repeats (sorted for consistency)
+    used in find_all_constraints and StateSpace __init__"""
+    sentence_letters = set()
+    for prefix_input in prefix_sentences:
+        sentence_letters_in_input = sentence_letters_in_compound(prefix_input)
+        for sentence_letter in sentence_letters_in_input:
+            sentence_letters.add(sentence_letter)
+    return list(sentence_letters)
+    # sort just to make every output the same, given sets aren't hashable
+
 
 def make_constraints(verify, falsify, possible, assign, N, w):
     '''function that makes the function to make the constraints (and list of sentence letters
@@ -114,27 +142,66 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             Exists(z, And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y))),
         )
 
-    def extended_verify(state, ext_sent, eval_world):
+    def exclude(state, sentence, eval_world):
+        """to simulate bilateral semantics"""
+        x = BitVec("exclude_x", N)
+        y = BitVec("exclude_y", N)
+        return And(
+            ForAll(
+                x,
+                Implies(
+                    is_part_of(x, state),
+                    Exists(
+                        y,
+                        And(
+                            # possible(y),
+                            extended_verify(y, sentence, eval_world),
+                            Not(compatible(x, y))
+                        )
+                    )
+                )
+            ),
+            ForAll(
+                x,
+                Implies(
+                    And(
+                        # possible(x),
+                        extended_verify(x, sentence, eval_world),
+                    ),
+                    Exists(
+                        y,
+                        And(
+                            is_part_of(y, state),
+                            Not(compatible(x, y))
+                        )
+                    )
+                )
+            )
+
+        )
+
+    def extended_verify(state, sentence, eval_world):
         """ext_sent is in prefix form. The state is the state that verifies ext_sent. 
         evaluate is an optional bool to evaluate something (now unused).
         returns a Z3 constraint"""
-        if len(ext_sent) == 1:
-            return verify(state, ext_sent[0])
-        op = ext_sent[0]
+        if len(sentence) == 1:
+            sentence_letter = sentence[0]
+            return verify(state, sentence_letter)
+        op = sentence[0]
         if "boxright" in op or "Box" in op or "Diamond" in op:
-            return true_at(ext_sent, eval_world)
+            return true_at(sentence, eval_world)
+        Y = sentence[1]
         if "neg" in op:
-            return extended_falsify(state, ext_sent[1], eval_world)
-        Y = ext_sent[1]  # is a list itself
-        Z = ext_sent[2]  # is a list itself
+            return extended_falsify(state, Y, eval_world)
+        if "not" in op:
+            # print(f"TEST: op = {op}; arg = {Y}")
+            # TEST = exclude(state, Y, eval_world)
+            # print(TEST)
+            return exclude(state, Y, eval_world)
+        Z = sentence[2]
         if "wedge" in op:
             y = BitVec("ex_ver_y", N)
             z = BitVec("ex_ver_z", N)
-            # if evaluate is True:
-            #     return And(
-            #         fusion(y, z) == state, extended_verify(y, Y), extended_verify(z, Z)
-            #     )
-            # had this in here for some reason. Don't remember why.
             return Exists(
                 [y, z],
                 And(
@@ -172,9 +239,11 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         op = ext_sent[0]
         if "boxright" in op or "Box" in op or "Diamond" in op:
             return false_at(ext_sent, eval_world)
-        if "neg" in op:
-            return extended_verify(state, ext_sent[1], eval_world)
         Y = ext_sent[1]
+        if "neg" in op:
+            return extended_verify(state, Y, eval_world)
+        if "not" in op:
+            return exclude(state, Y, eval_world)
         Z = ext_sent[2]
         if "wedge" in op:
             return Or(
@@ -224,34 +293,40 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             sent = sentence[0]
             if 'top' not in str(sent)[0]: # top const alr in model, see find_model_constraints
                 return Exists(x, And(is_part_of(x, eval_world), verify(x, sent)))
-        op = sentence[0]
-        if "neg" in op:
-            return false_at(sentence[1], eval_world)
-        if len(sentence) == 2 and 'Box' in op:
-            return ForAll(u, Implies(is_world(u), true_at(sentence[1], u)))
-        if len(sentence) == 2 and 'Diamond' in op:
-            return Exists(u, And(is_world(u), true_at(sentence[1], u)))
-        Y = sentence[1]
-        Z = sentence[2]
-        if "wedge" in op:
-            return And(true_at(Y, eval_world), true_at(Z, eval_world))
-        if "vee" in op:
-            return Or(true_at(Y, eval_world), true_at(Z, eval_world))
-        if "leftrightarrow" in op:
-            return Or(
-                And(true_at(Y, eval_world), true_at(Z, eval_world)),
-                And(false_at(Y, eval_world), false_at(Z, eval_world)),
-            )
-        if "rightarrow" in op:
-            return Or(false_at(Y, eval_world), true_at(Z, eval_world))
-        if "boxright" in op:
-            return ForAll(
-                [x, u],
-                Implies(
-                    And(extended_verify(x, Y, eval_world), is_alternative(u, x, eval_world)),
-                    true_at(Z, u),
-                ),
-            )
+        if len(sentence) == 2:
+            op = sentence[0]
+            Y = sentence[1]
+            if "neg" in op or "not" in op:
+                # print(f"TEST: neg operator = {op}")
+                return false_at(sentence[1], eval_world)
+            if 'Box' in op:
+                return ForAll(u, Implies(is_world(u), true_at(sentence[1], u)))
+            if 'Diamond' in op:
+                return Exists(u, And(is_world(u), true_at(sentence[1], u)))
+        if len(sentence) == 3:
+            op = sentence[0]
+            Y = sentence[1]
+            Z = sentence[2]
+            if "wedge" in op:
+                return And(true_at(Y, eval_world), true_at(Z, eval_world))
+            if "vee" in op:
+                return Or(true_at(Y, eval_world), true_at(Z, eval_world))
+            if "leftrightarrow" in op:
+                return Or(
+                    And(true_at(Y, eval_world), true_at(Z, eval_world)),
+                    And(false_at(Y, eval_world), false_at(Z, eval_world)),
+                )
+            if "rightarrow" in op:
+                return Or(false_at(Y, eval_world), true_at(Z, eval_world))
+            if "boxright" in op:
+                # print(f"TEST: cf operator = {op}, ant = {Y}, con = {Z}")
+                return ForAll(
+                    [x, u],
+                    Implies(
+                        And(extended_verify(x, Y, eval_world), is_alternative(u, x, eval_world)),
+                        true_at(Z, u),
+                    ),
+                )
         raise ValueError(f'No if statements triggered— true_at for {sentence} at world {eval_world}')
 
     def false_at(sentence, eval_world):
@@ -263,33 +338,37 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         if len(sentence) == 1:
             sent = sentence[0]
             return Exists(x, And(is_part_of(x, eval_world), falsify(x, sent)))
-        op = sentence[0]
-        if "neg" in op:
-            return true_at(sentence[1], eval_world)
-        if len(sentence) == 2 and 'Box' in op:
-            # print(sentence)
-            return Exists(u, And(is_world(u), false_at(sentence[1], u)))
-        if len(sentence) == 2 and 'Diamond' in op:
-            # print(sentence)
-            return ForAll(u, Implies(is_world(u), false_at(sentence[1], u)))
-        Y = sentence[1]
-        Z = sentence[2]
-        if "wedge" in op:
-            return Or(false_at(Y, eval_world), false_at(Z, eval_world))
-        if "vee" in op:
-            return And(false_at(Y, eval_world), false_at(Z, eval_world))
-        if "leftrightarrow" in op:
-            return Or(
-                And(true_at(Y, eval_world), false_at(Z, eval_world)),
-                And(false_at(Y, eval_world), true_at(Z, eval_world)),
-            )
-        if "rightarrow" in op:
-            return And(true_at(Y, eval_world), false_at(Z, eval_world))
-        if "boxright" in op:
-            return Exists(
-                [x, u],
-                And(extended_verify(x, Y, eval_world), is_alternative(u, x, eval_world), false_at(Z, u)),
-            )
+        if len(sentence) == 2:
+            op = sentence[0]
+            Y = sentence[1]
+            if "neg" in op or "not" in op:
+                # print(f"TEST: neg operator = {op}")
+                return true_at(sentence[1], eval_world)
+            if 'Box' in op:
+                return Exists(u, And(is_world(u), false_at(sentence[1], u)))
+            if 'Diamond' in op:
+                return ForAll(u, Implies(is_world(u), false_at(sentence[1], u)))
+        if len(sentence) == 2:
+            op = sentence[0]
+            Y = sentence[1]
+            Z = sentence[2]
+            if "wedge" in op:
+                return Or(false_at(Y, eval_world), false_at(Z, eval_world))
+            if "vee" in op:
+                return And(false_at(Y, eval_world), false_at(Z, eval_world))
+            if "leftrightarrow" in op:
+                return Or(
+                    And(true_at(Y, eval_world), false_at(Z, eval_world)),
+                    And(false_at(Y, eval_world), true_at(Z, eval_world)),
+                )
+            if "rightarrow" in op:
+                return And(true_at(Y, eval_world), false_at(Z, eval_world))
+            if "boxright" in op:
+                # print(f"TEST: cf operator = {op}, ant = {Y}, con = {Z}")
+                return Exists(
+                    [x, u],
+                    And(extended_verify(x, Y, eval_world), is_alternative(u, x, eval_world), false_at(Z, u)),
+                )
         raise ValueError(f'No if statements triggered in false_at for {sentence} at world {eval_world}')
 
     def prop_const(atom):
@@ -370,23 +449,45 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                 prop_constraints.append(constraint)
         return prop_constraints
 
-    def find_sent_constraints(prefix_premises,prefix_conclusions):
+    def find_premise_const(prefix_premises):
         """find constraints corresponding to the input sentences
         takes in sentences in prefix form and the input sentence letters (a list of AtomSorts)
         returns a list of Z3 constraints
         used in find_all_constraints"""
         premise_constraints = []
-        conclusion_constraints = []
         for premise in prefix_premises:
             premise_constraint = true_at(premise, w)
             premise_constraints.append(premise_constraint)
+        return premise_constraints
+
+    def find_conclusion_const(prefix_conclusions):
+        """find constraints corresponding to the input sentences
+        takes in sentences in prefix form and the input sentence letters (a list of AtomSorts)
+        returns a list of Z3 constraints
+        used in find_all_constraints"""
+        conclusion_constraints = []
         for conclusion in prefix_conclusions:
             conclusion_constraint = false_at(conclusion, w)
             conclusion_constraints.append(conclusion_constraint)
-        model_constraints = premise_constraints + conclusion_constraints
-        return model_constraints
+        return conclusion_constraints
 
-    def find_all_constraints(prefix_premises,prefix_conclusions):
+    # def find_sent_constraints(prefix_premises,prefix_conclusions):
+    #     """find constraints corresponding to the input sentences
+    #     takes in sentences in prefix form and the input sentence letters (a list of AtomSorts)
+    #     returns a list of Z3 constraints
+    #     used in find_all_constraints"""
+    #     premise_constraints = []
+    #     conclusion_constraints = []
+    #     for premise in prefix_premises:
+    #         premise_constraint = true_at(premise, w)
+    #         premise_constraints.append(premise_constraint)
+    #     for conclusion in prefix_conclusions:
+    #         conclusion_constraint = false_at(conclusion, w)
+    #         conclusion_constraints.append(conclusion_constraint)
+    #     model_constraints = premise_constraints + conclusion_constraints
+    #     return model_constraints
+
+    def find_all_constraints(prefix_premises, prefix_conclusions):
         """find Z3 constraints for input sentences
         input_sents are a list of infix sentences
         returns a tuple with all Z3 constraints, for the model, the sentence letters
@@ -396,10 +497,10 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         prefix_sentences = prefix_premises + prefix_conclusions
         sentence_letters = all_sentence_letters(prefix_sentences)
         frame_constraints = find_frame_constraints()
-        proposition_constraints = find_prop_constraints(sentence_letters)
-        sentence_constraints = find_sent_constraints(prefix_premises, prefix_conclusions)
-        model_constraints = frame_constraints + proposition_constraints + sentence_constraints
-        return model_constraints
+        prop_constraints = find_prop_constraints(sentence_letters)
+        premise_constraints = find_premise_const(prefix_premises)
+        conclusion_constraints = find_conclusion_const(prefix_conclusions)
+        return frame_constraints, prop_constraints, premise_constraints, conclusion_constraints
 
     return find_all_constraints
 
