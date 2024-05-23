@@ -1,6 +1,21 @@
 # Model Checker
 
-This project draws on the [Z3](https://github.com/Z3Prover/z3) theorem prover to provide tooling for finding countermodels for counterfactual conditional and modal claims.
+This project draws on the [Z3](https://github.com/Z3Prover/z3) theorem prover to provide tooling for finding countermodels for claims which include modal, counterfactual conditional, constitutive explanatory, and extensional operators.
+The language currently includes the following operators:
+
+  - `neg` for _negation_
+  - `not` for _exclusion_
+  - `wedge` for _conjunction_
+  - `vee` for _disjunction_
+  - `rightarrow` for _material conditional_
+  - `leftrightarrow` for _material biconditional_
+  - `Box` for _necessity_
+  - `Diamond` for _possibility_
+  - `boxright` for _must counterfactual conditional_
+  - `circleright` for _might counterfactual conditional_
+  - `leq` for _ground_
+  - `sqsubseteq` for _essence_
+  - `equiv` for _propositional identity_
 
 Accessible [installation instructions](https://github.com/benbrastmckie/ModelChecker?tab=readme-ov-file#installation) are provided in the GitHub repository.
 
@@ -11,7 +26,8 @@ Alternatively, run `model-checker path/to/test_file.py` if the `test_file.py` al
 A number of [examples](https://github.com/benbrastmckie/ModelChecker/blob/master/Examples/examples.py) are provided in the GitHub repository.
 
 Each file must specify a set of `premises` which are treated conjunctively, `conclusions` which are treated disjunctively, and the number `N` of atomic states to include in each model.
-Optionally, the user can specify whether to print the Z3 constraints when a model is found, or the unsatisfiable core when no model exists, as well as an option to save the output.
+If unspecified, `premises = []`, `conclusions = []`, and `N = 3` will be set by default.
+Optionally, the user can specify whether to print the Z3 constraints when a model is found, or the unsatisfiable core when no model exists, as well as an option to save or append the output.
 These settings are specified with the Boolean values `True` and `False`:
 
 - Print all Z3 constraints if a model is found: `print_cons_bool`
@@ -31,11 +47,7 @@ Users can print help information, the current version, and upgrade to the latest
 - Include `-v` to print the installed version number.
 - Include `-u` to upgrade to the latest version.
 
-## Syntax
-
-The language currently includes operators for the counterfactual conditional `boxright`, modal operators for necessity `Box` and possibility `Diamond`, and the extensional operators for conjunction `wedge`, disjunction `vee`, material conditional `rightarrow`, material biconditional `leftrightarrow`, and negation `neg`.
-
-## Semantics
+## Hyperintensional Semantics
 
 The semantics included is hyperintensional insofar as sentences are evaluated at _states_ which may be partial rather than total as in intensional semantic theories.
 States are modeled by bitvectors of a specified length (e.g., `#b00101` has length `5`), where _state fusion_ is modeled by the bitwise OR operator `|`.
@@ -55,17 +67,26 @@ A sentence is _true at_ a world state `w` just in case `w` includes a verifier f
 In order to ensure that sentence letters have at most one truth-value at each world state, a fusion `a.b` is required to be impossible whenever `a` is verifier for a sentence letter `A` and `b` is a falsifier for `A`.
 Additionally, sentence letters have at least one truth-value at each world state by requiring every possible state to be compatible with either a verifier or falsifier for any sentence letter.
 
-Negated sentences are verified by the falsifiers for the sentence negated and falsified by the verifiers for the sentence negated.
-Conjunctions are verified by the pairwise fusions of verifiers for the conjuncts and falsified by falsifiers for either of the conjuncts or fusions thereof.
+A _negation sentence_ is verified by the falsifiers for the sentence negated and falsified by the verifiers for the sentence negated.
+A _conjunctive sentence_ is verified by the pairwise fusions of verifiers for the conjuncts and falsified by falsifiers for either of the conjuncts or fusions thereof.
+A _disjunctive sentence_ is verified by the verifiers for either disjunct or fusions thereof.
 Conjunction and disjunction are dual operators obeying the standard idempotent and De Morgan laws.
 The absorption laws do not hold, nor does conjunction distribute over disjunction, nor _vice versa_.
 For a defense of the background theory of hyperintensional propositions, see this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w).
 
-A modal sentence `Box A` is true at a world just in case every world state includes a part that verifies `A`, where `Diamond A` is true at a world just in case some world state includes a part that verifies `A`.
+A _necessity sentence_ `Box A` is true at a world just in case every world state includes a part that verifies `A`, where a _possibility sentence_ `Diamond A` is true at a world just in case some world state includes a part that verifies `A`.
 Given a world state `w` and state `s`, an `s`_-alternative_ to `w` is any world state to include as parts both `s` and a maximal part of `w` that is compatible with `s`.
-A counterfactual conditional sentences `A boxright B` is true at a world state `w` just in case its consequent is true at any `s`-alternative to `w` for any verifier `s` for the antecedent of the counterfactual.
-
+A _must counterfactual conditional sentences_ `A boxright B` is true at a world state `w` just in case its consequent is true at any `s`-alternative to `w` for any verifier `s` for the antecedent of the counterfactual.
+A _might counterfactual conditional sentences_ `A boxright B` is true at a world state `w` just in case its consequent is true at any `s`-alternative to `w` for any verifier `s` for the antecedent of the counterfactual.
 The semantic theory for counterfactual conditionals is motivated and further elaborated in this [draft](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf).
-This account builds on [Fine 2012](https://www.pdcnet.org/jphil/content/jphil_2012_0109_0003_0221_0246) and [Fine 2017](https://link.springer.com/article/10.1007/s10992-016-9413-y).
-More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker). 
+This account builds on [Fine 2012](https://www.pdcnet.org/jphil/content/jphil_2012_0109_0003_0221_0246).
 
+A _grounding sentence_ `A leq B` may be read '`A` is _sufficient for_ `B`' and _essence sentence_ `A sqsubseteq B` may be read '`A` is _necessary for_ `B`'.
+An _propositional identity sentence_ `A equiv B` may be read '`A` _just is for_ `B`'.
+The semantics for ground requires every verifier for the antecedent to be a verifier for the consequent, any fusion of a falsifier for the antecedent and consequent to be a falsifier for the consequent, and any falsifier for the consequent to have a part that falsifies the antecedent.
+The semantics for essence requires every fusion of a verifier for the antecedent and consequent to be a verifier for the consequent, any verifier for the consequent must have a part that verifies the antecedent, and every falsifier for the antecedent to be a falsifier for the consequent.
+The semantics for propositional identity requires the two arguments to have the same verifiers and falsifiers.
+All three constitutive operators are interdefinable where `A leq B := neg A sqsubseteq neg B := (A vee B) equiv B`, `A sqsubseteq B := neg A leq neg B := (A wedge B) equiv B`, and `A equiv B := (A leq B) wedge (B leq A) := (A sqsubseteq B) wedge (B sqsubseteq A)`. 
+Instead of a Boolean lattice as in intensional semantics theories, the space of hyperintensional propositions forms a non-interlaced bilattice as described in this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w), building on [Fine 2017](https://link.springer.com/article/10.1007/s10992-016-9413-y).
+
+More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker). 

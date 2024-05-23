@@ -9,6 +9,7 @@ import subprocess
 from string import Template
 import argparse
 import importlib.util
+# import warnings
 # import cProfile
 # import pstats
 
@@ -107,9 +108,14 @@ class LoadModule:
     def __init__(self, module_name, module_path):
         self.module_name = module_name
         self.module_path = module_path
+        self.default_values = {
+            "N": 3,
+            "premises": [],
+            "conclusions": [],
+        }
         self.module = self.load_module()
-        self.validate_attributes()
         self.initialize_attributes()
+        self.validate_attributes()
 
     def load_module(self):
         try:
@@ -122,18 +128,12 @@ class LoadModule:
         except Exception as e:
             raise ImportError(f"Failed to load the module '{self.module_name}': {e}") from e
 
-    def validate_attributes(self):
-        required_attrs = ["N", "premises", "conclusions"]
-        for attr in required_attrs:
-            if not hasattr(self.module, attr):
-                raise ImportError(f"The value of '{attr}' is absent")
-
     def initialize_attributes(self):
         self.parent_file = getattr(self.module, "file_name", True)
         self.parent_directory = getattr(self.module, "parent_directory", True)
-        self.N = getattr(self.module, "N")
-        self.premises = getattr(self.module, "premises")
-        self.conclusions = getattr(self.module, "conclusions")
+        self.N = getattr(self.module, "N", self.default_values["N"])
+        self.premises = getattr(self.module, "premises", self.default_values["premises"])
+        self.conclusions = getattr(self.module, "conclusions", self.default_values["conclusions"])
         self.print_cons_bool = getattr(self.module, "print_cons_bool", False)
         self.print_unsat_core_bool = getattr(self.module, "print_unsat_core_bool", True)
         self.print_impossible_states_bool = getattr(
@@ -142,8 +142,13 @@ class LoadModule:
             False
         )
         self.save_bool = getattr(self.module, "save_bool", True)
-        # self.use_constraints_bool = getattr(self.module, "use_constraints", False)
-        self.all_constraints = getattr(self.module, "all_constraints", [])
+        # self.all_constraints = getattr(self.module, "all_constraints", [])
+
+    def validate_attributes(self):
+        for attr, default_value in self.default_values.items():
+            if not hasattr(self.module, attr):
+                print(f"The value of '{attr}' is absent and has been set to {default_value}.")
+                # raise ImportError(f"The value of '{attr}' is absent")
 
 def parse_file_and_flags():
     """returns the name and path for the current script"""

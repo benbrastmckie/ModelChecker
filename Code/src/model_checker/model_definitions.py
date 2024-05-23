@@ -355,40 +355,56 @@ def evaluate_modal_expr(model_structure, prefix_modal, eval_world):
     '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
     used to initialize Counterfactuals
     returns a bool representing whether the counterfactual is true at the world or not'''
-    op, argument = prefix_modal[0], prefix_modal[1]
+    operator, argument = prefix_modal[0], prefix_modal[1]
     # TODO: is this necessary?
     # if is_modal(argument):
     #     if model_structure.evaluate_modal_expr(prefix_modal) is True: # ie, verifiers is null state
     #         return True # both Box and Diamond will return true, since verifiers is not empty
     #     return False
-    if 'Diamond' in op:
+    if 'Diamond' in operator:
         for poss in model_structure.poss_bits:
             if poss in find_complex_proposition(model_structure, argument, eval_world)[0]:
                 return True
         return False
-    if 'Box' in op:
+    if 'Box' in operator:
         for poss in model_structure.poss_bits:
             if poss in find_complex_proposition(model_structure, argument, eval_world)[1]:
                 return False
         return True
+    raise ValueError(
+        prefix_modal,
+        "Something has gone wrong in evaluate_cf_counterfactual. "
+        f"The operator {operator} in {prefix_modal} is not a modal."
+    )
 
 def evaluate_cf_expr(state_space, prefix_cf, eval_world):
     """evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
     used to initialize Counterfactuals
     returns a bool representing whether the counterfactual is true at the world or not
     """
-    antecedent, consequent = prefix_cf[1], prefix_cf[2]
+    operator, antecedent, consequent = prefix_cf[0], prefix_cf[1], prefix_cf[2]
     antecedent_vers = find_complex_proposition(state_space, antecedent, eval_world)[0]
-    # print(f"TEST: ant_ver = {antecedent_vers}")
+    consequent_vers = find_complex_proposition(state_space, consequent, eval_world)[0]
     consequent_fals = find_complex_proposition(state_space, consequent, eval_world)[1]
-    # print(f"TEST: con_fal = {consequent_fals}")
     antecedent_alts = state_space.find_alt_bits(antecedent_vers, eval_world)
-    # print(f"TEST: ant_alts = {antecedent_alts}")
-    for alt_world in antecedent_alts:
-        for falsifier in consequent_fals:
-            if bit_part(falsifier, alt_world):
-                return False
-    return True
+    if 'boxright' in operator:
+        for alt_world in antecedent_alts:
+            for falsifier in consequent_fals:
+                if bit_part(falsifier, alt_world):
+                    return False
+        return True
+    if 'circleright' in operator:
+        for alt_world in antecedent_alts:
+            for verifier in consequent_vers:
+                if bit_part(verifier, alt_world):
+                    return True
+        return False
+    raise ValueError(
+        prefix_cf,
+        "Something has gone wrong in evaluate_cf_counterfactual. "
+        f"The operator {operator} in {prefix_cf} is not a counterfatual."
+    )
+
 
 # def evaluate_mainclause_cf_expr(model_structure, prefix_cf, eval_world):
 #     """evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
@@ -461,6 +477,22 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
         if evaluate_cf_expr(model_structure, complex_sentence, eval_world):
             # val = evaluate_cf_expr(model_structure, complex_sentence, eval_world)
             # print(f"TEST: truth_vf of cf = {val}")
+            return (null_state, set())
+        return (set(), null_state)
+    if "circleright" in op:
+        if evaluate_cf_expr(model_structure, complex_sentence, eval_world):
+            return (null_state, set())
+        return (set(), null_state)
+    if "leq" in op:
+        if Y_V <= Z_V and product(Y_F, Z_F) == Z_F:
+            return (null_state, set())
+        return (set(), null_state)
+    if "sqsubseteq" in op:
+        if product(Y_V, Z_V) == Z_V and Y_F <= Z_F:
+            return (null_state, set())
+        return (set(), null_state)
+    if "equiv" in op:
+        if Y_V == Z_V and Y_F == Z_F:
             return (null_state, set())
         return (set(), null_state)
     raise ValueError(f"Don't know how to handle {op} operator")

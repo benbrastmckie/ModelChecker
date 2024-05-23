@@ -187,19 +187,21 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         if len(sentence) == 1:
             sentence_letter = sentence[0]
             return verify(state, sentence_letter)
-        op = sentence[0]
-        if "boxright" in op or "Box" in op or "Diamond" in op:
-            return true_at(sentence, eval_world)
+        operator = sentence[0]
+        hyper_ops = ["Box", "Diamond", "boxright", "circleright", "leq", "sqsubseteq", "equiv"]
+        for choice in hyper_ops:
+            if choice in operator:
+                return true_at(sentence, eval_world)
         Y = sentence[1]
-        if "neg" in op:
+        if "neg" in operator:
             return extended_falsify(state, Y, eval_world)
-        if "not" in op:
+        if "not" in operator:
             # print(f"TEST: op = {op}; arg = {Y}")
             # TEST = exclude(state, Y, eval_world)
             # print(TEST)
             return exclude(state, Y, eval_world)
         Z = sentence[2]
-        if "wedge" in op:
+        if "wedge" in operator:
             y = BitVec("ex_ver_y", N)
             z = BitVec("ex_ver_z", N)
             return Exists(
@@ -210,42 +212,46 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                     extended_verify(z, Z, eval_world),
                 ),
             )
-        if "vee" in op:
+        if "vee" in operator:
             return Or(
                 extended_verify(state, Y, eval_world),
                 extended_verify(state, Z, eval_world),
                 extended_verify(state, ["wedge", Y, Z], eval_world),
             )
-        if "leftrightarrow" in op:
+        if "leftrightarrow" in operator:
             return Or(
                 extended_verify(state, ["wedge", Y, Z], eval_world),
                 extended_falsify(state, ["vee", Y, Z], eval_world),
             )
-        if "rightarrow" in op:
+        if "rightarrow" in operator:
             return Or(
                 extended_falsify(state, Y, eval_world),
                 extended_verify(state, Z, eval_world),
                 extended_verify(state, ["wedge", ["neg", Y], Z], eval_world),
             )
         raise ValueError(
-            f"Something went wrong in extended_verify in evaluating the operator {op} in [{op}, {Y}, {Z}]"
+            sentence,
+            "Something has gone wrong in extended_falsify. "
+            f"The operator {operator} in {sentence} is not a recognized."
         )
 
-    def extended_falsify(state, ext_sent, eval_world):
+    def extended_falsify(state, sentence, eval_world):
         """ext_sent is in prefix form. The state is the state that falsifies ext_sent. 
         returns a Z3 constraint"""
-        if len(ext_sent) == 1:
-            return falsify(state, ext_sent[0])
-        op = ext_sent[0]
-        if "boxright" in op or "Box" in op or "Diamond" in op:
-            return false_at(ext_sent, eval_world)
-        Y = ext_sent[1]
-        if "neg" in op:
+        if len(sentence) == 1:
+            return falsify(state, sentence[0])
+        operator = sentence[0]
+        hyper_ops = ["Box", "Diamond", "boxright", "circleright", "leq", "sqsubseteq", "equiv"]
+        for choice in hyper_ops:
+            if choice in operator:
+                return false_at(sentence, eval_world)
+        Y = sentence[1]
+        if "neg" in operator:
             return extended_verify(state, Y, eval_world)
-        if "not" in op:
+        if "not" in operator:
             return exclude(state, Y, eval_world)
-        Z = ext_sent[2]
-        if "wedge" in op:
+        Z = sentence[2]
+        if "wedge" in operator:
             return Or(
                 extended_falsify(state, Y, eval_world),
                 extended_falsify(state, Z, eval_world),
@@ -253,7 +259,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             )
         y = BitVec("ex_fal_y", N)
         z = BitVec("ex_fal_z", N)
-        if "vee" in op:
+        if "vee" in operator:
             return Exists(
                 [y, z],
                 And(
@@ -262,12 +268,12 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                     extended_falsify(z, Z, eval_world),
                 ),
             )
-        if "leftrightarrow" in op:
+        if "leftrightarrow" in operator:
             return Or(
                 extended_verify(state, ["wedge", Y, ["neg", Z]], eval_world),
                 extended_falsify(state, ["vee", Y, ["neg", Z]], eval_world),
             )
-        if "rightarrow" in op:
+        if "rightarrow" in operator:
             return Exists(
                 [y, z],
                 And(
@@ -277,7 +283,9 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                 ),
             )
         raise ValueError(
-            f"Something went wrong in extended_verify in evaluating the operator {op} in [{op}, {Y}, {Z}]"
+            sentence,
+            "Something has gone wrong in extended_falsify. "
+            f"The operator {operator} in {sentence} is not a recognized."
         )
 
     def true_at(sentence, eval_world):
@@ -288,6 +296,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         this should avoid the need for specific clauses for (un)negated CFs. 
         returns a Z3 constraint"""
         x = BitVec("t_x", N)
+        y = BitVec("t_y", N)
         u = BitVec("t_u", N)
         if len(sentence) == 1:
             sent = sentence[0]
@@ -318,22 +327,113 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                 )
             if "rightarrow" in op:
                 return Or(false_at(Y, eval_world), true_at(Z, eval_world))
+            if "leq" in op:
+                return ForAll(
+                    [x, y],
+                    And(
+                        Implies(
+                            extended_verify(x, Y, eval_world),
+                            extended_verify(x, Z, eval_world)
+                        ),
+                        Implies(
+                            And(
+                                extended_falsify(x, Y, eval_world),
+                                extended_falsify(y, Z, eval_world)
+                            ),
+                            extended_falsify(fusion(x, y), Z, eval_world)
+                        ),
+                        Implies(
+                            extended_falsify(y, Z, eval_world),
+                            Exists(
+                                u,
+                                And(
+                                    is_part_of(u, y),
+                                    extended_falsify(u, Y, eval_world)
+                                )
+                            )
+                        )
+                    )
+                )
+            if "sqsubseteq" in op:
+                return ForAll(
+                    [x, y],
+                    And(
+                        Implies(
+                            And(
+                                extended_verify(x, Y, eval_world),
+                                extended_verify(y, Z, eval_world)
+                            ),
+                            extended_verify(fusion(x, y), Z, eval_world)
+                        ),
+                        Implies(
+                            extended_verify(y, Z, eval_world),
+                            Exists(
+                                u,
+                                And(
+                                    is_part_of(u, y),
+                                    extended_verify(u, Y, eval_world)
+                                )
+                            )
+                        ),
+                        Implies(
+                            extended_falsify(x, Y, eval_world),
+                            extended_falsify(x, Z, eval_world)
+                        )
+                    )
+                )
+            if "equiv" in op:
+                return ForAll(
+                    x,
+                    And(
+                        Implies(
+                            extended_verify(x, Y, eval_world),
+                            extended_verify(x, Z, eval_world)
+                        ),
+                        Implies(
+                            extended_falsify(x, Y, eval_world),
+                            extended_falsify(x, Z, eval_world)
+                        ),
+                        Implies(
+                            extended_verify(x, Z, eval_world),
+                            extended_verify(x, Y, eval_world)
+                        ),
+                        Implies(
+                            extended_falsify(x, Z, eval_world),
+                            extended_falsify(x, Y, eval_world)
+                        ),
+                    )
+                )
             if "boxright" in op:
                 # print(f"TEST: cf operator = {op}, ant = {Y}, con = {Z}")
                 return ForAll(
                     [x, u],
                     Implies(
-                        And(extended_verify(x, Y, eval_world), is_alternative(u, x, eval_world)),
+                        And(
+                            extended_verify(x, Y, eval_world),
+                            is_alternative(u, x, eval_world)
+                        ),
                         true_at(Z, u),
                     ),
                 )
-        raise ValueError(f'No if statements triggered— true_at for {sentence} at world {eval_world}')
+            if "circleright" in op:
+                return Exists(
+                    [x, u],
+                    And(
+                        extended_verify(x, Y, eval_world),
+                        is_alternative(u, x, eval_world),
+                        true_at(Z, u),
+                    ),
+                )
+        raise ValueError(
+            f'No if statements triggered— true_at for {sentence} at world {eval_world}'
+        )
 
     def false_at(sentence, eval_world):
         """X is a sentence in prefix notation, eval world is the world the sentence is to be
         evaulated at. See true_at (above) for an important note on exhaustivity.
         returns a Z3 constraint"""
         x = BitVec("f_x", N)
+        y = BitVec("f_y", N)
         u = BitVec("f_u", N)
         if len(sentence) == 1:
             sent = sentence[0]
@@ -363,13 +463,101 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                 )
             if "rightarrow" in op:
                 return And(true_at(Y, eval_world), false_at(Z, eval_world))
+            if "leq" in op:
+                return Exists(
+                    [x, y],
+                    Or(
+                        And(
+                            extended_verify(x, Y, eval_world),
+                            Not(extended_verify(x, Z, eval_world))
+                        ),
+                        And(
+                            extended_falsify(x, Y, eval_world),
+                            extended_falsify(y, Z, eval_world),
+                            Not(extended_falsify(fusion(x, y), Z, eval_world))
+                        ),
+                        And(
+                            extended_falsify(y, Z, eval_world),
+                            ForAll(
+                                u,
+                                Implies(
+                                    is_part_of(u, y),
+                                    Not(extended_falsify(u, Y, eval_world))
+                                )
+                            )
+                        )
+                    )
+                )
+            if "sqsubseteq" in op:
+                return Exists(
+                    [x, y],
+                    Or(
+                        And(
+                            extended_verify(x, Y, eval_world),
+                            extended_verify(y, Z, eval_world),
+                            Not(extended_verify(fusion(x, y), Z, eval_world))
+                        ),
+                        And(
+                            extended_verify(y, Z, eval_world),
+                            ForAll(
+                                u,
+                                Implies(
+                                    is_part_of(u, y),
+                                    Not(extended_verify(u, Y, eval_world))
+                                )
+                            )
+                        ),
+                        And(
+                            extended_falsify(x, Y, eval_world),
+                            Not(extended_falsify(x, Z, eval_world))
+                        )
+                    )
+                )
+            if "equiv" in op:
+                return Exists(
+                    x,
+                    Or(
+                        And(
+                            extended_verify(x, Y, eval_world),
+                            Not(extended_verify(x, Z, eval_world))
+                        ),
+                        And(
+                            extended_falsify(x, Y, eval_world),
+                            Not(extended_falsify(x, Z, eval_world))
+                        ),
+                        And(
+                            extended_verify(x, Z, eval_world),
+                            Not(extended_verify(x, Y, eval_world))
+                        ),
+                        And(
+                            extended_falsify(x, Z, eval_world),
+                            Not(extended_falsify(x, Y, eval_world))
+                        ),
+                    )
+                )
             if "boxright" in op:
                 # print(f"TEST: cf operator = {op}, ant = {Y}, con = {Z}")
                 return Exists(
                     [x, u],
-                    And(extended_verify(x, Y, eval_world), is_alternative(u, x, eval_world), false_at(Z, u)),
+                    And(
+                        extended_verify(x, Y, eval_world),
+                        is_alternative(u, x, eval_world),
+                        false_at(Z, u)),
                 )
-        raise ValueError(f'No if statements triggered in false_at for {sentence} at world {eval_world}')
+            if "circleright" in op:
+                return ForAll(
+                    [x, u],
+                    Implies(
+                        And(
+                            extended_verify(x, Y, eval_world),
+                            is_alternative(u, x, eval_world)
+                        ),
+                        false_at(Z, u),
+                    ),
+                )
+        raise ValueError(
+            f'No if statements triggered in false_at for {sentence} at world {eval_world}'
+        )
 
     def prop_const(atom):
         """
@@ -383,10 +571,6 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         sent_to_prop = [
             Not(verify(0, atom)),
             Not(falsify(0, atom)),
-            # Exists(x, non_null_verify(x, atom)),
-            # Exists(y, non_null_falsify(y, atom)),
-            # Exists(x, non_triv_verify(x, atom)),
-            # Exists(y, non_triv_falsify(y, atom)),
             ForAll(
                 [x, y],
                 Implies(

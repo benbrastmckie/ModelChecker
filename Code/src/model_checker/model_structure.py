@@ -112,11 +112,14 @@ class ModelSetup:
             self.N,
             self.w
         )
-        frame_constraints, prop_constraints, premise_constraints, conclusion_constraints = find_constraints_func(self.prefix_premises, self.prefix_conclusions)
-        self.frame_constraints = frame_constraints
-        self.prop_constraints = prop_constraints
-        self.premise_constraints = premise_constraints
-        self.conclusion_constraints = conclusion_constraints
+        frame_cons, prop_cons, premise_cons, conclusion_cons = find_constraints_func(
+            self.prefix_premises,
+            self.prefix_conclusions
+        )
+        self.frame_constraints = frame_cons
+        self.prop_constraints = prop_cons
+        self.premise_constraints = premise_cons
+        self.conclusion_constraints = conclusion_cons
         prefix_sentences = self.prefix_premises + self.prefix_conclusions
         self.all_subsentences = find_subsentences(prefix_sentences)
 
