@@ -19,41 +19,26 @@ print_cons_bool = False
 print_unsat_core_bool = True
 
 # print all states including impossible states
-print_impossible_states_bool = False
+print_impossible_states_bool = True
 
 # present option to append output to file
 save_bool = False
 
 
+
 ################################
-########### WORKING ############
+##### COUNTERFACTUAL LOGIC #####
 ################################
-
-# # NOTE: this works
-# premises = ['neg A','(neg A boxright B)']
-# premises = ['A','(neg neg A boxright B)']
-# premises = ['neg A','(neg neg neg A boxright B)']
-# conclusions = ['B']
-
-# # # # NOTE: false premise model?
-# # premises = ['neg A','(not A boxright B)']
-# # # premises = ['A','(not neg A boxright B)']
-# # # premises = ['A','(neg not A boxright B)']
-# # # premises = ['neg A','(not neg neg A boxright B)']
-# # # premises = ['neg A','(neg not neg A boxright B)']
-# # # premises = ['neg A','(neg neg not A boxright B)']
-# premises = ['neg A','Diamond A','Diamond B','(not A boxright B)']
-# conclusions = ['B']
-
-# premises = ['A','Box (A leftrightarrow B)']
-# conclusions = ['B']
-
 
 ### INVALID ###
 
-# COUNTERFACTUAL ANTECEDENT STRENGTHENING
-premises = ['(A boxright C)']
-conclusions = ['((A wedge B) boxright C)']
+# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# premises = ['(A boxright C)']
+# conclusions = ['((A wedge B) boxright C)']
+
+# # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# premises = ['(A circleright C)']
+# conclusions = ['((A wedge B) circleright C)']
 
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # premises = ['(A boxright C)', 'Diamond (A wedge B)']
@@ -121,7 +106,7 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['neg A','(A boxright (B vee C))']
 # conclusions = ['(A boxright B)','(A boxright C)']
 
-# # FACTIVITY
+# # MUST FACTIVITY
 # premises = ['A','B']
 # conclusions = ['(A boxright B)']
 
@@ -143,6 +128,10 @@ conclusions = ['((A wedge B) boxright C)']
 
 
 ### VALID ###
+
+# # FACTIVITY MIGHT
+# premises = ['A','B']
+# conclusions = ['(A circleright B)']
 
 # premises = ['A','(A rightarrow B)']
 # conclusions = ['B']
@@ -182,7 +171,9 @@ conclusions = ['((A wedge B) boxright C)']
 
 
 
-### MODAL LOGIC ###
+################################
+########## MODAL LOGIC #########
+################################
 
 # # K axiom (box)
 # premises = ['Box (A rightarrow B)']
@@ -231,6 +222,104 @@ conclusions = ['((A wedge B) boxright C)']
 
 
 
+################################
+###### CONSTITUTIVE LOGIC ######
+################################
+
+### DEFINITIONAL EQUIVALENTS ###
+
+# # GROUND TO ESSENCE
+# premises = ['(A leq B)']
+# conclusions = ['(neg A sqsubseteq neg B)']
+
+# # ESSENCE TO GROUND
+# premises = ['(A sqsubseteq B)']
+# conclusions = ['(neg A leq neg B)']
+
+# # ESSENCE TO IDENTITY
+# premises = ['(A sqsubseteq B)']
+# conclusions = ['((A wedge B) equiv B)']
+
+# # IDENTITY TO ESSENCE
+# # SLOW: 12.7 seconds locally
+# premises = ['((A wedge B) equiv B)']
+# conclusions = ['(A sqsubseteq B)']
+
+# # GROUND TO IDENTITY
+# premises = ['(A leq B)']
+# conclusions = ['((A vee B) equiv B)']
+
+# # IDENTITY TO GROUND
+# # SLOW: 18.1 seconds locally
+# premises = ['((A vee B) equiv B)']
+# conclusions = ['(A leq B)']
+
+
+### MODAL INTERACTION ###
+
+# # GROUND TO STRICT IMPLICATION
+# premises = ['(A leq B)']
+# conclusions = ['Box (A rightarrow B)']
+
+# # ESSENCE TO STRICT IMPLICATION
+# premises = ['(A sqsubseteq B)']
+# conclusions = ['Box (B rightarrow A)']
+
+# conclusions = ['(A sqsubseteq (A wedge B))']
+# conclusions = ['(neg A leq neg (A wedge B))']
+# conclusions = ['((A wedge B) leq (A vee B))']
+
+# premises = ['(A leq B)','(B leq C)']
+# conclusions = ['(A leq C)']
+
+# premises = ['(A leq C)','(B leq C)']
+# conclusions = ['((A vee B) leq C)']
+
+# premises = ['(A leq B)','(B leq A)']
+# conclusions = ['(A equiv B)']
+
+# premises = ['((A wedge B) equiv B)']
+# conclusions = ['(A sqsubseteq B)']
+
+
+### INVALID ###
+
+# # STRICT IMPLICATION TO GROUND
+# premises = ['Box (A rightarrow B)']
+# conclusions = ['(A leq B)']
+
+# # STRICT IMPLICATION TO ESSENCE
+# premises = ['Box (B rightarrow A)']
+# conclusions = ['(A sqsubseteq B)']
+
+
+
+
+################################
+###### EXCLUSION OPERATOR ######
+################################
+
+### WORKING ###
+
+# # NOTE: this works
+# premises = ['neg A','(neg A boxright B)']
+# premises = ['A','(neg neg A boxright B)']
+# premises = ['neg A','(neg neg neg A boxright B)']
+# conclusions = ['B']
+
+### TESTING ###
+
+# # # # NOTE: false premise model?
+# # premises = ['neg A','(not A boxright B)']
+# # # premises = ['A','(not neg A boxright B)']
+# # # premises = ['A','(neg not A boxright B)']
+# # # premises = ['neg A','(not neg neg A boxright B)']
+# # # premises = ['neg A','(neg not neg A boxright B)']
+# # # premises = ['neg A','(neg neg not A boxright B)']
+# premises = ['neg A','Diamond A','Diamond B','(not A boxright B)']
+# conclusions = ['B']
+
+
 
 ################################
 ######### NOT WORKING ##########
@@ -248,6 +337,11 @@ conclusions = ['((A wedge B) boxright C)']
 # conclusions = []
 
 
+
+
+################################
+########### CRASHED ############
+################################
 
 ### CRASHED: MODALITY ###
 
