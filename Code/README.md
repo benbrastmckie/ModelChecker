@@ -92,9 +92,9 @@ The semantics for essence requires every fusion of a verifier for the antecedent
 The semantics for propositional identity requires the two arguments to have the same verifiers and falsifiers.
 All three constitutive operators are interdefinable as indicated below: 
 
-- `A leq B` _iff_ `neg A sqsubseteq neg B` _iff_ `(A vee B) equiv B`.
-- `A sqsubseteq B` _iff_ `neg A leq neg B` _iff_ `(A wedge B) equiv B`
-- `A equiv B` _iff_ `(A leq B) wedge (B leq A)` _iff_ `(A sqsubseteq B) wedge (B sqsubseteq A)`.
+- `A leq B  :=  neg A sqsubseteq neg B  :=  (A vee B) equiv B`.
+- `A sqsubseteq B  :=  neg A leq neg B  :=  (A wedge B) equiv B`.
+- `A equiv B  :=  (A leq B) wedge (B leq A)  :=  (A sqsubseteq B) wedge (B sqsubseteq A)`.
 
 Instead of a Boolean lattice as in extensional and intensional semantics theories, the space of hyperintensional propositions forms a non-interlaced bilattice as described in this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w), building on [Fine 2017](https://link.springer.com/article/10.1007/s10992-016-9413-y).
 
