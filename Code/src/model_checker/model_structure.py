@@ -138,7 +138,12 @@ class ModelSetup:
         self.atomic_props_dict is a dictionary with keys AtomSorts and keys (V,F)
         """
         model_start = time.time()  # start benchmark timer
-        constraints = self.frame_constraints + self.prop_constraints + self.premise_constraints + self.conclusion_constraints
+        constraints = (
+            self.frame_constraints +
+            self.prop_constraints +
+            self.premise_constraints +
+            self.conclusion_constraints
+        )
         z3_model_status, z3_model = solve_constraints(constraints)
         model_end = time.time()
         model_runtime = round(model_end - model_start, 4)

@@ -301,7 +301,7 @@ save_bool = False
 
 ### WORKING ###
 
-# # NOTE: this works
+# # NOTE: these work
 # premises = ['neg A','(neg A boxright B)']
 # premises = ['A','(neg neg A boxright B)']
 # premises = ['neg A','(neg neg neg A boxright B)']
@@ -312,8 +312,13 @@ save_bool = False
 # premises = ['Box (A leftrightarrow B)']
 # conclusions = ['(not A equiv not B)']
 
-premises = ['Box (A leftrightarrow B)']
-conclusions = ['(not A leq not B)']
+# premises = ['(A equiv B)']
+# conclusions = ['(not A equiv not B)']
+
+
+# NOTE: true conclusion model?
+premises = []
+conclusions = ['(A equiv not not A)']
 
 # # # # NOTE: false premise model?
 # # premises = ['neg A','(not A boxright B)']
