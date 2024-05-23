@@ -198,7 +198,7 @@ class ModelStructure:
         self.print_enumerate(output)
         print(file=output)
         if print_unsat_core_bool:
-            self.print_constraints(self.z3_model, 'UNSAT CORE', output)
+            self.print_constraints(self.z3_model, '', output)
         print(f"Run time: {self.model_runtime} seconds\n", file=output)
 
     def no_model_save(self, print_unsat_core_bool, output):
@@ -217,7 +217,7 @@ class ModelStructure:
         if self.model_status:
             print(f"Satisfiable {name} constraints:\n", file=output)
         else:
-            print(f"Unsatisfiable {name} core constraints:\n", file=output)
+            print("Unsatisfiable core constraints:\n", file=output)
         for index, con in enumerate(consts, start=1):
             print(f"{index}. {con}\n", file=output)
             # print(f"Constraints time: {time}\n")
@@ -416,7 +416,7 @@ class StateSpace:
             self.rec_print(left_subprop, world_bit, print_impossible, output, indent)
             print(
                 f'{"  " * indent}'
-                f'{left_subprop}-alternatives to {bitvec_to_substates(world_bit, N)} = '
+                f'({left_subprop})-alternatives to {bitvec_to_substates(world_bit, N)} = '
                 f'{pretty_set_print(alt_worlds_as_strings)}',
                 file=output
             )
