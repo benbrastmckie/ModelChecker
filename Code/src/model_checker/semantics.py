@@ -154,6 +154,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                     Exists(
                         y,
                         And(
+                            # possible(y),
                             extended_verify(y, sentence, eval_world),
                             Not(compatible(x, y))
                         )
@@ -163,7 +164,10 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             ForAll(
                 x,
                 Implies(
-                    extended_verify(x, sentence, eval_world),
+                    And(
+                        # possible(x),
+                        extended_verify(x, sentence, eval_world),
+                    ),
                     Exists(
                         y,
                         And(
@@ -184,9 +188,9 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             sentence_letter = sentence[0]
             return verify(state, sentence_letter)
         op = sentence[0]
-        Y = sentence[1]
         if "boxright" in op or "Box" in op or "Diamond" in op:
             return true_at(sentence, eval_world)
+        Y = sentence[1]
         if "neg" in op:
             return extended_falsify(state, Y, eval_world)
         if "not" in op:
@@ -235,9 +239,11 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         op = ext_sent[0]
         if "boxright" in op or "Box" in op or "Diamond" in op:
             return false_at(ext_sent, eval_world)
-        if "neg" in op:
-            return extended_verify(state, ext_sent[1], eval_world)
         Y = ext_sent[1]
+        if "neg" in op:
+            return extended_verify(state, Y, eval_world)
+        if "not" in op:
+            return exclude(state, Y, eval_world)
         Z = ext_sent[2]
         if "wedge" in op:
             return Or(
