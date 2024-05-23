@@ -174,7 +174,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         if len(ext_sent) == 1:
             return falsify(state, ext_sent[0])
         op = ext_sent[0]
-        if "boxright" in op or "Box" in op or "neg" in op:
+        if "boxright" in op or "Box" in op or "Diamond" in op:
             return false_at(ext_sent, eval_world)
             # raise ValueError(
             #     f"\n\nThe antecedent of a counterfactual conditional must be extensional.\n"
