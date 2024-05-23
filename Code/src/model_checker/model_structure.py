@@ -317,7 +317,7 @@ class StateSpace:
         sentence_letters = self.sentence_letters
         main_world = self.main_world
         print(
-            f"\nThe evaluation world is {bitvec_to_substates(main_world, N)}:",
+            f"\nThe evaluation world is: {bitvec_to_substates(main_world, N)}",
             file=output,
         )
         true_in_eval = set()
@@ -375,7 +375,7 @@ class StateSpace:
         """print all fusions of atomic states in the model
         first print function in print.py"""
         N = self.model_setup.N
-        print("\nPossible states:", file=output)  # Print states
+        print("\nState Space:", file=output)  # Print states
         YELLOW = '\033[33m'
         BLUE = '\033[34m'
         MAGENTA = '\033[35m'
@@ -393,13 +393,13 @@ class StateSpace:
                 print(f"  {WHITE}{bin_rep} = {YELLOW}{state}{RESET}", file=output)
                 continue
             if bit in self.world_bits:
-                print(f"  {WHITE}{bin_rep} = {BLUE}{state}{WHITE} (world){RESET}", file=output)
+                print(f"  {WHITE}{bin_rep} = {BLUE}{state} (world){RESET}", file=output)
                 continue
             if bit in self.poss_bits:
                 print(f"  {WHITE}{bin_rep} = {CYAN}{state}{RESET}", file=output)
                 continue
             if print_impossible:
-                print(f"  {WHITE}{bin_rep} = {MAGENTA}{state}{WHITE} (impossible){RESET}", file=output)
+                print(f"  {WHITE}{bin_rep} = {MAGENTA}{state} (impossible){RESET}", file=output)
 
     def rec_print(self, prop_obj, world_bit, print_impossible, output, indent=0):
         """recursive print function (previously print_sort)
@@ -472,7 +472,7 @@ class StateSpace:
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
         N = self.model_setup.N
-        print(f"There is a {N}-model of:\n", file=output)
+        print(f"\nThere is a {N}-model of:\n", file=output)
         self.model_structure.print_enumerate(output)
         self.print_states(print_impossible, output)
         self.print_evaluation(output)
@@ -587,7 +587,7 @@ class Proposition:
                 FULL = RED
                 PART = RED
         else:
-            FULL = '\033[0m'
+            FULL = '\033[37m'
             PART = '\033[33m'
         print(
             f"{'  ' * indent_num}{FULL}|{self}| = < {ver_prints}, {fal_prints} >{RESET}"
