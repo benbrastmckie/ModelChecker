@@ -19,7 +19,7 @@ print_cons_bool = False
 print_unsat_core_bool = True
 
 # print all states including impossible states
-print_impossible_states_bool = True
+print_impossible_states_bool = False
 
 # present option to append output to file
 save_bool = False
@@ -35,15 +35,15 @@ save_bool = False
 # premises = ['neg A','(neg neg neg A boxright B)']
 # conclusions = ['B']
 
-# # # NOTE: false premise model?
-# premises = ['neg A','(not A boxright B)']
-# # premises = ['A','(not neg A boxright B)']
-# # premises = ['A','(neg not A boxright B)']
-# # premises = ['neg A','(not neg neg A boxright B)']
-# # premises = ['neg A','(neg not neg A boxright B)']
-# # premises = ['neg A','(neg neg not A boxright B)']
-premises = ['neg A','Diamond A','Diamond B','(not A boxright B)']
-conclusions = ['B']
+# # # # NOTE: false premise model?
+# # premises = ['neg A','(not A boxright B)']
+# # # premises = ['A','(not neg A boxright B)']
+# # # premises = ['A','(neg not A boxright B)']
+# # # premises = ['neg A','(not neg neg A boxright B)']
+# # # premises = ['neg A','(neg not neg A boxright B)']
+# # # premises = ['neg A','(neg neg not A boxright B)']
+# premises = ['neg A','Diamond A','Diamond B','(not A boxright B)']
+# conclusions = ['B']
 
 # premises = ['A','Box (A leftrightarrow B)']
 # conclusions = ['B']
@@ -51,9 +51,9 @@ conclusions = ['B']
 
 ### INVALID ###
 
-# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# premises = ['(A boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
+# COUNTERFACTUAL ANTECEDENT STRENGTHENING
+premises = ['(A boxright C)']
+conclusions = ['((A wedge B) boxright C)']
 
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # premises = ['(A boxright C)', 'Diamond (A wedge B)']
