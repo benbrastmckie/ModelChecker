@@ -123,10 +123,6 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         op = ext_sent[0]
         if "boxright" in op or "Box" in op or "Diamond" in op:
             return true_at(ext_sent, eval_world)
-            # raise ValueError(
-            #     f"\n\nThe antecedent of a counterfactual conditional must be extensional.\n"
-            #     f"The sentence '{infix(ext_sent)}' is not extensional.\n"
-            # )
         if "neg" in op:
             return extended_falsify(state, ext_sent[1], eval_world)
         Y = ext_sent[1]  # is a list itself
@@ -176,10 +172,6 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         op = ext_sent[0]
         if "boxright" in op or "Box" in op or "Diamond" in op:
             return false_at(ext_sent, eval_world)
-            # raise ValueError(
-            #     f"\n\nThe antecedent of a counterfactual conditional must be extensional.\n"
-            #     f"The sentence '{infix(ext_sent)}' is not extensional.\n"
-            # )
         if "neg" in op:
             return extended_verify(state, ext_sent[1], eval_world)
         Y = ext_sent[1]
@@ -192,8 +184,6 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             )
         y = BitVec("ex_fal_y", N)
         z = BitVec("ex_fal_z", N)
-        # usage of these two in vee and right arrow is mutually exclusive,
-        # so can define the y and z dummy bitvecs up here
         if "vee" in op:
             return Exists(
                 [y, z],
