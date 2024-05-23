@@ -19,7 +19,7 @@ print_cons_bool = False
 print_unsat_core_bool = True
 
 # print all states including impossible states
-print_impossible_states_bool = True
+print_impossible_states_bool = False
 
 # present option to append output to file
 save_bool = False
@@ -308,6 +308,12 @@ save_bool = False
 # conclusions = ['B']
 
 ### TESTING ###
+
+# premises = ['Box (A leftrightarrow B)']
+# conclusions = ['(not A equiv not B)']
+
+premises = ['Box (A leftrightarrow B)']
+conclusions = ['(not A leq not B)']
 
 # # # # NOTE: false premise model?
 # # premises = ['neg A','(not A boxright B)']
