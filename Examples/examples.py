@@ -62,17 +62,17 @@ save_bool = False
 # premises = ['neg A','(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 
-# SOBEL SEQUENCE (N = 3)
-premises = [
-    '(A boxright X)', # 0.03 seconds locally
-    'neg ((A wedge B) boxright X)', # 14.8 seconds locally
-    '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
-    'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
-    # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # 20.5 seconds locally
-    # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # 64 seconds on the MIT servers
-    # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # 327.2 seconds on the MIT servers
-]
-conclusions = []
+# # SOBEL SEQUENCE (N = 3)
+# premises = [
+#     '(A boxright X)', # 0.03 seconds locally
+#     'neg ((A wedge B) boxright X)', # 14.8 seconds locally
+#     '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
+#     # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
+#     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # 20.5 seconds locally
+#     # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # 64 seconds on the MIT servers
+#     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # 327.2 seconds on the MIT servers
+# ]
+# conclusions = []
 
 # # SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
 # premises = [
@@ -101,7 +101,7 @@ conclusions = []
 # premises = ['neg A','(A boxright (B vee C))']
 # conclusions = ['(A boxright B)','(A boxright C)']
 
-# FACTIVITY
+# # FACTIVITY
 # premises = ['A','B']
 # conclusions = ['(A boxright B)']
 
@@ -142,14 +142,15 @@ conclusions = []
 # premises = ['(A boxright (B wedge C))']
 # conclusions = ['(A boxright B)']
 
+# SLOW: 8.4 seconds locally
 # premises = ['(A boxright B)','(A boxright C)']
 # conclusions = ['(A boxright (B wedge C))']
 
-# # SLOW: slow 13.8 seconds locally
+# # SLOW: 13.8 seconds locally
 # premises = ['(A boxright B)']
 # conclusions = ['(A rightarrow B)']
 
-# # SLOW: slow 41.6 seconds locally
+# # SLOW: 41.6 seconds locally
 # premises = ['(A boxright B)','((A wedge B) boxright C)']
 # conclusions = ['(A boxright C)']
 
@@ -168,6 +169,7 @@ conclusions = []
 # conclusions = ['(Box A rightarrow Box B)']
 
 # # T axiom (top)
+# # SLOW: crashed locally; MIT servers found a model in 5 seconds
 # premises = ['(top boxright A)']
 # conclusions = ['A']
 
@@ -193,6 +195,7 @@ conclusions = []
 # conclusions = ['Box Diamond A']
 
 # # 5 axiom (top)
+# # SLOW: 12.9 seconds locally
 # premises = ['(top boxright A)']
 # conclusions = ['(top boxright neg (top boxright neg A))']
 
@@ -212,6 +215,19 @@ conclusions = []
 ################################
 ######### NOT WORKING ##########
 ################################
+
+### FALSE PREMISE MODEL ###
+
+# SOBEL SEQUENCE (N = 3)
+premises = [
+    '(A boxright X)', # 0.03 seconds locally
+    'neg ((A wedge B) boxright X)', # 14.8 seconds locally
+    '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
+    'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
+]
+conclusions = []
+
+
 
 ### CRASHED: MODALITY ###
 
