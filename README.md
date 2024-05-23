@@ -76,7 +76,7 @@ Users can override these settings by including the following flags:
 - Include `-i` to print impossible states.
 - Include `-s` to prompt the user to save the output in a new file.
 
-Users can print help information, the current version, and upgrade to the latest version by including the following flags:
+Users can print help information, the current version, and upgrade to the latest version with the following flags:
 
 - Include `-h` to print help information about the programs usage.
 - Include `-v` to print the installed version number.
