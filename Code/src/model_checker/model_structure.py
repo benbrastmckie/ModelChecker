@@ -326,18 +326,22 @@ class StateSpace:
                     true_in_eval.add(sent)
                     break  # exits the first for loop
         false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
+        GREEN = '\033[32m'
+        RED = '\033[31m'
+        # YELLOW = '\033[33m'
+        RESET = '\033[0m'
         if true_in_eval:
             true_eval_list = sorted([str(sent) for sent in true_in_eval])
             true_eval_string = ", ".join(true_eval_list)
             print(
-                f"  {true_eval_string}  (True in {bitvec_to_substates(main_world, N)})",
+                f"  {GREEN}{true_eval_string}  (True in {bitvec_to_substates(main_world, N)}){RESET}",
                 file=output,
             )
         if false_in_eval:
             false_eval_list = sorted([str(sent) for sent in false_in_eval])
             false_eval_string = ", ".join(false_eval_list)
             print(
-                f"  {false_eval_string}  (False in {bitvec_to_substates(main_world, N)})",
+                f"  {RED}{false_eval_string}  (False in {bitvec_to_substates(main_world, N)}){RESET}",
                 file=output,
             )
         print(file=output)
@@ -364,10 +368,9 @@ class StateSpace:
         first print function in print.py"""
         N = self.model_setup.N
         print("\nPossible states:", file=output)  # Print states
-        RED = '\033[31m'
         YELLOW = '\033[33m'
-        MAGENTA = '\033[35m'
         BLUE = '\033[34m'
+        MAGENTA = '\033[35m'
         CYAN = '\033[36m'
         RESET = '\033[0m'
         for bit in self.all_bits:
@@ -541,13 +544,22 @@ class Proposition:
         if fal_states:
             fal_prints = pretty_set_print(fal_states)
         world_state = bitvec_to_substates(eval_world, N)
+        RED = '\033[31m'
+        GREEN = '\033[32m'
         RESET = '\033[0m'
-        COLOR = '\033[0m'
         if indent_num == 1:
-            COLOR = '\033[32m'
+            if truth_value:
+                FULL = GREEN
+                PART = GREEN
+            else:
+                FULL = RED
+                PART = RED
+        else:
+            FULL = '\033[0m'
+            PART = '\033[33m'
         print(
-            f"{'  ' * indent_num}|{self}| = < {ver_prints}, {fal_prints} >"
-            f"  {COLOR}({truth_value} in {world_state}){RESET}",
+            f"{'  ' * indent_num}{FULL}|{self}| = < {ver_prints}, {fal_prints} >{RESET}"
+            f"  {PART}({truth_value} in {world_state}){RESET}",
             file=output,
         )
 
