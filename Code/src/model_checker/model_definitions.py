@@ -384,6 +384,7 @@ def evaluate_modal_expr(model_structure, prefix_modal, eval_world):
     used to initialize Counterfactuals
     returns a bool representing whether the counterfactual is true at the world or not'''
     op, argument = prefix_modal[0], prefix_modal[1]
+    # TODO: is this necessary?
     # if is_modal(argument):
     #     if model_structure.evaluate_modal_expr(prefix_modal) is True: # ie, verifiers is null state
     #         return True # both Box and Diamond will return true, since verifiers is not empty
@@ -405,11 +406,15 @@ def evaluate_cf_expr(state_space, prefix_cf, eval_world):
     returns a bool representing whether the counterfactual is true at the world or not
     """
     antecedent, consequent = prefix_cf[1], prefix_cf[2]
-    ant_verifiers = find_complex_proposition(state_space, antecedent, eval_world)[0]
-    con_falsifiers = find_complex_proposition(state_space, consequent, eval_world)[1]
-    antecedent_alts = state_space.find_alt_bits(ant_verifiers, eval_world)
-    if any(bit_part(con_fal, u) for u in antecedent_alts for con_fal in con_falsifiers):
-        return False
+    antecedent_vers = find_complex_proposition(state_space, antecedent, eval_world)[0]
+    consequent_fals = find_complex_proposition(state_space, consequent, eval_world)[1]
+    antecedent_alts = state_space.find_alt_bits(antecedent_vers, eval_world)
+    # if any(bit_part(con_fal, u) for u in antecedent_alts for con_fal in con_falsifiers):
+    #     return False
+    for alt_world in antecedent_alts:
+        for falsifier in consequent_fals:
+            if bit_part(falsifier, alt_world):
+                return False
     return True
 
 # def evaluate_mainclause_cf_expr(model_structure, prefix_cf, eval_world):

@@ -469,7 +469,7 @@ class Proposition:
         verifiers, falsifiers = find_complex_proposition(model_structure, prefix_expr, eval_world)
         self.prop_dict["verifiers"] = verifiers
         self.prop_dict["falsifiers"] = falsifiers
-        # if is_counterfactual(prefix_expr):
+        # TODO: can the following conditional lines be avoided?
         if 'boxright' in str(prefix_expr[0]):
             self.current_eval_world = eval_world
             true_worlds, false_worlds = true_and_false_worlds_for_cf(model_structure, prefix_expr)
@@ -506,6 +506,7 @@ class Proposition:
         ensures eval_world is in fact the eval_world for CFs"""
         N = self.model_structure.N
         truth_value = self.truth_value_at(eval_world)
+        # TODO: is this necessary?
         # prefix_expr_op = self.prop_dict["prefix expression"][0]
         # if 'boxright' in str(prefix_expr_op):
         #     self.update_verifiers(eval_world)
