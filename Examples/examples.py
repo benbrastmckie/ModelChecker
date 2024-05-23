@@ -29,10 +29,10 @@ save_bool = False
 ########### WORKING ############
 ################################
 
-N = 3
-# premises = ['not A','(not A boxright B)']
-premises = ['B','A']
-conclusions = []
+N = 4
+premises = ['not A','(not A boxright B)']
+# premises = ['B','A']
+conclusions = ['B']
 
 ### INVALID ###
 

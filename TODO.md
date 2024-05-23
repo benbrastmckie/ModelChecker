@@ -7,7 +7,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [.] _B_ unit tests
 - [:] semantics
   - [x] added exclude for `not` operator
-  - [.] test
+    - [.] test
+  - [ ] essence and ground
+    - [ ] test
 - [ ] check syntax flag
   - runs infix after prefix, printing both
 - [.] documentation

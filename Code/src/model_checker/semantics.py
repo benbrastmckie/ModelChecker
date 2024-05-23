@@ -144,8 +144,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
 
     def exclude(state, sentence, eval_world):
         """to simulate bilateral semantics"""
-        x = BitVec("exclud_fal_x", N)
-        y = BitVec("exclud_fal_y", N)
+        x = BitVec("exclude_x", N)
+        y = BitVec("exclude_y", N)
         return And(
             ForAll(
                 x,
@@ -313,7 +313,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             if "rightarrow" in op:
                 return Or(false_at(Y, eval_world), true_at(Z, eval_world))
             if "boxright" in op:
-                print(f"TEST: cf operator = {op}, ant = {Y}, con = {Z}")
+                # print(f"TEST: cf operator = {op}, ant = {Y}, con = {Z}")
                 return ForAll(
                     [x, u],
                     Implies(
