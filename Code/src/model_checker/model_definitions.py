@@ -160,19 +160,17 @@ def atomic_propositions_dict_maker(state_space):
 def bit_fusion(bit_s, bit_t):
     """the result of taking the maximum for each index in _s and _t"""
     return simplify(bit_s | bit_t)
-    # NOTE: this does seem to make a difference, otherwise no comp_parts
+    # NOTE: 'simplify' does seem to make a difference, otherwise no comp_parts
 
 def bit_part(bit_s, bit_t):
     """the fusion of _s and _t is identical to bit_t"""
     return bool(simplify(bit_fusion(bit_s, bit_t) == bit_t))
-    # NOTE: this does seem to make a difference, otherwise no comp_parts
+    # NOTE: 'bool' does seem to make a difference, otherwise no comp_parts
 
 def bit_proper_part(bit_s, bit_t):
     """bit_s is a part of bit_t and bit_t is not a part of bit_s"""
     return bool(bit_part(bit_s, bit_t)) and not bit_s == bit_t
     # NOTE: this does not seem to make a difference and so has been turned off
-    # in the interest of discovering if it is required or not
-    # return bool(bit_part(bit_s, bit_t)) and not bit_s == bit_t
 
 def index_to_substate(index):
     '''
@@ -255,31 +253,6 @@ def bitvec_to_substates(bit_vec, N):
 #     disjoin_neg_conclusions = disjoin_prefix(neg_conclusions)
 #     return prefix_premises + disjoin_neg_conclusions
 
-def sentence_letters_in_compound(prefix_input_sentence):
-    """finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
-    returns a list of AtomSorts. CRUCIAL: IN THAT SENSE DOES NOT FOLLOW SYNTAX OF PREFIX SENTS.
-    But that's ok, just relevant to know
-    used in all_sentence_letters
-    """
-    if len(prefix_input_sentence) == 1:  # base case: atomic sentence
-        return [prefix_input_sentence[0]] # redundant but conceptually clear
-    return_list = []
-    for part in prefix_input_sentence[1:]:
-        return_list.extend(sentence_letters_in_compound(part))
-    return return_list
-
-def all_sentence_letters(prefix_sentences):
-    """finds all the sentence letters in a list of input sentences.
-    returns as a list with no repeats (sorted for consistency)
-    used in find_all_constraints and StateSpace __init__"""
-    sentence_letters = set()
-    for prefix_input in prefix_sentences:
-        sentence_letters_in_input = sentence_letters_in_compound(prefix_input)
-        for sentence_letter in sentence_letters_in_input:
-            sentence_letters.add(sentence_letter)
-    return list(sentence_letters)
-    # sort just to make every output the same, given sets aren't hashable
-
 # def is_counterfactual(prefix_sentence):
 #     '''returns a boolean to say whether a given sentence is a counterfactual
 #     used in find_extensional_subsentences'''
@@ -345,6 +318,15 @@ def all_sentence_letters(prefix_sentences):
 #         return (extensional, modal, counterfactual, all_subsentences)
 #     return rr(return_list)
 
+def repeats_removed(sentences):
+    '''takes a list and removes the repeats in it.
+    used in find_all_constraints'''
+    seen = []
+    for obj in sentences:
+        if obj not in seen:
+            seen.append(obj)
+    return seen
+
 def subsentences_of(prefix_sentence):
     '''finds all the subsentence of a prefix sentence
     returns these as a set
@@ -368,16 +350,6 @@ def find_subsentences(prefix_sentences):
         all_prefix_subs = subsentences_of(prefix_sent)
         all_subsentences.extend(all_prefix_subs)
     return repeats_removed(all_subsentences)
-
-def repeats_removed(sentences):
-    '''takes a list and removes the repeats in it.
-    used in find_all_constraints'''
-    seen = []
-    for obj in sentences:
-        if obj not in seen:
-            seen.append(obj)
-    return seen
-
 
 def evaluate_modal_expr(model_structure, prefix_modal, eval_world):
     '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
@@ -407,10 +379,11 @@ def evaluate_cf_expr(state_space, prefix_cf, eval_world):
     """
     antecedent, consequent = prefix_cf[1], prefix_cf[2]
     antecedent_vers = find_complex_proposition(state_space, antecedent, eval_world)[0]
+    # print(f"TEST: ant_ver = {antecedent_vers}")
     consequent_fals = find_complex_proposition(state_space, consequent, eval_world)[1]
+    # print(f"TEST: con_fal = {consequent_fals}")
     antecedent_alts = state_space.find_alt_bits(antecedent_vers, eval_world)
-    # if any(bit_part(con_fal, u) for u in antecedent_alts for con_fal in con_falsifiers):
-    #     return False
+    # print(f"TEST: ant_alts = {antecedent_alts}")
     for alt_world in antecedent_alts:
         for falsifier in consequent_fals:
             if bit_part(falsifier, alt_world):
@@ -437,11 +410,11 @@ def evaluate_cf_expr(state_space, prefix_cf, eval_world):
 #             return False
 #     return True
 
-def true_and_false_worlds_for_cf(model_structure, complex_cf_sent):
+def true_and_false_worlds_for_cf(model_structure, cf_sentence):
     '''used in find_complex_proposition'''
     worlds_true_at, worlds_false_at = set(), set()
     for world in model_structure.world_bits:
-        if find_complex_proposition(model_structure, complex_cf_sent, world)[0]:
+        if find_complex_proposition(model_structure, cf_sentence, world)[0]:
             worlds_true_at.add(world)
             continue
         worlds_false_at.add(world)
@@ -455,15 +428,14 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
     """
     if not model_structure.atomic_props_dict:
         raise ValueError(
-            "There is nothing in atomic_props_dict yet. Have you actually run the model?"
+            "There is nothing in atomic_props_dict yet. Has a model been found?"
         )
     if len(complex_sentence) == 1:
         sent = complex_sentence[0]
-        # TODO: linter error: expected 0 arguments
         return model_structure.atomic_props_dict[sent]
     op = complex_sentence[0]
     Y = complex_sentence[1]
-    if "neg" in op:
+    if "neg" in op or "not" in op:
         Y_V, Y_F = find_complex_proposition(model_structure, Y, eval_world)
         return (Y_F, Y_V)
     null_state = {BitVecVal(0,model_structure.N)}
@@ -486,8 +458,9 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
     if "rightarrow" in op:
         return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
     if "boxright" in op:
-        # if evaluate_mainclause_cf_expr(model_structure, complex_sentence, eval_world):
         if evaluate_cf_expr(model_structure, complex_sentence, eval_world):
+            # val = evaluate_cf_expr(model_structure, complex_sentence, eval_world)
+            # print(f"TEST: truth_vf of cf = {val}")
             return (null_state, set())
         return (set(), null_state)
     raise ValueError(f"Don't know how to handle {op} operator")
