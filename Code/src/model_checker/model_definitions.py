@@ -438,6 +438,8 @@ def true_and_false_worlds_for_cf(model_structure, cf_sentence):
 
 def find_excluders(verifiers, all_bits, poss_bits, null_singleton):
     """simulates the set of falsifiers"""
+    if not verifiers:
+        return null_singleton
     excluders = []
     for state in all_bits:
         comp_state_parts = set()
@@ -484,16 +486,11 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
     N = model_structure.N
     null_singleton = {BitVecVal(0,N)}
     if "not" in op:
+        all_bits = model_structure.all_bits
+        poss_bits = model_structure.poss_bits
         Y_V = find_complex_proposition(model_structure, Y, eval_world)[0]
-        if Y_V:
-            all_bits = model_structure.all_bits
-            poss_bits = model_structure.poss_bits
-            Y_F = find_excluders(Y_V, all_bits, poss_bits, null_singleton)
-            # Y_vers = [bitvec_to_substates(state, N) for state in Y_V]
-            # Y_fals = [bitvec_to_substates(state, N) for state in Y_F]
-            # print(f"TEST: {complex_sentence}: vers = {Y_vers}, fals = {Y_fals}")
-            return (Y_F, Y_V)
-        return (set(), null_singleton)
+        Y_F = find_excluders(Y_V, all_bits, poss_bits, null_singleton)
+        return (Y_F, Y_V)
     if 'Box' in op or 'Diamond' in op:
         if evaluate_modal_expr(model_structure, complex_sentence, eval_world):
             return (null_singleton, set())

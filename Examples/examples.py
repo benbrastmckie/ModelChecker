@@ -19,7 +19,7 @@ print_cons_bool = False
 print_unsat_core_bool = True
 
 # print all states including impossible states
-print_impossible_states_bool = False
+print_impossible_states_bool = True
 
 # present option to append output to file
 save_bool = False
@@ -254,6 +254,15 @@ save_bool = False
 # premises = ['((A vee B) equiv B)']
 # conclusions = ['(A leq B)']
 
+# # NEGATION TRANSPARENCY
+# premises = ['(A equiv B)']
+# conclusions = ['(neg A equiv neg B)']
+
+# # REVERSE NEGATION TRANSPARENCY
+# premises = ['(neg A equiv neg B)']
+# conclusions = ['(A equiv B)']
+
+
 
 ### MODAL INTERACTION ###
 
@@ -299,30 +308,51 @@ save_bool = False
 ###### EXCLUSION OPERATOR ######
 ################################
 
-### TESTING ###
+### INVALID ###
 
 # premises = ['Box (A leftrightarrow B)']
 # conclusions = ['(not A equiv not B)']
 
-# premises = ['(A equiv B)']
-# conclusions = ['(not A equiv not B)']
-
-# premises = ['A','not not A']
-# conclusions = []
-
 # premises = []
 # conclusions = ['(A equiv not not A)']
 
-# NOTE: false premise model?
-# premises = ['not A','(not A boxright B)']
-# premises = ['A','(not neg A boxright B)']
-# premises = ['A','(neg not A boxright B)']
-# premises = ['neg A','(not neg neg A boxright B)']
-# premises = ['neg A','(neg not neg A boxright B)']
-# premises = ['neg A','(neg neg not A boxright B)']
-premises = ['not A','Diamond A','Diamond B','(not A boxright B)']
-conclusions = ['B']
 
+
+### VALID ###
+
+# premises = ['(A equiv B)']
+# conclusions = ['(not A equiv not B)']
+
+# premises = []
+# conclusions = ['(A vee not A)']
+# conclusions = ['not (A wedge not A)']
+
+# premises = ['A']
+# conclusions = ['not not A']
+
+# premises = []
+# conclusions = ['(not not A equiv not not not not A)']
+
+
+
+### TESTING ###
+
+# # SLOW: ?? seconds
+# premises = []
+# conclusions = ['(not A equiv not not not A)']
+
+# # SLOW: ?? seconds
+# premises = ['(not A equiv not B)']
+# conclusions = ['Box (A leftrightarrow B)']
+
+# # CRASH: only tested locally
+# premises = ['(not A equiv not B)']
+# conclusions = ['(A equiv B)']
+
+# # NOTE: false premise model?
+# premises = ['not A','(not A boxright B)']
+# # premises = ['not A','Diamond A','Diamond B','(not A boxright B)']
+# conclusions = ['B']
 
 
 ################################
