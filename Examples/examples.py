@@ -1,5 +1,8 @@
 """
-module for user inputs.
+NOTE:
+
+This file includes a number of selected examples to help get a sense of the semantics.
+Further examples files are included in the parent directory.
 """
 import os
 parent_directory = os.path.dirname(__file__)
@@ -25,78 +28,27 @@ print_impossible_states_bool = True
 save_bool = False
 
 
-
 ################################
 ##### COUNTERFACTUAL LOGIC #####
 ################################
 
 ### INVALID ###
 
-# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# premises = ['(A boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
-
-# # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# premises = ['(A circleright C)']
-# conclusions = ['((A wedge B) circleright C)']
+# COUNTERFACTUAL ANTECEDENT STRENGTHENING
+premises = ['(A boxright C)']
+conclusions = ['((A wedge B) boxright C)']
 
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # premises = ['(A boxright C)', 'Diamond (A wedge B)']
-# conclusions = ['((A wedge B) boxright C)']
-
-# # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
-# # SLOW: requires N = 4 and 242 seconds on the MIT server
-# premises = ['neg A','(A boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 
 # # COUNTERFACTUAL CONTRAPOSITION
 # premises = ['(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 
-# # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
-# # SLOW: requires N = 4 and 125 seconds on the MIT server
-# premises = ['neg B','(A boxright B)']
-# conclusions = ['(neg B boxright neg A)']
-
 # # TRANSITIVITY
 # premises = ['(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
-
-# # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
-# # SLOW: 78 seconds on the MIT server
-# premises = ['neg A','(A boxright B)','(B boxright C)']
-# conclusions = ['(A boxright C)']
-
-# # SOBEL SEQUENCE (N = 3)
-# premises = [
-#     '(A boxright X)', # 0.03 seconds locally
-#     'neg ((A wedge B) boxright X)', # 14.8 seconds locally
-#     '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
-#     # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
-#     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # 20.5 seconds locally
-#     # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # 64 seconds on the MIT servers
-#     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # 327.2 seconds on the MIT servers
-# ]
-# conclusions = []
-
-# # SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
-# premises = [
-#     'Diamond A',
-#     '(A boxright X)', # 0.7 seconds locally
-#     'Diamond (A wedge B)',
-#     'neg ((A wedge B) boxright X)', # N = 3 took 4.8 seconds N = 4 took 155.4 seconds on the MIT servers
-#     # 'Diamond ((A wedge B) wedge C)',
-#     # '(((A wedge B) wedge C) boxright X)', # ? seconds
-#     # 'Diamond (((A wedge B) wedge C) wedge D)',
-#     # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # ? seconds
-#     # 'Diamond ((((A wedge B) wedge C) wedge D) wedge E)',
-#     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # ? seconds
-#     # 'Diamond (((((A wedge B) wedge C) wedge D) wedge E) wedge F)',
-#     # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # ? seconds
-#     # 'Diamond ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G)',
-#     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # ? seconds
-# ]
-# conclusions = []
 
 # # COUNTERFACTUAL EXCLUDED MIDDLE
 # premises = ['neg A']
@@ -106,7 +58,7 @@ save_bool = False
 # premises = ['neg A','(A boxright (B vee C))']
 # conclusions = ['(A boxright B)','(A boxright C)']
 
-# # MUST FACTIVITY
+# # COUNTERFACTUAL MUST FACTIVITY
 # premises = ['A','B']
 # conclusions = ['(A boxright B)']
 
@@ -123,22 +75,28 @@ save_bool = False
 # premises = ['(A boxright (B boxright C))']
 # conclusions = ['((A wedge B) boxright C)']
 
+# # SOBEL SEQUENCE
+# premises = [
+#     '(A boxright X)', # 0.03 seconds locally
+#     'neg ((A wedge B) boxright X)', # 14.8 seconds locally
+#     '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
+# ]
+# conclusions = []
 
+# # SOBEL SEQUENCE WITH POSSIBILITY
+# premises = [
+#     'Diamond A',
+#     '(A boxright X)', # 0.7 seconds locally
+#     'Diamond (A wedge B)',
+#     'neg ((A wedge B) boxright X)', # 4.8 seconds locally
+# ]
+# conclusions = []
 
 
 
 ### VALID ###
 
-# # FACTIVITY MIGHT
-# premises = ['A','B']
-# conclusions = ['(A circleright B)']
-
-# premises = ['A','(A rightarrow B)']
-# conclusions = ['B']
-
-# premises = ['Box (A rightarrow B)']
-# conclusions = ['(A boxright B)']
-
+# # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
 # premises = ['((A vee B) boxright C)']
 # conclusions = ['(A boxright C)']
 
@@ -163,10 +121,6 @@ save_bool = False
 # premises = ['(A boxright B)','((A wedge B) boxright C)']
 # conclusions = ['(A boxright C)']
 
-# # SLOW: crashed locally; MIT servers found a model in 5 seconds
-# premises = ['((A vee B) boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
-
 
 
 
@@ -175,40 +129,24 @@ save_bool = False
 ########## MODAL LOGIC #########
 ################################
 
+# premises = ['Box (A rightarrow B)']
+# conclusions = ['(A boxright B)']
+
 # # K axiom (box)
 # premises = ['Box (A rightarrow B)']
 # conclusions = ['(Box A rightarrow Box B)']
-
-# # T axiom (top)
-# # SLOW: crashed locally; MIT servers found a model in 5 seconds
-# premises = ['(top boxright A)']
-# conclusions = ['A']
 
 # # T axiom (box)
 # premises = ['Box A']
 # conclusions = ['A']
 
-# # 4 axiom (top)
-# premises = ['(top boxright A)']
-# conclusions = ['(top boxright (top boxright A))']
-
 # # 4 axiom (box)
 # premises = ['Box A']
 # conclusions = ['Box Box A']
 
-# # B axiom (top)
-# # SLOW: crashed locally; MIT servers found a model in 1600 seconds
-# premises = ['A']
-# conclusions = ['(top boxright neg (top boxright neg A))']
-
 # # B axiom (box)
 # premises = ['A']
 # conclusions = ['Box Diamond A']
-
-# # 5 axiom (top)
-# # SLOW: 12.9 seconds locally
-# premises = ['(top boxright A)']
-# conclusions = ['(top boxright neg (top boxright neg A))']
 
 # # 5 axiom (box)
 # premises = ['Box A']
@@ -291,6 +229,7 @@ save_bool = False
 # conclusions = ['(A sqsubseteq B)']
 
 
+
 ### INVALID ###
 
 # # STRICT IMPLICATION TO GROUND
@@ -300,6 +239,7 @@ save_bool = False
 # # STRICT IMPLICATION TO ESSENCE
 # premises = ['Box (B rightarrow A)']
 # conclusions = ['(A sqsubseteq B)']
+
 
 
 
@@ -314,7 +254,8 @@ save_bool = False
 # conclusions = ['(not A equiv not B)']
 
 # premises = []
-# conclusions = ['(A equiv not not A)']
+conclusions = ['(A equiv not not A)']
+# conclusions = ['(A equiv not not not not A)']
 
 
 
@@ -332,96 +273,3 @@ save_bool = False
 
 # premises = []
 # conclusions = ['(not not A equiv not not not not A)']
-
-
-
-### TESTING ###
-
-# # SLOW: ?? seconds
-# premises = []
-# conclusions = ['(not A equiv not not not A)']
-
-# # SLOW: ?? seconds
-# premises = ['(not A equiv not B)']
-# conclusions = ['Box (A leftrightarrow B)']
-
-# # CRASH: only tested locally
-# premises = ['(not A equiv not B)']
-# conclusions = ['(A equiv B)']
-
-# # NOTE: false premise model?
-# premises = ['not A','(not A boxright B)']
-# # premises = ['not A','Diamond A','Diamond B','(not A boxright B)']
-# conclusions = ['B']
-
-
-################################
-######### NOT WORKING ##########
-################################
-
-### FALSE PREMISE MODEL ###
-
-# # SOBEL SEQUENCE (N = 3)
-# premises = [
-#     '(A boxright X)', # 0.03 seconds locally
-#     'neg ((A wedge B) boxright X)', # 14.8 seconds locally
-#     '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
-#     'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
-# ]
-# conclusions = []
-
-
-
-
-################################
-########### CRASHED ############
-################################
-
-### CRASHED: MODALITY ###
-
-# # CRASH: MIT servers killed process
-# # TOP-TO-BOX EQUIVALENCE
-# premises = ['(top boxright A)']
-# conclusions = ['Box A']
-
-# # CRASH: MIT servers killed process
-# # K AXIOM (TOP)
-# premises = ['(top boxright (A rightarrow B))']
-# conclusions = ['((top boxright A) rightarrow (top boxright B))']
-
-# # CRASH: MIT servers killed process
-# # COUNTERFACTUAL IMPLIES STRICT CONDITIONAL
-# premises = ['(A boxright B)']
-# conclusions = ['Box (A rightarrow B)']
-
-
-
-### CRASHED: ANTECEDENT STRENGTHENING/WEAKENING ###
-
-# # CRASH: MIT servers killed process
-# # DOUBLE COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# premises = ['(A boxright C)','(B boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
-
-# # CRASH: MIT servers killed process
-# # COUNTERFACTUAL ANTECEDENT WEAKENING
-# premises = ['Box A', '((A wedge B) boxright C)']
-# conclusions = ['(B boxright C)']
-
-
-
-### CRASHED: IMPORTATION ###
-
-# # CRASH: MIT servers killed process
-# # COUNTERFACTUAL IMPORTATION WITH POSSIBILITY
-# premises = ['(A boxright (B boxright C))','Diamond (A wedge B)']
-# conclusions = ['((A wedge B) boxright C)']
-
-
-
-### CRASHED: TRANSITIVITY ###
-
-# # COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
-# # NOTE: does not find counter models with N = 3
-# premises = ['neg A','neg B','(A boxright B)','(B boxright C)']
-# conclusions = ['(A boxright C)']
