@@ -72,8 +72,7 @@ conclusions = ['(A equiv not not A)']
 # premises = ['(not A equiv not B)']
 # conclusions = ['(A equiv B)']
 
-# # NOTE: false premise model?
-# premises = ['not A','(not A boxright B)']
-# # premises = ['not A','Diamond A','Diamond B','(not A boxright B)']
-# conclusions = ['B']
-
+# NOTE: false premise model?
+premises = ['not A','(not A boxright B)']
+# premises = ['not A','Diamond A','Diamond B','(not A boxright B)']
+conclusions = ['B']
