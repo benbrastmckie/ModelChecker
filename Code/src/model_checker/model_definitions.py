@@ -436,6 +436,33 @@ def true_and_false_worlds_for_cf(model_structure, cf_sentence):
         worlds_false_at.add(world)
     return (worlds_true_at, worlds_false_at)
 
+def find_excluders(verifiers, all_bits, poss_bits, null_singleton):
+    """simulates the set of falsifiers"""
+    excluders = []
+    for state in all_bits:
+        comp_state_parts = set()
+        for part in all_bits:
+            # print(f"TEST: part {part} is null_state {null_state}: {part in null_state}")
+            if bit_part(part, state) and not part in null_singleton:
+                for ver in verifiers:
+                    if bit_fusion(part, ver) in poss_bits:
+                        comp_state_parts.add(part)
+                        break
+                break
+        incomp_ver_parts = set()
+        for ver in verifiers:
+            for part in all_bits:
+                if bit_part(part, state) and not part in null_singleton:
+                    if bit_fusion(part, ver) not in poss_bits:
+                        incomp_ver_parts.add(part)
+                        break
+            break
+        if not comp_state_parts and incomp_ver_parts:
+            excluders.append(state)
+    # TODO: would be nice to sort the excluders but they are bits
+    # excluders_list = sorted(excluders)
+    return excluders
+
 def find_complex_proposition(model_structure, complex_sentence, eval_world):
     """sentence is a sentence in prefix notation
     For a given complex proposition, returns the verifiers and falsifiers of that proposition
@@ -451,14 +478,26 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
         return model_structure.atomic_props_dict[sent]
     op = complex_sentence[0]
     Y = complex_sentence[1]
-    if "neg" in op or "not" in op:
+    if "neg" in op:
         Y_V, Y_F = find_complex_proposition(model_structure, Y, eval_world)
         return (Y_F, Y_V)
-    null_state = {BitVecVal(0,model_structure.N)}
+    N = model_structure.N
+    null_singleton = {BitVecVal(0,N)}
+    if "not" in op:
+        Y_V = find_complex_proposition(model_structure, Y, eval_world)[0]
+        if Y_V:
+            all_bits = model_structure.all_bits
+            poss_bits = model_structure.poss_bits
+            Y_F = find_excluders(Y_V, all_bits, poss_bits, null_singleton)
+            # Y_vers = [bitvec_to_substates(state, N) for state in Y_V]
+            # Y_fals = [bitvec_to_substates(state, N) for state in Y_F]
+            # print(f"TEST: {complex_sentence}: vers = {Y_vers}, fals = {Y_fals}")
+            return (Y_F, Y_V)
+        return (set(), null_singleton)
     if 'Box' in op or 'Diamond' in op:
         if evaluate_modal_expr(model_structure, complex_sentence, eval_world):
-            return (null_state, set())
-        return (set(), null_state)
+            return (null_singleton, set())
+        return (set(), null_singleton)
     Z = complex_sentence[2]
     Y_V, Y_F = find_complex_proposition(model_structure, Y, eval_world)
     Z_V, Z_F = find_complex_proposition(model_structure, Z, eval_world)
@@ -477,22 +516,22 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
         if evaluate_cf_expr(model_structure, complex_sentence, eval_world):
             # val = evaluate_cf_expr(model_structure, complex_sentence, eval_world)
             # print(f"TEST: truth_vf of cf = {val}")
-            return (null_state, set())
-        return (set(), null_state)
+            return (null_singleton, set())
+        return (set(), null_singleton)
     if "circleright" in op:
         if evaluate_cf_expr(model_structure, complex_sentence, eval_world):
-            return (null_state, set())
-        return (set(), null_state)
+            return (null_singleton, set())
+        return (set(), null_singleton)
     if "leq" in op:
         if Y_V <= Z_V and product(Y_F, Z_F) == Z_F:
-            return (null_state, set())
-        return (set(), null_state)
+            return (null_singleton, set())
+        return (set(), null_singleton)
     if "sqsubseteq" in op:
         if product(Y_V, Z_V) == Z_V and Y_F <= Z_F:
-            return (null_state, set())
-        return (set(), null_state)
+            return (null_singleton, set())
+        return (set(), null_singleton)
     if "equiv" in op:
         if Y_V == Z_V and Y_F == Z_F:
-            return (null_state, set())
-        return (set(), null_state)
+            return (null_singleton, set())
+        return (set(), null_singleton)
     raise ValueError(f"Don't know how to handle {op} operator")

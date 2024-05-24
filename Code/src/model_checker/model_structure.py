@@ -536,6 +536,8 @@ class Proposition:
     def truth_value_at(self, eval_world):
         '''Given a world, returns the truth value of the Proposition at that world.
         Used in print_verifiers_and_falsifiers.'''
+        # test = self["prefix expression"]
+        # print(f"TEST: {test}")
         for verifier in self["verifiers"]:
             if bit_part(verifier, eval_world):
                 return True
@@ -546,10 +548,14 @@ class Proposition:
                 # N = self.model_structure.N
                 # print(f"TEST: falsifier = {bitvec_to_substates(falsifier, N)}")
                 return False
-        raise ValueError(
-            "Something has gone wrong.\n"
-            f'No verifier or falsifier for {self["prefix expression"]} at world {eval_world}'
-        )
+        N = self.model_structure.N
+        RED = '\033[31m'
+        RESET = '\033[0m'
+        print(f"\n{RED}WARNING:{RESET} {self} is neither true nor false at {bitvec_to_substates(eval_world, N)}.\n")
+        # raise ValueError(
+        #     "Something has gone wrong.\n"
+        #     f'No verifier or falsifier for {self["prefix expression"]} at world {eval_world}'
+        # )
 
     def print_verifiers_and_falsifiers(self, eval_world, print_impossible=False, indent=0, output=sys.__stdout__):
         """prints the possible verifiers and falsifier states for a sentence.

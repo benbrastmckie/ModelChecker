@@ -142,6 +142,18 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             Exists(z, And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y))),
         )
 
+    def preclude(state, sentence, eval_world):
+        """to simulate bilateral semantics"""
+        x = BitVec("preclude_x", N)
+        y = BitVec("preclude_y", N)
+        return ForAll(
+            x,
+            Implies(
+                extended_verify(x, sentence, eval_world),
+                Not(compatible(x, state))
+            )
+        )
+
     def exclude(state, sentence, eval_world):
         """to simulate bilateral semantics"""
         x = BitVec("exclude_x", N)
@@ -200,6 +212,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             # TEST = exclude(state, Y, eval_world)
             # print(TEST)
             return exclude(state, Y, eval_world)
+            # return preclude(state, Y, eval_world)
         Z = sentence[2]
         if "wedge" in operator:
             y = BitVec("ex_ver_y", N)
@@ -250,6 +263,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             return extended_verify(state, Y, eval_world)
         if "not" in operator:
             return exclude(state, Y, eval_world)
+            # return preclude(state, Y, eval_world)
         Z = sentence[2]
         if "wedge" in operator:
             return Or(

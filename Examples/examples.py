@@ -299,14 +299,6 @@ save_bool = False
 ###### EXCLUSION OPERATOR ######
 ################################
 
-### WORKING ###
-
-# # NOTE: these work
-# premises = ['neg A','(neg A boxright B)']
-# premises = ['A','(neg neg A boxright B)']
-# premises = ['neg A','(neg neg neg A boxright B)']
-# conclusions = ['B']
-
 ### TESTING ###
 
 # premises = ['Box (A leftrightarrow B)']
@@ -315,20 +307,21 @@ save_bool = False
 # premises = ['(A equiv B)']
 # conclusions = ['(not A equiv not B)']
 
+# premises = ['A','not not A']
+# conclusions = []
 
-# NOTE: true conclusion model?
-premises = []
-conclusions = ['(A equiv not not A)']
+# premises = []
+# conclusions = ['(A equiv not not A)']
 
-# # # # NOTE: false premise model?
-# # premises = ['neg A','(not A boxright B)']
-# # # premises = ['A','(not neg A boxright B)']
-# # # premises = ['A','(neg not A boxright B)']
-# # # premises = ['neg A','(not neg neg A boxright B)']
-# # # premises = ['neg A','(neg not neg A boxright B)']
-# # # premises = ['neg A','(neg neg not A boxright B)']
-# premises = ['neg A','Diamond A','Diamond B','(not A boxright B)']
-# conclusions = ['B']
+# NOTE: false premise model?
+# premises = ['not A','(not A boxright B)']
+# premises = ['A','(not neg A boxright B)']
+# premises = ['A','(neg not A boxright B)']
+# premises = ['neg A','(not neg neg A boxright B)']
+# premises = ['neg A','(neg not neg A boxright B)']
+# premises = ['neg A','(neg neg not A boxright B)']
+premises = ['not A','Diamond A','Diamond B','(not A boxright B)']
+conclusions = ['B']
 
 
 
