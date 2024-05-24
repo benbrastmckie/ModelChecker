@@ -47,6 +47,9 @@ def all_sentence_letters(prefix_sentences):
 
 
 def make_constraints(verify, falsify, possible, assign, N, w):
+    # NOTE: just thought of this—we could make the options to do non_null or non_triv optional.
+    # Like it coulld be an optional argument put into the model at the top level, just like
+    # unsat_core is. Let me below know if you think that's a good idea or if it wouln't be useful.
     '''function that makes the function to make the constraints (and list of sentence letters
     and prefix sentences) This has to be done in order to define N in an input file—you'll see
     here that N is passed in as a variable to the function, after which these 'make' a semantics
