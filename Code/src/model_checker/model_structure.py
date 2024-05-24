@@ -619,3 +619,7 @@ def make_model_for(N, premises, conclusions):
     z3_model_status, z3_model, model_runtime = model_setup.solve()
     model_structure = ModelStructure(z3_model_status, model_setup, z3_model, model_runtime)
     return model_setup, model_structure
+    # NOTE: since you save the ModelSetup object as an attribute of the ModelStructure object,
+    # there's really no need to return it as well. I'm not going to remove it in case it adds
+    # some bugs down the road since it's been a while since I've touched things, but just thought
+    # I'd say to consider
