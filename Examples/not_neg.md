@@ -1,4 +1,4 @@
-"""
+```
 There is a 3-model of:
 
 Premises:
@@ -148,4 +148,4 @@ ForAll [t_x, t_u]:
     Then:
         # B IS TRUE AT T_U
 
-"""
+```

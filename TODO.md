@@ -4,6 +4,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## v0.4 Release 
 
+- [ ] say if premises, conclusions, or N are absent
 - [.] _B_ unit tests
 - [:] semantics
   - [x] added exclude for `not` operator
