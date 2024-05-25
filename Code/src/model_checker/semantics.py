@@ -84,6 +84,11 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         returns a Z3 constraint"""
         return fusion(bit_s, bit_t) == bit_t
 
+    def non_null_part_of(bit_s, bit_t):
+        """bit_s verifies atom and is not the null state
+        returns a Z3 constraint"""
+        return And(Not(bit_s == 0), is_part_of(bit_s, bit_t))
+
     def compatible(bit_x, bit_y):
         """the fusion of bit_x and bit_y is possible
         returns a Z3 constraint"""
@@ -143,30 +148,39 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         )
 
     def preclude(state, sentence, eval_world):
-        """to simulate bilateral semantics"""
+        """to simulate falsification"""
         x = BitVec("preclude_x", N)
         y = BitVec("preclude_y", N)
-        return ForAll(
-            x,
-            Implies(
-                extended_verify(x, sentence, eval_world),
-                Not(compatible(x, state))
+        return And(
+            Exists(
+                x,
+                And(
+                    extended_verify(x, sentence, eval_world),
+                    Not(compatible(x, state))
+                )
+            ),
+            ForAll(
+                y,
+                Implies(
+                    extended_verify(x, sentence, eval_world),
+                    Not(compatible(x, state))
+                )
             )
         )
 
     def exclude(state, sentence, eval_world):
-        """to simulate bilateral semantics"""
+        """to simulate falsification"""
         x = BitVec("exclude_x", N)
         y = BitVec("exclude_y", N)
         return And(
             ForAll(
                 x,
                 Implies(
-                    is_part_of(x, state),
+                    # is_part_of(x, state),
+                    non_null_part_of(x, state),
                     Exists(
                         y,
                         And(
-                            # possible(y),
                             extended_verify(y, sentence, eval_world),
                             Not(compatible(x, y))
                         )
@@ -176,14 +190,12 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             ForAll(
                 x,
                 Implies(
-                    And(
-                        # possible(x),
-                        extended_verify(x, sentence, eval_world),
-                    ),
+                    extended_verify(x, sentence, eval_world),
                     Exists(
                         y,
                         And(
-                            is_part_of(y, state),
+                            # is_part_of(y, state),
+                            non_null_part_of(y, state),
                             Not(compatible(x, y))
                         )
                     )
@@ -208,11 +220,9 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         if "neg" in operator:
             return extended_falsify(state, Y, eval_world)
         if "not" in operator:
-            # print(f"TEST: op = {op}; arg = {Y}")
-            # TEST = exclude(state, Y, eval_world)
-            # print(TEST)
             return exclude(state, Y, eval_world)
-            # return preclude(state, Y, eval_world)
+        if "pre" in operator:
+            return preclude(state, Y, eval_world)
         Z = sentence[2]
         if "wedge" in operator:
             y = BitVec("ex_ver_y", N)
@@ -263,7 +273,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             return extended_verify(state, Y, eval_world)
         if "not" in operator:
             return exclude(state, Y, eval_world)
-            # return preclude(state, Y, eval_world)
+        if "pre" in operator:
+            return preclude(state, Y, eval_world)
         Z = sentence[2]
         if "wedge" in operator:
             return Or(
@@ -317,31 +328,30 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             if 'top' not in str(sent)[0]: # top const alr in model, see find_model_constraints
                 return Exists(x, And(is_part_of(x, eval_world), verify(x, sent)))
         if len(sentence) == 2:
-            op = sentence[0]
+            operator = sentence[0]
             Y = sentence[1]
-            if "neg" in op or "not" in op:
-                # print(f"TEST: neg operator = {op}")
+            if "neg" in operator or "not" in operator or "pre" in operator:
                 return false_at(sentence[1], eval_world)
-            if 'Box' in op:
+            if 'Box' in operator:
                 return ForAll(u, Implies(is_world(u), true_at(sentence[1], u)))
-            if 'Diamond' in op:
+            if 'Diamond' in operator:
                 return Exists(u, And(is_world(u), true_at(sentence[1], u)))
         if len(sentence) == 3:
-            op = sentence[0]
+            operator = sentence[0]
             Y = sentence[1]
             Z = sentence[2]
-            if "wedge" in op:
+            if "wedge" in operator:
                 return And(true_at(Y, eval_world), true_at(Z, eval_world))
-            if "vee" in op:
+            if "vee" in operator:
                 return Or(true_at(Y, eval_world), true_at(Z, eval_world))
-            if "leftrightarrow" in op:
+            if "leftrightarrow" in operator:
                 return Or(
                     And(true_at(Y, eval_world), true_at(Z, eval_world)),
                     And(false_at(Y, eval_world), false_at(Z, eval_world)),
                 )
-            if "rightarrow" in op:
+            if "rightarrow" in operator:
                 return Or(false_at(Y, eval_world), true_at(Z, eval_world))
-            if "leq" in op:
+            if "leq" in operator:
                 return ForAll(
                     [x, y],
                     And(
@@ -368,7 +378,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                         )
                     )
                 )
-            if "sqsubseteq" in op:
+            if "sqsubseteq" in operator:
                 return ForAll(
                     [x, y],
                     And(
@@ -395,7 +405,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                         )
                     )
                 )
-            if "equiv" in op:
+            if "equiv" in operator:
                 return ForAll(
                     x,
                     And(
@@ -417,7 +427,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                         ),
                     )
                 )
-            if "boxright" in op:
+            if "boxright" in operator:
                 # print(f"TEST: cf operator = {op}, ant = {Y}, con = {Z}")
                 return ForAll(
                     [x, u],
@@ -429,7 +439,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                         true_at(Z, u),
                     ),
                 )
-            if "circleright" in op:
+            if "circleright" in operator:
                 return Exists(
                     [x, u],
                     And(
@@ -453,31 +463,31 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             sent = sentence[0]
             return Exists(x, And(is_part_of(x, eval_world), falsify(x, sent)))
         if len(sentence) == 2:
-            op = sentence[0]
+            operator = sentence[0]
             Y = sentence[1]
-            if "neg" in op or "not" in op:
+            if "neg" in operator or "not" in operator or "pre" in operator:
                 # print(f"TEST: neg operator = {op}")
                 return true_at(sentence[1], eval_world)
-            if 'Box' in op:
+            if 'Box' in operator:
                 return Exists(u, And(is_world(u), false_at(sentence[1], u)))
-            if 'Diamond' in op:
+            if 'Diamond' in operator:
                 return ForAll(u, Implies(is_world(u), false_at(sentence[1], u)))
         if len(sentence) == 3:
-            op = sentence[0]
+            operator = sentence[0]
             Y = sentence[1]
             Z = sentence[2]
-            if "wedge" in op:
+            if "wedge" in operator:
                 return Or(false_at(Y, eval_world), false_at(Z, eval_world))
-            if "vee" in op:
+            if "vee" in operator:
                 return And(false_at(Y, eval_world), false_at(Z, eval_world))
-            if "leftrightarrow" in op:
+            if "leftrightarrow" in operator:
                 return Or(
                     And(true_at(Y, eval_world), false_at(Z, eval_world)),
                     And(false_at(Y, eval_world), true_at(Z, eval_world)),
                 )
-            if "rightarrow" in op:
+            if "rightarrow" in operator:
                 return And(true_at(Y, eval_world), false_at(Z, eval_world))
-            if "leq" in op:
+            if "leq" in operator:
                 return Exists(
                     [x, y],
                     Or(
@@ -502,7 +512,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                         )
                     )
                 )
-            if "sqsubseteq" in op:
+            if "sqsubseteq" in operator:
                 return Exists(
                     [x, y],
                     Or(
@@ -527,7 +537,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                         )
                     )
                 )
-            if "equiv" in op:
+            if "equiv" in operator:
                 return Exists(
                     x,
                     Or(
@@ -549,7 +559,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                         ),
                     )
                 )
-            if "boxright" in op:
+            if "boxright" in operator:
                 # print(f"TEST: cf operator = {op}, ant = {Y}, con = {Z}")
                 return Exists(
                     [x, u],
@@ -558,7 +568,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                         is_alternative(u, x, eval_world),
                         false_at(Z, u)),
                 )
-            if "circleright" in op:
+            if "circleright" in operator:
                 return ForAll(
                     [x, u],
                     Implies(
