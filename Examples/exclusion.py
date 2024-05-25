@@ -35,9 +35,9 @@ save_bool = False
 # premises = ['Box (A leftrightarrow B)']
 # conclusions = ['(not A equiv not B)']
 
-# premises = []
-conclusions = ['(A equiv not not A)']
-# conclusions = ['(A equiv not not not not A)']
+# # premises = []
+# conclusions = ['(A equiv not not A)']
+# # conclusions = ['(A equiv not not not not A)']
 
 
 
@@ -73,6 +73,63 @@ conclusions = ['(A equiv not not A)']
 # conclusions = ['(A equiv B)']
 
 # NOTE: false premise model?
-premises = ['not A','(not A boxright B)']
-# premises = ['not A','Diamond A','Diamond B','(not A boxright B)']
+# premises = ['not A','(not A boxright B)']
+premises = ['not A','Diamond A','Diamond B','(not A boxright B)']
 conclusions = ['B']
+
+
+
+
+
+
+################################
+##### PRECLUSION OPERATOR ######
+################################
+
+### INVALID ###
+
+# premises = ['Box (A leftrightarrow B)']
+# conclusions = ['(pre A equiv pre B)']
+
+# # premises = []
+# conclusions = ['(A equiv not not A)']
+# # conclusions = ['(A equiv not not not not A)']
+
+
+
+### VALID ###
+
+# premises = ['(A equiv B)']
+# conclusions = ['(not A equiv not B)']
+
+# premises = []
+# conclusions = ['(A vee not A)']
+# conclusions = ['not (A wedge not A)']
+
+# premises = ['A']
+# conclusions = ['pre pre A']
+
+# premises = []
+# conclusions = ['(not not A equiv not not not not A)']
+
+
+
+### TESTING ###
+
+# # SLOW: ?? seconds
+# premises = []
+# conclusions = ['(not A equiv not not not A)']
+
+# # SLOW: ?? seconds
+# premises = ['(not A equiv not B)']
+# conclusions = ['Box (A leftrightarrow B)']
+
+# # CRASH: only tested locally
+# premises = ['(not A equiv not B)']
+# conclusions = ['(A equiv B)']
+
+# # NOTE: false premise model?
+# # premises = ['not A','(not A boxright B)']
+# premises = ['not A','Diamond A','Diamond B','(not A boxright B)']
+# conclusions = ['B']
+

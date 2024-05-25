@@ -377,15 +377,16 @@ def evaluate_modal_expr(model_structure, prefix_modal, eval_world):
         f"The operator {operator} in {prefix_modal} is not a modal."
     )
 
-def evaluate_cf_expr(state_space, prefix_cf, eval_world):
+def evaluate_cf_expr(state_space, cf_sentence, eval_world):
     """evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
     used to initialize Counterfactuals
     returns a bool representing whether the counterfactual is true at the world or not
     """
-    operator, antecedent, consequent = prefix_cf[0], prefix_cf[1], prefix_cf[2]
+    operator, antecedent, consequent = cf_sentence[0], cf_sentence[1], cf_sentence[2]
     antecedent_vers = find_complex_proposition(state_space, antecedent, eval_world)[0]
-    consequent_vers = find_complex_proposition(state_space, consequent, eval_world)[0]
-    consequent_fals = find_complex_proposition(state_space, consequent, eval_world)[1]
+    consequent_vers, consequent_fals = find_complex_proposition(
+        state_space, consequent, eval_world
+    )
     antecedent_alts = state_space.find_alt_bits(antecedent_vers, eval_world)
     if 'boxright' in operator:
         for alt_world in antecedent_alts:
@@ -400,9 +401,9 @@ def evaluate_cf_expr(state_space, prefix_cf, eval_world):
                     return True
         return False
     raise ValueError(
-        prefix_cf,
+        cf_sentence,
         "Something has gone wrong in evaluate_cf_counterfactual. "
-        f"The operator {operator} in {prefix_cf} is not a counterfatual."
+        f"The operator {operator} in {cf_sentence} is not a counterfatual."
     )
 
 
@@ -436,6 +437,28 @@ def true_and_false_worlds_for_cf(model_structure, cf_sentence):
         worlds_false_at.add(world)
     return (worlds_true_at, worlds_false_at)
 
+def find_precluders(verifiers, all_bits, poss_bits):
+    """simulates the set of falsifiers"""
+    # if not verifiers:
+    #     return null_singleton
+    precluders = []
+    for state in all_bits:
+        incomp_ver = set()
+        for ver in verifiers:
+            if bit_fusion(state, ver) not in poss_bits:
+                incomp_ver.add(ver)
+                break
+        comp_ver = set()
+        for ver in verifiers:
+            if bit_fusion(state, ver) in poss_bits:
+                comp_ver.add(ver)
+                break
+        if incomp_ver and not comp_ver:
+            precluders.append(state)
+    # TODO: would be nice to sort the excluders but they are bits
+    # excluders_list = sorted(excluders)
+    return precluders
+
 def find_excluders(verifiers, all_bits, poss_bits, null_singleton):
     """simulates the set of falsifiers"""
     if not verifiers:
@@ -444,13 +467,11 @@ def find_excluders(verifiers, all_bits, poss_bits, null_singleton):
     for state in all_bits:
         comp_state_parts = set()
         for part in all_bits:
-            # print(f"TEST: part {part} is null_state {null_state}: {part in null_state}")
             if bit_part(part, state) and not part in null_singleton:
                 for ver in verifiers:
                     if bit_fusion(part, ver) in poss_bits:
                         comp_state_parts.add(part)
                         break
-                break
         incomp_ver_parts = set()
         for ver in verifiers:
             for part in all_bits:
@@ -458,7 +479,6 @@ def find_excluders(verifiers, all_bits, poss_bits, null_singleton):
                     if bit_fusion(part, ver) not in poss_bits:
                         incomp_ver_parts.add(part)
                         break
-            break
         if not comp_state_parts and incomp_ver_parts:
             excluders.append(state)
     # TODO: would be nice to sort the excluders but they are bits
@@ -488,9 +508,17 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
     if "not" in op:
         all_bits = model_structure.all_bits
         poss_bits = model_structure.poss_bits
-        Y_V = find_complex_proposition(model_structure, Y, eval_world)[0]
-        Y_F = find_excluders(Y_V, all_bits, poss_bits, null_singleton)
-        return (Y_F, Y_V)
+        Y_V, Y_F = find_complex_proposition(model_structure, Y, eval_world)
+        vers = find_excluders(Y_F, all_bits, poss_bits, null_singleton)
+        fals = find_excluders(Y_V, all_bits, poss_bits, null_singleton)
+        return (vers, fals)
+    if "pre" in op:
+        all_bits = model_structure.all_bits
+        poss_bits = model_structure.poss_bits
+        Y_V, Y_F = find_complex_proposition(model_structure, Y, eval_world)
+        vers = find_precluders(Y_F, all_bits, poss_bits)
+        fals = find_precluders(Y_V, all_bits, poss_bits)
+        return (vers, fals)
     if 'Box' in op or 'Diamond' in op:
         if evaluate_modal_expr(model_structure, complex_sentence, eval_world):
             return (null_singleton, set())

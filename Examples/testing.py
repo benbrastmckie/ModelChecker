@@ -64,6 +64,9 @@ save_bool = False
 # premises = ['(A boxright B)']
 # conclusions = ['Box (A rightarrow B)']
 
+# CRASH: MIT servers killed process
+premises = ['Box A','(A boxright B)']
+conclusions = ['Box B']
 
 
 ### CRASHED: ANTECEDENT STRENGTHENING/WEAKENING ###

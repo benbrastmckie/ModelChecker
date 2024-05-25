@@ -15,6 +15,7 @@ capital_alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", 
 unary_operators = {
     "\\neg", "neg",
     "\\not", "not",
+    "\\pre", "pre",
     "Box", "\\Box",
     "Diamond", "\\Diamond"
 }
