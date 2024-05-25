@@ -1,11 +1,6 @@
+
 from model_structure import *
-from syntax import *
-
-"don't delete this file yet, I'll delete it once I'm done debugging"
-################################
-########## SETTINGS ############
-################################
-
+from z3 import *
 # length of bitvectors
 N = 3
 
@@ -80,7 +75,7 @@ conclusions = ['C']
 # premises = ['(A \\boxright (B \\boxright C))']
 # conclusions = ['B']
 
-premises = ['ball_is_red', '(ball_is_red rightarrow neg mary_likes_it)']
+premises = ['ball_is_red', '(ball_is_red rightarrow mary_likes_it)']
 conclusions = ['mary_likes_it']
 
 # premises = ['A', '(A \\boxright B)']
@@ -90,14 +85,10 @@ conclusions = ['mary_likes_it']
 # conclusions = ['\\neg B']
 
 
-mod = make_model_for(N)(premises, conclusions)
-mod.solve()
-mod.print_to(print_cons_bool, print_unsat_core_bool, True)
-if mod.model_status:
-    A = Const('ball_is_red', AtomSort)
-    print(mod.find_proposition_object(str(A), prefix_search=False))
-    red_prop = mod.find_proposition_object([A], prefix_search=True) # it finds a Proposition object
-    print([bitvec_to_substates(ver, mod.N) for ver in red_prop['verifiers']])
-    # prints ['b.c', 'a.b.c', 'b', 'a', 'c', 'a.c', 'a.b']
-    # so moreover, that Proposition object (red_prop) has the same verifiers as the one printed by
-    # the model before
+mod_setup, mod_structure = make_model_for(N, premises, conclusions)
+print(mod_setup)
+print(mod_structure)
+# print(mod_setup == mod_structure.model_setup)
+print(mod_structure.model_status)
+# state_space = StateSpace(mod_setup, mod_structure)
+# state_space.print_all(False, None)

@@ -149,6 +149,9 @@ class ModelSetup:
         model_runtime = round(model_end - model_start, 4)
         return (z3_model_status, z3_model, model_runtime)
 
+    def __str__(self):
+        return f'ModelSetup object with premises {self.infix_premises} and conclusions {self.infix_conclusions}'
+
 
 class ModelStructure:
     """self.premises is a list of prefix sentences
@@ -229,6 +232,19 @@ class ModelStructure:
         for index, con in enumerate(consts, start=1):
             print(f"{index}. {con}\n", file=output)
             # print(f"Constraints time: {time}\n")
+    
+    def __str__(self):
+        '''useful for people who want to use model_checker in a python file (like we use z3 or numpy, if that makes sense)
+        feel free to change/remove'''
+        return f'{"" if self.model_status else "un"}sat ModelStructure for premises {self.infix_premises} and conclusions {self.infix_conclusions} with status {self.model_status}'
+
+    def __bool__(self):
+        '''returns the value of self.model_status (ie, whether the z3 model was solved)
+        reasoning: say ms is a ModelStructure object. Now we can check its model_status by doing:
+        if ms: # as opposed to if ms.model_status
+            (do_something)
+        '''
+        return self.model_status
 
 
 class StateSpace:
@@ -381,6 +397,7 @@ class StateSpace:
 
     def print_states(self, print_impossible, output=sys.__stdout__):
         """print all fusions of atomic states in the model
+        print_impossible is a boolean for whether to print impossible states or not
         first print function in print.py"""
         N = self.model_setup.N
         print("\nState Space:", file=output)  # Print states
@@ -619,3 +636,7 @@ def make_model_for(N, premises, conclusions):
     z3_model_status, z3_model, model_runtime = model_setup.solve()
     model_structure = ModelStructure(z3_model_status, model_setup, z3_model, model_runtime)
     return model_setup, model_structure
+    # NOTE: since you save the ModelSetup object as an attribute of the ModelStructure object,
+    # there's really no need to return it as well. I'm not going to remove it in case it adds
+    # some bugs down the road since it's been a while since I've touched things, but just thought
+    # I'd say to consider
