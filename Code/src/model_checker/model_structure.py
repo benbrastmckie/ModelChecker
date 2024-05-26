@@ -1,5 +1,5 @@
 """
-file defines model structure class given a Z3 model
+file defines model structure class given a Z3 model sdffds
 """
 
 from string import Template
@@ -13,12 +13,15 @@ from z3 import (
     BitVecVal
 )
 
-from model_checker.semantics import (
-    make_constraints,
+from semantics import ( # removed model_checker.____ because it seemed to be importing from the
+    # downloaded package locally, not from the file (couldn't find the new name of the function
+    # but could find the old name even though the old name didn't exist any more. 
+    # Maybe I'm messing things up so sorry if that was intentional!)
+    define_N_semantics,
     solve_constraints,
     all_sentence_letters,
 )
-from model_checker.model_definitions import (
+from model_definitions import (
     find_compatible_parts,
     atomic_propositions_dict_maker,
     find_all_bits,
@@ -33,7 +36,7 @@ from model_checker.model_definitions import (
     true_and_false_worlds_for_cf,
     find_complex_proposition,
 )
-from model_checker.syntax import (
+from syntax import (
     AtomSort,
     infix,
     prefix,
@@ -104,7 +107,7 @@ class ModelSetup:
         self.prefix_premises = [prefix(prem) for prem in infix_premises]
         # M: I think below is a problem
         self.prefix_conclusions = [prefix(con) for con in infix_conclusions]
-        find_constraints_func = make_constraints(
+        find_constraints_func = define_N_semantics(
             self.verify,
             self.falsify,
             self.possible,
@@ -137,13 +140,13 @@ class ModelSetup:
         self.main_world is the eval world (as a BitVecVal)
         self.atomic_props_dict is a dictionary with keys AtomSorts and keys (V,F)
         """
-        model_start = time.time()  # start benchmark timer
         constraints = (
             self.frame_constraints +
             self.prop_constraints +
             self.premise_constraints +
             self.conclusion_constraints
         )
+        model_start = time.time()  # start benchmark timer
         z3_model_status, z3_model = solve_constraints(constraints)
         model_end = time.time()
         model_runtime = round(model_end - model_start, 4)
@@ -302,6 +305,7 @@ class StateSpace:
         return alt_bits
 
     # Useful to user now that can search an infix expression
+    # NOTE: I think this option is no longer available
     def find_proposition_object(self, expression):
         """given a sentence, finds the Proposition object in the model that corresponds
         to it. Can optionally search through only the extensional sentences
