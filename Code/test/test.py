@@ -75,8 +75,11 @@ conclusions = ['C']
 # premises = ['(A \\boxright (B \\boxright C))']
 # conclusions = ['B']
 
-premises = ['ball_is_red', '(ball_is_red rightarrow mary_likes_it)']
+premises = ['ball_is_red', '(ball_is_red boxright mary_likes_it)']
 conclusions = ['mary_likes_it']
+
+premises = ['R', '(R boxright L)']
+conclusions = ['L']
 
 # premises = ['A', '(A \\boxright B)']
 # conclusions = ['B']
@@ -84,11 +87,15 @@ conclusions = ['mary_likes_it']
 # premises = ['A', 'B']
 # conclusions = ['\\neg B']
 
+premises = ['(john_at_party wedge mary_at_party)', '(john_at_party boxright neg party_is_good)', '(mary_at_party boxright party_is_good)','party_is_good']
+conclusions = ['party_is_good']
+
 
 mod_setup, mod_structure = make_model_for(N, premises, conclusions)
-print(mod_setup)
-print(mod_structure)
+# print(mod_setup)
+# print(mod_structure)
 # print(mod_setup == mod_structure.model_setup)
-print(mod_structure.model_status)
-# state_space = StateSpace(mod_setup, mod_structure)
-# state_space.print_all(False, None)
+# print(mod_structure.model_status)
+if mod_structure:
+    state_space = StateSpace(mod_setup, mod_structure)
+    state_space.print_all(False, None)
