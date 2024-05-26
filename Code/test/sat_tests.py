@@ -1,12 +1,14 @@
 import pytest
-from model_checker.model_structure import make_model_for
-# TODO: fix imports issue (see comments below)
-# the tests work, but this file is importing from the package downloaded onto your computer,
-# not from the module right next door so to speak.
-# ie, if someone who hasn't downloaded model-checker tries to run this, they'd fail.
-# this means that to test any new changes, the whole package has to first be re-published and
-# then upgraded.
-# good thing is all test pass as of now (with the most current published version of the package)
+import sys
+import os
+
+# Get the directory path of the current file
+current_dir = os.path.dirname(__file__)
+# Construct the full path to your project root
+project_root = os.path.abspath(os.path.join(current_dir, ".."))
+# Add the project root to the Python path
+sys.path.append(project_root)
+from src.model_checker.model_structure import make_model_for
 
 def failure_string(desired, premises, conclusions):
     if desired is False:
