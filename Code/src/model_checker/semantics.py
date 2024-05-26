@@ -34,9 +34,9 @@ def sentence_letters_in_compound(prefix_input_sentence):
     return return_list
 
 def all_sentence_letters(prefix_sentences):
-    """finds all the sentence letters in a list of input sentences.
-    returns as a list with no repeats (sorted for consistency)
-    used in find_all_constraints and StateSpace __init__"""
+    """finds all the sentence letters in a list of input sentences, in prefix form.
+    returns as a list with no repeats (sorted for consistency) of AtomSorts
+    used in find_all_constraints (to feed into find_prop_constraints) and StateSpace __init__"""
     sentence_letters = set()
     for prefix_input in prefix_sentences:
         sentence_letters_in_input = sentence_letters_in_compound(prefix_input)
@@ -46,7 +46,7 @@ def all_sentence_letters(prefix_sentences):
     # sort just to make every output the same, given sets aren't hashable
 
 
-def make_constraints(verify, falsify, possible, assign, N, w):
+def define_N_semantics(verify, falsify, possible, assign, N, w):
     # NOTE: just thought of this—we could make the options to do non_null or non_triv optional.
     # Like it coulld be an optional argument put into the model at the top level, just like
     # unsat_core is. Let me below know if you think that's a good idea or if it wouln't be useful.
@@ -146,7 +146,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         )
 
     def preclude(state, sentence, eval_world):
-        """to simulate bilateral semantics"""
+        """to simulate bilateral semantics
+        returns a Z3 constraint"""
         x = BitVec("preclude_x", N)
         y = BitVec("preclude_y", N)
         return ForAll(
@@ -158,7 +159,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         )
 
     def exclude(state, sentence, eval_world):
-        """to simulate bilateral semantics"""
+        """to simulate bilateral semantics
+        returns a Z3 constraint"""
         x = BitVec("exclude_x", N)
         y = BitVec("exclude_y", N)
         return And(
@@ -243,12 +245,12 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             return Or(
                 extended_falsify(state, Y, eval_world),
                 extended_verify(state, Z, eval_world),
-                extended_verify(state, ["wedge", ["neg", Y], Z], eval_world),
+                extended_verify(state, ["wedge", ["neg", Y], Z], eval_world), # M: out of curiosity, what's this for?
             )
         raise ValueError(
             sentence,
             "Something has gone wrong in extended_falsify. "
-            f"The operator {operator} in {sentence} is not a recognized."
+            f"The operator {operator} in {sentence} is not a recognized operator."
         )
 
     def extended_falsify(state, sentence, eval_world):
@@ -576,8 +578,9 @@ def make_constraints(verify, falsify, possible, assign, N, w):
             f'No if statements triggered in false_at for {sentence} at world {eval_world}'
         )
 
-    def prop_const(atom):
+    def make_atom_prop_constraint(atom):
         """
+        Input: an atomic proposition as an AtomSort (ie, NOT in prefix notation)
         atom is a proposition since its verifiers and falsifiers are closed under
         fusion respectively, and the verifiers and falsifiers for atom are
         incompatible (exclusivity). NOTE: exhaustivity crashes Z3 so left off.
@@ -629,11 +632,19 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         frame_constraints = [
             ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
             ForAll([x, y], Exists(z, fusion(x, y) == z)),
-            is_world(w), # w is passed in from the big outer function
+            is_world(w), # w is passed in from the big outer function define_N_semantics
         ]
         return frame_constraints
 
     def find_prop_constraints(sentence_letters):
+        """Input: a list of all sentence letters in the premises and conclusions, as returned
+        by the function all_sentence_letters (i.e., a list of AtomSorts).
+        Returns the a list of the Z3 constraints that each atomic proposition gets, which is
+        the one defined by make_atom_prop_constraint.
+        Note that all atomic propositions all get the same one, except if the atomic proposition
+        is \\top, in which case it gets its own constraint that every state verifies it and none
+        falsify it.
+        """
         prop_constraints = []
         for sent_letter in sentence_letters:
             if 'top' in str(sent_letter):
@@ -645,8 +656,8 @@ def make_constraints(verify, falsify, possible, assign, N, w):
                     )
                 )
                 prop_constraints.append(top_constraint)
-                continue # ie, prop_const should never be called on '\\top'
-            for constraint in prop_const(sent_letter):
+                continue # ie, make_atom_prop_constraint should never be called on '\\top'
+            for constraint in make_atom_prop_constraint(sent_letter):
                 prop_constraints.append(constraint)
         return prop_constraints
 
@@ -668,7 +679,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
         used in find_all_constraints"""
         conclusion_constraints = []
         for conclusion in prefix_conclusions:
-            conclusion_constraint = false_at(conclusion, w)
+            conclusion_constraint = false_at(conclusion, w) # M: is there a reason you chose to do it like this?
             conclusion_constraints.append(conclusion_constraint)
         return conclusion_constraints
 
@@ -706,7 +717,7 @@ def make_constraints(verify, falsify, possible, assign, N, w):
     return find_all_constraints
 
 
-def solve_constraints(all_constraints): # all_constraints is a list
+def solve_constraints(all_constraints): # all_constraints is a list of constraints
     """find model for the input constraints if there is any
     returns a tuple with a boolean representing if the constraints were solved or not
     and, if True, the model, if False the unsatisfiable core of the constraints"""
