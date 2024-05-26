@@ -1,5 +1,5 @@
 """
-file defines model structure class given a Z3 model
+file defines model structure class given a Z3 model sdffds
 """
 
 from string import Template
@@ -36,7 +36,7 @@ from model_definitions import (
     true_and_false_worlds_for_cf,
     find_complex_proposition,
 )
-from model_checker.syntax import (
+from syntax import (
     AtomSort,
     infix,
     prefix,
