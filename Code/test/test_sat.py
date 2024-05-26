@@ -1,5 +1,3 @@
-import pytest
-from model_checker.model_structure import make_model_for
 # TODO: fix imports issue (see comments below)
 # the tests work, but this file is importing from the package downloaded onto your computer,
 # not from the module right next door so to speak.
@@ -7,6 +5,21 @@ from model_checker.model_structure import make_model_for
 # this means that to test any new changes, the whole package has to first be re-published and
 # then upgraded.
 # good thing is all test pass as of now (with the most current published version of the package)
+
+import sys
+import os
+import pytest
+from model_checker.model_structure import make_model_for
+
+# NOTE: I experimented adding the following to get it to test the local modules. no luck yet
+# from src.model_checker.model_structure import make_model_for
+
+# Get the directory path of the current file
+current_dir = os.path.dirname(__file__)
+# Construct the full path to the src directory
+src_dir = os.path.abspath(os.path.join(current_dir, "../src"))
+# Add the src directory to the Python path
+sys.path.append(src_dir)
 
 def failure_string(desired, premises, conclusions):
     if desired is False:
