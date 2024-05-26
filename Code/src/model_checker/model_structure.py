@@ -13,12 +13,15 @@ from z3 import (
     BitVecVal
 )
 
-from model_checker.semantics import (
+from semantics import ( # removed model_checker.____ because it seemed to be importing from the
+    # downloaded package locally, not from the file (couldn't find the new name of the function
+    # but could find the old name even though the old name didn't exist any more. 
+    # Maybe I'm messing things up so sorry if that was intentional!)
     define_N_semantics,
     solve_constraints,
     all_sentence_letters,
 )
-from model_checker.model_definitions import (
+from model_definitions import (
     find_compatible_parts,
     atomic_propositions_dict_maker,
     find_all_bits,
