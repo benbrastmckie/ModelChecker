@@ -14,7 +14,7 @@ from z3 import (
 )
 
 from model_checker.semantics import (
-    make_constraints,
+    define_N_semantics,
     solve_constraints,
     all_sentence_letters,
 )
@@ -104,7 +104,7 @@ class ModelSetup:
         self.prefix_premises = [prefix(prem) for prem in infix_premises]
         # M: I think below is a problem
         self.prefix_conclusions = [prefix(con) for con in infix_conclusions]
-        find_constraints_func = make_constraints(
+        find_constraints_func = define_N_semantics(
             self.verify,
             self.falsify,
             self.possible,
@@ -137,13 +137,13 @@ class ModelSetup:
         self.main_world is the eval world (as a BitVecVal)
         self.atomic_props_dict is a dictionary with keys AtomSorts and keys (V,F)
         """
-        model_start = time.time()  # start benchmark timer
         constraints = (
             self.frame_constraints +
             self.prop_constraints +
             self.premise_constraints +
             self.conclusion_constraints
         )
+        model_start = time.time()  # start benchmark timer
         z3_model_status, z3_model = solve_constraints(constraints)
         model_end = time.time()
         model_runtime = round(model_end - model_start, 4)
@@ -302,6 +302,7 @@ class StateSpace:
         return alt_bits
 
     # Useful to user now that can search an infix expression
+    # NOTE: I think this option is no longer available
     def find_proposition_object(self, expression):
         """given a sentence, finds the Proposition object in the model that corresponds
         to it. Can optionally search through only the extensional sentences
