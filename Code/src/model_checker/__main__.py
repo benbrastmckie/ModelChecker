@@ -63,7 +63,7 @@ print_impossible_states_bool = False
 
 # 'A', 'B', 'C',... can be used for sentence letters
 
-# Alternatively, 'RedBall', 'MarySings',... can be used for sentence letters.
+# Alternatively, 'RedBall', 'MarySings',... or 'red_ball', 'mary_sings',... can be used for sentence letters.
 
 # 'top' is a designated sentence for the trivial truth verified by everything and falsified by nothing.
 
