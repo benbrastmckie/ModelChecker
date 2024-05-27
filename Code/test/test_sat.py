@@ -118,7 +118,7 @@ def test_CL_8():
     check_model_status(premises, conclusions, desired_model_status, N)
 
 @pytest.mark.timeout(30)
-def test_CL_8():
+def test_CL_9():
     N = 3
     premises = ['((A \\wedge B) \\boxright C)']
     conclusions = ['(A \\boxright (B \\boxright C))']

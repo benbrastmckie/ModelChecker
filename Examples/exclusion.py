@@ -77,12 +77,14 @@ save_bool = False
 # premises = ['not A','Diamond A','Diamond B','(not A boxright B)']
 # conclusions = ['B']
 
-# NOTE: false premise model?
-premises = ['not A','(not A boxright B)']
-# premises = ['pre A','Diamond A','Diamond B','(pre A boxright B)']
-conclusions = ['B']
+# # NOTE: false premise model?
+# premises = ['not A','(not A boxright B)']
+# # premises = ['pre A','Diamond A','Diamond B','(pre A boxright B)']
+# conclusions = ['B']
 
 
+premises = ['(A \\boxright C)', '(B \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
 
 
 
