@@ -75,20 +75,20 @@ conclusions = ['C']
 # premises = ['(A \\boxright (B \\boxright C))']
 # conclusions = ['B']
 
-premises = ['ball_is_red', '(ball_is_red boxright mary_likes_it)']
-conclusions = ['mary_likes_it']
+# premises = ['ball_is_red', '(ball_is_red boxright mary_likes_it)']
+# conclusions = ['mary_likes_it']
 
-premises = ['R', '(R boxright L)']
-conclusions = ['L']
+# premises = ['R', '(R boxright L)']
+# conclusions = ['L']
 
-# premises = ['A', '(A \\boxright B)']
-# conclusions = ['B']
+# # premises = ['A', '(A \\boxright B)']
+# # conclusions = ['B']
 
-# premises = ['A', 'B']
-# conclusions = ['\\neg B']
+# # premises = ['A', 'B']
+# # conclusions = ['\\neg B']
 
-premises = ['(john_at_party wedge mary_at_party)', '(john_at_party boxright neg party_is_good)', '(mary_at_party boxright party_is_good)','party_is_good']
-conclusions = ['party_is_good']
+# premises = ['(john_at_party wedge mary_at_party)', '(john_at_party boxright neg party_is_good)', '(mary_at_party boxright party_is_good)','party_is_good']
+# conclusions = ['party_is_good']
 
 
 mod_setup, mod_structure = make_model_for(N, premises, conclusions)
