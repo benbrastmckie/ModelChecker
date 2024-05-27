@@ -31,7 +31,7 @@ def test_bot():
     check_model_status(premises, conclusions, desired_model_status, N)
 
 @pytest.mark.timeout(5)
-def test_2():
+def test_CL_1():
     N = 3
     premises = ['A', 'B']
     conclusions = ['(A boxright B)']
@@ -39,23 +39,7 @@ def test_2():
     check_model_status(premises, conclusions, desired_model_status, N)
 
 @pytest.mark.timeout(5)
-def test_3():
-    N = 3
-    premises = ['\\neg A','\\neg (A \\boxright B)']
-    conclusions = ['(A \\boxright \\neg B)']
-    desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
-
-@pytest.mark.timeout(5)
-def test_4():
-    N = 3
-    premises = ['\\neg A','\\neg (A \\boxright B)']
-    conclusions = ['(A \\boxright \\neg B)']
-    desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
-
-@pytest.mark.timeout(5)
-def test_transitivity():
+def test_transitivity(): # aka CL_2
     N = 3
     premises = ['(A \\boxright B)','(B \\boxright C)']
     conclusions = ['(A \\boxright C)']
@@ -63,7 +47,7 @@ def test_transitivity():
     check_model_status(premises, conclusions, desired_model_status, N)
 
 @pytest.mark.timeout(5)
-def test_6():
+def test_CL_3():
     N = 3
     premises = ['\\neg A']
     conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
@@ -71,10 +55,58 @@ def test_6():
     check_model_status(premises, conclusions, desired_model_status, N)
 
 @pytest.mark.timeout(10)
-def test_7():
+def test_CL_4():
+    N = 3
+    premises = ['(A \\boxright (B \\vee C)']
+    conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
+    desired_model_status = True
+    check_model_status(premises, conclusions, desired_model_status, N)
+
+@pytest.mark.timeout(10)
+def test_CL_5():
+    N = 3
+    premises = ['(A \\boxright C)', '(B \\boxright C)']
+    conclusions = ['((A \\wedge B) \\boxright C)']
+    desired_model_status = True
+    check_model_status(premises, conclusions, desired_model_status, N)
+
+@pytest.mark.timeout(10)
+def test_CL_6():
+    N = 3
+    premises = ['(A \\boxright B)', '\\neg B']
+    conclusions = ['(\\neg B \\boxright \\neg A)']
+    desired_model_status = True
+    check_model_status(premises, conclusions, desired_model_status, N)
+    
+@pytest.mark.timeout(10)
+def test_CL_7():
+    N = 3
+    premises = ['((A \\wedge B) \\boxright C)']
+    conclusions = ['(A \\boxright (B \\boxright C))']
+    desired_model_status = True
+    check_model_status(premises, conclusions, desired_model_status, N)
+
+@pytest.mark.timeout(10)
+def test_CL_8():
+    N = 3
+    premises = ['(A \\boxright (B \\boxright C))']
+    conclusions = ['((A \\wedge B) \\boxright C)']
+    desired_model_status = True
+    check_model_status(premises, conclusions, desired_model_status, N)
+
+@pytest.mark.timeout(10)
+def test_STA(): # aka CL_9
     N = 3
     premises = ['(A \\boxright C)']
     conclusions = ['((A \\wedge B) \\boxright C)']
+    desired_model_status = True
+    check_model_status(premises, conclusions, desired_model_status, N)
+
+@pytest.mark.timeout(5)
+def test_other_1():
+    N = 3
+    premises = ['\\neg A','\\neg (A \\boxright B)']
+    conclusions = ['(A \\boxright \\neg B)']
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
@@ -82,15 +114,15 @@ def test_7():
 ### VALID ###
 
 @pytest.mark.timeout(30)
-def test_8():
+def test_R1():
     N = 3
-    premises = ['A','(A \\rightarrow B)']
+    premises = ['(A \\rightarrow B)','A']
     conclusions = ['B']
     desired_model_status = False
     check_model_status(premises, conclusions, desired_model_status, N)
 
 @pytest.mark.timeout(30)
-def test_9():
+def test_R2():
     N = 3
     premises = ['(A \\boxright B)']
     conclusions = ['(A \\rightarrow B)']
@@ -98,7 +130,7 @@ def test_9():
     check_model_status(premises, conclusions, desired_model_status, N)
 
 @pytest.mark.timeout(30)
-def test_10():
+def test_R3():
     N = 3
     premises = ['((A \\vee B) \\boxright C)']
     conclusions = ['(A \\boxright C)']
@@ -106,7 +138,15 @@ def test_10():
     check_model_status(premises, conclusions, desired_model_status, N)
 
 @pytest.mark.timeout(30)
-def test_11():
+def test_R4():
+    N = 3
+    premises = ['((A \\vee B) \\boxright C)']
+    conclusions = ['(B \\boxright C)']
+    desired_model_status = False
+    check_model_status(premises, conclusions, desired_model_status, N)
+
+@pytest.mark.timeout(30)
+def test_R5():
     N = 3
     premises = ['((A \\vee B) \\boxright C)']
     conclusions = ['((A \\wedge B) \\boxright C)']
@@ -114,7 +154,15 @@ def test_11():
     check_model_status(premises, conclusions, desired_model_status, N)
 
 @pytest.mark.timeout(30)
-def test_12():
+def test_R6():
+    N = 3
+    premises = ['(A \\boxright C)', '(B \\boxright C)', '((A \\wedge B) \\boxright C)']
+    conclusions = ['((A \\vee B) \\boxright C)']
+    desired_model_status = False
+    check_model_status(premises, conclusions, desired_model_status, N)
+
+@pytest.mark.timeout(30)
+def test_R7_R8():
     N = 3
     premises = ['(A \\boxright (B \\wedge C))']
     conclusions = ['(A \\boxright B)']
@@ -122,7 +170,7 @@ def test_12():
     check_model_status(premises, conclusions, desired_model_status, N)
 
 @pytest.mark.timeout(30)
-def test_13():
+def test_R9():
     N = 3
     premises = ['(A \\boxright B)','(A \\boxright C)']
     conclusions = ['(A \\boxright (B \\wedge C))']
@@ -130,7 +178,7 @@ def test_13():
     check_model_status(premises, conclusions, desired_model_status, N)
 
 @pytest.mark.timeout(30)
-def test_14():
+def test_R10():
     N = 3
     premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
     conclusions = ['(A \\boxright C)']
