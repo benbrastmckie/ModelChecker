@@ -77,7 +77,7 @@ def test_CL_4():
     check_model_status(premises, conclusions, desired_model_status, N)
 
 # NOTE: crashes locally
-@pytest.mark.timeout(0)
+@pytest.mark.timeout(500)
 def test_CL_5():
     """SLOW: requires N = 4 and 347 seconds on the MIT server"""
     N = 4
@@ -87,7 +87,7 @@ def test_CL_5():
     check_model_status(premises, conclusions, desired_model_status, N)
 
 # NOTE: crashes locally
-@pytest.mark.timeout(0)
+@pytest.mark.timeout(300)
 def test_CL_6():
     """SLOW: requires N = 4 and 125 seconds on the MIT server"""
     N = 4
@@ -139,9 +139,9 @@ def test_STA(): # aka CL_9
     check_model_status(premises, conclusions, desired_model_status, N)
 
 # NOTE: crashes locally
-@pytest.mark.timeout(0)
+@pytest.mark.timeout(500)
 def test_STA_w_negation():
-    """SLOW: MIT servers found a model in 242 seconds"""
+    """SLOW: requires N = 4 and 242 seconds on the MIT server"""
     N = 4
     premises = ['\\neg A', '(A \\boxright C)']
     conclusions = ['((A \\wedge B) \\boxright C)']
