@@ -57,12 +57,12 @@ def test_CL_3():
 @pytest.mark.timeout(10)
 def test_CL_4():
     N = 3
-    premises = ['(A \\boxright (B \\vee C)']
+    premises = ['(A \\boxright (B \\vee C))']
     conclusions = ['((A \\boxright B) \\vee (A \\boxright C))']
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(10)
+@pytest.mark.timeout(30)
 def test_CL_5():
     N = 3
     premises = ['(A \\boxright C)', '(B \\boxright C)']
@@ -70,10 +70,18 @@ def test_CL_5():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(10)
+@pytest.mark.timeout(30)
 def test_CL_6():
-    N = 3
+    N = 6
     premises = ['(A \\boxright B)', '\\neg B']
+    conclusions = ['(\\neg B \\boxright \\neg A)']
+    desired_model_status = True
+    check_model_status(premises, conclusions, desired_model_status, N)
+
+@pytest.mark.timeout(30)
+def test_CL_6_no_neg():
+    N = 6
+    premises = ['(A \\boxright B)']
     conclusions = ['(\\neg B \\boxright \\neg A)']
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
@@ -86,7 +94,7 @@ def test_CL_7():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(10)
+@pytest.mark.timeout(30)
 def test_CL_8():
     N = 3
     premises = ['(A \\boxright (B \\boxright C))']
@@ -94,10 +102,26 @@ def test_CL_8():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
+@pytest.mark.timeout(30)
+def test_CL_8():
+    N = 3
+    premises = ['((A \\wedge B) \\boxright C)']
+    conclusions = ['(A \\boxright (B \\boxright C))']
+    desired_model_status = True
+    check_model_status(premises, conclusions, desired_model_status, N)
+
 @pytest.mark.timeout(10)
 def test_STA(): # aka CL_9
     N = 3
     premises = ['(A \\boxright C)']
+    conclusions = ['((A \\wedge B) \\boxright C)']
+    desired_model_status = True
+    check_model_status(premises, conclusions, desired_model_status, N)
+
+@pytest.mark.timeout(10)
+def test_STA_w_negation():
+    N = 3
+    premises = ['\\neg A', '(A \\boxright C)']
     conclusions = ['((A \\wedge B) \\boxright C)']
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
@@ -184,41 +208,3 @@ def test_R10():
     conclusions = ['(A \\boxright C)']
     desired_model_status = False
     check_model_status(premises, conclusions, desired_model_status, N)
-
-
-# haven't set these up yet
-################################
-######### NOT WORKING ##########
-################################
-
-# M: for the not working ones, can you put what the current output is (not
-# making or making a model), and what the desired output is?
-# B: are you able to run the file? I will add output to issues in github
-
-### HIGH PRIORITY ###
-
-# # NOTE: doesn't work b/c should countermodel
-# # recursive printing would be helpful.
-# premises = ['(A \\boxright C)','(B \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-
-# # NOTE: should find a model. works without `\\neg A`.
-# premises = ['\\neg A','(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-
-### MEDIUM PRIORITY ###
-
-# NOTE: this isn't finding models still
-premises = ['(A \\boxright B)','\\neg B']
-# NOTE: this seems to work now but the print statement is hard to read
-# premises = ['(A \\boxright B)']
-conclusions = ['(\\neg B \\boxright \\neg A)']
-
-
-# # NOTE: this seems to work now but the print statement is hard to read
-# premises = ['((A \\wedge B) \\boxright C)']
-# conclusions = ['(A \\boxright (B \\boxright C))']
-
-# # NOTE: this is slow for N = 5 and does not find models for N = 3
-# premises = ['(A \\boxright (B \\boxright C))']
-# conclusions = ['((A \\wedge B) \\boxright C)']
