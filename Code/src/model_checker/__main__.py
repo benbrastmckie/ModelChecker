@@ -17,11 +17,12 @@ import importlib.util
 current_dir = os.path.dirname(__file__)
 # Construct the full path to your project root
 project_root = os.path.abspath(os.path.join(current_dir, ".."))
+project_root = project_root[:-4] # bandaid fix to remove "/src" from the root
 # Add the project root to the Python path
 sys.path.append(project_root)
 
-from model_checker.__init__ import __version__
-from model_checker.model_structure import ( # for packaging
+from src.model_checker.__init__ import __version__
+from src.model_checker.model_structure import ( # for packaging
     StateSpace,
     make_model_for,
     )
@@ -62,7 +63,7 @@ print_impossible_states_bool = False
 
 # 'A', 'B', 'C',... can be used for sentence letters
 
-# Alternatively, 'RedBall', 'MarySings',... can be used for sentence letters.
+# Alternatively, 'RedBall', 'MarySings',... or 'red_ball', 'mary_sings',... can be used for sentence letters.
 
 # 'top' is a designated sentence for the trivial truth verified by everything and falsified by nothing.
 

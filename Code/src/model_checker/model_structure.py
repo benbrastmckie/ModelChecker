@@ -5,6 +5,7 @@ file defines model structure class given a Z3 model sdffds
 from string import Template
 import time
 import sys
+import os
 from z3 import (
     Function,
     BitVecSort,
@@ -13,15 +14,20 @@ from z3 import (
     BitVecVal
 )
 
-from semantics import ( # removed model_checker.____ because it seemed to be importing from the
-    # downloaded package locally, not from the file (couldn't find the new name of the function
-    # but could find the old name even though the old name didn't exist any more. 
-    # Maybe I'm messing things up so sorry if that was intentional!)
+# Get the directory path of the current file
+current_dir = os.path.dirname(__file__)
+# Construct the full path to your project root
+project_root = os.path.abspath(os.path.join(current_dir, ".."))
+project_root = project_root[:-4] # bandaid fix to remove "/src" from the root
+# Add the project root to the Python path
+sys.path.append(project_root)
+
+from src.model_checker.semantics import ( # imports issue fixed with above code
     define_N_semantics,
     solve_constraints,
     all_sentence_letters,
 )
-from model_definitions import (
+from src.model_checker.model_definitions import (
     find_compatible_parts,
     atomic_propositions_dict_maker,
     find_all_bits,
@@ -36,7 +42,7 @@ from model_definitions import (
     true_and_false_worlds_for_cf,
     find_complex_proposition,
 )
-from syntax import (
+from src.model_checker.syntax import (
     AtomSort,
     infix,
     prefix,
