@@ -25,6 +25,10 @@ print_impossible_states_bool = True
 save_bool = False
 
 
+
+
+
+
 ################################
 ######### NOT WORKING ##########
 ################################
@@ -47,7 +51,7 @@ save_bool = False
 ########### CRASHED ############
 ################################
 
-### CRASHED: MODALITY ###
+### MODALITY ###
 
 # # CRASH: MIT servers killed process
 # # TOP-TO-BOX EQUIVALENCE
@@ -64,26 +68,15 @@ save_bool = False
 # premises = ['(A boxright B)']
 # conclusions = ['Box (A rightarrow B)']
 
-# CRASH: MIT servers killed process
-premises = ['Box A','(A boxright B)']
-conclusions = ['Box B']
-
-
-### CRASHED: ANTECEDENT STRENGTHENING/WEAKENING ###
-
 # # CRASH: MIT servers killed process
-# # DOUBLE COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# premises = ['(A boxright C)','(B boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
-
-# # CRASH: MIT servers killed process
-# # COUNTERFACTUAL ANTECEDENT WEAKENING
-# premises = ['Box A', '((A wedge B) boxright C)']
-# conclusions = ['(B boxright C)']
+# premises = ['Box A','(A boxright B)']
+# conclusions = ['Box B']
 
 
 
-### CRASHED: IMPORTATION ###
+
+
+### COUNTERFACTUAL IMPORTATION ###
 
 # # CRASH: MIT servers killed process
 # # COUNTERFACTUAL IMPORTATION WITH POSSIBILITY
@@ -92,7 +85,7 @@ conclusions = ['Box B']
 
 
 
-### CRASHED: TRANSITIVITY ###
+### COUNTERFACTUAL TRANSITIVITY WITH NEGATION ###
 
 # # COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
 # # NOTE: does not find counter models with N = 3

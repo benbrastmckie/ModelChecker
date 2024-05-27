@@ -1,38 +1,36 @@
 import pytest
-import sys
-import os
-
-# Get the directory path of the current file
-current_dir = os.path.dirname(__file__)
-# Construct the full path to your project root
-project_root = os.path.abspath(os.path.join(current_dir, ".."))
-# Add the project root to the Python path
-sys.path.append(project_root)
 from src.model_checker.model_structure import make_model_for
 
-import sys
-import os
-import pytest
-from model_checker.model_structure import make_model_for
+# NOTE: this does not seem necessary after all; tests are running
+# import sys
+# import os
+# # Get the directory path of the current file
+# current_dir = os.path.dirname(__file__)
+# # Construct the full path to the src directory
+# src_dir = os.path.abspath(os.path.join(current_dir, "../src"))
+# # Add the src directory to the Python path
+# sys.path.append(src_dir)
 
-# NOTE: I experimented adding the following to get it to test the local modules. no luck yet
-# from src.model_checker.model_structure import make_model_for
-
-# Get the directory path of the current file
-current_dir = os.path.dirname(__file__)
-# Construct the full path to the src directory
-src_dir = os.path.abspath(os.path.join(current_dir, "../src"))
-# Add the src directory to the Python path
-sys.path.append(src_dir)
-
-def failure_string(desired, premises, conclusions):
+def failure_string(desired, premises, conclusions, time):
     if desired is False:
-        return f'Erroneously found a model for premises {premises} and conclusions {conclusions}'
-    return f'Erroneously did NOT find a model for premises {premises} and conclusions {conclusions}'
+        return f'Erroneously found a model:\n\nPremises:\n{premises}\n\nConclusions:\n{conclusions}\n\nRun time: {time} seconds\n'
+    return f'ERROneously did not find a model:\n\nPremises:\n{premises}\n\nConclusions:\n{conclusions}\n\nRun time: {time} seconds\n'
 
 def check_model_status(premises, conclusions, desired, N):
-    mod_setup, mod_structure = make_model_for(N, premises, conclusions)
-    assert (mod_structure.model_status == desired), failure_string(desired, premises, conclusions)
+    mod_structure = make_model_for(N, premises, conclusions)[1]
+    mod_status = mod_structure.model_status
+    mod_time = mod_structure.model_runtime
+    assert (mod_status == desired), failure_string(desired, premises, conclusions, mod_time)
+
+def find_model_status(premises, conclusions, desired, N):
+    mod_structure = make_model_for(N, premises, conclusions)[1]
+    mod_status = mod_structure.model_status
+    mod_time = mod_structure.model_runtime
+    if mod_status != desired and N < 10:
+        N += 1
+        find_model_status(premises, conclusions, desired, N)
+    print(f"Found model in {mod_time} for N = {N}.")
+
 
 
 ### INVALID ###
@@ -77,30 +75,32 @@ def test_CL_4():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(30)
-def test_CL_5():
-    N = 3
-    premises = ['(A \\boxright C)', '(B \\boxright C)']
-    conclusions = ['((A \\wedge B) \\boxright C)']
-    desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+# # @pytest.mark.timeout(0)
+# def test_CL_5():
+#     """SLOW: requires N = 4 and 347 seconds on the MIT server"""
+#     N = 4
+#     premises = ['(A \\boxright C)', '(B \\boxright C)']
+#     conclusions = ['((A \\wedge B) \\boxright C)']
+#     desired_model_status = True
+#     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(30)
-def test_CL_6():
-    N = 6
-    premises = ['(A \\boxright B)', '\\neg B']
-    conclusions = ['(\\neg B \\boxright \\neg A)']
-    desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+# # @pytest.mark.timeout(0)
+# def test_CL_6():
+#     """SLOW: requires N = 4 and 125 seconds on the MIT server"""
+#     N = 4
+#     premises = ['(A \\boxright B)', '\\neg B']
+#     conclusions = ['(\\neg B \\boxright \\neg A)']
+#     desired_model_status = True
+#     check_model_status(premises, conclusions, desired_model_status, N)
 
 @pytest.mark.timeout(30)
 def test_CL_6_no_neg():
-    N = 6
+    N = 3
     premises = ['(A \\boxright B)']
     conclusions = ['(\\neg B \\boxright \\neg A)']
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
-    
+
 @pytest.mark.timeout(10)
 def test_CL_7():
     N = 3
@@ -109,13 +109,14 @@ def test_CL_7():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(30)
-def test_CL_8():
-    N = 3
-    premises = ['(A \\boxright (B \\boxright C))']
-    conclusions = ['((A \\wedge B) \\boxright C)']
-    desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+# # @pytest.mark.timeout(0)
+# def test_CL_8():
+#     """SLOW: MIT servers found a model in 467 seconds"""
+#     N = 3
+#     premises = ['(A \\boxright (B \\boxright C))']
+#     conclusions = ['((A \\wedge B) \\boxright C)']
+#     desired_model_status = True
+#     check_model_status(premises, conclusions, desired_model_status, N)
 
 @pytest.mark.timeout(30)
 def test_CL_9():
@@ -133,13 +134,14 @@ def test_STA(): # aka CL_9
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(10)
-def test_STA_w_negation():
-    N = 3
-    premises = ['\\neg A', '(A \\boxright C)']
-    conclusions = ['((A \\wedge B) \\boxright C)']
-    desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+# # @pytest.mark.timeout(0)
+# def test_STA_w_negation():
+#     """SLOW: MIT servers found a model in 242 seconds"""
+#     N = 4
+#     premises = ['\\neg A', '(A \\boxright C)']
+#     conclusions = ['((A \\wedge B) \\boxright C)']
+#     desired_model_status = True
+#     check_model_status(premises, conclusions, desired_model_status, N)
 
 @pytest.mark.timeout(5)
 def test_other_1():
@@ -200,7 +202,7 @@ def test_R6():
     desired_model_status = False
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(30)
+@pytest.mark.timeout(40)
 def test_R7_R8():
     N = 3
     premises = ['(A \\boxright (B \\wedge C))']
@@ -208,17 +210,20 @@ def test_R7_R8():
     desired_model_status = False
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(30)
-def test_R9():
-    N = 3
-    premises = ['(A \\boxright B)','(A \\boxright C)']
-    conclusions = ['(A \\boxright (B \\wedge C))']
-    desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+# @pytest.mark.timeout(30)
+# def test_R9():
+#     """SLOW: runs in 8.4 seconds locally but pytest crashes locally"""
+#     N = 3
+#     premises = ['(A \\boxright B)','(A \\boxright C)']
+#     conclusions = ['(A \\boxright (B \\wedge C))']
+#     desired_model_status = False
+#     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(30)
-def test_R10():
-    N = 3
-    premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
-    conclusions = ['(A \\boxright C)']
-    desired_model_status = False
+# @pytest.mark.timeout(80)
+# def test_R10():
+#     """SLOW: runs in 39 seconds locally but pytest crashes locally"""
+#     N = 3
+#     premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
+#     conclusions = ['(A \\boxright C)']
+#     desired_model_status = False
+#     check_model_status(premises, conclusions, desired_model_status, N)

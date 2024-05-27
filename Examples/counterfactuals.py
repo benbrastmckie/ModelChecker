@@ -46,7 +46,14 @@ save_bool = False
 
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
 # # SLOW: requires N = 4 and 242 seconds on the MIT server
+# N = 4
 # premises = ['neg A','(A boxright C)']
+# conclusions = ['((A wedge B) boxright C)']
+
+# # COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
+# # SLOW: requires N = 4 and 347 seconds on the MIT server
+# N = 4
+# premises = ['(A boxright C)','(B boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 
 # # COUNTERFACTUAL CONTRAPOSITION
@@ -55,6 +62,7 @@ save_bool = False
 
 # # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
 # # SLOW: requires N = 4 and 125 seconds on the MIT server
+# N = 4
 # premises = ['neg B','(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 
@@ -64,6 +72,7 @@ save_bool = False
 
 # # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
 # # SLOW: 78 seconds on the MIT server
+# N = 4
 # premises = ['neg A','(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 
@@ -159,13 +168,10 @@ save_bool = False
 # premises = ['(A boxright B)']
 # conclusions = ['(A rightarrow B)']
 
-# # SLOW: 41.6 seconds locally
-# premises = ['(A boxright B)','((A wedge B) boxright C)']
-# conclusions = ['(A boxright C)']
-
 # # SLOW: crashed locally; MIT servers found a model in 5 seconds
 # premises = ['((A vee B) boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 
-
-
+# # SLOW: 48.3 seconds locally
+premises = ['(A boxright B)','((A wedge B) boxright C)']
+conclusions = ['(A boxright C)']

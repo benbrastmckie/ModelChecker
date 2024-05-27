@@ -2,6 +2,8 @@
 module for user inputs.
 """
 import os
+import sys
+import pytest
 parent_directory = os.path.dirname(__file__)
 file_name = os.path.basename(__file__)
 
@@ -40,10 +42,10 @@ save_bool = False
 # # conclusions = ['(A equiv not not not not A)']
 
 
+# premises = ['(A equiv B)']
 
 ### VALID ###
 
-# premises = ['(A equiv B)']
 # conclusions = ['(not A equiv not B)']
 
 # premises = []
@@ -82,11 +84,16 @@ save_bool = False
 # # premises = ['pre A','Diamond A','Diamond B','(pre A boxright B)']
 # conclusions = ['B']
 
+premises = ['(A \\boxright B)','(A \\boxright C)']
+conclusions = ['(A \\boxright (B \\wedge C))']
 
-premises = ['(A \\boxright C)', '(B \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
 
+# Print the system path
+for path in sys.path:
+    print(path)
 
+# Print the location of the PACKAGE module
+print(f"\nPACKAGE location: {PACKAGE}")
 
 
 ################################

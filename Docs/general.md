@@ -4,6 +4,20 @@ This is a place for general information related to the project.
 This may include notes about installing and using the tools involved.
 The aim is to provide references that may be helpful at a later time and to new users.
 
+## Pylint
+
+To add libraries to Pylint, run the following:
+       
+
+    # Print the location of the PACKAGE module
+    print(f"\nPACKAGE location: {PACKAGE}")
+
+Copy the location, including the following in .pylintrc:
+
+    init-hook='import sys; sys.path.append("LOCATION")'
+
+Include .pylintrc in the directory.
+
 ## SSH
 
 MIT Engaging OnDemand offers compute resources. Vist:
