@@ -7,7 +7,7 @@ This project draws on the [Z3](https://github.com/Z3Prover/z3) theorem prover to
 The language currently includes the following operators:
 
   - `neg` for _negation_
-  - `not` for _exclusion_
+  <!-- - `not` for _exclusion_ -->
   - `wedge` for _conjunction_
   - `vee` for _disjunction_
   - `rightarrow` for _material conditional_
@@ -142,9 +142,9 @@ Conjunction and disjunction are dual operators obeying the standard idempotence 
 The absorption laws do not hold, nor does conjunction distribute over disjunction, nor _vice versa_.
 For a defense of the background theory of hyperintensional propositions, see this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w).
 
-By contrast with the _bilateral_ extensional operators which treat both verifiers and falsifiers, the semantics for `not` is _unilateral_.
-In particular `not A` is verified by a state `s` just in case every non-null part of `s` is incompatible with a verifier for `A` and every verifier for `A` is incompatible with some non-null part of `s`.
-This semantics is further motivated and elaborated in [Bernard and Champollion](https://ling.auf.net/lingbuzz/007730/current.html) and included here for comparison.
+<!-- By contrast with the _bilateral_ extensional operators which treat both verifiers and falsifiers, the semantics for `not` is _unilateral_. -->
+<!-- In particular `not A` is verified by a state `s` just in case every non-null part of `s` is incompatible with a verifier for `A` and every verifier for `A` is incompatible with some non-null part of `s`. -->
+<!-- This semantics is further motivated and elaborated in [Bernard and Champollion](https://ling.auf.net/lingbuzz/007730/current.html) and included here for comparison. -->
 
 A _necessity sentence_ `Box A` is true at a world just in case every world state includes a part that verifies `A` and a _possibility sentence_ `Diamond A` is true at a world just in case some world state includes a part that verifies `A`.
 Given a world state `w` and state `s`, an `s`_-alternative_ to `w` is any world state to include as parts both `s` and a maximal part of `w` that is compatible with `s`.
