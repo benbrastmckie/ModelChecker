@@ -1,5 +1,7 @@
 """
-module for user inputs.
+NOTE: the semantics for exclusion expressed by 'not' and preclusion expressed by 'pre' is
+under development. This semantics was developed for the sake of comparison with 
+[Bernard and Champollion](https://ling.auf.net/lingbuzz/007730/current.html).
 """
 import os
 parent_directory = os.path.dirname(__file__)
@@ -46,10 +48,13 @@ save_bool = False
 # premises = ['Box (A leftrightarrow B)', '(C sqsubseteq not A)']
 # conclusions = ['(C sqsubseteq not B)']
 
+# premises = ['Diamond A','Diamond neg A']
+# conclusions = ['(not A equiv neg A)']
+
+
+
 
 ### VALID ###
-
-# conclusions = ['Diamond A','Diamond neg A','(not A equiv neg A)']
 
 # premises = ['(A equiv B)']
 # conclusions = ['(not A equiv not B)']
@@ -98,16 +103,18 @@ save_bool = False
 # premises = ['Box (A leftrightarrow B)']
 # conclusions = ['(pre A equiv pre B)']
 
-premises = ['(pre A equiv pre B)']
-conclusions = ['Box (A leftrightarrow B)']
+# premises = ['(pre A equiv pre B)']
+# conclusions = ['Box (A leftrightarrow B)']
 
 
-# # premises = []
-# conclusions = ['(A equiv not not A)']
-# # conclusions = ['(A equiv not not not not A)']
+# conclusions = ['(A equiv pre pre A)']
+# conclusions = ['(A equiv not not not not A)']
 
-# conclusions = ['(not A equiv pre A)']
-# conclusions = ['Diamond A','Diamond neg A','(pre A equiv neg A)']
+premises = ['Diamond A', 'Diamond neg A']
+conclusions = ['(pre A equiv not A)']
+
+# premises = ['Diamond A','Diamond neg A']
+# conclusions = ['(pre A equiv neg A)']
 
 
 ### VALID ###

@@ -455,14 +455,14 @@ def find_precluders(verifiers, all_bits, poss_bits):
                 break
         if incomp_ver and not comp_ver:
             precluders.append(state)
-    # TODO: would be nice to sort the excluders but they are bits
+    # TODO: would be nice to sort the precluders but they are bits
     # excluders_list = sorted(excluders)
     return precluders
 
 def find_excluders(verifiers, all_bits, poss_bits, null_singleton):
     """simulates the set of falsifiers"""
-    if not verifiers:
-        return null_singleton
+    # if not verifiers:
+    #     return null_singleton
     excluders = []
     for state in all_bits:
         comp_state_parts = set()

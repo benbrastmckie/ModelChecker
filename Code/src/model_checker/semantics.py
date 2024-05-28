@@ -172,21 +172,21 @@ def define_N_semantics(verify, falsify, possible, assign, N, w):
         )
     # ),
 
-    def precluder_fusion(state, sentence, eval_world):
-        x = BitVec("exclude_x", N)
-        y = BitVec("exclude_y", N)
-        return Or(
-            preclude(state, sentence, eval_world),
-            Exists(
-                [x, y],
-                And(
-                    non_null_part_of(x, state),
-                    preclude(x, sentence, eval_world),
-                    precluder_fusion(y, sentence, eval_world),
-                    state == fusion(x, y)
-                )
-            )
-        )
+    # def precluder_fusion(state, sentence, eval_world):
+    #     x = BitVec("exclude_x", N)
+    #     y = BitVec("exclude_y", N)
+    #     return Or(
+    #         preclude(state, sentence, eval_world),
+    #         Exists(
+    #             [x, y],
+    #             And(
+    #                 non_null_part_of(x, state),
+    #                 preclude(x, sentence, eval_world),
+    #                 precluder_fusion(y, sentence, eval_world),
+    #                 state == fusion(x, y)
+    #             )
+    #         )
+    #     )
 
     def exclude(state, sentence, eval_world):
         """to simulate bilateral semantics
