@@ -155,7 +155,6 @@ def define_N_semantics(verify, falsify, possible, assign, N, w):
         """to simulate bilateral semantics
         returns a Z3 constraint"""
         x = BitVec("preclude_x", N)
-        y = BitVec("preclude_y", N)
         return And(
             Exists(
                 x,
@@ -165,13 +164,29 @@ def define_N_semantics(verify, falsify, possible, assign, N, w):
                 )
             ),
             ForAll(
-                y,
+                x,
                 Implies(
                     extended_verify(x, sentence, eval_world),
                     Not(compatible(x, state))
                 )
-            )
+            ),
         )
+
+    # def precluder_fusion(state, sentence, eval_world):
+    #     x = BitVec("exclude_x", N)
+    #     y = BitVec("exclude_y", N)
+    #     return Or(
+    #         preclude(state, sentence, eval_world),
+    #         Exists(
+    #             [x, y],
+    #             And(
+    #                 non_null_part_of(x, state),
+    #                 verifier_fusion(x, sentence, eval_world),
+    #                 non_null_part_of(y, state),
+    #                 verifier_fusion(y, sentence, eval_world),
+    #             )
+    #         )
+    #     )
 
     def exclude(state, sentence, eval_world):
         """to simulate bilateral semantics
@@ -207,7 +222,6 @@ def define_N_semantics(verify, falsify, possible, assign, N, w):
                     )
                 )
             )
-
         )
 
     def extended_verify(state, sentence, eval_world):

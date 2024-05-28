@@ -35,18 +35,25 @@ save_bool = False
 # premises = ['Box (A leftrightarrow B)']
 # conclusions = ['(not A equiv not B)']
 
-# # premises = []
 # conclusions = ['(A equiv not not A)']
+# conclusions = ['(not A equiv not not not A)']
 # # conclusions = ['(A equiv not not not not A)']
 
+# conclusions = ['(not A equiv neg A)']
+# conclusions = ['Diamond A','(not A equiv neg A)']
+# conclusions = ['Diamond neg A','(not A equiv neg A)']
+
+# premises = ['Box (A leftrightarrow B)', '(C sqsubseteq not A)']
+# conclusions = ['(C sqsubseteq not B)']
 
 
 ### VALID ###
 
+# conclusions = ['Diamond A','Diamond neg A','(not A equiv neg A)']
+
 # premises = ['(A equiv B)']
 # conclusions = ['(not A equiv not B)']
 
-# premises = []
 # conclusions = ['(A vee not A)']
 # conclusions = ['not (A wedge not A)']
 
@@ -59,10 +66,6 @@ save_bool = False
 
 
 ### TESTING ###
-
-# # SLOW: ?? seconds
-# premises = []
-# conclusions = ['(not A equiv not not not A)']
 
 # # SLOW: ?? seconds
 # premises = ['(not A equiv not B)']
@@ -99,6 +102,8 @@ save_bool = False
 # conclusions = ['(A equiv not not A)']
 # # conclusions = ['(A equiv not not not not A)']
 
+# conclusions = ['(not A equiv pre A)']
+# conclusions = ['Diamond A','Diamond neg A','(pre A equiv neg A)']
 
 
 ### VALID ###
@@ -132,8 +137,8 @@ save_bool = False
 # premises = ['(not A equiv not B)']
 # conclusions = ['(A equiv B)']
 
-# # NOTE: false premise model?
-# # premises = ['not A','(not A boxright B)']
+# NOTE: false premise model?
+premises = ['not A','(not A boxright B)']
 # premises = ['not A','Diamond A','Diamond B','(not A boxright B)']
-# conclusions = ['B']
+conclusions = ['B']
 
