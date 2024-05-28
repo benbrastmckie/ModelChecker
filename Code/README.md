@@ -4,7 +4,6 @@ This project draws on the [Z3](https://github.com/Z3Prover/z3) theorem prover to
 The language currently includes the following operators:
 
   - `neg` for _negation_
-  <!-- - `not` for _exclusion_ -->
   - `wedge` for _conjunction_
   - `vee` for _disjunction_
   - `rightarrow` for _material conditional_
@@ -16,6 +15,7 @@ The language currently includes the following operators:
   - `leq` for _ground_
   - `sqsubseteq` for _essence_
   - `equiv` for _propositional identity_
+  <!-- - `not` for _exclusion_ -->
 
 Accessible [installation instructions](https://github.com/benbrastmckie/ModelChecker?tab=readme-ov-file#installation) are provided in the GitHub repository.
 
