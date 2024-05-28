@@ -155,38 +155,38 @@ def define_N_semantics(verify, falsify, possible, assign, N, w):
         """to simulate bilateral semantics
         returns a Z3 constraint"""
         x = BitVec("preclude_x", N)
-        return And(
-            Exists(
-                x,
-                And(
-                    extended_verify(x, sentence, eval_world),
-                    Not(compatible(x, state))
-                )
-            ),
-            ForAll(
-                x,
-                Implies(
-                    extended_verify(x, sentence, eval_world),
-                    Not(compatible(x, state))
-                )
-            ),
+        # return And(
+        #     Exists(
+        #         x,
+        #         And(
+        #             extended_verify(x, sentence, eval_world),
+        #             Not(compatible(x, state))
+        #         )
+        #     ),
+        return ForAll(
+            x,
+            Implies(
+                extended_verify(x, sentence, eval_world),
+                Not(compatible(x, state))
+            )
         )
+    # ),
 
-    # def precluder_fusion(state, sentence, eval_world):
-    #     x = BitVec("exclude_x", N)
-    #     y = BitVec("exclude_y", N)
-    #     return Or(
-    #         preclude(state, sentence, eval_world),
-    #         Exists(
-    #             [x, y],
-    #             And(
-    #                 non_null_part_of(x, state),
-    #                 verifier_fusion(x, sentence, eval_world),
-    #                 non_null_part_of(y, state),
-    #                 verifier_fusion(y, sentence, eval_world),
-    #             )
-    #         )
-    #     )
+    def precluder_fusion(state, sentence, eval_world):
+        x = BitVec("exclude_x", N)
+        y = BitVec("exclude_y", N)
+        return Or(
+            preclude(state, sentence, eval_world),
+            Exists(
+                [x, y],
+                And(
+                    non_null_part_of(x, state),
+                    preclude(x, sentence, eval_world),
+                    precluder_fusion(y, sentence, eval_world),
+                    state == fusion(x, y)
+                )
+            )
+        )
 
     def exclude(state, sentence, eval_world):
         """to simulate bilateral semantics

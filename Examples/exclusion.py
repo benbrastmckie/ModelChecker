@@ -98,6 +98,10 @@ save_bool = False
 # premises = ['Box (A leftrightarrow B)']
 # conclusions = ['(pre A equiv pre B)']
 
+premises = ['(pre A equiv pre B)']
+conclusions = ['Box (A leftrightarrow B)']
+
+
 # # premises = []
 # conclusions = ['(A equiv not not A)']
 # # conclusions = ['(A equiv not not not not A)']
@@ -137,8 +141,8 @@ save_bool = False
 # premises = ['(not A equiv not B)']
 # conclusions = ['(A equiv B)']
 
-# NOTE: false premise model?
-premises = ['not A','(not A boxright B)']
-# premises = ['not A','Diamond A','Diamond B','(not A boxright B)']
-conclusions = ['B']
+# # NOTE: false premise model?
+# premises = ['not A','(not A boxright B)']
+# # premises = ['not A','Diamond A','Diamond B','(not A boxright B)']
+# conclusions = ['B']
 
