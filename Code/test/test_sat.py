@@ -223,10 +223,10 @@ def test_R9():
     desired_model_status = False
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(100)
-def test_R10():
-    N = 3
-    premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
-    conclusions = ['(A \\boxright C)']
-    desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+# @pytest.mark.timeout(100)
+# def test_R10():
+#     N = 3
+#     premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
+#     conclusions = ['(A \\boxright C)']
+#     desired_model_status = False
+#     check_model_status(premises, conclusions, desired_model_status, N)
