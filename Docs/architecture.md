@@ -9,9 +9,9 @@ At a high level, the program does only three things:
 
 ## Step 1: User input to Z3
 The first function that is called is `make_model_for`. When a set of premises, conclusions, and N is given to `make_model_for`, the first thing called is `prefix` from the `syntax` module. This converts the input, as a python string, into prefix notation. In prefix notation, every sentence is a python list, with the following rules:
-    - an atomic input sentence 'A' is [A] in prefix notation, where A is an AtomSort (declared Z3 sort—that will be important later)
-    - an atomic input sentence 'unary_operator A' is ['unary_operator', prefix(A)], where prefix(A) represents the prefix form of A (e.g. if A is atomic, 'unary_operator A' is ['unary_operator', [A]], where the A in the embedded list is an AtomSort).
-    - an atomic sentence 'A binary_operator B' is ['binary_operator', prefix(A), prefix(B)] (e.g. 'A \binary_operator B' where both A and B are atomic is ['binary_operator', [A], [B]], where the A and B in the embedded lists are AtomSorts).
+- an atomic input sentence 'A' is [A] in prefix notation, where A is an AtomSort (declared Z3 sort—that will be important later)
+- an atomic input sentence 'unary_operator A' is ['unary_operator', prefix(A)], where prefix(A) represents the prefix form of A (e.g. if A is atomic, 'unary_operator A' is ['unary_operator', [A]], where the A in the embedded list is an AtomSort).
+- an atomic sentence 'A binary_operator B' is ['binary_operator', prefix(A), prefix(B)] (e.g. 'A \binary_operator B' where both A and B are atomic is ['binary_operator', [A], [B]], where the A and B in the embedded lists are AtomSorts).
 This ensures that every prefix sentence is an instance of the python list class, and if the length of that list is larger than one, then the first element is the main operator of the sentence (as a string). This allows for easy access to recursive funcitons. 
 
 (Trivially, the function `add_backslashes_to_infix` adds two backslashes to every operator and the special `top` sentence such that printed out they will be LaTeX commands. Two backslashes are necessary because '\' is a special character in python so one instance next to e.g. 'neg' will not print '\neg' but rather 'eg' a line after everything else. This also ensures that, in the options where a user can search for a prefix sentence in a solved model, they can find it regardless of whether they originally inputted it with backslashes or not (and regardless of whether they do so in the search).)
