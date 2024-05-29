@@ -1,9 +1,9 @@
 # Code architecture
 
 At a high level, the program does only three things: 
-    1. it takes sentences inputted by the user, translates that into a "lower-level" form (in the programming sense—namely, the form is Z3 BitVectors and constraints)
-    2. does something with that lower level form (namely, solves it and organizes it)
-    3. translates that back into output that the user can interpret. 
+1. it takes sentences inputted by the user, translates that into a "lower-level" form (in the programming sense—namely, the form is Z3 BitVectors and constraints)
+2. does something with that lower level form (namely, solves it and organizes it)
+3. translates that back into output that the user can interpret. 
 
 
 
