@@ -132,10 +132,17 @@ def pretty_set_print(set_with_strings):
 
 def product(set_A, set_B):
     """set of pairwise fusions of elements in set_A and set_B"""
+    list_A = list(set_A)
+    list_B = list(set_B)
     product_set = set()
-    for a in set_A:
-        for b in set_B:
-            product_set.add(bit_fusion(a,b))
+    for bit_a in list_A:
+        for bit_b in list_B:
+            # state_a = bitvec_to_substates(a, 3)
+            # state_b = bitvec_to_substates(b, 3)
+            # state_ab = bitvec_to_substates(bit_fusion(a,b), 3)
+            # print(f"{state_a} | {state_b} = {state_ab}")
+            bit_ab = bit_fusion(bit_a, bit_b)
+            product_set.add(bit_ab)
     return product_set
 
 def coproduct(set_A, set_B):
@@ -512,13 +519,13 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
         vers = find_excluders(Y_F, all_bits, poss_bits, null_singleton)
         fals = find_excluders(Y_V, all_bits, poss_bits, null_singleton)
         return (vers, fals)
-    if "pre" in op:
-        all_bits = model_structure.all_bits
-        poss_bits = model_structure.poss_bits
-        Y_V, Y_F = find_complex_proposition(model_structure, Y, eval_world)
-        vers = find_precluders(Y_F, all_bits, poss_bits)
-        fals = find_precluders(Y_V, all_bits, poss_bits)
-        return (vers, fals)
+    # if "pre" in op:
+    #     all_bits = model_structure.all_bits
+    #     poss_bits = model_structure.poss_bits
+    #     Y_V, Y_F = find_complex_proposition(model_structure, Y, eval_world)
+    #     vers = find_precluders(Y_F, all_bits, poss_bits)
+    #     fals = find_precluders(Y_V, all_bits, poss_bits)
+    #     return (vers, fals)
     if 'Box' in op or 'Diamond' in op:
         if evaluate_modal_expr(model_structure, complex_sentence, eval_world):
             return (null_singleton, set())
@@ -553,6 +560,15 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
         return (set(), null_singleton)
     if "sqsubseteq" in op:
         if product(Y_V, Z_V) == Z_V and Y_F <= Z_F:
+            return (null_singleton, set())
+        return (set(), null_singleton)
+    if "preceq" in op:
+        ant_ver = [(bit, bitvec_to_substates(bit, N)) for bit in Y_V]
+        con_ver = [(bit, bitvec_to_substates(bit, N)) for bit in Z_V]
+        pro_ver = [(bit, bitvec_to_substates(bit, N)) for bit in product(Y_F, Z_F)]
+        print(f"ANT TEST: {ant_ver} X {con_ver} = {pro_ver}")
+        # print(f"TEST: ant_fal {Y_F} X con_fal {Z_F} = {product(Y_F, Z_F)}")
+        if product(Y_V, Z_V) == Z_V and product(Y_F, Z_F) == Z_F:
             return (null_singleton, set())
         return (set(), null_singleton)
     if "equiv" in op:

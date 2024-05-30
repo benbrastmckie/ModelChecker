@@ -69,18 +69,9 @@ save_bool = False
 # conclusions = ['(A equiv B)']
 
 
+### AXIOMS AND RULES: GROUND ###
 
-### MODAL INTERACTION ###
-
-# # GROUND TO STRICT IMPLICATION
-# premises = ['(A leq B)']
-# conclusions = ['Box (A rightarrow B)']
-
-# # ESSENCE TO STRICT IMPLICATION
-# premises = ['(A sqsubseteq B)']
-# conclusions = ['Box (B rightarrow A)']
-
-# conclusions = ['(A sqsubseteq (A wedge B))']
+# conclusions = ['(A leq (A vee B))']
 # conclusions = ['(neg A leq neg (A wedge B))']
 # conclusions = ['((A wedge B) leq (A vee B))']
 
@@ -93,8 +84,86 @@ save_bool = False
 # premises = ['(A leq B)','(B leq A)']
 # conclusions = ['(A equiv B)']
 
-# premises = ['((A wedge B) equiv B)']
-# conclusions = ['(A sqsubseteq B)']
+# premises = ['A','(A leq B)']
+# conclusions = ['B']
+
+# premises = ['neg B','(A leq B)']
+# conclusions = ['neg A']
+
+
+
+
+
+### AXIOMS AND RULES: ESSENCE ###
+
+# conclusions = ['(A sqsubseteq (A wedge B))']
+
+# premises = ['(A sqsubseteq B)','(B sqsubseteq C)']
+# conclusions = ['(A sqsubseteq C)']
+
+# premises = ['B','(A sqsubseteq B)']
+# conclusions = ['A']
+
+# premises = ['neg A','(A sqsubseteq B)']
+# conclusions = ['neg B']
+
+
+
+
+
+
+
+
+
+
+### MODAL INTERACTION ###
+
+# # GROUND TO STRICT IMPLICATION
+# premises = ['(A leq B)']
+# conclusions = ['Box (A rightarrow B)']
+
+# # NECESSITY OF GROUND
+# premises = ['(A leq B)']
+# conclusions = ['Box (A leq B)']
+
+# # ESSENCE TO STRICT IMPLICATION
+# premises = ['(A sqsubseteq B)']
+# conclusions = ['Box (B rightarrow A)']
+
+# # NECESSITY OF ESSENCE
+# premises = ['(A sqsubseteq B)']
+# conclusions = ['Box (A sqsubseteq B)']
+
+# # GROUND DISJUNCTION SUPPLEMENTATION
+# premises = ['(A leq B)','(C leq D)']
+# conclusions = ['((A vee C) leq (B vee D))']
+
+# # ESSENCE CONJUNCTION SUPPLEMENTATION
+# premises = ['(A sqsubseteq B)','(C sqsubseteq D)']
+# conclusions = ['((A vee C) sqsubseteq (B vee D))']
+
+
+
+
+### IDENTITY
+
+
+# # IDEMPOTENCE
+# conclusions = ['(A equiv (A wedge A))']
+# conclusions = ['(A equiv (A vee A))']
+
+# premises = ['(A sqsubseteq B)','(C sqsubseteq D)']
+# conclusions = ['((A vee C) sqsubseteq (B vee D))']
+
+
+
+
+
+
+
+
+
+
 
 
 ### INVALID ###
@@ -106,6 +175,96 @@ save_bool = False
 # # STRICT IMPLICATION TO ESSENCE
 # premises = ['Box (B rightarrow A)']
 # conclusions = ['(A sqsubseteq B)']
+
+# # GROUND CONJUNCTION SUPPLEMENTATION WITH POSSIBILITY
+# premises = [
+#     'Diamond A',
+#     'Diamond B',
+#     'Diamond C',
+#     'Diamond D',
+#     'Diamond neg A',
+#     'Diamond neg B',
+#     'Diamond neg C',
+#     'Diamond neg D',
+#     '(A leq B)',
+#     '(C leq D)'
+# ]
+# conclusions = ['((A wedge C) leq (B wedge D))']
+
+# # ESSENCE DISJUNCTION SUPPLEMENTATION WITH POSSIBILITY
+# premises = [
+#     'Diamond A',
+#     'Diamond B',
+#     'Diamond C',
+#     'Diamond D',
+#     'Diamond neg A',
+#     'Diamond neg B',
+#     'Diamond neg C',
+#     'Diamond neg D',
+#     '(A sqsubseteq B)',
+#     '(C sqsubseteq D)'
+# ]
+# conclusions = ['((A vee C) sqsubseteq (B vee D))']
+
+# # IDENTITY ABSORPTION
+# conclusions = ['(A equiv (A vee (A wedge B)))']
+# conclusions = ['(A equiv (A wedge (A vee B)))']
+
+# conclusions = ['((A vee neg A) equiv (B vee neg B))']
+
+
+
+
+# DISTRIBUTION LAWS
+
+# TODO: true conclusion model
+# conclusions = ['((A wedge (B vee C)) leq ((A wedge B) vee (A wedge C)))']
+# conclusions = ['((A vee (B wedge C)) leq ((A vee B) wedge (A vee C)))']
+
+# TODO: true conclusion model
+# conclusions = ['((A wedge (B vee C)) sqsubseteq ((A wedge B) vee (A wedge C)))']
+# conclusions = ['((A vee (B wedge C)) sqsubseteq ((A vee B) wedge (A vee C)))']
+
+# TODO: true conclusion model
+# conclusions = ['(((A wedge B) vee (A wedge C)) sqsubseteq (A wedge (B vee C)))']
+
+# TODO: false conclusion model
+# conclusions = ['(((A vee B) wedge (A vee C)) sqsubseteq (A vee (B wedge C)))']
+
+# TODO: false conclusion model
+# conclusions = ['(((A wedge B) vee (A wedge C)) leq (A wedge (B vee C)))']
+
+# TODO: true conclusion model
+# conclusions = ['(((A vee B) wedge (A vee C)) leq (A vee (B wedge C)))']
+
+# TODO: true conclusion model
+# conclusions = ['((A wedge (B vee C)) equiv ((A wedge B) vee (A wedge C)))']
+# conclusions = ['((A vee (B wedge C)) equiv ((A vee B) wedge (A vee C)))']
+
+
+
+
+
+### RELEVANCE ###
+
+# A rel B := (A wedge B) leq B
+# premises = ['((A wedge B) leq B)', '((B wedge C) leq C)']
+# conclusions = ['((A wedge C) leq C)']
+
+# DEFINITIONAL
+
+# premises = ['(A preceq B)']
+# conclusions = ['((A wedge B) leq B)']
+
+# premises = ['((A wedge B) leq B)']
+# conclusions = ['(A preceq B)']
+
+
+# TRANSITIVITY
+premises = ['Diamond A','Diamond neg A','Diamond B','Diamond neg B','(A preceq B)', '(B preceq C)']
+conclusions = ['(A preceq C)']
+
+
 
 
 

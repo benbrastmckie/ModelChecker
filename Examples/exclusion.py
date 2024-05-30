@@ -110,8 +110,8 @@ save_bool = False
 # conclusions = ['(A equiv pre pre A)']
 # conclusions = ['(A equiv not not not not A)']
 
-premises = ['Diamond A', 'Diamond neg A']
-conclusions = ['(pre A equiv not A)']
+# premises = ['Diamond A', 'Diamond neg A']
+# conclusions = ['(pre A equiv not A)']
 
 # premises = ['Diamond A','Diamond neg A']
 # conclusions = ['(pre A equiv neg A)']

@@ -80,4 +80,4 @@ save_bool = False
 # premises = ['Box A']
 # conclusions = ['(top boxright A)']
 
-
+# conclusions = ['Box ((A vee neg A) leftrightarrow (B vee neg B))']

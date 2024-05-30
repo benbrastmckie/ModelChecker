@@ -119,11 +119,11 @@ class ModelSetup:
             self.possible,
             self.assign,
             self.N,
-            self.w
         )
         frame_cons, prop_cons, premise_cons, conclusion_cons = find_constraints_func(
             self.prefix_premises,
-            self.prefix_conclusions
+            self.prefix_conclusions,
+            self.w,
         )
         self.frame_constraints = frame_cons
         self.prop_constraints = prop_cons
@@ -448,7 +448,7 @@ class StateSpace:
         op = prefix_expr[0]
         first_subprop = self.find_proposition_object(prefix_expr[1])
         indent += 1 # begin subcases, so indent
-        if "neg" in op or "not" in op or "pre" in op:
+        if "neg" in op or "not" in op: # or "pre" in op:
             self.rec_print(first_subprop, world_bit, print_impossible, output, indent)
             return
         if 'Diamond' in op or 'Box' in op:
@@ -528,6 +528,8 @@ class Proposition:
         self.prop_dict["verifiers"] = verifiers
         self.prop_dict["falsifiers"] = falsifiers
         # TODO: can cf_sentences be treated in a more uniform way, avoiding the if clause below?
+        # if 'preceq' in str(prefix_expr[0]):
+        #     print(f"TEST: {verifiers}")
         if 'boxright' in str(prefix_expr[0]):
             # print(f"TEST: check condition")
             self.cf_world = eval_world

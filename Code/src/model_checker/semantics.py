@@ -47,7 +47,7 @@ def all_sentence_letters(prefix_sentences):
     # sort just to make every output the same, given sets aren't hashable
 
 
-def define_N_semantics(verify, falsify, possible, assign, N, w):
+def define_N_semantics(verify, falsify, possible, assign, N):
     # NOTE: just thought of this—we could make the options to do non_null or non_triv optional.
     # Like it coulld be an optional argument put into the model at the top level, just like
     # unsat_core is. Let me below know if you think that's a good idea or if it wouln't be useful.
@@ -232,8 +232,8 @@ def define_N_semantics(verify, falsify, possible, assign, N, w):
             sentence_letter = sentence[0]
             return verify(state, sentence_letter)
         operator = sentence[0]
-        hyper_ops = ["Box", "Diamond", "boxright", "circleright", "leq", "sqsubseteq", "equiv"]
-        for choice in hyper_ops:
+        non_ext_ops = ["Box", "Diamond", "boxright", "circleright", "leq", "sqsubseteq", "equiv", "preceq"]
+        for choice in non_ext_ops:
             if choice in operator:
                 return true_at(sentence, eval_world)
         Y = sentence[1]
@@ -284,8 +284,8 @@ def define_N_semantics(verify, falsify, possible, assign, N, w):
         if len(sentence) == 1:
             return falsify(state, sentence[0])
         operator = sentence[0]
-        hyper_ops = ["Box", "Diamond", "boxright", "circleright", "leq", "sqsubseteq", "equiv"]
-        for choice in hyper_ops:
+        non_ext_ops = ["Box", "Diamond", "boxright", "circleright", "leq", "sqsubseteq", "equiv", "preceq"]
+        for choice in non_ext_ops:
             if choice in operator:
                 return false_at(sentence, eval_world)
         Y = sentence[1]
@@ -425,6 +425,55 @@ def define_N_semantics(verify, falsify, possible, assign, N, w):
                         )
                     )
                 )
+            if "preceq" in operator:
+                return And(
+                    ForAll(
+                        [x, y],
+                        Implies(
+                            And(
+                                extended_verify(x, Y, eval_world),
+                                extended_verify(y, Z, eval_world)
+                            ),
+                            extended_verify(fusion(x, y), Z, eval_world)
+                        ),
+                    ),
+                    # ForAll(
+                    #     x,
+                    #     Implies(
+                    #         extended_verify(x, Z, eval_world),
+                    #         Exists(
+                    #             y,
+                    #             And(
+                    #                 is_part_of(y, x),
+                    #                 extended_verify(y, Y, eval_world)
+                    #             )
+                    #         )
+                    #     ),
+                    # ),
+                    ForAll(
+                        [x, y],
+                        Implies(
+                            And(
+                                extended_falsify(x, Y, eval_world),
+                                extended_falsify(y, Z, eval_world)
+                            ),
+                            extended_falsify(fusion(x, y), Z, eval_world)
+                        ),
+                    ),
+                    # ForAll(
+                    #     x,
+                    #     Implies(
+                    #         extended_falsify(x, Z, eval_world),
+                    #         Exists(
+                    #             y,
+                    #             And(
+                    #                 is_part_of(y, x),
+                    #                 extended_falsify(y, Y, eval_world)
+                    #             )
+                    #         )
+                    #     ),
+                    # ),
+                )
             if "equiv" in operator:
                 return ForAll(
                     x,
@@ -557,6 +606,25 @@ def define_N_semantics(verify, falsify, possible, assign, N, w):
                         )
                     )
                 )
+            if "preceq" in operator:
+                return Or(
+                    Exists(
+                        [x, y],
+                        And(
+                            extended_verify(x, Y, eval_world),
+                            extended_verify(y, Z, eval_world),
+                            Not(extended_verify(fusion(x, y), Z, eval_world))
+                        ),
+                    ),
+                    Exists(
+                        [x, y],
+                        And(
+                            extended_falsify(x, Y, eval_world),
+                            extended_falsify(y, Z, eval_world),
+                            Not(extended_falsify(fusion(x, y), Z, eval_world))
+                        ),
+                    )
+                )
             if "equiv" in operator:
                 return Exists(
                     x,
@@ -645,7 +713,7 @@ def define_N_semantics(verify, falsify, possible, assign, N, w):
         ]
         return sent_to_prop
 
-    def find_frame_constraints():
+    def find_frame_constraints(main_world):
         """returns constraints that govern how states act:
         1. for any two states x and y, if y is possible and x is a part of y, then x is possible
         2. for any two states x and y, there exists a state z that is the fusion of x and y
@@ -657,7 +725,7 @@ def define_N_semantics(verify, falsify, possible, assign, N, w):
         frame_constraints = [
             ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
             ForAll([x, y], Exists(z, fusion(x, y) == z)),
-            is_world(w), # w is passed in from the big outer function define_N_semantics
+            is_world(main_world), # w is passed in from the big outer function define_N_semantics
         ]
         return frame_constraints
 
@@ -686,25 +754,32 @@ def define_N_semantics(verify, falsify, possible, assign, N, w):
                 prop_constraints.append(constraint)
         return prop_constraints
 
-    def find_premise_const(prefix_premises):
+    def find_premise_const(prefix_premises, main_world):
         """find constraints corresponding to the input sentences
         takes in sentences in prefix form and the input sentence letters (a list of AtomSorts)
         returns a list of Z3 constraints
         used in find_all_constraints"""
         premise_constraints = []
         for premise in prefix_premises:
-            premise_constraint = true_at(premise, w)
+            premise_constraint = true_at(premise, main_world)
             premise_constraints.append(premise_constraint)
         return premise_constraints
 
-    def find_conclusion_const(prefix_conclusions):
+    def find_conclusion_const(prefix_conclusions, main_world):
         """find constraints corresponding to the input sentences
         takes in sentences in prefix form and the input sentence letters (a list of AtomSorts)
         returns a list of Z3 constraints
         used in find_all_constraints"""
         conclusion_constraints = []
         for conclusion in prefix_conclusions:
-            conclusion_constraint = false_at(conclusion, w) # M: is there a reason you chose to do it like this?
+            conclusion_constraint = false_at(conclusion, main_world)
+            # M: is there a reason you chose to do it like this?
+            # B: the idea was to get it to try to find models where the premises are all true and
+            # the conclusions are all false. if there is no such model, we may conclude that any
+            # model where the premises are true is one where at least one conclusion is true.
+            # NOTE: it seems to find models where the premises are false, and similarly where the
+            # conclusions are true even though these shouldn't count as models. I suspect this is
+            # to do with a discrepancy between the z3 constraints and the found/printed propositions
             conclusion_constraints.append(conclusion_constraint)
         return conclusion_constraints
 
@@ -724,7 +799,7 @@ def define_N_semantics(verify, falsify, possible, assign, N, w):
     #     model_constraints = premise_constraints + conclusion_constraints
     #     return model_constraints
 
-    def find_all_constraints(prefix_premises, prefix_conclusions):
+    def find_all_constraints(prefix_premises, prefix_conclusions, main_world):
         """find Z3 constraints for input sentences
         input_sents are a list of infix sentences
         returns a tuple with all Z3 constraints, for the model, the sentence letters
@@ -733,10 +808,10 @@ def define_N_semantics(verify, falsify, possible, assign, N, w):
         function that is returned by the big outer function"""
         prefix_sentences = prefix_premises + prefix_conclusions
         sentence_letters = all_sentence_letters(prefix_sentences)
-        frame_constraints = find_frame_constraints()
+        frame_constraints = find_frame_constraints(main_world)
         prop_constraints = find_prop_constraints(sentence_letters)
-        premise_constraints = find_premise_const(prefix_premises)
-        conclusion_constraints = find_conclusion_const(prefix_conclusions)
+        premise_constraints = find_premise_const(prefix_premises, main_world)
+        conclusion_constraints = find_conclusion_const(prefix_conclusions, main_world)
         return frame_constraints, prop_constraints, premise_constraints, conclusion_constraints
 
     return find_all_constraints
