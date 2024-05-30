@@ -17,7 +17,7 @@ unary_operators = {
     "\\not", "not",
     "\\pre", "pre",
     "Box", "\\Box",
-    "Diamond", "\\Diamond"
+    "Diamond", "\\Diamond",
 }
 binary_operators = {
     "\\wedge", "wedge",
@@ -28,7 +28,8 @@ binary_operators = {
     "\\circleright", "circleright",
     "\\leq", "leq",
     "\\sqsubseteq", "sqsubseteq",
-    "\\equiv", "equiv"
+    "\\equiv", "equiv",
+    "\\preceq", "preceq",
 }
 all_operators = unary_operators.union(binary_operators)
 
