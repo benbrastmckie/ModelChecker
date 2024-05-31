@@ -18,6 +18,7 @@ The language currently includes the following operators:
   - `leq` for _ground_
   - `sqsubseteq` for _essence_
   - `equiv` for _propositional identity_
+  - `preceq` for _relevance_
   <!-- - `not` for _exclusion_ -->
 
 The hyperintensional semantics is briefly discussed [below](##Hyperintensional-Semantics) with links to further details.
@@ -155,14 +156,17 @@ This account builds on [Fine 2012](https://www.pdcnet.org/jphil/content/jphil_20
 
 A _grounding sentence_ `A leq B` may be read '`A` is _sufficient for_ `B`' and an _essence sentence_ `A sqsubseteq B` may be read '`A` is _necessary for_ `B`'.
 A _propositional identity sentence_ `A equiv B` may be read '`A` _just is for_ `B`'.
+A _relevance sentence_ `A preceq B` may be read '`A` _is wholly relevant to_ `B`'.
 The semantics for ground requires every verifier for the antecedent to be a verifier for the consequent, any fusion of a falsifier for the antecedent and consequent to be a falsifier for the consequent, and any falsifier for the consequent to have a part that falsifies the antecedent.
 The semantics for essence requires every fusion of a verifier for the antecedent and consequent to be a verifier for the consequent, any verifier for the consequent must have a part that verifies the antecedent, and every falsifier for the antecedent to be a falsifier for the consequent.
 The semantics for propositional identity requires the two arguments to have the same verifiers and falsifiers.
-All three constitutive operators are interdefinable as indicated below: 
+The semantics for relevance requires any fusion of verifiers for the antecedent and consequent to be a verifier for the consequent and, similarly, any fusion of falsifiers for the antecedent and consequent to be a falsifier for the consequent.
+Whereas the first three constitutive operators are interdefinable, relevance is definable in terms of the other constitutive operators but not _vice versa_:
 
 - `A leq B  :=  neg A sqsubseteq neg B  :=  (A vee B) equiv B`.
 - `A sqsubseteq B  :=  neg A leq neg B  :=  (A wedge B) equiv B`.
 - `A equiv B  :=  (A leq B) wedge (B leq A)  :=  (A sqsubseteq B) wedge (B sqsubseteq A)`.
+- `A preceq B  :=  (A wedge B) leq B :=  (A vee B) sqsubseteq B`.
 
 Instead of a Boolean lattice as in extensional and intensional semantics theories, the space of hyperintensional propositions forms a non-interlaced bilattice as described in this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w), building on [Fine 2017](https://link.springer.com/article/10.1007/s10992-016-9413-y).
 

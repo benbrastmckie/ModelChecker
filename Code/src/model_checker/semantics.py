@@ -340,12 +340,10 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         that the exhaustivity constraint is not included in the definition of props
         this should avoid the need for specific clauses for (un)negated CFs. 
         returns a Z3 constraint"""
-        x = BitVec("t_x", N)
-        y = BitVec("t_y", N)
-        u = BitVec("t_u", N)
         if len(sentence) == 1:
             sent = sentence[0]
             if 'top' not in str(sent)[0]: # top const alr in model, see find_model_constraints
+                x = BitVec("t_atom_x", N)
                 return Exists(x, And(is_part_of(x, eval_world), verify(x, sent)))
         if len(sentence) == 2:
             operator = sentence[0]
@@ -353,8 +351,10 @@ def define_N_semantics(verify, falsify, possible, assign, N):
             if "neg" in operator or "not" in operator or "pre" in operator:
                 return false_at(sentence[1], eval_world)
             if 'Box' in operator:
+                u = BitVec("t_nec_u", N)
                 return ForAll(u, Implies(is_world(u), true_at(sentence[1], u)))
             if 'Diamond' in operator:
+                u = BitVec("t_pos_u", N)
                 return Exists(u, And(is_world(u), true_at(sentence[1], u)))
         if len(sentence) == 3:
             operator = sentence[0]
@@ -372,13 +372,18 @@ def define_N_semantics(verify, falsify, possible, assign, N):
             if "rightarrow" in operator:
                 return Or(false_at(Y, eval_world), true_at(Z, eval_world))
             if "leq" in operator:
-                return ForAll(
-                    [x, y],
-                    And(
+                x = BitVec("t_leq_x", N)
+                y = BitVec("t_leq_y", N)
+                return And(
+                    ForAll(
+                        x,
                         Implies(
                             extended_verify(x, Y, eval_world),
                             extended_verify(x, Z, eval_world)
                         ),
+                    ),
+                    ForAll(
+                        [x, y],
                         Implies(
                             And(
                                 extended_falsify(x, Y, eval_world),
@@ -386,46 +391,24 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                             ),
                             extended_falsify(fusion(x, y), Z, eval_world)
                         ),
+                    ),
+                    ForAll(
+                        x,
                         Implies(
-                            extended_falsify(y, Z, eval_world),
+                            extended_falsify(x, Z, eval_world),
                             Exists(
-                                u,
+                                y,
                                 And(
-                                    is_part_of(u, y),
-                                    extended_falsify(u, Y, eval_world)
+                                    extended_falsify(y, Y, eval_world),
+                                    is_part_of(y, x),
                                 )
                             )
                         )
                     )
                 )
             if "sqsubseteq" in operator:
-                return ForAll(
-                    [x, y],
-                    And(
-                        Implies(
-                            And(
-                                extended_verify(x, Y, eval_world),
-                                extended_verify(y, Z, eval_world)
-                            ),
-                            extended_verify(fusion(x, y), Z, eval_world)
-                        ),
-                        Implies(
-                            extended_verify(y, Z, eval_world),
-                            Exists(
-                                u,
-                                And(
-                                    is_part_of(u, y),
-                                    extended_verify(u, Y, eval_world)
-                                )
-                            )
-                        ),
-                        Implies(
-                            extended_falsify(x, Y, eval_world),
-                            extended_falsify(x, Z, eval_world)
-                        )
-                    )
-                )
-            if "preceq" in operator:
+                x = BitVec("t_seq_x", N)
+                y = BitVec("t_seq_y", N)
                 return And(
                     ForAll(
                         [x, y],
@@ -437,7 +420,52 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                             extended_verify(fusion(x, y), Z, eval_world)
                         ),
                     ),
-                    # ForAll(
+                    ForAll(
+                        x,
+                        Implies(
+                            extended_verify(x, Z, eval_world),
+                            Exists(
+                                y,
+                                And(
+                                    extended_verify(y, Y, eval_world),
+                                    is_part_of(y, x),
+                                )
+                            )
+                        ),
+                    ),
+                    ForAll(
+                        x,
+                        Implies(
+                            extended_falsify(x, Y, eval_world),
+                            extended_falsify(x, Z, eval_world)
+                        )
+                    )
+                )
+            if "preceq" in operator:
+                x = BitVec("t_peq_x", N)
+                y = BitVec("t_peq_y", N)
+                return And(
+                    ForAll(
+                        [x, y],
+                        Implies(
+                            And(
+                                extended_verify(x, Y, eval_world),
+                                extended_verify(y, Z, eval_world)
+                            ),
+                            extended_verify(fusion(x, y), Z, eval_world)
+                        ),
+                    ),
+                    ForAll(
+                        [x, y],
+                        Implies(
+                            And(
+                                extended_falsify(x, Y, eval_world),
+                                extended_falsify(y, Z, eval_world)
+                            ),
+                            extended_falsify(fusion(x, y), Z, eval_world)
+                        ),
+                    ),
+                    # ForAll( # stronger relevance
                     #     x,
                     #     Implies(
                     #         extended_verify(x, Z, eval_world),
@@ -450,16 +478,6 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                     #         )
                     #     ),
                     # ),
-                    ForAll(
-                        [x, y],
-                        Implies(
-                            And(
-                                extended_falsify(x, Y, eval_world),
-                                extended_falsify(y, Z, eval_world)
-                            ),
-                            extended_falsify(fusion(x, y), Z, eval_world)
-                        ),
-                    ),
                     # ForAll(
                     #     x,
                     #     Implies(
@@ -475,21 +493,32 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                     # ),
                 )
             if "equiv" in operator:
-                return ForAll(
-                    x,
-                    And(
+                x = BitVec("t_id_x", N)
+                y = BitVec("t_id_y", N)
+                return And(
+                    ForAll(
+                        x,
                         Implies(
                             extended_verify(x, Y, eval_world),
                             extended_verify(x, Z, eval_world)
                         ),
+                    ),
+                    ForAll(
+                        x,
                         Implies(
                             extended_falsify(x, Y, eval_world),
                             extended_falsify(x, Z, eval_world)
                         ),
+                    ),
+                    ForAll(
+                        x,
                         Implies(
                             extended_verify(x, Z, eval_world),
                             extended_verify(x, Y, eval_world)
                         ),
+                    ),
+                    ForAll(
+                        x,
                         Implies(
                             extended_falsify(x, Z, eval_world),
                             extended_falsify(x, Y, eval_world)
@@ -497,7 +526,8 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                     )
                 )
             if "boxright" in operator:
-                # print(f"TEST: cf operator = {op}, ant = {Y}, con = {Z}")
+                x = BitVec("t_ncf_x", N)
+                u = BitVec("t_ncf_u", N)
                 return ForAll(
                     [x, u],
                     Implies(
@@ -509,6 +539,8 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                     ),
                 )
             if "circleright" in operator:
+                x = BitVec("t_pcf_x", N)
+                u = BitVec("t_pcf_u", N)
                 return Exists(
                     [x, u],
                     And(
@@ -525,21 +557,20 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         """X is a sentence in prefix notation, eval world is the world the sentence is to be
         evaulated at. See true_at (above) for an important note on exhaustivity.
         returns a Z3 constraint"""
-        x = BitVec("f_x", N)
-        y = BitVec("f_y", N)
-        u = BitVec("f_u", N)
         if len(sentence) == 1:
             sent = sentence[0]
+            x = BitVec("f_atom_x", N)
             return Exists(x, And(is_part_of(x, eval_world), falsify(x, sent)))
         if len(sentence) == 2:
             operator = sentence[0]
             Y = sentence[1]
             if "neg" in operator or "not" in operator or "pre" in operator:
-                # print(f"TEST: neg operator = {op}")
                 return true_at(sentence[1], eval_world)
             if 'Box' in operator:
+                u = BitVec("f_nec_u", N)
                 return Exists(u, And(is_world(u), false_at(sentence[1], u)))
             if 'Diamond' in operator:
+                u = BitVec("f_pos_u", N)
                 return ForAll(u, Implies(is_world(u), false_at(sentence[1], u)))
         if len(sentence) == 3:
             operator = sentence[0]
@@ -557,49 +588,65 @@ def define_N_semantics(verify, falsify, possible, assign, N):
             if "rightarrow" in operator:
                 return And(true_at(Y, eval_world), false_at(Z, eval_world))
             if "leq" in operator:
-                return Exists(
-                    [x, y],
-                    Or(
+                x = BitVec("f_leq_x", N)
+                y = BitVec("f_leq_y", N)
+                return Or(
+                    Exists(
+                        x,
                         And(
                             extended_verify(x, Y, eval_world),
                             Not(extended_verify(x, Z, eval_world))
                         ),
+                    ),
+                    Exists(
+                        [x, y],
                         And(
                             extended_falsify(x, Y, eval_world),
                             extended_falsify(y, Z, eval_world),
                             Not(extended_falsify(fusion(x, y), Z, eval_world))
                         ),
+                    ),
+                    Exists(
+                        x,
                         And(
-                            extended_falsify(y, Z, eval_world),
+                            extended_falsify(x, Z, eval_world),
                             ForAll(
-                                u,
+                                y,
                                 Implies(
-                                    is_part_of(u, y),
-                                    Not(extended_falsify(u, Y, eval_world))
+                                    extended_falsify(y, Y, eval_world),
+                                    Not(is_part_of(y, x)),
                                 )
                             )
                         )
                     )
                 )
             if "sqsubseteq" in operator:
-                return Exists(
-                    [x, y],
-                    Or(
+                x = BitVec("f_seq_x", N)
+                y = BitVec("f_seq_y", N)
+                return Or(
+                    Exists(
+                        [x, y],
                         And(
                             extended_verify(x, Y, eval_world),
                             extended_verify(y, Z, eval_world),
                             Not(extended_verify(fusion(x, y), Z, eval_world))
                         ),
+                    ),
+                    Exists(
+                        x,
                         And(
-                            extended_verify(y, Z, eval_world),
+                            extended_verify(x, Z, eval_world),
                             ForAll(
-                                u,
+                                y,
                                 Implies(
-                                    is_part_of(u, y),
-                                    Not(extended_verify(u, Y, eval_world))
+                                    extended_verify(y, Y, eval_world),
+                                    Not(is_part_of(y, x)),
                                 )
                             )
                         ),
+                    ),
+                    Exists(
+                        x,
                         And(
                             extended_falsify(x, Y, eval_world),
                             Not(extended_falsify(x, Z, eval_world))
@@ -607,6 +654,8 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                     )
                 )
             if "preceq" in operator:
+                x = BitVec("f_peq_x", N)
+                y = BitVec("f_peq_y", N)
                 return Or(
                     Exists(
                         [x, y],
@@ -624,23 +673,60 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                             Not(extended_falsify(fusion(x, y), Z, eval_world))
                         ),
                     )
+                    # Exists( # stronger relevance
+                    #     x,
+                    #     And(
+                    #         extended_verify(x, Z, eval_world),
+                    #         ForAll(
+                    #             y,
+                    #             Implies(
+                    #                 is_part_of(y, x),
+                    #                 Not(extended_verify(y, Y, eval_world))
+                    #             )
+                    #         )
+                    #     ),
+                    # ),
+                    # Exists(
+                    #     x,
+                    #     And(
+                    #         extended_falsify(x, Z, eval_world),
+                    #         ForAll(
+                    #             y,
+                    #             Implies(
+                    #                 is_part_of(y, x),
+                    #                 Not(extended_falsify(y, Y, eval_world))
+                    #             )
+                    #         )
+                    #     ),
+                    # ),
                 )
             if "equiv" in operator:
-                return Exists(
-                    x,
-                    Or(
+                x = BitVec("f_id_x", N)
+                y = BitVec("f_id_y", N)
+                return Or(
+                    Exists(
+                        x,
                         And(
                             extended_verify(x, Y, eval_world),
                             Not(extended_verify(x, Z, eval_world))
                         ),
+                    ),
+                    Exists(
+                        x,
                         And(
                             extended_falsify(x, Y, eval_world),
                             Not(extended_falsify(x, Z, eval_world))
                         ),
+                    ),
+                    Exists(
+                        x,
                         And(
                             extended_verify(x, Z, eval_world),
                             Not(extended_verify(x, Y, eval_world))
                         ),
+                    ),
+                    Exists(
+                        x,
                         And(
                             extended_falsify(x, Z, eval_world),
                             Not(extended_falsify(x, Y, eval_world))
@@ -648,7 +734,8 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                     )
                 )
             if "boxright" in operator:
-                # print(f"TEST: cf operator = {op}, ant = {Y}, con = {Z}")
+                x = BitVec("f_ncf_x", N)
+                u = BitVec("f_ncf_u", N)
                 return Exists(
                     [x, u],
                     And(
@@ -657,6 +744,8 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                         false_at(Z, u)),
                 )
             if "circleright" in operator:
+                x = BitVec("f_pcf_x", N)
+                u = BitVec("f_pcf_u", N)
                 return ForAll(
                     [x, u],
                     Implies(
@@ -773,6 +862,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         conclusion_constraints = []
         for conclusion in prefix_conclusions:
             conclusion_constraint = false_at(conclusion, main_world)
+            # conclusion_constraint = Not(true_at(conclusion, main_world))
             # M: is there a reason you chose to do it like this?
             # B: the idea was to get it to try to find models where the premises are all true and
             # the conclusions are all false. if there is no such model, we may conclude that any
@@ -781,6 +871,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
             # conclusions are true even though these shouldn't count as models. I suspect this is
             # to do with a discrepancy between the z3 constraints and the found/printed propositions
             conclusion_constraints.append(conclusion_constraint)
+        # print(f"TEST CONST: {conclusion_constraints}")
         return conclusion_constraints
 
     # def find_sent_constraints(prefix_premises,prefix_conclusions):
