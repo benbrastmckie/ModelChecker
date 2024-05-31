@@ -132,15 +132,9 @@ def pretty_set_print(set_with_strings):
 
 def product(set_A, set_B):
     """set of pairwise fusions of elements in set_A and set_B"""
-    list_A = list(set_A)
-    list_B = list(set_B)
     product_set = set()
-    for bit_a in list_A:
-        for bit_b in list_B:
-            # state_a = bitvec_to_substates(a, 3)
-            # state_b = bitvec_to_substates(b, 3)
-            # state_ab = bitvec_to_substates(bit_fusion(a,b), 3)
-            # print(f"{state_a} | {state_b} = {state_ab}")
+    for bit_a in set_A:
+        for bit_b in set_B:
             bit_ab = bit_fusion(bit_a, bit_b)
             product_set.add(bit_ab)
     return product_set
@@ -492,6 +486,18 @@ def find_excluders(verifiers, all_bits, poss_bits, null_singleton):
     # excluders_list = sorted(excluders)
     return excluders
 
+def all_has_part(set_A, set_B):
+    """checks whether every element in set_A has a part in set_B"""
+    for bit_z in set_A:
+        found = False
+        for bit_y in set_B:
+            if bit_part(bit_y, bit_z):
+                found = True
+                break
+        if not found:
+            return False
+    return True
+
 def find_complex_proposition(model_structure, complex_sentence, eval_world):
     """sentence is a sentence in prefix notation
     For a given complex proposition, returns the verifiers and falsifiers of that proposition
@@ -555,20 +561,15 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
             return (null_singleton, set())
         return (set(), null_singleton)
     if "leq" in op:
-        if Y_V <= Z_V and product(Y_F, Z_F) == Z_F:
+        if Y_V <= Z_V and product(Y_F, Z_F) <= Z_F and all_has_part(Z_F, Y_F):
             return (null_singleton, set())
         return (set(), null_singleton)
     if "sqsubseteq" in op:
-        if product(Y_V, Z_V) == Z_V and Y_F <= Z_F:
+        if product(Y_V, Z_V) <= Z_V and all_has_part(Z_V, Y_V) and Y_F <= Z_F:
             return (null_singleton, set())
         return (set(), null_singleton)
     if "preceq" in op:
-        ant_ver = [(bit, bitvec_to_substates(bit, N)) for bit in Y_V]
-        con_ver = [(bit, bitvec_to_substates(bit, N)) for bit in Z_V]
-        pro_ver = [(bit, bitvec_to_substates(bit, N)) for bit in product(Y_F, Z_F)]
-        print(f"ANT TEST: {ant_ver} X {con_ver} = {pro_ver}")
-        # print(f"TEST: ant_fal {Y_F} X con_fal {Z_F} = {product(Y_F, Z_F)}")
-        if product(Y_V, Z_V) == Z_V and product(Y_F, Z_F) == Z_F:
+        if product(Y_V, Z_V) <= Z_V and product(Y_F, Z_F) <= Z_F:
             return (null_singleton, set())
         return (set(), null_singleton)
     if "equiv" in op:

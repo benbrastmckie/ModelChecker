@@ -47,7 +47,7 @@ save_bool = False
 # conclusions = ['((A wedge B) equiv B)']
 
 # # IDENTITY TO ESSENCE
-# # SLOW: 12.7 seconds locally
+# # SLOW: 17.2 seconds locally
 # premises = ['((A wedge B) equiv B)']
 # conclusions = ['(A sqsubseteq B)']
 
@@ -56,7 +56,6 @@ save_bool = False
 # conclusions = ['((A vee B) equiv B)']
 
 # # IDENTITY TO GROUND
-# # SLOW: 18.1 seconds locally
 # premises = ['((A vee B) equiv B)']
 # conclusions = ['(A leq B)']
 
@@ -217,52 +216,42 @@ save_bool = False
 
 # DISTRIBUTION LAWS
 
+# TODO: true conclusion model with Not(true_at(...)) but not with false_at(...)
+# conclusions = ['((A wedge (B vee C)) equiv ((A wedge B) vee (A wedge C)))']
+
 # TODO: true conclusion model
+# premises = [
+#     'Diamond A',
+#     # 'Diamond neg A',
+#     'Diamond B',
+#     # 'Diamond neg B',
+#     'Diamond C',
+#     # 'Diamond neg C',
+# ]
 # conclusions = ['((A wedge (B vee C)) leq ((A wedge B) vee (A wedge C)))']
 # conclusions = ['((A vee (B wedge C)) leq ((A vee B) wedge (A vee C)))']
+
 
 # TODO: true conclusion model
 # conclusions = ['((A wedge (B vee C)) sqsubseteq ((A wedge B) vee (A wedge C)))']
 # conclusions = ['((A vee (B wedge C)) sqsubseteq ((A vee B) wedge (A vee C)))']
 
-# TODO: true conclusion model
-# conclusions = ['(((A wedge B) vee (A wedge C)) sqsubseteq (A wedge (B vee C)))']
-
-# TODO: false conclusion model
-# conclusions = ['(((A vee B) wedge (A vee C)) sqsubseteq (A vee (B wedge C)))']
-
-# TODO: false conclusion model
-# conclusions = ['(((A wedge B) vee (A wedge C)) leq (A wedge (B vee C)))']
-
-# TODO: true conclusion model
+# TODO: true conclusion model with false_at(...) and not with Not(true_at(...))
 # conclusions = ['(((A vee B) wedge (A vee C)) leq (A vee (B wedge C)))']
 
+# TODO: true conclusion model with false_at(...) and not with Not(true_at(...))
+# conclusions = ['(((A vee B) wedge (A vee C)) sqsubseteq (A vee (B wedge C)))']
+
 # TODO: true conclusion model
-# conclusions = ['((A wedge (B vee C)) equiv ((A wedge B) vee (A wedge C)))']
+# conclusions = ['(((A wedge B) vee (A wedge C)) leq (A wedge (B vee C)))']
+# conclusions = ['(((A wedge B) vee (A wedge C)) sqsubseteq (A wedge (B vee C)))']
+
+# TODO: true conclusion model
 # conclusions = ['((A vee (B wedge C)) equiv ((A vee B) wedge (A vee C)))']
 
 
 
 
-
-### RELEVANCE ###
-
-# A rel B := (A wedge B) leq B
-# premises = ['((A wedge B) leq B)', '((B wedge C) leq C)']
-# conclusions = ['((A wedge C) leq C)']
-
-# DEFINITIONAL
-
-# premises = ['(A preceq B)']
-# conclusions = ['((A wedge B) leq B)']
-
-# premises = ['((A wedge B) leq B)']
-# conclusions = ['(A preceq B)']
-
-
-# TRANSITIVITY
-premises = ['Diamond A','Diamond neg A','Diamond B','Diamond neg B','(A preceq B)', '(B preceq C)']
-conclusions = ['(A preceq C)']
 
 
 
