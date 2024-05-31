@@ -1,9 +1,9 @@
 # Code architecture
 
-At an overview, the program does only three things: 
-1. it takes sentences inputted by the user, translates that into a "lower-level" form (in the programming sense)—namely Z3 BitVectors and constraints
-2. solves the constraints in the lower-level representation and organizes the result, and
-3. translates that back into output that the user can interpret. 
+As an overview, the program does three things: 
+1. It takes sentences inputted by the user, translates them into constraints on Z3 BitVectors.
+2. Finds a model that solves the constraints.
+3. Draws on the model to interpret the original sentences provided by the user.
 
 
 ## Step 1: User input to Z3

@@ -4,13 +4,22 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## v0.4 Release 
 
-- [ ] say if premises, conclusions, or N are absent
-- [.] _B_ unit tests
+- [ ] fix true conclusion models
+  - [ ] relevance
+  - [ ] essence
+  - [ ] ground
+  - [ ] identity
+  - [ ] counterfactual
+- [x] say if premises, conclusions, or N are absent
+- [x] unit tests
 - [:] semantics
   - [x] added exclude for `not` operator
-    - [.] test
-  - [ ] essence and ground
-    - [ ] test
+    - [x] test
+    - [ ] conform to lucas's definition
+  - [x] essence and ground
+    - [x] test
+  - [x] relevance
+    - [x] test
 - [ ] check syntax flag
   - runs infix after prefix, printing both
 - [.] documentation

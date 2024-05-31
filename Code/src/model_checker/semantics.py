@@ -862,6 +862,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         conclusion_constraints = []
         for conclusion in prefix_conclusions:
             conclusion_constraint = false_at(conclusion, main_world)
+            conclusion_constraints.append(conclusion_constraint)
             # conclusion_constraint = Not(true_at(conclusion, main_world))
             # M: is there a reason you chose to do it like this?
             # B: the idea was to get it to try to find models where the premises are all true and
@@ -870,8 +871,6 @@ def define_N_semantics(verify, falsify, possible, assign, N):
             # NOTE: it seems to find models where the premises are false, and similarly where the
             # conclusions are true even though these shouldn't count as models. I suspect this is
             # to do with a discrepancy between the z3 constraints and the found/printed propositions
-            conclusion_constraints.append(conclusion_constraint)
-        # print(f"TEST CONST: {conclusion_constraints}")
         return conclusion_constraints
 
     # def find_sent_constraints(prefix_premises,prefix_conclusions):
