@@ -32,9 +32,9 @@ save_bool = False
 
 ### INVALID ###
 
-# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# premises = ['(A boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
+# COUNTERFACTUAL ANTECEDENT STRENGTHENING
+premises = ['(A boxright C)']
+conclusions = ['((A wedge B) boxright C)']
 
 # # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # premises = ['(A circleright C)']
@@ -79,7 +79,7 @@ save_bool = False
 # # SOBEL SEQUENCE (N = 3)
 # premises = [
 #     '(A boxright X)', # 0.03 seconds locally
-#     'neg ((A wedge B) boxright X)', # 14.8 seconds locally
+#     'neg ((A wedge B) boxright X)', # 1.4 seconds locally
 #     '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
 #     # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
 #     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # 20.5 seconds locally
@@ -173,5 +173,5 @@ save_bool = False
 # conclusions = ['((A wedge B) boxright C)']
 
 # # SLOW: 48.3 seconds locally
-premises = ['(A boxright B)','((A wedge B) boxright C)']
-conclusions = ['(A boxright C)']
+# premises = ['(A boxright B)','((A wedge B) boxright C)']
+# conclusions = ['(A boxright C)']
