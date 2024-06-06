@@ -259,7 +259,8 @@ class ModelStructure:
 class StateSpace:
     """class for all states and their attributes"""
 
-    def __init__(self, model_setup, model_structure):
+    def __init__(self, model_structure):
+        model_setup = model_structure.model_setup
         self.model_setup = model_setup
         self.model_structure = model_structure
         self.z3_model = model_structure.z3_model
@@ -310,39 +311,30 @@ class StateSpace:
                         break  # to return to the second for loop over world_bits
         return alt_bits
 
-    # Useful to user now that can search an infix expression
-    # NOTE: I think this option is no longer available
+    # Useful to user now that can search both prefix and infix expressions
     def find_proposition_object(self, expression):
         """given a sentence, finds the Proposition object in the model that corresponds
-        to it. Can optionally search through only the extensional sentences
-        Also defaults to searching an infix sentence, though internally it always searches
-        prefix.
-        If search infix, make sure you put double backslashes always!!
+        to it.
+        Can search either infix (external functionality) or prefix (internal calls) expressions. 
         returns a Proposition object"""
-        # search_list = self.all_propositions
-        # if infix_search:
-        #     for prop_object in search_list:
-        #         if prop_object["prefix expression"] == expression:
-        #             return prop_object
-        # else:
-        #     for prop_object in search_list:
-        #         if str(prop_object) == add_backslashes_to_infix(expression):
-        #             return prop_object
+        if isinstance(expression, str): # for searching infix expressions on user functionality
+            expression = prefix(expression)
         for prop_object in self.all_propositions:
             if prop_object["prefix expression"] == expression:
                 return prop_object
         raise ValueError(
             f"there is no Proposition with expression {expression}")
 
-    # # Useful to user now that can search infix expressions
-    # def find_propositions(self, sentences, prefix_search=False):
-    #     """finds all the Proposition objects in a ModelStructure
-    #     that correspond to the prefix sentences in sentences.
-    #     returns them as a list"""
-    #     propositions = []
-    #     for sent in sentences:
-    #         propositions.append(self.find_proposition_object(sent, prefix_search=prefix_search))
-    #     return propositions
+    # Useful to user now that can search infix expressions
+    def find_propositions(self, sentences):
+        """finds all the Proposition objects in a ModelStructure
+        that correspond to the prefix sentences in sentences, a list of sentences (expressions).
+        Expressions can be either infix or prefix (issue solved by find_proposition_object).
+        returns the corresponding Proposition objects as a list"""
+        propositions = []
+        for sent in sentences:
+            propositions.append(self.find_proposition_object(sent))
+        return propositions
 
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
@@ -651,7 +643,7 @@ def make_model_for(N, premises, conclusions):
     model_setup = ModelSetup(N, backslash_premises, backslash_conclusions)
     z3_model_status, z3_model, model_runtime = model_setup.solve()
     model_structure = ModelStructure(z3_model_status, model_setup, z3_model, model_runtime)
-    return model_setup, model_structure
+    return model_structure
     # NOTE: since you save the ModelSetup object as an attribute of the ModelStructure object,
     # there's really no need to return it as well. I'm not going to remove it in case it adds
     # some bugs down the road since it's been a while since I've touched things, but just thought
