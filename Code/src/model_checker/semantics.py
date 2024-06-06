@@ -241,8 +241,6 @@ def define_N_semantics(verify, falsify, possible, assign, N):
             return extended_falsify(state, Y, eval_world)
         if "not" in operator:
             return exclude(state, Y, eval_world)
-        if "pre" in operator:
-            return preclude(state, Y, eval_world)
         Z = sentence[2]
         if "wedge" in operator:
             y = BitVec("ex_ver_y", N)
@@ -293,8 +291,6 @@ def define_N_semantics(verify, falsify, possible, assign, N):
             return extended_verify(state, Y, eval_world)
         if "not" in operator:
             return exclude(state, Y, eval_world)
-        if "pre" in operator:
-            return preclude(state, Y, eval_world)
         Z = sentence[2]
         if "wedge" in operator:
             return Or(
@@ -348,7 +344,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         if len(sentence) == 2:
             operator = sentence[0]
             Y = sentence[1]
-            if "neg" in operator or "not" in operator or "pre" in operator:
+            if "neg" in operator or "not" in operator:
                 return false_at(sentence[1], eval_world)
             if 'Box' in operator:
                 u = BitVec("t_nec_u", N)
@@ -564,7 +560,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         if len(sentence) == 2:
             operator = sentence[0]
             Y = sentence[1]
-            if "neg" in operator or "not" in operator or "pre" in operator:
+            if "neg" in operator or "not" in operator:
                 return true_at(sentence[1], eval_world)
             if 'Box' in operator:
                 u = BitVec("f_nec_u", N)
@@ -604,6 +600,8 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                             extended_falsify(x, Y, eval_world),
                             extended_falsify(y, Z, eval_world),
                             Not(extended_falsify(fusion(x, y), Z, eval_world))
+                            # z == fusion(x, y),
+                            # Not(extended_falsify(z, Z, eval_world))
                         ),
                     ),
                     Exists(

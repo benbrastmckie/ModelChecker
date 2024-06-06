@@ -486,7 +486,7 @@ def find_excluders(verifiers, all_bits, poss_bits, null_singleton):
     # excluders_list = sorted(excluders)
     return excluders
 
-def all_has_part(set_A, set_B):
+def contained_in(set_A, set_B):
     """checks whether every element in set_A has a part in set_B"""
     for bit_z in set_A:
         found = False
@@ -561,11 +561,11 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
             return (null_singleton, set())
         return (set(), null_singleton)
     if "leq" in op:
-        if Y_V <= Z_V and product(Y_F, Z_F) <= Z_F and all_has_part(Z_F, Y_F):
+        if Y_V <= Z_V and product(Y_F, Z_F) <= Z_F and contained_in(Z_F, Y_F):
             return (null_singleton, set())
         return (set(), null_singleton)
     if "sqsubseteq" in op:
-        if product(Y_V, Z_V) <= Z_V and all_has_part(Z_V, Y_V) and Y_F <= Z_F:
+        if product(Y_V, Z_V) <= Z_V and contained_in(Z_V, Y_V) and Y_F <= Z_F:
             return (null_singleton, set())
         return (set(), null_singleton)
     if "preceq" in op:
