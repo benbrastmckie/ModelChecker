@@ -191,7 +191,7 @@ class ModelStructure:
         inputs_content = inputs_template.substitute(inputs_data)
         print(inputs_content, file=output)
 
-    def print_enumerate(self, output):
+    def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
         infix_premises = self.infix_premises
         infix_conclusions = self.infix_conclusions
@@ -429,7 +429,7 @@ class StateSpace:
             if print_impossible:
                 print(f"  {WHITE}{bin_rep} = {MAGENTA}{state} (impossible){RESET}", file=output)
 
-    def rec_print(self, prop_obj, world_bit, print_impossible, output, indent=0):
+    def rec_print(self, prop_obj, world_bit, print_impossible, output=sys.__stdout__, indent=0):
         """recursive print function (previously print_sort)
         returns None"""
         N = self.model_setup.N
@@ -470,7 +470,7 @@ class StateSpace:
         self.rec_print(left_subprop, world_bit, print_impossible, output, indent)
         self.rec_print(right_subprop, world_bit, print_impossible, output, indent)
 
-    def print_inputs_recursively(self, print_impossible, output):
+    def print_inputs_recursively(self, print_impossible=False, output=sys.__stdout__):
         """does rec_print for every proposition in the input propositions
         returns None"""
         initial_eval_world = self.main_world
@@ -496,7 +496,7 @@ class StateSpace:
                 self.rec_print(input_prop, initial_eval_world, print_impossible, output, 1)
                 print(file=output)
 
-    def print_all(self, print_impossible, output):
+    def print_all(self, print_impossible=False, output=sys.__stdout__):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
         N = self.model_setup.N
