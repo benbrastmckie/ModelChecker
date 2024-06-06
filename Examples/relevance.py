@@ -55,7 +55,7 @@ save_bool = False
 # conclusions = ['((A wedge (B vee C)) preceq ((A wedge B) vee (A wedge C)))']
 
 # # TODO: true conclusion model
-# conclusions = ['((A vee (B wedge C)) preceq ((A vee B) wedge (A vee C)))']
+conclusions = ['((A vee (B wedge C)) preceq ((A vee B) wedge (A vee C)))']
 
 
 

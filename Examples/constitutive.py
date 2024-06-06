@@ -228,7 +228,7 @@ save_bool = False
 #     'Diamond C',
 #     # 'Diamond neg C',
 # ]
-# conclusions = ['((A wedge (B vee C)) leq ((A wedge B) vee (A wedge C)))']
+conclusions = ['((A wedge (B vee C)) leq ((A wedge B) vee (A wedge C)))']
 # conclusions = ['((A vee (B wedge C)) leq ((A vee B) wedge (A vee C)))']
 
 

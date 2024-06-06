@@ -11,7 +11,10 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] identity
   - [ ] counterfactual
 - [x] say if premises, conclusions, or N are absent
-- [x] unit tests
+- [:] unit tests
+  - [ ] constitutive
+  - [ ] relevance
+  - [ ] modal
 - [:] semantics
   - [x] added exclude for `not` operator
     - [x] test

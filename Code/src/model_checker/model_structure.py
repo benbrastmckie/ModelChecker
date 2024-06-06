@@ -105,9 +105,9 @@ class ModelSetup:
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
         self.N = N
-        self.possible = Function("possible", BitVecSort(N), BoolSort())
         self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
         self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
+        self.possible = Function("possible", BitVecSort(N), BoolSort())
         self.assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
         self.w = BitVec("w", N) # what will be the main world
         self.prefix_premises = [prefix(prem) for prem in infix_premises]
@@ -367,18 +367,19 @@ class StateSpace:
         RED = '\033[31m'
         # YELLOW = '\033[33m'
         RESET = '\033[0m'
+        world_state = bitvec_to_substates(main_world, N)
         if true_in_eval:
             true_eval_list = sorted([str(sent) for sent in true_in_eval])
             true_eval_string = ", ".join(true_eval_list)
             print(
-                f"  {GREEN}{true_eval_string}  (True in {bitvec_to_substates(main_world, N)}){RESET}",
+                f"  {GREEN}{true_eval_string}  (True in {world_state}){RESET}",
                 file=output,
             )
         if false_in_eval:
             false_eval_list = sorted([str(sent) for sent in false_in_eval])
             false_eval_string = ", ".join(false_eval_list)
             print(
-                f"  {RED}{false_eval_string}  (False in {bitvec_to_substates(main_world, N)}){RESET}",
+                f"  {RED}{false_eval_string}  (False in {world_state}){RESET}",
                 file=output,
             )
         print(file=output)
@@ -552,7 +553,7 @@ class Proposition:
     def update_proposition(self, eval_world):
         """updates the evaluation world for counterfactuals"""
         # if not is_counterfactual(self['prefix expression']):
-        #     raise AttributeError(f'You can only update verifiers for CFs, and {self} is not a CF.')
+        #     raise AttributeError(f'You can only update verifiers for CFs: {self} is not a CF.')
         N = self.model_structure.N
         if eval_world == self.cf_world:
             return
@@ -577,10 +578,7 @@ class Proposition:
                 # N = self.model_structure.N
                 # print(f"TEST: falsifier = {bitvec_to_substates(falsifier, N)}")
                 return False
-        N = self.model_structure.N
-        RED = '\033[31m'
-        RESET = '\033[0m'
-        print(f"\n{RED}WARNING:{RESET} {self} is neither true nor false at {bitvec_to_substates(eval_world, N)}.\n")
+        return None
         # raise ValueError(
         #     "Something has gone wrong.\n"
         #     f'No verifier or falsifier for {self["prefix expression"]} at world {eval_world}'
@@ -622,16 +620,22 @@ class Proposition:
         RED = '\033[31m'
         GREEN = '\033[32m'
         RESET = '\033[0m'
+        FULL = '\033[37m'
+        PART = '\033[33m'
         if indent_num == 1:
             if truth_value:
                 FULL = GREEN
                 PART = GREEN
-            else:
+            if not truth_value:
                 FULL = RED
                 PART = RED
-        else:
-            FULL = '\033[37m'
-            PART = '\033[33m'
+            if truth_value is None:
+                N = self.model_structure.N
+                world_state = bitvec_to_substates(eval_world, N)
+                print(
+                    f"\n{RED}WARNING:{RESET}"
+                    f"{self} is neither true nor false at {world_state}.\n"
+                )
         print(
             f"{'  ' * indent_num}{FULL}|{self}| = < {ver_prints}, {fal_prints} >{RESET}"
             f"  {PART}({truth_value} in {world_state}){RESET}",
