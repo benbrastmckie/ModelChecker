@@ -12,7 +12,6 @@ project_root = project_root[:-4] # bandaid fix to remove "/src" from the root
 sys.path.append(project_root) # do we need to remove project_root from sys.path after 
 
 from src.model_checker.model_structure import (
-    ModelStructure,
     StateSpace,
     Proposition,
     make_model_for,

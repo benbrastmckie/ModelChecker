@@ -113,6 +113,8 @@ class ModelSetup:
         self.prefix_premises = [prefix(prem) for prem in infix_premises]
         # M: I think below is a problem
         self.prefix_conclusions = [prefix(con) for con in infix_conclusions]
+        prefix_sentences = self.prefix_premises + self.prefix_conclusions
+        self.all_subsentences = find_subsentences(prefix_sentences)
         find_constraints_func = define_N_semantics(
             self.verify,
             self.falsify,
@@ -129,14 +131,22 @@ class ModelSetup:
         self.prop_constraints = prop_cons
         self.premise_constraints = premise_cons
         self.conclusion_constraints = conclusion_cons
-        prefix_sentences = self.prefix_premises + self.prefix_conclusions
-        self.all_subsentences = find_subsentences(prefix_sentences)
+        self.constraints = (
+            self.frame_constraints +
+            self.prop_constraints +
+            self.premise_constraints +
+            self.conclusion_constraints
+        )
+        z3_model_status, z3_model, model_runtime = self.solve(self.constraints)
+        self.model_status = z3_model_status
+        self.z3_model = z3_model
+        self.model_runtime = model_runtime
 
     # def constraints_func(self):
     #     """returns constraints_func"""
     #     return self.find_constraints_func
 
-    def solve(self):
+    def solve(self, constraints):
         """solves for the model, returns None
         self.model is the ModelRef object resulting from solving the model
         self.model_runtime is the runtime of the model as a float
@@ -146,44 +156,34 @@ class ModelSetup:
         self.main_world is the eval world (as a BitVecVal)
         self.atomic_props_dict is a dictionary with keys AtomSorts and keys (V,F)
         """
-        constraints = (
-            self.frame_constraints +
-            self.prop_constraints +
-            self.premise_constraints +
-            self.conclusion_constraints
-        )
         model_start = time.time()  # start benchmark timer
         z3_model_status, z3_model = solve_constraints(constraints)
         model_end = time.time()
         model_runtime = round(model_end - model_start, 4)
         return (z3_model_status, z3_model, model_runtime)
 
-    def __str__(self):
-        return f'ModelSetup object with premises {self.infix_premises} and conclusions {self.infix_conclusions}'
-
-
-class ModelStructure:
-    """self.premises is a list of prefix sentences
-    self.conclusions is a list of prefix sentences
-    self.input_sentences is the combination of self.premises and self.conclusions with the
-    conclusions negated
-    self.sentence letters is a list of atomic sentence letters (each of sort AtomSort)
-    self.constraints is a list (?) of constraints
-    everything else is initialized as None"""
-
-    def __init__(self, model_status, model_setup, z3_model, model_runtime):
-        self.model_status = model_status
-        self.model_setup = model_setup
-        self.z3_model = z3_model
-        self.model_runtime = model_runtime
-        self.infix_premises = model_setup.infix_premises
-        self.infix_conclusions = model_setup.infix_conclusions
-        self.N = model_setup.N
+# class ModelStructure:
+#     """self.premises is a list of prefix sentences
+#     self.conclusions is a list of prefix sentences
+#     self.input_sentences is the combination of self.premises and self.conclusions with the
+#     conclusions negated
+#     self.sentence letters is a list of atomic sentence letters (each of sort AtomSort)
+#     self.constraints is a list (?) of constraints
+#     everything else is initialized as None"""
+#
+#     def __init__(self, model_status, model_setup, z3_model, model_runtime):
+#         self.model_status = model_status
+#         self.model_setup = model_setup
+#         self.z3_model = z3_model
+#         self.model_runtime = model_runtime
+#         self.infix_premises = model_setup.infix_premises
+#         self.infix_conclusions = model_setup.infix_conclusions
+#         self.N = model_setup.N
 
     def build_test_file(self, output):
         """generates a test file from input to be saved"""
         inputs_data = {
-            "N": self.model_setup.N,
+            "N": self.N,
             "premises": self.infix_premises,
             "conclusions": self.infix_conclusions,
             "runtime": self.model_runtime,
@@ -224,7 +224,7 @@ class ModelStructure:
     def no_model_save(self, print_unsat_core_bool, output):
         """saves the arguments to a new file when there is no model with the
         option to include Z3 constraints."""
-        constraints = self.model_setup.constraints
+        constraints = self.constraints
         print(f"There are no {self.N}-models of:\n", file=output)
         self.print_enumerate(output)
         self.build_test_file(output)
@@ -241,15 +241,14 @@ class ModelStructure:
         for index, con in enumerate(consts, start=1):
             print(f"{index}. {con}\n", file=output)
             # print(f"Constraints time: {time}\n")
-    
+
     def __str__(self):
-        '''useful for people who want to use model_checker in a python file (like we use z3 or numpy, if that makes sense)
-        feel free to change/remove'''
-        return f'{"" if self.model_status else "un"}sat ModelStructure for premises {self.infix_premises} and conclusions {self.infix_conclusions} with status {self.model_status}'
+        '''useful for using model-checker in a python file'''
+        return f'{"" if self.model_status else "un"}sat ModelSetup for premises {self.infix_premises} and conclusions {self.infix_conclusions} with status {self.model_status}'
 
     def __bool__(self):
         '''returns the value of self.model_status (ie, whether the z3 model was solved)
-        reasoning: say ms is a ModelStructure object. Now we can check its model_status by doing:
+        reasoning: say ms is a ModelSetup object. Now we can check its model_status by doing:
         if ms: # as opposed to if ms.model_status
             (do_something)
         '''
@@ -259,12 +258,11 @@ class ModelStructure:
 class StateSpace:
     """class for all states and their attributes"""
 
-    def __init__(self, model_setup, model_structure):
+    def __init__(self, model_setup):
         self.model_setup = model_setup
-        self.model_structure = model_structure
-        self.z3_model = model_structure.z3_model
-        self.model_runtime = model_structure.model_runtime
-        self.model_status = model_structure.model_status
+        self.z3_model = model_setup.z3_model
+        self.model_runtime = model_setup.model_runtime
+        self.model_status = model_setup.model_status
         self.N = model_setup.N
         self.main_world = model_setup.w
         self.all_bits = find_all_bits(self.N)
@@ -387,7 +385,7 @@ class StateSpace:
     def print_to(self, print_cons_bool, print_impossible, output=sys.__stdout__):
         """append all elements of the model to the file provided"""
         self.print_all(print_impossible, output)
-        structure = self.model_structure
+        structure = self.model_setup
         setup = self.model_setup
         if print_cons_bool:
             structure.print_constraints(setup.frame_constraints, 'FRAME', output)
@@ -509,7 +507,7 @@ class StateSpace:
         recursively prints each sentence and its parts"""
         N = self.model_setup.N
         print(f"\nThere is a {N}-model of:\n", file=output)
-        self.model_structure.print_enumerate(output)
+        self.model_setup.print_enumerate(output)
         self.print_states(print_impossible, output)
         self.print_evaluation(output)
         self.print_inputs_recursively(print_impossible, output)
@@ -649,9 +647,9 @@ def make_model_for(N, premises, conclusions):
     backslash_premises = [add_backslashes_to_infix(prem) for prem in premises]
     backslash_conclusions = [add_backslashes_to_infix(concl) for concl in conclusions]
     model_setup = ModelSetup(N, backslash_premises, backslash_conclusions)
-    z3_model_status, z3_model, model_runtime = model_setup.solve()
-    model_structure = ModelStructure(z3_model_status, model_setup, z3_model, model_runtime)
-    return model_setup, model_structure
+    # z3_model_status, z3_model, model_runtime = model_setup.solve()
+    # model_structure = ModelStructure(z3_model_status, model_setup, z3_model, model_runtime)
+    return model_setup
     # NOTE: since you save the ModelSetup object as an attribute of the ModelStructure object,
     # there's really no need to return it as well. I'm not going to remove it in case it adds
     # some bugs down the road since it's been a while since I've touched things, but just thought

@@ -353,19 +353,19 @@ def main():
     print_imposs = module.print_impossible_states_bool or imposs_flag
     print_cons = module.print_cons_bool or cons_flag
     save_model = module.save_bool or save_flag
-    model_setup, model_structure = make_model_for(module.N, module.premises, module.conclusions)
-    if model_structure.model_status:
-        states_print = StateSpace(model_setup, model_structure)
+    model_setup = make_model_for(module.N, module.premises, module.conclusions)
+    if model_setup.model_status:
+        states_print = StateSpace(model_setup)
         states_print.print_to(print_cons, print_imposs)
         if save_model:
             file_name, print_cons = ask_save()
             save_or_append(module, states_print, file_name, print_cons, print_imposs)
         return
     print_unsat = module.print_unsat_core_bool or cons_flag
-    model_structure.no_model_print(print_unsat)
+    model_setup.no_model_print(print_unsat)
     if save_model:
         file_name, print_cons = ask_save()
-        no_model_save_or_append(module, model_structure, file_name, print_unsat)
+        no_model_save_or_append(module, model_setup, file_name, print_unsat)
 
 
 if __name__ == "__main__":

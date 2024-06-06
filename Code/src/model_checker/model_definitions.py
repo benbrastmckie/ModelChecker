@@ -62,7 +62,7 @@ def find_world_bits(poss_bits):
 def find_compatible_parts(verifier_bit, poss_bits, eval_world):
     """
     Finds the parts of the eval_world compatible with the verifier_bit.
-    Used in find_alt_bits() method in ModelStructure class
+    Used in find_alt_bits() method in ModelSetup class
     """
     comp_parts = []
     for part in poss_bits:
@@ -75,7 +75,7 @@ def find_compatible_parts(verifier_bit, poss_bits, eval_world):
 def find_max_comp_ver_parts(verifier_bit, comp_parts):
     """
     Finds a list of fusions of the verifier_bit and a maximal compatible part.
-    Used in find_alt_bits() method of ModelStructure class,
+    Used in find_alt_bits() method of ModelSetup class,
     immediately after find_compatible_parts() above.
     """
     not_max_comp_part = []

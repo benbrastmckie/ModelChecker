@@ -1,5 +1,5 @@
 # from z3 import (Function, BitVecSort, BoolSort, BitVec)
-# from model_structure import ModelStructure
+# from model_structure import ModelSetup
 # from syntax import AtomSort
 
 # def make_model_for(N):

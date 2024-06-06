@@ -109,7 +109,7 @@ one function that's a print helper function still in use
 #     max_comp_ver_parts = [bit_fusion(verifier_bit, max) for max in max_comp_parts]
 #     return max_comp_ver_parts
 
-# unused from this file, supplanted by ModelStructure method find_alt_bits
+# unused from this file, supplanted by ModelSetup method find_alt_bits
 # def find_alt_bits(ver_bits, poss_bits, world_bits, eval_world):
 #     """
 #     Finds the alternative bits given verifier bits, possible states, worlds, and
