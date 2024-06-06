@@ -21,8 +21,8 @@ project_root = project_root[:-4] # bandaid fix to remove "/src" from the root
 # Add the project root to the Python path
 sys.path.append(project_root)
 
-from src.model_checker.__init__ import __version__
-from src.model_checker.model_structure import ( # for packaging
+from model_checker.__init__ import __version__
+from model_checker.model_structure import ( # for packaging
     StateSpace,
     make_model_for,
     )
@@ -353,9 +353,9 @@ def main():
     print_imposs = module.print_impossible_states_bool or imposs_flag
     print_cons = module.print_cons_bool or cons_flag
     save_model = module.save_bool or save_flag
-    model_setup, model_structure = make_model_for(module.N, module.premises, module.conclusions)
-    if model_structure.model_status:
-        states_print = StateSpace(model_setup, model_structure)
+    model_structure = make_model_for(module.N, module.premises, module.conclusions)
+    if model_structure:
+        states_print = StateSpace(model_structure)
         states_print.print_to(print_cons, print_imposs)
         if save_model:
             file_name, print_cons = ask_save()

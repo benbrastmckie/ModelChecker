@@ -11,11 +11,11 @@ project_root = project_root[:-4] # bandaid fix to remove "/src" from the root
 # Add the project root to the Python path
 sys.path.append(project_root) # do we need to remove project_root from sys.path after 
 
-from src.model_checker.model_structure import (
+from model_checker.model_structure import (
     ModelStructure,
     StateSpace,
     Proposition,
     make_model_for,
 )
 
-__version__ = "0.3.24"
+__version__ = "0.4.x" # UPDATE BEFORE PUBLISHING NEW VERSIONS
