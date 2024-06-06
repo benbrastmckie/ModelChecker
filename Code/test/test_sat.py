@@ -18,15 +18,15 @@ def failure_string(desired, premises, conclusions, time):
     return f'ERROneously did not find a model:\n\nPremises:\n{premises}\n\nConclusions:\n{conclusions}\n\nRun time: {time} seconds\n'
 
 def check_model_status(premises, conclusions, desired, N):
-    mod_structure = make_model_for(N, premises, conclusions)[1]
-    mod_status = mod_structure.model_status
-    mod_time = mod_structure.model_runtime
+    mod_setup = make_model_for(N, premises, conclusions)
+    mod_status = mod_setup.model_status
+    mod_time = mod_setup.model_runtime
     assert (mod_status == desired), failure_string(desired, premises, conclusions, mod_time)
 
 def find_model_status(premises, conclusions, desired, N):
-    mod_structure = make_model_for(N, premises, conclusions)[1]
-    mod_status = mod_structure.model_status
-    mod_time = mod_structure.model_runtime
+    mod_setup = make_model_for(N, premises, conclusions)
+    mod_status = mod_setup.model_status
+    mod_time = mod_setup.model_runtime
     if mod_status != desired and N < 10:
         N += 1
         find_model_status(premises, conclusions, desired, N)
