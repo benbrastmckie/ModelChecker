@@ -5,7 +5,7 @@ file defines model structure class given a Z3 model sdffds
 from string import Template
 import time
 import sys
-import os
+# import os
 from z3 import (
     Function,
     BitVecSort,
@@ -14,20 +14,24 @@ from z3 import (
     BitVecVal
 )
 
-# Get the directory path of the current file
-current_dir = os.path.dirname(__file__)
-# Construct the full path to your project root
-project_root = os.path.abspath(os.path.join(current_dir, ".."))
-# project_root = project_root[:-4] # bandaid fix to remove "/src" from the root
-# Add the project root to the Python path
-sys.path.append(project_root)
+# # Get the directory path of the current file
+# current_dir = os.path.dirname(__file__)
+# # Construct the full path to your project root
+# project_root = os.path.abspath(os.path.join(current_dir, ".."))
+# # project_root = project_root[:-4] # bandaid fix to remove "/src" from the root
+# # Add the project root to the Python path
+# sys.path.append(project_root)
 
-from model_checker.semantics import ( # imports issue fixed with above code
+# didn't work
+# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+from semantics import ( # imports issue fixed with above code
     define_N_semantics,
     solve_constraints,
     all_sentence_letters,
 )
-from model_checker.model_definitions import (
+from model_definitions import (
     find_compatible_parts,
     atomic_propositions_dict_maker,
     find_all_bits,
@@ -42,12 +46,40 @@ from model_checker.model_definitions import (
     true_and_false_worlds_for_cf,
     find_complex_proposition,
 )
-from model_checker.syntax import (
+from syntax import (
     AtomSort,
     infix,
     prefix,
     add_backslashes_to_infix,
 )
+
+# ### FOR PACKAGING ###
+# from model_checker.semantics import ( # imports issue fixed with above code
+#     define_N_semantics,
+#     solve_constraints,
+#     all_sentence_letters,
+# )
+# from model_checker.model_definitions import (
+#     find_compatible_parts,
+#     atomic_propositions_dict_maker,
+#     find_all_bits,
+#     find_max_comp_ver_parts,
+#     find_poss_bits,
+#     find_subsentences,
+#     find_world_bits,
+#     pretty_set_print,
+#     bit_part,
+#     bitvec_to_substates,
+#     int_to_binary,
+#     true_and_false_worlds_for_cf,
+#     find_complex_proposition,
+# )
+# from model_checker.syntax import (
+#     AtomSort,
+#     infix,
+#     prefix,
+#     add_backslashes_to_infix,
+# )
 
 inputs_template = Template(
 '''Run time: ${runtime} seconds

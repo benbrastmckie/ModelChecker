@@ -2,6 +2,8 @@
 import pytest
 from src.model_checker.model_structure import make_model_for
 
+print(f"\nPytest location: {pytest}")
+
 # NOTE: this does not seem necessary after all; tests are running
 # import sys
 # import os

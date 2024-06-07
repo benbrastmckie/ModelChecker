@@ -1,6 +1,7 @@
 [MASTER]
 # init-hook='import sys; sys.path.append("/nix/store/gga7w47nbyf13ap1f1pvp9ik146z6a98-python3-3.11.6-env/lib/python3.11/site-packages/z3")'
-init-hook='import sys; sys.path.append("/nix/store/a6gl4wihrxh8wg2vhsfnwf8vx9nrh5mc-python3-3.11.6-env/lib/python3.11/site-packages/pytest")'
+# init-hook='import sys; sys.path.append("/nix/store/a6gl4wihrxh8wg2vhsfnwf8vx9nrh5mc-python3-3.11.6-env/lib/python3.11/site-packages/pytest")'
+init-hook='import sys; sys.path.append("/nix/store/ayipcfk7d4xs7kfhkqvd4m700li4zlf3-python3-3.12.3-env/lib/python3.12/site-packages/pytest")'
 
 
 [MESSAGES CONTROL] # disables the check for:
