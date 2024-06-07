@@ -111,10 +111,11 @@ Then you can open the desired project directory in Finder, dragging the Finder w
 This should paste the path into the terminal.
 You can now hit return to change to the desired directory.
 If you are in the directory in which the `test_file.py` exists, you can run `model-checker test_file.py` without specifying the full (or relative) path to that file.
+Use the 'up'-arrow key to scroll through past commands, saving time when running the same file multiple times.
 
 Files can be edited with your choice of text editor, e.g., run `vim test_file.py` to edit the named file in the terminal with Vim (for help, run `vimtutor`).
 If you do not want to use Vim, you can use any other text editor, e.g., TextEdit on MacOS.
-Alternatively, you might consider using [NeoVim](https://github.com/benbrastmckie/.config), [VSCode](https://code.visualstudio.com/), or [PyCharm](https://www.jetbrains.com/pycharm/).
+Alternatively, you might consider using [NeoVim](https://github.com/benbrastmckie/.config), [VSCode](https://code.visualstudio.com/), or [PyCharm](https://www.jetbrains.com/pycharm/) for a more fully featured user experience.
 
 ## Hyperintensional Semantics
 
