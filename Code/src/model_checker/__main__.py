@@ -17,12 +17,12 @@ import importlib.util
 current_dir = os.path.dirname(__file__)
 # Construct the full path to your project root
 project_root = os.path.abspath(os.path.join(current_dir, ".."))
-project_root = project_root[:-4] # bandaid fix to remove "/src" from the root
+# project_root = project_root[:-4] # bandaid fix to remove "/src" from the root
 # Add the project root to the Python path
 sys.path.append(project_root)
 
-from src.model_checker.__init__ import __version__
-from src.model_checker.model_structure import ( # for packaging
+from model_checker.__init__ import __version__
+from model_checker.model_structure import ( # for packaging
     StateSpace,
     make_model_for,
     )

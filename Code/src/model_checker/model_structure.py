@@ -18,16 +18,16 @@ from z3 import (
 current_dir = os.path.dirname(__file__)
 # Construct the full path to your project root
 project_root = os.path.abspath(os.path.join(current_dir, ".."))
-project_root = project_root[:-4] # bandaid fix to remove "/src" from the root
+# project_root = project_root[:-4] # bandaid fix to remove "/src" from the root
 # Add the project root to the Python path
 sys.path.append(project_root)
 
-from src.model_checker.semantics import ( # imports issue fixed with above code
+from model_checker.semantics import ( # imports issue fixed with above code
     define_N_semantics,
     solve_constraints,
     all_sentence_letters,
 )
-from src.model_checker.model_definitions import (
+from model_checker.model_definitions import (
     find_compatible_parts,
     atomic_propositions_dict_maker,
     find_all_bits,
@@ -42,7 +42,7 @@ from src.model_checker.model_definitions import (
     true_and_false_worlds_for_cf,
     find_complex_proposition,
 )
-from src.model_checker.syntax import (
+from model_checker.syntax import (
     AtomSort,
     infix,
     prefix,
