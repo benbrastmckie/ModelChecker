@@ -1,5 +1,4 @@
 """
-BEDABEDEEBDABEDAO
 contains all semantic functions
 this file defines the functions needed to generate Z3 constraints from
 input_sentences in infix form.

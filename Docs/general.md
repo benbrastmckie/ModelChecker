@@ -7,7 +7,6 @@ The aim is to provide references that may be helpful at a later time and to new 
 ## Pylint
 
 To add libraries to Pylint, run the following:
-       
 
     # Print the location of the PACKAGE module
     print(f"\nPACKAGE location: {PACKAGE}")
