@@ -150,26 +150,26 @@ def define_N_semantics(verify, falsify, possible, assign, N):
             Exists(z, And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y))),
         )
 
-    def preclude(state, sentence, eval_world):
-        """to simulate bilateral semantics
-        returns a Z3 constraint"""
-        x = BitVec("preclude_x", N)
-        # return And(
-        #     Exists(
-        #         x,
-        #         And(
-        #             extended_verify(x, sentence, eval_world),
-        #             Not(compatible(x, state))
-        #         )
-        #     ),
-        return ForAll(
-            x,
-            Implies(
-                extended_verify(x, sentence, eval_world),
-                Not(compatible(x, state))
-            )
-        )
-    # ),
+    # def preclude(state, sentence, eval_world):
+    #     """to simulate bilateral semantics
+    #     returns a Z3 constraint"""
+    #     x = BitVec("preclude_x", N)
+    #     # return And(
+    #     #     Exists(
+    #     #         x,
+    #     #         And(
+    #     #             extended_verify(x, sentence, eval_world),
+    #     #             Not(compatible(x, state))
+    #     #         )
+    #     #     ),
+    #     return ForAll(
+    #         x,
+    #         Implies(
+    #             extended_verify(x, sentence, eval_world),
+    #             Not(compatible(x, state))
+    #         )
+    #     )
+    # # ),
 
     # def precluder_fusion(state, sentence, eval_world):
     #     x = BitVec("exclude_x", N)
@@ -224,14 +224,23 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         )
 
     def extended_verify(state, sentence, eval_world):
-        """ext_sent is in prefix form. The state is the state that verifies ext_sent. 
+        """sentence is in prefix form. The state is the state that verifies sentence. 
         evaluate is an optional bool to evaluate something (now unused).
         returns a Z3 constraint"""
         if len(sentence) == 1:
             sentence_letter = sentence[0]
             return verify(state, sentence_letter)
         operator = sentence[0]
-        non_ext_ops = ["Box", "Diamond", "boxright", "circleright", "leq", "sqsubseteq", "equiv", "preceq"]
+        non_ext_ops = [
+            "Box",
+            "Diamond",
+            "boxright",
+            "circleright",
+            "leq",
+            "sqsubseteq",
+            "equiv",
+            "preceq",
+        ]
         for choice in non_ext_ops:
             if choice in operator:
                 return true_at(sentence, eval_world)
@@ -258,16 +267,19 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                 extended_verify(state, Z, eval_world),
                 extended_verify(state, ["wedge", Y, Z], eval_world),
             )
-        if "leftrightarrow" in operator:
-            return Or(
-                extended_verify(state, ["wedge", Y, Z], eval_world),
-                extended_falsify(state, ["vee", Y, Z], eval_world),
-            )
         if "rightarrow" in operator:
             return Or(
                 extended_falsify(state, Y, eval_world),
                 extended_verify(state, Z, eval_world),
-                extended_verify(state, ["wedge", ["neg", Y], Z], eval_world), # M: out of curiosity, what's this for?
+                extended_verify(state, ["wedge", ["neg", Y], Z], eval_world),
+                # M: out of curiosity, what's this for?
+                # B: this assumes that 'A rightarrow B' is treated like 'neg A vee B'
+                # the last clause is comparable to the last clause for 'vee' but where Y is negated
+            )
+        if "leftrightarrow" in operator:
+            return Or(
+                extended_verify(state, ["wedge", Y, Z], eval_world),
+                extended_falsify(state, ["vee", Y, Z], eval_world),
             )
         raise ValueError(
             sentence,
@@ -281,7 +293,16 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         if len(sentence) == 1:
             return falsify(state, sentence[0])
         operator = sentence[0]
-        non_ext_ops = ["Box", "Diamond", "boxright", "circleright", "leq", "sqsubseteq", "equiv", "preceq"]
+        non_ext_ops = [
+            "Box",
+            "Diamond",
+            "boxright",
+            "circleright",
+            "leq",
+            "sqsubseteq",
+            "equiv",
+            "preceq",
+        ]
         for choice in non_ext_ops:
             if choice in operator:
                 return false_at(sentence, eval_world)
@@ -308,11 +329,6 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                     extended_falsify(z, Z, eval_world),
                 ),
             )
-        if "leftrightarrow" in operator:
-            return Or(
-                extended_verify(state, ["wedge", Y, ["neg", Z]], eval_world),
-                extended_falsify(state, ["vee", Y, ["neg", Z]], eval_world),
-            )
         if "rightarrow" in operator:
             return Exists(
                 [y, z],
@@ -321,6 +337,11 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                     extended_verify(y, Y, eval_world),
                     extended_falsify(z, Z, eval_world),
                 ),
+            )
+        if "leftrightarrow" in operator:
+            return Or(
+                extended_verify(state, ["wedge", Y, ["neg", Z]], eval_world),
+                extended_falsify(state, ["vee", Y, ["neg", Z]], eval_world),
             )
         raise ValueError(
             sentence,

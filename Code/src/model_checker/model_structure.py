@@ -5,7 +5,7 @@ file defines model structure class given a Z3 model sdffds
 from string import Template
 import time
 import sys
-# import os
+import os
 from z3 import (
     Function,
     BitVecSort,
@@ -14,17 +14,16 @@ from z3 import (
     BitVecVal
 )
 
-# # Get the directory path of the current file
-# current_dir = os.path.dirname(__file__)
-# # Construct the full path to your project root
-# project_root = os.path.abspath(os.path.join(current_dir, ".."))
-# # project_root = project_root[:-4] # bandaid fix to remove "/src" from the root
-# # Add the project root to the Python path
-# sys.path.append(project_root)
+# Get the directory path of the current file
+current_dir = os.path.dirname(__file__)
+# Construct the full path to your project root
+project_root = os.path.abspath(os.path.join(current_dir, ".."))
+# project_root = project_root[:-4] # bandaid fix to remove "/src" from the root
+# Add the project root to the Python path
+sys.path.append(project_root)
 
-# didn't work
+# # didn't work
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 
 from semantics import ( # imports issue fixed with above code
     define_N_semantics,
@@ -430,7 +429,7 @@ class StateSpace:
         """append all elements of the model to the file provided"""
         constraints = self.model_setup.constraints
         self.print_all(print_impossible, output)
-        self.model_structure.build_test_file(output)
+        self.model_setup.build_test_file(output)
         if cons_include:
             print("# Satisfiable constraints", file=output)
             # TODO: print constraint objects, not constraint strings
@@ -549,13 +548,13 @@ class Proposition:
     has two subclasses Extensional and Counterfactual—Counterfactual is a Proposition
     subclass to make stuff easier"""
 
-    def __init__(self, prefix_expr, model_structure, eval_world):
+    def __init__(self, prefix_expr, model_setup, eval_world):
         """for modals and counterfactuals, if they're true then the verifiers
         are only the null state and falsifiers are nothing; if they're false the opposite"""
         self.prop_dict = {}
         self.prop_dict["prefix expression"] = prefix_expr
-        self.model_structure = model_structure
-        verifiers, falsifiers = find_complex_proposition(model_structure, prefix_expr, eval_world)
+        self.model_setup = model_setup
+        verifiers, falsifiers = find_complex_proposition(model_setup, prefix_expr, eval_world)
         self.prop_dict["verifiers"] = verifiers
         self.prop_dict["falsifiers"] = falsifiers
         # TODO: can cf_sentences be treated in a more uniform way, avoiding the if clause below?
@@ -564,7 +563,7 @@ class Proposition:
         if 'boxright' in str(prefix_expr[0]):
             # print(f"TEST: check condition")
             self.cf_world = eval_world
-            true_worlds, false_worlds = true_and_false_worlds_for_cf(model_structure, prefix_expr)
+            true_worlds, false_worlds = true_and_false_worlds_for_cf(model_setup, prefix_expr)
             # print(f"TEST WORLDS: true {true_worlds}; false {false_worlds}")
             self['worlds cf true at'] = true_worlds
             self['worlds cf false at'] = false_worlds
@@ -584,7 +583,7 @@ class Proposition:
         """updates the evaluation world for counterfactuals"""
         # if not is_counterfactual(self['prefix expression']):
         #     raise AttributeError(f'You can only update verifiers for CFs: {self} is not a CF.')
-        N = self.model_structure.N
+        N = self.model_setup.N
         if eval_world == self.cf_world:
             return
         if eval_world in self['worlds cf true at']:
@@ -618,7 +617,7 @@ class Proposition:
         """prints the possible verifiers and falsifier states for a sentence.
         used in: rec_print() 
         ensures eval_world is in fact the eval_world for CFs"""
-        N = self.model_structure.N
+        N = self.model_setup.N
         truth_value = self.truth_value_at(eval_world)
         # TODO: is this necessary?
         # prefix_expr_op = self.prop_dict["prefix expression"][0]
@@ -626,8 +625,8 @@ class Proposition:
         #     # print('TEST: CONFIRM')
         #     self.update_verifiers(eval_world)
         indent_num = indent
-        possible = self.model_structure.model_setup.possible
-        z3_model = self.model_structure.z3_model
+        possible = self.model_setup.model_setup.possible
+        z3_model = self.model_setup.z3_model
         ver_prints = '∅'
         ver_states = {
             bitvec_to_substates(bit, N)
@@ -660,7 +659,7 @@ class Proposition:
                 FULL = RED
                 PART = RED
             if truth_value is None:
-                N = self.model_structure.N
+                N = self.model_setup.N
                 world_state = bitvec_to_substates(eval_world, N)
                 print(
                     f"\n{RED}WARNING:{RESET}"
