@@ -4,6 +4,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## v0.4 Release 
 
+- [ ] include a flag that requires props to have possible verifiers and falsifiers
 - [ ] fix true conclusion models
   - [ ] relevance
   - [ ] essence
