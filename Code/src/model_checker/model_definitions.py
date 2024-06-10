@@ -352,7 +352,7 @@ def find_subsentences(prefix_sentences):
         all_subsentences.extend(all_prefix_subs)
     return repeats_removed(all_subsentences)
 
-def evaluate_modal_expr(model_structure, prefix_modal, eval_world):
+def evaluate_modal_expr(model_setup, prefix_modal, eval_world):
     '''evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
     used to initialize Counterfactuals
     returns a bool representing whether the counterfactual is true at the world or not'''
@@ -363,13 +363,13 @@ def evaluate_modal_expr(model_structure, prefix_modal, eval_world):
     #         return True # both Box and Diamond will return true, since verifiers is not empty
     #     return False
     if 'Diamond' in operator:
-        for poss in model_structure.poss_bits:
-            if poss in find_complex_proposition(model_structure, argument, eval_world)[0]:
+        for poss in model_setup.poss_bits:
+            if poss in find_complex_proposition(model_setup, argument, eval_world)[0]:
                 return True
         return False
     if 'Box' in operator:
-        for poss in model_structure.poss_bits:
-            if poss in find_complex_proposition(model_structure, argument, eval_world)[1]:
+        for poss in model_setup.poss_bits:
+            if poss in find_complex_proposition(model_setup, argument, eval_world)[1]:
                 return False
         return True
     raise ValueError(
@@ -378,17 +378,19 @@ def evaluate_modal_expr(model_structure, prefix_modal, eval_world):
         f"The operator {operator} in {prefix_modal} is not a modal."
     )
 
-def evaluate_cf_expr(state_space, cf_sentence, eval_world):
+def evaluate_cf_expr(model_setup, cf_sentence, eval_world):
     """evaluates whether a counterfatual in prefix form is true at a world (BitVecVal).
     used to initialize Counterfactuals
     returns a bool representing whether the counterfactual is true at the world or not
     """
     operator, antecedent, consequent = cf_sentence[0], cf_sentence[1], cf_sentence[2]
-    antecedent_vers = find_complex_proposition(state_space, antecedent, eval_world)[0]
+    antecedent_vers = find_complex_proposition(model_setup, antecedent, eval_world)[0]
     consequent_vers, consequent_fals = find_complex_proposition(
-        state_space, consequent, eval_world
+        model_setup,
+        consequent,
+        eval_world,
     )
-    antecedent_alts = state_space.find_alt_bits(antecedent_vers, eval_world)
+    antecedent_alts = model_setup.find_alt_bits(antecedent_vers, eval_world)
     if 'boxright' in operator:
         for alt_world in antecedent_alts:
             for falsifier in consequent_fals:
@@ -488,40 +490,40 @@ def find_excluders(verifiers, all_bits, poss_bits, null_singleton):
 
 def contained_in(set_A, set_B):
     """checks whether every element in set_A has a part in set_B"""
-    for bit_z in set_A:
+    for bit_a in set_A:
         found = False
-        for bit_y in set_B:
-            if bit_part(bit_y, bit_z):
+        for bit_b in set_B:
+            if bit_part(bit_b, bit_a):
                 found = True
                 break
         if not found:
             return False
     return True
 
-def find_complex_proposition(model_structure, complex_sentence, eval_world):
+def find_complex_proposition(model_setup, complex_sentence, eval_world):
     """sentence is a sentence in prefix notation
     For a given complex proposition, returns the verifiers and falsifiers of that proposition
     given a solved model
     for a counterfactual, it'll just give the worlds it's true at and worlds it's not true at
     """
-    if not model_structure.atomic_props_dict:
+    if not model_setup.atomic_props_dict:
         raise ValueError(
             "There is nothing in atomic_props_dict yet. Has a model been found?"
         )
     if len(complex_sentence) == 1:
         sent = complex_sentence[0]
-        return model_structure.atomic_props_dict[sent]
+        return model_setup.atomic_props_dict[sent]
     op = complex_sentence[0]
     Y = complex_sentence[1]
     if "neg" in op:
-        Y_V, Y_F = find_complex_proposition(model_structure, Y, eval_world)
+        Y_V, Y_F = find_complex_proposition(model_setup, Y, eval_world)
         return (Y_F, Y_V)
-    N = model_structure.N
+    N = model_setup.N
     null_singleton = {BitVecVal(0,N)}
     if "not" in op:
-        all_bits = model_structure.all_bits
-        poss_bits = model_structure.poss_bits
-        Y_V, Y_F = find_complex_proposition(model_structure, Y, eval_world)
+        all_bits = model_setup.all_bits
+        poss_bits = model_setup.poss_bits
+        Y_V, Y_F = find_complex_proposition(model_setup, Y, eval_world)
         vers = find_excluders(Y_F, all_bits, poss_bits, null_singleton)
         fals = find_excluders(Y_V, all_bits, poss_bits, null_singleton)
         return (vers, fals)
@@ -533,12 +535,12 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
     #     fals = find_precluders(Y_V, all_bits, poss_bits)
     #     return (vers, fals)
     if 'Box' in op or 'Diamond' in op:
-        if evaluate_modal_expr(model_structure, complex_sentence, eval_world):
+        if evaluate_modal_expr(model_setup, complex_sentence, eval_world):
             return (null_singleton, set())
         return (set(), null_singleton)
     Z = complex_sentence[2]
-    Y_V, Y_F = find_complex_proposition(model_structure, Y, eval_world)
-    Z_V, Z_F = find_complex_proposition(model_structure, Z, eval_world)
+    Y_V, Y_F = find_complex_proposition(model_setup, Y, eval_world)
+    Z_V, Z_F = find_complex_proposition(model_setup, Z, eval_world)
     if "wedge" in op:
         return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
     if "vee" in op:
@@ -551,13 +553,13 @@ def find_complex_proposition(model_structure, complex_sentence, eval_world):
     if "rightarrow" in op:
         return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
     if "boxright" in op:
-        if evaluate_cf_expr(model_structure, complex_sentence, eval_world):
+        if evaluate_cf_expr(model_setup, complex_sentence, eval_world):
             # val = evaluate_cf_expr(model_structure, complex_sentence, eval_world)
             # print(f"TEST: truth_vf of cf = {val}")
             return (null_singleton, set())
         return (set(), null_singleton)
     if "circleright" in op:
-        if evaluate_cf_expr(model_structure, complex_sentence, eval_world):
+        if evaluate_cf_expr(model_setup, complex_sentence, eval_world):
             return (null_singleton, set())
         return (set(), null_singleton)
     if "leq" in op:

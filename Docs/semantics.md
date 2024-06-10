@@ -1,5 +1,15 @@
 # Semantics
 
+<!-- INCLUDE INTRO WITH THE FOLLOWING -->
+<!-- Once converted, the prefix premises and conclusions are stored in a ModelSetup object. -->
+<!-- It is inside ModelSetup that the `define_N_semantics` from the `semantics` module is defined, where this includes the following primitives:  -->
+<!--   - `verify` and `falsify` are relations between states and atomic sentences. -->
+<!--   - `possible` a property of states. -->
+<!--   - `assign` is a function from state-sentence pairs to states and is used to Skolemize the exhaustivity constraint brought out below. -->
+<!--   - `w` is the designated world at which sentences are evaluated. -->
+<!-- The prefix premises and conclusions are then converted into Z3 constraints by requiring each premise to be `true_at` the world `w` and each conclusion to be `false_at` the world `w`. -->
+<!-- The `true_at` and `false_at` functions include the semantic clauses for the operators in the language and is discussed in greater detail in [Semantics](https://github.com/benbrastmckie/ModelChecker/blob/master/Docs/semantics.md). -->
+
 The semantics is divided into two levels where sentences are assigned verifier and falsifier _states_ in addition to be evaluated for truth and falsity at _world states_.
 Whereas every sentence is required to be either true or false but not both at each world state, the same constraints do not apply to the verifiers and falsifiers for sentences.
 Rather, a sentence may be verified by some states, falsified by other states, possibly both verified and falsified by certain states, and neither verified nor falsified by the rest of the states in the space.
