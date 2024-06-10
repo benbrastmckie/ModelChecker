@@ -86,6 +86,8 @@ Letting `find_complex_proposition(Y, world_state) = (Y_V, Y_F)` for ease of expo
 These definitions mirror the clauses provided in the [Semantics](https://github.com/benbrastmckie/ModelChecker/blob/master/Docs/semantics.md). 
 That true constitutive sentences are verified by the null state `□` corresponds to the idea that nothing is required for a true constitutive claim to obtain.
 
+<!-- CONTINUE -->
+
 In order to assign propositions to modal and counterfactual sentences, the following functions are defined:
   - `evaluate_modal_expr(model_setup, sentence, eval_world)` returns `True` if `sentence` is true 
   - `evaluate_cf_expr(model_setup, sentence, eval_world)`
@@ -99,5 +101,7 @@ However, remember how we solved the constraints: in Z3. So everything at this po
 
 
 ## Representing Countermodels
+
+<!-- mention flags -->
 
 We have successfully either found or not found a model for our input sentences! Now we need to translate that into user-readable output. All of the methods for `ModelStructure` and `StateSpace` with "print" in the name do exactly that. They themselves rely on either other methods of these objects or helpers defined in the `model_definitions` module. This step is also where files are made with outputs (with the `print_all` method of `StateSpace`—it itself is an amalgamation of specialized print methods belonging to the StateSpace and ModelSetup of the model). All of this is rather mechanical; an interesting point though, to come full circle, is the function `infix` defined in the `syntax` module: it takes a sentence in prefix notation and returns its infix equivalent. This is used throughout the print methods for human-readable input. Other noteworthy functions in this domain include `pretty_set_print`, which prints python in a nice way. (Add more? I think his covers basically everything. I am also realizing that you've done a lot in this domain @Ben, so maybe you have some insights here.) 

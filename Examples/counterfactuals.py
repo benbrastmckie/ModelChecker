@@ -115,6 +115,11 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['neg A','(A boxright (B vee C))']
 # conclusions = ['(A boxright B)','(A boxright C)']
 
+# # # DISJUNCTIVE ANTECEDENT
+# N = 4 # ran for 40 seconds locally
+# premises = ['(A boxright C)','(B boxright C)']
+# conclusions = ['((A vee B) boxright C)']
+
 # # MUST FACTIVITY
 # premises = ['A','B']
 # conclusions = ['(A boxright B)']
@@ -154,9 +159,6 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['(A boxright C)','(B boxright C)','((A wedge B) boxright C)']
 # conclusions = ['((A vee B) boxright C)']
 
-# premises = ['(A boxright C)','(B boxright C)']
-# conclusions = ['((A vee B) boxright C)']
-
 # premises = ['(A boxright (B wedge C))']
 # conclusions = ['(A boxright B)']
 
@@ -164,14 +166,13 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['(A boxright B)','(A boxright C)']
 # conclusions = ['(A boxright (B wedge C))']
 
-# # SLOW: 13.8 seconds locally
-# premises = ['(A boxright B)']
-# conclusions = ['(A rightarrow B)']
+# # COUNTERFACTUAL MODUS PONENS
+# premises = ['A','(A boxright B)']
+# conclusions = ['B']
 
-# # SLOW: crashed locally; MIT servers found a model in 5 seconds
 # premises = ['((A vee B) boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 
-# # SLOW: 48.3 seconds locally
-# premises = ['(A boxright B)','((A wedge B) boxright C)']
-# conclusions = ['(A boxright C)']
+# SLOW: 48.3 seconds locally
+premises = ['(A boxright B)','((A wedge B) boxright C)']
+conclusions = ['(A boxright C)']
