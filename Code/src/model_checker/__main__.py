@@ -13,6 +13,9 @@ import importlib.util
 # import cProfile
 # import pstats
 
+# didn't work
+# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 # # Get the directory path of the current file
 # current_dir = os.path.dirname(__file__)
 # # Construct the full path to your project root
@@ -20,22 +23,18 @@ import importlib.util
 # # project_root = project_root[:-4] # bandaid fix to remove "/src" from the root
 # # Add the project root to the Python path
 # sys.path.append(project_root)
-
-# didn't work
-# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from __init__ import __version__
-from model_structure import ( # for packaging
-    StateSpace,
-    make_model_for,
-    )
-
-# ### FOR PACKAGING ###
-# from model_checker.__init__ import __version__
-# from model_checker.model_structure import ( # for packaging
+# from __init__ import __version__
+# from model_structure import (
 #     StateSpace,
 #     make_model_for,
 #     )
+
+### FOR PACKAGING ###
+from model_checker.__init__ import __version__
+from model_checker.model_structure import (
+    StateSpace,
+    make_model_for,
+    )
 
 script_template = Template("""
 '''

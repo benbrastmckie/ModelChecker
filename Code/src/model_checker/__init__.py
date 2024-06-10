@@ -15,6 +15,7 @@ test docstring
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from model_checker.model_structure import (
+    ModelSetup,
     StateSpace,
     Proposition,
     make_model_for,
