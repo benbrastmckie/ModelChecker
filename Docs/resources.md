@@ -54,3 +54,22 @@ BitVector module
 Documentation for Z3 in Pythonthat is digestible: 
 
     https://z3prover.github.io/api/html/namespacez3py.html#a1ddb19c4007eac75508565dc03ce3917
+
+## (M:) Miscellaneous helpful links (to be categorized later)
+    https://microsoft.github.io/z3guide/docs/theories/Bitvectors/
+    https://microsoft.github.io/z3guide/docs/logic/Uninterpreted-functions-and-constants
+    https://microsoft.github.io/z3guide/programming/Z3%20Python%20-%20Readonly/advanced/
+    https://z3prover.github.io/papers/programmingz3.html#sec-retrieving-solver-state
+    https://graphics.stanford.edu/~seander/bithacks.html#OperationCounting
+    https://ericpony.github.io/z3py-tutorial/guide-examples.htm
+    https://stackoverflow.com/questions/51167410/count-ones-in-bitvec-in-z3-with-datalog-input-format
+    https://www.philipzucker.com/z3-rise4fun/guide.html
+    https://stackoverflow.com/questions/69362256/understanding-quantifiers-in-z3
+    https://github.com/Z3Prover/z3/discussions/5665
+    https://theory.stanford.edu/~nikolaj/programmingz3.html
+    https://www.datacamp.com/tutorial/pytest-tutorial-a-hands-on-guide-to-unit-testing
+    https://stackoverflow.com/questions/4383571/importing-files-from-different-folder
+    https://stackoverflow.com/questions/43476403/importerror-no-module-named-something
+    https://docs.python.org/3/reference/import.html#package-relative-imports
+    https://docs.pytest.org/en/latest/reference/reference.html#marks
+    
