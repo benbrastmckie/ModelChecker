@@ -72,4 +72,6 @@ Documentation for Z3 in Pythonthat is digestible:
     https://stackoverflow.com/questions/43476403/importerror-no-module-named-something
     https://docs.python.org/3/reference/import.html#package-relative-imports
     https://docs.pytest.org/en/latest/reference/reference.html#marks
+    https://stackoverflow.com/questions/70268822/how-do-i-evaluate-a-quantification-expression-within-a-z3-model-evaluation
+    https://encyclopediaofmath.org/wiki/Skolem_function#:~:text=Skolem%20functions%20are%20used%20in,propositional%20formulas%20in%20propositional%20calculus.
     
