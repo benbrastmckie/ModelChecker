@@ -329,6 +329,11 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                     extended_falsify(z, Z, eval_world),
                 ),
             )
+        if "leftrightarrow" in operator:
+            return Or(
+                extended_verify(state, ["wedge", Y, ["neg", Z]], eval_world),
+                extended_falsify(state, ["vee", Y, ["neg", Z]], eval_world),
+            )
         if "rightarrow" in operator:
             return Exists(
                 [y, z],
@@ -337,11 +342,6 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                     extended_verify(y, Y, eval_world),
                     extended_falsify(z, Z, eval_world),
                 ),
-            )
-        if "leftrightarrow" in operator:
-            return Or(
-                extended_verify(state, ["wedge", Y, ["neg", Z]], eval_world),
-                extended_falsify(state, ["vee", Y, ["neg", Z]], eval_world),
             )
         raise ValueError(
             sentence,
