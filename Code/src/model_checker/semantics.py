@@ -173,7 +173,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         return And(
             is_world(bit_u),
             is_part_of(bit_y, bit_u),
-            Exists(z, And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y))),
+            Exists(z, And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y))), # REMOVABLE
         )
 
     # def preclude(state, sentence, eval_world):
@@ -224,7 +224,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                 Implies(
                     # is_part_of(x, state),
                     non_null_part_of(x, state),
-                    Exists(
+                    Exists( # HARD TO REMOVE
                         y,
                         And(
                             extended_verify(y, sentence, eval_world),
@@ -237,7 +237,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                 x,
                 Implies(
                     extended_verify(x, sentence, eval_world),
-                    Exists(
+                    Exists( # HARD TO REMOVE
                         y,
                         And(
                             # is_part_of(y, state),
@@ -279,7 +279,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         if "wedge" in operator:
             y = BitVec("ex_ver_y", N)
             z = BitVec("ex_ver_z", N)
-            return Exists(
+            return Exists( # REMOVABLE
                 [y, z],
                 And(
                     fusion(y, z) == state,
@@ -347,7 +347,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         y = BitVec("ex_fal_y", N)
         z = BitVec("ex_fal_z", N)
         if "vee" in operator:
-            return Exists(
+            return Exists( # REMOVABLE
                 [y, z],
                 And(
                     state == fusion(y, z),
@@ -361,7 +361,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                 extended_falsify(state, ["vee", Y, ["neg", Z]], eval_world),
             )
         if "rightarrow" in operator:
-            return Exists(
+            return Exists( # REMOVABLE
                 [y, z],
                 And(
                     state == fusion(y, z),
@@ -386,7 +386,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
             sent = sentence[0]
             if 'top' not in str(sent)[0]: # top const alr in model, see find_model_constraints
                 x = BitVec("t_atom_x", N)
-                return Exists(x, And(is_part_of(x, eval_world), verify(x, sent)))
+                return Exists(x, And(is_part_of(x, eval_world), verify(x, sent))) # REMOVABLE
         if len(sentence) == 2:
             operator = sentence[0]
             Y = sentence[1]
@@ -397,7 +397,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                 return ForAll(u, Implies(is_world(u), true_at(sentence[1], u)))
             if 'Diamond' in operator:
                 u = BitVec("t_pos_u", N)
-                return Exists(u, And(is_world(u), true_at(sentence[1], u)))
+                return Exists(u, And(is_world(u), true_at(sentence[1], u))) # REMOVABLE
         if len(sentence) == 3:
             operator = sentence[0]
             Y = sentence[1]
@@ -438,7 +438,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                         x,
                         Implies(
                             extended_falsify(x, Z, eval_world),
-                            Exists(
+                            Exists( # HARD TO REMOVE
                                 y,
                                 And(
                                     extended_falsify(y, Y, eval_world),
@@ -466,7 +466,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                         x,
                         Implies(
                             extended_verify(x, Z, eval_world),
-                            Exists(
+                            Exists( # HARD TO REMOVE
                                 y,
                                 And(
                                     extended_verify(y, Y, eval_world),
@@ -583,7 +583,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
             if "circleright" in operator:
                 x = BitVec("t_pcf_x", N)
                 u = BitVec("t_pcf_u", N)
-                return Exists(
+                return Exists( # REMOVABLE
                     [x, u],
                     And(
                         extended_verify(x, Y, eval_world),
@@ -602,7 +602,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         if len(sentence) == 1:
             sent = sentence[0]
             x = BitVec("f_atom_x", N)
-            return Exists(x, And(is_part_of(x, eval_world), falsify(x, sent)))
+            return Exists(x, And(is_part_of(x, eval_world), falsify(x, sent))) # REMOVABLE
         if len(sentence) == 2:
             operator = sentence[0]
             Y = sentence[1]
@@ -610,7 +610,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                 return true_at(sentence[1], eval_world)
             if 'Box' in operator:
                 u = BitVec("f_nec_u", N)
-                return Exists(u, And(is_world(u), false_at(sentence[1], u)))
+                return Exists(u, And(is_world(u), false_at(sentence[1], u))) # REMOVABLE
             if 'Diamond' in operator:
                 u = BitVec("f_pos_u", N)
                 return ForAll(u, Implies(is_world(u), false_at(sentence[1], u)))
@@ -633,14 +633,14 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                 x = BitVec("f_leq_x", N)
                 y = BitVec("f_leq_y", N)
                 return Or(
-                    Exists(
+                    Exists( # REMOVABLE
                         x,
                         And(
                             extended_verify(x, Y, eval_world),
                             Not(extended_verify(x, Z, eval_world))
                         ),
                     ),
-                    Exists(
+                    Exists( # REMOVABLE
                         [x, y],
                         And(
                             extended_falsify(x, Y, eval_world),
@@ -650,7 +650,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                             # Not(extended_falsify(z, Z, eval_world))
                         ),
                     ),
-                    Exists(
+                    Exists( # REMOVABLE
                         x,
                         And(
                             extended_falsify(x, Z, eval_world),
@@ -668,7 +668,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                 x = BitVec("f_seq_x", N)
                 y = BitVec("f_seq_y", N)
                 return Or(
-                    Exists(
+                    Exists( # REMOVABLE
                         [x, y],
                         And(
                             extended_verify(x, Y, eval_world),
@@ -676,7 +676,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                             Not(extended_verify(fusion(x, y), Z, eval_world))
                         ),
                     ),
-                    Exists(
+                    Exists( # REMOVABLE
                         x,
                         And(
                             extended_verify(x, Z, eval_world),
@@ -689,7 +689,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                             )
                         ),
                     ),
-                    Exists(
+                    Exists( # REMOVABLE
                         x,
                         And(
                             extended_falsify(x, Y, eval_world),
@@ -701,7 +701,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                 x = BitVec("f_peq_x", N)
                 y = BitVec("f_peq_y", N)
                 return Or(
-                    Exists(
+                    Exists( # REMOVABLE
                         [x, y],
                         And(
                             extended_verify(x, Y, eval_world),
@@ -709,7 +709,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                             Not(extended_verify(fusion(x, y), Z, eval_world))
                         ),
                     ),
-                    Exists(
+                    Exists( # REMOVABLE
                         [x, y],
                         And(
                             extended_falsify(x, Y, eval_world),
@@ -748,28 +748,28 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                 x = BitVec("f_id_x", N)
                 y = BitVec("f_id_y", N)
                 return Or(
-                    Exists(
+                    Exists( # REMOVABLE
                         x,
                         And(
                             extended_verify(x, Y, eval_world),
                             Not(extended_verify(x, Z, eval_world))
                         ),
                     ),
-                    Exists(
+                    Exists( # REMOVABLE
                         x,
                         And(
                             extended_falsify(x, Y, eval_world),
                             Not(extended_falsify(x, Z, eval_world))
                         ),
                     ),
-                    Exists(
+                    Exists( # REMOVABLE
                         x,
                         And(
                             extended_verify(x, Z, eval_world),
                             Not(extended_verify(x, Y, eval_world))
                         ),
                     ),
-                    Exists(
+                    Exists( # REMOVABLE
                         x,
                         And(
                             extended_falsify(x, Z, eval_world),
@@ -780,7 +780,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
             if "boxright" in operator:
                 x = BitVec("f_ncf_x", N)
                 u = BitVec("f_ncf_u", N)
-                return Exists(
+                return Exists( # REMOVABLE
                     [x, u],
                     And(
                         extended_verify(x, Y, eval_world),
@@ -857,7 +857,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         z = BitVec("frame_z", N)
         frame_constraints = [
             ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
-            ForAll([x, y], Exists(z, fusion(x, y) == z)),
+            ForAll([x, y], Exists(z, fusion(x, y) == z)), # HARD TO REMOVE
             is_world(main_world), # w is passed in from the big outer function define_N_semantics
         ]
         return frame_constraints

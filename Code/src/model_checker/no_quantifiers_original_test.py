@@ -72,3 +72,26 @@ print(f'no quantifiers time: {middle-start}')
 print(f'with quantifiers time: {end-middle}')
 
 
+def Exists_new(bv, formula): # we only ever use a single bv for Exists—no recursive bs!
+    formula = str(formula) if not isinstance(formula, str) else formula # make formula a str
+    temp_N = bv.size()
+    bv_str = str(bv)
+    exec(f'{bv_str} = BitVec("{bv_str}", {temp_N})')
+    return eval(formula)
+
+def test_Exists():
+    no_quant_solver = Solver()
+    quant_solver = Solver()
+    ue = ForAll(y, Exists(x, x+y==0))
+    eu = Exists(x, ForAll(y, x+y==0))
+    print(ForAll_iter(y, Exists_new(x, x+y==0)))
+    print(Exists_new(x, ForAll_iter(y, x+y==0)))
+    # no_quant_result = no_quant_solver.check()
+    solver_tested = quant_solver
+    quant_result = quant_solver.check(ue)
+    if solver_tested == sat:
+        print('model was found')
+    if solver_tested == unsat:
+        print(solver_tested.unsat_core())
+
+test_Exists()
