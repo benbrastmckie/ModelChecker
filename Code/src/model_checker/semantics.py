@@ -4,6 +4,7 @@ this file defines the functions needed to generate Z3 constraints from
 input_sentences in infix form.
 """
 
+from z3 import ForAll as z3ForAll
 from z3 import (
     sat,
     Exists,
@@ -132,7 +133,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
             Implies(
                 compatible(x, bit_w),
                 is_part_of(x, bit_w),
-            ),
+            ), exec_str = f'w = BitVec("w", {N})' # TODO: you'll need to do this for everything...
         )
 
     def is_world(bit_w):
@@ -173,7 +174,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         return And(
             is_world(bit_u),
             is_part_of(bit_y, bit_u),
-            Exists(z, And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y))), # REMOVABLE
+            And(is_part_of(z, bit_u), max_compatible_part(z, bit_w, bit_y)), # REMOVABLE
         )
 
     # def preclude(state, sentence, eval_world):
@@ -279,14 +280,11 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         if "wedge" in operator:
             y = BitVec("ex_ver_y", N)
             z = BitVec("ex_ver_z", N)
-            return Exists( # REMOVABLE
-                [y, z],
-                And(
+            return And(
                     fusion(y, z) == state,
                     extended_verify(y, Y, eval_world),
                     extended_verify(z, Z, eval_world),
-                ),
-            )
+                )
         if "vee" in operator:
             return Or(
                 extended_verify(state, Y, eval_world),
@@ -852,6 +850,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         2. for any two states x and y, there exists a state z that is the fusion of x and y
         3. there is a state which is a world state (we call it w)
         returns a list of Z3 constraints"""
+        w = main_world
         x = BitVec("frame_x", N)
         y = BitVec("frame_y", N)
         z = BitVec("frame_z", N)
@@ -941,6 +940,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         sentences are lists)
         function that is returned by the big outer function"""
         prefix_sentences = prefix_premises + prefix_conclusions
+        global sentence_letters
         sentence_letters = all_sentence_letters(prefix_sentences)
         frame_constraints = find_frame_constraints(main_world)
         prop_constraints = find_prop_constraints(sentence_letters)
@@ -948,6 +948,32 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         conclusion_constraints = find_conclusion_const(prefix_conclusions, main_world)
         return frame_constraints, prop_constraints, premise_constraints, conclusion_constraints
     
+    def find_rest_and_old_name(formula_fragment):
+        '''
+        formula_fragment is a str and starts AFTER the parenthesis after Exists
+        returns a tuple of the rest of the formula and the old bv name
+        '''
+        old_bv_name = ''
+        for i, char in enumerate(formula_fragment):
+            if char == ',':
+                return formula_fragment[i+2:-1], old_bv_name # remove ')'
+            if char == '\t' or char == '\n': # dunno if necessary
+                continue
+            old_bv_name += char
+
+    def remove_Exists_in_univ_scope(formula):
+        '''
+        formula is a str
+        returns tuple of new formula and old bv name that was the bound variable
+        '''
+        new_formula = ''
+        for i, char in enumerate(formula):
+            if formula[i:i+6] == 'Exists':
+                rest_of_formula, old_bv_name = find_rest_and_old_name(formula[i+7:])
+                new_formula += rest_of_formula
+                return new_formula, old_bv_name
+            new_formula += char
+
     def ForAll(bvs, formula, exec_str=None):
         '''
         replace universal quantifier with a condition on each bitvector
@@ -958,6 +984,8 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         quantifiers. Prolly do that by hand, test it works with the old ForAll, and then
         try the new (this) ForAll.
         '''
+        sentence_letters # this doens't work rn, but this is going to be a big problem.
+        # need to make these things all global.
         verify, falsify, possible, assign # have to be here to make them local for eval
         if exec_str:
             exec(exec_str)
@@ -969,6 +997,11 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         bv_str = str(current_bv)
         if (not isinstance(bvs, list)) or (isinstance(bvs, list) and len(bvs) == 1):
             for i in range(num_bvs):
+                if 'Exists' in formula:
+                    new_formula, old_bbv_name = remove_Exists_in_univ_scope(formula)
+                    new_bbv_name = old_bbv_name+str(i)
+                    exec(f'{new_bbv_name} = BitVec("{new_bbv_name}",{temp_N})')
+                    formula = new_formula.replace(old_bbv_name, new_bbv_name)
                 exec(f'{bv_str} = BitVecVal({i},{temp_N})')
                 print(eval('dir()'))
                 cons_list.append(eval(formula))
