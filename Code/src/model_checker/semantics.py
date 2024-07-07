@@ -267,6 +267,11 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                 extended_verify(state, Z, eval_world),
                 extended_verify(state, ["wedge", Y, Z], eval_world),
             )
+        if "leftrightarrow" in operator:
+            return Or(
+                extended_verify(state, ["wedge", Y, Z], eval_world),
+                extended_falsify(state, ["vee", Y, Z], eval_world),
+            )
         if "rightarrow" in operator:
             return Or(
                 extended_falsify(state, Y, eval_world),
@@ -275,11 +280,6 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                 # M: out of curiosity, what's this for?
                 # B: this assumes that 'A rightarrow B' is treated like 'neg A vee B'
                 # the last clause is comparable to the last clause for 'vee' but where Y is negated
-            )
-        if "leftrightarrow" in operator:
-            return Or(
-                extended_verify(state, ["wedge", Y, Z], eval_world),
-                extended_falsify(state, ["vee", Y, Z], eval_world),
             )
         raise ValueError(
             sentence,
