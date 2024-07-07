@@ -15,7 +15,7 @@ from z3 import (
     Solver,
     And,
     BitVec,
-    BitVecVal,
+    BitVecVal, # used in exec calls in new ForAll definition
 )
 
 # from model_checker.model_definitions import (
