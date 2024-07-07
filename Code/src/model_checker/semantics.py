@@ -7,18 +7,44 @@ input_sentences in infix form.
 from z3 import (
     sat,
     Exists,
-    ForAll,
+    # ForAll,
     Implies,
     Or,
     Not,
     Solver,
     And,
     BitVec,
+    BitVecVal,
 )
 
 # from model_checker.model_definitions import (
 #     all_sentence_letters,
 # )
+
+# def ForAll(bvs, formula, exec_str=None):
+#     '''
+#     replace universal quantifier with a condition on each bitvector
+#     if exec and eval give trouble, just use the .replace method, which also worked
+#     '''
+#     if exec_str:
+#         exec(exec_str)
+#     cons_list = []
+#     formula = str(formula) if not isinstance(formula, str) else formula # make formula a str
+#     current_bv = bvs if not isinstance(bvs, list) else bvs[0]
+#     temp_N = current_bv.size()
+#     num_bvs = 2 ** temp_N
+#     bv_str = str(current_bv)
+#     if (not isinstance(bvs, list)) or (isinstance(bvs, list) and len(bvs) == 1):
+#         for i in range(num_bvs):
+#             exec(f'{bv_str} = BitVecVal({i},{temp_N})')
+#             cons_list.append(eval(formula))
+#         return And(cons_list)
+#     # recursive call
+#     rem_bvs = bvs[1:]
+#     for i in range(num_bvs):
+#         exec_str = exec_str + f'\n{bv_str} = BitVecVal({i},{temp_N})' if exec_str else f'{bv_str} = BitVecVal({i},{temp_N})'
+#         cons_list.append(ForAll(rem_bvs, formula, exec_str = exec_str))
+#     return And(cons_list)
 
 def sentence_letters_in_compound(prefix_input_sentence):
     """finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
@@ -921,6 +947,38 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         premise_constraints = find_premise_const(prefix_premises, main_world)
         conclusion_constraints = find_conclusion_const(prefix_conclusions, main_world)
         return frame_constraints, prop_constraints, premise_constraints, conclusion_constraints
+    
+    def ForAll(bvs, formula, exec_str=None):
+        '''
+        replace universal quantifier with a condition on each bitvector
+        if exec and eval give trouble, just use the .replace method, which also worked
+        NOTE: looking at the documentation of eval(), it looks like this is going to be
+        much harder than I thought
+        TODO: actually above issue was resolved. Only problem is need to get rid of existential
+        quantifiers. Prolly do that by hand, test it works with the old ForAll, and then
+        try the new (this) ForAll.
+        '''
+        verify, falsify, possible, assign # have to be here to make them local for eval
+        if exec_str:
+            exec(exec_str)
+        cons_list = []
+        formula = str(formula) if not isinstance(formula, str) else formula # make formula a str
+        current_bv = bvs if not isinstance(bvs, list) else bvs[0]
+        temp_N = current_bv.size()
+        num_bvs = 2 ** temp_N
+        bv_str = str(current_bv)
+        if (not isinstance(bvs, list)) or (isinstance(bvs, list) and len(bvs) == 1):
+            for i in range(num_bvs):
+                exec(f'{bv_str} = BitVecVal({i},{temp_N})')
+                print(eval('dir()'))
+                cons_list.append(eval(formula))
+            return And(cons_list)
+        # recursive call
+        rem_bvs = bvs[1:]
+        for i in range(num_bvs):
+            exec_str = exec_str + f'\n{bv_str} = BitVecVal({i},{temp_N})' if exec_str else f'{bv_str} = BitVecVal({i},{temp_N})'
+            cons_list.append(ForAll(rem_bvs, formula, exec_str = exec_str))
+        return And(cons_list)
 
     return find_all_constraints
 

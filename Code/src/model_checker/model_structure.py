@@ -52,7 +52,7 @@ from z3 import (
 # )
 
 ### FOR PACKAGING ###
-from model_checker.semantics import ( # imports issue fixed with above code
+from semantics import ( # imports issue fixed with above code
     define_N_semantics,
     solve_constraints,
     all_sentence_letters,
