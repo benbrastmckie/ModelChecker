@@ -184,7 +184,7 @@ class ModelSetup:
         self.poss_bits is a list of all possible bits
         self.world_bits is a lsit of all world bits
         self.main_world is the eval world (as a BitVecVal)
-        self.atomic_props_dict is a dictionary with keys AtomSorts and keys (V,F)
+        self.atomic_props_dict is a dictionary with keys AtomSorts and values (V,F)
         """
         model_start = time.time()  # start benchmark timer
         z3_model_status, z3_model = solve_constraints(constraints)
