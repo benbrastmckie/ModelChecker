@@ -56,7 +56,7 @@ def FiniteExists(bvs, formula):
             new_bv = BitVec(str(bv) + find_unused_id(), bv.size())
             new_bvs += (new_bv,)
     else:
-        new_bvs = BitVec(str(bvs) + find_unused_id, bvs.size())
+        new_bvs = BitVec(str(bvs) + find_unused_id(), bvs.size())
     return Lambda(bvs, formula)[new_bvs]
 
 # Exists = Z3Exists if use_z3_quantifiers else FiniteExists
