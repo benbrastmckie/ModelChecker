@@ -32,7 +32,7 @@ save_bool = False
 
 ### INVALID ###
 
-# COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
 premises = ['(A boxright C)']
 conclusions = ['((A wedge B) boxright C)']
 

@@ -44,6 +44,11 @@ save_bool = False
 # ]
 # conclusions = []
 
+# # COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
+# N = 3
+# premises = ['neg A','neg B','(A boxright B)']
+# conclusions = ['(neg B boxright neg A)']
+
 
 
 

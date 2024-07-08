@@ -495,7 +495,7 @@ class StateSpace:
             self.rec_print(left_subprop, world_bit, print_impossible, output, indent)
             print(
                 f'{"  " * indent}'
-                f'{CYAN}({left_subprop})-alternatives to {bitvec_to_substates(world_bit, N)} = '
+                f'{CYAN}{left_subprop}-alternatives to {bitvec_to_substates(world_bit, N)} = '
                 f'{pretty_set_print(alt_worlds_as_strings)}{RESET}',
                 file=output
             )
