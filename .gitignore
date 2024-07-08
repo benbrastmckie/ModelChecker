@@ -5,6 +5,7 @@
 *.fls
 *.log
 *.synctex.gz
+*.DS_Store
 Code/__pycache__
 Examples/__pycache__
 model_checker/package/__pycache__
