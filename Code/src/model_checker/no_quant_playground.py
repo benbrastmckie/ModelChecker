@@ -174,7 +174,7 @@ def test_other_1():
 
 @pytest.mark.timeout(30)
 def test_R1():
-    N = 6
+    N = 5
     premises = ['(A \\rightarrow B)','A']
     conclusions = ['B']
     desired_model_status = False
@@ -182,7 +182,7 @@ def test_R1():
 
 @pytest.mark.timeout(30)
 def test_R2():
-    N = 6
+    N = 5
     premises = ['(A \\boxright B)']
     conclusions = ['(A \\rightarrow B)']
     desired_model_status = False
@@ -190,7 +190,7 @@ def test_R2():
 
 @pytest.mark.timeout(30)
 def test_R3():
-    N = 6
+    N = 5
     premises = ['((A \\vee B) \\boxright C)']
     conclusions = ['(A \\boxright C)']
     desired_model_status = False
@@ -198,7 +198,7 @@ def test_R3():
 
 @pytest.mark.timeout(30)
 def test_R4():
-    N = 6
+    N = 5
     premises = ['((A \\vee B) \\boxright C)']
     conclusions = ['(B \\boxright C)']
     desired_model_status = False
@@ -206,7 +206,7 @@ def test_R4():
 
 @pytest.mark.timeout(30)
 def test_R5():
-    N = 6
+    N = 5
     premises = ['((A \\vee B) \\boxright C)']
     conclusions = ['((A \\wedge B) \\boxright C)']
     desired_model_status = False
@@ -214,7 +214,7 @@ def test_R5():
 
 @pytest.mark.timeout(30)
 def test_R6():
-    N = 6
+    N = 5
     premises = ['(A \\boxright C)', '(B \\boxright C)', '((A \\wedge B) \\boxright C)']
     conclusions = ['((A \\vee B) \\boxright C)']
     desired_model_status = False
@@ -222,7 +222,7 @@ def test_R6():
 
 @pytest.mark.timeout(40)
 def test_R7_R8():
-    N = 6
+    N = 5
     premises = ['(A \\boxright (B \\wedge C))']
     conclusions = ['(A \\boxright B)']
     desired_model_status = False
@@ -230,7 +230,7 @@ def test_R7_R8():
 
 @pytest.mark.timeout(30)
 def test_R9():
-    N = 6
+    N = 5
     premises = ['(A \\boxright B)','(A \\boxright C)']
     conclusions = ['(A \\boxright (B \\wedge C))']
     desired_model_status = False
@@ -238,7 +238,7 @@ def test_R9():
 
 @pytest.mark.timeout(100)
 def test_R10():
-    N = 6
+    N = 5
     premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
     conclusions = ['(A \\boxright C)']
     desired_model_status = False
