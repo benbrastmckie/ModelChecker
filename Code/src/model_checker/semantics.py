@@ -7,45 +7,61 @@ input_sentences in infix form.
 from z3 import ForAll as z3ForAll
 from z3 import (
     sat,
-    Exists,
-    # ForAll,
+    Lambda, # used in FiniteForAll and FiniteExists definitions
     Implies,
     Or,
     Not,
     Solver,
     And,
     BitVec,
-    BitVecVal, # used in exec calls in new ForAll definition
+    BitVecVal, # used in FiniteForAll definition
 )
+from z3 import Exists as Z3Exists
+from z3 import ForAll as Z3ForAll
 
-# from model_checker.model_definitions import (
-#     all_sentence_letters,
-# )
+use_z3_quantifiers = False
 
-# def ForAll(bvs, formula, exec_str=None):
-#     '''
-#     replace universal quantifier with a condition on each bitvector
-#     if exec and eval give trouble, just use the .replace method, which also worked
-#     '''
-#     if exec_str:
-#         exec(exec_str)
-#     cons_list = []
-#     formula = str(formula) if not isinstance(formula, str) else formula # make formula a str
-#     current_bv = bvs if not isinstance(bvs, list) else bvs[0]
-#     temp_N = current_bv.size()
-#     num_bvs = 2 ** temp_N
-#     bv_str = str(current_bv)
-#     if (not isinstance(bvs, list)) or (isinstance(bvs, list) and len(bvs) == 1):
-#         for i in range(num_bvs):
-#             exec(f'{bv_str} = BitVecVal({i},{temp_N})')
-#             cons_list.append(eval(formula))
-#         return And(cons_list)
-#     # recursive call
-#     rem_bvs = bvs[1:]
-#     for i in range(num_bvs):
-#         exec_str = exec_str + f'\n{bv_str} = BitVecVal({i},{temp_N})' if exec_str else f'{bv_str} = BitVecVal({i},{temp_N})'
-#         cons_list.append(ForAll(rem_bvs, formula, exec_str = exec_str))
-#     return And(cons_list)
+unid_set = set()
+def find_unused_id():
+    num = 0
+    while num in unid_set:
+        num += 1
+    unid_set.add(num)
+    return str(num)
+
+def FiniteForAll(bvs, formula):
+    cons_list = []
+    current_bv = bvs if not isinstance(bvs, list) else bvs[0]
+    temp_N = current_bv.size()
+    num_bvs = 2 ** temp_N
+    lambda_formula = Lambda(bvs, formula)
+    if (not isinstance(bvs, list)) or (len(bvs) == 1):
+        for i in range(num_bvs):
+            cons_list.append(lambda_formula[BitVecVal(i,temp_N)])
+    elif isinstance(bvs, list) and len(bvs) == 2:
+        for i in range(num_bvs):
+            for j in range(num_bvs):
+                cons_list.append(lambda_formula[BitVecVal(i,temp_N),BitVecVal(j,temp_N)])
+    elif isinstance(bvs, list) and len(bvs) == 3:
+        for i in range(num_bvs):
+            for j in range(num_bvs):
+                for k in range(num_bvs):
+                    cons_list.append(lambda_formula[BitVecVal(i,temp_N),BitVecVal(j,temp_N),BitVecVal(k,temp_N)])
+    return And(cons_list)
+        
+def FiniteExists(bvs, formula):
+    if isinstance(bvs, list):
+        new_bvs = ()
+        for bv in bvs:
+            new_bv = BitVec(str(bv) + find_unused_id(), bv.size())
+            new_bvs += (new_bv,)
+    else:
+        new_bvs = BitVec(str(bvs) + find_unused_id, bvs.size())
+    return Lambda(bvs, formula)[new_bvs]
+
+# Exists = Z3Exists if use_z3_quantifiers else FiniteExists
+Exists = Z3Exists
+ForAll = Z3ForAll if use_z3_quantifiers else FiniteForAll
 
 def sentence_letters_in_compound(prefix_input_sentence):
     """finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
@@ -133,7 +149,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
             Implies(
                 compatible(x, bit_w),
                 is_part_of(x, bit_w),
-            ), exec_str = f'w = BitVec("w", {N})' # TODO: you'll need to do this for everything...
+            ),
         )
 
     def is_world(bit_w):
@@ -948,70 +964,70 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         conclusion_constraints = find_conclusion_const(prefix_conclusions, main_world)
         return frame_constraints, prop_constraints, premise_constraints, conclusion_constraints
     
-    def find_rest_and_old_name(formula_fragment):
-        '''
-        formula_fragment is a str and starts AFTER the parenthesis after Exists
-        returns a tuple of the rest of the formula and the old bv name
-        '''
-        old_bv_name = ''
-        for i, char in enumerate(formula_fragment):
-            if char == ',':
-                return formula_fragment[i+2:-1], old_bv_name # remove ')'
-            if char == '\t' or char == '\n': # dunno if necessary
-                continue
-            old_bv_name += char
+    # def find_rest_and_old_name(formula_fragment):
+    #     '''
+    #     formula_fragment is a str and starts AFTER the parenthesis after Exists
+    #     returns a tuple of the rest of the formula and the old bv name
+    #     '''
+    #     old_bv_name = ''
+    #     for i, char in enumerate(formula_fragment):
+    #         if char == ',':
+    #             return formula_fragment[i+2:-1], old_bv_name # remove ')'
+    #         if char == '\t' or char == '\n': # dunno if necessary
+    #             continue
+    #         old_bv_name += char
 
-    def remove_Exists_in_univ_scope(formula):
-        '''
-        formula is a str
-        returns tuple of new formula and old bv name that was the bound variable
-        '''
-        new_formula = ''
-        for i, char in enumerate(formula):
-            if formula[i:i+6] == 'Exists':
-                rest_of_formula, old_bv_name = find_rest_and_old_name(formula[i+7:])
-                new_formula += rest_of_formula
-                return new_formula, old_bv_name
-            new_formula += char
+    # def remove_Exists_in_univ_scope(formula):
+    #     '''
+    #     formula is a str
+    #     returns tuple of new formula and old bv name that was the bound variable
+    #     '''
+    #     new_formula = ''
+    #     for i, char in enumerate(formula):
+    #         if formula[i:i+6] == 'Exists':
+    #             rest_of_formula, old_bv_name = find_rest_and_old_name(formula[i+7:])
+    #             new_formula += rest_of_formula
+    #             return new_formula, old_bv_name
+    #         new_formula += char
 
-    def ForAll(bvs, formula, exec_str=None):
-        '''
-        replace universal quantifier with a condition on each bitvector
-        if exec and eval give trouble, just use the .replace method, which also worked
-        NOTE: looking at the documentation of eval(), it looks like this is going to be
-        much harder than I thought
-        TODO: actually above issue was resolved. Only problem is need to get rid of existential
-        quantifiers. Prolly do that by hand, test it works with the old ForAll, and then
-        try the new (this) ForAll.
-        '''
-        sentence_letters # this doens't work rn, but this is going to be a big problem.
-        # need to make these things all global.
-        verify, falsify, possible, assign # have to be here to make them local for eval
-        if exec_str:
-            exec(exec_str)
-        cons_list = []
-        formula = str(formula) if not isinstance(formula, str) else formula # make formula a str
-        current_bv = bvs if not isinstance(bvs, list) else bvs[0]
-        temp_N = current_bv.size()
-        num_bvs = 2 ** temp_N
-        bv_str = str(current_bv)
-        if (not isinstance(bvs, list)) or (isinstance(bvs, list) and len(bvs) == 1):
-            for i in range(num_bvs):
-                if 'Exists' in formula:
-                    new_formula, old_bbv_name = remove_Exists_in_univ_scope(formula)
-                    new_bbv_name = old_bbv_name+str(i)
-                    exec(f'{new_bbv_name} = BitVec("{new_bbv_name}",{temp_N})')
-                    formula = new_formula.replace(old_bbv_name, new_bbv_name)
-                exec(f'{bv_str} = BitVecVal({i},{temp_N})')
-                print(eval('dir()'))
-                cons_list.append(eval(formula))
-            return And(cons_list)
-        # recursive call
-        rem_bvs = bvs[1:]
-        for i in range(num_bvs):
-            exec_str = exec_str + f'\n{bv_str} = BitVecVal({i},{temp_N})' if exec_str else f'{bv_str} = BitVecVal({i},{temp_N})'
-            cons_list.append(ForAll(rem_bvs, formula, exec_str = exec_str))
-        return And(cons_list)
+    # def ForAll(bvs, formula, exec_str=None):
+    #     '''
+    #     replace universal quantifier with a condition on each bitvector
+    #     if exec and eval give trouble, just use the .replace method, which also worked
+    #     NOTE: looking at the documentation of eval(), it looks like this is going to be
+    #     much harder than I thought
+    #     TODO: actually above issue was resolved. Only problem is need to get rid of existential
+    #     quantifiers. Prolly do that by hand, test it works with the old ForAll, and then
+    #     try the new (this) ForAll.
+    #     '''
+    #     sentence_letters # this doens't work rn, but this is going to be a big problem.
+    #     # need to make these things all global.
+    #     verify, falsify, possible, assign # have to be here to make them local for eval
+    #     if exec_str:
+    #         exec(exec_str)
+    #     cons_list = []
+    #     formula = str(formula) if not isinstance(formula, str) else formula # make formula a str
+    #     current_bv = bvs if not isinstance(bvs, list) else bvs[0]
+    #     temp_N = current_bv.size()
+    #     num_bvs = 2 ** temp_N
+    #     bv_str = str(current_bv)
+    #     if (not isinstance(bvs, list)) or (isinstance(bvs, list) and len(bvs) == 1):
+    #         for i in range(num_bvs):
+    #             if 'Exists' in formula:
+    #                 new_formula, old_bbv_name = remove_Exists_in_univ_scope(formula)
+    #                 new_bbv_name = old_bbv_name+str(i)
+    #                 exec(f'{new_bbv_name} = BitVec("{new_bbv_name}",{temp_N})')
+    #                 formula = new_formula.replace(old_bbv_name, new_bbv_name)
+    #             exec(f'{bv_str} = BitVecVal({i},{temp_N})')
+    #             print(eval('dir()'))
+    #             cons_list.append(eval(formula))
+    #         return And(cons_list)
+    #     # recursive call
+    #     rem_bvs = bvs[1:]
+    #     for i in range(num_bvs):
+    #         exec_str = exec_str + f'\n{bv_str} = BitVecVal({i},{temp_N})' if exec_str else f'{bv_str} = BitVecVal({i},{temp_N})'
+    #         cons_list.append(ForAll(rem_bvs, formula, exec_str = exec_str))
+    #     return And(cons_list)
 
     return find_all_constraints
 

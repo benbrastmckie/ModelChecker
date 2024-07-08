@@ -532,7 +532,7 @@ class StateSpace:
                 self.rec_print(input_prop, initial_eval_world, print_impossible, output, 1)
                 print(file=output)
 
-    def print_all(self, print_impossible, output):
+    def print_all(self, print_impossible=False, output=sys.__stdout__):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
         N = self.model_setup.N

@@ -11,8 +11,9 @@ premises = ['(A \\boxright C)', '(B \\boxright C)']
 conclusions = ['((A \\wedge B) \\boxright C)']
 desired_model_status = True
 mod_setup = make_model_for(N, premises, conclusions)
-mod_status, model, runtime = mod_setup.solve()
+mod_status, model, runtime = mod_setup.solve(mod_setup.constraints)
 if mod_status:
-    ss = StateSpace(model)
+    ss = StateSpace(mod_setup)
     ss.print_all()
-# check_model_status(premises, conclusions, desired_model_status, N)
+else:
+    mod_setup.no_model_print(True)

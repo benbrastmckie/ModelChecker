@@ -38,74 +38,81 @@ def remove_Exists_in_univ_scope(formula):
         new_formula += char
 
 
-def ForAll_iter(bvs, formula, exec_str=None, **kw):
+def ForAll_iter(bvs, formula, exec_str=None):
     '''
     if exec and eval give trouble, just use the .replace method, which also worked
     '''
-    if kw:
-        exec()
     if exec_str:
         exec(exec_str)
     cons_list = []
-    formula = str(formula) if not isinstance(formula, str) else formula # make formula a str
+    # formula = str(formula) if not isinstance(formula, str) else formula # make formula a str
     current_bv = bvs if not isinstance(bvs, list) else bvs[0]
     temp_N = current_bv.size()
     num_bvs = 2 ** temp_N
-    bv_str = str(current_bv)
+    lambda_formula = Lambda(bvs, formula)
     if (not isinstance(bvs, list)) or (isinstance(bvs, list) and len(bvs) == 1):
         for i in range(num_bvs):
-            if 'Exists' in formula:
-                new_formula, old_bbv_name = remove_Exists_in_univ_scope(formula)
-                new_bbv_name = old_bbv_name+str(i)
-                exec(f'{new_bbv_name} = BitVec("{new_bbv_name}",{temp_N})')
-                new_formula = new_formula.replace(old_bbv_name, new_bbv_name)
-            exec(f'{bv_str} = BitVecVal({i},{temp_N})')
-            cons_list.append(eval(new_formula))
+            quant_inst = BitVecVal(i,temp_N)
+            cons_list.append(lambda_formula[quant_inst])
+            # if 'Exists' in formula:
+            #     new_formula, old_bbv_name = remove_Exists_in_univ_scope(formula)
+            #     new_bbv_name = old_bbv_name+str(i)
+            #     exec(f'{new_bbv_name} = BitVec("{new_bbv_name}",{temp_N})')
+            #     new_formula = new_formula.replace(old_bbv_name, new_bbv_name)
+            # exec(f'{bv_str} = BitVecVal({i},{temp_N})')
+            # print(f'vars: {vars()}\n\ndir: {dir()}\n\n\n')
+            # cons_list.append(eval(new_formula))
         return And(cons_list)
     # recursive call
-    rem_bvs = bvs[1:]
     for i in range(num_bvs):
-        exec_str = exec_str + f'\n{bv_str} = BitVecVal({i},{temp_N})' if exec_str else f'{bv_str} = BitVecVal({i},{temp_N})'
-        cons_list.append(ForAll_iter(rem_bvs, formula, exec_str = exec_str))
+        outer_quant_inst = BitVecVal(i,temp_N)
+        new_lambda_formula = lambda_formula[outer_quant_inst]
+        print(new_lambda_formula)
+        for j in range(num_bvs):
+            inner_quant_inst = BitVecVal(j,temp_N)
+            final_lambda = new_lambda_formula[inner_quant_inst]
+            cons_list.append(final_lambda)
+        # exec_str = exec_str + f'\n{bv_str} = BitVecVal({i},{temp_N})' if exec_str else f'{bv_str} = BitVecVal({i},{temp_N})'
+        # cons_list.append(ForAll_iter(rem_bvs, formula, exec_str = exec_str))
     return And(cons_list)
 
 ######### TESTING UNIVERSAL QUANTIFIER ##########
-# # test_formula = ForAll(x, And(Implies(x==1,func(x)),Implies(func(x),x==1)))
-# # test_formula = ForAll([x,y], And(Implies(x==y,bifunc(x,y)),Implies(bifunc(x,y),x==y)))
-# test_formula = ForAll([x,y,z], And(Implies(x+y==z,trifunc(x,y,z)),Implies(trifunc(x,y,z),x+y==z)))
+# test_formula = ForAll(x, And(Implies(x==1,func(x)),Implies(func(x),x==1)))
+# test_formula = ForAll([x,y], And(Implies(x==y,bifunc(x,y)),Implies(bifunc(x,y),x==y)))
+test_formula = ForAll([x,y,z], And(Implies(x+y==z,trifunc(x,y,z)),Implies(trifunc(x,y,z),x+y==z)))
 
-# print('iter')
-# iter_solver = Solver()
-# start = time.time()
-# # result = iter_solver.check(ForAll_iter(x, And(Implies(x==1,func(x)),Implies(func(x),x==1))))
-# iter_result = iter_solver.check(ForAll_iter([x,y,z], And(Implies(x+y==z,trifunc(x,y,z)),Implies(trifunc(x,y,z),x+y==z))))
+print('iter')
+iter_solver = Solver()
+start = time.time()
+# result = iter_solver.check(ForAll_iter(x, And(Implies(x==1,func(x)),Implies(func(x),x==1))))
+iter_result = iter_solver.check(ForAll_iter([x,y,z], And(Implies(x+y==z,trifunc(x,y,z)),Implies(trifunc(x,y,z),x+y==z))))
+print('quant')
+quant_solver = Solver()
+middle = time.time()
+quant_result = quant_solver.check(test_formula)
+end = time.time()
+if iter_result == sat and quant_result == sat:
+    for i in range(2 ** x.size()):
+        for j in range(2 ** y.size()):
+            for k in range(2 ** z.size()):
+                # print(f'{i,j,k}, {iter_solver.model().evaluate(trifunc(i,j,k))}')
+                iter_value = iter_solver.model().evaluate(trifunc(i,j,k))
+                quant_value = quant_solver.model().evaluate(trifunc(i,j,k))
+                if quant_value and not iter_value:
+                    print(i,j,k)
+                print(f'{i,j,k}, {iter_value == quant_value}')
+
 # print('quant')
 # quant_solver = Solver()
-# middle = time.time()
 # quant_result = quant_solver.check(test_formula)
 # end = time.time()
-# if iter_result == sat and quant_result == sat:
+# if result == sat:
 #     for i in range(2 ** x.size()):
 #         for j in range(2 ** y.size()):
 #             for k in range(2 ** z.size()):
-#                 # print(f'{i,j,k}, {iter_solver.model().evaluate(trifunc(i,j,k))}')
-#                 iter_value = iter_solver.model().evaluate(trifunc(i,j,k))
-#                 quant_value = quant_solver.model().evaluate(trifunc(i,j,k))
-#                 if quant_value and not iter_value:
-#                     print(i,j,k)
-#                 print(f'{i,j,k}, {iter_value == quant_value}')
-
-# # print('quant')
-# # quant_solver = Solver()
-# # quant_result = quant_solver.check(test_formula)
-# # end = time.time()
-# # if result == sat:
-# #     for i in range(2 ** x.size()):
-# #         for j in range(2 ** y.size()):
-# #             for k in range(2 ** z.size()):
-# #                 print(f'{i,j,k}, {quant_solver.model().evaluate(trifunc(i,j,k))}')
-# print(f'no quantifiers time: {middle-start}')
-# print(f'with quantifiers time: {end-middle}')
+#                 print(f'{i,j,k}, {quant_solver.model().evaluate(trifunc(i,j,k))}')
+print(f'no quantifiers time: {middle-start}')
+print(f'with quantifiers time: {end-middle}')
 
 
 def Exists_new(bv, formula): # we only ever use a single bv for Exists—no recursive bs!
