@@ -4,7 +4,7 @@ this file defines the functions needed to generate Z3 constraints from
 input_sentences in infix form.
 """
 
-from z3 import ForAll as z3ForAll
+# from z3 import ForAll as z3ForAll
 from z3 import (
     sat,
     Lambda, # used in FiniteForAll and FiniteExists definitions
@@ -48,7 +48,7 @@ def FiniteForAll(bvs, formula):
                 for k in range(num_bvs):
                     cons_list.append(lambda_formula[BitVecVal(i,temp_N),BitVecVal(j,temp_N),BitVecVal(k,temp_N)])
     return And(cons_list)
-        
+
 def FiniteExists(bvs, formula):
     if isinstance(bvs, list):
         new_bvs = ()
