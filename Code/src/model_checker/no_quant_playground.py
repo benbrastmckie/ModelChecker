@@ -30,7 +30,11 @@ def check_model_status(premises, conclusions, desired, N):
     mod_status = mod_setup.model_status
     mod_time = mod_setup.model_runtime
     assert (mod_status == desired), failure_string(desired, premises, conclusions, mod_time)
-    print(f'solved:\n{premises},\n{conclusions}\nin {mod_time} seconds\n\n')
+    try: 
+        StateSpace(mod_setup).print_all()
+    except:
+        print(f'no model correctly found for:\n{premises}\n{conclusions}')
+    print(f'solved in {mod_time} seconds\n\n')
 
 def find_model_status(premises, conclusions, desired, N):
     mod_setup = make_model_for(N, premises, conclusions)
