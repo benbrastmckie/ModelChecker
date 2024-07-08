@@ -19,7 +19,7 @@ from z3 import (
 from z3 import Exists as Z3Exists
 from z3 import ForAll as Z3ForAll
 
-use_z3_quantifiers = False
+use_z3_quantifiers = False # currently Z3Exists is being used despite this setting
 
 unid_set = set()
 def find_unused_id():
