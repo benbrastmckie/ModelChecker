@@ -31,22 +31,21 @@ def find_unused_id():
 
 def ForAllFinite(bvs, formula):
     constraints = []
-    bv_test = bvs if not isinstance(bvs, list) else bvs[0]
+    if not isinstance(bvs, list):
+        bvs = [bvs]
+    bv_test = bvs[0]
     temp_N = bv_test.size()
     num_bvs = 2 ** temp_N
-    if not isinstance(bvs, list):
-        lambda_formula = Lambda(bvs, formula)
-        for i in range(num_bvs):
-            constraints.append(lambda_formula[BitVecVal(i,temp_N)])
-    if isinstance(bvs, list) and len(bvs) == 1:
+    if len(bvs) == 1:
         lambda_formula = Lambda(bvs[0], formula)
         for i in range(num_bvs):
             constraints.append(lambda_formula[BitVecVal(i,temp_N)])
-    if isinstance(bvs, list) and len(bvs) > 1:
-        bv = bvs.pop(0)
-        lambda_formula = Lambda(bv, ForAllFinite(bvs, formula))
+    else:
+        bv = bvs[0]
+        remaining_bvs = bvs[1:]
+        lambda_formula = Lambda(bv, ForAllFinite(remaining_bvs, formula))
         for i in range(num_bvs):
-            constraints.append(lambda_formula[BitVecVal(i,temp_N)])
+            constraints.append(lambda_formula[BitVecVal(i, temp_N)])
     return And(constraints)
 
 def FiniteForAll(bvs, formula):
@@ -81,8 +80,8 @@ def FiniteExists(bvs, formula):
 
 # Exists = Z3Exists if use_z3_quantifiers else FiniteExists
 Exists = Z3Exists
-ForAll = Z3ForAll if use_z3_quantifiers else FiniteForAll
-# ForAll = Z3ForAll if use_z3_quantifiers else ForAllFinite
+# ForAll = Z3ForAll if use_z3_quantifiers else FiniteForAll
+ForAll = Z3ForAll if use_z3_quantifiers else ForAllFinite
 
 def sentence_letters_in_compound(prefix_input_sentence):
     """finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
