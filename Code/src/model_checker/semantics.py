@@ -29,25 +29,24 @@ def find_unused_id():
     unid_set.add(num)
     return str(num)
 
-def ForAllFinite(bvs, formula, constraints=None):
-    if constraints is None:
-        constraints = []
+def ForAllFinite(bvs, formula):
+    constraints = []
+    bv_test = bvs if not isinstance(bvs, list) else bvs[0]
+    temp_N = bv_test.size()
+    num_bvs = 2 ** temp_N
     if not isinstance(bvs, list):
-        current_bv = bvs
-        temp_N = current_bv.size()
-        num_bvs = 2 ** temp_N
-        lambda_formula = Lambda(current_bv, formula)
+        lambda_formula = Lambda(bvs, formula)
         for i in range(num_bvs):
             constraints.append(lambda_formula[BitVecVal(i,temp_N)])
-        return And(constraints)
-    if isinstance(bvs, list) and len(bvs) > 0:
-        current_bv = bvs.pop(0)
-        temp_N = current_bv.size()
-        num_bvs = 2 ** temp_N
-        lambda_formula = Lambda(current_bv, ForAllFinite(bvs, formula, constraints))
+    if isinstance(bvs, list) and len(bvs) == 1:
+        lambda_formula = Lambda(bvs[0], formula)
         for i in range(num_bvs):
             constraints.append(lambda_formula[BitVecVal(i,temp_N)])
-        return And(constraints)
+    if isinstance(bvs, list) and len(bvs) > 1:
+        bv = bvs.pop(0)
+        lambda_formula = Lambda(bv, ForAllFinite(bvs, formula))
+        for i in range(num_bvs):
+            constraints.append(lambda_formula[BitVecVal(i,temp_N)])
     return And(constraints)
 
 def FiniteForAll(bvs, formula):
@@ -59,11 +58,11 @@ def FiniteForAll(bvs, formula):
     if (not isinstance(bvs, list)) or (len(bvs) == 1):
         for i in range(num_bvs):
             cons_list.append(lambda_formula[BitVecVal(i,temp_N)])
-    elif isinstance(bvs, list) and len(bvs) == 2:
+    if isinstance(bvs, list) and len(bvs) == 2:
         for i in range(num_bvs):
             for j in range(num_bvs):
                 cons_list.append(lambda_formula[BitVecVal(i,temp_N),BitVecVal(j,temp_N)])
-    elif isinstance(bvs, list) and len(bvs) == 3:
+    if isinstance(bvs, list) and len(bvs) == 3:
         for i in range(num_bvs):
             for j in range(num_bvs):
                 for k in range(num_bvs):
