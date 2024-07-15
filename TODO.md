@@ -8,7 +8,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## v0.5 Release 
 
 - [ ] fix imports
-  - [ ] create issue
+  - [x] create issue
   - [ ] ask oliver
 - [ ] finite quantifiers
   - [ ] debug
