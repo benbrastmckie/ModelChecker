@@ -7,25 +7,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## v0.5 Release 
 
-- [ ] clean up project directory
-  - [ ] todos
-  - [ ] docs
-  - [ ] pdf
 - [ ] fix imports
   - [ ] create issue
   - [ ] ask oliver
-- [.] documentation
-  - [x] _M_ doc strings for functions
-  - [x] _M_ revise architecture description
-  - [x] _B_ architecture description
-  - [x] _B_ expanded READMEs
-  - [ ] _B_ revise pypi readme
-  - [ ] _B_ revise github readme
-  - [ ] _B_ semantics doc
-  - [ ] _B_ rewrite architecture
-- [ ] primitive imposition
-  - [ ] implement
-  - [ ] test
 - [ ] finite quantifiers
   - [ ] debug
   - [ ] test
@@ -37,6 +21,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [ ] https://people.csail.mit.edu/henrycg/ -- Henry Corrigan-Gibbs
     - [ ] https://www.csail.mit.edu/person/frans-kaashoek -- Frans Kaashoek
     - [ ] https://people.csail.mit.edu/mengjia/ -- Megjia Yan
+- [ ] primitive imposition
+  - [ ] implement
+  - [ ] test
 - [ ] flags
   - [ ] finite quantifiers
   - [ ] possible verifiers and falsifiers
@@ -53,6 +40,19 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] counterfactual
   - [ ] constitutive
   - [ ] relevance
+- [.] documentation
+  - [x] _M_ doc strings for functions
+  - [x] _M_ revise architecture description
+  - [x] _B_ architecture description
+  - [x] _B_ expanded READMEs
+  - [ ] _B_ revise pypi readme
+  - [ ] _B_ revise github readme
+  - [ ] _B_ semantics doc
+  - [ ] _B_ rewrite architecture
+- [ ] clean up project directory
+  - [ ] todos
+  - [ ] docs
+  - [ ] pdf
 
 ## Future Release
 
