@@ -23,7 +23,7 @@ project_root = os.path.abspath(os.path.join(current_dir, ".."))
 # project_root = project_root[:-4] # bandaid fix to remove "/src" from the root
 # Add the project root to the Python path
 sys.path.append(project_root)
-from model_checker.__init__ import __version__
+from __init__ import __version__
 from model_structure import (
     StateSpace,
     make_model_for,
