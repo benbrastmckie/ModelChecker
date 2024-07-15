@@ -24,8 +24,9 @@ project_root = os.path.abspath(os.path.join(current_dir, ".."))
 # Add the project root to the Python path
 sys.path.append(project_root)
 
+### FOR TESTING ###
 from __init__ import __version__
-from model_structure import (
+from model_structure import ( # for packaging
     StateSpace,
     make_model_for,
     )
