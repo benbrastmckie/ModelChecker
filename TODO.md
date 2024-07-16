@@ -2,35 +2,60 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
-## v0.4 Release 
+## Update
 
-- [ ] include a flag that requires props to have possible verifiers and falsifiers
+
+## v0.5 Release 
+
+- [ ] fix imports
+  - [x] create issue
+  - [ ] ask oliver
+- [ ] finite quantifiers
+  - [:] debug
+  - [:] test
+  - [ ] create Z3 issue
+  - [.] email CS faculty
+    - [x] https://people.csail.mit.edu/mcarbin/ -- Michael Carbin
+    - [x] http://adam.chlipala.net/ -- Adam Chlipala
+    - [.] https://people.csail.mit.edu/asolar/ -- Armando Solar-Lezama
+    - [ ] https://people.csail.mit.edu/henrycg/ -- Henry Corrigan-Gibbs
+    - [ ] https://www.csail.mit.edu/person/frans-kaashoek -- Frans Kaashoek
+    - [ ] https://people.csail.mit.edu/mengjia/ -- Megjia Yan
+- [ ] primitive imposition
+  - [ ] implement
+  - [ ] test
+- [ ] flags
+  - [ ] finite quantifiers
+  - [ ] possible verifiers and falsifiers
+  - [ ] check syntax by runs infix after prefix, printing both
 - [ ] fix true conclusion models
   - [ ] relevance
   - [ ] essence
   - [ ] ground
   - [ ] identity
   - [ ] counterfactual
-- [x] say if premises, conclusions, or N are absent
 - [:] unit tests
+  - [ ] extensional
+  - [ ] modal
+  - [ ] counterfactual
   - [ ] constitutive
   - [ ] relevance
-  - [ ] modal
-- [:] semantics
-  - [x] added exclude for `not` operator
-    - [x] test
-    - [ ] conform to lucas's definition
-  - [x] essence and ground
-    - [x] test
-  - [x] relevance
-    - [x] test
-- [ ] check syntax flag
-  - runs infix after prefix, printing both
 - [.] documentation
-  - [.] _M_ doc strings for functions
-  - [ ] _M_ revise architecture description
+  - [x] _M_ doc strings for functions
+  - [x] _M_ revise architecture description
   - [x] _B_ architecture description
   - [x] _B_ expanded READMEs
+  - [ ] _B_ revise pypi readme
+  - [ ] _B_ revise github readme
+  - [ ] _B_ semantics doc
+  - [ ] _B_ rewrite architecture
+- [ ] clean up project directory
+  - [ ] todos
+  - [ ] docs
+  - [ ] pdf
+
+## Future Release
+
 - [ ] exposing imports
   - [ ] _M_ test imports
     - Q: are the exposed functions recursive?
@@ -45,46 +70,18 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] API
   - [ ] save model data structures
   - [ ] design workflow
+
+## Refine and Optimize
+
+- [ ] test exhaustivity
+  - [ ] prove bivalence
+
+## Pre-Processing
+
 - [.] pre-processing module
   - [x] add backslashes
   - [ ] design algorithm for simplifying prefix sentences
     - NOTE: research `SymPy` for simplifying sentences
-
-
-## Refine and Optimize
-
-- [ ] paper
-  - [ ] submit to JPL
-  - [ ] publish to xarchive
-  - [ ] share with Lucas
-- [ ] clean up project directory
-  - [ ] todos
-  - [ ] docs
-  - [ ] pdf
-- [.] Z3 guru
-  - [ ] write Z3 crash report GitHub issue
-  - [:] ask Graham
-  - [.] email CS faculty
-    - [x] https://people.csail.mit.edu/mcarbin/ -- Michael Carbin
-    - [x] http://adam.chlipala.net/ -- Adam Chlipala
-    - [.] https://people.csail.mit.edu/asolar/ -- Armando Solar-Lezama
-    - [ ] https://people.csail.mit.edu/henrycg/ -- Henry Corrigan-Gibbs
-    - [ ] https://www.csail.mit.edu/person/frans-kaashoek -- Frans Kaashoek
-    - [ ] https://people.csail.mit.edu/mengjia/ -- Megjia Yan
-- [ ] if `Const(token, AtomSort)` happens for `token = A` multiple times
-  - Z3 is able to eliminate the redundancy
-  - see issue #28
-- [ ] test exhaustivity
-  - [ ] prove bivalence
-- [x] `optional_generate_test` in `test_complete`
-  - [x] abstract helper functions
-  - [x] change to make output file a script
-  - [x] add flags for saving and printing
-- [x] _M_ `model_structure`
-  - [x] invalid conditional operands
-  - [x] clear out unused
-
-## Pre-Processing
 
 ## Overview
 
@@ -181,6 +178,15 @@ Tasks that have been completed.
 
 ## Semantics
 
+- [x] say if premises, conclusions, or N are absent
+- [:] semantics
+  - [x] added exclude for `not` operator
+    - [x] test
+    - [ ] conform to lucas's definition
+  - [x] essence and ground
+    - [x] test
+  - [x] relevance
+    - [x] test
 - [x] add modal operators
   - [x] semantics
   - [x] syntax
@@ -199,6 +205,16 @@ Tasks that have been completed.
 
 ## Refine and Optimize
 
+- [x] `optional_generate_test` in `test_complete`
+  - [x] abstract helper functions
+  - [x] change to make output file a script
+  - [x] add flags for saving and printing
+- [x] _M_ `model_structure`
+  - [x] invalid conditional operands
+  - [x] clear out unused
+- [x] if `Const(token, AtomSort)` happens for `token = A` multiple times
+  - Z3 is able to eliminate the redundancy
+  - see issue #28
 - [x] _M_ `definitions`
   - [x] move declarations out of `definitions`
   - [x] divide between use cases: Z3 constraints vs print etc
