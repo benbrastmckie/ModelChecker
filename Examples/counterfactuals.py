@@ -32,9 +32,14 @@ save_bool = False
 
 ### INVALID ###
 
-# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-premises = ['(A boxright C)']
-conclusions = ['((A wedge B) boxright C)']
+# NOTE: DOES NOT FIND COUNTERMODEL
+N = 2
+premises = ['(A \\boxright (B \\boxright C))']
+conclusions = ['((A \\wedge B) \\boxright C)']
+
+# # # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# premises = ['(A boxright C)']
+# conclusions = ['((A wedge B) boxright C)']
 
 # # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # premises = ['(A circleright C)']

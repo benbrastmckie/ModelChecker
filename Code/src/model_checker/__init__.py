@@ -12,6 +12,8 @@ test docstring
 # # Add the project root to the Python path
 # sys.path.append(project_root) # do we need to remove project_root from sys.path after 
 
+# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 # from model_structure import (
 #     ModelSetup,
 #     StateSpace,
@@ -19,7 +21,6 @@ test docstring
 #     make_model_for,
 # )
 
-# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from model_checker.model_structure import (
     ModelSetup,

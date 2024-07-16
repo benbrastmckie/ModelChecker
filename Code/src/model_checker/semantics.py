@@ -6,8 +6,10 @@ input_sentences in infix form.
 
 from z3 import (
     sat,
-    Exists,
-    ForAll,
+    # Exists,
+    # ForAll,
+    BitVecVal,
+    substitute,
     Implies,
     Or,
     Not,
@@ -15,10 +17,66 @@ from z3 import (
     And,
     BitVec,
 )
+from z3 import Exists as Z3Exists
+from z3 import ForAll as Z3ForAll
 
-# from model_checker.model_definitions import (
-#     all_sentence_letters,
-# )
+use_z3_quantifiers = False # currently Z3Exists is being used despite this setting
+
+def ForAllFinite(bvs, formula):
+    """
+    generates constraints by substituting all possible bitvectors for the variables in the formula
+    before taking the conjunction of those constraints
+    """
+    constraints = []
+    if not isinstance(bvs, list):
+        bvs = [bvs]
+    bv_test = bvs[0]
+    temp_N = bv_test.size()
+    num_bvs = 2 ** temp_N
+    if len(bvs) == 1:
+        bv = bvs[0]
+        for i in range(num_bvs):
+            substituted_formula = substitute(formula, (bv, BitVecVal(i, temp_N)))
+            constraints.append(substituted_formula)
+    else:
+        bv = bvs[0]
+        remaining_bvs = bvs[1:]
+        reduced_formula = ForAllFinite(remaining_bvs, formula)
+        for i in range(num_bvs):
+            substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, temp_N)))
+            constraints.append(substituted_reduced_formula)
+    return And(constraints)
+
+def ExistsFinite(bvs, formula):
+    """
+    generates constraints by substituting all possible bitvectors for the variables in the formula
+    before taking the disjunction of those constraints
+    """
+    constraints = []
+    if not isinstance(bvs, list):
+        bvs = [bvs]
+    bv_test = bvs[0]
+    temp_N = bv_test.size()
+    num_bvs = 2 ** temp_N
+    if len(bvs) == 1:
+        bv = bvs[0]
+        for i in range(num_bvs):
+            substituted_formula = substitute(formula, (bv, BitVecVal(i, temp_N)))
+            constraints.append(substituted_formula)
+    else:
+        bv = bvs[0]
+        remaining_bvs = bvs[1:]
+        reduced_formula = ForAllFinite(remaining_bvs, formula)
+        for i in range(num_bvs):
+            substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, temp_N)))
+            constraints.append(substituted_reduced_formula)
+    return Or(constraints)
+
+Exists = Z3Exists
+# Exists = Z3Exists if use_z3_quantifiers else ExistsFinite
+
+# ForAll = Z3ForAll
+ForAll = Z3ForAll if use_z3_quantifiers else ForAllFinite
 
 def sentence_letters_in_compound(prefix_input_sentence):
     """finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
