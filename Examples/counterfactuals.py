@@ -32,6 +32,7 @@ save_bool = False
 
 ### INVALID ###
 
+# NOTE: false premise model with substitutional quantifiers
 # COUNTERFACTUAL ANTECEDENT STRENGTHENING
 premises = ['(A boxright C)']
 conclusions = ['((A wedge B) boxright C)']
@@ -40,16 +41,19 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['(A circleright C)']
 # conclusions = ['((A wedge B) circleright C)']
 
+# # NOTE: false premise model with substitutional quantifiers
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # premises = ['(A boxright C)', 'Diamond (A wedge B)']
 # conclusions = ['((A wedge B) boxright C)']
 
+# # NOTE: false premise model with substitutional quantifiers
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
 # # SLOW: requires N = 4 and 242 seconds on the MIT server
 # N = 4
 # premises = ['neg A','(A boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 
+# # NOTE: false premise model with substitutional quantifiers
 # # COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
 # # SLOW: requires N = 4 and 347 seconds on the MIT server
 # N = 4
@@ -60,19 +64,19 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 
+# # NOTE: false premise model with substitutional quantifiers
 # # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
-# # SLOW: requires N = 4 and 125 seconds on the MIT server
-# N = 4
 # premises = ['neg B','(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 
+# # NOTE: false premise model with substitutional quantifiers
 # # TRANSITIVITY
 # premises = ['(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 
 # # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
-# # SLOW: 78 seconds on the MIT server
-# N = 4
+# N = 3 # NOTE: this finds a good countermodel
+# N = 4 # NOTE: false premise model with substitutional quantifiers
 # premises = ['neg A','(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 
