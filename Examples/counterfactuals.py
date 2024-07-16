@@ -173,6 +173,6 @@ conclusions = ['((A wedge B) boxright C)']
 # premises = ['((A vee B) boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 
-# SLOW: 48.3 seconds locally
-premises = ['(A boxright B)','((A wedge B) boxright C)']
-conclusions = ['(A boxright C)']
+# # SLOW: 48.3 seconds locally
+# premises = ['(A boxright B)','((A wedge B) boxright C)']
+# conclusions = ['(A boxright C)']
