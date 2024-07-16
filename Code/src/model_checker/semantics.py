@@ -50,18 +50,20 @@ def ForAllFinite(bvs, formula):
 
 def FiniteForAll(bvs, formula):
     cons_list = []
-    current_bv = bvs if not isinstance(bvs, list) else bvs[0]
-    temp_N = current_bv.size()
+    if not isinstance(bvs, list):
+        bvs = [bvs]
+    bv_test = bvs[0]
+    temp_N = bv_test.size()
     num_bvs = 2 ** temp_N
     lambda_formula = Lambda(bvs, formula)
-    if (not isinstance(bvs, list)) or (len(bvs) == 1):
+    if len(bvs) == 1:
         for i in range(num_bvs):
             cons_list.append(lambda_formula[BitVecVal(i,temp_N)])
-    if isinstance(bvs, list) and len(bvs) == 2:
+    if len(bvs) == 2:
         for i in range(num_bvs):
             for j in range(num_bvs):
                 cons_list.append(lambda_formula[BitVecVal(i,temp_N),BitVecVal(j,temp_N)])
-    if isinstance(bvs, list) and len(bvs) == 3:
+    if len(bvs) == 3:
         for i in range(num_bvs):
             for j in range(num_bvs):
                 for k in range(num_bvs):
