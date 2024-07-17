@@ -19,7 +19,7 @@ print_cons_bool = False
 print_unsat_core_bool = True
 
 # print all states including impossible states
-print_impossible_states_bool = True
+print_impossible_states_bool = False
 
 # present option to append output to file
 save_bool = False
@@ -143,33 +143,27 @@ conclusions = ['((A wedge B) boxright C)']
 # conclusions = ['(A boxright B)','(A boxright C)']
 
 # # CFCM16
-# # DISJUNCTIVE ANTECEDENT
+# # INTRODUCTION OF DISJUNCTIVE ANTECEDENT
 # N = 4 # NOTE: with Z3 quantifiers for 40 seconds locally; now .2785 seconds locally
 # premises = ['(A boxright C)','(B boxright C)']
 # conclusions = ['((A vee B) boxright C)']
 
 # # CFCM17
-# # CONJUNCTIVE ANTECEDENT
-# N = 4
-# premises = ['(A \\boxright C)', '(B \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-
-# # CFCM18
 # # MUST FACTIVITY
 # premises = ['A','B']
 # conclusions = ['(A boxright B)']
 
-# # CFCM19
+# # CFCM18
 # # COUNTERFACTUAL EXPORTATION
 # premises = ['((A wedge B) boxright C)']
 # conclusions = ['(A boxright (B boxright C))']
 
-# # CFCM20
+# # CFCM19
 # # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
 # premises = ['((A wedge B) boxright C)','Diamond (A wedge B)']
 # conclusions = ['(A boxright (B boxright C))']
 
-# # CFCM21
+# # CFCM20
 # N = 3
 # premises = ['\\neg A','\\neg (A \\boxright B)']
 # conclusions = ['(A \\boxright \\neg B)']
@@ -180,37 +174,52 @@ conclusions = ['((A wedge B) boxright C)']
 
 ### VALID ###
 
-# # FACTIVITY MIGHT
-# premises = ['A','B']
-# conclusions = ['(A circleright B)']
+# # CF1: COUNTERFACTUAL IDENTITY
+# N = 3
+# premises = []
+# conclusions = ['(A boxright A)']
 
-# premises = ['A','(A rightarrow B)']
-# conclusions = ['B']
-
-# premises = ['Box (A rightarrow B)']
-# conclusions = ['(A boxright B)']
-
-# premises = ['((A vee B) boxright C)']
-# conclusions = ['(A boxright C)']
-
-# premises = ['(A boxright C)','(B boxright C)','((A wedge B) boxright C)']
-# conclusions = ['((A vee B) boxright C)']
-
-# premises = ['(A boxright (B wedge C))']
-# conclusions = ['(A boxright B)']
-
-# # NOTE: with Z3 quantifiers 8.4 seconds locally; now .0372 seconds locally
-# premises = ['(A boxright B)','(A boxright C)']
-# conclusions = ['(A boxright (B wedge C))']
-
-# # COUNTERFACTUAL MODUS PONENS
+# # CF2: COUNTERFACTUAL MODUS PONENS
+# N = 3
 # premises = ['A','(A boxright B)']
 # conclusions = ['B']
 
-# premises = ['((A vee B) boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
-
-# # WEAKENED TRANSITIVITY
-# # NOTE: with Z3 quantifiers ran for 48.3 seconds locally; now .0868 seconds locally
+# # CF3: WEAKENED TRANSITIVITY
+# N = 3
 # premises = ['(A boxright B)','((A wedge B) boxright C)']
 # conclusions = ['(A boxright C)']
+
+# # CF4: ANTECEDENT DISJUNCTION TO CONJUNCTION
+# N = 3
+# premises = ['((A \\vee B) \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+
+# # CF5: SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+# N = 3
+# premises = ['((A vee B) boxright C)']
+# conclusions = ['(A boxright C)']
+
+# # CF6: DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+# N = 3
+# premises = ['((A vee B) boxright C)']
+# conclusions = ['((A boxright C) wedge (B boxright C))']
+
+# # CF7:
+# N = 3
+# premises = ['(A boxright C)', '(B boxright C)', '((A wedge B) boxright C)']
+# conclusions = ['((A vee B) boxright C)']
+
+# # CF8:
+# N = 3
+# premises = ['(A boxright (B wedge C))']
+# conclusions = ['(A boxright B)']
+
+# # CF9:
+# N = 3
+# premises = ['(A boxright B)','(A boxright C)']
+# conclusions = ['(A boxright (B wedge C))']
+
+# # CF10: FACTIVITY MIGHT
+# N = 3
+# premises = ['A','B']
+# conclusions = ['(A circleright B)']

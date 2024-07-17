@@ -4,33 +4,28 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Update
 
-
 ## v0.5 Release 
 
-- [.] unit tests
+- [:] unit tests
   - [.] pytest
     - [x] get working
     - [ ] add documentation
   - [.] rework `test_sat.py` as `test_counterfactual.py`
-  - [ ] create `test_constitutive.py`
-  - [ ] create `test_modal.py`
-  - [ ] create `test_relevance.py`
-- [ ] fix imports
-  - [x] create issue
-  - [ ] ask oliver
+  - [ ] extensional
+  - [ ] modal
+  - [ ] constitutive
+  - [ ] relevance
+- [ ] test for false-premise and true-conclusion models
+  - [ ] relevance
+  - [ ] essence
+  - [ ] ground
+  - [ ] identity
+  - [ ] counterfactual
 - [ ] finite quantifiers
   - [:] debug
     - [x] forall
     - [ ] exists
   - [:] test
-  - [ ] create Z3 issue
-  - [.] email CS faculty
-    - [x] https://people.csail.mit.edu/mcarbin/ -- Michael Carbin
-    - [x] http://adam.chlipala.net/ -- Adam Chlipala
-    - [.] https://people.csail.mit.edu/asolar/ -- Armando Solar-Lezama
-    - [ ] https://people.csail.mit.edu/henrycg/ -- Henry Corrigan-Gibbs
-    - [ ] https://www.csail.mit.edu/person/frans-kaashoek -- Frans Kaashoek
-    - [ ] https://people.csail.mit.edu/mengjia/ -- Megjia Yan
 - [ ] primitive imposition
   - [ ] implement
   - [ ] test
@@ -38,31 +33,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] finite quantifiers
   - [ ] possible verifiers and falsifiers
   - [ ] check syntax by runs infix after prefix, printing both
-- [ ] fix true conclusion models
-  - [ ] relevance
-  - [ ] essence
-  - [ ] ground
-  - [ ] identity
-  - [ ] counterfactual
-- [:] unit tests
-  - [ ] extensional
-  - [ ] modal
-  - [ ] counterfactual
-  - [ ] constitutive
-  - [ ] relevance
-- [.] documentation
-  - [x] _M_ doc strings for functions
-  - [x] _M_ revise architecture description
-  - [x] _B_ architecture description
-  - [x] _B_ expanded READMEs
-  - [ ] _B_ revise pypi readme
-  - [ ] _B_ revise github readme
-  - [ ] _B_ semantics doc
-  - [ ] _B_ rewrite architecture
-- [ ] clean up project directory
-  - [ ] todos
-  - [ ] docs
-  - [ ] pdf
 
 ## Future Release
 
@@ -81,8 +51,41 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] save model data structures
   - [ ] design workflow
 
+## Z3 Research
+
+- [ ] document problems
+  - [ ] no quantifiers
+  - [ ]
+- [ ] create Z3 issue
+- [.] email CS faculty
+  - [x] https://people.csail.mit.edu/mcarbin/ -- Michael Carbin
+  - [x] http://adam.chlipala.net/ -- Adam Chlipala
+  - [.] https://people.csail.mit.edu/asolar/ -- Armando Solar-Lezama
+  - [ ] https://people.csail.mit.edu/henrycg/ -- Henry Corrigan-Gibbs
+  - [ ] https://www.csail.mit.edu/person/frans-kaashoek -- Frans Kaashoek
+  - [ ] https://people.csail.mit.edu/mengjia/ -- Megjia Yan
+
+## Documentation
+
+- [.] documentation
+  - [x] _M_ doc strings for functions
+  - [x] _M_ revise architecture description
+  - [x] _B_ architecture description
+  - [x] _B_ expanded READMEs
+  - [ ] _B_ revise pypi readme
+  - [ ] _B_ revise github readme
+  - [ ] _B_ semantics doc
+  - [ ] _B_ rewrite architecture
+- [ ] clean up project directory
+  - [ ] todos
+  - [ ] docs
+  - [ ] pdf
+
 ## Refine and Optimize
 
+- [ ] fix imports
+  - [x] create issue
+  - [ ] ask oliver
 - [ ] test exhaustivity
   - [ ] prove bivalence
 
