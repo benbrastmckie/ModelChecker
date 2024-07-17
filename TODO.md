@@ -7,11 +7,21 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## v0.5 Release 
 
+- [.] unit tests
+  - [.] pytest
+    - [x] get working
+    - [ ] add documentation
+  - [.] rework `test_sat.py` as `test_counterfactual.py`
+  - [ ] create `test_constitutive.py`
+  - [ ] create `test_modal.py`
+  - [ ] create `test_relevance.py`
 - [ ] fix imports
   - [x] create issue
   - [ ] ask oliver
 - [ ] finite quantifiers
   - [:] debug
+    - [x] forall
+    - [ ] exists
   - [:] test
   - [ ] create Z3 issue
   - [.] email CS faculty
