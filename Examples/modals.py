@@ -62,10 +62,10 @@ save_bool = False
 # premises = ['Box A']
 # conclusions = ['Box Box A']
 
-# # B AXIOM (TOP)
-# # SLOW: crashed locally; MIT servers found a model in 1600 seconds
-# premises = ['A']
-# conclusions = ['(top boxright neg (top boxright neg A))']
+# B AXIOM (TOP)
+# NOTE: with Z3 quantifiers MIT ran for 1600 seconds; now .0328 seconds locally
+premises = ['A']
+conclusions = ['(top boxright neg (top boxright neg A))']
 
 # # B AXIOM (BOX)
 # premises = ['A']
