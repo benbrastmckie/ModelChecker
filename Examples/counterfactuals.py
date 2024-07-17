@@ -32,77 +32,97 @@ save_bool = False
 
 ### INVALID ###
 
-# NOTE: DOES NOT FIND COUNTERMODEL
-N = 2
-premises = ['(A \\boxright (B \\boxright C))']
-conclusions = ['((A \\wedge B) \\boxright C)']
+# # CFCM1
+# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+premises = ['(A boxright C)']
+conclusions = ['((A wedge B) boxright C)']
 
-# # # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# premises = ['(A boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
-
+# # CFCM2
 # # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # premises = ['(A circleright C)']
 # conclusions = ['((A wedge B) circleright C)']
 
+# # CFCM3
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # premises = ['(A boxright C)', 'Diamond (A wedge B)']
 # conclusions = ['((A wedge B) boxright C)']
 
+# # CFCM4
 # # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
-# # SLOW: requires N = 4 and 242 seconds on the MIT server
+# # NOTE: with Z3 quantifiers ran for 242 seconds on the MIT server; now .1928 seconds locally
 # N = 4
 # premises = ['neg A','(A boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 
+# # CFCM5
 # # COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
-# # SLOW: requires N = 4 and 347 seconds on the MIT server
+# # NOTE: with Z3 quantifiers ran for 347 seconds on the MIT server; now .1949 seconds locally
 # N = 4
 # premises = ['(A boxright C)','(B boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 
+# # CFCM6
 # # COUNTERFACTUAL CONTRAPOSITION
 # premises = ['(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 
+# # CFCM7
 # # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
-# # SLOW: requires N = 4 and 125 seconds on the MIT server
+# # NOTE: with Z3 quantifiers ran for 125 seconds on the MIT server; now .181 seconds locally
 # N = 4
 # premises = ['neg B','(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 
+# # CFCM8
+# # COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
+# N = 4
+# premises = ['neg A','neg B','(A boxright B)']
+# conclusions = ['(neg B boxright neg A)']
+
+# # CFCM9
 # # TRANSITIVITY
 # premises = ['(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 
+# # CFCM10
 # # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
-# # SLOW: 78 seconds on the MIT server
+# # NOTE: with Z3 quantifiers 78 seconds on the MIT server; now .1311 seconds locally
 # N = 4
 # premises = ['neg A','(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 
+# # CFCM11
+# # COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
+# N = 4
+# premises = ['neg A','neg B','(A boxright B)','(B boxright C)']
+# conclusions = ['(A boxright C)']
+
+# # CFCM12
 # # SOBEL SEQUENCE (N = 3)
+# N = 3
 # premises = [
 #     '(A boxright X)', # 0.03 seconds locally
 #     'neg ((A wedge B) boxright X)', # 1.4 seconds locally
 #     '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
-#     # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # 7.8 seconds locally
+#     # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # FALSE PREMISE MODELS BEGIN HERE
 #     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # 20.5 seconds locally
 #     # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # 64 seconds on the MIT servers
-#     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # 327.2 seconds on the MIT servers
+#     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
 # ]
 # conclusions = []
 
+# # CFCM13
 # # SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
+# N = 4
 # premises = [
 #     'Diamond A',
-#     '(A boxright X)', # 0.7 seconds locally
+#     '(A boxright X)',
 #     'Diamond (A wedge B)',
-#     'neg ((A wedge B) boxright X)', # N = 3 took 4.8 seconds N = 4 took 155.4 seconds on the MIT servers
-#     # 'Diamond ((A wedge B) wedge C)',
-#     # '(((A wedge B) wedge C) boxright X)', # ? seconds
-#     # 'Diamond (((A wedge B) wedge C) wedge D)',
-#     # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # ? seconds
+#     'neg ((A wedge B) boxright X)', # N = 4: 155.4 seconds on the MIT servers; now .1587 seconds
+#     'Diamond ((A wedge B) wedge C)',
+#     '(((A wedge B) wedge C) boxright X)',
+#     'Diamond (((A wedge B) wedge C) wedge D)', # requires N > 3 to avoid FALSE PREMISE
+#     # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # FALSE PREMISE MODELS BEGIN HERE
 #     # 'Diamond ((((A wedge B) wedge C) wedge D) wedge E)',
 #     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # ? seconds
 #     # 'Diamond (((((A wedge B) wedge C) wedge D) wedge E) wedge F)',
@@ -112,35 +132,47 @@ conclusions = ['((A \\wedge B) \\boxright C)']
 # ]
 # conclusions = []
 
+# # CFCM14
 # # COUNTERFACTUAL EXCLUDED MIDDLE
 # premises = ['neg A']
 # conclusions = ['(A boxright B)','(A boxright neg B)']
 
+# # CFCM15
 # # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
 # premises = ['neg A','(A boxright (B vee C))']
 # conclusions = ['(A boxright B)','(A boxright C)']
 
-# # # DISJUNCTIVE ANTECEDENT
-# N = 4 # ran for 40 seconds locally
+# # CFCM16
+# # DISJUNCTIVE ANTECEDENT
+# N = 4 # NOTE: with Z3 quantifiers for 40 seconds locally; now .2785 seconds locally
 # premises = ['(A boxright C)','(B boxright C)']
 # conclusions = ['((A vee B) boxright C)']
 
+# # CFCM17
+# # CONJUNCTIVE ANTECEDENT
+# N = 4
+# premises = ['(A \\boxright C)', '(B \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+
+# # CFCM18
 # # MUST FACTIVITY
 # premises = ['A','B']
 # conclusions = ['(A boxright B)']
 
+# # CFCM19
 # # COUNTERFACTUAL EXPORTATION
 # premises = ['((A wedge B) boxright C)']
 # conclusions = ['(A boxright (B boxright C))']
 
+# # CFCM20
 # # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
 # premises = ['((A wedge B) boxright C)','Diamond (A wedge B)']
 # conclusions = ['(A boxright (B boxright C))']
 
-# # COUNTERFACTUAL IMPORTATION
-# # SLOW: MIT servers found a model in 467 seconds
-# premises = ['(A boxright (B boxright C))']
-# conclusions = ['((A wedge B) boxright C)']
+# # CFCM21
+# N = 3
+# premises = ['\\neg A','\\neg (A \\boxright B)']
+# conclusions = ['(A \\boxright \\neg B)']
 
 
 
@@ -167,7 +199,7 @@ conclusions = ['((A \\wedge B) \\boxright C)']
 # premises = ['(A boxright (B wedge C))']
 # conclusions = ['(A boxright B)']
 
-# SLOW: 8.4 seconds locally
+# # NOTE: with Z3 quantifiers 8.4 seconds locally; now .0372 seconds locally
 # premises = ['(A boxright B)','(A boxright C)']
 # conclusions = ['(A boxright (B wedge C))']
 
@@ -178,6 +210,7 @@ conclusions = ['((A \\wedge B) \\boxright C)']
 # premises = ['((A vee B) boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 
-# # SLOW: 48.3 seconds locally
+# # WEAKENED TRANSITIVITY
+# # NOTE: with Z3 quantifiers ran for 48.3 seconds locally; now .0868 seconds locally
 # premises = ['(A boxright B)','((A wedge B) boxright C)']
 # conclusions = ['(A boxright C)']

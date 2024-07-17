@@ -37,47 +37,72 @@ save_bool = False
 # premises = ['Box (A rightarrow B)']
 # conclusions = ['(A boxright B)']
 
-# # K axiom (box)
+# # k AXIOM (BOX)
 # premises = ['Box (A rightarrow B)']
 # conclusions = ['(Box A rightarrow Box B)']
 
-# # T axiom (top)
+# # K AXIOM (TOP)
+# premises = ['(top boxright (A rightarrow B))']
+# conclusions = ['((top boxright A) rightarrow (top boxright B))']
+
+# # T AXIOM (TOP)
 # # SLOW: crashed locally; MIT servers found a model in 5 seconds
 # premises = ['(top boxright A)']
 # conclusions = ['A']
 
-# # T axiom (box)
+# # T AXIOM (BOX)
 # premises = ['Box A']
 # conclusions = ['A']
 
-# # 4 axiom (top)
+# # 4 AXIOM (TOP)
 # premises = ['(top boxright A)']
 # conclusions = ['(top boxright (top boxright A))']
 
-# # 4 axiom (box)
+# # 4 AXIOM (BOX)
 # premises = ['Box A']
 # conclusions = ['Box Box A']
 
-# # B axiom (top)
+# # B AXIOM (TOP)
 # # SLOW: crashed locally; MIT servers found a model in 1600 seconds
 # premises = ['A']
 # conclusions = ['(top boxright neg (top boxright neg A))']
 
-# # B axiom (box)
+# # B AXIOM (BOX)
 # premises = ['A']
 # conclusions = ['Box Diamond A']
 
-# # 5 axiom (top)
+# # 5 AXIOM (TOP)
 # # SLOW: 12.9 seconds locally
 # premises = ['(top boxright A)']
 # conclusions = ['(top boxright neg (top boxright neg A))']
 
-# # 5 axiom (box)
+# # 5 AXIOM (BOX)
 # premises = ['Box A']
 # conclusions = ['Box Diamond A']
 
-# # box-to-top equivalence
+# # BOX-TO-TOP EQUIVALENCE
 # premises = ['Box A']
 # conclusions = ['(top boxright A)']
 
+# # TOP-TO-BOX EQUIVALENCE
+# premises = ['(top boxright A)']
+# conclusions = ['Box A']
+
+# # NECESSARY EQUIVALENCE
 # conclusions = ['Box ((A vee neg A) leftrightarrow (B vee neg B))']
+
+
+
+
+
+################################
+######## COUNTERMODELS #########
+################################
+
+# # NECESSITATED ARGUMENTS COUNTERFACTUAL MODUS PONENS
+# premises = ['Box A','(A boxright B)']
+# conclusions = ['Box B']
+
+# # COUNTERFACTUAL IMPLIES STRICT CONDITIONAL
+# premises = ['(A boxright B)']
+# conclusions = ['Box (A rightarrow B)']

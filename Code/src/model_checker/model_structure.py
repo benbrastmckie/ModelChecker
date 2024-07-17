@@ -5,7 +5,7 @@ file defines model structure class given a Z3 model sdffds
 from string import Template
 import time
 import sys
-import os
+# import os
 from z3 import (
     Function,
     BitVecSort,
