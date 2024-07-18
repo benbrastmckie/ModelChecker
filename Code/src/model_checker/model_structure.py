@@ -126,7 +126,7 @@ class ModelSetup:
         self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
         self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
         self.possible = Function("possible", BitVecSort(N), BoolSort())
-        self.assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
+        # self.assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
         self.w = BitVec("w", N) # what will be the main world
         self.prefix_premises = [prefix(prem) for prem in infix_premises]
         # M: I think below is a problem
@@ -137,7 +137,7 @@ class ModelSetup:
             self.verify,
             self.falsify,
             self.possible,
-            self.assign,
+            # self.assign,
             self.N,
         )
         frame_cons, prop_cons, premise_cons, conclusion_cons = find_constraints_func(
