@@ -6,26 +6,31 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## v0.5 Release 
 
+- [.] finite quantifiers
+  - [:] debug
+    - [x] forall
+    - [ ] exists
+  - [:] test
 - [:] unit tests
+  - [x] tests
+    - [x] counterfactual
+    - [.] extensional
+    - [.] interaction
+    - [ ] modal
+    - [ ] constitutive
+    - [ ] relevance
+  - [ ] complexity
+    - [ ] find minimal countermodel
+    - [ ] test validity up to timeout
   - [.] pytest
     - [x] get working
     - [ ] add documentation
-  - [.] rework `test_sat.py` as `test_counterfactual.py`
-  - [ ] extensional
-  - [ ] modal
-  - [ ] constitutive
-  - [ ] relevance
 - [ ] test for false-premise and true-conclusion models
   - [ ] relevance
   - [ ] essence
   - [ ] ground
   - [ ] identity
   - [ ] counterfactual
-- [ ] finite quantifiers
-  - [:] debug
-    - [x] forall
-    - [ ] exists
-  - [:] test
 - [ ] primitive imposition
   - [ ] implement
   - [ ] test
