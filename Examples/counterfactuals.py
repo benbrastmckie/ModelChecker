@@ -12,7 +12,7 @@ file_name = os.path.basename(__file__)
 # number of atomic states
 N = 3
 
-# time cutoff for increasing N
+# find critical value of N
 optimize = False
 
 # time cutoff for increasing N
@@ -20,9 +20,6 @@ max_time = 2
 
 # print all Z3 constraints if a model is found
 print_cons_bool = False
-
-# print core unsatisfiable Z3 constraints if no model exists
-print_unsat_core_bool = True
 
 # print all states including impossible states
 print_impossible_states_bool = False
@@ -38,10 +35,10 @@ save_bool = False
 
 ### INVALID ###
 
-# # # CFCM1
-# # # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# premises = ['(A boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
+# # CFCM1
+# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+premises = ['(A boxright C)']
+conclusions = ['((A wedge B) boxright C)']
 
 # # CFCM2
 # # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
@@ -117,26 +114,26 @@ save_bool = False
 # ]
 # conclusions = []
 
-# # CFCM13
-# # SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
-# N = 4
-# premises = [
-#     'Diamond A',
-#     '(A boxright X)',
-#     'Diamond (A wedge B)',
-#     'neg ((A wedge B) boxright X)', # N = 4: 155.4 seconds on the MIT servers; now .1587 seconds
-#     'Diamond ((A wedge B) wedge C)',
-#     '(((A wedge B) wedge C) boxright X)',
-#     'Diamond (((A wedge B) wedge C) wedge D)', # requires N > 3 to avoid FALSE PREMISE
-#     # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # FALSE PREMISE MODELS BEGIN HERE
-#     # 'Diamond ((((A wedge B) wedge C) wedge D) wedge E)',
-#     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # ? seconds
-#     # 'Diamond (((((A wedge B) wedge C) wedge D) wedge E) wedge F)',
-#     # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # ? seconds
-#     # 'Diamond ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G)',
-#     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # ? seconds
-# ]
-# conclusions = []
+# CFCM13
+# SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
+N = 6
+premises = [
+    'Diamond A',
+    '(A boxright X)',
+    'Diamond (A wedge B)',
+    'neg ((A wedge B) boxright X)', # N = 4: 155.4 seconds on the MIT servers; now .1587 seconds
+    'Diamond ((A wedge B) wedge C)',
+    '(((A wedge B) wedge C) boxright X)',
+    'Diamond (((A wedge B) wedge C) wedge D)', # requires N > 3 to avoid FALSE PREMISE
+    # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # FALSE PREMISE MODELS BEGIN HERE
+    # 'Diamond ((((A wedge B) wedge C) wedge D) wedge E)',
+    # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # ? seconds
+    # 'Diamond (((((A wedge B) wedge C) wedge D) wedge E) wedge F)',
+    # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # ? seconds
+    # 'Diamond ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G)',
+    # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # ? seconds
+]
+conclusions = []
 
 # # CFCM14
 # # COUNTERFACTUAL EXCLUDED MIDDLE
@@ -180,10 +177,10 @@ save_bool = False
 
 ### VALID ###
 
-# CF1: COUNTERFACTUAL IDENTITY
-N = 3
-premises = []
-conclusions = ['(A boxright A)']
+# # CF1: COUNTERFACTUAL IDENTITY
+# N = 3
+# premises = []
+# conclusions = ['(A boxright A)']
 
 # # CF2: COUNTERFACTUAL MODUS PONENS
 # N = 3

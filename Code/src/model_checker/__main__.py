@@ -53,17 +53,20 @@ file_name = os.path.basename(__file__)
 # number of atomic states
 N = 3
 
+# time cutoff for increasing N
+optimize = False
+
+# time cutoff for increasing N
+max_time = 1
+
 # print all Z3 constraints if a model is found
 print_cons_bool = False
 
-# print core unsatisfiable Z3 constraints if no model exists
-print_unsat_core_bool = True
+# print all states including impossible states
+print_impossible_states_bool = False
 
 # present option to append output to file
 save_bool = False
-
-# print all states including impossible states
-print_impossible_states_bool = False
 
 
 ################################
@@ -127,7 +130,6 @@ class LoadModule:
             "max_time": 5,
             "optimize": False,
             "print_cons_bool": False,
-            "print_unsat_core_bool": True,
         }
         self.module = self.load_module()
         self.initialize_attributes()
@@ -158,11 +160,6 @@ class LoadModule:
             self.module,
             "print_cons_bool",
             self.default_values["print_cons_bool"]
-        )
-        self.print_unsat_core_bool = getattr(
-            self.module,
-            "print_unsat_core_bool",
-            self.default_values["print_unsat_core_bool"]
         )
         self.print_impossible_states_bool = getattr(
             self.module,
@@ -319,17 +316,17 @@ def ask_save():
     )
     return file_name, print_cons
 
-def no_model_save_or_append(module, model_structure, file_name, print_cons):
+def no_model_save_or_append(module, model_structure, file_name):
     """option to save or append if no model is found"""
     if len(file_name) == 0:
         with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
             print('\n"""', file=f)
-            model_structure.no_model_print(print_cons, f)
+            model_structure.no_model_print(f)
             print('"""', file=f)
         return
     with open(f"{module.parent_directory}/{file_name}.py", 'w', encoding="utf-8") as n:
         print(f'# TITLE: {file_name}.py generated from {module.parent_file}\n"""', file=n)
-        model_structure.no_model_save(print_cons, n)
+        model_structure.no_model_save(n)
     print()
 
 
@@ -349,7 +346,6 @@ def save_or_append(module, structure, file_name, print_cons, print_imposs):
 def optimize_N(module, past_module=None, past_model_setup=None, sat=False):
     """finds the min value of N for there to be a model up to a timeout limit"""
     model_setup = make_model_for(module.N, module.premises, module.conclusions, module.max_time)
-    # TODO: add max_time to make_model_for itself to timeout
     if model_setup.model_status:
         sat = True
         past_module = module
@@ -358,12 +354,16 @@ def optimize_N(module, past_module=None, past_model_setup=None, sat=False):
         return min_module, model_setup
     if sat:
         return past_module, past_model_setup
-    if model_setup.model_runtime < module.max_time:
+    if model_setup.model_runtime < model_setup.max_time:
         past_module = module
         module.N += 1
         max_module, model_setup = optimize_N(module, past_module, model_setup, sat)
         return max_module, model_setup
-    return module, model_setup
+    if model_setup.timeout:
+        return past_module, past_model_setup
+    raise ValueError(
+        f"Something has gone wrong in optimize_N."
+    )
 
 def main():
     """load a test or generate a test when run without input"""
@@ -390,6 +390,10 @@ def main():
         module, model_setup = optimize_N(module)
     else:
         model_setup = make_model_for(module.N, module.premises, module.conclusions, module.max_time)
+    if model_setup.timeout:
+        print(f"Model timed out at {model_setup.model_runtime}.")
+        print(f"Consider increasing max_time > {model_setup.max_time}.")
+        return
     if model_setup.model_status:
         states_print = StateSpace(model_setup)
         states_print.print_to(print_cons, print_imposs)
@@ -397,11 +401,10 @@ def main():
             file_name, print_cons = ask_save()
             save_or_append(module, states_print, file_name, print_cons, print_imposs)
         return
-    print_unsat = module.print_unsat_core_bool or args.constraints
-    model_setup.no_model_print(print_unsat)
+    model_setup.no_model_print()
     if save_model:
         file_name, print_cons = ask_save()
-        no_model_save_or_append(module, model_setup, file_name, print_unsat)
+        no_model_save_or_append(module, model_setup, file_name)
 
 if __name__ == "__main__":
     main()

@@ -12,6 +12,8 @@ def check_model_status(premises, conclusions, desired, N):
     mod_setup = make_model_for(N, premises, conclusions, max_time)
     mod_status = mod_setup.model_status
     mod_time = mod_setup.model_runtime
+    mod_timeout = mod_setup.timeout
+    assert (mod_timeout is False), f'Model timed out. Consider increasing max_time to be > {max_time}.'
     assert (mod_status == desired), failure_string(desired, premises, conclusions, mod_time)
 
 def find_model_status(premises, conclusions, desired, N):

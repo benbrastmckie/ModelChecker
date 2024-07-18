@@ -30,6 +30,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] flags
   - [ ] possible verifiers and falsifiers
   - [ ] check syntax by runs infix after prefix, printing both
+  - [x] remove `print_unsat_core`
   - [x] timeout
 - [x] complexity
   - [x] timeout on each run
