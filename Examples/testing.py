@@ -10,16 +10,22 @@ file_name = os.path.basename(__file__)
 ################################
 
 # number of atomic states
-N = 3
+N = 5
+
+# find critical value of N
+optimize = False
+
+# time cutoff for increasing N
+max_time = 1
+
+# make all propositions contingent
+contingent = False
 
 # print all Z3 constraints if a model is found
 print_cons_bool = False
 
-# print core unsatisfiable Z3 constraints if no model exists
-print_unsat_core_bool = True
-
 # print all states including impossible states
-print_impossible_states_bool = True
+print_impossible_states_bool = False
 
 # present option to append output to file
 save_bool = False
@@ -81,7 +87,7 @@ save_bool = False
 # premises = ['(A boxright (B boxright C))','Diamond (A wedge B)']
 # conclusions = ['((A wedge B) boxright C)']
 
-# # COUNTERFACTUAL IMPORTATION
-# # NOTE: MIT servers found a model in 467 seconds with Z3 quantifiers
-# premises = ['(A boxright (B boxright C))']
-# conclusions = ['((A wedge B) boxright C)']
+# COUNTERFACTUAL IMPORTATION
+# NOTE: MIT servers found a model in 467 seconds with Z3 quantifiers
+premises = ['(A boxright (B boxright C))']
+conclusions = ['((A wedge B) boxright C)']

@@ -105,7 +105,7 @@ def all_sentence_letters(prefix_sentences):
     # sort just to make every output the same, given sets aren't hashable
 
 
-def define_N_semantics(verify, falsify, possible, N): # assign, 
+def define_N_semantics(contingent, verify, falsify, possible, N): # assign, non_null,
     # NOTE: just thought of this—we could make the options to do non_null or non_triv optional.
     # Like it coulld be an optional argument put into the model at the top level, just like
     # unsat_core is. Let me below know if you think that's a good idea or if it wouln't be useful.
@@ -847,9 +847,27 @@ def define_N_semantics(verify, falsify, possible, N): # assign,
         """
         x = BitVec("prop_x", N)
         y = BitVec("prop_y", N)
-        sent_to_prop = [
+        null_cons = [
             Not(verify(0, atom)),
             Not(falsify(0, atom)),
+        ]
+        cont_cons = [
+            Exists(
+                x,
+                And(
+                    possible(x),
+                    verify(x, atom),
+                )
+            ),
+            Exists(
+                y,
+                And(
+                    possible(y),
+                    falsify(y, atom),
+                )
+            ),
+        ]
+        prop_cons = [
             ForAll(
                 [x, y],
                 Implies(
@@ -890,7 +908,11 @@ def define_N_semantics(verify, falsify, possible, N): # assign,
             #     ),
             # ),
         ]
-        return sent_to_prop
+        # if non_null:
+        #     prop_cons.extend(null_cons)
+        if contingent:
+            prop_cons.extend(cont_cons)
+        return null_cons + prop_cons
 
     def find_frame_constraints(main_world):
         """returns constraints that govern how states act:

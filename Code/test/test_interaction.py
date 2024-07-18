@@ -1,12 +1,14 @@
 """run 'pytest' from the '.../Code' directory"""
 import pytest
-from .utils import check_model_status
-
+from .utils import (
+    check_model_status,
+    max_time,
+)
 
 
 ### INVALID ###
 
-# @pytest.mark.timeout(5)
+# @pytest.mark.timeout(max_time)
 # def test_INT_CM1():
 #     N = 3
 #     premises = []
@@ -20,7 +22,7 @@ from .utils import check_model_status
 
 ### VALID ###
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_INT1():
     N = 3
     premises = ['Box (A rightarrow B)']

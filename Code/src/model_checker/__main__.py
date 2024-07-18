@@ -59,6 +59,9 @@ optimize = False
 # time cutoff for increasing N
 max_time = 1
 
+# make all propositions contingent
+contingent = False
+
 # print all Z3 constraints if a model is found
 print_cons_bool = False
 
@@ -127,6 +130,7 @@ class LoadModule:
             "N": 3,
             "premises": [],
             "conclusions": [],
+            "contingent": False,
             "max_time": 5,
             "optimize": False,
             "print_cons_bool": False,
@@ -154,6 +158,7 @@ class LoadModule:
         self.N = getattr(self.module, "N", self.default_values["N"])
         self.premises = getattr(self.module, "premises", self.default_values["premises"])
         self.conclusions = getattr(self.module, "conclusions", self.default_values["conclusions"])
+        self.contingent = getattr(self.module, "contingent", self.default_values["contingent"])
         self.max_time = getattr(self.module, "max_time", self.default_values["max_time"])
         self.optimize = getattr(self.module, "optimize", self.default_values["optimize"])
         self.print_cons_bool = getattr(
@@ -197,10 +202,16 @@ def parse_file_and_flags():
         help="Specifies the path to a Python.",
     )
     parser.add_argument(
-        '--constraints',
+        '--contingent',
         '-c',
         action='store_true',
-        help='Overrides to include all Z3 constraints.'
+        help='Overrides to make all propositions contingent.'
+    )
+    parser.add_argument(
+        '--print',
+        '-p',
+        action='store_true',
+        help='Overrides to print all Z3 constraints.'
     )
     parser.add_argument(
         '--save',
@@ -330,40 +341,57 @@ def no_model_save_or_append(module, model_structure, file_name):
     print()
 
 
-def save_or_append(module, structure, file_name, print_cons, print_imposs):
+def save_or_append(module, model_setup, file_name, print_cons, print_imposs):
     """option to save or append if a model is found"""
     if len(file_name) == 0:
         with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
             print('\n"""', file=f)
-            structure.print_to(print_cons, print_imposs, f)
+            model_setup.print_to(print_cons, print_imposs, f)
             print('"""', file=f)
         return
     with open(f"{module.parent_directory}/{file_name}.py", 'w', encoding="utf-8") as n:
         print(f'# TITLE: {file_name}.py generated from {module.parent_file}\n"""', file=n)
-        structure.save_to(print_cons, print_imposs, n)
+        model_setup.save_to(print_cons, print_imposs, n)
     print()
 
-def optimize_N(module, past_model_setup, past_module=None, sat=False):
-    """finds the min value of N for there to be a model up to a timeout limit"""
-    # model_setup = make_model_for(module.N, module.premises, module.conclusions, module.max_time)
-    if past_model_setup.model_status:
+def adjust(module, offset):
+    """Redefines module and model_setup after adjusting N by the offset."""
+    module.N += offset
+    model_setup = make_model_for(
+        module.N,
+        module.premises,
+        module.conclusions,
+        module.max_time,
+        module.contingent
+    )
+    return module, model_setup
+
+def optimize_N(module, model_setup, past_module, past_model_setup, sat=False):
+    """Finds the min value of N for which there is a model up to a timeout limit."""
+    if model_setup.model_status:
         sat = True
-        past_module = module
-        module.N -= 1
-        min_module, model_setup = optimize_N(module, model_setup, past_module, sat)
-        return min_module, model_setup
+        new_module, new_model_setup = adjust(module, -1)
+        min_module, min_model_setup = optimize_N(
+            new_module,
+            new_model_setup,
+            module,
+            model_setup,
+            sat
+        )
+        return min_module, min_model_setup
     if sat:
         return past_module, past_model_setup
-    if past_model_setup.model_runtime < past_model_setup.max_time:
-        past_module = module
-        module.N += 1
-        max_module, model_setup = optimize_N(module, model_setup, past_module, sat)
-        return max_module, model_setup
-    if past_model_setup.timeout:
-        return past_module, past_model_setup
-    raise ValueError(
-        f"Something has gone wrong in optimize_N."
-    )
+    if model_setup.model_runtime < model_setup.max_time:
+        new_module, new_model_setup = adjust(module, 1)
+        max_module, max_model_setup = optimize_N(
+            new_module,
+            new_model_setup,
+            module,
+            model_setup,
+            sat
+        )
+        return max_module, max_model_setup
+    return past_module, past_model_setup
 
 def main():
     """load a test or generate a test when run without input"""
@@ -385,13 +413,20 @@ def main():
     module = LoadModule(module_name, module_path)
 
     print_imposs = module.print_impossible_states_bool or args.impossible
-    print_cons = module.print_cons_bool or args.constraints
+    print_cons = module.print_cons_bool or args.print
     save_model = module.save_bool or args.save
     optimize_model = module.optimize or args.optimize
+    contingent = module.contingent or args.contingent
 
-    model_setup = make_model_for(module.N, module.premises, module.conclusions, module.max_time)
+    model_setup = make_model_for(
+        module.N,
+        module.premises,
+        module.conclusions,
+        module.max_time,
+        contingent,
+    )
     if optimize_model:
-        module, model_setup = optimize_N(module, model_setup)
+        module, model_setup = optimize_N(module, model_setup, module, model_setup)
 
     if model_setup.timeout:
         print(f"Model timed out at {model_setup.model_runtime}.")

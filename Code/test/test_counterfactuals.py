@@ -1,13 +1,16 @@
 """run 'pytest' from the '.../Code' directory"""
 import pytest
-from .utils import check_model_status
+from .utils import (
+    check_model_status,
+    max_time,
+)
 
 
 
 
 ### INVALID ###
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM1():
 # COUNTERFACTUAL ANTECEDENT STRENGTHENING
     N = 3
@@ -16,7 +19,7 @@ def test_CF_CM1():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM2():
 # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     N = 3
@@ -25,7 +28,7 @@ def test_CF_CM2():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM3():
 # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
     N = 3
@@ -34,7 +37,7 @@ def test_CF_CM3():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM4():
 # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
     N = 4
@@ -43,7 +46,7 @@ def test_CF_CM4():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM5():
 # COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
     N = 4
@@ -53,7 +56,7 @@ def test_CF_CM5():
     check_model_status(premises, conclusions, desired_model_status, N)
 
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM6():
 # COUNTERFACTUAL CONTRAPOSITION
     N = 3
@@ -62,7 +65,7 @@ def test_CF_CM6():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM7():
 # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
     N = 4
@@ -71,7 +74,7 @@ def test_CF_CM7():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM8():
 # COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
     N = 4
@@ -80,7 +83,7 @@ def test_CF_CM8():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM9():
 # TRANSITIVITY
     N = 3
@@ -89,7 +92,7 @@ def test_CF_CM9():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM10():
 # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
     N = 4
@@ -98,7 +101,7 @@ def test_CF_CM10():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM11():
 # COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
     N = 4
@@ -107,7 +110,7 @@ def test_CF_CM11():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM12():
 # SOBEL SEQUENCE (N = 3)
     N = 3
@@ -120,7 +123,7 @@ def test_CF_CM12():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM13():
 # SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
     N = 4
@@ -137,7 +140,7 @@ def test_CF_CM13():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM14():
 # COUNTERFACTUAL EXCLUDED MIDDLE
     N = 3
@@ -146,7 +149,7 @@ def test_CF_CM14():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM15():
 # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
     N = 3
@@ -155,7 +158,7 @@ def test_CF_CM15():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM16():
 # INTRODUCTION OF DISJUNCTIVE ANTECEDENT
     N = 4
@@ -164,7 +167,7 @@ def test_CF_CM16():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM17():
 # MUST FACTIVITY
     N = 3
@@ -173,7 +176,7 @@ def test_CF_CM17():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM18():
 # COUNTERFACTUAL EXPORTATION
     N = 3
@@ -182,7 +185,7 @@ def test_CF_CM18():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM19():
 # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
     N = 3
@@ -191,7 +194,7 @@ def test_CF_CM19():
     desired_model_status = True
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF_CM20():
 # COUNTERFACTUAL EXCLUDED MIDDLE VARIANT
     N = 3
@@ -218,7 +221,7 @@ def test_CF_CM20():
 
 ### VALID ###
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF1():
     """COUNTERFACTUAL IDENTITY"""
     N = 3
@@ -227,7 +230,7 @@ def test_CF1():
     desired_model_status = False
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF2():
     """COUNTERFACTUAL MODUS PONENS"""
     N = 3
@@ -236,7 +239,7 @@ def test_CF2():
     desired_model_status = False
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF3():
     """WEAKENED TRANSITIVITY"""
     N = 3
@@ -245,7 +248,7 @@ def test_CF3():
     desired_model_status = False
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF4():
     """ANTECEDENT DISJUNCTION TO CONJUNCTION"""
     N = 3
@@ -254,7 +257,7 @@ def test_CF4():
     desired_model_status = False
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF5():
     """SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT"""
     N = 3
@@ -263,7 +266,7 @@ def test_CF5():
     desired_model_status = False
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF6():
     """DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT"""
     N = 3
@@ -272,7 +275,7 @@ def test_CF6():
     desired_model_status = False
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF7():
     N = 3
     premises = ['(A boxright C)', '(B boxright C)', '((A wedge B) boxright C)']
@@ -280,7 +283,7 @@ def test_CF7():
     desired_model_status = False
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF8():
     N = 3
     premises = ['(A boxright (B wedge C))']
@@ -288,7 +291,7 @@ def test_CF8():
     desired_model_status = False
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF9():
     N = 3
     premises = ['(A boxright B)','(A boxright C)']
@@ -296,7 +299,7 @@ def test_CF9():
     desired_model_status = False
     check_model_status(premises, conclusions, desired_model_status, N)
 
-@pytest.mark.timeout(5)
+@pytest.mark.timeout(max_time)
 def test_CF10():
 # FACTIVITY MIGHT
     N = 3

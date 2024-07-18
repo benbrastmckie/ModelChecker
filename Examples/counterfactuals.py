@@ -16,7 +16,10 @@ N = 3
 optimize = False
 
 # time cutoff for increasing N
-max_time = 2
+max_time = 1
+
+# make all propositions contingent
+contingent = False
 
 # print all Z3 constraints if a model is found
 print_cons_bool = False

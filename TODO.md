@@ -6,18 +6,16 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## v0.5 Release 
 
-- [ ] remove assign skolem function
-- [ ] flags
-  - [ ] possible verifiers and falsifiers
-  - [ ] check syntax by runs infix after prefix, printing both
-  - [x] remove `print_unsat_core`
-  - [x] timeout
+- [ ] primitive imposition
+  - [ ] implement
+  - [ ] test
 - [:] unit tests
   - [x] tests
     - [x] counterfactual
     - [.] extensional
     - [.] interaction
-    - [ ] modal
+    - [:] modal
+      - [ ] debug CM2
     - [ ] constitutive
     - [ ] relevance
   - [.] pytest
@@ -29,13 +27,16 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] ground
   - [ ] identity
   - [ ] counterfactual
-- [ ] primitive imposition
-  - [ ] implement
-  - [ ] test
+- [ ] add examples to test file
 - [x] complexity
   - [x] timeout on each run
   - [x] find minimal countermodel
   - [x] test validity up to timeout
+- [x] remove assign skolem function
+- [x] flags
+  - [x] possible verifiers and falsifiers
+  - [x] remove `print_unsat_core`
+  - [x] timeout
 
 ## Future Release
 
