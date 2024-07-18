@@ -114,26 +114,26 @@ conclusions = ['((A wedge B) boxright C)']
 # ]
 # conclusions = []
 
-# CFCM13
-# SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
-N = 6
-premises = [
-    'Diamond A',
-    '(A boxright X)',
-    'Diamond (A wedge B)',
-    'neg ((A wedge B) boxright X)', # N = 4: 155.4 seconds on the MIT servers; now .1587 seconds
-    'Diamond ((A wedge B) wedge C)',
-    '(((A wedge B) wedge C) boxright X)',
-    'Diamond (((A wedge B) wedge C) wedge D)', # requires N > 3 to avoid FALSE PREMISE
-    # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # FALSE PREMISE MODELS BEGIN HERE
-    # 'Diamond ((((A wedge B) wedge C) wedge D) wedge E)',
-    # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # ? seconds
-    # 'Diamond (((((A wedge B) wedge C) wedge D) wedge E) wedge F)',
-    # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # ? seconds
-    # 'Diamond ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G)',
-    # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # ? seconds
-]
-conclusions = []
+# # CFCM13
+# # SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
+# N = 6
+# premises = [
+#     'Diamond A',
+#     '(A boxright X)',
+#     'Diamond (A wedge B)',
+#     'neg ((A wedge B) boxright X)', # N = 4: 155.4 seconds on the MIT servers; now .1587 seconds
+#     'Diamond ((A wedge B) wedge C)',
+#     '(((A wedge B) wedge C) boxright X)',
+#     'Diamond (((A wedge B) wedge C) wedge D)', # requires N > 3 to avoid FALSE PREMISE
+#     # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # FALSE PREMISE MODELS BEGIN HERE
+#     # 'Diamond ((((A wedge B) wedge C) wedge D) wedge E)',
+#     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # ? seconds
+#     # 'Diamond (((((A wedge B) wedge C) wedge D) wedge E) wedge F)',
+#     # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # ? seconds
+#     # 'Diamond ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G)',
+#     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # ? seconds
+# ]
+# conclusions = []
 
 # # CFCM14
 # # COUNTERFACTUAL EXCLUDED MIDDLE
