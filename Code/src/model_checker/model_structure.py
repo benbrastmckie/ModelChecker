@@ -97,6 +97,9 @@ conclusions = ${conclusions}
 # number of atomic states
 N = ${N}
 
+# make all propositions contingent
+contingent = False
+
 # time cutoff for increasing N
 optimize = False
 
@@ -118,11 +121,12 @@ class ModelSetup:
     """class which includes all elements provided by the user as well as those
     needed to find a model if there is one"""
 
-    def __init__(self, N, infix_premises, infix_conclusions, max_time):
+    def __init__(self, N, infix_premises, infix_conclusions, max_time, contingent):
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
         self.N = N
         self.max_time = max_time
+        self.contingent = contingent
         self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
         self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
         self.possible = Function("possible", BitVecSort(N), BoolSort())
@@ -134,6 +138,8 @@ class ModelSetup:
         prefix_sentences = self.prefix_premises + self.prefix_conclusions
         self.all_subsentences = find_subsentences(prefix_sentences)
         find_constraints_func = define_N_semantics(
+            # self.non_null,
+            self.contingent,
             self.verify,
             self.falsify,
             self.possible,
@@ -645,13 +651,13 @@ class Proposition:
             file=output,
         )
 
-def make_model_for(N, premises, conclusions, max_time):
+def make_model_for(N, premises, conclusions, max_time, contingent):
     """
     input: N (int of number of atomic states you want in the model)
     returns a function that will solve the premises and conclusions"""
     backslash_premises = [add_backslashes_to_infix(prem) for prem in premises]
     backslash_conclusions = [add_backslashes_to_infix(concl) for concl in conclusions]
-    model_setup = ModelSetup(N, backslash_premises, backslash_conclusions, max_time)
+    model_setup = ModelSetup(N, backslash_premises, backslash_conclusions, max_time, contingent)
     # z3_model_status, z3_model, model_runtime = model_setup.solve()
     # model_structure = ModelStructure(z3_model_status, model_setup, z3_model, model_runtime)
     return model_setup
