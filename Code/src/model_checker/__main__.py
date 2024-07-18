@@ -124,12 +124,17 @@ class LoadModule:
             "N": 3,
             "premises": [],
             "conclusions": [],
+            "max_time": 5,
+            "optimize": False,
+            "print_cons_bool": False,
+            "print_unsat_core_bool": True,
         }
         self.module = self.load_module()
         self.initialize_attributes()
         self.validate_attributes()
 
     def load_module(self):
+        """prepares a test file, raising a error if unsuccessful."""
         try:
             spec = importlib.util.spec_from_file_location(self.module_name, self.module_path)
             if spec is None or spec.loader is None:
@@ -141,13 +146,24 @@ class LoadModule:
             raise ImportError(f"Failed to load the module '{self.module_name}': {e}") from e
 
     def initialize_attributes(self):
+        """stores all user settings included in a test file."""
         self.parent_file = getattr(self.module, "file_name", True)
         self.parent_directory = getattr(self.module, "parent_directory", True)
         self.N = getattr(self.module, "N", self.default_values["N"])
         self.premises = getattr(self.module, "premises", self.default_values["premises"])
         self.conclusions = getattr(self.module, "conclusions", self.default_values["conclusions"])
-        self.print_cons_bool = getattr(self.module, "print_cons_bool", False)
-        self.print_unsat_core_bool = getattr(self.module, "print_unsat_core_bool", True)
+        self.max_time = getattr(self.module, "max_time", self.default_values["max_time"])
+        self.optimize = getattr(self.module, "optimize", self.default_values["optimize"])
+        self.print_cons_bool = getattr(
+            self.module,
+            "print_cons_bool",
+            self.default_values["print_cons_bool"]
+        )
+        self.print_unsat_core_bool = getattr(
+            self.module,
+            "print_unsat_core_bool",
+            self.default_values["print_unsat_core_bool"]
+        )
         self.print_impossible_states_bool = getattr(
             self.module,
             "print_impossible_states_bool",
@@ -208,12 +224,12 @@ def parse_file_and_flags():
         version=f"%(prog)s:  {__version__}",
         help='Prints the version number.'
     )
-    # parser.add_argument(
-    #     '--latest',
-    #     '-l',
-    #     action='store_true',
-    #     help='Checks the version number of the latest release.'
-    # )
+    parser.add_argument(
+        '--optimize',
+        '-o',
+        action='store_true',
+        help='finds the minimum value for N that is satisfiable before reaching max_time.'
+    )
     parser.add_argument(
         '--upgrade',
         '-u',
@@ -330,26 +346,31 @@ def save_or_append(module, structure, file_name, print_cons, print_imposs):
         structure.save_to(print_cons, print_imposs, n)
     print()
 
+def optimize_N(module, past_module=None, past_model_setup=None, sat=False):
+    """finds the min value of N for there to be a model up to a timeout limit"""
+    model_setup = make_model_for(module.N, module.premises, module.conclusions, module.max_time)
+    # TODO: add max_time to make_model_for itself to timeout
+    if model_setup.model_status:
+        sat = True
+        past_module = module
+        module.N -= 1
+        min_module, model_setup = optimize_N(module, past_module, model_setup, sat)
+        return min_module, model_setup
+    if sat:
+        return past_module, past_model_setup
+    if model_setup.model_runtime < module.max_time:
+        past_module = module
+        module.N += 1
+        max_module, model_setup = optimize_N(module, past_module, model_setup, sat)
+        return max_module, model_setup
+    return module, model_setup
+
 def main():
     """load a test or generate a test when run without input"""
     # TODO: can module_name and module_path be extracted from the sys.argv?
     # this would reduce the number of arguments returned by parse_file_and_flags()
     args, package_name = parse_file_and_flags()
-    cons_flag = args.constraints
-    save_flag = args.save
-    imposs_flag = args.impossible
-    upgrade_flag = args.upgrade
-    # latest_flag = args.latest
-    # NOTE: the checker is not working
-    # if latest_flag:
-    #     latest_version = get_latest_version(package_name)
-    #     print(f"Latest version on PyPI: {latest_version}")
-    #     return
-    if upgrade_flag:
-        # # NOTE: the checker is not working
-        # if check_update(package_name):
-        #     return
-        # Upgrade the package if it is not up to date
+    if args.upgrade:
         try:
             subprocess.run(['pip', 'install', '--upgrade', package_name], check=True)
         except subprocess.CalledProcessError as e:
@@ -361,10 +382,14 @@ def main():
     module_path = args.file_path
     module_name = os.path.splitext(os.path.basename(module_path))[0]
     module = LoadModule(module_name, module_path)
-    print_imposs = module.print_impossible_states_bool or imposs_flag
-    print_cons = module.print_cons_bool or cons_flag
-    save_model = module.save_bool or save_flag
-    model_setup = make_model_for(module.N, module.premises, module.conclusions)
+    print_imposs = module.print_impossible_states_bool or args.impossible
+    print_cons = module.print_cons_bool or args.constraints
+    save_model = module.save_bool or args.save
+    optimize_model = module.optimize or args.optimize
+    if optimize_model:
+        module, model_setup = optimize_N(module)
+    else:
+        model_setup = make_model_for(module.N, module.premises, module.conclusions, module.max_time)
     if model_setup.model_status:
         states_print = StateSpace(model_setup)
         states_print.print_to(print_cons, print_imposs)
@@ -372,12 +397,11 @@ def main():
             file_name, print_cons = ask_save()
             save_or_append(module, states_print, file_name, print_cons, print_imposs)
         return
-    print_unsat = module.print_unsat_core_bool or cons_flag
+    print_unsat = module.print_unsat_core_bool or args.constraints
     model_setup.no_model_print(print_unsat)
     if save_model:
         file_name, print_cons = ask_save()
         no_model_save_or_append(module, model_setup, file_name, print_unsat)
-
 
 if __name__ == "__main__":
     main()
