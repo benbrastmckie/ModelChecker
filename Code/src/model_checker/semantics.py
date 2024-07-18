@@ -22,30 +22,38 @@ from z3 import ForAll as Z3ForAll
 
 use_z3_quantifiers = False # currently Z3Exists is being used despite this setting
 
+def measure_bitvecs(bvs):
+    """makes bvs into a list if not already and returns bvs alongside its length and bv size"""
+    if not isinstance(bvs, list):
+        bvs = [bvs]
+    bv_test = bvs[0]
+    bvs_N = bv_test.size()
+    num_bvs = 2 ** bvs_N
+    return bvs, num_bvs, bvs_N
+
 def ForAllFinite(bvs, formula):
     """
     generates constraints by substituting all possible bitvectors for the variables in the formula
     before taking the conjunction of those constraints
     """
     constraints = []
-    if not isinstance(bvs, list):
-        bvs = [bvs]
-    bv_test = bvs[0]
-    temp_N = bv_test.size()
-    num_bvs = 2 ** temp_N
+    bvs, num_bvs, bvs_N = measure_bitvecs(bvs)
     if len(bvs) == 1:
         bv = bvs[0]
         for i in range(num_bvs):
-            substituted_formula = substitute(formula, (bv, BitVecVal(i, temp_N)))
+            substituted_formula = substitute(formula, (bv, BitVecVal(i, bvs_N)))
             constraints.append(substituted_formula)
     else:
         bv = bvs[0]
         remaining_bvs = bvs[1:]
         reduced_formula = ForAllFinite(remaining_bvs, formula)
         for i in range(num_bvs):
-            substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, temp_N)))
+            substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, bvs_N)))
             constraints.append(substituted_reduced_formula)
     return And(constraints)
+
+# ForAll = Z3ForAll # use to disable finite quantifier
+ForAll = Z3ForAll if use_z3_quantifiers else ForAllFinite
 
 def ExistsFinite(bvs, formula):
     """
@@ -53,30 +61,23 @@ def ExistsFinite(bvs, formula):
     before taking the disjunction of those constraints
     """
     constraints = []
-    if not isinstance(bvs, list):
-        bvs = [bvs]
-    bv_test = bvs[0]
-    temp_N = bv_test.size()
-    num_bvs = 2 ** temp_N
+    bvs, num_bvs, bvs_N = measure_bitvecs(bvs)
     if len(bvs) == 1:
         bv = bvs[0]
         for i in range(num_bvs):
-            substituted_formula = substitute(formula, (bv, BitVecVal(i, temp_N)))
+            substituted_formula = substitute(formula, (bv, BitVecVal(i, bvs_N)))
             constraints.append(substituted_formula)
     else:
         bv = bvs[0]
         remaining_bvs = bvs[1:]
-        reduced_formula = ForAllFinite(remaining_bvs, formula)
+        reduced_formula = ExistsFinite(remaining_bvs, formula)
         for i in range(num_bvs):
-            substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, temp_N)))
+            substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, bvs_N)))
             constraints.append(substituted_reduced_formula)
     return Or(constraints)
 
-Exists = Z3Exists
-# Exists = Z3Exists if use_z3_quantifiers else ExistsFinite
-
-# ForAll = Z3ForAll
-ForAll = Z3ForAll if use_z3_quantifiers else ForAllFinite
+# Exists = Z3Exists # use to disable finite quantifier
+Exists = Z3Exists if use_z3_quantifiers else ExistsFinite
 
 def sentence_letters_in_compound(prefix_input_sentence):
     """finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
@@ -983,13 +984,17 @@ def define_N_semantics(verify, falsify, possible, assign, N):
     return find_all_constraints
 
 
-def solve_constraints(all_constraints): # all_constraints is a list of constraints
-    """find model for the input constraints if there is any
-    returns a tuple with a boolean representing if the constraints were solved or not
-    and, if True, the model, if False the unsatisfiable core of the constraints"""
+def solve_constraints(all_constraints, max_time): # all_constraints is a list of constraints
+    """find model for the input constraints within the max_time if there is such a model returns a
+    tuple with a boolean representing if (1) the timeout occurred, if (2) the constraints
+    were solved or not and, if (3) the model or unsatisfiable core depending"""
     solver = Solver()
     solver.add(all_constraints)
+    # Set the timeout (in milliseconds)
+    solver.set("timeout", max_time * 1000)
     result = solver.check(*[all_constraints])
+    if solver.reason_unknown() == "timeout":
+        return True, False, None
     if result == sat:
-        return (True, solver.model())
-    return (False, solver.unsat_core())
+        return False, True, solver.model()
+    return False, False, solver.unsat_core()

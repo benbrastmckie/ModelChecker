@@ -6,11 +6,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## v0.5 Release 
 
-- [.] finite quantifiers
-  - [:] debug
-    - [x] forall
-    - [ ] exists
-  - [:] test
 - [:] unit tests
   - [x] tests
     - [x] counterfactual
@@ -19,9 +14,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [ ] modal
     - [ ] constitutive
     - [ ] relevance
-  - [ ] complexity
-    - [ ] find minimal countermodel
-    - [ ] test validity up to timeout
   - [.] pytest
     - [x] get working
     - [ ] add documentation
@@ -31,13 +23,18 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] ground
   - [ ] identity
   - [ ] counterfactual
+- [ ] remove assign skolem function
 - [ ] primitive imposition
   - [ ] implement
   - [ ] test
 - [ ] flags
-  - [ ] finite quantifiers
   - [ ] possible verifiers and falsifiers
   - [ ] check syntax by runs infix after prefix, printing both
+  - [x] timeout
+- [x] complexity
+  - [x] timeout on each run
+  - [x] find minimal countermodel
+  - [x] test validity up to timeout
 
 ## Future Release
 
@@ -196,6 +193,11 @@ Tasks that have been completed.
 
 ## Semantics
 
+- [x] finite quantifiers
+  - [x] debug
+    - [x] forall
+    - [x] exists
+  - [x] test
 - [x] say if premises, conclusions, or N are absent
 - [:] semantics
   - [x] added exclude for `not` operator

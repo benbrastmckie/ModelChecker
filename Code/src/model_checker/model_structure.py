@@ -111,32 +111,15 @@ save_bool = False
 '''
 )
 
-
-# class Uninitalized:
-#     """class for uninitalized attributes"""
-#
-#     def __init__(self, name):
-#         self.name = name
-#
-#     def __iter__(self):
-#         raise AttributeError(
-#             f"cannot iterate through {self.name} because it isnt initialized")
-#
-#     def __getitem__(self):
-#         raise AttributeError(
-#             f"cannot get an item from {self.name} because it isnt initialized")
-#
-#     def __str__(self):
-#         return f"{self.name} (uninitialized)"
-
 class ModelSetup:
     """class which includes all elements provided by the user as well as those
     needed to find a model if there is one"""
 
-    def __init__(self, N, infix_premises, infix_conclusions):
+    def __init__(self, N, infix_premises, infix_conclusions, max_time):
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
         self.N = N
+        self.max_time = max_time
         self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
         self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
         self.possible = Function("possible", BitVecSort(N), BoolSort())
@@ -169,16 +152,16 @@ class ModelSetup:
             self.premise_constraints +
             self.conclusion_constraints
         )
-        z3_model_status, z3_model, model_runtime = self.solve(self.constraints)
+        timeout, z3_model_status, z3_model, model_runtime = self.solve(
+            self.constraints,
+            self.max_time
+        )
+        self.timeout = timeout
         self.model_status = z3_model_status
         self.z3_model = z3_model
         self.model_runtime = model_runtime
 
-    # def constraints_func(self):
-    #     """returns constraints_func"""
-    #     return self.find_constraints_func
-
-    def solve(self, constraints):
+    def solve(self, constraints, max_time):
         """solves for the model, returns None
         self.model is the ModelRef object resulting from solving the model
         self.model_runtime is the runtime of the model as a float
@@ -189,28 +172,10 @@ class ModelSetup:
         self.atomic_props_dict is a dictionary with keys AtomSorts and values (V,F)
         """
         model_start = time.time()  # start benchmark timer
-        z3_model_status, z3_model = solve_constraints(constraints)
+        timeout, z3_model_status, z3_model = solve_constraints(constraints, max_time)
         model_end = time.time()
         model_runtime = round(model_end - model_start, 4)
-        return (z3_model_status, z3_model, model_runtime)
-
-# class ModelStructure:
-#     """self.premises is a list of prefix sentences
-#     self.conclusions is a list of prefix sentences
-#     self.input_sentences is the combination of self.premises and self.conclusions with the
-#     conclusions negated
-#     self.sentence letters is a list of atomic sentence letters (each of sort AtomSort)
-#     self.constraints is a list (?) of constraints
-#     everything else is initialized as None"""
-#
-#     def __init__(self, model_status, model_setup, z3_model, model_runtime):
-#         self.model_status = model_status
-#         self.model_setup = model_setup
-#         self.z3_model = z3_model
-#         self.model_runtime = model_runtime
-#         self.infix_premises = model_setup.infix_premises
-#         self.infix_conclusions = model_setup.infix_conclusions
-#         self.N = model_setup.N
+        return timeout, z3_model_status, z3_model, model_runtime
 
     def build_test_file(self, output):
         """generates a test file from input to be saved"""
@@ -260,19 +225,23 @@ class ModelSetup:
         print(f"There are no {self.N}-models of:\n", file=output)
         self.print_enumerate(output)
         self.build_test_file(output)
+        if self.timeout:
+            print("No model found before timeout.\n", file=output)
         if print_unsat_core_bool:
             print("# Unsatisfiable constraints", file=output)
             print(f"all_constraints = {constraints}", file=output)
 
     def print_constraints(self, consts, name, output=sys.__stdout__):
         """prints constraints in an numbered list"""
+        if self.timeout:
+            print("No model found before timeout.\n", file=output)
         if self.model_status:
             print(f"Satisfiable {name} constraints:\n", file=output)
         else:
             print("Unsatisfiable core constraints:\n", file=output)
-        for index, con in enumerate(consts, start=1):
-            print(f"{index}. {con}\n", file=output)
-            # print(f"Constraints time: {time}\n")
+            for index, con in enumerate(consts, start=1):
+                print(f"{index}. {con}\n", file=output)
+                # print(f"Constraints time: {time}\n")
 
     def __str__(self):
         '''useful for using model-checker in a python file'''
@@ -672,13 +641,13 @@ class Proposition:
             file=output,
         )
 
-def make_model_for(N, premises, conclusions):
+def make_model_for(N, premises, conclusions, max_time):
     """
     input: N (int of number of atomic states you want in the model)
     returns a function that will solve the premises and conclusions"""
     backslash_premises = [add_backslashes_to_infix(prem) for prem in premises]
     backslash_conclusions = [add_backslashes_to_infix(concl) for concl in conclusions]
-    model_setup = ModelSetup(N, backslash_premises, backslash_conclusions)
+    model_setup = ModelSetup(N, backslash_premises, backslash_conclusions, max_time)
     # z3_model_status, z3_model, model_runtime = model_setup.solve()
     # model_structure = ModelStructure(z3_model_status, model_setup, z3_model, model_runtime)
     return model_setup

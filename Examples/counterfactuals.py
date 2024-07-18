@@ -12,6 +12,12 @@ file_name = os.path.basename(__file__)
 # number of atomic states
 N = 3
 
+# time cutoff for increasing N
+optimize = False
+
+# time cutoff for increasing N
+max_time = 2
+
 # print all Z3 constraints if a model is found
 print_cons_bool = False
 
@@ -32,10 +38,10 @@ save_bool = False
 
 ### INVALID ###
 
-# # CFCM1
-# # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-premises = ['(A boxright C)']
-conclusions = ['((A wedge B) boxright C)']
+# # # CFCM1
+# # # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# premises = ['(A boxright C)']
+# conclusions = ['((A wedge B) boxright C)']
 
 # # CFCM2
 # # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
@@ -174,10 +180,10 @@ conclusions = ['((A wedge B) boxright C)']
 
 ### VALID ###
 
-# # CF1: COUNTERFACTUAL IDENTITY
-# N = 3
-# premises = []
-# conclusions = ['(A boxright A)']
+# CF1: COUNTERFACTUAL IDENTITY
+N = 3
+premises = []
+conclusions = ['(A boxright A)']
 
 # # CF2: COUNTERFACTUAL MODUS PONENS
 # N = 3
