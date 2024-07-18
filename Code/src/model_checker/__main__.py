@@ -343,23 +343,23 @@ def save_or_append(module, structure, file_name, print_cons, print_imposs):
         structure.save_to(print_cons, print_imposs, n)
     print()
 
-def optimize_N(module, past_module=None, past_model_setup=None, sat=False):
+def optimize_N(module, past_model_setup, past_module=None, sat=False):
     """finds the min value of N for there to be a model up to a timeout limit"""
-    model_setup = make_model_for(module.N, module.premises, module.conclusions, module.max_time)
-    if model_setup.model_status:
+    # model_setup = make_model_for(module.N, module.premises, module.conclusions, module.max_time)
+    if past_model_setup.model_status:
         sat = True
         past_module = module
         module.N -= 1
-        min_module, model_setup = optimize_N(module, past_module, model_setup, sat)
+        min_module, model_setup = optimize_N(module, model_setup, past_module, sat)
         return min_module, model_setup
     if sat:
         return past_module, past_model_setup
-    if model_setup.model_runtime < model_setup.max_time:
+    if past_model_setup.model_runtime < past_model_setup.max_time:
         past_module = module
         module.N += 1
-        max_module, model_setup = optimize_N(module, past_module, model_setup, sat)
+        max_module, model_setup = optimize_N(module, model_setup, past_module, sat)
         return max_module, model_setup
-    if model_setup.timeout:
+    if past_model_setup.timeout:
         return past_module, past_model_setup
     raise ValueError(
         f"Something has gone wrong in optimize_N."
@@ -367,33 +367,37 @@ def optimize_N(module, past_module=None, past_model_setup=None, sat=False):
 
 def main():
     """load a test or generate a test when run without input"""
-    # TODO: can module_name and module_path be extracted from the sys.argv?
-    # this would reduce the number of arguments returned by parse_file_and_flags()
+    if len(sys.argv) < 2:
+        ask_generate_test()
+        return
+
     args, package_name = parse_file_and_flags()
+
     if args.upgrade:
         try:
             subprocess.run(['pip', 'install', '--upgrade', package_name], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Failed to upgrade {package_name}: {e}")
         return
-    if len(sys.argv) < 2:
-        ask_generate_test()
-        return
+
     module_path = args.file_path
     module_name = os.path.splitext(os.path.basename(module_path))[0]
     module = LoadModule(module_name, module_path)
+
     print_imposs = module.print_impossible_states_bool or args.impossible
     print_cons = module.print_cons_bool or args.constraints
     save_model = module.save_bool or args.save
     optimize_model = module.optimize or args.optimize
+
+    model_setup = make_model_for(module.N, module.premises, module.conclusions, module.max_time)
     if optimize_model:
-        module, model_setup = optimize_N(module)
-    else:
-        model_setup = make_model_for(module.N, module.premises, module.conclusions, module.max_time)
+        module, model_setup = optimize_N(module, model_setup)
+
     if model_setup.timeout:
         print(f"Model timed out at {model_setup.model_runtime}.")
         print(f"Consider increasing max_time > {model_setup.max_time}.")
         return
+
     if model_setup.model_status:
         states_print = StateSpace(model_setup)
         states_print.print_to(print_cons, print_imposs)
@@ -401,6 +405,7 @@ def main():
             file_name, print_cons = ask_save()
             save_or_append(module, states_print, file_name, print_cons, print_imposs)
         return
+
     model_setup.no_model_print()
     if save_model:
         file_name, print_cons = ask_save()
