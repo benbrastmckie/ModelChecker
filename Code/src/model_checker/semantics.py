@@ -105,7 +105,7 @@ def all_sentence_letters(prefix_sentences):
     # sort just to make every output the same, given sets aren't hashable
 
 
-def define_N_semantics(verify, falsify, possible, assign, N):
+def define_N_semantics(verify, falsify, possible, N): # assign, 
     # NOTE: just thought of this—we could make the options to do non_null or non_triv optional.
     # Like it coulld be an optional argument put into the model at the top level, just like
     # unsat_core is. Let me below know if you think that's a good idea or if it wouln't be useful.
@@ -867,15 +867,28 @@ def define_N_semantics(verify, falsify, possible, assign, N):
                 Implies(And(verify(x, atom), falsify(y, atom)), Not(compatible(x, y))),
             ),
             ForAll(
-                [x, y],
+                x,
                 Implies(
-                    And(possible(x), assign(x, atom) == y),
-                    And(
-                        compatible(x, y),
-                        Or(verify(y, atom), falsify(y, atom)),
+                    possible(x),
+                    Exists(
+                        y,
+                        And(
+                            compatible(x, y),
+                            Or(verify(y, atom), falsify(y, atom)),
+                        ),
                     ),
                 ),
             ),
+            # ForAll( # don't need skolem function any more
+            #     [x, y],
+            #     Implies(
+            #         And(possible(x), assign(x, atom) == y),
+            #         And(
+            #             compatible(x, y),
+            #             Or(verify(y, atom), falsify(y, atom)),
+            #         ),
+            #     ),
+            # ),
         ]
         return sent_to_prop
 

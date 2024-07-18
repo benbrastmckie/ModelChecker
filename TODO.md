@@ -6,6 +6,12 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## v0.5 Release 
 
+- [ ] remove assign skolem function
+- [ ] flags
+  - [ ] possible verifiers and falsifiers
+  - [ ] check syntax by runs infix after prefix, printing both
+  - [x] remove `print_unsat_core`
+  - [x] timeout
 - [:] unit tests
   - [x] tests
     - [x] counterfactual
@@ -23,15 +29,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] ground
   - [ ] identity
   - [ ] counterfactual
-- [ ] remove assign skolem function
 - [ ] primitive imposition
   - [ ] implement
   - [ ] test
-- [ ] flags
-  - [ ] possible verifiers and falsifiers
-  - [ ] check syntax by runs infix after prefix, printing both
-  - [x] remove `print_unsat_core`
-  - [x] timeout
 - [x] complexity
   - [x] timeout on each run
   - [x] find minimal countermodel
