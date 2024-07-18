@@ -97,11 +97,14 @@ conclusions = ${conclusions}
 # number of atomic states
 N = ${N}
 
+# time cutoff for increasing N
+optimize = False
+
+# time cutoff for increasing N
+max_time = ${max_time}
+
 # print all Z3 constraints if a model is found
 print_cons_bool = False
-
-# print core unsatisfiable Z3 constraints if no model exists
-print_unsat_core_bool = True
 
 # print all states including impossible states
 print_impossible_states_bool = False
@@ -184,6 +187,7 @@ class ModelSetup:
             "premises": self.infix_premises,
             "conclusions": self.infix_conclusions,
             "runtime": self.model_runtime,
+            "max_time": self.max_time,
         }
         inputs_content = inputs_template.substitute(inputs_data)
         print(inputs_content, file=output)
@@ -208,17 +212,17 @@ class ModelSetup:
             for index, sent in enumerate(infix_conclusions, start=start_con_num):
                 print(f"{index}. {sent}", file=output)
 
-    def no_model_print(self, print_unsat_core_bool, output=sys.__stdout__):
+    def no_model_print(self, output=sys.__stdout__):
         """prints the argument when there is no model with the option to
         include Z3 constraints."""
         print(f"There are no {self.N}-models of:\n", file=output)
         self.print_enumerate(output)
         print(file=output)
-        if print_unsat_core_bool:
-            self.print_constraints(self.z3_model, '', output)
+        # if print_unsat_core_bool:
+        self.print_constraints(self.z3_model, 'TOTAL', output)
         print(f"Run time: {self.model_runtime} seconds\n", file=output)
 
-    def no_model_save(self, print_unsat_core_bool, output):
+    def no_model_save(self, output):
         """saves the arguments to a new file when there is no model with the
         option to include Z3 constraints."""
         constraints = self.constraints
@@ -227,9 +231,9 @@ class ModelSetup:
         self.build_test_file(output)
         if self.timeout:
             print("No model found before timeout.\n", file=output)
-        if print_unsat_core_bool:
-            print("# Unsatisfiable constraints", file=output)
-            print(f"all_constraints = {constraints}", file=output)
+        # if print_unsat_core_bool:
+        print("# Unsatisfiable constraints", file=output)
+        print(f"all_constraints = {constraints}", file=output)
 
     def print_constraints(self, consts, name, output=sys.__stdout__):
         """prints constraints in an numbered list"""
@@ -390,7 +394,7 @@ class StateSpace:
         setup = self.model_setup
         if print_cons_bool:
             structure.print_constraints(setup.frame_constraints, 'FRAME', output)
-            structure.print_constraints(setup.prop_constraints, 'PROPOSTION', output)
+            structure.print_constraints(setup.prop_constraints, 'PROPOSITION', output)
             structure.print_constraints(setup.premise_constraints, 'PREMISE', output)
             structure.print_constraints(setup.conclusion_constraints, 'CONCLUSION', output)
         print(f"Run time: {self.model_runtime} seconds\n", file=output)

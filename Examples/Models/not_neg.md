@@ -44,7 +44,7 @@ Satisfiable FRAME constraints:
     ForAll(max_x,
            Implies(possible(max_x | w), max_x | w == w)))
 
-Satisfiable PROPOSTION constraints:
+Satisfiable PROPOSITION constraints:
 
 1. Not(verify(0, A))
 
