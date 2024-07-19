@@ -5,10 +5,9 @@ from .utils import (
     max_time,
 )
 
-
-
-
-### INVALID ###
+###############################
+##### MODAL COUNTERMODELS #####
+###############################
 
 @pytest.mark.timeout(max_time)
 def test_ML_CM1():
@@ -17,7 +16,8 @@ def test_ML_CM1():
     premises = ['Box A','(A rightarrow B)']
     conclusions = ['Box B']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_ML_CM2():
@@ -26,14 +26,17 @@ def test_ML_CM2():
     premises = ['(A boxright B)']
     conclusions = ['Box (A rightarrow B)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 
 
 
 
 
-### VALID ###
+################################
+######### MODAL LOGIC ##########
+################################
 
 @pytest.mark.timeout(max_time)
 def test_ML1():
@@ -41,7 +44,8 @@ def test_ML1():
     premises = ['Box (A rightarrow B)']
     conclusions = ['(A boxright B)']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_ML2():
@@ -50,7 +54,8 @@ def test_ML2():
     premises = ['Box (A rightarrow B)']
     conclusions = ['(Box A rightarrow Box B)']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_ML3():
@@ -59,7 +64,8 @@ def test_ML3():
     premises = ['(top boxright (A rightarrow B))']
     conclusions = ['((top boxright A) rightarrow (top boxright B))']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_ML4():
@@ -68,7 +74,8 @@ def test_ML4():
     premises = ['(top boxright A)']
     conclusions = ['A']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_ML5():
@@ -77,7 +84,8 @@ def test_ML5():
     premises = ['Box A']
     conclusions = ['A']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_ML6():
@@ -86,7 +94,8 @@ def test_ML6():
     premises = ['Box A']
     conclusions = ['A']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_ML7():
@@ -95,7 +104,8 @@ def test_ML7():
     premises = ['(top boxright A)']
     conclusions = ['(top boxright (top boxright A))']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_ML8():
@@ -104,7 +114,8 @@ def test_ML8():
     premises = ['Box A']
     conclusions = ['Box Box A']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_ML9():
@@ -114,7 +125,8 @@ def test_ML9():
     premises = ['A']
     conclusions = ['(top boxright neg (top boxright neg A))']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_ML10():
@@ -123,7 +135,8 @@ def test_ML10():
     premises = ['A']
     conclusions = ['Box Diamond A']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_ML11():
@@ -133,7 +146,8 @@ def test_ML11():
     premises = ['(top boxright A)']
     conclusions = ['(top boxright neg (top boxright neg A))']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_ML12():
@@ -142,7 +156,8 @@ def test_ML12():
     premises = ['Box A']
     conclusions = ['Box Diamond A']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_ML13():
@@ -151,7 +166,8 @@ def test_ML13():
     premises = ['Box A']
     conclusions = ['(top boxright A)']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_ML14():
@@ -160,7 +176,8 @@ def test_ML14():
     premises = ['(top boxright A)']
     conclusions = ['Box A']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_ML15():
@@ -169,4 +186,5 @@ def test_ML15():
     premises = []
     conclusions = ['Box ((A vee neg A) leftrightarrow (B vee neg B))']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)

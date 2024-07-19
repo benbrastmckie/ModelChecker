@@ -10,13 +10,13 @@ file_name = os.path.basename(__file__)
 ################################
 
 # number of atomic states
-N = 5
+N = 3
 
 # find critical value of N
 optimize = False
 
 # time cutoff for increasing N
-max_time = 1
+max_time = 2
 
 # make all propositions contingent
 contingent = False
@@ -25,7 +25,7 @@ contingent = False
 print_cons_bool = False
 
 # print all states including impossible states
-print_impossible_states_bool = False
+print_impossible_states_bool = True
 
 # present option to append output to file
 save_bool = False
@@ -78,8 +78,38 @@ save_bool = False
 
 
 ################################
-####### NO COUNTERMODELS #######
+######### CONSTITUTIVE #########
 ################################
+
+# DISTRIBUTION LAWS
+
+# # TODO: true conclusion model with Not(true_at(...)) but not with false_at(...)
+# conclusions = ['((A wedge (B vee C)) equiv ((A wedge B) vee (A wedge C)))']
+
+# TODO: true conclusion model
+# conclusions = ['((A wedge (B vee C)) leq ((A wedge B) vee (A wedge C)))']
+# conclusions = ['((A vee (B wedge C)) leq ((A vee B) wedge (A vee C)))']
+
+# TODO: true conclusion model
+# conclusions = ['((A wedge (B vee C)) sqsubseteq ((A wedge B) vee (A wedge C)))']
+# conclusions = ['((A vee (B wedge C)) sqsubseteq ((A vee B) wedge (A vee C)))']
+
+# TODO: true conclusion model with false_at(...) and not with Not(true_at(...))
+# conclusions = ['(((A vee B) wedge (A vee C)) leq (A vee (B wedge C)))']
+
+# TODO: true conclusion model
+# conclusions = ['(((A wedge B) vee (A wedge C)) sqsubseteq (A wedge (B vee C)))']
+
+# TODO: true conclusion model
+
+
+
+
+
+
+###############################
+####### COUNTERFACTUALS #######
+###############################
 
 ### COUNTERFACTUAL IMPORTATION ###
 
@@ -87,7 +117,30 @@ save_bool = False
 # premises = ['(A boxright (B boxright C))','Diamond (A wedge B)']
 # conclusions = ['((A wedge B) boxright C)']
 
-# COUNTERFACTUAL IMPORTATION
-# NOTE: MIT servers found a model in 467 seconds with Z3 quantifiers
-premises = ['(A boxright (B boxright C))']
-conclusions = ['((A wedge B) boxright C)']
+# # COUNTERFACTUAL IMPORTATION
+# # NOTE: MIT servers found a model in 467 seconds with Z3 quantifiers
+# premises = ['(A boxright (B boxright C))']
+# conclusions = ['((A wedge B) boxright C)']
+
+
+
+
+
+
+
+
+#############################
+######### RELEVANCE #########
+#############################
+
+# DISTRIBUTION
+
+# # TODO: true conclusion model
+# contingent = True
+# conclusions = ['(((A vee B) wedge (A vee C)) preceq (A vee (B wedge C)))']
+
+# # TODO: true conclusion model
+# conclusions = ['((A wedge (B vee C)) preceq ((A wedge B) vee (A wedge C)))']
+
+# # TODO: true conclusion model
+# conclusions = ['((A vee (B wedge C)) preceq ((A vee B) wedge (A vee C)))']
