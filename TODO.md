@@ -6,28 +6,23 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## v0.5 Release 
 
-- [ ] primitive imposition
-  - [ ] implement
-  - [ ] test
-- [:] unit tests
+- [ ] make `non_null` independent
+- [ ] prompt user to increase time if timeout
+- [ ] add examples to test file
+- [x] false-premise and true-conclusion models
+  - [x] testing
+  - [ ] debug
+- [x] unit tests
   - [x] tests
     - [x] counterfactual
-    - [.] extensional
-    - [.] interaction
-    - [:] modal
-      - [ ] debug CM2
-    - [ ] constitutive
-    - [ ] relevance
+    - [x] extensional
+    - [x] modal
+      - [x] debug CM2
+    - [x] constitutive
+    - [x] relevance
   - [.] pytest
     - [x] get working
     - [ ] add documentation
-- [ ] test for false-premise and true-conclusion models
-  - [ ] relevance
-  - [ ] essence
-  - [ ] ground
-  - [ ] identity
-  - [ ] counterfactual
-- [ ] add examples to test file
 - [x] complexity
   - [x] timeout on each run
   - [x] find minimal countermodel
@@ -40,6 +35,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Future Release
 
+- [ ] primitive imposition
+  - [ ] implement
+  - [ ] test
 - [ ] exposing imports
   - [ ] _M_ test imports
     - Q: are the exposed functions recursive?

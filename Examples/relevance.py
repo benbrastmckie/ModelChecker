@@ -32,117 +32,146 @@ save_bool = False
 
 
 
+###################################
+##### RELEVANCE COUNTERMODELS #####
+###################################
 
+"""RL_CM1: ANTECEDENT STRENGTHENING"""
+N = 3
+premises = []
+conclusions = ['((A wedge B) preceq A)']
+contingent = True
 
-################################
-####### RELEVANCE LOGIC ########
-################################
-
-# DEFINITIONAL EQUIVALENTS
-
-# premises = ['(A preceq B)']
-# conclusions = ['((A wedge B) leq B)']
-
-# premises = ['(A preceq B)']
-# conclusions = ['((A vee B) sqsubseteq B)']
-
-# premises = ['((A wedge B) leq B)']
-# conclusions = ['(A preceq B)']
-
-# premises = ['((A vee B) sqsubseteq B)']
-# conclusions = ['(A preceq B)']
-
-
-
-
-# DISTRIBUTION
-
-# # TODO: true conclusion model
-# conclusions = ['((A wedge (B vee C)) preceq ((A wedge B) vee (A wedge C)))']
-
-# # TODO: true conclusion model
-# conclusions = ['((A vee (B wedge C)) preceq ((A vee B) wedge (A vee C)))']
-
-
-
-
-
-
-# CONSTITUTIVE INTERACTION
-
-# premises = ['(A leq B)']
-# conclusions = ['(A preceq B)']
-
-# premises = ['(A sqsubseteq B)']
-# conclusions = ['(A preceq B)']
-
-
-
-
-
-
-
-# INVALID
-
-# conclusions = ['((A wedge B) preceq A)']
+"""RL_CM2: ANTECEDENT WEAKENING"""
+N = 3
+premises = []
 conclusions = ['((A vee B) preceq A)']
+contingent = True
 
-# # TRANSITIVITY
-# # premises = ['(A preceq B)', '(B preceq C)']
-# premises = ['Diamond A','Diamond neg A','Diamond B','Diamond neg B','(A preceq B)', '(B preceq C)']
-# conclusions = ['(A preceq C)']
+"""RL_CM3: RELEVANCE TRANSITIVITY"""
+N = 3
+premises = ['(A preceq B)', '(B preceq C)']
+conclusions = ['(A preceq C)']
+contingent = True
 
-# # RELEVANT IMPLICATION: GROUND
-# premises = ['Box (A rightarrow B)','(A preceq B)']
-# conclusions = ['(A leq B)']
+"""RL_CM4: RELEVANT IMPLICATION: GROUND"""
+N = 3
+premises = ['Box (A rightarrow B)','(A preceq B)']
+conclusions = ['(A leq B)']
+contingent = True
 
-# # RELEVANT IMPLICATION: ESSENCE
-# premises = ['Box (B rightarrow A)','(A preceq B)']
-# conclusions = ['(A sqsubseteq B)']
+"""RL_CM5: RELEVANT IMPLICATION: ESSENCE"""
+N = 3
+premises = ['Box (B rightarrow A)','(A preceq B)']
+conclusions = ['(A sqsubseteq B)']
+contingent = True
 
-# # RELEVANT IMPLICATION: IDENTITY
-# # premises = ['Box (A leftrightarrow B)','(A preceq B)','(B preceq A)']
-# premises = ['Box (A leftrightarrow B)','(A preceq B)','(B preceq A)','Diamond A','Diamond B']
-# conclusions = ['(A equiv B)']
+"""RL_CM6: RELEVANT IMPLICATION: IDENTITY"""
+N = 3
+premises = ['Box (A leftrightarrow B)','(A preceq B)','(B preceq A)']
+conclusions = ['(A equiv B)']
+contingent = True
 
-# # STRICT IMPLICATION
-# premises = ['Box (A rightarrow B)']
-# conclusions = ['(A preceq B)']
+"""RL_CM7: STRICT IMPLICATION"""
+N = 3
+premises = ['Box (A rightarrow B)']
+conclusions = ['(A preceq B)']
+contingent = True
 
-# # DISTRIBUTION
-# conclusions = ['(((A vee B) wedge (A vee C)) preceq (A vee (B wedge C)))']
-# conclusions = ['(((A wedge B) vee (A wedge C)) preceq (A wedge (B vee C)))']
+"""RL_CM8: REVERSE DISTRIBUTION: DISJUNCTION OVER CONJUNCTION"""
+N = 3
+premises = []
+conclusions = ['(((A vee B) wedge (A vee C)) preceq (A vee (B wedge C)))']
+contingent = True
 
-# # DISTRIBUTION WITH POSSIBILITY: TRUE
-# premises = [
-#     'Diamond A',
-#     'Diamond B',
-#     'Diamond C',
-# ]
-# # TODO: true conclusion model
-# conclusions = ['(((A vee B) wedge (A vee C)) preceq (A vee (B wedge C)))']
-# # conclusions = ['(((A wedge B) vee (A wedge C)) preceq (A wedge (B vee C)))']
+"""RL_CM9: REVERSE DISTRIBUTION: CONJUNCTION OVER DISJUNCTION"""
+N = 3
+premises = []
+conclusions = ['(((A wedge B) vee (A wedge C)) preceq (A wedge (B vee C)))']
+contingent = True
 
-# # TODO: true conclusion model
-# # DISTRIBUTION WITH POSSIBILITY: FALSE
-# premises = [
-#     'Diamond neg A',
-#     'Diamond neg B',
-#     'Diamond neg C',
-# ]
-# conclusions = ['(((A vee B) wedge (A vee C)) preceq (A vee (B wedge C)))']
-# # conclusions = ['(((A wedge B) vee (A wedge C)) preceq (A wedge (B vee C)))']
+"""RL_CM10: CONJUNCTION INTRODUCTION"""
+N = 3
+premises = ['(A preceq B)']
+conclusions = ['(A preceq (B wedge C))']
+contingent = True
+
+"""RL_CM11: DISJUNCTION INTRODUCTION"""
+N = 3
+premises = ['(A preceq B)']
+conclusions = ['(A preceq (B vee C))']
+contingent = True
 
 
-# # # DISTRIBUTION WITH CONTINGENCY
-# premises = [
-#     'Diamond A',
-#     'Diamond neg A',
-#     'Diamond B',
-#     'Diamond neg B',
-#     'Diamond C',
-#     'Diamond neg C',
-# ]
-# # # TODO: true conclusion model
-# # conclusions = ['(((A vee B) wedge (A vee C)) preceq (A vee (B wedge C)))']
-# conclusions = ['(((A wedge B) vee (A wedge C)) preceq (A wedge (B vee C)))']
+
+
+
+
+###########################
+##### RELEVANCE LOGIC #####
+###########################
+
+### DEFINITIONAL EQUIVALENTS
+
+"""RL1: RELEVANCE TO CONJUNCTION"""
+N = 3
+premises = ['(A preceq B)']
+conclusions = ['((A wedge B) leq B)']
+contingent = False
+
+"""RL2: RELEVANCE TO DISJUNCTION"""
+N = 3
+premises = ['(A preceq B)']
+conclusions = ['((A vee B) sqsubseteq B)']
+contingent = False
+
+"""RL3: CONJUNCTION TO RELEVANCE"""
+N = 3
+premises = ['((A wedge B) leq B)']
+conclusions = ['(A preceq B)']
+contingent = False
+
+"""RL4: DISJUNCTION TO RELEVANCE"""
+N = 3
+premises = ['((A vee B) sqsubseteq B)']
+conclusions = ['(A preceq B)']
+contingent = False
+
+
+
+### AXIOMS
+
+"""RL5: CONJUNCTION INTRODUCTION"""
+N = 3
+premises = []
+conclusions = ['(A preceq (A wedge B))']
+contingent = False
+
+"""RL6: DISJUNCTION INTRODUCTION"""
+N = 3
+premises = []
+conclusions = ['(A preceq (A vee B))']
+contingent = False
+
+
+
+
+### CONSTITUTIVE INTERACTION
+
+"""RL7: GROUNDING RELEVANCE"""
+N = 3
+premises = ['(A leq B)']
+conclusions = ['(A preceq B)']
+contingent = False
+
+"""RL8: ESSENCE RELEVANCE"""
+N = 3
+premises = ['(A sqsubseteq B)']
+conclusions = ['(A preceq B)']
+contingent = False
+
+"""RL9: IDENTITY RELEVANCE"""
+N = 3
+premises = ['(A equiv B)']
+conclusions = ['(A preceq B)']
+contingent = False

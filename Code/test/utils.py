@@ -2,14 +2,13 @@
 from src.model_checker.model_structure import make_model_for
 
 max_time = 2
-contingent = True
 
 def failure_string(desired, premises, conclusions, time):
     if desired is False:
         return f'Erroneously found a model:\n\nPremises:\n{premises}\n\nConclusions:\n{conclusions}\n\nRun time: {time} seconds\n\nMax time: {max_time}'
     return f'Erroneously did not find a model:\n\nPremises:\n{premises}\n\nConclusions:\n{conclusions}\n\nRun time: {time} seconds\n\nMax time: {max_time}'
 
-def check_model_status(premises, conclusions, desired, N):
+def check_model_status(premises, conclusions, desired, contingent, N):
     mod_setup = make_model_for(N, premises, conclusions, max_time, contingent)
     mod_status = mod_setup.model_status
     mod_time = mod_setup.model_runtime

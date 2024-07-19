@@ -6,9 +6,9 @@ from .utils import (
 )
 
 
-
-
-### INVALID ###
+########################################
+##### COUNTERFACTUAL COUNTERMODELS #####
+########################################
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM1():
@@ -17,7 +17,8 @@ def test_CF_CM1():
     premises = ['(A \\boxright C)']
     conclusions = ['((A \\wedge B) \\boxright C)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM2():
@@ -26,7 +27,8 @@ def test_CF_CM2():
     premises = ['(A circleright C)']
     conclusions = ['((A wedge B) circleright C)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM3():
@@ -35,7 +37,8 @@ def test_CF_CM3():
     premises = ['(A boxright C)', 'Diamond (A wedge B)']
     conclusions = ['((A wedge B) boxright C)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM4():
@@ -44,7 +47,8 @@ def test_CF_CM4():
     premises = ['neg A', '(A boxright C)']
     conclusions = ['((A wedge B) boxright C)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM5():
@@ -53,7 +57,8 @@ def test_CF_CM5():
     premises = ['(A boxright C)','(B boxright C)']
     conclusions = ['((A wedge B) boxright C)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 
 @pytest.mark.timeout(max_time)
@@ -63,7 +68,8 @@ def test_CF_CM6():
     premises = ['(A boxright B)']
     conclusions = ['(neg B boxright neg A)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM7():
@@ -72,7 +78,8 @@ def test_CF_CM7():
     premises = ['neg B','(A boxright B)']
     conclusions = ['(neg B boxright neg A)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM8():
@@ -81,7 +88,8 @@ def test_CF_CM8():
     premises = ['neg A','neg B','(A boxright B)']
     conclusions = ['(neg B boxright neg A)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM9():
@@ -90,7 +98,8 @@ def test_CF_CM9():
     premises = ['(A boxright B)','(B boxright C)']
     conclusions = ['(A boxright C)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM10():
@@ -99,7 +108,8 @@ def test_CF_CM10():
     premises = ['neg A','(A boxright B)','(B boxright C)']
     conclusions = ['(A boxright C)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM11():
@@ -108,7 +118,8 @@ def test_CF_CM11():
     premises = ['neg A','neg B','(A boxright B)','(B boxright C)']
     conclusions = ['(A boxright C)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM12():
@@ -121,7 +132,8 @@ def test_CF_CM12():
     ]
     conclusions = []
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM13():
@@ -138,7 +150,8 @@ def test_CF_CM13():
     ]
     conclusions = []
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM14():
@@ -147,7 +160,8 @@ def test_CF_CM14():
     premises = ['neg A']
     conclusions = ['(A boxright B)','(A boxright neg B)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM15():
@@ -156,7 +170,8 @@ def test_CF_CM15():
     premises = ['neg A','(A boxright (B vee C))']
     conclusions = ['(A boxright B)','(A boxright C)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM16():
@@ -165,7 +180,8 @@ def test_CF_CM16():
     premises = ['(A boxright C)','(B boxright C)']
     conclusions = ['((A vee B) boxright C)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM17():
@@ -174,7 +190,8 @@ def test_CF_CM17():
     premises = ['A', 'B']
     conclusions = ['(A boxright B)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM18():
@@ -183,7 +200,8 @@ def test_CF_CM18():
     premises = ['((A wedge B) boxright C)']
     conclusions = ['(A boxright (B boxright C))']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM19():
@@ -192,7 +210,8 @@ def test_CF_CM19():
     premises = ['((A wedge B) boxright C)','Diamond (A wedge B)']
     conclusions = ['(A boxright (B boxright C))']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM20():
@@ -201,25 +220,26 @@ def test_CF_CM20():
     premises = ['neg A','neg (A boxright B)']
     conclusions = ['(A boxright neg B)']
     desired_model_status = True
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = True
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
-# NOTE: DOES NOT FIND COUNTERMODEL
+# # NOTE: DOES NOT FIND COUNTERMODEL
 # @pytest.mark.timeout(0)
 # def test_CL_8():
 #     N = 4
 #     premises = ['(A \\boxright (B \\boxright C))']
 #     conclusions = ['((A \\wedge B) \\boxright C)']
 #     desired_model_status = True
-#     check_model_status(premises, conclusions, desired_model_status, N)
+#     contingent = True
+#     check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 
 
 
 
-
-
-
-### VALID ###
+################################
+##### COUNTERFACTUAL LOGIC #####
+################################
 
 @pytest.mark.timeout(max_time)
 def test_CF1():
@@ -228,7 +248,8 @@ def test_CF1():
     premises = []
     conclusions = ['(A boxright A)']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF2():
@@ -237,7 +258,8 @@ def test_CF2():
     premises = ['A','(A boxright B)']
     conclusions = ['B']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF3():
@@ -246,7 +268,8 @@ def test_CF3():
     premises = ['(A boxright B)','((A wedge B) boxright C)']
     conclusions = ['(A boxright C)']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF4():
@@ -255,7 +278,8 @@ def test_CF4():
     premises = ['((A \\vee B) \\boxright C)']
     conclusions = ['((A \\wedge B) \\boxright C)']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF5():
@@ -264,7 +288,8 @@ def test_CF5():
     premises = ['((A vee B) boxright C)']
     conclusions = ['(A boxright C)']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF6():
@@ -273,7 +298,8 @@ def test_CF6():
     premises = ['((A vee B) boxright C)']
     conclusions = ['((A boxright C) wedge (B boxright C))']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF7():
@@ -281,7 +307,8 @@ def test_CF7():
     premises = ['(A boxright C)', '(B boxright C)', '((A wedge B) boxright C)']
     conclusions = ['((A vee B) boxright C)']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF8():
@@ -289,7 +316,8 @@ def test_CF8():
     premises = ['(A boxright (B wedge C))']
     conclusions = ['(A boxright B)']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF9():
@@ -297,13 +325,15 @@ def test_CF9():
     premises = ['(A boxright B)','(A boxright C)']
     conclusions = ['(A boxright (B wedge C))']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
 def test_CF10():
-# FACTIVITY MIGHT
+    """FACTIVITY MIGHT"""
     N = 3
     premises = ['A','B']
     conclusions = ['(A circleright B)']
     desired_model_status = False
-    check_model_status(premises, conclusions, desired_model_status, N)
+    contingent = False
+    check_model_status(premises, conclusions, desired_model_status, contingent, N)
