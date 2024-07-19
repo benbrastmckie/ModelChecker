@@ -426,7 +426,7 @@ def optimize_model_setup(module, contingent, optimize_model):
     )
     if optimize_model:
         module, model_setup = optimize_N(module, model_setup, module, model_setup)
-    if model_setup.timeout == "timeout":
+    if model_setup.timeout:
         new_max_time = ask_time(model_setup.model_runtime, model_setup.max_time)
         module.update_max_time(new_max_time)
         return optimize_model_setup(module, contingent, False)
@@ -467,9 +467,9 @@ def main():
             save_or_append(module, states_print, file_name, print_cons, print_imposs)
         return
 
-    if model_setup.timeout == "unknown":
-        print(f"No model found. Try increasing max_time > {model_setup.max_time}.\n")
-        return
+    # if model_setup.timeout == "unknown":
+    #     print(f"No model found. Try increasing max_time > {model_setup.max_time}.\n")
+    #     return
 
     model_setup.no_model_print()
     if save_model:

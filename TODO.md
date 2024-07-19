@@ -4,37 +4,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Update
 
-## v0.5 Release 
-
-- [x] prompt user to increase time if timeout
-- [x] add examples to test file
-  - [:] reduce number
-- [x] remove `non_null`
-- [x] false-premise and true-conclusion models
-  - [x] testing
-  - [ ] debug
-- [x] unit tests
-  - [x] tests
-    - [x] counterfactual
-    - [x] extensional
-    - [x] modal
-      - [x] debug CM2
-    - [x] constitutive
-    - [x] relevance
-  - [.] pytest
-    - [x] get working
-    - [ ] add documentation
-- [x] complexity
-  - [x] timeout on each run
-  - [x] find minimal countermodel
-  - [x] test validity up to timeout
-- [x] remove assign skolem function
-- [x] flags
-  - [x] possible verifiers and falsifiers
-  - [x] remove `print_unsat_core`
-  - [x] timeout
-
-## Future Release
+## Release v0.6
 
 - [ ] primitive imposition
   - [ ] implement
@@ -58,7 +28,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [ ] document problems
   - [ ] no quantifiers
-  - [ ]
 - [ ] create Z3 issue
 - [.] email CS faculty
   - [x] https://people.csail.mit.edu/mcarbin/ -- Michael Carbin
@@ -115,6 +84,36 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 <!-- BONEYARD -->
 
 # Completed
+
+## v0.5 Release 
+
+- [x] prompt user to increase time if timeout
+- [x] add examples to test file
+  - [:] reduce number
+- [x] remove `non_null`
+- [x] false-premise and true-conclusion models
+  - [x] testing
+  - [ ] debug
+- [x] unit tests
+  - [x] tests
+    - [x] counterfactual
+    - [x] extensional
+    - [x] modal
+      - [x] debug CM2
+    - [x] constitutive
+    - [x] relevance
+  - [.] pytest
+    - [x] get working
+    - [ ] add documentation
+- [x] complexity
+  - [x] timeout on each run
+  - [x] find minimal countermodel
+  - [x] test validity up to timeout
+- [x] remove assign skolem function
+- [x] flags
+  - [x] possible verifiers and falsifiers
+  - [x] remove `print_unsat_core`
+  - [x] timeout
 
 ## Examples
 
