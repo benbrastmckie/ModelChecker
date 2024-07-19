@@ -131,10 +131,21 @@ class LoadModule:
             "premises": [],
             "conclusions": [],
             "contingent": False,
-            "max_time": 5,
+            "max_time": 2,
             "optimize": False,
             "print_cons_bool": False,
         }
+        self.parent_file = None
+        self.parent_directory = None
+        self.N = self.default_values["N"]
+        self.premises = self.default_values["premises"]
+        self.conclusions = self.default_values["conclusions"]
+        self.contingent = self.default_values["contingent"]
+        self.max_time = self.default_values["max_time"]
+        self.optimize = self.default_values["optimize"]
+        self.print_cons_bool = self.default_values["print_cons_bool"]
+        self.print_impossible_states_bool = False
+        self.save_bool = True
         self.module = self.load_module()
         self.initialize_attributes()
         self.validate_attributes()
@@ -173,6 +184,9 @@ class LoadModule:
         )
         self.save_bool = getattr(self.module, "save_bool", True)
         # self.all_constraints = getattr(self.module, "all_constraints", [])
+
+    def update_max_time(self, new_max_time):
+        self.max_time = new_max_time
 
     def validate_attributes(self):
         for attr, default_value in self.default_values.items():
@@ -327,6 +341,15 @@ def ask_save():
     )
     return file_name, print_cons
 
+def ask_time(runtime, max_time):
+    """prompt the user to increase the max_time"""
+    print(f"The model timed out at {runtime}.")
+    output = input(f"To increase the maximum time, enter a number > {max_time}.\n\nMax time:  ")
+    new_max_time = int(output)
+    if not new_max_time > max_time:
+        return None, None
+    return new_max_time
+
 def no_model_save_or_append(module, model_structure, file_name):
     """option to save or append if no model is found"""
     if len(file_name) == 0:
@@ -339,7 +362,6 @@ def no_model_save_or_append(module, model_structure, file_name):
         print(f'# TITLE: {file_name}.py generated from {module.parent_file}\n"""', file=n)
         model_structure.no_model_save(n)
     print()
-
 
 def save_or_append(module, model_setup, file_name, print_cons, print_imposs):
     """option to save or append if a model is found"""
@@ -393,6 +415,23 @@ def optimize_N(module, model_setup, past_module, past_model_setup, sat=False):
         return max_module, max_model_setup
     return past_module, past_model_setup
 
+def optimize_model_setup(module, contingent, optimize_model):
+    """Runs make_model_for on the values provided by the module and user, optimizing if required."""
+    model_setup = make_model_for(
+        module.N,
+        module.premises,
+        module.conclusions,
+        module.max_time,
+        contingent,
+    )
+    if optimize_model:
+        module, model_setup = optimize_N(module, model_setup, module, model_setup)
+    if model_setup.timeout == "timeout":
+        new_max_time = ask_time(model_setup.model_runtime, model_setup.max_time)
+        module.update_max_time(new_max_time)
+        return optimize_model_setup(module, contingent, False)
+    return module, model_setup
+
 def main():
     """load a test or generate a test when run without input"""
     if len(sys.argv) < 2:
@@ -418,20 +457,7 @@ def main():
     optimize_model = module.optimize or args.optimize
     contingent = module.contingent or args.contingent
 
-    model_setup = make_model_for(
-        module.N,
-        module.premises,
-        module.conclusions,
-        module.max_time,
-        contingent,
-    )
-    if optimize_model:
-        module, model_setup = optimize_N(module, model_setup, module, model_setup)
-
-    if model_setup.timeout:
-        print(f"Model timed out at {model_setup.model_runtime}.")
-        print(f"Consider increasing max_time > {model_setup.max_time}.")
-        return
+    module, model_setup = optimize_model_setup(module, contingent, optimize_model)
 
     if model_setup.model_status:
         states_print = StateSpace(model_setup)
@@ -439,6 +465,10 @@ def main():
         if save_model:
             file_name, print_cons = ask_save()
             save_or_append(module, states_print, file_name, print_cons, print_imposs)
+        return
+
+    if model_setup.timeout == "unknown":
+        print(f"No model found. Try increasing max_time > {model_setup.max_time}.\n")
         return
 
     model_setup.no_model_print()

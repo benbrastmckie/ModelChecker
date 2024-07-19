@@ -89,16 +89,6 @@ def test_ML5():
 
 @pytest.mark.timeout(max_time)
 def test_ML6():
-    # T AXIOM (BOX)
-    N = 3
-    premises = ['Box A']
-    conclusions = ['A']
-    desired_model_status = False
-    contingent = False
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
-
-@pytest.mark.timeout(max_time)
-def test_ML7():
     # 4 AXIOM (TOP)
     N = 3
     premises = ['(top boxright A)']
@@ -108,7 +98,7 @@ def test_ML7():
     check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
-def test_ML8():
+def test_ML7():
     # 4 AXIOM (BOX)
     N = 3
     premises = ['Box A']
@@ -118,7 +108,7 @@ def test_ML8():
     check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
-def test_ML9():
+def test_ML8():
     # B AXIOM (TOP)
     # NOTE: with Z3 quantifiers MIT ran for 1600 seconds; now .0328 seconds locally
     N = 3
@@ -129,7 +119,7 @@ def test_ML9():
     check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
-def test_ML10():
+def test_ML9():
     # B AXIOM (BOX)
     N = 3
     premises = ['A']
@@ -139,7 +129,7 @@ def test_ML10():
     check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
-def test_ML11():
+def test_ML10():
     # 5 AXIOM (TOP)
     # SLOW: 12.9 seconds locally
     N = 3
@@ -150,7 +140,7 @@ def test_ML11():
     check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
-def test_ML12():
+def test_ML11():
     # 5 AXIOM (BOX)
     N = 3
     premises = ['Box A']
@@ -160,7 +150,7 @@ def test_ML12():
     check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
-def test_ML13():
+def test_ML12():
     # BOX-TO-TOP EQUIVALENCE
     N = 3
     premises = ['Box A']
@@ -170,7 +160,7 @@ def test_ML13():
     check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
-def test_ML14():
+def test_ML13():
     # # TOP-TO-BOX EQUIVALENCE
     N = 3
     premises = ['(top boxright A)']
@@ -180,7 +170,7 @@ def test_ML14():
     check_model_status(premises, conclusions, desired_model_status, contingent, N)
 
 @pytest.mark.timeout(max_time)
-def test_ML15():
+def test_ML14():
     # NECESSARY EQUIVALENCE
     N = 3
     premises = []
