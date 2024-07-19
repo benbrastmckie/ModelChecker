@@ -1029,9 +1029,9 @@ def solve_constraints(all_constraints, max_time): # all_constraints is a list of
     solver.set("timeout", max_time * 1000)
     result = solver.check(*[all_constraints])
     # print(f"REASON: {solver.reason_unknown()}")
-    reason = solver.reason_unknown()
-    # if solver.reason_unknown() == "timeout":
-    #     return True, False, None
+    # reason = solver.reason_unknown()
+    if solver.reason_unknown() == "timeout":
+        return True, False, None
     if result == sat:
-        return reason, True, solver.model()
-    return reason, False, solver.unsat_core()
+        return False, True, solver.model()
+    return False, False, solver.unsat_core()
