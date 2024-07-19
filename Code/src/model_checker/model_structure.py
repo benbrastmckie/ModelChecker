@@ -244,14 +244,17 @@ class ModelSetup:
     def print_constraints(self, consts, name, output=sys.__stdout__):
         """prints constraints in an numbered list"""
         if self.timeout:
-            print("No model found before timeout.\n", file=output)
+            # print(f"TIMEOUT: {self.timeout}")
+            print("No model found before timeout.", file=output)
+            print(f"Try increasing max_time > {self.max_time}.\n", file=output)
+            return
         if self.model_status:
             print(f"Satisfiable {name} constraints:\n", file=output)
-        else:
-            print("Unsatisfiable core constraints:\n", file=output)
-            for index, con in enumerate(consts, start=1):
-                print(f"{index}. {con}\n", file=output)
-                # print(f"Constraints time: {time}\n")
+            return
+        print("Unsatisfiable core constraints:\n", file=output)
+        for index, con in enumerate(consts, start=1):
+            print(f"{index}. {con}\n", file=output)
+            # print(f"Constraints time: {time}\n")
 
     def __str__(self):
         '''useful for using model-checker in a python file'''

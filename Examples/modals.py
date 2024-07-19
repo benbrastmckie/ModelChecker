@@ -89,61 +89,55 @@ contingent = False
 # conclusions = ['A']
 # contingent = False
 
-# # ML6: T AXIOM (BOX)
-# N = 3
-# premises = ['Box A']
-# conclusions = ['A']
-# contingent = False
-
-# # ML7: 4 AXIOM (TOP)
+# # ML6: 4 AXIOM (TOP)
 # N = 3
 # premises = ['(top boxright A)']
 # conclusions = ['(top boxright (top boxright A))']
 # contingent = False
 
-# # ML8: 4 AXIOM (BOX)
+# # ML7: 4 AXIOM (BOX)
 # N = 3
 # premises = ['Box A']
 # conclusions = ['Box Box A']
 # contingent = False
 
-# # ML9: B AXIOM (TOP) NOTE: with Z3 quantifiers MIT ran for 1600 seconds; now .0328 seconds locally
+# # ML8: B AXIOM (TOP) NOTE: with Z3 quantifiers MIT ran for 1600 seconds; now .0328 seconds locally
 # N = 3
 # premises = ['A']
 # conclusions = ['(top boxright neg (top boxright neg A))']
 # contingent = False
 
-# # ML10: B AXIOM (BOX)
+# # ML9: B AXIOM (BOX)
 # N = 3
 # premises = ['A']
 # conclusions = ['Box Diamond A']
 # contingent = False
 
-# # ML11: 5 AXIOM (TOP) SLOW: 12.9 seconds locally
+# # ML10: 5 AXIOM (TOP) SLOW: 12.9 seconds locally
 # N = 3
 # premises = ['(top boxright A)']
 # conclusions = ['(top boxright neg (top boxright neg A))']
 # contingent = False
 
-# # ML12: 5 AXIOM (BOX)
+# # ML11: 5 AXIOM (BOX)
 # N = 3
 # premises = ['Box A']
 # conclusions = ['Box Diamond A']
 # contingent = False
 
-# # ML13: BOX-TO-TOP EQUIVALENCE
+# # ML12: BOX-TO-TOP EQUIVALENCE
 # N = 3
 # premises = ['Box A']
 # conclusions = ['(top boxright A)']
 # contingent = False
 
-# # ML14: # TOP-TO-BOX EQUIVALENCE
+# # ML13: # TOP-TO-BOX EQUIVALENCE
 # N = 3
 # premises = ['(top boxright A)']
 # conclusions = ['Box A']
 # contingent = False
 
-# # ML15: NECESSARY EQUIVALENCE
+# # ML14: NECESSARY EQUIVALENCE
 # N = 3
 # premises = []
 # conclusions = ['Box ((A vee neg A) leftrightarrow (B vee neg B))']

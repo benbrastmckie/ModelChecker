@@ -847,10 +847,10 @@ def define_N_semantics(contingent, verify, falsify, possible, N): # assign, non_
         """
         x = BitVec("prop_x", N)
         y = BitVec("prop_y", N)
-        null_cons = [
-            Not(verify(0, atom)),
-            Not(falsify(0, atom)),
-        ]
+        # null_cons = [
+        #     Not(verify(0, atom)),
+        #     Not(falsify(0, atom)),
+        # ]
         cont_cons = [
             Exists(
                 x,
@@ -912,7 +912,7 @@ def define_N_semantics(contingent, verify, falsify, possible, N): # assign, non_
         #     prop_cons.extend(null_cons)
         if contingent:
             prop_cons.extend(cont_cons)
-        return null_cons + prop_cons
+        return prop_cons
 
     def find_frame_constraints(main_world):
         """returns constraints that govern how states act:
@@ -1028,8 +1028,10 @@ def solve_constraints(all_constraints, max_time): # all_constraints is a list of
     # Set the timeout (in milliseconds)
     solver.set("timeout", max_time * 1000)
     result = solver.check(*[all_constraints])
-    if solver.reason_unknown() == "timeout":
-        return True, False, None
+    # print(f"REASON: {solver.reason_unknown()}")
+    reason = solver.reason_unknown()
+    # if solver.reason_unknown() == "timeout":
+    #     return True, False, None
     if result == sat:
-        return False, True, solver.model()
-    return False, False, solver.unsat_core()
+        return reason, True, solver.model()
+    return reason, False, solver.unsat_core()

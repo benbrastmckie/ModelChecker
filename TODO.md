@@ -6,9 +6,10 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## v0.5 Release 
 
-- [ ] make `non_null` independent
-- [ ] prompt user to increase time if timeout
-- [ ] add examples to test file
+- [x] prompt user to increase time if timeout
+- [x] add examples to test file
+  - [:] reduce number
+- [x] remove `non_null`
 - [x] false-premise and true-conclusion models
   - [x] testing
   - [ ] debug
