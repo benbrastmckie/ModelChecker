@@ -2,7 +2,11 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
-## Update
+## Patch
+
+- [ ] debug optimizer
+  - [ ] if timeout, should reduce N rather than halt
+  - [ ] seems to erroneously increase N
 
 ## Release v0.6
 
