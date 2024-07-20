@@ -5,8 +5,27 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Patch
 
 - [ ] debug optimizer
+  - [ ] interrupt process if greater than `max_time`
   - [ ] if timeout, should reduce N rather than halt
   - [ ] seems to erroneously increase N
+
+## Documentation
+
+- [:] documentation
+  - [x] _M_ doc strings for functions
+  - [x] _M_ revise architecture description
+  - [x] _B_ architecture description
+  - [x] _B_ expanded READMEs
+  - [:] _B_ revise pypi readme
+    - [ ] _B_ semantics overview
+  - [:] _B_ revise github readme
+    - [ ] _B_ semantics overview
+  - [ ] _B_ write semantics doc
+  - [ ] _B_ rewrite architecture
+- [ ] clean up project directory
+  - [ ] todos
+  - [ ] docs
+  - [ ] pdf
 
 ## Release v0.6
 
@@ -40,22 +59,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] https://people.csail.mit.edu/henrycg/ -- Henry Corrigan-Gibbs
   - [ ] https://www.csail.mit.edu/person/frans-kaashoek -- Frans Kaashoek
   - [ ] https://people.csail.mit.edu/mengjia/ -- Megjia Yan
-
-## Documentation
-
-- [.] documentation
-  - [x] _M_ doc strings for functions
-  - [x] _M_ revise architecture description
-  - [x] _B_ architecture description
-  - [x] _B_ expanded READMEs
-  - [ ] _B_ revise pypi readme
-  - [ ] _B_ revise github readme
-  - [ ] _B_ semantics doc
-  - [ ] _B_ rewrite architecture
-- [ ] clean up project directory
-  - [ ] todos
-  - [ ] docs
-  - [ ] pdf
 
 ## Refine and Optimize
 

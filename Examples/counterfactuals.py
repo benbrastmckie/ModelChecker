@@ -30,11 +30,11 @@ save_bool = False
 ##### COUNTERFACTUAL COUNTERMODELS #####
 ########################################
 
-# CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-N = 3
-premises = ['(A boxright C)']
-conclusions = ['((A wedge B) boxright C)']
-contingent_bool = True
+# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 3
+# premises = ['(A boxright C)']
+# conclusions = ['((A wedge B) boxright C)']
+# contingent_bool = True
 
 # # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # N = 3
@@ -232,11 +232,12 @@ contingent_bool = True
 # conclusions = ['(A boxright B)']
 # contingent_bool = False
 
-# # CF9:
-# N = 3
-# premises = ['(A boxright B)','(A boxright C)']
-# conclusions = ['(A boxright (B wedge C))']
-# contingent_bool = False
+# CF9:
+N = 3
+premises = ['(A boxright B)','(A boxright C)']
+conclusions = ['(A boxright (B wedge C))']
+contingent_bool = False
+optimize_bool = False
 
 # # CF10: FACTIVITY MIGHT
 # N = 3
