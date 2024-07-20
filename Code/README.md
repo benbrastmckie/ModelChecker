@@ -31,7 +31,7 @@ Each file may specify the following inputs where the defaults or specified below
   - A list of premises that are treated conjunctively: `premises = []`.
   - A list of conclusions that are treated disjunctively: `conclusions = []`.
   - The number of atomic states to include in each model: `N = 3`.
-  - The maximum time in seconds to spend looking for a model: `max_time = 2`.
+  - The maximum time in seconds to spend looking for a model: `max_time = 1`.
 
 Optionally, the user can specify a number of additional settings where defaults are provided below:
 

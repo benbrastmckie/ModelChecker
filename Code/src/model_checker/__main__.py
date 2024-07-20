@@ -130,22 +130,24 @@ class LoadModule:
             "N": 3,
             "premises": [],
             "conclusions": [],
-            "contingent": False,
-            "max_time": 2,
-            "optimize": False,
+            "max_time": 1,
+            "contingent_bool": False,
+            "optimize_bool": False,
             "print_cons_bool": False,
+            "print_impossible_states_bool": False,
+            "save_bool": False,
         }
         self.parent_file = None
         self.parent_directory = None
         self.N = self.default_values["N"]
         self.premises = self.default_values["premises"]
         self.conclusions = self.default_values["conclusions"]
-        self.contingent_bool = self.default_values["contingent"]
         self.max_time = self.default_values["max_time"]
-        self.optimize_bool = self.default_values["optimize"]
+        self.contingent_bool = self.default_values["contingent_bool"]
+        self.optimize_bool = self.default_values["optimize_bool"]
         self.print_cons_bool = self.default_values["print_cons_bool"]
-        self.print_impossible_states_bool = False
-        self.save_bool = True
+        self.print_impossible_states_bool = self.default_values["print_impossible_states_bool"]
+        self.save_bool = self.default_values["save_bool"]
         self.module = self.load_module()
         self.initialize_attributes()
         self.validate_attributes()
@@ -169,9 +171,17 @@ class LoadModule:
         self.N = getattr(self.module, "N", self.default_values["N"])
         self.premises = getattr(self.module, "premises", self.default_values["premises"])
         self.conclusions = getattr(self.module, "conclusions", self.default_values["conclusions"])
-        self.contingent = getattr(self.module, "contingent", self.default_values["contingent"])
         self.max_time = getattr(self.module, "max_time", self.default_values["max_time"])
-        self.optimize = getattr(self.module, "optimize", self.default_values["optimize"])
+        self.contingent_bool = getattr(
+            self.module,
+            "contingent_bool",
+            self.default_values["contingent_bool"]
+        )
+        self.optimize_bool = getattr(
+            self.module,
+            "optimize_bool",
+            self.default_values["optimize_bool"]
+        )
         self.print_cons_bool = getattr(
             self.module,
             "print_cons_bool",
@@ -384,7 +394,7 @@ def adjust(module, offset):
         module.premises,
         module.conclusions,
         module.max_time,
-        module.contingent
+        module.contingent_bool
     )
     return module, model_setup
 

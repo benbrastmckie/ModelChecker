@@ -9,23 +9,17 @@ file_name = os.path.basename(__file__)
 ########## SETTINGS ############
 ################################
 
-# number of atomic states
-N = 3
-
 # time cutoff for increasing N
 max_time = 1
 
 # find critical value of N
 optimize_bool = False
 
-# make all propositions contingent
-contingent_bool = True
-
 # print all Z3 constraints if a model is found
 print_cons_bool = False
 
 # print all states including impossible states
-print_impossible_states_bool = True
+print_impossible_states_bool = False
 
 # present option to append output to file
 save_bool = False
@@ -136,7 +130,7 @@ save_bool = False
 # DISTRIBUTION
 
 # # TODO: true conclusion model
-# contingent = True
+# contingent_bool = True
 # conclusions = ['(((A vee B) wedge (A vee C)) preceq (A vee (B wedge C)))']
 
 # # TODO: true conclusion model
