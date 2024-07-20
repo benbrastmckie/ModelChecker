@@ -89,8 +89,8 @@ If you are in the directory in which the `test_file.py` exists, you can run `mod
 Use the 'up'-arrow key to scroll through past commands, saving time when running the same file multiple times.
 
 Files can be edited with your choice of text editor, e.g., run `vim test_file.py` to edit the named file in the terminal with Vim (for help, run `vimtutor`).
-If you do not want to use Vim, you can use any other text editor, e.g., TextEdit on MacOS.
-Alternatively, you might consider using [NeoVim](https://github.com/benbrastmckie/.config), [VSCode](https://code.visualstudio.com/), or [PyCharm](https://www.jetbrains.com/pycharm/) for a more fully featured user experience.
+If you do not want to use vanilla Vim or this configuration of [NeoVim](https://github.com/benbrastmckie/.config) for working with LaTeX, Markdown, Python, etc., you can use any other text editor you like (e.g., TextEdit on MacOS).
+Alternatively, you might consider using these [resources for setting up VSCodium](https://github.com/benbrastmckie/VSCodium) or else installing [PyCharm](https://www.jetbrains.com/pycharm/), both of which will provide a more fully featured user experience without too much trouble.
 
 ### Usage
 
