@@ -14,11 +14,17 @@ file_name = os.path.basename(__file__)
 # number of atomic states
 N = 3
 
+# time cutoff for increasing N
+max_time = 1
+
+# find critical value of N
+optimize_bool = False
+
+# make all propositions contingent
+contingent_bool = True
+
 # print all Z3 constraints if a model is found
 print_cons_bool = False
-
-# print core unsatisfiable Z3 constraints if no model exists
-print_unsat_core_bool = True
 
 # print all states including impossible states
 print_impossible_states_bool = True
