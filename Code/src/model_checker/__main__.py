@@ -140,9 +140,9 @@ class LoadModule:
         self.N = self.default_values["N"]
         self.premises = self.default_values["premises"]
         self.conclusions = self.default_values["conclusions"]
-        self.contingent = self.default_values["contingent"]
+        self.contingent_bool = self.default_values["contingent"]
         self.max_time = self.default_values["max_time"]
-        self.optimize = self.default_values["optimize"]
+        self.optimize_bool = self.default_values["optimize"]
         self.print_cons_bool = self.default_values["print_cons_bool"]
         self.print_impossible_states_bool = False
         self.save_bool = True
@@ -454,8 +454,8 @@ def main():
     print_imposs = module.print_impossible_states_bool or args.impossible
     print_cons = module.print_cons_bool or args.print
     save_model = module.save_bool or args.save
-    optimize_model = module.optimize or args.optimize
-    contingent = module.contingent or args.contingent
+    optimize_model = module.optimize_bool or args.optimize
+    contingent = module.contingent_bool or args.contingent
 
     module, model_setup = optimize_model_setup(module, contingent, optimize_model)
 

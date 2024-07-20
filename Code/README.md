@@ -1,52 +1,62 @@
 # Model Checker
 
-This project draws on the [Z3](https://github.com/Z3Prover/z3) theorem prover to provide tooling for finding countermodels for claims which include modal, counterfactual conditional, constitutive explanatory, and extensional operators.
+This project draws on the [Z3](https://github.com/Z3Prover/z3) SMT solver to provide tooling for finding countermodels and establishing validity up to a user specified lever of complexity for claims which include counterfactual conditional, modal, constitutive explanatory, relevance, and extensional operators.
 The language currently includes the following operators:
 
   - `neg` for _negation_
   - `wedge` for _conjunction_
   - `vee` for _disjunction_
-  - `rightarrow` for _material conditional_
-  - `leftrightarrow` for _material biconditional_
-  - `Box` for _necessity_
-  - `Diamond` for _possibility_
+  - `rightarrow` for the _material conditional_
+  - `leftrightarrow` for the _material biconditional_
   - `boxright` for the _must counterfactual conditional_
   - `circleright` for the _might counterfactual conditional_
-  - `leq` for _ground_
-  - `sqsubseteq` for _essence_
-  - `equiv` for _propositional identity_
+  - `Box` for _necessity_
+  - `Diamond` for _possibility_
+  - `leq` for _ground_ read 'sufficient for'
+  - `sqsubseteq` for _essence_ read 'necessary for'
+  - `equiv` for _propositional identity_ read 'just is for'
   - `preceq` for _relevance_
   <!-- - `not` for _exclusion_ -->
 
 Accessible [installation instructions](https://github.com/benbrastmckie/ModelChecker?tab=readme-ov-file#installation) are provided in the GitHub repository.
 
-## Instructions
+## Usage
 
 To generate a test file run `model-checker` in the terminal without arguments.
 Alternatively, run `model-checker path/to/test_file.py` if the `test_file.py` already exists.
 A number of [examples](https://github.com/benbrastmckie/ModelChecker/blob/master/Examples/examples.py) are provided in the GitHub repository.
 
-Each file may specify a set of `premises` which are treated conjunctively, `conclusions` which are treated disjunctively, and the number `N` of atomic states to include in each model.
-If unspecified, `premises = []`, `conclusions = []`, and `N = 3` will be set by default.
-Optionally, the user can specify whether to print the Z3 constraints when a model is found, or the unsatisfiable core when no model exists, as well as an option to save or append the output.
-These settings are specified with the Boolean values `True` and `False`:
+Each file may specify the following inputs where the defaults or specified below:
 
-- Print all Z3 constraints if a model is found: `print_cons_bool`
-- Print the Z3 unsatisfiable core constraints if no model exists: `print_unsat_core_bool`
-- Print all states including impossible states: `print_impossibe_states_bool`
-- Prompt the user to append the output to the current file in a new file: `save_bool`
+  - A list of premises that are treated conjunctively: `premises = []`.
+  - A list of conclusions that are treated disjunctively: `conclusions = []`.
+  - The number of atomic states to include in each model: `N = 3`.
+  - The maximum time in seconds to spend looking for a model: `max_time = 2`.
 
-Users can override these settings by including the following flags:
+Optionally, the user can specify a number of additional settings where defaults are provided below:
 
-- Include `-c` to include Z3 constraints.
-- Include `-i` to print impossible states.
-- Include `-s` to prompt the user to save the output in a new file.
+  - Require all propositions to be contingent: `contingent_bool = False`.
+  - Find a model with the smallest number of atomic elements: `optimize_bool = False`.
+  - Print all Z3 constraints: `print_cons_bool = False`.
+  - Show impossible states included in the model: `print_impossibe_states_bool = False`.
+  - Prompt the user to append the output to the current file in a new file: `save_bool = False`.
 
-Users can print help information, the current version, and upgrade to the latest version with the following flags:
+Users can override these settings from the command line by including the following flags:
 
-- Include `-h` to print help information about the programs usage.
-- Include `-v` to print the installed version number.
-- Include `-u` to upgrade to the latest version.
+  - Include `-c` to set `contingent_bool = True`.
+  - Include `-o` to set `optimize_bool = True`.
+  - Include `-p` to set `print_cons_bool = True`.
+  - Include `-i` to set `print_impossibe_states_bool = True`.
+  - Include `-s` to set `save_bool = True`.
+
+Additional flags have been included in order to manage the package version:
+
+  - Include `-h` to print help information about the package and its usage.
+  - Include `-v` to print the installed version number.
+  - Include `-u` to upgrade to the latest version.
+
+The following section will provide some indication of the underlying semantics.
+More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker) as well as in this recent [manuscript](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf). 
 
 ## Hyperintensional Semantics
 
@@ -83,7 +93,7 @@ A _necessity sentence_ `Box A` is true at a world just in case every world state
 Given a world state `w` and state `s`, an `s`_-alternative_ to `w` is any world state to include as parts both `s` and a maximal part of `w` that is compatible with `s`.
 A _must counterfactual conditional sentences_ `A boxright B` is true at a world state `w` just in case its consequent is true at any `s`-alternative to `w` for any verifier `s` for the antecedent of the counterfactual.
 A _might counterfactual conditional sentences_ `A boxright B` is true at a world state `w` just in case its consequent is true at some `s`-alternative to `w` for some verifier `s` for the antecedent of the counterfactual.
-The semantic theory for counterfactual conditionals is motivated and further elaborated in this [draft](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf).
+The semantic theory for counterfactual conditionals is motivated and further elaborated in this [manuscript](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf).
 This account builds on [Fine 2012](https://www.pdcnet.org/jphil/content/jphil_2012_0109_0003_0221_0246) and [Fine2012a](https://link.springer.com/article/10.1007/s11229-012-0094-y?error=cookies_not_supported&code=5166a4da-1834-438c-9f93-75b61f58b6db).
 
 A _grounding sentence_ `A leq B` may be read '`A` is _sufficient for_ `B`' and an _essence sentence_ `A sqsubseteq B` may be read '`A` is _necessary for_ `B`'.
