@@ -34,8 +34,8 @@ save_bool = False
 
 ### INVALID ###
 
-# premises = ['Box (A leftrightarrow B)']
-# conclusions = ['(not A equiv not B)']
+premises = ['Box (A leftrightarrow B)']
+conclusions = ['(not A equiv not B)']
 
 # conclusions = ['(A equiv not not A)']
 # conclusions = ['(not A equiv not not not A)']
