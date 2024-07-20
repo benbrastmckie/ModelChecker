@@ -18,7 +18,7 @@ The language currently includes the following operators:
   - `preceq` for _relevance_
   <!-- - `not` for _exclusion_ -->
 
-The hyperintensional semantics is briefly discussed [below](##Hyperintensional-Semantics) with links to further details.
+The [hyperintensional semantics](##Hyperintensional-Semantics) is briefly discussed below with links to further resources.
 
 ### Screenshot
 
