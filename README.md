@@ -24,7 +24,7 @@ The hyperintensional semantics is briefly discussed [below](##Hyperintensional-S
 
 ![Counterfactual antecedent strengthening screenshot](Images/cf_antecedent_strengthening.png)
 
-> NOTE: more images can be found [here]().
+> NOTE: more images can be found [here](https://github.com/benbrastmckie/ModelChecker/tree/master/Images).
 
 ## Installation
 
