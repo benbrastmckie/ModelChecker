@@ -20,6 +20,12 @@ The language currently includes the following operators:
 
 The hyperintensional semantics is briefly discussed [below](##Hyperintensional-Semantics) with links to further details.
 
+### Screenshot
+
+![Counterfactual antecedent strengthening screenshot](Images/cf_antecedent_strengthening.png)
+
+> NOTE: more images can be found [here]().
+
 ## Installation
 
 Install [Python 3](https://www.python.org/downloads/) and run the following command in the terminal:

@@ -30,11 +30,11 @@ save_bool = False
 ##### COUNTERFACTUAL COUNTERMODELS #####
 ########################################
 
-# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 3
-# premises = ['(A boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
-# contingent_bool = True
+# CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+N = 3
+premises = ['(A boxright C)']
+conclusions = ['((A wedge B) boxright C)']
+contingent_bool = True
 
 # # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # N = 3
@@ -81,11 +81,11 @@ save_bool = False
 # conclusions = ['(neg B boxright neg A)']
 # contingent_bool = True
 
-# # CF_CM9: TRANSITIVITY
-# N = 3
-# premises = ['(A boxright B)','(B boxright C)']
-# conclusions = ['(A boxright C)']
-# contingent_bool = True
+# CF_CM9: TRANSITIVITY
+N = 3
+premises = ['(A boxright B)','(B boxright C)']
+conclusions = ['(A boxright C)']
+contingent_bool = True
 
 # # CF_CM10: COUNTERFACTUAL TRANSITIVITY WITH NEGATION
 # # NOTE: with Z3 quantifiers 78 seconds on the MIT server; now .1311 seconds locally
@@ -135,17 +135,17 @@ save_bool = False
 # conclusions = []
 # contingent_bool = True
 
-# # CF_CM14: COUNTERFACTUAL EXCLUDED MIDDLE
-# N = 3
-# premises = ['neg A']
-# conclusions = ['(A boxright B)','(A boxright neg B)']
-# contingent_bool = True
+# CF_CM14: COUNTERFACTUAL EXCLUDED MIDDLE
+N = 3
+premises = ['neg A']
+conclusions = ['(A boxright B)','(A boxright neg B)']
+contingent_bool = True
 
-# # CF_CM15: SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
-# N = 3
-# premises = ['neg A','(A boxright (B vee C))']
-# conclusions = ['(A boxright B)','(A boxright C)']
-# contingent_bool = True
+# CF_CM15: SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
+N = 3
+premises = ['neg A','(A boxright (B vee C))']
+conclusions = ['(A boxright B)','(A boxright C)']
+contingent_bool = True
 
 # # CF_CM16: INTRODUCTION OF DISJUNCTIVE ANTECEDENT
 # # NOTE: with Z3 quantifiers for 40 seconds locally; now .2785 seconds locally
@@ -232,12 +232,12 @@ save_bool = False
 # conclusions = ['(A boxright B)']
 # contingent_bool = False
 
-# CF9:
-N = 3
-premises = ['(A boxright B)','(A boxright C)']
-conclusions = ['(A boxright (B wedge C))']
-contingent_bool = False
-optimize_bool = False
+# # CF9:
+# N = 3
+# premises = ['(A boxright B)','(A boxright C)']
+# conclusions = ['(A boxright (B wedge C))']
+# contingent_bool = False
+# optimize_bool = False
 
 # # CF10: FACTIVITY MIGHT
 # N = 3
