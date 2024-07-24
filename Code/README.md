@@ -1,7 +1,6 @@
 # Model Checker
 
-This project draws on the [Z3](https://github.com/Z3Prover/z3) SMT solver to provide tooling for finding countermodels and establishing validity up to a user specified lever of complexity for claims which include counterfactual conditional, modal, constitutive explanatory, relevance, and extensional operators.
-The language currently includes the following operators:
+This project draws on the [Z3](https://github.com/Z3Prover/z3) SMT solver to provide tooling for finding countermodels and establishing validity up to a user specified lever of complexity for inferences in a propositional language with the following operators:
 
   - `neg` for _negation_
   - `wedge` for _conjunction_

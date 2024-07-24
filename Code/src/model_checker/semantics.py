@@ -4,6 +4,10 @@ this file defines the functions needed to generate Z3 constraints from
 input_sentences in infix form.
 """
 
+# import time
+# import threading
+import multiprocessing
+# import signal
 from z3 import (
     sat,
     # Exists,
@@ -1035,3 +1039,113 @@ def solve_constraints(all_constraints, max_time): # all_constraints is a list of
     if result == sat:
         return False, True, solver.model()
     return False, False, solver.unsat_core()
+
+# def solve_constraints_worker(all_constraints):
+#     solver = Solver()
+#     solver.add(all_constraints)
+#     result = solver.check(*[all_constraints])
+#     if result == sat:
+#         timeout = False
+#         z3_model_status = True
+#         z3_model = solver.model()
+#         return timeout, z3_model_status, z3_model
+#     timeout = False
+#     z3_model_status = False
+#     z3_model = solver.unsat_core()
+#
+# def solve_constraints(all_constraints, max_time):
+#     """Find model for the input constraints within the max_time. Returns a tuple with a boolean 
+#     representing if (1) the timeout occurred, if (2) the constraints were solved or not, and, if (3) 
+#     the model or unsatisfiable core depending."""
+#     manager = multiprocessing.Manager()
+#     return_dict = manager.dict()
+#     solver_process = multiprocessing.Process(target=solve_constraints_worker, args=all_constraints)
+#     solver_process.start()
+#     solver_process.join(max_time)
+#
+#     if solver_process.is_alive():
+#         solver_process.terminate()
+#         solver_process.join()
+#         return True, False, None
+#
+#     if return_dict['solved']:
+#         return False, True, return_dict['model']
+#     return False, False, return_dict['unsat_core']
+
+# # Example usage
+# if __name__ == "__main__":
+#     constraints = [...]  # Replace with your list of constraints
+#     max_time = 5  # Replace with your max time in seconds
+#     timeout, solved, model_or_core = solve_constraints(constraints, max_time)
+#     print("Timeout:", timeout)
+#     print("Solved:", solved)
+#     print("Model or Unsat Core:", model_or_core)
+
+
+# def solve_constraints_worker(all_constraints, result_queue):
+#     solver = Solver()
+#     solver.add(all_constraints)
+#     result = solver.check(*[all_constraints])
+#     if result == sat:
+#         result_queue.put((False, True, solver.model()))
+#     else:
+#         result_queue.put((False, False, solver.unsat_core()))
+#
+# def solve_constraints(all_constraints, max_time):
+#     """Find model for the input constraints within the max_time. Returns a tuple with a boolean 
+#     representing if (1) the timeout occurred, if (2) the constraints were solved or not, and, if (3) 
+#     the model or unsatisfiable core depending."""
+#     result_queue = multiprocessing.Queue()
+#     solver_process = multiprocessing.Process(
+#         target=solve_constraints_worker,
+#         args=(all_constraints, result_queue)
+#     )
+#
+#     solver_process.start()
+#     solver_process.join(max_time)
+#
+#     if solver_process.is_alive():
+#         solver_process.terminate()
+#         solver_process.join()
+#         return True, False, None
+#
+#     return result_queue.get()
+
+# # Example usage
+# if __name__ == "__main__":
+#     constraints = [...]  # Replace with your list of constraints
+#     max_time = 5  # Replace with your max time in seconds
+#     timeout, solved, model_or_core = solve_constraints(constraints, max_time)
+#     print("Timeout:", timeout)
+#     print("Solved:", solved)
+#     print("Model or Unsat Core:", model_or_core)
+
+
+# def solve_constraints(all_constraints, max_time):
+#     """Find model for the input constraints within the max_time. Returns a tuple with a boolean 
+#     representing if (1) the timeout occurred, if (2) the constraints were solved or not, and, if (3) 
+#     the model or unsatisfiable core depending."""
+#     solver = Solver()
+#     solver.add(all_constraints)
+#
+#     def interrupt_solver():
+#         nonlocal solver
+#         solver. interrupt()
+#
+#     timer = threading.Timer(max_time, interrupt_solver)
+#     timer.start()
+#
+#     try:
+#         result = solver.check(*[all_constraints])
+#     except Exception as e:
+#         timer.cancel()
+#         if str(e) == "interrupted":
+#             return True, False, None
+#         raise e
+#
+#     timer.cancel()
+#
+#     if result == sat:
+#         return False, True, solver.model()
+#     return False, False, solver.unsat_core()
+
