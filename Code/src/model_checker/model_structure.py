@@ -5,13 +5,14 @@ file defines model structure class given a Z3 model sdffds
 from string import Template
 import time
 import sys
-# import os
 from z3 import (
+    Solver,
     Function,
     BitVecSort,
     BoolSort,
     BitVec,
-    BitVecVal
+    BitVecVal,
+    sat,
 )
 
 # # didn't work
@@ -28,7 +29,7 @@ from z3 import (
 ### FOR TESTING ###
 from semantics import ( # imports issue fixed with above code
     define_N_semantics,
-    solve_constraints,
+    # solve_constraints,
     all_sentence_letters,
 )
 from model_definitions import (
@@ -121,12 +122,13 @@ class ModelSetup:
     """class which includes all elements provided by the user as well as those
     needed to find a model if there is one"""
 
-    def __init__(self, N, infix_premises, infix_conclusions, max_time, contingent):
+    def __init__(self, N, infix_premises, infix_conclusions, max_time, contingent, disjoint):
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
         self.N = N
         self.max_time = max_time
         self.contingent = contingent
+        self.disjoint = disjoint
         self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
         self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
         self.possible = Function("possible", BitVecSort(N), BoolSort())
@@ -138,13 +140,13 @@ class ModelSetup:
         prefix_sentences = self.prefix_premises + self.prefix_conclusions
         self.all_subsentences = find_subsentences(prefix_sentences)
         find_constraints_func = define_N_semantics(
-            # self.non_null,
+            self.N,
             self.contingent,
+            self.disjoint,
             self.verify,
             self.falsify,
             self.possible,
             # self.assign,
-            self.N,
         )
         frame_cons, prop_cons, premise_cons, conclusion_cons = find_constraints_func(
             self.prefix_premises,
@@ -170,21 +172,37 @@ class ModelSetup:
         self.z3_model = z3_model
         self.model_runtime = model_runtime
 
-    def solve(self, constraints, max_time):
-        """solves for the model, returns None
-        self.model is the ModelRef object resulting from solving the model
-        self.model_runtime is the runtime of the model as a float
-        self.all_bits is a list of all bits (each of sort BitVecVal)
-        self.poss_bits is a list of all possible bits
-        self.world_bits is a lsit of all world bits
-        self.main_world is the eval world (as a BitVecVal)
-        self.atomic_props_dict is a dictionary with keys AtomSorts and values (V,F)
-        """
-        model_start = time.time()  # start benchmark timer
-        timeout, z3_model_status, z3_model = solve_constraints(constraints, max_time)
-        model_end = time.time()
-        model_runtime = round(model_end - model_start, 4)
-        return timeout, z3_model_status, z3_model, model_runtime
+    # NOTE: seems to mostly be working but occasionally seems to run longer than the printed time
+    def solve(self, all_constraints, max_time): # all_constraints is a list of constraints
+        """Finds a model for the input constraints within the max_time if there is such a model
+        returns a tuple with a boolean representing if (1) the timeout occurred, if (2) the
+        constraints were solved or not and, if (3) the model or unsatisfiable core depending"""
+        solver = Solver()
+        solver.add(all_constraints)
+        # Set the timeout (in milliseconds)
+        milliseconds = int(max_time * 1000)
+        solver.set("timeout", milliseconds)
+        try:
+            model_start = time.time()  # start benchmark timer
+            result = solver.check()
+            model_end = time.time()
+            model_runtime = round(model_end - model_start, 4)
+            if result == sat:
+                return False, True, solver.model(), model_runtime
+            if solver.reason_unknown() == "timeout":
+                return True, False, None, model_runtime
+            return False, False, solver.unsat_core(), model_runtime
+        except RuntimeError as e:
+            # Handle unexpected exceptions
+            print(f"An error occurred while running `solve_constraints()`: {e}")
+            return True, False, None, None
+
+    # # NOTE: this was when solve_constraints was in semantics.py
+    # def solve(self, constraints, max_time):
+    #     """solves for the model, returns None
+    #     """
+    #     timeout, z3_model_status, z3_model, model_runtime = solve_constraints(constraints, max_time)
+    #     return timeout, z3_model_status, z3_model, model_runtime
 
     def build_test_file(self, output):
         """generates a test file from input to be saved"""
@@ -654,13 +672,20 @@ class Proposition:
             file=output,
         )
 
-def make_model_for(N, premises, conclusions, max_time, contingent):
+def make_model_for(N, premises, conclusions, max_time, contingent, disjoint):
     """
     input: N (int of number of atomic states you want in the model)
     returns a function that will solve the premises and conclusions"""
     backslash_premises = [add_backslashes_to_infix(prem) for prem in premises]
     backslash_conclusions = [add_backslashes_to_infix(concl) for concl in conclusions]
-    model_setup = ModelSetup(N, backslash_premises, backslash_conclusions, max_time, contingent)
+    model_setup = ModelSetup(
+        N,
+        backslash_premises,
+        backslash_conclusions,
+        max_time,
+        contingent,
+        disjoint,
+    )
     # z3_model_status, z3_model, model_runtime = model_setup.solve()
     # model_structure = ModelStructure(z3_model_status, model_setup, z3_model, model_runtime)
     return model_setup
