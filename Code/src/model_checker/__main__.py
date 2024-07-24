@@ -50,17 +50,11 @@ file_name = os.path.basename(__file__)
 ########## SETTINGS ############
 ################################
 
-# number of atomic states
-N = 3
-
-# time cutoff for increasing N
-optimize = False
-
 # time cutoff for increasing N
 max_time = 1
 
-# make all propositions contingent
-contingent = False
+# find critical value of N
+optimize_bool = False
 
 # print all Z3 constraints if a model is found
 print_cons_bool = False
@@ -89,7 +83,7 @@ save_bool = False
 
 # Negation: 'neg', e.g., 'neg A'.
 # Necessity: 'Box', e.g., 'Box A'.
-# Possibility: 'Diamond', e.g., 'Diamond RedBall'. 
+# Possibility: 'Diamond', e.g., 'Diamond A'. 
 
 # NOTE: parentheses must not be included for unary operators.
 
@@ -100,7 +94,12 @@ save_bool = False
 # Disjunction: 'vee', e.g., '(A vee B)'
 # Conditional: 'rightarrow', e.g., '(A rightarrow B)'
 # Biconditional: 'leftrightarrow', e.g., '(A leftrightarrow B)'
-# Counterfactual: 'boxright', e.g., '(A boxright B)'
+# Must Counterfactual: 'boxright', e.g., '(A boxright B)'
+# Might Counterfactual: 'circright', e.g., '(A circright B)'
+# Ground: 'leq', e.g., '(A leq B)'
+# Essece: 'sqsubseteq', e.g., '(A sqsubseteq B)'
+# Propositional Identity: 'equiv', e.g., '(A equiv B)'
+# Relevance: 'preceq', e.g., '(A preceq B)'
 
 # NOTE: parentheses must always be included for binary operators.
 
@@ -109,15 +108,21 @@ save_bool = False
 ########## ARGUMENTS ###########
 ################################
 
+# NOTE: Additional examples can be found at: https://github.com/benbrastmckie/ModelChecker/tree/master/Examples
+
 ### INVALID ###
 
 premises = ['neg A','(A boxright (B vee C))']
 conclusions = ['(A boxright B)','(A boxright C)']
+N = 3 # number of atomic states
+contingent = False # make all propositions contingent
 
 ### VALID ###
 
 # premises = ['((A vee B) boxright C)']
 # conclusions = ['(A boxright C)']
+N = 3 # number of atomic states
+contingent = False # make all propositions contingent
 
 """)
 
@@ -132,6 +137,7 @@ class LoadModule:
             "conclusions": [],
             "max_time": 1,
             "contingent_bool": False,
+            "disjoint_bool": False,
             "optimize_bool": False,
             "print_cons_bool": False,
             "print_impossible_states_bool": False,
@@ -144,6 +150,7 @@ class LoadModule:
         self.conclusions = self.default_values["conclusions"]
         self.max_time = self.default_values["max_time"]
         self.contingent_bool = self.default_values["contingent_bool"]
+        self.disjoint_bool = self.default_values["disjoint_bool"]
         self.optimize_bool = self.default_values["optimize_bool"]
         self.print_cons_bool = self.default_values["print_cons_bool"]
         self.print_impossible_states_bool = self.default_values["print_impossible_states_bool"]
@@ -176,6 +183,11 @@ class LoadModule:
             self.module,
             "contingent_bool",
             self.default_values["contingent_bool"]
+        )
+        self.disjoint_bool = getattr(
+            self.module,
+            "disjoint_bool",
+            self.default_values["disjoint_bool"]
         )
         self.optimize_bool = getattr(
             self.module,
@@ -230,6 +242,12 @@ def parse_file_and_flags():
         '-c',
         action='store_true',
         help='Overrides to make all propositions contingent.'
+    )
+    parser.add_argument(
+        '--disjoint',
+        '-d',
+        action='store_true',
+        help='Overrides to make all propositions have disjoint subject-matters.'
     )
     parser.add_argument(
         '--print',
@@ -355,7 +373,7 @@ def ask_time(runtime, max_time):
     """prompt the user to increase the max_time"""
     print(f"The model timed out at {runtime} seconds.")
     output = input(f"To increase the maximum time, enter a time > {max_time}.\n\nMax time:  ")
-    new_max_time = int(output)
+    new_max_time = float(output)
     if not new_max_time > max_time:
         return None, None
     return new_max_time
@@ -394,7 +412,8 @@ def adjust(module, offset):
         module.premises,
         module.conclusions,
         module.max_time,
-        module.contingent_bool
+        module.contingent_bool,
+        module.disjoint_bool,
     )
     return module, model_setup
 
@@ -425,21 +444,22 @@ def optimize_N(module, model_setup, past_module, past_model_setup, sat=False):
         return max_module, max_model_setup
     return past_module, past_model_setup
 
-def optimize_model_setup(module, contingent, optimize_model):
+def optimize_model_setup(module, optimize_model):
     """Runs make_model_for on the values provided by the module and user, optimizing if required."""
     model_setup = make_model_for(
         module.N,
         module.premises,
         module.conclusions,
         module.max_time,
-        contingent,
+        module.contingent_bool,
+        module.disjoint_bool,
     )
     if optimize_model:
         module, model_setup = optimize_N(module, model_setup, module, model_setup)
     if model_setup.timeout:
         new_max_time = ask_time(model_setup.model_runtime, model_setup.max_time)
         module.update_max_time(new_max_time)
-        return optimize_model_setup(module, contingent, False)
+        return optimize_model_setup(module, False)
     return module, model_setup
 
 def main():
@@ -465,9 +485,9 @@ def main():
     print_cons = module.print_cons_bool or args.print
     save_model = module.save_bool or args.save
     optimize_model = module.optimize_bool or args.optimize
-    contingent = module.contingent_bool or args.contingent
+    module.contingent_bool = module.contingent_bool or args.contingent
 
-    module, model_setup = optimize_model_setup(module, contingent, optimize_model)
+    module, model_setup = optimize_model_setup(module, optimize_model)
 
     if model_setup.model_status:
         states_print = StateSpace(model_setup)

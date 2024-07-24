@@ -4,14 +4,13 @@ this file defines the functions needed to generate Z3 constraints from
 input_sentences in infix form.
 """
 
-# import time
-# import threading
+import time
 import multiprocessing
-# import signal
 from z3 import (
     sat,
-    # Exists,
-    # ForAll,
+    # unsat,
+    # parse_smt2_string,
+    # Bool,
     BitVecVal,
     substitute,
     Implies,
@@ -109,7 +108,7 @@ def all_sentence_letters(prefix_sentences):
     # sort just to make every output the same, given sets aren't hashable
 
 
-def define_N_semantics(contingent, verify, falsify, possible, N): # assign, non_null,
+def define_N_semantics(N, contingent, disjoint, verify, falsify, possible): # assign, non_null,
     # NOTE: just thought of this—we could make the options to do non_null or non_triv optional.
     # Like it coulld be an optional argument put into the model at the top level, just like
     # unsat_core is. Let me below know if you think that's a good idea or if it wouln't be useful.
@@ -918,6 +917,39 @@ def define_N_semantics(contingent, verify, falsify, possible, N): # assign, non_
             prop_cons.extend(cont_cons)
         return prop_cons
 
+    def disjoint_subject_matter(sent_letter, other_letter):
+        """Returns a list of Z3 constraints that require the input sentence letters to have
+        disjoint subject-matters so any non-null state is a part of a verifier or falsifier for
+        at most one of the input sentence letters."""
+        x = BitVec("disjoint_x", N)
+        y = BitVec("disjoint_y", N)
+        z = BitVec("disjoint_y", N)
+        disjoin_cons = [
+            ForAll(
+                [x, y],
+                Implies(
+                    And(
+                        non_null_part_of(x, y),
+                        Or(
+                            verify(y, sent_letter),
+                            falsify(y, sent_letter)
+                        )
+                    ),
+                    ForAll(
+                        z,
+                        Implies(
+                            Or(
+                                verify(z, other_letter),
+                                falsify(z, other_letter)
+                            ),
+                            Not(is_part_of(x, z))
+                        )
+                    )
+                )
+            )
+        ]
+        return disjoin_cons
+
     def find_frame_constraints(main_world):
         """returns constraints that govern how states act:
         1. for any two states x and y, if y is possible and x is a part of y, then x is possible
@@ -934,7 +966,7 @@ def define_N_semantics(contingent, verify, falsify, possible, N): # assign, non_
         ]
         return frame_constraints
 
-    def find_prop_constraints(sentence_letters):
+    def find_prop_constraints(sentence_letters, disjoint_props_bool):
         """Input: a list of all sentence letters in the premises and conclusions, as returned
         by the function all_sentence_letters (i.e., a list of AtomSorts).
         Returns the a list of the Z3 constraints that each atomic proposition gets, which is
@@ -955,8 +987,12 @@ def define_N_semantics(contingent, verify, falsify, possible, N): # assign, non_
                 )
                 prop_constraints.append(top_constraint)
                 continue # ie, make_atom_prop_constraint should never be called on '\\top'
-            for constraint in make_atom_prop_constraint(sent_letter):
-                prop_constraints.append(constraint)
+            sent_letter_constraints = make_atom_prop_constraint(sent_letter)
+            prop_constraints.extend(sent_letter_constraints)
+            if disjoint_props_bool:
+                for other_letter in sentence_letters.remove(sent_letter):
+                    disjoint_constraints = disjoint_subject_matter(sent_letter, other_letter)
+                    prop_constraints.extend(disjoint_constraints)
         return prop_constraints
 
     def find_premise_const(prefix_premises, main_world):
@@ -1015,137 +1051,9 @@ def define_N_semantics(contingent, verify, falsify, possible, N): # assign, non_
         prefix_sentences = prefix_premises + prefix_conclusions
         sentence_letters = all_sentence_letters(prefix_sentences)
         frame_constraints = find_frame_constraints(main_world)
-        prop_constraints = find_prop_constraints(sentence_letters)
+        prop_constraints = find_prop_constraints(sentence_letters, disjoint)
         premise_constraints = find_premise_const(prefix_premises, main_world)
         conclusion_constraints = find_conclusion_const(prefix_conclusions, main_world)
         return frame_constraints, prop_constraints, premise_constraints, conclusion_constraints
 
     return find_all_constraints
-
-
-def solve_constraints(all_constraints, max_time): # all_constraints is a list of constraints
-    """find model for the input constraints within the max_time if there is such a model returns a
-    tuple with a boolean representing if (1) the timeout occurred, if (2) the constraints
-    were solved or not and, if (3) the model or unsatisfiable core depending"""
-    solver = Solver()
-    solver.add(all_constraints)
-    # Set the timeout (in milliseconds)
-    solver.set("timeout", max_time * 1000)
-    result = solver.check(*[all_constraints])
-    # print(f"REASON: {solver.reason_unknown()}")
-    # reason = solver.reason_unknown()
-    if solver.reason_unknown() == "timeout":
-        return True, False, None
-    if result == sat:
-        return False, True, solver.model()
-    return False, False, solver.unsat_core()
-
-# def solve_constraints_worker(all_constraints):
-#     solver = Solver()
-#     solver.add(all_constraints)
-#     result = solver.check(*[all_constraints])
-#     if result == sat:
-#         timeout = False
-#         z3_model_status = True
-#         z3_model = solver.model()
-#         return timeout, z3_model_status, z3_model
-#     timeout = False
-#     z3_model_status = False
-#     z3_model = solver.unsat_core()
-#
-# def solve_constraints(all_constraints, max_time):
-#     """Find model for the input constraints within the max_time. Returns a tuple with a boolean 
-#     representing if (1) the timeout occurred, if (2) the constraints were solved or not, and, if (3) 
-#     the model or unsatisfiable core depending."""
-#     manager = multiprocessing.Manager()
-#     return_dict = manager.dict()
-#     solver_process = multiprocessing.Process(target=solve_constraints_worker, args=all_constraints)
-#     solver_process.start()
-#     solver_process.join(max_time)
-#
-#     if solver_process.is_alive():
-#         solver_process.terminate()
-#         solver_process.join()
-#         return True, False, None
-#
-#     if return_dict['solved']:
-#         return False, True, return_dict['model']
-#     return False, False, return_dict['unsat_core']
-
-# # Example usage
-# if __name__ == "__main__":
-#     constraints = [...]  # Replace with your list of constraints
-#     max_time = 5  # Replace with your max time in seconds
-#     timeout, solved, model_or_core = solve_constraints(constraints, max_time)
-#     print("Timeout:", timeout)
-#     print("Solved:", solved)
-#     print("Model or Unsat Core:", model_or_core)
-
-
-# def solve_constraints_worker(all_constraints, result_queue):
-#     solver = Solver()
-#     solver.add(all_constraints)
-#     result = solver.check(*[all_constraints])
-#     if result == sat:
-#         result_queue.put((False, True, solver.model()))
-#     else:
-#         result_queue.put((False, False, solver.unsat_core()))
-#
-# def solve_constraints(all_constraints, max_time):
-#     """Find model for the input constraints within the max_time. Returns a tuple with a boolean 
-#     representing if (1) the timeout occurred, if (2) the constraints were solved or not, and, if (3) 
-#     the model or unsatisfiable core depending."""
-#     result_queue = multiprocessing.Queue()
-#     solver_process = multiprocessing.Process(
-#         target=solve_constraints_worker,
-#         args=(all_constraints, result_queue)
-#     )
-#
-#     solver_process.start()
-#     solver_process.join(max_time)
-#
-#     if solver_process.is_alive():
-#         solver_process.terminate()
-#         solver_process.join()
-#         return True, False, None
-#
-#     return result_queue.get()
-
-# # Example usage
-# if __name__ == "__main__":
-#     constraints = [...]  # Replace with your list of constraints
-#     max_time = 5  # Replace with your max time in seconds
-#     timeout, solved, model_or_core = solve_constraints(constraints, max_time)
-#     print("Timeout:", timeout)
-#     print("Solved:", solved)
-#     print("Model or Unsat Core:", model_or_core)
-
-
-# def solve_constraints(all_constraints, max_time):
-#     """Find model for the input constraints within the max_time. Returns a tuple with a boolean 
-#     representing if (1) the timeout occurred, if (2) the constraints were solved or not, and, if (3) 
-#     the model or unsatisfiable core depending."""
-#     solver = Solver()
-#     solver.add(all_constraints)
-#
-#     def interrupt_solver():
-#         nonlocal solver
-#         solver. interrupt()
-#
-#     timer = threading.Timer(max_time, interrupt_solver)
-#     timer.start()
-#
-#     try:
-#         result = solver.check(*[all_constraints])
-#     except Exception as e:
-#         timer.cancel()
-#         if str(e) == "interrupted":
-#             return True, False, None
-#         raise e
-#
-#     timer.cancel()
-#
-#     if result == sat:
-#         return False, True, solver.model()
-#     return False, False, solver.unsat_core()
-

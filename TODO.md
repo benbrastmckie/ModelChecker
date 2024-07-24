@@ -5,11 +5,11 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Patch
 
 - [ ] disjoint subject-mater for all propositions
-- [ ] help flag
-- [ ] debug optimizer
-  - [ ] interrupt process if greater than `max_time`
-  - [ ] if timeout, should reduce N rather than halt
-  - [ ] seems to erroneously increase N
+- [x] help flag
+- [x] debug optimizer
+  - [x] interrupt process if greater than `max_time`
+  - [x] if timeout, should reduce N rather than halt
+  - [x] seems to erroneously increase N
 
 ## Documentation
 
