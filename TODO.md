@@ -4,6 +4,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Patch
 
+- [ ] disjoint subject-mater for all propositions
+- [ ] help flag
 - [ ] debug optimizer
   - [ ] interrupt process if greater than `max_time`
   - [ ] if timeout, should reduce N rather than halt
@@ -11,6 +13,13 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Documentation
 
+- [ ] examples
+  - [ ] move modal interaction to counterfactuals
+- [.] screenshots
+  - [x] counterfactuals
+  - [ ] constitutive
+  - [ ] modal
+  - [ ] relevance
 - [:] documentation
   - [x] _M_ doc strings for functions
   - [x] _M_ revise architecture description
@@ -23,6 +32,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] _B_ write semantics doc
   - [ ] _B_ rewrite architecture
 - [ ] clean up project directory
+  - [ ] decapitalize directories
   - [ ] todos
   - [ ] docs
   - [ ] pdf

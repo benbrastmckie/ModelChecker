@@ -353,8 +353,8 @@ def ask_save():
 
 def ask_time(runtime, max_time):
     """prompt the user to increase the max_time"""
-    print(f"The model timed out at {runtime}.")
-    output = input(f"To increase the maximum time, enter a number > {max_time}.\n\nMax time:  ")
+    print(f"The model timed out at {runtime} seconds.")
+    output = input(f"To increase the maximum time, enter a time > {max_time}.\n\nMax time:  ")
     new_max_time = int(output)
     if not new_max_time > max_time:
         return None, None
