@@ -35,19 +35,21 @@ N = 3
 premises = ['(A boxright C)']
 conclusions = ['((A wedge B) boxright C)']
 contingent_bool = True
-disjoint_bool = False # TODO: continue by testing with this set to True
+disjoint_bool = False
 
 # # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # N = 3
 # premises = ['(A circleright C)']
 # conclusions = ['((A wedge B) circleright C)']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # N = 3
 # premises = ['(A boxright C)', 'Diamond (A wedge B)']
 # conclusions = ['((A wedge B) boxright C)']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
 # # NOTE: with Z3 quantifiers ran for 242 seconds on the MIT server; now .1928 seconds locally
@@ -55,6 +57,7 @@ disjoint_bool = False # TODO: continue by testing with this set to True
 # premises = ['neg A','(A boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM5: COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
 # # NOTE: with Z3 quantifiers ran for 347 seconds on the MIT server; now .1949 seconds locally
@@ -62,12 +65,14 @@ disjoint_bool = False # TODO: continue by testing with this set to True
 # premises = ['(A boxright C)','(B boxright C)']
 # conclusions = ['((A wedge B) boxright C)']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM6: COUNTERFACTUAL CONTRAPOSITION
 # N = 3
 # premises = ['(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM7: COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
 # # NOTE: with Z3 quantifiers ran for 125 seconds on the MIT server; now .181 seconds locally
@@ -75,18 +80,21 @@ disjoint_bool = False # TODO: continue by testing with this set to True
 # premises = ['neg B','(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM8: COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
 # N = 4
 # premises = ['neg A','neg B','(A boxright B)']
 # conclusions = ['(neg B boxright neg A)']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM9: TRANSITIVITY
 # N = 3
 # premises = ['(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM10: COUNTERFACTUAL TRANSITIVITY WITH NEGATION
 # # NOTE: with Z3 quantifiers 78 seconds on the MIT server; now .1311 seconds locally
@@ -94,12 +102,14 @@ disjoint_bool = False # TODO: continue by testing with this set to True
 # premises = ['neg A','(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM11: COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
 # N = 4
 # premises = ['neg A','neg B','(A boxright B)','(B boxright C)']
 # conclusions = ['(A boxright C)']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM12: SOBEL SEQUENCE (N = 3)
 # N = 3
@@ -114,6 +124,7 @@ disjoint_bool = False # TODO: continue by testing with this set to True
 # ]
 # conclusions = []
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
 # N = 4
@@ -135,18 +146,21 @@ disjoint_bool = False # TODO: continue by testing with this set to True
 # ]
 # conclusions = []
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM14: COUNTERFACTUAL EXCLUDED MIDDLE
 # N = 3
 # premises = ['neg A']
 # conclusions = ['(A boxright B)','(A boxright neg B)']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM15: SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
 # N = 3
 # premises = ['neg A','(A boxright (B vee C))']
 # conclusions = ['(A boxright B)','(A boxright C)']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM16: INTRODUCTION OF DISJUNCTIVE ANTECEDENT
 # # NOTE: with Z3 quantifiers for 40 seconds locally; now .2785 seconds locally
@@ -154,30 +168,35 @@ disjoint_bool = False # TODO: continue by testing with this set to True
 # premises = ['(A boxright C)','(B boxright C)']
 # conclusions = ['((A vee B) boxright C)']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM17: MUST FACTIVITY
 # N = 3
 # premises = ['A','B']
 # conclusions = ['(A boxright B)']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM18: COUNTERFACTUAL EXPORTATION
 # N = 3
 # premises = ['((A wedge B) boxright C)']
 # conclusions = ['(A boxright (B boxright C))']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
 # N = 3
 # premises = ['((A wedge B) boxright C)','Diamond (A wedge B)']
 # conclusions = ['(A boxright (B boxright C))']
 # contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM20
 # N = 3
 # premises = ['\\neg A','\\neg (A \\boxright B)']
 # conclusions = ['(A \\boxright \\neg B)']
 # contingent_bool = True
+# disjoint_bool = False
 
 
 
@@ -190,48 +209,56 @@ disjoint_bool = False # TODO: continue by testing with this set to True
 # premises = []
 # conclusions = ['(A boxright A)']
 # contingent_bool = False
+# disjoint_bool = False
 
 # # CF2: COUNTERFACTUAL MODUS PONENS
 # N = 3
 # premises = ['A','(A boxright B)']
 # conclusions = ['B']
 # contingent_bool = False
+# disjoint_bool = False
 
 # # CF3: WEAKENED TRANSITIVITY
 # N = 3
 # premises = ['(A boxright B)','((A wedge B) boxright C)']
 # conclusions = ['(A boxright C)']
 # contingent_bool = False
+# disjoint_bool = False
 
 # # CF4: ANTECEDENT DISJUNCTION TO CONJUNCTION
 # N = 3
 # premises = ['((A \\vee B) \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 # contingent_bool = False
+# disjoint_bool = False
 
 # # CF5: SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
 # N = 3
 # premises = ['((A vee B) boxright C)']
 # conclusions = ['(A boxright C)']
 # contingent_bool = False
+# disjoint_bool = False
 
 # # CF6: DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
 # N = 3
 # premises = ['((A vee B) boxright C)']
 # conclusions = ['((A boxright C) wedge (B boxright C))']
 # contingent_bool = False
+# disjoint_bool = False
 
 # # CF7:
 # N = 3
 # premises = ['(A boxright C)', '(B boxright C)', '((A wedge B) boxright C)']
 # conclusions = ['((A vee B) boxright C)']
 # contingent_bool = False
+# disjoint_bool = False
 
 # # CF8:
 # N = 3
 # premises = ['(A boxright (B wedge C))']
 # conclusions = ['(A boxright B)']
 # contingent_bool = False
+# disjoint_bool = False
 
 # # NOTE: optimizer works for max_time = 1 but not max_time > 1
 # # CF9:
@@ -239,9 +266,11 @@ disjoint_bool = False # TODO: continue by testing with this set to True
 # premises = ['(A boxright B)','(A boxright C)']
 # conclusions = ['(A boxright (B wedge C))']
 # contingent_bool = False
+# disjoint_bool = False
 
 # # CF10: FACTIVITY MIGHT
 # N = 3
 # premises = ['A','B']
 # conclusions = ['(A circleright B)']
 # contingent_bool = False
+# disjoint_bool = False

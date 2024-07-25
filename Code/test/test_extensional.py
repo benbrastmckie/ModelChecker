@@ -15,8 +15,15 @@ def test_EXT_CM1():
     premises = ['A']
     conclusions = ['neg A']
     desired_model_status = True
-    contingent = True
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = True
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 
 
@@ -33,8 +40,15 @@ def test_EXT1():
     premises = ['A','(A rightarrow B)']
     conclusions = ['B']
     desired_model_status = False
-    contingent = False
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = False
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_EXT2():
@@ -42,8 +56,15 @@ def test_EXT2():
     premises = []
     conclusions = ['(A rightarrow (B rightarrow A))']
     desired_model_status = False
-    contingent = False
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = False
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_EXT3():
@@ -51,8 +72,15 @@ def test_EXT3():
     premises = []
     conclusions = ['((A rightarrow (B rightarrow C)) rightarrow ((A rightarrow B) rightarrow (A rightarrow C)))']
     desired_model_status = False
-    contingent = False
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = False
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_EXT4():
@@ -60,5 +88,12 @@ def test_EXT4():
     premises = []
     conclusions = ['((neg A rightarrow neg B) rightarrow (B rightarrow A))']
     desired_model_status = False
-    contingent = False
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = False
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)

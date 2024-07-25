@@ -4,10 +4,10 @@ this file defines the functions needed to generate Z3 constraints from
 input_sentences in infix form.
 """
 
-import time
-import multiprocessing
+# import time
+# import multiprocessing
 from z3 import (
-    sat,
+    # sat,
     # unsat,
     # parse_smt2_string,
     # Bool,
@@ -16,7 +16,7 @@ from z3 import (
     Implies,
     Or,
     Not,
-    Solver,
+    # Solver,
     And,
     BitVec,
 )
@@ -990,9 +990,10 @@ def define_N_semantics(N, contingent, disjoint, verify, falsify, possible): # as
             sent_letter_constraints = make_atom_prop_constraint(sent_letter)
             prop_constraints.extend(sent_letter_constraints)
             if disjoint_props_bool:
-                for other_letter in sentence_letters.remove(sent_letter):
-                    disjoint_constraints = disjoint_subject_matter(sent_letter, other_letter)
-                    prop_constraints.extend(disjoint_constraints)
+                for other_letter in sentence_letters:
+                    if not other_letter is sent_letter:
+                        disjoint_constraints = disjoint_subject_matter(sent_letter, other_letter)
+                        prop_constraints.extend(disjoint_constraints)
         return prop_constraints
 
     def find_premise_const(prefix_premises, main_world):

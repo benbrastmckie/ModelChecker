@@ -16,8 +16,15 @@ def test_RL_CM1():
     premises = []
     conclusions = ['((A wedge B) preceq A)']
     desired_model_status = True
-    contingent = True
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = True
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL_CM2():
@@ -26,8 +33,15 @@ def test_RL_CM2():
     premises = []
     conclusions = ['((A vee B) preceq A)']
     desired_model_status = True
-    contingent = True
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = True
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL_CM3():
@@ -36,8 +50,15 @@ def test_RL_CM3():
     premises = ['(A preceq B)', '(B preceq C)']
     conclusions = ['(A preceq C)']
     desired_model_status = True
-    contingent = True
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = True
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL_CM4():
@@ -46,8 +67,15 @@ def test_RL_CM4():
     premises = ['Box (A rightarrow B)','(A preceq B)']
     conclusions = ['(A leq B)']
     desired_model_status = True
-    contingent = True
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = True
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL_CM5():
@@ -56,8 +84,15 @@ def test_RL_CM5():
     premises = ['Box (B rightarrow A)','(A preceq B)']
     conclusions = ['(A sqsubseteq B)']
     desired_model_status = True
-    contingent = True
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = True
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL_CM6():
@@ -66,8 +101,15 @@ def test_RL_CM6():
     premises = ['Box (A leftrightarrow B)','(A preceq B)','(B preceq A)']
     conclusions = ['(A equiv B)']
     desired_model_status = True
-    contingent = True
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = True
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL_CM7():
@@ -76,8 +118,15 @@ def test_RL_CM7():
     premises = ['Box (A rightarrow B)']
     conclusions = ['(A preceq B)']
     desired_model_status = True
-    contingent = True
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = True
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL_CM8():
@@ -86,8 +135,15 @@ def test_RL_CM8():
     premises = []
     conclusions = ['(((A vee B) wedge (A vee C)) preceq (A vee (B wedge C)))']
     desired_model_status = True
-    contingent = True
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = True
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL_CM9():
@@ -96,8 +152,15 @@ def test_RL_CM9():
     premises = []
     conclusions = ['(((A wedge B) vee (A wedge C)) preceq (A wedge (B vee C)))']
     desired_model_status = True
-    contingent = True
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = True
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL_CM10():
@@ -106,8 +169,15 @@ def test_RL_CM10():
     premises = ['(A preceq B)']
     conclusions = ['(A preceq (B wedge C))']
     desired_model_status = True
-    contingent = True
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = True
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL_CM11():
@@ -116,8 +186,15 @@ def test_RL_CM11():
     premises = ['(A preceq B)']
     conclusions = ['(A preceq (B vee C))']
     desired_model_status = True
-    contingent = True
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = True
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 
 
@@ -137,8 +214,15 @@ def test_RL1():
     premises = ['(A preceq B)']
     conclusions = ['((A wedge B) leq B)']
     desired_model_status = False
-    contingent = False
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = False
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL2():
@@ -147,8 +231,15 @@ def test_RL2():
     premises = ['(A preceq B)']
     conclusions = ['((A vee B) sqsubseteq B)']
     desired_model_status = False
-    contingent = False
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = False
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL3():
@@ -157,8 +248,15 @@ def test_RL3():
     premises = ['((A wedge B) leq B)']
     conclusions = ['(A preceq B)']
     desired_model_status = False
-    contingent = False
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = False
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL4():
@@ -167,8 +265,15 @@ def test_RL4():
     premises = ['((A vee B) sqsubseteq B)']
     conclusions = ['(A preceq B)']
     desired_model_status = False
-    contingent = False
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = False
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 
 
@@ -181,8 +286,15 @@ def test_RL5():
     premises = []
     conclusions = ['(A preceq (A wedge B))']
     desired_model_status = False
-    contingent = False
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = False
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL6():
@@ -191,8 +303,15 @@ def test_RL6():
     premises = []
     conclusions = ['(A preceq (A vee B))']
     desired_model_status = False
-    contingent = False
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = False
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 
 
@@ -206,8 +325,15 @@ def test_RL7():
     premises = ['(A leq B)']
     conclusions = ['(A preceq B)']
     desired_model_status = False
-    contingent = False
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = False
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL8():
@@ -216,8 +342,15 @@ def test_RL8():
     premises = ['(A sqsubseteq B)']
     conclusions = ['(A preceq B)']
     desired_model_status = False
-    contingent = False
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = False
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)
 
 @pytest.mark.timeout(max_time)
 def test_RL9():
@@ -226,5 +359,12 @@ def test_RL9():
     premises = ['(A equiv B)']
     conclusions = ['(A preceq B)']
     desired_model_status = False
-    contingent = False
-    check_model_status(premises, conclusions, desired_model_status, contingent, N)
+    contingent_bool = False
+    disjoint_bool = False
+    check_model_status(
+        N,
+        premises,
+        conclusions,
+        desired_model_status,
+        contingent_bool,
+        disjoint_bool)

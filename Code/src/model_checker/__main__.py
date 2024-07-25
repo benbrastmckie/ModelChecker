@@ -53,7 +53,7 @@ file_name = os.path.basename(__file__)
 # time cutoff for increasing N
 max_time = 1
 
-# find critical value of N
+# find a countermodel with the smallest value of N within max_time
 optimize_bool = False
 
 # print all Z3 constraints if a model is found
@@ -115,14 +115,16 @@ save_bool = False
 premises = ['neg A','(A boxright (B vee C))']
 conclusions = ['(A boxright B)','(A boxright C)']
 N = 3 # number of atomic states
-contingent = False # make all propositions contingent
+contingent_bool = False # make all propositions contingent
+disjoint_bool = False # make all propositions have disjoint subject-matters
 
 ### VALID ###
 
 # premises = ['((A vee B) boxright C)']
 # conclusions = ['(A boxright C)']
-N = 3 # number of atomic states
-contingent = False # make all propositions contingent
+# N = 3 # number of atomic states
+# contingent_bool = False # make all propositions contingent
+# disjoint_bool = False # make all propositions have disjoint subject-matters
 
 """)
 
@@ -178,7 +180,7 @@ class LoadModule:
         self.N = getattr(self.module, "N", self.default_values["N"])
         self.premises = getattr(self.module, "premises", self.default_values["premises"])
         self.conclusions = getattr(self.module, "conclusions", self.default_values["conclusions"])
-        self.max_time = getattr(self.module, "max_time", self.default_values["max_time"])
+        self.max_time = float(getattr(self.module, "max_time", self.default_values["max_time"]))
         self.contingent_bool = getattr(
             self.module,
             "contingent_bool",
@@ -253,7 +255,7 @@ def parse_file_and_flags():
         '--print',
         '-p',
         action='store_true',
-        help='Overrides to print all Z3 constraints.'
+        help='Overrides to print the Z3 constraints or else the unsat_core constraints if there is no model.'
     )
     parser.add_argument(
         '--save',
@@ -371,12 +373,23 @@ def ask_save():
 
 def ask_time(runtime, max_time):
     """prompt the user to increase the max_time"""
-    print(f"The model timed out at {runtime} seconds.")
-    output = input(f"To increase the maximum time, enter a time > {max_time}.\n\nMax time:  ")
-    new_max_time = float(output)
+    output = input(f"Enter a value for max_time > {max_time} or leave blank to exit.\n\nmax_time = ")
+
+    if output.strip() == "":
+        return None
+
+    try:
+        new_max_time = float(output)
+    except ValueError:
+        print("Invalid input. Please enter a valid number.")
+        return ask_time(runtime, max_time)
+
     if not new_max_time > max_time:
-        return None, None
+        print("Invalid input. Please enter a valid number.")
+        return ask_time(runtime, max_time)
+
     return new_max_time
+
 
 def no_model_save_or_append(module, model_structure, file_name):
     """option to save or append if no model is found"""
@@ -388,7 +401,7 @@ def no_model_save_or_append(module, model_structure, file_name):
         return
     with open(f"{module.parent_directory}/{file_name}.py", 'w', encoding="utf-8") as n:
         print(f'# TITLE: {file_name}.py generated from {module.parent_file}\n"""', file=n)
-        model_structure.no_model_save(n)
+        model_structure.no_model_save(module.print_cons_bool, n)
     print()
 
 def save_or_append(module, model_setup, file_name, print_cons, print_imposs):
@@ -419,20 +432,20 @@ def adjust(module, offset):
 
 def optimize_N(module, model_setup, past_module, past_model_setup, sat=False):
     """Finds the min value of N for which there is a model up to a timeout limit."""
-    if model_setup.model_status:
-        sat = True
+    if model_setup.model_status: # finds a model
+        new_sat = True
         new_module, new_model_setup = adjust(module, -1)
         min_module, min_model_setup = optimize_N(
             new_module,
             new_model_setup,
             module,
             model_setup,
-            sat
+            new_sat
         )
         return min_module, min_model_setup
-    if sat:
+    if sat: # does not find a model but has before (hence sat = True)
         return past_module, past_model_setup
-    if model_setup.model_runtime < model_setup.max_time:
+    if model_setup.model_runtime < model_setup.max_time: # hasn't found a model yet
         new_module, new_model_setup = adjust(module, 1)
         max_module, max_model_setup = optimize_N(
             new_module,
@@ -442,7 +455,19 @@ def optimize_N(module, model_setup, past_module, past_model_setup, sat=False):
             sat
         )
         return max_module, max_model_setup
-    return past_module, past_model_setup
+    # timed out looking for models
+    previous_N = model_setup.N - 1
+    print(f"There are no {previous_N}-models.")
+    print(f"No {model_setup.N}-models were found within {model_setup.max_time} seconds.")
+    new_max_time = ask_time(model_setup.model_runtime, model_setup.max_time)
+    if new_max_time is None:
+        print("Process terminated.")
+        print(f"Consider increasing max_time to be > {model_setup.max_time} seconds.\n")
+        model_setup.N = previous_N
+        model_setup.no_model_print(module.print_cons_bool)
+        os._exit(1)
+    module.update_max_time(new_max_time)
+    return optimize_model_setup(module, True)
 
 def optimize_model_setup(module, optimize_model):
     """Runs make_model_for on the values provided by the module and user, optimizing if required."""
@@ -457,9 +482,13 @@ def optimize_model_setup(module, optimize_model):
     if optimize_model:
         module, model_setup = optimize_N(module, model_setup, module, model_setup)
     if model_setup.timeout:
+        print(f"The model timed out at {model_setup.model_runtime} seconds.")
         new_max_time = ask_time(model_setup.model_runtime, model_setup.max_time)
+        if new_max_time is None:
+            print("Terminating the process.")
+            os._exit(1)
         module.update_max_time(new_max_time)
-        return optimize_model_setup(module, False)
+        return optimize_model_setup(module, optimize_model)
     return module, model_setup
 
 def main():
@@ -501,7 +530,8 @@ def main():
     #     print(f"No model found. Try increasing max_time > {model_setup.max_time}.\n")
     #     return
 
-    model_setup.no_model_print()
+    # print(model_setup.z3_model)
+    model_setup.no_model_print(print_cons)
     if save_model:
         file_name, print_cons = ask_save()
         no_model_save_or_append(module, model_setup, file_name)

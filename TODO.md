@@ -4,22 +4,25 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Patch
 
-- [ ] disjoint subject-mater for all propositions
+- [:] print constraints same for unsat and sat
+  - [ ] find example with nonempty `unsat_core`
+- [x] disjoint subject-mater for all propositions
 - [x] help flag
 - [x] debug optimizer
+  - [x] ask to increase time if timeout
   - [x] interrupt process if greater than `max_time`
   - [x] if timeout, should reduce N rather than halt
   - [x] seems to erroneously increase N
 
 ## Documentation
 
-- [ ] examples
-  - [ ] move modal interaction to counterfactuals
-- [.] screenshots
+- [x] examples
+  - [x] move modal interaction to counterfactuals
+- [x] screenshots
   - [x] counterfactuals
-  - [ ] constitutive
-  - [ ] modal
-  - [ ] relevance
+  - [x] constitutive
+  - [x] modal
+  - [x] relevance
 - [:] documentation
   - [x] _M_ doc strings for functions
   - [x] _M_ revise architecture description

@@ -13,7 +13,7 @@ file_name = os.path.basename(__file__)
 max_time = 1
 
 # find critical value of N
-optimize_bool = False
+optimize_bool = True
 
 # print all Z3 constraints if a model is found
 print_cons_bool = False
@@ -28,7 +28,6 @@ save_bool = False
 
 
 
-
 ################################
 ######### NOT WORKING ##########
 ################################
@@ -36,6 +35,7 @@ save_bool = False
 ### FALSE PREMISE MODEL ###
 
 # SOBEL SEQUENCE (N = 3)
+N = 3
 premises = [
     '(A boxright X)', # 0.03 seconds locally
     'neg ((A wedge B) boxright X)', # 1.4 seconds locally
@@ -46,6 +46,8 @@ premises = [
     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
 ]
 conclusions = []
+contingent_bool = True
+disjoint_bool = False
 
 # # SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
 # N = 4
@@ -78,7 +80,11 @@ conclusions = []
 # DISTRIBUTION LAWS
 
 # # TODO: true conclusion model with Not(true_at(...)) but not with false_at(...)
+# N = 3
+# premises = []
 # conclusions = ['((A wedge (B vee C)) equiv ((A wedge B) vee (A wedge C)))']
+# contingent_bool = True
+# disjoint_bool = False
 
 # TODO: true conclusion model
 # conclusions = ['((A wedge (B vee C)) leq ((A wedge B) vee (A wedge C)))']
