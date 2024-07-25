@@ -34,15 +34,17 @@ Each file may specify the following inputs where the defaults or specified below
 
 Optionally, the user can specify a number of additional settings where defaults are provided below:
 
-  - Require all propositions to be contingent: `contingent_bool = False`.
+  - Require all sentence letters to express contingent propositions: `contingent_bool = False`.
+  - Require all sentence letters to have express propositions with disjoint subject-matters: `contingent_bool = False`.
   - Find a model with the smallest number of atomic elements: `optimize_bool = False`.
-  - Print all Z3 constraints: `print_cons_bool = False`.
+  - Print all Z3 constraints or unsatisfiable core constraints: `print_cons_bool = False`.
   - Show impossible states included in the model: `print_impossibe_states_bool = False`.
   - Prompt the user to append the output to the current file in a new file: `save_bool = False`.
 
 Users can override these settings from the command line by including the following flags:
 
   - Include `-c` to set `contingent_bool = True`.
+  - Include `-d` to set `disjoint_bool = True`.
   - Include `-o` to set `optimize_bool = True`.
   - Include `-p` to set `print_cons_bool = True`.
   - Include `-i` to set `print_impossibe_states_bool = True`.
