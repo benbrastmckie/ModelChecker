@@ -16,11 +16,11 @@
 
 ### Strict Conditional to Ground
 
-![Counterfactual strict conditional to ground screenshot](constitutive_CM1.png)
+![Strict conditional to ground screenshot](constitutive_CM1.png)
 
 ### Conjunction Supplementation for Ground
 
-![Counterfactual conjunction supplementation for ground screenshot](constitutive_CM3.png)
+![Conjunction supplementation for ground screenshot](constitutive_CM3.png)
 
 ### Counterfactual to Strict Conditional
 
@@ -28,12 +28,26 @@
 
 ### Relevance Antecedent Strengthening
 
-![Counterfactual relevance antecedent strengthening screenshot](relevance_CM1.png)
+![Relevance antecedent strengthening screenshot](relevance_CM1.png)
 
 ### Relevance Antecedent Weakening
 
-![Counterfactual relevance antecedent weakening screenshot](relevance_CM2.png)
+![Relevance antecedent weakening screenshot](relevance_CM2.png)
 
 ### Relevance Implication to Ground
 
-![Counterfactual relevance implication to ground screenshot](relevance_CM4.png)
+![Relevance implication to ground screenshot](relevance_CM4.png)
+
+## Validities
+
+### Constitutive Examples
+
+![Constitutive validities screenshot](constitutive_validities.png)
+
+### Modal Examples
+
+![Modal validities screenshot](modal_validities.png)
+
+### Relevance Examples
+
+![Relevance validities screenshot](relevance_validities.png)
