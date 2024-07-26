@@ -19,7 +19,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] examples
   - [x] move modal interaction to counterfactuals
 - [x] screenshots
-  - [ ] add brief descriptions
+  - [x] add brief descriptions
   - [x] counterfactuals
   - [x] constitutive
   - [x] modal
@@ -30,11 +30,13 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] _B_ architecture description
   - [x] _B_ expanded READMEs
   - [:] _B_ revise pypi readme
-    - [ ] _B_ semantics overview
+    - [x] semantics overview
+    - [ ] update paper link
   - [:] _B_ revise github readme
-    - [ ] _B_ semantics overview
-  - [ ] _B_ write semantics doc
+    - [x] semantics overview
+    - [ ] update paper link
   - [ ] _B_ rewrite architecture
+  - [ ] _B_ write semantics doc
 - [ ] clean up project directory
   - [ ] decapitalize directories
   - [ ] todos

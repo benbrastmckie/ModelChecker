@@ -1,6 +1,6 @@
 # Model Checker
 
-This project draws on the [Z3](https://github.com/Z3Prover/z3) SMT solver to provide tooling for finding countermodels and establishing validity up to a user specified lever of complexity for inferences in a propositional language with the following operators:
+This project draws on the [Z3](https://github.com/Z3Prover/z3) SMT solver to provide tooling for finding hyperintensional countermodels and establishing validity over models up to a user specified level of complexity for inferences in a propositional language with the following operators:
 
   - `neg` for _negation_
   - `wedge` for _conjunction_
@@ -23,7 +23,7 @@ The [hyperintensional semantics](##Hyperintensional-Semantics) is briefly discus
 
 ![Counterfactual antecedent strengthening screenshot](Images/cf_antecedent_strengthening.png)
 
-> NOTE: more images can be found [here](https://github.com/benbrastmckie/ModelChecker/tree/master/Images).
+> NOTE: Additional images can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Images/screenshots.md).
 
 ## Installation
 
@@ -33,7 +33,7 @@ Install [Python 3](https://www.python.org/downloads/) and run the following comm
 pip install model-checker
 ```
 
-The project has the `z3-solver` as a dependency and should be installed automatically.
+The project has the `z3-solver` as a dependency which should be installed automatically.
 You can confirm that `z3-solver` is installed with:
 
 ```
@@ -50,7 +50,7 @@ More information can be found [here](https://packaging.python.org/en/latest/tuto
 
 ## Updating
 
-You can check the current version with:
+Once installed, you can check the current version of the `model-checker` with:
 
 ```
 model-checker -v
@@ -62,7 +62,7 @@ For more information, you can run:
 pip show model-checker
 ```
 
-To update to the latest version of the `model-checker`, run:
+To update to the latest version, run:
 
 ```
 model-checker -u
@@ -80,7 +80,7 @@ Open the terminal (e.g., `Cmd + Space` on MacOS) and list the directories with `
 Navigate to your desired location with `cd directory/path/...`, replacing 'directory/path/...' accordingly.
 If you do not know the full path, you can change directory one step at a time, running `ls` after each move.
 
-Alternatively, if you are on MacOS, write `cd` followed by a space in the terminal but do not hit return.
+Alternatively, if you are on MacOS, write `cd` followed by a space in the terminal but do not hit `return`.
 Then you can open the desired project directory in Finder, dragging the Finder window onto the terminal.
 This should paste the path into the terminal.
 You can now hit return to change to the desired directory.
@@ -88,8 +88,7 @@ If you are in the directory in which the `test_file.py` exists, you can run `mod
 Use the 'up'-arrow key to scroll through past commands, saving time when running the same file multiple times.
 
 Files can be edited with your choice of text editor, e.g., run `vim test_file.py` to edit the named file in the terminal with Vim (for help, run `vimtutor`).
-If you do not want to use vanilla Vim or this configuration of [NeoVim](https://github.com/benbrastmckie/.config) for working with LaTeX, Markdown, Python, etc., you can use any other text editor you like (e.g., TextEdit on MacOS).
-Alternatively, you might consider using these [resources for setting up VSCodium](https://github.com/benbrastmckie/VSCodium) or else installing [PyCharm](https://www.jetbrains.com/pycharm/), both of which will provide a more fully featured user experience without too much trouble.
+If you do not want to use Vim (exit with `:qa`), you might consider using this configuration of [NeoVim](https://github.com/benbrastmckie/.config) or [VSCodium](https://github.com/benbrastmckie/VSCodium) for working with LaTeX, Markdown, Python, etc., or any other editor you like (e.g., TextEdit on MacOS, or [PyCharm](https://www.jetbrains.com/pycharm/)).
 
 ### Usage
 
@@ -97,21 +96,21 @@ To generate a test file run `model-checker` in the terminal without arguments.
 Alternatively, run `model-checker path/to/test_file.py` if the `test_file.py` already exists.
 A number of [examples](https://github.com/benbrastmckie/ModelChecker/blob/master/Examples/examples.py) are provided in the GitHub repository.
 
-Each file may specify the following inputs where the defaults or specified below:
+Each file may specify the following inputs where the defaults are specified below:
 
-  - A list of premises that are treated conjunctively: `premises = []`.
-  - A list of conclusions that are treated disjunctively: `conclusions = []`.
+  - A list of zero or more premises that are treated conjunctively: `premises = []`.
+  - A list of zero or more conclusions that are treated disjunctively: `conclusions = []`.
   - The number of atomic states to include in each model: `N = 3`.
   - The maximum time in seconds to spend looking for a model: `max_time = 1`.
 
 Optionally, the user can specify a number of additional settings where defaults are provided below:
 
   - Require all sentence letters to express contingent propositions: `contingent_bool = False`.
-  - Require all sentence letters to have express propositions with disjoint subject-matters: `contingent_bool = False`.
+  - Require all sentence letters to express propositions with disjoint subject-matters: `contingent_bool = False`.
   - Find a model with the smallest number of atomic elements: `optimize_bool = False`.
   - Print all Z3 constraints or unsatisfiable core constraints: `print_cons_bool = False`.
   - Show impossible states included in the model: `print_impossibe_states_bool = False`.
-  - Prompt the user to append the output to the current file in a new file: `save_bool = False`.
+  - Prompt the user to append the output to the current file or to a new file: `save_bool = False`.
 
 Users can override these settings from the command line by including the following flags:
 
@@ -128,7 +127,7 @@ Additional flags have been included in order to manage the package version:
   - Include `-v` to print the installed version number.
   - Include `-u` to upgrade to the latest version.
 
-The following section will provide some indication of the underlying semantics.
+The following section will sketch the underlying semantics.
 More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker) as well as in this recent [manuscript](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf). 
 
 ## Hyperintensional Semantics
@@ -184,9 +183,6 @@ Whereas the first three constitutive operators are interdefinable, relevance is 
 - `A preceq B  :=  (A wedge B) leq B :=  (A vee B) sqsubseteq B`.
 
 Instead of a Boolean lattice as in extensional and intensional semantics theories, the space of hyperintensional propositions forms a non-interlaced bilattice as described in this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w), building on [Fine 2017](https://link.springer.com/article/10.1007/s10992-016-9413-y).
-
-More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker). 
-
 
 ### Code Architecture
 
