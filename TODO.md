@@ -19,6 +19,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] examples
   - [x] move modal interaction to counterfactuals
 - [x] screenshots
+  - [ ] add brief descriptions
   - [x] counterfactuals
   - [x] constitutive
   - [x] modal

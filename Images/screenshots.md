@@ -1,5 +1,7 @@
 # Screenshots
 
+The images below have been generated from the examples provided [here](https://github.com/benbrastmckie/ModelChecker/tree/master/Examples).
+
 ## Countermodels
 
 ### Counterfactual Strengthening of the Antecedent
@@ -39,6 +41,10 @@
 ![Relevance implication to ground screenshot](relevance_CM4.png)
 
 ## Validities
+
+### Counterfactual Examples
+
+![Counterfactual validities screenshot](counterfactual_validities.png)
 
 ### Constitutive Examples
 
