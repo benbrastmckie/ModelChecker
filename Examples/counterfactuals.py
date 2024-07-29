@@ -13,13 +13,13 @@ file_name = os.path.basename(__file__)
 max_time = 1
 
 # find critical value of N
-optimize_bool = False
+optimize_bool = True
 
 # print all Z3 constraints if a model is found
 print_cons_bool = False
 
 # print all states including impossible states
-print_impossible_states_bool = False
+print_impossible_states_bool = True
 
 # present option to append output to file
 save_bool = False
@@ -112,7 +112,7 @@ disjoint_bool = False
 # disjoint_bool = False
 
 # # CF_CM12: SOBEL SEQUENCE (N = 3)
-# N = 3
+# N = 1
 # premises = [
 #     '(A boxright X)', # 0.03 seconds locally
 #     'neg ((A wedge B) boxright X)', # 1.4 seconds locally
@@ -233,7 +233,7 @@ disjoint_bool = False
 # disjoint_bool = False
 
 # # CF5: SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-# N = 3
+# N = 4
 # premises = ['((A vee B) boxright C)']
 # conclusions = ['(A boxright C)']
 # contingent_bool = False

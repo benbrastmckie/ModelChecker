@@ -13,7 +13,7 @@ file_name = os.path.basename(__file__)
 max_time = 1
 
 # find critical value of N
-optimize_bool = True
+optimize_bool = False
 
 # print all Z3 constraints if a model is found
 print_cons_bool = False
@@ -34,20 +34,21 @@ save_bool = False
 
 ### FALSE PREMISE MODEL ###
 
-# SOBEL SEQUENCE (N = 3)
-N = 3
-premises = [
-    '(A boxright X)', # 0.03 seconds locally
-    'neg ((A wedge B) boxright X)', # 1.4 seconds locally
-    '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
-    # 'neg ((((A wedge B) wedge C) wedge D) boxright X)', # FALSE PREMISE MODELS BEGIN HERE
-    # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # 20.5 seconds locally
-    # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # 64 seconds on the MIT servers
-    # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
-]
-conclusions = []
-contingent_bool = True
-disjoint_bool = False
+# # SOBEL SEQUENCE (N = 3)
+# N = 3
+# premises = [
+#     '(A boxright X)', # 0.03 seconds locally
+#     'neg ((A wedge B) boxright X)', # 1.4 seconds locally
+#     '(((A wedge B) wedge C) boxright X)', # 4.9 seconds locally
+#     'neg ((((A wedge B) wedge C) wedge D) boxright X)', # FALSE PREMISE MODELS BEGIN HERE
+#     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # 20.5 seconds locally
+#     # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # 64 seconds on the MIT servers
+#     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
+# ]
+# conclusions = []
+# contingent_bool = False
+# optimize_bool = True
+# disjoint_bool = False
 
 # # SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
 # N = 4
@@ -114,13 +115,21 @@ disjoint_bool = False
 ### COUNTERFACTUAL IMPORTATION ###
 
 # # COUNTERFACTUAL IMPORTATION WITH POSSIBILITY
+# N = 3
 # premises = ['(A boxright (B boxright C))','Diamond (A wedge B)']
 # conclusions = ['((A wedge B) boxright C)']
+# contingent_bool = False
+# disjoint_bool = False
+# optimize_bool = True
 
-# # COUNTERFACTUAL IMPORTATION
-# # NOTE: MIT servers found a model in 467 seconds with Z3 quantifiers
-# premises = ['(A boxright (B boxright C))']
-# conclusions = ['((A wedge B) boxright C)']
+# COUNTERFACTUAL IMPORTATION
+# NOTE: MIT servers found a model in 467 seconds with Z3 quantifiers
+N = 3
+premises = ['(A boxright (B boxright C))']
+conclusions = ['((A wedge B) boxright C)']
+contingent_bool = True
+disjoint_bool = True
+optimize_bool = True
 
 
 

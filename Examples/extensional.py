@@ -46,12 +46,12 @@ contingent_bool = True
 ##### EXTENSIONAL LOGIC #####
 #############################
 
-# EXT1
-N = 3
-premises = ['A','(A rightarrow B)']
-conclusions = ['B']
-contingent_bool = False
-disjoint_bool = False
+# # EXT1
+# N = 3
+# premises = ['A','(A rightarrow B)']
+# conclusions = ['B']
+# contingent_bool = False
+# disjoint_bool = False
 
 # # EXT2
 # N = 3

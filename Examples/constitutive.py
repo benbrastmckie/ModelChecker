@@ -43,12 +43,12 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# """CM3: GROUND CONJUNCTION SUPPLEMENTATION WITH POSSIBILITY"""
-N = 3
-premises = ['(A leq B)','(C leq D)']
-conclusions = ['((A wedge C) leq (B wedge D))']
-contingent_bool = True
-disjoint_bool = False
+# # """CM3: GROUND CONJUNCTION SUPPLEMENTATION WITH POSSIBILITY"""
+# N = 3
+# premises = ['(A leq B)','(C leq D)']
+# conclusions = ['((A wedge C) leq (B wedge D))']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # """CM4: ESSENCE CONJUNCTION SUPPLEMENTATION"""
 # N = 3
@@ -92,12 +92,12 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# """CM10: IDENTITY DISTRIBUTION"""
-N = 3
-premises = []
-conclusions = ['((A vee (B wedge C)) equiv ((A vee B) wedge (A vee C)))']
-contingent_bool = True
-disjoint_bool = False
+# # """CM10: IDENTITY DISTRIBUTION"""
+# N = 3
+# premises = []
+# conclusions = ['((A vee (B wedge C)) equiv ((A vee B) wedge (A vee C)))']
+# contingent_bool = True
+# disjoint_bool = False
 
 
 
@@ -145,12 +145,12 @@ disjoint_bool = False
 # contingent_bool = False
 # disjoint_bool = False
 
-# """CL6: IDENTITY TO GROUND"""
-N = 3
-premises = ['((A vee B) equiv B)']
-conclusions = ['(A leq B)']
-contingent_bool = False
-disjoint_bool = False
+# # """CL6: IDENTITY TO GROUND"""
+# N = 3
+# premises = ['((A vee B) equiv B)']
+# conclusions = ['(A leq B)']
+# contingent_bool = False
+# disjoint_bool = False
 
 # # """CL7: NEGATION TRANSPARENCY"""
 # N = 3
@@ -170,12 +170,12 @@ disjoint_bool = False
 
 ### AXIOMS AND RULES: GROUND ###
 
-# """CL9: DISJUNCTS GROUND DISJUNCTIONS"""
-N = 3
-premises = []
-conclusions = ['(A leq (A vee B))']
-contingent_bool = False
-disjoint_bool = False
+# # """CL9: DISJUNCTS GROUND DISJUNCTIONS"""
+# N = 3
+# premises = []
+# conclusions = ['(A leq (A vee B))']
+# contingent_bool = False
+# disjoint_bool = False
 
 # # """CL10: CONJUNCTIONS GROUND DISJUNCTIONS"""
 # N = 3
@@ -205,12 +205,12 @@ disjoint_bool = False
 # contingent_bool = False
 # disjoint_bool = False
 
-# """CL14: GROUNDING ANTISYMMETRY"""
-N = 3
-premises = ['(A leq B)','(B leq A)']
-conclusions = ['(A equiv B)']
-contingent_bool = False
-disjoint_bool = False
+# # """CL14: GROUNDING ANTISYMMETRY"""
+# N = 3
+# premises = ['(A leq B)','(B leq A)']
+# conclusions = ['(A equiv B)']
+# contingent_bool = False
+# disjoint_bool = False
 
 # # """CL15: GROUNDING MODUS PONENS"""
 # N = 3

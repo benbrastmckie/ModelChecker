@@ -6,37 +6,18 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [:] print constraints same for unsat and sat
   - [ ] find example with nonempty `unsat_core`
-- [x] disjoint subject-mater for all propositions
-- [x] help flag
-- [x] debug optimizer
-  - [x] ask to increase time if timeout
-  - [x] interrupt process if greater than `max_time`
-  - [x] if timeout, should reduce N rather than halt
-  - [x] seems to erroneously increase N
+- [ ] false premise and true conclusion models
 
 ## Documentation
 
-- [x] examples
-  - [x] move modal interaction to counterfactuals
-- [x] screenshots
-  - [x] add brief descriptions
-  - [x] counterfactuals
-  - [x] constitutive
-  - [x] modal
-  - [x] relevance
-- [:] documentation
-  - [x] _M_ doc strings for functions
-  - [x] _M_ revise architecture description
-  - [x] _B_ architecture description
-  - [x] _B_ expanded READMEs
-  - [:] _B_ revise pypi readme
-    - [x] semantics overview
-    - [ ] update paper link
-  - [:] _B_ revise github readme
-    - [x] semantics overview
-    - [ ] update paper link
-  - [ ] _B_ rewrite architecture
-  - [ ] _B_ write semantics doc
+- [:] _B_ revise pypi readme
+  - [x] semantics overview
+  - [ ] update paper link
+- [:] _B_ revise github readme
+  - [x] semantics overview
+  - [ ] update paper link
+- [ ] _B_ rewrite architecture
+- [ ] _B_ write semantics doc
 - [ ] clean up project directory
   - [ ] decapitalize directories
   - [ ] todos
@@ -107,6 +88,31 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 <!-- BONEYARD -->
 
 # Completed
+
+## Documentation
+
+- [x] _M_ doc strings for functions
+- [x] _M_ revise architecture description
+- [x] _B_ architecture description
+- [x] _B_ expanded READMEs
+- [x] examples
+  - [x] move modal interaction to counterfactuals
+- [x] screenshots
+  - [x] add brief descriptions
+  - [x] counterfactuals
+  - [x] constitutive
+  - [x] modal
+  - [x] relevance
+
+## Patch
+
+- [x] disjoint subject-mater for all propositions
+- [x] help flag
+- [x] debug optimizer
+  - [x] ask to increase time if timeout
+  - [x] interrupt process if greater than `max_time`
+  - [x] if timeout, should reduce N rather than halt
+  - [x] seems to erroneously increase N
 
 ## v0.5 Release 
 
