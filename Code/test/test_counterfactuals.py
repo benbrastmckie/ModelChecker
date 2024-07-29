@@ -25,7 +25,8 @@ def test_CF_CM1():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM2():
@@ -42,7 +43,8 @@ def test_CF_CM2():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM3():
@@ -59,7 +61,8 @@ def test_CF_CM3():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM4():
@@ -76,7 +79,8 @@ def test_CF_CM4():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM5():
@@ -93,7 +97,8 @@ def test_CF_CM5():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 
 @pytest.mark.timeout(max_time)
@@ -111,7 +116,8 @@ def test_CF_CM6():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM7():
@@ -128,7 +134,8 @@ def test_CF_CM7():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM8():
@@ -145,7 +152,8 @@ def test_CF_CM8():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM9():
@@ -162,7 +170,8 @@ def test_CF_CM9():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM10():
@@ -179,7 +188,8 @@ def test_CF_CM10():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM11():
@@ -196,7 +206,8 @@ def test_CF_CM11():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM12():
@@ -217,7 +228,8 @@ def test_CF_CM12():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM13():
@@ -242,7 +254,8 @@ def test_CF_CM13():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM14():
@@ -259,7 +272,8 @@ def test_CF_CM14():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM15():
@@ -276,7 +290,8 @@ def test_CF_CM15():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM16():
@@ -293,7 +308,8 @@ def test_CF_CM16():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM17():
@@ -310,7 +326,8 @@ def test_CF_CM17():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM18():
@@ -327,7 +344,8 @@ def test_CF_CM18():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM19():
@@ -344,7 +362,8 @@ def test_CF_CM19():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM20():
@@ -361,7 +380,8 @@ def test_CF_CM20():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 # # NOTE: DOES NOT FIND COUNTERMODEL
 # @pytest.mark.timeout(0)
@@ -378,7 +398,8 @@ def test_CF_CM20():
 #         conclusions,
 #         desired_model_status,
 #         contingent_bool,
-#         disjoint_bool)
+#         disjoint_bool
+#     )
 
 
 
@@ -403,7 +424,8 @@ def test_CF1():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF2():
@@ -420,7 +442,8 @@ def test_CF2():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF3():
@@ -437,7 +460,8 @@ def test_CF3():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF4():
@@ -454,7 +478,8 @@ def test_CF4():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF5():
@@ -471,7 +496,8 @@ def test_CF5():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF6():
@@ -488,7 +514,8 @@ def test_CF6():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF7():
@@ -504,7 +531,8 @@ def test_CF7():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF8():
@@ -520,7 +548,8 @@ def test_CF8():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF9():
@@ -536,7 +565,8 @@ def test_CF9():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF10():
@@ -553,4 +583,5 @@ def test_CF10():
         conclusions,
         desired_model_status,
         contingent_bool,
-        disjoint_bool)
+        disjoint_bool
+    )

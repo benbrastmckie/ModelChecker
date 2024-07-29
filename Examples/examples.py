@@ -125,12 +125,12 @@ disjoint_bool = False
 # contingent_bool = False
 # disjoint_bool = False
 
-# CM2:  COUNTERFACTUAL IMPLIES STRICT CONDITIONAL
-N = 3
-premises = ['(A boxright B)']
-conclusions = ['Box (A rightarrow B)']
-contingent_bool = True
-disjoint_bool = False
+# # CM2:  COUNTERFACTUAL IMPLIES STRICT CONDITIONAL
+# N = 3
+# premises = ['(A boxright B)']
+# conclusions = ['Box (A rightarrow B)']
+# contingent_bool = True
+# disjoint_bool = False
 
 
 
@@ -142,19 +142,19 @@ disjoint_bool = False
 ################################
 
 
-# ML1: STRICT CONDITIONAL TO COUNTERFACTUAL
-N = 3
-premises = ['Box (A rightarrow B)']
-conclusions = ['(A boxright B)']
-contingent_bool = False
-disjoint_bool = False
+# # ML1: STRICT CONDITIONAL TO COUNTERFACTUAL
+# N = 3
+# premises = ['Box (A rightarrow B)']
+# conclusions = ['(A boxright B)']
+# contingent_bool = False
+# disjoint_bool = False
 
-# ML2: K AXIOM (BOX)
-N = 3
-premises = ['Box (A rightarrow B)']
-conclusions = ['(Box A rightarrow Box B)']
-contingent_bool = False
-disjoint_bool = False
+# # ML2: K AXIOM (BOX)
+# N = 3
+# premises = ['Box (A rightarrow B)']
+# conclusions = ['(Box A rightarrow Box B)']
+# contingent_bool = False
+# disjoint_bool = False
 
 # # ML6: T AXIOM (BOX)
 # N = 3
@@ -170,12 +170,12 @@ disjoint_bool = False
 # contingent_bool = False
 # disjoint_bool = False
 
-# ML13: BOX-TO-TOP
-N = 3
-premises = ['Box A']
-conclusions = ['(top boxright A)']
-contingent_bool = False
-disjoint_bool = False
+# # ML13: BOX-TO-TOP
+# N = 3
+# premises = ['Box A']
+# conclusions = ['(top boxright A)']
+# contingent_bool = False
+# disjoint_bool = False
 
 # # ML14: # TOP-TO-BOX
 # N = 3
@@ -494,12 +494,12 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-"""RL_CM4: RELEVANT IMPLICATION: GROUND"""
-N = 3
-premises = ['Box (A rightarrow B)','(A preceq B)']
-conclusions = ['(A leq B)']
-contingent_bool = True
-disjoint_bool = False
+# """RL_CM4: RELEVANT IMPLICATION: GROUND"""
+# N = 3
+# premises = ['Box (A rightarrow B)','(A preceq B)']
+# conclusions = ['(A leq B)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # """RL_CM5: RELEVANT IMPLICATION: ESSENCE"""
 # N = 3
@@ -527,12 +527,12 @@ disjoint_bool = False
 
 ### DEFINITIONAL EQUIVALENTS
 
-"""RL1: RELEVANCE TO CONJUNCTION"""
-N = 3
-premises = ['(A preceq B)']
-conclusions = ['((A wedge B) leq B)']
-contingent_bool = False
-disjoint_bool = False
+# """RL1: RELEVANCE TO CONJUNCTION"""
+# N = 3
+# premises = ['(A preceq B)']
+# conclusions = ['((A wedge B) leq B)']
+# contingent_bool = False
+# disjoint_bool = False
 
 # """RL2: RELEVANCE TO DISJUNCTION"""
 # N = 3
@@ -541,12 +541,12 @@ disjoint_bool = False
 # contingent_bool = False
 # disjoint_bool = False
 
-"""RL3: CONJUNCTION TO RELEVANCE"""
-N = 3
-premises = ['((A wedge B) leq B)']
-conclusions = ['(A preceq B)']
-contingent_bool = False
-disjoint_bool = False
+# """RL3: CONJUNCTION TO RELEVANCE"""
+# N = 3
+# premises = ['((A wedge B) leq B)']
+# conclusions = ['(A preceq B)']
+# contingent_bool = False
+# disjoint_bool = False
 
 # """RL4: DISJUNCTION TO RELEVANCE"""
 # N = 3
