@@ -142,14 +142,14 @@ save_bool = False
 N = 3
 premises = ['(A imposition B)']
 conclusions = ['(A boxright B)']
-contingent_bool = False
+contingent_bool = True
 disjoint_bool = False
 
 # # CF12: COUNTERFACTUAL TO IMPOSITION
 # N = 3
 # premises = ['(A boxright B)']
 # conclusions = ['(A imposition B)']
-# contingent_bool = False
+# contingent_bool = True
 # disjoint_bool = False
 
 

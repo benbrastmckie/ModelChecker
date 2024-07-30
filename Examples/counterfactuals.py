@@ -13,7 +13,7 @@ file_name = os.path.basename(__file__)
 max_time = 1
 
 # find critical value of N
-optimize_bool = False
+optimize_bool = True
 
 # print all Z3 constraints if a model is found
 print_cons_bool = False
@@ -127,7 +127,7 @@ save_bool = False
 # disjoint_bool = False
 
 # # CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
-# N = 4
+# N = 1
 # premises = [
 #     'Diamond A',
 #     '(A boxright X)',
@@ -218,12 +218,12 @@ save_bool = False
 # contingent_bool = False
 # disjoint_bool = False
 
-# # CF3: WEAKENED TRANSITIVITY
-# N = 3
-# premises = ['(A boxright B)','((A wedge B) boxright C)']
-# conclusions = ['(A boxright C)']
-# contingent_bool = False
-# disjoint_bool = False
+# CF3: WEAKENED TRANSITIVITY
+N = 3
+premises = ['(A boxright B)','((A wedge B) boxright C)']
+conclusions = ['(A boxright C)']
+contingent_bool = False
+disjoint_bool = False
 
 # # CF4: ANTECEDENT DISJUNCTION TO CONJUNCTION
 # N = 3

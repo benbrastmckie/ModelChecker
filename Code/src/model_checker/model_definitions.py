@@ -390,21 +390,22 @@ def evaluate_cf_expr(model_setup, cf_sentence, eval_world):
         consequent,
         eval_world,
     )
-    antecedent_alts = model_setup.find_alt_bits(antecedent_vers, eval_world)
-    antecedent_imps = model_setup.find_imp_bits(antecedent_vers, eval_world)
     if 'boxright' in operator:
+        antecedent_alts = model_setup.find_alt_bits(antecedent_vers, eval_world)
         for alt_world in antecedent_alts:
             for falsifier in consequent_fals:
                 if bit_part(falsifier, alt_world):
                     return False
         return True
     if 'circleright' in operator:
+        antecedent_alts = model_setup.find_alt_bits(antecedent_vers, eval_world)
         for alt_world in antecedent_alts:
             for verifier in consequent_vers:
                 if bit_part(verifier, alt_world):
                     return True
         return False
     if 'imposition' in operator:
+        antecedent_imps = model_setup.find_imp_bits(antecedent_vers, eval_world)
         for alt_world in antecedent_imps:
             for falsifier in consequent_fals:
                 if bit_part(falsifier, alt_world):
