@@ -9,6 +9,7 @@ import subprocess
 from string import Template
 import argparse
 import importlib.util
+from concurrent.futures import ThreadPoolExecutor
 from threading import (
     Thread,
     Event,
@@ -490,6 +491,59 @@ def progress_bar(max_time, stop_event):
             if pbar.n >= 100:
                 stop_event.set()  # Signal the progress bar to stop
 
+def create_model_setup(module):
+    """Creates a model setup based on module attributes."""
+    return make_model_for(
+        module.N,
+        module.premises,
+        module.conclusions,
+        module.max_time,
+        module.contingent_bool,
+        module.disjoint_bool,
+    )
+
+# def optimize_if_needed(module, model_setup, optimize_model):
+#     """Optimizes the model setup if optimization is enabled."""
+#     if optimize_model:
+#         module, model_setup = optimize_N(module, model_setup, module, model_setup)
+#     return module, model_setup
+
+# def show_progress(max_time, stop_event):
+#     """Displays a progress bar for the specified duration."""
+#     progress_thread = Thread(target=progress_bar, args=(max_time, stop_event))
+#     progress_thread.start()
+
+def handle_timeout(module, model_setup):
+    """Handles timeout scenarios by asking the user for a new time limit."""
+    print(f"The model timed out at {model_setup.model_runtime} seconds.")
+    new_max_time = ask_time(model_setup.model_runtime, model_setup.max_time)
+    if new_max_time is None:
+        print("Terminating the process.")
+        os._exit(1)
+    module.update_max_time(new_max_time)
+
+# def optimize_model_setup(module, optimize_model):
+#     """Main function: Creates, optimizes (if needed), and manages model setup process."""
+#
+#     stop_event = Event()
+#
+#     with ThreadPoolExecutor() as executor:
+#         # Run model creation and progress bar in parallel
+#         model_future = executor.submit(create_model_setup, module)
+#         progress_future = executor.submit(show_progress, module.max_time, stop_event)
+#
+#         model_setup = model_future.result()
+#         module, model_setup = optimize_if_needed(module, model_setup, optimize_model)
+#         stop_event.set()  # Stop the progress bar
+#         progress_future.result()  # Ensure progress bar thread completes
+#
+#     while module.timeout:
+#         handle_timeout(module, model_setup)
+#         model_setup = create_model_setup(module)
+#         module, model_setup = optimize_if_needed(module, model_setup, optimize_model)
+#
+#     return module, model_setup
+
 def optimize_model_setup(module, optimize_model):
     """Runs make_model_for on the values provided by the module and user, optimizing if required."""
     max_time = module.max_time
@@ -499,29 +553,18 @@ def optimize_model_setup(module, optimize_model):
 
     model_setup = None
     try:
-        model_setup = make_model_for(
-            module.N,
-            module.premises,
-            module.conclusions,
-            module.max_time,
-            module.contingent_bool,
-            module.disjoint_bool,
-        )
+        model_setup = create_model_setup(module)
+        # module, model_setup = optimize_if_needed(module, model_setup, optimize_model)
+        if model_setup.model_runtime > max_time:
+            handle_timeout(module, model_setup)
+            stop_event.set()  # Signal the progress bar to stop
+            module, model_setup = optimize_model_setup(module, model_setup)
         if optimize_model:
             module, model_setup = optimize_N(module, model_setup, module, model_setup)
 
     finally:
         stop_event.set()  # Signal the progress bar to stop
         progress_thread.join(timeout=max_time)  # Wait for the thread to finish
-
-    if model_setup.timeout:
-        print(f"The model timed out at {model_setup.model_runtime} seconds.")
-        new_max_time = ask_time(model_setup.model_runtime, model_setup.max_time)
-        if new_max_time is None:
-            print("Terminating the process.")
-            os._exit(1)
-        module.update_max_time(new_max_time)
-        return optimize_model_setup(module, optimize_model)
 
     return module, model_setup
 
