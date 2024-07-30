@@ -211,12 +211,12 @@ save_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# CF2: IMPOSITION MODUS PONENS
-N = 3
-premises = ['A','(A imposition B)']
-conclusions = ['B']
-contingent_bool = True
-disjoint_bool = False
+# # CF2: IMPOSITION MODUS PONENS
+# N = 3
+# premises = ['A','(A imposition B)']
+# conclusions = ['B']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF3: WEAKENED TRANSITIVITY
 # N = 3
