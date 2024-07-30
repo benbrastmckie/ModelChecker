@@ -122,15 +122,37 @@ save_bool = False
 # disjoint_bool = False
 # optimize_bool = True
 
-# COUNTERFACTUAL IMPORTATION
-# NOTE: MIT servers found a model in 467 seconds with Z3 quantifiers
-N = 3
-premises = ['(A boxright (B boxright C))']
-conclusions = ['((A wedge B) boxright C)']
-contingent_bool = True
-disjoint_bool = True
-optimize_bool = True
+# # COUNTERFACTUAL IMPORTATION
+# # NOTE: MIT servers found a model in 467 seconds with Z3 quantifiers
+# N = 3
+# premises = ['(A boxright (B boxright C))']
+# conclusions = ['((A wedge B) boxright C)']
+# contingent_bool = True
+# disjoint_bool = True
+# optimize_bool = True
 
+
+
+
+##########################
+####### IMPOSITION #######
+##########################
+
+# # IMPOSITION IMPORTATION WITH POSSIBILITY
+# N = 3
+# premises = ['(A imposition (B imposition C))','Diamond (A wedge B)']
+# conclusions = ['((A wedge B) imposition C)']
+# contingent_bool = False
+# disjoint_bool = False
+# optimize_bool = True
+
+# # IMPOSITION IMPORTATION
+# N = 3
+# premises = ['(A boxright (B boxright C))']
+# conclusions = ['((A wedge B) boxright C)']
+# contingent_bool = True
+# disjoint_bool = True
+# optimize_bool = True
 
 
 

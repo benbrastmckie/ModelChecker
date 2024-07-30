@@ -139,6 +139,7 @@ class ModelSetup:
         self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
         self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
         self.possible = Function("possible", BitVecSort(N), BoolSort())
+        self.imposition = Function("imposition", BitVecSort(N), BitVecSort(N), BitVecSort(N), BoolSort())
         # self.assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
         self.w = BitVec("w", N) # what will be the main world
         self.prefix_premises = [prefix(prem) for prem in infix_premises]
@@ -153,6 +154,7 @@ class ModelSetup:
             self.verify,
             self.falsify,
             self.possible,
+            self.imposition,
             # self.assign,
         )
         frame_cons, prop_cons, premise_cons, conclusion_cons = find_constraints_func(
@@ -346,6 +348,23 @@ class StateSpace:
                         break  # to return to the second for loop over world_bits
         return alt_bits
 
+    def find_imp_bits(self, verifier_bits, evaulation_world=None):
+        """
+        Finds the alternative bits given verifier bits of an extensional proposition,
+        possible states, worlds, and the evaluation world.
+        Used in evaluate_cf_expression() and rec_print().
+        """
+        if evaulation_world is None:
+            evaulation_world = self.main_world
+        imp_bits = set()
+        for ver in verifier_bits:
+            for world in self.world_bits:
+                imp_bool = self.model_setup.imposition(ver, evaulation_world, world)
+                if bool(self.z3_model.evaluate(imp_bool)):
+                    imp_bits.add(world)
+                    break  # to return to the second for loop over world_bits
+        return imp_bits
+
     # Useful to user now that can search an infix expression
     # NOTE: I think this option is no longer available
     def find_proposition_object(self, expression):
@@ -498,17 +517,34 @@ class StateSpace:
             CYAN = '\033[36m'
             RESET = '\033[0m'
             left_subprop_vers = left_subprop['verifiers']
-            phi_alt_worlds_to_world_bit = self.find_alt_bits(left_subprop_vers, world_bit)
-            alt_worlds_as_strings = {bitvec_to_substates(u,N) for u in phi_alt_worlds_to_world_bit}
+            imp_worlds = self.find_alt_bits(left_subprop_vers, world_bit)
+            imp_world_strings = {bitvec_to_substates(u,N) for u in imp_worlds}
             self.rec_print(left_subprop, world_bit, print_impossible, output, indent)
             print(
                 f'{"  " * indent}'
                 f'{CYAN}{left_subprop}-alternatives to {bitvec_to_substates(world_bit, N)} = '
-                f'{pretty_set_print(alt_worlds_as_strings)}{RESET}',
+                f'{pretty_set_print(imp_world_strings)}{RESET}',
                 file=output
             )
             indent += 1
-            for u in phi_alt_worlds_to_world_bit:
+            for u in imp_worlds:
+                self.rec_print(right_subprop, u, print_impossible, output, indent)
+            return
+        if "imposition" in op:
+            CYAN = '\033[36m'
+            RESET = '\033[0m'
+            left_subprop_vers = left_subprop['verifiers']
+            imp_worlds = self.find_imp_bits(left_subprop_vers, world_bit)
+            imp_world_strings = {bitvec_to_substates(u,N) for u in imp_worlds}
+            self.rec_print(left_subprop, world_bit, print_impossible, output, indent)
+            print(
+                f'{"  " * indent}'
+                f'{CYAN}{left_subprop}-alternatives to {bitvec_to_substates(world_bit, N)} = '
+                f'{pretty_set_print(imp_world_strings)}{RESET}',
+                file=output
+            )
+            indent += 1
+            for u in imp_worlds:
                 self.rec_print(right_subprop, u, print_impossible, output, indent)
             return
         self.rec_print(left_subprop, world_bit, print_impossible, output, indent)
@@ -567,7 +603,7 @@ class Proposition:
         # TODO: can cf_sentences be treated in a more uniform way, avoiding the if clause below?
         # if 'preceq' in str(prefix_expr[0]):
         #     print(f"TEST: {verifiers}")
-        if 'boxright' in str(prefix_expr[0]):
+        if 'boxright' in str(prefix_expr[0]) or 'imposition' in str(prefix_expr[0]):
             # print(f"TEST: check condition")
             self.cf_world = eval_world
             true_worlds, false_worlds = true_and_false_worlds_for_cf(model_setup, prefix_expr)

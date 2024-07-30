@@ -391,6 +391,7 @@ def evaluate_cf_expr(model_setup, cf_sentence, eval_world):
         eval_world,
     )
     antecedent_alts = model_setup.find_alt_bits(antecedent_vers, eval_world)
+    antecedent_imps = model_setup.find_imp_bits(antecedent_vers, eval_world)
     if 'boxright' in operator:
         for alt_world in antecedent_alts:
             for falsifier in consequent_fals:
@@ -403,6 +404,12 @@ def evaluate_cf_expr(model_setup, cf_sentence, eval_world):
                 if bit_part(verifier, alt_world):
                     return True
         return False
+    if 'imposition' in operator:
+        for alt_world in antecedent_imps:
+            for falsifier in consequent_fals:
+                if bit_part(falsifier, alt_world):
+                    return False
+        return True
     raise ValueError(
         cf_sentence,
         "Something has gone wrong in evaluate_cf_counterfactual. "
@@ -552,6 +559,10 @@ def find_complex_proposition(model_setup, complex_sentence, eval_world):
         )
     if "rightarrow" in op:
         return (coproduct(Y_F, Z_V), product(Y_V, Z_F))
+    if "imposition" in op:
+        if evaluate_cf_expr(model_setup, complex_sentence, eval_world):
+            return (null_singleton, set())
+        return (set(), null_singleton)
     if "boxright" in op:
         if evaluate_cf_expr(model_setup, complex_sentence, eval_world):
             # val = evaluate_cf_expr(model_structure, complex_sentence, eval_world)

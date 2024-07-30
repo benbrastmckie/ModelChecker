@@ -7,15 +7,15 @@ from .utils import (
 
 
 ########################################
-##### COUNTERFACTUAL COUNTERMODELS #####
+##### IMPOSITION COUNTERMODELS #####
 ########################################
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM1():
-# COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# IMPOSITION ANTECEDENT STRENGTHENING
     N = 3
-    premises = ['(A boxright C)']
-    conclusions = ['((A wedge B) boxright C)']
+    premises = ['(A imposition C)']
+    conclusions = ['((A wedge B) imposition C)']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -30,7 +30,7 @@ def test_CF_CM1():
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM2():
-# MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# MIGHT IMPOSITION ANTECEDENT STRENGTHENING
     N = 3
     premises = ['(A circleright C)']
     conclusions = ['((A wedge B) circleright C)']
@@ -48,10 +48,10 @@ def test_CF_CM2():
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM3():
-# COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
+# IMPOSITION ANTECEDENT STRENGTHENING WITH POSSIBILITY
     N = 3
-    premises = ['(A boxright C)', 'Diamond (A wedge B)']
-    conclusions = ['((A wedge B) boxright C)']
+    premises = ['(A imposition C)', 'Diamond (A wedge B)']
+    conclusions = ['((A wedge B) imposition C)']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -66,10 +66,10 @@ def test_CF_CM3():
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM4():
-# COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
+# IMPOSITION ANTECEDENT STRENGTHENING WITH NEGATION
     N = 4
-    premises = ['neg A', '(A boxright C)']
-    conclusions = ['((A wedge B) boxright C)']
+    premises = ['neg A', '(A imposition C)']
+    conclusions = ['((A wedge B) imposition C)']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -84,10 +84,10 @@ def test_CF_CM4():
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM5():
-# COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
+# IMPOSITION DOUBLE ANTECEDENT STRENGTHENING
     N = 4
-    premises = ['(A boxright C)','(B boxright C)']
-    conclusions = ['((A wedge B) boxright C)']
+    premises = ['(A imposition C)','(B imposition C)']
+    conclusions = ['((A wedge B) imposition C)']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -103,10 +103,10 @@ def test_CF_CM5():
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM6():
-# COUNTERFACTUAL CONTRAPOSITION
+# IMPOSITION CONTRAPOSITION
     N = 3
-    premises = ['(A boxright B)']
-    conclusions = ['(neg B boxright neg A)']
+    premises = ['(A imposition B)']
+    conclusions = ['(neg B imposition neg A)']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -121,10 +121,10 @@ def test_CF_CM6():
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM7():
-# COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
+# IMPOSITION CONTRAPOSITION WITH NEGATION
     N = 4
-    premises = ['neg B','(A boxright B)']
-    conclusions = ['(neg B boxright neg A)']
+    premises = ['neg B','(A imposition B)']
+    conclusions = ['(neg B imposition neg A)']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -139,10 +139,10 @@ def test_CF_CM7():
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM8():
-# COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
+# IMPOSITION CONTRAPOSITION WITH TWO NEGATIONS
     N = 4
-    premises = ['neg A','neg B','(A boxright B)']
-    conclusions = ['(neg B boxright neg A)']
+    premises = ['neg A','neg B','(A imposition B)']
+    conclusions = ['(neg B imposition neg A)']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -159,8 +159,8 @@ def test_CF_CM8():
 def test_CF_CM9():
 # TRANSITIVITY
     N = 3
-    premises = ['(A boxright B)','(B boxright C)']
-    conclusions = ['(A boxright C)']
+    premises = ['(A imposition B)','(B imposition C)']
+    conclusions = ['(A imposition C)']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -175,10 +175,10 @@ def test_CF_CM9():
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM10():
-# COUNTERFACTUAL TRANSITIVITY WITH NEGATION
+# IMPOSITION TRANSITIVITY WITH NEGATION
     N = 4
-    premises = ['neg A','(A boxright B)','(B boxright C)']
-    conclusions = ['(A boxright C)']
+    premises = ['neg A','(A imposition B)','(B imposition C)']
+    conclusions = ['(A imposition C)']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -193,10 +193,10 @@ def test_CF_CM10():
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM11():
-# COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
+# IMPOSITION TRANSITIVITY WITH TWO NEGATIONS
     N = 4
-    premises = ['neg A','neg B','(A boxright B)','(B boxright C)']
-    conclusions = ['(A boxright C)']
+    premises = ['neg A','neg B','(A imposition B)','(B imposition C)']
+    conclusions = ['(A imposition C)']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -214,9 +214,9 @@ def test_CF_CM12():
 # SOBEL SEQUENCE (N = 3)
     N = 3
     premises = [
-        '(A boxright X)',
-        'neg ((A wedge B) boxright X)',
-        '(((A wedge B) wedge C) boxright X)',
+        '(A imposition X)',
+        'neg ((A wedge B) imposition X)',
+        '(((A wedge B) wedge C) imposition X)',
     ]
     conclusions = []
     desired_model_status = True
@@ -237,11 +237,11 @@ def test_CF_CM13():
     N = 4
     premises = [
         'Diamond A',
-        '(A boxright X)',
+        '(A imposition X)',
         'Diamond (A wedge B)',
-        'neg ((A wedge B) boxright X)',
+        'neg ((A wedge B) imposition X)',
         'Diamond ((A wedge B) wedge C)',
-        '(((A wedge B) wedge C) boxright X)',
+        '(((A wedge B) wedge C) imposition X)',
         'Diamond (((A wedge B) wedge C) wedge D)',
     ]
     conclusions = []
@@ -259,10 +259,10 @@ def test_CF_CM13():
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM14():
-# COUNTERFACTUAL EXCLUDED MIDDLE
+# IMPOSITION EXCLUDED MIDDLE
     N = 3
     premises = ['neg A']
-    conclusions = ['(A boxright B)','(A boxright neg B)']
+    conclusions = ['(A imposition B)','(A imposition neg B)']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -279,8 +279,8 @@ def test_CF_CM14():
 def test_CF_CM15():
 # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
     N = 3
-    premises = ['neg A','(A boxright (B vee C))']
-    conclusions = ['(A boxright B)','(A boxright C)']
+    premises = ['neg A','(A imposition (B vee C))']
+    conclusions = ['(A imposition B)','(A imposition C)']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -297,8 +297,8 @@ def test_CF_CM15():
 def test_CF_CM16():
 # INTRODUCTION OF DISJUNCTIVE ANTECEDENT
     N = 4
-    premises = ['(A boxright C)','(B boxright C)']
-    conclusions = ['((A vee B) boxright C)']
+    premises = ['(A imposition C)','(B imposition C)']
+    conclusions = ['((A vee B) imposition C)']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -316,7 +316,7 @@ def test_CF_CM17():
 # MUST FACTIVITY
     N = 3
     premises = ['A', 'B']
-    conclusions = ['(A boxright B)']
+    conclusions = ['(A imposition B)']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -331,10 +331,10 @@ def test_CF_CM17():
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM18():
-# COUNTERFACTUAL EXPORTATION
+# IMPOSITION EXPORTATION
     N = 3
-    premises = ['((A wedge B) boxright C)']
-    conclusions = ['(A boxright (B boxright C))']
+    premises = ['((A wedge B) imposition C)']
+    conclusions = ['(A imposition (B imposition C))']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -349,10 +349,10 @@ def test_CF_CM18():
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM19():
-# COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
+# IMPOSITION EXPORTATION WITH POSSIBILITY
     N = 3
-    premises = ['((A wedge B) boxright C)','Diamond (A wedge B)']
-    conclusions = ['(A boxright (B boxright C))']
+    premises = ['((A wedge B) imposition C)','Diamond (A wedge B)']
+    conclusions = ['(A imposition (B imposition C))']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -367,10 +367,10 @@ def test_CF_CM19():
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM20():
-# COUNTERFACTUAL EXCLUDED MIDDLE VARIANT
+# IMPOSITION EXCLUDED MIDDLE VARIANT
     N = 3
-    premises = ['neg A','neg (A boxright B)']
-    conclusions = ['(A boxright neg B)']
+    premises = ['neg A','neg (A imposition B)']
+    conclusions = ['(A imposition neg B)']
     desired_model_status = True
     contingent_bool = True
     disjoint_bool = False
@@ -387,8 +387,8 @@ def test_CF_CM20():
 # @pytest.mark.timeout(0)
 # def test_CL_8():
 #     N = 4
-#     premises = ['(A \\boxright (B \\boxright C))']
-#     conclusions = ['((A \\wedge B) \\boxright C)']
+#     premises = ['(A \\imposition (B \\imposition C))']
+#     conclusions = ['((A \\wedge B) \\imposition C)']
 #     desired_model_status = True
 #     contingent_bool = True
 #     disjoint_bool = False
@@ -406,15 +406,15 @@ def test_CF_CM20():
 
 
 ################################
-##### COUNTERFACTUAL LOGIC #####
+##### IMPOSITION LOGIC #####
 ################################
 
 @pytest.mark.timeout(max_time)
 def test_CF1():
-    """COUNTERFACTUAL IDENTITY"""
+    """IMPOSITION IDENTITY"""
     N = 3
     premises = []
-    conclusions = ['(A boxright A)']
+    conclusions = ['(A imposition A)']
     desired_model_status = False
     contingent_bool = False
     disjoint_bool = False
@@ -429,9 +429,9 @@ def test_CF1():
 
 @pytest.mark.timeout(max_time)
 def test_CF2():
-    """COUNTERFACTUAL MODUS PONENS"""
+    """IMPOSITION MODUS PONENS"""
     N = 3
-    premises = ['A','(A boxright B)']
+    premises = ['A','(A imposition B)']
     conclusions = ['B']
     desired_model_status = False
     contingent_bool = False
@@ -449,8 +449,8 @@ def test_CF2():
 def test_CF3():
     """WEAKENED TRANSITIVITY"""
     N = 3
-    premises = ['(A boxright B)','((A wedge B) boxright C)']
-    conclusions = ['(A boxright C)']
+    premises = ['(A imposition B)','((A wedge B) imposition C)']
+    conclusions = ['(A imposition C)']
     desired_model_status = False
     contingent_bool = False
     disjoint_bool = False
@@ -467,8 +467,8 @@ def test_CF3():
 def test_CF4():
     """ANTECEDENT DISJUNCTION TO CONJUNCTION"""
     N = 3
-    premises = ['((A \\vee B) \\boxright C)']
-    conclusions = ['((A \\wedge B) \\boxright C)']
+    premises = ['((A \\vee B) \\imposition C)']
+    conclusions = ['((A \\wedge B) \\imposition C)']
     desired_model_status = False
     contingent_bool = False
     disjoint_bool = False
@@ -485,8 +485,8 @@ def test_CF4():
 def test_CF5():
     """SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT"""
     N = 3
-    premises = ['((A vee B) boxright C)']
-    conclusions = ['(A boxright C)']
+    premises = ['((A vee B) imposition C)']
+    conclusions = ['(A imposition C)']
     desired_model_status = False
     contingent_bool = False
     disjoint_bool = False
@@ -503,8 +503,8 @@ def test_CF5():
 def test_CF6():
     """DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT"""
     N = 3
-    premises = ['((A vee B) boxright C)']
-    conclusions = ['((A boxright C) wedge (B boxright C))']
+    premises = ['((A vee B) imposition C)']
+    conclusions = ['((A imposition C) wedge (B imposition C))']
     desired_model_status = False
     contingent_bool = False
     disjoint_bool = False
@@ -520,8 +520,8 @@ def test_CF6():
 @pytest.mark.timeout(max_time)
 def test_CF7():
     N = 3
-    premises = ['(A boxright C)', '(B boxright C)', '((A wedge B) boxright C)']
-    conclusions = ['((A vee B) boxright C)']
+    premises = ['(A imposition C)', '(B imposition C)', '((A wedge B) imposition C)']
+    conclusions = ['((A vee B) imposition C)']
     desired_model_status = False
     contingent_bool = False
     disjoint_bool = False
@@ -537,8 +537,8 @@ def test_CF7():
 @pytest.mark.timeout(max_time)
 def test_CF8():
     N = 3
-    premises = ['(A boxright (B wedge C))']
-    conclusions = ['(A boxright B)']
+    premises = ['(A imposition (B wedge C))']
+    conclusions = ['(A imposition B)']
     desired_model_status = False
     contingent_bool = False
     disjoint_bool = False
@@ -554,8 +554,8 @@ def test_CF8():
 @pytest.mark.timeout(max_time)
 def test_CF9():
     N = 3
-    premises = ['(A boxright B)','(A boxright C)']
-    conclusions = ['(A boxright (B wedge C))']
+    premises = ['(A imposition B)','(A imposition C)']
+    conclusions = ['(A imposition (B wedge C))']
     desired_model_status = False
     contingent_bool = False
     disjoint_bool = False
