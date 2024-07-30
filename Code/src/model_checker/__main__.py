@@ -9,7 +9,7 @@ import subprocess
 from string import Template
 import argparse
 import importlib.util
-# from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from threading import (
     Thread,
     Event,
@@ -31,19 +31,19 @@ from tqdm import tqdm
 # # Add the project root to the Python path
 # sys.path.append(project_root)
 
-# ### FOR TESTING ###
-# from __init__ import __version__
-# from model_structure import (
-#     StateSpace,
-#     make_model_for,
-#     )
-
-### FOR PACKAGING ###
-from model_checker.__init__ import __version__
-from model_checker.model_structure import (
+### FOR TESTING ###
+from __init__ import __version__
+from model_structure import (
     StateSpace,
     make_model_for,
     )
+
+# ### FOR PACKAGING ###
+# from model_checker.__init__ import __version__
+# from model_checker.model_structure import (
+#     StateSpace,
+#     make_model_for,
+#     )
 
 script_template = Template("""
 '''
@@ -517,25 +517,33 @@ def optimize_model_setup(module, optimize_model):
     stop_event = Event()
     progress_thread = Thread(target=progress_bar, args=(max_time, stop_event))
     progress_thread.start()
-
     model_setup = None
     try:
         model_setup = create_model_setup(module)
         run_time = model_setup.model_runtime
         if run_time > max_time:
             handle_timeout(module, model_setup)
-            # stop_event.set()  # Signal the progress bar to stop
-            # progress_thread.join(timeout=max_time)  # Wait for the thread to finish
             module, model_setup = optimize_model_setup(module, model_setup)
         if optimize_model:
             module, model_setup = optimize_N(module, model_setup, module, model_setup)
-
     finally:
         stop_event.set()  # Signal the progress bar to stop
         progress_thread.join(timeout=max_time)  # Wait for the thread to finish
-
     return module, model_setup
 
+# ### NOTE: this works in place of the function above
+# ### still has delay; consider timing how long the total search process takes
+# def optimize_if_needed(module, model_setup, optimize_model):
+#     """Optimizes the model setup if optimization is enabled."""
+#     if optimize_model:
+#         return optimize_N(module, model_setup, module, model_setup)
+#     return module, model_setup
+#
+# def show_progress(max_time, stop_event):
+#     """Displays a progress bar for the specified duration."""
+#     progress_thread = Thread(target=progress_bar, args=(max_time,stop_event))
+#     progress_thread.start()
+#
 # def optimize_model_setup(module, optimize_model):
 #     """Main function: Creates, optimizes (if needed), and manages model setup process."""
 #
@@ -551,13 +559,15 @@ def optimize_model_setup(module, optimize_model):
 #         stop_event.set()  # Stop the progress bar
 #         progress_future.result()  # Ensure progress bar thread completes
 #
-#     while module.timeout:
+#         max_time = module.max_time
+#         run_time = model_setup.model_runtime
+#
+#     while run_time > max_time:
 #         handle_timeout(module, model_setup)
 #         model_setup = create_model_setup(module)
 #         module, model_setup = optimize_if_needed(module, model_setup, optimize_model)
 #
 #     return module, model_setup
-
 
 def main():
     """load a test or generate a test when run without input"""
