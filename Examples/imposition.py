@@ -37,21 +37,14 @@ save_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM2: MIGHT IMPOSITION ANTECEDENT STRENGTHENING
-# N = 3
-# premises = ['(A circleright C)']
-# conclusions = ['((A wedge B) circleright C)']
-# contingent_bool = True
-# disjoint_bool = False
-
-# # CF_CM3: IMPOSITION ANTECEDENT STRENGTHENING WITH POSSIBILITY
+# # CF_CM2: IMPOSITION ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # N = 3
 # premises = ['(A imposition C)', 'Diamond (A wedge B)']
 # conclusions = ['((A wedge B) imposition C)']
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM4: IMPOSITION ANTECEDENT STRENGTHENING WITH NEGATION
+# # CF_CM3: IMPOSITION ANTECEDENT STRENGTHENING WITH NEGATION
 # # NOTE: with Z3 quantifiers ran for 242 seconds on the MIT server; now .1928 seconds locally
 # N = 4
 # premises = ['neg A','(A imposition C)']
@@ -59,7 +52,7 @@ save_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM5: IMPOSITION DOUBLE ANTECEDENT STRENGTHENING
+# # CF_CM4: IMPOSITION DOUBLE ANTECEDENT STRENGTHENING
 # # NOTE: with Z3 quantifiers ran for 347 seconds on the MIT server; now .1949 seconds locally
 # N = 4
 # premises = ['(A imposition C)','(B imposition C)']
@@ -67,14 +60,14 @@ save_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM6: IMPOSITION CONTRAPOSITION
+# # CF_CM5: IMPOSITION CONTRAPOSITION
 # N = 3
 # premises = ['(A imposition B)']
 # conclusions = ['(neg B imposition neg A)']
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM7: IMPOSITION CONTRAPOSITION WITH NEGATION
+# # CF_CM6: IMPOSITION CONTRAPOSITION WITH NEGATION
 # # NOTE: with Z3 quantifiers ran for 125 seconds on the MIT server; now .181 seconds locally
 # N = 4
 # premises = ['neg B','(A imposition B)']
@@ -82,21 +75,21 @@ save_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM8: IMPOSITION CONTRAPOSITION WITH TWO NEGATIONS
+# # CF_CM7: IMPOSITION CONTRAPOSITION WITH TWO NEGATIONS
 # N = 4
 # premises = ['neg A','neg B','(A imposition B)']
 # conclusions = ['(neg B imposition neg A)']
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM9: TRANSITIVITY
+# # CF_CM8: TRANSITIVITY
 # N = 3
 # premises = ['(A imposition B)','(B imposition C)']
 # conclusions = ['(A imposition C)']
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM10: IMPOSITION TRANSITIVITY WITH NEGATION
+# # CF_CM9: IMPOSITION TRANSITIVITY WITH NEGATION
 # # NOTE: with Z3 quantifiers 78 seconds on the MIT server; now .1311 seconds locally
 # N = 4
 # premises = ['neg A','(A imposition B)','(B imposition C)']
@@ -104,14 +97,14 @@ save_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM11: IMPOSITION TRANSITIVITY WITH TWO NEGATIONS
+# # CF_CM10: IMPOSITION TRANSITIVITY WITH TWO NEGATIONS
 # N = 4
 # premises = ['neg A','neg B','(A imposition B)','(B imposition C)']
 # conclusions = ['(A imposition C)']
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM12: SOBEL SEQUENCE (N = 3)
+# # CF_CM11: SOBEL SEQUENCE (N = 3)
 # N = 1
 # premises = [
 #     '(A imposition X)', # 0.03 seconds locally
@@ -126,7 +119,7 @@ save_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
+# # CF_CM12: SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
 # N = 4
 # premises = [
 #     'Diamond A',
@@ -148,21 +141,21 @@ save_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM14: IMPOSITION EXCLUDED MIDDLE
+# # CF_CM13: IMPOSITION EXCLUDED MIDDLE
 # N = 3
 # premises = ['neg A']
 # conclusions = ['(A imposition B)','(A imposition neg B)']
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM15: SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
+# # CF_CM14: SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
 # N = 3
 # premises = ['neg A','(A imposition (B vee C))']
 # conclusions = ['(A imposition B)','(A imposition C)']
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM16: INTRODUCTION OF DISJUNCTIVE ANTECEDENT
+# # CF_CM15: INTRODUCTION OF DISJUNCTIVE ANTECEDENT
 # # NOTE: with Z3 quantifiers for 40 seconds locally; now .2785 seconds locally
 # N = 4
 # premises = ['(A imposition C)','(B imposition C)']
@@ -170,28 +163,28 @@ save_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM17: MUST FACTIVITY
+# # CF_CM16: MUST FACTIVITY
 # N = 3
 # premises = ['A','B']
 # conclusions = ['(A imposition B)']
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM18: IMPOSITION EXPORTATION
+# # CF_CM17: IMPOSITION EXPORTATION
 # N = 3
 # premises = ['((A wedge B) imposition C)']
 # conclusions = ['(A imposition (B imposition C))']
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM19: IMPOSITION EXPORTATION WITH POSSIBILITY
+# # CF_CM18: IMPOSITION EXPORTATION WITH POSSIBILITY
 # N = 3
 # premises = ['((A wedge B) imposition C)','Diamond (A wedge B)']
 # conclusions = ['(A imposition (B imposition C))']
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM20
+# # CF_CM19
 # N = 3
 # premises = ['\\neg A','\\neg (A \\imposition B)']
 # conclusions = ['(A \\imposition \\neg B)']
@@ -265,12 +258,5 @@ save_bool = False
 # N = 3
 # premises = ['(A imposition B)','(A imposition C)']
 # conclusions = ['(A imposition (B wedge C))']
-# contingent_bool = False
-# disjoint_bool = False
-
-# # CF10: FACTIVITY MIGHT
-# N = 3
-# premises = ['A','B']
-# conclusions = ['(A circleright B)']
 # contingent_bool = False
 # disjoint_bool = False

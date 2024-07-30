@@ -11,7 +11,7 @@ from .utils import (
 ########################################
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM1():
+def test_IMP_CM1():
 # IMPOSITION ANTECEDENT STRENGTHENING
     N = 3
     premises = ['(A imposition C)']
@@ -29,25 +29,7 @@ def test_CF_CM1():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM2():
-# MIGHT IMPOSITION ANTECEDENT STRENGTHENING
-    N = 3
-    premises = ['(A circleright C)']
-    conclusions = ['((A wedge B) circleright C)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
-    check_model_status(
-        N,
-        premises,
-        conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
-    )
-
-@pytest.mark.timeout(max_time)
-def test_CF_CM3():
+def test_IMP_CM2():
 # IMPOSITION ANTECEDENT STRENGTHENING WITH POSSIBILITY
     N = 3
     premises = ['(A imposition C)', 'Diamond (A wedge B)']
@@ -65,7 +47,7 @@ def test_CF_CM3():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM4():
+def test_IMP_CM3():
 # IMPOSITION ANTECEDENT STRENGTHENING WITH NEGATION
     N = 4
     premises = ['neg A', '(A imposition C)']
@@ -83,7 +65,7 @@ def test_CF_CM4():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM5():
+def test_IMP_CM4():
 # IMPOSITION DOUBLE ANTECEDENT STRENGTHENING
     N = 4
     premises = ['(A imposition C)','(B imposition C)']
@@ -102,7 +84,7 @@ def test_CF_CM5():
 
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM6():
+def test_IMP_CM5():
 # IMPOSITION CONTRAPOSITION
     N = 3
     premises = ['(A imposition B)']
@@ -120,7 +102,7 @@ def test_CF_CM6():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM7():
+def test_IMP_CM6():
 # IMPOSITION CONTRAPOSITION WITH NEGATION
     N = 4
     premises = ['neg B','(A imposition B)']
@@ -138,7 +120,7 @@ def test_CF_CM7():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM8():
+def test_IMP_CM7():
 # IMPOSITION CONTRAPOSITION WITH TWO NEGATIONS
     N = 4
     premises = ['neg A','neg B','(A imposition B)']
@@ -156,7 +138,7 @@ def test_CF_CM8():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM9():
+def test_IMP_CM8():
 # TRANSITIVITY
     N = 3
     premises = ['(A imposition B)','(B imposition C)']
@@ -174,7 +156,7 @@ def test_CF_CM9():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM10():
+def test_IMP_CM9():
 # IMPOSITION TRANSITIVITY WITH NEGATION
     N = 4
     premises = ['neg A','(A imposition B)','(B imposition C)']
@@ -192,7 +174,7 @@ def test_CF_CM10():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM11():
+def test_IMP_CM10():
 # IMPOSITION TRANSITIVITY WITH TWO NEGATIONS
     N = 4
     premises = ['neg A','neg B','(A imposition B)','(B imposition C)']
@@ -210,7 +192,7 @@ def test_CF_CM11():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM12():
+def test_IMP_CM11():
 # SOBEL SEQUENCE (N = 3)
     N = 3
     premises = [
@@ -232,7 +214,7 @@ def test_CF_CM12():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM13():
+def test_IMP_CM12():
 # SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
     N = 4
     premises = [
@@ -258,7 +240,7 @@ def test_CF_CM13():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM14():
+def test_IMP_CM13():
 # IMPOSITION EXCLUDED MIDDLE
     N = 3
     premises = ['neg A']
@@ -276,7 +258,7 @@ def test_CF_CM14():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM15():
+def test_IMP_CM14():
 # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
     N = 3
     premises = ['neg A','(A imposition (B vee C))']
@@ -294,7 +276,7 @@ def test_CF_CM15():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM16():
+def test_IMP_CM15():
 # INTRODUCTION OF DISJUNCTIVE ANTECEDENT
     N = 4
     premises = ['(A imposition C)','(B imposition C)']
@@ -312,7 +294,7 @@ def test_CF_CM16():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM17():
+def test_IMP_CM16():
 # MUST FACTIVITY
     N = 3
     premises = ['A', 'B']
@@ -330,7 +312,7 @@ def test_CF_CM17():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM18():
+def test_IMP_CM17():
 # IMPOSITION EXPORTATION
     N = 3
     premises = ['((A wedge B) imposition C)']
@@ -348,7 +330,7 @@ def test_CF_CM18():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM19():
+def test_IMP_CM18():
 # IMPOSITION EXPORTATION WITH POSSIBILITY
     N = 3
     premises = ['((A wedge B) imposition C)','Diamond (A wedge B)']
@@ -366,7 +348,7 @@ def test_CF_CM19():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF_CM20():
+def test_IMP_CM19():
 # IMPOSITION EXCLUDED MIDDLE VARIANT
     N = 3
     premises = ['neg A','neg (A imposition B)']
@@ -410,7 +392,7 @@ def test_CF_CM20():
 ################################
 
 @pytest.mark.timeout(max_time)
-def test_CF1():
+def test_IMP1():
     """IMPOSITION IDENTITY"""
     N = 3
     premises = []
@@ -428,7 +410,7 @@ def test_CF1():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF2():
+def test_IMP2():
     """IMPOSITION MODUS PONENS"""
     N = 3
     premises = ['A','(A imposition B)']
@@ -446,7 +428,7 @@ def test_CF2():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF3():
+def test_IMP3():
     """WEAKENED TRANSITIVITY"""
     N = 3
     premises = ['(A imposition B)','((A wedge B) imposition C)']
@@ -464,7 +446,7 @@ def test_CF3():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF4():
+def test_IMP4():
     """ANTECEDENT DISJUNCTION TO CONJUNCTION"""
     N = 3
     premises = ['((A \\vee B) \\imposition C)']
@@ -482,7 +464,7 @@ def test_CF4():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF5():
+def test_IMP5():
     """SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT"""
     N = 3
     premises = ['((A vee B) imposition C)']
@@ -500,7 +482,7 @@ def test_CF5():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF6():
+def test_IMP6():
     """DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT"""
     N = 3
     premises = ['((A vee B) imposition C)']
@@ -518,7 +500,7 @@ def test_CF6():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF7():
+def test_IMP7():
     N = 3
     premises = ['(A imposition C)', '(B imposition C)', '((A wedge B) imposition C)']
     conclusions = ['((A vee B) imposition C)']
@@ -535,7 +517,7 @@ def test_CF7():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF8():
+def test_IMP8():
     N = 3
     premises = ['(A imposition (B wedge C))']
     conclusions = ['(A imposition B)']
@@ -552,28 +534,10 @@ def test_CF8():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF9():
+def test_IMP9():
     N = 3
     premises = ['(A imposition B)','(A imposition C)']
     conclusions = ['(A imposition (B wedge C))']
-    desired_model_status = False
-    contingent_bool = False
-    disjoint_bool = False
-    check_model_status(
-        N,
-        premises,
-        conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
-    )
-
-@pytest.mark.timeout(max_time)
-def test_CF10():
-    """FACTIVITY MIGHT"""
-    N = 3
-    premises = ['A','B']
-    conclusions = ['(A circleright B)']
     desired_model_status = False
     contingent_bool = False
     disjoint_bool = False
