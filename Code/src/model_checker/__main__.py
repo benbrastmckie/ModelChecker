@@ -31,19 +31,19 @@ from tqdm import tqdm
 # # Add the project root to the Python path
 # sys.path.append(project_root)
 
-### FOR TESTING ###
-from __init__ import __version__
-from model_structure import (
-    StateSpace,
-    make_model_for,
-    )
-
-# ### FOR PACKAGING ###
-# from model_checker.__init__ import __version__
-# from model_checker.model_structure import (
+# ### FOR TESTING ###
+# from __init__ import __version__
+# from model_structure import (
 #     StateSpace,
 #     make_model_for,
 #     )
+
+### FOR PACKAGING ###
+from model_checker.__init__ import __version__
+from model_checker.model_structure import (
+    StateSpace,
+    make_model_for,
+    )
 
 script_template = Template("""
 '''
