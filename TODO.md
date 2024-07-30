@@ -26,9 +26,10 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Release v0.6
 
-- [ ] primitive imposition
-  - [ ] implement
-  - [ ] test
+- [x] progress bar
+- [x] primitive imposition
+  - [x] implement
+  - [x] test
 - [ ] exposing imports
   - [ ] _M_ test imports
     - Q: are the exposed functions recursive?
