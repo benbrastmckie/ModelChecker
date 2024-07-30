@@ -95,6 +95,24 @@ def sentence_letters_in_compound(prefix_input_sentence):
         return_list.extend(sentence_letters_in_compound(part))
     return return_list
 
+# def operators_in_compound(prefix_input_sentence):
+#     """finds all the operators in ONE input sentence. returns a list with repeats.
+#     used in check_imposition
+#     """
+#     if len(prefix_input_sentence) == 1:  # base case: atomic sentence
+#         return []
+#     op = prefix_input_sentence[0]
+#     argument_1 = prefix_input_sentence[1]
+#     if len(prefix_input_sentence) == 2:  # base case: atomic sentence
+#         argument_ops = operators_in_compound(argument_1)
+#         return argument_ops.append(op)
+#     argument_2 = prefix_input_sentence[2]
+#     if len(prefix_input_sentence) == 3:  # base case: atomic sentence
+#         argument_1_ops = operators_in_compound(argument_1)
+#         argument_2_ops = operators_in_compound(argument_2)
+#         argument_ops = argument_1_ops + argument_2_ops
+#         return argument_ops.append(op)
+
 def all_sentence_letters(prefix_sentences):
     """finds all the sentence letters in a list of input sentences, in prefix form.
     returns as a list with no repeats (sorted for consistency) of AtomSorts
@@ -107,8 +125,23 @@ def all_sentence_letters(prefix_sentences):
     return list(sentence_letters)
     # sort just to make every output the same, given sets aren't hashable
 
+def check_imposition(prefix_sentences):
+    """determines wither the prefix sentences include 'imposition' as an operator.
+    used in find_all_constraints"""
+    stack = prefix_sentences[:]
+    while stack:
+        prefix_input = stack.pop()
+        if len(prefix_input) == 1:
+            continue
+        if 'imposition' in prefix_input[0]:
+            return True
+        if len(prefix_input) > 1:
+            stack.append(prefix_input[1])
+        if len(prefix_input) > 2:
+            stack.append(prefix_input[2])
+    return False
 
-def define_N_semantics(N, contingent, disjoint, verify, falsify, possible): # assign, non_null,
+def define_N_semantics(N, contingent, disjoint, verify, falsify, possible, imposition): # assign, non_null,
     # NOTE: just thought of this—we could make the options to do non_null or non_triv optional.
     # Like it coulld be an optional argument put into the model at the top level, just like
     # unsat_core is. Let me below know if you think that's a good idea or if it wouln't be useful.
@@ -627,6 +660,19 @@ def define_N_semantics(N, contingent, disjoint, verify, falsify, possible): # as
                         true_at(Z, u),
                     ),
                 )
+            if "imposition" in operator:
+                x = BitVec("t_imp_x", N)
+                u = BitVec("t_imp_u", N)
+                return ForAll(
+                    [x, u],
+                    Implies(
+                        And(
+                            extended_verify(x, Y, eval_world),
+                            imposition(x, eval_world, u)
+                        ),
+                        true_at(Z, u),
+                    ),
+                )
         raise ValueError(
             f'No if statements triggered— true_at for {sentence} at world {eval_world}'
         )
@@ -836,6 +882,16 @@ def define_N_semantics(N, contingent, disjoint, verify, falsify, possible): # as
                         false_at(Z, u),
                     ),
                 )
+            if "imposition" in operator:
+                x = BitVec("f_imp_x", N)
+                u = BitVec("f_imp_u", N)
+                return Exists(
+                    [x, u],
+                    And(
+                        extended_verify(x, Y, eval_world),
+                        imposition(x, eval_world, u),
+                        false_at(Z, u)),
+                )
         raise ValueError(
             f'No if statements triggered in false_at for {sentence} at world {eval_world}'
         )
@@ -950,7 +1006,7 @@ def define_N_semantics(N, contingent, disjoint, verify, falsify, possible): # as
         ]
         return disjoin_cons
 
-    def find_frame_constraints(main_world):
+    def find_frame_constraints(main_world, imposition_bool):
         """returns constraints that govern how states act:
         1. for any two states x and y, if y is possible and x is a part of y, then x is possible
         2. for any two states x and y, there exists a state z that is the fusion of x and y
@@ -959,11 +1015,58 @@ def define_N_semantics(N, contingent, disjoint, verify, falsify, possible): # as
         x = BitVec("frame_x", N)
         y = BitVec("frame_y", N)
         z = BitVec("frame_z", N)
+        u = BitVec("frame_u", N)
         frame_constraints = [
             ForAll([x, y], Implies(And(possible(y), is_part_of(x, y)), possible(x))),
             ForAll([x, y], Exists(z, fusion(x, y) == z)),
             is_world(main_world), # w is passed in from the big outer function define_N_semantics
         ]
+        impos_cons = [
+            ForAll( # INCLUSION
+                [x, y, z],
+                Implies(
+                    imposition(x, y, z),
+                    is_part_of(x, z)
+                )
+            ),
+            ForAll( # ACTUALITY
+                [x, y],
+                Implies(
+                    And(
+                        is_part_of(x, y),
+                        is_world(y)
+                    ),
+                    # NOTE: below could replace conjunction above
+                    # is_part_of(x, y),
+                    Exists(
+                        z,
+                        And(
+                            is_part_of(z, y),
+                            imposition(x, y, z),
+                        )
+                    )
+                )
+            ),
+            ForAll( # INCORPORATION
+                [x, y, z, u],
+                Implies(
+                    And(
+                        imposition(x, y, z),
+                        is_part_of(u, z)
+                    ),
+                    imposition(fusion(x, u), y, z)
+                )
+            ),
+            ForAll( # COMPLETENESS
+                [x, y, z],
+                Implies(
+                    imposition(x, y, z),
+                    is_world(z)
+                )
+            ),
+        ]
+        if imposition_bool:
+            frame_constraints.extend(impos_cons)
         return frame_constraints
 
     def find_prop_constraints(sentence_letters, disjoint_props_bool):
@@ -1050,8 +1153,9 @@ def define_N_semantics(N, contingent, disjoint, verify, falsify, possible): # as
         sentences are lists)
         function that is returned by the big outer function"""
         prefix_sentences = prefix_premises + prefix_conclusions
+        imposition_bool = check_imposition(prefix_sentences)
         sentence_letters = all_sentence_letters(prefix_sentences)
-        frame_constraints = find_frame_constraints(main_world)
+        frame_constraints = find_frame_constraints(main_world, imposition_bool)
         prop_constraints = find_prop_constraints(sentence_letters, disjoint)
         premise_constraints = find_premise_const(prefix_premises, main_world)
         conclusion_constraints = find_conclusion_const(prefix_conclusions, main_world)

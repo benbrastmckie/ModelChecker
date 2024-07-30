@@ -25,6 +25,7 @@ binary_operators = {
     "\\leftrightarrow", "leftrightarrow",
     "\\boxright", "boxright",
     "\\circleright", "circleright",
+    "\\imposition", "imposition",
     "\\leq", "leq",
     "\\sqsubseteq", "sqsubseteq",
     "\\equiv", "equiv",
