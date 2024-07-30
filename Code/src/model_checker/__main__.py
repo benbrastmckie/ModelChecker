@@ -437,7 +437,7 @@ def adjust(module, offset):
     )
     return module, model_setup
 
-def optimize_N(module, model_setup, past_module, past_model_setup, sat=False):
+def optimize_N(module, model_setup, past_module, past_model_setup, print_cons, sat=False):
     """Finds the min value of N for which there is a model up to a timeout limit."""
     if model_setup.model_status: # finds a model
         new_sat = True
@@ -447,6 +447,7 @@ def optimize_N(module, model_setup, past_module, past_model_setup, sat=False):
             new_model_setup,
             module,
             model_setup,
+            print_cons,
             new_sat
         )
         return min_module, min_model_setup
@@ -459,6 +460,7 @@ def optimize_N(module, model_setup, past_module, past_model_setup, sat=False):
             new_model_setup,
             module,
             model_setup,
+            print_cons,
             sat
         )
         return max_module, max_model_setup
@@ -474,7 +476,8 @@ def optimize_N(module, model_setup, past_module, past_model_setup, sat=False):
         model_setup.no_model_print(module.print_cons_bool)
         os._exit(1)
     module.update_max_time(new_max_time)
-    return optimize_model_setup(module, True)
+    # return new_optimize_model_setup(module, True, print_cons)
+    return optimize_model_setup(module, True, print_cons)
 
 def progress_bar(max_time, stop_event):
     """Show progress bar for how much of max_time has elapsed."""
@@ -502,16 +505,17 @@ def create_model_setup(module):
         module.disjoint_bool,
     )
 
-def handle_timeout(module, model_setup):
+def handle_timeout(module, model_setup, print_cons):
     """Handles timeout scenarios by asking the user for a new time limit."""
     print(f"The model timed out at {model_setup.model_runtime} seconds.")
     new_max_time = ask_time(model_setup.model_runtime, model_setup.max_time)
     if new_max_time is None:
         print("Terminating the process.")
+        model_setup.no_model_print(print_cons)
         os._exit(1)
     module.update_max_time(new_max_time)
 
-def optimize_model_setup(module, optimize_model):
+def optimize_model_setup(module, optimize_model, print_cons):
     """Runs make_model_for on the values provided by the module and user, optimizing if required."""
     max_time = module.max_time
     stop_event = Event()
@@ -522,10 +526,11 @@ def optimize_model_setup(module, optimize_model):
         model_setup = create_model_setup(module)
         run_time = model_setup.model_runtime
         if run_time > max_time:
-            handle_timeout(module, model_setup)
-            module, model_setup = optimize_model_setup(module, model_setup)
+            handle_timeout(module, model_setup, print_cons)
+            module, model_setup = optimize_model_setup(module, model_setup, print_cons)
+            # module, model_setup = new_optimize_model_setup(module, model_setup, print_cons)
         if optimize_model:
-            module, model_setup = optimize_N(module, model_setup, module, model_setup)
+            module, model_setup = optimize_N(module, model_setup, module, model_setup, print_cons)
     finally:
         stop_event.set()  # Signal the progress bar to stop
         progress_thread.join(timeout=max_time)  # Wait for the thread to finish
@@ -533,41 +538,48 @@ def optimize_model_setup(module, optimize_model):
 
 # ### NOTE: this works in place of the function above
 # ### still has delay; consider timing how long the total search process takes
-# def optimize_if_needed(module, model_setup, optimize_model):
-#     """Optimizes the model setup if optimization is enabled."""
+# # def optimize_if_needed(module, model_setup, optimize_model):
+# #     """Optimizes the model setup if optimization is enabled."""
+# #     if optimize_model:
+# #         return optimize_N(module, model_setup, module, model_setup)
+# #     return module, model_setup
+#
+# def create_and_optimize(module, optimize_model, print_cons):
+#     """Runs make_model_for on the values provided by the module and user, optimizing if required."""
+#
+#     max_time = module.max_time
+#     model_setup = create_model_setup(module)
+#     run_time = model_setup.model_runtime
+#
+#     if run_time > max_time:
+#         handle_timeout(module, model_setup, print_cons)
+#         return new_optimize_model_setup(module, optimize_model, print_cons)
+#
 #     if optimize_model:
-#         return optimize_N(module, model_setup, module, model_setup)
+#         module, model_setup = optimize_N(module, model_setup, module, model_setup, print_cons)
 #     return module, model_setup
 #
 # def show_progress(max_time, stop_event):
 #     """Displays a progress bar for the specified duration."""
-#     progress_thread = Thread(target=progress_bar, args=(max_time,stop_event))
+#     progress_thread = Thread(target=progress_bar, args=(max_time, stop_event))
 #     progress_thread.start()
 #
-# def optimize_model_setup(module, optimize_model):
+# def new_optimize_model_setup(module, optimize_model, print_cons):
 #     """Main function: Creates, optimizes (if needed), and manages model setup process."""
 #
 #     stop_event = Event()
 #
 #     with ThreadPoolExecutor() as executor:
 #         # Run model creation and progress bar in parallel
-#         model_future = executor.submit(create_model_setup, module)
 #         progress_future = executor.submit(show_progress, module.max_time, stop_event)
+#         model_future = executor.submit(create_and_optimize, module, optimize_model, print_cons)
 #
-#         model_setup = model_future.result()
-#         module, model_setup = optimize_if_needed(module, model_setup, optimize_model)
+#         module, model_setup = model_future.result()
 #         stop_event.set()  # Stop the progress bar
 #         progress_future.result()  # Ensure progress bar thread completes
 #
-#         max_time = module.max_time
-#         run_time = model_setup.model_runtime
-#
-#     while run_time > max_time:
-#         handle_timeout(module, model_setup)
-#         model_setup = create_model_setup(module)
-#         module, model_setup = optimize_if_needed(module, model_setup, optimize_model)
-#
 #     return module, model_setup
+# ### END ALTERNATIVE
 
 def main():
     """load a test or generate a test when run without input"""
@@ -594,9 +606,11 @@ def main():
     optimize_model = module.optimize_bool or args.optimize
     module.contingent_bool = module.contingent_bool or args.contingent
 
+    # NOTE: seems to delay after progress bar completes
     # shows progress for finding z3 models
-    # module, model_setup = optimize_with_progress_bar(module, optimize_model)
-    module, model_setup = optimize_model_setup(module, optimize_model)
+    module, model_setup = optimize_model_setup(module, optimize_model, print_cons)
+    # NOTE: attempted the following to replace the above but now luck
+    # module, model_setup = new_optimize_model_setup(module, optimize_model, print_cons)
 
     if model_setup.model_status:
         states_print = StateSpace(model_setup)
