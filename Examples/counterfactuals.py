@@ -24,12 +24,12 @@ print_impossible_states_bool = True
 # present option to append output to file
 save_bool = False
 
-# # CF3: WEAKENED TRANSITIVITY
-# N = 3
-# premises = ['(A boxright B)','((A wedge B) boxright C)']
-# conclusions = ['(A boxright C)']
-# contingent_bool = False
-# disjoint_bool = False
+# CF3: WEAKENED TRANSITIVITY
+N = 3
+premises = ['(A boxright B)','((A wedge B) boxright C)']
+conclusions = ['(A boxright C)']
+contingent_bool = False
+disjoint_bool = False
 
 
 
@@ -37,12 +37,12 @@ save_bool = False
 ##### COUNTERFACTUAL COUNTERMODELS #####
 ########################################
 
-# CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-N = 3
-premises = ['(A boxright C)']
-conclusions = ['((A wedge B) boxright C)']
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 3
+# premises = ['(A boxright C)']
+# conclusions = ['((A wedge B) boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # N = 3

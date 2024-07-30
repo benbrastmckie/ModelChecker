@@ -20,6 +20,7 @@ classifiers = [
 keywords = ["semantics", "Z3", "logic", "counterfactuals", "modality", "model checker", "theorem prover", "hyperintensionality"]
 dependencies = [
     "z3-solver",
+    "tqdm",
 ]
 
 [project.urls]

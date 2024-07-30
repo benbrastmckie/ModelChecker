@@ -9,7 +9,7 @@ import subprocess
 from string import Template
 import argparse
 import importlib.util
-from concurrent.futures import ThreadPoolExecutor
+# from concurrent.futures import ThreadPoolExecutor
 from threading import (
     Thread,
     Event,
@@ -486,7 +486,7 @@ def progress_bar(max_time, stop_event):
         bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}",
     ) as pbar:
         while not stop_event.is_set():
-            time.sleep(step_time)
+            time.sleep(step_time) # NOTE: gives bad result if multiplied by 4
             pbar.update(1)
             if pbar.n >= 100:
                 stop_event.set()  # Signal the progress bar to stop
@@ -502,17 +502,6 @@ def create_model_setup(module):
         module.disjoint_bool,
     )
 
-# def optimize_if_needed(module, model_setup, optimize_model):
-#     """Optimizes the model setup if optimization is enabled."""
-#     if optimize_model:
-#         module, model_setup = optimize_N(module, model_setup, module, model_setup)
-#     return module, model_setup
-
-# def show_progress(max_time, stop_event):
-#     """Displays a progress bar for the specified duration."""
-#     progress_thread = Thread(target=progress_bar, args=(max_time, stop_event))
-#     progress_thread.start()
-
 def handle_timeout(module, model_setup):
     """Handles timeout scenarios by asking the user for a new time limit."""
     print(f"The model timed out at {model_setup.model_runtime} seconds.")
@@ -521,6 +510,31 @@ def handle_timeout(module, model_setup):
         print("Terminating the process.")
         os._exit(1)
     module.update_max_time(new_max_time)
+
+def optimize_model_setup(module, optimize_model):
+    """Runs make_model_for on the values provided by the module and user, optimizing if required."""
+    max_time = module.max_time
+    stop_event = Event()
+    progress_thread = Thread(target=progress_bar, args=(max_time, stop_event))
+    progress_thread.start()
+
+    model_setup = None
+    try:
+        model_setup = create_model_setup(module)
+        run_time = model_setup.model_runtime
+        if run_time > max_time:
+            handle_timeout(module, model_setup)
+            # stop_event.set()  # Signal the progress bar to stop
+            # progress_thread.join(timeout=max_time)  # Wait for the thread to finish
+            module, model_setup = optimize_model_setup(module, model_setup)
+        if optimize_model:
+            module, model_setup = optimize_N(module, model_setup, module, model_setup)
+
+    finally:
+        stop_event.set()  # Signal the progress bar to stop
+        progress_thread.join(timeout=max_time)  # Wait for the thread to finish
+
+    return module, model_setup
 
 # def optimize_model_setup(module, optimize_model):
 #     """Main function: Creates, optimizes (if needed), and manages model setup process."""
@@ -544,49 +558,6 @@ def handle_timeout(module, model_setup):
 #
 #     return module, model_setup
 
-def optimize_model_setup(module, optimize_model):
-    """Runs make_model_for on the values provided by the module and user, optimizing if required."""
-    max_time = module.max_time
-    stop_event = Event()
-    progress_thread = Thread(target=progress_bar, args=(max_time, stop_event))
-    progress_thread.start()
-
-    model_setup = None
-    try:
-        model_setup = create_model_setup(module)
-        # module, model_setup = optimize_if_needed(module, model_setup, optimize_model)
-        if model_setup.model_runtime > max_time:
-            handle_timeout(module, model_setup)
-            stop_event.set()  # Signal the progress bar to stop
-            module, model_setup = optimize_model_setup(module, model_setup)
-        if optimize_model:
-            module, model_setup = optimize_N(module, model_setup, module, model_setup)
-
-    finally:
-        stop_event.set()  # Signal the progress bar to stop
-        progress_thread.join(timeout=max_time)  # Wait for the thread to finish
-
-    return module, model_setup
-
-# def optimize_with_progress_bar(module, optimize_model):
-#     """Start the progress bar in a separate thread."""
-#     max_time = module.max_time
-#     stop_event = Event()
-#     progress_thread = Thread(target=progress_bar, args=(max_time,stop_event))
-#     progress_thread.start()
-#
-#     try:
-#         module, model_setup = optimize_model_setup(module, optimize_model)
-#     finally:
-#         stop_event.set()  # Signal the progress bar to stop
-#         progress_thread.join(timeout=max_time)  # Wait for the thread to finish
-#
-#         # Check if the thread is still alive and handle cleanup if necessary
-#         if progress_thread.is_alive():
-#             print("Progress bar did not finish in time. Forcing termination.")
-#             # If necessary, forcefully terminate the thread or take other actions here
-#
-#     return module, model_setup
 
 def main():
     """load a test or generate a test when run without input"""
