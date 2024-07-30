@@ -138,21 +138,19 @@ save_bool = False
 ####### IMPOSITION #######
 ##########################
 
-# # IMPOSITION IMPORTATION WITH POSSIBILITY
+# CF11: IMPOSITION TO COUNTERFACTUAL
+N = 3
+premises = ['(A imposition B)']
+conclusions = ['(A boxright B)']
+contingent_bool = False
+disjoint_bool = False
+
+# # CF12: COUNTERFACTUAL TO IMPOSITION
 # N = 3
-# premises = ['(A imposition (B imposition C))','Diamond (A wedge B)']
-# conclusions = ['((A wedge B) imposition C)']
+# premises = ['(A boxright B)']
+# conclusions = ['(A imposition B)']
 # contingent_bool = False
 # disjoint_bool = False
-# optimize_bool = True
-
-# # IMPOSITION IMPORTATION
-# N = 3
-# premises = ['(A boxright (B boxright C))']
-# conclusions = ['((A wedge B) boxright C)']
-# contingent_bool = True
-# disjoint_bool = True
-# optimize_bool = True
 
 
 
