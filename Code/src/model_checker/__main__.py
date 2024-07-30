@@ -396,6 +396,7 @@ def ask_time(runtime, max_time):
 
     return new_max_time
 
+
 def no_model_save_or_append(module, model_structure, file_name):
     """option to save or append if no model is found"""
     if len(file_name) == 0:
@@ -474,18 +475,44 @@ def optimize_N(module, model_setup, past_module, past_model_setup, sat=False):
     module.update_max_time(new_max_time)
     return optimize_model_setup(module, True)
 
+def progress_bar(max_time, stop_event):
+    """Show progress bar for how much of max_time has elapsed."""
+    step_time = max_time / 100
+    with tqdm(
+        desc="Running model-checker: ",
+        total=100,
+        unit="step",
+        bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}",
+    ) as pbar:
+        while not stop_event.is_set():
+            time.sleep(step_time)
+            pbar.update(1)
+            if pbar.n >= 100:
+                stop_event.set()  # Signal the progress bar to stop
+
 def optimize_model_setup(module, optimize_model):
     """Runs make_model_for on the values provided by the module and user, optimizing if required."""
-    model_setup = make_model_for(
-        module.N,
-        module.premises,
-        module.conclusions,
-        module.max_time,
-        module.contingent_bool,
-        module.disjoint_bool,
-    )
-    if optimize_model:
-        module, model_setup = optimize_N(module, model_setup, module, model_setup)
+    max_time = module.max_time
+    stop_event = Event()
+    progress_thread = Thread(target=progress_bar, args=(max_time, stop_event))
+    progress_thread.start()
+
+    model_setup = None
+    try:
+        model_setup = make_model_for(
+            module.N,
+            module.premises,
+            module.conclusions,
+            module.max_time,
+            module.contingent_bool,
+            module.disjoint_bool,
+        )
+        if optimize_model:
+            module, model_setup = optimize_N(module, model_setup, module, model_setup)
+
+    finally:
+        stop_event.set()  # Signal the progress bar to stop
+        progress_thread.join(timeout=max_time)  # Wait for the thread to finish
 
     if model_setup.timeout:
         print(f"The model timed out at {model_setup.model_runtime} seconds.")
@@ -498,57 +525,25 @@ def optimize_model_setup(module, optimize_model):
 
     return module, model_setup
 
-def progress_bar(max_time, stop_event):
-    """Show progress bar for how much of max_time has elapsed."""
-    step_time = max_time / 100
-    with tqdm(
-        desc="Running model-checker: ",
-        total=100,
-        unit="step",
-        bar_format = "{l_bar}{bar}| {n_fmt}/{total_fmt}",
-        leave=True,  # Crucial for allowing multiple progress bars
-    ) as pbar:
-        while not stop_event.is_set():
-            time.sleep(step_time)
-            pbar.update(1)
-            if pbar.n >= 100:
-                stop_event.set()  # Signal the progress bar to stop
-
-def run_optimization(module, optimize_model):
-    max_time = module.max_time
-    stop_event = Event()
-    progress_thread = Thread(target=progress_bar, args=(max_time,stop_event))
-    progress_thread.start()
-
-    model_setup = make_model_for(
-        module.N,
-        module.premises,
-        module.conclusions,
-        module.max_time,
-        module.contingent_bool,
-        module.disjoint_bool,
-    )
-    if optimize_model:
-        module, model_setup = optimize_N(module, model_setup, module, model_setup)
-    stop_event.set()  # Signal the progress bar to stop
-    progress_thread.join(timeout=max_time)  # Wait for the thread to finish
-    return module, model_setup
-
-def optimize_with_progress_bar(module, optimize_model):
-    """Runs make_model_for on the values provided by the module and user, optimizing if required."""
-
-    module, model_setup = run_optimization(module, optimize_model)
-
-    if model_setup.timeout:
-        print(f"The model timed out at {model_setup.model_runtime} seconds.")
-        new_max_time = ask_time(model_setup.model_runtime, model_setup.max_time)
-        if new_max_time is None:
-            print("Terminating the process.")
-            os._exit(1)
-        module.update_max_time(new_max_time)
-        return optimize_with_progress_bar(module, optimize_model)
-
-    return module, model_setup
+# def optimize_with_progress_bar(module, optimize_model):
+#     """Start the progress bar in a separate thread."""
+#     max_time = module.max_time
+#     stop_event = Event()
+#     progress_thread = Thread(target=progress_bar, args=(max_time,stop_event))
+#     progress_thread.start()
+#
+#     try:
+#         module, model_setup = optimize_model_setup(module, optimize_model)
+#     finally:
+#         stop_event.set()  # Signal the progress bar to stop
+#         progress_thread.join(timeout=max_time)  # Wait for the thread to finish
+#
+#         # Check if the thread is still alive and handle cleanup if necessary
+#         if progress_thread.is_alive():
+#             print("Progress bar did not finish in time. Forcing termination.")
+#             # If necessary, forcefully terminate the thread or take other actions here
+#
+#     return module, model_setup
 
 def main():
     """load a test or generate a test when run without input"""
@@ -576,8 +571,8 @@ def main():
     module.contingent_bool = module.contingent_bool or args.contingent
 
     # shows progress for finding z3 models
-    module, model_setup = optimize_with_progress_bar(module, optimize_model)
-    # module, model_setup = optimize_model_setup(module, optimize_model)
+    # module, model_setup = optimize_with_progress_bar(module, optimize_model)
+    module, model_setup = optimize_model_setup(module, optimize_model)
 
     if model_setup.model_status:
         states_print = StateSpace(model_setup)
