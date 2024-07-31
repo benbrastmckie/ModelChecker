@@ -24,7 +24,7 @@ print_impossible_states_bool = True
 # present option to append output to file
 save_bool = False
 
-# CF3: WEAKENED TRANSITIVITY
+# COPIED FROM BELOW FOR TESTING
 N = 3
 premises = ['(A boxright B)','((A wedge B) boxright C)']
 conclusions = ['(A boxright C)']
