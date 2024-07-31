@@ -381,20 +381,16 @@ def ask_save():
 def ask_time(runtime, max_time):
     """prompt the user to increase the max_time"""
     output = input(f"Enter a value for max_time > {max_time} or leave blank to exit.\n\nmax_time = ")
-
     if output.strip() == "":
         return None
-
     try:
         new_max_time = float(output)
     except ValueError:
         print("Invalid input. Please enter a valid number.")
         return ask_time(runtime, max_time)
-
     if not new_max_time > max_time:
         print("Invalid input. Please enter a valid number.")
         return ask_time(runtime, max_time)
-
     return new_max_time
 
 
@@ -403,7 +399,7 @@ def no_model_save_or_append(module, model_structure, file_name):
     if len(file_name) == 0:
         with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
             print('\n"""', file=f)
-            model_structure.no_model_print(f)
+            model_structure.no_model_print(module.print_cons, f)
             print('"""', file=f)
         return
     with open(f"{module.parent_directory}/{file_name}.py", 'w', encoding="utf-8") as n:
@@ -437,7 +433,7 @@ def adjust(module, offset):
     )
     return module, model_setup
 
-def optimize_N(module, model_setup, past_module, past_model_setup, print_cons, sat=False):
+def optimize_N(module, model_setup, past_module, past_model_setup, sat=False):
     """Finds the min value of N for which there is a model up to a timeout limit."""
     if model_setup.model_status: # finds a model
         new_sat = True
@@ -447,7 +443,6 @@ def optimize_N(module, model_setup, past_module, past_model_setup, print_cons, s
             new_model_setup,
             module,
             model_setup,
-            print_cons,
             new_sat
         )
         return min_module, min_model_setup
@@ -460,12 +455,11 @@ def optimize_N(module, model_setup, past_module, past_model_setup, print_cons, s
             new_model_setup,
             module,
             model_setup,
-            print_cons,
             sat
         )
         return max_module, max_model_setup
-    handle_timeout(module, model_setup, print_cons)
-    return optimize_model_setup(module, True, print_cons)
+    handle_timeout(module, model_setup)
+    return optimize_model_setup(module)
 
 def progress_bar(max_time, stop_event):
     """Show progress bar for how much of max_time has elapsed."""
@@ -493,7 +487,7 @@ def create_model_setup(module):
         module.disjoint_bool,
     )
 
-def handle_timeout(module, model_setup, print_cons):
+def handle_timeout(module, model_setup):
     """Handles timeout scenarios by asking the user for a new time limit."""
     previous_N = model_setup.N - 1
     print(f"There are no {previous_N}-models.")
@@ -503,11 +497,11 @@ def handle_timeout(module, model_setup, print_cons):
         print("Process terminated.")
         print(f"Consider increasing max_time to be > {model_setup.max_time} seconds.\n")
         model_setup.N = previous_N
-        model_setup.no_model_print(print_cons)
+        model_setup.no_model_print(module.print_cons)
         os._exit(1)
     module.update_max_time(new_max_time)
 
-def optimize_model_setup(module, optimize_model, print_cons):
+def optimize_model_setup(module):
     """Runs make_model_for on the values provided by the module and user, optimizing if required."""
     max_time = module.max_time
     stop_event = Event()
@@ -518,16 +512,14 @@ def optimize_model_setup(module, optimize_model, print_cons):
         model_setup = create_model_setup(module)
         run_time = model_setup.model_runtime
         if run_time > max_time:
-            handle_timeout(module, model_setup, print_cons)
-            module, model_setup = optimize_model_setup(module, model_setup, print_cons)
-            # module, model_setup = new_optimize_model_setup(module, model_setup, print_cons)
-        if optimize_model:
+            handle_timeout(module, model_setup)
+            module, model_setup = optimize_model_setup(module)
+        if module.optimize_model:
             module, model_setup = optimize_N(
                 module,
                 model_setup,
                 module,
                 model_setup,
-                print_cons
             )
     finally:
         stop_event.set()  # Signal the progress bar to stop
@@ -580,14 +572,26 @@ def optimize_model_setup(module, optimize_model, print_cons):
 #     return module, model_setup
 # ### END ALTERNATIVE
 
+def update_args(module, args):
+    """Updates the module with the user specified flags."""
+    print_imposs = module.print_impossible_states_bool or args.impossible
+    print_cons = module.print_cons_bool or args.print
+    save_model = module.save_bool or args.save
+    optimize_model = module.optimize_bool or args.optimize
+    contingent_bool = module.contingent_bool or args.contingent
+    module.print_imposs = print_imposs
+    module.print_cons = print_cons
+    module.save_model = save_model
+    module.optimize_model = optimize_model
+    module.contingent_bool = contingent_bool
+    return print_imposs, print_cons, save_model
+
 def main():
     """load a test or generate a test when run without input"""
     if len(sys.argv) < 2:
         ask_generate_test()
         return
-
     args, package_name = parse_file_and_flags()
-
     if args.upgrade:
         try:
             subprocess.run(['pip', 'install', '--upgrade', package_name], check=True)
@@ -598,16 +602,17 @@ def main():
     module_path = args.file_path
     module_name = os.path.splitext(os.path.basename(module_path))[0]
     module = LoadModule(module_name, module_path)
+    print_imposs, print_cons, save_model = update_args(module, args)
 
-    print_imposs = module.print_impossible_states_bool or args.impossible
-    print_cons = module.print_cons_bool or args.print
-    save_model = module.save_bool or args.save
-    optimize_model = module.optimize_bool or args.optimize
-    module.contingent_bool = module.contingent_bool or args.contingent
+    # print_imposs = module.print_impossible_states_bool or args.impossible
+    # print_cons = module.print_cons_bool or args.print
+    # save_model = module.save_bool or args.save
+    # optimize_model = module.optimize_bool or args.optimize
+    # module.contingent_bool = module.contingent_bool or args.contingent
 
     # NOTE: seems to delay after progress bar completes
     # shows progress for finding z3 models
-    module, model_setup = optimize_model_setup(module, optimize_model, print_cons)
+    module, model_setup = optimize_model_setup(module)
     # NOTE: attempted the following to replace the above but now luck
     # module, model_setup = new_optimize_model_setup(module, optimize_model, print_cons)
 

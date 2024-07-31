@@ -13,7 +13,7 @@ file_name = os.path.basename(__file__)
 max_time = 1
 
 # find critical value of N
-optimize_bool = True
+optimize_bool = False
 
 # print all Z3 constraints if a model is found
 print_cons_bool = False
