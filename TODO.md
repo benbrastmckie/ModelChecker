@@ -26,10 +26,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Release v0.6
 
-- [x] progress bar
-- [x] primitive imposition
-  - [x] implement
-  - [x] test
+- [ ] subject-matter operators
 - [ ] exposing imports
   - [ ] _M_ test imports
     - Q: are the exposed functions recursive?
@@ -44,6 +41,10 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] API
   - [ ] save model data structures
   - [ ] design workflow
+- [x] progress bar
+- [x] primitive imposition
+  - [x] implement
+  - [x] test
 
 ## Z3 Research
 

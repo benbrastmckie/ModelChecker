@@ -481,18 +481,18 @@ def optimize_N(module, model_setup, past_module, past_model_setup, print_cons, s
 
 def progress_bar(max_time, stop_event):
     """Show progress bar for how much of max_time has elapsed."""
-    step_time = max_time / 100
+    padding = 0
+    step_time = (max_time + padding) / 100
     with tqdm(
-        desc="Running model-checker: ",
+        desc=f"Searching for {max_time} seconds: ",
         total=100,
         unit="step",
         bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}",
     ) as pbar:
-        while not stop_event.is_set():
+        while not stop_event.is_set() and pbar.n < 100:
             time.sleep(step_time) # NOTE: gives bad result if multiplied by 4
             pbar.update(1)
-            if pbar.n >= 100:
-                stop_event.set()  # Signal the progress bar to stop
+        stop_event.set()  # Signal the progress bar to stop
 
 def create_model_setup(module):
     """Creates a model setup based on module attributes."""
@@ -530,10 +530,17 @@ def optimize_model_setup(module, optimize_model, print_cons):
             module, model_setup = optimize_model_setup(module, model_setup, print_cons)
             # module, model_setup = new_optimize_model_setup(module, model_setup, print_cons)
         if optimize_model:
-            module, model_setup = optimize_N(module, model_setup, module, model_setup, print_cons)
+            module, model_setup = optimize_N(
+                module,
+                model_setup,
+                module,
+                model_setup,
+                print_cons
+            )
     finally:
         stop_event.set()  # Signal the progress bar to stop
-        progress_thread.join(timeout=max_time)  # Wait for the thread to finish
+        new_max_time = module.max_time
+        progress_thread.join(timeout=new_max_time)  # Wait for the thread to finish
     return module, model_setup
 
 # ### NOTE: this works in place of the function above
