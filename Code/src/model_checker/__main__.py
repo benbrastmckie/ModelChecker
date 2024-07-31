@@ -464,19 +464,7 @@ def optimize_N(module, model_setup, past_module, past_model_setup, print_cons, s
             sat
         )
         return max_module, max_model_setup
-    # timed out looking for models
-    previous_N = model_setup.N - 1
-    print(f"There are no {previous_N}-models.")
-    print(f"No {model_setup.N}-models were found within {model_setup.max_time} seconds.")
-    new_max_time = ask_time(model_setup.model_runtime, model_setup.max_time)
-    if new_max_time is None:
-        print("Process terminated.")
-        print(f"Consider increasing max_time to be > {model_setup.max_time} seconds.\n")
-        model_setup.N = previous_N
-        model_setup.no_model_print(module.print_cons_bool)
-        os._exit(1)
-    module.update_max_time(new_max_time)
-    # return new_optimize_model_setup(module, True, print_cons)
+    handle_timeout(module, model_setup, print_cons)
     return optimize_model_setup(module, True, print_cons)
 
 def progress_bar(max_time, stop_event):
@@ -507,10 +495,14 @@ def create_model_setup(module):
 
 def handle_timeout(module, model_setup, print_cons):
     """Handles timeout scenarios by asking the user for a new time limit."""
-    print(f"The model timed out at {model_setup.model_runtime} seconds.")
+    previous_N = model_setup.N - 1
+    print(f"There are no {previous_N}-models.")
+    print(f"No {model_setup.N}-models were found within {model_setup.model_runtime} seconds.")
     new_max_time = ask_time(model_setup.model_runtime, model_setup.max_time)
     if new_max_time is None:
-        print("Terminating the process.")
+        print("Process terminated.")
+        print(f"Consider increasing max_time to be > {model_setup.max_time} seconds.\n")
+        model_setup.N = previous_N
         model_setup.no_model_print(print_cons)
         os._exit(1)
     module.update_max_time(new_max_time)
