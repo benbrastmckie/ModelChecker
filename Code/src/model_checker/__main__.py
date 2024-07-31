@@ -9,7 +9,7 @@ import subprocess
 from string import Template
 import argparse
 import importlib.util
-from concurrent.futures import ThreadPoolExecutor
+# from concurrent.futures import ThreadPoolExecutor
 from threading import (
     Thread,
     Event,
@@ -64,7 +64,7 @@ max_time = 1
 optimize_bool = False
 
 # print all Z3 constraints if a model is found
-print_cons_bool = False
+print_constraints_bool = False
 
 # print all states including impossible states
 print_impossible_states_bool = False
@@ -135,7 +135,7 @@ disjoint_bool = False # make all propositions have disjoint subject-matters
 
 """)
 
-class LoadModule:
+class BuildModule:
     """load module and store values as a class"""
     def __init__(self, module_name, module_path):
         self.module_name = module_name
@@ -148,7 +148,7 @@ class LoadModule:
             "contingent_bool": False,
             "disjoint_bool": False,
             "optimize_bool": False,
-            "print_cons_bool": False,
+            "print_constraints_bool": False,
             "print_impossible_states_bool": False,
             "save_bool": False,
         }
@@ -161,7 +161,7 @@ class LoadModule:
         self.contingent_bool = self.default_values["contingent_bool"]
         self.disjoint_bool = self.default_values["disjoint_bool"]
         self.optimize_bool = self.default_values["optimize_bool"]
-        self.print_cons_bool = self.default_values["print_cons_bool"]
+        self.print_constraints_bool = self.default_values["print_constraints_bool"]
         self.print_impossible_states_bool = self.default_values["print_impossible_states_bool"]
         self.save_bool = self.default_values["save_bool"]
         self.module = self.load_module()
@@ -203,10 +203,10 @@ class LoadModule:
             "optimize_bool",
             self.default_values["optimize_bool"]
         )
-        self.print_cons_bool = getattr(
+        self.print_constraints_bool = getattr(
             self.module,
-            "print_cons_bool",
-            self.default_values["print_cons_bool"]
+            "print_constraints_bool",
+            self.default_values["print_constraints_bool"]
         )
         self.print_impossible_states_bool = getattr(
             self.module,
@@ -300,47 +300,6 @@ def parse_file_and_flags():
     package_name = parser.prog  # Get the package name from the parser
     return args, package_name
 
-# NOTE: the below was in attempt to check for the most recent version before upgrade
-# having trouble getting the most recent version from PyPI
-# everything else seems to work
-
-# def get_installed_version(package_name):
-#     """returns the current version of the package"""
-#     try:
-#         installed_version = __version__
-#         # installed_version = subprocess.check_output(['pip', 'show', package_name]).decode().split('\n')[1].split(': ')[1]
-#         return installed_version
-#     except ValueError as e:
-#         print(f"Error getting installed version: {e}")
-#         return False
-
-# def get_latest_version(package_name):
-#     """returns the latest version of the package"""
-#     try:
-#         output = subprocess.check_output(['pip', 'show', package_name, '--no-cache-dir']).decode()
-#         version_line = [
-#             line for line in output.split('\n')
-#             if line.lower().startswith('version:')
-#         ][0]
-#         latest_version = version_line.split(': ')[1].strip()
-#         return latest_version
-#     except ValueError as e:
-#         print(f"Error getting latest version: {e}")
-#         return None
-
-# def check_update(package_name):
-#     """finds and compares the latest version to the installed version."""
-#     # Get the installed version of the package
-#     installed_version = get_installed_version(package_name)
-#     # Get the latest version of the package from PyPI
-#     latest_version = get_latest_version(package_name)
-#     # Compare the installed version with the latest version
-#     if installed_version == latest_version:
-#         print(f"{package_name} is already up to date (version {installed_version})")
-#         return True
-#     print(f"{package_name} is not up to date (installed version: {installed_version}, latest version: {latest_version})")
-#     return False
-
 def generate_test(name):
     """check if a script name was provided"""
     template_data = {
@@ -404,7 +363,7 @@ def no_model_save_or_append(module, model_structure, file_name):
         return
     with open(f"{module.parent_directory}/{file_name}.py", 'w', encoding="utf-8") as n:
         print(f'# TITLE: {file_name}.py generated from {module.parent_file}\n"""', file=n)
-        model_structure.no_model_save(module.print_cons_bool, n)
+        model_structure.no_model_save(module.print_constraints_bool, n)
     print()
 
 def save_or_append(module, model_setup, file_name, print_cons, print_imposs):
@@ -497,7 +456,7 @@ def handle_timeout(module, model_setup):
         print("Process terminated.")
         print(f"Consider increasing max_time to be > {model_setup.max_time} seconds.\n")
         model_setup.N = previous_N
-        model_setup.no_model_print(module.print_cons)
+        model_setup.no_model_print(module.print_constraints_bool)
         os._exit(1)
     module.update_max_time(new_max_time)
 
@@ -514,7 +473,7 @@ def optimize_model_setup(module):
         if run_time > max_time:
             handle_timeout(module, model_setup)
             module, model_setup = optimize_model_setup(module)
-        if module.optimize_model:
+        if module.optimize_bool:
             module, model_setup = optimize_N(
                 module,
                 model_setup,
@@ -572,19 +531,34 @@ def optimize_model_setup(module):
 #     return module, model_setup
 # ### END ALTERNATIVE
 
-def update_args(module, args):
-    """Updates the module with the user specified flags."""
-    print_imposs = module.print_impossible_states_bool or args.impossible
-    print_cons = module.print_cons_bool or args.print
-    save_model = module.save_bool or args.save
-    optimize_model = module.optimize_bool or args.optimize
-    contingent_bool = module.contingent_bool or args.contingent
-    module.print_imposs = print_imposs
-    module.print_cons = print_cons
-    module.save_model = save_model
-    module.optimize_model = optimize_model
-    module.contingent_bool = contingent_bool
-    return print_imposs, print_cons, save_model
+def load_module(args):
+    """Returns a module from the arguments provided from the specified file.
+    Updates the model to reflect the user specified flags."""
+    module_path = args.file_path
+    module_name = os.path.splitext(os.path.basename(module_path))[0]
+    module = BuildModule(module_name, module_path)
+    module.contingent_bool = module.contingent_bool or args.contingent
+    module.disjoint_bool = module.disjoint_bool or args.disjoint
+    module.optimize_bool = module.optimize_bool or args.optimize
+    module.print_constraints_bool = module.print_constraints_bool or args.print
+    module.print_impossible_states_bool = module.print_impossible_states_bool or args.impossible
+    module.save_bool = module.save_bool or args.save
+    return module
+
+def print_result(module, model_setup):
+    """Prints resulting model or no model if none is found."""
+    if model_setup.model_status:
+        states_print = StateSpace(model_setup)
+        states_print.print_to(module.print_constraints_bool, module.print_impossible_states_bool)
+        if module.save_bool:
+            file_name, print_cons = ask_save()
+            save_or_append(module, states_print, file_name, print_cons, module.print_imposs)
+        return
+    model_setup.no_model_print(module.print_constraints_bool)
+    if module.save_bool:
+        file_name, print_cons = ask_save()
+        no_model_save_or_append(module, model_setup, file_name)
+
 
 def main():
     """load a test or generate a test when run without input"""
@@ -599,16 +573,7 @@ def main():
             print(f"Failed to upgrade {package_name}: {e}")
         return
 
-    module_path = args.file_path
-    module_name = os.path.splitext(os.path.basename(module_path))[0]
-    module = LoadModule(module_name, module_path)
-    print_imposs, print_cons, save_model = update_args(module, args)
-
-    # print_imposs = module.print_impossible_states_bool or args.impossible
-    # print_cons = module.print_cons_bool or args.print
-    # save_model = module.save_bool or args.save
-    # optimize_model = module.optimize_bool or args.optimize
-    # module.contingent_bool = module.contingent_bool or args.contingent
+    module = load_module(args)
 
     # NOTE: seems to delay after progress bar completes
     # shows progress for finding z3 models
@@ -616,23 +581,7 @@ def main():
     # NOTE: attempted the following to replace the above but now luck
     # module, model_setup = new_optimize_model_setup(module, optimize_model, print_cons)
 
-    if model_setup.model_status:
-        states_print = StateSpace(model_setup)
-        states_print.print_to(print_cons, print_imposs)
-        if save_model:
-            file_name, print_cons = ask_save()
-            save_or_append(module, states_print, file_name, print_cons, print_imposs)
-        return
-
-    # if model_setup.timeout == "unknown":
-    #     print(f"No model found. Try increasing max_time > {model_setup.max_time}.\n")
-    #     return
-
-    # print(model_setup.z3_model)
-    model_setup.no_model_print(print_cons)
-    if save_model:
-        file_name, print_cons = ask_save()
-        no_model_save_or_append(module, model_setup, file_name)
+    print_result(module, model_setup)
 
 if __name__ == "__main__":
     main()

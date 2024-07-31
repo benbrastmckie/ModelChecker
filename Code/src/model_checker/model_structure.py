@@ -99,7 +99,7 @@ max_time = ${max_time}
 optimize = False
 
 # print all Z3 constraints if a model is found
-print_cons_bool = False
+print_constraints_bool = False
 
 # print all states including impossible states
 print_impossible_states_bool = False
@@ -444,12 +444,12 @@ class StateSpace:
             )
         print(file=output)
 
-    def print_to(self, print_cons_bool, print_impossible, output=sys.__stdout__):
+    def print_to(self, print_constraints_bool, print_impossible, output=sys.__stdout__):
         """append all elements of the model to the file provided"""
         self.print_all(print_impossible, output)
         structure = self.model_setup
         setup = self.model_setup
-        if print_cons_bool:
+        if print_constraints_bool:
             structure.print_constraints(setup.frame_constraints, 'FRAME', output)
             structure.print_constraints(setup.prop_constraints, 'PROPOSITION', output)
             structure.print_constraints(setup.premise_constraints, 'PREMISE', output)
