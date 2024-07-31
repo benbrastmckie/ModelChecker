@@ -13,10 +13,10 @@ file_name = os.path.basename(__file__)
 max_time = 1
 
 # find critical value of N
-optimize_bool = False
+optimize_bool = True
 
 # print all Z3 constraints if a model is found
-print_cons_bool = False
+print_constraints_bool = False
 
 # print all states including impossible states
 print_impossible_states_bool = True
@@ -37,12 +37,12 @@ disjoint_bool = False
 ##### COUNTERFACTUAL COUNTERMODELS #####
 ########################################
 
-# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 3
-# premises = ['(A boxright C)']
-# conclusions = ['((A wedge B) boxright C)']
-# contingent_bool = True
-# disjoint_bool = False
+# CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+N = 3
+premises = ['(A boxright C)']
+conclusions = ['((A wedge B) boxright C)']
+contingent_bool = True
+disjoint_bool = False
 
 # # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # N = 3
