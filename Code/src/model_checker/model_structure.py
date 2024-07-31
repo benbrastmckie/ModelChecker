@@ -139,8 +139,13 @@ class ModelSetup:
         self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
         self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
         self.possible = Function("possible", BitVecSort(N), BoolSort())
-        self.imposition = Function("imposition", BitVecSort(N), BitVecSort(N), BitVecSort(N), BoolSort())
-        # self.assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
+        self.imposition = Function( # needed to encode Fine's semantics
+            "imposition",
+            BitVecSort(N),
+            BitVecSort(N),
+            BitVecSort(N),
+            BoolSort()
+        )
         self.w = BitVec("w", N) # what will be the main world
         self.prefix_premises = [prefix(prem) for prem in infix_premises]
         # M: I think below is a problem
