@@ -466,24 +466,16 @@ def optimize_model_setup(module):
     stop_event = Event()
     progress_thread = Thread(target=progress_bar, args=(max_time, stop_event))
     progress_thread.start()
-    model_setup = None
-    try:
-        model_setup = create_model_setup(module)
-        run_time = model_setup.model_runtime
-        if run_time > max_time:
-            handle_timeout(module, model_setup)
-            module, model_setup = optimize_model_setup(module)
-        if module.optimize_bool:
-            module, model_setup = optimize_N(
-                module,
-                model_setup,
-                module,
-                model_setup,
-            )
-    finally:
-        stop_event.set()  # Signal the progress bar to stop
-        new_max_time = module.max_time
-        progress_thread.join(timeout=new_max_time)  # Wait for the thread to finish
+    model_setup = create_model_setup(module)
+    run_time = model_setup.model_runtime
+    if run_time > max_time:
+        handle_timeout(module, model_setup)
+        module, model_setup = optimize_model_setup(module)
+    if module.optimize_bool:
+        module, model_setup = optimize_N(module, model_setup, module, model_setup)
+    stop_event.set()  # Signal the progress bar to stop
+    new_max_time = module.max_time
+    progress_thread.join(timeout=new_max_time)  # Wait for the thread to finish
     return module, model_setup
 
 # ### NOTE: this works in place of the function above

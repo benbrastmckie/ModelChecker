@@ -37,12 +37,12 @@ disjoint_bool = False
 ##### COUNTERFACTUAL COUNTERMODELS #####
 ########################################
 
-# CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-N = 3
-premises = ['(A boxright C)']
-conclusions = ['((A wedge B) boxright C)']
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 3
+# premises = ['(A boxright C)']
+# conclusions = ['((A wedge B) boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # N = 3
