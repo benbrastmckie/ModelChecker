@@ -456,30 +456,74 @@ def optimize_model_setup(module):
         module, model_setup = run_optimization_with_progress(module)
     if module.optimize_bool:
         module, model_setup = optimize_N(module, model_setup, module, model_setup)
-    # stop_event.set()  # Signal the progress bar to stop
     return module, model_setup
 
-def progress_bar(max_time, stop_event):
+def show_progress_bar(max_time, optimize_future):
     """Show progress bar for how much of max_time has elapsed."""
-    padding = 0
+    padding = 0 # setting this to 5 makes for strange results
     step_time = (max_time + padding) / 100
-    step_num = 0
     with tqdm(
         desc=f"Searching for {max_time} seconds: ",
         total=100,
         unit="step",
         bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}",
     ) as pbar:
-        while not stop_event.is_set() and pbar.n < 100:
-            step_num =+ 1
-            if pbar.n < 50:
-                time.sleep(step_time) # NOTE: gives bad result if multiplied by 4
-                pbar.update(1)
-            if pbar.n < 70:
-                time.sleep((step_time * 100) / (100 - step_num)) # NOTE: gives bad result if multiplied by 4
-                pbar.update(1)
-            time.sleep((step_time * 200) / (100 - step_num)) # NOTE: gives bad result if multiplied by 4
+        for _ in range(100):
+            if optimize_future.done():
+                # pbar.update(100 - pbar.n) # makes the progress bar complete
+                break
+            time.sleep(step_time)
             pbar.update(1)
+
+def run_optimization_with_progress(module):
+    """Main function: Creates, optimizes (if needed), and manages model setup process."""
+    with ThreadPoolExecutor() as executor:
+        optimize_future = executor.submit(optimize_model_setup, module)
+        # optimize_progress = executor.submit(show_progress_bar, module.max_time, optimize_future)
+        show_progress_bar(module.max_time, optimize_future)
+        try:
+            module, model_setup = optimize_future.result()
+        except Exception as e:
+            print(f"Error during optimization: {e}")
+            raise
+    return module, model_setup
+
+### BEGIN ALTERNATIVES ###
+
+# def progress_bar(optimize_future, max_time):
+#     """Simulate a progress bar that runs until future is done."""
+#     start_time = time.time()
+#     step_time = max_time / 100
+#     while optimize_future.running():
+#         elapsed_time = time.time() - start_time
+#         print(f"Progress: {elapsed_time:.2f}/{max_time:.2f} seconds", end='\r')
+#         time.sleep(step_time)  # Update progress every 0.1 second
+#         # if elapsed_time >= max_time:
+#         if optimize_future.done():
+#             break
+#     # print("\nProgress bar stopped.")
+
+# def progress_bar(max_time, stop_event):
+#     """Show progress bar for how much of max_time has elapsed."""
+#     padding = 0
+#     step_time = (max_time + padding) / 100
+#     step_num = 0
+#     with tqdm(
+#         desc=f"Searching for {max_time} seconds: ",
+#         total=100,
+#         unit="step",
+#         bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}",
+#     ) as pbar:
+#         while not stop_event.is_set() and pbar.n < 100:
+#             step_num =+ 1
+#             if pbar.n < 50:
+#                 time.sleep(step_time) # NOTE: gives bad result if multiplied by 4
+#                 pbar.update(1)
+#             if pbar.n < 70:
+#                 time.sleep((step_time * 100) / (100 - step_num)) # NOTE: gives bad result if multiplied by 4
+#                 pbar.update(1)
+#             time.sleep((step_time * 200) / (100 - step_num)) # NOTE: gives bad result if multiplied by 4
+#             pbar.update(1)
 
 # def progress_bar(max_time, stop_event):
 #     """Simulate a progress bar that runs until stop_event is set."""
@@ -493,35 +537,33 @@ def progress_bar(max_time, stop_event):
 #             break
 #     # print("\nProgress bar stopped.")
 
-def run_optimization_with_progress(module):
-    """Run the optimization process and progress bar in parallel."""
-    stop_event = Event()
-    progress_thread = Thread(target=progress_bar, args=(module.max_time, stop_event))
-    progress_thread.start()
-
-    # Run optimize_model_setup in the main thread
-    module, model_setup = optimize_model_setup(module)
-
-    stop_event.set()  # Signal the progress bar to stop
-    progress_thread.join()  # Wait for the progress bar thread to finish
-    return module, model_setup
-
-# ### NOTE: this works in place of the function above
 # def run_optimization_with_progress(module):
-#     """Main function: Creates, optimizes (if needed), and manages model setup process."""
-#
+#     """Run the optimization process and progress bar in parallel."""
 #     stop_event = Event()
+#     progress_thread = Thread(target=progress_bar, args=(module.max_time, stop_event))
+#     progress_thread.start()
 #
-#     with ThreadPoolExecutor() as executor:
-#         # Run model creation and progress bar in parallel
-#         progress_future = executor.submit(progress_bar, module.max_time, stop_event)
-#         model_future = executor.submit(optimize_model_setup, module)
+#     # Run optimize_model_setup in the main thread
+#     module, model_setup = optimize_model_setup(module)
 #
-#         module, model_setup = model_future.result()
-#         stop_event.set()  # Stop the progress bar
-#         progress_future.result()  # Ensure progress bar thread completes
-#
+#     stop_event.set()  # Signal the progress bar to stop
+#     progress_thread.join()  # Wait for the progress bar thread to finish
 #     return module, model_setup
+
+# def show_progress_bar(thread, max_time):
+#     with tqdm(total=100, desc="Optimizing model setup") as pbar:
+#         while thread.is_alive():
+#             pbar.update(1)
+#             time.sleep(0.05)
+#         pbar.update(pbar.total - pbar.n)  # Ensure the progress bar completes
+
+# def run_optimization_with_progress(module):
+#     """Run the optimization process and progress bar in parallel."""
+#     optimize_thread = Thread(target=optimize_model_setup, args=(module,))
+#     optimize_thread.start()
+#     # Show the progress bar until the optimization is complete
+#     show_progress_bar(optimize_thread, module.max_time)
+#     return optimize_thread
 
 # ### still has delay; consider timing how long the total search process takes
 # # def optimize_if_needed(module, model_setup, optimize_model):
@@ -550,7 +592,7 @@ def run_optimization_with_progress(module):
 #     progress_thread = Thread(target=progress_bar, args=(max_time, stop_event))
 #     progress_thread.start()
 
-### END ALTERNATIVE
+### END ALTERNATIVES ###
 
 
 def load_module(args):
