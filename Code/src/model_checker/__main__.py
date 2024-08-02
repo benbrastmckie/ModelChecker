@@ -6,6 +6,7 @@ running the file finds a model and prints the result.
 import sys
 import os
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 from string import Template
 import argparse
 import importlib.util
@@ -445,7 +446,7 @@ def handle_timeout(module, model_setup):
         os._exit(1)
     module.update_max_time(new_max_time)
 
-def optimize_model_setup(module, stop_event):
+def optimize_model_setup(module):
     """Runs make_model_for on the values provided by the module and user, optimizing if required."""
     max_time = module.max_time
     model_setup = create_model_setup(module)
@@ -455,7 +456,7 @@ def optimize_model_setup(module, stop_event):
         module, model_setup = run_optimization_with_progress(module)
     if module.optimize_bool:
         module, model_setup = optimize_N(module, model_setup, module, model_setup)
-    stop_event.set()  # Signal the progress bar to stop
+    # stop_event.set()  # Signal the progress bar to stop
     return module, model_setup
 
 def progress_bar(max_time, stop_event):
@@ -499,11 +500,58 @@ def run_optimization_with_progress(module):
     progress_thread.start()
 
     # Run optimize_model_setup in the main thread
-    module, model_setup = optimize_model_setup(module, stop_event)
+    module, model_setup = optimize_model_setup(module)
 
     stop_event.set()  # Signal the progress bar to stop
     progress_thread.join()  # Wait for the progress bar thread to finish
     return module, model_setup
+
+# ### NOTE: this works in place of the function above
+# def run_optimization_with_progress(module):
+#     """Main function: Creates, optimizes (if needed), and manages model setup process."""
+#
+#     stop_event = Event()
+#
+#     with ThreadPoolExecutor() as executor:
+#         # Run model creation and progress bar in parallel
+#         progress_future = executor.submit(progress_bar, module.max_time, stop_event)
+#         model_future = executor.submit(optimize_model_setup, module)
+#
+#         module, model_setup = model_future.result()
+#         stop_event.set()  # Stop the progress bar
+#         progress_future.result()  # Ensure progress bar thread completes
+#
+#     return module, model_setup
+
+# ### still has delay; consider timing how long the total search process takes
+# # def optimize_if_needed(module, model_setup, optimize_model):
+# #     """Optimizes the model setup if optimization is enabled."""
+# #     if optimize_model:
+# #         return optimize_N(module, model_setup, module, model_setup)
+# #     return module, model_setup
+#
+# def create_and_optimize(module, optimize_model, print_cons):
+#     """Runs make_model_for on the values provided by the module and user, optimizing if required."""
+#
+#     max_time = module.max_time
+#     model_setup = create_model_setup(module)
+#     run_time = model_setup.model_runtime
+#
+#     if run_time > max_time:
+#         handle_timeout(module, model_setup, print_cons)
+#         return new_optimize_model_setup(module, optimize_model, print_cons)
+#
+#     if optimize_model:
+#         module, model_setup = optimize_N(module, model_setup, module, model_setup, print_cons)
+#     return module, model_setup
+#
+# def show_progress(max_time, stop_event):
+#     """Displays a progress bar for the specified duration."""
+#     progress_thread = Thread(target=progress_bar, args=(max_time, stop_event))
+#     progress_thread.start()
+
+### END ALTERNATIVE
+
 
 def load_module(args):
     """Returns a module from the arguments provided from the specified file.
