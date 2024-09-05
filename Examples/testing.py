@@ -145,12 +145,103 @@ save_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# CF12: COUNTERFACTUAL TO IMPOSITION
-N = 3
-premises = ['(A boxright B)']
-conclusions = ['(A imposition B)']
-contingent_bool = True
-disjoint_bool = False
+# # CF12: COUNTERFACTUAL TO IMPOSITION
+# N = 3
+# premises = ['(A boxright B)']
+# conclusions = ['(A imposition B)']
+# contingent_bool = True
+# disjoint_bool = False
+
+
+
+
+
+# # NOTE: TRUE CONCLUSION MODEL
+# # CF3: WEAKENED TRANSITIVITY HALF IMPOSITION
+# N = 3
+# premises = ['(A boxright B)','((A wedge B) boxright C)']
+# conclusions = ['(A imposition C)']
+# # conclusions = ['(A boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # CF3: WEAKENED TRANSITIVITY HALF IMPOSITION
+# N = 3
+# premises = ['(A imposition B)','((A wedge B) imposition C)']
+# conclusions = ['(A boxright C)']
+# # conclusions = ['(A boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # CF4: ANTECEDENT DISJUNCTION TO CONJUNCTION
+# N = 3
+# premises = ['((A vee B) imposition C)']
+# conclusions = ['((A wedge B) boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # CF5: SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+# N = 4
+# premises = ['((A vee B) boxright C)']
+# conclusions = ['(A boxright C)']
+# contingent_bool = False
+# disjoint_bool = False
+
+# # CF6: DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+# N = 3
+# premises = ['((A vee B) boxright C)']
+# conclusions = ['((A boxright C) wedge (B boxright C))']
+# contingent_bool = False
+# disjoint_bool = False
+
+# # CF7:
+# N = 3
+# premises = ['(A boxright C)', '(B boxright C)', '((A wedge B) boxright C)']
+# conclusions = ['((A vee B) boxright C)']
+# contingent_bool = False
+# disjoint_bool = False
+
+# # CF8:
+# N = 3
+# premises = ['(A boxright (B wedge C))']
+# conclusions = ['(A boxright B)']
+# contingent_bool = False
+# disjoint_bool = False
+
+# # NOTE: optimizer works for max_time = 1 but not max_time > 1
+# # CF9:
+# N = 3
+# premises = ['(A boxright B)','(A boxright C)']
+# conclusions = ['(A boxright (B wedge C))']
+# contingent_bool = False
+# disjoint_bool = False
+
+# # CF10: FACTIVITY MIGHT
+# N = 3
+# premises = ['A','B']
+# conclusions = ['(A circleright B)']
+# contingent_bool = False
+# disjoint_bool = False
+
+
+
+
+### IMPOSITION ###
+
+# # CF11: COUNTERFACTUAL TO IMPOSITION
+# N = 3
+# premises = ['(A boxright B)']
+# conclusions = ['(A imposition B)']
+# contingent_bool = False
+# disjoint_bool = False
+
+# # CF12: IMPOSITION TO COUNTERFACTUAL
+# N = 3
+# premises = ['(A imposition B)']
+# conclusions = ['(A boxright B)']
+# contingent_bool = False
+# disjoint_bool = False
+
 
 
 

@@ -24,12 +24,12 @@ print_impossible_states_bool = True
 # present option to append output to file
 save_bool = False
 
-# COPIED FROM BELOW FOR TESTING
-N = 3
-premises = ['(A boxright B)','((A wedge B) boxright C)']
-conclusions = ['(A boxright C)']
-contingent_bool = False
-disjoint_bool = False
+# # COPIED FROM BELOW FOR TESTING
+# N = 3
+# premises = ['(A boxright B)','((A wedge B) boxright C)']
+# conclusions = ['(A boxright C)']
+# contingent_bool = False
+# disjoint_bool = False
 
 
 
@@ -239,12 +239,12 @@ disjoint_bool = False
 # contingent_bool = False
 # disjoint_bool = False
 
-# # CF5: SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-# N = 4
-# premises = ['((A vee B) boxright C)']
-# conclusions = ['(A boxright C)']
-# contingent_bool = False
-# disjoint_bool = False
+# CF5: SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+N = 4
+premises = ['((A vee B) boxright C)']
+conclusions = ['(A boxright C)']
+contingent_bool = False
+disjoint_bool = False
 
 # # CF6: DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
 # N = 3
