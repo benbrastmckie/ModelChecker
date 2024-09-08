@@ -19,7 +19,7 @@ presumably every semantics should have (at leaset bilateral semantics) so maybe 
 to the Frame class as opposed to being required to be defined by the user in their new frame subclass.
 '''
 
-from class_operator_playground import *
+from class_semantics_playground import *
 
 
 class BrastMcKieFrame(Frame):
