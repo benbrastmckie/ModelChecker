@@ -47,7 +47,7 @@ from z3 import (
 )
 from z3 import Exists as Z3Exists
 from z3 import ForAll as Z3ForAll
-from syntax import AtomSort
+from syntax import AtomSort, prefix
 Exists = Z3Exists
 ForAll = Z3ForAll
 
@@ -191,8 +191,14 @@ frame.add_operator('\\vee',
                    arity=2)
 
 
-
-
+class ModelSetup():
+    def __init__(self, frame, infix_premises, infix_conclusions):
+        self.prefix_premises = [prefix(prem) for prem in infix_premises]
+        self.prefix_conclusions = [prefix(con) for con in infix_conclusions]
+        prefix_sentences = self.prefix_premises + self.prefix_conclusions
+        self.sentence_letters = find_sentence_letters(prefix_sentences)
+        self.atom_proposition_constraints = find_prop_constraints(self.sentence_letters, disjoint_props_bool)
+        self.frame_constraints = frame.frame_constraints()
 
 
 
