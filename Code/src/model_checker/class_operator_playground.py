@@ -28,7 +28,7 @@ ModelSetup object or something of that sort.
 '''
 
 
-
+import time
 from z3 import (
     sat,
     Lambda, # used in FiniteForAll and FiniteExists definitions
@@ -48,8 +48,23 @@ from z3 import (
 from z3 import Exists as Z3Exists
 from z3 import ForAll as Z3ForAll
 from syntax import AtomSort, prefix
+from semantics import all_sentence_letters
 Exists = Z3Exists
 ForAll = Z3ForAll
+
+########################################################################################
+################################ BEGIN HELPER FUNCTIONS ################################
+########################################################################################
+def find_prop_constraints(frame, sentence_letters):
+    '''
+    disjoint bool is not implemented
+    '''
+    return [frame.proposition_definition(atom) for atom in sentence_letters]
+
+
+########################################################################################
+################################# END HELPER FUNCTIONS #################################
+########################################################################################
 
 class Frame:
     def __init__(self, N):
@@ -57,151 +72,79 @@ class Frame:
         self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
         self.possible = Function("possible", BitVecSort(N), BoolSort())
         self.operator_dict = {}
+        self.w = BitVec("w", N) # what will be the main world
+
+    def find_premise_constraints(self, prefix_premises, main_world):
+        """find constraints corresponding to the input sentences
+        takes in sentences in prefix form and the input sentence letters (a list of AtomSorts)
+        returns a list of Z3 constraints
+        used in find_all_constraints"""
+        return [self.prefix_constraint_behavior(premise, main_world) for premise in prefix_premises]
+
+    def find_conclusion_constraints(self, prefix_conclusions, main_world):
+        """find constraints corresponding to the input sentences
+        takes in sentences in prefix form and the input sentence letters (a list of AtomSorts)
+        returns a list of Z3 constraints
+        used in find_all_constraints"""
+        # return [self.true_at(conclusion, main_world) for conclusion in prefix_conclusions]
+        return [self.conclusion_constraint_behavior(conclusion, main_world) for conclusion in prefix_conclusions]
 
     def add_operator(self, operator_name, **kw):
         self.operator_dict[operator_name] = kw
 
-    
-class BrastMcKieFrame(Frame):
-    def __init__(self, N):
-        super().__init__(N)
-        self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
-        self.assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
-
-    def fusion(self, bit_s, bit_t):
-        """the result of taking the maximum for each index in bit_s and bit_t
-        returns a Z3 constraint"""
-        return bit_s | bit_t
-
-    def is_part_of(self, bit_s, bit_t):
-        """the fusion of bit_s and bit_t is identical to bit_t
-        returns a Z3 constraint"""
-        return self.fusion(bit_s, bit_t) == bit_t
-
-    def non_null_part_of(self, bit_s, bit_t):
-        """bit_s verifies atom and is not the null state
-        returns a Z3 constraint"""
-        return And(Not(bit_s == 0), self.is_part_of(bit_s, bit_t))
-
-    def compatible(self, bit_x, bit_y):
-        """the fusion of bit_x and bit_y is possible
-        returns a Z3 constraint"""
-        return self.possible(self.fusion(bit_x, bit_y))
-
-    def maximal(self, bit_w):
-        """bit_w includes all compatible states as parts.
-        returns a Z3 constraint"""
-        x = BitVec("max_x", N)
-        return ForAll(
-            x,
-            Implies(
-                self.compatible(x, bit_w),
-                self.is_part_of(x, bit_w),
-            ),
-        )
-
-    def is_world(self, bit_w):
-        """bit_w is both possible and maximal.
-        returns a Z3 constraint"""
-        return And(
-            self.possible(bit_w),
-            self.maximal(bit_w),
-        )
-
-    def max_compatible_part(self, bit_x, bit_w, bit_y):
-        """bit_x is the biggest part of bit_w that is compatible with bit_y.
-        returns a Z3 constraint"""
-        z = BitVec("max_part", N)
-        return And(
-            self.is_part_of(bit_x, bit_w),
-            self.compatible(bit_x, bit_y),
-            ForAll(
-                z,
-                Implies(
-                    And(
-                        self.is_part_of(z, bit_w),
-                        self.compatible(z, bit_y),
-                        self.is_part_of(bit_x, z),
-                    ),
-                    bit_x == z,
-                ),
-            ),
-        )
-
-    def is_alternative(self, bit_u, bit_y, bit_w):
-        """
-        bit_u is a world that is the alternative that results from imposing state bit_y on
-        world bit_w.
-        returns a Z3 constraint
-        """
-        z = BitVec("alt_z", N)
-        return And(
-            self.is_world(bit_u),
-            self.is_part_of(bit_y, bit_u),
-            And(self.is_part_of(z, bit_u), self.max_compatible_part(z, bit_w, bit_y)), # REMOVABLE
-        )
-
-    def true_at(self, prefix_sentence, eval_world):
-        if len(prefix_sentence) == 1:
-                sent = prefix_sentence[0]
-                if 'top' not in str(sent)[0]: # top const alr in model, see find_model_constraints
-                    x = BitVec("t_atom_x", N)
-                    return Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent))) # REMOVABLE
-        operator = self.operator_dict[prefix_sentence[0]] # operator is a dict, the kw passed into add_operator
-        args = prefix_sentence[1:]
-        return operator['true_at'](args, eval_world)
-
-    def false_at(self, prefix_sentence, eval_world):
-        if len(prefix_sentence) == 1:
-            sent = prefix_sentence[0]
-            x = BitVec("f_atom_x", N)
-            return Exists(x, And(self.is_part_of(x, eval_world), self.falsify(x, sent))) # REMOVABLE
-        operator = self.operator_dict[prefix_sentence[0]] # operator is a dict, the kw passed into add_operator
-        args = prefix_sentence[1:]
-        return operator['false_at'](*args, eval_world)
-    
-    def frame_constraints(self):
-        x = BitVec("frame_x", N)
-        y = BitVec("frame_y", N)
-        z = BitVec("frame_z", N)
-        u = BitVec("frame_u", N)
-        frame_constraints = [
-            ForAll([x, y], Implies(And(self.possible(y), self.is_part_of(x, y)), self.possible(x))),
-            ForAll([x, y], Exists(z, self.fusion(x, y) == z)),
-            self.is_world(self.main_world), # w is passed in from the big outer function define_N_semantics
-        ]
-        return frame_constraints
-        
-
-
-
-N = 3
-frame = BrastMcKieFrame(N)
-frame.add_operator('\\neg',
-                   true_at=lambda arg, eval_world: frame.false_at(arg, eval_world),
-                   false_at=lambda arg, eval_world: frame.true_at(arg, eval_world),
-                   arity=1),
-frame.add_operator('\\wedge',
-                   true_at=lambda X, Y, eval_world: And(frame.true_at(X, eval_world), frame.true_at(Y, eval_world)),
-                   false_at=lambda X, Y, eval_world: Or(frame.false_at(X, eval_world), frame.false_at(Y, eval_world)),
-                   arity=2)
-frame.add_operator('\\vee',
-                   true_at=lambda X, Y, eval_world: Or(frame.true_at(X, eval_world), frame.true_at(Y, eval_world)),
-                   false_at=lambda X, Y, eval_world: And(frame.false_at(X, eval_world), frame.false_at(Y, eval_world)),
-                   arity=2)
-
 
 class ModelSetup():
     def __init__(self, frame, infix_premises, infix_conclusions):
+        self.frame = frame
         self.prefix_premises = [prefix(prem) for prem in infix_premises]
         self.prefix_conclusions = [prefix(con) for con in infix_conclusions]
         prefix_sentences = self.prefix_premises + self.prefix_conclusions
-        self.sentence_letters = find_sentence_letters(prefix_sentences)
-        self.atom_proposition_constraints = find_prop_constraints(self.sentence_letters, disjoint_props_bool)
+        self.sentence_letters = all_sentence_letters(prefix_sentences)
         self.frame_constraints = frame.frame_constraints()
+        self.atom_proposition_constraints = find_prop_constraints(frame, self.sentence_letters)
+        self.premise_constraints = frame.find_premise_constraints(self.prefix_premises, frame.w)
+        self.conclusion_constraints = frame.find_conclusion_constraints(self.prefix_conclusions, frame.w)
+        self.constraints = (self.frame_constraints +
+            self.atom_proposition_constraints +
+            self.premise_constraints +
+            self.conclusion_constraints
+        )
 
+        timeout, z3_model_status, z3_model, model_runtime = self.solve(
+                self.constraints,
+                self.max_time
+            )
+        self.timeout = timeout
+        self.model_status = z3_model_status
+        self.z3_model = z3_model
+        self.model_runtime = model_runtime
 
+    # NOTE: seems to mostly be working but occasionally seems to run longer than the printed time
+    def solve(self, all_constraints, max_time): # all_constraints is a list of constraints
+        """Finds a model for the input constraints within the max_time if there is such a model
+        returns a tuple with a boolean representing if (1) the timeout occurred, if (2) the
+        constraints were solved or not and, if (3) the model or unsatisfiable core depending"""
+        solver = Solver()
+        solver.add(all_constraints)
+        # Set the timeout (in milliseconds)
+        milliseconds = int(max_time * 1000)
+        solver.set("timeout", milliseconds)
+        try:
+            model_start = time.time()  # start benchmark timer
+            result = solver.check()
+            model_end = time.time()
+            model_runtime = round(model_end - model_start, 4)
+            if result == sat:
+                return False, True, solver.model(), model_runtime
+            if solver.reason_unknown() == "timeout":
+                return True, False, None, model_runtime
+            return False, False, solver.unsat_core(), model_runtime
+        except RuntimeError as e:
+            # Handle unexpected exceptions
+            print(f"An error occurred while running `solve_constraints()`: {e}")
+            return True, False, None, None
 
+    # ... and so on for ModelSetup object
 
 
 
