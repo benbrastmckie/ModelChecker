@@ -1,8 +1,8 @@
-Name: Miguel Buitrago
-Faculty Supervisor: Ben Brast-McKie
-Direct Supervisor: Brad Skow
-Term: Fall 2024
-9/5/24
+Name: Miguel Buitrago\
+Faculty Supervisor: Ben Brast-McKie\
+Direct Supervisor: Brad Skow\
+Term: Fall 2024\
+9/5/24\
  
 # Using model-checker to Evaluate Hyperintensional Semantics <!-- good title? -->
  
