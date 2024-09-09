@@ -22,6 +22,8 @@ choice in this approach)
 '''
 
 # B: is the idea with the wildcard to suppress explicit imports to make things user friendly?
+# B: it would be great to make all imports explicit, at least for now, so that my linter doesn't
+# go crazy and so my LSP works
 from class_semantics_playground import *
 
 
