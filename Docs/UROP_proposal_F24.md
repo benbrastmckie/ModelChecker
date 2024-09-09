@@ -4,7 +4,7 @@ Direct Supervisor: Brad Skow
 Term: Fall 2024
 9/5/24
  
-### Using model-checker to Evaluate Hyperintensional Semantics
+# Using model-checker to Evaluate Hyperintensional Semantics
  
  
 ## Project Overview
@@ -20,10 +20,10 @@ I plan to communicate with my mentor via email and weekly check-ins.
 
 ## Briefly explain the following:
 
-# Research Role & Tentative Work Plan
+### Research Role & Tentative Work Plan
 We will meet weekly to check in on progress, with Dr. Brast-McKie leading the design of the package and me leading the implementation on the GitHub, though we will collaborate on our roles as necessary and expected in a coding project like this. The first step will be to refactor the package so that a user could define the semantics as input and not have to use Dr. Brast-McKie’s as default. After that, we will use other hyperintensional semantics (namely Fine’s imposition semantics and Champollion’s unilateral negation) as test cases to see what differences in valid theorems and countermodels arise between these and Dr. Brast-McK’e's semantics. I will be leading the effort on Champollion’s semantics and Dr. Brast-McKie on Fine’s. Finally we will focus on improving documentation and outlining the findings for a publication. Anticipated deliverables will be the package and, if time allows, a write-up of the Champollion test case to be used in the publication detailing the package. 
  
-# Personal Statement/Goals
+### Personal Statement/Goals
 Broadly, this project sits at the intersection of philosophy, computer science, and linguistics, all of which are fields that greatly interest me (I am after all majoring in Linguistics and Philosophy with a minor in CS). More specifically, the project is in semantics and counterfactuals, for which I have particularly developed an interest through the linguistics and philosophy courses I’ve taken. Finally, it is a novel methodological approach in the field, so the prospect of being able to see a field I’m interested move forward is exciting. 
 Last semester I learned more than I thought I could about recent developments in logic and their applications to philosophy and linguistics through this project, so by continuing the project I hope to learn more, especially since I approach the end of my time as an undergrad and am considering applying to graduate programs in these fields. I hope to learn more about the fields of logic and formal semantics to see if they are something I’d like to purse in graduate school.  
 Programming skills can always be improved, and I feel that last semester this project helped me immensely to improve them. One of the unexpected challenges from last semester was reading through APIs (particularly Z3’s is not as explanatory or pedagogical as some of the packages that are used in programming classes I’ve taken, like numpy or pytorch in 6.390); I would like to continue improving on working with unfamiliar APIs, as there are still many aspects of Z3 that I am not familiar with.  
