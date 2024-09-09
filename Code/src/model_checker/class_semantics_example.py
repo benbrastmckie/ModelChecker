@@ -237,8 +237,14 @@ frame2 = BrastMcKieFrame(3)
 frame1.add_operator(negation['name'], negation) # add_operator could be changed to make the function call
                                                 # be frame1.add_operator(negation)
 frame2.add_operator(negation['name'], negation)
-# M: I personally don't like the dictionary strategy to be honest lol
-# I think this above can be turned into classes, will do that real quick
+# M: Would need to change the def of true_at of the Frame class to include the frame being passed into
+# the operator's true_at "method" (in quotations bc its a dict rn)
+# M: I'm having trouble thinking of a way to turn this into a class because if you have an operator
+# that needs methods additional to those of other operators, you'd need to define a new subclass (or
+# change the definition of the Operator class). However if the methods operators need to have do not
+# depend on the frame, then making the class would be easy since you'd never need to add any methods
+# to the class. 
+# see TODO at top of playground file
 
 
 frame.add_operator('\\neg',
