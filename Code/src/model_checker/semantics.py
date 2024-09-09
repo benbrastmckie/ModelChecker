@@ -282,6 +282,21 @@ def define_N_semantics(N, contingent, disjoint, verify, falsify, possible, impos
     #         )
     #     )
 
+    # NOTE: here is a target for fixing the semantics for exclude
+    # def preclude(state, set_of_states):
+    #     """A state s precludes a set_of_states S just in case there is a function h from states to
+    #     states such that: (1) s is the fusion of all states h(t) where t is in S; and (2) for all
+    #     states t in S, h(t) excludes some part of t."""
+    #     x = BitVec("preclude_x", N)
+    #     y = BitVec("preclude_y", N)
+    #     return # ADD Z3 CONSTRAINT
+    #
+    # def exclude(state, sentence, eval_world):
+    #     """A state s excludes a sentence A just in case s precludes the verifiers for A."""
+    #     x = BitVec("exclude_x", N)
+    #     y = BitVec("exclude_y", N)
+    #     return # ADD Z3 CONSTRAINT
+
     def exclude(state, sentence, eval_world):
         """to simulate bilateral semantics
         returns a Z3 constraint"""
