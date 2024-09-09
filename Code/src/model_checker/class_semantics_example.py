@@ -17,6 +17,8 @@ make methods that were pure Z3, they wouldn't need that much python experience. 
 and false_at functions both have recursion and accessing things from a dict. These are things that
 presumably every semantics should have (at leaset bilateral semantics) so maybe those can be moved
 to the Frame class as opposed to being required to be defined by the user in their new frame subclass.
+(M: I am not sure what those things are, this is my guess at tha, but that would be a major design
+choice in this approach)
 '''
 
 from class_semantics_playground import *
