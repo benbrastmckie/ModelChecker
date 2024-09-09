@@ -8,9 +8,9 @@ that came up was the same reason that semantics is currently one big function: t
 verify, falsify, and assign functions (and N) would have to be passed in as arguments to everything.
 At first I reluctantly started editing functions to do that but realized that makes everything
 very unfriendly to the user and is quite tedious to implement. The solution I thought of for now
-is (not fully implemented, but this is the idea): a user will make an object called a Frame object
-that has all the definitions that do not change from theory to theory. Then they will add to that
-object whatever things they want to add re how to define truth and what not by making a subclass
+is (not fully implemented, but this is the idea): a user will make a sublcass of the Frame class,
+which has all the definitions that do not change from theory to theory. Then they will add to that
+class whatever things they want to add re how to define truth and what not by making a subclass
 with the same __init__ method and whatever other additional methods they want. Then to add operators,
 which is really all that's left at this point, they will add things to the operator_dict of that
 Frame object. In this way, the definitions of possible, verify, falsify, and assign (pvfa from now
