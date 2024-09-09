@@ -24,6 +24,9 @@ choice in this approach)
 # B: is the idea with the wildcard to suppress explicit imports to make things user friendly?
 # B: it would be great to make all imports explicit, at least for now, so that my linter doesn't
 # go crazy and so my LSP works
+# M: The wildcard is really just a placeholder since I'm imagining that these files will change
+# substantially, so yes the end goal is specific imports (and if your linter goes crazy, by all
+# means make it explicit)
 from class_semantics_playground import *
 
 
@@ -44,6 +47,9 @@ class BrastMcKieFrame(Frame):
     # the frame definition so as to be inherited by any instance? users wouldn't need to use them
     # necessarily, but would be there to be called on all the same. some of the definitions below
     # are more particular to my semantics, so perhaps it makes sense to include those here instead.
+    # Yes, that is a very good point and I agree—I wasn't exactly sure what definitions should be
+    # more general so I just put everything in here, but whatever you think should be more general
+    # should be able to be moved into the Frame class with no effects
 
     def fusion(self, bit_s, bit_t):
         """the result of taking the maximum for each index in bit_s and bit_t
@@ -86,6 +92,7 @@ class BrastMcKieFrame(Frame):
         )
 
     # B: this is particular to my semantics so perhaps belongs here
+    # M: so all of above can be moved into the generic Frame class?
     def max_compatible_part(self, bit_x, bit_w, bit_y):
         """bit_x is the biggest part of bit_w that is compatible with bit_y.
         returns a Z3 constraint"""
@@ -109,6 +116,9 @@ class BrastMcKieFrame(Frame):
     # B: this is particular to my semantics so perhaps belongs here
     # B: why is the last line REMOVABLE?
     # B: should 'Exists' be added for 'z' now that we have defined the quantifiers?
+    # M: those comments were relics of the old semantics, I just copy/pasted the code from
+    # that so any comments also made their way in here. If they're outdated and just hadn't
+    # been removed from the master branch then they're also fine to be removed here
     def is_alternative(self, bit_u, bit_y, bit_w):
         """
         bit_u is a world that is the alternative that results from imposing state bit_y on
@@ -127,12 +137,14 @@ class BrastMcKieFrame(Frame):
         if len(prefix_sentence) == 1:
             sent = prefix_sentence[0]
             if 'top' not in str(sent)[0]: # top const alr in model, see find_model_constraints
+                # M: I'm not entirely sure where to deal with top, this is here only because it
+                # was in the old code (hopefully it ends up working just as before too)
                 x = BitVec("t_atom_x", N)
                 return Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent))) # REMOVABLE
         operator = self.operator_dict[prefix_sentence[0]] # operator is a dict, the kw passed into add_operator
         args = prefix_sentence[1:]
         return operator['true_at'](*args, eval_world) # B: i assume this is what we want instead of the below
-        # return operator['true_at'](args, eval_world)
+        # M: yes, good catch!
 
     def false_at(self, prefix_sentence, eval_world): # NECESSARY
         if len(prefix_sentence) == 1:
@@ -143,7 +155,6 @@ class BrastMcKieFrame(Frame):
         operator = self.operator_dict[prefix_sentence[0]] # operator is a dict, the kw passed into add_operator
         args = prefix_sentence[1:]
         return operator['false_at'](*args, eval_world) # B: i assume this is what we want instead of the below
-        # return operator['false_at'](args, eval_world)
 
     def frame_constraints(self): # NECESSARY
         x = BitVec("frame_x", N)
@@ -203,10 +214,33 @@ frame = BrastMcKieFrame(N)
 # B: these look great!
 # B: I was thinking that operators would be classes and would include various methods and attributes
 # B: modularity would be helped if operator classes could be defined independent of a frame
+    # (writing this after writing below comment) if the operators are classes, then the true_at and similar
+    # methods would need a frame as input to access the Z3 possible, verify, falsify functions for that
+    # frame (or it would need whatever bigger object that houses those things). I think that's possible
 # B: if need be, we might consider defining something general which both the frame and operators could reference
+    # M: I think that would end up being necessary, because operators need to reference things like possible,
+    # verify, falsify etc, which are currently housed in the frame (that is really the only reason
+    # for the current organization
 # B: the reason for wanting the operators to be independent of the constraints on a proposition etc., is so
 # that one could potentially compare frames using the same operators in just the same way that one could compare
 # operators over the same frame in order to facilitate systematic comparisons between systems
+
+# M: You could add operators more modularly doing the following:
+negation = {'name': '\\neg',
+            'true_at': lambda arg, ref_frame, eval_world: ref_frame.false_at(arg, eval_world),
+                   'false_at': lambda arg, ref_frame, eval_world: ref_frame.true_at(arg, eval_world),
+                   'arity': 1}
+# now say you have two frames, frame1 and frame2 (pretend one of them is not a BrastMcKieFrame)
+frame1 = BrastMcKieFrame(3)
+frame2 = BrastMcKieFrame(3)
+# now you can do (using the current syntax, though it could be changed to be prettier as follows
+frame1.add_operator(negation['name'], negation) # add_operator could be changed to make the function call
+                                                # be frame1.add_operator(negation)
+frame2.add_operator(negation['name'], negation)
+# M: I personally don't like the dictionary strategy to be honest lol
+# I think this above can be turned into classes, will do that real quick
+
+
 frame.add_operator('\\neg',
                    true_at = lambda arg, eval_world: frame.false_at(arg, eval_world),
                    false_at = lambda arg, eval_world: frame.true_at(arg, eval_world),
@@ -224,6 +258,7 @@ frame.add_operator('\\vee',
 
 # # B: my linter thinks the lambdas may not be necessary. here is an alternative for neg:
 # # B: using functions as below might help readability for users
+# # M: Yeah, that's true—especially if we do operators as classes
 # def neg_true_at(arg, eval_world):
 #     return frame.false_at(arg, eval_world)
 #
