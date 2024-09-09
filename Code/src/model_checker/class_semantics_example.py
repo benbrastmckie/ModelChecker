@@ -11,12 +11,14 @@ want at this point, so long as its consistent with their true_at definitions).
 
 Generally an upside of this approach is that it is very flexible. There are few minimal things
 required by a Frame. However this flexibility is also a downside: this file is quite long, at
-about 200 lines. Additionally some of the functions the user must currently define are not
-in Z3 but rather involve substantial python, which makes it not that friendly as if a user only
-had to make methods that were pure Z3 since those are basically logic. For example the true_at and
-false_at functions both have recursion and accessing things from a dict. These are things that
+about 200 lines. Additionally some of the functions the user must currently define are not in Z3
+but rather involve substantial python, which makes it not that friendly since if a user only had to
+make methods that were pure Z3, they wouldn't need that much python experience. For example the true_at
+and false_at functions both have recursion and accessing things from a dict. These are things that
 presumably every semantics should have (at leaset bilateral semantics) so maybe those can be moved
 to the Frame class as opposed to being required to be defined by the user in their new frame subclass.
+(M: I am not sure what those things are, this is my guess at tha, but that would be a major design
+choice in this approach)
 '''
 
 # B: is the idea with the wildcard to suppress explicit imports to make things user friendly?
