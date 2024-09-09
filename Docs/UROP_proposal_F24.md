@@ -4,8 +4,7 @@ Direct Supervisor: Brad Skow
 Term: Fall 2024
 9/5/24
  
-# Using model-checker to Evaluate Hyperintensional Semantics
- 
+# Using model-checker to Evaluate Hyperintensional Semantics <!-- good title? -->
  
 ## Project Overview
 Provide an explanation/background of your UROP project that includes the project aim, context & scope, and with whom you are conducting research.
