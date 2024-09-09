@@ -2,6 +2,17 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
+## Class Refactor
+
+- create operator class
+  - test out instances, adding attributes and methods, etc.
+- prefix algorithm to reference aritty attributes in operator classes
+- remove operators from prefix function
+- define classes for primitive operators
+  - operator as instances of operator class
+  - semantic methods
+  - proposition methods
+
 ## Patch
 
 - [:] print constraints same for unsat and sat
