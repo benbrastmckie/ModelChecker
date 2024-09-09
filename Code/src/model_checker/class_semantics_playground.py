@@ -26,7 +26,8 @@ Everything after would follow exactly as is in the class semantics doc, with fra
 being accessible to the ModelSetup object by making the Frame object an attribute of the
 ModelSetup object or something of that sort. 
 '''
-
+# TODO: what methods must every frame have (and thus can go in Frame class), and likewise, what
+# methods must every operator have? 
 
 import time
 from z3 import (
