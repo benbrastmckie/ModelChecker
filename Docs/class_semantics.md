@@ -34,11 +34,16 @@ Here is the imagined procedure for finding and printing models for extensional s
   - Having stored Z3 constraints for all of the `premises` and `conclusions`, global constraints are generated and stored.
   - Z3 is then called to find a model, storing the result in a new `model_structure` class.
   - In order to store and print the proposition for `[\wedge, [\vee, A, B], [\neg, C]]` at `main_world`, the `proposition` method for each operator is called as follows:
-    - The `proposition` method for `\wedge` takes any fusion of verifiers for `[\vee, A, B]` and `[\neg, C]` to be a verifier for `[\wedge, [\vee, A, B], [\neg, C]]`.
-    - The `proposition` method for `\wedge` takes any falsifier for `[\vee, A, B]`, `[\neg, C]`, or `[\vee, [\vee, A, B], [\neg, C]]` to be a falsifier for `[\wedge, [\vee, A, B], [\neg, C]]`.
-    - The `proposition` method for `\vee` takes any verifier for `A`, `B`, or `[\wedge, A, B]` to be a verifier for `[\vee, A, B]`.
-    - The `proposition` method for `\vee` takes any fusion of falsifiers for `A` and `B` to be a falsifier for `[\vee, A, B]`.
-    - The `proposition` method for `\neg` takes any falsifier for `C` to be a verifier for `[\neg, C]`.
-    - The `proposition` method for `\neg` takes any verifier for `C` to be a falsifier for `[\neg, C]`.
-  - In this way we may identify the verifiers and falsifiers for `[\wedge, [\vee, A, B], [\neg, C]]`, storing the result alongside the prefix sentence in the `model_structure` class.
-  - We may the proceed to print 
+    - The `proposition` method for `\wedge` takes any fusion of verifiers for `[\vee, A, B]` and `[\neg, C]` to be a verifier for `[\wedge, [\vee, A, B], [\neg, C]]`, storing the set of verifiers alongside the sentence in the `model_structure`. 
+    - The `proposition` method for `\wedge` takes any falsifier for `[\vee, A, B]`, `[\neg, C]`, or `[\vee, [\vee, A, B], [\neg, C]]` to be a falsifier for `[\wedge, [\vee, A, B], [\neg, C]]`, storing the set of falsifiers alongside the sentence in the `model_structure`.
+    - The `proposition` method for `\vee` takes any verifier for `A`, `B`, or `[\wedge, A, B]` to be a verifier for `[\vee, A, B]`, storing the set of verifiers alongside the sentence in the `model_structure`.
+    - The `proposition` method for `\vee` takes any fusion of falsifiers for `A` and `B` to be a falsifier for `[\vee, A, B]`, storing the set of falsifiers alongside the sentence in the `model_structure`.
+    - The `proposition` method for `\neg` takes any falsifier for `C` to be a verifier for `[\neg, C]`, storing the set of verifiers alongside the sentence in the `model_structure`.
+    - The `proposition` method for `\neg` takes any verifier for `C` to be a falsifier for `[\neg, C]`, storing the set of falsifiers alongside the sentence in the `model_structure`.
+  - In this way we may identify the verifiers and falsifiers for `[\wedge, [\vee, A, B], [\neg, C]]` and all of its subsentences, storing the results alongside the appropriate prefix sentences in the `model_structure` class.
+  - We may the proceed to print the proposition assigned to `[\wedge, [\vee, A, B], [\neg, C]]` recursively as follows:
+    - The ordered pairs of verifiers and falsifiers for `[\wedge, [\vee, A, B], [\neg, C]]` is printed at indentation level 1, increasing the indentation level to 2.
+    - The ordered pairs of verifiers and falsifiers for `[\vee, A, B]` is printed on a separate line at indentation level 2 before increasing the indentation level to 3.
+    - The ordered pairs of verifiers and falsifiers for `A` and `B` are printed on separate lines at indentation level 3 before returning to indentation level to 2.
+    - The ordered pairs of verifiers and falsifiers for `[\neg, C]` is printed on a separate line at indentation level 2 before increasing the indentation level to 3.
+    - The ordered pairs of verifiers and falsifiers for `C` is printed on a separate line at indentation level 3.
