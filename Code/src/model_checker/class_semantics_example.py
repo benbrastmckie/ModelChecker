@@ -22,7 +22,7 @@ to the Frame class as opposed to being required to be defined by the user in the
 from class_semantics_playground import *
 
 
-class BrastMcKieFrame(Frame):
+class BrastMcKieFrame(Frame): # M: couldn't think of a better name for your semantics lol
     def __init__(self, N):
         super().__init__(N)
         self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
