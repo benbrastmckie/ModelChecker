@@ -55,6 +55,7 @@ ForAll = Z3ForAll
 ########################################################################################
 ################################ BEGIN HELPER FUNCTIONS ################################
 ########################################################################################
+
 def find_prop_constraints(frame, sentence_letters):
     '''
     disjoint bool is not implemented
@@ -67,19 +68,24 @@ def find_prop_constraints(frame, sentence_letters):
 ########################################################################################
 
 class Frame:
+
+    # B: I moved the commented lines below into the instance since the may vary by user
     def __init__(self, N):
         self.N = N
-        self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
-        self.possible = Function("possible", BitVecSort(N), BoolSort())
+        # self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
+        # self.possible = Function("possible", BitVecSort(N), BoolSort())
         self.operator_dict = {}
-        self.w = BitVec("w", N) # what will be the main world
+        # self.w = BitVec("w", N) # what will be the main world
 
     def find_premise_constraints(self, prefix_premises, main_world):
         """find constraints corresponding to the input sentences
         takes in sentences in prefix form and the input sentence letters (a list of AtomSorts)
         returns a list of Z3 constraints
         used in find_all_constraints"""
-        return [self.prefix_constraint_behavior(premise, main_world) for premise in prefix_premises]
+        return [self.premise_constraint_behavior(premise, main_world) for premise in prefix_premises]
+        # return [self.prefix_constraint_behavior(premise, main_world) for premise in prefix_premises]
+        # B: should this be premise_constraint_behavior? where is this defined?
+        # B: where do the sentence letters occur? why are they needed here?
 
     def find_conclusion_constraints(self, prefix_conclusions, main_world):
         """find constraints corresponding to the input sentences
@@ -88,6 +94,7 @@ class Frame:
         used in find_all_constraints"""
         # return [self.true_at(conclusion, main_world) for conclusion in prefix_conclusions]
         return [self.conclusion_constraint_behavior(conclusion, main_world) for conclusion in prefix_conclusions]
+        # B: where do the sentence letters occur? why are they needed here?
 
     def add_operator(self, operator_name, **kw):
         self.operator_dict[operator_name] = kw
@@ -96,6 +103,7 @@ class Frame:
 class ModelSetup():
     def __init__(self, frame, infix_premises, infix_conclusions):
         self.frame = frame
+        self.max_time = 2 # B: this is a placeholder for later
         self.prefix_premises = [prefix(prem) for prem in infix_premises]
         self.prefix_conclusions = [prefix(con) for con in infix_conclusions]
         prefix_sentences = self.prefix_premises + self.prefix_conclusions
@@ -104,15 +112,15 @@ class ModelSetup():
         self.atom_proposition_constraints = find_prop_constraints(frame, self.sentence_letters)
         self.premise_constraints = frame.find_premise_constraints(self.prefix_premises, frame.w)
         self.conclusion_constraints = frame.find_conclusion_constraints(self.prefix_conclusions, frame.w)
-        self.constraints = (self.frame_constraints +
+        self.constraints = (
+            self.frame_constraints +
             self.atom_proposition_constraints +
             self.premise_constraints +
             self.conclusion_constraints
         )
-
         timeout, z3_model_status, z3_model, model_runtime = self.solve(
                 self.constraints,
-                self.max_time
+                self.max_time # B: ModelSetup has no 'max_time' member; I added a place holder
             )
         self.timeout = timeout
         self.model_status = z3_model_status
@@ -145,18 +153,3 @@ class ModelSetup():
             return True, False, None, None
 
     # ... and so on for ModelSetup object
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

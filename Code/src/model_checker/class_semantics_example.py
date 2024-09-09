@@ -19,16 +19,27 @@ presumably every semantics should have (at leaset bilateral semantics) so maybe 
 to the Frame class as opposed to being required to be defined by the user in their new frame subclass.
 '''
 
+# B: is the idea with the wildcard to suppress explicit imports to make things user friendly?
 from class_semantics_playground import *
 
 
 class BrastMcKieFrame(Frame):
+
+    # B: I commented out assign since I don't think it is needed
     def __init__(self, N):
         super().__init__(N)
+        self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
         self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
-        self.assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
+        self.possible = Function("possible", BitVecSort(N), BoolSort())
+        self.w = BitVec("w", N) # what will be the main world
+        # self.assign = Function("assign", BitVecSort(N), AtomSort, BitVecSort(N))
         self.premise_constraint_behavior = self.true_at # NECESSARY
         self.conclusion_constraint_behavior = self.false_at # NECESSARY
+
+    # B: some of the following definitions are very general; i wonder if they should be included in
+    # the frame definition so as to be inherited by any instance? users wouldn't need to use them
+    # necessarily, but would be there to be called on all the same. some of the definitions below
+    # are more particular to my semantics, so perhaps it makes sense to include those here instead.
 
     def fusion(self, bit_s, bit_t):
         """the result of taking the maximum for each index in bit_s and bit_t
@@ -70,6 +81,7 @@ class BrastMcKieFrame(Frame):
             self.maximal(bit_w),
         )
 
+    # B: this is particular to my semantics so perhaps belongs here
     def max_compatible_part(self, bit_x, bit_w, bit_y):
         """bit_x is the biggest part of bit_w that is compatible with bit_y.
         returns a Z3 constraint"""
@@ -90,6 +102,9 @@ class BrastMcKieFrame(Frame):
             ),
         )
 
+    # B: this is particular to my semantics so perhaps belongs here
+    # B: why is the last line REMOVABLE?
+    # B: should 'Exists' be added for 'z' now that we have defined the quantifiers?
     def is_alternative(self, bit_u, bit_y, bit_w):
         """
         bit_u is a world that is the alternative that results from imposing state bit_y on
@@ -103,37 +118,41 @@ class BrastMcKieFrame(Frame):
             And(self.is_part_of(z, bit_u), self.max_compatible_part(z, bit_w, bit_y)), # REMOVABLE
         )
 
+    # B: this looks good!
     def true_at(self, prefix_sentence, eval_world): # NECESSARY
         if len(prefix_sentence) == 1:
-                sent = prefix_sentence[0]
-                if 'top' not in str(sent)[0]: # top const alr in model, see find_model_constraints
-                    x = BitVec("t_atom_x", N)
-                    return Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent))) # REMOVABLE
+            sent = prefix_sentence[0]
+            if 'top' not in str(sent)[0]: # top const alr in model, see find_model_constraints
+                x = BitVec("t_atom_x", N)
+                return Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent))) # REMOVABLE
         operator = self.operator_dict[prefix_sentence[0]] # operator is a dict, the kw passed into add_operator
         args = prefix_sentence[1:]
-        return operator['true_at'](args, eval_world)
+        return operator['true_at'](*args, eval_world) # B: i assume this is what we want instead of the below
+        # return operator['true_at'](args, eval_world)
 
     def false_at(self, prefix_sentence, eval_world): # NECESSARY
         if len(prefix_sentence) == 1:
             sent = prefix_sentence[0]
-            x = BitVec("f_atom_x", N)
-            return Exists(x, And(self.is_part_of(x, eval_world), self.falsify(x, sent))) # REMOVABLE
+            if 'bot' not in str(sent)[0]: # B: i've added this to match true_at
+                x = BitVec("f_atom_x", N)
+                return Exists(x, And(self.is_part_of(x, eval_world), self.falsify(x, sent))) # REMOVABLE
         operator = self.operator_dict[prefix_sentence[0]] # operator is a dict, the kw passed into add_operator
         args = prefix_sentence[1:]
-        return operator['false_at'](*args, eval_world)
-    
+        return operator['false_at'](*args, eval_world) # B: i assume this is what we want instead of the below
+        # return operator['false_at'](args, eval_world)
+
     def frame_constraints(self): # NECESSARY
         x = BitVec("frame_x", N)
         y = BitVec("frame_y", N)
         z = BitVec("frame_z", N)
-        u = BitVec("frame_u", N)
         frame_constraints = [
             ForAll([x, y], Implies(And(self.possible(y), self.is_part_of(x, y)), self.possible(x))),
             ForAll([x, y], Exists(z, self.fusion(x, y) == z)),
             self.is_world(self.w),
         ]
         return frame_constraints
-    
+
+    # B: this seems like a good place to start!
     def proposition_definition(self, atom): # NECESSARY
         '''
         currently does not have contingent props. commented code (null_cons and skolem, latter of
@@ -176,20 +195,45 @@ class BrastMcKieFrame(Frame):
 
 N = 3
 frame = BrastMcKieFrame(N)
+
+# B: these look great!
+# B: I was thinking that operators would be classes and would include various methods and attributes
+# B: modularity would be helped if operator classes could be defined independent of a frame
+# B: if need be, we might consider defining something general which both the frame and operators could reference
+# B: the reason for wanting the operators to be independent of the constraints on a proposition etc., is so
+# that one could potentially compare frames using the same operators in just the same way that one could compare
+# operators over the same frame in order to facilitate systematic comparisons between systems
 frame.add_operator('\\neg',
-                   true_at=lambda arg, eval_world: frame.false_at(arg, eval_world),
-                   false_at=lambda arg, eval_world: frame.true_at(arg, eval_world),
-                   arity=1),
+                   true_at = lambda arg, eval_world: frame.false_at(arg, eval_world),
+                   false_at = lambda arg, eval_world: frame.true_at(arg, eval_world),
+                   arity=1)
+
 frame.add_operator('\\wedge',
-                   true_at=lambda X, Y, eval_world: And(frame.true_at(X, eval_world), frame.true_at(Y, eval_world)),
-                   false_at=lambda X, Y, eval_world: Or(frame.false_at(X, eval_world), frame.false_at(Y, eval_world)),
-                   arity=2)
-frame.add_operator('\\vee',
-                   true_at=lambda X, Y, eval_world: Or(frame.true_at(X, eval_world), frame.true_at(Y, eval_world)),
-                   false_at=lambda X, Y, eval_world: And(frame.false_at(X, eval_world), frame.false_at(Y, eval_world)),
+                   true_at = lambda X, Y, eval_world: And(frame.true_at(X, eval_world), frame.true_at(Y, eval_world)),
+                   false_at = lambda X, Y, eval_world: Or(frame.false_at(X, eval_world), frame.false_at(Y, eval_world)),
                    arity=2)
 
-infix_premises = []
-infix_conclusions = []
+frame.add_operator('\\vee',
+                   true_at = lambda X, Y, eval_world: Or(frame.true_at(X, eval_world), frame.true_at(Y, eval_world)),
+                   false_at = lambda X, Y, eval_world: And(frame.false_at(X, eval_world), frame.false_at(Y, eval_world)),
+                   arity=2)
+
+# # B: my linter thinks the lambdas may not be necessary. here is an alternative for neg:
+# # B: using functions as below might help readability for users
+# def neg_true_at(arg, eval_world):
+#     return frame.false_at(arg, eval_world)
+#
+# def neg_false_at(arg, eval_world):
+#     return frame.true_at(arg, eval_world)
+#
+# frame.add_operator(
+#     '\\neg',
+#     true_at=neg_true_at,
+#     false_at=neg_false_at,
+#     arity=1
+# )
+
+infix_premises = ['A vee B', 'neg A']
+infix_conclusions = ['B']
 model_setup = ModelSetup(frame, infix_premises, infix_conclusions)
 # model_setup.solve() # ... and so on. The rest would ideally proceed as before.
