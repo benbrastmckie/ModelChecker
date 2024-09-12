@@ -2,6 +2,13 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
+## Plan
+
+- architecture
+- implementation
+- api
+- alternative systems
+
 ## Patch
 
 - [:] print constraints same for unsat and sat
