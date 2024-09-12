@@ -4,10 +4,21 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Plan
 
-- architecture
+- class architecture
 - implementation
+  - ModelSetup class
+  - Operator classes
+    - extensional
+    - counterfactual
+    - modal
+    - extremal
+    - constitutive
+  - Semantics class
+    - Proposition class
+  - ModelStructure class
 - api
 - alternative systems
+- documentation
 
 ## Patch
 
