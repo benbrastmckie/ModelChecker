@@ -26,8 +26,36 @@ Everything after would follow exactly as is in the class semantics doc, with fra
 being accessible to the ModelSetup object by making the Frame object an attribute of the
 ModelSetup object or something of that sort. 
 '''
-# TODO: what methods must every frame have (and thus can go in Frame class), and likewise, what
-# methods must every operator have? 
+# M: what methods must every frame have (and thus can go in Frame class)?
+# B: I think we should rename 'Frame' to 'Semantics'
+# B: it should include at least:
+# premise_constraint_behavior,
+# conclusion_constraint_behavior,
+# add_operator
+# methods for operating on bitvectors and their representations as states
+# methods for truth and falsity of a sentence at a world state
+# method including all frame constraints
+# method providing all model constraints which assign sentences to propositions
+
+# B: since the semantics class above wants to include a method which requires each sentence letter to
+# satisfy the Z3 constraints for propositions, there is some dependence here on what a proposition is
+# it might make sense to make Proposition a subclass of the semantics which will have instances for
+# each subsentence of the premises and conclusions given a Z3 model
+
+# B: the Proposition subclass will include at least
+# prefix and infix expressions
+# verifier and falsifier bitvectors
+# verifier and falsifier states
+# truth value at a world
+# methods for printing
+
+# M: what methods must every operator have?
+# B: it should include at least:
+# truth at a world
+# falsity at a world
+# verification at a world
+# falsification at a world
+# methods for printing propositions
 
 import time
 from z3 import (
