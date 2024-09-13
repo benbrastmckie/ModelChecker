@@ -1,7 +1,7 @@
 from z3 import *
-from syntax import AtomSort
+from src.model_checker.syntax import AtomSort
 
-class Semantics():
+class Semantics:
     def __init__(self, N):
         self.N = N
         self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
@@ -49,10 +49,7 @@ class Semantics():
             self.possible(bit_w),
             self.maximal(bit_w),
         )
-    
-    # TODO: should max_compatible_parts (and similar) also be in here?
-    # B: this is particular to my semantics so perhaps belongs here
-    # M: so all of above can be moved into the generic Frame class?
+
     def max_compatible_part(self, bit_x, bit_w, bit_y):
         """bit_x is the biggest part of bit_w that is compatible with bit_y.
         returns a Z3 constraint"""
@@ -73,12 +70,6 @@ class Semantics():
             ),
         )
 
-    # B: this is particular to my semantics so perhaps belongs here
-    # B: why is the last line REMOVABLE?
-    # B: should 'Exists' be added for 'z' now that we have defined the quantifiers?
-    # M: those comments were relics of the old semantics, I just copy/pasted the code from
-    # that so any comments also made their way in here. If they're outdated and just hadn't
-    # been removed from the master branch then they're also fine to be removed here
     def is_alternative(self, bit_u, bit_y, bit_w):
         """
         bit_u is a world that is the alternative that results from imposing state bit_y on
@@ -89,10 +80,9 @@ class Semantics():
         return And(
             self.is_world(bit_u),
             self.is_part_of(bit_y, bit_u),
-            And(self.is_part_of(z, bit_u), self.max_compatible_part(z, bit_w, bit_y)), # REMOVABLE
+            And(self.is_part_of(z, bit_u), self.max_compatible_part(z, bit_w, bit_y)),
         )
-
-    # B: this looks good!
+    
     def true_at(self, prefix_sentence, eval_world): # NECESSARY
         if len(prefix_sentence) == 1:
             sent = prefix_sentence[0]
@@ -100,7 +90,8 @@ class Semantics():
                 # M: I'm not entirely sure where to deal with top, this is here only because it
                 # was in the old code (hopefully it ends up working just as before too)
                 x = BitVec("t_atom_x", self.N)
-                return Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent))) # REMOVABLE
+                return Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent)))
+        # TODO: change how operators work once that class is made
         operator = self.operator_dict[prefix_sentence[0]] # operator is a dict, the kw passed into add_operator
         args = prefix_sentence[1:]
         return operator['true_at'](*args, eval_world) # B: i assume this is what we want instead of the below
@@ -112,11 +103,12 @@ class Semantics():
             if 'bot' not in str(sent)[0]: # B: i've added this to match true_at
                 x = BitVec("f_atom_x", self.N)
                 return Exists(x, And(self.is_part_of(x, eval_world), self.falsify(x, sent))) # REMOVABLE
+        # TODO: change how operators work once that class is made
         operator = self.operator_dict[prefix_sentence[0]] # operator is a dict, the kw passed into add_operator
         args = prefix_sentence[1:]
         return operator['false_at'](*args, eval_world) # B: i assume this is what we want instead of the below
 
-    def frame_constraints(self): # NECESSARY
+    def frame_constraints(self):
         x = BitVec("frame_x", self.N)
         y = BitVec("frame_y", self.N)
         z = BitVec("frame_z", self.N)
@@ -127,9 +119,7 @@ class Semantics():
         ]
         return frame_constraints
 
-    # B: this seems like a good place to start!
-    # I think this would be model contraints?
-    def proposition_definition(self, atom): # NECESSARY
+    def model_constraints(self, atom):
         '''
         currently does not have contingent props. commented code (null_cons and skolem, latter of
         which was no longer needed) in addition to contingent props was deleted for space
@@ -137,6 +127,8 @@ class Semantics():
         x = BitVec("prop_x", self.N)
         y = BitVec("prop_y", self.N)
         return [
+            Not(self.verify(0, atom)), # TODO: M: B, are these necessary? Were not in class_semantics_playground but were in original file
+            Not(self.falsify(0, atom)),
             ForAll(
                 [x, y],
                 Implies(
@@ -168,5 +160,49 @@ class Semantics():
             ),
         ]
 
-class Operator():
+class Operator:
+    def __str__(self):
+        return self.name
+
+class Proposition:
     pass
+
+class AndOperator(Operator):
+    def __init__(self, semantics):
+        self.arity=2
+        self.semantics = semantics
+        self.name = '\\wedge'
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        sem = self.semantics
+        return And(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
+    
+    def false_at(self, leftarg, rightarg, eval_world):
+        sem = self.semantics
+        return Or(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
+    
+class OrOperator(Operator):
+    def __init__(self, semantics):
+        self.arity=2
+        self.semantics = semantics
+        self.name = '\\vee'
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        sem = self.semantics
+        return Or(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
+    
+    def false_at(self, leftarg, rightarg, eval_world):
+        sem = self.semantics
+        return And(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
+    
+class NegOperator(Operator):
+    def __init__(self, semantics):
+        self.arity=1
+        self.semantics = semantics
+        self.name = '\\neg'
+
+    def true_at(self, arg, eval_world):
+        return self.semantics.false_at(arg, eval_world)
+    
+    def false_at(self, arg, eval_world):
+        return self.semantics.true_at(arg, eval_world)
