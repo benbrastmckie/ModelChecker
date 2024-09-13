@@ -4,21 +4,93 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Plan
 
-- class architecture
-- implementation
-  - ModelSetup class
-  - Operator classes
-    - extensional
-    - counterfactual
-    - modal
-    - extremal
-    - constitutive
-  - Semantics class
-    - Proposition class
-  - ModelStructure class
+- [.] class architecture
+- [ ] implementation
 - api
-- alternative systems
+- alternative semantics
 - documentation
+
+## Implementation
+
+1. [ ] ModelSetup class for storing user inputs and their results:
+  - [ ] arguments: operator classes, semantics class
+  - [ ] attributes:
+    - [ ] settings and flags
+    - [ ] premises and conclusions
+    - [ ] prefix premises and conclusions
+    - [ ] all subsentences of the premises and conclusions
+    - [ ] sentence letters
+    - [ ] Z3 constraints including (drawing on methods from semantics and operator classes):
+      - frame constraints
+      - model constraints (currently called proposition constraints)
+      - premise constraints
+      - conclusion constraints
+  - [ ] methods:
+    - [ ] infix to prefix method
+    - [ ] subsentences extraction method
+    - [ ] sentence letters extraction method
+2. [ ] An Operator class for each primitive operator:
+  - [ ] attribute for arity
+  - [ ] methods for truth and falsity at a world
+  - [ ] methods for verification and falsification at a world
+  - [ ] printing methods
+  - [ ] operators to implement:
+    - [ ] extensional
+    - [ ] counterfactual
+    - [ ] modal
+    - [ ] extremal
+    - [ ] constitutive
+3. [ ] Semantics class:
+  - [ ] attributes for Z3 primitives:
+    - verify
+    - falsify
+    - possible
+    - main world
+  - [ ] semantic methods:
+    - all bits
+    - possible bits
+    - compatible bits
+    - maximal bits
+    - world bits
+    - alt bits
+  - [ ] printing methods:
+    - verifiers for a sentence
+    - falsify for a sentence
+    - state fusion
+    - state parthood
+    - possible states
+    - compatible states
+    - world states
+    - alt states
+  - [ ] constraint methods:
+    - premise and conclusion behavior
+    - frame constraints
+    - model constraints (assigning each sentence letter to a proposition)
+4. [ ] Proposition subclass of the Semantics with an instance for each subsentence:
+  - [ ] syntactic attributes:
+    - prefix sentence
+    - infix sentence
+    - main operator
+  - [ ] semantic attributes:
+    - verifier bits
+    - falsifier bits
+    - truth world bits
+    - alt world bit dictionary
+  - [ ] printing attributes:
+    - verifier states
+    - falsifier states
+    - truth world states
+    - alt world state dictionary
+5. [ ] ModelStructure class:
+  - arguments: ModelSetup instance
+  - resulting Z3 model including:
+    - timeout value
+    - model status
+    - Z3 model
+    - model runtime
+  - all propositions for the subsentences of the premises and conclusions
+  - general methods for printing
+  - general methods for saving output 
 
 ## Patch
 
