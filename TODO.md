@@ -83,12 +83,13 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - alt world state dictionary
 5. [ ] ModelStructure class:
   - arguments: ModelSetup instance
-  - resulting Z3 model including:
-    - timeout value
-    - model status
-    - Z3 model
-    - model runtime
-  - all propositions for the subsentences of the premises and conclusions
+  - attributes:
+    - resulting Z3 model including:
+      - timeout value
+      - model status
+      - Z3 model
+      - model runtime
+    - dictionary for all propositions for all subsentences
   - general methods for printing
   - general methods for saving output 
 
