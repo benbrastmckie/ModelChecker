@@ -1,5 +1,5 @@
-from z3 import *
-from src.model_checker.syntax import AtomSort
+from z3 import * # feel free to change if your linter's going crazy
+from syntax import AtomSort
 
 class Semantics:
     def __init__(self, N):
@@ -8,8 +8,22 @@ class Semantics:
         self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
         self.possible = Function("possible", BitVecSort(N), BoolSort())
         self.operator_dict = {}
-        self.w = BitVec("w", N) # what will be the main world
-    
+        self.w = BitVec("w", N) # what will be the main world. CALLED w, NOT main_world
+        x, y, z = BitVecs("frame_x frame_y frame_z", N)
+        self.frame_constraints = [
+            ForAll([x, y], Implies(And(self.possible(y), self.is_part_of(x, y)), self.possible(x))),
+            ForAll([x, y], Exists(z, self.fusion(x, y) == z)),
+            self.is_world(self.w),
+        ]
+        self.premise_behavior = None
+        self.conclusion_behavior = None
+
+    def set_premise_behavior(self, func):
+        self.premise_behavior = func
+
+    def set_conclusion_behavior(self, func):
+        self.conclusion_behavior = func
+
     def fusion(self, bit_s, bit_t):
         """the result of taking the maximum for each index in bit_s and bit_t
         returns a Z3 constraint"""
@@ -108,7 +122,7 @@ class Semantics:
         args = prefix_sentence[1:]
         return operator['false_at'](*args, eval_world) # B: i assume this is what we want instead of the below
 
-    def frame_constraints(self):
+    def find_frame_constraints(self):
         x = BitVec("frame_x", self.N)
         y = BitVec("frame_y", self.N)
         z = BitVec("frame_z", self.N)
@@ -119,7 +133,7 @@ class Semantics:
         ]
         return frame_constraints
 
-    def model_constraints(self, atom):
+    def find_model_constraints(self, atom):
         '''
         currently does not have contingent props. commented code (null_cons and skolem, latter of
         which was no longer needed) in addition to contingent props was deleted for space
@@ -128,7 +142,7 @@ class Semantics:
         y = BitVec("prop_y", self.N)
         return [
             Not(self.verify(0, atom)), # TODO: M: B, are these necessary? Were not in class_semantics_playground but were in original file
-            Not(self.falsify(0, atom)),
+            Not(self.falsify(0, atom)), # (continuing above) not sure if it was an accidental deletion on my part or an actual change
             ForAll(
                 [x, y],
                 Implies(
@@ -160,17 +174,22 @@ class Semantics:
             ),
         ]
 
-class Operator:
+class Operator: # this class could be hidden
     def __str__(self):
         return self.name
+    
+    def __eq__(self, other): # currently unused but may be nice to have
+        if self.name == other.name and self.arity == other.arity:
+            return True
+        return False
 
 class Proposition:
     pass
 
 class AndOperator(Operator):
     def __init__(self, semantics):
-        self.arity=2
         self.semantics = semantics
+        self.arity=2
         self.name = '\\wedge'
 
     def true_at(self, leftarg, rightarg, eval_world):
@@ -183,8 +202,8 @@ class AndOperator(Operator):
     
 class OrOperator(Operator):
     def __init__(self, semantics):
-        self.arity=2
         self.semantics = semantics
+        self.arity=2
         self.name = '\\vee'
 
     def true_at(self, leftarg, rightarg, eval_world):
@@ -197,8 +216,8 @@ class OrOperator(Operator):
     
 class NegOperator(Operator):
     def __init__(self, semantics):
-        self.arity=1
         self.semantics = semantics
+        self.arity=1
         self.name = '\\neg'
 
     def true_at(self, arg, eval_world):
