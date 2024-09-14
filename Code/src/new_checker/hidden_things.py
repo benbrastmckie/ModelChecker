@@ -1,65 +1,54 @@
-from src.model_checker.syntax import prefix
+from z3 import *
+import time
+from syntax import prefix
+from src.model_checker.model_definitions import find_subsentences
+from src.model_checker.semantics import all_sentence_letters
 
 class ModelSetup:
-    def __init__(self, infix_premises, infix_conclusions, semantics, max_time, contingent, disjoint):
+    def __init__(self, infix_premises, infix_conclusions, semantics, max_time, contingent, operators_list):
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
         self.semantics = semantics
+        self.operators = operators_list
         self.max_time = max_time
         self.contingent = contingent
         self.disjoint = disjoint
 
-        self.prefix_premises = [prefix(prem) for prem in infix_premises]
-        self.prefix_conclusions = [prefix(con) for con in infix_conclusions]
+        self.prefix_premises = [prefix(prem, self) for prem in infix_premises]
+        self.prefix_conclusions = [prefix(con, self) for con in infix_conclusions]
         prefix_sentences = self.prefix_premises + self.prefix_conclusions
-        # need to:
-            # find all subsentences
-            # find all constraints
-            # and that's basically it! 
+        self.all_subsentences = find_subsentences(prefix_sentences)
+        self.all_sentence_letters = all_sentence_letters(prefix_sentences)
+        
+        self.frame_constraints = semantics.frame_constraints
+        self.model_constraints = [semantics.find_model_constraints(sl) for sl in self.all_sentence_letters]
+        self.premise_constraints = [semantics.premise_behavior(prem, semantics.w) for prem in self.prefix_premises]
+        self.conclusion_constraints = [semantics.conclusion_behavior(conc, semantics.w) for conc in self.prefix_conclusions]
+        self.all_constraints = (self.frame_constraints + self.model_constraints + 
+                                self.premise_constraints + self.conclusion_constraints)
 
-    def build_test_file(self, output):
-        """generates a test file from input to be saved"""
-        inputs_data = {
-            "N": self.N,
-            "premises": self.infix_premises,
-            "conclusions": self.infix_conclusions,
-            "runtime": self.model_runtime,
-            "max_time": self.max_time,
-        }
-        inputs_content = inputs_template.substitute(inputs_data)
-        print(inputs_content, file=output)
-
-    def print_enumerate(self, output):
-        """prints the premises and conclusions with numbers"""
-        infix_premises = self.infix_premises
-        infix_conclusions = self.infix_conclusions
-        start_con_num = len(infix_premises) + 1
-        if self.infix_premises:
-            if len(self.infix_premises) < 2:
-                print("Premise:", file=output)
-            else:
-                print("Premises:", file=output)
-            for index, sent in enumerate(self.infix_premises, start=1):
-                print(f"{index}. {sent}", file=output)
-        if infix_conclusions:
-            if len(infix_conclusions) < 2:
-                print("\nConclusion:", file=output)
-            else:
-                print("\nConclusions:", file=output)
-            for index, sent in enumerate(infix_conclusions, start=start_con_num):
-                print(f"{index}. {sent}", file=output)
+    def solve(self):
+        solver = Solver()
+        solver.add(self.all_constraints)
+        solver.set("timeout", int(self.max_time * 1000)) # in milliseconds
+        try:
+            model_start = time.time()  # start benchmark timer
+            result = solver.check()
+            model_end = time.time()
+            model_runtime = round(model_end - model_start, 4)
+            if result == sat:
+                return False, True, solver.model(), model_runtime
+            if solver.reason_unknown() == "timeout":
+                return True, False, None, model_runtime
+            return False, False, solver.unsat_core(), model_runtime
+        except RuntimeError as e:
+            # Handle unexpected exceptions
+            print(f"An error occurred while running `solve_constraints()`: {e}")
+            return True, False, None, None
 
     def __str__(self):
         '''useful for using model-checker in a python file'''
         return f'ModelSetup for premises {self.infix_premises} and conclusions {self.infix_conclusions}'
-
-    def __bool__(self):
-        '''returns the value of self.model_status (ie, whether the z3 model was solved)
-        reasoning: say ms is a ModelSetup object. Now we can check its model_status by doing:
-        if ms: # as opposed to if ms.model_status
-            (do_something)
-        '''
-        return self.model_status
 
 class ModelStructure:
     pass
