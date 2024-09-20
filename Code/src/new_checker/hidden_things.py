@@ -1,11 +1,27 @@
-from z3 import *
+from z3 import (
+    sat,
+    Solver,
+)
 import time
 from syntax import prefix
 from src.model_checker.model_definitions import find_subsentences
 from src.model_checker.semantics import all_sentence_letters
 
+# B: this looks really clean!
 class ModelSetup:
-    def __init__(self, infix_premises, infix_conclusions, semantics, max_time, contingent, operators_list):
+
+    # B: there are a lot or arguments for the class. could it make sense to define an Input class
+    # and pass that class to ModelSetup alongside semantics and operators_list?
+    def __init__(
+            self,
+            infix_premises,
+            infix_conclusions,
+            semantics,
+            max_time,
+            contingent,
+            disjoint,
+            operators_list
+        ):
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
         self.semantics = semantics
@@ -27,6 +43,8 @@ class ModelSetup:
         self.all_constraints = (self.frame_constraints + self.model_constraints + 
                                 self.premise_constraints + self.conclusion_constraints)
 
+    # B: should this go into ModelStructure? I was thinking ModelSetup would include everything
+    # short of running the solver and that the ModelStructure would start off by running the solver
     def solve(self):
         solver = Solver()
         solver.add(self.all_constraints)

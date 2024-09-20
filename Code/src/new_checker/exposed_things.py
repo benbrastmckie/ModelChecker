@@ -1,4 +1,16 @@
-from z3 import * # feel free to change if your linter's going crazy
+from z3 import (
+    And,
+    BitVec,
+    BitVecSort,
+    BitVecs,
+    BoolSort,
+    Exists,
+    ForAll,
+    Function,
+    Implies,
+    Not,
+    Or,
+)
 from syntax import AtomSort
 
 class Semantics:
@@ -9,18 +21,25 @@ class Semantics:
         self.possible = Function("possible", BitVecSort(N), BoolSort())
         self.operator_dict = {}
         self.w = BitVec("w", N) # what will be the main world. CALLED w, NOT main_world
-        x, y, z = BitVecs("frame_x frame_y frame_z", N)
+        x, y, z = BitVecs("frame_x frame_y frame_z", N) # B: this makes sense!
         self.frame_constraints = [
             ForAll([x, y], Implies(And(self.possible(y), self.is_part_of(x, y)), self.possible(x))),
             ForAll([x, y], Exists(z, self.fusion(x, y) == z)),
             self.is_world(self.w),
         ]
+        # B: could specify the 'true_at()' and 'false_at()' here so that other users might replace
+        # 'false_at' with a function 'Not(true_at())' and wouldn't need to change the behavior
+        # methods below. or was something else intended here?
         self.premise_behavior = None
         self.conclusion_behavior = None
 
+    # B: maybe I'm not getting this, but I would have thought the methods here would take a list of
+    # prefix_premises and return a conjunction of true_at(prem) for each prem in prefix_premises
     def set_premise_behavior(self, func):
         self.premise_behavior = func
 
+    # B: the conclusion method would be similar but would return a disjunction of false_at(prem)
+    # for each prem in prefix_conclusions, but others might change this to Not(true_at(prem))
     def set_conclusion_behavior(self, func):
         self.conclusion_behavior = func
 
@@ -103,13 +122,16 @@ class Semantics:
             if 'top' not in str(sent)[0]: # top const alr in model, see find_model_constraints
                 # M: I'm not entirely sure where to deal with top, this is here only because it
                 # was in the old code (hopefully it ends up working just as before too)
+                # B: 'top' is really a zero-place operator and looks like sentence letter 
+                # one downside to the current implementation is if a user wants to have a sentence
+                # like '(andy_toppled \wedge sara_cried)' since 'top' occurs here. maybe best to
+                # require operators to be written with a backslash and then make '\top' an operator
                 x = BitVec("t_atom_x", self.N)
                 return Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent)))
         # TODO: change how operators work once that class is made
         operator = self.operator_dict[prefix_sentence[0]] # operator is a dict, the kw passed into add_operator
         args = prefix_sentence[1:]
-        return operator['true_at'](*args, eval_world) # B: i assume this is what we want instead of the below
-        # M: yes, good catch!
+        return operator['true_at'](*args, eval_world)
 
     def false_at(self, prefix_sentence, eval_world): # NECESSARY
         if len(prefix_sentence) == 1:
@@ -122,6 +144,7 @@ class Semantics:
         args = prefix_sentence[1:]
         return operator['false_at'](*args, eval_world) # B: i assume this is what we want instead of the below
 
+    # B: can we drop these now if frame_constraints is an attribute?
     def find_frame_constraints(self):
         x = BitVec("frame_x", self.N)
         y = BitVec("frame_y", self.N)
@@ -174,12 +197,14 @@ class Semantics:
             ),
         ]
 
-class Operator: # this class could be hidden
+# M: this class could be hidden
+# B: i agree, or at least can't think of a reason to expose this now
+class Operator:
     def __str__(self):
-        return self.name
-    
+        return self.name # B: Instance of 'Operator' has no 'name' member
+
     def __eq__(self, other): # currently unused but may be nice to have
-        if self.name == other.name and self.arity == other.arity:
+        if self.name == other.name and self.arity == other.arity: # B: Attribute 'arity' is unknown
             return True
         return False
 
@@ -187,41 +212,55 @@ class Proposition:
     pass
 
 class AndOperator(Operator):
+    """doc string place holder"""
+
+    # B: is 'semantics' a placeholder? or is a Semantics passed to AndOperator?
     def __init__(self, semantics):
         self.semantics = semantics
-        self.arity=2
+        self.arity = 2
         self.name = '\\wedge'
 
+    # B: this looks great!
     def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
         sem = self.semantics
         return And(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
-    
+
     def false_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
         sem = self.semantics
         return Or(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
-    
+
 class OrOperator(Operator):
+    """doc string place holder"""
+
     def __init__(self, semantics):
         self.semantics = semantics
-        self.arity=2
+        self.arity = 2
         self.name = '\\vee'
 
     def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
         sem = self.semantics
         return Or(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
-    
+
     def false_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
         sem = self.semantics
         return And(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
-    
+
 class NegOperator(Operator):
+    """doc string place holder"""
+
     def __init__(self, semantics):
         self.semantics = semantics
-        self.arity=1
+        self.arity = 1
         self.name = '\\neg'
 
     def true_at(self, arg, eval_world):
+        """doc string place holder"""
         return self.semantics.false_at(arg, eval_world)
-    
+
     def false_at(self, arg, eval_world):
+        """doc string place holder"""
         return self.semantics.true_at(arg, eval_world)
