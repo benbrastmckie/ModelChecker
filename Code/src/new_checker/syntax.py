@@ -67,7 +67,8 @@ def tokenize(str_exp):
     >>> tokenize('/neg A')
     ['/neg', 'A']
     """
-    split_str = str_exp.split()  # small issue here with doctest cases and backslashes
+    # small issue here with doctest cases and backslashes
+    split_str = str_exp.split() # splits string into list of words
 
     def tokenize_improved_input(split_str):
         if len(split_str) == 1:

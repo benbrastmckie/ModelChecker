@@ -142,19 +142,7 @@ class Semantics:
         # TODO: change how operators work once that class is made
         operator = self.operator_dict[prefix_sentence[0]] # operator is a dict, the kw passed into add_operator
         args = prefix_sentence[1:]
-        return operator['false_at'](*args, eval_world) # B: i assume this is what we want instead of the below
-
-    # B: can we drop these now if frame_constraints is an attribute?
-    def find_frame_constraints(self):
-        x = BitVec("frame_x", self.N)
-        y = BitVec("frame_y", self.N)
-        z = BitVec("frame_z", self.N)
-        frame_constraints = [
-            ForAll([x, y], Implies(And(self.possible(y), self.is_part_of(x, y)), self.possible(x))),
-            ForAll([x, y], Exists(z, self.fusion(x, y) == z)),
-            self.is_world(self.w),
-        ]
-        return frame_constraints
+        return operator['false_at'](*args, eval_world)
 
     def find_model_constraints(self, atom):
         '''
@@ -197,8 +185,7 @@ class Semantics:
             ),
         ]
 
-# M: this class could be hidden
-# B: i agree, or at least can't think of a reason to expose this now
+# TODO: this class could be hidden later
 class Operator:
     def __str__(self):
         return self.name # B: Instance of 'Operator' has no 'name' member
@@ -214,7 +201,6 @@ class Proposition:
 class AndOperator(Operator):
     """doc string place holder"""
 
-    # B: is 'semantics' a placeholder? or is a Semantics passed to AndOperator?
     def __init__(self, semantics):
         self.semantics = semantics
         self.arity = 2
