@@ -920,6 +920,7 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         x = BitVec("prop_x", N)
         y = BitVec("prop_y", N)
         sent_to_prop = [
+            # TODO: make default which can be turned off
             Not(verify(0, atom)),
             Not(falsify(0, atom)),
             ForAll(
