@@ -154,6 +154,7 @@ class Semantics:
         return [
             Not(self.verify(0, atom)), # TODO: M: B, are these necessary? Were not in class_semantics_playground but were in original file
             Not(self.falsify(0, atom)), # (continuing above) not sure if it was an accidental deletion on my part or an actual change
+            # B: these should be included given the default values `contingent = false` and `null = true`
             ForAll(
                 [x, y],
                 Implies(
@@ -190,7 +191,7 @@ class Operator:
     def __str__(self):
         return self.name # B: Instance of 'Operator' has no 'name' member
 
-    def __eq__(self, other): # currently unused but may be nice to have
+    def __eq__(self, other): # M: currently unused but may be nice to have
         if self.name == other.name and self.arity == other.arity: # B: Attribute 'arity' is unknown
             return True
         return False
