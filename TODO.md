@@ -4,8 +4,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Plan
 
-- [.] class architecture
-- [ ] implementation
+- [:] class architecture
+- [.] implementation
 - api
 - alternative semantics
 - documentation

@@ -8,10 +8,14 @@ The unary operators are defined in a separate set for clarity in the code.
 """
 from z3 import Const, DeclareSort
 
-
 AtomSort = DeclareSort("AtomSort")
+
+# B: do we use this? I remember that it works with sentences like '(john_ran \wedge sue_sang)'
 capital_alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
                     "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",}
+
+# B: I think it may make sense to require operators to have a backslash so as to allow for
+# sentence letters like 'john_toppled_over' since this may be very helpful in practice
 unary_operators = {
     "\\neg", "neg",
     "\\not", "not",
@@ -33,7 +37,7 @@ binary_operators = {
 }
 all_operators = unary_operators.union(binary_operators)
 
-
+# B: if we fix the convention that backslashes are required for operators, can we drop this?
 def add_double_backslashes(tokens):
     """adds a double backslash to tokens in the output of tokenize that meet these 3 conditions:
     1. are not capital letters,
@@ -114,7 +118,6 @@ def binary_comp(tokenized_expression):
     """
     return len([char for char in tokenized_expression if char == "("])
 
-
 def main_op_index(tokenized_expression):
     """
     given an expression with complexity > 0, finds the index of the main operator.
@@ -173,7 +176,8 @@ def find_operator(op_str, model_setup):
     raise ValueError(f"did not recognize operator with name {op_str} out of "+
                      f"available operators {model_setup.operators}")
 
-def parse(tokens):
+# B: I added model_setup as an argument since it seemed to be needed as in find_operator
+def parse(tokens, model_setup):
     """
     >>> parse(tokenize("(A /wedge (B /lor C))"))
     ['/wedge', ['A'], ['/lor', ['B'], ['C']]]
@@ -189,7 +193,7 @@ def parse(tokens):
     """
     bin_comp_tokens = binary_comp(tokens)
     if tokens[0] in unary_operators:  # must go before bin_comp_tokens == 0 case
-        return [find_operator(tokens[0]), parse(tokens[1:])]
+        return [find_operator(tokens[0], model_setup), parse(tokens[1:], model_setup)] # B: should 
     if bin_comp_tokens == 0:
         token = tokens[0]
         return [Const(token, AtomSort)]  # Const is a function to make a constant
@@ -202,13 +206,17 @@ def parse(tokens):
     # from pos of op plus 1 to the penultimate, thus excluding the last
     # parentheses, which belongs to the main expression
     right_expression = tokens[main_operator_index + 1 : -1]
-    return [find_operator(op_str), parse(left_expression), parse(right_expression)]
+    return [
+        find_operator(op_str, model_setup),
+        parse(left_expression, model_setup),
+        parse(right_expression, model_setup)
+    ]
 
-
-def prefix(infix_sentence, model_setup): # could actually in principle be moved to ModelSetup
+# M: could actually in principle be moved to ModelSetup
+# B: yes, I think that makes good sense!
+def prefix(infix_sentence, model_setup): 
     """takes a sentence in infix notation and translates it to prefix notation"""
     return parse(tokenize(infix_sentence), model_setup)
-
 
 def infix(prefix_sent):
     """takes a sentence in prefix notation and translates it to infix notation"""
@@ -220,5 +228,3 @@ def infix(prefix_sent):
     left_expr = prefix_sent[1]
     right_expr = prefix_sent[2]
     return f"({infix(left_expr)} {op} {infix(right_expr)})"
-
-# moved unused prefix_combine to the boneyard

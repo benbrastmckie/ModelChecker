@@ -1,5 +1,6 @@
 [MASTER]
 init-hook='import sys; sys.path.append("/nix/store/gga7w47nbyf13ap1f1pvp9ik146z6a98-python3-3.11.6-env/lib/python3.11/site-packages/z3")'
+init-hook='import sys; sys.path.append("src")'
 
 
 [MESSAGES CONTROL] # disables the check for:
