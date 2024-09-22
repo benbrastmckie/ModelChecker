@@ -1,6 +1,9 @@
 from z3 import (
     sat,
     Solver,
+    BoolRef,
+    simplify,
+
 )
 import time
 
@@ -218,15 +221,88 @@ class ModelSetup:
                 return False, True, solver.model(), model_runtime
             if solver.reason_unknown() == "timeout":
                 return True, False, None, model_runtime
-            return False, False, solver.unsat_core(), model_runtime
+            return self, False, False, solver.unsat_core(), model_runtime
         except RuntimeError as e:
             # Handle unexpected exceptions
             print(f"An error occurred while running `solve_constraints()`: {e}")
-            return True, False, None, None
+            return self, True, False, None, None
 
     def __str__(self):
         '''useful for using model-checker in a python file'''
         return f'ModelSetup for premises {self.infix_premises} and conclusions {self.infix_conclusions}'
 
 class ModelStructure:
-    pass
+    def __init__(self, model_setup, timeout, z3_model_status, z3_model, z3_model_runtime):
+        self.model_setup = model_setup
+        self.z3_model = z3_model
+        self.model_status = z3_model_status
+        self.model_runtime = z3_model_runtime
+
+        self.N = model_setup.N
+        self.all_subsentences = model_setup.all_subsentences
+        prefix_sentences = model_setup.prefix_premises + model_setup.prefix_conclusions
+        self.sentence_letters = all_sentence_letters(prefix_sentences)
+
+        self.all_bits = find_all_bits(self.N) # M: can be kept
+        # M: stuff below can hardly be kept. Need to rethink how to do this.
+        self.poss_bits = find_poss_bits(self.z3_model, self.all_bits, model_setup.possible)
+        self.world_bits = find_world_bits(self.poss_bits)
+        self.main_world = self.z3_model[model_setup.w]
+        self.verify = model_setup.verify
+        self.falsify = model_setup.falsify
+
+        self.atomic_props_dict = atomic_propositions_dict_maker(self)
+        self.all_propositions = [
+            Proposition(sent, self, self.main_world) for sent in model_setup.all_subsentences
+        ]
+        self.premise_propositions = [
+            Proposition(sent, self, self.main_world) for sent in model_setup.prefix_premises
+        ]
+        self.conclusion_propositions = [
+            Proposition(sent, self, self.main_world) for sent in model_setup.prefix_conclusions
+        ]
+
+    def evaluate(z3_expr):
+        '''
+        This will get rid of need for all the bit_ functions. 
+        However, it does not get rid of e.g. find_compatible_parts.
+        '''
+        if isinstance(z3_expr, BoolRef):
+            return bool(simplify(z3_expr))
+        return simplify(z3_expr)
+    
+    # for printing methods: 
+    # we can keep the beginning—printing out the premises, conclusions, and whether there
+    # is an N-model of the premises and conclusions. 
+    # the state space also seems easy to print, but we need to add what a user wants printed
+    # and annotated (eg currently ony possible states are printed, and world states are annotated).
+    # The evaluation world can also be included (it's just the main world, which there always
+    # is (...?))
+    # there needs to be a general formula for what an interpretation is.
+        # looking at find_complex_proposition, it looks like we can employ a similar strategy
+        # to the operators bouncing back and forth with the semantics, except this time we
+        # bounce back and forth with wherever the definition of a proposition is
+    
+    # Right now we explicitly save the extension of some functions (verify, falsify—in atomic_props_dict). 
+    # it would be nice if we could choose not to. 
+
+    # or if we made everything a Z3 function? That way we can just do z3model.evalute(*) on all
+    # functions. 
+
+    # to be honest the entirety of the state space is user-dependent. The only thing that we could
+    # do is maybe save the extensions of all the functions. Tbh, not that much for small values of N.
+    # you could then save all those extensions and when you're evaluating you'd just need to check
+    # if a specific set of values is in the extension of the given function. Now the problem is,
+    # how do we know for a generic case what the name of a given function is? Maybe it is better
+    # instead to rely on a method that is like the current evaluate one but for functions. 
+        # as a concrete example take find_compatible_parts in model_definitions rn. Right now,
+        # to find what bits are compatible with a world, you check if some things are in the
+        # extension of other things. With the new implementation, you would simply do
+        # z3_model.evaluate(compatible_parts)
+    
+    # how about you just don't worry about all that stuff? Like, focus on the extensional case.
+    # all that crap only matters for the later stuff anyways.
+
+
+
+
