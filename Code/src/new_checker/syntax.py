@@ -232,12 +232,38 @@ def infix(prefix_sent):
 
 # NEW ATTEMPT
 
-# # NOTE: doesn't seems to be required but could be added if atoms should be singleton lists
-# def drop(tokens):
-#     """Replace a list with its only item if the list contains exactly one item."""
-#     if len(tokens) == 1:
-#         return tokens[0]
-#     return tokens
+def repeats_removed(sentences):
+    '''takes a list and removes the repeats in it.
+    used in find_all_constraints'''
+    seen = []
+    for obj in sentences:
+        if obj not in seen:
+            seen.append(obj)
+    return seen
+
+def subsentences_of(prefix_sentence):
+    '''finds all the subsentence of a prefix sentence
+    returns these as a set
+    used in find_extensional_subsentences'''
+    progress = []
+    progress.append(prefix_sentence)
+    if len(prefix_sentence) == 2:
+        sub_sentsentences = subsentences_of(prefix_sentence[1])
+        return progress + sub_sentsentences
+    if len(prefix_sentence) == 3:
+        left_subsentences = subsentences_of(prefix_sentence[1])
+        right_subsentences = subsentences_of(prefix_sentence[2])
+        all_subsentences = left_subsentences + right_subsentences + progress
+        return repeats_removed(all_subsentences)
+    return progress
+
+def find_subsentences(prefix_sentences):
+    """take a set of prefix sentences and returns a set of all subsentences"""
+    all_subsentences = []
+    for prefix_sent in prefix_sentences:
+        all_prefix_subs = subsentences_of(prefix_sent)
+        all_subsentences.extend(all_prefix_subs)
+    return repeats_removed(all_subsentences)
 
 def left_op_right(tokens):
     """Divides whatever is inside a pair of parentheses into the left argument,
@@ -276,13 +302,11 @@ def left_op_right(tokens):
                 raise ValueError(f"Expected an argument after the operator {operator}")
             right = tokens  # The remaining tokens are the right argument
             return operator, left, right
-            # return operator, drop(left), drop(right)
         
         # Otherwise, assume token is an operator and handle binary expression
         operator = token
         right = tokens
         return operator, left, right
-        # return operator, drop(left), drop(right)
 
     raise ValueError("Invalid expression or unmatched parentheses")
 

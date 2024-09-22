@@ -13,47 +13,45 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Implementation
 
-1. [ ] ModelSetup class for storing user inputs and their results:
-  - [ ] arguments: operator classes, semantics class
-  - [ ] attributes:
-    - [ ] settings and flags
-    - [ ] premises and conclusions
-    - [ ] prefix premises and conclusions
-    - [ ] all subsentences of the premises and conclusions
-    - [ ] sentence letters
-    - [ ] Z3 constraints including (drawing on methods from semantics and operator classes):
-      - frame constraints
-      - model constraints (currently called proposition constraints)
-      - premise constraints
-      - conclusion constraints
-  - [ ] methods:
-    - [ ] infix to prefix method
-    - [ ] subsentences extraction method
-    - [ ] sentence letters extraction method
-2. [ ] An Operator class for each primitive operator:
-  - [ ] attribute for arity
-  - [ ] methods for truth and falsity at a world
-  - [ ] methods for verification and falsification at a world
-  - [ ] printing methods
-  - [ ] operators to implement:
-    - [ ] extensional
-    - [ ] counterfactual
-    - [ ] modal
-    - [ ] extremal
-    - [ ] constitutive
-3. [ ] Semantics class:
-  - [ ] attributes for Z3 primitives:
-    - verify
-    - falsify
-    - possible
-    - main world
-  - [ ] semantic methods:
-    - all bits
-    - possible bits
-    - compatible bits
-    - maximal bits
-    - world bits
-    - alt bits
+1. [x] ModelSetup class for storing user inputs and their results:
+  - [x] arguments: operator classes, semantics class
+  - [x] attributes:
+    - [x] settings and flags
+    - [x] premises and conclusions
+    - [x] prefix premises and conclusions
+    - [x] all subsentences of the premises and conclusions
+    - [x] sentence letters
+    - [x] Z3 constraints including (drawing on methods from semantics and operator classes):
+      - [x] frame constraints
+      - [x] model constraints (currently called proposition constraints)
+      - [x] premise constraints
+      - [x] conclusion constraints
+      - [x] all constraints
+  - [x] methods:
+    - [x] infix to prefix methods
+    - [x] subsentences extraction methods
+    - [x] sentence letters extraction methods
+    - [x] prefix to infix methods
+    - [x] solver
+2. [.] Semantics class:
+  - [x] attributes for Z3 primitives:
+    - [x] verify
+    - [x] falsify
+    - [x] possible
+    - [x] main world
+    - [x] frame constraints
+    - [ ] premise and conclusion behavior
+  - [x] semantic methods:
+    - [x] fusion
+    - [x] parthood
+    - [x] compatible
+    - [x] maximal
+    - [x] world
+    - [x] max-compatible
+    - [x] alternative
+    - [x] true-at
+    - [x] false-at
+    - [x] model constraints (assigning each sentence letter to a proposition)
   - [ ] printing methods:
     - verifiers for a sentence
     - falsify for a sentence
@@ -63,11 +61,23 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - compatible states
     - world states
     - alt states
-  - [ ] constraint methods:
-    - premise and conclusion behavior
-    - frame constraints
-    - model constraints (assigning each sentence letter to a proposition)
-4. [ ] Proposition subclass of the Semantics with an instance for each subsentence:
+3. [ ] An Operator class for each primitive operator:
+  - [:] the Operator class itself
+    - [x] attribute for arity
+    - [x] attribute for name
+    - [ ] confirm changes
+  - [.] for each operator
+    - [x] attribute for semantics
+    - [x] methods for truth and falsity at a world
+    - [ ] methods for verification and falsification at a world
+    - [ ] printing methods
+  - [.] operators to implement:
+    - [x] extensional
+    - [ ] counterfactual
+    - [ ] modal
+    - [ ] extremal
+    - [ ] constitutive
+3. [ ] Proposition subclass of the Semantics with an instance for each subsentence:
   - [ ] syntactic attributes:
     - prefix sentence
     - infix sentence

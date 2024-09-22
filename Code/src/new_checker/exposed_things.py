@@ -20,28 +20,24 @@ class Semantics:
         self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
         self.possible = Function("possible", BitVecSort(N), BoolSort())
         self.operator_dict = {}
-        self.w = BitVec("w", N) # what will be the main world. CALLED w, NOT main_world
-        x, y, z = BitVecs("frame_x frame_y frame_z", N) # B: this makes sense!
+        self.main_world = BitVec("w", N) # B: I figured this might help users
+        x, y, z = BitVecs("frame_x frame_y frame_z", N)
         self.frame_constraints = [
             ForAll([x, y], Implies(And(self.possible(y), self.is_part_of(x, y)), self.possible(x))),
             ForAll([x, y], Exists(z, self.fusion(x, y) == z)),
-            self.is_world(self.w),
+            self.is_world(self.main_world),
         ]
-        # B: could specify the 'true_at()' and 'false_at()' here so that other users might replace
-        # 'false_at' with a function 'Not(true_at())' and wouldn't need to change the behavior
-        # methods below. or was something else intended here?
+        # B: could specify the 'true_at()' and 'false_at()' here so that other users can replace
+        # 'false_at' with a function 'Not(true_at())' without using the methods below
         self.premise_behavior = None
         self.conclusion_behavior = None
 
-    # B: maybe I'm not getting this, but I would have thought the methods here would take a list of
-    # prefix_premises and return a conjunction of true_at(prem) for each prem in prefix_premises
-    def set_premise_behavior(self, func):
-        self.premise_behavior = func
-
-    # B: the conclusion method would be similar but would return a disjunction of false_at(prem)
-    # for each prem in prefix_conclusions, but others might change this to Not(true_at(prem))
-    def set_conclusion_behavior(self, func):
-        self.conclusion_behavior = func
+    # # B: I think we can drop these
+    # def set_premise_behavior(self, func):
+    #     self.premise_behavior = func
+    #
+    # def set_conclusion_behavior(self, func):
+    #     self.conclusion_behavior = func
 
     def fusion(self, bit_s, bit_t):
         """the result of taking the maximum for each index in bit_s and bit_t
@@ -53,10 +49,11 @@ class Semantics:
         returns a Z3 constraint"""
         return self.fusion(bit_s, bit_t) == bit_t
 
-    def non_null_part_of(self, bit_s, bit_t):
-        """bit_s verifies atom and is not the null state
-        returns a Z3 constraint"""
-        return And(Not(bit_s == 0), self.is_part_of(bit_s, bit_t))
+    # B: not sure if this will be needed
+    # def non_null_part_of(self, bit_s, bit_t):
+    #     """bit_s verifies atom and is not the null state
+    #     returns a Z3 constraint"""
+    #     return And(Not(bit_s == 0), self.is_part_of(bit_s, bit_t))
 
     def compatible(self, bit_x, bit_y):
         """the fusion of bit_x and bit_y is possible
@@ -144,6 +141,8 @@ class Semantics:
         args = prefix_sentence[1:]
         return operator['false_at'](*args, eval_world)
 
+    # B: this should go in the Proposition class which will need to be passed to ModelSetup to get
+    # for getting the model_constraints.
     def find_model_constraints(self, atom):
         '''
         currently does not have contingent props. commented code (null_cons and skolem, latter of
@@ -186,18 +185,31 @@ class Semantics:
             ),
         ]
 
-# TODO: this class could be hidden later
-class Operator:
-    def __str__(self):
-        return self.name # B: Instance of 'Operator' has no 'name' member
-
-    def __eq__(self, other): # M: currently unused but may be nice to have
-        if self.name == other.name and self.arity == other.arity: # B: Attribute 'arity' is unknown
-            return True
-        return False
-
 class Proposition:
     pass
+
+# TODO: this class could be hidden later
+class Operator:
+
+    # B: I added this to fix the linter complaints... let me know if this seems right
+    def __init__(self, name=None, arity=None):
+        self.name = name
+        self.arity = arity
+
+    def __str__(self):
+        return self.name if self.name else "Unnamed Operator"
+        # B: I added the above in place of the below
+        # return self.name # B: Instance of 'Operator' has no 'name' member
+
+    def __eq__(self, other):
+        if isinstance(other, Operator):
+            return self.name == other.name and self.arity == other.arity
+        return False
+    # B: I added the above in place of the below
+    # def __eq__(self, other): # M: currently unused but may be nice to have
+    #     if self.name == other.name and self.arity == other.arity: # B: Attribute 'arity' is unknown
+    #         return True
+    #     return False
 
 class AndOperator(Operator):
     """doc string place holder"""
