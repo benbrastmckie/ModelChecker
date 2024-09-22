@@ -113,16 +113,12 @@ class Semantics:
             And(self.is_part_of(z, bit_u), self.max_compatible_part(z, bit_w, bit_y)),
         )
     
-    def true_at(self, prefix_sentence, eval_world): # NECESSARY
+    def true_at(self, prefix_sentence, eval_world):
         if len(prefix_sentence) == 1:
             sent = prefix_sentence[0]
-            if 'top' not in str(sent)[0]: # top const alr in model, see find_model_constraints
-                # M: I'm not entirely sure where to deal with top, this is here only because it
-                # was in the old code (hopefully it ends up working just as before too)
-                # B: 'top' is really a zero-place operator and looks like sentence letter 
-                # one downside to the current implementation is if a user wants to have a sentence
-                # like '(andy_toppled \wedge sara_cried)' since 'top' occurs here. maybe best to
-                # require operators to be written with a backslash and then make '\top' an operator
+            if not sent in {'\\top', '\\bot'}: # sentence letter case
+            # B: it used to look like this:
+            # if 'top' not in str(sent)[0]:
                 x = BitVec("t_atom_x", self.N)
                 return Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent)))
         # TODO: change how operators work once that class is made
@@ -130,10 +126,12 @@ class Semantics:
         args = prefix_sentence[1:]
         return operator['true_at'](*args, eval_world)
 
-    def false_at(self, prefix_sentence, eval_world): # NECESSARY
+    def false_at(self, prefix_sentence, eval_world):
         if len(prefix_sentence) == 1:
             sent = prefix_sentence[0]
-            if 'bot' not in str(sent)[0]: # B: i've added this to match true_at
+            if not sent in {'\\top', '\\bot'}: # sentence letter case
+            # B: it used to look like this:
+            # if 'bot' not in str(sent)[0]:
                 x = BitVec("f_atom_x", self.N)
                 return Exists(x, And(self.is_part_of(x, eval_world), self.falsify(x, sent))) # REMOVABLE
         # TODO: change how operators work once that class is made
@@ -151,11 +149,12 @@ class Semantics:
         x = BitVec("prop_x", self.N)
         y = BitVec("prop_y", self.N)
         return [
-            Not(self.verify(0, atom)), # TODO: M: B, are these necessary? Were not in class_semantics_playground but were in original file
-            Not(self.falsify(0, atom)), # (continuing above) not sure if it was an accidental deletion on my part or an actual change
-            # B: these should be included given the default values `contingent = false` and `non_null = true`
-            # we probably need an extra argument to pass this setting or else add these separately
-            # if the settings are such as to allow them to be added by default
+            # B: these following null_constraints should be included given the
+            # default values `contingent = false` and `non_null = true`.
+            # we need to exclude these constraints otherwise.
+            Not(self.verify(0, atom)), 
+            Not(self.falsify(0, atom)),
+
             ForAll(
                 [x, y],
                 Implies(
