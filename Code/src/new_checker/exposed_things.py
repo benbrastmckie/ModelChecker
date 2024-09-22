@@ -153,7 +153,9 @@ class Semantics:
         return [
             Not(self.verify(0, atom)), # TODO: M: B, are these necessary? Were not in class_semantics_playground but were in original file
             Not(self.falsify(0, atom)), # (continuing above) not sure if it was an accidental deletion on my part or an actual change
-            # B: these should be included given the default values `contingent = false` and `null = true`
+            # B: these should be included given the default values `contingent = false` and `non_null = true`
+            # we probably need an extra argument to pass this setting or else add these separately
+            # if the settings are such as to allow them to be added by default
             ForAll(
                 [x, y],
                 Implies(
