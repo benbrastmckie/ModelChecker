@@ -219,7 +219,6 @@ class AndOperator(Operator):
         self.arity = 2
         self.name = '\\wedge'
 
-    # B: this looks great!
     def true_at(self, leftarg, rightarg, eval_world):
         """doc string place holder"""
         sem = self.semantics
@@ -263,3 +262,35 @@ class NegOperator(Operator):
     def false_at(self, arg, eval_world):
         """doc string place holder"""
         return self.semantics.true_at(arg, eval_world)
+
+class TopOperator(Operator):
+    """doc string place holder"""
+
+    def __init__(self, semantics):
+        self.semantics = semantics
+        self.arity = 0
+        self.name = '\\top'
+
+    def true_at(self, arg, eval_world):
+        """doc string place holder"""
+        return # B: we want this to be no constraint at all, or a trivial one
+
+    def false_at(self, arg, eval_world):
+        """doc string place holder"""
+        return # B: we want this to be a constraint that cannot be satisfied
+
+class BotOperator(Operator):
+    """doc string place holder"""
+
+    def __init__(self, semantics):
+        self.semantics = semantics
+        self.arity = 0
+        self.name = '\\bot'
+
+    def true_at(self, arg, eval_world):
+        """doc string place holder"""
+        return # B: we want this to be a constraint that cannot be satisfied
+
+    def false_at(self, arg, eval_world):
+        """doc string place holder"""
+        return # B: we want this to be no constraint at all, or a trivial one
