@@ -229,3 +229,167 @@ def infix(prefix_sent):
     left_expr = prefix_sent[1]
     right_expr = prefix_sent[2]
     return f"({infix(left_expr)} {op} {infix(right_expr)})"
+
+# NEW ATTEMPT
+
+def drop(tokens):
+    """Replace a list with its only item if the list contains exactly one item."""
+    if len(tokens) == 1:
+        return tokens[0]
+    return tokens
+
+def left_op_right(tokens):
+    """Divides whatever is inside a pair of parentheses into the left argument,
+    right argument, and the operator."""
+    
+    count = 0  # To track nested parentheses
+    left = []
+    
+    # Use a copy of tokens to avoid modifying the original list
+    tokens = tokens[:]
+    
+    while tokens:
+        token = tokens.pop(0)
+        
+        if token == '(':
+            count += 1
+            continue
+        if token == ')':
+            count -= 1
+            if count < 0:
+                raise ValueError("Unbalanced parentheses")
+            continue
+        if count > 0:  # Inside parentheses, add to the left argument
+            left.append(token)
+            continue
+        
+        # Handle alphanumeric tokens or special logical operators
+        if token.isalnum() or token in {'\\top', '\\bot'}:
+            left.append(token)
+            if not tokens:
+                raise ValueError(f"Expected an operator following {token}")
+            operator = tokens.pop(0)
+            if not tokens:
+                raise ValueError(f"Expected an argument after the operator {operator}")
+            right = tokens  # The remaining tokens are the right argument
+            # return operator, left, right
+            return operator, drop(left), drop(right)
+        
+        # Otherwise, assume token is an operator and handle binary expression
+        operator = token
+        right = tokens
+        # return operator, left, right
+        return operator, drop(left), drop(right)
+
+    raise ValueError("Invalid expression or unmatched parentheses")
+
+def parse_expression(tokens):
+    """
+    Parses a list of tokens representing a propositional logic expression and returns
+    the expression in prefix notation (Polish notation).
+    """
+    
+    if not isinstance(tokens, list):
+        return tokens
+
+    def pop_token():
+        """Helper function to get the next token."""
+        if tokens:
+            return tokens.pop(0)
+        else:
+            raise SyntaxError("Unexpected end of input.")
+
+    token = pop_token()  # Get the next token
+    
+    # Handle binary operator case (indicated by parentheses)
+    if token == '(':  
+        # Ensure that the closing parenthesis is present
+        final = tokens.pop()  # Remove the closing parenthesis
+        if final != ')':
+            raise SyntaxError(f"The sentence {tokens} is not well-formed: missing closing parenthesis.")
+
+        # Extract operator and arguments
+        operator, left, right = left_op_right(tokens)
+        left_arg = parse_expression(left)
+        right_arg = parse_expression(right)
+        return [operator, left_arg, right_arg]
+
+    # Handle atomic sentences (letters or extremal elements)
+    if token.isalnum() or token in {'\\top', '\\bot'}:
+        return token  # Return atomic sentence
+
+    # Handle unary operator case (unary operators don't need parentheses)
+    return [token, parse_expression(tokens)]  # Recursively parse the next argument for unary operators
+
+def pure_prefix(infix_sentence):
+    """For converting from infix to prefix notation without knowing which
+    which operators the language includes."""
+    tokens = infix_sentence.replace('(', ' ( ').replace(')', ' ) ').split()
+    return parse_expression(tokens)
+
+
+unary = '\\neg A'
+# unary_result = parse_expression(unary)
+unary_result = pure_prefix(unary)
+print(unary_result)  # Output: ['¬', 'A']
+
+binary = '(A \\vee B)'
+binary_result = pure_prefix(binary)
+print(binary_result)  # Output: ['∧', 'A', 'B']
+
+comp = '((A \\random \\top) \\vee (\\bot \\operator B))'
+complex_result = pure_prefix(comp)
+print(complex_result)  # Output: ['∧', 'A', 'B']
+
+# SCRAP
+
+# # B: here is a new function to be defined; still sort of broken
+#
+# def drop(tokens):
+#     if len(tokens) == 1:  # Check if the list has only one item
+#         return tokens[0]  # Replace the list with its only item
+#     return tokens  # Otherwise, return the list as is
+#
+# def left_op_right(tokens):
+#     """Divides whatever is inside a pair of parentheses into the left argument,
+#     right argument, and the operator."""
+#     count = []
+#     left = []
+#
+#     while tokens:
+#         token = tokens.pop(0)
+#         if token == '(':
+#             count.append(token)
+#             continue
+#         if token == ')':
+#             count.pop()
+#             continue
+#         if count:
+#             left.append(token)
+#             continue
+#         if token.isalnum() or token in {'\\top', '\\bot'}:
+#             left.append(token)
+#             operator = tokens.pop(0)
+#             right = tokens
+#             return operator, drop(left), drop(right)
+#         operator = tokens.pop(0)
+#         right = tokens
+#         return operator, drop(left), drop(right)
+
+# SIMPLE RECURSIVE STRATEGY
+
+def rec_parse_expression(tokens):
+    token = tokens.pop(0)  # Get the next token
+
+    if token == '(':
+        left = rec_parse_expression(tokens)  # Parse the left argument
+        operator = tokens.pop(0)  # Get the operator
+        right = rec_parse_expression(tokens)  # Parse the right argument
+        tokens.pop(0)  # Remove the closing parenthesis
+        return [operator, left, right]
+    elif token in operators:
+        arg = tokens.pop(0)  # Should be the argument after unary operator
+        return [token, arg]
+    else:
+        return token  # It's an operand
+
