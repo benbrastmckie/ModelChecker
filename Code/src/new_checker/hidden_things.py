@@ -262,7 +262,7 @@ class ModelStructure:
             Proposition(sent, self, self.main_world) for sent in model_setup.prefix_conclusions
         ]
 
-    def evaluate(z3_expr):
+    def evaluate(self, z3_expr):
         '''
         This will get rid of need for all the bit_ functions. 
         However, it does not get rid of e.g. find_compatible_parts.
@@ -278,16 +278,26 @@ class ModelStructure:
     # and annotated (eg currently ony possible states are printed, and world states are annotated).
     # The evaluation world can also be included (it's just the main world, which there always
     # is (...?))
+    # B: printing premises, conclusions, state space, and evaluation world can be fixed for all
+    # users, though this will change slightly depend on whether the user wants impossible states
+    # to be printed. so somewhere this will have to check what the settings are for this.
+
     # there needs to be a general formula for what an interpretation is.
         # looking at find_complex_proposition, it looks like we can employ a similar strategy
         # to the operators bouncing back and forth with the semantics, except this time we
         # bounce back and forth with wherever the definition of a proposition is
+    # B: yes, there will definitely also be some bouncing back and forth where really this is the
+    # key to the print methods. my thought was that what happens in recursive_print will get
+    # divided between operators as before so that users can introduce this alongside the operators
+    # semantics clause, etc.
     
     # Right now we explicitly save the extension of some functions (verify, falsify—in atomic_props_dict). 
     # it would be nice if we could choose not to. 
+    # B: I agree
 
     # or if we made everything a Z3 function? That way we can just do z3model.evalute(*) on all
     # functions. 
+    # B: not sure I understand this suggestion
 
     # to be honest the entirety of the state space is user-dependent. The only thing that we could
     # do is maybe save the extensions of all the functions. Tbh, not that much for small values of N.
@@ -299,9 +309,11 @@ class ModelStructure:
         # to find what bits are compatible with a world, you check if some things are in the
         # extension of other things. With the new implementation, you would simply do
         # z3_model.evaluate(compatible_parts)
+    # B: this is interesting and worth discussing
     
     # how about you just don't worry about all that stuff? Like, focus on the extensional case.
     # all that crap only matters for the later stuff anyways.
+    # B: good to anticipate what will be needed later on to save trouble then
 
 
 
