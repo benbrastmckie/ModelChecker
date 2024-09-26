@@ -314,6 +314,8 @@ class ModelStructure:
     # how about you just don't worry about all that stuff? Like, focus on the extensional case.
     # all that crap only matters for the later stuff anyways.
     # B: good to anticipate what will be needed later on to save trouble then
+    # M: that is true, sorry this comment was meant to myself and i probably should have worded
+    # better lol
 
 
 
