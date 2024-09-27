@@ -13,6 +13,9 @@ from z3 import (
 )
 from syntax import AtomSort
 
+def Def(arg1, arg2):
+    return And(Implies(arg1, arg2), Implies(arg2, arg1))
+
 class Semantics:
     def __init__(self, N):
         self.N = N
@@ -22,6 +25,7 @@ class Semantics:
         self.operator_dict = {}
         self.main_world = BitVec("w", N) # B: I figured this might help users
         x, y, z = BitVecs("frame_x frame_y frame_z", N)
+        u, v, w = BitVecs("frame_u, frame_v", N)
         self.frame_constraints = [
             ForAll([x, y], Implies(And(self.possible(y), self.is_part_of(x, y)), self.possible(x))),
             ForAll([x, y], Exists(z, self.fusion(x, y) == z)),
@@ -29,8 +33,41 @@ class Semantics:
         ]
         # B: could specify the 'true_at()' and 'false_at()' here so that other users can replace
         # 'false_at' with a function 'Not(true_at())' without using the methods below
-        self.premise_behavior = None
-        self.conclusion_behavior = None
+        self.premise_behavior = self.true_at()
+        self.conclusion_behavior = self.false_at()
+
+        self.fusion = Function("fusion", BitVecSort(N), BitVecSort(N), BitVecSort(N))
+        self.fusion_constraint = ForAll([x,y], self.fusion(x,y) == x | y)
+        self.is_part_of = Function("is_part_of", BitVecSort(N), BitVecSort(N), BoolSort())
+        self.is_part_of_constraint = ForAll([x,y], Def(self.is_part_of(x,y), self.fusion(x, y) == y))
+        self.compatible = Function("compatible", BitVecSort(N), BitVecSort(N), BoolSort())
+        self.compatible_constraint = ForAll([x,y], Def(self.compatible(x,y), self.possible(self.fusion(x, y))))
+        self.maximal = Function("maximal", BitVecSort(N), BoolSort())
+        self.maximal_constraint = ForAll(x, Def(self.maximal(x), ForAll(y, Implies(self.compatible(y,x), self.is_part_of(y,x)))))
+        self.is_world = Function("is_world", BitVecSort(N), BoolSort())
+        self.is_world_constraint = ForAll(x, Def(self.is_world(x), And(self.possible(x), self.maximal(x),)))
+        self.max_compatible_part = Function("max_compatible_part", BitVecSort(N), BitVecSort(N), BitVecSort(N), BoolSort())
+        self.max_compatible_part_constraint = ForAll([x,w,y], 
+                                                     Def(self.max_compatible_part(x,w,y),
+                                                         And(self.is_part_of(x, w), self.compatible(x, y),
+                                                            ForAll(
+                                                                z,
+                                                                Implies(
+                                                                    And(
+                                                                        self.is_part_of(z, w),
+                                                                        self.compatible(z, y),
+                                                                        self.is_part_of(x, z),
+                                                                    ),
+                                                                    x == z,
+                                                                ),
+                                                            ),
+                                                        )))
+        self.is_alternative = Function("is_alternative", BitVecSort(N), BitVecSort(N), BitVecSort(N), BoolSort())
+        self.is_alternative_constraint = ForAll([u,y,w], Def(self.is_alternative(u,w,y), 
+                                                             And(self.is_world(u), self.is_part_of(y, u),
+                                                                And(self.is_part_of(z, u), self.max_compatible_part(z, w, y)),
+                                                                )))
+        
 
     # # B: I think we can drop these
     # def set_premise_behavior(self, func):
@@ -39,79 +76,79 @@ class Semantics:
     # def set_conclusion_behavior(self, func):
     #     self.conclusion_behavior = func
 
-    def fusion(self, bit_s, bit_t):
-        """the result of taking the maximum for each index in bit_s and bit_t
-        returns a Z3 constraint"""
-        return bit_s | bit_t
-
-    def is_part_of(self, bit_s, bit_t):
-        """the fusion of bit_s and bit_t is identical to bit_t
-        returns a Z3 constraint"""
-        return self.fusion(bit_s, bit_t) == bit_t
-
-    # B: not sure if this will be needed
-    # def non_null_part_of(self, bit_s, bit_t):
-    #     """bit_s verifies atom and is not the null state
+    # def fusion(self, bit_s, bit_t):
+    #     """the result of taking the maximum for each index in bit_s and bit_t
     #     returns a Z3 constraint"""
-    #     return And(Not(bit_s == 0), self.is_part_of(bit_s, bit_t))
+    #     return bit_s | bit_t
 
-    def compatible(self, bit_x, bit_y):
-        """the fusion of bit_x and bit_y is possible
-        returns a Z3 constraint"""
-        return self.possible(self.fusion(bit_x, bit_y))
+    # def is_part_of(self, bit_s, bit_t):
+    #     """the fusion of bit_s and bit_t is identical to bit_t
+    #     returns a Z3 constraint"""
+    #     return self.fusion(bit_s, bit_t) == bit_t
 
-    def maximal(self, bit_w):
-        """bit_w includes all compatible states as parts.
-        returns a Z3 constraint"""
-        x = BitVec("max_x", self.N)
-        return ForAll(
-            x,
-            Implies(
-                self.compatible(x, bit_w),
-                self.is_part_of(x, bit_w),
-            ),
-        )
+    # # B: not sure if this will be needed
+    # # def non_null_part_of(self, bit_s, bit_t):
+    # #     """bit_s verifies atom and is not the null state
+    # #     returns a Z3 constraint"""
+    # #     return And(Not(bit_s == 0), self.is_part_of(bit_s, bit_t))
 
-    def is_world(self, bit_w):
-        """bit_w is both possible and maximal.
-        returns a Z3 constraint"""
-        return And(
-            self.possible(bit_w),
-            self.maximal(bit_w),
-        )
+    # def compatible(self, bit_x, bit_y):
+    #     """the fusion of bit_x and bit_y is possible
+    #     returns a Z3 constraint"""
+    #     return self.possible(self.fusion(bit_x, bit_y))
 
-    def max_compatible_part(self, bit_x, bit_w, bit_y):
-        """bit_x is the biggest part of bit_w that is compatible with bit_y.
-        returns a Z3 constraint"""
-        z = BitVec("max_part", self.N)
-        return And(
-            self.is_part_of(bit_x, bit_w),
-            self.compatible(bit_x, bit_y),
-            ForAll(
-                z,
-                Implies(
-                    And(
-                        self.is_part_of(z, bit_w),
-                        self.compatible(z, bit_y),
-                        self.is_part_of(bit_x, z),
-                    ),
-                    bit_x == z,
-                ),
-            ),
-        )
+    # def maximal(self, bit_w):
+    #     """bit_w includes all compatible states as parts.
+    #     returns a Z3 constraint"""
+    #     x = BitVec("max_x", self.N)
+    #     return ForAll(
+    #         x,
+    #         Implies(
+    #             self.compatible(x, bit_w),
+    #             self.is_part_of(x, bit_w),
+    #         ),
+    #     )
 
-    def is_alternative(self, bit_u, bit_y, bit_w):
-        """
-        bit_u is a world that is the alternative that results from imposing state bit_y on
-        world bit_w.
-        returns a Z3 constraint
-        """
-        z = BitVec("alt_z", self.N)
-        return And(
-            self.is_world(bit_u),
-            self.is_part_of(bit_y, bit_u),
-            And(self.is_part_of(z, bit_u), self.max_compatible_part(z, bit_w, bit_y)),
-        )
+    # def is_world(self, bit_w):
+    #     """bit_w is both possible and maximal.
+    #     returns a Z3 constraint"""
+    #     return And(
+    #         self.possible(bit_w),
+    #         self.maximal(bit_w),
+    #     )
+
+    # def max_compatible_part(self, bit_x, bit_w, bit_y):
+    #     """bit_x is the biggest part of bit_w that is compatible with bit_y.
+    #     returns a Z3 constraint"""
+    #     z = BitVec("max_part", self.N)
+    #     return And(
+    #         self.is_part_of(bit_x, bit_w),
+    #         self.compatible(bit_x, bit_y),
+    #         ForAll(
+    #             z,
+    #             Implies(
+    #                 And(
+    #                     self.is_part_of(z, bit_w),
+    #                     self.compatible(z, bit_y),
+    #                     self.is_part_of(bit_x, z),
+    #                 ),
+    #                 bit_x == z,
+    #             ),
+    #         ),
+    #     )
+
+    # def is_alternative(self, bit_u, bit_y, bit_w):
+    #     """
+    #     bit_u is a world that is the alternative that results from imposing state bit_y on
+    #     world bit_w.
+    #     returns a Z3 constraint
+    #     """
+    #     z = BitVec("alt_z", self.N)
+    #     return And(
+    #         self.is_world(bit_u),
+    #         self.is_part_of(bit_y, bit_u),
+    #         And(self.is_part_of(z, bit_u), self.max_compatible_part(z, bit_w, bit_y)),
+    #     )
     
     def true_at(self, prefix_sentence, eval_world):
         if len(prefix_sentence) == 1:
@@ -187,7 +224,10 @@ class Semantics:
         ]
 
 class Proposition:
-    pass
+    def __init__(self, model_structure):
+        self.model_structure = model_structure
+        semantics = model_structure.model_setup.semantics
+        self.verifiers = [bit for bit in model_structure if semantics.verify()]
 
 # TODO: this class could be hidden later
 class Operator:
@@ -229,6 +269,9 @@ class AndOperator(Operator):
         """doc string place holder"""
         sem = self.semantics
         return Or(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
+    
+    def verify()
+        return 
 
 class OrOperator(Operator):
     """doc string place holder"""

@@ -233,6 +233,7 @@ class ModelSetup:
 
 class ModelStructure:
     def __init__(self, model_setup, timeout, z3_model_status, z3_model, z3_model_runtime):
+        semantics = model_setup.semantics
         self.model_setup = model_setup
         self.z3_model = z3_model
         self.model_status = z3_model_status
@@ -244,13 +245,11 @@ class ModelStructure:
         self.sentence_letters = all_sentence_letters(prefix_sentences)
 
         self.all_bits = find_all_bits(self.N) # M: can be kept
+        self.poss_bits = [bit for bit in self.all_bits if self.z3_model.evaluate(semantics.possible(bit))]
+        self.world_bits = [bit for bit in self.all_bits if self.z3_model.evaluate(semantics.is_world(bit))]
+        self.main_world = self.z3_model[semantics.w]
         # M: stuff below can hardly be kept. Need to rethink how to do this.
-        self.poss_bits = find_poss_bits(self.z3_model, self.all_bits, model_setup.possible)
-        self.world_bits = find_world_bits(self.poss_bits)
-        self.main_world = self.z3_model[model_setup.w]
-        self.verify = model_setup.verify
-        self.falsify = model_setup.falsify
-
+        # M: the rest of this can actually go in the Proposition class I think, basically
         self.atomic_props_dict = atomic_propositions_dict_maker(self)
         self.all_propositions = [
             Proposition(sent, self, self.main_world) for sent in model_setup.all_subsentences
@@ -315,7 +314,7 @@ class ModelStructure:
     # all that crap only matters for the later stuff anyways.
     # B: good to anticipate what will be needed later on to save trouble then
     # M: that is true, sorry this comment was meant to myself and i probably should have worded
-    # better lol
+    # better anyways lol
 
 
 
