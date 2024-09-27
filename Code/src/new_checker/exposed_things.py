@@ -224,10 +224,25 @@ class Semantics:
         ]
 
 class Proposition:
-    def __init__(self, model_structure):
+    def __init__(self, prefix_sentence, model_structure):
+        self.prefix_sentence = prefix_sentence
         self.model_structure = model_structure
-        semantics = model_structure.model_setup.semantics
-        self.verifiers = [bit for bit in model_structure if semantics.verify()]
+        self.model_structure.propositions.append(self) # TODO: add propositions list attr to ModelStructure
+        self.semantics = model_structure.model_setup.semantics
+        self.verifiers, self.falsifiers = self.find_verifiers_and_falsifiers()
+        self.falsifiers = self.find_falsifiers()
+
+    def find_verifiers_and_falsifiers(self):
+        if len(self.prefix_sentence) == 1:
+            atom = self.prefix_sentence[0]
+            V = {bit for bit in self.model_structure if self.semantics.verify(bit, atom)}
+            F = {bit for bit in self.model_structure if self.semantics.falsify(bit, atom)}
+            return V, F
+        else:
+            operator = self.prefix_sentence[0]
+            prefix_args = self.prefix_sentence[1:]
+            children_subprops = [Proposition(arg, self.model_structure) for arg in prefix_args]
+            return operator.find_verifiers_and_falsifiers(*children_subprops[1:])
 
 # TODO: this class could be hidden later
 class Operator:
@@ -270,8 +285,10 @@ class AndOperator(Operator):
         sem = self.semantics
         return Or(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
     
-    def verify()
-        return 
+    def find_verifiers_and_falsifiers(leftprop, rightprop):
+        Y_V, Y_F = leftprop.find_verifiers_and_falsifiers()
+        Z_V, Z_F = rightprop.find_verifiers_and_falsifiers()
+        return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
 
 class OrOperator(Operator):
     """doc string place holder"""
