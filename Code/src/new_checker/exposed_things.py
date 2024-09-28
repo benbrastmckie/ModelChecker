@@ -12,8 +12,12 @@ from z3 import (
     simplify,
     substitute,
     BitVecVal,
-    
-)
+    )
+
+from syntax import AtomSort
+
+from hidden_things import Operator
+
 def ForAllFinite(bvs, formula):
     """
     generates constraints by substituting all possible bitvectors for the variables in the formula
@@ -67,8 +71,6 @@ def ExistsFinite(bvs, formula):
 ForAll = ForAllFinite
 Exists = ExistsFinite
 
-from syntax import AtomSort, find_operator
-
 def product(set_A, set_B):
     """set of pairwise fusions of elements in set_A and set_B"""
     product_set = set()
@@ -83,9 +85,6 @@ def coproduct(set_A, set_B):
     A_U_B = set_A.union(set_B)
     return A_U_B.union(product(set_A, set_B))
 
-def Def(arg1, arg2):
-    return And(Implies(arg1, arg2), Implies(arg2, arg1))
-
 class Semantics:
     def __init__(self, N):
         self.N = N
@@ -94,63 +93,9 @@ class Semantics:
         self.possible = Function("possible", BitVecSort(N), BoolSort())
         self.main_world = BitVec("w", N) # B: I figured this might help users
         x, y, z = BitVecs("frame_x frame_y frame_z", N)
-        # u, v, w = BitVecs("frame_u, frame_v, frame_w", N)
-        # self.fusion = Function("fusion", BitVecSort(N), BitVecSort(N), BitVecSort(N))
-        # self.fusion_constraint = ForAll([x,y], self.fusion(x,y) == x | y)
-
-        # self.is_part_of = Function("is_part_of", BitVecSort(N), BitVecSort(N), BoolSort())
-        # self.is_part_of_constraint = ForAll([x,y], Def(self.is_part_of(x,y), self.fusion(x, y) == y))
-
-        # self.compatible = Function("compatible", BitVecSort(N), BitVecSort(N), BoolSort())
-        # self.compatible_constraint = ForAll([x,y], Def(self.compatible(x,y), self.possible(self.fusion(x, y))))
-
-        # self.maximal = Function("maximal", BitVecSort(N), BoolSort())
-        # self.maximal_constraint = ForAll(x, Def(self.maximal(x), ForAll(y, Implies(self.compatible(y,x), self.is_part_of(y,x)))))
-
-        # # could reduce if we somehow restricted the domain to possible bits
-        # self.is_world = Function("is_world", BitVecSort(N), BoolSort())
-        # self.is_world_constraint = ForAll(x, Def(self.is_world(x), And(self.possible(x), self.maximal(x),)))
-
-        # # this constraints takes a lot of time. Any way to restrict the domain?
-        # self.max_compatible_part = Function("max_compatible_part", BitVecSort(N), BitVecSort(N), BitVecSort(N), BoolSort())
-        # self.max_compatible_part_constraint = ForAll([x,w,y], 
-        #                                              Def(self.max_compatible_part(x,w,y),
-        #                                                  And(self.is_part_of(x, w), self.compatible(x, y),
-        #                                                     ForAll(
-        #                                                         z,
-        #                                                         Implies(
-        #                                                             And(
-        #                                                                 self.is_part_of(z, w),
-        #                                                                 self.compatible(z, y),
-        #                                                                 self.is_part_of(x, z),
-        #                                                             ),
-        #                                                             x == z,
-        #                                                         ),
-        #                                                     ),
-        #                                                 )))
-        
-        # # this constraints takes a lot of time. Any way to restrict the domain?
-        # self.is_alternative = Function("is_alternative", BitVecSort(N), BitVecSort(N), BitVecSort(N), BoolSort())
-        # self.is_alternative_constraint = ForAll([u,y,w], Def(self.is_alternative(u,w,y), 
-        #                                                      And(self.is_world(u), self.is_part_of(y, u),
-        #                                                         And(self.is_part_of(z, u), self.max_compatible_part(z, w, y)),
-        #                                                         )))
-        # self.function_constraints = [self.fusion_constraint, self.is_part_of_constraint, 
-        #                              self.compatible_constraint, self.maximal_constraint, 
-        #                              self.is_world_constraint, 
-        #                             self.max_compatible_part_constraint, 
-        #                              self.is_alternative_constraint
-        #                              ]
-        # # with this approach, the extension of every function is actually explicitly saved.
-        # # and, this is actually a bad model of what the functions actually are—e.g. is_alternative
-        # # should not have its first or third arguments be anything other than worlds—if they aren't
-        # # worlds, the function should not be applied and constraint not even considered
-        # # (arguably it should crash). 
-        # # If we can instead se the evaluate method of ModelRef objects to pass in Z3 constraints,
-        # # and then build verifiers/falsifiers/alt worlds/etc that way, 
         self.frame_constraints = [
             ForAll([x, y], Implies(And(self.possible(y), self.is_part_of(x, y)), self.possible(x))),
-            # ForAll([x, y], Exists(z, self.fusion(x, y) == z)), # is this necessary?
+            ForAll([x, y], Exists(z, self.fusion(x, y) == z)), # M: is this necessary?
             self.is_world(self.main_world),
         ]
         self.premise_behavior = self.true_at
@@ -253,54 +198,54 @@ class Semantics:
         args = prefix_sentence[1:]
         return operator.false_at(*args, eval_world)
 
-    # B: this should go in the Proposition class which will need to be passed to ModelSetup to get
-    # for getting the model_constraints.
-    def find_model_constraints(self, atom):
+class Proposition:
+    def proposition_constraints(atom, model_setup): # reason for model_setup is anticipating contingent
+                                                    # and non_null affecting these constraints
         '''
         currently does not have contingent props. commented code (null_cons and skolem, latter of
         which was no longer needed) in addition to contingent props was deleted for space
         '''
-        x = BitVec("prop_x", self.N)
-        y = BitVec("prop_y", self.N)
+        semantics = model_setup.semantics
+        x = BitVec("prop_x", semantics.N)
+        y = BitVec("prop_y", semantics.N)
         return [
             # B: these following null_constraints should be included given the
             # default values `contingent = false` and `non_null = true`.
             # we need to exclude these constraints otherwise.
-            Not(self.verify(0, atom)), 
-            Not(self.falsify(0, atom)),
+            Not(semantics.verify(0, atom)), 
+            Not(semantics.falsify(0, atom)),
 
             ForAll(
                 [x, y],
                 Implies(
-                    And(self.verify(x, atom), self.verify(y, atom)), self.verify(self.fusion(x, y), atom)
+                    And(semantics.verify(x, atom), semantics.verify(y, atom)), semantics.verify(semantics.fusion(x, y), atom)
                 ),
             ),
             ForAll(
                 [x, y],
                 Implies(
-                    And(self.falsify(x, atom), self.falsify(y, atom)), self.falsify(self.fusion(x, y), atom)
+                    And(semantics.falsify(x, atom), semantics.falsify(y, atom)), semantics.falsify(semantics.fusion(x, y), atom)
                 ),
             ),
             ForAll(
                 [x, y],
-                Implies(And(self.verify(x, atom), self.falsify(y, atom)), Not(self.compatible(x, y))),
+                Implies(And(semantics.verify(x, atom), semantics.falsify(y, atom)), Not(semantics.compatible(x, y))),
             ),
             ForAll(
                 x,
                 Implies(
-                    self.possible(x),
+                    semantics.possible(x),
                     Exists(
                         y,
                         And(
-                            self.compatible(x, y),
-                            Or(self.verify(y, atom), self.falsify(y, atom)),
+                            semantics.compatible(x, y),
+                            Or(semantics.verify(y, atom), semantics.falsify(y, atom)),
                         ),
                     ),
                 ),
             ),
         ]
-
-class Proposition:
+    
     def __init__(self, prefix_sentence, model_structure):
         self.prefix_sentence = prefix_sentence
         self.model_structure = model_structure
@@ -323,13 +268,13 @@ class Proposition:
         return False
 
     def find_verifiers_and_falsifiers(self):
-        ms = self.model_structure
+        all_bits = self.model_structure.all_bits
         model = self.model_structure.z3_model
         sem = self.semantics
         if len(self.prefix_sentence) == 1:
             atom = self.prefix_sentence[0]
-            V = {bit for bit in ms.all_bits if model.evaluate(sem.verify(bit, atom))}
-            F = {bit for bit in ms.all_bits if model.evaluate(sem.falsify(bit, atom))}
+            V = {bit for bit in all_bits if model.evaluate(sem.verify(bit, atom))}
+            F = {bit for bit in all_bits if model.evaluate(sem.falsify(bit, atom))}
             return V, F
         else:
             operator = self.prefix_sentence[0]
@@ -338,43 +283,17 @@ class Proposition:
             # sort of thing where first we check if a proposition with the prefix form
             # in question has already been made—if so, it would be in the model_structure's
             # all_propositions attribute
+            # this would speed things up during the creation of the ModelStructure object
             children_subprops = [Proposition(arg, self.model_structure) for arg in prefix_args]
             return operator.find_verifiers_and_falsifiers(*children_subprops)
         
-    def truth_or_falsity_at_world(self, world, model_structure):
-        semantics = model_structure.model_setup.semantics
-        z3_model = model_structure.z3_model
-        # Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent)))
+    def truth_or_falsity_at_world(self, world):
+        semantics = self.model_structure.model_setup.semantics
+        z3_model = self.model_structure.z3_model
         for bit in self.verifiers:
             if z3_model.evaluate(semantics.is_part_of(bit, world)):
                 return True
         return False
-
-# TODO: this class could be hidden later
-class Operator:
-    name = None
-    arity = None
-
-    # B: I added this to fix the linter complaints... let me know if this seems right
-    # M: In line with the change made below, I moved them up
-    def __init__(self, semantics):
-        self.semantics = semantics
-
-    def __str__(self):
-        return self.name if self.name else "Unnamed Operator"
-    
-    def __repr__(self):
-        return self.name if self.name else "Unnamed Operator"
-
-    def __eq__(self, other):
-        if isinstance(other, Operator):
-            return self.name == other.name and self.arity == other.arity
-        return False
-    # B: I added the above in place of the below
-    # def __eq__(self, other): # M: currently unused but may be nice to have
-    #     if self.name == other.name and self.arity == other.arity: # B: Attribute 'arity' is unknown
-    #         return True
-    #     return False
 
 class AndOperator(Operator):
     """doc string place holder"""
