@@ -53,7 +53,7 @@ class ModelSetup:
         self.all_subsentences = self.find_subsentences(prefix_sentences)
         self.all_sentence_letters = self.find_sentence_letters(prefix_sentences)
         
-        self.function_constraints = semantics.function_constraints
+        # self.function_constraints = semantics.function_constraints
         self.frame_constraints = semantics.frame_constraints
         self.model_constraints = []
         for sl in self.all_sentence_letters:
@@ -66,7 +66,9 @@ class ModelSetup:
             semantics.conclusion_behavior(conc, semantics.main_world)
             for conc in self.prefix_conclusions
         ]
-        self.all_constraints = (self.function_constraints + self.frame_constraints + 
+        self.all_constraints = (
+                                # self.function_constraints + 
+                                self.frame_constraints + 
                                 self.model_constraints + 
                                 self.premise_constraints + self.conclusion_constraints)
         print([type(i) for i in self.all_constraints])
@@ -197,6 +199,7 @@ class ModelSetup:
 
             # Extract operator and arguments
             operator, left, right = self.left_op_right(tokens)
+            print(operator, left, right)
             left_arg = self.parse_expression(left)  # Parse the left argument
             right_arg = self.parse_expression(right)  # Parse the right argument
             return [find_operator(operator, self), left_arg, right_arg]
@@ -272,9 +275,9 @@ class ModelStructure:
 
         self.all_bits = find_all_bits(self.N) # M: can be kept
         self.poss_bits = [bit for bit in self.all_bits if self.z3_model.evaluate(semantics.possible(bit))]
-        self.world_bits = [bit for bit in self.all_bits if self.z3_model.evaluate(semantics.is_world(bit))]
+        self.world_bits = [bit for bit in self.poss_bits if self.z3_model.evaluate(semantics.is_world(bit))]
         self.main_world = self.z3_model[semantics.main_world]
-        self.all_propositions = [] # these will be automatically added when the two below are called
+        self.all_propositions = set() # these will be automatically added when the two below are called
         # right now it adds all subpropositions
         self.premise_propositions = [Proposition(prefix_sent, self)
                                     for prefix_sent in model_setup.prefix_premises]
