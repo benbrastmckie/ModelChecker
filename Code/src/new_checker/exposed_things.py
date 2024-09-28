@@ -222,7 +222,7 @@ class Semantics:
         world bit_w.
         returns a Z3 constraint
         """
-        z = BitVec("alt_z", N)
+        z = BitVec("alt_z", self.N)
         return And(
             self.is_world(bit_u),
             self.is_part_of(bit_y, bit_u),
