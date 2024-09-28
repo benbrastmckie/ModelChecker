@@ -4,14 +4,9 @@ from z3 import (
     BoolRef,
     simplify,
     Const,
-
-
 )
-import time
 
-# this import will ultimately be a problem
-from exposed_things import (Proposition,
-                                )
+import time
 
 from syntax import (prefix, AtomSort,
                     find_operator,
@@ -20,10 +15,23 @@ from syntax import (prefix, AtomSort,
 from old_semantics_helpers import (all_sentence_letters, 
                                    find_all_bits)
 
-# B: these are (or should be) purely syntactic functions and so may be best to include as methods
-# here or else in a syntax module
-# from src.model_checker.model_definitions import find_subsentences
-# from src.model_checker.semantics import all_sentence_letters
+class Operator:
+    name = None
+    arity = None
+
+    def __init__(self, semantics):
+        self.semantics = semantics
+
+    def __str__(self):
+        return self.name if self.name else "Unnamed Operator"
+    
+    def __repr__(self):
+        return self.name if self.name else "Unnamed Operator"
+
+    def __eq__(self, other):
+        if isinstance(other, Operator):
+            return self.name == other.name and self.arity == other.arity
+        return False
 
 class OperatorCollection:
     def __init__(self, *input):
@@ -60,16 +68,18 @@ class ModelSetup:
             infix_premises,
             infix_conclusions,
             semantics,
-            max_time,
-            contingent,
-            non_null,
-            disjoint,
-            operator_collection
+            operator_collection,
+            proposition_class,
+            max_time=1000,
+            contingent=False,
+            non_null=True,
+            disjoint=False,
         ):
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
         self.semantics = semantics
         self.operators = {op_name:op_class(semantics) for (op_name, op_class) in operator_collection.items()}
+        self.proposition_class = proposition_class
         self.max_time = max_time
         self.contingent = contingent
         self.non_null = non_null
@@ -81,11 +91,10 @@ class ModelSetup:
         self.all_subsentences = self.find_subsentences(prefix_sentences)
         self.all_sentence_letters = self.find_sentence_letters(prefix_sentences)
         
-        # self.function_constraints = semantics.function_constraints
         self.frame_constraints = semantics.frame_constraints
         self.model_constraints = []
         for sl in self.all_sentence_letters:
-            self.model_constraints.extend(semantics.find_model_constraints(sl))
+            self.model_constraints.extend(proposition_class.proposition_constraints(sl, self))
         self.premise_constraints = [
             semantics.premise_behavior(prem, semantics.main_world)
             for prem in self.prefix_premises
@@ -95,7 +104,6 @@ class ModelSetup:
             for conc in self.prefix_conclusions
         ]
         self.all_constraints = (
-                                # self.function_constraints + 
                                 self.frame_constraints + 
                                 self.model_constraints + 
                                 self.premise_constraints + self.conclusion_constraints)
@@ -301,18 +309,18 @@ class ModelStructure:
         print("\n\n")
         self.sentence_letters = all_sentence_letters(prefix_sentences)
 
-        self.all_bits = find_all_bits(self.N) # M: can be kept
+        self.all_bits = find_all_bits(self.N)
         self.poss_bits = [bit for bit in self.all_bits if self.z3_model.evaluate(semantics.possible(bit))]
         self.world_bits = [bit for bit in self.poss_bits if self.z3_model.evaluate(semantics.is_world(bit))]
         self.main_world = self.z3_model[semantics.main_world]
-        self.all_propositions = set() # these will be automatically added when the two below are called
+        self.all_propositions = set() # this will be automatically populated when the two below are called
         # right now it adds all subpropositions
-        self.premise_propositions = [Proposition(prefix_sent, self)
+        self.premise_propositions = [model_setup.proposition_class(prefix_sent, self)
                                     for prefix_sent in model_setup.prefix_premises]
-        self.conclusion_propositions = [Proposition(prefix_sent, self)
+        self.conclusion_propositions = [model_setup.proposition_class(prefix_sent, self)
                                     for prefix_sent in model_setup.prefix_conclusions]
 
-
+    # this is not used right now but may be later
     def evaluate(self, z3_expr):
         '''
         This will get rid of need for all the bit_ functions. 
@@ -332,6 +340,8 @@ class ModelStructure:
     # B: printing premises, conclusions, state space, and evaluation world can be fixed for all
     # users, though this will change slightly depend on whether the user wants impossible states
     # to be printed. so somewhere this will have to check what the settings are for this.
+    # M: yes. on a simlar note I was wondering—is it fair to assume that all models will have
+    # possible states, and all models will have a definition for worlds?
 
     # there needs to be a general formula for what an interpretation is.
         # looking at find_complex_proposition, it looks like we can employ a similar strategy
@@ -349,6 +359,7 @@ class ModelStructure:
     # or if we made everything a Z3 function? That way we can just do z3model.evalute(*) on all
     # functions. 
     # B: not sure I understand this suggestion
+    # M: never mind, this was fixed
 
     # to be honest the entirety of the state space is user-dependent. The only thing that we could
     # do is maybe save the extensions of all the functions. Tbh, not that much for small values of N.
@@ -361,12 +372,23 @@ class ModelStructure:
         # extension of other things. With the new implementation, you would simply do
         # z3_model.evaluate(compatible_parts)
     # B: this is interesting and worth discussing
+    # M: I tried this, it didn't work because it actually takes a lot of computational power.
+    # (and I think we actually discussed and discarded a similar strategy back in February
+    # when things were getting started)
+    # M: It turns out that even for small values of N saving the extensions of function is a lot,
+    # since there are a couple functions that would take 3 inputs (e.g. is_alternative), which has
+    # inputs in R^3, meaning, with e.g. N=7 there are (2^7)^3 = 2 million different input combos. 
+    # Even worse, in that strategy you'd create a constraint for every single combination of
+    # bits in the space R^n for n the number of arguments taken by the function. 
+    # so for N=7 and a 3-place predicate, you'd create a constraint that is a conjunction of 2 million
+    # constraints—in tests it looked like Z3 tapped out at that point, it was just taking too long
     
     # how about you just don't worry about all that stuff? Like, focus on the extensional case.
     # all that crap only matters for the later stuff anyways.
     # B: good to anticipate what will be needed later on to save trouble then
     # M: that is true, sorry this comment was meant to myself and i probably should have worded
     # better anyways lol
+    # M: I also have a better idea of how that would look—just before I was kind of lost
 
 
 
