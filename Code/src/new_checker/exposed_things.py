@@ -328,7 +328,6 @@ class Proposition:
         sem = self.semantics
         if len(self.prefix_sentence) == 1:
             atom = self.prefix_sentence[0]
-            print(self.semantics.verify(3, atom))
             V = {bit for bit in ms.all_bits if model.evaluate(sem.verify(bit, atom))}
             F = {bit for bit in ms.all_bits if model.evaluate(sem.falsify(bit, atom))}
             return V, F
@@ -353,16 +352,16 @@ class Proposition:
 
 # TODO: this class could be hidden later
 class Operator:
+    name = None
+    arity = None
 
     # B: I added this to fix the linter complaints... let me know if this seems right
-    def __init__(self, name=None, arity=None):
-        self.name = name
-        self.arity = arity
+    # M: In line with the change made below, I moved them up
+    def __init__(self, semantics):
+        self.semantics = semantics
 
     def __str__(self):
         return self.name if self.name else "Unnamed Operator"
-        # B: I added the above in place of the below
-        # return self.name # B: Instance of 'Operator' has no 'name' member
     
     def __repr__(self):
         return self.name if self.name else "Unnamed Operator"
@@ -379,11 +378,8 @@ class Operator:
 
 class AndOperator(Operator):
     """doc string place holder"""
-
-    def __init__(self, semantics):
-        self.semantics = semantics
-        self.arity = 2
-        self.name = '\\wedge'
+    name = '\\wedge'
+    arity = 2
 
     def true_at(self, leftarg, rightarg, eval_world):
         """doc string place holder"""
@@ -402,11 +398,8 @@ class AndOperator(Operator):
 
 class OrOperator(Operator):
     """doc string place holder"""
-
-    def __init__(self, semantics):
-        self.semantics = semantics
-        self.arity = 2
-        self.name = '\\vee'
+    name = '\\vee'
+    arity = 2
 
     def true_at(self, leftarg, rightarg, eval_world):
         """doc string place holder"""
@@ -425,11 +418,8 @@ class OrOperator(Operator):
 
 class NegOperator(Operator):
     """doc string place holder"""
-
-    def __init__(self, semantics):
-        self.semantics = semantics
-        self.arity = 1
-        self.name = '\\neg'
+    name = '\\neg'
+    arity = 1
 
     def true_at(self, arg, eval_world):
         """doc string place holder"""
@@ -446,11 +436,8 @@ class NegOperator(Operator):
 
 class TopOperator(Operator):
     """doc string place holder"""
-
-    def __init__(self, semantics):
-        self.semantics = semantics
-        self.arity = 0
-        self.name = '\\top'
+    name = '\\top'
+    arity = 0
 
     def true_at(self, arg, eval_world):
         """doc string place holder"""
@@ -465,11 +452,8 @@ class TopOperator(Operator):
 
 class BotOperator(Operator):
     """doc string place holder"""
-
-    def __init__(self, semantics):
-        self.semantics = semantics
-        self.arity = 0
-        self.name = '\\bot'
+    name = '\\bot'
+    arity = 0
 
     def true_at(self, arg, eval_world):
         """doc string place holder"""

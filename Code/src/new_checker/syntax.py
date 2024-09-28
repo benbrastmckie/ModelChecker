@@ -175,15 +175,19 @@ def main_op_index(tokenized_expression, unary_operators_names):
 #     pass
 
 def find_operator(op_str, model_setup):
-    for op_class in model_setup.operators:
-        op_instance = op_class(model_setup.semantics)
-        print(op_str, op_instance.name)
-        print(op_str == op_instance.name)
-        if op_str[1:] == op_instance.name[1:]:
+    for op_name in model_setup.operators:
+        if op_str[1:] == op_name[1:]:
+            op_instance = model_setup.operators[op_name]
             return op_instance
+    # for op_class in model_setup.operators:
+    #     op_instance = op_class(model_setup.semantics)
+    #     print(op_str, op_instance.name)
+    #     print(op_str == op_instance.name)
+    #     if op_str[1:] == op_instance.name[1:]:
+    #         return op_instance
     raise ValueError(f"did not recognize operator with name {op_str} out of "+
                      f"available operators"+
-                     f"{[op.name for op in [op_class(model_setup.semantics) for op_class in model_setup.operators]]}")
+                     f"{[op_name for op_name in model_setup.operators]}")
 
 # B: I added model_setup as an argument since it seemed to be needed as in find_operator
 def parse(tokens, model_setup):
@@ -200,8 +204,7 @@ def parse(tokens, model_setup):
     >>> parse(tokenize('((A /op (B /op C)) /op (D /op E))'))
     ['/op', ['/op', ['A'], ['/op', ['B'], ['C']]], ['/op', ['D'], ['E']]]
     """
-    unary_operators_names = set(op(model_setup.semantics).name for op in model_setup.operators if op(model_setup.semantics).arity == 1)
-    print(unary_operators_names)
+    unary_operators_names = set(op_name for (op_name, op) in model_setup.operators.items() if op.arity == 1)
     bin_comp_tokens = binary_comp(tokens)
     if tokens[0] in unary_operators_names:  # must go before bin_comp_tokens == 0 case
         return [find_operator(tokens[0], model_setup), parse(tokens[1:], model_setup)] # B: should 
@@ -217,7 +220,6 @@ def parse(tokens, model_setup):
     # from pos of op plus 1 to the penultimate, thus excluding the last
     # parentheses, which belongs to the main expression
     right_expression = tokens[main_operator_index + 1 : -1]
-    print(tokens)
     return [
         find_operator(op_str, model_setup),
         parse(left_expression, model_setup),
@@ -365,19 +367,19 @@ def pure_prefix(infix_sentence):
 
 # TESTS
 
-unary = '\\neg A'
-# unary_result = parse_expression(unary)
-unary_result = pure_prefix(unary)
-print(unary_result)  # Output: ['¬', 'A']
+# unary = '\\neg A'
+# # unary_result = parse_expression(unary)
+# unary_result = pure_prefix(unary)
+# print(unary_result)  # Output: ['¬', 'A']
 
-binary = '(A \\vee B)'
-binary_result = pure_prefix(binary)
-print(binary_result)  # Output: ['∧', 'A', 'B']
+# binary = '(A \\vee B)'
+# binary_result = pure_prefix(binary)
+# print(binary_result)  # Output: ['∧', 'A', 'B']
 
-binary = '\\neg (A \\vee B)'
-binary_result = pure_prefix(binary)
-print(binary_result)  # Output: ['∧', 'A', 'B']
+# binary = '\\neg (A \\vee B)'
+# binary_result = pure_prefix(binary)
+# print(binary_result)  # Output: ['∧', 'A', 'B']
 
-comp = '((A \\random \\top) \\vee (\\bot \\operator B))'
-complex_result = pure_prefix(comp)
-print(complex_result)  # Output: ['∧', 'A', 'B']
+# comp = '((A \\random \\top) \\vee (\\bot \\operator B))'
+# complex_result = pure_prefix(comp)
+# print(complex_result)  # Output: ['∧', 'A', 'B']

@@ -25,6 +25,34 @@ from old_semantics_helpers import (all_sentence_letters,
 # from src.model_checker.model_definitions import find_subsentences
 # from src.model_checker.semantics import all_sentence_letters
 
+class OperatorCollection:
+    def __init__(self, *input):
+        self.operator_classes_dict = {}
+        if input:
+            self.add_operator(input)
+
+    def __iter__(self):
+        yield from self.operator_classes_dict
+
+    def items(self):
+        yield from self.operator_classes_dict.items()
+
+    def add_operator(self, input):
+        '''
+        input is either an operator class (of type 'type') or a list of operator classes
+        '''
+        if isinstance(input, list) or isinstance(input, tuple) or isinstance(input, set):
+            for operator_class in input:
+                self.add_operator(operator_class)
+        elif isinstance(input, type):
+            self.operator_classes_dict[input.name] = input
+            # line above is why name attributes were moved out of __init__ for operator classes
+            # above we are accessing a class's attribute without making an instance of the class
+    
+    def __getitem__(self, value):
+        return self.operator_classes_dict[value]
+        # right now this method isn't needed, but I added it in case
+
 class ModelSetup:
 
     def __init__(
@@ -36,12 +64,12 @@ class ModelSetup:
             contingent,
             non_null,
             disjoint,
-            operators_list
+            operator_collection
         ):
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
         self.semantics = semantics
-        self.operators = operators_list
+        self.operators = {op_name:op_class(semantics) for (op_name, op_class) in operator_collection.items()}
         self.max_time = max_time
         self.contingent = contingent
         self.non_null = non_null
