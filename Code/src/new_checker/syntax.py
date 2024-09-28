@@ -11,46 +11,48 @@ from z3 import Const, DeclareSort
 AtomSort = DeclareSort("AtomSort")
 
 # B: do we use this? I remember that it works with sentences like '(john_ran \wedge sue_sang)'
-capital_alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
-                    "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",}
+# M: I don't think we use this
+# capital_alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+#                     "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",}
 
 # B: I think it may make sense to require operators to have a backslash so as to allow for
 # sentence letters like 'john_toppled_over' since this may be very helpful in practice
-unary_operators = {
-    "\\neg", "neg",
-    "\\not", "not",
-    "Box", "\\Box",
-    "Diamond", "\\Diamond",
-}
-binary_operators = {
-    "\\wedge", "wedge",
-    "\\vee", "vee",
-    "\\rightarrow", "rightarrow",
-    "\\leftrightarrow", "leftrightarrow",
-    "\\boxright", "boxright",
-    "\\circleright", "circleright",
-    "\\imposition", "imposition",
-    "\\leq", "leq",
-    "\\sqsubseteq", "sqsubseteq",
-    "\\equiv", "equiv",
-    "\\preceq", "preceq",
-}
-all_operators = unary_operators.union(binary_operators)
+# unary_operators = {
+#     "\\neg", "neg",
+#     "\\not", "not",
+#     "Box", "\\Box",
+#     "Diamond", "\\Diamond",
+# }
+# binary_operators = {
+#     "\\wedge", "wedge",
+#     "\\vee", "vee",
+#     "\\rightarrow", "rightarrow",
+#     "\\leftrightarrow", "leftrightarrow",
+#     "\\boxright", "boxright",
+#     "\\circleright", "circleright",
+#     "\\imposition", "imposition",
+#     "\\leq", "leq",
+#     "\\sqsubseteq", "sqsubseteq",
+#     "\\equiv", "equiv",
+#     "\\preceq", "preceq",
+# }
+# all_operators = unary_operators.union(binary_operators)
 
-# B: if we fix the convention that backslashes are required for operators, can we drop this?
-def add_double_backslashes(tokens):
-    """adds a double backslash to tokens in the output of tokenize that meet these 3 conditions:
-    1. are not capital letters,
-    2. do not already have a double backslash in them, AND
-    3. are not parentheses
-    returns the input tokens list with tokens having those qualities modified as described
-    """
-    new_tokens = []
-    for token in tokens:
-        if (token in all_operators and "\\" not in token):
-            token = "\\" + token
-        new_tokens.append(token)
-    return new_tokens
+# # B: if we fix the convention that backslashes are required for operators, can we drop this?
+# # M: yes
+# def add_double_backslashes(tokens):
+#     """adds a double backslash to tokens in the output of tokenize that meet these 3 conditions:
+#     1. are not capital letters,
+#     2. do not already have a double backslash in them, AND
+#     3. are not parentheses
+#     returns the input tokens list with tokens having those qualities modified as described
+#     """
+#     new_tokens = []
+#     for token in tokens:
+#         if (token in all_operators and "\\" not in token):
+#             token = "\\" + token
+#         new_tokens.append(token)
+#     return new_tokens
 
 
 def tokenize(str_exp):
@@ -88,28 +90,29 @@ def tokenize(str_exp):
         return tokenized_l
 
     raw_tokens = tokenize_improved_input(split_str)
-    return add_double_backslashes(raw_tokens)
+    return raw_tokens
+    # return add_double_backslashes(raw_tokens)
 
-def rejoin_tokens(tokens):
-    infix_expr = ''
-    for token in tokens:
-        if token in binary_operators:
-            token = f' {token} '
-        if token in unary_operators:
-            token = f'{token} '
-        infix_expr += token
-    return infix_expr
+# both of these are currently unused
+# def rejoin_tokens(tokens):
+#     infix_expr = ''
+#     for token in tokens:
+#         if token in binary_operators:
+#             token = f' {token} '
+#         if token in unary_operators:
+#             token = f'{token} '
+#         infix_expr += token
+#     return infix_expr
 
-def add_backslashes_to_infix(infix_expr):
-    tokens_with_backslashes = tokenize(infix_expr)
-    rejoined_with_backslashes = rejoin_tokens(tokens_with_backslashes)
-    return rejoined_with_backslashes
+# def add_backslashes_to_infix(infix_expr):
+#     tokens_with_backslashes = tokenize(infix_expr)
+#     rejoined_with_backslashes = rejoin_tokens(tokens_with_backslashes)
+#     return rejoined_with_backslashes
 
 def binary_comp(tokenized_expression):
     """
-    finds complexity, defined by number of operators, in a tokenized_expression.
-    In reality, it counts left parentheses. But it can easily be shown by induction
-    that this number and that of operators is equal.
+    finds complexity, defined by number of binary operators, in a tokenized_expression.
+    In reality, it counts left parentheses, but that ends up being basically the same.
 
     >>> binary_comp(tokenize('(A /wedge (B /vee C))'))
     2
@@ -119,7 +122,7 @@ def binary_comp(tokenized_expression):
     """
     return len([char for char in tokenized_expression if char == "("])
 
-def main_op_index(tokenized_expression):
+def main_op_index(tokenized_expression, unary_operators_names):
     """
     given an expression with complexity > 0, finds the index of the main operator.
     Starting after the expression's initial parenthesis, the point
@@ -151,8 +154,10 @@ def main_op_index(tokenized_expression):
             left_parentheses += 1
         elif token == ")":
             right_parentheses += 1
-        elif (
-            token in unary_operators
+        elif ( # this elif is necessary—e.g. token input to parse is 
+                # ['(', '\\neg', 'B', '\\wedge', '\\neg', 'D', ')']
+                # (it thinks B is an operator)
+            token in unary_operators_names
         ):  # ignore this case since this func is for binary complexity
             continue
         if left_parentheses == right_parentheses:
@@ -170,9 +175,7 @@ def main_op_index(tokenized_expression):
 #     pass
 
 def find_operator(op_str, model_setup):
-    print(type(model_setup.semantics))
-    print("aaaaa")
-    for op_class in model_setup.semantics.operators:
+    for op_class in model_setup.operators:
         op_instance = op_class(model_setup.semantics)
         print(op_str, op_instance.name)
         print(op_str == op_instance.name)
@@ -180,7 +183,7 @@ def find_operator(op_str, model_setup):
             return op_instance
     raise ValueError(f"did not recognize operator with name {op_str} out of "+
                      f"available operators"+
-                     f"{[op.name for op in [op_class(model_setup.semantics) for op_class in model_setup.semantics.operators]]}")
+                     f"{[op.name for op in [op_class(model_setup.semantics) for op_class in model_setup.operators]]}")
 
 # B: I added model_setup as an argument since it seemed to be needed as in find_operator
 def parse(tokens, model_setup):
@@ -197,13 +200,15 @@ def parse(tokens, model_setup):
     >>> parse(tokenize('((A /op (B /op C)) /op (D /op E))'))
     ['/op', ['/op', ['A'], ['/op', ['B'], ['C']]], ['/op', ['D'], ['E']]]
     """
+    unary_operators_names = set(op(model_setup.semantics).name for op in model_setup.operators if op(model_setup.semantics).arity == 1)
+    print(unary_operators_names)
     bin_comp_tokens = binary_comp(tokens)
-    if tokens[0] in unary_operators:  # must go before bin_comp_tokens == 0 case
+    if tokens[0] in unary_operators_names:  # must go before bin_comp_tokens == 0 case
         return [find_operator(tokens[0], model_setup), parse(tokens[1:], model_setup)] # B: should 
     if bin_comp_tokens == 0:
         token = tokens[0]
         return [Const(token, AtomSort)]  # Const is a function to make a constant
-    main_operator_index = main_op_index(tokens)  # determines how far the operation is
+    main_operator_index = main_op_index(tokens, unary_operators_names)  # determines how far the operation is
     op_str = tokens[main_operator_index]
     # start 1 (exclude first parenthesis), stop at same pos of above (exclusive)
     left_expression = tokens[1:main_operator_index]
@@ -212,6 +217,7 @@ def parse(tokens, model_setup):
     # from pos of op plus 1 to the penultimate, thus excluding the last
     # parentheses, which belongs to the main expression
     right_expression = tokens[main_operator_index + 1 : -1]
+    print(tokens)
     return [
         find_operator(op_str, model_setup),
         parse(left_expression, model_setup),
@@ -359,19 +365,19 @@ def pure_prefix(infix_sentence):
 
 # TESTS
 
-# unary = '\\neg A'
-# # unary_result = parse_expression(unary)
-# unary_result = pure_prefix(unary)
-# print(unary_result)  # Output: ['¬', 'A']
+unary = '\\neg A'
+# unary_result = parse_expression(unary)
+unary_result = pure_prefix(unary)
+print(unary_result)  # Output: ['¬', 'A']
 
-# binary = '(A \\vee B)'
-# binary_result = pure_prefix(binary)
-# print(binary_result)  # Output: ['∧', 'A', 'B']
+binary = '(A \\vee B)'
+binary_result = pure_prefix(binary)
+print(binary_result)  # Output: ['∧', 'A', 'B']
 
-# binary = '\\neg (A \\vee B)'
-# binary_result = pure_prefix(binary)
-# print(binary_result)  # Output: ['∧', 'A', 'B']
+binary = '\\neg (A \\vee B)'
+binary_result = pure_prefix(binary)
+print(binary_result)  # Output: ['∧', 'A', 'B']
 
-# comp = '((A \\random \\top) \\vee (\\bot \\operator B))'
-# complex_result = pure_prefix(comp)
-# print(complex_result)  # Output: ['∧', 'A', 'B']
+comp = '((A \\random \\top) \\vee (\\bot \\operator B))'
+complex_result = pure_prefix(comp)
+print(complex_result)  # Output: ['∧', 'A', 'B']
