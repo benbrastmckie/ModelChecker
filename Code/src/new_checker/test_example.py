@@ -2,13 +2,13 @@ from exposed_things import (Semantics,
                             AndOperator,
                             NegOperator,
                             OrOperator)
-from hidden_things import ModelSetup, ModelStructure
+from hidden_things import ModelSetup, ModelStructure, OperatorCollection
 
 
 premises = ['\\neg (A \\vee B)', '(C \\wedge D)']
 conclusions = ['(\\neg B \\wedge \\neg D)']
-operators = [AndOperator, NegOperator, OrOperator]
-print('made operator list (trivial)')
+operators = OperatorCollection(AndOperator, NegOperator, OrOperator)
+print('made operator collection (trivial)')
 semantics = Semantics(5)
 print('made semantics')
 model_setup = ModelSetup(premises, conclusions, semantics, 10000, False, False, False, operators)
