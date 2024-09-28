@@ -3,9 +3,22 @@ from z3 import (
     Solver,
     BoolRef,
     simplify,
+    Const,
+
 
 )
 import time
+
+# this import will ultimately be a problem
+from exposed_things import (Proposition,
+                                )
+
+from syntax import (prefix, AtomSort,
+                    find_operator,
+                    )
+
+from old_semantics_helpers import (all_sentence_letters, 
+                                   find_all_bits)
 
 # B: these are (or should be) purely syntactic functions and so may be best to include as methods
 # here or else in a syntax module
@@ -34,27 +47,29 @@ class ModelSetup:
         self.non_null = non_null
         self.disjoint = disjoint
 
-        self.prefix_premises = [self.prefix(prem) for prem in infix_premises]
-        self.prefix_conclusions = [self.prefix(con) for con in infix_conclusions]
+        self.prefix_premises = [prefix(prem, self) for prem in infix_premises]
+        self.prefix_conclusions = [prefix(con, self) for con in infix_conclusions]
         prefix_sentences = self.prefix_premises + self.prefix_conclusions
         self.all_subsentences = self.find_subsentences(prefix_sentences)
         self.all_sentence_letters = self.find_sentence_letters(prefix_sentences)
         
+        self.function_constraints = semantics.function_constraints
         self.frame_constraints = semantics.frame_constraints
-        self.model_constraints = [
-            semantics.find_model_constraints(sl)
-            for sl in self.all_sentence_letters
-        ]
+        self.model_constraints = []
+        for sl in self.all_sentence_letters:
+            self.model_constraints.extend(semantics.find_model_constraints(sl))
         self.premise_constraints = [
-            semantics.premise_behavior(prem, semantics.w)
+            semantics.premise_behavior(prem, semantics.main_world)
             for prem in self.prefix_premises
         ]
         self.conclusion_constraints = [
-            semantics.conclusion_behavior(conc, semantics.w)
+            semantics.conclusion_behavior(conc, semantics.main_world)
             for conc in self.prefix_conclusions
         ]
-        self.all_constraints = (self.frame_constraints + self.model_constraints + 
+        self.all_constraints = (self.function_constraints + self.frame_constraints + 
+                                self.model_constraints + 
                                 self.premise_constraints + self.conclusion_constraints)
+        print([type(i) for i in self.all_constraints])
 
     # B: is there any reason not to include all helper functions as methods of the class?
     # if so, we can move these to the syntax file which currently is not imported.
@@ -81,7 +96,9 @@ class ModelSetup:
             sentence_letters_in_input = self.sentence_letters_in_compound(prefix_input)
             for sentence_letter in sentence_letters_in_input:
                 sentence_letters.add(sentence_letter)
-        return sorted(sentence_letters)
+        print(sentence_letters)
+        print([type(sentence_letter) for sentence_letter in sentence_letters])
+        return list(sentence_letters)
 
     def repeats_removed(self, sentences):
         '''takes a list and removes the repeats in it.
@@ -168,6 +185,7 @@ class ModelSetup:
             # return [Const(token, AtomSort)]
             return tokens
 
+        print(tokens)
         token = tokens.pop(0) # Get the next token
         
         # Handle binary operator case (indicated by parentheses)
@@ -181,14 +199,17 @@ class ModelSetup:
             operator, left, right = self.left_op_right(tokens)
             left_arg = self.parse_expression(left)  # Parse the left argument
             right_arg = self.parse_expression(right)  # Parse the right argument
-            return [operator, left_arg, right_arg]
+            return [find_operator(operator, self), left_arg, right_arg]
 
+        # M: made a slight change here to match up with old prefix notation syntax
         # Handle atomic sentences and zero-place extremal operators
-        if token.isalnum() or token in {'\\top', '\\bot'}:
-            return token  # Return atomic sentence
+        if token.isalnum():
+            return [Const(token, AtomSort)]
+        elif token in {'\\top', '\\bot'}:
+            return [find_operator(token, self)]
 
         # Handle unary operators which don't need parentheses
-        return [token, self.parse_expression(tokens)]  # Recursively parse the argument for unary operators
+        return [find_operator(token, self), self.parse_expression(tokens)]  # Recursively parse the argument for unary operators
 
     def prefix(self, infix_sentence):
         """For converting from infix to prefix notation without knowing which
@@ -218,9 +239,11 @@ class ModelSetup:
             model_end = time.time()
             model_runtime = round(model_end - model_start, 4)
             if result == sat:
-                return False, True, solver.model(), model_runtime
+                print("FOUND MODEL")
+                return self, False, True, solver.model(), model_runtime
             if solver.reason_unknown() == "timeout":
                 return True, False, None, model_runtime
+            print("NO MODEL")
             return self, False, False, solver.unsat_core(), model_runtime
         except RuntimeError as e:
             # Handle unexpected exceptions
@@ -239,27 +262,25 @@ class ModelStructure:
         self.model_status = z3_model_status
         self.model_runtime = z3_model_runtime
 
-        self.N = model_setup.N
+        self.N = model_setup.semantics.N
         self.all_subsentences = model_setup.all_subsentences
         prefix_sentences = model_setup.prefix_premises + model_setup.prefix_conclusions
+        print("\n\n")
+        print(prefix_sentences)
+        print("\n\n")
         self.sentence_letters = all_sentence_letters(prefix_sentences)
 
         self.all_bits = find_all_bits(self.N) # M: can be kept
         self.poss_bits = [bit for bit in self.all_bits if self.z3_model.evaluate(semantics.possible(bit))]
         self.world_bits = [bit for bit in self.all_bits if self.z3_model.evaluate(semantics.is_world(bit))]
-        self.main_world = self.z3_model[semantics.w]
-        # M: stuff below can hardly be kept. Need to rethink how to do this.
-        # M: the rest of this can actually go in the Proposition class I think, basically
-        self.atomic_props_dict = atomic_propositions_dict_maker(self)
-        self.all_propositions = [
-            Proposition(sent, self, self.main_world) for sent in model_setup.all_subsentences
-        ]
-        self.premise_propositions = [
-            Proposition(sent, self, self.main_world) for sent in model_setup.prefix_premises
-        ]
-        self.conclusion_propositions = [
-            Proposition(sent, self, self.main_world) for sent in model_setup.prefix_conclusions
-        ]
+        self.main_world = self.z3_model[semantics.main_world]
+        self.all_propositions = [] # these will be automatically added when the two below are called
+        # right now it adds all subpropositions
+        self.premise_propositions = [Proposition(prefix_sent, self)
+                                    for prefix_sent in model_setup.prefix_premises]
+        self.conclusion_propositions = [Proposition(prefix_sent, self)
+                                    for prefix_sent in model_setup.prefix_conclusions]
+
 
     def evaluate(self, z3_expr):
         '''

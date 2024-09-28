@@ -188,3 +188,28 @@ def solve_constraints(all_constraints): # will go in ModelSetup
     if result == sat:
         return (True, solver.model())
     return (False, solver.unsat_core())
+
+### originally model_definitions—this and find_all_bits
+def summation(n, func, start = 0):
+    '''summation of i ranging from start to n of func(i)
+    used in find_all_bits'''
+    if start == n:
+        return func(start)
+    return func(start) + summation(n,func,start+1)
+
+# unused
+# def find_null_bit(size):
+#     '''finds the null bit'''
+#     return [BitVecVal(0, size)]
+
+def find_all_bits(size):
+    '''extract all bitvectors from the input model
+    imported by model_structure'''
+    all_bits = []
+    max_bit_number = summation(size + 1, lambda x: 2**x)
+    for val in range(max_bit_number):
+        test_bit = BitVecVal(val, size)
+        if test_bit in all_bits:
+            continue
+        all_bits.append(test_bit)
+    return all_bits

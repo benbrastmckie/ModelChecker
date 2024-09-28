@@ -170,12 +170,17 @@ def main_op_index(tokenized_expression):
 #     pass
 
 def find_operator(op_str, model_setup):
-    for op_class in model_setup.operators:
+    print(type(model_setup.semantics))
+    print("aaaaa")
+    for op_class in model_setup.semantics.operators:
         op_instance = op_class(model_setup.semantics)
-        if op_str == op_instance.name:
+        print(op_str, op_instance.name)
+        print(op_str == op_instance.name)
+        if op_str[1:] == op_instance.name[1:]:
             return op_instance
     raise ValueError(f"did not recognize operator with name {op_str} out of "+
-                     f"available operators {model_setup.operators}")
+                     f"available operators"+
+                     f"{[op.name for op in [op_class(model_setup.semantics) for op_class in model_setup.semantics.operators]]}")
 
 # B: I added model_setup as an argument since it seemed to be needed as in find_operator
 def parse(tokens, model_setup):
@@ -341,7 +346,7 @@ def parse_expression(tokens):
 
     # Handle atomic sentences and extremal elements (zero-place operators)
     if token.isalnum() or token in {'\\top', '\\bot'}:
-        return token  # Return atomic sentence
+        return [Const(token, AtomSort)]  # Return atomic sentence
 
     # Handle unary operator case (unary operators don't need parentheses)
     return [token, parse_expression(tokens)]  # Recursively parse the argument for unary operators
@@ -354,15 +359,19 @@ def pure_prefix(infix_sentence):
 
 # TESTS
 
-unary = '\\neg A'
-# unary_result = parse_expression(unary)
-unary_result = pure_prefix(unary)
-print(unary_result)  # Output: ['¬', 'A']
+# unary = '\\neg A'
+# # unary_result = parse_expression(unary)
+# unary_result = pure_prefix(unary)
+# print(unary_result)  # Output: ['¬', 'A']
 
-binary = '(A \\vee B)'
-binary_result = pure_prefix(binary)
-print(binary_result)  # Output: ['∧', 'A', 'B']
+# binary = '(A \\vee B)'
+# binary_result = pure_prefix(binary)
+# print(binary_result)  # Output: ['∧', 'A', 'B']
 
-comp = '((A \\random \\top) \\vee (\\bot \\operator B))'
-complex_result = pure_prefix(comp)
-print(complex_result)  # Output: ['∧', 'A', 'B']
+# binary = '\\neg (A \\vee B)'
+# binary_result = pure_prefix(binary)
+# print(binary_result)  # Output: ['∧', 'A', 'B']
+
+# comp = '((A \\random \\top) \\vee (\\bot \\operator B))'
+# complex_result = pure_prefix(comp)
+# print(complex_result)  # Output: ['∧', 'A', 'B']
