@@ -9,7 +9,6 @@ from z3 import (
 import time
 
 from syntax import (prefix, AtomSort,
-                    find_operator,
                     )
 
 from old_semantics_helpers import (all_sentence_letters, 
@@ -238,17 +237,17 @@ class ModelSetup:
             print(operator, left, right)
             left_arg = self.parse_expression(left)  # Parse the left argument
             right_arg = self.parse_expression(right)  # Parse the right argument
-            return [find_operator(operator, self), left_arg, right_arg]
+            return [self.operators[operator], left_arg, right_arg]
 
         # M: made a slight change here to match up with old prefix notation syntax
         # Handle atomic sentences and zero-place extremal operators
         if token.isalnum():
             return [Const(token, AtomSort)]
         elif token in {'\\top', '\\bot'}:
-            return [find_operator(token, self)]
+            return [self.operators[token]]
 
         # Handle unary operators which don't need parentheses
-        return [find_operator(token, self), self.parse_expression(tokens)]  # Recursively parse the argument for unary operators
+        return [self.operators[token], self.parse_expression(tokens)]  # Recursively parse the argument for unary operators
 
     def prefix(self, infix_sentence):
         """For converting from infix to prefix notation without knowing which
@@ -314,7 +313,7 @@ class ModelStructure:
         self.world_bits = [bit for bit in self.poss_bits if self.z3_model.evaluate(semantics.is_world(bit))]
         self.main_world = self.z3_model[semantics.main_world]
         self.all_propositions = set() # this will be automatically populated when the two below are called
-        # right now it adds all subpropositions
+                                      # right now all subpropositions are added
         self.premise_propositions = [model_setup.proposition_class(prefix_sent, self)
                                     for prefix_sent in model_setup.prefix_premises]
         self.conclusion_propositions = [model_setup.proposition_class(prefix_sent, self)
@@ -380,8 +379,8 @@ class ModelStructure:
     # inputs in R^3, meaning, with e.g. N=7 there are (2^7)^3 = 2 million different input combos. 
     # Even worse, in that strategy you'd create a constraint for every single combination of
     # bits in the space R^n for n the number of arguments taken by the function. 
-    # so for N=7 and a 3-place predicate, you'd create a constraint that is a conjunction of 2 million
-    # constraints—in tests it looked like Z3 tapped out at that point, it was just taking too long
+    # so for N=7 and a 3-place predicate, you'd create a constraint that is itself a conjunction of
+    # 2 million constraints—in tests Z3 was taking too long for that (I never saw it terminate)
     
     # how about you just don't worry about all that stuff? Like, focus on the extensional case.
     # all that crap only matters for the later stuff anyways.
