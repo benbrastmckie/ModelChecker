@@ -2,58 +2,12 @@
 file contains all syntactic definitions
 
 NOTES:
-All commands must be strictly in lowercase. They must have nothing before or double backslash.
+Any latex commands must have double backslash.
 Sentence letters can be anything.
-The unary operators are defined in a separate set for clarity in the code.
 """
 from z3 import Const, DeclareSort
 
 AtomSort = DeclareSort("AtomSort")
-
-# B: do we use this? I remember that it works with sentences like '(john_ran \wedge sue_sang)'
-# M: I don't think we use this
-# capital_alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
-#                     "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",}
-
-# B: I think it may make sense to require operators to have a backslash so as to allow for
-# sentence letters like 'john_toppled_over' since this may be very helpful in practice
-# unary_operators = {
-#     "\\neg", "neg",
-#     "\\not", "not",
-#     "Box", "\\Box",
-#     "Diamond", "\\Diamond",
-# }
-# binary_operators = {
-#     "\\wedge", "wedge",
-#     "\\vee", "vee",
-#     "\\rightarrow", "rightarrow",
-#     "\\leftrightarrow", "leftrightarrow",
-#     "\\boxright", "boxright",
-#     "\\circleright", "circleright",
-#     "\\imposition", "imposition",
-#     "\\leq", "leq",
-#     "\\sqsubseteq", "sqsubseteq",
-#     "\\equiv", "equiv",
-#     "\\preceq", "preceq",
-# }
-# all_operators = unary_operators.union(binary_operators)
-
-# # B: if we fix the convention that backslashes are required for operators, can we drop this?
-# # M: yes
-# def add_double_backslashes(tokens):
-#     """adds a double backslash to tokens in the output of tokenize that meet these 3 conditions:
-#     1. are not capital letters,
-#     2. do not already have a double backslash in them, AND
-#     3. are not parentheses
-#     returns the input tokens list with tokens having those qualities modified as described
-#     """
-#     new_tokens = []
-#     for token in tokens:
-#         if (token in all_operators and "\\" not in token):
-#             token = "\\" + token
-#         new_tokens.append(token)
-#     return new_tokens
-
 
 def tokenize(str_exp):
     """
@@ -91,23 +45,6 @@ def tokenize(str_exp):
 
     raw_tokens = tokenize_improved_input(split_str)
     return raw_tokens
-    # return add_double_backslashes(raw_tokens)
-
-# both of these are currently unused
-# def rejoin_tokens(tokens):
-#     infix_expr = ''
-#     for token in tokens:
-#         if token in binary_operators:
-#             token = f' {token} '
-#         if token in unary_operators:
-#             token = f'{token} '
-#         infix_expr += token
-#     return infix_expr
-
-# def add_backslashes_to_infix(infix_expr):
-#     tokens_with_backslashes = tokenize(infix_expr)
-#     rejoined_with_backslashes = rejoin_tokens(tokens_with_backslashes)
-#     return rejoined_with_backslashes
 
 def binary_comp(tokenized_expression):
     """
@@ -169,27 +106,6 @@ def main_op_index(tokenized_expression, unary_operators_names):
         f"Looks like nothing was passed into main_op_index ({tokenized_expression})",
     )
 
-# # M: most likely not necessary, but leaving here in case later it is
-# def find_atom_strings(tokens):
-#     """make list of all basic tokens to apply AtomSort to"""
-#     pass
-
-def find_operator(op_str, model_setup):
-    for op_name in model_setup.operators:
-        if op_str[1:] == op_name[1:]:
-            op_instance = model_setup.operators[op_name]
-            return op_instance
-    # for op_class in model_setup.operators:
-    #     op_instance = op_class(model_setup.semantics)
-    #     print(op_str, op_instance.name)
-    #     print(op_str == op_instance.name)
-    #     if op_str[1:] == op_instance.name[1:]:
-    #         return op_instance
-    raise ValueError(f"did not recognize operator with name {op_str} out of "+
-                     f"available operators"+
-                     f"{[op_name for op_name in model_setup.operators]}")
-
-# B: I added model_setup as an argument since it seemed to be needed as in find_operator
 def parse(tokens, model_setup):
     """
     >>> parse(tokenize("(A /wedge (B /lor C))"))
@@ -207,7 +123,7 @@ def parse(tokens, model_setup):
     unary_operators_names = set(op_name for (op_name, op) in model_setup.operators.items() if op.arity == 1)
     bin_comp_tokens = binary_comp(tokens)
     if tokens[0] in unary_operators_names:  # must go before bin_comp_tokens == 0 case
-        return [find_operator(tokens[0], model_setup), parse(tokens[1:], model_setup)] # B: should 
+        return [model_setup.operators[tokens[0]], parse(tokens[1:], model_setup)] # B: should 
     if bin_comp_tokens == 0:
         token = tokens[0]
         return [Const(token, AtomSort)]  # Const is a function to make a constant
@@ -221,7 +137,7 @@ def parse(tokens, model_setup):
     # parentheses, which belongs to the main expression
     right_expression = tokens[main_operator_index + 1 : -1]
     return [
-        find_operator(op_str, model_setup),
+        model_setup.operators[op_str],
         parse(left_expression, model_setup),
         parse(right_expression, model_setup)
     ]
