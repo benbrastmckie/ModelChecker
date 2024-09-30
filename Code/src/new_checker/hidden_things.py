@@ -12,7 +12,13 @@ from syntax import (prefix, AtomSort,
                     )
 
 from old_semantics_helpers import (all_sentence_letters, 
-                                   find_all_bits)
+                                   find_all_bits,
+                                   bitvec_to_substates,
+                                   int_to_binary,
+
+                                   )
+
+import sys
 
 class Operator:
     name = None
@@ -106,7 +112,26 @@ class ModelSetup:
                                 self.frame_constraints + 
                                 self.model_constraints + 
                                 self.premise_constraints + self.conclusion_constraints)
-        print([type(i) for i in self.all_constraints])
+        
+    def print_enumerate(self, output=sys.__stdout__):
+        """prints the premises and conclusions with numbers"""
+        infix_premises = self.infix_premises
+        infix_conclusions = self.infix_conclusions
+        start_con_num = len(infix_premises) + 1
+        if self.infix_premises:
+            if len(self.infix_premises) < 2:
+                print("Premise:", file=output)
+            else:
+                print("Premises:", file=output)
+            for index, sent in enumerate(self.infix_premises, start=1):
+                print(f"{index}. {sent}", file=output)
+        if infix_conclusions:
+            if len(infix_conclusions) < 2:
+                print("\nConclusion:", file=output)
+            else:
+                print("\nConclusions:", file=output)
+            for index, sent in enumerate(infix_conclusions, start=start_con_num):
+                print(f"{index}. {sent}", file=output)
 
     # B: is there any reason not to include all helper functions as methods of the class?
     # if so, we can move these to the syntax file which currently is not imported.
@@ -133,8 +158,6 @@ class ModelSetup:
             sentence_letters_in_input = self.sentence_letters_in_compound(prefix_input)
             for sentence_letter in sentence_letters_in_input:
                 sentence_letters.add(sentence_letter)
-        print(sentence_letters)
-        print([type(sentence_letter) for sentence_letter in sentence_letters])
         return list(sentence_letters)
 
     def repeats_removed(self, sentences):
@@ -222,7 +245,6 @@ class ModelSetup:
             # return [Const(token, AtomSort)]
             return tokens
 
-        print(tokens)
         token = tokens.pop(0) # Get the next token
         
         # Handle binary operator case (indicated by parentheses)
@@ -234,7 +256,6 @@ class ModelSetup:
 
             # Extract operator and arguments
             operator, left, right = self.left_op_right(tokens)
-            print(operator, left, right)
             left_arg = self.parse_expression(left)  # Parse the left argument
             right_arg = self.parse_expression(right)  # Parse the right argument
             return [self.operators[operator], left_arg, right_arg]
@@ -303,9 +324,6 @@ class ModelStructure:
         self.N = model_setup.semantics.N
         self.all_subsentences = model_setup.all_subsentences
         prefix_sentences = model_setup.prefix_premises + model_setup.prefix_conclusions
-        print("\n\n")
-        print(prefix_sentences)
-        print("\n\n")
         self.sentence_letters = all_sentence_letters(prefix_sentences)
 
         self.all_bits = find_all_bits(self.N)
@@ -328,6 +346,110 @@ class ModelStructure:
         if isinstance(z3_expr, BoolRef):
             return bool(simplify(z3_expr))
         return simplify(z3_expr)
+    
+    def print_evaluation(self, output=sys.__stdout__):
+        """print the evaluation world and all sentences letters that true/false
+        in that world"""
+        N = self.model_setup.semantics.N
+        sentence_letters = self.sentence_letters
+        main_world = self.main_world
+        print(
+            f"\nThe evaluation world is: {bitvec_to_substates(main_world, N)}",
+            file=output,
+        )
+        # true_in_eval = set()
+        # for sent in sentence_letters:
+        #     for bit in self.all_bits:
+        #         ver_bool = self.model_setup.verify(bit, self.z3_model[sent])
+        #         part_bool = bit_part(bit, main_world)
+        #         if bool(self.z3_model.evaluate(ver_bool) and part_bool):
+        #             true_in_eval.add(sent)
+        #             break  # exits the first for loop
+        # false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
+        # GREEN = '\033[32m'
+        # RED = '\033[31m'
+        # # YELLOW = '\033[33m'
+        # RESET = '\033[0m'
+        # world_state = bitvec_to_substates(main_world, N)
+        # if true_in_eval:
+        #     true_eval_list = sorted([str(sent) for sent in true_in_eval])
+        #     true_eval_string = ", ".join(true_eval_list)
+        #     print(
+        #         f"  {GREEN}{true_eval_string}  (True in {world_state}){RESET}",
+        #         file=output,
+        #     )
+        # if false_in_eval:
+        #     false_eval_list = sorted([str(sent) for sent in false_in_eval])
+        #     false_eval_string = ", ".join(false_eval_list)
+        #     print(
+        #         f"  {RED}{false_eval_string}  (False in {world_state}){RESET}",
+        #         file=output,
+        #     )
+        # print(file=output)
+
+    # def print_to(self, print_constraints_bool, print_impossible, output=sys.__stdout__):
+    #     """append all elements of the model to the file provided"""
+    #     self.print_all(print_impossible, output)
+    #     structure = self.model_setup
+    #     setup = self.model_setup
+    #     if print_constraints_bool:
+    #         structure.print_constraints(setup.frame_constraints, 'FRAME', output)
+    #         structure.print_constraints(setup.prop_constraints, 'PROPOSITION', output)
+    #         structure.print_constraints(setup.premise_constraints, 'PREMISE', output)
+    #         structure.print_constraints(setup.conclusion_constraints, 'CONCLUSION', output)
+    #     print(f"Run time: {self.model_runtime} seconds\n", file=output)
+
+    # def save_to(self, cons_include, print_impossible, output):
+    #     """append all elements of the model to the file provided"""
+    #     constraints = self.model_setup.constraints
+    #     self.print_all(print_impossible, output)
+    #     self.model_setup.build_test_file(output)
+    #     if cons_include:
+    #         print("# Satisfiable constraints", file=output)
+    #         # TODO: print constraint objects, not constraint strings
+    #         print(f"all_constraints = {constraints}", file=output)
+
+    def print_states(self, print_impossible=False, output=sys.__stdout__):
+        """print all fusions of atomic states in the model
+        print_impossible is a boolean for whether to print impossible states or not
+        first print function in print.py"""
+        N = self.model_setup.semantics.N
+        print("\nState Space:", file=output)  # Print states
+        YELLOW = '\033[33m'
+        BLUE = '\033[34m'
+        MAGENTA = '\033[35m'
+        CYAN = '\033[36m'
+        WHITE = '\033[37m'
+        RESET = '\033[0m'
+        for bit in self.all_bits:
+            state = bitvec_to_substates(bit, N)
+            bin_rep = (
+                bit.sexpr()
+                if N % 4 != 0
+                else int_to_binary(int(bit.sexpr()[2:], 16), N)
+            )
+            if bit == 0:
+                print(f"  {WHITE}{bin_rep} = {YELLOW}{state}{RESET}", file=output)
+                continue
+            if bit in self.world_bits:
+                print(f"  {WHITE}{bin_rep} = {BLUE}{state} (world){RESET}", file=output)
+                continue
+            if bit in self.poss_bits:
+                print(f"  {WHITE}{bin_rep} = {CYAN}{state}{RESET}", file=output)
+                continue
+            if print_impossible:
+                print(f"  {WHITE}{bin_rep} = {MAGENTA}{state} (impossible){RESET}", file=output)
+
+    def print_all(self, print_impossible=False, output=sys.__stdout__):
+        """prints states, sentence letters evaluated at the designated world and
+        recursively prints each sentence and its parts"""
+        N = self.model_setup.semantics.N
+        print(f"\nThere is a {N}-model of:\n", file=output)
+        self.model_setup.print_enumerate(output)
+        self.print_states(print_impossible, output)
+        self.print_evaluation(output)
+        # self.print_inputs_recursively(print_impossible, output) # missing
+
     
     # for printing methods: 
     # we can keep the beginning—printing out the premises, conclusions, and whether there
