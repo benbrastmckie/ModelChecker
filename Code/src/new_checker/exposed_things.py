@@ -18,72 +18,9 @@ from syntax import AtomSort
 
 from hidden_things import Operator
 
-def ForAllFinite(bvs, formula):
-    """
-    generates constraints by substituting all possible bitvectors for the variables in the formula
-    before taking the conjunction of those constraints
-    """
-    constraints = []
-    if not isinstance(bvs, list):
-        bvs = [bvs]
-    bv_test = bvs[0]
-    temp_N = bv_test.size()
-    num_bvs = 2 ** temp_N
-    if len(bvs) == 1:
-        bv = bvs[0]
-        for i in range(num_bvs):
-            substituted_formula = substitute(formula, (bv, BitVecVal(i, temp_N)))
-            constraints.append(substituted_formula)
-    else:
-        bv = bvs[0]
-        remaining_bvs = bvs[1:]
-        reduced_formula = ForAllFinite(remaining_bvs, formula)
-        for i in range(num_bvs):
-            substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, temp_N)))
-            constraints.append(substituted_reduced_formula)
-    return And(constraints)
+from old_semantics_helpers import (product, coproduct, 
+                                   ForAll, Exists)
 
-def ExistsFinite(bvs, formula):
-    """
-    generates constraints by substituting all possible bitvectors for the variables in the formula
-    before taking the disjunction of those constraints
-    """
-    constraints = []
-    if not isinstance(bvs, list):
-        bvs = [bvs]
-    bv_test = bvs[0]
-    temp_N = bv_test.size()
-    num_bvs = 2 ** temp_N
-    if len(bvs) == 1:
-        bv = bvs[0]
-        for i in range(num_bvs):
-            substituted_formula = substitute(formula, (bv, BitVecVal(i, temp_N)))
-            constraints.append(substituted_formula)
-    else:
-        bv = bvs[0]
-        remaining_bvs = bvs[1:]
-        reduced_formula = ForAllFinite(remaining_bvs, formula)
-        for i in range(num_bvs):
-            substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, temp_N)))
-            constraints.append(substituted_reduced_formula)
-    return Or(constraints)
-
-ForAll = ForAllFinite
-Exists = ExistsFinite
-
-def product(set_A, set_B):
-    """set of pairwise fusions of elements in set_A and set_B"""
-    product_set = set()
-    for bit_a in set_A:
-        for bit_b in set_B:
-            bit_ab = simplify(bit_a | bit_b)
-            product_set.add(bit_ab)
-    return product_set
-
-def coproduct(set_A, set_B):
-    """union closed under pairwise fusion"""
-    A_U_B = set_A.union(set_B)
-    return A_U_B.union(product(set_A, set_B))
 
 class Semantics:
     def __init__(self, N):
@@ -178,8 +115,6 @@ class Semantics:
         if len(prefix_sentence) == 1:
             sent = prefix_sentence[0]
             if not sent in {'\\top', '\\bot'}: # sentence letter case
-            # B: it used to look like this:
-            # if 'top' not in str(sent)[0]:
                 x = BitVec("t_atom_x", self.N)
                 return Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent)))
         operator = prefix_sentence[0]
@@ -190,8 +125,6 @@ class Semantics:
         if len(prefix_sentence) == 1:
             sent = prefix_sentence[0]
             if not sent in {'\\top', '\\bot'}: # sentence letter case
-            # B: it used to look like this:
-            # if 'bot' not in str(sent)[0]:
                 x = BitVec("f_atom_x", self.N)
                 return Exists(x, And(self.is_part_of(x, eval_world), self.falsify(x, sent))) # REMOVABLE
         operator = prefix_sentence[0]
@@ -250,9 +183,10 @@ class Proposition:
         self.prefix_sentence = prefix_sentence
         self.model_structure = model_structure
         self.semantics = model_structure.model_setup.semantics
+        # self.verifiers, self.falsifiers = None, None # for avoiding useless recursion
         self.verifiers, self.falsifiers = self.find_verifiers_and_falsifiers()
         self.model_structure.all_propositions.add(self)
-        print(f'made proposition for {prefix_sentence}')
+        # print(f'made proposition for {self.prefix_sentence}')
 
     def __repr__(self):
         return str(self.prefix_sentence)
@@ -261,14 +195,17 @@ class Proposition:
         return 0
     
     def __eq__(self, other):
-        if (self.verifiers == other.verifiers and 
-            self.falsifiers == other.falsifiers and 
-            str(self.prefix_sentence) == str(other.prefix_sentence)):
+        if (self.verifiers == other.verifiers
+            and self.falsifiers == other.falsifiers
+            and str(self.prefix_sentence) == str(other.prefix_sentence)
+            ):
             return True
         return False
 
     def find_verifiers_and_falsifiers(self):
-        all_bits = self.model_structure.all_bits
+        # if not(self.verifiers is None and self.falsifiers is None): # M: not sure if this helps
+        #     return
+        all_bits= self.model_structure.all_bits
         model = self.model_structure.z3_model
         sem = self.semantics
         if len(self.prefix_sentence) == 1:
@@ -276,16 +213,17 @@ class Proposition:
             V = {bit for bit in all_bits if model.evaluate(sem.verify(bit, atom))}
             F = {bit for bit in all_bits if model.evaluate(sem.falsify(bit, atom))}
             return V, F
-        else:
-            operator = self.prefix_sentence[0]
-            prefix_args = self.prefix_sentence[1:]
-            # instead of making new propositions no matter what, we could do a memoization
-            # sort of thing where first we check if a proposition with the prefix form
-            # in question has already been made—if so, it would be in the model_structure's
-            # all_propositions attribute
-            # this would speed things up during the creation of the ModelStructure object
-            children_subprops = [Proposition(arg, self.model_structure) for arg in prefix_args]
-            return operator.find_verifiers_and_falsifiers(*children_subprops)
+        operator, prefix_args = self.prefix_sentence[0], self.prefix_sentence[1:]
+        # # M: Not sure if this till commented line helps
+        # current_props = {str(p.prefix_sentence):p for p in self.model_structure.all_propositions}
+        # children_subprops = []
+        # for arg in prefix_args:
+        #     if str(arg) in current_props:
+        #         children_subprops.append(current_props[str(arg)])
+        #     else:
+        #         children_subprops.append(Proposition(arg, self.model_structure))
+        children_subprops = [Proposition(arg, self.model_structure) for arg in prefix_args]
+        return operator.find_verifiers_and_falsifiers(*children_subprops)
         
     def truth_or_falsity_at_world(self, world):
         semantics = self.model_structure.model_setup.semantics
@@ -342,7 +280,6 @@ class NegOperator(Operator):
 
     def true_at(self, arg, eval_world):
         """doc string place holder"""
-        print(type(self.semantics))
         return self.semantics.false_at(arg, eval_world)
 
     def false_at(self, arg, eval_world):
