@@ -295,13 +295,16 @@ class TopOperator(Operator):
     name = '\\top'
     arity = 0
 
-    def true_at(self, arg, eval_world):
+    def true_at(self, eval_world):
         """doc string place holder"""
+        N = self.semantics.N
+        return BitVecVal(1,N) == BitVecVal(1,N)
         return # B: we want this to be no constraint at all, or a trivial one
 
-    def false_at(self, arg, eval_world):
+    def false_at(self, eval_world):
         """doc string place holder"""
-        return # B: we want this to be a constraint that cannot be satisfied
+        N = self.semantics.N
+        return BitVecVal(0,N) == BitVecVal(1,N)
     
     def find_verifiers_and_falsifiers(argprop):
         pass
@@ -311,13 +314,15 @@ class BotOperator(Operator):
     name = '\\bot'
     arity = 0
 
-    def true_at(self, arg, eval_world):
+    def true_at(self, eval_world):
         """doc string place holder"""
-        return # B: we want this to be a constraint that cannot be satisfied
+        N = self.semantics.N
+        return BitVecVal(0,N) == BitVecVal(1,N)
 
-    def false_at(self, arg, eval_world):
+    def false_at(self, eval_world):
         """doc string place holder"""
-        return # B: we want this to be no constraint at all, or a trivial one
+        N = self.semantics.N
+        return BitVecVal(1,N) == BitVecVal(1,N)
     
     def find_verifiers_and_falsifiers(argprop):
         pass
