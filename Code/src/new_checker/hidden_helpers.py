@@ -73,8 +73,6 @@ def parse_expression(tokens, model_setup):
         # B: are sentence letters lists of length 1?
         return [Const(token, AtomSort)]
     elif token in {"\\top", "\\bot"}:
-        print(f"TEST token: {token}")
-        print("TEST", model_setup.operators.keys())
         return [model_setup.operators[token]]
     return [model_setup.operators[token], parse_expression(tokens, model_setup)]  # Unary operators
 
