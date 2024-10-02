@@ -34,7 +34,11 @@ print(f"Here is a prefix sentence: {infix_ex}")
 # seems like this would skip a step here and would carve at the conceptual joints
 # but maybe there is something I'm still missing
 solve_output = model_setup.solve()
-print("solved the constraints")
+if solve_output[2]:
+    print("solved the constraints")
+else:
+    print("did not solve the constraints")
+
 model_structure = ModelStructure(*solve_output)
 print("made model_structure")
 print("back at editable file")

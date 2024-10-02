@@ -314,11 +314,9 @@ class ModelSetup:
             model_end = time.time()
             model_runtime = round(model_end - model_start, 4)
             if result == sat:
-                print("TEST: FOUND MODEL")
                 return self, False, True, solver.model(), model_runtime
             if solver.reason_unknown() == "timeout":
                 return self, True, False, None, model_runtime
-            print("TEST: NO MODEL")
             return self, False, False, solver.unsat_core(), model_runtime
         except RuntimeError as e: # Handle unexpected exceptions
             print(f"An error occurred while running `solve_constraints()`: {e}")
