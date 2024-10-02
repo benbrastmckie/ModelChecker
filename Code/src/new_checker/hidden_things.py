@@ -3,13 +3,12 @@ from z3 import (
     Solver,
     BoolRef,
     simplify,
-    Const,
 )
 
 import time
 
-from syntax import (
-    AtomSort,
+from hidden_helpers import (
+    parse_expression,
 )
 
 from old_semantics_helpers import (
@@ -219,78 +218,11 @@ class ModelSetup:
             all_subsentences.extend(all_prefix_subs)
         return self.repeats_removed(all_subsentences)
 
-    def balanced_parentheses(self, tokens):
-        stack = []
-        for token in tokens:
-            if token == '(':
-                stack.append(token)
-            elif token == ')':
-                if not stack:
-                    return False
-                stack.pop()
-        return len(stack) == 0
-
-    def left_op_right(self, tokens):
-        """Divides whatever is inside a pair of parentheses into the left argument,
-        right argument, and the operator."""
-        count = 0  # To track nested parentheses
-        left = []
-        operator = None
-        while tokens:
-            token = tokens.pop(0)
-            if token == "(":
-                count += 1
-                left.append(token)
-            elif token == ")":
-                count -= 1
-                left.append(token)
-            elif count > 0:
-                left.append(token)
-            elif token.isalnum() or token in {"\\top", "\\bot"}:
-                left.append(token)
-                if not tokens:
-                    raise ValueError(f"Expected an operator following {token}")
-                operator = tokens.pop(0)
-                if not tokens:
-                    raise ValueError(
-                        f"Expected an argument after the operator {operator}"
-                    )
-                if not self.balanced_parentheses(tokens):
-                    raise ValueError("Unbalanced parentheses")
-                right = tokens  # Remaining tokens are the right argument
-                return operator, left, right
-            else:
-                left.append(token)
-        raise ValueError("Invalid expression or unmatched parentheses")
-
-    def parse_expression(self, tokens):
-        """Parses a list of tokens representing a propositional expression and returns
-        the expression in prefix notation."""
-        if not tokens:  # Check if tokens are empty before processing
-            raise ValueError("Empty token list")
-        token = tokens.pop(0)  # Get the next token
-        if token == "(":  # Handle binary operator case (indicated by parentheses)
-            if tokens[-1] != ")":
-                raise SyntaxError(f"The sentence {tokens} is missing a closing parenthesis.")
-            tokens.pop()  # Remove the closing parenthesis
-            operator, left, right = self.left_op_right(tokens)  # Extract operator and arguments
-            left_arg = self.parse_expression(left)  # Parse the left argument
-            right_arg = self.parse_expression(right)  # Parse the right argument
-            return [self.operators[operator], left_arg, right_arg]
-        if token.isalnum():  # Handle atomic sentences
-            # B: are sentence letters lists of length 1?
-            return [Const(token, AtomSort)]
-        elif token in {"\\top", "\\bot"}:
-            print(f"TEST token: {token}")
-            print("TEST", self.operators.keys())
-            return [self.operators[token]]
-        return [self.operators[token], self.parse_expression(tokens)]  # Handle unary operators
-
     def prefix(self, infix_sentence):
         """For converting from infix to prefix notation without knowing which
         which operators the language includes."""
         tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
-        return self.parse_expression(tokens)
+        return parse_expression(tokens, self)
 
     def infix(self, prefix_sent):
         """takes a sentence in prefix notation and translates it to infix notation"""
