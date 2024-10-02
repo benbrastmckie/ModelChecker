@@ -143,6 +143,8 @@ class Semantics:
 class Proposition:
 
     # B: I moved proposition_constraints down if that makes sense
+    # B: I think we might want to reverse prefix_sentence and model_structure args here
+    # see 
     def __init__(self, prefix_sentence, model_structure):
         self.prefix_sentence = prefix_sentence
         self.model_structure = model_structure
