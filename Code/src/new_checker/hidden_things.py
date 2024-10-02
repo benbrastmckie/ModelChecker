@@ -115,7 +115,7 @@ class ModelSetup:
         self.model_constraints = []
         for sl in self.all_sentence_letters:
             self.model_constraints.extend(
-                proposition_class.proposition_constraints(sl, self)
+                proposition_class.proposition_constraints(self, sl, self)
             )
         # B: this all looks perfect!
         self.premise_constraints = [
@@ -220,13 +220,95 @@ class ModelSetup:
             all_subsentences.extend(all_prefix_subs)
         return self.repeats_removed(all_subsentences)
 
+    # def left_op_right(self, tokens):
+    #     """Divides whatever is inside a pair of parentheses into the left argument,
+    #     right argument, and the operator."""
+    #
+    #     tokens = tokens[:]
+    #     count = 0  # To track nested parentheses
+    #     left = []
+    #
+    #     while tokens:
+    #         token = tokens.pop(0)
+    #
+    #         if token == "(":
+    #             count += 1
+    #             left.append(token)
+    #             continue
+    #         if token == ")":
+    #             count -= 1
+    #             left.append(token)
+    #             if count < 0:
+    #                 raise ValueError("Unbalanced parentheses")
+    #             continue
+    #         if count > 0:  # Inside parentheses, add to the left argument
+    #             left.append(token)
+    #             continue
+    #
+    #         # Handle sentence letters and the zero-place extremal operators
+    #         if token.isalnum() or token in {"\\top", "\\bot"}:
+    #             left.append(token)
+    #             if not tokens:
+    #                 raise ValueError(f"Expected an operator following {token}")
+    #             operator = tokens.pop(0)
+    #             if not tokens:
+    #                 raise ValueError(
+    #                     f"Expected an argument after the operator {operator}"
+    #                 )
+    #             right = tokens  # The remaining tokens are the right argument
+    #             return operator, left, right
+    #
+    #         # Otherwise, assume token is an operator and handle binary expression
+    #         operator = token
+    #         right = tokens
+    #         return operator, left, right
+    #
+    #     raise ValueError("Invalid expression or unmatched parentheses")
+    #
+    # def parse_expression(self, tokens):
+    #     """Parses a list of tokens representing a propositional expression and returns
+    #     the expression in prefix notation."""
+    #
+    #     print(f"tokens TEST: {tokens}")
+    #
+    #     if not isinstance(tokens, list):
+    #         # B: NEW so just to confirm, your change noted below is instead of this here?
+    #         # B: OLD should this go here instead?
+    #         # return [Const(token, AtomSort)]
+    #         return tokens
+    #     token = tokens.pop(0)  # Get the next token
+    #     if token == "(": # Handle binary operator case (indicated by parentheses)
+    #         # Ensure that the closing parenthesis is present
+    #         final = tokens.pop()  # Remove the closing parenthesis
+    #         if final != ")":
+    #             raise SyntaxError(
+    #                 f"The sentence {tokens} is missing closing parenthesis."
+    #             )
+    #         operator, left, right = self.left_op_right(tokens) # Extract operator and arguments
+    #         left_arg = self.parse_expression(left)  # Parse the left argument
+    #         right_arg = self.parse_expression(right)  # Parse the right argument
+    #         return [self.operators[operator], left_arg, right_arg]
+    #     # M: made a slight change here to match up with old prefix notation syntax
+    #     # B: great!
+    #     if token.isalnum(): # Handle atomic sentences and zero-place extremal operators
+    #         return [Const(token, AtomSort)]
+    #     elif token in {"\\top", "\\bot"}:
+    #         return [self.operators[token]]
+    #     return [ # Recursively parse the argument for unary operators
+    #         self.operators[token],
+    #         self.parse_expression(tokens),
+    #     ]
+
     def left_op_right(self, tokens):
         """Divides whatever is inside a pair of parentheses into the left argument,
         right argument, and the operator."""
+        
+        # Debug: print the tokens received
+        print(f"Dividing tokens: {tokens}")
 
-        tokens = tokens[:]
         count = 0  # To track nested parentheses
         left = []
+        operator = None
 
         while tokens:
             token = tokens.pop(0)
@@ -234,67 +316,67 @@ class ModelSetup:
             if token == "(":
                 count += 1
                 left.append(token)
-                continue
-            if token == ")":
+            elif token == ")":
                 count -= 1
                 left.append(token)
                 if count < 0:
                     raise ValueError("Unbalanced parentheses")
-                continue
-            if count > 0:  # Inside parentheses, add to the left argument
+            elif count > 0:
                 left.append(token)
-                continue
-
-            # Handle sentence letters and the zero-place extremal operators
-            if token.isalnum() or token in {"\\top", "\\bot"}:
-                left.append(token)
-                if not tokens:
-                    raise ValueError(f"Expected an operator following {token}")
-                operator = tokens.pop(0)
-                if not tokens:
-                    raise ValueError(
-                        f"Expected an argument after the operator {operator}"
-                    )
-                right = tokens  # The remaining tokens are the right argument
+            else:
+                # Handle sentence letters and extremal operators
+                if token.isalnum() or token in {"\\top", "\\bot"}:
+                    left.append(token)
+                    if not tokens:
+                        raise ValueError(f"Expected an operator following {token}")
+                    operator = tokens.pop(0)
+                    if not tokens:
+                        raise ValueError(
+                            f"Expected an argument after the operator {operator}"
+                        )
+                    right = tokens  # Remaining tokens are the right argument
+                    return operator, left, right
+                # Assume token is an operator
+                operator = token
+                right = tokens
                 return operator, left, right
-
-            # Otherwise, assume token is an operator and handle binary expression
-            operator = token
-            right = tokens
-            return operator, left, right
 
         raise ValueError("Invalid expression or unmatched parentheses")
 
     def parse_expression(self, tokens):
         """Parses a list of tokens representing a propositional expression and returns
         the expression in prefix notation."""
-        if not isinstance(tokens, list):
-            # B: NEW so just to confirm, your change noted below is instead of this here?
-            # B: OLD should this go here instead?
-            # return [Const(token, AtomSort)]
-            return tokens
+        
+        # Debug: print the tokens received
+        print(f"Parsing tokens: {tokens}")
+
+        if not tokens:  # Check if tokens are empty before processing
+            raise ValueError("Empty token list")
+
         token = tokens.pop(0)  # Get the next token
-        if token == "(": # Handle binary operator case (indicated by parentheses)
-            # Ensure that the closing parenthesis is present
-            final = tokens.pop()  # Remove the closing parenthesis
-            if final != ")":
+
+        if token == "(":  # Handle binary operator case (indicated by parentheses)
+            if tokens[-1] != ")":
                 raise SyntaxError(
-                    f"The sentence {tokens} is missing closing parenthesis."
+                    f"The sentence {tokens} is missing a closing parenthesis."
                 )
-            operator, left, right = self.left_op_right(tokens) # Extract operator and arguments
+            tokens.pop()  # Remove the closing parenthesis
+            operator, left, right = self.left_op_right(tokens)  # Extract operator and arguments
+            
+            # Debug: print operator, left, right
+            print(f"Operator: {operator}, Left: {left}, Right: {right}")
+            
             left_arg = self.parse_expression(left)  # Parse the left argument
             right_arg = self.parse_expression(right)  # Parse the right argument
             return [self.operators[operator], left_arg, right_arg]
-        # M: made a slight change here to match up with old prefix notation syntax
-        # B: great!
-        if token.isalnum(): # Handle atomic sentences and zero-place extremal operators
+        
+        if token.isalnum():  # Handle atomic sentences
             return [Const(token, AtomSort)]
         elif token in {"\\top", "\\bot"}:
             return [self.operators[token]]
-        return [ # Recursively parse the argument for unary operators
-            self.operators[token],
-            self.parse_expression(tokens),
-        ]
+        
+        # Handle unary operators
+        return [self.operators[token], self.parse_expression(tokens)]
 
     def prefix(self, infix_sentence):
         """For converting from infix to prefix notation without knowing which
@@ -327,7 +409,7 @@ class ModelSetup:
                 print("FOUND MODEL")
                 return self, False, True, solver.model(), model_runtime
             if solver.reason_unknown() == "timeout":
-                return True, False, None, model_runtime
+                return self, True, False, None, model_runtime
             print("NO MODEL")
             return self, False, False, solver.unsat_core(), model_runtime
         except RuntimeError as e: # Handle unexpected exceptions
@@ -361,20 +443,24 @@ class ModelStructure:
             if self.z3_model.evaluate(semantics.is_world(bit))
         ]
         self.main_world = self.z3_model[semantics.main_world]
-        self.all_propositions = (
-            set()
-        )  # this will be automatically populated when the two below are called
-        # right now all subpropositions are added
+        self.all_propositions = set()
+        # M: this will be automatically populated when the two
+        # below are called right now all subpropositions are added
+        # B: nice!
         self.premise_propositions = [
+            # B: I think we might want to reverse self and prefix_sent here and in Proposition
+            # just for consistency
             model_setup.proposition_class(prefix_sent, self)
             for prefix_sent in model_setup.prefix_premises
         ]
         self.conclusion_propositions = [
+            # B: I think we might want to reverse self and prefix_sent here and in Proposition
+            # just for consistency
             model_setup.proposition_class(prefix_sent, self)
             for prefix_sent in model_setup.prefix_conclusions
         ]
 
-    # this is not used right now but may be later
+    # M: this is not used right now but may be later
     def evaluate(self, z3_expr):
         """
         This will get rid of need for all the bit_ functions.
@@ -490,10 +576,12 @@ class ModelStructure:
         self.print_evaluation(output)
         # self.print_inputs_recursively(print_impossible, output) # missing
 
-    # for printing methods:
+    # M: for printing methods:
     # we can keep the beginning—printing out the premises, conclusions, and whether there
     # is an N-model of the premises and conclusions.
-    # the state space also seems easy to print, but we need to add what a user wants printed
+    # B: I agree
+
+    # M: the state space also seems easy to print, but we need to add what a user wants printed
     # and annotated (eg currently ony possible states are printed, and world states are annotated).
     # The evaluation world can also be included (it's just the main world, which there always
     # is (...?))
@@ -502,26 +590,30 @@ class ModelStructure:
     # to be printed. so somewhere this will have to check what the settings are for this.
     # M: yes. on a simlar note I was wondering—is it fair to assume that all models will have
     # possible states, and all models will have a definition for worlds?
+    # B: possible states are hard to avoid. even in an extensional semantics where there is just 
+    # 1 and 0 as semantic values, the 1 may be thought to be possible (indeed actual). in finite
+    # models as we have here, there will be maximal possible states which are worlds states. what
+    # is less clear is whether every user will care to work with world states, although I think
+    # it is extremely likely that they will. so basically, yes, probably no matter what, every
+    # user will want to work with possible states and world states. certainly all of the models
+    # in my semantics will have both. officially, there is required to be at least one possible
+    # state, where every possible state is a part of a world state.
 
-    # there needs to be a general formula for what an interpretation is.
-    # looking at find_complex_proposition, it looks like we can employ a similar strategy
+    # M: there needs to be a general formula for what an interpretation is.
+    # B: when sentence letters are assigned to propositions, this amounts to interpreting them.
+    # so really the Proposition class says what it is to interpret a sentence letter.
+
+    # M: looking at find_complex_proposition, it looks like we can employ a similar strategy
     # to the operators bouncing back and forth with the semantics, except this time we
     # bounce back and forth with wherever the definition of a proposition is
-    # B: yes, there will definitely also be some bouncing back and forth where really this is the
-    # key to the print methods. my thought was that what happens in recursive_print will get
-    # divided between operators as before so that users can introduce this alongside the operators
-    # semantics clause, etc.
+    # B: yes, there will definitely also be some bouncing back and forth. whatever happens in
+    # recursive_print will get divided between operators
 
-    # Right now we explicitly save the extension of some functions (verify, falsify—in atomic_props_dict).
-    # it would be nice if we could choose not to.
-    # B: I agree
+    # M: Right now we explicitly save the extension of some functions (verify, falsify—in,
+    # atomic_props_dict). it would be nice if we could choose not to.
+    # B: I agree, this would be good to discuss
 
-    # or if we made everything a Z3 function? That way we can just do z3model.evalute(*) on all
-    # functions.
-    # B: not sure I understand this suggestion
-    # M: never mind, this was fixed
-
-    # to be honest the entirety of the state space is user-dependent. The only thing that we could
+    # M: to be honest the entirety of the state space is user-dependent. The only thing that we could
     # do is maybe save the extensions of all the functions. Tbh, not that much for small values of N.
     # you could then save all those extensions and when you're evaluating you'd just need to check
     # if a specific set of values is in the extension of the given function. Now the problem is,
@@ -542,6 +634,7 @@ class ModelStructure:
     # bits in the space R^n for n the number of arguments taken by the function.
     # so for N=7 and a 3-place predicate, you'd create a constraint that is itself a conjunction of
     # 2 million constraints—in tests Z3 was taking too long for that (I never saw it terminate)
+    # B: oh got it. but well worth thinking through!
 
     # how about you just don't worry about all that stuff? Like, focus on the extensional case.
     # all that crap only matters for the later stuff anyways.
@@ -549,3 +642,4 @@ class ModelStructure:
     # M: that is true, sorry this comment was meant to myself and i probably should have worded
     # better anyways lol
     # M: I also have a better idea of how that would look—just before I was kind of lost
+    # B: that's a part of it! it's shaping up very nicely :)
