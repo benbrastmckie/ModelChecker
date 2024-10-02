@@ -9,7 +9,6 @@ from z3 import (
 import time
 
 from syntax import (
-    prefix,
     AtomSort,
 )
 
@@ -105,8 +104,8 @@ class ModelSetup:
         self.non_null = non_null
         self.disjoint = disjoint
 
-        self.prefix_premises = [prefix(prem, self) for prem in infix_premises]
-        self.prefix_conclusions = [prefix(con, self) for con in infix_conclusions]
+        self.prefix_premises = [self.prefix(prem) for prem in infix_premises]
+        self.prefix_conclusions = [self.prefix(con) for con in infix_conclusions]
         prefix_sentences = self.prefix_premises + self.prefix_conclusions
         self.all_subsentences = self.find_subsentences(prefix_sentences)
         self.all_sentence_letters = self.find_sentence_letters(prefix_sentences)
@@ -220,163 +219,72 @@ class ModelSetup:
             all_subsentences.extend(all_prefix_subs)
         return self.repeats_removed(all_subsentences)
 
-    # def left_op_right(self, tokens):
-    #     """Divides whatever is inside a pair of parentheses into the left argument,
-    #     right argument, and the operator."""
-    #
-    #     tokens = tokens[:]
-    #     count = 0  # To track nested parentheses
-    #     left = []
-    #
-    #     while tokens:
-    #         token = tokens.pop(0)
-    #
-    #         if token == "(":
-    #             count += 1
-    #             left.append(token)
-    #             continue
-    #         if token == ")":
-    #             count -= 1
-    #             left.append(token)
-    #             if count < 0:
-    #                 raise ValueError("Unbalanced parentheses")
-    #             continue
-    #         if count > 0:  # Inside parentheses, add to the left argument
-    #             left.append(token)
-    #             continue
-    #
-    #         # Handle sentence letters and the zero-place extremal operators
-    #         if token.isalnum() or token in {"\\top", "\\bot"}:
-    #             left.append(token)
-    #             if not tokens:
-    #                 raise ValueError(f"Expected an operator following {token}")
-    #             operator = tokens.pop(0)
-    #             if not tokens:
-    #                 raise ValueError(
-    #                     f"Expected an argument after the operator {operator}"
-    #                 )
-    #             right = tokens  # The remaining tokens are the right argument
-    #             return operator, left, right
-    #
-    #         # Otherwise, assume token is an operator and handle binary expression
-    #         operator = token
-    #         right = tokens
-    #         return operator, left, right
-    #
-    #     raise ValueError("Invalid expression or unmatched parentheses")
-    #
-    # def parse_expression(self, tokens):
-    #     """Parses a list of tokens representing a propositional expression and returns
-    #     the expression in prefix notation."""
-    #
-    #     print(f"tokens TEST: {tokens}")
-    #
-    #     if not isinstance(tokens, list):
-    #         # B: NEW so just to confirm, your change noted below is instead of this here?
-    #         # B: OLD should this go here instead?
-    #         # return [Const(token, AtomSort)]
-    #         return tokens
-    #     token = tokens.pop(0)  # Get the next token
-    #     if token == "(": # Handle binary operator case (indicated by parentheses)
-    #         # Ensure that the closing parenthesis is present
-    #         final = tokens.pop()  # Remove the closing parenthesis
-    #         if final != ")":
-    #             raise SyntaxError(
-    #                 f"The sentence {tokens} is missing closing parenthesis."
-    #             )
-    #         operator, left, right = self.left_op_right(tokens) # Extract operator and arguments
-    #         left_arg = self.parse_expression(left)  # Parse the left argument
-    #         right_arg = self.parse_expression(right)  # Parse the right argument
-    #         return [self.operators[operator], left_arg, right_arg]
-    #     # M: made a slight change here to match up with old prefix notation syntax
-    #     # B: great!
-    #     if token.isalnum(): # Handle atomic sentences and zero-place extremal operators
-    #         return [Const(token, AtomSort)]
-    #     elif token in {"\\top", "\\bot"}:
-    #         return [self.operators[token]]
-    #     return [ # Recursively parse the argument for unary operators
-    #         self.operators[token],
-    #         self.parse_expression(tokens),
-    #     ]
+    def balanced_parentheses(self, tokens):
+        stack = []
+        for token in tokens:
+            if token == '(':
+                stack.append(token)
+            elif token == ')':
+                if not stack:
+                    return False
+                stack.pop()
+        return len(stack) == 0
 
     def left_op_right(self, tokens):
         """Divides whatever is inside a pair of parentheses into the left argument,
         right argument, and the operator."""
-        
-        # Debug: print the tokens received
-        print(f"Dividing tokens: {tokens}")
-
         count = 0  # To track nested parentheses
         left = []
         operator = None
-
         while tokens:
             token = tokens.pop(0)
-
             if token == "(":
                 count += 1
                 left.append(token)
             elif token == ")":
                 count -= 1
                 left.append(token)
-                if count < 0:
-                    raise ValueError("Unbalanced parentheses")
             elif count > 0:
                 left.append(token)
-            else:
-                # Handle sentence letters and extremal operators
-                if token.isalnum() or token in {"\\top", "\\bot"}:
-                    left.append(token)
-                    if not tokens:
-                        raise ValueError(f"Expected an operator following {token}")
-                    operator = tokens.pop(0)
-                    if not tokens:
-                        raise ValueError(
-                            f"Expected an argument after the operator {operator}"
-                        )
-                    right = tokens  # Remaining tokens are the right argument
-                    return operator, left, right
-                # Assume token is an operator
-                operator = token
-                right = tokens
+            elif token.isalnum() or token in {"\\top", "\\bot"}:
+                left.append(token)
+                if not tokens:
+                    raise ValueError(f"Expected an operator following {token}")
+                operator = tokens.pop(0)
+                if not tokens:
+                    raise ValueError(
+                        f"Expected an argument after the operator {operator}"
+                    )
+                if not self.balanced_parentheses(tokens):
+                    raise ValueError("Unbalanced parentheses")
+                right = tokens  # Remaining tokens are the right argument
                 return operator, left, right
-
+            else:
+                left.append(token)
         raise ValueError("Invalid expression or unmatched parentheses")
 
     def parse_expression(self, tokens):
         """Parses a list of tokens representing a propositional expression and returns
         the expression in prefix notation."""
-        
-        # Debug: print the tokens received
-        print(f"Parsing tokens: {tokens}")
-
         if not tokens:  # Check if tokens are empty before processing
             raise ValueError("Empty token list")
-
         token = tokens.pop(0)  # Get the next token
-
         if token == "(":  # Handle binary operator case (indicated by parentheses)
             if tokens[-1] != ")":
-                raise SyntaxError(
-                    f"The sentence {tokens} is missing a closing parenthesis."
-                )
+                raise SyntaxError(f"The sentence {tokens} is missing a closing parenthesis.")
             tokens.pop()  # Remove the closing parenthesis
             operator, left, right = self.left_op_right(tokens)  # Extract operator and arguments
-            
-            # Debug: print operator, left, right
-            print(f"Operator: {operator}, Left: {left}, Right: {right}")
-            
             left_arg = self.parse_expression(left)  # Parse the left argument
             right_arg = self.parse_expression(right)  # Parse the right argument
             return [self.operators[operator], left_arg, right_arg]
-        
         if token.isalnum():  # Handle atomic sentences
+            # B: are sentence letters lists of length 1?
             return [Const(token, AtomSort)]
         elif token in {"\\top", "\\bot"}:
+            print(f"TEST token: {token}")
+            print("TEST", self.operators.keys())
             return [self.operators[token]]
-        
-        # Handle unary operators
-        return [self.operators[token], self.parse_expression(tokens)]
+        return [self.operators[token], self.parse_expression(tokens)]  # Handle unary operators
 
     def prefix(self, infix_sentence):
         """For converting from infix to prefix notation without knowing which
@@ -406,11 +314,11 @@ class ModelSetup:
             model_end = time.time()
             model_runtime = round(model_end - model_start, 4)
             if result == sat:
-                print("FOUND MODEL")
+                print("TEST: FOUND MODEL")
                 return self, False, True, solver.model(), model_runtime
             if solver.reason_unknown() == "timeout":
                 return self, True, False, None, model_runtime
-            print("NO MODEL")
+            print("TEST: NO MODEL")
             return self, False, False, solver.unsat_core(), model_runtime
         except RuntimeError as e: # Handle unexpected exceptions
             print(f"An error occurred while running `solve_constraints()`: {e}")
