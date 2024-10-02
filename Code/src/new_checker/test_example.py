@@ -1,9 +1,11 @@
 from exposed_things import (
+    BotOperator,
     Semantics,
     AndOperator,
     NegOperator,
     OrOperator,
     Proposition,
+    TopOperator,
 )
 from hidden_things import ModelSetup, ModelStructure, OperatorCollection
 
@@ -11,7 +13,7 @@ from hidden_things import ModelSetup, ModelStructure, OperatorCollection
 # B: this all looks great!
 premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
 conclusions = ["(\\neg B \\wedge \\neg D)"]
-operators = OperatorCollection(AndOperator, NegOperator, OrOperator)
+operators = OperatorCollection(AndOperator, NegOperator, OrOperator, TopOperator, BotOperator)
 print("made operator collection (trivial)")
 semantics = Semantics(4)
 print("made semantics")
@@ -25,7 +27,7 @@ print("made semantics")
 model_setup = ModelSetup(premises, conclusions, semantics, operators, Proposition)
 print("made model_setup")
 
-infix_ex = model_setup.prefix("(\\neg B \\wedge \\neg D)")
+infix_ex = model_setup.prefix("(\\neg \\neg \\neg B \\wedge \\neg \\neg \\bot)")
 print(f"Here is a prefix sentence: {infix_ex}")
 
 # B: could we pass model_setup into ModelStructure, making solve() one of it's methods?
