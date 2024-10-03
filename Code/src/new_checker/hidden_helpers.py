@@ -11,6 +11,8 @@ from z3 import Const, DeclareSort
 
 AtomSort = DeclareSort("AtomSort")
 
+### PREFIX HELPERS ###
+
 def balanced_parentheses(tokens):
     stack = []
     for token in tokens:
