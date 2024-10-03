@@ -262,7 +262,7 @@ class ModelSetup:
         solver = Solver()
         solver.add(self.all_constraints)
         # B: note that this is where the 1000x happens for the time
-        # ahh I see
+        # M: ahh I see
         solver.set("timeout", int(self.max_time * 1000))  # time in seconds
         try:
             model_start = time.time()  # start benchmark timer

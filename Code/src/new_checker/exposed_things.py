@@ -327,11 +327,12 @@ class TopOperator(Operator):
     name = '\\top'
     arity = 0
 
-    def true_at(self, no_args, eval_world): # for consistency with recursive call in Semantics
-                                                # class
+    def true_at(self, no_args, eval_world): # for consistency with recursive call in Semantics class
         """doc string place holder"""
         N = self.semantics.N
-        return BitVecVal(1,N) == BitVecVal(1,N)
+        x = BitVec("top_x", N)
+        return # TODO (this and all below)
+        # return Exists(x, self.semantics.is_part_of(x, eval_world))
         # B: the way this goes in the semantics is that \top is verified by the null state which
         # is a part of every world state, and so \top is true at every world. so perhaps what this
         # should do is say that there is a part of eval_world which makes \top true.
