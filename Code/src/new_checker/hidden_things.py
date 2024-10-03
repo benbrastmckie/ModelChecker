@@ -60,6 +60,18 @@ class OperatorCollection:
         """Input is either an operator class (of type 'type') or a list of operator classes."""
         # B: this looks great! I wonder if it might make sense to try to push everything into a
         # uniform format, perhaps converting from tuples or sets into a list (maybe sorted?).
+        # M: I'm not sure, I think this may be a case that this sort of flexibility doesn't matter.
+        # all that matters is that the input is either a type (ie a class) or is an iterable item. 
+        # since tuples, lists, and sets are all iterable, it doesn't really matter which of those
+        # is inputted. As for sorting it, since everything is stored in the Operator Collection as
+        # a dictionary, I can't think of an intuitive order to be given (dictionaries are unordered)
+        # we would also need to define what sorting means for operators, though that wouldn't be
+        # that hard to do—it may just be a design choice that's kind of never going to be used.
+
+        # if you're thinking it would be nice to, given an OperatorCollection object, see all
+        # the operators of arity n, that may be best achieved with a separate dictinary and method
+        # for accessing that dictionary. that dictionary would have keys integers and values of 
+        # lists or sets of Operator classes. 
         if (isinstance(input, list) or isinstance(input, tuple) or isinstance(input, set)):
             for operator_class in input:
                 self.add_operator(operator_class)
@@ -73,6 +85,10 @@ class OperatorCollection:
         return self.operator_classes_dict[value]
         # M: right now this method isn't needed, but I added it in case
         # B: seems useful. would we use something like this to get arity etc?
+        # M: under the current setup you you could do the following:
+            # (first, define a class ExampleOperator with e.g. name 'example' and arity 2)
+            # op_collection = OperatorCollection(ExampleOperator)
+            # arity_of_example_op = op_collection['example'].arity # this would give 2
 
 class ModelSetup:
 
@@ -84,6 +100,9 @@ class ModelSetup:
         operator_collection,
         proposition_class,
         max_time=1000, # I think I multiplied the time by 1000x so this is now 1000 seconds
+                        # oh I just made it a big number because I was trying to see how many
+                        # states it could run to and wasn't sure what the units were, definitely
+                        # fee free to change it to whatever is more reasonable
         contingent=False,
         non_null=True,
         disjoint=False,
@@ -92,7 +111,10 @@ class ModelSetup:
         self.infix_conclusions = infix_conclusions
         self.semantics = semantics
         # B: so this stores the operators as a dictionary?
-        # at this point has the operator_collection served it's purpose?
+        # M: it stores instances of all operator classes as a dictionary
+        # analogous to the operator_classes_dict in an OperatorCollection object. 
+        # B: at this point has the operator_collection served it's purpose?
+        # M: yes
         self.operators = {
             op_name: op_class(semantics)
             for (op_name, op_class) in operator_collection.items()
@@ -131,7 +153,6 @@ class ModelSetup:
             + self.conclusion_constraints
         )
 
-    # B: moved this up from below for consistency
     def __str__(self):
         """useful for using model-checker in a python file"""
         return f"ModelSetup for premises {self.infix_premises} and conclusions {self.infix_conclusions}"
@@ -184,6 +205,7 @@ class ModelSetup:
     # B: seems like above set() and list() are used to do something similar. I wonder if these can
     # be used here instead, or vice versa for consistency. also wondering if it makes sense to 
     # sort the list for uniformity of output here and above.
+    # M: Yeah, I think they probably could, and yeah, sorting would be good
     def repeats_removed(self, sentences):
         """takes a list and removes the repeats in it.
         used in find_all_constraints"""
@@ -194,6 +216,7 @@ class ModelSetup:
         return seen
 
     # B: sorting may not be needed here but thought of it
+    # M: what would be the criterion by which you sort?
     def subsentences_of(self, prefix_sentence):
         """finds all the subsentence of a prefix sentence
         returns these as a list
@@ -239,6 +262,7 @@ class ModelSetup:
         solver = Solver()
         solver.add(self.all_constraints)
         # B: note that this is where the 1000x happens for the time
+        # M: ahh I see
         solver.set("timeout", int(self.max_time * 1000))  # time in seconds
         try:
             model_start = time.time()  # start benchmark timer
@@ -288,6 +312,19 @@ class ModelStructure:
         self.premise_propositions = [
             # B: I think we might want to reverse self and prefix_sent here and in Proposition
             # just for consistency
+            # M: The reason that right now self is second is because a Proposition instance is
+            # made by inputting first (not sequentially, but like first in the order) the prefix
+            # sentence and then the model structure. This is the order because prefix_sent feels
+            # more relevant to a proposition than a prefix sentence. This sacrifices intuition here
+            # for intuition in the user-defined Proposition class, though yes, it does result in an
+            # odd-looking and counterintuitive syntax here. But this flipped order I think actually
+            # helps illustrate better what is going on here. The syntax with self first is often
+            # used to indicate that the method being called is a method of whatever class that self
+            # is: that class is what goes before the dot. In this case, what is before the dot is
+            # not the ModelStructure class that self is an instance of, rather it is a Proposition
+            # class (which only by coincidence is a class). So I think a syntax where self is first
+            # could erroneously suggest that self (namely this ModelStructure instance) is an instance
+            # of whatever model_setup.proposition_class is. 
             model_setup.proposition_class(prefix_sent, self)
             for prefix_sent in model_setup.prefix_premises
         ]
@@ -414,19 +451,7 @@ class ModelStructure:
         self.print_evaluation(output)
         # self.print_inputs_recursively(print_impossible, output) # missing
 
-    # M: for printing methods:
-    # we can keep the beginning—printing out the premises, conclusions, and whether there
-    # is an N-model of the premises and conclusions.
-    # B: I agree
-
-    # M: the state space also seems easy to print, but we need to add what a user wants printed
-    # and annotated (eg currently ony possible states are printed, and world states are annotated).
-    # The evaluation world can also be included (it's just the main world, which there always
-    # is (...?))
-    # B: printing premises, conclusions, state space, and evaluation world can be fixed for all
-    # users, though this will change slightly depend on whether the user wants impossible states
-    # to be printed. so somewhere this will have to check what the settings are for this.
-    # M: yes. on a simlar note I was wondering—is it fair to assume that all models will have
+    # M: is it fair to assume that all models will have
     # possible states, and all models will have a definition for worlds?
     # B: possible states are hard to avoid. even in an extensional semantics where there is just 
     # 1 and 0 as semantic values, the 1 may be thought to be possible (indeed actual). in finite
@@ -436,6 +461,10 @@ class ModelStructure:
     # user will want to work with possible states and world states. certainly all of the models
     # in my semantics will have both. officially, there is required to be at least one possible
     # state, where every possible state is a part of a world state.
+    # M: sounds good! so maybe we proceed with assuming everyone wants both and then once everything
+    # is working we see if there's a way to not make people assume that? alternatively we could
+    # figure out a specific trivial definition for worlds so that if someone doesn't want them
+    # they can just use that to no detriment. 
 
     # M: there needs to be a general formula for what an interpretation is.
     # B: when sentence letters are assigned to propositions, this amounts to interpreting them.

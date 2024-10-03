@@ -24,6 +24,16 @@ print("made semantics")
 # the class could have a bunch of defaults which are changed if a user specifies settings.
 # I think the Inputs class should include premises, conclusions, and all settings.
 # right now we don't have too many settings, but it is likely these will continue to grow.
+# M: yeah, I can see that making sense now that at a bare minimum five inputs are necessary
+# for a ModelSetup instance. I'm wondering though if an Input class would just be kicking
+# problem to the Input class? (Now, the Input instance would have x>5 input necessary)
+# (Unless you had implementing the settings in there sequentially in mind)
+# What if we kept like premises and conclusions in the ModelSetup and everything 
+# else in the Input class? Because a specific Input object with just semantics, operators, and
+# Propositions is very reusable—in fact, it would make testing more than one theorem
+# very readable (so in this conception premises, conclusions, and an Input instance are passed
+# to the ModelSetup constructor). This slightly reduces the nuber of arguments passed into
+# the input class at least?
 model_setup = ModelSetup(premises, conclusions, semantics, operators, Proposition)
 print("made model_setup")
 
