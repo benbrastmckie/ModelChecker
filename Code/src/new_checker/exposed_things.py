@@ -117,12 +117,10 @@ class Semantics:
     
     def true_at(self, prefix_sentence, eval_world):
         # B: given that only sentence letters do not have '\\' in them, I think we can use:
-        # if len(prefix_sentence) == 1 and '\\' not in prefix_sentence[0]:
-        if len(prefix_sentence) == 1:
+        if len(prefix_sentence) == 1 and '\\' not in prefix_sentence[0]: # sentence letter case
             sent = prefix_sentence[0]
-            if not sent in {'\\top', '\\bot'}: # sentence letter case
-                x = BitVec("t_atom_x", self.N)
-                return Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent)))
+            x = BitVec("t_atom_x", self.N)
+            return Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent)))
         # B: below looks great!
         operator = prefix_sentence[0]
         args = prefix_sentence[1:]
@@ -131,11 +129,11 @@ class Semantics:
     def false_at(self, prefix_sentence, eval_world):
         # B: given that only sentence letters do not have '\\' in them, I think we can use:
         # if len(prefix_sentence) == 1 and '\\' not in prefix_sentence[0]:
-        if len(prefix_sentence) == 1:
+        # M: makes sense to me! 
+        if len(prefix_sentence) == 1 and '\\' not in prefix_sentence[0]: # sentence letter case
             sent = prefix_sentence[0]
-            if not sent in {'\\top', '\\bot'}: # sentence letter case
-                x = BitVec("f_atom_x", self.N)
-                return Exists(x, And(self.is_part_of(x, eval_world), self.falsify(x, sent))) # REMOVABLE
+            x = BitVec("f_atom_x", self.N)
+            return Exists(x, And(self.is_part_of(x, eval_world), self.falsify(x, sent)))
         operator = prefix_sentence[0]
         args = prefix_sentence[1:]
         return operator.false_at(*args, eval_world)
@@ -143,8 +141,11 @@ class Semantics:
 class Proposition:
 
     # B: I moved proposition_constraints down if that makes sense
+    # M: good idea
     # B: I think we might want to reverse prefix_sentence and model_structure args here
-    # see 
+    # see
+    # M: I think I know what you're talking about—when Proposition objects are instantiated
+    # in the model_structure. I gave some comments over there. 
     def __init__(self, prefix_sentence, model_structure):
         self.prefix_sentence = prefix_sentence
         self.model_structure = model_structure
@@ -169,9 +170,6 @@ class Proposition:
         return False
 
     def proposition_constraints(self, atom, model_setup):
-        # M: reason for model_setup is anticipating contingent
-        # and non_null affecting these constraints
-        # B: makes sense!
         '''
         currently does not have contingent props. commented code (null_cons and skolem, latter of
         which was no longer needed) in addition to contingent props was deleted for space
@@ -183,6 +181,8 @@ class Proposition:
             # B: these following null_constraints should be included given the
             # default values `contingent = false` and `non_null = true`.
             # we need to exclude these constraints otherwise.
+            # M: so if contingent=F and non_null=T, these are included?
+            # what about contingent=F and nnn=F, c=T and nnn=T, c=F and nnn=T?
             Not(semantics.verify(0, atom)), 
             Not(semantics.falsify(0, atom)),
 
@@ -222,6 +222,7 @@ class Proposition:
         #     return
         # M: not sure if the above helps
         # B: perhaps we could raise an error if there are no verifiers or falsifiers?
+        # M: this is a remnant of the attempt explained in the long comment below
         all_bits= self.model_structure.all_bits
         model = self.model_structure.z3_model
         sem = self.semantics
@@ -233,6 +234,18 @@ class Proposition:
         operator, prefix_args = self.prefix_sentence[0], self.prefix_sentence[1:]
         # B: I'm not sure we will need this since when it comes to printing subprops, we should
         # be able to call on a proposition for each to find out what it's Vs and Fs are
+        # M: Yeah, that's true—I was thinking this would more so help in when the Proposition
+        # instances are added to the model_structure's all_propositions attribute. Right now,
+        # whenever a Proposition instance is made, it is added to the model_structure. Say that
+        # a child subprop of a proposition whose Vs and Fs are being looked for with this function
+        # has already been made and is in the model_structure. Instead of recursively making those
+        # propositions again and looking for Vs and Fs that have already been found (and adding the
+        # Proposition instances to a set they're already in), I was thinking we could just look in
+        # that model_structure first to see if the child subprop is already there and use its Vs
+        # and Fs. This was relevant because it seemed that Proposition instances took a while to
+        # make. I tried something and it didn't seem to help out much—maybe the test sentences weren't
+        # complex enough (or maybe I implemented it incorrectly). I left it in case we want to try
+        # it later. 
         # M: Not sure if this till commented line helps
         # current_props = {str(p.prefix_sentence):p for p in self.model_structure.all_propositions}
         # children_subprops = []
@@ -267,7 +280,6 @@ class AndOperator(Operator):
         sem = self.semantics
         return Or(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
     
-    # B: this looks good!
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
         Y_V, Y_F = leftprop.find_verifiers_and_falsifiers()
         Z_V, Z_F = rightprop.find_verifiers_and_falsifiers()
@@ -288,7 +300,6 @@ class OrOperator(Operator):
         sem = self.semantics
         return And(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
     
-    # B: this looks good!
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
         Y_V, Y_F = leftprop.find_verifiers_and_falsifiers()
         Z_V, Z_F = rightprop.find_verifiers_and_falsifiers()
@@ -307,7 +318,6 @@ class NegOperator(Operator):
         """doc string place holder"""
         return self.semantics.true_at(arg, eval_world)
     
-    # B: this looks good!
     def find_verifiers_and_falsifiers(self, argprop):
         Y_V, Y_F = argprop.find_verifiers_and_falsifiers()
         return (Y_F, Y_V)
@@ -317,15 +327,17 @@ class TopOperator(Operator):
     name = '\\top'
     arity = 0
 
-    def true_at(self, eval_world):
+    def true_at(self, no_args, eval_world): # for consistency with recursive call in Semantics class
         """doc string place holder"""
         N = self.semantics.N
-        return BitVecVal(1,N) == BitVecVal(1,N)
+        x = BitVec("top_x", N)
+        return # TODO (this and all below)
+        # return Exists(x, self.semantics.is_part_of(x, eval_world))
         # B: the way this goes in the semantics is that \top is verified by the null state which
         # is a part of every world state, and so \top is true at every world. so perhaps what this
         # should do is say that there is a part of eval_world which makes \top true.
 
-    def false_at(self, eval_world):
+    def false_at(self, no_args, eval_world): # see true_at comment
         """doc string place holder"""
         N = self.semantics.N
         return BitVecVal(0,N) == BitVecVal(1,N)
@@ -342,13 +354,13 @@ class BotOperator(Operator):
     name = '\\bot'
     arity = 0
 
-    def true_at(self, eval_world):
+    def true_at(self, no_args, eval_world): # see comment at true_at for TopOperator
         """doc string place holder"""
         N = self.semantics.N
         return BitVecVal(0,N) == BitVecVal(1,N)
         # B: similar comments apply as in \top
 
-    def false_at(self, eval_world):
+    def false_at(self, no_args, eval_world): # see comment at true_at for TopOperator
         """doc string place holder"""
         N = self.semantics.N
         return BitVecVal(1,N) == BitVecVal(1,N)
