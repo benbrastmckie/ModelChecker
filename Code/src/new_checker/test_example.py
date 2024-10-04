@@ -9,8 +9,6 @@ from exposed_things import (
 )
 from hidden_things import ModelSetup, ModelStructure, OperatorCollection
 
-
-# B: this all looks great!
 premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
 conclusions = ["(\\neg B \\wedge \\neg D)"]
 operators = OperatorCollection(AndOperator, NegOperator, OrOperator, TopOperator, BotOperator)
@@ -30,6 +28,7 @@ print("made semantics")
 # (Unless you had implementing the settings in there sequentially in mind)
 # B: I was thinking it would be similar to OperatorCollection in that inputs can slowly added
 # be the user, where all this does is update a host of defaults that are stored in an instance.
+# would be good to discuss
 
 # M: What if we kept like premises and conclusions in the ModelSetup and everything 
 # else in the Input class? Because a specific Input object with just semantics, operators, and
@@ -42,6 +41,9 @@ print("made semantics")
 # settings akin to a repeatable configuration for running tests. certain users might like to
 # name combinations of settings, easily alternating between two or more. that would be really
 # convenient. good thought!
+
+# NOTE: should semantics, operators, propositions be grouped into an object?
+# NOTE: could group settings into an object to pass in here if need be?
 model_setup = ModelSetup(premises, conclusions, semantics, operators, Proposition)
 print("made model_setup")
 
@@ -50,13 +52,15 @@ print(f"Here is a prefix sentence: {infix_ex}")
 
 # B: could we pass model_setup into ModelStructure, making solve() one of it's methods?
 # seems like this would skip a step here and would carve at the conceptual joints
-# but maybe there is something I'm still missing
+# but maybe there is something I'm still missing. would be good to discuss
+
 solve_output = model_setup.solve()
 if solve_output[2]:
     print("solved the constraints")
 else:
     print("did not solve the constraints")
 
+# TODO: move solve to ModelStructure
 model_structure = ModelStructure(*solve_output)
 print("made model_structure")
 print("back at editable file")
