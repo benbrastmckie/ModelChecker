@@ -143,7 +143,6 @@ class Proposition:
     # B: I moved proposition_constraints down if that makes sense
     # M: good idea
     # B: I think we might want to reverse prefix_sentence and model_structure args here
-    # see
     # M: I think I know what you're talking about—when Proposition objects are instantiated
     # in the model_structure. I gave some comments over there. 
     def __init__(self, prefix_sentence, model_structure):
@@ -174,18 +173,26 @@ class Proposition:
         currently does not have contingent props. commented code (null_cons and skolem, latter of
         which was no longer needed) in addition to contingent props was deleted for space
         '''
+        # B: these following null_constraints should be included given the
+        # default values `contingent = false` and `non_null = true`.
+        # we need to exclude these constraints otherwise.
+        # M: so if contingent=F and non_null=T, these are included?
+        # what about contingent=F and nnn=F, c=T and nnn=T, c=F and nnn=T?
+        # B: since contingent entails non_null, if contingent=T, then non_null can be excluded.
+        # if contingent=F, then non_null can be included by default, or set to F by the user.
+        # I'm imagining some of this stuff to be handled in the Inputs class where the result
+        # assigns a bool to a non_null variable that is called on here to add the constraints
+        # below or not. so all we need here is a way to include or exclude these constraints.
+        # I added something along these lines below
         semantics = model_setup.semantics
+        non_null = model_setup.non_null
         x = BitVec("prop_x", semantics.N)
         y = BitVec("prop_y", semantics.N)
-        return [
-            # B: these following null_constraints should be included given the
-            # default values `contingent = false` and `non_null = true`.
-            # we need to exclude these constraints otherwise.
-            # M: so if contingent=F and non_null=T, these are included?
-            # what about contingent=F and nnn=F, c=T and nnn=T, c=F and nnn=T?
+        non_null_constraints = [
             Not(semantics.verify(0, atom)), 
             Not(semantics.falsify(0, atom)),
-
+        ]
+        classical_constraints = [
             ForAll(
                 [x, y],
                 Implies(
@@ -216,6 +223,10 @@ class Proposition:
                 ),
             ),
         ]
+        constraints = classical_constraints
+        if non_null:
+            constraints += non_null_constraints
+        return constraints
     
     def find_verifiers_and_falsifiers(self):
         # if not(self.verifiers is None and self.falsifiers is None):
@@ -246,6 +257,8 @@ class Proposition:
         # make. I tried something and it didn't seem to help out much—maybe the test sentences weren't
         # complex enough (or maybe I implemented it incorrectly). I left it in case we want to try
         # it later. 
+        # B: that's interesting and sounds like a good way to improve performance. it would be good
+        # to discuss the way propositions are created and where redundancy might occur.
         # M: Not sure if this till commented line helps
         # current_props = {str(p.prefix_sentence):p for p in self.model_structure.all_propositions}
         # children_subprops = []
@@ -345,7 +358,7 @@ class TopOperator(Operator):
         # part of any world which makes it false. so perhaps what this should do is say that there
         # is a part of eval_world which makes \top false.
     
-    def find_verifiers_and_falsifiers(argprop):
+    def find_verifiers_and_falsifiers(self, argprop):
         # B: V is the set containing just the null state and F is empty
         pass
 
@@ -366,6 +379,6 @@ class BotOperator(Operator):
         return BitVecVal(1,N) == BitVecVal(1,N)
         # B: similar comments apply as in \top
     
-    def find_verifiers_and_falsifiers(argprop):
+    def find_verifiers_and_falsifiers(self, argprop):
         # B: V is the set containing just the full state and F is the set of all states
         pass

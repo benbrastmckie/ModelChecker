@@ -4,10 +4,11 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Plan
 
-- [:] class architecture
+- [x] class architecture
 - [.] implementation
 - api
 - cli
+- release
 - alternative semantics
 - documentation
 
@@ -40,7 +41,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] possible
     - [x] main world
     - [x] frame constraints
-    - [ ] premise and conclusion behavior
+    - [x] premise and conclusion behavior
   - [x] semantic methods:
     - [x] fusion
     - [x] parthood
@@ -62,14 +63,14 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - world states
     - alt states
 3. [ ] An Operator class for each primitive operator:
-  - [:] the Operator class itself
+  - [x] the Operator class itself
     - [x] attribute for arity
     - [x] attribute for name
-    - [ ] confirm changes
+    - [x] confirm changes
   - [.] for each operator
     - [x] attribute for semantics
     - [x] methods for truth and falsity at a world
-    - [ ] methods for verification and falsification at a world
+    - [x] methods for verification and falsification at a world
     - [ ] printing methods
   - [.] operators to implement:
     - [x] extensional
@@ -77,14 +78,14 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [ ] modal
     - [ ] extremal
     - [ ] constitutive
-3. [ ] Proposition subclass of the Semantics with an instance for each subsentence:
+3. [ ] Proposition class:
   - [ ] syntactic attributes:
-    - prefix sentence
+    - [x] prefix sentence
     - infix sentence
     - main operator
   - [ ] semantic attributes:
-    - verifier bits
-    - falsifier bits
+    - [x] verifier bits
+    - [x] falsifier bits
     - truth world bits
     - alt world bit dictionary
   - [ ] printing attributes:
@@ -93,13 +94,13 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - truth world states
     - alt world state dictionary
 5. [ ] ModelStructure class:
-  - arguments: ModelSetup instance
+  - [ ] arguments: ModelSetup instance
   - attributes:
-    - resulting Z3 model including:
-      - timeout value
-      - model status
-      - Z3 model
-      - model runtime
+    - [ ] resulting Z3 model including:
+      - [ ] timeout value
+      - [ ] model status
+      - [ ] Z3 model
+      - [ ] model runtime
     - dictionary for all propositions for all subsentences
   - general methods for printing
   - general methods for saving output 

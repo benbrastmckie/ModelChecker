@@ -28,12 +28,20 @@ print("made semantics")
 # for a ModelSetup instance. I'm wondering though if an Input class would just be kicking
 # problem to the Input class? (Now, the Input instance would have x>5 input necessary)
 # (Unless you had implementing the settings in there sequentially in mind)
-# What if we kept like premises and conclusions in the ModelSetup and everything 
+# B: I was thinking it would be similar to OperatorCollection in that inputs can slowly added
+# be the user, where all this does is update a host of defaults that are stored in an instance.
+
+# M: What if we kept like premises and conclusions in the ModelSetup and everything 
 # else in the Input class? Because a specific Input object with just semantics, operators, and
 # Propositions is very reusable—in fact, it would make testing more than one theorem
 # very readable (so in this conception premises, conclusions, and an Input instance are passed
 # to the ModelSetup constructor). This slightly reduces the nuber of arguments passed into
 # the input class at least?
+# B: I think that makes a lot of sense. really this is about conceptual hygiene more than the
+# number of arguments. separating premises and conclusions from the other settings makes the
+# settings akin to a repeatable configuration for running tests. certain users might like to
+# name combinations of settings, easily alternating between two or more. that would be really
+# convenient. good thought!
 model_setup = ModelSetup(premises, conclusions, semantics, operators, Proposition)
 print("made model_setup")
 

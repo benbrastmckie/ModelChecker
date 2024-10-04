@@ -67,11 +67,14 @@ class OperatorCollection:
         # a dictionary, I can't think of an intuitive order to be given (dictionaries are unordered)
         # we would also need to define what sorting means for operators, though that wouldn't be
         # that hard to do—it may just be a design choice that's kind of never going to be used.
+        # B: that all makes sense. regarding interables, aren't lists to be preferred to sets?
 
-        # if you're thinking it would be nice to, given an OperatorCollection object, see all
+        # M: if you're thinking it would be nice to, given an OperatorCollection object, see all
         # the operators of arity n, that may be best achieved with a separate dictinary and method
         # for accessing that dictionary. that dictionary would have keys integers and values of 
         # lists or sets of Operator classes. 
+        # B: I'm honestly not too sure what would make sense to add, and maybe nothing. really just
+        # poking around to get a sense of how this might be used. but it's looking great!
         if (isinstance(input, list) or isinstance(input, tuple) or isinstance(input, set)):
             for operator_class in input:
                 self.add_operator(operator_class)
@@ -89,6 +92,7 @@ class OperatorCollection:
             # (first, define a class ExampleOperator with e.g. name 'example' and arity 2)
             # op_collection = OperatorCollection(ExampleOperator)
             # arity_of_example_op = op_collection['example'].arity # this would give 2
+        # B: I see. just wondering how this dunder method might be used.
 
 class ModelSetup:
 
@@ -99,10 +103,7 @@ class ModelSetup:
         semantics,
         operator_collection,
         proposition_class,
-        max_time=1000, # I think I multiplied the time by 1000x so this is now 1000 seconds
-                        # oh I just made it a big number because I was trying to see how many
-                        # states it could run to and wasn't sure what the units were, definitely
-                        # fee free to change it to whatever is more reasonable
+        max_time=1,
         contingent=False,
         non_null=True,
         disjoint=False,
@@ -110,11 +111,6 @@ class ModelSetup:
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
         self.semantics = semantics
-        # B: so this stores the operators as a dictionary?
-        # M: it stores instances of all operator classes as a dictionary
-        # analogous to the operator_classes_dict in an OperatorCollection object. 
-        # B: at this point has the operator_collection served it's purpose?
-        # M: yes
         self.operators = {
             op_name: op_class(semantics)
             for (op_name, op_class) in operator_collection.items()
@@ -137,7 +133,6 @@ class ModelSetup:
             self.model_constraints.extend(
                 proposition_class.proposition_constraints(self, sl, self)
             )
-        # B: this all looks perfect!
         self.premise_constraints = [
             semantics.premise_behavior(prem, semantics.main_world)
             for prem in self.prefix_premises
@@ -177,6 +172,7 @@ class ModelSetup:
             for index, sent in enumerate(infix_conclusions, start=start_con_num):
                 print(f"{index}. {sent}", file=output)
 
+    # B: I think this could be moved to hidden_helpers.py
     def sentence_letters_in_compound(self, prefix_input_sentence):
         """finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
         returns a list of AtomSorts. CRUCIAL: IN THAT SENSE DOES NOT FOLLOW SYNTAX OF PREFIX SENTS.
@@ -190,33 +186,54 @@ class ModelSetup:
             return_list.extend(self.sentence_letters_in_compound(part))
         return return_list
 
-    def find_sentence_letters(self, prefix_sentences):
-        """finds all the sentence letters in a list of input sentences, in prefix form.
-        returns as a list of AtomSorts with no repeats (sorted for consistency)
-        used in find_all_constraints (feeds into find_prop_constraints) and StateSpace __init__
-        """
-        sentence_letters = set()
-        for prefix_input in prefix_sentences:
-            sentence_letters_in_input = self.sentence_letters_in_compound(prefix_input)
-            for sentence_letter in sentence_letters_in_input:
-                sentence_letters.add(sentence_letter)
-        return list(sentence_letters)
+    # def find_sentence_letters(self, prefix_sentences):
+    #     """finds all the sentence letters in a list of input sentences, in prefix form.
+    #     returns as a list of AtomSorts with no repeats (sorted for consistency)
+    #     used in find_all_constraints (feeds into find_prop_constraints) and StateSpace __init__
+    #     """
+    #     sentence_letters = set()
+    #     for prefix_input in prefix_sentences:
+    #         sentence_letters_in_input = self.sentence_letters_in_compound(prefix_input)
+    #         for sentence_letter in sentence_letters_in_input:
+    #             sentence_letters.add(sentence_letter)
+    #     return list(sentence_letters)
+
+    # def repeats_removed(self, sentences):
+    #     """takes a list and removes the repeats in it.
+    #     used in find_all_constraints"""
+    #     seen = []
+    #     for obj in sentences:
+    #         if obj not in seen:
+    #             seen.append(obj)
+    #     return seen
 
     # B: seems like above set() and list() are used to do something similar. I wonder if these can
     # be used here instead, or vice versa for consistency. also wondering if it makes sense to 
     # sort the list for uniformity of output here and above.
     # M: Yeah, I think they probably could, and yeah, sorting would be good
+    # B: here is something along those lines to refactor the commented code blocks above
+
+    def find_sentence_letters(self, prefix_sentences):
+        """Finds all the sentence letters in a list of input sentences, in prefix form.
+        Returns as a list of AtomSorts with no repeats (sorted for consistency).
+        used in find_all_constraints (feeds into find_prop_constraints) and StateSpace __init__.
+        """
+        sentence_letters = set()
+        for prefix_input in prefix_sentences:
+            sentence_letters.update(self.sentence_letters_in_compound(prefix_input))
+        return sorted(sentence_letters)
+
+    # B: I think this could be moved to hidden_helpers.py
     def repeats_removed(self, sentences):
-        """takes a list and removes the repeats in it.
-        used in find_all_constraints"""
-        seen = []
-        for obj in sentences:
-            if obj not in seen:
-                seen.append(obj)
-        return seen
+        """Takes a list and removes the repeats in it.
+        Used in find_all_constraints.
+        """
+        return list(set(sentences))
 
     # B: sorting may not be needed here but thought of it
     # M: what would be the criterion by which you sort?
+    # B: I guess length though there could be ties. probably unnecessary and can be ignored.
+    # B: I think this could be moved to hidden_helpers.py
     def subsentences_of(self, prefix_sentence):
         """finds all the subsentence of a prefix sentence
         returns these as a list
@@ -261,8 +278,6 @@ class ModelSetup:
     def solve(self):
         solver = Solver()
         solver.add(self.all_constraints)
-        # B: note that this is where the 1000x happens for the time
-        # M: ahh I see
         solver.set("timeout", int(self.max_time * 1000))  # time in seconds
         try:
             model_start = time.time()  # start benchmark timer
@@ -284,6 +299,7 @@ class ModelStructure:
     ):
         semantics = model_setup.semantics
         self.model_setup = model_setup
+        self.timeout = timeout
         self.z3_model = z3_model
         self.model_status = z3_model_status
         self.model_runtime = z3_model_runtime
@@ -306,9 +322,6 @@ class ModelStructure:
         ]
         self.main_world = self.z3_model[semantics.main_world]
         self.all_propositions = set()
-        # M: this will be automatically populated when the two
-        # below are called right now all subpropositions are added
-        # B: nice!
         self.premise_propositions = [
             # B: I think we might want to reverse self and prefix_sent here and in Proposition
             # just for consistency
@@ -325,12 +338,11 @@ class ModelStructure:
             # class (which only by coincidence is a class). So I think a syntax where self is first
             # could erroneously suggest that self (namely this ModelStructure instance) is an instance
             # of whatever model_setup.proposition_class is. 
+            # B: got it. that makes perfect sense!
             model_setup.proposition_class(prefix_sent, self)
             for prefix_sent in model_setup.prefix_premises
         ]
         self.conclusion_propositions = [
-            # B: I think we might want to reverse self and prefix_sent here and in Proposition
-            # just for consistency
             model_setup.proposition_class(prefix_sent, self)
             for prefix_sent in model_setup.prefix_conclusions
         ]
@@ -465,6 +477,10 @@ class ModelStructure:
     # is working we see if there's a way to not make people assume that? alternatively we could
     # figure out a specific trivial definition for worlds so that if someone doesn't want them
     # they can just use that to no detriment. 
+    # B: that sounds good! i honestly doubt that people aren't going to want worlds, and worst case
+    # they are there and don't get used by some users for certain purposes. that could be fine too.
+    # the only way that worlds could get in the way is if a user were to claim that there are
+    # possible states that don't belong to worlds, but that can't happen in finite spaces.
 
     # M: there needs to be a general formula for what an interpretation is.
     # B: when sentence letters are assigned to propositions, this amounts to interpreting them.
@@ -479,34 +495,3 @@ class ModelStructure:
     # M: Right now we explicitly save the extension of some functions (verify, falsify—in,
     # atomic_props_dict). it would be nice if we could choose not to.
     # B: I agree, this would be good to discuss
-
-    # M: to be honest the entirety of the state space is user-dependent. The only thing that we could
-    # do is maybe save the extensions of all the functions. Tbh, not that much for small values of N.
-    # you could then save all those extensions and when you're evaluating you'd just need to check
-    # if a specific set of values is in the extension of the given function. Now the problem is,
-    # how do we know for a generic case what the name of a given function is? Maybe it is better
-    # instead to rely on a method that is like the current evaluate one but for functions.
-    # as a concrete example take find_compatible_parts in model_definitions rn. Right now,
-    # to find what bits are compatible with a world, you check if some things are in the
-    # extension of other things. With the new implementation, you would simply do
-    # z3_model.evaluate(compatible_parts)
-    # B: this is interesting and worth discussing
-    # M: I tried this, it didn't work because it actually takes a lot of computational power.
-    # (and I think we actually discussed and discarded a similar strategy back in February
-    # when things were getting started)
-    # M: It turns out that even for small values of N saving the extensions of function is a lot,
-    # since there are a couple functions that would take 3 inputs (e.g. is_alternative), which has
-    # inputs in R^3, meaning, with e.g. N=7 there are (2^7)^3 = 2 million different input combos.
-    # Even worse, in that strategy you'd create a constraint for every single combination of
-    # bits in the space R^n for n the number of arguments taken by the function.
-    # so for N=7 and a 3-place predicate, you'd create a constraint that is itself a conjunction of
-    # 2 million constraints—in tests Z3 was taking too long for that (I never saw it terminate)
-    # B: oh got it. but well worth thinking through!
-
-    # how about you just don't worry about all that stuff? Like, focus on the extensional case.
-    # all that crap only matters for the later stuff anyways.
-    # B: good to anticipate what will be needed later on to save trouble then
-    # M: that is true, sorry this comment was meant to myself and i probably should have worded
-    # better anyways lol
-    # M: I also have a better idea of how that would look—just before I was kind of lost
-    # B: that's a part of it! it's shaping up very nicely :)
