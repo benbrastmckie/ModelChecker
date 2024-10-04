@@ -500,15 +500,23 @@ class StateSpace:
     def rec_print(self, prop_obj, world_bit, print_impossible, output, indent=0):
         """recursive print function (previously print_sort)
         returns None"""
+
+        # setup
         N = self.model_setup.N
         sentence_letters = self.sentence_letters
         prop_obj.print_verifiers_and_falsifiers(world_bit, print_impossible, indent, output)
+
+        # print sentence letters
         if str(prop_obj) in [str(atom) for atom in sentence_letters]:
             return
+
+        # find operator and indent
         prefix_expr = prop_obj["prefix expression"]
         op = prefix_expr[0]
         first_subprop = self.find_proposition_object(prefix_expr[1])
         indent += 1 # begin subcases, so indent
+
+        # unary cases
         if "neg" in op or "not" in op: # or "pre" in op:
             self.rec_print(first_subprop, world_bit, print_impossible, output, indent)
             return
@@ -516,6 +524,8 @@ class StateSpace:
             for u in self.world_bits:
                 self.rec_print(first_subprop, u, print_impossible, output, indent)
             return
+
+        # binary cases
         left_subprop = first_subprop
         right_subprop = self.find_proposition_object(prefix_expr[2])
         if "boxright" in op:

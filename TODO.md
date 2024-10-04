@@ -6,10 +6,14 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [x] class architecture
 - [.] implementation
+  - print 
+  - nonoperators
 - api
-- cli
-- release
 - alternative semantics
+  - Fine
+  - Champollion
+- cli
+  - release
 - documentation
 
 ## Implementation
@@ -54,6 +58,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] false-at
     - [x] model constraints (assigning each sentence letter to a proposition)
   - [ ] printing methods:
+    - divide `rec_print`
     - verifiers for a sentence
     - falsify for a sentence
     - state fusion

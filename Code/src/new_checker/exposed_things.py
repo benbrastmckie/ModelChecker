@@ -33,10 +33,11 @@ class Semantics:
         self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
         self.possible = Function("possible", BitVecSort(N), BoolSort())
         self.main_world = BitVec("w", N) # B: I figured this might help users
-        x, y, z = BitVecs("frame_x frame_y frame_z", N)
+        x, y = BitVecs("frame_x frame_y", N)
         self.frame_constraints = [
             ForAll([x, y], Implies(And(self.possible(y), self.is_part_of(x, y)), self.possible(x))),
-            ForAll([x, y], Exists(z, self.fusion(x, y) == z)), # M: is this necessary?
+            # NOTE: not needed give that bitvector spaces are complete because finite
+            # ForAll([x, y], Exists(z, self.fusion(x, y) == z)), # M: is this necessary?
             self.is_world(self.main_world),
         ]
         self.premise_behavior = self.true_at
@@ -116,21 +117,16 @@ class Semantics:
         )
     
     def true_at(self, prefix_sentence, eval_world):
-        # B: given that only sentence letters do not have '\\' in them, I think we can use:
-        if len(prefix_sentence) == 1 and '\\' not in prefix_sentence[0]: # sentence letter case
+        if len(prefix_sentence) == 1 and '\\' not in str(prefix_sentence[0]): # sentence letter case
             sent = prefix_sentence[0]
             x = BitVec("t_atom_x", self.N)
             return Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent)))
-        # B: below looks great!
         operator = prefix_sentence[0]
         args = prefix_sentence[1:]
         return operator.true_at(*args, eval_world)
 
     def false_at(self, prefix_sentence, eval_world):
-        # B: given that only sentence letters do not have '\\' in them, I think we can use:
-        # if len(prefix_sentence) == 1 and '\\' not in prefix_sentence[0]:
-        # M: makes sense to me! 
-        if len(prefix_sentence) == 1 and '\\' not in prefix_sentence[0]: # sentence letter case
+        if len(prefix_sentence) == 1 and '\\' not in str(prefix_sentence[0]): # sentence letter case
             sent = prefix_sentence[0]
             x = BitVec("f_atom_x", self.N)
             return Exists(x, And(self.is_part_of(x, eval_world), self.falsify(x, sent)))
@@ -140,11 +136,6 @@ class Semantics:
 
 class Proposition:
 
-    # B: I moved proposition_constraints down if that makes sense
-    # M: good idea
-    # B: I think we might want to reverse prefix_sentence and model_structure args here
-    # M: I think I know what you're talking about—when Proposition objects are instantiated
-    # in the model_structure. I gave some comments over there. 
     def __init__(self, prefix_sentence, model_structure):
         self.prefix_sentence = prefix_sentence
         self.model_structure = model_structure
@@ -228,6 +219,7 @@ class Proposition:
             constraints += non_null_constraints
         return constraints
     
+    # NOTES: might be good to have separate names for this function and the one in operators
     def find_verifiers_and_falsifiers(self):
         # if not(self.verifiers is None and self.falsifiers is None):
         #     return
@@ -243,23 +235,9 @@ class Proposition:
             F = {bit for bit in all_bits if model.evaluate(sem.falsify(bit, atom))}
             return V, F
         operator, prefix_args = self.prefix_sentence[0], self.prefix_sentence[1:]
-        # B: I'm not sure we will need this since when it comes to printing subprops, we should
-        # be able to call on a proposition for each to find out what it's Vs and Fs are
-        # M: Yeah, that's true—I was thinking this would more so help in when the Proposition
-        # instances are added to the model_structure's all_propositions attribute. Right now,
-        # whenever a Proposition instance is made, it is added to the model_structure. Say that
-        # a child subprop of a proposition whose Vs and Fs are being looked for with this function
-        # has already been made and is in the model_structure. Instead of recursively making those
-        # propositions again and looking for Vs and Fs that have already been found (and adding the
-        # Proposition instances to a set they're already in), I was thinking we could just look in
-        # that model_structure first to see if the child subprop is already there and use its Vs
-        # and Fs. This was relevant because it seemed that Proposition instances took a while to
-        # make. I tried something and it didn't seem to help out much—maybe the test sentences weren't
-        # complex enough (or maybe I implemented it incorrectly). I left it in case we want to try
-        # it later. 
-        # B: that's interesting and sounds like a good way to improve performance. it would be good
-        # to discuss the way propositions are created and where redundancy might occur.
-        # M: Not sure if this till commented line helps
+
+        # NOTE: this seems very close; just needs debugging and build prop dictionary here
+        # # B: might as well add to proposition dictionary here
         # current_props = {str(p.prefix_sentence):p for p in self.model_structure.all_propositions}
         # children_subprops = []
         # for arg in prefix_args:
@@ -267,6 +245,7 @@ class Proposition:
         #         children_subprops.append(current_props[str(arg)])
         #     else:
         #         children_subprops.append(Proposition(arg, self.model_structure))
+
         children_subprops = [Proposition(arg, self.model_structure) for arg in prefix_args]
         return operator.find_verifiers_and_falsifiers(*children_subprops)
         

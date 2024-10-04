@@ -24,6 +24,7 @@ import sys
 class Operator:
     """Defaults inherited by every operator."""
 
+    # NOTE: do we want it to raise errors if name and arity are missing from instances?
     name = None
     arity = None
 
@@ -58,41 +59,14 @@ class OperatorCollection:
 
     def add_operator(self, input):
         """Input is either an operator class (of type 'type') or a list of operator classes."""
-        # B: this looks great! I wonder if it might make sense to try to push everything into a
-        # uniform format, perhaps converting from tuples or sets into a list (maybe sorted?).
-        # M: I'm not sure, I think this may be a case that this sort of flexibility doesn't matter.
-        # all that matters is that the input is either a type (ie a class) or is an iterable item. 
-        # since tuples, lists, and sets are all iterable, it doesn't really matter which of those
-        # is inputted. As for sorting it, since everything is stored in the Operator Collection as
-        # a dictionary, I can't think of an intuitive order to be given (dictionaries are unordered)
-        # we would also need to define what sorting means for operators, though that wouldn't be
-        # that hard to do—it may just be a design choice that's kind of never going to be used.
-        # B: that all makes sense. regarding interables, aren't lists to be preferred to sets?
-
-        # M: if you're thinking it would be nice to, given an OperatorCollection object, see all
-        # the operators of arity n, that may be best achieved with a separate dictinary and method
-        # for accessing that dictionary. that dictionary would have keys integers and values of 
-        # lists or sets of Operator classes. 
-        # B: I'm honestly not too sure what would make sense to add, and maybe nothing. really just
-        # poking around to get a sense of how this might be used. but it's looking great!
         if (isinstance(input, list) or isinstance(input, tuple) or isinstance(input, set)):
             for operator_class in input:
                 self.add_operator(operator_class)
         elif isinstance(input, type):
             self.operator_classes_dict[input.name] = input
-            # M: line above is why name attributes were moved out of __init__ for operator classes.
-            # above we are accessing a class's attribute without making an instance of the class.
-            # B: I think I see what is going on here, but would be good to discuss.
 
     def __getitem__(self, value):
         return self.operator_classes_dict[value]
-        # M: right now this method isn't needed, but I added it in case
-        # B: seems useful. would we use something like this to get arity etc?
-        # M: under the current setup you you could do the following:
-            # (first, define a class ExampleOperator with e.g. name 'example' and arity 2)
-            # op_collection = OperatorCollection(ExampleOperator)
-            # arity_of_example_op = op_collection['example'].arity # this would give 2
-        # B: I see. just wondering how this dunder method might be used.
 
 class ModelSetup:
 
@@ -198,14 +172,14 @@ class ModelSetup:
     #             sentence_letters.add(sentence_letter)
     #     return list(sentence_letters)
 
-    # def repeats_removed(self, sentences):
-    #     """takes a list and removes the repeats in it.
-    #     used in find_all_constraints"""
-    #     seen = []
-    #     for obj in sentences:
-    #         if obj not in seen:
-    #             seen.append(obj)
-    #     return seen
+    def repeats_removed(self, sentences): # NOTE: sentences are unhashable so can't use set()
+        """takes a list and removes the repeats in it.
+        used in find_all_constraints"""
+        seen = []
+        for obj in sentences:
+            if obj not in seen:
+                seen.append(obj)
+        return seen
 
     # B: seems like above set() and list() are used to do something similar. I wonder if these can
     # be used here instead, or vice versa for consistency. also wondering if it makes sense to 
@@ -221,18 +195,16 @@ class ModelSetup:
         sentence_letters = set()
         for prefix_input in prefix_sentences:
             sentence_letters.update(self.sentence_letters_in_compound(prefix_input))
-        return sorted(sentence_letters)
+        return list(sentence_letters)
+        # TODO: need to make a dictionary to sort the list returned above
 
-    # B: I think this could be moved to hidden_helpers.py
-    def repeats_removed(self, sentences):
-        """Takes a list and removes the repeats in it.
-        Used in find_all_constraints.
-        """
-        return list(set(sentences))
+    # # B: I think this could be moved to hidden_helpers.py
+    # def repeats_removed(self, sentences):
+    #     """Takes a list and removes the repeats in it.
+    #     Used in find_all_constraints.
+    #     """
+    #     return list(set(sentences))
 
-    # B: sorting may not be needed here but thought of it
-    # M: what would be the criterion by which you sort?
-    # B: I guess length though there could be ties. probably unnecessary and can be ignored.
     # B: I think this could be moved to hidden_helpers.py
     def subsentences_of(self, prefix_sentence):
         """finds all the subsentence of a prefix sentence
@@ -282,7 +254,7 @@ class ModelSetup:
         try:
             model_start = time.time()  # start benchmark timer
             result = solver.check()
-            model_end = time.time()
+            model_end = time.time()  # end benchmark timer
             model_runtime = round(model_end - model_start, 4)
             if result == sat:
                 return self, False, True, solver.model(), model_runtime
@@ -295,6 +267,7 @@ class ModelSetup:
 
 class ModelStructure:
     def __init__(
+        # TODO: solve model_setup goes here
         self, model_setup, timeout, z3_model_status, z3_model, z3_model_runtime
     ):
         semantics = model_setup.semantics
@@ -321,29 +294,15 @@ class ModelStructure:
             if self.z3_model.evaluate(semantics.is_world(bit))
         ]
         self.main_world = self.z3_model[semantics.main_world]
-        self.all_propositions = set()
+        self.all_propositions = set() # B: should this be a dictionary to access later?
         self.premise_propositions = [
-            # B: I think we might want to reverse self and prefix_sent here and in Proposition
-            # just for consistency
-            # M: The reason that right now self is second is because a Proposition instance is
-            # made by inputting first (not sequentially, but like first in the order) the prefix
-            # sentence and then the model structure. This is the order because prefix_sent feels
-            # more relevant to a proposition than a prefix sentence. This sacrifices intuition here
-            # for intuition in the user-defined Proposition class, though yes, it does result in an
-            # odd-looking and counterintuitive syntax here. But this flipped order I think actually
-            # helps illustrate better what is going on here. The syntax with self first is often
-            # used to indicate that the method being called is a method of whatever class that self
-            # is: that class is what goes before the dot. In this case, what is before the dot is
-            # not the ModelStructure class that self is an instance of, rather it is a Proposition
-            # class (which only by coincidence is a class). So I think a syntax where self is first
-            # could erroneously suggest that self (namely this ModelStructure instance) is an instance
-            # of whatever model_setup.proposition_class is. 
-            # B: got it. that makes perfect sense!
-            model_setup.proposition_class(prefix_sent, self)
+            model_setup.proposition_class(prefix_sent, self) # NOTE: self is model_structure obj
+            # B: what if repeats in prefix_premises?
             for prefix_sent in model_setup.prefix_premises
         ]
         self.conclusion_propositions = [
-            model_setup.proposition_class(prefix_sent, self)
+            model_setup.proposition_class(prefix_sent, self) # NOTE: self is model_structure obj
+            # B: what if repeats in prefix_premises?
             for prefix_sent in model_setup.prefix_conclusions
         ]
 
@@ -463,35 +422,8 @@ class ModelStructure:
         self.print_evaluation(output)
         # self.print_inputs_recursively(print_impossible, output) # missing
 
-    # M: is it fair to assume that all models will have
-    # possible states, and all models will have a definition for worlds?
-    # B: possible states are hard to avoid. even in an extensional semantics where there is just 
-    # 1 and 0 as semantic values, the 1 may be thought to be possible (indeed actual). in finite
-    # models as we have here, there will be maximal possible states which are worlds states. what
-    # is less clear is whether every user will care to work with world states, although I think
-    # it is extremely likely that they will. so basically, yes, probably no matter what, every
-    # user will want to work with possible states and world states. certainly all of the models
-    # in my semantics will have both. officially, there is required to be at least one possible
-    # state, where every possible state is a part of a world state.
-    # M: sounds good! so maybe we proceed with assuming everyone wants both and then once everything
-    # is working we see if there's a way to not make people assume that? alternatively we could
-    # figure out a specific trivial definition for worlds so that if someone doesn't want them
-    # they can just use that to no detriment. 
-    # B: that sounds good! i honestly doubt that people aren't going to want worlds, and worst case
-    # they are there and don't get used by some users for certain purposes. that could be fine too.
-    # the only way that worlds could get in the way is if a user were to claim that there are
-    # possible states that don't belong to worlds, but that can't happen in finite spaces.
-
-    # M: there needs to be a general formula for what an interpretation is.
-    # B: when sentence letters are assigned to propositions, this amounts to interpreting them.
-    # so really the Proposition class says what it is to interpret a sentence letter.
-
     # M: looking at find_complex_proposition, it looks like we can employ a similar strategy
     # to the operators bouncing back and forth with the semantics, except this time we
     # bounce back and forth with wherever the definition of a proposition is
     # B: yes, there will definitely also be some bouncing back and forth. whatever happens in
     # recursive_print will get divided between operators
-
-    # M: Right now we explicitly save the extension of some functions (verify, falsify—in,
-    # atomic_props_dict). it would be nice if we could choose not to.
-    # B: I agree, this would be good to discuss
