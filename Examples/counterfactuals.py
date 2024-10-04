@@ -31,6 +31,27 @@ save_bool = False
 # contingent_bool = False
 # disjoint_bool = False
 
+# # Poss Pres
+# N = 3
+# premises = ['(A boxright C)', 'neg (A boxright neg C)']
+# conclusions = ['((A wedge B) boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # Nec Pres
+# N = 3
+# premises = ['(A boxright C)', '(A boxright B)']
+# conclusions = ['((A wedge B) boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# Agglomeration VALID
+N = 4
+premises = ['(A boxright B)', '(A boxright C)']
+conclusions = ['(A boxright (B wedge C))']
+contingent_bool = True
+disjoint_bool = False
+
 
 
 ########################################
@@ -239,12 +260,12 @@ save_bool = False
 # contingent_bool = False
 # disjoint_bool = False
 
-# CF5: SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-N = 4
-premises = ['((A vee B) boxright C)']
-conclusions = ['(A boxright C)']
-contingent_bool = False
-disjoint_bool = False
+# # CF5: SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+# N = 4
+# premises = ['((A vee B) boxright C)']
+# conclusions = ['(A boxright C)']
+# contingent_bool = False
+# disjoint_bool = False
 
 # # CF6: DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
 # N = 3
