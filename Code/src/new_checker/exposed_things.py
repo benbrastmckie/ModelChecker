@@ -138,16 +138,15 @@ class Semantics:
 # e.g. __repr__, __hash__, some things in __init__. It would be nice to hide these from users
 # especially since they may cause confusion to python beginners ("what's __hash__ and why
 # does it return 0?"). To this end I was thinking of making a parent class for Propositions
-# that has all the hidden stuff—much like Operator is to e.g. AndOperator. If you think this is
+# that has all the hidden stuff—much like Operator is to e.g. AndOperator. (I went ahead
+# and made that change because it was fairly easy to do and can be easily reverted. If you think this is
 # a good idea, let me know what you think might be a good name for that parent class. 
 # I'm at a bit of an impasse because I like Proposition for the class the user defines,
 # but at the same time that's the only name I could think of for the generic class. 
-class Proposition:
+class NewProposition:
 
     def __init__(self, prefix_sentence, model_structure):
-        self.prefix_sentence = prefix_sentence # applies to any def of Proposition
-        self.model_structure = model_structure # applies to any def of Proposition
-        self.semantics = model_structure.model_setup.semantics # applies to any def of Proposition
+        super().__init__(prefix_sentence, model_structure)
         # self.verifiers, self.falsifiers = None, None # for avoiding useless recursion
         self.verifiers, self.falsifiers = self.find_verifiers_and_falsifiers()
         # print(f'made proposition for {self.prefix_sentence}')
@@ -155,14 +154,6 @@ class Proposition:
         # but needs to be left here because it must happen after find_verifiers_and_falsifiers
         # (more generally, it depends on __eq__, which is user-defined and which in this def 
         # of Propositions depends on verifiers and falsifiers)
-
-    # M: # applies to any def of Proposition
-    def __repr__(self):
-        return str(self.prefix_sentence)
-
-    # M: # applies to any def of Proposition
-    def __hash__(self):
-        return 0
     
     def __eq__(self, other):
         if (self.verifiers == other.verifiers
@@ -259,7 +250,7 @@ class Proposition:
         #     else:
         #         children_subprops.append(Proposition(arg, self.model_structure))
 
-        children_subprops = [Proposition(arg, self.model_structure) for arg in prefix_args]
+        children_subprops = [NewProposition(arg, self.model_structure) for arg in prefix_args]
         return operator.find_verifiers_and_falsifiers(*children_subprops)
         
     def truth_or_falsity_at_world(self, world):
