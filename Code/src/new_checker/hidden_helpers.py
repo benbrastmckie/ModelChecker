@@ -9,9 +9,28 @@ The operators `\\top` and `\\bot` are reserved.
 
 ### IMPORTS AND DEFINITIONS ###
 
-from z3 import Const, DeclareSort
+from z3 import(
+    Const,
+    DeclareSort,
+    BoolRef,
+    simplify,
+) 
 
 AtomSort = DeclareSort("AtomSort")
+
+
+### Z3 HELPERS ###
+
+
+# M: this is not used right now but may be later
+def z3_simplify(z3_expr):
+    """
+    This will get rid of need for all the bit_ functions.
+    However, it does not get rid of e.g. find_compatible_parts.
+    """
+    if isinstance(z3_expr, BoolRef):
+        return bool(simplify(z3_expr))
+    return simplify(z3_expr)
 
 
 ### SENTENCE HELPERS ###
