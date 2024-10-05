@@ -39,6 +39,7 @@ class Operator:
 
     # NOTE: do we want it to raise errors if name and arity are missing from instances?
     # M: see the code in __init__ that will raise an error if a name or arity are missing
+    # B: looks great!
     name = None
     arity = None
 
@@ -51,11 +52,17 @@ class Operator:
 
     def __str__(self):
         return self.name if self.name else "Unnamed Operator"
+        # return self.name # B: I tried this
         # M: if we keep error raising in __init__, I think we can change this to just return self.name
+        # B: I tried this, but my linter says: method __str__ overrides class "object" in an
+        # incompatible manner. return type mismatch: base method returns type "str", override
+        # returns type "None" which is not assignable to "str"
 
     def __repr__(self):
         return self.name if self.name else "Unnamed Operator"
+        # return self.name # B: I tried this
         # M: see comment on __str__
+        # B: ditto above
 
     def __eq__(self, other):
         if isinstance(other, Operator):
