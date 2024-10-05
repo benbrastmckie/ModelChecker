@@ -4,7 +4,7 @@ from exposed_things import (
     AndOperator,
     NegOperator,
     OrOperator,
-    Proposition,
+    NewProposition,
     TopOperator,
 )
 from hidden_things import ModelSetup, ModelStructure, OperatorCollection
@@ -21,7 +21,7 @@ print("made semantics")
 
 # NOTE: should semantics, operators, propositions be grouped into an object?
 # NOTE: could group settings into an object to pass in here if need be?
-model_setup = ModelSetup(premises, conclusions, semantics, operators, Proposition)
+model_setup = ModelSetup(premises, conclusions, semantics, operators, NewProposition)
 print("made model_setup")
 
 # B: could we pass model_setup into ModelStructure, making solve() one of it's methods?

@@ -22,6 +22,17 @@ from old_semantics_helpers import (
 
 import sys
 
+class Proposition:
+    def __init__(self, prefix_sentence, model_structure):
+        self.prefix_sentence = prefix_sentence
+        self.model_structure = model_structure
+        self.semantics = model_structure.model_setup.semantics
+
+    def __repr__(self):
+        return str(self.prefix_sentence)
+
+    def __hash__(self):
+        return 0
 
 class Operator:
     """Defaults inherited by every operator."""
