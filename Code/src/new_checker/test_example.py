@@ -9,6 +9,9 @@ from exposed_things import (
 )
 from hidden_things import ModelSetup, ModelStructure, OperatorCollection
 
+# infix_ex = model_setup.prefix("(\\neg \\neg \\neg B \\wedge \\neg \\neg \\bot)")
+# print(f"Here is a prefix sentence: {infix_ex}")
+
 premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
 conclusions = ["(\\neg B \\wedge \\neg D)"]
 operators = OperatorCollection(AndOperator, NegOperator, OrOperator, TopOperator, BotOperator)
@@ -20,9 +23,6 @@ print("made semantics")
 # NOTE: could group settings into an object to pass in here if need be?
 model_setup = ModelSetup(premises, conclusions, semantics, operators, Proposition)
 print("made model_setup")
-
-infix_ex = model_setup.prefix("(\\neg \\neg \\neg B \\wedge \\neg \\neg \\bot)")
-print(f"Here is a prefix sentence: {infix_ex}")
 
 # B: could we pass model_setup into ModelStructure, making solve() one of it's methods?
 # seems like this would skip a step here and would carve at the conceptual joints
@@ -42,9 +42,3 @@ print("back at editable file")
 model_structure.print_all()  # missing printing propositions recursively
 
 # B: got it to print! this is coming together very nicely :)
-
-# for proposition in model_structure.all_propositions:
-#     print(proposition)
-#     print(proposition.truth_or_falsity_at_world(model_structure.main_world))
-#     # print(proposition.verifiers, proposition.falsifiers)
-#     print('\n')
