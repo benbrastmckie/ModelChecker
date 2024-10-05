@@ -1,8 +1,7 @@
 from z3 import (
     sat,
     Solver,
-    BoolRef,
-    simplify,
+    z3,
 )
 
 import time
@@ -62,7 +61,11 @@ class OperatorCollection:
 
     def add_operator(self, input):
         """Input is either an operator class (of type 'type') or a list of operator classes."""
-        if (isinstance(input, list) or isinstance(input, tuple) or isinstance(input, set)):
+        if (
+            isinstance(input, list)
+            or isinstance(input, tuple)
+            or isinstance(input, set)
+        ):
             for operator_class in input:
                 self.add_operator(operator_class)
         elif isinstance(input, type):
@@ -70,6 +73,7 @@ class OperatorCollection:
 
     def __getitem__(self, value):
         return self.operator_classes_dict[value]
+
 
 class ModelSetup:
 
@@ -185,30 +189,10 @@ class ModelSetup:
         right_expr = prefix_sent[2]
         return f"({self.infix(left_expr)} {op} {self.infix(right_expr)})"
 
-    def solve(self):
-        solver = Solver()
-        solver.add(self.all_constraints)
-        solver.set("timeout", int(self.max_time * 1000))  # time in seconds
-        try:
-            model_start = time.time()  # start benchmark timer
-            result = solver.check()
-            model_end = time.time()  # end benchmark timer
-            model_runtime = round(model_end - model_start, 4)
-            if result == sat:
-                return self, False, True, solver.model(), model_runtime
-            if solver.reason_unknown() == "timeout":
-                return self, True, False, None, model_runtime
-            return self, False, False, solver.unsat_core(), model_runtime
-        except RuntimeError as e: # Handle unexpected exceptions
-            print(f"An error occurred while running `solve_constraints()`: {e}")
-            return self, True, False, None, None
 
 class ModelStructure:
-    def __init__(
-        # TODO: solve model_setup goes here
-        self, model_setup, timeout, z3_model_status, z3_model, z3_model_runtime
-    ):
-        semantics = model_setup.semantics
+    def __init__(self, model_setup):
+        timeout, z3_model_status, z3_model, z3_model_runtime = self.solve(model_setup)
         self.model_setup = model_setup
         self.timeout = timeout
         self.z3_model = z3_model
@@ -221,38 +205,54 @@ class ModelStructure:
         self.sentence_letters = all_sentence_letters(prefix_sentences)
 
         self.all_bits = find_all_bits(self.N)
-        self.poss_bits = [
-            bit
-            for bit in self.all_bits
-            if self.z3_model.evaluate(semantics.possible(bit))
-        ]
-        self.world_bits = [
-            bit
-            for bit in self.poss_bits
-            if self.z3_model.evaluate(semantics.is_world(bit))
-        ]
-        self.main_world = self.z3_model[semantics.main_world]
-        self.all_propositions = set() # B: should this be a dictionary to access easements later?
+        if isinstance(z3_model, z3.ModelRef):  # Check if z3_model is a ModelRef
+            self.poss_bits = [
+                bit
+                for bit in self.all_bits
+                if bool(z3_model.evaluate(model_setup.semantics.possible(bit)))
+            ]
+            self.world_bits = [
+                bit
+                for bit in self.poss_bits
+                if bool(z3_model.evaluate(model_setup.semantics.is_world(bit)))
+            ]
+            self.main_world = z3_model[model_setup.semantics.main_world]
+        else:
+            # B: not sure whether to raise error to kill process or print
+            # raise ValueError(f"Unexpected z3_model type: {type(z3_model)}")
+            print(f"Unexpected z3_model type: {type(z3_model)}")
+            self.poss_bits = []
+            self.world_bits = []
+            self.main_world = None
+        self.all_propositions = set()  # TODO: should be a dictionary
         self.premise_propositions = [
-            model_setup.proposition_class(prefix_sent, self) # NOTE: self is model_structure obj
+            model_setup.proposition_class(prefix_sent, self)
             # B: what if there are repeats in prefix_premises?
             for prefix_sent in model_setup.prefix_premises
         ]
         self.conclusion_propositions = [
-            model_setup.proposition_class(prefix_sent, self) # NOTE: self is model_structure obj
+            model_setup.proposition_class(prefix_sent, self)
             # B: what if there are repeats in prefix_premises?
             for prefix_sent in model_setup.prefix_conclusions
         ]
 
-    # M: this is not used right now but may be later
-    def evaluate(self, z3_expr):
-        """
-        This will get rid of need for all the bit_ functions.
-        However, it does not get rid of e.g. find_compatible_parts.
-        """
-        if isinstance(z3_expr, BoolRef):
-            return bool(simplify(z3_expr))
-        return simplify(z3_expr)
+    def solve(self, model_setup):
+        solver = Solver()
+        solver.add(model_setup.all_constraints)
+        solver.set("timeout", int(model_setup.max_time * 1000))  # time in seconds
+        try:
+            model_start = time.time()  # start benchmark timer
+            result = solver.check()
+            model_end = time.time()  # end benchmark timer
+            model_runtime = round(model_end - model_start, 4)
+            if result == sat:
+                return False, True, solver.model(), model_runtime
+            if solver.reason_unknown() == "timeout":
+                return True, False, None, model_runtime
+            return False, False, solver.unsat_core(), model_runtime
+        except RuntimeError as e:  # Handle unexpected exceptions
+            print(f"An error occurred while running `solve_constraints()`: {e}")
+            return True, False, None, None
 
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
