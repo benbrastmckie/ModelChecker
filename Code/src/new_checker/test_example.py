@@ -23,18 +23,6 @@ print("made semantics")
 # NOTE: could group settings into an object to pass in here if need be?
 model_setup = ModelSetup(premises, conclusions, semantics, operators, NewProposition)
 print("made model_setup")
-
-# B: could we pass model_setup into ModelStructure, making solve() one of it's methods?
-# seems like this would skip a step here and would carve at the conceptual joints
-# but maybe there is something I'm still missing. would be good to discuss
-
-# solve_output = model_setup.solve()
-# if solve_output[2]:
-#     print("solved the constraints")
-# else:
-#     print("did not solve the constraints")
-
-# TODO: move solve to ModelStructure
 model_structure = ModelStructure(model_setup)
 # model_structure = ModelStructure(*solve_output)
 print("made model_structure")
