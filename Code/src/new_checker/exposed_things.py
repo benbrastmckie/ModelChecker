@@ -134,20 +134,33 @@ class Semantics:
         args = prefix_sentence[1:]
         return operator.false_at(*args, eval_world)
 
+# M: lots of things in this are going to be generic to anyone's definition of propositions
+# e.g. __repr__, __hash__, some things in __init__. It would be nice to hide these from users
+# especially since they may cause confusion to python beginners ("what's __hash__ and why
+# does it return 0?"). To this end I was thinking of making a parent class for Propositions
+# that has all the hidden stuff—much like Operator is to e.g. AndOperator. If you think this is
+# a good idea, let me know what you think might be a good name for that parent class. 
+# I'm at a bit of an impasse because I like Proposition for the class the user defines,
+# but at the same time that's the only name I could think of for the generic class. 
 class Proposition:
 
     def __init__(self, prefix_sentence, model_structure):
-        self.prefix_sentence = prefix_sentence
-        self.model_structure = model_structure
-        self.semantics = model_structure.model_setup.semantics
+        self.prefix_sentence = prefix_sentence # applies to any def of Proposition
+        self.model_structure = model_structure # applies to any def of Proposition
+        self.semantics = model_structure.model_setup.semantics # applies to any def of Proposition
         # self.verifiers, self.falsifiers = None, None # for avoiding useless recursion
         self.verifiers, self.falsifiers = self.find_verifiers_and_falsifiers()
-        self.model_structure.all_propositions.add(self)
         # print(f'made proposition for {self.prefix_sentence}')
+        self.model_structure.all_propositions.add(self) # M: applies to any def of Proposition,
+        # but needs to be left here because it must happen after find_verifiers_and_falsifiers
+        # (more generally, it depends on __eq__, which is user-defined and which in this def 
+        # of Propositions depends on verifiers and falsifiers)
 
+    # M: # applies to any def of Proposition
     def __repr__(self):
         return str(self.prefix_sentence)
 
+    # M: # applies to any def of Proposition
     def __hash__(self):
         return 0
     
