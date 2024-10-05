@@ -9,6 +9,9 @@ import time
 
 from hidden_helpers import (
     parse_expression,
+    repeats_removed,
+    sentence_letters_in_compound,
+    subsentences_of,
 )
 
 from old_semantics_helpers import (
@@ -146,47 +149,6 @@ class ModelSetup:
             for index, sent in enumerate(infix_conclusions, start=start_con_num):
                 print(f"{index}. {sent}", file=output)
 
-    # B: I think this could be moved to hidden_helpers.py
-    def sentence_letters_in_compound(self, prefix_input_sentence):
-        """finds all the sentence letters in ONE input sentence. returns a list. WILL HAVE REPEATS
-        returns a list of AtomSorts. CRUCIAL: IN THAT SENSE DOES NOT FOLLOW SYNTAX OF PREFIX SENTS.
-        But that's ok, just relevant to know
-        used in find_sentence_letters
-        """
-        if len(prefix_input_sentence) == 1:  # base case: atomic sentence
-            return [prefix_input_sentence[0]]  # redundant but conceptually clear
-        return_list = []
-        for part in prefix_input_sentence[1:]:
-            return_list.extend(self.sentence_letters_in_compound(part))
-        return return_list
-
-    # def find_sentence_letters(self, prefix_sentences):
-    #     """finds all the sentence letters in a list of input sentences, in prefix form.
-    #     returns as a list of AtomSorts with no repeats (sorted for consistency)
-    #     used in find_all_constraints (feeds into find_prop_constraints) and StateSpace __init__
-    #     """
-    #     sentence_letters = set()
-    #     for prefix_input in prefix_sentences:
-    #         sentence_letters_in_input = self.sentence_letters_in_compound(prefix_input)
-    #         for sentence_letter in sentence_letters_in_input:
-    #             sentence_letters.add(sentence_letter)
-    #     return list(sentence_letters)
-
-    def repeats_removed(self, sentences): # NOTE: sentences are unhashable so can't use set()
-        """takes a list and removes the repeats in it.
-        used in find_all_constraints"""
-        seen = []
-        for obj in sentences:
-            if obj not in seen:
-                seen.append(obj)
-        return seen
-
-    # B: seems like above set() and list() are used to do something similar. I wonder if these can
-    # be used here instead, or vice versa for consistency. also wondering if it makes sense to 
-    # sort the list for uniformity of output here and above.
-    # M: Yeah, I think they probably could, and yeah, sorting would be good
-    # B: here is something along those lines to refactor the commented code blocks above
-
     def find_sentence_letters(self, prefix_sentences):
         """Finds all the sentence letters in a list of input sentences, in prefix form.
         Returns as a list of AtomSorts with no repeats (sorted for consistency).
@@ -194,41 +156,17 @@ class ModelSetup:
         """
         sentence_letters = set()
         for prefix_input in prefix_sentences:
-            sentence_letters.update(self.sentence_letters_in_compound(prefix_input))
+            sentence_letters.update(sentence_letters_in_compound(prefix_input))
         return list(sentence_letters)
         # TODO: need to make a dictionary to sort the list returned above
-
-    # # B: I think this could be moved to hidden_helpers.py
-    # def repeats_removed(self, sentences):
-    #     """Takes a list and removes the repeats in it.
-    #     Used in find_all_constraints.
-    #     """
-    #     return list(set(sentences))
-
-    # B: I think this could be moved to hidden_helpers.py
-    def subsentences_of(self, prefix_sentence):
-        """finds all the subsentence of a prefix sentence
-        returns these as a list
-        used in find_extensional_subsentences"""
-        progress = []
-        progress.append(prefix_sentence)
-        if len(prefix_sentence) == 2:
-            sub_sentsentences = self.subsentences_of(prefix_sentence[1])
-            return progress + sub_sentsentences
-        if len(prefix_sentence) == 3:
-            left_subsentences = self.subsentences_of(prefix_sentence[1])
-            right_subsentences = self.subsentences_of(prefix_sentence[2])
-            all_subsentences = left_subsentences + right_subsentences + progress
-            return self.repeats_removed(all_subsentences)
-        return progress
 
     def find_subsentences(self, prefix_sentences):
         """take a set of prefix sentences and returns a set of all subsentences"""
         all_subsentences = []
         for prefix_sent in prefix_sentences:
-            all_prefix_subs = self.subsentences_of(prefix_sent)
+            all_prefix_subs = subsentences_of(prefix_sent)
             all_subsentences.extend(all_prefix_subs)
-        return self.repeats_removed(all_subsentences)
+        return repeats_removed(all_subsentences)
 
     def prefix(self, infix_sentence):
         """For converting from infix to prefix notation without knowing which
@@ -294,15 +232,15 @@ class ModelStructure:
             if self.z3_model.evaluate(semantics.is_world(bit))
         ]
         self.main_world = self.z3_model[semantics.main_world]
-        self.all_propositions = set() # B: should this be a dictionary to access later?
+        self.all_propositions = set() # B: should this be a dictionary to access easements later?
         self.premise_propositions = [
             model_setup.proposition_class(prefix_sent, self) # NOTE: self is model_structure obj
-            # B: what if repeats in prefix_premises?
+            # B: what if there are repeats in prefix_premises?
             for prefix_sent in model_setup.prefix_premises
         ]
         self.conclusion_propositions = [
             model_setup.proposition_class(prefix_sent, self) # NOTE: self is model_structure obj
-            # B: what if repeats in prefix_premises?
+            # B: what if there are repeats in prefix_premises?
             for prefix_sent in model_setup.prefix_conclusions
         ]
 
