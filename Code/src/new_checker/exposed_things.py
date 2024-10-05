@@ -16,7 +16,10 @@ from z3 import (
 
 from syntax import AtomSort
 
-from hidden_things import Operator
+from hidden_things import(
+    Operator,
+    Proposition,
+)
 
 from old_semantics_helpers import (
     product,
@@ -143,7 +146,9 @@ class Semantics:
 # a good idea, let me know what you think might be a good name for that parent class. 
 # I'm at a bit of an impasse because I like Proposition for the class the user defines,
 # but at the same time that's the only name I could think of for the generic class. 
-class NewProposition:
+# B: that's a great idea. as for the name, maybe we could do 'Proposition' for the parent class
+# and 'Defined' for the child class so that it looks like: class Defined(Proposition).
+class Defined(Proposition):
 
     def __init__(self, prefix_sentence, model_structure):
         super().__init__(prefix_sentence, model_structure)
@@ -223,7 +228,7 @@ class NewProposition:
             constraints += non_null_constraints
         return constraints
     
-    # NOTES: might be good to have separate names for this function and the one in operators
+    # TODO: separate names for this function and the one in operators
     def find_verifiers_and_falsifiers(self):
         # if not(self.verifiers is None and self.falsifiers is None):
         #     return

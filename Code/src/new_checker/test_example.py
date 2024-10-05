@@ -27,6 +27,6 @@ model_structure = ModelStructure(model_setup)
 # model_structure = ModelStructure(*solve_output)
 print("made model_structure")
 print("back at editable file")
-model_structure.print_all()  # missing printing propositions recursively
+model_structure.print_all()  
 
-# B: got it to print! this is coming together very nicely :)
+# TODO: add printing propositions recursively
