@@ -31,23 +31,15 @@ class Proposition:
         self.model_structure = model_structure
         self.semantics = model_structure.model_setup.semantics
         self.name = model_structure.infix(self.prefix_sentence)
+        # self.name = infix(self.prefix_sentence)
         # self.name = str(model_structure.infix(self.prefix_sentence))
         # self.name = str(self.prefix_sentence) # change to infix
-
-    # def __post_init__(self):
-    #     try:
-    #         hash(self)
-    #     except:
-    #         type(self).__hash__ = lambda x: Proposition.__hash__(x)
 
     def __post_init__(self):
         self.model_structure.all_propositions[self.name] = self
 
     def __repr__(self):
-        # B: for test printing
-        # return f"{self.__class__.__name__}({self.prefix_sentence})"
         return self.name
-        # B: below is old
         # return str(self.prefix_sentence)
 
     def __hash__(self):
