@@ -187,19 +187,6 @@ def index_to_substate(index):
     letter = letter_dict[number%26]
     return ((number//26) + 1) * letter
 
-def int_to_binary(integer, number, backwards_binary_str = ''):
-    '''converts a #x string to a #b string. follows the first algorithm that shows up on google
-    when you google how to do this
-    used in bitvec_to_substates'''
-    rem = integer%2
-    new_backwards_str = backwards_binary_str + str(rem)
-    if integer//2 == 0: # base case: we've reached the end
-        remaining_0s_to_tack_on = number - len(new_backwards_str) # to fill in the zeroes
-        return '#b' + remaining_0s_to_tack_on * '0' + new_backwards_str[::-1]
-    new_int = integer//2
-    return int_to_binary(new_int, number, new_backwards_str)
-
-
 # has to do with printing
 def bitvec_to_substates(bit_vec, N):
     '''converts bitvectors to fusions of atomic states.'''

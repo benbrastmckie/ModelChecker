@@ -23,6 +23,85 @@ from z3 import(
 AtomSort = DeclareSort("AtomSort")
 
 
+### PRINT HELPERS ###
+
+
+def summation(n, func, start = 0):
+    '''summation of i ranging from start to n of func(i)
+    used in find_all_bits'''
+    if start == n:
+        return func(start)
+    return func(start) + summation(n,func,start+1)
+
+
+def find_all_bits(size):
+    '''extract all bitvectors from the input model
+    imported by model_structure'''
+    all_bits = []
+    max_bit_number = summation(size + 1, lambda x: 2**x)
+    for val in range(max_bit_number):
+        test_bit = BitVecVal(val, size)
+        if test_bit in all_bits:
+            continue
+        all_bits.append(test_bit)
+    return all_bits
+
+
+def int_to_binary(integer, number, backwards_binary_str = ''):
+    '''converts a #x string to a #b string. follows the first algorithm that shows up on google
+    when you google how to do this
+    used in bitvec_to_substates'''
+    rem = integer%2
+    new_backwards_str = backwards_binary_str + str(rem)
+    if integer//2 == 0: # base case: we've reached the end
+        remaining_0s_to_tack_on = number - len(new_backwards_str) # to fill in the zeroes
+        return '#b' + remaining_0s_to_tack_on * '0' + new_backwards_str[::-1]
+    new_int = integer//2
+    return int_to_binary(new_int, number, new_backwards_str)
+
+
+def index_to_substate(index):
+    '''
+    test cases should make evident what's going on
+    >>> index_to_substate(0)
+    'a'
+    >>> index_to_substate(26)
+    'aa'
+    >>> index_to_substate(27)
+    'bb'
+    >>> index_to_substate(194)
+    'mmmmmmmm'
+    used in bitvec_to_substates
+    '''
+    number = index + 1 # because python indices start at 0
+    letter_dict = {1:'a', 2:'b', 3:'c', 4:'d', 5:'e', 6:'f', 7:'g', 8:'h', 9:'i', 10:'j',
+                   11:'k', 12:'l', 13:'m', 14:'n', 15:'o', 16:'p', 17:'q', 18:'r', 19:'s', 20:'t',
+                   21:'u', 22:'v', 23:'w', 24:'x', 25:'y', 26:'z'}
+    # could be make less hard-code-y
+    # but this makes it clearer and more intuitive what we want to happen
+    letter = letter_dict[number%26]
+    return ((number//26) + 1) * letter
+
+
+def bitvec_to_substates(bit_vec, N):
+    '''converts bitvectors to fusions of atomic states.'''
+    bit_vec_as_string = bit_vec.sexpr()
+    if 'x' in bit_vec_as_string: # if we have a hexadecimal, ie N=4m
+        integer = int(bit_vec_as_string[2:],16)
+        bit_vec_as_string = int_to_binary(integer, N)
+    bit_vec_backwards = bit_vec_as_string[::-1]
+    state_repr = ""
+    for i, char in enumerate(bit_vec_backwards):
+        if char == "b":
+            if not state_repr:
+                return "□"  #  null state
+            return state_repr[0 : len(state_repr) - 1]
+        if char == "1":
+            state_repr += index_to_substate(i)
+            state_repr += "."
+    raise ValueError("should have run into 'b' at the end but didn't")
+
+
 ### Z3 HELPERS ###
 
 
@@ -101,6 +180,19 @@ def sentence_letters_in_compound(prefix_sentence):
     for part in prefix_sentence[1:]:
         return_list.extend(sentence_letters_in_compound(part))
     return return_list
+
+
+def all_sentence_letters(prefix_sentences):
+    """finds all the sentence letters in a list of input sentences, in prefix form.
+    returns as a list with no repeats (sorted for consistency) of AtomSorts
+    used in find_all_constraints (to feed into find_prop_constraints) and StateSpace __init__"""
+    sentence_letters = set()
+    for prefix_input in prefix_sentences:
+        sentence_letters_in_input = sentence_letters_in_compound(prefix_input)
+        for sentence_letter in sentence_letters_in_input:
+            sentence_letters.add(sentence_letter)
+    return list(sentence_letters)
+    # sort just to make every output the same, given sets aren't hashable
 
 
 def repeats_removed(sentences):  # NOTE: sentences are unhashable so can't use set()

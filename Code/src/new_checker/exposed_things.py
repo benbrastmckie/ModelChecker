@@ -27,8 +27,12 @@ from hidden_things import (
     Proposition,
 )
 
-# these could also go in the API
-from old_semantics_helpers import product, coproduct, ForAll, Exists
+# B: I made product and coproduct methods of the Operator parent class
+# M: these could also go in the API
+from hidden_helpers import (
+    ForAll,
+    Exists,
+)
 
 
 class Semantics:
