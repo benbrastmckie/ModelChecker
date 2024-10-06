@@ -162,7 +162,7 @@ class Defined(Proposition):
         # self.verifiers, self.falsifiers = None, None # for avoiding useless recursion
         self.verifiers, self.falsifiers = self.find_verifiers_and_falsifiers()
         # B: I think the below adds instances to all_propositions dictionary?
-        self.model_structure.all_propositions[self.name] = self
+        # self.model_structure.all_propositions[self.name] = self
         # self.model_structure.all_propositions.add(self)
         # M: applies to any def of Proposition,
         # but needs to be left here because it must happen after find_verifiers_and_falsifiers
