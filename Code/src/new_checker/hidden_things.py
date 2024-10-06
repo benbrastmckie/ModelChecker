@@ -12,9 +12,6 @@ from hidden_helpers import (
     repeats_removed,
     sentence_letters_in_compound,
     subsentences_of,
-)
-
-from old_semantics_helpers import (
     all_sentence_letters,
     find_all_bits,
     bitvec_to_substates,
@@ -51,14 +48,14 @@ class Proposition:
         self.non_null = model_structure.model_setup.non_null
         self.contingent = model_structure.model_setup.contingent
         self.model_structure.all_propositions[self.name] = self
-        # try:
-        #     hash(self)
-        # except:
-        #     type(self).__hash__ = lambda x: Proposition.__hash__(x)
-        #     # B: linter says cannot assign to attribute "__hash__" for class "type[Proposition]*"
-        #     # Type "(x: Self@Proposition) -> int" is not assignable to type "(self: Self@Proposition) -> int"
-        #     # parameter mismatch: "self" vs "x"
-        #     # M: does the problem go away if you change x to self?
+        try:
+            hash(self)
+        except:
+            type(self).__hash__ = lambda self: Proposition.__hash__(self)
+            # B: linter says cannot assign to attribute "__hash__" for class "type[Proposition]*"
+            # Type "(x: Self@Proposition) -> int" is not assignable to type "(self: Self@Proposition) -> int"
+            # parameter mismatch: "self" vs "x"
+            # M: does the problem go away if you change x to self?
 
     def __repr__(self):
         return self.name
