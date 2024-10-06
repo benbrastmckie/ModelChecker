@@ -11,14 +11,12 @@ from exposed_things import (
 )
 
 # B: when we develop the API these should go into __init__.py
+# M: yes—also Operator and Proposition
 from hidden_things import(
     ModelSetup,
     ModelStructure,
     OperatorCollection,
 )
-
-# infix_ex = model_setup.prefix("(\\neg \\neg \\neg B \\wedge \\neg \\neg \\bot)")
-# print(f"Here is a prefix sentence: {infix_ex}")
 
 semantics = Semantics(4)
 print("made semantics")
@@ -55,4 +53,8 @@ print("made model_structure")
 print("print all props:", model_structure.all_propositions)
 model_structure.print_all()  
 
+a = Defined(model_structure.all_propositions['A'].prefix_sentence,model_structure)
+b = Defined(model_structure.all_propositions['A'].prefix_sentence,model_structure)
+print(a == b)
+{a}
 # TODO: add printing propositions recursively

@@ -58,6 +58,7 @@ class Proposition:
         #     # B: linter says cannot assign to attribute "__hash__" for class "type[Proposition]*"
         #     # Type "(x: Self@Proposition) -> int" is not assignable to type "(self: Self@Proposition) -> int"
         #     # parameter mismatch: "self" vs "x"
+        #     # M: does the problem go away if you change x to self?
 
     def __repr__(self):
         return self.name
