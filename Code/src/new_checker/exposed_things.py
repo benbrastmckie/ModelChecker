@@ -144,6 +144,7 @@ class Semantics:
 # that has all the hidden stuff—much like Operator is to e.g. AndOperator. (I went ahead
 # and made that change because it was fairly easy to do and can be easily reverted. If you think this is
 # a good idea, let me know what you think might be a good name for that parent class. 
+# (or a better new name for the child class)
 # I'm at a bit of an impasse because I like Proposition for the class the user defines,
 # but at the same time that's the only name I could think of for the generic class. 
 # B: that's a great idea. as for the name, maybe we could do 'Proposition' for the parent class
@@ -155,11 +156,15 @@ class Defined(Proposition):
         # self.verifiers, self.falsifiers = None, None # for avoiding useless recursion
         self.verifiers, self.falsifiers = self.find_verifiers_and_falsifiers()
         # print(f'made proposition for {self.prefix_sentence}')
+        print(self.__hash__)
         self.model_structure.all_propositions.add(self) # M: applies to any def of Proposition,
         # but needs to be left here because it must happen after find_verifiers_and_falsifiers
         # (more generally, it depends on __eq__, which is user-defined and which in this def 
         # of Propositions depends on verifiers and falsifiers)
     
+    def __hash__(self): # for some reason this needs to be defined here unfortunately
+        return 1
+
     def __eq__(self, other):
         if (self.verifiers == other.verifiers
             and self.falsifiers == other.falsifiers

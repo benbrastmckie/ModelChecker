@@ -9,9 +9,6 @@ from exposed_things import (
 )
 from hidden_things import ModelSetup, ModelStructure, OperatorCollection
 
-# infix_ex = model_setup.prefix("(\\neg \\neg \\neg B \\wedge \\neg \\neg \\bot)")
-# print(f"Here is a prefix sentence: {infix_ex}")
-
 premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
 conclusions = ["(\\neg B \\wedge \\neg D)"]
 operators = OperatorCollection(AndOperator, NegOperator, OrOperator, TopOperator, BotOperator)
@@ -24,7 +21,6 @@ print("made semantics")
 model_setup = ModelSetup(premises, conclusions, semantics, operators, NewProposition)
 print("made model_setup")
 model_structure = ModelStructure(model_setup)
-# model_structure = ModelStructure(*solve_output)
 print("made model_structure")
 print("back at editable file")
 model_structure.print_all()  
