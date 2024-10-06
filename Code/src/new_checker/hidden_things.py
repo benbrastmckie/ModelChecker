@@ -45,8 +45,9 @@ class Proposition:
         self.name = model_structure.infix(self.prefix_sentence)
         self.model_structure = model_structure
         self.semantics = model_structure.model_setup.semantics
-        self.non_null = model_structure.model_setup.non_null
         self.contingent = model_structure.model_setup.contingent
+        self.disjoint = model_structure.model_setup.disjoint
+        self.non_null = model_structure.model_setup.non_null
         self.model_structure.all_propositions[self.name] = self
         try:
             hash(self)
@@ -161,8 +162,8 @@ class ModelSetup:
         proposition_class,
         max_time=1,
         contingent=False,
-        non_null=True,
         disjoint=False,
+        non_null=True,
     ):
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
