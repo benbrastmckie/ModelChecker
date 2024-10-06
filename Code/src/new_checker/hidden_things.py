@@ -40,26 +40,29 @@ class Proposition:
         self.non_null = model_structure.model_setup.non_null
         self.contingent = model_structure.model_setup.contingent
         self.model_structure.all_propositions[self.name] = self
-        try:
-            hash(self)
-        except:
-            type(self).__hash__ = lambda x: Proposition.__hash__(x)
-            # B: linter says cannot assign to attribute "__hash__" for class "type[Proposition]*"
-            # Type "(x: Self@Proposition) -> int" is not assignable to type "(self: Self@Proposition) -> int"
-            # parameter mismatch: "self" vs "x"
+        # try:
+        #     hash(self)
+        # except:
+        #     type(self).__hash__ = lambda x: Proposition.__hash__(x)
+        #     # B: linter says cannot assign to attribute "__hash__" for class "type[Proposition]*"
+        #     # Type "(x: Self@Proposition) -> int" is not assignable to type "(self: Self@Proposition) -> int"
+        #     # parameter mismatch: "self" vs "x"
 
     def __repr__(self):
         return self.name
         # return str(self.prefix_sentence)
 
+    # B: I tried to define a hash function that is consistent with __eq__
+    # so that instances with the same verifiers, falsifiers, and prefix_sentence
+    # have the same hash but can't access verifiers and falsifiers from here
     def __hash__(self):
-        # B: I tried to define a hash function that is consistent with __eq__
-        # so that instances with the same verifiers, falsifiers, and prefix_sentence
-        # have the same hash but can't access verifiers and falsifiers from here
-        return hash(self.name)
+        return hash(self.name) # Consistent with __eq__ and avoids dynamic reassignment.
         # return hash((str(self.prefix_sentence), tuple(self.verifiers, self.falsifiers)))
         # return 0
 
+    # If needed, implement custom equality checks here.
+    def __eq__(self, other):
+        return isinstance(other, Proposition) and self.name == other.name
 
 class Operator:
     """Defaults inherited by every operator."""
