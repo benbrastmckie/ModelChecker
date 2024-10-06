@@ -23,16 +23,18 @@ from old_semantics_helpers import (
 
 import sys
 
-not_implemented_string = lambda cl_name: (f"user should implement subclass(es) of {cl_name} " +
-                                      f"for {cl_name.lower()}s. The {cl_name} " +
-                                      "class should never be instantiated.")
+# not_implemented_string = lambda cl_name: (f"user should implement subclass(es) of {cl_name} " +
+#                                       f"for {cl_name.lower()}s. The {cl_name} " +
+#                                       "class should never be instantiated.")
 
 class Proposition:
     """Defaults inherited by every proposition."""
 
     def __init__(self, prefix_sentence, model_structure):
         if self.__class__ == Proposition:
-            raise NotImplementedError((not_implemented_string(self.__class__)))
+            # B: I turned this into a method
+            raise NotImplementedError(self.not_implemented_string(self.__class__.__name__))
+            # raise NotImplementedError((not_implemented_string(self.__class__)))
         self.prefix_sentence = prefix_sentence
         self.name = model_structure.infix(self.prefix_sentence)
         self.model_structure = model_structure
@@ -63,6 +65,15 @@ class Proposition:
     # If needed, implement custom equality checks here.
     def __eq__(self, other):
         return isinstance(other, Proposition) and self.name == other.name
+
+    def not_implemented_string(self, cl_name):
+        """Generate a message for unimplemented subclasses."""
+        return (
+            f"User should implement subclass(es) of {cl_name} "
+            f"for {cl_name.lower()}s. The {cl_name} "
+            "class should never be instantiated."
+        )
+
 
 class Operator:
     """Defaults inherited by every operator."""
