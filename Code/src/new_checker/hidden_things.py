@@ -27,13 +27,22 @@ import sys
 #                                       f"for {cl_name.lower()}s. The {cl_name} " +
 #                                       "class should never be instantiated.")
 
+# B: made the above into a function 
+def not_implemented_string(cl_name):
+    """Generate a message for unimplemented subclasses."""
+    return (
+        f"User should implement subclass(es) of {cl_name} "
+        f"for {cl_name.lower()}s. The {cl_name} "
+        "class should never be instantiated."
+    )
+
 class Proposition:
     """Defaults inherited by every proposition."""
 
     def __init__(self, prefix_sentence, model_structure):
         if self.__class__ == Proposition:
-            # B: I turned this into a method
-            raise NotImplementedError(self.not_implemented_string(self.__class__.__name__))
+            # B: do we want the class name?
+            raise NotImplementedError(not_implemented_string(self.__class__.__name__))
             # raise NotImplementedError((not_implemented_string(self.__class__)))
         self.prefix_sentence = prefix_sentence
         self.name = model_structure.infix(self.prefix_sentence)
@@ -66,14 +75,6 @@ class Proposition:
     def __eq__(self, other):
         return isinstance(other, Proposition) and self.name == other.name
 
-    def not_implemented_string(self, cl_name):
-        """Generate a message for unimplemented subclasses."""
-        return (
-            f"User should implement subclass(es) of {cl_name} "
-            f"for {cl_name.lower()}s. The {cl_name} "
-            "class should never be instantiated."
-        )
-
 
 class Operator:
     """Defaults inherited by every operator."""
@@ -83,7 +84,9 @@ class Operator:
 
     def __init__(self, semantics):
         if self.__class__ == Operator:
-            raise NotImplementedError((not_implemented_string(self.__class__)))
+            # B: do we want the class name?
+            raise NotImplementedError(not_implemented_string(self.__class__.__name__))
+            # raise NotImplementedError((not_implemented_string(self.__class__)))
         if self.name == None or self.arity == None:
             op_class = type(self).__name__
             raise NameError(
