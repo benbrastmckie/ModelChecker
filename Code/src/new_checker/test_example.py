@@ -53,4 +53,8 @@ print("made model_structure")
 print("print all props:", model_structure.all_propositions)
 model_structure.print_all()  
 
+a = Defined(model_structure.all_propositions['A'].prefix_sentence,model_structure)
+b = Defined(model_structure.all_propositions['A'].prefix_sentence,model_structure)
+print(a == b)
+{a}
 # TODO: add printing propositions recursively
