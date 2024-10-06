@@ -1,3 +1,10 @@
+# M: Thought: might it not be a bad idea to do import z3 instead?
+# if this file is going to be the example file for user-made semantics etc
+# then it'd be nice if it were easily idenfiable what things are user defined
+# (meaning they need to define) and what things come from Z3. 
+# if we do import z3 instead of from z3 import (...), then everything imported
+# from z3 will have z3. before it in the code, making it very clear that it
+# comes from z3.
 from z3 import (
     And,
     BitVec,
@@ -11,8 +18,10 @@ from z3 import (
     Or,
 )
 
+# goes in the API
 from syntax import AtomSort
 
+# M: go in API
 from hidden_things import (
     Operator,
     Proposition,
