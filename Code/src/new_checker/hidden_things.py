@@ -11,6 +11,7 @@ from hidden_helpers import (
     repeats_removed,
     sentence_letters_in_compound,
     subsentences_of,
+    infix,
 )
 
 from old_semantics_helpers import (
@@ -30,14 +31,13 @@ class Proposition:
         self.prefix_sentence = prefix_sentence
         self.model_structure = model_structure
         self.semantics = model_structure.model_setup.semantics
-        # B: the below was needed to add instances to all_propositions dictionary
-        self.name = str(self.prefix_sentence) # change to infix
-
-    def __post_init__(self):
+        self.name = infix(self.prefix_sentence)
         try:
             hash(self)
         except:
-            type(self).__hash__ = lambda self: Proposition.__hash__(self)
+            type(self).__hash__ = lambda x: Proposition.__hash__(x)
+
+    def __post_init__(self):
         self.model_structure.all_propositions[self.name] = self
 
     def __repr__(self):
@@ -50,7 +50,7 @@ class Proposition:
         # B: I tried to define a hash function that is consistent with __eq__
         # so that instances with the same verifiers, falsifiers, and prefix_sentence
         # have the same hash but can't access verifiers and falsifiers from here
-        return hash(str(self.prefix_sentence))
+        return hash(self.name)
         # return hash((str(self.prefix_sentence), tuple(self.verifiers, self.falsifiers)))
         # return 0
 
