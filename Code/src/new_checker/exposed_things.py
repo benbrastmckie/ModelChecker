@@ -161,9 +161,6 @@ class Defined(Proposition):
         super().__post_init__()
         self.verifiers, self.falsifiers = self.find_verifiers_and_falsifiers()
         
-        # super().__post_init__() # would "hide" the line below from the user, if desired
-        self.model_structure.all_propositions[self.name] = self
-
     def __eq__(self, other):
         if (self.verifiers == other.verifiers
             and self.falsifiers == other.falsifiers
