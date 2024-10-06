@@ -22,6 +22,9 @@ from old_semantics_helpers import (
 
 import sys
 
+not_implemented_string = lambda cl_name: (f"user should implement subclass(es) of {cl_name} " +
+                                      f"for {cl_name.lower()}s. The {cl_name} " +
+                                      "class should never be instantiated.")
 
 class Proposition:
     """Defaults inherited by every proposition."""
@@ -31,9 +34,10 @@ class Proposition:
         self.model_structure = model_structure
         self.semantics = model_structure.model_setup.semantics
         self.name = model_structure.infix(self.prefix_sentence)
-        # self.name = infix(self.prefix_sentence)
-        # self.name = str(model_structure.infix(self.prefix_sentence))
-        # self.name = str(self.prefix_sentence) # change to infix
+        try:
+            hash(self)
+        except:
+            type(self).__hash__ = lambda x: Proposition.__hash__(x)
 
     def __post_init__(self):
         self.model_structure.all_propositions[self.name] = self
@@ -59,6 +63,8 @@ class Operator:
 
     def __init__(self, semantics):
         self.semantics = semantics
+        if self.__class__ == Operator:
+            raise NotImplementedError((not_implemented_string(self.__class__)))
         if self.name == None or self.arity == None:
             op_class = type(self).__name__
             raise NameError(
@@ -67,14 +73,10 @@ class Operator:
             )
 
     def __str__(self):
-        return str(self.name)  # B: I needed this to avoid linter errors
-        # return self.name if self.name else "Unnamed Operator" # OLD
-        # M: if we keep error raising in __init__, I think we can change this to just return self.name
+        return str(self.name)
 
     def __repr__(self):
-        return str(self.name)  # B: I needed this to avoid linter errors
-        # return self.name if self.name else "Unnamed Operator" # OLD
-        # M: see comment on __str__
+        return str(self.name)
 
     def __eq__(self, other):
         if isinstance(other, Operator):
