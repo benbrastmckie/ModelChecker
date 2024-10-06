@@ -27,7 +27,6 @@ class Proposition:
 
     def __init__(self, prefix_sentence, model_structure):
         if self.__class__ == Proposition:
-            # B: wrt below, do we want the class name?
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
         self.prefix_sentence = prefix_sentence
         self.name = model_structure.infix(self.prefix_sentence)
@@ -79,11 +78,14 @@ class Proposition:
                 # __hash__ though both are potentially useful. But based on the second indented
                 # comment above (the one at this indentiation level below the other one) it's not
                 # clear we'll get everything we want. Sorry for the headache on this! 
-        #
-        # try:
-        #     hash(self)
-        # except TypeError:
-        #     raise TypeError(f"Cannot hash instance of {self.__class__.__name__} due to unhashable fields.")
+        # B: all good! that helps a lot. it seems really important to think about especially
+        # in anticipation of setting up the next hyperintensional layer of the semantics. 
+        # B: regarding CFs, seems like the identity conditions for CFs have to include the
+        # worlds of evaluation. so maybe we require identity of the prefix_sentence and truth
+        # worlds for all propositions though the truth worlds wouldn't add anything in the case
+        # of extensional sentences. perhaps the best thing to do here is to make what progress we
+        # are in a position to now, opening an issue to document where we stand and what remains.
+        # we can the come back to this once the semantics for CFs has been implemented.
 
     def __repr__(self):
         return self.name
@@ -91,16 +93,10 @@ class Proposition:
     def __hash__(self):
         return hash(self.name)
 
-    # B: is this consistent with hash?
-    # M: I think so
     def __eq__(self, other):
         if isinstance(other, Proposition):
             return self.name == other.name
         return False
-        # B: is the above better than the below?
-        # M: I'm not sure it matters too much—below might be better because it's shorter,
-        # but above may be more readable
-        # return isinstance(other, Proposition) and self.name == other.name
 
 
 class Operator:
