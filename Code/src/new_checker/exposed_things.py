@@ -155,7 +155,6 @@ class Defined(Proposition):
 
     def __init__(self, prefix_sentence, model_structure):
         super().__init__(prefix_sentence, model_structure)
-        super().__post_init__()
         self.verifiers, self.falsifiers = self.find_proposition()
 
     def __eq__(self, other):
