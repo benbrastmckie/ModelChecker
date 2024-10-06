@@ -293,3 +293,14 @@ def parse_expression(tokens, model_setup):
         model_setup.operators[token],
         parse_expression(tokens, model_setup),
     ]
+
+# used to raise errors when people make things from Operator and Proposition directly
+def not_implemented_string(cl_name):
+    """Return a message for NotImplemented Errors on Operator and Proposition classes.
+    The error is raised when a user creates an Operator object or a Proposition object,
+    and directs them to implement a subclass and create instances of the subclass."""
+    return (
+        f"User should implement subclass(es) of {cl_name} "
+        f"for {cl_name.lower()}s. The {cl_name} "
+        "class should never be instantiated."
+    )
