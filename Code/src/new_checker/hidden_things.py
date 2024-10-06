@@ -11,7 +11,6 @@ from hidden_helpers import (
     repeats_removed,
     sentence_letters_in_compound,
     subsentences_of,
-    infix,
 )
 
 from old_semantics_helpers import (
@@ -31,7 +30,7 @@ class Proposition:
         self.prefix_sentence = prefix_sentence
         self.model_structure = model_structure
         self.semantics = model_structure.model_setup.semantics
-        self.name = infix(self.prefix_sentence)
+        self.name = model_structure.infix(self.prefix_sentence)
         # self.name = str(model_structure.infix(self.prefix_sentence))
         # self.name = str(self.prefix_sentence) # change to infix
 
