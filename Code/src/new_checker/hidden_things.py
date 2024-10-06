@@ -1,6 +1,7 @@
 from z3 import (
     sat,
     Solver,
+    simplify,
     z3,
 )
 
@@ -30,6 +31,8 @@ class Proposition:
         self.prefix_sentence = prefix_sentence
         self.model_structure = model_structure
         self.semantics = model_structure.model_setup.semantics
+        self.non_null = model_structure.model_setup.non_null
+        self.contingent = model_structure.model_setup.contingent
         self.name = model_structure.infix(self.prefix_sentence)
         # self.name = infix(self.prefix_sentence)
         # self.name = str(model_structure.infix(self.prefix_sentence))
@@ -81,6 +84,19 @@ class Operator:
             return self.name == other.name and self.arity == other.arity
         return False
 
+    def product(self, set_A, set_B):
+        """set of pairwise fusions of elements in set_A and set_B"""
+        product_set = set()
+        for bit_a in set_A:
+            for bit_b in set_B:
+                bit_ab = simplify(bit_a | bit_b)
+                product_set.add(bit_ab)
+        return product_set
+
+    def coproduct(self, set_A, set_B):
+        """union closed under pairwise fusion"""
+        A_U_B = set_A.union(set_B)
+        return A_U_B.union(self.product(set_A, set_B))
 
 class OperatorCollection:
     """Stores the operators that will be passed to ModelSetup."""
@@ -150,7 +166,7 @@ class ModelSetup:
         self.model_constraints = []
         for sl in self.all_sentence_letters:
             self.model_constraints.extend(
-                proposition_class.proposition_constraints(self, sl, self)
+                proposition_class.proposition_constraints(self, sl)
             )
         self.premise_constraints = [
             semantics.premise_behavior(prem, semantics.main_world)

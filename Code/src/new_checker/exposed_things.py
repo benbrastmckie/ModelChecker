@@ -18,16 +18,30 @@ from hidden_things import (
     Proposition,
 )
 
-from old_semantics_helpers import product, coproduct, ForAll, Exists
+from hidden_helpers import (
+    ForAll,
+    Exists,
+)
+
+# # TODO: move these
+# from old_semantics_helpers import (
+#     # product,
+#     # coproduct,
+#     # ForAll,
+#     # Exists,
+# )
 
 
 class Semantics:
+    """Includes the semantic primitives, semantic definitions, frame
+    constraints, truth and falsity theories, and premise/conclusion behavior."""
+
     def __init__(self, N):
         self.N = N
         self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
         self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
         self.possible = Function("possible", BitVecSort(N), BoolSort())
-        self.main_world = BitVec("w", N)  # B: I figured this might help users
+        self.main_world = BitVec("w", N)
         x, y = BitVecs("frame_x frame_y", N)
         self.frame_constraints = [
             ForAll(
@@ -115,9 +129,7 @@ class Semantics:
         )
 
     def true_at(self, prefix_sentence, eval_world):
-        if len(prefix_sentence) == 1 and "\\" not in str(
-            prefix_sentence[0]
-        ):  # sentence letter case
+        if len(prefix_sentence) == 1 and "\\" not in str(prefix_sentence[0]):
             sent = prefix_sentence[0]
             x = BitVec("t_atom_x", self.N)
             return Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent)))
@@ -126,29 +138,13 @@ class Semantics:
         return operator.true_at(*args, eval_world)
 
     def false_at(self, prefix_sentence, eval_world):
-        if len(prefix_sentence) == 1 and "\\" not in str(
-            prefix_sentence[0]
-        ):  # sentence letter case
+        if len(prefix_sentence) == 1 and "\\" not in str(prefix_sentence[0]):
             sent = prefix_sentence[0]
             x = BitVec("f_atom_x", self.N)
             return Exists(x, And(self.is_part_of(x, eval_world), self.falsify(x, sent)))
         operator = prefix_sentence[0]
         args = prefix_sentence[1:]
         return operator.false_at(*args, eval_world)
-
-
-# M: lots of things in this are going to be generic to anyone's definition of propositions
-# e.g. __repr__, __hash__, some things in __init__. It would be nice to hide these from users
-# especially since they may cause confusion to python beginners ("what's __hash__ and why
-# does it return 0?"). To this end I was thinking of making a parent class for Propositions
-# that has all the hidden stuff—much like Operator is to e.g. AndOperator. (I went ahead
-# and made that change because it was fairly easy to do and can be easily reverted. If you think this is
-# a good idea, let me know what you think might be a good name for that parent class.
-# (or a better new name for the child class)
-# I'm at a bit of an impasse because I like Proposition for the class the user defines,
-# but at the same time that's the only name I could think of for the generic class.
-# B: that's a great idea. as for the name, maybe we could do 'Proposition' for the parent class
-# and 'Defined' for the child class so that it looks like: class Defined(Proposition).
 
 
 class Defined(Proposition):
@@ -171,13 +167,11 @@ class Defined(Proposition):
             return True
         return False
 
-    def proposition_constraints(self, atom, model_setup):
-        """
-        currently does not have contingent props. commented code (null_cons and skolem, latter of
-        which was no longer needed) in addition to contingent props was deleted for space
-        """
-        semantics = model_setup.semantics
-        non_null = model_setup.non_null
+    # B: eliminated model_setup as an argument by initializing non_null
+    def proposition_constraints(self, atom):
+        """Currently does not have contingent proposition constraints."""
+        semantics = self.semantics
+        non_null = self.non_null
         x = BitVec("prop_x", semantics.N)
         y = BitVec("prop_y", semantics.N)
         non_null_constraints = [
@@ -283,7 +277,7 @@ class AndOperator(Operator):
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
         Y_V, Y_F = leftprop.find_proposition()
         Z_V, Z_F = rightprop.find_proposition()
-        return (product(Y_V, Z_V), coproduct(Y_F, Z_F))
+        return (self.product(Y_V, Z_V), self.coproduct(Y_F, Z_F))
 
 
 class OrOperator(Operator):
@@ -307,7 +301,7 @@ class OrOperator(Operator):
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
         Y_V, Y_F = leftprop.find_proposition()
         Z_V, Z_F = rightprop.find_proposition()
-        return (coproduct(Y_V, Z_V), product(Y_F, Z_F))
+        return (self.coproduct(Y_V, Z_V), self.product(Y_F, Z_F))
 
 
 class NegOperator(Operator):

@@ -29,55 +29,6 @@ def find_unused_id():
     unid_set.add(num)
     return str(num)
 
-def ForAllFinite(bvs, formula):
-    """
-    generates constraints by substituting all possible bitvectors for the variables in the formula
-    before taking the conjunction of those constraints
-    """
-    constraints = []
-    if not isinstance(bvs, list):
-        bvs = [bvs]
-    bv_test = bvs[0]
-    temp_N = bv_test.size()
-    num_bvs = 2 ** temp_N
-    if len(bvs) == 1:
-        bv = bvs[0]
-        for i in range(num_bvs):
-            substituted_formula = substitute(formula, (bv, BitVecVal(i, temp_N)))
-            constraints.append(substituted_formula)
-    else:
-        bv = bvs[0]
-        remaining_bvs = bvs[1:]
-        reduced_formula = ForAllFinite(remaining_bvs, formula)
-        for i in range(num_bvs):
-            substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, temp_N)))
-            constraints.append(substituted_reduced_formula)
-    return And(constraints)
-
-def ExistsFinite(bvs, formula):
-    """
-    generates constraints by substituting all possible bitvectors for the variables in the formula
-    before taking the disjunction of those constraints
-    """
-    constraints = []
-    if not isinstance(bvs, list):
-        bvs = [bvs]
-    bv_test = bvs[0]
-    temp_N = bv_test.size()
-    num_bvs = 2 ** temp_N
-    if len(bvs) == 1:
-        bv = bvs[0]
-        for i in range(num_bvs):
-            substituted_formula = substitute(formula, (bv, BitVecVal(i, temp_N)))
-            constraints.append(substituted_formula)
-    else:
-        bv = bvs[0]
-        remaining_bvs = bvs[1:]
-        reduced_formula = ForAllFinite(remaining_bvs, formula)
-        for i in range(num_bvs):
-            substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, temp_N)))
-            constraints.append(substituted_reduced_formula)
-    return Or(constraints)
 
 def SubForAll(bvs, formula):
     """
@@ -145,12 +96,12 @@ def FiniteExists(bvs, formula):
         new_bvs = BitVec(str(bvs) + find_unused_id(), bvs.size())
     return Lambda(bvs, formula)[new_bvs]
 
-Exists = Z3Exists
+# Exists = Z3Exists
 # Exists = Z3Exists if use_z3_quantifiers else ExistsFinite
 # Exists = Z3Exists if use_z3_quantifiers else FiniteExists
 
 # ForAll = Z3ForAll
-ForAll = Z3ForAll if use_z3_quantifiers else ForAllFinite
+# ForAll = Z3ForAll if use_z3_quantifiers else ForAllFinite
 # ForAll = Z3ForAll if use_z3_quantifiers else FiniteForAll
 
 def sentence_letters_in_compound(prefix_input_sentence): # can go in model_definitions
@@ -282,9 +233,8 @@ def int_to_binary(integer, number, backwards_binary_str = ''):
 
 
 
-
-
 #### were in exposed_things
+
 def ForAllFinite(bvs, formula):
     """
     generates constraints by substituting all possible bitvectors for the variables in the formula

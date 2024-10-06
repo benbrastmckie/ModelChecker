@@ -10,10 +10,14 @@ The operators `\\top` and `\\bot` are reserved.
 ### IMPORTS AND DEFINITIONS ###
 
 from z3 import(
+    And,
+    BitVecVal,
     Const,
     DeclareSort,
     BoolRef,
+    Or,
     simplify,
+    substitute,
 ) 
 
 AtomSort = DeclareSort("AtomSort")
@@ -31,6 +35,56 @@ def z3_simplify(z3_expr):
     if isinstance(z3_expr, BoolRef):
         return bool(simplify(z3_expr))
     return simplify(z3_expr)
+
+def ForAll(bvs, formula):
+    """
+    generates constraints by substituting all possible bitvectors for the variables in the formula
+    before taking the conjunction of those constraints
+    """
+    constraints = []
+    if not isinstance(bvs, list):
+        bvs = [bvs]
+    bv_test = bvs[0]
+    temp_N = bv_test.size()
+    num_bvs = 2 ** temp_N
+    if len(bvs) == 1:
+        bv = bvs[0]
+        for i in range(num_bvs):
+            substituted_formula = substitute(formula, (bv, BitVecVal(i, temp_N)))
+            constraints.append(substituted_formula)
+    else:
+        bv = bvs[0]
+        remaining_bvs = bvs[1:]
+        reduced_formula = ForAll(remaining_bvs, formula)
+        for i in range(num_bvs):
+            substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, temp_N)))
+            constraints.append(substituted_reduced_formula)
+    return And(constraints)
+
+def Exists(bvs, formula):
+    """
+    generates constraints by substituting all possible bitvectors for the variables in the formula
+    before taking the disjunction of those constraints
+    """
+    constraints = []
+    if not isinstance(bvs, list):
+        bvs = [bvs]
+    bv_test = bvs[0]
+    temp_N = bv_test.size()
+    num_bvs = 2 ** temp_N
+    if len(bvs) == 1:
+        bv = bvs[0]
+        for i in range(num_bvs):
+            substituted_formula = substitute(formula, (bv, BitVecVal(i, temp_N)))
+            constraints.append(substituted_formula)
+    else:
+        bv = bvs[0]
+        remaining_bvs = bvs[1:]
+        reduced_formula = ForAll(remaining_bvs, formula)
+        for i in range(num_bvs):
+            substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, temp_N)))
+            constraints.append(substituted_reduced_formula)
+    return Or(constraints)
 
 
 ### SENTENCE HELPERS ###
