@@ -30,17 +30,17 @@ class Proposition:
     """Defaults inherited by every proposition."""
 
     def __init__(self, prefix_sentence, model_structure):
+        if self.__class__ == Proposition:
+            raise NotImplementedError((not_implemented_string(self.__class__)))
         self.prefix_sentence = prefix_sentence
+        self.name = model_structure.infix(self.prefix_sentence)
         self.model_structure = model_structure
         self.semantics = model_structure.model_setup.semantics
-        self.name = model_structure.infix(self.prefix_sentence)
+        self.model_structure.all_propositions[self.name] = self
         try:
             hash(self)
         except:
             type(self).__hash__ = lambda x: Proposition.__hash__(x)
-
-    def __post_init__(self):
-        self.model_structure.all_propositions[self.name] = self
 
     def __repr__(self):
         return self.name
@@ -62,7 +62,6 @@ class Operator:
     arity = None
 
     def __init__(self, semantics):
-        self.semantics = semantics
         if self.__class__ == Operator:
             raise NotImplementedError((not_implemented_string(self.__class__)))
         if self.name == None or self.arity == None:
@@ -71,6 +70,7 @@ class Operator:
                 f"Your operator class {op_class} is missing a name or an arity. "
                 + f"Please add them as class properties of {op_class}."
             )
+        self.semantics = semantics
 
     def __str__(self):
         return str(self.name)
