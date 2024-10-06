@@ -30,8 +30,8 @@ class Proposition:
         self.prefix_sentence = prefix_sentence
         self.model_structure = model_structure
         self.semantics = model_structure.model_setup.semantics
-        # B: the below was needed to add instances to all_propositions dictionary
-        self.name = str(self.prefix_sentence) # change to infix
+        self.name = str(model_structure.infix(self.prefix_sentence))
+        # self.name = str(self.prefix_sentence) # change to infix
 
     def __post_init__(self):
         try:
@@ -44,6 +44,7 @@ class Proposition:
         # B: for test printing
         # return f"{self.__class__.__name__}({self.prefix_sentence})"
         return self.name
+        # B: below is old
         # return str(self.prefix_sentence)
 
     def __hash__(self):
