@@ -294,7 +294,10 @@ def parse_expression(tokens, model_setup):
         parse_expression(tokens, model_setup),
     ]
 
-# used to raise errors when people make things from Operator and Proposition directly
+
+### ERROR REPORTING ###
+
+
 def not_implemented_string(cl_name):
     """Return a message for NotImplemented Errors on Operator and Proposition classes.
     The error is raised when a user creates an Operator object or a Proposition object,
