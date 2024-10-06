@@ -33,6 +33,14 @@ class Proposition:
         # B: the below was needed to add instances to all_propositions dictionary
         self.name = str(self.prefix_sentence)
 
+    # def __post_init__(self):
+    #     try:
+    #         hash(self)
+    #     except:
+    #         type(self).__hash__ = lambda self: Proposition.__hash__(self)
+    #     # self.model_structure.all_propositions.add(self)
+    #     self.model_structure.all_propositions[self.name] = self
+
     def __repr__(self):
         # B: for test printing
         # return f"{self.__class__.__name__}({self.prefix_sentence})"

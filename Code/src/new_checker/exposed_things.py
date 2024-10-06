@@ -144,15 +144,20 @@ class Semantics:
 # that has all the hidden stuff—much like Operator is to e.g. AndOperator. (I went ahead
 # and made that change because it was fairly easy to do and can be easily reverted. If you think this is
 # a good idea, let me know what you think might be a good name for that parent class. 
+# (or a better new name for the child class)
 # I'm at a bit of an impasse because I like Proposition for the class the user defines,
 # but at the same time that's the only name I could think of for the generic class. 
 # B: that's a great idea. as for the name, maybe we could do 'Proposition' for the parent class
 # and 'Defined' for the child class so that it looks like: class Defined(Proposition).
 
 class Defined(Proposition):
-    """Defines the proposition assigned to the sentences of the language."""
+    """Defines the proposition assigned to the sentences of the language.
+    all user has to keep for their own class is super().__init__ and super().__poster_init__
+    in the __init__ method. 
+    """
 
     def __init__(self, prefix_sentence, model_structure):
+        # super().__post_init__() # B: couldn't get this to work
         super().__init__(prefix_sentence, model_structure)
         # self.verifiers, self.falsifiers = None, None # for avoiding useless recursion
         self.verifiers, self.falsifiers = self.find_verifiers_and_falsifiers()
@@ -163,7 +168,6 @@ class Defined(Proposition):
         # but needs to be left here because it must happen after find_verifiers_and_falsifiers
         # (more generally, it depends on __eq__, which is user-defined and which in this def 
         # of Propositions depends on verifiers and falsifiers)
-    
 
     def __eq__(self, other):
         if (self.verifiers == other.verifiers
