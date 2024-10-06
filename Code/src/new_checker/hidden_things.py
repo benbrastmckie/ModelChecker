@@ -31,20 +31,20 @@ class Proposition:
         self.model_structure = model_structure
         self.semantics = model_structure.model_setup.semantics
         # B: the below was needed to add instances to all_propositions dictionary
-        self.name = str(self.prefix_sentence)
+        self.name = str(self.prefix_sentence) # change to infix
 
-    # def __post_init__(self):
-    #     try:
-    #         hash(self)
-    #     except:
-    #         type(self).__hash__ = lambda self: Proposition.__hash__(self)
-    #     # self.model_structure.all_propositions.add(self)
-    #     self.model_structure.all_propositions[self.name] = self
+    def __post_init__(self):
+        try:
+            hash(self)
+        except:
+            type(self).__hash__ = lambda self: Proposition.__hash__(self)
+        self.model_structure.all_propositions[self.name] = self
 
     def __repr__(self):
         # B: for test printing
         # return f"{self.__class__.__name__}({self.prefix_sentence})"
-        return str(self.prefix_sentence)
+        return self.name
+        # return str(self.prefix_sentence)
 
     def __hash__(self):
         # B: I tried to define a hash function that is consistent with __eq__
