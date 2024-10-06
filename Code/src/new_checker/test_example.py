@@ -15,6 +15,7 @@ from hidden_things import(
     ModelSetup,
     ModelStructure,
     OperatorCollection,
+    Proposition,
 )
 
 # infix_ex = model_setup.prefix("(\\neg \\neg \\neg B \\wedge \\neg \\neg \\bot)")
