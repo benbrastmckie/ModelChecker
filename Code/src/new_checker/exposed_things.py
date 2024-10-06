@@ -27,10 +27,9 @@ from hidden_things import (
     Proposition,
 )
 
-from hidden_helpers import (
-    ForAll,
-    Exists,
-)
+# these could 
+from old_semantics_helpers import product, coproduct, ForAll, Exists
+
 
 class Semantics:
     """Includes the semantic primitives, semantic definitions, frame
