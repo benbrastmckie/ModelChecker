@@ -16,22 +16,11 @@ from hidden_helpers import (
     find_all_bits,
     bitvec_to_substates,
     int_to_binary,
+    not_implemented_string,
+
 )
 
 import sys
-
-# not_implemented_string = lambda cl_name: (f"user should implement subclass(es) of {cl_name} " +
-#                                       f"for {cl_name.lower()}s. The {cl_name} " +
-#                                       "class should never be instantiated.")
-
-# B: made the above into a function 
-def not_implemented_string(cl_name):
-    """Generate a message for unimplemented subclasses."""
-    return (
-        f"User should implement subclass(es) of {cl_name} "
-        f"for {cl_name.lower()}s. The {cl_name} "
-        "class should never be instantiated."
-    )
 
 class Proposition:
     """Defaults inherited by every proposition."""
@@ -40,7 +29,6 @@ class Proposition:
         if self.__class__ == Proposition:
             # B: wrt below, do we want the class name?
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
-            # raise NotImplementedError((not_implemented_string(self.__class__)))
         self.prefix_sentence = prefix_sentence
         self.name = model_structure.infix(self.prefix_sentence)
         self.model_structure = model_structure
@@ -53,7 +41,31 @@ class Proposition:
         except:
             type(self).__hash__ = lambda self: Proposition.__hash__(self)
 
-        # # ChatGPT: You are dynamically modifying the __hash__ method when an exception occurs. This practice can be risky as it changes the class’s behavior during runtime. Consider explicitly defining __hash__ without relying on catching an exception. If you're certain that only subclasses should be hashable, remove the dynamic modification and handle it at the subclass level. Here is an alternative to ensure the object is hashable without dynamic reassignment:
+        # ChatGPT: You are dynamically modifying the __hash__ method when an exception occurs. 
+        # This practice can be risky as it changes the class’s behavior during runtime. 
+        # Consider explicitly defining __hash__ without relying on catching an exception.
+        # If you're certain that only subclasses should be hashable, remove the dynamic modification and handle it at the subclass level. 
+        # Here is an alternative to ensure the object is hashable without dynamic reassignment:
+            # M: ChatGPT is right in that changing the hash of a class could mess with things if
+            # you have one hash value, make a set or something that requires hashability, and then
+            # change the hash value of the class (subclass in this instance). But here the hash
+            # value of the sublcass is only changed once: when the first instance of the subclass
+            # is instantiated. It will run through the code above the try/except, then when it gets
+            # to the try/except it will try to hash the object but since the subclass does not have
+            # a __hash__ method (unfortunately hash methods don't seem to be inheritable if you 
+            # redefine __eq__ as we do) it will go to the except. The except gets the class of self
+            # (which is the subclass of Proposition, not Proposition itself) (it's worth noting this
+            # seems to be able to be done in two ways: type(self) or self.__class__; I'm not sure which
+            # one is better or if one of them is wrong, but I have a feeling self.__class__ is better)
+            # and then assigns a hash method to it. This is a method because what follows the equal is
+            # a function. This function takes an object and returns the __hash__ method for Proposition
+            # (which is defined) called on that object. This will effectively define a hash method for
+            # the subclass. After that, since the subclass will have a hash method defined when the first
+            # instance of the subclass was made, the except block will never be triggered again so
+            # the hash method is not dynamically reassigned in a way that would be problematic as 
+            # ChatGPT seems to be concerned with. Though this way is probably not the most conventional
+            # to achieve both defining the hash method for the subclass and hiding that definition from
+            # the user-defined subclass, something necessary if 
         #
         # try:
         #     hash(self)
@@ -67,11 +79,14 @@ class Proposition:
         return hash(self.name)
 
     # B: is this consistent with hash?
+    # M: I think so
     def __eq__(self, other):
         if isinstance(other, Proposition):
             return self.name == other.name
         return False
         # B: is the above better than the below?
+        # M: I'm not sure it matters too much—below might be better because it's shorter,
+        # but above may be more readable
         # return isinstance(other, Proposition) and self.name == other.name
 
 
