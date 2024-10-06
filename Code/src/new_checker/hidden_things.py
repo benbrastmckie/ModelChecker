@@ -27,16 +27,17 @@ class Proposition:
         self.prefix_sentence = prefix_sentence
         self.model_structure = model_structure
         self.semantics = model_structure.model_setup.semantics
+        self.name = str(self.prefix_sentence) # change to infix
 
     def __post_init__(self):
         try:
             hash(self)
         except:
             type(self).__hash__ = lambda self: Proposition.__hash__(self)
-        self.model_structure.all_propositions.add(self)
+        self.model_structure.all_propositions[self.name] = self
 
     def __repr__(self):
-        return str(self.prefix_sentence) # change to infix
+        return self.name
 
     def __hash__(self):
         return hash(str(self.prefix_sentence))
@@ -256,7 +257,7 @@ class ModelStructure:
             self.poss_bits = []
             self.world_bits = []
             self.main_world = None
-        self.all_propositions = set()  # TODO: should be a dictionary
+        self.all_propositions = {}  # TODO: should be a dictionary
         self.premise_propositions = [
             model_setup.proposition_class(prefix_sent, self)
             # B: what if there are repeats in prefix_premises?
