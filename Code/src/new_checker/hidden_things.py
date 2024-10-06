@@ -23,23 +23,30 @@ from old_semantics_helpers import (
 
 import sys
 
+not_implemented_string = lambda cl_name: (f"user should implement subclass(es) of {cl_name} " +
+                                      f"for {cl_name.lower()}s. The {cl_name} " +
+                                      "class should never be instantiated.")
 
 class Proposition:
     """Defaults inherited by every proposition."""
 
     def __init__(self, prefix_sentence, model_structure):
+        if self.__class__ == Proposition:
+            raise NotImplementedError((not_implemented_string(self.__class__)))
         self.prefix_sentence = prefix_sentence
+        self.name = model_structure.infix(self.prefix_sentence)
         self.model_structure = model_structure
         self.semantics = model_structure.model_setup.semantics
         self.non_null = model_structure.model_setup.non_null
         self.contingent = model_structure.model_setup.contingent
-        self.name = model_structure.infix(self.prefix_sentence)
-        # self.name = infix(self.prefix_sentence)
-        # self.name = str(model_structure.infix(self.prefix_sentence))
-        # self.name = str(self.prefix_sentence) # change to infix
-
-    def __post_init__(self):
         self.model_structure.all_propositions[self.name] = self
+        try:
+            hash(self)
+        except:
+            type(self).__hash__ = lambda x: Proposition.__hash__(x)
+            # B: linter says cannot assign to attribute "__hash__" for class "type[Proposition]*"
+            # Type "(x: Self@Proposition) -> int" is not assignable to type "(self: Self@Proposition) -> int"
+            # parameter mismatch: "self" vs "x"
 
     def __repr__(self):
         return self.name
@@ -61,23 +68,21 @@ class Operator:
     arity = None
 
     def __init__(self, semantics):
-        self.semantics = semantics
+        if self.__class__ == Operator:
+            raise NotImplementedError((not_implemented_string(self.__class__)))
         if self.name == None or self.arity == None:
             op_class = type(self).__name__
             raise NameError(
                 f"Your operator class {op_class} is missing a name or an arity. "
                 + f"Please add them as class properties of {op_class}."
             )
+        self.semantics = semantics
 
     def __str__(self):
-        return str(self.name)  # B: I needed this to avoid linter errors
-        # return self.name if self.name else "Unnamed Operator" # OLD
-        # M: if we keep error raising in __init__, I think we can change this to just return self.name
+        return str(self.name)
 
     def __repr__(self):
-        return str(self.name)  # B: I needed this to avoid linter errors
-        # return self.name if self.name else "Unnamed Operator" # OLD
-        # M: see comment on __str__
+        return str(self.name)
 
     def __eq__(self, other):
         if isinstance(other, Operator):
@@ -299,7 +304,6 @@ class ModelStructure:
             print(f"An error occurred while running `solve_constraints()`: {e}")
             return True, False, None, None
 
-    # B: I moved this from ModelSetup as it wasn't being used there
     def infix(self, prefix_sent):
         """Takes a sentence in prefix notation and translates it to infix notation"""
         if len(prefix_sent) == 1:
