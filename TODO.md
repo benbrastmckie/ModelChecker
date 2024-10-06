@@ -86,7 +86,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 3. [ ] Proposition class:
   - [ ] syntactic attributes:
     - [x] prefix sentence
-    - infix sentence
+    - [x] infix sentence (called name)
+    - complexity
     - main operator
   - [ ] semantic attributes:
     - [x] verifier bits
