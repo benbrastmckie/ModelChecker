@@ -63,9 +63,21 @@ class Proposition:
             # the subclass. After that, since the subclass will have a hash method defined when the first
             # instance of the subclass was made, the except block will never be triggered again so
             # the hash method is not dynamically reassigned in a way that would be problematic as 
-            # ChatGPT seems to be concerned with. Though this way is probably not the most conventional
-            # to achieve both defining the hash method for the subclass and hiding that definition from
-            # the user-defined subclass, something necessary if 
+            # ChatGPT seems to be concerned with. 
+                # M: a bigger issue I'm now realizing is that when we get to Counterfactuals, 
+                # we will change the verifiers and falsifiers, which would change the equality
+                # conditions on the subclass objects. In this case it would make more sense to
+                # bite the bullet and make the subclass unhashable (thus not allowing sets of
+                # the subclass), since the criterion that if two objects evaluate to equal their
+                # hash if implemented should also be equal (considering two CF props with same prefix
+                # sentence be evaluated at different worlds, hash, based on name, would evaluate
+                # to equal, but __eq__ would not give True as currently defined since the verifiers
+                # are different). 
+                # M: in this case this would have all been in vain. Maybe we should define these
+                # when (and if) there is a clear use case? Right now we don't need __eq__ nor
+                # __hash__ though both are potentially useful. But based on the second indented
+                # comment above (the one at this indentiation level below the other one) it's not
+                # clear we'll get everything we want. Sorry for the headache on this! 
         #
         # try:
         #     hash(self)
