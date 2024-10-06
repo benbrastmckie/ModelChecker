@@ -27,7 +27,7 @@ from hidden_things import (
     Proposition,
 )
 
-# these could 
+# these could also go in the API
 from old_semantics_helpers import product, coproduct, ForAll, Exists
 
 
