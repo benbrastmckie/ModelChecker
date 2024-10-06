@@ -286,6 +286,7 @@ class ModelStructure:
             return True, False, None, None
 
     # B: I moved this from ModelSetup as it wasn't being used there
+    # M: sounds good! 
     def infix(self, prefix_sent):
         """Takes a sentence in prefix notation and translates it to infix notation"""
         if len(prefix_sent) == 1:
