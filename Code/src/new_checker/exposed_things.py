@@ -23,15 +23,6 @@ from hidden_helpers import (
     Exists,
 )
 
-# # TODO: move these
-# from old_semantics_helpers import (
-#     # product,
-#     # coproduct,
-#     # ForAll,
-#     # Exists,
-# )
-
-
 class Semantics:
     """Includes the semantic primitives, semantic definitions, frame
     constraints, truth and falsity theories, and premise/conclusion behavior."""
