@@ -147,3 +147,14 @@ def parse_expression(tokens, model_setup):
         model_setup.operators[token],
         parse_expression(tokens, model_setup),
     ]
+
+def infix(prefix_sent):
+    """takes a sentence in prefix notation and translates it to infix notation"""
+    if len(prefix_sent) == 1:
+        return str(prefix_sent[0])
+    op = prefix_sent[0]
+    if len(prefix_sent) == 2:
+        return f"{op} {infix(prefix_sent[1])}"
+    left_expr = prefix_sent[1]
+    right_expr = prefix_sent[2]
+    return f"({infix(left_expr)} {op} {infix(right_expr)})"
