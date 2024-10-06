@@ -157,8 +157,8 @@ class Defined(Proposition):
     """
 
     def __init__(self, prefix_sentence, model_structure):
-        # super().__post_init__() # B: couldn't get this to work
         super().__init__(prefix_sentence, model_structure)
+        super().__post_init__() # B: couldn't get this to work
         # self.verifiers, self.falsifiers = None, None # for avoiding useless recursion
         self.verifiers, self.falsifiers = self.find_verifiers_and_falsifiers()
         # B: I think the below adds instances to all_propositions dictionary?
