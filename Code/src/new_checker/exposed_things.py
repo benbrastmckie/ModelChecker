@@ -148,18 +148,23 @@ class Semantics:
 # but at the same time that's the only name I could think of for the generic class. 
 # B: that's a great idea. as for the name, maybe we could do 'Proposition' for the parent class
 # and 'Defined' for the child class so that it looks like: class Defined(Proposition).
+
 class Defined(Proposition):
+    """Defines the proposition assigned to the sentences of the language."""
 
     def __init__(self, prefix_sentence, model_structure):
         super().__init__(prefix_sentence, model_structure)
         # self.verifiers, self.falsifiers = None, None # for avoiding useless recursion
         self.verifiers, self.falsifiers = self.find_verifiers_and_falsifiers()
-        # print(f'made proposition for {self.prefix_sentence}')
-        self.model_structure.all_propositions.add(self) # M: applies to any def of Proposition,
+        # B: I think the below adds instances to all_propositions dictionary?
+        self.model_structure.all_propositions[self.name] = self
+        # self.model_structure.all_propositions.add(self)
+        # M: applies to any def of Proposition,
         # but needs to be left here because it must happen after find_verifiers_and_falsifiers
         # (more generally, it depends on __eq__, which is user-defined and which in this def 
         # of Propositions depends on verifiers and falsifiers)
     
+
     def __eq__(self, other):
         if (self.verifiers == other.verifiers
             and self.falsifiers == other.falsifiers
@@ -255,7 +260,7 @@ class Defined(Proposition):
         #     else:
         #         children_subprops.append(Proposition(arg, self.model_structure))
 
-        children_subprops = [NewProposition(arg, self.model_structure) for arg in prefix_args]
+        children_subprops = [Defined(arg, self.model_structure) for arg in prefix_args]
         return operator.find_verifiers_and_falsifiers(*children_subprops)
         
     def truth_or_falsity_at_world(self, world):

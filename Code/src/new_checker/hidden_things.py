@@ -22,24 +22,34 @@ from old_semantics_helpers import (
 
 import sys
 
+
 class Proposition:
+    """Defaults inherited by every proposition."""
+
     def __init__(self, prefix_sentence, model_structure):
         self.prefix_sentence = prefix_sentence
         self.model_structure = model_structure
         self.semantics = model_structure.model_setup.semantics
+        # B: the below was needed to add instances to all_propositions dictionary
+        self.name = str(self.prefix_sentence)
 
     def __repr__(self):
+        # B: for test printing
+        # return f"{self.__class__.__name__}({self.prefix_sentence})"
         return str(self.prefix_sentence)
 
     def __hash__(self):
-        return 0
+        # B: I tried to define a hash function that is consistent with __eq__
+        # so that instances with the same verifiers, falsifiers, and prefix_sentence
+        # have the same hash but can't access verifiers and falsifiers from here
+        return hash(str(self.prefix_sentence))
+        # return hash((str(self.prefix_sentence), tuple(self.verifiers, self.falsifiers)))
+        # return 0
+
 
 class Operator:
     """Defaults inherited by every operator."""
 
-    # NOTE: do we want it to raise errors if name and arity are missing from instances?
-    # M: see the code in __init__ that will raise an error if a name or arity are missing
-    # B: looks great!
     name = None
     arity = None
 
@@ -47,22 +57,20 @@ class Operator:
         self.semantics = semantics
         if self.name == None or self.arity == None:
             op_class = type(self).__name__
-            raise NameError(f"Your operator class {op_class} is missing a name or an arity. " +
-                            f"Please add them as class properties of {op_class}.")
+            raise NameError(
+                f"Your operator class {op_class} is missing a name or an arity. "
+                + f"Please add them as class properties of {op_class}."
+            )
 
     def __str__(self):
-        return self.name if self.name else "Unnamed Operator"
-        # return self.name # B: I tried this
+        return str(self.name)  # B: I needed this to avoid linter errors
+        # return self.name if self.name else "Unnamed Operator" # OLD
         # M: if we keep error raising in __init__, I think we can change this to just return self.name
-        # B: I tried this, but my linter says: method __str__ overrides class "object" in an
-        # incompatible manner. return type mismatch: base method returns type "str", override
-        # returns type "None" which is not assignable to "str"
 
     def __repr__(self):
-        return self.name if self.name else "Unnamed Operator"
-        # return self.name # B: I tried this
+        return str(self.name)  # B: I needed this to avoid linter errors
+        # return self.name if self.name else "Unnamed Operator" # OLD
         # M: see comment on __str__
-        # B: ditto above
 
     def __eq__(self, other):
         if isinstance(other, Operator):
@@ -101,13 +109,14 @@ class OperatorCollection:
 
 
 class ModelSetup:
+    """Stores what is needed to find a Z3 model and passed to ModelStructure."""
 
     def __init__(
         self,
-        infix_premises,
-        infix_conclusions,
         semantics,
         operator_collection,
+        infix_premises,
+        infix_conclusions,
         proposition_class,
         max_time=1,
         contingent=False,
@@ -203,19 +212,10 @@ class ModelSetup:
         tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
         return parse_expression(tokens, self)
 
-    def infix(self, prefix_sent):
-        """takes a sentence in prefix notation and translates it to infix notation"""
-        if len(prefix_sent) == 1:
-            return str(prefix_sent[0])
-        op = prefix_sent[0]
-        if len(prefix_sent) == 2:
-            return f"{op} {self.infix(prefix_sent[1])}"
-        left_expr = prefix_sent[1]
-        right_expr = prefix_sent[2]
-        return f"({self.infix(left_expr)} {op} {self.infix(right_expr)})"
-
 
 class ModelStructure:
+    """Solves and stores the Z3 model for an instance of ModelSetup."""
+
     def __init__(self, model_setup):
         timeout, z3_model_status, z3_model, z3_model_runtime = self.solve(model_setup)
         self.model_setup = model_setup
@@ -249,7 +249,7 @@ class ModelStructure:
             self.poss_bits = []
             self.world_bits = []
             self.main_world = None
-        self.all_propositions = set()  # TODO: should be a dictionary
+        self.all_propositions = {}
         self.premise_propositions = [
             model_setup.proposition_class(prefix_sent, self)
             # B: what if there are repeats in prefix_premises?
@@ -278,6 +278,18 @@ class ModelStructure:
         except RuntimeError as e:  # Handle unexpected exceptions
             print(f"An error occurred while running `solve_constraints()`: {e}")
             return True, False, None, None
+
+    # B: I moved this from ModelSetup as it wasn't being used there
+    def infix(self, prefix_sent):
+        """Takes a sentence in prefix notation and translates it to infix notation"""
+        if len(prefix_sent) == 1:
+            return str(prefix_sent[0])
+        op = prefix_sent[0]
+        if len(prefix_sent) == 2:
+            return f"{op} {self.infix(prefix_sent[1])}"
+        left_expr = prefix_sent[1]
+        right_expr = prefix_sent[2]
+        return f"({self.infix(left_expr)} {op} {self.infix(right_expr)})"
 
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
