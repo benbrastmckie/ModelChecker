@@ -1,32 +1,57 @@
+# B: when we develop the API, these will reference the users script
 from exposed_things import (
     BotOperator,
+    Defined,
     Semantics,
     AndOperator,
     NegOperator,
     OrOperator,
-    NewProposition,
     TopOperator,
 )
-from hidden_things import ModelSetup, ModelStructure, OperatorCollection
+
+# B: when we develop the API these should go into __init__.py
+from hidden_things import(
+    ModelSetup,
+    ModelStructure,
+    OperatorCollection,
+)
 
 # infix_ex = model_setup.prefix("(\\neg \\neg \\neg B \\wedge \\neg \\neg \\bot)")
 # print(f"Here is a prefix sentence: {infix_ex}")
 
-premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
-conclusions = ["(\\neg B \\wedge \\neg D)"]
-operators = OperatorCollection(AndOperator, NegOperator, OrOperator, TopOperator, BotOperator)
-print("made operator collection (trivial)")
 semantics = Semantics(4)
 print("made semantics")
 
-# NOTE: should semantics, operators, propositions be grouped into an object?
-# NOTE: could group settings into an object to pass in here if need be?
-model_setup = ModelSetup(premises, conclusions, semantics, operators, NewProposition)
+operators = OperatorCollection(
+    AndOperator,
+    NegOperator,
+    OrOperator,
+    TopOperator,
+    BotOperator,
+)
+print("made operator collection (trivial)")
+
+premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
+conclusions = ["(\\neg B \\wedge \\neg D)"]
+
+model_setup = ModelSetup(
+    semantics,
+    operators,
+    premises,
+    conclusions,
+    Defined,
+    max_time=1,
+    contingent=False,
+    non_null=True,
+    disjoint=False,
+)
 print("made model_setup")
+
 model_structure = ModelStructure(model_setup)
-# model_structure = ModelStructure(*solve_output)
 print("made model_structure")
-print("back at editable file")
+
+# TEST PRINT
+# print("print all props:", model_structure.all_propositions)
 model_structure.print_all()  
 
 # TODO: add printing propositions recursively
