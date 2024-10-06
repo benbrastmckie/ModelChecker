@@ -38,7 +38,7 @@ class Proposition:
 
     def __init__(self, prefix_sentence, model_structure):
         if self.__class__ == Proposition:
-            # B: do we want the class name?
+            # B: wrt below, do we want the class name?
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
             # raise NotImplementedError((not_implemented_string(self.__class__)))
         self.prefix_sentence = prefix_sentence
@@ -52,26 +52,27 @@ class Proposition:
             hash(self)
         except:
             type(self).__hash__ = lambda self: Proposition.__hash__(self)
-            # B: linter says cannot assign to attribute "__hash__" for class "type[Proposition]*"
-            # Type "(x: Self@Proposition) -> int" is not assignable to type "(self: Self@Proposition) -> int"
-            # parameter mismatch: "self" vs "x"
-            # M: does the problem go away if you change x to self?
+
+        # # ChatGPT: You are dynamically modifying the __hash__ method when an exception occurs. This practice can be risky as it changes the class’s behavior during runtime. Consider explicitly defining __hash__ without relying on catching an exception. If you're certain that only subclasses should be hashable, remove the dynamic modification and handle it at the subclass level. Here is an alternative to ensure the object is hashable without dynamic reassignment:
+        #
+        # try:
+        #     hash(self)
+        # except TypeError:
+        #     raise TypeError(f"Cannot hash instance of {self.__class__.__name__} due to unhashable fields.")
 
     def __repr__(self):
         return self.name
-        # return str(self.prefix_sentence)
 
-    # B: I tried to define a hash function that is consistent with __eq__
-    # so that instances with the same verifiers, falsifiers, and prefix_sentence
-    # have the same hash but can't access verifiers and falsifiers from here
     def __hash__(self):
-        return hash(self.name) # Consistent with __eq__ and avoids dynamic reassignment.
-        # return hash((str(self.prefix_sentence), tuple(self.verifiers, self.falsifiers)))
-        # return 0
+        return hash(self.name)
 
-    # If needed, implement custom equality checks here.
+    # B: is this consistent with hash?
     def __eq__(self, other):
-        return isinstance(other, Proposition) and self.name == other.name
+        if isinstance(other, Proposition):
+            return self.name == other.name
+        return False
+        # B: is the above better than the below?
+        # return isinstance(other, Proposition) and self.name == other.name
 
 
 class Operator:

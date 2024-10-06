@@ -18,18 +18,16 @@ from z3 import (
     Or,
 )
 
-# goes in the API
-from syntax import AtomSort
-
 # M: go in API
 from hidden_things import (
     Operator,
     Proposition,
 )
 
+# M: go in API
 # B: I made product and coproduct methods of the Operator parent class
-# M: these could also go in the API
 from hidden_helpers import (
+    AtomSort,
     ForAll,
     Exists,
 )
