@@ -45,6 +45,8 @@ model_setup = ModelSetup(
     disjoint=False,
 )
 print("made model_setup")
+sl_dict = model_setup.find_sentence_letters(premises + conclusions)
+print("TEST PRINT SENT_LET_DIC:", sl_dict)
 
 model_structure = ModelStructure(model_setup)
 print("made model_structure")
@@ -53,8 +55,9 @@ print("made model_structure")
 print("print all props:", model_structure.all_propositions)
 model_structure.print_all()  
 
-a = Defined(model_structure.all_propositions['A'].prefix_sentence,model_structure)
-b = Defined(model_structure.all_propositions['A'].prefix_sentence,model_structure)
-print(a == b)
-{a}
+# a = Defined(model_structure.all_propositions['A'].prefix_sentence,model_structure)
+# b = Defined(model_structure.all_propositions['A'].prefix_sentence,model_structure)
+# print(a == b)
+# {a}
+
 # TODO: add printing propositions recursively

@@ -214,8 +214,10 @@ class ModelSetup:
         sentence_letters = set()
         for prefix_input in prefix_sentences:
             sentence_letters.update(sentence_letters_in_compound(prefix_input))
-        return list(sentence_letters)
-        # TODO: need to make a dictionary to sort the list returned above
+        sorted_sentence_letters = sorted(list(sentence_letters), key=lambda x: str(x))
+        return sorted_sentence_letters
+        # B: this seems to be working but worth checking; old is below
+        # return list(sentence_letters)
 
     def find_subsentences(self, prefix_sentences):
         """take a set of prefix sentences and returns a set of all subsentences"""
