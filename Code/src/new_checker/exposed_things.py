@@ -160,14 +160,9 @@ class Defined(Proposition):
         super().__init__(prefix_sentence, model_structure)
         super().__post_init__()
         self.verifiers, self.falsifiers = self.find_verifiers_and_falsifiers()
-
-        # self.verifiers, self.falsifiers = None, None # for avoiding useless recursion
-        # self.model_structure.all_propositions[self.name] = self
-        # self.model_structure.all_propositions.add(self)
-        # M: applies to any def of Proposition,
-        # but needs to be left here because it must happen after find_verifiers_and_falsifiers
-        # (more generally, it depends on __eq__, which is user-defined and which in this def 
-        # of Propositions depends on verifiers and falsifiers)
+        
+        # super().__post_init__() # would "hide" the line below from the user, if desired
+        self.model_structure.all_propositions[self.name] = self
 
     def __eq__(self, other):
         if (self.verifiers == other.verifiers

@@ -54,4 +54,5 @@ print("made model_structure")
 # TEST PRINT
 print("print all props:", model_structure.all_propositions)
 model_structure.print_all()  
+
 # TODO: add printing propositions recursively
