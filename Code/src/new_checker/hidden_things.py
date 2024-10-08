@@ -17,6 +17,8 @@ from hidden_helpers import (
     bitvec_to_substates,
     int_to_binary,
     not_implemented_string,
+    pretty_set_print,
+
 
 )
 
@@ -51,6 +53,56 @@ class Proposition:
         if isinstance(other, Proposition):
             return self.name == other.name
         return False
+    
+    # M: eventually, we need to add a condition on unary or binary semantics
+    def print_proposition(self, eval_world, print_impossible=False, indent_num=0):
+        N = self.model_structure.model_setup.semantics.N
+        truth_value = self.truth_value_at(eval_world)
+        # TODO: is this necessary? # M: just a note, this is an old comment
+        # prefix_expr_op = self.prop_dict["prefix expression"][0]
+        # if 'boxright' in str(prefix_expr_op):
+        #     # print('TEST: CONFIRM')
+        #     self.update_verifiers(eval_world)
+        possible = self.model_structure.model_setup.semantics.possible
+        z3_model = self.model_structure.z3_model
+        ver_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self.verifiers
+            if z3_model.evaluate(possible(bit))
+            or print_impossible
+        }
+        ver_prints = pretty_set_print(ver_states) if ver_states else '∅'
+        fal_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self.falsifiers
+            if z3_model.evaluate(possible(bit))
+            or print_impossible
+        }
+        # temporary fix on unary/binary issue below
+        fal_prints = pretty_set_print(fal_states) if fal_states is not None else '∅'
+        world_state = bitvec_to_substates(eval_world, N)
+        RED = '\033[31m'
+        GREEN = '\033[32m'
+        RESET = '\033[0m'
+        FULL = '\033[37m'
+        PART = '\033[33m'
+        if indent_num == 1:
+            if truth_value:
+                FULL = GREEN
+                PART = GREEN
+            if not truth_value:
+                FULL = RED
+                PART = RED
+            if truth_value is None:
+                world_state = bitvec_to_substates(eval_world, N)
+                print(
+                    f"\n{RED}WARNING:{RESET}"
+                    f"{self} is neither true nor false at {world_state}.\n"
+                )
+        print(
+            f"{'  ' * indent_num}{FULL}|{self}| = < {ver_prints}, {fal_prints} >{RESET}"
+            f"  {PART}({truth_value} in {world_state}){RESET}"
+        )
 
 
 class Operator:
@@ -407,6 +459,32 @@ class ModelStructure:
                     file=output,
                 )
 
+    def print_inputs_recursively(self, print_impossible, output):
+        """does rec_print for every proposition in the input propositions
+        returns None"""
+        initial_eval_world = self.main_world
+        infix_premises = self.model_setup.infix_premises
+        infix_conclusions = self.model_setup.infix_conclusions
+        start_con_num = len(infix_premises) + 1
+        if self.premise_propositions:
+            if len(infix_premises) < 2:
+                print("INTERPRETED PREMISE:\n", file=output)
+            else:
+                print("INTERPRETED PREMISES:\n", file=output)
+            for index, input_prop in enumerate(self.premise_propositions, start=1):
+                print(f"{index}.", end="", file=output)
+                input_prop.print_proposition(initial_eval_world, print_impossible, 1)
+                print(file=output)
+        if self.conclusion_propositions:
+            if len(infix_conclusions) < 2:
+                print("INTERPRETED CONCLUSION:\n", file=output)
+            else:
+                print("INTERPRETED CONCLUSIONS:\n", file=output)
+            for index, input_prop in enumerate(self.conclusion_propositions, start=start_con_num):
+                print(f"{index}.", end="", file=output)
+                input_prop.print_proposition(initial_eval_world, print_impossible, 1)
+                print(file=output)
+
     def print_all(self, print_impossible=False, output=sys.__stdout__):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
@@ -415,7 +493,7 @@ class ModelStructure:
         self.model_setup.print_enumerate(output)
         self.print_states(print_impossible, output)
         self.print_evaluation(output)
-        # self.print_inputs_recursively(print_impossible, output) # missing
+        self.print_inputs_recursively(print_impossible, output) # missing
 
     # M: looking at find_complex_proposition, it looks like we can employ a similar strategy
     # to the operators bouncing back and forth with the semantics, except this time we
