@@ -26,6 +26,20 @@ AtomSort = DeclareSort("AtomSort")
 ### PRINT HELPERS ###
 
 
+def pretty_set_print(set_with_strings):
+    """input a set with strings print that same set but with no quotation marks around each
+    individual string, and also with the set in order returns the set as a string
+    Used in print_vers_and_fals() and print_alt_worlds()"""
+    sorted_set = sorted(list(set_with_strings))  # actually type list, not set
+    print_str = "{"
+    for i, elem in enumerate(sorted_set):
+        print_str += elem
+        if i != len(sorted_set) - 1:
+            print_str += ", "
+    print_str += "}"
+    return print_str
+
+
 def summation(n, func, start = 0):
     '''summation of i ranging from start to n of func(i)
     used in find_all_bits'''

@@ -249,13 +249,18 @@ class Defined(Proposition):
         children_subprops = [Defined(arg, self.model_structure) for arg in prefix_args]
         return operator.find_verifiers_and_falsifiers(*children_subprops)
 
-    def truth_or_falsity_at_world(self, world):
+    def truth_value_at(self, world):
         semantics = self.model_structure.model_setup.semantics
         z3_model = self.model_structure.z3_model
         for bit in self.verifiers:
             if z3_model.evaluate(semantics.is_part_of(bit, world)):
                 return True
         return False
+        # for falsifier in self.verifiers:
+        #     if z3_model.evaluate(semantics.is_part_of(falsifier, eval_world)):
+        #         return False
+        # return None
+        # M: this for loop was in old def of truth_value_at. Is it still necessary?
 
 
 class AndOperator(Operator):
@@ -278,6 +283,8 @@ class AndOperator(Operator):
         Y_V, Y_F = leftprop.find_proposition()
         Z_V, Z_F = rightprop.find_proposition()
         return (self.product(Y_V, Z_V), self.coproduct(Y_F, Z_F))
+    
+    # def print_operator(self, )
 
 
 class OrOperator(Operator):
