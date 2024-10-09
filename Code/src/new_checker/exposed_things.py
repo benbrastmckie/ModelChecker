@@ -130,6 +130,9 @@ class Semantics:
         )
 
     def true_at(self, prefix_sentence, eval_world):
+        """
+        prefix_sentence is always a list, eval world a BitVector
+        """
         if len(prefix_sentence) == 1 and "\\" not in str(prefix_sentence[0]):
             sent = prefix_sentence[0]
             x = BitVec("t_atom_x", self.N)
@@ -283,8 +286,6 @@ class AndOperator(Operator):
         Y_V, Y_F = leftprop.find_proposition()
         Z_V, Z_F = rightprop.find_proposition()
         return (self.product(Y_V, Z_V), self.coproduct(Y_F, Z_F))
-    
-    # def print_operator(self, )
 
 
 class OrOperator(Operator):
@@ -328,6 +329,63 @@ class NegOperator(Operator):
     def find_verifiers_and_falsifiers(self, argprop):
         Y_V, Y_F = argprop.find_proposition()
         return (Y_F, Y_V)
+    
+# M: I thought I'd give a shot defining operators in terms of other operators.
+# It is possible, but it maybe isn't as clean as would be nice. 
+# I think it would be possible to define a subclass of the Operator class
+# called DerivedOperator, and operators defined in terms of others would
+# be subclasses of that class. Then in hidden_stuff we'd deal with all the
+# code that's kind of messy below—maybe a user would only need to specify
+# something along the lines of e.g. A -> B = ~A v B, and the rest would automatically
+# be filled out
+class ImplicationOperator(Operator):
+    name = "\\rightarrow"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        sem = self.semantics
+        negated_antecedent, consequent = [NegOperator(sem), leftarg], rightarg
+        return OrOperator(sem).true_at(negated_antecedent, consequent, eval_world)
+        # M: can also be done in one line as below, but above may be clearer
+        # return OrOperator(sem).true_at([NegOperator(sem), leftarg], rightarg, eval_world)
+    
+    def false_at(self, leftarg, rightarg, eval_world):
+        sem = self.semantics
+        negated_antecedent, consequent = [NegOperator(sem), leftarg], rightarg
+        return OrOperator(sem).false_at(negated_antecedent, consequent, eval_world)
+    
+    def find_verifiers_and_falsifiers(self, leftprop, rightprop):
+        sem = self.semantics
+        prop_class, model_structure = leftprop.__class__, leftprop.model_structure
+        left_prefix = leftprop.prefix_sentence
+        negated_antecedent = prop_class([NegOperator(sem), left_prefix], model_structure)
+        consequent = rightprop
+        return OrOperator(sem).find_verifiers_and_falsifiers(negated_antecedent, consequent)
+    
+# M: qn for @B: better this name or IffOperator (and above IfOperator)?
+class BiImplicationOperator(Operator):
+    name = "\\leftrightarrow"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        sem = self.semantics
+        left_implication = [ImplicationOperator(sem), leftarg, rightarg]
+        right_implication = [ImplicationOperator(sem), rightarg, leftarg]
+        return AndOperator(sem).true_at(left_implication, right_implication, eval_world)
+    
+    def false_at(self, leftarg, rightarg, eval_world):
+        sem = self.semantics
+        left_implication = [ImplicationOperator(sem), leftarg, rightarg]
+        right_implication = [ImplicationOperator(sem), rightarg, leftarg]
+        return AndOperator(sem).false_at(left_implication, right_implication, eval_world)
+    
+    def find_verifiers_and_falsifiers(self, leftprop, rightprop):
+        sem = self.semantics
+        prop_class, model_structure = leftprop.__class__, leftprop.model_structure
+        left_prefix, right_prefix = leftprop.prefix_sentence, rightprop.prefix_sentence
+        left_impl = prop_class([ImplicationOperator(sem), left_prefix, right_prefix], model_structure)
+        right_impl = prop_class([ImplicationOperator(sem), right_prefix, left_prefix], model_structure)
+        return AndOperator(sem).find_verifiers_and_falsifiers(left_impl, right_impl)
 
 
 class TopOperator(Operator):
