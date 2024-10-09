@@ -13,15 +13,14 @@ from exposed_things import (
 
 )
 
-# B: when we develop the API these should go into __init__.py
-# M: yes—also Operator and Proposition
+# NOTE: go in API
 from hidden_things import(
     ModelSetup,
     ModelStructure,
     OperatorCollection,
 )
 
-semantics = Semantics(4)
+semantics = Semantics(3)
 print("made semantics")
 
 operators = OperatorCollection(
@@ -38,8 +37,8 @@ print("made operator collection (trivial)")
 premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
 conclusions = ["(\\neg B \\wedge \\neg D)"]
 
-premises = ["A", "(A \\rightarrow B)"]
-conclusions = ["\\neg B"]
+# premises = ["A", "(A \\rightarrow B)"]
+# conclusions = ["\\neg B"]
 
 model_setup = ModelSetup(
     semantics,
@@ -51,10 +50,12 @@ model_setup = ModelSetup(
     contingent=False,
     non_null=True,
     disjoint=False,
+    print_impossible=False,
 )
 print("made model_setup")
-sl_dict = model_setup.find_sentence_letters(premises + conclusions)
-print("TEST PRINT SENT_LET_DIC:", sl_dict)
+
+# sl_dict = model_setup.find_sentence_letters(premises + conclusions)
+# print("TEST PRINT SENT_LET_DIC:", sl_dict)
 
 model_structure = ModelStructure(model_setup)
 print("made model_structure")

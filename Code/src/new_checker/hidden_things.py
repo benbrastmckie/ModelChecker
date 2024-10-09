@@ -33,10 +33,12 @@ class Proposition:
         self.prefix_sentence = prefix_sentence
         self.name = model_structure.infix(self.prefix_sentence)
         self.model_structure = model_structure
+        self.N = model_structure.N
         self.semantics = model_structure.model_setup.semantics
         self.contingent = model_structure.model_setup.contingent
-        self.disjoint = model_structure.model_setup.disjoint
         self.non_null = model_structure.model_setup.non_null
+        self.disjoint = model_structure.model_setup.disjoint
+        self.print_impossible = model_structure.model_setup.print_impossible
         self.model_structure.all_propositions[self.name] = self
         try:
             hash(self)
@@ -56,23 +58,25 @@ class Proposition:
 
     
     # M: eventually, we need to add a condition on unary or binary semantics
-    def print_proposition(self, eval_world, print_impossible=False, indent_num=0):
+    # B: not sure I follow? say more?
+    def print_proposition(self, eval_world, indent_num=0):
         N = self.model_structure.model_setup.semantics.N
+        # Linter: cannot access attribute "truth_value_at" for class "Proposition*"
         truth_value = self.truth_value_at(eval_world)
         possible = self.model_structure.model_setup.semantics.possible
         z3_model = self.model_structure.z3_model
         ver_states = {
             bitvec_to_substates(bit, N)
-            for bit in self.verifiers
+            for bit in self.verifiers # Linter: ditto for "verifiers"
             if z3_model.evaluate(possible(bit))
-            or print_impossible
+            or self.print_impossible
         }
         ver_prints = pretty_set_print(ver_states) if ver_states else '∅'
         fal_states = {
             bitvec_to_substates(bit, N)
-            for bit in self.falsifiers
+            for bit in self.falsifiers # Linter: ditto for "falsifiers"
             if z3_model.evaluate(possible(bit))
-            or print_impossible
+            or self.print_impossible
         }
         # temporary fix on unary/binary issue below (the 'is None' bit)
         fal_prints = pretty_set_print(fal_states) if fal_states is not None else '∅'
@@ -187,8 +191,9 @@ class ModelSetup:
         proposition_class,
         max_time=1,
         contingent=False,
-        disjoint=False,
         non_null=True,
+        disjoint=False,
+        print_impossible=False,
     ):
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
@@ -202,6 +207,7 @@ class ModelSetup:
         self.contingent = contingent
         self.non_null = non_null
         self.disjoint = disjoint
+        self.print_impossible = print_impossible
 
         self.prefix_premises = [self.prefix(prem) for prem in infix_premises]
         self.prefix_conclusions = [self.prefix(con) for con in infix_conclusions]
@@ -293,6 +299,7 @@ class ModelStructure:
         self.z3_model = z3_model
         self.model_status = z3_model_status
         self.model_runtime = z3_model_runtime
+        self.print_impossible = model_setup.print_impossible
 
         self.N = model_setup.semantics.N
         self.all_subsentences = model_setup.all_subsentences
@@ -422,7 +429,7 @@ class ModelStructure:
     #         # TODO: print constraint objects, not constraint strings
     #         print(f"all_constraints = {constraints}", file=output)
 
-    def print_states(self, print_impossible=False, output=sys.__stdout__):
+    def print_states(self, output=sys.__stdout__):
         """print all fusions of atomic states in the model
         print_impossible is a boolean for whether to print impossible states or not
         first print function in print.py"""
@@ -450,23 +457,23 @@ class ModelStructure:
             if bit in self.poss_bits:
                 print(f"  {WHITE}{bin_rep} = {CYAN}{state}{RESET}", file=output)
                 continue
-            if print_impossible:
+            if self.print_impossible:
                 print(
                     f"  {WHITE}{bin_rep} = {MAGENTA}{state} (impossible){RESET}",
                     file=output,
                 )
 
-    def rec_print(self, prop_obj, eval_world, print_impossible, indent):
-        prop_obj.print_proposition(eval_world, print_impossible, indent)
+    def rec_print(self, prop_obj, eval_world, indent):
+        prop_obj.print_proposition(eval_world, indent)
         if len(prop_obj.prefix_sentence) == 1:
             return
         sub_prefix_sents = prop_obj.prefix_sentence[1:]
         sub_infix_sentences = (self.infix(sub_prefix) for sub_prefix in sub_prefix_sents)
         subprops = (self.all_propositions[infix] for infix in sub_infix_sentences)
         for subprop in subprops:
-            self.rec_print(subprop, eval_world, print_impossible, indent + 1)
+            self.rec_print(subprop, eval_world, indent + 1)
 
-    def print_inputs_recursively(self, print_impossible, output):
+    def print_inputs_recursively(self, output):
         """does rec_print for every proposition in the input propositions
         returns None"""
         initial_eval_world = self.main_world
@@ -480,8 +487,8 @@ class ModelStructure:
                 print("INTERPRETED PREMISES:\n", file=output)
             for index, input_prop in enumerate(self.premise_propositions, start=1):
                 print(f"{index}.", end="", file=output)
-                self.rec_print(input_prop, initial_eval_world, print_impossible, 1)
-                # input_prop.print_proposition(initial_eval_world, print_impossible, 1)
+                self.rec_print(input_prop, initial_eval_world, 1)
+                # input_prop.print_proposition(initial_eval_world, 1)
                 print(file=output)
         if self.conclusion_propositions:
             if len(infix_conclusions) < 2:
@@ -490,21 +497,15 @@ class ModelStructure:
                 print("INTERPRETED CONCLUSIONS:\n", file=output)
             for index, input_prop in enumerate(self.conclusion_propositions, start=start_con_num):
                 print(f"{index}.", end="", file=output)
-                self.rec_print(input_prop, initial_eval_world, print_impossible, 1)
+                self.rec_print(input_prop, initial_eval_world, 1)
                 print(file=output)
 
-    def print_all(self, print_impossible=False, output=sys.__stdout__):
+    def print_all(self, output=sys.__stdout__):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
         N = self.model_setup.semantics.N
         print(f"\nThere is a {N}-model of:\n", file=output)
         self.model_setup.print_enumerate(output)
-        self.print_states(print_impossible, output)
+        self.print_states(output)
         self.print_evaluation(output)
-        self.print_inputs_recursively(print_impossible, output) # missing
-
-    # M: looking at find_complex_proposition, it looks like we can employ a similar strategy
-    # to the operators bouncing back and forth with the semantics, except this time we
-    # bounce back and forth with wherever the definition of a proposition is
-    # B: yes, there will definitely also be some bouncing back and forth. whatever happens in
-    # recursive_print will get divided between operators
+        self.print_inputs_recursively(output) # missing
