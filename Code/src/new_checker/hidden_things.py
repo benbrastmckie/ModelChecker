@@ -188,13 +188,19 @@ class Operator:
 # here we have defined operators as syntactic primitives with derived semantic clauses.
 # in any case, I think this is a reasonable way to proceed, though perhaps worth thinking
 # what a purely syntactic approach would look like.
-
+# M: I think in effect the approach is currently purely syntactic—we can discuss this on
+# Friday since the code below isn't really straightforward
 class DerivedOperator(Operator):
-    derived__definition = None
+    derived_definition = None
 
     def __init__(self, semantics):
         super().__init__(semantics)
         op_subclass = self.__class__
+        if self.derived_definition is None:
+            raise NameError(
+                f"Your derived operator class {op_subclass} is missing a derived_definition. "
+                + f"Please add it as a class property of {op_subclass}."
+            )
         derived_def_num_args = len(inspect.signature(op_subclass.derived_definition).parameters)
         op_name = op_subclass.__name__
         assert self.arity == derived_def_num_args, (f"the specified arity of value {self.arity} "
@@ -222,6 +228,7 @@ class DerivedOperator(Operator):
     # if there is a nice way to define derived_definition in this DerivedOperator class
     # and then make the statement it would return the same as an attribute of method given
     # in the subclass ConditionalOperator?
+    # M: we could define it as None much as we do for .name and .arity in the Operator case
     def get_derived_prefix_form(self, args):
         '''given a set of arguments, returns a prefix sentence that correctly
         puts them into the derived definition of the derived operator
