@@ -180,16 +180,21 @@ class Operator:
 # as if it were the RHS. this permits distinct syntactic expressions to have identical
 # semantic clauses. the alternative is to eliminate one expression for another which 
 # would make printing the prefix/infix sentence a little odd since if you feed it a 
-# premise like A -> B, you'd expect this to be printed out, not ~A v B. I guess one could
+# premise like A -> B, you'd expect this to be printed out, not ~A v B. 
+    # M: This is what happens under the current implementation—ie A and B are printed for A -> B
+# B: I guess one could
 # store the original prefix sentence, then convert to its definition using that to find
-# find the z3 constraints, then when it comes time to print, process the original? this
-# more or less amounts to the more purely semantic approach here. the only cost is that
+# find the z3 constraints, then when it comes time to print, process the original?
+    # M: I think that's basically what ends up happening here
+# B: this more or less amounts to the more purely semantic approach here. the only cost is that
 # whereas in logic a defined symbol is strictly speaking excluded from the object language
 # here we have defined operators as syntactic primitives with derived semantic clauses.
 # in any case, I think this is a reasonable way to proceed, though perhaps worth thinking
 # what a purely syntactic approach would look like.
-# M: I think in effect the approach is currently purely syntactic—we can discuss this on
-# Friday since the code below isn't really straightforward
+# M: Good to discuss on Friday—to me it seems the current approach is purely syntactic though
+# I think I'm not understanding the issue fully (also it doesn't help that the code below
+# isn't exactly straightforward)
+    
 class DerivedOperator(Operator):
     derived_definition = None
 
