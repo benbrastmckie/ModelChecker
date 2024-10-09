@@ -25,6 +25,7 @@ import z3
 # NOTE: go in API
 from hidden_things import (
     Operator,
+    DerivedOperator,
     Proposition,
 )
 
@@ -152,7 +153,7 @@ class Semantics:
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sent)))
         operator = prefix_sentence[0]
         args = prefix_sentence[1:]
-        return operator.false_at(*args, eval_world)
+        return operator.false_at(*args, eval_world=eval_world)
 
 
 class Defined(Proposition):
@@ -228,6 +229,7 @@ class Defined(Proposition):
 
     # DISCUSS: is this working?
     # B: I changed this name to avoid confusion with find_verifiers_and_falsifiers in operators
+    # M: It seems to be
     def find_proposition(self):
         # if not(self.verifiers is None and self.falsifiers is None):
         #     return
@@ -354,49 +356,22 @@ class NegOperator(Operator):
 # to explore. However, there is another reason to avoid defined operators which is
 # that it is good for the semantics clause to be as human intelligible and easy to
 # motivate as possible. it also doesn't need to take more code (see below)
+# M: Hey, sorry I merged and saw the changes. I figured out a way to make the DerivedOperator
+# class that's a lot cleaner on the user—all the need to do is define a (lambda) function
+# see below (i did that before seeing these comments). Let me know what you think
+# (doesn't have to be a lambda function, I just like them (as you may have noticed by now lol))
 
-class ImplicationOperator(Operator):
+class ConditionalOperator(DerivedOperator):
     name = "\\rightarrow"
     arity = 2
-
-    # def true_at(self, leftarg, rightarg, eval_world):
-    #     sem = self.semantics
-    #     negated_antecedent, consequent = [NegOperator(sem), leftarg], rightarg
-    #     return OrOperator(sem).true_at(negated_antecedent, consequent, eval_world)
-    #     # M: can also be done in one line as below, but above may be clearer
-    #     # return OrOperator(sem).true_at([NegOperator(sem), leftarg], rightarg, eval_world)
-    # 
-    # def false_at(self, leftarg, rightarg, eval_world):
-    #     sem = self.semantics
-    #     negated_antecedent, consequent = [NegOperator(sem), leftarg], rightarg
-    #     return OrOperator(sem).false_at(negated_antecedent, consequent, eval_world)
-    # 
-    # def find_verifiers_and_falsifiers(self, leftprop, rightprop):
-    #     sem = self.semantics
-    #     prop_class, model_structure = leftprop.__class__, leftprop.model_structure
-    #     left_prefix = leftprop.prefix_sentence
-    #     negated_antecedent = prop_class([NegOperator(sem), left_prefix], model_structure)
-    #     consequent = rightprop
-    #     return OrOperator(sem).find_verifiers_and_falsifiers(negated_antecedent, consequent)
+    derived_definition = lambda leftarg, rightarg: [OrOperator, [NegOperator, leftarg], rightarg]
+    # M: also acceptable for derived_definition
+    # def derived_definition(leftarg, rightarg):
+    #     return [OrOperator, [NegOperator, leftarg], rightarg]
     
-    def true_at(self, leftarg, rightarg, eval_world):
-        """doc string place holder"""
-        sem = self.semantics
-        return z3.Or(sem.false_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
-
-    def false_at(self, leftarg, rightarg, eval_world):
-        """doc string place holder"""
-        sem = self.semantics
-        return z3.And(sem.true_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
-
-    def find_verifiers_and_falsifiers(self, leftprop, rightprop):
-        Y_V, Y_F = leftprop.find_proposition()
-        Z_V, Z_F = rightprop.find_proposition()
-        return (self.coproduct(Y_F, Z_V), self.product(Y_V, Z_F))
-
 # M: qn for @B: better this name or IffOperator (and above IfOperator)?
 # B: I was thinking about that... maybe ConditionalOperator and BiconditionalOperator?
-class BiImplicationOperator(Operator):
+class BiconditionalOperator(Operator):
     name = "\\leftrightarrow"
     arity = 2
 
