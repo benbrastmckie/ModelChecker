@@ -355,8 +355,11 @@ class NegOperator(Operator):
 # to explore. However, there is another reason to avoid defined operators which is
 # that it is good for the semantics clause to be as human intelligible and easy to
 # motivate as possible. it also doesn't need to take more code (see below)
+# M: Hey, sorry I merged and saw the changes. I figured out a way to make the DerivedOperator
+# class that's a lot cleaner on the user—all the need to do is define a (lambda) function
+# see below
 
-class ImplicationOperator(Operator):
+class ImplicationOperator(DerivedOperator):
     name = "\\rightarrow"
     arity = 2
     lambda_definition = lambda leftarg, rightarg: [OrOperator, [NegOperator, leftarg], rightarg]
