@@ -107,24 +107,6 @@ def index_to_substate(index):
     return ((number//26) + 1) * letter
 
 
-# def bitvec_to_substates(bit_vec, N):
-#     '''Converts bitvectors to fusions of atomic states.'''
-#     bit_vec_as_string = bit_vec.sexpr()
-#
-#     # Convert hexadecimal to binary if necessary
-#     if 'x' in bit_vec_as_string:
-#         integer = int(bit_vec_as_string[2:], 16)
-#         bit_vec_as_string = int_to_binary(integer, N)[2:]  # Remove '#b' prefix
-#
-#     state_repr = ""
-#     for i, char in enumerate(bit_vec_as_string):
-#         if char == "b":  # Null state reached
-#             return state_repr[:-1] if state_repr else "□"  # Remove last '.'
-#         if char == "1":
-#             state_repr += index_to_substate(i) + "."
-#     
-#     raise ValueError("Expected to encounter 'b' at the end but did not.")
-
 def bitvec_to_substates(bit_vec, N):
     '''converts bitvectors to fusions of atomic states.'''
     bit_vec_as_string = bit_vec.sexpr()
