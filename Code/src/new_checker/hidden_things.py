@@ -149,6 +149,53 @@ class Operator:
         A_U_B = set_A.union(set_B)
         return A_U_B.union(self.product(set_A, set_B))
 
+class DerivedOperator(Operator):
+
+    def activate_prefix_definition(self, unactivated_prefix_def):
+        '''
+        '''
+        new_prefix_def = []
+        for elem in unactivated_prefix_def:
+            if isinstance(elem, type):
+                new_prefix_def.append(elem(self.semantics))
+            elif isinstance(elem, list):
+                new_prefix_def.append(self.activate_prefix_definition(elem))
+            else: # so an instantiated operator or a sentence letter
+                new_prefix_def.append(elem)
+        return new_prefix_def
+    
+    def get_derived_prefix_form(self, args):
+        unact_prefix_def = self.__class__.lambda_definition(*args)
+        return DerivedOperator.activate_prefix_definition(self, unact_prefix_def)
+    
+    def true_at(self, *args_and_eval_world):
+        args, eval_world = args_and_eval_world[0:-1], args_and_eval_world[-1]
+        assert len(args) == self.arity
+        prefix_def = self.get_derived_prefix_form(args)
+        operator, new_args = prefix_def[0], prefix_def[1:]
+        return operator.true_at(*new_args, eval_world=eval_world)
+    
+    def false_at(self, *args_and_eval_world):
+        args, eval_world = args_and_eval_world[0:-1], args_and_eval_world[-1]
+        assert len(args) == self.arity
+        prefix_def = self.get_derived_prefix_form(args)
+        operator, new_args = prefix_def[0], prefix_def[1:]
+        return operator.true_at(*new_args, eval_world=eval_world)
+    
+    def find_verifiers_and_falsifiers(self, *argprops):
+        assert len(argprops) == self.arity
+        pfargs = [prop.prefix_sentence for prop in argprops]
+        prefix_def = self.get_derived_prefix_form(pfargs)
+        prop_class, model_structure = argprops[0].__class__, argprops[0].model_structure
+        subprops = (prop_class(pfsent, model_structure) for pfsent in prefix_def[1:])
+        operator = prefix_def[0]
+        return operator.find_verifiers_and_falsifiers(*subprops)
+
+
+        # prop_class, model_structure = argprops[0].__class__, argprops[0].model_structure
+        # prefix_sents = (prop.prefix_sentence for prop in argprops)
+
+
 class OperatorCollection:
     """Stores the operators that will be passed to ModelSetup."""
 
