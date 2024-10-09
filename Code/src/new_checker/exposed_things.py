@@ -344,7 +344,7 @@ class ConditionalOperator(DerivedOperator):
     # be pushed to DerivedOperator? might help with the linter error as well?
     # M: I tried something else to deal with linter complaint, just I'm not sure how we'd push
     # derived_definition over
-    def derived_definition(self, leftarg, rightarg):
+    def derived_definition(leftarg, rightarg):
         return [OrOperator, [NegOperator, leftarg], rightarg]
     
     # # B: another idea I tried out but didn't seem better
