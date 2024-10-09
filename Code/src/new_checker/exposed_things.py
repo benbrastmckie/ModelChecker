@@ -332,6 +332,10 @@ class NegOperator(Operator):
 # in order to compare the two. it might be even better to compare defined and primitive
 # constitutive and counterfactual operators since they have a greater chance of showing
 # differences due to their complexity. for now I think the below looks great!
+# M: For sure—it wouldn't be that hard at all to define a primitive ConditionalOperator! 
+# just we would have to have a different .name for them (or should we? I'm not sure it'd end
+# up mattering since you're never using them at the same time presumably—only the class
+# name needs to be different)
 class ConditionalOperator(DerivedOperator):
     name = "\\rightarrow"
     arity = 2
