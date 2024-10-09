@@ -357,7 +357,8 @@ class NegOperator(Operator):
 # motivate as possible. it also doesn't need to take more code (see below)
 # M: Hey, sorry I merged and saw the changes. I figured out a way to make the DerivedOperator
 # class that's a lot cleaner on the user—all the need to do is define a (lambda) function
-# see below
+# see below (i did that before seeing these comments). Let me know what you think
+# (doesn't have to be a lambda function, I just like them (as you may have noticed by now lol))
 
 class ImplicationOperator(DerivedOperator):
     name = "\\rightarrow"
