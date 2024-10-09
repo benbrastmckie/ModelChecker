@@ -355,7 +355,6 @@ class ModelStructure:
 
     def infix(self, prefix_sent):
         """Takes a sentence in prefix notation and translates it to infix notation"""
-        print(prefix_sent, type(prefix_sent))
         if len(prefix_sent) == 1:
             return str(prefix_sent[0])
         op = prefix_sent[0]
