@@ -166,7 +166,7 @@ class DerivedOperator(Operator):
         return new_prefix_def
     
     def get_derived_prefix_form(self, args):
-        unact_prefix_def = self.__class__.lambda_definition(*args)
+        unact_prefix_def = self.__class__.derived_definition(*args)
         return DerivedOperator.activate_prefix_definition(self, unact_prefix_def)
     
     def true_at(self, *args_and_eval_world):

@@ -8,8 +8,8 @@ from exposed_things import (
     OrOperator,
     Defined,
     TopOperator,
-    ImplicationOperator,
-    BiImplicationOperator,
+    ConditionalOperator,
+    BiconditionalOperator,
 
 )
 
@@ -29,8 +29,8 @@ operators = OperatorCollection(
     OrOperator,
     TopOperator,
     BotOperator,
-    ImplicationOperator,
-    BiImplicationOperator,
+    ConditionalOperator,
+    BiconditionalOperator,
 )
 print("made operator collection (trivial)")
 

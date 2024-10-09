@@ -229,6 +229,7 @@ class Defined(Proposition):
 
     # DISCUSS: is this working?
     # B: I changed this name to avoid confusion with find_verifiers_and_falsifiers in operators
+    # M: It seems to be
     def find_proposition(self):
         # if not(self.verifiers is None and self.falsifiers is None):
         #     return
@@ -360,14 +361,17 @@ class NegOperator(Operator):
 # see below (i did that before seeing these comments). Let me know what you think
 # (doesn't have to be a lambda function, I just like them (as you may have noticed by now lol))
 
-class ImplicationOperator(DerivedOperator):
+class ConditionalOperator(DerivedOperator):
     name = "\\rightarrow"
     arity = 2
-    lambda_definition = lambda leftarg, rightarg: [OrOperator, [NegOperator, leftarg], rightarg]
+    derived_definition = lambda leftarg, rightarg: [OrOperator, [NegOperator, leftarg], rightarg]
+    # M: also acceptable for derived_definition
+    # def derived_definition(leftarg, rightarg):
+    #     return [OrOperator, [NegOperator, leftarg], rightarg]
     
 # M: qn for @B: better this name or IffOperator (and above IfOperator)?
 # B: I was thinking about that... maybe ConditionalOperator and BiconditionalOperator?
-class BiImplicationOperator(Operator):
+class BiconditionalOperator(Operator):
     name = "\\leftrightarrow"
     arity = 2
 
