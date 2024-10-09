@@ -149,8 +149,57 @@ class Operator:
         A_U_B = set_A.union(set_B)
         return A_U_B.union(self.product(set_A, set_B))
 
-#M: @B, this is the DerivedOperator class that hides all of the redefining stuff
+# NOTE: moved this to consolidate
+# M: I thought I'd give a shot defining operators in terms of other operators.
+# It is possible, but it maybe isn't as clean as would be nice. 
+# I think it would be possible to define a subclass of the Operator class
+# called DerivedOperator, and operators defined in terms of others would
+# be subclasses of that class. Then in hidden_stuff we'd deal with all the
+# code that's kind of messy below—maybe a user would only need to specify
+# something along the lines of e.g. A -> B := ~A v B, and the rest would automatically
+# be filled out
+
+# B: I like the DerivedOperator class idea, but feel this should be purely syntactic
+# at least that is how it is in logic where A -> B := ~A v B this means that the LHS
+# abbreviates the RHS. it is odd to hid the conversion in the semantics so that
+# A -> B := ~A v B means that the LHS will be interpreted as if it were the RHS.
+# With that said, using python does open new possibilities that might not be so bad
+# to explore. However, there is another reason to avoid defined operators which is
+# that it is good for the semantics clause to be as human intelligible and easy to
+# motivate as possible. it also doesn't need to take more code (see below)
+# M: Hey, sorry I merged and saw the changes. I figured out a way to make the DerivedOperator
+# class that's a lot cleaner on the user—all the need to do is define a (lambda) function
+# see below (i did that before seeing these comments). Let me know what you think
+# (doesn't have to be a lambda function, I just like them (as you may have noticed by now lol))
+
+# M: @B, this is the DerivedOperator class that hides all of the redefining stuff
+# B: I was thinking more about this class and change my mind that it should be syntactic.
+# I like the idea that defining A -> B := ~A v B means that the RHS will be interpreted
+# as if it were the RHS. this permits distinct syntactic expressions to have identical
+# semantic clauses. the alternative is to eliminate one expression for another which 
+# would make printing the prefix/infix sentence a little odd since if you feed it a 
+# premise like A -> B, you'd expect this to be printed out, not ~A v B. I guess one could
+# store the original prefix sentence, then convert to its definition using that to find
+# find the z3 constraints, then when it comes time to print, process the original? this
+# more or less amounts to the more purely semantic approach here. the only cost is that
+# whereas in logic a defined symbol is strictly speaking excluded from the object language
+# here we have defined operators as syntactic primitives with derived semantic clauses.
+# in any case, I think this is a reasonable way to proceed, though perhaps worth thinking
+# what a purely syntactic approach would look like.
+
 class DerivedOperator(Operator):
+
+    # # B: was thinking this would pick up the definition from the subclasses
+    # def __init__(self):
+    #     # Expect subclasses to set operator_definition to a function
+    #     if not hasattr(self, 'operator_definition'):
+    #         raise NotImplementedError("Subclasses must define operator_definition")
+    # 
+    # def derived_definition(self, *args):
+    #     """
+    #     Call the operator_definition function to get the derived definition.
+    #     """
+    #     return self.operator_definition(*args)
 
     def activate_prefix_definition(self, unactivated_prefix_def):
         '''
@@ -164,10 +213,19 @@ class DerivedOperator(Operator):
             else: # so an instantiated operator or a sentence letter
                 new_prefix_def.append(elem)
         return new_prefix_def
-    
+
+    # B: this seems to work but i'm still getting the linter error and I'm wondering
+    # if there is a nice way to define derived_definition in this DerivedOperator class
+    # and then make the statement it would return the same as an attribute of method given
+    # in the subclass ConditionalOperator?
     def get_derived_prefix_form(self, args):
-        unact_prefix_def = self.__class__.derived_definition(*args)
-        return DerivedOperator.activate_prefix_definition(self, unact_prefix_def)
+        unact_prefix_def = self.derived_definition(*args) # LINTER: cannot access attribute "derived_definition" for class "type[DerivedOperator]*"
+        return self.activate_prefix_definition(unact_prefix_def)
+    
+    # B: this works with the lambda definition of derived_definition
+    # def get_derived_prefix_form(self, args):
+    #     unact_prefix_def = self.__class__.derived_definition(*args) # LINTER: cannot access attribute "derived_definition" for class "type[DerivedOperator]*"
+    #     return DerivedOperator.activate_prefix_definition(self, unact_prefix_def)
     
     def true_at(self, *args_and_eval_world):
         args, eval_world = args_and_eval_world[0:-1], args_and_eval_world[-1]
