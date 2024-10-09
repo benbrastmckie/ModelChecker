@@ -78,7 +78,7 @@ class Proposition:
             if z3_model.evaluate(possible(bit))
             or print_impossible
         }
-        # temporary fix on unary/binary issue below
+        # temporary fix on unary/binary issue below (the 'is None' bit)
         fal_prints = pretty_set_print(fal_states) if fal_states is not None else '∅'
         world_state = bitvec_to_substates(eval_world, N)
         RED = '\033[31m'
@@ -291,6 +291,7 @@ class ModelStructure:
 
     def __init__(self, model_setup):
         timeout, z3_model_status, z3_model, z3_model_runtime = self.solve(model_setup)
+        print(z3_model_status)
         self.model_setup = model_setup
         self.timeout = timeout
         self.z3_model = z3_model
@@ -354,6 +355,7 @@ class ModelStructure:
 
     def infix(self, prefix_sent):
         """Takes a sentence in prefix notation and translates it to infix notation"""
+        print(prefix_sent, type(prefix_sent))
         if len(prefix_sent) == 1:
             return str(prefix_sent[0])
         op = prefix_sent[0]
@@ -459,6 +461,16 @@ class ModelStructure:
                     file=output,
                 )
 
+    def rec_print(self, prop_obj, eval_world, print_impossible, indent):
+        prop_obj.print_proposition(eval_world, print_impossible, indent)
+        if len(prop_obj.prefix_sentence) == 1:
+            return
+        sub_prefix_sents = prop_obj.prefix_sentence[1:]
+        sub_infix_sentences = (self.infix(sub_prefix) for sub_prefix in sub_prefix_sents)
+        subprops = (self.all_propositions[infix] for infix in sub_infix_sentences)
+        for subprop in subprops:
+            self.rec_print(subprop, eval_world, print_impossible, indent + 1)
+
     def print_inputs_recursively(self, print_impossible, output):
         """does rec_print for every proposition in the input propositions
         returns None"""
@@ -473,7 +485,8 @@ class ModelStructure:
                 print("INTERPRETED PREMISES:\n", file=output)
             for index, input_prop in enumerate(self.premise_propositions, start=1):
                 print(f"{index}.", end="", file=output)
-                input_prop.print_proposition(initial_eval_world, print_impossible, 1)
+                self.rec_print(input_prop, initial_eval_world, print_impossible, 1)
+                # input_prop.print_proposition(initial_eval_world, print_impossible, 1)
                 print(file=output)
         if self.conclusion_propositions:
             if len(infix_conclusions) < 2:
@@ -482,7 +495,7 @@ class ModelStructure:
                 print("INTERPRETED CONCLUSIONS:\n", file=output)
             for index, input_prop in enumerate(self.conclusion_propositions, start=start_con_num):
                 print(f"{index}.", end="", file=output)
-                input_prop.print_proposition(initial_eval_world, print_impossible, 1)
+                self.rec_print(input_prop, initial_eval_world, print_impossible, 1)
                 print(file=output)
 
     def print_all(self, print_impossible=False, output=sys.__stdout__):

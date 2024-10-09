@@ -8,6 +8,9 @@ from exposed_things import (
     OrOperator,
     Defined,
     TopOperator,
+    ImplicationOperator,
+    BiImplicationOperator,
+
 )
 
 # B: when we develop the API these should go into __init__.py
@@ -27,11 +30,16 @@ operators = OperatorCollection(
     OrOperator,
     TopOperator,
     BotOperator,
+    ImplicationOperator,
+    BiImplicationOperator,
 )
 print("made operator collection (trivial)")
 
 premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
 conclusions = ["(\\neg B \\wedge \\neg D)"]
+
+premises = ["A", "(A \\rightarrow B)"]
+conclusions = ["\\neg B"]
 
 model_setup = ModelSetup(
     semantics,
@@ -55,7 +63,8 @@ print("made model_structure")
 print("print all props:", model_structure.all_propositions)
 model_structure.print_all()  
 
-a = Defined(model_structure.all_propositions['A'].prefix_sentence,model_structure)
+# a = Defined(model_structure.all_propositions['(A \\vee B)'].prefix_sentence,model_structure)
+# print(str(a))
 # b = Defined(model_structure.all_propositions['A'].prefix_sentence,model_structure)
 # print(a == b)
 # {a}
