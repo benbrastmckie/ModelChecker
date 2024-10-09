@@ -9,6 +9,7 @@ The operators `\\top` and `\\bot` are reserved.
 
 ### IMPORTS AND DEFINITIONS ###
 
+import string
 from z3 import(
     And,
     BitVecVal,
@@ -61,17 +62,23 @@ def find_all_bits(size):
     return all_bits
 
 
-def int_to_binary(integer, number, backwards_binary_str = ''):
-    '''converts a #x string to a #b string. follows the first algorithm that shows up on google
-    when you google how to do this
-    used in bitvec_to_substates'''
-    rem = integer%2
-    new_backwards_str = backwards_binary_str + str(rem)
-    if integer//2 == 0: # base case: we've reached the end
-        remaining_0s_to_tack_on = number - len(new_backwards_str) # to fill in the zeroes
-        return '#b' + remaining_0s_to_tack_on * '0' + new_backwards_str[::-1]
-    new_int = integer//2
-    return int_to_binary(new_int, number, new_backwards_str)
+def int_to_binary(integer, number):
+    '''Converts a hexadecimal string to a binary string.'''
+    binary_str = bin(integer)[2:]  # Convert to binary string and remove '0b' prefix
+    padding = number - len(binary_str)  # Calculate padding
+    return '#b' + '0' * padding + binary_str
+
+# def int_to_binary(integer, number, backwards_binary_str = ''):
+#     '''converts a #x string to a #b string. follows the first algorithm that shows up on google
+#     when you google how to do this
+#     used in bitvec_to_substates'''
+#     rem = integer%2
+#     new_backwards_str = backwards_binary_str + str(rem)
+#     if integer//2 == 0: # base case: we've reached the end
+#         remaining_0s_to_tack_on = number - len(new_backwards_str) # to fill in the zeroes
+#         return '#b' + remaining_0s_to_tack_on * '0' + new_backwards_str[::-1]
+#     new_int = integer//2
+#     return int_to_binary(new_int, number, new_backwards_str)
 
 
 def index_to_substate(index):
@@ -88,14 +95,35 @@ def index_to_substate(index):
     used in bitvec_to_substates
     '''
     number = index + 1 # because python indices start at 0
-    letter_dict = {1:'a', 2:'b', 3:'c', 4:'d', 5:'e', 6:'f', 7:'g', 8:'h', 9:'i', 10:'j',
-                   11:'k', 12:'l', 13:'m', 14:'n', 15:'o', 16:'p', 17:'q', 18:'r', 19:'s', 20:'t',
-                   21:'u', 22:'v', 23:'w', 24:'x', 25:'y', 26:'z'}
+    # letter_dict = {1:'a', 2:'b', 3:'c', 4:'d', 5:'e', 6:'f', 7:'g', 8:'h',
+    #                9:'i', 10:'j', 11:'k', 12:'l', 13:'m', 14:'n', 15:'o',
+    #                16:'p', 17:'q', 18:'r', 19:'s', 20:'t', 21:'u', 22:'v',
+    #                23:'w', 24:'x', 25:'y', 26:'z'}
+    # letter = letter_dict[number%26]
     # could be make less hard-code-y
     # but this makes it clearer and more intuitive what we want to happen
-    letter = letter_dict[number%26]
+    alphabet = string.ascii_lowercase  # 'abcdefghijklmnopqrstuvwxyz'
+    letter = alphabet[number % 26 - 1]  # Get corresponding letter
     return ((number//26) + 1) * letter
 
+
+# def bitvec_to_substates(bit_vec, N):
+#     '''Converts bitvectors to fusions of atomic states.'''
+#     bit_vec_as_string = bit_vec.sexpr()
+#
+#     # Convert hexadecimal to binary if necessary
+#     if 'x' in bit_vec_as_string:
+#         integer = int(bit_vec_as_string[2:], 16)
+#         bit_vec_as_string = int_to_binary(integer, N)[2:]  # Remove '#b' prefix
+#
+#     state_repr = ""
+#     for i, char in enumerate(bit_vec_as_string):
+#         if char == "b":  # Null state reached
+#             return state_repr[:-1] if state_repr else "□"  # Remove last '.'
+#         if char == "1":
+#             state_repr += index_to_substate(i) + "."
+#     
+#     raise ValueError("Expected to encounter 'b' at the end but did not.")
 
 def bitvec_to_substates(bit_vec, N):
     '''converts bitvectors to fusions of atomic states.'''

@@ -5,27 +5,30 @@
 # if we do import z3 instead of from z3 import (...), then everything imported
 # from z3 will have z3. before it in the code, making it very clear that it
 # comes from z3.
-from z3 import (
-    And,
-    BitVec,
-    BitVecs,
-    BitVecSort,
-    BitVecVal,
-    BoolSort,
-    Function,
-    Implies,
-    Not,
-    Or,
-)
+# B: that's a great idea!
 
-# M: go in API
+import z3
+
+# from z3 import (
+#     And,
+#     BitVec,
+#     BitVecs,
+#     BitVecSort,
+#     BitVecVal,
+#     BoolSort,
+#     Function,
+#     Implies,
+#     Not,
+#     Or,
+# )
+
+# NOTE: go in API
 from hidden_things import (
     Operator,
     Proposition,
 )
 
-# M: go in API
-# B: I made product and coproduct methods of the Operator parent class
+# NOTE: go in API
 from hidden_helpers import (
     AtomSort,
     ForAll,
@@ -39,17 +42,18 @@ class Semantics:
 
     def __init__(self, N):
         self.N = N
-        self.verify = Function("verify", BitVecSort(N), AtomSort, BoolSort())
-        self.falsify = Function("falsify", BitVecSort(N), AtomSort, BoolSort())
-        self.possible = Function("possible", BitVecSort(N), BoolSort())
-        self.main_world = BitVec("w", N)
-        x, y = BitVecs("frame_x frame_y", N)
+        self.verify = z3.Function("verify", z3.BitVecSort(N), AtomSort, z3.BoolSort())
+        self.falsify = z3.Function("falsify", z3.BitVecSort(N), AtomSort, z3.BoolSort())
+        self.possible = z3.Function("possible", z3.BitVecSort(N), z3.BoolSort())
+        self.main_world = z3.BitVec("w", N)
+        x, y = z3.BitVecs("frame_x frame_y", N)
         self.frame_constraints = [
             ForAll(
                 [x, y],
-                Implies(And(self.possible(y), self.is_part_of(x, y)), self.possible(x)),
+                z3.Implies(z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)),
             ),
             # NOTE: not needed give that bitvector spaces are complete because finite
+            # worth keeping around for now to do some benchmark testing on later
             # ForAll([x, y], Exists(z, self.fusion(x, y) == z)), # M: is this necessary?
             self.is_world(self.main_world),
         ]
@@ -69,7 +73,7 @@ class Semantics:
     def non_null_part_of(self, bit_s, bit_t):
         """bit_s verifies atom and is not the null state
         returns a Z3 constraint"""
-        return And(Not(bit_s == 0), self.is_part_of(bit_s, bit_t))
+        return z3.And(z3.Not(bit_s == 0), self.is_part_of(bit_s, bit_t))
 
     def compatible(self, bit_x, bit_y):
         """the fusion of bit_x and bit_y is possible
@@ -79,10 +83,10 @@ class Semantics:
     def maximal(self, bit_w):
         """bit_w includes all compatible states as parts.
         returns a Z3 constraint"""
-        x = BitVec("max_x", self.N)
+        x = z3.BitVec("max_x", self.N)
         return ForAll(
             x,
-            Implies(
+            z3.Implies(
                 self.compatible(x, bit_w),
                 self.is_part_of(x, bit_w),
             ),
@@ -91,7 +95,7 @@ class Semantics:
     def is_world(self, bit_w):
         """bit_w is both possible and maximal.
         returns a Z3 constraint"""
-        return And(
+        return z3.And(
             self.possible(bit_w),
             self.maximal(bit_w),
         )
@@ -99,14 +103,14 @@ class Semantics:
     def max_compatible_part(self, bit_x, bit_w, bit_y):
         """bit_x is the biggest part of bit_w that is compatible with bit_y.
         returns a Z3 constraint"""
-        z = BitVec("max_part", self.N)
-        return And(
+        z = z3.BitVec("max_part", self.N)
+        return z3.And(
             self.is_part_of(bit_x, bit_w),
             self.compatible(bit_x, bit_y),
             ForAll(
                 z,
-                Implies(
-                    And(
+                z3.Implies(
+                    z3.And(
                         self.is_part_of(z, bit_w),
                         self.compatible(z, bit_y),
                         self.is_part_of(bit_x, z),
@@ -122,11 +126,11 @@ class Semantics:
         world bit_w.
         returns a Z3 constraint
         """
-        z = BitVec("alt_z", self.N)
-        return And(
+        z = z3.BitVec("alt_z", self.N)
+        return z3.And(
             self.is_world(bit_u),
             self.is_part_of(bit_y, bit_u),
-            And(self.is_part_of(z, bit_u), self.max_compatible_part(z, bit_w, bit_y)),
+            z3.And(self.is_part_of(z, bit_u), self.max_compatible_part(z, bit_w, bit_y)),
         )
 
     def true_at(self, prefix_sentence, eval_world):
@@ -135,8 +139,8 @@ class Semantics:
         """
         if len(prefix_sentence) == 1 and "\\" not in str(prefix_sentence[0]):
             sent = prefix_sentence[0]
-            x = BitVec("t_atom_x", self.N)
-            return Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent)))
+            x = z3.BitVec("t_atom_x", self.N)
+            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sent)))
         operator = prefix_sentence[0]
         args = prefix_sentence[1:]
         return operator.true_at(*args, eval_world)
@@ -144,8 +148,8 @@ class Semantics:
     def false_at(self, prefix_sentence, eval_world):
         if len(prefix_sentence) == 1 and "\\" not in str(prefix_sentence[0]):
             sent = prefix_sentence[0]
-            x = BitVec("f_atom_x", self.N)
-            return Exists(x, And(self.is_part_of(x, eval_world), self.falsify(x, sent)))
+            x = z3.BitVec("f_atom_x", self.N)
+            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sent)))
         operator = prefix_sentence[0]
         args = prefix_sentence[1:]
         return operator.false_at(*args, eval_world)
@@ -175,43 +179,43 @@ class Defined(Proposition):
         """Currently does not have contingent proposition constraints."""
         semantics = self.semantics
         non_null = self.non_null
-        x = BitVec("prop_x", semantics.N)
-        y = BitVec("prop_y", semantics.N)
+        x = z3.BitVec("prop_x", semantics.N)
+        y = z3.BitVec("prop_y", semantics.N)
         non_null_constraints = [
-            Not(semantics.verify(0, atom)),
-            Not(semantics.falsify(0, atom)),
+            z3.Not(semantics.verify(0, atom)),
+            z3.Not(semantics.falsify(0, atom)),
         ]
         classical_constraints = [
             ForAll(
                 [x, y],
-                Implies(
-                    And(semantics.verify(x, atom), semantics.verify(y, atom)),
+                z3.Implies(
+                    z3.And(semantics.verify(x, atom), semantics.verify(y, atom)),
                     semantics.verify(semantics.fusion(x, y), atom),
                 ),
             ),
             ForAll(
                 [x, y],
-                Implies(
-                    And(semantics.falsify(x, atom), semantics.falsify(y, atom)),
+                z3.Implies(
+                    z3.And(semantics.falsify(x, atom), semantics.falsify(y, atom)),
                     semantics.falsify(semantics.fusion(x, y), atom),
                 ),
             ),
             ForAll(
                 [x, y],
-                Implies(
-                    And(semantics.verify(x, atom), semantics.falsify(y, atom)),
-                    Not(semantics.compatible(x, y)),
+                z3.Implies(
+                    z3.And(semantics.verify(x, atom), semantics.falsify(y, atom)),
+                    z3.Not(semantics.compatible(x, y)),
                 ),
             ),
             ForAll(
                 x,
-                Implies(
+                z3.Implies(
                     semantics.possible(x),
                     Exists(
                         y,
-                        And(
+                        z3.And(
                             semantics.compatible(x, y),
-                            Or(semantics.verify(y, atom), semantics.falsify(y, atom)),
+                            z3.Or(semantics.verify(y, atom), semantics.falsify(y, atom)),
                         ),
                     ),
                 ),
@@ -222,6 +226,7 @@ class Defined(Proposition):
             constraints += non_null_constraints
         return constraints
 
+    # DISCUSS: is this working?
     # B: I changed this name to avoid confusion with find_verifiers_and_falsifiers in operators
     def find_proposition(self):
         # if not(self.verifiers is None and self.falsifiers is None):
@@ -258,15 +263,16 @@ class Defined(Proposition):
         for ver_bit in self.verifiers:
             if z3_model.evaluate(semantics.is_part_of(ver_bit, world)):
                 return True
-        # return False
-        # M: this for loop was in old def of truth_value_at. Is it still necessary?
-        # B: i was worried about it assuming a sentence is false just because
-        # it didn't find a verifier. now it raises an error if no ver or fal bits 
-        # i'm not sure is self in the error report is a proposition instance
-        for fal_bit in self.verifiers:
-            if z3_model.evaluate(semantics.is_part_of(fal_bit, world)):
-                return False
-        raise ValueError(f"The world {world} has no verifier or falsifier for {self}")
+        return False
+        # DISCUSS: I tried to add this code but ran into trouble
+        # # M: this for loop was in old def of truth_value_at. Is it still necessary?
+        # # B: i was worried about it assuming a sentence is false just because
+        # # it didn't find a verifier. now it raises an error if no ver or fal bits 
+        # for fal_bit in self.verifiers:
+        #     if z3_model.evaluate(semantics.is_part_of(fal_bit, world)):
+        #         return False
+        # # B: what should 'world' be to print as a state?
+        # raise ValueError(f"The world {world} has no verifier or falsifier for {self.name}")
 
 
 class AndOperator(Operator):
@@ -278,12 +284,12 @@ class AndOperator(Operator):
     def true_at(self, leftarg, rightarg, eval_world):
         """doc string place holder"""
         sem = self.semantics
-        return And(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
+        return z3.And(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
 
     def false_at(self, leftarg, rightarg, eval_world):
         """doc string place holder"""
         sem = self.semantics
-        return Or(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
+        return z3.Or(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
 
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
         Y_V, Y_F = leftprop.find_proposition()
@@ -300,12 +306,12 @@ class OrOperator(Operator):
     def true_at(self, leftarg, rightarg, eval_world):
         """doc string place holder"""
         sem = self.semantics
-        return Or(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
+        return z3.Or(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
 
     def false_at(self, leftarg, rightarg, eval_world):
         """doc string place holder"""
         sem = self.semantics
-        return And(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
+        return z3.And(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
 
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
         Y_V, Y_F = leftprop.find_proposition()
@@ -339,6 +345,7 @@ class NegOperator(Operator):
 # code that's kind of messy below—maybe a user would only need to specify
 # something along the lines of e.g. A -> B := ~A v B, and the rest would automatically
 # be filled out
+
 # B: I like the DerivedOperator class idea, but feel this should be purely syntactic
 # at least that is how it is in logic where A -> B := ~A v B this means that the LHS
 # abbreviates the RHS. it is odd to hid the conversion in the semantics so that
@@ -347,6 +354,7 @@ class NegOperator(Operator):
 # to explore. However, there is another reason to avoid defined operators which is
 # that it is good for the semantics clause to be as human intelligible and easy to
 # motivate as possible. it also doesn't need to take more code (see below)
+
 class ImplicationOperator(Operator):
     name = "\\rightarrow"
     arity = 2
@@ -374,12 +382,12 @@ class ImplicationOperator(Operator):
     def true_at(self, leftarg, rightarg, eval_world):
         """doc string place holder"""
         sem = self.semantics
-        return Or(sem.false_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
+        return z3.Or(sem.false_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
 
     def false_at(self, leftarg, rightarg, eval_world):
         """doc string place holder"""
         sem = self.semantics
-        return And(sem.true_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
+        return z3.And(sem.true_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
 
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
         Y_V, Y_F = leftprop.find_proposition()
@@ -428,8 +436,8 @@ class BiImplicationOperator(Operator):
         Z_V, Z_F = rightprop.find_proposition()
         true_true = self.product(Y_V, Z_V)
         true_false = self.product(Y_V, Z_F)
-        false_false = self.product(Y_F, Z_F)
         false_true = self.product(Y_F, Z_V)
+        false_false = self.product(Y_F, Z_F)
         return (self.coproduct(true_true, false_false), self.product(true_false, false_true))
 
 
@@ -444,7 +452,7 @@ class TopOperator(Operator):
     ):  # for consistency with recursive call in Semantics class
         """doc string place holder"""
         N = self.semantics.N
-        x = BitVec("top_x", N)
+        x = z3.BitVec("top_x", N)
         return  # TODO (this and all below)
         # return Exists(x, self.semantics.is_part_of(x, eval_world))
         # B: the way this goes in the semantics is that \top is verified by the null state which
@@ -454,7 +462,7 @@ class TopOperator(Operator):
     def false_at(self, no_args, eval_world):  # see true_at comment
         """doc string place holder"""
         N = self.semantics.N
-        return BitVecVal(0, N) == BitVecVal(1, N)
+        return z3.BitVecVal(0, N) == z3.BitVecVal(1, N)
         # B: the way it goes in the semantics is that \top has no falsifiers and so there is no
         # part of any world which makes it false. so perhaps what this should do is say that there
         # is a part of eval_world which makes \top false.
@@ -473,13 +481,13 @@ class BotOperator(Operator):
     def true_at(self, no_args, eval_world):  # see comment at true_at for TopOperator
         """doc string place holder"""
         N = self.semantics.N
-        return BitVecVal(0, N) == BitVecVal(1, N)
+        return z3.BitVecVal(0, N) == z3.BitVecVal(1, N)
         # B: similar comments apply as in \top
 
     def false_at(self, no_args, eval_world):  # see comment at true_at for TopOperator
         """doc string place holder"""
         N = self.semantics.N
-        return BitVecVal(1, N) == BitVecVal(1, N)
+        return z3.BitVecVal(1, N) == z3.BitVecVal(1, N)
         # B: similar comments apply as in \top
 
     def find_verifiers_and_falsifiers(self, argprop):
