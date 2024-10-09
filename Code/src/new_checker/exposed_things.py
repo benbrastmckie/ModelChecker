@@ -255,15 +255,18 @@ class Defined(Proposition):
     def truth_value_at(self, world):
         semantics = self.model_structure.model_setup.semantics
         z3_model = self.model_structure.z3_model
-        for bit in self.verifiers:
-            if z3_model.evaluate(semantics.is_part_of(bit, world)):
+        for ver_bit in self.verifiers:
+            if z3_model.evaluate(semantics.is_part_of(ver_bit, world)):
                 return True
-        return False
-        # for falsifier in self.verifiers:
-        #     if z3_model.evaluate(semantics.is_part_of(falsifier, eval_world)):
-        #         return False
-        # return None
+        # return False
         # M: this for loop was in old def of truth_value_at. Is it still necessary?
+        # B: i was worried about it assuming a sentence is false just because
+        # it didn't find a verifier. now it raises an error if no ver or fal bits 
+        # i'm not sure is self in the error report is a proposition instance
+        for fal_bit in self.verifiers:
+            if z3_model.evaluate(semantics.is_part_of(fal_bit, world)):
+                return False
+        raise ValueError(f"The world {world} has no verifier or falsifier for {self}")
 
 
 class AndOperator(Operator):
@@ -302,9 +305,7 @@ class OrOperator(Operator):
     def false_at(self, leftarg, rightarg, eval_world):
         """doc string place holder"""
         sem = self.semantics
-        return And(
-            sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world)
-        )
+        return And(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
 
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
         Y_V, Y_F = leftprop.find_proposition()
@@ -336,56 +337,100 @@ class NegOperator(Operator):
 # called DerivedOperator, and operators defined in terms of others would
 # be subclasses of that class. Then in hidden_stuff we'd deal with all the
 # code that's kind of messy below—maybe a user would only need to specify
-# something along the lines of e.g. A -> B = ~A v B, and the rest would automatically
+# something along the lines of e.g. A -> B := ~A v B, and the rest would automatically
 # be filled out
+# B: I like the DerivedOperator class idea, but feel this should be purely syntactic
+# at least that is how it is in logic where A -> B := ~A v B this means that the LHS
+# abbreviates the RHS. it is odd to hid the conversion in the semantics so that
+# A -> B := ~A v B means that the LHS will be interpreted as if it were the RHS.
+# With that said, using python does open new possibilities that might not be so bad
+# to explore. However, there is another reason to avoid defined operators which is
+# that it is good for the semantics clause to be as human intelligible and easy to
+# motivate as possible. it also doesn't need to take more code (see below)
 class ImplicationOperator(Operator):
     name = "\\rightarrow"
     arity = 2
 
+    # def true_at(self, leftarg, rightarg, eval_world):
+    #     sem = self.semantics
+    #     negated_antecedent, consequent = [NegOperator(sem), leftarg], rightarg
+    #     return OrOperator(sem).true_at(negated_antecedent, consequent, eval_world)
+    #     # M: can also be done in one line as below, but above may be clearer
+    #     # return OrOperator(sem).true_at([NegOperator(sem), leftarg], rightarg, eval_world)
+    # 
+    # def false_at(self, leftarg, rightarg, eval_world):
+    #     sem = self.semantics
+    #     negated_antecedent, consequent = [NegOperator(sem), leftarg], rightarg
+    #     return OrOperator(sem).false_at(negated_antecedent, consequent, eval_world)
+    # 
+    # def find_verifiers_and_falsifiers(self, leftprop, rightprop):
+    #     sem = self.semantics
+    #     prop_class, model_structure = leftprop.__class__, leftprop.model_structure
+    #     left_prefix = leftprop.prefix_sentence
+    #     negated_antecedent = prop_class([NegOperator(sem), left_prefix], model_structure)
+    #     consequent = rightprop
+    #     return OrOperator(sem).find_verifiers_and_falsifiers(negated_antecedent, consequent)
+    
     def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
         sem = self.semantics
-        negated_antecedent, consequent = [NegOperator(sem), leftarg], rightarg
-        return OrOperator(sem).true_at(negated_antecedent, consequent, eval_world)
-        # M: can also be done in one line as below, but above may be clearer
-        # return OrOperator(sem).true_at([NegOperator(sem), leftarg], rightarg, eval_world)
-    
+        return Or(sem.false_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
+
     def false_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
         sem = self.semantics
-        negated_antecedent, consequent = [NegOperator(sem), leftarg], rightarg
-        return OrOperator(sem).false_at(negated_antecedent, consequent, eval_world)
-    
+        return And(sem.true_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
+
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
-        sem = self.semantics
-        prop_class, model_structure = leftprop.__class__, leftprop.model_structure
-        left_prefix = leftprop.prefix_sentence
-        negated_antecedent = prop_class([NegOperator(sem), left_prefix], model_structure)
-        consequent = rightprop
-        return OrOperator(sem).find_verifiers_and_falsifiers(negated_antecedent, consequent)
-    
+        Y_V, Y_F = leftprop.find_proposition()
+        Z_V, Z_F = rightprop.find_proposition()
+        return (self.coproduct(Y_F, Z_V), self.product(Y_V, Z_F))
+
 # M: qn for @B: better this name or IffOperator (and above IfOperator)?
+# B: I was thinking about that... maybe ConditionalOperator and BiconditionalOperator?
 class BiImplicationOperator(Operator):
     name = "\\leftrightarrow"
     arity = 2
 
+    # def true_at(self, leftarg, rightarg, eval_world):
+    #     sem = self.semantics
+    #     left_implication = [ImplicationOperator(sem), leftarg, rightarg]
+    #     right_implication = [ImplicationOperator(sem), rightarg, leftarg]
+    #     return AndOperator(sem).true_at(left_implication, right_implication, eval_world)
+    # 
+    # def false_at(self, leftarg, rightarg, eval_world):
+    #     sem = self.semantics
+    #     left_implication = [ImplicationOperator(sem), leftarg, rightarg]
+    #     right_implication = [ImplicationOperator(sem), rightarg, leftarg]
+    #     return AndOperator(sem).false_at(left_implication, right_implication, eval_world)
+    # 
+    # def find_verifiers_and_falsifiers(self, leftprop, rightprop):
+    #     sem = self.semantics
+    #     prop_class, model_structure = leftprop.__class__, leftprop.model_structure
+    #     left_prefix, right_prefix = leftprop.prefix_sentence, rightprop.prefix_sentence
+    #     left_impl = prop_class([ImplicationOperator(sem), left_prefix, right_prefix], model_structure)
+    #     right_impl = prop_class([ImplicationOperator(sem), right_prefix, left_prefix], model_structure)
+    #     return AndOperator(sem).find_verifiers_and_falsifiers(left_impl, right_impl)
+
     def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
         sem = self.semantics
-        left_implication = [ImplicationOperator(sem), leftarg, rightarg]
-        right_implication = [ImplicationOperator(sem), rightarg, leftarg]
-        return AndOperator(sem).true_at(left_implication, right_implication, eval_world)
-    
+        return sem.false_at(leftarg, eval_world) == sem.true_at(rightarg, eval_world)
+
     def false_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
         sem = self.semantics
-        left_implication = [ImplicationOperator(sem), leftarg, rightarg]
-        right_implication = [ImplicationOperator(sem), rightarg, leftarg]
-        return AndOperator(sem).false_at(left_implication, right_implication, eval_world)
-    
+        return sem.true_at(leftarg, eval_world) != sem.false_at(rightarg, eval_world)
+
+    # B: is there a better way to do this?
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
-        sem = self.semantics
-        prop_class, model_structure = leftprop.__class__, leftprop.model_structure
-        left_prefix, right_prefix = leftprop.prefix_sentence, rightprop.prefix_sentence
-        left_impl = prop_class([ImplicationOperator(sem), left_prefix, right_prefix], model_structure)
-        right_impl = prop_class([ImplicationOperator(sem), right_prefix, left_prefix], model_structure)
-        return AndOperator(sem).find_verifiers_and_falsifiers(left_impl, right_impl)
+        Y_V, Y_F = leftprop.find_proposition()
+        Z_V, Z_F = rightprop.find_proposition()
+        true_true = self.product(Y_V, Z_V)
+        true_false = self.product(Y_V, Z_F)
+        false_false = self.product(Y_F, Z_F)
+        false_true = self.product(Y_F, Z_V)
+        return (self.coproduct(true_true, false_false), self.product(true_false, false_true))
 
 
 class TopOperator(Operator):

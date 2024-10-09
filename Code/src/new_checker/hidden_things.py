@@ -53,16 +53,12 @@ class Proposition:
         if isinstance(other, Proposition):
             return self.name == other.name
         return False
+
     
     # M: eventually, we need to add a condition on unary or binary semantics
     def print_proposition(self, eval_world, print_impossible=False, indent_num=0):
         N = self.model_structure.model_setup.semantics.N
         truth_value = self.truth_value_at(eval_world)
-        # TODO: is this necessary? # M: just a note, this is an old comment
-        # prefix_expr_op = self.prop_dict["prefix expression"][0]
-        # if 'boxright' in str(prefix_expr_op):
-        #     # print('TEST: CONFIRM')
-        #     self.update_verifiers(eval_world)
         possible = self.model_structure.model_setup.semantics.possible
         z3_model = self.model_structure.z3_model
         ver_states = {
