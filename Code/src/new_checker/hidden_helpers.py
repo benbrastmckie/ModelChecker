@@ -68,6 +68,7 @@ def int_to_binary(integer, number):
     padding = number - len(binary_str)  # Calculate padding
     return '#b' + '0' * padding + binary_str
 
+# B: I replaced the below with above
 # def int_to_binary(integer, number, backwards_binary_str = ''):
 #     '''converts a #x string to a #b string. follows the first algorithm that shows up on google
 #     when you google how to do this

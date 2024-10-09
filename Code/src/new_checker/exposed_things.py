@@ -9,19 +9,6 @@
 
 import z3
 
-# from z3 import (
-#     And,
-#     BitVec,
-#     BitVecs,
-#     BitVecSort,
-#     BitVecVal,
-#     BoolSort,
-#     Function,
-#     Implies,
-#     Not,
-#     Or,
-# )
-
 # NOTE: go in API
 from hidden_things import (
     Operator,
@@ -338,43 +325,68 @@ class NegOperator(Operator):
     def find_verifiers_and_falsifiers(self, argprop):
         Y_V, Y_F = argprop.find_proposition()
         return (Y_F, Y_V)
-    
-# M: I thought I'd give a shot defining operators in terms of other operators.
-# It is possible, but it maybe isn't as clean as would be nice. 
-# I think it would be possible to define a subclass of the Operator class
-# called DerivedOperator, and operators defined in terms of others would
-# be subclasses of that class. Then in hidden_stuff we'd deal with all the
-# code that's kind of messy below—maybe a user would only need to specify
-# something along the lines of e.g. A -> B := ~A v B, and the rest would automatically
-# be filled out
 
-# B: I like the DerivedOperator class idea, but feel this should be purely syntactic
-# at least that is how it is in logic where A -> B := ~A v B this means that the LHS
-# abbreviates the RHS. it is odd to hid the conversion in the semantics so that
-# A -> B := ~A v B means that the LHS will be interpreted as if it were the RHS.
-# With that said, using python does open new possibilities that might not be so bad
-# to explore. However, there is another reason to avoid defined operators which is
-# that it is good for the semantics clause to be as human intelligible and easy to
-# motivate as possible. it also doesn't need to take more code (see below)
-# M: Hey, sorry I merged and saw the changes. I figured out a way to make the DerivedOperator
-# class that's a lot cleaner on the user—all the need to do is define a (lambda) function
-# see below (i did that before seeing these comments). Let me know what you think
-# (doesn't have to be a lambda function, I just like them (as you may have noticed by now lol))
 
+# B: could we also define a subclass of Operator with the same name ConditionalOperator?
+# even if we have to change to a different name, it could be nice to do some benchmarking
+# in order to compare the two. it might be even better to compare defined and primitive
+# constitutive and counterfactual operators since they have a greater chance of showing
+# differences due to their complexity. for now I think the below looks great!
 class ConditionalOperator(DerivedOperator):
     name = "\\rightarrow"
     arity = 2
-    derived_definition = lambda leftarg, rightarg: [OrOperator, [NegOperator, leftarg], rightarg]
-    # M: also acceptable for derived_definition
-    # def derived_definition(leftarg, rightarg):
-    #     return [OrOperator, [NegOperator, leftarg], rightarg]
+
+    # derived_definition = lambda leftarg, rightarg: [OrOperator, [NegOperator, leftarg], rightarg]
+    # # M: also acceptable for derived_definition
+    # # B: i sorta think we should avoid lambdas if we can for uniformity
+
+    # B: this is really clean and nice. I'm wondering if derived_definition can
+    # be pushed to DerivedOperator? might help with the linter error as well?
+    def derived_definition(self, leftarg, rightarg):
+        return [OrOperator, [NegOperator, leftarg], rightarg]
     
-# M: qn for @B: better this name or IffOperator (and above IfOperator)?
-# B: I was thinking about that... maybe ConditionalOperator and BiconditionalOperator?
+    # # B: another idea I tried out but didn't seem better
+    # def __init__(self):
+    #     # Initialize the operator_definition with a specific function
+    #     self.operator_definition = lambda leftarg, rightarg: [OrOperator, [NegOperator, leftarg], rightarg]
+    #     # self.operator_definition = conditional_definition()
+    #     super().__init__()  # Ensure the parent class is initialized properly
+
+
 class BiconditionalOperator(Operator):
     name = "\\leftrightarrow"
     arity = 2
 
+    # NOTE: third try
+    def derived_definition(self, leftarg, rightarg):
+        neg_left = [NegOperator, leftarg]
+        neg_right = [NegOperator, rightarg]
+        both_true = [AndOperator, leftarg, rightarg]
+        both_false = [AndOperator, neg_left, neg_right]
+        return [OrOperator, both_true, both_false]
+
+    # # NOTE: second try
+    # def true_at(self, leftarg, rightarg, eval_world):
+    #     """doc string place holder"""
+    #     sem = self.semantics
+    #     return sem.false_at(leftarg, eval_world) == sem.true_at(rightarg, eval_world)
+    #
+    # def false_at(self, leftarg, rightarg, eval_world):
+    #     """doc string place holder"""
+    #     sem = self.semantics
+    #     return sem.true_at(leftarg, eval_world) != sem.false_at(rightarg, eval_world)
+    #
+    # # B: is there a better way to do this?
+    # def find_verifiers_and_falsifiers(self, leftprop, rightprop):
+    #     Y_V, Y_F = leftprop.find_proposition()
+    #     Z_V, Z_F = rightprop.find_proposition()
+    #     true_true = self.product(Y_V, Z_V)
+    #     true_false = self.product(Y_V, Z_F)
+    #     false_true = self.product(Y_F, Z_V)
+    #     false_false = self.product(Y_F, Z_F)
+    #     return (self.coproduct(true_true, false_false), self.product(true_false, false_true))
+
+    # # NOTE: first try
     # def true_at(self, leftarg, rightarg, eval_world):
     #     sem = self.semantics
     #     left_implication = [ImplicationOperator(sem), leftarg, rightarg]
@@ -394,26 +406,6 @@ class BiconditionalOperator(Operator):
     #     left_impl = prop_class([ImplicationOperator(sem), left_prefix, right_prefix], model_structure)
     #     right_impl = prop_class([ImplicationOperator(sem), right_prefix, left_prefix], model_structure)
     #     return AndOperator(sem).find_verifiers_and_falsifiers(left_impl, right_impl)
-
-    def true_at(self, leftarg, rightarg, eval_world):
-        """doc string place holder"""
-        sem = self.semantics
-        return sem.false_at(leftarg, eval_world) == sem.true_at(rightarg, eval_world)
-
-    def false_at(self, leftarg, rightarg, eval_world):
-        """doc string place holder"""
-        sem = self.semantics
-        return sem.true_at(leftarg, eval_world) != sem.false_at(rightarg, eval_world)
-
-    # B: is there a better way to do this?
-    def find_verifiers_and_falsifiers(self, leftprop, rightprop):
-        Y_V, Y_F = leftprop.find_proposition()
-        Z_V, Z_F = rightprop.find_proposition()
-        true_true = self.product(Y_V, Z_V)
-        true_false = self.product(Y_V, Z_F)
-        false_true = self.product(Y_F, Z_V)
-        false_false = self.product(Y_F, Z_F)
-        return (self.coproduct(true_true, false_false), self.product(true_false, false_true))
 
 
 class TopOperator(Operator):
