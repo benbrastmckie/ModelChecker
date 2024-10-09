@@ -342,6 +342,8 @@ class ConditionalOperator(DerivedOperator):
 
     # B: this is really clean and nice. I'm wondering if derived_definition can
     # be pushed to DerivedOperator? might help with the linter error as well?
+    # M: I tried something else to deal with linter complaint, just I'm not sure how we'd push
+    # derived_definition over
     def derived_definition(self, leftarg, rightarg):
         return [OrOperator, [NegOperator, leftarg], rightarg]
     
