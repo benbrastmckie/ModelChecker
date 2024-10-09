@@ -149,6 +149,7 @@ class Operator:
         A_U_B = set_A.union(set_B)
         return A_U_B.union(self.product(set_A, set_B))
 
+#M: @B, this is the DerivedOperator class that hides all of the redefining stuff
 class DerivedOperator(Operator):
 
     def activate_prefix_definition(self, unactivated_prefix_def):
