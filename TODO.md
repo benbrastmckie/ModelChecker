@@ -57,31 +57,26 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] true-at
     - [x] false-at
     - [x] model constraints (assigning each sentence letter to a proposition)
-  - [ ] printing methods:
-    - divide `rec_print`
-    - verifiers for a sentence
-    - falsify for a sentence
-    - state fusion
-    - state parthood
-    - possible states
-    - compatible states
-    - world states
-    - alt states
+  - [x] printing methods:
+    - [x] divide `rec_print`
+    - [x] verifiers for a sentence
+    - [x] falsify for a sentence
+    - [x] state fusion
 3. [ ] An Operator class for each primitive operator:
   - [x] the Operator class itself
     - [x] attribute for arity
     - [x] attribute for name
     - [x] confirm changes
-  - [.] for each operator
+  - [x] for each operator
     - [x] attribute for semantics
     - [x] methods for truth and falsity at a world
     - [x] methods for verification and falsification at a world
-    - [ ] printing methods
+    - [x] printing methods
   - [.] operators to implement:
     - [x] extensional
+    - [.] extremal
     - [ ] counterfactual
     - [ ] modal
-    - [ ] extremal
     - [ ] constitutive
 3. [ ] Proposition class:
   - [ ] syntactic attributes:

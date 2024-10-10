@@ -151,49 +151,6 @@ class Operator:
         A_U_B = set_A.union(set_B)
         return A_U_B.union(self.product(set_A, set_B))
 
-# NOTE: moved this to consolidate
-# M: I thought I'd give a shot defining operators in terms of other operators.
-# It is possible, but it maybe isn't as clean as would be nice. 
-# I think it would be possible to define a subclass of the Operator class
-# called DerivedOperator, and operators defined in terms of others would
-# be subclasses of that class. Then in hidden_stuff we'd deal with all the
-# code that's kind of messy below—maybe a user would only need to specify
-# something along the lines of e.g. A -> B := ~A v B, and the rest would automatically
-# be filled out
-
-# B: I like the DerivedOperator class idea, but feel this should be purely syntactic
-# at least that is how it is in logic where A -> B := ~A v B this means that the LHS
-# abbreviates the RHS. it is odd to hid the conversion in the semantics so that
-# A -> B := ~A v B means that the LHS will be interpreted as if it were the RHS.
-# With that said, using python does open new possibilities that might not be so bad
-# to explore. However, there is another reason to avoid defined operators which is
-# that it is good for the semantics clause to be as human intelligible and easy to
-# motivate as possible. it also doesn't need to take more code (see below)
-# M: Hey, sorry I merged and saw the changes. I figured out a way to make the DerivedOperator
-# class that's a lot cleaner on the user—all the need to do is define a (lambda) function
-# see below (i did that before seeing these comments). Let me know what you think
-# (doesn't have to be a lambda function, I just like them (as you may have noticed by now lol))
-
-# M: @B, this is the DerivedOperator class that hides all of the redefining stuff
-# B: I was thinking more about this class and change my mind that it should be syntactic.
-# I like the idea that defining A -> B := ~A v B means that the RHS will be interpreted
-# as if it were the RHS. this permits distinct syntactic expressions to have identical
-# semantic clauses. the alternative is to eliminate one expression for another which 
-# would make printing the prefix/infix sentence a little odd since if you feed it a 
-# premise like A -> B, you'd expect this to be printed out, not ~A v B. 
-    # M: This is what happens under the current implementation—ie A and B are printed for A -> B
-# B: I guess one could
-# store the original prefix sentence, then convert to its definition using that to find
-# find the z3 constraints, then when it comes time to print, process the original?
-    # M: I think that's basically what ends up happening here
-# B: this more or less amounts to the more purely semantic approach here. the only cost is that
-# whereas in logic a defined symbol is strictly speaking excluded from the object language
-# here we have defined operators as syntactic primitives with derived semantic clauses.
-# in any case, I think this is a reasonable way to proceed, though perhaps worth thinking
-# what a purely syntactic approach would look like.
-# M: Good to discuss on Friday—to me it seems the current approach is purely syntactic though
-# I think I'm not understanding the issue fully (also it doesn't help that the code below
-# isn't exactly straightforward)
     
 class DerivedOperator(Operator):
     derived_definition = None
@@ -207,13 +164,17 @@ class DerivedOperator(Operator):
                 + f"Please add it as a class property of {op_subclass}."
             )
         # LINTER: argument of type "None" cannot be assigned to parameter "obj" of type "_IntrospectableCallable" in function "signature"
-        derived_def_num_args = len(inspect.signature(op_subclass.derived_definition).parameters)
+        # B: I had to subtract 1 if 'self' was to be added to derived_definition in ConditionalOperator
+        # num_arg = len(inspect.signature(op_subclass.derived_definition).parameters) - 1
+        # B: switching to 'self' from 'op_subclass' seemed to fix the linter error and - 1 issue above
+        num_arg = len(inspect.signature(self.derived_definition).parameters)
         op_name = op_subclass.__name__
-        assert self.arity == derived_def_num_args, (f"the specified arity of value {self.arity} "
-                                                    f"for Operator class {op_name} does not match "
-                                                    f"the number of arguments received by "
-                                                    f"{op_name}'s derived_definition property "
-                                                    f"({derived_def_num_args} arguments currently).")
+        assert self.arity == num_arg, (
+            f"The specified arity of value {self.arity} for Operator class "
+            f"{op_name} does not match the number of arguments received by "
+            f"{op_name}'s derived_definition property ({num_arg}"
+            f" arguments currently)."
+        )
 
     def activate_prefix_definition(self, unactivated_prefix_def):
         '''helper for get_derived_prefix_form. Takes a sentence in prefix notation
@@ -239,7 +200,8 @@ class DerivedOperator(Operator):
         '''given a set of arguments, returns a prefix sentence that correctly
         puts them into the derived definition of the derived operator
         returns a sentence in prefix notation (list of AtomSorts and Operator instances)'''
-        unact_prefix_def = self.__class__.derived_definition(*args) # B: object of type "None" cannot be called
+        # unact_prefix_def = self.__class__.derived_definition(self, *args) # B: object of type "None" cannot be called
+        unact_prefix_def = self.derived_definition(*args) # B: this seems to work instead of above
         return DerivedOperator.activate_prefix_definition(self, unact_prefix_def)
     
     def true_at(self, *args_and_eval_world):
