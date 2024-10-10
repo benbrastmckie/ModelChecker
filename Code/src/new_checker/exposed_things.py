@@ -331,15 +331,23 @@ class NegOperator(Operator):
 class ConditionalOperator(DerivedOperator):
     name = "\\rightarrow"
     arity = 2
+
     # B: this is really clean and nice. I'm wondering if derived_definition can
     # be pushed to DerivedOperator? might help with the linter error as well?
     # M: I tried something else to deal with linter complaint, just I'm not sure how we'd push
     # derived_definition over
+    # B: why isn't self occur in the method below?
+
     @staticmethod # could also be defined with @classmethod, though slightly differently
-    def derived_definition(leftarg, rightarg): # LINTER: Instance method should take 'self' as a parameter
-                                                # M: hmm that's odd, this shouldn't be an instance method
-                                                # M: attempted to fix that?
+    def derived_definition(leftarg, rightarg):
+
+        # M: hmm that's odd, this shouldn't be an instance method
+        # M: attempted to fix that?
+        # LINTER: Ok so now it says: Method "derived_definition" overrides class "DerivedOperator" in an incompatible manner 
+        # Return type mismatch: base method returns "None", override returns type "list[Unknown]"
+
         return [OrOperator, [NegOperator, leftarg], rightarg]
+
     # M: seems that to avoid the linter issues there are a couple solns:
         # 1. put a decorator on top of the definition (liek @staticmethod or @classmethod). 
         # disadvantage: not something a beginner would understand, though certainly easy to execute
@@ -347,14 +355,19 @@ class ConditionalOperator(DerivedOperator):
             # 1b. @classmethod. disadvantage: kind of just kicking the problem of misleadingly
             # putting self in the definition to putting another confusing thing in there
             # 1a. @staticmethod. Advantage: no need to put self or cls in the function def
+            # B: I feel like having 'self' as an argument is something that would be good to
+            # maintain for consistency (and something users will have to learn to live with)
+
         # 2. define derived_definition as a class property
             # 2a. define it as a lambda function
             # 2b. assign it to a function defined outside the scope of the class. disadvantage: 
             # you have to define the thing elsewhere which is not practical
-        # 3. define it as an instance methhod (with self). Advantage: familiar syntax. Disadvantage:
+
+        # 3. define it as an instance method (with self). Advantage: familiar syntax. Disadvantage:
         # self will never be used in the derived definition, and what an operator instance is 
         # good for—the semantics—is not needed for the derived definitions
-    
+        # B: this seems like the best option, but definitely good to discuss (DISCUSS)
+
 class BiconditionalOperator(Operator):
     name = "\\leftrightarrow"
     arity = 2
