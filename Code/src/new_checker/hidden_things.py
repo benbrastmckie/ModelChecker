@@ -193,14 +193,14 @@ class Operator:
     # with? 
 # in any case, I think this is a reasonable way to proceed, though perhaps worth thinking
 # what a purely syntactic approach would look like.
-# M: Good to discuss on Friday—to me it seems the current approach is purely syntactic though
+# M: Good to DISCUSS on Friday—to me it seems the current approach is purely syntactic though
 # I think I'm not understanding the issue fully (also it doesn't help that the code below
 # isn't exactly straightforward)
     
 class DerivedOperator(Operator):
 
     @staticmethod
-    def derived_definition():
+    def derived_definition(leftarg, rightarg):
         pass
 
     # derived_definition = None
@@ -213,9 +213,7 @@ class DerivedOperator(Operator):
                 f"Your derived operator class {op_subclass} is missing a derived_definition. "
                 f"Please add it as a class property of {op_subclass}."
             )
-        # M: came up with a new fix—does that get rid of the linter complaint?
-        # B: that worked! there is a linter error in exposed_things but seems but seems minor
-        derived_def_num_args = len(inspect.signature(op_subclass.derived_definition).parameters) - 1
+        derived_def_num_args = len(inspect.signature(op_subclass.derived_definition).parameters)
         op_name = op_subclass.__name__
         mismatch_arity_msg = (f"the specified arity of value {self.arity} for the DerivedOperator "
                               f"class {op_name} does not match the number of arguments received "
@@ -297,6 +295,7 @@ class OperatorCollection:
             or isinstance(input, tuple)
             or isinstance(input, set)
         ): # really any iterable. There's probably a better way to capture that
+        # B: ChatGPT didn't have any better ideas. seems nice and readable as is.
             for operator_class in input:
                 self.add_operator(operator_class)
         elif isinstance(input, type):
