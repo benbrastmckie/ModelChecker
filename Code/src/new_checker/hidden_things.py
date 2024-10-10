@@ -189,6 +189,8 @@ class Operator:
 # B: this more or less amounts to the more purely semantic approach here. the only cost is that
 # whereas in logic a defined symbol is strictly speaking excluded from the object language
 # here we have defined operators as syntactic primitives with derived semantic clauses.
+    # M: ah I see—so you're considering the object language to be everything the user interacts
+    # with? 
 # in any case, I think this is a reasonable way to proceed, though perhaps worth thinking
 # what a purely syntactic approach would look like.
 # M: Good to discuss on Friday—to me it seems the current approach is purely syntactic though
@@ -196,24 +198,29 @@ class Operator:
 # isn't exactly straightforward)
     
 class DerivedOperator(Operator):
-    derived_definition = None
+
+    def derived_definition():
+        pass
+
+    # derived_definition = None
 
     def __init__(self, semantics):
         super().__init__(semantics)
         op_subclass = self.__class__
-        if self.derived_definition is None:
+        if len(inspect.signature(op_subclass.derived_definition).parameters) == 0:
             raise NameError(
                 f"Your derived operator class {op_subclass} is missing a derived_definition. "
-                + f"Please add it as a class property of {op_subclass}."
+                f"Please add it as a class property of {op_subclass}."
             )
         # LINTER: argument of type "None" cannot be assigned to parameter "obj" of type "_IntrospectableCallable" in function "signature"
+        # M: came up with a new fix—does that get rid of the linter complaint?
         derived_def_num_args = len(inspect.signature(op_subclass.derived_definition).parameters)
         op_name = op_subclass.__name__
-        assert self.arity == derived_def_num_args, (f"the specified arity of value {self.arity} "
-                                                    f"for Operator class {op_name} does not match "
-                                                    f"the number of arguments received by "
-                                                    f"{op_name}'s derived_definition property "
-                                                    f"({derived_def_num_args} arguments currently).")
+        mismatch_arity_msg = (f"the specified arity of value {self.arity} for the DerivedOperator "
+                              f"class {op_name} does not match the number of arguments received "
+                              f"by {op_name}'s derived_definitino property "
+                              f"({derived_def_num_args}) arguments currently).")
+        assert self.arity == derived_def_num_args, mismatch_arity_msg
 
     def activate_prefix_definition(self, unactivated_prefix_def):
         '''helper for get_derived_prefix_form. Takes a sentence in prefix notation
@@ -235,6 +242,9 @@ class DerivedOperator(Operator):
     # and then make the statement it would return the same as an attribute of method given
     # in the subclass ConditionalOperator?
     # M: we could define it as None much as we do for .name and .arity in the Operator case
+    # M: I have a new attempt at trying to get rid of the linter error; it's not implemented
+    # M: as you've described above but I think it gets the job done (though might raise more
+    # M: linter errors?)
     def get_derived_prefix_form(self, args):
         '''given a set of arguments, returns a prefix sentence that correctly
         puts them into the derived definition of the derived operator
