@@ -38,7 +38,7 @@ def pretty_set_print(set_with_strings):
         if i != len(sorted_set) - 1:
             print_str += ", "
     print_str += "}"
-    return print_str
+    return print_str if print_str != "{}" else '∅'
 
 
 def summation(n, func, start = 0):

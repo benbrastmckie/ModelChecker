@@ -331,15 +331,29 @@ class NegOperator(Operator):
 class ConditionalOperator(DerivedOperator):
     name = "\\rightarrow"
     arity = 2
-
     # B: this is really clean and nice. I'm wondering if derived_definition can
     # be pushed to DerivedOperator? might help with the linter error as well?
     # M: I tried something else to deal with linter complaint, just I'm not sure how we'd push
     # derived_definition over
-    # B: got it. this reads well and is really simple for the user
-    # LINTER: Instance method should take 'self' as a parameter
-    def derived_definition(self, leftarg, rightarg):
+    @staticmethod # could also be defined with @classmethod, though slightly differently
+    def derived_definition(leftarg, rightarg): # LINTER: Instance method should take 'self' as a parameter
+                                                # M: hmm that's odd, this shouldn't be an instance method
+                                                # M: attempted to fix that?
         return [OrOperator, [NegOperator, leftarg], rightarg]
+    # M: seems that to avoid the linter issues there are a couple solns:
+        # 1. put a decorator on top of the definition (liek @staticmethod or @classmethod). 
+        # disadvantage: not something a beginner would understand, though certainly easy to execute
+        # I've left it just to show what it would look like
+            # 1b. @classmethod. disadvantage: kind of just kicking the problem of misleadingly
+            # putting self in the definition to putting another confusing thing in there
+            # 1a. @staticmethod. Advantage: no need to put self or cls in the function def
+        # 2. define derived_definition as a class property
+            # 2a. define it as a lambda function
+            # 2b. assign it to a function defined outside the scope of the class. disadvantage: 
+            # you have to define the thing elsewhere which is not practical
+        # 3. define it as an instance methhod (with self). Advantage: familiar syntax. Disadvantage:
+        # self will never be used in the derived definition, and what an operator instance is 
+        # good for—the semantics—is not needed for the derived definitions
     
 class BiconditionalOperator(Operator):
     name = "\\leftrightarrow"
