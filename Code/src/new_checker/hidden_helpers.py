@@ -249,6 +249,29 @@ def subsentences_of(prefix_sentence):
 ### PREFIX HELPERS ###
 
 
+
+
+# def op_left_right(tokens):
+#     """Divides whatever is inside a pair of parentheses into the left argument,
+#     right argument, and the operator."""
+#     left = []
+#     while tokens:
+#         token = tokens.pop(0)
+#         if token == "(":
+#             left.append(token)
+#             return cut_parentheses(left, tokens)
+#         elif token.isalnum() or token in {"\\top", "\\bot"}:
+#             left.append(token)
+#             if tokens:  # Ensure there are tokens left to pop for operator
+#                 operator = tokens.pop(0)
+#                 right = check_right(tokens, operator)
+#                 return operator, left, right
+#             else:
+#                 raise ValueError("Operator missing after operand")
+#         else:
+#             left.append(token)
+#     raise ValueError("Invalid expression or unmatched parentheses")
+
 def balanced_parentheses(tokens):
     """Check if parentheses are balanced in the argument."""
     stack = []
@@ -262,52 +285,57 @@ def balanced_parentheses(tokens):
     return len(stack) == 0
 
 
-def check_right(tokens, operator):
-    if not tokens:
-        raise ValueError(f"Expected an argument after the operator {operator}")
-    if not balanced_parentheses(tokens):
-        raise ValueError("Unbalanced parentheses")
-    return tokens  # Remaining tokens are the right argument
-
-
-def cut_parentheses(left, tokens):
-    count = 1  # To track nested parentheses
-    while tokens:
-        token = tokens.pop(0)
-        if token == "(":
-            count += 1
-            left.append(token)
-        elif token == ")":
-            count -= 1
-            left.append(token)
-        elif count > 0:
-            left.append(token)
-        else:
-            operator = token
-            right = check_right(tokens, operator)
-            return operator, left, right
-
-
 def op_left_right(tokens):
     """Divides whatever is inside a pair of parentheses into the left argument,
     right argument, and the operator."""
-    left = []
-    while tokens:
-        token = tokens.pop(0)
-        if token == "(":
-            left.append(token)
-            return cut_parentheses(left, tokens)
-        elif token.isalnum() or token in {"\\top", "\\bot"}:
-            left.append(token)
-            if tokens:  # Ensure there are tokens left to pop for operator
-                operator = tokens.pop(0)
+
+    def check_right(tokens, operator):
+        if not tokens:
+            raise ValueError(f"Expected an argument after the operator {operator}")
+        if not balanced_parentheses(tokens):
+            raise ValueError("Unbalanced parentheses")
+        return tokens  # Remaining tokens are the right argument
+
+    def cut_parentheses(left, tokens):
+        count = 1  # To track nested parentheses
+        while tokens:
+            token = tokens.pop(0)
+            if token == "(":
+                count += 1
+                left.append(token)
+            elif token == ")":
+                count -= 1
+                left.append(token)
+            elif count > 0:
+                left.append(token)
+            else:
+                operator = token
+                right = check_right(tokens, operator)
+                return operator, left, right
+
+    def process_operator(tokens):
+        if tokens:
+            return tokens.pop(0)
+        raise ValueError("Operator missing after operand")
+    
+    def extract_arguments(tokens):
+        """Extracts the left argument and right argument from tokens."""
+        left = []
+        while tokens:
+            token = tokens.pop(0)
+            if token == "(":
+                left.append(token)
+                return cut_parentheses(left, tokens)
+            elif token.isalnum() or token in {"\\top", "\\bot"}:
+                left.append(token)
+                operator = process_operator(tokens)
                 right = check_right(tokens, operator)
                 return operator, left, right
             else:
-                raise ValueError("Operator missing after operand")
-        else:
-            left.append(token)
-    raise ValueError("Invalid expression or unmatched parentheses")
+                left.append(token)
+        raise ValueError("Invalid expression or unmatched parentheses")
+    
+    return extract_arguments(tokens)
 
 
 def parse_expression(tokens, model_setup):
