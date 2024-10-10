@@ -199,7 +199,7 @@ class Operator:
     
 class DerivedOperator(Operator):
 
-    def derived_definition():
+    def derived_definition(self):
         pass
 
     # derived_definition = None
@@ -212,9 +212,9 @@ class DerivedOperator(Operator):
                 f"Your derived operator class {op_subclass} is missing a derived_definition. "
                 f"Please add it as a class property of {op_subclass}."
             )
-        # LINTER: argument of type "None" cannot be assigned to parameter "obj" of type "_IntrospectableCallable" in function "signature"
         # M: came up with a new fix—does that get rid of the linter complaint?
-        derived_def_num_args = len(inspect.signature(op_subclass.derived_definition).parameters)
+        # B: that worked! there is a linter error in exposed_things but seems but seems minor
+        derived_def_num_args = len(inspect.signature(op_subclass.derived_definition).parameters) - 1
         op_name = op_subclass.__name__
         mismatch_arity_msg = (f"the specified arity of value {self.arity} for the DerivedOperator "
                               f"class {op_name} does not match the number of arguments received "
@@ -245,12 +245,12 @@ class DerivedOperator(Operator):
     # M: I have a new attempt at trying to get rid of the linter error; it's not implemented
     # M: as you've described above but I think it gets the job done (though might raise more
     # M: linter errors?)
+    # B: that seems to work great!
     def get_derived_prefix_form(self, args):
         '''given a set of arguments, returns a prefix sentence that correctly
         puts them into the derived definition of the derived operator
         returns a sentence in prefix notation (list of AtomSorts and Operator instances)'''
-        # unact_prefix_def = self.__class__.derived_definition(self, *args) # B: object of type "None" cannot be called
-        unact_prefix_def = self.derived_definition(*args) # B: this seems to work instead of above
+        unact_prefix_def = self.derived_definition(*args)
         return DerivedOperator.activate_prefix_definition(self, unact_prefix_def)
     
     def true_at(self, *args_and_eval_world):
