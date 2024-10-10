@@ -64,7 +64,7 @@ class Proposition:
     def print_proposition(self, eval_world, indent_num=0):
         N = self.model_structure.model_setup.semantics.N
         # Linter: cannot access attribute "truth_value_at" for class "Proposition*"
-        truth_value = self.truth_value_at(eval_world)
+        truth_value = self.truth_value_at(eval_world) 
         possible = self.model_structure.model_setup.semantics.possible
         z3_model = self.model_structure.z3_model
         ver_states = {
@@ -206,6 +206,7 @@ class DerivedOperator(Operator):
                 f"Your derived operator class {op_subclass} is missing a derived_definition. "
                 + f"Please add it as a class property of {op_subclass}."
             )
+        # LINTER: argument of type "None" cannot be assigned to parameter "obj" of type "_IntrospectableCallable" in function "signature"
         derived_def_num_args = len(inspect.signature(op_subclass.derived_definition).parameters)
         op_name = op_subclass.__name__
         assert self.arity == derived_def_num_args, (f"the specified arity of value {self.arity} "
@@ -431,14 +432,14 @@ class ModelStructure:
         self.poss_bits = [
             bit
             for bit in self.all_bits
-            if bool(z3_model.evaluate(model_setup.semantics.possible(bit)))
+            if bool(z3_model.evaluate(model_setup.semantics.possible(bit))) # LINTER: cannot access attribute "evaluate" for class "AstVector"
         ]
         self.world_bits = [
             bit
             for bit in self.poss_bits
-            if bool(z3_model.evaluate(model_setup.semantics.is_world(bit)))
+            if bool(z3_model.evaluate(model_setup.semantics.is_world(bit))) # LINTER: cannot access attribute "evaluate" for class "AstVector"
         ]
-        self.main_world = z3_model[model_setup.semantics.main_world]
+        self.main_world = z3_model[model_setup.semantics.main_world] # LINTER: object of type "None" is not subscriptable
         self.all_propositions = {}
         self.premise_propositions = [
             model_setup.proposition_class(prefix_sent, self)
