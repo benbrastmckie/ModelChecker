@@ -324,6 +324,10 @@ class NegOperator(Operator):
 # in order to compare the two. it might be even better to compare defined and primitive
 # constitutive and counterfactual operators since they have a greater chance of showing
 # differences due to their complexity. for now I think the below looks great!
+# M: For sure—it wouldn't be that hard at all to define a primitive ConditionalOperator! 
+# just we would have to have a different .name for them (or should we? I'm not sure it'd end
+# up mattering since you're never using them at the same time presumably—only the class
+# name needs to be different)
 class ConditionalOperator(DerivedOperator):
     name = "\\rightarrow"
     arity = 2
@@ -331,19 +335,24 @@ class ConditionalOperator(DerivedOperator):
     # derived_definition = lambda leftarg, rightarg: [OrOperator, [NegOperator, leftarg], rightarg]
     # # M: also acceptable for derived_definition
     # # B: i sorta think we should avoid lambdas if we can for uniformity
-
+    # # M: sounds good!
+    
     # B: this is really clean and nice. I'm wondering if derived_definition can
     # be pushed to DerivedOperator? might help with the linter error as well?
-    def derived_definition(self, leftarg, rightarg):
+    # M: I tried something else to deal with linter complaint, just I'm not sure how we'd push
+    # derived_definition over
+    def derived_definition(leftarg, rightarg):
         return [OrOperator, [NegOperator, leftarg], rightarg]
     
     # # B: another idea I tried out but didn't seem better
-    # def __init__(self):
+    # # M: I think this would be equivalent except that the definition is now an instance property
+    # # instead of a class property (I think this does have an effect on the implementation in the
+    # # back end so to speak) (semantics may need to be passed as an argument to the super __init__)
+    # def __init__(self, semantics):
     #     # Initialize the operator_definition with a specific function
     #     self.operator_definition = lambda leftarg, rightarg: [OrOperator, [NegOperator, leftarg], rightarg]
     #     # self.operator_definition = conditional_definition()
-    #     super().__init__()  # Ensure the parent class is initialized properly
-
+    #     super().__init__(semantics)  # Ensure the parent class is initialized properly
 
 class BiconditionalOperator(Operator):
     name = "\\leftrightarrow"
