@@ -238,7 +238,7 @@ class DerivedOperator(Operator):
         '''given a set of arguments, returns a prefix sentence that correctly
         puts them into the derived definition of the derived operator
         returns a sentence in prefix notation (list of AtomSorts and Operator instances)'''
-        unact_prefix_def = self.__class__.derived_definition(*args)
+        unact_prefix_def = self.__class__.derived_definition(*args) # B: object of type "None" cannot be called
         return DerivedOperator.activate_prefix_definition(self, unact_prefix_def)
     
     def true_at(self, *args_and_eval_world):
