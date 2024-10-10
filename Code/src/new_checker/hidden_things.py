@@ -7,6 +7,8 @@ from z3 import (
 
 import time
 
+import inspect
+
 from hidden_helpers import (
     parse_expression,
     repeats_removed,
@@ -116,8 +118,8 @@ class Operator:
             # B: do we want the class name?
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
             # raise NotImplementedError((not_implemented_string(self.__class__)))
-        if self.name == None or self.arity == None:
-            op_class = type(self).__name__
+        if self.name is None or self.arity is None:
+            op_class = self.__class__.__name__
             raise NameError(
                 f"Your operator class {op_class} is missing a name or an arity. "
                 + f"Please add them as class properties of {op_class}."
@@ -178,32 +180,45 @@ class Operator:
 # as if it were the RHS. this permits distinct syntactic expressions to have identical
 # semantic clauses. the alternative is to eliminate one expression for another which 
 # would make printing the prefix/infix sentence a little odd since if you feed it a 
-# premise like A -> B, you'd expect this to be printed out, not ~A v B. I guess one could
+# premise like A -> B, you'd expect this to be printed out, not ~A v B. 
+    # M: This is what happens under the current implementation—ie A and B are printed for A -> B
+# B: I guess one could
 # store the original prefix sentence, then convert to its definition using that to find
-# find the z3 constraints, then when it comes time to print, process the original? this
-# more or less amounts to the more purely semantic approach here. the only cost is that
+# find the z3 constraints, then when it comes time to print, process the original?
+    # M: I think that's basically what ends up happening here
+# B: this more or less amounts to the more purely semantic approach here. the only cost is that
 # whereas in logic a defined symbol is strictly speaking excluded from the object language
 # here we have defined operators as syntactic primitives with derived semantic clauses.
 # in any case, I think this is a reasonable way to proceed, though perhaps worth thinking
 # what a purely syntactic approach would look like.
-
+# M: Good to discuss on Friday—to me it seems the current approach is purely syntactic though
+# I think I'm not understanding the issue fully (also it doesn't help that the code below
+# isn't exactly straightforward)
+    
 class DerivedOperator(Operator):
+    derived_definition = None
 
-    # # B: was thinking this would pick up the definition from the subclasses
-    # def __init__(self):
-    #     # Expect subclasses to set operator_definition to a function
-    #     if not hasattr(self, 'operator_definition'):
-    #         raise NotImplementedError("Subclasses must define operator_definition")
-    # 
-    # def derived_definition(self, *args):
-    #     """
-    #     Call the operator_definition function to get the derived definition.
-    #     """
-    #     return self.operator_definition(*args)
+    def __init__(self, semantics):
+        super().__init__(semantics)
+        op_subclass = self.__class__
+        if self.derived_definition is None:
+            raise NameError(
+                f"Your derived operator class {op_subclass} is missing a derived_definition. "
+                + f"Please add it as a class property of {op_subclass}."
+            )
+        derived_def_num_args = len(inspect.signature(op_subclass.derived_definition).parameters)
+        op_name = op_subclass.__name__
+        assert self.arity == derived_def_num_args, (f"the specified arity of value {self.arity} "
+                                                    f"for Operator class {op_name} does not match "
+                                                    f"the number of arguments received by "
+                                                    f"{op_name}'s derived_definition property "
+                                                    f"({derived_def_num_args} arguments currently).")
 
     def activate_prefix_definition(self, unactivated_prefix_def):
-        '''
-        '''
+        '''helper for get_derived_prefix_form. Takes a sentence in prefix notation
+        returned by the derived_definition property of the DerivedOperator subclass
+        and returns one with every Operator in that definition instantiated (since
+        in the derived_definition operators are defined without instantiation)'''
         new_prefix_def = []
         for elem in unactivated_prefix_def:
             if isinstance(elem, type):
@@ -218,41 +233,35 @@ class DerivedOperator(Operator):
     # if there is a nice way to define derived_definition in this DerivedOperator class
     # and then make the statement it would return the same as an attribute of method given
     # in the subclass ConditionalOperator?
+    # M: we could define it as None much as we do for .name and .arity in the Operator case
     def get_derived_prefix_form(self, args):
-        unact_prefix_def = self.derived_definition(*args) # LINTER: cannot access attribute "derived_definition" for class "type[DerivedOperator]*"
-        return self.activate_prefix_definition(unact_prefix_def)
-    
-    # B: this works with the lambda definition of derived_definition
-    # def get_derived_prefix_form(self, args):
-    #     unact_prefix_def = self.__class__.derived_definition(*args) # LINTER: cannot access attribute "derived_definition" for class "type[DerivedOperator]*"
-    #     return DerivedOperator.activate_prefix_definition(self, unact_prefix_def)
+        '''given a set of arguments, returns a prefix sentence that correctly
+        puts them into the derived definition of the derived operator
+        returns a sentence in prefix notation (list of AtomSorts and Operator instances)'''
+        unact_prefix_def = self.__class__.derived_definition(*args)
+        return DerivedOperator.activate_prefix_definition(self, unact_prefix_def)
     
     def true_at(self, *args_and_eval_world):
         args, eval_world = args_and_eval_world[0:-1], args_and_eval_world[-1]
-        assert len(args) == self.arity
         prefix_def = self.get_derived_prefix_form(args)
         operator, new_args = prefix_def[0], prefix_def[1:]
         return operator.true_at(*new_args, eval_world=eval_world)
     
     def false_at(self, *args_and_eval_world):
         args, eval_world = args_and_eval_world[0:-1], args_and_eval_world[-1]
-        assert len(args) == self.arity
         prefix_def = self.get_derived_prefix_form(args)
         operator, new_args = prefix_def[0], prefix_def[1:]
-        return operator.true_at(*new_args, eval_world=eval_world)
+        return operator.false_at(*new_args, eval_world=eval_world)
     
     def find_verifiers_and_falsifiers(self, *argprops):
-        assert len(argprops) == self.arity
         pfargs = [prop.prefix_sentence for prop in argprops]
         prefix_def = self.get_derived_prefix_form(pfargs)
         prop_class, model_structure = argprops[0].__class__, argprops[0].model_structure
-        subprops = (prop_class(pfsent, model_structure) for pfsent in prefix_def[1:])
+        derived_subprops = (prop_class(pfsent, model_structure) for pfsent in prefix_def[1:])
+        # NOTE: these derived subprops are not saved anywhere, so for printing purposes
+        # the actual subprops inputted by the user will be used
         operator = prefix_def[0]
-        return operator.find_verifiers_and_falsifiers(*subprops)
-
-
-        # prop_class, model_structure = argprops[0].__class__, argprops[0].model_structure
-        # prefix_sents = (prop.prefix_sentence for prop in argprops)
+        return operator.find_verifiers_and_falsifiers(*derived_subprops)
 
 
 class OperatorCollection:
@@ -275,7 +284,7 @@ class OperatorCollection:
             isinstance(input, list)
             or isinstance(input, tuple)
             or isinstance(input, set)
-        ):
+        ): # really any iterable. There's probably a better way to capture that
             for operator_class in input:
                 self.add_operator(operator_class)
         elif isinstance(input, type):
