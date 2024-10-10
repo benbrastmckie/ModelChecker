@@ -411,7 +411,8 @@ class ModelStructure:
         print(z3_model_status)
         self.model_setup = model_setup
         self.timeout = timeout
-        self.z3_model = z3_model
+        self.z3_model = z3_model if z3_model_status else None
+        self.unsat_core = z3_model if not z3_model_status else None
         self.model_status = z3_model_status
         self.model_runtime = z3_model_runtime
         self.print_impossible = model_setup.print_impossible
@@ -420,27 +421,24 @@ class ModelStructure:
         self.all_subsentences = model_setup.all_subsentences
         prefix_sentences = model_setup.prefix_premises + model_setup.prefix_conclusions
         self.sentence_letters = all_sentence_letters(prefix_sentences)
-
         self.all_bits = find_all_bits(self.N)
-        if isinstance(z3_model, z3.ModelRef):  # Check if z3_model is a ModelRef
-            self.poss_bits = [
-                bit
-                for bit in self.all_bits
-                if bool(z3_model.evaluate(model_setup.semantics.possible(bit)))
-            ]
-            self.world_bits = [
-                bit
-                for bit in self.poss_bits
-                if bool(z3_model.evaluate(model_setup.semantics.is_world(bit)))
-            ]
-            self.main_world = z3_model[model_setup.semantics.main_world]
-        else:
-            # B: not sure whether to raise error to kill process or print
-            # raise ValueError(f"Unexpected z3_model type: {type(z3_model)}")
-            print(f"Unexpected z3_model type: {type(z3_model)}")
-            self.poss_bits = []
-            self.world_bits = []
-            self.main_world = None
+        if not z3_model_status:
+            self.poss_bits, self.world_bits, self.main_world = None, None, None
+            self.all_propositions, self.premise_propositions = None, None
+            self.conclusion_propositions = None
+            return
+        # if isinstance(z3_model, z3.ModelRef):  # Check if z3_model is a ModelRef
+        self.poss_bits = [
+            bit
+            for bit in self.all_bits
+            if bool(z3_model.evaluate(model_setup.semantics.possible(bit)))
+        ]
+        self.world_bits = [
+            bit
+            for bit in self.poss_bits
+            if bool(z3_model.evaluate(model_setup.semantics.is_world(bit)))
+        ]
+        self.main_world = z3_model[model_setup.semantics.main_world]
         self.all_propositions = {}
         self.premise_propositions = [
             model_setup.proposition_class(prefix_sent, self)
@@ -452,6 +450,13 @@ class ModelStructure:
             # B: what if there are repeats in prefix_premises?
             for prefix_sent in model_setup.prefix_conclusions
         ]
+        # else: # M: this was being raised when no model was being found
+        #     # B: not sure whether to raise error to kill process or print
+        #     raise ValueError(f"Unexpected z3_model type: {type(z3_model)}")
+        #     print(f"Unexpected z3_model type: {type(z3_model)}")
+        #     self.poss_bits = []
+        #     self.world_bits = []
+        #     self.main_world = None
 
     def solve(self, model_setup):
         solver = Solver()
@@ -619,8 +624,12 @@ class ModelStructure:
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
         N = self.model_setup.semantics.N
-        print(f"\nThere is a {N}-model of:\n", file=output)
+        if self.model_status:
+            print(f"\nThere is a {N}-model of:\n", file=output)
+            self.model_setup.print_enumerate(output)
+            self.print_states(output)
+            self.print_evaluation(output)
+            self.print_inputs_recursively(output)
+            return
+        print(f"\nThere is no {N}-model of:\n")
         self.model_setup.print_enumerate(output)
-        self.print_states(output)
-        self.print_evaluation(output)
-        self.print_inputs_recursively(output) # missing
