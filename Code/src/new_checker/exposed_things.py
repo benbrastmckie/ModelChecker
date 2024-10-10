@@ -451,6 +451,8 @@ class TopOperator(Operator):
 
     def find_verifiers_and_falsifiers(self, argprop):
         # B: V is the set containing just the null state and F is empty
+        # B: I think it would be good to define this proposition and refer here
+        # would be good to discuss how best to do that
         pass
 
 

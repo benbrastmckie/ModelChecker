@@ -249,45 +249,21 @@ def subsentences_of(prefix_sentence):
 ### PREFIX HELPERS ###
 
 
-
-
-# def op_left_right(tokens):
-#     """Divides whatever is inside a pair of parentheses into the left argument,
-#     right argument, and the operator."""
-#     left = []
-#     while tokens:
-#         token = tokens.pop(0)
-#         if token == "(":
-#             left.append(token)
-#             return cut_parentheses(left, tokens)
-#         elif token.isalnum() or token in {"\\top", "\\bot"}:
-#             left.append(token)
-#             if tokens:  # Ensure there are tokens left to pop for operator
-#                 operator = tokens.pop(0)
-#                 right = check_right(tokens, operator)
-#                 return operator, left, right
-#             else:
-#                 raise ValueError("Operator missing after operand")
-#         else:
-#             left.append(token)
-#     raise ValueError("Invalid expression or unmatched parentheses")
-
-def balanced_parentheses(tokens):
-    """Check if parentheses are balanced in the argument."""
-    stack = []
-    for token in tokens:
-        if token == "(":
-            stack.append(token)
-        elif token == ")":
-            if not stack:
-                return False
-            stack.pop()
-    return len(stack) == 0
-
-
 def op_left_right(tokens):
     """Divides whatever is inside a pair of parentheses into the left argument,
     right argument, and the operator."""
+
+    def balanced_parentheses(tokens):
+        """Check if parentheses are balanced in the argument."""
+        stack = []
+        for token in tokens:
+            if token == "(":
+                stack.append(token)
+            elif token == ")":
+                if not stack:
+                    return False
+                stack.pop()
+        return len(stack) == 0
 
     def check_right(tokens, operator):
         if not tokens:

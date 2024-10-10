@@ -2,7 +2,6 @@ from z3 import (
     sat,
     Solver,
     simplify,
-    z3,
 )
 
 import time
@@ -215,10 +214,11 @@ class DerivedOperator(Operator):
             )
         derived_def_num_args = len(inspect.signature(op_subclass.derived_definition).parameters)
         op_name = op_subclass.__name__
-        mismatch_arity_msg = (f"the specified arity of value {self.arity} for the DerivedOperator "
-                              f"class {op_name} does not match the number of arguments received "
-                              f"by {op_name}'s derived_definitino property "
-                              f"({derived_def_num_args}) arguments currently).")
+        mismatch_arity_msg = (
+            f"the specified arity of value {self.arity} for the DerivedOperator "
+            f"class {op_name} does not match the number of arguments received "
+            f"by {op_name}'s derived_definitino property "
+            f"({derived_def_num_args}) arguments currently).")
         assert self.arity == derived_def_num_args, mismatch_arity_msg
 
     def activate_prefix_definition(self, unactivated_prefix_def):
@@ -244,6 +244,7 @@ class DerivedOperator(Operator):
     # M: I have a new attempt at trying to get rid of the linter error; it's not implemented
     # as you've described above but I think it gets the job done (though might raise more
     # linter errors?)
+    # B: it's looking good! no more errors
     def get_derived_prefix_form(self, args):
         '''given a set of arguments, returns a prefix sentence that correctly
         puts them into the derived definition of the derived operator
@@ -270,6 +271,7 @@ class DerivedOperator(Operator):
         derived_subprops = (prop_class(pfsent, model_structure) for pfsent in prefix_def[1:])
         # NOTE: these derived subprops are not saved anywhere, so for printing purposes
         # the actual subprops inputted by the user will be used
+        # B: this would be good to DISCUSS
         operator = prefix_def[0]
         return operator.find_verifiers_and_falsifiers(*derived_subprops)
 
@@ -294,8 +296,7 @@ class OperatorCollection:
             isinstance(input, list)
             or isinstance(input, tuple)
             or isinstance(input, set)
-        ): # really any iterable. There's probably a better way to capture that
-        # B: ChatGPT didn't have any better ideas. seems nice and readable as is.
+        ):
             for operator_class in input:
                 self.add_operator(operator_class)
         elif isinstance(input, type):
@@ -442,14 +443,17 @@ class ModelStructure:
         self.poss_bits = [
             bit
             for bit in self.all_bits
-            if bool(z3_model.evaluate(model_setup.semantics.possible(bit))) # LINTER: cannot access attribute "evaluate" for class "AstVector"
+            if bool(z3_model.evaluate(model_setup.semantics.possible(bit)))
+            # LINTER: cannot access attribute "evaluate" for class "AstVector"
         ]
         self.world_bits = [
             bit
             for bit in self.poss_bits
-            if bool(z3_model.evaluate(model_setup.semantics.is_world(bit))) # LINTER: cannot access attribute "evaluate" for class "AstVector"
+            if bool(z3_model.evaluate(model_setup.semantics.is_world(bit)))
+            # LINTER: cannot access attribute "evaluate" for class "AstVector"
         ]
-        self.main_world = z3_model[model_setup.semantics.main_world] # LINTER: object of type "None" is not subscriptable
+        self.main_world = z3_model[model_setup.semantics.main_world]
+        # LINTER: object of type "None" is not subscriptable
         self.all_propositions = {}
         self.premise_propositions = [
             model_setup.proposition_class(prefix_sent, self)
@@ -601,6 +605,7 @@ class ModelStructure:
         sub_prefix_sents = prop_obj.prefix_sentence[1:]
         sub_infix_sentences = (self.infix(sub_prefix) for sub_prefix in sub_prefix_sents)
         subprops = (self.all_propositions[infix] for infix in sub_infix_sentences)
+        # LINTER: says for above: Object of type "None" is not subscriptable
         for subprop in subprops:
             self.rec_print(subprop, eval_world, indent + 1)
 
