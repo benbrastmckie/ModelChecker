@@ -199,6 +199,7 @@ class Operator:
     
 class DerivedOperator(Operator):
 
+    @staticmethod
     def derived_definition():
         pass
 
@@ -243,8 +244,8 @@ class DerivedOperator(Operator):
     # in the subclass ConditionalOperator?
     # M: we could define it as None much as we do for .name and .arity in the Operator case
     # M: I have a new attempt at trying to get rid of the linter error; it's not implemented
-    # M: as you've described above but I think it gets the job done (though might raise more
-    # M: linter errors?)
+    # as you've described above but I think it gets the job done (though might raise more
+    # linter errors?)
     def get_derived_prefix_form(self, args):
         '''given a set of arguments, returns a prefix sentence that correctly
         puts them into the derived definition of the derived operator
