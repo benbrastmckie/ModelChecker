@@ -214,25 +214,19 @@ class Defined(Proposition):
             constraints += non_null_constraints
         return constraints
 
-    # DISCUSS: is this working?
-    # B: I changed this name to avoid confusion with find_verifiers_and_falsifiers in operators
-    # M: It seems to be
     def find_proposition(self):
-        # if not(self.verifiers is None and self.falsifiers is None):
-        #     return
-        # M: not sure if the above helps
-        # B: perhaps we could raise an error if there are no verifiers or falsifiers?
-        # M: this is a remnant of the attempt explained in the long comment below
         all_bits = self.model_structure.all_bits
         model = self.model_structure.z3_model
         sem = self.semantics
         if len(self.prefix_sentence) == 1:
             atom = self.prefix_sentence[0]
             V = {bit for bit in all_bits if model.evaluate(sem.verify(bit, atom))}
+            # B: I managed to get an error here
             F = {bit for bit in all_bits if model.evaluate(sem.falsify(bit, atom))}
             return V, F
         operator, prefix_args = self.prefix_sentence[0], self.prefix_sentence[1:]
-
+        children_subprops = [Defined(arg, self.model_structure) for arg in prefix_args]
+        return operator.find_verifiers_and_falsifiers(*children_subprops)
         # # NOTE: this seems very close; just needs debugging and build prop dictionary here
         # # B: might as well add to proposition dictionary here
         # current_props = {str(p.prefix_sentence):p for p in self.model_structure.all_propositions}
@@ -243,8 +237,6 @@ class Defined(Proposition):
         #     else:
         #         children_subprops.append(Proposition(arg, self.model_structure))
 
-        children_subprops = [Defined(arg, self.model_structure) for arg in prefix_args]
-        return operator.find_verifiers_and_falsifiers(*children_subprops)
 
     def truth_value_at(self, world):
         semantics = self.model_structure.model_setup.semantics

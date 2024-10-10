@@ -262,12 +262,16 @@ def balanced_parentheses(tokens):
     return len(stack) == 0
 
 
-def left_op_right(tokens):
-    """Divides whatever is inside a pair of parentheses into the left argument,
-    right argument, and the operator."""
-    count = 0  # To track nested parentheses
-    left = []
-    operator = None
+def check_right(tokens, operator):
+    if not tokens:
+        raise ValueError(f"Expected an argument after the operator {operator}")
+    if not balanced_parentheses(tokens):
+        raise ValueError("Unbalanced parentheses")
+    return tokens  # Remaining tokens are the right argument
+
+
+def cut_parentheses(left, tokens):
+    count = 1  # To track nested parentheses
     while tokens:
         token = tokens.pop(0)
         if token == "(":
@@ -278,17 +282,29 @@ def left_op_right(tokens):
             left.append(token)
         elif count > 0:
             left.append(token)
+        else:
+            operator = token
+            right = check_right(tokens, operator)
+            return operator, left, right
+
+
+def op_left_right(tokens):
+    """Divides whatever is inside a pair of parentheses into the left argument,
+    right argument, and the operator."""
+    left = []
+    while tokens:
+        token = tokens.pop(0)
+        if token == "(":
+            left.append(token)
+            return cut_parentheses(left, tokens)
         elif token.isalnum() or token in {"\\top", "\\bot"}:
             left.append(token)
-            if not tokens:
-                raise ValueError(f"Expected an operator following {token}")
-            operator = tokens.pop(0)
-            if not tokens:
-                raise ValueError(f"Expected an argument after the operator {operator}")
-            if not balanced_parentheses(tokens):
-                raise ValueError("Unbalanced parentheses")
-            right = tokens  # Remaining tokens are the right argument
-            return operator, left, right
+            if tokens:  # Ensure there are tokens left to pop for operator
+                operator = tokens.pop(0)
+                right = check_right(tokens, operator)
+                return operator, left, right
+            else:
+                raise ValueError("Operator missing after operand")
         else:
             left.append(token)
     raise ValueError("Invalid expression or unmatched parentheses")
@@ -301,12 +317,12 @@ def parse_expression(tokens, model_setup):
         raise ValueError("Empty token list")
     token = tokens.pop(0)  # Get the next token
     if token == "(":  # Handle binary operator case (indicated by parentheses)
-        if tokens[-1] != ")":
+        closing_parentheses = tokens.pop()  # Remove the closing parenthesis
+        if closing_parentheses != ")":
             raise SyntaxError(
                 f"The sentence {tokens} is missing a closing parenthesis."
             )
-        tokens.pop()  # Remove the closing parenthesis
-        operator, left, right = left_op_right(tokens)  # Extract operator and arguments
+        operator, left, right = op_left_right(tokens)  # LINTER: "None" is not iterable
         left_arg = parse_expression(left, model_setup)  # Parse the left argument
         right_arg = parse_expression(right, model_setup)  # Parse the right argument
         return [model_setup.operators[operator], left_arg, right_arg]

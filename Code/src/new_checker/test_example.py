@@ -34,11 +34,11 @@ operators = OperatorCollection(
 )
 print("made operator collection (trivial)")
 
-premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
-conclusions = ["(\\neg B \\wedge \\neg D)"]
+# premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
+# conclusions = ["(\\neg B \\wedge \\neg D)"]
 
 premises = ["A", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
-premises = ["A", "(A \\rightarrow B)"]
+# premises = ["A", "(A \\rightarrow B)"]
 conclusions = ["\\neg B"]
 
 model_setup = ModelSetup(
@@ -62,7 +62,7 @@ model_structure = ModelStructure(model_setup)
 print("made model_structure")
 
 # TEST PRINT
-print("print all props:", model_structure.all_propositions)
+# print("print all props:", model_structure.all_propositions)
 model_structure.print_all()  
 
 # a = Defined(model_structure.all_propositions['(A \\vee B)'].prefix_sentence,model_structure)
