@@ -337,7 +337,8 @@ class ConditionalOperator(DerivedOperator):
     # M: I tried something else to deal with linter complaint, just I'm not sure how we'd push
     # derived_definition over
     # B: got it. this reads well and is really simple for the user
-    def derived_definition(self, leftarg, rightarg): # LINTER: Instance method should take 'self' as a parameter
+    # LINTER: Instance method should take 'self' as a parameter
+    def derived_definition(self, leftarg, rightarg):
         return [OrOperator, [NegOperator, leftarg], rightarg]
     
 class BiconditionalOperator(Operator):
