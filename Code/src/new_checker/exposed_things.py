@@ -320,8 +320,10 @@ class NegOperator(Operator):
 
 
 class ConditionalOperator(DerivedOperator):
+
     name = "\\rightarrow"
     arity = 2
+
     # @staticmethod # could also be defined with @classmethod, though slightly differently
     def derived_definition(self, leftarg, rightarg):
         return [OrOperator, [NegOperator, leftarg], rightarg]
@@ -355,8 +357,10 @@ class ConditionalOperator(DerivedOperator):
         # B: this seems like the best option, but definitely good to discuss (DISCUSS)
 
 class BiconditionalOperator(DerivedOperator):
+
     name = "\\leftrightarrow"
     arity = 2
+
     def derived_definition(self, leftarg, rightarg):
         right_to_left = [ConditionalOperator, leftarg, rightarg]
         left_to_right = [ConditionalOperator, rightarg, leftarg]
