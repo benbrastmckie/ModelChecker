@@ -40,6 +40,7 @@ print("made operator collection (trivial)")
 # premises = ["A", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow B)"]
 premises = ["(D \\leftrightarrow A)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
+# premises = ["(D \\leftrightarrow A)"]
 conclusions = ["\\neg B"]
 
 model_setup = ModelSetup(

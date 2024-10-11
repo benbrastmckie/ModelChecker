@@ -257,10 +257,13 @@ class DerivedOperator(Operator):
         return operator.false_at(*new_args, eval_world=eval_world)
     
     def find_verifiers_and_falsifiers(self, *argprops):
-        pfargs = [prop.prefix_sentence for prop in argprops]
-        prefix_def = self.get_derived_prefix_form(pfargs)
+        prefix_args = [prop.prefix_sentence for prop in argprops]
+        prefix_def = self.get_derived_prefix_form(prefix_args)
         prop_class, model_structure = argprops[0].__class__, argprops[0].model_structure
-        derived_subprops = (prop_class(pfsent, model_structure) for pfsent in prefix_def[1:])
+        derived_subprops = (
+            prop_class(prefix_sent, model_structure)
+            for prefix_sent in prefix_def[1:]
+        )
         # NOTE: these derived subprops are not saved anywhere, so for printing purposes
         # the actual subprops inputted by the user will be used
         # B: this would be good to DISCUSS
