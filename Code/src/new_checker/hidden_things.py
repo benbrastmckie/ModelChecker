@@ -20,6 +20,8 @@ from hidden_helpers import (
     not_implemented_string,
     pretty_set_print,
     complexity_of,
+    flatten,
+
 )
 
 import sys
@@ -111,6 +113,7 @@ class Operator:
 
     name = None
     arity = None
+    primitive = True # a small piece of the avoid DefinedOperator recursion
 
     def __init__(self, semantics):
         if self.__class__ == Operator:
@@ -197,30 +200,49 @@ class Operator:
 # isn't exactly straightforward)
     
 class DefinedOperator(Operator):
+    primitive = False
 
-    # @staticmethod
-    # def derived_definition(leftarg, rightarg):
-    def derived_definition(self, leftarg, rightarg):
+    def derived_definition(self):
         return []
 
-    def __init__(self, semantics):
+    def __init__(self, semantics, loop_check=True):
         super().__init__(semantics)
+
+        # check self is an arg of derived_definition
         op_subclass = self.__class__
-        # if len(inspect.signature(op_subclass.derived_definition).parameters) == 0:
-        if len(inspect.signature(self.derived_definition).parameters) == 0:
+        args_without_self = inspect.signature(self.derived_definition).parameters # parameters besides self in derived_definition
+        args_with_self = inspect.signature(op_subclass.derived_definition).parameters # params above plus 'self'
+        if 'self' not in args_with_self:
+            raise ValueError(f"self should be an argument of {op_subclass.__name__}'s "
+                             "derived_definition method (and it should go unused).")
+        # from now on, can assume 'self' is an argument of derived_definition. 
+
+        # check if derived_definition is implemented (ie is not default)
+        elif len(args_with_self) == 1 and 'self' in args_with_self:
             raise NameError(
-                f"Your derived operator class {op_subclass} is missing a derived_definition. "
-                f"Please add it as a class property of {op_subclass}."
-            )
-        # derived_def_num_args = len(inspect.signature(op_subclass.derived_definition).parameters)
-        derived_def_num_args = len(inspect.signature(self.derived_definition).parameters)
+                f"Derived operator class {op_subclass.__name__} does not have an implemented "
+                f"derived_definition method. ")
+        
+        # check for arity match between self.arity and derived_def num args (excluding self)
+        derived_def_num_args = len(args_without_self)
         op_name = op_subclass.__name__
         mismatch_arity_msg = (
-            f"the specified arity of value {self.arity} for the DerivedOperator "
-            f"class {op_name} does not match the number of arguments received "
-            f"by {op_name}'s derived_definitino property "
-            f"({derived_def_num_args}) arguments currently).")
+            f"the specified arity of value {self.arity} for the DerivedOperator class {op_name} "
+            f"does not match the number of arguments (excluding 'self') for {op_name}'s derived_"
+            f"definition property ({derived_def_num_args} non-self arguments currently.)")
         assert self.arity == derived_def_num_args, mismatch_arity_msg
+
+        # check for DefinedOperators defined in terms of each other
+        sample_derived_def = self.derived_definition(*(derived_def_num_args * ("a",)))
+        ops_in_def = [elem for elem in flatten(sample_derived_def) if isinstance(elem, type)]
+        self.defined_operators_in_definition = [op for op in ops_in_def if not op.primitive]
+        if loop_check:
+            for opclass in self.defined_operators_in_definition:
+                if self.__class__ in opclass('dummy sem', False).defined_operators_in_definition:
+                    op1, op2 = op_subclass.__name__, opclass.__name__
+                    errmsg = (f"{op1} and {op2} are defined in terms of each other. Please "
+                              f"Please edit their derived_definition methods to avoid this. ")
+                    raise RecursionError(errmsg)
 
     def activate_prefix_definition(self, unactivated_prefix_def):
         '''Helper for get_derived_prefix_form. Takes a sentence in prefix notation
@@ -248,13 +270,15 @@ class DefinedOperator(Operator):
         args, eval_world = args_and_eval_world[0:-1], args_and_eval_world[-1]
         prefix_def = self.get_derived_prefix_form(args)
         operator, new_args = prefix_def[0], prefix_def[1:]
-        return operator.true_at(*new_args, eval_world=eval_world)
+        print(operator)
+        print(prefix_def)
+        return operator.true_at(*new_args, eval_world)
     
     def false_at(self, *args_and_eval_world):
         args, eval_world = args_and_eval_world[0:-1], args_and_eval_world[-1]
         prefix_def = self.get_derived_prefix_form(args)
         operator, new_args = prefix_def[0], prefix_def[1:]
-        return operator.false_at(*new_args, eval_world=eval_world)
+        return operator.false_at(*new_args, eval_world)
     
     def find_verifiers_and_falsifiers(self, *argprops):
         prefix_args = [prop.prefix_sentence for prop in argprops]
@@ -296,7 +320,7 @@ class OperatorCollection:
 
     def __getitem__(self, value):
         return self.operator_classes_dict[value]
-
+    
 
 class ModelSetup:
     """Stores what is needed to find a Z3 model and passed to ModelStructure."""
