@@ -369,6 +369,12 @@ class BiconditionalOperator(Operator):
     name = "\\leftrightarrow"
     arity = 2
 
+    # # NOTE: four try
+    # def derived_definition(self, leftarg, rightarg):
+    #     right_to_left = [ConditionalOperator, leftarg, rightarg]
+    #     left_to_right = [ConditionalOperator, rightarg, leftarg]
+    #     return [AndOperator, right_to_left, left_to_right]
+
     # NOTE: third try
     def derived_definition(self, leftarg, rightarg):
         neg_left = [NegOperator, leftarg]
