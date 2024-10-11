@@ -227,8 +227,6 @@ class DefinedOperator(Operator):
         args, eval_world = args_and_eval_world[0:-1], args_and_eval_world[-1]
         prefix_def = self.get_derived_prefix_form(args)
         operator, new_args = prefix_def[0], prefix_def[1:]
-        print(operator)
-        print(prefix_def)
         return operator.true_at(*new_args, eval_world)
     
     def false_at(self, *args_and_eval_world):
@@ -241,10 +239,7 @@ class DefinedOperator(Operator):
         prefix_args = [prop.prefix_sentence for prop in argprops]
         prefix_def = self.get_derived_prefix_form(prefix_args)
         prop_class, model_structure = argprops[0].__class__, argprops[0].model_structure
-        derived_subprops = (
-            prop_class(prefix_sent, model_structure)
-            for prefix_sent in prefix_def[1:]
-        )
+        derived_subprops = (prop_class(pfsent, model_structure) for pfsent in prefix_def[1:])
         operator = prefix_def[0]
         return operator.find_verifiers_and_falsifiers(*derived_subprops)
 
