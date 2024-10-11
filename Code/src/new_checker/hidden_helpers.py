@@ -340,3 +340,14 @@ def not_implemented_string(cl_name):
         f"for {cl_name.lower()}s. The {cl_name} "
         "class should never be instantiated."
     )
+
+
+
+def flatten(L_of_Ls):
+    flattened = []
+    for elem in L_of_Ls:
+        if not isinstance(elem, list):
+            flattened.append(elem)
+        if isinstance(elem, list):
+            flattened.extend(flatten(elem))
+    return flattened

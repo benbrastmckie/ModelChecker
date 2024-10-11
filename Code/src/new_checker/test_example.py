@@ -39,11 +39,11 @@ print("made operator collection (trivial)")
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
 
 # premises = ["A", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
-# premises = ["A", "(A \\rightarrow B)"]
-premises = ["(D \\leftrightarrow A)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
+premises = ["A", "(A \\rightarrow B)"]
+# premises = ["A", "(A \\leftrightarrow B)"]
+# premises = ["(D \\leftrightarrow A)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["(D \\leftrightarrow A)"]
 conclusions = ["\\neg B"]
-
 model_setup = ModelSetup(
     semantics,
     operators,
@@ -67,7 +67,7 @@ print("made model_structure")
 # TEST PRINT
 model_structure.print_all()  
 
-# print("print all props:", model_structure.all_propositions)
+print("print all props:", model_structure.all_propositions)
 
 # COMPLEXITY
 # example = "((A \\rightarrow (B \\wedge C)) \\wedge (A \\rightarrow (B \\wedge C)))"

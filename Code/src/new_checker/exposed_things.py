@@ -319,12 +319,9 @@ class ConditionalOperator(DefinedOperator):
     arity = 2
 
     def derived_definition(self, leftarg, rightarg):
-        return [OrOperator, [NegOperator, leftarg], rightarg]
+        # M: to see a definitional loop, uncomment line below:
         # return [BiconditionalOperator, [NegOperator, leftarg], rightarg]
-        # TODO: What if definitional loops? What does the error look like?
-        # currently opaque
-        # ERROR: return operator.true_at(*new_args, eval_world=eval_world)
-        # question about star arguments in defined operators different than primitive operators
+        return [OrOperator, [NegOperator, leftarg], rightarg]
 
 
 class BiconditionalOperator(DefinedOperator):
@@ -344,9 +341,7 @@ class TopOperator(Operator):
     name = "\\top"
     arity = 0
 
-    def true_at(
-        self, no_args, eval_world
-    ):  # for consistency with recursive call in Semantics class
+    def true_at(self, no_args, eval_world):  # for consistency with recursive call in Semantics
         """doc string place holder"""
         N = self.semantics.N
         x = z3.BitVec("top_x", N)
