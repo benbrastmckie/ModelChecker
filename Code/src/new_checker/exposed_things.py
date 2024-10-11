@@ -319,15 +319,6 @@ class NegOperator(Operator):
         return (Y_F, Y_V)
 
 
-# B: could we also define a subclass of Operator with the same name ConditionalOperator?
-# even if we have to change to a different name, it could be nice to do some benchmarking
-# in order to compare the two. it might be even better to compare defined and primitive
-# constitutive and counterfactual operators since they have a greater chance of showing
-# differences due to their complexity. for now I think the below looks great!
-# M: For sure—it wouldn't be that hard at all to define a primitive ConditionalOperator! 
-# just we would have to have a different .name for them (or should we? I'm not sure it'd end
-# up mattering since you're never using them at the same time presumably—only the class
-# name needs to be different)
 class ConditionalOperator(DerivedOperator):
     name = "\\rightarrow"
     arity = 2
@@ -339,8 +330,8 @@ class ConditionalOperator(DerivedOperator):
         # M: attempted to fix that?
         # LINTER: Ok so now it says: Method "derived_definition" overrides class "DerivedOperator" in an incompatible manner 
         # Return type mismatch: base method returns "None", override returns type "list[Unknown]"
-        # B: I added a type hint to the definition of derived_definition in ConditionalOperator
-        # this seems to answer all the linter errors once I added 'self' which is nice to stay
+        # B: I returned an empty list in the definition of derived_definition in ConditionalOperator
+        # and this seems to answer all the linter errors once I added 'self' which is nice to stay
         # consistent
 
         return [OrOperator, [NegOperator, leftarg], rightarg]
@@ -382,48 +373,6 @@ class BiconditionalOperator(Operator):
         both_true = [AndOperator, leftarg, rightarg]
         both_false = [AndOperator, neg_left, neg_right]
         return [OrOperator, both_true, both_false]
-
-    # # NOTE: second try
-    # def true_at(self, leftarg, rightarg, eval_world):
-    #     """doc string place holder"""
-    #     sem = self.semantics
-    #     return sem.false_at(leftarg, eval_world) == sem.true_at(rightarg, eval_world)
-    #
-    # def false_at(self, leftarg, rightarg, eval_world):
-    #     """doc string place holder"""
-    #     sem = self.semantics
-    #     return sem.true_at(leftarg, eval_world) != sem.false_at(rightarg, eval_world)
-    #
-    # # B: is there a better way to do this?
-    # def find_verifiers_and_falsifiers(self, leftprop, rightprop):
-    #     Y_V, Y_F = leftprop.find_proposition()
-    #     Z_V, Z_F = rightprop.find_proposition()
-    #     true_true = self.product(Y_V, Z_V)
-    #     true_false = self.product(Y_V, Z_F)
-    #     false_true = self.product(Y_F, Z_V)
-    #     false_false = self.product(Y_F, Z_F)
-    #     return (self.coproduct(true_true, false_false), self.product(true_false, false_true))
-
-    # # NOTE: first try
-    # def true_at(self, leftarg, rightarg, eval_world):
-    #     sem = self.semantics
-    #     left_implication = [ImplicationOperator(sem), leftarg, rightarg]
-    #     right_implication = [ImplicationOperator(sem), rightarg, leftarg]
-    #     return AndOperator(sem).true_at(left_implication, right_implication, eval_world)
-    # 
-    # def false_at(self, leftarg, rightarg, eval_world):
-    #     sem = self.semantics
-    #     left_implication = [ImplicationOperator(sem), leftarg, rightarg]
-    #     right_implication = [ImplicationOperator(sem), rightarg, leftarg]
-    #     return AndOperator(sem).false_at(left_implication, right_implication, eval_world)
-    # 
-    # def find_verifiers_and_falsifiers(self, leftprop, rightprop):
-    #     sem = self.semantics
-    #     prop_class, model_structure = leftprop.__class__, leftprop.model_structure
-    #     left_prefix, right_prefix = leftprop.prefix_sentence, rightprop.prefix_sentence
-    #     left_impl = prop_class([ImplicationOperator(sem), left_prefix, right_prefix], model_structure)
-    #     right_impl = prop_class([ImplicationOperator(sem), right_prefix, left_prefix], model_structure)
-    #     return AndOperator(sem).find_verifiers_and_falsifiers(left_impl, right_impl)
 
 
 class TopOperator(Operator):
