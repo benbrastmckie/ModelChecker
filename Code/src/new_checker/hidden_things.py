@@ -203,8 +203,6 @@ class DerivedOperator(Operator):
     def derived_definition(self, leftarg, rightarg):
         return []
 
-    # derived_definition = None
-
     def __init__(self, semantics):
         super().__init__(semantics)
         op_subclass = self.__class__
@@ -225,10 +223,10 @@ class DerivedOperator(Operator):
         assert self.arity == derived_def_num_args, mismatch_arity_msg
 
     def activate_prefix_definition(self, unactivated_prefix_def):
-        '''helper for get_derived_prefix_form. Takes a sentence in prefix notation
+        '''Helper for get_derived_prefix_form. Takes a sentence in prefix notation
         returned by the derived_definition property of the DerivedOperator subclass
         and returns one with every Operator in that definition instantiated (since
-        in the derived_definition operators are defined without instantiation)'''
+        in the derived_definition operators are defined without an instantiation.)'''
         new_prefix_def = []
         for elem in unactivated_prefix_def:
             if isinstance(elem, type):
@@ -239,15 +237,6 @@ class DerivedOperator(Operator):
                 new_prefix_def.append(elem)
         return new_prefix_def
 
-    # B: this seems to work but i'm still getting the linter error and I'm wondering
-    # if there is a nice way to define derived_definition in this DerivedOperator class
-    # and then make the statement it would return the same as an attribute of method given
-    # in the subclass ConditionalOperator?
-    # M: we could define it as None much as we do for .name and .arity in the Operator case
-    # M: I have a new attempt at trying to get rid of the linter error; it's not implemented
-    # as you've described above but I think it gets the job done (though might raise more
-    # linter errors?)
-    # B: it's looking good! no more errors
     def get_derived_prefix_form(self, args):
         '''given a set of arguments, returns a prefix sentence that correctly
         puts them into the derived definition of the derived operator
