@@ -38,7 +38,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] sentence letters extraction methods
     - [x] prefix to infix methods
     - [x] solver
-2. [.] Semantics class:
+2. [x] Semantics classes:
   - [x] attributes for Z3 primitives:
     - [x] verify
     - [x] falsify
@@ -62,7 +62,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] verifiers for a sentence
     - [x] falsify for a sentence
     - [x] state fusion
-3. [ ] An Operator class for each primitive operator:
+3. [.] An Operator class for each primitive operator:
   - [x] the Operator class itself
     - [x] attribute for arity
     - [x] attribute for name
@@ -75,36 +75,37 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [.] operators to implement:
     - [x] extensional
     - [.] extremal
+      - define extremal elements in `hidden_things.py`
+      - define two primitive extremal operators in `exposed_things.py`
     - [ ] counterfactual
     - [ ] modal
+      - defined in terms of counterfactual and top
     - [ ] constitutive
-3. [ ] Proposition class:
-  - [ ] syntactic attributes:
+      - define primitive identity operator
+      - define essence, ground, and relevance in terms of identity
+4. [:] Proposition class:
+  - [x] syntactic attributes:
     - [x] prefix sentence
     - [x] infix sentence (called name)
-    - complexity
-    - main operator
-  - [ ] semantic attributes:
-    - [x] verifier bits
-    - [x] falsifier bits
-    - truth world bits
-    - alt world bit dictionary
-  - [ ] printing attributes:
-    - verifier states
-    - falsifier states
-    - truth world states
-    - alt world state dictionary
-5. [ ] ModelStructure class:
-  - [ ] arguments: ModelSetup instance
-  - attributes:
-    - [ ] resulting Z3 model including:
-      - [ ] timeout value
-      - [ ] model status
-      - [ ] Z3 model
-      - [ ] model runtime
-    - dictionary for all propositions for all subsentences
-  - general methods for printing
-  - general methods for saving output 
+    - [x] complexity
+  - [:] semantic attributes:
+    - [x] `verifiers`
+    - [x] `falsifiers`
+    - [x] `truth_at`
+    - [ ] `alt_worlds` dictionary
+5. [:] ModelStructure class:
+  - [x] arguments: ModelSetup instance
+  - [x] attributes:
+    - [x] resulting Z3 model including:
+      - [x] timeout value
+      - [x] model status
+      - [x] Z3 model
+      - [x] model runtime
+    - [x] dictionary for all propositions for all subsentences
+  - [x] general methods for printing
+  - [ ] general methods for saving output 
+6. [ ] error reporting
+  - [ ] definitional loops
 
 ## Patch
 

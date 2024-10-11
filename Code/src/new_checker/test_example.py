@@ -1,12 +1,12 @@
 # B: when we develop the API, these will reference the users script
 from exposed_things import (
     BotOperator,
-    Defined,
+    Proposition,
     Semantics,
     AndOperator,
     NegOperator,
     OrOperator,
-    Defined,
+    Proposition,
     TopOperator,
     ConditionalOperator,
     BiconditionalOperator,
@@ -19,6 +19,7 @@ from hidden_things import(
     ModelStructure,
     OperatorCollection,
 )
+from hidden_helpers import complexity_of
 
 semantics = Semantics(3)
 print("made semantics")
@@ -48,7 +49,7 @@ model_setup = ModelSetup(
     operators,
     premises,
     conclusions,
-    Defined,
+    Proposition,
     max_time=1,
     contingent=False,
     non_null=True,
@@ -64,8 +65,14 @@ model_structure = ModelStructure(model_setup)
 print("made model_structure")
 
 # TEST PRINT
-# print("print all props:", model_structure.all_propositions)
 model_structure.print_all()  
+
+# print("print all props:", model_structure.all_propositions)
+
+# COMPLEXITY
+# example = "((A \\rightarrow (B \\wedge C)) \\wedge (A \\rightarrow (B \\wedge C)))"
+# complexity = complexity_of(model_setup.prefix(example))
+# print(f"{example} has complexity {complexity}")
 
 # a = Defined(model_structure.all_propositions['(A \\vee B)'].prefix_sentence,model_structure)
 # print(str(a))
