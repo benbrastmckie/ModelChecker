@@ -43,6 +43,7 @@ class PropositionDefaults:
         self.disjoint = model_structure.model_setup.disjoint
         self.print_impossible = model_structure.model_setup.print_impossible
         self.model_structure.all_propositions[self.name] = self
+        self.verifiers, self.falsifiers = None, None # to avoid linter errors in print_proposition
         try:
             hash(self)
         except:
@@ -60,11 +61,15 @@ class PropositionDefaults:
         return False
 
     
-    # M: eventually, we need to add a condition on unary or binary semantics
+    # M: eventually, we need to add a condition on unilateral or bilateral semantics
     # B: not sure I follow? say more?
+    # M: sorry meant unilateral and bilateral, not unary and binary (edited to reflect)
+    # so that one set vs two is printed (one for unilateral, two for bilateral)
     def print_proposition(self, eval_world, indent_num=0):
         N = self.model_structure.model_setup.semantics.N
         # Linter: cannot access attribute "truth_value_at" for class "Proposition*"
+        # M: the easiest solution would be to move verifiers to the init of this
+        # or have a dummy set of verifiers here
         truth_value = self.truth_value_at(eval_world) 
         possible = self.model_structure.model_setup.semantics.possible
         z3_model = self.model_structure.z3_model
@@ -113,13 +118,11 @@ class Operator:
 
     name = None
     arity = None
-    primitive = True # a small piece of the avoid DefinedOperator recursion
+    primitive = True # a small piece of the avoid DefinedOperator recursion soln
 
     def __init__(self, semantics):
         if self.__class__ == Operator:
-            # B: do we want the class name?
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
-            # raise NotImplementedError((not_implemented_string(self.__class__)))
         if self.name is None or self.arity is None:
             op_class = self.__class__.__name__
             raise NameError(
@@ -152,52 +155,6 @@ class Operator:
         """union closed under pairwise fusion"""
         A_U_B = set_A.union(set_B)
         return A_U_B.union(self.product(set_A, set_B))
-
-# NOTE: moved this to consolidate
-# M: I thought I'd give a shot defining operators in terms of other operators.
-# It is possible, but it maybe isn't as clean as would be nice. 
-# I think it would be possible to define a subclass of the Operator class
-# called DerivedOperator, and operators defined in terms of others would
-# be subclasses of that class. Then in hidden_stuff we'd deal with all the
-# code that's kind of messy below—maybe a user would only need to specify
-# something along the lines of e.g. A -> B := ~A v B, and the rest would automatically
-# be filled out
-
-# B: I like the DerivedOperator class idea, but feel this should be purely syntactic
-# at least that is how it is in logic where A -> B := ~A v B this means that the LHS
-# abbreviates the RHS. it is odd to hid the conversion in the semantics so that
-# A -> B := ~A v B means that the LHS will be interpreted as if it were the RHS.
-# With that said, using python does open new possibilities that might not be so bad
-# to explore. However, there is another reason to avoid defined operators which is
-# that it is good for the semantics clause to be as human intelligible and easy to
-# motivate as possible. it also doesn't need to take more code (see below)
-# M: Hey, sorry I merged and saw the changes. I figured out a way to make the DerivedOperator
-# class that's a lot cleaner on the user—all the need to do is define a (lambda) function
-# see below (i did that before seeing these comments). Let me know what you think
-# (doesn't have to be a lambda function, I just like them (as you may have noticed by now lol))
-
-# M: @B, this is the DerivedOperator class that hides all of the redefining stuff
-# B: I was thinking more about this class and change my mind that it should be syntactic.
-# I like the idea that defining A -> B := ~A v B means that the RHS will be interpreted
-# as if it were the RHS. this permits distinct syntactic expressions to have identical
-# semantic clauses. the alternative is to eliminate one expression for another which 
-# would make printing the prefix/infix sentence a little odd since if you feed it a 
-# premise like A -> B, you'd expect this to be printed out, not ~A v B. 
-    # M: This is what happens under the current implementation—ie A and B are printed for A -> B
-# B: I guess one could
-# store the original prefix sentence, then convert to its definition using that to find
-# find the z3 constraints, then when it comes time to print, process the original?
-    # M: I think that's basically what ends up happening here
-# B: this more or less amounts to the more purely semantic approach here. the only cost is that
-# whereas in logic a defined symbol is strictly speaking excluded from the object language
-# here we have defined operators as syntactic primitives with derived semantic clauses.
-    # M: ah I see—so you're considering the object language to be everything the user interacts
-    # with? 
-# in any case, I think this is a reasonable way to proceed, though perhaps worth thinking
-# what a purely syntactic approach would look like.
-# M: Good to DISCUSS on Friday—to me it seems the current approach is purely syntactic though
-# I think I'm not understanding the issue fully (also it doesn't help that the code below
-# isn't exactly straightforward)
     
 class DefinedOperator(Operator):
     primitive = False
