@@ -332,19 +332,16 @@ class ConditionalOperator(DerivedOperator):
     name = "\\rightarrow"
     arity = 2
 
-    # B: this is really clean and nice. I'm wondering if derived_definition can
-    # be pushed to DerivedOperator? might help with the linter error as well?
-    # M: I tried something else to deal with linter complaint, just I'm not sure how we'd push
-    # derived_definition over
-    # B: why isn't self occur in the method below?
-
-    @staticmethod # could also be defined with @classmethod, though slightly differently
-    def derived_definition(leftarg, rightarg):
+    # @staticmethod # could also be defined with @classmethod, though slightly differently
+    def derived_definition(self, leftarg, rightarg):
 
         # M: hmm that's odd, this shouldn't be an instance method
         # M: attempted to fix that?
         # LINTER: Ok so now it says: Method "derived_definition" overrides class "DerivedOperator" in an incompatible manner 
         # Return type mismatch: base method returns "None", override returns type "list[Unknown]"
+        # B: I added a type hint to the definition of derived_definition in ConditionalOperator
+        # this seems to answer all the linter errors once I added 'self' which is nice to stay
+        # consistent
 
         return [OrOperator, [NegOperator, leftarg], rightarg]
 

@@ -198,21 +198,24 @@ class Operator:
     
 class DerivedOperator(Operator):
 
-    @staticmethod
-    def derived_definition(leftarg, rightarg):
-        pass
+    # @staticmethod
+    # def derived_definition(leftarg, rightarg):
+    def derived_definition(self, leftarg, rightarg):
+        return []
 
     # derived_definition = None
 
     def __init__(self, semantics):
         super().__init__(semantics)
         op_subclass = self.__class__
-        if len(inspect.signature(op_subclass.derived_definition).parameters) == 0:
+        # if len(inspect.signature(op_subclass.derived_definition).parameters) == 0:
+        if len(inspect.signature(self.derived_definition).parameters) == 0:
             raise NameError(
                 f"Your derived operator class {op_subclass} is missing a derived_definition. "
                 f"Please add it as a class property of {op_subclass}."
             )
-        derived_def_num_args = len(inspect.signature(op_subclass.derived_definition).parameters)
+        # derived_def_num_args = len(inspect.signature(op_subclass.derived_definition).parameters)
+        derived_def_num_args = len(inspect.signature(self.derived_definition).parameters)
         op_name = op_subclass.__name__
         mismatch_arity_msg = (
             f"the specified arity of value {self.arity} for the DerivedOperator "
