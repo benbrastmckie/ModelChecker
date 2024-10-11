@@ -68,19 +68,6 @@ def int_to_binary(integer, number):
     padding = number - len(binary_str)  # Calculate padding
     return '#b' + '0' * padding + binary_str
 
-# B: I replaced the below with above
-# def int_to_binary(integer, number, backwards_binary_str = ''):
-#     '''converts a #x string to a #b string. follows the first algorithm that shows up on google
-#     when you google how to do this
-#     used in bitvec_to_substates'''
-#     rem = integer%2
-#     new_backwards_str = backwards_binary_str + str(rem)
-#     if integer//2 == 0: # base case: we've reached the end
-#         remaining_0s_to_tack_on = number - len(new_backwards_str) # to fill in the zeroes
-#         return '#b' + remaining_0s_to_tack_on * '0' + new_backwards_str[::-1]
-#     new_int = integer//2
-#     return int_to_binary(new_int, number, new_backwards_str)
-
 
 def index_to_substate(index):
     '''
@@ -96,13 +83,6 @@ def index_to_substate(index):
     used in bitvec_to_substates
     '''
     number = index + 1 # because python indices start at 0
-    # letter_dict = {1:'a', 2:'b', 3:'c', 4:'d', 5:'e', 6:'f', 7:'g', 8:'h',
-    #                9:'i', 10:'j', 11:'k', 12:'l', 13:'m', 14:'n', 15:'o',
-    #                16:'p', 17:'q', 18:'r', 19:'s', 20:'t', 21:'u', 22:'v',
-    #                23:'w', 24:'x', 25:'y', 26:'z'}
-    # letter = letter_dict[number%26]
-    # could be make less hard-code-y
-    # but this makes it clearer and more intuitive what we want to happen
     alphabet = string.ascii_lowercase  # 'abcdefghijklmnopqrstuvwxyz'
     letter = alphabet[number % 26 - 1]  # Get corresponding letter
     return ((number//26) + 1) * letter
