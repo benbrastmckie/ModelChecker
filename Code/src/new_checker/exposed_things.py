@@ -322,9 +322,9 @@ class NegOperator(Operator):
 class ConditionalOperator(DerivedOperator):
     name = "\\rightarrow"
     arity = 2
-
     # @staticmethod # could also be defined with @classmethod, though slightly differently
     def derived_definition(self, leftarg, rightarg):
+        return [OrOperator, [NegOperator, leftarg], rightarg]
 
         # M: hmm that's odd, this shouldn't be an instance method
         # M: attempted to fix that?
@@ -333,8 +333,6 @@ class ConditionalOperator(DerivedOperator):
         # B: I returned an empty list in the definition of derived_definition in ConditionalOperator
         # and this seems to answer all the linter errors once I added 'self' which is nice to stay
         # consistent
-
-        return [OrOperator, [NegOperator, leftarg], rightarg]
 
     # M: seems that to avoid the linter issues there are a couple solns:
         # 1. put a decorator on top of the definition (liek @staticmethod or @classmethod). 
@@ -356,23 +354,13 @@ class ConditionalOperator(DerivedOperator):
         # good for—the semantics—is not needed for the derived definitions
         # B: this seems like the best option, but definitely good to discuss (DISCUSS)
 
-class BiconditionalOperator(Operator):
+class BiconditionalOperator(DerivedOperator):
     name = "\\leftrightarrow"
     arity = 2
-
-    # # NOTE: four try
-    # def derived_definition(self, leftarg, rightarg):
-    #     right_to_left = [ConditionalOperator, leftarg, rightarg]
-    #     left_to_right = [ConditionalOperator, rightarg, leftarg]
-    #     return [AndOperator, right_to_left, left_to_right]
-
-    # NOTE: third try
     def derived_definition(self, leftarg, rightarg):
-        neg_left = [NegOperator, leftarg]
-        neg_right = [NegOperator, rightarg]
-        both_true = [AndOperator, leftarg, rightarg]
-        both_false = [AndOperator, neg_left, neg_right]
-        return [OrOperator, both_true, both_false]
+        right_to_left = [ConditionalOperator, leftarg, rightarg]
+        left_to_right = [ConditionalOperator, rightarg, leftarg]
+        return [AndOperator, right_to_left, left_to_right]
 
 
 class TopOperator(Operator):
@@ -404,7 +392,7 @@ class TopOperator(Operator):
     def find_verifiers_and_falsifiers(self, argprop):
         # B: V is the set containing just the null state and F is empty
         # B: I think it would be good to define this proposition and refer here
-        # would be good to discuss how best to do that
+        # would be good to DISCUSS how best to do that
         pass
 
 
