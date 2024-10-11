@@ -197,7 +197,7 @@ def all_sentence_letters(prefix_sentences):
         for sentence_letter in sentence_letters_in_input:
             sentence_letters.add(sentence_letter)
     return list(sentence_letters)
-    # sort just to make every output the same, given sets aren't hashable
+    # TODO: sort just to make every output the same, given sets aren't hashable
 
 
 def repeats_removed(sentences):  # NOTE: sentences are unhashable so can't use set()
