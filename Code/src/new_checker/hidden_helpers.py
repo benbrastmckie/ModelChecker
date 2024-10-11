@@ -226,6 +226,14 @@ def subsentences_of(prefix_sentence):
     return progress
 
 
+def complexity_of(prefix_sentence):
+    count = 0
+    if len(prefix_sentence) > 1:
+        count += 1
+        for argument in prefix_sentence[1:]:
+            count += complexity_of(argument)
+    return count
+
 ### PREFIX HELPERS ###
 
 

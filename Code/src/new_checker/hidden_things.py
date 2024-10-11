@@ -19,20 +19,20 @@ from hidden_helpers import (
     int_to_binary,
     not_implemented_string,
     pretty_set_print,
-
-
+    complexity_of,
 )
 
 import sys
 
-class Proposition:
+class PropositionDefaults:
     """Defaults inherited by every proposition."""
 
     def __init__(self, prefix_sentence, model_structure):
-        if self.__class__ == Proposition:
+        if self.__class__ == PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
         self.prefix_sentence = prefix_sentence
-        self.name = model_structure.infix(self.prefix_sentence)
+        self.name = model_structure.infix(prefix_sentence)
+        self.complexity = complexity_of(prefix_sentence)
         self.model_structure = model_structure
         self.N = model_structure.N
         self.semantics = model_structure.model_setup.semantics
@@ -44,7 +44,7 @@ class Proposition:
         try:
             hash(self)
         except:
-            type(self).__hash__ = lambda self: Proposition.__hash__(self)
+            type(self).__hash__ = lambda self: PropositionDefaults.__hash__(self)
 
     def __repr__(self):
         return self.name
@@ -53,7 +53,7 @@ class Proposition:
         return hash(self.name)
 
     def __eq__(self, other):
-        if isinstance(other, Proposition):
+        if isinstance(other, PropositionDefaults):
             return self.name == other.name
         return False
 
@@ -196,7 +196,7 @@ class Operator:
 # I think I'm not understanding the issue fully (also it doesn't help that the code below
 # isn't exactly straightforward)
     
-class DerivedOperator(Operator):
+class DefinedOperator(Operator):
 
     # @staticmethod
     # def derived_definition(leftarg, rightarg):
@@ -242,7 +242,7 @@ class DerivedOperator(Operator):
         puts them into the derived definition of the derived operator
         returns a sentence in prefix notation (list of AtomSorts and Operator instances)'''
         unact_prefix_def = self.derived_definition(*args)
-        return DerivedOperator.activate_prefix_definition(self, unact_prefix_def)
+        return DefinedOperator.activate_prefix_definition(self, unact_prefix_def)
     
     def true_at(self, *args_and_eval_world):
         args, eval_world = args_and_eval_world[0:-1], args_and_eval_world[-1]
@@ -264,9 +264,6 @@ class DerivedOperator(Operator):
             prop_class(prefix_sent, model_structure)
             for prefix_sent in prefix_def[1:]
         )
-        # NOTE: these derived subprops are not saved anywhere, so for printing purposes
-        # the actual subprops inputted by the user will be used
-        # B: this would be good to DISCUSS
         operator = prefix_def[0]
         return operator.find_verifiers_and_falsifiers(*derived_subprops)
 

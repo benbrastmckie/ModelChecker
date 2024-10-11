@@ -12,8 +12,8 @@ import z3
 # NOTE: go in API
 from hidden_things import (
     Operator,
-    DerivedOperator,
-    Proposition,
+    DefinedOperator,
+    PropositionDefaults,
 )
 
 # NOTE: go in API
@@ -143,7 +143,7 @@ class Semantics:
         return operator.false_at(*args, eval_world=eval_world)
 
 
-class Defined(Proposition):
+class Proposition(PropositionDefaults):
     """Defines the proposition assigned to the sentences of the language.
     all user has to keep for their own class is super().__init__ and super().__poster_init__
     in the __init__ method.
@@ -221,13 +221,12 @@ class Defined(Proposition):
         if len(self.prefix_sentence) == 1:
             atom = self.prefix_sentence[0]
             V = {bit for bit in all_bits if model.evaluate(sem.verify(bit, atom))}
-            # B: I managed to get an error here
             F = {bit for bit in all_bits if model.evaluate(sem.falsify(bit, atom))}
             return V, F
         operator, prefix_args = self.prefix_sentence[0], self.prefix_sentence[1:]
-        children_subprops = [Defined(arg, self.model_structure) for arg in prefix_args]
+        children_subprops = [Proposition(arg, self.model_structure) for arg in prefix_args]
         return operator.find_verifiers_and_falsifiers(*children_subprops)
-        # # NOTE: this seems very close; just needs debugging and build prop dictionary here
+        # # DISCUSS: this seems very close; just needs debugging and build prop dictionary here
         # # B: might as well add to proposition dictionary here
         # current_props = {str(p.prefix_sentence):p for p in self.model_structure.all_propositions}
         # children_subprops = []
@@ -244,16 +243,11 @@ class Defined(Proposition):
         for ver_bit in self.verifiers:
             if z3_model.evaluate(semantics.is_part_of(ver_bit, world)):
                 return True
-        return False
-        # DISCUSS: I tried to add this code but ran into trouble
-        # # M: this for loop was in old def of truth_value_at. Is it still necessary?
-        # # B: i was worried about it assuming a sentence is false just because
-        # # it didn't find a verifier. now it raises an error if no ver or fal bits 
-        # for fal_bit in self.verifiers:
-        #     if z3_model.evaluate(semantics.is_part_of(fal_bit, world)):
-        #         return False
-        # # B: what should 'world' be to print as a state?
-        # raise ValueError(f"The world {world} has no verifier or falsifier for {self.name}")
+        # NOTE: this checks that there is a verifier or falsifier
+        for fal_bit in self.falsifiers:
+            if z3_model.evaluate(semantics.is_part_of(fal_bit, world)):
+                return False
+        raise ValueError(f"The world {world} has no verifier or falsifier for {self.name}")
 
 
 class AndOperator(Operator):
@@ -319,44 +313,21 @@ class NegOperator(Operator):
         return (Y_F, Y_V)
 
 
-class ConditionalOperator(DerivedOperator):
+class ConditionalOperator(DefinedOperator):
 
     name = "\\rightarrow"
     arity = 2
 
-    # @staticmethod # could also be defined with @classmethod, though slightly differently
     def derived_definition(self, leftarg, rightarg):
         return [OrOperator, [NegOperator, leftarg], rightarg]
+        # return [BiconditionalOperator, [NegOperator, leftarg], rightarg]
+        # TODO: What if definitional loops? What does the error look like?
+        # currently opaque
+        # ERROR: return operator.true_at(*new_args, eval_world=eval_world)
+        # question about star arguments in defined operators different than primitive operators
 
-        # M: hmm that's odd, this shouldn't be an instance method
-        # M: attempted to fix that?
-        # LINTER: Ok so now it says: Method "derived_definition" overrides class "DerivedOperator" in an incompatible manner 
-        # Return type mismatch: base method returns "None", override returns type "list[Unknown]"
-        # B: I returned an empty list in the definition of derived_definition in ConditionalOperator
-        # and this seems to answer all the linter errors once I added 'self' which is nice to stay
-        # consistent
 
-    # M: seems that to avoid the linter issues there are a couple solns:
-        # 1. put a decorator on top of the definition (liek @staticmethod or @classmethod). 
-        # disadvantage: not something a beginner would understand, though certainly easy to execute
-        # I've left it just to show what it would look like
-            # 1b. @classmethod. disadvantage: kind of just kicking the problem of misleadingly
-            # putting self in the definition to putting another confusing thing in there
-            # 1a. @staticmethod. Advantage: no need to put self or cls in the function def
-            # B: I feel like having 'self' as an argument is something that would be good to
-            # maintain for consistency (and something users will have to learn to live with)
-
-        # 2. define derived_definition as a class property
-            # 2a. define it as a lambda function
-            # 2b. assign it to a function defined outside the scope of the class. disadvantage: 
-            # you have to define the thing elsewhere which is not practical
-
-        # 3. define it as an instance method (with self). Advantage: familiar syntax. Disadvantage:
-        # self will never be used in the derived definition, and what an operator instance is 
-        # good for—the semantics—is not needed for the derived definitions
-        # B: this seems like the best option, but definitely good to discuss (DISCUSS)
-
-class BiconditionalOperator(DerivedOperator):
+class BiconditionalOperator(DefinedOperator):
 
     name = "\\leftrightarrow"
     arity = 2
@@ -401,7 +372,9 @@ class TopOperator(Operator):
 
 
 class BotOperator(Operator):
-    """doc string place holder"""
+    """bottom with respect to ground which has the null state as it's only
+    verifier and no falsifier. should be assigned appropriate extremal element
+    from hidden_things.py"""
 
     name = "\\bot"
     arity = 0
@@ -419,5 +392,5 @@ class BotOperator(Operator):
         # B: similar comments apply as in \top
 
     def find_verifiers_and_falsifiers(self, argprop):
-        # B: V is the set containing just the full state and F is the set of all states
+        # B: V is the set containing just the null state and F is the empty set
         pass
