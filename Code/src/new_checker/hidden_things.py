@@ -303,10 +303,11 @@ class ModelSetup:
 
         # Collect sentence_letters from premises
         inputs = list(self.premises.values()) + list(self.conclusions.values())
-        # letters, ops = self.collect_letters_operators(inputs)
-        # self.sentence_letters = letters
-
-        # B: I'm less sure how to collect the operators... see also below
+        print("TEST", inputs)
+        # B: I'm not sure how to collect letters and operators
+        # see collect_letters_operators
+        letters, ops = self.collect_letters_operators(inputs)
+        self.sentence_letters = letters
         # self.operators = ops
 
         # redundant block
@@ -361,11 +362,16 @@ class ModelSetup:
         """useful for using model-checker in a python file"""
         return f"ModelSetup for premises {self.infix_premises} and conclusions {self.infix_conclusions}"
 
+    # B: getting stuck here
     def collect_letters_operators(self, sentences):
-        all_sentence_letters = set()
+        sentence_letters = set()
+        operators = set()
         for sent in sentences:
-            all_sentence_letters.update(set(sent.sentence_letters))
-        return list(all_sentence_letters)
+            for letter in sent.sentence_letters:
+                sentence_letters.add(str(letter)) # not sure how to recover values
+            for op in sent.operators:
+                operators.add(str(op)) # ditto; also tried op.name and op.value()
+        return sentence_letters, operators
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
