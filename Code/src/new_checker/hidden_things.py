@@ -200,12 +200,11 @@ class DefinedOperator(Operator):
         ops_in_def = [elem for elem in flatten(sample_derived_def) if isinstance(elem, type)]
         self.defined_operators_in_definition = [op for op in ops_in_def if not op.primitive]
         if loop_check:
-            for opclass in self.defined_operators_in_definition:
-                if self.__class__ in opclass('dummy sem', False).defined_operators_in_definition:
-                    op1, op2 = op_subclass.__name__, opclass.__name__
-                    errmsg = (f"{op1} and {op2} are defined in terms of each other. Please "
-                              f"edit their derived_definition methods to avoid this. ")
-                    raise RecursionError(errmsg)
+            for def_opcls in self.defined_operators_in_definition:
+                if self.__class__ in def_opcls('dummy sem', False).defined_operators_in_definition:
+                    ermsg = (f"{op_name} and {def_opcls.__name__} are defined in terms of each "
+                            f"other. Please edit their derived_definition methods to avoid this.")
+                    raise RecursionError(ermsg)
 
     def activate_prefix_definition(self, unactivated_prefix_def):
         '''Helper for get_derived_prefix_form. Takes a sentence in prefix notation
