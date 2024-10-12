@@ -30,7 +30,8 @@ import sys
 
 from syntactic import Sentence
 
-# B: where should this go? It is used in the activate_letters_operators method
+# B: I'm assuming this will need to be included to activate sentence letters if this
+# happens separately from finding sentence letters (if separating that is good)
 AtomSort = DeclareSort("AtomSort")
 
 class PropositionDefaults:
@@ -281,6 +282,12 @@ class OperatorCollection:
 
 class ModelSetup:
     """Stores what is needed to find a Z3 model and passed to ModelStructure."""
+
+    # B: the idea here is to rely on the instances of Sentences since these do
+    # not depend on the semantics or operator_collection. the idea is to gather
+    # the sentence_letters, subsentences, and operators with the unpack()
+    # method, using these to generate and store the other attributes of this
+    # class by appealing to the semantics and operator_collection as needed.
 
     def __init__(
         self,
