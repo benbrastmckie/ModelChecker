@@ -127,6 +127,9 @@ class Sentence:
         operators = []
         subsentences = [prefix_sentence]
         complexity = 0
+        if prefix_sentence[0] in {'\\top', '\\bot'}:
+            operators.append(prefix_sentence)
+            return sentence_letters, operators, subsentences, complexity
         if len(prefix_sentence) == 1:
             sentence_letters.append(prefix_sentence)
             return sentence_letters, operators, subsentences, complexity
