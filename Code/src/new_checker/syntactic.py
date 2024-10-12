@@ -7,6 +7,7 @@ class Sentence:
         self.prefix_sentence = self.prefix(infix_sentence)
         letters, ops, subs, complexity = self.constituents_of(self.prefix_sentence)
         self.sentence_letters = letters
+        # print("TEST", letters)
         self.operators = ops
         self.subsentences = subs
         self.complexity = complexity
