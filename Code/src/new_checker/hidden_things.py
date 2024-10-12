@@ -200,7 +200,7 @@ class DefinedOperator(Operator):
                 if self.__class__ in opclass('dummy sem', False).defined_operators_in_definition:
                     op1, op2 = op_subclass.__name__, opclass.__name__
                     errmsg = (f"{op1} and {op2} are defined in terms of each other. Please "
-                              f"Please edit their derived_definition methods to avoid this. ")
+                              f"edit their derived_definition methods to avoid this. ")
                     raise RecursionError(errmsg)
 
     def activate_prefix_definition(self, unactivated_prefix_def):
