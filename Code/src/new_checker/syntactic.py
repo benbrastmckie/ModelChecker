@@ -5,8 +5,9 @@ class Sentence:
     def __init__(self, infix_sentence):
         self.name = infix_sentence
         self.prefix_sentence = self.prefix(infix_sentence)
-        letters, subs, complexity = self.constituents_of(self.prefix_sentence)
+        letters, ops, subs, complexity = self.constituents_of(self.prefix_sentence)
         self.sentence_letters = letters
+        self.operators = ops
         self.subsentences = subs
         self.complexity = complexity
         
@@ -115,7 +116,7 @@ class Sentence:
         """Takes a list and removes the repeats in it.
         Used in find_all_constraints."""
         seen = [] # NOTE: sentences are unhashable so can't use set()
-        for obj in sorted(prefix_sentences):
+        for obj in prefix_sentences:
             if obj not in seen:
                 seen.append(obj)
         return seen
@@ -123,20 +124,25 @@ class Sentence:
     def constituents_of(self, prefix_sentence):
         """take a prefix sentence and return a set of subsentences"""
         sentence_letters = []
+        operators = []
         subsentences = [prefix_sentence]
         complexity = 0
         if len(prefix_sentence) == 1:
             sentence_letters.append(prefix_sentence)
-            return sentence_letters, subsentences, complexity
-        arguments = prefix_sentence[1:]
+            return sentence_letters, operators, subsentences, complexity
+        main_operator = prefix_sentence.pop(0)
+        operators.append(main_operator)
+        arguments = prefix_sentence
         subsentences.extend(arguments)
         complexity += 1
         for arg in arguments:
-            arg_sent_lets, arg_sub_sents, arg_comp = self.constituents_of(arg)
+            arg_sent_lets, arg_ops, arg_subs, arg_comp = self.constituents_of(arg)
             sentence_letters.extend(arg_sent_lets)
-            subsentences.extend(arg_sub_sents)
+            operators.extend(arg_ops)
+            subsentences.extend(arg_subs)
             complexity += arg_comp
         sorted_sent_lets = self.sorted_no_repeats(sentence_letters)
+        sorted_ops = self.sorted_no_repeats(operators)
         sorted_subs = self.sorted_no_repeats(subsentences)
-        return sorted_sent_lets, sorted_subs, complexity
+        return sorted_sent_lets, sorted_ops, sorted_subs, complexity
 

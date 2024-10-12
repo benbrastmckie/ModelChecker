@@ -5,12 +5,13 @@ from syntactic import(
 
 
 # COMPLEXITY
-example = "((A \\rightarrow (D \\wedge C)) \\wedge (A \\rightarrow (B \\wedge C)))"
+example = "((A \\leftrightarrow (D \\wedge C)) \\wedge (A \\rightarrow (B \\wedge C)))"
 sent = Sentence(example)
 prefix = sent.prefix(example)
 print(prefix)
-letters, subs, comp = sent.constituents_of(prefix)
-print(f"{example} has {len(letters)} sentence letters {letters}")
-print(f"{example} has {len(subs)} subsentences {subs}")
-print(f"{example} has complexity {comp}")
+letters, ops, subs, comp = sent.constituents_of(prefix)
+print(f"{len(letters)} sentence letters {letters}")
+print(f"{len(ops)} operators {ops}")
+print(f"{len(subs)} subsentences {subs}")
+print(f"complexity {comp}")
 

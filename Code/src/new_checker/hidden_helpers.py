@@ -299,7 +299,11 @@ def op_left_right(tokens):
                 left.append(token)
         raise ValueError("Invalid expression or unmatched parentheses")
     
-    return extract_arguments(tokens)
+    result = extract_arguments(tokens)
+    if result is None:
+        raise ValueError("Failed to extract arguments")
+    return result
+
 
 
 def parse_expression(tokens, model_setup):
