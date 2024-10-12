@@ -5,7 +5,7 @@ from syntactic import(
 
 
 # COMPLEXITY
-example = "((A \\leftrightarrow (D \\wedge C)) \\wedge (A \\rightarrow (B \\wedge C)))"
+example = "((A \\leftrightarrow \\neg \\neg (\\top \\wedge C)) \\wedge (A \\rightarrow (\\neg \\neg B \\wedge \\bot)))"
 sent = Sentence(example)
 prefix = sent.prefix(example)
 print(prefix)
