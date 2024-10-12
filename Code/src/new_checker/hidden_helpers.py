@@ -200,7 +200,7 @@ def all_sentence_letters(prefix_sentences):
     # TODO: sort just to make every output the same, given sets aren't hashable
 
 
-def repeats_removed(sentences):  # NOTE: sentences are unhashable so can't use set()
+def remove_repeats(sentences):  # NOTE: sentences are unhashable so can't use set()
     """Takes a list and removes the repeats in it.
     Used in find_all_constraints."""
     seen = []
@@ -222,7 +222,7 @@ def subsentences_of(prefix_sentence):
         left_subsentences = subsentences_of(prefix_sentence[1])
         right_subsentences = subsentences_of(prefix_sentence[2])
         all_subsentences = left_subsentences + right_subsentences + progress
-        return repeats_removed(all_subsentences)
+        return remove_repeats(all_subsentences)
     return progress
 
 
