@@ -303,8 +303,8 @@ class ModelSetup:
 
         # Collect sentence_letters from premises
         inputs = list(self.premises.values()) + list(self.conclusions.values())
-        letters, ops = self.collect_letters_operators(inputs)
-        self.sentence_letters = letters
+        # letters, ops = self.collect_letters_operators(inputs)
+        # self.sentence_letters = letters
 
         # B: I'm less sure how to collect the operators... see also below
         # self.operators = ops
@@ -364,8 +364,8 @@ class ModelSetup:
     def collect_letters_operators(self, sentences):
         all_sentence_letters = set()
         for sent in sentences:
-            all_sentence_letters.update(sent.sentence_letters)
-        return sorted(all_sentence_letters)
+            all_sentence_letters.update(set(sent.sentence_letters))
+        return list(all_sentence_letters)
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
