@@ -18,11 +18,12 @@ from hidden_things import(
     ModelSetup,
     ModelStructure,
     OperatorCollection,
+    Sentence,
 )
 from hidden_helpers import complexity_of
 
 semantics = Semantics(3)
-print("made semantics")
+# print("made semantics")
 
 operators = OperatorCollection(
     AndOperator,
@@ -33,7 +34,7 @@ operators = OperatorCollection(
     ConditionalOperator,
     BiconditionalOperator,
 )
-print("made operator collection (trivial)")
+# print("made operator collection (trivial)")
 
 # premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
@@ -56,21 +57,29 @@ model_setup = ModelSetup(
     disjoint=False,
     print_impossible=False,
 )
-print("made model_setup")
+# print("made model_setup")
 
 # sl_dict = model_setup.find_sentence_letters(premises + conclusions)
 # print("TEST PRINT SENT_LET_DIC:", sl_dict)
 
 model_structure = ModelStructure(model_setup)
-print("made model_structure")
+# print("made model_structure")
 
 # TEST PRINT
 model_structure.print_all()  
 
-print("print all props:", model_structure.all_propositions)
+# print("print all props:", model_structure.all_propositions)
 
-# COMPLEXITY
+# # COMPLEXITY
 # example = "((A \\rightarrow (B \\wedge C)) \\wedge (A \\rightarrow (B \\wedge C)))"
+# sent = Sentence(example)
+# prefix = sent.prefix
+# print(prefix)
+# letters, subs, comp = sent.constituents_of(prefix)
+# # print(f"{example} has sentence letters {letters}")
+# # print(f"{example} has subsentences {subs}")
+# # print(f"{example} has complexity {comp}")
+
 # complexity = complexity_of(model_setup.prefix(example))
 # print(f"{example} has complexity {complexity}")
 
