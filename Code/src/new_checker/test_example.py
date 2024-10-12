@@ -70,16 +70,6 @@ model_structure.print_all()
 
 # print("print all props:", model_structure.all_propositions)
 
-# # COMPLEXITY
-# example = "((A \\rightarrow (B \\wedge C)) \\wedge (A \\rightarrow (B \\wedge C)))"
-# sent = Sentence(example)
-# prefix = sent.prefix
-# print(prefix)
-# letters, subs, comp = sent.constituents_of(prefix)
-# # print(f"{example} has sentence letters {letters}")
-# # print(f"{example} has subsentences {subs}")
-# # print(f"{example} has complexity {comp}")
-
 # complexity = complexity_of(model_setup.prefix(example))
 # print(f"{example} has complexity {complexity}")
 
