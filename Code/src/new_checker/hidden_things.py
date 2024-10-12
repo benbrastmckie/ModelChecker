@@ -27,6 +27,8 @@ from hidden_helpers import (
 
 import sys
 
+from syntactic import Sentence
+
 class PropositionDefaults:
     """Defaults inherited by every proposition."""
 
@@ -290,9 +292,31 @@ class ModelSetup:
         disjoint=False,
         print_impossible=False,
     ):
+        self.premises = {
+            prem : Sentence(prem)
+            for prem in infix_premises
+        }
+        self.conclusions = {
+            con : Sentence(con)
+            for con in infix_conclusions
+        }
+
+        # Collect sentence_letters from premises
+        inputs = list(self.premises.values()) + list(self.conclusions.values())
+        letters, ops = self.collect_letters_operators(inputs)
+        self.sentence_letters = letters
+
+        # B: I'm less sure how to collect the operators... see also below
+        # self.operators = ops
+
+        # redundant block
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
+
         self.semantics = semantics
+        # B: I'm wondering if it makes sense to only add the operators that
+        # occur in the premises and conclusion since they are provided in each
+        # instance of the Sentence class
         self.operators = {
             op_name: op_class(semantics)
             for (op_name, op_class) in operator_collection.items()
@@ -304,8 +328,10 @@ class ModelSetup:
         self.disjoint = disjoint
         self.print_impossible = print_impossible
 
+        # redundant block
         self.prefix_premises = [self.prefix(prem) for prem in infix_premises]
         self.prefix_conclusions = [self.prefix(con) for con in infix_conclusions]
+
         prefix_sentences = self.prefix_premises + self.prefix_conclusions
         self.all_subsentences = self.find_subsentences(prefix_sentences)
         self.all_sentence_letters = self.find_sentence_letters(prefix_sentences)
@@ -334,6 +360,12 @@ class ModelSetup:
     def __str__(self):
         """useful for using model-checker in a python file"""
         return f"ModelSetup for premises {self.infix_premises} and conclusions {self.infix_conclusions}"
+
+    def collect_letters_operators(self, sentences):
+        all_sentence_letters = set()
+        for sent in sentences:
+            all_sentence_letters.update(sent.sentence_letters)
+        return sorted(all_sentence_letters)
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
