@@ -1,5 +1,6 @@
 from z3 import (
     Const,
+    DeclareSort,
     sat,
     Solver,
     simplify,
@@ -12,7 +13,7 @@ import inspect
 from hidden_helpers import (
     AtomSort,
     parse_expression,
-    repeats_removed,
+    remove_repeats,
     sentence_letters_in_compound,
     subsentences_of,
     all_sentence_letters,
@@ -28,6 +29,9 @@ from hidden_helpers import (
 import sys
 
 from syntactic import Sentence
+
+# B: where should this go? It is used in the activate_letters_operators method
+AtomSort = DeclareSort("AtomSort")
 
 class PropositionDefaults:
     """Defaults inherited by every proposition."""
@@ -292,6 +296,15 @@ class ModelSetup:
         disjoint=False,
         print_impossible=False,
     ):
+
+        # Store settings
+        self.max_time = max_time
+        self.contingent = contingent
+        self.non_null = non_null
+        self.disjoint = disjoint
+        self.print_impossible = print_impossible
+
+        # Create Sentence instances for premises and conclusions
         self.premises = {
             prem : Sentence(prem)
             for prem in infix_premises
@@ -301,16 +314,17 @@ class ModelSetup:
             for con in infix_conclusions
         }
 
-        # Collect sentence_letters from premises
+        # Collect from premises and conclusions
         inputs = list(self.premises.values()) + list(self.conclusions.values())
-        print("TEST", inputs)
-        # B: I'm not sure how to collect letters and operators
-        # see collect_letters_operators
-        letters, ops = self.collect_letters_operators(inputs)
-        self.sentence_letters = letters
-        # self.operators = ops
+        letters, ops, subs = self.unpack(inputs)
+        self.just_sentence_letters = letters
+        print("TEST LETTERS", self.just_sentence_letters)
+        self.just_operators = ops
+        print("TEST OPS", self.just_operators)
+        self.just_subsentences = subs
+        print("TEST SUBS", self.just_subsentences)
 
-        # redundant block
+        # to be removed, relying on the instances of Sentence?
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
 
@@ -323,20 +337,18 @@ class ModelSetup:
             for (op_name, op_class) in operator_collection.items()
         }
         self.proposition_class = proposition_class
-        self.max_time = max_time
-        self.contingent = contingent
-        self.non_null = non_null
-        self.disjoint = disjoint
-        self.print_impossible = print_impossible
 
-        # redundant block
+        # to be removed, relying on the instances of Sentence?
         self.prefix_premises = [self.prefix(prem) for prem in infix_premises]
         self.prefix_conclusions = [self.prefix(con) for con in infix_conclusions]
 
+        # B: aim is to replace the following with above
         prefix_sentences = self.prefix_premises + self.prefix_conclusions
         self.all_subsentences = self.find_subsentences(prefix_sentences)
+        # self.all_sentence_letters = [[Const(letter, AtomSort)] for letter in self.just_sentence_letters]
         self.all_sentence_letters = self.find_sentence_letters(prefix_sentences)
 
+        # Use semantics to generate and store Z3 constraints
         self.frame_constraints = semantics.frame_constraints
         self.model_constraints = []
         for sl in self.all_sentence_letters:
@@ -362,16 +374,21 @@ class ModelSetup:
         """useful for using model-checker in a python file"""
         return f"ModelSetup for premises {self.infix_premises} and conclusions {self.infix_conclusions}"
 
-    # B: getting stuck here
-    def collect_letters_operators(self, sentences):
-        sentence_letters = set()
-        operators = set()
+    def unpack(self, sentences):
+        letters = set()
+        # letters = [] # if sentence_letters are lists of length 1
+        ops = set()
+        subs = []
         for sent in sentences:
-            for letter in sent.sentence_letters:
-                sentence_letters.add(str(letter)) # not sure how to recover values
-            for op in sent.operators:
-                operators.add(str(op)) # ditto; also tried op.name and op.value()
-        return sentence_letters, operators
+            # letters.extend(sent.sentence_letters) # if sentence_letters are lists of length 1
+            letters.update(sent.sentence_letters)
+            ops.update(sent.operators)
+            subs.extend(sent.subsentences)
+        # sorted_sentence_letters = remove_repeats(letters) # if sentence_letters are lists of length 1
+        sorted_sentence_letters = sorted(list(letters), key=lambda x: str(x))
+        sorted_operators = sorted(list(ops), key=lambda x: str(x))
+        sorted_subsentences = remove_repeats(subs)
+        return sorted_sentence_letters, sorted_operators, sorted_subsentences
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
@@ -412,7 +429,7 @@ class ModelSetup:
         for prefix_sent in prefix_sentences:
             all_prefix_subs = subsentences_of(prefix_sent)
             all_subsentences.extend(all_prefix_subs)
-        return repeats_removed(all_subsentences)
+        return remove_repeats(all_subsentences)
 
     def prefix(self, infix_sentence):
         """For converting from infix to prefix notation without knowing which

@@ -1,4 +1,7 @@
 
+from hidden_helpers import remove_repeats
+
+
 class Sentence:
     """Class with an instance for each sentence."""
 
@@ -113,14 +116,14 @@ class Sentence:
             self.parse_expression(tokens),
         ]
 
-    def sorted_no_repeats(self, prefix_sentences):
-        """Takes a list and removes the repeats in it.
-        Used in find_all_constraints."""
-        seen = [] # NOTE: sentences are unhashable so can't use set()
-        for obj in prefix_sentences:
-            if obj not in seen:
-                seen.append(obj)
-        return seen
+    # def remove_repeats(self, prefix_sentences):
+    #     """Takes a list and removes the repeats in it.
+    #     Used in find_all_constraints."""
+    #     seen = [] # NOTE: sentences are unhashable so can't use set()
+    #     for obj in prefix_sentences:
+    #         if obj not in seen:
+    #             seen.append(obj)
+    #     return seen
 
     def constituents_of(self, prefix_sentence):
         """take a prefix sentence and return a set of subsentences"""
@@ -132,7 +135,8 @@ class Sentence:
             operators.append(prefix_sentence)
             return sentence_letters, operators, subsentences, complexity
         if len(prefix_sentence) == 1:
-            sentence_letters.append(prefix_sentence)
+            # B: would it be better to have lists of length 1 here?
+            sentence_letters.append(prefix_sentence[0])
             return sentence_letters, operators, subsentences, complexity
         main_operator = prefix_sentence.pop(0)
         operators.append(main_operator)
@@ -145,8 +149,8 @@ class Sentence:
             operators.extend(arg_ops)
             subsentences.extend(arg_subs)
             complexity += arg_comp
-        sorted_sent_lets = self.sorted_no_repeats(sentence_letters)
-        sorted_ops = self.sorted_no_repeats(operators)
-        sorted_subs = self.sorted_no_repeats(subsentences)
+        sorted_sent_lets = remove_repeats(sentence_letters)
+        sorted_ops = remove_repeats(operators)
+        sorted_subs = remove_repeats(subsentences)
         return sorted_sent_lets, sorted_ops, sorted_subs, complexity
 
