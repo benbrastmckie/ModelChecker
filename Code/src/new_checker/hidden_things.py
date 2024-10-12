@@ -21,7 +21,6 @@ from hidden_helpers import (
     int_to_binary,
     not_implemented_string,
     pretty_set_print,
-    # complexity_of,
     flatten,
 
 )
@@ -191,8 +190,7 @@ class DefinedOperator(Operator):
         assert self.arity == derived_def_num_args, mismatch_arity_msg
 
         # check for DefinedOperators defined in terms of each other
-        dummy_prefix_args = derived_def_num_args * ("A",)
-        sample_derived_def = self.derived_definition(*dummy_prefix_args)
+        sample_derived_def = self.derived_definition(*(derived_def_num_args * ("a",)))
         ops_in_def = [elem for elem in flatten(sample_derived_def) if isinstance(elem, type)]
         self.defined_operators_in_definition = [op for op in ops_in_def if not op.primitive]
         if loop_check:
