@@ -5,7 +5,10 @@ class Sentence:
     def __init__(self, infix_sentence):
         self.name = infix_sentence
         self.prefix_sentence = self.prefix(infix_sentence)
-        self.complexity = self.complexity_of(self.prefix_sentence)
+        letters, subs, complexity = self.constituents_of(self.prefix_sentence)
+        self.sentence_letters = letters
+        self.subsentences = subs
+        self.complexity = complexity
         
     def prefix(self, infix_sentence):
         """For converting from infix to prefix notation without knowing which
@@ -48,10 +51,13 @@ class Sentence:
                     left.append(token)
                 elif count > 0:
                     left.append(token)
+                elif not tokens:
+                    raise ValueError(f"Extra parentheses in {tokens}.")
                 else:
                     operator = token
                     right = check_right(tokens, operator)
                     return operator, left, right
+            raise ValueError(f"The expression {tokens} is incomplete.")
 
         def process_operator(tokens):
             if tokens:
@@ -75,7 +81,10 @@ class Sentence:
                     left.append(token)
             raise ValueError("Invalid expression or unmatched parentheses")
         
-        return extract_arguments(tokens)
+        result = extract_arguments(tokens)
+        if result is None:
+            raise ValueError("Failed to extract arguments")
+        return result
 
     def parse_expression(self, tokens):
         """Parses a list of tokens representing a propositional expression and returns
@@ -89,7 +98,7 @@ class Sentence:
                 raise SyntaxError(
                     f"The sentence {tokens} is missing a closing parenthesis."
                 )
-            operator, left, right = self.op_left_right(tokens)  # LINTER: "None" is not iterable
+            operator, left, right = self.op_left_right(tokens)
             left_arg = self.parse_expression(left)  # Parse the left argument
             right_arg = self.parse_expression(right)  # Parse the right argument
             return [operator, left_arg, right_arg]
@@ -102,18 +111,10 @@ class Sentence:
             self.parse_expression(tokens),
         ]
 
-    def complexity_of(self, prefix_sentence):
-        count = 0
-        if len(prefix_sentence) > 1:
-            count += 1
-            for argument in prefix_sentence[1:]:
-                count += self.complexity_of(argument)
-        return count
-
-    def sorted_no_repeats(self, prefix_sentences):  # NOTE: sentences are unhashable so can't use set()
+    def sorted_no_repeats(self, prefix_sentences):
         """Takes a list and removes the repeats in it.
         Used in find_all_constraints."""
-        seen = []
+        seen = [] # NOTE: sentences are unhashable so can't use set()
         for obj in sorted(prefix_sentences):
             if obj not in seen:
                 seen.append(obj)
@@ -122,20 +123,20 @@ class Sentence:
     def constituents_of(self, prefix_sentence):
         """take a prefix sentence and return a set of subsentences"""
         sentence_letters = []
-        subsentences = []
+        subsentences = [prefix_sentence]
         complexity = 0
         if len(prefix_sentence) == 1:
-            return [prefix_sentence], [prefix_sentence], complexity,
-            # return set(prefix_sentence), set(prefix_sentence), complexity,
-        prefix_sentence.pop(0)
+            sentence_letters.append(prefix_sentence)
+            return sentence_letters, subsentences, complexity
+        arguments = prefix_sentence[1:]
+        subsentences.extend(arguments)
         complexity += 1
-        for arg in prefix_sentence:
-            # print("TEST", arg)
-            arg_sent_letters, arg_sub_sents, arg_comp = self.constituents_of(arg)
-            sentence_letters.extend(arg_sent_letters)
+        for arg in arguments:
+            arg_sent_lets, arg_sub_sents, arg_comp = self.constituents_of(arg)
+            sentence_letters.extend(arg_sent_lets)
             subsentences.extend(arg_sub_sents)
             complexity += arg_comp
-            sorted_sent_lets = self.sorted_no_repeats(sentence_letters)
-            sorted_subs = self.sorted_no_repeats(subsentences)
+        sorted_sent_lets = self.sorted_no_repeats(sentence_letters)
+        sorted_subs = self.sorted_no_repeats(subsentences)
         return sorted_sent_lets, sorted_subs, complexity
 
