@@ -13,15 +13,23 @@ import string
 from z3 import(
     And,
     BitVecVal,
-    Const,
-    DeclareSort,
     BoolRef,
     Or,
     simplify,
     substitute,
 ) 
 
-AtomSort = DeclareSort("AtomSort")
+### GENERAL HELPERS ###
+
+
+def remove_repeats(sentences):  # NOTE: sentences are unhashable so can't use set()
+    """Takes a list and removes the repeats in it.
+    Used in find_all_constraints."""
+    seen = []
+    for obj in sentences:
+        if obj not in seen:
+            seen.append(obj)
+    return seen
 
 
 ### PRINT HELPERS ###
@@ -174,162 +182,152 @@ def Exists(bvs, formula):
 ### SENTENCE HELPERS ###
 
 
-def sentence_letters_in_compound(prefix_sentence):
-    """Returns a list of AtomSorts for all sentence letters in prefix_sentence.
-    May have repeats and does not follow the syntax of prefix sentences.
-    Used in find_sentence_letters.
-    """
-    if len(prefix_sentence) == 1:  # base case: atomic sentence
-        return [prefix_sentence[0]]  # redundant but conceptually clear
-    return_list = []
-    for part in prefix_sentence[1:]:
-        return_list.extend(sentence_letters_in_compound(part))
-    return return_list
+# def sentence_letters_in_compound(prefix_sentence):
+#     """Returns a list of AtomSorts for all sentence letters in prefix_sentence.
+#     May have repeats and does not follow the syntax of prefix sentences.
+#     Used in find_sentence_letters.
+#     """
+#     if len(prefix_sentence) == 1:  # base case: atomic sentence
+#         return [prefix_sentence[0]]  # redundant but conceptually clear
+#     return_list = []
+#     for part in prefix_sentence[1:]:
+#         return_list.extend(sentence_letters_in_compound(part))
+#     return return_list
 
 
-def all_sentence_letters(prefix_sentences):
-    """finds all the sentence letters in a list of input sentences, in prefix form.
-    returns as a list with no repeats (sorted for consistency) of AtomSorts
-    used in find_all_constraints (to feed into find_prop_constraints) and StateSpace __init__"""
-    sentence_letters = set()
-    for prefix_input in prefix_sentences:
-        sentence_letters_in_input = sentence_letters_in_compound(prefix_input)
-        for sentence_letter in sentence_letters_in_input:
-            sentence_letters.add(sentence_letter)
-    return list(sentence_letters)
-    # TODO: sort just to make every output the same, given sets aren't hashable
+# def all_sentence_letters(prefix_sentences):
+#     """finds all the sentence letters in a list of input sentences, in prefix form.
+#     returns as a list with no repeats (sorted for consistency) of AtomSorts
+#     used in find_all_constraints (to feed into find_prop_constraints) and StateSpace __init__"""
+#     sentence_letters = set()
+#     for prefix_input in prefix_sentences:
+#         sentence_letters_in_input = sentence_letters_in_compound(prefix_input)
+#         for sentence_letter in sentence_letters_in_input:
+#             sentence_letters.add(sentence_letter)
+#     return list(sentence_letters)
+#     # TODO: sort just to make every output the same, given sets aren't hashable
 
 
-def remove_repeats(sentences):  # NOTE: sentences are unhashable so can't use set()
-    """Takes a list and removes the repeats in it.
-    Used in find_all_constraints."""
-    seen = []
-    for obj in sentences:
-        if obj not in seen:
-            seen.append(obj)
-    return seen
+# def subsentences_of(prefix_sentence):
+#     """Returns all prefix subsentence of a prefix sentence
+#     Used in find_extensional_subsentences."""
+#     progress = []
+#     progress.append(prefix_sentence)
+#     if len(prefix_sentence) == 2:
+#         sub_sentsentences = subsentences_of(prefix_sentence[1])
+#         return progress + sub_sentsentences
+#     if len(prefix_sentence) == 3:
+#         left_subsentences = subsentences_of(prefix_sentence[1])
+#         right_subsentences = subsentences_of(prefix_sentence[2])
+#         all_subsentences = left_subsentences + right_subsentences + progress
+#         return remove_repeats(all_subsentences)
+#     return progress
 
 
-def subsentences_of(prefix_sentence):
-    """Returns all prefix subsentence of a prefix sentence
-    Used in find_extensional_subsentences."""
-    progress = []
-    progress.append(prefix_sentence)
-    if len(prefix_sentence) == 2:
-        sub_sentsentences = subsentences_of(prefix_sentence[1])
-        return progress + sub_sentsentences
-    if len(prefix_sentence) == 3:
-        left_subsentences = subsentences_of(prefix_sentence[1])
-        right_subsentences = subsentences_of(prefix_sentence[2])
-        all_subsentences = left_subsentences + right_subsentences + progress
-        return remove_repeats(all_subsentences)
-    return progress
-
-
-def complexity_of(prefix_sentence):
-    count = 0
-    if len(prefix_sentence) > 1:
-        count += 1
-        for argument in prefix_sentence[1:]:
-            count += complexity_of(argument)
-    return count
+# def complexity_of(prefix_sentence):
+#     count = 0
+#     if len(prefix_sentence) > 1:
+#         count += 1
+#         for argument in prefix_sentence[1:]:
+#             count += complexity_of(argument)
+#     return count
 
 ### PREFIX HELPERS ###
 
 
-def op_left_right(tokens):
-    """Divides whatever is inside a pair of parentheses into the left argument,
-    right argument, and the operator."""
-
-    def balanced_parentheses(tokens):
-        """Check if parentheses are balanced in the argument."""
-        stack = []
-        for token in tokens:
-            if token == "(":
-                stack.append(token)
-            elif token == ")":
-                if not stack:
-                    return False
-                stack.pop()
-        return len(stack) == 0
-
-    def check_right(tokens, operator):
-        if not tokens:
-            raise ValueError(f"Expected an argument after the operator {operator}")
-        if not balanced_parentheses(tokens):
-            raise ValueError("Unbalanced parentheses")
-        return tokens  # Remaining tokens are the right argument
-
-    def cut_parentheses(left, tokens):
-        count = 1  # To track nested parentheses
-        while tokens:
-            token = tokens.pop(0)
-            if token == "(":
-                count += 1
-                left.append(token)
-            elif token == ")":
-                count -= 1
-                left.append(token)
-            elif count > 0:
-                left.append(token)
-            else:
-                operator = token
-                right = check_right(tokens, operator)
-                return operator, left, right
-
-    def process_operator(tokens):
-        if tokens:
-            return tokens.pop(0)
-        raise ValueError("Operator missing after operand")
-    
-    def extract_arguments(tokens):
-        """Extracts the left argument and right argument from tokens."""
-        left = []
-        while tokens:
-            token = tokens.pop(0)
-            if token == "(":
-                left.append(token)
-                return cut_parentheses(left, tokens)
-            elif token.isalnum() or token in {"\\top", "\\bot"}:
-                left.append(token)
-                operator = process_operator(tokens)
-                right = check_right(tokens, operator)
-                return operator, left, right
-            else:
-                left.append(token)
-        raise ValueError("Invalid expression or unmatched parentheses")
-    
-    result = extract_arguments(tokens)
-    if result is None:
-        raise ValueError("Failed to extract arguments")
-    return result
-
-
-
-def parse_expression(tokens, model_setup):
-    """Parses a list of tokens representing a propositional expression and returns
-    the expression in prefix notation."""
-    if not tokens:  # Check if tokens are empty before processing
-        raise ValueError("Empty token list")
-    token = tokens.pop(0)  # Get the next token
-    if token == "(":  # Handle binary operator case (indicated by parentheses)
-        closing_parentheses = tokens.pop()  # Remove the closing parenthesis
-        if closing_parentheses != ")":
-            raise SyntaxError(
-                f"The sentence {tokens} is missing a closing parenthesis."
-            )
-        operator, left, right = op_left_right(tokens)  # LINTER: "None" is not iterable
-        left_arg = parse_expression(left, model_setup)  # Parse the left argument
-        right_arg = parse_expression(right, model_setup)  # Parse the right argument
-        return [model_setup.operators[operator], left_arg, right_arg]
-    if token.isalnum():  # Handle atomic sentences
-        return [Const(token, AtomSort)]
-    elif token in {"\\top", "\\bot"}:  # Handle extremal operators
-        return [model_setup.operators[token]]
-    return [  # Unary operators
-        model_setup.operators[token],
-        parse_expression(tokens, model_setup),
-    ]
+# def op_left_right(tokens):
+#     """Divides whatever is inside a pair of parentheses into the left argument,
+#     right argument, and the operator."""
+#
+#     def balanced_parentheses(tokens):
+#         """Check if parentheses are balanced in the argument."""
+#         stack = []
+#         for token in tokens:
+#             if token == "(":
+#                 stack.append(token)
+#             elif token == ")":
+#                 if not stack:
+#                     return False
+#                 stack.pop()
+#         return len(stack) == 0
+#
+#     def check_right(tokens, operator):
+#         if not tokens:
+#             raise ValueError(f"Expected an argument after the operator {operator}")
+#         if not balanced_parentheses(tokens):
+#             raise ValueError("Unbalanced parentheses")
+#         return tokens  # Remaining tokens are the right argument
+#
+#     def cut_parentheses(left, tokens):
+#         count = 1  # To track nested parentheses
+#         while tokens:
+#             token = tokens.pop(0)
+#             if token == "(":
+#                 count += 1
+#                 left.append(token)
+#             elif token == ")":
+#                 count -= 1
+#                 left.append(token)
+#             elif count > 0:
+#                 left.append(token)
+#             else:
+#                 operator = token
+#                 right = check_right(tokens, operator)
+#                 return operator, left, right
+#
+#     def process_operator(tokens):
+#         if tokens:
+#             return tokens.pop(0)
+#         raise ValueError("Operator missing after operand")
+#     
+#     def extract_arguments(tokens):
+#         """Extracts the left argument and right argument from tokens."""
+#         left = []
+#         while tokens:
+#             token = tokens.pop(0)
+#             if token == "(":
+#                 left.append(token)
+#                 return cut_parentheses(left, tokens)
+#             elif token.isalnum() or token in {"\\top", "\\bot"}:
+#                 left.append(token)
+#                 operator = process_operator(tokens)
+#                 right = check_right(tokens, operator)
+#                 return operator, left, right
+#             else:
+#                 left.append(token)
+#         raise ValueError("Invalid expression or unmatched parentheses")
+#     
+#     result = extract_arguments(tokens)
+#     if result is None:
+#         raise ValueError("Failed to extract arguments")
+#     return result
+#
+#
+#
+# def parse_expression(tokens, model_setup):
+#     """Parses a list of tokens representing a propositional expression and returns
+#     the expression in prefix notation."""
+#     if not tokens:  # Check if tokens are empty before processing
+#         raise ValueError("Empty token list")
+#     token = tokens.pop(0)  # Get the next token
+#     if token == "(":  # Handle binary operator case (indicated by parentheses)
+#         closing_parentheses = tokens.pop()  # Remove the closing parenthesis
+#         if closing_parentheses != ")":
+#             raise SyntaxError(
+#                 f"The sentence {tokens} is missing a closing parenthesis."
+#             )
+#         operator, left, right = op_left_right(tokens)  # LINTER: "None" is not iterable
+#         left_arg = parse_expression(left, model_setup)  # Parse the left argument
+#         right_arg = parse_expression(right, model_setup)  # Parse the right argument
+#         return [model_setup.operators[operator], left_arg, right_arg]
+#     if token.isalnum():  # Handle atomic sentences
+#         return [Const(token, AtomSort)]
+#     elif token in {"\\top", "\\bot"}:  # Handle extremal operators
+#         return [model_setup.operators[token]]
+#     return [  # Unary operators
+#         model_setup.operators[token],
+#         parse_expression(tokens, model_setup),
+#     ]
 
 
 ### ERROR REPORTING ###

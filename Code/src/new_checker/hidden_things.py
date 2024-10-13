@@ -11,12 +11,7 @@ import time
 import inspect
 
 from hidden_helpers import (
-    AtomSort,
-    parse_expression,
     remove_repeats,
-    sentence_letters_in_compound,
-    subsentences_of,
-    all_sentence_letters,
     find_all_bits,
     bitvec_to_substates,
     int_to_binary,
@@ -33,6 +28,7 @@ from syntactic import Sentence
 # B: I'm assuming this will need to be included to activate sentence letters if this
 # happens separately from finding sentence letters (if separating that is good)
 AtomSort = DeclareSort("AtomSort")
+
 
 class PropositionDefaults:
     """Defaults inherited by every proposition."""
@@ -162,6 +158,7 @@ class Operator:
         """union closed under pairwise fusion"""
         A_U_B = set_A.union(set_B)
         return A_U_B.union(self.product(set_A, set_B))
+
     
 class DefinedOperator(Operator):
     primitive = False
@@ -379,6 +376,7 @@ class ModelConstraints:
         self,
         syntax,
         proposition_class,
+        # B: I think these settings can also be moved to ModelStructure
         max_time=1,
         contingent=False,
         non_null=True,
@@ -469,14 +467,13 @@ class ModelStructure:
         self.N = model_constraints.semantics.N
         self.all_subsentences = model_constraints.all_subsentences
         prefix_sentences = model_constraints.prefix_premises + model_constraints.prefix_conclusions
-        self.sentence_letters = all_sentence_letters(prefix_sentences)
+        self.sentence_letters = model_constraints.all_sentence_letters
         self.all_bits = find_all_bits(self.N)
         if not z3_model_status:
             self.poss_bits, self.world_bits, self.main_world = None, None, None
             self.all_propositions, self.premise_propositions = None, None
             self.conclusion_propositions = None
             return
-        # if isinstance(z3_model, z3.ModelRef):  # Check if z3_model is a ModelRef
         self.poss_bits = [
             bit
             for bit in self.all_bits
