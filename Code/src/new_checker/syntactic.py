@@ -7,9 +7,9 @@ class Sentence:
 
     def __init__(self, infix_sentence):
         self.name = infix_sentence
-        print("SENTENCE TEST INFIX", self.name)
+        # print("SENTENCE TEST INFIX", self.name)
         self.prefix_sentence = self.prefix(infix_sentence)
-        print("SENTENCE TEST PREFIX", self.prefix_sentence)
+        # print("SENTENCE TEST PREFIX", self.prefix_sentence)
         letters, ops, subs, complexity = self.constituents_of(self.prefix_sentence)
         self.sentence_letters = letters
         self.operators = ops

@@ -348,20 +348,20 @@ class ModelSetup:
 
         # B: I'm not getting the right values for the prefix premises below despite
         # the tests the prefix premises working out well in the definition of Sentences
-        print("TEST ONLY INFIX PREM", infix_premises)
-        premises = [prem.prefix_sentence for prem in self.premises.values()]
-        print("TEST ONLY PREFIX PREM", premises)
-        self.just_prefix_premises = [self.apply_operator(prem.prefix_sentence[0]) for prem in self.premises.values()]
-        print("TEST PREM", self.just_prefix_premises)
-        self.just_prefix_conclusions = [self.apply_operator(con.prefix_sentence[0]) for con in self.conclusions.values()]
-        print("TEST CON", self.just_prefix_conclusions)
+        # print("TEST ONLY INFIX PREM", infix_premises)
+        # premises = [prem.prefix_sentence for prem in self.premises.values()]
+        # print("TEST ONLY PREFIX PREM", premises)
+        self.prefix_premises = [self.apply_operator(prem.prefix_sentence) for prem in self.premises.values()]
+        # print("TEST PREM", self.just_prefix_premises)
+        self.prefix_conclusions = [self.apply_operator(con.prefix_sentence) for con in self.conclusions.values()]
+        # print("TEST CON", self.just_prefix_conclusions)
 
-        # B: to be replaced be relying on the instances of the Sentence class as above
-        # once the just_prefix_premises and just_prefix_conclusions agree with the below
-        self.prefix_premises = [self.prefix(prem) for prem in infix_premises]
-        print("TARTGET PREM", self.prefix_premises)
-        self.prefix_conclusions = [self.prefix(con) for con in infix_conclusions]
-        print("TARTGET CON", self.prefix_conclusions)
+        # # B: to be replaced be relying on the instances of the Sentence class as above
+        # # once the just_prefix_premises and just_prefix_conclusions agree with the below
+        # self.prefix_premises = [self.prefix(prem) for prem in infix_premises]
+        # print("TARTGET PREM", self.prefix_premises)
+        # self.prefix_conclusions = [self.prefix(con) for con in infix_conclusions]
+        # print("TARTGET CON", self.prefix_conclusions)
 
         # Use semantics to generate and store Z3 constraints
         self.frame_constraints = semantics.frame_constraints
@@ -397,9 +397,10 @@ class ModelSetup:
                 return [self.operators[atom]]
             if atom.isalnum():  # Handle atomic sentences
                 return [Const(prefix_sentence[0], AtomSort)]
-        op = prefix_sentence.pop(0)
+        op = prefix_sentence[0]
+        arguments = prefix_sentence[1:]
         # print("PRINT APPLY OP", op)
-        activated = [self.apply_operator(arg) for arg in prefix_sentence]
+        activated = [self.apply_operator(arg) for arg in arguments]
         activated.insert(0, self.operators[op])
         return activated 
 
