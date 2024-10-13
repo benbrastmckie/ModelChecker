@@ -9,7 +9,7 @@ example = "((A \\leftrightarrow \\neg \\neg (\\top \\wedge C)) \\wedge (A \\righ
 sent = Sentence(example)
 prefix = sent.prefix(example)
 print(prefix)
-letters, ops, subs, comp = sent.constituents_of(prefix)
+letters, subs, ops, comp = sent.constituents_of(prefix)
 print(f"{len(letters)} sentence letters {letters}")
 print(f"{len(ops)} operators {ops}")
 print(f"{len(subs)} subsentences {subs}")
