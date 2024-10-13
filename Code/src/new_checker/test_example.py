@@ -20,7 +20,6 @@ from hidden_things import(
     OperatorCollection,
     Syntax,
 )
-from hidden_helpers import complexity_of
 
 semantics = Semantics(3)
 # print("made semantics")

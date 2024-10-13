@@ -129,15 +129,6 @@ class Sentence:
             self.parse_expression(tokens),
         ]
 
-    # def remove_repeats(self, prefix_sentences):
-    #     """Takes a list and removes the repeats in it.
-    #     Used in find_all_constraints."""
-    #     seen = [] # NOTE: sentences are unhashable so can't use set()
-    #     for obj in prefix_sentences:
-    #         if obj not in seen:
-    #             seen.append(obj)
-    #     return seen
-
     def constituents_of(self, prefix_sentence):
         """take a prefix sentence and return sentence_letter, intermediates,
         operators, and complexity."""

@@ -14,11 +14,11 @@ from hidden_things import (
     Operator,
     DefinedOperator,
     PropositionDefaults,
+    AtomSort,
 )
 
 # NOTE: go in API
 from hidden_helpers import (
-    AtomSort,
     ForAll,
     Exists,
 )
