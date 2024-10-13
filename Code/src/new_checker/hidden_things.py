@@ -378,8 +378,6 @@ class ModelConstraints:
         self,
         syntax,
         proposition_class,
-        # B: I think these settings can also be moved to ModelStructure
-        max_time=1,
         contingent=False,
         non_null=True,
         disjoint=False,
@@ -399,7 +397,6 @@ class ModelConstraints:
         self.all_sentence_letters = syntax.all_sentence_letters
 
         # Store settings
-        self.max_time = max_time
         self.contingent = contingent
         self.non_null = non_null
         self.disjoint = disjoint
@@ -455,10 +452,13 @@ class ModelConstraints:
 class ModelStructure:
     """Solves and stores the Z3 model for an instance of ModelSetup."""
 
-    def __init__(self, model_constraints):
-        timeout, z3_model_status, z3_model, z3_model_runtime = self.solve(model_constraints)
-        # print("TEST", z3_model_status)
+    def __init__(self, model_constraints, max_time=1):
         self.model_constraints = model_constraints
+        self.max_time = max_time
+        timeout, z3_model_status, z3_model, z3_model_runtime = self.solve(
+            model_constraints,
+            max_time,
+        )
         self.timeout = timeout
         self.z3_model = z3_model if z3_model_status else None
         self.unsat_core = z3_model if not z3_model_status else None
@@ -468,7 +468,6 @@ class ModelStructure:
 
         self.N = model_constraints.semantics.N
         self.all_subsentences = model_constraints.all_subsentences
-        prefix_sentences = model_constraints.prefix_premises + model_constraints.prefix_conclusions
         self.sentence_letters = model_constraints.all_sentence_letters
         self.all_bits = find_all_bits(self.N)
         if not z3_model_status:
@@ -509,10 +508,10 @@ class ModelStructure:
         #     self.world_bits = []
         #     self.main_world = None
 
-    def solve(self, model_constraints):
+    def solve(self, model_constraints, max_time):
         solver = Solver()
         solver.add(model_constraints.all_constraints)
-        solver.set("timeout", int(model_constraints.max_time * 1000))  # time in seconds
+        solver.set("timeout", int(max_time * 1000))  # time in seconds
         try:
             model_start = time.time()  # start benchmark timer
             result = solver.check()
