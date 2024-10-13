@@ -7,13 +7,25 @@ class Sentence:
 
     def __init__(self, infix_sentence):
         self.name = infix_sentence
+        print("SENTENCE TEST INFIX", self.name)
         self.prefix_sentence = self.prefix(infix_sentence)
+        print("SENTENCE TEST PREFIX", self.prefix_sentence)
         letters, ops, subs, complexity = self.constituents_of(self.prefix_sentence)
         self.sentence_letters = letters
-        # print("TEST", letters)
         self.operators = ops
         self.subsentences = subs
         self.complexity = complexity
+
+    # def get_values(self):
+    #     """Returns components of the Sentence instance as a dictionary."""
+    #     return {
+    #         'name': self.name,
+    #         'prefix_sentence': self.prefix_sentence,
+    #         'sentence_letters': self.sentence_letters,
+    #         'operators': self.operators,
+    #         'subsentences': self.subsentences,
+    #         'complexity': self.complexity
+    #     }
         
     def prefix(self, infix_sentence):
         """For converting from infix to prefix notation without knowing which
@@ -131,17 +143,20 @@ class Sentence:
         operators = []
         subsentences = [prefix_sentence]
         complexity = 0
-        if prefix_sentence[0] in {'\\top', '\\bot'}:
-            operators.append(prefix_sentence)
-            return sentence_letters, operators, subsentences, complexity
         if len(prefix_sentence) == 1:
-            # B: would it be better to have lists of length 1 here?
-            sentence_letters.append(prefix_sentence[0])
-            return sentence_letters, operators, subsentences, complexity
-        main_operator = prefix_sentence.pop(0)
+            if '\\' in prefix_sentence[0]:
+                operators.append(prefix_sentence)
+                return sentence_letters, operators, subsentences, complexity
+            if prefix_sentence[0].isalnum():
+                # B: would it be better to have lists of length 1 here?
+                sentence_letters.append(prefix_sentence[0])
+                return sentence_letters, operators, subsentences, complexity
+            raise ValueError(f"The sentence {prefix_sentence} is not well-formed.")
+        # B: this is instead of above to exclude sentence letters; not sure if this is better
+        # subsentences.append(prefix_sentence)
+        main_operator = prefix_sentence[0]
         operators.append(main_operator)
-        arguments = prefix_sentence
-        subsentences.extend(arguments)
+        arguments = prefix_sentence[1:]
         complexity += 1
         for arg in arguments:
             arg_sent_lets, arg_ops, arg_subs, arg_comp = self.constituents_of(arg)
@@ -149,8 +164,8 @@ class Sentence:
             operators.extend(arg_ops)
             subsentences.extend(arg_subs)
             complexity += arg_comp
-        sorted_sent_lets = remove_repeats(sentence_letters)
-        sorted_ops = remove_repeats(operators)
-        sorted_subs = remove_repeats(subsentences)
+        sorted_sent_lets = sorted(remove_repeats(sentence_letters))
+        sorted_ops = sorted(remove_repeats(operators))
+        sorted_subs = sorted(remove_repeats(subsentences))
         return sorted_sent_lets, sorted_ops, sorted_subs, complexity
 
