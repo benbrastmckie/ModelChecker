@@ -303,6 +303,14 @@ class ModelSetup:
         print_impossible=False,
     ):
 
+        # Store inputs
+        self.semantics = semantics
+        self.operator_collection = operator_collection
+        # print("TEST", operator_collection.values())
+        self.infix_premises = infix_premises
+        self.infix_conclusions = infix_conclusions
+        self.proposition_class = proposition_class
+
         # Store settings
         self.max_time = max_time
         self.contingent = contingent
@@ -323,36 +331,34 @@ class ModelSetup:
         # Collect from premises and conclusions
         inputs = list(self.premises.values()) + list(self.conclusions.values())
         letters, ops, subs = self.unpack(inputs)
-        self.just_sentence_letters = letters
-        print("TEST LETTERS", self.just_sentence_letters)
-        self.just_operators = ops
-        print("TEST OPS", self.just_operators)
-        self.just_subsentences = subs
-        print("TEST SUBS", self.just_subsentences)
+        self.all_sentence_letters = [Const(letter, AtomSort) for letter in letters]
 
-        # to be removed, relying on the instances of Sentence?
-        self.infix_premises = infix_premises
-        self.infix_conclusions = infix_conclusions
-
-        self.semantics = semantics
         # B: I'm wondering if it makes sense to only add the operators that
         # occur in the premises and conclusion since they are provided in each
-        # instance of the Sentence class
+        # instance of the Sentence class. not totally sure how to do that.
         self.operators = {
             op_name: op_class(semantics)
             for (op_name, op_class) in operator_collection.items()
         }
-        self.proposition_class = proposition_class
+        self.all_subsentences = [self.apply_operator(sub) for sub in subs]
+        # print("TEST SUBS", self.all_subsentences)
 
-        # to be removed, relying on the instances of Sentence?
+        # B: I'm not getting the right values for the prefix premises below despite
+        # the tests the prefix premises working out well in the definition of Sentences
+        print("TEST ONLY INFIX PREM", infix_premises)
+        premises = [prem.prefix_sentence for prem in self.premises.values()]
+        print("TEST ONLY PREFIX PREM", premises)
+        self.just_prefix_premises = [self.apply_operator(prem.prefix_sentence[0]) for prem in self.premises.values()]
+        print("TEST PREM", self.just_prefix_premises)
+        self.just_prefix_conclusions = [self.apply_operator(con.prefix_sentence[0]) for con in self.conclusions.values()]
+        print("TEST CON", self.just_prefix_conclusions)
+
+        # B: to be replaced be relying on the instances of the Sentence class as above
+        # once the just_prefix_premises and just_prefix_conclusions agree with the below
         self.prefix_premises = [self.prefix(prem) for prem in infix_premises]
+        print("TARTGET PREM", self.prefix_premises)
         self.prefix_conclusions = [self.prefix(con) for con in infix_conclusions]
-
-        # B: aim is to replace the following with above
-        prefix_sentences = self.prefix_premises + self.prefix_conclusions
-        self.all_subsentences = self.find_subsentences(prefix_sentences)
-        # self.all_sentence_letters = [[Const(letter, AtomSort)] for letter in self.just_sentence_letters]
-        self.all_sentence_letters = self.find_sentence_letters(prefix_sentences)
+        print("TARTGET CON", self.prefix_conclusions)
 
         # Use semantics to generate and store Z3 constraints
         self.frame_constraints = semantics.frame_constraints
@@ -379,6 +385,20 @@ class ModelSetup:
     def __str__(self):
         """useful for using model-checker in a python file"""
         return f"ModelSetup for premises {self.infix_premises} and conclusions {self.infix_conclusions}"
+
+    def apply_operator(self, prefix_sentence):
+        # print("TEST APPLY PREFIX", prefix_sentence)
+        if len(prefix_sentence) == 1:
+            atom = prefix_sentence[0]
+            if atom in {"\\top", "\\bot"}:  # Handle extremal operators
+                return [self.operators[atom]]
+            if atom.isalnum():  # Handle atomic sentences
+                return [Const(prefix_sentence[0], AtomSort)]
+        op = prefix_sentence.pop(0)
+        # print("PRINT APPLY OP", op)
+        activated = [self.apply_operator(arg) for arg in prefix_sentence]
+        activated.insert(0, self.operators[op])
+        return activated 
 
     def unpack(self, sentences):
         letters = set()
