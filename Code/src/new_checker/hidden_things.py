@@ -278,16 +278,23 @@ class OperatorCollection:
 
     def __getitem__(self, value):
         return self.operator_classes_dict[value]
-    
+
+class Syntax:
+    """Takes infix_premises, infix_conclusions, and operator_collection as
+    arguments, generating and storing instances of the Sentence class.
+    Draws on Sentence instances to gather and apply the operators to generate
+    and store all_sentence_letters, all_subsentences, prefix_sentences, and
+    prefix_conclusions.
+    """
+    pass
+
+class Constraints:
+    """Takes semantics and proposition_class as arguments to build generate
+    and storing all Z3 constraints. This class is passed to ModelStructure."""
+    pass
 
 class ModelSetup:
     """Stores what is needed to find a Z3 model and passed to ModelStructure."""
-
-    # B: the idea here is to rely on the instances of Sentences since these do
-    # not depend on the semantics or operator_collection. the idea is to gather
-    # the sentence_letters, subsentences, and operators with the unpack()
-    # method, using these to generate and store the other attributes of this
-    # class by appealing to the semantics and operator_collection as needed.
 
     def __init__(
         self,
