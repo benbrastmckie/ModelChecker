@@ -10,10 +10,11 @@ class Sentence:
         # print("SENTENCE TEST INFIX", self.name)
         self.prefix_sentence = self.prefix(infix_sentence)
         # print("SENTENCE TEST PREFIX", self.prefix_sentence)
-        letters, ops, subs, complexity = self.constituents_of(self.prefix_sentence)
+        letters, meds, ops, complexity = self.constituents_of(self.prefix_sentence)
         self.sentence_letters = letters
+        self.intermediates = meds
+        self.subsentences = letters + meds + [self.prefix_sentence]
         self.operators = ops
-        self.subsentences = subs
         self.complexity = complexity
 
     # def get_values(self):
@@ -138,10 +139,11 @@ class Sentence:
     #     return seen
 
     def constituents_of(self, prefix_sentence):
-        """take a prefix sentence and return a set of subsentences"""
+        """take a prefix sentence and return sentence_letter, intermediates,
+        operators, and complexity."""
         sentence_letters = []
         operators = []
-        subsentences = [prefix_sentence]
+        subsentences = []
         complexity = 0
         if len(prefix_sentence) == 1:
             if '\\' in prefix_sentence[0]:
@@ -159,13 +161,13 @@ class Sentence:
         arguments = prefix_sentence[1:]
         complexity += 1
         for arg in arguments:
-            arg_sent_lets, arg_ops, arg_subs, arg_comp = self.constituents_of(arg)
+            arg_sent_lets, arg_subs, arg_ops, arg_comp = self.constituents_of(arg)
             sentence_letters.extend(arg_sent_lets)
             operators.extend(arg_ops)
             subsentences.extend(arg_subs)
             complexity += arg_comp
         sorted_sent_lets = sorted(remove_repeats(sentence_letters))
-        sorted_ops = sorted(remove_repeats(operators))
         sorted_subs = sorted(remove_repeats(subsentences))
-        return sorted_sent_lets, sorted_ops, sorted_subs, complexity
+        sorted_ops = sorted(remove_repeats(operators))
+        return sorted_sent_lets, sorted_subs, sorted_ops, complexity
 

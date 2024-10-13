@@ -317,7 +317,7 @@ class ModelSetup:
         self.disjoint = disjoint
         self.print_impossible = print_impossible
 
-        # Create Sentence instances for premises and conclusions
+        # Create Sentence instances for the premises and conclusions
         self.premises = {
             prem : Sentence(prem)
             for prem in infix_premises
@@ -327,41 +327,39 @@ class ModelSetup:
             for con in infix_conclusions
         }
 
-        # Collect from premises and conclusions and unpack
+        # Collect from premises and conclusions and gather constituents
         inputs = list(self.premises.values()) + list(self.conclusions.values())
-        letters, ops, subs = self.unpack(inputs)
-        # B: note there is some redundancy with what goes on in all_subsentences
-        self.all_sentence_letters = [Const(letter, AtomSort) for letter in letters]
+        letters, meds, ops = self.gather_constituents(inputs)
 
-        # B: I'm wondering if it makes sense to only add the operators that
-        # occur in the premises and conclusion since they are provided in each
-        # instance of the Sentence class. not totally sure how to do that.
         self.operators = {
             op_name: op_class(semantics)
             for (op_name, op_class) in operator_collection.items()
+            if op_name in ops
         }
-        # B: I considered excluding sentence letters and premises and conclusions to avoid
-        # redundancy, renaming the result 'intermediate_sentences'. that way all_subsentences
-        # would be the result of combining sentence_letters, intermediate_sentences, premises,
-        # and conclusions.
-        self.all_subsentences = [self.apply_operator(sub) for sub in subs]
+        self.prefix_premises = [
+            self.apply_operator(prem.prefix_sentence)
+            for prem in self.premises.values()
+        ]
+        self.prefix_conclusions = [
+            self.apply_operator(con.prefix_sentence)
+            for con in self.conclusions.values()
+        ]
+        self.all_sentence_letters = [
+            Const(letter, AtomSort)
+            for letter in letters
+        ]
+        self.all_intermediates = [
+            self.apply_operator(med)
+            for med in meds
+        ]
+        self.all_subsentences = (
+            self.all_sentence_letters +
+            self.all_intermediates +
+            self.prefix_premises +
+            self.prefix_conclusions
+        )
 
-        # B: I'm not getting the right values for the prefix premises below despite
-        # the tests the prefix premises working out well in the definition of Sentences
-        # print("TEST ONLY INFIX PREM", infix_premises)
-        # premises = [prem.prefix_sentence for prem in self.premises.values()]
-        # print("TEST ONLY PREFIX PREM", premises)
-        self.prefix_premises = [self.apply_operator(prem.prefix_sentence) for prem in self.premises.values()]
-        # print("TEST PREM", self.just_prefix_premises)
-        self.prefix_conclusions = [self.apply_operator(con.prefix_sentence) for con in self.conclusions.values()]
-        # print("TEST CON", self.just_prefix_conclusions)
-
-        # # B: to be replaced be relying on the instances of the Sentence class as above
-        # # once the just_prefix_premises and just_prefix_conclusions agree with the below
-        # self.prefix_premises = [self.prefix(prem) for prem in infix_premises]
-        # print("TARTGET PREM", self.prefix_premises)
-        # self.prefix_conclusions = [self.prefix(con) for con in infix_conclusions]
-        # print("TARTGET CON", self.prefix_conclusions)
+        # NOTE: this seems like a natural place to divide the class
 
         # Use semantics to generate and store Z3 constraints
         self.frame_constraints = semantics.frame_constraints
@@ -404,21 +402,21 @@ class ModelSetup:
         activated.insert(0, self.operators[op])
         return activated 
 
-    def unpack(self, sentences):
+    def gather_constituents(self, sentences):
         letters = set()
         # letters = [] # if sentence_letters are lists of length 1
         ops = set()
-        subs = []
+        meds = []
         for sent in sentences:
             # letters.extend(sent.sentence_letters) # if sentence_letters are lists of length 1
             letters.update(sent.sentence_letters)
             ops.update(sent.operators)
-            subs.extend(sent.subsentences)
+            meds.extend(sent.subsentences)
         # sorted_sentence_letters = remove_repeats(letters) # if sentence_letters are lists of length 1
         sorted_sentence_letters = sorted(list(letters), key=lambda x: str(x))
         sorted_operators = sorted(list(ops), key=lambda x: str(x))
-        sorted_subsentences = remove_repeats(subs)
-        return sorted_sentence_letters, sorted_operators, sorted_subsentences
+        sorted_intermediates = remove_repeats(meds)
+        return sorted_sentence_letters, sorted_intermediates, sorted_operators
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
@@ -460,12 +458,6 @@ class ModelSetup:
             all_prefix_subs = subsentences_of(prefix_sent)
             all_subsentences.extend(all_prefix_subs)
         return remove_repeats(all_subsentences)
-
-    def prefix(self, infix_sentence):
-        """For converting from infix to prefix notation without knowing which
-        which operators the language includes."""
-        tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
-        return parse_expression(tokens, self)
 
 
 class ModelStructure:
