@@ -162,7 +162,6 @@ class Proposition(PropositionDefaults):
             return True
         return False
 
-    # B: eliminated model_setup as an argument by initializing non_null
     def proposition_constraints(self, atom):
         """Currently does not have contingent proposition constraints."""
         semantics = self.semantics
@@ -238,7 +237,7 @@ class Proposition(PropositionDefaults):
 
 
     def truth_value_at(self, world):
-        semantics = self.model_structure.model_setup.semantics
+        semantics = self.model_structure.model_constraints.semantics
         z3_model = self.model_structure.z3_model
         for ver_bit in self.verifiers:
             if z3_model.evaluate(semantics.is_part_of(ver_bit, world)):

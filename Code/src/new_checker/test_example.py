@@ -15,10 +15,10 @@ from exposed_things import (
 
 # NOTE: go in API
 from hidden_things import(
-    ModelSetup,
+    ModelConstraints,
     ModelStructure,
     OperatorCollection,
-    Sentence,
+    Syntax,
 )
 from hidden_helpers import complexity_of
 
@@ -45,11 +45,17 @@ premises = ["A", "(A \\leftrightarrow B)"]
 # premises = ["(D \\leftrightarrow A)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["(D \\leftrightarrow A)"]
 conclusions = ["\\neg B"]
-model_setup = ModelSetup(
-    semantics,
-    operators,
+
+sytax = Syntax(
     premises,
     conclusions,
+    operators,
+    semantics,
+)
+# print("made model_setup")
+
+model_constraints = ModelConstraints(
+    sytax,
     Proposition,
     max_time=1,
     contingent=False,
@@ -62,7 +68,7 @@ model_setup = ModelSetup(
 # sl_dict = model_setup.find_sentence_letters(premises + conclusions)
 # print("TEST PRINT SENT_LET_DIC:", sl_dict)
 
-model_structure = ModelStructure(model_setup)
+model_structure = ModelStructure(model_constraints)
 # print("made model_structure")
 
 # TEST PRINT
