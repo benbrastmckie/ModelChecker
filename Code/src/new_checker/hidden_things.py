@@ -44,11 +44,11 @@ class PropositionDefaults:
         self.name = model_structure.infix(prefix_sentence)
         self.model_structure = model_structure
         self.N = model_structure.N
-        self.semantics = model_structure.model_setup.semantics
-        self.contingent = model_structure.model_setup.contingent
-        self.non_null = model_structure.model_setup.non_null
-        self.disjoint = model_structure.model_setup.disjoint
-        self.print_impossible = model_structure.model_setup.print_impossible
+        self.semantics = model_structure.model_constraints.semantics
+        self.contingent = model_structure.model_constraints.contingent
+        self.non_null = model_structure.model_constraints.non_null
+        self.disjoint = model_structure.model_constraints.disjoint
+        self.print_impossible = model_structure.model_constraints.print_impossible
         self.model_structure.all_propositions[self.name] = self
         self.verifiers, self.falsifiers = None, None # to avoid linter errors in print_proposition
         try:
@@ -73,12 +73,12 @@ class PropositionDefaults:
     # M: sorry meant unilateral and bilateral, not unary and binary (edited to reflect)
     # so that one set vs two is printed (one for unilateral, two for bilateral)
     def print_proposition(self, eval_world, indent_num=0):
-        N = self.model_structure.model_setup.semantics.N
+        N = self.model_structure.model_constraints.semantics.N
         # Linter: cannot access attribute "truth_value_at" for class "Proposition*"
         # M: the easiest solution would be to move verifiers to the init of this
         # or have a dummy set of verifiers here
         truth_value = self.truth_value_at(eval_world) 
-        possible = self.model_structure.model_setup.semantics.possible
+        possible = self.model_structure.model_constraints.semantics.possible
         z3_model = self.model_structure.z3_model
         ver_states = {
             bitvec_to_substates(bit, N)
@@ -279,6 +279,7 @@ class OperatorCollection:
     def __getitem__(self, value):
         return self.operator_classes_dict[value]
 
+
 class Syntax:
     """Takes infix_premises, infix_conclusions, and operator_collection as
     arguments, generating and storing instances of the Sentence class.
@@ -286,43 +287,20 @@ class Syntax:
     and store all_sentence_letters, all_subsentences, prefix_sentences, and
     prefix_conclusions.
     """
-    pass
-
-class Constraints:
-    """Takes semantics and proposition_class as arguments to build generate
-    and storing all Z3 constraints. This class is passed to ModelStructure."""
-    pass
-
-class ModelSetup:
-    """Stores what is needed to find a Z3 model and passed to ModelStructure."""
 
     def __init__(
         self,
-        semantics,
-        operator_collection,
         infix_premises,
         infix_conclusions,
-        proposition_class,
-        max_time=1,
-        contingent=False,
-        non_null=True,
-        disjoint=False,
-        print_impossible=False,
+        operator_collection,
+        semantics,
     ):
 
         # Store inputs
-        self.semantics = semantics
-        self.operator_collection = operator_collection
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
-        self.proposition_class = proposition_class
-
-        # Store settings
-        self.max_time = max_time
-        self.contingent = contingent
-        self.non_null = non_null
-        self.disjoint = disjoint
-        self.print_impossible = print_impossible
+        self.operator_collection = operator_collection
+        self.semantics = semantics
 
         # Create Sentence instances for the premises and conclusions
         self.premises = {
@@ -366,21 +344,80 @@ class ModelSetup:
             self.prefix_conclusions
         )
 
-        # NOTE: this seems like a natural place to divide the class
+    def apply_operator(self, prefix_sentence):
+        if len(prefix_sentence) == 1:
+            atom = prefix_sentence[0]
+            if atom in {"\\top", "\\bot"}:  # Handle extremal operators
+                return [self.operators[atom]]
+            if atom.isalnum():  # Handle atomic sentences
+                return [Const(prefix_sentence[0], AtomSort)]
+        op = prefix_sentence[0]
+        arguments = prefix_sentence[1:]
+        activated = [self.apply_operator(arg) for arg in arguments]
+        activated.insert(0, self.operators[op])
+        return activated 
+
+    def gather_constituents(self, sentences):
+        letters = set()
+        ops = set()
+        meds = []
+        for sent in sentences:
+            letters.update(sent.sentence_letters)
+            ops.update(sent.operators)
+            meds.extend(sent.subsentences)
+        sorted_sentence_letters = sorted(list(letters), key=lambda x: str(x))
+        sorted_operators = sorted(list(ops), key=lambda x: str(x))
+        sorted_intermediates = remove_repeats(meds)
+        return sorted_sentence_letters, sorted_intermediates, sorted_operators
+
+
+class ModelConstraints:
+    """Takes semantics and proposition_class as arguments to build generate
+    and storing all Z3 constraints. This class is passed to ModelStructure."""
+
+    def __init__(
+        self,
+        syntax,
+        proposition_class,
+        max_time=1,
+        contingent=False,
+        non_null=True,
+        disjoint=False,
+        print_impossible=False,
+    ):
+
+        # Store inputs
+        self.syntax = syntax
+        self.proposition_class = proposition_class
+        self.semantics = syntax.semantics
+        self.operators = syntax.operators
+        self.infix_premises = syntax.infix_premises
+        self.infix_conclusions = syntax.infix_conclusions
+        self.prefix_premises = syntax.prefix_premises
+        self.prefix_conclusions = syntax.prefix_conclusions
+        self.all_subsentences = syntax.all_subsentences
+        self.all_sentence_letters = syntax.all_sentence_letters
+
+        # Store settings
+        self.max_time = max_time
+        self.contingent = contingent
+        self.non_null = non_null
+        self.disjoint = disjoint
+        self.print_impossible = print_impossible
 
         # Use semantics to generate and store Z3 constraints
-        self.frame_constraints = semantics.frame_constraints
+        self.frame_constraints = self.semantics.frame_constraints
         self.model_constraints = []
         for sl in self.all_sentence_letters:
             self.model_constraints.extend(
                 proposition_class.proposition_constraints(self, sl)
             )
         self.premise_constraints = [
-            semantics.premise_behavior(prem, semantics.main_world)
+            self.semantics.premise_behavior(prem, self.semantics.main_world)
             for prem in self.prefix_premises
         ]
         self.conclusion_constraints = [
-            semantics.conclusion_behavior(conc, semantics.main_world)
+            self.semantics.conclusion_behavior(conc, self.semantics.main_world)
             for conc in self.prefix_conclusions
         ]
         self.all_constraints = (
@@ -393,37 +430,6 @@ class ModelSetup:
     def __str__(self):
         """useful for using model-checker in a python file"""
         return f"ModelSetup for premises {self.infix_premises} and conclusions {self.infix_conclusions}"
-
-    def apply_operator(self, prefix_sentence):
-        # print("TEST APPLY PREFIX", prefix_sentence)
-        if len(prefix_sentence) == 1:
-            atom = prefix_sentence[0]
-            if atom in {"\\top", "\\bot"}:  # Handle extremal operators
-                return [self.operators[atom]]
-            if atom.isalnum():  # Handle atomic sentences
-                return [Const(prefix_sentence[0], AtomSort)]
-        op = prefix_sentence[0]
-        arguments = prefix_sentence[1:]
-        # print("PRINT APPLY OP", op)
-        activated = [self.apply_operator(arg) for arg in arguments]
-        activated.insert(0, self.operators[op])
-        return activated 
-
-    def gather_constituents(self, sentences):
-        letters = set()
-        # letters = [] # if sentence_letters are lists of length 1
-        ops = set()
-        meds = []
-        for sent in sentences:
-            # letters.extend(sent.sentence_letters) # if sentence_letters are lists of length 1
-            letters.update(sent.sentence_letters)
-            ops.update(sent.operators)
-            meds.extend(sent.subsentences)
-        # sorted_sentence_letters = remove_repeats(letters) # if sentence_letters are lists of length 1
-        sorted_sentence_letters = sorted(list(letters), key=lambda x: str(x))
-        sorted_operators = sorted(list(ops), key=lambda x: str(x))
-        sorted_intermediates = remove_repeats(meds)
-        return sorted_sentence_letters, sorted_intermediates, sorted_operators
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
@@ -445,45 +451,24 @@ class ModelSetup:
             for index, sent in enumerate(infix_conclusions, start=start_con_num):
                 print(f"{index}. {sent}", file=output)
 
-    def find_sentence_letters(self, prefix_sentences):
-        """Finds all the sentence letters in a list of input sentences, in prefix form.
-        Returns as a list of AtomSorts with no repeats (sorted for consistency).
-        used in find_all_constraints (feeds into find_prop_constraints) and StateSpace __init__.
-        """
-        sentence_letters = set()
-        for prefix_input in prefix_sentences:
-            sentence_letters.update(sentence_letters_in_compound(prefix_input))
-        sorted_sentence_letters = sorted(list(sentence_letters), key=lambda x: str(x))
-        return sorted_sentence_letters
-        # B: this seems to be working but worth checking; old is below
-        # return list(sentence_letters)
-
-    def find_subsentences(self, prefix_sentences):
-        """take a set of prefix sentences and returns a set of all subsentences"""
-        all_subsentences = []
-        for prefix_sent in prefix_sentences:
-            all_prefix_subs = subsentences_of(prefix_sent)
-            all_subsentences.extend(all_prefix_subs)
-        return remove_repeats(all_subsentences)
-
 
 class ModelStructure:
     """Solves and stores the Z3 model for an instance of ModelSetup."""
 
-    def __init__(self, model_setup):
-        timeout, z3_model_status, z3_model, z3_model_runtime = self.solve(model_setup)
+    def __init__(self, model_constraints):
+        timeout, z3_model_status, z3_model, z3_model_runtime = self.solve(model_constraints)
         # print("TEST", z3_model_status)
-        self.model_setup = model_setup
+        self.model_constraints = model_constraints
         self.timeout = timeout
         self.z3_model = z3_model if z3_model_status else None
         self.unsat_core = z3_model if not z3_model_status else None
         self.model_status = z3_model_status
         self.model_runtime = z3_model_runtime
-        self.print_impossible = model_setup.print_impossible
+        self.print_impossible = model_constraints.print_impossible
 
-        self.N = model_setup.semantics.N
-        self.all_subsentences = model_setup.all_subsentences
-        prefix_sentences = model_setup.prefix_premises + model_setup.prefix_conclusions
+        self.N = model_constraints.semantics.N
+        self.all_subsentences = model_constraints.all_subsentences
+        prefix_sentences = model_constraints.prefix_premises + model_constraints.prefix_conclusions
         self.sentence_letters = all_sentence_letters(prefix_sentences)
         self.all_bits = find_all_bits(self.N)
         if not z3_model_status:
@@ -495,27 +480,27 @@ class ModelStructure:
         self.poss_bits = [
             bit
             for bit in self.all_bits
-            if bool(z3_model.evaluate(model_setup.semantics.possible(bit)))
+            if bool(z3_model.evaluate(model_constraints.semantics.possible(bit)))
             # LINTER: cannot access attribute "evaluate" for class "AstVector"
         ]
         self.world_bits = [
             bit
             for bit in self.poss_bits
-            if bool(z3_model.evaluate(model_setup.semantics.is_world(bit)))
+            if bool(z3_model.evaluate(model_constraints.semantics.is_world(bit)))
             # LINTER: cannot access attribute "evaluate" for class "AstVector"
         ]
-        self.main_world = z3_model[model_setup.semantics.main_world]
+        self.main_world = z3_model[model_constraints.semantics.main_world]
         # LINTER: object of type "None" is not subscriptable
         self.all_propositions = {}
         self.premise_propositions = [
-            model_setup.proposition_class(prefix_sent, self)
+            model_constraints.proposition_class(prefix_sent, self)
             # B: what if there are repeats in prefix_premises?
-            for prefix_sent in model_setup.prefix_premises
+            for prefix_sent in model_constraints.prefix_premises
         ]
         self.conclusion_propositions = [
-            model_setup.proposition_class(prefix_sent, self)
+            model_constraints.proposition_class(prefix_sent, self)
             # B: what if there are repeats in prefix_premises?
-            for prefix_sent in model_setup.prefix_conclusions
+            for prefix_sent in model_constraints.prefix_conclusions
         ]
         # else: # M: this was being raised when no model was being found
         #     # B: not sure whether to raise error to kill process or print
@@ -525,10 +510,10 @@ class ModelStructure:
         #     self.world_bits = []
         #     self.main_world = None
 
-    def solve(self, model_setup):
+    def solve(self, model_constraints):
         solver = Solver()
-        solver.add(model_setup.all_constraints)
-        solver.set("timeout", int(model_setup.max_time * 1000))  # time in seconds
+        solver.add(model_constraints.all_constraints)
+        solver.set("timeout", int(model_constraints.max_time * 1000))  # time in seconds
         try:
             model_start = time.time()  # start benchmark timer
             result = solver.check()
@@ -557,7 +542,7 @@ class ModelStructure:
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
         in that world"""
-        N = self.model_setup.semantics.N
+        N = self.model_constraints.semantics.N
         sentence_letters = self.sentence_letters
         main_world = self.main_world
         print(
@@ -567,7 +552,7 @@ class ModelStructure:
         # true_in_eval = set()
         # for sent in sentence_letters:
         #     for bit in self.all_bits:
-        #         ver_bool = self.model_setup.verify(bit, self.z3_model[sent])
+        #         ver_bool = self.model_constraints.verify(bit, self.z3_model[sent])
         #         part_bool = bit_part(bit, main_world)
         #         if bool(self.z3_model.evaluate(ver_bool) and part_bool):
         #             true_in_eval.add(sent)
@@ -597,8 +582,8 @@ class ModelStructure:
     # def print_to(self, print_constraints_bool, print_impossible, output=sys.__stdout__):
     #     """append all elements of the model to the file provided"""
     #     self.print_all(print_impossible, output)
-    #     structure = self.model_setup
-    #     setup = self.model_setup
+    #     structure = self.model_constraints
+    #     setup = self.model_constraints
     #     if print_constraints_bool:
     #         structure.print_constraints(setup.frame_constraints, 'FRAME', output)
     #         structure.print_constraints(setup.prop_constraints, 'PROPOSITION', output)
@@ -608,9 +593,9 @@ class ModelStructure:
 
     # def save_to(self, cons_include, print_impossible, output):
     #     """append all elements of the model to the file provided"""
-    #     constraints = self.model_setup.constraints
+    #     constraints = self.model_constraints.constraints
     #     self.print_all(print_impossible, output)
-    #     self.model_setup.build_test_file(output)
+    #     self.model_constraints.build_test_file(output)
     #     if cons_include:
     #         print("# Satisfiable constraints", file=output)
     #         # TODO: print constraint objects, not constraint strings
@@ -620,7 +605,7 @@ class ModelStructure:
         """print all fusions of atomic states in the model
         print_impossible is a boolean for whether to print impossible states or not
         first print function in print.py"""
-        N = self.model_setup.semantics.N
+        N = self.model_constraints.semantics.N
         print("\nState Space:", file=output)  # Print states
         YELLOW = "\033[33m"
         BLUE = "\033[34m"
@@ -665,8 +650,8 @@ class ModelStructure:
         """does rec_print for every proposition in the input propositions
         returns None"""
         initial_eval_world = self.main_world
-        infix_premises = self.model_setup.infix_premises
-        infix_conclusions = self.model_setup.infix_conclusions
+        infix_premises = self.model_constraints.infix_premises
+        infix_conclusions = self.model_constraints.infix_conclusions
         start_con_num = len(infix_premises) + 1
         if self.premise_propositions:
             if len(infix_premises) < 2:
@@ -691,13 +676,13 @@ class ModelStructure:
     def print_all(self, output=sys.__stdout__):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
-        N = self.model_setup.semantics.N
+        N = self.model_constraints.semantics.N
         if self.model_status:
             print(f"\nThere is a {N}-model of:\n", file=output)
-            self.model_setup.print_enumerate(output)
+            self.model_constraints.print_enumerate(output)
             self.print_states(output)
             self.print_evaluation(output)
             self.print_inputs_recursively(output)
             return
         print(f"\nThere is no {N}-model of:\n")
-        self.model_setup.print_enumerate(output)
+        self.model_constraints.print_enumerate(output)
