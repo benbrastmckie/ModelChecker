@@ -32,6 +32,7 @@ from syntactic import Sentence
 
 # B: I'm assuming this will need to be included to activate sentence letters if this
 # happens separately from finding sentence letters (if separating that is good)
+# M: Not sure I understand
 AtomSort = DeclareSort("AtomSort")
 
 class PropositionDefaults:
@@ -74,22 +75,19 @@ class PropositionDefaults:
     # so that one set vs two is printed (one for unilateral, two for bilateral)
     def print_proposition(self, eval_world, indent_num=0):
         N = self.model_structure.model_constraints.semantics.N
-        # Linter: cannot access attribute "truth_value_at" for class "Proposition*"
-        # M: the easiest solution would be to move verifiers to the init of this
-        # or have a dummy set of verifiers here
         truth_value = self.truth_value_at(eval_world) 
         possible = self.model_structure.model_constraints.semantics.possible
         z3_model = self.model_structure.z3_model
         ver_states = {
             bitvec_to_substates(bit, N)
-            for bit in self.verifiers # Linter: ditto for "verifiers"
+            for bit in self.verifiers
             if z3_model.evaluate(possible(bit))
             or self.print_impossible
         }
         ver_prints = pretty_set_print(ver_states) if ver_states else '∅'
         fal_states = {
             bitvec_to_substates(bit, N)
-            for bit in self.falsifiers # Linter: ditto for "falsifiers"
+            for bit in self.falsifiers
             if z3_model.evaluate(possible(bit))
             or self.print_impossible
         }
