@@ -306,7 +306,6 @@ class ModelSetup:
         # Store inputs
         self.semantics = semantics
         self.operator_collection = operator_collection
-        # print("TEST", operator_collection.values())
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
         self.proposition_class = proposition_class
@@ -328,9 +327,10 @@ class ModelSetup:
             for con in infix_conclusions
         }
 
-        # Collect from premises and conclusions
+        # Collect from premises and conclusions and unpack
         inputs = list(self.premises.values()) + list(self.conclusions.values())
         letters, ops, subs = self.unpack(inputs)
+        # B: note there is some redundancy with what goes on in all_subsentences
         self.all_sentence_letters = [Const(letter, AtomSort) for letter in letters]
 
         # B: I'm wondering if it makes sense to only add the operators that
@@ -340,8 +340,11 @@ class ModelSetup:
             op_name: op_class(semantics)
             for (op_name, op_class) in operator_collection.items()
         }
+        # B: I considered excluding sentence letters and premises and conclusions to avoid
+        # redundancy, renaming the result 'intermediate_sentences'. that way all_subsentences
+        # would be the result of combining sentence_letters, intermediate_sentences, premises,
+        # and conclusions.
         self.all_subsentences = [self.apply_operator(sub) for sub in subs]
-        # print("TEST SUBS", self.all_subsentences)
 
         # B: I'm not getting the right values for the prefix premises below despite
         # the tests the prefix premises working out well in the definition of Sentences
