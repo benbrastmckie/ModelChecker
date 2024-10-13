@@ -56,7 +56,6 @@ sytax = Syntax(
 model_constraints = ModelConstraints(
     sytax,
     Proposition,
-    max_time=1,
     contingent=False,
     non_null=True,
     disjoint=False,
@@ -67,7 +66,7 @@ model_constraints = ModelConstraints(
 # sl_dict = model_setup.find_sentence_letters(premises + conclusions)
 # print("TEST PRINT SENT_LET_DIC:", sl_dict)
 
-model_structure = ModelStructure(model_constraints)
+model_structure = ModelStructure(model_constraints, max_time=1)
 # print("made model_structure")
 
 # TEST PRINT
