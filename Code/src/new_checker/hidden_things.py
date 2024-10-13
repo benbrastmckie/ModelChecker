@@ -300,7 +300,7 @@ class Syntax:
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
         self.operator_collection = operator_collection
-        self.semantics = semantics
+        self.semantics = semantics # B: is it possible to eliminate this?
 
         # Create Sentence instances for the premises and conclusions
         self.premises = {
@@ -317,7 +317,7 @@ class Syntax:
         letters, meds, ops = self.gather_constituents(inputs)
 
         self.operators = {
-            op_name: op_class(semantics)
+            op_name: op_class(semantics) # B: only remaining reference to semantics
             for (op_name, op_class) in operator_collection.items()
             if op_name in ops
         }
