@@ -28,6 +28,10 @@ from syntactic import Sentence
 # B: I'm assuming this will need to be included to activate sentence letters if this
 # happens separately from finding sentence letters (if separating that is good)
 # M: Not sure I understand
+# B: in the old parse function, sentence letters were what I'm calling "activated"
+# by returning [Const(letter, AtomSort)] when they were found. Now all the parsing
+# happens separately, and then later the results get activated with the apply_operator
+# method in Syntax.
 AtomSort = DeclareSort("AtomSort")
 
 
