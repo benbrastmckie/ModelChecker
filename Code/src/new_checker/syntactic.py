@@ -331,6 +331,9 @@ class Syntax:
         # M: I switched them back because I wrote a lot of code as if they were lists so to
         # quick fix I just made them lists here
         # M: what's your reasoning for making them dictionaries?
+        # B: I think they can be lists. was thinking that it could make it
+        # easier to call on them later, but we can cross that bridge if we
+        # come to it.
         self.premises = [Sentence(prem) for prem in infix_premises]
         self.conclusions = [Sentence(con)for con in infix_conclusions]
         self.operators = operator_collection
@@ -347,8 +350,9 @@ class Syntax:
         self.prefix_type_premises = [prem.prefix_type for prem in self.premises]
         self.prefix_type_conclusions = [conc.prefix_type for conc in self.conclusions]
         self.all_subsentences = (
-            self.all_sentence_letters # M: think this maybe should get removed from here
-            + self.all_intermediates
+            # self.all_sentence_letters # M: think this maybe should get removed from here
+            # B: I was also thinking about that. it seems to work well without it.
+            self.all_intermediates
             + self.prefix_type_premises
             + self.prefix_type_conclusions
         )
@@ -401,70 +405,86 @@ def coproduct(set_A, set_B):
 ################################### HELPERS FOR op_left_right ###################################
 #################################################################################################
 
-def balanced_parentheses(tokens):
-    """Check if parentheses are balanced in the argument."""
-    stack = []
-    for token in tokens:
-        if token == "(":
-            stack.append(token)
-        elif token == ")":
-            if not stack:
-                return False
-            stack.pop()
-    return len(stack) == 0
+# it seems like our current convention is that functions that get called in an
+# attribute of only one class are methods of that class, but functions that get
+# called in methods of a class but not in the attributes, or that are called in
+# multiple classes of a single module are helpers that live at the bottom of
+# the module. this helps to keep the classes from getting to long. helpers that
+# are needed in multiple modules can then go in in the helpers module.
 
-def check_right(tokens, operator):
-    if not tokens:
-        raise ValueError(f"Expected an argument after the operator {operator}")
-    if not balanced_parentheses(tokens):
-        raise ValueError("Unbalanced parentheses")
-    return tokens  # Remaining tokens are the right argument
+# seems good to have an explicit convention that can be explained in the docs
+# at some point.
 
-def cut_parentheses(left, tokens):
-    count = 1  # To track nested parentheses
-    while tokens:
-        token = tokens.pop(0)
-        if token == "(":
-            count += 1
-            left.append(token)
-        elif token == ")":
-            count -= 1
-            left.append(token)
-        elif count > 0:
-            left.append(token)
-        elif not tokens:
-            raise ValueError(f"Extra parentheses in {tokens}.")
-        else:
-            operator = token
-            right = check_right(tokens, operator)
-            return operator, left, right
-    raise ValueError(f"The expression {tokens} is incomplete.")
-
-def process_operator(tokens):
-    if tokens:
-        return tokens.pop(0)
-    raise ValueError("Operator missing after operand")
-
-def extract_arguments(tokens):
-    """Extracts the left argument and right argument from tokens."""
-    left = []
-    while tokens:
-        token = tokens.pop(0)
-        if token == "(":
-            left.append(token)
-            return cut_parentheses(left, tokens)
-        elif token.isalnum() or token in {"\\top", "\\bot"}:
-            left.append(token)
-            operator = process_operator(tokens)
-            right = check_right(tokens, operator)
-            return operator, left, right
-        else:
-            left.append(token)
-    raise ValueError("Invalid expression or unmatched parentheses")
+# The functions below are only going to be used in op_left_right so was
+# thinking they could be subfunctions of op_left_right. if they ended up
+# being needed elsewhere (maybe balanced_parentheses is useful), then we could
+# pull them out. but let me know if there is a reason not to do this.
 
 def op_left_right(tokens):
     """Divides whatever is inside a pair of parentheses into the left argument,
     right argument, and the operator."""
+
+    def balanced_parentheses(tokens):
+        """Check if parentheses are balanced in the argument."""
+        stack = []
+        for token in tokens:
+            if token == "(":
+                stack.append(token)
+            elif token == ")":
+                if not stack:
+                    return False
+                stack.pop()
+        return len(stack) == 0
+
+    def check_right(tokens, operator):
+        if not tokens:
+            raise ValueError(f"Expected an argument after the operator {operator}")
+        if not balanced_parentheses(tokens):
+            raise ValueError("Unbalanced parentheses")
+        return tokens  # Remaining tokens are the right argument
+
+    def cut_parentheses(left, tokens):
+        count = 1  # To track nested parentheses
+        while tokens:
+            token = tokens.pop(0)
+            if token == "(":
+                count += 1
+                left.append(token)
+            elif token == ")":
+                count -= 1
+                left.append(token)
+            elif count > 0:
+                left.append(token)
+            elif not tokens:
+                raise ValueError(f"Extra parentheses in {tokens}.")
+            else:
+                operator = token
+                right = check_right(tokens, operator)
+                return operator, left, right
+        raise ValueError(f"The expression {tokens} is incomplete.")
+
+    def process_operator(tokens):
+        if tokens:
+            return tokens.pop(0)
+        raise ValueError("Operator missing after operand")
+
+    def extract_arguments(tokens):
+        """Extracts the left argument and right argument from tokens."""
+        left = []
+        while tokens:
+            token = tokens.pop(0)
+            if token == "(":
+                left.append(token)
+                return cut_parentheses(left, tokens)
+            elif token.isalnum() or token in {"\\top", "\\bot"}:
+                left.append(token)
+                operator = process_operator(tokens)
+                right = check_right(tokens, operator)
+                return operator, left, right
+            else:
+                left.append(token)
+        raise ValueError("Invalid expression or unmatched parentheses")
+
     result = extract_arguments(tokens)
     if result is None:
         raise ValueError("Failed to extract arguments")
