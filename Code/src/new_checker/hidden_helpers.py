@@ -184,12 +184,11 @@ def not_implemented_string(cl_name):
     """Return a message for NotImplemented Errors on Operator and Proposition classes.
     The error is raised when a user creates an Operator object or a Proposition object,
     and directs them to implement a subclass and create instances of the subclass."""
-    return (
-        f"User should implement subclass(es) of {cl_name} "
-        f"for {cl_name.lower()}s. The {cl_name} "
-        "class should never be instantiated."
-    )
-
+    if cl_name == "PropositionDefaults":
+        return (f"User should implement subclass(es) of {cl_name} for propositions. The "
+            f"{cl_name} class should never be instantiated.")
+    return (f"User should implement subclass(es) of {cl_name} for {cl_name.lower()}s. The "
+            f"{cl_name} class should never be instantiated.")
 
 def flatten(L_of_Ls):
     flattened = []
