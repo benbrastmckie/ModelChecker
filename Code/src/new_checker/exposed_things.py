@@ -235,7 +235,6 @@ class Proposition(PropositionDefaults):
         #     else:
         #         children_subprops.append(Proposition(arg, self.model_structure))
 
-
     def truth_value_at(self, world):
         semantics = self.model_structure.model_constraints.semantics
         z3_model = self.model_structure.z3_model

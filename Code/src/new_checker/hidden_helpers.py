@@ -47,27 +47,6 @@ def pretty_set_print(set_with_strings):
     return print_str if print_str != "{}" else '∅'
 
 
-def summation(n, func, start = 0):
-    '''summation of i ranging from start to n of func(i)
-    used in find_all_bits'''
-    if start == n:
-        return func(start)
-    return func(start) + summation(n,func,start+1)
-
-
-def find_all_bits(size):
-    '''extract all bitvectors from the input model
-    imported by model_structure'''
-    all_bits = []
-    max_bit_number = summation(size + 1, lambda x: 2**x)
-    for val in range(max_bit_number):
-        test_bit = BitVecVal(val, size)
-        if test_bit in all_bits:
-            continue
-        all_bits.append(test_bit)
-    return all_bits
-
-
 def int_to_binary(integer, number):
     '''Converts a hexadecimal string to a binary string.'''
     binary_str = bin(integer)[2:]  # Convert to binary string and remove '0b' prefix
