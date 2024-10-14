@@ -9,6 +9,7 @@ from exposed_things import (
     TopOperator,
     ConditionalOperator,
     BiconditionalOperator,
+    CounterfactualOperator,
 
 )
 
@@ -31,6 +32,7 @@ operators = syntactic.OperatorCollection(
     BotOperator,
     ConditionalOperator,
     BiconditionalOperator,
+    CounterfactualOperator,
 )
 
 ### PREMISES AND CONCLUSION ###
@@ -39,7 +41,7 @@ operators = syntactic.OperatorCollection(
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
 # premises = ["A", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow B)"]
-premises = ["A", "(A \\leftrightarrow B)"]
+premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\wedge B)"]
 # premises = ["(D \\leftrightarrow \\bot)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["(D \\leftrightarrow A)"]
