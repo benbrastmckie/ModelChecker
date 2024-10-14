@@ -171,6 +171,7 @@ class Operator:
 class DefinedOperator(Operator):
     primitive = False
 
+    # def derived_definition(self):
     # def derived_definition(self, *args):
     # B: arguments need to be included as below to avoid type errors. I tried
     # the above to accommodate different arity, but no luck. I suppose that
