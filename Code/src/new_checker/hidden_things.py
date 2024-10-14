@@ -325,7 +325,7 @@ class ModelStructure:
     # B: right now this is really a helper function for printing.
     # could move it to helpers, but I'm starting to think it would
     # be better to save the helpers module for functions that are
-    # are needed in multiple modules and are sorta general. 
+    # called in multiple modules. 
     def infix(self, prefix_sent):
         """Takes a sentence in prefix notation and translates it to infix notation
         TODO: what is prefix notation here? Does it matter?
@@ -462,7 +462,10 @@ class ModelStructure:
                 print("INTERPRETED PREMISE:\n", file=output)
             else:
                 print("INTERPRETED PREMISES:\n", file=output)
-            for index, input_prop in enumerate(self.premise_propositions, start=1):
+            for index, input_prop in enumerate(
+                self.premise_propositions,
+                start=1
+            ):
                 print(f"{index}.", end="", file=output)
                 self.rec_print(input_prop, initial_eval_world, 1)
                 # input_prop.print_proposition(initial_eval_world, 1)
@@ -472,7 +475,10 @@ class ModelStructure:
                 print("INTERPRETED CONCLUSION:\n", file=output)
             else:
                 print("INTERPRETED CONCLUSIONS:\n", file=output)
-            for index, input_prop in enumerate(self.conclusion_propositions, start=start_con_num):
+            for index, input_prop in enumerate(
+                self.conclusion_propositions,
+                start=start_con_num
+            ):
                 print(f"{index}.", end="", file=output)
                 self.rec_print(input_prop, initial_eval_world, 1)
                 print(file=output)
