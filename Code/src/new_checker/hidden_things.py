@@ -6,7 +6,7 @@ from z3 import (
 import time
 
 from hidden_helpers import (
-    all_sentence_letters,
+    # all_sentence_letters,
     find_all_bits,
     bitvec_to_substates,
     int_to_binary,

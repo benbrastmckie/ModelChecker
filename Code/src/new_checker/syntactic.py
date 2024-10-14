@@ -1,14 +1,13 @@
 
 from hidden_helpers import (remove_repeats, 
                             not_implemented_string,
-                            simplify,
                             flatten,
                             
                             )
 
 import inspect
 
-from z3 import Const, DeclareSort
+from z3 import Const, DeclareSort, simplify
 
 # B: I'm assuming this will need to be included to activate sentence letters if this
 # happens separately from finding sentence letters (if separating that is good)

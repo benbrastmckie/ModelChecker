@@ -3,7 +3,6 @@ import z3
 # NOTE: go in API
 from hidden_things import (
     PropositionDefaults,
-    AtomSort,
 )
 
 # NOTE: go in API
@@ -21,8 +20,8 @@ class Semantics:
 
     def __init__(self, N):
         self.N = N
-        self.verify = z3.Function("verify", z3.BitVecSort(N), AtomSort, z3.BoolSort())
-        self.falsify = z3.Function("falsify", z3.BitVecSort(N), AtomSort, z3.BoolSort())
+        self.verify = z3.Function("verify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
+        self.falsify = z3.Function("falsify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
         self.possible = z3.Function("possible", z3.BitVecSort(N), z3.BoolSort())
         self.main_world = z3.BitVec("w", N)
         x, y = z3.BitVecs("frame_x frame_y", N)
