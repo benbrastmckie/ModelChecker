@@ -130,7 +130,7 @@ class Semantics:
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sent)))
         operator = prefix_sentence[0]
         args = prefix_sentence[1:]
-        return operator.false_at(*args, eval_world=eval_world)
+        return operator.false_at(*args, eval_world)
 
 
 class Proposition(PropositionDefaults):

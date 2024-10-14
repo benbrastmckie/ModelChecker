@@ -1,9 +1,9 @@
 
-from hidden_helpers import (remove_repeats, 
-                            not_implemented_string,
-                            flatten,
-                            
-                            )
+from hidden_helpers import (
+    remove_repeats, 
+    not_implemented_string,
+    flatten,
+)
 
 import inspect
 
