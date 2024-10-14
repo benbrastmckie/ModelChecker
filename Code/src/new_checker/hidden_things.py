@@ -141,9 +141,6 @@ class ModelConstraints:
 
         self.all_subsentences = syntax.all_subsentences
         self.all_sentence_letters = syntax.all_sentence_letters
-        # print(self.prefix_premises)
-        # for pfx in self.prefix_premises:
-        #     print([type(x) for x in pfx])
 
         # Store settings
         self.contingent = contingent
