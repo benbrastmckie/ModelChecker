@@ -16,14 +16,16 @@ from exposed_things import (
 from hidden_things import(
     ModelConstraints,
     ModelStructure,
-    OperatorCollection,
-    Syntax,
 )
+
+import syntactic
 
 semantics = Semantics(3)
 # print("made semantics")
 
-operators = OperatorCollection(
+
+
+operators = syntactic.OperatorCollection(
     AndOperator,
     NegOperator,
     OrOperator,
@@ -40,20 +42,17 @@ operators = OperatorCollection(
 # premises = ["A", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow B)"]
 premises = ["A", "(A \\leftrightarrow B)"]
+# premises = ["A", "(A \\wedge B)"]
 # premises = ["(D \\leftrightarrow A)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["(D \\leftrightarrow A)"]
 conclusions = ["\\neg B"]
 
-sytax = Syntax(
-    premises,
-    conclusions,
-    operators,
-    semantics,
-)
+sytax = syntactic.Syntax(premises, conclusions, operators)
 # print("made model_setup")
 
 model_constraints = ModelConstraints(
     sytax,
+    semantics,
     Proposition,
     contingent=False,
     non_null=True,
@@ -70,6 +69,8 @@ model_structure = ModelStructure(model_constraints, max_time=1)
 
 # TEST PRINT
 model_structure.print_all()  
+
+print(model_constraints)
 
 # print("print all props:", model_structure.all_propositions)
 

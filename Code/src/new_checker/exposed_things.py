@@ -1,20 +1,8 @@
-# M: Thought: might it not be a bad idea to do import z3 instead?
-# if this file is going to be the example file for user-made semantics etc
-# then it'd be nice if it were easily idenfiable what things are user defined
-# (meaning they need to define) and what things come from Z3. 
-# if we do import z3 instead of from z3 import (...), then everything imported
-# from z3 will have z3. before it in the code, making it very clear that it
-# comes from z3.
-# B: that's a great idea!
-
 import z3
 
 # NOTE: go in API
 from hidden_things import (
-    Operator,
-    DefinedOperator,
     PropositionDefaults,
-    AtomSort,
 )
 
 # NOTE: go in API
@@ -23,6 +11,8 @@ from hidden_helpers import (
     Exists,
 )
 
+import syntactic # M: DISCUSS. I think this may not be a bad idea
+
 
 class Semantics:
     """Includes the semantic primitives, semantic definitions, frame
@@ -30,8 +20,8 @@ class Semantics:
 
     def __init__(self, N):
         self.N = N
-        self.verify = z3.Function("verify", z3.BitVecSort(N), AtomSort, z3.BoolSort())
-        self.falsify = z3.Function("falsify", z3.BitVecSort(N), AtomSort, z3.BoolSort())
+        self.verify = z3.Function("verify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
+        self.falsify = z3.Function("falsify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
         self.possible = z3.Function("possible", z3.BitVecSort(N), z3.BoolSort())
         self.main_world = z3.BitVec("w", N)
         x, y = z3.BitVecs("frame_x frame_y", N)
@@ -248,7 +238,7 @@ class Proposition(PropositionDefaults):
         raise ValueError(f"The world {world} has no verifier or falsifier for {self.name}")
 
 
-class AndOperator(Operator):
+class AndOperator(syntactic.Operator):
     """doc string place holder"""
 
     name = "\\wedge"
@@ -267,10 +257,10 @@ class AndOperator(Operator):
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
         Y_V, Y_F = leftprop.find_proposition()
         Z_V, Z_F = rightprop.find_proposition()
-        return (self.product(Y_V, Z_V), self.coproduct(Y_F, Z_F))
+        return (syntactic.product(Y_V, Z_V), syntactic.coproduct(Y_F, Z_F))
 
 
-class OrOperator(Operator):
+class OrOperator(syntactic.Operator):
     """doc string place holder"""
 
     name = "\\vee"
@@ -289,10 +279,10 @@ class OrOperator(Operator):
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
         Y_V, Y_F = leftprop.find_proposition()
         Z_V, Z_F = rightprop.find_proposition()
-        return (self.coproduct(Y_V, Z_V), self.product(Y_F, Z_F))
+        return (syntactic.coproduct(Y_V, Z_V), syntactic.product(Y_F, Z_F))
 
 
-class NegOperator(Operator):
+class NegOperator(syntactic.Operator):
     """doc string place holder"""
 
     name = "\\neg"
@@ -311,7 +301,7 @@ class NegOperator(Operator):
         return (Y_F, Y_V)
 
 
-class ConditionalOperator(DefinedOperator):
+class ConditionalOperator(syntactic.DefinedOperator):
 
     name = "\\rightarrow"
     arity = 2
@@ -322,7 +312,7 @@ class ConditionalOperator(DefinedOperator):
         return [OrOperator, [NegOperator, leftarg], rightarg]
 
 
-class BiconditionalOperator(DefinedOperator):
+class BiconditionalOperator(syntactic.DefinedOperator):
 
     name = "\\leftrightarrow"
     arity = 2
@@ -333,7 +323,7 @@ class BiconditionalOperator(DefinedOperator):
         return [AndOperator, right_to_left, left_to_right]
 
 
-class TopOperator(Operator):
+class TopOperator(syntactic.Operator):
     """doc string place holder"""
 
     name = "\\top"
@@ -364,7 +354,7 @@ class TopOperator(Operator):
         pass
 
 
-class BotOperator(Operator):
+class BotOperator(syntactic.Operator):
     """bottom with respect to ground which has the null state as it's only
     verifier and no falsifier. should be assigned appropriate extremal element
     from hidden_things.py"""
