@@ -139,10 +139,11 @@ class ModelConstraints:
             # operators were added. probably doesn't matter as there will
             # always be a small number of operators.
         }
-
-        # the prefix stuff needs to be activated
-        self.prefix_premises = [self.activate_prefix_with_semantics(pft) for pft in syntax.prefix_type_premises]
-        self.prefix_conclusions = [self.activate_prefix_with_semantics(pft) for pft in syntax.prefix_type_conclusions]
+        self.premises, self.conclusions = syntax.premises, syntax.conclusions
+        for prem in self.premises:
+            prem.update_prefix_sentence(self)
+        for conclusion in self.conclusions:
+            conclusion.update_prefix_sentence(self)
 
         self.all_subsentences = syntax.all_subsentences
         self.all_sentence_letters = syntax.all_sentence_letters
@@ -161,12 +162,12 @@ class ModelConstraints:
                 self.proposition_class.proposition_constraints(self, sl)
             )
         self.premise_constraints = [
-            self.semantics.premise_behavior(prem, self.semantics.main_world)
-            for prem in self.prefix_premises # of the third kind
+            self.semantics.premise_behavior(prem.prefix_sentence, self.semantics.main_world)
+            for prem in self.premises
         ]
         self.conclusion_constraints = [
-            self.semantics.conclusion_behavior(conc, self.semantics.main_world)
-            for conc in self.prefix_conclusions # of the third kind
+            self.semantics.conclusion_behavior(conc.prefix_sentence, self.semantics.main_world)
+            for conc in self.conclusions
         ]
         self.all_constraints = (
             self.frame_constraints
@@ -232,8 +233,7 @@ class ModelStructure:
         self.semantics = self.model_constraints.semantics
         self.main_world = self.semantics.main_world
         self.N = self.semantics.N
-        self.prefix_premises = self.model_constraints.prefix_premises # of third kind
-        self.prefix_conclusions = self.model_constraints.prefix_conclusions # of third kind
+        self.premises, self.conclusions = model_constraints.premises, model_constraints.conclusions
         self.syntax = self.model_constraints.syntax
 
         # Store from syntax
@@ -274,14 +274,14 @@ class ModelStructure:
         # M: it's probably worth ignoring the linter in this case
         self.all_propositions = {}
         self.premise_propositions = [
-            self.model_constraints.proposition_class(prefix_sent, self)
+            self.model_constraints.proposition_class(premise.prefix_sentence, self)
             # B: what if there are repeats in prefix_premises?
-            for prefix_sent in self.prefix_premises # of third kind
+            for premise in self.premises
         ]
         self.conclusion_propositions = [
-            self.model_constraints.proposition_class(prefix_sent, self)
+            self.model_constraints.proposition_class(conclusion.prefix_sentence, self)
             # B: what if there are repeats in prefix_premises?
-            for prefix_sent in self.prefix_conclusions # of third kind
+            for conclusion in self.conclusions
         ]
 
     def solve(self, model_constraints, max_time):
