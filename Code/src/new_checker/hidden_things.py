@@ -396,6 +396,7 @@ class ModelStructure:
         if len(prop_obj.prefix_sentence) == 1: # prefix has operator instances and AtomSorts
             return
         sub_prefix_sents = prop_obj.prefix_sentence[1:]
+        # M: in following two lines, infix_ can't really be removed
         sub_infix_sentences = (self.infix(sub_prefix) for sub_prefix in sub_prefix_sents)
         subprops = (self.all_propositions[infix] for infix in sub_infix_sentences)
         # LINTER: says for above: Object of type "None" is not subscriptable
