@@ -1,15 +1,9 @@
 from z3 import (
-    BitVecVal,
-    Const,
-    DeclareSort,
     sat,
     Solver,
-    simplify,
 )
 
 import time
-
-import inspect
 
 from hidden_helpers import (
     remove_repeats,
@@ -17,23 +11,10 @@ from hidden_helpers import (
     int_to_binary,
     not_implemented_string,
     pretty_set_print,
-    flatten,
 
 )
 
 import sys
-
-from syntactic import Sentence
-
-# B: I'm assuming this will need to be included to activate sentence letters if this
-# happens separately from finding sentence letters (if separating that is good)
-# M: Not sure I understand
-# B: in the old parse function, sentence letters were what I'm calling "activated"
-# by returning [Const(letter, AtomSort)] when they were found. Now all the parsing
-# happens separately, and then later the results get activated with the apply_operator
-# method in Syntax.
-AtomSort = DeclareSort("AtomSort")
-
 
 class PropositionDefaults:
     """Defaults inherited by every proposition."""
@@ -128,258 +109,6 @@ class PropositionDefaults:
         )
 
 
-class Operator:
-    """Defaults inherited by every operator."""
-
-    name = None
-    arity = None
-    primitive = True # a small piece of the avoid DefinedOperator recursion soln
-
-    def __init__(self, semantics):
-        if self.__class__ == Operator:
-            raise NotImplementedError(not_implemented_string(self.__class__.__name__))
-        if self.name is None or self.arity is None:
-            op_class = self.__class__.__name__
-            raise NameError(
-                f"Your operator class {op_class} is missing a name or an arity. "
-                + f"Please add them as class properties of {op_class}."
-            )
-        self.semantics = semantics
-
-    def __str__(self):
-        return str(self.name)
-
-    def __repr__(self):
-        return str(self.name)
-
-    def __eq__(self, other):
-        if isinstance(other, Operator):
-            return self.name == other.name and self.arity == other.arity
-        return False
-
-    def product(self, set_A, set_B):
-        """set of pairwise fusions of elements in set_A and set_B"""
-        product_set = set()
-        for bit_a in set_A:
-            for bit_b in set_B:
-                bit_ab = simplify(bit_a | bit_b)
-                product_set.add(bit_ab)
-        return product_set
-
-    def coproduct(self, set_A, set_B):
-        """union closed under pairwise fusion"""
-        A_U_B = set_A.union(set_B)
-        return A_U_B.union(self.product(set_A, set_B))
-
-    
-class DefinedOperator(Operator):
-    primitive = False
-
-    def derived_definition(self):
-        return []
-
-    def __init__(self, semantics, loop_check=True):
-        super().__init__(semantics)
-
-        # check self is an arg of derived_definition
-        op_subclass = self.__class__
-        args_without_self = inspect.signature(self.derived_definition).parameters # parameters besides self in derived_definition
-        args_with_self = inspect.signature(op_subclass.derived_definition).parameters # params above plus 'self'
-        if 'self' not in args_with_self:
-            raise ValueError(f"self should be an argument of {op_subclass.__name__}'s "
-                             "derived_definition method (and it should go unused).")
-        # from now on, can assume 'self' is an argument of derived_definition. 
-
-        # check if derived_definition is implemented (ie is not default)
-        elif len(args_with_self) == 1 and 'self' in args_with_self:
-            raise NameError(
-                f"Derived operator class {op_subclass.__name__} does not have an implemented "
-                f"derived_definition method. ")
-        
-        # check for arity match between self.arity and derived_def num args (excluding self)
-        derived_def_num_args = len(args_without_self)
-        op_name = op_subclass.__name__
-        mismatch_arity_msg = (
-            f"the specified arity of value {self.arity} for the DerivedOperator class {op_name} "
-            f"does not match the number of arguments (excluding 'self') for {op_name}'s derived_"
-            f"definition property ({derived_def_num_args} non-self arguments currently.)")
-        assert self.arity == derived_def_num_args, mismatch_arity_msg
-
-        # check for DefinedOperators defined in terms of each other
-        sample_derived_def = self.derived_definition(*(derived_def_num_args * ("a",)))
-        ops_in_def = [elem for elem in flatten(sample_derived_def) if isinstance(elem, type)]
-        self.defined_operators_in_definition = [op for op in ops_in_def if not op.primitive]
-        if loop_check:
-            for def_opcls in self.defined_operators_in_definition:
-                if self.__class__ in def_opcls('dummy sem', False).defined_operators_in_definition:
-                    ermsg = (f"{op_name} and {def_opcls.__name__} are defined in terms of each "
-                            f"other. Please edit their derived_definition methods to avoid this.")
-                    raise RecursionError(ermsg)
-
-    def activate_prefix_definition(self, unactivated_prefix_def):
-        '''Helper for get_derived_prefix_form. Takes a sentence in prefix notation
-        returned by the derived_definition property of the DerivedOperator subclass
-        and returns one with every Operator in that definition instantiated (since
-        in the derived_definition operators are defined without an instantiation.)'''
-        new_prefix_def = []
-        for elem in unactivated_prefix_def:
-            if isinstance(elem, type):
-                new_prefix_def.append(elem(self.semantics))
-            elif isinstance(elem, list):
-                new_prefix_def.append(self.activate_prefix_definition(elem))
-            else: # so an instantiated operator or a sentence letter
-                new_prefix_def.append(elem)
-        return new_prefix_def
-
-    def get_derived_prefix_form(self, args):
-        '''given a set of arguments, returns a prefix sentence that correctly
-        puts them into the derived definition of the derived operator
-        returns a sentence in prefix notation (list of AtomSorts and Operator instances)'''
-        unact_prefix_def = self.derived_definition(*args)
-        return DefinedOperator.activate_prefix_definition(self, unact_prefix_def)
-    
-    def true_at(self, *args_and_eval_world):
-        args, eval_world = args_and_eval_world[0:-1], args_and_eval_world[-1]
-        prefix_def = self.get_derived_prefix_form(args)
-        operator, new_args = prefix_def[0], prefix_def[1:]
-        return operator.true_at(*new_args, eval_world)
-    
-    def false_at(self, *args_and_eval_world):
-        args, eval_world = args_and_eval_world[0:-1], args_and_eval_world[-1]
-        prefix_def = self.get_derived_prefix_form(args)
-        operator, new_args = prefix_def[0], prefix_def[1:]
-        return operator.false_at(*new_args, eval_world)
-    
-    def find_verifiers_and_falsifiers(self, *argprops):
-        prefix_args = [prop.prefix_sentence for prop in argprops]
-        prefix_def = self.get_derived_prefix_form(prefix_args)
-        prop_class, model_structure = argprops[0].__class__, argprops[0].model_structure
-        derived_subprops = (prop_class(pfsent, model_structure) for pfsent in prefix_def[1:])
-        operator = prefix_def[0]
-        return operator.find_verifiers_and_falsifiers(*derived_subprops)
-
-
-class OperatorCollection:
-    """Stores the operators that will be passed to ModelSetup."""
-
-    def __init__(self, *input):
-        self.operator_classes_dict = {}
-        if input:
-            self.add_operator(input)
-
-    def __iter__(self):
-        yield from self.operator_classes_dict
-
-    def items(self):
-        yield from self.operator_classes_dict.items()
-
-    def add_operator(self, input):
-        """Input is either an operator class (of type 'type') or a list of operator classes."""
-        if (
-            isinstance(input, list)
-            or isinstance(input, tuple)
-            or isinstance(input, set)
-        ):
-            for operator_class in input:
-                self.add_operator(operator_class)
-        elif isinstance(input, type):
-            self.operator_classes_dict[input.name] = input
-
-    def __getitem__(self, value):
-        return self.operator_classes_dict[value]
-
-
-class Syntax:
-    """Takes infix_premises, infix_conclusions, and operator_collection as
-    arguments, generating and storing instances of the Sentence class.
-    Draws on Sentence instances to gather and apply the operators to generate
-    and store all_sentence_letters, all_subsentences, prefix_sentences, and
-    prefix_conclusions.
-    """
-
-    def __init__(
-        self,
-        infix_premises,
-        infix_conclusions,
-        operator_collection,
-        semantics,
-    ):
-
-        # Store inputs
-        self.infix_premises = infix_premises
-        self.infix_conclusions = infix_conclusions
-        self.operator_collection = operator_collection
-        self.semantics = semantics # B: is it possible to eliminate this?
-
-        # Create Sentence instances for the premises and conclusions
-        self.premises = {
-            prem : Sentence(prem)
-            for prem in infix_premises
-        }
-        self.conclusions = {
-            con : Sentence(con)
-            for con in infix_conclusions
-        }
-
-        # Collect from premises and conclusions and gather constituents
-        inputs = list(self.premises.values()) + list(self.conclusions.values())
-        letters, meds, ops = self.gather_constituents(inputs)
-
-        self.operators = {
-            op_name: op_class(semantics) # B: only remaining reference to semantics
-            for (op_name, op_class) in operator_collection.items()
-            if op_name in ops
-        }
-        self.prefix_premises = [
-            self.apply_operator(prem.prefix_sentence)
-            for prem in self.premises.values()
-        ]
-        self.prefix_conclusions = [
-            self.apply_operator(con.prefix_sentence)
-            for con in self.conclusions.values()
-        ]
-        self.all_sentence_letters = [
-            Const(letter, AtomSort)
-            for letter in letters
-        ]
-        self.all_intermediates = [
-            self.apply_operator(med)
-            for med in meds
-        ]
-        self.all_subsentences = (
-            self.all_sentence_letters +
-            self.all_intermediates +
-            self.prefix_premises +
-            self.prefix_conclusions
-        )
-
-    def apply_operator(self, prefix_sentence):
-        if len(prefix_sentence) == 1:
-            atom = prefix_sentence[0]
-            if atom in {"\\top", "\\bot"}:  # Handle extremal operators
-                return [self.operators[atom]]
-            if atom.isalnum():  # Handle atomic sentences
-                return [Const(prefix_sentence[0], AtomSort)]
-        op = prefix_sentence[0]
-        arguments = prefix_sentence[1:]
-        activated = [self.apply_operator(arg) for arg in arguments]
-        activated.insert(0, self.operators[op])
-        return activated 
-
-    def gather_constituents(self, sentences):
-        letters = set()
-        ops = set()
-        meds = []
-        for sent in sentences:
-            letters.update(sent.sentence_letters)
-            ops.update(sent.operators)
-            meds.extend(sent.subsentences)
-        sorted_sentence_letters = sorted(list(letters), key=lambda x: str(x))
-        sorted_operators = sorted(list(ops), key=lambda x: str(x))
-        sorted_intermediates = remove_repeats(meds)
-        return sorted_sentence_letters, sorted_intermediates, sorted_operators
-
-
 class ModelConstraints:
     """Takes semantics and proposition_class as arguments to build generate
     and storing all Z3 constraints. This class is passed to ModelStructure."""
@@ -387,6 +116,7 @@ class ModelConstraints:
     def __init__(
         self,
         syntax,
+        semantics,
         proposition_class,
         contingent=False,
         non_null=True,
@@ -397,10 +127,24 @@ class ModelConstraints:
         # Store inputs
         self.syntax = syntax
         self.proposition_class = proposition_class
-        self.semantics = syntax.semantics
-        self.infix_premises = syntax.infix_premises
-        self.infix_conclusions = syntax.infix_conclusions
+        self.semantics = semantics
+        self.operators = {
+            op_name: op_class(semantics)
+            for (op_name, op_class) in syntax.operators.items()
+            # if op_name in ops # M: what did this do? 
+        }
+        # self.infix_premises = syntax.infix_premises
+        # self.infix_conclusions = syntax.infix_conclusions
+
+        # the prefix stuff needs to be activated
+        self.prefix_premises = [self.activate_prefix_with_semantics(pfs) for pfs in syntax.prefix_premises]
+        self.prefix_conclusions = [self.activate_prefix_with_semantics(pfs) for pfs in syntax.prefix_conclusions]
+
+        self.all_subsentences = syntax.all_subsentences
         self.all_sentence_letters = syntax.all_sentence_letters
+        # print(self.prefix_premises)
+        # for pfx in self.prefix_premises:
+        #     print([type(x) for x in pfx])
 
         # Store settings
         self.contingent = contingent
@@ -430,28 +174,45 @@ class ModelConstraints:
             + self.conclusion_constraints
         )
 
+    def activate_prefix_with_semantics(self, prefix_sentence):
+        """
+        prefix sentence has operator classes and AtomSorts
+        """
+        new_prefix_form = []
+        for elem in prefix_sentence:
+            if isinstance(elem, type):
+                new_prefix_form.append(self.operators[elem.name])
+            elif isinstance(elem, list):
+                new_prefix_form.append(self.activate_prefix_with_semantics(elem))
+            else:
+                new_prefix_form.append(elem)
+        return new_prefix_form
+
+
     def __str__(self):
         """useful for using model-checker in a python file"""
-        return f"ModelSetup for premises {self.infix_premises} and conclusions {self.infix_conclusions}"
+        premises = list(self.syntax.premises)
+        conclusions = list(self.syntax.conclusions)
+        return f"ModelConstraints for premises {premises} and conclusions {conclusions}"
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
-        infix_premises = self.infix_premises
-        infix_conclusions = self.infix_conclusions
-        start_con_num = len(infix_premises) + 1
-        if self.infix_premises:
-            if len(self.infix_premises) < 2:
+        premises = self.syntax.premises
+        conclusions = self.syntax.conclusions
+        start_con_num = len(premises) + 1
+        if conclusions:
+            if len(premises) < 2:
                 print("Premise:", file=output)
             else:
                 print("Premises:", file=output)
-            for index, sent in enumerate(self.infix_premises, start=1):
+            for index, sent in enumerate(premises, start=1):
                 print(f"{index}. {sent}", file=output)
-        if infix_conclusions:
-            if len(infix_conclusions) < 2:
+        if conclusions:
+            if len(conclusions) < 2:
                 print("\nConclusion:", file=output)
             else:
                 print("\nConclusions:", file=output)
-            for index, sent in enumerate(infix_conclusions, start=start_con_num):
+            for index, sent in enumerate(conclusions, start=start_con_num):
                 print(f"{index}. {sent}", file=output)
 
 
@@ -508,6 +269,7 @@ class ModelStructure:
         ]
         self.main_world = self.z3_model[self.main_world]
         # LINTER: object of type "None" is not subscriptable
+        # M: it's probably worth ignoring the linter in this case
         self.all_propositions = {}
         self.premise_propositions = [
             self.model_constraints.proposition_class(prefix_sent, self)
@@ -519,13 +281,6 @@ class ModelStructure:
             # B: what if there are repeats in prefix_premises?
             for prefix_sent in self.prefix_conclusions
         ]
-        # else: # M: this was being raised when no model was being found
-        #     # B: not sure whether to raise error to kill process or print
-        #     raise ValueError(f"Unexpected z3_model type: {type(z3_model)}")
-        #     print(f"Unexpected z3_model type: {type(z3_model)}")
-        #     self.poss_bits = []
-        #     self.world_bits = []
-        #     self.main_world = None
 
     def solve(self, model_constraints, max_time):
         solver = Solver()
@@ -564,8 +319,11 @@ class ModelStructure:
             all_bits.append(test_bit)
         return all_bits
 
+    # M: might a better place for this be somewhere in the syntax?
     def infix(self, prefix_sent):
-        """Takes a sentence in prefix notation and translates it to infix notation"""
+        """Takes a sentence in prefix notation and translates it to infix notation
+        TODO: what is prefix notation here? Does it matter?
+        """
         if len(prefix_sent) == 1:
             return str(prefix_sent[0])
         op = prefix_sent[0]
@@ -588,7 +346,7 @@ class ModelStructure:
         # true_in_eval = set()
         # for sent in sentence_letters:
         #     for bit in self.all_bits:
-        #         ver_bool = self.model_constraints.verify(bit, self.z3_model[sent])
+        #         ver_bool = self.model_constraintsferify(bit, self.z3_model[sent])
         #         part_bool = bit_part(bit, main_world)
         #         if bool(self.z3_model.evaluate(ver_bool) and part_bool):
         #             true_in_eval.add(sent)
@@ -673,10 +431,11 @@ class ModelStructure:
 
     def rec_print(self, prop_obj, eval_world, indent):
         prop_obj.print_proposition(eval_world, indent)
-        if len(prop_obj.prefix_sentence) == 1:
+        if len(prop_obj.prefix_sentence) == 1: # prefix has operator instances and AtomSorts
             return
         # B: can infix be avoided here by calling on the name of the proposition?
         sub_prefix_sents = prop_obj.prefix_sentence[1:]
+        # M: in following two lines, infix_ can't really be removed
         sub_infix_sentences = (self.infix(sub_prefix) for sub_prefix in sub_prefix_sents)
         subprops = (self.all_propositions[infix] for infix in sub_infix_sentences)
         # LINTER: says for above: Object of type "None" is not subscriptable
@@ -687,11 +446,13 @@ class ModelStructure:
         """does rec_print for every proposition in the input propositions
         returns None"""
         initial_eval_world = self.main_world
-        infix_premises = self.model_constraints.infix_premises
-        infix_conclusions = self.model_constraints.infix_conclusions
-        start_con_num = len(infix_premises) + 1
+        premises = self.model_constraints.syntax.premises
+        conclusions = self.model_constraints.syntax.conclusions
+        # infix_premises = self.model_constraints.infix_premises
+        # infix_conclusions = self.model_constraints.infix_conclusions
+        start_con_num = len(premises) + 1
         if self.premise_propositions:
-            if len(infix_premises) < 2:
+            if len(premises) < 2:
                 print("INTERPRETED PREMISE:\n", file=output)
             else:
                 print("INTERPRETED PREMISES:\n", file=output)
@@ -700,8 +461,8 @@ class ModelStructure:
                 self.rec_print(input_prop, initial_eval_world, 1)
                 # input_prop.print_proposition(initial_eval_world, 1)
                 print(file=output)
-        if self.conclusion_propositions:
-            if len(infix_conclusions) < 2:
+        if conclusions:
+            if len(conclusions) < 2:
                 print("INTERPRETED CONCLUSION:\n", file=output)
             else:
                 print("INTERPRETED CONCLUSIONS:\n", file=output)
