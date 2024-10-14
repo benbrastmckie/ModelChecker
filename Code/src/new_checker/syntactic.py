@@ -294,11 +294,11 @@ class Syntax:
         self.premises = [Sentence(prem) for prem in infix_premises]
         self.conclusions = [Sentence(con)for con in infix_conclusions]
         self.operators = operator_collection
-        self.prefix_premises = [
+        self.prefix_type_premises = [
             self.apply_operator(prem.prefix_wff)
             for prem in self.premises
         ] # the only point of this is to make sure that all the operators are in the OperatorCollection
-        self.prefix_conclusions = [
+        self.prefix_type_conclusions = [
             self.apply_operator(con.prefix_wff)
             for con in self.conclusions
         ]
@@ -318,8 +318,8 @@ class Syntax:
         self.all_subsentences = (
             self.all_sentence_letters +
             self.all_intermediates +
-            self.prefix_premises +
-            self.prefix_conclusions
+            self.prefix_type_premises +
+            self.prefix_type_conclusions
         )
 
     def apply_operator(self, prefix_wff):
