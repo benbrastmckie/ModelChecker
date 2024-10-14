@@ -469,4 +469,4 @@ class CounterfactualOperator(syntactic.Operator):
         )
     
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
-
+        pass
