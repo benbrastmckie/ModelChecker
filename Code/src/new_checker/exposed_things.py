@@ -114,12 +114,14 @@ class Semantics:
     def true_at(self, prefix_sentence, eval_world):
         """
         prefix_sentence is always a list, eval world a BitVector
+        prefix_sentence is the third kind of prefix_sentence
         """
         if len(prefix_sentence) == 1 and "\\" not in str(prefix_sentence[0]):
             sent = prefix_sentence[0]
             x = z3.BitVec("t_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sent)))
         operator = prefix_sentence[0]
+        assert not isinstance(operator, type), "operator should be an instance of a class"
         args = prefix_sentence[1:]
         return operator.true_at(*args, eval_world)
 
@@ -129,6 +131,7 @@ class Semantics:
             x = z3.BitVec("f_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sent)))
         operator = prefix_sentence[0]
+        assert not isinstance(operator, type), "operator should be an instance of a class"
         args = prefix_sentence[1:]
         return operator.false_at(*args, eval_world)
 
