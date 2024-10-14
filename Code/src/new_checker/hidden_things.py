@@ -36,7 +36,7 @@ class PropositionDefaults:
         self.disjoint = model_structure.model_constraints.disjoint
         self.print_impossible = model_structure.model_constraints.print_impossible
         self.model_structure.all_propositions[self.name] = self
-        self.verifiers, self.falsifiers = None, None # to avoid linter errors in print_proposition
+        self.verifiers, self.falsifiers = None, None # to avoid linter complaints in print_proposition
         try:
             hash(self)
         except:
@@ -136,9 +136,6 @@ class ModelConstraints:
 
         self.all_subsentences = syntax.all_subsentences
         self.all_sentence_letters = syntax.all_sentence_letters
-        # print(self.prefix_premises)
-        # for pfx in self.prefix_premises:
-        #     print([type(x) for x in pfx])
 
         # Store settings
         self.contingent = contingent
