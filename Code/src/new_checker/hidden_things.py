@@ -307,8 +307,10 @@ class ModelStructure:
     # could move it to helpers, but I'm starting to think it would
     # be better to save the helpers module for functions that are
     # called in multiple modules. 
-    # M: currently this is used for Proposition and for ModelStructure—we could just make a
+    # M: currently this is used for Proposition and for ModelStructure— we could just make a
     # section of this file that has helpers for this file
+    # B: I moved it out of this class, but then moved it back to
+    # avoid an extra import in sytntactic.py
     def infix(self, prefix_sent):
         """Takes a sentence in prefix notation (in any of the three kinds)
         and translates it to infix notation (a string)
@@ -426,6 +428,7 @@ class ModelStructure:
         # M: at least the way it's currently written I don't think so unfortunately.
         # it uses the infix forms to find the sub-propositions, so we can't use the .name
         # attribute on something we haven't already found
+        # B: this would be good to DISCUSS
         sub_prefix_sents = prop_obj.prefix_sentence[1:]
         sub_infix_sentences = (self.infix(sub_prefix) for sub_prefix in sub_prefix_sents)
         subprops = (self.all_propositions[ifx] for ifx in sub_infix_sentences)

@@ -36,9 +36,9 @@ operators = syntactic.OperatorCollection(
 
 # premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
-# premises = ["A", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
+premises = ["A", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow B)"]
-premises = ["A", "(A \\leftrightarrow B)"]
+# premises = ["A", "(A \\leftrightarrow B)"]
 # premises = ["A", "(A \\wedge B)"]
 # premises = ["(D \\leftrightarrow A)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["(D \\leftrightarrow A)"]
