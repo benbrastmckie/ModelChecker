@@ -89,35 +89,54 @@ class Sentence:
         ]
 
     def constituents_of(self, prefix_sentence):
-        """take a prefix sentence and return sentence_letter, intermediates,
+        """Take a prefix sentence and return sentence_letters, intermediates,
         operators, and complexity."""
         sentence_letters = []
         operators = []
         subsentences = []
         complexity = 0
+
+        if not prefix_sentence:
+            raise ValueError("Prefix sentence is empty.")
+
+        def is_operator(token):
+            return '\\' in token
+
+        def is_sentence_letter(token):
+            return token.isalnum()
+
         if len(prefix_sentence) == 1:
-            if '\\' in prefix_sentence[0]:
+            token = prefix_sentence[0]
+            if is_operator(token):
                 operators.append(prefix_sentence)
                 return sentence_letters, operators, subsentences, complexity
-            if prefix_sentence[0].isalnum():
-                # B: would it be better to have lists of length 1 here?
-                sentence_letters.append(prefix_sentence[0])
+            elif is_sentence_letter(token):
+                sentence_letters.append(prefix_sentence)
                 return sentence_letters, operators, subsentences, complexity
-            raise ValueError(f"The sentence {prefix_sentence} is not well-formed.")
+            else:
+                raise ValueError(f"The sentence {prefix_sentence} is not well-formed.")
+
         main_operator = prefix_sentence[0]
         operators.append(main_operator)
-        arguments = prefix_sentence[1:]
         complexity += 1
+
+        arguments = prefix_sentence[1:]
         for arg in arguments:
+            if len(arg) > 1:
+                subsentences.append(arg)
             arg_sent_lets, arg_subs, arg_ops, arg_comp = self.constituents_of(arg)
             sentence_letters.extend(arg_sent_lets)
-            operators.extend(arg_ops)
             subsentences.extend(arg_subs)
+            operators.extend(arg_ops)
             complexity += arg_comp
+
+        # Use set for uniqueness during collection, then sort once
         sorted_sent_lets = sorted(remove_repeats(sentence_letters))
-        sorted_subs = sorted(remove_repeats(subsentences))
+        sorted_subs = sorted(remove_repeats(subsentences))  # For subsentences as lists
         sorted_ops = sorted(remove_repeats(operators))
+
         return sorted_sent_lets, sorted_subs, sorted_ops, complexity
+
 
 class Operator:
     """Defaults inherited by every operator."""
@@ -152,7 +171,11 @@ class Operator:
 class DefinedOperator(Operator):
     primitive = False
 
-    def derived_definition(self):
+    # def derived_definition(self, *args):
+    # B: arguments need to be included as below to avoid type errors. I tried
+    # the above to accommodate different arity, but no luck. I suppose that
+    # errors will come back when we define unary operators
+    def derived_definition(self, leftarg, rightarg):
         return []
 
     def __init__(self, semantics, loop_check=True):
@@ -281,34 +304,30 @@ class Syntax:
         operator_collection,
     ):
 
-        # Store inputs
-        # self.infix_premises = infix_premises # M: I think we can get rid of this given new Sentence class
-        # self.infix_conclusions = infix_conclusions # M: I think we can get rid of this given new Sentence class
+        # Store inputs and create Sentence instances
         self.operator_collection = operator_collection
-
-        # Create Sentence instances for the premises and conclusions
-        # self.premises = {prem : Sentence(prem) for prem in infix_premises}
-        # self.conclusions = {con : Sentence(con)for con in infix_conclusions}
-        self.premises = [Sentence(prem) for prem in infix_premises]
-        self.conclusions = [Sentence(con)for con in infix_conclusions]
+        self.premises = {prem : Sentence(prem) for prem in infix_premises}
+        self.conclusions = {con : Sentence(con)for con in infix_conclusions}
+        # B: I switched to the dictionaries above but currently they aren't
+        # needed since .values() is used whenever they are called
+        # self.premises = [Sentence(prem) for prem in infix_premises]
+        # self.conclusions = [Sentence(con)for con in infix_conclusions]
         self.operators = operator_collection
         self.prefix_type_premises = [
             self.apply_operator(prem.prefix_wff)
-            for prem in self.premises
+            for prem in self.premises.values()
         ] # M: the only point of this is to make sure that all the operators are in the OperatorCollection
         # B: given that ops defined below will include all operators, is there a better way?
-        self.prefix_conclusions = [
+        self.prefix_type_conclusions = [
             self.apply_operator(con.prefix_wff)
-            for con in self.conclusions
+            for con in self.conclusions.values()
         ]
 
         # Collect from premises and conclusions and gather constituents
-        inputs = list(self.premises) + list(self.conclusions)
-        letters, meds, ops = self.gather_constituents(inputs) # M: small issue with meds
-        # ['A', ['A'], 'B', ['\\leftrightarrow', ['A'], ['B']], ['\\neg', ['B']]]
-        # TODO: fix gather_constituents
+        inputs = list(self.premises.values()) + list(self.conclusions.values())
+        letters, meds, ops = self.gather_constituents(inputs)
         self.all_sentence_letters = [
-            Const(letter, AtomSort)
+            Const(letter[0], AtomSort)
             for letter in letters
         ]
         self.all_intermediates = [
@@ -338,16 +357,17 @@ class Syntax:
         return activated
 
     def gather_constituents(self, sentences):
-        letters = set()
+        letters = []
         ops = set()
         meds = []
         for sent in sentences:
-            letters.update(sent.sentence_letters)
+            letters.extend(sent.sentence_letters)
+            meds.extend(sent.intermediates)
             ops.update(sent.operators)
-            meds.extend(sent.subsentences)
-        sorted_sentence_letters = sorted(list(letters), key=lambda x: str(x))
-        sorted_operators = sorted(list(ops), key=lambda x: str(x))
-        sorted_intermediates = remove_repeats(meds)
+        sorted_sentence_letters = sorted(remove_repeats(letters))
+        # sorted_operators = sorted(list(ops), key=lambda x: str(x))
+        sorted_operators = sorted(ops)
+        sorted_intermediates = sorted(remove_repeats(meds))
         return sorted_sentence_letters, sorted_intermediates, sorted_operators
     
 # M: moved these out of Operator class. Not sure if that's the best place for them to live,
@@ -360,7 +380,7 @@ class Syntax:
 # that said, the derived operators stuff I think does make sense to think of as
 # syntactic and so fits in nicely in this module. It's maybe a bit of a stretch
 # to include more semantic stuff in the Operator class, but if it is useful and
-# there is no better place, maybe it makes the most sense? open to other ideas.
+# there is no better place, maybe it makes the most sense? good to DISCUSS
 def product(set_A, set_B):
     """set of pairwise fusions of elements in set_A and set_B"""
     product_set = set()

@@ -312,6 +312,7 @@ class ConditionalOperator(syntactic.DefinedOperator):
     def derived_definition(self, leftarg, rightarg):
         # M: to see a definitional loop, uncomment line below:
         # return [BiconditionalOperator, [NegOperator, leftarg], rightarg]
+        # B: works great!
         return [OrOperator, [NegOperator, leftarg], rightarg]
 
 
