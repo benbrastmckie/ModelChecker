@@ -1,6 +1,7 @@
 from z3 import (
     sat,
     Solver,
+    BitVecVal
 )
 
 import time
@@ -25,7 +26,7 @@ class PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
 
         # Store arguments
-        self.prefix_sentence = prefix_sentence
+        self.prefix_sentence = prefix_sentence # of the third kind of prefix sentence
         self.model_structure = model_structure
 
         # Store values from model_structure
@@ -138,12 +139,10 @@ class ModelConstraints:
             # operators were added. probably doesn't matter as there will
             # always be a small number of operators.
         }
-        # self.infix_premises = syntax.infix_premises
-        # self.infix_conclusions = syntax.infix_conclusions
 
         # the prefix stuff needs to be activated
-        self.prefix_premises = [self.activate_prefix_with_semantics(pfs) for pfs in syntax.prefix_premises]
-        self.prefix_conclusions = [self.activate_prefix_with_semantics(pfs) for pfs in syntax.prefix_conclusions]
+        self.prefix_premises = [self.activate_prefix_with_semantics(pft) for pft in syntax.prefix_type_premises]
+        self.prefix_conclusions = [self.activate_prefix_with_semantics(pft) for pft in syntax.prefix_type_conclusions]
 
         self.all_subsentences = syntax.all_subsentences
         self.all_sentence_letters = syntax.all_sentence_letters
@@ -163,11 +162,11 @@ class ModelConstraints:
             )
         self.premise_constraints = [
             self.semantics.premise_behavior(prem, self.semantics.main_world)
-            for prem in self.syntax.prefix_premises
+            for prem in self.prefix_premises # of the third kind
         ]
         self.conclusion_constraints = [
             self.semantics.conclusion_behavior(conc, self.semantics.main_world)
-            for conc in self.syntax.prefix_conclusions
+            for conc in self.prefix_conclusions # of the third kind
         ]
         self.all_constraints = (
             self.frame_constraints
@@ -176,12 +175,13 @@ class ModelConstraints:
             + self.conclusion_constraints
         )
 
-    def activate_prefix_with_semantics(self, prefix_sentence):
+    def activate_prefix_with_semantics(self, prefix_type):
         """
-        prefix sentence has operator classes and AtomSorts
+        prefix_type has operator classes and AtomSorts
+        returns a prefix sentence of the third kind: the same as the second except operator instances
         """
         new_prefix_form = []
-        for elem in prefix_sentence:
+        for elem in prefix_type:
             if isinstance(elem, type):
                 new_prefix_form.append(self.operators[elem.name])
             elif isinstance(elem, list):
@@ -232,11 +232,11 @@ class ModelStructure:
         self.semantics = self.model_constraints.semantics
         self.main_world = self.semantics.main_world
         self.N = self.semantics.N
+        self.prefix_premises = self.model_constraints.prefix_premises # of third kind
+        self.prefix_conclusions = self.model_constraints.prefix_conclusions # of third kind
         self.syntax = self.model_constraints.syntax
 
         # Store from syntax
-        self.prefix_premises = self.syntax.prefix_premises
-        self.prefix_conclusions = self.syntax.prefix_conclusions
         self.all_subsentences = self.syntax.all_subsentences
         self.all_sentence_letters = self.syntax.all_sentence_letters
 
@@ -251,7 +251,7 @@ class ModelStructure:
         self.z3_model_status = z3_model_status
         self.z3_model_runtime = z3_model_runtime
 
-        self.all_bits = self.find_all_bits(self.N)
+        self.all_bits = find_all_bits(self.N)
         if not self.z3_model_status:
             self.poss_bits, self.world_bits, self.main_world = None, None, None
             self.all_propositions, self.premise_propositions = None, None
@@ -276,12 +276,12 @@ class ModelStructure:
         self.premise_propositions = [
             self.model_constraints.proposition_class(prefix_sent, self)
             # B: what if there are repeats in prefix_premises?
-            for prefix_sent in self.prefix_premises
+            for prefix_sent in self.prefix_premises # of third kind
         ]
         self.conclusion_propositions = [
             self.model_constraints.proposition_class(prefix_sent, self)
             # B: what if there are repeats in prefix_premises?
-            for prefix_sent in self.prefix_conclusions
+            for prefix_sent in self.prefix_conclusions # of third kind
         ]
 
     def solve(self, model_constraints, max_time):
@@ -302,33 +302,16 @@ class ModelStructure:
             print(f"An error occurred while running `solve_constraints()`: {e}")
             return True, None, False, None
 
-    def summation(self, n, func, start = 0):
-        '''summation of i ranging from start to n of func(i)
-        used in find_all_bits'''
-        if start == n:
-            return func(start)
-        return func(start) + self.summation(n,func,start+1)
-
-    def find_all_bits(self, size):
-        '''extract all bitvectors from the input model
-        imported by model_structure'''
-        all_bits = []
-        max_bit_number = self.summation(size + 1, lambda x: 2**x)
-        for val in range(max_bit_number):
-            test_bit = BitVecVal(val, size)
-            if test_bit in all_bits:
-                continue
-            all_bits.append(test_bit)
-        return all_bits
-
     # M: might a better place for this be somewhere in the syntax?
     # B: right now this is really a helper function for printing.
     # could move it to helpers, but I'm starting to think it would
     # be better to save the helpers module for functions that are
     # are needed in multiple modules and are sorta general. 
+    # M: currently this is used for Proposition and for ModelStructure—we could just make a
+    # section of this file that has helpers for this file
     def infix(self, prefix_sent):
-        """Takes a sentence in prefix notation and translates it to infix notation
-        TODO: what is prefix notation here? Does it matter?
+        """Takes a sentence in prefix notation (in any of the three kinds)
+        and translates it to infix notation (a string)
         """
         if len(prefix_sent) == 1:
             return str(prefix_sent[0])
@@ -440,11 +423,12 @@ class ModelStructure:
         if len(prop_obj.prefix_sentence) == 1: # prefix has operator instances and AtomSorts
             return
         # B: can infix be avoided here by calling on the name of the proposition?
+        # M: at least the way it's currently written I don't think so unfortunately.
+        # it uses the infix forms to find the sub-propositions, so we can't use the .name
+        # attribute on something we haven't already found
         sub_prefix_sents = prop_obj.prefix_sentence[1:]
-        # M: in following two lines, infix_ can't really be removed
         sub_infix_sentences = (self.infix(sub_prefix) for sub_prefix in sub_prefix_sents)
-        subprops = (self.all_propositions[infix] for infix in sub_infix_sentences)
-        # LINTER: says for above: Object of type "None" is not subscriptable
+        subprops = (self.all_propositions[ifx] for ifx in sub_infix_sentences)
         for subprop in subprops:
             self.rec_print(subprop, eval_world, indent + 1)
 
@@ -454,8 +438,6 @@ class ModelStructure:
         initial_eval_world = self.main_world
         premises = self.model_constraints.syntax.premises
         conclusions = self.model_constraints.syntax.conclusions
-        # infix_premises = self.model_constraints.infix_premises
-        # infix_conclusions = self.model_constraints.infix_conclusions
         start_con_num = len(premises) + 1
         if self.premise_propositions:
             if len(premises) < 2:
@@ -490,3 +472,28 @@ class ModelStructure:
             return
         print(f"\nThere is no {N}-model of:\n")
         self.model_constraints.print_enumerate(output)
+
+
+
+##########################################################################################
+############################### HELPERS FOR ModelStructure ###############################
+##########################################################################################
+
+def summation(n, func, start = 0):
+    '''summation of i ranging from start to n of func(i)
+    used in find_all_bits'''
+    if start == n:
+        return func(start)
+    return func(start) + summation(n,func,start+1)
+
+def find_all_bits(size):
+    '''extract all bitvectors from the input model
+    imported by model_structure'''
+    all_bits = []
+    max_bit_number = summation(size + 1, lambda x: 2**x)
+    for val in range(max_bit_number):
+        test_bit = BitVecVal(val, size)
+        if test_bit in all_bits:
+            continue
+        all_bits.append(test_bit)
+    return all_bits
