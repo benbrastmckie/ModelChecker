@@ -20,10 +20,7 @@ from hidden_things import(
 
 import syntactic
 
-semantics = Semantics(3)
-# print("made semantics")
-
-
+### SETUP LANGUAGE ###
 
 operators = syntactic.OperatorCollection(
     AndOperator,
@@ -34,11 +31,11 @@ operators = syntactic.OperatorCollection(
     ConditionalOperator,
     BiconditionalOperator,
 )
-# print("made operator collection (trivial)")
+
+### PREMISES AND CONCLUSION ###
 
 # premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
-
 # premises = ["A", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow B)"]
 # premises = ["A", "(A \\leftrightarrow B)"]
@@ -47,9 +44,10 @@ premises = ["A", "(A \\wedge B)"]
 # premises = ["(D \\leftrightarrow A)"]
 conclusions = ["\\neg B"]
 
-sytax = syntactic.Syntax(premises, conclusions, operators)
-# print("made model_setup")
+### GENERATE Z3 CONSTRAINTS ###
 
+sytax = syntactic.Syntax(premises, conclusions, operators)
+semantics = Semantics(3)
 model_constraints = ModelConstraints(
     sytax,
     semantics,
@@ -59,18 +57,13 @@ model_constraints = ModelConstraints(
     disjoint=False,
     print_impossible=False,
 )
-# print("made model_setup")
 
-# sl_dict = model_setup.find_sentence_letters(premises + conclusions)
-# print("TEST PRINT SENT_LET_DIC:", sl_dict)
+### SOLVE, STORE, AND PRINT Z3 MODEL ###
 
 model_structure = ModelStructure(model_constraints, max_time=1)
-# print("made model_structure")
-
-# TEST PRINT
 model_structure.print_all()  
 
-print(model_constraints)
+# print(model_constraints)
 
 # print("print all props:", model_structure.all_propositions)
 
