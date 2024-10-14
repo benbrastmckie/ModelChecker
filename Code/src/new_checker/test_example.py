@@ -19,6 +19,7 @@ from hidden_things import(
 )
 
 import syntactic
+# B: this seems fine but curious to DISCUSS this
 
 ### SETUP LANGUAGE ###
 

@@ -321,6 +321,9 @@ class StateSpace:
         self.sentence_letters = all_sentence_letters(prefix_sentences)
         self.atomic_props_dict = atomic_propositions_dict_maker(self)
         self.all_propositions = [
+            # B: confused about the second argument 'self'. is that an instance
+            # of StateSpace or is it model_setup? I'm looking to remove old
+            # references to model_setup
             Proposition(sent, self, self.main_world) for sent in model_setup.all_subsentences
         ]
         self.premise_propositions = [
