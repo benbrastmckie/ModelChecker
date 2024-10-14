@@ -54,14 +54,12 @@ class Sentence:
         which operators the language includes."""
         tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
         return self.parse_expression(tokens)
+    
+    def update_prefix_type(self, operator_collection):
+        self.prefix_type = operator_collection.apply_operator(self.prefix_wff)
 
-    def op_left_right(self, tokens):
-        """Divides whatever is inside a pair of parentheses into the left argument,
-        right argument, and the operator."""
-        result = extract_arguments(tokens)
-        if result is None:
-            raise ValueError("Failed to extract arguments")
-        return result
+    def update_prefix_sentence(self, semantics):
+        self.prefix_sentence = semantics.activate_prefix_with_semantics(self.prefix_type)
 
     def parse_expression(self, tokens):
         """Parses a list of tokens representing a propositional expression and returns
@@ -77,7 +75,7 @@ class Sentence:
                 raise SyntaxError(
                     f"The sentence {tokens} is missing a closing parenthesis."
                 )
-            operator, left, right = self.op_left_right(tokens)
+            operator, left, right = op_left_right(tokens)
             left_arg = self.parse_expression(left)  # Parse the left argument
             right_arg = self.parse_expression(right)  # Parse the right argument
             return [operator, left_arg, right_arg]
@@ -178,6 +176,7 @@ class DefinedOperator(Operator):
     # B: arguments need to be included as below to avoid type errors. I tried
     # the above to accommodate different arity, but no luck. I suppose that
     # errors will come back when we define unary operators
+    # TODO: change back to original
     def derived_definition(self, leftarg, rightarg):
         return []
 
@@ -290,6 +289,21 @@ class OperatorCollection:
 
     def __getitem__(self, value):
         return self.operator_classes_dict[value]
+    
+    def apply_operator(self, prefix_wff):
+        """
+        converts prefix_wffs to prefix_sentences without activated operators
+        """
+        if len(prefix_wff) == 1:
+            atom = prefix_wff[0]
+            if atom in {"\\top", "\\bot"}:  # Handle extremal operators
+                return [self[atom]]
+            if atom.isalnum():  # Handle atomic sentences
+                return [Const(prefix_wff[0], AtomSort)]
+        op, arguments = prefix_wff[0], prefix_wff[1:]
+        activated = [self.apply_operator(arg) for arg in arguments]
+        activated.insert(0, self[op])
+        return activated
 
 
 class Syntax:
@@ -308,58 +322,36 @@ class Syntax:
     ):
 
         # Store inputs and create Sentence instances
-        self.operator_collection = operator_collection
-        self.premises = {prem : Sentence(prem) for prem in infix_premises}
-        self.conclusions = {con : Sentence(con)for con in infix_conclusions}
+        # self.operator_collection = operator_collection
+        # self.premises = {prem : Sentence(prem) for prem in infix_premises}
+        # self.conclusions = {con : Sentence(con)for con in infix_conclusions}
         # B: I switched to the dictionaries above but currently they aren't
         # needed since .values() is used whenever they are called
-        # M: I have a feeling we'll never need them as dictionaries
-        # self.premises = [Sentence(prem) for prem in infix_premises]
-        # self.conclusions = [Sentence(con)for con in infix_conclusions]
+        # M: I have a feeling we'll never need them as dictionaries, at least on the back end
+        # M: I switched them back because I wrote a lot of code as if they were lists so to
+        # quick fix I just made them lists here
+        # M: what's your reasoning for making them dictionaries?
+        self.premises = [Sentence(prem) for prem in infix_premises]
+        self.conclusions = [Sentence(con)for con in infix_conclusions]
         self.operators = operator_collection
-        self.prefix_type_premises = [
-            self.apply_operator(prem.prefix_wff)
-            for prem in self.premises.values()
-        ] # M: the only point of this is to make sure that all the operators are in the OperatorCollection
-        # B: given that ops defined below will include all operators, is there a better way?
-        # M: No, it is useful and a good way to do it I think
-        self.prefix_type_conclusions = [
-            self.apply_operator(con.prefix_wff)
-            for con in self.conclusions.values()
-        ]
+        for prem in self.premises:
+            prem.update_prefix_type(self.operators)
+        for conclusion in self.conclusions:
+            conclusion.update_prefix_type(self.operators)
 
         # Collect from premises and conclusions and gather constituents
-        inputs = list(self.premises.values()) + list(self.conclusions.values())
+        inputs = list(self.premises) + list(self.conclusions)
         letters, meds, ops = self.gather_constituents(inputs)
-        self.all_sentence_letters = [
-            Const(letter[0], AtomSort)
-            for letter in letters
-        ]
-        self.all_intermediates = [
-            self.apply_operator(med)
-            for med in meds
-        ]
+        self.all_sentence_letters = [Const(letter[0], AtomSort) for letter in letters]
+        self.all_intermediates = [self.operators.apply_operator(med) for med in meds]
+        self.prefix_type_premises = [prem.prefix_type for prem in self.premises]
+        self.prefix_type_conclusions = [conc.prefix_type for conc in self.conclusions]
         self.all_subsentences = (
-            self.all_sentence_letters +
-            self.all_intermediates +
-            self.prefix_type_premises +
-            self.prefix_type_conclusions
+            self.all_sentence_letters # M: think this maybe should get removed from here
+            + self.all_intermediates
+            + self.prefix_type_premises
+            + self.prefix_type_conclusions
         )
-
-    def apply_operator(self, prefix_wff):
-        """
-        converts prefix_wffs to prefix_sentences without activated operators
-        """
-        if len(prefix_wff) == 1:
-            atom = prefix_wff[0]
-            if atom in {"\\top", "\\bot"}:  # Handle extremal operators
-                return [self.operators[atom]]
-            if atom.isalnum():  # Handle atomic sentences
-                return [Const(prefix_wff[0], AtomSort)]
-        op, arguments = prefix_wff[0], prefix_wff[1:]
-        activated = [self.apply_operator(arg) for arg in arguments]
-        activated.insert(0, self.operators[op])
-        return activated
 
     def gather_constituents(self, sentences):
         letters = []
@@ -469,3 +461,11 @@ def extract_arguments(tokens):
         else:
             left.append(token)
     raise ValueError("Invalid expression or unmatched parentheses")
+
+def op_left_right(tokens):
+    """Divides whatever is inside a pair of parentheses into the left argument,
+    right argument, and the operator."""
+    result = extract_arguments(tokens)
+    if result is None:
+        raise ValueError("Failed to extract arguments")
+    return result
