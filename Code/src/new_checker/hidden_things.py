@@ -1,4 +1,5 @@
 from z3 import (
+    BitVecVal,
     Const,
     DeclareSort,
     sat,
@@ -12,7 +13,6 @@ import inspect
 
 from hidden_helpers import (
     remove_repeats,
-    find_all_bits,
     bitvec_to_substates,
     int_to_binary,
     not_implemented_string,
@@ -39,19 +39,30 @@ class PropositionDefaults:
     """Defaults inherited by every proposition."""
 
     def __init__(self, prefix_sentence, model_structure):
+
+        # Raise error
         if self.__class__ == PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
+
+        # Store arguments
         self.prefix_sentence = prefix_sentence
-        self.name = model_structure.infix(prefix_sentence)
         self.model_structure = model_structure
-        self.N = model_structure.N
-        self.semantics = model_structure.model_constraints.semantics
-        self.contingent = model_structure.model_constraints.contingent
-        self.non_null = model_structure.model_constraints.non_null
-        self.disjoint = model_structure.model_constraints.disjoint
-        self.print_impossible = model_structure.model_constraints.print_impossible
+
+        # Store values from model_structure
+        self.N = self.model_structure.N
+        self.name = self.model_structure.infix(prefix_sentence)
+        self.model_constraints = self.model_structure.model_constraints
+
+        # Store values from model_constraints
+        self.semantics = self.model_constraints.semantics
+        self.contingent = self.model_constraints.contingent
+        self.non_null = self.model_constraints.non_null
+        self.disjoint = self.model_constraints.disjoint
+        self.print_impossible = self.model_constraints.print_impossible
+        
+        # Store proposition in model_structure.all_propositions dictionary
         self.model_structure.all_propositions[self.name] = self
-        self.verifiers, self.falsifiers = None, None # to avoid linter errors in print_proposition
+        self.verifiers, self.falsifiers = None, None # avoids linter errors in print_proposition
         try:
             hash(self)
         except:
@@ -67,7 +78,6 @@ class PropositionDefaults:
         if isinstance(other, PropositionDefaults):
             return self.name == other.name
         return False
-
     
     # M: eventually, we need to add a condition on unilateral or bilateral semantics
     # B: not sure I follow? say more?
@@ -388,12 +398,8 @@ class ModelConstraints:
         self.syntax = syntax
         self.proposition_class = proposition_class
         self.semantics = syntax.semantics
-        self.operators = syntax.operators
         self.infix_premises = syntax.infix_premises
         self.infix_conclusions = syntax.infix_conclusions
-        self.prefix_premises = syntax.prefix_premises
-        self.prefix_conclusions = syntax.prefix_conclusions
-        self.all_subsentences = syntax.all_subsentences
         self.all_sentence_letters = syntax.all_sentence_letters
 
         # Store settings
@@ -407,15 +413,15 @@ class ModelConstraints:
         self.model_constraints = []
         for sl in self.all_sentence_letters:
             self.model_constraints.extend(
-                proposition_class.proposition_constraints(self, sl)
+                self.proposition_class.proposition_constraints(self, sl)
             )
         self.premise_constraints = [
             self.semantics.premise_behavior(prem, self.semantics.main_world)
-            for prem in self.prefix_premises
+            for prem in self.syntax.prefix_premises
         ]
         self.conclusion_constraints = [
             self.semantics.conclusion_behavior(conc, self.semantics.main_world)
-            for conc in self.prefix_conclusions
+            for conc in self.syntax.prefix_conclusions
         ]
         self.all_constraints = (
             self.frame_constraints
@@ -453,24 +459,37 @@ class ModelStructure:
     """Solves and stores the Z3 model for an instance of ModelSetup."""
 
     def __init__(self, model_constraints, max_time=1):
+
+        # Store arguments
         self.model_constraints = model_constraints
         self.max_time = max_time
-        timeout, z3_model_status, z3_model, z3_model_runtime = self.solve(
-            model_constraints,
-            max_time,
+
+        # Store from model_constraint
+        self.print_impossible = self.model_constraints.print_impossible
+        self.semantics = self.model_constraints.semantics
+        self.main_world = self.semantics.main_world
+        self.N = self.semantics.N
+        self.syntax = self.model_constraints.syntax
+
+        # Store from syntax
+        self.prefix_premises = self.syntax.prefix_premises
+        self.prefix_conclusions = self.syntax.prefix_conclusions
+        self.all_subsentences = self.syntax.all_subsentences
+        self.all_sentence_letters = self.syntax.all_sentence_letters
+
+        # Solve Z3 constraints and store values
+        timeout, z3_model, z3_model_status, z3_model_runtime = self.solve(
+            self.model_constraints,
+            self.max_time,
         )
         self.timeout = timeout
         self.z3_model = z3_model if z3_model_status else None
         self.unsat_core = z3_model if not z3_model_status else None
-        self.model_status = z3_model_status
-        self.model_runtime = z3_model_runtime
-        self.print_impossible = model_constraints.print_impossible
+        self.z3_model_status = z3_model_status
+        self.z3_model_runtime = z3_model_runtime
 
-        self.N = model_constraints.semantics.N
-        self.all_subsentences = model_constraints.all_subsentences
-        self.sentence_letters = model_constraints.all_sentence_letters
-        self.all_bits = find_all_bits(self.N)
-        if not z3_model_status:
+        self.all_bits = self.find_all_bits(self.N)
+        if not self.z3_model_status:
             self.poss_bits, self.world_bits, self.main_world = None, None, None
             self.all_propositions, self.premise_propositions = None, None
             self.conclusion_propositions = None
@@ -478,27 +497,27 @@ class ModelStructure:
         self.poss_bits = [
             bit
             for bit in self.all_bits
-            if bool(z3_model.evaluate(model_constraints.semantics.possible(bit)))
+            if bool(self.z3_model.evaluate(self.semantics.possible(bit)))
             # LINTER: cannot access attribute "evaluate" for class "AstVector"
         ]
         self.world_bits = [
             bit
             for bit in self.poss_bits
-            if bool(z3_model.evaluate(model_constraints.semantics.is_world(bit)))
+            if bool(self.z3_model.evaluate(self.semantics.is_world(bit)))
             # LINTER: cannot access attribute "evaluate" for class "AstVector"
         ]
-        self.main_world = z3_model[model_constraints.semantics.main_world]
+        self.main_world = self.z3_model[self.main_world]
         # LINTER: object of type "None" is not subscriptable
         self.all_propositions = {}
         self.premise_propositions = [
-            model_constraints.proposition_class(prefix_sent, self)
+            self.model_constraints.proposition_class(prefix_sent, self)
             # B: what if there are repeats in prefix_premises?
-            for prefix_sent in model_constraints.prefix_premises
+            for prefix_sent in self.prefix_premises
         ]
         self.conclusion_propositions = [
-            model_constraints.proposition_class(prefix_sent, self)
+            self.model_constraints.proposition_class(prefix_sent, self)
             # B: what if there are repeats in prefix_premises?
-            for prefix_sent in model_constraints.prefix_conclusions
+            for prefix_sent in self.prefix_conclusions
         ]
         # else: # M: this was being raised when no model was being found
         #     # B: not sure whether to raise error to kill process or print
@@ -518,13 +537,32 @@ class ModelStructure:
             model_end = time.time()  # end benchmark timer
             model_runtime = round(model_end - model_start, 4)
             if result == sat:
-                return False, True, solver.model(), model_runtime
+                return False, solver.model(), True, model_runtime
             if solver.reason_unknown() == "timeout":
-                return True, False, None, model_runtime
-            return False, False, solver.unsat_core(), model_runtime
+                return True, None, False, model_runtime
+            return False, solver.unsat_core(), False, model_runtime
         except RuntimeError as e:  # Handle unexpected exceptions
             print(f"An error occurred while running `solve_constraints()`: {e}")
-            return True, False, None, None
+            return True, None, False, None
+
+    def summation(self, n, func, start = 0):
+        '''summation of i ranging from start to n of func(i)
+        used in find_all_bits'''
+        if start == n:
+            return func(start)
+        return func(start) + self.summation(n,func,start+1)
+
+    def find_all_bits(self, size):
+        '''extract all bitvectors from the input model
+        imported by model_structure'''
+        all_bits = []
+        max_bit_number = self.summation(size + 1, lambda x: 2**x)
+        for val in range(max_bit_number):
+            test_bit = BitVecVal(val, size)
+            if test_bit in all_bits:
+                continue
+            all_bits.append(test_bit)
+        return all_bits
 
     def infix(self, prefix_sent):
         """Takes a sentence in prefix notation and translates it to infix notation"""
@@ -541,7 +579,7 @@ class ModelStructure:
         """print the evaluation world and all sentences letters that true/false
         in that world"""
         N = self.model_constraints.semantics.N
-        sentence_letters = self.sentence_letters
+        sentence_letters = self.all_sentence_letters
         main_world = self.main_world
         print(
             f"\nThe evaluation world is: {bitvec_to_substates(main_world, N)}",
@@ -637,6 +675,7 @@ class ModelStructure:
         prop_obj.print_proposition(eval_world, indent)
         if len(prop_obj.prefix_sentence) == 1:
             return
+        # B: can infix be avoided here by calling on the name of the proposition?
         sub_prefix_sents = prop_obj.prefix_sentence[1:]
         sub_infix_sentences = (self.infix(sub_prefix) for sub_prefix in sub_prefix_sents)
         subprops = (self.all_propositions[infix] for infix in sub_infix_sentences)
@@ -675,7 +714,7 @@ class ModelStructure:
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
         N = self.model_constraints.semantics.N
-        if self.model_status:
+        if self.z3_model_status:
             print(f"\nThere is a {N}-model of:\n", file=output)
             self.model_constraints.print_enumerate(output)
             self.print_states(output)

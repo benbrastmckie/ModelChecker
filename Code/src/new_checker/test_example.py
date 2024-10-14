@@ -1,7 +1,6 @@
 # B: when we develop the API, these will reference the users script
 from exposed_things import (
     BotOperator,
-    Proposition,
     Semantics,
     AndOperator,
     NegOperator,
