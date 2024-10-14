@@ -19,17 +19,13 @@ class Sentence:
 
     def __init__(self, infix_sentence):
         self.name = infix_sentence
-        # print("SENTENCE TEST INFIX", self.name)
         self.prefix_wff = self.prefix(infix_sentence)
         # M: I think we should rename this to well_formed_formula_prefix
-        # print("SENTENCE TEST PREFIX", self.prefix_sentence)
+        # B: sounds good!
         letters, meds, ops, complexity = self.constituents_of(self.prefix_wff)
         self.sentence_letters = letters
         self.intermediates = meds
-        self.subsentences = (
-                                letters + 
-                                meds + 
-                                [self.prefix_wff])
+        self.subsentences = (letters + meds + [self.prefix_wff])
         self.operators = ops
         self.complexity = complexity
 
