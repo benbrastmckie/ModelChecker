@@ -63,6 +63,8 @@ class PropositionDefaults:
     # B: not sure I follow? say more?
     # M: sorry meant unilateral and bilateral, not unary and binary (edited to reflect)
     # so that one set vs two is printed (one for unilateral, two for bilateral)
+    # B: i was thinking that in Proposition, the user can say what a proposition is
+    # and how it gets printed but we can DISCUSS more
     def print_proposition(self, eval_world, indent_num=0):
         N = self.model_structure.model_constraints.semantics.N
         truth_value = self.truth_value_at(eval_world) 
@@ -131,6 +133,10 @@ class ModelConstraints:
             op_name: op_class(semantics)
             for (op_name, op_class) in syntax.operators.items()
             # if op_name in ops # M: what did this do? 
+            # B: ops gathered all operators that occurred in the premises
+            # and conclusions. this condition made it so that only those
+            # operators were added. probably doesn't matter as there will
+            # always be a small number of operators.
         }
         # self.infix_premises = syntax.infix_premises
         # self.infix_conclusions = syntax.infix_conclusions
@@ -316,6 +322,10 @@ class ModelStructure:
         return all_bits
 
     # M: might a better place for this be somewhere in the syntax?
+    # B: right now this is really a helper function for printing.
+    # could move it to helpers, but I'm starting to think it would
+    # be better to save the helpers module for functions that are
+    # are needed in multiple modules and are sorta general. 
     def infix(self, prefix_sent):
         """Takes a sentence in prefix notation and translates it to infix notation
         TODO: what is prefix notation here? Does it matter?
