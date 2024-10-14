@@ -21,6 +21,8 @@ class Sentence:
         self.prefix_wff = self.prefix(infix_sentence)
         # M: I think we should rename this to well_formed_formula_prefix
         # B: sounds good! I can let the LSP take care of this once we are ready
+        self.prefix_type = None
+        self.prefix_sentence = None
         letters, meds, ops, complexity = self.constituents_of(self.prefix_wff)
         self.sentence_letters = letters
         self.intermediates = meds
@@ -39,7 +41,7 @@ class Sentence:
     #         'subsentences': self.subsentences,
     #         'complexity': self.complexity
     #     }
-        
+    
 
     def __str__(self):
         return self.name
@@ -311,6 +313,7 @@ class Syntax:
         self.conclusions = {con : Sentence(con)for con in infix_conclusions}
         # B: I switched to the dictionaries above but currently they aren't
         # needed since .values() is used whenever they are called
+        # M: I have a feeling we'll never need them as dictionaries
         # self.premises = [Sentence(prem) for prem in infix_premises]
         # self.conclusions = [Sentence(con)for con in infix_conclusions]
         self.operators = operator_collection
@@ -319,6 +322,7 @@ class Syntax:
             for prem in self.premises.values()
         ] # M: the only point of this is to make sure that all the operators are in the OperatorCollection
         # B: given that ops defined below will include all operators, is there a better way?
+        # M: No, it is useful and a good way to do it I think
         self.prefix_type_conclusions = [
             self.apply_operator(con.prefix_wff)
             for con in self.conclusions.values()
