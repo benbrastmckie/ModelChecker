@@ -9,9 +9,8 @@ import inspect
 
 from z3 import Const, DeclareSort, simplify
 
-# B: I'm assuming this will need to be included to activate sentence letters if this
-# happens separately from finding sentence letters (if separating that is good)
-# M: Not sure I understand
+# B: I was thinking about if AtomSort could be defined in a function
+# instead of globally
 AtomSort = DeclareSort("AtomSort")
 
 class Sentence:
@@ -21,7 +20,7 @@ class Sentence:
         self.name = infix_sentence
         self.prefix_wff = self.prefix(infix_sentence)
         # M: I think we should rename this to well_formed_formula_prefix
-        # B: sounds good!
+        # B: sounds good! I can let the LSP take care of this once we are ready
         letters, meds, ops, complexity = self.constituents_of(self.prefix_wff)
         self.sentence_letters = letters
         self.intermediates = meds
@@ -29,6 +28,7 @@ class Sentence:
         self.operators = ops
         self.complexity = complexity
 
+    # B: not sure these will be needed
     # def get_values(self):
     #     """Returns components of the Sentence instance as a dictionary."""
     #     return {
@@ -104,8 +104,6 @@ class Sentence:
                 sentence_letters.append(prefix_sentence[0])
                 return sentence_letters, operators, subsentences, complexity
             raise ValueError(f"The sentence {prefix_sentence} is not well-formed.")
-        # B: this is instead of above to exclude sentence letters; not sure if this is better
-        # subsentences.append(prefix_sentence)
         main_operator = prefix_sentence[0]
         operators.append(main_operator)
         arguments = prefix_sentence[1:]
@@ -126,7 +124,7 @@ class Operator:
 
     name = None
     arity = None
-    primitive = True # a small piece of the avoid DefinedOperator recursion soln
+    primitive = True # M: a small piece of the avoid DefinedOperator recursion soln
 
     def __init__(self, semantics):
         if self.__class__ == Operator:
@@ -297,7 +295,8 @@ class Syntax:
         self.prefix_premises = [
             self.apply_operator(prem.prefix_wff)
             for prem in self.premises
-        ] # the only point of this is to make sure that all the operators are in the OperatorCollection
+        ] # M: the only point of this is to make sure that all the operators are in the OperatorCollection
+        # B: given that ops defined below will include all operators, is there a better way?
         self.prefix_conclusions = [
             self.apply_operator(con.prefix_wff)
             for con in self.conclusions
@@ -305,8 +304,9 @@ class Syntax:
 
         # Collect from premises and conclusions and gather constituents
         inputs = list(self.premises) + list(self.conclusions)
-        letters, meds, ops = self.gather_constituents(inputs) # small issue with meds
+        letters, meds, ops = self.gather_constituents(inputs) # M: small issue with meds
         # ['A', ['A'], 'B', ['\\leftrightarrow', ['A'], ['B']], ['\\neg', ['B']]]
+        # TODO: fix gather_constituents
         self.all_sentence_letters = [
             Const(letter, AtomSort)
             for letter in letters
@@ -352,6 +352,15 @@ class Syntax:
     
 # M: moved these out of Operator class. Not sure if that's the best place for them to live,
 # but also not sure if this is the best place for them either. 
+# B: these are very semantic and get used in defining operators.
+# even though operators is syntactic, I was thinking it would be convenient for
+# them to be automatically inherited by all operators. I was thinking that the
+# extremal propositions could be defined in the same place and so always be
+# accessible when defining operators. defining operators is also pretty semantic.
+# that said, the derived operators stuff I think does make sense to think of as
+# syntactic and so fits in nicely in this module. It's maybe a bit of a stretch
+# to include more semantic stuff in the Operator class, but if it is useful and
+# there is no better place, maybe it makes the most sense? open to other ideas.
 def product(set_A, set_B):
     """set of pairwise fusions of elements in set_A and set_B"""
     product_set = set()
