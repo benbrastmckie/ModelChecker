@@ -146,10 +146,10 @@ class Operator:
     primitive = True # M: a small piece of the avoid DefinedOperator recursion soln
 
     def __init__(self, semantics):
+        op_class = self.__class__.__name__
         if self.__class__ == Operator:
-            raise NotImplementedError(not_implemented_string(self.__class__.__name__))
+            raise NotImplementedError(not_implemented_string(op_class))
         if self.name is None or self.arity is None:
-            op_class = self.__class__.__name__
             raise NameError(
                 f"Your operator class {op_class} is missing a name or an arity. "
                 + f"Please add them as class properties of {op_class}."
