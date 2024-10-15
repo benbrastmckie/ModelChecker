@@ -14,6 +14,11 @@ from hidden_helpers import (
 import syntactic # M: DISCUSS. I think this may not be a bad idea
 
 
+##############################################################################
+######################### SEMANTICS AND PROPOSITIONS #########################
+##############################################################################
+
+
 class Semantics:
     """Includes the semantic primitives, semantic definitions, frame
     constraints, truth and falsity theories, and premise/conclusion behavior."""
