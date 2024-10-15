@@ -1,7 +1,7 @@
 from z3 import (
     sat,
     Solver,
-    BitVecVal
+    BitVecVal,
 )
 
 import time
@@ -21,7 +21,7 @@ class PropositionDefaults:
 
     def __init__(self, prefix_sentence, model_structure):
 
-        # Raise error
+        # Raise error if instantiated directly instead of as a bare class
         if self.__class__ == PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
 
@@ -59,7 +59,7 @@ class PropositionDefaults:
         if isinstance(other, PropositionDefaults):
             return self.name == other.name
         return False
-    
+
     # M: eventually, we need to add a condition on unilateral or bilateral semantics
     # B: not sure I follow? say more?
     # M: sorry meant unilateral and bilateral, not unary and binary (edited to reflect)
@@ -251,10 +251,11 @@ class ModelStructure:
         self.z3_model_status = z3_model_status
         self.z3_model_runtime = z3_model_runtime
 
-        self.all_bits = find_all_bits(self.N)
+        self.all_bits = self.find_all_bits(self.N)
         if not self.z3_model_status:
             self.poss_bits, self.world_bits, self.main_world = None, None, None
             self.all_propositions, self.premise_propositions = None, None
+            # B: should these be empty lists to avoid linter errors?
             self.conclusion_propositions = None
             return
         self.poss_bits = [
@@ -301,6 +302,19 @@ class ModelStructure:
         except RuntimeError as e:  # Handle unexpected exceptions
             print(f"An error occurred while running `solve_constraints()`: {e}")
             return True, None, False, None
+
+
+    def find_all_bits(self, size):
+        '''extract all bitvectors from the input model
+        imported by model_structure'''
+        all_bits = []
+        max_bit_number = summation(size + 1, lambda x: 2**x)
+        for val in range(max_bit_number):
+            test_bit = BitVecVal(val, size)
+            if test_bit in all_bits:
+                continue
+            all_bits.append(test_bit)
+        return all_bits
 
     # M: might a better place for this be somewhere in the syntax?
     # B: right now this is really a helper function for printing.
@@ -494,15 +508,3 @@ def summation(n, func, start = 0):
     if start == n:
         return func(start)
     return func(start) + summation(n,func,start+1)
-
-def find_all_bits(size):
-    '''extract all bitvectors from the input model
-    imported by model_structure'''
-    all_bits = []
-    max_bit_number = summation(size + 1, lambda x: 2**x)
-    for val in range(max_bit_number):
-        test_bit = BitVecVal(val, size)
-        if test_bit in all_bits:
-            continue
-        all_bits.append(test_bit)
-    return all_bits

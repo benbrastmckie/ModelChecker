@@ -147,6 +147,23 @@ class Semantics:
         op, args = prefix_sentence[0], prefix_sentence[1:]
         return op.extended_falsify(state, *args, eval_world)
 
+    # M: moved these out of Operator class. Not sure if that's the best place for them to live,
+    # but also not sure if this is the best place for them either. 
+    # B: these are very semantic and get used in defining operators. this
+    # matches with the way the methods above get called in CounterfactualOperator
+    def product(self, set_A, set_B):
+        """set of pairwise fusions of elements in set_A and set_B"""
+        product_set = set()
+        for bit_a in set_A:
+            for bit_b in set_B:
+                bit_ab = z3.simplify(bit_a | bit_b)
+                product_set.add(bit_ab)
+        return product_set
+
+    def coproduct(self, set_A, set_B):
+        """union closed under pairwise fusion"""
+        A_U_B = set_A.union(set_B)
+        return A_U_B.union(self.product(set_A, set_B))
 
 
 class Proposition(PropositionDefaults):
@@ -244,16 +261,35 @@ class Proposition(PropositionDefaults):
         #         children_subprops.append(Proposition(arg, self.model_structure))
 
     def truth_value_at(self, world):
+        """Checks if there is a verifier or falsifier in world and not both."""
         semantics = self.model_structure.model_constraints.semantics
         z3_model = self.model_structure.z3_model
+        exists_verifier = False
+        exists_falsifier = False
         for ver_bit in self.verifiers:
             if z3_model.evaluate(semantics.is_part_of(ver_bit, world)):
-                return True
-        # NOTE: this checks that there is a verifier or falsifier
+                exists_verifier = True
+                break
         for fal_bit in self.falsifiers:
             if z3_model.evaluate(semantics.is_part_of(fal_bit, world)):
-                return False
-        raise ValueError(f"The world {world} has no verifier or falsifier for {self.name}")
+                exists_falsifier = True
+                break
+        if exists_verifier == exists_falsifier:
+            if exists_verifier:
+                raise ValueError(
+                    f"The world {world} has both a verifier and falsifier "
+                    f"for {self.name}. Something has gone wrong."
+                )
+            raise ValueError(
+                f"The world {world} has neither a verifier nor falsifier "
+                f"for {self.name}. Something has gone wrong."
+            )
+        return exists_verifier
+
+
+###############################################################################
+############################ EXTENSIONAL OPERATORS ############################
+###############################################################################
 
 
 class AndOperator(syntactic.Operator):
@@ -273,25 +309,30 @@ class AndOperator(syntactic.Operator):
         return z3.Or(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
 
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
+        sem = self.semantics
         Y_V, Y_F = leftprop.find_proposition()
         Z_V, Z_F = rightprop.find_proposition()
-        return (syntactic.product(Y_V, Z_V), syntactic.coproduct(Y_F, Z_F))
+        return (sem.product(Y_V, Z_V), sem.coproduct(Y_F, Z_F))
     
     def extended_verify(self, state, leftarg, rightarg, eval_world):
         y = z3.BitVec("ex_ver_y", self.semantics.N)
         z = z3.BitVec("ex_ver_z", self.semantics.N)
         return z3.And(
-                self.semantics.fusion(y, z) == state,
-                self.semantics.extended_verify(y, leftarg, eval_world),
-                self.semantics.extended_verify(z, rightarg, eval_world),
-            )
+            self.semantics.fusion(y, z) == state,
+            self.semantics.extended_verify(y, leftarg, eval_world),
+            self.semantics.extended_verify(z, rightarg, eval_world),
+        )
     
     def extended_falsify(self, state, leftarg, rightarg, eval_world):
         return z3.Or(
-                self.semantics.extended_falsify(state, leftarg, eval_world),
-                self.semantics.extended_falsify(state, rightarg, eval_world),
-                self.semantics.extended_falsify(state, [OrOperator(self.semantics), leftarg, rightarg], eval_world),
-            )
+            self.semantics.extended_falsify(state, leftarg, eval_world),
+            self.semantics.extended_falsify(state, rightarg, eval_world),
+            self.semantics.extended_falsify(
+                state,
+                [OrOperator(self.semantics), leftarg, rightarg],
+                eval_world
+            ),
+        )
 
 
 class OrOperator(syntactic.Operator):
@@ -311,18 +352,20 @@ class OrOperator(syntactic.Operator):
         return z3.And(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
 
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
+        sem = self.semantics
         Y_V, Y_F = leftprop.find_proposition()
         Z_V, Z_F = rightprop.find_proposition()
-        return (syntactic.coproduct(Y_V, Z_V), syntactic.product(Y_F, Z_F))
+        return (sem.coproduct(Y_V, Z_V), sem.product(Y_F, Z_F))
     
     def extended_verify(self, state, leftarg, rightarg, eval_world):
         return z3.Or(
-                self.semantics.extended_verify(state, leftarg, eval_world),
-                self.semantics.extended_verify(state, rightarg, eval_world),
-                self.semantics.extended_verify(state, [AndOperator(self.semantics), 
-                                                       leftarg, rightarg], 
-                                                       eval_world),
-            )
+            self.semantics.extended_verify(state, leftarg, eval_world),
+            self.semantics.extended_verify(state, rightarg, eval_world),
+            self.semantics.extended_verify(
+                state,
+                [AndOperator(self.semantics), leftarg, rightarg], 
+                eval_world),
+        )
 
     def extended_falsify(self, state, leftarg, rightarg, eval_world):
         y = z3.BitVec("ex_fal_y", self.semantics.N)
@@ -382,6 +425,11 @@ class BiconditionalOperator(syntactic.DefinedOperator):
         return [AndOperator, right_to_left, left_to_right]
 
 
+################################################################################
+############################## EXTREMAL OPERATORS ##############################
+################################################################################
+
+
 class TopOperator(syntactic.Operator):
     """doc string place holder"""
 
@@ -439,6 +487,46 @@ class BotOperator(syntactic.Operator):
         pass
 
 
+##############################################################################
+########################### CONSTITUTIVE OPERATORS ###########################
+##############################################################################
+
+
+class IdentityOperator(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\equiv"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        sem = self.semantics
+        pass
+
+    def false_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        sem = self.semantics
+        pass
+
+    def find_verifiers_and_falsifiers(self, leftprop, rightprop):
+        Y_V, Y_F = leftprop.find_proposition()
+        Z_V, Z_F = rightprop.find_proposition()
+        if Y_V == Z_V and Y_F == Z_F:
+            return  # bottom
+        return # the negation of bottom
+    
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        pass
+
+    def extended_falsify(self, state, leftarg, rightarg, eval_world):
+        pass
+
+
+##############################################################################
+########################## COUNTERFACTUAL OPERATORS ##########################
+##############################################################################
+
+
 class CounterfactualOperator(syntactic.Operator):
     name = "\\boxright"
     arity = 2
@@ -472,3 +560,6 @@ class CounterfactualOperator(syntactic.Operator):
     
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
         pass
+
+
+
