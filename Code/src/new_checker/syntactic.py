@@ -7,7 +7,7 @@ from hidden_helpers import (
 
 import inspect
 
-from z3 import Const, DeclareSort, simplify
+from z3 import Const, DeclareSort
 
 # B: I was thinking about if AtomSort could be defined in a function
 # instead of globally
@@ -376,35 +376,6 @@ class Syntax:
         sorted_intermediates = sorted(remove_repeats(meds))
         return sorted_sentence_letters, sorted_intermediates, sorted_operators
     
-# M: moved these out of Operator class. Not sure if that's the best place for them to live,
-# but also not sure if this is the best place for them either. 
-# B: these are very semantic and get used in defining operators.
-# even though operators is syntactic, I was thinking it would be convenient for
-# them to be automatically inherited by all operators. I was thinking that the
-# extremal propositions could be defined in the same place and so always be
-# accessible when defining operators. defining operators is also pretty semantic.
-# that said, the derived operators stuff I think does make sense to think of as
-# syntactic and so fits in nicely in this module. It's maybe a bit of a stretch
-# to include more semantic stuff in the Operator class, but if it is useful and
-# there is no better place, maybe it makes the most sense? good to DISCUSS
-def product(set_A, set_B):
-    """set of pairwise fusions of elements in set_A and set_B"""
-    product_set = set()
-    for bit_a in set_A:
-        for bit_b in set_B:
-            bit_ab = simplify(bit_a | bit_b)
-            product_set.add(bit_ab)
-    return product_set
-
-def coproduct(set_A, set_B):
-    """union closed under pairwise fusion"""
-    A_U_B = set_A.union(set_B)
-    return A_U_B.union(product(set_A, set_B))
-
-
-
-
-
 
 #################################################################################################
 ################################### HELPERS FOR op_left_right ###################################
