@@ -155,9 +155,11 @@ class Proposition(PropositionDefaults):
     in the __init__ method.
     """
 
-    def __init__(self, prefix_sentence, model_structure):
+    def __init__(self, prefix_sentence, model_structure, eval_world='main'):
         super().__init__(prefix_sentence, model_structure)
         self.verifiers, self.falsifiers = self.find_proposition()
+        self.eval_world = model_structure.main_world if eval_world == 'main' else eval_world
+        
 
     def __eq__(self, other):
         if (
