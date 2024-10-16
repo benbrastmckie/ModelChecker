@@ -1,4 +1,5 @@
 import z3
+from z3.z3 import BitVecVal
 
 # NOTE: go in API
 from hidden_things import (
@@ -35,11 +36,21 @@ class Semantics:
                 [x, y],
                 z3.Implies(z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)),
             ),
+            Exists(x, z3.Not(self.possible(x))),
+            self.is_world(self.main_world),
             # NOTE: not needed give that bitvector spaces are complete because finite
             # worth keeping around for now to do some benchmark testing on later
             # ForAll([x, y], Exists(z, self.fusion(x, y) == z)), # M: is this necessary?
-            self.is_world(self.main_world),
         ]
+        # B: I think this is the most natural place to define the extremal props.
+        max_value = (1 << self.N) - 1  # 2**self.N - 1
+        full_bit = BitVecVal(max_value, self.N)
+        null_bit = BitVecVal(0, self.N)
+        all_bits = {BitVecVal(i, self.N) for i in range(1 << self.N)}
+        
+        # Define top and bottom
+        self.top = (all_bits, {full_bit}) # grounding top
+        self.bottom = (set(), {null_bit}) # grounding bottom
         self.premise_behavior = self.true_at
         self.conclusion_behavior = self.false_at
 
@@ -248,10 +259,23 @@ class Proposition(PropositionDefaults):
         model = self.model_structure.z3_model
         sem = self.semantics
         if len(self.prefix_sentence) == 1:
-            atom = self.prefix_sentence[0]
-            V = {bit for bit in all_bits if model.evaluate(sem.verify(bit, atom))}
-            F = {bit for bit in all_bits if model.evaluate(sem.falsify(bit, atom))}
-            return V, F
+            if str(self.prefix_sentence[0]) in {'\\top', '\\bot'}:
+                operator = self.prefix_sentence[0]
+                return operator.find_verifiers_and_falsifiers()
+            if str(self.prefix_sentence[0]).isalnum():
+                sentence_letter = self.prefix_sentence[0]
+                V = {
+                    bit for bit in all_bits
+                    if model.evaluate(sem.verify(bit, sentence_letter))
+                }
+                F = {
+                    bit for bit in all_bits
+                    if model.evaluate(sem.falsify(bit, sentence_letter))
+                }
+                return V, F
+            raise ValueError(
+                f"Their is not proposition for {self.prefix_sentence[0]}."
+            )
         operator, prefix_args = self.prefix_sentence[0], self.prefix_sentence[1:]
         children_subprops = [Proposition(arg, self.model_structure) for arg in prefix_args]
         return operator.find_verifiers_and_falsifiers(*children_subprops)
@@ -434,62 +458,91 @@ class BiconditionalOperator(syntactic.DefinedOperator):
 ############################## EXTREMAL OPERATORS ##############################
 ################################################################################
 
+# atom = self.prefix_sentence[0]
+# V = {bit for bit in all_bits if model.evaluate(sem.verify(bit, atom))}
+# F = {bit for bit in all_bits if model.evaluate(sem.falsify(bit, atom))}
+# # return V, F
+
+# if len(self.prefix_sentence) == 1 and "\\" not in str(prefix_sentence[0]):
+#     sent = prefix_sentence[0]
+#     x = z3.BitVec("t_atom_x", self.N)
+#     return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sent)))
 
 class TopOperator(syntactic.Operator):
-    """doc string place holder"""
+    """Top element of the space of propositions with respect to ground.
+    Is verified by everything and falsified by the full state."""
 
     name = "\\top"
     arity = 0
 
-    def true_at(self, no_args, eval_world):  # for consistency with recursive call in Semantics
+    def true_at(self, eval_world):
         """doc string place holder"""
-        N = self.semantics.N
-        return z3.BitVecVal(1, N) == z3.BitVecVal(1, N)
-        # TODO
+        return eval_world == eval_world
+
+        # N = self.semantics.N
+        # x = z3.BitVec("top_x", N)
+        # return Exists(
+        #     x,
+        #     z3.And(
+        #         x in self.semantics.top[0],
+        #         self.semantics.is_part_of(x, eval_world)
+        #     )
+        # )
+        # B: return a requirement that eval_world has a part in top[0]
+
+        # N = self.semantics.N
+        # x = z3.BitVec("top_x", N)
+        # return ForAll(x, z3.And(self.semantics.verify(x, sent)))
+        # # B: replace 'sent' with a AtomSort for top?
+
+        # return ForAll(x, self.semantics.verify(x, top))
+        # return z3.BitVecVal(1, N) == z3.BitVecVal(1, N)
+
+    def false_at(self, eval_world):  # see true_at comment
+        """doc string place holder"""
+        return eval_world != eval_world
+        # N = self.semantics.N
         # x = z3.BitVec("top_x", N)
         # return Exists(x, self.semantics.is_part_of(x, eval_world))
-        # B: the way this goes in the semantics is that \top is verified by the null state which
-        # is a part of every world state, and so \top is true at every world. so perhaps what this
-        # should do is say that there is a part of eval_world which makes \top true.
+        # return z3.BitVecVal(0, N) == z3.BitVecVal(1, N)
 
-    def false_at(self, no_args, eval_world):  # see true_at comment
-        """doc string place holder"""
-        N = self.semantics.N
-        return z3.BitVecVal(0, N) == z3.BitVecVal(1, N)
-        # B: the way it goes in the semantics is that \top has no falsifiers and so there is no
-        # part of any world which makes it false. so perhaps what this should do is say that there
-        # is a part of eval_world which makes \top false.
+    def extended_verify(self, state, eval_world):
+        return state in self.semantics.top[0]
 
-    def find_verifiers_and_falsifiers(self, argprop):
-        # B: V is the set containing just the null state and F is empty
-        # B: I think it would be good to define this proposition and refer here
-        # would be good to DISCUSS how best to do that
-        pass
+    def extended_falsify(self, state, eval_world):
+        return state in self.semantics.top[1]
+
+    def find_verifiers_and_falsifiers(self):
+        return self.semantics.top
 
 
 class BotOperator(syntactic.Operator):
-    """bottom with respect to ground which has the null state as it's only
-    verifier and no falsifier. should be assigned appropriate extremal element
-    from hidden_things.py"""
+    """Bottom element of the space of propositions with respect to ground.
+    Is verified by nothing and falsified by the null state."""
 
     name = "\\bot"
     arity = 0
 
-    def true_at(self, no_args, eval_world):  # see comment at true_at for TopOperator
+    def true_at(self, eval_world):
         """doc string place holder"""
-        N = self.semantics.N
-        return z3.BitVecVal(0, N) == z3.BitVecVal(1, N)
-        # B: similar comments apply as in \top
+        return eval_world != eval_world
+        # N = self.semantics.N
+        # return z3.BitVecVal(0, N) == z3.BitVecVal(1, N)
 
-    def false_at(self, no_args, eval_world):  # see comment at true_at for TopOperator
+    def false_at(self, eval_world):
         """doc string place holder"""
-        N = self.semantics.N
-        return z3.BitVecVal(1, N) == z3.BitVecVal(1, N)
-        # B: similar comments apply as in \top
+        return eval_world == eval_world
+        # N = self.semantics.N
+        # return z3.BitVecVal(1, N) == z3.BitVecVal(1, N)
 
-    def find_verifiers_and_falsifiers(self, argprop):
-        # B: V is the set containing just the null state and F is the empty set
-        pass
+    def extended_verify(self, state, eval_world):
+        return state in self.semantics.bottom[0]
+
+    def extended_falsify(self, state, eval_world):
+        return state in self.semantics.bottom[1]
+
+    def find_verifiers_and_falsifiers(self):
+        return self.semantics.bottom
 
 
 ##############################################################################

@@ -40,11 +40,13 @@ operators = syntactic.OperatorCollection(
 # premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
 # premises = ["A", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
-premises = ["A", "(A \\rightarrow B)"]
+# premises = ["A", "(A \\rightarrow B)"]
 # premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\wedge B)"]
-# premises = ["(D \\leftrightarrow \\bot)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["(D \\leftrightarrow A)"]
+
+# premises = ["(\\neg D \\leftrightarrow \\bot)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
+premises = ["A", "(A \\rightarrow \\top)"]
 conclusions = ["\\neg B"]
 
 ### GENERATE Z3 CONSTRAINTS ###
@@ -58,7 +60,7 @@ model_constraints = ModelConstraints(
     contingent=False,
     non_null=True,
     disjoint=False,
-    print_impossible=False,
+    print_impossible=True,
 )
 
 ### SOLVE, STORE, AND PRINT Z3 MODEL ###
