@@ -1,6 +1,8 @@
 # B: when we develop the API, these will reference the users script
 from exposed_things import (
     BotOperator,
+    EssenceOperator,
+    GroundOperator,
     IdentityOperator,
     Semantics,
     AndOperator,
@@ -31,6 +33,8 @@ operators = syntactic.OperatorCollection(
     TopOperator,
     BotOperator,
     IdentityOperator,
+    GroundOperator,
+    EssenceOperator,
     ConditionalOperator,
     BiconditionalOperator,
     CounterfactualOperator,
@@ -48,8 +52,12 @@ operators = syntactic.OperatorCollection(
 
 # premises = ["(\\neg D \\leftrightarrow \\bot)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow \\top)"]
-premises = ["A", "(A \\equiv B)"]
 # premises = ["A", "(A \\boxright B)"]
+# premises = ["A", "(A \\equiv B)"]
+# premises = ["A", "(A \\leq B)"]
+
+# FALSE PREMISE MODEL
+premises = ["A", "(B \\sqsubseteq A)"]
 conclusions = ["\\neg B"]
 
 ### GENERATE Z3 CONSTRAINTS ###
