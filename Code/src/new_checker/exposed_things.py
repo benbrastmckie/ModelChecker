@@ -534,27 +534,95 @@ class IdentityOperator(syntactic.Operator):
 
     def true_at(self, leftarg, rightarg, eval_world):
         """doc string place holder"""
+        N = self.semantics.N
         sem = self.semantics
-        pass
+        x = z3.BitVec("t_id_x", N)
+        return z3.And(
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_verify(x, leftarg, eval_world),
+                    sem.extended_verify(x, rightarg, eval_world)
+                ),
+            ),
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_falsify(x, leftarg, eval_world),
+                    sem.extended_falsify(x, rightarg, eval_world)
+                ),
+            ),
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_verify(x, rightarg, eval_world),
+                    sem.extended_verify(x, leftarg, eval_world)
+                ),
+            ),
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_falsify(x, rightarg, eval_world),
+                    sem.extended_falsify(x, leftarg, eval_world)
+                ),
+            )
+        )
 
     def false_at(self, leftarg, rightarg, eval_world):
         """doc string place holder"""
         sem = self.semantics
-        pass
+        N = self.semantics.N
+        x = z3.BitVec("f_id_x", N)
+        return z3.Or(
+            Exists(
+                x,
+                z3.And(
+                    sem.extended_verify(x, leftarg, eval_world),
+                    z3.Not(sem.extended_verify(x, rightarg, eval_world))
+                ),
+            ),
+            Exists(
+                x,
+                z3.And(
+                    sem.extended_falsify(x, leftarg, eval_world),
+                    z3.Not(sem.extended_falsify(x, rightarg, eval_world))
+                ),
+            ),
+            Exists(
+                x,
+                z3.And(
+                    sem.extended_verify(x, rightarg, eval_world),
+                    z3.Not(sem.extended_verify(x, leftarg, eval_world))
+                ),
+            ),
+            Exists(
+                x,
+                z3.And(
+                    sem.extended_falsify(x, rightarg, eval_world),
+                    z3.Not(sem.extended_falsify(x, leftarg, eval_world))
+                ),
+            )
+        )
+
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.true_at(leftarg, rightarg, eval_world)
+        )
+
+    def extended_falsify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.false_at(leftarg, rightarg, eval_world)
+        )
 
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
         Y_V, Y_F = leftprop.find_proposition()
         Z_V, Z_F = rightprop.find_proposition()
         if Y_V == Z_V and Y_F == Z_F:
-            return  # neg bottom
-        return # the bottom
+            return ({self.semantics.null_bit}, set())
+        return (set(), {self.semantics.null_bit})
     
-    def extended_verify(self, state, leftarg, rightarg, eval_world):
-        pass
-
-    def extended_falsify(self, state, leftarg, rightarg, eval_world):
-        pass
-
 
 ##############################################################################
 ########################## COUNTERFACTUAL OPERATORS ##########################
