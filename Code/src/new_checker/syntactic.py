@@ -16,18 +16,18 @@ AtomSort = DeclareSort("AtomSort")
 class Sentence:
     """Class with an instance for each sentence."""
 
-    def __init__(self, infix_sentence):
+    def __init__(self, infix_sentence, operator_collection):
         self.name = infix_sentence
-        self.prefix_wff = self.prefix(infix_sentence)
+        self.prefix_string = self.prefix(infix_sentence)
         # M: I think we should rename this to well_formed_formula_prefix
         # B: sounds good! I can let the LSP take care of this once we are ready
         # B: renaming
-        self.prefix_type = None
+        self.prefix_type = operator_collection.apply_operator(self.prefix_string)
         self.prefix_sentence = None
-        letters, meds, ops, complexity = self.constituents_of(self.prefix_wff)
+        letters, meds, ops, complexity = self.constituents_of(self.prefix_string)
         self.sentence_letters = letters
         self.intermediates = meds
-        self.subsentences = (letters + meds + [self.prefix_wff])
+        self.subsentences = (letters + meds + [self.prefix_string])
         self.operators = ops
         self.complexity = complexity
 
@@ -56,8 +56,8 @@ class Sentence:
         tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
         return self.parse_expression(tokens)
     
-    def update_prefix_type(self, operator_collection):
-        self.prefix_type = operator_collection.apply_operator(self.prefix_wff)
+    # def update_prefix_type(self, operator_collection):
+    #     self.prefix_type = operator_collection.apply_operator(self.prefix_wff)
 
     def update_prefix_sentence(self, semantics):
         self.prefix_sentence = semantics.activate_prefix_with_semantics(self.prefix_type)
@@ -285,23 +285,23 @@ class OperatorCollection:
         ):
             for operator_class in input:
                 self.add_operator(operator_class)
+        # B: DISCUSS could we just add all the operators from ops in this way?
         elif isinstance(input, type):
             self.operator_classes_dict[input.name] = input
 
     def __getitem__(self, value):
         return self.operator_classes_dict[value]
     
-    def apply_operator(self, prefix_wff):
-        """
-        converts prefix_wffs to prefix_sentences without activated operators
-        """
-        if len(prefix_wff) == 1:
-            atom = prefix_wff[0]
+    def apply_operator(self, prefix_string):
+        # B: DISCUSS why this is needed again.
+        """Converts prefix_strings to prefix_types with operator classes."""
+        if len(prefix_string) == 1:
+            atom = prefix_string[0]
             if atom in {"\\top", "\\bot"}:  # Handle extremal operators
                 return [self[atom]]
             if atom.isalnum():  # Handle atomic sentences
-                return [Const(prefix_wff[0], AtomSort)]
-        op, arguments = prefix_wff[0], prefix_wff[1:]
+                return [Const(prefix_string[0], AtomSort)]
+        op, arguments = prefix_string[0], prefix_string[1:]
         activated = [self.apply_operator(arg) for arg in arguments]
         activated.insert(0, self[op])
         return activated
@@ -325,20 +325,20 @@ class Syntax:
         # NOTE: add if need to look up sentences
         # self.premises = {prem : Sentence(prem) for prem in infix_premises}
         # self.conclusions = {con : Sentence(con)for con in infix_conclusions}
-        self.premises = [Sentence(prem) for prem in infix_premises]
-        self.conclusions = [Sentence(con)for con in infix_conclusions]
+        self.premises = [Sentence(prem, operator_collection) for prem in infix_premises]
+        self.conclusions = [Sentence(con, operator_collection) for con in infix_conclusions]
         self.operators = operator_collection
 
-        # TODO: could avoid if Sentence takes operator_collection as argument
-        for prem in self.premises:
-            prem.update_prefix_type(self.operators)
-        for conclusion in self.conclusions:
-            conclusion.update_prefix_type(self.operators)
+        # # TODO: could avoid if Sentence takes operator_collection as argument
+        # for prem in self.premises:
+        #     prem.update_prefix_type(self.operators)
+        # for conclusion in self.conclusions:
+        #     conclusion.update_prefix_type(self.operators)
 
         # Collect from premises and conclusions and gather constituents
         inputs = list(self.premises) + list(self.conclusions)
         letters, meds, ops = self.gather_constituents(inputs)
-        # NOTE: ops not currently needed
+        # NOTE: in above, ops not currently needed
         self.all_sentence_letters = [Const(letter[0], AtomSort) for letter in letters]
         self.all_intermediates = [self.operators.apply_operator(med) for med in meds]
         self.prefix_type_premises = [prem.prefix_type for prem in self.premises]
