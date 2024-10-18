@@ -1,6 +1,7 @@
 # B: when we develop the API, these will reference the users script
 from exposed_things import (
     BotOperator,
+    IdentityOperator,
     Semantics,
     AndOperator,
     NegOperator,
@@ -29,6 +30,7 @@ operators = syntactic.OperatorCollection(
     OrOperator,
     TopOperator,
     BotOperator,
+    IdentityOperator,
     ConditionalOperator,
     BiconditionalOperator,
     CounterfactualOperator,
@@ -45,7 +47,8 @@ operators = syntactic.OperatorCollection(
 # premises = ["(D \\leftrightarrow A)"]
 
 # premises = ["(\\neg D \\leftrightarrow \\bot)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
-premises = ["A", "(A \\rightarrow \\top)"]
+# premises = ["A", "(A \\rightarrow \\top)"]
+premises = ["A", "(A \\equiv B)"]
 # premises = ["A", "(A \\boxright B)"]
 conclusions = ["\\neg B"]
 
