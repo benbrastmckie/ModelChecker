@@ -65,7 +65,7 @@ class PropositionDefaults:
     # M: sorry meant unilateral and bilateral, not unary and binary (edited to reflect)
     # so that one set vs two is printed (one for unilateral, two for bilateral)
     # B: i was thinking that in Proposition, the user can say what a proposition is
-    # and how it gets printed but we can DISCUSS more
+    # and how it gets printed
     def print_proposition(self, eval_world, indent_num=0):
         N = self.model_structure.model_constraints.semantics.N
         truth_value = self.truth_value_at(eval_world) 
@@ -140,6 +140,8 @@ class ModelConstraints:
             # always be a small number of operators.
         }
         self.premises, self.conclusions = syntax.premises, syntax.conclusions
+
+        # TODO: make into instantiation method
         for prem in self.premises:
             prem.update_prefix_sentence(self)
         for conclusion in self.conclusions:
@@ -251,7 +253,8 @@ class ModelStructure:
         self.z3_model_status = z3_model_status
         self.z3_model_runtime = z3_model_runtime
 
-        self.all_bits = self.find_all_bits(self.N)
+        self.all_bits = self.model_constraints.semantics.all_bits
+        # self.all_bits = self.find_all_bits(self.N)
         if not self.z3_model_status:
             self.poss_bits, self.world_bits, self.main_world = None, None, None
             self.all_propositions, self.premise_propositions = None, None
@@ -304,17 +307,17 @@ class ModelStructure:
             return True, None, False, None
 
 
-    def find_all_bits(self, size):
-        '''extract all bitvectors from the input model
-        imported by model_structure'''
-        all_bits = []
-        max_bit_number = summation(size + 1, lambda x: 2**x)
-        for val in range(max_bit_number):
-            test_bit = BitVecVal(val, size)
-            if test_bit in all_bits:
-                continue
-            all_bits.append(test_bit)
-        return all_bits
+    # def find_all_bits(self, size):
+    #     '''extract all bitvectors from the input model
+    #     imported by model_structure'''
+    #     all_bits = []
+    #     max_bit_number = summation(size + 1, lambda x: 2**x)
+    #     for val in range(max_bit_number):
+    #         test_bit = BitVecVal(val, size)
+    #         if test_bit in all_bits:
+    #             continue
+    #         all_bits.append(test_bit)
+    #     return all_bits
 
     # M: might a better place for this be somewhere in the syntax?
     # B: right now this is really a helper function for printing.
@@ -442,7 +445,8 @@ class ModelStructure:
         # M: at least the way it's currently written I don't think so unfortunately.
         # it uses the infix forms to find the sub-propositions, so we can't use the .name
         # attribute on something we haven't already found
-        # B: this would be good to DISCUSS
+        # TODO: build all subsentences in Syntax and update in ModelConstraints
+        # and use to build propositions
         sub_prefix_sents = prop_obj.prefix_sentence[1:]
         sub_infix_sentences = (self.infix(sub_prefix) for sub_prefix in sub_prefix_sents)
         subprops = (self.all_propositions[ifx] for ifx in sub_infix_sentences)

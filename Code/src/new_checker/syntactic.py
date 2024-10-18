@@ -21,6 +21,7 @@ class Sentence:
         self.prefix_wff = self.prefix(infix_sentence)
         # M: I think we should rename this to well_formed_formula_prefix
         # B: sounds good! I can let the LSP take care of this once we are ready
+        # B: renaming
         self.prefix_type = None
         self.prefix_sentence = None
         letters, meds, ops, complexity = self.constituents_of(self.prefix_wff)
@@ -321,26 +322,14 @@ class Syntax:
         operator_collection,
     ):
 
-        # Store inputs and create Sentence instances
-        # self.operator_collection = operator_collection
+        # NOTE: add if need to look up sentences
         # self.premises = {prem : Sentence(prem) for prem in infix_premises}
         # self.conclusions = {con : Sentence(con)for con in infix_conclusions}
-        # B: I switched to the dictionaries above but currently they aren't
-        # needed since .values() is used whenever they are called
-        # M: I have a feeling we'll never need them as dictionaries, at least on the back end
-        # M: I switched them back because I wrote a lot of code as if they were lists so to
-        # quick fix I just made them lists here
-        # M: what's your reasoning for making them dictionaries?
-        # B: I was thinking about building a dictionary with entries for all
-        # subsentences which could then be called when we want an infix expression
-        # when it comes time to print. alternatively, if we use instances of Sentence
-        # to build instances of propositions, storing the Sentence instance in the
-        # Proposition instance, then when it comes time to print a prop_obj in rec_print
-        # it will be easy. would be good to DISCUSS strategies along these lines.
         self.premises = [Sentence(prem) for prem in infix_premises]
         self.conclusions = [Sentence(con)for con in infix_conclusions]
         self.operators = operator_collection
-        # B: would be good to DISCUSS what the lines below ultimately do.
+
+        # TODO: could avoid if Sentence takes operator_collection as argument
         for prem in self.premises:
             prem.update_prefix_type(self.operators)
         for conclusion in self.conclusions:
@@ -349,7 +338,7 @@ class Syntax:
         # Collect from premises and conclusions and gather constituents
         inputs = list(self.premises) + list(self.conclusions)
         letters, meds, ops = self.gather_constituents(inputs)
-        # B: would be good to DISCUSS whether ops can be used to add operators
+        # NOTE: ops not currently needed
         self.all_sentence_letters = [Const(letter[0], AtomSort) for letter in letters]
         self.all_intermediates = [self.operators.apply_operator(med) for med in meds]
         self.prefix_type_premises = [prem.prefix_type for prem in self.premises]

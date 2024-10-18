@@ -20,7 +20,6 @@ from hidden_things import(
 )
 
 import syntactic
-# B: this seems fine but curious to DISCUSS this
 
 ### SETUP LANGUAGE ###
 
@@ -47,6 +46,7 @@ operators = syntactic.OperatorCollection(
 
 # premises = ["(\\neg D \\leftrightarrow \\bot)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 premises = ["A", "(A \\rightarrow \\top)"]
+# premises = ["A", "(A \\boxright B)"]
 conclusions = ["\\neg B"]
 
 ### GENERATE Z3 CONSTRAINTS ###
