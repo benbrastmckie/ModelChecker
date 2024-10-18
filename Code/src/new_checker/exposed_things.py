@@ -624,6 +624,34 @@ class IdentityOperator(syntactic.Operator):
         return (set(), {self.semantics.null_bit})
     
 
+class GroundOperator(syntactic.DefinedOperator):
+
+    name = "\\leq"
+    arity = 2
+
+    def derived_definition(self, leftarg, rightarg):
+        return [IdentityOperator, [OrOperator, leftarg, rightarg], rightarg]
+
+
+# class EssenceOperator(syntactic.DefinedOperator):
+#
+#     name = "\\sqsubseteq"
+#     arity = 2
+#
+#     def derived_definition(self, leftarg, rightarg):
+#         return [GroundOperator, [NegOperator, leftarg], [NegOperator, rightarg]]
+
+
+# TODO: something here is not working
+class EssenceOperator(syntactic.DefinedOperator):
+
+    name = "\\sqsubseteq"
+    arity = 2
+
+    def derived_definition(self, leftarg, rightarg):
+        return [IdentityOperator, [AndOperator, leftarg, rightarg], rightarg]
+
+
 ##############################################################################
 ########################## COUNTERFACTUAL OPERATORS ##########################
 ##############################################################################
