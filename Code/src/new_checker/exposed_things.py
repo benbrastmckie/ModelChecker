@@ -12,7 +12,7 @@ from hidden_helpers import (
     Exists,
 )
 
-import syntactic # M: DISCUSS. I think this may not be a bad idea
+import syntactic
 
 
 ##############################################################################
@@ -25,32 +25,37 @@ class Semantics:
     constraints, truth and falsity theories, and premise/conclusion behavior."""
 
     def __init__(self, N):
+
+        # Store argument
         self.N = N
+
+        # Define Z3 primitives
         self.verify = z3.Function("verify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
         self.falsify = z3.Function("falsify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
         self.possible = z3.Function("possible", z3.BitVecSort(N), z3.BoolSort())
         self.main_world = z3.BitVec("w", N)
+
+        # Define top and bottom states
+        max_value = (1 << self.N) - 1 # 2**self.N - 1
+        self.full_bit = BitVecVal(max_value, self.N)
+        self.null_bit = BitVecVal(0, self.N)
+        self.all_bits = [BitVecVal(i, self.N) for i in range(1 << self.N)]
+        
         x, y = z3.BitVecs("frame_x frame_y", N)
         self.frame_constraints = [
             ForAll(
                 [x, y],
                 z3.Implies(z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)),
             ),
-            Exists(x, z3.Not(self.possible(x))),
             self.is_world(self.main_world),
+            z3.Not(self.possible(self.full_bit)),
+            # NOTE: was needed to get top and bot to work
+            # ForAll([x, y], Exists(z, self.fusion(x, y) == z)), # M: is this necessary?
             # NOTE: not needed give that bitvector spaces are complete because finite
             # worth keeping around for now to do some benchmark testing on later
-            # ForAll([x, y], Exists(z, self.fusion(x, y) == z)), # M: is this necessary?
         ]
-        # B: I think this is the most natural place to define the extremal props.
-        max_value = (1 << self.N) - 1  # 2**self.N - 1
-        full_bit = BitVecVal(max_value, self.N)
-        null_bit = BitVecVal(0, self.N)
-        all_bits = {BitVecVal(i, self.N) for i in range(1 << self.N)}
-        
-        # Define top and bottom
-        self.top = (all_bits, {full_bit}) # grounding top
-        self.bottom = (set(), {null_bit}) # grounding bottom
+
+        # Define invalidity conditions
         self.premise_behavior = self.true_at
         self.conclusion_behavior = self.false_at
 
@@ -188,6 +193,7 @@ class Proposition(PropositionDefaults):
     in the __init__ method.
     """
 
+    # B: could this class take instances of Sentence instead?
     def __init__(self, prefix_sentence, model_structure, eval_world='main'):
         super().__init__(prefix_sentence, model_structure)
         self.verifiers, self.falsifiers = self.find_proposition()
@@ -278,8 +284,9 @@ class Proposition(PropositionDefaults):
             )
         operator, prefix_args = self.prefix_sentence[0], self.prefix_sentence[1:]
         children_subprops = [Proposition(arg, self.model_structure) for arg in prefix_args]
+        # TODO: add eval_world here as argument and to all find_verifiers_and_falsifiers
         return operator.find_verifiers_and_falsifiers(*children_subprops)
-        # # DISCUSS: this seems very close; just needs debugging and build prop dictionary here
+        # # NOTE: this seems very close; just needs debugging and build prop dictionary here
         # # B: might as well add to proposition dictionary here
         # current_props = {str(p.prefix_sentence):p for p in self.model_structure.all_propositions}
         # children_subprops = []
@@ -478,33 +485,11 @@ class TopOperator(syntactic.Operator):
     def true_at(self, eval_world):
         """doc string place holder"""
         return eval_world == eval_world
-
-        # N = self.semantics.N
-        # x = z3.BitVec("top_x", N)
-        # return Exists(
-        #     x,
-        #     z3.And(
-        #         x in self.semantics.top[0],
-        #         self.semantics.is_part_of(x, eval_world)
-        #     )
-        # )
-        # B: return a requirement that eval_world has a part in top[0]
-
-        # N = self.semantics.N
-        # x = z3.BitVec("top_x", N)
-        # return ForAll(x, z3.And(self.semantics.verify(x, sent)))
-        # # B: replace 'sent' with a AtomSort for top?
-
-        # return ForAll(x, self.semantics.verify(x, top))
-        # return z3.BitVecVal(1, N) == z3.BitVecVal(1, N)
+        # return z3.Not(self.semantics.possible(self.semantics.full_bit))
 
     def false_at(self, eval_world):  # see true_at comment
         """doc string place holder"""
         return eval_world != eval_world
-        # N = self.semantics.N
-        # x = z3.BitVec("top_x", N)
-        # return Exists(x, self.semantics.is_part_of(x, eval_world))
-        # return z3.BitVecVal(0, N) == z3.BitVecVal(1, N)
 
     def extended_verify(self, state, eval_world):
         return state in self.semantics.top[0]
@@ -513,7 +498,7 @@ class TopOperator(syntactic.Operator):
         return state in self.semantics.top[1]
 
     def find_verifiers_and_falsifiers(self):
-        return self.semantics.top
+        return (self.semantics.all_bits, {self.semantics.full_bit})
 
 
 class BotOperator(syntactic.Operator):
@@ -526,14 +511,11 @@ class BotOperator(syntactic.Operator):
     def true_at(self, eval_world):
         """doc string place holder"""
         return eval_world != eval_world
-        # N = self.semantics.N
-        # return z3.BitVecVal(0, N) == z3.BitVecVal(1, N)
 
     def false_at(self, eval_world):
         """doc string place holder"""
         return eval_world == eval_world
-        # N = self.semantics.N
-        # return z3.BitVecVal(1, N) == z3.BitVecVal(1, N)
+        # return z3.Not(self.semantics.possible(self.semantics.full_bit))
 
     def extended_verify(self, state, eval_world):
         return state in self.semantics.bottom[0]
@@ -542,7 +524,7 @@ class BotOperator(syntactic.Operator):
         return state in self.semantics.bottom[1]
 
     def find_verifiers_and_falsifiers(self):
-        return self.semantics.bottom
+        return (set(), {self.semantics.null_bit})
 
 
 ##############################################################################
@@ -570,8 +552,8 @@ class IdentityOperator(syntactic.Operator):
         Y_V, Y_F = leftprop.find_proposition()
         Z_V, Z_F = rightprop.find_proposition()
         if Y_V == Z_V and Y_F == Z_F:
-            return  # bottom
-        return # the negation of bottom
+            return  # neg bottom
+        return # the bottom
     
     def extended_verify(self, state, leftarg, rightarg, eval_world):
         pass
@@ -608,7 +590,7 @@ class CounterfactualOperator(syntactic.Operator):
         sem = self.semantics
         x = z3.BitVec("f_ncf_x", sem.N)
         u = z3.BitVec("f_ncf_u", sem.N)
-        return Exists( # REMOVABLE
+        return Exists(
             [x, u],
             z3.And(
                 sem.extended_verify(x, leftarg, eval_world), # need extended_verify
@@ -616,8 +598,19 @@ class CounterfactualOperator(syntactic.Operator):
                 sem.false_at(rightarg, u)),
         )
     
-    def find_verifiers_and_falsifiers(self, leftprop, rightprop):
+    def extended_verify(self, state, arg, eval_world):
         pass
+    
+    def extended_falsify(self, state, arg, eval_world):
+        pass
+
+    def find_verifiers_and_falsifiers(self, leftprop, rightprop, eval_world):
+        # NOTE: leftprop
+        if false:
+            return (set(), {self.semantics.null_bit})
+        if true:
+            return ({self.semantics.null_bit}, set())
+        raise ValueError()
 
 
 
