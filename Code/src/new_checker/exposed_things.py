@@ -157,13 +157,17 @@ class Semantics:
         return operator.false_at(*args, eval_world)
     
     def extended_verify(self, state, prefix_sentence, eval_world):
-        if len(prefix_sentence) == 1: # will run into issues with top and bot
+        # if len(prefix_sentence) == 1: # will run into issues with top and bot
+        # if str(prefix_sentence[0]) in {'\\top', '\\bot'}:
+        if str(prefix_sentence[0]).isalnum():
             return self.verify(state, prefix_sentence[0])
         op, args = prefix_sentence[0], prefix_sentence[1:]
         return op.extended_verify(state, *args, eval_world)
     
     def extended_falsify(self, state, prefix_sentence, eval_world):
-        if len(prefix_sentence) == 1: # will run into issues with top and bot
+        # if len(prefix_sentence) == 1: # will run into issues with top and bot
+        # if str(prefix_sentence[0]) in {'\\top', '\\bot'}:
+        if str(prefix_sentence[0]).isalnum():
             return self.falsify(state, prefix_sentence[0])
         op, args = prefix_sentence[0], prefix_sentence[1:]
         return op.extended_falsify(state, *args, eval_world)
@@ -465,15 +469,6 @@ class BiconditionalOperator(syntactic.DefinedOperator):
 ############################## EXTREMAL OPERATORS ##############################
 ################################################################################
 
-# atom = self.prefix_sentence[0]
-# V = {bit for bit in all_bits if model.evaluate(sem.verify(bit, atom))}
-# F = {bit for bit in all_bits if model.evaluate(sem.falsify(bit, atom))}
-# # return V, F
-
-# if len(self.prefix_sentence) == 1 and "\\" not in str(prefix_sentence[0]):
-#     sent = prefix_sentence[0]
-#     x = z3.BitVec("t_atom_x", self.N)
-#     return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sent)))
 
 class TopOperator(syntactic.Operator):
     """Top element of the space of propositions with respect to ground.
@@ -487,15 +482,15 @@ class TopOperator(syntactic.Operator):
         return eval_world == eval_world
         # return z3.Not(self.semantics.possible(self.semantics.full_bit))
 
-    def false_at(self, eval_world):  # see true_at comment
+    def false_at(self, eval_world):
         """doc string place holder"""
         return eval_world != eval_world
 
     def extended_verify(self, state, eval_world):
-        return state in self.semantics.top[0]
+        return state == state
 
     def extended_falsify(self, state, eval_world):
-        return state in self.semantics.top[1]
+        return state == self.semantics.full_bit
 
     def find_verifiers_and_falsifiers(self):
         return (self.semantics.all_bits, {self.semantics.full_bit})
@@ -515,13 +510,12 @@ class BotOperator(syntactic.Operator):
     def false_at(self, eval_world):
         """doc string place holder"""
         return eval_world == eval_world
-        # return z3.Not(self.semantics.possible(self.semantics.full_bit))
 
     def extended_verify(self, state, eval_world):
-        return state in self.semantics.bottom[0]
+        return state != state
 
     def extended_falsify(self, state, eval_world):
-        return state in self.semantics.bottom[1]
+        return state == self.semantics.null_bit
 
     def find_verifiers_and_falsifiers(self):
         return (set(), {self.semantics.null_bit})
