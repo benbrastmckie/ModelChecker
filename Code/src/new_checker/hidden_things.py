@@ -132,23 +132,12 @@ class ModelConstraints:
         self.semantics = semantics
         self.operators = {
             op_name: op_class(semantics)
-            for (op_name, op_class) in syntax.operators.items()
-            # if op_name in ops # M: what did this do? 
-            # B: ops gathered all operators that occurred in the premises
-            # and conclusions. this condition made it so that only those
-            # operators were added. probably doesn't matter as there will
-            # always be a small number of operators.
+            for (op_name, op_class) in self.syntax.operators.items()
         }
-        self.premises, self.conclusions = syntax.premises, syntax.conclusions
-
-        # TODO: make into instantiation method
-        for prem in self.premises:
-            prem.update_prefix_sentence(self)
-        for conclusion in self.conclusions:
-            conclusion.update_prefix_sentence(self)
-
-        self.all_subsentences = syntax.all_subsentences
-        self.all_sentence_letters = syntax.all_sentence_letters
+        self.premises = self.instantiate(syntax.premises)
+        self.conclusions = self.instantiate(syntax.conclusions)
+        self.subsentence_types = syntax.subsentence_types
+        self.sentence_letter_types = syntax.sentence_letter_types
 
         # Store settings
         self.contingent = contingent
@@ -159,7 +148,7 @@ class ModelConstraints:
         # Use semantics to generate and store Z3 constraints
         self.frame_constraints = self.semantics.frame_constraints
         self.model_constraints = []
-        for sl in self.all_sentence_letters:
+        for sl in self.sentence_letter_types:
             self.model_constraints.extend(
                 self.proposition_class.proposition_constraints(self, sl)
             )
@@ -178,6 +167,13 @@ class ModelConstraints:
             + self.conclusion_constraints
         )
 
+    def instantiate(self, sentences):
+        """Updates each instance of Sentence in sentences by adding the
+        prefix_sent to that instance, returning the input sentences."""
+        for prem in sentences:
+            prem.update_prefix_sentence(self)
+        return sentences
+
     def activate_prefix_with_semantics(self, prefix_type):
         """
         prefix_type has operator classes and AtomSorts
@@ -192,7 +188,6 @@ class ModelConstraints:
             else:
                 new_prefix_form.append(elem)
         return new_prefix_form
-
 
     def __str__(self):
         """useful for using model-checker in a python file"""
@@ -239,8 +234,8 @@ class ModelStructure:
         self.syntax = self.model_constraints.syntax
 
         # Store from syntax
-        self.all_subsentences = self.syntax.all_subsentences
-        self.all_sentence_letters = self.syntax.all_sentence_letters
+        self.subsentence_types = self.syntax.subsentence_types
+        self.sentence_letter_types = self.syntax.sentence_letter_types
 
         # Solve Z3 constraints and store values
         timeout, z3_model, z3_model_status, z3_model_runtime = self.solve(
@@ -345,7 +340,7 @@ class ModelStructure:
         """print the evaluation world and all sentences letters that true/false
         in that world"""
         N = self.model_constraints.semantics.N
-        sentence_letters = self.all_sentence_letters
+        sentence_letters = self.sentence_letter_types
         main_world = self.main_world
         print(
             f"\nThe evaluation world is: {bitvec_to_substates(main_world, N)}",

@@ -172,10 +172,6 @@ class Semantics:
         op, args = prefix_sentence[0], prefix_sentence[1:]
         return op.extended_falsify(state, *args, eval_world)
 
-    # M: moved these out of Operator class. Not sure if that's the best place for them to live,
-    # but also not sure if this is the best place for them either. 
-    # B: these are very semantic and get used in defining operators. this
-    # matches with the way the methods above get called in CounterfactualOperator
     def product(self, set_A, set_B):
         """set of pairwise fusions of elements in set_A and set_B"""
         product_set = set()
@@ -348,12 +344,6 @@ class AndOperator(syntactic.Operator):
         sem = self.semantics
         return z3.Or(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
 
-    def find_verifiers_and_falsifiers(self, leftprop, rightprop):
-        sem = self.semantics
-        Y_V, Y_F = leftprop.find_proposition()
-        Z_V, Z_F = rightprop.find_proposition()
-        return (sem.product(Y_V, Z_V), sem.coproduct(Y_F, Z_F))
-    
     def extended_verify(self, state, leftarg, rightarg, eval_world):
         y = z3.BitVec("ex_ver_y", self.semantics.N)
         z = z3.BitVec("ex_ver_z", self.semantics.N)
@@ -374,6 +364,12 @@ class AndOperator(syntactic.Operator):
             ),
         )
 
+    def find_verifiers_and_falsifiers(self, leftprop, rightprop):
+        sem = self.semantics
+        Y_V, Y_F = leftprop.find_proposition()
+        Z_V, Z_F = rightprop.find_proposition()
+        return sem.product(Y_V, Z_V), sem.coproduct(Y_F, Z_F)
+    
 
 class OrOperator(syntactic.Operator):
     """doc string place holder"""
@@ -391,12 +387,6 @@ class OrOperator(syntactic.Operator):
         sem = self.semantics
         return z3.And(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
 
-    def find_verifiers_and_falsifiers(self, leftprop, rightprop):
-        sem = self.semantics
-        Y_V, Y_F = leftprop.find_proposition()
-        Z_V, Z_F = rightprop.find_proposition()
-        return (sem.coproduct(Y_V, Z_V), sem.product(Y_F, Z_F))
-    
     def extended_verify(self, state, leftarg, rightarg, eval_world):
         return z3.Or(
             self.semantics.extended_verify(state, leftarg, eval_world),
@@ -419,6 +409,12 @@ class OrOperator(syntactic.Operator):
             ),
         )
 
+    def find_verifiers_and_falsifiers(self, leftprop, rightprop):
+        sem = self.semantics
+        Y_V, Y_F = leftprop.find_proposition()
+        Z_V, Z_F = rightprop.find_proposition()
+        return sem.coproduct(Y_V, Z_V), sem.product(Y_F, Z_F)
+    
 
 class NegOperator(syntactic.Operator):
     """doc string place holder"""
@@ -434,16 +430,16 @@ class NegOperator(syntactic.Operator):
         """doc string place holder"""
         return self.semantics.true_at(arg, eval_world)
 
-    def find_verifiers_and_falsifiers(self, argprop):
-        Y_V, Y_F = argprop.find_proposition()
-        return (Y_F, Y_V)
-    
     def extended_verify(self, state, arg, eval_world):
         return self.semantics.extended_falsify(state, arg, eval_world)
     
     def extended_falsify(self, state, arg, eval_world):
         return self.semantics.extended_verify(state, arg, eval_world)
 
+    def find_verifiers_and_falsifiers(self, argprop):
+        Y_V, Y_F = argprop.find_proposition()
+        return Y_F, Y_V
+    
 
 class ConditionalOperator(syntactic.DefinedOperator):
 
@@ -493,7 +489,7 @@ class TopOperator(syntactic.Operator):
         return state == self.semantics.full_bit
 
     def find_verifiers_and_falsifiers(self):
-        return (self.semantics.all_bits, {self.semantics.full_bit})
+        return self.semantics.all_bits, {self.semantics.full_bit}
 
 
 class BotOperator(syntactic.Operator):
@@ -518,7 +514,7 @@ class BotOperator(syntactic.Operator):
         return state == self.semantics.null_bit
 
     def find_verifiers_and_falsifiers(self):
-        return (set(), {self.semantics.null_bit})
+        return set(), {self.semantics.null_bit}
 
 
 ##############################################################################
@@ -620,8 +616,8 @@ class IdentityOperator(syntactic.Operator):
         Y_V, Y_F = leftprop.find_proposition()
         Z_V, Z_F = rightprop.find_proposition()
         if Y_V == Z_V and Y_F == Z_F:
-            return ({self.semantics.null_bit}, set())
-        return (set(), {self.semantics.null_bit})
+            return {self.semantics.null_bit}, set()
+        return set(), {self.semantics.null_bit}
     
 
 class GroundOperator(syntactic.DefinedOperator):
@@ -697,9 +693,9 @@ class CounterfactualOperator(syntactic.Operator):
     def find_verifiers_and_falsifiers(self, leftprop, rightprop, eval_world):
         # NOTE: leftprop
         if false:
-            return (set(), {self.semantics.null_bit})
+            return set(), {self.semantics.null_bit}
         if true:
-            return ({self.semantics.null_bit}, set())
+            return {self.semantics.null_bit}, set()
         raise ValueError()
 
 
