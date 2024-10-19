@@ -1,6 +1,8 @@
 # B: when we develop the API, these will reference the users script
 from exposed_things import (
     BotOperator,
+    DefEssenceOperator,
+    DefGroundOperator,
     EssenceOperator,
     GroundOperator,
     IdentityOperator,
@@ -34,40 +36,79 @@ operators = syntactic.OperatorCollection(
     BotOperator,
     IdentityOperator,
     GroundOperator,
+    DefEssenceOperator,
+    DefGroundOperator,
     EssenceOperator,
     ConditionalOperator,
     BiconditionalOperator,
     CounterfactualOperator,
 )
 
-### PREMISES AND CONCLUSION ###
+
+
+#####################
+### EXAMPLE STOCK ###
+#####################
 
 # premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
-# conclusions = ["(\\neg B \\wedge \\neg D)"]
 # premises = ["A", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow B)"]
 # premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\wedge B)"]
 # premises = ["(D \\leftrightarrow A)"]
-
 # premises = ["(\\neg D \\leftrightarrow \\bot)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow \\top)"]
 # premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\equiv B)"]
 # premises = ["A", "(A \\leq B)"]
 
-# # FALSE PREMISE MODEL
+# conclusions = ["(\\neg B \\wedge \\neg D)"]
+
+
+
+#####################
+### WORKING PAIRS ###
+#####################
+
 # premises = ["A", "(B \\sqsubseteq A)"]
 # conclusions = ["\\neg B"]
-
-# TRUE CONCLUSION MODEL
-premises = ["(A \\sqsubseteq B)"]
-conclusions = ["(\\neg A \\leq \\neg B)"]
 
 # premises = ["(A \\leq B)"]
 # conclusions = ["(\\neg A \\sqsubseteq \\neg B)"]
 
+# premises = ["(A \\essence B)"]
+# conclusions = ["(A \\sqsubseteq B)"]
+
+# premises = ["(A \\ground B)"]
+# conclusions = ["(A \\leq B)"]
+
+
+#####################
+#### NOT WORKING ####
+#####################
+
+# TRUE CONCLUSION MODEL
+premises = ["(A \\leq B)"]
+conclusions = ["(A \\ground B)"]
+
+# # TRUE CONCLUSION MODEL
+# premises = ["(A \\sqsubseteq B)"]
+# conclusions = ["(A \\essence B)"]
+
+# # FALSE PREMISE MODEL
+# premises = ["A", "(B \\essence A)"]
+# conclusions = ["\\neg B"]
+
+# # TRUE CONCLUSION MODEL
+# premises = ["(A \\sqsubseteq B)"]
+# premises = ["(A \\essence B)"]
+# conclusions = ["(\\neg A \\leq \\neg B)"]
+
+
+
+###############################
 ### GENERATE Z3 CONSTRAINTS ###
+###############################
 
 sytax = syntactic.Syntax(premises, conclusions, operators)
 semantics = Semantics(3)
@@ -81,7 +122,9 @@ model_constraints = ModelConstraints(
     print_impossible=True,
 )
 
+########################################
 ### SOLVE, STORE, AND PRINT Z3 MODEL ###
+########################################
 
 model_structure = ModelStructure(model_constraints, max_time=1)
 model_structure.print_all()  

@@ -620,9 +620,9 @@ class IdentityOperator(syntactic.Operator):
         return set(), {self.semantics.null_bit}
     
 
-class GroundOperator(syntactic.DefinedOperator):
+class DefGroundOperator(syntactic.DefinedOperator):
 
-    name = "\\leq"
+    name = "\\ground"
     arity = 2
 
     def derived_definition(self, leftarg, rightarg):
@@ -639,13 +639,223 @@ class GroundOperator(syntactic.DefinedOperator):
 
 
 # TODO: something here is not working
-class EssenceOperator(syntactic.DefinedOperator):
+class DefEssenceOperator(syntactic.DefinedOperator):
 
-    name = "\\sqsubseteq"
+    name = "\\essence"
     arity = 2
 
     def derived_definition(self, leftarg, rightarg):
         return [IdentityOperator, [AndOperator, leftarg, rightarg], rightarg]
+
+
+class GroundOperator(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\leq"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        N = self.semantics.N
+        sem = self.semantics
+        x = z3.BitVec("t_seq_x", N)
+        y = z3.BitVec("t_seq_y", N)
+        return z3.And(
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_verify(x, leftarg, eval_world),
+                    sem.extended_verify(x, rightarg, eval_world)
+                )
+            ),
+            ForAll(
+                [x, y],
+                z3.Implies(
+                    z3.And(
+                        sem.extended_falsify(x, leftarg, eval_world),
+                        sem.extended_falsify(y, rightarg, eval_world)
+                    ),
+                    sem.extended_falsify(sem.fusion(x, y), rightarg, eval_world)
+                ),
+            ),
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_falsify(x, rightarg, eval_world),
+                    Exists( # HARD TO REMOVE
+                        y,
+                        z3.And(
+                            sem.extended_falsify(y, leftarg, eval_world),
+                            sem.is_part_of(y, x),
+                        )
+                    )
+                ),
+            ),
+        )
+
+    def false_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        sem = self.semantics
+        N = self.semantics.N
+        x = z3.BitVec("f_seq_x", N)
+        y = z3.BitVec("f_seq_y", N)
+        return z3.Or(
+            Exists( # REMOVABLE
+                x,
+                z3.And(
+                    sem.extended_verify(x, leftarg, eval_world),
+                    z3.Not(sem.extended_verify(x, rightarg, eval_world))
+                )
+            ),
+            Exists( # REMOVABLE
+                [x, y],
+                z3.And(
+                    sem.extended_falsify(x, leftarg, eval_world),
+                    sem.extended_falsify(y, rightarg, eval_world),
+                    z3.Not(sem.extended_falsify(sem.fusion(x, y), rightarg, eval_world))
+                ),
+            ),
+            Exists( # REMOVABLE
+                x,
+                z3.And(
+                    sem.extended_falsify(x, rightarg, eval_world),
+                    ForAll(
+                        y,
+                        z3.Implies(
+                            sem.extended_falsify(y, leftarg, eval_world),
+                            z3.Not(sem.is_part_of(y, x)),
+                        )
+                    )
+                ),
+            ),
+        )
+
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.true_at(leftarg, rightarg, eval_world)
+        )
+
+    def extended_falsify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.false_at(leftarg, rightarg, eval_world)
+        )
+
+    def find_verifiers_and_falsifiers(self, leftprop, rightprop):
+        product = self.semantics.product
+        coproduct = self.semantics.coproduct
+        Y_V, Y_F = leftprop.find_proposition()
+        Z_V, Z_F = rightprop.find_proposition()
+        if coproduct(Y_V, Z_V) == Z_V and product(Y_F, Z_F) == Z_F:
+            return {self.semantics.null_bit}, set()
+        return set(), {self.semantics.null_bit}
+    
+
+
+class EssenceOperator(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\sqsubseteq"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        N = self.semantics.N
+        sem = self.semantics
+        x = z3.BitVec("t_seq_x", N)
+        y = z3.BitVec("t_seq_y", N)
+        return z3.And(
+            ForAll(
+                [x, y],
+                z3.Implies(
+                    z3.And(
+                        sem.extended_verify(x, leftarg, eval_world),
+                        sem.extended_verify(y, rightarg, eval_world)
+                    ),
+                    sem.extended_verify(sem.fusion(x, y), rightarg, eval_world)
+                ),
+            ),
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_verify(x, rightarg, eval_world),
+                    Exists( # HARD TO REMOVE
+                        y,
+                        z3.And(
+                            sem.extended_verify(y, leftarg, eval_world),
+                            sem.is_part_of(y, x),
+                        )
+                    )
+                ),
+            ),
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_falsify(x, leftarg, eval_world),
+                    sem.extended_falsify(x, rightarg, eval_world)
+                )
+            )
+        )
+
+    def false_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        sem = self.semantics
+        N = self.semantics.N
+        x = z3.BitVec("f_seq_x", N)
+        y = z3.BitVec("f_seq_y", N)
+        return z3.Or(
+            Exists( # REMOVABLE
+                [x, y],
+                z3.And(
+                    sem.extended_verify(x, leftarg, eval_world),
+                    sem.extended_verify(y, rightarg, eval_world),
+                    z3.Not(sem.extended_verify(sem.fusion(x, y), rightarg, eval_world))
+                ),
+            ),
+            Exists( # REMOVABLE
+                x,
+                z3.And(
+                    sem.extended_verify(x, rightarg, eval_world),
+                    ForAll(
+                        y,
+                        z3.Implies(
+                            sem.extended_verify(y, leftarg, eval_world),
+                            z3.Not(sem.is_part_of(y, x)),
+                        )
+                    )
+                ),
+            ),
+            Exists( # REMOVABLE
+                x,
+                z3.And(
+                    sem.extended_falsify(x, leftarg, eval_world),
+                    z3.Not(sem.extended_falsify(x, rightarg, eval_world))
+                )
+            )
+        )
+
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.true_at(leftarg, rightarg, eval_world)
+        )
+
+    def extended_falsify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.false_at(leftarg, rightarg, eval_world)
+        )
+
+    def find_verifiers_and_falsifiers(self, leftprop, rightprop):
+        product = self.semantics.product
+        coproduct = self.semantics.coproduct
+        Y_V, Y_F = leftprop.find_proposition()
+        Z_V, Z_F = rightprop.find_proposition()
+        if product(Y_V, Z_V) == Z_V and coproduct(Y_F, Z_F) == Z_F:
+            return {self.semantics.null_bit}, set()
+        return set(), {self.semantics.null_bit}
+    
 
 
 ##############################################################################
