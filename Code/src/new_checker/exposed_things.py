@@ -416,7 +416,7 @@ class OrOperator(syntactic.Operator):
         return sem.coproduct(Y_V, Z_V), sem.product(Y_F, Z_F)
     
 
-class NegOperator(syntactic.Operator):
+class NegationOperator(syntactic.Operator):
     """doc string place holder"""
 
     name = "\\neg"
@@ -447,7 +447,7 @@ class ConditionalOperator(syntactic.DefinedOperator):
     arity = 2
 
     def derived_definition(self, leftarg, rightarg):
-        return [OrOperator, [NegOperator, leftarg], rightarg]
+        return [OrOperator, [NegationOperator, leftarg], rightarg]
 
 
 class BiconditionalOperator(syntactic.DefinedOperator):
@@ -629,16 +629,6 @@ class DefGroundOperator(syntactic.DefinedOperator):
         return [IdentityOperator, [OrOperator, leftarg, rightarg], rightarg]
 
 
-# class EssenceOperator(syntactic.DefinedOperator):
-#
-#     name = "\\sqsubseteq"
-#     arity = 2
-#
-#     def derived_definition(self, leftarg, rightarg):
-#         return [GroundOperator, [NegOperator, leftarg], [NegOperator, rightarg]]
-
-
-# TODO: something here is not working
 class DefEssenceOperator(syntactic.DefinedOperator):
 
     name = "\\essence"
