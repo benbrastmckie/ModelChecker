@@ -489,7 +489,7 @@ class TopOperator(syntactic.Operator):
         return state == self.semantics.full_bit
 
     def find_verifiers_and_falsifiers(self):
-        return self.semantics.all_bits, {self.semantics.full_bit}
+        return set(self.semantics.all_bits), {self.semantics.full_bit}
 
 
 class BotOperator(syntactic.Operator):
