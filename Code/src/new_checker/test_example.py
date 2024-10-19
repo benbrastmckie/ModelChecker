@@ -8,7 +8,7 @@ from exposed_things import (
     IdentityOperator,
     Semantics,
     AndOperator,
-    NegOperator,
+    NegationOperator,
     OrOperator,
     Proposition,
     TopOperator,
@@ -30,7 +30,7 @@ import syntactic
 
 operators = syntactic.OperatorCollection(
     AndOperator,
-    NegOperator,
+    NegationOperator,
     OrOperator,
     TopOperator,
     BotOperator,
@@ -70,11 +70,38 @@ operators = syntactic.OperatorCollection(
 ### WORKING PAIRS ###
 #####################
 
-# premises = ["A", "(B \\sqsubseteq A)"]
-# conclusions = ["\\neg B"]
+# premises = ["(A \\sqsubseteq B)"]
+# conclusions = ["(\\neg A \\leq \\neg B)"]
+
+# premises = ["(\\neg A \\leq \\neg B)"]
+# conclusions = ["(A \\sqsubseteq B)"]
 
 # premises = ["(A \\leq B)"]
 # conclusions = ["(\\neg A \\sqsubseteq \\neg B)"]
+
+# premises = ["(\\neg A \\sqsubseteq \\neg B)"]
+# conclusions = ["(A \\leq B)"]
+
+# premises = ["(\\neg A \\ground \\neg B)"]
+# conclusions = ["(A \\essence B)"]
+
+# premises = ["(A \\ground B)"]
+# conclusions = ["(\\neg A \\essence \\neg B)"]
+
+# premises = ["(\\neg A \\ground \\neg B)"]
+# conclusions = ["(A \\sqsubseteq B)"]
+
+# premises = ["(A \\ground B)"]
+# conclusions = ["(\\neg A \\sqsubseteq \\neg B)"]
+
+# premises = ["(A \\essence B)"]
+# conclusions = ["(\\neg A \\leq \\neg B)"]
+
+# premises = ["(\\neg A \\essence \\neg B)"]
+# conclusions = ["(A \\leq B)"]
+
+# premises = ["A", "(B \\sqsubseteq A)"]
+# conclusions = ["\\neg B"]
 
 # premises = ["(A \\essence B)"]
 # conclusions = ["(A \\sqsubseteq B)"]
@@ -87,11 +114,23 @@ operators = syntactic.OperatorCollection(
 #### NOT WORKING ####
 #####################
 
-# TRUE CONCLUSION MODEL
-premises = ["(A \\leq B)"]
-conclusions = ["(A \\ground B)"]
+# # TRUE CONCLUSION MODEL
+# premises = ["(A \\essence B)"]
+# premises = ["(A \\sqsubseteq B)"]
+# conclusions = ["(\\neg A \\ground \\neg B)"]
 
 # # TRUE CONCLUSION MODEL
+# premises = ["(\\neg A \\essence \\neg B)"]
+# premises = ["(\\neg A \\sqsubseteq \\neg B)"]
+# premises = ["(A \\leq B)"]
+# conclusions = ["(A \\ground B)"]
+
+# # TRUE CONCLUSION MODEL
+# premises = ["(A \\leq B)"]
+# conclusions = ["(\\neg A \\essence \\neg B)"]
+
+# # TRUE CONCLUSION MODEL
+# premises = ["(\\neg A \\leq \\neg B)"]
 # premises = ["(A \\sqsubseteq B)"]
 # conclusions = ["(A \\essence B)"]
 
