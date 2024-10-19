@@ -56,9 +56,16 @@ operators = syntactic.OperatorCollection(
 # premises = ["A", "(A \\equiv B)"]
 # premises = ["A", "(A \\leq B)"]
 
-# FALSE PREMISE MODEL
-premises = ["A", "(B \\sqsubseteq A)"]
-conclusions = ["\\neg B"]
+# # FALSE PREMISE MODEL
+# premises = ["A", "(B \\sqsubseteq A)"]
+# conclusions = ["\\neg B"]
+
+# TRUE CONCLUSION MODEL
+premises = ["(A \\sqsubseteq B)"]
+conclusions = ["(\\neg A \\leq \\neg B)"]
+
+# premises = ["(A \\leq B)"]
+# conclusions = ["(\\neg A \\sqsubseteq \\neg B)"]
 
 ### GENERATE Z3 CONSTRAINTS ###
 

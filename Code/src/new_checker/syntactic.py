@@ -19,15 +19,12 @@ class Sentence:
     def __init__(self, infix_sentence, operator_collection):
         self.name = infix_sentence
         self.prefix_string = self.prefix(infix_sentence)
-        # M: I think we should rename this to well_formed_formula_prefix
-        # B: sounds good! I can let the LSP take care of this once we are ready
-        # B: renaming
         self.prefix_type = operator_collection.apply_operator(self.prefix_string)
-        self.prefix_sentence = None
+        self.prefix_sentence = None # requires semantics to instantiate type
         letters, meds, ops, complexity = self.constituents_of(self.prefix_string)
         self.sentence_letters = letters
-        self.intermediates = meds
-        self.subsentences = (letters + meds + [self.prefix_string])
+        self.intermediate_strings = meds
+        self.subsentence_strings = (letters + meds + [self.prefix_string])
         self.operators = ops
         self.complexity = complexity
 
@@ -59,8 +56,8 @@ class Sentence:
     # def update_prefix_type(self, operator_collection):
     #     self.prefix_type = operator_collection.apply_operator(self.prefix_wff)
 
-    def update_prefix_sentence(self, semantics):
-        self.prefix_sentence = semantics.activate_prefix_with_semantics(self.prefix_type)
+    def update_prefix_sentence(self, model_constraints):
+        self.prefix_sentence = model_constraints.activate_prefix_with_semantics(self.prefix_type)
 
     def parse_expression(self, tokens):
         """Parses a list of tokens representing a propositional expression and returns
@@ -285,7 +282,6 @@ class OperatorCollection:
         ):
             for operator_class in input:
                 self.add_operator(operator_class)
-        # B: DISCUSS could we just add all the operators from ops in this way?
         elif isinstance(input, type):
             self.operator_classes_dict[input.name] = input
 
@@ -293,7 +289,6 @@ class OperatorCollection:
         return self.operator_classes_dict[value]
     
     def apply_operator(self, prefix_string):
-        # B: DISCUSS why this is needed again.
         """Converts prefix_strings to prefix_types with operator classes."""
         if len(prefix_string) == 1:
             atom = prefix_string[0]
@@ -339,16 +334,14 @@ class Syntax:
         inputs = list(self.premises) + list(self.conclusions)
         letters, meds, ops = self.gather_constituents(inputs)
         # NOTE: in above, ops not currently needed
-        self.all_sentence_letters = [Const(letter[0], AtomSort) for letter in letters]
-        self.all_intermediates = [self.operators.apply_operator(med) for med in meds]
-        self.prefix_type_premises = [prem.prefix_type for prem in self.premises]
-        self.prefix_type_conclusions = [conc.prefix_type for conc in self.conclusions]
-        self.all_subsentences = (
-            # self.all_sentence_letters # M: think this maybe should get removed from here
-            # B: I was also thinking about that. it seems to work well without it.
-            self.all_intermediates
-            + self.prefix_type_premises
-            + self.prefix_type_conclusions
+        self.sentence_letter_types = [Const(letter[0], AtomSort) for letter in letters]
+        self.intermediate_types = [self.operators.apply_operator(med) for med in meds]
+        self.prefix_premise_types = [prem.prefix_type for prem in self.premises]
+        self.prefix_conclusion_types = [conc.prefix_type for conc in self.conclusions]
+        self.subsentence_types = (
+            self.intermediate_types
+            + self.prefix_premise_types
+            + self.prefix_conclusion_types
         )
 
     def gather_constituents(self, sentences):
@@ -357,10 +350,9 @@ class Syntax:
         meds = []
         for sent in sentences:
             letters.extend(sent.sentence_letters)
-            meds.extend(sent.intermediates)
+            meds.extend(sent.intermediate_strings)
             ops.update(sent.operators)
         sorted_sentence_letters = sorted(remove_repeats(letters))
-        # sorted_operators = sorted(list(ops), key=lambda x: str(x))
         sorted_operators = sorted(ops)
         sorted_intermediates = sorted(remove_repeats(meds))
         return sorted_sentence_letters, sorted_intermediates, sorted_operators
