@@ -212,12 +212,29 @@ class Proposition(PropositionDefaults):
     def proposition_constraints(self, atom):
         """Currently does not have contingent proposition constraints."""
         semantics = self.semantics
+        contingent = self.contingent
         non_null = self.non_null
         x = z3.BitVec("prop_x", semantics.N)
         y = z3.BitVec("prop_y", semantics.N)
         non_null_constraints = [
             z3.Not(semantics.verify(0, atom)),
             z3.Not(semantics.falsify(0, atom)),
+        ]
+        contingent_constraints = [
+            Exists(
+                x,
+                z3.And(
+                    semantics.possible(x),
+                    semantics.verify(x, atom),
+                )
+            ),
+            Exists(
+                y,
+                z3.And(
+                    semantics.possible(y),
+                    semantics.falsify(y, atom),
+                )
+            ),
         ]
         classical_constraints = [
             ForAll(
@@ -256,6 +273,9 @@ class Proposition(PropositionDefaults):
             ),
         ]
         constraints = classical_constraints
+        if contingent:
+            constraints += contingent_constraints
+            return constraints
         if non_null:
             constraints += non_null_constraints
         return constraints
