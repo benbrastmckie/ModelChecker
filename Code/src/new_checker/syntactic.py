@@ -324,16 +324,15 @@ class Syntax:
         self.conclusions = [Sentence(con, operator_collection) for con in infix_conclusions]
         self.operators = operator_collection
 
-        # # TODO: could avoid if Sentence takes operator_collection as argument
-        # for prem in self.premises:
-        #     prem.update_prefix_type(self.operators)
-        # for conclusion in self.conclusions:
-        #     conclusion.update_prefix_type(self.operators)
-
         # Collect from premises and conclusions and gather constituents
         inputs = list(self.premises) + list(self.conclusions)
         letters, meds, ops = self.gather_constituents(inputs)
         # NOTE: in above, ops not currently needed
+
+        # B: attempt but not successful
+        # self.all_sentences = self.subsentence_dictionary(meds)
+
+
         self.sentence_letter_types = [Const(letter[0], AtomSort) for letter in letters]
         self.intermediate_types = [self.operators.apply_operator(med) for med in meds]
         self.prefix_premise_types = [prem.prefix_type for prem in self.premises]
@@ -343,6 +342,27 @@ class Syntax:
             + self.prefix_premise_types
             + self.prefix_conclusion_types
         )
+
+    # def infix(self, prefix_sent):
+    #     """Takes a sentence in prefix notation (in any of the three kinds)
+    #     and translates it to infix notation (a string)
+    #     """
+    #     if len(prefix_sent) == 1:
+    #         return str(prefix_sent[0])
+    #     op = prefix_sent[0]
+    #     if len(prefix_sent) == 2:
+    #         return f"{op} {self.infix(prefix_sent[1])}"
+    #     left_expr = prefix_sent[1]
+    #     right_expr = prefix_sent[2]
+    #     return f"({self.infix(left_expr)} {op} {self.infix(right_expr)})"
+
+    # def subsentence_dictionary(self, prefix_strings):
+    #     sent_dict = {}
+    #     for prefix_string in prefix_strings:
+    #         infix_sent = self.infix(prefix_string)
+    #         sentence_instance = Sentence(infix_sent, self.operators)
+    #         sent_dict[infix_sent] = sentence_instance
+    #     return sent_dict
 
     def gather_constituents(self, sentences):
         letters = []
