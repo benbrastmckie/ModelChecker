@@ -329,10 +329,6 @@ class Syntax:
         letters, meds, ops = self.gather_constituents(inputs)
         # NOTE: in above, ops not currently needed
 
-        # B: attempt but not successful
-        # self.all_sentences = self.subsentence_dictionary(meds)
-
-
         self.sentence_letter_types = [Const(letter[0], AtomSort) for letter in letters]
         self.intermediate_types = [self.operators.apply_operator(med) for med in meds]
         self.prefix_premise_types = [prem.prefix_type for prem in self.premises]
