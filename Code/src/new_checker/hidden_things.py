@@ -440,10 +440,17 @@ class ModelStructure:
         # M: at least the way it's currently written I don't think so unfortunately.
         # it uses the infix forms to find the sub-propositions, so we can't use the .name
         # attribute on something we haven't already found
+
         # TODO: build all subsentences in Syntax and update in ModelConstraints
         # and use to build propositions
+
         sub_prefix_sents = prop_obj.prefix_sentence[1:]
         sub_infix_sentences = (self.infix(sub_prefix) for sub_prefix in sub_prefix_sents)
+
+        # B: tried this but didn't work
+        # all_sentences = self.syntax.all_sentences
+        # sub_infix_sentences = (all_sentences[sub_prefix].name for sub_prefix in sub_prefix_sents)
+
         subprops = (self.all_propositions[ifx] for ifx in sub_infix_sentences)
         for subprop in subprops:
             self.rec_print(subprop, eval_world, indent + 1)
