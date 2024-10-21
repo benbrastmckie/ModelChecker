@@ -194,8 +194,8 @@ class Proposition(PropositionDefaults):
     """
 
     # B: could this class take instances of Sentence instead?
-    def __init__(self, prefix_sentence, model_structure, eval_world='main'):
-        super().__init__(prefix_sentence, model_structure)
+    def __init__(self, sentence, model_structure, eval_world='main'):
+        super().__init__(sentence, model_structure)
         self.verifiers, self.falsifiers = self.find_proposition()
         self.eval_world = model_structure.main_world if eval_world == 'main' else eval_world
         
@@ -317,11 +317,14 @@ class Proposition(PropositionDefaults):
         all_bits = self.model_structure.all_bits
         model = self.model_structure.z3_model
         sem = self.semantics
+        print("PREFIX SENT", f"{type(self.prefix_sentence)} {self.prefix_sentence}")
+        print("PREFIX STR", f"{type(self.prefix_string)} {self.prefix_string}")
         if len(self.prefix_sentence) == 1:
-            if str(self.prefix_sentence[0]) in {'\\top', '\\bot'}:
+            if self.prefix_string[0] in {'\\top', '\\bot'}:
                 operator = self.prefix_sentence[0]
                 return operator.find_verifiers_and_falsifiers()
-            if str(self.prefix_sentence[0]).isalnum():
+            if self.prefix_string[0].isalnum():
+                print("CHECK", self.prefix_string)
                 sentence_letter = self.prefix_sentence[0]
                 V = {
                     bit for bit in all_bits
@@ -333,15 +336,20 @@ class Proposition(PropositionDefaults):
                 }
                 return V, F
             raise ValueError(
-                f"Their is not proposition for {self.prefix_sentence[0]}."
+                f"Their is no proposition for {self.prefix_string[0]}."
             )
         # TODO: if a sentence said what its main_operator and arguments were
         # where the arguments were instances of Sentence, then they could be
         # applied recursively below
-        # operator = self.sentence.main_operator
-        prefix_args = self.prefix_sentence[1:]
-        operator, prefix_args = self.prefix_sentence[0], self.prefix_sentence[1:]
-        children_subprops = [Proposition(arg, self.model_structure) for arg in prefix_args]
+        print("CHECK", self.prefix_string)
+        # NOTE: hopefully this will also promote transparency to users
+        operator = self.sentence.main_operator
+        sentence_args = self.sentence.arguments
+        print("PREFIX OP", operator)
+        print("PREFIX ARGS", sentence_args)
+        # operator, prefix_args = self.prefix_sentence[0], self.prefix_sentence[1:]
+        children_subprops = [Proposition(arg, self.model_structure) for arg in sentence_args]
+        print("PROP ARGS", children_subprops)
         # TODO: add eval_world here as argument and to all find_verifiers_and_falsifiers
         return operator.find_verifiers_and_falsifiers(*children_subprops)
         # # NOTE: this seems very close; just needs debugging and build prop dictionary here
