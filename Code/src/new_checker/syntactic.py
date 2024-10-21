@@ -21,7 +21,10 @@ class Sentence:
         self.operator_collection = operator_collection
         self.prefix_string = self.prefix(infix_sentence)
         self.main_operator = None
+        self.main_arguments = None
         if len(self.prefix_string) > 1: 
+            # B: I think having a string for the operator will be the most
+            # convenient, but maybe better to just use the operator class here
             self.main_operator = self.prefix_string[0]
             # print("PREFIX STRINGS", self.prefix_string[1:])
             self.arguments = self.prefixes_to_sentences(self.prefix_string[1:])

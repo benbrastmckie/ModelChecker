@@ -1,4 +1,6 @@
 from z3 import (
+    Const,
+    DeclareSort,
     sat,
     Solver,
 )
@@ -14,6 +16,7 @@ from hidden_helpers import (
 
 import sys
 
+AtomSort = DeclareSort("AtomSort")
 
 class PropositionDefaults:
     """Defaults inherited by every proposition."""
@@ -25,9 +28,9 @@ class PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
 
         # Store arguments
-        self.sentence = sentence  # of the third kind of prefix sentence
-        self.prefix_sentence = self.sentence.prefix_sentence  # of the third kind of prefix sentence
-        self.prefix_string = self.sentence.prefix_string  # of the third kind of prefix sentence
+        self.sentence = sentence
+        self.prefix_sentence = self.sentence.prefix_sentence
+        self.prefix_string = self.sentence.prefix_string
         print("PREFIX PRINT", self.prefix_string)
         self.model_structure = model_structure
 
@@ -226,8 +229,9 @@ class ModelConstraints:
             elif isinstance(elem, list):
                 new_prefix_form.append(self.activate_prefix_with_semantics(elem))
             else:
+                print("TEST ACTIVATE", elem)
+                # B: seems like it is wanting a list of length 1
                 new_prefix_form.append(elem)
-                # B: is this what is needed?
                 # new_prefix_form.append(Const(elem, AtomSort))
         return new_prefix_form
 
