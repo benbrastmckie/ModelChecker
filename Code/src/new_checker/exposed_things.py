@@ -201,14 +201,14 @@ class Proposition(PropositionDefaults):
         
 
     def __eq__(self, other):
-        if (
+        return (
             self.verifiers == other.verifiers
             and self.falsifiers == other.falsifiers
             and str(self.prefix_sentence) == str(other.prefix_sentence)
-        ):
-            return True
-        return False
+        )
 
+    # B: I tried to break this up into smaller methods but wasn't able to call
+    # one class method from another
     def proposition_constraints(self, atom):
         """Currently does not have contingent proposition constraints."""
         semantics = self.semantics
@@ -272,8 +272,7 @@ class Proposition(PropositionDefaults):
         ]
         constraints = classical_constraints
         if self.disjoint:
-            print("DISJOINT")
-            z = z3.BitVec("disjoint_y", semantics.N)
+            z = z3.BitVec("prop_z", semantics.N)
             for other_atom in self.sentence_letter_types:
                 if not other_atom is atom:
                     disjoin_constraints = [
@@ -300,49 +299,19 @@ class Proposition(PropositionDefaults):
                             )
                         )
                     ]
-                    # disjoint_constraints = self.disjoint_subject_matter(atom, other_atom)
                     constraints.extend(disjoin_constraints)
                     constraints += non_null_constraints
+                    # NOTE: non_null_constraints are important to avoid
+                    # trivializing the disjoin_constraints
         if self.contingent:
             constraints += contingent_constraints
+            # NOTE: contingent_constraints entail non_null_constraints and so
+            # the disjoin_constraints constraints can be skipped
         elif self.non_null and not self.disjoint:
-            print("NULL")
             constraints += non_null_constraints
+            # NOTE: since non_null_constraints are included in the
+            # disjoin_constraints they don't need to be added again here
         return constraints
-
-    def disjoint_subject_matter(self, sent_letter, other_letter):
-        """Returns a list of Z3 constraints that require the input sentence letters to have
-        disjoint subject-matters so any non-null state is a part of a verifier or falsifier for
-        at most one of the input sentence letters."""
-        semantics = self.semantics
-        x = z3.BitVec("disjoint_x", semantics.N)
-        y = z3.BitVec("disjoint_y", semantics.N)
-        z = z3.BitVec("disjoint_y", semantics.N)
-        disjoin_constraints = [
-            ForAll(
-                [x, y],
-                z3.Implies(
-                    z3.And(
-                        semantics.non_null_part_of(x, y),
-                        z3.Or(
-                            semantics.verify(y, sent_letter),
-                            semantics.falsify(y, sent_letter)
-                        )
-                    ),
-                    ForAll(
-                        z,
-                        z3.Implies(
-                            z3.Or(
-                                semantics.verify(z, other_letter),
-                                semantics.falsify(z, other_letter)
-                            ),
-                            z3.Not(semantics.is_part_of(x, z))
-                        )
-                    )
-                )
-            )
-        ]
-        return disjoin_constraints
 
     def find_proposition(self):
         all_bits = self.model_structure.all_bits
