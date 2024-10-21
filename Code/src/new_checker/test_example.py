@@ -52,7 +52,7 @@ operators = syntactic.OperatorCollection(
 
 # premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
-# premises = ["A", "(A \\rightarrow B)"]
+premises = ["A", "(A \\rightarrow B)"]
 # premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\wedge B)"]
 # premises = ["(D \\leftrightarrow A)"]
@@ -62,7 +62,7 @@ operators = syntactic.OperatorCollection(
 # premises = ["A", "(A \\equiv B)"]
 # premises = ["A", "(A \\leq B)"]
 
-# conclusions = ["(\\neg B \\wedge \\neg D)"]
+conclusions = ["(\\neg B \\wedge \\neg D)"]
 
 
 
@@ -122,8 +122,8 @@ operators = syntactic.OperatorCollection(
 # # TRUE CONCLUSION MODEL
 # premises = ["(\\neg A \\essence \\neg B)"]
 # premises = ["(\\neg A \\sqsubseteq \\neg B)"]
-premises = ["(A \\leq B)"]
-conclusions = ["(A \\ground B)"]
+# premises = ["(A \\leq B)"]
+# conclusions = ["(A \\ground B)"]
 
 # # TRUE CONCLUSION MODEL
 # premises = ["(A \\leq B)"]
@@ -150,14 +150,14 @@ conclusions = ["(A \\ground B)"]
 ###############################
 
 sytax = syntactic.Syntax(premises, conclusions, operators)
-semantics = Semantics(3)
+semantics = Semantics(4)
 model_constraints = ModelConstraints(
     sytax,
     semantics,
     Proposition,
     contingent=False,
-    non_null=True,
-    disjoint=False,
+    non_null=False,
+    disjoint=True,
     print_impossible=True,
 )
 
