@@ -18,19 +18,22 @@ import sys
 class PropositionDefaults:
     """Defaults inherited by every proposition."""
 
-    def __init__(self, prefix_sentence, model_structure):
+    def __init__(self, sentence, model_structure):
 
         # Raise error if instantiated directly instead of as a bare class
         if self.__class__ == PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
 
         # Store arguments
-        self.prefix_sentence = prefix_sentence  # of the third kind of prefix sentence
+        self.sentence = sentence  # of the third kind of prefix sentence
+        self.prefix_sentence = self.sentence.prefix_sentence  # of the third kind of prefix sentence
+        self.prefix_string = self.sentence.prefix_string  # of the third kind of prefix sentence
+        print("PREFIX PRINT", self.prefix_string)
         self.model_structure = model_structure
 
         # Store values from model_structure
         self.N = self.model_structure.N
-        self.name = self.model_structure.infix(prefix_sentence)
+        self.name = self.model_structure.infix(self.prefix_string)
         self.model_constraints = self.model_structure.model_constraints
 
         # Store values from model_constraints
@@ -136,17 +139,26 @@ class ModelConstraints:
         self.conclusions = self.instantiate(self.syntax.conclusions)
 
         # # ADD PROP TO SENT
-        # self.intermediates = self.instantiate(self.syntax.intermediates)
-        # self.sentence_letters = self.instantiate(self.syntax.sentence_letters)
+        self.intermediates = self.instantiate(self.syntax.intermediates)
+        self.sentence_letters = self.instantiate(self.syntax.sentence_letters)
+        print("INSTANTIATE SLS", self.sentence_letters)
         # # print("LETTER", {type(self.sentence_letters)})
-        # all_sentences_list = (
-        #     self.premises
-        #     + self.conclusions
-        #     + self.intermediates
-        #     + self.sentence_letters
-        # )
-        # # B: the hope is to add propositions to each sentence below in model_structure
-        # self.all_sentences = {sent.name : sent for sent in all_sentences_list}
+
+        # B: this should probably go into syntax and there is likely a better way
+        # to define it using the recursive structure that sentence objects have.
+        # we can then update all sentence objects at once by running through
+        # the values of the dictionary. it shouldn't be so important to keep the
+        # sentence objects for the premises and conclusions given that we have
+        # the original list of infix premises and conclusions that we can use to
+        # look them up. hopefully this will help reduce complexity.
+        all_sentences_list = (
+            self.premises
+            + self.conclusions
+            + self.intermediates
+            + self.sentence_letters
+        )
+        # B: the hope is to add propositions to each sentence below in model_structure
+        self.all_sentences = {sent.name : sent for sent in all_sentences_list}
 
         # TODO: can this be replaced with syntax.sentence_letters?
         # B: are these really types rather than instances?
@@ -198,6 +210,7 @@ class ModelConstraints:
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
         for prem in sentences:
+            print("BEFORE UPDATE", f"{prem} is type {type(prem)}")
             prem.update_prefix_sentence(self)
         return sentences
 
@@ -214,6 +227,8 @@ class ModelConstraints:
                 new_prefix_form.append(self.activate_prefix_with_semantics(elem))
             else:
                 new_prefix_form.append(elem)
+                # B: is this what is needed?
+                # new_prefix_form.append(Const(elem, AtomSort))
         return new_prefix_form
 
     def print_enumerate(self, output=sys.__stdout__):
@@ -301,12 +316,12 @@ class ModelStructure:
 
         self.all_propositions = {}
         self.premise_propositions = [
-            self.model_constraints.proposition_class(premise.prefix_sentence, self)
+            self.model_constraints.proposition_class(premise, self)
             # B: what if there are repeats in prefix_premises?
             for premise in self.premises
         ]
         self.conclusion_propositions = [
-            self.model_constraints.proposition_class(conclusion.prefix_sentence, self)
+            self.model_constraints.proposition_class(conclusion, self)
             # B: what if there are repeats in prefix_premises?
             for conclusion in self.conclusions
         ]
