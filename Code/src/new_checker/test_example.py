@@ -52,11 +52,11 @@ operators = syntactic.OperatorCollection(
 
 # premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
-premises = ["A", "(A \\rightarrow B)"]
+# premises = ["A", "(A \\rightarrow B)"]
 # premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\wedge B)"]
 # premises = ["(D \\leftrightarrow A)"]
-# premises = ["(\\neg D \\leftrightarrow \\bot)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
+premises = ["(\\neg D \\leftrightarrow \\bot)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow \\top)"]
 # premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\equiv B)"]
@@ -149,15 +149,21 @@ conclusions = ["(\\neg B \\wedge \\neg D)"]
 ### GENERATE Z3 CONSTRAINTS ###
 ###############################
 
-sytax = syntactic.Syntax(premises, conclusions, operators)
-semantics = Semantics(4)
+sytax = syntactic.Syntax(
+    premises,
+    conclusions,
+    operators,
+)
+
+semantics = Semantics(3)
+
 model_constraints = ModelConstraints(
     sytax,
     semantics,
     Proposition,
     contingent=False,
-    non_null=False,
-    disjoint=True,
+    non_null=True,
+    disjoint=False,
     print_impossible=True,
 )
 
@@ -165,7 +171,11 @@ model_constraints = ModelConstraints(
 ### SOLVE, STORE, AND PRINT Z3 MODEL ###
 ########################################
 
-model_structure = ModelStructure(model_constraints, max_time=1)
+model_structure = ModelStructure(
+    model_constraints,
+    max_time=1
+)
+
 model_structure.print_all()  
 
 # print(model_constraints)
