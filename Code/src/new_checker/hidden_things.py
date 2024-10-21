@@ -43,10 +43,7 @@ class PropositionDefaults:
 
         # Store proposition in model_structure.all_propositions dictionary
         self.model_structure.all_propositions[self.name] = self
-        self.verifiers, self.falsifiers = (
-            None,
-            None,
-        )  # avoids linter errors in print_proposition
+        self.verifiers, self.falsifiers = None, None # avoids linter errors in print_proposition
         try:
             hash(self)
         except:
@@ -151,7 +148,8 @@ class ModelConstraints:
         # # B: the hope is to add propositions to each sentence below in model_structure
         # self.all_sentences = {sent.name : sent for sent in all_sentences_list}
 
-        # TODO: can this be dropped eventually?
+        # TODO: can this be replaced with syntax.sentence_letters?
+        # B: are these really types rather than instances?
         self.sentence_letter_types = syntax.sentence_letter_types
         # print("LETTER TYPES", {type(self.sentence_letter_types)})
         # self.subsentence_types = syntax.subsentence_types
@@ -190,6 +188,12 @@ class ModelConstraints:
             + self.conclusion_constraints
         )
 
+    def __str__(self):
+        """useful for using model-checker in a python file"""
+        premises = list(self.syntax.premises)
+        conclusions = list(self.syntax.conclusions)
+        return f"ModelConstraints for premises {premises} and conclusions {conclusions}"
+
     def instantiate(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
@@ -211,12 +215,6 @@ class ModelConstraints:
             else:
                 new_prefix_form.append(elem)
         return new_prefix_form
-
-    def __str__(self):
-        """useful for using model-checker in a python file"""
-        premises = list(self.syntax.premises)
-        conclusions = list(self.syntax.conclusions)
-        return f"ModelConstraints for premises {premises} and conclusions {conclusions}"
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""

@@ -18,15 +18,20 @@ class Sentence:
 
     def __init__(self, infix_sentence, operator_collection):
         self.name = infix_sentence
+        self.operator_collection = operator_collection
         self.prefix_string = self.prefix(infix_sentence)
+        self.main_operator = None
+        if len(self.prefix_string) > 1: 
+            self.main_operator = self.prefix_string[0]
+            self.arguments = self.prefixes_to_sentences(self.prefix_string[1:])
         self.prefix_type = operator_collection.apply_operator(self.prefix_string)
         self.prefix_sentence = None # requires semantics to instantiate type
         # B: could this been a good idea?
-        # self.proposition_obj = None # requires model_structure
+        self.proposition_obj = None # requires model_structure
         letters, meds, ops, complexity = self.constituents_of(self.prefix_string)
         self.sentence_letters = letters
         self.intermediate_strings = meds
-        self.subsentence_strings = (letters + meds + [self.prefix_string])
+        # self.subsentence_strings = (letters + meds + [self.prefix_string])
         self.operators = ops
         self.complexity = complexity
 
@@ -54,6 +59,27 @@ class Sentence:
         which operators the language includes."""
         tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
         return self.parse_expression(tokens)
+
+    def infix(self, prefix_sent):
+        """Takes a sentence in prefix notation (in any of the three kinds)
+        and translates it to infix notation (a string)
+        """
+        if len(prefix_sent) == 1:
+            return str(prefix_sent[0])
+        op = prefix_sent[0]
+        if len(prefix_sent) == 2:
+            return f"{op} {self.infix(prefix_sent[1])}"
+        left_expr = prefix_sent[1]
+        right_expr = prefix_sent[2]
+        return f"({self.infix(left_expr)} {op} {self.infix(right_expr)})"
+
+    def prefixes_to_sentences(self, prefix_strings):
+        infix_sentences = [self.infix(pre) for pre in prefix_strings]
+        sentences = [
+            Sentence(inf, self.operator_collection)
+            for inf in infix_sentences
+        ]
+        return sentences
     
     # def update_prefix_type(self, operator_collection):
     #     self.prefix_type = operator_collection.apply_operator(self.prefix_wff)
@@ -322,11 +348,11 @@ class Syntax:
         # NOTE: add if need to look up sentences
         # self.premises = {prem : Sentence(prem) for prem in infix_premises}
         # self.conclusions = {con : Sentence(con)for con in infix_conclusions}
-        # self.premises = [Sentence(prem, operator_collection) for prem in infix_premises]
-        # self.conclusions = [Sentence(con, operator_collection) for con in infix_conclusions]
+        self.premises = [Sentence(prem, operator_collection) for prem in infix_premises]
+        self.conclusions = [Sentence(con, operator_collection) for con in infix_conclusions]
         self.operators = operator_collection
-        self.premises = self.infixes_to_sentences(infix_premises, self.operators)
-        self.conclusions = self.infixes_to_sentences(infix_conclusions, self.operators)
+        # self.premises = self.infixes_to_sentences(infix_premises, self.operators)
+        # self.conclusions = self.infixes_to_sentences(infix_conclusions, self.operators)
 
         # TODO: define and use method to loop through all input sentences and
         # build a dictionary of all subsentences
@@ -335,11 +361,14 @@ class Syntax:
         inputs = list(self.premises) + list(self.conclusions)
         letters, meds, ops = self.gather_constituents(inputs)
         # NOTE: in above, ops not currently needed
-        self.intermediates = self.prefix_strings_to_sentences(meds, self.operators)
-        self.sentence_letters = self.prefix_strings_to_sentences(letters, self.operators)
-        # self.all_sentences = {sent.name : sent for sent in inputs + subsentences}
 
-        # TODO: can this be dropped?
+
+        # # ADD PROP TO SENT
+        # self.intermediates = self.prefix_strings_to_sentences(meds, self.operators)
+        # self.sentence_letters = self.prefix_strings_to_sentences(letters, self.operators)
+        # # self.all_sentences = {sent.name : sent for sent in inputs + subsentences}
+
+        # TODO: can this be dropped? Is this really a type rather than an instance?
         self.sentence_letter_types = [Const(letter[0], AtomSort) for letter in letters]
         # self.intermediate_types = [self.operators.apply_operator(med) for med in meds]
         # self.prefix_premise_types = [prem.prefix_type for prem in self.premises]
@@ -350,34 +379,28 @@ class Syntax:
         #     + self.prefix_conclusion_types
         # )
 
-    def infixes_to_sentences(self, infix_sentences, operators):
-        return [Sentence(sent, operators) for sent in infix_sentences]
 
-    def infix(self, prefix_sent):
-        """Takes a sentence in prefix notation (in any of the three kinds)
-        and translates it to infix notation (a string)
-        """
-        if len(prefix_sent) == 1:
-            return str(prefix_sent[0])
-        op = prefix_sent[0]
-        if len(prefix_sent) == 2:
-            return f"{op} {self.infix(prefix_sent[1])}"
-        left_expr = prefix_sent[1]
-        right_expr = prefix_sent[2]
-        return f"({self.infix(left_expr)} {op} {self.infix(right_expr)})"
-
-    def prefix_strings_to_sentences(self, prefix_strings, operators):
-        infix_sentences = [self.infix(prefix_string) for prefix_string in prefix_strings]
-        sentences = self.infixes_to_sentences(infix_sentences, operators)
-        return sentences
-
-    # def subsentence_dictionary(self, prefix_strings):
-    #     sent_dict = {}
-    #     for prefix_string in prefix_strings:
-    #         infix_sent = self.infix(prefix_string)
-    #         sentence_instance = Sentence(infix_sent, self.operators)
-    #         sent_dict[infix_sent] = sentence_instance
-    #     return sent_dict
+    # # ADD PROP TO SENT
+    # def infixes_to_sentences(self, infix_sentences, operators):
+    #     return [Sentence(sent, operators) for sent in infix_sentences]
+    #
+    # def infix(self, prefix_sent):
+    #     """Takes a sentence in prefix notation (in any of the three kinds)
+    #     and translates it to infix notation (a string)
+    #     """
+    #     if len(prefix_sent) == 1:
+    #         return str(prefix_sent[0])
+    #     op = prefix_sent[0]
+    #     if len(prefix_sent) == 2:
+    #         return f"{op} {self.infix(prefix_sent[1])}"
+    #     left_expr = prefix_sent[1]
+    #     right_expr = prefix_sent[2]
+    #     return f"({self.infix(left_expr)} {op} {self.infix(right_expr)})"
+    #
+    # def prefix_strings_to_sentences(self, prefix_strings, operators):
+    #     infix_sentences = [self.infix(prefix_string) for prefix_string in prefix_strings]
+    #     sentences = self.infixes_to_sentences(infix_sentences, operators)
+    #     return sentences
 
     def gather_constituents(self, sentences):
         letters = []

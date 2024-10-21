@@ -335,6 +335,11 @@ class Proposition(PropositionDefaults):
             raise ValueError(
                 f"Their is not proposition for {self.prefix_sentence[0]}."
             )
+        # TODO: if a sentence said what its main_operator and arguments were
+        # where the arguments were instances of Sentence, then they could be
+        # applied recursively below
+        # operator = self.sentence.main_operator
+        prefix_args = self.prefix_sentence[1:]
         operator, prefix_args = self.prefix_sentence[0], self.prefix_sentence[1:]
         children_subprops = [Proposition(arg, self.model_structure) for arg in prefix_args]
         # TODO: add eval_world here as argument and to all find_verifiers_and_falsifiers
