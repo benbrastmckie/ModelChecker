@@ -1,7 +1,6 @@
 from z3 import (
     sat,
     Solver,
-    BitVecVal,
 )
 
 import time
@@ -36,6 +35,7 @@ class PropositionDefaults:
 
         # Store values from model_constraints
         self.semantics = self.model_constraints.semantics
+        self.sentence_letter_types = self.model_constraints.sentence_letter_types
         self.contingent = self.model_constraints.contingent
         self.non_null = self.model_constraints.non_null
         self.disjoint = self.model_constraints.disjoint
@@ -148,9 +148,9 @@ class ModelConstraints:
         # Use semantics to generate and store Z3 constraints
         self.frame_constraints = self.semantics.frame_constraints
         self.model_constraints = []
-        for sl in self.sentence_letter_types:
+        for sent_let in self.sentence_letter_types:
             self.model_constraints.extend(
-                self.proposition_class.proposition_constraints(self, sl)
+                self.proposition_class.proposition_constraints(self, sent_let)
             )
         self.premise_constraints = [
             self.semantics.premise_behavior(prem.prefix_sentence, self.semantics.main_world)
