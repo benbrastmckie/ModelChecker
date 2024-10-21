@@ -10,10 +10,10 @@ from hidden_helpers import (
     int_to_binary,
     not_implemented_string,
     pretty_set_print,
-
 )
 
 import sys
+
 
 class PropositionDefaults:
     """Defaults inherited by every proposition."""
@@ -25,7 +25,7 @@ class PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
 
         # Store arguments
-        self.prefix_sentence = prefix_sentence # of the third kind of prefix sentence
+        self.prefix_sentence = prefix_sentence  # of the third kind of prefix sentence
         self.model_structure = model_structure
 
         # Store values from model_structure
@@ -40,10 +40,13 @@ class PropositionDefaults:
         self.non_null = self.model_constraints.non_null
         self.disjoint = self.model_constraints.disjoint
         self.print_impossible = self.model_constraints.print_impossible
-        
+
         # Store proposition in model_structure.all_propositions dictionary
         self.model_structure.all_propositions[self.name] = self
-        self.verifiers, self.falsifiers = None, None # avoids linter errors in print_proposition
+        self.verifiers, self.falsifiers = (
+            None,
+            None,
+        )  # avoids linter errors in print_proposition
         try:
             hash(self)
         except:
@@ -68,30 +71,28 @@ class PropositionDefaults:
     # and how it gets printed
     def print_proposition(self, eval_world, indent_num=0):
         N = self.model_structure.model_constraints.semantics.N
-        truth_value = self.truth_value_at(eval_world) 
+        truth_value = self.truth_value_at(eval_world)
         possible = self.model_structure.model_constraints.semantics.possible
         z3_model = self.model_structure.z3_model
         ver_states = {
             bitvec_to_substates(bit, N)
             for bit in self.verifiers
-            if z3_model.evaluate(possible(bit))
-            or self.print_impossible
+            if z3_model.evaluate(possible(bit)) or self.print_impossible
         }
-        ver_prints = pretty_set_print(ver_states) if ver_states else '∅'
+        ver_prints = pretty_set_print(ver_states) if ver_states else "∅"
         fal_states = {
             bitvec_to_substates(bit, N)
             for bit in self.falsifiers
-            if z3_model.evaluate(possible(bit))
-            or self.print_impossible
+            if z3_model.evaluate(possible(bit)) or self.print_impossible
         }
         # temporary fix on unary/binary issue below (the 'is None' bit)
-        fal_prints = pretty_set_print(fal_states) if fal_states is not None else '∅'
+        fal_prints = pretty_set_print(fal_states) if fal_states is not None else "∅"
         world_state = bitvec_to_substates(eval_world, N)
-        RED = '\033[31m'
-        GREEN = '\033[32m'
-        RESET = '\033[0m'
-        FULL = '\033[37m'
-        PART = '\033[33m'
+        RED = "\033[31m"
+        GREEN = "\033[32m"
+        RESET = "\033[0m"
+        FULL = "\033[37m"
+        PART = "\033[33m"
         if indent_num == 1:
             if truth_value:
                 FULL = GREEN
@@ -134,10 +135,26 @@ class ModelConstraints:
             op_name: op_class(semantics)
             for (op_name, op_class) in self.syntax.operators.items()
         }
-        self.premises = self.instantiate(syntax.premises)
-        self.conclusions = self.instantiate(syntax.conclusions)
-        self.subsentence_types = syntax.subsentence_types
+        self.premises = self.instantiate(self.syntax.premises)
+        self.conclusions = self.instantiate(self.syntax.conclusions)
+
+        # # ADD PROP TO SENT
+        # self.intermediates = self.instantiate(self.syntax.intermediates)
+        # self.sentence_letters = self.instantiate(self.syntax.sentence_letters)
+        # # print("LETTER", {type(self.sentence_letters)})
+        # all_sentences_list = (
+        #     self.premises
+        #     + self.conclusions
+        #     + self.intermediates
+        #     + self.sentence_letters
+        # )
+        # # B: the hope is to add propositions to each sentence below in model_structure
+        # self.all_sentences = {sent.name : sent for sent in all_sentences_list}
+
+        # TODO: can this be dropped eventually?
         self.sentence_letter_types = syntax.sentence_letter_types
+        # print("LETTER TYPES", {type(self.sentence_letter_types)})
+        # self.subsentence_types = syntax.subsentence_types
 
         # Store settings
         self.contingent = contingent
@@ -153,11 +170,17 @@ class ModelConstraints:
                 self.proposition_class.proposition_constraints(self, sent_let)
             )
         self.premise_constraints = [
-            self.semantics.premise_behavior(prem.prefix_sentence, self.semantics.main_world)
+            self.semantics.premise_behavior(
+                prem.prefix_sentence,
+                self.semantics.main_world,
+            )
             for prem in self.premises
         ]
         self.conclusion_constraints = [
-            self.semantics.conclusion_behavior(conc.prefix_sentence, self.semantics.main_world)
+            self.semantics.conclusion_behavior(
+                conc.prefix_sentence,
+                self.semantics.main_world,
+            )
             for conc in self.conclusions
         ]
         self.all_constraints = (
@@ -230,12 +253,17 @@ class ModelStructure:
         self.semantics = self.model_constraints.semantics
         self.main_world = self.semantics.main_world
         self.N = self.semantics.N
-        self.premises, self.conclusions = model_constraints.premises, model_constraints.conclusions
-        self.syntax = self.model_constraints.syntax
+        self.premises = model_constraints.premises
+        self.conclusions = model_constraints.conclusions
 
+        # ADD PROP TO SENT
+        # self.all_sentences = model_constraints.all_sentences
+
+        # B: can this be dropped eventually?
         # Store from syntax
-        self.subsentence_types = self.syntax.subsentence_types
+        self.syntax = self.model_constraints.syntax
         self.sentence_letter_types = self.syntax.sentence_letter_types
+        # self.subsentence_types = self.syntax.subsentence_types
 
         # Solve Z3 constraints and store values
         timeout, z3_model, z3_model_status, z3_model_runtime = self.solve(
@@ -253,7 +281,6 @@ class ModelStructure:
         if not self.z3_model_status:
             self.poss_bits, self.world_bits, self.main_world = None, None, None
             self.all_propositions, self.premise_propositions = None, None
-            # B: should these be empty lists to avoid linter errors?
             self.conclusion_propositions = None
             return
         self.poss_bits = [
@@ -268,9 +295,12 @@ class ModelStructure:
             if bool(self.z3_model.evaluate(self.semantics.is_world(bit)))
             # LINTER: cannot access attribute "evaluate" for class "AstVector"
         ]
-        self.main_world = self.z3_model[self.main_world]
+        # B: should this condition be added below:
+        if not self.z3_model is None:
+            self.main_world = self.z3_model[self.main_world]
         # LINTER: object of type "None" is not subscriptable
         # M: it's probably worth ignoring the linter in this case
+
         self.all_propositions = {}
         self.premise_propositions = [
             self.model_constraints.proposition_class(premise.prefix_sentence, self)
@@ -301,7 +331,6 @@ class ModelStructure:
             print(f"An error occurred while running `solve_constraints()`: {e}")
             return True, None, False, None
 
-
     # def find_all_bits(self, size):
     #     '''extract all bitvectors from the input model
     #     imported by model_structure'''
@@ -318,7 +347,7 @@ class ModelStructure:
     # B: right now this is really a helper function for printing.
     # could move it to helpers, but I'm starting to think it would
     # be better to save the helpers module for functions that are
-    # called in multiple modules. 
+    # called in multiple modules.
     # M: currently this is used for Proposition and for ModelStructure— we could just make a
     # section of this file that has helpers for this file
     # B: I moved it out of this class, but then moved it back to
@@ -340,10 +369,12 @@ class ModelStructure:
         """print the evaluation world and all sentences letters that true/false
         in that world"""
         N = self.model_constraints.semantics.N
+        BLUE = "\033[34m"
+        RESET = "\033[0m"
         sentence_letters = self.sentence_letter_types
         main_world = self.main_world
         print(
-            f"\nThe evaluation world is: {bitvec_to_substates(main_world, N)}",
+            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, N)}{RESET}\n",
             file=output,
         )
         # true_in_eval = set()
@@ -434,7 +465,9 @@ class ModelStructure:
 
     def rec_print(self, prop_obj, eval_world, indent):
         prop_obj.print_proposition(eval_world, indent)
-        if len(prop_obj.prefix_sentence) == 1: # prefix has operator instances and AtomSorts
+        if (
+            len(prop_obj.prefix_sentence) == 1
+        ):  # prefix has operator instances and AtomSorts
             return
         # B: can infix be avoided here by calling on the name of the proposition?
         # M: at least the way it's currently written I don't think so unfortunately.
@@ -445,7 +478,9 @@ class ModelStructure:
         # and use to build propositions
 
         sub_prefix_sents = prop_obj.prefix_sentence[1:]
-        sub_infix_sentences = (self.infix(sub_prefix) for sub_prefix in sub_prefix_sents)
+        sub_infix_sentences = (
+            self.infix(sub_prefix) for sub_prefix in sub_prefix_sents
+        )
 
         # B: tried this but didn't work
         # all_sentences = self.syntax.all_sentences
@@ -467,10 +502,7 @@ class ModelStructure:
                 print("INTERPRETED PREMISE:\n", file=output)
             else:
                 print("INTERPRETED PREMISES:\n", file=output)
-            for index, input_prop in enumerate(
-                self.premise_propositions,
-                start=1
-            ):
+            for index, input_prop in enumerate(self.premise_propositions, start=1):
                 print(f"{index}.", end="", file=output)
                 self.rec_print(input_prop, initial_eval_world, 1)
                 # input_prop.print_proposition(initial_eval_world, 1)
@@ -481,8 +513,7 @@ class ModelStructure:
             else:
                 print("INTERPRETED CONCLUSIONS:\n", file=output)
             for index, input_prop in enumerate(
-                self.conclusion_propositions,
-                start=start_con_num
+                self.conclusion_propositions, start=start_con_num
             ):
                 print(f"{index}.", end="", file=output)
                 self.rec_print(input_prop, initial_eval_world, 1)
@@ -503,14 +534,14 @@ class ModelStructure:
         self.model_constraints.print_enumerate(output)
 
 
-
 ##########################################################################################
 ############################### HELPERS FOR ModelStructure ###############################
 ##########################################################################################
 
-def summation(n, func, start = 0):
-    '''summation of i ranging from start to n of func(i)
-    used in find_all_bits'''
+
+def summation(n, func, start=0):
+    """summation of i ranging from start to n of func(i)
+    used in find_all_bits"""
     if start == n:
         return func(start)
-    return func(start) + summation(n,func,start+1)
+    return func(start) + summation(n, func, start + 1)
