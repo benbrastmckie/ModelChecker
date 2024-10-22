@@ -1,6 +1,4 @@
 from z3 import (
-    Const,
-    DeclareSort,
     sat,
     Solver,
 )
@@ -15,8 +13,6 @@ from hidden_helpers import (
 )
 
 import sys
-
-AtomSort = DeclareSort("AtomSort")
 
 class PropositionDefaults:
     """Defaults inherited by every proposition."""
