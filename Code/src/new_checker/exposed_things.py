@@ -317,6 +317,7 @@ class Proposition(PropositionDefaults):
         all_bits = self.model_structure.all_bits
         model = self.model_structure.z3_model
         sem = self.semantics
+        # B: HINT this seems to be causing the trouble
         print("PREFIX SENT", f"{type(self.prefix_sentence)} {self.prefix_sentence}")
         print("PREFIX STR", f"{type(self.prefix_string)} {self.prefix_string}")
         if len(self.prefix_sentence) == 1:

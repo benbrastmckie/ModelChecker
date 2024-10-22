@@ -29,17 +29,18 @@ class PropositionDefaults:
 
         # Store arguments
         self.sentence = sentence
+        self.name = self.sentence.name
+        # B: is the following loaded before or after updates take place?
         self.prefix_sentence = self.sentence.prefix_sentence
         self.prefix_string = self.sentence.prefix_string
         print("PREFIX PRINT", self.prefix_string)
+
+        # Store values from model_structure and model_constraints
         self.model_structure = model_structure
-
-        # Store values from model_structure
         self.N = self.model_structure.N
-        self.name = self.model_structure.infix(self.prefix_string)
+        # B: below is not needed given the above
+        # self.name = self.model_structure.infix(self.prefix_string)
         self.model_constraints = self.model_structure.model_constraints
-
-        # Store values from model_constraints
         self.semantics = self.model_constraints.semantics
         self.sentence_letter_types = self.model_constraints.sentence_letter_types
         self.contingent = self.model_constraints.contingent
@@ -48,6 +49,8 @@ class PropositionDefaults:
         self.print_impossible = self.model_constraints.print_impossible
 
         # Store proposition in model_structure.all_propositions dictionary
+        # B: can the next line be removed once sentences are updated to
+        # include propositions and there is a dictionary of all_sentences?
         self.model_structure.all_propositions[self.name] = self
         self.verifiers, self.falsifiers = None, None # avoids linter errors in print_proposition
         try:
@@ -67,11 +70,9 @@ class PropositionDefaults:
         return False
 
     # M: eventually, we need to add a condition on unilateral or bilateral semantics
-    # B: not sure I follow? say more?
-    # M: sorry meant unilateral and bilateral, not unary and binary (edited to reflect)
     # so that one set vs two is printed (one for unilateral, two for bilateral)
-    # B: i was thinking that in Proposition, the user can say what a proposition is
-    # and how it gets printed
+    # B: got it. i was thinking that in Proposition, the user can say what a
+    # proposition is and how it gets printed. so maybe the following gets moved?
     def print_proposition(self, eval_world, indent_num=0):
         N = self.model_structure.model_constraints.semantics.N
         truth_value = self.truth_value_at(eval_world)
@@ -138,6 +139,9 @@ class ModelConstraints:
             op_name: op_class(semantics)
             for (op_name, op_class) in self.syntax.operators.items()
         }
+
+        # B: instantiation should be called interpretation and should go
+        # via the all_sentences dictionary or the like
         self.premises = self.instantiate(self.syntax.premises)
         self.conclusions = self.instantiate(self.syntax.conclusions)
 
