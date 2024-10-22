@@ -21,23 +21,31 @@ class Sentence:
         self.operator_collection = operator_collection
         self.prefix_string = self.prefix(infix_sentence)
         self.main_operator = None
-        self.main_arguments = None
+        self.arguments = None
+        if len(self.prefix_string) == 1: 
+            # B: is this a good way to go? aim is to do everything that will
+            # happen eventually to sentences all in one place to look up as
+            # need be, eg, using this to define sentence_letter_types in Syntax
+            self.letter_type = Const(self.prefix_string[0], AtomSort)
         if len(self.prefix_string) > 1: 
             # B: I think having a string for the operator will be the most
-            # convenient, but maybe better to just use the operator class here
+            # convenient, but maybe better to just use the operator class here?
             self.main_operator = self.prefix_string[0]
-            # print("PREFIX STRINGS", self.prefix_string[1:])
             self.arguments = self.prefixes_to_sentences(self.prefix_string[1:])
         self.prefix_type = operator_collection.apply_operator(self.prefix_string)
         self.prefix_sentence = None # requires semantics to instantiate type
-        # B: could this been a good idea?
-        self.proposition_obj = None # requires model_structure
+        self.proposition_obj = None # requires model_structure to update
+        
+        # B: once a dictionary of all sentences is defined, it should be easy
+        # to define the following in a better way when they are needed. the
+        # only exception might be complexity which could be defined here with
+        # a simpler method than constituents_of.
         letters, meds, ops, complexity = self.constituents_of(self.prefix_string)
+        self.complexity = complexity
         self.sentence_letters = letters
         self.intermediate_strings = meds
         # self.subsentence_strings = (letters + meds + [self.prefix_string])
         self.operators = ops
-        self.complexity = complexity
 
     def __str__(self):
         return self.name
@@ -77,6 +85,7 @@ class Sentence:
     # def update_prefix_type(self, operator_collection):
     #     self.prefix_type = operator_collection.apply_operator(self.prefix_wff)
 
+    # B: we will need a similar method to add a proposition from model_structure
     def update_prefix_sentence(self, model_constraints):
         print("UPDATING", self.prefix_type)
         self.prefix_sentence = model_constraints.activate_prefix_with_semantics(self.prefix_type)
@@ -108,6 +117,7 @@ class Sentence:
             self.parse_expression(tokens),
         ]
 
+    # B: this can probably be replaced with a simpler complexity method
     def constituents_of(self, prefix_sentence):
         """Take a prefix sentence and return sentence_letters, intermediates,
         operators, and complexity."""
@@ -191,12 +201,6 @@ class Operator:
 class DefinedOperator(Operator):
     primitive = False
 
-    # def derived_definition(self):
-    # def derived_definition(self, *args):
-    # B: arguments need to be included as below to avoid type errors. I tried
-    # the above to accommodate different arity, but no luck. I suppose that
-    # errors will come back when we define unary operators
-    # TODO: change back to original
     def derived_definition(self, leftarg, rightarg):
         return []
 
@@ -339,39 +343,62 @@ class Syntax:
         operator_collection,
     ):
 
-        # NOTE: add if need to look up sentences
-        # self.premises = {prem : Sentence(prem) for prem in infix_premises}
-        # self.conclusions = {con : Sentence(con)for con in infix_conclusions}
+        self.infix_premises = infix_premises
+        self.infix_conclusions = infix_conclusions
+        self.operators = operator_collection
+
+        self.premises = [
+            Sentence(prem, operator_collection)
+            for prem in self.infix_premises
+        ]
+        self.conclusions = [
+            Sentence(con, operator_collection)
+            for con in self.infix_conclusions
+        ]
+
+        # Build dictionary of all sentences
+        inputs = list(self.premises) + list(self.conclusions)
+        self.all_sentences, self.letter_dict = self.sentence_dictionary(inputs)
+        # print("TEST ALL SENT", self.all_sentences)
+
+        # B: is this attribute ever used? maybe it can be dropped?
+        self.sentence_letters = [sent for sent in self.letter_dict.values()]
+        print("TEST LETTERS", self.sentence_letters)
+
+        # B: this filter technique seems like a better way to define the
+        # sentence letters but couldn't get it to work. aim is to replace
+        # the definition just above.
+        self.new_sentence_letters = [
+            sent
+            for sent in self.all_sentences.values()
+            if len(sent.prefix_string) == 1
+        ]
+        print("TEST NEW LETTERS", self.new_sentence_letters)
+
+
+        # B: is this identical to sentence_letter_types below? if so, replace
+        # sentence_letter_types with letter_types given here
+        self.letter_types = [sent.letter_type for sent in self.letter_dict.values()]
+        print("NEW LETTER TYPES", self.letter_types)
+
 
         # B: once there is a dictionary of all sentence objects, couldn't we
         # use the original infix premises and conclusions to look up the
         # corresponding sentence objects as need be? the thought is that the
         # sentence objects would contain everything we would ever need which
         # relates to each sentence. the hope is to help consolidate things.
-        self.premises = [Sentence(prem, operator_collection) for prem in infix_premises]
-        self.conclusions = [Sentence(con, operator_collection) for con in infix_conclusions]
-        self.operators = operator_collection
-        # self.premises = self.infixes_to_sentences(infix_premises, self.operators)
-        # self.conclusions = self.infixes_to_sentences(infix_conclusions, self.operators)
-
-        # TODO: define and use method to loop through all input sentences and
-        # build a dictionary of all subsentences
-
         # Collect from premises and conclusions and gather constituents
-        inputs = list(self.premises) + list(self.conclusions)
         letters, meds, ops = self.gather_constituents(inputs)
-        # NOTE: in above, ops not currently needed
-
-
-        # # ADD PROP TO SENT
         self.intermediates = self.prefix_strings_to_sentences(meds, self.operators)
-        print("TEST INTR", self.intermediates)
-        self.sentence_letters = self.prefix_strings_to_sentences(letters, self.operators)
-        print("TEST SENT LETS", self.sentence_letters)
+        # self.sentence_letters = self.prefix_strings_to_sentences(letters, self.operators)
+        # print("TEST SENT LETS", self.sentence_letters)
         # # self.all_sentences = {sent.name : sent for sent in inputs + subsentences}
 
-        # TODO: can this be dropped? Is this really a type rather than an instance?
+        # B: the below looks just like self.sentence_letters but they act differently? 
+        # see the none in Sentence class concerning defining all sentence attributes
+        # all at once
         self.sentence_letter_types = [Const(letter[0], AtomSort) for letter in letters]
+        print("OLD LETTERS TYPES", self.sentence_letter_types)
         # self.intermediate_types = [self.operators.apply_operator(med) for med in meds]
         # self.prefix_premise_types = [prem.prefix_type for prem in self.premises]
         # self.prefix_conclusion_types = [conc.prefix_type for conc in self.conclusions]
@@ -381,11 +408,28 @@ class Syntax:
         #     + self.prefix_conclusion_types
         # )
 
+    # B: this can be simplified once sentence_letters are defined via a filter above
+    # B: is there any reason to return a list of operators?
+    def sentence_dictionary(self, input_sentences):
+        all_sentences = {}
+        sentence_letters = {}
+        # sentence_letters = []
+        for input in input_sentences:
+            if len(input.prefix_string) == 1:
+                sentence_letters[input.name] = input
+                # sentence_letters.append(input)
+                continue
+            all_sentences[input.name] = input
+            all_sents, sent_lets = self.sentence_dictionary(input.arguments)
+            all_sentences.update(all_sents)
+            sentence_letters.update(sent_lets)
+        return all_sentences, sentence_letters
 
-    # ADD PROP TO SENT
+    # B: drop once attributes are cleaned up above?
     def infixes_to_sentences(self, infix_sentences, operators):
         return [Sentence(sent, operators) for sent in infix_sentences]
 
+    # B: still needed here?
     def infix(self, prefix_sent):
         """Takes a sentence in prefix notation (in any of the three kinds)
         and translates it to infix notation (a string)
@@ -399,11 +443,13 @@ class Syntax:
         right_expr = prefix_sent[2]
         return f"({self.infix(left_expr)} {op} {self.infix(right_expr)})"
 
+    # B: drop once attributes are cleaned up above?
     def prefix_strings_to_sentences(self, prefix_strings, operators):
         infix_sentences = [self.infix(prefix_string) for prefix_string in prefix_strings]
         sentences = self.infixes_to_sentences(infix_sentences, operators)
         return sentences
 
+    # B: drop once attributes are cleaned up above?
     def gather_constituents(self, sentences):
         letters = []
         ops = set()
