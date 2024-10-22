@@ -361,7 +361,8 @@ class Syntax:
         self.all_sentences, self.letter_dict = self.sentence_dictionary(inputs)
         # print("TEST ALL SENT", self.all_sentences)
 
-        # B: is this attribute ever used? maybe it can be dropped?
+        # B: is this attribute used? I think I added it but maybe it can be dropped?
+        # seems like all we need are letter_types as defined below
         self.sentence_letters = [sent for sent in self.letter_dict.values()]
         print("TEST LETTERS", self.sentence_letters)
 
