@@ -23,6 +23,7 @@ class Sentence:
         self.main_operator = None
         self.arguments = None
         if len(self.prefix_string) == 1: 
+            # B: is this redundant with prefix_type?
             # B: is this a good way to go? aim is to do everything that will
             # happen eventually to sentences all in one place to look up as
             # need be, eg, using this to define sentence_letter_types in Syntax
@@ -31,6 +32,10 @@ class Sentence:
             # B: I think having a string for the operator will be the most
             # convenient, but maybe better to just use the operator class here?
             self.main_operator = self.prefix_string[0]
+            # B: right now there is a lot of converting back and forth between 
+            # infix and prefix. I wonder if this can be avoided. perhaps the
+            # sentence_objects should be generated from prefix_strings, and
+            # then infix() is used to convert once to add the name?
             self.arguments = self.prefixes_to_sentences(self.prefix_string[1:])
         self.prefix_type = operator_collection.apply_operator(self.prefix_string)
         self.prefix_sentence = None # requires semantics to instantiate type
@@ -117,7 +122,7 @@ class Sentence:
             self.parse_expression(tokens),
         ]
 
-    # B: this can probably be replaced with a simpler complexity method
+    # B: this can probably be replaced with a simpler method to find complexity
     def constituents_of(self, prefix_sentence):
         """Take a prefix sentence and return sentence_letters, intermediates,
         operators, and complexity."""
@@ -361,27 +366,25 @@ class Syntax:
         self.all_sentences, self.letter_dict = self.sentence_dictionary(inputs)
         # print("TEST ALL SENT", self.all_sentences)
 
+        # B: this filter technique seems like a better way to define the
+        # sentence letter types but couldn't get it to work. aim is to replace
+        # the other definitions, using `sentence_letter_types` for a name.
+        self.even_better_letter_types = [
+            sent.prefix_type
+            for sent in self.all_sentences.values()
+            if len(sent.prefix_string) == 1
+        ]
+
+        # B: are either of these identical to sentence_letter_types below?
+        # if so, replace sentence_letter_types given below with the best here.
+        self.letter_types = [sent.letter_type for sent in self.letter_dict.values()]
+        self.better_letter_types = [sent.prefix_type for sent in self.letter_dict.values()]
+        print("NEW LETTER TYPES", self.letter_types)
+
         # B: is this attribute used? I think I added it but maybe it can be dropped?
         # seems like all we need are letter_types as defined below
         self.sentence_letters = [sent for sent in self.letter_dict.values()]
         print("TEST LETTERS", self.sentence_letters)
-
-        # B: this filter technique seems like a better way to define the
-        # sentence letters but couldn't get it to work. aim is to replace
-        # the definition just above.
-        self.new_sentence_letters = [
-            sent
-            for sent in self.all_sentences.values()
-            if len(sent.prefix_string) == 1
-        ]
-        print("TEST NEW LETTERS", self.new_sentence_letters)
-
-
-        # B: is this identical to sentence_letter_types below? if so, replace
-        # sentence_letter_types with letter_types given here
-        self.letter_types = [sent.letter_type for sent in self.letter_dict.values()]
-        print("NEW LETTER TYPES", self.letter_types)
-
 
         # B: once there is a dictionary of all sentence objects, couldn't we
         # use the original infix premises and conclusions to look up the
