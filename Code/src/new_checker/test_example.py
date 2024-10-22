@@ -50,8 +50,8 @@ operators = syntactic.OperatorCollection(
 ### EXAMPLE STOCK ###
 #####################
 
-# premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
-premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
+premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
+# premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow B)"]
 # premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\wedge B)"]

@@ -24,12 +24,16 @@ class PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
 
         # Store arguments
+        # B: can a proposition contain a sentence that contains that proposition?
+        # in not, the following attribute should be dropped so that sentences
+        # can be updated to include propositions. can still store key attributes
+        # from the sentence object, but maybe only the name is needed?
         self.sentence = sentence
         self.name = self.sentence.name
         # B: is the following loaded before or after updates take place?
         self.prefix_sentence = self.sentence.prefix_sentence
         self.prefix_string = self.sentence.prefix_string
-        print("PREFIX PRINT", self.prefix_string)
+        # print("PREFIX PRINT", self.prefix_string)
 
         # Store values from model_structure and model_constraints
         self.model_structure = model_structure
@@ -131,21 +135,15 @@ class ModelConstraints:
         self.syntax = syntax
         self.proposition_class = proposition_class
         self.semantics = semantics
+        # B: how does the following differ from storing self.syntax.operators?
         self.operators = {
             op_name: op_class(semantics)
             for (op_name, op_class) in self.syntax.operators.items()
         }
 
-        # B: instantiation should be called interpretation and should go
-        # via the all_sentences dictionary or the like
+        # NOTE: this is recursive so all sentences get instantiated
         self.premises = self.instantiate(self.syntax.premises)
         self.conclusions = self.instantiate(self.syntax.conclusions)
-
-        # # ADD PROP TO SENT
-        self.intermediates = self.instantiate(self.syntax.intermediates)
-        self.sentence_letters = self.instantiate(self.syntax.sentence_letters)
-        print("INSTANTIATE SLS", self.sentence_letters)
-        # # print("LETTER", {type(self.sentence_letters)})
 
         # B: this should probably go into syntax and there is likely a better way
         # to define it using the recursive structure that sentence objects have.
@@ -157,8 +155,8 @@ class ModelConstraints:
         all_sentences_list = (
             self.premises
             + self.conclusions
-            + self.intermediates
-            + self.sentence_letters
+            + self.syntax.intermediates
+            + self.syntax.sentence_letters
         )
         # B: the hope is to add propositions to each sentence below in model_structure
         self.all_sentences = {sent.name : sent for sent in all_sentences_list}
@@ -212,10 +210,15 @@ class ModelConstraints:
     def instantiate(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
-        for prem in sentences:
-            print("BEFORE UPDATE", f"{prem} is type {type(prem)}")
-            prem.update_prefix_sentence(self)
-        return sentences
+        # subsentences = []
+        for sent_obj in sentences:
+            # print("BEFORE UPDATE", f"{prem} is type {type(prem)}")
+            sent_obj.update_prefix_sentence(self)
+            if len(sent_obj.prefix_string) > 1:
+                args = sent_obj.arguments
+                self.instantiate(args)
+                # subsentences.extend(self.instantiate(args))
+        return sentences # B: not sure we need to return subsentences
 
     def activate_prefix_with_semantics(self, prefix_type):
         """
@@ -224,12 +227,12 @@ class ModelConstraints:
         """
         new_prefix_form = []
         for elem in prefix_type:
+            print("TEST ACTIVATE", elem)
             if isinstance(elem, type):
                 new_prefix_form.append(self.operators[elem.name])
             elif isinstance(elem, list):
                 new_prefix_form.append(self.activate_prefix_with_semantics(elem))
             else:
-                print("TEST ACTIVATE", elem)
                 # B: seems like it is wanting a list of length 1
                 new_prefix_form.append(elem)
                 # new_prefix_form.append(Const(elem, AtomSort))

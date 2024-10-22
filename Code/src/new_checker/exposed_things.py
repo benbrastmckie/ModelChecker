@@ -349,9 +349,16 @@ class Proposition(PropositionDefaults):
         print("PREFIX OP", operator)
         print("PREFIX ARGS", sentence_args)
         # operator, prefix_args = self.prefix_sentence[0], self.prefix_sentence[1:]
-        children_subprops = [Proposition(arg, self.model_structure) for arg in sentence_args]
-        print("PROP ARGS", children_subprops)
+
+        # HINT: getting an error where operator is \neg and sentence_args
+        # is [\top] where it is having trouble finding vers and fals
+        # HINT: getting an error where operator is \vee and sentence_args
+        # is [A, B] where it is having trouble finding vers and fals
         # TODO: add eval_world here as argument and to all find_verifiers_and_falsifiers
+        children_subprops = [Proposition(arg, self.model_structure) for arg in sentence_args]
+        print("CHILD LENGTH", len(children_subprops))
+        print("CHILD SUBPROPS", children_subprops)
+        print("CHILD TYPES", type(children_subprops[0]), type(children_subprops[1]))  # Check the types of the two elements
         return operator.find_verifiers_and_falsifiers(*children_subprops)
         # # NOTE: this seems very close; just needs debugging and build prop dictionary here
         # # B: might as well add to proposition dictionary here
@@ -477,6 +484,8 @@ class OrOperator(syntactic.Operator):
         )
 
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
+        print("OR LEFT", leftprop)
+        print("OR RIGHT", rightprop)
         sem = self.semantics
         Y_V, Y_F = leftprop.find_proposition()
         Z_V, Z_F = rightprop.find_proposition()

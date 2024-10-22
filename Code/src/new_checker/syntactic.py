@@ -22,22 +22,16 @@ class Sentence:
         self.prefix_string = self.prefix(infix_sentence)
         self.main_operator = None
         self.arguments = None
-        if len(self.prefix_string) == 1: 
-            # B: is this redundant with prefix_type?
-            # B: is this a good way to go? aim is to do everything that will
-            # happen eventually to sentences all in one place to look up as
-            # need be, eg, using this to define sentence_letter_types in Syntax
-            self.letter_type = Const(self.prefix_string[0], AtomSort)
+        self.prefix_type = operator_collection.apply_operator(self.prefix_string)
         if len(self.prefix_string) > 1: 
             # B: I think having a string for the operator will be the most
             # convenient, but maybe better to just use the operator class here?
-            self.main_operator = self.prefix_string[0]
+            self.main_operator = self.prefix_type[0]
             # B: right now there is a lot of converting back and forth between 
             # infix and prefix. I wonder if this can be avoided. perhaps the
             # sentence_objects should be generated from prefix_strings, and
             # then infix() is used to convert once to add the name?
             self.arguments = self.prefixes_to_sentences(self.prefix_string[1:])
-        self.prefix_type = operator_collection.apply_operator(self.prefix_string)
         self.prefix_sentence = None # requires semantics to instantiate type
         self.proposition_obj = None # requires model_structure to update
         
@@ -92,7 +86,7 @@ class Sentence:
 
     # B: we will need a similar method to add a proposition from model_structure
     def update_prefix_sentence(self, model_constraints):
-        print("UPDATING", self.prefix_type)
+        # print("UPDATING", self.prefix_type)
         self.prefix_sentence = model_constraints.activate_prefix_with_semantics(self.prefix_type)
 
     def parse_expression(self, tokens):
@@ -375,11 +369,11 @@ class Syntax:
             if len(sent.prefix_string) == 1
         ]
 
-        # B: are either of these identical to sentence_letter_types below?
-        # if so, replace sentence_letter_types given below with the best here.
-        self.letter_types = [sent.letter_type for sent in self.letter_dict.values()]
-        self.better_letter_types = [sent.prefix_type for sent in self.letter_dict.values()]
-        print("NEW LETTER TYPES", self.letter_types)
+        # # B: are either of these identical to sentence_letter_types below?
+        # # if so, replace sentence_letter_types given below with the best here.
+        # self.letter_types = [sent.letter_type for sent in self.letter_dict.values()]
+        # self.better_letter_types = [sent.prefix_type for sent in self.letter_dict.values()]
+        # print("NEW LETTER TYPES", self.letter_types)
 
         # B: is this attribute used? I think I added it but maybe it can be dropped?
         # seems like all we need are letter_types as defined below
@@ -403,6 +397,7 @@ class Syntax:
         # all at once
         self.sentence_letter_types = [Const(letter[0], AtomSort) for letter in letters]
         print("OLD LETTERS TYPES", self.sentence_letter_types)
+        # self.letter_types = self.sentence_letter_types
         # self.intermediate_types = [self.operators.apply_operator(med) for med in meds]
         # self.prefix_premise_types = [prem.prefix_type for prem in self.premises]
         # self.prefix_conclusion_types = [conc.prefix_type for conc in self.conclusions]
@@ -417,11 +412,13 @@ class Syntax:
     def sentence_dictionary(self, input_sentences):
         all_sentences = {}
         sentence_letters = {}
-        # sentence_letters = []
         for input in input_sentences:
-            if len(input.prefix_string) == 1:
+            # print("SENT DICT", input)
+            if input.prefix_string[0] in {'\\top', '\\bot'}:
+                all_sentences[input.name] = input
+                continue
+            if input.prefix_string[0].isalnum():
                 sentence_letters[input.name] = input
-                # sentence_letters.append(input)
                 continue
             all_sentences[input.name] = input
             all_sents, sent_lets = self.sentence_dictionary(input.arguments)
