@@ -317,10 +317,7 @@ class Proposition(PropositionDefaults):
         all_bits = self.model_structure.all_bits
         model = self.model_structure.z3_model
         sem = self.semantics
-        # B: HINT this seems to be causing the trouble
-        print("PREFIX SENT", f"{type(self.prefix_sentence)} {self.prefix_sentence}")
-        print("PREFIX STR", f"{type(self.prefix_string)} {self.prefix_string}")
-        if len(self.prefix_sentence) == 1:
+        if len(self.prefix_string) == 1:
             if self.prefix_string[0] in {'\\top', '\\bot'}:
                 operator = self.prefix_sentence[0]
                 return operator.find_verifiers_and_falsifiers()
@@ -339,15 +336,11 @@ class Proposition(PropositionDefaults):
             raise ValueError(
                 f"Their is no proposition for {self.prefix_string[0]}."
             )
-        # TODO: if a sentence said what its main_operator and arguments were
-        # where the arguments were instances of Sentence, then they could be
-        # applied recursively below
-        print("CHECK", self.prefix_string)
-        # NOTE: hopefully this will also promote transparency to users
         operator = self.sentence.main_operator
         sentence_args = self.sentence.arguments
-        print("PREFIX OP", operator)
-        print("PREFIX ARGS", sentence_args)
+        print("SENT OP", operator.name)
+        print("SENT ARGS", sentence_args)
+        # NOTE: this was the old way using prefix_sentences
         # operator, prefix_args = self.prefix_sentence[0], self.prefix_sentence[1:]
 
         # HINT: getting an error where operator is \neg and sentence_args
@@ -356,10 +349,12 @@ class Proposition(PropositionDefaults):
         # is [A, B] where it is having trouble finding vers and fals
         # TODO: add eval_world here as argument and to all find_verifiers_and_falsifiers
         children_subprops = [Proposition(arg, self.model_structure) for arg in sentence_args]
-        print("CHILD LENGTH", len(children_subprops))
-        print("CHILD SUBPROPS", children_subprops)
-        print("CHILD TYPES", type(children_subprops[0]), type(children_subprops[1]))  # Check the types of the two elements
         return operator.find_verifiers_and_falsifiers(*children_subprops)
+
+        ### DEBUGGING DEBRIS
+        # print("CHILD LENGTH", len(children_subprops))
+        # print("CHILD SUBPROPS", children_subprops)
+        # print("CHILD TYPES", type(children_subprops[0]), type(children_subprops[1]))
         # # NOTE: this seems very close; just needs debugging and build prop dictionary here
         # # B: might as well add to proposition dictionary here
         # current_props = {str(p.prefix_sentence):p for p in self.model_structure.all_propositions}
@@ -484,8 +479,6 @@ class OrOperator(syntactic.Operator):
         )
 
     def find_verifiers_and_falsifiers(self, leftprop, rightprop):
-        print("OR LEFT", leftprop)
-        print("OR RIGHT", rightprop)
         sem = self.semantics
         Y_V, Y_F = leftprop.find_proposition()
         Z_V, Z_F = rightprop.find_proposition()

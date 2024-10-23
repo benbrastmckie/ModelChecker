@@ -30,7 +30,6 @@ class PropositionDefaults:
         # from the sentence object, but maybe only the name is needed?
         self.sentence = sentence
         self.name = self.sentence.name
-        # B: is the following loaded before or after updates take place?
         self.prefix_sentence = self.sentence.prefix_sentence
         self.prefix_string = self.sentence.prefix_string
         # print("PREFIX PRINT", self.prefix_string)
