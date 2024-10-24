@@ -340,6 +340,7 @@ class Proposition(PropositionDefaults):
         sentence_args = self.sentence.arguments
         print("SENT OP", operator.name)
         print("SENT ARGS", sentence_args)
+
         # NOTE: this was the old way using prefix_sentences
         # operator, prefix_args = self.prefix_sentence[0], self.prefix_sentence[1:]
 
@@ -348,13 +349,22 @@ class Proposition(PropositionDefaults):
         # HINT: getting an error where operator is \vee and sentence_args
         # is [A, B] where it is having trouble finding vers and fals
         # TODO: add eval_world here as argument and to all find_verifiers_and_falsifiers
-        children_subprops = [Proposition(arg, self.model_structure) for arg in sentence_args]
+        
+        # B: eventually good to pass sentence_args directly into
+        # find_verifiers_and_falsifiers() when propositions are stored
+        # in sentences
+        print("TEST LENGTH", len(sentence_args))
+        children_subprops = [arg.proposition for arg in sentence_args]
+        print("TEST PROPS", children_subprops)
+        # children_subprops = [Proposition(arg, self.model_structure) for arg in sentence_args]
         return operator.find_verifiers_and_falsifiers(*children_subprops)
 
         ### DEBUGGING DEBRIS
         # print("CHILD LENGTH", len(children_subprops))
         # print("CHILD SUBPROPS", children_subprops)
         # print("CHILD TYPES", type(children_subprops[0]), type(children_subprops[1]))
+
+        ### AVOID REDUNDANCY (OLD)
         # # NOTE: this seems very close; just needs debugging and build prop dictionary here
         # # B: might as well add to proposition dictionary here
         # current_props = {str(p.prefix_sentence):p for p in self.model_structure.all_propositions}

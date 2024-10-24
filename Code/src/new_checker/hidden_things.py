@@ -50,7 +50,7 @@ class PropositionDefaults:
         # Store proposition in model_structure.all_propositions dictionary
         # B: can the next line be removed once sentences are updated to
         # include propositions and there is a dictionary of all_sentences?
-        self.model_structure.all_propositions[self.name] = self
+        # self.model_structure.all_propositions[self.name] = self
         self.verifiers, self.falsifiers = None, None # avoids linter errors in print_proposition
         try:
             hash(self)
@@ -226,7 +226,6 @@ class ModelConstraints:
         """
         new_prefix_form = []
         for elem in prefix_type:
-            print("TEST ACTIVATE", elem)
             if isinstance(elem, type):
                 new_prefix_form.append(self.operators[elem.name])
             elif isinstance(elem, list):
@@ -268,19 +267,20 @@ class ModelStructure:
         self.max_time = max_time
 
         # Store from model_constraint
-        self.print_impossible = self.model_constraints.print_impossible
+        self.syntax = self.model_constraints.syntax
+        self.all_sentences = self.syntax.all_sentences
         self.semantics = self.model_constraints.semantics
+        self.proposition_class = self.model_constraints.proposition_class
         self.main_world = self.semantics.main_world
         self.N = self.semantics.N
         self.premises = model_constraints.premises
         self.conclusions = model_constraints.conclusions
+        self.print_impossible = self.model_constraints.print_impossible
 
         # ADD PROP TO SENT
         # self.all_sentences = model_constraints.all_sentences
 
         # B: can this be dropped eventually?
-        # Store from syntax
-        self.syntax = self.model_constraints.syntax
         self.sentence_letter_types = self.syntax.sentence_letter_types
         # self.subsentence_types = self.syntax.subsentence_types
 
@@ -314,21 +314,32 @@ class ModelStructure:
             if bool(self.z3_model.evaluate(self.semantics.is_world(bit)))
             # LINTER: cannot access attribute "evaluate" for class "AstVector"
         ]
-        # B: should this condition be added below:
         if not self.z3_model is None:
             self.main_world = self.z3_model[self.main_world]
-        # LINTER: object of type "None" is not subscriptable
-        # M: it's probably worth ignoring the linter in this case
 
-        self.all_propositions = {}
+        # TODO: update syntax.all_sentences to include a proposition for each.
+        # then we shouldn't need lists of propositions since we can look up
+        # the proposition for any sentence as needed and we have lists of the
+        # infix premises and conclusions which allow us to look up those sentences
+        
+        self.interpret(self.all_sentences.values())
+
+        # # B: this is just to test that all props are getting added to sentences
+        # self.all_propositions = [
+        #     sent.proposition
+        #     for sent in self.all_sentences.values()
+        # ]
+
+
+        # B: can these be dropped or moved?
         self.premise_propositions = [
-            self.model_constraints.proposition_class(premise, self)
-            # B: what if there are repeats in prefix_premises?
+            premise.proposition
+            # self.proposition_class(premise, self)
             for premise in self.premises
         ]
         self.conclusion_propositions = [
-            self.model_constraints.proposition_class(conclusion, self)
-            # B: what if there are repeats in prefix_premises?
+            conclusion.proposition
+            # self.proposition_class(conclusion, self)
             for conclusion in self.conclusions
         ]
 
@@ -350,6 +361,16 @@ class ModelStructure:
             print(f"An error occurred while running `solve_constraints()`: {e}")
             return True, None, False, None
 
+    def interpret(self, sentences):
+        """Updates each instance of Sentence in sentences by adding the
+        prefix_sent to that instance, returning the input sentences."""
+        for sent_obj in sentences:
+            sent_obj.update_proposition(self)
+            if len(sent_obj.prefix_string) > 1:
+                args = sent_obj.arguments
+                self.interpret(args)
+        # return sentences
+
     # def find_all_bits(self, size):
     #     '''extract all bitvectors from the input model
     #     imported by model_structure'''
@@ -362,15 +383,7 @@ class ModelStructure:
     #         all_bits.append(test_bit)
     #     return all_bits
 
-    # M: might a better place for this be somewhere in the syntax?
-    # B: right now this is really a helper function for printing.
-    # could move it to helpers, but I'm starting to think it would
-    # be better to save the helpers module for functions that are
-    # called in multiple modules.
-    # M: currently this is used for Proposition and for ModelStructure— we could just make a
-    # section of this file that has helpers for this file
-    # B: I moved it out of this class, but then moved it back to
-    # avoid an extra import in sytntactic.py
+    # B: can this be avoided here
     def infix(self, prefix_sent):
         """Takes a sentence in prefix notation (in any of the three kinds)
         and translates it to infix notation (a string)

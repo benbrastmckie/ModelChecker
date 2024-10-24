@@ -33,7 +33,7 @@ class Sentence:
             # then infix() is used to convert once to add the name?
             self.arguments = self.prefixes_to_sentences(self.prefix_string[1:])
         self.prefix_sentence = None # requires semantics to instantiate type
-        self.proposition_obj = None # requires model_structure to update
+        self.proposition = None # requires model_structure to update
         
         # B: once a dictionary of all sentences is defined, it should be easy
         # to define the following in a better way when they are needed. the
@@ -60,8 +60,7 @@ class Sentence:
 
     def infix(self, prefix_sent):
         """Takes a sentence in prefix notation (in any of the three kinds)
-        and translates it to infix notation (a string)
-        """
+        and translates it to infix notation (a string)."""
         if len(prefix_sent) == 1:
             return str(prefix_sent[0])
         op = prefix_sent[0]
@@ -81,13 +80,13 @@ class Sentence:
         print("SENT OBJ", sentences)
         return sentences
     
-    # def update_prefix_type(self, operator_collection):
-    #     self.prefix_type = operator_collection.apply_operator(self.prefix_wff)
-
-    # B: we will need a similar method to add a proposition from model_structure
     def update_prefix_sentence(self, model_constraints):
-        # print("UPDATING", self.prefix_type)
+        # B: can activate_prefix_with_semantics be moved here to consolidate?
         self.prefix_sentence = model_constraints.activate_prefix_with_semantics(self.prefix_type)
+
+    def update_proposition(self, model_structure):
+        """Builds a proposition for the sentence given the model_structure."""
+        self.proposition = model_structure.proposition_class(self, model_structure)
 
     def parse_expression(self, tokens):
         """Parses a list of tokens representing a propositional expression and returns
@@ -198,6 +197,7 @@ class Operator:
     
     
 class DefinedOperator(Operator):
+
     primitive = False
 
     def derived_definition(self, leftarg, rightarg):
@@ -346,6 +346,8 @@ class Syntax:
         self.infix_conclusions = infix_conclusions
         self.operators = operator_collection
 
+        # B: will these be needed once the all_sentences dict is in place?
+        # if so, they could be defined by filtering all_sentences
         self.premises = [
             Sentence(prem, operator_collection)
             for prem in self.infix_premises
@@ -424,6 +426,7 @@ class Syntax:
             all_sents, sent_lets = self.sentence_dictionary(input.arguments)
             all_sentences.update(all_sents)
             sentence_letters.update(sent_lets)
+        # print("TEST ALL SENTS", all_sentences)
         return all_sentences, sentence_letters
 
     # B: drop once attributes are cleaned up above?

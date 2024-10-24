@@ -1,20 +1,20 @@
 # B: when we develop the API, these will reference the users script
 from exposed_things import (
+    Semantics,
+    Proposition,
+    NegationOperator,
+    AndOperator,
+    OrOperator,
+    TopOperator,
     BotOperator,
-    DefEssenceOperator,
-    DefGroundOperator,
+    IdentityOperator,
     EssenceOperator,
     GroundOperator,
-    IdentityOperator,
-    Semantics,
-    AndOperator,
-    NegationOperator,
-    OrOperator,
-    Proposition,
-    TopOperator,
+    CounterfactualOperator,
+    DefEssenceOperator,
+    DefGroundOperator,
     ConditionalOperator,
     BiconditionalOperator,
-    CounterfactualOperator,
 
 )
 
@@ -149,7 +149,7 @@ conclusions = ["(\\neg B \\wedge \\neg D)"]
 ### GENERATE Z3 CONSTRAINTS ###
 ###############################
 
-sytax = syntactic.Syntax(
+syntax = syntactic.Syntax(
     premises,
     conclusions,
     operators,
@@ -158,7 +158,7 @@ sytax = syntactic.Syntax(
 semantics = Semantics(3)
 
 model_constraints = ModelConstraints(
-    sytax,
+    syntax,
     semantics,
     Proposition,
     contingent=False,
@@ -176,6 +176,7 @@ model_structure = ModelStructure(
     max_time=1
 )
 
+# print("TEST ALL PROPS", model_structure.all_propositions)
 model_structure.print_all()  
 
 # print(model_constraints)
