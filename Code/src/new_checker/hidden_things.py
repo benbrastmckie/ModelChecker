@@ -28,17 +28,19 @@ class PropositionDefaults:
         # in not, the following attribute should be dropped so that sentences
         # can be updated to include propositions. can still store key attributes
         # from the sentence object, but maybe only the name is needed?
-        self.sentence = sentence
-        self.name = self.sentence.name
-        self.prefix_sentence = self.sentence.prefix_sentence
-        self.prefix_string = self.sentence.prefix_string
+        # self.sentence = sentence
+        self.name = sentence.name
+        # self.operator = sentence.main_operator
+        self.arguments = sentence.arguments
+        self.prefix_operator = sentence.prefix_operator
+        self.prefix_sentence = sentence.prefix_sentence
+        self.prefix_string = sentence.prefix_string
         # print("PREFIX PRINT", self.prefix_string)
 
         # Store values from model_structure and model_constraints
         self.model_structure = model_structure
         self.N = self.model_structure.N
         # B: below is not needed given the above
-        # self.name = self.model_structure.infix(self.prefix_string)
         self.model_constraints = self.model_structure.model_constraints
         self.semantics = self.model_constraints.semantics
         self.sentence_letter_types = self.model_constraints.sentence_letter_types
@@ -211,12 +213,11 @@ class ModelConstraints:
         prefix_sent to that instance, returning the input sentences."""
         # subsentences = []
         for sent_obj in sentences:
-            # print("BEFORE UPDATE", f"{prem} is type {type(prem)}")
+            if sent_obj.prefix_sentence:
+                continue
             sent_obj.update_prefix_sentence(self)
-            if len(sent_obj.prefix_string) > 1:
-                args = sent_obj.arguments
-                self.instantiate(args)
-                # subsentences.extend(self.instantiate(args))
+            if sent_obj.arguments:
+                self.instantiate(sent_obj.arguments)
         return sentences # B: not sure we need to return subsentences
 
     def activate_prefix_with_semantics(self, prefix_type):
@@ -231,9 +232,7 @@ class ModelConstraints:
             elif isinstance(elem, list):
                 new_prefix_form.append(self.activate_prefix_with_semantics(elem))
             else:
-                # B: seems like it is wanting a list of length 1
                 new_prefix_form.append(elem)
-                # new_prefix_form.append(Const(elem, AtomSort))
         return new_prefix_form
 
     def print_enumerate(self, output=sys.__stdout__):
@@ -277,10 +276,8 @@ class ModelStructure:
         self.conclusions = model_constraints.conclusions
         self.print_impossible = self.model_constraints.print_impossible
 
-        # ADD PROP TO SENT
-        # self.all_sentences = model_constraints.all_sentences
-
-        # B: can this be dropped eventually?
+        # B: can this be dropped eventually? everything should be stored in
+        # sentence objects
         self.sentence_letter_types = self.syntax.sentence_letter_types
         # self.subsentence_types = self.syntax.subsentence_types
 
@@ -317,18 +314,20 @@ class ModelStructure:
         if not self.z3_model is None:
             self.main_world = self.z3_model[self.main_world]
 
-        # TODO: update syntax.all_sentences to include a proposition for each.
+        # B: this updates syntax.all_sentences to include a proposition for each.
         # then we shouldn't need lists of propositions since we can look up
         # the proposition for any sentence as needed and we have lists of the
         # infix premises and conclusions which allow us to look up those sentences
-        
-        self.interpret(self.all_sentences.values())
+        # B: I'm not sure if it is succeeding and struggling to test values. see
+        # the print TESTS below
+        self.interpret(self.syntax.all_sentences.values())
 
         # # B: this is just to test that all props are getting added to sentences
         # self.all_propositions = [
         #     sent.proposition
         #     for sent in self.all_sentences.values()
         # ]
+        # print("TEST ALL PROPS", self.conclusion_propositions)
 
 
         # B: can these be dropped or moved?
@@ -337,11 +336,13 @@ class ModelStructure:
             # self.proposition_class(premise, self)
             for premise in self.premises
         ]
+        # print("TEST CON PROPS", self.conclusion_propositions)
         self.conclusion_propositions = [
             conclusion.proposition
             # self.proposition_class(conclusion, self)
             for conclusion in self.conclusions
         ]
+        # print("TEST PREM PROPS", self.premise_propositions)
 
     def solve(self, model_constraints, max_time):
         solver = Solver()
@@ -365,11 +366,22 @@ class ModelStructure:
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
         for sent_obj in sentences:
+            if sent_obj.proposition:
+                continue
+            if sent_obj.arguments:
+                self.interpret(sent_obj.arguments)
             sent_obj.update_proposition(self)
-            if len(sent_obj.prefix_string) > 1:
-                args = sent_obj.arguments
-                self.interpret(args)
         # return sentences
+
+    # def interpret(self, sentences):
+    #     """Updates each instance of Sentence in sentences by adding the
+    #     prefix_sent to that instance, returning the input sentences."""
+    #     for sent_obj in sentences:
+    #         sent_obj.update_proposition(self)
+    #         if len(sent_obj.prefix_string) > 1:
+    #             args = sent_obj.arguments
+    #             self.interpret(args)
+    #     # return sentences
 
     # def find_all_bits(self, size):
     #     '''extract all bitvectors from the input model
@@ -495,60 +507,54 @@ class ModelStructure:
                     file=output,
                 )
 
-    def rec_print(self, prop_obj, eval_world, indent):
-        prop_obj.print_proposition(eval_world, indent)
-        if (
-            len(prop_obj.prefix_sentence) == 1
-        ):  # prefix has operator instances and AtomSorts
+    def rec_print(self, sentence, eval_world, indent):
+        sentence.proposition.print_proposition(eval_world, indent)
+        if (len(sentence.prefix_sentence) == 1):  # prefix has operator instances and AtomSorts
             return
+        for sentence_arg in sentence.arguments:
+            self.rec_print(sentence_arg, eval_world, indent + 1)
+
         # B: can infix be avoided here by calling on the name of the proposition?
         # M: at least the way it's currently written I don't think so unfortunately.
         # it uses the infix forms to find the sub-propositions, so we can't use the .name
         # attribute on something we haven't already found
+        # NOTE: old way below
+        # sub_prefix_sents = prop_obj.prefix_sentence[1:]
+        # sub_infix_sentences = (
+        #     self.infix(sub_prefix)
+        #     for sub_prefix in sub_prefix_sents
+        # )
+        # subprops = (self.all_propositions[ifx] for ifx in sub_infix_sentences)
+        # for subprop in subprops:
 
-        # TODO: build all subsentences in Syntax and update in ModelConstraints
-        # and use to build propositions
-
-        sub_prefix_sents = prop_obj.prefix_sentence[1:]
-        sub_infix_sentences = (
-            self.infix(sub_prefix) for sub_prefix in sub_prefix_sents
-        )
-
-        # B: tried this but didn't work
-        # all_sentences = self.syntax.all_sentences
-        # sub_infix_sentences = (all_sentences[sub_prefix].name for sub_prefix in sub_prefix_sents)
-
-        subprops = (self.all_propositions[ifx] for ifx in sub_infix_sentences)
-        for subprop in subprops:
-            self.rec_print(subprop, eval_world, indent + 1)
 
     def print_inputs_recursively(self, output):
         """does rec_print for every proposition in the input propositions
         returns None"""
         initial_eval_world = self.main_world
-        premises = self.model_constraints.syntax.premises
-        conclusions = self.model_constraints.syntax.conclusions
-        start_con_num = len(premises) + 1
-        if self.premise_propositions:
-            if len(premises) < 2:
+        # premises = self.model_constraints.syntax.premises
+        # conclusions = self.model_constraints.syntax.conclusions
+        start_conclusion_number = len(self.premises) + 1
+        if self.premises:
+            if len(self.premises) < 2:
                 print("INTERPRETED PREMISE:\n", file=output)
             else:
                 print("INTERPRETED PREMISES:\n", file=output)
-            for index, input_prop in enumerate(self.premise_propositions, start=1):
+            for index, sentence in enumerate(self.premises, start=1):
                 print(f"{index}.", end="", file=output)
-                self.rec_print(input_prop, initial_eval_world, 1)
+                self.rec_print(sentence, initial_eval_world, 1)
                 # input_prop.print_proposition(initial_eval_world, 1)
                 print(file=output)
-        if conclusions:
-            if len(conclusions) < 2:
+        if self.conclusions:
+            if len(self.conclusions) < 2:
                 print("INTERPRETED CONCLUSION:\n", file=output)
             else:
                 print("INTERPRETED CONCLUSIONS:\n", file=output)
-            for index, input_prop in enumerate(
-                self.conclusion_propositions, start=start_con_num
+            for index, sentence in enumerate(
+                self.conclusions, start=start_conclusion_number
             ):
                 print(f"{index}.", end="", file=output)
-                self.rec_print(input_prop, initial_eval_world, 1)
+                self.rec_print(sentence, initial_eval_world, 1)
                 print(file=output)
 
     def print_all(self, output=sys.__stdout__):
