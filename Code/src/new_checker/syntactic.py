@@ -20,20 +20,14 @@ class Sentence:
         self.name = infix_sentence
         self.operator_collection = operator_collection
         self.prefix_string = self.prefix(infix_sentence)
-        self.main_operator = None
-        self.arguments = None
         self.prefix_type = operator_collection.apply_operator(self.prefix_string)
+        self.arguments = None
         if len(self.prefix_string) > 1: 
-            # B: I think having a string for the operator will be the most
-            # convenient, but maybe better to just use the operator class here?
-            self.main_operator = self.prefix_type[0]
-            # B: right now there is a lot of converting back and forth between 
-            # infix and prefix. I wonder if this can be avoided. perhaps the
-            # sentence_objects should be generated from prefix_strings, and
-            # then infix() is used to convert once to add the name?
             self.arguments = self.prefixes_to_sentences(self.prefix_string[1:])
-        self.prefix_sentence = None # requires semantics to instantiate type
-        self.proposition = None # requires model_structure to update
+        self.prefix_sentence = None # requires semantics to instantiate
+        # TODO: this needs to be updated when prefix sentences are updated
+        self.prefix_operator = None # requires semantics to instantiate
+        self.proposition = None # requires model_structure to interpret
         
         # B: once a dictionary of all sentences is defined, it should be easy
         # to define the following in a better way when they are needed. the
@@ -72,17 +66,16 @@ class Sentence:
 
     def prefixes_to_sentences(self, prefix_strings):
         infix_sentences = [self.infix(pre) for pre in prefix_strings]
-        print("INF SENT", infix_sentences)
         sentences = [
             Sentence(inf, self.operator_collection)
             for inf in infix_sentences
         ]
-        print("SENT OBJ", sentences)
         return sentences
     
     def update_prefix_sentence(self, model_constraints):
         # B: can activate_prefix_with_semantics be moved here to consolidate?
         self.prefix_sentence = model_constraints.activate_prefix_with_semantics(self.prefix_type)
+        self.prefix_operator = self.prefix_sentence[0]
 
     def update_proposition(self, model_structure):
         """Builds a proposition for the sentence given the model_structure."""
@@ -380,7 +373,7 @@ class Syntax:
         # B: is this attribute used? I think I added it but maybe it can be dropped?
         # seems like all we need are letter_types as defined below
         self.sentence_letters = [sent for sent in self.letter_dict.values()]
-        print("TEST LETTERS", self.sentence_letters)
+        # print("TEST LETTERS", self.sentence_letters)
 
         # B: once there is a dictionary of all sentence objects, couldn't we
         # use the original infix premises and conclusions to look up the
@@ -398,7 +391,7 @@ class Syntax:
         # see the none in Sentence class concerning defining all sentence attributes
         # all at once
         self.sentence_letter_types = [Const(letter[0], AtomSort) for letter in letters]
-        print("OLD LETTERS TYPES", self.sentence_letter_types)
+        # print("OLD LETTERS TYPES", self.sentence_letter_types)
         # self.letter_types = self.sentence_letter_types
         # self.intermediate_types = [self.operators.apply_operator(med) for med in meds]
         # self.prefix_premise_types = [prem.prefix_type for prem in self.premises]
