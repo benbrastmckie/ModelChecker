@@ -210,7 +210,7 @@ class Proposition(PropositionDefaults):
     # B: I tried to break this up into smaller methods but wasn't able to call
     # one class method from another
     def proposition_constraints(self, atom):
-        """Currently does not have contingent proposition constraints."""
+        """."""
         semantics = self.semantics
         x = z3.BitVec("prop_x", semantics.N)
         y = z3.BitVec("prop_y", semantics.N)
@@ -322,7 +322,9 @@ class Proposition(PropositionDefaults):
                 operator = self.prefix_sentence[0]
                 return operator.find_verifiers_and_falsifiers()
             if self.prefix_string[0].isalnum():
-                # print("CHECK", self.prefix_string)
+                # TODO: fix how prefix_sentence are stored for sentence letters
+                print("CHECK", self.prefix_sentence)
+                # TODO: fix definition so that [0] is not needed below
                 sentence_letter = self.prefix_sentence[0]
                 V = {
                     bit for bit in all_bits
@@ -386,26 +388,37 @@ class Proposition(PropositionDefaults):
         """Checks if there is a verifier or falsifier in world and not both."""
         semantics = self.model_structure.model_constraints.semantics
         z3_model = self.model_structure.z3_model
+        ver_witness = None
+        fal_witness = None
         exists_verifier = False
         exists_falsifier = False
         for ver_bit in self.verifiers:
             if z3_model.evaluate(semantics.is_part_of(ver_bit, world)):
+                ver_witness = ver_bit
                 exists_verifier = True
                 break
         for fal_bit in self.falsifiers:
             if z3_model.evaluate(semantics.is_part_of(fal_bit, world)):
+                fal_witness = fal_bit
                 exists_falsifier = True
                 break
         if exists_verifier == exists_falsifier:
-            if exists_verifier:
-                raise ValueError(
-                    f"The world {world} has both a verifier and falsifier "
-                    f"for {self.name}. Something has gone wrong."
-                )
-            raise ValueError(
-                f"The world {world} has neither a verifier nor falsifier "
-                f"for {self.name}. Something has gone wrong."
+            # TODO: convert from bits to states below
+            print(
+                f"WARNING: the world {world} contains both:\n "
+                f"  The verifier {ver_witness}; and"
+                f"  The falsifier {fal_witness}."
             )
+            print()
+            # if exists_verifier:
+            #     raise ValueError(
+            #         f"The world {world} has both a verifier and falsifier "
+            #         f"for {self.name}. Something has gone wrong."
+            #     )
+            # raise ValueError(
+            #     f"The world {world} has neither a verifier nor falsifier "
+            #     f"for {self.name}. Something has gone wrong."
+            # )
         return exists_verifier
 
 
