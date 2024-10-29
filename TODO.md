@@ -74,15 +74,16 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] printing methods
   - [.] operators to implement:
     - [x] extensional
-    - [.] extremal
-      - define extremal elements in `hidden_things.py`
-      - define two primitive extremal operators in `exposed_things.py`
+    - [x] extremal
+      - [x] define extremal elements in `hidden_things.py`
+      - [x] define two primitive extremal operators in `exposed_things.py`
     - [ ] counterfactual
     - [ ] modal
-      - defined in terms of counterfactual and top
-    - [ ] constitutive
-      - define primitive identity operator
-      - define essence, ground, and relevance in terms of identity
+      - [ ] defined in terms of counterfactual and top
+    - [.] constitutive
+      - [x] define primitive identity operator
+      - [x] define essence, ground, and relevance in terms of identity
+      - [ ] debug true conclusion and false premise models
 4. [:] Proposition class:
   - [x] syntactic attributes:
     - [x] prefix sentence
