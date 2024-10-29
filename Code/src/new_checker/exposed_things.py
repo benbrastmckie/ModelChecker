@@ -268,7 +268,7 @@ class Proposition(PropositionDefaults):
         constraints = classical_constraints
         if self.disjoint:
             z = z3.BitVec("prop_z", semantics.N)
-            for other_atom in self.sentence_letter_types:
+            for other_atom in self.sentence_letters:
                 if not other_atom is atom:
                     disjoin_constraints = [
                         ForAll(
