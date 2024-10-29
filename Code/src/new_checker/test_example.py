@@ -138,6 +138,7 @@ conclusions = ["(\\neg B \\wedge \\neg D)"]
 # premises = ["A", "(B \\essence A)"]
 # conclusions = ["\\neg B"]
 
+
 # # TRUE CONCLUSION MODEL
 # premises = ["(A \\sqsubseteq B)"]
 # premises = ["(A \\essence B)"]

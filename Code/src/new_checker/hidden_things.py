@@ -43,7 +43,7 @@ class PropositionDefaults:
         # B: below is not needed given the above
         self.model_constraints = self.model_structure.model_constraints
         self.semantics = self.model_constraints.semantics
-        self.sentence_letter_types = self.model_constraints.sentence_letter_types
+        self.sentence_letter_types = self.model_constraints.sentence_letters
         self.contingent = self.model_constraints.contingent
         self.non_null = self.model_constraints.non_null
         self.disjoint = self.model_constraints.disjoint
@@ -134,8 +134,10 @@ class ModelConstraints:
 
         # Store inputs
         self.syntax = syntax
-        self.proposition_class = proposition_class
+        self.all_sentences = self.syntax.all_sentences
+        self.sentence_letters = self.syntax.sentence_letters
         self.semantics = semantics
+        self.proposition_class = proposition_class
         # B: how does the following differ from storing self.syntax.operators?
         self.operators = {
             op_name: op_class(semantics)
@@ -143,6 +145,8 @@ class ModelConstraints:
         }
 
         # NOTE: this is recursive so all sentences get instantiated
+        # print("TEST", self.syntax.premises)
+        # print("TEST", self.syntax.conclusions)
         self.premises = self.instantiate(self.syntax.premises)
         self.conclusions = self.instantiate(self.syntax.conclusions)
 
@@ -153,18 +157,23 @@ class ModelConstraints:
         # sentence objects for the premises and conclusions given that we have
         # the original list of infix premises and conclusions that we can use to
         # look them up. hopefully this will help reduce complexity.
-        all_sentences_list = (
-            self.premises
-            + self.conclusions
-            + self.syntax.intermediates
-            + self.syntax.sentence_letters
-        )
-        # B: the hope is to add propositions to each sentence below in model_structure
-        self.all_sentences = {sent.name : sent for sent in all_sentences_list}
+
+
+        # REMOVED
+        # all_sentences_list = (
+        #     self.premises
+        #     + self.conclusions
+        #     + self.syntax.intermediates
+        #     + self.syntax.sentence_letters
+        # )
+        # # B: the hope is to add propositions to each sentence below in model_structure
+        # self.all_sentences = {sent.name : sent for sent in all_sentences_list}
 
         # TODO: can this be replaced with syntax.sentence_letters?
         # B: are these really types rather than instances?
-        self.sentence_letter_types = syntax.sentence_letter_types
+
+        # REMOVED
+        # self.sentence_letter_types = self.syntax.sentence_letter_types
         # print("LETTER TYPES", {type(self.sentence_letter_types)})
         # self.subsentence_types = syntax.subsentence_types
 
@@ -177,9 +186,14 @@ class ModelConstraints:
         # Use semantics to generate and store Z3 constraints
         self.frame_constraints = self.semantics.frame_constraints
         self.model_constraints = []
-        for sent_let in self.sentence_letter_types:
+        for sent_let in self.sentence_letters:
+            print("ATOM", sent_let.prefix_sentence)
             self.model_constraints.extend(
-                self.proposition_class.proposition_constraints(self, sent_let)
+                self.proposition_class.proposition_constraints(
+                    self,
+                    # TODO: fix definition so that [0] is not needed below
+                    sent_let.prefix_sentence[0],
+                )
             )
         self.premise_constraints = [
             self.semantics.premise_behavior(
@@ -278,7 +292,7 @@ class ModelStructure:
 
         # B: can this be dropped eventually? everything should be stored in
         # sentence objects
-        self.sentence_letter_types = self.syntax.sentence_letter_types
+        self.sentence_letter_types = self.syntax.sentence_letters
         # self.subsentence_types = self.syntax.subsentence_types
 
         # Solve Z3 constraints and store values
