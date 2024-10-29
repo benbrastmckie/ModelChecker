@@ -26,21 +26,22 @@ class Semantics:
 
     def __init__(self, N):
 
-        # Store argument
+        # Store the number of states
         self.N = N
 
-        # Define Z3 primitives
+        # Define the Z3 primitives
         self.verify = z3.Function("verify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
         self.falsify = z3.Function("falsify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
         self.possible = z3.Function("possible", z3.BitVecSort(N), z3.BoolSort())
         self.main_world = z3.BitVec("w", N)
 
         # Define top and bottom states
-        max_value = (1 << self.N) - 1 # 2**self.N - 1
+        max_value = (1 << self.N) - 1 # NOTE: faster than 2**self.N - 1
         self.full_bit = BitVecVal(max_value, self.N)
         self.null_bit = BitVecVal(0, self.N)
         self.all_bits = [BitVecVal(i, self.N) for i in range(1 << self.N)]
         
+        # Define the frame constraints
         x, y = z3.BitVecs("frame_x frame_y", N)
         self.frame_constraints = [
             ForAll(
@@ -157,16 +158,12 @@ class Semantics:
         return operator.false_at(*args, eval_world)
     
     def extended_verify(self, state, prefix_sentence, eval_world):
-        # if len(prefix_sentence) == 1: # will run into issues with top and bot
-        # if str(prefix_sentence[0]) in {'\\top', '\\bot'}:
         if str(prefix_sentence[0]).isalnum():
             return self.verify(state, prefix_sentence[0])
         op, args = prefix_sentence[0], prefix_sentence[1:]
         return op.extended_verify(state, *args, eval_world)
     
     def extended_falsify(self, state, prefix_sentence, eval_world):
-        # if len(prefix_sentence) == 1: # will run into issues with top and bot
-        # if str(prefix_sentence[0]) in {'\\top', '\\bot'}:
         if str(prefix_sentence[0]).isalnum():
             return self.falsify(state, prefix_sentence[0])
         op, args = prefix_sentence[0], prefix_sentence[1:]
@@ -193,7 +190,6 @@ class Proposition(PropositionDefaults):
     in the __init__ method.
     """
 
-    # B: could this class take instances of Sentence instead?
     def __init__(self, sentence, model_structure, eval_world='main'):
         super().__init__(sentence, model_structure)
         self.verifiers, self.falsifiers = self.find_proposition()
@@ -207,8 +203,7 @@ class Proposition(PropositionDefaults):
             and str(self.prefix_sentence) == str(other.prefix_sentence)
         )
 
-    # B: I tried to break this up into smaller methods but wasn't able to call
-    # one class method from another
+    # TODO: break this up into smaller methods for each set of constraints
     def proposition_constraints(self, atom):
         """."""
         semantics = self.semantics
@@ -337,50 +332,7 @@ class Proposition(PropositionDefaults):
                 f"Their is no proposition for {self.prefix_string[0]}."
             )
         operator = self.prefix_operator
-        # print("SENT OP", operator)
-        # print("SENT ARGS", self.arguments)
-        # print("SENT ARGS TYPES", type(self.arguments[0]))
-        # print("SENT ARGS LENGTH", len(self.arguments))
-        # print("SENT ARGS CONTENTS", self.arguments[0].__dict__) 
-        # TODO: continue to check recursive call here
         return operator.find_verifiers_and_falsifiers(*self.arguments)
-        # arg_props = [arg.find_proposition() for arg in self.arguments]
-        # return operator.find_verifiers_and_falsifiers(*arg_props)
-
-        ### DEBRIS FROM VARIOUS ATTEMPTS
-
-        # HINT: getting an error where operator is \neg and sentence_args
-        # is [\top] where it is having trouble finding vers and fals
-        # HINT: getting an error where operator is \vee and sentence_args
-        # is [A, B] where it is having trouble finding vers and fals
-        # TODO: add eval_world here as argument and to all find_verifiers_and_falsifiers
-        
-        # B: eventually good to pass sentence_args directly into
-        # find_verifiers_and_falsifiers() when propositions are stored
-        # in sentences
-
-        # print("TEST LENGTH", len(self.arguments))
-        # children_subprops = [arg.proposition for arg in self.arguments]
-        # # children_subprops = [Proposition(arg, self.model_structure) for arg in sentence_args]
-        # print("TEST PROPS", children_subprops)
-
-        # return self.operator.find_verifiers_and_falsifiers(*children_subprops)
-
-        ### DEBUGGING DEBRIS
-        # print("CHILD LENGTH", len(children_subprops))
-        # print("CHILD SUBPROPS", children_subprops)
-        # print("CHILD TYPES", type(children_subprops[0]), type(children_subprops[1]))
-
-        ### AVOID REDUNDANCY (OLD)
-        # # NOTE: this seems very close; just needs debugging and build prop dictionary here
-        # # B: might as well add to proposition dictionary here
-        # current_props = {str(p.prefix_sentence):p for p in self.model_structure.all_propositions}
-        # children_subprops = []
-        # for arg in prefix_args:
-        #     if str(arg) in current_props:
-        #         children_subprops.append(current_props[str(arg)])
-        #     else:
-        #         children_subprops.append(Proposition(arg, self.model_structure))
 
     def truth_value_at(self, world):
         """Checks if there is a verifier or falsifier in world and not both."""
@@ -402,12 +354,11 @@ class Proposition(PropositionDefaults):
                 break
         if exists_verifier == exists_falsifier:
             # TODO: convert from bits to states below
-            print(
+            print( # NOTE: a warning is preferable to raising an error
                 f"WARNING: the world {world} contains both:\n "
                 f"  The verifier {ver_witness}; and"
                 f"  The falsifier {fal_witness}."
             )
-            print()
             # if exists_verifier:
             #     raise ValueError(
             #         f"The world {world} has both a verifier and falsifier "
@@ -461,13 +412,12 @@ class AndOperator(syntactic.Operator):
             ),
         )
 
-    # def find_verifiers_and_falsifiers(self, leftprop, rightprop):
-    def find_verifiers_and_falsifiers(self, leftarg, rightarg):
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj):
         """Takes sentences objects as arguments, finds their verifiers and
         falsifiers, and returns the verifiers and falsifiers for the operator"""
         sem = self.semantics
-        Y_V, Y_F = leftarg.proposition.find_proposition()
-        Z_V, Z_F = rightarg.proposition.find_proposition()
+        Y_V, Y_F = left_sent_obj.proposition.find_proposition()
+        Z_V, Z_F = right_sent_obj.proposition.find_proposition()
         return sem.product(Y_V, Z_V), sem.coproduct(Y_F, Z_F)
     
 
@@ -509,10 +459,10 @@ class OrOperator(syntactic.Operator):
             ),
         )
 
-    def find_verifiers_and_falsifiers(self, leftarg, rightarg):
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj):
         sem = self.semantics
-        Y_V, Y_F = leftarg.proposition.find_proposition()
-        Z_V, Z_F = rightarg.proposition.find_proposition()
+        Y_V, Y_F = left_sent_obj.proposition.find_proposition()
+        Z_V, Z_F = right_sent_obj.proposition.find_proposition()
         return sem.coproduct(Y_V, Z_V), sem.product(Y_F, Z_F)
     
 
@@ -536,27 +486,8 @@ class NegationOperator(syntactic.Operator):
     def extended_falsify(self, state, arg, eval_world):
         return self.semantics.extended_verify(state, arg, eval_world)
 
-    # # HINT: seems like the proposition for sentence_obj hasn't been set.
-    # # how should things be restructured so that the proposition for the
-    # # argument isn't needed? perhaps interpretation could go from the
-    # # lowest complexity up? or is this a reason to run recursion on
-    # # propositions instead of sentences? might be nice for users to only
-    # # have sentences to think about.
-    # def find_verifiers_and_falsifiers(self, sentence_obj):
-    #     if isinstance(sentence_obj, syntactic.Sentence):
-    #         # Extract the proposition from the Sentence object
-    #         proposition = sentence_obj.proposition
-    #         if proposition is None:
-    #             # If the proposition hasn't been set yet, may want to call a method to set it, but does that have to happen here?
-    #             raise ValueError("Sentence object has 'None' as the proposition.")
-    #         # Use the proposition to find verifiers and falsifiers
-    #         Y_V, Y_F = proposition.find_proposition()
-    #         return Y_F, Y_V
-    #     else:
-    #         raise TypeError("Expected a Sentence object as input.")
-
-    def find_verifiers_and_falsifiers(self, argument):
-        Y_V, Y_F = argument.proposition.find_proposition()
+    def find_verifiers_and_falsifiers(self, arg_sent_obj):
+        Y_V, Y_F = arg_sent_obj.proposition.find_proposition()
         return Y_F, Y_V
     
 
@@ -731,9 +662,9 @@ class IdentityOperator(syntactic.Operator):
             self.false_at(leftarg, rightarg, eval_world)
         )
 
-    def find_verifiers_and_falsifiers(self, leftarg, rightarg):
-        Y_V, Y_F = leftarg.proposition.find_proposition()
-        Z_V, Z_F = rightarg.proposition.find_proposition()
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj):
+        Y_V, Y_F = left_sent_obj.proposition.find_proposition()
+        Z_V, Z_F = right_sent_obj.proposition.find_proposition()
         if Y_V == Z_V and Y_F == Z_F:
             return {self.semantics.null_bit}, set()
         return set(), {self.semantics.null_bit}
@@ -851,15 +782,14 @@ class GroundOperator(syntactic.Operator):
             self.false_at(leftarg, rightarg, eval_world)
         )
 
-    def find_verifiers_and_falsifiers(self, leftarg, rightarg):
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj):
         product = self.semantics.product
         coproduct = self.semantics.coproduct
-        Y_V, Y_F = leftarg.proposition.find_proposition()
-        Z_V, Z_F = rightarg.proposition.find_proposition()
+        Y_V, Y_F = left_sent_obj.proposition.find_proposition()
+        Z_V, Z_F = right_sent_obj.proposition.find_proposition()
         if coproduct(Y_V, Z_V) == Z_V and product(Y_F, Z_F) == Z_F:
             return {self.semantics.null_bit}, set()
         return set(), {self.semantics.null_bit}
-    
 
 
 class EssenceOperator(syntactic.Operator):
@@ -956,11 +886,11 @@ class EssenceOperator(syntactic.Operator):
             self.false_at(leftarg, rightarg, eval_world)
         )
 
-    def find_verifiers_and_falsifiers(self, leftarg, rightarg):
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj):
         product = self.semantics.product
         coproduct = self.semantics.coproduct
-        Y_V, Y_F = leftarg.proposition.find_proposition()
-        Z_V, Z_F = rightarg.proposition.find_proposition()
+        Y_V, Y_F = left_sent_obj.proposition.find_proposition()
+        Z_V, Z_F = right_sent_obj.proposition.find_proposition()
         if product(Y_V, Z_V) == Z_V and coproduct(Y_F, Z_F) == Z_F:
             return {self.semantics.null_bit}, set()
         return set(), {self.semantics.null_bit}
@@ -1009,7 +939,7 @@ class CounterfactualOperator(syntactic.Operator):
     def extended_falsify(self, state, arg, eval_world):
         pass
 
-    def find_verifiers_and_falsifiers(self, leftprop, rightprop, eval_world):
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
         # NOTE: leftprop
         if false:
             return set(), {self.semantics.null_bit}
