@@ -349,8 +349,7 @@ class Syntax:
         self.operators = operator_collection
 
         infix_inputs = self.infix_premises + self.infix_conclusions
-        self.all_sentences = self.build_sentence_dictionary(infix_inputs)
-        print("ALL SENTS", self.all_sentences)
+        self.all_sentences = self.sentence_dictionary(infix_inputs)
 
         self.premises = [
             self.all_sentences[key]
@@ -365,21 +364,26 @@ class Syntax:
             for key in self.all_sentences
             if key.isalnum()
         ]
-        print("SENT LETS", self.sentence_letters)
 
-    def build_sentence_dictionary(self, infix_inputs):
+    def sub_dictionary(self, sentence):
+        sub_dictionary = {}
+        sub_dictionary[sentence.name] = sentence
+        if sentence.arguments:
+            for arg in sentence.arguments:
+                if arg in sub_dictionary.keys():
+                    continue
+                arg_dict = self.sub_dictionary(arg)
+                sub_dictionary.update(arg_dict)
+        return sub_dictionary
+
+    def sentence_dictionary(self, infix_inputs):
         all_sentences = {}
         for input in infix_inputs:
+            if input in all_sentences.keys():
+                continue
             sentence = Sentence(input, self.operators)
-            # if sentence.prefix_string[0] in {'\\top', '\\bot'}:
-            #     all_sentences[sentence.name] = sentence
-            #     continue
-            all_sentences[sentence.name] = sentence
-            if sentence.arguments:
-                for argument in sentence.arguments:
-                    all_sentences[argument.name] = argument
-            else:
-                print("CHECK")
+            subsent_dict = self.sub_dictionary(sentence)
+            all_sentences.update(subsent_dict)
         return all_sentences
 
         # B: once there is a dictionary of all sentence objects, couldn't we

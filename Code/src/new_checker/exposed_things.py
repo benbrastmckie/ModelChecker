@@ -322,8 +322,6 @@ class Proposition(PropositionDefaults):
                 operator = self.prefix_sentence[0]
                 return operator.find_verifiers_and_falsifiers()
             if self.prefix_string[0].isalnum():
-                # TODO: fix how prefix_sentence are stored for sentence letters
-                print("CHECK", self.prefix_sentence)
                 # TODO: fix definition so that [0] is not needed below
                 sentence_letter = self.prefix_sentence[0]
                 V = {
