@@ -187,7 +187,6 @@ class ModelConstraints:
         self.frame_constraints = self.semantics.frame_constraints
         self.model_constraints = []
         for sent_let in self.sentence_letters:
-            print("ATOM", sent_let.prefix_sentence)
             self.model_constraints.extend(
                 self.proposition_class.proposition_constraints(
                     self,
