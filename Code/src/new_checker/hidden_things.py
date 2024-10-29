@@ -25,30 +25,25 @@ class PropositionDefaults:
         if self.__class__ == PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
 
-        # Store arguments
+        # Store values from sentence argument
         self.name = sentence.name
         self.arguments = sentence.arguments
         self.prefix_operator = sentence.prefix_operator
         self.prefix_sentence = sentence.prefix_sentence
         self.prefix_string = sentence.prefix_string
-        # print("PREFIX PRINT", self.prefix_string)
 
-        # Store values from model_structure and model_constraints
+        # Store values from model_structure argument
         self.model_structure = model_structure
         self.N = self.model_structure.N
-        # B: below is not needed given the above
         self.model_constraints = self.model_structure.model_constraints
         self.semantics = self.model_constraints.semantics
-        self.sentence_letter_types = self.model_constraints.sentence_letters
+        self.sentence_letters = self.model_constraints.sentence_letters
         self.contingent = self.model_constraints.contingent
         self.non_null = self.model_constraints.non_null
         self.disjoint = self.model_constraints.disjoint
         self.print_impossible = self.model_constraints.print_impossible
 
-        # Store proposition in model_structure.all_propositions dictionary
-        # B: can the next line be removed once sentences are updated to
-        # include propositions and there is a dictionary of all_sentences?
-        # self.model_structure.all_propositions[self.name] = self
+        # Set defaults for verifiers and falsifiers
         self.verifiers, self.falsifiers = None, None # avoids linter errors in print_proposition
         try:
             hash(self)
@@ -128,7 +123,7 @@ class ModelConstraints:
         print_impossible=False,
     ):
 
-        # Store inputs
+        # Store inputs and values
         self.syntax = syntax
         self.all_sentences = self.syntax.all_sentences
         self.sentence_letters = self.syntax.sentence_letters
@@ -140,40 +135,12 @@ class ModelConstraints:
             for (op_name, op_class) in self.syntax.operators.items()
         }
 
-        # NOTE: this is recursive so all sentences get instantiated
-        # print("TEST", self.syntax.premises)
-        # print("TEST", self.syntax.conclusions)
+        # Store lists of sentences for premises and conclusions
+        # NOTE: instantiate() is recursive, covering all subsentences
         self.premises = self.instantiate(self.syntax.premises)
         self.conclusions = self.instantiate(self.syntax.conclusions)
 
-        # B: this should probably go into syntax and there is likely a better way
-        # to define it using the recursive structure that sentence objects have.
-        # we can then update all sentence objects at once by running through
-        # the values of the dictionary. it shouldn't be so important to keep the
-        # sentence objects for the premises and conclusions given that we have
-        # the original list of infix premises and conclusions that we can use to
-        # look them up. hopefully this will help reduce complexity.
-
-
-        # REMOVED
-        # all_sentences_list = (
-        #     self.premises
-        #     + self.conclusions
-        #     + self.syntax.intermediates
-        #     + self.syntax.sentence_letters
-        # )
-        # # B: the hope is to add propositions to each sentence below in model_structure
-        # self.all_sentences = {sent.name : sent for sent in all_sentences_list}
-
-        # TODO: can this be replaced with syntax.sentence_letters?
-        # B: are these really types rather than instances?
-
-        # REMOVED
-        # self.sentence_letter_types = self.syntax.sentence_letter_types
-        # print("LETTER TYPES", {type(self.sentence_letter_types)})
-        # self.subsentence_types = syntax.subsentence_types
-
-        # Store settings
+        # Store user settings
         self.contingent = contingent
         self.non_null = non_null
         self.disjoint = disjoint
@@ -186,7 +153,8 @@ class ModelConstraints:
             self.model_constraints.extend(
                 self.proposition_class.proposition_constraints(
                     self,
-                    # TODO: fix definition so that [0] is not needed below
+                    # TODO: fix definition so that [0] is not needed below?
+                    # seems to occur elsewhere as well... is this needed?
                     sent_let.prefix_sentence[0],
                 )
             )
@@ -220,29 +188,13 @@ class ModelConstraints:
     def instantiate(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
-        # subsentences = []
         for sent_obj in sentences:
             if sent_obj.prefix_sentence:
                 continue
             sent_obj.update_prefix_sentence(self)
             if sent_obj.arguments:
                 self.instantiate(sent_obj.arguments)
-        return sentences # B: not sure we need to return subsentences
-
-    def activate_prefix_with_semantics(self, prefix_type):
-        """
-        prefix_type has operator classes and AtomSorts
-        returns a prefix sentence of the third kind: the same as the second except operator instances
-        """
-        new_prefix_form = []
-        for elem in prefix_type:
-            if isinstance(elem, type):
-                new_prefix_form.append(self.operators[elem.name])
-            elif isinstance(elem, list):
-                new_prefix_form.append(self.activate_prefix_with_semantics(elem))
-            else:
-                new_prefix_form.append(elem)
-        return new_prefix_form
+        return sentences
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
@@ -274,21 +226,22 @@ class ModelStructure:
         self.model_constraints = model_constraints
         self.max_time = max_time
 
-        # Store from model_constraint
+        # Store from model_constraint.syntax
         self.syntax = self.model_constraints.syntax
+        self.premises = self.syntax.premises
+        self.conclusions = self.syntax.conclusions
         self.all_sentences = self.syntax.all_sentences
-        self.semantics = self.model_constraints.semantics
-        self.proposition_class = self.model_constraints.proposition_class
-        self.main_world = self.semantics.main_world
-        self.N = self.semantics.N
-        self.premises = model_constraints.premises
-        self.conclusions = model_constraints.conclusions
-        self.print_impossible = self.model_constraints.print_impossible
+        self.sentence_letters = self.syntax.sentence_letters
 
-        # B: can this be dropped eventually? everything should be stored in
-        # sentence objects
-        self.sentence_letter_types = self.syntax.sentence_letters
-        # self.subsentence_types = self.syntax.subsentence_types
+        # Store from model_constraint.semantics
+        self.semantics = self.model_constraints.semantics
+        self.main_world = self.semantics.main_world
+        self.all_bits = self.semantics.all_bits
+        self.N = self.semantics.N
+
+        # Store from model_constraint
+        self.proposition_class = self.model_constraints.proposition_class
+        self.print_impossible = self.model_constraints.print_impossible
 
         # Solve Z3 constraints and store values
         timeout, z3_model, z3_model_status, z3_model_runtime = self.solve(
@@ -301,12 +254,9 @@ class ModelStructure:
         self.z3_model_status = z3_model_status
         self.z3_model_runtime = z3_model_runtime
 
-        self.all_bits = self.model_constraints.semantics.all_bits
-        # self.all_bits = self.find_all_bits(self.N)
+        # Store possible_bits, world_bits, and main_world from the Z3 model
         if not self.z3_model_status:
             self.poss_bits, self.world_bits, self.main_world = None, None, None
-            self.all_propositions, self.premise_propositions = None, None
-            self.conclusion_propositions = None
             return
         self.poss_bits = [
             bit
@@ -323,35 +273,8 @@ class ModelStructure:
         if not self.z3_model is None:
             self.main_world = self.z3_model[self.main_world]
 
-        # B: this updates syntax.all_sentences to include a proposition for each.
-        # then we shouldn't need lists of propositions since we can look up
-        # the proposition for any sentence as needed and we have lists of the
-        # infix premises and conclusions which allow us to look up those sentences
-        # B: I'm not sure if it is succeeding and struggling to test values. see
-        # the print TESTS below
+        # Interpret sentences by storing a proposition in each
         self.interpret(self.syntax.all_sentences.values())
-
-        # # B: this is just to test that all props are getting added to sentences
-        # self.all_propositions = [
-        #     sent.proposition
-        #     for sent in self.all_sentences.values()
-        # ]
-        # print("TEST ALL PROPS", self.conclusion_propositions)
-
-
-        # B: can these be dropped or moved?
-        self.premise_propositions = [
-            premise.proposition
-            # self.proposition_class(premise, self)
-            for premise in self.premises
-        ]
-        # print("TEST CON PROPS", self.conclusion_propositions)
-        self.conclusion_propositions = [
-            conclusion.proposition
-            # self.proposition_class(conclusion, self)
-            for conclusion in self.conclusions
-        ]
-        # print("TEST PREM PROPS", self.premise_propositions)
 
     def solve(self, model_constraints, max_time):
         solver = Solver()
@@ -382,49 +305,13 @@ class ModelStructure:
             sent_obj.update_proposition(self)
         # return sentences
 
-    # def interpret(self, sentences):
-    #     """Updates each instance of Sentence in sentences by adding the
-    #     prefix_sent to that instance, returning the input sentences."""
-    #     for sent_obj in sentences:
-    #         sent_obj.update_proposition(self)
-    #         if len(sent_obj.prefix_string) > 1:
-    #             args = sent_obj.arguments
-    #             self.interpret(args)
-    #     # return sentences
-
-    # def find_all_bits(self, size):
-    #     '''extract all bitvectors from the input model
-    #     imported by model_structure'''
-    #     all_bits = []
-    #     max_bit_number = summation(size + 1, lambda x: 2**x)
-    #     for val in range(max_bit_number):
-    #         test_bit = BitVecVal(val, size)
-    #         if test_bit in all_bits:
-    #             continue
-    #         all_bits.append(test_bit)
-    #     return all_bits
-
-    # B: can this be avoided here
-    def infix(self, prefix_sent):
-        """Takes a sentence in prefix notation (in any of the three kinds)
-        and translates it to infix notation (a string)
-        """
-        if len(prefix_sent) == 1:
-            return str(prefix_sent[0])
-        op = prefix_sent[0]
-        if len(prefix_sent) == 2:
-            return f"{op} {self.infix(prefix_sent[1])}"
-        left_expr = prefix_sent[1]
-        right_expr = prefix_sent[2]
-        return f"({self.infix(left_expr)} {op} {self.infix(right_expr)})"
-
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
         in that world"""
         N = self.model_constraints.semantics.N
         BLUE = "\033[34m"
         RESET = "\033[0m"
-        sentence_letters = self.sentence_letter_types
+        sentence_letters = self.sentence_letters
         main_world = self.main_world
         print(
             f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, N)}{RESET}\n",
