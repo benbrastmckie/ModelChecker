@@ -14,6 +14,8 @@ from hidden_helpers import (
 
 import sys
 
+# TODO: check attributes for each class, pushing definitions as late as possible
+
 class PropositionDefaults:
     """Defaults inherited by every proposition."""
 
@@ -24,13 +26,7 @@ class PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
 
         # Store arguments
-        # B: can a proposition contain a sentence that contains that proposition?
-        # in not, the following attribute should be dropped so that sentences
-        # can be updated to include propositions. can still store key attributes
-        # from the sentence object, but maybe only the name is needed?
-        # self.sentence = sentence
         self.name = sentence.name
-        # self.operator = sentence.main_operator
         self.arguments = sentence.arguments
         self.prefix_operator = sentence.prefix_operator
         self.prefix_sentence = sentence.prefix_sentence
