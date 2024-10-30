@@ -20,15 +20,22 @@ from z3 import(
 ### GENERAL HELPERS ###
 
 
-def remove_repeats(sentences):  # NOTE: sentences are unhashable so can't use set()
-    """Takes a list and removes the repeats in it.
-    Used in find_all_constraints."""
-    seen = []
-    for obj in sentences:
-        if obj not in seen:
-            seen.append(obj)
-    return seen
+# def remove_repeats(sentences):  # NOTE: sentences are unhashable so can't use set()
+#     """Takes a list and removes the repeats in it.
+#     Used in find_all_constraints."""
+#     seen = []
+#     for obj in sentences:
+#         if obj not in seen:
+#             seen.append(obj)
+#     return seen
 
+
+# def summation(n, func, start=0):
+#     """summation of i ranging from start to n of func(i)
+#     used in find_all_bits"""
+#     if start == n:
+#         return func(start)
+#     return func(start) + summation(n, func, start + 1)
 
 ### SYNTACTIC HELPERS ###
 

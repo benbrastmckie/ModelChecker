@@ -12,6 +12,7 @@ from hidden_helpers import (
     Exists,
 )
 
+from model_checker.model_definitions import index_to_substate
 import syntactic
 
 
@@ -352,12 +353,17 @@ class Proposition(PropositionDefaults):
                 fal_witness = fal_bit
                 exists_falsifier = True
                 break
+        # print( # NOTE: a warning is preferable to raising an error
+        #     f"WARNING: the world {bitvec_to_substates(world)} contains both:\n "
+        #     f"  The verifier {bitvec_to_substates(ver_witness)}; and"
+        #     f"  The falsifier {bitvec_to_substates(fal_witness)}."
+        # )
         if exists_verifier == exists_falsifier:
             # TODO: convert from bits to states below
             print( # NOTE: a warning is preferable to raising an error
-                f"WARNING: the world {world} contains both:\n "
-                f"  The verifier {ver_witness}; and"
-                f"  The falsifier {fal_witness}."
+                f"WARNING: the world {index_to_substate(world)} contains both:\n "
+                f"  The verifier {index_to_substate(ver_witness)}; and"
+                f"  The falsifier {index_to_substate(fal_witness)}."
             )
             # if exists_verifier:
             #     raise ValueError(
