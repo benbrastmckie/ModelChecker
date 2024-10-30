@@ -74,9 +74,12 @@ class Sentence:
         prefix_sentence, complexity = self.parse_expression(tokens)
         return prefix_sentence, complexity
 
-    def infix(self, prefix_sent): # M: I think this in theory could also take prefix_types and
-                                    # prefix_sentences, if need be—doesn't really matter but
-                                    # just making note for documentation purposes
+    def infix(self, prefix_sent): 
+        # M: I think this in theory could also take prefix_types and
+        # prefix_sentences, if need be—doesn't really matter but
+        # just making note for documentation purposes
+        # B: that could make for a nice general utility to include in the API
+        # by making this a global function defined in hidden_helpers
         """Takes a sentence in prefix notation (in any of the three kinds)
         and translates it to infix notation (a string)."""
         if len(prefix_sent) == 1:
@@ -91,6 +94,9 @@ class Sentence:
     def prefixes_to_sentences(self, prefix_strings):
         # M: I think this could be a problem because new Sentence objects are being made
         # that aren't in the bigger model_constraints or model_structure lists
+        # B: the thought was that sentence objects include sentence objects for their
+        # arguments where these are then gathered recursively in the Syntax class. I'd
+        # be curious to DISCUSS if there is a better way to go about this
         infix_sentences = [self.infix(pre) for pre in prefix_strings]
         sentences = [
             Sentence(inf, self.operator_collection)
@@ -138,7 +144,7 @@ class Operator:
 
     name = None
     arity = None
-    primitive = True # M: a small piece of the avoid DefinedOperator recursion soln
+    primitive = True
 
     def __init__(self, semantics):
         op_class = self.__class__.__name__
