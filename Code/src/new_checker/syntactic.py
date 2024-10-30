@@ -17,7 +17,7 @@ class Sentence:
     def __init__(self, infix_sentence, operator_collection):
         self.name = infix_sentence
         self.operator_collection = operator_collection
-        self.prefix_string = self.prefix(infix_sentence)
+        self.prefix_string, self.complexity = self.prefix(infix_sentence)
         self.prefix_type = operator_collection.apply_operator(self.prefix_string)
         self.arguments = None
         if len(self.prefix_string) > 1: 
@@ -26,19 +26,44 @@ class Sentence:
         self.prefix_operator = None # requires semantics to instantiate
         self.proposition = None # requires model_structure to interpret
 
-        # TODO: add complexity
-        
     def __str__(self):
         return self.name
     
     def __repr__(self):
         return self.name
         
+    def parse_expression(self, tokens):
+        """Parses a list of tokens representing a propositional expression and returns
+        the expression in prefix notation.
+        At this point, prefix is with strings for everything, I think
+        """
+        if not tokens:  # Check if tokens are empty before processing
+            raise ValueError("Empty token list")
+        token = tokens.pop(0)  # Get the next token
+        if token == "(":  # Handle binary operator case (indicated by parentheses)
+            closing_parentheses = tokens.pop()  # Remove the closing parenthesis
+            if closing_parentheses != ")":
+                raise SyntaxError(
+                    f"The sentence {tokens} is missing a closing parenthesis."
+                )
+            operator, left, right = op_left_right(tokens)
+            left_arg, left_comp = self.parse_expression(left)  # Parse the left argument
+            right_arg, right_comp = self.parse_expression(right)  # Parse the right argument
+            complexity = left_comp + right_comp + 1
+            return [operator, left_arg, right_arg], complexity 
+        if token.isalnum():  # Handle atomic sentences
+            return [token], 0
+        elif token in {"\\top", "\\bot"}:  # Handle extremal operators
+            return [token], 0
+        arg, comp = self.parse_expression(tokens)
+        return [token, arg], comp + 1 
+
     def prefix(self, infix_sentence):
         """For converting from infix to prefix notation without knowing which
         which operators the language includes."""
         tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
-        return self.parse_expression(tokens)
+        prefix_sentence, complexity = self.parse_expression(tokens)
+        return prefix_sentence, complexity
 
     def infix(self, prefix_sent):
         """Takes a sentence in prefix notation (in any of the three kinds)
@@ -87,33 +112,6 @@ class Sentence:
     def update_proposition(self, model_structure):
         """Builds a proposition for the sentence given the model_structure."""
         self.proposition = model_structure.proposition_class(self, model_structure)
-
-    def parse_expression(self, tokens):
-        """Parses a list of tokens representing a propositional expression and returns
-        the expression in prefix notation.
-        At this point, prefix is with strings for everything, I think
-        """
-        if not tokens:  # Check if tokens are empty before processing
-            raise ValueError("Empty token list")
-        token = tokens.pop(0)  # Get the next token
-        if token == "(":  # Handle binary operator case (indicated by parentheses)
-            closing_parentheses = tokens.pop()  # Remove the closing parenthesis
-            if closing_parentheses != ")":
-                raise SyntaxError(
-                    f"The sentence {tokens} is missing a closing parenthesis."
-                )
-            operator, left, right = op_left_right(tokens)
-            left_arg = self.parse_expression(left)  # Parse the left argument
-            right_arg = self.parse_expression(right)  # Parse the right argument
-            return [operator, left_arg, right_arg]
-        if token.isalnum():  # Handle atomic sentences
-            return [token]
-        elif token in {"\\top", "\\bot"}:  # Handle extremal operators
-            return [token]
-        return [  # Unary operators
-            token,
-            self.parse_expression(tokens),
-        ]
 
 
 class Operator:
