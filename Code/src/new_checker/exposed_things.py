@@ -192,6 +192,9 @@ class Proposition(PropositionDefaults):
     """
 
     def __init__(self, sentence, model_structure, eval_world='main'):
+        '''
+        sentence is of type Sentence, model_structure is of type ModelStructure
+        '''
         super().__init__(sentence, model_structure)
         self.verifiers, self.falsifiers = self.find_proposition()
         self.eval_world = model_structure.main_world if eval_world == 'main' else eval_world
@@ -310,15 +313,20 @@ class Proposition(PropositionDefaults):
         return constraints
 
     def find_proposition(self):
+        """takes self, returns the V, F tuple
+        used in find_verifiers_and_falsifiers"""
         all_bits = self.model_structure.all_bits
         model = self.model_structure.z3_model
         sem = self.semantics
-        if self.arguments is None:
+        if self.arguments is None: # self.arguments is a list of Sentence objects
+            # atom = self.prefix_string[0] # borrowing convention from somewhere else
             if self.prefix_string[0] in {'\\top', '\\bot'}:
                 operator = self.prefix_sentence[0]
                 return operator.find_verifiers_and_falsifiers()
             if self.prefix_string[0].isalnum():
+                # print(type(self.prefix_string[0]))
                 # TODO: fix definition so that [0] is not needed below
+                # M: why?
                 sentence_letter = self.prefix_sentence[0]
                 V = {
                     bit for bit in all_bits
@@ -435,6 +443,7 @@ class OrOperator(syntactic.Operator):
 
     def true_at(self, leftarg, rightarg, eval_world):
         """doc string place holder"""
+        print(f"true_at input types: {type(leftarg), type(eval_world)}")
         sem = self.semantics
         return z3.Or(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
 
@@ -444,6 +453,7 @@ class OrOperator(syntactic.Operator):
         return z3.And(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
 
     def extended_verify(self, state, leftarg, rightarg, eval_world):
+        print(f"extended_verify input types: {type(leftarg), type(eval_world), type(eval_world)}")
         return z3.Or(
             self.semantics.extended_verify(state, leftarg, eval_world),
             self.semantics.extended_verify(state, rightarg, eval_world),

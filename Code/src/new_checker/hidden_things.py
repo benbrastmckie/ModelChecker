@@ -1,3 +1,10 @@
+'''
+things in hidden_things right now:
+    - PropositionDefaults
+    - ModelConstraints
+    - ModelStructure
+'''
+
 from z3 import (
     sat,
     Solver,
@@ -31,6 +38,7 @@ class PropositionDefaults:
         self.prefix_operator = sentence.prefix_operator
         self.prefix_sentence = sentence.prefix_sentence
         self.prefix_string = sentence.prefix_string
+        # M: why don't we just save the sentence as an attribute?
 
         # Store values from model_structure argument
         self.model_structure = model_structure
@@ -228,8 +236,8 @@ class ModelStructure:
 
         # Store from model_constraint.syntax
         self.syntax = self.model_constraints.syntax
-        self.premises = self.syntax.premises
-        self.conclusions = self.syntax.conclusions
+        self.premises = self.syntax.premises # list of strings (exactly those user inputted)
+        self.conclusions = self.syntax.conclusions # list of strings (exactly those user inputted)
         self.all_sentences = self.syntax.all_sentences
         self.sentence_letters = self.syntax.sentence_letters
 
@@ -297,10 +305,11 @@ class ModelStructure:
     def interpret(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
+        # print('INTERPRET CAME UP')
         for sent_obj in sentences:
             if sent_obj.proposition:
                 continue
-            if sent_obj.arguments:
+            if sent_obj.arguments: # if sent_obj.arguments and not sent_obj.propositions
                 self.interpret(sent_obj.arguments)
             sent_obj.update_proposition(self)
         # return sentences

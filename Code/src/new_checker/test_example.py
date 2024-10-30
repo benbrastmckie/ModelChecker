@@ -53,14 +53,14 @@ operators = syntactic.OperatorCollection(
 # premises = ["\\neg (\\bot \\vee B)", "(C \\wedge D)"]
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow B)"]
-# premises = ["A", "(A \\boxright B)"]
+premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\wedge B)"]
 # premises = ["(D \\leftrightarrow A)"]
 # premises = ["(\\neg D \\leftrightarrow \\bot)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow \\top)"]
 # premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\equiv B)"]
-premises = ["A", "(A \\leq B)"]
+# premises = ["A", "(A \\leq B)"]
 
 conclusions = ["(\\neg B \\wedge \\neg D)"]
 
@@ -150,9 +150,9 @@ conclusions = ["(\\neg B \\wedge \\neg D)"]
 ###############################
 
 syntax = syntactic.Syntax(
-    premises,
-    conclusions,
-    operators,
+    premises, # list of strings
+    conclusions, # list of strings
+    operators, # is an OperatorCollection instance
 )
 
 semantics = Semantics(3)
