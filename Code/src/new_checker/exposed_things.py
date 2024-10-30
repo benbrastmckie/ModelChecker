@@ -324,9 +324,11 @@ class Proposition(PropositionDefaults):
                 operator = self.prefix_sentence[0]
                 return operator.find_verifiers_and_falsifiers()
             if self.prefix_string[0].isalnum():
-                # print(type(self.prefix_string[0]))
                 # TODO: fix definition so that [0] is not needed below
                 # M: why?
+                # B: I think this is actually great how it is; sorta forgot
+                # about the idea that all prefix_sentences are lists including
+                # sentence letters. that still seems like a good convention
                 sentence_letter = self.prefix_sentence[0]
                 V = {
                     bit for bit in all_bits
