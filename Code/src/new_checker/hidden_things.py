@@ -410,20 +410,6 @@ class ModelStructure:
         for sentence_arg in sentence.arguments:
             self.rec_print(sentence_arg, eval_world, indent + 1)
 
-        # B: can infix be avoided here by calling on the name of the proposition?
-        # M: at least the way it's currently written I don't think so unfortunately.
-        # it uses the infix forms to find the sub-propositions, so we can't use the .name
-        # attribute on something we haven't already found
-        # NOTE: old way below
-        # sub_prefix_sents = prop_obj.prefix_sentence[1:]
-        # sub_infix_sentences = (
-        #     self.infix(sub_prefix)
-        #     for sub_prefix in sub_prefix_sents
-        # )
-        # subprops = (self.all_propositions[ifx] for ifx in sub_infix_sentences)
-        # for subprop in subprops:
-
-
     def print_inputs_recursively(self, output):
         """does rec_print for every proposition in the input propositions
         returns None"""
@@ -471,11 +457,3 @@ class ModelStructure:
 ##########################################################################################
 ############################### HELPERS FOR ModelStructure ###############################
 ##########################################################################################
-
-
-def summation(n, func, start=0):
-    """summation of i ranging from start to n of func(i)
-    used in find_all_bits"""
-    if start == n:
-        return func(start)
-    return func(start) + summation(n, func, start + 1)

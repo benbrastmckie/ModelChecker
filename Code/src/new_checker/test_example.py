@@ -50,7 +50,7 @@ operators = syntactic.OperatorCollection(
 ### EXAMPLE STOCK ###
 #####################
 
-premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
+# premises = ["\\neg (\\bot \\vee B)", "(C \\wedge D)"]
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow B)"]
 # premises = ["A", "(A \\boxright B)"]
@@ -60,7 +60,7 @@ premises = ["\\neg (A \\vee B)", "(C \\wedge D)"]
 # premises = ["A", "(A \\rightarrow \\top)"]
 # premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\equiv B)"]
-# premises = ["A", "(A \\leq B)"]
+premises = ["A", "(A \\leq B)"]
 
 conclusions = ["(\\neg B \\wedge \\neg D)"]
 
@@ -138,11 +138,10 @@ conclusions = ["(\\neg B \\wedge \\neg D)"]
 # premises = ["A", "(B \\essence A)"]
 # conclusions = ["\\neg B"]
 
-
 # # TRUE CONCLUSION MODEL
 # premises = ["(A \\sqsubseteq B)"]
 # premises = ["(A \\essence B)"]
-# conclusions = ["(\\neg A \\leq \\neg B)"]
+
 
 
 

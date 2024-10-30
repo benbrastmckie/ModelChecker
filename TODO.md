@@ -5,9 +5,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Plan
 
 - [x] class architecture
-- [.] implementation
-  - print 
-  - nonoperators
+- [:] implementation
+  - [.] counterfactuals
+  - modals
 - api
 - alternative semantics
   - Fine
@@ -18,7 +18,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Implementation
 
-1. [x] ModelSetup class for storing user inputs and their results:
+1. [x] ModelConstraints class for storing user inputs and their results:
   - [x] arguments: operator classes, semantics class
   - [x] attributes:
     - [x] settings and flags
@@ -62,6 +62,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] verifiers for a sentence
     - [x] falsify for a sentence
     - [x] state fusion
+  - [x] error reporting
+    - [x] definitional loops
 3. [.] An Operator class for each primitive operator:
   - [x] the Operator class itself
     - [x] attribute for arity
@@ -95,7 +97,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] `truth_at`
     - [ ] `alt_worlds` dictionary
 5. [:] ModelStructure class:
-  - [x] arguments: ModelSetup instance
+  - [x] arguments: ModelConstraints instance
   - [x] attributes:
     - [x] resulting Z3 model including:
       - [x] timeout value
@@ -105,8 +107,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] dictionary for all propositions for all subsentences
   - [x] general methods for printing
   - [ ] general methods for saving output 
-6. [ ] error reporting
-  - [ ] definitional loops
 
 ## Patch
 
