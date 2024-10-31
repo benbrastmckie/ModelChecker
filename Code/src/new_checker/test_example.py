@@ -67,7 +67,8 @@ premises = ["A", "(A \\boxright B)"]
 # premises = ["(A \\boxright B)", "(B \\boxright C)"]
 
 # conclusions = ["B"]
-conclusions = ["(\\neg B \\wedge \\neg D)"]
+conclusions = ["\\neg B"]
+# conclusions = ["(\\neg B \\wedge \\neg D)"]
 # conclusions = ["(A \\boxright C)"]
 
 
@@ -189,6 +190,7 @@ model_structure = ModelStructure(
 model_structure.print_all()
 
 def bv2s(bitvec):
+    # return bitvec_to_substates(bitvec, 3)
     def bv2s_helper(N):
         return bitvec_to_substates(bitvec, N)
     return bv2s_helper(3)
@@ -202,7 +204,10 @@ print(f"A's verifiers: {set(bv2s(v) for v in A_V)}")
 for ver in A_V:
     for world in all_worlds:
         print(f"is {bv2s(world)} an {bv2s(ver)}-alternative to the main world {bv2s(main_world)}?")
-        print(eval(semantics.is_alternative(world, ver, main_world)))
+        result = eval(semantics.is_alternative(world, ver, main_world))
+        print(result)
+        # print(bool(result))
+        print(type(result))
         print()
 
 # semantics.is_alternative(6,1,)
