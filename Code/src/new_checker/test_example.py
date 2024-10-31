@@ -64,12 +64,12 @@ premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\equiv B)"]
 # premises = ["A", "(A \\leq B)"]
-# premises = ["(A \\boxright B)", "(B \\boxright C)"]
+premises = ["(A \\boxright B)", "(B \\boxright C)"]
 
 # conclusions = ["B"]
-conclusions = ["\\neg B"]
+# conclusions = ["\\neg B"]
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
-# conclusions = ["(A \\boxright C)"]
+conclusions = ["(A \\boxright C)"]
 
 
 
@@ -188,6 +188,13 @@ model_structure = ModelStructure(
 
 # print("TEST ALL PROPS", model_structure.all_propositions)
 model_structure.print_all()
+if not model_structure.z3_model:
+    model_constraints_obj = model_structure.model_constraints
+    print(model_constraints.sentence_letters)
+    print(model_constraints.model_constraints)
+    # print(model_constraints.premise_constraints)
+    print(model_structure.unsat_core)
+
 
 def bv2s(bitvec):
     # return bitvec_to_substates(bitvec, 3)

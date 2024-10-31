@@ -965,11 +965,12 @@ class CounterfactualOperator(syntactic.Operator):
                 sem.false_at(rightarg, u)),
         )
     
-    def extended_verify(self, state, arg, eval_world):
-        pass
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        return self.true_at(leftarg, rightarg, eval_world) # M: I think this is right?
+                                                            # looks like what's in old model_checker
     
-    def extended_falsify(self, state, arg, eval_world):
-        pass
+    def extended_falsify(self, state, leftarg, rightarg, eval_world):
+        return self.false_at(leftarg, rightarg, eval_world)
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
         # NOTE: leftprop
