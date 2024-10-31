@@ -345,10 +345,10 @@ class ModelStructure:
         # # self.interpret(self.premises + self.conclusions)
         # self.interpret(self.all_sentences.values())
 
-        for sent in self.all_sentences.values():
-            print(f"AFTER PROP: {sent}")
-            if sent.prefix_sentence is None:
-                print(f"has None for prefix_sentence")
+        # for sent in self.all_sentences.values():
+        #     print(f"AFTER PROP: {sent}")
+        #     if sent.prefix_sentence is None:
+        #         print(f"has None for prefix_sentence")
 
     def solve(self, model_constraints, max_time):
         solver = Solver()
@@ -372,10 +372,10 @@ class ModelStructure:
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
 
-        for sent in sentences:
-            print(f"DURING INTERPRET: {sent}")
-            if sent.prefix_sentence is None:
-                print(f"has None for prefix_sentence")
+        # for sent in sentences:
+        #     print(f"DURING INTERPRET: {sent}")
+        #     if sent.prefix_sentence is None:
+        #         print(f"has None for prefix_sentence")
 
         for sent_obj in sentences:
             if sent_obj.prefix_sentence is None:
