@@ -196,8 +196,8 @@ class Proposition(PropositionDefaults):
         sentence is of type Sentence, model_structure is of type ModelStructure
         '''
         super().__init__(sentence, model_structure)
-        self.verifiers, self.falsifiers = self.find_proposition()
         self.eval_world = model_structure.main_world if eval_world == 'main' else eval_world
+        self.verifiers, self.falsifiers = self.find_proposition()
         
 
     def __eq__(self, other):
@@ -343,7 +343,7 @@ class Proposition(PropositionDefaults):
                 f"Their is no proposition for {self.prefix_string[0]}."
             )
         operator = self.prefix_operator
-        return operator.find_verifiers_and_falsifiers(*self.arguments)
+        return operator.find_verifiers_and_falsifiers(*self.arguments, self.eval_world)
 
     def truth_value_at(self, world):
         """Checks if there is a verifier or falsifier in world and not both."""
@@ -399,7 +399,9 @@ class AndOperator(syntactic.Operator):
     arity = 2
 
     def true_at(self, leftarg, rightarg, eval_world):
-        """doc string place holder"""
+        """doc string place holder
+        args are prefix_sentences (ie things of the third kind) I think, def 2nd or 3rd kind
+        """
         sem = self.semantics
         return z3.And(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
 
@@ -428,7 +430,7 @@ class AndOperator(syntactic.Operator):
             ),
         )
 
-    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj):
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
         """Takes sentences objects as arguments, finds their verifiers and
         falsifiers, and returns the verifiers and falsifiers for the operator"""
         sem = self.semantics
@@ -504,7 +506,7 @@ class NegationOperator(syntactic.Operator):
     def extended_falsify(self, state, arg, eval_world):
         return self.semantics.extended_verify(state, arg, eval_world)
 
-    def find_verifiers_and_falsifiers(self, arg_sent_obj):
+    def find_verifiers_and_falsifiers(self, arg_sent_obj, eval_world):
         Y_V, Y_F = arg_sent_obj.proposition.find_proposition()
         return Y_F, Y_V
     
@@ -959,10 +961,27 @@ class CounterfactualOperator(syntactic.Operator):
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
         # NOTE: leftprop
-        if false: # ie if leftprop is false
-            return set(), {self.semantics.null_bit}
-        if true:
+        # if the left proposition is true:
+        #     return 
+        # for verifier in leftprop's verifiers:
+        #     if verifier is compatile
+        # self.prefix_sentence = 
+        leftarg, rightarg = left_sent_obj.prefix_sentence, right_sent_obj.prefix_sentence
+        eval_at_model = left_sent_obj.proposition.model_structure.z3_model.evaluate
+        if eval_at_model(self.true_at(leftarg, rightarg, eval_world)):
             return {self.semantics.null_bit}, set()
+        if not eval_at_model(self.true_at(leftarg, rightarg, eval_world)):
+            return set(), {self.semantics.null_bit}
+        raise ValueError()
+        # print(left_sent_obj.proposition.model_structure.z3_model.evaluate(self.true_at))
+        # raise ValueError
+        # # if left_sent_obj.proposition.model_structure.z3_model
+        # # if bool()
+        # # print(left_sent_obj)
+        # if false: # ie if leftprop is false
+        #     return set(), {self.semantics.null_bit}
+        # if true:
+        #     return {self.semantics.null_bit}, set()
         raise ValueError()
 
 
