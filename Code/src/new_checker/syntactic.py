@@ -36,7 +36,8 @@ class Sentence:
         else:
             self.arguments = None
 
-        self.prefix_type = None # OLD operator_collection.apply_operator(self.prefix_string)
+        self.prefix_type = None
+        # OLD: this required operator_collection
         # self.prefix_type = operator_collection.apply_operator(self.prefix_string)
         self.prefix_sentence = None # requires semantics to instantiate
         self.prefix_operator = None # requires semantics to instantiate
