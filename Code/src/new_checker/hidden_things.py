@@ -335,14 +335,13 @@ class ModelStructure:
         #     if sent.prefix_sentence is None:
         #         print(f"has None for prefix_sentence")
 
-        # NOTE: tried sorting by complexity but neither direction worked
-        # Assuming `sentences_dict` is your dictionary of Sentence instances
+        # NOTE: right now sorting is needed to get interpretation to work
         sorted_sentences = sorted(self.all_sentences.values(), key=lambda sent: sent.complexity)
-        # Print or use the sorted list
-        for sentence in sorted_sentences:
-            print(f"Complexity: {sentence.complexity}, Sentence: {sentence}")
         self.interpret(sorted_sentences)
+        # for sentence in sorted_sentences:
+        #     print(f"Complexity: {sentence.complexity}, Sentence: {sentence}")
 
+        # NOTE: these don't work since now interpretation is not recursive
         # # self.interpret(self.premises + self.conclusions)
         # self.interpret(self.all_sentences.values())
 
