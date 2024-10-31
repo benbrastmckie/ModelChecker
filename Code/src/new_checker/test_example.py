@@ -54,17 +54,18 @@ operators = syntactic.OperatorCollection(
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow B)"]
 premises = ["A", "(A \\boxright B)"]
-conclusions = ["B"]
 # premises = ["A", "(A \\wedge B)"]
+# premises = ["A"]
 # premises = ["(D \\leftrightarrow A)"]
 # premises = ["(\\neg D \\leftrightarrow \\bot)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow \\top)"]
 # premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\equiv B)"]
 # premises = ["A", "(A \\leq B)"]
-
-# conclusions = ["(\\neg B \\wedge \\neg D)"]
 # premises = ["(A \\boxright B)", "(B \\boxright C)"]
+
+# conclusions = ["B"]
+conclusions = ["(\\neg B \\wedge \\neg D)"]
 # conclusions = ["(A \\boxright C)"]
 
 
@@ -157,6 +158,9 @@ syntax = syntactic.Syntax(
     conclusions, # list of strings
     operators, # is an OperatorCollection instance
 )
+
+# for sent in syntax.all_sentences.values():
+#     print("PRINT TYPE", f"prefix_type {sent.prefix_type} is type {type(sent.prefix_type)}")
 
 semantics = Semantics(3)
 
