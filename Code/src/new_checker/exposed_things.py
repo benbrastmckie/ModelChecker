@@ -131,7 +131,7 @@ class Semantics:
         return z3.And(
             self.is_world(bit_u),
             self.is_part_of(bit_y, bit_u),
-            z3.And(self.is_part_of(z, bit_u), self.max_compatible_part(z, bit_w, bit_y)),
+            Exists(z, z3.And(self.is_part_of(z, bit_u), self.max_compatible_part(z, bit_w, bit_y))),
         )
 
     def true_at(self, prefix_sentence, eval_world):
