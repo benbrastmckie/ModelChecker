@@ -934,7 +934,8 @@ class CounterfactualOperator(syntactic.Operator):
             [x, u],
             z3.Implies(
                 z3.And(
-                    sem.extended_verify(x, leftarg, eval_world), # need extended_verify
+                    # sem.extended_verify(x, leftarg, eval_world), # need extended_verify
+                    sem.verify(x, leftarg[0]),
                     sem.is_alternative(u, x, eval_world)
                 ),
                 sem.true_at(rightarg, u),
