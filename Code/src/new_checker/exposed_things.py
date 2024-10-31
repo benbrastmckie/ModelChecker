@@ -959,7 +959,7 @@ class CounterfactualOperator(syntactic.Operator):
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
         # NOTE: leftprop
-        if false:
+        if false: # ie if leftprop is false
             return set(), {self.semantics.null_bit}
         if true:
             return {self.semantics.null_bit}, set()
