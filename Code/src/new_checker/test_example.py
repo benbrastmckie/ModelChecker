@@ -1,3 +1,5 @@
+from hidden_helpers import bitvec_to_substates
+
 # B: when we develop the API, these will reference the users script
 from exposed_things import (
     Semantics,
@@ -180,7 +182,30 @@ model_structure = ModelStructure(
 )
 
 # print("TEST ALL PROPS", model_structure.all_propositions)
-model_structure.print_all()  
+model_structure.print_all()
+
+def bv2s(bitvec):
+    def bv2s_helper(N):
+        return bitvec_to_substates(bitvec, N)
+    return bv2s_helper(3)
+
+eval = model_structure.z3_model.evaluate
+
+print(type(model_structure.main_world))
+main_world = model_structure.main_world
+all_worlds = {bit for bit in model_structure.all_bits if eval(semantics.is_world(bit))}
+print({bv2s(w) for w in all_worlds})
+# print(all_worlds)
+print({bv2s(v) for v in model_structure.all_sentences['A'].proposition.verifiers})
+A_V = model_structure.all_sentences['A'].proposition.verifiers
+for ver in A_V:
+    for world in all_worlds:
+        print(f"is {bv2s(world)} an {bv2s(ver)}-alternative to the main world {bv2s(main_world)}?")
+        print(eval(semantics.is_alternative(world, ver, main_world)))
+        print()
+
+# semantics.is_alternative(6,1,)
+# print() 
 
 # print(model_constraints)
 
