@@ -139,20 +139,20 @@ class Semantics:
         prefix_sentence is always a list, eval world a BitVector
         prefix_sentence is the third kind of prefix_sentence
         """
-        if len(prefix_sentence) == 1 and "\\" not in str(prefix_sentence[0]):
-            sent = prefix_sentence[0]
+        if str(prefix_sentence[0]).isalnum():
+            sentence_letter = prefix_sentence[0]
             x = z3.BitVec("t_atom_x", self.N)
-            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sent)))
+            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
         operator = prefix_sentence[0]
         assert not isinstance(operator, type), "operator should be an instance of a class"
         args = prefix_sentence[1:]
         return operator.true_at(*args, eval_world)
 
     def false_at(self, prefix_sentence, eval_world):
-        if len(prefix_sentence) == 1 and "\\" not in str(prefix_sentence[0]):
-            sent = prefix_sentence[0]
+        if str(prefix_sentence[0]).isalnum():
+            sentence_letter = prefix_sentence[0]
             x = z3.BitVec("f_atom_x", self.N)
-            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sent)))
+            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
         operator = prefix_sentence[0]
         assert not isinstance(operator, type), "operator should be an instance of a class"
         args = prefix_sentence[1:]
@@ -983,7 +983,6 @@ class CounterfactualOperator(syntactic.Operator):
         #     return set(), {self.semantics.null_bit}
         # if true:
         #     return {self.semantics.null_bit}, set()
-        raise ValueError()
 
 
 
