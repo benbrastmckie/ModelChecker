@@ -142,6 +142,9 @@ class ModelConstraints:
 
         # Store inputs and values
         self.syntax = syntax
+        self.premises = self.syntax.premises
+        self.conclusions = self.syntax.conclusions
+        self.operator_collection = syntax.operator_collection
         self.all_sentences = self.syntax.all_sentences
         self.sentence_letters = self.syntax.sentence_letters
         self.semantics = semantics
@@ -149,13 +152,31 @@ class ModelConstraints:
         # B: how does the following differ from storing self.syntax.operators?
         self.operators = {
             op_name: op_class(semantics)
-            for (op_name, op_class) in self.syntax.operators.items()
+            for (op_name, op_class) in self.syntax.operator_collection.items()
         }
+
+        # test = [sent.prefix_type for sent in syntax.all_sentences.values()]
+        # print("TEST TYPE", test)
+        # # self.update_types(self.all_sentences.values())
 
         # Store lists of sentences for premises and conclusions
         # NOTE: instantiate() is recursive, covering all subsentences
-        self.premises = self.instantiate(self.syntax.premises)
-        self.conclusions = self.instantiate(self.syntax.conclusions)
+
+        # for sent in self.all_sentences.values():
+        #     print(f"BEFORE PREFIX: {sent}")
+        #     if sent.prefix_sentence is None:
+        #         print(f"has None for prefix_sentence")
+
+
+        self.instantiate(self.all_sentences.values())
+
+        # for sent in self.all_sentences.values():
+        #     print(f"AFTER PREFIX: {sent}")
+        #     if sent.prefix_sentence is None:
+        #         print(f"has None for prefix_sentence")
+
+        # self.premises = self.instantiate(self.syntax.premises)
+        # self.conclusions = self.instantiate(self.syntax.conclusions)
 
         # Store user settings
         self.contingent = contingent
@@ -209,9 +230,16 @@ class ModelConstraints:
             if sent_obj.prefix_sentence:
                 continue
             sent_obj.update_prefix_sentence(self)
-            if sent_obj.arguments:
-                self.instantiate(sent_obj.arguments)
-        return sentences
+
+            # # OLD
+            # # print(f"SENTENCES: {sentences}.")
+            # if sent_obj.prefix_type is None:
+            #     print(f"ERROR: the prefix_type for {sent_obj} is None.")
+            # if sent_obj.arguments:
+            #     print("ARGUMENTS:", sent_obj.arguments)
+            #     self.instantiate(sent_obj.arguments)
+            # sent_obj.update_prefix_sentence(self)
+        # return sentences
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
@@ -241,13 +269,13 @@ class ModelStructure:
 
         # Store arguments
         self.model_constraints = model_constraints
+        self.all_sentences = self.model_constraints.all_sentences
         self.max_time = max_time
 
         # Store from model_constraint.syntax
         self.syntax = self.model_constraints.syntax
-        self.premises = self.syntax.premises # list of strings (exactly those user inputted)
-        self.conclusions = self.syntax.conclusions # list of strings (exactly those user inputted)
-        self.all_sentences = self.syntax.all_sentences
+        self.premises = self.syntax.premises # list of sentence objects for premises
+        self.conclusions = self.syntax.conclusions # list of sentence objects for conclusions
         self.sentence_letters = self.syntax.sentence_letters
 
         # Store from model_constraint.semantics
@@ -290,8 +318,38 @@ class ModelStructure:
         if not self.z3_model is None:
             self.main_world = self.z3_model[self.main_world]
 
+        # for sent in self.all_sentences.values():
+        #     print(f"BEFORE INTERPRET: {sent}")
+        #     if sent.prefix_sentence is None:
+        #         print(f"has None for {sent} prefix_sentence")
+
+        # # NOTE: tried making a list first
+        # list_sentences = list(self.all_sentences.values())
+        # print("LIST", list_sentences)
+        # self.interpret(list_sentences)
+
         # Interpret sentences by storing a proposition in each
-        self.interpret(self.syntax.all_sentences.values())
+
+        # for sent in self.all_sentences.values():
+        #     print(f"BEFORE PROP: {sent}")
+        #     if sent.prefix_sentence is None:
+        #         print(f"has None for prefix_sentence")
+
+        # NOTE: tried sorting by complexity but neither direction worked
+        # Assuming `sentences_dict` is your dictionary of Sentence instances
+        sorted_sentences = sorted(self.all_sentences.values(), key=lambda sent: sent.complexity)
+        # Print or use the sorted list
+        for sentence in sorted_sentences:
+            print(f"Complexity: {sentence.complexity}, Sentence: {sentence}")
+        self.interpret(sorted_sentences)
+
+        # # self.interpret(self.premises + self.conclusions)
+        # self.interpret(self.all_sentences.values())
+
+        for sent in self.all_sentences.values():
+            print(f"AFTER PROP: {sent}")
+            if sent.prefix_sentence is None:
+                print(f"has None for prefix_sentence")
 
     def solve(self, model_constraints, max_time):
         solver = Solver()
@@ -314,14 +372,22 @@ class ModelStructure:
     def interpret(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
-        # print('INTERPRET CAME UP')
+
+        for sent in sentences:
+            print(f"DURING INTERPRET: {sent}")
+            if sent.prefix_sentence is None:
+                print(f"has None for prefix_sentence")
+
         for sent_obj in sentences:
+            if sent_obj.prefix_sentence is None:
+                raise ValueError(f"{sent_obj} has 'None' for prefix_sentence.")
             if sent_obj.proposition:
                 continue
-            if sent_obj.arguments: # if sent_obj.arguments and not sent_obj.propositions
-                self.interpret(sent_obj.arguments)
             sent_obj.update_proposition(self)
-        # return sentences
+
+            # B: interpreting recursively was causing problems
+            # if sent_obj.arguments: # if sent_obj.arguments and not sent_obj.propositions
+            #     self.interpret(sent_obj.arguments)
 
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
@@ -422,10 +488,12 @@ class ModelStructure:
                 )
 
     def rec_print(self, sentence, eval_world, indent):
+        all_sentences = self.all_sentences
         sentence.proposition.print_proposition(eval_world, indent)
         if (len(sentence.prefix_sentence) == 1):  # prefix has operator instances and AtomSorts
             return
-        for sentence_arg in sentence.arguments:
+        arguments = [all_sentences[key] for key in sentence.arguments]
+        for sentence_arg in arguments:
             self.rec_print(sentence_arg, eval_world, indent + 1)
 
     def print_inputs_recursively(self, output):

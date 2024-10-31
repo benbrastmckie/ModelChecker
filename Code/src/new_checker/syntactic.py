@@ -21,16 +21,23 @@ from z3 import Const, DeclareSort
 AtomSort = DeclareSort("AtomSort")
 
 class Sentence:
-    """Class with an instance for each sentence."""
+    """Given an infix_sentence and operator_collection, an instance of this
+    class includes attributes for Class with an instance for each sentence."""
 
-    def __init__(self, infix_sentence, operator_collection):
+    def __init__(self, infix_sentence):
         self.name = infix_sentence
-        self.operator_collection = operator_collection
+        # self.operator_collection = operator_collection
         self.prefix_string, self.complexity = self.prefix(infix_sentence)
-        self.prefix_type = operator_collection.apply_operator(self.prefix_string)
-        self.arguments = None
+
+        # B: storing classes for the arguments seems to causing trouble
+        # switching to infix sentences which are key values for sentence dict
         if len(self.prefix_string) > 1: 
-            self.arguments = self.prefixes_to_sentences(self.prefix_string[1:])
+            self.arguments = [self.infix(arg) for arg in self.prefix_string[1:]]
+        else:
+            self.arguments = None
+
+        self.prefix_type = None # OLD operator_collection.apply_operator(self.prefix_string)
+        # self.prefix_type = operator_collection.apply_operator(self.prefix_string)
         self.prefix_sentence = None # requires semantics to instantiate
         self.prefix_operator = None # requires semantics to instantiate
         self.proposition = None # requires model_structure to interpret
@@ -91,33 +98,42 @@ class Sentence:
         right_expr = prefix_sent[2]
         return f"({self.infix(left_expr)} {op} {self.infix(right_expr)})"
 
-    def prefixes_to_sentences(self, prefix_strings):
-        # M: I think this could be a problem because new Sentence objects are being made
-        # that aren't in the bigger model_constraints or model_structure lists
-        # B: the thought was that sentence objects include sentence objects for their
-        # arguments where these are then gathered recursively in the Syntax class. I'd
-        # be curious to DISCUSS if there is a better way to go about this
-        infix_sentences = [self.infix(pre) for pre in prefix_strings]
-        sentences = [
-            Sentence(inf, self.operator_collection)
-            for inf in infix_sentences
-        ]
-        return sentences
+    # # B: I think this is causing problems
+    # def prefixes_to_sentences(self, prefix_strings):
+    #     # M: I think this could be a problem because new Sentence objects are being made
+    #     # that aren't in the bigger model_constraints or model_structure lists
+    #     # B: the thought was that sentence objects include sentence objects for their
+    #     # arguments where these are then gathered recursively in the Syntax class. I'd
+    #     # be curious to DISCUSS if there is a better way to go about this
+    #     infix_sentences = [self.infix(pre) for pre in prefix_strings]
+    #     sentences = [
+    #         Sentence(inf) # OLD , self.operator_collection)
+    #         for inf in infix_sentences
+    #     ]
+    #     return sentences
     
+    def update_prefix_type(self, operator_collection):
+        # print(f"PRIOR: prefix_type for {self} about to be set")
+        self.prefix_type = operator_collection.apply_operator(self.prefix_string)
+        # print(f"UPDATE: prefix_type for {self} set to {self.prefix_type}")
+
+    # HINT: maybe something is going wrong here?
     def activate_prefix_with_semantics(self, prefix_type, model_constraints):
         """
         prefix_type has operator classes and AtomSorts
         returns a prefix sentence of the third kind: the same as the second except operator instances
         """
+        if prefix_type is None:
+            raise ValueError(f"Prefix_type for {self} is None in activate_prefix_with_semantics.")
         new_prefix_form = []
         for elem in prefix_type:
-            # print("TEST", f"element {elem} has type {type(elem)}")
             if isinstance(elem, type):
                 new_prefix_form.append(model_constraints.operators[elem.name])
             elif isinstance(elem, list):
                 new_prefix_form.append(self.activate_prefix_with_semantics(elem, model_constraints))
             else:
                 new_prefix_form.append(elem)
+        # print(f"Activating prefix with semantics for {self}: result = {new_prefix_form}")
         return new_prefix_form
 
     def update_prefix_sentence(self, model_constraints): # happens in ModelConstraints init
@@ -127,15 +143,20 @@ class Sentence:
         and makes self.prefix_operator the main operator of the prefix_sentence
         return None
         '''
+        # print(f"Updating prefix_sentence for {self}")
         self.prefix_sentence = self.activate_prefix_with_semantics(
             self.prefix_type,
             model_constraints
         )
+        if self.prefix_type is None:
+            print(f"WARNING: {self} has None for prefix_sentence after activation.")
         if self.arguments:
             self.prefix_operator = self.prefix_sentence[0]
 
     def update_proposition(self, model_structure): # happens in ModelStructure init
         """Builds a proposition object for the sentence given the model_structure."""
+        if self.prefix_sentence is None:
+            raise ValueError(f"prefix_sentence for {self} is None when calling update_proposition.")
         self.proposition = model_structure.proposition_class(self, model_structure)
 
 
@@ -293,11 +314,16 @@ class OperatorCollection:
             if atom in {"\\top", "\\bot"}:  # Handle extremal operators
                 return [self[atom]]
             if atom.isalnum():  # Handle atomic sentences
-                return [Const(prefix_string[0], AtomSort)]
+                # print("ATOM", [Const(atom, AtomSort)])
+                return [Const(atom, AtomSort)]
         op, arguments = prefix_string[0], prefix_string[1:]
+        # print(f"DEBUG: Processing operator {op} with arguments {arguments}")
         activated = [self.apply_operator(arg) for arg in arguments]
         activated.insert(0, self[op])
+        # if activated is None:
+        #     raise ValueError(f"apply_operator returned None for prefix_string {prefix_string}")
         return activated
+        # raise ValueError(f"apply_operator returned None for prefix_string {prefix_string}")
 
 
 class Syntax:
@@ -317,10 +343,18 @@ class Syntax:
 
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
-        self.operators = operator_collection
+        self.operator_collection = operator_collection
 
         infix_inputs = self.infix_premises + self.infix_conclusions
         self.all_sentences = self.sentence_dictionary(infix_inputs)
+
+        # for sent in self.all_sentences.values():
+        #     print(f"BEFORE TYPE: {sent.prefix_type}")
+
+        self.initialize_prefix_types(self.all_sentences.values())
+
+        # for sent in self.all_sentences.values():
+        #     print(f"AFTER TYPE: {sent.prefix_type}")
 
         self.premises = [
             self.all_sentences[key]
@@ -336,14 +370,32 @@ class Syntax:
             if key.isalnum()
         ]
 
+    # def infix(self, prefix_sent): 
+    #     # M: I think this in theory could also take prefix_types and
+    #     # prefix_sentences, if need be—doesn't really matter but
+    #     # just making note for documentation purposes
+    #     # B: that could make for a nice general utility to include in the API
+    #     # by making this a global function defined in hidden_helpers
+    #     """Takes a sentence in prefix notation (in any of the three kinds)
+    #     and translates it to infix notation (a string)."""
+    #     if len(prefix_sent) == 1:
+    #         return str(prefix_sent[0])
+    #     op = prefix_sent[0]
+    #     if len(prefix_sent) == 2:
+    #         return f"{op} {self.infix(prefix_sent[1])}"
+    #     left_expr = prefix_sent[1]
+    #     right_expr = prefix_sent[2]
+    #     return f"({self.infix(left_expr)} {op} {self.infix(right_expr)})"
+
     def sub_dictionary(self, sentence):
         sub_dictionary = {}
         sub_dictionary[sentence.name] = sentence
         if sentence.arguments:
-            for arg in sentence.arguments:
-                if arg in sub_dictionary.keys():
+            for infix_arg in sentence.arguments:
+                if infix_arg in sub_dictionary.keys():
                     continue
-                arg_dict = self.sub_dictionary(arg)
+                sentence_arg = Sentence(infix_arg)
+                arg_dict = self.sub_dictionary(sentence_arg)
                 sub_dictionary.update(arg_dict)
         return sub_dictionary
 
@@ -352,7 +404,20 @@ class Syntax:
         for input in infix_inputs:
             if input in all_sentences.keys():
                 continue
-            sentence = Sentence(input, self.operators)
+            sentence = Sentence(input) # OLD , self.operators)
             subsent_dict = self.sub_dictionary(sentence)
             all_sentences.update(subsent_dict)
         return all_sentences
+
+    def initialize_prefix_types(self, sentences):
+        ops = self.operator_collection
+        for sent_obj in sentences:
+            # print("SENTENCE:", sent_obj)
+            if sent_obj.prefix_type:
+                # print("SKIPPED:", sent_obj)
+                continue
+            sent_obj.update_prefix_type(ops)
+            # print("UPDATED:", sent_obj)
+            # if sent.prefix_type is None:
+                # print(f"Setting prefix_type for {sent} to None.")
+

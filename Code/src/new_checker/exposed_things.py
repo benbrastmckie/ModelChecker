@@ -315,6 +315,7 @@ class Proposition(PropositionDefaults):
     def find_proposition(self):
         """takes self, returns the V, F tuple
         used in find_verifiers_and_falsifiers"""
+        all_sentences = self.model_constraints.all_sentences
         all_bits = self.model_structure.all_bits
         model = self.model_structure.z3_model
         sem = self.semantics
@@ -329,6 +330,7 @@ class Proposition(PropositionDefaults):
                 # B: I think this is actually great how it is; sorta forgot
                 # about the idea that all prefix_sentences are lists including
                 # sentence letters. that still seems like a good convention
+                # print("LETTER", self.prefix_sentence)
                 sentence_letter = self.prefix_sentence[0]
                 V = {
                     bit for bit in all_bits
@@ -343,7 +345,15 @@ class Proposition(PropositionDefaults):
                 f"Their is no proposition for {self.prefix_string[0]}."
             )
         operator = self.prefix_operator
-        return operator.find_verifiers_and_falsifiers(*self.arguments, self.eval_world)
+        # B: storing sentence objects for arguments in each sentence seemed
+        # to be causing trouble that I couldn't sort out. that was a nice way
+        # to go so maybe worth fixing. instead i made arguments strings and
+        # am using them to look up the appropriate sentences. these details
+        # could be hidden by later updating sentences by adding arguments to
+        # each after all sentence objects are stored in a dictionary, but
+        # maybe there is a better way. would be good to DISCUSS.
+        arguments = [all_sentences[key] for key in self.arguments]
+        return operator.find_verifiers_and_falsifiers(*arguments, self.eval_world)
 
     def truth_value_at(self, world):
         """Checks if there is a verifier or falsifier in world and not both."""
@@ -434,6 +444,7 @@ class AndOperator(syntactic.Operator):
         """Takes sentences objects as arguments, finds their verifiers and
         falsifiers, and returns the verifiers and falsifiers for the operator"""
         sem = self.semantics
+        print(f"{left_sent_obj} has type {type(left_sent_obj)}")
         Y_V, Y_F = left_sent_obj.proposition.find_proposition()
         Z_V, Z_F = right_sent_obj.proposition.find_proposition()
         return sem.product(Y_V, Z_V), sem.coproduct(Y_F, Z_F)
