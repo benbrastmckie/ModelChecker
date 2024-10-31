@@ -934,8 +934,8 @@ class CounterfactualOperator(syntactic.Operator):
             [x, u],
             z3.Implies(
                 z3.And(
-                    # sem.extended_verify(x, leftarg, eval_world), # need extended_verify
-                    sem.verify(x, leftarg[0]),
+                    sem.extended_verify(x, leftarg, eval_world), # need extended_verify
+                    # sem.verify(x, leftarg[0]), # for testing to see if it made a diff
                     sem.is_alternative(u, x, eval_world)
                 ),
                 sem.true_at(rightarg, u),
@@ -969,9 +969,9 @@ class CounterfactualOperator(syntactic.Operator):
         # self.prefix_sentence = 
         leftarg, rightarg = left_sent_obj.prefix_sentence, right_sent_obj.prefix_sentence
         eval_at_model = left_sent_obj.proposition.model_structure.z3_model.evaluate
-        if eval_at_model(self.true_at(leftarg, rightarg, eval_world)):
+        if bool(eval_at_model(self.true_at(leftarg, rightarg, eval_world))):
             return {self.semantics.null_bit}, set()
-        if not eval_at_model(self.true_at(leftarg, rightarg, eval_world)):
+        if not bool(eval_at_model(self.true_at(leftarg, rightarg, eval_world))):
             return set(), {self.semantics.null_bit}
         raise ValueError()
         # print(left_sent_obj.proposition.model_structure.z3_model.evaluate(self.true_at))
