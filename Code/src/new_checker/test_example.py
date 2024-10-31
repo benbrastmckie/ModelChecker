@@ -190,14 +190,11 @@ def bv2s(bitvec):
     return bv2s_helper(3)
 
 eval = model_structure.z3_model.evaluate
-
-print(type(model_structure.main_world))
 main_world = model_structure.main_world
 all_worlds = {bit for bit in model_structure.all_bits if eval(semantics.is_world(bit))}
-print({bv2s(w) for w in all_worlds})
-# print(all_worlds)
-print({bv2s(v) for v in model_structure.all_sentences['A'].proposition.verifiers})
+print(f"all worlds: {set(bv2s(w) for w in all_worlds)}")
 A_V = model_structure.all_sentences['A'].proposition.verifiers
+print(f"A's verifiers: {set(bv2s(v) for v in A_V)}")
 for ver in A_V:
     for world in all_worlds:
         print(f"is {bv2s(world)} an {bv2s(ver)}-alternative to the main world {bv2s(main_world)}?")
