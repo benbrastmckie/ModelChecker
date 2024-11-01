@@ -1,5 +1,4 @@
 import z3
-from z3.z3 import BitVecVal
 
 # NOTE: go in API
 from hidden_things import (
@@ -10,9 +9,11 @@ from hidden_things import (
 from hidden_helpers import (
     ForAll,
     Exists,
+    bitvec_to_substates,
+    index_to_substate,
+    pretty_set_print,
 )
 
-from model_checker.model_definitions import index_to_substate
 import syntactic
 
 
@@ -38,9 +39,9 @@ class Semantics:
 
         # Define top and bottom states
         max_value = (1 << self.N) - 1 # NOTE: faster than 2**self.N - 1
-        self.full_bit = BitVecVal(max_value, self.N)
-        self.null_bit = BitVecVal(0, self.N)
-        self.all_bits = [BitVecVal(i, self.N) for i in range(1 << self.N)]
+        self.full_bit = z3.BitVecVal(max_value, self.N)
+        self.null_bit = z3.BitVecVal(0, self.N)
+        self.all_bits = [z3.BitVecVal(i, self.N) for i in range(1 << self.N)]
         
         # Define the frame constraints
         x, y = z3.BitVecs("frame_x frame_y", N)
@@ -396,6 +397,53 @@ class Proposition(PropositionDefaults):
             #     f"for {self.name}. Something has gone wrong."
             # )
         return exists_verifier
+
+    # M: eventually, we need to add a condition on unilateral or bilateral semantics
+    # so that one set vs two is printed (one for unilateral, two for bilateral)
+    # B: got it. i was thinking that in Proposition, the user can say what a
+    # proposition is and how it gets printed. so maybe the following gets moved?
+    def print_proposition(self, eval_world, indent_num=0):
+        N = self.model_structure.model_constraints.semantics.N
+        truth_value = self.truth_value_at(eval_world)
+        possible = self.model_structure.model_constraints.semantics.possible
+        z3_model = self.model_structure.z3_model
+        ver_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self.verifiers
+            if z3_model.evaluate(possible(bit)) or self.print_impossible
+        }
+        ver_prints = pretty_set_print(ver_states) if ver_states else "∅"
+        fal_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self.falsifiers
+            if z3_model.evaluate(possible(bit)) or self.print_impossible
+        }
+        # temporary fix on unary/binary issue below (the 'is None' bit)
+        fal_prints = pretty_set_print(fal_states) if fal_states is not None else "∅"
+        world_state = bitvec_to_substates(eval_world, N)
+        RED = "\033[31m"
+        GREEN = "\033[32m"
+        RESET = "\033[0m"
+        FULL = "\033[37m"
+        PART = "\033[33m"
+        if indent_num == 1:
+            if truth_value:
+                FULL = GREEN
+                PART = GREEN
+            if not truth_value:
+                FULL = RED
+                PART = RED
+            if truth_value is None:
+                world_state = bitvec_to_substates(eval_world, N)
+                print(
+                    f"\n{RED}WARNING:{RESET}"
+                    f"{self} is neither true nor false at {world_state}.\n"
+                )
+        print(
+            f"{'  ' * indent_num}{FULL}|{self}| = < {ver_prints}, {fal_prints} >{RESET}"
+            f"  {PART}({truth_value} in {world_state}){RESET}"
+        )
+
 
 
 ###############################################################################

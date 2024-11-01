@@ -202,7 +202,10 @@ def bv2s(bitvec):
         return bitvec_to_substates(bitvec, N)
     return bv2s_helper(3)
 
+# NOTE: I'm getting an error: 'NoneType' object has no attribute 'evaluate'
+# there is a similar linter error in ModelStructure.
 eval = model_structure.z3_model.evaluate
+
 main_world = model_structure.main_world
 all_worlds = {bit for bit in model_structure.all_bits if eval(semantics.is_world(bit))}
 print(f"all worlds: {set(bv2s(w) for w in all_worlds)}")
