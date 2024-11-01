@@ -172,15 +172,14 @@ class ModelConstraints:
         for sent_obj in sentences:
             if sent_obj.prefix_sentence:
                 continue
+            if sent_obj.arguments:
+                self.instantiate(sent_obj.arguments)
             sent_obj.update_prefix_sentence(self)
 
             # # OLD
             # # print(f"SENTENCES: {sentences}.")
             # if sent_obj.prefix_type is None:
             #     print(f"ERROR: the prefix_type for {sent_obj} is None.")
-            # if sent_obj.arguments:
-            #     print("ARGUMENTS:", sent_obj.arguments)
-            #     self.instantiate(sent_obj.arguments)
             # sent_obj.update_prefix_sentence(self)
         # return sentences
 
@@ -273,14 +272,19 @@ class ModelStructure:
 
         # Interpret sentences by storing a proposition in each
 
-        # for sent in self.all_sentences.values():
-        #     print(f"BEFORE PROP: {sent}")
-        #     if sent.prefix_sentence is None:
-        #         print(f"has None for prefix_sentence")
+        for sent in self.all_sentences.values():
+            print(f"OP TEST: {sent}")
+            if sent.prefix_operator is sent.prefix_type[0]:
+                print(f"{sent.prefix_operator} is the same as {sent.prefix_type[0]}")
 
-        # NOTE: right now sorting is needed to get interpretation to work
-        sorted_sentences = sorted(self.all_sentences.values(), key=lambda sent: sent.complexity)
-        self.interpret(sorted_sentences)
+        # # NOTE: right now sorting is needed to get interpretation to work
+        # sorted_sentences = sorted(self.all_sentences.values(), key=lambda sent: sent.complexity)
+        # self.interpret(sorted_sentences)
+
+
+        # NOTE: integrate recursive strategy
+        self.interpret(self.all_sentences.values())
+
         # for sentence in sorted_sentences:
         #     print(f"Complexity: {sentence.complexity}, Sentence: {sentence}")
 
@@ -325,11 +329,11 @@ class ModelStructure:
                 raise ValueError(f"{sent_obj} has 'None' for prefix_sentence.")
             if sent_obj.proposition:
                 continue
+            if sent_obj.arguments: # if sent_obj.arguments and not sent_obj.propositions
+                self.interpret(sent_obj.arguments)
             sent_obj.update_proposition(self)
 
             # B: interpreting recursively was causing problems
-            # if sent_obj.arguments: # if sent_obj.arguments and not sent_obj.propositions
-            #     self.interpret(sent_obj.arguments)
 
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
@@ -434,8 +438,8 @@ class ModelStructure:
         sentence.proposition.print_proposition(eval_world, indent)
         if (len(sentence.prefix_sentence) == 1):  # prefix has operator instances and AtomSorts
             return
-        arguments = [all_sentences[key] for key in sentence.arguments]
-        for sentence_arg in arguments:
+        # arguments = [all_sentences[key] for key in sentence.arguments]
+        for sentence_arg in sentence.arguments:
             self.rec_print(sentence_arg, eval_world, indent + 1)
 
     def print_inputs_recursively(self, output):

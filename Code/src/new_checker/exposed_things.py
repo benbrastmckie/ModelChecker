@@ -347,8 +347,8 @@ class Proposition(PropositionDefaults):
                 f"Their is no proposition for {self.prefix_string[0]}."
             )
         operator = self.prefix_operator
-        arguments = [all_sentences[key] for key in self.arguments]
-        return operator.find_verifiers_and_falsifiers(*arguments, self.eval_world)
+        # arguments = [all_sentences[key] for key in self.arguments]
+        return operator.find_verifiers_and_falsifiers(*self.arguments, self.eval_world)
 
     def truth_value_at(self, world):
         """Checks if there is a verifier or falsifier in world and not both."""
@@ -486,7 +486,7 @@ class AndOperator(syntactic.Operator):
         """Takes sentences objects as arguments, finds their verifiers and
         falsifiers, and returns the verifiers and falsifiers for the operator"""
         sem = self.semantics
-        print(f"{left_sent_obj} has type {type(left_sent_obj)}")
+        # print(f"{left_sent_obj} has type {type(left_sent_obj)}")
         Y_V, Y_F = left_sent_obj.proposition.find_proposition()
         Z_V, Z_F = right_sent_obj.proposition.find_proposition()
         return sem.product(Y_V, Z_V), sem.coproduct(Y_F, Z_F)
