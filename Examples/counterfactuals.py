@@ -16,7 +16,7 @@ max_time = 1
 optimize_bool = True
 
 # print all Z3 constraints if a model is found
-print_constraints_bool = False
+print_constraints_bool = True
 
 # print all states including impossible states
 print_impossible_states_bool = True

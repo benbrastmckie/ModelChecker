@@ -38,16 +38,6 @@ class PropositionDefaults:
         self.prefix_operator = sentence.prefix_operator
         self.prefix_sentence = sentence.prefix_sentence
         self.prefix_string = sentence.prefix_string
-        # M: why don't we just save the sentence as an attribute?
-        # B: I thought about that but later sentences will be "interpreted"
-        # by updating an attribute for the proposition that they express in
-        # in the model. if propositions also store sentences, then there is
-        # a loop. I'd be curious to DISCUSS if there is a better way to go about
-        # all of this. currently, sentence objects are stored for the argumnets
-        # of the input sentence. this is used to find the verifiers and
-        # falsifiers. it might be better to store something else for the
-        # arguments, e.g., propositions for the arguments which might come in
-        # handy, or whatever would be good to feed into find_verifiers_and_falsifiers.
 
         # Store values from model_structure argument
         self.model_structure = model_structure

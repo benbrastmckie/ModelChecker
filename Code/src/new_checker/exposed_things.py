@@ -347,13 +347,6 @@ class Proposition(PropositionDefaults):
                 f"Their is no proposition for {self.prefix_string[0]}."
             )
         operator = self.prefix_operator
-        # B: storing sentence objects for arguments in each sentence seemed
-        # to be causing trouble that I couldn't sort out. that was a nice way
-        # to go so maybe worth fixing. instead i made arguments strings and
-        # am using them to look up the appropriate sentences. these details
-        # could be hidden by later updating sentences by adding arguments to
-        # each after all sentence objects are stored in a dictionary, but
-        # maybe there is a better way. would be good to DISCUSS.
         arguments = [all_sentences[key] for key in self.arguments]
         return operator.find_verifiers_and_falsifiers(*arguments, self.eval_world)
 
@@ -1015,10 +1008,11 @@ class CounterfactualOperator(syntactic.Operator):
         )
     
     def extended_verify(self, state, leftarg, rightarg, eval_world):
+        # NOTE: add constraint which requires state to be the null_bit
         return self.true_at(leftarg, rightarg, eval_world) # M: I think this is right?
-                                                            # looks like what's in old model_checker
     
     def extended_falsify(self, state, leftarg, rightarg, eval_world):
+        # NOTE: add constraint which requires state to be the null_bit
         return self.false_at(leftarg, rightarg, eval_world)
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
