@@ -12,10 +12,14 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] modals
     - [ ] print worlds
   - [ ] defined operators
+    - [ ] add doc strings
 - [ ] testing
   - [ ] compare constraints new and old
   - [ ] unit tests for new model checker
 - [ ] documentation
+  - [:] syntax
+    - [ ] defined operators doc string
+    - [x] all other doc strings
 - api
 - alternative semantics
   - Fine
