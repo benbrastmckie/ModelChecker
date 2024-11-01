@@ -1,12 +1,17 @@
 '''
-things in syntactic right now:
-    - Sentence
-    - Operator
-    - DefinedOperator
-    - OperatorCollection
-    - Syntax
+This module defines the following classes:
+    - Sentence: this class is responsible for carrying all values relevant to
+    each infix_sentence input by the user in the premises or conclusions.
+    - Operator: this class sets a number of general defaults that are used by
+    the operators the user defines as well as the DefinedOperator class.
+    - DefinedOperator: ... TODO
+    - OperatorCollection: this class is responsible for storing all user
+    defined operators, passing this collection of operators to Syntax.
+    - Syntax: this class is responsible for generating a dictionary of sentence
+    objects for all premises, conclusions, and their subsentences. By drawing
+    on the input operator_collection, all sentences in the dictionary are
+    initialized to generate and store prefix_types for each.
 '''
-
 
 from hidden_helpers import (
     not_implemented_string,
@@ -236,7 +241,7 @@ class DefinedOperator(Operator):
 
 
 class OperatorCollection:
-    """Stores the operators that will be passed to ModelConstraints."""
+    """Stores the operators that will be passed to Syntax."""
 
     def __init__(self, *input):
         self.operator_classes_dict = {}
