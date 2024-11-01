@@ -29,29 +29,29 @@ AtomSort = DeclareSort("AtomSort")
 class Sentence:
     """Given an infix_sentence as input, an instance of this class store the
     original infix_sentence which is used to name the class instance, as well
-    as converting and storing that infix_sentence as a prefix_string. The
+    as converting and storing that infix_sentence as a prefix_sentence. The
     class instance is later updated in: (1) Syntax to store a prefix_type which
     depends on an operator_collection; (2) ModelConstraints to store a
-    prefix_sentence and prefix_operator which depend on the semantics; and (3)
+    prefix_object and operator_object which depend on the semantics; and (3)
     a ModelStructure to store a proposition for the sentence."""
 
     def __init__(self, infix_sentence):
         
         # store input, prefix string, complexity, and sentences for arguments
         self.name = infix_sentence
-        self.prefix_string, self.complexity = self.prefix(infix_sentence)
-        if len(self.prefix_string) > 1: 
+        self.prefix_sentence, self.complexity = self.prefix(infix_sentence)
+        if len(self.prefix_sentence) > 1: 
             self.arguments = [
                 Sentence(self.infix(arg))
-                for arg in self.prefix_string[1:]
+                for arg in self.prefix_sentence[1:]
             ]
         else:
             self.arguments = None
 
         # set defaults to None for values that will be updated later
         self.prefix_type = None # updated in Syntax with operator_collection
-        self.prefix_sentence = None # updated in ModelConstraints with semantics
-        self.prefix_operator = None # updated in ModelConstraints with semantics
+        self.prefix_object = None # updated in ModelConstraints with semantics
+        self.operator_object = None # updated in ModelConstraints with semantics
         self.proposition = None # updated in ModelStructure with Z3 model
 
     def __str__(self):
@@ -64,8 +64,8 @@ class Sentence:
         """For converting from infix to prefix notation without knowing which
         which operators the language includes."""
         tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
-        prefix_sentence, complexity = parse_expression(tokens)
-        return prefix_sentence, complexity
+        prefix_object, complexity = parse_expression(tokens)
+        return prefix_object, complexity
 
     def infix(self, prefix_sent): 
         """Takes a sentence in prefix notation (in any of the three kinds)
@@ -81,15 +81,15 @@ class Sentence:
 
     def update_prefix_type(self, operator_collection):
         """Draws on the operator_collection to apply the operators that occur
-        in the prefix_string in order to generate a prefix_type which has
+        in the prefix_sentence in order to generate a prefix_type which has
         operator classes in place of operator strings and AtomSorts in place
         of sentence letters. The prefix_type will later be instantiated."""
-        self.prefix_type = operator_collection.apply_operator(self.prefix_string)
+        self.prefix_type = operator_collection.apply_operator(self.prefix_sentence)
 
     def activate_prefix_with_semantics(self, prefix_type, model_constraints):
         """Given a prefix_type with operator classes and AtomSorts, this method
         replaces each operator class with the instance of that operator stored
-        in model_constraints, and so returns a prefix_sentence."""
+        in model_constraints, and so returns a prefix_object."""
         if prefix_type is None:
             raise ValueError(f"Prefix_type for {self} is None in activate_prefix_with_semantics.")
         new_prefix_form = []
@@ -102,23 +102,23 @@ class Sentence:
                 new_prefix_form.append(elem)
         return new_prefix_form
 
-    def update_prefix_sentence(self, model_constraints): # happens in ModelConstraints init
+    def update_prefix_object(self, model_constraints): # happens in ModelConstraints init
         """Given an instance of ModelConstraints, this method updates the values
-        of self.prefix_sentence and self.prefix_operator with the semantics that
+        of self.prefix_object and self.operator_object with the semantics that
         model_constraints includes."""
         if self.prefix_type is None:
             raise ValueError(f"{self} has None for prefix_type.")
-        self.prefix_sentence = self.activate_prefix_with_semantics(
+        self.prefix_object = self.activate_prefix_with_semantics(
             self.prefix_type,
             model_constraints
         )
         if self.arguments:
-            self.prefix_operator = self.prefix_sentence[0]
+            self.operator_object = self.prefix_object[0]
 
     def update_proposition(self, model_structure): # happens in ModelStructure init
         """Builds a proposition object for the sentence given the model_structure."""
-        if self.prefix_sentence is None:
-            raise ValueError(f"prefix_sentence for {self} is None when calling update_proposition.")
+        if self.prefix_object is None:
+            raise ValueError(f"prefix_object for {self} is None when calling update_proposition.")
         self.proposition = model_structure.proposition_class(self, model_structure)
 
 
@@ -233,7 +233,7 @@ class DefinedOperator(Operator):
         return operator.false_at(*new_args, eval_world)
     
     def find_verifiers_and_falsifiers(self, *argprops):
-        prefix_args = [prop.prefix_sentence for prop in argprops]
+        prefix_args = [prop.prefix_object for prop in argprops]
         prefix_def = self.get_derived_prefix_form(prefix_args)
         prop_class, model_structure = argprops[0].__class__, argprops[0].model_structure
         derived_subprops = (prop_class(pfsent, model_structure) for pfsent in prefix_def[1:])
@@ -270,15 +270,15 @@ class OperatorCollection:
     def __getitem__(self, value):
         return self.operator_classes_dict[value]
     
-    def apply_operator(self, prefix_string):
-        """Converts prefix_strings to prefix_types with operator classes."""
-        if len(prefix_string) == 1:
-            atom = prefix_string[0]
+    def apply_operator(self, prefix_sentence):
+        """Converts prefix_sentences to prefix_types with operator classes."""
+        if len(prefix_sentence) == 1:
+            atom = prefix_sentence[0]
             if atom in {"\\top", "\\bot"}:  # Handle extremal operators
                 return [self[atom]]
             if atom.isalnum():  # Handle atomic sentences
                 return [Const(atom, AtomSort)]
-        op, arguments = prefix_string[0], prefix_string[1:]
+        op, arguments = prefix_sentence[0], prefix_sentence[1:]
         activated = [self.apply_operator(arg) for arg in arguments]
         activated.insert(0, self[op])
         return activated

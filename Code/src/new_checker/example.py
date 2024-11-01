@@ -231,9 +231,9 @@ def bv2s(bitvec):
 # complexity = complexity_of(model_setup.prefix(example))
 # print(f"{example} has complexity {complexity}")
 
-# a = Defined(model_structure.all_propositions['(A \\vee B)'].prefix_sentence,model_structure)
+# a = Defined(model_structure.all_propositions['(A \\vee B)'].prefix_object,model_structure)
 # print(str(a))
-# b = Defined(model_structure.all_propositions['A'].prefix_sentence,model_structure)
+# b = Defined(model_structure.all_propositions['A'].prefix_object,model_structure)
 # print(a == b)
 # {a}
 
