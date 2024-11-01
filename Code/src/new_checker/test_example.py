@@ -64,7 +64,7 @@ premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\equiv B)"]
 # premises = ["A", "(A \\leq B)"]
-premises = ["(A \\boxright B)", "(B \\boxright C)"]
+# premises = ["(A \\boxright B)", "(B \\boxright C)"]
 
 # conclusions = ["B"]
 # conclusions = ["\\neg B"]
