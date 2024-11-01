@@ -55,8 +55,8 @@ operators = syntactic.OperatorCollection(
 # premises = ["\\neg (\\bot \\vee B)", "(C \\wedge D)"]
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow B)"]
-premises = ["A", "(A \\boxright B)"]
-# premises = ["A", "(A \\wedge B)"]
+# premises = ["A", "(A \\boxright B)"]
+premises = ["A", "(A \\wedge B)"]
 # premises = ["A"]
 # premises = ["(D \\leftrightarrow A)"]
 # premises = ["(\\neg D \\leftrightarrow \\bot)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
@@ -70,6 +70,7 @@ premises = ["A", "(A \\boxright B)"]
 # conclusions = ["\\neg B"]
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
 conclusions = ["(A \\boxright C)"]
+# conclusions = ["C"]
 
 
 
@@ -191,7 +192,7 @@ model_structure.print_all()
 if not model_structure.z3_model:
     model_constraints_obj = model_structure.model_constraints
     print(model_constraints.sentence_letters)
-    print(model_constraints.model_constraints)
+    # print(model_constraints.model_constraints)
     # print(model_constraints.premise_constraints)
     print(model_structure.unsat_core)
 
@@ -202,23 +203,23 @@ def bv2s(bitvec):
         return bitvec_to_substates(bitvec, N)
     return bv2s_helper(3)
 
-# NOTE: I'm getting an error: 'NoneType' object has no attribute 'evaluate'
-# there is a similar linter error in ModelStructure.
-eval = model_structure.z3_model.evaluate
-
-main_world = model_structure.main_world
-all_worlds = {bit for bit in model_structure.all_bits if eval(semantics.is_world(bit))}
-print(f"all worlds: {set(bv2s(w) for w in all_worlds)}")
-A_V = model_structure.all_sentences['A'].proposition.verifiers
-print(f"A's verifiers: {set(bv2s(v) for v in A_V)}")
-for ver in A_V:
-    for world in all_worlds:
-        print(f"is {bv2s(world)} an {bv2s(ver)}-alternative to the main world {bv2s(main_world)}?")
-        result = eval(semantics.is_alternative(world, ver, main_world))
-        print(result)
-        # print(bool(result))
-        print(type(result))
-        print()
+# # NOTE: I'm getting an error: 'NoneType' object has no attribute 'evaluate'
+# # there is a similar linter error in ModelStructure.
+# eval = model_structure.z3_model.evaluate
+#
+# main_world = model_structure.main_world
+# all_worlds = {bit for bit in model_structure.all_bits if eval(semantics.is_world(bit))}
+# print(f"all worlds: {set(bv2s(w) for w in all_worlds)}")
+# A_V = model_structure.all_sentences['A'].proposition.verifiers
+# print(f"A's verifiers: {set(bv2s(v) for v in A_V)}")
+# for ver in A_V:
+#     for world in all_worlds:
+#         print(f"is {bv2s(world)} an {bv2s(ver)}-alternative to the main world {bv2s(main_world)}?")
+#         result = eval(semantics.is_alternative(world, ver, main_world))
+#         print(result)
+#         # print(bool(result))
+#         print(type(result))
+#         print()
 
 # semantics.is_alternative(6,1,)
 # print() 

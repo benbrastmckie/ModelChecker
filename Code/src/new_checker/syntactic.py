@@ -99,19 +99,19 @@ class Sentence:
         right_expr = prefix_sent[2]
         return f"({self.infix(left_expr)} {op} {self.infix(right_expr)})"
 
-    # # B: I think this is causing problems
-    # def prefixes_to_sentences(self, prefix_strings):
-    #     # M: I think this could be a problem because new Sentence objects are being made
-    #     # that aren't in the bigger model_constraints or model_structure lists
-    #     # B: the thought was that sentence objects include sentence objects for their
-    #     # arguments where these are then gathered recursively in the Syntax class. I'd
-    #     # be curious to DISCUSS if there is a better way to go about this
-    #     infix_sentences = [self.infix(pre) for pre in prefix_strings]
-    #     sentences = [
-    #         Sentence(inf) # OLD , self.operator_collection)
-    #         for inf in infix_sentences
-    #     ]
-    #     return sentences
+    # B: I think this is causing problems
+    def prefixes_to_sentences(self, prefix_strings):
+        # M: I think this could be a problem because new Sentence objects are being made
+        # that aren't in the bigger model_constraints or model_structure lists
+        # B: the thought was that sentence objects include sentence objects for their
+        # arguments where these are then gathered recursively in the Syntax class. I'd
+        # be curious to DISCUSS if there is a better way to go about this
+        infix_sentences = [self.infix(pre) for pre in prefix_strings]
+        sentences = [
+            Sentence(inf) # OLD , self.operator_collection)
+            for inf in infix_sentences
+        ]
+        return sentences
     
     def update_prefix_type(self, operator_collection):
         # print(f"PRIOR: prefix_type for {self} about to be set")
