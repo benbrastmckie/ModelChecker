@@ -44,6 +44,7 @@ class Semantics:
         
         # Define the frame constraints
         x, y = z3.BitVecs("frame_x frame_y", N)
+        # x, y, z = z3.BitVecs("frame_x frame_y frame_z", N)
         self.frame_constraints = [
             ForAll(
                 [x, y],
