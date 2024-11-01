@@ -122,27 +122,27 @@ class BrastMcKieFrame(Frame):
         )
 
     # B: this looks good!
-    def true_at(self, prefix_sentence, eval_world):
-        if len(prefix_sentence) == 1:
-            sent = prefix_sentence[0]
+    def true_at(self, prefix_object, eval_world):
+        if len(prefix_object) == 1:
+            sent = prefix_object[0]
             if 'top' not in str(sent)[0]: # top const alr in model, see find_model_constraints
                 # M: I'm not entirely sure where to deal with top, this is here only because it
                 # was in the old code (hopefully it ends up working just as before too)
                 # B: it might make sense to remove this and make top and bot operators but can leave it for now
                 x = BitVec("t_atom_x", N)
                 return Exists(x, And(self.is_part_of(x, eval_world), self.verify(x, sent)))
-        operator = self.operator_dict[prefix_sentence[0]] # operator is a dict, the kw passed into add_operator
-        args = prefix_sentence[1:]
+        operator = self.operator_dict[prefix_object[0]] # operator is a dict, the kw passed into add_operator
+        args = prefix_object[1:]
         return operator['true_at'](*args, eval_world) # B: i assume this is what we want instead of the below
 
-    def false_at(self, prefix_sentence, eval_world):
-        if len(prefix_sentence) == 1:
-            sent = prefix_sentence[0]
+    def false_at(self, prefix_object, eval_world):
+        if len(prefix_object) == 1:
+            sent = prefix_object[0]
             if 'bot' not in str(sent)[0]: # B: i've added this to match true_at
                 x = BitVec("f_atom_x", N)
                 return Exists(x, And(self.is_part_of(x, eval_world), self.falsify(x, sent)))
-        operator = self.operator_dict[prefix_sentence[0]] # operator is a dict, the kw passed into add_operator
-        args = prefix_sentence[1:]
+        operator = self.operator_dict[prefix_object[0]] # operator is a dict, the kw passed into add_operator
+        args = prefix_object[1:]
         return operator['false_at'](*args, eval_world) # B: i assume this is what we want instead of the below
 
     def frame_constraints(self):

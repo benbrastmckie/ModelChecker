@@ -167,12 +167,12 @@ def sentence_letters_in_compound(prefix_input_sentence):
         return_list.extend(sentence_letters_in_compound(part))
     return return_list
 
-def all_sentence_letters(prefix_sentences):
+def all_sentence_letters(prefix_objects):
     """finds all the sentence letters in a list of input sentences, in prefix form.
     returns as a list with no repeats (sorted for consistency) of AtomSorts
     used in find_all_constraints (to feed into find_prop_constraints) and StateSpace __init__"""
     sentence_letters = set()
-    for prefix_input in prefix_sentences:
+    for prefix_input in prefix_objects:
         sentence_letters_in_input = sentence_letters_in_compound(prefix_input)
         for sentence_letter in sentence_letters_in_input:
             sentence_letters.add(sentence_letter)
@@ -1059,12 +1059,12 @@ def define_N_semantics(verify, falsify, possible, assign, N):
         """find Z3 constraints for input sentences
         input_sents are a list of infix sentences
         returns a tuple with all Z3 constraints, for the model, the sentence letters
-        (a list of AtomSorts), and the prefix_sentences (a list of lists, since prefix
+        (a list of AtomSorts), and the prefix_objects (a list of lists, since prefix
         sentences are lists)
         function that is returned by the big outer function"""
-        prefix_sentences = prefix_premises + prefix_conclusions
+        prefix_objects = prefix_premises + prefix_conclusions
         global sentence_letters
-        sentence_letters = all_sentence_letters(prefix_sentences)
+        sentence_letters = all_sentence_letters(prefix_objects)
         frame_constraints = find_frame_constraints(main_world)
         prop_constraints = find_prop_constraints(sentence_letters)
         premise_constraints = find_premise_const(prefix_premises, main_world)
