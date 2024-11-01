@@ -16,12 +16,9 @@ from hidden_helpers import (
     bitvec_to_substates,
     int_to_binary,
     not_implemented_string,
-    # pretty_set_print,
 )
 
 import sys
-
-# TODO: check attributes for each class, pushing definitions as late as possible
 
 class PropositionDefaults:
     """Defaults inherited by every proposition."""
@@ -83,19 +80,23 @@ class ModelConstraints:
         print_impossible=False,
     ):
 
-        # Store inputs and values
+        # Store syntax and its values
         self.syntax = syntax
         self.premises = self.syntax.premises
         self.conclusions = self.syntax.conclusions
         self.all_sentences = self.syntax.all_sentences
         self.operator_collection = self.syntax.operator_collection
         self.sentence_letters = self.syntax.sentence_letters
+
+        # Store semantics and use to define operator dictionary
         self.semantics = semantics
-        self.proposition_class = proposition_class
-        self.operators = {
+        self.operators = { # applies semantics to each operator
             op_name: op_class(semantics)
             for (op_name, op_class) in self.operator_collection.items()
         }
+
+        # Store proposition_class defined by the user
+        self.proposition_class = proposition_class
 
         # Store user settings
         self.contingent = contingent
@@ -103,7 +104,7 @@ class ModelConstraints:
         self.disjoint = disjoint
         self.print_impossible = print_impossible
 
-        # use semantics to recursively update the sentence_object in each sentence
+        # use semantics to recursively update all sentence_objects
         self.instantiate(self.all_sentences.values())
 
         # Use semantics to generate and store Z3 constraints
@@ -239,42 +240,8 @@ class ModelStructure:
         if not self.z3_model is None:
             self.main_world = self.z3_model[self.main_world]
 
-        # for sent in self.all_sentences.values():
-        #     print(f"BEFORE INTERPRET: {sent}")
-        #     if sent.sentence_object is None:
-        #         print(f"has None for {sent} sentence_object")
-
-        # # NOTE: tried making a list first
-        # list_sentences = list(self.all_sentences.values())
-        # print("LIST", list_sentences)
-        # self.interpret(list_sentences)
-
-        # Interpret sentences by storing a proposition in each
-
-        # for sent in self.all_sentences.values():
-        #     print(f"OP TEST: {sent}")
-        #     if sent.operator_object is sent.sentence_type[0]:
-        #         print(f"{sent.operator_object} is the same as {sent.sentence_type[0]}")
-
-        # # NOTE: right now sorting is needed to get interpretation to work
-        # sorted_sentences = sorted(self.all_sentences.values(), key=lambda sent: sent.complexity)
-        # self.interpret(sorted_sentences)
-
-
-        # NOTE: integrate recursive strategy
+        # Recursively update every sentence_object to store a proposition
         self.interpret(self.all_sentences.values())
-
-        # for sentence in sorted_sentences:
-        #     print(f"Complexity: {sentence.complexity}, Sentence: {sentence}")
-
-        # NOTE: these don't work since now interpretation is not recursive
-        # # self.interpret(self.premises + self.conclusions)
-        # self.interpret(self.all_sentences.values())
-
-        # for sent in self.all_sentences.values():
-        #     print(f"AFTER PROP: {sent}")
-        #     if sent.sentence_object is None:
-        #         print(f"has None for sentence_object")
 
     def solve(self, model_constraints, max_time):
         solver = Solver()
@@ -298,11 +265,6 @@ class ModelStructure:
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
 
-        # for sent in sentences:
-        #     print(f"DURING INTERPRET: {sent}")
-        #     if sent.sentence_object is None:
-        #         print(f"has None for sentence_object")
-
         for sent_obj in sentences:
             if sent_obj.sentence_object is None:
                 raise ValueError(f"{sent_obj} has 'None' for sentence_object.")
@@ -311,8 +273,6 @@ class ModelStructure:
             if sent_obj.arguments: # if sent_obj.arguments and not sent_obj.propositions
                 self.interpret(sent_obj.arguments)
             sent_obj.update_proposition(self)
-
-            # B: interpreting recursively was causing problems
 
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
@@ -463,8 +423,3 @@ class ModelStructure:
             return
         print(f"\nThere is no {N}-model of:\n")
         self.model_constraints.print_enumerate(output)
-
-
-##########################################################################################
-############################### HELPERS FOR ModelStructure ###############################
-##########################################################################################
