@@ -2,16 +2,119 @@
 
 Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
-## Class Refactor
+## Plan
 
-- create operator class
-  - test out instances, adding attributes and methods, etc.
-- prefix algorithm to reference aritty attributes in operator classes
-- remove operators from prefix function
-- define classes for primitive operators
-  - operator as instances of operator class
-  - semantic methods
-  - proposition methods
+- [x] class architecture
+- [:] implementation
+  - [.] counterfactuals
+    - [ ] debug
+    - [ ] print alt worlds
+  - [ ] modals
+    - [ ] print worlds
+  - [ ] defined operators
+- [ ] testing
+  - [ ] compare constraints new and old
+  - [ ] unit tests for new model checker
+- [ ] documentation
+- api
+- alternative semantics
+  - Fine
+  - Champollion
+- cli
+  - release
+- documentation
+
+## Implementation
+
+1. [x] ModelConstraints class for storing user inputs and their results:
+  - [x] arguments: operator classes, semantics class
+  - [x] attributes:
+    - [x] settings and flags
+    - [x] premises and conclusions
+    - [x] prefix premises and conclusions
+    - [x] all subsentences of the premises and conclusions
+    - [x] sentence letters
+    - [x] Z3 constraints including (drawing on methods from semantics and operator classes):
+      - [x] frame constraints
+      - [x] model constraints (currently called proposition constraints)
+      - [x] premise constraints
+      - [x] conclusion constraints
+      - [x] all constraints
+  - [x] methods:
+    - [x] infix to prefix methods
+    - [x] subsentences extraction methods
+    - [x] sentence letters extraction methods
+    - [x] prefix to infix methods
+    - [x] solver
+2. [x] Semantics classes:
+  - [x] attributes for Z3 primitives:
+    - [x] verify
+    - [x] falsify
+    - [x] possible
+    - [x] main world
+    - [x] frame constraints
+    - [x] premise and conclusion behavior
+  - [x] semantic methods:
+    - [x] fusion
+    - [x] parthood
+    - [x] compatible
+    - [x] maximal
+    - [x] world
+    - [x] max-compatible
+    - [x] alternative
+    - [x] true-at
+    - [x] false-at
+    - [x] model constraints (assigning each sentence letter to a proposition)
+  - [x] printing methods:
+    - [x] divide `rec_print`
+    - [x] verifiers for a sentence
+    - [x] falsify for a sentence
+    - [x] state fusion
+  - [x] error reporting
+    - [x] definitional loops
+3. [.] An Operator class for each primitive operator:
+  - [x] the Operator class itself
+    - [x] attribute for arity
+    - [x] attribute for name
+    - [x] confirm changes
+  - [x] for each operator
+    - [x] attribute for semantics
+    - [x] methods for truth and falsity at a world
+    - [x] methods for verification and falsification at a world
+    - [x] printing methods
+  - [.] operators to implement:
+    - [x] extensional
+    - [x] extremal
+      - [x] define extremal elements in `hidden_things.py`
+      - [x] define two primitive extremal operators in `exposed_things.py`
+    - [ ] counterfactual
+    - [ ] modal
+      - [ ] defined in terms of counterfactual and top
+    - [.] constitutive
+      - [x] define primitive identity operator
+      - [x] define essence, ground, and relevance in terms of identity
+      - [ ] debug true conclusion and false premise models
+4. [:] Proposition class:
+  - [x] syntactic attributes:
+    - [x] prefix sentence
+    - [x] infix sentence (called name)
+    - [x] complexity
+  - [:] semantic attributes:
+    - [x] `verifiers`
+    - [x] `falsifiers`
+    - [x] `truth_at`
+    - [ ] `alt_worlds` dictionary
+5. [:] ModelStructure class:
+  - [x] arguments: ModelConstraints instance
+  - [x] attributes:
+    - [x] resulting Z3 model including:
+      - [x] timeout value
+      - [x] model status
+      - [x] Z3 model
+      - [x] model runtime
+    - [x] dictionary for all propositions for all subsentences
+  - [x] general methods for printing
+  - [ ] general methods for saving output 
 
 ## Patch
 
