@@ -39,7 +39,6 @@ from z3 import(
 
 ### SYNTACTIC HELPERS ###
 
-
 def op_left_right(tokens):
     """Divides whatever is inside a pair of parentheses into the left argument,
     right argument, and the operator."""
@@ -109,6 +108,33 @@ def op_left_right(tokens):
     if result is None:
         raise ValueError("Failed to extract arguments")
     return result
+
+def parse_expression(tokens):
+    """Parses a list of tokens representing a propositional expression and returns
+    the expression in prefix notation.
+    At this point, prefix is with strings for everything, I think
+    """
+    if not tokens:  # Check if tokens are empty before processing
+        raise ValueError("Empty token list")
+    token = tokens.pop(0)  # Get the next token
+    if token == "(":  # Handle binary operator case (indicated by parentheses)
+        closing_parentheses = tokens.pop()  # Remove the closing parenthesis
+        if closing_parentheses != ")":
+            raise SyntaxError(
+                f"The sentence {tokens} is missing a closing parenthesis."
+            )
+        operator, left, right = op_left_right(tokens)
+        left_arg, left_comp = parse_expression(left)  # Parse the left argument
+        right_arg, right_comp = parse_expression(right)  # Parse the right argument
+        complexity = left_comp + right_comp + 1
+        return [operator, left_arg, right_arg], complexity 
+    if token.isalnum():  # Handle atomic sentences
+        return [token], 0
+    elif token in {"\\top", "\\bot"}:  # Handle extremal operators
+        return [token], 0
+    arg, comp = parse_expression(tokens)
+    return [token, arg], comp + 1 
+
 
 
 ### PRINT HELPERS ###
