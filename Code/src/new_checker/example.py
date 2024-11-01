@@ -68,8 +68,8 @@ premises = ["A", "(A \\wedge B)"]
 
 # conclusions = ["B"]
 # conclusions = ["\\neg B"]
-# conclusions = ["(\\neg B \\wedge \\neg D)"]
-conclusions = ["(A \\boxright C)"]
+conclusions = ["(\\neg B \\wedge \\neg D)"]
+# conclusions = ["(A \\boxright C)"]
 # conclusions = ["C"]
 
 
