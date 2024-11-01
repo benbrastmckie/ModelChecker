@@ -310,9 +310,6 @@ class Syntax:
 
         self.initialize_sentence_types(self.all_sentences.values())
 
-        # for sent in self.all_sentences.values():
-        #     print(f"AFTER TYPE: {sent.sentence_type}")
-
         self.premises = [
             self.all_sentences[key]
             for key in self.infix_premises
