@@ -49,10 +49,14 @@ class PropositionDefaults:
 
         # Set defaults for verifiers and falsifiers
         self.verifiers, self.falsifiers = [], [] # avoids linter errors in print_proposition
-        try:
-            hash(self)
-        except:
-            type(self).__hash__ = lambda self: PropositionDefaults.__hash__(self)
+
+        # TODO: DISCUSS
+        # # B: is this still needed? the code works without it and it seems that
+        # # the hash is defined below. just trying to clean up loose ends...
+        # try:
+        #     hash(self)
+        # except:
+        #     type(self).__hash__ = lambda self: PropositionDefaults.__hash__(self)
 
     def __repr__(self):
         return self.name
@@ -155,13 +159,6 @@ class ModelConstraints:
             if sent_obj.arguments:
                 self.instantiate(sent_obj.arguments)
             sent_obj.update_sentence_object(self)
-
-            # # OLD
-            # # print(f"SENTENCES: {sentences}.")
-            # if sent_obj.sentence_type is None:
-            #     print(f"ERROR: the sentence_type for {sent_obj} is None.")
-            # sent_obj.update_sentence_object(self)
-        # return sentences
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
