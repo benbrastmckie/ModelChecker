@@ -17,7 +17,7 @@ This project draws on the SMT solver [Z3](https://github.com/Z3Prover/z3) to pro
   - `preceq` for _relevance_
   <!-- - `not` for _exclusion_ -->
 
-The current version provides tooling for the [hyperintensional semantics](##Hyperintensional-Semantics) briefly discussed below with links to further resources.
+The current version provides tooling for the [hyperintensional semantics](#Hyperintensional-Semantics) briefly discussed below with links to further resources.
 By abstracting on the details of the particular semantics that the current version includes, the version now under development will provide a general purpose tool kit for developing and studying hyperintensional semantic systems.
 This version should be released by the end of 2024.
 
