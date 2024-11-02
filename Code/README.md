@@ -1,6 +1,6 @@
 # Model Checker
 
-This project draws on the [Z3](https://github.com/Z3Prover/z3) SMT solver to provide tooling for finding hyperintensional countermodels and establishing validity over models up to a user specified level of complexity for inferences in a propositional language with the following operators:
+This project draws on the SMT solver [Z3](https://github.com/Z3Prover/z3) to provide tooling for finding hyperintensional countermodels and establishing validity over models up to a user specified level of complexity for inferences in a propositional language with the following operators:
 
   - `neg` for _negation_
   - `wedge` for _conjunction_
@@ -17,9 +17,82 @@ This project draws on the [Z3](https://github.com/Z3Prover/z3) SMT solver to pro
   - `preceq` for _relevance_
   <!-- - `not` for _exclusion_ -->
 
-Accessible [installation instructions](https://github.com/benbrastmckie/ModelChecker?tab=readme-ov-file#installation) are provided in the GitHub repository.
+The current version provides tooling for the [hyperintensional semantics](##Hyperintensional-Semantics) briefly discussed below with links to further resources.
+By abstracting on the details of the particular semantics that the current version includes, the version now under development will provide a general purpose tool kit for developing and studying hyperintensional semantic systems.
+This version should be released by the end of 2024.
 
-## Usage
+### Screenshot
+
+![Counterfactual antecedent strengthening screenshot](Images/cf_antecedent_strengthening.png)
+
+> NOTE: Additional images can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Images/screenshots.md).
+
+## Installation
+
+Install [Python 3](https://www.python.org/downloads/) and run the following command in the terminal:
+
+```
+pip install model-checker
+```
+
+The project has the `z3-solver` as a dependency which should be installed automatically.
+You can confirm that `z3-solver` is installed with:
+
+```
+pip show z3-solver
+```
+
+In case the dependency did not install automatically, you can run:
+
+```
+pip install z3-solver
+```
+
+More information can be found [here](https://packaging.python.org/en/latest/tutorials/installing-packages/).
+
+## Updating
+
+Once installed, you can check the current version of the `model-checker` with:
+
+```
+model-checker -v
+```
+
+For more information, you can run:
+
+```
+pip show model-checker
+```
+
+To update to the latest version, run:
+
+```
+model-checker -u
+```
+
+To receive updates about new releases, click the "Watch" button at the top right corner of this page.
+
+## Instructions
+
+NOTE: Users familiar with the terminal can skip to the [Usage](#Usage) instructions below.
+
+### Terminal
+
+Open the terminal (e.g., hit `Cmd + Space` and type 'terminal' on MacOS) and list the directories with `ls`. 
+Navigate to your desired location with `cd directory/path/...`, replacing 'directory/path/...' accordingly.
+If you do not know the full path, you can change directory one step at a time, running `ls` after each move.
+
+Alternatively, if you are on MacOS, write `cd` followed by a space in the terminal but do not hit `return`.
+Then you can open the desired project directory in Finder, dragging the Finder window onto the terminal.
+This should paste the path into the terminal.
+You can now hit return to change to the desired directory.
+If you are in the directory in which the `test_file.py` exists, you can run `model-checker test_file.py` without specifying the full (or relative) path to that file.
+Use the 'up'-arrow key to scroll through past commands, saving time when running the same file multiple times.
+
+Files can be edited with your choice of text editor, e.g., run `vim test_file.py` to edit the named file in the terminal with Vim (for help, run `vimtutor`).
+If you do not want to use Vim (exit with `:qa`), you might consider using this configuration of [NeoVim](https://github.com/benbrastmckie/.config) or [VSCodium](https://github.com/benbrastmckie/VSCodium) for working with LaTeX, Markdown, Python, etc., or any other editor you like (e.g., TextEdit on MacOS, or [PyCharm](https://www.jetbrains.com/pycharm/)).
+
+### Usage
 
 To generate a test file run `model-checker` in the terminal without arguments.
 Alternatively, run `model-checker path/to/test_file.py` if the `test_file.py` already exists.

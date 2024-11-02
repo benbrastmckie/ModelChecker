@@ -1,6 +1,6 @@
 # Model Checker
 
-This project draws on the [Z3](https://github.com/Z3Prover/z3) SMT solver to provide tooling for finding hyperintensional countermodels and establishing validity over models up to a user specified level of complexity for inferences in a propositional language with the following operators:
+This project draws on the SMT solver [Z3](https://github.com/Z3Prover/z3) to provide tooling for finding hyperintensional countermodels and establishing validity over models up to a user specified level of complexity for inferences in a propositional language with the following operators:
 
   - `neg` for _negation_
   - `wedge` for _conjunction_
@@ -17,7 +17,10 @@ This project draws on the [Z3](https://github.com/Z3Prover/z3) SMT solver to pro
   - `preceq` for _relevance_
   <!-- - `not` for _exclusion_ -->
 
-The [hyperintensional semantics](##Hyperintensional-Semantics) is briefly discussed below with links to further resources.
+The current version provides tooling for the [hyperintensional semantics](##Hyperintensional-Semantics) briefly discussed below with links to further resources.
+By abstracting on the details of the particular semantics that the current version includes, the version now under development will provide a general purpose tool kit for developing and studying hyperintensional semantic systems.
+This version should be released by the end of 2024.
+See the section on [programmatic semantics](##Programmatic-Semantics) below for more details.
 
 ### Screenshot
 
@@ -76,7 +79,7 @@ NOTE: Users familiar with the terminal can skip to the [Usage](#Usage) instructi
 
 ### Terminal
 
-Open the terminal (e.g., `Cmd + Space` on MacOS) and list the directories with `ls`. 
+Open the terminal (e.g., hit `Cmd + Space` and type 'terminal' on MacOS) and list the directories with `ls`. 
 Navigate to your desired location with `cd directory/path/...`, replacing 'directory/path/...' accordingly.
 If you do not know the full path, you can change directory one step at a time, running `ls` after each move.
 
@@ -184,14 +187,23 @@ Whereas the first three constitutive operators are interdefinable, relevance is 
 
 Instead of a Boolean lattice as in extensional and intensional semantics theories, the space of hyperintensional propositions forms a non-interlaced bilattice as described in this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w), building on [Fine 2017](https://link.springer.com/article/10.1007/s10992-016-9413-y).
 
-### Code Architecture
+## Programmatic Semantics
 
-Conclusions are negated and added to a list which includes the premises.
-The sentences in the list are then tokenized and converted to lists in prefix form so that the operator is the first entry.
-Each prefix sentence is then passed to the semantics which evaluates that sentence at a designated world, returning a corresponding Z3 constraint.
-These constraints are then combined with a number of frame constraints and added to a Z3 solver.
-Z3 looks for a model, returning the unsatisfiable core constraints if none is found.
-Otherwise, the elements of the model is stored in a class, drawing on these elements to print an appropriate output.
-Settings are provided to include the Z3 constraints in the printed output, as well as prompting the user to save the output in a new file.
+A programmatic methodology in semantics streamlines the otherwise computationally grueling process of developing and testing novel semantic theories.
+By easing the process of investigating increasingly complex semantic theories, this methodology aims to support the growth and maturity of semantics as a discipline.
+Instead of only developing a model-theoretic version of a semantics and working out the consequence by hand or not at all, this project provides resources for writing semantic clauses using Z3's python API without having to start from scratch by providing users with a host of functionality along with a flexible template that can be easily adapted.
+
+Although computational resources are common place (e.g., one' laptop), the ability to make use of these resources to develop and explore the implications of novel semantic theories remains limited.
+For instance, Prover9 and Mace are restricted to first-order and equational statements.
+However, for the purposes of semantics, it is desirable to: (1) introduce a range of primitive operators; (2) specify novel semantic clauses for each operator; (3) define the space of models for the resulting language; (4) test which sentences are a logical consequence of which; and (5) print readable countermodels if there are any.
+After developing and testing a semantics for a language, one can develop the corresponding model theory and proof theory with a much better sense of the range of its theorems before establishing soundness or attempting to complete the logic.
+
+Whereas the model-checker provides a programmatic semantics for a specific range of hyperintensional operators, the broader project abstracts on the semantic theory included in the model-checker so that users may introduce semantic clauses for their own operators.
+Instead of computing whether a given sentence is a logical consequence of some set of sentences by hand, these resources allow users to search for countermodels or establish logical consequence up to a finite level complexity.
+Although computational systems cannot search the space of all models (typically a proper class), proving that there are no models up to some finite level of complexity provides evidence that the logical consequence in question holds in general where the broader the range of models, the stronger the evidence.
+Additionally, if finite countermodels exist, users will be able to generate and print those models rather than attempting to do so by hand which is not only limited, but liable to include errors.
+
+
+
 
 

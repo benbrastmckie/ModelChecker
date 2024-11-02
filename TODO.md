@@ -61,6 +61,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - print constraints flag
   - print unsat core flag
   - optimizer flag
+  - progress bar
 
 ## Documentation
 
