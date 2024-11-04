@@ -11,7 +11,7 @@ which is passed to ModelConstraints:
     - **Syntax:** this class is responsible for generating a dictionary of sentence
     objects for all premises, conclusions, and their subsentences. By drawing
     on the input operator_collection, all sentences in the dictionary are
-    initialized to generate and store sentence_types for each.
+    initialized to generate and store prefix_types for each.
 """
 
 from hidden_helpers import (
@@ -30,10 +30,10 @@ class Sentence:
     """Given an infix_sentence as input, an instance of this class store the
     original infix_sentence which is used to name the class instance, as well
     as converting and storing that infix_sentence as a prefix_sentence. The
-    class instance is later updated in: (1) Syntax to store a sentence_type which
+    class instance is later updated in: (1) Syntax to store a prefix_type which
     depends on an operator_collection; (2) ModelConstraints to store a
-    sentence_object and operator_object which depend on the semantics; and (3)
-    a ModelStructure to store a proposition for the sentence."""
+    prefix_object and prefix_operator which depend on the semantics; and (3)
+    ModelStructure to store a proposition for the sentence."""
 
     def __init__(self, infix_sentence):
         
@@ -49,9 +49,9 @@ class Sentence:
             self.arguments = None
 
         # set defaults to None for values that will be updated later
-        self.sentence_type = None # updated in Syntax with operator_collection
-        self.sentence_object = None # updated in ModelConstraints with semantics
-        self.operator_object = None # updated in ModelConstraints with semantics
+        self.prefix_type = None # updated in Syntax with operator_collection
+        self.prefix_object = None # updated in ModelConstraints with semantics
+        self.prefix_operator = None # updated in ModelConstraints with semantics
         self.proposition = None # updated in ModelStructure with Z3 model
 
     def __str__(self):
@@ -64,8 +64,8 @@ class Sentence:
         """For converting from infix to prefix notation without knowing which
         which operators the language includes."""
         tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
-        sentence_object, complexity = parse_expression(tokens)
-        return sentence_object, complexity
+        prefix_object, complexity = parse_expression(tokens)
+        return prefix_object, complexity
 
     def infix(self, prefix_sent): 
         """Takes a sentence in prefix notation (in any of the three kinds)
@@ -79,21 +79,21 @@ class Sentence:
         right_expr = prefix_sent[2]
         return f"({self.infix(left_expr)} {op} {self.infix(right_expr)})"
 
-    def update_sentence_type(self, operator_collection):
+    def update_prefix_type(self, operator_collection):
         """Draws on the operator_collection to apply the operators that occur
-        in the prefix_sentence in order to generate a sentence_type which has
+        in the prefix_sentence in order to generate a prefix_type which has
         operator classes in place of operator strings and AtomSorts in place
-        of sentence letters. The sentence_type will later be instantiated."""
-        self.sentence_type = operator_collection.apply_operator(self.prefix_sentence)
+        of sentence letters. The prefix_type will later be instantiated."""
+        self.prefix_type = operator_collection.apply_operator(self.prefix_sentence)
 
-    def activate_prefix_with_semantics(self, sentence_type, model_constraints):
-        """Given a sentence_type with operator classes and AtomSorts, this method
+    def activate_prefix_with_semantics(self, prefix_type, model_constraints):
+        """Given a prefix_type with operator classes and AtomSorts, this method
         replaces each operator class with the instance of that operator stored
-        in model_constraints, and so returns a sentence_object."""
-        if sentence_type is None:
-            raise ValueError(f"sentence_type for {self} is None in activate_prefix_with_semantics.")
+        in model_constraints, and so returns a prefix_object."""
+        if prefix_type is None:
+            raise ValueError(f"prefix_type for {self} is None in activate_prefix_with_semantics.")
         new_prefix_form = []
-        for elem in sentence_type:
+        for elem in prefix_type:
             if isinstance(elem, type):
                 new_prefix_form.append(model_constraints.operators[elem.name])
             elif isinstance(elem, list):
@@ -102,23 +102,23 @@ class Sentence:
                 new_prefix_form.append(elem)
         return new_prefix_form
 
-    def update_sentence_object(self, model_constraints): # happens in ModelConstraints init
+    def update_prefix_object(self, model_constraints): # happens in ModelConstraints init
         """Given an instance of ModelConstraints, this method updates the values
-        of self.sentence_object and self.operator_object with the semantics that
+        of self.prefix_object and self.prefix_operator with the semantics that
         model_constraints includes."""
-        if self.sentence_type is None:
-            raise ValueError(f"{self} has None for sentence_type.")
-        self.sentence_object = self.activate_prefix_with_semantics(
-            self.sentence_type,
+        if self.prefix_type is None:
+            raise ValueError(f"{self} has None for prefix_type.")
+        self.prefix_object = self.activate_prefix_with_semantics(
+            self.prefix_type,
             model_constraints
         )
         if self.arguments:
-            self.operator_object = self.sentence_object[0]
+            self.prefix_operator = self.prefix_object[0]
 
     def update_proposition(self, model_structure): # happens in ModelStructure init
         """Builds a proposition object for the sentence given the model_structure."""
-        if self.sentence_object is None:
-            raise ValueError(f"sentence_object for {self} is None when calling update_proposition.")
+        if self.prefix_object is None:
+            raise ValueError(f"prefix_object for {self} is None when calling update_proposition.")
         self.proposition = model_structure.proposition_class(self, model_structure)
 
 
@@ -233,7 +233,7 @@ class DefinedOperator(Operator):
         return operator.false_at(*new_args, eval_world)
     
     def find_verifiers_and_falsifiers(self, *argprops):
-        prefix_args = [prop.sentence_object for prop in argprops]
+        prefix_args = [prop.prefix_object for prop in argprops]
         prefix_def = self.get_derived_prefix_form(prefix_args)
         prop_class, model_structure = argprops[0].__class__, argprops[0].model_structure
         derived_subprops = (prop_class(pfsent, model_structure) for pfsent in prefix_def[1:])
@@ -271,7 +271,7 @@ class OperatorCollection:
         return self.operator_classes_dict[value]
     
     def apply_operator(self, prefix_sentence):
-        """Converts prefix_sentences to sentence_types with operator classes."""
+        """Converts prefix_sentences to prefix_types with operator classes."""
         if len(prefix_sentence) == 1:
             atom = prefix_sentence[0]
             if atom in {"\\top", "\\bot"}:  # Handle extremal operators
@@ -289,7 +289,7 @@ class Syntax:
     arguments, generating and storing instances of the Sentence class.
     Draws on Sentence instances for the premises and conclusions in order to
     store a dictionary which includes all subsentences for each before drawing
-    on the operator_collection in order to initialize the sentence_types in each
+    on the operator_collection in order to initialize the prefix_types in each
     sentence object in the dictionary. Lists are then stored for the premises,
     conclusions, and all sentence_letters that occur in theses sentences."""
 
@@ -308,7 +308,7 @@ class Syntax:
         infix_inputs = self.infix_premises + self.infix_conclusions
         self.all_sentences = self.sentence_dictionary(infix_inputs)
 
-        self.initialize_sentence_types(self.all_sentences.values())
+        self.initialize_prefix_types(self.all_sentences.values())
 
         self.premises = [
             self.all_sentences[key]
@@ -349,14 +349,14 @@ class Syntax:
             all_sentences.update(subsent_dict)
         return all_sentences
 
-    def initialize_sentence_types(self, sentences):
+    def initialize_prefix_types(self, sentences):
         """Draws on the operator_collection in order to initialize all sentences
         in the input by replacing operator strings with operator classes."""
         ops = self.operator_collection
         for sent_obj in sentences:
-            if sent_obj.sentence_type:
+            if sent_obj.prefix_type:
                 continue
             if sent_obj.arguments:
-                self.initialize_sentence_types(sent_obj.arguments)
-            sent_obj.update_sentence_type(ops)
+                self.initialize_prefix_types(sent_obj.arguments)
+            sent_obj.update_prefix_type(ops)
 

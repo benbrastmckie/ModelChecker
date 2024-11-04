@@ -32,8 +32,8 @@ class PropositionDefaults:
         # Store values from sentence argument
         self.name = sentence.name
         self.arguments = sentence.arguments
-        self.operator_object = sentence.operator_object
-        self.sentence_object = sentence.sentence_object
+        self.prefix_operator = sentence.prefix_operator
+        self.prefix_object = sentence.prefix_object
         self.prefix_sentence = sentence.prefix_sentence
 
         # Store values from model_structure argument
@@ -108,7 +108,7 @@ class ModelConstraints:
         self.disjoint = disjoint
         self.print_impossible = print_impossible
 
-        # use semantics to recursively update all sentence_objects
+        # use semantics to recursively update all prefix_objects
         self.instantiate(self.all_sentences.values())
 
         # Use semantics to generate and store Z3 constraints
@@ -120,19 +120,19 @@ class ModelConstraints:
                     self,
                     # TODO: fix definition so that [0] is not needed below?
                     # seems to occur elsewhere as well... is this needed?
-                    sent_let.sentence_object[0],
+                    sent_let.prefix_object[0],
                 )
             )
         self.premise_constraints = [
             self.semantics.premise_behavior(
-                prem.sentence_object,
+                prem.prefix_object,
                 self.semantics.main_world,
             )
             for prem in self.premises
         ]
         self.conclusion_constraints = [
             self.semantics.conclusion_behavior(
-                conc.sentence_object,
+                conc.prefix_object,
                 self.semantics.main_world,
             )
             for conc in self.conclusions
@@ -154,11 +154,11 @@ class ModelConstraints:
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
         for sent_obj in sentences:
-            if sent_obj.sentence_object:
+            if sent_obj.prefix_object:
                 continue
             if sent_obj.arguments:
                 self.instantiate(sent_obj.arguments)
-            sent_obj.update_sentence_object(self)
+            sent_obj.update_prefix_object(self)
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
@@ -237,7 +237,7 @@ class ModelStructure:
         if not self.z3_model is None:
             self.main_world = self.z3_model[self.main_world]
 
-        # Recursively update every sentence_object to store a proposition
+        # Recursively update every prefix_object to store a proposition
         self.interpret(self.all_sentences.values())
 
     def solve(self, model_constraints, max_time):
@@ -263,8 +263,8 @@ class ModelStructure:
         prefix_sent to that instance, returning the input sentences."""
 
         for sent_obj in sentences:
-            if sent_obj.sentence_object is None:
-                raise ValueError(f"{sent_obj} has 'None' for sentence_object.")
+            if sent_obj.prefix_object is None:
+                raise ValueError(f"{sent_obj} has 'None' for prefix_object.")
             if sent_obj.proposition:
                 continue
             if sent_obj.arguments: # if sent_obj.arguments and not sent_obj.propositions
@@ -372,7 +372,7 @@ class ModelStructure:
     def rec_print(self, sentence, eval_world, indent):
         all_sentences = self.all_sentences
         sentence.proposition.print_proposition(eval_world, indent)
-        if (len(sentence.sentence_object) == 1):  # prefix has operator instances and AtomSorts
+        if (len(sentence.prefix_object) == 1):  # prefix has operator instances and AtomSorts
             return
         # arguments = [all_sentences[key] for key in sentence.arguments]
         for sentence_arg in sentence.arguments:

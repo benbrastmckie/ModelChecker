@@ -202,8 +202,3 @@ Whereas the current version of the model-checker provides a programmatic semanti
 Instead of computing whether a given sentence is a logical consequence of some set of sentences by hand, these resources allow users to search for countermodels or establish logical consequence up to a finite level complexity.
 Although computational systems cannot search the space of all models (typically a proper class), proving that there are no models up to some finite level of complexity provides evidence that the logical consequence in question holds in general where the broader the range of models, the stronger the evidence.
 Additionally, if finite countermodels exist, users will be able to generate and print those models rather than attempting to do so by hand which is not only limited, but liable to include errors.
-
-
-
-
-
