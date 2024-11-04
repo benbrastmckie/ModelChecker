@@ -164,7 +164,7 @@ syntax = syntactic.Syntax(
 )
 
 # for sent in syntax.all_sentences.values():
-#     print("PRINT TYPE", f"sentence_type {sent.sentence_type} is type {type(sent.sentence_type)}")
+#     print("PRINT TYPE", f"prefix_type {sent.prefix_type} is type {type(sent.prefix_type)}")
 
 semantics = Semantics(3)
 
@@ -231,9 +231,9 @@ def bv2s(bitvec):
 # complexity = complexity_of(model_setup.prefix(example))
 # print(f"{example} has complexity {complexity}")
 
-# a = Defined(model_structure.all_propositions['(A \\vee B)'].sentence_object,model_structure)
+# a = Defined(model_structure.all_propositions['(A \\vee B)'].prefix_object,model_structure)
 # print(str(a))
-# b = Defined(model_structure.all_propositions['A'].sentence_object,model_structure)
+# b = Defined(model_structure.all_propositions['A'].prefix_object,model_structure)
 # print(a == b)
 # {a}
 

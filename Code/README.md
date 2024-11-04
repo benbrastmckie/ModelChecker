@@ -192,14 +192,14 @@ More information can be found in the GitHub [repository](https://github.com/benb
 
 A programmatic methodology in semantics streamlines the otherwise computationally grueling process of developing and testing novel semantic theories.
 By easing the process of investigating increasingly complex semantic theories, this methodology aims to support the growth and maturity of semantics as a discipline.
-Instead of only developing a model-theoretic version of a semantics and working out the consequence by hand or not at all, this project provides resources for writing semantic clauses using Z3's python API without having to start from scratch by providing users with a host of functionality along with a flexible template that can be easily adapted.
+Instead of only developing a model-theoretic version of a semantics and working out the consequence by hand or not at all, this project provides resources for writing semantic clauses using [Z3](https://github.com/Z3Prover/z3)'s python API without having to start from scratch by providing users with a host of functionality along with a flexible template that can be easily adapted.
 
 Although computational resources are common place (e.g., one' laptop), the ability to make use of these resources to develop and explore the implications of novel semantic theories remains limited.
-For instance, Prover9 and Mace are restricted to first-order and equational statements.
+For instance, [Prover9 and Mace](https://www.cs.unm.edu/~mccune/prover9/) are restricted to first-order and equational statements.
 However, for the purposes of semantics, it is desirable to: (1) introduce a range of primitive operators; (2) specify novel semantic clauses for each operator; (3) define the space of models for the resulting language; (4) test which sentences are a logical consequence of which; and (5) print readable countermodels if there are any.
 After developing and testing a semantics for a language, one can develop the corresponding model theory and proof theory with a much better sense of the range of its theorems before establishing soundness or attempting to complete the logic.
 
-Whereas the model-checker provides a programmatic semantics for a specific range of hyperintensional operators, the broader project abstracts on the semantic theory included in the model-checker so that users may introduce semantic clauses for their own operators.
+Whereas the current version of the model-checker provides a programmatic semantics for a specific range of hyperintensional operators, the next release abstracts on the semantic theory included included as a default so that users may introduce semantic clauses for their own operators.
 Instead of computing whether a given sentence is a logical consequence of some set of sentences by hand, these resources allow users to search for countermodels or establish logical consequence up to a finite level complexity.
 Although computational systems cannot search the space of all models (typically a proper class), proving that there are no models up to some finite level of complexity provides evidence that the logical consequence in question holds in general where the broader the range of models, the stronger the evidence.
 Additionally, if finite countermodels exist, users will be able to generate and print those models rather than attempting to do so by hand which is not only limited, but liable to include errors.

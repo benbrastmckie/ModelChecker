@@ -136,40 +136,40 @@ class Semantics:
             Exists(z, z3.And(self.is_part_of(z, bit_u), self.max_compatible_part(z, bit_w, bit_y))),
         )
 
-    def true_at(self, sentence_object, eval_world):
+    def true_at(self, prefix_object, eval_world):
         """
-        sentence_object is always a list, eval world a BitVector
-        sentence_object is the third kind of sentence_object
+        prefix_object is always a list, eval world a BitVector
+        prefix_object is the third kind of prefix_object
         """
-        if str(sentence_object[0]).isalnum():
-            sentence_letter = sentence_object[0]
+        if str(prefix_object[0]).isalnum():
+            sentence_letter = prefix_object[0]
             x = z3.BitVec("t_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
-        operator = sentence_object[0]
+        operator = prefix_object[0]
         assert not isinstance(operator, type), "operator should be an instance of a class"
-        args = sentence_object[1:]
+        args = prefix_object[1:]
         return operator.true_at(*args, eval_world)
 
-    def false_at(self, sentence_object, eval_world):
-        if str(sentence_object[0]).isalnum():
-            sentence_letter = sentence_object[0]
+    def false_at(self, prefix_object, eval_world):
+        if str(prefix_object[0]).isalnum():
+            sentence_letter = prefix_object[0]
             x = z3.BitVec("f_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
-        operator = sentence_object[0]
+        operator = prefix_object[0]
         assert not isinstance(operator, type), "operator should be an instance of a class"
-        args = sentence_object[1:]
+        args = prefix_object[1:]
         return operator.false_at(*args, eval_world)
     
-    def extended_verify(self, state, sentence_object, eval_world):
-        if str(sentence_object[0]).isalnum():
-            return self.verify(state, sentence_object[0])
-        op, args = sentence_object[0], sentence_object[1:]
+    def extended_verify(self, state, prefix_object, eval_world):
+        if str(prefix_object[0]).isalnum():
+            return self.verify(state, prefix_object[0])
+        op, args = prefix_object[0], prefix_object[1:]
         return op.extended_verify(state, *args, eval_world)
     
-    def extended_falsify(self, state, sentence_object, eval_world):
-        if str(sentence_object[0]).isalnum():
-            return self.falsify(state, sentence_object[0])
-        op, args = sentence_object[0], sentence_object[1:]
+    def extended_falsify(self, state, prefix_object, eval_world):
+        if str(prefix_object[0]).isalnum():
+            return self.falsify(state, prefix_object[0])
+        op, args = prefix_object[0], prefix_object[1:]
         return op.extended_falsify(state, *args, eval_world)
 
     def product(self, set_A, set_B):
@@ -206,7 +206,8 @@ class Proposition(PropositionDefaults):
         return (
             self.verifiers == other.verifiers
             and self.falsifiers == other.falsifiers
-            and str(self.sentence_object) == str(other.sentence_object)
+            and self.name == other.name
+            # and str(self.prefix_object) == str(other.prefix_object)
         )
 
     # TODO: break this up into smaller methods for each set of constraints
@@ -317,23 +318,16 @@ class Proposition(PropositionDefaults):
     def find_proposition(self):
         """takes self, returns the V, F tuple
         used in find_verifiers_and_falsifiers"""
-        all_sentences = self.model_constraints.all_sentences
         all_bits = self.model_structure.all_bits
         model = self.model_structure.z3_model
         sem = self.semantics
         if self.arguments is None: # self.arguments is a list of Sentence objects
-            # atom = self.prefix_sentence[0] # borrowing convention from somewhere else
-            if self.prefix_sentence[0] in {'\\top', '\\bot'}:
-                operator = self.sentence_object[0]
+            atom = self.prefix_sentence[0]
+            if atom in {'\\top', '\\bot'}:
+                operator = self.prefix_operator
                 return operator.find_verifiers_and_falsifiers()
-            if self.prefix_sentence[0].isalnum():
-                # TODO: fix definition so that [0] is not needed below
-                # M: why?
-                # B: I think this is actually great how it is; sorta forgot
-                # about the idea that all sentence_objects are lists including
-                # sentence letters. that still seems like a good convention
-                # print("LETTER", self.sentence_object)
-                sentence_letter = self.sentence_object[0]
+            if atom.isalnum():
+                sentence_letter = self.prefix_object[0]
                 V = {
                     bit for bit in all_bits
                     if model.evaluate(sem.verify(bit, sentence_letter))
@@ -344,10 +338,9 @@ class Proposition(PropositionDefaults):
                 }
                 return V, F
             raise ValueError(
-                f"Their is no proposition for {self.prefix_sentence[0]}."
+                f"Their is no proposition for {atom}."
             )
-        operator = self.operator_object
-        # arguments = [all_sentences[key] for key in self.arguments]
+        operator = self.prefix_operator
         return operator.find_verifiers_and_falsifiers(*self.arguments, self.eval_world)
 
     def truth_value_at(self, world):
@@ -452,7 +445,7 @@ class AndOperator(syntactic.Operator):
 
     def true_at(self, leftarg, rightarg, eval_world):
         """doc string place holder
-        args are sentence_objects (ie things of the third kind) I think, def 2nd or 3rd kind
+        args are prefix_objects (ie things of the third kind) I think, def 2nd or 3rd kind
         """
         sem = self.semantics
         return z3.And(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
@@ -1021,8 +1014,8 @@ class CounterfactualOperator(syntactic.Operator):
         #     return 
         # for verifier in leftprop's verifiers:
         #     if verifier is compatile
-        # self.sentence_object = 
-        leftarg, rightarg = left_sent_obj.sentence_object, right_sent_obj.sentence_object
+        # self.prefix_object = 
+        leftarg, rightarg = left_sent_obj.prefix_object, right_sent_obj.prefix_object
         eval_at_model = left_sent_obj.proposition.model_structure.z3_model.evaluate
         if bool(eval_at_model(self.true_at(leftarg, rightarg, eval_world))):
             return {self.semantics.null_bit}, set()
