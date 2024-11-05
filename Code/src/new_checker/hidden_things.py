@@ -444,4 +444,4 @@ class ModelStructure:
             return
         print(f"\nThere is no {N}-model of:\n")
         self.model_constraints.print_enumerate(output)
-        print([self.constraint_dict[str(c)] for c in self.unsat_core])
+        # print([self.constraint_dict[str(c)] for c in self.unsat_core])
