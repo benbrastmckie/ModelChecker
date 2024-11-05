@@ -61,10 +61,11 @@ operators = syntactic.OperatorCollection(
 # premises = ["(D \\leftrightarrow A)"]
 # premises = ["(\\neg D \\leftrightarrow \\bot)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow \\top)"]
-premises = ["A", "(A \\boxright B)"]
+# premises = ["A", "(A \\boxright B)"]
 # premises = ["A", "(A \\equiv B)"]
 # premises = ["A", "(A \\leq B)"]
-# premises = ["(A \\boxright B)", "(B \\boxright C)"]
+# premises = ["(A \\boxright B)", "((A \\wedge B) \\boxright C)"]
+# premises = ["((A \\vee B) \\boxright C)"]
 # premises = ["(A \\boxright B)", "((A \\wedge B) \\boxright C)"]
 # premises = ["(A \\boxright B)", "(B \\boxright C)", "A"]
 # premises = ["(A \\wedge B)", "((A \\wedge B) \\boxright C)"]
@@ -72,12 +73,27 @@ premises = ["A", "(A \\boxright B)"]
 # conclusions = ["B"]
 
 # conclusions = ["\\neg C"]
-conclusions = ["B"]
+# conclusions = ["B"]
 # conclusions = ["\\neg B"]
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
 # conclusions = ["(A \\boxright C)"]
 # conclusions = ["C"]
 
+##### Transitivity (model desired)
+premises = ["(A \\boxright B)", "(B \\boxright C)"]
+conclusions = ["(A \\boxright C)"]
+
+##### Weakened Transitivity (no model desired)
+# premises = ["(A \\boxright B)", "((A \\wedge B) \\boxright C)"]
+# conclusions = ["(A \\boxright C)"]
+
+##### Simplification of Disjunctive Antecedent (no model desired)
+# premises = ["((A \\vee B) \\boxright C)"]
+# conclusions = ["(A \\boxright C)"]
+
+##### Strengthening the Antecedent (model desired)
+# premises = ["(A \\boxright C)"]
+# conclusions = ["((A \\wedge B) \\boxright C)"]
 
 
 #####################
