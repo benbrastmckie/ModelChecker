@@ -65,7 +65,7 @@ operators = syntactic.OperatorCollection(
 # premises = ["A", "(A \\equiv B)"]
 # premises = ["A", "(A \\leq B)"]
 premises = ["(A \\boxright B)", "(B \\boxright C)"]
-# premises = ["(A \\boxright B)", "((A \\wedge B) \\boxright C)"]
+premises = ["(A \\boxright B)", "((A \\wedge B) \\boxright C)"]
 # premises = ["(A \\boxright B)", "(B \\boxright C)", "A"]
 # premises = ["(A \\wedge B)", "((A \\wedge B) \\boxright C)"]
 # premises = ["A", "\\neg A"]
@@ -181,7 +181,7 @@ model_constraints = ModelConstraints(
     contingent=False,
     non_null=True,
     disjoint=False,
-    print_impossible=True,
+    print_impossible=False,
 )
 
 ########################################
