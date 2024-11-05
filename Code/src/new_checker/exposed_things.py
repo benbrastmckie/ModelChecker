@@ -429,6 +429,8 @@ class Proposition(PropositionDefaults):
             f"{'  ' * indent_num}{FULL}|{self}| = < {ver_prints}, {fal_prints} >{RESET}"
             f"  {PART}({truth_value} in {world_state}){RESET}"
         )
+        if self.prefix_operator and hasattr(self.prefix_operator, 'print_operator'):
+            self.prefix_operator.print_operator(self, eval_world, indent_num)
 
 
 
@@ -1009,12 +1011,9 @@ class CounterfactualOperator(syntactic.Operator):
         return self.false_at(leftarg, rightarg, eval_world)
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
-        # NOTE: leftprop
-        # if the left proposition is true:
-        #     return 
-        # for verifier in leftprop's verifiers:
-        #     if verifier is compatile
-        # self.prefix_object = 
+        # M: I went ahead and deleted all the things commented out. I think they're still on the
+        # class_semantics branch if we ever need to look back at them. Feel free to add them
+        # back if you were still using them
         leftarg, rightarg = left_sent_obj.prefix_object, right_sent_obj.prefix_object
         eval_at_model = left_sent_obj.proposition.model_structure.z3_model.evaluate
         if bool(eval_at_model(self.true_at(leftarg, rightarg, eval_world))):
@@ -1022,15 +1021,50 @@ class CounterfactualOperator(syntactic.Operator):
         if not bool(eval_at_model(self.true_at(leftarg, rightarg, eval_world))):
             return set(), {self.semantics.null_bit}
         raise ValueError()
-        # print(left_sent_obj.proposition.model_structure.z3_model.evaluate(self.true_at))
-        # raise ValueError
-        # # if left_sent_obj.proposition.model_structure.z3_model
-        # # if bool()
-        # # print(left_sent_obj)
-        # if false: # ie if leftprop is false
-        #     return set(), {self.semantics.null_bit}
-        # if true:
-        #     return {self.semantics.null_bit}, set()
+    
+    def print_operator(self, prop_obj, eval_world, indent_num):
+        CYAN, RESET = '\033[36m', '\033[0m'
+        model_structure, sentence_obj, N = prop_obj.model_structure, prop_obj.sentence, prop_obj.N
+        world_bits, is_alt = model_structure.world_bits, model_structure.semantics.is_alternative
+        left_subsentence, right_subsentence = sentence_obj.arguments
+        left_subprop_verifiers = left_subsentence.proposition.verifiers
+        eval = model_structure.z3_model.evaluate
+        alt_worlds = set()
+        for ver in left_subprop_verifiers:
+            for pw in world_bits:
+                if eval(is_alt(pw, ver, eval_world)):
+                    alt_worlds.add(pw)
+        imp_worlds = sorted(alt_worlds) # same thing as alt worlds?
+        imp_world_strings = {bitvec_to_substates(u,N) for u in imp_worlds}
+        model_structure.rec_print(left_subsentence, eval_world, indent_num)
+        print(
+            f'{"  " * indent_num}'
+            f'{CYAN}{left_subsentence}-alternatives to {bitvec_to_substates(eval_world, N)} = '
+            f'{pretty_set_print(imp_world_strings)}{RESET}'
+        )
+        indent_num += 1
+        for u in imp_worlds:
+            model_structure.rec_print(right_subsentence, u, indent_num)
+
+        # 1. get the verifiers for the left subprop
+        # 2. find the alt worlds (take ad)
+        # 3. print the verifiers and falsifiers of the left subprop at the current world
+        # 4. print all of the left_subprop-alternatives to the current world
+        # 5. for each of those worlds, rec print the right subprop
+
+        # left_subprop_vers = left_subprop['verifiers'] # get the verifiers
+        # imp_worlds = self.find_alt_bits(left_subprop_vers, world_bit) # find the alt bits
+        # imp_world_strings = {bitvec_to_substates(u,N) for u in imp_worlds}
+        # self.rec_print(left_subprop, world_bit, print_impossible, output, indent)
+        # print(
+        #     f'{"  " * indent}'
+        #     f'{CYAN}{left_subprop}-alternatives to {bitvec_to_substates(world_bit, N)} = '
+        #     f'{pretty_set_print(imp_world_strings)}{RESET}',
+        #     file=output
+        # )
+        # indent += 1
+        # for u in imp_worlds:
+        #     self.rec_print(right_subprop, u, print_impossible, output, indent)
 
 
 

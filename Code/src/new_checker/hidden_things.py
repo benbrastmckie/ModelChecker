@@ -30,6 +30,7 @@ class PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
 
         # Store values from sentence argument
+        self.sentence = sentence
         self.name = sentence.name
         self.arguments = sentence.arguments
         self.prefix_operator = sentence.prefix_operator
@@ -374,9 +375,9 @@ class ModelStructure:
         sentence.proposition.print_proposition(eval_world, indent)
         if (len(sentence.prefix_object) == 1):  # prefix has operator instances and AtomSorts
             return
-        # arguments = [all_sentences[key] for key in sentence.arguments]
-        for sentence_arg in sentence.arguments:
-            self.rec_print(sentence_arg, eval_world, indent + 1)
+        if not hasattr(sentence.prefix_operator, 'print_operator'):
+            for sentence_arg in sentence.arguments:
+                self.rec_print(sentence_arg, eval_world, indent + 1)
 
     def print_inputs_recursively(self, output):
         """does rec_print for every proposition in the input propositions
