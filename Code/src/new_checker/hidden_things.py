@@ -8,6 +8,11 @@ things in hidden_things right now:
 from z3 import (
     sat,
     Solver,
+    Bools,
+    Bool,
+    Implies,
+    And,
+    Not,
 )
 
 import time
@@ -30,6 +35,7 @@ class PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
 
         # Store values from sentence argument
+        self.sentence = sentence
         self.name = sentence.name
         self.arguments = sentence.arguments
         self.prefix_operator = sentence.prefix_operator
@@ -242,7 +248,25 @@ class ModelStructure:
 
     def solve(self, model_constraints, max_time):
         solver = Solver()
-        solver.add(model_constraints.all_constraints)
+        constraint_dict = {}
+        fc, mc, pc, cc = model_constraints.frame_constraints, model_constraints.model_constraints, model_constraints.premise_constraints, model_constraints.conclusion_constraints
+        for c_group, c_group_name in [(fc, "frame"), (mc, "model"), (pc, "premises"), (cc, "conclusions")]:
+            assert isinstance(c_group, list)
+            for ix, c in enumerate(c_group):
+                c_id = f"{c_group_name}{ix+1}"
+                solver.assert_and_track(c, c_id)
+                constraint_dict[c_id] = c
+        # solver.assert_and_track(And(model_constraints.frame_constraints), "frame")
+        # solver.assert_and_track(And(model_constraints.model_constraints), "model")
+        # solver.assert_and_track(And(model_constraints.premise_constraints), "premises")
+        # solver.assert_and_track(And(model_constraints.conclusion_constraints), "conclusions")
+        # solver.add(Implies(fb, And(model_constraints.frame_constraints)))
+        # solver.add(Implies(mb, And(model_constraints.model_constraints)))
+        # solver.add(Implies(pb, And(model_constraints.premise_constraints)))
+        # solver.add(Implies(cb, And(model_constraints.conclusion_constraints)))
+        # print(model_constraints.premise_constraints)
+        # solver.add(Implies(pb, Not(And(model_constraints.premise_constraints))))
+        # solver.add(model_constraints.all_constraints)
         solver.set("timeout", int(max_time * 1000))  # time in seconds
         try:
             model_start = time.time()  # start benchmark timer
@@ -374,9 +398,9 @@ class ModelStructure:
         sentence.proposition.print_proposition(eval_world, indent)
         if (len(sentence.prefix_object) == 1):  # prefix has operator instances and AtomSorts
             return
-        # arguments = [all_sentences[key] for key in sentence.arguments]
-        for sentence_arg in sentence.arguments:
-            self.rec_print(sentence_arg, eval_world, indent + 1)
+        if not hasattr(sentence.prefix_operator, 'print_operator'):
+            for sentence_arg in sentence.arguments:
+                self.rec_print(sentence_arg, eval_world, indent + 1)
 
     def print_inputs_recursively(self, output):
         """does rec_print for every proposition in the input propositions
