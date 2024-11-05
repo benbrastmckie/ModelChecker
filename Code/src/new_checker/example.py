@@ -88,8 +88,8 @@ conclusions = ["(A \\boxright C)"]
 # conclusions = ["(A \\boxright C)"]
 
 ##### Simplification of Disjunctive Antecedent (no model desired)
-# premises = ["((A \\vee B) \\boxright C)"]
-# conclusions = ["(A \\boxright C)"]
+premises = ["((A \\vee B) \\boxright C)"]
+conclusions = ["(A \\boxright C)"]
 
 ##### Strengthening the Antecedent (model desired)
 # premises = ["(A \\boxright C)"]
