@@ -18,7 +18,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Implementation
 
-1. [.] An Operator class for each primitive operator:
+1. [:] An Operator class for each primitive operator:
   - [x] the Operator class itself
     - [x] attribute for arity
     - [x] attribute for name
@@ -33,20 +33,24 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] extremal
       - [x] define extremal elements in `hidden_things.py`
       - [x] define two primitive extremal operators in `exposed_things.py`
-    - [.] counterfactual
-      - [ ] debug
-      - [ ] print alt worlds
-      - [ ] function to compare constraints for new and old versions
+      - [ ] add print methods
+    - [:] counterfactual
+      - [:] debug
+      - [x] print alt worlds
+      - [.] function to compare constraints for new and old versions
     - [ ] defined operators
+      - [ ] debug given `sentence_obj` integration
       - [ ] add doc strings
+      - [ ] add print methods
     - [ ] modal
       - [ ] primitive
       - [ ] defined in terms of counterfactual and top
-      - [ ] print worlds
+      - [ ] add print methods
     - [.] constitutive
       - [x] define primitive identity operator
       - [x] define essence, ground, and relevance in terms of identity
       - [ ] debug true conclusion and false premise models
+      - [ ] add print methods
 2. [:] ModelStructure class:
   - [x] arguments: ModelConstraints instance
   - [x] attributes:
@@ -57,6 +61,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
       - [x] model runtime
     - [x] dictionary for all propositions for all subsentences
   - [x] general methods for printing
+  - [x] unsat core
   - [ ] print benchmarks
 
 ## API
