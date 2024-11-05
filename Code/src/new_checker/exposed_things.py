@@ -994,13 +994,17 @@ class CounterfactualOperator(syntactic.Operator):
         sem = self.semantics
         x = z3.BitVec("f_ncf_x", sem.N)
         u = z3.BitVec("f_ncf_u", sem.N)
-        return Exists(
-            [x, u],
-            z3.And(
+        # return Exists(
+        #     [x, u],
+        #     z3.And(
+        #         sem.extended_verify(x, leftarg, eval_world), # need extended_verify
+        #         sem.is_alternative(u, x, eval_world),
+        #         sem.false_at(rightarg, u)),
+        # )
+        return z3.And(
                 sem.extended_verify(x, leftarg, eval_world), # need extended_verify
                 sem.is_alternative(u, x, eval_world),
-                sem.false_at(rightarg, u)),
-        )
+                sem.false_at(rightarg, u))
     
     def extended_verify(self, state, leftarg, rightarg, eval_world):
         # NOTE: add constraint which requires state to be the null_bit
