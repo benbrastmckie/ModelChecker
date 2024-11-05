@@ -248,14 +248,14 @@ class ModelStructure:
 
     def solve(self, model_constraints, max_time):
         solver = Solver()
-        constraint_dict = {}
+        self.constraint_dict = {}
         fc, mc, pc, cc = model_constraints.frame_constraints, model_constraints.model_constraints, model_constraints.premise_constraints, model_constraints.conclusion_constraints
         for c_group, c_group_name in [(fc, "frame"), (mc, "model"), (pc, "premises"), (cc, "conclusions")]:
             assert isinstance(c_group, list)
             for ix, c in enumerate(c_group):
                 c_id = f"{c_group_name}{ix+1}"
                 solver.assert_and_track(c, c_id)
-                constraint_dict[c_id] = c
+                self.constraint_dict[c_id] = c
         # solver.assert_and_track(And(model_constraints.frame_constraints), "frame")
         # solver.assert_and_track(And(model_constraints.model_constraints), "model")
         # solver.assert_and_track(And(model_constraints.premise_constraints), "premises")
@@ -444,3 +444,4 @@ class ModelStructure:
             return
         print(f"\nThere is no {N}-model of:\n")
         self.model_constraints.print_enumerate(output)
+        print([self.constraint_dict[str(c)] for c in self.unsat_core])
