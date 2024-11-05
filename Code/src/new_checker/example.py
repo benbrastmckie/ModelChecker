@@ -217,12 +217,12 @@ conclusions = ["(A \\boxright C)"]
 ### WORKING COUNTERMODELS ###
 #############################
 
-# CF_CM5: COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
-N = 4
-premises = ['(A \\boxright C)','(B \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM5: COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
+# N = 4
+# premises = ['(A \\boxright C)','(B \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM6: COUNTERFACTUAL CONTRAPOSITION
 # N = 3
@@ -446,12 +446,12 @@ model_structure = ModelStructure(
 # print("TEST ALL PROPS", model_structure.all_propositions)
 model_structure.print_all()
 
-# if not model_structure.z3_model:
-#     model_constraints_obj = model_structure.model_constraints
-#     print(model_constraints.sentence_letters)
-#     # print(model_constraints.model_constraints)
-#     # print(model_constraints.premise_constraints)
-#     print(model_structure.unsat_core)
+if not model_structure.z3_model:
+    model_constraints_obj = model_structure.model_constraints
+    print(model_constraints.sentence_letters)
+    # print(model_constraints.model_constraints)
+    # print(model_constraints.premise_constraints)
+    print(model_structure.unsat_core)
 
 
 def bv2s(bitvec):
