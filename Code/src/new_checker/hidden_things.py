@@ -191,6 +191,7 @@ class ModelStructure:
     """Solves and stores the Z3 model for an instance of ModelSetup."""
 
     def __init__(self, model_constraints, max_time=1):
+        self.constraint_dict = {} # hopefully temporary, for unsat_core
 
         # Store arguments
         self.model_constraints = model_constraints
@@ -248,29 +249,18 @@ class ModelStructure:
 
     def solve(self, model_constraints, max_time):
         solver = Solver()
-        self.constraint_dict = {}
-        fc, mc, pc, cc = model_constraints.frame_constraints, model_constraints.model_constraints, model_constraints.premise_constraints, model_constraints.conclusion_constraints
-        for c_group, c_group_name in [(fc, "frame"), (mc, "model"), (pc, "premises"), (cc, "conclusions")]:
-            assert isinstance(c_group, list)
-            for ix, c in enumerate(c_group):
-                c_id = f"{c_group_name}{ix+1}"
-                solver.assert_and_track(c, c_id)
-                self.constraint_dict[c_id] = c
-        # solver.assert_and_track(And(model_constraints.frame_constraints), "frame")
-        # solver.assert_and_track(And(model_constraints.model_constraints), "model")
-        # solver.assert_and_track(And(model_constraints.premise_constraints), "premises")
-        # solver.assert_and_track(And(model_constraints.conclusion_constraints), "conclusions")
-        # solver.add(Implies(fb, And(model_constraints.frame_constraints)))
-        # solver.add(Implies(mb, And(model_constraints.model_constraints)))
-        # solver.add(Implies(pb, And(model_constraints.premise_constraints)))
-        # solver.add(Implies(cb, And(model_constraints.conclusion_constraints)))
-        # print(model_constraints.premise_constraints)
-        # solver.add(Implies(pb, Not(And(model_constraints.premise_constraints))))
-        # solver.add(model_constraints.all_constraints)
+        # fc, mc, pc, cc = model_constraints.frame_constraints, model_constraints.model_constraints, model_constraints.premise_constraints, model_constraints.conclusion_constraints
+        # for c_group, c_group_name in [(fc, "frame"), (mc, "model"), (pc, "premises"), (cc, "conclusions")]:
+        #     assert isinstance(c_group, list)
+        #     for ix, c in enumerate(c_group):
+        #         c_id = f"{c_group_name}{ix+1}"
+        #         solver.assert_and_track(c, c_id)
+        #         self.constraint_dict[c_id] = c
         solver.set("timeout", int(max_time * 1000))  # time in seconds
         try:
             model_start = time.time()  # start benchmark timer
-            result = solver.check()
+            # result = solver.check()
+            result = solver.check(model_constraints.all_constraints)
             model_end = time.time()  # end benchmark timer
             model_runtime = round(model_end - model_start, 4)
             if result == sat:
