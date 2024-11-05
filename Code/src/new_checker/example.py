@@ -429,9 +429,9 @@ model_constraints = ModelConstraints(
     semantics,
     Proposition,
     contingent_bool,
-    non_null_bool,
+    non_null_bool, # LINTER: argument of type tupple[literal[true]] cannot be assigned to bool in function "__init__"
     disjoint_bool,
-    print_impossible,
+    print_impossible, # LINTER: argument of type tupple[literal[true]] cannot be assigned to bool in function "__init__"
 )
 
 ########################################
