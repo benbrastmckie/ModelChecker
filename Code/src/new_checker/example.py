@@ -102,19 +102,15 @@ conclusions = ["(A \\boxright C)"]
 # premises = ["(A \\boxright C)"]
 # conclusions = ["((A \\wedge B) \\boxright C)"]
 
+
+
+
+
 #####################################
 ##### NOT WORKING COUNTERMODELS #####
 #####################################
 
-# # NOTE: printing not working
-# # # CF_CM8: COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
-# N = 4
-# premises = ['\\neg A','\\neg B','(A \\boxright B)']
-# conclusions = ['(\\neg B \\boxright \\neg A)']
-# # contingent_bool = True
-# # disjoint_bool = False
-
-# NOTE: OrOperator argument number error
+# # NOTE: OrOperator argument number error
 # # CF_CM15: SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
 # N = 3
 # premises = ['\\neg A','(A \\boxright (B \\vee C))']
@@ -135,12 +131,12 @@ conclusions = ["(A \\boxright C)"]
 ### WORKING COUNTERMODELS ###
 #############################
 
-# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 3
-# premises = ['(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-# contingent_bool = True
-# disjoint_bool = False
+# CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+N = 3
+premises = ['(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
+contingent_bool = True
+disjoint_bool = False
 
 # # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
 # N = 4
@@ -154,6 +150,13 @@ conclusions = ["(A \\boxright C)"]
 # N = 4
 # premises = ['\\neg B','(A \\boxright B)']
 # conclusions = ['(\\neg B \\boxright neg A)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # CF_CM8: COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
+# N = 4
+# premises = ['\\neg A','\\neg B','(A \\boxright B)']
+# conclusions = ['(\\neg B \\boxright \\neg A)']
 # contingent_bool = True
 # disjoint_bool = False
 
