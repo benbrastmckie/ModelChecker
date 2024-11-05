@@ -6,12 +6,12 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [x] class architecture
 - [:] implementation
+- [ ] api
+- [ ] applications
+  - [ ] Fine
+  - Champollion
 - [ ] testing
 - [.] documentation
-- [ ] api
-- alternative semantics
-  - Fine
-  - Champollion
 - cli
   - release
 - documentation
@@ -36,6 +36,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [.] counterfactual
       - [ ] debug
       - [ ] print alt worlds
+      - [ ] function to compare constraints for new and old versions
     - [ ] defined operators
       - [ ] add doc strings
     - [ ] modal
@@ -56,15 +57,55 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
       - [x] model runtime
     - [x] dictionary for all propositions for all subsentences
   - [x] general methods for printing
-  - [ ] general methods for saving output
-3. bells and whistles
-  - print constraints flag
-  - print unsat core flag
-  - optimizer flag
-  - progress bar
+  - [ ] print benchmarks
+
+## API
+
+- create `__init__.py` and add all imports used in:
+  - `example.py`
+  - `exposed_things.py`
+- move any functions with general uses to `hidden_helpers.py`
+  - add useful functions from `hidden_helpers.py` to `__init__.py`
+- rebuild package
+- create `api_example.py` to import from `model-checker`
+- confirm `api_example.py` works
+
+## Applications
+
+### Imposition Semantics
+
+- add Z3 primitive for `imposition` from old `model-checker`
+- add frame constraints on `imposition`
+- add imposition semantics for counterfactuals
+- run optimizer on single example to compare to normal semantics:
+  - build diagnostic functions as needed
+  - completion time for each example by atomic complexity `N`
+  - max atomic complexity `N` before timeout
+  - max sentence/atomic complexity before too many constraints to build
+  - other?
+- build unit test to generalize on single example
+  - run unit test on a range of examples
+
+### Exclusion Semantics
+
+- fix Z3 primitive for `exclusion` from old `model-checker`
+- add frame constraints on `exclusion`
+- fix exclusion semantics for counterfactuals
+- run optimizer on single example to compare to negation:
+  - completion time for each example by atomic complexity `N`
+  - max atomic complexity `N` before timeout
+  - max sentence/atomic complexity before too many constraints to build
+  - other?
+- build unit test to generalize on single example
+  - run unit test on a range of examples
+
+## Unit Testing
+
+- [ ] unit tests for new model checker
 
 ## Documentation
 
+- [ ] document applications
 - [ ] code base docstrings
   - [:] `syntactic.py`
     - [ ] defined operators doc string
@@ -78,12 +119,16 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] delete old
   - [ ] decapitalize directories
 
-## Testing
+## CLI
 
-- [ ] unit tests for new model checker
-- [ ] function to compare constraints new and old
+- add save functions to `ModelStructure`
+- flags
+  - print constraints
+  - print unsat core
+  - optimizer
+- progress bar
 
-## Release v0.6
+# Release v0.6
 
 - [ ] subject-matter operators
 - [ ] exposing imports
