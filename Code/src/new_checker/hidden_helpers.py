@@ -245,20 +245,20 @@ def Exists(bvs, formula):
     constraints = []
     if not isinstance(bvs, list):
         bvs = [bvs]
-    bv_test = bvs[0]
-    temp_N = bv_test.size()
-    num_bvs = 2 ** temp_N
+    sample_bv = bvs[0]
+    N = sample_bv.size()
+    num_bvs = 2 ** N
     if len(bvs) == 1:
         bv = bvs[0]
         for i in range(num_bvs):
-            substituted_formula = substitute(formula, (bv, BitVecVal(i, temp_N)))
+            substituted_formula = substitute(formula, (bv, BitVecVal(i, N)))
             constraints.append(substituted_formula)
     else:
         bv = bvs[0]
         remaining_bvs = bvs[1:]
-        reduced_formula = ForAll(remaining_bvs, formula)
+        reduced_formula = Exists(remaining_bvs, formula) # Exists or ForAll?
         for i in range(num_bvs):
-            substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, temp_N)))
+            substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, N)))
             constraints.append(substituted_reduced_formula)
     return Or(constraints)
 

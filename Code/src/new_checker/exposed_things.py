@@ -994,13 +994,13 @@ class CounterfactualOperator(syntactic.Operator):
         sem = self.semantics
         x = z3.BitVec("f_ncf_x", sem.N)
         u = z3.BitVec("f_ncf_u", sem.N)
-        # return Exists(
-        #     [x, u],
-        #     z3.And(
-        #         sem.extended_verify(x, leftarg, eval_world), # need extended_verify
-        #         sem.is_alternative(u, x, eval_world),
-        #         sem.false_at(rightarg, u)),
-        # )
+        return Exists(
+            [x, u],
+            z3.And(
+                sem.extended_verify(x, leftarg, eval_world), # need extended_verify
+                sem.is_alternative(u, x, eval_world),
+                sem.false_at(rightarg, u)),
+        )
         return z3.And(
                 sem.extended_verify(x, leftarg, eval_world), # need extended_verify
                 sem.is_alternative(u, x, eval_world),
@@ -1022,7 +1022,7 @@ class CounterfactualOperator(syntactic.Operator):
         eval_at_model = left_sent_obj.proposition.model_structure.z3_model.evaluate
         if bool(eval_at_model(self.true_at(leftarg, rightarg, eval_world))):
             return {self.semantics.null_bit}, set()
-        if not bool(eval_at_model(self.true_at(leftarg, rightarg, eval_world))):
+        if bool(eval_at_model(self.false_at(leftarg, rightarg, eval_world))):
             return set(), {self.semantics.null_bit}
         raise ValueError()
     
@@ -1033,12 +1033,13 @@ class CounterfactualOperator(syntactic.Operator):
         left_subsentence, right_subsentence = sentence_obj.arguments
         left_subprop_verifiers = left_subsentence.proposition.verifiers
         eval = model_structure.z3_model.evaluate
-        alt_worlds = set()
+        imp_worlds = set()
         for ver in left_subprop_verifiers:
             for pw in world_bits:
                 if eval(is_alt(pw, ver, eval_world)):
-                    alt_worlds.add(pw)
-        imp_worlds = sorted(alt_worlds) # same thing as alt worlds?
+                    imp_worlds.add(pw)
+        # print(imp_worlds)
+        # imp_worlds = sorted(imp_worlds) # same thing as alt worlds?
         imp_world_strings = {bitvec_to_substates(u,N) for u in imp_worlds}
         model_structure.rec_print(left_subsentence, eval_world, indent_num)
         print(

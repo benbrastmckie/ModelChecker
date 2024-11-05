@@ -86,6 +86,21 @@ print_impossible=True,
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
 # conclusions = ["C"]
 
+##### Transitivity (model desired)
+premises = ["(A \\boxright B)", "(B \\boxright C)"]
+conclusions = ["(A \\boxright C)"]
+
+##### Weakened Transitivity (no model desired)
+# premises = ["(A \\boxright B)", "((A \\wedge B) \\boxright C)"]
+# conclusions = ["(A \\boxright C)"]
+
+##### Simplification of Disjunctive Antecedent (no model desired)
+premises = ["((A \\vee B) \\boxright C)"]
+conclusions = ["(A \\boxright C)"]
+
+##### Strengthening the Antecedent (model desired)
+# premises = ["(A \\boxright C)"]
+# conclusions = ["((A \\wedge B) \\boxright C)"]
 
 #####################################
 ##### NOT WORKING COUNTERMODELS #####
