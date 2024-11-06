@@ -307,9 +307,12 @@ disjoint_bool = False
 #### CONSTITUTIVE NOT WORKING ####
 ##################################
 
-# # FALSE PREMISE MODEL
+# ERROR
+N = 3
 premises = ["A", "(B \\essence A)"]
 conclusions = ["\\neg B"]
+contingent_bool = False
+disjoint_bool = False
 
 
 
