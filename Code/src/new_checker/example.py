@@ -86,57 +86,26 @@ print_impossible=True,
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
 # conclusions = ["C"]
 
-##### Transitivity (model desired)
-premises = ["(A \\boxright B)", "(B \\boxright C)"]
-conclusions = ["(A \\boxright C)"]
-
-##### Weakened Transitivity (no model desired)
-# premises = ["(A \\boxright B)", "((A \\wedge B) \\boxright C)"]
-# conclusions = ["(A \\boxright C)"]
-
-##### Simplification of Disjunctive Antecedent (no model desired)
-premises = ["((A \\vee B) \\boxright C)"]
-conclusions = ["(A \\boxright C)"]
-
-##### Strengthening the Antecedent (model desired)
-# premises = ["(A \\boxright C)"]
-# conclusions = ["((A \\wedge B) \\boxright C)"]
 
 
 
 
+################################
+##### BROKEN COUNTERMODELS #####
+################################
 
-#####################################
-##### NOT WORKING COUNTERMODELS #####
-#####################################
-
-# # NOTE: OrOperator argument number error
-# # CF_CM15: SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
-# N = 3
-# premises = ['\\neg A','(A \\boxright (B \\vee C))']
-# conclusions = ['(A \\boxright B)','(A \\boxright C)']
-# contingent_bool = True
-# disjoint_bool = False
-
-# # NOTE: OrOperator argument number error
-# # CF_CM16: INTRODUCTION OF DISJUNCTIVE ANTECEDENT
-# N = 4
-# premises = ['(A \\boxright C)','(B \\boxright C)']
-# conclusions = ['((A \\vee B) \\boxright C)']
-# contingent_bool = True
-# disjoint_bool = False
-
+# None?
 
 #############################
 ### WORKING COUNTERMODELS ###
 #############################
 
-# CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-N = 3
-premises = ['(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 3
+# premises = ['(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
 # N = 4
@@ -188,6 +157,20 @@ disjoint_bool = False
 # conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 # contingent_bool = True
 # disjoint_bool = False
+
+# # CF_CM15: SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
+# N = 3
+# premises = ['\\neg A','(A \\boxright (B \\vee C))']
+# conclusions = ['(A \\boxright B)','(A \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# CF_CM16: INTRODUCTION OF DISJUNCTIVE ANTECEDENT
+N = 4
+premises = ['(A \\boxright C)','(B \\boxright C)']
+conclusions = ['((A \\vee B) \\boxright C)']
+contingent_bool = True
+disjoint_bool = False
 
 # # CF_CM17: MUST FACTIVITY
 # N = 3
@@ -241,11 +224,11 @@ disjoint_bool = False
 
 
 
-########################################
-### NOT WORKING LOGICAL CONSEQUENCES ###
-########################################
+###################################
+### BROKEN LOGICAL CONSEQUENCES ###
+###################################
 
-# none?
+# None?
 
 ####################################
 ### WORKING LOGICAL CONSEQUENCES ###
@@ -320,6 +303,16 @@ disjoint_bool = False
 
 
 
+##################################
+#### CONSTITUTIVE NOT WORKING ####
+##################################
+
+# # FALSE PREMISE MODEL
+premises = ["A", "(B \\essence A)"]
+conclusions = ["\\neg B"]
+
+
+
 ##############################
 #### CONSTITUTIVE WORKING ####
 ##############################
@@ -363,39 +356,24 @@ disjoint_bool = False
 # premises = ["(A \\ground B)"]
 # conclusions = ["(A \\leq B)"]
 
-
-##################################
-#### CONSTITUTIVE NOT WORKING ####
-##################################
-
-
-# # TRUE CONCLUSION MODEL
 # premises = ["(A \\essence B)"]
 # premises = ["(A \\sqsubseteq B)"]
 # conclusions = ["(\\neg A \\ground \\neg B)"]
 
-# # TRUE CONCLUSION MODEL
 # premises = ["(\\neg A \\essence \\neg B)"]
 # premises = ["(\\neg A \\sqsubseteq \\neg B)"]
 # premises = ["(A \\leq B)"]
 # conclusions = ["(A \\ground B)"]
 
-# # TRUE CONCLUSION MODEL
 # premises = ["(A \\leq B)"]
 # conclusions = ["(\\neg A \\essence \\neg B)"]
 
-# # TRUE CONCLUSION MODEL
 # premises = ["(\\neg A \\leq \\neg B)"]
 # premises = ["(A \\sqsubseteq B)"]
 # conclusions = ["(A \\essence B)"]
 
-# # FALSE PREMISE MODEL
-# premises = ["A", "(B \\essence A)"]
-# conclusions = ["\\neg B"]
-
-# # TRUE CONCLUSION MODEL
 # premises = ["(A \\sqsubseteq B)"]
-# premises = ["(A \\essence B)"]
+# conclusions = ["(A \\essence B)"]
 
 
 

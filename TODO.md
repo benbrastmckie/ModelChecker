@@ -35,8 +35,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
       - [x] define two primitive extremal operators in `exposed_things.py`
       - [ ] add print methods
     - [:] counterfactual
-      - [:] debug
-      - [x] print alt worlds
+      - [x] debug
+      - [x] add print method
       - [.] function to compare constraints for new and old versions
     - [ ] defined operators
       - [ ] debug given `sentence_obj` integration
