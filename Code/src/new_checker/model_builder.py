@@ -381,32 +381,53 @@ class ModelStructure:
                     file=output,
                 )
 
-    def rec_print(self, sentence, eval_world, indent):
-        # all_sentences = self.all_sentences
+    # def rec_print(self, sentence, eval_world, indent):
+    #     # all_sentences = self.all_sentences
+    #
+    #     # B: DISCUSS should print_proposition be moved to the Sentence class?
+    #     # that way it could call itself instead of storing sent_obj in props.
+    #     # either way, I'm thinking print_proposition should dispatch to a method
+    #     # in Proposition class to print sentence letters, and otherwise dispatch
+    #     # to operators to look up the appropriate print method so that all
+    #     # printing is defined alongside the semantics in each operator or in
+    #     # Proposition which is also defined by the user.
+    #
+    #     sentence.proposition.print_proposition(eval_world, indent)
+    #     if (len(sentence.prefix_object) == 1):  # prefix has operator instances and AtomSorts
+    #         return
+    #
+    #     # B: I think eventually all operators should have a print method
+    #     if not hasattr(sentence.prefix_operator, 'print_operator'):
+    #         for sentence_arg in sentence.arguments:
+    #             self.rec_print(sentence_arg, eval_world, indent + 1)
+    #
+    #     # B: I think eventually all operators should have a print method
+    #     if self.prefix_operator and hasattr(self.prefix_operator, 'print_operator'):
+    #         self.prefix_operator.print_operator(self, eval_world, indent_num)
 
-        # B: DISCUSS should print_proposition be moved to the Sentence class?
-        # that way it could call itself instead of storing sent_obj in props.
-        # either way, I'm thinking print_proposition should dispatch to a method
-        # in Proposition class to print sentence letters, and otherwise dispatch
-        # to operators to look up the appropriate print method so that all
-        # printing is defined alongside the semantics in each operator or in
-        # Proposition which is also defined by the user.
 
-        sentence.proposition.print_proposition(eval_world, indent)
-        if (len(sentence.prefix_object) == 1):  # prefix has operator instances and AtomSorts
+    # M: eventually, we need to add a condition on unilateral or bilateral semantics
+    # so that one set vs two is printed (one for unilateral, two for bilateral)
+    # B: I think it is OK to leave it to the user to change how things get
+    # printed where this is defined here. There could in general be many changes
+    # that users may want to make and so I don't think it is necessary to
+    # anticipate all of them. But it will be good to experiment with Lukas'
+    # semantics to see how making those changes go.
+
+    def recursive_print(self, sentence, eval_world, indent_num=0):
+        # TODO: update operator if top or bot
+        if sentence.prefix_operator is None:  # print sentence letter
+            sentence.proposition.print_proposition(eval_world, indent_num)
             return
+        op = sentence.prefix_operator
+        if sentence.arguments is None:  # print extremal element
+            op.print_proposition(eval_world, indent_num)
+            return
+        op.print_method(sentence, eval_world, indent_num)  # print complex sentence
 
-        # B: I think eventually all operators should have a print method
-        if not hasattr(sentence.prefix_operator, 'print_operator'):
-            for sentence_arg in sentence.arguments:
-                self.rec_print(sentence_arg, eval_world, indent + 1)
-
-    def print_inputs_recursively(self, output):
-        """does rec_print for every proposition in the input propositions
-        returns None"""
+    def print_input_sentences(self, output):
+        """Runs recursive_print for each premise and conclusion."""
         initial_eval_world = self.main_world
-        # premises = self.model_constraints.syntax.premises
-        # conclusions = self.model_constraints.syntax.conclusions
         start_conclusion_number = len(self.premises) + 1
         if self.premises:
             if len(self.premises) < 2:
@@ -415,9 +436,7 @@ class ModelStructure:
                 print("INTERPRETED PREMISES:\n", file=output)
             for index, sentence in enumerate(self.premises, start=1):
                 print(f"{index}.", end="", file=output)
-                # B: I think right here we could call a print method in Sentence
-                self.rec_print(sentence, initial_eval_world, 1)
-                # input_prop.print_proposition(initial_eval_world, 1)
+                self.recursive_print(sentence, initial_eval_world, 1)
                 print(file=output)
         if self.conclusions:
             if len(self.conclusions) < 2:
@@ -428,8 +447,7 @@ class ModelStructure:
                 self.conclusions, start=start_conclusion_number
             ):
                 print(f"{index}.", end="", file=output)
-                # B: I think right here we could call a print method in Sentence
-                self.rec_print(sentence, initial_eval_world, 1)
+                self.recursive_print(sentence, initial_eval_world, 1)
                 print(file=output)
 
     def print_all(self, output=sys.__stdout__):
@@ -441,7 +459,7 @@ class ModelStructure:
             self.model_constraints.print_enumerate(output)
             self.print_states(output)
             self.print_evaluation(output)
-            self.print_inputs_recursively(output)
+            self.print_input_sentences(output)
             return
         print(f"\nThere is no {N}-model of:\n")
         self.model_constraints.print_enumerate(output)

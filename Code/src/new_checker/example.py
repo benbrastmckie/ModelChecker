@@ -168,12 +168,12 @@ print_impossible_bool = True
 # contingent_bool = True
 # disjoint_bool = False
 
-# CF_CM16: INTRODUCTION OF DISJUNCTIVE ANTECEDENT
-N = 4
-premises = ['(A \\boxright C)','(B \\boxright C)']
-conclusions = ['((A \\vee B) \\boxright C)']
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM16: INTRODUCTION OF DISJUNCTIVE ANTECEDENT
+# N = 4
+# premises = ['(A \\boxright C)','(B \\boxright C)']
+# conclusions = ['((A \\vee B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM17: MUST FACTIVITY
 # N = 3

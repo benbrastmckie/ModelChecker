@@ -13,6 +13,39 @@ import syntactic
 ############################ EXTENSIONAL OPERATORS ############################
 ###############################################################################
 
+class NegationOperator(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\neg"
+    arity = 1
+
+    def true_at(self, arg, eval_world):
+        """doc string place holder"""
+        return self.semantics.false_at(arg, eval_world)
+
+    def false_at(self, arg, eval_world):
+        """doc string place holder"""
+        return self.semantics.true_at(arg, eval_world)
+
+    def extended_verify(self, state, arg, eval_world):
+        return self.semantics.extended_falsify(state, arg, eval_world)
+    
+    def extended_falsify(self, state, arg, eval_world):
+        return self.semantics.extended_verify(state, arg, eval_world)
+
+    def find_verifiers_and_falsifiers(self, arg_sent_obj, eval_world):
+        Y_V, Y_F = arg_sent_obj.proposition.find_proposition()
+        return Y_F, Y_V
+
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints the argument."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        argument = sentence_obj.arguments[0]
+        indent_num += 1
+        model_structure.recursive_print(argument, eval_world, indent_num)
+
 
 class AndOperator(syntactic.Operator):
     """doc string place holder"""
@@ -64,6 +97,16 @@ class AndOperator(syntactic.Operator):
         Z_V, Z_F = right_sent_obj.proposition.find_proposition()
         return sem.product(Y_V, Z_V), sem.coproduct(Y_F, Z_F)
     
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        left_sent_obj, right_sent_obj = sentence_obj.arguments
+        indent_num += 1
+        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
+        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+
 
 class OrOperator(syntactic.Operator):
     """doc string place holder"""
@@ -111,31 +154,16 @@ class OrOperator(syntactic.Operator):
         Z_V, Z_F = right_sent_obj.proposition.find_proposition()
         return sem.coproduct(Y_V, Z_V), sem.product(Y_F, Z_F)
     
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        left_sent_obj, right_sent_obj = sentence_obj.arguments
+        indent_num += 1
+        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
+        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
 
-class NegationOperator(syntactic.Operator):
-    """doc string place holder"""
-
-    name = "\\neg"
-    arity = 1
-
-    def true_at(self, arg, eval_world):
-        """doc string place holder"""
-        return self.semantics.false_at(arg, eval_world)
-
-    def false_at(self, arg, eval_world):
-        """doc string place holder"""
-        return self.semantics.true_at(arg, eval_world)
-
-    def extended_verify(self, state, arg, eval_world):
-        return self.semantics.extended_falsify(state, arg, eval_world)
-    
-    def extended_falsify(self, state, arg, eval_world):
-        return self.semantics.extended_verify(state, arg, eval_world)
-
-    def find_verifiers_and_falsifiers(self, arg_sent_obj, eval_world):
-        Y_V, Y_F = arg_sent_obj.proposition.find_proposition()
-        return Y_F, Y_V
-    
 
 class ConditionalOperator(syntactic.DefinedOperator):
 
@@ -155,6 +183,9 @@ class BiconditionalOperator(syntactic.DefinedOperator):
         right_to_left = [ConditionalOperator, leftarg, rightarg]
         left_to_right = [ConditionalOperator, rightarg, leftarg]
         return [AndOperator, right_to_left, left_to_right]
+
+
+
 
 
 ################################################################################
@@ -187,6 +218,10 @@ class TopOperator(syntactic.Operator):
     def find_verifiers_and_falsifiers(self):
         return set(self.semantics.all_bits), {self.semantics.full_bit}
 
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+
 
 class BotOperator(syntactic.Operator):
     """Bottom element of the space of propositions with respect to ground.
@@ -211,6 +246,13 @@ class BotOperator(syntactic.Operator):
 
     def find_verifiers_and_falsifiers(self):
         return set(), {self.semantics.null_bit}
+
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+
+
+
 
 
 ##############################################################################
@@ -315,6 +357,16 @@ class IdentityOperator(syntactic.Operator):
             return {self.semantics.null_bit}, set()
         return set(), {self.semantics.null_bit}
     
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        left_sent_obj, right_sent_obj = sentence_obj.arguments
+        indent_num += 1
+        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
+        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+
 
 class DefGroundOperator(syntactic.DefinedOperator):
 
@@ -437,6 +489,16 @@ class GroundOperator(syntactic.Operator):
             return {self.semantics.null_bit}, set()
         return set(), {self.semantics.null_bit}
 
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        left_sent_obj, right_sent_obj = sentence_obj.arguments
+        indent_num += 1
+        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
+        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+
 
 class EssenceOperator(syntactic.Operator):
     """doc string place holder"""
@@ -541,6 +603,18 @@ class EssenceOperator(syntactic.Operator):
             return {self.semantics.null_bit}, set()
         return set(), {self.semantics.null_bit}
     
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        left_sent_obj, right_sent_obj = sentence_obj.arguments
+        indent_num += 1
+        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
+        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+        
+
+
 
 
 ##############################################################################
@@ -604,14 +678,15 @@ class CounterfactualOperator(syntactic.Operator):
             return set(), {self.semantics.null_bit}
         raise ValueError()
     
-    # B: 
-    def print_operator(self, prop_obj, eval_world, indent_num):
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
         CYAN, RESET = '\033[36m', '\033[0m'
-        model_structure = prop_obj.model_structure
-        sentence_obj = prop_obj.sentence
-        N = prop_obj.N
+        # B: why doesn't sentence_obj.model_structure exist?
+        model_structure = sentence_obj.proposition.model_structure
         world_bits = model_structure.world_bits
         is_alt = model_structure.semantics.is_alternative
+        # B: why doesn't sentence_obj.N exist?
+        N = sentence_obj.proposition.N
         left_subsentence, right_subsentence = sentence_obj.arguments
         left_subprop_verifiers = left_subsentence.proposition.verifiers
         eval = model_structure.z3_model.evaluate
@@ -623,7 +698,7 @@ class CounterfactualOperator(syntactic.Operator):
         # print(imp_worlds)
         # imp_worlds = sorted(imp_worlds) # same thing as alt worlds?
         imp_world_strings = {bitvec_to_substates(u,N) for u in imp_worlds}
-        model_structure.rec_print(left_subsentence, eval_world, indent_num)
+        model_structure.recursive_print(left_subsentence, eval_world, indent_num)
         print(
             f'{"  " * indent_num}'
             f'{CYAN}{left_subsentence}-alternatives to {bitvec_to_substates(eval_world, N)} = '
@@ -631,7 +706,7 @@ class CounterfactualOperator(syntactic.Operator):
         )
         indent_num += 1
         for u in imp_worlds:
-            model_structure.rec_print(right_subsentence, u, indent_num)
+            model_structure.recursive_print(right_subsentence, u, indent_num)
 
         # 1. get the verifiers for the left subprop
         # 2. find the alt worlds (take ad)
@@ -642,7 +717,7 @@ class CounterfactualOperator(syntactic.Operator):
         # left_subprop_vers = left_subprop['verifiers'] # get the verifiers
         # imp_worlds = self.find_alt_bits(left_subprop_vers, world_bit) # find the alt bits
         # imp_world_strings = {bitvec_to_substates(u,N) for u in imp_worlds}
-        # self.rec_print(left_subprop, world_bit, print_impossible, output, indent)
+        # self.recursive_print(left_subprop, world_bit, print_impossible, output, indent)
         # print(
         #     f'{"  " * indent}'
         #     f'{CYAN}{left_subprop}-alternatives to {bitvec_to_substates(world_bit, N)} = '
@@ -651,7 +726,7 @@ class CounterfactualOperator(syntactic.Operator):
         # )
         # indent += 1
         # for u in imp_worlds:
-        #     self.rec_print(right_subprop, u, print_impossible, output, indent)
+        #     self.recursive_print(right_subprop, u, print_impossible, output, indent)
 
 
 
