@@ -8,11 +8,6 @@ things in hidden_things right now:
 from z3 import (
     sat,
     Solver,
-    Bools,
-    Bool,
-    Implies,
-    And,
-    Not,
 )
 
 import time

@@ -1,9 +1,12 @@
 from hidden_helpers import bitvec_to_substates
 
-# B: when we develop the API, these will reference the users script
-from exposed_things import (
+from semantic import (
     Semantics,
     Proposition,
+)
+
+# B: when we develop the API, these will reference the users script
+from operators import (
     NegationOperator,
     AndOperator,
     OrOperator,
@@ -17,11 +20,10 @@ from exposed_things import (
     DefGroundOperator,
     ConditionalOperator,
     BiconditionalOperator,
-
 )
 
 # NOTE: go in API
-from hidden_things import(
+from model_builder import(
     ModelConstraints,
     ModelStructure,
 )
@@ -53,10 +55,11 @@ operators = syntactic.OperatorCollection(
 ################
 
 N = 3
-contingent_bool=False,
-non_null_bool=True,
-disjoint_bool=False,
-print_impossible=True,
+contingent_bool = False
+disjoint_bool = False
+non_null_bool = True
+print_impossible_bool = True
+
 
 
 
@@ -307,12 +310,12 @@ disjoint_bool = False
 #### CONSTITUTIVE NOT WORKING ####
 ##################################
 
-# ERROR
-N = 3
-premises = ["A", "(B \\essence A)"]
-conclusions = ["\\neg B"]
-contingent_bool = False
-disjoint_bool = False
+# # ERROR
+# N = 3
+# premises = ["A", "(B \\essence A)"]
+# conclusions = ["\\neg B"]
+# contingent_bool = False
+# disjoint_bool = False
 
 
 
@@ -401,10 +404,12 @@ model_constraints = ModelConstraints(
     semantics,
     Proposition,
     contingent_bool,
-    non_null_bool, # LINTER: argument of type tupple[literal[true]] cannot be assigned to bool in function "__init__"
+    non_null_bool,
     disjoint_bool,
-    print_impossible, # LINTER: argument of type tupple[literal[true]] cannot be assigned to bool in function "__init__"
+    print_impossible_bool,
 )
+
+
 
 ########################################
 ### SOLVE, STORE, AND PRINT Z3 MODEL ###
