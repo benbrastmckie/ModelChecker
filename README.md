@@ -20,13 +20,29 @@ This project draws on the SMT solver [Z3](https://github.com/Z3Prover/z3) to pro
 The current version provides tooling for the [hyperintensional semantics](#Hyperintensional-Semantics) briefly discussed below with links to further resources.
 By abstracting on the details of the particular semantics that the current version includes, the version now under development will provide a general purpose tool kit for developing and studying hyperintensional semantic systems.
 This version should be released by the end of 2024.
-See the section on [programmatic semantics](#Programmatic-Semantics) below for more details.
+<!-- See the section on [programmatic semantics](#Programmatic-Semantics) below for more details. -->
 
 ### Screenshot
 
 ![Counterfactual antecedent strengthening screenshot](Images/cf_antecedent_strengthening.png)
 
 > NOTE: Additional images can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Images/screenshots.md).
+
+## Programmatic Semantics
+
+A programmatic methodology in semantics streamlines the otherwise computationally grueling process of developing and testing novel semantic theories.
+By easing the process of investigating increasingly complex semantic theories, this methodology aims to support the growth and maturity of semantics as a discipline.
+Instead of only developing a model-theoretic version of a semantics and working out the consequence by hand or not at all, this project provides resources for writing semantic clauses using [Z3](https://github.com/Z3Prover/z3)'s python API without having to start from scratch by providing users with a host of functionality along with a flexible template that can be easily adapted.
+
+Although computational resources are common place (e.g., one' laptop), the ability to make use of these resources to develop and explore the implications of novel semantic theories remains limited.
+For instance, [Prover9 and Mace](https://www.cs.unm.edu/~mccune/prover9/) are restricted to first-order and equational statements.
+However, for the purposes of semantics, it is desirable to: (1) introduce a range of primitive operators; (2) specify novel semantic clauses for each operator; (3) define the space of models for the resulting language; (4) test which sentences are a logical consequence of which; and (5) print readable countermodels if there are any.
+After developing and testing a semantics for a language, one can develop the corresponding model theory and proof theory with a much better sense of the range of its theorems before establishing soundness or attempting to complete the logic.
+
+Whereas the current version of the model-checker provides a programmatic semantics for the hyperintensional operators indicated above, the next release abstracts on the semantic theory included included as a default so that users may introduce semantic clauses for their own operators.
+Instead of computing whether a given sentence is a logical consequence of some set of sentences by hand, these resources allow users to search for countermodels or establish logical consequence up to a finite level complexity.
+Although computational systems cannot search the space of all models (typically a proper class), proving that there are no models up to some finite level of complexity provides evidence that the logical consequence in question holds in general where the broader the range of models, the stronger the evidence.
+Additionally, if finite countermodels exist, users will be able to generate and print those models rather than attempting to do so by hand which is not only limited, but liable to include errors.
 
 ## Installation
 
@@ -75,13 +91,14 @@ To receive updates about new releases, click the "Watch" button at the top right
 
 ## Instructions
 
-NOTE: Users familiar with the terminal can skip to the [Usage](#Usage) instructions below.
+The following section is intended to help make this software more accessible.
+Users familiar with the terminal can skip to the [Usage](#Usage) instructions below.
 
 ### Terminal
 
-Open the terminal (e.g., hit `Cmd + Space` and type 'terminal' on MacOS) and list the directories with `ls`. 
-Navigate to your desired location with `cd directory/path/...`, replacing 'directory/path/...' accordingly.
-If you do not know the full path, you can change directory one step at a time, running `ls` after each move.
+Open the terminal (on MacOS, hit `Cmd + Space` and type `terminal`, hitting `Return`) and list the directories by typing `ls` and hitting `Return`. 
+Navigate to your desired location with `cd directory/path/...`, replacing `directory/path/...` accordingly.
+If you do not know the full path, you can change directory one step at a time by running `cd next_directory` where `next_directory` is to be replaced with the directory you want to change to, running `ls` after each move to see what to enter next.
 
 Alternatively, if you are on MacOS, write `cd` followed by a space in the terminal but do not hit `return`.
 Then you can open the desired project directory in Finder, dragging the Finder window onto the terminal.
@@ -95,7 +112,7 @@ If you do not want to use Vim (exit with `:qa`), you might consider using this c
 
 ### Usage
 
-To generate a test file run `model-checker` in the terminal without arguments.
+To generate a test file run `model-checker` in the terminal.
 Alternatively, run `model-checker path/to/test_file.py` if the `test_file.py` already exists.
 A number of [examples](https://github.com/benbrastmckie/ModelChecker/blob/master/Examples/examples.py) are provided in the GitHub repository.
 
@@ -186,19 +203,3 @@ Whereas the first three constitutive operators are interdefinable, relevance is 
 - `A preceq B  :=  (A wedge B) leq B :=  (A vee B) sqsubseteq B`.
 
 Instead of a Boolean lattice as in extensional and intensional semantics theories, the space of hyperintensional propositions forms a non-interlaced bilattice as described in this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w), building on [Fine 2017](https://link.springer.com/article/10.1007/s10992-016-9413-y).
-
-## Programmatic Semantics
-
-A programmatic methodology in semantics streamlines the otherwise computationally grueling process of developing and testing novel semantic theories.
-By easing the process of investigating increasingly complex semantic theories, this methodology aims to support the growth and maturity of semantics as a discipline.
-Instead of only developing a model-theoretic version of a semantics and working out the consequence by hand or not at all, this project provides resources for writing semantic clauses using [Z3](https://github.com/Z3Prover/z3)'s python API without having to start from scratch by providing users with a host of functionality along with a flexible template that can be easily adapted.
-
-Although computational resources are common place (e.g., one' laptop), the ability to make use of these resources to develop and explore the implications of novel semantic theories remains limited.
-For instance, [Prover9 and Mace](https://www.cs.unm.edu/~mccune/prover9/) are restricted to first-order and equational statements.
-However, for the purposes of semantics, it is desirable to: (1) introduce a range of primitive operators; (2) specify novel semantic clauses for each operator; (3) define the space of models for the resulting language; (4) test which sentences are a logical consequence of which; and (5) print readable countermodels if there are any.
-After developing and testing a semantics for a language, one can develop the corresponding model theory and proof theory with a much better sense of the range of its theorems before establishing soundness or attempting to complete the logic.
-
-Whereas the current version of the model-checker provides a programmatic semantics for a specific range of hyperintensional operators, the next release abstracts on the semantic theory included included as a default so that users may introduce semantic clauses for their own operators.
-Instead of computing whether a given sentence is a logical consequence of some set of sentences by hand, these resources allow users to search for countermodels or establish logical consequence up to a finite level complexity.
-Although computational systems cannot search the space of all models (typically a proper class), proving that there are no models up to some finite level of complexity provides evidence that the logical consequence in question holds in general where the broader the range of models, the stronger the evidence.
-Additionally, if finite countermodels exist, users will be able to generate and print those models rather than attempting to do so by hand which is not only limited, but liable to include errors.

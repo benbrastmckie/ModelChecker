@@ -74,13 +74,14 @@ To receive updates about new releases, click the "Watch" button at the top right
 
 ## Instructions
 
-NOTE: Users familiar with the terminal can skip to the [Usage](#Usage) instructions below.
+The following section is intended to help make this software more accessible.
+Users familiar with the terminal can skip to the [Usage](#Usage) instructions below.
 
 ### Terminal
 
-Open the terminal (e.g., hit `Cmd + Space` and type 'terminal' on MacOS) and list the directories with `ls`. 
-Navigate to your desired location with `cd directory/path/...`, replacing 'directory/path/...' accordingly.
-If you do not know the full path, you can change directory one step at a time, running `ls` after each move.
+Open the terminal (on MacOS, hit `Cmd + Space` and type `terminal`, hitting `Return`) and list the directories by typing `ls` and hitting `Return`. 
+Navigate to your desired location with `cd directory/path/...`, replacing `directory/path/...` accordingly.
+If you do not know the full path, you can change directory one step at a time by running `cd next_directory` where `next_directory` is to be replaced with the directory you want to change to, running `ls` after each move to see what to enter next.
 
 Alternatively, if you are on MacOS, write `cd` followed by a space in the terminal but do not hit `return`.
 Then you can open the desired project directory in Finder, dragging the Finder window onto the terminal.
@@ -94,7 +95,7 @@ If you do not want to use Vim (exit with `:qa`), you might consider using this c
 
 ### Usage
 
-To generate a test file run `model-checker` in the terminal without arguments.
+To generate a test file run `model-checker` in the terminal.
 Alternatively, run `model-checker path/to/test_file.py` if the `test_file.py` already exists.
 A number of [examples](https://github.com/benbrastmckie/ModelChecker/blob/master/Examples/examples.py) are provided in the GitHub repository.
 
