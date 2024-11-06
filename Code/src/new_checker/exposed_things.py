@@ -429,6 +429,7 @@ class Proposition(PropositionDefaults):
             f"{'  ' * indent_num}{FULL}|{self}| = < {ver_prints}, {fal_prints} >{RESET}"
             f"  {PART}({truth_value} in {world_state}){RESET}"
         )
+        # B: I think eventually all operators should have a print method
         if self.prefix_operator and hasattr(self.prefix_operator, 'print_operator'):
             self.prefix_operator.print_operator(self, eval_world, indent_num)
 
@@ -458,12 +459,15 @@ class AndOperator(syntactic.Operator):
         return z3.Or(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
 
     def extended_verify(self, state, leftarg, rightarg, eval_world):
+        x = z3.BitVec("ex_ver_x", self.semantics.N)
         y = z3.BitVec("ex_ver_y", self.semantics.N)
-        z = z3.BitVec("ex_ver_z", self.semantics.N)
-        return z3.And(
-            self.semantics.fusion(y, z) == state,
-            self.semantics.extended_verify(y, leftarg, eval_world),
-            self.semantics.extended_verify(z, rightarg, eval_world),
+        return Exists(
+            [x, y],
+            z3.And(
+                self.semantics.fusion(x, y) == state,
+                self.semantics.extended_verify(x, leftarg, eval_world),
+                self.semantics.extended_verify(y, rightarg, eval_world),
+            )
         )
     
     def extended_falsify(self, state, leftarg, rightarg, eval_world):
@@ -516,18 +520,18 @@ class OrOperator(syntactic.Operator):
         )
 
     def extended_falsify(self, state, leftarg, rightarg, eval_world):
+        x = z3.BitVec("ex_fal_x", self.semantics.N)
         y = z3.BitVec("ex_fal_y", self.semantics.N)
-        z = z3.BitVec("ex_fal_z", self.semantics.N)
         return Exists(
-            [y, z],
+            [x, y],
             z3.And(
-                state == self.semantics.fusion(y, z),
-                self.semantics.extended_falsify(y, leftarg, eval_world),
-                self.semantics.extended_falsify(z, rightarg, eval_world),
+                state == self.semantics.fusion(x, y),
+                self.semantics.extended_falsify(x, leftarg, eval_world),
+                self.semantics.extended_falsify(y, rightarg, eval_world),
             ),
         )
 
-    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj):
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
         sem = self.semantics
         Y_V, Y_F = left_sent_obj.proposition.find_proposition()
         Z_V, Z_F = right_sent_obj.proposition.find_proposition()
@@ -1001,10 +1005,10 @@ class CounterfactualOperator(syntactic.Operator):
                 sem.is_alternative(u, x, eval_world),
                 sem.false_at(rightarg, u)),
         )
-        return z3.And(
-                sem.extended_verify(x, leftarg, eval_world), # need extended_verify
-                sem.is_alternative(u, x, eval_world),
-                sem.false_at(rightarg, u))
+        # return z3.And(
+        #         sem.extended_verify(x, leftarg, eval_world), # need extended_verify
+        #         sem.is_alternative(u, x, eval_world),
+        #         sem.false_at(rightarg, u))
     
     def extended_verify(self, state, leftarg, rightarg, eval_world):
         # NOTE: add constraint which requires state to be the null_bit
@@ -1026,10 +1030,14 @@ class CounterfactualOperator(syntactic.Operator):
             return set(), {self.semantics.null_bit}
         raise ValueError()
     
+    # B: 
     def print_operator(self, prop_obj, eval_world, indent_num):
         CYAN, RESET = '\033[36m', '\033[0m'
-        model_structure, sentence_obj, N = prop_obj.model_structure, prop_obj.sentence, prop_obj.N
-        world_bits, is_alt = model_structure.world_bits, model_structure.semantics.is_alternative
+        model_structure = prop_obj.model_structure
+        sentence_obj = prop_obj.sentence
+        N = prop_obj.N
+        world_bits = model_structure.world_bits
+        is_alt = model_structure.semantics.is_alternative
         left_subsentence, right_subsentence = sentence_obj.arguments
         left_subprop_verifiers = left_subsentence.proposition.verifiers
         eval = model_structure.z3_model.evaluate

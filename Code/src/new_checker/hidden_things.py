@@ -35,7 +35,10 @@ class PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
 
         # Store values from sentence argument
-        self.sentence = sentence
+        self.sentence = sentence # B: DISCUSS is this a different instance
+        # than the sent_obj that is stored in all_sentences dictionary? given
+        # that model_structure has access to all_sentences, we can use
+        # self.name to look up the sentence in the dictionary.
         self.name = sentence.name
         self.arguments = sentence.arguments
         self.prefix_operator = sentence.prefix_operator
@@ -384,10 +387,21 @@ class ModelStructure:
                 )
 
     def rec_print(self, sentence, eval_world, indent):
-        all_sentences = self.all_sentences
+        # all_sentences = self.all_sentences
+
+        # B: DISCUSS should print_proposition be moved to the Sentence class?
+        # that way it could call itself instead of storing sent_obj in props.
+        # either way, I'm thinking print_proposition should dispatch to a method
+        # in Proposition class to print sentence letters, and otherwise dispatch
+        # to operators to look up the appropriate print method so that all
+        # printing is defined alongside the semantics in each operator or in
+        # Proposition which is also defined by the user.
+
         sentence.proposition.print_proposition(eval_world, indent)
         if (len(sentence.prefix_object) == 1):  # prefix has operator instances and AtomSorts
             return
+
+        # B: I think eventually all operators should have a print method
         if not hasattr(sentence.prefix_operator, 'print_operator'):
             for sentence_arg in sentence.arguments:
                 self.rec_print(sentence_arg, eval_world, indent + 1)
@@ -406,6 +420,7 @@ class ModelStructure:
                 print("INTERPRETED PREMISES:\n", file=output)
             for index, sentence in enumerate(self.premises, start=1):
                 print(f"{index}.", end="", file=output)
+                # B: I think right here we could call a print method in Sentence
                 self.rec_print(sentence, initial_eval_world, 1)
                 # input_prop.print_proposition(initial_eval_world, 1)
                 print(file=output)
@@ -418,6 +433,7 @@ class ModelStructure:
                 self.conclusions, start=start_conclusion_number
             ):
                 print(f"{index}.", end="", file=output)
+                # B: I think right here we could call a print method in Sentence
                 self.rec_print(sentence, initial_eval_world, 1)
                 print(file=output)
 
