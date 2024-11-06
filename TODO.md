@@ -37,11 +37,13 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [:] counterfactual
       - [x] debug
       - [x] add print method
+      - [ ] might counterfactuals
+        - [ ] primitive
+        - [ ] defined
       - [.] function to compare constraints for new and old versions
     - [ ] defined operators
       - [ ] debug given `sentence_obj` integration
       - [ ] add doc strings
-      - [ ] add print methods
     - [ ] modal
       - [ ] primitive
       - [ ] defined in terms of counterfactual and top
