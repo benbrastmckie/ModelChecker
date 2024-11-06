@@ -383,13 +383,6 @@ class Proposition(PropositionDefaults):
             # )
         return exists_verifier
 
-    # M: eventually, we need to add a condition on unilateral or bilateral semantics
-    # so that one set vs two is printed (one for unilateral, two for bilateral)
-    # B: I think it is OK to leave it to the user to change how things get
-    # printed where this is defined here. There could in general be many changes
-    # that users may want to make and so I don't think it is necessary to
-    # anticipate all of them. But it will be good to experiment with Lukas'
-    # semantics to see how making those changes go.
     def print_proposition(self, eval_world, indent_num=0):
         N = self.model_structure.model_constraints.semantics.N
         truth_value = self.truth_value_at(eval_world)
@@ -400,6 +393,7 @@ class Proposition(PropositionDefaults):
             for bit in self.verifiers
             if z3_model.evaluate(possible(bit)) or self.print_impossible
         }
+        # TODO: build empty set into pretty_set_print
         ver_prints = pretty_set_print(ver_states) if ver_states else "∅"
         fal_states = {
             bitvec_to_substates(bit, N)
@@ -409,6 +403,7 @@ class Proposition(PropositionDefaults):
         # temporary fix on unary/binary issue below (the 'is None' bit)
         # B: why not like the comment below? DISCUSS
         # fal_prints = pretty_set_print(fal_states) if fal_states else "∅"
+        # TODO: build empty set into pretty_set_print
         fal_prints = pretty_set_print(fal_states) if fal_states is not None else "∅"
         world_state = bitvec_to_substates(eval_world, N)
         RED = "\033[31m"
@@ -433,6 +428,3 @@ class Proposition(PropositionDefaults):
             f"{'  ' * indent_num}{FULL}|{self}| = < {ver_prints}, {fal_prints} >{RESET}"
             f"  {PART}({truth_value} in {world_state}){RESET}"
         )
-        # B: I think eventually all operators should have a print method
-        if self.prefix_operator and hasattr(self.prefix_operator, 'print_operator'):
-            self.prefix_operator.print_operator(self, eval_world, indent_num)

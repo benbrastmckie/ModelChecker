@@ -112,7 +112,7 @@ class Sentence:
             self.prefix_type,
             model_constraints
         )
-        if self.arguments:
+        if self.arguments or self.name in {'\\top, \\bot'}:
             self.prefix_operator = self.prefix_object[0]
 
     def update_proposition(self, model_structure): # happens in ModelStructure init
