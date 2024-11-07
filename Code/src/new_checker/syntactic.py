@@ -261,11 +261,9 @@ class DefinedOperator(Operator):
         infix_func = list(model_structure.all_sentences.values())[0].infix
         all_sentences = model_structure.all_sentences
         sub_infix = infix_func(sub_derived_prefix_def)
-        print(sub_infix)
         if sub_infix in all_sentences:
             all_sentences[sub_infix].update_proposition(model_structure) # M: idk why this line was necessary
             return all_sentences[sub_infix]
-        # print('recusrive case called for '+sub_infix)
         # recursive case: artificially make the sentence object. 
         mc = model_structure.model_constraints
         oc = mc.operator_collection
@@ -276,28 +274,28 @@ class DefinedOperator(Operator):
         if artificial_sentence.arguments:
             new_artificial_args = []
             for arg in artificial_sentence.arguments:
-                # M: the first 'if' I think is not necessary. Leavign for now in case it actually is
-                # if str(arg) in all_sentences and all_sentences[str(arg)].proposition:
-                #     new_artificial_args.append(all_sentences[str(arg)])
-                # else:
-                    arg.update_prefix_type(oc)
-                    arg.update_prefix_object(mc)
+                if arg not in all_sentences.values():
+                    new_artificial_args.append(all_sentences[str(arg)])
+                else:
                     # need to make another artificial sentence
                     artificial_subsent = self.get_updated_Sentence(arg.prefix_object, model_structure)
                     new_artificial_args.append(artificial_subsent)
             artificial_sentence.arguments = new_artificial_args
         artificial_sentence.update_proposition(model_structure)
-        # print("A\n\n\n\n\n\n\n\n\AAAAAA\m\m\n\n\n")
         return artificial_sentence
     
     def find_verifiers_and_falsifiers(self, *argsents_and_eval_world):
         argsents, eval_world = argsents_and_eval_world[0:-1], argsents_and_eval_world[-1]
         prefix_args = [sent.prefix_object for sent in argsents]
         prefix_def = self.get_derived_prefix_form(prefix_args)
+        # assert False, argsents
         ms = argsents[0].proposition.model_structure
+        # print(list(model_structure.all_sentences.values())[0])
         operator = prefix_def[0]
         new_argsents = [self.get_updated_Sentence(spf, ms) for spf in prefix_def[1:]]
+        # new_argsents = self.helper_for_this(prefix_def, model_structure)
         new_argsents_and_eval_world = new_argsents + [eval_world]
+        # print(new_argsents_and_eval_world)
         return operator.find_verifiers_and_falsifiers(*new_argsents_and_eval_world)
     
 
@@ -407,13 +405,22 @@ class Syntax:
             sentence = Sentence(input)
             subsent_dict = self.sub_dictionary(sentence)
             all_sentences.update(subsent_dict)
-        all_infix_sents = all_sentences.keys()
-        all_prefix_sents_w_comp = [Sentence.prefix('a', ifs) for ifs in all_infix_sents]
-        all_prefix_sents_w_comp_sorted = sorted(all_prefix_sents_w_comp, key=lambda L: L[1])
-        all_prefix_sents = (pfswc[0] for pfswc in all_prefix_sents_w_comp_sorted)
-        all_sents_keys = [infix(pfs) for pfs in all_prefix_sents]
-        sorted_all_sentences = {key: all_sentences[key] for key in all_sents_keys}
+
+        # Sort the sentences by their complexity attribute
+        sorted_sentences = sorted(all_sentences.items(), key=lambda item: item[1].complexity)
+        
+        # Create a dictionary with sorted sentences by complexity
+        sorted_all_sentences = {infix(s.prefix_sentence): s for _, s in sorted_sentences}
+
         return sorted_all_sentences
+
+        # # NOTE: SAVED in case problem with the above
+        # all_infix_sents = all_sentences.keys()
+        # all_prefix_sents_w_comp = [Sentence.prefix('a', ifs) for ifs in all_infix_sents]
+        # all_prefix_sents_w_comp_sorted = sorted(all_prefix_sents_w_comp, key=lambda L: L[1])
+        # all_prefix_sents = (pfswc[0] for pfswc in all_prefix_sents_w_comp_sorted)
+        # all_sents_keys = [infix(pfs) for pfs in all_prefix_sents]
+        # sorted_all_sentences = {key: all_sentences[key] for key in all_sents_keys}
 
     def initialize_prefix_types(self, sentences):
         """Draws on the operator_collection in order to initialize all sentences
