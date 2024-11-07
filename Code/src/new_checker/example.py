@@ -116,12 +116,12 @@ conclusions = ["\\neg B"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
-N = 4
-premises = ['\\neg A','(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
+# N = 4
+# premises = ['\\neg A','(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM7: COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
 # # NOTE: with Z3 quantifiers ran for 125 seconds on the MIT server; now .181 seconds locally
@@ -316,14 +316,7 @@ disjoint_bool = False
 #### CONSTITUTIVE NOT WORKING ####
 ##################################
 
-# # ERROR
-# N = 3
-# premises = ["A", "(B \\essence A)"]
-# conclusions = ["\\neg B"]
-# contingent_bool = False
-# disjoint_bool = False
-
-
+# None?
 
 ##############################
 #### CONSTITUTIVE WORKING ####
@@ -386,6 +379,13 @@ disjoint_bool = False
 
 # premises = ["(A \\sqsubseteq B)"]
 # conclusions = ["(A \\essence B)"]
+
+# # ESSENCE MODUS TOLLEN
+# N = 3
+# premises = ["A", "(B \\essence A)"]
+# conclusions = ["\\neg B"]
+# contingent_bool = False
+# disjoint_bool = False
 
 
 

@@ -280,7 +280,7 @@ class DefinedOperator(Operator):
         new_argsents = [self.get_updated_Sentence(spf, ms) for spf in prefix_def[1:]]
         # new_argsents = self.helper_for_this(prefix_def, model_structure)
         new_argsents_and_eval_world = new_argsents + [eval_world]
-        # print(new_argsents_and_eval_world)
+        print(new_argsents_and_eval_world)
         return operator.find_verifiers_and_falsifiers(*new_argsents_and_eval_world)
     
 
