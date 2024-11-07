@@ -26,6 +26,21 @@ from z3 import Const, DeclareSort
 
 AtomSort = DeclareSort("AtomSort")
 
+def infix(prefix_sent): 
+    """Takes a sentence in prefix notation (in any of the three kinds)
+    and translates it to infix notation (a string).
+    defining a version of this outside sentence for ease of a helper func"""
+    if isinstance(prefix_sent, Operator):
+        return str(prefix_sent)
+    if len(prefix_sent) == 1:
+        return str(prefix_sent[0])
+    op = prefix_sent[0]
+    if len(prefix_sent) == 2:
+        return f"{op} {infix(prefix_sent[1])}"
+    left_expr = prefix_sent[1]
+    right_expr = prefix_sent[2]
+    return f"({infix(left_expr)} {op} {infix(right_expr)})"
+
 class Sentence:
     """Given an infix_sentence as input, an instance of this class store the
     original infix_sentence which is used to name the class instance, as well
@@ -273,14 +288,10 @@ class DefinedOperator(Operator):
         argsents, eval_world = argsents_and_eval_world[0:-1], argsents_and_eval_world[-1]
         prefix_args = [sent.prefix_object for sent in argsents]
         prefix_def = self.get_derived_prefix_form(prefix_args)
-        # assert False, argsents
         ms = argsents[0].proposition.model_structure
-        # print(list(model_structure.all_sentences.values())[0])
         operator = prefix_def[0]
         new_argsents = [self.get_updated_Sentence(spf, ms) for spf in prefix_def[1:]]
-        # new_argsents = self.helper_for_this(prefix_def, model_structure)
         new_argsents_and_eval_world = new_argsents + [eval_world]
-        print(new_argsents_and_eval_world)
         return operator.find_verifiers_and_falsifiers(*new_argsents_and_eval_world)
     
 
@@ -390,12 +401,13 @@ class Syntax:
             sentence = Sentence(input)
             subsent_dict = self.sub_dictionary(sentence)
             all_sentences.update(subsent_dict)
-        all_sents_keys = sorted(all_sentences.keys(), key=len)
-        sorted_ish_all_sentences = {key: all_sentences[key] for key in all_sents_keys}
-        # print(sorted_ish_all_sentences)
-        # assert False, all_sents_keys
-        return sorted_ish_all_sentences
-        return all_sentences
+        all_infix_sents = all_sentences.keys()
+        all_prefix_sents_w_comp = [Sentence.prefix('a', ifs) for ifs in all_infix_sents]
+        all_prefix_sents_w_comp_sorted = sorted(all_prefix_sents_w_comp, key=lambda L: L[1])
+        all_prefix_sents = (pfswc[0] for pfswc in all_prefix_sents_w_comp_sorted)
+        all_sents_keys = [infix(pfs) for pfs in all_prefix_sents]
+        sorted_all_sentences = {key: all_sentences[key] for key in all_sents_keys}
+        return sorted_all_sentences
 
     def initialize_prefix_types(self, sentences):
         """Draws on the operator_collection in order to initialize all sentences
