@@ -67,7 +67,7 @@ print_impossible_bool = True
 ### EXAMPLE STOCK ###
 #####################
 
-premises = ["\\neg (\\bot \\vee B)", "(\\top \\wedge D)"]
+# premises = ["\\neg (\\bot \\vee B)", "(\\top \\wedge D)"]
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["A", "(A \\rightarrow B)"]
 # premises = ["A", "(A \\boxright (B \\wedge C))"]
@@ -83,7 +83,7 @@ premises = ["\\neg (\\bot \\vee B)", "(\\top \\wedge D)"]
 # premises = ["(A \\wedge B)", "((A \\wedge B) \\boxright C)"]
 # premises = ["A", "\\neg A"]
 
-conclusions = ["\\neg E"]
+# conclusions = ["\\neg E"]
 # conclusions = ["B"]
 # conclusions = ["\\neg B"]
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
@@ -103,12 +103,12 @@ conclusions = ["\\neg E"]
 ### WORKING COUNTERMODELS ###
 #############################
 
-# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 3
-# premises = ['(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-# contingent_bool = True
-# disjoint_bool = False
+# CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+N = 3
+premises = ['(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
+contingent_bool = True
+disjoint_bool = False
 
 # # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
 # N = 4

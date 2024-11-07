@@ -45,7 +45,6 @@ class Semantics:
         
         # Define the frame constraints
         x, y = z3.BitVecs("frame_x frame_y", N)
-        # x, y, z = z3.BitVecs("frame_x frame_y frame_z", N)
         self.frame_constraints = [
             ForAll(
                 [x, y],
@@ -53,10 +52,6 @@ class Semantics:
             ),
             self.is_world(self.main_world),
             z3.Not(self.possible(self.full_bit)),
-            # NOTE: was needed to get top and bot to work
-            # ForAll([x, y], Exists(z, self.fusion(x, y) == z)), # M: is this necessary?
-            # NOTE: not needed give that bitvector spaces are complete because finite
-            # worth keeping around for now to do some benchmark testing on later
         ]
 
         # Define invalidity conditions
@@ -209,110 +204,114 @@ class Proposition(PropositionDefaults):
             # and str(self.prefix_object) == str(other.prefix_object)
         )
 
-    # TODO: break this up into smaller methods for each set of constraints
+    # TODO: check logic and doc strings
     def proposition_constraints(self, atom):
-        """."""
+        """
+        Generates Z3 constraints for a sentence letter including the classical
+        constraints and optionally the non-null, contingent, and disjoint
+        constraints depending on the user settings."""
         semantics = self.semantics
         x = z3.BitVec("prop_x", semantics.N)
         y = z3.BitVec("prop_y", semantics.N)
-        non_null_constraints = [
-            z3.Not(semantics.verify(0, atom)),
-            z3.Not(semantics.falsify(0, atom)),
-        ]
-        contingent_constraints = [
-            Exists(
-                x,
-                z3.And(
-                    semantics.possible(x),
-                    semantics.verify(x, atom),
-                )
-            ),
-            Exists(
-                y,
-                z3.And(
-                    semantics.possible(y),
-                    semantics.falsify(y, atom),
-                )
-            ),
-        ]
-        classical_constraints = [
-            ForAll(
-                [x, y],
-                z3.Implies(
-                    z3.And(semantics.verify(x, atom), semantics.verify(y, atom)),
-                    semantics.verify(semantics.fusion(x, y), atom),
+
+        def get_classical_constraints():
+            """The classical_constraints rule out truth_value gaps and gluts."""
+            return [
+                ForAll(
+                    [x, y],
+                    z3.Implies(
+                        z3.And(semantics.verify(x, atom), semantics.verify(y, atom)),
+                        semantics.verify(semantics.fusion(x, y), atom),
+                    ),
                 ),
-            ),
-            ForAll(
-                [x, y],
-                z3.Implies(
-                    z3.And(semantics.falsify(x, atom), semantics.falsify(y, atom)),
-                    semantics.falsify(semantics.fusion(x, y), atom),
+                ForAll(
+                    [x, y],
+                    z3.Implies(
+                        z3.And(semantics.falsify(x, atom), semantics.falsify(y, atom)),
+                        semantics.falsify(semantics.fusion(x, y), atom),
+                    ),
                 ),
-            ),
-            ForAll(
-                [x, y],
-                z3.Implies(
-                    z3.And(semantics.verify(x, atom), semantics.falsify(y, atom)),
-                    z3.Not(semantics.compatible(x, y)),
+                ForAll(
+                    [x, y],
+                    z3.Implies(
+                        z3.And(semantics.verify(x, atom), semantics.falsify(y, atom)),
+                        z3.Not(semantics.compatible(x, y)),
+                    ),
                 ),
-            ),
-            ForAll(
-                x,
-                z3.Implies(
-                    semantics.possible(x),
-                    Exists(
-                        y,
-                        z3.And(
-                            semantics.compatible(x, y),
-                            z3.Or(semantics.verify(y, atom), semantics.falsify(y, atom)),
+                ForAll(
+                    x,
+                    z3.Implies(
+                        semantics.possible(x),
+                        Exists(
+                            y,
+                            z3.And(
+                                semantics.compatible(x, y),
+                                z3.Or(semantics.verify(y, atom), semantics.falsify(y, atom)),
+                            ),
                         ),
                     ),
                 ),
-            ),
-        ]
-        constraints = classical_constraints
-        if self.disjoint:
+            ]
+
+        def get_non_null_constraints():
+            """The non_null_constraints are important to avoid trivializing
+            the disjoin_constraints, but are entailed by the contingent_constraints."""
+            return [
+                z3.Not(semantics.verify(0, atom)),
+                z3.Not(semantics.falsify(0, atom)),
+            ]
+
+        def get_contingent_constraints():
+            """The contingent_constraints entail the non_null_constraints."""
+            return [
+                Exists(
+                    x,
+                    z3.And(semantics.possible(x), semantics.verify(x, atom))
+                ),
+                Exists(
+                    y,
+                    z3.And(semantics.possible(y), semantics.falsify(y, atom))
+                ),
+            ]
+
+        def get_disjoint_constraints():
+            """The non_null_constraints are included in disjoin_constraints."""
             z = z3.BitVec("prop_z", semantics.N)
+            disjoint_constraints = []
             for other_atom in self.sentence_letters:
-                if not other_atom is atom:
-                    disjoin_constraints = [
+                if other_atom is not atom:
+                    disjoint_constraints.append(
                         ForAll(
                             [x, y],
                             z3.Implies(
                                 z3.And(
                                     semantics.non_null_part_of(x, y),
-                                    z3.Or(
-                                        semantics.verify(y, atom),
-                                        semantics.falsify(y, atom)
-                                    )
+                                    z3.Or(semantics.verify(y, atom), semantics.falsify(y, atom)),
                                 ),
                                 ForAll(
                                     z,
                                     z3.Implies(
-                                        z3.Or(
-                                            semantics.verify(z, other_atom),
-                                            semantics.falsify(z, other_atom)
-                                        ),
-                                        z3.Not(semantics.is_part_of(x, z))
+                                        z3.Or(semantics.verify(z, other_atom), semantics.falsify(z, other_atom)),
+                                        z3.Not(semantics.is_part_of(x, z)),
                                     )
                                 )
                             )
                         )
-                    ]
-                    constraints.extend(disjoin_constraints)
-                    constraints += non_null_constraints
-                    # NOTE: non_null_constraints are important to avoid
-                    # trivializing the disjoin_constraints
+                    )
+            return disjoint_constraints
+
+        # Start collecting constraints
+        constraints = get_classical_constraints()
+        # Constraints based on settings
+        if self.disjoint:
+            constraints.extend(get_disjoint_constraints())
+            constraints.extend(get_non_null_constraints())
         if self.contingent:
-            constraints += contingent_constraints
-            # NOTE: contingent_constraints entail non_null_constraints and so
-            # the disjoin_constraints constraints can be skipped
+            constraints.extend(get_contingent_constraints())
         elif self.non_null and not self.disjoint:
-            constraints += non_null_constraints
-            # NOTE: since non_null_constraints are included in the
-            # disjoin_constraints they don't need to be added again here
+            constraints.extend(get_non_null_constraints())
         return constraints
+
 
     def find_proposition(self):
         """takes self, returns the V, F tuple
