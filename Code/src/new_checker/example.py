@@ -20,6 +20,7 @@ from operators import (
     DefGroundOperator,
     ConditionalOperator,
     BiconditionalOperator,
+    DefNecessaryOperator
 )
 
 # NOTE: go in API
@@ -46,6 +47,7 @@ operators = syntactic.OperatorCollection(
     ConditionalOperator,
     BiconditionalOperator,
     CounterfactualOperator,
+    DefNecessaryOperator,
 )
 
 
@@ -69,7 +71,11 @@ print_impossible_bool = True
 
 # premises = ["\\neg (\\bot \\vee B)", "(\\top \\wedge D)"]
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
-# premises = ["A", "(A \\rightarrow B)"]
+premises = ["(A \\rightarrow B)", "A"]
+premises = ["(A \\leftrightarrow B)", "\\Box A"]
+# premises = ["\\Box A", "(A \\leftrightarrow B)"]
+# premises = ["\\Box A"]
+# premises = ["(\\top \\boxright B)"]
 # premises = ["A", "(A \\boxright (B \\wedge C))"]
 # premises = ["A", "(A \\wedge B)"]
 # premises = ["A"]
@@ -85,7 +91,7 @@ print_impossible_bool = True
 
 # conclusions = ["\\neg E"]
 # conclusions = ["B"]
-# conclusions = ["\\neg B"]
+conclusions = ["\\neg B"]
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
 # conclusions = ["C"]
 
@@ -437,6 +443,7 @@ def bv2s(bitvec):
         return bitvec_to_substates(bitvec, N)
     return bv2s_helper(3)
 
+# print(model_structure.all_sentences["(A \\rightarrow B)"].prefix_object)
 # # NOTE: I'm getting an error: 'NoneType' object has no attribute 'evaluate'
 # # there is a similar linter error in ModelStructure.
 # eval = model_structure.z3_model.evaluate

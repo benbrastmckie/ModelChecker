@@ -243,6 +243,7 @@ class ModelStructure:
             self.main_world = self.z3_model[self.main_world]
 
         # Recursively update every prefix_object to store a proposition
+        print(self.all_sentences)
         self.interpret(self.all_sentences.values())
 
     def solve(self, model_constraints, max_time):
