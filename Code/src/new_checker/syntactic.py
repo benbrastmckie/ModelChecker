@@ -288,14 +288,10 @@ class DefinedOperator(Operator):
         argsents, eval_world = argsents_and_eval_world[0:-1], argsents_and_eval_world[-1]
         prefix_args = [sent.prefix_object for sent in argsents]
         prefix_def = self.get_derived_prefix_form(prefix_args)
-        # assert False, argsents
         ms = argsents[0].proposition.model_structure
-        # print(list(model_structure.all_sentences.values())[0])
         operator = prefix_def[0]
         new_argsents = [self.get_updated_Sentence(spf, ms) for spf in prefix_def[1:]]
-        # new_argsents = self.helper_for_this(prefix_def, model_structure)
         new_argsents_and_eval_world = new_argsents + [eval_world]
-        # print(new_argsents_and_eval_world)
         return operator.find_verifiers_and_falsifiers(*new_argsents_and_eval_world)
     
 
