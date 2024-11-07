@@ -157,6 +157,8 @@ class Semantics:
     
     def extended_verify(self, state, prefix_object, eval_world):
         if isinstance(prefix_object, syntactic.Operator):
+            # B: I don't think this ever gets called DISCUSS
+            print("TEST CHANGE")
             return prefix_object.extended_verify(state, eval_world)
         if str(prefix_object[0]).isalnum():
             return self.verify(state, prefix_object[0])
@@ -165,7 +167,9 @@ class Semantics:
     
     def extended_falsify(self, state, prefix_object, eval_world):
         if isinstance(prefix_object, syntactic.Operator):
-            return prefix_object.extended_verify(state, eval_world)
+            # B: I don't think this ever gets called DISCUSS
+            print("TEST CHANGE")
+            return prefix_object.extended_falsify(state, eval_world)
         if str(prefix_object[0]).isalnum():
             return self.falsify(state, prefix_object[0])
         op, args = prefix_object[0], prefix_object[1:]

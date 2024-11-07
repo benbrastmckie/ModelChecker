@@ -73,12 +73,12 @@ print_impossible_bool = True
 
 # premises = ["\\neg (\\bot \\vee B)", "(\\top \\wedge D)"]
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
-premises = ["(A \\rightarrow B)", "A"]
-premises = ["(A \\leftrightarrow B)", "\\Diamond A"]
-premises = ["\\Diamond B"]
+# premises = ["(A \\rightarrow B)", "A"]
+# premises = ["(A \\leftrightarrow B)", "\\Diamond A"]
+# premises = ["\\Diamond B"]
 # premises = ["\\Box A", "(A \\leftrightarrow B)"]
 # premises = ["\\Box A"]
-# premises = ["(\\top \\boxright B)"]
+premises = ["(\\neg \\top \\boxright B)"]
 # premises = ["A", "(A \\boxright (B \\wedge C))"]
 # premises = ["A", "(A \\wedge B)"]
 # premises = ["A"]
@@ -87,7 +87,7 @@ premises = ["\\Diamond B"]
 # premises = ["A", "(A \\rightarrow \\top)"]
 # premises = ["A", "(A \\equiv B)"]
 # premises = ["A", "(A \\leq B)"]
-# premises = ["(A \\boxright B)", "((A \\wedge B) \\boxright C)"]
+# premises = ["(\\neg A \\boxright B)", "((A \\wedge B) \\boxright C)"]
 # premises = ["(A \\boxright B)", "(B \\boxright C)", "A"]
 # premises = ["(A \\wedge B)", "((A \\wedge B) \\boxright C)"]
 # premises = ["A", "\\neg A"]
@@ -115,6 +115,13 @@ conclusions = ["B"]
 # # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # N = 4
 # premises = ['(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # CF_CM3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
+# N = 3
+# premises = ['(A \\boxright C)', '\\Diamond (A \\wedge B)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 # contingent_bool = True
 # disjoint_bool = False
@@ -163,6 +170,28 @@ conclusions = ["B"]
 # contingent_bool = True
 # disjoint_bool = False
 
+# # CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
+# N = 3
+# premises = [
+#     '\\Diamond A',
+#     '(A \\boxright X)',
+#     '\\Diamond (A \\wedge B)',
+#     '\\neg ((A \\wedge B) \\boxright X)', # N = 4: 155.4 seconds on the MIT servers; .1587 seconds in old version; and now .0122 seconds
+#     '\\Diamond ((A \\wedge B) \\wedge C)',
+#     '(((A \\wedge B) \\wedge C) \\boxright X)',
+#     '\\Diamond (((A \\wedge B) \\wedge C) \\wedge D)',
+#     '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
+#     '\\Diamond ((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E)',
+#     '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)', # ? seconds
+#     '\\Diamond (((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F)',
+#     '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)', # ? seconds
+#     '\\Diamond ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G)',
+#     '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # ? seconds
+# ]
+# conclusions = []
+# contingent_bool = True
+# disjoint_bool = False
+
 # # CF_CM14: COUNTERFACTUAL EXCLUDED MIDDLE
 # N = 3
 # premises = ['\\neg A']
@@ -194,6 +223,13 @@ conclusions = ["B"]
 # # CF_CM18: COUNTERFACTUAL EXPORTATION
 # N = 3
 # premises = ['((A \\wedge B) \\boxright C)']
+# conclusions = ['(A \\boxright (B \\boxright C))']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
+# N = 3
+# premises = ['((A \\wedge B) \\boxright C)','\\Diamond (A \\wedge B)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
 # contingent_bool = True
 # disjoint_bool = False

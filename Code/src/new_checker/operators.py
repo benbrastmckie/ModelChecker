@@ -183,24 +183,6 @@ class ConditionalOperator(syntactic.DefinedOperator):
         model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
         model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
 
-class DefNecessaryOperator(syntactic.DefinedOperator):
-
-    name = "\\Box"
-    arity = 1
-
-    def derived_definition(self, rightarg):
-        return [CounterfactualOperator, TopOperator, rightarg]
-    
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        sent_arg = sentence_obj.arguments[0]
-        indent_num += 1
-        model_structure.recursive_print(sent_arg, eval_world, indent_num)
-        # model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
-
 
 class BiconditionalOperator(syntactic.DefinedOperator):
 
@@ -690,9 +672,10 @@ class DefNecessaryOperator(syntactic.DefinedOperator):
         by 1, and prints both of the arguments."""
         sentence_obj.proposition.print_proposition(eval_world, indent_num)
         model_structure = sentence_obj.proposition.model_structure
-        sent_arg, = sentence_obj.arguments
+        sent_arg = sentence_obj.arguments[0]
         indent_num += 1
         model_structure.recursive_print(sent_arg, eval_world, indent_num)
+
 
 class DefPossibleOperator(syntactic.DefinedOperator):
 
@@ -707,7 +690,7 @@ class DefPossibleOperator(syntactic.DefinedOperator):
         by 1, and prints both of the arguments."""
         sentence_obj.proposition.print_proposition(eval_world, indent_num)
         model_structure = sentence_obj.proposition.model_structure
-        sent_arg, = sentence_obj.arguments
+        sent_arg = sentence_obj.arguments[0]
         indent_num += 1
         model_structure.recursive_print(sent_arg, eval_world, indent_num)
 

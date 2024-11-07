@@ -265,7 +265,7 @@ class DefinedOperator(Operator):
         if sub_infix in all_sentences:
             all_sentences[sub_infix].update_proposition(model_structure) # M: idk why this line was necessary
             return all_sentences[sub_infix]
-        print('recusrive case called for '+sub_infix)
+        # print('recusrive case called for '+sub_infix)
         # recursive case: artificially make the sentence object. 
         mc = model_structure.model_constraints
         oc = mc.operator_collection
@@ -287,7 +287,7 @@ class DefinedOperator(Operator):
                     new_artificial_args.append(artificial_subsent)
             artificial_sentence.arguments = new_artificial_args
         artificial_sentence.update_proposition(model_structure)
-        print("A\n\n\n\n\n\n\n\n\AAAAAA\m\m\n\n\n")
+        # print("A\n\n\n\n\n\n\n\n\AAAAAA\m\m\n\n\n")
         return artificial_sentence
     
     def find_verifiers_and_falsifiers(self, *argsents_and_eval_world):
