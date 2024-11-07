@@ -154,7 +154,7 @@ class Semantics:
         assert not isinstance(operator, type), "operator should be an instance of a class"
         args = prefix_object[1:]
         return operator.false_at(*args, eval_world)
-    
+
     def extended_verify(self, state, prefix_object, eval_world):
         if isinstance(prefix_object, syntactic.Operator):
             # B: I don't think this ever gets called DISCUSS
