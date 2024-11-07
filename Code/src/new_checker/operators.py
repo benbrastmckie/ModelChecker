@@ -116,7 +116,7 @@ class OrOperator(syntactic.Operator):
 
     def true_at(self, leftarg, rightarg, eval_world):
         """doc string place holder"""
-        print(f"true_at input types: {type(leftarg), type(eval_world)}")
+        # print(f"true_at input types: {type(leftarg), type(eval_world)}")
         sem = self.semantics
         return z3.Or(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
 
@@ -126,7 +126,7 @@ class OrOperator(syntactic.Operator):
         return z3.And(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
 
     def extended_verify(self, state, leftarg, rightarg, eval_world):
-        print(f"extended_verify input types: {type(leftarg), type(eval_world), type(eval_world)}")
+        # print(f"extended_verify input types: {type(leftarg), type(eval_world), type(eval_world)}")
         return z3.Or(
             self.semantics.extended_verify(state, leftarg, eval_world),
             self.semantics.extended_verify(state, rightarg, eval_world),
@@ -150,8 +150,6 @@ class OrOperator(syntactic.Operator):
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
         sem = self.semantics
-        # print(left_sent_obj, right_sent_obj, eval_world)
-        # assert False
         Y_V, Y_F = left_sent_obj.proposition.find_proposition()
         Z_V, Z_F = right_sent_obj.proposition.find_proposition()
         return sem.coproduct(Y_V, Z_V), sem.product(Y_F, Z_F)
@@ -174,6 +172,34 @@ class ConditionalOperator(syntactic.DefinedOperator):
 
     def derived_definition(self, leftarg, rightarg):
         return [OrOperator, [NegationOperator, leftarg], rightarg]
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        left_sent_obj, right_sent_obj = sentence_obj.arguments
+        indent_num += 1
+        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
+        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+
+class DefNecessaryOperator(syntactic.DefinedOperator):
+
+    name = "\\Box"
+    arity = 1
+
+    def derived_definition(self, rightarg):
+        return [CounterfactualOperator, TopOperator, rightarg]
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        sent_arg, = sentence_obj.arguments
+        indent_num += 1
+        model_structure.recursive_print(sent_arg, eval_world, indent_num)
+        # model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
 
 
 class BiconditionalOperator(syntactic.DefinedOperator):
@@ -185,6 +211,16 @@ class BiconditionalOperator(syntactic.DefinedOperator):
         right_to_left = [ConditionalOperator, leftarg, rightarg]
         left_to_right = [ConditionalOperator, rightarg, leftarg]
         return [AndOperator, right_to_left, left_to_right]
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        left_sent_obj, right_sent_obj = sentence_obj.arguments
+        indent_num += 1
+        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
+        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
 
 
 
