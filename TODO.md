@@ -28,44 +28,34 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] methods for truth and falsity at a world
     - [x] methods for verification and falsification at a world
     - [x] printing methods
-  - [.] operators to implement:
+  - [:] operators to implement:
     - [x] extensional
     - [x] extremal
       - [x] define extremal elements in `hidden_things.py`
       - [x] define two primitive extremal operators in `exposed_things.py`
       - [x] add print methods
-    - [:] counterfactual
+    - [x] must counterfactual
       - [x] debug
       - [x] add print method
-      - [ ] fix indenting
-      - [ ] might counterfactuals
-        - [ ] primitive
-        - [ ] defined
-      - [.] function to compare constraints for new and old versions
+      - [x] fix indenting
     - [ ] defined operators
       - [.] debug given `sentence_obj` integration
       - [ ] add doc strings
+    - [ ] might counterfactual
+      - [ ] primitive
+      - [ ] defined
+      - [ ] benchmarking
+    - [ ] imposition counterfactual
     - [ ] modal
       - [ ] primitive
       - [ ] defined in terms of counterfactual and top
-      - [ ] add print methods
-    - [.] constitutive
+      - [ ] benchmarking
+    - [:] constitutive
       - [x] define primitive identity operator
       - [x] define essence, ground, and relevance in terms of identity
+      - [x] add print methods
       - [ ] debug true conclusion and false premise models
-      - [ ] add print methods
-2. [:] ModelStructure class:
-  - [x] arguments: ModelConstraints instance
-  - [x] attributes:
-    - [x] resulting Z3 model including:
-      - [x] timeout value
-      - [x] model status
-      - [x] Z3 model
-      - [x] model runtime
-    - [x] dictionary for all propositions for all subsentences
-  - [x] general methods for printing
-  - [x] unsat core
-  - [ ] print benchmarks
+      - [ ] benchmarking
 
 ## API
 
@@ -112,6 +102,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] unit tests for new model checker
 - [ ] diagnostics
   - [ ] convert bvs to states in raise Errors
+  - [.] function to compare constraints for new and old versions
 
 ## Documentation
 
@@ -120,8 +111,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [:] `syntactic.py`
     - [ ] defined operators doc string
     - [x] all other doc strings
-  - [ ] `exposed_things.py`
-  - [ ] `hidden_things.py`
+  - [ ] `semantic.py`
+  - [ ] `operators.py`
+  - [ ] `model_builder.py`
   - [ ] `hidden_helpers.py`
 - [ ] _B_ rewrite architecture doc
 - [ ] _B_ write semantics doc
@@ -271,6 +263,18 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] `verifiers`
     - [x] `falsifiers`
     - [x] `truth_at`
+4. [x] ModelStructure class:
+  - [x] arguments: ModelConstraints instance
+  - [x] attributes:
+    - [x] resulting Z3 model including:
+      - [x] timeout value
+      - [x] model status
+      - [x] Z3 model
+      - [x] model runtime
+    - [x] dictionary for all propositions for all subsentences
+  - [x] general methods for printing
+  - [x] unsat core
+  - [x] print benchmarks
 
 ## Documentation
 

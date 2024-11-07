@@ -103,19 +103,19 @@ print_impossible_bool = True
 ### WORKING COUNTERMODELS ###
 #############################
 
-# CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-N = 3
-premises = ['(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
-contingent_bool = True
-disjoint_bool = False
-
-# # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
-# N = 4
-# premises = ['\\neg A','(A \\boxright C)']
+# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 3
+# premises = ['(A \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 # contingent_bool = True
 # disjoint_bool = False
+
+# CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
+N = 4
+premises = ['\\neg A','(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
+contingent_bool = True
+disjoint_bool = False
 
 # # CF_CM7: COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
 # # NOTE: with Z3 quantifiers ran for 125 seconds on the MIT server; now .181 seconds locally
@@ -145,10 +145,10 @@ disjoint_bool = False
 #     '(A \\boxright X)',
 #     '\\neg ((A \\wedge B) \\boxright X)',
 #     '(((A \\wedge B) \\wedge C) \\boxright X)',
-#     # '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)', # NOTE: couldn't get a model here
-#     # '(((((A wedge B) wedge C) wedge D) wedge E) boxright X)', # 20.5 seconds locally
-#     # 'neg ((((((A wedge B) wedge C) wedge D) wedge E) wedge F) boxright X)', # 64 seconds on the MIT servers
-#     # '(((((((A wedge B) wedge C) wedge D) wedge E) wedge F) wedge G) boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
+#     '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
+#     '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)',
+#     '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)',
+#     '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
 # ]
 # conclusions = []
 # contingent_bool = True

@@ -211,8 +211,11 @@ class Proposition(PropositionDefaults):
         constraints and optionally the non-null, contingent, and disjoint
         constraints depending on the user settings."""
         semantics = self.semantics
-        x = z3.BitVec("prop_x", semantics.N)
-        y = z3.BitVec("prop_y", semantics.N)
+        # TODO: move copies into subfunctions renaming variables for readable
+        # unsat_core
+        x, y, z = z3.BitVecs("prop_x prop_y prop_z", semantics.N)
+        # y = z3.BitVec("prop_y", semantics.N)
+        # z = z3.BitVec("prop_z", semantics.N)
 
         def get_classical_constraints():
             """The classical_constraints rule out truth_value gaps and gluts."""
@@ -274,9 +277,43 @@ class Proposition(PropositionDefaults):
                 ),
             ]
 
+        # # OLD
+        # if self.disjoint:
+        #     z = z3.BitVec("prop_z", semantics.N)
+        #     for other_atom in self.sentence_letters:
+        #         if not other_atom is atom:
+        #             disjoin_constraints = [
+        #                 ForAll(
+        #                     [x, y],
+        #                     z3.Implies(
+        #                         z3.And(
+        #                             semantics.non_null_part_of(x, y),
+        #                             z3.Or(
+        #                                 semantics.verify(y, atom),
+        #                                 semantics.falsify(y, atom)
+        #                             )
+        #                         ),
+        #                         ForAll(
+        #                             z,
+        #                             z3.Implies(
+        #                                 z3.Or(
+        #                                     semantics.verify(z, other_atom),
+        #                                     semantics.falsify(z, other_atom)
+        #                                 ),
+        #                                 z3.Not(semantics.is_part_of(x, z))
+        #                             )
+        #                         )
+        #                     )
+        #                 )
+        #             ]
+        #             constraints.extend(disjoin_constraints)
+        #             constraints += non_null_constraints
+        #             # NOTE: non_null_constraints are important to avoid
+        #             # trivializing the disjoin_constraints
+
+        # TODO: fix
         def get_disjoint_constraints():
             """The non_null_constraints are included in disjoin_constraints."""
-            z = z3.BitVec("prop_z", semantics.N)
             disjoint_constraints = []
             for other_atom in self.sentence_letters:
                 if other_atom is not atom:
@@ -286,12 +323,18 @@ class Proposition(PropositionDefaults):
                             z3.Implies(
                                 z3.And(
                                     semantics.non_null_part_of(x, y),
-                                    z3.Or(semantics.verify(y, atom), semantics.falsify(y, atom)),
+                                    z3.Or(
+                                        semantics.verify(y, atom),
+                                        semantics.falsify(y, atom),
+                                    ),
                                 ),
                                 ForAll(
                                     z,
                                     z3.Implies(
-                                        z3.Or(semantics.verify(z, other_atom), semantics.falsify(z, other_atom)),
+                                        z3.Or(
+                                            semantics.verify(z, other_atom),
+                                            semantics.falsify(z, other_atom)
+                                        ),
                                         z3.Not(semantics.is_part_of(x, z)),
                                     )
                                 )

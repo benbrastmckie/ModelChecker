@@ -460,6 +460,8 @@ class ModelStructure:
             self.print_states(output)
             self.print_evaluation(output)
             self.print_input_sentences(output)
+            # TODO: make method for runtime and progress bar
+            print(f"Run time: {self.z3_model_runtime} seconds\n", file=output)
             return
         print(f"\nThere is no {N}-model of:\n")
         self.model_constraints.print_enumerate(output)
