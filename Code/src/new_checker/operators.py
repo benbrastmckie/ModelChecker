@@ -478,7 +478,7 @@ class GroundOperator(syntactic.Operator):
                 x,
                 z3.Implies(
                     sem.extended_falsify(x, rightarg, eval_world),
-                    Exists( # HARD TO REMOVE
+                    Exists(
                         y,
                         z3.And(
                             sem.extended_falsify(y, leftarg, eval_world),
@@ -585,7 +585,7 @@ class EssenceOperator(syntactic.Operator):
                 x,
                 z3.Implies(
                     sem.extended_verify(x, rightarg, eval_world),
-                    Exists( # HARD TO REMOVE
+                    Exists(
                         y,
                         z3.And(
                             sem.extended_verify(y, leftarg, eval_world),
@@ -672,6 +672,44 @@ class EssenceOperator(syntactic.Operator):
         model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
         
 
+##############################################################################
+########################### INSTENSIONAL OPERATORS ###########################
+##############################################################################
+
+
+class DefNecessaryOperator(syntactic.DefinedOperator):
+
+    name = "\\Box"
+    arity = 1
+
+    def derived_definition(self, rightarg):
+        return [CounterfactualOperator, TopOperator, rightarg]
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        sent_arg, = sentence_obj.arguments
+        indent_num += 1
+        model_structure.recursive_print(sent_arg, eval_world, indent_num)
+
+class DefPossibleOperator(syntactic.DefinedOperator):
+
+    name = "\\Diamond"
+    arity = 1
+
+    def derived_definition(self, rightarg):
+        return [NegationOperator, [DefNecessaryOperator, [NegationOperator, rightarg]]]
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        sent_arg, = sentence_obj.arguments
+        indent_num += 1
+        model_structure.recursive_print(sent_arg, eval_world, indent_num)
 
 
 
