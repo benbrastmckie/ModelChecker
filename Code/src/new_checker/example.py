@@ -440,16 +440,16 @@ if not model_structure.z3_model:
     print(model_structure.unsat_core)
 
 
-def bv2s(bitvec):
-    # return bitvec_to_substates(bitvec, 3)
-    def bv2s_helper(N):
-        return bitvec_to_substates(bitvec, N)
-    return bv2s_helper(3)
+# def bv2s(bitvec):
+#     # return bitvec_to_substates(bitvec, 3)
+#     def bv2s_helper(N):
+#         return bitvec_to_substates(bitvec, N)
+#     return bv2s_helper(3)
 
 # # NOTE: I'm getting an error: 'NoneType' object has no attribute 'evaluate'
 # # there is a similar linter error in ModelStructure.
 # eval = model_structure.z3_model.evaluate
-#
+
 # main_world = model_structure.main_world
 # all_worlds = {bit for bit in model_structure.all_bits if eval(semantics.is_world(bit))}
 # print(f"all worlds: {set(bv2s(w) for w in all_worlds)}")
@@ -470,16 +470,3 @@ def bv2s(bitvec):
 # print(model_constraints)
 
 # print("print all props:", model_structure.all_propositions)
-
-# complexity = complexity_of(model_setup.prefix(example))
-# print(f"{example} has complexity {complexity}")
-
-# a = Defined(model_structure.all_propositions['(A \\vee B)'].prefix_object,model_structure)
-# print(str(a))
-# b = Defined(model_structure.all_propositions['A'].prefix_object,model_structure)
-# print(a == b)
-# {a}
-
-# TODO: missing just rec_print
-# test_prop = model_structure.all_propositions['(A \\vee B)']
-# test_prop.print_proposition(model_structure.main_world)
