@@ -164,6 +164,8 @@ class Semantics:
         return op.extended_verify(state, *args, eval_world)
     
     def extended_falsify(self, state, prefix_object, eval_world):
+        if isinstance(prefix_object, syntactic.Operator):
+            return prefix_object.extended_verify(state, eval_world)
         if str(prefix_object[0]).isalnum():
             return self.falsify(state, prefix_object[0])
         op, args = prefix_object[0], prefix_object[1:]
