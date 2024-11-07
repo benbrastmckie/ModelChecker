@@ -175,6 +175,10 @@ class DefinedOperator(Operator):
     primitive = False
 
     def derived_definition(self, leftarg, rightarg):
+        """
+        in (kind of) prefix form give the definition of the operator in terms of other operators
+        what's here is the default form—is here to avoid linter complaints
+        """
         return []
 
     def __init__(self, semantics, loop_check=True):
