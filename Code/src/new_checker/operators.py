@@ -460,7 +460,7 @@ class GroundOperator(syntactic.Operator):
                 x,
                 z3.Implies(
                     sem.extended_falsify(x, rightarg, eval_world),
-                    Exists( # HARD TO REMOVE
+                    Exists(
                         y,
                         z3.And(
                             sem.extended_falsify(y, leftarg, eval_world),
@@ -567,7 +567,7 @@ class EssenceOperator(syntactic.Operator):
                 x,
                 z3.Implies(
                     sem.extended_verify(x, rightarg, eval_world),
-                    Exists( # HARD TO REMOVE
+                    Exists(
                         y,
                         z3.And(
                             sem.extended_verify(y, leftarg, eval_world),
