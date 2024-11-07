@@ -69,9 +69,9 @@ print_impossible_bool = True
 
 # premises = ["\\neg (\\bot \\vee B)", "(C \\wedge D)"]
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
-# premises = ["A", "(A \\rightarrow B)"]
+premises = ["A", "(A \\rightarrow B)"]
 # premises = ["A", "(A \\boxright (B \\wedge C))"]
-# premises = ["A", "(A \\wedge B)"]
+premises = ["A", "(A \\wedge B)"]
 # premises = ["A"]
 # premises = ["(D \\leftrightarrow A)"]
 # premises = ["(\\neg D \\leftrightarrow \\bot)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
@@ -85,7 +85,7 @@ print_impossible_bool = True
 
 # conclusions = ["\\neg C"]
 # conclusions = ["B"]
-# conclusions = ["\\neg B"]
+conclusions = ["\\neg B"]
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
 # conclusions = ["C"]
 

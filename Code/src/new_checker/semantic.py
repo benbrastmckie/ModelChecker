@@ -340,6 +340,13 @@ class Proposition(PropositionDefaults):
                 f"Their is no proposition for {atom}."
             )
         operator = self.prefix_operator
+        print(self.arguments, operator)
+        print([arg.proposition for arg in self.arguments],'\n')
+
+        # for arg in self.arguments:
+
+        #     assert arg in self.model_structure.all_sentences, self.arguments
+        # this above isn't true in normal cases though... not sure what the issue is
         return operator.find_verifiers_and_falsifiers(*self.arguments, self.eval_world)
 
     def truth_value_at(self, world):

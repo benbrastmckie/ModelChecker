@@ -232,7 +232,70 @@ class DefinedOperator(Operator):
         operator, new_args = prefix_def[0], prefix_def[1:]
         return operator.false_at(*new_args, eval_world)
     
-    def find_verifiers_and_falsifiers(self, *argprops):
+    def helper_for_this(self, sub_derived_prefix_def, model_structure):
+        '''
+        should return a new sentence object that is the derived_prefix_def
+        '''
+        # get the Sentence corresponding to the sub_derived_prefix_def
+        # if it doesn't yet exist, make it artificially
+        infix_func = list(model_structure.all_sentences.values())[0].infix
+        all_sentences = model_structure.all_sentences
+        sub_infix = infix_func(sub_derived_prefix_def)
+        if sub_infix in all_sentences:
+            print(sub_infix)
+            return all_sentences[sub_infix]
+        # recursive case: artificially make the sentence object. 
+        mc = model_structure.model_constraints
+        oc = mc.operator_collection
+        artificial_sentence = Sentence(sub_infix)
+        artificial_sentence.update_prefix_type(oc)
+        artificial_sentence.update_prefix_object(mc)
+        artificial_sentence.update_proposition(model_structure)
+        return artificial_sentence
+        # update_prefix_type
+        # update_prefix_obj
+        # update_proposition
+
+
+
+        operator, prefix_args = derived_prefix_def[0], derived_prefix_def[1:]
+        list_of_argsents = []
+        for derived_subprefix in prefix_args:
+            sub_infix = infix_func(derived_subprefix)
+            if sub_infix not in all_sentences:
+                argsent = self.helper_for_this(derived_subprefix, model_structure)
+                print(argsent)
+            else:
+                argsent = all_sentences[sub_infix]
+            list_of_argsents.append(argsent)
+        # return Sentence(infix_func)
+        return list_of_argsents
+        return operator, list_of_argsents
+    
+    def find_verifiers_and_falsifiers(self, *argsents_and_eval_world):
+        argsents, eval_world = argsents_and_eval_world[0:-1], argsents_and_eval_world[-1]
+        prefix_args = [sent.prefix_object for sent in argsents]
+        prefix_def = self.get_derived_prefix_form(prefix_args)
+        # infix_form = 
+        ms = argsents[0].proposition.model_structure
+        # print(list(model_structure.all_sentences.values())[0])
+        operator = prefix_def[0]
+        new_argsents = [self.helper_for_this(spf, ms) for spf in prefix_def[1:]]
+        # new_argsents = self.helper_for_this(prefix_def, model_structure)
+        new_argsents_and_eval_world = new_argsents + [eval_world]
+        print(new_argsents_and_eval_world)
+        return operator.find_verifiers_and_falsifiers(*new_argsents_and_eval_world)
+        infix_func = list(model_structure.all_sentences.values())[0].infix
+        print(model_structure.all_sentences)
+        infix_def = infix_func(prefix_def)
+        # find_V_and_F operates on Sentences
+        # so get Sentence objects for the two
+        # this assumes there's fully built propositions for the Sentence args
+        # so how are the propositions for each Sentence built?
+        #  
+
+        assert False, model_structure.all_sentences['(A \\rightarrow B)']
+
         prefix_args = [prop.prefix_object for prop in argprops]
         prefix_def = self.get_derived_prefix_form(prefix_args)
         prop_class, model_structure = argprops[0].__class__, argprops[0].model_structure
