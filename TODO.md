@@ -33,16 +33,17 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] extremal
       - [x] define extremal elements in `hidden_things.py`
       - [x] define two primitive extremal operators in `exposed_things.py`
-      - [ ] add print methods
+      - [x] add print methods
     - [:] counterfactual
       - [x] debug
       - [x] add print method
+      - [ ] fix indenting
       - [ ] might counterfactuals
         - [ ] primitive
         - [ ] defined
       - [.] function to compare constraints for new and old versions
     - [ ] defined operators
-      - [ ] debug given `sentence_obj` integration
+      - [.] debug given `sentence_obj` integration
       - [ ] add doc strings
     - [ ] modal
       - [ ] primitive

@@ -67,11 +67,11 @@ print_impossible_bool = True
 ### EXAMPLE STOCK ###
 #####################
 
-# premises = ["\\neg (\\bot \\vee B)", "(C \\wedge D)"]
+premises = ["\\neg (\\bot \\vee B)", "(\\top \\wedge D)"]
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
-premises = ["A", "(A \\rightarrow B)"]
+# premises = ["A", "(A \\rightarrow B)"]
 # premises = ["A", "(A \\boxright (B \\wedge C))"]
-premises = ["A", "(A \\wedge B)"]
+# premises = ["A", "(A \\wedge B)"]
 # premises = ["A"]
 # premises = ["(D \\leftrightarrow A)"]
 # premises = ["(\\neg D \\leftrightarrow \\bot)", "((A \\rightarrow (B \\wedge C)) \\wedge D)"]
@@ -83,9 +83,9 @@ premises = ["A", "(A \\wedge B)"]
 # premises = ["(A \\wedge B)", "((A \\wedge B) \\boxright C)"]
 # premises = ["A", "\\neg A"]
 
-# conclusions = ["\\neg C"]
+conclusions = ["\\neg E"]
 # conclusions = ["B"]
-conclusions = ["\\neg B"]
+# conclusions = ["\\neg B"]
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
 # conclusions = ["C"]
 

@@ -420,9 +420,9 @@ class ModelStructure:
             sentence.proposition.print_proposition(eval_world, indent_num)
             return
         op = sentence.prefix_operator
-        if sentence.arguments is None:  # print extremal element
-            op.print_proposition(eval_world, indent_num)
-            return
+        # if sentence.arguments is None:  # print extremal element
+        #     op.print_method(sentence, eval_world, indent_num)
+        #     return
         op.print_method(sentence, eval_world, indent_num)  # print complex sentence
 
     def print_input_sentences(self, output):

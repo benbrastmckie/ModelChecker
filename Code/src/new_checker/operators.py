@@ -150,8 +150,8 @@ class OrOperator(syntactic.Operator):
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
         sem = self.semantics
-        print(left_sent_obj, right_sent_obj, eval_world)
-        assert False
+        # print(left_sent_obj, right_sent_obj, eval_world)
+        # assert False
         Y_V, Y_F = left_sent_obj.proposition.find_proposition()
         Z_V, Z_F = right_sent_obj.proposition.find_proposition()
         return sem.coproduct(Y_V, Z_V), sem.product(Y_F, Z_F)
