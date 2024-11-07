@@ -20,7 +20,8 @@ from operators import (
     DefGroundOperator,
     ConditionalOperator,
     BiconditionalOperator,
-    DefNecessaryOperator
+    DefNecessaryOperator,
+    DefPossibleOperator,
 )
 
 # NOTE: go in API
@@ -48,6 +49,7 @@ operators = syntactic.OperatorCollection(
     BiconditionalOperator,
     CounterfactualOperator,
     DefNecessaryOperator,
+    DefPossibleOperator,
 )
 
 
@@ -72,7 +74,7 @@ print_impossible_bool = True
 # premises = ["\\neg (\\bot \\vee B)", "(\\top \\wedge D)"]
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
 premises = ["(A \\rightarrow B)", "A"]
-premises = ["(A \\leftrightarrow B)", "\\Box A"]
+premises = ["(A \\leftrightarrow B)", "\\Diamond A"]
 # premises = ["\\Box A", "(A \\leftrightarrow B)"]
 # premises = ["\\Box A"]
 # premises = ["(\\top \\boxright B)"]
@@ -110,11 +112,11 @@ conclusions = ["\\neg B"]
 #############################
 
 # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-N = 4
-premises = ['(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
-contingent_bool = True
-disjoint_bool = False
+# N = 4
+# premises = ['(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
 # N = 4
