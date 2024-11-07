@@ -110,7 +110,7 @@ conclusions = ["\\neg B"]
 #############################
 
 # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-N = 3
+N = 4
 premises = ['(A \\boxright C)']
 conclusions = ['((A \\wedge B) \\boxright C)']
 contingent_bool = True
@@ -443,7 +443,6 @@ def bv2s(bitvec):
         return bitvec_to_substates(bitvec, N)
     return bv2s_helper(3)
 
-# print(model_structure.all_sentences["(A \\rightarrow B)"].prefix_object)
 # # NOTE: I'm getting an error: 'NoneType' object has no attribute 'evaluate'
 # # there is a similar linter error in ModelStructure.
 # eval = model_structure.z3_model.evaluate
