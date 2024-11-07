@@ -388,7 +388,7 @@ class IdentityOperator(syntactic.Operator):
             self.false_at(leftarg, rightarg, eval_world)
         )
 
-    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj):
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
         Y_V, Y_F = left_sent_obj.proposition.find_proposition()
         Z_V, Z_F = right_sent_obj.proposition.find_proposition()
         if Y_V == Z_V and Y_F == Z_F:
@@ -414,6 +414,16 @@ class DefGroundOperator(syntactic.DefinedOperator):
     def derived_definition(self, leftarg, rightarg):
         return [IdentityOperator, [OrOperator, leftarg, rightarg], rightarg]
 
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        left_sent_obj, right_sent_obj = sentence_obj.arguments
+        indent_num += 1
+        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
+        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+
 
 class DefEssenceOperator(syntactic.DefinedOperator):
 
@@ -422,6 +432,16 @@ class DefEssenceOperator(syntactic.DefinedOperator):
 
     def derived_definition(self, leftarg, rightarg):
         return [IdentityOperator, [AndOperator, leftarg, rightarg], rightarg]
+
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        left_sent_obj, right_sent_obj = sentence_obj.arguments
+        indent_num += 1
+        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
+        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
 
 
 class GroundOperator(syntactic.Operator):
@@ -518,7 +538,7 @@ class GroundOperator(syntactic.Operator):
             self.false_at(leftarg, rightarg, eval_world)
         )
 
-    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj):
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
         product = self.semantics.product
         coproduct = self.semantics.coproduct
         Y_V, Y_F = left_sent_obj.proposition.find_proposition()
@@ -632,7 +652,7 @@ class EssenceOperator(syntactic.Operator):
             self.false_at(leftarg, rightarg, eval_world)
         )
 
-    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj):
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
         product = self.semantics.product
         coproduct = self.semantics.coproduct
         Y_V, Y_F = left_sent_obj.proposition.find_proposition()
