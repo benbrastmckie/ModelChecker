@@ -156,6 +156,8 @@ class Semantics:
         return operator.false_at(*args, eval_world)
     
     def extended_verify(self, state, prefix_object, eval_world):
+        if isinstance(prefix_object, syntactic.Operator):
+            return prefix_object.extended_verify(state, eval_world)
         if str(prefix_object[0]).isalnum():
             return self.verify(state, prefix_object[0])
         op, args = prefix_object[0], prefix_object[1:]
@@ -339,8 +341,8 @@ class Proposition(PropositionDefaults):
                 f"Their is no proposition for {atom}."
             )
         operator = self.prefix_operator
-        print(self.arguments, operator)
-        print([arg.proposition for arg in self.arguments],'\n')
+        # the reason it doesn't work is because this the fake sentences
+        # have subsentences that are not updated at all
 
         # for arg in self.arguments:
 
