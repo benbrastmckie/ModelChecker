@@ -29,6 +29,32 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] methods for verification and falsification at a world
     - [x] printing methods
   - [:] operators to implement:
+    - [:] defined operators
+      - [x] debug given `sentence_obj` integration
+      - [ ] add doc strings
+    - [ ] might counterfactual
+      - [ ] primitive
+      - [ ] defined
+      - [ ] testing
+      - [ ] benchmarking
+    - [ ] modal
+      - [ ] primitive
+      - [x] defined in terms of counterfactual and top
+      - [ ] testing
+      - [ ] benchmarking
+    - [:] constitutive
+      - [x] define primitive identity operator
+      - [x] define essence, ground, and relevance in terms of identity
+      - [x] add print methods
+      - [x] debug true conclusion and false premise models
+      - [ ] testing
+      - [ ] benchmarking
+    - [ ] imposition counterfactual
+      - [ ] add z3 primitive semantics
+      - [ ] add frame constraints
+      - [ ] define operator
+      - [ ] testing
+      - [ ] benchmarking
     - [x] extensional
     - [x] extremal
       - [x] define extremal elements in `hidden_things.py`
@@ -38,24 +64,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
       - [x] debug
       - [x] add print method
       - [x] fix indenting
-    - [ ] defined operators
-      - [.] debug given `sentence_obj` integration
-      - [ ] add doc strings
-    - [ ] might counterfactual
-      - [ ] primitive
-      - [ ] defined
-      - [ ] benchmarking
-    - [ ] imposition counterfactual
-    - [ ] modal
-      - [ ] primitive
-      - [ ] defined in terms of counterfactual and top
-      - [ ] benchmarking
-    - [:] constitutive
-      - [x] define primitive identity operator
-      - [x] define essence, ground, and relevance in terms of identity
-      - [x] add print methods
-      - [ ] debug true conclusion and false premise models
-      - [ ] benchmarking
 
 ## API
 
