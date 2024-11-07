@@ -110,6 +110,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Unit Testing
 
 - [ ] unit tests for new model checker
+- [ ] diagnostics
+  - [ ] convert bvs to states in raise Errors
 
 ## Documentation
 

@@ -440,14 +440,14 @@ class GroundOperator(syntactic.Operator):
         x = z3.BitVec("f_seq_x", N)
         y = z3.BitVec("f_seq_y", N)
         return z3.Or(
-            Exists( # REMOVABLE
+            Exists(
                 x,
                 z3.And(
                     sem.extended_verify(x, leftarg, eval_world),
                     z3.Not(sem.extended_verify(x, rightarg, eval_world))
                 )
             ),
-            Exists( # REMOVABLE
+            Exists(
                 [x, y],
                 z3.And(
                     sem.extended_falsify(x, leftarg, eval_world),
@@ -455,7 +455,7 @@ class GroundOperator(syntactic.Operator):
                     z3.Not(sem.extended_falsify(sem.fusion(x, y), rightarg, eval_world))
                 ),
             ),
-            Exists( # REMOVABLE
+            Exists(
                 x,
                 z3.And(
                     sem.extended_falsify(x, rightarg, eval_world),
@@ -554,7 +554,7 @@ class EssenceOperator(syntactic.Operator):
         x = z3.BitVec("f_seq_x", N)
         y = z3.BitVec("f_seq_y", N)
         return z3.Or(
-            Exists( # REMOVABLE
+            Exists(
                 [x, y],
                 z3.And(
                     sem.extended_verify(x, leftarg, eval_world),
@@ -562,7 +562,7 @@ class EssenceOperator(syntactic.Operator):
                     z3.Not(sem.extended_verify(sem.fusion(x, y), rightarg, eval_world))
                 ),
             ),
-            Exists( # REMOVABLE
+            Exists(
                 x,
                 z3.And(
                     sem.extended_verify(x, rightarg, eval_world),
@@ -575,7 +575,7 @@ class EssenceOperator(syntactic.Operator):
                     )
                 ),
             ),
-            Exists( # REMOVABLE
+            Exists(
                 x,
                 z3.And(
                     sem.extended_falsify(x, leftarg, eval_world),
@@ -655,60 +655,76 @@ class CounterfactualOperator(syntactic.Operator):
                 sem.is_alternative(u, x, eval_world),
                 sem.false_at(rightarg, u)),
         )
-        # return z3.And(
-        #         sem.extended_verify(x, leftarg, eval_world), # need extended_verify
-        #         sem.is_alternative(u, x, eval_world),
-        #         sem.false_at(rightarg, u))
     
     def extended_verify(self, state, leftarg, rightarg, eval_world):
-        # NOTE: add constraint which requires state to be the null_bit
+        # TODO: add constraint which requires state to be the null_bit
         return self.true_at(leftarg, rightarg, eval_world) # M: I think this is right?
     
     def extended_falsify(self, state, leftarg, rightarg, eval_world):
-        # NOTE: add constraint which requires state to be the null_bit
+        # TODO: add constraint which requires state to be the null_bit
         return self.false_at(leftarg, rightarg, eval_world)
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
-        # M: I went ahead and deleted all the things commented out. I think they're still on the
-        # class_semantics branch if we ever need to look back at them. Feel free to add them
-        # back if you were still using them
         leftarg, rightarg = left_sent_obj.prefix_object, right_sent_obj.prefix_object
         eval_at_model = left_sent_obj.proposition.model_structure.z3_model.evaluate
         if bool(eval_at_model(self.true_at(leftarg, rightarg, eval_world))):
             return {self.semantics.null_bit}, set()
         if bool(eval_at_model(self.false_at(leftarg, rightarg, eval_world))):
             return set(), {self.semantics.null_bit}
-        raise ValueError()
+        raise ValueError(
+            f"{left_sent_obj} {self.name} {right_sent_obj} "
+            f"is neither true nor false in the world {eval_world}."
+        )
     
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        CYAN, RESET = '\033[36m', '\033[0m'
-        # B: why doesn't sentence_obj.model_structure exist?
-        model_structure = sentence_obj.proposition.model_structure
-        world_bits = model_structure.world_bits
+    def calculate_alternative_worlds(self, verifiers, eval_world, model_structure):
+        """Calculate alternative worlds given verifiers and eval_world."""
         is_alt = model_structure.semantics.is_alternative
-        # B: why doesn't sentence_obj.N exist?
-        N = sentence_obj.proposition.N
+        eval = model_structure.z3_model.evaluate
+        world_bits = model_structure.world_bits
+        return {
+            pw for ver in verifiers
+            for pw in world_bits
+            if eval(is_alt(pw, ver, eval_world))
+        }
+
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Print counterfactual and the antecedent in the eval_world. Then
+        print the consequent in each alternative to the evaluation world.
+        """
+        CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
+
+        # B: why doesn't sentence_obj.model_structure exist?
+        proposition = sentence_obj.proposition
+        model_structure = proposition.model_structure
+        N = proposition.N
+        
+        # Print main proposition
+        proposition.print_proposition(eval_world, indent_num)
+        
+        # Increment indentation for nested output
+        indent_num += 1
+        
+        # Retrieve primary subsentences and verifiers
         left_subsentence, right_subsentence = sentence_obj.arguments
         left_subprop_verifiers = left_subsentence.proposition.verifiers
-        eval = model_structure.z3_model.evaluate
-        imp_worlds = set()
-        for ver in left_subprop_verifiers:
-            for pw in world_bits:
-                if eval(is_alt(pw, ver, eval_world)):
-                    imp_worlds.add(pw)
-        # print(imp_worlds)
-        # imp_worlds = sorted(imp_worlds) # same thing as alt worlds?
-        imp_world_strings = {bitvec_to_substates(u,N) for u in imp_worlds}
+        
+        # Calculate alternative worlds
+        alt_worlds = self.calculate_alternative_worlds(left_subprop_verifiers, eval_world, model_structure)
+        alt_world_strings = {bitvec_to_substates(u, N) for u in alt_worlds}
+        
+        # Print left subsentence and alternatives
         model_structure.recursive_print(left_subsentence, eval_world, indent_num)
         print(
-            f'{"  " * indent_num}'
-            f'{CYAN}{left_subsentence}-alternatives to {bitvec_to_substates(eval_world, N)} = '
-            f'{pretty_set_print(imp_world_strings)}{RESET}'
+            f'{"  " * indent_num} {CYAN}{left_subsentence}-alternatives '
+            f'to {bitvec_to_substates(eval_world, N)} = '
+            f'{pretty_set_print(alt_world_strings)}{RESET}'
         )
+        
+        # Increment indentation for right subsentence print
         indent_num += 1
-        for u in imp_worlds:
-            model_structure.recursive_print(right_subsentence, u, indent_num)
+        for alt_world in alt_worlds:
+            model_structure.recursive_print(right_subsentence, alt_world, indent_num)
+
 
         # 1. get the verifiers for the left subprop
         # 2. find the alt worlds (take ad)
