@@ -392,7 +392,7 @@ class Syntax:
             all_sentences.update(subsent_dict)
         all_sents_keys = sorted(all_sentences.keys(), key=len)
         sorted_ish_all_sentences = {key: all_sentences[key] for key in all_sents_keys}
-        print(sorted_ish_all_sentences)
+        # print(sorted_ish_all_sentences)
         # assert False, all_sents_keys
         return sorted_ish_all_sentences
         return all_sentences
