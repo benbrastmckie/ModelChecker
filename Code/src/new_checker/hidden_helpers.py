@@ -277,6 +277,11 @@ def not_implemented_string(cl_name):
             f"{cl_name} class should never be instantiated.")
 
 def flatten(L_of_Ls):
+    """
+    helper for making sure that derived operators are not defined in terms of each other.
+    takes in a list of lists; returns that list of lists flattened. 
+    can in principle flatten a list with any amount of embedding. 
+    """
     flattened = []
     for elem in L_of_Ls:
         if not isinstance(elem, list):
