@@ -35,21 +35,13 @@ import syntactic
 ### SETUP LANGUAGE ###
 
 operators = syntactic.OperatorCollection(
-    AndOperator,
-    NegationOperator,
-    OrOperator,
-    TopOperator,
-    BotOperator,
-    IdentityOperator,
-    GroundOperator,
-    DefEssenceOperator,
-    DefGroundOperator,
-    EssenceOperator,
-    ConditionalOperator,
-    BiconditionalOperator,
-    CounterfactualOperator,
-    DefNecessaryOperator,
-    DefPossibleOperator,
+    AndOperator, NegationOperator, OrOperator, # extensional
+    ConditionalOperator, BiconditionalOperator, # extensional defined
+    TopOperator, BotOperator, # top and bottom zero-place operators
+    IdentityOperator, GroundOperator, EssenceOperator, # constitutive
+    DefEssenceOperator, DefGroundOperator, # constitutive defined
+    DefNecessaryOperator, DefPossibleOperator, # modal defined
+    CounterfactualOperator, # counterfactual
 )
 
 
@@ -419,7 +411,7 @@ conclusions = ["B"]
 # premises = ["(A \\sqsubseteq B)"]
 # conclusions = ["(A \\essence B)"]
 
-# # ESSENCE MODUS TOLLEN
+# # ESSENCE MODUS TOLLENS
 # N = 3
 # premises = ["A", "(B \\essence A)"]
 # conclusions = ["\\neg B"]
@@ -433,14 +425,7 @@ conclusions = ["B"]
 ### GENERATE Z3 CONSTRAINTS ###
 ###############################
 
-syntax = syntactic.Syntax(
-    premises, # list of strings
-    conclusions, # list of strings
-    operators, # is an OperatorCollection instance
-)
-
-# for sent in syntax.all_sentences.values():
-#     print("PRINT TYPE", f"prefix_type {sent.prefix_type} is type {type(sent.prefix_type)}")
+syntax = syntactic.Syntax(premises, conclusions, operators)
 
 semantics = Semantics(N)
 
@@ -455,15 +440,11 @@ model_constraints = ModelConstraints(
 )
 
 
-
 ########################################
 ### SOLVE, STORE, AND PRINT Z3 MODEL ###
 ########################################
 
-model_structure = ModelStructure(
-    model_constraints,
-    max_time=1
-)
+model_structure = ModelStructure(model_constraints, max_time=1)
 
 # print("TEST ALL PROPS", model_structure.all_propositions)
 model_structure.print_all()
