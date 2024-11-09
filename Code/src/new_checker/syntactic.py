@@ -278,10 +278,13 @@ class DefinedOperator(Operator):
         if artificial_sentence.arguments:
             new_artificial_args = []
             for arg in artificial_sentence.arguments:
-                if arg not in all_sentences.values():
-                    new_artificial_args.append(all_sentences[str(arg)])
-                else:
-                    # need to make another artificial sentence
+                # # can only use below with sorting; not working rn
+                # if arg not in all_sentences.values():
+                #     new_artificial_args.append(all_sentences[str(arg)])
+                # else:
+                #     # need to make another artificial sentence
+                    arg.update_prefix_type(oc)
+                    arg.update_prefix_object(mc)
                     artificial_subsent = self.get_updated_Sentence(arg.prefix_object, model_structure)
                     new_artificial_args.append(artificial_subsent)
             artificial_sentence.arguments = new_artificial_args
