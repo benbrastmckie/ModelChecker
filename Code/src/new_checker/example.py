@@ -162,7 +162,7 @@ conclusions = ["B"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
+# CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
 # N = 3
 # premises = [
 #     '\\Diamond A',

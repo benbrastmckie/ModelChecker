@@ -140,9 +140,8 @@ class Semantics:
             sentence_letter = prefix_object[0]
             x = z3.BitVec("t_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
-        operator = prefix_object[0]
+        operator, args = prefix_object[0], prefix_object[1:]
         assert not isinstance(operator, type), "operator should be an instance of a class"
-        args = prefix_object[1:]
         return operator.true_at(*args, eval_world)
 
     def false_at(self, prefix_object, eval_world):
@@ -150,9 +149,8 @@ class Semantics:
             sentence_letter = prefix_object[0]
             x = z3.BitVec("f_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
-        operator = prefix_object[0]
+        operator, args = prefix_object[0], prefix_object[1:]
         assert not isinstance(operator, type), "operator should be an instance of a class"
-        args = prefix_object[1:]
         return operator.false_at(*args, eval_world)
 
     def extended_verify(self, state, prefix_object, eval_world):

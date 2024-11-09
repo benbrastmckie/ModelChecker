@@ -242,17 +242,23 @@ class DefinedOperator(Operator):
         return DefinedOperator.activate_prefix_definition(self, unact_prefix_def)
     
     def true_at(self, *args_and_eval_world):
+        """
+        is the same as false_at except for the behavior at the very end
+        """
         args, eval_world = args_and_eval_world[0:-1], args_and_eval_world[-1]
         prefix_def = self.get_derived_prefix_form(args)
         operator, new_args = prefix_def[0], prefix_def[1:]
         return operator.true_at(*new_args, eval_world)
     
     def false_at(self, *args_and_eval_world):
+        """
+        is the same as true_at except for the behavior at the very end
+        """
         args, eval_world = args_and_eval_world[0:-1], args_and_eval_world[-1]
         prefix_def = self.get_derived_prefix_form(args)
         operator, new_args = prefix_def[0], prefix_def[1:]
-        return operator.false_at(*new_args, eval_world)
-    
+        return operator.true_at(*new_args, eval_world)
+
     def get_updated_Sentence(self, sub_derived_prefix_def, model_structure):
         '''
         given a prefix_object and a ms, gives a Sentence object that has updated
@@ -294,16 +300,12 @@ class DefinedOperator(Operator):
     def find_verifiers_and_falsifiers(self, *argsents_and_eval_world):
         argsents, eval_world = argsents_and_eval_world[0:-1], argsents_and_eval_world[-1]
         prefix_args = [sent.prefix_object for sent in argsents]
-        prefix_def = self.get_derived_prefix_form(prefix_args)
-        # assert False, argsents
+        dprefix_def = self.get_derived_prefix_form(prefix_args) # d for derived
         ms = argsents[0].proposition.model_structure
-        # print(list(model_structure.all_sentences.values())[0])
-        operator = prefix_def[0]
-        new_argsents = [self.get_updated_Sentence(spf, ms) for spf in prefix_def[1:]]
-        # new_argsents = self.helper_for_this(prefix_def, model_structure)
+        doperator, dpfargs = dprefix_def[0], dprefix_def[1:]
+        new_argsents = [self.get_updated_Sentence(spf, ms) for spf in dpfargs]
         new_argsents_and_eval_world = new_argsents + [eval_world]
-        # print(new_argsents_and_eval_world)
-        return operator.find_verifiers_and_falsifiers(*new_argsents_and_eval_world)
+        return doperator.find_verifiers_and_falsifiers(*new_argsents_and_eval_world)
     
 
 class OperatorCollection:
