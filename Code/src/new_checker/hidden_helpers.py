@@ -16,6 +16,7 @@ from z3 import(
     Or,
     substitute,
 ) 
+import z3
 
 ### GENERAL HELPERS ###
 
@@ -202,15 +203,15 @@ def bitvec_to_substates(bit_vec, N):
 ### Z3 HELPERS ###
 
 
-# # M: this is not used right now but may be later
-# def z3_simplify(z3_expr):
-#     """
-#     This will get rid of need for all the bit_ functions.
-#     However, it does not get rid of e.g. find_compatible_parts.
-#     """
-#     if isinstance(z3_expr, BoolRef):
-#         return bool(simplify(z3_expr))
-#     return simplify(z3_expr)
+# M: this is not used right now but may be later
+def z3_simplify(z3_expr):
+    """
+    This will get rid of need for all the bit_ functions.
+    However, it does not get rid of e.g. find_compatible_parts.
+    """
+    if isinstance(z3_expr, z3.BoolRef):
+        return bool(z3.simplify(z3_expr))
+    return z3.simplify(z3_expr)
 
 def ForAll(bvs, formula):
     """
