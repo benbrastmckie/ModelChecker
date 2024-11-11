@@ -103,7 +103,8 @@ class ChampollionSemantics:
         return self.excludes(bit_s, self.total_fusion(set_P))
 
     def individually_excludes(self, bit_s, set_P):
-        # M: I think this works. 
+        # M: I think this works. Had to come up with alt def for condition b
+        # I have a proof, not completely confident on it though
         # condition a
         sub_s, p = z3.BitVecs("sub_s p", self.N)
         P = z3_set(set_P)
@@ -121,7 +122,7 @@ class ChampollionSemantics:
                 Exists(p, z3.And(P[p], self.excludes(x, p))), self.is_part_of(x, Sigma)
             ),
         )
-        # sigma is the least upper bound on excluders of set P
+        # Sigma is the least upper bound on excluders of set P
         Sigma_LUB = z3.Not(
             z3.Exists(
                 z,
