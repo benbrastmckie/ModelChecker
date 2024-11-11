@@ -19,8 +19,17 @@ import syntactic
 class ChampollionSemantics:
     def __init__(self, N):
         self.N = N
+        self.verify = z3.Function(
+            "verify", # name
+            z3.BitVecSort(N), # first argument type: bitvector
+            syntactic.AtomSort, # second argument type: sentence letter
+            z3.BoolSort() # return type
+        )
         self.excludes = z3.Function(
-            "excludes", z3.BitVecSort(N), z3.BitVecSort(N), z3.BoolSort()
+            "excludes", # name
+            z3.BitVecSort(N), # first argument type: bitvector
+            z3.BitVecSort(N), # second argument type: bitvector
+            z3.BoolSort() # return type
         )
         # NOTE: anything else?
         self.main_world = z3.BitVec("w", N)
@@ -42,6 +51,7 @@ class ChampollionSemantics:
                 z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)
             ),
         )
+        # B: this is really nice and readable
         self.frame_constraints = [
             exclusion_symmetry,
             possibility_downard_closure,
