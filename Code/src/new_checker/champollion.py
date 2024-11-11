@@ -114,7 +114,7 @@ class ChampollionSemantics:
         )
         # condition b
         # Sigma is upper bound on excluders of set P
-        Sigma = z3.BitVec(str(set_P), self.N)
+        Sigma = z3.BitVec(str(set_P), self.N) # M: I think needs a unique name, hence str(set_P). though this soln is very untenable for debugging
         x, y, z, p = z3.BitVecs("x y z p", self.N)
         Sigma_UB = z3.ForAll(
             x,
