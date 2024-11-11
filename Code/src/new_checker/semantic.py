@@ -140,9 +140,8 @@ class Semantics:
             sentence_letter = prefix_object[0]
             x = z3.BitVec("t_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
-        operator = prefix_object[0]
+        operator, args = prefix_object[0], prefix_object[1:]
         assert not isinstance(operator, type), "operator should be an instance of a class"
-        args = prefix_object[1:]
         return operator.true_at(*args, eval_world)
 
     def false_at(self, prefix_object, eval_world):
@@ -150,9 +149,8 @@ class Semantics:
             sentence_letter = prefix_object[0]
             x = z3.BitVec("f_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
-        operator = prefix_object[0]
+        operator, args = prefix_object[0], prefix_object[1:]
         assert not isinstance(operator, type), "operator should be an instance of a class"
-        args = prefix_object[1:]
         return operator.false_at(*args, eval_world)
 
     def extended_verify(self, state, prefix_object, eval_world):
@@ -222,8 +220,6 @@ class Proposition(PropositionDefaults):
         # TODO: move copies into subfunctions renaming variables for readable
         # unsat_core
         x, y, z = z3.BitVecs("prop_x prop_y prop_z", semantics.N)
-        # y = z3.BitVec("prop_y", semantics.N)
-        # z = z3.BitVec("prop_z", semantics.N)
 
         def get_classical_constraints():
             """The classical_constraints rule out truth_value gaps and gluts."""
@@ -284,7 +280,7 @@ class Proposition(PropositionDefaults):
                     z3.And(semantics.possible(y), semantics.falsify(y, atom))
                 ),
             ]
-
+        # TODO: in spirit of cleaning things up a bit can below be deleted?
         # # OLD
         # if self.disjoint:
         #     z = z3.BitVec("prop_z", semantics.N)
@@ -390,13 +386,6 @@ class Proposition(PropositionDefaults):
                 f"Their is no proposition for {atom}."
             )
         operator = self.prefix_operator
-        # the reason it doesn't work is because this the fake sentences
-        # have subsentences that are not updated at all
-
-        # for arg in self.arguments:
-
-        #     assert arg in self.model_structure.all_sentences, self.arguments
-        # this above isn't true in normal cases though... not sure what the issue is
         return operator.find_verifiers_and_falsifiers(*self.arguments, self.eval_world)
 
     def truth_value_at(self, world):
@@ -417,6 +406,7 @@ class Proposition(PropositionDefaults):
                 fal_witness = fal_bit
                 exists_falsifier = True
                 break
+        # TODO: in spirit of cleaning things up a bit can below be deleted?
         # print( # NOTE: a warning is preferable to raising an error
         #     f"WARNING: the world {bitvec_to_substates(world)} contains both:\n "
         #     f"  The verifier {bitvec_to_substates(ver_witness)}; and"
@@ -429,6 +419,7 @@ class Proposition(PropositionDefaults):
                 f"  The verifier {index_to_substate(ver_witness)}; and"
                 f"  The falsifier {index_to_substate(fal_witness)}."
             )
+            # TODO: in spirit of cleaning things up a bit can below be deleted?
             # if exists_verifier:
             #     raise ValueError(
             #         f"The world {world} has both a verifier and falsifier "
@@ -450,8 +441,6 @@ class Proposition(PropositionDefaults):
             for bit in self.verifiers
             if z3_model.evaluate(possible(bit)) or self.print_impossible
         }
-        # TODO: build empty set into pretty_set_print
-        ver_prints = pretty_set_print(ver_states) if ver_states else "∅"
         fal_states = {
             bitvec_to_substates(bit, N)
             for bit in self.falsifiers
@@ -459,22 +448,24 @@ class Proposition(PropositionDefaults):
         }
         # temporary fix on unary/binary issue below (the 'is None' bit)
         # B: why not like the comment below? DISCUSS
-        # fal_prints = pretty_set_print(fal_states) if fal_states else "∅"
-        # TODO: build empty set into pretty_set_print
-        fal_prints = pretty_set_print(fal_states) if fal_states is not None else "∅"
+        # M: NOTE: this was in reference to 'is not None' condition on fal_states for fal_print
+        # M: thought of it as what would be needed for unilateral semantics. 
+        # but since this Proposition class is unique to this bilateral semantics
+        # I think we can remove it. In any case there's a high chance what we actually
+        # need for unilateral semantics is something else
+        ver_prints = pretty_set_print(ver_states)
+        fal_prints = pretty_set_print(fal_states)
+        # # TODO: build empty set into pretty_set_print
+        # # M: above TODO is done
+        # fal_prints = pretty_set_print(fal_states) if fal_states is not None else "no fals states"
         world_state = bitvec_to_substates(eval_world, N)
-        RED = "\033[31m"
-        GREEN = "\033[32m"
-        RESET = "\033[0m"
-        FULL = "\033[37m"
-        PART = "\033[33m"
+        # DISCUSS: move colors into hidden_helpers? or a similar file with useful helpers? 
+        # ik we discussed smth like that earlier. I think it'd be good to have one file
+        # for helpers not useful to users and one with helpers/things (these would be candidates)
+        # useful to users
+        RED, GREEN, RESET, FULL, PART = "\033[31m", "\033[32m", "\033[0m", "\033[37m", "\033[33m"
         if indent_num == 1:
-            if truth_value:
-                FULL = GREEN
-                PART = GREEN
-            if not truth_value:
-                FULL = RED
-                PART = RED
+            FULL, PART = (GREEN, GREEN) if truth_value else (RED, RED)
             if truth_value is None:
                 world_state = bitvec_to_substates(eval_world, N)
                 print(

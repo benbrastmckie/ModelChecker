@@ -16,6 +16,7 @@ from z3 import(
     Or,
     substitute,
 ) 
+import z3
 
 ### GENERAL HELPERS ###
 
@@ -201,16 +202,29 @@ def bitvec_to_substates(bit_vec, N):
 
 ### Z3 HELPERS ###
 
+def z3_set(python_set, N):
+    z3_set = z3.EmptySet(z3.BitVecSort(N))
+    for elem in python_set:
+        z3_set = z3.SetAdd(z3_set, elem)
+    return z3_set
 
-# # M: this is not used right now but may be later
-# def z3_simplify(z3_expr):
-#     """
-#     This will get rid of need for all the bit_ functions.
-#     However, it does not get rid of e.g. find_compatible_parts.
-#     """
-#     if isinstance(z3_expr, BoolRef):
-#         return bool(simplify(z3_expr))
-#     return simplify(z3_expr)
+def z3_set_to_python_set(z3_set, domain):
+    python_set = set()
+    for elem in domain:
+        if z3.simplify(z3.IsMember(elem, z3_set)):
+            python_set.add(elem)
+    return python_set
+
+
+# M: this is not used right now but may be later
+def z3_simplify(z3_expr):
+    """
+    This will get rid of need for all the bit_ functions.
+    However, it does not get rid of e.g. find_compatible_parts.
+    """
+    if isinstance(z3_expr, z3.BoolRef):
+        return bool(z3.simplify(z3_expr))
+    return z3.simplify(z3_expr)
 
 def ForAll(bvs, formula):
     """
@@ -277,6 +291,11 @@ def not_implemented_string(cl_name):
             f"{cl_name} class should never be instantiated.")
 
 def flatten(L_of_Ls):
+    """
+    helper for making sure that derived operators are not defined in terms of each other.
+    takes in a list of lists; returns that list of lists flattened. 
+    can in principle flatten a list with any amount of embedding. 
+    """
     flattened = []
     for elem in L_of_Ls:
         if not isinstance(elem, list):

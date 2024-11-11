@@ -36,22 +36,13 @@ import syntactic
 ### SETUP LANGUAGE ###
 
 operators = syntactic.OperatorCollection(
-    AndOperator,
-    NegationOperator,
-    OrOperator,
-    TopOperator,
-    BotOperator,
-    IdentityOperator,
-    GroundOperator,
-    DefEssenceOperator,
-    DefGroundOperator,
-    EssenceOperator,
-    ConditionalOperator,
-    BiconditionalOperator,
-    CounterfactualOperator,
-    MightCounterfactualOperator,
-    DefNecessityOperator,
-    DefPossibilityOperator,
+    AndOperator, NegationOperator, OrOperator, # extensional
+    ConditionalOperator, BiconditionalOperator, # extensional defined
+    TopOperator, BotOperator, # top and bottom zero-place operators
+    IdentityOperator, GroundOperator, EssenceOperator, # constitutive
+    DefEssenceOperator, DefGroundOperator, # constitutive defined
+    DefNecessityOperator, DefPossibilityOperator, # modal defined
+    CounterfactualOperator, MightCounterfactualOperator, # counterfactual
 )
 
 
@@ -76,11 +67,11 @@ print_impossible_bool = True
 # premises = ["\\neg (\\bot \\vee B)", "(\\top \\wedge D)"]
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["(A \\rightarrow B)", "A"]
-# premises = ["(A \\leftrightarrow B)", "\\possible A"]
-# premises = ["\\possible B"]
-premises = ["\\necessary A", "(A \\leftrightarrow B)"]
-# premises = ["\\necessary A"]
-# premises = ["(\\neg \\top \\boxright B)"]
+premises = ["(A \\leftrightarrow B)", "\\Diamond A"]
+# premises = ["\\Diamond B"]
+# premises = ["\\Box A", "(A \\leftrightarrow B)"]
+# premises = ["\\Box A"]
+premises = ["(\\neg \\top \\boxright B)"]
 # premises = ["A", "(A \\boxright (B \\wedge C))"]
 # premises = ["A", "(A \\wedge B)"]
 # premises = ["A"]
@@ -178,7 +169,7 @@ conclusions = ["C"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
+# CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
 # N = 3
 # premises = [
 #     '\\possible A',
@@ -427,7 +418,7 @@ conclusions = ["C"]
 # premises = ["(A \\sqsubseteq B)"]
 # conclusions = ["(A \\essence B)"]
 
-# # ESSENCE MODUS TOLLEN
+# # ESSENCE MODUS TOLLENS
 # N = 3
 # premises = ["A", "(B \\essence A)"]
 # conclusions = ["\\neg B"]
@@ -441,14 +432,7 @@ conclusions = ["C"]
 ### GENERATE Z3 CONSTRAINTS ###
 ###############################
 
-syntax = syntactic.Syntax(
-    premises, # list of strings
-    conclusions, # list of strings
-    operators, # is an OperatorCollection instance
-)
-
-# for sent in syntax.all_sentences.values():
-#     print("PRINT TYPE", f"prefix_type {sent.prefix_type} is type {type(sent.prefix_type)}")
+syntax = syntactic.Syntax(premises, conclusions, operators)
 
 semantics = Semantics(N)
 
@@ -463,15 +447,11 @@ model_constraints = ModelConstraints(
 )
 
 
-
 ########################################
 ### SOLVE, STORE, AND PRINT Z3 MODEL ###
 ########################################
 
-model_structure = ModelStructure(
-    model_constraints,
-    max_time=1
-)
+model_structure = ModelStructure(model_constraints, max_time=1)
 
 # print("TEST ALL PROPS", model_structure.all_propositions)
 model_structure.print_all()
