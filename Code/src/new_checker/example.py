@@ -46,7 +46,6 @@ operators = syntactic.OperatorCollection(
 )
 
 
-
 ################
 ### DEFAULTS ###
 ################
