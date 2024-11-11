@@ -202,6 +202,19 @@ def bitvec_to_substates(bit_vec, N):
 
 ### Z3 HELPERS ###
 
+def z3_set(python_set, N):
+    z3_set = z3.EmptySet(z3.BitVecSort(N))
+    for elem in python_set:
+        z3_set = z3.SetAdd(z3_set, elem)
+    return z3_set
+
+def z3_set_to_python_set(z3_set, domain):
+    python_set = set()
+    for elem in domain:
+        if z3.simplify(z3.IsMember(elem, z3_set)):
+            python_set.add(elem)
+    return python_set
+
 
 # M: this is not used right now but may be later
 def z3_simplify(z3_expr):
