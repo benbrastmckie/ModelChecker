@@ -170,7 +170,8 @@ class Operator:
     
     
 class DefinedOperator(Operator):
-    """TODO"""
+    """NOTE: I wonder about building a sent_obj first thing, adding this to the
+    sentence_dict or updating?"""
 
     primitive = False
 
@@ -190,7 +191,7 @@ class DefinedOperator(Operator):
         # from now on, can assume 'self' is an argument of derived_definition. 
 
         # check if derived_definition is implemented (ie is not default)
-        elif len(args_with_self) == 1 and 'self' in args_with_self:
+        if len(args_with_self) == 1 and 'self' in args_with_self:
             raise NameError(
                 f"Derived operator class {op_subclass.__name__} does not have an implemented "
                 f"derived_definition method. ")

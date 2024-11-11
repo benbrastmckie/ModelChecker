@@ -9,9 +9,9 @@ from hidden_helpers import (
 
 import syntactic
 
-###############################################################################
-############################ EXTENSIONAL OPERATORS ############################
-###############################################################################
+##############################################################################
+############################ EXTENSIONAL OPERATORS ###########################
+##############################################################################
 
 class NegationOperator(syntactic.Operator):
     """doc string place holder"""
@@ -165,6 +165,10 @@ class OrOperator(syntactic.Operator):
         model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
 
 
+##############################################################################
+######################## DEFINED EXTENSIONAL OPERATORS #######################
+##############################################################################
+
 class ConditionalOperator(syntactic.DefinedOperator):
 
     name = "\\rightarrow"
@@ -208,9 +212,9 @@ class BiconditionalOperator(syntactic.DefinedOperator):
 
 
 
-################################################################################
-############################## EXTREMAL OPERATORS ##############################
-################################################################################
+##############################################################################
+############################## EXTREMAL OPERATORS ############################
+##############################################################################
 
 
 class TopOperator(syntactic.Operator):
@@ -278,7 +282,6 @@ class BotOperator(syntactic.Operator):
 ##############################################################################
 ########################### CONSTITUTIVE OPERATORS ###########################
 ##############################################################################
-
 
 class IdentityOperator(syntactic.Operator):
     """doc string place holder"""
@@ -377,44 +380,6 @@ class IdentityOperator(syntactic.Operator):
             return {self.semantics.null_bit}, set()
         return set(), {self.semantics.null_bit}
     
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        left_sent_obj, right_sent_obj = sentence_obj.arguments
-        indent_num += 1
-        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
-        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
-
-
-class DefGroundOperator(syntactic.DefinedOperator):
-
-    name = "\\ground"
-    arity = 2
-
-    def derived_definition(self, leftarg, rightarg):
-        return [IdentityOperator, [OrOperator, leftarg, rightarg], rightarg]
-
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        left_sent_obj, right_sent_obj = sentence_obj.arguments
-        indent_num += 1
-        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
-        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
-
-
-class DefEssenceOperator(syntactic.DefinedOperator):
-
-    name = "\\essence"
-    arity = 2
-
-    def derived_definition(self, leftarg, rightarg):
-        return [IdentityOperator, [AndOperator, leftarg, rightarg], rightarg]
-
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
@@ -652,54 +617,55 @@ class EssenceOperator(syntactic.Operator):
         indent_num += 1
         model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
         model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
-        
+
+
 
 ##############################################################################
-########################### INSTENSIONAL OPERATORS ###########################
+####################### DEFINED CONSTITUTIVE OPERATORS #######################
 ##############################################################################
 
+class DefGroundOperator(syntactic.DefinedOperator):
 
-class DefNecessaryOperator(syntactic.DefinedOperator):
+    name = "\\ground"
+    arity = 2
 
-    name = "\\Box"
-    arity = 1
+    def derived_definition(self, leftarg, rightarg):
+        return [IdentityOperator, [OrOperator, leftarg, rightarg], rightarg]
 
-    def derived_definition(self, rightarg):
-        return [CounterfactualOperator, TopOperator, rightarg]
-    
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
         sentence_obj.proposition.print_proposition(eval_world, indent_num)
         model_structure = sentence_obj.proposition.model_structure
-        sent_arg = sentence_obj.arguments[0]
+        left_sent_obj, right_sent_obj = sentence_obj.arguments
         indent_num += 1
-        model_structure.recursive_print(sent_arg, eval_world, indent_num)
+        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
+        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
 
 
-class DefPossibleOperator(syntactic.DefinedOperator):
+class DefEssenceOperator(syntactic.DefinedOperator):
 
-    name = "\\Diamond"
-    arity = 1
+    name = "\\essence"
+    arity = 2
 
-    def derived_definition(self, rightarg):
-        return [NegationOperator, [DefNecessaryOperator, [NegationOperator, rightarg]]]
-    
+    def derived_definition(self, leftarg, rightarg):
+        return [IdentityOperator, [AndOperator, leftarg, rightarg], rightarg]
+
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
         sentence_obj.proposition.print_proposition(eval_world, indent_num)
         model_structure = sentence_obj.proposition.model_structure
-        sent_arg = sentence_obj.arguments[0]
+        left_sent_obj, right_sent_obj = sentence_obj.arguments
         indent_num += 1
-        model_structure.recursive_print(sent_arg, eval_world, indent_num)
+        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
+        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
 
 
 
 ##############################################################################
 ########################## COUNTERFACTUAL OPERATORS ##########################
 ##############################################################################
-
 
 class CounterfactualOperator(syntactic.Operator):
     name = "\\boxright"
@@ -822,6 +788,208 @@ class CounterfactualOperator(syntactic.Operator):
         # indent += 1
         # for u in imp_worlds:
         #     self.recursive_print(right_subprop, u, print_impossible, output, indent)
+
+
+##############################################################################
+###################### DEFINED COUNTERFACTUAL OPERATORS ######################
+##############################################################################
+
+class MightCounterfactualOperator(syntactic.DefinedOperator):
+
+    name = "\\circleright"
+    arity = 2
+
+    def derived_definition(self, leftarg, rightarg):
+        return [NegationOperator, [CounterfactualOperator, leftarg, [NegationOperator, rightarg]]]
+
+    def calculate_alternative_worlds(self, verifiers, eval_world, model_structure):
+        """Calculate alternative worlds given verifiers and eval_world."""
+        is_alt = model_structure.semantics.is_alternative
+        eval = model_structure.z3_model.evaluate
+        world_bits = model_structure.world_bits
+        return {
+            pw for ver in verifiers
+            for pw in world_bits
+            if eval(is_alt(pw, ver, eval_world))
+        }
+
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Print counterfactual and the antecedent in the eval_world. Then
+        print the consequent in each alternative to the evaluation world.
+        """
+        CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
+
+        # B: why doesn't sentence_obj.model_structure exist?
+        proposition = sentence_obj.proposition
+        model_structure = proposition.model_structure
+        N = proposition.N
+        
+        # Print main proposition
+        proposition.print_proposition(eval_world, indent_num)
+        
+        # Increment indentation for nested output
+        indent_num += 1
+        
+        # Retrieve primary subsentences and verifiers
+        left_subsentence, right_subsentence = sentence_obj.arguments
+        left_subprop_verifiers = left_subsentence.proposition.verifiers
+        
+        # Calculate alternative worlds
+        alt_worlds = self.calculate_alternative_worlds(left_subprop_verifiers, eval_world, model_structure)
+        alt_world_strings = {bitvec_to_substates(u, N) for u in alt_worlds}
+        
+        # Print left subsentence and alternatives
+        model_structure.recursive_print(left_subsentence, eval_world, indent_num)
+        print(
+            f'{"  " * indent_num} {CYAN}{left_subsentence}-alternatives '
+            f'to {bitvec_to_substates(eval_world, N)} = '
+            f'{pretty_set_print(alt_world_strings)}{RESET}'
+        )
+        
+        # Increment indentation for right subsentence print
+        indent_num += 1
+        for alt_world in alt_worlds:
+            model_structure.recursive_print(right_subsentence, alt_world, indent_num)
+
+
+##############################################################################
+########################### INTENSIONAL OPERATORS ############################
+##############################################################################
+
+class NecessityOperator(syntactic.Operator):
+    name = "\\Box"
+    arity = 1
+
+    def true_at(self, argument, eval_world):
+        sem = self.semantics
+        u = z3.BitVec("t_nec_u", sem.N)
+        return ForAll(
+            u,
+            z3.Implies(
+                sem.is_world(u),
+                sem.true_at(argument, u),
+            ),
+        )
+    
+    def false_at(self, argument, eval_world):
+        sem = self.semantics
+        u = z3.BitVec("t_nec_u", sem.N)
+        return Exists(
+            u,
+            z3.And(
+                sem.is_world(u),
+                sem.false_at(argument, u),
+            ),
+        )
+    
+    def extended_verify(self, state, argument, eval_world):
+        # TODO: add constraint which requires state to be the null_bit
+        return self.true_at(argument, eval_world) # M: I think this is right?
+    
+    def extended_falsify(self, state, argument, eval_world):
+        # TODO: add constraint which requires state to be the null_bit
+        return self.false_at(argument, eval_world)
+
+    def find_verifiers_and_falsifiers(self, sentence_object, eval_world):
+        argument = sentence_object.prefix_object
+        eval_at_model = sentence_object.proposition.model_structure.z3_model.evaluate
+        if bool(eval_at_model(self.true_at(argument, eval_world))):
+            return {self.semantics.null_bit}, set()
+        if bool(eval_at_model(self.false_at(argument, eval_world))):
+            return set(), {self.semantics.null_bit}
+        raise ValueError(
+            f"{self.name} {sentence_object} "
+            f"is neither true nor false in the world {eval_world}."
+        )
+    
+    def calculate_true_worlds(self, verifiers, eval_world, model_structure):
+        """Calculate alternative worlds given verifiers and eval_world."""
+        eval = model_structure.z3_model.evaluate
+        world_bits = model_structure.world_bits
+        return {
+            pw for ver in verifiers
+            for pw in world_bits
+            if eval(is_alt(pw, ver, eval_world))
+        }
+
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Print counterfactual and the antecedent in the eval_world. Then
+        print the consequent in each alternative to the evaluation world.
+        """
+        CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
+
+        # B: why doesn't sentence_obj.model_structure exist?
+        proposition = sentence_obj.proposition
+        model_structure = proposition.model_structure
+        N = proposition.N
+        
+        # Print main proposition
+        proposition.print_proposition(eval_world, indent_num)
+        
+        # Increment indentation for nested output
+        indent_num += 1
+        
+        # Retrieve primary subsentences and verifiers
+        left_subsentence, right_subsentence = sentence_obj.arguments
+        left_subprop_verifiers = left_subsentence.proposition.verifiers
+        
+        # Calculate alternative worlds
+        alt_worlds = self.calculate_alternative_worlds(left_subprop_verifiers, eval_world, model_structure)
+        alt_world_strings = {bitvec_to_substates(u, N) for u in alt_worlds}
+        
+        # Print left subsentence and alternatives
+        model_structure.recursive_print(left_subsentence, eval_world, indent_num)
+        print(
+            f'{"  " * indent_num} {CYAN}{left_subsentence}-alternatives '
+            f'to {bitvec_to_substates(eval_world, N)} = '
+            f'{pretty_set_print(alt_world_strings)}{RESET}'
+        )
+        
+        # Increment indentation for right subsentence print
+        indent_num += 1
+        for alt_world in alt_worlds:
+            model_structure.recursive_print(right_subsentence, alt_world, indent_num)
+
+
+##############################################################################
+####################### DEFINED INTENSIONAL OPERATORS ########################
+##############################################################################
+
+class DefNecessityOperator(syntactic.DefinedOperator):
+
+    name = "\\necessary"
+    arity = 1
+
+    def derived_definition(self, rightarg):
+        return [CounterfactualOperator, TopOperator, rightarg]
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        sent_arg = sentence_obj.arguments[0]
+        indent_num += 1
+        model_structure.recursive_print(sent_arg, eval_world, indent_num)
+
+
+# TODO: could be worth defining in terms of \circleright as well to compare
+class DefPossibilityOperator(syntactic.DefinedOperator):
+
+    name = "\\possible"
+    arity = 1
+
+    def derived_definition(self, rightarg):
+        return [NegationOperator, [DefNecessityOperator, [NegationOperator, rightarg]]]
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        sent_arg = sentence_obj.arguments[0]
+        indent_num += 1
+        model_structure.recursive_print(sent_arg, eval_world, indent_num)
 
 
 

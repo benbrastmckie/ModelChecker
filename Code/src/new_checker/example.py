@@ -16,12 +16,13 @@ from operators import (
     EssenceOperator,
     GroundOperator,
     CounterfactualOperator,
+    MightCounterfactualOperator,
     DefEssenceOperator,
     DefGroundOperator,
     ConditionalOperator,
     BiconditionalOperator,
-    DefNecessaryOperator,
-    DefPossibleOperator,
+    DefNecessityOperator,
+    DefPossibilityOperator,
 )
 
 # NOTE: go in API
@@ -48,8 +49,9 @@ operators = syntactic.OperatorCollection(
     ConditionalOperator,
     BiconditionalOperator,
     CounterfactualOperator,
-    DefNecessaryOperator,
-    DefPossibleOperator,
+    MightCounterfactualOperator,
+    DefNecessityOperator,
+    DefPossibilityOperator,
 )
 
 
@@ -74,11 +76,11 @@ print_impossible_bool = True
 # premises = ["\\neg (\\bot \\vee B)", "(\\top \\wedge D)"]
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["(A \\rightarrow B)", "A"]
-# premises = ["(A \\leftrightarrow B)", "\\Diamond A"]
-# premises = ["\\Diamond B"]
-# premises = ["\\Box A", "(A \\leftrightarrow B)"]
-# premises = ["\\Box A"]
-premises = ["(\\neg \\top \\boxright B)"]
+# premises = ["(A \\leftrightarrow B)", "\\possible A"]
+# premises = ["\\possible B"]
+premises = ["\\necessary A", "(A \\leftrightarrow B)"]
+# premises = ["\\necessary A"]
+# premises = ["(\\neg \\top \\boxright B)"]
 # premises = ["A", "(A \\boxright (B \\wedge C))"]
 # premises = ["A", "(A \\wedge B)"]
 # premises = ["A"]
@@ -94,9 +96,9 @@ premises = ["(\\neg \\top \\boxright B)"]
 
 # conclusions = ["\\neg E"]
 # conclusions = ["B"]
-conclusions = ["B"]
+# conclusions = ["B"]
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
-# conclusions = ["C"]
+conclusions = ["C"]
 
 
 
@@ -106,7 +108,13 @@ conclusions = ["B"]
 ##### BROKEN COUNTERMODELS #####
 ################################
 
-# None?
+# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 3
+# premises = ['(A circleright C)']
+# conclusions = ['((A wedge B) circleright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
 
 #############################
 ### WORKING COUNTERMODELS ###
@@ -121,7 +129,7 @@ conclusions = ["B"]
 
 # # CF_CM3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # N = 3
-# premises = ['(A \\boxright C)', '\\Diamond (A \\wedge B)']
+# premises = ['(A \\boxright C)', '\\possible (A \\wedge B)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 # contingent_bool = True
 # disjoint_bool = False
@@ -173,19 +181,19 @@ conclusions = ["B"]
 # # CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
 # N = 3
 # premises = [
-#     '\\Diamond A',
+#     '\\possible A',
 #     '(A \\boxright X)',
-#     '\\Diamond (A \\wedge B)',
+#     '\\possible (A \\wedge B)',
 #     '\\neg ((A \\wedge B) \\boxright X)', # N = 4: 155.4 seconds on the MIT servers; .1587 seconds in old version; and now .0122 seconds
-#     '\\Diamond ((A \\wedge B) \\wedge C)',
+#     '\\possible ((A \\wedge B) \\wedge C)',
 #     '(((A \\wedge B) \\wedge C) \\boxright X)',
-#     '\\Diamond (((A \\wedge B) \\wedge C) \\wedge D)',
+#     '\\possible (((A \\wedge B) \\wedge C) \\wedge D)',
 #     '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
-#     '\\Diamond ((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E)',
+#     '\\possible ((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E)',
 #     '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)', # ? seconds
-#     '\\Diamond (((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F)',
+#     '\\possible (((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F)',
 #     '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)', # ? seconds
-#     '\\Diamond ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G)',
+#     '\\possible ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G)',
 #     '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # ? seconds
 # ]
 # conclusions = []
@@ -229,7 +237,7 @@ conclusions = ["B"]
 
 # # CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
 # N = 3
-# premises = ['((A \\wedge B) \\boxright C)','\\Diamond (A \\wedge B)']
+# premises = ['((A \\wedge B) \\boxright C)','\\possible (A \\wedge B)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
 # contingent_bool = True
 # disjoint_bool = False
