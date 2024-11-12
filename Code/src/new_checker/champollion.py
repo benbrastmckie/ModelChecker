@@ -6,9 +6,7 @@ from hidden_helpers import (
     bitvec_to_substates,
     index_to_substate,
     pretty_set_print,
-    z3_simplify,
     z3_set,
-    z3_set_to_python_set,
 )
 
 from model_builder import PropositionDefaults
@@ -44,21 +42,26 @@ class ChampollionSemantics:
         exclusion_symmetry = ForAll(
             [x, y], z3.Implies(self.excludes(x, y), self.excludes(y, x))
         )
-        # B: the following is derived for Champollion
-        # possibility_downard_closure = ForAll(
-        #     [x, y],
-        #     z3.Implies(
-        #         z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)
-        #     ),
-        # )
-        # B: the following are axioms constraining exclusion
-        # exclusion_actuality = ...
-        # exclusion_worldhood = ... # also called cosmopolitanism
-        # exclusion_harmony = ...
-        # exclusion_rashomon = ...
+        possibility_downard_closure = ForAll(
+            [x, y],
+            z3.Implies(
+                z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)
+            ),
+        )
+        cosmopolitanism = z3.ForAll(x, z3.Implies(self.possible(x), z3.Exists(y, z3.And(self.is_world(y), self.is_part_of(x,y)))))
+        # M: below is not biconditional. I think that's ok (see comment on pg 538), just thought I'd note
+        harmony = z3.ForAll([x,y], z3.Implies(z3.And(self.is_world(x), self.coheres(x,y)), self.possible(y)))
+        rashomon = z3.ForAll([x,y], z3.Implies(z3.And(self.possible(x), self.possible(y), self.coheres(x,y)), self.possible(self.fusion(x,y))))
         # B: this is really nice and readable
         self.frame_constraints = [
             exclusion_symmetry,
+            possibility_downard_closure,
+            cosmopolitanism,
+            harmony,
+            rashomon, # guards against emergent impossibility (pg 538)
+            self.is_world(self.main_world) # actuality?
+
+
         ]
 
         # TODO: Define invalidity conditions
@@ -168,4 +171,14 @@ class ChampollionSemantics:
             self.collectively_excludes(bit_s, set_P),
             self.individually_excludes(bit_s, set_P),
         )
+
+    def is_world(self, bit_s):
+        m = z3.BitVec("m", self.N)
+        return z3.And(self.possible(bit_s), 
+                      z3.Not(z3.Exists(m, z3.And(self.is_proper_part_of(bit_s, m),
+                                                 self.possible(m)))))
+    
+    def occurs(self, bit_s):
+        return self.is_part_of(bit_s, self.main_world)
+    
 
