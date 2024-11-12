@@ -974,12 +974,13 @@ class DefNecessityOperator(syntactic.DefinedOperator):
 
 
 # TODO: could be worth defining in terms of \circleright as well to compare
+# M: see DefPossibilityOperator2 (note name change)
 class DefPossibilityOperator(syntactic.DefinedOperator):
 
     name = "\\possible"
     arity = 1
 
-    def derived_definition(self, rightarg):
+    def derived_definition(self, arg):
         return [NegationOperator, [DefNecessityOperator, [NegationOperator, rightarg]]]
     
     def print_method(self, sentence_obj, eval_world, indent_num):
@@ -991,5 +992,20 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
         indent_num += 1
         model_structure.recursive_print(sent_arg, eval_world, indent_num)
 
+class DefPossibilityOperator2(syntactic.DefinedOperator):
 
+    name = "\\possible2"
+    arity = 1
+
+    def derived_definition(self, arg):
+        return [MightCounterfactualOperator, TopOperator, arg]
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        sent_arg = sentence_obj.arguments[0]
+        indent_num += 1
+        model_structure.recursive_print(sent_arg, eval_world, indent_num)
 
