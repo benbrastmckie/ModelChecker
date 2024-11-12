@@ -42,12 +42,12 @@ class ChampollionSemantics:
         exclusion_symmetry = ForAll(
             [x, y], z3.Implies(self.excludes(x, y), self.excludes(y, x))
         )
-        possibility_downard_closure = ForAll(
-            [x, y],
-            z3.Implies(
-                z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)
-            ),
-        )
+        # possibility_downard_closure = ForAll(
+        #     [x, y],
+        #     z3.Implies(
+        #         z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)
+        #     ),
+        # )
         cosmopolitanism = z3.ForAll(x, z3.Implies(self.possible(x), z3.Exists(y, z3.And(self.is_world(y), self.is_part_of(x,y)))))
         # M: below is not biconditional. I think that's ok (see comment on pg 538), just thought I'd note
         harmony = z3.ForAll([x,y], z3.Implies(z3.And(self.is_world(x), self.coheres(x,y)), self.possible(y)))
@@ -55,7 +55,7 @@ class ChampollionSemantics:
         # B: this is really nice and readable
         self.frame_constraints = [
             exclusion_symmetry,
-            possibility_downard_closure,
+            # possibility_downard_closure,
             cosmopolitanism,
             harmony,
             rashomon, # guards against emergent impossibility (pg 538)
