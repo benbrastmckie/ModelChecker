@@ -31,7 +31,6 @@ class ChampollionSemantics:
             z3.BitVecSort(N), # second argument type: bitvector
             z3.BoolSort() # return type
         )
-        # NOTE: anything else?
         self.main_world = z3.BitVec("w", N)
 
         # Define top and bottom states
@@ -45,16 +44,21 @@ class ChampollionSemantics:
         exclusion_symmetry = ForAll(
             [x, y], z3.Implies(self.excludes(x, y), self.excludes(y, x))
         )
-        possibility_downard_closure = ForAll(
-            [x, y],
-            z3.Implies(
-                z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)
-            ),
-        )
+        # B: the following is derived for Champollion
+        # possibility_downard_closure = ForAll(
+        #     [x, y],
+        #     z3.Implies(
+        #         z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)
+        #     ),
+        # )
+        # B: the following are axioms constraining exclusion
+        # exclusion_actuality = ...
+        # exclusion_worldhood = ... # also called cosmopolitanism
+        # exclusion_harmony = ...
+        # exclusion_rashomon = ...
         # B: this is really nice and readable
         self.frame_constraints = [
             exclusion_symmetry,
-            possibility_downard_closure,
         ]
 
         # TODO: Define invalidity conditions
@@ -103,9 +107,8 @@ class ChampollionSemantics:
         # def on page 528 of Champollion
         return self.possible(self.fusion(bit_e1, bit_e2))
 
-    def necessary(
-        self, bit_e1
-    ):  # M: TODO: missing necessary proposition def on 528. don't think it goes here
+    # M: TODO: missing necessary proposition def on 528. don't think it goes here
+    def necessary(self, bit_e1):
         x = z3.BitVec("nec_x", self.N)
         return z3.ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
 

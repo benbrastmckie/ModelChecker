@@ -66,11 +66,11 @@ print_impossible_bool = True
 # premises = ["\\neg (\\bot \\vee B)", "(\\top \\wedge D)"]
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["(A \\rightarrow B)", "A"]
-premises = ["(A \\leftrightarrow B)", "\\Diamond A"]
-# premises = ["\\Diamond B"]
+premises = ["(A \\leftrightarrow B)", "\\possible A"]
+# premises = ["\\possible B"]
 # premises = ["\\Box A", "(A \\leftrightarrow B)"]
 # premises = ["\\Box A"]
-premises = ["(\\neg \\top \\boxright B)"]
+# premises = ["(\\neg \\top \\boxright B)"]
 # premises = ["A", "(A \\boxright (B \\wedge C))"]
 # premises = ["A", "(A \\wedge B)"]
 # premises = ["A"]
@@ -88,6 +88,7 @@ premises = ["(\\neg \\top \\boxright B)"]
 # conclusions = ["B"]
 # conclusions = ["B"]
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
+
 conclusions = ["C"]
 
 
@@ -98,25 +99,7 @@ conclusions = ["C"]
 ##### BROKEN COUNTERMODELS #####
 ################################
 
-# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 3
-# premises = ['(A circleright C)']
-# conclusions = ['((A wedge B) circleright C)']
-# contingent_bool = True
-# disjoint_bool = False
-
-
-#############################
-### WORKING COUNTERMODELS ###
-#############################
-
-# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 4
-# premises = ['(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-# contingent_bool = True
-# disjoint_bool = False
-
+# # NOTE: PRINTING TEST CHANGE
 # # CF_CM3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # N = 3
 # premises = ['(A \\boxright C)', '\\possible (A \\wedge B)']
@@ -124,51 +107,8 @@ conclusions = ["C"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
-# N = 4
-# premises = ['\\neg A','(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-# contingent_bool = True
-# disjoint_bool = False
-
-# # CF_CM7: COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
-# # NOTE: with Z3 quantifiers ran for 125 seconds on the MIT server; now .181 seconds locally
-# N = 4
-# premises = ['\\neg B','(A \\boxright B)']
-# conclusions = ['(\\neg B \\boxright neg A)']
-# contingent_bool = True
-# disjoint_bool = False
-
-# # CF_CM8: COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
-# N = 4
-# premises = ['\\neg A','\\neg B','(A \\boxright B)']
-# conclusions = ['(\\neg B \\boxright \\neg A)']
-# contingent_bool = True
-# disjoint_bool = False
-
-# # CF_CM10: COUNTERFACTUAL TRANSITIVITY WITH NEGATION
-# N = 4
-# premises = ['\\neg A','(A \\boxright B)','(B \\boxright C)']
-# conclusions = ['(A \\boxright C)']
-# contingent_bool = True
-# disjoint_bool = False
-
-# # CF_CM12: SOBEL SEQUENCE
-# N = 3
-# premises = [
-#     '(A \\boxright X)',
-#     '\\neg ((A \\wedge B) \\boxright X)',
-#     '(((A \\wedge B) \\wedge C) \\boxright X)',
-#     '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
-#     '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)',
-#     '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)',
-#     '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
-# ]
-# conclusions = []
-# contingent_bool = True
-# disjoint_bool = False
-
-# CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
+# # NOTE: PRINTING TEST CHANGE
+# # CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
 # N = 3
 # premises = [
 #     '\\possible A',
@@ -185,6 +125,91 @@ conclusions = ["C"]
 #     '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)', # ? seconds
 #     '\\possible ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G)',
 #     '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # ? seconds
+# ]
+# conclusions = []
+# contingent_bool = True
+# disjoint_bool = False
+
+
+
+
+#######################################
+##### FALSE PREMISE COUNTERMODELS #####
+#######################################
+
+# FALSE PREMISE
+N = 3
+premises = ["(A \\leftrightarrow B)", "\\possible A"]
+conclusions = ["C"]
+contingent_bool = False
+disjoint_bool = False
+
+# # FALSE PREMISE
+# # CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
+# N = 3
+# premises = ['((A \\wedge B) \\boxright C)','\\possible (A \\wedge B)']
+# conclusions = ['(A \\boxright (B \\boxright C))']
+# contingent_bool = True
+# disjoint_bool = False
+
+
+#############################
+### WORKING COUNTERMODELS ###
+#############################
+
+# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 4
+# premises = ['(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 3
+# premises = ['(A \\circleright C)']
+# conclusions = ['((A \\wedge B) \\circleright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
+# N = 4
+# premises = ['\\neg A','(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # CF_CM7: COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
+# # NOTE: with Z3 quantifiers ran for 125 seconds on the MIT server; now .181 seconds locally
+# N = 4
+# premises = ['\\neg B','(A \\boxright B)']
+# conclusions = ['(\\neg B \\boxright \\neg A)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # CF_CM8: COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
+# N = 4
+# premises = ['\\neg A','\\neg B','(A \\boxright B)']
+# conclusions = ['(\\neg B \\boxright \\neg A)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # CF_CM10: COUNTERFACTUAL TRANSITIVITY WITH NEGATION
+# N = 3
+# premises = ['\\neg A','(A \\boxright B)','(B \\boxright C)']
+# conclusions = ['(A \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # CF_CM12: SOBEL SEQUENCE
+# N = 3
+# premises = [
+#     '(A \\boxright X)',
+#     '\\neg ((A \\wedge B) \\boxright X)',
+#     '(((A \\wedge B) \\wedge C) \\boxright X)',
+#     '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
+#     '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)',
+#     '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)',
+#     '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
 # ]
 # conclusions = []
 # contingent_bool = True
@@ -221,13 +246,6 @@ conclusions = ["C"]
 # # CF_CM18: COUNTERFACTUAL EXPORTATION
 # N = 3
 # premises = ['((A \\wedge B) \\boxright C)']
-# conclusions = ['(A \\boxright (B \\boxright C))']
-# contingent_bool = True
-# disjoint_bool = False
-
-# # CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
-# N = 3
-# premises = ['((A \\wedge B) \\boxright C)','\\possible (A \\wedge B)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
 # contingent_bool = True
 # disjoint_bool = False
