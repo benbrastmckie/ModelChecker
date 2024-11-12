@@ -169,7 +169,7 @@ class ChampollionSemantics:
     def emergently_excludes(self, bit_s, set_P):
         return z3.And(
             self.collectively_excludes(bit_s, set_P),
-            self.individually_excludes(bit_s, set_P),
+            z3.Not(self.individually_excludes(bit_s, set_P)),
         )
 
     def is_world(self, bit_s):
