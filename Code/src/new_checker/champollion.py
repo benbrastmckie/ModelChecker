@@ -63,6 +63,13 @@ class ChampollionSemantics:
 
         # TODO: Define invalidity conditions
 
+    # B: since definitions like this will almost always occur, can we pull them
+    # from the API once that is set up? I'm getting it would be best to move all
+    # such general methods from their classes into a helpers file. alternatively,
+    # I was wondering if they could stay methods of their respective classes and
+    # then be listed in __init__.py so that one can call them from the API. not
+    # sure this makes much of a difference but could help keep things organized.
+    # alternatively, we can divide the helpers into sections.
     def fusion(self, bit_s, bit_t):
         """the result of taking the maximum for each index in bit_s and bit_t
         returns a Z3 constraint"""
@@ -161,3 +168,4 @@ class ChampollionSemantics:
             self.collectively_excludes(bit_s, set_P),
             self.individually_excludes(bit_s, set_P),
         )
+
