@@ -41,7 +41,7 @@ class ChampollionSemantics:
         self.all_bits = [z3.BitVecVal(i, self.N) for i in range(1 << self.N)]
 
         # TODO: Define the frame constraints
-        x, y, z = z3.BitVecs("frame_x frame_y frame_z", self.N)
+        x, y = z3.BitVecs("frame_x frame_y", self.N)
         exclusion_symmetry = ForAll(
             [x, y], z3.Implies(self.excludes(x, y), self.excludes(y, x))
         )
@@ -131,7 +131,8 @@ class ChampollionSemantics:
         Sigma_UB = z3.ForAll(
             x,
             z3.Implies(
-                Exists(p, z3.And(P[p], self.excludes(x, p))), self.is_part_of(x, Sigma)
+                Exists(p, z3.And(P[p], self.excludes(x, p))),
+                self.is_part_of(x, Sigma)
             ),
         )
         # Sigma is the least upper bound on excluders of set P
