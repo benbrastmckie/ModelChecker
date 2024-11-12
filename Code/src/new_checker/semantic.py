@@ -45,13 +45,16 @@ class Semantics:
         
         # Define the frame constraints
         x, y = z3.BitVecs("frame_x frame_y", N)
+        possibility_downard_closure = ForAll(
+            [x, y],
+            z3.Implies(z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)),
+        )
+        is_main_world = self.is_world(self.main_world)
+        impossible_full_bit = z3.Not(self.possible(self.full_bit))
         self.frame_constraints = [
-            ForAll(
-                [x, y],
-                z3.Implies(z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)),
-            ),
-            self.is_world(self.main_world),
-            z3.Not(self.possible(self.full_bit)),
+            possibility_downard_closure,
+            is_main_world,
+            impossible_full_bit,
         ]
 
         # Define invalidity conditions
@@ -217,47 +220,49 @@ class Proposition(PropositionDefaults):
         constraints and optionally the non-null, contingent, and disjoint
         constraints depending on the user settings."""
         semantics = self.semantics
-        # TODO: move copies into subfunctions renaming variables for readable
-        # unsat_core
-        x, y, z = z3.BitVecs("prop_x prop_y prop_z", semantics.N)
 
         def get_classical_constraints():
+            x, y = z3.BitVecs("cl_prop_x cl_prop_y", semantics.N)
             """The classical_constraints rule out truth_value gaps and gluts."""
-            return [
-                ForAll(
-                    [x, y],
-                    z3.Implies(
-                        z3.And(semantics.verify(x, atom), semantics.verify(y, atom)),
-                        semantics.verify(semantics.fusion(x, y), atom),
-                    ),
+            verifier_fusion_closure = ForAll(
+                [x, y],
+                z3.Implies(
+                    z3.And(semantics.verify(x, atom), semantics.verify(y, atom)),
+                    semantics.verify(semantics.fusion(x, y), atom),
                 ),
-                ForAll(
-                    [x, y],
-                    z3.Implies(
-                        z3.And(semantics.falsify(x, atom), semantics.falsify(y, atom)),
-                        semantics.falsify(semantics.fusion(x, y), atom),
-                    ),
+            )
+            falsifier_fusion_closure = ForAll(
+                [x, y],
+                z3.Implies(
+                    z3.And(semantics.falsify(x, atom), semantics.falsify(y, atom)),
+                    semantics.falsify(semantics.fusion(x, y), atom),
                 ),
-                ForAll(
-                    [x, y],
-                    z3.Implies(
-                        z3.And(semantics.verify(x, atom), semantics.falsify(y, atom)),
-                        z3.Not(semantics.compatible(x, y)),
-                    ),
+            )
+            no_glut = ForAll(
+                [x, y],
+                z3.Implies(
+                    z3.And(semantics.verify(x, atom), semantics.falsify(y, atom)),
+                    z3.Not(semantics.compatible(x, y)),
                 ),
-                ForAll(
-                    x,
-                    z3.Implies(
-                        semantics.possible(x),
-                        Exists(
-                            y,
-                            z3.And(
-                                semantics.compatible(x, y),
-                                z3.Or(semantics.verify(y, atom), semantics.falsify(y, atom)),
-                            ),
+            )
+            no_gap = ForAll(
+                x,
+                z3.Implies(
+                    semantics.possible(x),
+                    Exists(
+                        y,
+                        z3.And(
+                            semantics.compatible(x, y),
+                            z3.Or(semantics.verify(y, atom), semantics.falsify(y, atom)),
                         ),
                     ),
                 ),
+            )
+            return [
+                verifier_fusion_closure,
+                falsifier_fusion_closure,
+                no_glut,
+                no_gap
             ]
 
         def get_non_null_constraints():
@@ -270,81 +275,50 @@ class Proposition(PropositionDefaults):
 
         def get_contingent_constraints():
             """The contingent_constraints entail the non_null_constraints."""
+            x, y = z3.BitVecs("ct_prop_x ct_prop_y", semantics.N)
+            possible_verifier = Exists(
+                x,
+                z3.And(semantics.possible(x), semantics.verify(x, atom))
+            )
+            possible_falsifier = Exists(
+                y,
+                z3.And(semantics.possible(y), semantics.falsify(y, atom))
+            )
             return [
-                Exists(
-                    x,
-                    z3.And(semantics.possible(x), semantics.verify(x, atom))
-                ),
-                Exists(
-                    y,
-                    z3.And(semantics.possible(y), semantics.falsify(y, atom))
-                ),
+                possible_verifier,
+                possible_falsifier,
             ]
-        # TODO: in spirit of cleaning things up a bit can below be deleted?
-        # # OLD
-        # if self.disjoint:
-        #     z = z3.BitVec("prop_z", semantics.N)
-        #     for other_atom in self.sentence_letters:
-        #         if not other_atom is atom:
-        #             disjoin_constraints = [
-        #                 ForAll(
-        #                     [x, y],
-        #                     z3.Implies(
-        #                         z3.And(
-        #                             semantics.non_null_part_of(x, y),
-        #                             z3.Or(
-        #                                 semantics.verify(y, atom),
-        #                                 semantics.falsify(y, atom)
-        #                             )
-        #                         ),
-        #                         ForAll(
-        #                             z,
-        #                             z3.Implies(
-        #                                 z3.Or(
-        #                                     semantics.verify(z, other_atom),
-        #                                     semantics.falsify(z, other_atom)
-        #                                 ),
-        #                                 z3.Not(semantics.is_part_of(x, z))
-        #                             )
-        #                         )
-        #                     )
-        #                 )
-        #             ]
-        #             constraints.extend(disjoin_constraints)
-        #             constraints += non_null_constraints
-        #             # NOTE: non_null_constraints are important to avoid
-        #             # trivializing the disjoin_constraints
 
         # TODO: fix
         def get_disjoint_constraints():
             """The non_null_constraints are included in disjoin_constraints."""
+            x, y, z = z3.BitVecs("dj_prop_x dj_prop_y dj_prop_z", semantics.N)
             disjoint_constraints = []
             for other_atom in self.sentence_letters:
                 if other_atom is not atom:
-                    disjoint_constraints.append(
-                        ForAll(
-                            [x, y],
-                            z3.Implies(
-                                z3.And(
-                                    semantics.non_null_part_of(x, y),
-                                    z3.Or(
-                                        semantics.verify(y, atom),
-                                        semantics.falsify(y, atom),
-                                    ),
+                    other_disjoint_atom = ForAll(
+                        [x, y],
+                        z3.Implies(
+                            z3.And(
+                                semantics.non_null_part_of(x, y),
+                                z3.Or(
+                                    semantics.verify(y, atom),
+                                    semantics.falsify(y, atom),
                                 ),
-                                ForAll(
-                                    z,
-                                    z3.Implies(
-                                        z3.Or(
-                                            semantics.verify(z, other_atom),
-                                            semantics.falsify(z, other_atom)
-                                        ),
-                                        z3.Not(semantics.is_part_of(x, z)),
-                                    )
+                            ),
+                            ForAll(
+                                z,
+                                z3.Implies(
+                                    z3.Or(
+                                        semantics.verify(z, other_atom),
+                                        semantics.falsify(z, other_atom)
+                                    ),
+                                    z3.Not(semantics.is_part_of(x, z)),
                                 )
                             )
                         )
                     )
+                    disjoint_constraints.append(other_disjoint_atom)
             return disjoint_constraints
 
         # Start collecting constraints
@@ -406,12 +380,6 @@ class Proposition(PropositionDefaults):
                 fal_witness = fal_bit
                 exists_falsifier = True
                 break
-        # TODO: in spirit of cleaning things up a bit can below be deleted?
-        # print( # NOTE: a warning is preferable to raising an error
-        #     f"WARNING: the world {bitvec_to_substates(world)} contains both:\n "
-        #     f"  The verifier {bitvec_to_substates(ver_witness)}; and"
-        #     f"  The falsifier {bitvec_to_substates(fal_witness)}."
-        # )
         if exists_verifier == exists_falsifier:
             # TODO: convert from bits to states below
             print( # NOTE: a warning is preferable to raising an error
@@ -419,16 +387,6 @@ class Proposition(PropositionDefaults):
                 f"  The verifier {index_to_substate(ver_witness)}; and"
                 f"  The falsifier {index_to_substate(fal_witness)}."
             )
-            # TODO: in spirit of cleaning things up a bit can below be deleted?
-            # if exists_verifier:
-            #     raise ValueError(
-            #         f"The world {world} has both a verifier and falsifier "
-            #         f"for {self.name}. Something has gone wrong."
-            #     )
-            # raise ValueError(
-            #     f"The world {world} has neither a verifier nor falsifier "
-            #     f"for {self.name}. Something has gone wrong."
-            # )
         return exists_verifier
 
     def print_proposition(self, eval_world, indent_num=0):
@@ -446,23 +404,15 @@ class Proposition(PropositionDefaults):
             for bit in self.falsifiers
             if z3_model.evaluate(possible(bit)) or self.print_impossible
         }
-        # temporary fix on unary/binary issue below (the 'is None' bit)
-        # B: why not like the comment below? DISCUSS
-        # M: NOTE: this was in reference to 'is not None' condition on fal_states for fal_print
-        # M: thought of it as what would be needed for unilateral semantics. 
-        # but since this Proposition class is unique to this bilateral semantics
-        # I think we can remove it. In any case there's a high chance what we actually
-        # need for unilateral semantics is something else
         ver_prints = pretty_set_print(ver_states)
         fal_prints = pretty_set_print(fal_states)
-        # # TODO: build empty set into pretty_set_print
-        # # M: above TODO is done
-        # fal_prints = pretty_set_print(fal_states) if fal_states is not None else "no fals states"
         world_state = bitvec_to_substates(eval_world, N)
         # DISCUSS: move colors into hidden_helpers? or a similar file with useful helpers? 
-        # ik we discussed smth like that earlier. I think it'd be good to have one file
+        # B: that sounds like a great idea 
+        # M: ik we discussed smth like that earlier. I think it'd be good to have one file
         # for helpers not useful to users and one with helpers/things (these would be candidates)
         # useful to users
+        # B: also sounds like a great idea 
         RED, GREEN, RESET, FULL, PART = "\033[31m", "\033[32m", "\033[0m", "\033[37m", "\033[33m"
         if indent_num == 1:
             FULL, PART = (GREEN, GREEN) if truth_value else (RED, RED)
