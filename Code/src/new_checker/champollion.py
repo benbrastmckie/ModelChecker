@@ -111,7 +111,7 @@ class ChampollionSemantics:
 
     def collectively_excludes(self, bit_s, set_P):
         return self.excludes(bit_s, self.total_fusion(set_P))
-
+    
     def individually_excludes(self, bit_s, set_P):
         # M: I think this works. Had to come up with alt def for condition b
         # I have a proof, not completely confident on it though
