@@ -53,8 +53,7 @@ class ChampollionSemantics:
                 )
             )
         )
-        # M: below is not biconditional. I think that's ok (see comment on pg 538), just thought I'd note
-        harmony = z3.ForAll(
+        harmony = z3.ForAll( # not biconditional form (just a note)
             [x,y],
             z3.Implies(
                 z3.And(self.is_world(x), self.coheres(x,y)),
@@ -92,6 +91,7 @@ class ChampollionSemantics:
         return bit_s | bit_t
 
     # B: was there something wrong with this one?
+    # M: Not as far as I know (none of these have been tested); it just wasn't needed
     # def total_fusion(self, set_P):
     #     if isinstance(set_P, z3.ArrayRef):
     #         set_P = z3_set_to_python_set(z3_set, self.all_bits)
@@ -141,7 +141,6 @@ class ChampollionSemantics:
     
     def individually_excludes(self, bit_s, set_P):
         # M: I think this works. Had to come up with alt def for condition b
-        # I have a proof, not completely confident on it though
         # condition a
         sub_s, p = z3.BitVecs("sub_s p", self.N)
         P = z3_set(set_P)
