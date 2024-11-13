@@ -804,12 +804,11 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
 
     def calculate_alternative_worlds(self, verifiers, eval_world, model_structure):
         """Calculate alternative worlds given verifiers and eval_world."""
-        is_alt = model_structure.semantics.is_alternative
         eval = model_structure.z3_model.evaluate
-        world_bits = model_structure.world_bits
+        is_alt = model_structure.semantics.is_alternative
         return {
             pw for ver in verifiers
-            for pw in world_bits
+            for pw in model_structure.world_bits
             if eval(is_alt(pw, ver, eval_world))
         }
 
@@ -904,11 +903,11 @@ class NecessityOperator(syntactic.Operator):
     
     def calculate_true_worlds(self, verifiers, eval_world, model_structure):
         """Calculate alternative worlds given verifiers and eval_world."""
+        is_alt = model_structure.semantics.is_alternative
         eval = model_structure.z3_model.evaluate
-        world_bits = model_structure.world_bits
         return {
             pw for ver in verifiers
-            for pw in world_bits
+            for pw in model_structure.world_bits
             if eval(is_alt(pw, ver, eval_world))
         }
 
@@ -974,13 +973,14 @@ class DefNecessityOperator(syntactic.DefinedOperator):
 
 
 # TODO: could be worth defining in terms of \circleright as well to compare
+# M: see DefPossibilityOperator2 (note name change)
 class DefPossibilityOperator(syntactic.DefinedOperator):
 
     name = "\\possible"
     arity = 1
 
-    def derived_definition(self, rightarg):
-        return [NegationOperator, [DefNecessityOperator, [NegationOperator, rightarg]]]
+    def derived_definition(self, arg):
+        return [NegationOperator, [DefNecessityOperator, [NegationOperator, arg]]]
     
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
@@ -991,5 +991,20 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
         indent_num += 1
         model_structure.recursive_print(sent_arg, eval_world, indent_num)
 
+class DefPossibilityOperator2(syntactic.DefinedOperator):
 
+    name = "\\possible2" # note name change
+    arity = 1
+
+    def derived_definition(self, arg):
+        return [MightCounterfactualOperator, TopOperator, arg]
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        sent_arg = sentence_obj.arguments[0]
+        indent_num += 1
+        model_structure.recursive_print(sent_arg, eval_world, indent_num)
 
