@@ -37,33 +37,44 @@ class ChampollionSemantics:
         self.null_bit = z3.BitVecVal(0, self.N)
         self.all_bits = [z3.BitVecVal(i, self.N) for i in range(1 << self.N)]
 
-        # TODO: Define the frame constraints
         x, y = z3.BitVecs("frame_x frame_y", self.N)
+        actuality = self.is_world(self.main_world)
         exclusion_symmetry = ForAll(
-            [x, y], z3.Implies(self.excludes(x, y), self.excludes(y, x))
+            [x, y],
+            z3.Implies(self.excludes(x, y), self.excludes(y, x))
+        )
+        cosmopolitanism = z3.ForAll(
+            x,
+            z3.Implies(
+                self.possible(x),
+                z3.Exists(
+                    y,
+                    z3.And(self.is_world(y), self.is_part_of(x,y))
+                )
+            )
+        )
+        # M: below is not biconditional. I think that's ok (see comment on pg 538), just thought I'd note
+        harmony = z3.ForAll(
+            [x,y],
+            z3.Implies(
+                z3.And(self.is_world(x), self.coheres(x,y)),
+                self.possible(y)
+            )
+        )
+        rashomon = z3.ForAll(
+            [x,y],
+            z3.Implies(
+                z3.And(self.possible(x), self.possible(y), self.coheres(x,y)),
+                self.possible(self.fusion(x,y))
+            )
         )
 
-        # B: the following is derived for Champollion
-        # possibility_downard_closure = ForAll(
-        #     [x, y],
-        #     z3.Implies(
-        #         z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)
-        #     ),
-        # )
-        cosmopolitanism = z3.ForAll(x, z3.Implies(self.possible(x), z3.Exists(y, z3.And(self.is_world(y), self.is_part_of(x,y)))))
-        # M: below is not biconditional. I think that's ok (see comment on pg 538), just thought I'd note
-        harmony = z3.ForAll([x,y], z3.Implies(z3.And(self.is_world(x), self.coheres(x,y)), self.possible(y)))
-        rashomon = z3.ForAll([x,y], z3.Implies(z3.And(self.possible(x), self.possible(y), self.coheres(x,y)), self.possible(self.fusion(x,y))))
-        # B: this is really nice and readable
         self.frame_constraints = [
+            actuality,
             exclusion_symmetry,
-            # possibility_downard_closure,
             cosmopolitanism,
             harmony,
             rashomon, # guards against emergent impossibility (pg 538)
-            self.is_world(self.main_world) # actuality?
-
-
         ]
 
         # TODO: Define invalidity conditions
@@ -80,6 +91,7 @@ class ChampollionSemantics:
         returns a Z3 constraint"""
         return bit_s | bit_t
 
+    # B: was there something wrong with this one?
     # def total_fusion(self, set_P):
     #     if isinstance(set_P, z3.ArrayRef):
     #         set_P = z3_set_to_python_set(z3_set, self.all_bits)
