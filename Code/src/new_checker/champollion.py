@@ -44,6 +44,7 @@ class ChampollionSemantics:
         exclusion_symmetry = ForAll(
             [x, y], z3.Implies(self.excludes(x, y), self.excludes(y, x))
         )
+
         # B: the following is derived for Champollion
         # possibility_downard_closure = ForAll(
         #     [x, y],
@@ -51,11 +52,13 @@ class ChampollionSemantics:
         #         z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)
         #     ),
         # )
+
         # B: the following are axioms constraining exclusion
         # exclusion_actuality = ...
         # exclusion_worldhood = ... # also called cosmopolitanism
         # exclusion_harmony = ...
         # exclusion_rashomon = ...
+
         # B: this is really nice and readable
         self.frame_constraints = [
             exclusion_symmetry,
