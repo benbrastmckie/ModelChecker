@@ -7,6 +7,7 @@ from hidden_helpers import (
     index_to_substate,
     pretty_set_print,
     z3_set,
+    z3_set_to_python_set,
 )
 
 from model_builder import PropositionDefaults
@@ -92,13 +93,13 @@ class ChampollionSemantics:
 
     # B: was there something wrong with this one?
     # M: Not as far as I know (none of these have been tested); it just wasn't needed
-    # def total_fusion(self, set_P):
-    #     if isinstance(set_P, z3.ArrayRef):
-    #         set_P = z3_set_to_python_set(z3_set, self.all_bits)
-    #     set_P = list(set_P)
-    #     if len(set_P) == 2:
-    #         return self.fusion(set_P[0], set_P[1])
-    #     return self.fusion(set_P[0], self.total_fusion(set_P[1:]))
+    def total_fusion(self, set_P):
+        if isinstance(set_P, z3.ArrayRef):
+            set_P = z3_set_to_python_set(z3_set, self.all_bits)
+        set_P = list(set_P)
+        if len(set_P) == 2:
+            return self.fusion(set_P[0], set_P[1])
+        return self.fusion(set_P[0], self.total_fusion(set_P[1:]))
 
     def is_part_of(self, bit_s, bit_t):
         """the fusion of bit_s and bit_t is identical to bit_t
@@ -137,13 +138,14 @@ class ChampollionSemantics:
         return z3.ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
 
     def collectively_excludes(self, bit_s, set_P):
+        # B: isn't total_fusion needed here?
         return self.excludes(bit_s, self.total_fusion(set_P))
     
     def individually_excludes(self, bit_s, set_P):
         # M: I think this works. Had to come up with alt def for condition b
         # condition a
         sub_s, p = z3.BitVecs("sub_s p", self.N)
-        P = z3_set(set_P)
+        P = z3_set(set_P, self.N)
         cond_a = Exists(
             [sub_s, p],
             z3.And(self.is_part_of(sub_s, bit_s), P[p], self.excludes(sub_s, p)),
