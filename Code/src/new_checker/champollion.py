@@ -12,14 +12,21 @@ from hidden_helpers import (
     # to include in the parent class; I might try to work on this tonight...
 )
 
-from model_builder import PropositionDefaults
+from model_builder import (
+    PropositionDefaults,
+    SemanticDefaults,
+)
 
 import syntactic
 
 
-class ChampollionSemantics:
+class ChampollionSemantics(SemanticDefaults):
+
     def __init__(self, N):
-        self.N = N
+
+        # Initialize the superclass to set defaults
+        super().__init__(N)
+
         self.verify = z3.Function(
             "verify", # name
             z3.BitVecSort(N), # first argument type: bitvector
@@ -34,12 +41,7 @@ class ChampollionSemantics:
         )
         self.main_world = z3.BitVec("w", N)
 
-        # Define top and bottom states
-        max_value = (1 << self.N) - 1  # NOTE: faster than 2**self.N - 1
-        self.full_bit = z3.BitVecVal(max_value, self.N)
-        self.null_bit = z3.BitVecVal(0, self.N)
-        self.all_bits = [z3.BitVecVal(i, self.N) for i in range(1 << self.N)]
-
+        # Define frame constraints
         x, y = z3.BitVecs("frame_x frame_y", self.N)
         actuality = self.is_world(self.main_world)
         exclusion_symmetry = ForAll(
@@ -71,6 +73,7 @@ class ChampollionSemantics:
             )
         )
 
+        # Set frame constraints
         self.frame_constraints = [
             actuality,
             exclusion_symmetry,
@@ -80,6 +83,8 @@ class ChampollionSemantics:
         ]
 
         # TODO: Define invalidity conditions
+        # self.premise_behavior = self.true_at
+        # self.conclusion_behavior = self.false_at
 
     # B: since definitions like this will almost always occur, can we pull them
     # from the API once that is set up? I'm getting it would be best to move all
@@ -95,40 +100,6 @@ class ChampollionSemantics:
     # be preserved? I would have figured that it would go:
     # 'import X from model-checker' not 'import states.X from model-checker'
     # happy to cross this bridge when we come to it
-    # M: the way we could have them remain methods of the class would be by making a
-    # SemanticsDefaults class much like the Operator class for operators and the
-    # PropositionDefaults class for propositions. 
-    # this may be helpful for other conceptual reasons right now an instance of this
-    # semantics class has strictly speaking nothing to do with an instance of your
-    # semantics, but intuitively they are both semantics-objects. Having that class
-    # would make the classes the objects instantiate subclasses of the same default
-    # class, so that they do share the fact they're both semantics in common.
-    # besides that I can't think of a reason to pref one way of going over another
-    # B: that makes a lot of sense and will help users to define their semantics
-    # without having to start from nothing or import a bunch of stuff they have
-    # to know about
-    def fusion(self, bit_s, bit_t):
-        """the result of taking the maximum for each index in bit_s and bit_t
-        returns a Z3 constraint"""
-        return bit_s | bit_t
-
-    def total_fusion(self, set_P):
-        if isinstance(set_P, z3.ArrayRef):
-            set_P = z3_set_to_python_set(z3_set, self.all_bits)
-        set_P = list(set_P)
-        if len(set_P) == 2:
-            return self.fusion(set_P[0], set_P[1])
-        return self.fusion(set_P[0], self.total_fusion(set_P[1:]))
-
-    def is_part_of(self, bit_s, bit_t):
-        """the fusion of bit_s and bit_t is identical to bit_t
-        returns a Z3 constraint"""
-        return self.fusion(bit_s, bit_t) == bit_t
-
-    def is_proper_part_of(self, bit_s, bit_t):
-        """the fusion of bit_s and bit_t is identical to bit_t
-        returns a Z3 constraint"""
-        return z3.And(self.fusion(bit_s, bit_t) == bit_t, bit_s != bit_t)
 
     def conflicts(self, bit_e1, bit_e2):
         f1, f2 = z3.BitVecs("f1 f2", self.N)

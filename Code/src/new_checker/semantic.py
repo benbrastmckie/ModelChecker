@@ -3,6 +3,7 @@ import z3
 # NOTE: go in API
 from model_builder import (
     PropositionDefaults,
+    SemanticDefaults,
 )
 
 # NOTE: go in API
@@ -22,14 +23,14 @@ import syntactic
 ##############################################################################
 
 
-class Semantics:
+class Semantics(SemanticDefaults):
     """Includes the semantic primitives, semantic definitions, frame
     constraints, truth and falsity theories, and premise/conclusion behavior."""
 
     def __init__(self, N):
 
-        # Store the number of states
-        self.N = N
+        # Initialize the superclass to set defaults
+        super().__init__(N)
 
         # Define the Z3 primitives
         self.verify = z3.Function("verify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
@@ -37,12 +38,6 @@ class Semantics:
         self.possible = z3.Function("possible", z3.BitVecSort(N), z3.BoolSort())
         self.main_world = z3.BitVec("w", N)
 
-        # Define top and bottom states
-        max_value = (1 << self.N) - 1 # NOTE: faster than 2**self.N - 1
-        self.full_bit = z3.BitVecVal(max_value, self.N)
-        self.null_bit = z3.BitVecVal(0, self.N)
-        self.all_bits = [z3.BitVecVal(i, self.N) for i in range(1 << self.N)]
-        
         # Define the frame constraints
         x, y = z3.BitVecs("frame_x frame_y", N)
         possibility_downard_closure = ForAll(
@@ -51,6 +46,8 @@ class Semantics:
         )
         is_main_world = self.is_world(self.main_world)
         impossible_full_bit = z3.Not(self.possible(self.full_bit))
+
+        # Set frame constraints
         self.frame_constraints = [
             possibility_downard_closure,
             is_main_world,
@@ -60,21 +57,6 @@ class Semantics:
         # Define invalidity conditions
         self.premise_behavior = self.true_at
         self.conclusion_behavior = self.false_at
-
-    def fusion(self, bit_s, bit_t):
-        """the result of taking the maximum for each index in bit_s and bit_t
-        returns a Z3 constraint"""
-        return bit_s | bit_t
-
-    def is_part_of(self, bit_s, bit_t):
-        """the fusion of bit_s and bit_t is identical to bit_t
-        returns a Z3 constraint"""
-        return self.fusion(bit_s, bit_t) == bit_t
-
-    def non_null_part_of(self, bit_s, bit_t):
-        """bit_s verifies atom and is not the null state
-        returns a Z3 constraint"""
-        return z3.And(z3.Not(bit_s == 0), self.is_part_of(bit_s, bit_t))
 
     def compatible(self, bit_x, bit_y):
         """the fusion of bit_x and bit_y is possible
@@ -175,20 +157,6 @@ class Semantics:
             return self.falsify(state, prefix_object[0])
         op, args = prefix_object[0], prefix_object[1:]
         return op.extended_falsify(state, *args, eval_world)
-
-    def product(self, set_A, set_B):
-        """set of pairwise fusions of elements in set_A and set_B"""
-        product_set = set()
-        for bit_a in set_A:
-            for bit_b in set_B:
-                bit_ab = z3.simplify(bit_a | bit_b)
-                product_set.add(bit_ab)
-        return product_set
-
-    def coproduct(self, set_A, set_B):
-        """union closed under pairwise fusion"""
-        A_U_B = set_A.union(set_B)
-        return A_U_B.union(self.product(set_A, set_B))
 
 
 class Proposition(PropositionDefaults):
