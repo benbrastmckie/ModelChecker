@@ -64,9 +64,9 @@ print_impossible_bool = True
 #####################
 
 # premises = ["\\neg (\\bot \\vee B)", "(\\top \\wedge D)"]
-# premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
+premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["(A \\rightarrow B)", "A"]
-premises = ["(A \\leftrightarrow B)", "\\possible A"]
+# premises = ["(A \\leftrightarrow B)", "\\possible A"]
 # premises = ["\\possible B"]
 # premises = ["\\Box A", "(A \\leftrightarrow B)"]
 # premises = ["\\Box A"]
@@ -145,13 +145,13 @@ conclusions = ["C"]
 # contingent_bool = False
 # disjoint_bool = False
 
-# FALSE PREMISE
-# CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
-N = 3
-premises = ['((A \\wedge B) \\boxright C)','\\possible (A \\wedge B)']
-conclusions = ['(A \\boxright (B \\boxright C))']
-contingent_bool = True
-disjoint_bool = False
+# # FALSE PREMISE
+# # CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
+# N = 3
+# premises = ['((A \\wedge B) \\boxright C)','\\possible (A \\wedge B)']
+# conclusions = ['(A \\boxright (B \\boxright C))']
+# contingent_bool = True
+# disjoint_bool = False
 
 
 #############################

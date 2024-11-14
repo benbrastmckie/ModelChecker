@@ -6,19 +6,93 @@ things in hidden_things right now:
 '''
 
 from z3 import (
-    sat,
+    And,
+    ArrayRef,
+    Not,
+    BitVec,
+    BitVecVal,
     Solver,
+    sat,
+    simplify,
 )
 
 import time
 
 from hidden_helpers import (
+    ForAll,
     bitvec_to_substates,
     int_to_binary,
     not_implemented_string,
+    z3_set,
+    z3_set_to_python_set,
 )
 
 import sys
+
+class SemanticDefaults:
+    """Includes default attributes and methods to be inherited by a semantics
+    including frame constraints, truth and falsity, and logical consequence."""
+
+    def __init__(self, N):
+
+        # Store the number of states
+        self.N = N
+
+        # Define top and bottom states
+        max_value = (1 << self.N) - 1 # NOTE: faster than 2**self.N - 1
+        self.full_bit = BitVecVal(max_value, self.N)
+        self.null_bit = BitVecVal(0, self.N)
+        self.all_bits = [BitVecVal(i, self.N) for i in range(1 << self.N)]
+        
+        # Define the frame constraints
+        self.frame_constraints = None
+
+        # Define invalidity conditions
+        self.premise_behavior = None
+        self.conclusion_behavior = None
+
+    def fusion(self, bit_s, bit_t):
+        """the result of taking the maximum for each index in bit_s and bit_t
+        returns a Z3 constraint"""
+        return bit_s | bit_t
+
+    def total_fusion(self, set_P):
+        if isinstance(set_P, ArrayRef):
+            set_P = z3_set_to_python_set(z3_set, self.all_bits)
+        set_P = list(set_P)
+        if len(set_P) == 2:
+            return self.fusion(set_P[0], set_P[1])
+        return self.fusion(set_P[0], self.total_fusion(set_P[1:]))
+
+    def is_part_of(self, bit_s, bit_t):
+        """the fusion of bit_s and bit_t is identical to bit_t
+        returns a Z3 constraint"""
+        return self.fusion(bit_s, bit_t) == bit_t
+
+    def is_proper_part_of(self, bit_s, bit_t):
+        """the fusion of bit_s and bit_t is identical to bit_t
+        returns a Z3 constraint"""
+        return And(self.is_part_of(bit_s, bit_t), bit_s != bit_t)
+
+    def non_null_part_of(self, bit_s, bit_t):
+        """bit_s verifies atom and is not the null state
+        returns a Z3 constraint"""
+        return And(Not(bit_s == 0), self.is_part_of(bit_s, bit_t))
+
+    def product(self, set_A, set_B):
+        """set of pairwise fusions of elements in set_A and set_B"""
+        product_set = set()
+        for bit_a in set_A:
+            for bit_b in set_B:
+                bit_ab = simplify(bit_a | bit_b)
+                product_set.add(bit_ab)
+        return product_set
+
+    def coproduct(self, set_A, set_B):
+        """union closed under pairwise fusion"""
+        A_U_B = set_A.union(set_B)
+        return A_U_B.union(self.product(set_A, set_B))
+
 
 class PropositionDefaults:
     """Defaults inherited by every proposition."""
