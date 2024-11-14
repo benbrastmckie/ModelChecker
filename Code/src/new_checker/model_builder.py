@@ -9,7 +9,6 @@ from z3 import (
     And,
     ArrayRef,
     Not,
-    BitVec,
     BitVecVal,
     Solver,
     sat,
@@ -18,12 +17,12 @@ from z3 import (
 
 import time
 
+from functools import reduce
+
 from hidden_helpers import (
-    ForAll,
     bitvec_to_substates,
     int_to_binary,
     not_implemented_string,
-    z3_set,
     z3_set_to_python_set,
 )
 
@@ -52,17 +51,14 @@ class SemanticDefaults:
         self.conclusion_behavior = None
 
     def fusion(self, bit_s, bit_t):
-        """the result of taking the maximum for each index in bit_s and bit_t
-        returns a Z3 constraint"""
+        """Return bitwise OR of bit_s and bit_t (Z3 bit vectors)."""
         return bit_s | bit_t
 
     def total_fusion(self, set_P):
+        """Return the fused result (bitwise OR) of all elements in set_P."""
         if isinstance(set_P, ArrayRef):
-            set_P = z3_set_to_python_set(z3_set, self.all_bits)
-        set_P = list(set_P)
-        if len(set_P) == 2:
-            return self.fusion(set_P[0], set_P[1])
-        return self.fusion(set_P[0], self.total_fusion(set_P[1:]))
+            set_P = z3_set_to_python_set(set_P, self.all_bits)
+        return reduce(self.fusion, list(set_P))
 
     def is_part_of(self, bit_s, bit_t):
         """the fusion of bit_s and bit_t is identical to bit_t
