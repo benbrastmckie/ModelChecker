@@ -12,11 +12,16 @@ The operators `\\top` and `\\bot` are reserved.
 import string
 from z3 import(
     And,
+    BitVecSort,
     BitVecVal,
+    BoolRef,
+    EmptySet,
+    IsMember,
     Or,
+    SetAdd,
+    simplify,
     substitute,
 ) 
-import z3
 
 ### GENERAL HELPERS ###
 
@@ -202,16 +207,31 @@ def bitvec_to_substates(bit_vec, N):
 
 ### Z3 HELPERS ###
 
+# def z3_set(python_set, N):
+#     z3_set = z3.EmptySet(z3.BitVecSort(N))
+#     for elem in python_set:
+#         z3_set = z3.SetAdd(z3_set, elem)
+#     return z3_set
+#
+# def z3_set_to_python_set(z3_set, domain):
+#     python_set = set()
+#     for elem in domain:
+#         if z3.simplify(z3.IsMember(elem, z3_set)):
+#             python_set.add(elem)
+#     return python_set
+
 def z3_set(python_set, N):
-    z3_set = z3.EmptySet(z3.BitVecSort(N))
+    """Convert a Python set to a Z3 set of bit-width N."""
+    z3_set = EmptySet(BitVecSort(N))
     for elem in python_set:
-        z3_set = z3.SetAdd(z3_set, elem)
+        z3_set = SetAdd(z3_set, elem)
     return z3_set
 
 def z3_set_to_python_set(z3_set, domain):
+    """Convert a Z3 set to a Python set using domain for membership checks."""
     python_set = set()
     for elem in domain:
-        if z3.simplify(z3.IsMember(elem, z3_set)):
+        if bool(simplify(IsMember(elem, z3_set))):
             python_set.add(elem)
     return python_set
 
@@ -222,9 +242,9 @@ def z3_simplify(z3_expr):
     This will get rid of need for all the bit_ functions.
     However, it does not get rid of e.g. find_compatible_parts.
     """
-    if isinstance(z3_expr, z3.BoolRef):
-        return bool(z3.simplify(z3_expr))
-    return z3.simplify(z3_expr)
+    if isinstance(z3_expr, BoolRef):
+        return bool(simplify(z3_expr))
+    return simplify(z3_expr)
 
 def ForAll(bvs, formula):
     """
@@ -281,7 +301,7 @@ def product(set_A, set_B):
     product_set = set()
     for bit_a in set_A:
         for bit_b in set_B:
-            bit_ab = z3.simplify(bit_a | bit_b)
+            bit_ab = simplify(bit_a | bit_b)
             product_set.add(bit_ab)
     return product_set
 
