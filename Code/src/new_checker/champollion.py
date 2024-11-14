@@ -128,8 +128,7 @@ class ChampollionSemantics:
     def possible(self, bit_e):
         return self.coheres(bit_e, bit_e)
 
-    def compossible(self, bit_e1, bit_e2):  # TODO: unsure. is fusion = sum?
-        # def on page 528 of Champollion
+    def compossible(self, bit_e1, bit_e2):
         return self.possible(self.fusion(bit_e1, bit_e2))
 
     # M: TODO: missing necessary proposition def on 528. don't think it goes here
@@ -139,6 +138,7 @@ class ChampollionSemantics:
 
     def collectively_excludes(self, bit_s, set_P):
         # B: isn't total_fusion needed here?
+        # M: ah yes looks like it is—sorry I missed it, good catch!
         return self.excludes(bit_s, self.total_fusion(set_P))
     
     def individually_excludes(self, bit_s, set_P):
