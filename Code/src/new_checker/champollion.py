@@ -8,7 +8,8 @@ from hidden_helpers import (
     pretty_set_print,
     z3_set,
     z3_set_to_python_set,
-    product,
+    product, # B: this is another method of semantics that would be good
+    # to include in the parent class; I might try to work on this tonight...
 )
 
 from model_builder import PropositionDefaults
@@ -90,6 +91,10 @@ class ChampollionSemantics:
     # M: I think it may be most helpful to divide the helpers into sections. Maybe
     # we have multiple files so that all e.g. states-related functions could be
     # called as e.g. states.fusion. 
+    # B: that sounds good. when it comes to setting up the API, will the modules
+    # be preserved? I would have figured that it would go:
+    # 'import X from model-checker' not 'import states.X from model-checker'
+    # happy to cross this bridge when we come to it
     # M: the way we could have them remain methods of the class would be by making a
     # SemanticsDefaults class much like the Operator class for operators and the
     # PropositionDefaults class for propositions. 
@@ -99,13 +104,14 @@ class ChampollionSemantics:
     # would make the classes the objects instantiate subclasses of the same default
     # class, so that they do share the fact they're both semantics in common.
     # besides that I can't think of a reason to pref one way of going over another
+    # B: that makes a lot of sense and will help users to define their semantics
+    # without having to start from nothing or import a bunch of stuff they have
+    # to know about
     def fusion(self, bit_s, bit_t):
         """the result of taking the maximum for each index in bit_s and bit_t
         returns a Z3 constraint"""
         return bit_s | bit_t
 
-    # B: was there something wrong with this one?
-    # M: Not as far as I know (none of these have been tested); it just wasn't needed
     def total_fusion(self, set_P):
         if isinstance(set_P, z3.ArrayRef):
             set_P = z3_set_to_python_set(z3_set, self.all_bits)
@@ -150,8 +156,6 @@ class ChampollionSemantics:
         return z3.ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
 
     def collectively_excludes(self, bit_s, set_P):
-        # B: isn't total_fusion needed here?
-        # M: ah yes looks like it is—sorry I missed it, good catch!
         return self.excludes(bit_s, self.total_fusion(set_P))
     
     def individually_excludes(self, bit_s, set_P):
@@ -221,8 +225,10 @@ class NegationOperator(syntactic.Operator):
     def true_at(self, arg, eval_world):
         """doc string place holder"""
         # M: TODO I'm not sure this is right
+        # B: I think this is it (see def 30 in his paper)
         return z3.Not(self.semantics.true_at(arg))
 
+    # B: this is on the right track
     def extended_verify(self, state, arg, eval_world):
         pass # TODO: state precludes |arg|
         # return z3.Not(self.semantics.extended_verify(state, arg, eval_world))
@@ -242,6 +248,7 @@ class NegationOperator(syntactic.Operator):
         model_structure.recursive_print(argument, eval_world, indent_num)
 
 
+# B: this looks great!
 class AndOperator(syntactic.Operator):
     """doc string place holder"""
 
@@ -286,6 +293,7 @@ class AndOperator(syntactic.Operator):
         model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
 
 
+# B: this looks great!
 class OrOperator(syntactic.Operator):
     """doc string place holder"""
 
