@@ -8,6 +8,7 @@ from hidden_helpers import (
     pretty_set_print,
     z3_set,
     z3_set_to_python_set,
+    product,
 )
 
 from model_builder import PropositionDefaults
@@ -86,6 +87,18 @@ class ChampollionSemantics:
     # then be listed in __init__.py so that one can call them from the API. not
     # sure this makes much of a difference but could help keep things organized.
     # alternatively, we can divide the helpers into sections.
+    # M: I think it may be most helpful to divide the helpers into sections. Maybe
+    # we have multiple files so that all e.g. states-related functions could be
+    # called as e.g. states.fusion. 
+    # M: the way we could have them remain methods of the class would be by making a
+    # SemanticsDefaults class much like the Operator class for operators and the
+    # PropositionDefaults class for propositions. 
+    # this may be helpful for other conceptual reasons right now an instance of this
+    # semantics class has strictly speaking nothing to do with an instance of your
+    # semantics, but intuitively they are both semantics-objects. Having that class
+    # would make the classes the objects instantiate subclasses of the same default
+    # class, so that they do share the fact they're both semantics in common.
+    # besides that I can't think of a reason to pref one way of going over another
     def fusion(self, bit_s, bit_t):
         """the result of taking the maximum for each index in bit_s and bit_t
         returns a Z3 constraint"""
@@ -197,3 +210,111 @@ class ChampollionSemantics:
         return self.is_part_of(bit_s, self.main_world)
     
 
+
+
+class NegationOperator(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\neg"
+    arity = 1
+
+    def true_at(self, arg, eval_world):
+        """doc string place holder"""
+        # M: TODO I'm not sure this is right
+        return z3.Not(self.semantics.true_at(arg))
+
+    def extended_verify(self, state, arg, eval_world):
+        pass # TODO: state precludes |arg|
+        # return z3.Not(self.semantics.extended_verify(state, arg, eval_world))
+
+    def find_verifiers(self, arg_sent_obj, eval_world):
+        pass # TODO
+        # Y_V, Y_F = arg_sent_obj.proposition.find_proposition()
+        # return Y_F, Y_V
+
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints the argument."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        argument = sentence_obj.arguments[0]
+        indent_num += 1
+        model_structure.recursive_print(argument, eval_world, indent_num)
+
+
+class AndOperator(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\wedge"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder
+        args are prefix_objects (ie things of the third kind) I think, def 2nd or 3rd kind
+        """
+        sem = self.semantics
+        return z3.And(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
+
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        x = z3.BitVec("ex_ver_x", self.semantics.N)
+        y = z3.BitVec("ex_ver_y", self.semantics.N)
+        return Exists(
+            [x, y],
+            z3.And(
+                self.semantics.fusion(x, y) == state,
+                self.semantics.extended_verify(x, leftarg, eval_world),
+                self.semantics.extended_verify(y, rightarg, eval_world),
+            )
+        )
+
+    def find_verifiers(self, left_sent_obj, right_sent_obj, eval_world):
+        """Takes sentences objects as arguments, finds their verifiers and
+        falsifiers, and returns the verifiers and falsifiers for the operator"""
+        Y_V = left_sent_obj.proposition.find_proposition()
+        Z_V = right_sent_obj.proposition.find_proposition()
+        return product(Y_V, Z_V) # moved copies of product and coproduct to hidden_helpers
+        # (discussion above fusion (lines ~ 80-100) applies here too)
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        left_sent_obj, right_sent_obj = sentence_obj.arguments
+        indent_num += 1
+        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
+        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+
+
+class OrOperator(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\vee"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        sem = self.semantics
+        return z3.Or(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
+
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        return z3.Or(
+            self.semantics.extended_verify(state, leftarg, eval_world),
+            self.semantics.extended_verify(state, rightarg, eval_world),
+            # same as bilateral except no And in def
+        )
+
+    def find_verifiers(self, left_sent_obj, right_sent_obj, eval_world):
+        Y_V = left_sent_obj.proposition.find_proposition()
+        Z_V = right_sent_obj.proposition.find_proposition()
+        return Y_V.union(Z_V)
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        left_sent_obj, right_sent_obj = sentence_obj.arguments
+        indent_num += 1
+        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
+        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)

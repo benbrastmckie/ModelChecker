@@ -276,6 +276,20 @@ def Exists(bvs, formula):
             constraints.append(substituted_reduced_formula)
     return Or(constraints)
 
+def product(set_A, set_B):
+    """set of pairwise fusions of elements in set_A and set_B"""
+    product_set = set()
+    for bit_a in set_A:
+        for bit_b in set_B:
+            bit_ab = z3.simplify(bit_a | bit_b)
+            product_set.add(bit_ab)
+    return product_set
+
+def coproduct(set_A, set_B):
+    """union closed under pairwise fusion"""
+    A_U_B = set_A.union(set_B)
+    return A_U_B.union(product(set_A, set_B))
+
 
 ### ERROR REPORTING ###
 
