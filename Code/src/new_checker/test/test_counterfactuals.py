@@ -53,26 +53,26 @@ def test_CF_CM2():
         desired_status,
     )
 
-# @pytest.mark.timeout(max_time)
-# def test_CF_CM3():
-# # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
-#     premises = ['(A \\boxright C)', '\\Diamond (A \\wedge B)']
-#     conclusions = ['((A \\wedge B) \\boxright C)']
-#     N = 3
-#     contingent = True
-#     non_null = True
-#     disjoint = False
-#     desired_status = True
-#     check_model_status(
-#         premises,
-#         conclusions,
-#         N,
-#         contingent,
-#         non_null,
-#         disjoint,
-#         max_time,
-#         desired_status,
-#     )
+@pytest.mark.timeout(max_time)
+def test_CF_CM3():
+# COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
+    premises = ['(A \\boxright C)', '\\possible (A \\wedge B)']
+    conclusions = ['((A \\wedge B) \\boxright C)']
+    N = 3
+    contingent = True
+    non_null = True
+    disjoint = False
+    desired_status = True
+    check_model_status(
+        premises,
+        conclusions,
+        N,
+        contingent,
+        non_null,
+        disjoint,
+        max_time,
+        desired_status,
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM4():
@@ -268,34 +268,34 @@ def test_CF_CM12():
         desired_status,
     )
 
-# @pytest.mark.timeout(max_time)
-# def test_CF_CM13():
-# # SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
-#     premises = [
-#         '\\Diamond A',
-#         '(A \\boxright X)',
-#         '\\Diamond (A \\wedge B)',
-#         '\\neg ((A \\wedge B) \\boxright X)',
-#         '\\Diamond ((A \\wedge B) \\wedge C)',
-#         '(((A \\wedge B) \\wedge C) \\boxright X)',
-#         '\\Diamond (((A \\wedge B) \\wedge C) \\wedge D)',
-#     ]
-#     conclusions = []
-#     N = 4
-#     contingent = True
-#     non_null = True
-#     disjoint = False
-#     desired_status = True
-#     check_model_status(
-#         premises,
-#         conclusions,
-#         N,
-#         contingent,
-#         non_null,
-#         disjoint,
-#         max_time,
-#         desired_status,
-#     )
+@pytest.mark.timeout(max_time)
+def test_CF_CM13():
+# SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
+    premises = [
+        '\\possible A',
+        '(A \\boxright X)',
+        '\\possible (A \\wedge B)',
+        '\\neg ((A \\wedge B) \\boxright X)',
+        '\\possible ((A \\wedge B) \\wedge C)',
+        '(((A \\wedge B) \\wedge C) \\boxright X)',
+        '\\possible (((A \\wedge B) \\wedge C) \\wedge D)',
+    ]
+    conclusions = []
+    N = 4
+    contingent = True
+    non_null = True
+    disjoint = False
+    desired_status = True
+    check_model_status(
+        premises,
+        conclusions,
+        N,
+        contingent,
+        non_null,
+        disjoint,
+        max_time,
+        desired_status,
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM14():
@@ -402,26 +402,26 @@ def test_CF_CM18():
         desired_status,
     )
 
-# @pytest.mark.timeout(max_time)
-# def test_CF_CM19():
-# # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
-#     premises = ['((A \\wedge B) \\boxright C)','\\Diamond (A \\wedge B)']
-#     conclusions = ['(A \\boxright (B \\boxright C))']
-#     N = 3
-#     contingent = True
-#     non_null = True
-#     disjoint = False
-#     desired_status = True
-#     check_model_status(
-#         premises,
-#         conclusions,
-#         N,
-#         contingent,
-#         non_null,
-#         disjoint,
-#         max_time,
-#         desired_status,
-#     )
+@pytest.mark.timeout(max_time)
+def test_CF_CM19():
+# COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
+    premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
+    conclusions = ['(A \\boxright (B \\boxright C))']
+    N = 3
+    contingent = True
+    non_null = True
+    disjoint = False
+    desired_status = True
+    check_model_status(
+        premises,
+        conclusions,
+        N,
+        contingent,
+        non_null,
+        disjoint,
+        max_time,
+        desired_status,
+    )
 
 @pytest.mark.timeout(max_time)
 def test_CF_CM20():

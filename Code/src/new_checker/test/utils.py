@@ -23,6 +23,7 @@ from new_checker.operators import (
     BiconditionalOperator,
     DefNecessityOperator,
     DefPossibilityOperator,
+    DefPossibilityOperator2,
 )
 
 # NOTE: go in API
@@ -61,6 +62,7 @@ operators = OperatorCollection(
     DefGroundOperator,  # constitutive defined
     DefNecessityOperator,
     DefPossibilityOperator,  # modal defined
+    DefPossibilityOperator2,
     CounterfactualOperator,
     MightCounterfactualOperator,  # counterfactual
 )

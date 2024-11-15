@@ -26,20 +26,20 @@ from z3 import Const, DeclareSort
 
 AtomSort = DeclareSort("AtomSort")
 
-def infix(prefix_sent): 
-    """Takes a sentence in prefix notation (in any of the three kinds)
-    and translates it to infix notation (a string).
-    defining a version of this outside sentence for ease of a helper func"""
-    if isinstance(prefix_sent, Operator):
-        return str(prefix_sent)
-    if len(prefix_sent) == 1:
-        return str(prefix_sent[0])
-    op = prefix_sent[0]
-    if len(prefix_sent) == 2:
-        return f"{op} {infix(prefix_sent[1])}"
-    left_expr = prefix_sent[1]
-    right_expr = prefix_sent[2]
-    return f"({infix(left_expr)} {op} {infix(right_expr)})"
+# def infix(prefix_sent): 
+#     """Takes a sentence in prefix notation (in any of the three kinds)
+#     and translates it to infix notation (a string).
+#     defining a version of this outside sentence for ease of a helper func"""
+#     if isinstance(prefix_sent, Operator):
+#         return str(prefix_sent)
+#     if len(prefix_sent) == 1:
+#         return str(prefix_sent[0])
+#     op = prefix_sent[0]
+#     if len(prefix_sent) == 2:
+#         return f"{op} {infix(prefix_sent[1])}"
+#     left_expr = prefix_sent[1]
+#     right_expr = prefix_sent[2]
+#     return f"({infix(left_expr)} {op} {infix(right_expr)})"
 
 class Sentence:
     """Given an infix_sentence as input, an instance of this class store the
@@ -420,7 +420,8 @@ class Syntax:
         sorted_sentences = sorted(all_sentences.items(), key=lambda item: item[1].complexity)
         
         # Create a dictionary with sorted sentences by complexity
-        sorted_all_sentences = {infix(s.prefix_sentence): s for _, s in sorted_sentences}
+        sorted_all_sentences = {s.name: s for _, s in sorted_sentences}
+        # sorted_all_sentences = {infix(s.prefix_sentence): s for _, s in sorted_sentences}
 
         return sorted_all_sentences
 
