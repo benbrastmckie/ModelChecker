@@ -51,10 +51,6 @@ operators = syntactic.OperatorCollection(
 ################
 
 N = 3
-contingent_bool = False
-disjoint_bool = False
-non_null_bool = True
-print_impossible_bool = True
 
 
 
@@ -157,6 +153,13 @@ conclusions = ["C"]
 #############################
 ### WORKING COUNTERMODELS ###
 #############################
+
+# # THIS WAS EXTRA HARD BEFORE ALSO
+# N = 5
+# premises = ['(A \\boxright (B \\boxright C))']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # N = 4
@@ -458,12 +461,11 @@ model_constraints = ModelConstraints(
     syntax,
     semantics,
     Proposition,
-    contingent_bool,
-    non_null_bool,
-    disjoint_bool,
-    print_impossible_bool,
+    contingent=False,
+    non_null=True,
+    disjoint=False,
+    print_impossible=True,
 )
-
 
 ########################################
 ### SOLVE, STORE, AND PRINT Z3 MODEL ###
