@@ -1,5 +1,5 @@
-"""run 'pytest' from the '.../Code' directory"""
-from src.model_checker.model_structure import make_model_for
+"""run 'pytest' from the '.../model_checker' directory"""
+from model_checker.model_structure import make_model_for
 
 max_time = 2
 

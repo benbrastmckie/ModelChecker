@@ -8,8 +8,15 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [:] implementation
 - [ ] api
 - [ ] applications
+  - [ ] Champollion
+    - [ ] Proposition
+    - [x] Semantics
+    - [:] Operators
+      - [.] Not
+      - [x] And
+      - [x] Or
+    - [ ] run tests
   - [ ] Fine
-  - Champollion
 - [ ] testing
 - [.] documentation
 - cli

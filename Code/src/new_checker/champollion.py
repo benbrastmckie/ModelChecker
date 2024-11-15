@@ -8,7 +8,7 @@ from hidden_helpers import (
     pretty_set_print,
     z3_set,
     z3_set_to_python_set,
-    product, # B: this is another method of semantics that would be good
+    # product, # B: this is another method of semantics that would be good
     # to include in the parent class; I might try to work on this tonight...
 )
 
@@ -177,16 +177,24 @@ class ChampollionSemantics(SemanticDefaults):
 
     def is_world(self, bit_s):
         m = z3.BitVec("m", self.N)
-        return z3.And(self.possible(bit_s), 
-                      z3.Not(z3.Exists(m, z3.And(self.is_proper_part_of(bit_s, m),
-                                                 self.possible(m)))))
+        return z3.And(
+            self.possible(bit_s), 
+            z3.Not(
+                z3.Exists(
+                    m,
+                    z3.And(
+                        self.is_proper_part_of(bit_s, m),
+                        self.possible(m)
+                    )
+                )
+            )
+        )
     
     def occurs(self, bit_s):
         return self.is_part_of(bit_s, self.main_world)
-    
 
 
-
+# B: this seems close!
 class NegationOperator(syntactic.Operator):
     """doc string place holder"""
 
@@ -250,8 +258,10 @@ class AndOperator(syntactic.Operator):
         falsifiers, and returns the verifiers and falsifiers for the operator"""
         Y_V = left_sent_obj.proposition.find_proposition()
         Z_V = right_sent_obj.proposition.find_proposition()
-        return product(Y_V, Z_V) # moved copies of product and coproduct to hidden_helpers
+        return self.semantics.product(Y_V, Z_V) 
+        # M: moved copies of product and coproduct to hidden_helpers
         # (discussion above fusion (lines ~ 80-100) applies here too)
+        # B: I moved these into the SemanticDefaults parent class
     
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
