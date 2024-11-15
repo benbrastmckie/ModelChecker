@@ -76,7 +76,7 @@ class ChampollionSemantics(SemanticDefaults):
         # TODO: Define invalidity conditions
         # self.premise_behavior = self.true_at
         # NOTE: want NOT(self.true_at)
-        # self.conclusion_behavior = self.false_at
+        # self.conclusion_behavior = 
 
     # B: since definitions like this will almost always occur, can we pull them
     # from the API once that is set up? I'm getting it would be best to move all
@@ -142,23 +142,37 @@ class ChampollionSemantics(SemanticDefaults):
                 Exists(p, z3.And(P[p], self.excludes(x, p))), self.is_part_of(x, Sigma)
             ),
         )
-        # NOTE: could switch to forall as outermost quantifer
         # Sigma is the least upper bound on excluders of set P
-        Sigma_LUB = z3.Not(
-            z3.Exists(
-                z,
-                z3.And(
-                    z3.ForAll(
-                        y,
-                        z3.Implies(
-                            Exists(p, z3.And(P[p], self.excludes(y, p))),
-                            self.is_part_of(y, Sigma),
-                        ),
+        Sigma_LUB = z3.ForAll(
+            z,
+            z3.Implies(
+                z3.ForAll(
+                    y,
+                    z3.Implies(
+                        Exists(p, z3.And(P[p], self.excludes(y, p))),
+                        self.is_part_of(y, Sigma),
                     ),
-                    self.is_proper_part_of(z, Sigma),
                 ),
-            )
+                # B: could change this to be an identity for speed boost?
+                self.is_part_of(Sigma, z),
+            ),
         )
+        # # NOTE: negative existential version to compare
+        # Sigma_LUB = z3.Not(
+        #     z3.Exists(
+        #         z,
+        #         z3.And(
+        #             z3.ForAll(
+        #                 y,
+        #                 z3.Implies(
+        #                     Exists(p, z3.And(P[p], self.excludes(y, p))),
+        #                     self.is_part_of(y, Sigma),
+        #                 ),
+        #             ),
+        #             self.is_proper_part_of(z, Sigma),
+        #         ),
+        #     )
+        # )
         return z3.And(cond_a, Sigma_UB, Sigma_LUB, self.is_part_of(bit_s, Sigma))
 
     def emergently_excludes(self, bit_s, set_P):
@@ -233,10 +247,12 @@ class NegationOperator(syntactic.Operator):
                             is_part_of(h(y), state)
                         )
                     ),
+                    # B: could change this to be an identity for speed boost?
                     is_part_of(state, z)
                 )
             )
         )
+        # # NOTE: negative existential version to compare
         #     z3.Not(
         #         z3.Exists(
         #             z,
