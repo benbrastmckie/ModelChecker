@@ -259,9 +259,6 @@ class AndOperator(syntactic.Operator):
         Y_V = left_sent_obj.proposition.find_proposition()
         Z_V = right_sent_obj.proposition.find_proposition()
         return self.semantics.product(Y_V, Z_V) 
-        # M: moved copies of product and coproduct to hidden_helpers
-        # (discussion above fusion (lines ~ 80-100) applies here too)
-        # B: I moved these into the SemanticDefaults parent class
     
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
