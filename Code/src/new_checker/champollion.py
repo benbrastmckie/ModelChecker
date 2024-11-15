@@ -236,7 +236,8 @@ class AndOperator(syntactic.Operator):
 
     def true_at(self, leftarg, rightarg, eval_world):
         """doc string place holder
-        args are prefix_objects (ie things of the third kind) I think, def 2nd or 3rd kind
+        args are prefix_objects I think, def prefix_type or prefix_object
+        (ie of second or third kind)
         """
         sem = self.semantics
         return z3.And(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
