@@ -8,8 +8,12 @@ things in hidden_things right now:
 from z3 import (
     And,
     ArrayRef,
+    BitVecSort,
+    EmptySet,
+    IsMember,
     Not,
     BitVecVal,
+    SetAdd,
     Solver,
     sat,
     simplify,
@@ -23,7 +27,6 @@ from hidden_helpers import (
     bitvec_to_substates,
     int_to_binary,
     not_implemented_string,
-    z3_set_to_python_set,
 )
 
 import sys
@@ -53,6 +56,21 @@ class SemanticDefaults:
     def fusion(self, bit_s, bit_t):
         """Return bitwise OR of bit_s and bit_t (Z3 bit vectors)."""
         return bit_s | bit_t
+
+    def z3_set(self, python_set, N):
+        """Convert a Python set to a Z3 set of bit-width N."""
+        z3_set = EmptySet(BitVecSort(N))
+        for elem in python_set:
+            z3_set = SetAdd(z3_set, elem)
+        return z3_set
+
+    def z3_set_to_python_set(self, z3_set, domain):
+        """Convert a Z3 set to a Python set using domain for membership checks."""
+        python_set = set()
+        for elem in domain:
+            if bool(simplify(IsMember(elem, z3_set))):
+                python_set.add(elem)
+        return python_set
 
     def total_fusion(self, set_P):
         """Return the fused result (bitwise OR) of all elements in set_P."""
@@ -412,38 +430,47 @@ class ModelStructure:
     #         print(f"all_constraints = {constraints}", file=output)
 
     def print_states(self, output=sys.__stdout__):
-        """print all fusions of atomic states in the model
-        print_impossible is a boolean for whether to print impossible states or not
-        first print function in print.py"""
-        N = self.model_constraints.semantics.N
-        print("\nState Space:", file=output)  # Print states
-        YELLOW = "\033[33m"
-        BLUE = "\033[34m"
-        MAGENTA = "\033[35m"
-        CYAN = "\033[36m"
-        WHITE = "\033[37m"
-        RESET = "\033[0m"
-        for bit in self.all_bits:
-            state = bitvec_to_substates(bit, N)
-            bin_rep = (
+        """Print all fusions of atomic states in the model."""
+
+        def binary_bitvector(bit):
+            return (
                 bit.sexpr()
                 if N % 4 != 0
                 else int_to_binary(int(bit.sexpr()[2:], 16), N)
             )
+        
+        def format_state(bin_rep, state, color, label=""):
+            """Helper function to format and print a state."""
+            label_str = f" ({label})" if label else ""
+            print(f"  {WHITE}{bin_rep} = {color}{state}{label_str}{RESET}", file=output)
+        
+        # Extract semantics and state information
+        N = self.model_constraints.semantics.N
+        print("\nState Space:", file=output)
+
+        # Define ANSI color codes
+        COLORS = {
+            "default": "\033[37m",  # WHITE
+            "world": "\033[34m",    # BLUE
+            "possible": "\033[36m", # CYAN
+            "impossible": "\033[35m", # MAGENTA
+            "initial": "\033[33m",  # YELLOW
+        }
+        RESET = "\033[0m"
+        WHITE = COLORS["default"]
+
+        # Print state details
+        for bit in self.all_bits:
+            state = bitvec_to_substates(bit, N)
+            bin_rep = binary_bitvector(bit)
             if bit == 0:
-                print(f"  {WHITE}{bin_rep} = {YELLOW}{state}{RESET}", file=output)
-                continue
-            if bit in self.world_bits:
-                print(f"  {WHITE}{bin_rep} = {BLUE}{state} (world){RESET}", file=output)
-                continue
-            if bit in self.poss_bits:
-                print(f"  {WHITE}{bin_rep} = {CYAN}{state}{RESET}", file=output)
-                continue
-            if self.print_impossible:
-                print(
-                    f"  {WHITE}{bin_rep} = {MAGENTA}{state} (impossible){RESET}",
-                    file=output,
-                )
+                format_state(bin_rep, state, COLORS["initial"])
+            elif bit in self.world_bits:
+                format_state(bin_rep, state, COLORS["world"], "world")
+            elif bit in self.poss_bits:
+                format_state(bin_rep, state, COLORS["possible"])
+            elif self.print_impossible:
+                format_state(bin_rep, state, COLORS["impossible"], "impossible")
 
     # def rec_print(self, sentence, eval_world, indent):
     #     # all_sentences = self.all_sentences
@@ -490,29 +517,30 @@ class ModelStructure:
         op.print_method(sentence, eval_world, indent_num)  # print complex sentence
 
     def print_input_sentences(self, output):
-        """Runs recursive_print for each premise and conclusion."""
-        initial_eval_world = self.main_world
-        start_conclusion_number = len(self.premises) + 1
-        if self.premises:
-            if len(self.premises) < 2:
-                print("INTERPRETED PREMISE:\n", file=output)
-            else:
-                print("INTERPRETED PREMISES:\n", file=output)
-            for index, sentence in enumerate(self.premises, start=1):
-                print(f"{index}.", end="", file=output)
-                self.recursive_print(sentence, initial_eval_world, 1)
-                print(file=output)
-        if self.conclusions:
-            if len(self.conclusions) < 2:
-                print("INTERPRETED CONCLUSION:\n", file=output)
-            else:
-                print("INTERPRETED CONCLUSIONS:\n", file=output)
-            for index, sentence in enumerate(
-                self.conclusions, start=start_conclusion_number
-            ):
-                print(f"{index}.", end="", file=output)
-                self.recursive_print(sentence, initial_eval_world, 1)
-                print(file=output)
+        """Prints the interpreted premises and conclusions, leveraging recursive_print."""
+        
+        def print_sentences(title_singular, title_plural, sentences, start_index):
+            """Helper function to print a list of sentences with a title."""
+            if sentences:
+                title = title_singular if len(sentences) < 2 else title_plural
+                print(title, file=output)
+                for index, sentence in enumerate(sentences, start=start_index):
+                    print(f"{index}.", end="", file=output)
+                    self.recursive_print(sentence, self.main_world, 1)
+                    print(file=output)
+        
+        print_sentences(
+            "INTERPRETED PREMISE:\n",
+            "INTERPRETED PREMISES:\n",
+            self.premises,
+            start_index=1,
+        )
+        print_sentences(
+            "INTERPRETED CONCLUSION:\n",
+            "INTERPRETED CONCLUSIONS:\n",
+            self.conclusions,
+            start_index=len(self.premises) + 1,
+        )
 
     def print_all(self, output=sys.__stdout__):
         """prints states, sentence letters evaluated at the designated world and

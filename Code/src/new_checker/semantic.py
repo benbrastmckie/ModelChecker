@@ -13,6 +13,7 @@ from hidden_helpers import (
     bitvec_to_substates,
     index_to_substate,
     pretty_set_print,
+    set_colors,
 )
 
 import syntactic
@@ -257,7 +258,7 @@ class Proposition(PropositionDefaults):
                 possible_falsifier,
             ]
 
-        # TODO: fix
+        # TODO: _B_ fix
         def get_disjoint_constraints():
             """The non_null_constraints are included in disjoin_constraints."""
             x, y, z = z3.BitVecs("dj_prop_x dj_prop_y dj_prop_z", semantics.N)
@@ -375,21 +376,7 @@ class Proposition(PropositionDefaults):
         ver_prints = pretty_set_print(ver_states)
         fal_prints = pretty_set_print(fal_states)
         world_state = bitvec_to_substates(eval_world, N)
-        # TODO: move colors into hidden_helpers? or a similar file with useful helpers? 
-        # B: that sounds like a great idea 
-        # M: ik we discussed smth like that earlier. I think it'd be good to have one file
-        # for helpers not useful to users and one with helpers/things (these would be candidates)
-        # useful to users
-        # B: also sounds like a great idea 
-        RED, GREEN, RESET, FULL, PART = "\033[31m", "\033[32m", "\033[0m", "\033[37m", "\033[33m"
-        if indent_num == 1:
-            FULL, PART = (GREEN, GREEN) if truth_value else (RED, RED)
-            if truth_value is None:
-                world_state = bitvec_to_substates(eval_world, N)
-                print(
-                    f"\n{RED}WARNING:{RESET}"
-                    f"{self} is neither true nor false at {world_state}.\n"
-                )
+        RESET, FULL, PART = set_colors(self.name, indent_num, truth_value, world_state)
         print(
             f"{'  ' * indent_num}{FULL}|{self}| = < {ver_prints}, {fal_prints} >{RESET}"
             f"  {PART}({truth_value} in {world_state}){RESET}"
