@@ -12,13 +12,9 @@ The operators `\\top` and `\\bot` are reserved.
 import string
 from z3 import(
     And,
-    BitVecSort,
     BitVecVal,
     BoolRef,
-    EmptySet,
-    IsMember,
     Or,
-    SetAdd,
     simplify,
     substitute,
 ) 
@@ -45,104 +41,22 @@ from z3 import(
 
 ### SYNTACTIC HELPERS ###
 
-def op_left_right(tokens):
-    """Divides whatever is inside a pair of parentheses into the left argument,
-    right argument, and the operator."""
-
-    def balanced_parentheses(tokens):
-        """Check if parentheses are balanced in the argument."""
-        stack = []
-        for token in tokens:
-            if token == "(":
-                stack.append(token)
-            elif token == ")":
-                if not stack:
-                    return False
-                stack.pop()
-        return len(stack) == 0
-
-    def check_right(tokens, operator):
-        if not tokens:
-            raise ValueError(f"Expected an argument after the operator {operator}")
-        if not balanced_parentheses(tokens):
-            raise ValueError("Unbalanced parentheses")
-        return tokens  # Remaining tokens are the right argument
-
-    def cut_parentheses(left, tokens):
-        count = 1  # To track nested parentheses
-        while tokens:
-            token = tokens.pop(0)
-            if token == "(":
-                count += 1
-                left.append(token)
-            elif token == ")":
-                count -= 1
-                left.append(token)
-            elif count > 0:
-                left.append(token)
-            elif not tokens:
-                raise ValueError(f"Extra parentheses in {tokens}.")
-            else:
-                operator = token
-                right = check_right(tokens, operator)
-                return operator, left, right
-        raise ValueError(f"The expression {tokens} is incomplete.")
-
-    def process_operator(tokens):
-        if tokens:
-            return tokens.pop(0)
-        raise ValueError("Operator missing after operand")
-
-    def extract_arguments(tokens):
-        """Extracts the left argument and right argument from tokens."""
-        left = []
-        while tokens:
-            token = tokens.pop(0)
-            if token == "(":
-                left.append(token)
-                return cut_parentheses(left, tokens)
-            elif token.isalnum() or token in {"\\top", "\\bot"}:
-                left.append(token)
-                operator = process_operator(tokens)
-                right = check_right(tokens, operator)
-                return operator, left, right
-            else:
-                left.append(token)
-        raise ValueError("Invalid expression or unmatched parentheses")
-
-    result = extract_arguments(tokens)
-    if result is None:
-        raise ValueError("Failed to extract arguments")
-    return result
-
-def parse_expression(tokens):
-    """Parses a list of tokens representing a propositional expression and returns
-    the expression in prefix notation.
-    At this point, prefix is with strings for everything, I think
-    """
-    if not tokens:  # Check if tokens are empty before processing
-        raise ValueError("Empty token list")
-    token = tokens.pop(0)  # Get the next token
-    if token == "(":  # Handle binary operator case (indicated by parentheses)
-        closing_parentheses = tokens.pop()  # Remove the closing parenthesis
-        if closing_parentheses != ")":
-            raise SyntaxError(
-                f"The sentence {tokens} is missing a closing parenthesis."
-            )
-        operator, left, right = op_left_right(tokens)
-        left_arg, left_comp = parse_expression(left)  # Parse the left argument
-        right_arg, right_comp = parse_expression(right)  # Parse the right argument
-        complexity = left_comp + right_comp + 1
-        return [operator, left_arg, right_arg], complexity 
-    if token.isalnum():  # Handle atomic sentences
-        return [token], 0
-    elif token in {"\\top", "\\bot"}:  # Handle extremal operators
-        return [token], 0
-    arg, comp = parse_expression(tokens)
-    return [token, arg], comp + 1 
 
 
 ### PRINT HELPERS ###
+
+def set_colors(name, indent_num, truth_value, world_state):
+    RED, GREEN, RESET = "\033[31m", "\033[32m", "\033[0m" 
+    FULL, PART = "\033[37m", "\033[33m"
+    if indent_num == 1:
+        FULL, PART = (GREEN, GREEN) if truth_value else (RED, RED)
+        if truth_value is None:
+            # world_state = bitvec_to_substates(eval_world, N)
+            print(
+                f"\n{RED}WARNING:{RESET}"
+                f"{name} is neither true nor false at {world_state}.\n"
+            )
+    return RESET, FULL, PART
 
 
 def pretty_set_print(set_with_strings):
@@ -219,23 +133,6 @@ def bitvec_to_substates(bit_vec, N):
 #             python_set.add(elem)
 #     return python_set
 
-# TODO: can move into class
-def z3_set(python_set, N):
-    """Convert a Python set to a Z3 set of bit-width N."""
-    z3_set = EmptySet(BitVecSort(N))
-    for elem in python_set:
-        z3_set = SetAdd(z3_set, elem)
-    return z3_set
-
-# TODO: can move into class
-def z3_set_to_python_set(z3_set, domain):
-    """Convert a Z3 set to a Python set using domain for membership checks."""
-    python_set = set()
-    for elem in domain:
-        if bool(simplify(IsMember(elem, z3_set))):
-            python_set.add(elem)
-    return python_set
-
 
 # M: this is not used right now but may be later
 def z3_simplify(z3_expr):
@@ -297,20 +194,7 @@ def Exists(bvs, formula):
             constraints.append(substituted_reduced_formula)
     return Or(constraints)
 
-# B: I moved these to the SemanticDefaults class
-# def product(set_A, set_B):
-#     """set of pairwise fusions of elements in set_A and set_B"""
-#     product_set = set()
-#     for bit_a in set_A:
-#         for bit_b in set_B:
-#             bit_ab = simplify(bit_a | bit_b)
-#             product_set.add(bit_ab)
-#     return product_set
-#
-# def coproduct(set_A, set_B):
-#     """union closed under pairwise fusion"""
-#     A_U_B = set_A.union(set_B)
-#     return A_U_B.union(product(set_A, set_B))
+
 
 
 ### ERROR REPORTING ###
