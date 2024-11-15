@@ -189,36 +189,70 @@ class NegationOperator(syntactic.Operator):
 
     def true_at(self, arg, eval_world):
         """doc string place holder"""
-        return z3.Not(self.semantics.true_at(arg)) # by def (30) in paper
+        # B: I added eval_world to true_at below
+        return z3.Not(self.semantics.true_at(arg, eval_world)) # by def (30) in paper
 
+    # B: This looks great! I changed verify to extended_verify (though this is
+    # missing from the semantics above) since the argument need not be a sentence
+    # letter. The only other change I made is to push the negation inward. I kept
+    # the negative existential version to compare later.
     def extended_verify(self, state, arg, eval_world):
+
+        # Import definitions from semantics
         sem = self.semantics
-        N, verify, excludes = sem.N, sem.verify, sem.excludes
+        N, extended_verify, excludes = sem.N, sem.extended_verify, sem.excludes
         is_part_of, is_proper_part_of = sem.is_part_of, sem.is_proper_part_of
+
         h = z3.Function(f"{self} ver {arg}", z3.BitVecSort(N), z3.BitVecSort(N))
         f, x, y, z, s = z3.BitVecs("f x y z s", N)
         return z3.And(
-            z3.ForAll( # 1. conditions on h
+            # 1. conditions on h
+            z3.ForAll(
                 f,
                 z3.Implies(
-                    verify(state, arg),
+                    extended_verify(state, arg, eval_world),
                     z3.Exists(s, z3.And(is_part_of(s, f), excludes(h(f), s))),
                 ),
             ),
-            z3.ForAll(x, z3.Implies(verify(x, arg), is_part_of(h(x), state))),
-            # 2. (above) state is upper bound on h(f) for f that verify arg
-            z3.Not( # 3. state is LUB on h(f) for f that verify arg
-                z3.Exists(
-                    z,
-                    z3.And(
-                        z3.ForAll(
-                            y, z3.Implies(verify(y, arg), is_part_of(h(y), state))
-                        ),
-                        is_proper_part_of(z, state),
-                    ),
+            # 2. state is upper bound on h(f) for f that verify arg
+            z3.ForAll(
+                x,
+                z3.Implies(
+                    extended_verify(x, arg),
+                    is_part_of(h(x), state),
                 )
             ),
+            # 3. state is LUB on h(f) for f that verify arg
+            z3.ForAll(
+                z,
+                z3.Implies(
+                    z3.ForAll(
+                        y,
+                        z3.Implies(
+                            extended_verify(y, arg),
+                            is_part_of(h(y), state)
+                        )
+                    ),
+                    is_part_of(state, z)
+                )
+            )
         )
+        #     z3.Not(
+        #         z3.Exists(
+        #             z,
+        #             z3.And(
+        #                 z3.ForAll(
+        #                     y,
+        #                     z3.Implies(
+        #                         extended_verify(y, arg),
+        #                         is_part_of(h(y), state)
+        #                     )
+        #                 ),
+        #                 is_proper_part_of(z, state)
+        #             )
+        #         )
+        #     )
+        # )
 
     def find_verifiers(self, arg_sent_obj, eval_world):
         eval = arg_sent_obj.proposition.model_structure.z3_model.evaluate
