@@ -48,7 +48,7 @@ class ChampollionSemantics(SemanticDefaults):
             [x, y],
             z3.Implies(self.excludes(x, y), self.excludes(y, x))
         )
-        cosmopolitanism = z3.ForAll(
+        cosmopolitanism = z3.ForAll( # NOTE: should be redundant given finiteness
             x,
             z3.Implies(
                 self.possible(x),
@@ -84,6 +84,7 @@ class ChampollionSemantics(SemanticDefaults):
 
         # TODO: Define invalidity conditions
         # self.premise_behavior = self.true_at
+        # NOTE: want NOT(self.true_at)
         # self.conclusion_behavior = self.false_at
 
     # B: since definitions like this will almost always occur, can we pull them
@@ -151,6 +152,7 @@ class ChampollionSemantics(SemanticDefaults):
                 self.is_part_of(x, Sigma)
             ),
         )
+        # NOTE: could switch to forall as outermost quantifer
         # Sigma is the least upper bound on excluders of set P
         Sigma_LUB = z3.Not(
             z3.Exists(

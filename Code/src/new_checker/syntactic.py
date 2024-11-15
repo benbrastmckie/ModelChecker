@@ -299,6 +299,7 @@ class DefinedOperator(Operator):
         return artificial_sentence
     
     def find_verifiers_and_falsifiers(self, *argsents_and_eval_world):
+        """Takes sentences """
         argsents, eval_world = argsents_and_eval_world[0:-1], argsents_and_eval_world[-1]
         prefix_args = [sent.prefix_object for sent in argsents]
         dprefix_def = self.get_derived_prefix_form(prefix_args) # d for derived
