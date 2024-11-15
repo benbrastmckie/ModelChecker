@@ -15,7 +15,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
       - [.] Not
       - [x] And
       - [x] Or
-    - [ ] run tests
+    - [ ] unit tests
   - [ ] Fine
 - [ ] testing
 - [.] documentation
@@ -38,39 +38,45 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [:] operators to implement:
     - [:] defined operators
       - [x] debug given `sentence_obj` integration
+      - [ ] debug new issue (see unit tests)
       - [ ] add doc strings
     - [ ] might counterfactual
       - [ ] primitive
       - [ ] defined
-      - [ ] testing
+      - [ ] unit tests
       - [ ] benchmarking
     - [ ] modal
       - [ ] primitive
-      - [x] defined in terms of counterfactual and top
-      - [ ] testing
+      - [:] defined in terms of counterfactual and top
+        - [ ] debug
+      - [ ] unit tests
       - [ ] benchmarking
     - [:] constitutive
       - [x] define primitive identity operator
       - [x] define essence, ground, and relevance in terms of identity
       - [x] add print methods
       - [x] debug true conclusion and false premise models
-      - [ ] testing
+      - [ ] unit tests
       - [ ] benchmarking
     - [ ] imposition counterfactual
       - [ ] add z3 primitive semantics
       - [ ] add frame constraints
       - [ ] define operator
-      - [ ] testing
+      - [ ] unit tests
       - [ ] benchmarking
-    - [x] extensional
+    - [:] extensional
+      - [ ] unit tests
     - [x] extremal
       - [x] define extremal elements in `hidden_things.py`
       - [x] define two primitive extremal operators in `exposed_things.py`
       - [x] add print methods
+      - [ ] unit tests
     - [x] must counterfactual
       - [x] debug
       - [x] add print method
       - [x] fix indenting
+      - [:] unit tests
+        - [ ] move all with Diamond into `test_modal.py`
 
 ## API
 
@@ -112,12 +118,11 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - build unit test to generalize on single example
   - run unit test on a range of examples
 
-## Unit Testing
+## Diagnostic Tools
 
-- [ ] unit tests for new model checker
-- [ ] diagnostics
+- [ ] error reporting
   - [ ] convert bvs to states in raise Errors
-  - [.] function to compare constraints for new and old versions
+- [.] function to compare constraints for new and old versions
 
 ## Documentation
 
