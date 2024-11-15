@@ -21,23 +21,21 @@ import syntactic
 
 
 class ChampollionSemantics(SemanticDefaults):
-
     def __init__(self, N):
-
         # Initialize the superclass to set defaults
         super().__init__(N)
 
         self.verify = z3.Function(
-            "verify", # name
-            z3.BitVecSort(N), # first argument type: bitvector
-            syntactic.AtomSort, # second argument type: sentence letter
-            z3.BoolSort() # return type: boolean
+            "verify",  # name
+            z3.BitVecSort(N),  # first argument type: bitvector
+            syntactic.AtomSort,  # second argument type: sentence letter
+            z3.BoolSort(),  # return type: boolean
         )
         self.excludes = z3.Function(
-            "excludes", # name
-            z3.BitVecSort(N), # first argument type: bitvector
-            z3.BitVecSort(N), # second argument type: bitvector
-            z3.BoolSort() # return type: boolean
+            "excludes",  # name
+            z3.BitVecSort(N),  # first argument type: bitvector
+            z3.BitVecSort(N),  # second argument type: bitvector
+            z3.BoolSort(),  # return type: boolean
         )
         self.main_world = z3.BitVec("w", N)
 
@@ -45,32 +43,25 @@ class ChampollionSemantics(SemanticDefaults):
         x, y = z3.BitVecs("frame_x frame_y", self.N)
         actuality = self.is_world(self.main_world)
         exclusion_symmetry = ForAll(
-            [x, y],
-            z3.Implies(self.excludes(x, y), self.excludes(y, x))
+            [x, y], z3.Implies(self.excludes(x, y), self.excludes(y, x))
         )
         cosmopolitanism = z3.ForAll( # NOTE: should be redundant given finiteness
             x,
             z3.Implies(
                 self.possible(x),
-                z3.Exists(
-                    y,
-                    z3.And(self.is_world(y), self.is_part_of(x,y))
-                )
-            )
+                z3.Exists(y, z3.And(self.is_world(y), self.is_part_of(x, y))),
+            ),
         )
-        harmony = z3.ForAll( # not biconditional form (just a note)
-            [x,y],
-            z3.Implies(
-                z3.And(self.is_world(x), self.coheres(x,y)),
-                self.possible(y)
-            )
+        harmony = z3.ForAll(  # not biconditional form (just a note)
+            [x, y],
+            z3.Implies(z3.And(self.is_world(x), self.coheres(x, y)), self.possible(y)),
         )
         rashomon = z3.ForAll(
-            [x,y],
+            [x, y],
             z3.Implies(
-                z3.And(self.possible(x), self.possible(y), self.coheres(x,y)),
-                self.possible(self.fusion(x,y))
-            )
+                z3.And(self.possible(x), self.possible(y), self.coheres(x, y)),
+                self.possible(self.fusion(x, y)),
+            ),
         )
 
         # Set frame constraints
@@ -79,7 +70,7 @@ class ChampollionSemantics(SemanticDefaults):
             exclusion_symmetry,
             cosmopolitanism,
             harmony,
-            rashomon, # guards against emergent impossibility (pg 538)
+            rashomon,  # guards against emergent impossibility (pg 538)
         ]
 
         # TODO: Define invalidity conditions
@@ -96,7 +87,7 @@ class ChampollionSemantics(SemanticDefaults):
     # alternatively, we can divide the helpers into sections.
     # M: I think it may be most helpful to divide the helpers into sections. Maybe
     # we have multiple files so that all e.g. states-related functions could be
-    # called as e.g. states.fusion. 
+    # called as e.g. states.fusion.
     # B: that sounds good. when it comes to setting up the API, will the modules
     # be preserved? I would have figured that it would go:
     # 'import X from model-checker' not 'import states.X from model-checker'
@@ -129,7 +120,7 @@ class ChampollionSemantics(SemanticDefaults):
 
     def collectively_excludes(self, bit_s, set_P):
         return self.excludes(bit_s, self.total_fusion(set_P))
-    
+
     def individually_excludes(self, bit_s, set_P):
         # M: I think this works. Had to come up with alt def for condition b
         # condition a
@@ -148,8 +139,7 @@ class ChampollionSemantics(SemanticDefaults):
         Sigma_UB = z3.ForAll(
             x,
             z3.Implies(
-                Exists(p, z3.And(P[p], self.excludes(x, p))),
-                self.is_part_of(x, Sigma)
+                Exists(p, z3.And(P[p], self.excludes(x, p))), self.is_part_of(x, Sigma)
             ),
         )
         # NOTE: could switch to forall as outermost quantifer
@@ -180,18 +170,12 @@ class ChampollionSemantics(SemanticDefaults):
     def is_world(self, bit_s):
         m = z3.BitVec("m", self.N)
         return z3.And(
-            self.possible(bit_s), 
+            self.possible(bit_s),
             z3.Not(
-                z3.Exists(
-                    m,
-                    z3.And(
-                        self.is_proper_part_of(bit_s, m),
-                        self.possible(m)
-                    )
-                )
-            )
+                z3.Exists(m, z3.And(self.is_proper_part_of(bit_s, m), self.possible(m)))
+            ),
         )
-    
+
     def occurs(self, bit_s):
         return self.is_part_of(bit_s, self.main_world)
 
@@ -205,19 +189,41 @@ class NegationOperator(syntactic.Operator):
 
     def true_at(self, arg, eval_world):
         """doc string place holder"""
-        # M: TODO I'm not sure this is right
-        # B: I think this is it (see def 30 in his paper)
-        return z3.Not(self.semantics.true_at(arg))
+        return z3.Not(self.semantics.true_at(arg)) # by def (30) in paper
 
-    # B: this is on the right track
     def extended_verify(self, state, arg, eval_world):
-        pass # TODO: state precludes |arg|
-        # return z3.Not(self.semantics.extended_verify(state, arg, eval_world))
+        sem = self.semantics
+        N, verify, excludes = sem.N, sem.verify, sem.excludes
+        is_part_of, is_proper_part_of = sem.is_part_of, sem.is_proper_part_of
+        h = z3.Function(f"{self} ver {arg}", z3.BitVecSort(N), z3.BitVecSort(N))
+        f, x, y, z, s = z3.BitVecs("f x y z s", N)
+        return z3.And(
+            z3.ForAll( # 1. conditions on h
+                f,
+                z3.Implies(
+                    verify(state, arg),
+                    z3.Exists(s, z3.And(is_part_of(s, f), excludes(h(f), s))),
+                ),
+            ),
+            z3.ForAll(x, z3.Implies(verify(x, arg), is_part_of(h(x), state))),
+            # 2. (above) state is upper bound on h(f) for f that verify arg
+            z3.Not( # 3. state is LUB on h(f) for f that verify arg
+                z3.Exists(
+                    z,
+                    z3.And(
+                        z3.ForAll(
+                            y, z3.Implies(verify(y, arg), is_part_of(h(y), state))
+                        ),
+                        is_proper_part_of(z, state),
+                    ),
+                )
+            ),
+        )
 
     def find_verifiers(self, arg_sent_obj, eval_world):
-        pass # TODO
-        # Y_V, Y_F = arg_sent_obj.proposition.find_proposition()
-        # return Y_F, Y_V
+        eval = arg_sent_obj.proposition.model_structure.z3_model.evaluate
+        all_bits, pfo = self.semantics.all_bits, arg_sent_obj.prefix_object
+        return {x for x in all_bits if eval(self.extended_verify(x, pfo))}
 
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
@@ -242,7 +248,9 @@ class AndOperator(syntactic.Operator):
         (ie of second or third kind)
         """
         sem = self.semantics
-        return z3.And(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
+        return z3.And(
+            sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world)
+        )
 
     def extended_verify(self, state, leftarg, rightarg, eval_world):
         x = z3.BitVec("ex_ver_x", self.semantics.N)
@@ -253,7 +261,7 @@ class AndOperator(syntactic.Operator):
                 self.semantics.fusion(x, y) == state,
                 self.semantics.extended_verify(x, leftarg, eval_world),
                 self.semantics.extended_verify(y, rightarg, eval_world),
-            )
+            ),
         )
 
     def find_verifiers(self, left_sent_obj, right_sent_obj, eval_world):
@@ -261,8 +269,8 @@ class AndOperator(syntactic.Operator):
         falsifiers, and returns the verifiers and falsifiers for the operator"""
         Y_V = left_sent_obj.proposition.find_proposition()
         Z_V = right_sent_obj.proposition.find_proposition()
-        return self.semantics.product(Y_V, Z_V) 
-    
+        return self.semantics.product(Y_V, Z_V)
+
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
@@ -284,7 +292,9 @@ class OrOperator(syntactic.Operator):
     def true_at(self, leftarg, rightarg, eval_world):
         """doc string place holder"""
         sem = self.semantics
-        return z3.Or(sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world))
+        return z3.Or(
+            sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world)
+        )
 
     def extended_verify(self, state, leftarg, rightarg, eval_world):
         return z3.Or(
@@ -297,7 +307,7 @@ class OrOperator(syntactic.Operator):
         Y_V = left_sent_obj.proposition.find_proposition()
         Z_V = right_sent_obj.proposition.find_proposition()
         return Y_V.union(Z_V)
-    
+
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
