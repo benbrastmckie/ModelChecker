@@ -4,6 +4,7 @@ from hidden_helpers import (
     ForAll,
     Exists,
     bitvec_to_substates,
+    general_print,
     pretty_set_print,
 )
 
@@ -40,11 +41,7 @@ class NegationOperator(syntactic.Operator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints the argument."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        argument = sentence_obj.arguments[0]
-        indent_num += 1
-        model_structure.recursive_print(argument, eval_world, indent_num)
+        general_print(sentence_obj, eval_world, indent_num)
 
 
 class AndOperator(syntactic.Operator):
@@ -100,12 +97,7 @@ class AndOperator(syntactic.Operator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        left_sent_obj, right_sent_obj = sentence_obj.arguments
-        indent_num += 1
-        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
-        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+        general_print(sentence_obj, eval_world, indent_num)
 
 
 class OrOperator(syntactic.Operator):
@@ -157,12 +149,7 @@ class OrOperator(syntactic.Operator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        left_sent_obj, right_sent_obj = sentence_obj.arguments
-        indent_num += 1
-        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
-        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+        general_print(sentence_obj, eval_world, indent_num)
 
 
 ##############################################################################
@@ -180,12 +167,7 @@ class ConditionalOperator(syntactic.DefinedOperator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        left_sent_obj, right_sent_obj = sentence_obj.arguments
-        indent_num += 1
-        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
-        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+        general_print(sentence_obj, eval_world, indent_num)
 
 
 class BiconditionalOperator(syntactic.DefinedOperator):
@@ -201,12 +183,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        left_sent_obj, right_sent_obj = sentence_obj.arguments
-        indent_num += 1
-        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
-        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+        general_print(sentence_obj, eval_world, indent_num)
 
 
 
@@ -244,7 +221,7 @@ class TopOperator(syntactic.Operator):
 
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        general_print(sentence_obj, eval_world, indent_num)
 
 
 class BotOperator(syntactic.Operator):
@@ -273,7 +250,7 @@ class BotOperator(syntactic.Operator):
 
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        general_print(sentence_obj, eval_world, indent_num)
 
 
 
@@ -383,12 +360,7 @@ class IdentityOperator(syntactic.Operator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        left_sent_obj, right_sent_obj = sentence_obj.arguments
-        indent_num += 1
-        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
-        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+        general_print(sentence_obj, eval_world, indent_num)
 
 
 class GroundOperator(syntactic.Operator):
@@ -497,12 +469,7 @@ class GroundOperator(syntactic.Operator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        left_sent_obj, right_sent_obj = sentence_obj.arguments
-        indent_num += 1
-        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
-        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+        general_print(sentence_obj, eval_world, indent_num)
 
 
 class EssenceOperator(syntactic.Operator):
@@ -611,12 +578,7 @@ class EssenceOperator(syntactic.Operator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        left_sent_obj, right_sent_obj = sentence_obj.arguments
-        indent_num += 1
-        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
-        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+        general_print(sentence_obj, eval_world, indent_num)
 
 
 
@@ -635,12 +597,7 @@ class DefGroundOperator(syntactic.DefinedOperator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        left_sent_obj, right_sent_obj = sentence_obj.arguments
-        indent_num += 1
-        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
-        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+        general_print(sentence_obj, eval_world, indent_num)
 
 
 class DefEssenceOperator(syntactic.DefinedOperator):
@@ -654,12 +611,7 @@ class DefEssenceOperator(syntactic.DefinedOperator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        left_sent_obj, right_sent_obj = sentence_obj.arguments
-        indent_num += 1
-        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
-        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+        general_print(sentence_obj, eval_world, indent_num)
 
 
 
@@ -928,6 +880,7 @@ class NecessityOperator(syntactic.Operator):
         # Increment indentation for nested output
         indent_num += 1
         
+        # TODO: need to adapt to single argument
         # Retrieve primary subsentences and verifiers
         left_subsentence, right_subsentence = sentence_obj.arguments
         left_subprop_verifiers = left_subsentence.proposition.verifiers

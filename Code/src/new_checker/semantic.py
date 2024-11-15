@@ -302,7 +302,6 @@ class Proposition(PropositionDefaults):
             constraints.extend(get_non_null_constraints())
         return constraints
 
-
     def find_proposition(self):
         """takes self, returns the V, F tuple
         used in find_verifiers_and_falsifiers"""
