@@ -219,6 +219,7 @@ def bitvec_to_substates(bit_vec, N):
 #             python_set.add(elem)
 #     return python_set
 
+# TODO: can move into class
 def z3_set(python_set, N):
     """Convert a Python set to a Z3 set of bit-width N."""
     z3_set = EmptySet(BitVecSort(N))
@@ -226,6 +227,7 @@ def z3_set(python_set, N):
         z3_set = SetAdd(z3_set, elem)
     return z3_set
 
+# TODO: can move into class
 def z3_set_to_python_set(z3_set, domain):
     """Convert a Z3 set to a Python set using domain for membership checks."""
     python_set = set()

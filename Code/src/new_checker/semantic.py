@@ -140,8 +140,8 @@ class Semantics(SemanticDefaults):
 
     def extended_verify(self, state, prefix_object, eval_world):
         if isinstance(prefix_object, syntactic.Operator):
-            # B: I don't think this ever gets called DISCUSS
-            print("TEST CHANGE")
+            # TODO: how can this be removed
+            print("TEST CHANGE", prefix_object)
             return prefix_object.extended_verify(state, eval_world)
         if str(prefix_object[0]).isalnum():
             return self.verify(state, prefix_object[0])
@@ -150,8 +150,8 @@ class Semantics(SemanticDefaults):
     
     def extended_falsify(self, state, prefix_object, eval_world):
         if isinstance(prefix_object, syntactic.Operator):
-            # B: I don't think this ever gets called DISCUSS
-            print("TEST CHANGE")
+            # TODO: how can this be removed
+            print("TEST CHANGE", prefix_object)
             return prefix_object.extended_falsify(state, eval_world)
         if str(prefix_object[0]).isalnum():
             return self.falsify(state, prefix_object[0])
@@ -375,7 +375,7 @@ class Proposition(PropositionDefaults):
         ver_prints = pretty_set_print(ver_states)
         fal_prints = pretty_set_print(fal_states)
         world_state = bitvec_to_substates(eval_world, N)
-        # DISCUSS: move colors into hidden_helpers? or a similar file with useful helpers? 
+        # TODO: move colors into hidden_helpers? or a similar file with useful helpers? 
         # B: that sounds like a great idea 
         # M: ik we discussed smth like that earlier. I think it'd be good to have one file
         # for helpers not useful to users and one with helpers/things (these would be candidates)

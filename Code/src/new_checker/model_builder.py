@@ -100,7 +100,8 @@ class PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
 
         # Store values from sentence argument
-        self.sentence = sentence # B: DISCUSS is this a different instance
+        # NOTE: seems not to be needed currently; where was it needed
+        # self.sentence = sentence
         # than the sent_obj that is stored in all_sentences dictionary? given
         # that model_structure has access to all_sentences, we can use
         # self.name to look up the sentence in the dictionary.
@@ -123,14 +124,6 @@ class PropositionDefaults:
 
         # Set defaults for verifiers and falsifiers
         self.verifiers, self.falsifiers = [], [] # avoids linter errors in print_proposition
-
-        # TODO: DISCUSS
-        # # B: is this still needed? the code works without it and it seems that
-        # # the hash is defined below. just trying to clean up loose ends...
-        # try:
-        #     hash(self)
-        # except:
-        #     type(self).__hash__ = lambda self: PropositionDefaults.__hash__(self)
 
     def __repr__(self):
         return self.name
@@ -455,7 +448,7 @@ class ModelStructure:
     # def rec_print(self, sentence, eval_world, indent):
     #     # all_sentences = self.all_sentences
     #
-    #     # B: DISCUSS should print_proposition be moved to the Sentence class?
+    #     # B: should print_proposition be moved to the Sentence class?
     #     # that way it could call itself instead of storing sent_obj in props.
     #     # either way, I'm thinking print_proposition should dispatch to a method
     #     # in Proposition class to print sentence letters, and otherwise dispatch

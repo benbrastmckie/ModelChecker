@@ -38,8 +38,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [:] operators to implement:
     - [:] defined operators
       - [x] debug given `sentence_obj` integration
-      - [ ] debug new issue (see unit tests)
-      - [ ] add doc strings
+      - [ ] _M_ move derived definition upstream
+      - [ ] _B_ add doc strings
     - [ ] might counterfactual
       - [ ] primitive
       - [ ] defined
