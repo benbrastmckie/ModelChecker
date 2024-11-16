@@ -262,6 +262,20 @@ class Operator:
         if isinstance(other, Operator):
             return self.name == other.name and self.arity == other.arity
         return False
+
+    def general_print(self, sentence_obj, eval_world, indent_num):
+        sentence_obj.proposition.print_proposition(eval_world, indent_num)
+        model_structure = sentence_obj.proposition.model_structure
+        indent_num += 1
+        if sentence_obj.complexity > 0:
+            arg_sent_obj = sentence_obj.arguments[0]
+            model_structure.recursive_print(arg_sent_obj, eval_world, indent_num)
+        if sentence_obj.complexity > 1:
+            left_sent_obj, right_sent_obj = sentence_obj.arguments
+            model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
+            model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
+
+
     
     
 class DefinedOperator(Operator):

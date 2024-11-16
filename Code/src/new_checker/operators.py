@@ -4,7 +4,6 @@ from hidden_helpers import (
     ForAll,
     Exists,
     bitvec_to_substates,
-    general_print,
     pretty_set_print,
 )
 
@@ -41,7 +40,7 @@ class NegationOperator(syntactic.Operator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints the argument."""
-        general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num)
 
 
 class AndOperator(syntactic.Operator):
@@ -97,7 +96,7 @@ class AndOperator(syntactic.Operator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num)
 
 
 class OrOperator(syntactic.Operator):
@@ -149,7 +148,7 @@ class OrOperator(syntactic.Operator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num)
 
 
 ##############################################################################
@@ -167,7 +166,7 @@ class ConditionalOperator(syntactic.DefinedOperator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num)
 
 
 class BiconditionalOperator(syntactic.DefinedOperator):
@@ -183,7 +182,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num)
 
 
 
@@ -221,7 +220,7 @@ class TopOperator(syntactic.Operator):
 
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj."""
-        general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num)
 
 
 class BotOperator(syntactic.Operator):
@@ -250,7 +249,7 @@ class BotOperator(syntactic.Operator):
 
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj."""
-        general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num)
 
 
 
@@ -360,7 +359,7 @@ class IdentityOperator(syntactic.Operator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num)
 
 
 class GroundOperator(syntactic.Operator):
@@ -469,7 +468,7 @@ class GroundOperator(syntactic.Operator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num)
 
 
 class EssenceOperator(syntactic.Operator):
@@ -578,7 +577,7 @@ class EssenceOperator(syntactic.Operator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num)
 
 
 
@@ -597,7 +596,7 @@ class DefGroundOperator(syntactic.DefinedOperator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num)
 
 
 class DefEssenceOperator(syntactic.DefinedOperator):
@@ -611,7 +610,7 @@ class DefEssenceOperator(syntactic.DefinedOperator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num)
 
 
 
@@ -671,6 +670,7 @@ class CounterfactualOperator(syntactic.Operator):
             f"is neither true nor false in the world {eval_world}."
         )
     
+    # TODO: move to parent class since needed generally
     def calculate_alternative_worlds(self, verifiers, eval_world, model_structure):
         """Calculate alternative worlds given verifiers and eval_world."""
         is_alt = model_structure.semantics.is_alternative
@@ -682,6 +682,7 @@ class CounterfactualOperator(syntactic.Operator):
             if eval(is_alt(pw, ver, eval_world))
         }
 
+    # TODO: move generalized version to parent class since needed generally
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
@@ -764,6 +765,7 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
             if eval(is_alt(pw, ver, eval_world))
         }
 
+    # TODO: move generalized version to parent class since needed generally
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
@@ -863,6 +865,7 @@ class NecessityOperator(syntactic.Operator):
             if eval(is_alt(pw, ver, eval_world))
         }
 
+    # TODO: move generalized version to parent class since needed generally
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
@@ -915,6 +918,7 @@ class DefNecessityOperator(syntactic.DefinedOperator):
     def derived_definition(self, rightarg):
         return [CounterfactualOperator, TopOperator, rightarg]
     
+    # TODO: fix
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
@@ -935,6 +939,7 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
     def derived_definition(self, arg):
         return [NegationOperator, [DefNecessityOperator, [NegationOperator, arg]]]
     
+    # TODO: fix
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
@@ -952,6 +957,7 @@ class DefPossibilityOperator2(syntactic.DefinedOperator):
     def derived_definition(self, arg):
         return [MightCounterfactualOperator, TopOperator, arg]
     
+    # TODO: fix
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
