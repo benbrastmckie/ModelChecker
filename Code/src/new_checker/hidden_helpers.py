@@ -45,19 +45,6 @@ from z3 import(
 
 ### PRINT HELPERS ###
 
-def general_print(sentence_obj, eval_world, indent_num):
-    sentence_obj.proposition.print_proposition(eval_world, indent_num)
-    model_structure = sentence_obj.proposition.model_structure
-    indent_num += 1
-    if sentence_obj.complexity > 0:
-        arg_sent_obj = sentence_obj.arguments[0]
-        model_structure.recursive_print(arg_sent_obj, eval_world, indent_num)
-    if sentence_obj.complexity > 1:
-        left_sent_obj, right_sent_obj = sentence_obj.arguments
-        model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
-        model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
-
-
 def set_colors(name, indent_num, truth_value, world_state):
     RED, GREEN, RESET = "\033[31m", "\033[32m", "\033[0m" 
     FULL, PART = "\033[37m", "\033[33m"
