@@ -331,8 +331,8 @@ class Proposition(PropositionDefaults):
             )
         operator = self.prefix_operator
         assert operator.arity == len(self.arguments), (operator, operator.arity, self.arguments, len(self.arguments))
-        if isinstance(operator('a'), syntactic.DefinedOperator):
-            assert False, operator
+        # if isinstance(operator('a'), syntactic.DefinedOperator):
+        #     assert False, operator
         return operator.find_verifiers_and_falsifiers(*self.arguments, self.eval_world)
 
     def truth_value_at(self, world):
