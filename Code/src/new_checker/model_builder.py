@@ -506,14 +506,10 @@ class ModelStructure:
     # semantics to see how making those changes go.
 
     def recursive_print(self, sentence, eval_world, indent_num=0):
-        # TODO: update operator if top or bot
         if sentence.prefix_operator is None:  # print sentence letter
             sentence.proposition.print_proposition(eval_world, indent_num)
             return
         op = sentence.prefix_operator
-        # if sentence.arguments is None:  # print extremal element
-        #     op.print_method(sentence, eval_world, indent_num)
-        #     return
         op.print_method(sentence, eval_world, indent_num)  # print complex sentence
 
     def print_input_sentences(self, output):

@@ -23,6 +23,8 @@ import inspect
 
 from z3 import Const, DeclareSort
 
+from model_checker.model_definitions import bitvec_to_substates, pretty_set_print
+
 AtomSort = DeclareSort("AtomSort")
 
 # def infix(prefix_sent): 
@@ -267,15 +269,43 @@ class Operator:
         sentence_obj.proposition.print_proposition(eval_world, indent_num)
         model_structure = sentence_obj.proposition.model_structure
         indent_num += 1
-        if sentence_obj.complexity > 0:
+        if len(sentence_obj.arguments) == 1:
             arg_sent_obj = sentence_obj.arguments[0]
             model_structure.recursive_print(arg_sent_obj, eval_world, indent_num)
-        if sentence_obj.complexity > 1:
+        if len(sentence_obj.arguments) == 2:
             left_sent_obj, right_sent_obj = sentence_obj.arguments
             model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
             model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
 
+    def print_over_world(self, sentence_obj, eval_world, other_worlds, indent_num):
+        """Print counterfactual and the antecedent in the eval_world. Then
+        print the consequent in each alternative to the evaluation world.
+        """
+        CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
+        # DISCUSS: why doesn't sentence_obj.model_structure exist?
+        proposition = sentence_obj.proposition
+        model_structure = proposition.model_structure
+        N = proposition.N
+        proposition.print_proposition(eval_world, indent_num)
+        indent_num += 1
 
+        if len(sentence_obj.arguments) == 1:
+            arg_sent_obj = sentence_obj.arguments[0]
+            indent_num += 1
+            for alt_world in other_worlds:
+                model_structure.recursive_print(arg_sent_obj, alt_world, indent_num)
+        if len(sentence_obj.arguments) == 2:
+            left_sent_obj, right_sent_obj = sentence_obj.arguments
+            model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
+            other_world_strings = {bitvec_to_substates(u, N) for u in other_worlds}
+            print(
+                f'{"  " * indent_num} {CYAN}{left_sent_obj}-alternatives '
+                f'to {bitvec_to_substates(eval_world, N)} = '
+                f'{pretty_set_print(other_world_strings)}{RESET}'
+            )
+            indent_num += 1
+            for alt_world in other_worlds:
+                model_structure.recursive_print(right_sent_obj, alt_world, indent_num)
     
     
 class DefinedOperator(Operator):

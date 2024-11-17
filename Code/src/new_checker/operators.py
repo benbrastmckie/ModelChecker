@@ -687,39 +687,46 @@ class CounterfactualOperator(syntactic.Operator):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
-        CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
+        # DISCUSS: why doesn't sentence_obj.model_structure exist?
+        model_structure = sentence_obj.proposition.model_structure
+        left_argument_obj = sentence_obj.arguments[0]
+        left_argument_verifiers = left_argument_obj.proposition.verifiers
+        alt_worlds = self.calculate_alternative_worlds(left_argument_verifiers, eval_world, model_structure)
+        self.print_over_world(sentence_obj, eval_world, alt_worlds, indent_num)
 
-        # B: why doesn't sentence_obj.model_structure exist?
-        proposition = sentence_obj.proposition
-        model_structure = proposition.model_structure
-        N = proposition.N
-        
-        # Print main proposition
-        proposition.print_proposition(eval_world, indent_num)
-        
-        # Increment indentation for nested output
-        indent_num += 1
-        
-        # Retrieve primary subsentences and verifiers
-        left_subsentence, right_subsentence = sentence_obj.arguments
-        left_subprop_verifiers = left_subsentence.proposition.verifiers
-        
-        # Calculate alternative worlds
-        alt_worlds = self.calculate_alternative_worlds(left_subprop_verifiers, eval_world, model_structure)
-        alt_world_strings = {bitvec_to_substates(u, N) for u in alt_worlds}
-        
-        # Print left subsentence and alternatives
-        model_structure.recursive_print(left_subsentence, eval_world, indent_num)
-        print(
-            f'{"  " * indent_num} {CYAN}{left_subsentence}-alternatives '
-            f'to {bitvec_to_substates(eval_world, N)} = '
-            f'{pretty_set_print(alt_world_strings)}{RESET}'
-        )
-        
-        # Increment indentation for right subsentence print
-        indent_num += 1
-        for alt_world in alt_worlds:
-            model_structure.recursive_print(right_subsentence, alt_world, indent_num)
+        # CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
+        #
+        # # B: why doesn't sentence_obj.model_structure exist?
+        # proposition = sentence_obj.proposition
+        # model_structure = proposition.model_structure
+        # N = proposition.N
+        # 
+        # # Print main proposition
+        # proposition.print_proposition(eval_world, indent_num)
+        # 
+        # # Increment indentation for nested output
+        # indent_num += 1
+        # 
+        # # Retrieve primary subsentences and verifiers
+        # left_argument_obj, right_subsentence = sentence_obj.arguments
+        # left_argument_verifiers = left_argument_obj.proposition.verifiers
+        # 
+        # # Calculate alternative worlds
+        # alt_worlds = self.calculate_alternative_worlds(left_argument_verifiers, eval_world, model_structure)
+        # alt_world_strings = {bitvec_to_substates(u, N) for u in alt_worlds}
+        # 
+        # # Print left subsentence and alternatives
+        # model_structure.recursive_print(left_argument_obj, eval_world, indent_num)
+        # print(
+        #     f'{"  " * indent_num} {CYAN}{left_argument_obj}-alternatives '
+        #     f'to {bitvec_to_substates(eval_world, N)} = '
+        #     f'{pretty_set_print(alt_world_strings)}{RESET}'
+        # )
+        # 
+        # # Increment indentation for right subsentence print
+        # indent_num += 1
+        # for alt_world in alt_worlds:
+        #     model_structure.recursive_print(right_subsentence, alt_world, indent_num)
 
 
         # 1. get the verifiers for the left subprop
@@ -755,13 +762,15 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
     def derived_definition(self, leftarg, rightarg):
         return [NegationOperator, [CounterfactualOperator, leftarg, [NegationOperator, rightarg]]]
 
+    # TODO: can this be moved to semantics to avoid redundancy?
     def calculate_alternative_worlds(self, verifiers, eval_world, model_structure):
         """Calculate alternative worlds given verifiers and eval_world."""
-        eval = model_structure.z3_model.evaluate
         is_alt = model_structure.semantics.is_alternative
+        eval = model_structure.z3_model.evaluate
+        world_bits = model_structure.world_bits
         return {
             pw for ver in verifiers
-            for pw in model_structure.world_bits
+            for pw in world_bits
             if eval(is_alt(pw, ver, eval_world))
         }
 
@@ -770,39 +779,45 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
-        CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
+        model_structure = sentence_obj.proposition.model_structure
+        left_argument_obj = sentence_obj.arguments[0]
+        left_argument_verifiers = left_argument_obj.proposition.verifiers
+        alt_worlds = self.calculate_alternative_worlds(left_argument_verifiers, eval_world, model_structure)
+        self.print_over_world(sentence_obj, eval_world, alt_worlds, indent_num)
 
-        # B: why doesn't sentence_obj.model_structure exist?
-        proposition = sentence_obj.proposition
-        model_structure = proposition.model_structure
-        N = proposition.N
-        
-        # Print main proposition
-        proposition.print_proposition(eval_world, indent_num)
-        
-        # Increment indentation for nested output
-        indent_num += 1
-        
-        # Retrieve primary subsentences and verifiers
-        left_subsentence, right_subsentence = sentence_obj.arguments
-        left_subprop_verifiers = left_subsentence.proposition.verifiers
-        
-        # Calculate alternative worlds
-        alt_worlds = self.calculate_alternative_worlds(left_subprop_verifiers, eval_world, model_structure)
-        alt_world_strings = {bitvec_to_substates(u, N) for u in alt_worlds}
-        
-        # Print left subsentence and alternatives
-        model_structure.recursive_print(left_subsentence, eval_world, indent_num)
-        print(
-            f'{"  " * indent_num} {CYAN}{left_subsentence}-alternatives '
-            f'to {bitvec_to_substates(eval_world, N)} = '
-            f'{pretty_set_print(alt_world_strings)}{RESET}'
-        )
-        
-        # Increment indentation for right subsentence print
-        indent_num += 1
-        for alt_world in alt_worlds:
-            model_structure.recursive_print(right_subsentence, alt_world, indent_num)
+        # CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
+        #
+        # # B: why doesn't sentence_obj.model_structure exist?
+        # proposition = sentence_obj.proposition
+        # model_structure = proposition.model_structure
+        # N = proposition.N
+        # 
+        # # Print main proposition
+        # proposition.print_proposition(eval_world, indent_num)
+        # 
+        # # Increment indentation for nested output
+        # indent_num += 1
+        # 
+        # # Retrieve primary subsentences and verifiers
+        # left_subsentence, right_subsentence = sentence_obj.arguments
+        # left_subprop_verifiers = left_subsentence.proposition.verifiers
+        # 
+        # # Calculate alternative worlds
+        # alt_worlds = self.calculate_alternative_worlds(left_subprop_verifiers, eval_world, model_structure)
+        # alt_world_strings = {bitvec_to_substates(u, N) for u in alt_worlds}
+        # 
+        # # Print left subsentence and alternatives
+        # model_structure.recursive_print(left_subsentence, eval_world, indent_num)
+        # print(
+        #     f'{"  " * indent_num} {CYAN}{left_subsentence}-alternatives '
+        #     f'to {bitvec_to_substates(eval_world, N)} = '
+        #     f'{pretty_set_print(alt_world_strings)}{RESET}'
+        # )
+        # 
+        # # Increment indentation for right subsentence print
+        # indent_num += 1
+        # for alt_world in alt_worlds:
+        #     model_structure.recursive_print(right_subsentence, alt_world, indent_num)
 
 
 ##############################################################################
@@ -855,55 +870,62 @@ class NecessityOperator(syntactic.Operator):
             f"is neither true nor false in the world {eval_world}."
         )
     
+    # TODO: fix this and maybe move into semantics
     def calculate_true_worlds(self, verifiers, eval_world, model_structure):
         """Calculate alternative worlds given verifiers and eval_world."""
         is_alt = model_structure.semantics.is_alternative
         eval = model_structure.z3_model.evaluate
+        world_bits = model_structure.world_bits
         return {
             pw for ver in verifiers
-            for pw in model_structure.world_bits
+            for pw in world_bits
             if eval(is_alt(pw, ver, eval_world))
         }
-
     # TODO: move generalized version to parent class since needed generally
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
-        CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
+        model_structure = sentence_obj.proposition.model_structure
+        left_argument_obj = sentence_obj.arguments[0]
+        left_argument_verifiers = left_argument_obj.proposition.verifiers
+        alt_worlds = self.calculate_true_worlds(left_argument_verifiers, eval_world, model_structure)
+        self.print_over_world(sentence_obj, eval_world, alt_worlds, indent_num)
 
-        # B: why doesn't sentence_obj.model_structure exist?
-        proposition = sentence_obj.proposition
-        model_structure = proposition.model_structure
-        N = proposition.N
-        
-        # Print main proposition
-        proposition.print_proposition(eval_world, indent_num)
-        
-        # Increment indentation for nested output
-        indent_num += 1
-        
-        # TODO: need to adapt to single argument
-        # Retrieve primary subsentences and verifiers
-        left_subsentence, right_subsentence = sentence_obj.arguments
-        left_subprop_verifiers = left_subsentence.proposition.verifiers
-        
-        # Calculate alternative worlds
-        alt_worlds = self.calculate_alternative_worlds(left_subprop_verifiers, eval_world, model_structure)
-        alt_world_strings = {bitvec_to_substates(u, N) for u in alt_worlds}
-        
-        # Print left subsentence and alternatives
-        model_structure.recursive_print(left_subsentence, eval_world, indent_num)
-        print(
-            f'{"  " * indent_num} {CYAN}{left_subsentence}-alternatives '
-            f'to {bitvec_to_substates(eval_world, N)} = '
-            f'{pretty_set_print(alt_world_strings)}{RESET}'
-        )
-        
-        # Increment indentation for right subsentence print
-        indent_num += 1
-        for alt_world in alt_worlds:
-            model_structure.recursive_print(right_subsentence, alt_world, indent_num)
+        # CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
+        #
+        # # B: why doesn't sentence_obj.model_structure exist?
+        # proposition = sentence_obj.proposition
+        # model_structure = proposition.model_structure
+        # N = proposition.N
+        # 
+        # # Print main proposition
+        # proposition.print_proposition(eval_world, indent_num)
+        # 
+        # # Increment indentation for nested output
+        # indent_num += 1
+        # 
+        # # TODO: need to adapt to single argument
+        # # Retrieve primary subsentences and verifiers
+        # left_subsentence, right_subsentence = sentence_obj.arguments
+        # left_subprop_verifiers = left_subsentence.proposition.verifiers
+        # 
+        # # Calculate alternative worlds
+        # alt_worlds = self.calculate_alternative_worlds(left_subprop_verifiers, eval_world, model_structure)
+        # alt_world_strings = {bitvec_to_substates(u, N) for u in alt_worlds}
+        # 
+        # # Print left subsentence and alternatives
+        # model_structure.recursive_print(left_subsentence, eval_world, indent_num)
+        # print(
+        #     f'{"  " * indent_num} {CYAN}{left_subsentence}-alternatives '
+        #     f'to {bitvec_to_substates(eval_world, N)} = '
+        #     f'{pretty_set_print(alt_world_strings)}{RESET}'
+        # )
+        # 
+        # # Increment indentation for right subsentence print
+        # indent_num += 1
+        # for alt_world in alt_worlds:
+        #     model_structure.recursive_print(right_subsentence, alt_world, indent_num)
 
 
 ##############################################################################
