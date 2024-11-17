@@ -134,12 +134,12 @@ conclusions = ["C"]
 ##### FALSE PREMISE COUNTERMODELS #####
 #######################################
 
-# FALSE PREMISE
-N = 3
-premises = ["(A \\leftrightarrow B)", "\\possible A"]
-conclusions = ["C"]
-contingent_bool = False
-disjoint_bool = False
+# # FALSE PREMISE
+# N = 3
+# premises = ["(A \\leftrightarrow B)", "\\possible A"]
+# conclusions = ["C"]
+# contingent_bool = False
+# disjoint_bool = False
 
 # # FALSE PREMISE
 # # CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
@@ -156,6 +156,22 @@ disjoint_bool = False
 # non_null = True
 # disjoint = False
 
+# # ONLY ONE ALT WORLD FOR TRUE PREMISE; SHOULD BE TWO
+# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 4
+# premises = ['(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # TRUE CONCLUSION MODEL
+# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 3
+# premises = ['(A \\circleright C)']
+# conclusions = ['((A \\wedge B) \\circleright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
 #############################
 ### WORKING COUNTERMODELS ###
 #############################
@@ -167,20 +183,6 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 4
-# premises = ['(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-# contingent_bool = True
-# disjoint_bool = False
-
-# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 3
-# premises = ['(A \\circleright C)']
-# conclusions = ['((A \\wedge B) \\circleright C)']
-# contingent_bool = True
-# disjoint_bool = False
-
 # # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
 # N = 4
 # premises = ['\\neg A','(A \\boxright C)']
@@ -188,13 +190,13 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM7: COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
-# # NOTE: with Z3 quantifiers ran for 125 seconds on the MIT server; now .181 seconds locally
-# N = 4
-# premises = ['\\neg B','(A \\boxright B)']
-# conclusions = ['(\\neg B \\boxright \\neg A)']
-# contingent_bool = True
-# disjoint_bool = False
+# CF_CM7: COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
+# NOTE: with Z3 quantifiers ran for 125 seconds on the MIT server; now .181 seconds locally
+N = 4
+premises = ['\\neg B','(A \\boxright B)']
+conclusions = ['(\\neg B \\boxright \\neg A)']
+contingent_bool = True
+disjoint_bool = False
 
 # # CF_CM8: COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
 # N = 4

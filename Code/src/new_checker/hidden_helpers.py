@@ -72,6 +72,13 @@ def pretty_set_print(set_with_strings):
     print_str += "}"
     return print_str if print_str != "{}" else '∅'
 
+def binary_bitvector(bit, N):
+    return (
+        bit.sexpr()
+        if N % 4 != 0
+        else int_to_binary(int(bit.sexpr()[2:], 16), N)
+    )
+        
 
 def int_to_binary(integer, number):
     '''Converts a hexadecimal string to a binary string.'''
