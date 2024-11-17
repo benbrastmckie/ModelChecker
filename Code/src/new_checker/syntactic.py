@@ -288,6 +288,7 @@ class DefinedOperator(Operator):
     sentence_dict or updating?"""
     # TODO: M: B, is this docstring yours? It sounds like I may have written it but
     # if I did I don't remember what it's about
+    # B: my git blame says it was me
 
     primitive = False
 
