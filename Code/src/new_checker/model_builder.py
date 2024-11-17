@@ -20,6 +20,7 @@ from z3 import (
 )
 
 import time
+import z3
 
 from functools import reduce
 
@@ -27,7 +28,12 @@ from hidden_helpers import (
     bitvec_to_substates,
     int_to_binary,
     not_implemented_string,
+    pretty_set_print,
+    set_colors,
+
 )
+
+import syntactic
 
 import sys
 
@@ -144,7 +150,22 @@ class PropositionDefaults:
         self.verifiers, self.falsifiers = [], [] # avoids linter errors in print_proposition
 
     def __repr__(self):
-        return self.name
+        N = self.model_structure.model_constraints.semantics.N
+        possible = self.model_structure.model_constraints.semantics.possible
+        z3_model = self.model_structure.z3_model
+        ver_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self.verifiers
+            if z3_model.evaluate(possible(bit)) or self.print_impossible
+        }
+        fal_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self.falsifiers
+            if z3_model.evaluate(possible(bit)) or self.print_impossible
+        }
+        ver_prints = pretty_set_print(ver_states)
+        fal_prints = pretty_set_print(fal_states)
+        return f"< {ver_prints}, {fal_prints} >"
 
     def __hash__(self):
         return hash(self.name)
@@ -247,8 +268,8 @@ class ModelConstraints:
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
-        premises = self.syntax.premises
-        conclusions = self.syntax.conclusions
+        premises = self.syntax.DL_infix_premises # TRANSLATION
+        conclusions = self.syntax.DL_infix_conclusions
         start_con_num = len(premises) + 1
         if conclusions:
             if len(premises) < 2:
@@ -279,8 +300,8 @@ class ModelStructure:
 
         # Store from model_constraint.syntax
         self.syntax = self.model_constraints.syntax
-        self.premises = self.syntax.premises # list of sentence objects for premises
-        self.conclusions = self.syntax.conclusions # list of sentence objects for conclusions
+        self.premises = self.syntax.premises # list of Sentence objects for premises in L
+        self.conclusions = self.syntax.conclusions # list of Sentence objects for conclusions in L
         self.sentence_letters = self.syntax.sentence_letters
 
         # Store from model_constraint.semantics
@@ -505,12 +526,19 @@ class ModelStructure:
     # anticipate all of them. But it will be good to experiment with Lukas'
     # semantics to see how making those changes go.
 
-    def recursive_print(self, sentence, eval_world, indent_num=0):
+    def recursive_print(self, DL_prefix_sentence, eval_world, indent_num=0):
+        assert isinstance(eval_world, z3.z3.BitVecNumRef) and isinstance(indent_num, int)
+        # print(f"{DL_infix_sentence}=")
+        print(f"current DL prefix sent is {DL_prefix_sentence}")
+        L_prefix_type = self.syntax.operator_collection.apply_operator(DL_prefix_sentence)
+        print(f"current L prefix_type is {L_prefix_type}")
+        sentence = self.all_sentences[syntactic.infix(L_prefix_type)]
+        print(f"current Sentence is {sentence}")
         # TODO: update operator if top or bot
         if sentence.prefix_operator is None:  # print sentence letter
             sentence.proposition.print_proposition(eval_world, indent_num)
             return
-        op = sentence.prefix_operator
+        op = sentence.prefix_operator # TRANSLATION: here is where we'd divert it to the remaining DL instead of going through L
         # if sentence.arguments is None:  # print extremal element
         #     op.print_method(sentence, eval_world, indent_num)
         #     return
@@ -532,13 +560,13 @@ class ModelStructure:
         print_sentences(
             "INTERPRETED PREMISE:\n",
             "INTERPRETED PREMISES:\n",
-            self.premises,
+            self.syntax.DL_prefix_sentence_premises,
             start_index=1,
         )
         print_sentences(
             "INTERPRETED CONCLUSION:\n",
             "INTERPRETED CONCLUSIONS:\n",
-            self.conclusions,
+            self.syntax.DL_prefix_sentence_conclusions,
             start_index=len(self.premises) + 1,
         )
 
