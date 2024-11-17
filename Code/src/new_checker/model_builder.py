@@ -75,7 +75,7 @@ class SemanticDefaults:
     def total_fusion(self, set_P):
         """Return the fused result (bitwise OR) of all elements in set_P."""
         if isinstance(set_P, ArrayRef):
-            set_P = z3_set_to_python_set(set_P, self.all_bits)
+            set_P = self.z3_set_to_python_set(set_P, self.all_bits)
         return reduce(self.fusion, list(set_P))
 
     def is_part_of(self, bit_s, bit_t):
