@@ -61,12 +61,12 @@ N = 3
 
 # premises = ["\\neg (\\bot \\vee B)", "(\\top \\wedge D)"]
 premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
-# premises = ["(A \\rightarrow B)", "A"]
+premises = ["(A \\rightarrow B)", "A"]
 # premises = ["(A \\leftrightarrow B)", "\\possible A"]
 # premises = ["\\possible B"]
 # premises = ["\\Box A", "(A \\leftrightarrow B)"]
-# premises = ["\\Box A"]
-# premises = ["(\\neg \\top \\boxright B)"]
+premises = ["\\necessary A"]
+# premises = ["(\\top \\boxright B)"]
 # premises = ["(\\neg \\top \\boxright B)"]
 # premises = ["A", "(A \\boxright (B \\wedge C))"]
 # premises = ["A", "(A \\wedge B)"]
@@ -83,10 +83,10 @@ premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
 
 # conclusions = ["\\neg E"]
 # conclusions = ["B"]
-# conclusions = ["B"]
+conclusions = ["\\neg B"]
 # conclusions = ["(\\neg B \\wedge \\neg D)"]
 
-conclusions = ["C"]
+# conclusions = ["C"]
 
 
 
@@ -135,11 +135,11 @@ conclusions = ["C"]
 #######################################
 
 # FALSE PREMISE
-N = 3
-premises = ["(A \\leftrightarrow B)", "\\possible A"]
-conclusions = ["C"]
-contingent_bool = False
-disjoint_bool = False
+# N = 3
+# premises = ["(A \\leftrightarrow B)", "\\possible A"]
+# conclusions = ["C"]
+# contingent_bool = False
+# disjoint_bool = False
 
 # # FALSE PREMISE
 # # CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
@@ -472,6 +472,15 @@ model_constraints = ModelConstraints(
     disjoint=False,
     print_impossible=True,
 )
+print("following is for model_constraints:")
+for sentence in model_constraints.all_sentences.values():
+    print(sentence)
+    print(sentence.prefix_sentence)
+    print(sentence.prefix_type)
+    print(sentence.prefix_object)
+    print(sentence.arguments)
+    print(sentence.complexity)
+    print('\n')
 
 ########################################
 ### SOLVE, STORE, AND PRINT Z3 MODEL ###
@@ -489,6 +498,14 @@ if not model_structure.z3_model:
     # print(model_constraints.premise_constraints)
     print(model_structure.unsat_core)
 
+# print("following is for model_structure:")
+# for sentence in model_structure.all_sentences.values():
+#     print(sentence.prefix_sentence)
+#     print(sentence.prefix_type)
+#     print(sentence.prefix_object)
+#     print(sentence.arguments)
+#     print(sentence.complexity)
+#     print('\n')
 
 # def bv2s(bitvec):
 #     # return bitvec_to_substates(bitvec, 3)

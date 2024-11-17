@@ -140,10 +140,12 @@ class Semantics(SemanticDefaults):
         return operator.false_at(*args, eval_world)
 
     def extended_verify(self, state, prefix_object, eval_world):
-        if isinstance(prefix_object, syntactic.Operator):
-            # TODO: how can this be removed
-            print("TEST CHANGE", prefix_object)
-            return prefix_object.extended_verify(state, eval_world)
+        # if isinstance(prefix_object, syntactic.Operator):
+        #     # TODO: how can this be removed
+        #     # M: This was successfully removed by changing
+        #     # relevant derived defs to be in proper format
+        #     print("TEST CHANGE", prefix_object)
+        #     return prefix_object.extended_verify(state, eval_world)
         if str(prefix_object[0]).isalnum():
             return self.verify(state, prefix_object[0])
         op, args = prefix_object[0], prefix_object[1:]
@@ -328,6 +330,9 @@ class Proposition(PropositionDefaults):
                 f"Their is no proposition for {atom}."
             )
         operator = self.prefix_operator
+        assert operator.arity == len(self.arguments), (operator, operator.arity, self.arguments, len(self.arguments))
+        if isinstance(operator('a'), syntactic.DefinedOperator):
+            assert False, operator
         return operator.find_verifiers_and_falsifiers(*self.arguments, self.eval_world)
 
     def truth_value_at(self, world):

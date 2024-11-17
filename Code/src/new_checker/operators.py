@@ -175,9 +175,9 @@ class BiconditionalOperator(syntactic.DefinedOperator):
     arity = 2
 
     def derived_definition(self, leftarg, rightarg):
-        right_to_left = [ConditionalOperator, leftarg, rightarg]
-        left_to_right = [ConditionalOperator, rightarg, leftarg]
-        return [AndOperator, right_to_left, left_to_right]
+        left_implies_right = [ConditionalOperator, leftarg, rightarg]
+        right_implies_left = [ConditionalOperator, rightarg, leftarg]
+        return [AndOperator, left_implies_right, right_implies_left]
     
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
@@ -916,7 +916,7 @@ class DefNecessityOperator(syntactic.DefinedOperator):
     arity = 1
 
     def derived_definition(self, rightarg):
-        return [CounterfactualOperator, TopOperator, rightarg]
+        return [CounterfactualOperator, [TopOperator], rightarg]
     
     # TODO: fix
     def print_method(self, sentence_obj, eval_world, indent_num):
