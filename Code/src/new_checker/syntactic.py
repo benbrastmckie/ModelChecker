@@ -277,7 +277,7 @@ class Operator:
             model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
             model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
 
-    def print_over_world(self, sentence_obj, eval_world, other_worlds, indent_num):
+    def print_over_worlds(self, sentence_obj, eval_world, other_worlds, indent_num):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
