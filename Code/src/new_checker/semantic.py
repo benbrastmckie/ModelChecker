@@ -331,8 +331,6 @@ class Proposition(PropositionDefaults):
             )
         operator = self.prefix_operator
         assert operator.arity == len(self.arguments), (operator, operator.arity, self.arguments, len(self.arguments))
-        # if isinstance(operator('a'), syntactic.DefinedOperator):
-        #     assert False, operator
         return operator.find_verifiers_and_falsifiers(*self.arguments, self.eval_world)
 
     def truth_value_at(self, world):
@@ -362,26 +360,12 @@ class Proposition(PropositionDefaults):
             )
         return exists_verifier
 
-    def print_proposition(self, eval_world, indent_num=0):
+    def print_proposition(self, sentence_str, eval_world, indent_num=0):
         N = self.model_structure.model_constraints.semantics.N
         truth_value = self.truth_value_at(eval_world)
-        possible = self.model_structure.model_constraints.semantics.possible
-        z3_model = self.model_structure.z3_model
-        ver_states = {
-            bitvec_to_substates(bit, N)
-            for bit in self.verifiers
-            if z3_model.evaluate(possible(bit)) or self.print_impossible
-        }
-        fal_states = {
-            bitvec_to_substates(bit, N)
-            for bit in self.falsifiers
-            if z3_model.evaluate(possible(bit)) or self.print_impossible
-        }
-        ver_prints = pretty_set_print(ver_states)
-        fal_prints = pretty_set_print(fal_states)
         world_state = bitvec_to_substates(eval_world, N)
         RESET, FULL, PART = set_colors(self.name, indent_num, truth_value, world_state)
         print(
-            f"{'  ' * indent_num}{FULL}|{self}| = < {ver_prints}, {fal_prints} >{RESET}"
+            f"{'  ' * indent_num}{FULL}|{sentence_str}| = {self}{RESET}"
             f"  {PART}({truth_value} in {world_state}){RESET}"
         )

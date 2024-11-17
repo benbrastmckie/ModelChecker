@@ -148,6 +148,7 @@ class OrOperator(syntactic.Operator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
+        assert isinstance(eval_world, z3.z3.BitVecNumRef) and isinstance(indent_num, int)
         self.general_print(sentence_obj, eval_world, indent_num)
 
 
@@ -166,6 +167,7 @@ class ConditionalOperator(syntactic.DefinedOperator):
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
+        assert isinstance(eval_world, z3.z3.BitVecNumRef) and isinstance(indent_num, int)
         self.general_print(sentence_obj, eval_world, indent_num)
 
 

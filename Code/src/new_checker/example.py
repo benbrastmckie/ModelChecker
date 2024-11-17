@@ -536,4 +536,6 @@ if not model_structure.z3_model:
 
 # print(model_constraints)
 
-# print("print all props:", model_structure.all_propositions)
+# # print("print all props:", model_structure.all_propositions)
+# for s in model_structure.all_sentences.values():
+#     print(s.proposition)
