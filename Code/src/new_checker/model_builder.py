@@ -525,11 +525,20 @@ class ModelStructure:
     # that users may want to make and so I don't think it is necessary to
     # anticipate all of them. But it will be good to experiment with Lukas'
     # semantics to see how making those changes go.
-
+                
+    # M: This function translates from prefix types with derived operators to their equivalent
+    # sentence objects without derived operators. This is done a few times in the print methods
+    # of some operators, so could be generalized to there. Right now it's only in the code in
+    # recursive_print below, but could be added to those print methods for operators. 
+    def DL_prefix_sentence_to_L_sentence(self, DL_prefix_sentence):
+        L_prefix_type = self.syntax.operator_collection.apply_operator(DL_prefix_sentence)
+        DL_infix = syntactic.infix(L_prefix_type)
+        L_sentence = self.all_sentences[DL_infix]
+        return L_sentence
+        
     def recursive_print(self, DL_prefix_sentence, eval_world, indent_num=0):
         DL_infix = syntactic.infix(DL_prefix_sentence)
-        L_prefix_type = self.syntax.operator_collection.apply_operator(DL_prefix_sentence)
-        L_sentence = self.all_sentences[syntactic.infix(L_prefix_type)]
+        L_sentence = self.DL_prefix_sentence_to_L_sentence(DL_prefix_sentence)
         L_sentence.proposition.print_proposition(DL_infix, eval_world, indent_num)
         if len(DL_prefix_sentence) != 1:
             str_op = DL_prefix_sentence[0]

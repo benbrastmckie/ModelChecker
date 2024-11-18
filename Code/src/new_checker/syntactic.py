@@ -228,7 +228,7 @@ class OperatorCollection:
         op, arguments = prefix_sentence[0], prefix_sentence[1:]
         activated = [self.apply_operator(arg) for arg in arguments]
         activated.insert(0, self[op])
-        return self.translate(activated)
+        return self.translate_prefix_types(activated)
     
     def check_for_defined_operators(self, prefix_type):
         """
@@ -247,7 +247,7 @@ class OperatorCollection:
                 #     return True
         return False
     
-    def translate(self, DL_prefix_type):
+    def translate_prefix_types(self, DL_prefix_type):
         """This function translates a prefix type in DL (i.e., with defined operators) into one
         without defined operators. It takes a prefix type and returns another a prefix type that
         is equivalent to the inputted one except without defined operators. 
@@ -261,7 +261,7 @@ class OperatorCollection:
 
         # case 2: it's a an operator
         op, args = DL_prefix_type[0], DL_prefix_type[1:]
-        translated_args = [self.translate(arg) for arg in args]
+        translated_args = [self.translate_prefix_types(arg) for arg in args]
         # OLD (works in example.py but not in test cases):
         if isinstance(op('a'), DefinedOperator):  # here the check for ops defined in terms of each other happens
             translation = op('a').derived_definition(*translated_args)
@@ -272,7 +272,7 @@ class OperatorCollection:
         else: 
             translation = [op] + translated_args
         
-        return self.translate(translation) # to get the check_for_defined_operators again
+        return self.translate_prefix_types(translation) # to get the check_for_defined_operators again
 
 
 class Syntax:
