@@ -22,7 +22,6 @@ from hidden_helpers import (
 import inspect
 
 from z3 import Const, DeclareSort
-import z3
 
 AtomSort = DeclareSort("AtomSort")
 
@@ -122,7 +121,6 @@ class Operator:
         return False
 
     def general_print(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
-        assert isinstance(eval_world, z3.z3.BitVecNumRef) and isinstance(indent_num, int)
         indent_num += 1
         # M: I think this'll do the same with less code
         if len(DL_prefix_sentence) > 1:
@@ -229,76 +227,52 @@ class OperatorCollection:
                 return [Const(atom, AtomSort)]
         op, arguments = prefix_sentence[0], prefix_sentence[1:]
         activated = [self.apply_operator(arg) for arg in arguments]
-        # if isinstance(self[op]("a"), DefinedOperator): # here the check _will_ happen for ops defined in terms of each other
-        #     return self[op]("a").derived_definition(*activated) # TODO: fix dummy
         activated.insert(0, self[op])
         return self.translate(activated)
-        return activated
+    
+    def check_for_defined_operators(self, prefix_type):
+        """
+        checks if there are defined operators in a prefix type.
+        Returns True or False
+        """
+        flattened_pt = flatten(prefix_type)
+        for elem in flattened_pt:
+            if isinstance(elem, type):
+                # OLD (works in example.py but not in test cases):
+                if isinstance(elem('a'), DefinedOperator):
+                    return True
+                # # NEW (makes test cases work, thought don't know why):
+                # parent_class = elem('a').__class__.__mro__[1]
+                # if "DefinedOperator" in str(parent_class):
+                #     return True
+        return False
     
     def translate(self, DL_prefix_type):
-        # basically, I want it to get a DL_prefix_type and at the end make a translated DL_prefix_type.
-        # if there is a defined operator in the DL_prefix_type, I want it to try again. 
-        # I want it to keep trying again until there are no defined operators in the prefix_type
-        # case 1: it's an atomic sentence or a 0-plce operator
-        if len(DL_prefix_type) == 1:
+        """This function translates a prefix type in DL (i.e., with defined operators) into one
+        without defined operators. It takes a prefix type and returns another a prefix type that
+        is equivalent to the inputted one except without defined operators. 
+        The recursive call at the end is for defined operators defined in terms of other defined
+        operators"""
+        # case 1: for efficiency, check off the get-go if none of the things in the DL_prefix_type
+        # are defined. If not, then return. If there are some, then continue.
+        # This also covers atomic sents or 0-place operators
+        if not self.check_for_defined_operators(DL_prefix_type):
             return DL_prefix_type
-        # print(DL_prefix_type)
 
         # case 2: it's a an operator
         op, args = DL_prefix_type[0], DL_prefix_type[1:]
-        # print(DL_prefix_type)
         translated_args = [self.translate(arg) for arg in args]
-        if isinstance(op('a'), DefinedOperator):
+        # OLD (works in example.py but not in test cases):
+        if isinstance(op('a'), DefinedOperator):  # here the check for ops defined in terms of each other happens
             translation = op('a').derived_definition(*translated_args)
+        # # NEW (makes test cases work, thought don't know why):
+        # parent_class = op('a').__class__.__mro__[1]
+        # if "DefinedOperator" in str(parent_class):
+        #     translation = op('a').derived_definition(*translated_args)
         else: 
             translation = [op] + translated_args
         
-        # while loop
-        flattened_translation = flatten(translation)
-        for elem in flattened_translation:
-            if isinstance(elem, type) and isinstance(elem('a'), DefinedOperator):
-                translation = self.translate(translation)
-                break
-        # while type in flattened_translation:
-        #     translation = self.translate(translation)
-        return translation
-
-        if isinstance(DL_prefix_type[0]('a'), DefinedOperator):
-            translated_sub_prefix_types = [self.translate(sDLpt) for sDLpt in DL_prefix_type[1:]]
-            translation = DL_prefix_type[0]('a').derived_definition(*translated_sub_prefix_types)
-            flattened_translation = flatten(translation)
-            for elem in flattened_translation:
-                if isinstance(elem, type) and isinstance(elem('a'), DefinedOperator):
-                    translation =  self.translate(translation)
-        else:
-            translation = DL_prefix_type
-        return translation
-
-
-
-
-        # if len(DL_prefix_type) == 1: # atomic case
-        #     return DL_prefix_type
-        
-
-
-        # for elem in DL_prefix_type:
-        #     if isinstance(elem, list):
-        #         translation.append(self.translate(elem))
-        #     elif isinstance(elem('a'), DefinedOperator):
-        #         elem_translation = self.translate(elem)
-        #         flattened_elem_translation = flatten(elem_translation)
-        #         for sub_elem in flattened_elem_translation:
-        #             if isinstance(sub_elem('a'), DefinedOperator):
-        #                 elem_translation = self.translate(elem_translation)
-        #         translation.append(elem_translation)
-        #     else:
-        #         translation.append(elem)
-        # flattened_translation = flatten(translation)
-        # for elem in flattened_translation:
-        #     if isinstance(elem, DefinedOperator):
-        #         return self.translate(translation)
-        # return translation
+        return self.translate(translation) # to get the check_for_defined_operators again
 
 
 class Syntax:

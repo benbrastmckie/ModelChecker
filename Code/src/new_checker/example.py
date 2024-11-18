@@ -458,8 +458,6 @@ disjoint_bool = False
 ###############################
 
 syntax = syntactic.Syntax(premises, conclusions, operators)
-# print(syntax.premises)
-# print(syntax.conclusions)
 
 semantics = Semantics(N)
 
@@ -472,15 +470,6 @@ model_constraints = ModelConstraints(
     disjoint=False,
     print_impossible=True,
 )
-# print("following is for model_constraints:")
-# for sentence in model_constraints.all_sentences.values():
-#     print(sentence)
-#     print(sentence.prefix_sentence)
-#     print(sentence.prefix_type)
-#     print(sentence.prefix_object)
-#     print(sentence.arguments)
-#     print(sentence.complexity)
-#     print('\n')
 
 ########################################
 ### SOLVE, STORE, AND PRINT Z3 MODEL ###
@@ -497,15 +486,6 @@ if not model_structure.z3_model:
     # print(model_constraints.model_constraints)
     # print(model_constraints.premise_constraints)
     print(model_structure.unsat_core)
-
-# print("following is for model_structure:")
-# for sentence in model_structure.all_sentences.values():
-#     print(sentence.prefix_sentence)
-#     print(sentence.prefix_type)
-#     print(sentence.prefix_object)
-#     print(sentence.arguments)
-#     print(sentence.complexity)
-#     print('\n')
 
 # def bv2s(bitvec):
 #     # return bitvec_to_substates(bitvec, 3)
