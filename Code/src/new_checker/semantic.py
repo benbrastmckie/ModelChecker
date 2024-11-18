@@ -152,10 +152,12 @@ class Semantics(SemanticDefaults):
         return op.extended_verify(state, *args, eval_world)
     
     def extended_falsify(self, state, prefix_object, eval_world):
-        if isinstance(prefix_object, syntactic.Operator):
-            # TODO: how can this be removed
-            print("TEST CHANGE", prefix_object)
-            return prefix_object.extended_falsify(state, eval_world)
+        # if isinstance(prefix_object, syntactic.Operator):
+        #     # TODO: how can this be removed
+        #     # M: This was successfully removed by changing
+        #     # relevant derived defs to be in proper format
+        #     print("TEST CHANGE", prefix_object)
+        #     return prefix_object.extended_falsify(state, eval_world)
         if str(prefix_object[0]).isalnum():
             return self.falsify(state, prefix_object[0])
         op, args = prefix_object[0], prefix_object[1:]

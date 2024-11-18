@@ -98,6 +98,7 @@ conclusions = ["\\neg B"]
 ##### BROKEN COUNTERMODELS #####
 ################################
 
+# NOTE: M: I think TEST CHANGE is now fixed
 # # NOTE: PRINTING TEST CHANGE
 # # CF_CM3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # N = 3
@@ -106,6 +107,7 @@ conclusions = ["\\neg B"]
 # contingent_bool = True
 # disjoint_bool = False
 
+# NOTE: M: I think TEST CHANGE is now fixed
 # # NOTE: PRINTING TEST CHANGE
 # # CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
 # N = 3
@@ -136,7 +138,8 @@ conclusions = ["\\neg B"]
 ##### FALSE PREMISE COUNTERMODELS #####
 #######################################
 
-# ERROR
+# NOTE: M: I think this is now fixed
+# # ERROR
 # premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
 # N = 3
@@ -175,12 +178,12 @@ conclusions = ["\\neg B"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-N = 3
-premises = ['(A \\circleright C)']
-conclusions = ['((A \\wedge B) \\circleright C)']
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 3
+# premises = ['(A \\circleright C)']
+# conclusions = ['((A \\wedge B) \\circleright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
 # N = 4
@@ -461,8 +464,8 @@ disjoint_bool = False
 ###############################
 
 syntax = syntactic.Syntax(premises, conclusions, operators)
-print(syntax.premises)
-print(syntax.conclusions)
+# print(syntax.premises)
+# print(syntax.conclusions)
 
 semantics = Semantics(N)
 
@@ -475,15 +478,15 @@ model_constraints = ModelConstraints(
     disjoint=False,
     print_impossible=True,
 )
-print("following is for model_constraints:")
-for sentence in model_constraints.all_sentences.values():
-    print(sentence)
-    print(sentence.prefix_sentence)
-    print(sentence.prefix_type)
-    print(sentence.prefix_object)
-    print(sentence.arguments)
-    print(sentence.complexity)
-    print('\n')
+# print("following is for model_constraints:")
+# for sentence in model_constraints.all_sentences.values():
+#     print(sentence)
+#     print(sentence.prefix_sentence)
+#     print(sentence.prefix_type)
+#     print(sentence.prefix_object)
+#     print(sentence.arguments)
+#     print(sentence.complexity)
+#     print('\n')
 
 ########################################
 ### SOLVE, STORE, AND PRINT Z3 MODEL ###

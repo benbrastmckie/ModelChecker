@@ -163,10 +163,10 @@ class ConditionalOperator(syntactic.DefinedOperator):
     def derived_definition(self, leftarg, rightarg):
         return [OrOperator, [NegationOperator, leftarg], rightarg]
     
-    def print_method(self, sentence_obj, DL_prefix_sentence, eval_world, indent_num):
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints the argument."""
-        self.general_print(sentence_obj, DL_prefix_sentence, eval_world, indent_num)
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
 
 class BiconditionalOperator(syntactic.DefinedOperator):
@@ -595,10 +595,10 @@ class DefGroundOperator(syntactic.DefinedOperator):
     def derived_definition(self, leftarg, rightarg):
         return [IdentityOperator, [OrOperator, leftarg, rightarg], rightarg]
 
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
+        by 1, and prints the argument."""
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
 
 class DefEssenceOperator(syntactic.DefinedOperator):
@@ -692,6 +692,7 @@ class CounterfactualOperator(syntactic.Operator):
         CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
 
         sentence_obj = model_structure.all_sentences[syntactic.infix(DL_prefix_sentence)]
+        # NOTE: TRANSLATE function would be useful here (above)
         proposition = sentence_obj.proposition
         N = proposition.N
         
@@ -767,25 +768,25 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
         }
 
     # TODO: move generalized version to parent class since needed generally
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
         CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
 
+        oc = model_structure.model_constraints.operator_collection
         # B: why doesn't sentence_obj.model_structure exist?
+        sentence_obj = model_structure.all_sentences[syntactic.infix(oc.apply_operator(DL_prefix_sentence))]
+        # NOTE: TRANSLATE function would be useful here (above)
         proposition = sentence_obj.proposition
-        model_structure = proposition.model_structure
         N = proposition.N
-        
-        # Print main proposition
-        proposition.print_proposition(eval_world, indent_num)
         
         # Increment indentation for nested output
         indent_num += 1
         
-        # Retrieve primary subsentences and verifiers
-        left_subsentence, right_subsentence = sentence_obj.arguments
+        left_DL_prefix_sentence, right_DL_prefix_sentence = DL_prefix_sentence[1:]
+        left_subsentence = model_structure.all_sentences[syntactic.infix(oc.apply_operator(left_DL_prefix_sentence))]
+        # NOTE: TRANSLATE function would be useful here (above)
         left_subprop_verifiers = left_subsentence.proposition.verifiers
         
         # Calculate alternative worlds
@@ -793,7 +794,7 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
         alt_world_strings = {bitvec_to_substates(u, N) for u in alt_worlds}
         
         # Print left subsentence and alternatives
-        model_structure.recursive_print(left_subsentence, eval_world, indent_num)
+        model_structure.recursive_print(left_DL_prefix_sentence, eval_world, indent_num)
         print(
             f'{"  " * indent_num} {CYAN}{left_subsentence}-alternatives '
             f'to {bitvec_to_substates(eval_world, N)} = '
@@ -803,7 +804,7 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
         # Increment indentation for right subsentence print
         indent_num += 1
         for alt_world in alt_worlds:
-            model_structure.recursive_print(right_subsentence, alt_world, indent_num)
+            model_structure.recursive_print(right_DL_prefix_sentence, alt_world, indent_num)
 
 
 ##############################################################################
@@ -865,46 +866,54 @@ class NecessityOperator(syntactic.Operator):
             for pw in model_structure.world_bits
             if eval(is_alt(pw, ver, eval_world))
         }
+    
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints the argument."""
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
-    # TODO: move generalized version to parent class since needed generally
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
-        """
-        CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
+    # NOTE: M: isn't below for CFs? Wouldn't print method for \\Box just be the general one (above)?
+    # # TODO: move generalized version to parent class since needed generally
+    # def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
+    #     """Print counterfactual and the antecedent in the eval_world. Then
+    #     print the consequent in each alternative to the evaluation world.
+    #     """
+    #     CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
 
-        # B: why doesn't sentence_obj.model_structure exist?
-        proposition = sentence_obj.proposition
-        model_structure = proposition.model_structure
-        N = proposition.N
+    #     oc = model_structure.model_constraints.operator_collection
+    #     sentence_obj = model_structure.all_sentences[syntactic.infix(oc.apply_operator(DL_prefix_sentence))]
+    #     # NOTE: TRANSLATE function would be useful here (above)
+    #     # B: why doesn't sentence_obj.model_structure exist?
+    #     proposition = sentence_obj.proposition
+    #     N = proposition.N
         
-        # Print main proposition
-        proposition.print_proposition(eval_world, indent_num)
+    #     # Print main proposition
+    #     proposition.print_proposition(eval_world, indent_num)
         
-        # Increment indentation for nested output
-        indent_num += 1
+    #     # Increment indentation for nested output
+    #     indent_num += 1
         
-        # TODO: need to adapt to single argument
-        # Retrieve primary subsentences and verifiers
-        left_subsentence, right_subsentence = sentence_obj.arguments
-        left_subprop_verifiers = left_subsentence.proposition.verifiers
+    #     # TODO: need to adapt to single argument
+    #     # Retrieve primary subsentences and verifiers
+    #     left_subsentence, right_subsentence = sentence_obj.arguments
+    #     left_subprop_verifiers = left_subsentence.proposition.verifiers
         
-        # Calculate alternative worlds
-        alt_worlds = self.calculate_alternative_worlds(left_subprop_verifiers, eval_world, model_structure)
-        alt_world_strings = {bitvec_to_substates(u, N) for u in alt_worlds}
+    #     # Calculate alternative worlds
+    #     alt_worlds = self.calculate_alternative_worlds(left_subprop_verifiers, eval_world, model_structure)
+    #     alt_world_strings = {bitvec_to_substates(u, N) for u in alt_worlds}
         
-        # Print left subsentence and alternatives
-        model_structure.recursive_print(left_subsentence, eval_world, indent_num)
-        print(
-            f'{"  " * indent_num} {CYAN}{left_subsentence}-alternatives '
-            f'to {bitvec_to_substates(eval_world, N)} = '
-            f'{pretty_set_print(alt_world_strings)}{RESET}'
-        )
+    #     # Print left subsentence and alternatives
+    #     model_structure.recursive_print(left_subsentence, eval_world, indent_num)
+    #     print(
+    #         f'{"  " * indent_num} {CYAN}{left_subsentence}-alternatives '
+    #         f'to {bitvec_to_substates(eval_world, N)} = '
+    #         f'{pretty_set_print(alt_world_strings)}{RESET}'
+    #     )
         
-        # Increment indentation for right subsentence print
-        indent_num += 1
-        for alt_world in alt_worlds:
-            model_structure.recursive_print(right_subsentence, alt_world, indent_num)
+    #     # Increment indentation for right subsentence print
+    #     indent_num += 1
+    #     for alt_world in alt_worlds:
+    #         model_structure.recursive_print(right_subsentence, alt_world, indent_num)
 
 
 ##############################################################################
