@@ -685,19 +685,18 @@ class CounterfactualOperator(syntactic.Operator):
         }
 
     # TODO: move generalized version to parent class since needed generally
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
         CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
 
-        # B: why doesn't sentence_obj.model_structure exist?
+        sentence_obj = model_structure.all_sentences[syntactic.infix(DL_prefix_sentence)]
         proposition = sentence_obj.proposition
-        model_structure = proposition.model_structure
         N = proposition.N
         
         # Print main proposition
-        proposition.print_proposition(eval_world, indent_num)
+        # proposition.print_proposition(syntactic.infix(DL_prefix_sentence), eval_world, indent_num)
         
         # Increment indentation for nested output
         indent_num += 1
@@ -711,7 +710,7 @@ class CounterfactualOperator(syntactic.Operator):
         alt_world_strings = {bitvec_to_substates(u, N) for u in alt_worlds}
         
         # Print left subsentence and alternatives
-        model_structure.recursive_print(left_subsentence, eval_world, indent_num)
+        model_structure.recursive_print(DL_prefix_sentence[1], eval_world, indent_num)
         print(
             f'{"  " * indent_num} {CYAN}{left_subsentence}-alternatives '
             f'to {bitvec_to_substates(eval_world, N)} = '
@@ -721,7 +720,7 @@ class CounterfactualOperator(syntactic.Operator):
         # Increment indentation for right subsentence print
         indent_num += 1
         for alt_world in alt_worlds:
-            model_structure.recursive_print(right_subsentence, alt_world, indent_num)
+            model_structure.recursive_print(DL_prefix_sentence[2], alt_world, indent_num)
 
 
         # 1. get the verifiers for the left subprop

@@ -461,6 +461,8 @@ disjoint_bool = False
 ###############################
 
 syntax = syntactic.Syntax(premises, conclusions, operators)
+print(syntax.premises)
+print(syntax.conclusions)
 
 semantics = Semantics(N)
 

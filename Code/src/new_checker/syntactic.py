@@ -229,10 +229,75 @@ class OperatorCollection:
                 return [Const(atom, AtomSort)]
         op, arguments = prefix_sentence[0], prefix_sentence[1:]
         activated = [self.apply_operator(arg) for arg in arguments]
-        if isinstance(self[op]("a"), DefinedOperator): # here the check _will_ happen for ops defined in terms of each other
-            return self[op]("a").derived_definition(*activated) # TODO: fix dummy
+        # if isinstance(self[op]("a"), DefinedOperator): # here the check _will_ happen for ops defined in terms of each other
+        #     return self[op]("a").derived_definition(*activated) # TODO: fix dummy
         activated.insert(0, self[op])
+        return self.translate(activated)
         return activated
+    
+    def translate(self, DL_prefix_type):
+        # basically, I want it to get a DL_prefix_type and at the end make a translated DL_prefix_type.
+        # if there is a defined operator in the DL_prefix_type, I want it to try again. 
+        # I want it to keep trying again until there are no defined operators in the prefix_type
+        # case 1: it's an atomic sentence or a 0-plce operator
+        if len(DL_prefix_type) == 1:
+            return DL_prefix_type
+        # print(DL_prefix_type)
+
+        # case 2: it's a an operator
+        op, args = DL_prefix_type[0], DL_prefix_type[1:]
+        translated_args = [self.translate(arg) for arg in args]
+        if isinstance(op('a'), DefinedOperator):
+            translation = op('a').derived_definition(*translated_args)
+        else: 
+            translation = [op] + translated_args
+        
+        # while loop
+        flattened_translation = flatten(translation)
+        for elem in flattened_translation:
+            if isinstance(elem, type) and isinstance(elem('a'), DefinedOperator):
+                translation = self.translate(translation)
+                break
+        # while type in flattened_translation:
+        #     translation = self.translate(translation)
+        return translation
+
+        if isinstance(DL_prefix_type[0]('a'), DefinedOperator):
+            translated_sub_prefix_types = [self.translate(sDLpt) for sDLpt in DL_prefix_type[1:]]
+            translation = DL_prefix_type[0]('a').derived_definition(*translated_sub_prefix_types)
+            flattened_translation = flatten(translation)
+            for elem in flattened_translation:
+                if isinstance(elem, type) and isinstance(elem('a'), DefinedOperator):
+                    translation =  self.translate(translation)
+        else:
+            translation = DL_prefix_type
+        return translation
+
+
+
+
+        # if len(DL_prefix_type) == 1: # atomic case
+        #     return DL_prefix_type
+        
+
+
+        # for elem in DL_prefix_type:
+        #     if isinstance(elem, list):
+        #         translation.append(self.translate(elem))
+        #     elif isinstance(elem('a'), DefinedOperator):
+        #         elem_translation = self.translate(elem)
+        #         flattened_elem_translation = flatten(elem_translation)
+        #         for sub_elem in flattened_elem_translation:
+        #             if isinstance(sub_elem('a'), DefinedOperator):
+        #                 elem_translation = self.translate(elem_translation)
+        #         translation.append(elem_translation)
+        #     else:
+        #         translation.append(elem)
+        # flattened_translation = flatten(translation)
+        # for elem in flattened_translation:
+        #     if isinstance(elem, DefinedOperator):
+        #         return self.translate(translation)
+        # return translation
 
 
 class Syntax:
