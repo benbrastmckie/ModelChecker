@@ -98,8 +98,23 @@ conclusions = ["\\neg B"]
 ##### BROKEN COUNTERMODELS #####
 ################################
 
-# NOTE: M: I think TEST CHANGE is now fixed
-# # NOTE: PRINTING TEST CHANGE
+#######################################
+##### FALSE PREMISE COUNTERMODELS #####
+#######################################
+
+# NOTE: M: I think this is now fixed
+# ERROR
+premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
+conclusions = ['(A \\boxright (B \\boxright C))']
+N = 3
+contingent = True
+non_null = True
+disjoint = False
+
+#############################
+### WORKING COUNTERMODELS ###
+#############################
+
 # # CF_CM3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # N = 3
 # premises = ['(A \\boxright C)', '\\possible (A \\wedge B)']
@@ -107,8 +122,6 @@ conclusions = ["\\neg B"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# NOTE: M: I think TEST CHANGE is now fixed
-# # NOTE: PRINTING TEST CHANGE
 # # CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
 # N = 3
 # premises = [
@@ -130,26 +143,6 @@ conclusions = ["\\neg B"]
 # conclusions = []
 # contingent_bool = True
 # disjoint_bool = False
-
-
-
-
-#######################################
-##### FALSE PREMISE COUNTERMODELS #####
-#######################################
-
-# NOTE: M: I think this is now fixed
-# # ERROR
-# premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
-# conclusions = ['(A \\boxright (B \\boxright C))']
-# N = 3
-# contingent = True
-# non_null = True
-# disjoint = False
-
-#############################
-### WORKING COUNTERMODELS ###
-#############################
 
 # N = 3
 # premises = ["(A \\leftrightarrow B)", "\\possible A"]
