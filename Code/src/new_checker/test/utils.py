@@ -48,23 +48,13 @@ default_max_time = 1
 ### SETUP LANGUAGE ###
 
 operators = OperatorCollection(
-    AndOperator,
-    NegationOperator,
-    OrOperator,  # extensional
-    ConditionalOperator,
-    BiconditionalOperator,  # extensional defined
-    TopOperator,
-    BotOperator,  # top and bottom zero-place operators
-    IdentityOperator,
-    GroundOperator,
-    EssenceOperator,  # constitutive
-    DefEssenceOperator,
-    DefGroundOperator,  # constitutive defined
-    DefNecessityOperator,
-    DefPossibilityOperator,  # modal defined
-    DefPossibilityOperator2,
-    CounterfactualOperator,
-    MightCounterfactualOperator,  # counterfactual
+    AndOperator, NegationOperator, OrOperator, # extensional
+    ConditionalOperator, BiconditionalOperator, # extensional defined
+    TopOperator, BotOperator, # top and bottom zero-place operators
+    IdentityOperator, GroundOperator, EssenceOperator, # constitutive
+    DefEssenceOperator, DefGroundOperator, # constitutive defined
+    DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
+    CounterfactualOperator, MightCounterfactualOperator, # counterfactual
 )
 
 

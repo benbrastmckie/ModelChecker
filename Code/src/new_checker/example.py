@@ -98,22 +98,16 @@ conclusions = ["\\neg B"]
 ##### BROKEN COUNTERMODELS #####
 ################################
 
-#######################################
-##### FALSE PREMISE COUNTERMODELS #####
-#######################################
-
-# NOTE: M: I think this is now fixed
-# ERROR
-premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
-conclusions = ['(A \\boxright (B \\boxright C))']
-N = 3
-contingent = True
-non_null = True
-disjoint = False
-
 #############################
 ### WORKING COUNTERMODELS ###
 #############################
+
+# premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
+# conclusions = ['(A \\boxright (B \\boxright C))']
+# N = 3
+# contingent = True
+# non_null = True
+# disjoint = False
 
 # # CF_CM3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # N = 3
@@ -144,25 +138,12 @@ disjoint = False
 # contingent_bool = True
 # disjoint_bool = False
 
-
-
-
-#######################################
-##### FALSE PREMISE COUNTERMODELS #####
-#######################################
-
-# NOTE: M: I think this is now fixed
-# ERROR
 premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
 conclusions = ['(A \\boxright (B \\boxright C))']
 N = 3
 contingent = True
 non_null = True
 disjoint = False
-
-#############################
-### WORKING COUNTERMODELS ###
-#############################
 
 # N = 3
 # premises = ["(A \\leftrightarrow B)", "\\possible A"]
@@ -191,12 +172,12 @@ disjoint = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 3
-# premises = ['(A \\circleright C)']
-# conclusions = ['((A \\wedge B) \\circleright C)']
-# contingent_bool = True
-# disjoint_bool = False
+# CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+N = 3
+premises = ['(A \\circleright C)']
+conclusions = ['((A \\wedge B) \\circleright C)']
+contingent_bool = True
+disjoint_bool = False
 
 # # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
 # N = 4
