@@ -107,29 +107,29 @@ conclusions = ["\\neg B"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# # NOTE: M: I think TEST CHANGE is now fixed
-# # NOTE: PRINTING TEST CHANGE
-# # CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
-# N = 3
-# premises = [
-#     '\\possible A',
-#     '(A \\boxright X)',
-#     '\\possible (A \\wedge B)',
-#     '\\neg ((A \\wedge B) \\boxright X)', # N = 4: 155.4 seconds on the MIT servers; .1587 seconds in old version; and now .0122 seconds
-#     '\\possible ((A \\wedge B) \\wedge C)',
-#     '(((A \\wedge B) \\wedge C) \\boxright X)',
-#     '\\possible (((A \\wedge B) \\wedge C) \\wedge D)',
-#     '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
-#     '\\possible ((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E)',
-#     '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)', # ? seconds
-#     '\\possible (((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F)',
-#     '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)', # ? seconds
-#     '\\possible ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G)',
-#     '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # ? seconds
-# ]
-# conclusions = []
-# contingent_bool = True
-# disjoint_bool = False
+# NOTE: M: I think TEST CHANGE is now fixed
+# NOTE: PRINTING TEST CHANGE
+# CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
+N = 3
+premises = [
+    '\\possible A',
+    '(A \\boxright X)',
+    '\\possible (A \\wedge B)',
+    '\\neg ((A \\wedge B) \\boxright X)', # N = 4: 155.4 seconds on the MIT servers; .1587 seconds in old version; and now .0122 seconds
+    '\\possible ((A \\wedge B) \\wedge C)',
+    '(((A \\wedge B) \\wedge C) \\boxright X)',
+    '\\possible (((A \\wedge B) \\wedge C) \\wedge D)',
+    '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
+    '\\possible ((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E)',
+    '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)', # ? seconds
+    '\\possible (((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F)',
+    '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)', # ? seconds
+    '\\possible ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G)',
+    '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # ? seconds
+]
+conclusions = []
+contingent_bool = True
+disjoint_bool = False
 
 
 
