@@ -22,7 +22,6 @@ from hidden_helpers import (
 import inspect
 
 from z3 import Const, DeclareSort
-import z3
 
 AtomSort = DeclareSort("AtomSort")
 
@@ -122,7 +121,6 @@ class Operator:
         return False
 
     def general_print(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
-        assert isinstance(eval_world, z3.z3.BitVecNumRef) and isinstance(indent_num, int)
         indent_num += 1
         # M: I think this'll do the same with less code
         if len(DL_prefix_sentence) > 1:
@@ -239,8 +237,14 @@ class OperatorCollection:
         """
         flattened_pt = flatten(prefix_type)
         for elem in flattened_pt:
-            if isinstance(elem, type) and isinstance(elem('a'), DefinedOperator):
-                return True
+            if isinstance(elem, type):
+                # OLD (works in example.py but not in test cases):
+                if isinstance(elem('a'), DefinedOperator):
+                    return True
+                # # NEW (makes test cases work, thought don't know why):
+                # parent_class = elem('a').__class__.__mro__[1]
+                # if "DefinedOperator" in str(parent_class):
+                #     return True
         return False
     
     def translate(self, DL_prefix_type):
@@ -258,8 +262,13 @@ class OperatorCollection:
         # case 2: it's a an operator
         op, args = DL_prefix_type[0], DL_prefix_type[1:]
         translated_args = [self.translate(arg) for arg in args]
+        # OLD (works in example.py but not in test cases):
         if isinstance(op('a'), DefinedOperator):  # here the check for ops defined in terms of each other happens
             translation = op('a').derived_definition(*translated_args)
+        # # NEW (makes test cases work, thought don't know why):
+        # parent_class = op('a').__class__.__mro__[1]
+        # if "DefinedOperator" in str(parent_class):
+        #     translation = op('a').derived_definition(*translated_args)
         else: 
             translation = [op] + translated_args
         
