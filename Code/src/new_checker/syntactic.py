@@ -121,15 +121,19 @@ class Operator:
             return self.name == other.name and self.arity == other.arity
         return False
 
-    def general_print(self, sentence_obj, eval_world, indent_num):
+    def general_print(self, L_sentence, DL_prefix_sentence, eval_world, indent_num):
         assert isinstance(eval_world, z3.z3.BitVecNumRef) and isinstance(indent_num, int)
-        sentence_obj.proposition.print_proposition(eval_world, indent_num) # TODO: HERE IS THE ERROR
-        model_structure = sentence_obj.proposition.model_structure
+
+        # L_sentence.proposition.print_proposition(DL_prefix_sentence, eval_world, indent_num) # TODO: HERE IS THE ERROR
+        model_structure = L_sentence.proposition.model_structure
         indent_num += 1
         # M: I think this'll do the same with less code
-        if sentence_obj.arguments is not None: # I think could also be comp > 0
-            for arg_sent_obj in sentence_obj.arguments:
-                model_structure.recursive_print(arg_sent_obj, eval_world, indent_num)
+        if len(DL_prefix_sentence) > 1:
+            for DL_sub_prefix_sentence in DL_prefix_sentence[1:]:
+                model_structure.recursive_print(DL_sub_prefix_sentence, eval_world, indent_num)
+        # if L_sentence.arguments is not None: # I think could also be comp > 0
+        #     for arg_sent_obj in L_sentence.arguments:
+        #         model_structure.recursive_print(arg_sent_obj, eval_world, indent_num)
 
     
 class DefinedOperator(Operator):
@@ -317,8 +321,8 @@ def infix(prefix_sent):
     if isinstance(prefix_sent, Operator): # ONLY for top
         return prefix_sent.name
     if len(prefix_sent) == 1:
-        return str(prefix_sent[0])
-    op = prefix_sent[0].name # necessary for infix to work for prefix_types
+        return str(prefix_sent[0]) if not isinstance(prefix_sent[0], type) else prefix_sent[0].name
+    op = prefix_sent[0].name if isinstance(prefix_sent[0], type) else prefix_sent[0]
     if len(prefix_sent) == 2:
         return f"{op} {infix(prefix_sent[1])}"
     left_expr = prefix_sent[1]
