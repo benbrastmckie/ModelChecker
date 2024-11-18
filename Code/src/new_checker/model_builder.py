@@ -527,22 +527,14 @@ class ModelStructure:
     # semantics to see how making those changes go.
 
     def recursive_print(self, DL_prefix_sentence, eval_world, indent_num=0):
-        assert isinstance(eval_world, z3.z3.BitVecNumRef) and isinstance(indent_num, int)
-        # print(f"{DL_infix_sentence}=")
-        # print(f"current DL prefix sent is {DL_prefix_sentence}")
         DL_infix = syntactic.infix(DL_prefix_sentence)
         L_prefix_type = self.syntax.operator_collection.apply_operator(DL_prefix_sentence)
-        # print(f"current L prefix_type is {L_prefix_type}")
         L_sentence = self.all_sentences[syntactic.infix(L_prefix_type)]
-        # print(f"current L Sentence is {L_sentence}")
-        # TODO: update operator if top or bot
-        # if sentence.prefix_operator is None:  # print sentence letter
         L_sentence.proposition.print_proposition(DL_infix, eval_world, indent_num)
-        if len(DL_prefix_sentence) == 1:
-            return
-        str_op = DL_prefix_sentence[0]
-        op = self.model_constraints.syntax.operator_collection[str_op](self.semantics) # dummy
-        op.print_method(L_sentence, DL_prefix_sentence, eval_world, indent_num)  # print complex sentence
+        if len(DL_prefix_sentence) != 1:
+            str_op = DL_prefix_sentence[0]
+            op = self.model_constraints.syntax.operator_collection[str_op](self.semantics) # dummy
+            op.print_method(L_sentence, DL_prefix_sentence, eval_world, indent_num)  # print complex sentence
 
     def print_input_sentences(self, output):
         """Prints the interpreted premises and conclusions, leveraging recursive_print."""
