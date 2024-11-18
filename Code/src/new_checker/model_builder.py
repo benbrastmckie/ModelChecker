@@ -310,7 +310,7 @@ class ModelStructure:
         self.all_bits = self.semantics.all_bits
         self.N = self.semantics.N
 
-        # Store from model_constraint
+        # Store from model_constraints
         self.proposition_class = self.model_constraints.proposition_class
         self.print_impossible = self.model_constraints.print_impossible
 
