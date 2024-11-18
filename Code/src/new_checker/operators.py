@@ -37,10 +37,10 @@ class NegationOperator(syntactic.Operator):
         Y_V, Y_F = arg_sent_obj.proposition.find_proposition()
         return Y_F, Y_V
 
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints the argument."""
-        self.general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
 
 class AndOperator(syntactic.Operator):
@@ -93,10 +93,10 @@ class AndOperator(syntactic.Operator):
         Z_V, Z_F = right_sent_obj.proposition.find_proposition()
         return sem.product(Y_V, Z_V), sem.coproduct(Y_F, Z_F)
     
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
+        by 1, and prints the argument."""
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
 
 class OrOperator(syntactic.Operator):
@@ -145,11 +145,10 @@ class OrOperator(syntactic.Operator):
         Z_V, Z_F = right_sent_obj.proposition.find_proposition()
         return sem.coproduct(Y_V, Z_V), sem.product(Y_F, Z_F)
     
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        assert isinstance(eval_world, z3.z3.BitVecNumRef) and isinstance(indent_num, int)
-        self.general_print(sentence_obj, eval_world, indent_num)
+        by 1, and prints the argument."""
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
 
 ##############################################################################
@@ -164,11 +163,10 @@ class ConditionalOperator(syntactic.DefinedOperator):
     def derived_definition(self, leftarg, rightarg):
         return [OrOperator, [NegationOperator, leftarg], rightarg]
     
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, sentence_obj, DL_prefix_sentence, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        assert isinstance(eval_world, z3.z3.BitVecNumRef) and isinstance(indent_num, int)
-        self.general_print(sentence_obj, eval_world, indent_num)
+        by 1, and prints the argument."""
+        self.general_print(sentence_obj, DL_prefix_sentence, eval_world, indent_num)
 
 
 class BiconditionalOperator(syntactic.DefinedOperator):
@@ -181,10 +179,10 @@ class BiconditionalOperator(syntactic.DefinedOperator):
         right_implies_left = [ConditionalOperator, rightarg, leftarg]
         return [AndOperator, left_implies_right, right_implies_left]
     
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
+        by 1, and prints the argument."""
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
 
 
@@ -220,9 +218,10 @@ class TopOperator(syntactic.Operator):
     def find_verifiers_and_falsifiers(self):
         return set(self.semantics.all_bits), {self.semantics.full_bit}
 
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Prints the proposition for sentence_obj."""
-        self.general_print(sentence_obj, eval_world, indent_num)
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints the argument."""
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
 
 class BotOperator(syntactic.Operator):
@@ -249,9 +248,10 @@ class BotOperator(syntactic.Operator):
     def find_verifiers_and_falsifiers(self):
         return set(), {self.semantics.null_bit}
 
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Prints the proposition for sentence_obj."""
-        self.general_print(sentence_obj, eval_world, indent_num)
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints the argument."""
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
 
 
@@ -358,10 +358,10 @@ class IdentityOperator(syntactic.Operator):
             return {self.semantics.null_bit}, set()
         return set(), {self.semantics.null_bit}
     
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
+        by 1, and prints the argument."""
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
 
 class GroundOperator(syntactic.Operator):
@@ -467,10 +467,10 @@ class GroundOperator(syntactic.Operator):
             return {self.semantics.null_bit}, set()
         return set(), {self.semantics.null_bit}
 
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
+        by 1, and prints the argument."""
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
 
 class EssenceOperator(syntactic.Operator):
@@ -576,10 +576,10 @@ class EssenceOperator(syntactic.Operator):
             return {self.semantics.null_bit}, set()
         return set(), {self.semantics.null_bit}
     
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
+        by 1, and prints the argument."""
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
 
 
@@ -609,10 +609,10 @@ class DefEssenceOperator(syntactic.DefinedOperator):
     def derived_definition(self, leftarg, rightarg):
         return [IdentityOperator, [AndOperator, leftarg, rightarg], rightarg]
 
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
+        by 1, and prints the argument."""
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
 
 
@@ -920,15 +920,10 @@ class DefNecessityOperator(syntactic.DefinedOperator):
     def derived_definition(self, rightarg):
         return [CounterfactualOperator, [TopOperator], rightarg]
     
-    # TODO: fix
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        sent_arg = sentence_obj.arguments[0]
-        indent_num += 1
-        model_structure.recursive_print(sent_arg, eval_world, indent_num)
+        by 1, and prints the argument."""
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
 
 # TODO: could be worth defining in terms of \circleright as well to compare
@@ -941,15 +936,10 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
     def derived_definition(self, arg):
         return [NegationOperator, [DefNecessityOperator, [NegationOperator, arg]]]
     
-    # TODO: fix
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        sent_arg = sentence_obj.arguments[0]
-        indent_num += 1
-        model_structure.recursive_print(sent_arg, eval_world, indent_num)
+        by 1, and prints the argument."""
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
 class DefPossibilityOperator2(syntactic.DefinedOperator):
 
@@ -959,13 +949,8 @@ class DefPossibilityOperator2(syntactic.DefinedOperator):
     def derived_definition(self, arg):
         return [MightCounterfactualOperator, TopOperator, arg]
     
-    # TODO: fix
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        sentence_obj.proposition.print_proposition(eval_world, indent_num)
-        model_structure = sentence_obj.proposition.model_structure
-        sent_arg = sentence_obj.arguments[0]
-        indent_num += 1
-        model_structure.recursive_print(sent_arg, eval_world, indent_num)
+        by 1, and prints the argument."""
+        self.general_print(DL_prefix_sentence, model_structure, eval_world, indent_num)
 
