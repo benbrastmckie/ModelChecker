@@ -23,6 +23,7 @@ from operators import (
     BiconditionalOperator,
     DefNecessityOperator,
     DefPossibilityOperator,
+    DefPossibilityOperator2,
 )
 
 # NOTE: go in API
@@ -41,7 +42,7 @@ operators = syntactic.OperatorCollection(
     TopOperator, BotOperator, # top and bottom zero-place operators
     IdentityOperator, GroundOperator, EssenceOperator, # constitutive
     DefEssenceOperator, DefGroundOperator, # constitutive defined
-    DefNecessityOperator, DefPossibilityOperator, # modal defined
+    DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
     CounterfactualOperator, MightCounterfactualOperator, # counterfactual
 )
 
@@ -135,21 +136,7 @@ conclusions = ["\\neg B"]
 ##### FALSE PREMISE COUNTERMODELS #####
 #######################################
 
-# FALSE PREMISE
-N = 3
-premises = ["(A \\leftrightarrow B)", "\\possible A"]
-conclusions = ["C"]
-contingent_bool = False
-disjoint_bool = False
-
-# # FALSE PREMISE
-# # CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
-# N = 3
-# premises = ['((A \\wedge B) \\boxright C)','\\possible (A \\wedge B)']
-# conclusions = ['(A \\boxright (B \\boxright C))']
-# contingent_bool = True
-# disjoint_bool = False
-
+# ERROR
 # premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
 # N = 3
@@ -160,6 +147,19 @@ disjoint_bool = False
 #############################
 ### WORKING COUNTERMODELS ###
 #############################
+
+# N = 3
+# premises = ["(A \\leftrightarrow B)", "\\possible A"]
+# conclusions = ["C"]
+# contingent_bool = False
+# disjoint_bool = False
+
+# # CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
+# N = 3
+# premises = ['((A \\wedge B) \\boxright C)','\\possible (A \\wedge B)']
+# conclusions = ['(A \\boxright (B \\boxright C))']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # THIS WAS EXTRA HARD BEFORE ALSO
 # N = 5
@@ -175,12 +175,12 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 3
-# premises = ['(A \\circleright C)']
-# conclusions = ['((A \\wedge B) \\circleright C)']
-# contingent_bool = True
-# disjoint_bool = False
+# CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+N = 3
+premises = ['(A \\circleright C)']
+conclusions = ['((A \\wedge B) \\circleright C)']
+contingent_bool = True
+disjoint_bool = False
 
 # # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
 # N = 4
