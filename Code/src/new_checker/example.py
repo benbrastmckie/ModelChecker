@@ -136,11 +136,11 @@ conclusions = ["\\neg B"]
 #######################################
 
 # FALSE PREMISE
-# N = 3
-# premises = ["(A \\leftrightarrow B)", "\\possible A"]
-# conclusions = ["C"]
-# contingent_bool = False
-# disjoint_bool = False
+N = 3
+premises = ["(A \\leftrightarrow B)", "\\possible A"]
+conclusions = ["C"]
+contingent_bool = False
+disjoint_bool = False
 
 # # FALSE PREMISE
 # # CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
