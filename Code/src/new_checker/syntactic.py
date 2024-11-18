@@ -246,6 +246,7 @@ class OperatorCollection:
 
         # case 2: it's a an operator
         op, args = DL_prefix_type[0], DL_prefix_type[1:]
+        # print(DL_prefix_type)
         translated_args = [self.translate(arg) for arg in args]
         if isinstance(op('a'), DefinedOperator):
             translation = op('a').derived_definition(*translated_args)

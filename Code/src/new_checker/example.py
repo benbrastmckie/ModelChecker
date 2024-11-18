@@ -144,6 +144,26 @@ disjoint = False
 # contingent_bool = True
 # disjoint_bool = False
 
+
+
+
+#######################################
+##### FALSE PREMISE COUNTERMODELS #####
+#######################################
+
+# NOTE: M: I think this is now fixed
+# ERROR
+premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
+conclusions = ['(A \\boxright (B \\boxright C))']
+N = 3
+contingent = True
+non_null = True
+disjoint = False
+
+#############################
+### WORKING COUNTERMODELS ###
+#############################
+
 # N = 3
 # premises = ["(A \\leftrightarrow B)", "\\possible A"]
 # conclusions = ["C"]
