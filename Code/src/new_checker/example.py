@@ -139,13 +139,13 @@ conclusions = ["\\neg B"]
 #######################################
 
 # NOTE: M: I think this is now fixed
-# # ERROR
-# premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
-# conclusions = ['(A \\boxright (B \\boxright C))']
-# N = 3
-# contingent = True
-# non_null = True
-# disjoint = False
+# ERROR
+premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
+conclusions = ['(A \\boxright (B \\boxright C))']
+N = 3
+contingent = True
+non_null = True
+disjoint = False
 
 #############################
 ### WORKING COUNTERMODELS ###

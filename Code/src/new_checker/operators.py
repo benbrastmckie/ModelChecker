@@ -955,7 +955,7 @@ class DefPossibilityOperator2(syntactic.DefinedOperator):
     arity = 1
 
     def derived_definition(self, arg):
-        return [MightCounterfactualOperator, TopOperator, arg]
+        return [MightCounterfactualOperator, [TopOperator], arg]
     
     def print_method(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
