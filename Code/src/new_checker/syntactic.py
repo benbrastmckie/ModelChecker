@@ -121,11 +121,8 @@ class Operator:
             return self.name == other.name and self.arity == other.arity
         return False
 
-    def general_print(self, L_sentence, DL_prefix_sentence, eval_world, indent_num):
+    def general_print(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         assert isinstance(eval_world, z3.z3.BitVecNumRef) and isinstance(indent_num, int)
-
-        # L_sentence.proposition.print_proposition(DL_prefix_sentence, eval_world, indent_num) # TODO: HERE IS THE ERROR
-        model_structure = L_sentence.proposition.model_structure
         indent_num += 1
         # M: I think this'll do the same with less code
         if len(DL_prefix_sentence) > 1:

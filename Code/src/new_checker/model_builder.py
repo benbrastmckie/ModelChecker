@@ -534,7 +534,7 @@ class ModelStructure:
         if len(DL_prefix_sentence) != 1:
             str_op = DL_prefix_sentence[0]
             op = self.model_constraints.syntax.operator_collection[str_op](self.semantics) # dummy
-            op.print_method(L_sentence, DL_prefix_sentence, eval_world, indent_num)  # print complex sentence
+            op.print_method(DL_prefix_sentence, self, eval_world, indent_num)  # print complex sentence
 
     def print_input_sentences(self, output):
         """Prints the interpreted premises and conclusions, leveraging recursive_print."""
