@@ -237,7 +237,7 @@ class OperatorCollection:
         for elem in flattened_pt:
             if isinstance(elem, type):
                 if not hasattr(elem, "primitive"):
-                    raise TypeError(f"operator {elem} seems to not be an instance of the Operator class!")
+                    raise TypeError(f"operator {elem} seems to not be a subclass of the Operator class!")
                 if not elem.primitive:
                     return True
         return False
@@ -258,7 +258,7 @@ class OperatorCollection:
         op, args = DL_prefix_type[0], DL_prefix_type[1:]
         translated_args = [self.translate_prefix_types(arg) for arg in args]
         if not hasattr(op, "primitive"):
-            raise TypeError(f"operator {op} seems to not be an instance of the Operator class!")
+            raise TypeError(f"operator {op} seems to not be a subclass of the Operator class!")
         if not op.primitive:
             translation = op('a').derived_definition(*translated_args)
         else: 
