@@ -116,9 +116,7 @@ class Operator:
         return str(self.name)
 
     def __eq__(self, other):
-        if isinstance(other, Operator):
-            return self.name == other.name and self.arity == other.arity
-        return False
+        return self.name == other.name and self.arity == other.arity
 
     def general_print(self, DL_prefix_sentence, model_structure, eval_world, indent_num):
         indent_num += 1
@@ -228,7 +226,7 @@ class OperatorCollection:
         op, arguments = prefix_sentence[0], prefix_sentence[1:]
         activated = [self.apply_operator(arg) for arg in arguments]
         activated.insert(0, self[op])
-        return self.translate(activated)
+        return self.translate_prefix_types(activated)
     
     def check_for_defined_operators(self, prefix_type):
         """
@@ -237,17 +235,11 @@ class OperatorCollection:
         """
         flattened_pt = flatten(prefix_type)
         for elem in flattened_pt:
-            if isinstance(elem, type):
-                # OLD (works in example.py but not in test cases):
-                if isinstance(elem('a'), DefinedOperator):
+            if isinstance(elem, type) and not elem.primitive:
                     return True
-                # # NEW (makes test cases work, thought don't know why):
-                # parent_class = elem('a').__class__.__mro__[1]
-                # if "DefinedOperator" in str(parent_class):
-                #     return True
         return False
     
-    def translate(self, DL_prefix_type):
+    def translate_prefix_types(self, DL_prefix_type):
         """This function translates a prefix type in DL (i.e., with defined operators) into one
         without defined operators. It takes a prefix type and returns another a prefix type that
         is equivalent to the inputted one except without defined operators. 
@@ -261,18 +253,13 @@ class OperatorCollection:
 
         # case 2: it's a an operator
         op, args = DL_prefix_type[0], DL_prefix_type[1:]
-        translated_args = [self.translate(arg) for arg in args]
-        # OLD (works in example.py but not in test cases):
-        if isinstance(op('a'), DefinedOperator):  # here the check for ops defined in terms of each other happens
+        translated_args = [self.translate_prefix_types(arg) for arg in args]
+        if not op.primitive:
             translation = op('a').derived_definition(*translated_args)
-        # # NEW (makes test cases work, thought don't know why):
-        # parent_class = op('a').__class__.__mro__[1]
-        # if "DefinedOperator" in str(parent_class):
-        #     translation = op('a').derived_definition(*translated_args)
         else: 
             translation = [op] + translated_args
         
-        return self.translate(translation) # to get the check_for_defined_operators again
+        return self.translate_prefix_types(translation) # to get the check_for_defined_operators again
 
 
 class Syntax:
@@ -356,8 +343,6 @@ class Syntax:
 def infix(prefix_sent): 
     """Takes a sentence in prefix notation (in any of the three kinds)
     and translates it to infix notation (a string)."""
-    if isinstance(prefix_sent, Operator): # ONLY for top
-        return prefix_sent.name
     if len(prefix_sent) == 1:
         return str(prefix_sent[0]) if not isinstance(prefix_sent[0], type) else prefix_sent[0].name
     op = prefix_sent[0].name if isinstance(prefix_sent[0], type) else prefix_sent[0]
