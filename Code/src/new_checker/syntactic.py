@@ -147,8 +147,8 @@ class DefinedOperator(Operator):
         """
         return []
 
-    def __init__(self, semantics, loop_check=True):
-        super().__init__(semantics)
+    def __init__(self, loop_check=True):
+        super().__init__(None) # to show that there are no semantics associated with DefinedOperators
 
         # check self is an arg of derived_definition
         op_subclass = self.__class__
@@ -180,7 +180,7 @@ class DefinedOperator(Operator):
         self.defined_operators_in_definition = [op for op in ops_in_def if not op.primitive]
         if loop_check:
             for def_opcls in self.defined_operators_in_definition:
-                if self.__class__ in def_opcls('dummy sem', False).defined_operators_in_definition:
+                if self.__class__ in def_opcls(loop_check=False).defined_operators_in_definition:
                     ermsg = (f"{op_name} and {def_opcls.__name__} are defined in terms of each "
                             f"other. Please edit their derived_definition methods to avoid this.")
                     raise RecursionError(ermsg)
@@ -266,7 +266,20 @@ class OperatorCollection:
 
         if not op.primitive:
             # QUESTION: why is the dummy variable required?
-            translation = op('a').derived_definition(*translated_args)
+            # M: because derived_definitions are instance methods, not class methods.
+            # Instantiating the derived operators has the benefit that doing so will
+            # run the __init__ method, which checks for user errors in its implementation.
+            # As it stands the __init__ method is never otherwise run. 
+            # To remove the dummy would require finding workarounds to those two issues
+            # Actually I'm realizing that technically we could remove the 'semantics' argument
+            # from the __init__ method of DefinedOperator, thus removing the dummy while keeping
+            # the instantiation. Benefits:
+                # 1. a dummy variable is no longer needed. what is currently op('a') will become op().
+                # 2. the __init__ method can be run thus not losing the second issue raised above
+                # 3. it won't make a difference to users, since DefinedOperator instances are purely internal
+                    # (in fact this is the only place they occur)
+            # I've implemented this change, reflected below. Feel free to change it or comment more though
+            translation = op().derived_definition(*translated_args)
         else: 
             translation = [op] + translated_args
         
