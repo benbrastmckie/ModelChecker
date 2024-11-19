@@ -20,7 +20,6 @@ from z3 import (
 )
 
 import time
-import z3
 
 from functools import reduce
 
@@ -29,8 +28,6 @@ from hidden_helpers import (
     int_to_binary,
     not_implemented_string,
     pretty_set_print,
-    set_colors,
-
 )
 
 import syntactic
@@ -149,6 +146,9 @@ class PropositionDefaults:
         # Set defaults for verifiers and falsifiers
         self.verifiers, self.falsifiers = [], [] # avoids linter errors in print_proposition
 
+    # DISCUSS: I wonder if this is something we ultimately want to move into
+    # semantic.py since users will define there what a proposition is and so
+    # should be able to configure the representation to match
     def __repr__(self):
         N = self.model_structure.model_constraints.semantics.N
         possible = self.model_structure.model_constraints.semantics.possible

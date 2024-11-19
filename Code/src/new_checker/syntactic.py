@@ -36,6 +36,8 @@ class Sentence:
 
     def __init__(self, Lpt):
         # store input, prefix string, complexity, and sentences for arguments
+
+        # B: does it now take prefix_types as inputs?
         self.name = infix(Lpt)
         self.prefix_sentence, self.complexity = prefix(self.name)
         if len(Lpt) > 1:
@@ -242,24 +244,28 @@ class OperatorCollection:
                     return True
         return False
     
+    # B: this looks really good! 
     def translate_prefix_types(self, DL_prefix_type):
         """This function translates a prefix type in DL (i.e., with defined operators) into one
         without defined operators. It takes a prefix type and returns another a prefix type that
         is equivalent to the inputted one except without defined operators. 
         The recursive call at the end is for defined operators defined in terms of other defined
         operators"""
-        # case 1: for efficiency, check off the get-go if none of the things in the DL_prefix_type
-        # are defined. If not, then return. If there are some, then continue.
-        # This also covers atomic sents or 0-place operators
+
+        # Checks for defined operators including atomic cases
         if not self.check_for_defined_operators(DL_prefix_type):
             return DL_prefix_type
 
-        # case 2: it's a an operator
+        # If there are defined operators
         op, args = DL_prefix_type[0], DL_prefix_type[1:]
         translated_args = [self.translate_prefix_types(arg) for arg in args]
+
+        # Check for 'primitive' attribute in operator
         if not hasattr(op, "primitive"):
             raise TypeError(f"operator {op} seems to not be a subclass of the Operator class!")
+
         if not op.primitive:
+            # QUESTION: why is the dummy variable required?
             translation = op('a').derived_definition(*translated_args)
         else: 
             translation = [op] + translated_args
@@ -286,15 +292,41 @@ class Syntax:
         self.DL_infix_conclusions = infix_conclusions
         self.operator_collection = operator_collection
 
-        self.DL_prefix_sentence_premises = [prefix(p)[0] for p in self.DL_infix_premises]
-        self.DL_prefix_sentence_conclusions = [prefix(c)[0] for c in self.DL_infix_conclusions]
+        # Convert and store premises and conclusions as prefix_sentences
+        self.DL_prefix_sentence_premises = [
+            prefix(p)[0]
+            for p in self.DL_infix_premises
+        ]
+        self.DL_prefix_sentence_conclusions = [
+            prefix(c)[0]
+            for c in self.DL_infix_conclusions
+        ]
 
-        L_prefix_type_premises = [operator_collection.apply_operator(DLps) for DLps in self.DL_prefix_sentence_premises]
-        L_prefix_type_conclusions = [operator_collection.apply_operator(DLps) for DLps in self.DL_prefix_sentence_conclusions]
+        # Convert prefix_sentences to prefix_types without derived operators
+        L_prefix_type_premises = [
+            operator_collection.apply_operator(DLps)
+            for DLps in self.DL_prefix_sentence_premises
+        ]
+        L_prefix_type_conclusions = [
+            operator_collection.apply_operator(DLps)
+            for DLps in self.DL_prefix_sentence_conclusions
+        ]
 
-        # make the all_sentences dictionary
+        # Make the all_sentences dictionary
         L_prefix_type_sentences = L_prefix_type_premises + L_prefix_type_conclusions
         self.all_sentences = self.sentence_dictionary(L_prefix_type_sentences)
+
+        # B: I think L and DL could be improved to be more readable
+        # B: now that sentences are built from prefix_types, it might make sense
+        # to have types rather that infix_sentences be the dictionary keys
+        # B: with that said, conceptually there is something nice about building
+        # sentences from infix_sentences: given an infix, one can build a prefix
+        # without knowing anything else about operators or the semantics. once
+        # more information is provided, the sentences can be updated to include
+        # more attributes. the way it goes now, sentence_objects are build from
+        # the inside out, starting in the middle of their semantic lives.
+        # DISCUSS: worth thinking about what else might change to continue to
+        # generate sentence_objects from infix_sentences rather than prefix_types
 
         # make the premises, conclusions, and sentence letters
         # note that premises are the L equivalents of the DL user inputs
