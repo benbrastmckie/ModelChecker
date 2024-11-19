@@ -146,7 +146,7 @@ class PropositionDefaults:
         # Set defaults for verifiers and falsifiers
         self.verifiers, self.falsifiers = [], [] # avoids linter errors in print_proposition
 
-    # DISCUSS: I wonder if this is something we ultimately want to move into
+    # DISCUSS: this is something we ultimately want to move into
     # semantic.py since users will define there what a proposition is and so
     # should be able to configure the representation to match
     def __repr__(self):

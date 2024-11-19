@@ -292,6 +292,9 @@ class Syntax:
         self.DL_infix_conclusions = infix_conclusions
         self.operator_collection = operator_collection
 
+        # B: below are used for printing later on. could infix be used instead
+        # to look up appropriate sentences where infix is used for dic keys?
+
         # Convert and store premises and conclusions as prefix_sentences
         self.DL_prefix_sentence_premises = [
             prefix(p)[0]
