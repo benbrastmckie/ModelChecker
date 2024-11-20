@@ -117,14 +117,12 @@ class PropositionDefaults:
         if self.__class__ == PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
 
-        # Store values from sentence argument
-        # NOTE: seems not to be needed currently; where was it needed
-        # self.sentence = sentence
-        # than the sent_obj that is stored in all_sentences dictionary? given
-        # that model_structure has access to all_sentences, we can use
-        # self.name to look up the sentence in the dictionary.
+        # Store values from sentence
         self.name = sentence.name
-        self.arguments = sentence.arguments
+        if sentence.derived_sentence: # accords with model constraints
+            self.arguments = sentence.derived_sentence.arguments
+        else:
+            self.arguments = sentence.arguments
         self.prefix_operator = sentence.prefix_operator
         self.prefix_object = sentence.prefix_object
         self.prefix_sentence = sentence.prefix_sentence
@@ -133,6 +131,8 @@ class PropositionDefaults:
         self.model_structure = model_structure
         self.N = self.model_structure.N
         self.model_constraints = self.model_structure.model_constraints
+
+        # Store values from model_constraints
         self.semantics = self.model_constraints.semantics
         self.sentence_letters = self.model_constraints.sentence_letters
         self.contingent = self.model_constraints.contingent
@@ -141,7 +141,7 @@ class PropositionDefaults:
         self.print_impossible = self.model_constraints.print_impossible
 
         # Set defaults for verifiers and falsifiers
-        self.verifiers, self.falsifiers = [], [] # avoids linter errors in print_proposition
+        self.verifiers, self.falsifiers = [], []
 
     def __repr__(self):
         return self.name
@@ -208,6 +208,9 @@ class ModelConstraints:
                     sent_let.prefix_object[0],
                 )
             )
+        # # DEBUGGING
+        # for prem in self.premises:
+        #     print(f"PREFIX OBJ {prem} is {prem.prefix_object}")
         self.premise_constraints = [
             self.semantics.premise_behavior(
                 prem.prefix_object,
@@ -243,6 +246,8 @@ class ModelConstraints:
                 continue
             if sent_obj.arguments:
                 self.instantiate(sent_obj.arguments)
+            if sent_obj.derived_sentence:
+                self.instantiate([sent_obj.derived_sentence])
             sent_obj.update_prefix_object(self)
 
     def print_enumerate(self, output=sys.__stdout__):
@@ -274,13 +279,13 @@ class ModelStructure:
 
         # Store arguments
         self.model_constraints = model_constraints
-        self.all_sentences = self.model_constraints.all_sentences
         self.max_time = max_time
 
         # Store from model_constraint.syntax
         self.syntax = self.model_constraints.syntax
-        self.premises = self.syntax.premises # list of sentence objects for premises
-        self.conclusions = self.syntax.conclusions # list of sentence objects for conclusions
+        self.premises = self.syntax.premises
+        self.conclusions = self.syntax.conclusions
+        self.all_sentences = self.syntax.all_sentences
         self.sentence_letters = self.syntax.sentence_letters
 
         # Store from model_constraint.semantics
@@ -324,7 +329,6 @@ class ModelStructure:
             self.main_world = self.z3_model[self.main_world]
 
         # Recursively update every prefix_object to store a propositions
-        # assert False, self.all_sentences.values()
         self.interpret(self.all_sentences.values())
 
     def solve(self, model_constraints, max_time):
@@ -359,10 +363,13 @@ class ModelStructure:
         for sent_obj in sentences:
             if sent_obj.prefix_object is None:
                 raise ValueError(f"{sent_obj} has 'None' for prefix_object.")
+            # DISCUSS could this check cause problems?
             if sent_obj.proposition:
                 continue
-            if sent_obj.arguments: # if sent_obj.arguments and not sent_obj.propositions
+            if sent_obj.arguments:
                 self.interpret(sent_obj.arguments)
+            if sent_obj.derived_sentence:
+                self.interpret(sent_obj.derived_sentence.arguments)
             sent_obj.update_proposition(self)
 
     def print_evaluation(self, output=sys.__stdout__):
