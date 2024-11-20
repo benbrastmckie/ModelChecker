@@ -27,21 +27,6 @@ from model_checker.model_definitions import bitvec_to_substates, pretty_set_prin
 
 AtomSort = DeclareSort("AtomSort")
 
-# def infix(prefix_sent): 
-#     """Takes a sentence in prefix notation (in any of the three kinds)
-#     and translates it to infix notation (a string).
-#     defining a version of this outside sentence for ease of a helper func"""
-#     if isinstance(prefix_sent, Operator):
-#         return str(prefix_sent)
-#     if len(prefix_sent) == 1:
-#         return str(prefix_sent[0])
-#     op = prefix_sent[0]
-#     if len(prefix_sent) == 2:
-#         return f"{op} {infix(prefix_sent[1])}"
-#     left_expr = prefix_sent[1]
-#     right_expr = prefix_sent[2]
-#     return f"({infix(left_expr)} {op} {infix(right_expr)})"
-
 class Sentence:
     """Given an infix_sentence as input, an instance of this class store the
     original infix_sentence which is used to name the class instance, as well
