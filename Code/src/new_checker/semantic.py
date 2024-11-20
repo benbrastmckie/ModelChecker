@@ -333,7 +333,6 @@ class Proposition(PropositionDefaults):
     def truth_value_at(self, world):
         """Checks if there is a verifier or falsifier in world and not both."""
         semantics = self.model_structure.model_constraints.semantics
-        N = semantics.N
         z3_model = self.model_structure.z3_model
         ver_witness = None
         fal_witness = None
@@ -349,13 +348,6 @@ class Proposition(PropositionDefaults):
                 fal_witness = fal_bit
                 exists_falsifier = True
                 break
-        # TODO: can't get this to print
-        # print(world, type(world))
-        # print( # NOTE: a warning is preferable to raising an error
-        #     f"WARNING: the world {bitvec_to_substates(world, N)} contains both:\n "
-        #     f"  The verifier {bitvec_to_substates(ver_witness, N)}; and"
-        #     f"  The falsifier {bitvec_to_substates(fal_witness, N)}."
-        # )
         if exists_verifier == exists_falsifier:
             # TODO: convert from bits to states below
             print( # NOTE: a warning is preferable to raising an error
