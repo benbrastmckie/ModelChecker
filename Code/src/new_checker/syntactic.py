@@ -51,6 +51,8 @@ class Sentence:
 
         # set defaults to None for values that will be updated later
         self.prefix_type = None # updated in Syntax with operator_collection
+        self.derived_type = None # updated in Syntax with operator_collection
+        self.derived_arguments = None # updated in Syntax
         self.prefix_object = None # updated in ModelConstraints with semantics
         self.prefix_operator = None # updated in ModelConstraints with semantics
         self.proposition = None # updated in ModelStructure with Z3 model
@@ -178,12 +180,58 @@ class Sentence:
         right_expr = prefix_sent[2]
         return f"({self.infix(left_expr)} {op} {self.infix(right_expr)})"
 
+    def check_for_defined_operators(self, prefix_type):
+        """
+        checks if there are defined operators in a prefix type.
+        Returns True or False
+        """
+        flattened_pt = flatten(prefix_type)
+        for elem in flattened_pt:
+            if isinstance(elem, type):
+                if not hasattr(elem, "primitive"):
+                    raise TypeError(f"operator {elem} seems to not be a subclass of the Operator class!")
+                if not elem.primitive:
+                    return True
+        return False
+
+    def derive_type(self, prefix_type):
+        """This function translates a prefix_type possibly with defined
+        operators to a derived_type without defined operators."""
+
+        # Checks for defined operators including atomic cases
+        if not self.check_for_defined_operators(prefix_type):
+            return prefix_type
+
+        op, args = prefix_type[0], prefix_type[1:]
+        translated_args = [self.derive_type(arg) for arg in args]
+
+        if not hasattr(op, 'primitive'):
+            raise TypeError(f"Operator {op} is not a subclass of Operator.")
+
+        if not op.primitive:
+            translation = op('a').derived_definition(*translated_args)
+        else: 
+            translation = [op] + translated_args
+        return translation
+        # DISCUSS: is this really needed?
+        # return self.derived_type(translation)
+
     def update_prefix_type(self, operator_collection):
         """Draws on the operator_collection to apply the operators that occur
         in the prefix_sentence in order to generate a prefix_type which has
         operator classes in place of operator strings and AtomSorts in place
-        of sentence letters. The prefix_type will later be instantiated."""
+        of sentence letters. If the operator is not primitive, then ."""
         self.prefix_type = operator_collection.apply_operator(self.prefix_sentence)
+        self.derived_type = self.derive_type(self.prefix_type)
+    
+    def update_derived_arguments(self):
+        if self.derived_type is None:
+            raise ValueError(f"derived_type for {self} is None in update_derived_arguments.")
+        derived_args = self.derived_type[1:]
+        self.derived_arguments = [
+            Sentence(self.infix(arg))
+            for arg in derived_args
+        ]
 
     def activate_prefix_with_semantics(self, prefix_type, model_constraints):
         """Given a prefix_type with operator classes and AtomSorts, this method
@@ -208,7 +256,7 @@ class Sentence:
         if self.prefix_type is None:
             raise ValueError(f"{self} has None for prefix_type.")
         self.prefix_object = self.activate_prefix_with_semantics(
-            self.prefix_type,
+            self.derived_type,
             model_constraints
         )
         if self.arguments or self.name in {'\\top', '\\bot'}:
@@ -344,95 +392,6 @@ class DefinedOperator(Operator):
                             f"other. Please edit their derived_definition methods to avoid this.")
                     raise RecursionError(ermsg)
 
-    def activate_prefix_definition(self, unactivated_prefix_def):
-        '''Helper for get_derived_prefix_form. Takes a sentence in prefix notation
-        returned by the derived_definition property of the DerivedOperator subclass
-        and returns one with every Operator in that definition instantiated (since
-        in the derived_definition operators are defined without an instantiation.)'''
-        new_prefix_def = []
-        for elem in unactivated_prefix_def:
-            if isinstance(elem, type):
-                new_prefix_def.append(elem(self.semantics))
-            elif isinstance(elem, list):
-                new_prefix_def.append(self.activate_prefix_definition(elem))
-            else: # so an instantiated operator or a sentence letter
-                new_prefix_def.append(elem)
-        return new_prefix_def
-
-    def get_derived_prefix_form(self, args):
-        '''given a set of arguments, returns a prefix sentence that correctly
-        puts them into the derived definition of the derived operator
-        returns a sentence in prefix notation (list of AtomSorts and Operator instances)'''
-        unact_prefix_def = self.derived_definition(*args)
-        return DefinedOperator.activate_prefix_definition(self, unact_prefix_def)
-    
-    def true_at(self, *args_and_eval_world):
-        """
-        is the same as false_at except for the behavior at the very end
-        """
-        args, eval_world = args_and_eval_world[0:-1], args_and_eval_world[-1]
-        prefix_def = self.get_derived_prefix_form(args)
-        operator, new_args = prefix_def[0], prefix_def[1:]
-        return operator.true_at(*new_args, eval_world)
-    
-    def false_at(self, *args_and_eval_world):
-        """
-        is the same as true_at except for the behavior at the very end
-        """
-        args, eval_world = args_and_eval_world[0:-1], args_and_eval_world[-1]
-        prefix_def = self.get_derived_prefix_form(args)
-        operator, new_args = prefix_def[0], prefix_def[1:]
-        return operator.true_at(*new_args, eval_world)
-
-    def get_updated_Sentence(self, sub_derived_prefix_def, model_structure):
-        '''
-        given a prefix_object and a ms, gives a Sentence object that has updated
-        prefix_type, prefix_object, and proposition (with reference to the props
-        in ms, and creates them ad hoc if they are not in ms)
-        sub_derived_prefix_def is a prefix_object
-        should return a new sentence object that is the derived_prefix_def
-        artificial Sentences are not put in the model_structure right now
-        '''
-        infix_func = list(model_structure.all_sentences.values())[0].infix
-        all_sentences = model_structure.all_sentences
-        sub_infix = infix_func(sub_derived_prefix_def)
-        if sub_infix in all_sentences:
-            all_sentences[sub_infix].update_proposition(model_structure) # M: idk why this line was necessary
-            return all_sentences[sub_infix]
-        # recursive case: artificially make the sentence object. 
-        mc = model_structure.model_constraints
-        oc = mc.operator_collection
-        artificial_sentence = Sentence(sub_infix)
-        artificial_sentence.update_prefix_type(oc)
-        artificial_sentence.update_prefix_object(mc)
-        # make sure artificial_sentence args's Sentences have prop objs
-        if artificial_sentence.arguments:
-            new_artificial_args = []
-            for arg in artificial_sentence.arguments:
-                # # can only use below with sorting; not working rn
-                # if arg not in all_sentences.values():
-                #     new_artificial_args.append(all_sentences[str(arg)])
-                # else:
-                #     # need to make another artificial sentence
-                    arg.update_prefix_type(oc)
-                    arg.update_prefix_object(mc)
-                    artificial_subsent = self.get_updated_Sentence(arg.prefix_object, model_structure)
-                    new_artificial_args.append(artificial_subsent)
-            artificial_sentence.arguments = new_artificial_args
-        artificial_sentence.update_proposition(model_structure)
-        return artificial_sentence
-    
-    def find_verifiers_and_falsifiers(self, *argsents_and_eval_world):
-        """Takes sentences """
-        argsents, eval_world = argsents_and_eval_world[0:-1], argsents_and_eval_world[-1]
-        prefix_args = [sent.prefix_object for sent in argsents]
-        dprefix_def = self.get_derived_prefix_form(prefix_args) # d for derived
-        ms = argsents[0].proposition.model_structure
-        doperator, dpfargs = dprefix_def[0], dprefix_def[1:]
-        new_argsents = [self.get_updated_Sentence(spf, ms) for spf in dpfargs]
-        new_argsents_and_eval_world = new_argsents + [eval_world]
-        return doperator.find_verifiers_and_falsifiers(*new_argsents_and_eval_world)
-    
 
 class OperatorCollection:
     """Stores the operators that will be passed to Syntax."""
@@ -445,36 +404,39 @@ class OperatorCollection:
     def __iter__(self):
         yield from self.operator_classes_dict
 
+    def __getitem__(self, value):
+        return self.operator_classes_dict[value]
+    
     def items(self):
         yield from self.operator_classes_dict.items()
 
     def add_operator(self, input):
         """Input is either an operator class (of type 'type') or a list of operator classes."""
-        if (
-            isinstance(input, list)
-            or isinstance(input, tuple)
-            or isinstance(input, set)
-        ):
+        if input.name is None:
+            raise ValueError(f"Operator class {input.__name__} has no name defined.")
+        if isinstance(input, (list, tuple, set)):
             for operator_class in input:
                 self.add_operator(operator_class)
         elif isinstance(input, type):
+            # print(f"Adding operator: {input.name}")  # Debugging line
             self.operator_classes_dict[input.name] = input
+        else:
+            raise TypeError(f"unexpected input type {type(input)} for add_operator")
 
-    def __getitem__(self, value):
-        return self.operator_classes_dict[value]
-    
     def apply_operator(self, prefix_sentence):
-        """Converts prefix_sentences to prefix_types with operator classes."""
         if len(prefix_sentence) == 1:
             atom = prefix_sentence[0]
             if atom in {"\\top", "\\bot"}:  # Handle extremal operators
                 return [self[atom]]
             if atom.isalnum():  # Handle atomic sentences
                 return [Const(atom, AtomSort)]
+            raise ValueError(f"The atom {atom} is invalid in apply_operator.")
         op, arguments = prefix_sentence[0], prefix_sentence[1:]
+        # print(f"Applying operator: {op}")  # Debugging line
         activated = [self.apply_operator(arg) for arg in arguments]
         activated.insert(0, self[op])
         return activated
+        # return self.translate_prefix_types(activated)
 
 
 class Syntax:
@@ -501,7 +463,7 @@ class Syntax:
         infix_inputs = self.infix_premises + self.infix_conclusions
         self.all_sentences = self.sentence_dictionary(infix_inputs)
 
-        self.initialize_prefix_types(self.all_sentences.values())
+        self.initialize_types(self.all_sentences.values())
 
         self.premises = [
             self.all_sentences[key]
@@ -534,38 +496,29 @@ class Syntax:
         """Takes a list of sentences composing the dictionaries of subsentences
         for each, resulting in a dictionary that includes all subsentences."""
         all_sentences = {}
-        for input in infix_inputs:
-            if input in all_sentences.keys():
+        for infix_sent in infix_inputs:
+            if infix_sent in all_sentences.keys():
                 continue
-            sentence = Sentence(input)
+            sentence = Sentence(infix_sent)
             subsent_dict = self.sub_dictionary(sentence)
             all_sentences.update(subsent_dict)
-
-        # Sort the sentences by their complexity attribute
         sorted_sentences = sorted(all_sentences.items(), key=lambda item: item[1].complexity)
-        
-        # Create a dictionary with sorted sentences by complexity
         sorted_all_sentences = {s.name: s for _, s in sorted_sentences}
-        # sorted_all_sentences = {infix(s.prefix_sentence): s for _, s in sorted_sentences}
-
         return sorted_all_sentences
 
-        # # NOTE: SAVED in case problem with the above
-        # all_infix_sents = all_sentences.keys()
-        # all_prefix_sents_w_comp = [Sentence.prefix('a', ifs) for ifs in all_infix_sents]
-        # all_prefix_sents_w_comp_sorted = sorted(all_prefix_sents_w_comp, key=lambda L: L[1])
-        # all_prefix_sents = (pfswc[0] for pfswc in all_prefix_sents_w_comp_sorted)
-        # all_sents_keys = [infix(pfs) for pfs in all_prefix_sents]
-        # sorted_all_sentences = {key: all_sentences[key] for key in all_sents_keys}
-
-    def initialize_prefix_types(self, sentences):
+    def initialize_types(self, sentence_objs):
         """Draws on the operator_collection in order to initialize all sentences
-        in the input by replacing operator strings with operator classes."""
+        in the input by replacing operator strings with operator classes and
+        updating prefix_type in that sentence_obj. If the main operator is not
+        primitive, derived_arguments are updated with derived_types."""
         ops = self.operator_collection
-        for sent_obj in sentences:
+        for sent_obj in sentence_objs:
             if sent_obj.prefix_type:
                 continue
             if sent_obj.arguments:
-                self.initialize_prefix_types(sent_obj.arguments)
+                self.initialize_types(sent_obj.arguments)
             sent_obj.update_prefix_type(ops)
+            if len(sent_obj.derived_type) > 1:
+                sent_obj.update_derived_arguments()
+                self.initialize_types(sent_obj.derived_arguments)
 
