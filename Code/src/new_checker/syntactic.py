@@ -22,6 +22,8 @@ from hidden_helpers import (
 )
 
 import inspect
+from abc import abstractmethod
+
 
 from z3 import Const, DeclareSort
 
@@ -244,18 +246,6 @@ class Sentence:
             derived_infix = self.infix(self.derived_type)
             self.derived_sentence = Sentence(derived_infix)
     
-    # def update_derived_sentence(self):
-    #     if self.derived_type is None:
-    #         raise ValueError(f"derived_type for {self} is None in update_derived_arguments.")
-    #     self.derived_sentence = (
-    #         Sentence(self.infix(self.derived_type)) if self.derived else None
-    #     )
-    #     # derived_args = self.derived_type[1:]
-    #     # self.derived_arguments = [
-    #     #     Sentence(self.infix(arg))
-    #     #     for arg in derived_args
-    #     # ]
-
     def activate_prefix_with_semantics(self, prefix_type, model_constraints):
         """Given a prefix_type with operator classes and AtomSorts, this method
         replaces each operator class with the instance of that operator stored
@@ -368,57 +358,120 @@ class Operator:
                 model_structure.recursive_print(right_argument, alt_world, indent_num)
     
     
+# class DefinedOperator(Operator):
+#     """NOTE: I wonder about building a sent_obj first thing, adding this to the
+#     sentence_dict or updating?"""
+#
+#     primitive = False
+#
+#     def derived_definition(self, leftarg, rightarg):
+#         """
+#         in (kind of) prefix form give the definition of the operator in terms of other operators
+#         what's here is the default form—is here to avoid linter complaints
+#         """
+#         return []
+#
+#     def __init__(self, semantics, loop_check=True):
+#         super().__init__(semantics)
+#
+#         # check self is an arg of derived_definition
+#         op_subclass = self.__class__
+#         args_without_self = inspect.signature(self.derived_definition).parameters # parameters besides self in derived_definition
+#         args_with_self = inspect.signature(op_subclass.derived_definition).parameters # params above plus 'self'
+#         if 'self' not in args_with_self:
+#             raise ValueError(f"self should be an argument of {op_subclass.__name__}'s "
+#                              "derived_definition method (and it should go unused).")
+#         # from now on, can assume 'self' is an argument of derived_definition. 
+#
+#         # check if derived_definition is implemented (ie is not default)
+#         if len(args_with_self) == 1 and 'self' in args_with_self:
+#             raise NameError(
+#                 f"Derived operator class {op_subclass.__name__} does not have an implemented "
+#                 f"derived_definition method. ")
+#         
+#         # check for arity match between self.arity and derived_def num args (excluding self)
+#         derived_def_num_args = len(args_without_self)
+#         op_name = op_subclass.__name__
+#         mismatch_arity_msg = (
+#             f"the specified arity of value {self.arity} for the DerivedOperator class {op_name} "
+#             f"does not match the number of arguments (excluding 'self') for {op_name}'s derived_"
+#             f"definition property ({derived_def_num_args} non-self arguments currently.)")
+#         assert self.arity == derived_def_num_args, mismatch_arity_msg
+#
+#         # check for DefinedOperators defined in terms of each other
+#         sample_derived_def = self.derived_definition(*(derived_def_num_args * ("a",)))
+#         ops_in_def = [elem for elem in flatten(sample_derived_def) if isinstance(elem, type)]
+#         self.defined_operators_in_definition = [op for op in ops_in_def if not op.primitive]
+#         if loop_check:
+#             for def_opcls in self.defined_operators_in_definition:
+#                 if self.__class__ in def_opcls('dummy sem', False).defined_operators_in_definition:
+#                     ermsg = (f"{op_name} and {def_opcls.__name__} are defined in terms of each "
+#                             f"other. Please edit their derived_definition methods to avoid this.")
+#                     raise RecursionError(ermsg)
+
+
 class DefinedOperator(Operator):
-    """NOTE: I wonder about building a sent_obj first thing, adding this to the
-    sentence_dict or updating?"""
+    """Represents an operator defined in terms of other operators."""
 
     primitive = False
 
-    def derived_definition(self, leftarg, rightarg):
+    @abstractmethod
+    def derived_definition(self, *args):
         """
-        in (kind of) prefix form give the definition of the operator in terms of other operators
-        what's here is the default form—is here to avoid linter complaints
+        Returns the definition of the operator in terms of other operators.
+        Must be implemented by subclasses.
         """
-        return []
+        pass
 
     def __init__(self, semantics, loop_check=True):
         super().__init__(semantics)
 
-        # check self is an arg of derived_definition
         op_subclass = self.__class__
-        args_without_self = inspect.signature(self.derived_definition).parameters # parameters besides self in derived_definition
-        args_with_self = inspect.signature(op_subclass.derived_definition).parameters # params above plus 'self'
-        if 'self' not in args_with_self:
-            raise ValueError(f"self should be an argument of {op_subclass.__name__}'s "
-                             "derived_definition method (and it should go unused).")
-        # from now on, can assume 'self' is an argument of derived_definition. 
 
-        # check if derived_definition is implemented (ie is not default)
-        if len(args_with_self) == 1 and 'self' in args_with_self:
-            raise NameError(
-                f"Derived operator class {op_subclass.__name__} does not have an implemented "
-                f"derived_definition method. ")
-        
-        # check for arity match between self.arity and derived_def num args (excluding self)
-        derived_def_num_args = len(args_without_self)
-        op_name = op_subclass.__name__
-        mismatch_arity_msg = (
-            f"the specified arity of value {self.arity} for the DerivedOperator class {op_name} "
-            f"does not match the number of arguments (excluding 'self') for {op_name}'s derived_"
-            f"definition property ({derived_def_num_args} non-self arguments currently.)")
-        assert self.arity == derived_def_num_args, mismatch_arity_msg
+        # Ensure derived_definition is implemented
+        if self.__class__.derived_definition == DefinedOperator.derived_definition:
+            raise NotImplementedError(
+                f"Derived operator class {op_subclass.__name__} must implement "
+                f"the derived_definition method."
+            )
 
-        # check for DefinedOperators defined in terms of each other
-        sample_derived_def = self.derived_definition(*(derived_def_num_args * ("a",)))
+        # Get the signature of derived_definition
+        derived_def_sig = inspect.signature(op_subclass.derived_definition)
+        params = list(derived_def_sig.parameters.values())
+
+        # Exclude 'self' parameter
+        if params and params[0].name == 'self':
+            params = params[1:]
+
+        derived_def_num_args = len(params)
+
+        # Ensure 'arity' attribute exists
+        if not hasattr(self, 'arity'):
+            raise AttributeError(f"{op_subclass.__name__} must define an 'arity' attribute.")
+
+        # Check for arity match
+        if self.arity != derived_def_num_args:
+            mismatch_arity_msg = (
+                f"The specified arity of value {self.arity} for the DerivedOperator class "
+                f"{op_subclass.__name__} does not match the number of arguments (excluding 'self') "
+                f"for its derived_definition method ({derived_def_num_args} non-self arguments)."
+            )
+            raise ValueError(mismatch_arity_msg)
+
+        # Check for circular definitions
+        dummy_args = [None] * derived_def_num_args
+        sample_derived_def = self.derived_definition(*dummy_args)
         ops_in_def = [elem for elem in flatten(sample_derived_def) if isinstance(elem, type)]
         self.defined_operators_in_definition = [op for op in ops_in_def if not op.primitive]
         if loop_check:
             for def_opcls in self.defined_operators_in_definition:
-                if self.__class__ in def_opcls('dummy sem', False).defined_operators_in_definition:
-                    ermsg = (f"{op_name} and {def_opcls.__name__} are defined in terms of each "
-                            f"other. Please edit their derived_definition methods to avoid this.")
+                def_op_instance = def_opcls('dummy sem', False)
+                if self.__class__ in def_op_instance.defined_operators_in_definition:
+                    ermsg = (
+                        f"{op_subclass.__name__} and {def_opcls.__name__} are defined in terms of "
+                        f"each other. Please edit their derived_definition methods to avoid this."
+                    )
                     raise RecursionError(ermsg)
-
 
 class OperatorCollection:
     """Stores the operators that will be passed to Syntax."""
@@ -466,7 +519,7 @@ class OperatorCollection:
         else:
             raise TypeError(f"Expected operator name as a string, got {type(op).__name__}.")
         return activated
-
+        # B: this was from before... wasn't sure why it was needed
         # return self.translate_prefix_types(activated)
 
 
@@ -507,33 +560,6 @@ class Syntax:
             for key in self.all_sentences
             if key.isalnum()
         ]
-
-    # # NOTE: combined these to form the below
-    # def sub_dictionary(self, sentence):
-    #     """Takes a sentence object as input and builds a dictionary consisting
-    #     of it and all subsentences by looking to its arguments (if any)."""
-    #     sub_dictionary = {}
-    #     sub_dictionary[sentence.name] = sentence
-    #     if sentence.arguments:
-    #         for sent_obj in sentence.arguments:
-    #             if sent_obj in sub_dictionary.values():
-    #                 continue
-    #             arg_dict = self.sub_dictionary(sent_obj)
-    #             sub_dictionary.update(arg_dict)
-    #     return sub_dictionary
-    #
-    # def update_dictionary_with_derived(self, sentence):
-    #     """Takes a sentence object as input and builds a dictionary consisting
-    #     of it and all subsentences by looking to its arguments (if any)."""
-    #     sub_dictionary = {}
-    #     sub_dictionary[sentence.name] = sentence
-    #     if sentence.derived_arguments:
-    #         for sent_obj in sentence.derived_arguments:
-    #             if sent_obj in sub_dictionary.values():
-    #                 continue
-    #             derived_arg_dict = self.sub_dictionary(sent_obj)
-    #             sub_dictionary.update(derived_arg_dict)
-    #     return sub_dictionary
 
     def sort_dictionary(self, unstorted_dictionary):
         sorted_sentences = sorted(unstorted_dictionary.items(), key=lambda item: item[1].complexity)
@@ -583,29 +609,11 @@ class Syntax:
         primitive, derived_arguments are updated with derived_types."""
         operator_collection = self.operator_collection
         for sent_obj in sentence_objs:
-            # TODO: could this cause trouble?
-            # if sent_obj.prefix_type and sent_obj.derived_type:
-            #     continue
+            if sent_obj.prefix_type:
+                continue
             if sent_obj.arguments:
                 self.initialize_types(sent_obj.arguments)
             sent_obj.update_prefix_type(operator_collection)
             sent_obj.update_derived()
             if sent_obj.derived_sentence:
                 self.initialize_types([sent_obj.derived_sentence])
-
-    # def initialize_types(self, sentence_objs):
-    #     operator_collection = self.operator_collection
-    #     for sent_obj in sentence_objs:
-    #         # if sent_obj.prefix_type and sent_obj.derived_type:
-    #         #     continue
-    #         if sent_obj.arguments:
-    #             self.initialize_types(sent_obj.arguments)
-    #         # Ensure operator replacement
-    #         op = sent_obj.prefix_sentence[0]
-    #         if isinstance(op, str) and op in operator_collection.operator_classes_dict:
-    #             print(f"Replacing operator '{op}' with its class in initialize_types.")
-    #             sent_obj.prefix_sentence[0] = operator_collection[op]
-    #         sent_obj.update_prefix_type(operator_collection)
-    #         sent_obj.update_derived()
-    #         if sent_obj.derived_sentence:
-    #             self.initialize_types([sent_obj.derived_sentence])
