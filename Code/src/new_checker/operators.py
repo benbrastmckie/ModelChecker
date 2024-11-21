@@ -924,7 +924,7 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
     arity = 1
 
     def derived_definition(self, arg):
-        return [NegationOperator, [DefNecessityOperator, [NegationOperator, arg]]]
+        return [NegationOperator, [NecessityOperator, [NegationOperator, arg]]]
     
     # TODO: fix
     def print_method(self, sentence_obj, eval_world, indent_num):

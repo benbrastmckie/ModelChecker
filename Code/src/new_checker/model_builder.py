@@ -203,8 +203,6 @@ class ModelConstraints:
             self.model_constraints.extend(
                 self.proposition_class.proposition_constraints(
                     self,
-                    # TODO: fix definition so that [0] is not needed below?
-                    # seems to occur elsewhere as well... is this needed?
                     sent_let.prefix_object[0],
                 )
             )

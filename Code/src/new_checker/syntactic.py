@@ -52,7 +52,7 @@ class Sentence:
         # set defaults to None for values that will be updated later
         self.prefix_type = None # updated in Syntax with operator_collection
         self.derived_type = None # updated in Syntax with operator_collection
-        self.derived_sentence = None # updated in Syntax
+        self.derived_sentence = None # updated in Syntax with update_derived
         self.prefix_object = None # updated in ModelConstraints with semantics
         self.prefix_operator = None # updated in ModelConstraints with semantics
         self.proposition = None # updated in ModelStructure with Z3 model
@@ -166,19 +166,34 @@ class Sentence:
         prefix_object, complexity = self.parse_expression(tokens)
         return prefix_object, complexity
 
-    def infix(self, prefix_sent): 
+    def infix(self, prefix_sent):
         """Takes a sentence in prefix notation (in any of the three kinds)
         and translates it to infix notation (a string)."""
+        # Base case: if prefix_sent is an operator class
+        if isinstance(prefix_sent, type) and issubclass(prefix_sent, Operator):
+            return prefix_sent.name  # or prefix_sent.name
+        # If prefix_sent is an operator instance
         if isinstance(prefix_sent, Operator):
-            return str(prefix_sent)
-        if len(prefix_sent) == 1:
-            return str(prefix_sent[0])
-        op = prefix_sent[0]
-        if len(prefix_sent) == 2:
-            return f"{op} {self.infix(prefix_sent[1])}"
-        left_expr = prefix_sent[1]
-        right_expr = prefix_sent[2]
-        return f"({self.infix(left_expr)} {op} {self.infix(right_expr)})"
+            return prefix_sent.name  # or str(prefix_sent)
+        # If prefix_sent is a list or tuple (recursive case)
+        if isinstance(prefix_sent, (list, tuple)):
+            if len(prefix_sent) == 1:
+                return self.infix(prefix_sent[0])
+            op = prefix_sent[0]
+            # Extract the operator's symbol or name
+            if isinstance(op, type) and issubclass(op, Operator):
+                op_str = op.name  # or op.name
+            elif isinstance(op, Operator):
+                op_str = op.name  # or str(op)
+            else:
+                op_str = str(op)
+            if len(prefix_sent) == 2:
+                return f"{op_str} {self.infix(prefix_sent[1])}"
+            left_expr = prefix_sent[1]
+            right_expr = prefix_sent[2]
+            return f"({self.infix(left_expr)} {op_str} {self.infix(right_expr)})"
+        # For any other type, convert to string
+        return str(prefix_sent)
 
     def operator_is_defined(self, prefix_type):
         """
@@ -219,8 +234,6 @@ class Sentence:
         of sentence letters. If the operator is not primitive, then ."""
         if self.prefix_sentence is None:
             raise ValueError(f"prefix_sentence for {self} is None in update_prefix_type.")
-        # DEBUG
-        print(f"THE prefix sentence {self.prefix_sentence} has op {self.prefix_sentence[0]}")
         self.prefix_type = operator_collection.apply_operator(self.prefix_sentence)
     
     def update_derived(self):
@@ -228,7 +241,8 @@ class Sentence:
             raise ValueError(f"prefix_type for {self} is None in update_derived_type.")
         self.derived_type = self.derive_type(self.prefix_type)
         if self.operator_is_defined(self.prefix_type):
-            self.derived_sentence = Sentence(self.infix(self.derived_type))
+            derived_infix = self.infix(self.derived_type)
+            self.derived_sentence = Sentence(derived_infix)
     
     # def update_derived_sentence(self):
     #     if self.derived_type is None:
@@ -310,17 +324,13 @@ class Operator:
         return False
 
     def general_print(self, sentence_obj, eval_world, indent_num):
-        if sentence_obj.derived_sentence:
-            arguments = sentence_obj.derived_sentence.arguments
-        else:
-            arguments = sentence_obj.arguments
         proposition = sentence_obj.proposition
         model_structure = proposition.model_structure
 
         proposition.print_proposition(eval_world, indent_num)
         indent_num += 1
 
-        for arg in arguments:
+        for arg in sentence_obj.arguments:
             model_structure.recursive_print(arg, eval_world, indent_num)
 
     def print_over_worlds(self, sentence_obj, eval_world, other_worlds, indent_num):
@@ -330,10 +340,7 @@ class Operator:
         # Move to class or config for flexibility
         CYAN, RESET = '\033[36m', '\033[0m'
 
-        if sentence_obj.derived_sentence:
-            arguments = sentence_obj.derived_sentence.arguments
-        else:
-            arguments = sentence_obj.arguments
+        arguments = sentence_obj.arguments
         proposition = sentence_obj.proposition
         model_structure = proposition.model_structure
         N = proposition.N
@@ -438,15 +445,11 @@ class OperatorCollection:
         elif isinstance(input, type):
             if getattr(input, "name", None) is None:
                 raise ValueError(f"Operator class {input.__name__} has no name defined.")
-            # # DEBUG
-            # print(f"Adding operator: {input.name}")
             self.operator_classes_dict[input.name] = input
         else:
             raise TypeError(f"Unexpected input type {type(input)} for add_operator.")
 
     def apply_operator(self, prefix_sentence):
-        print(f"prefix_sentence op: {prefix_sentence[0]}")  # Debugging line
-        print(f"prefix_sentence op type: {type(prefix_sentence[0])}")  # Debugging line
         if len(prefix_sentence) == 1:
             atom = prefix_sentence[0]
             if atom in {"\\top", "\\bot"}:  # Handle extremal operators
@@ -455,9 +458,7 @@ class OperatorCollection:
                 return [Const(atom, AtomSort)]
             raise ValueError(f"The atom {atom} is invalid in apply_operator.")
         op, arguments = prefix_sentence[0], prefix_sentence[1:]
-        print(f"Applying operator: {op}")  # Debugging line
         activated = [self.apply_operator(arg) for arg in arguments]
-        # activated.insert(0, self[op])
         if isinstance(op, str):
             if op not in self.operator_classes_dict:
                 raise KeyError(f"Operator '{op}' not found in operator_classes_dict.")
@@ -465,6 +466,7 @@ class OperatorCollection:
         else:
             raise TypeError(f"Expected operator name as a string, got {type(op).__name__}.")
         return activated
+
         # return self.translate_prefix_types(activated)
 
 
@@ -565,7 +567,6 @@ class Syntax:
             sentence = Sentence(infix_sent)
             if sentence.arguments:
                 self.initialize_types(sentence.arguments)
-            # print(f"sentence {sentence} has prefix_sentence op of type {type(sentence.prefix_sentence[0])}")
             sentence.update_prefix_type(operator_collection)
             sentence.update_derived()
             if sentence.derived_sentence:
@@ -580,16 +581,31 @@ class Syntax:
         in the input by replacing operator strings with operator classes and
         updating prefix_type in that sentence_obj. If the main operator is not
         primitive, derived_arguments are updated with derived_types."""
-        ops = self.operator_collection
+        operator_collection = self.operator_collection
         for sent_obj in sentence_objs:
-            if sent_obj.prefix_type and sent_obj.derived_type:
-                continue
+            # TODO: could this cause trouble?
+            # if sent_obj.prefix_type and sent_obj.derived_type:
+            #     continue
             if sent_obj.arguments:
                 self.initialize_types(sent_obj.arguments)
-            sent_obj.update_prefix_type(ops)
+            sent_obj.update_prefix_type(operator_collection)
             sent_obj.update_derived()
             if sent_obj.derived_sentence:
                 self.initialize_types([sent_obj.derived_sentence])
-            if sent_obj.derived_sentence:
-                self.initialize_types(sent_obj.derived_sentence.arguments)
 
+    # def initialize_types(self, sentence_objs):
+    #     operator_collection = self.operator_collection
+    #     for sent_obj in sentence_objs:
+    #         # if sent_obj.prefix_type and sent_obj.derived_type:
+    #         #     continue
+    #         if sent_obj.arguments:
+    #             self.initialize_types(sent_obj.arguments)
+    #         # Ensure operator replacement
+    #         op = sent_obj.prefix_sentence[0]
+    #         if isinstance(op, str) and op in operator_collection.operator_classes_dict:
+    #             print(f"Replacing operator '{op}' with its class in initialize_types.")
+    #             sent_obj.prefix_sentence[0] = operator_collection[op]
+    #         sent_obj.update_prefix_type(operator_collection)
+    #         sent_obj.update_derived()
+    #         if sent_obj.derived_sentence:
+    #             self.initialize_types([sent_obj.derived_sentence])
