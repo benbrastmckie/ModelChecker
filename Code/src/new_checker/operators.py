@@ -759,7 +759,13 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
     arity = 2
 
     def derived_definition(self, leftarg, rightarg):
-        return [NegationOperator, [CounterfactualOperator, leftarg, [NegationOperator, rightarg]]]
+        return [
+            NegationOperator, [
+                CounterfactualOperator,
+                leftarg,
+                [NegationOperator, rightarg]
+            ]
+        ]
 
     # TODO: can this be moved to semantics to avoid redundancy?
     def calculate_alternative_worlds(self, verifiers, eval_world, model_structure):

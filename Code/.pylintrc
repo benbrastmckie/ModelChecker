@@ -6,5 +6,6 @@ init-hook='import sys; sys.path.append("src/new_checker")'
 
 [MESSAGES CONTROL] # disables the check for:
 disable=C0103  # variable naming style (like snake_case)
+disable=W0221 # parent class method replaced by method with different numbers of arguments
 # disable=C0111 # missing docstrings
 # disable=E0401 # unable to import

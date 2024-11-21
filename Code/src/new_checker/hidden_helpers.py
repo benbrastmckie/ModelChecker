@@ -10,12 +10,11 @@ The operators `\\top` and `\\bot` are reserved.
 ### IMPORTS AND DEFINITIONS ###
 
 import string
+
 from z3 import(
     And,
     BitVecVal,
-    BoolRef,
     Or,
-    simplify,
     substitute,
 ) 
 
@@ -132,7 +131,7 @@ def bitvec_to_substates(bit_vec, N):
 #     for elem in python_set:
 #         z3_set = z3.SetAdd(z3_set, elem)
 #     return z3_set
-#
+
 # def z3_set_to_python_set(z3_set, domain):
 #     python_set = set()
 #     for elem in domain:
@@ -140,16 +139,14 @@ def bitvec_to_substates(bit_vec, N):
 #             python_set.add(elem)
 #     return python_set
 
-
-# M: this is not used right now but may be later
-def z3_simplify(z3_expr):
-    """
-    This will get rid of need for all the bit_ functions.
-    However, it does not get rid of e.g. find_compatible_parts.
-    """
-    if isinstance(z3_expr, BoolRef):
-        return bool(simplify(z3_expr))
-    return simplify(z3_expr)
+# def z3_simplify(z3_expr):
+#     """
+#     This will get rid of need for all the bit_ functions.
+#     However, it does not get rid of e.g. find_compatible_parts.
+#     """
+#     if isinstance(z3_expr, BoolRef):
+#         return bool(simplify(z3_expr))
+#     return simplify(z3_expr)
 
 def ForAll(bvs, formula):
     """
@@ -206,7 +203,6 @@ def Exists(bvs, formula):
 
 ### ERROR REPORTING ###
 
-
 def not_implemented_string(cl_name):
     """Return a message for NotImplemented Errors on Operator and Proposition classes.
     The error is raised when a user creates an Operator object or a Proposition object,
@@ -217,14 +213,14 @@ def not_implemented_string(cl_name):
     return (f"User should implement subclass(es) of {cl_name} for {cl_name.lower()}s. The "
             f"{cl_name} class should never be instantiated.")
 
-def flatten(L_of_Ls):
+def flatten(structured_list):
     """
     helper for making sure that derived operators are not defined in terms of each other.
     takes in a list of lists; returns that list of lists flattened. 
     can in principle flatten a list with any amount of embedding. 
     """
     flattened = []
-    for elem in L_of_Ls:
+    for elem in structured_list:
         if not isinstance(elem, list):
             flattened.append(elem)
         if isinstance(elem, list):
