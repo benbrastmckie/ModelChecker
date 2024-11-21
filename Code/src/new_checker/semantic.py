@@ -159,6 +159,17 @@ class Semantics(SemanticDefaults):
         op, args = prefix_object[0], prefix_object[1:]
         return op.extended_falsify(state, *args, eval_world)
 
+    def calculate_true_worlds(self, verifiers, eval_world, model_structure):
+        """Calculate worlds given verifiers and eval_world."""
+        is_part_of = model_structure.semantics.is_alternative
+        eval = model_structure.z3_model.evaluate
+        world_bits = model_structure.world_bits
+        return {
+            pw for ver in verifiers
+            for pw in world_bits
+            if eval(is_part_of(ver, pw))
+        }
+
 
 class Proposition(PropositionDefaults):
     """Defines the proposition assigned to the sentences of the language.

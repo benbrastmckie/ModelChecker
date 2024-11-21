@@ -53,12 +53,13 @@ N = 3
 #####################
 
 # premises = ["\\neg (\\bot \\vee B)", "(\\top \\wedge D)"]
-premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
+# premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["(A \\rightarrow B)", "A"]
 # premises = ["(A \\leftrightarrow B)", "\\possible A"]
 # premises = ["\\possible B"]
 # premises = ["\\Box A", "(A \\leftrightarrow B)"]
 # premises = ["\\Box A"]
+premises = ["\\necessary A", "\\neg \\necessary B"]
 # premises = ["(\\neg \\top \\boxright B)"]
 # premises = ["(\\neg \\top \\boxright B)"]
 # premises = ["A", "(A \\boxright (B \\wedge C))"]
@@ -137,12 +138,19 @@ conclusions = ["C"]
 ### WORKING COUNTERMODELS ###
 #############################
 
-# CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-N = 3
-premises = ['(A \\circleright C)']
-conclusions = ['((A \\wedge B) \\circleright C)']
-contingent_bool = True
-disjoint_bool = False
+# # WEAKENED MONOTONICITY
+# N = 3
+# premises = ['(A \\boxright B)','(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = False
+# disjoint_bool = False
+
+# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 3
+# premises = ['(A \\circleright C)']
+# conclusions = ['((A \\wedge B) \\circleright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # N = 3
