@@ -15,15 +15,15 @@ which is passed to ModelConstraints:
 """
 
 from hidden_helpers import (
+    bitvec_to_substates,
     not_implemented_string,
     flatten,
+    pretty_set_print,
 )
 
 import inspect
 
 from z3 import Const, DeclareSort
-
-from model_checker.model_definitions import bitvec_to_substates, pretty_set_print
 
 AtomSort = DeclareSort("AtomSort")
 
