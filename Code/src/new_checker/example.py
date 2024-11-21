@@ -7,22 +7,14 @@ from semantic import (
 
 # B: when we develop the API, these will reference the users script
 from operators import (
-    NegationOperator,
-    AndOperator,
-    OrOperator,
-    TopOperator,
-    BotOperator,
-    IdentityOperator,
-    EssenceOperator,
-    GroundOperator,
-    CounterfactualOperator,
-    MightCounterfactualOperator,
-    DefEssenceOperator,
-    DefGroundOperator,
-    ConditionalOperator,
-    BiconditionalOperator,
-    DefNecessityOperator,
-    DefPossibilityOperator,
+    AndOperator, NegationOperator, OrOperator, # extensional
+    ConditionalOperator, BiconditionalOperator, # extensional defined
+    TopOperator, BotOperator, # top and bottom zero-place operators
+    IdentityOperator, GroundOperator, EssenceOperator, # constitutive
+    DefEssenceOperator, DefGroundOperator, # constitutive defined
+    NecessityOperator, # modal
+    DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
+    CounterfactualOperator, MightCounterfactualOperator, # counterfactual
 )
 
 # NOTE: go in API
@@ -41,7 +33,8 @@ operators = syntactic.OperatorCollection(
     TopOperator, BotOperator, # top and bottom zero-place operators
     IdentityOperator, GroundOperator, EssenceOperator, # constitutive
     DefEssenceOperator, DefGroundOperator, # constitutive defined
-    DefNecessityOperator, DefPossibilityOperator, # modal defined
+    NecessityOperator, # modal
+    DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
     CounterfactualOperator, MightCounterfactualOperator, # counterfactual
 )
 
@@ -92,9 +85,30 @@ conclusions = ["C"]
 
 
 
-################################
-##### BROKEN COUNTERMODELS #####
-################################
+###################################
+##### DEFINED OPERATOR ISSUES #####
+###################################
+
+# # AttributeError: 'ConditionalOperator' has not 'true_at'
+# N = 3
+# premises = ["(A \\leftrightarrow B)", "\\possible A"]
+# conclusions = ["C"]
+# contingent_bool = False
+# disjoint_bool = False
+
+# # AttributeError: 'ConditionalOperator' has not 'true_at'
+# premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
+# conclusions = ['(A \\boxright (B \\boxright C))']
+# N = 3
+# contingent = True
+# non_null = True
+# disjoint = False
+
+
+
+########################
+##### OTHER ISSUES #####
+########################
 
 # # ONLY ONE ALT WORLD FOR TRUE PREMISE; SHOULD BE TWO
 # # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
@@ -104,34 +118,6 @@ conclusions = ["C"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# # NO 'TRUE_AT' ATTRIBUTE
-# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 3
-# premises = ['(A \\circleright C)']
-# conclusions = ['((A \\wedge B) \\circleright C)']
-# contingent_bool = True
-# disjoint_bool = False
-
-# N = 3
-# premises = ["(A \\leftrightarrow B)", "\\possible A"]
-# conclusions = ["C"]
-# contingent_bool = False
-# disjoint_bool = False
-
-# premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
-# conclusions = ['(A \\boxright (B \\boxright C))']
-# N = 3
-# contingent = True
-# non_null = True
-# disjoint = False
-
-# CF_CM3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
-N = 3
-premises = ['(A \\boxright C)', '\\possible (A \\wedge B)']
-conclusions = ['((A \\wedge B) \\boxright C)']
-contingent_bool = True
-disjoint_bool = False
-
 # # DOES NOT FIND MODEL
 # # THIS WAS EXTRA HARD BEFORE ALSO
 # N = 4
@@ -140,27 +126,9 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
-# N = 3
-# premises = [
-#     '\\possible A',
-#     '(A \\boxright X)',
-#     '\\possible (A \\wedge B)',
-#     '\\neg ((A \\wedge B) \\boxright X)', # N = 4: 155.4 seconds on the MIT servers; .1587 seconds in old version; and now .0122 seconds
-#     '\\possible ((A \\wedge B) \\wedge C)',
-#     '(((A \\wedge B) \\wedge C) \\boxright X)',
-#     '\\possible (((A \\wedge B) \\wedge C) \\wedge D)',
-#     '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
-#     '\\possible ((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E)',
-#     '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)', # ? seconds
-#     '\\possible (((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F)',
-#     '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)', # ? seconds
-#     '\\possible ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G)',
-#     '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # ? seconds
-# ]
-# conclusions = []
-# contingent_bool = True
-# disjoint_bool = False
+
+
+
 
 
 
@@ -169,9 +137,16 @@ disjoint_bool = False
 ### WORKING COUNTERMODELS ###
 #############################
 
-# # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
-# N = 4
-# premises = ['\\neg A','(A \\boxright C)']
+# CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+N = 3
+premises = ['(A \\circleright C)']
+conclusions = ['((A \\wedge B) \\circleright C)']
+contingent_bool = True
+disjoint_bool = False
+
+# # CF_CM3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
+# N = 3
+# premises = ['(A \\boxright C)', '\\possible (A \\wedge B)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 # contingent_bool = True
 # disjoint_bool = False
@@ -210,6 +185,34 @@ disjoint_bool = False
 #     '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
 # ]
 # conclusions = []
+# contingent_bool = True
+# disjoint_bool = False
+
+# # CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
+# N = 3
+# premises = [
+#     '\\possible A',
+#     '(A \\boxright X)',
+#     '\\possible (A \\wedge B)',
+#     '\\neg ((A \\wedge B) \\boxright X)', # N = 4: 155.4 seconds on the MIT servers; .1587 seconds in old version; and now .0122 seconds
+#     '\\possible ((A \\wedge B) \\wedge C)',
+#     '(((A \\wedge B) \\wedge C) \\boxright X)',
+#     '\\possible (((A \\wedge B) \\wedge C) \\wedge D)',
+#     '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
+#     '\\possible ((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E)',
+#     '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)', # ? seconds
+#     '\\possible (((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F)',
+#     '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)', # ? seconds
+#     '\\possible ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G)',
+#     '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # ? seconds
+# ]
+# conclusions = []
+# contingent_bool = True
+# disjoint_bool = False
+# # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
+# N = 4
+# premises = ['\\neg A','(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
 # contingent_bool = True
 # disjoint_bool = False
 
