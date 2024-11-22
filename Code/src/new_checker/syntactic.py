@@ -35,7 +35,7 @@ class Sentence:
     as converting and storing that infix_sentence as a prefix_sentence. The
     class instance is later updated in: (1) Syntax to store a prefix_type which
     depends on an operator_collection; (2) ModelConstraints to store a
-    prefix_object and prefix_operator which depend on the semantics; and (3)
+    derived_object and derived_operator which depend on the semantics; and (3)
     ModelStructure to store a proposition for the sentence."""
 
     def __init__(self, infix_sentence):
@@ -53,10 +53,12 @@ class Sentence:
 
         # set defaults to None for values that will be updated later
         self.prefix_type = None # updated in Syntax with operator_collection
-        self.derived_type = None # updated in Syntax with operator_collection
-        self.derived_sentence = None # updated in Syntax with update_derived
         self.prefix_object = None # updated in ModelConstraints with semantics
         self.prefix_operator = None # updated in ModelConstraints with semantics
+        self.derived_type = None # updated in Syntax with operator_collection
+        self.derived_sentence = None # updated in Syntax with update_derived
+        self.derived_object = None # updated in ModelConstraints with semantics
+        self.derived_operator = None # updated in ModelConstraints with semantics
         self.proposition = None # updated in ModelStructure with Z3 model
 
     def __str__(self):
@@ -165,8 +167,8 @@ class Sentence:
         """For converting from infix to prefix notation without knowing which
         which operators the language includes."""
         tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
-        prefix_object, complexity = self.parse_expression(tokens)
-        return prefix_object, complexity
+        derived_object, complexity = self.parse_expression(tokens)
+        return derived_object, complexity
 
     def infix(self, prefix_sent):
         """Takes a sentence in prefix notation (in any of the three kinds)
@@ -249,7 +251,7 @@ class Sentence:
     def activate_prefix_with_semantics(self, prefix_type, model_constraints):
         """Given a prefix_type with operator classes and AtomSorts, this method
         replaces each operator class with the instance of that operator stored
-        in model_constraints, and so returns a prefix_object."""
+        in model_constraints, and so returns a derived_object."""
         if prefix_type is None:
             raise ValueError(f"prefix_type for {self} is None in activate_prefix_with_semantics.")
         new_prefix_form = []
@@ -262,25 +264,34 @@ class Sentence:
                 new_prefix_form.append(elem)
         return new_prefix_form
 
-    def update_prefix_object(self, model_constraints): # happens in ModelConstraints init
+    def update_objects(self, model_constraints): # happens in ModelConstraints init
         """Given an instance of ModelConstraints, this method updates the values
-        of self.prefix_object and self.prefix_operator with the semantics that
+        of self.derived_object and self.derived_operator with the semantics that
         model_constraints includes."""
-        if self.derived_type is None:
-            raise ValueError(f"{self} has None for derived_type.")
-        # # DEBUG
-        # print(f"derived_type is {self.derived_type}")
-        self.prefix_object = self.activate_prefix_with_semantics(
-            self.derived_type,
-            model_constraints
-        )
-        if len(self.prefix_object) > 1 or self.name in {'\\top', '\\bot'}:
-            self.prefix_operator = self.prefix_object[0]
+
+        def build_object_from_type(some_type):
+            if some_type is None:
+                raise ValueError(f"{self} has None for some_type.")
+            return self.activate_prefix_with_semantics(
+                some_type,
+                model_constraints
+            )
+
+        def store_operator_object(some_object):
+            # TODO: check that self.name is correct in the extremal case
+            if len(some_object) > 1 or self.name in {'\\top', '\\bot'}:
+                return some_object[0]
+            return None
+
+        self.prefix_object = build_object_from_type(self.prefix_type)
+        self.prefix_operator = store_operator_object(self.prefix_object)
+        self.derived_object = build_object_from_type(self.derived_type)
+        self.derived_operator = store_operator_object(self.derived_object)
 
     def update_proposition(self, model_structure): # happens in ModelStructure init
         """Builds a proposition object for the sentence given the model_structure."""
-        if self.prefix_object is None:
-            raise ValueError(f"prefix_object for {self} is None when calling update_proposition.")
+        if self.derived_object is None:
+            raise ValueError(f"derived_object for {self} is None when calling update_proposition.")
         self.proposition = model_structure.proposition_class(self, model_structure)
 
 
@@ -341,15 +352,16 @@ class Operator:
 
         if len(arguments) == 1:
             argument = arguments[0]
-            indent_num += 1
+            # indent_num += 1
             for alt_world in other_worlds:
                 model_structure.recursive_print(argument, alt_world, indent_num)
         if len(arguments) == 2:
             left_argument, right_argument = arguments
+            indent_num += 1
             model_structure.recursive_print(left_argument, eval_world, indent_num)
             other_world_strings = {bitvec_to_substates(u, N) for u in other_worlds}
             print(
-                f'{"  " * indent_num} {CYAN}{left_argument}-alternatives '
+                f'{"  " * indent_num}{CYAN}|{left_argument}|-alternatives '
                 f'to {bitvec_to_substates(eval_world, N)} = '
                 f'{pretty_set_print(other_world_strings)}{RESET}'
             )

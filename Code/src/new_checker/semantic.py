@@ -117,57 +117,60 @@ class Semantics(SemanticDefaults):
             Exists(z, z3.And(self.is_part_of(z, bit_u), self.max_compatible_part(z, bit_w, bit_y))),
         )
 
-    def true_at(self, prefix_object, eval_world):
+    def true_at(self, derived_object, eval_world):
         """
-        prefix_object is always a list, eval world a BitVector
-        prefix_object is the third kind of prefix_object
+        derived_object is always a list, eval world a BitVector
+        derived_object is the third kind of derived_object
         """
-        if str(prefix_object[0]).isalnum():
-            sentence_letter = prefix_object[0]
+        if str(derived_object[0]).isalnum():
+            sentence_letter = derived_object[0]
             x = z3.BitVec("t_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
-        operator, args = prefix_object[0], prefix_object[1:]
+        operator, args = derived_object[0], derived_object[1:]
         assert not isinstance(operator, type), "operator should be an instance of a class"
         return operator.true_at(*args, eval_world)
 
-    def false_at(self, prefix_object, eval_world):
-        if str(prefix_object[0]).isalnum():
-            sentence_letter = prefix_object[0]
+    def false_at(self, derived_object, eval_world):
+        if str(derived_object[0]).isalnum():
+            sentence_letter = derived_object[0]
             x = z3.BitVec("f_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
-        operator, args = prefix_object[0], prefix_object[1:]
+        operator, args = derived_object[0], derived_object[1:]
         assert not isinstance(operator, type), "operator should be an instance of a class"
         return operator.false_at(*args, eval_world)
 
-    def extended_verify(self, state, prefix_object, eval_world):
-        # if isinstance(prefix_object, syntactic.Operator):
-        #     # TODO: how can this be removed
-        #     print("TEST CHANGE", prefix_object)
-        #     return prefix_object.extended_verify(state, eval_world)
-        if str(prefix_object[0]).isalnum():
-            return self.verify(state, prefix_object[0])
-        op, args = prefix_object[0], prefix_object[1:]
+    def extended_verify(self, state, derived_object, eval_world):
+        if str(derived_object[0]).isalnum():
+            return self.verify(state, derived_object[0])
+        op, args = derived_object[0], derived_object[1:]
         return op.extended_verify(state, *args, eval_world)
     
-    def extended_falsify(self, state, prefix_object, eval_world):
-        # if isinstance(prefix_object, syntactic.Operator):
-        #     # TODO: how can this be removed
-        #     print("TEST CHANGE", prefix_object)
-        #     return prefix_object.extended_falsify(state, eval_world)
-        if str(prefix_object[0]).isalnum():
-            return self.falsify(state, prefix_object[0])
-        op, args = prefix_object[0], prefix_object[1:]
+    def extended_falsify(self, state, derived_object, eval_world):
+        if str(derived_object[0]).isalnum():
+            return self.falsify(state, derived_object[0])
+        op, args = derived_object[0], derived_object[1:]
         return op.extended_falsify(state, *args, eval_world)
 
     def calculate_true_worlds(self, verifiers, eval_world, model_structure):
         """Calculate worlds given verifiers and eval_world."""
-        is_part_of = model_structure.semantics.is_alternative
+        is_part_of = model_structure.semantics.is_part_of
         eval = model_structure.z3_model.evaluate
         world_bits = model_structure.world_bits
         return {
             pw for ver in verifiers
             for pw in world_bits
             if eval(is_part_of(ver, pw))
+        }
+
+    def calculate_alternative_worlds(self, verifiers, eval_world, model_structure):
+        """Calculate alternative worlds given verifiers and eval_world."""
+        is_alt = model_structure.semantics.is_alternative
+        eval = model_structure.z3_model.evaluate
+        world_bits = model_structure.world_bits
+        return {
+            pw for ver in verifiers
+            for pw in world_bits
+            if eval(is_alt(pw, ver, eval_world))
         }
 
 
@@ -190,7 +193,7 @@ class Proposition(PropositionDefaults):
             self.verifiers == other.verifiers
             and self.falsifiers == other.falsifiers
             and self.name == other.name
-            # and str(self.prefix_object) == str(other.prefix_object)
+            # and str(self.derived_object) == str(other.derived_object)
         )
 
     # TODO: check logic and doc strings
@@ -322,10 +325,10 @@ class Proposition(PropositionDefaults):
         if self.arguments is None: # self.arguments is a list of Sentence objects
             atom = self.prefix_sentence[0]
             if atom in {'\\top', '\\bot'}:
-                operator = self.prefix_operator
+                operator = self.derived_operator
                 return operator.find_verifiers_and_falsifiers()
             if atom.isalnum():
-                sentence_letter = self.prefix_object[0]
+                sentence_letter = self.derived_object[0]
                 V = {
                     bit for bit in all_bits
                     if model.evaluate(sem.verify(bit, sentence_letter))
@@ -338,7 +341,7 @@ class Proposition(PropositionDefaults):
             raise ValueError(
                 f"Their is no proposition for {atom}."
             )
-        operator = self.prefix_operator
+        operator = self.derived_operator
         return operator.find_verifiers_and_falsifiers(*self.arguments, self.eval_world)
 
     def truth_value_at(self, world):
