@@ -680,7 +680,7 @@ class CounterfactualOperator(syntactic.Operator):
         """
         is_alt = self.semantics.calculate_alternative_worlds
         model_structure = sentence_obj.proposition.model_structure
-        left_argument_obj = sentence_obj.arguments[0]
+        left_argument_obj = sentence_obj.original_arguments[0]
         left_argument_verifiers = left_argument_obj.proposition.verifiers
         alt_worlds = is_alt(left_argument_verifiers, eval_world, model_structure)
         self.print_over_worlds(sentence_obj, eval_world, alt_worlds, indent_num)
@@ -767,7 +767,7 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
         """
         is_alt = self.semantics.calculate_alternative_worlds
         model_structure = sentence_obj.proposition.model_structure
-        left_argument_obj = sentence_obj.arguments[0]
+        left_argument_obj = sentence_obj.original_arguments[0]
         left_argument_verifiers = left_argument_obj.proposition.verifiers
         alt_worlds = is_alt(left_argument_verifiers, eval_world, model_structure)
         self.print_over_worlds(sentence_obj, eval_world, alt_worlds, indent_num)

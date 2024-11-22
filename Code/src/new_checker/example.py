@@ -90,12 +90,12 @@ conclusions = ["C"]
 ##### DEFINED OPERATOR ISSUES #####
 ###################################
 
-# AttributeError: 'ConditionalOperator' has not 'true_at'
-N = 3
-premises = ["(A \\leftrightarrow B)", "\\possible A"]
-conclusions = ["C"]
-contingent_bool = False
-disjoint_bool = False
+# # AttributeError: 'ConditionalOperator' has not 'true_at'
+# N = 3
+# premises = ["(A \\leftrightarrow B)", "\\possible A"]
+# conclusions = ["C"]
+# contingent_bool = False
+# disjoint_bool = False
 
 # # AttributeError: 'ConditionalOperator' has not 'true_at'
 # premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
@@ -138,12 +138,12 @@ disjoint_bool = False
 ### WORKING COUNTERMODELS ###
 #############################
 
-# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 4
-# premises = ['(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-# contingent_bool = True
-# disjoint_bool = False
+# CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+N = 4
+premises = ['(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
+contingent_bool = True
+disjoint_bool = False
 
 # # WEAKENED MONOTONICITY
 # N = 3
