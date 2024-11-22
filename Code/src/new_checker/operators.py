@@ -826,12 +826,8 @@ class NecessityOperator(syntactic.Operator):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
-        calc_worlds = self.semantics.calculate_true_worlds
-        model_structure = sentence_obj.proposition.model_structure
-        left_argument_obj = sentence_obj.arguments[0]
-        left_argument_verifiers = left_argument_obj.proposition.verifiers
-        true_worlds = calc_worlds(left_argument_verifiers, eval_world, model_structure)
-        self.print_over_worlds(sentence_obj, eval_world, true_worlds, indent_num)
+        all_worlds = sentence_obj.proposition.model_structure.world_bits
+        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
 
         # CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
         #
@@ -886,12 +882,8 @@ class DefNecessityOperator(syntactic.DefinedOperator):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
-        calc_worlds = self.semantics.calculate_true_worlds
-        model_structure = sentence_obj.proposition.model_structure
-        left_argument_obj = sentence_obj.arguments[0]
-        left_argument_verifiers = left_argument_obj.proposition.verifiers
-        true_worlds = calc_worlds(left_argument_verifiers, eval_world, model_structure)
-        self.print_over_worlds(sentence_obj, eval_world, true_worlds, indent_num)
+        all_worlds = sentence_obj.proposition.model_structure.world_bits
+        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
 
 
 # TODO: could be worth defining in terms of \circleright as well to compare
@@ -908,12 +900,8 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
-        calc_worlds = self.semantics.calculate_true_worlds
-        model_structure = sentence_obj.proposition.model_structure
-        left_argument_obj = sentence_obj.arguments[0]
-        left_argument_verifiers = left_argument_obj.proposition.verifiers
-        true_worlds = calc_worlds(left_argument_verifiers, eval_world, model_structure)
-        self.print_over_worlds(sentence_obj, eval_world, true_worlds, indent_num)
+        all_worlds = sentence_obj.proposition.model_structure.world_bits
+        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
 
 
 
@@ -930,12 +918,8 @@ class DefPossibilityOperator2(syntactic.DefinedOperator):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
-        calc_worlds = self.semantics.calculate_true_worlds
-        model_structure = sentence_obj.proposition.model_structure
-        left_argument_obj = sentence_obj.arguments[0]
-        left_argument_verifiers = left_argument_obj.proposition.verifiers
-        true_worlds = calc_worlds(left_argument_verifiers, eval_world, model_structure)
-        self.print_over_worlds(sentence_obj, eval_world, true_worlds, indent_num)
+        all_worlds = sentence_obj.proposition.model_structure.world_bits
+        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
 
 
 

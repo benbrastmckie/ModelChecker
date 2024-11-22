@@ -510,11 +510,14 @@ class ModelStructure:
     # anticipate all of them. But it will be good to experiment with Lukas'
     # semantics to see how making those changes go.
 
-    def recursive_print(self, sentence, eval_world, indent_num=0):
+    def recursive_print(self, sentence, eval_world, indent_num):
         if sentence.prefix_operator is None:  # print sentence letter
+            # print(f"PREFIX OP: {sentence.prefix_operator}")
             sentence.proposition.print_proposition(eval_world, indent_num)
             return
+        # print(f"PREFIX OP: {sentence.prefix_operator}")
         operator = sentence.prefix_operator
+        # indent_num += 1
         operator.print_method(sentence, eval_world, indent_num)  # print complex sentence
 
     def print_input_sentences(self, output):

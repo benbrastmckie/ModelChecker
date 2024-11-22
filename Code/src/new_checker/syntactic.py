@@ -22,8 +22,6 @@ from hidden_helpers import (
 )
 
 import inspect
-from abc import abstractmethod
-
 
 from z3 import Const, DeclareSort
 
@@ -331,6 +329,7 @@ class Operator:
         proposition.print_proposition(eval_world, indent_num)
         indent_num += 1
 
+        # print(f"ARGUMENTS: {sentence_obj.arguments}")
         for arg in sentence_obj.arguments:
             model_structure.recursive_print(arg, eval_world, indent_num)
 
@@ -347,14 +346,13 @@ class Operator:
         N = proposition.N
 
         proposition.print_proposition(eval_world, indent_num)
-        # TODO: is the following redundant given indents below?
-        indent_num += 1
+        # indent_num += 1
 
         if len(arguments) == 1:
             argument = arguments[0]
-            # indent_num += 1
-            for alt_world in other_worlds:
-                model_structure.recursive_print(argument, alt_world, indent_num)
+            indent_num += 1
+            for world in other_worlds:
+                model_structure.recursive_print(argument, world, indent_num)
         if len(arguments) == 2:
             left_argument, right_argument = arguments
             indent_num += 1
@@ -427,7 +425,6 @@ class DefinedOperator(Operator):
 
     primitive = False
 
-    @abstractmethod
     def derived_definition(self, *args):
         """
         Returns the definition of the operator in terms of other operators.

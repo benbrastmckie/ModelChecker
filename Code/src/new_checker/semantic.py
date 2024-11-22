@@ -151,17 +151,6 @@ class Semantics(SemanticDefaults):
         op, args = derived_object[0], derived_object[1:]
         return op.extended_falsify(state, *args, eval_world)
 
-    def calculate_true_worlds(self, verifiers, eval_world, model_structure):
-        """Calculate worlds given verifiers and eval_world."""
-        is_part_of = model_structure.semantics.is_part_of
-        eval = model_structure.z3_model.evaluate
-        world_bits = model_structure.world_bits
-        return {
-            pw for ver in verifiers
-            for pw in world_bits
-            if eval(is_part_of(ver, pw))
-        }
-
     def calculate_alternative_worlds(self, verifiers, eval_world, model_structure):
         """Calculate alternative worlds given verifiers and eval_world."""
         is_alt = model_structure.semantics.is_alternative
@@ -371,7 +360,7 @@ class Proposition(PropositionDefaults):
             )
         return exists_verifier
 
-    def print_proposition(self, eval_world, indent_num=0):
+    def print_proposition(self, eval_world, indent_num):
         N = self.model_structure.model_constraints.semantics.N
         truth_value = self.truth_value_at(eval_world)
         possible = self.model_structure.model_constraints.semantics.possible
