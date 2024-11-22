@@ -268,7 +268,7 @@ def test_CF_CM12():
         desired_status,
     )
 
-@pytest.mark.timeout(max_time)
+@pytest.mark.timeout(3)
 def test_CF_CM13():
 # SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
     premises = [
