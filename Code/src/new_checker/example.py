@@ -90,12 +90,12 @@ conclusions = ["C"]
 ##### DEFINED OPERATOR ISSUES #####
 ###################################
 
-# # AttributeError: 'ConditionalOperator' has not 'true_at'
-# N = 3
-# premises = ["(A \\leftrightarrow B)", "\\possible A"]
-# conclusions = ["C"]
-# contingent_bool = False
-# disjoint_bool = False
+# AttributeError: 'ConditionalOperator' has not 'true_at'
+N = 3
+premises = ["(A \\leftrightarrow B)", "\\possible A"]
+conclusions = ["C"]
+contingent_bool = False
+disjoint_bool = False
 
 # # AttributeError: 'ConditionalOperator' has not 'true_at'
 # premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
@@ -181,20 +181,20 @@ conclusions = ["C"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# CF_CM12: SOBEL SEQUENCE
-N = 3
-premises = [
-    '(A \\boxright X)',
-    '\\neg ((A \\wedge B) \\boxright X)',
-    '(((A \\wedge B) \\wedge C) \\boxright X)',
-    '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
-    '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)',
-    '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)',
-    '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
-]
-conclusions = []
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM12: SOBEL SEQUENCE
+# N = 3
+# premises = [
+#     '(A \\boxright X)',
+#     '\\neg ((A \\wedge B) \\boxright X)',
+#     '(((A \\wedge B) \\wedge C) \\boxright X)',
+#     '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
+#     '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)',
+#     '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)',
+#     '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
+# ]
+# conclusions = []
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
 # N = 3
