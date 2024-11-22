@@ -58,8 +58,8 @@ N = 3
 # premises = ["(A \\leftrightarrow B)", "\\possible A"]
 # premises = ["\\possible B"]
 # premises = ["\\Box A", "(A \\leftrightarrow B)"]
-# premises = ["\\Box A"]
-premises = ["\\necessary \\neg \\neg A", "\\neg \\neg \\neg \\necessary B", "B"]
+premises = ["\\Box \\Box A"]
+# premises = ["\\necessary \\neg \\neg A", "\\neg \\neg \\neg \\necessary B", "B"]
 # premises = ["(\\neg \\top \\boxright B)"]
 # premises = ["(\\neg \\top \\boxright B)"]
 # premises = ["A", "(A \\boxright (B \\wedge C))"]
@@ -181,20 +181,20 @@ conclusions = ["C"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM12: SOBEL SEQUENCE
-# N = 3
-# premises = [
-#     '(A \\boxright X)',
-#     '\\neg ((A \\wedge B) \\boxright X)',
-#     '(((A \\wedge B) \\wedge C) \\boxright X)',
-#     '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
-#     '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)',
-#     '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)',
-#     '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
-# ]
-# conclusions = []
-# contingent_bool = True
-# disjoint_bool = False
+# CF_CM12: SOBEL SEQUENCE
+N = 3
+premises = [
+    '(A \\boxright X)',
+    '\\neg ((A \\wedge B) \\boxright X)',
+    '(((A \\wedge B) \\wedge C) \\boxright X)',
+    '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
+    '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)',
+    '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)',
+    '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
+]
+conclusions = []
+contingent_bool = True
+disjoint_bool = False
 
 # # CF_CM13: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
 # N = 3
@@ -259,12 +259,12 @@ conclusions = ["C"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
-N = 3
-premises = ['((A \\wedge B) \\boxright C)','\\possible (A \\wedge B)']
-conclusions = ['(A \\boxright (B \\boxright C))']
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
+# N = 3
+# premises = ['((A \\wedge B) \\boxright C)','\\possible (A \\wedge B)']
+# conclusions = ['(A \\boxright (B \\boxright C))']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM20
 # N = 3

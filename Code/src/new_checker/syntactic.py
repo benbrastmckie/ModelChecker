@@ -346,16 +346,16 @@ class Operator:
         N = proposition.N
 
         proposition.print_proposition(eval_world, indent_num)
-        # indent_num += 1
+        indent_num += 1
 
         if len(arguments) == 1:
             argument = arguments[0]
-            indent_num += 1
+            # indent_num += 1
             for world in other_worlds:
                 model_structure.recursive_print(argument, world, indent_num)
         if len(arguments) == 2:
             left_argument, right_argument = arguments
-            indent_num += 1
+            # indent_num += 1
             model_structure.recursive_print(left_argument, eval_world, indent_num)
             other_world_strings = {bitvec_to_substates(u, N) for u in other_worlds}
             print(
