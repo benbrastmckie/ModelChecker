@@ -123,8 +123,8 @@ class PropositionDefaults:
             self.arguments = sentence.derived_sentence.arguments
         else:
             self.arguments = sentence.arguments
-        self.prefix_operator = sentence.prefix_operator
-        self.prefix_object = sentence.prefix_object
+        self.derived_operator = sentence.derived_operator
+        self.derived_object = sentence.derived_object
         self.prefix_sentence = sentence.prefix_sentence
 
         # Store values from model_structure argument
@@ -193,7 +193,7 @@ class ModelConstraints:
         self.disjoint = disjoint
         self.print_impossible = print_impossible
 
-        # use semantics to recursively update all prefix_objects
+        # use semantics to recursively update all derived_objects
         self.instantiate(self.all_sentences.values())
 
         # Use semantics to generate and store Z3 constraints
@@ -203,22 +203,22 @@ class ModelConstraints:
             self.model_constraints.extend(
                 self.proposition_class.proposition_constraints(
                     self,
-                    sent_let.prefix_object[0],
+                    sent_let.derived_object[0],
                 )
             )
         # # DEBUGGING
         # for prem in self.premises:
-        #     print(f"PREFIX OBJ {prem} is {prem.prefix_object}")
+        #     print(f"PREFIX OBJ {prem} is {prem.derived_object}")
         self.premise_constraints = [
             self.semantics.premise_behavior(
-                prem.prefix_object,
+                prem.derived_object,
                 self.semantics.main_world,
             )
             for prem in self.premises
         ]
         self.conclusion_constraints = [
             self.semantics.conclusion_behavior(
-                conc.prefix_object,
+                conc.derived_object,
                 self.semantics.main_world,
             )
             for conc in self.conclusions
@@ -240,13 +240,13 @@ class ModelConstraints:
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
         for sent_obj in sentences:
-            if sent_obj.prefix_object:
+            if sent_obj.derived_object:
                 continue
             if sent_obj.arguments:
                 self.instantiate(sent_obj.arguments)
             if sent_obj.derived_sentence:
                 self.instantiate([sent_obj.derived_sentence])
-            sent_obj.update_prefix_object(self)
+            sent_obj.update_objects(self)
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
@@ -326,7 +326,7 @@ class ModelStructure:
         if not self.z3_model is None:
             self.main_world = self.z3_model[self.main_world]
 
-        # Recursively update every prefix_object to store a propositions
+        # Recursively update every derived_object to store a propositions
         self.interpret(self.all_sentences.values())
 
     def solve(self, model_constraints, max_time):
@@ -359,8 +359,8 @@ class ModelStructure:
         prefix_sent to that instance, returning the input sentences."""
 
         for sent_obj in sentences:
-            if sent_obj.prefix_object is None:
-                raise ValueError(f"{sent_obj} has 'None' for prefix_object.")
+            if sent_obj.derived_object is None:
+                raise ValueError(f"{sent_obj} has 'None' for derived_object.")
             # DISCUSS could this check cause problems?
             if sent_obj.proposition:
                 continue
@@ -489,17 +489,17 @@ class ModelStructure:
     #     # Proposition which is also defined by the user.
     #
     #     sentence.proposition.print_proposition(eval_world, indent)
-    #     if (len(sentence.prefix_object) == 1):  # prefix has operator instances and AtomSorts
+    #     if (len(sentence.derived_object) == 1):  # prefix has operator instances and AtomSorts
     #         return
     #
     #     # B: I think eventually all operators should have a print method
-    #     if not hasattr(sentence.prefix_operator, 'print_operator'):
+    #     if not hasattr(sentence.derived_operator, 'print_operator'):
     #         for sentence_arg in sentence.arguments:
     #             self.rec_print(sentence_arg, eval_world, indent + 1)
     #
     #     # B: I think eventually all operators should have a print method
-    #     if self.prefix_operator and hasattr(self.prefix_operator, 'print_operator'):
-    #         self.prefix_operator.print_operator(self, eval_world, indent_num)
+    #     if self.derived_operator and hasattr(self.derived_operator, 'print_operator'):
+    #         self.derived_operator.print_operator(self, eval_world, indent_num)
 
 
     # M: eventually, we need to add a condition on unilateral or bilateral semantics
@@ -514,8 +514,8 @@ class ModelStructure:
         if sentence.prefix_operator is None:  # print sentence letter
             sentence.proposition.print_proposition(eval_world, indent_num)
             return
-        op = sentence.prefix_operator
-        op.print_method(sentence, eval_world, indent_num)  # print complex sentence
+        operator = sentence.prefix_operator
+        operator.print_method(sentence, eval_world, indent_num)  # print complex sentence
 
     def print_input_sentences(self, output):
         """Prints the interpreted premises and conclusions, leveraging recursive_print."""

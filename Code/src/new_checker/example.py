@@ -59,7 +59,7 @@ N = 3
 # premises = ["\\possible B"]
 # premises = ["\\Box A", "(A \\leftrightarrow B)"]
 # premises = ["\\Box A"]
-premises = ["\\necessary A", "\\neg \\necessary B"]
+premises = ["\\necessary A", "\\neg \\necessary B", "B"]
 # premises = ["(\\neg \\top \\boxright B)"]
 # premises = ["(\\neg \\top \\boxright B)"]
 # premises = ["A", "(A \\boxright (B \\wedge C))"]
@@ -111,19 +111,19 @@ conclusions = ["C"]
 ##### OTHER ISSUES #####
 ########################
 
-# # ONLY ONE ALT WORLD FOR TRUE PREMISE; SHOULD BE TWO
-# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 4
-# premises = ['(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-# contingent_bool = True
-# disjoint_bool = False
-
 # # DOES NOT FIND MODEL
 # # THIS WAS EXTRA HARD BEFORE ALSO
 # N = 4
 # premises = ['(A \\boxright (B \\boxright C))']
 # conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # GETTING CONCLUSION FALSE WHEN ITS ANTECEDENT IS FALSE
+# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 3
+# premises = ['(A \\circleright C)']
+# conclusions = ['((A \\wedge B) \\circleright C)']
 # contingent_bool = True
 # disjoint_bool = False
 
@@ -138,18 +138,18 @@ conclusions = ["C"]
 ### WORKING COUNTERMODELS ###
 #############################
 
+# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 4
+# premises = ['(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
 # # WEAKENED MONOTONICITY
 # N = 3
 # premises = ['(A \\boxright B)','(A \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 # contingent_bool = False
-# disjoint_bool = False
-
-# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 3
-# premises = ['(A \\circleright C)']
-# conclusions = ['((A \\wedge B) \\circleright C)']
-# contingent_bool = True
 # disjoint_bool = False
 
 # # CF_CM3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY

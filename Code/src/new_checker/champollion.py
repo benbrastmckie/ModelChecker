@@ -272,7 +272,7 @@ class NegationOperator(syntactic.Operator):
 
     def find_verifiers(self, arg_sent_obj, eval_world):
         eval = arg_sent_obj.proposition.model_structure.z3_model.evaluate
-        all_bits, pfo = self.semantics.all_bits, arg_sent_obj.prefix_object
+        all_bits, pfo = self.semantics.all_bits, arg_sent_obj.derived_object
         return {x for x in all_bits if eval(self.extended_verify(x, pfo))}
 
     def print_method(self, sentence_obj, eval_world, indent_num):
@@ -294,7 +294,7 @@ class AndOperator(syntactic.Operator):
 
     def true_at(self, leftarg, rightarg, eval_world):
         """doc string place holder
-        args are prefix_objects I think, def prefix_type or prefix_object
+        args are derived_objects I think, def prefix_type or derived_object
         (ie of second or third kind)
         """
         sem = self.semantics
