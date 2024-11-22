@@ -346,7 +346,9 @@ class Proposition(PropositionDefaults):
                 f"Their is no proposition for {atom}."
             )
         operator = self.operator
-        return operator.find_verifiers_and_falsifiers(*self.arguments, self.eval_world)
+        print("OP CHECK", operator)
+        # TODO: is there a way to remove the dummy or is this best?
+        return operator('a').find_verifiers_and_falsifiers(*self.arguments, self.eval_world)
 
     def truth_value_at(self, world):
         """Checks if there is a verifier or falsifier in world and not both."""
