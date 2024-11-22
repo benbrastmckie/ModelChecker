@@ -122,8 +122,8 @@ class PropositionDefaults:
         if sentence.derived_sentence: # accords with model constraints
             self.arguments = sentence.derived_sentence.arguments
         else:
-            self.arguments = sentence.arguments
-        self.derived_operator = sentence.derived_operator
+            self.arguments = sentence.original_arguments
+        self.operator = sentence.operator
         self.derived_object = sentence.derived_object
         self.prefix_sentence = sentence.prefix_sentence
 
@@ -242,8 +242,8 @@ class ModelConstraints:
         for sent_obj in sentences:
             if sent_obj.derived_object:
                 continue
-            if sent_obj.arguments:
-                self.instantiate(sent_obj.arguments)
+            if sent_obj.original_arguments:
+                self.instantiate(sent_obj.original_arguments)
             if sent_obj.derived_sentence:
                 self.instantiate([sent_obj.derived_sentence])
             sent_obj.update_objects(self)
@@ -364,10 +364,10 @@ class ModelStructure:
             # DISCUSS could this check cause problems?
             if sent_obj.proposition:
                 continue
-            if sent_obj.arguments:
-                self.interpret(sent_obj.arguments)
+            if sent_obj.original_arguments:
+                self.interpret(sent_obj.original_arguments)
             if sent_obj.derived_sentence:
-                self.interpret(sent_obj.derived_sentence.arguments)
+                self.interpret(sent_obj.derived_sentence.original_arguments)
             sent_obj.update_proposition(self)
 
     def print_evaluation(self, output=sys.__stdout__):
@@ -493,13 +493,13 @@ class ModelStructure:
     #         return
     #
     #     # B: I think eventually all operators should have a print method
-    #     if not hasattr(sentence.derived_operator, 'print_operator'):
+    #     if not hasattr(sentence.operator, 'print_operator'):
     #         for sentence_arg in sentence.arguments:
     #             self.rec_print(sentence_arg, eval_world, indent + 1)
     #
     #     # B: I think eventually all operators should have a print method
-    #     if self.derived_operator and hasattr(self.derived_operator, 'print_operator'):
-    #         self.derived_operator.print_operator(self, eval_world, indent_num)
+    #     if self.operator and hasattr(self.operator, 'print_operator'):
+    #         self.operator.print_operator(self, eval_world, indent_num)
 
 
     # M: eventually, we need to add a condition on unilateral or bilateral semantics
@@ -513,10 +513,10 @@ class ModelStructure:
     def recursive_print(self, sentence, eval_world, indent_num):
         if indent_num == 2: # NOTE: otherwise second lines don't indent
             indent_num += 1
-        if sentence.prefix_operator is None:  # print sentence letter
+        if sentence.original_operator is None:  # print sentence letter
             sentence.proposition.print_proposition(eval_world, indent_num)
             return
-        operator = sentence.prefix_operator
+        operator = sentence.original_operator
         operator.print_method(sentence, eval_world, indent_num)  # print complex sentence
 
     def print_input_sentences(self, output):

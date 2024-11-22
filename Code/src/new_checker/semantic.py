@@ -127,10 +127,23 @@ class Semantics(SemanticDefaults):
             x = z3.BitVec("t_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
         operator, args = derived_object[0], derived_object[1:]
-        print(f"OP: {operator}")
-        print(f"ARGS: {args}")
         assert not isinstance(operator, type), "operator should be an instance of a class"
         return operator.true_at(*args, eval_world)
+
+    # NOTE: target version
+    # def true_at(self, sentence, eval_world):
+    #     """
+    #     derived_object is always a list, eval world a BitVector
+    #     derived_object is the third kind of derived_object
+    #     """
+    #     sentence_letter = sentence.sentence_letter
+    #     if sentence_letter is not None:
+    #         x = z3.BitVec("t_atom_x", self.N)
+    #         return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
+    #     operator = sentence.operator
+    #     arguments = sentence.arguments
+    #     assert not isinstance(operator, type), "operator should be an instance of a class"
+    #     return operator.true_at(*arguments, eval_world)
 
     def false_at(self, derived_object, eval_world):
         if str(derived_object[0]).isalnum():
@@ -316,7 +329,7 @@ class Proposition(PropositionDefaults):
         if self.arguments is None: # self.arguments is a list of Sentence objects
             atom = self.prefix_sentence[0]
             if atom in {'\\top', '\\bot'}:
-                operator = self.derived_operator
+                operator = self.operator
                 return operator.find_verifiers_and_falsifiers()
             if atom.isalnum():
                 sentence_letter = self.derived_object[0]
@@ -332,7 +345,7 @@ class Proposition(PropositionDefaults):
             raise ValueError(
                 f"Their is no proposition for {atom}."
             )
-        operator = self.derived_operator
+        operator = self.operator
         return operator.find_verifiers_and_falsifiers(*self.arguments, self.eval_world)
 
     def truth_value_at(self, world):
