@@ -60,9 +60,9 @@ class Sentence:
         # set defaults to None for derived values without defined operators
         # TODO: can the derived_type attribute be dropped?
         self.derived_type = None # updated in Syntax from original_type
-        self.operator = None # TODO
-        self.arguments = None # TODO
-        self.sentence_letter = None # TODO
+        self.operator = None # updated in Syntax from original_type
+        self.arguments = None # updated in Syntax from original_type
+        self.sentence_letter = None # updated in Syntax from original_type
 
         # TODO: can the derived_sentence attribute be dropped?
         self.derived_sentence = None # updated in Syntax with update_derived
@@ -242,22 +242,43 @@ class Sentence:
         derivation = operator('a').derived_definition(*derived_args)
         return derivation
 
-    def update_original_type(self, operator_collection):
+    def store_types(self, derived_type):
+        # TODO: check that self.name is correct in both cases
+        if self.name.isalnum(): # sentence letter
+            # TODO: check that return list for sentence_letter is correct
+            return None, None, derived_type
+        if self.name in {'\\top', '\\bot'}: # extremal operator
+            return derived_type[0], None, None
+        if len(derived_type) > 1: # complex sentence
+            return derived_type[0], derived_type[1:], None
+        raise ValueError(f"the derived_type for {self} is invalid in store_types().")
+
+    def update_derived(self, operator_collection):
         """Draws on the operator_collection to apply the operators that occur
         in the prefix_sentence in order to generate a original_type which has
         operator classes in place of operator strings and AtomSorts in place
         of sentence letters. If the operator is not primitive, then ."""
+        # TODO: don't store original_type but rather use to store derived operator
+        # which must be primitive and arguments given that derivation
         if self.prefix_sentence is None:
             raise ValueError(f"prefix_sentence for {self} is None in update_original_type.")
+        # TODO: remove original_type attribute
         self.original_type = operator_collection.apply_operator(self.prefix_sentence)
-    
-    def update_derived(self):
-        if self.original_type is None:
-            raise ValueError(f"original_type for {self} is None in update_derived_type.")
+        # TODO: remove derived_type attribute
         self.derived_type = self.derive_type(self.original_type)
+        self.operator, self.arguments, self.sentence_letter = self.store_types(self.derived_type)
+        # TODO: remove derived_sentence attribute
         if self.operator_is_defined(self.original_type):
             derived_infix = self.infix(self.derived_type)
             self.derived_sentence = Sentence(derived_infix)
+    
+    # def update_derived(self):
+    #     if self.original_type is None:
+    #         raise ValueError(f"original_type for {self} is None in update_derived_type.")
+    #     self.derived_type = self.derive_type(self.original_type)
+    #     if self.operator_is_defined(self.original_type):
+    #         derived_infix = self.infix(self.derived_type)
+    #         self.derived_sentence = Sentence(derived_infix)
     
     def activate_prefix_with_semantics(self, original_type, model_constraints):
         """Given a original_type with operator classes and AtomSorts, this method
@@ -604,6 +625,23 @@ class Syntax:
             sub_dictionary.update(derived_dict)
         return sub_dictionary
 
+    def initialize_types(self, sentence):
+        """Draws on the operator_collection in order to initialize all sentences
+        in the input by replacing operator strings with operator classes and
+        updating original_type in that sentence_obj. If the main operator is not
+        primitive, derived_arguments are updated with derived_types."""
+        operator_collection = self.operator_collection
+        if sentence.original_type:
+            return
+        if sentence.original_arguments:
+            for argument in sentence.original_arguments:
+                self.initialize_types(argument)
+        # TODO: fix to avoid derived_sentence
+        if sentence.derived_sentence:
+            self.initialize_types(sentence.derived_sentence)
+        sentence.update_derived(operator_collection)
+        # sent_obj.update_derived()
+
     def sentence_dictionary(self, infix_inputs):
         """Takes a list of sentences composing the dictionaries of subsentences
         for each, resulting in a dictionary that includes all subsentences."""
@@ -613,29 +651,14 @@ class Syntax:
             if infix_sent in unsorted_dictionary.keys():
                 continue
             sentence = Sentence(infix_sent)
-            if sentence.original_arguments:
-                self.initialize_types(sentence.original_arguments)
-            sentence.update_original_type(operator_collection)
-            sentence.update_derived()
-            if sentence.derived_sentence:
-                self.initialize_types([sentence.derived_sentence])
+            self.initialize_types(sentence)
+            # if sentence.original_arguments:
+            #     self.initialize_types(sentence.original_arguments)
+            # sentence.update_derived(operator_collection)
+            # sentence.update_derived()
+            # if sentence.derived_sentence:
+            #     self.initialize_types(sentence.derived_sentence)
             subsent_dict = self.sub_dictionary(sentence)
             unsorted_dictionary.update(subsent_dict)
         sorted_dictionary = self.sort_dictionary(unsorted_dictionary)
         return sorted_dictionary
-
-    def initialize_types(self, sentence_objs):
-        """Draws on the operator_collection in order to initialize all sentences
-        in the input by replacing operator strings with operator classes and
-        updating original_type in that sentence_obj. If the main operator is not
-        primitive, derived_arguments are updated with derived_types."""
-        operator_collection = self.operator_collection
-        for sent_obj in sentence_objs:
-            if sent_obj.original_type:
-                continue
-            if sent_obj.original_arguments:
-                self.initialize_types(sent_obj.original_arguments)
-            sent_obj.update_original_type(operator_collection)
-            sent_obj.update_derived()
-            if sent_obj.derived_sentence:
-                self.initialize_types([sent_obj.derived_sentence])
