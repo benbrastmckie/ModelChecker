@@ -49,14 +49,18 @@ class Sentence:
         else:
             self.arguments = None
 
-        # set defaults to None for values that will be updated later
+        # set defaults to None for prefix values with defined operators if any
         self.prefix_type = None # updated in Syntax with operator_collection
         self.prefix_object = None # updated in ModelConstraints with semantics
         self.prefix_operator = None # updated in ModelConstraints with semantics
-        self.derived_type = None # updated in Syntax with operator_collection
+
+        # set defaults to None for derived values without defined operators
+        self.derived_type = None # updated in Syntax from prefix_type
         self.derived_sentence = None # updated in Syntax with update_derived
         self.derived_object = None # updated in ModelConstraints with semantics
         self.derived_operator = None # updated in ModelConstraints with semantics
+
+        # set proposition to None to be updates later
         self.proposition = None # updated in ModelStructure with Z3 model
 
     def __str__(self):
