@@ -55,10 +55,11 @@ N = 3
 # premises = ["\\neg (\\bot \\vee B)", "(\\top \\wedge D)"]
 # premises = ["A", "((\\neg \\top \\rightarrow (B \\wedge C)) \\wedge D)"]
 # premises = ["(A \\rightarrow B)", "A"]
+# premises = ["(A \\rightarrow (B \\rightarrow C))", "D"]
 # premises = ["(A \\leftrightarrow B)", "\\possible A"]
 # premises = ["\\possible B"]
 # premises = ["\\Box A", "(A \\leftrightarrow B)"]
-premises = ["\\Box \\Box A"]
+# premises = ["\\Box \\Box A"]
 # premises = ["\\necessary \\neg \\neg A", "\\neg \\neg \\neg \\necessary B", "B"]
 # premises = ["(\\neg \\top \\boxright B)"]
 # premises = ["(\\neg \\top \\boxright B)"]
@@ -152,6 +153,13 @@ disjoint_bool = False
 # contingent_bool = False
 # disjoint_bool = False
 
+N = 3
+premises = ['(A \\circleright C)']
+conclusions = ['((A \\wedge B) \\circleright C)']
+contingent_bool = True
+disjoint_bool = False
+
+# # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # # CF_CM3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # N = 3
 # premises = ['(A \\boxright C)', '\\possible (A \\wedge B)']
@@ -473,9 +481,9 @@ model_constraints = ModelConstraints(
     syntax,
     semantics,
     Proposition,
-    contingent=False,
+    contingent=contingent_bool,
     non_null=True,
-    disjoint=False,
+    disjoint=disjoint_bool,
     print_impossible=True,
 )
 
