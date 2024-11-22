@@ -19,13 +19,13 @@ class NegationOperator(syntactic.Operator):
     name = "\\neg"
     arity = 1
 
-    def true_at(self, arg, eval_world):
+    def true_at(self, argument, eval_world):
         """doc string place holder"""
-        return self.semantics.false_at(arg, eval_world)
+        return self.semantics.false_at(argument, eval_world)
 
-    def false_at(self, arg, eval_world):
+    def false_at(self, argument, eval_world):
         """doc string place holder"""
-        return self.semantics.true_at(arg, eval_world)
+        return self.semantics.true_at(argument, eval_world)
 
     def extended_verify(self, state, arg, eval_world):
         return self.semantics.extended_falsify(state, arg, eval_world)
@@ -629,6 +629,8 @@ class CounterfactualOperator(syntactic.Operator):
 
     def true_at(self, leftarg, rightarg, eval_world):
         sem = self.semantics
+        number = sem.N
+        print("NUMBER", number)
         x = z3.BitVec("t_ncf_x", sem.N)
         u = z3.BitVec("t_ncf_u", sem.N)
         return ForAll(
@@ -656,7 +658,7 @@ class CounterfactualOperator(syntactic.Operator):
     
     def extended_verify(self, state, leftarg, rightarg, eval_world):
         # TODO: add constraint which requires state to be the null_bit
-        return self.true_at(leftarg, rightarg, eval_world) # M: I think this is right?
+        return self.true_at(leftarg, rightarg, eval_world)
     
     def extended_falsify(self, state, leftarg, rightarg, eval_world):
         # TODO: add constraint which requires state to be the null_bit

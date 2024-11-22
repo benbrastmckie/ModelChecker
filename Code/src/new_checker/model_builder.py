@@ -31,6 +31,10 @@ from hidden_helpers import (
 
 import sys
 
+from syntactic import (
+    Operator
+)
+
 class SemanticDefaults:
     """Includes default attributes and methods to be inherited by a semantics
     including frame constraints, truth and falsity, and logical consequence."""
@@ -217,32 +221,37 @@ class ModelConstraints:
         # use semantics to recursively update all derived_objects
         self.instantiate(self.all_sentences.values())
 
+        # # DEBUG
+        # for sent in self.sentence_letters:
+        #     print(f"SENT LETTER {sent} HAS TYPE {type(sent)}.")
+        #     print(f"SENT LETTER ATTRIBUTE {sent.sentence_letter} HAS TYPE {type(sent.sentence_letter)}.")
+
+        # TODO: fix sentence_letter attribute to correctly store Z3 expression
+
         # Use semantics to generate and store Z3 constraints
         self.frame_constraints = self.semantics.frame_constraints
-        self.model_constraints = []
-        for sent_let in self.sentence_letters:
-            self.model_constraints.extend(
-                self.proposition_class.proposition_constraints(
-                    self,
-                    sent_let.derived_object[0],
-                )
-            )
-        # DEBUGGING
-        for prem in self.premises:
-            print(f"PREFIX OBJ {prem} is {prem.derived_object}")
+        self.model_constraints = [
+            self.proposition_class.proposition_constraints(
+                self,
+                sentence_letter,
+            ) for sentence_letter in self.sentence_letters
+        ]
+        # # DEBUGGING
+        # for premise in self.premises:
+        #     print(f"PREFIX OBJ {premise} is {premise.derived_object}")
         self.premise_constraints = [
             self.semantics.premise_behavior(
-                prem.derived_object,
+                premise,
                 self.semantics.main_world,
             )
-            for prem in self.premises
+            for premise in self.premises
         ]
         self.conclusion_constraints = [
             self.semantics.conclusion_behavior(
-                conc.derived_object,
+                conclusion,
                 self.semantics.main_world,
             )
-            for conc in self.conclusions
+            for conclusion in self.conclusions
         ]
         self.all_constraints = (
             self.frame_constraints
@@ -261,12 +270,13 @@ class ModelConstraints:
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
         for sent_obj in sentences:
-            if sent_obj.derived_object:
-                continue
+            # # TODO: add an appropriate check/continue here
+            # if isinstance(sent_obj.operator, Operator) or sent_obj.sentence_letter:
+            #     continue
             if sent_obj.original_arguments:
                 self.instantiate(sent_obj.original_arguments)
-            if sent_obj.derived_sentence:
-                self.instantiate([sent_obj.derived_sentence])
+            if sent_obj.arguments:
+                self.instantiate(sent_obj.arguments)
             sent_obj.update_objects(self)
 
     def print_enumerate(self, output=sys.__stdout__):
@@ -382,7 +392,6 @@ class ModelStructure:
         for sent_obj in sentences:
             if sent_obj.derived_object is None:
                 raise ValueError(f"{sent_obj} has 'None' for derived_object.")
-            # DISCUSS could this check cause problems?
             if sent_obj.proposition:
                 continue
             if sent_obj.original_arguments:
@@ -396,7 +405,7 @@ class ModelStructure:
         in that world"""
         BLUE = "\033[34m"
         RESET = "\033[0m"
-        sentence_letters = self.sentence_letters
+        # sentence_letters = self.sentence_letters
         main_world = self.main_world
         print(
             f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N)}{RESET}\n",
