@@ -117,42 +117,55 @@ class Semantics(SemanticDefaults):
             Exists(z, z3.And(self.is_part_of(z, bit_u), self.max_compatible_part(z, bit_w, bit_y))),
         )
 
-    def true_at(self, derived_object, eval_world):
-        """
-        derived_object is always a list, eval world a BitVector
-        derived_object is the third kind of derived_object
-        """
-        if str(derived_object[0]).isalnum():
-            sentence_letter = derived_object[0]
-            x = z3.BitVec("t_atom_x", self.N)
-            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
-        operator, args = derived_object[0], derived_object[1:]
-        assert not isinstance(operator, type), "operator should be an instance of a class"
-        return operator.true_at(*args, eval_world)
-
-    # NOTE: target version
-    # def true_at(self, sentence, eval_world):
+    # # OLD VERSION
+    # def true_at(self, derived_object, eval_world):
     #     """
     #     derived_object is always a list, eval world a BitVector
     #     derived_object is the third kind of derived_object
     #     """
-    #     sentence_letter = sentence.sentence_letter
-    #     if sentence_letter is not None:
+    #     if str(derived_object[0]).isalnum():
+    #         sentence_letter = derived_object[0]
     #         x = z3.BitVec("t_atom_x", self.N)
     #         return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
-    #     operator = sentence.operator
-    #     arguments = sentence.arguments
+    #     operator, args = derived_object[0], derived_object[1:]
     #     assert not isinstance(operator, type), "operator should be an instance of a class"
-    #     return operator.true_at(*arguments, eval_world)
+    #     return operator.true_at(*args, eval_world)
 
-    def false_at(self, derived_object, eval_world):
-        if str(derived_object[0]).isalnum():
-            sentence_letter = derived_object[0]
-            x = z3.BitVec("f_atom_x", self.N)
-            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
-        operator, args = derived_object[0], derived_object[1:]
+    def true_at(self, sentence, eval_world):
+        """
+        derived_object is always a list, eval world a BitVector
+        derived_object is the third kind of derived_object
+        """
+        if sentence.sentence_letter is not None:
+            x = z3.BitVec("t_atom_x", self.N)
+            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence.sentence_letter)))
+        operator = sentence.operator
+        arguments = sentence.arguments
         assert not isinstance(operator, type), "operator should be an instance of a class"
-        return operator.false_at(*args, eval_world)
+        return operator.true_at(*arguments, eval_world)
+
+    # # OLD VERSION
+    # def false_at(self, derived_object, eval_world):
+    #     if str(derived_object[0]).isalnum():
+    #         sentence_letter = derived_object[0]
+    #         x = z3.BitVec("f_atom_x", self.N)
+    #         return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
+    #     operator, args = derived_object[0], derived_object[1:]
+    #     assert not isinstance(operator, type), "operator should be an instance of a class"
+    #     return operator.false_at(*args, eval_world)
+
+    def false_at(self, sentence, eval_world):
+        """
+        derived_object is always a list, eval world a BitVector
+        derived_object is the third kind of derived_object
+        """
+        if sentence.sentence_letter:
+            x = z3.BitVec("f_atom_x", self.N)
+            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence.sentence_letter)))
+        operator = sentence.operator
+        arguments = sentence.arguments
+        assert not isinstance(operator, type), "operator should be an instance of a class"
+        return operator.false_at(*arguments, eval_world)
 
     def extended_verify(self, state, derived_object, eval_world):
         if str(derived_object[0]).isalnum():
