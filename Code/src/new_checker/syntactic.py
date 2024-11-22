@@ -50,11 +50,11 @@ class Sentence:
         else:
             self.original_arguments = None
 
-        # set defaults to None for prefix values with defined operators if any
-        # TODO: can the derived_type attribute be dropped?
-        self.original_type = None # updated in Syntax with operator_collection
-        # TODO: can the prefix_object attribute be dropped?
-        self.prefix_object = None # updated in ModelConstraints with semantics
+        # # set defaults to None for prefix values with defined operators if any
+        # # TODO: can the derived_type attribute be dropped?
+        # self.original_type = None # updated in Syntax with operator_collection
+        # # TODO: can the prefix_object attribute be dropped?
+        # self.prefix_object = None # updated in ModelConstraints with semantics
 
         # set defaults to None before updating in Syntax and ModelConstraints
         self.original_operator = None # 
@@ -62,12 +62,12 @@ class Sentence:
         self.arguments = None # sentece_objects
         self.sentence_letter = None # 
 
-        # TODO: can the derived_type attribute be dropped?
-        self.derived_type = None # updated in Syntax from original_type
-        # TODO: can the derived_sentence attribute be dropped?
-        self.derived_sentence = None # updated in Syntax with update_derived
-        # TODO: can the derived_object attribute be dropped?
-        self.derived_object = None # updated in ModelConstraints with semantics
+        # # TODO: can the derived_type attribute be dropped?
+        # self.derived_type = None # updated in Syntax from original_type
+        # # TODO: can the derived_sentence attribute be dropped?
+        # self.derived_sentence = None # updated in Syntax with update_derived
+        # # TODO: can the derived_object attribute be dropped?
+        # self.derived_object = None # updated in ModelConstraints with semantics
 
         # set proposition to None to be updates later
         self.proposition = None # updated in ModelStructure with Z3 model
@@ -234,19 +234,24 @@ class Sentence:
             if not self.operator_is_defined(original_type):
                 if len(original_type) > 1:
                     operator, args = original_type[0], original_type[1:]
-                    derived_args = [derive_type(arg) for arg in args]
-                    return [operator] + derived_args
+                    # TODO: I don't think full recursion is needed here
+                    # derived_args = [derive_type(arg) for arg in args]
+                    # return [operator] + derived_args
+                    return [operator] + args
                 return original_type
             operator, args = original_type[0], original_type[1:]
-            derived_args = [derive_type(arg) for arg in args]
+            # derived_args = [derive_type(arg) for arg in args]
             if not hasattr(operator, "primitive"):
                 raise TypeError(f"Operator {operator} is not a subclass of Operator.")
-            derivation = operator('a').derived_definition(*derived_args)
+            # TODO: can the dummy variable be avoided?
+            derivation = operator('a').derived_definition(*args)
+            # derivation = operator('a').derived_definition(*derived_args)
             return derivation
 
         def store_types(derived_type):
             # TODO: check that self.name is correct in both cases
             if self.name.isalnum(): # sentence letter
+                # print("RUN CHECK", derived_type[0])
                 # TODO: check that return sentence_letter is correct
                 return None, None, derived_type[0]
             # TODO: return a list of the extremals and change def in derived_op
@@ -261,21 +266,22 @@ class Sentence:
 
         # TODO: don't store original_type but rather use to store derived operator
         # which must be primitive and arguments given that derivation
-        if self.prefix_sentence is None:
-            raise ValueError(f"prefix_sentence for {self} is None in update_original_type.")
-        # TODO: remove original_type attribute
-        self.original_type = operator_collection.apply_operator(self.prefix_sentence)
+        # if self.prefix_sentence is None:
+        #     raise ValueError(f"prefix_sentence for {self} is None in update_original_type.")
+
+        original_type = operator_collection.apply_operator(self.prefix_sentence)
         if self.original_arguments:
-            self.original_operator = self.original_type[0]
-            print(f"OP TYPE {self.original_operator} from {self}")
-        # TODO: remove derived_type attribute
-        self.derived_type = derive_type(self.original_type)
-        self.operator, self.arguments, self.sentence_letter = store_types(self.derived_type)
-        print("ARGUMENTS STORED:", self.arguments)
-        # TODO: remove derived_sentence attribute
-        if self.operator_is_defined(self.original_type):
-            derived_infix = self.infix(self.derived_type)
-            self.derived_sentence = Sentence(derived_infix)
+            self.original_operator = original_type[0]
+
+        derived_type = derive_type(original_type)
+        self.operator, self.arguments, self.sentence_letter = store_types(derived_type)
+
+        # print("ARGUMENTS STORED:", self.arguments)
+        # print("SENT LET STORED:", self.sentence_letter)
+        # # TODO: remove derived_sentence attribute
+        # if self.operator_is_defined(self.original_type):
+        #     derived_infix = self.infix(self.derived_type)
+        #     self.derived_sentence = Sentence(derived_infix)
     
     # def update_derived(self):
     #     if self.original_type is None:
@@ -290,38 +296,41 @@ class Sentence:
         of self.derived_object and self.operator with the semantics that
         model_constraints includes."""
 
-        # TODO: remove once attributes below have been dropped
-        def activate_type(some_type, model_constraints):
-            """For a type with operator classes and AtomSorts, this method
-            replaces each operator class with the instance of that operator from
-            in model_constraints, and so returns an object."""
-            # TODO: fix error to check for type
-            if some_type is None:
-                raise ValueError(f"original_type for {self} is None in activate_prefix_with_semantics.")
-            new_prefix_form = []
-            # # TODO: why do [[None]] types exist if the following is printed?
-            # print("SOME TYPE", some_type)
-            for elem in some_type:
-                if isinstance(elem, type):
-                    new_prefix_form.append(model_constraints.operators[elem.name])
-                elif isinstance(elem, list):
-                    new_prefix_form.append(activate_type(elem, model_constraints))
-                else:
-                    new_prefix_form.append(elem)
-            return new_prefix_form
+        # # TODO: remove once attributes below have been dropped
+        # def activate_type(some_type, model_constraints):
+        #     """For a type with operator classes and AtomSorts, this method
+        #     replaces each operator class with the instance of that operator from
+        #     in model_constraints, and so returns an object."""
+        #     # TODO: fix error to check for type
+        #     if some_type is None:
+        #         raise ValueError(f"original_type for {self} is None in activate_prefix_with_semantics.")
+        #     new_prefix_form = []
+        #     # # TODO: why do [[None]] types exist if the following is printed?
+        #     # print("SOME TYPE", some_type)
+        #     for elem in some_type:
+        #         if isinstance(elem, type):
+        #             new_prefix_form.append(model_constraints.operators[elem.name])
+        #         elif isinstance(elem, list):
+        #             new_prefix_form.append(activate_type(elem, model_constraints))
+        #         else:
+        #             new_prefix_form.append(elem)
+        #     return new_prefix_form
 
-        # TODO: remove once attributes below have been dropped
-        def build_object_from_type(some_type):
-            if some_type is None:
-                return None
-            return activate_type(
-                some_type,
-                model_constraints
-            )
+        # # TODO: remove once attributes below have been dropped
+        # def build_object_from_type(some_type):
+        #     if some_type is None:
+        #         return None
+        #     return activate_type(
+        #         some_type,
+        #         model_constraints
+        #     )
+
+        # TODO: fix sentence_letter attribute to correctly store Z3 expression
 
         def activate_operator(some_type):
             if isinstance(some_type, type):
-                return some_type
+                print("BEFORE ACT", some_type)
+                return model_constraints.operators[some_type.name]
             if some_type is None:
                 return None
             return model_constraints.operators[some_type.name]
@@ -332,14 +341,14 @@ class Sentence:
         #         return some_object[0]
         #     return None
 
-        # TODO: remove attribute
-        self.prefix_object = build_object_from_type(self.original_type)
-        self.derived_object = build_object_from_type(self.derived_type)
-        # self.original_operator = store_operator_object(self.prefix_object)
-        # self.operator = store_operator_object(self.derived_object)
+        # TODO: what is the difference that activate_operator effects?
+        # use this to check whether this method has been run in redundancy check
 
-        print("ACTIVATE OP", self.original_operator)
+        # print(f"BEFORE ACT TYPE: {type(self.original_operator)}")
+        # print(f"BEFORE ACT: {isinstance(self.original_operator, Operator)} is FALSE")
         self.original_operator = activate_operator(self.original_operator)
+        # print(f"AFTER ACT TYPE: {type(self.original_operator)}")
+        # print(f"AFTER ACT: {isinstance(self.original_operator, Operator)} is TRUE")
         self.operator = activate_operator(self.operator)
 
         if self.original_arguments:
@@ -352,6 +361,7 @@ class Sentence:
 
     def update_proposition(self, model_structure): # happens in ModelStructure init
         """Builds a proposition object for the sentence given the model_structure."""
+        # TODO
         if self.derived_object is None:
             raise ValueError(f"derived_object for {self} is None when calling update_proposition.")
         self.proposition = model_structure.proposition_class(self, model_structure)
@@ -644,15 +654,17 @@ class Syntax:
         of it and all subsentences by looking to its arguments (if any)."""
         sub_dictionary = {}
         sub_dictionary[sentence.name] = sentence
+        arguments = []
         if sentence.original_arguments:
-            for sent_obj in sentence.original_arguments:
-                if sent_obj in sub_dictionary.values():
+            arguments.extend(sentence.original_arguments)
+        if sentence.arguments:
+            arguments.extend(sentence.arguments)
+        if arguments:
+            for arg in arguments:
+                if arg in sub_dictionary.values():
                     continue
-                arg_dict = self.sub_dictionary(sent_obj)
+                arg_dict = self.sub_dictionary(arg)
                 sub_dictionary.update(arg_dict)
-        if sentence.derived_sentence:
-            derived_dict = self.sub_dictionary(sentence.derived_sentence)
-            sub_dictionary.update(derived_dict)
         return sub_dictionary
 
     def initialize_types(self, sentence):
@@ -661,14 +673,19 @@ class Syntax:
         updating original_type in that sentence_obj. If the main operator is not
         primitive, derived_arguments are updated with derived_types."""
         operator_collection = self.operator_collection
-        if sentence.original_type:
+        if sentence.operator or sentence.sentence_letter:
+            # TODO: if not used, delete condition or adapt to check for redundancy
+            print("CONFIRM THIS IS EVER USED")
             return
         if sentence.original_arguments:
             for argument in sentence.original_arguments:
                 self.initialize_types(argument)
-        # TODO: fix to avoid derived_sentence
-        if sentence.derived_sentence:
-            self.initialize_types(sentence.derived_sentence)
+        if sentence.arguments:
+            for argument in sentence.arguments:
+                self.initialize_types(argument)
+        # # TODO: fix to avoid derived_sentence
+        # if sentence.derived_sentence:
+        #     self.initialize_types(sentence.derived_sentence)
         sentence.update_derived(operator_collection)
         # sent_obj.update_derived()
 

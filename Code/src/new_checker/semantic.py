@@ -141,8 +141,14 @@ class Semantics(SemanticDefaults):
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence.sentence_letter)))
         operator = sentence.operator
         arguments = sentence.arguments
-        assert not isinstance(operator, type), "operator should be an instance of a class"
+        print("OP TYPE", isinstance(operator, syntactic.Operator))
         return operator.true_at(*arguments, eval_world)
+
+        # assert isinstance(operator, syntactic.Operator), "operator should be an instance of a class"
+        # DEBUG
+        # print("ARGS", *arguments)
+        # print("ARGS TYPE", type(arguments[0]))
+        # print("WORLD", eval_world)
 
     # # OLD VERSION
     # def false_at(self, derived_object, eval_world):
@@ -164,20 +170,27 @@ class Semantics(SemanticDefaults):
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence.sentence_letter)))
         operator = sentence.operator
         arguments = sentence.arguments
-        assert not isinstance(operator, type), "operator should be an instance of a class"
+        # assert not isinstance(operator, type), "operator should be an instance of a class"
         return operator.false_at(*arguments, eval_world)
 
-    def extended_verify(self, state, derived_object, eval_world):
-        if str(derived_object[0]).isalnum():
-            return self.verify(state, derived_object[0])
-        op, args = derived_object[0], derived_object[1:]
-        return op.extended_verify(state, *args, eval_world)
+    def extended_verify(self, state, sentence, eval_world):
+        print("CHECK SENTENCE", sentence)
+        print("CHECK SENT LET", sentence.sentence_letter)
+        print("CHECK ARGS", sentence.arguments)
+        print("CHECK OP", sentence.operator)
+        if sentence.sentence_letter:
+            return self.verify(state, sentence.sentence_letter)
+        operator = sentence.operator
+        arguments = sentence.arguments
+        # print(f"OP {operator} is type {type(operator)}")
+        return operator.extended_verify(state, *arguments, eval_world)
     
-    def extended_falsify(self, state, derived_object, eval_world):
-        if str(derived_object[0]).isalnum():
-            return self.falsify(state, derived_object[0])
-        op, args = derived_object[0], derived_object[1:]
-        return op.extended_falsify(state, *args, eval_world)
+    def extended_falsify(self, state, sentence, eval_world):
+        if sentence.sentence_letter:
+            return self.falsify(state, sentence.sentence_letter)
+        operator = sentence.operator
+        arguments = sentence.arguments
+        return operator.extended_falsify(state, *arguments, eval_world)
 
     def calculate_alternative_worlds(self, verifiers, eval_world, model_structure):
         """Calculate alternative worlds given verifiers and eval_world."""
@@ -197,10 +210,10 @@ class Proposition(PropositionDefaults):
     in the __init__ method.
     """
 
-    def __init__(self, sentence_obj, model_structure, eval_world='main'):
+    def __init__(self, sentence, model_structure, eval_world='main'):
         """TODO"""
 
-        super().__init__(sentence_obj, model_structure)
+        super().__init__(sentence, model_structure)
         self.eval_world = model_structure.main_world if eval_world == 'main' else eval_world
         self.verifiers, self.falsifiers = self.find_proposition()
         
@@ -214,12 +227,13 @@ class Proposition(PropositionDefaults):
         )
 
     # TODO: check logic and doc strings
-    def proposition_constraints(self, atom):
+    def proposition_constraints(self, sentence_letter):
         """
         Generates Z3 constraints for a sentence letter including the classical
         constraints and optionally the non-null, contingent, and disjoint
         constraints depending on the user settings."""
         semantics = self.semantics
+        print("SENT LET", sentence_letter)
 
         def get_classical_constraints():
             x, y = z3.BitVecs("cl_prop_x cl_prop_y", semantics.N)
@@ -227,21 +241,21 @@ class Proposition(PropositionDefaults):
             verifier_fusion_closure = ForAll(
                 [x, y],
                 z3.Implies(
-                    z3.And(semantics.verify(x, atom), semantics.verify(y, atom)),
-                    semantics.verify(semantics.fusion(x, y), atom),
+                    z3.And(semantics.verify(x, sentence_letter), semantics.verify(y, sentence_letter)),
+                    semantics.verify(semantics.fusion(x, y), sentence_letter),
                 ),
             )
             falsifier_fusion_closure = ForAll(
                 [x, y],
                 z3.Implies(
-                    z3.And(semantics.falsify(x, atom), semantics.falsify(y, atom)),
-                    semantics.falsify(semantics.fusion(x, y), atom),
+                    z3.And(semantics.falsify(x, sentence_letter), semantics.falsify(y, sentence_letter)),
+                    semantics.falsify(semantics.fusion(x, y), sentence_letter),
                 ),
             )
             no_glut = ForAll(
                 [x, y],
                 z3.Implies(
-                    z3.And(semantics.verify(x, atom), semantics.falsify(y, atom)),
+                    z3.And(semantics.verify(x, sentence_letter), semantics.falsify(y, sentence_letter)),
                     z3.Not(semantics.compatible(x, y)),
                 ),
             )
@@ -253,7 +267,7 @@ class Proposition(PropositionDefaults):
                         y,
                         z3.And(
                             semantics.compatible(x, y),
-                            z3.Or(semantics.verify(y, atom), semantics.falsify(y, atom)),
+                            z3.Or(semantics.verify(y, sentence_letter), semantics.falsify(y, sentence_letter)),
                         ),
                     ),
                 ),
@@ -269,8 +283,8 @@ class Proposition(PropositionDefaults):
             """The non_null_constraints are important to avoid trivializing
             the disjoin_constraints, but are entailed by the contingent_constraints."""
             return [
-                z3.Not(semantics.verify(0, atom)),
-                z3.Not(semantics.falsify(0, atom)),
+                z3.Not(semantics.verify(0, sentence_letter)),
+                z3.Not(semantics.falsify(0, sentence_letter)),
             ]
 
         def get_contingent_constraints():
@@ -278,11 +292,11 @@ class Proposition(PropositionDefaults):
             x, y = z3.BitVecs("ct_prop_x ct_prop_y", semantics.N)
             possible_verifier = Exists(
                 x,
-                z3.And(semantics.possible(x), semantics.verify(x, atom))
+                z3.And(semantics.possible(x), semantics.verify(x, sentence_letter))
             )
             possible_falsifier = Exists(
                 y,
-                z3.And(semantics.possible(y), semantics.falsify(y, atom))
+                z3.And(semantics.possible(y), semantics.falsify(y, sentence_letter))
             )
             return [
                 possible_verifier,
@@ -295,15 +309,15 @@ class Proposition(PropositionDefaults):
             x, y, z = z3.BitVecs("dj_prop_x dj_prop_y dj_prop_z", semantics.N)
             disjoint_constraints = []
             for other_atom in self.sentence_letters:
-                if other_atom is not atom:
+                if other_atom is not sentence_letter:
                     other_disjoint_atom = ForAll(
                         [x, y],
                         z3.Implies(
                             z3.And(
                                 semantics.non_null_part_of(x, y),
                                 z3.Or(
-                                    semantics.verify(y, atom),
-                                    semantics.falsify(y, atom),
+                                    semantics.verify(y, sentence_letter),
+                                    semantics.falsify(y, sentence_letter),
                                 ),
                             ),
                             ForAll(
@@ -392,6 +406,9 @@ class Proposition(PropositionDefaults):
 
     def print_proposition(self, eval_world, indent_num):
         N = self.model_structure.model_constraints.semantics.N
+        # TODO: remove true_at method above
+        # use string to look up sentence from all sentences
+        # truth_value = self.model_structure.z3_model.evaluate(self.semantics.true_at(self.sentence, eval_world))
         truth_value = self.truth_value_at(eval_world)
         possible = self.model_structure.model_constraints.semantics.possible
         z3_model = self.model_structure.z3_model
