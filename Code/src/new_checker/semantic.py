@@ -227,13 +227,15 @@ class Proposition(PropositionDefaults):
         )
 
     # TODO: check logic and doc strings
-    def proposition_constraints(self, sentence_letter):
+    def proposition_constraints(self, sentence):
         """
         Generates Z3 constraints for a sentence letter including the classical
         constraints and optionally the non-null, contingent, and disjoint
         constraints depending on the user settings."""
         semantics = self.semantics
-        print("SENT LET", sentence_letter)
+        sentence_letter = sentence.sentence_letter
+
+        print(f"SENT LETTER {sentence_letter} TYPE {type(sentence_letter)}")
 
         def get_classical_constraints():
             x, y = z3.BitVecs("cl_prop_x cl_prop_y", semantics.N)

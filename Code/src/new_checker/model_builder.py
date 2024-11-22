@@ -234,7 +234,8 @@ class ModelConstraints:
             self.proposition_class.proposition_constraints(
                 self,
                 sentence_letter,
-            ) for sentence_letter in self.sentence_letters
+            )
+            for sentence_letter in self.sentence_letters
         ]
         # # DEBUGGING
         # for premise in self.premises:
@@ -270,9 +271,9 @@ class ModelConstraints:
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
         for sent_obj in sentences:
-            # # TODO: add an appropriate check/continue here
-            # if isinstance(sent_obj.operator, Operator) or sent_obj.sentence_letter:
-            #     continue
+            # # TODO: add a better check/continue here
+            if sent_obj.updated_objects:
+                continue
             if sent_obj.original_arguments:
                 self.instantiate(sent_obj.original_arguments)
             if sent_obj.arguments:
