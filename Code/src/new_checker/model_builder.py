@@ -373,13 +373,12 @@ class ModelStructure:
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
         in that world"""
-        N = self.model_constraints.semantics.N
         BLUE = "\033[34m"
         RESET = "\033[0m"
         sentence_letters = self.sentence_letters
         main_world = self.main_world
         print(
-            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, N)}{RESET}\n",
+            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N)}{RESET}\n",
             file=output,
         )
         # true_in_eval = set()
@@ -440,8 +439,8 @@ class ModelStructure:
         def binary_bitvector(bit):
             return (
                 bit.sexpr()
-                if N % 4 != 0
-                else int_to_binary(int(bit.sexpr()[2:], 16), N)
+                if self.N % 4 != 0
+                else int_to_binary(int(bit.sexpr()[2:], 16), self.N)
             )
         
         def format_state(bin_rep, state, color, label=""):
@@ -450,7 +449,7 @@ class ModelStructure:
             print(f"  {WHITE}{bin_rep} = {color}{state}{label_str}{RESET}", file=output)
         
         # Extract semantics and state information
-        N = self.model_constraints.semantics.N
+        # TODO: move to class attribute
         print("\nState Space:", file=output)
 
         # Define ANSI color codes
@@ -466,7 +465,7 @@ class ModelStructure:
 
         # Print state details
         for bit in self.all_bits:
-            state = bitvec_to_substates(bit, N)
+            state = bitvec_to_substates(bit, self.N)
             bin_rep = binary_bitvector(bit)
             if bit == 0:
                 format_state(bin_rep, state, COLORS["initial"])
@@ -513,10 +512,13 @@ class ModelStructure:
     def recursive_print(self, sentence, eval_world, indent_num):
         if indent_num == 2: # NOTE: otherwise second lines don't indent
             indent_num += 1
-        if sentence.original_operator is None:  # print sentence letter
+        if sentence.sentence_letter:  # print sentence letter
+            print("CHECK SENT LET", sentence.sentence_letter)
             sentence.proposition.print_proposition(eval_world, indent_num)
             return
+        print("FULL SENTENCE", sentence)
         operator = sentence.original_operator
+        print("OPERATOR", sentence.original_operator)
         operator.print_method(sentence, eval_world, indent_num)  # print complex sentence
 
     def print_input_sentences(self, output):
@@ -548,9 +550,8 @@ class ModelStructure:
     def print_all(self, output=sys.__stdout__):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
-        N = self.model_constraints.semantics.N
         if self.z3_model_status:
-            print(f"\nThere is a {N}-model of:\n", file=output)
+            print(f"\nThere is a {self.N}-model of:\n", file=output)
             self.model_constraints.print_enumerate(output)
             self.print_states(output)
             self.print_evaluation(output)
@@ -558,6 +559,6 @@ class ModelStructure:
             # TODO: make method for runtime and progress bar
             print(f"Run time: {self.z3_model_runtime} seconds\n", file=output)
             return
-        print(f"\nThere is no {N}-model of:\n")
+        print(f"\nThere is no {self.N}-model of:\n")
         self.model_constraints.print_enumerate(output)
         # print([self.constraint_dict[str(c)] for c in self.unsat_core])
