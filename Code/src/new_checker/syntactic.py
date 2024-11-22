@@ -253,7 +253,9 @@ class Sentence:
             if self.name.isalnum(): # sentence letter
                 # print("RUN CHECK", derived_type[0])
                 # TODO: check that return sentence_letter is correct
-                return None, None, derived_type[0]
+                # DISCUSS: should Const happen here or in update_objects?
+                sentence_letter = derived_type[0]
+                return None, None, [Const(sentence_letter, AtomSort)]
             # TODO: return a list of the extremals and change def in derived_op
             if self.name in {'\\top', '\\bot'}: # extremal operator
                 return derived_type[0], None, None
@@ -328,11 +330,15 @@ class Sentence:
         # TODO: fix sentence_letter attribute to correctly store Z3 expression
 
         def activate_operator(some_type):
+            if some_type is None:
+                return None
             if isinstance(some_type, type):
                 print("BEFORE ACT", some_type)
                 return model_constraints.operators[some_type.name]
-            if some_type is None:
-                return None
+            # # TODO: should this happen here and can 'str' be avoided?
+            # # if so, change name to be activate types
+            # if str(some_type).isalnum():
+            #     return [Const(some_type, AtomSort)]
             return model_constraints.operators[some_type.name]
 
         # def store_operator_object(some_object):
