@@ -206,9 +206,9 @@ class ModelConstraints:
                     sent_let.derived_object[0],
                 )
             )
-        # # DEBUGGING
-        # for prem in self.premises:
-        #     print(f"PREFIX OBJ {prem} is {prem.derived_object}")
+        # DEBUGGING
+        for prem in self.premises:
+            print(f"PREFIX OBJ {prem} is {prem.derived_object}")
         self.premise_constraints = [
             self.semantics.premise_behavior(
                 prem.derived_object,

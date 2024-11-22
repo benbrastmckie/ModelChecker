@@ -127,6 +127,8 @@ class Semantics(SemanticDefaults):
             x = z3.BitVec("t_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
         operator, args = derived_object[0], derived_object[1:]
+        print(f"OP: {operator}")
+        print(f"ARGS: {args}")
         assert not isinstance(operator, type), "operator should be an instance of a class"
         return operator.true_at(*args, eval_world)
 

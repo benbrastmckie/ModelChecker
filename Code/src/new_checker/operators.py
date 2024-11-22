@@ -50,6 +50,8 @@ class AndOperator(syntactic.Operator):
     arity = 2
 
     def true_at(self, leftarg, rightarg, eval_world):
+        print(f"LEFT ARG: {leftarg}")
+        print(f"Right ARG: {rightarg}")
         """doc string place holder
         args are derived_objects (ie things of the third kind) I think, def 2nd or 3rd kind
         """
