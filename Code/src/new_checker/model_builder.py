@@ -143,6 +143,27 @@ class PropositionDefaults:
         # Set defaults for verifiers and falsifiers
         self.verifiers, self.falsifiers = [], []
 
+    # # DISCUSS: this is something we ultimately want to move into
+    # # semantic.py since users will define there what a proposition is and so
+    # # should be able to configure the representation to match
+    # def __repr__(self):
+    #     N = self.model_structure.model_constraints.semantics.N
+    #     possible = self.model_structure.model_constraints.semantics.possible
+    #     z3_model = self.model_structure.z3_model
+    #     ver_states = {
+    #         bitvec_to_substates(bit, N)
+    #         for bit in self.verifiers
+    #         if z3_model.evaluate(possible(bit)) or self.print_impossible
+    #     }
+    #     fal_states = {
+    #         bitvec_to_substates(bit, N)
+    #         for bit in self.falsifiers
+    #         if z3_model.evaluate(possible(bit)) or self.print_impossible
+    #     }
+    #     ver_prints = pretty_set_print(ver_states)
+    #     fal_prints = pretty_set_print(fal_states)
+    #     return f"< {ver_prints}, {fal_prints} >"
+
     def __repr__(self):
         return self.name
 
