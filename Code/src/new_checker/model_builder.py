@@ -268,7 +268,7 @@ class ModelConstraints:
             # # TODO: add a better check/continue here
             # if sent_obj.updated_objects:
             #     continue
-            # # TODO: recursion seems not to be needed given that the whole 
+            # # TODO: add recursion and check/continue
             # # dictionary is instantiated
             # if sent_obj.original_arguments:
             #     self.instantiate(sent_obj.original_arguments)
