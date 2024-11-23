@@ -117,77 +117,44 @@ class Semantics(SemanticDefaults):
             Exists(z, z3.And(self.is_part_of(z, bit_u), self.max_compatible_part(z, bit_w, bit_y))),
         )
 
-    # # OLD VERSION
-    # def true_at(self, derived_object, eval_world):
-    #     """
-    #     derived_object is always a list, eval world a BitVector
-    #     derived_object is the third kind of derived_object
-    #     """
-    #     if str(derived_object[0]).isalnum():
-    #         sentence_letter = derived_object[0]
-    #         x = z3.BitVec("t_atom_x", self.N)
-    #         return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
-    #     operator, args = derived_object[0], derived_object[1:]
-    #     assert not isinstance(operator, type), "operator should be an instance of a class"
-    #     return operator.true_at(*args, eval_world)
-
     def true_at(self, sentence, eval_world):
         """
         derived_object is always a list, eval world a BitVector
         derived_object is the third kind of derived_object
         """
-        if sentence.sentence_letter is not None:
+        sentence_letter = sentence.sentence_letter
+        if sentence_letter is not None:
             x = z3.BitVec("t_atom_x", self.N)
-            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence.sentence_letter)))
+            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
         operator = sentence.operator
         arguments = sentence.arguments
-        print("OP TYPE", isinstance(operator, syntactic.Operator))
         return operator.true_at(*arguments, eval_world)
-
-        # assert isinstance(operator, syntactic.Operator), "operator should be an instance of a class"
-        # DEBUG
-        # print("ARGS", *arguments)
-        # print("ARGS TYPE", type(arguments[0]))
-        # print("WORLD", eval_world)
-
-    # # OLD VERSION
-    # def false_at(self, derived_object, eval_world):
-    #     if str(derived_object[0]).isalnum():
-    #         sentence_letter = derived_object[0]
-    #         x = z3.BitVec("f_atom_x", self.N)
-    #         return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
-    #     operator, args = derived_object[0], derived_object[1:]
-    #     assert not isinstance(operator, type), "operator should be an instance of a class"
-    #     return operator.false_at(*args, eval_world)
 
     def false_at(self, sentence, eval_world):
         """
         derived_object is always a list, eval world a BitVector
         derived_object is the third kind of derived_object
         """
-        if sentence.sentence_letter:
+        sentence_letter = sentence.sentence_letter
+        if sentence_letter is not None:
             x = z3.BitVec("f_atom_x", self.N)
-            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence.sentence_letter)))
+            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
         operator = sentence.operator
         arguments = sentence.arguments
-        # assert not isinstance(operator, type), "operator should be an instance of a class"
         return operator.false_at(*arguments, eval_world)
 
     def extended_verify(self, state, sentence, eval_world):
-        print("CHECK SENTENCE", sentence)
-        print("CHECK SENT LET", sentence.sentence_letter)
-        print("CHECK ARGS", sentence.arguments)
-        print("CHECK OP", sentence.operator)
-        if sentence.sentence_letter:
-            return self.verify(state, sentence.sentence_letter)
+        sentence_letter = sentence.sentence_letter
+        if sentence_letter is not None:
+            return self.verify(state, sentence_letter)
         operator = sentence.operator
         arguments = sentence.arguments
-        # print(f"OP {operator} is type {type(operator)}")
         return operator.extended_verify(state, *arguments, eval_world)
     
     def extended_falsify(self, state, sentence, eval_world):
-        if sentence.sentence_letter:
-            return self.falsify(state, sentence.sentence_letter)
+        sentence_letter = sentence.sentence_letter
+        if sentence_letter is not None:
+            return self.falsify(state, sentence_letter)
         operator = sentence.operator
         arguments = sentence.arguments
         return operator.extended_falsify(state, *arguments, eval_world)
@@ -234,8 +201,6 @@ class Proposition(PropositionDefaults):
         constraints depending on the user settings."""
         semantics = self.semantics
         sentence_letter = sentence.sentence_letter
-
-        print(f"SENT LETTER {sentence_letter} TYPE {type(sentence_letter)}")
 
         def get_classical_constraints():
             x, y = z3.BitVecs("cl_prop_x cl_prop_y", semantics.N)
