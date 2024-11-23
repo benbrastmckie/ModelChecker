@@ -91,12 +91,12 @@ conclusions = ["C"]
 ##### DEFINED OPERATOR ISSUES #####
 ###################################
 
-# AttributeError: 'ConditionalOperator' has not 'true_at'
-N = 3
-premises = ["(A \\leftrightarrow B)", "\\possible A"]
-conclusions = ["C"]
-contingent_bool = False
-disjoint_bool = False
+# # AttributeError: 'ConditionalOperator' has not 'true_at'
+# N = 3
+# premises = ["(A \\leftrightarrow B)", "\\possible A"]
+# conclusions = ["C"]
+# contingent_bool = False
+# disjoint_bool = False
 
 # # AttributeError: 'ConditionalOperator' has not 'true_at'
 # premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
@@ -189,6 +189,7 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
+# # TODO: THOUGH Z3 IS FAST, PYTHON IS SLOW ON THIS ONE
 # # CF_CM12: SOBEL SEQUENCE
 # N = 3
 # premises = [
@@ -225,6 +226,7 @@ disjoint_bool = False
 # conclusions = []
 # contingent_bool = True
 # disjoint_bool = False
+
 # # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
 # N = 4
 # premises = ['\\neg A','(A \\boxright C)']
@@ -496,12 +498,12 @@ model_structure = ModelStructure(model_constraints, max_time=1)
 # print("TEST ALL PROPS", model_structure.all_propositions)
 model_structure.print_all()
 
-if not model_structure.z3_model:
-    model_constraints_obj = model_structure.model_constraints
-    print(model_constraints.sentence_letters)
-    # print(model_constraints.model_constraints)
-    # print(model_constraints.premise_constraints)
-    print(model_structure.unsat_core)
+# if not model_structure.z3_model:
+#     model_constraints_obj = model_structure.model_constraints
+#     print(model_constraints.sentence_letters)
+#     # print(model_constraints.model_constraints)
+#     # print(model_constraints.premise_constraints)
+#     print(model_structure.unsat_core)
 
 
 # def bv2s(bitvec):
