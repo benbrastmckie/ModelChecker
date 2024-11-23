@@ -123,13 +123,14 @@ class PropositionDefaults:
 
         # Store values from sentence
         self.name = sentence.name
-        if sentence.derived_sentence: # accords with model constraints
-            self.arguments = sentence.derived_sentence.arguments
-        else:
-            self.arguments = sentence.original_arguments
+        # if sentence.derived_sentence: # accords with model constraints
+        #     self.arguments = sentence.derived_sentence.arguments
+        # else:
         self.operator = sentence.operator
-        self.derived_object = sentence.derived_object
-        self.prefix_sentence = sentence.prefix_sentence
+        self.arguments = sentence.arguments
+        self.sentence_letter = sentence.sentence_letter
+        # self.derived_object = sentence.derived_object
+        # self.prefix_sentence = sentence.prefix_sentence
 
         # Store values from model_structure argument
         self.model_structure = model_structure
@@ -225,13 +226,14 @@ class ModelConstraints:
 
         # Use semantics to generate and store Z3 constraints
         self.frame_constraints = self.semantics.frame_constraints
-        self.model_constraints = [
-            self.proposition_class.proposition_constraints(
-                self,
-                sentence_letter,
+        self.model_constraints = []
+        for sentence_letter in self.sentence_letters:
+            self.model_constraints.extend(
+                self.proposition_class.proposition_constraints(
+                    self,
+                    sentence_letter,
+                )
             )
-            for sentence_letter in self.sentence_letters
-        ]
         self.premise_constraints = [
             self.semantics.premise_behavior(
                 premise,
@@ -262,15 +264,12 @@ class ModelConstraints:
     def instantiate(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
-        print(f"SENTENCES: {list(sentences)}")
-        # for sent_obj in sentences:
-        #     print(f"BEFORE: sentence_letter {sent_obj.sentence_letter} is type {type(sent_obj.sentence_letter)} for {sent_obj}")
         for sent_obj in sentences:
-            # # TODO: is recursion needed given that the whole dictionary is
-            # # instantiated?
             # # TODO: add a better check/continue here
             # if sent_obj.updated_objects:
             #     continue
+            # # TODO: recursion seems not to be needed given that the whole 
+            # # dictionary is instantiated
             # if sent_obj.original_arguments:
             #     self.instantiate(sent_obj.original_arguments)
             # if sent_obj.arguments:
@@ -390,14 +389,15 @@ class ModelStructure:
         prefix_sent to that instance, returning the input sentences."""
 
         for sent_obj in sentences:
-            if sent_obj.derived_object is None:
-                raise ValueError(f"{sent_obj} has 'None' for derived_object.")
+            # TODO: add appropriate check
+            # if sent_obj.derived_object is None:
+            #     raise ValueError(f"{sent_obj} has 'None' for derived_object.")
             if sent_obj.proposition:
                 continue
             if sent_obj.original_arguments:
                 self.interpret(sent_obj.original_arguments)
-            if sent_obj.derived_sentence:
-                self.interpret(sent_obj.derived_sentence.original_arguments)
+            if sent_obj.arguments:
+                self.interpret(sent_obj.arguments)
             sent_obj.update_proposition(self)
 
     def print_evaluation(self, output=sys.__stdout__):
@@ -542,13 +542,10 @@ class ModelStructure:
     def recursive_print(self, sentence, eval_world, indent_num):
         if indent_num == 2: # NOTE: otherwise second lines don't indent
             indent_num += 1
-        if sentence.sentence_letter:  # print sentence letter
-            print("CHECK SENT LET", sentence.sentence_letter)
+        if sentence.sentence_letter is not None:  # print sentence letter
             sentence.proposition.print_proposition(eval_world, indent_num)
             return
-        print("FULL SENTENCE", sentence)
         operator = sentence.original_operator
-        print("OPERATOR", sentence.original_operator)
         operator.print_method(sentence, eval_world, indent_num)  # print complex sentence
 
     def print_input_sentences(self, output):
