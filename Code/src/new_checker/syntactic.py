@@ -188,22 +188,30 @@ class Sentence:
         """Takes a sentence in prefix notation (in any of the three kinds)
         and translates it to infix notation (a string)."""
         # Base case: if prefix_sent is an operator class
-        # if hasattr(prefix_sent[0], "primitive"):
-        #     return prefix_sent.name  # or prefix_sent.name
+        if isinstance(prefix_sent, type) and issubclass(prefix_sent, Operator):
+            return prefix_sent.name  # or prefix_sent.name
+        # If prefix_sent is an operator instance
+        if isinstance(prefix_sent, Operator):
+            return prefix_sent.name  # or str(prefix_sent)
         # If prefix_sent is a list or tuple (recursive case)
-        if not isinstance(prefix_sent, (list, tuple)):
-            raise ValueError(f"prefix_sent {prefix_sent} is not of type list.")
-        if len(prefix_sent) == 1:
-            return str(prefix_sent[0])
-        op = prefix_sent[0]
-        # Extract the operator's symbol or name
-        op_str = str(op)
-        if len(prefix_sent) == 2:
-            return f"{op_str} {self.infix(prefix_sent[1])}"
-        left_expr = prefix_sent[1]
-        right_expr = prefix_sent[2]
-        return f"({self.infix(left_expr)} {op_str} {self.infix(right_expr)})"
-        # return str(prefix_sent)
+        if isinstance(prefix_sent, (list, tuple)):
+            if len(prefix_sent) == 1:
+                return self.infix(prefix_sent[0])
+            op = prefix_sent[0]
+            # Extract the operator's symbol or name
+            if isinstance(op, type) and issubclass(op, Operator):
+                op_str = op.name  # or op.name
+            elif isinstance(op, Operator):
+                op_str = op.name  # or str(op)
+            else:
+                op_str = str(op)
+            if len(prefix_sent) == 2:
+                return f"{op_str} {self.infix(prefix_sent[1])}"
+            left_expr = prefix_sent[1]
+            right_expr = prefix_sent[2]
+            return f"({self.infix(left_expr)} {op_str} {self.infix(right_expr)})"
+        # For any other type, convert to string
+        return str(prefix_sent)
 
     def operator_is_defined(self, original_type):
         """
@@ -542,8 +550,6 @@ class OperatorCollection:
         # TODO: this is causing trouble for pytest, by why?
         if isinstance(op, str):
             if op not in self.operator_classes_dict:
-                # DEBUG
-                # assert False, op
                 raise KeyError(f"Operator '{op}' not found in operator_classes_dict.")
             activated.insert(0, self[op])
         else:
