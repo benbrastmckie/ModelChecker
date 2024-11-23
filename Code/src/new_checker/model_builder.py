@@ -221,11 +221,6 @@ class ModelConstraints:
         # use semantics to recursively update all derived_objects
         self.instantiate(self.all_sentences.values())
 
-        # # DEBUG
-        # for sent in self.sentence_letters:
-        #     print(f"SENT LETTER {sent} HAS TYPE {type(sent)}.")
-        #     print(f"SENT LETTER ATTRIBUTE {sent.sentence_letter} HAS TYPE {type(sent.sentence_letter)}.")
-
         # TODO: fix sentence_letter attribute to correctly store Z3 expression
 
         # Use semantics to generate and store Z3 constraints
@@ -237,9 +232,6 @@ class ModelConstraints:
             )
             for sentence_letter in self.sentence_letters
         ]
-        # # DEBUGGING
-        # for premise in self.premises:
-        #     print(f"PREFIX OBJ {premise} is {premise.derived_object}")
         self.premise_constraints = [
             self.semantics.premise_behavior(
                 premise,
@@ -270,15 +262,22 @@ class ModelConstraints:
     def instantiate(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
+        print(f"SENTENCES: {list(sentences)}")
+        # for sent_obj in sentences:
+        #     print(f"BEFORE: sentence_letter {sent_obj.sentence_letter} is type {type(sent_obj.sentence_letter)} for {sent_obj}")
         for sent_obj in sentences:
+            # # TODO: is recursion needed given that the whole dictionary is
+            # # instantiated?
             # # TODO: add a better check/continue here
-            if sent_obj.updated_objects:
-                continue
-            if sent_obj.original_arguments:
-                self.instantiate(sent_obj.original_arguments)
-            if sent_obj.arguments:
-                self.instantiate(sent_obj.arguments)
+            # if sent_obj.updated_objects:
+            #     continue
+            # if sent_obj.original_arguments:
+            #     self.instantiate(sent_obj.original_arguments)
+            # if sent_obj.arguments:
+            #     self.instantiate(sent_obj.arguments)
             sent_obj.update_objects(self)
+        # for sent_obj in sentences:
+        #     print(f"AFTER: sentence_letter {sent_obj.sentence_letter} is type {type(sent_obj.sentence_letter)} for {sent_obj}")
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""

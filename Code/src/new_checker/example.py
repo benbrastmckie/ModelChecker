@@ -488,12 +488,12 @@ model_structure = ModelStructure(model_constraints, max_time=1)
 # print("TEST ALL PROPS", model_structure.all_propositions)
 model_structure.print_all()
 
-if not model_structure.z3_model:
-    model_constraints_obj = model_structure.model_constraints
-    print(model_constraints.sentence_letters)
-    # print(model_constraints.model_constraints)
-    # print(model_constraints.premise_constraints)
-    print(model_structure.unsat_core)
+# if not model_structure.z3_model:
+#     model_constraints_obj = model_structure.model_constraints
+#     print(model_constraints.sentence_letters)
+#     # print(model_constraints.model_constraints)
+#     # print(model_constraints.premise_constraints)
+#     print(model_structure.unsat_core)
 
 
 # def bv2s(bitvec):

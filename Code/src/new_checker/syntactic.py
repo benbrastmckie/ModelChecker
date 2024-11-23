@@ -68,7 +68,7 @@ class Sentence:
         # # TODO: can the derived_type attribute be dropped?
         # self.derived_type = None # updated in Syntax from original_type
         # # TODO: can the derived_sentence attribute be dropped?
-        # self.derived_sentence = None # updated in Syntax with update_derived
+        # self.derived_sentence = None # updated in Syntax with update_types
         # # TODO: can the derived_object attribute be dropped?
         # self.derived_object = None # updated in ModelConstraints with semantics
 
@@ -224,8 +224,7 @@ class Sentence:
                 return True
         return False
 
-    # TODO: change name to update_types
-    def update_derived(self, operator_collection):
+    def update_types(self, operator_collection):
         """Draws on the operator_collection to apply the operators that occur
         in the prefix_sentence in order to generate a original_type which has
         operator classes in place of operator strings and AtomSorts in place
@@ -252,12 +251,7 @@ class Sentence:
             return derivation
 
         def store_types(derived_type):
-            # TODO: check that self.name is correct in both cases
             if self.name.isalnum(): # sentence letter
-                print(f"CHECK {derived_type[0]} is of {type(derived_type[0])}")
-                # TODO: check that return sentence_letter is correct
-                # DISCUSS: should Const happen here or in update_objects?
-                # sentence_letter = derived_type[0]
                 return None, None, derived_type[0]
             # TODO: return a list of the extremals and change def in derived_op
             if self.name in {'\\top', '\\bot'}: # extremal operator
@@ -268,21 +262,13 @@ class Sentence:
                 return operator_type, arguments, None
             raise ValueError(f"the derived_type for {self} is invalid in store_types().")
 
-        # TODO: don't store original_type but rather use to store derived operator
-        # which must be primitive and arguments given that derivation
-        # if self.prefix_sentence is None:
-        #     raise ValueError(f"prefix_sentence for {self} is None in update_original_type.")
-
         original_type = operator_collection.apply_operator(self.prefix_sentence)
         if self.original_arguments:
             self.original_operator = original_type[0]
 
         derived_type = derive_type(original_type)
-        # if self.operator is None and self.sentence_letter is None:
         self.operator, self.arguments, self.sentence_letter = store_types(derived_type)
-        # else:
-        #     print("")
-        # print(f"SENT LET {self.sentence_letter} TYPE {type(self.sentence_letter)}")
+        # print(f"STORE TYPES: {self} has sentence_letter {self.sentence_letter} of TYPE {type(self.sentence_letter)}")
 
         # print("ARGUMENTS STORED:", self.arguments)
         # print("SENT LET STORED:", self.sentence_letter)
@@ -315,17 +301,15 @@ class Sentence:
         self.original_operator = activate_operator(self.original_operator)
         self.operator = activate_operator(self.operator)
 
-        # TODO: would be nice to remove this attribute if there is a better way
-        self.updated_objects = True
+        # print(f"SENT LET {self.sentence_letter} TYPE {type(self.sentence_letter)} FOR SENTENCE {self}")
 
-        print(f"SENT LET {self.sentence_letter} TYPE {type(self.sentence_letter)} FOR SENTENCE {self}")
-
-        if self.original_arguments:
-            for argument in self.original_arguments:
-                argument.update_objects(model_constraints)
-        if self.arguments:
-            for argument in self.arguments:
-                argument.update_objects(model_constraints)
+        # # TODO: are these needed given that the whole dict is instantiated?
+        # if self.original_arguments:
+        #     for argument in self.original_arguments:
+        #         argument.update_objects(model_constraints)
+        # if self.arguments:
+        #     for argument in self.arguments:
+        #         argument.update_objects(model_constraints)
 
 
     def update_proposition(self, model_structure): # happens in ModelStructure init
@@ -642,38 +626,24 @@ class Syntax:
         updating original_type in that sentence_obj. If the main operator is not
         primitive, derived_arguments are updated with derived_types."""
         operator_collection = self.operator_collection
-        if sentence.operator or sentence.sentence_letter:
-            # TODO: if not used, delete condition or adapt to check for redundancy
-            print("CONFIRM THIS IS EVER USED")
-            return
+        # TODO: add appropriate check to avoid redundancy
         if sentence.original_arguments:
             for argument in sentence.original_arguments:
                 self.initialize_types(argument)
-        if sentence.arguments:
+        sentence.update_types(operator_collection)
+        if sentence.arguments: # NOTE: must happen after arguments are stored
             for argument in sentence.arguments:
                 self.initialize_types(argument)
-        # # TODO: fix to avoid derived_sentence
-        # if sentence.derived_sentence:
-        #     self.initialize_types(sentence.derived_sentence)
-        sentence.update_derived(operator_collection)
-        # sent_obj.update_derived()
 
     def sentence_dictionary(self, infix_inputs):
         """Takes a list of sentences composing the dictionaries of subsentences
         for each, resulting in a dictionary that includes all subsentences."""
-        operator_collection = self.operator_collection
         unsorted_dictionary = {}
         for infix_sent in infix_inputs:
             if infix_sent in unsorted_dictionary.keys():
                 continue
             sentence = Sentence(infix_sent)
             self.initialize_types(sentence)
-            # if sentence.original_arguments:
-            #     self.initialize_types(sentence.original_arguments)
-            # sentence.update_derived(operator_collection)
-            # sentence.update_derived()
-            # if sentence.derived_sentence:
-            #     self.initialize_types(sentence.derived_sentence)
             subsent_dict = self.sub_dictionary(sentence)
             unsorted_dictionary.update(subsent_dict)
         sorted_dictionary = self.sort_dictionary(unsorted_dictionary)
