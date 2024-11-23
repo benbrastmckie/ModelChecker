@@ -280,7 +280,7 @@ class NegationOperator(syntactic.Operator):
         by 1, and prints the argument."""
         sentence_obj.proposition.print_proposition(eval_world, indent_num)
         model_structure = sentence_obj.proposition.model_structure
-        argument = sentence_obj.arguments[0]
+        argument = sentence_obj.original_arguments[0]
         indent_num += 1
         model_structure.recursive_print(argument, eval_world, indent_num)
 
@@ -294,7 +294,7 @@ class AndOperator(syntactic.Operator):
 
     def true_at(self, leftarg, rightarg, eval_world):
         """doc string place holder
-        args are derived_objects I think, def prefix_type or derived_object
+        args are derived_objects I think, def original_type or derived_object
         (ie of second or third kind)
         """
         sem = self.semantics
@@ -326,7 +326,7 @@ class AndOperator(syntactic.Operator):
         by 1, and prints both of the arguments."""
         sentence_obj.proposition.print_proposition(eval_world, indent_num)
         model_structure = sentence_obj.proposition.model_structure
-        left_sent_obj, right_sent_obj = sentence_obj.arguments
+        left_sent_obj, right_sent_obj = sentence_obj.original_arguments
         indent_num += 1
         model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
         model_structure.recursive_print(right_sent_obj, eval_world, indent_num)
@@ -363,7 +363,7 @@ class OrOperator(syntactic.Operator):
         by 1, and prints both of the arguments."""
         sentence_obj.proposition.print_proposition(eval_world, indent_num)
         model_structure = sentence_obj.proposition.model_structure
-        left_sent_obj, right_sent_obj = sentence_obj.arguments
+        left_sent_obj, right_sent_obj = sentence_obj.original_arguments
         indent_num += 1
         model_structure.recursive_print(left_sent_obj, eval_world, indent_num)
         model_structure.recursive_print(right_sent_obj, eval_world, indent_num)

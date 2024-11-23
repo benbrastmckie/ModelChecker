@@ -31,6 +31,10 @@ from hidden_helpers import (
 
 import sys
 
+from syntactic import (
+    Operator
+)
+
 class SemanticDefaults:
     """Includes default attributes and methods to be inherited by a semantics
     including frame constraints, truth and falsity, and logical consequence."""
@@ -119,13 +123,14 @@ class PropositionDefaults:
 
         # Store values from sentence
         self.name = sentence.name
-        if sentence.derived_sentence: # accords with model constraints
-            self.arguments = sentence.derived_sentence.arguments
-        else:
-            self.arguments = sentence.arguments
-        self.derived_operator = sentence.derived_operator
-        self.derived_object = sentence.derived_object
-        self.prefix_sentence = sentence.prefix_sentence
+        # if sentence.derived_sentence: # accords with model constraints
+        #     self.arguments = sentence.derived_sentence.arguments
+        # else:
+        self.operator = sentence.operator
+        self.arguments = sentence.arguments
+        self.sentence_letter = sentence.sentence_letter
+        # self.derived_object = sentence.derived_object
+        # self.prefix_sentence = sentence.prefix_sentence
 
         # Store values from model_structure argument
         self.model_structure = model_structure
@@ -142,6 +147,27 @@ class PropositionDefaults:
 
         # Set defaults for verifiers and falsifiers
         self.verifiers, self.falsifiers = [], []
+
+    # # DISCUSS: this is something we ultimately want to move into
+    # # semantic.py since users will define there what a proposition is and so
+    # # should be able to configure the representation to match
+    # def __repr__(self):
+    #     N = self.model_structure.model_constraints.semantics.N
+    #     possible = self.model_structure.model_constraints.semantics.possible
+    #     z3_model = self.model_structure.z3_model
+    #     ver_states = {
+    #         bitvec_to_substates(bit, N)
+    #         for bit in self.verifiers
+    #         if z3_model.evaluate(possible(bit)) or self.print_impossible
+    #     }
+    #     fal_states = {
+    #         bitvec_to_substates(bit, N)
+    #         for bit in self.falsifiers
+    #         if z3_model.evaluate(possible(bit)) or self.print_impossible
+    #     }
+    #     ver_prints = pretty_set_print(ver_states)
+    #     fal_prints = pretty_set_print(fal_states)
+    #     return f"< {ver_prints}, {fal_prints} >"
 
     def __repr__(self):
         return self.name
@@ -196,32 +222,31 @@ class ModelConstraints:
         # use semantics to recursively update all derived_objects
         self.instantiate(self.all_sentences.values())
 
+        # TODO: fix sentence_letter attribute to correctly store Z3 expression
+
         # Use semantics to generate and store Z3 constraints
         self.frame_constraints = self.semantics.frame_constraints
         self.model_constraints = []
-        for sent_let in self.sentence_letters:
+        for sentence_letter in self.sentence_letters:
             self.model_constraints.extend(
                 self.proposition_class.proposition_constraints(
                     self,
-                    sent_let.derived_object[0],
+                    sentence_letter,
                 )
             )
-        # DEBUGGING
-        for prem in self.premises:
-            print(f"PREFIX OBJ {prem} is {prem.derived_object}")
         self.premise_constraints = [
             self.semantics.premise_behavior(
-                prem.derived_object,
+                premise,
                 self.semantics.main_world,
             )
-            for prem in self.premises
+            for premise in self.premises
         ]
         self.conclusion_constraints = [
             self.semantics.conclusion_behavior(
-                conc.derived_object,
+                conclusion,
                 self.semantics.main_world,
             )
-            for conc in self.conclusions
+            for conclusion in self.conclusions
         ]
         self.all_constraints = (
             self.frame_constraints
@@ -240,13 +265,18 @@ class ModelConstraints:
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
         for sent_obj in sentences:
-            if sent_obj.derived_object:
-                continue
-            if sent_obj.arguments:
-                self.instantiate(sent_obj.arguments)
-            if sent_obj.derived_sentence:
-                self.instantiate([sent_obj.derived_sentence])
+            # # TODO: add a better check/continue here
+            # if sent_obj.updated_objects:
+            #     continue
+            # # TODO: recursion seems not to be needed given that the whole 
+            # # dictionary is instantiated
+            # if sent_obj.original_arguments:
+            #     self.instantiate(sent_obj.original_arguments)
+            # if sent_obj.arguments:
+            #     self.instantiate(sent_obj.arguments)
             sent_obj.update_objects(self)
+        # for sent_obj in sentences:
+        #     print(f"AFTER: sentence_letter {sent_obj.sentence_letter} is type {type(sent_obj.sentence_letter)} for {sent_obj}")
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
@@ -359,27 +389,26 @@ class ModelStructure:
         prefix_sent to that instance, returning the input sentences."""
 
         for sent_obj in sentences:
-            if sent_obj.derived_object is None:
-                raise ValueError(f"{sent_obj} has 'None' for derived_object.")
-            # DISCUSS could this check cause problems?
+            # TODO: add appropriate check
+            # if sent_obj.derived_object is None:
+            #     raise ValueError(f"{sent_obj} has 'None' for derived_object.")
             if sent_obj.proposition:
                 continue
+            if sent_obj.original_arguments:
+                self.interpret(sent_obj.original_arguments)
             if sent_obj.arguments:
                 self.interpret(sent_obj.arguments)
-            if sent_obj.derived_sentence:
-                self.interpret(sent_obj.derived_sentence.arguments)
             sent_obj.update_proposition(self)
 
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
         in that world"""
-        N = self.model_constraints.semantics.N
         BLUE = "\033[34m"
         RESET = "\033[0m"
-        sentence_letters = self.sentence_letters
+        # sentence_letters = self.sentence_letters
         main_world = self.main_world
         print(
-            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, N)}{RESET}\n",
+            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N)}{RESET}\n",
             file=output,
         )
         # true_in_eval = set()
@@ -440,8 +469,8 @@ class ModelStructure:
         def binary_bitvector(bit):
             return (
                 bit.sexpr()
-                if N % 4 != 0
-                else int_to_binary(int(bit.sexpr()[2:], 16), N)
+                if self.N % 4 != 0
+                else int_to_binary(int(bit.sexpr()[2:], 16), self.N)
             )
         
         def format_state(bin_rep, state, color, label=""):
@@ -450,7 +479,7 @@ class ModelStructure:
             print(f"  {WHITE}{bin_rep} = {color}{state}{label_str}{RESET}", file=output)
         
         # Extract semantics and state information
-        N = self.model_constraints.semantics.N
+        # TODO: move to class attribute
         print("\nState Space:", file=output)
 
         # Define ANSI color codes
@@ -466,7 +495,7 @@ class ModelStructure:
 
         # Print state details
         for bit in self.all_bits:
-            state = bitvec_to_substates(bit, N)
+            state = bitvec_to_substates(bit, self.N)
             bin_rep = binary_bitvector(bit)
             if bit == 0:
                 format_state(bin_rep, state, COLORS["initial"])
@@ -493,13 +522,13 @@ class ModelStructure:
     #         return
     #
     #     # B: I think eventually all operators should have a print method
-    #     if not hasattr(sentence.derived_operator, 'print_operator'):
+    #     if not hasattr(sentence.operator, 'print_operator'):
     #         for sentence_arg in sentence.arguments:
     #             self.rec_print(sentence_arg, eval_world, indent + 1)
     #
     #     # B: I think eventually all operators should have a print method
-    #     if self.derived_operator and hasattr(self.derived_operator, 'print_operator'):
-    #         self.derived_operator.print_operator(self, eval_world, indent_num)
+    #     if self.operator and hasattr(self.operator, 'print_operator'):
+    #         self.operator.print_operator(self, eval_world, indent_num)
 
 
     # M: eventually, we need to add a condition on unilateral or bilateral semantics
@@ -513,10 +542,10 @@ class ModelStructure:
     def recursive_print(self, sentence, eval_world, indent_num):
         if indent_num == 2: # NOTE: otherwise second lines don't indent
             indent_num += 1
-        if sentence.prefix_operator is None:  # print sentence letter
+        if sentence.sentence_letter is not None:  # print sentence letter
             sentence.proposition.print_proposition(eval_world, indent_num)
             return
-        operator = sentence.prefix_operator
+        operator = sentence.original_operator
         operator.print_method(sentence, eval_world, indent_num)  # print complex sentence
 
     def print_input_sentences(self, output):
@@ -548,9 +577,8 @@ class ModelStructure:
     def print_all(self, output=sys.__stdout__):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
-        N = self.model_constraints.semantics.N
         if self.z3_model_status:
-            print(f"\nThere is a {N}-model of:\n", file=output)
+            print(f"\nThere is a {self.N}-model of:\n", file=output)
             self.model_constraints.print_enumerate(output)
             self.print_states(output)
             self.print_evaluation(output)
@@ -558,6 +586,6 @@ class ModelStructure:
             # TODO: make method for runtime and progress bar
             print(f"Run time: {self.z3_model_runtime} seconds\n", file=output)
             return
-        print(f"\nThere is no {N}-model of:\n")
+        print(f"\nThere is no {self.N}-model of:\n")
         self.model_constraints.print_enumerate(output)
         # print([self.constraint_dict[str(c)] for c in self.unsat_core])

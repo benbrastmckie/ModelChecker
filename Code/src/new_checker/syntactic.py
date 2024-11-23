@@ -11,7 +11,7 @@ which is passed to ModelConstraints:
     - **Syntax:** this class is responsible for generating a dictionary of sentence
     objects for all premises, conclusions, and their subsentences. By drawing
     on the input operator_collection, all sentences in the dictionary are
-    initialized to generate and store prefix_types for each.
+    initialized to generate and store original_types for each.
 """
 
 from hidden_helpers import (
@@ -31,9 +31,9 @@ class Sentence:
     """Given an infix_sentence as input, an instance of this class store the
     original infix_sentence which is used to name the class instance, as well
     as converting and storing that infix_sentence as a prefix_sentence. The
-    class instance is later updated in: (1) Syntax to store a prefix_type which
+    class instance is later updated in: (1) Syntax to store a original_type which
     depends on an operator_collection; (2) ModelConstraints to store a
-    derived_object and derived_operator which depend on the semantics; and (3)
+    derived_object and operator which depend on the semantics; and (3)
     ModelStructure to store a proposition for the sentence."""
 
     def __init__(self, infix_sentence):
@@ -41,24 +41,36 @@ class Sentence:
         # store input, prefix string, complexity, and sentences for arguments
         self.name = infix_sentence
         self.prefix_sentence, self.complexity = self.prefix(infix_sentence)
+
         if len(self.prefix_sentence) > 1: 
-            self.arguments = [
+            self.original_arguments = [ # sentece_objects
                 Sentence(self.infix(arg))
                 for arg in self.prefix_sentence[1:]
             ]
         else:
-            self.arguments = None
+            self.original_arguments = None
 
-        # set defaults to None for prefix values with defined operators if any
-        self.prefix_type = None # updated in Syntax with operator_collection
-        self.prefix_object = None # updated in ModelConstraints with semantics
-        self.prefix_operator = None # updated in ModelConstraints with semantics
+        # # set defaults to None for prefix values with defined operators if any
+        # # TODO: can the derived_type attribute be dropped?
+        # self.original_type = None # updated in Syntax with operator_collection
+        # # TODO: can the prefix_object attribute be dropped?
+        # self.prefix_object = None # updated in ModelConstraints with semantics
 
-        # set defaults to None for derived values without defined operators
-        self.derived_type = None # updated in Syntax from prefix_type
-        self.derived_sentence = None # updated in Syntax with update_derived
-        self.derived_object = None # updated in ModelConstraints with semantics
-        self.derived_operator = None # updated in ModelConstraints with semantics
+        # set defaults to None before updating in Syntax and ModelConstraints
+        self.original_operator = None # 
+        self.operator = None # 
+        self.arguments = None # sentece_objects
+        self.sentence_letter = None # 
+
+        # TODO: would be nice to remove this attribute if there is a better way
+        self.updated_objects = False
+
+        # # TODO: can the derived_type attribute be dropped?
+        # self.derived_type = None # updated in Syntax from original_type
+        # # TODO: can the derived_sentence attribute be dropped?
+        # self.derived_sentence = None # updated in Syntax with update_types
+        # # TODO: can the derived_object attribute be dropped?
+        # self.derived_object = None # updated in ModelConstraints with semantics
 
         # set proposition to None to be updates later
         self.proposition = None # updated in ModelStructure with Z3 model
@@ -193,99 +205,108 @@ class Sentence:
         return f"({self.infix(left_expr)} {op_str} {self.infix(right_expr)})"
         # return str(prefix_sent)
 
-    def operator_is_defined(self, prefix_type):
+    def operator_is_defined(self, original_type):
         """
         checks if there are defined operators in a prefix type.
         Returns True or False
         """
-        if hasattr(prefix_type[0], "primitive"):
-            operator = prefix_type[0]
+        if hasattr(original_type[0], "primitive"):
+            operator = original_type[0]
             if operator.primitive is False:
                 return True
         return False
 
-    def derive_type(self, prefix_type):
-        """This function translates a prefix_type possibly with defined
-        operators to a derived_type without defined operators."""
-
-        # Checks for primitive operators including atomic cases
-        if not self.operator_is_defined(prefix_type):
-            if len(prefix_type) > 1:
-                operator, args = prefix_type[0], prefix_type[1:]
-                derived_args = [self.derive_type(arg) for arg in args]
-                return [operator] + derived_args
-            return prefix_type
-
-        operator, args = prefix_type[0], prefix_type[1:]
-        derived_args = [self.derive_type(arg) for arg in args]
-
-        if not hasattr(operator, "primitive"):
-            raise TypeError(f"Operator {operator} is not a subclass of Operator.")
-
-        derivation = operator('a').derived_definition(*derived_args)
-        return derivation
-
-    def update_prefix_type(self, operator_collection):
+    def update_types(self, operator_collection):
         """Draws on the operator_collection to apply the operators that occur
-        in the prefix_sentence in order to generate a prefix_type which has
+        in the prefix_sentence in order to generate a original_type which has
         operator classes in place of operator strings and AtomSorts in place
         of sentence letters. If the operator is not primitive, then ."""
-        if self.prefix_sentence is None:
-            raise ValueError(f"prefix_sentence for {self} is None in update_prefix_type.")
-        self.prefix_type = operator_collection.apply_operator(self.prefix_sentence)
-    
-    def update_derived(self):
-        if self.prefix_type is None:
-            raise ValueError(f"prefix_type for {self} is None in update_derived_type.")
-        self.derived_type = self.derive_type(self.prefix_type)
-        if self.operator_is_defined(self.prefix_type):
-            derived_infix = self.infix(self.derived_type)
-            self.derived_sentence = Sentence(derived_infix)
-    
-    def activate_prefix_with_semantics(self, prefix_type, model_constraints):
-        """Given a prefix_type with operator classes and AtomSorts, this method
-        replaces each operator class with the instance of that operator stored
-        in model_constraints, and so returns a derived_object."""
-        if prefix_type is None:
-            raise ValueError(f"prefix_type for {self} is None in activate_prefix_with_semantics.")
-        new_prefix_form = []
-        for elem in prefix_type:
-            if isinstance(elem, type):
-                new_prefix_form.append(model_constraints.operators[elem.name])
-            elif isinstance(elem, list):
-                new_prefix_form.append(self.activate_prefix_with_semantics(elem, model_constraints))
-            else:
-                new_prefix_form.append(elem)
-        return new_prefix_form
 
+        def derive_type(original_type):
+            """This function translates a original_type possibly with defined
+            operators to a derived_type without defined operators."""
+            if not self.operator_is_defined(original_type):
+                if len(original_type) > 1:
+                    operator, args = original_type[0], original_type[1:]
+                    # TODO: I don't think full recursion is needed here
+                    # derived_args = [derive_type(arg) for arg in args]
+                    # return [operator] + derived_args
+                    return [operator] + args
+                return original_type
+            operator, args = original_type[0], original_type[1:]
+            # derived_args = [derive_type(arg) for arg in args]
+            if not hasattr(operator, "primitive"):
+                raise TypeError(f"Operator {operator} is not a subclass of Operator.")
+            # TODO: can the dummy variable be avoided?
+            derivation = operator('a').derived_definition(*args)
+            # derivation = operator('a').derived_definition(*derived_args)
+            return derivation
+
+        def store_types(derived_type):
+            if self.name.isalnum(): # sentence letter
+                return None, None, derived_type[0]
+            # TODO: return a list of the extremals and change def in derived_op
+            if self.name in {'\\top', '\\bot'}: # extremal operator
+                return derived_type[0], None, None
+            if len(derived_type) > 1: # complex sentence
+                operator_type, argument_types = derived_type[0], derived_type[1:]
+                arguments = [Sentence(self.infix(arg_type)) for arg_type in argument_types]
+                return operator_type, arguments, None
+            raise ValueError(f"the derived_type for {self} is invalid in store_types().")
+
+        original_type = operator_collection.apply_operator(self.prefix_sentence)
+        if self.original_arguments:
+            self.original_operator = original_type[0]
+
+        derived_type = derive_type(original_type)
+        self.operator, self.arguments, self.sentence_letter = store_types(derived_type)
+        # print(f"STORE TYPES: {self} has sentence_letter {self.sentence_letter} of TYPE {type(self.sentence_letter)}")
+
+        # print("ARGUMENTS STORED:", self.arguments)
+        # print("SENT LET STORED:", self.sentence_letter)
+        # # TODO: remove derived_sentence attribute
+        # if self.operator_is_defined(self.original_type):
+        #     derived_infix = self.infix(self.derived_type)
+        #     self.derived_sentence = Sentence(derived_infix)
+    
+    # def update_derived(self):
+    #     if self.original_type is None:
+    #         raise ValueError(f"original_type for {self} is None in update_derived_type.")
+    #     self.derived_type = self.derive_type(self.original_type)
+    #     if self.operator_is_defined(self.original_type):
+    #         derived_infix = self.infix(self.derived_type)
+    #         self.derived_sentence = Sentence(derived_infix)
+    
     def update_objects(self, model_constraints): # happens in ModelConstraints init
         """Given an instance of ModelConstraints, this method updates the values
-        of self.derived_object and self.derived_operator with the semantics that
+        of self.derived_object and self.operator with the semantics that
         model_constraints includes."""
 
-        def build_object_from_type(some_type):
-            if some_type is None:
-                raise ValueError(f"{self} has None for some_type.")
-            return self.activate_prefix_with_semantics(
-                some_type,
-                model_constraints
-            )
+        def activate_operator(some_type):
+            if some_type is None: # operator is None if sentence_letter
+                return None
+            # TODO: fix check
+            # if isinstance(some_type, type):
+            #     return some_type
+            return model_constraints.operators[some_type.name]
 
-        def store_operator_object(some_object):
-            # TODO: check that self.name is correct in the extremal case
-            if len(some_object) > 1 or self.name in {'\\top', '\\bot'}:
-                return some_object[0]
-            return None
+        self.original_operator = activate_operator(self.original_operator)
+        self.operator = activate_operator(self.operator)
 
-        self.prefix_object = build_object_from_type(self.prefix_type)
-        self.prefix_operator = store_operator_object(self.prefix_object)
-        self.derived_object = build_object_from_type(self.derived_type)
-        self.derived_operator = store_operator_object(self.derived_object)
+        # TODO: why are these needed if all objects in the dict get updated?
+        if self.original_arguments:
+            for argument in self.original_arguments:
+                argument.update_objects(model_constraints)
+        if self.arguments:
+            for argument in self.arguments:
+                argument.update_objects(model_constraints)
+
 
     def update_proposition(self, model_structure): # happens in ModelStructure init
         """Builds a proposition object for the sentence given the model_structure."""
-        if self.derived_object is None:
-            raise ValueError(f"derived_object for {self} is None when calling update_proposition.")
+        # TODO: add check
+        # if self.derived_object is None:
+        #     raise ValueError(f"derived_object for {self} is None when calling update_proposition.")
         self.proposition = model_structure.proposition_class(self, model_structure)
 
 
@@ -325,8 +346,8 @@ class Operator:
         proposition.print_proposition(eval_world, indent_num)
         indent_num += 1
 
-        # print(f"ARGUMENTS: {sentence_obj.arguments}")
-        for arg in sentence_obj.arguments:
+        # print(f"ARGUMENTS: {sentence_obj.original_arguments}")
+        for arg in sentence_obj.original_arguments:
             model_structure.recursive_print(arg, eval_world, indent_num)
 
     def print_over_worlds(self, sentence_obj, eval_world, other_worlds, indent_num):
@@ -336,7 +357,7 @@ class Operator:
         # Move to class or config for flexibility
         CYAN, RESET = '\033[36m', '\033[0m'
 
-        arguments = sentence_obj.arguments
+        arguments = sentence_obj.original_arguments
         proposition = sentence_obj.proposition
         model_structure = proposition.model_structure
         N = proposition.N
@@ -489,6 +510,7 @@ class OperatorCollection:
     def __iter__(self):
         yield from self.operator_classes_dict
 
+    # TODO: pytest doesn't like this for some reason
     def __getitem__(self, value):
         return self.operator_classes_dict[value]
     
@@ -517,6 +539,7 @@ class OperatorCollection:
             raise ValueError(f"The atom {atom} is invalid in apply_operator.")
         op, arguments = prefix_sentence[0], prefix_sentence[1:]
         activated = [self.apply_operator(arg) for arg in arguments]
+        # TODO: this is causing trouble for pytest, by why?
         if isinstance(op, str):
             if op not in self.operator_classes_dict:
                 # DEBUG
@@ -526,8 +549,6 @@ class OperatorCollection:
         else:
             raise TypeError(f"Expected operator name as a string, got {type(op).__name__}.")
         return activated
-        # B: this was from before... wasn't sure why it was needed
-        # return self.translate_prefix_types(activated)
 
 
 class Syntax:
@@ -535,7 +556,7 @@ class Syntax:
     arguments, generating and storing instances of the Sentence class.
     Draws on Sentence instances for the premises and conclusions in order to
     store a dictionary which includes all subsentences for each before drawing
-    on the operator_collection in order to initialize the prefix_types in each
+    on the operator_collection in order to initialize the original_types in each
     sentence object in the dictionary. Lists are then stored for the premises,
     conclusions, and all sentence_letters that occur in theses sentences."""
 
@@ -578,49 +599,44 @@ class Syntax:
         of it and all subsentences by looking to its arguments (if any)."""
         sub_dictionary = {}
         sub_dictionary[sentence.name] = sentence
+        arguments = []
+        if sentence.original_arguments:
+            arguments.extend(sentence.original_arguments)
         if sentence.arguments:
-            for sent_obj in sentence.arguments:
-                if sent_obj in sub_dictionary.values():
+            arguments.extend(sentence.arguments)
+        if arguments:
+            for arg in arguments:
+                if arg in sub_dictionary.values():
                     continue
-                arg_dict = self.sub_dictionary(sent_obj)
+                arg_dict = self.sub_dictionary(arg)
                 sub_dictionary.update(arg_dict)
-        if sentence.derived_sentence:
-            derived_dict = self.sub_dictionary(sentence.derived_sentence)
-            sub_dictionary.update(derived_dict)
         return sub_dictionary
+
+    def initialize_types(self, sentence):
+        """Draws on the operator_collection in order to initialize all sentences
+        in the input by replacing operator strings with operator classes and
+        updating original_type in that sentence_obj. If the main operator is not
+        primitive, derived_arguments are updated with derived_types."""
+        operator_collection = self.operator_collection
+        # TODO: add appropriate check to avoid redundancy
+        if sentence.original_arguments:
+            for argument in sentence.original_arguments:
+                self.initialize_types(argument)
+        sentence.update_types(operator_collection)
+        if sentence.arguments: # NOTE: must happen after arguments are stored
+            for argument in sentence.arguments:
+                self.initialize_types(argument)
 
     def sentence_dictionary(self, infix_inputs):
         """Takes a list of sentences composing the dictionaries of subsentences
         for each, resulting in a dictionary that includes all subsentences."""
-        operator_collection = self.operator_collection
         unsorted_dictionary = {}
         for infix_sent in infix_inputs:
             if infix_sent in unsorted_dictionary.keys():
                 continue
             sentence = Sentence(infix_sent)
-            if sentence.arguments:
-                self.initialize_types(sentence.arguments)
-            sentence.update_prefix_type(operator_collection)
-            sentence.update_derived()
-            if sentence.derived_sentence:
-                self.initialize_types([sentence.derived_sentence])
+            self.initialize_types(sentence)
             subsent_dict = self.sub_dictionary(sentence)
             unsorted_dictionary.update(subsent_dict)
         sorted_dictionary = self.sort_dictionary(unsorted_dictionary)
         return sorted_dictionary
-
-    def initialize_types(self, sentence_objs):
-        """Draws on the operator_collection in order to initialize all sentences
-        in the input by replacing operator strings with operator classes and
-        updating prefix_type in that sentence_obj. If the main operator is not
-        primitive, derived_arguments are updated with derived_types."""
-        operator_collection = self.operator_collection
-        for sent_obj in sentence_objs:
-            if sent_obj.prefix_type:
-                continue
-            if sent_obj.arguments:
-                self.initialize_types(sent_obj.arguments)
-            sent_obj.update_prefix_type(operator_collection)
-            sent_obj.update_derived()
-            if sent_obj.derived_sentence:
-                self.initialize_types([sent_obj.derived_sentence])
