@@ -301,6 +301,8 @@ class Sentence:
         self.operator = activate_operator(self.operator)
 
         # TODO: why are these needed if all objects in the dict get updated?
+        # NOTE: that the old strategy was to have recursion throughout and
+        # checks to save time
         if self.original_arguments:
             for argument in self.original_arguments:
                 argument.update_objects(model_constraints)
