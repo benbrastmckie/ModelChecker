@@ -62,9 +62,8 @@ class Sentence:
         self.arguments = None # sentece_objects
         self.sentence_letter = None # 
 
-        # TODO: would be nice to remove this attribute if there is a better way
-        self.updated_objects = False
-
+        # # TODO: would be nice to remove this attribute if there is a better way
+        # self.updated_objects = False
         # # TODO: can the derived_type attribute be dropped?
         # self.derived_type = None # updated in Syntax from original_type
         # # TODO: can the derived_sentence attribute be dropped?
