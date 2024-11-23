@@ -291,7 +291,7 @@ class Sentence:
         model_constraints includes."""
 
         def activate_operator(some_type):
-            if some_type is None:
+            if some_type is None: # operator is None if sentence_letter
                 return None
             # TODO: fix check
             # if isinstance(some_type, type):
@@ -301,15 +301,13 @@ class Sentence:
         self.original_operator = activate_operator(self.original_operator)
         self.operator = activate_operator(self.operator)
 
-        # print(f"SENT LET {self.sentence_letter} TYPE {type(self.sentence_letter)} FOR SENTENCE {self}")
-
-        # # TODO: are these needed given that the whole dict is instantiated?
-        # if self.original_arguments:
-        #     for argument in self.original_arguments:
-        #         argument.update_objects(model_constraints)
-        # if self.arguments:
-        #     for argument in self.arguments:
-        #         argument.update_objects(model_constraints)
+        # TODO: why are these needed if all objects in the dict get updated?
+        if self.original_arguments:
+            for argument in self.original_arguments:
+                argument.update_objects(model_constraints)
+        if self.arguments:
+            for argument in self.arguments:
+                argument.update_objects(model_constraints)
 
 
     def update_proposition(self, model_structure): # happens in ModelStructure init

@@ -50,8 +50,6 @@ class AndOperator(syntactic.Operator):
     arity = 2
 
     def true_at(self, leftarg, rightarg, eval_world):
-        print(f"LEFT ARG: {leftarg}")
-        print(f"Right ARG: {rightarg}")
         """doc string place holder
         args are derived_objects (ie things of the third kind) I think, def 2nd or 3rd kind
         """
@@ -67,8 +65,8 @@ class AndOperator(syntactic.Operator):
         return z3.Or(sem.false_at(leftarg, eval_world), sem.false_at(rightarg, eval_world))
 
     def extended_verify(self, state, leftarg, rightarg, eval_world):
-        x = z3.BitVec("ex_ver_x", self.semantics.N)
-        y = z3.BitVec("ex_ver_y", self.semantics.N)
+        x = z3.BitVec("ex_and_ver_x", self.semantics.N)
+        y = z3.BitVec("ex_and_ver_y", self.semantics.N)
         return Exists(
             [x, y],
             z3.And(
@@ -79,23 +77,33 @@ class AndOperator(syntactic.Operator):
         )
     
     def extended_falsify(self, state, leftarg, rightarg, eval_world):
+        x = z3.BitVec("ex_and_fal_x", self.semantics.N)
+        y = z3.BitVec("ex_and_fal_y", self.semantics.N)
         return z3.Or(
             self.semantics.extended_falsify(state, leftarg, eval_world),
             self.semantics.extended_falsify(state, rightarg, eval_world),
-            self.semantics.extended_falsify(
-                state,
-                [OrOperator(self.semantics), leftarg, rightarg],
-                eval_world
-            ),
+            Exists(
+                [x, y],
+                z3.And(
+                    state == self.semantics.fusion(x, y),
+                    self.semantics.extended_falsify(x, leftarg, eval_world),
+                    self.semantics.extended_falsify(y, rightarg, eval_world),
+                ),
+            )
+            # TODO: why didn't this stop working?
+            # self.semantics.extended_falsify(
+            #     state,
+            #     [OrOperator(self.semantics), leftarg, rightarg],
+            #     eval_world
+            # ),
         )
 
-    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
+    def find_verifiers_and_falsifiers(self, leftarg, rightarg, eval_world):
         """Takes sentences objects as arguments, finds their verifiers and
         falsifiers, and returns the verifiers and falsifiers for the operator"""
         sem = self.semantics
-        # print(f"{left_sent_obj} has type {type(left_sent_obj)}")
-        Y_V, Y_F = left_sent_obj.proposition.find_proposition()
-        Z_V, Z_F = right_sent_obj.proposition.find_proposition()
+        Y_V, Y_F = leftarg.proposition.find_proposition()
+        Z_V, Z_F = rightarg.proposition.find_proposition()
         return sem.product(Y_V, Z_V), sem.coproduct(Y_F, Z_F)
     
     def print_method(self, sentence_obj, eval_world, indent_num):
@@ -123,13 +131,25 @@ class OrOperator(syntactic.Operator):
 
     def extended_verify(self, state, leftarg, rightarg, eval_world):
         # print(f"extended_verify input types: {type(leftarg), type(eval_world), type(eval_world)}")
+        x = z3.BitVec("ex_or_ver_x", self.semantics.N)
+        y = z3.BitVec("ex_or_ver_y", self.semantics.N)
         return z3.Or(
             self.semantics.extended_verify(state, leftarg, eval_world),
             self.semantics.extended_verify(state, rightarg, eval_world),
-            self.semantics.extended_verify(
-                state,
-                [AndOperator(self.semantics), leftarg, rightarg], 
-                eval_world),
+            Exists(
+                [x, y],
+                z3.And(
+                    self.semantics.fusion(x, y) == state,
+                    self.semantics.extended_verify(x, leftarg, eval_world),
+                    self.semantics.extended_verify(y, rightarg, eval_world),
+                )
+            )
+            # TODO: why didn't this stop working?
+            # self.semantics.extended_verify(
+            #     state,
+            #     [AndOperator(self.semantics), leftarg, rightarg], 
+            #     eval_world
+            # )
         )
 
     def extended_falsify(self, state, leftarg, rightarg, eval_world):
@@ -629,10 +649,9 @@ class CounterfactualOperator(syntactic.Operator):
 
     def true_at(self, leftarg, rightarg, eval_world):
         sem = self.semantics
-        number = sem.N
-        print("NUMBER", number)
-        x = z3.BitVec("t_ncf_x", sem.N)
-        u = z3.BitVec("t_ncf_u", sem.N)
+        N = sem.N
+        x = z3.BitVec("t_ncf_x", N)
+        u = z3.BitVec("t_ncf_u", N)
         return ForAll(
             [x, u],
             z3.Implies(
@@ -646,8 +665,9 @@ class CounterfactualOperator(syntactic.Operator):
     
     def false_at(self, leftarg, rightarg, eval_world):
         sem = self.semantics
-        x = z3.BitVec("f_ncf_x", sem.N)
-        u = z3.BitVec("f_ncf_u", sem.N)
+        N = sem.N
+        x = z3.BitVec("f_ncf_x", N)
+        u = z3.BitVec("f_ncf_u", N)
         return Exists(
             [x, u],
             z3.And(
@@ -664,15 +684,14 @@ class CounterfactualOperator(syntactic.Operator):
         # TODO: add constraint which requires state to be the null_bit
         return self.false_at(leftarg, rightarg, eval_world)
 
-    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
-        leftarg, rightarg = left_sent_obj.derived_object, right_sent_obj.derived_object
-        eval_at_model = left_sent_obj.proposition.model_structure.z3_model.evaluate
-        if bool(eval_at_model(self.true_at(leftarg, rightarg, eval_world))):
+    def find_verifiers_and_falsifiers(self, leftarg, rightarg, eval_world):
+        evaluate = leftarg.proposition.model_structure.z3_model.evaluate
+        if bool(evaluate(self.true_at(leftarg, rightarg, eval_world))):
             return {self.semantics.null_bit}, set()
-        if bool(eval_at_model(self.false_at(leftarg, rightarg, eval_world))):
+        if bool(evaluate(self.false_at(leftarg, rightarg, eval_world))):
             return set(), {self.semantics.null_bit}
         raise ValueError(
-            f"{left_sent_obj} {self.name} {right_sent_obj} "
+            f"{leftarg.name} {self.name} {rightarg.name} "
             f"is neither true nor false in the world {eval_world}."
         )
     
@@ -814,15 +833,14 @@ class NecessityOperator(syntactic.Operator):
         # TODO: add constraint which requires state to be the null_bit
         return self.false_at(argument, eval_world)
 
-    def find_verifiers_and_falsifiers(self, sentence_object, eval_world):
-        argument = sentence_object.derived_object
-        eval_at_model = sentence_object.proposition.model_structure.z3_model.evaluate
-        if bool(eval_at_model(self.true_at(argument, eval_world))):
+    def find_verifiers_and_falsifiers(self, argument, eval_world):
+        evaluate = argument.proposition.model_structure.z3_model.evaluate
+        if bool(evaluate(self.true_at(argument, eval_world))):
             return {self.semantics.null_bit}, set()
-        if bool(eval_at_model(self.false_at(argument, eval_world))):
+        if bool(evaluate(self.false_at(argument, eval_world))):
             return set(), {self.semantics.null_bit}
         raise ValueError(
-            f"{self.name} {sentence_object} "
+            f"{self.name} {argument} "
             f"is neither true nor false in the world {eval_world}."
         )
     

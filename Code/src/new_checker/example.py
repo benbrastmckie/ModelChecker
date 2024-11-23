@@ -138,12 +138,12 @@ conclusions = ["C"]
 ### WORKING COUNTERMODELS ###
 #############################
 
-# CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-N = 4
-premises = ['(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 4
+# premises = ['(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # WEAKENED MONOTONICITY
 # N = 3
@@ -181,6 +181,7 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
+# # TODO: THOUGH Z3 IS FAST, PYTHON IS SLOW ON THIS ONE
 # # CF_CM12: SOBEL SEQUENCE
 # N = 3
 # premises = [
@@ -217,6 +218,7 @@ disjoint_bool = False
 # conclusions = []
 # contingent_bool = True
 # disjoint_bool = False
+
 # # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
 # N = 4
 # premises = ['\\neg A','(A \\boxright C)']

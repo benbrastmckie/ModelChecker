@@ -319,30 +319,25 @@ class Proposition(PropositionDefaults):
         used in find_verifiers_and_falsifiers"""
         all_bits = self.model_structure.all_bits
         model = self.model_structure.z3_model
-        sem = self.semantics
-        if self.arguments is None: # self.arguments is a list of Sentence objects
-            atom = self.prefix_sentence[0]
-            if atom in {'\\top', '\\bot'}:
-                operator = self.operator
-                return operator.find_verifiers_and_falsifiers()
-            if atom.isalnum():
-                sentence_letter = self.derived_object[0]
-                V = {
-                    bit for bit in all_bits
-                    if model.evaluate(sem.verify(bit, sentence_letter))
-                }
-                F = {
-                    bit for bit in all_bits
-                    if model.evaluate(sem.falsify(bit, sentence_letter))
-                }
-                return V, F
-            raise ValueError(
-                f"Their is no proposition for {atom}."
-            )
+        semantics = self.semantics
+        eval_world = self.eval_world
         operator = self.operator
-        print("OP CHECK", operator)
-        # TODO: is there a way to remove the dummy or is this best?
-        return operator('a').find_verifiers_and_falsifiers(*self.arguments, self.eval_world)
+        arguments = self.arguments
+        sentence_letter = self.sentence_letter
+        if sentence_letter is not None:
+            V = {
+                bit for bit in all_bits
+                if model.evaluate(semantics.verify(bit, sentence_letter))
+            }
+            F = {
+                bit for bit in all_bits
+                if model.evaluate(semantics.falsify(bit, sentence_letter))
+            }
+            return V, F
+        if operator is not None:
+            # print(f"ARGS {arguments} for OP {operator} of TYPE {type(operator)}")
+            return operator.find_verifiers_and_falsifiers(*arguments, eval_world)
+        raise ValueError(f"Their is no proposition for {self}.")
 
     def truth_value_at(self, world):
         """Checks if there is a verifier or falsifier in world and not both."""
