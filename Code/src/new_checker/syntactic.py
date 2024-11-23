@@ -518,6 +518,7 @@ class OperatorCollection:
     def __iter__(self):
         yield from self.operator_classes_dict
 
+    # TODO: pytest doesn't like this for some reason
     def __getitem__(self, value):
         return self.operator_classes_dict[value]
     
@@ -546,6 +547,7 @@ class OperatorCollection:
             raise ValueError(f"The atom {atom} is invalid in apply_operator.")
         op, arguments = prefix_sentence[0], prefix_sentence[1:]
         activated = [self.apply_operator(arg) for arg in arguments]
+        # TODO: this is causing trouble for pytest, by why?
         if isinstance(op, str):
             if op not in self.operator_classes_dict:
                 raise KeyError(f"Operator '{op}' not found in operator_classes_dict.")
@@ -553,8 +555,6 @@ class OperatorCollection:
         else:
             raise TypeError(f"Expected operator name as a string, got {type(op).__name__}.")
         return activated
-        # B: this was from before... wasn't sure why it was needed
-        # return self.translate_original_types(activated)
 
 
 class Syntax:
