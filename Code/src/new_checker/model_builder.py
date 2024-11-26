@@ -222,11 +222,10 @@ class ModelConstraints:
         # use semantics to recursively update all derived_objects
         self.instantiate(self.all_sentences.values())
 
-        # TODO: fix sentence_letter attribute to correctly store Z3 expression
-
         # Use semantics to generate and store Z3 constraints
         self.frame_constraints = self.semantics.frame_constraints
-        self.model_constraints = []
+        self.model_constraints = [] # TODO: why can't this be defined by
+        # comprehension as in the cases below?
         for sentence_letter in self.sentence_letters:
             self.model_constraints.extend(
                 self.proposition_class.proposition_constraints(
