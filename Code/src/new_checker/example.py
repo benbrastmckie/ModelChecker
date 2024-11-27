@@ -138,12 +138,12 @@ conclusions = ["\\neg B"]
 # contingent_bool = True
 # disjoint_bool = False
 
-premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
-conclusions = ['(A \\boxright (B \\boxright C))']
-N = 3
-contingent = True
-non_null = True
-disjoint = False
+# premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
+# conclusions = ['(A \\boxright (B \\boxright C))']
+# N = 3
+# contingent = True
+# non_null = True
+# disjoint = False
 
 # N = 3
 # premises = ["(A \\leftrightarrow B)", "\\possible A"]
@@ -172,12 +172,12 @@ disjoint = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-N = 3
-premises = ['(A \\circleright C)']
-conclusions = ['((A \\wedge B) \\circleright C)']
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 3
+# premises = ['(A \\circleright C)']
+# conclusions = ['((A \\wedge B) \\circleright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
 # N = 4

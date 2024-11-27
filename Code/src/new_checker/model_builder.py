@@ -243,6 +243,8 @@ class ModelConstraints:
             )
             for conc in self.conclusions
         ]
+        # assert False, print([c.prefix_object for c in self.conclusions])
+        # assert False, self.conclusion_constraints
         self.all_constraints = (
             self.frame_constraints
             + self.model_constraints
@@ -321,6 +323,7 @@ class ModelStructure:
         )
         self.timeout = timeout
         self.z3_model = z3_model if z3_model_status else None
+        print(z3_model)
         self.unsat_core = z3_model if not z3_model_status else None
         self.z3_model_status = z3_model_status
         self.z3_model_runtime = z3_model_runtime
@@ -335,9 +338,7 @@ class ModelStructure:
             if bool(self.z3_model.evaluate(self.semantics.possible(bit)))
             # LINTER: cannot access attribute "evaluate" for class "AstVector"
         ]
-        self.world_bits = [
-            bit
-            for bit in self.poss_bits
+        self.world_bits = [bit for bit in self.poss_bits 
             if bool(self.z3_model.evaluate(self.semantics.is_world(bit)))
             # LINTER: cannot access attribute "evaluate" for class "AstVector"
         ]
