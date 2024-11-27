@@ -13,7 +13,7 @@ from operators import (
     IdentityOperator, GroundOperator, EssenceOperator, # constitutive
     DefEssenceOperator, DefGroundOperator, # constitutive defined
     NecessityOperator, # modal
-    DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
+    DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, DefNecessityOperator2, # modal defined
     CounterfactualOperator, MightCounterfactualOperator, # counterfactual
 )
 
@@ -34,7 +34,7 @@ operators = syntactic.OperatorCollection(
     IdentityOperator, GroundOperator, EssenceOperator, # constitutive
     DefEssenceOperator, DefGroundOperator, # constitutive defined
     NecessityOperator, # modal
-    DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
+    DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, DefNecessityOperator2, # modal defined
     CounterfactualOperator, MightCounterfactualOperator, # counterfactual
 )
 
@@ -59,7 +59,7 @@ N = 3
 # premises = ["(A \\leftrightarrow B)", "\\possible A"]
 # premises = ["\\possible B"]
 # premises = ["\\Box A", "(A \\leftrightarrow B)"]
-# premises = ["\\Box \\Box A"]
+premises = ["\\necessary2 A"]
 # premises = ["\\necessary \\neg \\neg A", "\\neg \\neg \\neg \\necessary B", "B"]
 # premises = ["(\\neg \\top \\boxright B)"]
 # premises = ["(\\neg \\top \\boxright B)"]
@@ -165,13 +165,13 @@ conclusions = ["C"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# CF_CM7: COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
-# NOTE: with Z3 quantifiers ran for 125 seconds on the MIT server; now .181 seconds locally
-N = 4
-premises = ['\\neg B','(A \\boxright B)']
-conclusions = ['(\\neg B \\boxright \\neg A)']
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM7: COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
+# # NOTE: with Z3 quantifiers ran for 125 seconds on the MIT server; now .181 seconds locally
+# N = 4
+# premises = ['\\neg B','(A \\boxright B)']
+# conclusions = ['(\\neg B \\boxright \\neg A)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM8: COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
 # N = 4

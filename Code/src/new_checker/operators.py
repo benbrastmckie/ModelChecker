@@ -938,6 +938,23 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
         self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
 
 
+class DefNecessityOperator2(syntactic.DefinedOperator):
+    """Defined to check for definitional loops."""
+
+    name = "\\necessary2"
+    arity = 1
+
+    def derived_definition(self, rightarg):
+        # NOTE: TopOperator is not a list like the others, so [TopOperator]
+        return [NegationOperator, [NecessityOperator, [NegationOperator, arg]]]
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Print counterfactual and the antecedent in the eval_world. Then
+        print the consequent in each alternative to the evaluation world.
+        """
+        all_worlds = sentence_obj.proposition.model_structure.world_bits
+        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
+
 
 
 class DefPossibilityOperator2(syntactic.DefinedOperator):

@@ -237,7 +237,7 @@ class Operator:
             for alt_world in other_worlds:
                 model_structure.recursive_print(right_argument, alt_world, indent_num)
     
-    
+# TODO: check definition loops and etc below
 class DefinedOperator(Operator):
     """Represents an operator defined in terms of other operators."""
 
