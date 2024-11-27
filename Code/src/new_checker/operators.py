@@ -281,7 +281,7 @@ class BotOperator(syntactic.Operator):
     def extended_falsify(self, state, eval_world):
         return state == self.semantics.null_bit
 
-    def find_verifiers_and_falsifiers(self):
+    def find_verifiers_and_falsifiers(self, eval_world):
         return set(), {self.semantics.null_bit}
 
     def print_method(self, sentence_obj, eval_world, indent_num):

@@ -108,7 +108,7 @@ class Sentence:
             return f"({self.infix(left_expr)} {op_str} {self.infix(right_expr)})"
         raise TypeError(f"The prefix {prefix} has a type error in infix().")
 
-    def update_types(self, operator_collection):
+    def update_types(self, operator_collection): # used in Syntax
         """Draws on the operator_collection to apply the operators that occur
         in the prefix_sentence in order to generate a original_type which has
         operator classes in place of operator strings and AtomSorts in place
@@ -146,7 +146,7 @@ class Sentence:
         derived_type = derive_type(original_type)
         self.operator, self.arguments, self.sentence_letter = store_types(derived_type)
     
-    def update_objects(self, model_constraints): # happens in ModelConstraints init
+    def update_objects(self, model_constraints): # used in ModelConstraints init
         """Given an instance of ModelConstraints, this method updates the values
         of self.derived_object and self.operator with the semantics that
         model_constraints includes."""
@@ -160,20 +160,8 @@ class Sentence:
         self.original_operator = activate_operator(self.original_operator)
         self.operator = activate_operator(self.operator)
 
-        # TODO: confirm this is not needed
-        if self.original_arguments:
-            for argument in self.original_arguments:
-                argument.update_objects(model_constraints)
-        if self.arguments:
-            for argument in self.arguments:
-                argument.update_objects(model_constraints)
-
-
-    def update_proposition(self, model_structure): # happens in ModelStructure init
+    def update_proposition(self, model_structure): # used in ModelStructure init
         """Builds a proposition object for the sentence given the model_structure."""
-        # TODO: add check
-        # if self.derived_object is None:
-        #     raise ValueError(f"derived_object for {self} is None when calling update_proposition.")
         self.proposition = model_structure.proposition_class(self, model_structure)
 
 
