@@ -92,19 +92,11 @@ conclusions = ["C"]
 ###################################
 
 # # AttributeError: 'ConditionalOperator' has not 'true_at'
-# N = 3
-# premises = ["(A \\leftrightarrow B)", "\\possible A"]
-# conclusions = ["C"]
-# contingent_bool = False
-# disjoint_bool = False
-
-# # AttributeError: 'ConditionalOperator' has not 'true_at'
 # premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
 # conclusions = ['(A \\boxright (B \\boxright C))']
 # N = 3
-# contingent = True
-# non_null = True
-# disjoint = False
+# contingent_bool = True
+# disjoint_bool = False
 
 
 
@@ -120,13 +112,6 @@ conclusions = ["C"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# # GETTING CONCLUSION FALSE WHEN ITS ANTECEDENT IS FALSE
-# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 3
-# premises = ['(A \\circleright C)']
-# conclusions = ['((A \\wedge B) \\circleright C)']
-# contingent_bool = True
-# disjoint_bool = False
 
 
 
@@ -139,10 +124,23 @@ conclusions = ["C"]
 ### WORKING COUNTERMODELS ###
 #############################
 
+# N = 3
+# premises = ["(A \\leftrightarrow B)", "\\possible A"]
+# conclusions = ["C"]
+# contingent_bool = False
+# disjoint_bool = False
+
 # # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # N = 4
 # premises = ['(A \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 3
+# premises = ['(A \\circleright C)']
+# conclusions = ['((A \\wedge B) \\circleright C)']
 # contingent_bool = True
 # disjoint_bool = False
 
@@ -153,11 +151,11 @@ conclusions = ["C"]
 # contingent_bool = False
 # disjoint_bool = False
 
-N = 3
-premises = ['(A \\circleright C)']
-conclusions = ['((A \\wedge B) \\circleright C)']
-contingent_bool = True
-disjoint_bool = False
+# N = 3
+# premises = ['(A \\circleright C)']
+# conclusions = ['((A \\wedge B) \\circleright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # # CF_CM3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
@@ -167,13 +165,13 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM7: COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
-# # NOTE: with Z3 quantifiers ran for 125 seconds on the MIT server; now .181 seconds locally
-# N = 4
-# premises = ['\\neg B','(A \\boxright B)']
-# conclusions = ['(\\neg B \\boxright \\neg A)']
-# contingent_bool = True
-# disjoint_bool = False
+# CF_CM7: COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
+# NOTE: with Z3 quantifiers ran for 125 seconds on the MIT server; now .181 seconds locally
+N = 4
+premises = ['\\neg B','(A \\boxright B)']
+conclusions = ['(\\neg B \\boxright \\neg A)']
+contingent_bool = True
+disjoint_bool = False
 
 # # CF_CM8: COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
 # N = 4

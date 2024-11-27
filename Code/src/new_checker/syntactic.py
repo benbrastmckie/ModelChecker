@@ -23,7 +23,7 @@ from hidden_helpers import (
 
 import inspect
 
-from z3 import Const, DeclareSort
+from z3 import Const, DeclareSort, ExprRef
 
 AtomSort = DeclareSort("AtomSort")
 
@@ -235,24 +235,18 @@ class Sentence:
             if not self.operator_is_defined(original_type):
                 if len(original_type) > 1:
                     operator, args = original_type[0], original_type[1:]
-                    # TODO: I don't think full recursion is needed here
-                    # derived_args = [derive_type(arg) for arg in args]
-                    # return [operator] + derived_args
                     return [operator] + args
                 return original_type
             operator, args = original_type[0], original_type[1:]
-            # derived_args = [derive_type(arg) for arg in args]
             if not hasattr(operator, "primitive"):
                 raise TypeError(f"Operator {operator} is not a subclass of Operator.")
-            # TODO: can the dummy variable be avoided?
             derivation = operator('a').derived_definition(*args)
-            # derivation = operator('a').derived_definition(*derived_args)
             return derivation
 
         def store_types(derived_type):
             if self.name.isalnum(): # sentence letter
                 return None, None, derived_type[0]
-            # TODO: return a list of the extremals and change def in derived_op
+            # TODO: return a list of length one with the extremal and change def in derived_op
             if self.name in {'\\top', '\\bot'}: # extremal operator
                 return derived_type[0], None, None
             if len(derived_type) > 1: # complex sentence
@@ -267,22 +261,6 @@ class Sentence:
 
         derived_type = derive_type(original_type)
         self.operator, self.arguments, self.sentence_letter = store_types(derived_type)
-        # print(f"STORE TYPES: {self} has sentence_letter {self.sentence_letter} of TYPE {type(self.sentence_letter)}")
-
-        # print("ARGUMENTS STORED:", self.arguments)
-        # print("SENT LET STORED:", self.sentence_letter)
-        # # TODO: remove derived_sentence attribute
-        # if self.operator_is_defined(self.original_type):
-        #     derived_infix = self.infix(self.derived_type)
-        #     self.derived_sentence = Sentence(derived_infix)
-    
-    # def update_derived(self):
-    #     if self.original_type is None:
-    #         raise ValueError(f"original_type for {self} is None in update_derived_type.")
-    #     self.derived_type = self.derive_type(self.original_type)
-    #     if self.operator_is_defined(self.original_type):
-    #         derived_infix = self.infix(self.derived_type)
-    #         self.derived_sentence = Sentence(derived_infix)
     
     def update_objects(self, model_constraints): # happens in ModelConstraints init
         """Given an instance of ModelConstraints, this method updates the values
@@ -290,19 +268,15 @@ class Sentence:
         model_constraints includes."""
 
         def activate_operator(some_type):
+            # TODO: fix check/continue
             if some_type is None: # operator is None if sentence_letter
                 return None
-            # TODO: fix check
-            # if isinstance(some_type, type):
-            #     return some_type
             return model_constraints.operators[some_type.name]
 
         self.original_operator = activate_operator(self.original_operator)
         self.operator = activate_operator(self.operator)
 
-        # TODO: why are these needed if all objects in the dict get updated?
-        # NOTE: that the old strategy was to have recursion throughout and
-        # checks to save time
+        # TODO: confirm this is not needed
         if self.original_arguments:
             for argument in self.original_arguments:
                 argument.update_objects(model_constraints)
@@ -574,38 +548,45 @@ class Syntax:
         operator_collection,
     ):
 
-        # 
+        # store inputs
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
         self.operator_collection = operator_collection
 
-        # infix_inputs = self.infix_premises + self.infix_conclusions
-        # self.all_sentences = self.sentence_dictionary(infix_inputs)
-        # self.premises = [
-        #     self.all_sentences[key]
-        #     for key in self.infix_premises
-        # ]
-        # self.conclusions = [
-        #     self.all_sentences[key]
-        #     for key in self.infix_conclusions
-        # ]
-
-        self.premises = [
-            Sentence(prem)
-            for prem in self.infix_premises
-        ]
-        self.conclusions = [
-            Sentence(con)
-            for con in self.infix_conclusions
-        ]
-        self.sentence_letters = self.initialize_and_extract(
+        # initialize inputs
+        self.premises = self.initialize_sentences(self.infix_premises)
+        self.conclusions = self.initialize_sentences(self.infix_conclusions)
+        self.sentence_letters = self.find_sentence_letters(
             self.premises + self.conclusions
         )
-        # self.sentence_letters = [
-        #     self.all_sentences[key]
-        #     for key in self.all_sentences
-        #     if key.isalnum()
-        # ]
+
+    def find_sentence_letters(self, sentences):
+        """Takes a list of sentence objects and returns all sentence_letters
+        that occur in those sentences, ensuring no duplicates based on name."""
+
+        def extract_letters(sentence):
+            """Takes a sentence object as input and extracts all occurring
+            sentence_letters by looking into its arguments (if any)."""
+            sentence_letters = {}
+            if isinstance(sentence.sentence_letter, ExprRef):
+                sentence_letters[sentence.name] = sentence
+                return sentence_letters
+            if sentence.arguments:
+                for arg in sentence.arguments:
+                    arg_letters = extract_letters(arg)
+                    sentence_letters.update(arg_letters)
+            # TODO: remove
+            if sentence.original_arguments:
+                for arg in sentence.original_arguments:
+                    arg_letters = extract_letters(arg)
+                    sentence_letters.update(arg_letters)
+            return sentence_letters
+
+        all_sentence_letters = {}
+        for sent_obj in sentences:
+            sent_obj_letters = extract_letters(sent_obj)
+            all_sentence_letters.update(sent_obj_letters)
+        return list(all_sentence_letters.values())
 
     def initialize_sentences(self, infix_sentences):
         """Takes a list of sentences composing the dictionaries of subsentences
@@ -626,12 +607,12 @@ class Syntax:
                 for argument in sentence.arguments:
                     initialize_types(argument)
 
-        sentence_list = []
+        sentence_objects = []
         for infix_sent in infix_sentences:
             sentence = Sentence(infix_sent)
             initialize_types(sentence)
-            sentence_list.append(sentence)
-        return sorted(sentence_list)
+            sentence_objects.append(sentence)
+        return sentence_objects
 
     # def build_dictionary(self, sentences):
     #     """Takes a list of sentences composing the dictionaries of subsentences
