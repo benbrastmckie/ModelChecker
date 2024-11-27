@@ -350,7 +350,7 @@ class ModelStructure:
         if not self.z3_model is None:
             self.main_world = self.z3_model[self.main_world]
 
-        # Recursively update every derived_object to store a propositions
+        # Recursively update propositions
         self.interpret(self.premises + self.conclusions)
 
     def solve(self, model_constraints, max_time):
@@ -383,9 +383,6 @@ class ModelStructure:
         prefix_sent to that instance, returning the input sentences."""
 
         for sent_obj in sentences:
-            # TODO: add appropriate check
-            # if sent_obj.derived_object is None:
-            #     raise ValueError(f"{sent_obj} has 'None' for derived_object.")
             if sent_obj.proposition:
                 continue
             if sent_obj.original_arguments:
