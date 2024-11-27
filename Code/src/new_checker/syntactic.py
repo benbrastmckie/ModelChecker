@@ -18,6 +18,7 @@ from hidden_helpers import (
     bitvec_to_substates,
     not_implemented_string,
     flatten,
+    parse_expression,
     pretty_set_print,
 )
 
@@ -42,6 +43,7 @@ class Sentence:
         self.name = infix_sentence
         self.prefix_sentence, self.complexity = self.prefix(infix_sentence)
 
+        # recursive clause: arguments
         if len(self.prefix_sentence) > 1: 
             self.original_arguments = [ # sentece_objects
                 Sentence(self.infix(arg))
@@ -50,29 +52,17 @@ class Sentence:
         else:
             self.original_arguments = None
 
-        # # set defaults to None for prefix values with defined operators if any
-        # # TODO: can the derived_type attribute be dropped?
-        # self.original_type = None # updated in Syntax with operator_collection
-        # # TODO: can the prefix_object attribute be dropped?
-        # self.prefix_object = None # updated in ModelConstraints with semantics
+        # update_types() via initialize_sentences() in Syntax: operator_collection
+        # update_objects() via instantiate() in ModelConstraints: semantics
+        self.original_operator = None
+        self.operator = None
+        self.arguments = None
 
-        # set defaults to None before updating in Syntax and ModelConstraints
-        self.original_operator = None # 
-        self.operator = None # 
-        self.arguments = None # sentece_objects
+        # update_types() via initialize_sentences() in Syntax: operator_collection
         self.sentence_letter = None # 
 
-        # # TODO: would be nice to remove this attribute if there is a better way
-        # self.updated_objects = False
-        # # TODO: can the derived_type attribute be dropped?
-        # self.derived_type = None # updated in Syntax from original_type
-        # # TODO: can the derived_sentence attribute be dropped?
-        # self.derived_sentence = None # updated in Syntax with update_types
-        # # TODO: can the derived_object attribute be dropped?
-        # self.derived_object = None # updated in ModelConstraints with semantics
-
-        # set proposition to None to be updates later
-        self.proposition = None # updated in ModelStructure with Z3 model
+        # update_proposition() via interpret() in ModelStructure: z3_model
+        self.proposition = None
 
     def __str__(self):
         return self.name
@@ -80,107 +70,11 @@ class Sentence:
     def __repr__(self):
         return self.name
 
-    def op_left_right(self, tokens):
-        """Divides whatever is inside a pair of parentheses into the left argument,
-        right argument, and the operator."""
-
-        def balanced_parentheses(tokens):
-            """Check if parentheses are balanced in the argument."""
-            stack = []
-            for token in tokens:
-                if token == "(":
-                    stack.append(token)
-                elif token == ")":
-                    if not stack:
-                        return False
-                    stack.pop()
-            return len(stack) == 0
-
-        def check_right(tokens, operator):
-            if not tokens:
-                raise ValueError(f"Expected an argument after the operator {operator}")
-            if not balanced_parentheses(tokens):
-                raise ValueError("Unbalanced parentheses")
-            return tokens  # Remaining tokens are the right argument
-
-        def cut_parentheses(left, tokens):
-            count = 1  # To track nested parentheses
-            while tokens:
-                token = tokens.pop(0)
-                if token == "(":
-                    count += 1
-                    left.append(token)
-                elif token == ")":
-                    count -= 1
-                    left.append(token)
-                elif count > 0:
-                    left.append(token)
-                elif not tokens:
-                    raise ValueError(f"Extra parentheses in {tokens}.")
-                else:
-                    operator = token
-                    right = check_right(tokens, operator)
-                    return operator, left, right
-            raise ValueError(f"The expression {tokens} is incomplete.")
-
-        def process_operator(tokens):
-            if tokens:
-                return tokens.pop(0)
-            raise ValueError("Operator missing after operand")
-
-        def extract_arguments(tokens):
-            """Extracts the left argument and right argument from tokens."""
-            left = []
-            while tokens:
-                token = tokens.pop(0)
-                if token == "(":
-                    left.append(token)
-                    return cut_parentheses(left, tokens)
-                elif token.isalnum() or token in {"\\top", "\\bot"}:
-                    left.append(token)
-                    operator = process_operator(tokens)
-                    right = check_right(tokens, operator)
-                    return operator, left, right
-                else:
-                    left.append(token)
-            raise ValueError("Invalid expression or unmatched parentheses")
-
-        result = extract_arguments(tokens)
-        if result is None:
-            raise ValueError("Failed to extract arguments")
-        return result
-
-    def parse_expression(self, tokens):
-        """Parses a list of tokens representing a propositional expression and returns
-        the expression in prefix notation.
-        At this point, prefix is with strings for everything, I think
-        """
-        if not tokens:  # Check if tokens are empty before processing
-            raise ValueError("Empty token list")
-        token = tokens.pop(0)  # Get the next token
-        if token == "(":  # Handle binary operator case (indicated by parentheses)
-            closing_parentheses = tokens.pop()  # Remove the closing parenthesis
-            if closing_parentheses != ")":
-                raise SyntaxError(
-                    f"The sentence {tokens} is missing a closing parenthesis."
-                )
-            operator, left, right = self.op_left_right(tokens)
-            left_arg, left_comp = self.parse_expression(left)  # Parse the left argument
-            right_arg, right_comp = self.parse_expression(right)  # Parse the right argument
-            complexity = left_comp + right_comp + 1
-            return [operator, left_arg, right_arg], complexity 
-        if token.isalnum():  # Handle atomic sentences
-            return [token], 0
-        elif token in {"\\top", "\\bot"}:  # Handle extremal operators
-            return [token], 0
-        arg, comp = self.parse_expression(tokens)
-        return [token, arg], comp + 1 
-        
     def prefix(self, infix_sentence):
         """For converting from infix to prefix notation without knowing which
         which operators the language includes."""
         tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
-        derived_object, complexity = self.parse_expression(tokens)
+        derived_object, complexity = parse_expression(tokens)
         return derived_object, complexity
 
     def infix(self, prefix):
@@ -190,8 +84,6 @@ class Sentence:
         def get_operator(operator):
             if isinstance(operator, type):
                 return operator.name
-            if isinstance(operator, Operator):
-                return operator.name
             if isinstance(operator, str):
                 return operator
             raise TypeError(
@@ -200,8 +92,6 @@ class Sentence:
             )
 
         if isinstance(prefix, type):
-            return prefix.name
-        if isinstance(prefix, Operator):
             return prefix.name
         if isinstance(prefix, ExprRef):
             return str(prefix)
@@ -218,31 +108,20 @@ class Sentence:
             return f"({self.infix(left_expr)} {op_str} {self.infix(right_expr)})"
         raise TypeError(f"The prefix {prefix} has a type error in infix().")
 
-    def operator_is_defined(self, original_type):
-        """
-        checks if there are defined operators in a prefix type.
-        Returns True or False
-        """
-        if hasattr(original_type[0], "primitive"):
-            operator = original_type[0]
-            if operator.primitive is False:
-                return True
-        return False
-
     def update_types(self, operator_collection):
         """Draws on the operator_collection to apply the operators that occur
         in the prefix_sentence in order to generate a original_type which has
         operator classes in place of operator strings and AtomSorts in place
         of sentence letters. If the operator is not primitive, then ."""
 
+        def primitive_operator(original_type):
+            """Checks if the main operator is primitive."""
+            return getattr(original_type[0], "primitive", True)
+
         def derive_type(original_type):
             """This function translates a original_type possibly with defined
             operators to a derived_type without defined operators."""
-            if not self.operator_is_defined(original_type):
-                # if len(original_type) > 1:
-                #     operator, args = original_type[0], original_type[1:]
-                #     derived_args = [derive_type(arg) for arg in args]
-                #     return [operator] + derived_args
+            if primitive_operator(original_type):
                 return original_type
             operator, args = original_type[0], original_type[1:]
             if not hasattr(operator, "primitive"):
@@ -253,7 +132,6 @@ class Sentence:
         def store_types(derived_type):
             if self.name.isalnum(): # sentence letter
                 return None, None, derived_type[0]
-            # TODO: return a list of length one with the extremal and change def in derived_op
             if self.name in {'\\top', '\\bot'}: # extremal operator
                 return derived_type[0], None, None
             if len(derived_type) > 1: # complex sentence
@@ -336,7 +214,6 @@ class Operator:
         proposition.print_proposition(eval_world, indent_num)
         indent_num += 1
 
-        # print(f"ARGUMENTS: {sentence_obj.original_arguments}")
         for arg in sentence_obj.original_arguments:
             model_structure.recursive_print(arg, eval_world, indent_num)
 
@@ -357,12 +234,10 @@ class Operator:
 
         if len(arguments) == 1:
             argument = arguments[0]
-            # indent_num += 1
             for world in other_worlds:
                 model_structure.recursive_print(argument, world, indent_num)
         if len(arguments) == 2:
             left_argument, right_argument = arguments
-            # indent_num += 1
             model_structure.recursive_print(left_argument, eval_world, indent_num)
             other_world_strings = {bitvec_to_substates(u, N) for u in other_worlds}
             print(
@@ -479,9 +354,6 @@ class OperatorCollection:
         op, arguments = prefix_sentence[0], prefix_sentence[1:]
         activated = [self.apply_operator(arg) for arg in arguments]
         if isinstance(op, str):
-            # TODO: this is causing trouble for pytest, by why?
-            # if op not in self.operator_classes_dict:
-            #     raise KeyError(f"Operator '{op}' not found in operator_classes_dict.")
             activated.insert(0, self[op])
         else:
             raise TypeError(f"Expected operator name as a string, got {type(op).__name__}.")
@@ -570,27 +442,3 @@ class Syntax:
             sentence_objects.append(sentence)
         return sentence_objects
 
-    # def build_dictionary(self, sentences):
-    #     """Takes a list of sentences composing the dictionaries of subsentences
-    #     for each, resulting in a dictionary that includes all subsentences."""
-    #     unsorted_dictionary = {}
-    #     for sent_obj in sentences:
-    #         self.initialize_types(sent_obj)
-    #         subsent_dict = self.sub_dictionary(sent_obj)
-    #         unsorted_dictionary.update(subsent_dict)
-    #     sorted_dictionary = self.sort_dictionary(unsorted_dictionary)
-    #     return sorted_dictionary
-
-    # def sentence_dictionary(self, infix_inputs):
-    #     """Takes a list of sentences composing the dictionaries of subsentences
-    #     for each, resulting in a dictionary that includes all subsentences."""
-    #     unsorted_dictionary = {}
-    #     for infix_sent in infix_inputs:
-    #         if infix_sent in unsorted_dictionary.keys():
-    #             continue
-    #         sentence = Sentence(infix_sent)
-    #         self.initialize_types(sentence)
-    #         subsent_dict = self.sub_dictionary(sentence)
-    #         unsorted_dictionary.update(subsent_dict)
-    #     sorted_dictionary = self.sort_dictionary(unsorted_dictionary)
-    #     return sorted_dictionary

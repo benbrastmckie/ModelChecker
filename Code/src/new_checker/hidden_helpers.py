@@ -20,25 +20,103 @@ from z3 import(
 
 ### GENERAL HELPERS ###
 
-
-# def remove_repeats(sentences):  # NOTE: sentences are unhashable so can't use set()
-#     """Takes a list and removes the repeats in it.
-#     Used in find_all_constraints."""
-#     seen = []
-#     for obj in sentences:
-#         if obj not in seen:
-#             seen.append(obj)
-#     return seen
-
-
-# def summation(n, func, start=0):
-#     """summation of i ranging from start to n of func(i)
-#     used in find_all_bits"""
-#     if start == n:
-#         return func(start)
-#     return func(start) + summation(n, func, start + 1)
-
 ### SYNTACTIC HELPERS ###
+
+def parse_expression(tokens):
+    """Parses a list of tokens representing a propositional expression and returns
+    the expression in prefix notation.
+    At this point, prefix is with strings for everything, I think
+    """
+    if not tokens:  # Check if tokens are empty before processing
+        raise ValueError("Empty token list")
+    token = tokens.pop(0)  # Get the next token
+    if token == "(":  # Handle binary operator case (indicated by parentheses)
+        closing_parentheses = tokens.pop()  # Remove the closing parenthesis
+        if closing_parentheses != ")":
+            raise SyntaxError(
+                f"The sentence {tokens} is missing a closing parenthesis."
+            )
+        operator, left, right = op_left_right(tokens)
+        left_arg, left_comp = parse_expression(left)  # Parse the left argument
+        right_arg, right_comp = parse_expression(right)  # Parse the right argument
+        complexity = left_comp + right_comp + 1
+        return [operator, left_arg, right_arg], complexity 
+    if token.isalnum():  # Handle atomic sentences
+        return [token], 0
+    elif token in {"\\top", "\\bot"}:  # Handle extremal operators
+        return [token], 0
+    arg, comp = parse_expression(tokens)
+    return [token, arg], comp + 1 
+
+def op_left_right(tokens):
+    """Divides whatever is inside a pair of parentheses into the left argument,
+    right argument, and the operator."""
+
+    def balanced_parentheses(tokens):
+        """Check if parentheses are balanced in the argument."""
+        stack = []
+        for token in tokens:
+            if token == "(":
+                stack.append(token)
+            elif token == ")":
+                if not stack:
+                    return False
+                stack.pop()
+        return len(stack) == 0
+
+    def check_right(tokens, operator):
+        if not tokens:
+            raise ValueError(f"Expected an argument after the operator {operator}")
+        if not balanced_parentheses(tokens):
+            raise ValueError("Unbalanced parentheses")
+        return tokens  # Remaining tokens are the right argument
+
+    def cut_parentheses(left, tokens):
+        count = 1  # To track nested parentheses
+        while tokens:
+            token = tokens.pop(0)
+            if token == "(":
+                count += 1
+                left.append(token)
+            elif token == ")":
+                count -= 1
+                left.append(token)
+            elif count > 0:
+                left.append(token)
+            elif not tokens:
+                raise ValueError(f"Extra parentheses in {tokens}.")
+            else:
+                operator = token
+                right = check_right(tokens, operator)
+                return operator, left, right
+        raise ValueError(f"The expression {tokens} is incomplete.")
+
+    def process_operator(tokens):
+        if tokens:
+            return tokens.pop(0)
+        raise ValueError("Operator missing after operand")
+
+    def extract_arguments(tokens):
+        """Extracts the left argument and right argument from tokens."""
+        left = []
+        while tokens:
+            token = tokens.pop(0)
+            if token == "(":
+                left.append(token)
+                return cut_parentheses(left, tokens)
+            elif token.isalnum() or token in {"\\top", "\\bot"}:
+                left.append(token)
+                operator = process_operator(tokens)
+                right = check_right(tokens, operator)
+                return operator, left, right
+            else:
+                left.append(token)
+        raise ValueError("Invalid expression or unmatched parentheses")
+
+    result = extract_arguments(tokens)
+    if result is None:
+        raise ValueError("Failed to extract arguments")
+    return result
 
 
 
