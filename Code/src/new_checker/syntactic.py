@@ -312,7 +312,6 @@ class OperatorCollection:
     def __iter__(self):
         yield from self.operator_classes_dict
 
-    # TODO: pytest doesn't like this for some reason
     def __getitem__(self, value):
         return self.operator_classes_dict[value]
     
