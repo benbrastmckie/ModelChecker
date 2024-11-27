@@ -199,12 +199,13 @@ class ModelConstraints:
         self.syntax = syntax
         self.premises = self.syntax.premises
         self.conclusions = self.syntax.conclusions
+        self.sentence_letters = self.syntax.sentence_letters
         self.operator_collection = self.syntax.operator_collection
         # self.all_sentences = self.syntax.all_sentences
-        # self.sentence_letters = self.syntax.sentence_letters
 
         # Store semantics and use to define operator dictionary
         self.semantics = semantics
+        # TODO: can the operator_collection be updated instead?
         self.operators = { # applies semantics to each operator
             op_name: op_class(semantics)
             for (op_name, op_class) in self.operator_collection.items()
@@ -220,14 +221,12 @@ class ModelConstraints:
         self.print_impossible = print_impossible
 
         # use semantics to recursively update all derived_objects
-        # self.instantiate(self.all_sentences.values())
         self.instantiate(self.premises + self.conclusions)
-        # self.sentence_letters = self.syntax.sentence_letters
 
         # Use semantics to generate and store Z3 constraints
         self.frame_constraints = self.semantics.frame_constraints
         self.model_constraints = [] # TODO: why can't this be defined by
-        # comprehension as in the cases below?
+        # TODO: comprehension as in the cases below?
         for sentence_letter in self.sentence_letters:
             self.model_constraints.extend(
                 self.proposition_class.proposition_constraints(
@@ -265,24 +264,6 @@ class ModelConstraints:
     def instantiate(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
-
-        def find_sentence_letters(sentence):
-            """Takes a sentence object as input and builds a dictionary consisting
-            of it and all subsentences by looking to its arguments (if any)."""
-            sentence_letters = []
-            arguments = []
-            if sentence.original_arguments:
-                arguments.extend(sentence.original_arguments)
-            if sentence.arguments:
-                arguments.extend(sentence.arguments)
-            if arguments:
-                for arg in arguments:
-                    if arg in sentence_letters:
-                        continue
-                    arg_letters = find_sentence_letters(arg)
-                    sentence_letters.extend(arg_letters)
-            return sentence_letters
-
         for sent_obj in sentences:
             # TODO: add a better check/continue here
             if sent_obj.original_arguments:
@@ -290,8 +271,6 @@ class ModelConstraints:
             if sent_obj.arguments:
                 self.instantiate(sent_obj.arguments)
             sent_obj.update_objects(self)
-        # for sent_obj in sentences:
-        #     print(f"AFTER: sentence_letter {sent_obj.sentence_letter} is type {type(sent_obj.sentence_letter)} for {sent_obj}")
 
     def print_enumerate(self, output=sys.__stdout__):
         """prints the premises and conclusions with numbers"""
