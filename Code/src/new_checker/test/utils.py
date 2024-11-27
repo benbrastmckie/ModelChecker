@@ -5,7 +5,6 @@ from new_checker.semantic import (
     Proposition,
 )
 
-# B: when we develop the API, these will reference the users script
 from new_checker.operators import (
     NegationOperator,
     AndOperator,
@@ -21,12 +20,12 @@ from new_checker.operators import (
     DefGroundOperator,
     ConditionalOperator,
     BiconditionalOperator,
+    NecessityOperator,
     DefNecessityOperator,
     DefPossibilityOperator,
     DefPossibilityOperator2,
 )
 
-# NOTE: go in API
 from new_checker.model_builder import (
     ModelConstraints,
     ModelStructure,
@@ -42,29 +41,31 @@ from new_checker.syntactic import (
 ### TIMEOUT ###
 ###############
 
-default_max_time = 1
+default_max_time = 2
 
-
-### SETUP LANGUAGE ###
+######################
+### LANGUAGE SETUP ###
+######################
 
 operators = OperatorCollection(
+    NegationOperator, # extensional
     AndOperator,
-    NegationOperator,
-    OrOperator,  # extensional
-    ConditionalOperator,
-    BiconditionalOperator,  # extensional defined
-    TopOperator,
-    BotOperator,  # top and bottom zero-place operators
-    IdentityOperator,
+    OrOperator,
+    ConditionalOperator, # extensional defined 
+    BiconditionalOperator,
+    TopOperator, # extremal
+    BotOperator,
+    IdentityOperator, # constitutive
     GroundOperator,
-    EssenceOperator,  # constitutive
+    EssenceOperator,
+    DefGroundOperator, # constitutive defined
     DefEssenceOperator,
-    DefGroundOperator,  # constitutive defined
+    CounterfactualOperator, # counterfactual
+    MightCounterfactualOperator, # counterfactual defined
+    NecessityOperator, # modal
     DefNecessityOperator,
     DefPossibilityOperator,  # modal defined
     DefPossibilityOperator2,
-    CounterfactualOperator,
-    MightCounterfactualOperator,  # counterfactual
 )
 
 

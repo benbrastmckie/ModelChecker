@@ -90,7 +90,7 @@ class AndOperator(syntactic.Operator):
                     self.semantics.extended_falsify(y, rightarg, eval_world),
                 ),
             )
-            # TODO: why didn't this stop working?
+            # TODO: why did this stop working?
             # self.semantics.extended_falsify(
             #     state,
             #     [OrOperator(self.semantics), leftarg, rightarg],
@@ -144,7 +144,7 @@ class OrOperator(syntactic.Operator):
                     self.semantics.extended_verify(y, rightarg, eval_world),
                 )
             )
-            # TODO: why didn't this stop working?
+            # TODO: why did this stop working?
             # self.semantics.extended_verify(
             #     state,
             #     [AndOperator(self.semantics), leftarg, rightarg], 
@@ -237,10 +237,22 @@ class TopOperator(syntactic.Operator):
     def extended_verify(self, state, eval_world):
         return state == state
 
+    # def extended_verify(self, state, leftarg, rightarg, eval_world):
+    #     x = z3.BitVec("ex_and_ver_x", self.semantics.N)
+    #     y = z3.BitVec("ex_and_ver_y", self.semantics.N)
+    #     return Exists(
+    #         [x, y],
+    #         z3.And(
+    #             self.semantics.fusion(x, y) == state,
+    #             self.semantics.extended_verify(x, leftarg, eval_world),
+    #             self.semantics.extended_verify(y, rightarg, eval_world),
+    #         )
+    #     )
+
     def extended_falsify(self, state, eval_world):
         return state == self.semantics.full_bit
 
-    def find_verifiers_and_falsifiers(self):
+    def find_verifiers_and_falsifiers(self, eval_world):
         return set(self.semantics.all_bits), {self.semantics.full_bit}
 
     def print_method(self, sentence_obj, eval_world, indent_num):

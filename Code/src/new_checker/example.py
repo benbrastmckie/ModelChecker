@@ -267,12 +267,13 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
-# N = 3
+# CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
+N = 3
+premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
 # premises = ['((A \\wedge B) \\boxright C)','\\possible (A \\wedge B)']
-# conclusions = ['(A \\boxright (B \\boxright C))']
-# contingent_bool = True
-# disjoint_bool = False
+conclusions = ['(A \\boxright (B \\boxright C))']
+contingent_bool = True
+disjoint_bool = False
 
 # # CF_CM20
 # N = 3

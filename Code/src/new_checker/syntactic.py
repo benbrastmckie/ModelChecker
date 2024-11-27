@@ -183,34 +183,40 @@ class Sentence:
         derived_object, complexity = self.parse_expression(tokens)
         return derived_object, complexity
 
-    def infix(self, prefix_sent):
+    def infix(self, prefix):
         """Takes a sentence in prefix notation (in any of the three kinds)
         and translates it to infix notation (a string)."""
-        # Base case: if prefix_sent is an operator class
-        if isinstance(prefix_sent, type) and issubclass(prefix_sent, Operator):
-            return prefix_sent.name  # or prefix_sent.name
-        # If prefix_sent is an operator instance
-        if isinstance(prefix_sent, Operator):
-            return prefix_sent.name  # or str(prefix_sent)
-        # If prefix_sent is a list or tuple (recursive case)
-        if isinstance(prefix_sent, (list, tuple)):
-            if len(prefix_sent) == 1:
-                return self.infix(prefix_sent[0])
-            op = prefix_sent[0]
-            # Extract the operator's symbol or name
-            if isinstance(op, type) and issubclass(op, Operator):
-                op_str = op.name  # or op.name
-            elif isinstance(op, Operator):
-                op_str = op.name  # or str(op)
-            else:
-                op_str = str(op)
-            if len(prefix_sent) == 2:
-                return f"{op_str} {self.infix(prefix_sent[1])}"
-            left_expr = prefix_sent[1]
-            right_expr = prefix_sent[2]
+
+        def get_operator(operator):
+            if isinstance(operator, type):
+                return operator.name
+            if isinstance(operator, Operator):
+                return operator.name
+            if isinstance(operator, str):
+                return operator
+            raise TypeError(
+                f"The prefix {prefix} contains an unsupported operator: "
+                f"{operator} (type: {type(operator).__name__}) in infix()."
+            )
+
+        if isinstance(prefix, type):
+            return prefix.name
+        if isinstance(prefix, Operator):
+            return prefix.name
+        if isinstance(prefix, ExprRef):
+            return str(prefix)
+        if isinstance(prefix, str):
+            return prefix
+        if isinstance(prefix, (list, tuple)):
+            if len(prefix) == 1:
+                return self.infix(prefix[0])
+            operator = prefix[0]
+            op_str = get_operator(operator)
+            if len(prefix) == 2:
+                return f"{op_str} {self.infix(prefix[1])}"
+            left_expr, right_expr = prefix[1], prefix[2]
             return f"({self.infix(left_expr)} {op_str} {self.infix(right_expr)})"
-        # For any other type, convert to string
-        return str(prefix_sent)
+        raise TypeError(f"The prefix {prefix} has a type error in infix().")
 
     def operator_is_defined(self, original_type):
         """
@@ -233,15 +239,16 @@ class Sentence:
             """This function translates a original_type possibly with defined
             operators to a derived_type without defined operators."""
             if not self.operator_is_defined(original_type):
-                if len(original_type) > 1:
-                    operator, args = original_type[0], original_type[1:]
-                    return [operator] + args
+                # if len(original_type) > 1:
+                #     operator, args = original_type[0], original_type[1:]
+                #     derived_args = [derive_type(arg) for arg in args]
+                #     return [operator] + derived_args
                 return original_type
             operator, args = original_type[0], original_type[1:]
             if not hasattr(operator, "primitive"):
                 raise TypeError(f"Operator {operator} is not a subclass of Operator.")
-            derivation = operator('a').derived_definition(*args)
-            return derivation
+            derivation =  operator('a').derived_definition(*args)
+            return derive_type(derivation)
 
         def store_types(derived_type):
             if self.name.isalnum(): # sentence letter
@@ -258,7 +265,6 @@ class Sentence:
         original_type = operator_collection.apply_operator(self.prefix_sentence)
         if self.original_arguments:
             self.original_operator = original_type[0]
-
         derived_type = derive_type(original_type)
         self.operator, self.arguments, self.sentence_letter = store_types(derived_type)
     
@@ -313,6 +319,7 @@ class Operator:
 
     def __str__(self):
         return str(self.name)
+        # return self.__class__.__name__
 
     def __repr__(self):
         return str(self.name)
@@ -368,58 +375,6 @@ class Operator:
                 model_structure.recursive_print(right_argument, alt_world, indent_num)
     
     
-# class DefinedOperator(Operator):
-#     """NOTE: I wonder about building a sent_obj first thing, adding this to the
-#     sentence_dict or updating?"""
-#
-#     primitive = False
-#
-#     def derived_definition(self, leftarg, rightarg):
-#         """
-#         in (kind of) prefix form give the definition of the operator in terms of other operators
-#         what's here is the default form—is here to avoid linter complaints
-#         """
-#         return []
-#
-#     def __init__(self, semantics, loop_check=True):
-#         super().__init__(semantics)
-#
-#         # check self is an arg of derived_definition
-#         op_subclass = self.__class__
-#         args_without_self = inspect.signature(self.derived_definition).parameters # parameters besides self in derived_definition
-#         args_with_self = inspect.signature(op_subclass.derived_definition).parameters # params above plus 'self'
-#         if 'self' not in args_with_self:
-#             raise ValueError(f"self should be an argument of {op_subclass.__name__}'s "
-#                              "derived_definition method (and it should go unused).")
-#         # from now on, can assume 'self' is an argument of derived_definition. 
-#
-#         # check if derived_definition is implemented (ie is not default)
-#         if len(args_with_self) == 1 and 'self' in args_with_self:
-#             raise NameError(
-#                 f"Derived operator class {op_subclass.__name__} does not have an implemented "
-#                 f"derived_definition method. ")
-#         
-#         # check for arity match between self.arity and derived_def num args (excluding self)
-#         derived_def_num_args = len(args_without_self)
-#         op_name = op_subclass.__name__
-#         mismatch_arity_msg = (
-#             f"the specified arity of value {self.arity} for the DerivedOperator class {op_name} "
-#             f"does not match the number of arguments (excluding 'self') for {op_name}'s derived_"
-#             f"definition property ({derived_def_num_args} non-self arguments currently.)")
-#         assert self.arity == derived_def_num_args, mismatch_arity_msg
-#
-#         # check for DefinedOperators defined in terms of each other
-#         sample_derived_def = self.derived_definition(*(derived_def_num_args * ("a",)))
-#         ops_in_def = [elem for elem in flatten(sample_derived_def) if isinstance(elem, type)]
-#         self.defined_operators_in_definition = [op for op in ops_in_def if not op.primitive]
-#         if loop_check:
-#             for def_opcls in self.defined_operators_in_definition:
-#                 if self.__class__ in def_opcls('dummy sem', False).defined_operators_in_definition:
-#                     ermsg = (f"{op_name} and {def_opcls.__name__} are defined in terms of each "
-#                             f"other. Please edit their derived_definition methods to avoid this.")
-#                     raise RecursionError(ermsg)
-
-
 class DefinedOperator(Operator):
     """Represents an operator defined in terms of other operators."""
 
@@ -482,6 +437,7 @@ class DefinedOperator(Operator):
                     )
                     raise RecursionError(ermsg)
 
+
 class OperatorCollection:
     """Stores the operators that will be passed to Syntax."""
 
@@ -522,10 +478,10 @@ class OperatorCollection:
             raise ValueError(f"The atom {atom} is invalid in apply_operator.")
         op, arguments = prefix_sentence[0], prefix_sentence[1:]
         activated = [self.apply_operator(arg) for arg in arguments]
-        # TODO: this is causing trouble for pytest, by why?
         if isinstance(op, str):
-            if op not in self.operator_classes_dict:
-                raise KeyError(f"Operator '{op}' not found in operator_classes_dict.")
+            # TODO: this is causing trouble for pytest, by why?
+            # if op not in self.operator_classes_dict:
+            #     raise KeyError(f"Operator '{op}' not found in operator_classes_dict.")
             activated.insert(0, self[op])
         else:
             raise TypeError(f"Expected operator name as a string, got {type(op).__name__}.")
