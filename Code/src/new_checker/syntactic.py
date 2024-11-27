@@ -579,71 +579,81 @@ class Syntax:
         self.infix_conclusions = infix_conclusions
         self.operator_collection = operator_collection
 
-        infix_inputs = self.infix_premises + self.infix_conclusions
-        self.all_sentences = self.sentence_dictionary(infix_inputs)
+        # infix_inputs = self.infix_premises + self.infix_conclusions
+        # self.all_sentences = self.sentence_dictionary(infix_inputs)
+        # self.premises = [
+        #     self.all_sentences[key]
+        #     for key in self.infix_premises
+        # ]
+        # self.conclusions = [
+        #     self.all_sentences[key]
+        #     for key in self.infix_conclusions
+        # ]
 
         self.premises = [
-            self.all_sentences[key]
-            for key in self.infix_premises
+            Sentence(prem)
+            for prem in self.infix_premises
         ]
         self.conclusions = [
-            self.all_sentences[key]
-            for key in self.infix_conclusions
+            Sentence(con)
+            for con in self.infix_conclusions
         ]
-        self.sentence_letters = [
-            self.all_sentences[key]
-            for key in self.all_sentences
-            if key.isalnum()
-        ]
+        self.sentence_letters = self.initialize_and_extract(
+            self.premises + self.conclusions
+        )
+        # self.sentence_letters = [
+        #     self.all_sentences[key]
+        #     for key in self.all_sentences
+        #     if key.isalnum()
+        # ]
 
-    def sort_dictionary(self, unstorted_dictionary):
-        sorted_sentences = sorted(unstorted_dictionary.items(), key=lambda item: item[1].complexity)
-        sorted_dictionary = {s.name: s for _, s in sorted_sentences}
-        return sorted_dictionary
-
-    def sub_dictionary(self, sentence):
-        """Takes a sentence object as input and builds a dictionary consisting
-        of it and all subsentences by looking to its arguments (if any)."""
-        sub_dictionary = {}
-        sub_dictionary[sentence.name] = sentence
-        arguments = []
-        if sentence.original_arguments:
-            arguments.extend(sentence.original_arguments)
-        if sentence.arguments:
-            arguments.extend(sentence.arguments)
-        if arguments:
-            for arg in arguments:
-                if arg in sub_dictionary.values():
-                    continue
-                arg_dict = self.sub_dictionary(arg)
-                sub_dictionary.update(arg_dict)
-        return sub_dictionary
-
-    def initialize_types(self, sentence):
-        """Draws on the operator_collection in order to initialize all sentences
-        in the input by replacing operator strings with operator classes and
-        updating original_type in that sentence_obj. If the main operator is not
-        primitive, derived_arguments are updated with derived_types."""
-        operator_collection = self.operator_collection
-        # TODO: add appropriate check to avoid redundancy
-        if sentence.original_arguments:
-            for argument in sentence.original_arguments:
-                self.initialize_types(argument)
-        sentence.update_types(operator_collection)
-        if sentence.arguments: # NOTE: must happen after arguments are stored
-            for argument in sentence.arguments:
-                self.initialize_types(argument)
-
-    def sentence_dictionary(self, infix_inputs):
+    def initialize_sentences(self, infix_sentences):
         """Takes a list of sentences composing the dictionaries of subsentences
         for each, resulting in a dictionary that includes all subsentences."""
-        unsorted_dictionary = {}
-        for infix_sent in infix_inputs:
-            if infix_sent in unsorted_dictionary.keys():
-                continue
+
+        def initialize_types(sentence):
+            """Draws on the operator_collection in order to initialize all sentences
+            in the input by replacing operator strings with operator classes and
+            updating original_type in that sentence_obj. If the main operator is not
+            primitive, derived_arguments are updated with derived_types."""
+            operator_collection = self.operator_collection
+            # TODO: add appropriate check to avoid redundancy
+            if sentence.original_arguments:
+                for argument in sentence.original_arguments:
+                    initialize_types(argument)
+            sentence.update_types(operator_collection)
+            if sentence.arguments: # NOTE: must happen after arguments are stored
+                for argument in sentence.arguments:
+                    initialize_types(argument)
+
+        sentence_list = []
+        for infix_sent in infix_sentences:
             sentence = Sentence(infix_sent)
-            self.initialize_types(sentence)
-            subsent_dict = self.sub_dictionary(sentence)
-            unsorted_dictionary.update(subsent_dict)
-        sorted_dictionary = self.sort_dictionary(unsorted_dictionary)
-        return sorted_dictionary
+            initialize_types(sentence)
+            sentence_list.append(sentence)
+        return sorted(sentence_list)
+
+    # def build_dictionary(self, sentences):
+    #     """Takes a list of sentences composing the dictionaries of subsentences
+    #     for each, resulting in a dictionary that includes all subsentences."""
+    #     unsorted_dictionary = {}
+    #     for sent_obj in sentences:
+    #         self.initialize_types(sent_obj)
+    #         subsent_dict = self.sub_dictionary(sent_obj)
+    #         unsorted_dictionary.update(subsent_dict)
+    #     sorted_dictionary = self.sort_dictionary(unsorted_dictionary)
+    #     return sorted_dictionary
+
+    # def sentence_dictionary(self, infix_inputs):
+    #     """Takes a list of sentences composing the dictionaries of subsentences
+    #     for each, resulting in a dictionary that includes all subsentences."""
+    #     unsorted_dictionary = {}
+    #     for infix_sent in infix_inputs:
+    #         if infix_sent in unsorted_dictionary.keys():
+    #             continue
+    #         sentence = Sentence(infix_sent)
+    #         self.initialize_types(sentence)
+    #         subsent_dict = self.sub_dictionary(sentence)
+    #         unsorted_dictionary.update(subsent_dict)
+    #     sorted_dictionary = self.sort_dictionary(unsorted_dictionary)
+    #     return sorted_dictionary

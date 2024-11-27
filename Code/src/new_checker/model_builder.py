@@ -199,9 +199,9 @@ class ModelConstraints:
         self.syntax = syntax
         self.premises = self.syntax.premises
         self.conclusions = self.syntax.conclusions
-        self.all_sentences = self.syntax.all_sentences
         self.operator_collection = self.syntax.operator_collection
-        self.sentence_letters = self.syntax.sentence_letters
+        # self.all_sentences = self.syntax.all_sentences
+        # self.sentence_letters = self.syntax.sentence_letters
 
         # Store semantics and use to define operator dictionary
         self.semantics = semantics
@@ -220,7 +220,9 @@ class ModelConstraints:
         self.print_impossible = print_impossible
 
         # use semantics to recursively update all derived_objects
-        self.instantiate(self.all_sentences.values())
+        # self.instantiate(self.all_sentences.values())
+        self.instantiate(self.premises + self.conclusions)
+        # self.sentence_letters = self.syntax.sentence_letters
 
         # Use semantics to generate and store Z3 constraints
         self.frame_constraints = self.semantics.frame_constraints
@@ -263,16 +265,30 @@ class ModelConstraints:
     def instantiate(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
+
+        def find_sentence_letters(sentence):
+            """Takes a sentence object as input and builds a dictionary consisting
+            of it and all subsentences by looking to its arguments (if any)."""
+            sentence_letters = []
+            arguments = []
+            if sentence.original_arguments:
+                arguments.extend(sentence.original_arguments)
+            if sentence.arguments:
+                arguments.extend(sentence.arguments)
+            if arguments:
+                for arg in arguments:
+                    if arg in sentence_letters:
+                        continue
+                    arg_letters = find_sentence_letters(arg)
+                    sentence_letters.extend(arg_letters)
+            return sentence_letters
+
         for sent_obj in sentences:
-            # # TODO: add a better check/continue here
-            # if sent_obj.updated_objects:
-            #     continue
-            # # TODO: add recursion and check/continue
-            # # dictionary is instantiated
-            # if sent_obj.original_arguments:
-            #     self.instantiate(sent_obj.original_arguments)
-            # if sent_obj.arguments:
-            #     self.instantiate(sent_obj.arguments)
+            # TODO: add a better check/continue here
+            if sent_obj.original_arguments:
+                self.instantiate(sent_obj.original_arguments)
+            if sent_obj.arguments:
+                self.instantiate(sent_obj.arguments)
             sent_obj.update_objects(self)
         # for sent_obj in sentences:
         #     print(f"AFTER: sentence_letter {sent_obj.sentence_letter} is type {type(sent_obj.sentence_letter)} for {sent_obj}")
@@ -312,7 +328,7 @@ class ModelStructure:
         self.syntax = self.model_constraints.syntax
         self.premises = self.syntax.premises
         self.conclusions = self.syntax.conclusions
-        self.all_sentences = self.syntax.all_sentences
+        # self.all_sentences = self.syntax.all_sentences
         self.sentence_letters = self.syntax.sentence_letters
 
         # Store from model_constraint.semantics
@@ -356,7 +372,7 @@ class ModelStructure:
             self.main_world = self.z3_model[self.main_world]
 
         # Recursively update every derived_object to store a propositions
-        self.interpret(self.all_sentences.values())
+        self.interpret(self.premises + self.conclusions)
 
     def solve(self, model_constraints, max_time):
         solver = Solver()
