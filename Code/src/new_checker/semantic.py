@@ -127,7 +127,7 @@ class Semantics(SemanticDefaults):
             x = z3.BitVec("t_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
         operator = sentence.operator
-        arguments = sentence.arguments
+        arguments = sentence.arguments or ()
         return operator.true_at(*arguments, eval_world)
 
     def false_at(self, sentence, eval_world):
@@ -140,7 +140,7 @@ class Semantics(SemanticDefaults):
             x = z3.BitVec("f_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
         operator = sentence.operator
-        arguments = sentence.arguments
+        arguments = sentence.arguments or ()
         return operator.false_at(*arguments, eval_world)
 
     def extended_verify(self, state, sentence, eval_world):
@@ -148,7 +148,7 @@ class Semantics(SemanticDefaults):
         if sentence_letter is not None:
             return self.verify(state, sentence_letter)
         operator = sentence.operator
-        arguments = sentence.arguments
+        arguments = sentence.arguments or ()
         return operator.extended_verify(state, *arguments, eval_world)
     
     def extended_falsify(self, state, sentence, eval_world):
@@ -156,7 +156,7 @@ class Semantics(SemanticDefaults):
         if sentence_letter is not None:
             return self.falsify(state, sentence_letter)
         operator = sentence.operator
-        arguments = sentence.arguments
+        arguments = sentence.arguments or ()
         return operator.extended_falsify(state, *arguments, eval_world)
 
     def calculate_alternative_worlds(self, verifiers, eval_world, model_structure):
@@ -322,7 +322,7 @@ class Proposition(PropositionDefaults):
         semantics = self.semantics
         eval_world = self.eval_world
         operator = self.operator
-        arguments = self.arguments
+        arguments = self.arguments or ()
         sentence_letter = self.sentence_letter
         if sentence_letter is not None:
             V = {
