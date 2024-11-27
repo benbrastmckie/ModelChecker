@@ -38,26 +38,24 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [:] operators to implement:
     - [:] defined operators
       - [x] debug given `sentence_obj` integration
-      - [ ] _M_ move derived definition upstream
-      - [ ] _B_ add doc strings
-    - [ ] might counterfactual
-      - [ ] primitive
-      - [ ] defined
+      - [x] _M_ move derived definition upstream
+      - [.] _B_ add doc strings
+      - [ ] check definitional loops etc
+    - [x] might counterfactual
+      - [x] primitive
+      - [x] defined
+      - [x] unit tests
+    - [:] modal
+      - [x] primitive
+      - [x] defined in terms of counterfactual and top
+        - [x] debug
       - [ ] unit tests
-      - [ ] benchmarking
-    - [ ] modal
-      - [ ] primitive
-      - [:] defined in terms of counterfactual and top
-        - [ ] debug
-      - [ ] unit tests
-      - [ ] benchmarking
     - [:] constitutive
       - [x] define primitive identity operator
       - [x] define essence, ground, and relevance in terms of identity
       - [x] add print methods
       - [x] debug true conclusion and false premise models
       - [ ] unit tests
-      - [ ] benchmarking
     - [ ] imposition counterfactual
       - [ ] add z3 primitive semantics
       - [ ] add frame constraints
