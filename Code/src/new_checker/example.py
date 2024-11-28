@@ -37,7 +37,7 @@ operators = syntactic.OperatorCollection(
     NecessityOperator, # modal
     DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
     CounterfactualOperator, MightCounterfactualOperator, # counterfactual
-    DefNecessityOperator2, # circular (for testing)
+    # DefNecessityOperator2, # circular (for testing)
 )
 
 

@@ -84,7 +84,8 @@ class Sentence:
         and translates it to infix notation (a string)."""
 
         def get_operator(operator):
-            if isinstance(operator, type):
+            print(f"OP {operator} TYPE {type(operator)}")
+            if hasattr(operator, 'name'):
                 return operator.name
             if isinstance(operator, str):
                 return operator
@@ -397,19 +398,25 @@ class Syntax:
         dependency_graph = {}  # Using a standard dict instead of defaultdict
 
         # Build the dependency graph
-        for operator in operator_collection.operator_dictionary.values():
-            if operator.primitive:
+        for operator_class in operator_collection.operator_dictionary.values():
+            if operator_class.primitive:
                 continue
             try:
-                dummy_args = [None] * (operator.arity + 1)
-                definition = operator.derived_definition(*dummy_args)
-                dependencies = {elem for elem in flatten(definition) if isinstance(elem, type)}
-                
-                if operator not in dependency_graph:
-                    dependency_graph[operator] = set()
-                dependency_graph[operator].update(dependencies)
+                sig = inspect.signature(operator_class.derived_definition)
+                num_params = len(sig.parameters) - 1  # Subtract 'self'
+                dummy_args = [None] * num_params
+                print(f"CIRC: OP {operator_class} TYPE {type(operator_class)}")
+                temp_operator = operator_class('dummy_semantics')  # Instantiate the class
+                definition = temp_operator.derived_definition(*dummy_args)
+                dependencies = {
+                    elem for elem in flatten(definition) if isinstance(elem, type)
+                }
+
+                if operator_class not in dependency_graph:
+                    dependency_graph[operator_class] = set()
+                dependency_graph[operator_class].update(dependencies)
             except Exception as e:
-                raise ValueError(f"Error processing operator '{operator.name}': {e}")
+                raise ValueError(f"Error processing operator '{operator_class.name}': {e}")
 
         visited = set()
         recursion_stack = set()
