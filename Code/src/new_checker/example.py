@@ -15,7 +15,7 @@ from operators import (
     NecessityOperator, # modal
     DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
     CounterfactualOperator, MightCounterfactualOperator, # counterfactual
-    # DefNecessityOperator2, # circular (for testing)
+    DefNecessityOperator2, # circular (for testing)
 )
 
 # NOTE: go in API

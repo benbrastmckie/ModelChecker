@@ -928,7 +928,8 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
     arity = 1
 
     def derived_definition(self, arg):
-        return [NegationOperator, [NecessityOperator, [NegationOperator, arg]]]
+        return [NegationOperator, [DefNecessityOperator2, [NegationOperator, arg]]]
+        # return [NegationOperator, [NecessityOperator, [NegationOperator, arg]]]
     
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Print counterfactual and the antecedent in the eval_world. Then
@@ -946,7 +947,7 @@ class DefNecessityOperator2(syntactic.DefinedOperator):
 
     def derived_definition(self, arg):
         # NOTE: TopOperator is not a list like the others, so [TopOperator]
-        return [NegationOperator, [NecessityOperator, [NegationOperator, arg]]]
+        return [NegationOperator, [DefPossibilityOperator, [NegationOperator, arg]]]
     
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Print counterfactual and the antecedent in the eval_world. Then
