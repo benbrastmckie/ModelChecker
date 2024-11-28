@@ -167,6 +167,7 @@ class Sentence:
         self.proposition = model_structure.proposition_class(self, model_structure)
 
 
+# TODO: can this be improved?
 class Operator:
     """Defaults inherited by every operator."""
 
@@ -239,7 +240,6 @@ class Operator:
             for alt_world in other_worlds:
                 model_structure.recursive_print(right_argument, alt_world, indent_num)
     
-# TODO: check definition loops and etc below
 class DefinedOperator(Operator):
     """Represents an operator defined in terms of other operators."""
 
@@ -252,7 +252,7 @@ class DefinedOperator(Operator):
         """
         pass
 
-    def __init__(self, semantics, loop_check=True):
+    def __init__(self, semantics): # , loop_check=True
         super().__init__(semantics)
 
         op_subclass = self.__class__
@@ -397,7 +397,6 @@ class Syntax:
                 dummy_args = [None] * (operator.arity + 1)
                 definition = operator.derived_definition(*dummy_args)
                 dependencies = {elem for elem in flatten(definition) if isinstance(elem, type)}
-                # dependencies = {elem for elem in flatten(definition) if isinstance(elem, Operator)}
                 
                 if operator not in dependency_graph:
                     dependency_graph[operator] = set()
