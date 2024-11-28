@@ -417,7 +417,9 @@ class Syntax:
         def dfs(current):
             if current in recursion_stack:
                 cycle = " -> ".join(op.name for op in recursion_stack) + f" -> {current.name}"
-                raise RecursionError(f"Circular dependency detected: {cycle}")
+                raise RecursionError(
+                    f"Circular definition detected in {current.name}." +
+                    f"\n\n CYCLE: {cycle}\n")
             if current in visited:
                 return
             recursion_stack.add(current)
@@ -430,8 +432,6 @@ class Syntax:
         for operator in operator_collection.operator_dictionary.values():
             if not operator.primitive and operator not in visited:
                 dfs(operator)
-
-        return visited
 
     def find_sentence_letters(self, sentences):
         """Takes a list of sentence objects and returns all sentence_letters
