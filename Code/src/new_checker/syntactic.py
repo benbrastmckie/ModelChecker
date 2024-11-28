@@ -157,7 +157,10 @@ class Sentence:
             # TODO: fix check/continue
             if some_type is None: # operator is None if sentence_letter
                 return None
-            return model_constraints.operators[some_type.name]
+            op_dict = model_constraints.operator_collection.operator_dictionary
+            return op_dict[some_type.name]
+            # OLD
+            # return model_constraints.operators[some_type.name]
 
         self.original_operator = activate_operator(self.original_operator)
         self.operator = activate_operator(self.operator)
@@ -167,7 +170,6 @@ class Sentence:
         self.proposition = model_structure.proposition_class(self, model_structure)
 
 
-# TODO: can this be improved?
 class Operator:
     """Defaults inherited by every operator."""
 
@@ -312,18 +314,18 @@ class OperatorCollection:
     """Stores the operators that will be passed to Syntax."""
 
     def __init__(self, *input):
-        self.operator_classes_dict = {}
+        self.operator_dictionary = {}
         if input:
             self.add_operator(input)
 
     def __iter__(self):
-        yield from self.operator_classes_dict
+        yield from self.operator_dictionary
 
     def __getitem__(self, value):
-        return self.operator_classes_dict[value]
+        return self.operator_dictionary[value]
     
     def items(self):
-        yield from self.operator_classes_dict.items()
+        yield from self.operator_dictionary.items()
 
     def add_operator(self, input):
         """Input is either an operator class (of type 'type') or a list/tuple of operator classes."""
@@ -333,7 +335,7 @@ class OperatorCollection:
         elif isinstance(input, type):
             if getattr(input, "name", None) is None:
                 raise ValueError(f"Operator class {input.__name__} has no name defined.")
-            self.operator_classes_dict[input.name] = input
+            self.operator_dictionary[input.name] = input
         else:
             raise TypeError(f"Unexpected input type {type(input)} for add_operator.")
 
@@ -352,6 +354,11 @@ class OperatorCollection:
         else:
             raise TypeError(f"Expected operator name as a string, got {type(op).__name__}.")
         return activated
+
+    def update_operators(self, semantics):
+        operators = self.operator_dictionary
+        for key in operators:
+            operators[key] = operators[key](semantics)
 
 
 class Syntax:
@@ -390,7 +397,7 @@ class Syntax:
         dependency_graph = {}  # Using a standard dict instead of defaultdict
 
         # Build the dependency graph
-        for operator in operator_collection.operator_classes_dict.values():
+        for operator in operator_collection.operator_dictionary.values():
             if operator.primitive:
                 continue
             try:
@@ -420,7 +427,7 @@ class Syntax:
             visited.add(current)
 
         # Perform DFS for each operator to detect cycles
-        for operator in operator_collection.operator_classes_dict.values():
+        for operator in operator_collection.operator_dictionary.values():
             if not operator.primitive and operator not in visited:
                 dfs(operator)
 
