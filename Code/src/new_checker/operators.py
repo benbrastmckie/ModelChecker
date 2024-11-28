@@ -944,7 +944,7 @@ class DefNecessityOperator2(syntactic.DefinedOperator):
     name = "\\necessary2"
     arity = 1
 
-    def derived_definition(self, rightarg):
+    def derived_definition(self, arg):
         # NOTE: TopOperator is not a list like the others, so [TopOperator]
         return [NegationOperator, [NecessityOperator, [NegationOperator, arg]]]
     
