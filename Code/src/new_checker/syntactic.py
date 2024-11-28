@@ -14,6 +14,8 @@ which is passed to ModelConstraints:
     initialized to generate and store original_types for each.
 """
 
+from collections import defaultdict
+
 from hidden_helpers import (
     bitvec_to_substates,
     not_implemented_string,
@@ -384,32 +386,46 @@ class Syntax:
         self.circularity_check(operator_collection)
 
     def circularity_check(self, operator_collection):
+        """Detects circular dependencies among operators."""
+        dependency_graph = {}  # Using a standard dict instead of defaultdict
 
-        def find_operators(ops):
-            all_ops = set()
-            for op in ops:
-                if op.primitive:
-                    continue
-                dummy_args = [None] * (op.arity + 1) 
-                op_def = op.derived_definition(*dummy_args)
-                ops_in_def = {
-                    elem
-                    for elem in flatten(op_def)
-                    if isinstance(elem, type)
-                }
-                all_ops.update(ops_in_def)
-                if op in all_ops:
-                    raise RecursionError(f"The operator {op.name} is defined in terms of itself.")
-                sub_ops = find_operators(ops_in_def)
-                all_ops.update(sub_ops)
-            return all_ops
+        # Build the dependency graph
+        for operator in operator_collection.operator_classes_dict.values():
+            if operator.primitive:
+                continue
+            try:
+                dummy_args = [None] * (operator.arity + 1)
+                definition = operator.derived_definition(*dummy_args)
+                dependencies = {elem for elem in flatten(definition) if isinstance(elem, type)}
+                # dependencies = {elem for elem in flatten(definition) if isinstance(elem, Operator)}
+                
+                if operator not in dependency_graph:
+                    dependency_graph[operator] = set()
+                dependency_graph[operator].update(dependencies)
+            except Exception as e:
+                raise ValueError(f"Error processing operator '{operator.name}': {e}")
 
-        op_dict = operator_collection.operator_classes_dict
-        ops = op_dict.values()
-        all_ops = find_operators(ops)
-        return all_ops
+        visited = set()
+        recursion_stack = set()
 
+        def dfs(current):
+            if current in recursion_stack:
+                cycle = " -> ".join(op.name for op in recursion_stack) + f" -> {current.name}"
+                raise RecursionError(f"Circular dependency detected: {cycle}")
+            if current in visited:
+                return
+            recursion_stack.add(current)
+            for dependent in dependency_graph.get(current, set()):
+                dfs(dependent)
+            recursion_stack.remove(current)
+            visited.add(current)
 
+        # Perform DFS for each operator to detect cycles
+        for operator in operator_collection.operator_classes_dict.values():
+            if not operator.primitive and operator not in visited:
+                dfs(operator)
+
+        return visited
 
     def find_sentence_letters(self, sentences):
         """Takes a list of sentence objects and returns all sentence_letters
