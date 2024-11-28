@@ -285,20 +285,25 @@ class DefinedOperator(Operator):
             )
             raise ValueError(mismatch_arity_msg)
 
-        # Check for circular definitions
-        dummy_args = [None] * derived_def_num_args
-        sample_derived_def = self.derived_definition(*dummy_args)
-        ops_in_def = [elem for elem in flatten(sample_derived_def) if isinstance(elem, type)]
-        self.defined_operators_in_definition = [op for op in ops_in_def if not op.primitive]
-        if loop_check:
-            for def_opcls in self.defined_operators_in_definition:
-                def_op_instance = def_opcls('dummy sem', False)
-                if self.__class__ in def_op_instance.defined_operators_in_definition:
-                    ermsg = (
-                        f"{op_subclass.__name__} and {def_opcls.__name__} are defined in terms of "
-                        f"each other. Please edit their derived_definition methods to avoid this."
-                    )
-                    raise RecursionError(ermsg)
+        # DISCUSS: _B_ I rewrote this in Syntax since the circularity
+        # could include more than one operator, and so requires knowing about
+        # all operators in the collection. There also seem to be some standard
+        # methods for using a depth first search to identify a cycle.
+
+        # # Check for circular definitions
+        # dummy_args = [None] * derived_def_num_args
+        # sample_derived_def = self.derived_definition(*dummy_args)
+        # ops_in_def = [elem for elem in flatten(sample_derived_def) if isinstance(elem, type)]
+        # self.defined_operators_in_definition = [op for op in ops_in_def if not op.primitive]
+        # if loop_check:
+        #     for def_opcls in self.defined_operators_in_definition:
+        #         def_op_instance = def_opcls('dummy sem', False)
+        #         if self.__class__ in def_op_instance.defined_operators_in_definition:
+        #             ermsg = (
+        #                 f"{op_subclass.__name__} and {def_opcls.__name__} are defined in terms of "
+        #                 f"each other. Please edit their derived_definition methods to avoid this."
+        #             )
+        #             raise RecursionError(ermsg)
 
 
 class OperatorCollection:
@@ -374,6 +379,37 @@ class Syntax:
         self.sentence_letters = self.find_sentence_letters(
             self.premises + self.conclusions
         )
+
+        # check for interdefined operators
+        self.circularity_check(operator_collection)
+
+    def circularity_check(self, operator_collection):
+
+        def find_operators(ops):
+            all_ops = set()
+            for op in ops:
+                if op.primitive:
+                    continue
+                dummy_args = [None] * (op.arity + 1) 
+                op_def = op.derived_definition(*dummy_args)
+                ops_in_def = {
+                    elem
+                    for elem in flatten(op_def)
+                    if isinstance(elem, type)
+                }
+                all_ops.update(ops_in_def)
+                if op in all_ops:
+                    raise RecursionError(f"The operator {op.name} is defined in terms of itself.")
+                sub_ops = find_operators(ops_in_def)
+                all_ops.update(sub_ops)
+            return all_ops
+
+        op_dict = operator_collection.operator_classes_dict
+        ops = op_dict.values()
+        all_ops = find_operators(ops)
+        return all_ops
+
+
 
     def find_sentence_letters(self, sentences):
         """Takes a list of sentence objects and returns all sentence_letters

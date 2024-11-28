@@ -15,6 +15,7 @@ from operators import (
     NecessityOperator, # modal
     DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
     CounterfactualOperator, MightCounterfactualOperator, # counterfactual
+    # DefNecessityOperator2, # circular (for testing)
 )
 
 # NOTE: go in API
@@ -36,6 +37,7 @@ operators = syntactic.OperatorCollection(
     NecessityOperator, # modal
     DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
     CounterfactualOperator, MightCounterfactualOperator, # counterfactual
+    # DefNecessityOperator2, # circular (for testing)
 )
 
 
@@ -267,13 +269,13 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
-N = 3
-premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
-# premises = ['((A \\wedge B) \\boxright C)','\\possible (A \\wedge B)']
-conclusions = ['(A \\boxright (B \\boxright C))']
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM19: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
+# N = 3
+# premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
+# # premises = ['((A \\wedge B) \\boxright C)','\\possible (A \\wedge B)']
+# conclusions = ['(A \\boxright (B \\boxright C))']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM20
 # N = 3
