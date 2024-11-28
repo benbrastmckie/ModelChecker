@@ -195,23 +195,9 @@ class ModelConstraints:
         print_impossible=False,
     ):
 
-        # Store syntax and its values
+        # Store inputs
         self.syntax = syntax
-        self.premises = self.syntax.premises
-        self.conclusions = self.syntax.conclusions
-        self.sentence_letters = self.syntax.sentence_letters
-        self.operator_collection = self.syntax.operator_collection
-        # self.all_sentences = self.syntax.all_sentences
-
-        # Store semantics and use to define operator dictionary
         self.semantics = semantics
-        # TODO: can the operator_collection be updated instead?
-        self.operators = { # applies semantics to each operator
-            op_name: op_class(semantics)
-            for (op_name, op_class) in self.operator_collection.items()
-        }
-
-        # Store proposition_class defined by the user
         self.proposition_class = proposition_class
 
         # Store user settings
@@ -219,6 +205,16 @@ class ModelConstraints:
         self.non_null = non_null
         self.disjoint = disjoint
         self.print_impossible = print_impossible
+
+        # Store syntax values
+        self.premises = self.syntax.premises
+        self.conclusions = self.syntax.conclusions
+        self.sentence_letters = self.syntax.sentence_letters
+
+        # Update operator_collection with semantics
+        self.operator_collection = self.apply_semantics(
+            self.syntax.operator_collection
+        )
 
         # use semantics to recursively update all derived_objects
         self.instantiate(self.premises + self.conclusions)
@@ -260,6 +256,11 @@ class ModelConstraints:
         premises = list(self.syntax.premises)
         conclusions = list(self.syntax.conclusions)
         return f"ModelConstraints for premises {premises} and conclusions {conclusions}"
+
+    def apply_semantics(self, operator_collection):
+        """Passes semantics into each operator in collection."""
+        operator_collection.update_operators(self.semantics)
+        return operator_collection
 
     def instantiate(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
