@@ -83,18 +83,7 @@ class Sentence:
         """Takes a sentence in prefix notation (in any of the three kinds)
         and translates it to infix notation (a string)."""
 
-        def get_operator(operator):
-            print(f"OP {operator} TYPE {type(operator)}")
-            if hasattr(operator, 'name'):
-                return operator.name
-            if isinstance(operator, str):
-                return operator
-            raise TypeError(
-                f"The prefix {prefix} contains an unsupported operator: "
-                f"{operator} (type: {type(operator).__name__}) in infix()."
-            )
-
-        if isinstance(prefix, type):
+        if hasattr(prefix, 'name'):
             return prefix.name
         if isinstance(prefix, ExprRef):
             return str(prefix)
@@ -104,7 +93,7 @@ class Sentence:
             if len(prefix) == 1:
                 return self.infix(prefix[0])
             operator = prefix[0]
-            op_str = get_operator(operator)
+            op_str = self.infix(operator)
             if len(prefix) == 2:
                 return f"{op_str} {self.infix(prefix[1])}"
             left_expr, right_expr = prefix[1], prefix[2]
@@ -358,8 +347,9 @@ class OperatorCollection:
 
     def update_operators(self, semantics):
         operators = self.operator_dictionary
-        for key in operators:
-            operators[key] = operators[key](semantics)
+        for key in list(operators.keys()):
+            if isinstance(operators[key], type):
+                operators[key] = operators[key](semantics)
 
 
 class Syntax:
@@ -405,7 +395,6 @@ class Syntax:
                 sig = inspect.signature(operator_class.derived_definition)
                 num_params = len(sig.parameters) - 1  # Subtract 'self'
                 dummy_args = [None] * num_params
-                print(f"CIRC: OP {operator_class} TYPE {type(operator_class)}")
                 temp_operator = operator_class('dummy_semantics')  # Instantiate the class
                 definition = temp_operator.derived_definition(*dummy_args)
                 dependencies = {
