@@ -139,12 +139,12 @@ conclusions = ["C"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 3
-# premises = ['(A \\circleright C)']
-# conclusions = ['((A \\wedge B) \\circleright C)']
-# contingent_bool = True
-# disjoint_bool = False
+# CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+N = 3
+premises = ['(A \\circleright C)']
+conclusions = ['((A \\wedge B) \\circleright C)']
+contingent_bool = True
+disjoint_bool = False
 
 # # WEAKENED MONOTONICITY
 # N = 3
@@ -167,13 +167,13 @@ conclusions = ["C"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# CF_CM7: COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
-# NOTE: with Z3 quantifiers ran for 125 seconds on the MIT server; now .181 seconds locally
-N = 4
-premises = ['\\neg B','(A \\boxright B)']
-conclusions = ['(\\neg B \\boxright \\neg A)']
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM7: COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
+# # NOTE: with Z3 quantifiers ran for 125 seconds on the MIT server; now .181 seconds locally
+# N = 4
+# premises = ['\\neg B','(A \\boxright B)']
+# conclusions = ['(\\neg B \\boxright \\neg A)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM8: COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
 # N = 4

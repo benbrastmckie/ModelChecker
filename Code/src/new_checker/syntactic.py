@@ -106,20 +106,17 @@ class Sentence:
         operator classes in place of operator strings and AtomSorts in place
         of sentence letters. If the operator is not primitive, then ."""
 
-        def primitive_operator(original_type):
-            """Checks if the main operator is primitive."""
-            return getattr(original_type[0], "primitive", True)
-
         def derive_type(original_type):
-            """This function translates a original_type possibly with defined
+            """This function translates an original_type possibly with defined
             operators to a derived_type without defined operators."""
-            if primitive_operator(original_type):
-                return original_type
             operator, args = original_type[0], original_type[1:]
-            if not hasattr(operator, "primitive"):
-                raise TypeError(f"Operator {operator} is not a subclass of Operator.")
-            derivation =  operator('a').derived_definition(*args)
-            return derive_type(derivation)
+            operator_class = operator if isinstance(operator, type) else operator.__class__
+            if getattr(operator_class, "primitive", True):
+                return original_type
+            if hasattr(operator_class, 'derived_definition'):
+                derivation = operator_class.derived_definition(*args)
+                return derive_type(derivation)
+            raise TypeError(f"Operator {operator_class} has no derived_definition method.")
 
         def store_types(derived_type):
             if self.name.isalnum(): # sentence letter
@@ -149,8 +146,6 @@ class Sentence:
                 return None
             op_dict = model_constraints.operator_collection.operator_dictionary
             return op_dict[some_type.name]
-            # OLD
-            # return model_constraints.operators[some_type.name]
 
         self.original_operator = activate_operator(self.original_operator)
         self.operator = activate_operator(self.operator)
@@ -237,16 +232,29 @@ class DefinedOperator(Operator):
 
     primitive = False
 
-    def derived_definition(self, *args):
+    def derived_definition(*args):
         """
         Returns the definition of the operator in terms of other operators.
         Must be implemented by subclasses.
         """
-        pass
+        raise NotImplementedError(
+            "Derived operator must implement the derived_definition method."
+        )
 
-    def __init__(self, semantics): # , loop_check=True
+    def __init__(self, semantics):
         super().__init__(semantics)
 
+    # def derived_definition(self, *args):
+    #     """
+    #     Returns the definition of the operator in terms of other operators.
+    #     Must be implemented by subclasses.
+    #     """
+    #     pass
+    #
+    # def __init__(self, semantics): # , loop_check=True
+    #     super().__init__(semantics)
+
+    def check_arity(self):
         op_subclass = self.__class__
 
         # Ensure derived_definition is implemented
@@ -381,53 +389,34 @@ class Syntax:
         )
 
         # check for interdefined operators
+        # TODO: turn back on once other pytest issues are sorted
         self.circularity_check(operator_collection)
 
-    def circularity_check(self, operator_collection):
-        """Detects circular dependencies among operators."""
-        dependency_graph = {}  # Using a standard dict instead of defaultdict
+    def initialize_sentences(self, infix_sentences):
+        """Takes a list of sentences composing the dictionaries of subsentences
+        for each, resulting in a dictionary that includes all subsentences."""
 
-        # Build the dependency graph
-        for operator_class in operator_collection.operator_dictionary.values():
-            if operator_class.primitive:
-                continue
-            try:
-                sig = inspect.signature(operator_class.derived_definition)
-                num_params = len(sig.parameters) - 1  # Subtract 'self'
-                dummy_args = [None] * num_params
-                temp_operator = operator_class('dummy_semantics')  # Instantiate the class
-                definition = temp_operator.derived_definition(*dummy_args)
-                dependencies = {
-                    elem for elem in flatten(definition) if isinstance(elem, type)
-                }
+        def initialize_types(sentence):
+            """Draws on the operator_collection in order to initialize all sentences
+            in the input by replacing operator strings with operator classes and
+            updating original_type in that sentence_obj. If the main operator is not
+            primitive, derived_arguments are updated with derived_types."""
+            operator_collection = self.operator_collection
+            # TODO: add appropriate check to avoid redundancy
+            if sentence.original_arguments:
+                for argument in sentence.original_arguments:
+                    initialize_types(argument)
+            sentence.update_types(operator_collection)
+            if sentence.arguments: # NOTE: must happen after arguments are stored
+                for argument in sentence.arguments:
+                    initialize_types(argument)
 
-                if operator_class not in dependency_graph:
-                    dependency_graph[operator_class] = set()
-                dependency_graph[operator_class].update(dependencies)
-            except Exception as e:
-                raise ValueError(f"Error processing operator '{operator_class.name}': {e}")
-
-        visited = set()
-        recursion_stack = set()
-
-        def dfs(current):
-            if current in recursion_stack:
-                cycle = " -> ".join(op.name for op in recursion_stack) + f" -> {current.name}"
-                raise RecursionError(
-                    f"Circular definition detected in {current.name}." +
-                    f"\n\n CYCLE: {cycle}\n")
-            if current in visited:
-                return
-            recursion_stack.add(current)
-            for dependent in dependency_graph.get(current, set()):
-                dfs(dependent)
-            recursion_stack.remove(current)
-            visited.add(current)
-
-        # Perform DFS for each operator to detect cycles
-        for operator in operator_collection.operator_dictionary.values():
-            if not operator.primitive and operator not in visited:
-                dfs(operator)
+        sentence_objects = []
+        for infix_sent in infix_sentences:
+            sentence = Sentence(infix_sent)
+            initialize_types(sentence)
+            sentence_objects.append(sentence)
+        return sentence_objects
 
     def find_sentence_letters(self, sentences):
         """Takes a list of sentence objects and returns all sentence_letters
@@ -457,29 +446,54 @@ class Syntax:
             all_sentence_letters.update(sent_obj_letters)
         return list(all_sentence_letters.values())
 
-    def initialize_sentences(self, infix_sentences):
-        """Takes a list of sentences composing the dictionaries of subsentences
-        for each, resulting in a dictionary that includes all subsentences."""
+    def circularity_check(self, operator_collection):
+        """Detects circular dependencies among operators."""
+        dependency_graph = {}  # Using a standard dict instead of defaultdict
 
-        def initialize_types(sentence):
-            """Draws on the operator_collection in order to initialize all sentences
-            in the input by replacing operator strings with operator classes and
-            updating original_type in that sentence_obj. If the main operator is not
-            primitive, derived_arguments are updated with derived_types."""
-            operator_collection = self.operator_collection
-            # TODO: add appropriate check to avoid redundancy
-            if sentence.original_arguments:
-                for argument in sentence.original_arguments:
-                    initialize_types(argument)
-            sentence.update_types(operator_collection)
-            if sentence.arguments: # NOTE: must happen after arguments are stored
-                for argument in sentence.arguments:
-                    initialize_types(argument)
+        # Build the dependency graph
+        for operator_class in operator_collection.operator_dictionary.values():
+            if operator_class.primitive:
+                continue
+            try:
+                # Get the signature of derived_definition
+                sig = inspect.signature(operator_class.derived_definition)
+                num_params = len(sig.parameters)
+                dummy_args = [None] * num_params  # Create dummy arguments
 
-        sentence_objects = []
-        for infix_sent in infix_sentences:
-            sentence = Sentence(infix_sent)
-            initialize_types(sentence)
-            sentence_objects.append(sentence)
-        return sentence_objects
+                # Call derived_definition directly on the class
+                definition = operator_class.derived_definition(*dummy_args)
+
+                # Collect dependencies (operator classes used in the definition)
+                dependencies = {
+                    elem for elem in flatten(definition) if isinstance(elem, type)
+                }
+
+                # Update the dependency graph
+                if operator_class not in dependency_graph:
+                    dependency_graph[operator_class] = set()
+                dependency_graph[operator_class].update(dependencies)
+            except Exception as e:
+                raise ValueError(f"Error processing operator '{operator_class.name}': {e}")
+
+        visited = set()
+        recursion_stack = set()
+
+        def dfs(current):
+            if current in recursion_stack:
+                cycle = " -> ".join(op.name for op in recursion_stack) + f" -> {current.name}"
+                raise RecursionError(
+                    f"Circular definition detected in {current.name}." +
+                    f"\n\n CYCLE: {cycle}\n")
+            if current in visited:
+                return
+            recursion_stack.add(current)
+            for dependent in dependency_graph.get(current, set()):
+                dfs(dependent)
+            recursion_stack.remove(current)
+            visited.add(current)
+
+        # Perform DFS for each operator to detect cycles
+        for operator in operator_collection.operator_dictionary.values():
+            if not operator.primitive and operator not in visited:
+                dfs(operator)
 
