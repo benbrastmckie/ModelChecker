@@ -180,19 +180,12 @@ class OrOperator(syntactic.Operator):
 ######################## DEFINED EXTENSIONAL OPERATORS #######################
 ##############################################################################
 
-# class ConditionalOperator(syntactic.DefinedOperator):
-#
-#     name = "\\rightarrow"
-#     arity = 2
-#
-#     def derived_definition(self, leftarg, rightarg):
-#         return [OrOperator, [NegationOperator, leftarg], rightarg]
-
 class ConditionalOperator(syntactic.DefinedOperator):
+
     name = "\\rightarrow"
     arity = 2
 
-    def derived_definition(leftarg, rightarg):
+    def derived_definition(self, leftarg, rightarg):
         return [OrOperator, [NegationOperator, leftarg], rightarg]
     
     def print_method(self, sentence_obj, eval_world, indent_num):
@@ -206,7 +199,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
     name = "\\leftrightarrow"
     arity = 2
 
-    def derived_definition(leftarg, rightarg):
+    def derived_definition(self, leftarg, rightarg):
         right_to_left = [ConditionalOperator, leftarg, rightarg]
         left_to_right = [ConditionalOperator, rightarg, leftarg]
         return [AndOperator, right_to_left, left_to_right]
@@ -634,7 +627,7 @@ class DefGroundOperator(syntactic.DefinedOperator):
     name = "\\ground"
     arity = 2
 
-    def derived_definition(leftarg, rightarg):
+    def derived_definition(self, leftarg, rightarg):
         return [IdentityOperator, [OrOperator, leftarg, rightarg], rightarg]
 
     def print_method(self, sentence_obj, eval_world, indent_num):
@@ -648,7 +641,7 @@ class DefEssenceOperator(syntactic.DefinedOperator):
     name = "\\essence"
     arity = 2
 
-    def derived_definition(leftarg, rightarg):
+    def derived_definition(self, leftarg, rightarg):
         return [IdentityOperator, [AndOperator, leftarg, rightarg], rightarg]
 
     def print_method(self, sentence_obj, eval_world, indent_num):
@@ -792,7 +785,7 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
     name = "\\circleright"
     arity = 2
 
-    def derived_definition(leftarg, rightarg):
+    def derived_definition(self, leftarg, rightarg):
         return [
             NegationOperator, [
                 CounterfactualOperator,
@@ -915,9 +908,9 @@ class DefNecessityOperator(syntactic.DefinedOperator):
     name = "\\necessary"
     arity = 1
 
-    def derived_definition(argument):
+    def derived_definition(self, rightarg):
         # NOTE: TopOperator is not a list like the others, so [TopOperator]
-        return [CounterfactualOperator, [TopOperator], argument]
+        return [CounterfactualOperator, [TopOperator], rightarg]
     
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Print counterfactual and the antecedent in the eval_world. Then
@@ -934,8 +927,8 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
     name = "\\possible"
     arity = 1
 
-    def derived_definition(argument):
-        return [NegationOperator, [DefNecessityOperator2, [NegationOperator, argument]]]
+    def derived_definition(self, arg):
+        return [NegationOperator, [DefNecessityOperator2, [NegationOperator, arg]]]
         # return [NegationOperator, [NecessityOperator, [NegationOperator, arg]]]
     
     def print_method(self, sentence_obj, eval_world, indent_num):
@@ -952,9 +945,9 @@ class DefNecessityOperator2(syntactic.DefinedOperator):
     name = "\\necessary2"
     arity = 1
 
-    def derived_definition(argument):
+    def derived_definition(self, arg):
         # NOTE: TopOperator is not a list like the others, so [TopOperator]
-        return [NegationOperator, [DefPossibilityOperator, [NegationOperator, argument]]]
+        return [NegationOperator, [DefPossibilityOperator, [NegationOperator, arg]]]
     
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Print counterfactual and the antecedent in the eval_world. Then
@@ -970,8 +963,8 @@ class DefPossibilityOperator2(syntactic.DefinedOperator):
     name = "\\possible2" # note name change
     arity = 1
 
-    def derived_definition(argument):
-        return [MightCounterfactualOperator, [TopOperator], argument]
+    def derived_definition(self, arg):
+        return [MightCounterfactualOperator, [TopOperator], arg]
     
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Print counterfactual and the antecedent in the eval_world. Then

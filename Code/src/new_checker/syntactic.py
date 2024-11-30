@@ -106,17 +106,26 @@ class Sentence:
         operator classes in place of operator strings and AtomSorts in place
         of sentence letters. If the operator is not primitive, then ."""
 
+        def primitive_operator(original_type):
+            """Checks if the main operator is primitive."""
+            return getattr(original_type[0], "primitive", True)
+
         def derive_type(original_type):
-            """This function translates an original_type possibly with defined
+            """This function translates a original_type possibly with defined
             operators to a derived_type without defined operators."""
-            operator, args = original_type[0], original_type[1:]
-            operator_class = operator if isinstance(operator, type) else operator.__class__
-            if getattr(operator_class, "primitive", True):
+            if primitive_operator(original_type):
                 return original_type
-            if hasattr(operator_class, 'derived_definition'):
-                derivation = operator_class.derived_definition(*args)
-                return derive_type(derivation)
-            raise TypeError(f"Operator {operator_class} has no derived_definition method.")
+            operator, args = original_type[0], original_type[1:]
+            if not hasattr(operator, "primitive"):
+                raise TypeError(f"Operator {operator} is not a subclass of Operator.")
+            if isinstance(operator, type):
+                derivation =  operator('a').derived_definition(*args)
+            else:
+                raise TypeError(
+                    f"The operator {operator} is of type {type(operator)} " +
+                    f"which is not an operator class."
+                )
+            return derive_type(derivation)
 
         def store_types(derived_type):
             if self.name.isalnum(): # sentence letter
@@ -232,40 +241,31 @@ class DefinedOperator(Operator):
 
     primitive = False
 
-    def derived_definition(*args):
+    def derived_definition(self, *args):
         """
         Returns the definition of the operator in terms of other operators.
         Must be implemented by subclasses.
         """
-        raise NotImplementedError(
-            "Derived operator must implement the derived_definition method."
-        )
+        pass
 
-    def __init__(self, semantics):
+    def __init__(self, semantics): # , loop_check=True
         super().__init__(semantics)
 
-    # def derived_definition(self, *args):
-    #     """
-    #     Returns the definition of the operator in terms of other operators.
-    #     Must be implemented by subclasses.
-    #     """
-    #     pass
-    #
-    # def __init__(self, semantics): # , loop_check=True
-    #     super().__init__(semantics)
-
-    def check_arity(self):
-        op_subclass = self.__class__
+        self.op_subclass = self.__class__
 
         # Ensure derived_definition is implemented
         if self.__class__.derived_definition == DefinedOperator.derived_definition:
             raise NotImplementedError(
-                f"Derived operator class {op_subclass.__name__} must implement "
+                f"Derived operator class {self.op_subclass.__name__} must implement "
                 f"the derived_definition method."
             )
 
+        # DISCUSS: should this arity check go in Operator?
+        self.check_arity()
+
+    def check_arity(self):
         # Get the signature of derived_definition
-        derived_def_sig = inspect.signature(op_subclass.derived_definition)
+        derived_def_sig = inspect.signature(self.op_subclass.derived_definition)
         params = list(derived_def_sig.parameters.values())
 
         # Exclude 'self' parameter
@@ -276,13 +276,13 @@ class DefinedOperator(Operator):
 
         # Ensure 'arity' attribute exists
         if not hasattr(self, 'arity'):
-            raise AttributeError(f"{op_subclass.__name__} must define an 'arity' attribute.")
+            raise AttributeError(f"{self.op_subclass.__name__} must define an 'arity' attribute.")
 
         # Check for arity match
         if self.arity != derived_def_num_args:
             mismatch_arity_msg = (
                 f"The specified arity of value {self.arity} for the DerivedOperator class "
-                f"{op_subclass.__name__} does not match the number of arguments (excluding 'self') "
+                f"{self.op_subclass.__name__} does not match the number of arguments (excluding 'self') "
                 f"for its derived_definition method ({derived_def_num_args} non-self arguments)."
             )
             raise ValueError(mismatch_arity_msg)
@@ -455,20 +455,15 @@ class Syntax:
             if operator_class.primitive:
                 continue
             try:
-                # Get the signature of derived_definition
                 sig = inspect.signature(operator_class.derived_definition)
-                num_params = len(sig.parameters)
-                dummy_args = [None] * num_params  # Create dummy arguments
-
-                # Call derived_definition directly on the class
-                definition = operator_class.derived_definition(*dummy_args)
-
-                # Collect dependencies (operator classes used in the definition)
+                num_params = len(sig.parameters) - 1  # Subtract 'self'
+                dummy_args = [None] * num_params
+                temp_operator = operator_class('dummy_semantics')  # Instantiate the class
+                definition = temp_operator.derived_definition(*dummy_args)
                 dependencies = {
                     elem for elem in flatten(definition) if isinstance(elem, type)
                 }
 
-                # Update the dependency graph
                 if operator_class not in dependency_graph:
                     dependency_graph[operator_class] = set()
                 dependency_graph[operator_class].update(dependencies)
