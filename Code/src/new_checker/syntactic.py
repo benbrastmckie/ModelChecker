@@ -154,8 +154,6 @@ class Sentence:
             if some_type is None: # operator is None if sentence_letter
                 return None
             op_dict = model_constraints.operators
-            # # NOTE: required for update operator_collection strategy
-            # op_dict = model_constraints.operator_collection.operator_dictionary
             return op_dict[some_type.name]
 
         self.original_operator = activate_operator(self.original_operator)
@@ -332,16 +330,6 @@ class OperatorCollection:
     def items(self):
         yield from self.operator_dictionary.items()
 
-    # # NOTE: required for update operator_collection strategy
-    # def copy(self):
-    #     """
-    #     Creates a shallow copy of the OperatorCollection.
-    #     Note: This copies the operator_dictionary but does not deep copy the operators themselves.
-    #     """
-    #     new_collection = OperatorCollection()
-    #     new_collection.operator_dictionary = self.operator_dictionary.copy()
-    #     return new_collection
-
     def add_operator(self, input):
         """Input is either an operator class (of type 'type') or a list/tuple of operator classes."""
         if isinstance(input, (list, tuple, set)):
@@ -369,13 +357,6 @@ class OperatorCollection:
         else:
             raise TypeError(f"Expected operator name as a string, got {type(op).__name__}.")
         return activated
-
-    # # NOTE: required for update operator_collection strategy
-    # def update_operators(self, semantics):
-    #     operators = self.operator_dictionary
-    #     for key in operators.keys():
-    #         if isinstance(operators[key], type):
-    #             operators[key] = operators[key](semantics)
 
 
 class Syntax:
