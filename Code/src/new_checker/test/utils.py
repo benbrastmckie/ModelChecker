@@ -87,7 +87,7 @@ def find_model_structure(
     model_constraints = ModelConstraints(
         syntax, semantics, Proposition, contingent, non_null, disjoint
     )
-    # TODO: move print_impossible to ModelStructure
+    # TODO: add print_impossible to ModelStructure
     return ModelStructure(model_constraints, max_time)
 
 

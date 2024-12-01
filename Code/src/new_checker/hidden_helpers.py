@@ -122,20 +122,6 @@ def op_left_right(tokens):
 
 ### PRINT HELPERS ###
 
-def set_colors(name, indent_num, truth_value, world_state):
-    RED, GREEN, RESET = "\033[31m", "\033[32m", "\033[0m" 
-    FULL, PART = "\033[37m", "\033[33m"
-    if indent_num == 1:
-        FULL, PART = (GREEN, GREEN) if truth_value else (RED, RED)
-        if truth_value is None:
-            # world_state = bitvec_to_substates(eval_world, N)
-            print(
-                f"\n{RED}WARNING:{RESET}"
-                f"{name} is neither true nor false at {world_state}.\n"
-            )
-    return RESET, FULL, PART
-
-
 def pretty_set_print(set_with_strings):
     """input a set with strings print that same set but with no quotation marks around each
     individual string, and also with the set in order returns the set as a string
