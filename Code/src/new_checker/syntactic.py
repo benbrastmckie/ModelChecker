@@ -253,44 +253,37 @@ class DefinedOperator(Operator):
             f"Derived operator class {self.__class__.__name__} must implement the derived_definition method."
         )
 
-    def __init__(self, semantics): # , loop_check=True
+    def __init__(self, semantics):
         super().__init__(semantics)
+        self._validate_arity()
 
-        self.op_subclass = self.__class__
+    def _validate_arity(self):
+        """
+        Validates that the 'arity' attribute matches the number of arguments
+        in the 'derived_definition' method (excluding 'self').
+        """
+        # Retrieve the signature of the derived_definition method
+        signature = inspect.signature(self.derived_definition)
+        params = list(signature.parameters.values())
 
-        # Ensure derived_definition is implemented
-        if self.__class__.derived_definition == DefinedOperator.derived_definition:
-            raise NotImplementedError(
-                f"Derived operator class {self.op_subclass.__name__} must implement "
-                f"the derived_definition method."
-            )
-
-        # DISCUSS: should this arity check go in Operator?
-        self.check_arity()
-
-    def check_arity(self):
-        # Get the signature of derived_definition
-        derived_def_sig = inspect.signature(self.op_subclass.derived_definition)
-        params = list(derived_def_sig.parameters.values())
-
-        # Exclude 'self' parameter
+        # Exclude 'self' if present
         if params and params[0].name == 'self':
             params = params[1:]
 
         derived_def_num_args = len(params)
 
-        # Ensure 'arity' attribute exists
+        # Check if 'arity' is defined
         if not hasattr(self, 'arity'):
-            raise AttributeError(f"{self.op_subclass.__name__} must define an 'arity' attribute.")
-
-        # Check for arity match
-        if self.arity != derived_def_num_args:
-            mismatch_arity_msg = (
-                f"The specified arity of value {self.arity} for the DerivedOperator class "
-                f"{self.op_subclass.__name__} does not match the number of arguments (excluding 'self') "
-                f"for its derived_definition method ({derived_def_num_args} non-self arguments)."
+            raise AttributeError(
+                f"{self.__class__.__name__} must define an 'arity' attribute."
             )
-            raise ValueError(mismatch_arity_msg)
+
+        # Validate that 'arity' matches the number of arguments
+        if self.arity != derived_def_num_args:
+            raise ValueError(
+                f"The specified arity of {self.arity} for {self.__class__.__name__} does not match "
+                f"the number of arguments ({derived_def_num_args}) for its 'derived_definition' method."
+            )
 
         # DISCUSS: _B_ I rewrote this in Syntax since the circularity
         # could include more than one operator, and so requires knowing about
@@ -388,7 +381,6 @@ class Syntax:
         )
 
         # check for interdefined operators
-        # TODO: turn back on once other pytest issues are sorted
         self.circularity_check(operator_collection)
 
     def initialize_sentences(self, infix_sentences):
@@ -432,11 +424,6 @@ class Syntax:
                 for arg in sentence.arguments:
                     arg_letters = extract_letters(arg)
                     sentence_letters.update(arg_letters)
-            # TODO: remove
-            # if sentence.original_arguments:
-            #     for arg in sentence.original_arguments:
-            #         arg_letters = extract_letters(arg)
-            #         sentence_letters.update(arg_letters)
             return sentence_letters
 
         all_sentence_letters = {}
@@ -446,29 +433,38 @@ class Syntax:
         return list(all_sentence_letters.values())
 
     def circularity_check(self, operator_collection):
-        """Detects circular dependencies among operators."""
-        dependency_graph = {}  # Using a standard dict instead of defaultdict
+        """Detects circular dependencies among operators and ensures all dependencies are within the collection."""
+        dependency_graph = {}
+        operator_set = set(operator_collection.operator_dictionary.values())
 
         # Build the dependency graph
         for operator_class in operator_collection.operator_dictionary.values():
             if operator_class.primitive:
                 continue
-            try:
-                # Assuming derived_definition is a class/static method
-                if isinstance(operator_class, type):
-                    sig = inspect.signature(operator_class.derived_definition)
-                    num_params = len(sig.parameters)
-                    dummy_args = [None] * num_params
-                    dependencies = {
-                        elem for elem in flatten(operator_class.derived_definition(*dummy_args))
-                        if isinstance(elem, type)
-                    }
-
-                    if operator_class not in dependency_graph:
-                        dependency_graph[operator_class] = set()
-                    dependency_graph[operator_class].update(dependencies)
-            except Exception as e:
-                raise ValueError(f"Error processing operator '{operator_class.name}': {e}")
+            # Ensure derived_definition is callable
+            if isinstance(operator_class, type) and callable(getattr(operator_class, 'derived_definition', None)):
+                sig = inspect.signature(operator_class.derived_definition)
+                num_params = len(sig.parameters)
+                dummy_args = [None] * num_params
+                dependencies = {
+                    elem for elem in flatten(operator_class.derived_definition(*dummy_args))
+                    if isinstance(elem, type)
+                }
+                # Identify missing dependencies if any
+                missing_dependencies = dependencies - operator_set
+                if missing_dependencies:
+                    missing_names = [op.name for op in missing_dependencies]
+                    raise ValueError(
+                        f"Operator '{operator_class.name}' depends on undefined operators: {missing_names}"
+                    )
+                # Update the dependency graph
+                if operator_class not in dependency_graph:
+                    dependency_graph[operator_class] = set()
+                dependency_graph[operator_class].update(dependencies)
+                continue
+            raise ValueError(
+                f"Error processing operator '{operator_class.name}'"
+            )
 
         visited = set()
         recursion_stack = set()
@@ -477,8 +473,8 @@ class Syntax:
             if current in recursion_stack:
                 cycle = " -> ".join(op.name for op in recursion_stack) + f" -> {current.name}"
                 raise RecursionError(
-                    f"Circular definition detected in {current.name}." +
-                    f"\n\n CYCLE: {cycle}\n")
+                    f"Circular definition detected in {current.name}.\n\nCYCLE: {cycle}\n"
+                )
             if current in visited:
                 return
             recursion_stack.add(current)
@@ -491,4 +487,3 @@ class Syntax:
         for operator in operator_collection.operator_dictionary.values():
             if not operator.primitive and operator not in visited:
                 dfs(operator)
-

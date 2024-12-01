@@ -349,6 +349,17 @@ class ModelStructure:
         if not self.z3_model is None:
             self.main_world = self.z3_model[self.main_world]
 
+        # Define ANSI color codes
+        self.COLORS = {
+            "default": "\033[37m",  # WHITE
+            "world": "\033[34m",    # BLUE
+            "possible": "\033[36m", # CYAN
+            "impossible": "\033[35m", # MAGENTA
+            "initial": "\033[33m",  # YELLOW
+        }
+        self.RESET = "\033[0m"
+        self.WHITE = self.COLORS["default"]
+
         # Recursively update propositions
         self.interpret(self.premises + self.conclusions)
 
@@ -466,35 +477,21 @@ class ModelStructure:
         def format_state(bin_rep, state, color, label=""):
             """Helper function to format and print a state."""
             label_str = f" ({label})" if label else ""
-            print(f"  {WHITE}{bin_rep} = {color}{state}{label_str}{RESET}", file=output)
+            print(f"  {self.WHITE}{bin_rep} = {color}{state}{label_str}{self.RESET}", file=output)
         
-        # Extract semantics and state information
-        # TODO: move to class attribute
+        # Print formatted state space
         print("\nState Space:", file=output)
-
-        # Define ANSI color codes
-        COLORS = {
-            "default": "\033[37m",  # WHITE
-            "world": "\033[34m",    # BLUE
-            "possible": "\033[36m", # CYAN
-            "impossible": "\033[35m", # MAGENTA
-            "initial": "\033[33m",  # YELLOW
-        }
-        RESET = "\033[0m"
-        WHITE = COLORS["default"]
-
-        # Print state details
         for bit in self.all_bits:
             state = bitvec_to_substates(bit, self.N)
             bin_rep = binary_bitvector(bit)
             if bit == 0:
-                format_state(bin_rep, state, COLORS["initial"])
+                format_state(bin_rep, state, self.COLORS["initial"])
             elif bit in self.world_bits:
-                format_state(bin_rep, state, COLORS["world"], "world")
+                format_state(bin_rep, state, self.COLORS["world"], "world")
             elif bit in self.poss_bits:
-                format_state(bin_rep, state, COLORS["possible"])
+                format_state(bin_rep, state, self.COLORS["possible"])
             elif self.print_impossible:
-                format_state(bin_rep, state, COLORS["impossible"], "impossible")
+                format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
 
     # def rec_print(self, sentence, eval_world, indent):
     #     # all_sentences = self.all_sentences

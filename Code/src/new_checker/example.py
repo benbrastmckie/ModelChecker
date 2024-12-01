@@ -15,7 +15,9 @@ from operators import (
     NecessityOperator, # modal
     DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
     CounterfactualOperator, MightCounterfactualOperator, # counterfactual
-    DefNecessityOperator2, # circular (for testing)
+    CircNecessityOperator, CircPossibilityOperator, # circular (for testing)
+    CircNecessityOperator1, CircPossibilityOperator1,
+    CircNecessityOperator2, CircPossibilityOperator2, 
 )
 
 # NOTE: go in API
@@ -37,7 +39,9 @@ operators = syntactic.OperatorCollection(
     NecessityOperator, # modal
     DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
     CounterfactualOperator, MightCounterfactualOperator, # counterfactual
-    # DefNecessityOperator2, # circular (for testing)
+    # CircNecessityOperator, CircPossibilityOperator, # circular (for testing)
+    # CircNecessityOperator1, CircPossibilityOperator1,
+    # CircNecessityOperator2, CircPossibilityOperator2, 
 )
 
 

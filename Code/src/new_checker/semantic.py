@@ -13,7 +13,6 @@ from hidden_helpers import (
     bitvec_to_substates,
     index_to_substate,
     pretty_set_print,
-    set_colors,
 )
 
 import syntactic
@@ -178,7 +177,6 @@ class Proposition(PropositionDefaults):
     """
 
     def __init__(self, sentence, model_structure, eval_world='main'):
-        """TODO"""
 
         super().__init__(sentence, model_structure)
         self.eval_world = model_structure.main_world if eval_world == 'main' else eval_world
@@ -302,9 +300,8 @@ class Proposition(PropositionDefaults):
                     disjoint_constraints.append(other_disjoint_atom)
             return disjoint_constraints
 
-        # Start collecting constraints
+        # Collect constraints
         constraints = get_classical_constraints()
-        # Constraints based on settings
         if self.disjoint:
             constraints.extend(get_disjoint_constraints())
             constraints.extend(get_non_null_constraints())
@@ -367,9 +364,6 @@ class Proposition(PropositionDefaults):
 
     def print_proposition(self, eval_world, indent_num):
         N = self.model_structure.model_constraints.semantics.N
-        # TODO: remove true_at method above
-        # use string to look up sentence from all sentences
-        # truth_value = self.model_structure.z3_model.evaluate(self.semantics.true_at(self.sentence, eval_world))
         truth_value = self.truth_value_at(eval_world)
         possible = self.model_structure.model_constraints.semantics.possible
         z3_model = self.model_structure.z3_model
@@ -386,8 +380,23 @@ class Proposition(PropositionDefaults):
         ver_prints = pretty_set_print(ver_states)
         fal_prints = pretty_set_print(fal_states)
         world_state = bitvec_to_substates(eval_world, N)
-        RESET, FULL, PART = set_colors(self.name, indent_num, truth_value, world_state)
+        RESET, FULL, PART = self.set_colors(self.name, indent_num, truth_value, world_state)
         print(
             f"{'  ' * indent_num}{FULL}|{self}| = < {ver_prints}, {fal_prints} >{RESET}"
             f"  {PART}({truth_value} in {world_state}){RESET}"
         )
+
+    def set_colors(self, name, indent_num, truth_value, world_state):
+        RED, GREEN, RESET = "\033[31m", "\033[32m", "\033[0m" 
+        FULL, PART = "\033[37m", "\033[33m"
+        if indent_num == 1:
+            FULL, PART = (GREEN, GREEN) if truth_value else (RED, RED)
+            if truth_value is None:
+                # world_state = bitvec_to_substates(eval_world, N)
+                print(
+                    f"\n{RED}WARNING:{RESET}"
+                    f"{name} is neither true nor false at {world_state}.\n"
+                )
+        return RESET, FULL, PART
+
+

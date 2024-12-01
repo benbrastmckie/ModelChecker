@@ -17,7 +17,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
       - [x] Or
     - [ ] unit tests
   - [ ] Fine
-- [ ] testing
+- [ ] benchmarks
 - [.] documentation
 - cli
   - release
@@ -39,8 +39,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [:] defined operators
       - [x] debug given `sentence_obj` integration
       - [x] _M_ move derived definition upstream
+      - [x] check definitional loops etc
       - [.] _B_ add doc strings
-      - [ ] check definitional loops etc
     - [x] might counterfactual
       - [x] primitive
       - [x] defined

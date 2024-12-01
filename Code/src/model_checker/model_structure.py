@@ -680,7 +680,7 @@ class Proposition:
         ensures eval_world is in fact the eval_world for CFs"""
         N = self.model_setup.N
         truth_value = self.truth_value_at(eval_world)
-        # TODO: is this necessary?
+        # DISCUSS: is this necessary?
         # prefix_expr_op = self.prop_dict["prefix expression"][0]
         # if 'boxright' in str(prefix_expr_op):
         #     # print('TEST: CONFIRM')
