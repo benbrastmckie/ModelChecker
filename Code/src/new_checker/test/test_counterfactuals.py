@@ -405,7 +405,7 @@ def test_CF_CM18():
 @pytest.mark.timeout(max_time)
 def test_CF_CM19():
 # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
-    premises = ['((A \\wedge B) \\boxright C)','\\possible2 (A \\wedge B)']
+    premises = ['((A \\wedge B) \\boxright C)','\\possible (A \\wedge B)']
     conclusions = ['(A \\boxright (B \\boxright C))']
     N = 3
     contingent = True

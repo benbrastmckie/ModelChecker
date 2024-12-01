@@ -5,7 +5,7 @@ from new_checker.semantic import (
     Proposition,
 )
 
-from new_checker.operators import (
+from new_checker.defined_operators import (
     NegationOperator,
     AndOperator,
     OrOperator,
@@ -15,15 +15,14 @@ from new_checker.operators import (
     EssenceOperator,
     GroundOperator,
     CounterfactualOperator,
+    NecessityOperator,
     MightCounterfactualOperator,
     DefEssenceOperator,
     DefGroundOperator,
     ConditionalOperator,
     BiconditionalOperator,
-    NecessityOperator,
     DefNecessityOperator,
     DefPossibilityOperator,
-    DefPossibilityOperator2,
 )
 
 from new_checker.model_builder import (
@@ -65,7 +64,6 @@ operators = OperatorCollection(
     NecessityOperator, # modal
     DefNecessityOperator,
     DefPossibilityOperator,  # modal defined
-    DefPossibilityOperator2,
 )
 
 

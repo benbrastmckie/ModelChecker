@@ -3,8 +3,6 @@ import z3
 from hidden_helpers import (
     ForAll,
     Exists,
-    bitvec_to_substates,
-    pretty_set_print,
 )
 
 import syntactic
@@ -163,47 +161,10 @@ class OrOperator(syntactic.Operator):
         self.general_print(sentence_obj, eval_world, indent_num)
 
 
-##############################################################################
-######################## DEFINED EXTENSIONAL OPERATORS #######################
-##############################################################################
-
-class ConditionalOperator(syntactic.DefinedOperator):
-
-    name = "\\rightarrow"
-    arity = 2
-
-    def derived_definition(self, leftarg, rightarg):
-        return [OrOperator, [NegationOperator, leftarg], rightarg]
-    
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
-
-
-class BiconditionalOperator(syntactic.DefinedOperator):
-
-    name = "\\leftrightarrow"
-    arity = 2
-
-    def derived_definition(self, leftarg, rightarg):
-        right_to_left = [ConditionalOperator, leftarg, rightarg]
-        left_to_right = [ConditionalOperator, rightarg, leftarg]
-        return [AndOperator, right_to_left, left_to_right]
-    
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
-
-
-
-
 
 ##############################################################################
 ############################## EXTREMAL OPERATORS ############################
 ##############################################################################
-
 
 class TopOperator(syntactic.Operator):
     """Top element of the space of propositions with respect to ground.
@@ -223,18 +184,6 @@ class TopOperator(syntactic.Operator):
 
     def extended_verify(self, state, eval_world):
         return state == state
-
-    # def extended_verify(self, state, leftarg, rightarg, eval_world):
-    #     x = z3.BitVec("ex_and_ver_x", self.semantics.N)
-    #     y = z3.BitVec("ex_and_ver_y", self.semantics.N)
-    #     return Exists(
-    #         [x, y],
-    #         z3.And(
-    #             self.semantics.fusion(x, y) == state,
-    #             self.semantics.extended_verify(x, leftarg, eval_world),
-    #             self.semantics.extended_verify(y, rightarg, eval_world),
-    #         )
-    #     )
 
     def extended_falsify(self, state, eval_world):
         return state == self.semantics.full_bit
@@ -606,39 +555,6 @@ class EssenceOperator(syntactic.Operator):
 
 
 ##############################################################################
-####################### DEFINED CONSTITUTIVE OPERATORS #######################
-##############################################################################
-
-class DefGroundOperator(syntactic.DefinedOperator):
-
-    name = "\\ground"
-    arity = 2
-
-    def derived_definition(self, leftarg, rightarg):
-        return [IdentityOperator, [OrOperator, leftarg, rightarg], rightarg]
-
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
-
-
-class DefEssenceOperator(syntactic.DefinedOperator):
-
-    name = "\\essence"
-    arity = 2
-
-    def derived_definition(self, leftarg, rightarg):
-        return [IdentityOperator, [AndOperator, leftarg, rightarg], rightarg]
-
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
-
-
-
-##############################################################################
 ########################## COUNTERFACTUAL OPERATORS ##########################
 ##############################################################################
 
@@ -694,93 +610,6 @@ class CounterfactualOperator(syntactic.Operator):
             f"is neither true nor false in the world {eval_world}."
         )
     
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
-        """
-        is_alt = self.semantics.calculate_alternative_worlds
-        model_structure = sentence_obj.proposition.model_structure
-        left_argument_obj = sentence_obj.original_arguments[0]
-        left_argument_verifiers = left_argument_obj.proposition.verifiers
-        alt_worlds = is_alt(left_argument_verifiers, eval_world, model_structure)
-        self.print_over_worlds(sentence_obj, eval_world, alt_worlds, indent_num)
-
-
-        # # FOR REFERENCE UNTIL ALL IS WORKING
-        # CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
-        #
-        # # B: why doesn't sentence_obj.model_structure exist?
-        # proposition = sentence_obj.proposition
-        # model_structure = proposition.model_structure
-        # N = proposition.N
-        # 
-        # # Print main proposition
-        # proposition.print_proposition(eval_world, indent_num)
-        # 
-        # # Increment indentation for nested output
-        # indent_num += 1
-        # 
-        # # Retrieve primary subsentences and verifiers
-        # left_argument_obj, right_subsentence = sentence_obj.arguments
-        # left_argument_verifiers = left_argument_obj.proposition.verifiers
-        # 
-        # # Calculate alternative worlds
-        # alt_worlds = self.calculate_alternative_worlds(left_argument_verifiers, eval_world, model_structure)
-        # alt_world_strings = {bitvec_to_substates(u, N) for u in alt_worlds}
-        # 
-        # # Print left subsentence and alternatives
-        # model_structure.recursive_print(left_argument_obj, eval_world, indent_num)
-        # print(
-        #     f'{"  " * indent_num} {CYAN}{left_argument_obj}-alternatives '
-        #     f'to {bitvec_to_substates(eval_world, N)} = '
-        #     f'{pretty_set_print(alt_world_strings)}{RESET}'
-        # )
-        # 
-        # # Increment indentation for right subsentence print
-        # indent_num += 1
-        # for alt_world in alt_worlds:
-        #     model_structure.recursive_print(right_subsentence, alt_world, indent_num)
-
-
-        # 1. get the verifiers for the left subprop
-        # 2. find the alt worlds (take ad)
-        # 3. print the verifiers and falsifiers of the left subprop at the current world
-        # 4. print all of the left_subprop-alternatives to the current world
-        # 5. for each of those worlds, rec print the right subprop
-
-        # left_subprop_vers = left_subprop['verifiers'] # get the verifiers
-        # imp_worlds = self.find_alt_bits(left_subprop_vers, world_bit) # find the alt bits
-        # imp_world_strings = {bitvec_to_substates(u,N) for u in imp_worlds}
-        # self.recursive_print(left_subprop, world_bit, print_impossible, output, indent)
-        # print(
-        #     f'{"  " * indent}'
-        #     f'{CYAN}{left_subprop}-alternatives to {bitvec_to_substates(world_bit, N)} = '
-        #     f'{pretty_set_print(imp_world_strings)}{RESET}',
-        #     file=output
-        # )
-        # indent += 1
-        # for u in imp_worlds:
-        #     self.recursive_print(right_subprop, u, print_impossible, output, indent)
-
-
-##############################################################################
-###################### DEFINED COUNTERFACTUAL OPERATORS ######################
-##############################################################################
-
-class MightCounterfactualOperator(syntactic.DefinedOperator):
-
-    name = "\\circleright"
-    arity = 2
-
-    def derived_definition(self, leftarg, rightarg):
-        return [
-            NegationOperator, [
-                CounterfactualOperator,
-                leftarg,
-                [NegationOperator, rightarg]
-            ]
-        ]
-
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
@@ -850,200 +679,7 @@ class NecessityOperator(syntactic.Operator):
         all_worlds = sentence_obj.proposition.model_structure.world_bits
         self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
 
-        # CYAN, RESET = '\033[36m', '\033[0m'  # Move to class or config for flexibility
-        #
-        # # B: why doesn't sentence_obj.model_structure exist?
-        # proposition = sentence_obj.proposition
-        # model_structure = proposition.model_structure
-        # N = proposition.N
-        # 
-        # # Print main proposition
-        # proposition.print_proposition(eval_world, indent_num)
-        # 
-        # # Increment indentation for nested output
-        # indent_num += 1
-        # 
-        # # TODO: need to adapt to single argument
-        # # Retrieve primary subsentences and verifiers
-        # left_subsentence, right_subsentence = sentence_obj.arguments
-        # left_subprop_verifiers = left_subsentence.proposition.verifiers
-        # 
-        # # Calculate alternative worlds
-        # alt_worlds = self.calculate_alternative_worlds(left_subprop_verifiers, eval_world, model_structure)
-        # alt_world_strings = {bitvec_to_substates(u, N) for u in alt_worlds}
-        # 
-        # # Print left subsentence and alternatives
-        # model_structure.recursive_print(left_subsentence, eval_world, indent_num)
-        # print(
-        #     f'{"  " * indent_num} {CYAN}{left_subsentence}-alternatives '
-        #     f'to {bitvec_to_substates(eval_world, N)} = '
-        #     f'{pretty_set_print(alt_world_strings)}{RESET}'
-        # )
-        # 
-        # # Increment indentation for right subsentence print
-        # indent_num += 1
-        # for alt_world in alt_worlds:
-        #     model_structure.recursive_print(right_subsentence, alt_world, indent_num)
 
-
-##############################################################################
-####################### DEFINED INTENSIONAL OPERATORS ########################
-##############################################################################
-
-class DefNecessityOperator(syntactic.DefinedOperator):
-
-    name = "\\necessary"
-    arity = 1
-
-    def derived_definition(self, rightarg):
-        # NOTE: TopOperator is not a list like the others, so [TopOperator]
-        return [CounterfactualOperator, [TopOperator], rightarg]
-    
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
-        """
-        all_worlds = sentence_obj.proposition.model_structure.world_bits
-        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
-
-
-class DefPossibilityOperator(syntactic.DefinedOperator):
-
-    name = "\\possible"
-    arity = 1
-
-    def derived_definition(self, arg):
-        return [NegationOperator, [DefNecessityOperator, [NegationOperator, arg]]]
-        # return [NegationOperator, [NecessityOperator, [NegationOperator, arg]]]
-    
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
-        """
-        all_worlds = sentence_obj.proposition.model_structure.world_bits
-        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
-
-
-class DefPossibilityOperator2(syntactic.DefinedOperator):
-
-    name = "\\possible2" # note name change
-    arity = 1
-
-    def derived_definition(self, arg):
-        return [MightCounterfactualOperator, [TopOperator], arg]
-    
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
-        """
-        all_worlds = sentence_obj.proposition.model_structure.world_bits
-        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
-
-
-##############################################################################
-####################### CIRCULAR DEFINITIONS TESTING #########################
-##############################################################################
-
-class CircNecessityOperator(syntactic.DefinedOperator):
-    """Defined to check for definitional loops."""
-
-    name = "\\circNec"
-    arity = 1
-
-    def derived_definition(self, arg):
-        return [NegationOperator, [CircPossibilityOperator, [NegationOperator, arg]]]
-    
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
-        """
-        all_worlds = sentence_obj.proposition.model_structure.world_bits
-        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
-
-
-class CircPossibilityOperator(syntactic.DefinedOperator):
-    """Defined to check for definitional loops."""
-
-    name = "\\circPoss"
-    arity = 1
-
-    def derived_definition(self, arg):
-        return [NegationOperator, [CircNecessityOperator, [NegationOperator, arg]]]
-    
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
-        """
-        all_worlds = sentence_obj.proposition.model_structure.world_bits
-        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
-
-
-class CircNecessityOperator1(syntactic.DefinedOperator):
-    """Defined to check for definitional loops."""
-
-    name = "\\circNec1"
-    arity = 1
-
-    def derived_definition(self, arg):
-        return [NegationOperator, [CircPossibilityOperator1, [NegationOperator, arg]]]
-    
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
-        """
-        all_worlds = sentence_obj.proposition.model_structure.world_bits
-        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
-
-
-class CircPossibilityOperator1(syntactic.DefinedOperator):
-    """Defined to check for definitional loops."""
-
-    name = "\\circPoss1"
-    arity = 1
-
-    def derived_definition(self, arg):
-        return [NegationOperator, [CircNecessityOperator2, [NegationOperator, arg]]]
-    
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
-        """
-        all_worlds = sentence_obj.proposition.model_structure.world_bits
-        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
-
-
-class CircNecessityOperator2(syntactic.DefinedOperator):
-    """Defined to check for definitional loops."""
-
-    name = "\\circNec2"
-    arity = 1
-
-    def derived_definition(self, arg):
-        return [NegationOperator, [CircPossibilityOperator2, [NegationOperator, arg]]]
-    
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
-        """
-        all_worlds = sentence_obj.proposition.model_structure.world_bits
-        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
-
-
-class CircPossibilityOperator2(syntactic.DefinedOperator):
-    """Defined to check for definitional loops."""
-
-    name = "\\circPoss2"
-    arity = 1
-
-    def derived_definition(self, arg):
-        return [NegationOperator, [CircNecessityOperator1, [NegationOperator, arg]]]
-    
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
-        """
-        all_worlds = sentence_obj.proposition.model_structure.world_bits
-        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
 
 
 
