@@ -153,7 +153,9 @@ class Sentence:
             # TODO: fix check/continue
             if some_type is None: # operator is None if sentence_letter
                 return None
-            op_dict = model_constraints.operator_collection.operator_dictionary
+            op_dict = model_constraints.operators
+            # # NOTE: required for update operator_collection strategy
+            # op_dict = model_constraints.operator_collection.operator_dictionary
             return op_dict[some_type.name]
 
         self.original_operator = activate_operator(self.original_operator)
@@ -193,6 +195,9 @@ class Operator:
         if isinstance(other, Operator):
             return self.name == other.name and self.arity == other.arity
         return False
+
+    def __hash__(self):
+        return hash((self.name, self.arity))
 
     def general_print(self, sentence_obj, eval_world, indent_num):
         proposition = sentence_obj.proposition
@@ -246,7 +251,9 @@ class DefinedOperator(Operator):
         Returns the definition of the operator in terms of other operators.
         Must be implemented by subclasses.
         """
-        pass
+        raise NotImplementedError(
+            f"Derived operator class {self.__class__.__name__} must implement the derived_definition method."
+        )
 
     def __init__(self, semantics): # , loop_check=True
         super().__init__(semantics)
@@ -325,6 +332,16 @@ class OperatorCollection:
     def items(self):
         yield from self.operator_dictionary.items()
 
+    # # NOTE: required for update operator_collection strategy
+    # def copy(self):
+    #     """
+    #     Creates a shallow copy of the OperatorCollection.
+    #     Note: This copies the operator_dictionary but does not deep copy the operators themselves.
+    #     """
+    #     new_collection = OperatorCollection()
+    #     new_collection.operator_dictionary = self.operator_dictionary.copy()
+    #     return new_collection
+
     def add_operator(self, input):
         """Input is either an operator class (of type 'type') or a list/tuple of operator classes."""
         if isinstance(input, (list, tuple, set)):
@@ -353,11 +370,12 @@ class OperatorCollection:
             raise TypeError(f"Expected operator name as a string, got {type(op).__name__}.")
         return activated
 
-    def update_operators(self, semantics):
-        operators = self.operator_dictionary
-        for key in list(operators.keys()):
-            if isinstance(operators[key], type):
-                operators[key] = operators[key](semantics)
+    # # NOTE: required for update operator_collection strategy
+    # def update_operators(self, semantics):
+    #     operators = self.operator_dictionary
+    #     for key in operators.keys():
+    #         if isinstance(operators[key], type):
+    #             operators[key] = operators[key](semantics)
 
 
 class Syntax:
@@ -434,10 +452,10 @@ class Syntax:
                     arg_letters = extract_letters(arg)
                     sentence_letters.update(arg_letters)
             # TODO: remove
-            if sentence.original_arguments:
-                for arg in sentence.original_arguments:
-                    arg_letters = extract_letters(arg)
-                    sentence_letters.update(arg_letters)
+            # if sentence.original_arguments:
+            #     for arg in sentence.original_arguments:
+            #         arg_letters = extract_letters(arg)
+            #         sentence_letters.update(arg_letters)
             return sentence_letters
 
         all_sentence_letters = {}
@@ -455,18 +473,19 @@ class Syntax:
             if operator_class.primitive:
                 continue
             try:
-                sig = inspect.signature(operator_class.derived_definition)
-                num_params = len(sig.parameters) - 1  # Subtract 'self'
-                dummy_args = [None] * num_params
-                temp_operator = operator_class('dummy_semantics')  # Instantiate the class
-                definition = temp_operator.derived_definition(*dummy_args)
-                dependencies = {
-                    elem for elem in flatten(definition) if isinstance(elem, type)
-                }
+                # Assuming derived_definition is a class/static method
+                if isinstance(operator_class, type):
+                    sig = inspect.signature(operator_class.derived_definition)
+                    num_params = len(sig.parameters)
+                    dummy_args = [None] * num_params
+                    dependencies = {
+                        elem for elem in flatten(operator_class.derived_definition(*dummy_args))
+                        if isinstance(elem, type)
+                    }
 
-                if operator_class not in dependency_graph:
-                    dependency_graph[operator_class] = set()
-                dependency_graph[operator_class].update(dependencies)
+                    if operator_class not in dependency_graph:
+                        dependency_graph[operator_class] = set()
+                    dependency_graph[operator_class].update(dependencies)
             except Exception as e:
                 raise ValueError(f"Error processing operator '{operator_class.name}': {e}")
 

@@ -211,10 +211,17 @@ class ModelConstraints:
         self.conclusions = self.syntax.conclusions
         self.sentence_letters = self.syntax.sentence_letters
 
-        # Update operator_collection with semantics
-        self.operator_collection = self.apply_semantics(
-            self.syntax.operator_collection
-        )
+        # Store operator dictionary
+        self.operators = {
+            op_name : op_class(self.semantics)
+            for (op_name, op_class) in syntax.operator_collection.items()
+        }
+
+        # # NOTE: required for update operator_collection strategy
+        # # Update operator_collection with semantics
+        # self.operator_collection = self.apply_semantics(
+        #     self.syntax.operator_collection.copy()
+        # )
 
         # use semantics to recursively update all derived_objects
         self.instantiate(self.premises + self.conclusions)
@@ -257,10 +264,11 @@ class ModelConstraints:
         conclusions = list(self.syntax.conclusions)
         return f"ModelConstraints for premises {premises} and conclusions {conclusions}"
 
-    def apply_semantics(self, operator_collection):
-        """Passes semantics into each operator in collection."""
-        operator_collection.update_operators(self.semantics)
-        return operator_collection
+    # # NOTE: required for update operator_collection strategy
+    # def apply_semantics(self, operator_collection):
+    #     """Passes semantics into each operator in collection."""
+    #     operator_collection.update_operators(self.semantics)
+    #     return operator_collection
 
     def instantiate(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
