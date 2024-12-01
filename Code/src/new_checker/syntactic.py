@@ -184,7 +184,6 @@ class Operator:
 
     def __str__(self):
         return str(self.name)
-        # return self.__class__.__name__
 
     def __repr__(self):
         return str(self.name)
@@ -285,25 +284,7 @@ class DefinedOperator(Operator):
                 f"the number of arguments ({derived_def_num_args}) for its 'derived_definition' method."
             )
 
-        # DISCUSS: _B_ I rewrote this in Syntax since the circularity
-        # could include more than one operator, and so requires knowing about
-        # all operators in the collection. There also seem to be some standard
-        # methods for using a depth first search to identify a cycle.
-
-        # # Check for circular definitions
-        # dummy_args = [None] * derived_def_num_args
-        # sample_derived_def = self.derived_definition(*dummy_args)
-        # ops_in_def = [elem for elem in flatten(sample_derived_def) if isinstance(elem, type)]
-        # self.defined_operators_in_definition = [op for op in ops_in_def if not op.primitive]
-        # if loop_check:
-        #     for def_opcls in self.defined_operators_in_definition:
-        #         def_op_instance = def_opcls('dummy sem', False)
-        #         if self.__class__ in def_op_instance.defined_operators_in_definition:
-        #             ermsg = (
-        #                 f"{op_subclass.__name__} and {def_opcls.__name__} are defined in terms of "
-        #                 f"each other. Please edit their derived_definition methods to avoid this."
-        #             )
-        #             raise RecursionError(ermsg)
+        # DISCUSS: _B_ I rewrote this in Syntax
 
 
 class OperatorCollection:
