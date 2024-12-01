@@ -212,31 +212,21 @@ class ModelConstraints:
         self.sentence_letters = self.syntax.sentence_letters
 
         # Store operator dictionary
-        self.operators = {
-            op_name : op_class(self.semantics)
-            for (op_name, op_class) in syntax.operator_collection.items()
-        }
-
-        # # NOTE: required for update operator_collection strategy
-        # # Update operator_collection with semantics
-        # self.operator_collection = self.apply_semantics(
-        #     self.syntax.operator_collection.copy()
-        # )
+        self.operators = self.copy_dictionary(self.syntax.operator_collection)
 
         # use semantics to recursively update all derived_objects
         self.instantiate(self.premises + self.conclusions)
 
         # Use semantics to generate and store Z3 constraints
         self.frame_constraints = self.semantics.frame_constraints
-        self.model_constraints = [] # TODO: why can't this be defined by
-        # TODO: comprehension as in the cases below?
-        for sentence_letter in self.sentence_letters:
-            self.model_constraints.extend(
-                self.proposition_class.proposition_constraints(
-                    self,
-                    sentence_letter,
-                )
+        self.model_constraints = [
+            constraint
+            for sentence_letter in self.sentence_letters
+            for constraint in self.proposition_class.proposition_constraints(
+                self,
+                sentence_letter,
             )
+        ]
         self.premise_constraints = [
             self.semantics.premise_behavior(
                 premise,
@@ -264,11 +254,11 @@ class ModelConstraints:
         conclusions = list(self.syntax.conclusions)
         return f"ModelConstraints for premises {premises} and conclusions {conclusions}"
 
-    # # NOTE: required for update operator_collection strategy
-    # def apply_semantics(self, operator_collection):
-    #     """Passes semantics into each operator in collection."""
-    #     operator_collection.update_operators(self.semantics)
-    #     return operator_collection
+    def copy_dictionary(self, operator_collection):
+        return {
+            op_name : op_class(self.semantics)
+            for (op_name, op_class) in operator_collection.items()
+        }
 
     def instantiate(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
