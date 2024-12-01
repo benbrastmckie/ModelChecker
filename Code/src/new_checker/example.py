@@ -5,22 +5,24 @@ from semantic import (
     Proposition,
 )
 
-# B: when we develop the API, these will reference the users script
-from operators import (
-    AndOperator, NegationOperator, OrOperator, # extensional
+from defined_operators import (
     ConditionalOperator, BiconditionalOperator, # extensional defined
-    TopOperator, BotOperator, # top and bottom zero-place operators
-    IdentityOperator, GroundOperator, EssenceOperator, # constitutive
     DefEssenceOperator, DefGroundOperator, # constitutive defined
-    NecessityOperator, # modal
     DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
-    CounterfactualOperator, MightCounterfactualOperator, # counterfactual
+    MightCounterfactualOperator, # counterfactual
     CircNecessityOperator, CircPossibilityOperator, # circular (for testing)
     CircNecessityOperator1, CircPossibilityOperator1,
     CircNecessityOperator2, CircPossibilityOperator2, 
 )
 
-# NOTE: go in API
+from primitive_operators import (
+    AndOperator, NegationOperator, OrOperator, # extensional
+    TopOperator, BotOperator, # top and bottom zero-place operators
+    IdentityOperator, GroundOperator, EssenceOperator, # constitutive
+    NecessityOperator, # modal
+    CounterfactualOperator, # counterfactual
+)
+
 from model_builder import(
     ModelConstraints,
     ModelStructure,
@@ -28,7 +30,9 @@ from model_builder import(
 
 import syntactic
 
+######################
 ### SETUP LANGUAGE ###
+######################
 
 operators = syntactic.OperatorCollection(
     AndOperator, NegationOperator, OrOperator, # extensional
@@ -130,11 +134,11 @@ conclusions = ["C"]
 ### WORKING COUNTERMODELS ###
 #############################
 
-# N = 3
-# premises = ["(A \\leftrightarrow B)", "\\possible A"]
-# conclusions = ["C"]
-# contingent_bool = False
-# disjoint_bool = False
+N = 3
+premises = ["(A \\leftrightarrow B)", "\\possible A"]
+conclusions = ["C"]
+contingent_bool = False
+disjoint_bool = False
 
 # # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # N = 4
@@ -143,12 +147,12 @@ conclusions = ["C"]
 # contingent_bool = True
 # disjoint_bool = False
 
-# CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-N = 3
-premises = ['(A \\circleright C)']
-conclusions = ['((A \\wedge B) \\circleright C)']
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 3
+# premises = ['(A \\circleright C)']
+# conclusions = ['((A \\wedge B) \\circleright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # WEAKENED MONOTONICITY
 # N = 3
