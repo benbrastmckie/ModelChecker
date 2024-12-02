@@ -5,7 +5,7 @@ from primitive_operators import (
     TopOperator, BotOperator, # top and bottom zero-place operators
     IdentityOperator, GroundOperator, EssenceOperator, # constitutive
     CounterfactualOperator, # counterfactual
-    NecessityOperator,
+    NecessityOperator, PossibilityOperator, # modal
 )
 
 ##############################################################################

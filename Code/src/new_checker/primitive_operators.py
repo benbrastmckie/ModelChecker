@@ -7,6 +7,9 @@ from hidden_helpers import (
 
 import syntactic
 
+# TODO: add \\preceq
+# TODO: add \\Diamond
+
 ##############################################################################
 ############################ EXTENSIONAL OPERATORS ###########################
 ##############################################################################
@@ -626,6 +629,60 @@ class CounterfactualOperator(syntactic.Operator):
 ##############################################################################
 ########################### INTENSIONAL OPERATORS ############################
 ##############################################################################
+
+class PossibilityOperator(syntactic.Operator):
+    name = "\\Diamond"
+    arity = 1
+
+    def true_at(self, argument, eval_world):
+        sem = self.semantics
+        u = z3.BitVec("t_nec_u", sem.N)
+        return Exists(
+            u,
+            z3.And(
+                sem.is_world(u),
+                sem.true_at(argument, u),
+            ),
+        )
+    
+    def false_at(self, argument, eval_world):
+        sem = self.semantics
+        u = z3.BitVec("t_nec_u", sem.N)
+        return ForAll(
+            u,
+            z3.Implies(
+                sem.is_world(u),
+                sem.false_at(argument, u),
+            ),
+        )
+    
+    def extended_verify(self, state, argument, eval_world):
+        # TODO: add constraint which requires state to be the null_bit
+        return self.true_at(argument, eval_world) # M: I think this is right?
+    
+    def extended_falsify(self, state, argument, eval_world):
+        # TODO: add constraint which requires state to be the null_bit
+        return self.false_at(argument, eval_world)
+
+    def find_verifiers_and_falsifiers(self, argument, eval_world):
+        evaluate = argument.proposition.model_structure.z3_model.evaluate
+        if bool(evaluate(self.true_at(argument, eval_world))):
+            return {self.semantics.null_bit}, set()
+        if bool(evaluate(self.false_at(argument, eval_world))):
+            return set(), {self.semantics.null_bit}
+        raise ValueError(
+            f"{self.name} {argument} "
+            f"is neither true nor false in the world {eval_world}."
+        )
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Print counterfactual and the antecedent in the eval_world. Then
+        print the consequent in each alternative to the evaluation world.
+        """
+        all_worlds = sentence_obj.proposition.model_structure.world_bits
+        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num)
+
+
 
 class NecessityOperator(syntactic.Operator):
     name = "\\Box"
