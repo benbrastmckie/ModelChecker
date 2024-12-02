@@ -154,6 +154,8 @@ class Sentence:
             if some_type is None: # operator is None if sentence_letter
                 return None
             op_dict = model_constraints.operators
+            # # NOTE: required for update operator_collection strategy
+            # op_dict = model_constraints.operator_collection.operator_dictionary
             return op_dict[some_type.name]
 
         self.original_operator = activate_operator(self.original_operator)
@@ -331,6 +333,20 @@ class OperatorCollection:
         else:
             raise TypeError(f"Expected operator name as a string, got {type(op).__name__}.")
         return activated
+
+    # NOTE: UPDATE OP STRATEGY
+    def duplicate(self):
+        """Creates a shallow copy of the OperatorCollection."""
+        new_collection = OperatorCollection()
+        new_collection.operator_dictionary = self.operator_dictionary.copy()
+        return new_collection
+
+    # NOTE: UPDATE OP STRATEGY
+    def update_operators(self, semantics):
+        operators = self.operator_dictionary
+        for key in operators.keys():
+            if isinstance(operators[key], type):
+                operators[key] = operators[key](semantics)
 
 
 class Syntax:

@@ -214,6 +214,13 @@ class ModelConstraints:
         # Store operator dictionary
         self.operators = self.copy_dictionary(self.syntax.operator_collection)
 
+        # # DISCUSS: why is the shallow copy needed for pytest to work?
+        # # NOTE: UPDATE OP STRATEGY (turn on in activate_operator)
+        # # Update operator_collection with semantics
+        # self.operator_collection = self.apply_semantics(
+        #     self.syntax.operator_collection.duplicate()
+        # )
+
         # use semantics to recursively update all derived_objects
         self.instantiate(self.premises + self.conclusions)
 
@@ -255,10 +262,17 @@ class ModelConstraints:
         return f"ModelConstraints for premises {premises} and conclusions {conclusions}"
 
     def copy_dictionary(self, operator_collection):
+        """Copies the operator_dictionary from operator_collection."""
         return {
             op_name : op_class(self.semantics)
             for (op_name, op_class) in operator_collection.items()
         }
+
+    # NOTE: UPDATE OP STRATEGY
+    def apply_semantics(self, operator_collection):
+        """Passes semantics into each operator in collection."""
+        operator_collection.update_operators(self.semantics)
+        return operator_collection
 
     def instantiate(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
