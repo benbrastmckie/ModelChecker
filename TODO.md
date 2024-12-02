@@ -7,74 +7,17 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] class architecture
 - [:] implementation
 - [ ] api
-- [ ] applications
-  - [ ] Champollion
-    - [ ] Proposition
-    - [x] Semantics
-    - [:] Operators
-      - [.] Not
-      - [x] And
-      - [x] Or
-    - [ ] unit tests
-  - [ ] Fine
-- [ ] benchmarks
+- [.] applications
+  - [:] Champollion
+  - [.] Fine
+- [.] benchmarks
+- [:] unit tests
 - [.] documentation
-- cli
-  - release
-- documentation
-
-## Implementation
-
-1. [:] An Operator class for each primitive operator:
-  - [x] the Operator class itself
-    - [x] attribute for arity
-    - [x] attribute for name
-    - [x] confirm changes
-  - [x] for each operator
-    - [x] attribute for semantics
-    - [x] methods for truth and falsity at a world
-    - [x] methods for verification and falsification at a world
-    - [x] printing methods
-  - [:] operators to implement:
-    - [:] defined operators
-      - [x] debug given `sentence_obj` integration
-      - [x] _M_ move derived definition upstream
-      - [x] check definitional loops etc
-      - [.] _B_ add doc strings
-    - [x] might counterfactual
-      - [x] primitive
-      - [x] defined
-      - [x] unit tests
-    - [:] modal
-      - [x] primitive
-      - [x] defined in terms of counterfactual and top
-        - [x] debug
-      - [ ] unit tests
-    - [:] constitutive
-      - [x] define primitive identity operator
-      - [x] define essence, ground, and relevance in terms of identity
-      - [x] add print methods
-      - [x] debug true conclusion and false premise models
-      - [ ] unit tests
-    - [ ] imposition counterfactual
-      - [ ] add z3 primitive semantics
-      - [ ] add frame constraints
-      - [ ] define operator
-      - [ ] unit tests
-      - [ ] benchmarking
-    - [:] extensional
-      - [ ] unit tests
-    - [x] extremal
-      - [x] define extremal elements in `hidden_things.py`
-      - [x] define two primitive extremal operators in `exposed_things.py`
-      - [x] add print methods
-      - [ ] unit tests
-    - [x] must counterfactual
-      - [x] debug
-      - [x] add print method
-      - [x] fix indenting
-      - [:] unit tests
-        - [ ] move all with Diamond into `test_modal.py`
+  - [ ] architecture
+  - [ ] semantics
+  - [.] doc strings
+- [ ] cli
+  - [ ] release
 
 ## API
 
@@ -88,6 +31,24 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - confirm `api_example.py` works
 
 ## Applications
+
+### Exclusion Semantics
+
+- [x] Semantics class
+  - [x] add frame constraints on `exclusion`
+- [ ] Proposition class
+- [:] Operators
+  - [.] Not
+  - [x] And
+  - [x] Or
+- [ ] unit tests
+- [ ] run optimizer on single example to compare to negation:
+  - [ ] completion time for each example by atomic complexity `N`
+  - [ ] max atomic complexity `N` before timeout
+  - [ ] max sentence/atomic complexity before too many constraints to build
+  - [ ] other?
+- [ ] build unit test to generalize on single example
+  - [ ] run unit test on a range of examples
 
 ### Imposition Semantics
 
@@ -103,24 +64,18 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - build unit test to generalize on single example
   - run unit test on a range of examples
 
-### Exclusion Semantics
-
-- fix Z3 primitive for `exclusion` from old `model-checker`
-- add frame constraints on `exclusion`
-- fix exclusion semantics for counterfactuals
-- run optimizer on single example to compare to negation:
-  - completion time for each example by atomic complexity `N`
-  - max atomic complexity `N` before timeout
-  - max sentence/atomic complexity before too many constraints to build
-  - other?
-- build unit test to generalize on single example
-  - run unit test on a range of examples
-
 ## Diagnostic Tools
 
+- [ ] printouts
+  - [ ] add total time
+- [ ] flags
+  - [ ] optimize
+  - [ ] disjoint
+- [ ] progress bar
 - [ ] error reporting
   - [ ] convert bvs to states in raise Errors
 - [.] function to compare constraints for new and old versions
+- [ ] add check/continues and test
 
 ## Documentation
 
@@ -147,6 +102,66 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - print unsat core
   - optimizer
 - progress bar
+
+## Implementation
+
+1. [:] An Operator class for each primitive operator:
+  - [x] the Operator class itself
+    - [x] attribute for arity
+    - [x] attribute for name
+    - [x] confirm changes
+  - [x] for each operator
+    - [x] attribute for semantics
+    - [x] methods for truth and falsity at a world
+    - [x] methods for verification and falsification at a world
+    - [x] printing methods
+  - [:] operators to implement:
+    - [:] defined operators
+      - [x] debug given `sentence_obj` integration
+      - [x] _M_ move derived definition upstream
+      - [x] check definitional loops etc
+      - [.] _B_ add doc strings
+    - [x] might counterfactual
+      - [x] primitive
+      - [x] defined
+      - [x] unit tests
+    - [x] modal
+      - [x] primitive
+      - [x] defined in terms of counterfactual and top
+        - [x] debug
+      - [x] unit tests
+    - [x] constitutive
+      - [x] define primitive identity operator
+      - [x] define essence, ground, and relevance in terms of identity
+      - [x] add print methods
+      - [x] debug true conclusion and false premise models
+      - [x] unit tests
+    - [:] defined operators
+      - [x] definitions
+      - [ ] unit tests
+    - [ ] relevance
+      - [ ] semantics
+      - [ ] unit tests
+    - [ ] imposition counterfactual
+      - [ ] add z3 primitive semantics
+      - [ ] add frame constraints
+      - [ ] define operator
+      - [ ] unit tests
+      - [ ] benchmarking
+    - [x] extensional
+      - [:] unit tests
+        - [ ] wedge
+        - [ ] vee
+    - [x] extremal
+      - [x] define extremal elements in `hidden_things.py`
+      - [x] define two primitive extremal operators in `exposed_things.py`
+      - [x] add print methods
+      - [ ] unit tests
+    - [x] must counterfactual
+      - [x] debug
+      - [x] add print method
+      - [x] fix indenting
+      - [x] unit tests
 
 # Release v0.6
 
