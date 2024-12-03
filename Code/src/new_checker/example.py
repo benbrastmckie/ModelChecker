@@ -57,8 +57,8 @@ operators = syntactic.OperatorCollection(
 ################
 
 N = 3
-
-
+contingent_bool = False
+disjoint_bool = False
 
 
 #####################
@@ -203,7 +203,6 @@ N = 3
 # contingent_bool = True
 # disjoint_bool = False
 
-# # TODO: THOUGH Z3 IS FAST, PYTHON IS SLOW ON THIS ONE
 # # CF_CM13: SOBEL SEQUENCE
 # N = 3
 # premises = [
@@ -219,28 +218,27 @@ N = 3
 # contingent_bool = True
 # disjoint_bool = False
 
-# # TODO: THOUGH Z3 IS FAST, PYTHON IS SLOW ON THIS ONE
-# CF_CM14: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
-N = 3
-premises = [
-    '\\possible A',
-    '(A \\boxright X)',
-    '\\possible (A \\wedge B)',
-    '\\neg ((A \\wedge B) \\boxright X)', # N = 4: 155.4 seconds on the MIT servers; .1587 seconds in old version; and now .0122 seconds
-    '\\possible ((A \\wedge B) \\wedge C)',
-    '(((A \\wedge B) \\wedge C) \\boxright X)',
-    '\\possible (((A \\wedge B) \\wedge C) \\wedge D)',
-    '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
-    '\\possible ((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E)',
-    '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)', # ? seconds
-    '\\possible (((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F)',
-    '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)', # ? seconds
-    '\\possible ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G)',
-    '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # ? seconds
-]
-conclusions = []
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM14: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
+# N = 3
+# premises = [
+#     '\\possible A',
+#     '(A \\boxright X)',
+#     '\\possible (A \\wedge B)',
+#     '\\neg ((A \\wedge B) \\boxright X)', # N = 4: 155.4 seconds on the MIT servers; .1587 seconds in old version; and now .0122 seconds
+#     '\\possible ((A \\wedge B) \\wedge C)',
+#     '(((A \\wedge B) \\wedge C) \\boxright X)',
+#     '\\possible (((A \\wedge B) \\wedge C) \\wedge D)',
+#     '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
+#     '\\possible ((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E)',
+#     '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)', # ? seconds
+#     '\\possible (((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F)',
+#     '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)', # ? seconds
+#     '\\possible ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G)',
+#     '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # ? seconds
+# ]
+# conclusions = []
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM15: COUNTERFACTUAL EXCLUDED MIDDLE
 # N = 3
@@ -450,9 +448,9 @@ disjoint_bool = False
 ### GENERATE Z3 CONSTRAINTS ###
 ###############################
 
-# to optimize
-profiler = cProfile.Profile()
-profiler.enable()
+# # OPTIMIZE
+# profiler = cProfile.Profile()
+# profiler.enable()
 
 syntax = syntactic.Syntax(premises, conclusions, operators)
 
@@ -477,10 +475,10 @@ model_structure = ModelStructure(model_constraints, max_time=1)
 # print("TEST ALL PROPS", model_structure.all_propositions)
 model_structure.print_all()
 
-# to optimize
-profiler.disable()
-stats = pstats.Stats(profiler).sort_stats('cumtime')
-stats.print_stats(50)
+# # OPTIMIZE
+# profiler.disable()
+# stats = pstats.Stats(profiler).sort_stats('cumtime')
+# stats.print_stats(50)
 
 
 # if not model_structure.z3_model:

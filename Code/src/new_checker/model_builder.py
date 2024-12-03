@@ -397,12 +397,8 @@ class ModelStructure:
         prefix_sent to that instance, returning the input sentences."""
 
         for sent_obj in sentences:
-            # TODO: this check/continue is not used
             if sent_obj.proposition is not None:
                 continue
-            # TODO: avoid redundancy among sentences and check if below is needed
-            # if sent_obj.original_arguments:
-            #     self.interpret(sent_obj.original_arguments)
             if sent_obj.arguments:
                 self.interpret(sent_obj.arguments)
             sent_obj.update_proposition(self)
@@ -577,6 +573,7 @@ class ModelStructure:
             self.print_evaluation(output)
             self.print_input_sentences(output)
             # TODO: make method for runtime and progress bar
+            # TODO: make method for turning on cProfile
             print(f"Z3 run time: {self.z3_model_runtime} seconds\n", file=output)
             total_time = round(time.time() - self.start_time, 4) 
             print(f"Total run time: {total_time} seconds\n", file=output)
