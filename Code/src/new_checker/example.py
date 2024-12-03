@@ -1,3 +1,6 @@
+import cProfile
+import pstats
+
 from hidden_helpers import bitvec_to_substates
 
 from semantic import (
@@ -100,13 +103,13 @@ N = 3
 ##### OTHER ISSUES #####
 ########################
 
-# DOES NOT FIND MODEL
-# THIS WAS EXTRA HARD BEFORE ALSO
-N = 4
-premises = ['(A \\boxright (B \\boxright C))']
-conclusions = ['((A \\wedge B) \\boxright C)']
-contingent_bool = True
-disjoint_bool = False
+# # DOES NOT FIND MODEL
+# # THIS WAS EXTRA HARD BEFORE ALSO
+# N = 4
+# premises = ['(A \\boxright (B \\boxright C))']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 
 
@@ -200,21 +203,21 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # TODO: THOUGH Z3 IS FAST, PYTHON IS SLOW ON THIS ONE
-# # CF_CM13: SOBEL SEQUENCE
-# N = 3
-# premises = [
-#     '(A \\boxright X)',
-#     '\\neg ((A \\wedge B) \\boxright X)',
-#     '(((A \\wedge B) \\wedge C) \\boxright X)',
-#     '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
-#     '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)',
-#     '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)',
-#     '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
-# ]
-# conclusions = []
-# contingent_bool = True
-# disjoint_bool = False
+# TODO: THOUGH Z3 IS FAST, PYTHON IS SLOW ON THIS ONE
+# CF_CM13: SOBEL SEQUENCE
+N = 3
+premises = [
+    '(A \\boxright X)',
+    '\\neg ((A \\wedge B) \\boxright X)',
+    '(((A \\wedge B) \\wedge C) \\boxright X)',
+    '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
+    '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)',
+    '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)',
+    '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
+]
+conclusions = []
+contingent_bool = True
+disjoint_bool = False
 
 # # # TODO: THOUGH Z3 IS FAST, PYTHON IS SLOW ON THIS ONE
 # # CF_CM14: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
@@ -447,6 +450,10 @@ disjoint_bool = False
 ### GENERATE Z3 CONSTRAINTS ###
 ###############################
 
+# to optimize
+profiler = cProfile.Profile()
+profiler.enable()
+
 syntax = syntactic.Syntax(premises, conclusions, operators)
 
 semantics = Semantics(N)
@@ -469,6 +476,12 @@ model_structure = ModelStructure(model_constraints, max_time=1)
 
 # print("TEST ALL PROPS", model_structure.all_propositions)
 model_structure.print_all()
+
+# to optimize
+profiler.disable()
+stats = pstats.Stats(profiler).sort_stats('cumtime')
+stats.print_stats(10)
+
 
 # if not model_structure.z3_model:
 #     model_constraints_obj = model_structure.model_constraints

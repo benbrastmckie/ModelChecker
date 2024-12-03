@@ -31,10 +31,6 @@ from hidden_helpers import (
 
 import sys
 
-from syntactic import (
-    Operator
-)
-
 class SemanticDefaults:
     """Includes default attributes and methods to be inherited by a semantics
     including frame constraints, truth and falsity, and logical consequence."""
@@ -123,14 +119,9 @@ class PropositionDefaults:
 
         # Store values from sentence
         self.name = sentence.name
-        # if sentence.derived_sentence: # accords with model constraints
-        #     self.arguments = sentence.derived_sentence.arguments
-        # else:
         self.operator = sentence.operator
         self.arguments = sentence.arguments
         self.sentence_letter = sentence.sentence_letter
-        # self.derived_object = sentence.derived_object
-        # self.prefix_sentence = sentence.prefix_sentence
 
         # Store values from model_structure argument
         self.model_structure = model_structure
@@ -278,7 +269,6 @@ class ModelConstraints:
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
         for sent_obj in sentences:
-            # TODO: add a better check/continue here
             if sent_obj.original_arguments:
                 self.instantiate(sent_obj.original_arguments)
             if sent_obj.arguments:
@@ -318,9 +308,9 @@ class ModelStructure:
 
         # Store from model_constraint.syntax
         self.syntax = self.model_constraints.syntax
+        self.start_time = self.syntax.start_time
         self.premises = self.syntax.premises
         self.conclusions = self.syntax.conclusions
-        # self.all_sentences = self.syntax.all_sentences
         self.sentence_letters = self.syntax.sentence_letters
 
         # Store from model_constraint.semantics
@@ -407,10 +397,9 @@ class ModelStructure:
         prefix_sent to that instance, returning the input sentences."""
 
         for sent_obj in sentences:
-            if sent_obj.proposition:
+            # TODO: this check/continue is not used
+            if sent_obj.proposition is not None:
                 continue
-            if sent_obj.original_arguments:
-                self.interpret(sent_obj.original_arguments)
             if sent_obj.arguments:
                 self.interpret(sent_obj.arguments)
             sent_obj.update_proposition(self)
@@ -585,7 +574,9 @@ class ModelStructure:
             self.print_evaluation(output)
             self.print_input_sentences(output)
             # TODO: make method for runtime and progress bar
-            print(f"Run time: {self.z3_model_runtime} seconds\n", file=output)
+            print(f"Z3 run time: {self.z3_model_runtime} seconds\n", file=output)
+            total_time = round(time.time() - self.start_time, 4) 
+            print(f"Total run time: {total_time} seconds\n", file=output)
             return
         print(f"\nThere is no {self.N}-model of:\n")
         self.model_constraints.print_enumerate(output)
