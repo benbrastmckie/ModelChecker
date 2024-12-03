@@ -232,6 +232,7 @@ class Operator:
         if len(arguments) == 2:
             left_argument, right_argument = arguments
             model_structure.recursive_print(left_argument, eval_world, indent_num)
+            indent_num += 1
             other_world_strings = {bitvec_to_substates(u, N) for u in other_worlds}
             print(
                 f'{"  " * indent_num}{CYAN}|{left_argument}|-alternatives '
