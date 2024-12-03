@@ -47,23 +47,24 @@ class Sentence:
         self.name = infix_sentence
         self.prefix_sentence, self.complexity = self.prefix(infix_sentence)
 
-        # recursive clause: arguments
-        if len(self.prefix_sentence) > 1: 
-            self.original_arguments = [ # sentece_objects
-                Sentence(self.infix(arg))
+        # recursive clause: initially stores infix_arguments and infix_operator
+        # updated by initialize_sentences in Syntax with operator_collection
+        # updated by instantiate in ModelConstraints with semantics
+        if self.complexity > 0: 
+            self.original_arguments = [ # store infix_arguments
+                self.infix(arg)
                 for arg in self.prefix_sentence[1:]
             ]
+            # updated by update_types:
+            self.original_operator = self.prefix_sentence[0]
         else:
             self.original_arguments = None
+            self.original_operator = None
+        self.arguments = None # updated by initialize_types
+        self.operator = None # updated by update_types
 
         # update_types via initialize_sentences in Syntax: operator_collection
-        # update_objects via instantiate in ModelConstraints: semantics
-        self.original_operator = None
-        self.operator = None
-        self.arguments = None
-
-        # update_types via initialize_sentences in Syntax: operator_collection
-        self.sentence_letter = None # 
+        self.sentence_letter = None
 
         # update_proposition via interpret in ModelStructure: z3_model
         self.proposition = None
@@ -136,12 +137,12 @@ class Sentence:
                 return derived_type[0], None, None
             if len(derived_type) > 1: # complex sentence
                 operator_type, argument_types = derived_type[0], derived_type[1:]
-                arguments = [Sentence(self.infix(arg_type)) for arg_type in argument_types]
-                return operator_type, arguments, None
+                infix_arguments = [self.infix(arg_type) for arg_type in argument_types]
+                return operator_type, infix_arguments, None
             raise ValueError(f"the derived_type for {self} is invalid in store_types().")
 
         original_type = operator_collection.apply_operator(self.prefix_sentence)
-        if self.original_arguments:
+        if self.original_operator:
             self.original_operator = original_type[0]
         derived_type = derive_type(original_type)
         self.operator, self.arguments, self.sentence_letter = store_types(derived_type)
@@ -374,11 +375,8 @@ class Syntax:
         self.infix_conclusions = infix_conclusions
         self.operator_collection = operator_collection
 
-        # NOTE: I think the current strategy creates separate instances for
-        # each occurrence of sentence. is the all_sentences the best way to
-        # avoid this? how to maintain the recursive strategy without redundancy?
-
         # initialize inputs
+        self.all_sentences = {} # NOTE: avoids redundant sentences
         self.premises = self.initialize_sentences(self.infix_premises)
         self.conclusions = self.initialize_sentences(self.infix_conclusions)
         self.sentence_letters = self.find_sentence_letters(
@@ -392,24 +390,41 @@ class Syntax:
         """Takes a list of sentences composing the dictionaries of subsentences
         for each, resulting in a dictionary that includes all subsentences."""
 
+        def build_sentence(infix_sentence):
+            if infix_sentence in self.all_sentences.keys():
+                return self.all_sentences[infix_sentence]
+            sentence = Sentence(infix_sentence)
+            self.all_sentences[sentence.name] = sentence
+            if sentence.original_arguments is None:
+                return sentence
+            sentence_arguments = []
+            for infix_arg in sentence.original_arguments:
+                sentence_arg = build_sentence(infix_arg)
+                sentence_arguments.append(sentence_arg)
+            sentence.original_arguments = sentence_arguments
+            return sentence
+
         def initialize_types(sentence):
             """Draws on the operator_collection in order to initialize all sentences
             in the input by replacing operator strings with operator classes and
             updating original_type in that sentence_obj. If the main operator is not
             primitive, derived_arguments are updated with derived_types."""
-            operator_collection = self.operator_collection
             # TODO: add appropriate check to avoid redundancy
             if sentence.original_arguments:
                 for argument in sentence.original_arguments:
                     initialize_types(argument)
-            sentence.update_types(operator_collection)
+            sentence.update_types(self.operator_collection)
             if sentence.arguments: # NOTE: must happen after arguments are stored
-                for argument in sentence.arguments:
+                sentence_arguments = []
+                for infix_arg in sentence.arguments:
+                    argument = build_sentence(infix_arg)
                     initialize_types(argument)
+                    sentence_arguments.append(argument)
+                sentence.arguments = sentence_arguments 
 
         sentence_objects = []
         for infix_sent in infix_sentences:
-            sentence = Sentence(infix_sent)
+            sentence = build_sentence(infix_sent)
             initialize_types(sentence)
             sentence_objects.append(sentence)
         return sentence_objects

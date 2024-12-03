@@ -400,8 +400,9 @@ class ModelStructure:
             # TODO: this check/continue is not used
             if sent_obj.proposition is not None:
                 continue
-            if sent_obj.original_arguments:
-                self.interpret(sent_obj.original_arguments)
+            # TODO: avoid redundancy among sentences and check if below is needed
+            # if sent_obj.original_arguments:
+            #     self.interpret(sent_obj.original_arguments)
             if sent_obj.arguments:
                 self.interpret(sent_obj.arguments)
             sent_obj.update_proposition(self)
