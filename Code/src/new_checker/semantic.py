@@ -332,6 +332,8 @@ class Proposition(PropositionDefaults):
             }
             return V, F
         if operator is not None:
+            # TODO: check this isn't happening too many times
+            # print(f"OP {operator} TYPE {type(operator)}")
             return operator.find_verifiers_and_falsifiers(*arguments, eval_world)
         raise ValueError(f"Their is no proposition for {self}.")
 

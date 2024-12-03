@@ -24,6 +24,8 @@ from hidden_helpers import (
     pretty_set_print,
 )
 
+import time
+
 import inspect
 
 from z3 import Const, DeclareSort, ExprRef
@@ -54,16 +56,16 @@ class Sentence:
         else:
             self.original_arguments = None
 
-        # update_types() via initialize_sentences() in Syntax: operator_collection
-        # update_objects() via instantiate() in ModelConstraints: semantics
+        # update_types via initialize_sentences in Syntax: operator_collection
+        # update_objects via instantiate in ModelConstraints: semantics
         self.original_operator = None
         self.operator = None
         self.arguments = None
 
-        # update_types() via initialize_sentences() in Syntax: operator_collection
+        # update_types via initialize_sentences in Syntax: operator_collection
         self.sentence_letter = None # 
 
-        # update_proposition() via interpret() in ModelStructure: z3_model
+        # update_proposition via interpret in ModelStructure: z3_model
         self.proposition = None
 
     def __str__(self):
@@ -150,7 +152,6 @@ class Sentence:
         model_constraints includes."""
 
         def activate_operator(some_type):
-            # TODO: fix check/continue
             if some_type is None: # operator is None if sentence_letter
                 return None
             op_dict = model_constraints.operators
@@ -365,10 +366,17 @@ class Syntax:
         operator_collection,
     ):
 
+        # start timer
+        self.start_time = time.time()
+
         # store inputs
         self.infix_premises = infix_premises
         self.infix_conclusions = infix_conclusions
         self.operator_collection = operator_collection
+
+        # NOTE: I think the current strategy creates separate instances for
+        # each occurrence of sentence. is the all_sentences the best way to
+        # avoid this? how to maintain the recursive strategy without redundancy?
 
         # initialize inputs
         self.premises = self.initialize_sentences(self.infix_premises)
