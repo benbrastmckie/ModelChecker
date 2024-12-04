@@ -385,7 +385,6 @@ class Syntax:
         self.premises = self.initialize_sentences(self.infix_premises)
         self.conclusions = self.initialize_sentences(self.infix_conclusions)
         self.imposition = '\\imposition' in self.operators_used
-        print(f"IMPOSITION FOUND: {self.imposition}")
 
         # check for interdefined operators
         self.circularity_check(operator_collection)

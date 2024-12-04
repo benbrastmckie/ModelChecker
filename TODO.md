@@ -8,8 +8,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [:] implementation
 - [ ] api
 - [.] applications
-  - [:] Champollion
-  - [.] Fine
+  - [.] Champollion
+  - [:] Fine
 - [.] benchmarks
 - [:] unit tests
 - [.] documentation
@@ -52,17 +52,16 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ### Imposition Semantics
 
-- add Z3 primitive for `imposition` from old `model-checker`
-- add frame constraints on `imposition`
-- add imposition semantics for counterfactuals
-- run optimizer on single example to compare to normal semantics:
-  - build diagnostic functions as needed
-  - completion time for each example by atomic complexity `N`
-  - max atomic complexity `N` before timeout
-  - max sentence/atomic complexity before too many constraints to build
-  - other?
-- build unit test to generalize on single example
-  - run unit test on a range of examples
+- [x] add Z3 primitive for `imposition` from old `model-checker`
+- [x] add frame constraints on `imposition`
+- [x] add imposition semantics for counterfactuals
+- [:] run unit tests
+  - [ ] debut `IMP_CM2`
+- [ ] separate Fine's semantics
+- [ ] add optimizer from old semantics
+  - [ ] add ability to compare semantic theories
+  - [ ] print run time for each value of `N` before timeout
+  - [ ] how to test for sentence complexity?
 
 ## Diagnostic Tools
 
