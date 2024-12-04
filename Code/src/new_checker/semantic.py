@@ -36,6 +36,13 @@ class Semantics(SemanticDefaults):
         self.verify = z3.Function("verify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
         self.falsify = z3.Function("falsify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
         self.possible = z3.Function("possible", z3.BitVecSort(N), z3.BoolSort())
+        self.imposition = z3.Function( # needed to encode Fine's semantics
+            "imposition",
+            z3.BitVecSort(N), # state imposed
+            z3.BitVecSort(N), # world being imposed on
+            z3.BitVecSort(N), # outcome world
+            z3.BoolSort()     # bool
+        )
         self.main_world = z3.BitVec("w", N)
 
         # Define the frame constraints
@@ -52,6 +59,52 @@ class Semantics(SemanticDefaults):
             possibility_downard_closure,
             is_main_world,
             impossible_full_bit,
+        ]
+
+        x, y, z, u = z3.BitVecs("imp_x imp_y, imp_z, imp_u", N)
+        self.imposition_constraints = [
+            ForAll( # INCLUSION
+                [x, y, z],
+                z3.Implies(
+                    self.imposition(x, y, z),
+                    self.is_part_of(x, z)
+                )
+            ),
+            ForAll( # ACTUALITY
+                [x, y],
+                z3.Implies(
+                    z3.And(
+                        self.is_part_of(x, y),
+                        self.is_world(y)
+                    ),
+                    # NOTE: below could replace conjunction above
+                    # self.is_part_of(x, y),
+                    Exists(
+                        z,
+                        z3.And(
+                            self.is_part_of(z, y),
+                            self.imposition(x, y, z),
+                        )
+                    )
+                )
+            ),
+            ForAll( # INCORPORATION
+                [x, y, z, u],
+                z3.Implies(
+                    z3.And(
+                        self.imposition(x, y, z),
+                        self.is_part_of(u, z)
+                    ),
+                    self.imposition(self.fusion(x, u), y, z)
+                )
+            ),
+            ForAll( # COMPLETENESS
+                [x, y, z],
+                z3.Implies(
+                    self.imposition(x, y, z),
+                    self.is_world(z)
+                )
+            ),
         ]
 
         # Define invalidity conditions
@@ -167,6 +220,17 @@ class Semantics(SemanticDefaults):
             pw for ver in verifiers
             for pw in world_bits
             if eval(is_alt(pw, ver, eval_world))
+        }
+
+    def calculate_outcome_worlds(self, verifiers, eval_world, model_structure):
+        """Calculate alternative worlds given verifiers and eval_world."""
+        imposition = model_structure.semantics.imposition
+        eval = model_structure.z3_model.evaluate
+        world_bits = model_structure.world_bits
+        return {
+            pw for ver in verifiers
+            for pw in world_bits
+            if eval(imposition(ver, eval_world, pw))
         }
 
 

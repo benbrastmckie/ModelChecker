@@ -5,6 +5,7 @@ from primitive_operators import (
     TopOperator, BotOperator, # top and bottom zero-place operators
     IdentityOperator, GroundOperator, EssenceOperator, # constitutive
     CounterfactualOperator, # counterfactual
+    ImpositionOperator,
     NecessityOperator, PossibilityOperator, # modal
 )
 
@@ -103,6 +104,33 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
         left_argument_obj = sentence_obj.original_arguments[0]
         left_argument_verifiers = left_argument_obj.proposition.verifiers
         alt_worlds = is_alt(left_argument_verifiers, eval_world, model_structure)
+        self.print_over_worlds(sentence_obj, eval_world, alt_worlds, indent_num)
+
+
+
+class MightImpositionOperator(syntactic.DefinedOperator):
+
+    name = "\\could"
+    arity = 2
+
+    def derived_definition(self, leftarg, rightarg):
+        return [
+            NegationOperator, [
+                ImpositionOperator,
+                leftarg,
+                [NegationOperator, rightarg]
+            ]
+        ]
+
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Print counterfactual and the antecedent in the eval_world. Then
+        print the consequent in each alternative to the evaluation world.
+        """
+        is_outcome = self.semantics.calculate_outcome_worlds
+        model_structure = sentence_obj.proposition.model_structure
+        left_argument_obj = sentence_obj.original_arguments[0]
+        left_argument_verifiers = left_argument_obj.proposition.verifiers
+        alt_worlds = is_outcome(left_argument_verifiers, eval_world, model_structure)
         self.print_over_worlds(sentence_obj, eval_world, alt_worlds, indent_num)
 
 
