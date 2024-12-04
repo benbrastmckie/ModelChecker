@@ -13,6 +13,7 @@ from defined_operators import (
     DefEssenceOperator, DefGroundOperator, # constitutive defined
     DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
     MightCounterfactualOperator, # counterfactual
+    MightImpositionOperator,
     CircNecessityOperator, CircPossibilityOperator, # circular (for testing)
     CircNecessityOperator1, CircPossibilityOperator1,
     CircNecessityOperator2, CircPossibilityOperator2, 
@@ -24,6 +25,7 @@ from primitive_operators import (
     IdentityOperator, GroundOperator, EssenceOperator, # constitutive
     NecessityOperator, # modal
     CounterfactualOperator, # counterfactual
+    ImpositionOperator, # counterfactual
 )
 
 from model_builder import(
@@ -46,6 +48,7 @@ operators = syntactic.OperatorCollection(
     NecessityOperator, # modal
     DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
     CounterfactualOperator, MightCounterfactualOperator, # counterfactual
+    ImpositionOperator, MightImpositionOperator, # Fine
     # CircNecessityOperator, CircPossibilityOperator, # circular (for testing)
     # CircNecessityOperator1, CircPossibilityOperator1,
     # CircNecessityOperator2, CircPossibilityOperator2, 
@@ -118,10 +121,17 @@ disjoint_bool = False
 ### WORKING COUNTERMODELS ###
 #############################
 
-# CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 5
+# premises = ['(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# IMP_CM1: IMPOSITION ANTECEDENT STRENGTHENING
 N = 4
-premises = ['(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
+premises = ['(A \\imposition C)']
+conclusions = ['((A \\wedge B) \\imposition C)']
 contingent_bool = True
 disjoint_bool = False
 
@@ -129,6 +139,13 @@ disjoint_bool = False
 # N = 3
 # premises = ['(A \\circleright C)']
 # conclusions = ['((A \\wedge B) \\circleright C)']
+# contingent_bool = True
+# disjoint_bool = False
+
+# # IMP_CM2: MIGHT IMPOSITION ANTECEDENT STRENGTHENING
+# N = 4
+# premises = ['(A \\could C)']
+# conclusions = ['((A \\wedge B) \\could C)']
 # contingent_bool = True
 # disjoint_bool = False
 

@@ -131,6 +131,7 @@ class PropositionDefaults:
         # Store values from model_constraints
         self.semantics = self.model_constraints.semantics
         self.sentence_letters = self.model_constraints.sentence_letters
+        self.imposition = self.model_constraints.imposition
         self.contingent = self.model_constraints.contingent
         self.non_null = self.model_constraints.non_null
         self.disjoint = self.model_constraints.disjoint
@@ -201,6 +202,7 @@ class ModelConstraints:
         self.premises = self.syntax.premises
         self.conclusions = self.syntax.conclusions
         self.sentence_letters = self.syntax.sentence_letters
+        self.imposition = self.syntax.imposition
 
         # Store operator dictionary
         self.operators = self.copy_dictionary(self.syntax.operator_collection)
@@ -217,6 +219,8 @@ class ModelConstraints:
 
         # Use semantics to generate and store Z3 constraints
         self.frame_constraints = self.semantics.frame_constraints
+        if self.imposition:
+            self.frame_constraints += self.semantics.imposition_constraints
         self.model_constraints = [
             constraint
             for sentence_letter in self.sentence_letters

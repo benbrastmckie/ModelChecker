@@ -380,13 +380,20 @@ class Syntax:
 
         # initialize inputs
         self.all_sentences = {} # updated in build_sentence
+        self.operators_used = []
         self.sentence_letters = [] # updated in build_sentence
         self.premises = self.initialize_sentences(self.infix_premises)
         self.conclusions = self.initialize_sentences(self.infix_conclusions)
+        self.imposition = '\\imposition' in self.operators_used
+        print(f"IMPOSITION FOUND: {self.imposition}")
 
         # check for interdefined operators
         self.circularity_check(operator_collection)
 
+    # def check_imposition(self, operators_used):
+    #     operators = operator_collection.operator_dictionary.keys()
+    #     return '\\imposition' in operators
+        
     def initialize_sentences(self, infix_sentences):
         """Takes a list of sentences composing the dictionaries of subsentences
         for each, resulting in a dictionary that includes all subsentences."""
@@ -395,6 +402,8 @@ class Syntax:
             if infix_sentence in self.all_sentences.keys():
                 return self.all_sentences[infix_sentence]
             sentence = Sentence(infix_sentence)
+            if sentence.original_operator:
+                self.operators_used.append(sentence.original_operator)
             self.all_sentences[sentence.name] = sentence
             if sentence.original_arguments is None:
                 if sentence.name.isalnum():
