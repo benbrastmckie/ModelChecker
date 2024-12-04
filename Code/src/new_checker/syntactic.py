@@ -315,6 +315,8 @@ class OperatorCollection:
             for operator_class in input:
                 self.add_operator(operator_class)
         elif isinstance(input, type):
+            if input.name in self.operator_dictionary.keys():
+                return
             if getattr(input, "name", None) is None:
                 raise ValueError(f"Operator class {input.__name__} has no name defined.")
             self.operator_dictionary[input.name] = input
@@ -337,19 +339,19 @@ class OperatorCollection:
             raise TypeError(f"Expected operator name as a string, got {type(op).__name__}.")
         return activated
 
-    # NOTE: UPDATE OP STRATEGY
-    def duplicate(self):
-        """Creates a shallow copy of the OperatorCollection."""
-        new_collection = OperatorCollection()
-        new_collection.operator_dictionary = self.operator_dictionary.copy()
-        return new_collection
-
-    # NOTE: UPDATE OP STRATEGY
-    def update_operators(self, semantics):
-        operators = self.operator_dictionary
-        for key in operators.keys():
-            if isinstance(operators[key], type):
-                operators[key] = operators[key](semantics)
+    # # NOTE: UPDATE OP STRATEGY
+    # def duplicate(self):
+    #     """Creates a shallow copy of the OperatorCollection."""
+    #     new_collection = OperatorCollection()
+    #     new_collection.operator_dictionary = self.operator_dictionary.copy()
+    #     return new_collection
+    #
+    # # NOTE: UPDATE OP STRATEGY
+    # def update_operators(self, semantics):
+    #     operators = self.operator_dictionary
+    #     for key in operators.keys():
+    #         if isinstance(operators[key], type):
+    #             operators[key] = operators[key](semantics)
 
 
 class Syntax:
@@ -377,12 +379,10 @@ class Syntax:
         self.operator_collection = operator_collection
 
         # initialize inputs
-        self.all_sentences = {} # NOTE: avoids redundant sentences
+        self.all_sentences = {} # updated in build_sentence
+        self.sentence_letters = [] # updated in build_sentence
         self.premises = self.initialize_sentences(self.infix_premises)
         self.conclusions = self.initialize_sentences(self.infix_conclusions)
-        self.sentence_letters = self.find_sentence_letters(
-            self.premises + self.conclusions
-        )
 
         # check for interdefined operators
         self.circularity_check(operator_collection)
@@ -397,6 +397,8 @@ class Syntax:
             sentence = Sentence(infix_sentence)
             self.all_sentences[sentence.name] = sentence
             if sentence.original_arguments is None:
+                if sentence.name.isalnum():
+                    self.sentence_letters.append(sentence)
                 return sentence
             sentence_arguments = []
             for infix_arg in sentence.original_arguments:
@@ -425,33 +427,13 @@ class Syntax:
 
         sentence_objects = []
         for infix_sent in infix_sentences:
+            # TODO: this check/continue leads to errors
+            # if infix_sent in self.all_sentences.keys():
+            #     continue
             sentence = build_sentence(infix_sent)
             initialize_types(sentence)
             sentence_objects.append(sentence)
         return sentence_objects
-
-    def find_sentence_letters(self, sentences):
-        """Takes a list of sentence objects and returns all sentence_letters
-        that occur in those sentences, ensuring no duplicates based on name."""
-
-        def extract_letters(sentence):
-            """Takes a sentence object as input and extracts all occurring
-            sentence_letters by looking into its arguments (if any)."""
-            sentence_letters = {}
-            if isinstance(sentence.sentence_letter, ExprRef):
-                sentence_letters[sentence.name] = sentence
-                return sentence_letters
-            if sentence.arguments:
-                for arg in sentence.arguments:
-                    arg_letters = extract_letters(arg)
-                    sentence_letters.update(arg_letters)
-            return sentence_letters
-
-        all_sentence_letters = {}
-        for sent_obj in sentences:
-            sent_obj_letters = extract_letters(sent_obj)
-            all_sentence_letters.update(sent_obj_letters)
-        return list(all_sentence_letters.values())
 
     def circularity_check(self, operator_collection):
         """Detects circular dependencies among operators and ensures all dependencies are within the collection."""

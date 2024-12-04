@@ -259,18 +259,16 @@ class ModelConstraints:
             for (op_name, op_class) in operator_collection.items()
         }
 
-    # NOTE: UPDATE OP STRATEGY
-    def apply_semantics(self, operator_collection):
-        """Passes semantics into each operator in collection."""
-        operator_collection.update_operators(self.semantics)
-        return operator_collection
+    # # NOTE: UPDATE OP STRATEGY
+    # def apply_semantics(self, operator_collection):
+    #     """Passes semantics into each operator in collection."""
+    #     operator_collection.update_operators(self.semantics)
+    #     return operator_collection
 
     def instantiate(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
         prefix_sent to that instance, returning the input sentences."""
         for sent_obj in sentences:
-            if sent_obj.original_arguments:
-                self.instantiate(sent_obj.original_arguments)
             if sent_obj.arguments:
                 self.instantiate(sent_obj.arguments)
             sent_obj.update_objects(self)
