@@ -524,8 +524,8 @@ def test_CF_CM21():
 #     check_model_status(
 #         premises,
 #         conclusions,
-semantics,
-proposition,
+#         semantics,
+#         proposition,
 #         N,
 #         contingent,
 #         non_null,

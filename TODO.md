@@ -41,7 +41,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [.] Not
   - [x] And
   - [x] Or
-- [ ] unit tests
+- [:] unit tests
 - [ ] run optimizer on single example to compare to negation:
   - [ ] completion time for each example by atomic complexity `N`
   - [ ] max atomic complexity `N` before timeout
@@ -57,7 +57,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] add imposition semantics for counterfactuals
 - [x] run unit tests
   - [x] debug `IMP_CM2`
-- [ ] separate Fine's semantics
+- [x] separate Fine's semantics
 - [ ] add optimizer from old semantics
   - [ ] add ability to compare semantic theories
   - [ ] print run time for each value of `N` before timeout
@@ -65,16 +65,19 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Diagnostic Tools
 
-- [ ] printouts
-  - [ ] add total time
+- [x] printouts
+  - [x] add total time
 - [ ] flags
   - [ ] optimize
   - [ ] disjoint
 - [ ] progress bar
 - [ ] error reporting
   - [ ] convert bvs to states in raise Errors
-- [.] function to compare constraints for new and old versions
+- [.] function to compare semantics
+- [ ] create example template
+- [ ] create example unit test
 - [ ] add check/continues and test
+- [ ] refactor `utils.py`
 
 ## Documentation
 
@@ -121,7 +124,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
       - [x] check definitional loops etc
       - [.] _B_ add doc strings
     - [x] might counterfactual
-      - [x] primitive
       - [x] defined
       - [x] unit tests
     - [x] modal
@@ -129,23 +131,27 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
       - [x] defined in terms of counterfactual and top
         - [x] debug
       - [x] unit tests
+      - [ ] verifiers and falsifiers
     - [x] constitutive
       - [x] define primitive identity operator
       - [x] define essence, ground, and relevance in terms of identity
       - [x] add print methods
       - [x] debug true conclusion and false premise models
       - [x] unit tests
+      - [ ] verifiers and falsifiers
     - [:] defined operators
       - [x] definitions
       - [ ] unit tests
     - [ ] relevance
       - [ ] semantics
       - [ ] unit tests
-    - [ ] imposition counterfactual
-      - [ ] add z3 primitive semantics
-      - [ ] add frame constraints
-      - [ ] define operator
-      - [ ] unit tests
+      - [ ] verifiers and falsifiers
+    - [:] imposition counterfactual
+      - [x] add z3 primitive semantics
+      - [x] add frame constraints
+      - [x] define operator
+      - [x] unit tests
+      - [ ] verifiers and falsifiers
       - [ ] benchmarking
     - [x] extensional
       - [:] unit tests
@@ -155,12 +161,14 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
       - [x] define extremal elements in `hidden_things.py`
       - [x] define two primitive extremal operators in `exposed_things.py`
       - [x] add print methods
+      - [ ] verifiers and falsifiers
       - [ ] unit tests
     - [x] must counterfactual
       - [x] debug
       - [x] add print method
       - [x] fix indenting
       - [x] unit tests
+      - [ ] verifiers and falsifiers
 
 # Release v0.6
 
