@@ -5,6 +5,10 @@ from .utils import (
     default_max_time,
 )
 
+from new_checker.semantic import Proposition, Semantics
+
+semantics = Semantics
+proposition = Proposition
 max_time = default_max_time
 
 ###############################
@@ -24,6 +28,8 @@ def test_ML_CM1():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -45,6 +51,8 @@ def test_ML_CM2():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -74,6 +82,8 @@ def test_ML1():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -95,6 +105,8 @@ def test_ML2():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -116,6 +128,8 @@ def test_ML3():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -137,6 +151,8 @@ def test_ML4():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -158,6 +174,8 @@ def test_ML5():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -179,6 +197,8 @@ def test_ML6():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -200,6 +220,8 @@ def test_ML7():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -222,6 +244,8 @@ def test_ML8():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -243,6 +267,8 @@ def test_ML9():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -265,6 +291,8 @@ def test_ML10():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -286,6 +314,8 @@ def test_ML11():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -307,6 +337,8 @@ def test_ML12():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -328,6 +360,8 @@ def test_ML13():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -349,6 +383,8 @@ def test_ML14():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,

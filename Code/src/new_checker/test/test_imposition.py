@@ -1,10 +1,15 @@
 """run 'pytest' from the '.../Code' directory"""
 import pytest
+
 from .utils import (
     check_model_status,
     default_max_time,
 )
 
+from new_checker.semantic import Proposition, ImpositionSemantics
+
+semantics = ImpositionSemantics
+proposition = Proposition
 max_time = default_max_time
 
 ########################################
@@ -24,6 +29,8 @@ def test_IMP_CM1():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -45,6 +52,8 @@ def test_IMP_CM2():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -56,7 +65,7 @@ def test_IMP_CM2():
 @pytest.mark.timeout(max_time)
 def test_IMP_CM3():
 # IMPOSITION ANTECEDENT STRENGTHENING WITH POSSIBILITY
-    premises = ['(A \\imposition C)', '\\possible (A \\wedge B)']
+    premises = ['(A \\imposition C)', '\\Diamond (A \\wedge B)']
     conclusions = ['((A \\wedge B) \\imposition C)']
     N = 3
     contingent = True
@@ -66,6 +75,8 @@ def test_IMP_CM3():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -87,6 +98,8 @@ def test_IMP_CM4():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -108,6 +121,8 @@ def test_IMP_CM5():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -129,6 +144,8 @@ def test_IMP_CM6():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -151,6 +168,8 @@ def test_IMP_CM7():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -172,6 +191,8 @@ def test_IMP_CM8():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -193,6 +214,8 @@ def test_IMP_CM9():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -214,6 +237,8 @@ def test_IMP_CM10():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -235,6 +260,8 @@ def test_IMP_CM11():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -256,6 +283,8 @@ def test_IMP_CM12():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -281,6 +310,8 @@ def test_IMP_CM13():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -293,13 +324,13 @@ def test_IMP_CM13():
 def test_IMP_CM14():
 # SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
     premises = [
-        '\\possible A',
+        '\\Diamond A',
         '(A \\imposition X)',
-        '\\possible (A \\wedge B)',
+        '\\Diamond (A \\wedge B)',
         '\\neg ((A \\wedge B) \\imposition X)',
-        '\\possible ((A \\wedge B) \\wedge C)',
+        '\\Diamond ((A \\wedge B) \\wedge C)',
         '(((A \\wedge B) \\wedge C) \\imposition X)',
-        '\\possible (((A \\wedge B) \\wedge C) \\wedge D)',
+        '\\Diamond (((A \\wedge B) \\wedge C) \\wedge D)',
     ]
     conclusions = []
     N = 4
@@ -310,6 +341,8 @@ def test_IMP_CM14():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -331,6 +364,8 @@ def test_IMP_CM15():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -352,6 +387,8 @@ def test_IMP_CM16():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -373,6 +410,8 @@ def test_IMP_CM17():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -394,6 +433,8 @@ def test_IMP_CM18():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -415,6 +456,8 @@ def test_IMP_CM19():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -426,7 +469,7 @@ def test_IMP_CM19():
 @pytest.mark.timeout(max_time)
 def test_IMP_CM20():
 # IMPOSITION EXPORTATION WITH POSSIBILITY
-    premises = ['((A \\wedge B) \\imposition C)','\\possible (A \\wedge B)']
+    premises = ['((A \\wedge B) \\imposition C)','\\Diamond (A \\wedge B)']
     conclusions = ['(A \\imposition (B \\imposition C))']
     N = 3
     contingent = True
@@ -436,6 +479,8 @@ def test_IMP_CM20():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -457,6 +502,8 @@ def test_IMP_CM21():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -478,6 +525,8 @@ def test_IMP_CM21():
 #     check_model_status(
 #         premises,
 #         conclusions,
+#         semantics,
+#         proposition,
 #         N,
 #         contingent,
 #         non_null,
@@ -507,6 +556,8 @@ def test_IMP_T1():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -528,6 +579,8 @@ def test_IMP_T2():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -549,6 +602,8 @@ def test_IMP_T3():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -570,6 +625,8 @@ def test_IMP_T4():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -591,6 +648,8 @@ def test_IMP_T5():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -612,6 +671,8 @@ def test_IMP_T6():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -632,6 +693,8 @@ def test_IMP_T7():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -652,6 +715,8 @@ def test_IMP_T8():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -672,6 +737,8 @@ def test_IMP_T9():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -693,6 +760,8 @@ def test_IMP_T10():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,

@@ -80,6 +80,8 @@ operators = OperatorCollection(
 def find_model_structure(
     premises,
     conclusions,
+    semantics_class,
+    proposition,
     N,
     contingent,
     non_null,
@@ -87,9 +89,9 @@ def find_model_structure(
     max_time,
 ):
     syntax = Syntax(premises, conclusions, operators)
-    semantics = Semantics(N)
+    semantics = semantics_class(N)
     model_constraints = ModelConstraints(
-        syntax, semantics, Proposition, contingent, non_null, disjoint
+        syntax, semantics, proposition, contingent, non_null, disjoint
     )
     # TODO: add print_impossible to ModelStructure
     return ModelStructure(model_constraints, max_time)
@@ -109,6 +111,8 @@ def failure_message(premises, conclusions, run_time, max_time, desired_found):
 def check_model_status(
     premises,
     conclusions,
+    semantics,
+    proposition,
     N,
     contingent,
     non_null,
@@ -119,11 +123,13 @@ def check_model_status(
     model_structure = find_model_structure(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
         disjoint,
-        max_time
+        max_time,
     )
     model_status = model_structure.z3_model_status
     run_time = model_structure.z3_model_runtime

@@ -384,15 +384,10 @@ class Syntax:
         self.sentence_letters = [] # updated in build_sentence
         self.premises = self.initialize_sentences(self.infix_premises)
         self.conclusions = self.initialize_sentences(self.infix_conclusions)
-        self.imposition = '\\imposition' in self.operators_used
 
         # check for interdefined operators
         self.circularity_check(operator_collection)
 
-    # def check_imposition(self, operators_used):
-    #     operators = operator_collection.operator_dictionary.keys()
-    #     return '\\imposition' in operators
-        
     def initialize_sentences(self, infix_sentences):
         """Takes a list of sentences composing the dictionaries of subsentences
         for each, resulting in a dictionary that includes all subsentences."""
