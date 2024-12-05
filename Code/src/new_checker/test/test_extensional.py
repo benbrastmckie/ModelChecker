@@ -5,6 +5,10 @@ from .utils import (
     default_max_time,
 )
 
+from new_checker.semantic import Proposition, Semantics
+
+semantics = Semantics
+proposition = Proposition
 max_time = default_max_time
 
 #####################################
@@ -23,6 +27,8 @@ def test_EXT_CM1():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -52,6 +58,8 @@ def test_EXT1():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -72,6 +80,8 @@ def test_EXT2():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -92,6 +102,8 @@ def test_EXT3():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -112,6 +124,8 @@ def test_EXT4():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,

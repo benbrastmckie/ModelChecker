@@ -131,7 +131,6 @@ class PropositionDefaults:
         # Store values from model_constraints
         self.semantics = self.model_constraints.semantics
         self.sentence_letters = self.model_constraints.sentence_letters
-        self.imposition = self.model_constraints.imposition
         self.contingent = self.model_constraints.contingent
         self.non_null = self.model_constraints.non_null
         self.disjoint = self.model_constraints.disjoint
@@ -172,6 +171,19 @@ class PropositionDefaults:
             return self.name == other.name
         return False
 
+    def set_colors(self, name, indent_num, truth_value, world_state):
+        RED, GREEN, RESET = "\033[31m", "\033[32m", "\033[0m" 
+        FULL, PART = "\033[37m", "\033[33m"
+        if indent_num == 1:
+            FULL, PART = (GREEN, GREEN) if truth_value else (RED, RED)
+            if truth_value is None:
+                # world_state = bitvec_to_substates(eval_world, N)
+                print(
+                    f"\n{RED}WARNING:{RESET}"
+                    f"{name} is neither true nor false at {world_state}.\n"
+                )
+        return RESET, FULL, PART
+
 class ModelConstraints:
     """Takes semantics and proposition_class as arguments to build generate
     and storing all Z3 constraints. This class is passed to ModelStructure."""
@@ -202,7 +214,6 @@ class ModelConstraints:
         self.premises = self.syntax.premises
         self.conclusions = self.syntax.conclusions
         self.sentence_letters = self.syntax.sentence_letters
-        self.imposition = self.syntax.imposition
 
         # Store operator dictionary
         self.operators = self.copy_dictionary(self.syntax.operator_collection)
@@ -219,8 +230,6 @@ class ModelConstraints:
 
         # Use semantics to generate and store Z3 constraints
         self.frame_constraints = self.semantics.frame_constraints
-        if self.imposition:
-            self.frame_constraints += self.semantics.imposition_constraints
         self.model_constraints = [
             constraint
             for sentence_letter in self.sentence_letters

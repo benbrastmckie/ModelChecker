@@ -4,6 +4,7 @@ import pstats
 from hidden_helpers import bitvec_to_substates
 
 from semantic import (
+    ImpositionSemantics,
     Semantics,
     Proposition,
 )
@@ -142,12 +143,12 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # IMP_CM2: MIGHT IMPOSITION ANTECEDENT STRENGTHENING
-# N = 4
-# premises = ['(A \\could C)']
-# conclusions = ['((A \\wedge B) \\could C)']
-# contingent_bool = True
-# disjoint_bool = False
+# IMP_CM2: MIGHT IMPOSITION ANTECEDENT STRENGTHENING
+N = 4
+premises = ['(A \\could C)']
+conclusions = ['((A \\wedge B) \\could C)']
+contingent_bool = True
+disjoint_bool = False
 
 # # CF_CM3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 # N = 3
@@ -170,12 +171,12 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# CF_CM6: WEAKENED MONOTONICITY
-N = 3
-premises = ['(A \\boxright B)','(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
-contingent_bool = False
-disjoint_bool = False
+# # CF_CM6: WEAKENED MONOTONICITY
+# N = 3
+# premises = ['(A \\boxright B)','(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = False
+# disjoint_bool = False
 
 # # IMP_CM6: WEAKENED MONOTONIC IMPOSITION
 # N = 3
@@ -484,7 +485,8 @@ disjoint_bool = False
 
 syntax = syntactic.Syntax(premises, conclusions, operators)
 
-semantics = Semantics(N)
+# semantics = Semantics(N)
+semantics = ImpositionSemantics(N)
 
 model_constraints = ModelConstraints(
     syntax,

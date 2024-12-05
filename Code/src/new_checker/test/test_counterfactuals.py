@@ -5,6 +5,10 @@ from .utils import (
     default_max_time,
 )
 
+from new_checker.semantic import Proposition, Semantics
+
+semantics = Semantics
+proposition = Proposition
 max_time = default_max_time
 
 ########################################
@@ -24,6 +28,8 @@ def test_CF_CM1():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -45,6 +51,8 @@ def test_CF_CM2():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -66,6 +74,8 @@ def test_CF_CM3():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -87,6 +97,8 @@ def test_CF_CM4():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -108,6 +120,8 @@ def test_CF_CM5():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -129,6 +143,8 @@ def test_CF_CM6():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -151,6 +167,8 @@ def test_CF_CM7():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -172,6 +190,8 @@ def test_CF_CM8():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -193,6 +213,8 @@ def test_CF_CM9():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -214,6 +236,8 @@ def test_CF_CM10():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -235,6 +259,8 @@ def test_CF_CM11():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -256,6 +282,8 @@ def test_CF_CM12():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -281,6 +309,8 @@ def test_CF_CM13():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -310,6 +340,8 @@ def test_CF_CM14():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -331,6 +363,8 @@ def test_CF_CM15():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -352,6 +386,8 @@ def test_CF_CM16():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -373,6 +409,8 @@ def test_CF_CM17():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -394,6 +432,8 @@ def test_CF_CM18():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -415,6 +455,8 @@ def test_CF_CM19():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -436,6 +478,8 @@ def test_CF_CM20():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -457,6 +501,8 @@ def test_CF_CM21():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -478,6 +524,8 @@ def test_CF_CM21():
 #     check_model_status(
 #         premises,
 #         conclusions,
+semantics,
+proposition,
 #         N,
 #         contingent,
 #         non_null,
@@ -507,6 +555,8 @@ def test_CF_T1():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -528,6 +578,8 @@ def test_CF_T2():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -549,6 +601,8 @@ def test_CF_T3():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -570,6 +624,8 @@ def test_CF_T4():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -591,6 +647,8 @@ def test_CF_T5():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -612,6 +670,8 @@ def test_CF_T6():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -632,6 +692,8 @@ def test_CF_T7():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -652,6 +714,8 @@ def test_CF_T8():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -672,6 +736,8 @@ def test_CF_T9():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
@@ -693,6 +759,8 @@ def test_CF_T10():
     check_model_status(
         premises,
         conclusions,
+        semantics,
+        proposition,
         N,
         contingent,
         non_null,
