@@ -467,7 +467,7 @@ def test_CF_CM21():
 
 # # NOTE: DOES NOT FIND COUNTERMODEL
 # @pytest.mark.timeout(max_time)
-# def test_CL_8():
+# def test_CF_CM22():
 #     premises = ['(A \\boxright (B \\boxright C))']
 #     conclusions = ['((A \\wedge B) \\boxright C)']
 #     N = 4
@@ -495,7 +495,7 @@ def test_CF_CM21():
 ################################
 
 @pytest.mark.timeout(max_time)
-def test_CF1():
+def test_CF_T1():
     """COUNTERFACTUAL IDENTITY"""
     premises = []
     conclusions = ['(A \\boxright A)']
@@ -516,7 +516,7 @@ def test_CF1():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF2():
+def test_CF_T2():
     """COUNTERFACTUAL MODUS PONENS"""
     premises = ['A','(A \\boxright B)']
     conclusions = ['B']
@@ -537,7 +537,7 @@ def test_CF2():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF3():
+def test_CF_T3():
     """WEAKENED TRANSITIVITY"""
     premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
     conclusions = ['(A \\boxright C)']
@@ -558,7 +558,7 @@ def test_CF3():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF4():
+def test_CF_T4():
     """ANTECEDENT DISJUNCTION TO CONJUNCTION"""
     premises = ['((A \\vee B) \\boxright C)']
     conclusions = ['((A \\wedge B) \\boxright C)']
@@ -579,7 +579,7 @@ def test_CF4():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF5():
+def test_CF_T5():
     """SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT"""
     premises = ['((A \\vee B) \\boxright C)']
     conclusions = ['(A \\boxright C)']
@@ -600,7 +600,7 @@ def test_CF5():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF6():
+def test_CF_T6():
     """DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT"""
     premises = ['((A \\vee B) \\boxright C)']
     conclusions = ['((A \\boxright C) \\wedge (B \\boxright C))']
@@ -621,7 +621,7 @@ def test_CF6():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF7():
+def test_CF_T7():
     premises = ['(A \\boxright C)', '(B \\boxright C)', '((A \\wedge B) \\boxright C)']
     conclusions = ['((A \\vee B) \\boxright C)']
     N = 3
@@ -641,7 +641,7 @@ def test_CF7():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF8():
+def test_CF_T8():
     premises = ['(A \\boxright (B \\wedge C))']
     conclusions = ['(A \\boxright B)']
     N = 3
@@ -661,7 +661,7 @@ def test_CF8():
     )
 
 @pytest.mark.timeout(max_time)
-def test_CF9():
+def test_CF_T9():
     premises = ['(A \\boxright B)','(A \\boxright C)']
     conclusions = ['(A \\boxright (B \\wedge C))']
     N = 3
@@ -680,23 +680,23 @@ def test_CF9():
         desired_status,
     )
 
-# @pytest.mark.timeout(max_time)
-# def test_CF10():
-#     """FACTIVITY MIGHT"""
-#     premises = ['A','B']
-#     conclusions = ['(A \\circleright B)']
-#     N = 3
-#     contingent = False
-#     non_null = True
-#     disjoint = False
-#     desired_status = False
-#     check_model_status(
-#         premises,
-#         conclusions,
-#         N,
-#         contingent,
-#         non_null,
-#         disjoint,
-#         max_time,
-#         desired_status,
-#     )
+@pytest.mark.timeout(max_time)
+def test_CF_T10():
+    """MIGHT FACTIVITY"""
+    premises = ['A','B']
+    conclusions = ['(A \\circleright B)']
+    N = 3
+    contingent = False
+    non_null = True
+    disjoint = False
+    desired_status = False
+    check_model_status(
+        premises,
+        conclusions,
+        N,
+        contingent,
+        non_null,
+        disjoint,
+        max_time,
+        desired_status,
+    )

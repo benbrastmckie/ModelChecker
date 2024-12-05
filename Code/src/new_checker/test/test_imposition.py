@@ -680,23 +680,23 @@ def test_IMP_T9():
         desired_status,
     )
 
-# @pytest.mark.timeout(max_time)
-# def test_IMP_T10():
-#     """FACTIVITY MIGHT"""
-#     premises = ['A','B']
-#     conclusions = ['(A \\could B)']
-#     N = 3
-#     contingent = False
-#     non_null = True
-#     disjoint = False
-#     desired_status = False
-#     check_model_status(
-#         premises,
-#         conclusions,
-#         N,
-#         contingent,
-#         non_null,
-#         disjoint,
-#         max_time,
-#         desired_status,
-#     )
+@pytest.mark.timeout(max_time)
+def test_IMP_T10():
+    """FACTIVITY MIGHT"""
+    premises = ['A','B']
+    conclusions = ['(A \\could B)']
+    N = 3
+    contingent = False
+    non_null = True
+    disjoint = False
+    desired_status = False
+    check_model_status(
+        premises,
+        conclusions,
+        N,
+        contingent,
+        non_null,
+        disjoint,
+        max_time,
+        desired_status,
+    )
