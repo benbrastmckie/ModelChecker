@@ -19,6 +19,7 @@ from new_checker.defined_operators import (
     PossibilityOperator,
     NecessityOperator,
     MightCounterfactualOperator,
+    MightImpositionOperator,
     DefEssenceOperator,
     DefGroundOperator,
     ConditionalOperator,
@@ -62,6 +63,7 @@ operators = OperatorCollection(
     DefGroundOperator, # constitutive defined
     DefEssenceOperator,
     CounterfactualOperator, # counterfactual
+    MightImpositionOperator,
     ImpositionOperator,
     MightCounterfactualOperator, # counterfactual defined
     NecessityOperator, # modal

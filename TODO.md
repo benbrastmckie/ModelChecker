@@ -55,8 +55,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] add Z3 primitive for `imposition` from old `model-checker`
 - [x] add frame constraints on `imposition`
 - [x] add imposition semantics for counterfactuals
-- [:] run unit tests
-  - [ ] debut `IMP_CM2`
+- [x] run unit tests
+  - [x] debug `IMP_CM2`
 - [ ] separate Fine's semantics
 - [ ] add optimizer from old semantics
   - [ ] add ability to compare semantic theories

@@ -128,12 +128,12 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# IMP_CM1: IMPOSITION ANTECEDENT STRENGTHENING
-N = 4
-premises = ['(A \\imposition C)']
-conclusions = ['((A \\wedge B) \\imposition C)']
-contingent_bool = True
-disjoint_bool = False
+# # IMP_CM1: IMPOSITION ANTECEDENT STRENGTHENING
+# N = 4
+# premises = ['(A \\imposition C)']
+# conclusions = ['((A \\wedge B) \\imposition C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # N = 3
@@ -170,10 +170,17 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# # CF_CM6: WEAKENED MONOTONICITY
+# CF_CM6: WEAKENED MONOTONICITY
+N = 3
+premises = ['(A \\boxright B)','(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
+contingent_bool = False
+disjoint_bool = False
+
+# # IMP_CM6: WEAKENED MONOTONIC IMPOSITION
 # N = 3
-# premises = ['(A \\boxright B)','(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
+# premises = ['(A \\imposition B)','(A \\imposition C)']
+# conclusions = ['((A \\wedge B) \\imposition C)']
 # contingent_bool = False
 # disjoint_bool = False
 
@@ -382,6 +389,12 @@ disjoint_bool = False
 # disjoint_bool = False
 
 
+# # # CF_T10: FACTIVITY MIGHT
+# N = 4
+# premises = ['A','B']
+# conclusions = ['(A \\circleright B)']
+# contingent_bool = False
+# disjoint_bool = False
 
 ##################################
 #### CONSTITUTIVE NOT WORKING ####
