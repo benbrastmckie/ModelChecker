@@ -6,8 +6,6 @@ from hidden_helpers import (
     bitvec_to_substates,
     index_to_substate,
     pretty_set_print,
-    # z3_set,
-    # z3_set_to_python_set,
     # product, # B: this is another method of semantics that would be good
     # to include in the parent class; I might try to work on this tonight...
 )
@@ -45,23 +43,43 @@ class ChampollionSemantics(SemanticDefaults):
         x, y = z3.BitVecs("frame_x frame_y", self.N)
         actuality = self.is_world(self.main_world)
         exclusion_symmetry = ForAll(
-            [x, y], z3.Implies(self.excludes(x, y), self.excludes(y, x))
+            [x, y],
+            z3.Implies(
+                self.excludes(x, y),
+                self.excludes(y, x)
+            )
         )
         cosmopolitanism = ForAll( # NOTE: should be redundant given finiteness
             x,
             z3.Implies(
                 self.possible(x),
-                Exists(y, z3.And(self.is_world(y), self.is_part_of(x, y))),
-            ),
+                Exists(
+                    y,
+                    z3.And(
+                        self.is_world(y),
+                        self.is_part_of(x, y)
+                    )
+                )
+            )
         )
-        harmony = ForAll(  # not biconditional form (just a note)
+        harmony = ForAll( 
             [x, y],
-            z3.Implies(z3.And(self.is_world(x), self.coheres(x, y)), self.possible(y)),
+            z3.Implies(
+                z3.And(
+                    self.is_world(x),
+                    self.coheres(x, y)
+                ),
+                self.possible(y)
+            )
         )
         rashomon = ForAll(
             [x, y],
             z3.Implies(
-                z3.And(self.possible(x), self.possible(y), self.coheres(x, y)),
+                z3.And(
+                    self.possible(x),
+                    self.possible(y),
+                    self.coheres(x, y)
+                ),
                 self.possible(self.fusion(x, y)),
             ),
         )
@@ -75,25 +93,9 @@ class ChampollionSemantics(SemanticDefaults):
             rashomon,  # guards against emergent impossibility (pg 538)
         ]
 
-        # TODO: Define invalidity conditions
+        # Define invalidity conditions
         self.premise_behavior = self.true_at
-        # NOTE: want NOT(self.true_at)
         self.conclusion_behavior = lambda x,y: z3.Not(self.true_at(x,y))
-
-    # B: since definitions like this will almost always occur, can we pull them
-    # from the API once that is set up? I'm getting it would be best to move all
-    # such general methods from their classes into a helpers file. alternatively,
-    # I was wondering if they could stay methods of their respective classes and
-    # then be listed in __init__.py so that one can call them from the API. not
-    # sure this makes much of a difference but could help keep things organized.
-    # alternatively, we can divide the helpers into sections.
-    # M: I think it may be most helpful to divide the helpers into sections. Maybe
-    # we have multiple files so that all e.g. states-related functions could be
-    # called as e.g. states.fusion.
-    # B: that sounds good. when it comes to setting up the API, will the modules
-    # be preserved? I would have figured that it would go:
-    # 'import X from model-checker' not 'import states.X from model-checker'
-    # happy to cross this bridge when we come to it
 
     def conflicts(self, bit_e1, bit_e2):
         f1, f2 = z3.BitVecs("f1 f2", self.N)
@@ -115,7 +117,26 @@ class ChampollionSemantics(SemanticDefaults):
     def compossible(self, bit_e1, bit_e2):
         return self.possible(self.fusion(bit_e1, bit_e2))
 
-    # M: TODO: missing necessary proposition def on 528. don't think it goes here
+    # B: compossible => coheres but not vice versa
+    # they would be equivalent if the following constraint were added:
+    # (CON_REF) if x and y are parts of s that exclude each other, then s excludes s
+
+    def is_world(self, bit_s):
+        m = z3.BitVec("m", self.N)
+        return z3.And(
+            self.possible(bit_s),
+            z3.Not(
+                Exists(
+                    m,
+                    z3.And(
+                        self.is_proper_part_of(bit_s, m),
+                        self.possible(m)
+                    )
+                )
+            )
+        )
+
+    # M: DISCUSS missing necessary proposition def on 528. don't think it goes here
     def necessary(self, bit_e1):
         x = z3.BitVec("nec_x", self.N)
         return ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
@@ -123,6 +144,7 @@ class ChampollionSemantics(SemanticDefaults):
     def collectively_excludes(self, bit_s, set_P):
         return self.excludes(bit_s, self.total_fusion(set_P))
 
+    # DISCUSS: can total_fusion be used here?
     def individually_excludes(self, bit_s, set_P):
         # M: I think this works. Had to come up with alt def for condition b
         # condition a
@@ -141,7 +163,14 @@ class ChampollionSemantics(SemanticDefaults):
         Sigma_UB = ForAll(
             x,
             z3.Implies(
-                Exists(p, z3.And(P[p], self.excludes(x, p))), self.is_part_of(x, Sigma)
+                Exists(
+                    p,
+                    z3.And(
+                        P[p],
+                        self.excludes(x, p)
+                    )
+                ),
+                self.is_part_of(x, Sigma)
             ),
         )
         # Sigma is the least upper bound on excluders of set P
@@ -151,12 +180,20 @@ class ChampollionSemantics(SemanticDefaults):
                 ForAll(
                     y,
                     z3.Implies(
-                        Exists(p, z3.And(P[p], self.excludes(y, p))),
-                        self.is_part_of(y, Sigma),
+                        Exists(
+                            p,
+                            z3.And(
+                                P[p],
+                                self.excludes(y, p)
+                            )
+                        ),
+                        self.is_part_of(y, z),
+                        # B: found error (below)
+                        # self.is_part_of(y, Sigma),
                     ),
                 ),
-                # B: could change this to be an identity for speed boost?
-                self.is_part_of(Sigma, z), # DISCUSS: is_proper_part_of ?
+                z == Sigma # B: no reason not to start with identity
+                # self.is_part_of(Sigma, z), # DISCUSS: is_proper_part_of ?
             ),
         )
         # # NOTE: negative existential version to compare
@@ -168,14 +205,19 @@ class ChampollionSemantics(SemanticDefaults):
         #                 y,
         #                 z3.Implies(
         #                     Exists(p, z3.And(P[p], self.excludes(y, p))),
-        #                     self.is_part_of(y, Sigma),
+        #                     self.is_part_of(y, z),
         #                 ),
         #             ),
         #             self.is_proper_part_of(z, Sigma),
         #         ),
         #     )
         # )
-        return z3.And(cond_a, Sigma_UB, Sigma_LUB, self.is_part_of(bit_s, Sigma))
+        return z3.And(
+            cond_a,
+            Sigma_UB,
+            Sigma_LUB,
+            self.is_part_of(bit_s, Sigma)
+        )
 
     def emergently_excludes(self, bit_s, set_P):
         return z3.And(
@@ -183,13 +225,52 @@ class ChampollionSemantics(SemanticDefaults):
             z3.Not(self.individually_excludes(bit_s, set_P)),
         )
 
-    def is_world(self, bit_s):
-        m = z3.BitVec("m", self.N)
-        return z3.And(
-            self.possible(bit_s),
-            z3.Not(
-                Exists(m, z3.And(self.is_proper_part_of(bit_s, m), self.possible(m)))
-            ),
+    def precludes(self, state, set_S):
+        h = z3.Function(
+            f"h_{(state, set_S)}*", # unique name
+            z3.BitVecSort(self.N), # argument type: bitvector
+            z3.BitVecSort(self.N) # return type: bitvector
+        )
+        s, x, y, z, f, u = z3.BitVecs("s x y z f u", self.N) # bitvector variables
+        return Exists(
+            [h, s],
+            z3.And(
+                ForAll( # (A) h(x) part of s for all x in set_P
+                    x,
+                    z3.Implies(
+                        set_S[x],
+                        self.is_part_of(h(x), s)
+                    )
+                ),
+                ForAll( # (B) s is the smallest state to satisfy condition (A)
+                    z,
+                    z3.Implies(
+                        ForAll(
+                            y,
+                            z3.Implies(
+                                set_S[y],
+                                self.is_part_of(h(y), z)
+                            )
+                        ),
+                        z == s
+                    )
+                ),
+                ForAll(
+                    f,
+                    z3.Implies(
+                        set_S[f],
+                        Exists(
+                            u,
+                            z3.And(
+                                # B: should this be used instead?
+                                # self.excludes(h(f), s),
+                                self.excludes(h(f), u),
+                                self.is_part_of(u, f)
+                            )
+                        )
+                    )
+                )
+            )
         )
 
     def occurs(self, bit_s):
@@ -199,7 +280,13 @@ class ChampollionSemantics(SemanticDefaults):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             x = z3.BitVec("t_atom_x", self.N)
-            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
+            return Exists(
+                x,
+                z3.And(
+                    self.is_part_of(x, eval_world),
+                    self.verify(x, sentence_letter)
+                )
+            )
         operator = sentence.operator
         arguments = sentence.arguments or ()
         return operator.true_at(*arguments, eval_world)
@@ -227,7 +314,13 @@ class NegationOperator(syntactic.Operator):
         x = z3.BitVec(f"ver \\neg {arg}", self.semantics.N) # think this has to be a unique name
         # return z3.Not(Exists(x, z3.And(self.semantics.extended_verify(x, arg, eval_world), self.semantics.is_part_of(x, eval_world))))
         # print(Exists(x, z3.And(self.extended_verify(x, arg, eval_world), self.semantics.is_part_of(x, eval_world))))
-        return Exists(x, z3.And(self.extended_verify(x, arg, eval_world), self.semantics.is_part_of(x, eval_world)))
+        return Exists(
+            x,
+            z3.And(
+                self.extended_verify(x, arg, eval_world),
+                self.semantics.is_part_of(x, eval_world)
+            )
+        )
         return z3.Not(self.semantics.true_at(arg, eval_world)) # by def (30) in paper
 
     # B: This looks great! I changed verify to extended_verify (though this is
@@ -238,6 +331,10 @@ class NegationOperator(syntactic.Operator):
         sem = self.semantics
         N, extended_verify, excludes = sem.N, sem.extended_verify, sem.excludes
         is_part_of, is_proper_part_of = sem.is_part_of, sem.is_proper_part_of
+        # z3_set = z3.S(z3.BitVecSort(N))
+        # for elem in python_set:
+        #     z3_set = SetAdd(z3_set, elem)
+        # P = sem.z3_set(set_P, self.N)
         h = z3.Function(f"h_{arg}*", z3.BitVecSort(N), z3.BitVecSort(N))
         print('THIS WAS RUN')
         f, x, y, z, s = z3.BitVecs("f x y z s", N)
@@ -443,8 +540,8 @@ class ChampollionProposition(PropositionDefaults):
         )
 
 premises = ['A']
-conclusions = ['\\neg A']
-# conclusions = ['(A \\wedge B)']
+# conclusions = ['\\neg A']
+conclusions = ['(A \\wedge B)']
 # conclusions = ['(B \\wedge C)']
 # conclusions = ['(\\neg A \\wedge B)']
 op = syntactic.OperatorCollection(AndOperator, NegationOperator, OrOperator)
