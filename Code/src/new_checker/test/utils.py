@@ -1,9 +1,4 @@
-"""run 'pytest' from the '.../new_checker' directory"""
-
-from new_checker.semantic import (
-    Semantics,
-    Proposition,
-)
+"""run 'pytest' from the '.../Code/src/new_checker/' directory"""
 
 from new_checker.defined_operators import (
     NegationOperator,
@@ -38,6 +33,11 @@ from new_checker.syntactic import (
     Syntax,
 )
 
+from new_checker.champollion import (
+    ExclusionOperator,
+    UniOrOperator,
+    UniAndOperator,
+)
 
 ###############
 ### TIMEOUT ###
@@ -70,6 +70,9 @@ operators = OperatorCollection(
     PossibilityOperator,
     DefNecessityOperator,
     DefPossibilityOperator,  # modal defined
+    ExclusionOperator, # unilateral primitive
+    UniOrOperator,
+    UniAndOperator,
 )
 
 
