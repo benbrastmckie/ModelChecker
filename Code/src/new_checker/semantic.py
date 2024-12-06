@@ -336,17 +336,6 @@ class ImpositionSemantics(SemanticDefaults):
         arguments = sentence.arguments or ()
         return operator.extended_falsify(state, *arguments, eval_world)
 
-    # def calculate_alternative_worlds(self, verifiers, eval_world, model_structure):
-    #     """Calculate alternative worlds given verifiers and eval_world."""
-    #     is_alt = model_structure.semantics.is_alternative
-    #     eval = model_structure.z3_model.evaluate
-    #     world_bits = model_structure.world_bits
-    #     return {
-    #         pw for ver in verifiers
-    #         for pw in world_bits
-    #         if eval(is_alt(pw, ver, eval_world))
-    #     }
-
     def calculate_outcome_worlds(self, verifiers, eval_world, model_structure):
         """Calculate alternative worlds given verifiers and eval_world."""
         imposition = model_structure.semantics.imposition

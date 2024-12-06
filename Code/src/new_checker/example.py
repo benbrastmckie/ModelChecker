@@ -1,6 +1,5 @@
-import example_builder
-
 from semantic import (
+    ImpositionSemantics,
     Semantics,
     Proposition,
 )
@@ -118,12 +117,12 @@ disjoint_bool = False
 ### WORKING COUNTERMODELS ###
 #############################
 
-# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 5
-# premises = ['(A \\boxright C)']
-# conclusions = ['((A \\wedge B) \\boxright C)']
-# contingent_bool = True
-# disjoint_bool = False
+# CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+N = 3
+premises = ['(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
+contingent_bool = True
+disjoint_bool = False
 
 # # IMP_CM1: IMPOSITION ANTECEDENT STRENGTHENING
 # N = 4
@@ -160,12 +159,12 @@ disjoint_bool = False
 # contingent_bool = True
 # disjoint_bool = False
 
-# CF_CM5: COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
-N = 4
-premises = ['(A \\boxright C)','(B \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
-contingent_bool = True
-disjoint_bool = False
+# # CF_CM5: COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
+# N = 4
+# premises = ['(A \\boxright C)','(B \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# contingent_bool = True
+# disjoint_bool = False
 
 # # CF_CM6: WEAKENED MONOTONICITY
 # N = 3
@@ -475,43 +474,75 @@ disjoint_bool = False
 ### GENERATE Z3 CONSTRAINTS ###
 ###############################
 
-optimize = True
-max_time = 1
+# # OPTIMIZE
+# profiler = cProfile.Profile()
+# profiler.enable()
 
 syntax = syntactic.Syntax(premises, conclusions, operators)
 
-model_structure = example_builder.make_model_for(
-    N,
+semantics = Semantics(N)
+# semantics = ImpositionSemantics(N)
+
+model_constraints = ModelConstraints(
     syntax,
-    Semantics,
+    semantics,
     Proposition,
-    contingent=False,
+    contingent=contingent_bool,
     non_null=True,
-    disjoint=False,
+    disjoint=disjoint_bool,
     print_impossible=True,
-    optimize,
-    max_time,
 )
+
+########################################
+### SOLVE, STORE, AND PRINT Z3 MODEL ###
+########################################
+
+model_structure = ModelStructure(model_constraints, max_time=1)
+
+# print("TEST ALL PROPS", model_structure.all_propositions)
 model_structure.print_all()
 
+# # OPTIMIZE
+# profiler.disable()
+# stats = pstats.Stats(profiler).sort_stats('cumtime')
+# stats.print_stats(50)
 
-# ########################################
-# ### SOLVE, STORE, AND PRINT Z3 MODEL ###
-# ########################################
-#
-# semantics = Semantics(N)
-#
-# model_constraints = ModelConstraints(
-#     syntax,
-#     semantics,
-#     Proposition,
-#     contingent=contingent_bool,
-#     non_null=True,
-#     disjoint=disjoint_bool,
-#     print_impossible=True,
-# )
-#
-# model_structure = ModelStructure(model_constraints, max_time=1)
-#
-# model_structure.print_all()
 
+# if not model_structure.z3_model:
+#     model_constraints_obj = model_structure.model_constraints
+#     print(model_constraints.sentence_letters)
+#     # print(model_constraints.model_constraints)
+#     # print(model_constraints.premise_constraints)
+#     print(model_structure.unsat_core)
+
+
+# def bv2s(bitvec):
+#     # return bitvec_to_substates(bitvec, 3)
+#     def bv2s_helper(N):
+#         return bitvec_to_substates(bitvec, N)
+#     return bv2s_helper(3)
+
+# # NOTE: I'm getting an error: 'NoneType' object has no attribute 'evaluate'
+# # there is a similar linter error in ModelStructure.
+# eval = model_structure.z3_model.evaluate
+
+# main_world = model_structure.main_world
+# all_worlds = {bit for bit in model_structure.all_bits if eval(semantics.is_world(bit))}
+# print(f"all worlds: {set(bv2s(w) for w in all_worlds)}")
+# A_V = model_structure.all_sentences['A'].proposition.verifiers
+# print(f"A's verifiers: {set(bv2s(v) for v in A_V)}")
+# for ver in A_V:
+#     for world in all_worlds:
+#         print(f"is {bv2s(world)} an {bv2s(ver)}-alternative to the main world {bv2s(main_world)}?")
+#         result = eval(semantics.is_alternative(world, ver, main_world))
+#         print(result)
+#         # print(bool(result))
+#         print(type(result))
+#         print()
+
+# semantics.is_alternative(6,1,)
+# print() 
+
+# print(model_constraints)
+
+# print("print all props:", model_structure.all_propositions)
