@@ -47,18 +47,18 @@ class ChampollionSemantics(SemanticDefaults):
         exclusion_symmetry = ForAll(
             [x, y], z3.Implies(self.excludes(x, y), self.excludes(y, x))
         )
-        cosmopolitanism = z3.ForAll( # NOTE: should be redundant given finiteness
+        cosmopolitanism = ForAll( # NOTE: should be redundant given finiteness
             x,
             z3.Implies(
                 self.possible(x),
-                z3.Exists(y, z3.And(self.is_world(y), self.is_part_of(x, y))),
+                Exists(y, z3.And(self.is_world(y), self.is_part_of(x, y))),
             ),
         )
-        harmony = z3.ForAll(  # not biconditional form (just a note)
+        harmony = ForAll(  # not biconditional form (just a note)
             [x, y],
             z3.Implies(z3.And(self.is_world(x), self.coheres(x, y)), self.possible(y)),
         )
-        rashomon = z3.ForAll(
+        rashomon = ForAll(
             [x, y],
             z3.Implies(
                 z3.And(self.possible(x), self.possible(y), self.coheres(x, y)),
@@ -118,7 +118,7 @@ class ChampollionSemantics(SemanticDefaults):
     # M: TODO: missing necessary proposition def on 528. don't think it goes here
     def necessary(self, bit_e1):
         x = z3.BitVec("nec_x", self.N)
-        return z3.ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
+        return ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
 
     def collectively_excludes(self, bit_s, set_P):
         return self.excludes(bit_s, self.total_fusion(set_P))
@@ -138,17 +138,17 @@ class ChampollionSemantics(SemanticDefaults):
             str(set_P), self.N
         )  # M: I think needs a unique name, hence str(set_P). though this soln is very untenable for debugging
         x, y, z, p = z3.BitVecs("x y z p", self.N)
-        Sigma_UB = z3.ForAll(
+        Sigma_UB = ForAll(
             x,
             z3.Implies(
                 Exists(p, z3.And(P[p], self.excludes(x, p))), self.is_part_of(x, Sigma)
             ),
         )
         # Sigma is the least upper bound on excluders of set P
-        Sigma_LUB = z3.ForAll(
+        Sigma_LUB = ForAll(
             z,
             z3.Implies(
-                z3.ForAll(
+                ForAll(
                     y,
                     z3.Implies(
                         Exists(p, z3.And(P[p], self.excludes(y, p))),
@@ -161,10 +161,10 @@ class ChampollionSemantics(SemanticDefaults):
         )
         # # NOTE: negative existential version to compare
         # Sigma_LUB = z3.Not(
-        #     z3.Exists(
+        #     Exists(
         #         z,
         #         z3.And(
-        #             z3.ForAll(
+        #             ForAll(
         #                 y,
         #                 z3.Implies(
         #                     Exists(p, z3.And(P[p], self.excludes(y, p))),
@@ -188,7 +188,7 @@ class ChampollionSemantics(SemanticDefaults):
         return z3.And(
             self.possible(bit_s),
             z3.Not(
-                z3.Exists(m, z3.And(self.is_proper_part_of(bit_s, m), self.possible(m)))
+                Exists(m, z3.And(self.is_proper_part_of(bit_s, m), self.possible(m)))
             ),
         )
 
@@ -292,8 +292,8 @@ class NegationOperator(syntactic.Operator):
 
     def find_verifiers(self, arg_sent_obj, eval_world):
         eval = arg_sent_obj.proposition.model_structure.z3_model.evaluate
-        all_bits, pfo = self.semantics.all_bits, arg_sent_obj.derived_object
-        return {x for x in all_bits if eval(self.extended_verify(x, pfo))}
+        all_bits, pfo = self.semantics.all_bits, arg_sent_obj
+        return {x for x in all_bits if eval(self.extended_verify(x, pfo, eval_world))}
 
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
@@ -458,8 +458,9 @@ class ChampollionProposition(PropositionDefaults):
 
 premises = ['A']
 conclusions = ['\\neg A']
+# conclusions = ['(A \\wedge B)']
 # conclusions = ['(B \\wedge C)']
-# conclusions = ['(\\neg A \\wedge B)']
+conclusions = ['(\\neg A \\wedge B)']
 op = syntactic.OperatorCollection(AndOperator, NegationOperator, OrOperator)
 
 syntax = syntactic.Syntax(premises, conclusions, op)
@@ -479,4 +480,4 @@ model_constraints = ModelConstraints(
 model_structure = ModelStructure(model_constraints)
 # print(model_structure.z3_model)
 
-# model_structure.print_all()
+model_structure.print_all()
