@@ -344,6 +344,9 @@ class ModelStructure:
         self.unsat_core = z3_model if not z3_model_status else None
         self.z3_model_status = z3_model_status
         self.z3_model_runtime = z3_model_runtime
+        print(self.z3_model)
+        # print(self.model_constraints.conclusion_constraints)
+        # raise ValueError
 
         # Store possible_bits, world_bits, and main_world from the Z3 model
         if not self.z3_model_status:
