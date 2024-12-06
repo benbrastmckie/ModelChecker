@@ -5,7 +5,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Plan
 
 - [x] class architecture
-- [:] implementation
+- [x] implementation
 - [ ] api
 - [.] applications
   - [.] Champollion
@@ -36,12 +36,14 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [x] Semantics class
   - [x] add frame constraints on `exclusion`
-- [ ] Proposition class
-- [:] Operators
-  - [.] Not
+- [x] Proposition class
+- [x] Operators
+  - [x] Not
   - [x] And
   - [x] Or
-- [:] unit tests
+- [ ] _M_ add identity to semantics
+- [ ] _M_ documentation and cleanup
+- [ ] _B_ unit tests
 - [ ] run optimizer on single example to compare to negation:
   - [ ] completion time for each example by atomic complexity `N`
   - [ ] max atomic complexity `N` before timeout
@@ -68,6 +70,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] printouts
   - [x] add total time
 - [ ] flags
+  - [ ] contingent
+    - [ ] generalize to Champollion
   - [ ] optimize
   - [ ] disjoint
 - [ ] progress bar

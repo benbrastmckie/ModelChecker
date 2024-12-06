@@ -139,7 +139,8 @@ class PropositionDefaults:
         # Set defaults for verifiers and falsifiers
         self.verifiers, self.falsifiers = [], []
 
-    # # DISCUSS: this is something we ultimately want to move into
+# # NOTE: adapt to know if unilateral or bilateral
+    # # this is something we ultimately want to move into
     # # semantic.py since users will define there what a proposition is and so
     # # should be able to configure the representation to match
     # def __repr__(self):
@@ -217,13 +218,6 @@ class ModelConstraints:
 
         # Store operator dictionary
         self.operators = self.copy_dictionary(self.syntax.operator_collection)
-
-        # # DISCUSS: why is the shallow copy needed for pytest to work?
-        # # NOTE: UPDATE OP STRATEGY (turn on in activate_operator)
-        # # Update operator_collection with semantics
-        # self.operator_collection = self.apply_semantics(
-        #     self.syntax.operator_collection.duplicate()
-        # )
 
         # use semantics to recursively update all derived_objects
         self.instantiate(self.premises + self.conclusions)
