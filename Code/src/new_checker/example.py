@@ -15,9 +15,9 @@ from defined_operators import (
     DefNecessityOperator, DefPossibilityOperator, DefPossibilityOperator2, # modal defined
     MightCounterfactualOperator, # counterfactual
     MightImpositionOperator,
-    CircNecessityOperator, CircPossibilityOperator, # circular (for testing)
-    CircNecessityOperator1, CircPossibilityOperator1,
-    CircNecessityOperator2, CircPossibilityOperator2, 
+    # CircNecessityOperator, CircPossibilityOperator, # circular (for testing)
+    # CircNecessityOperator1, CircPossibilityOperator1,
+    # CircNecessityOperator2, CircPossibilityOperator2, 
 )
 
 from primitive_operators import (
@@ -51,8 +51,8 @@ operators = syntactic.OperatorCollection(
     CounterfactualOperator, MightCounterfactualOperator, # counterfactual
     ImpositionOperator, MightImpositionOperator, # Fine
     # CircNecessityOperator, CircPossibilityOperator, # circular (for testing)
-    CircNecessityOperator1, CircPossibilityOperator1,
-    CircNecessityOperator2, CircPossibilityOperator2, 
+    # CircNecessityOperator1, CircPossibilityOperator1,
+    # CircNecessityOperator2, CircPossibilityOperator2, 
 )
 
 
