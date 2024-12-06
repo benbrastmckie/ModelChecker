@@ -330,12 +330,8 @@ class NegationOperator(syntactic.Operator):
     def extended_verify(self, state, arg, eval_world):
         sem = self.semantics
         N, extended_verify, excludes = sem.N, sem.extended_verify, sem.excludes
-        is_part_of, is_proper_part_of = sem.is_part_of, sem.is_proper_part_of
-        # z3_set = z3.S(z3.BitVecSort(N))
-        # for elem in python_set:
-        #     z3_set = SetAdd(z3_set, elem)
-        # P = sem.z3_set(set_P, self.N)
-        h = z3.Function(f"h_{arg}*", z3.BitVecSort(N), z3.BitVecSort(N))
+        is_part_of = sem.is_part_of
+        h = z3.Function(f"h_{(state, arg)}*", z3.BitVecSort(N), z3.BitVecSort(N))
         print('THIS WAS RUN')
         v, x, y, z, s = z3.BitVecs("v x y z s", N)
         return z3.And(
@@ -357,16 +353,14 @@ class NegationOperator(syntactic.Operator):
                     )
                 )
             ),
-            # 2. state is upper bound on h(f) for f that verify arg
-            ForAll(
+            ForAll( # 2. h(x) is a part of the state for all extended_veriers x of arg
                 x,
                 z3.Implies(
                     extended_verify(x, arg, eval_world),
                     is_part_of(h(x), state),
                 )
             ),
-            # 3. state is LUB on h(f) for f that verify arg
-            ForAll(
+            ForAll( # 3. the state is the smallest state to satisfy condition 2
                 z,
                 z3.Implies(
                     ForAll(
