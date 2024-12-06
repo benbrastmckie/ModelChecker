@@ -1,4 +1,4 @@
-"""run 'pytest' from the '.../new_checker' directory"""
+"""run 'pytest' from the '.../Code/src/new_checker/' directory"""
 import pytest
 from .utils import (
     check_model_status,

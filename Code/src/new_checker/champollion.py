@@ -290,159 +290,6 @@ class ChampollionSemantics(SemanticDefaults):
         return operator.extended_verify(state, *arguments, eval_world)
 
 
-class NegationOperator(syntactic.Operator):
-    """doc string place holder"""
-
-    name = "\\neg"
-    arity = 1
-
-    def true_at(self, arg, eval_world):
-        """doc string place holder"""
-        # B: I added eval_world to true_at below
-        print(arg)
-        x = z3.BitVec(f"ver \\neg {arg}", self.semantics.N) # think this has to be a unique name
-        # return z3.Not(Exists(x, z3.And(self.semantics.extended_verify(x, arg, eval_world), self.semantics.is_part_of(x, eval_world))))
-        # print(Exists(x, z3.And(self.extended_verify(x, arg, eval_world), self.semantics.is_part_of(x, eval_world))))
-        return Exists(
-            x,
-            z3.And(
-                self.extended_verify(x, arg, eval_world),
-                self.semantics.is_part_of(x, eval_world)
-            )
-        )
-        return z3.Not(self.semantics.true_at(arg, eval_world)) # by def (30) in paper
-
-    def extended_verify(self, state, arg, eval_world):
-        sem = self.semantics
-        N, extended_verify, excludes = sem.N, sem.extended_verify, sem.excludes
-        is_part_of = sem.is_part_of
-        h = z3.Function(f"h_{(state, arg)}", z3.BitVecSort(N), z3.BitVecSort(N))
-        print('THIS WAS RUN')
-        v, x, y, z, s = z3.BitVecs("v x y z s", N)
-        # return self.precludes(state, arg_set)
-        return z3.And(
-            ForAll( # 1. every extended_verier v for arg has a part s where
-                v,  # h(v) excludes s
-                z3.Implies(
-                    extended_verify(v, arg, eval_world), # member of argument's set of verifiers
-                    Exists(
-                        s,
-                        z3.And(
-                            excludes(h(v), s),
-                            is_part_of(s, v)
-                            # NOTE this is just how it goes in the paper
-                            # but I wonder if the line above is a mistake, and
-                            # f is supposed to be the state instead:
-                            # is_part_of(s, state)
-                        )
-                    )
-                )
-            ),
-            ForAll( # 2. h(x) is a part of the state for all extended_veriers x of arg
-                x,
-                z3.Implies(
-                    extended_verify(x, arg, eval_world),
-                    is_part_of(h(x), state),
-                )
-            ),
-            ForAll( # 3. the state is the smallest state to satisfy condition 2
-                z,
-                z3.Implies(
-                    ForAll(
-                        y,
-                        z3.Implies(
-                            extended_verify(y, arg, eval_world),
-                            is_part_of(h(y), state)
-                        )
-                    ),
-                    z == state
-                )
-            )
-        )
-
-    def find_verifiers(self, argsent, eval_world):
-        eval = argsent.proposition.model_structure.z3_model.evaluate
-        all_bits = self.semantics.all_bits
-        # assert False, self.extended_verify(all_bits[0], argsent, eval_world)
-        return {x for x in all_bits if eval(self.extended_verify(x, argsent, eval_world))}
-
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints the argument."""
-        self.general_print(sentence_obj, eval_world, indent_num)
-
-
-class AndOperator(syntactic.Operator):
-    """doc string place holder"""
-
-    name = "\\wedge"
-    arity = 2
-
-    def true_at(self, leftarg, rightarg, eval_world):
-        """doc string place holder
-        args are derived_objects I think, def original_type or derived_object
-        (ie of second or third kind)
-        """
-        sem = self.semantics
-        return z3.And(
-            sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world)
-        )
-
-    def extended_verify(self, state, leftarg, rightarg, eval_world):
-        x = z3.BitVec("ex_ver_x", self.semantics.N)
-        y = z3.BitVec("ex_ver_y", self.semantics.N)
-        return Exists(
-            [x, y],
-            z3.And(
-                self.semantics.fusion(x, y) == state,
-                self.semantics.extended_verify(x, leftarg, eval_world),
-                self.semantics.extended_verify(y, rightarg, eval_world),
-            ),
-        )
-
-    def find_verifiers(self, left_sent_obj, right_sent_obj, eval_world):
-        """Takes sentences objects as arguments, finds their verifiers and
-        falsifiers, and returns the verifiers and falsifiers for the operator"""
-        Y_V = left_sent_obj.proposition.find_proposition()
-        Z_V = right_sent_obj.proposition.find_proposition()
-        return self.semantics.product(Y_V, Z_V)
-
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
-
-
-class OrOperator(syntactic.Operator):
-    """doc string place holder"""
-
-    name = "\\vee"
-    arity = 2
-
-    def true_at(self, leftarg, rightarg, eval_world):
-        """doc string place holder"""
-        sem = self.semantics
-        return z3.Or(
-            sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world)
-        )
-
-    def extended_verify(self, state, leftarg, rightarg, eval_world):
-        return z3.Or(
-            self.semantics.extended_verify(state, leftarg, eval_world),
-            self.semantics.extended_verify(state, rightarg, eval_world),
-            # same as bilateral except no And in def
-        )
-
-    def find_verifiers(self, left_sent_obj, right_sent_obj, eval_world):
-        Y_V = left_sent_obj.proposition.find_proposition()
-        Z_V = right_sent_obj.proposition.find_proposition()
-        return Y_V.union(Z_V)
-
-    def print_method(self, sentence_obj, eval_world, indent_num):
-        """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
-
 class ChampollionProposition(PropositionDefaults):
     """Defines the proposition assigned to the sentences of the language.
     all user has to keep for their own class is super().__init__ and super().__poster_init__
@@ -524,28 +371,182 @@ class ChampollionProposition(PropositionDefaults):
             f"  {PART}({truth_value} in {world_state}){RESET}"
         )
 
-# conclusions = ['\\neg A']
-# conclusions = ['(A \\wedge B)']
-# conclusions = ['(B \\wedge C)']
 
-# premises = ['\\neg (A \\vee B)']
-# conclusions = ['(\\neg A \\wedge \\neg B)']
+class ExclusionOperator(syntactic.Operator):
+    """doc string place holder"""
 
-# premises = ['(A \\wedge (B \\vee C))']
-# conclusions = ['((A \\vee B) \\wedge (A \\vee B))']
+    name = "\\exclude"
+    arity = 1
+
+    def true_at(self, arg, eval_world):
+        """doc string place holder"""
+        # B: I added eval_world to true_at below
+        print(arg)
+        x = z3.BitVec(f"ver \\exclude {arg}", self.semantics.N) # think this has to be a unique name
+        # return z3.Not(Exists(x, z3.And(self.semantics.extended_verify(x, arg, eval_world), self.semantics.is_part_of(x, eval_world))))
+        # print(Exists(x, z3.And(self.extended_verify(x, arg, eval_world), self.semantics.is_part_of(x, eval_world))))
+        return Exists(
+            x,
+            z3.And(
+                self.extended_verify(x, arg, eval_world),
+                self.semantics.is_part_of(x, eval_world)
+            )
+        )
+        return z3.Not(self.semantics.true_at(arg, eval_world)) # by def (30) in paper
+
+    def extended_verify(self, state, arg, eval_world):
+        sem = self.semantics
+        N, extended_verify, excludes = sem.N, sem.extended_verify, sem.excludes
+        is_part_of = sem.is_part_of
+        h = z3.Function(f"h_{(state, arg)}", z3.BitVecSort(N), z3.BitVecSort(N))
+        print('THIS WAS RUN')
+        v, x, y, z, s = z3.BitVecs("v x y z s", N)
+        # return self.precludes(state, arg_set)
+        return z3.And(
+            ForAll( # 1. every extended_verier v for arg has a part s where
+                v,  # h(v) excludes s
+                z3.Implies(
+                    extended_verify(v, arg, eval_world), # member of argument's set of verifiers
+                    Exists(
+                        s,
+                        z3.And(
+                            excludes(h(v), s),
+                            is_part_of(s, v)
+                            # NOTE this is just how it goes in the paper
+                            # but I wonder if the line above is a mistake, and
+                            # f is supposed to be the state instead:
+                            # is_part_of(s, state)
+                        )
+                    )
+                )
+            ),
+            ForAll( # 2. h(x) is a part of the state for all extended_veriers x of arg
+                x,
+                z3.Implies(
+                    extended_verify(x, arg, eval_world),
+                    is_part_of(h(x), state),
+                )
+            ),
+            ForAll( # 3. the state is the smallest state to satisfy condition 2
+                z,
+                z3.Implies(
+                    ForAll(
+                        y,
+                        z3.Implies(
+                            extended_verify(y, arg, eval_world),
+                            is_part_of(h(y), state)
+                        )
+                    ),
+                    z == state
+                )
+            )
+        )
+
+    def find_verifiers(self, argsent, eval_world):
+        eval = argsent.proposition.model_structure.z3_model.evaluate
+        all_bits = self.semantics.all_bits
+        # assert False, self.extended_verify(all_bits[0], argsent, eval_world)
+        return {x for x in all_bits if eval(self.extended_verify(x, argsent, eval_world))}
+
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints the argument."""
+        self.general_print(sentence_obj, eval_world, indent_num)
+
+
+class UniAndOperator(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\uniwedge"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder
+        args are derived_objects I think, def original_type or derived_object
+        (ie of second or third kind)
+        """
+        sem = self.semantics
+        return z3.And(
+            sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world)
+        )
+
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        x = z3.BitVec("ex_ver_x", self.semantics.N)
+        y = z3.BitVec("ex_ver_y", self.semantics.N)
+        return Exists(
+            [x, y],
+            z3.And(
+                self.semantics.fusion(x, y) == state,
+                self.semantics.extended_verify(x, leftarg, eval_world),
+                self.semantics.extended_verify(y, rightarg, eval_world),
+            ),
+        )
+
+    def find_verifiers(self, left_sent_obj, right_sent_obj, eval_world):
+        """Takes sentences objects as arguments, finds their verifiers and
+        falsifiers, and returns the verifiers and falsifiers for the operator"""
+        Y_V = left_sent_obj.proposition.find_proposition()
+        Z_V = right_sent_obj.proposition.find_proposition()
+        return self.semantics.product(Y_V, Z_V)
+
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        self.general_print(sentence_obj, eval_world, indent_num)
+
+
+class UniOrOperator(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\univee"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        sem = self.semantics
+        return z3.Or(
+            sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world)
+        )
+
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        return z3.Or(
+            self.semantics.extended_verify(state, leftarg, eval_world),
+            self.semantics.extended_verify(state, rightarg, eval_world),
+            # same as bilateral except no And in def
+        )
+
+    def find_verifiers(self, left_sent_obj, right_sent_obj, eval_world):
+        Y_V = left_sent_obj.proposition.find_proposition()
+        Z_V = right_sent_obj.proposition.find_proposition()
+        return Y_V.union(Z_V)
+
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        self.general_print(sentence_obj, eval_world, indent_num)
+
+# conclusions = ['\\exclude A']
+# conclusions = ['(A \\uniwedge B)']
+# conclusions = ['(B \\uniwedge C)']
+
+# premises = ['\\exclude (A \\univee B)']
+# conclusions = ['(\\exclude A \\uniwedge \\exclude B)']
+
+premises = ['(A \\uniwedge (B \\univee C))']
+conclusions = ['((A \\univee B) \\uniwedge (A \\univee B))']
 
 # 
-premises = ['((A \\vee B) \\wedge (A \\vee B))']
-conclusions = ['(A \\wedge (B \\vee C))']
+premises = ['((A \\univee B) \\uniwedge (A \\univee B))']
+conclusions = ['(A \\uniwedge (B \\univee C))']
 
 contingent = True
 
 
-# premises = ['\\neg (A \\wedge B)']
-# conclusions = ['(\\neg A \\vee \\neg B)']
+# premises = ['\\exclude (A \\uniwedge B)']
+# conclusions = ['(\\exclude A \\univee \\exclude B)']
 
 
-op = syntactic.OperatorCollection(AndOperator, NegationOperator, OrOperator)
+op = syntactic.OperatorCollection(UniAndOperator, ExclusionOperator, UniOrOperator)
 
 syntax = syntactic.Syntax(premises, conclusions, op)
 

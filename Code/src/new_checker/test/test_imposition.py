@@ -1,4 +1,4 @@
-"""run 'pytest' from the '.../Code' directory"""
+"""run 'pytest' from the '.../Code/src/new_checker/' directory"""
 import pytest
 
 from .utils import (
