@@ -217,7 +217,7 @@ class NegationOperator(syntactic.Operator):
         N, extended_verify, excludes = sem.N, sem.extended_verify, sem.excludes
         is_part_of, is_proper_part_of = sem.is_part_of, sem.is_proper_part_of
 
-        h = z3.Function(f"{self} ver {arg}", z3.BitVecSort(N), z3.BitVecSort(N))
+        h = z3.Function(f"{self} ver {(state, arg)}", z3.BitVecSort(N), z3.BitVecSort(N))
         f, x, y, z, s = z3.BitVecs("f x y z s", N)
         return z3.And(
             # 1. conditions on h
