@@ -550,23 +550,9 @@ class Proposition(PropositionDefaults):
             )
         return exists_verifier
     
-    # NOTE: say that this is what self prints
-    def __repr__(self):
-        N = self.model_structure.model_constraints.semantics.N
-        possible = self.model_structure.model_constraints.semantics.possible
-        z3_model = self.model_structure.z3_model
-        ver_states = {
-            bitvec_to_substates(bit, N)
-            for bit in self.verifiers
-            if z3_model.evaluate(possible(bit)) or self.print_impossible
-        }
-        fal_states = {
-            bitvec_to_substates(bit, N)
-            for bit in self.falsifiers
-            if z3_model.evaluate(possible(bit)) or self.print_impossible
-        }
-        return f"< {pretty_set_print(ver_states)},{pretty_set_print(fal_states)} >"
-
+    # NOTE: moved __repr__ to PropositionDefaults bc all bilateral props will
+    # look the same for any system and all unilateral props will look the same for
+    # any system
 
     def print_proposition(self, eval_world, indent_num):
         N = self.model_structure.model_constraints.semantics.N

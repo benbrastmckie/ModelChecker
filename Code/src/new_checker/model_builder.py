@@ -27,6 +27,8 @@ from hidden_helpers import (
     bitvec_to_substates,
     int_to_binary,
     not_implemented_string,
+    pretty_set_print,
+
 )
 
 import sys
@@ -139,30 +141,29 @@ class PropositionDefaults:
         # Set defaults for verifiers and falsifiers
         self.verifiers, self.falsifiers = [], []
 
-# # NOTE: adapt to know if unilateral or bilateral
-    # # this is something we ultimately want to move into
-    # # semantic.py since users will define there what a proposition is and so
-    # # should be able to configure the representation to match
-    # def __repr__(self):
-    #     N = self.model_structure.model_constraints.semantics.N
-    #     possible = self.model_structure.model_constraints.semantics.possible
-    #     z3_model = self.model_structure.z3_model
-    #     ver_states = {
-    #         bitvec_to_substates(bit, N)
-    #         for bit in self.verifiers
-    #         if z3_model.evaluate(possible(bit)) or self.print_impossible
-    #     }
-    #     fal_states = {
-    #         bitvec_to_substates(bit, N)
-    #         for bit in self.falsifiers
-    #         if z3_model.evaluate(possible(bit)) or self.print_impossible
-    #     }
-    #     ver_prints = pretty_set_print(ver_states)
-    #     fal_prints = pretty_set_print(fal_states)
-    #     return f"< {ver_prints}, {fal_prints} >"
-
+    # NOTE: is responsive to unilateral/bilateral props, so long as
+    # falsifiers, if there are any, are _sets_; the default is a list,
+    # so if it is a list, it is because the defaults are unchanged, meaning
+    # the proposition is unilateral (a prop with no falsifiers but within
+    # a bilateral system would have an empty set as falsifiers, not the
+    # default empty list)
     def __repr__(self):
-        return self.name
+        N = self.model_structure.model_constraints.semantics.N
+        possible = self.model_structure.model_constraints.semantics.possible
+        z3_model = self.model_structure.z3_model
+        ver_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self.verifiers
+            if z3_model.evaluate(possible(bit)) or self.print_impossible
+        }
+        if isinstance(self.falsifiers, set): # because default is a(n empty) list
+            fal_states = {
+                bitvec_to_substates(bit, N)
+                for bit in self.falsifiers
+                if z3_model.evaluate(possible(bit)) or self.print_impossible
+            }
+            return f"< {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >"
+        return pretty_set_print(ver_states)
 
     def __hash__(self):
         return hash(self.name)
@@ -338,9 +339,6 @@ class ModelStructure:
         self.unsat_core = z3_model if not z3_model_status else None
         self.z3_model_status = z3_model_status
         self.z3_model_runtime = z3_model_runtime
-        print(self.z3_model)
-        # print(self.model_constraints.conclusion_constraints)
-        # raise ValueError
 
         # Store possible_bits, world_bits, and main_world from the Z3 model
         if not self.z3_model_status:
@@ -526,15 +524,6 @@ class ModelStructure:
     #     # B: I think eventually all operators should have a print method
     #     if self.operator and hasattr(self.operator, 'print_operator'):
     #         self.operator.print_operator(self, eval_world, indent_num)
-
-
-    # M: eventually, we need to add a condition on unilateral or bilateral semantics
-    # so that one set vs two is printed (one for unilateral, two for bilateral)
-    # B: I think it is OK to leave it to the user to change how things get
-    # printed where this is defined here. There could in general be many changes
-    # that users may want to make and so I don't think it is necessary to
-    # anticipate all of them. But it will be good to experiment with Lukas'
-    # semantics to see how making those changes go.
 
     def recursive_print(self, sentence, eval_world, indent_num):
         if indent_num == 2: # NOTE: otherwise second lines don't indent
