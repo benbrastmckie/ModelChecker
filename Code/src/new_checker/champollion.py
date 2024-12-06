@@ -136,7 +136,6 @@ class ChampollionSemantics(SemanticDefaults):
             )
         )
 
-    # M: DISCUSS missing necessary proposition def on 528. don't think it goes here
     def necessary(self, bit_e1):
         x = z3.BitVec("nec_x", self.N)
         return ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
@@ -144,21 +143,15 @@ class ChampollionSemantics(SemanticDefaults):
     def collectively_excludes(self, bit_s, set_P):
         return self.excludes(bit_s, self.total_fusion(set_P))
 
-    # DISCUSS: can total_fusion be used here?
     def individually_excludes(self, bit_s, set_P):
-        # M: I think this works. Had to come up with alt def for condition b
-        # condition a
         sub_s, p = z3.BitVecs("sub_s p", self.N)
         P = self.z3_set(set_P, self.N)
         cond_a = Exists(
             [sub_s, p],
             z3.And(self.is_part_of(sub_s, bit_s), P[p], self.excludes(sub_s, p)),
         )
-        # condition b
         # Sigma is upper bound on excluders of set P
-        Sigma = z3.BitVec(
-            str(set_P), self.N
-        )  # M: I think needs a unique name, hence str(set_P). though this soln is very untenable for debugging
+        Sigma = z3.BitVec(str(set_P), self.N)
         x, y, z, p = z3.BitVecs("x y z p", self.N)
         Sigma_UB = ForAll(
             x,
@@ -188,12 +181,9 @@ class ChampollionSemantics(SemanticDefaults):
                             )
                         ),
                         self.is_part_of(y, z),
-                        # B: found error (below)
-                        # self.is_part_of(y, Sigma),
                     ),
                 ),
-                z == Sigma # B: no reason not to start with identity
-                # self.is_part_of(Sigma, z), # DISCUSS: is_proper_part_of ?
+                z == Sigma
             ),
         )
         # # NOTE: negative existential version to compare
@@ -300,7 +290,6 @@ class ChampollionSemantics(SemanticDefaults):
         return operator.extended_verify(state, *arguments, eval_world)
 
 
-# B: this seems close!
 class NegationOperator(syntactic.Operator):
     """doc string place holder"""
 
@@ -323,29 +312,25 @@ class NegationOperator(syntactic.Operator):
         )
         return z3.Not(self.semantics.true_at(arg, eval_world)) # by def (30) in paper
 
-    # B: This looks great! I changed verify to extended_verify (though this is
-    # missing from the semantics above) since the argument need not be a sentence
-    # letter. The only other change I made is to push the negation inward. I kept
-    # the negative existential version to compare later.
     def extended_verify(self, state, arg, eval_world):
         sem = self.semantics
         N, extended_verify, excludes = sem.N, sem.extended_verify, sem.excludes
         is_part_of = sem.is_part_of
-        h = z3.Function(f"h_{(state, arg)}*", z3.BitVecSort(N), z3.BitVecSort(N))
+        h = z3.Function(f"h_{(state, arg)}", z3.BitVecSort(N), z3.BitVecSort(N))
         print('THIS WAS RUN')
         v, x, y, z, s = z3.BitVecs("v x y z s", N)
+        # return self.precludes(state, arg_set)
         return z3.And(
             ForAll( # 1. every extended_verier v for arg has a part s where
                 v,  # h(v) excludes s
                 z3.Implies(
                     extended_verify(v, arg, eval_world), # member of argument's set of verifiers
-                    # extended_verify(state, arg, eval_world), # ERROR
                     Exists(
                         s,
                         z3.And(
                             excludes(h(v), s),
                             is_part_of(s, v)
-                            # B: DISCUSS this is just how it goes in the paper
+                            # NOTE this is just how it goes in the paper
                             # but I wonder if the line above is a mistake, and
                             # f is supposed to be the state instead:
                             # is_part_of(s, state)
@@ -367,7 +352,7 @@ class NegationOperator(syntactic.Operator):
                         y,
                         z3.Implies(
                             extended_verify(y, arg, eval_world),
-                            is_part_of(h(y), state) # DISCUSS: is_proper_part_of ?
+                            is_part_of(h(y), state)
                         )
                     ),
                     z == state
@@ -387,7 +372,6 @@ class NegationOperator(syntactic.Operator):
         self.general_print(sentence_obj, eval_world, indent_num)
 
 
-# B: this looks great!
 class AndOperator(syntactic.Operator):
     """doc string place holder"""
 
@@ -429,7 +413,6 @@ class AndOperator(syntactic.Operator):
         self.general_print(sentence_obj, eval_world, indent_num)
 
 
-# B: this looks great!
 class OrOperator(syntactic.Operator):
     """doc string place holder"""
 
@@ -460,7 +443,6 @@ class OrOperator(syntactic.Operator):
         by 1, and prints both of the arguments."""
         self.general_print(sentence_obj, eval_world, indent_num)
 
-# TODO: fix this (that's the only thing left)
 class ChampollionProposition(PropositionDefaults):
     """Defines the proposition assigned to the sentences of the language.
     all user has to keep for their own class is super().__init__ and super().__poster_init__
@@ -542,11 +524,27 @@ class ChampollionProposition(PropositionDefaults):
             f"  {PART}({truth_value} in {world_state}){RESET}"
         )
 
-premises = ['A']
 # conclusions = ['\\neg A']
 # conclusions = ['(A \\wedge B)']
 # conclusions = ['(B \\wedge C)']
-conclusions = ['(\\neg A \\wedge B)']
+
+# premises = ['\\neg (A \\vee B)']
+# conclusions = ['(\\neg A \\wedge \\neg B)']
+
+# premises = ['(A \\wedge (B \\vee C))']
+# conclusions = ['((A \\vee B) \\wedge (A \\vee B))']
+
+# 
+premises = ['((A \\vee B) \\wedge (A \\vee B))']
+conclusions = ['(A \\wedge (B \\vee C))']
+
+contingent = True
+
+
+# premises = ['\\neg (A \\wedge B)']
+# conclusions = ['(\\neg A \\vee \\neg B)']
+
+
 op = syntactic.OperatorCollection(AndOperator, NegationOperator, OrOperator)
 
 syntax = syntactic.Syntax(premises, conclusions, op)
@@ -557,7 +555,7 @@ model_constraints = ModelConstraints(
     syntax,
     semantics,
     ChampollionProposition,
-    contingent=False,
+    contingent,
     non_null=True,
     disjoint=False,
     print_impossible=True,
@@ -565,5 +563,6 @@ model_constraints = ModelConstraints(
 
 model_structure = ModelStructure(model_constraints)
 print(model_structure.z3_model)
+print(contingent)
 
-# model_structure.print_all()
+model_structure.print_all()

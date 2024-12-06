@@ -289,8 +289,6 @@ class DefinedOperator(Operator):
                 f"the number of arguments ({derived_def_num_args}) for its 'derived_definition' method."
             )
 
-        # DISCUSS: _B_ I rewrote this in Syntax
-
 
 class OperatorCollection:
     """Stores the operators that will be passed to Syntax."""
@@ -473,7 +471,7 @@ class Syntax:
             )
 
         visited = set()
-        recursion_stack = set()
+        recursion_stack = []
 
         def dfs(current):
             if current in recursion_stack:
@@ -483,7 +481,7 @@ class Syntax:
                 )
             if current in visited:
                 return
-            recursion_stack.add(current)
+            recursion_stack.append(current)
             for dependent in dependency_graph.get(current, set()):
                 dfs(dependent)
             recursion_stack.remove(current)

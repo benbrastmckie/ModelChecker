@@ -550,6 +550,7 @@ class Proposition(PropositionDefaults):
             )
         return exists_verifier
     
+    # NOTE: say that this is what self prints
     def __repr__(self):
         N = self.model_structure.model_constraints.semantics.N
         possible = self.model_structure.model_constraints.semantics.possible
