@@ -337,15 +337,25 @@ class NegationOperator(syntactic.Operator):
         # P = sem.z3_set(set_P, self.N)
         h = z3.Function(f"h_{arg}*", z3.BitVecSort(N), z3.BitVecSort(N))
         print('THIS WAS RUN')
-        f, x, y, z, s = z3.BitVecs("f x y z s", N)
+        v, x, y, z, s = z3.BitVecs("v x y z s", N)
         return z3.And(
-            # 1. conditions on h
-            ForAll(
-                f,
+            ForAll( # 1. every extended_verier v for arg has a part s where
+                v,  # h(v) excludes s
                 z3.Implies(
-                    extended_verify(state, arg, eval_world),
-                    Exists(s, z3.And(is_part_of(s, f), excludes(h(f), s))),
-                ),
+                    extended_verify(v, arg, eval_world), # member of argument's set of verifiers
+                    # extended_verify(state, arg, eval_world), # ERROR
+                    Exists(
+                        s,
+                        z3.And(
+                            excludes(h(v), s),
+                            is_part_of(s, v)
+                            # B: DISCUSS this is just how it goes in the paper
+                            # but I wonder if the line above is a mistake, and
+                            # f is supposed to be the state instead:
+                            # is_part_of(s, state)
+                        )
+                    )
+                )
             ),
             # 2. state is upper bound on h(f) for f that verify arg
             ForAll(
@@ -363,11 +373,10 @@ class NegationOperator(syntactic.Operator):
                         y,
                         z3.Implies(
                             extended_verify(y, arg, eval_world),
-                            is_proper_part_of(h(y), state) # DISCUSS: is_proper_part_of ?
+                            is_part_of(h(y), state) # DISCUSS: is_proper_part_of ?
                         )
                     ),
-                    # B: could change this to be an identity for speed boost?
-                    is_part_of(state, z)
+                    z == state
                 )
             )
         )
@@ -541,9 +550,9 @@ class ChampollionProposition(PropositionDefaults):
 
 premises = ['A']
 # conclusions = ['\\neg A']
-conclusions = ['(A \\wedge B)']
+# conclusions = ['(A \\wedge B)']
 # conclusions = ['(B \\wedge C)']
-# conclusions = ['(\\neg A \\wedge B)']
+conclusions = ['(\\neg A \\wedge B)']
 op = syntactic.OperatorCollection(AndOperator, NegationOperator, OrOperator)
 
 syntax = syntactic.Syntax(premises, conclusions, op)
