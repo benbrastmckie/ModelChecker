@@ -204,19 +204,6 @@ class ChampollionSemantics(SemanticDefaults):
         arguments = sentence.arguments or ()
         return operator.true_at(*arguments, eval_world)
 
-    # def true_at(self, prefix_object, eval_world):
-    #     """
-    #     prefix_object is always a list, eval world a BitVector
-    #     prefix_object is the third kind of prefix_object
-    #     """
-    #     if str(prefix_object[0]).isalnum():
-    #         sentence_letter = prefix_object[0]
-    #         x = z3.BitVec("t_atom_x", self.N)
-    #         return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
-    #     operator, args = prefix_object[0], prefix_object[1:]
-    #     assert not isinstance(operator, type), "operator should be an instance of a class"
-    #     return operator.true_at(*args, eval_world)
-
     def extended_verify(self, state, sentence, eval_world):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
@@ -224,12 +211,6 @@ class ChampollionSemantics(SemanticDefaults):
         operator = sentence.operator
         arguments = sentence.arguments or ()
         return operator.extended_verify(state, *arguments, eval_world)
-    
-    # def extended_verify(self, state, prefix_object, eval_world):
-    #     if str(prefix_object[0]).isalnum():
-    #         return self.verify(state, prefix_object[0])
-    #     op, args = prefix_object[0], prefix_object[1:]
-    #     return op.extended_verify(state, *args, eval_world)
 
 
 # B: this seems close!
@@ -242,6 +223,11 @@ class NegationOperator(syntactic.Operator):
     def true_at(self, arg, eval_world):
         """doc string place holder"""
         # B: I added eval_world to true_at below
+        print(arg)
+        x = z3.BitVec(f"ver \\neg {arg}", self.semantics.N) # think this has to be a unique name
+        # return z3.Not(Exists(x, z3.And(self.semantics.extended_verify(x, arg, eval_world), self.semantics.is_part_of(x, eval_world))))
+        # print(Exists(x, z3.And(self.extended_verify(x, arg, eval_world), self.semantics.is_part_of(x, eval_world))))
+        return Exists(x, z3.And(self.extended_verify(x, arg, eval_world), self.semantics.is_part_of(x, eval_world)))
         return z3.Not(self.semantics.true_at(arg, eval_world)) # by def (30) in paper
 
     # B: This looks great! I changed verify to extended_verify (though this is
@@ -252,9 +238,8 @@ class NegationOperator(syntactic.Operator):
         sem = self.semantics
         N, extended_verify, excludes = sem.N, sem.extended_verify, sem.excludes
         is_part_of, is_proper_part_of = sem.is_part_of, sem.is_proper_part_of
-
-        h = z3.Function(f"*{self} ver {arg}*", z3.BitVecSort(N), z3.BitVecSort(N))
-        # print('THIS WAS RUN')
+        h = z3.Function(f"h_{arg}*", z3.BitVecSort(N), z3.BitVecSort(N))
+        print('THIS WAS RUN')
         f, x, y, z, s = z3.BitVecs("f x y z s", N)
         return z3.And(
             # 1. conditions on h
@@ -290,10 +275,11 @@ class NegationOperator(syntactic.Operator):
             )
         )
 
-    def find_verifiers(self, arg_sent_obj, eval_world):
-        eval = arg_sent_obj.proposition.model_structure.z3_model.evaluate
-        all_bits, pfo = self.semantics.all_bits, arg_sent_obj
-        return {x for x in all_bits if eval(self.extended_verify(x, pfo, eval_world))}
+    def find_verifiers(self, argsent, eval_world):
+        eval = argsent.proposition.model_structure.z3_model.evaluate
+        all_bits = self.semantics.all_bits
+        # assert False, self.extended_verify(all_bits[0], argsent, eval_world)
+        return {x for x in all_bits if eval(self.extended_verify(x, argsent, eval_world))}
 
     def print_method(self, sentence_obj, eval_world, indent_num):
         """Prints the proposition for sentence_obj, increases the indentation
@@ -460,7 +446,7 @@ premises = ['A']
 conclusions = ['\\neg A']
 # conclusions = ['(A \\wedge B)']
 # conclusions = ['(B \\wedge C)']
-conclusions = ['(\\neg A \\wedge B)']
+# conclusions = ['(\\neg A \\wedge B)']
 op = syntactic.OperatorCollection(AndOperator, NegationOperator, OrOperator)
 
 syntax = syntactic.Syntax(premises, conclusions, op)
@@ -478,6 +464,6 @@ model_constraints = ModelConstraints(
 )
 
 model_structure = ModelStructure(model_constraints)
-# print(model_structure.z3_model)
+print(model_structure.z3_model)
 
-model_structure.print_all()
+# model_structure.print_all()
