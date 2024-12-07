@@ -479,6 +479,51 @@ class UniOrOperator(syntactic.Operator):
         by 1, and prints both of the arguments."""
         self.general_print(sentence_obj, eval_world, indent_num)
 
+class UniIdentityOperator(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\uniequiv"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        N = self.semantics.N
+        sem = self.semantics
+        x = z3.BitVec("t_id_x", N)
+        return z3.And(
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_verify(x, leftarg, eval_world),
+                    sem.extended_verify(x, rightarg, eval_world)
+                ),
+            ),
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_verify(x, rightarg, eval_world),
+                    sem.extended_verify(x, leftarg, eval_world)
+                ),
+            ),
+        )
+
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.true_at(leftarg, rightarg, eval_world)
+        )
+
+    def find_verifiers(self, left_sent_obj, right_sent_obj, eval_world):
+        Y_V = left_sent_obj.proposition.find_proposition()
+        Z_V = right_sent_obj.proposition.find_proposition()
+        return {self.semantics.null_bit} if Y_V == Z_V else set()
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        self.general_print(sentence_obj, eval_world, indent_num)
+
+
 # conclusions = ['\\exclude A']
 # conclusions = ['(A \\uniwedge B)']
 # conclusions = ['(B \\uniwedge C)']
@@ -486,21 +531,28 @@ class UniOrOperator(syntactic.Operator):
 # premises = ['\\exclude (A \\univee B)']
 # conclusions = ['(\\exclude A \\uniwedge \\exclude B)']
 
-premises = ['(A \\uniwedge (B \\univee C))']
-conclusions = ['((A \\univee B) \\uniwedge (A \\univee B))']
+premises = ['\\exclude (A \\uniwedge B)']
+conclusions = ['(\\exclude A \\univee \\exclude B)']
 
-# 
-premises = ['((A \\univee B) \\uniwedge (A \\univee B))']
-conclusions = ['(A \\uniwedge (B \\univee C))']
+# premises = ['(A \\uniequiv B)']
 
-contingent = True
+premises = []
+conclusions = ["(\\exclude (A \\uniwedge B) \\uniequiv (\\exclude A \\univee \\exclude B))"]
+
+# premises = ['(A \\uniwedge (B \\univee C))']
+# conclusions = ['((A \\univee B) \\uniwedge (A \\univee B))']
+
+# premises = ['((A \\univee B) \\uniwedge (A \\univee B))']
+# conclusions = ['(A \\uniwedge (B \\univee C))']
+
 
 
 # premises = ['\\exclude (A \\uniwedge B)']
 # conclusions = ['(\\exclude A \\univee \\exclude B)']
 
 
-op = syntactic.OperatorCollection(UniAndOperator, ExclusionOperator, UniOrOperator)
+op = syntactic.OperatorCollection(UniAndOperator, ExclusionOperator, UniOrOperator,
+                                  UniIdentityOperator)
 
 syntax = syntactic.Syntax(premises, conclusions, op)
 
@@ -510,14 +562,13 @@ model_constraints = ModelConstraints(
     syntax,
     semantics,
     ChampollionProposition,
-    contingent,
+    contingent=False,
     non_null=True,
     disjoint=False,
     print_impossible=True,
 )
 
 model_structure = ModelStructure(model_constraints)
-print(model_structure.z3_model)
-print(contingent)
+print(model_structure.unsat_core)
 
 model_structure.print_all()
