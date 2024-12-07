@@ -479,12 +479,12 @@ class Proposition(PropositionDefaults):
 
         # Collect constraints
         constraints = get_classical_constraints()
-        if self.disjoint:
+        if self.settings['disjoint']:
             constraints.extend(get_disjoint_constraints())
             constraints.extend(get_non_null_constraints())
-        if self.contingent:
+        if self.settings['contingent']:
             constraints.extend(get_contingent_constraints())
-        elif self.non_null and not self.disjoint:
+        elif self.settings['non_null'] and not self.settings['disjoint']:
             constraints.extend(get_non_null_constraints())
         return constraints
 
@@ -538,28 +538,14 @@ class Proposition(PropositionDefaults):
                 f"  The falsifier {index_to_substate(fal_witness)}."
             )
         return exists_verifier
-
+    
     def print_proposition(self, eval_world, indent_num):
         N = self.model_structure.model_constraints.semantics.N
         truth_value = self.truth_value_at(eval_world)
-        possible = self.model_structure.model_constraints.semantics.possible
-        z3_model = self.model_structure.z3_model
-        ver_states = {
-            bitvec_to_substates(bit, N)
-            for bit in self.verifiers
-            if z3_model.evaluate(possible(bit)) or self.print_impossible
-        }
-        fal_states = {
-            bitvec_to_substates(bit, N)
-            for bit in self.falsifiers
-            if z3_model.evaluate(possible(bit)) or self.print_impossible
-        }
-        ver_prints = pretty_set_print(ver_states)
-        fal_prints = pretty_set_print(fal_states)
         world_state = bitvec_to_substates(eval_world, N)
         RESET, FULL, PART = self.set_colors(self.name, indent_num, truth_value, world_state)
         print(
-            f"{'  ' * indent_num}{FULL}|{self}| = < {ver_prints}, {fal_prints} >{RESET}"
+            f"{'  ' * indent_num}{FULL}|{self.name}| = {self}{RESET}"
             f"  {PART}({truth_value} in {world_state}){RESET}"
         )
 
