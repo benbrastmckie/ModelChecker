@@ -312,7 +312,7 @@ class ChampollionProposition(PropositionDefaults):
 
     def truth_value_at(self, world):
         """Checks if there is a verifier in world."""
-        semantics = self.model_structure.model_constraints.semantics
+        semantics = self.model_structure.semantics
         z3_model = self.model_structure.z3_model
         for ver_bit in self.verifiers:
             if z3_model.evaluate(semantics.is_part_of(ver_bit, world)):
@@ -320,7 +320,7 @@ class ChampollionProposition(PropositionDefaults):
         return False
 
     def print_proposition(self, eval_world, indent_num):
-        N = self.model_structure.model_constraints.semantics.N
+        N = self.model_structure.semantics.N
         truth_value = self.truth_value_at(eval_world)
         world_state = bitvec_to_substates(eval_world, N)
         RESET, FULL, PART = self.set_colors(self.name, indent_num, truth_value, world_state)
