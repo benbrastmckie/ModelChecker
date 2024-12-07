@@ -550,10 +550,6 @@ class Proposition(PropositionDefaults):
             )
         return exists_verifier
     
-    # NOTE: moved __repr__ to PropositionDefaults bc all bilateral props will
-    # look the same for any system and all unilateral props will look the same for
-    # any system
-
     def print_proposition(self, eval_world, indent_num):
         N = self.model_structure.model_constraints.semantics.N
         truth_value = self.truth_value_at(eval_world)
