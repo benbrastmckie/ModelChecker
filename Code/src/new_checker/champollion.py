@@ -536,9 +536,17 @@ class UniIdentityOperator(syntactic.Operator):
 
 # premises = ['(A \\uniequiv B)']
 
-premises = []
+# premises = []
 # conclusions = ["(\\exclude (A \\uniwedge B) \\uniequiv (\\exclude A \\univee \\exclude B))"]
-conclusions = ["(\\exclude (A \\univee B) \\uniequiv (\\exclude A \\uniwedge \\exclude B))"]
+
+# premises = []
+# conclusions = ["(\\exclude (A \\univee B) \\uniequiv (\\exclude A \\uniwedge \\exclude B))"]
+
+premises = []
+conclusions = ["((A \\univee (B \\uniwedge C)) \\uniequiv ((A \\univee B) \\uniwedge (A \\univee C)))"]
+
+# premises = []
+# conclusions = ["((A \\uniwedge (B \\univee C)) \\uniequiv ((A \\uniwedge B) \\univee (A \\uniwedge C)))"]
 
 # premises = ['(A \\uniwedge (B \\univee C))']
 # conclusions = ['((A \\univee B) \\uniwedge (A \\univee B))']
@@ -551,14 +559,14 @@ conclusions = ["(\\exclude (A \\univee B) \\uniequiv (\\exclude A \\uniwedge \\e
 # premises = ['\\exclude (A \\uniwedge B)']
 # conclusions = ['(\\exclude A \\univee \\exclude B)']
 
+
 settings = {
-    'N' : 4,
+    'N' : 3,
     'contingent' : True,
     'non_null' : True,
     'disjoint' : False,
     'print_impossible' : True,
-    'desired_status' : True,
-    'max_time' : 2,
+    'max_time' : 1,
 }
 
 operators = syntactic.OperatorCollection(

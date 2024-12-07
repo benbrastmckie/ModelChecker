@@ -155,13 +155,13 @@ class PropositionDefaults:
         ver_states = {
             bitvec_to_substates(bit, N)
             for bit in self.verifiers
-            if z3_model.evaluate(possible(bit)) or self.print_impossible
+            if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
         }
         if isinstance(self.falsifiers, set): # because default is a(n empty) list
             fal_states = {
                 bitvec_to_substates(bit, N)
                 for bit in self.falsifiers
-                if z3_model.evaluate(possible(bit)) or self.print_impossible
+                if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
             }
             return f"< {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >"
         return pretty_set_print(ver_states)
