@@ -7,8 +7,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] class architecture
 - [:] implementation
 - [ ] api
-- [.] applications
-  - [.] Champollion
+- [:] applications
+  - [:] Champollion
   - [:] Fine
 - [.] benchmarks
 - [:] unit tests
@@ -36,19 +36,29 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 - [x] Semantics class
   - [x] add frame constraints on `exclusion`
-- [ ] Proposition class
-- [:] Operators
-  - [.] Not
+- [x] Proposition class
+- [x] Operators
+  - [x] Not
   - [x] And
   - [x] Or
-- [:] unit tests
-- [ ] run optimizer on single example to compare to negation:
+- [x] _M_ add identity to semantics
+- [ ] get settings to work in unilateral semantics
+  - [ ] `contingent`
+  - [ ] `non_null`
+  - [ ] `disjoint`
+  - [ ] `non_empty`
+- [.] _M_ test exclusion semantics
+  - [ ] build range of examples
+  - [ ] test frame constraints
+  - [ ] test settings
+- [ ] _M_ documentation and cleanup
+- [:] _B_ unit tests
+  - [x] setup tests
+  - [ ] add examples
+- [ ] run optimizer on single example to compare to negation
   - [ ] completion time for each example by atomic complexity `N`
   - [ ] max atomic complexity `N` before timeout
   - [ ] max sentence/atomic complexity before too many constraints to build
-  - [ ] other?
-- [ ] build unit test to generalize on single example
-  - [ ] run unit test on a range of examples
 
 ### Imposition Semantics
 
@@ -68,8 +78,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] printouts
   - [x] add total time
 - [ ] flags
-  - [ ] optimize
-  - [ ] disjoint
 - [ ] progress bar
 - [ ] error reporting
   - [ ] convert bvs to states in raise Errors
@@ -142,9 +150,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [:] defined operators
       - [x] definitions
       - [ ] unit tests
-    - [ ] relevance
-      - [ ] semantics
-      - [ ] unit tests
+    - [x] relevance
+      - [x] semantics
+      - [x] unit tests
       - [ ] verifiers and falsifiers
     - [:] imposition counterfactual
       - [x] add z3 primitive semantics

@@ -27,6 +27,8 @@ from hidden_helpers import (
     bitvec_to_substates,
     int_to_binary,
     not_implemented_string,
+    pretty_set_print,
+
 )
 
 import sys
@@ -131,37 +133,34 @@ class PropositionDefaults:
         # Store values from model_constraints
         self.semantics = self.model_constraints.semantics
         self.sentence_letters = self.model_constraints.sentence_letters
-        self.contingent = self.model_constraints.contingent
-        self.non_null = self.model_constraints.non_null
-        self.disjoint = self.model_constraints.disjoint
-        self.print_impossible = self.model_constraints.print_impossible
+        self.settings = self.model_constraints.settings
 
-        # Set defaults for verifiers and falsifiers
+        # Set defaults for verifiers and falsifiers (important they are lists)
         self.verifiers, self.falsifiers = [], []
 
-    # # DISCUSS: this is something we ultimately want to move into
-    # # semantic.py since users will define there what a proposition is and so
-    # # should be able to configure the representation to match
-    # def __repr__(self):
-    #     N = self.model_structure.model_constraints.semantics.N
-    #     possible = self.model_structure.model_constraints.semantics.possible
-    #     z3_model = self.model_structure.z3_model
-    #     ver_states = {
-    #         bitvec_to_substates(bit, N)
-    #         for bit in self.verifiers
-    #         if z3_model.evaluate(possible(bit)) or self.print_impossible
-    #     }
-    #     fal_states = {
-    #         bitvec_to_substates(bit, N)
-    #         for bit in self.falsifiers
-    #         if z3_model.evaluate(possible(bit)) or self.print_impossible
-    #     }
-    #     ver_prints = pretty_set_print(ver_states)
-    #     fal_prints = pretty_set_print(fal_states)
-    #     return f"< {ver_prints}, {fal_prints} >"
-
+    # NOTE: is responsive to unilateral/bilateral props, so long as
+    # falsifiers, if there are any, are _sets_; the default is a list,
+    # so if it is a list, it is because the defaults are unchanged, meaning
+    # the proposition is unilateral (a prop with no falsifiers but within
+    # a bilateral system would have an empty set as falsifiers, not the
+    # default empty list)
     def __repr__(self):
-        return self.name
+        N = self.model_structure.model_constraints.semantics.N
+        possible = self.model_structure.model_constraints.semantics.possible
+        z3_model = self.model_structure.z3_model
+        ver_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self.verifiers
+            if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
+        }
+        if isinstance(self.falsifiers, set): # because default is an empty list
+            fal_states = {
+                bitvec_to_substates(bit, N)
+                for bit in self.falsifiers
+                if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
+            }
+            return f"< {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >"
+        return pretty_set_print(ver_states)
 
     def __hash__(self):
         return hash(self.name)
@@ -193,22 +192,14 @@ class ModelConstraints:
         syntax,
         semantics,
         proposition_class,
-        contingent=False,
-        non_null=True,
-        disjoint=False,
-        print_impossible=False,
+        settings,
     ):
 
         # Store inputs
         self.syntax = syntax
         self.semantics = semantics
         self.proposition_class = proposition_class
-
-        # Store user settings
-        self.contingent = contingent
-        self.non_null = non_null
-        self.disjoint = disjoint
-        self.print_impossible = print_impossible
+        self.settings = settings
 
         # Store syntax values
         self.premises = self.syntax.premises
@@ -217,13 +208,6 @@ class ModelConstraints:
 
         # Store operator dictionary
         self.operators = self.copy_dictionary(self.syntax.operator_collection)
-
-        # # DISCUSS: why is the shallow copy needed for pytest to work?
-        # # NOTE: UPDATE OP STRATEGY (turn on in activate_operator)
-        # # Update operator_collection with semantics
-        # self.operator_collection = self.apply_semantics(
-        #     self.syntax.operator_collection.duplicate()
-        # )
 
         # use semantics to recursively update all derived_objects
         self.instantiate(self.premises + self.conclusions)
@@ -332,7 +316,7 @@ class ModelStructure:
 
         # Store from model_constraint
         self.proposition_class = self.model_constraints.proposition_class
-        self.print_impossible = self.model_constraints.print_impossible
+        self.settings = self.model_constraints.settings
 
         # Solve Z3 constraints and store values
         timeout, z3_model, z3_model_status, z3_model_runtime = self.solve(
@@ -503,7 +487,7 @@ class ModelStructure:
                 format_state(bin_rep, state, self.COLORS["world"], "world")
             elif bit in self.poss_bits:
                 format_state(bin_rep, state, self.COLORS["possible"])
-            elif self.print_impossible:
+            elif self.settings['print_impossible']:
                 format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
 
     # def rec_print(self, sentence, eval_world, indent):
@@ -529,15 +513,6 @@ class ModelStructure:
     #     # B: I think eventually all operators should have a print method
     #     if self.operator and hasattr(self.operator, 'print_operator'):
     #         self.operator.print_operator(self, eval_world, indent_num)
-
-
-    # M: eventually, we need to add a condition on unilateral or bilateral semantics
-    # so that one set vs two is printed (one for unilateral, two for bilateral)
-    # B: I think it is OK to leave it to the user to change how things get
-    # printed where this is defined here. There could in general be many changes
-    # that users may want to make and so I don't think it is necessary to
-    # anticipate all of them. But it will be good to experiment with Lukas'
-    # semantics to see how making those changes go.
 
     def recursive_print(self, sentence, eval_world, indent_num):
         if indent_num == 2: # NOTE: otherwise second lines don't indent

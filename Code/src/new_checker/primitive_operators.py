@@ -556,6 +556,145 @@ class EssenceOperator(syntactic.Operator):
         self.general_print(sentence_obj, eval_world, indent_num)
 
 
+class RelevanceOperator(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\preceq"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        N = self.semantics.N
+        sem = self.semantics
+        x = z3.BitVec("t_peq_x", N)
+        y = z3.BitVec("t_peq_y", N)
+        return z3.And(
+            ForAll(
+                [x, y],
+                z3.Implies(
+                    z3.And(
+                        sem.extended_verify(x, leftarg, eval_world),
+                        sem.extended_verify(y, rightarg, eval_world)
+                    ),
+                    sem.extended_verify(sem.fusion(x, y), rightarg, eval_world)
+                ),
+            ),
+            ForAll(
+                [x, y],
+                z3.Implies(
+                    z3.And(
+                        sem.extended_falsify(x, leftarg, eval_world),
+                        sem.extended_falsify(y, rightarg, eval_world)
+                    ),
+                    sem.extended_falsify(sem.fusion(x, y), rightarg, eval_world)
+                ),
+            ),
+            # ForAll( # stronger relevance
+            #     x,
+            #     z3.Implies(
+            #         sem.extended_verify(x, rightarg, eval_world),
+            #         Exists(
+            #             y,
+            #             z3.And(
+            #                 sem.is_part_of(y, x),
+            #                 sem.extended_verify(y, leftarg, eval_world)
+            #             )
+            #         )
+            #     ),
+            # ),
+            # ForAll(
+            #     x,
+            #     z3.Implies(
+            #         sem.extended_falsify(x, rightarg, eval_world),
+            #         Exists(
+            #             y,
+            #             z3.And(
+            #                 sem.is_part_of(y, x),
+            #                 sem.extended_falsify(y, leftarg, eval_world)
+            #             )
+            #         )
+            #     ),
+            # ),
+        )
+
+    def false_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        sem = self.semantics
+        N = self.semantics.N
+        x = z3.BitVec("f_seq_x", N)
+        y = z3.BitVec("f_seq_y", N)
+        return z3.Or(
+            Exists(
+                [x, y],
+                z3.And(
+                    sem.extended_verify(x, leftarg, eval_world),
+                    sem.extended_verify(y, rightarg, eval_world),
+                    z3.Not(sem.extended_verify(sem.fusion(x, y), rightarg, eval_world))
+                ),
+            ),
+            Exists(
+                [x, y],
+                z3.And(
+                    sem.extended_falsify(x, leftarg, eval_world),
+                    sem.extended_falsify(y, rightarg, eval_world),
+                    z3.Not(sem.extended_falsify(sem.fusion(x, y), rightarg, eval_world))
+                ),
+            ),
+            # Exists( # stronger relevance
+            #     x,
+            #     z3.And(
+            #         sem.extended_verify(x, rightarg, eval_world),
+            #         ForAll(
+            #             y,
+            #             z3.Implies(
+            #                 sem.is_part_of(y, x),
+            #                 z3.Not(sem.extended_verify(y, leftarg, eval_world))
+            #             )
+            #         )
+            #     ),
+            # ),
+            # Exists(
+            #     x,
+            #     z3.And(
+            #         sem.extended_falsify(x, rightarg, eval_world),
+            #         ForAll(
+            #             y,
+            #             z3.Implies(
+            #                 sem.is_part_of(y, x),
+            #                 z3.Not(sem.extended_falsify(y, leftarg, eval_world))
+            #             )
+            #         )
+            #     ),
+            # ),
+        )
+
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.true_at(leftarg, rightarg, eval_world)
+        )
+
+    def extended_falsify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.false_at(leftarg, rightarg, eval_world)
+        )
+
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
+        product = self.semantics.product
+        coproduct = self.semantics.coproduct
+        Y_V, Y_F = left_sent_obj.proposition.find_proposition()
+        Z_V, Z_F = right_sent_obj.proposition.find_proposition()
+        if product(Y_V, Z_V) == Z_V and coproduct(Y_F, Z_F) == Z_F:
+            return {self.semantics.null_bit}, set()
+        return set(), {self.semantics.null_bit}
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        self.general_print(sentence_obj, eval_world, indent_num)
+
+
 
 ##############################################################################
 ########################## COUNTERFACTUAL OPERATORS ##########################
