@@ -197,10 +197,6 @@ class ModelConstraints:
         semantics,
         proposition_class,
         settings,
-        # contingent=False,
-        # non_null=True,
-        # disjoint=False,
-        # print_impossible=False,
     ):
 
         # Store inputs
@@ -208,12 +204,6 @@ class ModelConstraints:
         self.semantics = semantics
         self.proposition_class = proposition_class
         self.settings = settings
-
-        # Store user settings
-        # self.contingent = settings['contingent']
-        # self.non_null = settings['non_null']
-        # self.disjoint = settings['disjoint']
-        # self.print_impossible = settings['print_impossible']
 
         # Store syntax values
         self.premises = self.syntax.premises
