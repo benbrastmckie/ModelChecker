@@ -44,21 +44,21 @@ class ChampollionSemantics(SemanticDefaults):
                 self.excludes(y, x)
             )
         )
-        cosmopolitanism = ForAll( # NOTE: should be redundant given finiteness
-                                  # B: Adding the negation of this is unsat and
-                                  # so we don't need to impose cosmopolitanism
-            x,
-            z3.Implies(
-                self.possible(x),
-                Exists(
-                    y,
-                    z3.And(
-                        self.is_world(y),
-                        self.is_part_of(x, y)
-                    )
-                )
-            )
-        )
+        # cosmopolitanism = ForAll( # NOTE: should be redundant given finiteness
+        #                           # B: Adding the negation of this is unsat and
+        #                           # so we don't need to impose cosmopolitanism
+        #     x,
+        #     z3.Implies(
+        #         self.possible(x),
+        #         Exists(
+        #             y,
+        #             z3.And(
+        #                 self.is_world(y),
+        #                 self.is_part_of(x, y)
+        #             )
+        #         )
+        #     )
+        # )
         harmony = ForAll( 
             [x, y],
             z3.Implies(
