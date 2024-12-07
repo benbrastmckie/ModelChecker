@@ -490,12 +490,12 @@ class Proposition(PropositionDefaults):
 
         # Collect constraints
         constraints = get_classical_constraints()
-        if self.disjoint:
+        if self.settings['disjoint']:
             constraints.extend(get_disjoint_constraints())
             constraints.extend(get_non_null_constraints())
-        if self.contingent:
+        if self.settings['contingent']:
             constraints.extend(get_contingent_constraints())
-        elif self.non_null and not self.disjoint:
+        elif self.settings['non_null'] and not self.settings['disjoint']:
             constraints.extend(get_non_null_constraints())
         return constraints
 
@@ -558,12 +558,12 @@ class Proposition(PropositionDefaults):
         ver_states = {
             bitvec_to_substates(bit, N)
             for bit in self.verifiers
-            if z3_model.evaluate(possible(bit)) or self.print_impossible
+            if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
         }
         fal_states = {
             bitvec_to_substates(bit, N)
             for bit in self.falsifiers
-            if z3_model.evaluate(possible(bit)) or self.print_impossible
+            if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
         }
         return f"< {pretty_set_print(ver_states)},{pretty_set_print(fal_states)} >"
 
