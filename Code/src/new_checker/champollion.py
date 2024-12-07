@@ -183,22 +183,7 @@ class ChampollionSemantics(SemanticDefaults):
                 z == Sigma
             ),
         )
-        # # NOTE: negative existential version to compare
-        # Sigma_LUB = z3.Not(
-        #     Exists(
-        #         z,
-        #         z3.And(
-        #             ForAll(
-        #                 y,
-        #                 z3.Implies(
-        #                     Exists(p, z3.And(P[p], self.excludes(y, p))),
-        #                     self.is_part_of(y, z),
-        #                 ),
-        #             ),
-        #             self.is_proper_part_of(z, Sigma),
-        #         ),
-        #     )
-        # )
+
         return z3.And(
             cond_a,
             Sigma_UB,
@@ -302,17 +287,6 @@ class ChampollionProposition(PropositionDefaults):
 
     def proposition_constraints(self, thing):
         return []
-    
-    def __repr__(self):
-        N = self.model_structure.model_constraints.semantics.N
-        possible = self.model_structure.model_constraints.semantics.possible
-        z3_model = self.model_structure.z3_model
-        ver_states = {
-            bitvec_to_substates(bit, N)
-            for bit in self.verifiers
-            if z3_model.evaluate(possible(bit)) or self.print_impossible
-        }
-        return pretty_set_print(ver_states)
         
     def __eq__(self, other):
         return (self.verifiers == other.verifiers)
@@ -339,27 +313,15 @@ class ChampollionProposition(PropositionDefaults):
 
     def truth_value_at(self, world):
         """Checks if there is a verifier in world."""
-        semantics = self.model_structure.model_constraints.semantics
+        semantics = self.model_structure.semantics
         z3_model = self.model_structure.z3_model
         for ver_bit in self.verifiers:
             if z3_model.evaluate(semantics.is_part_of(ver_bit, world)):
                 return True
         return False
 
-    def __repr__(self):
-        N = self.model_structure.model_constraints.semantics.N
-        possible = self.model_structure.model_constraints.semantics.possible
-        z3_model = self.model_structure.z3_model
-        ver_states = {
-            bitvec_to_substates(bit, N)
-            for bit in self.verifiers
-            if z3_model.evaluate(possible(bit)) or self.print_impossible
-        }
-        return pretty_set_print(ver_states)
-
-
     def print_proposition(self, eval_world, indent_num):
-        N = self.model_structure.model_constraints.semantics.N
+        N = self.model_structure.semantics.N
         truth_value = self.truth_value_at(eval_world)
         world_state = bitvec_to_substates(eval_world, N)
         RESET, FULL, PART = self.set_colors(self.name, indent_num, truth_value, world_state)
@@ -380,8 +342,6 @@ class ExclusionOperator(syntactic.Operator):
         # B: I added eval_world to true_at below
         print(arg)
         x = z3.BitVec(f"ver \\exclude {arg}", self.semantics.N) # think this has to be a unique name
-        # return z3.Not(Exists(x, z3.And(self.semantics.extended_verify(x, arg, eval_world), self.semantics.is_part_of(x, eval_world))))
-        # print(Exists(x, z3.And(self.extended_verify(x, arg, eval_world), self.semantics.is_part_of(x, eval_world))))
         return Exists(
             x,
             z3.And(
@@ -389,14 +349,12 @@ class ExclusionOperator(syntactic.Operator):
                 self.semantics.is_part_of(x, eval_world)
             )
         )
-        return z3.Not(self.semantics.true_at(arg, eval_world)) # by def (30) in paper
 
     def extended_verify(self, state, arg, eval_world):
         sem = self.semantics
         N, extended_verify, excludes = sem.N, sem.extended_verify, sem.excludes
         is_part_of = sem.is_part_of
         h = z3.Function(f"h_{(state, arg)}", z3.BitVecSort(N), z3.BitVecSort(N))
-        print('THIS WAS RUN')
         v, x, y, z, s = z3.BitVecs("v x y z s", N)
         # return self.precludes(state, arg_set)
         return z3.And(
@@ -442,7 +400,6 @@ class ExclusionOperator(syntactic.Operator):
     def find_verifiers(self, argsent, eval_world):
         eval = argsent.proposition.model_structure.z3_model.evaluate
         all_bits = self.semantics.all_bits
-        # assert False, self.extended_verify(all_bits[0], argsent, eval_world)
         return {x for x in all_bits if eval(self.extended_verify(x, argsent, eval_world))}
 
     def print_method(self, sentence_obj, eval_world, indent_num):
@@ -522,6 +479,51 @@ class UniOrOperator(syntactic.Operator):
         by 1, and prints both of the arguments."""
         self.general_print(sentence_obj, eval_world, indent_num)
 
+class UniIdentityOperator(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\uniequiv"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        N = self.semantics.N
+        sem = self.semantics
+        x = z3.BitVec("t_id_x", N)
+        return z3.And(
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_verify(x, leftarg, eval_world),
+                    sem.extended_verify(x, rightarg, eval_world)
+                ),
+            ),
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_verify(x, rightarg, eval_world),
+                    sem.extended_verify(x, leftarg, eval_world)
+                ),
+            ),
+        )
+
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.true_at(leftarg, rightarg, eval_world)
+        )
+
+    def find_verifiers(self, left_sent_obj, right_sent_obj, eval_world):
+        Y_V = left_sent_obj.proposition.find_proposition()
+        Z_V = right_sent_obj.proposition.find_proposition()
+        return {self.semantics.null_bit} if Y_V == Z_V else set()
+    
+    def print_method(self, sentence_obj, eval_world, indent_num):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        self.general_print(sentence_obj, eval_world, indent_num)
+
+
 # conclusions = ['\\exclude A']
 # conclusions = ['(A \\uniwedge B)']
 # conclusions = ['(B \\uniwedge C)']
@@ -529,21 +531,28 @@ class UniOrOperator(syntactic.Operator):
 # premises = ['\\exclude (A \\univee B)']
 # conclusions = ['(\\exclude A \\uniwedge \\exclude B)']
 
-premises = ['(A \\uniwedge (B \\univee C))']
-conclusions = ['((A \\univee B) \\uniwedge (A \\univee B))']
+# premises = ['\\exclude (A \\uniwedge B)']
+# conclusions = ['(\\exclude A \\univee \\exclude B)']
 
-# 
-premises = ['((A \\univee B) \\uniwedge (A \\univee B))']
-conclusions = ['(A \\uniwedge (B \\univee C))']
+# premises = ['(A \\uniequiv B)']
 
-contingent = True
+premises = []
+# conclusions = ["(\\exclude (A \\uniwedge B) \\uniequiv (\\exclude A \\univee \\exclude B))"]
+conclusions = ["(\\exclude (A \\univee B) \\uniequiv (\\exclude A \\uniwedge \\exclude B))"]
+
+# premises = ['(A \\uniwedge (B \\univee C))']
+# conclusions = ['((A \\univee B) \\uniwedge (A \\univee B))']
+
+# premises = ['((A \\univee B) \\uniwedge (A \\univee B))']
+# conclusions = ['(A \\uniwedge (B \\univee C))']
+
 
 
 # premises = ['\\exclude (A \\uniwedge B)']
 # conclusions = ['(\\exclude A \\univee \\exclude B)']
 
 settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'disjoint' : False,
@@ -556,6 +565,7 @@ operators = syntactic.OperatorCollection(
     UniAndOperator,
     ExclusionOperator,
     UniOrOperator,
+    UniIdentityOperator,
 )
 
 syntax = syntactic.Syntax(premises, conclusions, operators)
@@ -570,7 +580,5 @@ model_constraints = ModelConstraints(
 )
 
 model_structure = ModelStructure(model_constraints)
-# print(model_structure.z3_model)
-# print(contingent)
 
 model_structure.print_all()
