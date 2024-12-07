@@ -125,11 +125,11 @@ settings = {
 ### WORKING COUNTERMODELS ###
 #############################
 
-# CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-N = 5
-premises = ['(A \\boxright C)']
-conclusions = ['((A \\wedge B) \\boxright C)']
-settings['continget'] = True
+# # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+# N = 5
+# premises = ['(A \\boxright C)']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+# settings['continget'] = True
 
 # # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
 # N = 3
@@ -334,12 +334,17 @@ settings['continget'] = True
 # conclusions = ['(A \\boxright (B \\wedge C))']
 # settings['continget'] = False
 
-
 # # # CF_T10: FACTIVITY MIGHT
 # N = 4
 # premises = ['A','B']
 # conclusions = ['(A \\circleright B)']
 # settings['continget'] = False
+
+# # CF_T11: DEFINITION OF NEC
+N = 4
+premises = ['(\\neg A \\boxright \\bot)']
+conclusions = ['(\\top \\boxright A)']
+settings['continget'] = False
 
 
 

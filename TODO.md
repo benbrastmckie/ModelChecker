@@ -5,7 +5,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Plan
 
 - [x] class architecture
-- [x] implementation
+- [:] implementation
 - [ ] api
 - [:] applications
   - [:] Champollion
@@ -150,9 +150,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [:] defined operators
       - [x] definitions
       - [ ] unit tests
-    - [ ] relevance
-      - [ ] semantics
-      - [ ] unit tests
+    - [x] relevance
+      - [x] semantics
+      - [x] unit tests
       - [ ] verifiers and falsifiers
     - [:] imposition counterfactual
       - [x] add z3 primitive semantics
