@@ -1,28 +1,5 @@
 """run 'pytest' from the '.../Code/src/new_checker/' directory"""
 
-# from new_checker.defined_operators import (
-#     NegationOperator,
-#     AndOperator,
-#     OrOperator,
-#     TopOperator,
-#     BotOperator,
-#     IdentityOperator,
-#     EssenceOperator,
-#     GroundOperator,
-#     CounterfactualOperator,
-#     ImpositionOperator,
-#     PossibilityOperator,
-#     NecessityOperator,
-#     MightCounterfactualOperator,
-#     MightImpositionOperator,
-#     DefEssenceOperator,
-#     DefGroundOperator,
-#     ConditionalOperator,
-#     BiconditionalOperator,
-#     DefNecessityOperator,
-#     DefPossibilityOperator,
-# )
-
 from new_checker.model_builder import (
     ModelConstraints,
     ModelStructure,
@@ -32,46 +9,7 @@ from new_checker.syntactic import (
     Syntax,
 )
 
-###############
-### TIMEOUT ###
-###############
-
 default_max_time = 2
-
-######################
-### LANGUAGE SETUP ###
-######################
-
-# operators = OperatorCollection(
-#     NegationOperator, # extensional
-#     AndOperator,
-#     OrOperator,
-#     ConditionalOperator, # extensional defined 
-#     BiconditionalOperator,
-#     TopOperator, # extremal
-#     BotOperator,
-#     IdentityOperator, # constitutive
-#     GroundOperator,
-#     EssenceOperator,
-#     DefGroundOperator, # constitutive defined
-#     DefEssenceOperator,
-#     CounterfactualOperator, # counterfactual
-#     MightImpositionOperator,
-#     ImpositionOperator,
-#     MightCounterfactualOperator, # counterfactual defined
-#     NecessityOperator, # modal
-#     PossibilityOperator,
-#     DefNecessityOperator,
-#     DefPossibilityOperator,  # modal defined
-#     ExclusionOperator, # unilateral primitive
-#     UniOrOperator,
-#     UniAndOperator,
-# )
-
-
-################
-##### MAIN #####
-################
 
 def find_model_structure(
     premises,
