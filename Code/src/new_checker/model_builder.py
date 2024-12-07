@@ -134,12 +134,8 @@ class PropositionDefaults:
         self.semantics = self.model_constraints.semantics
         self.sentence_letters = self.model_constraints.sentence_letters
         self.settings = self.model_constraints.settings
-        # self.contingent = self.model_constraints.settings['contingent']
-        # self.non_null = self.model_constraints.settings['non_null']
-        # self.disjoint = self.model_constraints.settings['disjoint']
-        # self.print_impossible = self.model_constraints.settings['print_impossible']
 
-        # Set defaults for verifiers and falsifiers
+        # Set defaults for verifiers and falsifiers (important they are lists)
         self.verifiers, self.falsifiers = [], []
 
     # NOTE: is responsive to unilateral/bilateral props, so long as
@@ -157,7 +153,7 @@ class PropositionDefaults:
             for bit in self.verifiers
             if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
         }
-        if isinstance(self.falsifiers, set): # because default is a(n empty) list
+        if isinstance(self.falsifiers, set): # because default is an empty list
             fal_states = {
                 bitvec_to_substates(bit, N)
                 for bit in self.falsifiers

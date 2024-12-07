@@ -4,7 +4,6 @@ from hidden_helpers import (
     ForAll,
     Exists,
     bitvec_to_substates,
-    pretty_set_print,
 )
 
 from model_builder import (
@@ -46,6 +45,8 @@ class ChampollionSemantics(SemanticDefaults):
             )
         )
         cosmopolitanism = ForAll( # NOTE: should be redundant given finiteness
+                                  # B: Adding the negation of this is unsat and
+                                  # so we don't need to impose cosmopolitanism
             x,
             z3.Implies(
                 self.possible(x),
@@ -84,9 +85,9 @@ class ChampollionSemantics(SemanticDefaults):
         self.frame_constraints = [
             actuality,
             exclusion_symmetry,
-            cosmopolitanism,
+            # cosmopolitanism, # B: see note above
             harmony,
-            rashomon,  # guards against emergent impossibility (pg 538)
+            rashomon, # guards against emergent impossibility (pg 538)
         ]
 
         # Define invalidity conditions
@@ -114,7 +115,7 @@ class ChampollionSemantics(SemanticDefaults):
         return self.possible(self.fusion(bit_e1, bit_e2))
 
     # B: compossible => coheres but not vice versa
-    # they would be equivalent if the following constraint were added:
+    # would they be equivalent if the following constraint were added:
     # (CON_REF) if x and y are parts of s that exclude each other, then s excludes s
 
     def is_world(self, bit_s):
@@ -233,8 +234,6 @@ class ChampollionSemantics(SemanticDefaults):
                         Exists(
                             u,
                             z3.And(
-                                # B: should this be used instead?
-                                # self.excludes(h(f), s),
                                 self.excludes(h(f), u),
                                 self.is_part_of(u, f)
                             )
@@ -338,8 +337,6 @@ class ExclusionOperator(syntactic.Operator):
 
     def true_at(self, arg, eval_world):
         """doc string place holder"""
-        # B: I added eval_world to true_at below
-        print(arg)
         x = z3.BitVec(f"ver \\exclude {arg}", self.semantics.N) # think this has to be a unique name
         return Exists(
             x,
@@ -366,10 +363,6 @@ class ExclusionOperator(syntactic.Operator):
                         z3.And(
                             excludes(h(v), s),
                             is_part_of(s, v)
-                            # NOTE this is just how it goes in the paper
-                            # but I wonder if the line above is a mistake, and
-                            # f is supposed to be the state instead:
-                            # is_part_of(s, state)
                         )
                     )
                 )
@@ -536,7 +529,9 @@ settings = {
     'max_time' : 1,
 }
 
+premises = []
 # conclusions = ['\\exclude A']
+conclusions = ['A']
 # conclusions = ['(A \\uniwedge B)']
 # conclusions = ['(B \\uniwedge C)']
 
@@ -550,13 +545,14 @@ settings = {
 
 # premises = []
 # conclusions = ["(\\exclude (A \\uniwedge B) \\uniequiv (\\exclude A \\univee \\exclude B))"]
+# settings['N'] = 4
 
 # premises = []
 # conclusions = ["(\\exclude (A \\univee B) \\uniequiv (\\exclude A \\uniwedge \\exclude B))"]
 
-premises = []
-conclusions = ["((A \\univee (B \\uniwedge C)) \\uniequiv ((A \\univee B) \\uniwedge (A \\univee C)))"]
-settings['N'] = 4
+# premises = []
+# conclusions = ["((A \\univee (B \\uniwedge C)) \\uniequiv ((A \\univee B) \\uniwedge (A \\univee C)))"]
+# settings['N'] = 4
 
 # premises = []
 # conclusions = ["((A \\uniwedge (B \\univee C)) \\uniequiv ((A \\uniwedge B) \\univee (A \\uniwedge C)))"]

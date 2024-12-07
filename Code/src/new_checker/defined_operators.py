@@ -4,6 +4,7 @@ from primitive_operators import (
     AndOperator, NegationOperator, OrOperator, # extensional
     TopOperator, BotOperator, # top and bottom zero-place operators
     IdentityOperator, GroundOperator, EssenceOperator, # constitutive
+    RelevanceOperator, # relevance
     CounterfactualOperator, # counterfactual
     ImpositionOperator,
     NecessityOperator, PossibilityOperator, # modal
