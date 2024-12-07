@@ -16,7 +16,6 @@ from model_builder import (
 
 import syntactic
 
-
 class ChampollionSemantics(SemanticDefaults):
     def __init__(self, N):
         # Initialize the superclass to set defaults
@@ -524,6 +523,19 @@ class UniIdentityOperator(syntactic.Operator):
         self.general_print(sentence_obj, eval_world, indent_num)
 
 
+########################
+### DEFAULT SETTINGS ###
+########################
+
+settings = {
+    'N' : 3,
+    'contingent' : True,
+    'non_null' : True,
+    'disjoint' : False,
+    'print_impossible' : True,
+    'max_time' : 1,
+}
+
 # conclusions = ['\\exclude A']
 # conclusions = ['(A \\uniwedge B)']
 # conclusions = ['(B \\uniwedge C)']
@@ -544,6 +556,7 @@ class UniIdentityOperator(syntactic.Operator):
 
 premises = []
 conclusions = ["((A \\univee (B \\uniwedge C)) \\uniequiv ((A \\univee B) \\uniwedge (A \\univee C)))"]
+settings['N'] = 4
 
 # premises = []
 # conclusions = ["((A \\uniwedge (B \\univee C)) \\uniequiv ((A \\uniwedge B) \\univee (A \\uniwedge C)))"]
@@ -559,15 +572,6 @@ conclusions = ["((A \\univee (B \\uniwedge C)) \\uniequiv ((A \\univee B) \\uniw
 # premises = ['\\exclude (A \\uniwedge B)']
 # conclusions = ['(\\exclude A \\univee \\exclude B)']
 
-
-settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'disjoint' : False,
-    'print_impossible' : True,
-    'max_time' : 1,
-}
 
 operators = syntactic.OperatorCollection(
     UniAndOperator,
