@@ -4,10 +4,7 @@ from hidden_helpers import (
     ForAll,
     Exists,
     bitvec_to_substates,
-    index_to_substate,
     pretty_set_print,
-    # product, # B: this is another method of semantics that would be good
-    # to include in the parent class; I might try to work on this tonight...
 )
 
 from model_builder import (
@@ -545,25 +542,35 @@ contingent = True
 # premises = ['\\exclude (A \\uniwedge B)']
 # conclusions = ['(\\exclude A \\univee \\exclude B)']
 
+settings = {
+    'N' : 3,
+    'contingent' : True,
+    'non_null' : True,
+    'disjoint' : False,
+    'print_impossible' : True,
+    'desired_status' : True,
+    'max_time' : 2,
+}
 
-op = syntactic.OperatorCollection(UniAndOperator, ExclusionOperator, UniOrOperator)
+operators = syntactic.OperatorCollection(
+    UniAndOperator,
+    ExclusionOperator,
+    UniOrOperator,
+)
 
-syntax = syntactic.Syntax(premises, conclusions, op)
+syntax = syntactic.Syntax(premises, conclusions, operators)
 
-semantics = ChampollionSemantics(3)
+semantics = ChampollionSemantics(settings['N'])
 
 model_constraints = ModelConstraints(
     syntax,
     semantics,
     ChampollionProposition,
-    contingent,
-    non_null=True,
-    disjoint=False,
-    print_impossible=True,
+    settings,
 )
 
 model_structure = ModelStructure(model_constraints)
-print(model_structure.z3_model)
-print(contingent)
+# print(model_structure.z3_model)
+# print(contingent)
 
 model_structure.print_all()

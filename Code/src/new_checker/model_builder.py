@@ -131,10 +131,11 @@ class PropositionDefaults:
         # Store values from model_constraints
         self.semantics = self.model_constraints.semantics
         self.sentence_letters = self.model_constraints.sentence_letters
-        self.contingent = self.model_constraints.contingent
-        self.non_null = self.model_constraints.non_null
-        self.disjoint = self.model_constraints.disjoint
-        self.print_impossible = self.model_constraints.print_impossible
+        self.settings = self.model_constraints.settings
+        # self.contingent = self.model_constraints.settings['contingent']
+        # self.non_null = self.model_constraints.settings['non_null']
+        # self.disjoint = self.model_constraints.settings['disjoint']
+        # self.print_impossible = self.model_constraints.settings['print_impossible']
 
         # Set defaults for verifiers and falsifiers
         self.verifiers, self.falsifiers = [], []
@@ -194,22 +195,24 @@ class ModelConstraints:
         syntax,
         semantics,
         proposition_class,
-        contingent=False,
-        non_null=True,
-        disjoint=False,
-        print_impossible=False,
+        settings,
+        # contingent=False,
+        # non_null=True,
+        # disjoint=False,
+        # print_impossible=False,
     ):
 
         # Store inputs
         self.syntax = syntax
         self.semantics = semantics
         self.proposition_class = proposition_class
+        self.settings = settings
 
         # Store user settings
-        self.contingent = contingent
-        self.non_null = non_null
-        self.disjoint = disjoint
-        self.print_impossible = print_impossible
+        # self.contingent = settings['contingent']
+        # self.non_null = settings['non_null']
+        # self.disjoint = settings['disjoint']
+        # self.print_impossible = settings['print_impossible']
 
         # Store syntax values
         self.premises = self.syntax.premises
@@ -326,7 +329,7 @@ class ModelStructure:
 
         # Store from model_constraint
         self.proposition_class = self.model_constraints.proposition_class
-        self.print_impossible = self.model_constraints.print_impossible
+        self.settings = self.model_constraints.settings
 
         # Solve Z3 constraints and store values
         timeout, z3_model, z3_model_status, z3_model_runtime = self.solve(
@@ -338,9 +341,6 @@ class ModelStructure:
         self.unsat_core = z3_model if not z3_model_status else None
         self.z3_model_status = z3_model_status
         self.z3_model_runtime = z3_model_runtime
-        print(self.z3_model)
-        # print(self.model_constraints.conclusion_constraints)
-        # raise ValueError
 
         # Store possible_bits, world_bits, and main_world from the Z3 model
         if not self.z3_model_status:
@@ -500,7 +500,7 @@ class ModelStructure:
                 format_state(bin_rep, state, self.COLORS["world"], "world")
             elif bit in self.poss_bits:
                 format_state(bin_rep, state, self.COLORS["possible"])
-            elif self.print_impossible:
+            elif self.settings['print_impossible']:
                 format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
 
     # def rec_print(self, sentence, eval_world, indent):
