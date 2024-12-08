@@ -1,3 +1,5 @@
+import sys
+import os
 import concurrent.futures
 
 from model_builder import (
@@ -102,3 +104,28 @@ def run_comparison(theory_A, theory_B, settings, examples):
         ex_theory_B = alt_example + theory_B
         theory_list = [ex_theory_A, ex_theory_B]
         compare_semantics(theory_list, settings)
+
+def save_comparisons(default_theory, imposition_theory, settings, examples):
+    # Get the absolute path of the current script
+    script_path = os.path.realpath(__file__)
+    script_dir = os.path.dirname(script_path)
+    # Define subdirectory path relative to the script's directory
+    new_dir = os.path.join(script_dir, "comparisons")
+    # Create the "Examples" directory if it doesn't exist
+    os.makedirs(new_dir, exist_ok=True)
+    # Prompt the user for a filename
+    filename = input("Please enter the output filename (without path): ")
+    filepath = os.path.join(new_dir, filename)
+
+    # Open the file for writing and redirect stdout
+    with open(filepath, 'w') as f:
+        old_stdout = sys.stdout
+        sys.stdout = f
+        try:
+            run_comparison(default_theory, imposition_theory, settings, examples)
+        finally:
+            # Restore original stdout
+            sys.stdout = old_stdout
+
+    print(f"All output has been written to {filename}.")
+
