@@ -1,5 +1,12 @@
+from example_builder import (
+    compare_semantics,
+    make_model_for,
+    find_max_N,
+)
+ 
 from semantic import (
     Semantics,
+    ImpositionSemantics,
     Proposition,
 )
 
@@ -21,11 +28,6 @@ from primitive_operators import (
     NecessityOperator, # modal
     CounterfactualOperator, # counterfactual
     ImpositionOperator, # counterfactual
-)
-
-from model_builder import(
-    ModelConstraints,
-    ModelStructure,
 )
 
 import syntactic
@@ -60,6 +62,7 @@ settings = {
     'non_null' : True,
     'disjoint' : False,
     'print_impossible' : True,
+    'optimize' : True,
     'max_time' : 1,
 }
 
@@ -121,7 +124,7 @@ settings = {
 #############################
 
 # # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-# N = 5
+# N = 3
 # premises = ['(A \\boxright C)']
 # conclusions = ['((A \\wedge B) \\boxright C)']
 # settings['continget'] = True
@@ -335,11 +338,11 @@ settings = {
 # conclusions = ['(A \\circleright B)']
 # settings['continget'] = False
 
-# # CF_T11: DEFINITION OF NEC
-N = 4
-premises = ['(\\neg A \\boxright \\bot)']
-conclusions = ['(\\top \\boxright A)']
-settings['continget'] = False
+# # # CF_T11: DEFINITION OF NEC
+# N = 4
+# premises = ['(\\neg A \\boxright \\bot)']
+# conclusions = ['(\\top \\boxright A)']
+# settings['continget'] = False
 
 
 
@@ -348,18 +351,51 @@ settings['continget'] = False
 ### GENERATE Z3 CONSTRAINTS AND PRINT ###
 #########################################
 
-syntax = syntactic.Syntax(premises, conclusions, operators)
+# model_structure = make_model_for(
+#     premises,
+#     conclusions,
+#     ImpositionSemantics,
+#     Proposition,
+#     operators,
+#     settings,
+# )
+# model_structure.print_all()
 
-semantics = Semantics(N)
+# max_N = find_max_N(
+#     premises,
+#     conclusions,
+#     Semantics,
+#     Proposition,
+#     operators,
+#     settings,
+# )
 
-model_constraints = ModelConstraints(
-    syntax,
-    semantics,
+premises = ['(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
+
+imp_prems = ['(A \\imposition C)']
+imp_cons = ['((A \\wedge B) \\imposition C)']
+
+default_theory = [
+    premises,
+    conclusions,
+    Semantics,
     Proposition,
+    operators,
     settings,
-)
+]
+imposition_theory = [
+    imp_prems,
+    imp_cons,
+    ImpositionSemantics,
+    Proposition,
+    operators,
+    settings,
+]
+theory_list = [
+    default_theory,
+    imposition_theory,
+]
+compare_semantics(theory_list)
 
-model_structure = ModelStructure(model_constraints, settings['max_time'])
-
-model_structure.print_all()
 

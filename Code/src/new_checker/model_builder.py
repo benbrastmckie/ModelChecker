@@ -8,6 +8,7 @@ things in hidden_things right now:
 from z3 import (
     And,
     ArrayRef,
+    BitVecRef,
     BitVecSort,
     EmptySet,
     IsMember,
@@ -38,6 +39,9 @@ class SemanticDefaults:
     including frame constraints, truth and falsity, and logical consequence."""
 
     def __init__(self, N):
+
+        # Store the name
+        self.name = self.__class__.__name__
 
         # Store the number of states
         self.N = N
