@@ -7,12 +7,12 @@ from model_builder import (
 from syntactic import Syntax
 
 def make_model_for(
+    settings,
     premises,
     conclusions,
     semantics_class,
     proposition_class,
     operators,
-    settings,
 ):
     syntax = Syntax(premises, conclusions, operators)
     semantics = semantics_class(settings['N'])
@@ -28,21 +28,21 @@ def make_model_for(
     )
 
 def find_max_N(
+    settings,
     premises,
     conclusions,
     semantics_class,
     proposition_class,
     operators,
-    settings,
 ):
     while True:
         model_structure = make_model_for(
+            settings,
             premises,
             conclusions,
             semantics_class,
             proposition_class,
             operators,
-            settings,
         )
         run_time = model_structure.z3_model_runtime
         if run_time < settings['max_time']:
@@ -56,10 +56,10 @@ def find_max_N(
         else:
             return settings['N'] - 1
 
-def compare_semantics(theory_list):
+def compare_semantics(theory_list, settings):
     with concurrent.futures.ProcessPoolExecutor() as executor:
         future_to_theory = {
-            executor.submit(find_max_N, *theory): theory
+            executor.submit(find_max_N, settings, *theory): theory
             for theory in theory_list
         }
         for future in concurrent.futures.as_completed(future_to_theory):
@@ -79,4 +79,26 @@ def translate(premises, conclusions, dictionary):
     imp_prems = replace_operators(premises, dictionary)
     imp_cons = replace_operators(conclusions, dictionary)
 
-    return imp_prems, imp_cons
+    return [imp_prems, imp_cons]
+
+
+def run_comparison(theory_A, theory_B, settings, examples):
+
+    for name, example in examples.items():
+        print(f"\nExample: {name} of {example}")
+        premises, conclusions = example
+        print(f"  Premises:")
+        for prem in premises:
+            print(f"    {prem}")
+        print(f"  Conclusions:")
+        for con in conclusions:
+            print(f"    {con}")
+        dictionary = {
+            '\\boxright' : '\\imposition',
+            '\\circleright' : '\\could',
+        }
+        ex_theory_A = example + theory_A
+        alt_example = translate(premises, conclusions, dictionary)
+        ex_theory_B = alt_example + theory_B
+        theory_list = [ex_theory_A, ex_theory_B]
+        compare_semantics(theory_list, settings)
