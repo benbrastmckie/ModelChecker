@@ -51,6 +51,12 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] build range of examples
   - [ ] test frame constraints
   - [ ] test settings
+  - [.] test theorems proven in the paper
+    - [ ] do the proofs require all the axioms?
+    - [x] are any of the other axioms derivable?
+  - [ ] add constraint that exclusion is nonempty
+  - [ ] strengthening the underlying structure
+    - [ ] go from complete lattice to boolean lattice
 - [ ] _M_ documentation and cleanup
 - [:] _B_ unit tests
   - [x] setup tests

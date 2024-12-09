@@ -431,38 +431,38 @@ CF_examples = {
     "CF_T1" : CF_T1_example,
     "CF_T2" : CF_T2_example,
     "CF_T3" : CF_T3_example,
-    # "CF_T4" : CF_T4_example,
-    # "CF_T5" : CF_T5_example,
-    # "CF_T6" : CF_T6_example,
-    # "CF_T7" : CF_T7_example,
-    # "CF_T8" : CF_T8_example,
-    # "CF_T9" : CF_T9_example,
-    # "CF_T10" : CF_T10_example,
-    # "CF_T11" : CF_T11_example,
+    "CF_T4" : CF_T4_example,
+    "CF_T5" : CF_T5_example,
+    "CF_T6" : CF_T6_example,
+    "CF_T7" : CF_T7_example,
+    "CF_T8" : CF_T8_example,
+    "CF_T9" : CF_T9_example,
+    "CF_T10" : CF_T10_example,
+    "CF_T11" : CF_T11_example,
 }
 
 CM_examples = {
     "CF_CM1" : CF_CM1_example,
     "CF_CM2" : CF_CM2_example,
     "CF_CM3" : CF_CM3_example,
-    # "CF_CM4" : CF_CM4_example,
-    # "CF_CM5" : CF_CM5_example,
-    # "CF_CM6" : CF_CM6_example,
-    # "CF_CM7" : CF_CM7_example,
-    # "CF_CM8" : CF_CM8_example,
-    # "CF_CM9" : CF_CM9_example,
-    # "CF_CM10" : CF_CM10_example,
-    # "CF_CM11" : CF_CM11_example,
-    # "CF_CM12" : CF_CM12_example,
-    # "CF_CM13" : CF_CM13_example,
-    # "CF_CM14" : CF_CM14_example,
-    # "CF_CM15" : CF_CM15_example,
-    # "CF_CM16" : CF_CM16_example,
-    # "CF_CM17" : CF_CM17_example,
-    # "CF_CM18" : CF_CM18_example,
-    # "CF_CM19" : CF_CM19_example,
-    # "CF_CM20" : CF_CM20_example,
-    # "CF_CM21" : CF_CM21_example,
+    "CF_CM4" : CF_CM4_example,
+    "CF_CM5" : CF_CM5_example,
+    "CF_CM6" : CF_CM6_example,
+    "CF_CM7" : CF_CM7_example,
+    "CF_CM8" : CF_CM8_example,
+    "CF_CM9" : CF_CM9_example,
+    "CF_CM10" : CF_CM10_example,
+    "CF_CM11" : CF_CM11_example,
+    "CF_CM12" : CF_CM12_example,
+    "CF_CM13" : CF_CM13_example,
+    "CF_CM14" : CF_CM14_example,
+    "CF_CM15" : CF_CM15_example,
+    "CF_CM16" : CF_CM16_example,
+    "CF_CM17" : CF_CM17_example,
+    "CF_CM18" : CF_CM18_example,
+    "CF_CM19" : CF_CM19_example,
+    "CF_CM20" : CF_CM20_example,
+    "CF_CM21" : CF_CM21_example,
 }
 
 default_theory = [
@@ -477,9 +477,9 @@ imposition_theory = [
     operators,
 ]
 
-run_comparison(default_theory, imposition_theory, settings, CF_examples)
-run_comparison(default_theory, imposition_theory, settings, CM_examples)
+# run_comparison(default_theory, imposition_theory, settings, CF_examples)
+# run_comparison(default_theory, imposition_theory, settings, CM_examples)
 
-# # Store output in a file
-# combined = CF_examples.update(CM_examples)
-# save_comparisons(default_theory, imposition_theory, settings, combined)
+# Store output in a file
+save_comparisons(default_theory, imposition_theory, settings, CF_examples)
+save_comparisons(default_theory, imposition_theory, settings, CM_examples)
