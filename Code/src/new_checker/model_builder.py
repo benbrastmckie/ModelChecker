@@ -8,7 +8,6 @@ things in hidden_things right now:
 from z3 import (
     And,
     ArrayRef,
-    BitVecRef,
     BitVecSort,
     EmptySet,
     IsMember,

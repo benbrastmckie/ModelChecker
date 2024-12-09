@@ -61,8 +61,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [:] _B_ unit tests
   - [x] setup tests
   - [ ] add examples
-- [ ] run optimizer on single example to compare to negation
-  - [ ] completion time for each example by atomic complexity `N`
+- [ ] run comparisons with bilateral semantics
   - [ ] max atomic complexity `N` before timeout
   - [ ] max sentence/atomic complexity before too many constraints to build
 

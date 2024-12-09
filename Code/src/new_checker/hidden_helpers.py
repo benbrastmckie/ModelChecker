@@ -25,7 +25,6 @@ from z3 import(
 def parse_expression(tokens):
     """Parses a list of tokens representing a propositional expression and returns
     the expression in prefix notation.
-    At this point, prefix is with strings for everything, I think
     """
     if not tokens:  # Check if tokens are empty before processing
         raise ValueError("Empty token list")
