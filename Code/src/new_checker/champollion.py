@@ -44,21 +44,6 @@ class ChampollionSemantics(SemanticDefaults):
                 self.excludes(y, x)
             )
         )
-        # cosmopolitanism = ForAll( # NOTE: should be redundant given finiteness
-        #                           # B: Adding the negation of this is unsat and
-        #                           # so we don't need to impose cosmopolitanism
-        #     x,
-        #     z3.Implies(
-        #         self.possible(x),
-        #         Exists(
-        #             y,
-        #             z3.And(
-        #                 self.is_world(y),
-        #                 self.is_part_of(x, y)
-        #             )
-        #         )
-        #     )
-        # )
         harmony = ForAll( 
             [x, y],
             z3.Implies(
@@ -80,14 +65,36 @@ class ChampollionSemantics(SemanticDefaults):
                 self.possible(self.fusion(x, y)),
             ),
         )
-
+        cosmopolitanism = ForAll( # NOTE: should be redundant given finiteness
+            x,                    # B: Adding the negation of this is unsat and 
+            z3.Implies(           # so we don't need to impose cosmopolitanism  
+                self.possible(x),
+                Exists(
+                    y,
+                    z3.And(
+                        self.is_world(y),
+                        self.is_part_of(x, y)
+                    )
+                )
+            )
+        )
+        neg_actuality = z3.Not(actuality)
+        neg_exclusion_symmetry = z3.Not(exclusion_symmetry)
+        neg_cosmopolitanism = z3.Not(cosmopolitanism)
+        neg_harmony = z3.Not(harmony)
+        neg_rashomon = z3.Not(rashomon)
         # Set frame constraints
         self.frame_constraints = [
             actuality,
+            # neg_actuality, # NOTE: this is satisfiable
             exclusion_symmetry,
-            # cosmopolitanism, # B: see note above
+            # neg_exclusion_symmetry, # NOTE: this is satisfiable
             harmony,
+            # neg_harmony, # NOTE: this is satisfiable
             rashomon, # guards against emergent impossibility (pg 538)
+            # neg_rashomon, # NOTE: this is satisfiable
+            # cosmopolitanism, # B: see note above
+            # neg_cosmopolitanism, # NOTE: this is unsatisfiable
         ]
 
         # Define invalidity conditions
@@ -530,8 +537,9 @@ settings = {
 }
 
 premises = []
+conclusions = []
 # conclusions = ['\\exclude A']
-conclusions = ['A']
+# conclusions = ['A']
 # conclusions = ['(A \\uniwedge B)']
 # conclusions = ['(B \\uniwedge C)']
 

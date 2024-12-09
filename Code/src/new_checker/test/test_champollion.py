@@ -29,9 +29,9 @@ operators = OperatorCollection(
 
 max_time = default_max_time
 
-########################################
-##### IMPOSITION COUNTERMODELS #####
-########################################
+###################################
+##### EXCLUSION COUNTERMODELS #####
+###################################
 
 @pytest.mark.timeout(max_time)
 def test_CMP_CM1():
