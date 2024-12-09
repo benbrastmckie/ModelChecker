@@ -536,8 +536,8 @@ settings = {
     'max_time' : 1,
 }
 
-premises = []
-conclusions = []
+# premises = []
+# conclusions = []
 # conclusions = ['\\exclude A']
 # conclusions = ['A']
 # conclusions = ['(A \\uniwedge B)']
@@ -568,8 +568,8 @@ conclusions = []
 # premises = ['(A \\uniwedge (B \\univee C))']
 # conclusions = ['((A \\univee B) \\uniwedge (A \\univee B))']
 
-# premises = ['((A \\univee B) \\uniwedge (A \\univee B))']
-# conclusions = ['(A \\uniwedge (B \\univee C))']
+premises = ['((A \\univee B) \\uniwedge (A \\univee B))']
+conclusions = ['(A \\uniwedge (B \\univee C))']
 
 
 
