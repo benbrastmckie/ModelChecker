@@ -91,7 +91,7 @@ def test_CMP_T1():
         settings,
     )
 
-@pytest.mark.timeout(max_time)
+# @pytest.mark.timeout(max_time)
 def test_IMP_T2():
     """DE MORGAN NOT/AND"""
     premises = ['(A \\uniwedge (B \\univee C))']

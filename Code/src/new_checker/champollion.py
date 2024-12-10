@@ -536,7 +536,8 @@ class UniAndOperator(syntactic.Operator):
         """
         sem = self.semantics
         return z3.And(
-            sem.true_at(leftarg, eval_world), sem.true_at(rightarg, eval_world)
+            sem.true_at(leftarg, eval_world),
+            sem.true_at(rightarg, eval_world)
         )
 
     def extended_verify(self, state, leftarg, rightarg, eval_world):
@@ -691,6 +692,7 @@ settings = {
 # conclusions = ['(\\exclude A \\univee \\exclude B)']
 
 # NOTE: this is a versatile way to store examples for comparison later
+# as in `example.py` 
 EX_CM_1_premises = ['((A \\univee B) \\uniwedge (A \\univee C))']
 EX_CM_1_conclusions = ['(A \\uniwedge (B \\univee C))']
 EX_CM_1_example = [EX_CM_1_premises, EX_CM_1_conclusions]

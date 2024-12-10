@@ -408,7 +408,7 @@ CF_T11_example = [
 ### NOTE: run below for individual tests
 
 premises, conclusions = CF_CM2_example
-# premises, conclusions = CF_T10_example
+# premises, conclusions = CF_T9_example
 model_structure = make_model_for(
     settings,
     premises,
