@@ -19,10 +19,10 @@ def make_model_for(
     syntax = Syntax(premises, conclusions, operators)
     semantics = semantics_class(settings['N'])
     model_constraints = ModelConstraints(
+        settings,
         syntax,
         semantics,
         proposition_class,
-        settings,
     )
     return ModelStructure(
         model_constraints,
