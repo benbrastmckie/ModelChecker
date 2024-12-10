@@ -42,11 +42,11 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] And
   - [x] Or
 - [x] _M_ add identity to semantics
-- [ ] get settings to work in unilateral semantics
-  - [ ] `contingent`
-  - [ ] `non_null`
-  - [ ] `disjoint`
-  - [ ] `non_empty`
+- [x] _B_ get settings to work in unilateral semantics
+  - [x] `contingent`
+  - [x] `non_null`
+  - [x] `disjoint`
+  - [x] `non_empty`
 - [.] _M_ test exclusion semantics
   - [ ] build range of examples
   - [ ] test frame constraints
@@ -58,8 +58,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] strengthening the underlying structure
     - [ ] go from complete lattice to boolean lattice
 - [ ] _M_ documentation and cleanup
-- [:] _B_ unit tests
-  - [x] setup tests
+- [:] unit tests
+  - [x] _B_ setup tests
   - [ ] add examples
 - [ ] run comparisons with bilateral semantics
   - [ ] max atomic complexity `N` before timeout
@@ -86,7 +86,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] progress bar
 - [ ] error reporting
   - [ ] convert bvs to states in raise Errors
-- [.] function to compare semantics
+- [x] function to compare semantics
 - [ ] create example template
 - [ ] create example unit test
 - [ ] add check/continues and test
