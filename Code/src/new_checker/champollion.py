@@ -290,13 +290,12 @@ class ChampollionProposition(model_builder.PropositionDefaults):
     def __eq__(self, other):
         return (self.verifiers == other.verifiers)
 
-    def proposition_constraints(self, sentence):
+    def proposition_constraints(self, sentence_letter):
         """
         Generates Z3 constraints for a sentence letter including the classical
         constraints and optionally the non-null, contingent, and disjoint
         constraints depending on the user settings."""
         semantics = self.semantics
-        sentence_letter = sentence.sentence_letter
 
         def get_fusion_closure_constraint():
             x, y = z3.BitVecs("cl_prop_x cl_prop_y", semantics.N)

@@ -222,7 +222,7 @@ class ModelConstraints:
             for sentence_letter in self.sentence_letters
             for constraint in self.proposition_class.proposition_constraints(
                 self,
-                sentence_letter,
+                sentence_letter.sentence_letter,
             )
         ]
         self.premise_constraints = [
