@@ -414,7 +414,7 @@ class Syntax:
             in the input by replacing operator strings with operator classes and
             updating original_type in that sentence_obj. If the main operator is not
             primitive, derived_arguments are updated with derived_types."""
-            # TODO: confirm not needed
+            # TODO: confirm not needed with derived operators
             # if sentence.original_arguments:
             #     for argument in sentence.original_arguments:
             #         initialize_types(argument)

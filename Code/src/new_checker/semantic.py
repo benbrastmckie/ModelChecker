@@ -42,7 +42,13 @@ class Semantics(SemanticDefaults):
         x, y = z3.BitVecs("frame_x frame_y", N)
         possibility_downard_closure = ForAll(
             [x, y],
-            z3.Implies(z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)),
+            z3.Implies(
+                z3.And(
+                    self.possible(y),
+                    self.is_part_of(x, y)
+                ),
+                self.possible(x)
+            ),
         )
         is_main_world = self.is_world(self.main_world)
         # TODO: make setting constraint
@@ -225,8 +231,6 @@ class ImpositionSemantics(SemanticDefaults):
                     self.is_part_of(x, y),
                     self.is_world(y)
                 ),
-                # NOTE: below could replace conjunction above
-                # self.is_part_of(x, y),
                 Exists(
                     z,
                     z3.And(
@@ -549,11 +553,10 @@ class Proposition(PropositionDefaults):
                 exists_falsifier = True
                 break
         if exists_verifier == exists_falsifier:
-            # TODO: convert from bits to states below
             print( # NOTE: a warning is preferable to raising an error
-                f"WARNING: the world {index_to_substate(world)} contains both:\n "
-                f"  The verifier {index_to_substate(ver_witness)}; and"
-                f"  The falsifier {index_to_substate(fal_witness)}."
+                f"WARNING: the world {bitvec_to_substates(world, self.N)} contains both:\n "
+                f"  The verifier {bitvec_to_substates(ver_witness, self.N)}; and"
+                f"  The falsifier {bitvec_to_substates(fal_witness, self.N)}."
             )
         return exists_verifier
     
