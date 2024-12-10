@@ -378,10 +378,15 @@ class Syntax:
 
         # initialize inputs
         self.all_sentences = {} # updated in build_sentence
-        self.operators_used = []
+        # self.operators_used = []
         self.sentence_letters = [] # updated in build_sentence
         self.premises = self.initialize_sentences(self.infix_premises)
         self.conclusions = self.initialize_sentences(self.infix_conclusions)
+        # self.sentence_letters = [
+        #     self.all_sentences[key]
+        #     for key in self.all_sentences.keys()
+        #     if key.isalnum()
+        # ] # updated in build_sentence
 
         # check for interdefined operators
         self.circularity_check(operator_collection)
@@ -394,12 +399,14 @@ class Syntax:
             if infix_sentence in self.all_sentences.keys():
                 return self.all_sentences[infix_sentence]
             sentence = Sentence(infix_sentence)
-            if sentence.original_operator:
-                self.operators_used.append(sentence.original_operator)
+            # TODO: confirm not needed
+            # if sentence.original_operator:
+            #     self.operators_used.append(sentence.original_operator)
             self.all_sentences[sentence.name] = sentence
             if sentence.original_arguments is None:
                 if sentence.name.isalnum():
                     self.sentence_letters.append(sentence)
+                    print(f"SENT LET {sentence} TYPE {type(sentence)}")
                 return sentence
             sentence_arguments = []
             for infix_arg in sentence.original_arguments:
@@ -413,10 +420,10 @@ class Syntax:
             in the input by replacing operator strings with operator classes and
             updating original_type in that sentence_obj. If the main operator is not
             primitive, derived_arguments are updated with derived_types."""
-            # TODO: add appropriate check to avoid redundancy
-            if sentence.original_arguments:
-                for argument in sentence.original_arguments:
-                    initialize_types(argument)
+            # TODO: confirm not needed
+            # if sentence.original_arguments:
+            #     for argument in sentence.original_arguments:
+            #         initialize_types(argument)
             sentence.update_types(self.operator_collection)
             if sentence.arguments: # NOTE: must happen after arguments are stored
                 sentence_arguments = []

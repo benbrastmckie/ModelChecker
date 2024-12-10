@@ -52,8 +52,9 @@ operators = syntactic.OperatorCollection(
 settings = {
     'N' : 3,
     'contingent' : True,
+    'non_empty' : True,
     'non_null' : True,
-    'disjoint' : False,
+    'disjoint' : True,
     'print_impossible' : True,
     'max_time' : 1,
 }
@@ -406,25 +407,26 @@ CF_T11_example = [
 
 ### NOTE: run below for individual tests
 
+premises, conclusions = CF_CM2_example
 # premises, conclusions = CF_T10_example
-# model_structure = make_model_for(
-#     premises,
-#     conclusions,
-#     ImpositionSemantics,
-#     Proposition,
-#     operators,
-#     settings,
-# )
-# model_structure.print_all()
+model_structure = make_model_for(
+    settings,
+    premises,
+    conclusions,
+    Semantics,
+    Proposition,
+    operators,
+)
+model_structure.print_all()
 
 # premises, conclusions = CF_T10_example
 # max_N = find_max_N(
+#     settings,
 #     premises,
 #     conclusions,
 #     Semantics,
 #     Proposition,
 #     operators,
-#     settings,
 # )
 
 CF_examples = {
@@ -477,9 +479,10 @@ imposition_theory = [
     operators,
 ]
 
+# # Run comparison
 # run_comparison(default_theory, imposition_theory, settings, CF_examples)
 # run_comparison(default_theory, imposition_theory, settings, CM_examples)
 
-# Store output in a file
-save_comparisons(default_theory, imposition_theory, settings, CF_examples)
-save_comparisons(default_theory, imposition_theory, settings, CM_examples)
+# # Store output in a file
+# save_comparisons(default_theory, imposition_theory, settings, CF_examples)
+# save_comparisons(default_theory, imposition_theory, settings, CM_examples)

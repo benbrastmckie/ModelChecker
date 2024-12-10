@@ -45,13 +45,14 @@ class Semantics(SemanticDefaults):
             z3.Implies(z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)),
         )
         is_main_world = self.is_world(self.main_world)
-        impossible_full_bit = z3.Not(self.possible(self.full_bit))
+        # TODO: make setting constraint
+        # impossible_full_bit = z3.Not(self.possible(self.full_bit))
 
         # Set frame constraints
         self.frame_constraints = [
             possibility_downard_closure,
             is_main_world,
-            impossible_full_bit,
+            # impossible_full_bit,
         ]
 
         # Define invalidity conditions
@@ -210,7 +211,6 @@ class ImpositionSemantics(SemanticDefaults):
             z3.Implies(z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)),
         )
         is_main_world = self.is_world(self.main_world)
-        impossible_full_bit = z3.Not(self.possible(self.full_bit))
         inclusion = ForAll(
             [x, y, z],
             z3.Implies(
@@ -258,7 +258,6 @@ class ImpositionSemantics(SemanticDefaults):
         self.frame_constraints = [
             possibility_downard_closure,
             is_main_world,
-            impossible_full_bit,
             inclusion,
             actuality,
             incorporation,
@@ -421,6 +420,20 @@ class Proposition(PropositionDefaults):
                 no_gap
             ]
 
+        def get_non_empty_constraints():
+            """The non_empty_constraints are important to avoid trivializing
+            the disjoin_constraints, but are entailed by the contingent_constraints."""
+            x, y = z3.BitVecs("ct_empty_x ct_empty_y", semantics.N)
+            return [
+                z3.Exists(
+                    [x, y],
+                    z3.And(
+                        semantics.verify(x, sentence_letter),
+                        semantics.falsify(y, sentence_letter)
+                    )
+                )
+            ]
+
         def get_non_null_constraints():
             """The non_null_constraints are important to avoid trivializing
             the disjoin_constraints, but are entailed by the contingent_constraints."""
@@ -431,7 +444,7 @@ class Proposition(PropositionDefaults):
 
         def get_contingent_constraints():
             """The contingent_constraints entail the non_null_constraints."""
-            x, y = z3.BitVecs("ct_prop_x ct_prop_y", semantics.N)
+            x, y = z3.BitVecs("ct_cont_x ct_cont_y", semantics.N)
             possible_verifier = Exists(
                 x,
                 z3.And(semantics.possible(x), semantics.verify(x, sentence_letter))
@@ -452,6 +465,8 @@ class Proposition(PropositionDefaults):
             disjoint_constraints = []
             for other_atom in self.sentence_letters:
                 if other_atom is not sentence_letter:
+                    print(f"SENTENCE LETTER {sentence_letter} TYPE {type(sentence_letter)}")
+                    print(f"OTHER LETTER {other_atom} TYPE {type(other_atom)}")
                     other_disjoint_atom = ForAll(
                         [x, y],
                         z3.Implies(
@@ -484,6 +499,8 @@ class Proposition(PropositionDefaults):
             constraints.extend(get_non_null_constraints())
         if self.settings['contingent']:
             constraints.extend(get_contingent_constraints())
+        if self.settings['non_empty']:
+            constraints.extend(get_non_empty_constraints())
         elif self.settings['non_null'] and not self.settings['disjoint']:
             constraints.extend(get_non_null_constraints())
         return constraints

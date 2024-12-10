@@ -290,11 +290,68 @@ class ChampollionProposition(PropositionDefaults):
         self.eval_world = model_structure.main_world if eval_world == 'main' else eval_world
         self.verifiers = self.find_proposition()
 
-    def proposition_constraints(self, thing):
-        return []
-        
     def __eq__(self, other):
         return (self.verifiers == other.verifiers)
+
+    def proposition_constraints(self, sentence):
+        """
+        Generates Z3 constraints for a sentence letter including the classical
+        constraints and optionally the non-null, contingent, and disjoint
+        constraints depending on the user settings."""
+        semantics = self.semantics
+        sentence_letter = sentence.sentence_letter
+
+        def get_fusion_closure_constraint():
+            x, y = z3.BitVecs("cl_prop_x cl_prop_y", semantics.N)
+            """The classical_constraints rule out truth_value gaps and gluts."""
+            verifier_fusion_closure = ForAll(
+                [x, y],
+                z3.Implies(
+                    z3.And(semantics.verify(x, sentence_letter), semantics.verify(y, sentence_letter)),
+                    semantics.verify(semantics.fusion(x, y), sentence_letter),
+                ),
+            )
+            return [verifier_fusion_closure]
+
+        def get_non_empty_constraints():
+            """The non_empty_constraints are important to avoid trivializing
+            the disjoin_constraints, but are entailed by the contingent_constraints."""
+            x = z3.BitVec("ct_empty_x", semantics.N)
+            return [
+                z3.Exists(
+                    x,
+                    semantics.verify(x, sentence_letter)
+                )
+            ]
+
+        def get_non_null_constraints():
+            """The non_null_constraints are important to avoid trivializing
+            the disjoin_constraints, but are entailed by the contingent_constraints."""
+            return [z3.Not(semantics.verify(0, sentence_letter))]
+
+        def get_possible_constraints():
+            """The contingent_constraints entail the non_null_constraints."""
+            x = z3.BitVecs("ct_poss_x", semantics.N)
+            possible_verifier = Exists(
+                x,
+                z3.And(
+                    semantics.possible(x),
+                    semantics.verify(x, sentence_letter)
+                )
+            )
+            return [possible_verifier]
+
+        # Collect constraints
+        constraints = []
+        if self.settings['fusion_closure']:
+            constraints.extend(get_fusion_closure_constraint())
+        if self.settings['possible']:
+            constraints.extend(get_possible_constraints())
+        if self.settings['non_empty']:
+            constraints.extend(get_non_empty_constraints())
+        elif self.settings['non_null']:
+            constraints.extend(get_non_null_constraints())
+        return constraints
 
     def find_proposition(self):
         """takes self, returns the V, F tuple
@@ -529,9 +586,10 @@ class UniIdentityOperator(syntactic.Operator):
 
 settings = {
     'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'disjoint' : False,
+    'possible' : False,
+    'non_empty' : True,
+    'non_null' : False,
+    'fusion_closure' : False,
     'print_impossible' : True,
     'max_time' : 1,
 }
@@ -589,10 +647,10 @@ syntax = syntactic.Syntax(premises, conclusions, operators)
 semantics = ChampollionSemantics(settings['N'])
 
 model_constraints = ModelConstraints(
+    settings,
     syntax,
     semantics,
     ChampollionProposition,
-    settings,
 )
 
 model_structure = ModelStructure(model_constraints)

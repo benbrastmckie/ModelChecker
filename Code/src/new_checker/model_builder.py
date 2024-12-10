@@ -192,10 +192,10 @@ class ModelConstraints:
 
     def __init__(
         self,
+        settings,
         syntax,
         semantics,
         proposition_class,
-        settings,
     ):
 
         # Store inputs

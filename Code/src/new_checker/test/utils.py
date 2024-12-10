@@ -22,12 +22,11 @@ def find_model_structure(
     syntax = Syntax(premises, conclusions, operators)
     semantics = semantics_class(settings['N'])
     model_constraints = ModelConstraints(
+        settings,
         syntax,
         semantics,
         proposition,
-        settings,
     )
-    # TODO: add print_impossible to ModelStructure
     return ModelStructure(model_constraints, settings['max_time'])
 
 
