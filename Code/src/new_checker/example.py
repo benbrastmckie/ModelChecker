@@ -54,7 +54,7 @@ settings = {
     'contingent' : True,
     'non_empty' : True,
     'non_null' : True,
-    'disjoint' : True,
+    'disjoint' : False,
     'print_impossible' : True,
     'max_time' : 1,
 }

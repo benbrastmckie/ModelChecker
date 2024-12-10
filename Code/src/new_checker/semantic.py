@@ -374,6 +374,7 @@ class Proposition(PropositionDefaults):
         constraints and optionally the non-null, contingent, and disjoint
         constraints depending on the user settings."""
         semantics = self.semantics
+        # TODO: make sentence_letters not sentences objects?
         sentence_letter = sentence.sentence_letter
 
         def get_classical_constraints():
@@ -463,10 +464,10 @@ class Proposition(PropositionDefaults):
             """The non_null_constraints are included in disjoin_constraints."""
             x, y, z = z3.BitVecs("dj_prop_x dj_prop_y dj_prop_z", semantics.N)
             disjoint_constraints = []
-            for other_atom in self.sentence_letters:
-                if other_atom is not sentence_letter:
-                    print(f"SENTENCE LETTER {sentence_letter} TYPE {type(sentence_letter)}")
-                    print(f"OTHER LETTER {other_atom} TYPE {type(other_atom)}")
+            for other_sentence in self.sentence_letters:
+                # TODO: make sentence_letters not sentence_objects?
+                other_letter = other_sentence.sentence_letter
+                if other_letter is not sentence_letter:
                     other_disjoint_atom = ForAll(
                         [x, y],
                         z3.Implies(
@@ -481,8 +482,8 @@ class Proposition(PropositionDefaults):
                                 z,
                                 z3.Implies(
                                     z3.Or(
-                                        semantics.verify(z, other_atom),
-                                        semantics.falsify(z, other_atom)
+                                        semantics.verify(z, other_letter),
+                                        semantics.falsify(z, other_letter)
                                     ),
                                     z3.Not(semantics.is_part_of(x, z)),
                                 )

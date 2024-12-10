@@ -382,11 +382,6 @@ class Syntax:
         self.sentence_letters = [] # updated in build_sentence
         self.premises = self.initialize_sentences(self.infix_premises)
         self.conclusions = self.initialize_sentences(self.infix_conclusions)
-        # self.sentence_letters = [
-        #     self.all_sentences[key]
-        #     for key in self.all_sentences.keys()
-        #     if key.isalnum()
-        # ] # updated in build_sentence
 
         # check for interdefined operators
         self.circularity_check(operator_collection)
@@ -406,7 +401,6 @@ class Syntax:
             if sentence.original_arguments is None:
                 if sentence.name.isalnum():
                     self.sentence_letters.append(sentence)
-                    print(f"SENT LET {sentence} TYPE {type(sentence)}")
                 return sentence
             sentence_arguments = []
             for infix_arg in sentence.original_arguments:
