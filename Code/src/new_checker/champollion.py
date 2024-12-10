@@ -330,8 +330,8 @@ class ChampollionProposition(PropositionDefaults):
             return [z3.Not(semantics.verify(0, sentence_letter))]
 
         def get_possible_constraints():
-            """The contingent_constraints entail the non_null_constraints."""
-            x = z3.BitVecs("ct_poss_x", semantics.N)
+            """The possible_constraint entail the non_null_constraints."""
+            x = z3.BitVec("ps_prop_x", semantics.N)
             possible_verifier = Exists(
                 x,
                 z3.And(
@@ -341,16 +341,72 @@ class ChampollionProposition(PropositionDefaults):
             )
             return [possible_verifier]
 
+        def get_contingent_constraint():
+            """The contingent_constraint entail the possible_constraint."""
+            x, y = z3.BitVecs("ct_prop_x ct_prop_y", semantics.N)
+            possibly_true = Exists(
+                x,
+                z3.And(
+                    semantics.is_world(x),
+                    semantics.true_at(x, sentence_letter),
+                )
+            )
+            possibly_false = Exists(
+                y,
+                z3.And(
+                    semantics.is_world(y),
+                    z3.Not(semantics.true_at(y, sentence_letter))
+                )
+            )
+            return [possibly_true, possibly_false]
+
+        def get_disjoint_constraints():
+            """The non_null_constraints are included in disjoin_constraints."""
+            x, y, z = z3.BitVecs("dj_prop_x dj_prop_y dj_prop_z", semantics.N)
+            disjoint_constraints = []
+            for other_sentence in self.sentence_letters:
+                # TODO: make sentence_letters not sentence_objects?
+                other_letter = other_sentence.sentence_letter
+                if other_letter is not sentence_letter:
+                    other_disjoint_atom = ForAll(
+                        [x, y],
+                        z3.Implies(
+                            z3.And(
+                                semantics.non_null_part_of(x, y),
+                                semantics.verify(y, sentence_letter),
+                            ),
+                            ForAll(
+                                z,
+                                z3.Implies(
+                                    semantics.verify(z, other_letter),
+                                    z3.Not(semantics.is_part_of(x, z)),
+                                )
+                            )
+                        )
+                    )
+                    disjoint_constraints.append(other_disjoint_atom)
+            return disjoint_constraints
+
         # Collect constraints
         constraints = []
+        non_empty_needed = True
+        non_null_needed = True
+        if self.settings['contingent']:
+            constraints.extend(get_possible_constraints())
+            non_empty_needed = False
+        if self.settings['possible'] and not self.settings['contingent']:
+            constraints.extend(get_possible_constraints())
+            non_empty_needed = False
+        if self.settings['non_empty'] and non_empty_needed:
+            constraints.extend(get_non_empty_constraints())
+        if self.settings['disjoint']:
+            constraints.extend(get_disjoint_constraints())
+            constraints.extend(get_non_null_constraints())
+            non_null_needed = False
+        if self.settings['non_null'] and non_null_needed:
+            constraints.extend(get_non_null_constraints())
         if self.settings['fusion_closure']:
             constraints.extend(get_fusion_closure_constraint())
-        if self.settings['possible']:
-            constraints.extend(get_possible_constraints())
-        if self.settings['non_empty']:
-            constraints.extend(get_non_empty_constraints())
-        elif self.settings['non_null']:
-            constraints.extend(get_non_null_constraints())
         return constraints
 
     def find_proposition(self):
@@ -585,13 +641,15 @@ class UniIdentityOperator(syntactic.Operator):
 ########################
 
 settings = {
-    'N' : 3,
-    'possible' : False,
-    'non_empty' : True,
-    'non_null' : False,
-    'fusion_closure' : False,
-    'print_impossible' : True,
-    'max_time' : 1,
+    'N' : 3, # number of atomic states
+    'possible' : True, # every sentence letter is possible
+    'contingent' : True, # every sentence letter is contingent
+    'non_empty' : True, # every sentence letter has a verifier
+    'non_null' : False, # null_state does not verify sentence_letters
+    'disjoint' : True, # sentence letters have disjoint subject-matters
+    'fusion_closure' : False, # verifiers are closed under fusion
+    'print_impossible' : True, # show impossible states
+    'max_time' : 1, # max time before z3 will stop looking
 }
 
 # premises = []
@@ -624,9 +682,9 @@ settings = {
 # conclusions = ["((A \\uniwedge (B \\univee C)) \\uniequiv ((A \\uniwedge B) \\univee (A \\uniwedge C)))"]
 
 # premises = ['(A \\uniwedge (B \\univee C))']
-# conclusions = ['((A \\univee B) \\uniwedge (A \\univee B))']
+# conclusions = ['((A \\univee B) \\uniwedge (A \\univee C))']
 
-premises = ['((A \\univee B) \\uniwedge (A \\univee B))']
+premises = ['((A \\univee B) \\uniwedge (A \\univee C))']
 conclusions = ['(A \\uniwedge (B \\univee C))']
 
 

@@ -459,7 +459,6 @@ class Proposition(PropositionDefaults):
                 possible_falsifier,
             ]
 
-        # TODO: _B_ fix
         def get_disjoint_constraints():
             """The non_null_constraints are included in disjoin_constraints."""
             x, y, z = z3.BitVecs("dj_prop_x dj_prop_y dj_prop_z", semantics.N)
@@ -493,16 +492,17 @@ class Proposition(PropositionDefaults):
                     disjoint_constraints.append(other_disjoint_atom)
             return disjoint_constraints
 
+
         # Collect constraints
         constraints = get_classical_constraints()
+        if self.settings['contingent']:
+            constraints.extend(get_contingent_constraints())
+        if self.settings['non_empty'] and not self.settings['contingent']:
+            constraints.extend(get_non_empty_constraints())
         if self.settings['disjoint']:
             constraints.extend(get_disjoint_constraints())
             constraints.extend(get_non_null_constraints())
-        if self.settings['contingent']:
-            constraints.extend(get_contingent_constraints())
-        if self.settings['non_empty']:
-            constraints.extend(get_non_empty_constraints())
-        elif self.settings['non_null'] and not self.settings['disjoint']:
+        if self.settings['non_null'] and not self.settings['disjoint']:
             constraints.extend(get_non_null_constraints())
         return constraints
 
