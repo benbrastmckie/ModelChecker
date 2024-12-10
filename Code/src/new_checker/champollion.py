@@ -6,16 +6,13 @@ from hidden_helpers import (
     bitvec_to_substates,
 )
 
-from model_builder import (
-    PropositionDefaults,
-    SemanticDefaults,
-    ModelConstraints,
-    ModelStructure,
-)
+import model_builder
+
+import example_builder
 
 import syntactic
 
-class ChampollionSemantics(SemanticDefaults):
+class ChampollionSemantics(model_builder.SemanticDefaults):
     def __init__(self, N):
         # Initialize the superclass to set defaults
         super().__init__(N)
@@ -277,7 +274,7 @@ class ChampollionSemantics(SemanticDefaults):
         return operator.extended_verify(state, *arguments, eval_world)
 
 
-class ChampollionProposition(PropositionDefaults):
+class ChampollionProposition(model_builder.PropositionDefaults):
     """Defines the proposition assigned to the sentences of the language.
     all user has to keep for their own class is super().__init__ and super().__poster_init__
     in the __init__ method.
@@ -343,19 +340,25 @@ class ChampollionProposition(PropositionDefaults):
 
         def get_contingent_constraint():
             """The contingent_constraint entail the possible_constraint."""
-            x, y = z3.BitVecs("ct_prop_x ct_prop_y", semantics.N)
+            x, y, z = z3.BitVecs("ct_prop_x ct_prop_y ct_prop_z", semantics.N)
             possibly_true = Exists(
                 x,
                 z3.And(
-                    semantics.is_world(x),
-                    semantics.true_at(x, sentence_letter),
+                    semantics.possible(x),
+                    semantics.verify(x, sentence_letter)
                 )
             )
             possibly_false = Exists(
                 y,
                 z3.And(
                     semantics.is_world(y),
-                    z3.Not(semantics.true_at(y, sentence_letter))
+                    z3.ForAll(
+                        z,
+                        z3.Implies(
+                            semantics.is_part_of(z, y),
+                            z3.Not(semantics.verify(z, sentence_letter))
+                        )
+                    )
                 )
             )
             return [possibly_true, possibly_false]
@@ -392,7 +395,7 @@ class ChampollionProposition(PropositionDefaults):
         non_empty_needed = True
         non_null_needed = True
         if self.settings['contingent']:
-            constraints.extend(get_possible_constraints())
+            constraints.extend(get_contingent_constraint())
             non_empty_needed = False
         if self.settings['possible'] and not self.settings['contingent']:
             constraints.extend(get_possible_constraints())
@@ -642,7 +645,7 @@ class UniIdentityOperator(syntactic.Operator):
 
 settings = {
     'N' : 3, # number of atomic states
-    'possible' : True, # every sentence letter is possible
+    'possible' : False, # every sentence letter is possible
     'contingent' : True, # every sentence letter is contingent
     'non_empty' : True, # every sentence letter has a verifier
     'non_null' : False, # null_state does not verify sentence_letters
@@ -684,14 +687,15 @@ settings = {
 # premises = ['(A \\uniwedge (B \\univee C))']
 # conclusions = ['((A \\univee B) \\uniwedge (A \\univee C))']
 
-premises = ['((A \\univee B) \\uniwedge (A \\univee C))']
-conclusions = ['(A \\uniwedge (B \\univee C))']
-
-
-
 # premises = ['\\exclude (A \\uniwedge B)']
 # conclusions = ['(\\exclude A \\univee \\exclude B)']
 
+# NOTE: this is a versatile way to store examples for comparison later
+EX_CM_1_premises = ['((A \\univee B) \\uniwedge (A \\univee C))']
+EX_CM_1_conclusions = ['(A \\uniwedge (B \\univee C))']
+EX_CM_1_example = [EX_CM_1_premises, EX_CM_1_conclusions]
+
+# TODO: good to explain what each piece does
 
 operators = syntactic.OperatorCollection(
     UniAndOperator,
@@ -700,17 +704,19 @@ operators = syntactic.OperatorCollection(
     UniIdentityOperator,
 )
 
+premises, conclusions = EX_CM_1_example
+
 syntax = syntactic.Syntax(premises, conclusions, operators)
 
 semantics = ChampollionSemantics(settings['N'])
 
-model_constraints = ModelConstraints(
+model_constraints = model_builder.ModelConstraints(
     settings,
     syntax,
     semantics,
     ChampollionProposition,
 )
 
-model_structure = ModelStructure(model_constraints)
+model_structure = model_builder.ModelStructure(model_constraints)
 
 model_structure.print_all()
