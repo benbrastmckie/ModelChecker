@@ -58,7 +58,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] strengthening the underlying structure
     - [ ] go from complete lattice to boolean lattice
 - [ ] _M_ documentation and cleanup
-- [:] unit tests
+- [.] unit tests
   - [x] _B_ setup tests
   - [ ] add examples
 - [ ] run comparisons with bilateral semantics
@@ -164,8 +164,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
       - [x] add frame constraints
       - [x] define operator
       - [x] unit tests
+      - [:] benchmarking
       - [ ] verifiers and falsifiers
-      - [ ] benchmarking
     - [x] extensional
       - [:] unit tests
         - [ ] wedge
