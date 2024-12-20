@@ -15,6 +15,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [.] documentation
   - [ ] architecture
   - [ ] semantics
+  - [ ] jupyter notebook
   - [.] doc strings
 - [ ] cli
   - [ ] release
@@ -49,8 +50,10 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] `non_empty`
 - [.] _M_ test exclusion semantics
   - [ ] build range of examples
-  - [ ] test frame constraints
+  - [:] test frame constraints
+    - [ ] add frame constraints?
   - [ ] test settings
+  - [ ] compare with bilateral semantics
   - [.] test theorems proven in the paper
     - [ ] do the proofs require all the axioms?
     - [x] are any of the other axioms derivable?
