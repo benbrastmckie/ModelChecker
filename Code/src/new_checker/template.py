@@ -1,4 +1,4 @@
-from example_builder import (
+from builder import (
     make_model_for,
     find_max_N,
     run_comparison,
@@ -11,14 +11,14 @@ from semantic import (
     Proposition,
 )
 
-from defined_operators import (
+from defined import (
     ConditionalOperator, BiconditionalOperator, # extensional defined
     DefEssenceOperator, DefGroundOperator, # constitutive defined
     MightCounterfactualOperator, # counterfactual
     MightImpositionOperator,
 )
 
-from primitive_operators import (
+from primitive import (
     AndOperator, NegationOperator, OrOperator, # extensional
     TopOperator, BotOperator, # top and bottom zero-place operators
     IdentityOperator, GroundOperator, EssenceOperator, # constitutive

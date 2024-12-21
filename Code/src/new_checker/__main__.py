@@ -33,7 +33,7 @@ import importlib.util
 
 ### FOR TESTING ###
 from __init__ import __version__
-from example_builder import (
+from utils import (
     optimize_model_setup,
 )
 
@@ -59,7 +59,7 @@ from semantic import (
     Proposition,
 )
 
-from model_builder import(
+from model import(
     ModelConstraints,
     ModelStructure,
 )
@@ -79,7 +79,7 @@ operators = syntactic.OperatorCollection(
     MightCounterfactualOperator, # defined counterfactual
 )
 
-from primitive_operators import (
+from primitive import (
     AndOperator, NegationOperator, OrOperator, # primitive extensional
     TopOperator, BotOperator, # primitive extremal
     GroundOperator, EssenceOperator, IdentityOperator, # primitive constitutive
@@ -87,7 +87,7 @@ from primitive_operators import (
     CounterfactualOperator, # primitive counterfactual
 )
 
-from defined_operators import (
+from defined import (
     ConditionalOperator, BiconditionalOperator, # defined extensional
     PossiblityOperator, # defined modal
     MightCounterfactualOperator, # defined counterfactual

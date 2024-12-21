@@ -23,7 +23,7 @@ import time
 
 from functools import reduce
 
-from hidden_helpers import (
+from utils import (
     bitvec_to_substates,
     int_to_binary,
     not_implemented_string,

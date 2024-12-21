@@ -25,8 +25,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - create `__init__.py` and add all imports used in:
   - `example.py`
   - `exposed_things.py`
-- move any functions with general uses to `hidden_helpers.py`
-  - add useful functions from `hidden_helpers.py` to `__init__.py`
+- move any functions with general uses to `utils.py`
+  - add useful functions from `utils.py` to `__init__.py`
 - rebuild package
 - create `api_example.py` to import from `model-checker`
 - confirm `api_example.py` works
@@ -104,8 +104,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] all other doc strings
   - [ ] `semantic.py`
   - [ ] `operators.py`
-  - [ ] `model_builder.py`
-  - [ ] `hidden_helpers.py`
+  - [ ] `model.py`
+  - [ ] `utils.py`
 - [ ] _B_ rewrite architecture doc
 - [ ] _B_ write semantics doc
 - [ ] clean up project directory
@@ -457,7 +457,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Data Structure
 
-- [x] _M_ abstract model builder functions from `print` to build data structure functions in `model_builder`
+- [x] _M_ abstract model builder functions from `print` to build data structure functions in `model`
   - [x] sketch design in `strategies` for how modules relate
   - [x] _M_ divide classes into `ModelStructure` and `Propositions`
 - [x] abstract on `eval_world` to generalize `alt_bits` function

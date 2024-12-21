@@ -1,6 +1,6 @@
 import z3
 
-from hidden_helpers import (
+from utils import (
     ForAll,
     Exists,
 )

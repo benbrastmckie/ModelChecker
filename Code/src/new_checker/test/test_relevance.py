@@ -14,7 +14,7 @@ from new_checker.semantic import (
     Semantics,
 )
 
-from new_checker.defined_operators import (
+from new_checker.defined import (
     NegationOperator,
     AndOperator,
     OrOperator,

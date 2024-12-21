@@ -1,18 +1,16 @@
 import z3
 
-from hidden_helpers import (
+from utils import (
     ForAll,
     Exists,
     bitvec_to_substates,
 )
 
-import model_builder
-
-import example_builder
+import model
 
 import syntactic
 
-class ChampollionSemantics(model_builder.SemanticDefaults):
+class ChampollionSemantics(model.SemanticDefaults):
     def __init__(self, N):
         # Initialize the superclass to set defaults
         super().__init__(N)
@@ -274,7 +272,7 @@ class ChampollionSemantics(model_builder.SemanticDefaults):
         return operator.extended_verify(state, *arguments, eval_world)
 
 
-class ChampollionProposition(model_builder.PropositionDefaults):
+class ChampollionProposition(model.PropositionDefaults):
     """Defines the proposition assigned to the sentences of the language.
     all user has to keep for their own class is super().__init__ and super().__poster_init__
     in the __init__ method.
@@ -711,13 +709,13 @@ syntax = syntactic.Syntax(premises, conclusions, operators)
 
 semantics = ChampollionSemantics(settings['N'])
 
-model_constraints = model_builder.ModelConstraints(
+model_constraints = model.ModelConstraints(
     settings,
     syntax,
     semantics,
     ChampollionProposition,
 )
 
-model_structure = model_builder.ModelStructure(model_constraints)
+model_structure = model.ModelStructure(model_constraints)
 
 model_structure.print_all()

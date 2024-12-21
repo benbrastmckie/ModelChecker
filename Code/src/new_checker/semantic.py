@@ -1,13 +1,13 @@
 import z3
 
 # NOTE: go in API
-from model_builder import (
+from model import (
     PropositionDefaults,
     SemanticDefaults,
 )
 
 # NOTE: go in API
-from hidden_helpers import (
+from utils import (
     ForAll,
     Exists,
     bitvec_to_substates,
