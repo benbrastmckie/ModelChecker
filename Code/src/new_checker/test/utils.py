@@ -1,6 +1,6 @@
 """run 'pytest' from the '.../Code/src/new_checker/' directory"""
 
-from new_checker.model_builder import (
+from new_checker.model import (
     ModelConstraints,
     ModelStructure,
 )

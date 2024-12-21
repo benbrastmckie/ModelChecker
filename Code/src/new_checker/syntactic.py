@@ -16,7 +16,7 @@ which is passed to ModelConstraints:
 
 from collections import defaultdict
 
-from hidden_helpers import (
+from utils import (
     bitvec_to_substates,
     not_implemented_string,
     flatten,

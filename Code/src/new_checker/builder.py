@@ -2,7 +2,7 @@ import sys
 import os
 import concurrent.futures
 
-from model_builder import (
+from model import (
     ModelConstraints,
     ModelStructure,
 )

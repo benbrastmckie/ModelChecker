@@ -18,7 +18,7 @@ These sections cover the functions needed to construct Z3 constraints from the i
 3. `utils` contains all helper functions
 4. `convert_syntax` includes all syntactic functions
 5. `semantics` contains all semantic functions that generate Z3 constraints
-6. `model_builder` functions for building a data structure
+6. `model` functions for building a data structure
 7. `model_structure` classes for sentences, model, and propositions
   - finds sentences and constraints, runs solver, and stores all data including propositions
 8. `print` contains functions that operate on a data structure to print
