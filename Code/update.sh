@@ -13,6 +13,7 @@ sed -i "s/__version__ = \"$current_version\"/__version__ = \"$new_version\"/" sr
 rm -rf dist 
 rm -rf src/model_checker.egg-info
 
+# Run tests
 pytest
 
 # Run python3 -m build

@@ -14,9 +14,7 @@ which is passed to ModelConstraints:
     initialized to generate and store original_types for each.
 """
 
-from collections import defaultdict
-
-from utils import (
+from src.model_checker.utils import (
     bitvec_to_substates,
     not_implemented_string,
     flatten,

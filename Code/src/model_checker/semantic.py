@@ -1,13 +1,11 @@
 import z3
 
-# NOTE: go in API
-from model import (
+from src.model_checker.model import (
     PropositionDefaults,
     SemanticDefaults,
 )
 
-# NOTE: go in API
-from utils import (
+from src.model_checker.utils import (
     ForAll,
     Exists,
     bitvec_to_substates,
@@ -15,7 +13,7 @@ from utils import (
     pretty_set_print,
 )
 
-import syntactic
+from src.model_checker import syntactic
 
 
 ##############################################################################

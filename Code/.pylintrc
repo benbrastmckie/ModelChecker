@@ -1,8 +1,12 @@
 [MASTER]
 init-hook='import sys; sys.path.append("/nix/store/gga7w47nbyf13ap1f1pvp9ik146z6a98-python3-3.11.6-env/lib/python3.11/site-packages/z3")'
 init-hook='import sys; sys.path.append("src")'
-init-hook='import sys; sys.path.append("src/new_checker")'
+init-hook='import sys; sys.path.append("src/model_checker")'
+; init-hook='import sys; sys.path.append("src/new_checker")'
 
+[pytest]
+testpaths = src/model_checker/test
+pythonpath = src
 
 [MESSAGES CONTROL] # disables the check for:
 disable=C0103  # variable naming style (like snake_case)

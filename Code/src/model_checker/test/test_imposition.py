@@ -1,10 +1,43 @@
-"""run 'pytest' from the '.../Code' directory"""
+"""run 'pytest' from the '.../Code/src/model_checker/' directory"""
 import pytest
+
 from .utils import (
     check_model_status,
-    max_time,
+    default_max_time,
 )
 
+from src.model_checker.syntactic import (
+    OperatorCollection,
+)
+
+from src.model_checker.semantic import (
+    Proposition,
+    ImpositionSemantics,
+)
+
+from src.model_checker.defined import (
+    NegationOperator,
+    AndOperator,
+    OrOperator,
+    ImpositionOperator,
+    PossibilityOperator,
+    NecessityOperator,
+    MightImpositionOperator,
+)
+
+semantics = ImpositionSemantics
+proposition = Proposition
+operators = OperatorCollection(
+    NegationOperator,
+    AndOperator,
+    OrOperator,
+    ImpositionOperator,
+    MightImpositionOperator,
+    NecessityOperator,
+    PossibilityOperator,
+)
+
+max_time = default_max_time
 
 ########################################
 ##### IMPOSITION COUNTERMODELS #####
@@ -13,374 +46,542 @@ from .utils import (
 @pytest.mark.timeout(max_time)
 def test_IMP_CM1():
 # IMPOSITION ANTECEDENT STRENGTHENING
-    N = 3
-    premises = ['(A imposition C)']
-    conclusions = ['((A wedge B) imposition C)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+    premises = ['(A \\imposition C)']
+    conclusions = ['((A \\wedge B) \\imposition C)']
+    settings = {
+        'N' : 3,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM2():
-# IMPOSITION ANTECEDENT STRENGTHENING WITH POSSIBILITY
-    N = 3
-    premises = ['(A imposition C)', 'Diamond (A wedge B)']
-    conclusions = ['((A wedge B) imposition C)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# MIGHT IMPOSITION ANTECEDENT STRENGTHENING
+    premises = ['(A \\could C)']
+    conclusions = ['((A \\wedge B) \\could C)']
+    settings = {
+        'N' : 3,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM3():
-# IMPOSITION ANTECEDENT STRENGTHENING WITH NEGATION
-    N = 4
-    premises = ['neg A', '(A imposition C)']
-    conclusions = ['((A wedge B) imposition C)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# IMPOSITION ANTECEDENT STRENGTHENING WITH POSSIBILITY
+    premises = ['(A \\imposition C)', '\\Diamond (A \\wedge B)']
+    conclusions = ['((A \\wedge B) \\imposition C)']
+    settings = {
+        'N' : 3,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM4():
-# IMPOSITION DOUBLE ANTECEDENT STRENGTHENING
-    N = 4
-    premises = ['(A imposition C)','(B imposition C)']
-    conclusions = ['((A wedge B) imposition C)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# IMPOSITION ANTECEDENT STRENGTHENING WITH NEGATION
+    premises = ['\\neg A', '(A \\imposition C)']
+    conclusions = ['((A \\wedge B) \\imposition C)']
+    settings = {
+        'N' : 4,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
-
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM5():
-# IMPOSITION CONTRAPOSITION
-    N = 3
-    premises = ['(A imposition B)']
-    conclusions = ['(neg B imposition neg A)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# IMPOSITION DOUBLE ANTECEDENT STRENGTHENING
+    premises = ['(A \\imposition C)','(B \\imposition C)']
+    conclusions = ['((A \\wedge B) \\imposition C)']
+    settings = {
+        'N' : 4,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM6():
-# IMPOSITION CONTRAPOSITION WITH NEGATION
-    N = 4
-    premises = ['neg B','(A imposition B)']
-    conclusions = ['(neg B imposition neg A)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# WEAKENED MONOTONICITY
+    premises = ['(A \\imposition B)','(A \\imposition C)']
+    conclusions = ['((A \\wedge B) \\imposition C)']
+    settings = {
+        'N' : 3,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
+
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM7():
-# IMPOSITION CONTRAPOSITION WITH TWO NEGATIONS
-    N = 4
-    premises = ['neg A','neg B','(A imposition B)']
-    conclusions = ['(neg B imposition neg A)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# IMPOSITION CONTRAPOSITION
+    premises = ['(A \\imposition B)']
+    conclusions = ['(\\neg B \\imposition \\neg A)']
+    settings = {
+        'N' : 3,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM8():
-# TRANSITIVITY
-    N = 3
-    premises = ['(A imposition B)','(B imposition C)']
-    conclusions = ['(A imposition C)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# IMPOSITION CONTRAPOSITION WITH NEGATION
+    premises = ['\\neg B','(A \\imposition B)']
+    conclusions = ['(\\neg B \\imposition \\neg A)']
+    settings = {
+        'N' : 4,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM9():
-# IMPOSITION TRANSITIVITY WITH NEGATION
-    N = 4
-    premises = ['neg A','(A imposition B)','(B imposition C)']
-    conclusions = ['(A imposition C)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# IMPOSITION CONTRAPOSITION WITH TWO NEGATIONS
+    premises = ['\\neg A','\\neg B','(A \\imposition B)']
+    conclusions = ['(\\neg B \\imposition \\neg A)']
+    settings = {
+        'N' : 4,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM10():
-# IMPOSITION TRANSITIVITY WITH TWO NEGATIONS
-    N = 4
-    premises = ['neg A','neg B','(A imposition B)','(B imposition C)']
-    conclusions = ['(A imposition C)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# TRANSITIVITY
+    premises = ['(A \\imposition B)','(B \\imposition C)']
+    conclusions = ['(A \\imposition C)']
+    settings = {
+        'N' : 3,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM11():
-# SOBEL SEQUENCE (N = 3)
-    N = 3
-    premises = [
-        '(A imposition X)',
-        'neg ((A wedge B) imposition X)',
-        '(((A wedge B) wedge C) imposition X)',
-    ]
-    conclusions = []
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# IMPOSITION TRANSITIVITY WITH NEGATION
+    premises = ['\\neg A','(A \\imposition B)','(B \\imposition C)']
+    conclusions = ['(A \\imposition C)']
+    settings = {
+        'N' : 4,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM12():
-# SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
-    N = 4
-    premises = [
-        'Diamond A',
-        '(A imposition X)',
-        'Diamond (A wedge B)',
-        'neg ((A wedge B) imposition X)',
-        'Diamond ((A wedge B) wedge C)',
-        '(((A wedge B) wedge C) imposition X)',
-        'Diamond (((A wedge B) wedge C) wedge D)',
-    ]
-    conclusions = []
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# IMPOSITION TRANSITIVITY WITH TWO NEGATIONS
+    premises = ['\\neg A','\\neg B','(A \\imposition B)','(B \\imposition C)']
+    conclusions = ['(A \\imposition C)']
+    settings = {
+        'N' : 4,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM13():
-# IMPOSITION EXCLUDED MIDDLE
-    N = 3
-    premises = ['neg A']
-    conclusions = ['(A imposition B)','(A imposition neg B)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# SOBEL SEQUENCE (N = 3)
+    premises = [
+        '(A \\imposition X)',
+        '\\neg ((A \\wedge B) \\imposition X)',
+        '(((A \\wedge B) \\wedge C) \\imposition X)',
+    ]
+    conclusions = []
+    settings = {
+        'N' : 3,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM14():
-# SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
-    N = 3
-    premises = ['neg A','(A imposition (B vee C))']
-    conclusions = ['(A imposition B)','(A imposition C)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
+    premises = [
+        '\\Diamond A',
+        '(A \\imposition X)',
+        '\\Diamond (A \\wedge B)',
+        '\\neg ((A \\wedge B) \\imposition X)',
+        '\\Diamond ((A \\wedge B) \\wedge C)',
+        '(((A \\wedge B) \\wedge C) \\imposition X)',
+        '\\Diamond (((A \\wedge B) \\wedge C) \\wedge D)',
+    ]
+    conclusions = []
+    settings = {
+        'N' : 4,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM15():
-# INTRODUCTION OF DISJUNCTIVE ANTECEDENT
-    N = 4
-    premises = ['(A imposition C)','(B imposition C)']
-    conclusions = ['((A vee B) imposition C)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# IMPOSITION EXCLUDED MIDDLE
+    premises = ['\\neg A']
+    conclusions = ['(A \\imposition B)','(A \\imposition \\neg B)']
+    settings = {
+        'N' : 3,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM16():
-# MUST FACTIVITY
-    N = 3
-    premises = ['A', 'B']
-    conclusions = ['(A imposition B)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
+    premises = ['\\neg A','(A \\imposition (B \\vee C))']
+    conclusions = ['(A \\imposition B)','(A \\imposition C)']
+    settings = {
+        'N' : 3,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM17():
-# IMPOSITION EXPORTATION
-    N = 3
-    premises = ['((A wedge B) imposition C)']
-    conclusions = ['(A imposition (B imposition C))']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# INTRODUCTION OF DISJUNCTIVE ANTECEDENT
+    premises = ['(A \\imposition C)','(B \\imposition C)']
+    conclusions = ['((A \\vee B) \\imposition C)']
+    settings = {
+        'N' : 4,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM18():
-# IMPOSITION EXPORTATION WITH POSSIBILITY
-    N = 3
-    premises = ['((A wedge B) imposition C)','Diamond (A wedge B)']
-    conclusions = ['(A imposition (B imposition C))']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# MUST FACTIVITY
+    premises = ['A', 'B']
+    conclusions = ['(A \\imposition B)']
+    settings = {
+        'N' : 3,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
 def test_IMP_CM19():
-# IMPOSITION EXCLUDED MIDDLE VARIANT
-    N = 3
-    premises = ['neg A','neg (A imposition B)']
-    conclusions = ['(A imposition neg B)']
-    desired_model_status = True
-    contingent_bool = True
-    disjoint_bool = False
+# IMPOSITION EXPORTATION
+    premises = ['((A \\wedge B) \\imposition C)']
+    conclusions = ['(A \\imposition (B \\imposition C))']
+    settings = {
+        'N' : 3,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
+    )
+
+@pytest.mark.timeout(max_time)
+def test_IMP_CM20():
+# IMPOSITION EXPORTATION WITH POSSIBILITY
+    premises = ['((A \\wedge B) \\imposition C)','\\Diamond (A \\wedge B)']
+    conclusions = ['(A \\imposition (B \\imposition C))']
+    settings = {
+        'N' : 3,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
+    check_model_status(
+        premises,
+        conclusions,
+        semantics,
+        proposition,
+        operators,
+        settings,
+    )
+
+@pytest.mark.timeout(max_time)
+def test_IMP_CM21():
+# IMPOSITION EXCLUDED MIDDLE VARIANT
+    premises = ['\\neg A','\\neg (A \\imposition B)']
+    conclusions = ['(A \\imposition \\neg B)']
+    settings = {
+        'N' : 3,
+        'contingent' : True,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : True,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
+    check_model_status(
+        premises,
+        conclusions,
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 # # NOTE: DOES NOT FIND COUNTERMODEL
-# @pytest.mark.timeout(0)
+# @pytest.mark.timeout(max_time)
 # def test_CL_8():
-#     N = 4
 #     premises = ['(A \\imposition (B \\imposition C))']
 #     conclusions = ['((A \\wedge B) \\imposition C)']
-#     desired_model_status = True
-#     contingent_bool = True
-#     disjoint_bool = False
+#     settings = {
+#         'N' : 4,
+#         'contingent' : True,
+#         'non_null' : True,
+#         'non_empty' : True,
+#         'disjoint' : False,
+#         'desired_status' : True,
+#         'print_impossible' : True,
+#         'max_time' : max_time,
+#     }
 #     check_model_status(
-#         N,
 #         premises,
 #         conclusions,
-#         desired_model_status,
-#         contingent_bool,
-#         disjoint_bool
+#         semantics,
+#         proposition,
+#         operators,
+#         settings,
 #     )
 
 
@@ -392,160 +593,238 @@ def test_IMP_CM19():
 ################################
 
 @pytest.mark.timeout(max_time)
-def test_IMP1():
+def test_IMP_T1():
     """IMPOSITION IDENTITY"""
-    N = 3
     premises = []
-    conclusions = ['(A imposition A)']
-    desired_model_status = False
-    contingent_bool = False
-    disjoint_bool = False
+    conclusions = ['(A \\imposition A)']
+    settings = {
+        'N' : 3,
+        'contingent' : False,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : False,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP2():
+def test_IMP_T2():
     """IMPOSITION MODUS PONENS"""
-    N = 3
-    premises = ['A','(A imposition B)']
+    premises = ['A','(A \\imposition B)']
     conclusions = ['B']
-    desired_model_status = False
-    contingent_bool = False
-    disjoint_bool = False
+    settings = {
+        'N' : 3,
+        'contingent' : False,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : False,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP3():
+def test_IMP_T3():
     """WEAKENED TRANSITIVITY"""
-    N = 3
-    premises = ['(A imposition B)','((A wedge B) imposition C)']
-    conclusions = ['(A imposition C)']
-    desired_model_status = False
-    contingent_bool = False
-    disjoint_bool = False
+    premises = ['(A \\imposition B)','((A \\wedge B) \\imposition C)']
+    conclusions = ['(A \\imposition C)']
+    settings = {
+        'N' : 3,
+        'contingent' : False,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : False,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP4():
+def test_IMP_T4():
     """ANTECEDENT DISJUNCTION TO CONJUNCTION"""
-    N = 3
     premises = ['((A \\vee B) \\imposition C)']
     conclusions = ['((A \\wedge B) \\imposition C)']
-    desired_model_status = False
-    contingent_bool = False
-    disjoint_bool = False
+    settings = {
+        'N' : 3,
+        'contingent' : False,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : False,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP5():
+def test_IMP_T5():
     """SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT"""
-    N = 3
-    premises = ['((A vee B) imposition C)']
-    conclusions = ['(A imposition C)']
-    desired_model_status = False
-    contingent_bool = False
-    disjoint_bool = False
+    premises = ['((A \\vee B) \\imposition C)']
+    conclusions = ['(A \\imposition C)']
+    settings = {
+        'N' : 3,
+        'contingent' : False,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : False,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP6():
+def test_IMP_T6():
     """DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT"""
-    N = 3
-    premises = ['((A vee B) imposition C)']
-    conclusions = ['((A imposition C) wedge (B imposition C))']
-    desired_model_status = False
-    contingent_bool = False
-    disjoint_bool = False
+    premises = ['((A \\vee B) \\imposition C)']
+    conclusions = ['((A \\imposition C) \\wedge (B \\imposition C))']
+    settings = {
+        'N' : 3,
+        'contingent' : False,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : False,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP7():
-    N = 3
-    premises = ['(A imposition C)', '(B imposition C)', '((A wedge B) imposition C)']
-    conclusions = ['((A vee B) imposition C)']
-    desired_model_status = False
-    contingent_bool = False
-    disjoint_bool = False
+def test_IMP_T7():
+    premises = ['(A \\imposition C)', '(B \\imposition C)', '((A \\wedge B) \\imposition C)']
+    conclusions = ['((A \\vee B) \\imposition C)']
+    settings = {
+        'N' : 3,
+        'contingent' : False,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : False,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP8():
-    N = 3
-    premises = ['(A imposition (B wedge C))']
-    conclusions = ['(A imposition B)']
-    desired_model_status = False
-    contingent_bool = False
-    disjoint_bool = False
+def test_IMP_T8():
+    premises = ['(A \\imposition (B \\wedge C))']
+    conclusions = ['(A \\imposition B)']
+    settings = {
+        'N' : 3,
+        'contingent' : False,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : False,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP9():
-    N = 3
-    premises = ['(A imposition B)','(A imposition C)']
-    conclusions = ['(A imposition (B wedge C))']
-    desired_model_status = False
-    contingent_bool = False
-    disjoint_bool = False
+def test_IMP_T9():
+    premises = ['(A \\imposition B)','(A \\imposition C)']
+    conclusions = ['(A \\imposition (B \\wedge C))']
+    settings = {
+        'N' : 3,
+        'contingent' : False,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : False,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
     check_model_status(
-        N,
         premises,
         conclusions,
-        desired_model_status,
-        contingent_bool,
-        disjoint_bool
+        semantics,
+        proposition,
+        operators,
+        settings,
+    )
+
+@pytest.mark.timeout(max_time)
+def test_IMP_T10():
+    """FACTIVITY MIGHT"""
+    premises = ['A','B']
+    conclusions = ['(A \\could B)']
+    settings = {
+        'N' : 3,
+        'contingent' : False,
+        'non_null' : True,
+        'non_empty' : True,
+        'disjoint' : False,
+        'desired_status' : False,
+        'print_impossible' : True,
+        'max_time' : max_time,
+    }
+    check_model_status(
+        premises,
+        conclusions,
+        semantics,
+        proposition,
+        operators,
+        settings,
     )

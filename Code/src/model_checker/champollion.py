@@ -1,14 +1,15 @@
+"""From the ../Code/ directory, run: python -m src.model_checker.champollion"""
 import z3
 
-from utils import (
+from src.model_checker.utils import (
     ForAll,
     Exists,
     bitvec_to_substates,
 )
 
-import model
+from src.model_checker import model
 
-import syntactic
+from src.model_checker import syntactic
 
 class ChampollionSemantics(model.SemanticDefaults):
     def __init__(self, N):

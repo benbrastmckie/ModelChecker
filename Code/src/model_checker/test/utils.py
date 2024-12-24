@@ -1,26 +1,72 @@
-"""run 'pytest' from the '.../model_checker' directory"""
-from model_checker.model_structure import make_model_for
+"""run 'pytest' from the '.../Code/src/model_checker/' directory"""
 
-max_time = 2
+from src.model_checker.model import (
+    ModelConstraints,
+    ModelStructure,
+)
 
-def failure_string(desired, premises, conclusions, time):
-    if desired is False:
-        return f'Erroneously found a model:\n\nPremises:\n{premises}\n\nConclusions:\n{conclusions}\n\nRun time: {time} seconds\n\nMax time: {max_time}'
-    return f'Erroneously did not find a model:\n\nPremises:\n{premises}\n\nConclusions:\n{conclusions}\n\nRun time: {time} seconds\n\nMax time: {max_time}'
+from src.model_checker.syntactic import (
+    Syntax,
+)
 
-def check_model_status(N, premises, conclusions, desired, contingent_bool, disjoint_bool):
-    mod_setup = make_model_for(N, premises, conclusions, max_time, contingent_bool, disjoint_bool)
-    mod_status = mod_setup.model_status
-    mod_time = mod_setup.model_runtime
-    mod_timeout = mod_setup.timeout
-    assert (mod_timeout is False), f'Model timed out. Consider increasing max_time to be > {max_time} seconds.'
-    assert (mod_status == desired), failure_string(desired, premises, conclusions, mod_time)
+default_max_time = 2
 
-# def find_model_status(premises, conclusions, desired, N):
-#     mod_setup = make_model_for(N, premises, conclusions, max_time, contingent)
-#     mod_status = mod_setup.model_status
-#     mod_time = mod_setup.model_runtime
-#     if mod_status != desired and N < 10:
-#         N += 1
-#         find_model_status(premises, conclusions, desired, N)
-#     print(f"Found model in {mod_time} for N = {N}.")
+def find_model_structure(
+    premises,
+    conclusions,
+    semantics_class,
+    proposition,
+    operators,
+    settings,
+):
+    syntax = Syntax(premises, conclusions, operators)
+    semantics = semantics_class(settings['N'])
+    model_constraints = ModelConstraints(
+        settings,
+        syntax,
+        semantics,
+        proposition,
+    )
+    return ModelStructure(model_constraints, settings['max_time'])
+
+
+def failure_message(premises, conclusions, run_time, max_time, desired_found):
+    status = "found" if desired_found else "did not find"
+    return (
+        f"Erroneously {status} a model:\n\n"
+        f"Premises:\n{premises}\n\n"
+        f"Conclusions:\n{conclusions}\n\n"
+        f"Run time: {run_time} seconds\n"
+        f"Max time: {max_time} seconds"
+    )
+
+
+def check_model_status(
+    premises,
+    conclusions,
+    semantics,
+    proposition,
+    operators,
+    settings,
+):
+    model_structure = find_model_structure(
+        premises,
+        conclusions,
+        semantics,
+        proposition,
+        operators,
+        settings,
+    )
+    model_status = model_structure.z3_model_status
+    run_time = model_structure.z3_model_runtime
+
+    assert (
+        not model_structure.timeout
+    ), f"Model timed out. Increase max_time beyond {settings['max_time']} seconds."
+    assert model_status == settings['desired_status'], failure_message(
+        premises,
+        conclusions,
+        run_time,
+        settings['max_time'],
+        settings['desired_status'],
+    )
