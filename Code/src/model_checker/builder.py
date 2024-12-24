@@ -2,11 +2,11 @@ import sys
 import os
 import concurrent.futures
 
-from model import (
+from src.model_checker.model import (
     ModelConstraints,
     ModelStructure,
 )
-from syntactic import Syntax
+from src.model_checker.syntactic import Syntax
 
 def make_model_for(
     settings,

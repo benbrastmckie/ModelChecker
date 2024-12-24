@@ -1,24 +1,25 @@
-from builder import (
+"""From the ../Code/ directory, run: python -m src.model_checker.examples"""
+from src.model_checker.builder import (
     make_model_for,
     find_max_N,
     run_comparison,
     save_comparisons,
 )
  
-from semantic import (
+from src.model_checker.semantic import (
     Semantics,
     ImpositionSemantics,
     Proposition,
 )
 
-from defined import (
+from src.model_checker.defined import (
     ConditionalOperator, BiconditionalOperator, # extensional defined
     DefEssenceOperator, DefGroundOperator, # constitutive defined
     MightCounterfactualOperator, # counterfactual
     MightImpositionOperator,
 )
 
-from primitive import (
+from src.model_checker.primitive import (
     AndOperator, NegationOperator, OrOperator, # extensional
     TopOperator, BotOperator, # top and bottom zero-place operators
     IdentityOperator, GroundOperator, EssenceOperator, # constitutive
@@ -27,7 +28,7 @@ from primitive import (
     ImpositionOperator, # counterfactual
 )
 
-import syntactic
+from src.model_checker import syntactic
 
 ######################
 ### SETUP LANGUAGE ###
@@ -73,9 +74,9 @@ settings = {
 
 
 
-#############################
-### WORKING COUNTERMODELS ###
-#############################
+#####################
+### COUNTERMODELS ###
+#####################
 
 # # CF_CM1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
 CF_CM1_premises = ['(A \\boxright C)']
@@ -290,9 +291,9 @@ CF_CM21_example = [
 
 
 
-####################################
-### WORKING LOGICAL CONSEQUENCES ###
-####################################
+############################
+### LOGICAL CONSEQUENCES ###
+############################
 
 # # CF_T1: COUNTERFACTUAL IDENTITY
 # N = 3

@@ -5,6 +5,12 @@ things in hidden_things right now:
     - ModelStructure
 '''
 
+import sys
+
+import time
+
+from functools import reduce
+
 from z3 import (
     And,
     ArrayRef,
@@ -19,19 +25,13 @@ from z3 import (
     simplify,
 )
 
-import time
-
-from functools import reduce
-
-from utils import (
+from src.model_checker.utils import (
     bitvec_to_substates,
     int_to_binary,
     not_implemented_string,
     pretty_set_print,
 
 )
-
-import sys
 
 class SemanticDefaults:
     """Includes default attributes and methods to be inherited by a semantics

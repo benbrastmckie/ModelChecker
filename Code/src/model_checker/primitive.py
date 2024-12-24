@@ -1,11 +1,11 @@
 import z3
 
-from utils import (
+from src.model_checker.utils import (
     ForAll,
     Exists,
 )
 
-import syntactic
+from src.model_checker import syntactic
 
 # TODO: add \\preceq
 # TODO: add \\Diamond

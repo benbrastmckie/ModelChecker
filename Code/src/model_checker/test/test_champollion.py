@@ -1,16 +1,15 @@
-"""run 'pytest' from the '.../Code/src/new_checker/' directory"""
+"""run 'pytest' from the '.../Code' directory"""
 import pytest
-
-from .utils import (
+from src.model_checker.test.utils import (
     check_model_status,
     default_max_time,
 )
 
-from new_checker.syntactic import (
+from src.model_checker.syntactic import (
     OperatorCollection,
 )
 
-from new_checker.champollion import (
+from src.model_checker.champollion import (
     ChampollionSemantics,
     ChampollionProposition,
     ExclusionOperator,

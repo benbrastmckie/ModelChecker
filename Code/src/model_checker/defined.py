@@ -1,6 +1,6 @@
-import syntactic
+from src.model_checker import syntactic
 
-from primitive import (
+from src.model_checker.primitive import (
     AndOperator, NegationOperator, OrOperator, # extensional
     TopOperator, BotOperator, # top and bottom zero-place operators
     IdentityOperator, GroundOperator, EssenceOperator, # constitutive
