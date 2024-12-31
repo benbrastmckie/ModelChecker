@@ -1,15 +1,17 @@
 """From the ../Code/ directory, run: python -m src.model_checker.champollion"""
+import sys
+
 import z3
 
-from src.model_checker.utils import (
+from .utils import (
     ForAll,
     Exists,
     bitvec_to_substates,
 )
 
-from src.model_checker import model
+from . import model
 
-from src.model_checker import syntactic
+from . import syntactic
 
 class ChampollionSemantics(model.SemanticDefaults):
     def __init__(self, N):
@@ -439,11 +441,11 @@ class ChampollionProposition(model.PropositionDefaults):
                 return True
         return False
 
-    def print_proposition(self, eval_world, indent_num):
+    def print_proposition(self, eval_world, indent_num, use_colors):
         N = self.model_structure.semantics.N
         truth_value = self.truth_value_at(eval_world)
         world_state = bitvec_to_substates(eval_world, N)
-        RESET, FULL, PART = self.set_colors(self.name, indent_num, truth_value, world_state)
+        RESET, FULL, PART = self.set_colors(self.name, indent_num, truth_value, world_state, use_colors)
         print(
             f"{'  ' * indent_num}{FULL}|{self.name}| = {self}{RESET}"
             f"  {PART}({truth_value} in {world_state}){RESET}"
@@ -515,10 +517,10 @@ class ExclusionOperator(syntactic.Operator):
         all_bits = self.semantics.all_bits
         return {x for x in all_bits if eval(self.extended_verify(x, argsent, eval_world))}
 
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints the argument."""
-        self.general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num, use_colors)
 
 
 class UniAndOperator(syntactic.Operator):
@@ -557,10 +559,10 @@ class UniAndOperator(syntactic.Operator):
         Z_V = right_sent_obj.proposition.find_proposition()
         return self.semantics.product(Y_V, Z_V)
 
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num, use_colors)
 
 
 class UniOrOperator(syntactic.Operator):
@@ -588,10 +590,10 @@ class UniOrOperator(syntactic.Operator):
         Z_V = right_sent_obj.proposition.find_proposition()
         return Y_V.union(Z_V)
 
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num, use_colors)
 
 class UniIdentityOperator(syntactic.Operator):
     """doc string place holder"""
@@ -632,10 +634,10 @@ class UniIdentityOperator(syntactic.Operator):
         Z_V = right_sent_obj.proposition.find_proposition()
         return {self.semantics.null_bit} if Y_V == Z_V else set()
     
-    def print_method(self, sentence_obj, eval_world, indent_num):
+    def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num)
+        self.general_print(sentence_obj, eval_world, indent_num, use_colors)
 
 
 ########################

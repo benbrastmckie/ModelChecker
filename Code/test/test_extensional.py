@@ -1,6 +1,6 @@
 """run 'pytest' from the '.../Code/' directory"""
 import pytest
-from src.model_checker.test.utils import (
+from test.utils import (
     check_model_status,
     default_max_time,
 )

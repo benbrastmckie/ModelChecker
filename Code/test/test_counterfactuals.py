@@ -1,7 +1,6 @@
-"""run 'pytest' from the '.../Code/src/model_checker/' directory"""
+"""run 'pytest' from the '.../Code/' directory"""
 import pytest
-
-from .utils import (
+from test.utils import (
     check_model_status,
     default_max_time,
 )
@@ -12,27 +11,27 @@ from src.model_checker.syntactic import (
 
 from src.model_checker.semantic import (
     Proposition,
-    ImpositionSemantics,
+    Semantics,
 )
 
 from src.model_checker.defined import (
     NegationOperator,
     AndOperator,
     OrOperator,
-    ImpositionOperator,
+    CounterfactualOperator,
     PossibilityOperator,
     NecessityOperator,
-    MightImpositionOperator,
+    MightCounterfactualOperator,
 )
 
-semantics = ImpositionSemantics
+semantics = Semantics
 proposition = Proposition
 operators = OperatorCollection(
     NegationOperator,
     AndOperator,
     OrOperator,
-    ImpositionOperator,
-    MightImpositionOperator,
+    CounterfactualOperator,
+    MightCounterfactualOperator,
     NecessityOperator,
     PossibilityOperator,
 )
@@ -40,14 +39,14 @@ operators = OperatorCollection(
 max_time = default_max_time
 
 ########################################
-##### IMPOSITION COUNTERMODELS #####
+##### COUNTERFACTUAL COUNTERMODELS #####
 ########################################
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM1():
-# IMPOSITION ANTECEDENT STRENGTHENING
-    premises = ['(A \\imposition C)']
-    conclusions = ['((A \\wedge B) \\imposition C)']
+def test_CF_CM1():
+# COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    premises = ['(A \\boxright C)']
+    conclusions = ['((A \\wedge B) \\boxright C)']
     settings = {
         'N' : 3,
         'contingent' : True,
@@ -68,10 +67,10 @@ def test_IMP_CM1():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM2():
-# MIGHT IMPOSITION ANTECEDENT STRENGTHENING
-    premises = ['(A \\could C)']
-    conclusions = ['((A \\wedge B) \\could C)']
+def test_CF_CM2():
+# MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    premises = ['(A \\circleright C)']
+    conclusions = ['((A \\wedge B) \\circleright C)']
     settings = {
         'N' : 3,
         'contingent' : True,
@@ -92,10 +91,10 @@ def test_IMP_CM2():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM3():
-# IMPOSITION ANTECEDENT STRENGTHENING WITH POSSIBILITY
-    premises = ['(A \\imposition C)', '\\Diamond (A \\wedge B)']
-    conclusions = ['((A \\wedge B) \\imposition C)']
+def test_CF_CM3():
+# COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
+    premises = ['(A \\boxright C)', '\\Diamond (A \\wedge B)']
+    conclusions = ['((A \\wedge B) \\boxright C)']
     settings = {
         'N' : 3,
         'contingent' : True,
@@ -116,10 +115,10 @@ def test_IMP_CM3():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM4():
-# IMPOSITION ANTECEDENT STRENGTHENING WITH NEGATION
-    premises = ['\\neg A', '(A \\imposition C)']
-    conclusions = ['((A \\wedge B) \\imposition C)']
+def test_CF_CM4():
+# COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
+    premises = ['\\neg A', '(A \\boxright C)']
+    conclusions = ['((A \\wedge B) \\boxright C)']
     settings = {
         'N' : 4,
         'contingent' : True,
@@ -140,10 +139,10 @@ def test_IMP_CM4():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM5():
-# IMPOSITION DOUBLE ANTECEDENT STRENGTHENING
-    premises = ['(A \\imposition C)','(B \\imposition C)']
-    conclusions = ['((A \\wedge B) \\imposition C)']
+def test_CF_CM5():
+# COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
+    premises = ['(A \\boxright C)','(B \\boxright C)']
+    conclusions = ['((A \\wedge B) \\boxright C)']
     settings = {
         'N' : 4,
         'contingent' : True,
@@ -164,10 +163,10 @@ def test_IMP_CM5():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM6():
+def test_CF_CM6():
 # WEAKENED MONOTONICITY
-    premises = ['(A \\imposition B)','(A \\imposition C)']
-    conclusions = ['((A \\wedge B) \\imposition C)']
+    premises = ['(A \\boxright B)','(A \\boxright C)']
+    conclusions = ['((A \\wedge B) \\boxright C)']
     settings = {
         'N' : 3,
         'contingent' : True,
@@ -189,10 +188,10 @@ def test_IMP_CM6():
 
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM7():
-# IMPOSITION CONTRAPOSITION
-    premises = ['(A \\imposition B)']
-    conclusions = ['(\\neg B \\imposition \\neg A)']
+def test_CF_CM7():
+# COUNTERFACTUAL CONTRAPOSITION
+    premises = ['(A \\boxright B)']
+    conclusions = ['(\\neg B \\boxright \\neg A)']
     settings = {
         'N' : 3,
         'contingent' : True,
@@ -213,10 +212,10 @@ def test_IMP_CM7():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM8():
-# IMPOSITION CONTRAPOSITION WITH NEGATION
-    premises = ['\\neg B','(A \\imposition B)']
-    conclusions = ['(\\neg B \\imposition \\neg A)']
+def test_CF_CM8():
+# COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
+    premises = ['\\neg B','(A \\boxright B)']
+    conclusions = ['(\\neg B \\boxright \\neg A)']
     settings = {
         'N' : 4,
         'contingent' : True,
@@ -237,10 +236,10 @@ def test_IMP_CM8():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM9():
-# IMPOSITION CONTRAPOSITION WITH TWO NEGATIONS
-    premises = ['\\neg A','\\neg B','(A \\imposition B)']
-    conclusions = ['(\\neg B \\imposition \\neg A)']
+def test_CF_CM9():
+# COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
+    premises = ['\\neg A','\\neg B','(A \\boxright B)']
+    conclusions = ['(\\neg B \\boxright \\neg A)']
     settings = {
         'N' : 4,
         'contingent' : True,
@@ -261,10 +260,10 @@ def test_IMP_CM9():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM10():
+def test_CF_CM10():
 # TRANSITIVITY
-    premises = ['(A \\imposition B)','(B \\imposition C)']
-    conclusions = ['(A \\imposition C)']
+    premises = ['(A \\boxright B)','(B \\boxright C)']
+    conclusions = ['(A \\boxright C)']
     settings = {
         'N' : 3,
         'contingent' : True,
@@ -285,10 +284,10 @@ def test_IMP_CM10():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM11():
-# IMPOSITION TRANSITIVITY WITH NEGATION
-    premises = ['\\neg A','(A \\imposition B)','(B \\imposition C)']
-    conclusions = ['(A \\imposition C)']
+def test_CF_CM11():
+# COUNTERFACTUAL TRANSITIVITY WITH NEGATION
+    premises = ['\\neg A','(A \\boxright B)','(B \\boxright C)']
+    conclusions = ['(A \\boxright C)']
     settings = {
         'N' : 4,
         'contingent' : True,
@@ -309,10 +308,10 @@ def test_IMP_CM11():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM12():
-# IMPOSITION TRANSITIVITY WITH TWO NEGATIONS
-    premises = ['\\neg A','\\neg B','(A \\imposition B)','(B \\imposition C)']
-    conclusions = ['(A \\imposition C)']
+def test_CF_CM12():
+# COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
+    premises = ['\\neg A','\\neg B','(A \\boxright B)','(B \\boxright C)']
+    conclusions = ['(A \\boxright C)']
     settings = {
         'N' : 4,
         'contingent' : True,
@@ -333,12 +332,12 @@ def test_IMP_CM12():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM13():
+def test_CF_CM13():
 # SOBEL SEQUENCE (N = 3)
     premises = [
-        '(A \\imposition X)',
-        '\\neg ((A \\wedge B) \\imposition X)',
-        '(((A \\wedge B) \\wedge C) \\imposition X)',
+        '(A \\boxright X)',
+        '\\neg ((A \\wedge B) \\boxright X)',
+        '(((A \\wedge B) \\wedge C) \\boxright X)',
     ]
     conclusions = []
     settings = {
@@ -361,15 +360,15 @@ def test_IMP_CM13():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM14():
+def test_CF_CM14():
 # SOBEL SEQUENCE WITH POSSIBILITY (N = 4)
     premises = [
         '\\Diamond A',
-        '(A \\imposition X)',
+        '(A \\boxright X)',
         '\\Diamond (A \\wedge B)',
-        '\\neg ((A \\wedge B) \\imposition X)',
+        '\\neg ((A \\wedge B) \\boxright X)',
         '\\Diamond ((A \\wedge B) \\wedge C)',
-        '(((A \\wedge B) \\wedge C) \\imposition X)',
+        '(((A \\wedge B) \\wedge C) \\boxright X)',
         '\\Diamond (((A \\wedge B) \\wedge C) \\wedge D)',
     ]
     conclusions = []
@@ -393,10 +392,10 @@ def test_IMP_CM14():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM15():
-# IMPOSITION EXCLUDED MIDDLE
+def test_CF_CM15():
+# COUNTERFACTUAL EXCLUDED MIDDLE
     premises = ['\\neg A']
-    conclusions = ['(A \\imposition B)','(A \\imposition \\neg B)']
+    conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
     settings = {
         'N' : 3,
         'contingent' : True,
@@ -417,10 +416,10 @@ def test_IMP_CM15():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM16():
+def test_CF_CM16():
 # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
-    premises = ['\\neg A','(A \\imposition (B \\vee C))']
-    conclusions = ['(A \\imposition B)','(A \\imposition C)']
+    premises = ['\\neg A','(A \\boxright (B \\vee C))']
+    conclusions = ['(A \\boxright B)','(A \\boxright C)']
     settings = {
         'N' : 3,
         'contingent' : True,
@@ -441,10 +440,10 @@ def test_IMP_CM16():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM17():
+def test_CF_CM17():
 # INTRODUCTION OF DISJUNCTIVE ANTECEDENT
-    premises = ['(A \\imposition C)','(B \\imposition C)']
-    conclusions = ['((A \\vee B) \\imposition C)']
+    premises = ['(A \\boxright C)','(B \\boxright C)']
+    conclusions = ['((A \\vee B) \\boxright C)']
     settings = {
         'N' : 4,
         'contingent' : True,
@@ -465,10 +464,10 @@ def test_IMP_CM17():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM18():
+def test_CF_CM18():
 # MUST FACTIVITY
     premises = ['A', 'B']
-    conclusions = ['(A \\imposition B)']
+    conclusions = ['(A \\boxright B)']
     settings = {
         'N' : 3,
         'contingent' : True,
@@ -489,10 +488,10 @@ def test_IMP_CM18():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM19():
-# IMPOSITION EXPORTATION
-    premises = ['((A \\wedge B) \\imposition C)']
-    conclusions = ['(A \\imposition (B \\imposition C))']
+def test_CF_CM19():
+# COUNTERFACTUAL EXPORTATION
+    premises = ['((A \\wedge B) \\boxright C)']
+    conclusions = ['(A \\boxright (B \\boxright C))']
     settings = {
         'N' : 3,
         'contingent' : True,
@@ -513,10 +512,10 @@ def test_IMP_CM19():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM20():
-# IMPOSITION EXPORTATION WITH POSSIBILITY
-    premises = ['((A \\wedge B) \\imposition C)','\\Diamond (A \\wedge B)']
-    conclusions = ['(A \\imposition (B \\imposition C))']
+def test_CF_CM20():
+# COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
+    premises = ['((A \\wedge B) \\boxright C)','\\Diamond (A \\wedge B)']
+    conclusions = ['(A \\boxright (B \\boxright C))']
     settings = {
         'N' : 3,
         'contingent' : True,
@@ -537,10 +536,10 @@ def test_IMP_CM20():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_CM21():
-# IMPOSITION EXCLUDED MIDDLE VARIANT
-    premises = ['\\neg A','\\neg (A \\imposition B)']
-    conclusions = ['(A \\imposition \\neg B)']
+def test_CF_CM21():
+# COUNTERFACTUAL EXCLUDED MIDDLE VARIANT
+    premises = ['\\neg A','\\neg (A \\boxright B)']
+    conclusions = ['(A \\boxright \\neg B)']
     settings = {
         'N' : 3,
         'contingent' : True,
@@ -562,26 +561,26 @@ def test_IMP_CM21():
 
 # # NOTE: DOES NOT FIND COUNTERMODEL
 # @pytest.mark.timeout(max_time)
-# def test_CL_8():
-#     premises = ['(A \\imposition (B \\imposition C))']
-#     conclusions = ['((A \\wedge B) \\imposition C)']
-#     settings = {
-#         'N' : 4,
-#         'contingent' : True,
-#         'non_null' : True,
-#         'non_empty' : True,
-#         'disjoint' : False,
-#         'desired_status' : True,
-#         'print_impossible' : True,
-#         'max_time' : max_time,
-#     }
+# def test_CF_CM22():
+#     premises = ['(A \\boxright (B \\boxright C))']
+#     conclusions = ['((A \\wedge B) \\boxright C)']
+#     N = 4
+#     contingent = True
+#     non_null = True
+#     non_null = True
+#     disjoint = False
+#     desired_status = True
 #     check_model_status(
 #         premises,
 #         conclusions,
 #         semantics,
 #         proposition,
-#         operators,
-#         settings,
+#         N,
+#         contingent,
+#         non_null,
+#         disjoint,
+#         max_time,
+#         desired_status,
 #     )
 
 
@@ -589,14 +588,14 @@ def test_IMP_CM21():
 
 
 ################################
-##### IMPOSITION LOGIC #####
+##### COUNTERFACTUAL LOGIC #####
 ################################
 
 @pytest.mark.timeout(max_time)
-def test_IMP_T1():
-    """IMPOSITION IDENTITY"""
+def test_CF_T1():
+    """COUNTERFACTUAL IDENTITY"""
     premises = []
-    conclusions = ['(A \\imposition A)']
+    conclusions = ['(A \\boxright A)']
     settings = {
         'N' : 3,
         'contingent' : False,
@@ -617,9 +616,9 @@ def test_IMP_T1():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_T2():
-    """IMPOSITION MODUS PONENS"""
-    premises = ['A','(A \\imposition B)']
+def test_CF_T2():
+    """COUNTERFACTUAL MODUS PONENS"""
+    premises = ['A','(A \\boxright B)']
     conclusions = ['B']
     settings = {
         'N' : 3,
@@ -641,10 +640,10 @@ def test_IMP_T2():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_T3():
+def test_CF_T3():
     """WEAKENED TRANSITIVITY"""
-    premises = ['(A \\imposition B)','((A \\wedge B) \\imposition C)']
-    conclusions = ['(A \\imposition C)']
+    premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
+    conclusions = ['(A \\boxright C)']
     settings = {
         'N' : 3,
         'contingent' : False,
@@ -665,10 +664,10 @@ def test_IMP_T3():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_T4():
+def test_CF_T4():
     """ANTECEDENT DISJUNCTION TO CONJUNCTION"""
-    premises = ['((A \\vee B) \\imposition C)']
-    conclusions = ['((A \\wedge B) \\imposition C)']
+    premises = ['((A \\vee B) \\boxright C)']
+    conclusions = ['((A \\wedge B) \\boxright C)']
     settings = {
         'N' : 3,
         'contingent' : False,
@@ -689,10 +688,10 @@ def test_IMP_T4():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_T5():
+def test_CF_T5():
     """SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT"""
-    premises = ['((A \\vee B) \\imposition C)']
-    conclusions = ['(A \\imposition C)']
+    premises = ['((A \\vee B) \\boxright C)']
+    conclusions = ['(A \\boxright C)']
     settings = {
         'N' : 3,
         'contingent' : False,
@@ -713,10 +712,10 @@ def test_IMP_T5():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_T6():
+def test_CF_T6():
     """DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT"""
-    premises = ['((A \\vee B) \\imposition C)']
-    conclusions = ['((A \\imposition C) \\wedge (B \\imposition C))']
+    premises = ['((A \\vee B) \\boxright C)']
+    conclusions = ['((A \\boxright C) \\wedge (B \\boxright C))']
     settings = {
         'N' : 3,
         'contingent' : False,
@@ -737,9 +736,9 @@ def test_IMP_T6():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_T7():
-    premises = ['(A \\imposition C)', '(B \\imposition C)', '((A \\wedge B) \\imposition C)']
-    conclusions = ['((A \\vee B) \\imposition C)']
+def test_CF_T7():
+    premises = ['(A \\boxright C)', '(B \\boxright C)', '((A \\wedge B) \\boxright C)']
+    conclusions = ['((A \\vee B) \\boxright C)']
     settings = {
         'N' : 3,
         'contingent' : False,
@@ -760,9 +759,9 @@ def test_IMP_T7():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_T8():
-    premises = ['(A \\imposition (B \\wedge C))']
-    conclusions = ['(A \\imposition B)']
+def test_CF_T8():
+    premises = ['(A \\boxright (B \\wedge C))']
+    conclusions = ['(A \\boxright B)']
     settings = {
         'N' : 3,
         'contingent' : False,
@@ -783,9 +782,9 @@ def test_IMP_T8():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_T9():
-    premises = ['(A \\imposition B)','(A \\imposition C)']
-    conclusions = ['(A \\imposition (B \\wedge C))']
+def test_CF_T9():
+    premises = ['(A \\boxright B)','(A \\boxright C)']
+    conclusions = ['(A \\boxright (B \\wedge C))']
     settings = {
         'N' : 3,
         'contingent' : False,
@@ -806,10 +805,10 @@ def test_IMP_T9():
     )
 
 @pytest.mark.timeout(max_time)
-def test_IMP_T10():
-    """FACTIVITY MIGHT"""
+def test_CF_T10():
+    """MIGHT FACTIVITY"""
     premises = ['A','B']
-    conclusions = ['(A \\could B)']
+    conclusions = ['(A \\circleright B)']
     settings = {
         'N' : 3,
         'contingent' : False,
