@@ -5,8 +5,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Plan
 
 - [x] class architecture
-- [:] implementation
-- [ ] api
+- [x] implementation
+- [:] api
 - [:] applications
   - [:] Champollion
   - [:] Fine
@@ -17,8 +17,10 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] semantics
   - [ ] jupyter notebook
   - [.] doc strings
-- [ ] cli
+- [.] cli
   - [ ] release
+  - [ ] check `no_model` cases
+  - [ ] refactor printing and saving
 
 ## API
 

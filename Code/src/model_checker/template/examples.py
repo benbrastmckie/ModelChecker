@@ -1,16 +1,21 @@
 """From the project directory, run: python -m src.model_checker.template.examples"""
-from .semantic import (
+
+import sys
+import os
+sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.path
+
+from semantic import (
     Semantics,
     Proposition,
 )
 
-from .operators import (
+from operators import (
     operators,
 )
 
-from .. import syntactic
+from model_checker import syntactic
 
-from .. import model
+from model_checker import model
 
 ########################
 ### DEFAULT SETTINGS ###
@@ -145,4 +150,7 @@ model_constraints = model.ModelConstraints(
 
 model_structure = model.ModelStructure(model_constraints)
 
-model_structure.print_all()
+print_command = model_structure.print_all()
+# model_structure.print_all()
+
+

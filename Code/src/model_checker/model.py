@@ -7,9 +7,13 @@ things in hidden_things right now:
 
 import sys
 
+from contextlib import redirect_stdout
+
 import time
 
 from functools import reduce
+
+from string import Template
 
 from z3 import (
     And,
@@ -25,12 +29,49 @@ from z3 import (
     simplify,
 )
 
-from src.model_checker.utils import (
+from .utils import (
     bitvec_to_substates,
     int_to_binary,
     not_implemented_string,
     pretty_set_print,
+)
 
+inputs_template = Template(
+'''Z3 run time: ${z3_model_runtime} seconds
+"""
+
+################
+### SETTINGS ###
+################
+
+settings = ${settings}
+
+
+###############
+### EXAMPLE ###
+###############
+
+# input sentences
+premises = ${premises}
+conclusions = ${conclusions}
+
+
+#########################################
+### GENERATE Z3 CONSTRAINTS AND PRINT ###
+#########################################
+
+### NOTE: run below for individual tests
+
+model_structure = make_model_for(
+    settings,
+    premises,
+    conclusions,
+    Semantics,
+    Proposition,
+    operators,
+)
+model_structure.print_all()
+'''
 )
 
 class SemanticDefaults:
@@ -173,7 +214,10 @@ class PropositionDefaults:
             return self.name == other.name
         return False
 
-    def set_colors(self, name, indent_num, truth_value, world_state):
+    def set_colors(self, name, indent_num, truth_value, world_state, use_colors):
+        if not use_colors:
+            VOID = ""
+            return VOID, VOID, VOID
         RED, GREEN, RESET = "\033[31m", "\033[32m", "\033[0m" 
         FULL, PART = "\033[37m", "\033[33m"
         if indent_num == 1:
@@ -293,7 +337,6 @@ class ModelConstraints:
             for index, sent in enumerate(conclusions, start=start_con_num):
                 print(f"{index}. {sent}", file=output)
 
-
 class ModelStructure:
     """Solves and stores the Z3 model for an instance of ModelSetup."""
 
@@ -404,65 +447,64 @@ class ModelStructure:
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
         in that world"""
-        BLUE = "\033[34m"
-        RESET = "\033[0m"
-        # sentence_letters = self.sentence_letters
+        BLUE = ""
+        RESET = ""
         main_world = self.main_world
+        if output is sys.__stdout__:
+            BLUE = "\033[34m"
+            RESET = "\033[0m"
         print(
             f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N)}{RESET}\n",
             file=output,
         )
-        # true_in_eval = set()
-        # for sent in sentence_letters:
-        #     for bit in self.all_bits:
-        #         ver_bool = self.model_constraintsferify(bit, self.z3_model[sent])
-        #         part_bool = bit_part(bit, main_world)
-        #         if bool(self.z3_model.evaluate(ver_bool) and part_bool):
-        #             true_in_eval.add(sent)
-        #             break  # exits the first for loop
-        # false_in_eval = {R for R in sentence_letters if not R in true_in_eval}
-        # GREEN = '\033[32m'
-        # RED = '\033[31m'
-        # # YELLOW = '\033[33m'
-        # RESET = '\033[0m'
-        # world_state = bitvec_to_substates(main_world, N)
-        # if true_in_eval:
-        #     true_eval_list = sorted([str(sent) for sent in true_in_eval])
-        #     true_eval_string = ", ".join(true_eval_list)
-        #     print(
-        #         f"  {GREEN}{true_eval_string}  (True in {world_state}){RESET}",
-        #         file=output,
-        #     )
-        # if false_in_eval:
-        #     false_eval_list = sorted([str(sent) for sent in false_in_eval])
-        #     false_eval_string = ", ".join(false_eval_list)
-        #     print(
-        #         f"  {RED}{false_eval_string}  (False in {world_state}){RESET}",
-        #         file=output,
-        #     )
-        # print(file=output)
 
-    # def print_to(self, print_constraints_bool, print_impossible, output=sys.__stdout__):
-    #     """append all elements of the model to the file provided"""
-    #     self.print_all(print_impossible, output)
-    #     structure = self.model_constraints
-    #     setup = self.model_constraints
-    #     if print_constraints_bool:
-    #         structure.print_constraints(setup.frame_constraints, 'FRAME', output)
-    #         structure.print_constraints(setup.prop_constraints, 'PROPOSITION', output)
-    #         structure.print_constraints(setup.premise_constraints, 'PREMISE', output)
-    #         structure.print_constraints(setup.conclusion_constraints, 'CONCLUSION', output)
-    #     print(f"Run time: {self.model_runtime} seconds\n", file=output)
+    def print_constraints(self, consts, name, output=sys.__stdout__):
+        """prints constraints in an numbered list"""
+        if self.z3_model_status:
+            print(f"Satisfiable {name} constraints:\n", file=output)
+        else:
+            print("Unsatisfiable core constraints:\n", file=output)
+        for index, con in enumerate(consts, start=1):
+            print(f"{index}. {con}\n", file=output)
 
-    # def save_to(self, cons_include, print_impossible, output):
-    #     """append all elements of the model to the file provided"""
-    #     constraints = self.model_constraints.constraints
-    #     self.print_all(print_impossible, output)
-    #     self.model_constraints.build_test_file(output)
-    #     if cons_include:
-    #         print("# Satisfiable constraints", file=output)
-    #         # TODO: print constraint objects, not constraint strings
-    #         print(f"all_constraints = {constraints}", file=output)
+    def print_to(self, print_constraints_bool, output=sys.__stdout__):
+        """append all elements of the model to the file provided"""
+        if self.timeout:
+            print(f"TIMEOUT: {self.timeout}")
+            print("No model found before timeout.", file=output)
+            print(f"Try increasing max_time > {self.max_time}.\n", file=output)
+            return
+        self.print_all(output)
+        setup = self.model_constraints
+        if print_constraints_bool:
+            self.print_constraints(setup.frame_constraints, 'FRAME', output)
+            self.print_constraints(setup.prop_constraints, 'PROPOSITION', output)
+            self.print_constraints(setup.premise_constraints, 'PREMISE', output)
+            self.print_constraints(setup.conclusion_constraints, 'CONCLUSION', output)
+        print(f"Run time: {self.z3_model_runtime} seconds\n", file=output)
+
+    def build_test_file(self, output):
+        """generates a test file from input to be saved"""
+
+        inputs_data = {
+            "settings": self.model_constraints.settings,
+            "premises": self.premises,
+            "conclusions": self.conclusions,
+            "z3_model_runtime": self.z3_model_runtime,
+        }
+        inputs_content = inputs_template.substitute(inputs_data)
+        print(inputs_content, file=output)
+
+
+    def save_to(self, cons_include, output):
+        """append all elements of the model to the file provided"""
+        constraints = self.model_constraints.all_constraints
+        self.print_all(output)
+        self.build_test_file(output)
+        if cons_include:
+            print("# Satisfiable constraints", file=output)
+            # TODO: print constraint objects, not constraint strings
+            print(f"all_constraints = {constraints}", file=output)
 
     def print_states(self, output=sys.__stdout__):
         """Print all fusions of atomic states in the model."""
@@ -477,7 +519,11 @@ class ModelStructure:
         def format_state(bin_rep, state, color, label=""):
             """Helper function to format and print a state."""
             label_str = f" ({label})" if label else ""
-            print(f"  {self.WHITE}{bin_rep} = {color}{state}{label_str}{self.RESET}", file=output)
+            use_colors = output is sys.__stdout__
+            if use_colors:
+                print(f"  {self.WHITE}{bin_rep} = {color}{state}{label_str}{self.RESET}", file=output)
+            else:
+                print(f"  {bin_rep} = {state}{label_str}", file=output)
         
         # Print formatted state space
         print("\nState Space:", file=output)
@@ -493,63 +539,47 @@ class ModelStructure:
             elif self.settings['print_impossible']:
                 format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
 
-    # def rec_print(self, sentence, eval_world, indent):
-    #     # all_sentences = self.all_sentences
-    #
-    #     # B: should print_proposition be moved to the Sentence class?
-    #     # that way it could call itself instead of storing sent_obj in props.
-    #     # either way, I'm thinking print_proposition should dispatch to a method
-    #     # in Proposition class to print sentence letters, and otherwise dispatch
-    #     # to operators to look up the appropriate print method so that all
-    #     # printing is defined alongside the semantics in each operator or in
-    #     # Proposition which is also defined by the user.
-    #
-    #     sentence.proposition.print_proposition(eval_world, indent)
-    #     if (len(sentence.derived_object) == 1):  # prefix has operator instances and AtomSorts
-    #         return
-    #
-    #     # B: I think eventually all operators should have a print method
-    #     if not hasattr(sentence.operator, 'print_operator'):
-    #         for sentence_arg in sentence.arguments:
-    #             self.rec_print(sentence_arg, eval_world, indent + 1)
-    #
-    #     # B: I think eventually all operators should have a print method
-    #     if self.operator and hasattr(self.operator, 'print_operator'):
-    #         self.operator.print_operator(self, eval_world, indent_num)
-
-    def recursive_print(self, sentence, eval_world, indent_num):
-        if indent_num == 2: # NOTE: otherwise second lines don't indent
+    def recursive_print(self, sentence, eval_world, indent_num, use_colors):
+        if indent_num == 2:  # NOTE: otherwise second lines don't indent
             indent_num += 1
-        if sentence.sentence_letter is not None:  # print sentence letter
-            sentence.proposition.print_proposition(eval_world, indent_num)
+        if sentence.sentence_letter is not None:  # Print sentence letter
+            # print(f"OUTPUT REC PRINT: {output is sys.__stdout__}")
+            sentence.proposition.print_proposition(eval_world, indent_num, use_colors)
             return
         operator = sentence.original_operator
-        operator.print_method(sentence, eval_world, indent_num)  # print complex sentence
+        operator.print_method(sentence, eval_world, indent_num, use_colors)  # Print complex sentence
 
     def print_input_sentences(self, output):
         """Prints the interpreted premises and conclusions, leveraging recursive_print."""
         
-        def print_sentences(title_singular, title_plural, sentences, start_index):
+        def print_sentences(title_singular, title_plural, sentences, start_index, destination):
             """Helper function to print a list of sentences with a title."""
             if sentences:
                 title = title_singular if len(sentences) < 2 else title_plural
                 print(title, file=output)
                 for index, sentence in enumerate(sentences, start=start_index):
                     print(f"{index}.", end="", file=output)
-                    self.recursive_print(sentence, self.main_world, 1)
-                    print(file=output)
+                    with redirect_stdout(destination):
+                        # print(f"OUTPUT PRINT_SENT {destination} is STD: {output is sys.__stdout__}")
+                        use_colors = output is sys.__stdout__
+                        self.recursive_print(sentence, self.main_world, 1, use_colors)
+                        print(file=output)
         
+        start_index = 1
         print_sentences(
             "INTERPRETED PREMISE:\n",
             "INTERPRETED PREMISES:\n",
             self.premises,
-            start_index=1,
+            start_index,
+            output
         )
+        continue_index = len(self.premises) + 1
         print_sentences(
             "INTERPRETED CONCLUSION:\n",
             "INTERPRETED CONCLUSIONS:\n",
             self.conclusions,
-            start_index=len(self.premises) + 1,
+            continue_index,
+            output
         )
 
     def print_all(self, output=sys.__stdout__):
@@ -563,9 +593,10 @@ class ModelStructure:
             self.print_input_sentences(output)
             # TODO: make method for runtime and progress bar
             # TODO: make method for turning on cProfile
-            print(f"Z3 run time: {self.z3_model_runtime} seconds\n", file=output)
-            total_time = round(time.time() - self.start_time, 4) 
-            print(f"Total run time: {total_time} seconds\n", file=output)
+            if output is sys.__stdout__:
+                print(f"Z3 run time: {self.z3_model_runtime} seconds\n", file=output)
+                total_time = round(time.time() - self.start_time, 4) 
+                print(f"Total run time: {total_time} seconds\n", file=output)
             return
         print(f"\nThere is no {self.N}-model of:\n")
         self.model_constraints.print_enumerate(output)

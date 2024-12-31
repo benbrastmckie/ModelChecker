@@ -17,6 +17,7 @@ class BuildModule:
     def __init__(self, module_name, module_path):
         self.module_name = module_name
         self.module_path = module_path
+        self.module = self.load_module()
         self.default_values = {
             "N": 3,
             "premises": [],
@@ -31,26 +32,83 @@ class BuildModule:
             "print_impossible": False,
             "save_output": False,
         }
-        self.parent_file = None
-        self.parent_directory = None
-        # TODO: make the settings and defaults work together better
-        self.settings = None
-        self.model_structure = None
-        self.N = self.default_values["N"]
-        self.premises = self.default_values["premises"]
-        self.conclusions = self.default_values["conclusions"]
-        self.max_time = self.default_values["max_time"]
-        self.contingent = self.default_values["contingent"]
-        self.non_empty = self.default_values["non_empty"]
-        self.non_null = self.default_values["non_null"]
-        self.disjoint = self.default_values["disjoint"]
-        # self.optimize = self.default_values["optimize"]
-        self.print_constraints = self.default_values["print_constraints"]
-        self.print_impossible = self.default_values["print_impossible"]
-        self.save_output = self.default_values["save_output"]
-        self.module = self.load_module()
-        self.initialize_attributes()
-        self.validate_attributes()
+        self.settings = getattr(
+            self.module,
+            "settings",
+            None
+        )
+        self.model_structure = getattr(
+            self.module,
+            "model_structure",
+            None
+        )
+        self.print_command = getattr(
+            self.module,
+            "print_command",
+            None
+        )
+        self.N = getattr(
+            self.settings,
+            "N",
+            None
+        )
+        self.premises = getattr(
+            self.module,
+            "premises",
+            self.default_values["premises"]
+        )
+        self.conclusions = getattr(
+            self.module,
+            "conclusions",
+            self.default_values["conclusions"]
+        )
+        self.max_time = getattr(
+            self.settings,
+            "max_time",
+            self.default_values["max_time"]
+        )
+        self.contingent = getattr(
+            self.settings,
+            "contingent",
+            self.default_values["contingent"]
+        )
+        self.non_empty = getattr(
+            self.settings,
+            "non_empty",
+            self.default_values["non_empty"]
+        )
+        self.non_null = getattr(
+            self.settings,
+            "non_null",
+            self.default_values["non_null"]
+        )
+        self.disjoint = getattr(
+            self.settings,
+            "disjoint",
+            self.default_values["disjoint"]
+        )
+        # self.optimize = getattr(
+        #     self.settings,
+        #     "optimize",
+        #     self.default_values["optimize"]
+        # )
+        self.print_constraints = getattr(
+            self.settings,
+            "print_constraints",
+            self.default_values["print_constraints"]
+        )
+        self.print_impossible = getattr(
+            self.settings,
+            "print_impossible",
+            self.default_values["print_impossible"]
+        )
+        self.save_output = getattr(
+            self.module,
+            "save_output",
+            self.default_values["save_output"]
+        )
+        # TODO: fix
+        # self.validate_attributes()
 
     def load_module(self):
         """prepares a test file, raising a error if unsuccessful."""
@@ -64,79 +122,13 @@ class BuildModule:
         except Exception as e:
             raise ImportError(f"Failed to load the module '{self.module_name}': {e}") from e
 
-    def initialize_attributes(self):
-        """stores all user settings included in a test file."""
-        self.parent_file = getattr(self.module, "file_name", True)
-        self.parent_directory = getattr(self.module, "parent_directory", True)
-        self.settings = getattr(
-            self.module,
-            "settings",
-            None
-        )
-        self.model_structure = getattr(
-            self.module,
-            "model_structure",
-            None
-        )
-        self.premises = getattr(
-            self.module,
-            "premises",
-            self.default_values["premises"]
-        )
-        self.conclusions = getattr(
-            self.module,
-            "conclusions",
-            self.default_values["conclusions"]
-        )
-        self.max_time = float(getattr(
-            self.settings,
-            "max_time",
-            self.default_values["max_time"]
-        ))
-        self.contingent = getattr(
-            self.settings,
-            "contingent",
-            self.default_values["contingent"]
-        )
-        self.contingent = getattr(
-            self.settings,
-            "non_empty",
-            self.default_values["non_empty"]
-        )
-        self.contingent = getattr(
-            self.settings,
-            "non_null",
-            self.default_values["non_null"]
-        )
-        self.disjoint = getattr(
-            self.settings,
-            "disjoint",
-            self.default_values["disjoint"]
-        )
-        self.optimize = getattr(
-            self.settings,
-            "optimize",
-            self.default_values["optimize"]
-        )
-        self.print_constraints = getattr(
-            self.settings,
-            "print_constraints",
-            self.default_values["print_constraints"]
-        )
-        self.print_impossible = getattr(
-            self.settings,
-            "print_impossible",
-            False
-        )
-        self.save_output = getattr(self.module, "save_output", True)
-
-    def update_max_time(self, new_max_time):
-        self.max_time = new_max_time
-
-    def validate_attributes(self):
-        for attr, default_value in self.default_values.items():
-            if not hasattr(self.module, attr):
-                print(f"The value of '{attr}' is absent and has been set to {default_value}.")
+    # TODO: fix to check just the settings
+    # def validate_attributes(self):
+    #     # print(f"TEST: {self.settings}")
+    #     for attr, default_value in self.default_values.items():
+    #         # print(f"ATTR {attr} {type(attr)} DEFAULT {default_value} {type(default_value)}")
+    #         if attr not in self.settings:
+    #             print(f"The value of '{attr}' is absent and has been set to {default_value}.")
 
 def parse_file_and_flags():
     """returns the name and path for the current script"""
@@ -190,7 +182,7 @@ def parse_file_and_flags():
         help='Overrides to print the Z3 constraints or else the unsat_core constraints if there is no model.'
     )
     parser.add_argument(
-        '--save',
+        '--save_output',
         '-s',
         action='store_true',
         help='Overrides to prompt user to save output.'
@@ -238,30 +230,34 @@ def parse_file_and_flags():
 #     print("You can run this file with the command:\n")
 #     print(f"model-checker {name}.py\n")
 
-
 def generate_project(name):
     """
-    Copy the 'src/model_checker/template/' directory to the current working directory, 
+    Copy the 'template/' directory to the current working directory, 
     rename it to the specified 'name', and rename its modules by prefixing 'name'.
     """
     project_name = 'project_' + name
-    source_dir = 'src/model_checker/template/'  # Fixed source directory
-    destination_dir = os.path.join(os.getcwd(), project_name)  # Destination directory
+    # Dynamically resolve the source directory relative to this script
+    source_dir = os.path.join(os.path.dirname(__file__), 'template')  
+    destination_dir = os.path.join(os.getcwd(), project_name)  
 
     try:
-        # Ensure the destination directory does not already exist
+        # Check if the source directory exists
+        if not os.path.exists(source_dir):
+            raise FileNotFoundError(f"The source directory '{source_dir}' was not found.")
+
+        # Check if the destination directory already exists
         if os.path.exists(destination_dir):
             print(f"Error: Directory '{destination_dir}' already exists.")
             return
-        
+
         # Copy the template directory
         shutil.copytree(source_dir, destination_dir)
-        
+
         # Rename the files in the copied directory
         files_to_rename = {
-            "example.py": f"{name}_example.py",
-            "operators.py": f"{name}_operators.py",
-            "semantics.py": f"{name}_semantics.py",
+            "examples.py": "examples.py",
+            "operators.py": "operators.py",
+            "semantics.py": "semantics.py",
         }
         
         for old_name, new_name in files_to_rename.items():
@@ -269,14 +265,28 @@ def generate_project(name):
             new_path = os.path.join(destination_dir, new_name)
             if os.path.exists(old_path):
                 os.rename(old_path, new_path)
-        
-        print(f"\nThe project modules have been created in '{destination_dir}'.")
+
+        print(f"\nProject generated at: {destination_dir}\n")
+        print("The following modules were created:")
         for old_name, new_name in files_to_rename.items():
-            print(f"  {old_name} -> {new_name}")
-    except FileNotFoundError:
-        print(f"Error: The source directory '{source_dir}' was not found.")
+            print(f"  {new_name}")
+
+        # Run the example script
+        example_script = os.path.join(destination_dir, "examples.py")
+        print(example_script)
+        if os.path.exists(example_script):
+            print("\nRunning the example script...")
+            subprocess.run(["model-checker", example_script])
+        else:
+            print(f"\nFail to run: model-checker {example_script}")
+
+        # Output the test command
+        print(f"\nRun the following command to test your project:\n\nmodel-checker {destination_dir}/examples.py\n")
+    
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An unexpected error occurred: {e}")
 
 def ask_generate_project():
     """prompt user to create a test file"""
@@ -292,13 +302,14 @@ def ask_save():
     """print the model and prompt user to store the output"""
     result = input("Would you like to save the output? (y/n):\n")
     if not result in ['Yes', 'yes', 'Ye', 'ye', 'Y', 'y']:
-        return None, None
+        VOID = ""
+        return VOID, False
     cons_input = input("\nWould you like to include the Z3 constraints? (y/n):\n")
     print_cons = bool(cons_input in ['Yes', 'yes', 'Ye', 'ye', 'Y', 'y'])
     file_name = input(
         "\nEnter the file name in snake_case without an extension.\n"
         "Leave the file name blank to append the output to the project file.\n"
-        "\nFile name:\n"
+        "\nFile name: "
     )
     return file_name, print_cons
 
@@ -311,34 +322,41 @@ def no_model_save_or_append(module, model_structure, file_name, print_cons):
             model_structure.no_model_print(print_cons, f)
             print('"""', file=f)
         return
-    with open(f"{module.parent_directory}/{file_name}.py", 'w', encoding="utf-8") as n:
-        print(f'# TITLE: {file_name}.py generated from {module.parent_file}\n"""', file=n)
+    destination_dir = os.path.join(os.getcwd(), module.module_name)  
+    with open(f"{destination_dir}/{file_name}.py", 'w', encoding="utf-8") as n:
+        print(f'# TITLE: {file_name}.py created in {destination_dir}\n"""', file=n)
         # TODO: add method
         model_structure.no_model_save(print_cons, n)
     print()
 
 def save_or_append(module, model_structure, file_name, print_cons):
-    """option to save or append if a model is found"""
+    """Option to save or append if a model is found."""
     if len(file_name) == 0:
         with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
             print('\n"""', file=f)
-            # TODO: add this function
-            model_structure.print_to(print_cons, f)
+            model_structure.print_to(print_cons, f)  # TODO: add function
             print('"""', file=f)
+        print(f"\nAppended output to {module.module_path}")
         return
-    with open(f"{module.parent_directory}/{file_name}.py", 'w', encoding="utf-8") as n:
-        print(f'# TITLE: {file_name}.py generated from {module.parent_file}\n"""', file=n)
-        # TODO: add this function
-        model_structure.save_to(print_cons, n)
-    print()
 
-def load_module(args):
+    # Default or fallback path
+    project_name = getattr(module, 'module_name', 'project')
+    destination_dir = os.path.join(os.getcwd(), project_name)
+    
+    # Ensure the directory exists
+    os.makedirs(destination_dir, exist_ok=True)
+
+    with open(f"{destination_dir}/{file_name}.py", 'w', encoding="utf-8") as n:
+        print(f'# TITLE: {file_name}.py created in {destination_dir}\n"""', file=n)
+        model_structure.save_to(print_cons, n)  # TODO: add function
+    print(f'\n{file_name}.py created in {destination_dir}\n')
+
+def create_module(args):
     """Returns a module from the arguments provided from the specified file.
     Updates the model to reflect the user specified flags."""
     module_path = args.file_path
     module_name = os.path.splitext(os.path.basename(module_path))[0]
     module = BuildModule(module_name, module_path)
-    # TODO: fix to update settings
     module.contingent = module.contingent or args.contingent
     module.non_empty = module.non_empty or args.non_empty
     module.non_null = module.non_null or args.non_null
@@ -352,32 +370,34 @@ def load_module(args):
 def print_result(module):
     """Prints resulting model or no model if none is found."""
     model_structure = module.model_structure
-    if model_structure.model_status:
-        model_structure.print_all()
+    if model_structure.z3_model_status:
+        module.print_command
+        # TODO: turn on once print_to and save_to have been added
         if module.save_output:
             file_name, print_cons = ask_save()
             save_or_append(module, model_structure, file_name, print_cons)
         return
-    model_structure.no_model_print(module.print_constraints)
-    if module.save_output:
-        file_name, print_cons = ask_save()
-        no_model_save_or_append(module, model_structure, file_name, print_cons)
+    # # TODO: turn on once print_to and save_to have been added
+    # model_structure.no_model_print(module.print_constraints)
+    # if module.save_output:
+    #     file_name, print_cons = ask_save()
+    #     no_model_save_or_append(module, model_structure, file_name, print_cons)
 
 
 def main():
-    """load a test or generate a test when run without input"""
     if len(sys.argv) < 2:
         ask_generate_project()
         return
     args, package_name = parse_file_and_flags()
     if args.upgrade:
+        print("Upgrading package")
         try:
             subprocess.run(['pip', 'install', '--upgrade', package_name], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Failed to upgrade {package_name}: {e}")
         return
 
-    module = load_module(args)
+    module = create_module(args)
 
     print_result(module)
 

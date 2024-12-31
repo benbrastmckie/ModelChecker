@@ -8,8 +8,8 @@ pkgs.mkShell {
     z3-solver
   ];
 
-  # # Set PYTHONPATH to include the src directory
-  # shellHook = ''
-  #   export PYTHONPATH=${toString ./src}:$PYTHONPATH
-  # '';
+  # Set PYTHONPATH to include the src directory
+  shellHook = ''
+    export PYTHONPATH=${toString ./src}:$PYTHONPATH
+  '';
 }

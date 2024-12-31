@@ -1,17 +1,19 @@
+import sys
+
 import z3
 
-from ..model import (
+from model_checker.model import (
     PropositionDefaults,
     SemanticDefaults,
 )
 
-from ..utils import (
+from model_checker.utils import (
     ForAll,
     Exists,
     bitvec_to_substates,
 )
 
-from .. import syntactic
+from model_checker import syntactic
 
 
 ##############################################################################
@@ -386,11 +388,11 @@ class Proposition(PropositionDefaults):
             )
         return exists_verifier
     
-    def print_proposition(self, eval_world, indent_num):
+    def print_proposition(self, eval_world, indent_num, use_colors):
         N = self.model_structure.model_constraints.semantics.N
         truth_value = self.truth_value_at(eval_world)
         world_state = bitvec_to_substates(eval_world, N)
-        RESET, FULL, PART = self.set_colors(self.name, indent_num, truth_value, world_state)
+        RESET, FULL, PART = self.set_colors(self.name, indent_num, truth_value, world_state, use_colors)
         print(
             f"{'  ' * indent_num}{FULL}|{self.name}| = {self}{RESET}"
             f"  {PART}({truth_value} in {world_state}){RESET}"
