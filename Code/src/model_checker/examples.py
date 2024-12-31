@@ -1,4 +1,4 @@
-"""From the ../Code/ directory, run: python -m src.model_checker.examples"""
+"""From the ../Code/ directory, run: python -m src.model_checker src/model_checker/example.py"""
 from src.model_checker.builder import (
     make_model_for,
     find_max_N,

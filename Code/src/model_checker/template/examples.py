@@ -1,4 +1,4 @@
-"""From the project directory, run: python -m src.model_checker.template.examples"""
+"""From the project directory, run: model_checker examples.py"""
 
 import sys
 import os
