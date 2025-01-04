@@ -1,5 +1,3 @@
-import sys
-
 import z3
 
 from model_checker.model import (

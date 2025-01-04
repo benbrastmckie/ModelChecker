@@ -28,6 +28,9 @@ settings = {
     'non_null' : True,
     'disjoint' : False,
     'print_impossible' : True,
+    "print_constraints": False,
+    "print_impossible": False,
+    "save_output": False,
     'max_time' : 1,
 }
 
@@ -151,6 +154,5 @@ model_constraints = model.ModelConstraints(
 model_structure = model.ModelStructure(model_constraints)
 
 print_command = model_structure.print_all()
-# model_structure.print_all()
 
 

@@ -52,13 +52,18 @@ operators = syntactic.OperatorCollection(
 
 settings = {
     'N' : 3,
-    'contingent' : True,
-    'non_empty' : True,
-    'non_null' : True,
-    'disjoint' : False,
-    'print_impossible' : True,
+    'contingent' : False, # TODO: fix flag
+    'non_empty' : False, # TODO: fix setting and flag
+    'non_null' : False, # TODO: fix flag
+    'disjoint' : False, # TODO: fix flag and function
+    "print_constraints": False, # TODO: fix setting
+    "print_impossible": False, # TODO: fix flag
+    "save_output": False, # TODO: fix says appended if answer = n
     'max_time' : 1,
 }
+
+
+
 
 
 ############################
@@ -401,34 +406,21 @@ CF_T11_example = [
 
 
 
-
 #########################################
 ### GENERATE Z3 CONSTRAINTS AND PRINT ###
 #########################################
 
 ### NOTE: run below for individual tests
 
-premises, conclusions = CF_CM2_example
-# premises, conclusions = CF_T9_example
-model_structure = make_model_for(
-    settings,
-    premises,
-    conclusions,
-    Semantics,
-    Proposition,
-    operators,
-)
-model_structure.print_all()
+premises, conclusions = CF_CM1_example # example countermodel
+# premises, conclusions = CF_T9_example # example logical consequence
+semantics = Semantics
+proposition = Proposition
 
-# premises, conclusions = CF_T10_example
-# max_N = find_max_N(
-#     settings,
-#     premises,
-#     conclusions,
-#     Semantics,
-#     Proposition,
-#     operators,
-# )
+
+##########################################
+### COMPARE MULTIPLE SEMANTIC THEORIES ###
+##########################################
 
 CF_examples = {
     "CF_T1" : CF_T1_example,

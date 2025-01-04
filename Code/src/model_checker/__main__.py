@@ -10,7 +10,8 @@ import shutil
 import subprocess
 import argparse
 import importlib.util
-from model_checker.__init__ import __version__
+from src.model_checker.__init__ import __version__
+from src.model_checker.builder import make_model_for
 
 class BuildModule:
     """load module and store values as a class"""
@@ -18,100 +19,117 @@ class BuildModule:
         self.module_name = module_name
         self.module_path = module_path
         self.module = self.load_module()
-        self.default_values = {
-            "N": 3,
+        self.default_example = {
             "premises": [],
             "conclusions": [],
-            "max_time": 1,
+        }
+        self.default_settings = {
+            "N": 3,
             "contingent": False,
             "non_empty": False,
             "non_null": False,
             "disjoint": False,
+            "print_impossible": False,
             # "optimize": False,
             "print_constraints": False,
-            "print_impossible": False,
             "save_output": False,
+            "max_time": 1,
         }
-        self.settings = getattr(
+        self.semantics = getattr(
             self.module,
-            "settings",
+            "semantics",
             None
         )
-        self.model_structure = getattr(
+        self.proposition = getattr(
             self.module,
-            "model_structure",
+            "proposition",
             None
         )
-        self.print_command = getattr(
+        self.operators = getattr(
             self.module,
-            "print_command",
+            "operators",
             None
         )
-        self.N = getattr(
-            self.settings,
-            "N",
-            None
-        )
+        # self.model_structure = getattr(
+        #     self.module,
+        #     "model_structure",
+        #     None
+        # )
+        # self.print_command = getattr(
+        #     self.module,
+        #     "print_command",
+        #     None
+        # )
         self.premises = getattr(
             self.module,
             "premises",
-            self.default_values["premises"]
+            self.default_example["premises"]
         )
         self.conclusions = getattr(
             self.module,
             "conclusions",
-            self.default_values["conclusions"]
+            self.default_example["conclusions"]
         )
-        self.max_time = getattr(
+        self.settings = getattr(
+            self.module,
+            "settings",
+            self.default_settings
+        )
+        self.N = getattr(
             self.settings,
-            "max_time",
-            self.default_values["max_time"]
+            "N",
+            self.default_settings["N"]
         )
         self.contingent = getattr(
             self.settings,
             "contingent",
-            self.default_values["contingent"]
+            self.default_settings["contingent"]
         )
         self.non_empty = getattr(
             self.settings,
             "non_empty",
-            self.default_values["non_empty"]
+            self.default_settings["non_empty"]
         )
         self.non_null = getattr(
             self.settings,
             "non_null",
-            self.default_values["non_null"]
+            self.default_settings["non_null"]
         )
         self.disjoint = getattr(
             self.settings,
             "disjoint",
-            self.default_values["disjoint"]
+            self.default_settings["disjoint"]
         )
         # self.optimize = getattr(
         #     self.settings,
         #     "optimize",
         #     self.default_values["optimize"]
         # )
-        self.print_constraints = getattr(
-            self.settings,
-            "print_constraints",
-            self.default_values["print_constraints"]
-        )
         self.print_impossible = getattr(
             self.settings,
             "print_impossible",
-            self.default_values["print_impossible"]
+            self.default_settings["print_impossible"]
+        )
+        self.print_constraints = getattr(
+            self.settings,
+            "print_constraints",
+            self.default_settings["print_constraints"]
         )
         self.save_output = getattr(
             self.module,
             "save_output",
-            self.default_values["save_output"]
+            self.default_settings["save_output"]
         )
-        # TODO: fix
+        self.max_time = getattr(
+            self.settings,
+            "max_time",
+            self.default_settings["max_time"]
+        )
         # self.validate_attributes()
 
+    # TODO: integrate with validate_attributes
     def load_module(self):
-        """prepares a test file, raising a error if unsuccessful."""
+        """prepares an example, raising a error if unsuccessful."""
         try:
             spec = importlib.util.spec_from_file_location(self.module_name, self.module_path)
             if spec is None or spec.loader is None:
@@ -122,12 +140,9 @@ class BuildModule:
         except Exception as e:
             raise ImportError(f"Failed to load the module '{self.module_name}': {e}") from e
 
-    # TODO: fix to check just the settings
     # def validate_attributes(self):
-    #     # print(f"TEST: {self.settings}")
     #     for attr, default_value in self.default_values.items():
-    #         # print(f"ATTR {attr} {type(attr)} DEFAULT {default_value} {type(default_value)}")
-    #         if attr not in self.settings:
+    #         if self.settings is None or attr not in self.settings.keys():
     #             print(f"The value of '{attr}' is absent and has been set to {default_value}.")
 
 def parse_file_and_flags():
@@ -176,7 +191,7 @@ def parse_file_and_flags():
         help='Overrides to make all propositions have disjoint subject-matters.'
     )
     parser.add_argument(
-        '--print',
+        '--print_constraints',
         '-p',
         action='store_true',
         help='Overrides to print the Z3 constraints or else the unsat_core constraints if there is no model.'
@@ -188,7 +203,7 @@ def parse_file_and_flags():
         help='Overrides to prompt user to save output.'
     )
     parser.add_argument(
-        '--impossible',
+        '--print_impossible',
         '-i',
         action='store_true',
         help='Overrides to print impossible states.'
@@ -213,9 +228,9 @@ def parse_file_and_flags():
         help='Upgrade the package.'
     )
     # parse the command-line argument to get the module path
-    args = parser.parse_args()
+    flags = parser.parse_args()
     package_name = parser.prog  # Get the package name from the parser
-    return args, package_name
+    return flags, package_name
 
 # def generate_test(name):
 #     """check if a script name was provided"""
@@ -351,31 +366,41 @@ def save_or_append(module, model_structure, file_name, print_cons):
         model_structure.save_to(print_cons, n)  # TODO: add function
     print(f'\n{file_name}.py created in {destination_dir}\n')
 
-def create_module(args):
+def create_model_structure(module_flags):
     """Returns a module from the arguments provided from the specified file.
     Updates the model to reflect the user specified flags."""
-    module_path = args.file_path
+    module_path = module_flags.file_path
     module_name = os.path.splitext(os.path.basename(module_path))[0]
     module = BuildModule(module_name, module_path)
-    module.contingent = module.contingent or args.contingent
-    module.non_empty = module.non_empty or args.non_empty
-    module.non_null = module.non_null or args.non_null
-    module.disjoint = module.disjoint or args.disjoint
-    # module.optimize = module.optimize or args.optimize
-    module.print_constraints = module.print_constraints or args.print
-    module.print_impossible = module.print_impossible or args.impossible
-    module.save_output = module.save_output or args.save_output
-    return module
+    settings = {}
+    settings["N"] = module.N
+    settings["contingent"] = module.contingent or module_flags.contingent
+    settings["non_empty"] = module.non_empty or module_flags.non_empty
+    settings["non_null"] = module.non_null or module_flags.non_null
+    settings["disjoint"] = module.disjoint or module_flags.disjoint
+    # settings["optimize"] = module.optimize or module_flags.optimize
+    settings["print_constraints"] = module.print_constraints or module_flags.print_constraints
+    settings["print_impossible"] = module.print_impossible or module_flags.print_impossible
+    settings["save_output"] = module.save_output or module_flags.save_output
+    settings["max_time"] = module.max_time
 
-def print_result(module):
+    model_structure = make_model_for(
+        settings,
+        module.premises,
+        module.conclusions,
+        module.semantics,
+        module.proposition,
+        module.operators,
+    )
+    return module, model_structure
+
+def print_result(module, model_structure):
     """Prints resulting model or no model if none is found."""
-    model_structure = module.model_structure
     if model_structure.z3_model_status:
-        module.print_command
-        # TODO: turn on once print_to and save_to have been added
+        model_structure.print_all()
         if module.save_output:
             file_name, print_cons = ask_save()
-            save_or_append(module, model_structure, file_name, print_cons)
+            save_or_append(model_structure, model_structure, file_name, print_cons)
         return
     # # TODO: turn on once print_to and save_to have been added
     # model_structure.no_model_print(module.print_constraints)
@@ -388,8 +413,8 @@ def main():
     if len(sys.argv) < 2:
         ask_generate_project()
         return
-    args, package_name = parse_file_and_flags()
-    if args.upgrade:
+    module_flags, package_name = parse_file_and_flags()
+    if module_flags.upgrade:
         print("Upgrading package")
         try:
             subprocess.run(['pip', 'install', '--upgrade', package_name], check=True)
@@ -397,9 +422,9 @@ def main():
             print(f"Failed to upgrade {package_name}: {e}")
         return
 
-    module = create_module(args)
+    module, model_structure = create_model_structure(module_flags)
 
-    print_result(module)
+    print_result(module, model_structure)
 
 if __name__ == "__main__":
     main()
