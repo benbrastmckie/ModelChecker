@@ -46,24 +46,6 @@ operators = syntactic.OperatorCollection(
 )
 
 
-################
-### DEFAULTS ###
-################
-
-settings = {
-    'N' : 3,
-    'contingent' : False, # TODO: fix flag
-    'non_empty' : False, # TODO: fix setting and flag
-    'non_null' : False, # TODO: fix flag
-    'disjoint' : False, # TODO: fix flag and function
-    "print_constraints": False, # TODO: fix setting
-    "print_impossible": False, # TODO: fix flag
-    "save_output": False, # TODO: fix says appended if answer = n
-    'max_time' : 1,
-}
-
-
-
 
 
 ############################
@@ -404,6 +386,22 @@ CF_T11_example = [
     CF_T11_conclusions,
 ]
 
+
+################
+### SETTINGS ###
+################
+
+settings = {
+    'N' : 3,
+    'contingent' : False, # TODO: fix setting
+    'non_empty' : False, # TODO: fix setting; add falsifiers
+    'non_null' : False, # TODO: fix setting; check falsifiers
+    'disjoint' : False, # TODO: fix setting and function
+    "print_constraints": False, # TODO: fix setting and flag
+    "print_impossible": False, # TODO: fix settings
+    "save_output": False, # TODO: fix settings
+    'max_time' : 1,
+}
 
 
 #########################################
