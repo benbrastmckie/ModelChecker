@@ -317,8 +317,7 @@ def ask_save():
     """print the model and prompt user to store the output"""
     result = input("Would you like to save the output? (y/n):\n")
     if not result in ['Yes', 'yes', 'Ye', 'ye', 'Y', 'y']:
-        VOID = ""
-        return VOID, False
+        return None, None
     cons_input = input("\nWould you like to include the Z3 constraints? (y/n):\n")
     print_cons = bool(cons_input in ['Yes', 'yes', 'Ye', 'ye', 'Y', 'y'])
     file_name = input(
@@ -346,6 +345,8 @@ def no_model_save_or_append(module, model_structure, file_name, print_cons):
 
 def save_or_append(module, model_structure, file_name, print_cons):
     """Option to save or append if a model is found."""
+    if file_name is None:
+        return
     if len(file_name) == 0:
         with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
             print('\n"""', file=f)
@@ -380,8 +381,10 @@ def create_model_structure(module_flags):
     settings["disjoint"] = module.disjoint or module_flags.disjoint
     # settings["optimize"] = module.optimize or module_flags.optimize
     settings["print_constraints"] = module.print_constraints or module_flags.print_constraints
+    # print(f"SET {settings["print_constraints"]} MOD {module.print_constraints} FLAG {module_flags.print_constraints}")
     settings["print_impossible"] = module.print_impossible or module_flags.print_impossible
     settings["save_output"] = module.save_output or module_flags.save_output
+    # print(f"SET {settings["save_output"]} MOD {module.save_output} FLAG {module_flags.save_output}")
     settings["max_time"] = module.max_time
 
     model_structure = make_model_for(
@@ -392,13 +395,14 @@ def create_model_structure(module_flags):
         module.proposition,
         module.operators,
     )
-    return module, model_structure
+    return model_structure
 
-def print_result(module, model_structure):
+# TODO: continue debugging print_constraints
+def print_result(model_structure):
     """Prints resulting model or no model if none is found."""
     if model_structure.z3_model_status:
         model_structure.print_all()
-        if module.save_output:
+        if model_structure.settings["save_output"]:
             file_name, print_cons = ask_save()
             save_or_append(model_structure, model_structure, file_name, print_cons)
         return
@@ -414,6 +418,8 @@ def main():
         ask_generate_project()
         return
     module_flags, package_name = parse_file_and_flags()
+    # print(module_flags.print_constraints)
+    # print(module_flags.save_output)
     if module_flags.upgrade:
         print("Upgrading package")
         try:
@@ -422,9 +428,9 @@ def main():
             print(f"Failed to upgrade {package_name}: {e}")
         return
 
-    module, model_structure = create_model_structure(module_flags)
+    model_structure = create_model_structure(module_flags)
 
-    print_result(module, model_structure)
+    print_result(model_structure)
 
 if __name__ == "__main__":
     main()
