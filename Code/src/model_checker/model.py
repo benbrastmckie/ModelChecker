@@ -410,18 +410,28 @@ class ModelStructure:
 
     def solve(self, model_constraints, max_time):
         solver = Solver()
-        # fc, mc, pc, cc = model_constraints.frame_constraints, model_constraints.model_constraints, model_constraints.premise_constraints, model_constraints.conclusion_constraints
-        # for c_group, c_group_name in [(fc, "frame"), (mc, "model"), (pc, "premises"), (cc, "conclusions")]:
-        #     assert isinstance(c_group, list)
-        #     for ix, c in enumerate(c_group):
-        #         c_id = f"{c_group_name}{ix+1}"
-        #         solver.assert_and_track(c, c_id)
-        #         self.constraint_dict[c_id] = c
+        # Track each constraint with a unique name
+        fc, mc, pc, cc = (
+            model_constraints.frame_constraints,
+            model_constraints.model_constraints,
+            model_constraints.premise_constraints,
+            model_constraints.conclusion_constraints
+        )
+        for c_group, c_group_name in [
+            (fc, "frame"),
+            (mc, "model"),
+            (pc, "premises"),
+            (cc, "conclusions")
+        ]:
+            for ix, c in enumerate(c_group):
+                c_id = f"{c_group_name}{ix+1}"
+                solver.assert_and_track(c, c_id)
+                self.constraint_dict[c_id] = c
+
         solver.set("timeout", int(max_time * 1000))  # time in seconds
         try:
             model_start = time.time()  # start benchmark timer
-            # result = solver.check()
-            result = solver.check(model_constraints.all_constraints)
+            result = solver.check()
             model_end = time.time()  # end benchmark timer
             model_runtime = round(model_end - model_start, 4)
             if result == sat:
@@ -458,16 +468,16 @@ class ModelStructure:
             file=output,
         )
 
-    def print_constraints(self, consts, name, output=sys.__stdout__):
+    def print_constraints(self, constraints, name, output=sys.__stdout__):
         """prints constraints in an numbered list"""
         if self.z3_model_status:
             print(f"Satisfiable {name} constraints:\n", file=output)
         else:
             print("Unsatisfiable core constraints:\n", file=output)
-        for index, con in enumerate(consts, start=1):
+        for index, con in enumerate(constraints, start=1):
             print(f"{index}. {con}\n", file=output)
 
-    def print_to(self, print_constraints_bool, output=sys.__stdout__):
+    def print_to(self, print_constraints, output=sys.__stdout__):
         """append all elements of the model to the file provided"""
         if self.timeout:
             print(f"TIMEOUT: {self.timeout}")
@@ -476,11 +486,21 @@ class ModelStructure:
             return
         self.print_all(output)
         setup = self.model_constraints
-        if print_constraints_bool:
+        if print_constraints:
             self.print_constraints(setup.frame_constraints, 'FRAME', output)
-            self.print_constraints(setup.prop_constraints, 'PROPOSITION', output)
+            self.print_constraints(setup.model_constraints, 'PROPOSITION', output)
             self.print_constraints(setup.premise_constraints, 'PREMISE', output)
             self.print_constraints(setup.conclusion_constraints, 'CONCLUSION', output)
+        print(f"Run time: {self.z3_model_runtime} seconds\n", file=output)
+
+    def no_model_print_to(self, print_constraints, output=sys.__stdout__):
+        """prints the argument when there is no model with the option to
+        include Z3 constraints."""
+        if print_constraints and self.unsat_core is not None:
+            self.print_constraints(self.unsat_core, 'UNSAT CORE', output)
+        print(f"There are no {self.N}-models of:\n", file=output)
+        self.model_constraints.print_enumerate(output)
+        print(file=output)
         print(f"Run time: {self.z3_model_runtime} seconds\n", file=output)
 
     def build_test_file(self, output):

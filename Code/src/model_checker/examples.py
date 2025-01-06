@@ -393,13 +393,13 @@ CF_T11_example = [
 
 settings = {
     'N' : 3,
-    'contingent' : False, # TODO: fix setting
-    'non_empty' : False, # TODO: fix setting; add falsifiers
-    'non_null' : False, # TODO: fix setting; check falsifiers
-    'disjoint' : False, # TODO: fix setting and function
-    "print_constraints": False, # TODO: fix setting and flag
-    "print_impossible": False, # TODO: fix settings
-    "save_output": False, # TODO: fix settings
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    "print_constraints": False,
+    "print_impossible": False,
+    "save_output": False,
     'max_time' : 1,
 }
 
@@ -410,8 +410,8 @@ settings = {
 
 ### NOTE: run below for individual tests
 
-premises, conclusions = CF_CM1_example # example countermodel
-# premises, conclusions = CF_T9_example # example logical consequence
+# premises, conclusions = CF_CM1_example # example countermodel
+premises, conclusions = CF_T9_example # example logical consequence
 semantics = Semantics
 proposition = Proposition
 
