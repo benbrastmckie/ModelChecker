@@ -468,6 +468,56 @@ class ModelStructure:
             file=output,
         )
 
+    def print_grouped_constraints(self, output=sys.__stdout__):
+        """Prints constraints organized by their groups (frame, model, premises, conclusions)"""
+        groups = {
+            "FRAME": [],
+            "MODEL": [],
+            "PREMISES": [],
+            "CONCLUSIONS": []
+        }
+        
+        # Get the relevant constraints based on model status
+        if self.z3_model:
+            print("\nSATISFIABLE CONSTRAINTS:", file=output)
+            constraints = self.model_constraints.all_constraints
+        elif self.unsat_core is not None:
+            print("\nUNSATISFIABLE CORE CONSTRAINTS:", file=output)
+            constraints = [self.constraint_dict[str(c)] for c in self.unsat_core]
+        else:
+            print("\nNO CONSTRAINTS AVAILABLE", file=output)
+            constraints = []
+            
+        # Print summary of constraint groups
+        frame_count = sum(1 for c in constraints if c in self.model_constraints.frame_constraints)
+        model_count = sum(1 for c in constraints if c in self.model_constraints.model_constraints) 
+        premise_count = sum(1 for c in constraints if c in self.model_constraints.premise_constraints)
+        conclusion_count = sum(1 for c in constraints if c in self.model_constraints.conclusion_constraints)
+        
+        print(f"- Frame constraints: {frame_count}", file=output)
+        print(f"- Model constraints: {model_count}", file=output)
+        print(f"- Premise constraints: {premise_count}", file=output)
+        print(f"- Conclusion constraints: {conclusion_count}\n", file=output)
+        
+        # Organize constraints into groups
+        for constraint in constraints:
+            constraint_str = str(constraint)
+            if constraint in self.model_constraints.frame_constraints:
+                groups["FRAME"].append(constraint)
+            elif constraint in self.model_constraints.model_constraints:
+                groups["MODEL"].append(constraint)
+            elif constraint in self.model_constraints.premise_constraints:
+                groups["PREMISES"].append(constraint)
+            elif constraint in self.model_constraints.conclusion_constraints:
+                groups["CONCLUSIONS"].append(constraint)
+        
+        # Print each group
+        for group_name, group_constraints in groups.items():
+            if group_constraints:  # Only print groups that have constraints
+                print(f"{group_name} CONSTRAINTS:", file=output)
+                for index, con in enumerate(group_constraints, start=1):
+                    print(f"{index}. {con}\n", file=output)
+
     def print_constraints(self, constraints, name, output=sys.__stdout__):
         """prints constraints in an numbered list"""
         if self.z3_model_status:
@@ -485,19 +535,15 @@ class ModelStructure:
             print(f"Try increasing max_time > {self.max_time}.\n", file=output)
             return
         self.print_all(output)
-        setup = self.model_constraints
         if print_constraints:
-            self.print_constraints(setup.frame_constraints, 'FRAME', output)
-            self.print_constraints(setup.model_constraints, 'PROPOSITION', output)
-            self.print_constraints(setup.premise_constraints, 'PREMISE', output)
-            self.print_constraints(setup.conclusion_constraints, 'CONCLUSION', output)
+            self.print_grouped_constraints(output)
         print(f"Run time: {self.z3_model_runtime} seconds\n", file=output)
 
     def no_model_print_to(self, print_constraints, output=sys.__stdout__):
         """prints the argument when there is no model with the option to
         include Z3 constraints."""
         if print_constraints and self.unsat_core is not None:
-            self.print_constraints(self.unsat_core, 'UNSAT CORE', output)
+            self.print_grouped_constraints(output)
         print(f"There are no {self.N}-models of:\n", file=output)
         self.model_constraints.print_enumerate(output)
         print(file=output)

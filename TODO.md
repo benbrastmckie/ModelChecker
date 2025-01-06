@@ -9,7 +9,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [:] api
 - [:] applications
   - [:] Champollion
-  - [:] Fine
+    - [ ] examples
+  - [x] Fine
 - [.] benchmarks
 - [:] unit tests
 - [.] documentation
@@ -17,21 +18,23 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] semantics
   - [ ] jupyter notebook
   - [.] doc strings
-- [.] cli
-  - [ ] release
-  - [ ] check `no_model` cases
-  - [ ] refactor printing and saving
+- [:] cli
+  - [:] release
+  - [ ] comparison
+  - [ ] optimizer
+  - [ ] unit test template
+  - [ ] add operators
+  - [x] check `no_model` cases
+  - [x] refactor printing and saving
 
 ## API
 
-- create `__init__.py` and add all imports used in:
-  - `example.py`
-  - `exposed_things.py`
-- move any functions with general uses to `utils.py`
+- [x] create `__init__.py` and add all imports
+- [:] move any functions with general uses to `utils.py`
   - add useful functions from `utils.py` to `__init__.py`
-- rebuild package
-- create `api_example.py` to import from `model-checker`
-- confirm `api_example.py` works
+- [x] rebuild package
+- [x] create `api_example.py` to import from `model-checker`
+- [x] confirm `api_example.py` works
 
 ## Applications
 
