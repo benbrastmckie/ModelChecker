@@ -1,11 +1,13 @@
-"""From the ../Code/ directory, run: python -m src.model_checker src/model_checker/example.py"""
-from src.model_checker.builder import (
-    make_model_for,
-    find_max_N,
-    run_comparison,
-    save_comparisons,
-)
- 
+"""
+INSTRUCTIONS: this module defines the semantic_theories and example_range.
+From the ../Code/ directory, run: python -m src.model_checker src/model_checker/example.py
+"""
+
+
+##########################
+### DEFINE THE IMPORTS ###
+##########################
+
 from src.model_checker.semantic import (
     Semantics,
     ImpositionSemantics,
@@ -30,11 +32,13 @@ from src.model_checker.primitive import (
 
 from src.model_checker import syntactic
 
-######################
-### SETUP LANGUAGE ###
-######################
 
-operators = syntactic.OperatorCollection(
+
+####################################
+### DEFINE THE SEMANTIC THEORIES ###
+####################################
+
+default_operators = syntactic.OperatorCollection(
     AndOperator, NegationOperator, OrOperator, # extensional
     ConditionalOperator, BiconditionalOperator, # extensional defined
     TopOperator, BotOperator, # top and bottom zero-place operators
@@ -45,6 +49,40 @@ operators = syntactic.OperatorCollection(
     ImpositionOperator, MightImpositionOperator, # Fine
 )
 
+default_theory = [
+    Semantics,
+    Proposition,
+    default_operators,
+]
+
+imposition_theory = [
+    ImpositionSemantics,
+    Proposition,
+    default_operators,
+]
+
+semantic_theories = [
+    default_theory,
+    # imposition_theory  # uncomment to compare
+]
+
+
+
+########################
+### DEFAULT SETTINGS ###
+########################
+
+default_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    "print_constraints": False,
+    "print_impossible": False,
+    "save_output": False,
+    'max_time' : 1,
+}
 
 
 
@@ -60,7 +98,6 @@ operators = syntactic.OperatorCollection(
 
 
 
-
 #####################
 ### COUNTERMODELS ###
 #####################
@@ -71,6 +108,7 @@ CF_CM1_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_CM1_example = [
     CF_CM1_premises,
     CF_CM1_conclusions,
+    default_settings,
 ]
 
 # # CF_CM2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
@@ -79,6 +117,7 @@ CF_CM2_conclusions = ['((A \\wedge B) \\circleright C)']
 CF_CM2_example = [
     CF_CM2_premises,
     CF_CM2_conclusions,
+    default_settings,
 ]
 
 # # CF_CM3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
@@ -87,6 +126,7 @@ CF_CM3_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_CM3_example = [
     CF_CM3_premises,
     CF_CM3_conclusions,
+    default_settings,
 ]
 
 # # CF_CM4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
@@ -96,6 +136,7 @@ CF_CM4_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_CM4_example = [
     CF_CM4_premises,
     CF_CM4_conclusions,
+    default_settings,
 ]
 
 # # CF_CM5: COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
@@ -105,6 +146,7 @@ CF_CM5_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_CM5_example = [
     CF_CM5_premises,
     CF_CM5_conclusions,
+    default_settings,
 ]
 
 # # CF_CM6: WEAKENED MONOTONICITY
@@ -114,6 +156,7 @@ CF_CM6_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_CM6_example = [
     CF_CM6_premises,
     CF_CM6_conclusions,
+    default_settings,
 ]
 # settings['contingent'] = False
 
@@ -124,6 +167,7 @@ CF_CM7_conclusions = ['(\\neg B \\boxright \\neg A)']
 CF_CM7_example = [
     CF_CM7_premises,
     CF_CM7_conclusions,
+    default_settings,
 ]
 
 # # CF_CM8: COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
@@ -133,6 +177,7 @@ CF_CM8_conclusions = ['(\\neg B \\boxright \\neg A)']
 CF_CM8_example = [
     CF_CM8_premises,
     CF_CM8_conclusions,
+    default_settings,
 ]
 
 # # CF_CM9: COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
@@ -142,6 +187,7 @@ CF_CM9_conclusions = ['(\\neg B \\boxright \\neg A)']
 CF_CM9_example = [
     CF_CM9_premises,
     CF_CM9_conclusions,
+    default_settings,
 ]
 
 # # CF_CM10: TRANSITIVITY
@@ -151,6 +197,7 @@ CF_CM10_conclusions = ['(A \\boxright C)']
 CF_CM10_example = [
     CF_CM10_premises,
     CF_CM10_conclusions,
+    default_settings,
 ]
 
 # # CF_CM11: COUNTERFACTUAL TRANSITIVITY WITH NEGATION
@@ -160,6 +207,7 @@ CF_CM11_conclusions = ['(A \\boxright C)']
 CF_CM11_example = [
     CF_CM11_premises,
     CF_CM11_conclusions,
+    default_settings,
 ]
 
 # # CF_CM12: COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
@@ -169,6 +217,7 @@ CF_CM12_conclusions = ['(A \\boxright C)']
 CF_CM12_example = [
     CF_CM12_premises,
     CF_CM12_conclusions,
+    default_settings,
 ]
 
 # # CF_CM13: SOBEL SEQUENCE
@@ -186,6 +235,7 @@ CF_CM13_conclusions = []
 CF_CM13_example = [
     CF_CM13_premises,
     CF_CM13_conclusions,
+    default_settings,
 ]
 
 # # CF_CM14: SOBEL SEQUENCE WITH POSSIBILITY (N = 3)
@@ -210,6 +260,7 @@ CF_CM14_conclusions = []
 CF_CM14_example = [
     CF_CM14_premises,
     CF_CM14_conclusions,
+    default_settings,
 ]
 
 # # CF_CM15: COUNTERFACTUAL EXCLUDED MIDDLE
@@ -219,6 +270,7 @@ CF_CM15_conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 CF_CM15_example = [
     CF_CM15_premises,
     CF_CM15_conclusions,
+    default_settings,
 ]
 
 # # CF_CM16: SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
@@ -228,6 +280,7 @@ CF_CM16_conclusions = ['(A \\boxright B)','(A \\boxright C)']
 CF_CM16_example = [
     CF_CM16_premises,
     CF_CM16_conclusions,
+    default_settings,
 ]
 
 # # CF_CM17: INTRODUCTION OF DISJUNCTIVE ANTECEDENT
@@ -237,6 +290,7 @@ CF_CM17_conclusions = ['((A \\vee B) \\boxright C)']
 CF_CM17_example = [
     CF_CM17_premises,
     CF_CM17_conclusions,
+    default_settings,
 ]
 
 # # CF_CM18: MUST FACTIVITY
@@ -246,6 +300,7 @@ CF_CM18_conclusions = ['(A \\boxright B)']
 CF_CM18_example = [
     CF_CM18_premises,
     CF_CM18_conclusions,
+    default_settings,
 ]
 
 # # CF_CM19: COUNTERFACTUAL EXPORTATION
@@ -255,6 +310,7 @@ CF_CM19_conclusions = ['(A \\boxright (B \\boxright C))']
 CF_CM19_example = [
     CF_CM19_premises,
     CF_CM19_conclusions,
+    default_settings,
 ]
 
 # # CF_CM20: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
@@ -264,6 +320,7 @@ CF_CM20_conclusions = ['(A \\boxright (B \\boxright C))']
 CF_CM20_example = [
     CF_CM20_premises,
     CF_CM20_conclusions,
+    default_settings,
 ]
 
 # # CF_CM21:
@@ -272,7 +329,8 @@ CF_CM21_premises = ['\\neg A','\\neg (A \\boxright B)']
 CF_CM21_conclusions = ['(A \\boxright \\neg B)']
 CF_CM21_example = [
     CF_CM21_premises,
-    CF_CM21_conclusions
+    CF_CM21_conclusions,
+    default_settings,
 ]
 
 
@@ -288,7 +346,8 @@ CF_T1_premises = []
 CF_T1_conclusions = ['(A \\boxright A)']
 CF_T1_example = [
     CF_T1_premises,
-    CF_T1_conclusions
+    CF_T1_conclusions,
+    default_settings,
 ]
 
 # # CF_T2: COUNTERFACTUAL MODUS PONENS
@@ -297,7 +356,8 @@ CF_T2_premises = ['A','(A \\boxright B)']
 CF_T2_conclusions = ['B']
 CF_T2_example = [
     CF_T2_premises,
-    CF_T2_conclusions
+    CF_T2_conclusions,
+    default_settings,
 ]
 
 # # CF_T3: WEAKENED TRANSITIVITY
@@ -306,7 +366,8 @@ CF_T3_premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
 CF_T3_conclusions = ['(A \\boxright C)']
 CF_T3_example = [
     CF_T3_premises,
-    CF_T3_conclusions
+    CF_T3_conclusions,
+    default_settings,
 ]
 
 # # CF_T4: ANTECEDENT DISJUNCTION TO CONJUNCTION
@@ -315,7 +376,8 @@ CF_T4_premises = ['((A \\vee B) \\boxright C)']
 CF_T4_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_T4_example = [
     CF_T4_premises,
-    CF_T4_conclusions
+    CF_T4_conclusions,
+    default_settings,
 ]
 
 # # CF_T5: SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
@@ -324,7 +386,8 @@ CF_T5_premises = ['((A \\vee B) \\boxright C)']
 CF_T5_conclusions = ['(A \\boxright C)']
 CF_T5_example = [
     CF_T5_premises,
-    CF_T5_conclusions
+    CF_T5_conclusions,
+    default_settings,
 ]
 
 # # CF_T6: DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
@@ -333,7 +396,8 @@ CF_T6_premises = ['((A \\vee B) \\boxright C)']
 CF_T6_conclusions = ['((A \\boxright C) \\wedge (B \\boxright C))']
 CF_T6_example = [
     CF_T6_premises,
-    CF_T6_conclusions
+    CF_T6_conclusions,
+    default_settings,
 ]
 
 # # CF_T7:
@@ -346,7 +410,8 @@ CF_T7_premises = [
 CF_T7_conclusions = ['((A \\vee B) \\boxright C)']
 CF_T7_example = [
     CF_T7_premises,
-    CF_T7_conclusions
+    CF_T7_conclusions,
+    default_settings,
 ]
 
 
@@ -356,7 +421,8 @@ CF_T8_premises = ['(A \\boxright (B \\wedge C))']
 CF_T8_conclusions = ['(A \\boxright B)']
 CF_T8_example = [
     CF_T8_premises,
-    CF_T8_conclusions
+    CF_T8_conclusions,
+    default_settings,
 ]
 
 # # CF_T9:
@@ -365,7 +431,8 @@ CF_T9_premises = ['(A \\boxright B)','(A \\boxright C)']
 CF_T9_conclusions = ['(A \\boxright (B \\wedge C))']
 CF_T9_example = [
     CF_T9_premises,
-    CF_T9_conclusions
+    CF_T9_conclusions,
+    default_settings,
 ]
 
 # # # CF_T_T10: FACTIVITY MIGHT
@@ -374,7 +441,8 @@ CF_T10_premises = ['A','B']
 CF_T10_conclusions = ['(A \\circleright B)']
 CF_T10_example = [
     CF_T10_premises,
-    CF_T10_conclusions
+    CF_T10_conclusions,
+    default_settings,
 ]
 
 # # # CF_T_T11: DEFINITION OF NEC
@@ -384,91 +452,51 @@ CF_T11_conclusions = ['(\\top \\boxright A)']
 CF_T11_example = [
     CF_T11_premises,
     CF_T11_conclusions,
+    default_settings,
 ]
 
 
-################
-### SETTINGS ###
-################
 
-settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'disjoint' : False,
-    "print_constraints": False,
-    "print_impossible": False,
-    "save_output": False,
-    'max_time' : 1,
-}
+##################################
+### DEFINE EXAMPLES TO COMPUTE ###
+##################################
 
-
-#########################################
-### GENERATE Z3 CONSTRAINTS AND PRINT ###
-#########################################
-
-### NOTE: run below for individual tests
-
-# premises, conclusions = CF_CM1_example # example countermodel
-premises, conclusions = CF_T9_example # example logical consequence
-semantics = Semantics
-proposition = Proposition
-
-
-##########################################
-### COMPARE MULTIPLE SEMANTIC THEORIES ###
-##########################################
-
-CF_examples = {
-    "CF_T1" : CF_T1_example,
-    "CF_T2" : CF_T2_example,
-    "CF_T3" : CF_T3_example,
-    "CF_T4" : CF_T4_example,
-    "CF_T5" : CF_T5_example,
-    "CF_T6" : CF_T6_example,
-    "CF_T7" : CF_T7_example,
-    "CF_T8" : CF_T8_example,
-    "CF_T9" : CF_T9_example,
-    "CF_T10" : CF_T10_example,
-    "CF_T11" : CF_T11_example,
-}
-
-CM_examples = {
+example_range = {
+    # Countermodels
     "CF_CM1" : CF_CM1_example,
-    "CF_CM2" : CF_CM2_example,
-    "CF_CM3" : CF_CM3_example,
-    "CF_CM4" : CF_CM4_example,
-    "CF_CM5" : CF_CM5_example,
-    "CF_CM6" : CF_CM6_example,
-    "CF_CM7" : CF_CM7_example,
-    "CF_CM8" : CF_CM8_example,
-    "CF_CM9" : CF_CM9_example,
-    "CF_CM10" : CF_CM10_example,
-    "CF_CM11" : CF_CM11_example,
-    "CF_CM12" : CF_CM12_example,
-    "CF_CM13" : CF_CM13_example,
-    "CF_CM14" : CF_CM14_example,
-    "CF_CM15" : CF_CM15_example,
-    "CF_CM16" : CF_CM16_example,
-    "CF_CM17" : CF_CM17_example,
-    "CF_CM18" : CF_CM18_example,
-    "CF_CM19" : CF_CM19_example,
-    "CF_CM20" : CF_CM20_example,
-    "CF_CM21" : CF_CM21_example,
+    # "CF_CM2" : CF_CM2_example,
+    # "CF_CM3" : CF_CM3_example,
+    # "CF_CM4" : CF_CM4_example,
+    # "CF_CM5" : CF_CM5_example,
+    # "CF_CM6" : CF_CM6_example,
+    # "CF_CM7" : CF_CM7_example,
+    # "CF_CM8" : CF_CM8_example,
+    # "CF_CM9" : CF_CM9_example,
+    # "CF_CM10" : CF_CM10_example,
+    # "CF_CM11" : CF_CM11_example,
+    # "CF_CM12" : CF_CM12_example,
+    # "CF_CM13" : CF_CM13_example,
+    # "CF_CM14" : CF_CM14_example,
+    # "CF_CM15" : CF_CM15_example,
+    # "CF_CM16" : CF_CM16_example,
+    # "CF_CM17" : CF_CM17_example,
+    # "CF_CM18" : CF_CM18_example,
+    # "CF_CM19" : CF_CM19_example,
+    # "CF_CM20" : CF_CM20_example,
+    # "CF_CM21" : CF_CM21_example,
+    # # Theorems
+    # "CF_T1" : CF_T1_example,
+    # "CF_T2" : CF_T2_example,
+    # "CF_T3" : CF_T3_example,
+    # "CF_T4" : CF_T4_example,
+    # "CF_T5" : CF_T5_example,
+    # "CF_T6" : CF_T6_example,
+    # "CF_T7" : CF_T7_example,
+    # "CF_T8" : CF_T8_example,
+    # "CF_T9" : CF_T9_example,
+    # "CF_T10" : CF_T10_example,
+    # "CF_T11" : CF_T11_example,
 }
-
-default_theory = [
-    Semantics,
-    Proposition,
-    operators,
-]
-
-imposition_theory = [
-    ImpositionSemantics,
-    Proposition,
-    operators,
-]
 
 # # Run comparison
 # run_comparison(default_theory, imposition_theory, settings, CF_examples)
