@@ -11,7 +11,15 @@ import subprocess
 import argparse
 import importlib.util
 from src.model_checker.__init__ import __version__
-from src.model_checker.builder import make_model_for
+from src.model_checker.builder import (
+    make_model_for,
+    translate,
+)
+from src.model_checker.model import (
+    SemanticDefaults,
+    PropositionDefaults
+)
+from src.model_checker.syntactic import OperatorCollection
 
 class BuildModule:
     """Load and store module values with settings and validation.
@@ -20,25 +28,14 @@ class BuildModule:
     configuration including premises, conclusions, and various settings.
     """
     
-    DEFAULT_EXAMPLE = {
-        "premises": [],
-        "conclusions": [],
-    }
-    
-    DEFAULT_SETTINGS = {
-        "N": 3,
-        "contingent": False,
-        "non_empty": False,
-        "non_null": False,
-        "disjoint": False,
+    DEFAULT_GENERAL_SETTINGS = {
         "print_impossible": False,
         "print_constraints": False,
         "save_output": False,
-        "max_time": 1,
         # "optimize": False,
     }
 
-    def __init__(self, module_name: str, module_path: str):
+    def __init__(self, module_flags):
         """Initialize BuildModule with module name and path.
         
         Args:
@@ -48,38 +45,20 @@ class BuildModule:
         Raises:
             ImportError: If module cannot be loaded
         """
-        self.module_name = module_name
-        self.module_path = module_path
-        self.module = self.load_module()
+
+        self.module_flags = module_flags
+        self.module_path = module_flags.file_path
+        self.module_name = os.path.splitext(os.path.basename(self.module_path))[0]
+        self.module = self._load_module()
         
         # Load core attributes
-        self.semantics = getattr(self.module, "semantics", None)
-        self.proposition = getattr(self.module, "proposition", None)
-        self.operators = getattr(self.module, "operators", None)
-        
-        # Load example configuration
-        self.premises = getattr(self.module, "premises", self.DEFAULT_EXAMPLE["premises"])
-        self.conclusions = getattr(self.module, "conclusions", self.DEFAULT_EXAMPLE["conclusions"])
-        
-        # Initialize settings
-        self._init_settings()
-        self.validate_required_attributes()
+        self.semantic_theories = self._load_attribute("semantic_theories")
+        self.example_range = self._load_attribute("example_range")
 
-    def _init_settings(self):
-        """Initialize all settings from module with defaults."""
-        module_settings = getattr(self.module, "settings", {})
-        
-        # Initialize each setting from module_settings with fallback to defaults
-        for key, default_value in self.DEFAULT_SETTINGS.items():
-            setattr(self, key, module_settings.get(key, default_value))
-        
-        # Store complete settings dict
-        self.settings = {
-            key: getattr(self, key)
-            for key in self.DEFAULT_SETTINGS
-        }
+        # Load general settings
+        self.general_settings = self._load_general_settings()
 
-    def load_module(self):
+    def _load_module(self):
         """Load the Python module from file.
         
         Returns:
@@ -98,88 +77,221 @@ class BuildModule:
         except Exception as e:
             raise ImportError(f"Failed to load the module '{self.module_name}': {e}") from e
 
-    def validate_required_attributes(self):
-        """Validate that required module attributes are present and check for missing defaults."""
-        # Check required attributes
-        required = ["semantics", "proposition", "operators"] 
-        missing = [attr for attr in required if getattr(self, attr) is None]
-        if missing:
-            raise ValueError(
-                f"Module {self.module_name} is missing required attributes: {', '.join(missing)}"
+    def _load_attribute(self, attr_name):
+        """Checks if an attribute exists in the module and store it.
+        
+        Args:
+            attr_name: Name of the attribute to check and store
+            
+        Raises:
+            AttributeError: If the attribute is missing from the module
+        """
+        if not hasattr(self.module, attr_name):
+            raise AttributeError(
+                f"Module '{self.module_name}' is missing the attribute '{attr_name}'. "
             )
+        return getattr(self.module, attr_name, {})
 
-        # Check for missing example defaults
-        for key, default_val in self.DEFAULT_EXAMPLE.items():
-            module_val = getattr(self.module, key, None)
-            if module_val is None:
-                print(f"Warning: Module {self.module_name} is missing '{key}', using default value: {default_val}")
+    def _load_general_settings(self):
+        """Initialize all settings from module with defaults."""
+        general_settings = getattr(self.module, "general_settings", {})
+        
+        # Initialize each setting from module_settings with fallback to defaults
+        for key, default_value in self.DEFAULT_GENERAL_SETTINGS.items():
+            if key not in general_settings:
+                print(f"Warning: Module {self.module_name} settings missing '{key}', using default value: {default_value}")
+            setattr(self, key, general_settings.get(key, default_value))
+        
+        # Store complete settings dict
+        general_settings = {
+            key: getattr(self, key)
+            for key in self.DEFAULT_GENERAL_SETTINGS
+        }
 
-        # Check for missing settings defaults  
-        module_settings = getattr(self.module, "settings", {})
-        for key, default_val in self.DEFAULT_SETTINGS.items():
-            if key not in module_settings:
-                print(f"Warning: Module {self.module_name} settings missing '{key}', using default value: {default_val}")
+        return general_settings
 
-# TODO: continue moving functions above into the class below
+
 class BuildExample:
     """Class to create and store model structure with settings as attributes."""
-    def __init__(self, module_flags):
-        """Initialize model structure from module flags."""
-        module_path = module_flags.file_path
-        module_name = os.path.splitext(os.path.basename(module_path))[0]
-        self.module = BuildModule(module_name, module_path)
 
-        # Set settings as instance attributes
-        self.N = self.module.settings["N"]
-        self.contingent = self.module.settings["contingent"] or module_flags.contingent
-        self.non_empty = self.module.settings["non_empty"] or module_flags.non_empty
-        self.non_null = self.module.settings["non_null"] or module_flags.non_null
-        self.disjoint = self.module.settings["disjoint"] or module_flags.disjoint
-        self.print_constraints = self.module.settings["print_constraints"] or module_flags.print_constraints
-        self.print_impossible = self.module.settings["print_impossible"] or module_flags.print_impossible
-        self.save_output = self.module.settings["save_output"] or module_flags.save_output
-        self.max_time = self.module.settings["max_time"]
+    DEFAULT_EXAMPLE = {
+        "premises": [],
+        "conclusions": [],
+    }
+    
+    DEFAULT_EXAMPLE_SETTINGS = {
+        "N": 3,
+        "contingent": False,
+        "non_empty": False,
+        "non_null": False,
+        "disjoint": False,
+        "max_time": 1,
+    }
+
+    def __init__(self, module, semantic_theory, example_case):
+
+        """Initialize model structure from module flags."""
+        self.module = module
+        self.semantics, self.proposition, self.operators, self.dictionary = self._validate_semantic_theory(semantic_theory)
+        self.premises, self.conclusions, example_settings = self._validate_example(example_case)
+        self.settings = self._validate_settings(example_settings)
+
+        # # TODO: warn if no premises or no conclusions
+        # # Check for missing example defaults
+        # for key, default_val in self.DEFAULT_EXAMPLE.items():
+        #     module_val = getattr(self.module, key, None)
+        #     if module_val is None:
+        #         print(f"Warning: Module {self.module_name} is missing '{key}', using default value: {default_val}")
+
+        # # TODO: warn if missing setting
+        # # Check for missing settings defaults  
+        # module_settings = getattr(self.module, "settings", {})
+        # for key, default_val in self.DEFAULT_GENERAL_SETTINGS.items():
+        #     if key not in module_settings:
+        #         print(f"Warning: Module {self.module_name} settings missing '{key}', using default value: {default_val}")
+
+        # # Set settings as instance attributes
+        # for key, value in self.settings.items():
+        #     setattr(self, key, value)
 
         # Create model structure
         self.model_structure = make_model_for(
-            self.__dict__,
-            self.module.premises,
-            self.module.conclusions, 
-            self.module.semantics,
-            self.module.proposition,
-            self.module.operators,
+            self.settings,
+            self.premises,
+            self.conclusions, 
+            self.semantics,
+            self.proposition,
+            self.operators,
         )
 
-    def print_result(self):
+    def _validate_semantic_theory(self, semantic_theory):
+        """Validates that semantic_theory contains the required components in the correct order.
+        
+        Args:
+            semantic_theory: A tuple/list containing (Semantics, Proposition, OperatorCollection)
+            
+        Returns:
+            The validated semantic_theory
+            
+        Raises:
+            TypeError: If any component has an invalid type
+        """
+
+        if not isinstance(semantic_theory, dict) or len(semantic_theory) < 3:
+            raise TypeError(
+                "semantic_theory must be a tuple/list containing exactly 3 elements: "
+                "(Semantics, Proposition, OperatorCollection)"
+            )
+
+        semantics = semantic_theory["semantics"]
+        proposition = semantic_theory["proposition"] 
+        operators = semantic_theory["operators"]
+        dictionary = semantic_theory.get("operators", None)
+
+        # Validate semantics is subclass of SemanticDefaults
+        if not issubclass(semantic_theory["semantics"], SemanticDefaults):
+            raise TypeError(
+                f"First element must be a subclass of SemanticDefaults, got {type(semantics)}"
+            )
+
+        # Validate proposition is subclass of PropositionDefaults
+        if not issubclass(proposition, PropositionDefaults):
+            raise TypeError(
+                f"Second element must be a subclass of PropositionDefaults, got {type(proposition)}"
+            )
+
+        # Validate operators is instance of OperatorCollection
+        if not isinstance(operators, OperatorCollection):
+            raise TypeError(
+                f"Third element must be an instance of OperatorCollection, got {type(operators)}"
+            )
+
+        return semantics, proposition, operators, dictionary
+
+    def _validate_example(self, example_case):
+        """Validates that example_case contains lists of strings and a dictionary.
+        
+        Args:
+            example_case: A tuple/list containing (premises, conclusions, settings)
+            
+        Returns:
+            The validated example_case
+            
+        Raises:
+            TypeError: If any component has an invalid type
+        """
+        if not isinstance(example_case, (tuple, list)) or len(example_case) != 3:
+            raise TypeError(
+                "example_case must be a tuple/list containing exactly 3 elements: "
+                "(premises, conclusions, settings)"
+            )
+
+        premises, conclusions, example_settings = example_case
+
+        # Validate premises is a list of strings
+        if not isinstance(premises, list) or not all(isinstance(p, str) for p in premises):
+            raise TypeError(
+                f"First element must be a list of strings, got {type(premises)} "
+                f"containing types {[type(p) for p in premises]}"
+            )
+
+        # Validate conclusions is a list of strings
+        if not isinstance(conclusions, list) or not all(isinstance(c, str) for c in conclusions):
+            raise TypeError(
+                f"Second element must be a list of strings, got {type(conclusions)} "
+                f"containing types {[type(c) for c in conclusions]}"
+            )
+
+        # Validate settings is a dictionary
+        if not isinstance(example_settings, dict):
+            raise TypeError(
+                f"Third element must be a dictionary, got {type(example_settings)}"
+            )
+
+        return example_case
+
+    def _validate_settings(self, example_settings):
+        def merge_settings(example_settings, general_settings):
+            """Adds example_settings to general_settings, mentioning overlaps."""
+            # Track and merge settings
+            for key, default_value in example_settings.items():
+                # Get value from module settings or use default
+                new_value = general_settings.get(key, default_value)
+                
+                # Check if we're replacing an existing general setting
+                if key in general_settings and new_value != default_value:
+                    print(f"Warning: Example setting '{key}' is replacing general setting "
+                          f"'{general_settings[key]}' with '{new_value}'")
+                
+                # Update the settings
+                general_settings[key] = new_value
+
+            return general_settings
+
+        def disjoin_flags(all_settings):
+            """Update boolean settings if module flag is True."""
+            module_flags = self.module.module_flags
+            updated_settings = all_settings.copy()
+            
+            for key, value in vars(module_flags).items():
+                if isinstance(value, bool) and key in updated_settings:
+                    updated_settings[key] = value
+                    
+            return updated_settings
+
+        # Merge and update settings
+        all_settings = merge_settings(example_settings, self.module.general_settings)
+        updated_settings = disjoin_flags(all_settings)
+
+        return updated_settings
+
+    def print_result(self, example_name, theory_name):
         """Prints resulting model or no model if none is found."""
         model_structure = self.model_structure
-        print_constraints = model_structure.settings["print_constraints"]
-        if model_structure.z3_model_status:
-            model_structure.print_to(print_constraints)
-            if model_structure.settings["save_output"]:
-                file_name, save_constraints = self.ask_save()
-                self.save_or_append(model_structure, model_structure, file_name, save_constraints)
-            return
-        model_structure.no_model_print_to(print_constraints)
+        model_structure.print_to(example_name, theory_name)
         if model_structure.settings["save_output"]:
             file_name, save_constraints = self.ask_save()
-            self.no_model_save_or_append(self.module, model_structure, file_name, save_constraints)
-
-    def no_model_save_or_append(self, module, model_structure, file_name, print_cons):
-        """option to save or append if no model is found"""
-        if len(file_name) == 0:
-            with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
-                print('\n"""', file=f)
-                # TODO: add method
-                model_structure.no_model_print(print_cons, f)
-                print('"""', file=f)
-            return
-        destination_dir = os.path.join(os.getcwd(), module.module_name)  
-        with open(f"{destination_dir}/{file_name}.py", 'w', encoding="utf-8") as n:
-            print(f'# TITLE: {file_name}.py created in {destination_dir}\n"""', file=n)
-            # TODO: add method
-            model_structure.no_model_save(print_cons, n)
-        print()
+            self.save_or_append(model_structure, file_name, save_constraints, example_name, theory_name)
 
     def ask_save(self):
         """print the model and prompt user to store the output"""
@@ -195,20 +307,20 @@ class BuildExample:
         )
         return file_name, print_cons
 
-    def save_or_append(self, module, model_structure, file_name, print_constraints):
+    def save_or_append(self, model_structure, file_name, save_constraints, example_name, theory_name):
         """Option to save or append if a model is found."""
         if file_name is None:
             return
         if len(file_name) == 0:
-            with open(f"{module.module_path}", 'a', encoding="utf-8") as f:
+            with open(f"{self.module.module_path}", 'a', encoding="utf-8") as f:
                 print('\n"""', file=f)
-                model_structure.print_to(print_constraints, f)
+                model_structure.print_to(example_name, theory_name, save_constraints, f)
                 print('"""', file=f)
-            print(f"\nAppended output to {module.module_path}")
+            print(f"\nAppended output to {self.module.module_path}")
             return
 
         # Default or fallback path
-        project_name = getattr(module, 'module_name', 'project')
+        project_name = getattr(self.module, 'module_name', 'project')
         destination_dir = os.path.join(os.getcwd(), project_name)
         
         # Ensure the directory exists
@@ -216,7 +328,7 @@ class BuildExample:
 
         with open(f"{destination_dir}/{file_name}.py", 'w', encoding="utf-8") as n:
             print(f'# TITLE: {file_name}.py created in {destination_dir}\n"""', file=n)
-            model_structure.save_to(print_constraints, n)  # TODO: add function
+            model_structure.save_to(example_name, theory_name, save_constraints, n)
         print(f'\n{file_name}.py created in {destination_dir}\n')
 
 def generate_project(name):
@@ -280,12 +392,11 @@ def generate_project(name):
 def ask_generate_project():
     """prompt user to create a test file"""
     result = input("Would you like to generate a new project? (y/n): ")
-    if result in {'Yes', 'yes', 'Ye', 'ye', 'Y', 'y'}:
-        test_name = input("Enter the name of your project using snake_case: ")
-        generate_project(test_name)
-        return
-    print("You can run an example.py file that already exists with the command:\n")
-    print("model-checker example.py\n")
+    if result not in {'Yes', 'yes', 'Ye', 'ye', 'Y', 'y'}:
+        print("You can run an example.py file that already exists with the command:\n")
+        print("model-checker example.py\n")
+    test_name = input("Enter the name of your project using snake_case: ")
+    generate_project(test_name)
 
 def parse_file_and_flags():
     """returns the name and path for the current script"""
@@ -387,9 +498,19 @@ def main():
             print(f"Failed to upgrade {package_name}: {e}")
         return
 
-    example = BuildExample(module_flags)
+    module = BuildModule(module_flags)
 
-    example.print_result()
+    # TODO: check if compare = True and then:
+        # check if multiple semantic_theories and then:
+            # run comparison function
+
+    for example_name, example_case in module.example_range.items():
+        for theory_name, semantic_theory in module.semantic_theories.items():
+            dictionary = semantic_theory.get("dictionary", None)
+            if dictionary:
+                example_case = translate(example_case, dictionary)
+            example = BuildExample(module, semantic_theory, example_case)
+            example.print_result(example_name, theory_name)
 
 if __name__ == "__main__":
     main()

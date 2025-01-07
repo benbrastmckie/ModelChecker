@@ -2,6 +2,13 @@
 
 import z3
 
+from src.model_checker.primitive import (
+    AndOperator,
+    IdentityOperator,
+    NegationOperator,
+    OrOperator,
+)
+from src.model_checker.semantic import Proposition, Semantics
 from src.model_checker.utils import (
     ForAll,
     Exists,
@@ -468,18 +475,18 @@ class ExclusionOperator(syntactic.Operator):
             )
         )
 
-    def extended_verify(self, state, arg, eval_world):
+    def extended_verify(self, state, argument, eval_world):
         sem = self.semantics
         N, extended_verify, excludes = sem.N, sem.extended_verify, sem.excludes
         is_part_of = sem.is_part_of
-        h = z3.Function(f"h_{(state, arg)}", z3.BitVecSort(N), z3.BitVecSort(N))
+        h = z3.Function(f"h_{(state, argument)}", z3.BitVecSort(N), z3.BitVecSort(N))
         v, x, y, z, s = z3.BitVecs("v x y z s", N)
         # return self.precludes(state, arg_set)
         return z3.And(
             ForAll( # 1. every extended_verier v for arg has a part s where
                 v,  # h(v) excludes s
                 z3.Implies(
-                    extended_verify(v, arg, eval_world), # member of argument's set of verifiers
+                    extended_verify(v, argument, eval_world), # member of argument's set of verifiers
                     Exists(
                         s,
                         z3.And(
@@ -492,7 +499,7 @@ class ExclusionOperator(syntactic.Operator):
             ForAll( # 2. h(x) is a part of the state for all extended_veriers x of arg
                 x,
                 z3.Implies(
-                    extended_verify(x, arg, eval_world),
+                    extended_verify(x, argument, eval_world),
                     is_part_of(h(x), state),
                 )
             ),
@@ -502,7 +509,7 @@ class ExclusionOperator(syntactic.Operator):
                     ForAll(
                         y,
                         z3.Implies(
-                            extended_verify(y, arg, eval_world),
+                            extended_verify(y, argument, eval_world),
                             is_part_of(h(y), state)
                         )
                     ),
@@ -511,10 +518,28 @@ class ExclusionOperator(syntactic.Operator):
             )
         )
 
-    def find_verifiers(self, argsent, eval_world):
-        eval = argsent.proposition.model_structure.z3_model.evaluate
+    # # TODO: why doesn't this work?
+    # def find_verifiers(self, argument, eval_world):
+    #     model = argument.proposition.model_structure.z3_model
+    #     all_bits = self.semantics.all_bits
+    #     result = set()
+    #     for x in all_bits:
+    #         # Create and evaluate the formula with the model
+    #         formula = self.extended_verify(x, argument, eval_world)
+    #         if model.evaluate(formula):
+    #             result.add(x)
+    #     return result
+
+    def find_verifiers(self, argument, eval_world):
         all_bits = self.semantics.all_bits
-        return {x for x in all_bits if eval(self.extended_verify(x, argsent, eval_world))}
+        result = set()
+        for x in all_bits:
+            # Get the extended verification conditions for this bit
+            formula = self.extended_verify(x, argument, eval_world)
+            # If the formula is True (not a Z3 expression), add x to results
+            if formula is True:
+                result.add(x)
+        return result
 
     def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation
@@ -639,28 +664,65 @@ class UniIdentityOperator(syntactic.Operator):
         self.general_print(sentence_obj, eval_world, indent_num, use_colors)
 
 
-########################
-### DEFAULT SETTINGS ###
-########################
 
-settings = {
-    'N' : 3, # number of atomic states
-    'possible' : False, # every sentence letter is possible
-    'contingent' : True, # every sentence letter is contingent
-    'non_empty' : True, # every sentence letter has a verifier
-    'non_null' : False, # null_state does not verify sentence_letters
-    'disjoint' : True, # sentence letters have disjoint subject-matters
-    'fusion_closure' : False, # verifiers are closed under fusion
-    'print_impossible' : True, # show impossible states
-    'max_time' : 1, # max time before z3 will stop looking
+####################################
+### DEFINE THE SEMANTIC THEORIES ###
+####################################
+
+champollion_operators = syntactic.OperatorCollection(
+    UniAndOperator, UniOrOperator, ExclusionOperator, # extensional
+    UniIdentityOperator, # constitutive
+)
+
+default_operators = syntactic.OperatorCollection(
+    NegationOperator, AndOperator, OrOperator, # extensional
+    IdentityOperator, # constitutive
+)
+champollion_theory = {
+    "semantics": ChampollionSemantics,
+    "proposition": ChampollionProposition,
+    "operators": champollion_operators,
 }
 
-# premises = []
-# conclusions = []
-# conclusions = ['\\exclude A']
-# conclusions = ['A']
-# conclusions = ['(A \\uniwedge B)']
-# conclusions = ['(B \\uniwedge C)']
+default_dictionary = {
+    "\\exclude" : "\\neg",
+    "\\uniwedge" : "\\wedge",
+    "\\univee" : "\\vee",
+    "\\uniequiv" : "\\equiv",
+}
+
+default_theory = {
+    "semantics": Semantics,
+    "proposition": Proposition,
+    "operators": default_operators,
+    "dictionary": default_dictionary,
+}
+
+semantic_theories = {
+    "Champollion" : champollion_theory,
+    "Brast-McKie" : default_theory,
+}
+
+#######################
+### DEFINE SETTINGS ###
+#######################
+
+general_settings = {
+    "print_constraints": False,
+    "print_impossible": False,
+    "save_output": False,
+}
+
+example_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
 
 # premises = ['\\exclude (A \\univee B)']
 # conclusions = ['(\\exclude A \\uniwedge \\exclude B)']
@@ -690,34 +752,73 @@ settings = {
 # premises = ['\\exclude (A \\uniwedge B)']
 # conclusions = ['(\\exclude A \\univee \\exclude B)']
 
-# NOTE: this is a versatile way to store examples for comparison later
+
+
+#####################
+### COUNTERMODELS ###
+#####################
+
+# NOTE: this is a versatile way to store examples for comparison
 # as in `example.py` 
-EX_CM_1_premises = ['((A \\univee B) \\uniwedge (A \\univee C))']
-EX_CM_1_conclusions = ['(A \\uniwedge (B \\univee C))']
-EX_CM_1_example = [EX_CM_1_premises, EX_CM_1_conclusions]
+EX_CM_1_premises = []
+EX_CM_1_conclusions = ['(A \\uniequiv \\exclude \\exclude A)']
+EX_CM_1_example = [
+    EX_CM_1_premises,
+    EX_CM_1_conclusions,
+    example_settings, # these can be customized by example
+]
 
-# TODO: good to explain what each piece does
+EX_CM_2_premises = ['((A \\univee B) \\uniwedge (A \\univee C))']
+EX_CM_2_conclusions = ['(A \\uniwedge (B \\univee C))']
+EX_CM_2_example = [
+    EX_CM_2_premises,
+    EX_CM_2_conclusions,
+    example_settings,
+]
 
-operators = syntactic.OperatorCollection(
-    UniAndOperator,
-    ExclusionOperator,
-    UniOrOperator,
-    UniIdentityOperator,
-)
 
-premises, conclusions = EX_CM_1_example
 
-syntax = syntactic.Syntax(premises, conclusions, operators)
+############################
+### LOGICAL CONSEQUENCES ###
+############################
 
-semantics = ChampollionSemantics(settings['N'])
+EX_TH_1_premises = []
+EX_TH_1_conclusions = ['(\\exclude A \\uniequiv \\exclude \\exclude \\exclude A)']
+EX_TH_1_example = [
+    EX_TH_1_premises,
+    EX_TH_1_conclusions,
+    example_settings, # these can be customized by example
+]
 
-model_constraints = model.ModelConstraints(
-    settings,
-    syntax,
-    semantics,
-    ChampollionProposition,
-)
 
-model_structure = model.ModelStructure(model_constraints)
 
-model_structure.print_all()
+##################################
+### DEFINE EXAMPLES TO COMPUTE ###
+##################################
+
+# NOTE: examples can be tested individually by commenting out all other examples
+
+example_range = {
+    # Countermodels
+    "EX_CM_1" : EX_CM_1_example,
+    # "EX_CM_2" : EX_CM_2_example,
+    # # Theorems
+    "EX_TH_1" : EX_TH_1_example,
+}
+
+# TODO: good to explain what each piece does throughout
+
+# premises, conclusions = EX_CM_1_example
+#
+# syntax = syntactic.Syntax(premises, conclusions, champollion_operators)
+#
+# semantics = ChampollionSemantics(settings['N'])
+#
+# model_constraints = model.ModelConstraints(
+#     settings,
+#     syntax,
+#     semantics,
+#     ChampollionProposition,
+# )
+#
+# model_structure = model.ModelStructure(model_constraints)
