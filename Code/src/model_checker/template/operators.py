@@ -331,6 +331,315 @@ class IdentityOperator(syntactic.Operator):
         self.general_print(sentence_obj, eval_world, indent_num, use_colors)
 
 
+class GroundOperator(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\leq"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        N = self.semantics.N
+        sem = self.semantics
+        x = z3.BitVec("t_seq_x", N)
+        y = z3.BitVec("t_seq_y", N)
+        return z3.And(
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_verify(x, leftarg, eval_world),
+                    sem.extended_verify(x, rightarg, eval_world)
+                )
+            ),
+            ForAll(
+                [x, y],
+                z3.Implies(
+                    z3.And(
+                        sem.extended_falsify(x, leftarg, eval_world),
+                        sem.extended_falsify(y, rightarg, eval_world)
+                    ),
+                    sem.extended_falsify(sem.fusion(x, y), rightarg, eval_world)
+                ),
+            ),
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_falsify(x, rightarg, eval_world),
+                    Exists(
+                        y,
+                        z3.And(
+                            sem.extended_falsify(y, leftarg, eval_world),
+                            sem.is_part_of(y, x),
+                        )
+                    )
+                ),
+            ),
+        )
+
+    def false_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        sem = self.semantics
+        N = self.semantics.N
+        x = z3.BitVec("f_seq_x", N)
+        y = z3.BitVec("f_seq_y", N)
+        return z3.Or(
+            Exists(
+                x,
+                z3.And(
+                    sem.extended_verify(x, leftarg, eval_world),
+                    z3.Not(sem.extended_verify(x, rightarg, eval_world))
+                )
+            ),
+            Exists(
+                [x, y],
+                z3.And(
+                    sem.extended_falsify(x, leftarg, eval_world),
+                    sem.extended_falsify(y, rightarg, eval_world),
+                    z3.Not(sem.extended_falsify(sem.fusion(x, y), rightarg, eval_world))
+                ),
+            ),
+            Exists(
+                x,
+                z3.And(
+                    sem.extended_falsify(x, rightarg, eval_world),
+                    ForAll(
+                        y,
+                        z3.Implies(
+                            sem.extended_falsify(y, leftarg, eval_world),
+                            z3.Not(sem.is_part_of(y, x)),
+                        )
+                    )
+                ),
+            ),
+        )
+
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.true_at(leftarg, rightarg, eval_world)
+        )
+
+    def extended_falsify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.false_at(leftarg, rightarg, eval_world)
+        )
+
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
+        product = self.semantics.product
+        coproduct = self.semantics.coproduct
+        Y_V, Y_F = left_sent_obj.proposition.find_proposition()
+        Z_V, Z_F = right_sent_obj.proposition.find_proposition()
+        if coproduct(Y_V, Z_V) == Z_V and product(Y_F, Z_F) == Z_F:
+            return {self.semantics.null_bit}, set()
+        return set(), {self.semantics.null_bit}
+
+    def print_method(self, sentence_obj, eval_world, indent_num, use_colors ):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        self.general_print(sentence_obj, eval_world, indent_num, use_colors)
+
+
+class EssenceOperator(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\sqsubseteq"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        N = self.semantics.N
+        sem = self.semantics
+        x = z3.BitVec("t_seq_x", N)
+        y = z3.BitVec("t_seq_y", N)
+        return z3.And(
+            ForAll(
+                [x, y],
+                z3.Implies(
+                    z3.And(
+                        sem.extended_verify(x, leftarg, eval_world),
+                        sem.extended_verify(y, rightarg, eval_world)
+                    ),
+                    sem.extended_verify(sem.fusion(x, y), rightarg, eval_world)
+                ),
+            ),
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_verify(x, rightarg, eval_world),
+                    Exists(
+                        y,
+                        z3.And(
+                            sem.extended_verify(y, leftarg, eval_world),
+                            sem.is_part_of(y, x),
+                        )
+                    )
+                ),
+            ),
+            ForAll(
+                x,
+                z3.Implies(
+                    sem.extended_falsify(x, leftarg, eval_world),
+                    sem.extended_falsify(x, rightarg, eval_world)
+                )
+            )
+        )
+
+    def false_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        sem = self.semantics
+        N = self.semantics.N
+        x = z3.BitVec("f_seq_x", N)
+        y = z3.BitVec("f_seq_y", N)
+        return z3.Or(
+            Exists(
+                [x, y],
+                z3.And(
+                    sem.extended_verify(x, leftarg, eval_world),
+                    sem.extended_verify(y, rightarg, eval_world),
+                    z3.Not(sem.extended_verify(sem.fusion(x, y), rightarg, eval_world))
+                ),
+            ),
+            Exists(
+                x,
+                z3.And(
+                    sem.extended_verify(x, rightarg, eval_world),
+                    ForAll(
+                        y,
+                        z3.Implies(
+                            sem.extended_verify(y, leftarg, eval_world),
+                            z3.Not(sem.is_part_of(y, x)),
+                        )
+                    )
+                ),
+            ),
+            Exists(
+                x,
+                z3.And(
+                    sem.extended_falsify(x, leftarg, eval_world),
+                    z3.Not(sem.extended_falsify(x, rightarg, eval_world))
+                )
+            )
+        )
+
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.true_at(leftarg, rightarg, eval_world)
+        )
+
+    def extended_falsify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.false_at(leftarg, rightarg, eval_world)
+        )
+
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
+        product = self.semantics.product
+        coproduct = self.semantics.coproduct
+        Y_V, Y_F = left_sent_obj.proposition.find_proposition()
+        Z_V, Z_F = right_sent_obj.proposition.find_proposition()
+        if product(Y_V, Z_V) == Z_V and coproduct(Y_F, Z_F) == Z_F:
+            return {self.semantics.null_bit}, set()
+        return set(), {self.semantics.null_bit}
+    
+    def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        self.general_print(sentence_obj, eval_world, indent_num, use_colors)
+
+
+###############################################################################
+############################# RELEVANCE OPERATORS #############################
+###############################################################################
+
+class RelevanceOperator(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\preceq"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        N = self.semantics.N
+        sem = self.semantics
+        x = z3.BitVec("t_peq_x", N)
+        y = z3.BitVec("t_peq_y", N)
+        return z3.And(
+            ForAll(
+                [x, y],
+                z3.Implies(
+                    z3.And(
+                        sem.extended_verify(x, leftarg, eval_world),
+                        sem.extended_verify(y, rightarg, eval_world)
+                    ),
+                    sem.extended_verify(sem.fusion(x, y), rightarg, eval_world)
+                ),
+            ),
+            ForAll(
+                [x, y],
+                z3.Implies(
+                    z3.And(
+                        sem.extended_falsify(x, leftarg, eval_world),
+                        sem.extended_falsify(y, rightarg, eval_world)
+                    ),
+                    sem.extended_falsify(sem.fusion(x, y), rightarg, eval_world)
+                ),
+            ),
+        )
+
+    def false_at(self, leftarg, rightarg, eval_world):
+        """doc string place holder"""
+        sem = self.semantics
+        N = self.semantics.N
+        x = z3.BitVec("f_seq_x", N)
+        y = z3.BitVec("f_seq_y", N)
+        return z3.Or(
+            Exists(
+                [x, y],
+                z3.And(
+                    sem.extended_verify(x, leftarg, eval_world),
+                    sem.extended_verify(y, rightarg, eval_world),
+                    z3.Not(sem.extended_verify(sem.fusion(x, y), rightarg, eval_world))
+                ),
+            ),
+            Exists(
+                [x, y],
+                z3.And(
+                    sem.extended_falsify(x, leftarg, eval_world),
+                    sem.extended_falsify(y, rightarg, eval_world),
+                    z3.Not(sem.extended_falsify(sem.fusion(x, y), rightarg, eval_world))
+                ),
+            ),
+        )
+
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.true_at(leftarg, rightarg, eval_world)
+        )
+
+    def extended_falsify(self, state, leftarg, rightarg, eval_world):
+        return z3.And(
+            state == self.semantics.null_bit,
+            self.false_at(leftarg, rightarg, eval_world)
+        )
+
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_world):
+        product = self.semantics.product
+        coproduct = self.semantics.coproduct
+        Y_V, Y_F = left_sent_obj.proposition.find_proposition()
+        Z_V, Z_F = right_sent_obj.proposition.find_proposition()
+        if product(Y_V, Z_V) == Z_V and coproduct(Y_F, Z_F) == Z_F:
+            return {self.semantics.null_bit}, set()
+        return set(), {self.semantics.null_bit}
+    
+    def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints both of the arguments."""
+        self.general_print(sentence_obj, eval_world, indent_num, use_colors)
+
+
 ##############################################################################
 ########################## COUNTERFACTUAL OPERATORS ##########################
 ##############################################################################
@@ -396,6 +705,70 @@ class CounterfactualOperator(syntactic.Operator):
         left_argument_obj = sentence_obj.original_arguments[0]
         left_argument_verifiers = left_argument_obj.proposition.verifiers
         alt_worlds = is_alt(left_argument_verifiers, eval_world, model_structure)
+        self.print_over_worlds(sentence_obj, eval_world, alt_worlds, indent_num, use_colors)
+
+
+class ImpositionOperator(syntactic.Operator):
+    name = "\\imposition"
+    arity = 2
+
+    def true_at(self, leftarg, rightarg, eval_world):
+        sem = self.semantics
+        N = sem.N
+        x = z3.BitVec("t_imp_x", N)
+        u = z3.BitVec("t_imp_u", N)
+        return ForAll(
+            [x, u],
+            z3.Implies(
+                z3.And(
+                    sem.extended_verify(x, leftarg, eval_world),
+                    sem.imposition(x, eval_world, u)
+                ),
+                sem.true_at(rightarg, u),
+            ),
+        )
+    
+    def false_at(self, leftarg, rightarg, eval_world):
+        sem = self.semantics
+        N = sem.N
+        x = z3.BitVec("f_imp_x", N)
+        u = z3.BitVec("f_imp_u", N)
+        return Exists(
+            [x, u],
+            z3.And(
+                sem.extended_verify(x, leftarg, eval_world),
+                sem.imposition(x, eval_world, u),
+                sem.false_at(rightarg, u)),
+            )
+
+    def extended_verify(self, state, leftarg, rightarg, eval_world):
+        # TODO: add constraint which requires state to be the null_bit
+        return self.true_at(leftarg, rightarg, eval_world)
+    
+    def extended_falsify(self, state, leftarg, rightarg, eval_world):
+        # TODO: add constraint which requires state to be the null_bit
+        return self.false_at(leftarg, rightarg, eval_world)
+
+    def find_verifiers_and_falsifiers(self, leftarg, rightarg, eval_world):
+        evaluate = leftarg.proposition.model_structure.z3_model.evaluate
+        if bool(evaluate(self.true_at(leftarg, rightarg, eval_world))):
+            return {self.semantics.null_bit}, set()
+        if bool(evaluate(self.false_at(leftarg, rightarg, eval_world))):
+            return set(), {self.semantics.null_bit}
+        raise ValueError(
+            f"{leftarg.name} {self.name} {rightarg.name} "
+            f"is neither true nor false in the world {eval_world}."
+        )
+    
+    def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
+        """Print counterfactual and the antecedent in the eval_world. Then
+        print the consequent in each alternative to the evaluation world.
+        """
+        is_outcome = self.semantics.calculate_outcome_worlds
+        model_structure = sentence_obj.proposition.model_structure
+        left_argument_obj = sentence_obj.original_arguments[0]
+        left_argument_verifiers = left_argument_obj.proposition.verifiers
+        alt_worlds = is_outcome(left_argument_verifiers, eval_world, model_structure)
         self.print_over_worlds(sentence_obj, eval_world, alt_worlds, indent_num, use_colors)
 
 
@@ -474,37 +847,20 @@ class ConditionalOperator(syntactic.DefinedOperator):
         self.general_print(sentence_obj, eval_world, indent_num, use_colors)
 
 
-##############################################################################
-####################### DEFINED CONSTITUTIVE OPERATORS #######################
-##############################################################################
+class BiconditionalOperator(syntactic.DefinedOperator):
 
-class DefGroundOperator(syntactic.DefinedOperator):
-
-    name = "\\ground"
+    name = "\\leftrightarrow"
     arity = 2
 
     def derived_definition(self, leftarg, rightarg):
-        return [IdentityOperator, [OrOperator, leftarg, rightarg], rightarg]
-
+        right_to_left = [ConditionalOperator, leftarg, rightarg]
+        left_to_right = [ConditionalOperator, rightarg, leftarg]
+        return [AndOperator, right_to_left, left_to_right]
+    
     def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
         self.general_print(sentence_obj, eval_world, indent_num, use_colors)
-
-
-class DefEssenceOperator(syntactic.DefinedOperator):
-
-    name = "\\essence"
-    arity = 2
-
-    def derived_definition(self, leftarg, rightarg):
-        return [IdentityOperator, [AndOperator, leftarg, rightarg], rightarg]
-
-    def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
-        """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num, use_colors)
-
 
 
 ##############################################################################
@@ -536,6 +892,32 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
         alt_worlds = is_alt(left_argument_verifiers, eval_world, model_structure)
         self.print_over_worlds(sentence_obj, eval_world, alt_worlds, indent_num, use_colors)
 
+
+class MightImpositionOperator(syntactic.DefinedOperator):
+
+    name = "\\could"
+    arity = 2
+
+    def derived_definition(self, leftarg, rightarg):
+        return [
+            NegationOperator, [
+                ImpositionOperator,
+                leftarg,
+                [NegationOperator, rightarg]
+            ]
+        ]
+
+    def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
+        """Print counterfactual and the antecedent in the eval_world. Then
+        print the consequent in each alternative to the evaluation world.
+        """
+        is_outcome = self.semantics.calculate_outcome_worlds
+        model_structure = sentence_obj.proposition.model_structure
+        left_argument_obj = sentence_obj.original_arguments[0]
+        left_argument_verifiers = left_argument_obj.proposition.verifiers
+        alt_worlds = is_outcome(left_argument_verifiers, eval_world, model_structure)
+        self.print_over_worlds(sentence_obj, eval_world, alt_worlds, indent_num, use_colors)
+
 ##############################################################################
 ####################### DEFINED INTENSIONAL OPERATORS ########################
 ##############################################################################
@@ -555,19 +937,24 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
         all_worlds = sentence_obj.proposition.model_structure.world_bits
         self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num, use_colors)
 
-operators = syntactic.OperatorCollection(
+default_operators = syntactic.OperatorCollection(
+    # primitive operators
     NegationOperator,
     AndOperator,
     OrOperator,
     TopOperator,
     BotOperator,
     IdentityOperator,
+
     CounterfactualOperator,
+    ImpositionOperator,
     NecessityOperator,
+
+    # defined operators
     ConditionalOperator,
-    DefGroundOperator,
-    DefEssenceOperator,
+    BiconditionalOperator,
     MightCounterfactualOperator,
+    MightImpositionOperator,
     DefPossibilityOperator,
 )
 

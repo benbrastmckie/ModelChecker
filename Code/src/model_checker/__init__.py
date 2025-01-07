@@ -1,5 +1,9 @@
 # __init__.py
-__version__ = "0.5.6"
+from importlib.metadata import version
+try:
+    __version__ = version("model-checker")
+except ImportError:
+    __version__ = "unknown"
 
 # Import specific items from utils
 from .utils import (

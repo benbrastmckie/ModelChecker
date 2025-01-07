@@ -10,16 +10,31 @@ import shutil
 import subprocess
 import argparse
 import importlib.util
-from src.model_checker.__init__ import __version__
-from src.model_checker.builder import (
-    make_model_for,
-    translate,
-)
-from src.model_checker.model import (
-    SemanticDefaults,
-    PropositionDefaults
-)
-from src.model_checker.syntactic import OperatorCollection
+# Try local imports first (for development)
+try:
+    from src.model_checker import __version__
+    from src.model_checker.builder import (
+        make_model_for,
+        translate,
+    )
+    from src.model_checker.model import (
+        SemanticDefaults,
+        PropositionDefaults
+    )
+    from src.model_checker.syntactic import OperatorCollection
+except ImportError:
+    # Fall back to installed package imports
+    from model_checker import __version__
+    from model_checker.builder import (
+        make_model_for,
+        translate,
+    )
+    from model_checker.model import (
+        SemanticDefaults,
+        PropositionDefaults
+    )
+    from model_checker.syntactic import OperatorCollection
+
 
 class BuildModule:
     """Load and store module values with settings and validation.
@@ -259,9 +274,9 @@ class BuildExample:
                 new_value = general_settings.get(key, default_value)
                 
                 # Check if we're replacing an existing general setting
-                if key in general_settings and new_value != default_value:
+                if new_value != default_value:
                     print(f"Warning: Example setting '{key}' is replacing general setting "
-                          f"'{general_settings[key]}' with '{new_value}'")
+                          f"'{default_value}' with '{new_value}'")
                 
                 # Update the settings
                 general_settings[key] = new_value
@@ -485,6 +500,8 @@ def parse_file_and_flags():
     package_name = parser.prog  # Get the package name from the parser
     return flags, package_name
 
+# TODO: make method for runtime and progress bar
+# TODO: make method for turning on cProfile
 def main():
     if len(sys.argv) < 2:
         ask_generate_project()

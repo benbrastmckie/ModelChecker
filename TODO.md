@@ -7,24 +7,29 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] class architecture
 - [x] implementation
 - [:] api
+  - [ ] update before release
 - [:] applications
   - [:] Champollion
     - [ ] examples
+    - [ ] divide into modules
   - [x] Fine
-- [.] benchmarks
+- [x] benchmarks
 - [:] unit tests
 - [.] documentation
+  - [.] doc strings
   - [ ] architecture
   - [ ] semantics
   - [ ] jupyter notebook
-  - [.] doc strings
+  - [ ] wiki
+  - [ ] local LLM
 - [:] cli
+  - [ ] update help flag
   - [:] release
   - [ ] comparison
-  - [ ] fix templates
   - [ ] optimizer
+  - [:] fix templates
   - [ ] unit test template
-  - [ ] add operators
+  - [x] add default operators
   - [x] check `no_model` cases
   - [x] refactor printing and saving
 

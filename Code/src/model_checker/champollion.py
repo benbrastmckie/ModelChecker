@@ -1,5 +1,9 @@
 """From the ../Code/ directory, run: python -m src.model_checker src/model_checker/champollion.py"""
 
+# TODO: good to explain what each piece does throughout.
+# B: I can use my AI assistant to create docstrings but it will need to edit
+# to make the semantics accessible and methodologically clear.
+
 import z3
 
 from src.model_checker.primitive import (
@@ -806,19 +810,3 @@ example_range = {
     "EX_TH_1" : EX_TH_1_example,
 }
 
-# TODO: good to explain what each piece does throughout
-
-# premises, conclusions = EX_CM_1_example
-#
-# syntax = syntactic.Syntax(premises, conclusions, champollion_operators)
-#
-# semantics = ChampollionSemantics(settings['N'])
-#
-# model_constraints = model.ModelConstraints(
-#     settings,
-#     syntax,
-#     semantics,
-#     ChampollionProposition,
-# )
-#
-# model_structure = model.ModelStructure(model_constraints)
