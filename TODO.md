@@ -21,6 +21,7 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [:] cli
   - [:] release
   - [ ] comparison
+  - [ ] fix templates
   - [ ] optimizer
   - [ ] unit test template
   - [ ] add operators

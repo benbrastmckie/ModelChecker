@@ -527,27 +527,35 @@ class ModelStructure:
         for index, con in enumerate(constraints, start=1):
             print(f"{index}. {con}\n", file=output)
 
-    def print_to(self, print_constraints, output=sys.__stdout__):
-        """append all elements of the model to the file provided"""
+    def print_to(self, example_name, theory_name, print_constraints=None, output=sys.__stdout__):
+        """append all elements of the model to the file provided
+        
+        Args:
+            print_constraints: Whether to print constraints. Defaults to value in settings.
+            output: Output stream to print to. Defaults to sys.stdout.
+        """
+        if print_constraints is None:
+            print_constraints = self.settings["print_constraints"]
         if self.timeout:
             print(f"TIMEOUT: {self.timeout}")
-            print("No model found before timeout.", file=output)
+            print(f"No model for example {example_name} found before timeout.", file=output)
             print(f"Try increasing max_time > {self.max_time}.\n", file=output)
             return
-        self.print_all(output)
-        if print_constraints:
-            self.print_grouped_constraints(output)
-        print(f"Run time: {self.z3_model_runtime} seconds\n", file=output)
-
-    def no_model_print_to(self, print_constraints, output=sys.__stdout__):
-        """prints the argument when there is no model with the option to
-        include Z3 constraints."""
+        self.print_all(example_name, theory_name, output)
         if print_constraints and self.unsat_core is not None:
             self.print_grouped_constraints(output)
-        print(f"There are no {self.N}-models of:\n", file=output)
-        self.model_constraints.print_enumerate(output)
-        print(file=output)
-        print(f"Run time: {self.z3_model_runtime} seconds\n", file=output)
+
+    # def no_model_print_to(self, print_constraints=None, output=sys.__stdout__):
+    #     """prints the argument when there is no model with the option to
+    #     include Z3 constraints."""
+    #     if print_constraints is None:
+    #         print_constraints = self.settings["print_constraints"]
+    #     if print_constraints and self.unsat_core is not None:
+    #         self.print_grouped_constraints(output)
+    #     print(f"There are no {self.N}-models of:\n", file=output)
+    #     self.model_constraints.print_enumerate(output)
+    #     print(file=output)
+    #     print(f"Run time: {self.z3_model_runtime} seconds\n", file=output)
 
     def build_test_file(self, output):
         """generates a test file from input to be saved"""
@@ -562,14 +570,13 @@ class ModelStructure:
         print(inputs_content, file=output)
 
 
-    def save_to(self, cons_include, output):
+    def save_to(self, example_name, theory_name, include_constraints, output):
         """append all elements of the model to the file provided"""
         constraints = self.model_constraints.all_constraints
-        self.print_all(output)
+        self.print_all(example_name, theory_name, output)
         self.build_test_file(output)
-        if cons_include:
+        if include_constraints:
             print("# Satisfiable constraints", file=output)
-            # TODO: print constraint objects, not constraint strings
             print(f"all_constraints = {constraints}", file=output)
 
     def print_states(self, output=sys.__stdout__):
@@ -648,22 +655,42 @@ class ModelStructure:
             output
         )
 
-    def print_all(self, output=sys.__stdout__):
+    def print_all(self, example_name, theory_name, output=sys.__stdout__):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
         if self.z3_model_status:
-            print(f"\nThere is a {self.N}-model of:\n", file=output)
+            print(
+                "\n" + "="*40,
+                f"\nEXAMPLE {example_name}: there is a countermodel.\n",
+                f"\nAtomic States: {self.N}\n",
+                f"\nSemantic Theory: {theory_name}\n",
+                file=output
+            )
             self.model_constraints.print_enumerate(output)
+            print(
+                f"\nZ3 Run Time: {self.z3_model_runtime} seconds",
+                "\n" + "="*40 + "\n",
+                file=output
+            )
             self.print_states(output)
             self.print_evaluation(output)
             self.print_input_sentences(output)
             # TODO: make method for runtime and progress bar
             # TODO: make method for turning on cProfile
             if output is sys.__stdout__:
-                print(f"Z3 run time: {self.z3_model_runtime} seconds\n", file=output)
                 total_time = round(time.time() - self.start_time, 4) 
-                print(f"Total run time: {total_time} seconds\n", file=output)
+                print(f"Total Run Time: {total_time} seconds\n", file=output)
             return
-        print(f"\nThere is no {self.N}-model of:\n")
+        print(
+            "\n" + "="*40,
+            f"\nEXAMPLE {example_name}: there is no countermodel.\n",
+            f"\nAtomic States: {self.N}\n",
+            f"\nSemantic Theory: {theory_name}\n",
+            file=output
+        )
         self.model_constraints.print_enumerate(output)
-        # print([self.constraint_dict[str(c)] for c in self.unsat_core])
+        print(
+            f"\nZ3 Run Time: {self.z3_model_runtime} seconds",
+            "\n" + "="*40 + "\n",
+            file=output
+        )

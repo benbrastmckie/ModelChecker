@@ -71,17 +71,20 @@ def compare_semantics(theory_list, settings):
             except Exception as e:
                 print(f"An error occurred for theory {theory}: {e}")
 
-def translate(premises, conclusions, dictionary):
+def translate(example_case, dictionary):
     """Use dictionary to replace logical operators."""
+
+    premises, conclusions, settings = example_case
+
     def replace_operators(logical_list, dictionary):
         for old, new in dictionary.items():
             logical_list = [sentence.replace(old, new) for sentence in logical_list]
         return logical_list
 
-    imp_prems = replace_operators(premises, dictionary)
-    imp_cons = replace_operators(conclusions, dictionary)
+    new_premises = replace_operators(premises, dictionary)
+    new_conclusion = replace_operators(conclusions, dictionary)
 
-    return [imp_prems, imp_cons]
+    return [new_premises, new_conclusion, settings]
 
 
 def run_comparison(theory_A, theory_B, settings, examples):
