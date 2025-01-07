@@ -4,10 +4,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Plan
 
-- [x] class architecture
-- [x] implementation
-- [:] api
-  - [ ] update before release
 - [:] applications
   - [:] Champollion
     - [ ] examples
@@ -15,6 +11,8 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] Fine
 - [x] benchmarks
 - [:] unit tests
+  - [:] example unit tests
+  - [ ] add unit tests to template
 - [.] documentation
   - [.] doc strings
   - [ ] architecture
@@ -22,22 +20,22 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] jupyter notebook
   - [ ] wiki
   - [ ] local LLM
-- [:] cli
-  - [ ] update help flag
-  - [:] release
+- [ ] add utilities
   - [ ] comparison
   - [ ] optimizer
-  - [:] fix templates
-  - [ ] unit test template
-  - [x] add default operators
-  - [x] check `no_model` cases
-  - [x] refactor printing and saving
+  - [ ] add to api
+- [ ] subject-matter operators
+- [x] class architecture
+- [x] implementation
+- [x] api
+- [x] cli
+- [x] release
 
 ## API
 
 - [x] create `__init__.py` and add all imports
-- [:] move any functions with general uses to `utils.py`
-  - add useful functions from `utils.py` to `__init__.py`
+- [x] move any functions with general uses to `utils.py`
+  - [:] add useful functions from `utils.py` to `__init__.py`
 - [x] rebuild package
 - [x] create `api_example.py` to import from `model-checker`
 - [x] confirm `api_example.py` works
@@ -94,17 +92,17 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Diagnostic Tools
 
+- [ ] progress bar
+- [:] error reporting
+  - [ ] convert bvs to states in raise Errors
+  - [ ] few remaining todos in `__main__.py`
+- [ ] refactor `utils.py`
 - [x] printouts
   - [x] add total time
-- [ ] flags
-- [ ] progress bar
-- [ ] error reporting
-  - [ ] convert bvs to states in raise Errors
+- [x] flags
 - [x] function to compare semantics
-- [ ] create example template
-- [ ] create example unit test
-- [ ] add check/continues and test
-- [ ] refactor `utils.py`
+- [x] create project template
+- [x] add check/continues and test
 
 ## Documentation
 
@@ -125,12 +123,18 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## CLI
 
-- add save functions to `ModelStructure`
-- flags
-  - print constraints
-  - print unsat core
+- [x] add save functions to `ModelStructure`
+- [x] flags
+  - [x] print constraints
+  - [x] print unsat core
+  - [ ] comparison
   - optimizer
-- progress bar
+- [x] update help flag
+- [x] fix templates
+- [x] add default operators
+- [x] check `no_model` cases
+- [x] refactor printing and saving
+- [ ] progress bar
 
 ## Implementation
 
@@ -199,22 +203,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 
 # Release v0.6
 
-- [ ] subject-matter operators
-- [ ] exposing imports
-  - [ ] _M_ test imports
-    - Q: are the exposed functions recursive?
-  - [ ] _M_ document workflow
-  - [ ] _B_ update package
-- [.] `test_file` script builder
-  - [x] z3 constraints
-  - [ ] declarations
-- [ ] bypass semantics
-  - [ ] generate `semantics` module
-  - [ ] include bypass option
-- [ ] API
-  - [ ] save model data structures
-  - [ ] design workflow
-- [x] progress bar
+- [x] project template
+- [x] bypass semantics
+  - [x] generate `semantics` module
 - [x] primitive imposition
   - [x] implement
   - [x] test
@@ -232,25 +223,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] https://www.csail.mit.edu/person/frans-kaashoek -- Frans Kaashoek
   - [ ] https://people.csail.mit.edu/mengjia/ -- Megjia Yan
 
-## Refine and Optimize
-
-- [ ] fix imports
-  - [x] create issue
-  - [ ] ask oliver
-- [ ] test exhaustivity
-  - [ ] prove bivalence
-
-## Pre-Processing
-
-- [.] pre-processing module
-  - [x] add backslashes
-  - [ ] design algorithm for simplifying prefix sentences
-    - NOTE: research `SymPy` for simplifying sentences
-
-## Overview
-
-- [ ] _B_ move from set-fusion to binary fusion throughout
-- [:] _B_ check that world-hood constraint is not needed for finite spaces
 
 
 
@@ -342,6 +314,14 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] general methods for printing
   - [x] unsat core
   - [x] print benchmarks
+- [x] pre-processing module
+  - [x] add backslashes
+  - [x] design algorithm for simplifying prefix sentences
+    - NOTE: research `SymPy` for simplifying sentences
+- [x] general
+  - [x] _B_ move from set-fusion to binary fusion throughout
+  - [x] fix imports
+  - [x] _B_ check that world-hood constraint is not needed for finite spaces
 
 ## Documentation
 

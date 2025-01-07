@@ -421,7 +421,7 @@ def parse_file_and_flags():
         usage='%(prog)s [options] input',
         description="""
         Running '%(prog)s' without options or an input will prompt the user
-        to generate a new test file. To run a test on an existing file, include
+        to generate a project. To run a test on an existing file, include
         the path to that file as the input.""",
         epilog="""
         More information can be found at:
