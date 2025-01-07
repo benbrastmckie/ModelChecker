@@ -15,12 +15,16 @@ from .utils import (
 # Import model as a whole
 from . import model
 
+# Import syntactic as a whole
+from . import syntactic
+
 # Import specific items from utils
 from .builder import (
     make_model_for,
     find_max_N,
-    run_comparison,
-    save_comparisons,
+    translate,
+    # run_comparison, # update
+    # save_comparisons, # update
 )
 
 # Import specific items from semantic
@@ -35,11 +39,11 @@ from .primitive import (
     AndOperator, NegationOperator, OrOperator,            # extensional
     TopOperator, BotOperator,                             # top and bottom
     IdentityOperator, GroundOperator, EssenceOperator,    # constitutive
+    RelevanceOperator,                                    # relevance
     NecessityOperator, PossibilityOperator,               # modal
     CounterfactualOperator, ImpositionOperator,           # counterfactual
 )
 
-# Import specific items from defined
 from .defined import (
     ConditionalOperator, BiconditionalOperator,           # extensional
     DefEssenceOperator, DefGroundOperator,                # constitutive
@@ -47,14 +51,19 @@ from .defined import (
     
 )
 
-# Import syntactic as a whole
-from . import syntactic
+
+# Import specific items from __main__
+from .__main__ import (
+    BuildModule,
+    BuildExample,
+    main,
+)
 
 # Define the public API of the package
 __all__ = [
+    "model", "syntactic",
     "ForAll", "Exists", "bitvec_to_substates",
-    "model",
-    "make_model_for", "find_max_N", "run_comparison", "save_comparisons",
+    "make_model_for", "find_max_N", "translate", #"run_comparison", "save_comparisons",
     "Semantics", "ImpositionSemantics", "Proposition",
     "ConditionalOperator", "BiconditionalOperator",
     "DefEssenceOperator", "DefGroundOperator",
@@ -62,7 +71,8 @@ __all__ = [
     "AndOperator", "NegationOperator", "OrOperator",
     "TopOperator", "BotOperator",
     "IdentityOperator", "GroundOperator", "EssenceOperator",
+    "RelevanceOperator",
     "NecessityOperator", "PossibilityOperator",
     "CounterfactualOperator", "ImpositionOperator",
-    "syntactic",
+    "BuildModule", "BuildExample", "main",
 ]
