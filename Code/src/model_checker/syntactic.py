@@ -57,7 +57,7 @@ class Sentence:
             self.original_operator = self.prefix_sentence[0]
         else:
             self.original_arguments = None
-            self.original_operator = None
+            self.original_operator = self.prefix_sentence[0] if self.name in {'\\top', '\\bot'} else None
         self.arguments = None # updated by initialize_types
         self.operator = None # updated by update_types
 
@@ -206,8 +206,9 @@ class Operator:
         proposition.print_proposition(eval_world, indent_num, use_colors)
         indent_num += 1
 
-        for arg in sentence_obj.original_arguments:
-            model_structure.recursive_print(arg, eval_world, indent_num, use_colors)
+        if sentence_obj.original_arguments:
+            for arg in sentence_obj.original_arguments:
+                model_structure.recursive_print(arg, eval_world, indent_num, use_colors)
 
     def print_over_worlds(self, sentence_obj, eval_world, other_worlds, indent_num, use_colors):
         """Print counterfactual and the antecedent in the eval_world. Then

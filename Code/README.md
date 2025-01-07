@@ -1,11 +1,11 @@
 # Model Checker
 
-This package provides a programmatic semantics for a number of hyperintensional operators along with a general purpose methodology for introducing semantic clauses for additional operators, studying their logics.
-Instead of computing whether a given sentence is a logical consequence of some set of sentences by hand, these resources allow users to search for countermodels or establish logical consequence up to a finite level complexity.
-Although computational systems cannot search the space of all models (typically a proper class), proving that there are no models up to some finite level of complexity provides evidence that the logical consequence in question holds in general where the strength of the evidence is proportional to the range of the models surveyed.
+This package provides a programmatic semantics for a number of hyperintensional operators along with a general purpose methodology for introducing semantic clauses for additional operators and studying their resulting logics.
+Instead of computing whether a given sentence is a logical consequence of some set of sentences by hand, these resources allow users to search for countermodels or establish logical consequence up to a finite level complexity specified by the user.
+Although computational systems cannot search the space of all models (typically a proper class), the absence of countermodels up to a finite level of complexity provides evidence for logical consequence, where the strength of this evidence increases with the range of distinct models surveyed.
 If finite countermodels exist, users will be able to generate and print those models rather than attempting to do so by hand.
 
-Instead of only developing a model-theoretic version of a semantics and working out the consequence by hand or not at all, this project draws on the SMT solver [Z3](https://github.com/Z3Prover/z3) to find hyperintensional countermodels and establish validity over models up to a user specified level of complexity in a propositional language with the following operators:
+Instead of only developing a model-theoretic version of a semantics and working out the consequence with pen and paper, this project draws on the SMT solver [Z3](https://github.com/Z3Prover/z3) to find hyperintensional countermodels and establish validity over models up to a user specified level of complexity in a propositional language with the following operators:
 
   - `neg` for _negation_
   - `wedge` for _conjunction_
@@ -69,24 +69,50 @@ Run `model-checker` in the terminal without arguments to create a new project wi
   - `examples.py` specifies the settings, a number of examples, and the protocol for finding and printing countermodels if there are any.
 
 After changing to the project directory that you created, run `model-checker project_examples.py` to find a countermodel if there is any.
-The settings specify the following inputs where the defaults are indicated below:
+The example settings specify the following inputs where the defaults are indicated below:
 
   - The number of atomic states to include in each model: `N = 3`.
   - An option to require all sentence letters to be contingent: `contingent = False`.
   - An option to require all sentence letters to have at least one verifier and at least one falsifier: `non_empty = False`.
   - An option to prevent sentence letters from having the null state as a verifier or a falsifier: `non_null = False`.
   - An option to prevent sentence letters from having overlapping verifiers or falsifiers: `disjoint = False`.
-  - An option to print impossible states: `print_impssible = False`.
+  - The maximum time in seconds to spend looking for a model: `max_time = 1`.
   <!-- - Find a model with the smallest number of atomic elements: `optimize_bool = False`. -->
+
+A number of general settings may also be specified with the following:
+
+  - An option to print impossible states: `print_impssible = False`.
   - An option to print all Z3 constraints or unsatisfiable core constraints: `print_constraints = False`.
   - An option to prompt the user to append the output to the current file or to create a new file: `save_output = False`.
-  - The maximum time in seconds to spend looking for a model: `max_time = 1`.
 
-Examples are specified by defining lists of premises and conclusions where the defaults are empty lists:
+Examples are specified by defining a list as follows:
+  ```
+  # CF_CM_1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+
+  CF_CM_1_premises = ['(A \\boxright C)']
+  CF_CM_1_conclusions = ['((A \\wedge B) \\boxright C)']
+  CF_CM_1_settings = {
+      'N' : 3,
+      'contingent' : True,
+      'non_null' : True,
+      'non_empty' : True,
+      'disjoint' : False,
+      'max_time' : 1,
+  }
+
+  CF_CM_1_example = [
+      CF_CM_1_premises,
+      CF_CM_1_conclusions,
+      CF_CM_1_settings,
+  ]
+  ```
+The example `CF_CM_1_example` includes:
 
   - A list of zero or more premises that are treated conjunctively: `premises = []`.
   - A list of zero or more conclusions that are treated disjunctively: `conclusions = []`.
+  - A dictionary of settings where the defaults are indicated above.
 
+Alternatively, users can define a general stock of `example_settings`, reusing these for an number of examples.
 Users can override these settings from the command line by including the following flags:
 
   - Include `-c` to set `contingent = True`.

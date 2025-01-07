@@ -98,7 +98,7 @@ def test_CL_CM2():
 
 @pytest.mark.timeout(max_time)
 def test_CL_CM3():
-    """GROUND CONJUNCTION SUPPLEMENTATION WITH POSSIBILITY"""
+    """GROUND CONJUNCTION SUPPLEMENTATION"""
     premises = ['(A \\leq B)','(C \\leq D)']
     conclusions = ['((A \\wedge C) \\leq (B \\wedge D))']
     settings = {
@@ -122,7 +122,7 @@ def test_CL_CM3():
 
 @pytest.mark.timeout(max_time)
 def test_CL_CM4():
-    """ESSENCE CONJUNCTION SUPPLEMENTATION"""
+    """ESSENCE DISJUNCTION SUPPLEMENTATION"""
     premises = ['(A \\sqsubseteq B)','(C \\sqsubseteq D)']
     conclusions = ['((A \\vee C) \\sqsubseteq (B \\vee D))']
     settings = {
@@ -372,7 +372,7 @@ def test_CL3():
 
 @pytest.mark.timeout(max_time)
 def test_CL4():
-    """IDENTITY TO ESSENCE: NOTE: with Z3 quantifiers 17.2 seconds locally; now .0103 seconds locally"""
+    """IDENTITY TO ESSENCE"""
     premises = ['((A \\wedge B) \\equiv B)']
     conclusions = ['(A \\sqsubseteq B)']
     settings = {

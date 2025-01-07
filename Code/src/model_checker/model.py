@@ -675,8 +675,6 @@ class ModelStructure:
             self.print_states(output)
             self.print_evaluation(output)
             self.print_input_sentences(output)
-            # TODO: make method for runtime and progress bar
-            # TODO: make method for turning on cProfile
             if output is sys.__stdout__:
                 total_time = round(time.time() - self.start_time, 4) 
                 print(f"Total Run Time: {total_time} seconds\n", file=output)
