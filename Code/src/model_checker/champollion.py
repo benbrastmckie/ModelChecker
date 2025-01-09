@@ -794,6 +794,134 @@ EX_TH_1_example = [
     example_settings, # these can be customized by example
 ]
 
+DS_example = [
+    ['(A \\univee B)', '\\exclude B'], # premises
+    ['A'], # conclusions
+    example_settings
+]
+
+double_negation_example = [
+    ['\\exclude \\exclude A'], # premises
+    ['A'], # conclusions
+    example_settings
+]
+
+triple_negation_example = [
+    ['\\exclude \\exclude \\exclude A'], # premises
+    ['\\exclude A'], # conclusions
+    example_settings
+]
+
+quadruple_negation_example = [
+    ['\\exclude \\exclude \\exclude \\exclude A'], # premises
+    ['\\exclude \\exclude A'], # conclusions
+    example_settings
+]
+
+wedge_demorgans_example = [
+    ['\\exclude \\exclude \\exclude \\exclude A'], # premises
+    ['\\exclude \\exclude A'], # conclusions
+    example_settings
+]
+
+wedge_demorgans_example_LR = [
+    ['\\exclude (A \\uniwedge B)'], # premises
+    ['(\\exclude A \\univee \\exclude B)'], # conclusions
+    example_settings
+]
+
+wedge_demorgans_example_RL = [
+    ['(\\exclude A \\univee \\exclude B)'], # premises
+    ['\\exclude (A \\uniwedge B)'], # conclusions
+    example_settings
+]
+
+vee_demorgans_example_LR = [
+    ['\\exclude (A \\univee B)'], # premises
+    ['(\\exclude A \\uniwedge \\exclude B)'], # conclusions
+    example_settings
+]
+
+vee_demorgans_example_RL = [
+    ['(\\exclude A \\uniwedge \\exclude B)'], # premises
+    ['\\exclude (A \\univee B)'], # conclusions
+    example_settings
+]
+
+vee_distribution_example_LR = [
+    ['(A \\univee (B \\uniwedge C))'], # premises
+    ['((A \\univee B) \\uniwedge (A \\univee C))'], # conclusions
+    example_settings
+]
+
+vee_distribution_example_RL = [
+    ['((A \\univee B) \\uniwedge (A \\univee C))'], # premises
+    ['(A \\univee (B \\uniwedge C))'], # conclusions
+    example_settings
+]
+
+wedge_distribution_example_LR = [
+    ['(A \\uniwedge (B \\univee C))'], # premises
+    ['((A \\uniwedge B) \\univee (A \\uniwedge C))'], # conclusions
+    example_settings
+]
+
+wedge_distribution_example_RL = [
+    ['((A \\uniwedge B) \\univee (A \\uniwedge C))'], # premises
+    ['(A \\uniwedge (B \\univee C))'], # conclusions
+    example_settings
+]
+
+wedge_absorption_example_RL = [
+    ['(A \\uniwedge (A \\univee B))'], # premises
+    ['A'], # conclusions
+    example_settings
+]
+
+wedge_absorption_example_LR = [
+    ['A'], # premises
+    ['(A \\uniwedge (A \\univee B))'], # conclusions
+    example_settings
+]
+
+vee_absorption_example_RL = [
+    ['(A \\univee (A \\uniwedge B))'], # premises
+    ['A'], # conclusions
+    example_settings
+]
+
+vee_absorption_example_LR = [
+    ['A'], # premises
+    ['(A \\univee (A \\uniwedge B))'], # conclusions
+    example_settings
+]
+
+wedge_associativity_RL = [
+    ['((A \\uniwedge B) \\uniwedge C)'], # premises
+    ['(A \\uniwedge (B \\uniwedge C))'], # conclusions
+    example_settings
+]
+
+wedge_associativity_LR = [
+    ['(A \\uniwedge (B \\uniwedge C))'], # premises
+    ['((A \\uniwedge B) \\uniwedge C)'], # conclusions
+    example_settings
+]
+
+vee_associativity_RL = [
+    ['((A \\univee B) \\univee C)'], # premises
+    ['(A \\univee (B \\univee C))'], # conclusions
+    example_settings
+]
+
+vee_associativity_LR = [
+    ['(A \\univee (B \\univee C))'], # premises
+    ['((A \\univee B) \\univee C)'], # conclusions
+    example_settings
+]
+
+
+
 
 
 ##################################
@@ -808,5 +936,6 @@ example_range = {
     # "EX_CM_2" : EX_CM_2_example,
     # # Theorems
     "EX_TH_1" : EX_TH_1_example,
+    
 }
 
