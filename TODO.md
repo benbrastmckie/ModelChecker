@@ -5,25 +5,25 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 ## Plan
 
 - [:] applications
-  - [:] Champollion
+  - [:] _M_ Champollion
     - [ ] examples
     - [ ] divide into modules
-  - [x] Fine
+  - [x] _B_ Fine
 - [x] benchmarks
 - [:] unit tests
   - [:] example unit tests
   - [ ] add unit tests to template
-- [.] documentation
-  - [.] doc strings
-  - [ ] architecture
-  - [ ] semantics
-  - [ ] jupyter notebook
-  - [ ] wiki
-  - [ ] local LLM
-- [ ] add utilities
+- [ ] _B_ add utilities
   - [ ] comparison
   - [ ] optimizer
   - [ ] add to api
+- [.] documentation
+  - [.] _B_ doc strings
+  - [ ] _B_ architecture
+  - [ ] _B_ semantics
+  - [ ] _M_ jupyter notebook
+  - [ ] _B_ wiki
+  - [ ] local LLM
 - [ ] subject-matter operators
 - [x] class architecture
 - [x] implementation
