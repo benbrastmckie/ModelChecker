@@ -702,11 +702,6 @@ default_theory = {
     "dictionary": default_dictionary,
 }
 
-semantic_theories = {
-    "Champollion" : champollion_theory,
-    "Brast-McKie" : default_theory,
-}
-
 #######################
 ### DEFINE SETTINGS ###
 #######################
@@ -758,26 +753,128 @@ example_settings = {
 
 
 
+
 #####################
 ### COUNTERMODELS ###
 #####################
 
-# NOTE: this is a versatile way to store examples for comparison
-# as in `example.py` 
-EX_CM_1_premises = []
-EX_CM_1_conclusions = ['(A \\uniequiv \\exclude \\exclude A)']
+# DOUBLE NEGATION ELIMINATION IDENTITY
+EX_CM_1_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
 EX_CM_1_example = [
-    EX_CM_1_premises,
-    EX_CM_1_conclusions,
-    example_settings, # these can be customized by example
+    [], # premises
+    ['(A \\uniequiv \\exclude \\exclude A)'], # conclusions
+    EX_CM_1_settings,
 ]
 
-EX_CM_2_premises = ['((A \\univee B) \\uniwedge (A \\univee C))']
-EX_CM_2_conclusions = ['(A \\uniwedge (B \\univee C))']
+# REVERSE DISTRIBUTION: DISJUNCTION OVER CONJUNCTION
+EX_CM_2_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
 EX_CM_2_example = [
-    EX_CM_2_premises,
-    EX_CM_2_conclusions,
-    example_settings,
+    ['((A \\univee B) \\uniwedge (A \\univee C))'], # premises
+    ['(A \\uniwedge (B \\univee C))'], # conclusions
+    EX_CM_2_settings,
+]
+
+# DOUBLE NEGATION ELIMINATION
+EX_CM_3_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_CM_3_example = [
+    ['\\exclude \\exclude A'], # premises
+    ['A'], # conclusions
+    EX_CM_3_settings
+]
+
+# TRIPLE NEGATION ENTAILMENT
+EX_CM_4_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_CM_4_example = [
+    ['\\exclude \\exclude \\exclude A'], # premises
+    ['\\exclude A'], # conclusions
+    EX_CM_4_settings
+]
+
+# TRIPLE NEGATION IDENTITY
+EX_CM_5_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_CM_5_example = [
+    [], # premises
+    ['(\\exclude A \\uniequiv \\exclude \\exclude \\exclude A)'], # conclusions
+    EX_CM_5_settings, # these can be customized by example
+]
+
+# QUADRUPLE NEGATION EXAMPLE
+EX_CM_6_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_CM_6_example = [
+    ['\\exclude \\exclude \\exclude \\exclude A'], # premises
+    ['\\exclude \\exclude A'], # conclusions
+    EX_CM_6_settings
+]
+
+# WEDGE DEMORGANS EXAMPLE
+EX_CM_7_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_CM_7_example = [ # TODO: fix example
+    ['\\exclude \\exclude \\exclude \\exclude A'], # premises
+    ['\\exclude \\exclude A'], # conclusions
+    EX_CM_7_settings
 ]
 
 
@@ -786,156 +883,337 @@ EX_CM_2_example = [
 ### LOGICAL CONSEQUENCES ###
 ############################
 
-EX_TH_1_premises = []
-EX_TH_1_conclusions = ['(\\exclude A \\uniequiv \\exclude \\exclude \\exclude A)']
+# DISJUNCTIVE SYLLOGISM EXAMPLE
+EX_TH_1_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
 EX_TH_1_example = [
-    EX_TH_1_premises,
-    EX_TH_1_conclusions,
-    example_settings, # these can be customized by example
-]
-
-DS_example = [
     ['(A \\univee B)', '\\exclude B'], # premises
     ['A'], # conclusions
-    example_settings
+    EX_TH_1_settings
 ]
 
-double_negation_example = [
-    ['\\exclude \\exclude A'], # premises
-    ['A'], # conclusions
-    example_settings
-]
-
-triple_negation_example = [
-    ['\\exclude \\exclude \\exclude A'], # premises
-    ['\\exclude A'], # conclusions
-    example_settings
-]
-
-quadruple_negation_example = [
-    ['\\exclude \\exclude \\exclude \\exclude A'], # premises
-    ['\\exclude \\exclude A'], # conclusions
-    example_settings
-]
-
-wedge_demorgans_example = [
-    ['\\exclude \\exclude \\exclude \\exclude A'], # premises
-    ['\\exclude \\exclude A'], # conclusions
-    example_settings
-]
-
-wedge_demorgans_example_LR = [
+# WEDGE DEMORGANS EXAMPLE LR
+EX_TH_2_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_2_example = [
     ['\\exclude (A \\uniwedge B)'], # premises
     ['(\\exclude A \\univee \\exclude B)'], # conclusions
-    example_settings
+    EX_TH_2_settings
 ]
 
-wedge_demorgans_example_RL = [
+# WEDGE DEMORGANS EXAMPLE RL
+EX_TH_3_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_3_example = [
     ['(\\exclude A \\univee \\exclude B)'], # premises
     ['\\exclude (A \\uniwedge B)'], # conclusions
-    example_settings
+    EX_TH_3_settings
 ]
 
-vee_demorgans_example_LR = [
+# VEE DEMORGANS EXAMPLE LR
+EX_TH_3_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_3_example = [
     ['\\exclude (A \\univee B)'], # premises
     ['(\\exclude A \\uniwedge \\exclude B)'], # conclusions
-    example_settings
+    EX_TH_3_settings
 ]
 
-vee_demorgans_example_RL = [
+# VEE DEMORGANS EXAMPLE RL
+EX_TH_4_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_4_example = [
     ['(\\exclude A \\uniwedge \\exclude B)'], # premises
     ['\\exclude (A \\univee B)'], # conclusions
-    example_settings
+    EX_TH_4_settings
 ]
 
-vee_distribution_example_LR = [
+# VEE DISTRIBUTION EXAMPLE LR
+EX_TH_5_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_5_example = [
     ['(A \\univee (B \\uniwedge C))'], # premises
     ['((A \\univee B) \\uniwedge (A \\univee C))'], # conclusions
-    example_settings
+    EX_TH_5_settings
 ]
 
-vee_distribution_example_RL = [
+# VEE DISTRIBUTION EXAMPLE RL
+EX_TH_6_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_6_example = [
     ['((A \\univee B) \\uniwedge (A \\univee C))'], # premises
     ['(A \\univee (B \\uniwedge C))'], # conclusions
-    example_settings
+    EX_TH_6_settings
 ]
 
-wedge_distribution_example_LR = [
+# WEDGE DISTRIBUTION EXAMPLE LR
+EX_TH_7_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_7_example = [
     ['(A \\uniwedge (B \\univee C))'], # premises
     ['((A \\uniwedge B) \\univee (A \\uniwedge C))'], # conclusions
-    example_settings
+    EX_TH_7_settings
 ]
 
-wedge_distribution_example_RL = [
+# WEDGE DISTRIBUTION EXAMPLE RL
+EX_TH_8_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_8_example = [
     ['((A \\uniwedge B) \\univee (A \\uniwedge C))'], # premises
     ['(A \\uniwedge (B \\univee C))'], # conclusions
-    example_settings
+    EX_TH_8_settings
 ]
 
-wedge_absorption_example_RL = [
+# WEDGE ABSORPTION EXAMPLE RL
+EX_TH_9_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_9_example = [
     ['(A \\uniwedge (A \\univee B))'], # premises
     ['A'], # conclusions
-    example_settings
+    EX_TH_9_settings
 ]
 
-wedge_absorption_example_LR = [
+# WEDGE ABSORPTION EXAMPLE LR
+EX_TH_10_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_10_example = [
     ['A'], # premises
     ['(A \\uniwedge (A \\univee B))'], # conclusions
-    example_settings
+    EX_TH_10_settings
 ]
 
-vee_absorption_example_RL = [
+# VEE ABSORPTION EXAMPLE RL
+EX_TH_11_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_11_example = [
     ['(A \\univee (A \\uniwedge B))'], # premises
     ['A'], # conclusions
-    example_settings
+    EX_TH_11_settings
 ]
 
-vee_absorption_example_LR = [
+# VEE ABSORPTION EXAMPLE LR
+EX_TH_12_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_12_example = [
     ['A'], # premises
     ['(A \\univee (A \\uniwedge B))'], # conclusions
-    example_settings
+    EX_TH_12_settings
 ]
 
-wedge_associativity_RL = [
+# WEDGE ASSOCIATIVITY RL
+EX_TH_13_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_13_example = [
     ['((A \\uniwedge B) \\uniwedge C)'], # premises
     ['(A \\uniwedge (B \\uniwedge C))'], # conclusions
-    example_settings
+    EX_TH_13_settings
 ]
 
-wedge_associativity_LR = [
+# WEDGE ASSOCIATIVITY LR
+EX_TH_14_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_14_example = [
     ['(A \\uniwedge (B \\uniwedge C))'], # premises
     ['((A \\uniwedge B) \\uniwedge C)'], # conclusions
-    example_settings
+    EX_TH_14_settings
 ]
 
-vee_associativity_RL = [
+# VEE ASSOCIATIVITY RL
+EX_TH_15_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_15_example = [
     ['((A \\univee B) \\univee C)'], # premises
     ['(A \\univee (B \\univee C))'], # conclusions
-    example_settings
+    EX_TH_15_settings
 ]
 
-vee_associativity_LR = [
+# VEE ASSOCIATIVITY LR
+EX_TH_16_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_TH_16_example = [
     ['(A \\univee (B \\univee C))'], # premises
     ['((A \\univee B) \\univee C)'], # conclusions
-    example_settings
+    EX_TH_16_settings
 ]
 
 
 
 
 
-##################################
-### DEFINE EXAMPLES TO COMPUTE ###
-##################################
 
-# NOTE: examples can be tested individually by commenting out all other examples
+###############################################
+### DEFINE EXAMPLES AND THEORIES TO COMPUTE ###
+###############################################
 
+# NOTE: at least one theory is required, multiple are permitted for comparison
+semantic_theories = {
+    "Champollion" : champollion_theory,
+    "Brast-McKie" : default_theory,
+}
+
+# NOTE: at least one example is required, multiple are permitted for comparison
 example_range = {
     # Countermodels
-    "EX_CM_1" : EX_CM_1_example,
-    # "EX_CM_2" : EX_CM_2_example,
+    "EX_CM_1" : EX_CM_1_example, # disagree
+    "EX_CM_2" : EX_CM_2_example,
+    "EX_CM_3" : EX_CM_3_example, # disagree
+    "EX_CM_4" : EX_CM_4_example, # disagree
+    "EX_CM_5" : EX_CM_5_example, # disagree
+    "EX_CM_6" : EX_CM_6_example, # disagree
+    "EX_CM_7" : EX_CM_7_example, # disagree
     # # Theorems
     "EX_TH_1" : EX_TH_1_example,
+    "EX_TH_2" : EX_TH_2_example,
+    "EX_TH_3" : EX_TH_3_example,
+    "EX_TH_4" : EX_TH_4_example,
+    "EX_TH_5" : EX_TH_5_example,
+    "EX_TH_6" : EX_TH_6_example,
+    "EX_TH_7" : EX_TH_7_example,
+    "EX_TH_8" : EX_TH_8_example,
+    "EX_TH_9" : EX_TH_9_example,
+    "EX_TH_10" : EX_TH_10_example,
+    "EX_TH_11" : EX_TH_11_example,
+    "EX_TH_12" : EX_TH_12_example,
+    "EX_TH_13" : EX_TH_13_example,
+    "EX_TH_14" : EX_TH_14_example,
+    "EX_TH_15" : EX_TH_15_example,
+    "EX_TH_16" : EX_TH_16_example,
     
 }
 

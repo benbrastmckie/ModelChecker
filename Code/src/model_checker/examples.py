@@ -66,10 +66,6 @@ imposition_theory = {
     "dictionary": imposition_dictionary,
 }
 
-semantic_theories = {
-    "Brast-McKie" : default_theory,
-    "Fine" : imposition_theory,
-}
 
 
 
@@ -92,6 +88,20 @@ example_settings = {
     'max_time' : 1,
 }
 
+
+
+############################
+##### REMAINING ISSUES #####
+############################
+
+# DOES NOT FIND MODEL
+# THIS WAS EXTRA HARD BEFORE ALSO
+# N = 4
+# premises = ['(A \\boxright (B \\boxright C))']
+# conclusions = ['((A \\wedge B) \\boxright C)']
+
+
+
 #####################
 ### COUNTERMODELS ###
 #####################
@@ -112,6 +122,7 @@ CF_CM_1_example = [
     CF_CM_1_conclusions,
     CF_CM_1_settings,
 ]
+
 
 # CF_CM_2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
 CF_CM_2_premises = ['(A \\circleright C)']
@@ -497,6 +508,11 @@ example_range = {
     # "CF_TH_9" : CF_TH_9_example,
     # "CF_TH_10" : CF_TH_10_example,
     # "CF_TH_11" : CF_TH_11_example,
+}
+
+semantic_theories = {
+    "Brast-McKie" : default_theory,
+    # "Fine" : imposition_theory,
 }
 
 # Run comparison

@@ -266,9 +266,23 @@ class BuildExample:
         return example_case
 
     def _validate_settings(self, example_settings):
+        """Validates and merges example settings with general settings and module flags.
+        
+        Args:
+            example_settings: Dictionary containing settings specific to this example
+            
+        Returns:
+            Dictionary containing the merged and validated settings with module flag overrides
+            
+        The function performs three steps:
+        1. Merges example settings with general settings, warning about overlaps
+        2. Updates boolean settings based on module flags
+        3. Returns the final merged and validated settings dictionary
+        """
         def merge_settings(example_settings, general_settings):
             """Adds example_settings to general_settings, mentioning overlaps."""
             # Track and merge settings
+
             for key, default_value in example_settings.items():
                 # Get value from module settings or use default
                 new_value = general_settings.get(key, default_value)
@@ -280,24 +294,24 @@ class BuildExample:
                 
                 # Update the settings
                 general_settings[key] = new_value
-
+    
             return general_settings
-
+    
         def disjoin_flags(all_settings):
             """Update boolean settings if module flag is True."""
             module_flags = self.module.module_flags
             updated_settings = all_settings.copy()
             
             for key, value in vars(module_flags).items():
-                if isinstance(value, bool) and key in updated_settings:
+                if isinstance(value, bool) and value and key in updated_settings:
                     updated_settings[key] = value
                     
             return updated_settings
-
+    
         # Merge and update settings
         all_settings = merge_settings(example_settings, self.module.general_settings)
         updated_settings = disjoin_flags(all_settings)
-
+    
         return updated_settings
 
     def print_result(self, example_name, theory_name):
@@ -388,16 +402,18 @@ def generate_project(name):
             print(f"  {new_name}")
 
         # Run the example script
+        result = input("Would you like to test the example script? (y/n): ")
+        if result not in {'Yes', 'yes', 'Ye', 'ye', 'Y', 'y'}:
+            # Output the test command
+            print(f"\nRun the following command to test your project:\n\nmodel-checker {destination_dir}/examples.py\n")
+            return
         example_script = os.path.join(destination_dir, "examples.py")
         print(example_script)
         if os.path.exists(example_script):
             print("\nRunning the example script...")
             subprocess.run(["model-checker", example_script])
         else:
-            print(f"\nFail to run: model-checker {example_script}")
-
-        # Output the test command
-        print(f"\nRun the following command to test your project:\n\nmodel-checker {destination_dir}/examples.py\n")
+            print(f"\nFailed to run: model-checker {example_script}")
     
     except FileNotFoundError as e:
         print(f"Error: {e}")
