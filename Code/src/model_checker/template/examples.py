@@ -27,9 +27,9 @@ from model_checker import (
 )
 
 
-#######################
-### DEFINE SETTINGS ###
-#######################
+########################
+### DEFAULT SETTINGS ###
+########################
 
 general_settings = {
     "print_constraints": False,
@@ -46,6 +46,30 @@ example_settings = {  # defaults can be tailored to each example
     'max_time' : 1,
 }
 
+
+####################################
+### DEFINE THE SEMANTIC THEORIES ###
+####################################
+
+default_theory = {
+    "semantics": Semantics,
+    "proposition": Proposition,
+    "operators": default_operators,
+    # default theory does not require a translation dictionary for comparison
+    # since the examples are stated in the language of the default theory
+}
+
+imposition_dictionary = {
+    "\\boxright" : "\\imposition",
+    "\\circleright" : "\\could",
+}
+
+imposition_theory = {
+    "semantics": ImpositionSemantics,
+    "proposition": Proposition,
+    "operators": default_operators,
+    "dictionary": imposition_dictionary,
+}
 
 
 #####################
@@ -361,11 +385,18 @@ CL_TH_8_example = [
 
 
 
-##################################
-### DEFINE EXAMPLES TO COMPUTE ###
-##################################
+###############################################
+### DEFINE EXAMPLES AND THEORIES TO COMPUTE ###
+###############################################
 
-# NOTE: at least one example is required, multiple are permitted
+# NOTE: at least one theory is required, multiple are permitted for comparison
+semantic_theories = {
+    "Brast-McKie" : default_theory,
+    # "Fine" : imposition_theory,
+    # additional theories will require their own translation dictionaries
+}
+
+# NOTE: at least one example is required, multiple are permitted for comparison
 example_range = {
     # Counterfactual Countermodels
     "CF_CM_1" : CF_CM_1_example,
@@ -401,32 +432,3 @@ example_range = {
 # }
 #     
 #
-####################################
-### DEFINE THE SEMANTIC THEORIES ###
-####################################
-
-default_theory = {
-    "semantics": Semantics,
-    "proposition": Proposition,
-    "operators": default_operators,
-    # default theory does not require a translation dictionary for comparison
-}
-
-imposition_dictionary = {
-    "\\boxright" : "\\imposition",
-    "\\circleright" : "\\could",
-}
-
-imposition_theory = {
-    "semantics": ImpositionSemantics,
-    "proposition": Proposition,
-    "operators": default_operators,
-    "dictionary": imposition_dictionary,
-}
-
-# NOTE: at least one theory is required, multiple are permitted
-semantic_theories = {
-    "Brast-McKie" : default_theory,
-    "Fine" : imposition_theory,
-    # additional theories will require their own translation dictionaries
-}
