@@ -110,7 +110,7 @@ CF_CM_1_settings = {
 CF_CM_1_example = [
     CF_CM_1_premises,
     CF_CM_1_conclusions,
-    example_settings,
+    CF_CM_1_settings,
 ]
 
 # CF_CM_2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
