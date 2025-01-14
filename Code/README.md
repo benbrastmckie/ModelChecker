@@ -42,8 +42,7 @@ pip install model-checker
 ```
 
 The project has the `z3-solver` as a dependency and will be installed automatically.
-Accessible installation instructions can be found in the GitHub [repo](https://github.com/benbrastmckie/ModelChecker?tab=readme-ov-file#installation).
-More information about installing python packages can also be found [here](https://packaging.python.org/en/latest/tutorials/installing-packages/).
+More information can be found in the accessible installation [instructions](https://github.com/benbrastmckie/ModelChecker/blob/master/installation.md).
 
 ## Updating
 
