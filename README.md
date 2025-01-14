@@ -1,6 +1,8 @@
 # Model Checker
 
-This project draws on the SMT solver [Z3](https://github.com/Z3Prover/z3) to provide tooling for finding hyperintensional countermodels and establishing validity over models up to a user specified level of complexity for inferences in a propositional language with the following operators:
+This package draws on the SMT solver [Z3](https://github.com/Z3Prover/z3) to provide a [programmatic semantics]() for a number of hyperintensional operators along with a general purpose methodology for developing novel programmatic semantic theories and studying their resulting logics.
+Rather than computing whether a given sentence is a logical consequence of some set of sentences by hand, these resources allow users to find countermodels or establish logical consequence up to a finite level complexity specified by the user.
+Instead of only developing a model-theoretic version of a semantics and working out the consequence with pen and paper, this project provides tooling for finding hyperintensional countermodels and establish validity over models up to a user specified level of complexity in a propositional language with the following operators:
 
   - `neg` for _negation_
   - `wedge` for _conjunction_
@@ -15,12 +17,6 @@ This project draws on the SMT solver [Z3](https://github.com/Z3Prover/z3) to pro
   - `sqsubseteq` for _essence_ read 'necessary for'
   - `equiv` for _propositional identity_ read 'just is for'
   - `preceq` for _relevance_
-  <!-- - `not` for _exclusion_ -->
-
-The current version provides tooling for the [hyperintensional semantics](#Hyperintensional-Semantics) briefly discussed below with links to further resources.
-By abstracting on the details of the particular semantics that the current version includes, the version now under development will provide a general purpose tool kit for developing and studying hyperintensional semantic systems.
-This version should be released by the end of 2024.
-<!-- See the section on [programmatic semantics](#Programmatic-Semantics) below for more details. -->
 
 ### Screenshot
 
@@ -30,42 +26,27 @@ This version should be released by the end of 2024.
 
 ## Programmatic Semantics
 
-A programmatic methodology in semantics streamlines the otherwise computationally grueling process of developing and testing novel semantic theories.
+A programmatic methodology in semantics streamlines the otherwise computationally grueling process of developing and testing novel semantic theories and exploring their logics.
+Although computational systems cannot search the space of all models (typically a proper class), the absence of bitvector countermodels up to a finite level of complexity provides evidence for logical consequence, where the strength of this evidence increases with the range of distinct models surveyed.
+If finite countermodels exist, users will be able to generate and print those models rather than attempting to do so by hand.
+
+The [hyperintensional semantics](#Hyperintensional-Semantics) for the operators indicated above is briefly discussed below.
+In addition to including semantic clauses for the operators indicated above, this project provides templates and flexible tooling that can be adapted to accommodate new operators.
 By easing the process of investigating increasingly complex semantic theories, this methodology aims to support the growth and maturity of semantics as a discipline.
-Instead of only developing a model-theoretic version of a semantics and working out the consequence by hand or not at all, this project provides resources for writing semantic clauses using [Z3](https://github.com/Z3Prover/z3)'s python API without having to start from scratch by providing users with a host of functionality along with a flexible template that can be easily adapted.
 
-Although computational resources are common place (e.g., one' laptop), the ability to make use of these resources to develop and explore the implications of novel semantic theories remains limited.
+Although computational resources are common place, the ability to make use of these resources to develop and explore the implications of novel semantic theories remains limited.
 For instance, [Prover9 and Mace](https://www.cs.unm.edu/~mccune/prover9/) are restricted to first-order and equational statements.
-However, for the purposes of semantics, it is desirable to: (1) introduce a range of primitive operators; (2) specify novel semantic clauses for each operator; (3) define the space of models for the resulting language; (4) test which sentences are a logical consequence of which; and (5) print readable countermodels if there are any.
-After developing and testing a semantics for a language, one can develop the corresponding model theory and proof theory with a much better sense of the range of its theorems before establishing soundness or attempting to complete the logic.
-
-Whereas the current version of the model-checker provides a programmatic semantics for the hyperintensional operators indicated above, the next release abstracts on the semantic theory included included as a default so that users may introduce semantic clauses for their own operators.
-Instead of computing whether a given sentence is a logical consequence of some set of sentences by hand, these resources allow users to search for countermodels or establish logical consequence up to a finite level complexity.
-Although computational systems cannot search the space of all models (typically a proper class), proving that there are no models up to some finite level of complexity provides evidence that the logical consequence in question holds in general where the broader the range of models, the stronger the evidence.
-Additionally, if finite countermodels exist, users will be able to generate and print those models rather than attempting to do so by hand which is not only limited, but liable to include errors.
+However, for the purposes of semantics, it is desirable to: (1) introduce a range of primitive operators; (2) specify novel semantic clauses for those operators; (3) define frame constraints and a space of models for the resulting language; (4) test which sentences are a logical consequence of which; and (5) print readable countermodels if there are any.
+Rather than displacing model theory and proof theory, developing and testing a programmatic semantics for a language aims to support the study of extensionally adequate logics before attempting to establish completeness.
 
 ## Installation
-
-Install [Python 3](https://www.python.org/downloads/) and run the following command in the terminal:
 
 ```
 pip install model-checker
 ```
 
-The project has the `z3-solver` as a dependency which should be installed automatically.
-You can confirm that `z3-solver` is installed with:
-
-```
-pip show z3-solver
-```
-
-In case the dependency did not install automatically, you can run:
-
-```
-pip install z3-solver
-```
-
-More information can be found [here](https://packaging.python.org/en/latest/tutorials/installing-packages/).
+The project has the `z3-solver` as a dependency and will be installed automatically.
+Accessible installation instructions can be found [here](https://github.com/benbrastmckie/ModelChecker?tab=readme-ov-file#installation).
 
 ## Updating
 
@@ -75,10 +56,18 @@ Once installed, you can check the current version of the `model-checker` with:
 model-checker -v
 ```
 
-For more information, you can run:
+To update to the latest version, run:
 
 ```
-pip show model-checker
+model-checker -u
+```
+
+## Updating
+
+Once installed, you can check the current version of the `model-checker` with:
+
+```
+model-checker -v
 ```
 
 To update to the latest version, run:
@@ -89,56 +78,67 @@ model-checker -u
 
 To receive updates about new releases, click the "Watch" button at the top right corner of this page.
 
-## Instructions
+## Usage
 
-The following section is intended to help make this software more accessible.
-Users familiar with the terminal can skip to the [Usage](#Usage) instructions below.
+Run `model-checker` in the terminal without arguments to create a new project with the following modules:
 
-### Terminal
+  - `semantic.py` specifies the Z3 primitives, frame constraints, models, theory of logical consequence, defined semantic terms, theory of propositions, and instructions for displaying countermodels.
+  - `operators.py` specifies the semantic clauses for the primitive operators included in the default language along with a number of defined operators.
+  - `examples.py` specifies the settings, a number of examples, and the protocol for finding and printing countermodels if there are any.
 
-Open the terminal (on MacOS, hit `Cmd + Space` and type `terminal`, hitting `Return`) and list the directories by typing `ls` and hitting `Return`. 
-Navigate to your desired location with `cd directory/path/...`, replacing `directory/path/...` accordingly.
-If you do not know the full path, you can change directory one step at a time by running `cd next_directory` where `next_directory` is to be replaced with the directory you want to change to, running `ls` after each move to see what to enter next.
+After changing to the project directory that you created, run `model-checker project_examples.py` to find a countermodel if there is any.
+The example settings specify the following inputs where the defaults are indicated below:
 
-Alternatively, if you are on MacOS, write `cd` followed by a space in the terminal but do not hit `return`.
-Then you can open the desired project directory in Finder, dragging the Finder window onto the terminal.
-This should paste the path into the terminal.
-You can now hit return to change to the desired directory.
-If you are in the directory in which the `test_file.py` exists, you can run `model-checker test_file.py` without specifying the full (or relative) path to that file.
-Use the 'up'-arrow key to scroll through past commands, saving time when running the same file multiple times.
+  - The number of atomic states to include in each model: `N = 3`.
+  - An option to require all sentence letters to be contingent: `contingent = False`.
+  - An option to require all sentence letters to have at least one verifier and at least one falsifier: `non_empty = False`.
+  - An option to prevent sentence letters from having the null state as a verifier or a falsifier: `non_null = False`.
+  - An option to prevent sentence letters from having overlapping verifiers or falsifiers: `disjoint = False`.
+  - The maximum time in seconds to spend looking for a model: `max_time = 1`.
+  <!-- - Find a model with the smallest number of atomic elements: `optimize_bool = False`. -->
 
-Files can be edited with your choice of text editor, e.g., run `vim test_file.py` to edit the named file in the terminal with Vim (for help, run `vimtutor`).
-If you do not want to use Vim (exit with `:qa`), you might consider using this configuration of [NeoVim](https://github.com/benbrastmckie/.config) or [VSCodium](https://github.com/benbrastmckie/VSCodium) for working with LaTeX, Markdown, Python, etc., or any other editor you like (e.g., TextEdit on MacOS, or [PyCharm](https://www.jetbrains.com/pycharm/)).
+A number of general settings may also be specified with the following:
 
-### Usage
+  - An option to print impossible states: `print_impssible = False`.
+  - An option to print all Z3 constraints or unsatisfiable core constraints: `print_constraints = False`.
+  - An option to prompt the user to append the output to the current file or to create a new file: `save_output = False`.
 
-To generate a test file run `model-checker` in the terminal.
-Alternatively, run `model-checker path/to/test_file.py` if the `test_file.py` already exists.
-A number of [examples](https://github.com/benbrastmckie/ModelChecker/blob/master/Examples/examples.py) are provided in the GitHub repository.
+Examples are specified by defining a list as follows:
+  ```
+  # CF_CM_1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
 
-Each file may specify the following inputs where the defaults are specified below:
+  CF_CM_1_premises = ['(A \\boxright C)']
+  CF_CM_1_conclusions = ['((A \\wedge B) \\boxright C)']
+  CF_CM_1_settings = {
+      'N' : 3,
+      'contingent' : True,
+      'non_null' : True,
+      'non_empty' : True,
+      'disjoint' : False,
+      'max_time' : 1,
+  }
+
+  CF_CM_1_example = [
+      CF_CM_1_premises,
+      CF_CM_1_conclusions,
+      CF_CM_1_settings,
+  ]
+  ```
+The example `CF_CM_1_example` includes:
 
   - A list of zero or more premises that are treated conjunctively: `premises = []`.
   - A list of zero or more conclusions that are treated disjunctively: `conclusions = []`.
-  - The number of atomic states to include in each model: `N = 3`.
-  - The maximum time in seconds to spend looking for a model: `max_time = 1`.
+  - A dictionary of settings where the defaults are indicated above.
 
-Optionally, the user can specify a number of additional settings where defaults are provided below:
-
-  - Require all sentence letters to express contingent propositions: `contingent_bool = False`.
-  - Require all sentence letters to express propositions with disjoint subject-matters: `contingent_bool = False`.
-  - Find a model with the smallest number of atomic elements: `optimize_bool = False`.
-  - Print all Z3 constraints or unsatisfiable core constraints: `print_constraints_bool = False`.
-  - Show impossible states included in the model: `print_impossibe_states_bool = False`.
-  - Prompt the user to append the output to the current file or to a new file: `save_bool = False`.
-
+Alternatively, users can define a general stock of `example_settings`, reusing these for an number of examples.
 Users can override these settings from the command line by including the following flags:
 
-  - Include `-c` to set `contingent_bool = True`.
-  - Include `-d` to set `disjoint_bool = True`.
-  - Include `-o` to set `optimize_bool = True`.
-  - Include `-p` to set `print_constraints_bool = True`.
-  - Include `-i` to set `print_impossibe_states_bool = True`.
+  - Include `-c` to set `contingent = True`.
+  - Include `-e` to set `non_empty = True`.
+  - Include `-n` to set `non_null = True`.
+  - Include `-d` to set `disjoint = True`.
+  - Include `-i` to set `print_impossibe = True`.
+  - Include `-p` to set `print_constraints = True`.
   - Include `-s` to set `save_bool = True`.
 
 Additional flags have been included in order to manage the package version:
@@ -147,10 +147,10 @@ Additional flags have been included in order to manage the package version:
   - Include `-v` to print the installed version number.
   - Include `-u` to upgrade to the latest version.
 
-The following section will sketch the underlying semantics.
-More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker) as well as in this recent [manuscript](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf). 
-
 ## Hyperintensional Semantics
+
+This section sketches the underlying semantics.
+More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker). 
 
 The semantics is hyperintensional insofar as sentences are evaluated at _states_ which may be partial rather than total as in intensional semantic theories.
 States are modeled by bitvectors of a specified length (e.g., `#b00101` has length `5`), where _state fusion_ is modeled by the bitwise OR operator `|`.

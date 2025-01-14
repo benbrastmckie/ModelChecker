@@ -1,11 +1,6 @@
-# Model Checker
-
-This package provides a programmatic semantics for a number of hyperintensional operators along with a general purpose methodology for introducing semantic clauses for additional operators and studying their resulting logics.
-Instead of computing whether a given sentence is a logical consequence of some set of sentences by hand, these resources allow users to search for countermodels or establish logical consequence up to a finite level complexity specified by the user.
-Although computational systems cannot search the space of all models (typically a proper class), the absence of countermodels up to a finite level of complexity provides evidence for logical consequence, where the strength of this evidence increases with the range of distinct models surveyed.
-If finite countermodels exist, users will be able to generate and print those models rather than attempting to do so by hand.
-
-Instead of only developing a model-theoretic version of a semantics and working out the consequence with pen and paper, this project draws on the SMT solver [Z3](https://github.com/Z3Prover/z3) to find hyperintensional countermodels and establish validity over models up to a user specified level of complexity in a propositional language with the following operators:
+This package draws on the SMT solver [Z3](https://github.com/Z3Prover/z3) to provide a [programmatic semantics]() for a number of hyperintensional operators along with a general purpose methodology for developing novel programmatic semantic theories and studying their resulting logics.
+Rather than computing whether a given sentence is a logical consequence of some set of sentences by hand, these resources allow users to find countermodels or establish logical consequence up to a finite level complexity specified by the user.
+Instead of only developing a model-theoretic version of a semantics and working out the consequence with pen and paper, this project provides tooling for finding hyperintensional countermodels and establish validity over models up to a user specified level of complexity in a propositional language with the following operators:
 
   - `neg` for _negation_
   - `wedge` for _conjunction_
@@ -21,7 +16,16 @@ Instead of only developing a model-theoretic version of a semantics and working 
   - `equiv` for _propositional identity_ read 'just is for'
   - `preceq` for _relevance_
 
+### Screenshot
+
+> NOTE: Additional images can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Images/screenshots.md).
+
+## Programmatic Semantics
+
 A programmatic methodology in semantics streamlines the otherwise computationally grueling process of developing and testing novel semantic theories and exploring their logics.
+Although computational systems cannot search the space of all models (typically a proper class), the absence of bitvector countermodels up to a finite level of complexity provides evidence for logical consequence, where the strength of this evidence increases with the range of distinct models surveyed.
+If finite countermodels exist, users will be able to generate and print those models rather than attempting to do so by hand.
+
 The [hyperintensional semantics](#Hyperintensional-Semantics) for the operators indicated above is briefly discussed below.
 In addition to including semantic clauses for the operators indicated above, this project provides templates and flexible tooling that can be adapted to accommodate new operators.
 By easing the process of investigating increasingly complex semantic theories, this methodology aims to support the growth and maturity of semantics as a discipline.
@@ -30,11 +34,6 @@ Although computational resources are common place, the ability to make use of th
 For instance, [Prover9 and Mace](https://www.cs.unm.edu/~mccune/prover9/) are restricted to first-order and equational statements.
 However, for the purposes of semantics, it is desirable to: (1) introduce a range of primitive operators; (2) specify novel semantic clauses for those operators; (3) define frame constraints and a space of models for the resulting language; (4) test which sentences are a logical consequence of which; and (5) print readable countermodels if there are any.
 Rather than displacing model theory and proof theory, developing and testing a programmatic semantics for a language aims to support the study of extensionally adequate logics before attempting to establish completeness.
-
-
-### Screenshot
-
-Example images can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Images/screenshots.md).
 
 ## Installation
 
@@ -60,7 +59,7 @@ To update to the latest version, run:
 model-checker -u
 ```
 
-## Instructions
+## Usage
 
 Run `model-checker` in the terminal without arguments to create a new project with the following modules:
 
