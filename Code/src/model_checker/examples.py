@@ -92,8 +92,6 @@ example_settings = {
     'max_time' : 1,
 }
 
-
-
 #####################
 ### COUNTERMODELS ###
 #####################
@@ -101,6 +99,14 @@ example_settings = {
 # CF_CM_1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
 CF_CM_1_premises = ['(A \\boxright C)']
 CF_CM_1_conclusions = ['((A \\wedge B) \\boxright C)']
+CF_CM_1_settings = {
+    'N' : 3,
+    'contingent' : True,
+    'non_empty' : True,
+    'non_null' : True,
+    'disjoint' : False,
+    'max_time' : 1,
+}
 CF_CM_1_example = [
     CF_CM_1_premises,
     CF_CM_1_conclusions,
