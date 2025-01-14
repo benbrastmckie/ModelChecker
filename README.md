@@ -22,7 +22,7 @@ Instead of only developing a model-theoretic version of a semantics and working 
 
 ![Counterfactual antecedent strengthening screenshot](Images/cf_antecedent_strengthening.png)
 
-> NOTE: Additional images can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Images/screenshots.md).
+<!-- > NOTE: Additional images can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Images/screenshots.md). -->
 
 ## Programmatic Semantics
 
