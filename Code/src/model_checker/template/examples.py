@@ -365,20 +365,20 @@ CL_TH_8_example = [
 ### DEFINE EXAMPLES TO COMPUTE ###
 ##################################
 
-# NOTE: at least one example required, multiple are permitted
+# NOTE: at least one example is required, multiple are permitted
 example_range = {
     # Counterfactual Countermodels
     "CF_CM_1" : CF_CM_1_example,
-    "CF_CM_2" : CF_CM_2_example,
-    "CF_CM_7" : CF_CM_7_example,
-    "CF_CM_10" : CF_CM_10_example,
-    "CF_CM_13" : CF_CM_13_example,
+    # "CF_CM_2" : CF_CM_2_example,
+    # "CF_CM_7" : CF_CM_7_example,
+    # "CF_CM_10" : CF_CM_10_example,
+    # "CF_CM_13" : CF_CM_13_example,
     # Counterfactual Theorems
-    "CF_TH_2" : CF_TH_2_example,
-    "CF_TH_3" : CF_TH_3_example,
-    "CF_TH_5" : CF_TH_5_example,
-    "CF_TH_10" : CF_TH_10_example,
-    "CF_TH_11" : CF_TH_11_example,
+    # "CF_TH_2" : CF_TH_2_example,
+    # "CF_TH_3" : CF_TH_3_example,
+    # "CF_TH_5" : CF_TH_5_example,
+    # "CF_TH_10" : CF_TH_10_example,
+    # "CF_TH_11" : CF_TH_11_example,
 }
 
 # # NOTE: comment out Fine in semantic_theories to test these examples

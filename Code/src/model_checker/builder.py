@@ -103,7 +103,7 @@ def run_comparison(theory_A, theory_B, settings, examples):
             '\\circleright' : '\\could',
         }
         ex_theory_A = example + theory_A
-        alt_example = translate(premises, conclusions, dictionary)
+        alt_example = translate(example, dictionary)
         ex_theory_B = alt_example + theory_B
         theory_list = [ex_theory_A, ex_theory_B]
         compare_semantics(theory_list, settings)
