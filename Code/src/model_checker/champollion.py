@@ -843,7 +843,7 @@ EX_CM_5_example = [
     EX_CM_5_settings, # these can be customized by example
 ]
 
-# QUADRUPLE NEGATION EXAMPLE
+# QUADRUPLE NEGATION
 EX_CM_6_settings = {
     'N' : 3,
     'possible' : False,
@@ -860,7 +860,7 @@ EX_CM_6_example = [
     EX_CM_6_settings
 ]
 
-# WEDGE DEMORGANS EXAMPLE
+# CONJUNCTION DEMORGANS
 EX_CM_7_settings = {
     'N' : 3,
     'possible' : False,
@@ -883,7 +883,7 @@ EX_CM_7_example = [ # TODO: fix example
 ### LOGICAL CONSEQUENCES ###
 ############################
 
-# DISJUNCTIVE SYLLOGISM EXAMPLE
+# DISJUNCTIVE SYLLOGISM
 EX_TH_1_settings = {
     'N' : 3,
     'possible' : False,
@@ -900,7 +900,7 @@ EX_TH_1_example = [
     EX_TH_1_settings
 ]
 
-# WEDGE DEMORGANS EXAMPLE LR
+# CONJUNCTION DEMORGANS LR
 EX_TH_2_settings = {
     'N' : 3,
     'possible' : False,
@@ -917,7 +917,7 @@ EX_TH_2_example = [
     EX_TH_2_settings
 ]
 
-# WEDGE DEMORGANS EXAMPLE RL
+# CONJUNCTION DEMORGANS RL
 EX_TH_3_settings = {
     'N' : 3,
     'possible' : False,
@@ -934,7 +934,7 @@ EX_TH_3_example = [
     EX_TH_3_settings
 ]
 
-# VEE DEMORGANS EXAMPLE LR
+# DISJUNCTION DEMORGANS LR
 EX_TH_3_settings = {
     'N' : 3,
     'possible' : False,
@@ -951,7 +951,7 @@ EX_TH_3_example = [
     EX_TH_3_settings
 ]
 
-# VEE DEMORGANS EXAMPLE RL
+# DISJUNCTION DEMORGANS RL
 EX_TH_4_settings = {
     'N' : 3,
     'possible' : False,
@@ -968,7 +968,7 @@ EX_TH_4_example = [
     EX_TH_4_settings
 ]
 
-# VEE DISTRIBUTION EXAMPLE LR
+# DISJUNCTION DISTRIBUTION LR
 EX_TH_5_settings = {
     'N' : 3,
     'possible' : False,
@@ -985,7 +985,7 @@ EX_TH_5_example = [
     EX_TH_5_settings
 ]
 
-# VEE DISTRIBUTION EXAMPLE RL
+# DISJUNCTION DISTRIBUTION RL
 EX_TH_6_settings = {
     'N' : 3,
     'possible' : False,
@@ -1002,7 +1002,7 @@ EX_TH_6_example = [
     EX_TH_6_settings
 ]
 
-# WEDGE DISTRIBUTION EXAMPLE LR
+# CONJUNCTION DISTRIBUTION LR
 EX_TH_7_settings = {
     'N' : 3,
     'possible' : False,
@@ -1019,7 +1019,7 @@ EX_TH_7_example = [
     EX_TH_7_settings
 ]
 
-# WEDGE DISTRIBUTION EXAMPLE RL
+# CONJUNCTION DISTRIBUTION RL
 EX_TH_8_settings = {
     'N' : 3,
     'possible' : False,
@@ -1036,7 +1036,7 @@ EX_TH_8_example = [
     EX_TH_8_settings
 ]
 
-# WEDGE ABSORPTION EXAMPLE RL
+# CONJUNCTION ABSORPTION RL
 EX_TH_9_settings = {
     'N' : 3,
     'possible' : False,
@@ -1053,7 +1053,7 @@ EX_TH_9_example = [
     EX_TH_9_settings
 ]
 
-# WEDGE ABSORPTION EXAMPLE LR
+# CONJUNCTION ABSORPTION LR
 EX_TH_10_settings = {
     'N' : 3,
     'possible' : False,
@@ -1070,7 +1070,7 @@ EX_TH_10_example = [
     EX_TH_10_settings
 ]
 
-# VEE ABSORPTION EXAMPLE RL
+# DISJUNCTION ABSORPTION RL
 EX_TH_11_settings = {
     'N' : 3,
     'possible' : False,
@@ -1087,7 +1087,7 @@ EX_TH_11_example = [
     EX_TH_11_settings
 ]
 
-# VEE ABSORPTION EXAMPLE LR
+# DISJUNCTION ABSORPTION LR
 EX_TH_12_settings = {
     'N' : 3,
     'possible' : False,
@@ -1104,7 +1104,7 @@ EX_TH_12_example = [
     EX_TH_12_settings
 ]
 
-# WEDGE ASSOCIATIVITY RL
+# CONJUNCTION ASSOCIATIVITY RL
 EX_TH_13_settings = {
     'N' : 3,
     'possible' : False,
@@ -1121,7 +1121,7 @@ EX_TH_13_example = [
     EX_TH_13_settings
 ]
 
-# WEDGE ASSOCIATIVITY LR
+# CONJUNCTION ASSOCIATIVITY LR
 EX_TH_14_settings = {
     'N' : 3,
     'possible' : False,
@@ -1138,7 +1138,7 @@ EX_TH_14_example = [
     EX_TH_14_settings
 ]
 
-# VEE ASSOCIATIVITY RL
+# DISJUNCTION ASSOCIATIVITY RL
 EX_TH_15_settings = {
     'N' : 3,
     'possible' : False,
@@ -1155,7 +1155,7 @@ EX_TH_15_example = [
     EX_TH_15_settings
 ]
 
-# VEE ASSOCIATIVITY LR
+# DISJUNCTION ASSOCIATIVITY LR
 EX_TH_16_settings = {
     'N' : 3,
     'possible' : False,
