@@ -544,6 +544,8 @@ def main():
                 example_case = translate(example_case, dictionary)
             example = BuildExample(module, semantic_theory, example_case)
             example.print_result(example_name, theory_name)
+            print(example.model_structure.z3_model)
+            print(example.model_structure.unsat_core)
 
 if __name__ == "__main__":
     main()
