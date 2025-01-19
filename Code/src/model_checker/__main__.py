@@ -283,19 +283,20 @@ class BuildExample:
             """Adds example_settings to general_settings, mentioning overlaps."""
             # Track and merge settings
 
-            for key, default_value in example_settings.items():
+            copy_general = general_settings
+            for key, example_value in example_settings.items():
                 # Get value from module settings or use default
-                new_value = general_settings.get(key, default_value)
+                general_value = copy_general.get(key, example_value)
                 
                 # Check if we're replacing an existing general setting
-                if new_value != default_value:
-                    print(f"Warning: Example setting '{key}' is replacing general setting "
-                          f"'{default_value}' with '{new_value}'")
+                if key in self.DEFAULT_EXAMPLE.keys() and example_value != general_value:
+                    print(f"Warning: Example setting '{key} = {example_value}' is replacing the general setting "
+                          f"'{key} = {general_value}'")
                 
                 # Update the settings
-                general_settings[key] = new_value
+                copy_general[key] = example_value
     
-            return general_settings
+            return copy_general
     
         def disjoin_flags(all_settings):
             """Update boolean settings if module flag is True."""
@@ -544,6 +545,7 @@ def main():
                 example_case = translate(example_case, dictionary)
             example = BuildExample(module, semantic_theory, example_case)
             example.print_result(example_name, theory_name)
+            # TODO: move into print_result with new setting to toggle
             print(example.model_structure.z3_model)
             print(example.model_structure.unsat_core)
 
