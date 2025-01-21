@@ -355,20 +355,22 @@ class BuildExample:
             model_structure.save_to(example_name, theory_name, save_constraints, n)
         print(f'\n{file_name}.py created in {destination_dir}\n')
 
-def generate_project(name):
+def generate_project(name, theory='template'):
     """
     Copy the 'template/' directory to the current working directory, 
     rename it to the specified 'name', and rename its modules by prefixing 'name'.
     """
     project_name = 'project_' + name
     # Dynamically resolve the source directory relative to this script
-    source_dir = os.path.join(os.path.dirname(__file__), 'theory_lib', 'template')  
+    source_dir = os.path.join(os.path.dirname(__file__), 'theory_lib', theory)  
     destination_dir = os.path.join(os.getcwd(), project_name)  
 
     try:
         # Check if the source directory exists
         if not os.path.exists(source_dir):
-            raise FileNotFoundError(f"The source directory '{source_dir}' was not found.")
+            raise FileNotFoundError(
+                f"The semantic theory '{theory}' was not found in '{source_dir}'."
+            )
 
         # Check if the destination directory already exists
         if os.path.exists(destination_dir):
@@ -452,22 +454,29 @@ def parse_file_and_flags():
         help='Overrides to make all propositions contingent.'
     )
     parser.add_argument(
+        '--disjoint',
+        '-d',
+        action='store_true',
+        help='Overrides to make all propositions have disjoint subject-matters.'
+    )
+    parser.add_argument(
         '--non_empty',
         '-e',
         action='store_true',
         help='Overrides to make all propositions non_empty.'
     )
     parser.add_argument(
+        '--load_theory',
+        '-l',
+        type=str,
+        metavar='NAME',
+        help='Load a specific theory by name.'
+    )
+    parser.add_argument(
         '--non_null',
         '-n',
         action='store_true',
         help='Overrides to make all propositions non_null.'
-    )
-    parser.add_argument(
-        '--disjoint',
-        '-d',
-        action='store_true',
-        help='Overrides to make all propositions have disjoint subject-matters.'
     )
     parser.add_argument(
         '--print_constraints',
@@ -531,6 +540,9 @@ def main():
         except subprocess.CalledProcessError as e:
             print(f"Failed to upgrade {package_name}: {e}")
         return
+    if module_flags.load_theory:
+        semantic_theory_name = module_flags.load_theory
+        generate_project(semantic_theory_name, semantic_theory_name)
 
     module = BuildModule(module_flags)
 
