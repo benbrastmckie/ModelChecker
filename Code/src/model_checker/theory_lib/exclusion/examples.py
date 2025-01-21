@@ -36,6 +36,10 @@ Each example consists of:
 1. Premises (list of logical formulas)
 2. Conclusions (list of logical formulas)
 3. Settings (dictionary of model checking parameters)
+
+Help:
+-----
+More information can be found in the README.md for the exclusion theory.
 """
 
 ##########################
@@ -627,7 +631,8 @@ example_range = {
     # "EX_TH_14" : EX_TH_14_example,
     # "EX_TH_15" : EX_TH_15_example,
     # "EX_TH_16" : EX_TH_16_example,
-    # # # Other
+
+    # Testing
     "UNIEQUIV PLAYGROUND" : UNIEQUIV_PLAYGROUND
 }
 
