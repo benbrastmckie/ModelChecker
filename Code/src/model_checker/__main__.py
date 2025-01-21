@@ -46,6 +46,7 @@ class BuildModule:
     DEFAULT_GENERAL_SETTINGS = {
         "print_impossible": False,
         "print_constraints": False,
+        "print_z3": False,
         "save_output": False,
         # "optimize": False,
     }
@@ -134,6 +135,7 @@ class BuildExample:
         "conclusions": [],
     }
     
+    # TODO: should be piped in from semantics
     DEFAULT_EXAMPLE_SETTINGS = {
         "N": 3,
         "contingent": False,
@@ -318,7 +320,8 @@ class BuildExample:
     def print_result(self, example_name, theory_name):
         """Prints resulting model or no model if none is found."""
         model_structure = self.model_structure
-        model_structure.print_to(example_name, theory_name)
+        default_settings = self.DEFAULT_EXAMPLE_SETTINGS
+        model_structure.print_to(default_settings, example_name, theory_name)
         if model_structure.settings["save_output"]:
             file_name, save_constraints = self.ask_save()
             self.save_or_append(model_structure, file_name, save_constraints, example_name, theory_name)
@@ -512,6 +515,12 @@ def parse_file_and_flags():
         action='store_true',
         help='Upgrade the package.'
     )
+    parser.add_argument(
+        '--print_z3',
+        '-z',
+        action='store_true',
+        help='Overrides to print Z3 model or unsat_core.'
+    )
     # parse the command-line argument to get the module path
     flags = parser.parse_args()
     package_name = parser.prog  # Get the package name from the parser
@@ -545,9 +554,6 @@ def main():
                 example_case = translate(example_case, dictionary)
             example = BuildExample(module, semantic_theory, example_case)
             example.print_result(example_name, theory_name)
-            # TODO: move into print_result with new setting to toggle
-            print(example.model_structure.z3_model)
-            print(example.model_structure.unsat_core)
 
 if __name__ == "__main__":
     main()

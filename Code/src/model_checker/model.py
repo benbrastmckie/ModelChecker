@@ -527,7 +527,7 @@ class ModelStructure:
         for index, con in enumerate(constraints, start=1):
             print(f"{index}. {con}\n", file=output)
 
-    def print_to(self, example_name, theory_name, print_constraints=None, output=sys.__stdout__):
+    def print_to(self, default_settings, example_name, theory_name, print_constraints=None, output=sys.__stdout__):
         """append all elements of the model to the file provided
         
         Args:
@@ -541,21 +541,9 @@ class ModelStructure:
             print(f"No model for example {example_name} found before timeout.", file=output)
             print(f"Try increasing max_time > {self.max_time}.\n", file=output)
             return
-        self.print_all(example_name, theory_name, output)
+        self.print_all(default_settings, example_name, theory_name, output)
         if print_constraints and self.unsat_core is not None:
             self.print_grouped_constraints(output)
-
-    # def no_model_print_to(self, print_constraints=None, output=sys.__stdout__):
-    #     """prints the argument when there is no model with the option to
-    #     include Z3 constraints."""
-    #     if print_constraints is None:
-    #         print_constraints = self.settings["print_constraints"]
-    #     if print_constraints and self.unsat_core is not None:
-    #         self.print_grouped_constraints(output)
-    #     print(f"There are no {self.N}-models of:\n", file=output)
-    #     self.model_constraints.print_enumerate(output)
-    #     print(file=output)
-    #     print(f"Run time: {self.z3_model_runtime} seconds\n", file=output)
 
     def build_test_file(self, output):
         """generates a test file from input to be saved"""
@@ -599,7 +587,7 @@ class ModelStructure:
                 print(f"  {bin_rep} = {state}{label_str}", file=output)
         
         # Print formatted state space
-        print("\nState Space:", file=output)
+        print("State Space:", file=output)
         for bit in self.all_bits:
             state = bitvec_to_substates(bit, self.N)
             bin_rep = binary_bitvector(bit)
@@ -655,40 +643,77 @@ class ModelStructure:
             output
         )
 
-    def print_all(self, example_name, theory_name, output=sys.__stdout__):
+    def print_model(self, output):
+        if self.settings["print_z3"]:
+            if self.z3_model_status:
+                print(self.z3_model, file=output)
+            else:
+                print(self.unsat_core, file=output)
+
+    def print_info(self, model_status, default_settings, example_name, theory_name, output):
+        """Print model information including example details, settings, and runtime.
+        
+        Args:
+            model_status (bool): Whether a countermodel was found
+            default_settings (dict): Default settings to compare against
+            example_name (str): Name of the example being checked
+            theory_name (str): Name of the semantic theory being used
+            output (file): Output stream to write to
+        """
+        
+        # Determine result header
+        header = "there is a countermodel." if model_status else "there is no countermodel."
+        
+        # Print example information
+        self._print_section_header(example_name, header, output)
+        self._print_model_details(theory_name, output)
+        self._print_modified_settings(default_settings, output)
+        
+        # Print constraints and runtime
+        self.model_constraints.print_enumerate(output)
+        self._print_runtime_footer(output)
+
+    def _print_section_header(self, example_name, header, output):
+        """Print the section header with example name and result."""
+        print(f"{'='*40}", file=output)
+        print(f"\nEXAMPLE {example_name}: {header}\n", file=output)
+
+    def _print_model_details(self, theory_name, output):
+        """Print model details including atomic states and semantic theory."""
+        print(f"Atomic States: {self.N}\n", file=output)
+        print(f"Semantic Theory: {theory_name}\n", file=output)
+
+    def _print_modified_settings(self, default_settings, output):
+        """Print any settings that differ from defaults."""
+        modified_settings = {
+            key: self.settings[key]
+            for key, default_value in default_settings.items() 
+            if default_value != self.settings[key]
+        }
+        
+        if modified_settings:
+            print("Non-Default Settings:", file=output)
+            for key, value in modified_settings.items():
+                print(f"  {key} = {value}", file=output)
+            print()
+
+    def _print_runtime_footer(self, output):
+        """Print Z3 runtime and separator footer."""
+        print(f"\nZ3 Run Time: {self.z3_model_runtime} seconds", file=output)
+        print(f"\n{'='*40}\n", file=output)
+
+    def print_all(self, default_settings, example_name, theory_name, output=sys.__stdout__):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
-        if self.z3_model_status:
-            print(
-                "\n" + "="*40,
-                f"\nEXAMPLE {example_name}: there is a countermodel.\n",
-                f"\nAtomic States: {self.N}\n",
-                f"\nSemantic Theory: {theory_name}\n",
-                file=output
-            )
-            self.model_constraints.print_enumerate(output)
-            print(
-                f"\nZ3 Run Time: {self.z3_model_runtime} seconds",
-                "\n" + "="*40 + "\n",
-                file=output
-            )
+        model_status = self.z3_model_status
+        self.print_info(model_status, default_settings, example_name, theory_name, output)
+        if model_status:
             self.print_states(output)
             self.print_evaluation(output)
             self.print_input_sentences(output)
+            self.print_model(output)
             if output is sys.__stdout__:
                 total_time = round(time.time() - self.start_time, 4) 
                 print(f"Total Run Time: {total_time} seconds\n", file=output)
+                print(f"{'='*40}", file=output)
             return
-        print(
-            "\n" + "="*40,
-            f"\nEXAMPLE {example_name}: there is no countermodel.\n",
-            f"\nAtomic States: {self.N}\n",
-            f"\nSemantic Theory: {theory_name}\n",
-            file=output
-        )
-        self.model_constraints.print_enumerate(output)
-        print(
-            f"\nZ3 Run Time: {self.z3_model_runtime} seconds",
-            "\n" + "="*40 + "\n",
-            file=output
-        )

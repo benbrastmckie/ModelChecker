@@ -512,7 +512,7 @@ example_range = {
 
 semantic_theories = {
     "Brast-McKie" : default_theory,
-    # "Fine" : imposition_theory,
+    "Fine" : imposition_theory,
 }
 
 # Run comparison

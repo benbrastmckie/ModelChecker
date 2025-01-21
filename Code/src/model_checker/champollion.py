@@ -709,6 +709,7 @@ default_theory = {
 general_settings = {
     "print_constraints": False,
     "print_impossible": False,
+    "print_z3": False,
     "save_output": False,
 }
 
@@ -1177,8 +1178,8 @@ uniequiv_demorgans_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
+    'non_empty' : True,
+    'non_null' : True,
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
