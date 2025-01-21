@@ -1,44 +1,43 @@
 # TODO
 
-Individual specific tasks can be marked with _M_ or _B_ when relevant.
+Specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Plan
 
 - [:] applications
   - [:] _M_ Champollion
-    - [ ] examples
-    - [ ] divide into modules
-  - [x] _B_ Fine
+    - [.] examples
+    - [x] divide into modules
+  - [:] _B_ Fine
+    - [x] implement
+    - [ ] separate from default
 - [x] benchmarks
 - [:] unit tests
   - [:] example unit tests
   - [ ] add unit tests to template
 - [ ] _B_ add utilities
-  - [ ] comparison
-  - [ ] optimizer
+  - [.] comparison
+    - [x] example tester
+    - [ ] maximizer
+    - [ ] minimizer
   - [ ] add to api
 - [.] documentation
   - [.] _B_ doc strings
+  - [.] _B_ readmes
+    - [x] project
+    - [.] exclusion
+    - [ ] default
+    - [ ] imposition
   - [ ] _B_ architecture
   - [ ] _B_ semantics
-  - [ ] _M_ jupyter notebook
   - [ ] _B_ wiki
-  - [ ] local LLM
+  - [ ] _M_ jupyter notebook
 - [ ] subject-matter operators
 - [x] class architecture
 - [x] implementation
 - [x] api
 - [x] cli
 - [x] release
-
-## API
-
-- [x] create `__init__.py` and add all imports
-- [x] move any functions with general uses to `utils.py`
-  - [:] add useful functions from `utils.py` to `__init__.py`
-- [x] rebuild package
-- [x] create `api_example.py` to import from `model-checker`
-- [x] confirm `api_example.py` works
 
 ## Applications
 
@@ -58,18 +57,16 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] `disjoint`
   - [x] `non_empty`
 - [.] _M_ test exclusion semantics
-  - [ ] build range of examples
-  - [:] test frame constraints
-    - [ ] add frame constraints?
+  - [.] build range of examples
+  - [x] test frame constraints
+    - [ ] add constraint that exclusion is nonempty?
+    - [ ] go from complete lattice to boolean lattice
   - [ ] test settings
-  - [ ] compare with bilateral semantics
+  - [.] compare with bilateral semantics
   - [.] test theorems proven in the paper
     - [ ] do the proofs require all the axioms?
     - [x] are any of the other axioms derivable?
-  - [ ] add constraint that exclusion is nonempty
-  - [ ] strengthening the underlying structure
-    - [ ] go from complete lattice to boolean lattice
-- [ ] _M_ documentation and cleanup
+- [.] documentation and cleanup
 - [.] unit tests
   - [x] _B_ setup tests
   - [ ] add examples
@@ -77,26 +74,12 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] max atomic complexity `N` before timeout
   - [ ] max sentence/atomic complexity before too many constraints to build
 
-### Imposition Semantics
-
-- [x] add Z3 primitive for `imposition` from old `model-checker`
-- [x] add frame constraints on `imposition`
-- [x] add imposition semantics for counterfactuals
-- [x] run unit tests
-  - [x] debug `IMP_CM2`
-- [x] separate Fine's semantics
-- [ ] add optimizer from old semantics
-  - [ ] add ability to compare semantic theories
-  - [ ] print run time for each value of `N` before timeout
-  - [ ] how to test for sentence complexity?
-
 ## Diagnostic Tools
 
-- [ ] progress bar
-- [:] error reporting
-  - [ ] convert bvs to states in raise Errors
-  - [ ] few remaining todos in `__main__.py`
 - [ ] refactor `utils.py`
+- [:] error reporting
+  - [x] convert bvs to states in raise Errors
+  - [ ] few remaining todos in `__main__.py`
 - [x] printouts
   - [x] add total time
 - [x] flags
@@ -127,8 +110,9 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] flags
   - [x] print constraints
   - [x] print unsat core
-  - [ ] comparison
-  - optimizer
+  - [x] comparison
+  - [ ] minimizer
+  - [ ] maximizer
 - [x] update help flag
 - [x] fix templates
 - [x] add default operators
@@ -201,15 +185,6 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
       - [x] unit tests
       - [ ] verifiers and falsifiers
 
-# Release v0.6
-
-- [x] project template
-- [x] bypass semantics
-  - [x] generate `semantics` module
-- [x] primitive imposition
-  - [x] implement
-  - [x] test
-
 ## Z3 Research
 
 - [ ] document problems
@@ -235,6 +210,33 @@ Individual specific tasks can be marked with _M_ or _B_ when relevant.
 <!-- BONEYARD -->
 
 # Completed
+
+# Release v0.7
+
+- [x] project template
+- [x] bypass semantics
+  - [x] generate `semantics` module
+- [x] primitive imposition
+  - [x] implement
+  - [x] test
+
+### Imposition Semantics
+
+- [x] add Z3 primitive for `imposition` from old `model-checker`
+- [x] add frame constraints on `imposition`
+- [x] add imposition semantics for counterfactuals
+- [x] run unit tests
+  - [x] debug `IMP_CM2`
+- [x] separate Fine's semantics
+
+## API
+
+- [x] create `__init__.py` and add all imports
+- [x] move any functions with general uses to `utils.py`
+  - [x] add useful functions from `utils.py` to `__init__.py`
+- [x] rebuild package
+- [x] create `api_example.py` to import from `model-checker`
+- [x] confirm `api_example.py` works
 
 ## Documentation
 
