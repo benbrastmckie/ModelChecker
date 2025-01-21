@@ -945,7 +945,6 @@ default_operators = syntactic.OperatorCollection(
     TopOperator,
     BotOperator,
     IdentityOperator,
-
     CounterfactualOperator,
     ImpositionOperator,
     NecessityOperator,
