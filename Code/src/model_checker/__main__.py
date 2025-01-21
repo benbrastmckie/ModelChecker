@@ -355,9 +355,9 @@ class BuildExample:
             model_structure.save_to(example_name, theory_name, save_constraints, n)
         print(f'\n{file_name}.py created in {destination_dir}\n')
 
-def generate_project(name, theory='template'):
+def generate_project(name, theory):
     """
-    Copy the 'template/' directory to the current working directory, 
+    Copy the 'default/' directory to the current working directory, 
     rename it to the specified 'name', and rename its modules by prefixing 'name'.
     """
     project_name = 'project_' + name
@@ -377,7 +377,7 @@ def generate_project(name, theory='template'):
             print(f"Error: Directory '{destination_dir}' already exists.")
             return
 
-        # Copy the template directory
+        # Copy the default directory
         shutil.copytree(source_dir, destination_dir)
 
         # Rename the files in the copied directory
@@ -417,14 +417,15 @@ def generate_project(name, theory='template'):
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
-def ask_generate_project():
+def ask_generate_project(theory='default'):
     """prompt user to create a test file"""
-    result = input("Would you like to generate a new project? (y/n): ")
+    result = input(f"Would you like to generate a new {theory}-project? (y/n): ")
     if result not in {'Yes', 'yes', 'Ye', 'ye', 'Y', 'y'}:
         print("You can run an example.py file that already exists with the command:\n")
         print("model-checker example.py\n")
+        return
     test_name = input("Enter the name of your project using snake_case: ")
-    generate_project(test_name)
+    generate_project(test_name, theory)
 
 def parse_file_and_flags():
     """returns the name and path for the current script"""
@@ -542,7 +543,9 @@ def main():
         return
     if module_flags.load_theory:
         semantic_theory_name = module_flags.load_theory
-        generate_project(semantic_theory_name, semantic_theory_name)
+        ask_generate_project(semantic_theory_name)
+        # generate_project(semantic_theory_name, semantic_theory_name)
+        return
 
     module = BuildModule(module_flags)
 

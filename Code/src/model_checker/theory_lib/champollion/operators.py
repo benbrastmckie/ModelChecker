@@ -1,11 +1,13 @@
-import z3
+##########################
+### DEFINE THE IMPORTS ###
+##########################
 
-from src.model_checker.utils import (
+import z3
+from model_checker.utils import (
     ForAll,
     Exists,
 )
-
-from src.model_checker import syntactic
+from model_checker import syntactic
 
 class ExclusionOperator(syntactic.Operator):
     """doc string place holder"""

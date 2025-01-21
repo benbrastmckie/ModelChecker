@@ -1,21 +1,31 @@
-"""From the ../Code/ directory, run: python -m src.model_checker src/model_checker/champollion.py"""
+"""
+INSTRUCTIONS: this module defines the semantic_theories and example_range.
+From the project directory, run: model_checker examples.py
+"""
 
-from src.model_checker.theory_lib.champollion.semantic import (
+##########################
+### DEFINE THE IMPORTS ###
+##########################
+
+import sys
+import os
+sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.path
+from semantic import (
     ChampollionSemantics,
     ChampollionProposition,
 )
-from src.model_checker.theory_lib.champollion.operators import (
+from operators import (
     UniAndOperator, UniOrOperator, ExclusionOperator, # extensional
     UniIdentityOperator, # constitutive
 )
-from src.model_checker.primitive import (
+from model_checker.primitive import (
     AndOperator,
     IdentityOperator,
     NegationOperator,
     OrOperator,
 )
-from src.model_checker.semantic import Proposition, Semantics
-from src.model_checker import syntactic
+from model_checker.semantic import Proposition, Semantics
+from model_checker import syntactic
 
 ####################################
 ### DEFINE THE SEMANTIC THEORIES ###
