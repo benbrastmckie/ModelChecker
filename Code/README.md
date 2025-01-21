@@ -62,9 +62,13 @@ model-checker -u
 
 Run `model-checker` in the terminal without arguments to create a new project with the following modules:
 
-  - `semantic.py` specifies the Z3 primitives, frame constraints, models, theory of logical consequence, defined semantic terms, theory of propositions, and instructions for displaying countermodels.
+  - `semantic.py` specifies the Z3 primitives, frame constraints, models, theory of logical consequence, defined semantic terms, theory of propositions, and print instructions for displaying countermodels for the default semantics.
   - `operators.py` specifies the semantic clauses for the primitive operators included in the default language along with a number of defined operators.
   - `examples.py` specifies the settings, a number of examples, and the protocol for finding and printing countermodels if there are any.
+
+Alternatively, run `model-checker -l THEORY_NAME` to create a copy of the semantic theory with the name 'THEORY_NAME'.
+The library of available semantic theories can be found [here](https://github.com/benbrastmckie/ModelChecker/tree/master/Code/src/model_checker/theory_lib).
+Additional theories can be added by submitting a pull request.
 
 After changing to the project directory that you created, run `model-checker project_examples.py` to find a countermodel if there is any.
 The example settings specify the following inputs where the defaults are indicated below:
@@ -81,6 +85,7 @@ A number of general settings may also be specified with the following:
 
   - An option to print impossible states: `print_impssible = False`.
   - An option to print all Z3 constraints or unsatisfiable core constraints: `print_constraints = False`.
+  - An option to print the Z3 model if there is any: `print_z3 = False`.
   - An option to prompt the user to append the output to the current file or to create a new file: `save_output = False`.
 
 Examples are specified by defining a list as follows:
@@ -114,12 +119,13 @@ Alternatively, users can define a general stock of `example_settings`, reusing t
 Users can override these settings from the command line by including the following flags:
 
   - Include `-c` to set `contingent = True`.
+  - Include `-d` to set `disjoint = True`.
   - Include `-e` to set `non_empty = True`.
   - Include `-n` to set `non_null = True`.
-  - Include `-d` to set `disjoint = True`.
   - Include `-i` to set `print_impossibe = True`.
   - Include `-p` to set `print_constraints = True`.
   - Include `-s` to set `save_bool = True`.
+  - Include `-z` to set `print_z3 = True`.
 
 Additional flags have been included in order to manage the package version:
 
