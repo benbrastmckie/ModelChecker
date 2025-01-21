@@ -3,14 +3,17 @@
 This document provides an overview of the package contents for the _exclusion semantics_ defended by [Bernard and Champollion](https://ling.auf.net/lingbuzz/007730/current.html).
 Further documentation can be found in the `docstrings` and comments.
 
-## Contents
+## Modules
 
-This package includes the following templates:
+The _exclusion semantics_ includes the following modules:
+
 - `README.md` to document usage and changes.
 - `__init__.py` to expose definitions to be imported elsewhere.
 - `examples.py` defines a number of examples to test.
 - `semantic.py` defines the default semantics for the operators included.
 - `operators.py` defines the primitive and derived operators.
+
+These  will be discussed below, beginning with `examples.py` in the following section.
 
 ## Usage
 
@@ -94,7 +97,7 @@ The default example settings are also included for reference, though may be omit
 
 If settings are omitted from an example (e.g., no value of `N` is provided), the defaults above will be assumed, issuing a notification the user.
 
-### Semantics
+### Semantic Theories
 
 The semantic theories over which the examples included in `example_range` are composed of a `semantics`, definition of a `proposition`, and collection of `operators` included in the examples under consideration.
 In particular, the `exclusion_theory` is defined as follows:
@@ -158,3 +161,9 @@ Upon testing, each example will be evaluated over each semantic theory included 
 The `semantics.py` module consists of two classes which define the models of the language and the theory of propositions over which the language is interpreted.
 
 > TO BE CONTINUED...
+
+### Semantics
+
+### Propositions
+
+### Operators
