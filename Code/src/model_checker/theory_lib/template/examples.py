@@ -36,9 +36,9 @@ general_settings = {
 example_settings = {  # defaults can be tailored to each example
     'N' : 3,
     'contingent' : False,
+    'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'disjoint' : False,
     'max_time' : 1,
 }
 

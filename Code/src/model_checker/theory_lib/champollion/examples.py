@@ -65,9 +65,9 @@ example_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
+    'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
 }
