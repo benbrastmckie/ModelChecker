@@ -11,7 +11,7 @@ from model_checker.utils import (
 from model_checker import model
 from model_checker import syntactic
 
-class ChampollionSemantics(model.SemanticDefaults):
+class ExclusionSemantics(model.SemanticDefaults):
 
     DEFAULT_EXAMPLE_SETTINGS = {
         'N' : 3,
@@ -285,7 +285,7 @@ class ChampollionSemantics(model.SemanticDefaults):
         return operator.extended_verify(state, *arguments, eval_world)
 
 
-class ChampollionProposition(model.PropositionDefaults):
+class UnilateralProposition(model.PropositionDefaults):
     """Defines the proposition assigned to the sentences of the language.
     all user has to keep for their own class is super().__init__ and super().__poster_init__
     in the __init__ method.

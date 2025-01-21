@@ -2,8 +2,8 @@ __version__ = "0.0.1"
 
 # Import specific items from semantic
 from .semantic import (
-    ChampollionSemantics,
-    ChampollionProposition,
+    ExclusionSemantics,
+    UnilateralProposition,
 )
 
 # Import specific items from primitive

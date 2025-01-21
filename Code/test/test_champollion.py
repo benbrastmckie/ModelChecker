@@ -9,16 +9,16 @@ from src.model_checker.syntactic import (
     OperatorCollection,
 )
 
-from src.model_checker.theory_lib.champollion import (
-    ChampollionSemantics,
-    ChampollionProposition,
+from src.model_checker.theory_lib.exclusion import (
+    ExclusionSemantics,
+    UnilateralProposition,
     ExclusionOperator,
     UniAndOperator,
     UniOrOperator,
 )
 
-semantics = ChampollionSemantics
-proposition = ChampollionProposition
+semantics = ExclusionSemantics
+proposition = UnilateralProposition
 operators = OperatorCollection(
     ExclusionOperator,
     UniAndOperator,

@@ -64,7 +64,7 @@ Run `model-checker` in the terminal without arguments to create a new project wi
 
   - `semantic.py` specifies the Z3 primitives, frame constraints, models, theory of logical consequence, defined semantic terms, theory of propositions, and print instructions for displaying countermodels for the default semantics.
   - `operators.py` specifies the semantic clauses for the primitive operators included in the default language along with a number of defined operators.
-  - `examples.py` specifies the settings, a number of examples, and the protocol for finding and printing countermodels if there are any.
+  - `examples.py` specifies the settings, a collection of examples, and the protocol for finding and printing countermodels if there are any.
 
 Alternatively, run `model-checker -l THEORY_NAME` to create a copy of the semantic theory with the name 'THEORY_NAME'.
 The library of available semantic theories can be found [here](https://github.com/benbrastmckie/ModelChecker/tree/master/Code/src/model_checker/theory_lib).

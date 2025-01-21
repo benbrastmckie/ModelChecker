@@ -11,8 +11,8 @@ import sys
 import os
 sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.path
 from semantic import (
-    ChampollionSemantics,
-    ChampollionProposition,
+    ExclusionSemantics,
+    UnilateralProposition,
 )
 from operators import (
     UniAndOperator, UniOrOperator, ExclusionOperator, # extensional
@@ -31,7 +31,7 @@ from model_checker import syntactic
 ### DEFINE THE SEMANTIC THEORIES ###
 ####################################
 
-champollion_operators = syntactic.OperatorCollection(
+exclusion_operators = syntactic.OperatorCollection(
     UniAndOperator, UniOrOperator, ExclusionOperator, # extensional
     UniIdentityOperator, # constitutive
 )
@@ -40,10 +40,11 @@ default_operators = syntactic.OperatorCollection(
     NegationOperator, AndOperator, OrOperator, # extensional
     IdentityOperator, # constitutive
 )
-champollion_theory = {
-    "semantics": ChampollionSemantics,
-    "proposition": ChampollionProposition,
-    "operators": champollion_operators,
+
+exclusion_theory = {
+    "semantics": ExclusionSemantics,
+    "proposition": UnilateralProposition,
+    "operators": exclusion_operators,
 }
 
 default_dictionary = {
@@ -559,7 +560,7 @@ UNIEQUIV_PLAYGROUND = [
 
 # NOTE: at least one theory is required, multiple are permitted for comparison
 semantic_theories = {
-    "Champollion" : champollion_theory,
+    "Champollion" : exclusion_theory,
     # "Brast-McKie" : default_theory,
 }
 
