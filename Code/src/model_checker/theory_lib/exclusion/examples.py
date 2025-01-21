@@ -1,6 +1,41 @@
 """
-INSTRUCTIONS: this module defines the semantic_theories and example_range.
-From the project directory, run: model_checker examples.py
+This module tests the unilateral exclusion semantics, providing a evaluate the
+logical relationships in a language with an exclusion operator and comparing the
+result to the bilateral semantics.
+
+Module Structure:
+----------------
+1. Imports:
+   - Local semantic and operator definitions
+   - Core model checker primitives
+   - System utilities
+
+2. Semantic Theories:
+   - exclusion_theory: Implements exclusion logic with unilateral operators
+   - default_theory: Classical logic implementation for comparison
+
+3. Settings:
+   - general_settings: Global configuration for output and debugging
+   - example_settings: Default parameters for model checking
+
+4. Example Categories:
+   - Countermodels (EX_CM_*): Examples demonstrating invalid inferences
+   - Logical Consequences (EX_TH_*): Examples of valid logical relationships
+
+Configuration:
+-------------
+- semantic_theories: Dict of semantic theories to test against
+- example_range: Dict of example cases to evaluate
+
+Usage:
+------
+From the project directory, run:
+    model-checker examples.py
+
+Each example consists of:
+1. Premises (list of logical formulas)
+2. Conclusions (list of logical formulas)
+3. Settings (dictionary of model checking parameters)
 """
 
 ##########################
@@ -560,7 +595,7 @@ UNIEQUIV_PLAYGROUND = [
 
 # NOTE: at least one theory is required, multiple are permitted for comparison
 semantic_theories = {
-    "Champollion" : exclusion_theory,
+    "ChampollionBernard" : exclusion_theory,
     # "Brast-McKie" : default_theory,
 }
 
@@ -574,8 +609,9 @@ example_range = {
     # "EX_CM_5" : EX_CM_5_example, # disagree
     # "EX_CM_6" : EX_CM_6_example, # disagree
     # "EX_CM_7" : EX_CM_7_example, # disagree
-    # # # Theorems
-    # "EX_TH_1" : EX_TH_1_example,
+
+    # Theorems
+    "EX_TH_1" : EX_TH_1_example,
     # "EX_TH_2" : EX_TH_2_example,
     # "EX_TH_3" : EX_TH_3_example,
     # "EX_TH_4" : EX_TH_4_example,
