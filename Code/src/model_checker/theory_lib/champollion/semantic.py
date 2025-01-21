@@ -1,14 +1,15 @@
-import z3
+##########################
+### DEFINE THE IMPORTS ###
+##########################
 
-from src.model_checker.utils import (
+import z3
+from model_checker.utils import (
     ForAll,
     Exists,
     bitvec_to_substates,
 )
-
-from src.model_checker import model
-
-from src.model_checker import syntactic
+from model_checker import model
+from model_checker import syntactic
 
 class ChampollionSemantics(model.SemanticDefaults):
 
