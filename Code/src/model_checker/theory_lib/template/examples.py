@@ -21,11 +21,6 @@ from operators import (
     default_operators,
 )
 
-from model_checker import (
-    syntactic,
-    model,
-)
-
 
 ########################
 ### DEFAULT SETTINGS ###
@@ -34,6 +29,7 @@ from model_checker import (
 general_settings = {
     "print_constraints": False,
     "print_impossible": False,
+    "print_z3": False,
     "save_output": False,
 }
 

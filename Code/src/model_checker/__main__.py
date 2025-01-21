@@ -362,7 +362,7 @@ def generate_project(name):
     """
     project_name = 'project_' + name
     # Dynamically resolve the source directory relative to this script
-    source_dir = os.path.join(os.path.dirname(__file__), 'template')  
+    source_dir = os.path.join(os.path.dirname(__file__), 'theory_lib', 'template')  
     destination_dir = os.path.join(os.getcwd(), project_name)  
 
     try:
