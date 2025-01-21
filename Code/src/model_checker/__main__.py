@@ -135,21 +135,12 @@ class BuildExample:
         "conclusions": [],
     }
     
-    # TODO: should be piped in from semantics
-    DEFAULT_EXAMPLE_SETTINGS = {
-        "N": 3,
-        "contingent": False,
-        "non_empty": False,
-        "non_null": False,
-        "disjoint": False,
-        "max_time": 1,
-    }
-
     def __init__(self, module, semantic_theory, example_case):
 
         """Initialize model structure from module flags."""
         self.module = module
         self.semantics, self.proposition, self.operators, self.dictionary = self._validate_semantic_theory(semantic_theory)
+        self.DEFAULT_EXAMPLE_SETTINGS = self.semantics.DEFAULT_EXAMPLE_SETTINGS
         self.premises, self.conclusions, example_settings = self._validate_example(example_case)
         self.settings = self._validate_settings(example_settings)
 

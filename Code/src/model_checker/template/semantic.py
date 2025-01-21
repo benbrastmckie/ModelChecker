@@ -23,6 +23,15 @@ class Semantics(SemanticDefaults):
     """Includes the semantic primitives, semantic definitions, frame
     constraints, truth and falsity theories, and premise/conclusion behavior."""
 
+    DEFAULT_EXAMPLE_SETTINGS = {
+        'N' : 3,
+        'contingent' : False,
+        'non_empty' : False,
+        'non_null' : False,
+        'disjoint' : False,
+        'max_time' : 1,
+    }
+
     def __init__(self, N):
 
         # Initialize the superclass to set defaults
