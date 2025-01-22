@@ -10,11 +10,13 @@ import shutil
 import subprocess
 import argparse
 import importlib.util
+
 # Try local imports first (for development)
 try:
     from src.model_checker import __version__
     from src.model_checker.builder import (
         make_model_for,
+        run_comparison,
         translate,
     )
     from src.model_checker.model import (
@@ -27,6 +29,7 @@ except ImportError:
     from model_checker import __version__
     from model_checker.builder import (
         make_model_for,
+        run_comparison,
         translate,
     )
     from model_checker.model import (
@@ -48,6 +51,7 @@ class BuildModule:
         "print_constraints": False,
         "print_z3": False,
         "save_output": False,
+        "compare_theories": False,
         # "optimize": False,
     }
 
@@ -164,9 +168,9 @@ class BuildExample:
 
         # Create model structure
         self.model_structure = make_model_for(
-            self.settings,
             self.premises,
             self.conclusions, 
+            self.settings,
             self.semantics,
             self.proposition,
             self.operators,
@@ -544,14 +548,14 @@ def main():
     if module_flags.load_theory:
         semantic_theory_name = module_flags.load_theory
         ask_generate_project(semantic_theory_name)
-        # generate_project(semantic_theory_name, semantic_theory_name)
         return
 
     module = BuildModule(module_flags)
 
-    # TODO: check if compare = True and then:
-        # check if multiple semantic_theories and then:
-            # run comparison function
+    # TODO: create print/save class
+    if module.general_settings["compare_theories"]:
+        run_comparison(module.example_range, module.semantic_theories)
+        return
 
     for example_name, example_case in module.example_range.items():
         for theory_name, semantic_theory in module.semantic_theories.items():

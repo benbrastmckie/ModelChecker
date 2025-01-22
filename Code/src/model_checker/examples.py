@@ -78,6 +78,7 @@ general_settings = {
     "print_impossible": False,
     "print_z3": False,
     "save_output": False,
+    "compare_theories": True,
 }
 
 example_settings = {
@@ -477,9 +478,9 @@ CF_TH_11_example = [
 example_range = {
     # Countermodels
     "CF_CM_1" : CF_CM_1_example,
-    # "CF_CM_2" : CF_CM_2_example,
-    # "CF_CM_3" : CF_CM_3_example,
-    # "CF_CM_4" : CF_CM_4_example,
+    "CF_CM_2" : CF_CM_2_example,
+    "CF_CM_3" : CF_CM_3_example,
+    "CF_CM_4" : CF_CM_4_example,
     # "CF_CM_5" : CF_CM_5_example,
     # "CF_CM_6" : CF_CM_6_example,
     # "CF_CM_7" : CF_CM_7_example,
