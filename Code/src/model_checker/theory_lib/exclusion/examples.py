@@ -109,6 +109,7 @@ general_settings = {
     "print_impossible": False,
     "print_z3": False,
     "save_output": False,
+    "compare_theories": False,
 }
 
 example_settings = {
@@ -633,7 +634,7 @@ example_range = {
     # "EX_TH_16" : EX_TH_16_example,
 
     # Testing
-    "UNIEQUIV PLAYGROUND" : UNIEQUIV_PLAYGROUND
+    # "UNIEQUIV PLAYGROUND" : UNIEQUIV_PLAYGROUND
 }
 
 

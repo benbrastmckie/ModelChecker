@@ -30,6 +30,7 @@ general_settings = {
     "print_impossible": False,
     "print_z3": False,
     "save_output": False,
+    "compare_theories": False,
 }
 
 example_settings = {  # defaults can be tailored to each example
