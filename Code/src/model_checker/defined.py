@@ -163,8 +163,8 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
     arity = 1
 
     def derived_definition(self, arg):
-        return [NegationOperator, [DefNecessityOperator, [NegationOperator, arg]]]
-        # return [NegationOperator, [NecessityOperator, [NegationOperator, arg]]]
+        return [NegationOperator, [NecessityOperator, [NegationOperator, arg]]]
+        # return [NegationOperator, [DefNecessityOperator, [NegationOperator, arg]]]
     
     def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
         """Print counterfactual and the antecedent in the eval_world. Then

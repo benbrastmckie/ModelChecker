@@ -11,14 +11,16 @@ import sys
 import os
 sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.path
 
-from semantic import (
+from model_checker.semantic import (
     Semantics,
     Proposition,
 )
 
-from operators import (
-    default_operators,
+from semantic import (
+    ImpositionSemantics,
 )
+
+from operators import combined_operators
 
 
 ########################
@@ -49,9 +51,21 @@ example_settings = {  # defaults can be tailored to each example
 default_theory = {
     "semantics": Semantics,
     "proposition": Proposition,
-    "operators": default_operators,
+    "operators": combined_operators,
     # default theory does not require a translation dictionary for comparison
     # since the examples are stated in the language of the default theory
+}
+
+imposition_dictionary = {
+    "\\boxright" : "\\imposition",
+    "\\circleright" : "\\could",
+}
+
+imposition_theory = {
+    "semantics": ImpositionSemantics,
+    "proposition": Proposition,
+    "operators": combined_operators,
+    "dictionary": imposition_dictionary,
 }
 
 
@@ -375,6 +389,7 @@ CL_TH_8_example = [
 # NOTE: at least one theory is required, multiple are permitted for comparison
 semantic_theories = {
     "Brast-McKie" : default_theory,
+    # "Fine" : imposition_theory,
     # additional theories will require their own translation dictionaries
 }
 
@@ -386,7 +401,6 @@ example_range = {
     # "CF_CM_7" : CF_CM_7_example,
     # "CF_CM_10" : CF_CM_10_example,
     # "CF_CM_13" : CF_CM_13_example,
-
     # Counterfactual Theorems
     # "CF_TH_2" : CF_TH_2_example,
     # "CF_TH_3" : CF_TH_3_example,
@@ -394,3 +408,24 @@ example_range = {
     # "CF_TH_10" : CF_TH_10_example,
     # "CF_TH_11" : CF_TH_11_example,
 }
+
+# # NOTE: comment out Fine in semantic_theories to test these examples
+# example_range = {
+#     # Constitutive Countermodels
+#     "CL_CM_3" : CL_CM_3_example,
+#     "CL_CM_4" : CL_CM_4_example,
+#     "CL_CM_5" : CL_CM_5_example,
+#     "CL_CM_6" : CL_CM_6_example,
+#     "CL_CM_10" : CL_CM_10_example,
+#     # Constitutive Theorems
+#     "CL_TH_1" : CL_TH_1_example,
+#     "CL_TH_2" : CL_TH_2_example,
+#     "CL_TH_3" : CL_TH_3_example,
+#     "CL_TH_4" : CL_TH_4_example,
+#     "CL_TH_5" : CL_TH_5_example,
+#     "CL_TH_6" : CL_TH_6_example,
+#     "CL_TH_7" : CL_TH_7_example,
+#     "CL_TH_8" : CL_TH_8_example,
+# }
+#     
+#
