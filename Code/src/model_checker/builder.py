@@ -67,23 +67,54 @@ def find_max_N(theory_name, example_case, semantic_theory):
         else:
             return settings['N'] - 1
 
+# def compare_semantics(example_theory_tuples):
+#     results = []
+#     with concurrent.futures.ProcessPoolExecutor() as executor:
+#         future_to_theory = {
+#             executor.submit(find_max_N, *case): case
+#             for case in example_theory_tuples
+#         }
+#         for future in concurrent.futures.as_completed(future_to_theory):
+#             case = future_to_theory[future]
+#             settings = case[1][2]
+#             try:
+#                 result = future.result(timeout=settings['max_time'])
+#                 # result = future.result()
+#                 results.append((case[0], result))
+#             except Exception as e:
+#                 print(f"\nTIMED OUT: {case[2]['semantics'].__name__} ({case[0]}):")
+#                 print(f"  {str(e)}" + " Continuing with remaining comparisons...\n")
+#                 results.append((case[0], None))
+#     return results
+
 def compare_semantics(example_theory_tuples):
-    results = []
+    settings = example_theory_tuples[0][1][2]
     with concurrent.futures.ProcessPoolExecutor() as executor:
         future_to_theory = {
             executor.submit(find_max_N, *case): case
             for case in example_theory_tuples
         }
-        for future in concurrent.futures.as_completed(future_to_theory):
-            case = future_to_theory[future]
-            try:
-                result = future.result()
-                results.append((case[0], result))
-            except Exception as e:
-                print(f"\nERROR in {case[2]['semantics'].__name__} ({case[0]}):")
-                print(f"  {str(e)}" + " Continuing with remaining comparisons...\n")
-                results.append((case[0], None))
-    return results
+        
+        while future_to_theory:
+            done, _ = concurrent.futures.wait(
+                future_to_theory.keys(),
+                timeout=settings['max_time'],
+                return_when=concurrent.futures.ALL_COMPLETED
+            )
+            
+            for future in done:
+                case = future_to_theory[future]
+                if future.cancelled():
+                    print(f"\nTIMED OUT: {case[2]['semantics'].__name__} ({case[0]}):")
+                elif isinstance(future.exception(), concurrent.futures.process.BrokenProcessPool):
+                    print(f"\nPROCESS CRASHED: {case[2]['semantics'].__name__} ({case[0]})")
+                else:
+                    print(f"\nERROR in {case[2]['semantics'].__name__} ({case[0]}):")
+                    print(f"  {str(future.exception())}")
+                future.cancel()
+                del future_to_theory[future]
+                print("Continuing with remaining comparisons...\n")
+    return
 
 def translate(example_case, dictionary):
     """Use dictionary to replace logical operators."""
@@ -125,27 +156,28 @@ def run_comparison(example_range, semantic_theories):
         compare_semantics(example_theory_tuples)
         print(f"{'='*40}")
 
-def save_comparisons(default_theory, imposition_theory, settings, examples):
-    # Get the absolute path of the current script
-    script_path = os.path.realpath(__file__)
-    script_dir = os.path.dirname(script_path)
-    # Define subdirectory path relative to the script's directory
-    new_dir = os.path.join(script_dir, "comparisons")
-    # Create the "Examples" directory if it doesn't exist
-    os.makedirs(new_dir, exist_ok=True)
-    # Prompt the user for a filename
-    filename = input("Please enter the output filename (without path): ")
-    filepath = os.path.join(new_dir, filename)
-
-    # Open the file for writing and redirect stdout
-    with open(filepath, 'w') as f:
-        old_stdout = sys.stdout
-        sys.stdout = f
-        try:
-            run_comparison(default_theory, imposition_theory, settings, examples)
-        finally:
-            # Restore original stdout
-            sys.stdout = old_stdout
-
-    print(f"All output has been written to {filename}.")
+# TODO: combine with run_comparison once moved into print class
+# def save_comparisons(default_theory, imposition_theory, settings, examples):
+#     # Get the absolute path of the current script
+#     script_path = os.path.realpath(__file__)
+#     script_dir = os.path.dirname(script_path)
+#     # Define subdirectory path relative to the script's directory
+#     new_dir = os.path.join(script_dir, "comparisons")
+#     # Create the "Examples" directory if it doesn't exist
+#     os.makedirs(new_dir, exist_ok=True)
+#     # Prompt the user for a filename
+#     filename = input("Please enter the output filename (without path): ")
+#     filepath = os.path.join(new_dir, filename)
+#
+#     # Open the file for writing and redirect stdout
+#     with open(filepath, 'w') as f:
+#         old_stdout = sys.stdout
+#         sys.stdout = f
+#         try:
+#             run_comparison(default_theory, imposition_theory, settings, examples)
+#         finally:
+#             # Restore original stdout
+#             sys.stdout = old_stdout
+#
+#     print(f"All output has been written to {filename}.")
 
