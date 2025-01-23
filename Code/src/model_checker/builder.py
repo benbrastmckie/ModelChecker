@@ -41,69 +41,85 @@ def make_model_for(
     # proposition_class,
     # operators,
 
-def find_max_N(theory_name, example_case, semantic_theory):
+def try_single_N(theory_name, semantic_theory, example_case):
+    """Try a single N value and return (success, runtime)"""
     premises, conclusions, settings = example_case
     semantics_class = semantic_theory["semantics"]
     proposition_class = semantic_theory["proposition"]
     operators = semantic_theory["operators"]
-    while True:
-        model_structure = make_model_for(
-            premises,
-            conclusions,
-            settings,
-            semantics_class,
-            proposition_class,
-            operators,
+    model_structure = make_model_for(
+        premises,
+        conclusions,
+        settings,
+        semantics_class,
+        proposition_class,
+        operators,
+    )
+    run_time = model_structure.z3_model_runtime
+    success = run_time < settings['max_time']
+    if success:
+        print(
+            f"{model_structure.semantics.name} ({theory_name}):\n"
+            f"  RUN TIME = {run_time}, " +
+            f"MAX TIME = {settings['max_time']}, " +
+            f"N = {settings['N']}."
         )
-        run_time = model_structure.z3_model_runtime
-        if run_time < settings['max_time']:
-            print(
-                f"{model_structure.semantics.name} ({theory_name}):\n"
-                f"  RUN TIME = {run_time}, " +
-                f"MAX TIME = {settings['max_time']}, " +
-                f"N = {settings['N']}."
-            )
-            settings['N'] += 1
-        else:
-            return settings['N'] - 1
+    else:
+        print(
+            f"{model_structure.semantics.name} ({theory_name}): "
+            f"TIMED OUT\n" +
+            f"  RUN TIME = {run_time}, " +
+            f"MAX TIME = {settings['max_time']}, " +
+            f"N = {example_case[2]['N']}."
+        )
+    return success, run_time
 
 def compare_semantics(example_theory_tuples):
     results = []
+    active_cases = {}  # Track active cases and their current N values
+    
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        future_to_theory = {
-            executor.submit(find_max_N, *case): case
-            for case in example_theory_tuples
-        }
-        done, _ = concurrent.futures.wait(
-            future_to_theory,
-            return_when=concurrent.futures.FIRST_EXCEPTION
-        )
-        for future in done:
-            case = future_to_theory[future]
-            if future.exception():
-                print(f"\nTIMED OUT: {case[2]['semantics'].__name__} ({case[0]}).")
-                print(f"  {str(future.exception())}\n")
-                break
+        # Initialize first run for each case
+        futures = {}
+        all_times = []
+        for case in example_theory_tuples:
+            theory_name, semantic_theory, (premises, conclusions, settings) = case
+            example_case = [premises, conclusions, settings.copy()]
+            active_cases[theory_name] = settings['N']  # Store initial N
+            all_times.append(settings['max_time'])
+            new_case = (theory_name, semantic_theory, example_case)
+            futures[executor.submit(try_single_N, *new_case)] = new_case
+        max_time = max(all_times)
+            
+        while futures:
+            done, _ = concurrent.futures.wait(
+                futures,
+                # timeout=max_time,
+                return_when=concurrent.futures.FIRST_COMPLETED
+            )
+            for future in done:
+                case = futures.pop(future)
+                theory_name, semantic_theory, example_case = case
+                max_time = example_case[2]['max_time']
+                
+                try:
+                    success, runtime = future.result()
+                    if success and runtime < max_time:
+                        # Increment N and submit new case
+                        example_case[2]['N'] = active_cases[theory_name] + 1
+                        active_cases[theory_name] = example_case[2]['N']
+                        futures[executor.submit(try_single_N, *case)] = case
+                    else:
+                        # Found max N for this case
+                        results.append((theory_name, active_cases[theory_name] - 1))
+                except Exception as e:
+                    print(
+                        f"\nERROR: {case[1]['semantics'].__name__} " +
+                        f"({case[0]}) for N = {example_case[2]['N']}."
+                        f"  {str(e)}"
+                    )
+                    
     return results
-
-# def compare_semantics(example_theory_tuples):
-#     results = []
-#     with concurrent.futures.ProcessPoolExecutor() as executor:
-#         future_to_theory = {
-#             executor.submit(find_max_N, *case): case
-#             for case in example_theory_tuples
-#         }
-#         for future in concurrent.futures.as_completed(future_to_theory):
-#             case = future_to_theory[future]
-#             try:
-#                 result = future.result()
-#                 results.append((case[0], result))
-#             except (concurrent.futures.TimeoutError, Exception) as e:
-#                 print(f"\nTIMED OUT: {case[2]['semantics'].__name__} ({case[0]}).")
-#                 print(f"  {str(e)}\nContinuing with remaining comparisons...\n")
-#                 results.append((case[0], None))
-#                 future.cancel()
-#     return results
 
 def translate(example_case, dictionary):
     """Use dictionary to replace logical operators."""
@@ -123,7 +139,7 @@ def translate_example(example_case, semantic_theories):
         dictionary = semantic_theory.get("dictionary", None)
         if dictionary:
             translated_case = translate(example_case.copy(), dictionary)
-        example_tuple = (theory_name, translated_case, semantic_theory)
+        example_tuple = (theory_name, semantic_theory, translated_case)
         example_theory_tuples.append(example_tuple)
     return example_theory_tuples
 
@@ -143,7 +159,7 @@ def run_comparison(example_range, semantic_theories):
         print()
         example_theory_tuples = translate_example(example_case, semantic_theories)
         compare_semantics(example_theory_tuples)
-        print(f"{'='*40}")
+        print(f"\n{'='*40}")
 
 # TODO: combine with run_comparison once moved into print class
 # def save_comparisons(default_theory, imposition_theory, settings, examples):

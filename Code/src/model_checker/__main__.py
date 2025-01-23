@@ -113,16 +113,25 @@ class BuildModule:
         return getattr(self.module, attr_name, {})
 
     def _load_general_settings(self):
-        """Initialize all settings from module with defaults."""
+        """Initialize all settings from module with defaults and flag overrides."""
         general_settings = getattr(self.module, "general_settings", {})
         
         # Initialize each setting from module_settings with fallback to defaults
         for key, default_value in self.DEFAULT_GENERAL_SETTINGS.items():
-            if key not in general_settings:
-                print(f"Warning: Module {self.module_name} settings missing '{key}', using default value: {default_value}")
-            setattr(self, key, general_settings.get(key, default_value))
+            # Check if there's a flag override
+            flag_value = getattr(self.module_flags, key, None)
+            
+            if flag_value is True:  # Only override if flag is explicitly True
+                value = flag_value
+            else:
+                # Use module setting or fall back to default
+                value = general_settings.get(key, default_value)
+                if key not in general_settings:
+                    print(f"Warning: Module {self.module_name} settings missing '{key}', using default value: {default_value}")
+            
+            setattr(self, key, value)
         
-        # Store complete settings dict
+        # Store complete settings dict with flag overrides
         general_settings = {
             key: getattr(self, key)
             for key in self.DEFAULT_GENERAL_SETTINGS
@@ -296,12 +305,12 @@ class BuildExample:
             return copy_general
     
         def disjoin_flags(all_settings):
-            """Update boolean settings if module flag is True."""
+            """Update boolean settings if module flag is True and key is in DEFAULT_EXAMPLE."""
             module_flags = self.module.module_flags
             updated_settings = all_settings.copy()
             
             for key, value in vars(module_flags).items():
-                if isinstance(value, bool) and value and key in updated_settings:
+                if isinstance(value, bool) and value and key in updated_settings and key in self.DEFAULT_EXAMPLE:
                     updated_settings[key] = value
                     
             return updated_settings
@@ -476,6 +485,12 @@ def parse_file_and_flags():
         type=str,
         metavar='NAME',
         help='Load a specific theory by name.'
+    )
+    parser.add_argument(
+        '--compare_theories',
+        '-m',
+        action='store_true',
+        help='Overrides to compare semantic theories.'
     )
     parser.add_argument(
         '--non_null',

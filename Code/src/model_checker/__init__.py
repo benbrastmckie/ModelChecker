@@ -21,7 +21,7 @@ from . import syntactic
 # Import specific items from utils
 from .builder import (
     make_model_for,
-    find_max_N,
+    try_single_N,
     translate,
     # run_comparison, # update
     # save_comparisons, # update
@@ -63,7 +63,7 @@ from .__main__ import (
 __all__ = [
     "model", "syntactic",
     "ForAll", "Exists", "bitvec_to_substates",
-    "make_model_for", "find_max_N", "translate", #"run_comparison", "save_comparisons",
+    "make_model_for", "try_single_N", "translate", #"run_comparison", "save_comparisons",
     "Semantics", "ImpositionSemantics", "Proposition",
     "ConditionalOperator", "BiconditionalOperator",
     "DefEssenceOperator", "DefGroundOperator",
