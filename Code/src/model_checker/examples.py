@@ -78,7 +78,7 @@ general_settings = {
     "print_impossible": False,
     "print_z3": False,
     "save_output": False,
-    "compare_theories": True,
+    "compare_theories": False,
 }
 
 example_settings = {
@@ -87,7 +87,7 @@ example_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 10,
+    'max_time' : 2,
 }
 
 
