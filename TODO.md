@@ -8,19 +8,20 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
   - [:] _M_ Champollion
     - [.] examples
     - [x] divide into modules
-  - [:] _B_ Fine
+  - [x] _B_ Fine
     - [x] implement
-    - [ ] separate from default
+    - [x] separate from default
 - [x] benchmarks
 - [:] unit tests
   - [:] example unit tests
-  - [ ] add unit tests to template
-- [ ] _B_ add utilities
-  - [.] comparison
-    - [x] example tester
-    - [ ] maximizer
+  - [ ] add unit tests to theories
+- [:] _B_ add utilities
+  - [x] comparison
     - [ ] minimizer
+    - [x] maximizer
+    - [x] example tester
   - [ ] add to api
+  - [ ] add to readme
 - [.] documentation
   - [.] _B_ doc strings
   - [.] _B_ readmes
