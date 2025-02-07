@@ -51,7 +51,7 @@ class BuildModule:
         "print_constraints": False,
         "print_z3": False,
         "save_output": False,
-        "compare_theories": False,
+        "maximize": False,
         # "optimize": False,
     }
 
@@ -487,7 +487,7 @@ def parse_file_and_flags():
         help='Load a specific theory by name.'
     )
     parser.add_argument(
-        '--compare_theories',
+        '--maximize',
         '-m',
         action='store_true',
         help='Overrides to compare semantic theories.'
@@ -568,7 +568,7 @@ def main():
     module = BuildModule(module_flags)
 
     # TODO: create print/save class
-    if module.general_settings["compare_theories"]:
+    if module.general_settings["maximize"]:
         run_comparison(module.example_range, module.semantic_theories)
         return
 

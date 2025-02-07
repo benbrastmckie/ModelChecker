@@ -1,7 +1,7 @@
 """
-This module tests the unilateral exclusion semantics, providing a evaluate the
-logical relationships in a language with an exclusion operator and comparing the
-result to the bilateral semantics.
+This module tests the unilateral exclusion semantics, providing a means by which
+to evaluate the logical relationships in a language with an exclusion operator
+and comparing the result to the bilateral semantics.
 
 Module Structure:
 ----------------
@@ -13,6 +13,7 @@ Module Structure:
 2. Semantic Theories:
    - exclusion_theory: Implements exclusion logic with unilateral operators
    - default_theory: Classical logic implementation for comparison
+   - default_dictionary: Translates from unilateral to bilateral sentences
 
 3. Settings:
    - general_settings: Global configuration for output and debugging
@@ -24,18 +25,22 @@ Module Structure:
 
 Configuration:
 -------------
-- semantic_theories: Dict of semantic theories to test against
-- example_range: Dict of example cases to evaluate
+- semantic_theories: Dictionary of semantic theories to test with
+- example_range: Dictionary of example cases to evaluate
 
-Usage:
-------
-From the project directory, run:
-    model-checker examples.py
-
+Example Structure:
+-----------------
 Each example consists of:
 1. Premises (list of logical formulas)
 2. Conclusions (list of logical formulas)
 3. Settings (dictionary of model checking parameters)
+
+Usage:
+------
+From the project directory in which this module lives, run the following in the
+terminal:
+
+    model-checker examples.py
 
 Help:
 -----
@@ -109,7 +114,7 @@ general_settings = {
     "print_impossible": False,
     "print_z3": False,
     "save_output": False,
-    "compare_theories": False,
+    "maximize": False,
 }
 
 example_settings = {

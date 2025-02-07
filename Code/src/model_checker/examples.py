@@ -78,7 +78,8 @@ general_settings = {
     "print_impossible": False,
     "print_z3": False,
     "save_output": False,
-    "compare_theories": False,
+    "maximize": False,
+    # "minimize": False,
 }
 
 example_settings = {
