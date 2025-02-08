@@ -1,6 +1,82 @@
 """
-INSTRUCTIONS: this module defines the semantic_theories and example_range.
-From the project directory, run: model_checker examples.py
+Examples Module for Imposition Theory Testing
+
+This module defines a comprehensive test suite for comparing different semantic theories,
+particularly focusing on counterfactual conditionals and constitutive operators.
+
+Module Structure:
+----------------
+1. Imports:
+   - Local semantic and operator definitions
+   - Core model checker primitives
+   - System utilities
+
+2. Semantic Theories: include semantics, proposition theory, operators, and translation dictionary.
+   - Fine's imposition theory
+   - Brast-McKie's default theory
+   - imposition_dictionary: Translates from default to imposition sentences
+   
+3. Example Types:
+   a) Countermodels (CM):
+      - Tests for invalid arguments
+      - Prefixed with 'CF_CM_' for counterfactuals
+      - Prefixed with 'CL_CM_' for constitutive logic
+   
+   b) Theorems (TH):
+      - Tests for valid arguments
+      - Prefixed with 'CF_TH_' for counterfactuals
+      - Prefixed with 'CL_TH_' for constitutive logic
+
+4. Settings Configuration:
+   - general_settings: Global settings for output and computation
+   - example_settings: Default parameters for individual examples
+   - Each example can override these with custom settings
+
+Configuration:
+-------------
+- semantic_theories: Dictionary of semantic theories to test with
+- example_range: Dictionary of example cases to evaluate
+
+Example Format:
+--------------
+Each example is structured as a list: [premises, conclusions, settings]
+- premises: List of formulas that serve as assumptions
+- conclusions: List of formulas to be tested
+- settings: Dictionary of specific settings for this example
+
+Settings Options:
+----------------
+- N: Number of atomic propositions (default: 3)
+- contingent: Whether to use contingent valuations
+- disjoint: Whether to enforce disjoint valuations
+- non_empty: Whether to enforce non-empty valuations
+- non_null: Whether to enforce non-null valuations
+- max_time: Maximum computation time in seconds
+
+Usage:
+------
+1. From project directory, run the following in the terminal:
+   model_checker examples.py
+
+2. To modify which examples run:
+   - Edit the example_range dictionary
+   - Comment/uncomment specific examples
+   - Modify semantic_theories to change which theories to compare
+
+3. To add new examples:
+   - Follow the naming convention (CF_CM_*, CF_TH_*, CL_CM_*, CL_TH_*)
+   - Define premises, conclusions, and settings
+   - Add to example_range dictionary
+
+Notes:
+------
+- At least one semantic theory must be included in semantic_theories
+- At least one example must be included in example_range
+- Some examples may require adjusting the settings to produce good models
+
+Help:
+-----
+More information can be found in the README.md for the exclusion theory.
 """
 
 ##########################
@@ -390,7 +466,7 @@ CL_TH_8_example = [
 # NOTE: at least one theory is required, multiple are permitted for comparison
 semantic_theories = {
     "Brast-McKie" : default_theory,
-    # "Fine" : imposition_theory,
+    "Fine" : imposition_theory,
     # additional theories will require their own translation dictionaries
 }
 
@@ -398,7 +474,7 @@ semantic_theories = {
 example_range = {
     # Counterfactual Countermodels
     "CF_CM_1" : CF_CM_1_example,
-    # "CF_CM_2" : CF_CM_2_example,
+    "CF_CM_2" : CF_CM_2_example,
     # "CF_CM_7" : CF_CM_7_example,
     # "CF_CM_10" : CF_CM_10_example,
     # "CF_CM_13" : CF_CM_13_example,

@@ -10,37 +10,61 @@ Module Structure:
    - Core model checker primitives
    - System utilities
 
-2. Semantic Theories:
+2. Semantic Theories: include semantics, proposition theory, operators, and translation dictionary. 
    - exclusion_theory: Implements exclusion logic with unilateral operators
    - default_theory: Classical logic implementation for comparison
    - default_dictionary: Translates from unilateral to bilateral sentences
 
-3. Settings:
-   - general_settings: Global configuration for output and debugging
-   - example_settings: Default parameters for model checking
-
-4. Example Categories:
+3. Example Types:
    - Countermodels (EX_CM_*): Examples demonstrating invalid inferences
    - Logical Consequences (EX_TH_*): Examples of valid logical relationships
+
+4. Settings Configuration:
+   - general_settings: Global settings for output and computation
+   - example_settings: Default parameters for individual examples
+   - Each example can override these with custom settings
 
 Configuration:
 -------------
 - semantic_theories: Dictionary of semantic theories to test with
 - example_range: Dictionary of example cases to evaluate
 
-Example Structure:
------------------
-Each example consists of:
-1. Premises (list of logical formulas)
-2. Conclusions (list of logical formulas)
-3. Settings (dictionary of model checking parameters)
+Example Format:
+--------------
+Each example is structured as a list: [premises, conclusions, settings]
+- premises: List of formulas that serve as assumptions
+- conclusions: List of formulas to be tested
+- settings: Dictionary of specific settings for this example
+
+Settings Options:
+----------------
+- N: Number of atomic propositions (default: 3)
+- contingent: Whether to use contingent valuations
+- disjoint: Whether to enforce disjoint valuations
+- non_empty: Whether to enforce non-empty valuations
+- non_null: Whether to enforce non-null valuations
+- max_time: Maximum computation time in seconds
 
 Usage:
 ------
-From the project directory in which this module lives, run the following in the
-terminal:
-
+1. From project directory, run the following in the terminal:
     model-checker examples.py
+
+2. To modify which examples run:
+   - Edit the example_range dictionary
+   - Comment/uncomment specific examples
+   - Modify semantic_theories to change which theories to compare
+
+3. To add new examples:
+   - Follow the naming convention (CF_CM_*, CF_TH_*, CL_CM_*, CL_TH_*)
+   - Define premises, conclusions, and settings
+   - Add to example_range dictionary
+
+Notes:
+------
+- At least one semantic theory must be included in semantic_theories
+- At least one example must be included in example_range
+- Some examples may require adjusting the settings to produce good models
 
 Help:
 -----
@@ -181,7 +205,41 @@ EX_CM_1_example = [
 ]
 
 # REVERSE DISTRIBUTION: DISJUNCTION OVER CONJUNCTION
-EX_CM_2_settings = {
+EX_CM_9_settings = { # agree
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_CM_9_example = [
+    [], # premises
+    ['(A \\uniwedge (B \\univee C)) \\uniequiv ((A \\univee B) \\uniwedge (A \\univee C))'], # conclusions
+    EX_CM_9_settings,
+]
+
+# REVERSE DISTRIBUTION: DISJUNCTION OVER CONJUNCTION
+EX_CM_8_settings = { # agree
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_CM_8_example = [
+    ['(A \\uniwedge (B \\univee C))'], # premises
+    ['((A \\univee B) \\uniwedge (A \\univee C))'], # conclusions
+    EX_CM_8_settings,
+]
+
+# REVERSE DISTRIBUTION: DISJUNCTION OVER CONJUNCTION
+EX_CM_2_settings = { # agree
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -215,7 +273,7 @@ EX_CM_3_example = [
 ]
 
 # TRIPLE NEGATION ENTAILMENT
-EX_CM_4_settings = {
+EX_CM_4_settings = { # TODO: print discrepancies
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -236,8 +294,8 @@ EX_CM_5_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
+    'non_empty' : True,
+    'non_null' : True,
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
@@ -265,22 +323,22 @@ EX_CM_6_example = [
     EX_CM_6_settings
 ]
 
-# CONJUNCTION DEMORGANS
-EX_CM_7_settings = {
-    'N' : 3,
-    'possible' : False,
-    'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'disjoint' : False,
-    'fusion_closure' : False,
-    'max_time' : 1,
-}
-EX_CM_7_example = [ # TODO: fix example
-    ['\\exclude \\exclude \\exclude \\exclude A'], # premises
-    ['\\exclude \\exclude A'], # conclusions
-    EX_CM_7_settings
-]
+# # CONJUNCTION DEMORGANS
+# EX_CM_7_settings = {
+#     'N' : 3,
+#     'possible' : False,
+#     'contingent' : False,
+#     'non_empty' : False,
+#     'non_null' : False,
+#     'disjoint' : False,
+#     'fusion_closure' : False,
+#     'max_time' : 1,
+# }
+# EX_CM_7_example = [ # TODO: fix example
+#     ['\\exclude \\exclude \\exclude \\exclude A'], # premises
+#     ['\\exclude \\exclude A'], # conclusions
+#     EX_CM_7_settings
+# ]
 
 
 

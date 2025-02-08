@@ -134,6 +134,16 @@ class ExclusionSemantics(model.SemanticDefaults):
     # (CON_REF) if x and y are parts of s that exclude each other, then s excludes s
 
     def is_world(self, bit_s):
+        """
+        Determines if a state is a world by checking if it is possible and maximal.
+        A state is maximal if it has no proper extension that is possible.
+
+        Args:
+            bit_s: BitVec representing the state to check
+
+        Returns:
+            z3.BoolRef: Formula that is true iff bit_s is a world
+        """
         m = z3.BitVec("m", self.N)
         return z3.And(
             self.possible(bit_s),
