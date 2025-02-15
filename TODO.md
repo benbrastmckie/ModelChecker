@@ -15,48 +15,22 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 - [:] unit tests
   - [:] example unit tests
   - [ ] add unit tests to theories
-- [:] _B_ add utilities
-  - [x] comparison
-    - [ ] minimizer
-    - [x] maximizer
-    - [x] example tester
-  - [ ] api
-  - [ ] readme
 - [.] documentation
   - [.] _B_ doc strings
-  - [.] _B_ readmes
-    - [x] project
-    - [.] exclusion
-    - [ ] default
+  - [x] _B_ readmes
     - [ ] imposition
-  - [ ] _B_ architecture
-  - [ ] _B_ semantics
+    - [x] exclusion
+    - [x] default
   - [ ] _B_ wiki
-  - [ ] _M_ jupyter notebook
+    - [ ] methodology
+    - [ ] _B_ architecture
+    - [ ] _B_ semantics
 - [ ] subject-matter operators
-- [x] class architecture
-- [x] implementation
-- [x] api
-- [x] cli
-- [x] release
 
 ## Applications
 
 ### Exclusion Semantics
 
-- [x] Semantics class
-  - [x] add frame constraints on `exclusion`
-- [x] Proposition class
-- [x] Operators
-  - [x] Not
-  - [x] And
-  - [x] Or
-- [x] _M_ add identity to semantics
-- [x] _B_ get settings to work in unilateral semantics
-  - [x] `contingent`
-  - [x] `non_null`
-  - [x] `disjoint`
-  - [x] `non_empty`
 - [.] _M_ test exclusion semantics
   - [.] build range of examples
   - [x] test frame constraints
@@ -74,22 +48,6 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] run comparisons with bilateral semantics
   - [ ] max atomic complexity `N` before timeout
   - [ ] max sentence/atomic complexity before too many constraints to build
-
-## Diagnostic Tools
-
-- [:] refactor
-  - [x] `builder.py`
-  - [x] `main.py`
-  - [ ] `utils.py`
-- [:] error reporting
-  - [x] convert bvs to states in raise Errors
-  - [ ] few remaining todos in `__main__.py`
-- [x] printouts
-  - [x] add total time
-- [x] flags
-- [x] function to compare semantics
-- [x] create project template
-- [x] add check/continues and test
 
 ## Documentation
 
@@ -199,6 +157,49 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 
 # Completed
 
+## Diagnostic Tools
+
+- [x] error reporting
+  - [x] convert bvs to states in raise Errors
+  - [x] few remaining todos in `__main__.py`
+- [x] refactor
+  - [x] `builder.py`
+  - [x] `main.py`
+  - [x] `utils.py`
+- [x] printouts
+  - [x] add total time
+- [x] flags
+- [x] function to compare semantics
+- [x] create project template
+- [x] add check/continues and test
+
+## Release v0.8
+
+- [x] _B_ add utilities
+  - [x] comparison
+    - [x] maximizer
+    - [x] example tester
+  - [x] api
+  - [x] readme
+- [x] class architecture
+- [x] implementation
+- [x] api
+- [x] cli
+- [x] release
+- [x] Semantics class
+  - [x] add frame constraints on `exclusion`
+- [x] Proposition class
+- [x] Operators
+  - [x] Not
+  - [x] And
+  - [x] Or
+- [x] _M_ add identity to semantics
+- [x] _B_ get settings to work in unilateral semantics
+  - [x] `contingent`
+  - [x] `non_null`
+  - [x] `disjoint`
+  - [x] `non_empty`
+
 ## CLI
 
 - [x] add save functions to `ModelStructure`
@@ -214,7 +215,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 - [x] refactor printing and saving
 - [x] progress bar
 
-# Release v0.7
+## Release v0.7
 
 - [x] project template
 - [x] bypass semantics

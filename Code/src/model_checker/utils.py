@@ -7,8 +7,6 @@ Operators include `\\` and sentence letters do not.
 The operators `\\top` and `\\bot` are reserved.
 """
 
-
-
 ### IMPORTS AND DEFINITIONS ###
 
 import string
@@ -19,8 +17,6 @@ from z3 import(
     Or,
     substitute,
 ) 
-
-
 
 ### SYNTACTIC HELPERS ###
 
