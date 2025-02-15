@@ -198,7 +198,6 @@ class Operator:
     def __hash__(self):
         return hash((self.name, self.arity))
 
-    # TODO: add argument
     def general_print(self, sentence_obj, eval_world, indent_num, use_colors):
         proposition = sentence_obj.proposition
         model_structure = proposition.model_structure

@@ -20,6 +20,7 @@ from z3 import (
     ArrayRef,
     BitVecSort,
     EmptySet,
+    ExprRef,
     IsMember,
     Not,
     BitVecVal,
@@ -251,7 +252,8 @@ class ModelConstraints:
         # Store syntax values
         self.premises = self.syntax.premises
         self.conclusions = self.syntax.conclusions
-        self.sentence_letters = self.syntax.sentence_letters
+
+        self.sentence_letters = self._load_sentence_letters()
 
         # Store operator dictionary
         self.operators = self.copy_dictionary(self.syntax.operator_collection)
@@ -266,7 +268,7 @@ class ModelConstraints:
             for sentence_letter in self.sentence_letters
             for constraint in self.proposition_class.proposition_constraints(
                 self,
-                sentence_letter.sentence_letter,
+                sentence_letter,
             )
         ]
         self.premise_constraints = [
@@ -295,6 +297,15 @@ class ModelConstraints:
         premises = list(self.syntax.premises)
         conclusions = list(self.syntax.conclusions)
         return f"ModelConstraints for premises {premises} and conclusions {conclusions}"
+
+    def _load_sentence_letters(self):
+        sentence_letters = []
+        for packed_letter in self.syntax.sentence_letters:
+            unpacked_letter = packed_letter.sentence_letter
+            if not isinstance(unpacked_letter, ExprRef):
+                raise TypeError("The sentence letter {letter} is not of type z3.ExprRef")
+            sentence_letters.append(unpacked_letter) 
+        return sentence_letters
 
     def copy_dictionary(self, operator_collection):
         """Copies the operator_dictionary from operator_collection."""
@@ -621,7 +632,6 @@ class ModelStructure:
                 for index, sentence in enumerate(sentences, start=start_index):
                     print(f"{index}.", end="", file=output)
                     with redirect_stdout(destination):
-                        # print(f"OUTPUT PRINT_SENT {destination} is STD: {output is sys.__stdout__}")
                         use_colors = output is sys.__stdout__
                         self.recursive_print(sentence, self.main_world, 1, use_colors)
                         print(file=output)

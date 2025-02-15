@@ -466,8 +466,7 @@ class Proposition(PropositionDefaults):
             """The non_null_constraints are included in disjoin_constraints."""
             x, y, z = z3.BitVecs("dj_prop_x dj_prop_y dj_prop_z", semantics.N)
             disjoint_constraints = []
-            for other_letter_obj in self.sentence_letters:
-                other_letter = other_letter_obj.sentence_letter
+            for other_letter in self.sentence_letters:
                 if other_letter is not sentence_letter:
                     other_disjoint_atom = ForAll(
                         [x, y],

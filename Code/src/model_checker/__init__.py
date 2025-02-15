@@ -5,13 +5,6 @@ try:
 except ImportError:
     __version__ = "unknown"
 
-# Import specific items from utils
-from .utils import (
-    ForAll,
-    Exists,
-    bitvec_to_substates,
-)
-
 # Import model as a whole
 from . import model
 
@@ -19,12 +12,17 @@ from . import model
 from . import syntactic
 
 # Import specific items from utils
+from .utils import (
+    ForAll,
+    Exists,
+    bitvec_to_substates,
+)
+
+# Import specific items from utils
 from .builder import (
-    make_model_for,
-    try_single_N,
-    translate,
-    # run_comparison, # update
-    # save_comparisons, # update
+    BuildModule,
+    BuildProject,
+    BuildExample,
 )
 
 # Import specific items from semantic
@@ -54,17 +52,17 @@ from .defined import (
 
 # Import specific items from __main__
 from .__main__ import (
-    BuildModule,
-    BuildExample,
+    ParseFileFlags,
     main,
 )
 
 # Define the public API of the package
 __all__ = [
-    "model", "syntactic",
-    "ForAll", "Exists", "bitvec_to_substates",
-    "make_model_for", "try_single_N", "translate", #"run_comparison", "save_comparisons",
-    "Semantics", "ImpositionSemantics", "Proposition",
+    "model", "syntactic",                                       # modules
+    "ParseFileFlags",                                           # main.py
+    "ForAll", "Exists", "bitvec_to_substates",                  # utils.py
+    "BuildModule", "BuildProject", "BuildExample",              # builder.py
+    "Semantics", "ImpositionSemantics", "Proposition",          # semantic.py
     "ConditionalOperator", "BiconditionalOperator",
     "DefEssenceOperator", "DefGroundOperator",
     "MightCounterfactualOperator", "MightImpositionOperator",
