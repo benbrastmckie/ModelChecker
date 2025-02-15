@@ -1,5 +1,3 @@
-import sys
-
 import z3
 
 from .model import (
@@ -11,8 +9,6 @@ from .utils import (
     ForAll,
     Exists,
     bitvec_to_substates,
-    index_to_substate,
-    pretty_set_print,
 )
 
 from . import syntactic
@@ -29,9 +25,9 @@ class Semantics(SemanticDefaults):
 
     DEFAULT_EXAMPLE_SETTINGS = {
         'N' : 3,
-        'contingent' : False,
         'non_empty' : False,
         'non_null' : False,
+        'contingent' : False,
         'disjoint' : False,
         'max_time' : 1,
     }
@@ -203,9 +199,9 @@ class ImpositionSemantics(SemanticDefaults):
 
     DEFAULT_EXAMPLE_SETTINGS = {
         'N' : 3,
-        'contingent' : False,
         'non_empty' : False,
         'non_null' : False,
+        'contingent' : False,
         'disjoint' : False,
         'max_time' : 1,
     }
@@ -389,7 +385,6 @@ class Proposition(PropositionDefaults):
             and self.name == other.name
         )
 
-    # TODO: check logic and doc strings
     def proposition_constraints(self, sentence_letter):
         """
         Generates Z3 constraints for a sentence letter including the classical

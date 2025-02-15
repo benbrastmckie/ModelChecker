@@ -20,8 +20,8 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [ ] minimizer
     - [x] maximizer
     - [x] example tester
-  - [ ] add to api
-  - [ ] add to readme
+  - [ ] api
+  - [ ] readme
 - [.] documentation
   - [.] _B_ doc strings
   - [.] _B_ readmes
@@ -77,7 +77,10 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Diagnostic Tools
 
-- [ ] refactor `utils.py`
+- [:] refactor
+  - [x] `builder.py`
+  - [x] `main.py`
+  - [ ] `utils.py`
 - [:] error reporting
   - [x] convert bvs to states in raise Errors
   - [ ] few remaining todos in `__main__.py`
@@ -104,22 +107,6 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] clean up project directory
   - [ ] delete old
   - [ ] decapitalize directories
-
-## CLI
-
-- [x] add save functions to `ModelStructure`
-- [x] flags
-  - [x] print constraints
-  - [x] print unsat core
-  - [x] comparison
-  - [ ] minimizer
-  - [ ] maximizer
-- [x] update help flag
-- [x] fix templates
-- [x] add default operators
-- [x] check `no_model` cases
-- [x] refactor printing and saving
-- [ ] progress bar
 
 ## Implementation
 
@@ -211,6 +198,21 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 <!-- BONEYARD -->
 
 # Completed
+
+## CLI
+
+- [x] add save functions to `ModelStructure`
+- [x] flags
+  - [x] print constraints
+  - [x] print unsat core
+  - [x] comparison
+  - [x] maximizer
+- [x] update help flag
+- [x] fix templates
+- [x] add default operators
+- [x] check `no_model` cases
+- [x] refactor printing and saving
+- [x] progress bar
 
 # Release v0.7
 

@@ -79,16 +79,15 @@ general_settings = {
     "print_z3": False,
     "save_output": False,
     "maximize": False,
-    # "minimize": False,
 }
 
 example_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 2,
+    "N" : 5,
+    "contingent" : False,
+    "disjoint" : True,
+    "non_empty" : False,
+    "non_null" : False,
+    "max_time" : 5,
 }
 
 
@@ -113,12 +112,12 @@ example_settings = {
 CF_CM_1_premises = ['(A \\boxright C)']
 CF_CM_1_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_CM_1_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_empty' : True,
-    'non_null' : True,
-    'disjoint' : False,
-    'max_time' : 1,
+    "N" : 3,
+    "contingent" : True,
+    "non_empty" : True,
+    "non_null" : True,
+    "disjoint" : False,
+    "max_time" : 1,
 }
 CF_CM_1_example = [
     CF_CM_1_premises,
@@ -480,7 +479,7 @@ CF_TH_11_example = [
 example_range = {
     # Countermodels
     "CF_CM_1" : CF_CM_1_example,
-    "CF_CM_2" : CF_CM_2_example,
+    # "CF_CM_2" : CF_CM_2_example,
     # "CF_CM_3" : CF_CM_3_example,
     # "CF_CM_4" : CF_CM_4_example,
     # "CF_CM_5" : CF_CM_5_example,
@@ -516,7 +515,7 @@ example_range = {
 
 semantic_theories = {
     "Brast-McKie" : default_theory,
-    "Fine" : imposition_theory,
+    # "Fine" : imposition_theory,
 }
 
 # Run comparison
