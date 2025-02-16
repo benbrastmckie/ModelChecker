@@ -170,52 +170,39 @@ class NecessityOperator(syntactic.Operator):
     arity = 1
 
     def true_at(self, argument, eval_world, eval_time):
-        sem = self.semantics
-        u = z3.BitVec("t_nec_u", sem.N)
+        semantics = self.semantics
+        tau = z3.Array('true_world_tau', semantics.TimeSort, semantics.WorldStateSort)
         return ForAll(
-            u,
-            z3.Implies(
-                sem.is_world(u),
-                sem.true_at(argument, u),
-            ),
+            tau,
+            semantics.true_at(argument, tau, eval_time),
         )
     
-    def false_at(self, argument, eval_world):
-        sem = self.semantics
-        u = z3.BitVec("t_nec_u", sem.N)
-        return Exists(
-            u,
-            z3.And(
-                sem.is_world(u),
-                sem.false_at(argument, u),
-            ),
+    def false_at(self, argument, eval_world, eval_time):
+        semantics = self.semantics
+        mu = z3.Array('false_world_tau', semantics.TimeSort, semantics.WorldStateSort)
+        return ForAll(
+            mu,
+            semantics.false_at(argument, mu, eval_time),
         )
     
-    def extended_verify(self, state, argument, eval_world):
-        # TODO: add constraint which requires state to be the null_bit
-        return self.true_at(argument, eval_world) # M: I think this is right?
-    
-    def extended_falsify(self, state, argument, eval_world):
-        # TODO: add constraint which requires state to be the null_bit
-        return self.false_at(argument, eval_world)
-
-    def find_verifiers_and_falsifiers(self, argument, eval_world):
+    def find_truth_condition(self, argument, eval_world, eval_time):
         evaluate = argument.proposition.model_structure.z3_model.evaluate
-        if bool(evaluate(self.true_at(argument, eval_world))):
-            return {self.semantics.null_bit}, set()
-        if bool(evaluate(self.false_at(argument, eval_world))):
-            return set(), {self.semantics.null_bit}
+        if bool(evaluate(self.true_at(argument, eval_world, eval_time))):
+            return {self.semantics.all_bits}, set()
+        if bool(evaluate(self.false_at(argument, eval_world, eval_time))):
+            return set(), {self.semantics.all_bits}
         raise ValueError(
             f"{self.name} {argument} "
             f"is neither true nor false in the world {eval_world}."
         )
     
-    def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
+    def print_method(self, sentence_obj, eval_world, eval_time, indent_num, use_colors):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
+        world_state = eval_world[eval_time]
         all_worlds = sentence_obj.proposition.model_structure.world_bits
-        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num, use_colors)
+        self.print_over_worlds(sentence_obj, world_state, all_worlds, indent_num, use_colors)
 
 
 ##############################################################################
@@ -227,13 +214,14 @@ class ConditionalOperator(syntactic.DefinedOperator):
     name = "\\rightarrow"
     arity = 2
 
-    def derived_definition(self, leftarg, rightarg):
+    def derived_definition(self, leftarg, rightarg):  # type: ignore
         return [OrOperator, [NegationOperator, leftarg], rightarg]
     
-    def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
+    def print_method(self, sentence_obj, eval_world, eval_time, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num, use_colors)
+        world_state = eval_world[eval_time]
+        self.general_print(sentence_obj, world_state, indent_num, use_colors)
 
 
 class BiconditionalOperator(syntactic.DefinedOperator):
@@ -241,45 +229,16 @@ class BiconditionalOperator(syntactic.DefinedOperator):
     name = "\\leftrightarrow"
     arity = 2
 
-    def derived_definition(self, leftarg, rightarg):
+    def derived_definition(self, leftarg, rightarg):  # type: ignore
         right_to_left = [ConditionalOperator, leftarg, rightarg]
         left_to_right = [ConditionalOperator, rightarg, leftarg]
         return [AndOperator, right_to_left, left_to_right]
     
-    def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
+    def print_method(self, sentence_obj, eval_world, eval_time, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        self.general_print(sentence_obj, eval_world, indent_num, use_colors)
-
-
-##############################################################################
-###################### DEFINED COUNTERFACTUAL OPERATORS ######################
-##############################################################################
-
-class MightCounterfactualOperator(syntactic.DefinedOperator):
-
-    name = "\\circleright"
-    arity = 2
-
-    def derived_definition(self, leftarg, rightarg):
-        return [
-            NegationOperator, [
-                CounterfactualOperator,
-                leftarg,
-                [NegationOperator, rightarg]
-            ]
-        ]
-
-    def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
-        """
-        is_alt = self.semantics.calculate_alternative_worlds
-        model_structure = sentence_obj.proposition.model_structure
-        left_argument_obj = sentence_obj.original_arguments[0]
-        left_argument_verifiers = left_argument_obj.proposition.verifiers
-        alt_worlds = is_alt(left_argument_verifiers, eval_world, model_structure)
-        self.print_over_worlds(sentence_obj, eval_world, alt_worlds, indent_num, use_colors)
+        world_state = eval_world[eval_time]
+        self.general_print(sentence_obj, world_state, indent_num, use_colors)
 
 
 ##############################################################################
@@ -291,31 +250,29 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
     name = "\\possible"
     arity = 1
 
-    def derived_definition(self, arg):
+    def derived_definition(self, arg):  # type: ignore
         return [NegationOperator, [NecessityOperator, [NegationOperator, arg]]]
     
-    def print_method(self, sentence_obj, eval_world, indent_num, use_colors):
+    def print_method(self, sentence_obj, eval_world, eval_time, indent_num, use_colors):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
+        world_state = eval_world[eval_time]
         all_worlds = sentence_obj.proposition.model_structure.world_bits
-        self.print_over_worlds(sentence_obj, eval_world, all_worlds, indent_num, use_colors)
+        self.print_over_worlds(sentence_obj, world_state, all_worlds, indent_num, use_colors)
 
-default_operators = syntactic.OperatorCollection(
+intensional_operators = syntactic.OperatorCollection(
     # primitive operators
     NegationOperator,
     AndOperator,
     OrOperator,
     TopOperator,
     BotOperator,
-    IdentityOperator,
-    CounterfactualOperator,
     NecessityOperator,
 
     # defined operators
     ConditionalOperator,
     BiconditionalOperator,
-    MightCounterfactualOperator,
     DefPossibilityOperator,
 )
 
