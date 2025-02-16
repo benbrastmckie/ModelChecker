@@ -38,29 +38,29 @@ class Semantics(IntensionalSemanticDefaults):
 
         ### Define the Z3 primitives ###
 
-        WorldStateSort = z3.BitVecSort(N)
+        self.WorldStateSort = z3.BitVecSort(N)
         # Create a sort for world states using bitvectors such as <001101>
         # N determines how many distinct worlds we can represent
 
         self.task = z3.Function(
             "Task",
-            WorldStateSort,
-            WorldStateSort,
+            self.WorldStateSort,
+            self.WorldStateSort,
             z3.BoolSort()
         )  # Define a binary task relation between world states
         
-        TimeSort = z3.IntSort()
+        self.TimeSort = z3.IntSort()
         # Create a sort for times using integers
 
-        self.main_time = z3.Int('main_time', TimeSort)
+        self.main_time = z3.Int('main_time', self.TimeSort)
 
         self.truth_condition = z3.Function(
             "truth_condition",
-            WorldStateSort,
+            self.WorldStateSort,
             z3.BoolSort()
         )
 
-        self.main_world = z3.Array('main_world', TimeSort, WorldStateSort)
+        self.main_world = z3.Array('main_world', self.TimeSort, self.WorldStateSort)
         # Define an arbitrary world at which to evaluate sentences 
         # The identity of this world may change between models
         # For each time t, main_world[t] gives exactly one world state
@@ -73,7 +73,7 @@ class Semantics(IntensionalSemanticDefaults):
 
         ### Define the frame constraints ###
 
-        tau = z3.Array('frame_world_tau', TimeSort, WorldStateSort)
+        tau = z3.Array('frame_world_tau', self.TimeSort, self.WorldStateSort)
         # declare possible world variable named to reflect the constraint
         x, y = z3.Ints("frame_time_x frame_time_y")
         # declare two time variables with names to reflect the constraint
