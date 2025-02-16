@@ -155,35 +155,6 @@ class SemanticDefaults:
         return A_U_B.union(self.product(set_A, set_B))
 
 
-class IntensionalSemanticDefaults:
-    """Includes default attributes and methods to be inherited by a semantics
-    including frame constraints, truth and falsity, and logical consequence."""
-
-    def __init__(self, N):
-
-        # Store the name
-        self.name = self.__class__.__name__
-
-        # Store the number of states
-        self.N = N
-
-        # Define top and bottom states
-        max_value = (1 << self.N) - 1 # NOTE: faster than 2**self.N - 1
-        self.full_bit = BitVecVal(max_value, self.N)
-        self.null_bit = BitVecVal(0, self.N)
-        self.all_bits = [BitVecVal(i, self.N) for i in range(1 << self.N)]
-        
-        # Define the frame constraints
-        self.frame_constraints = None
-
-        # Define invalidity conditions
-        self.premise_behavior = None
-        self.conclusion_behavior = None
-
-    def fusion(self, bit_s, bit_t):
-        """Return bitwise OR of bit_s and bit_t (Z3 bit vectors)."""
-        return bit_s | bit_t
-
 class PropositionDefaults:
     """Defaults inherited by every proposition."""
 
@@ -261,82 +232,6 @@ class PropositionDefaults:
         return RESET, FULL, PART
 
 
-class IntensionalPropositionDefaults:
-    """Defaults inherited by every proposition."""
-
-    def __init__(self, sentence, model_structure):
-
-        # Raise error if instantiated directly instead of as a bare class
-        if self.__class__ == PropositionDefaults:
-            raise NotImplementedError(not_implemented_string(self.__class__.__name__))
-
-        # Store values from sentence
-        self.name = sentence.name
-        self.operator = sentence.operator
-        self.arguments = sentence.arguments
-        self.sentence_letter = sentence.sentence_letter
-
-        # Store values from model_structure argument
-        self.model_structure = model_structure
-        self.N = self.model_structure.N
-        self.model_constraints = self.model_structure.model_constraints
-
-        # Store values from model_constraints
-        self.semantics = self.model_constraints.semantics
-        self.sentence_letters = self.model_constraints.sentence_letters
-        self.settings = self.model_constraints.settings
-
-        # Set defaults for verifiers and falsifiers (important they are lists)
-        self.verifiers, self.falsifiers = [], []
-
-    # NOTE: is responsive to unilateral/bilateral props, so long as
-    # falsifiers, if there are any, are _sets_; the default is a list,
-    # so if it is a list, it is because the defaults are unchanged, meaning
-    # the proposition is unilateral (a prop with no falsifiers but within
-    # a bilateral system would have an empty set as falsifiers, not the
-    # default empty list)
-    def __repr__(self):
-        N = self.model_structure.model_constraints.semantics.N
-        possible = self.model_structure.model_constraints.semantics.possible
-        z3_model = self.model_structure.z3_model
-        ver_states = {
-            bitvec_to_substates(bit, N)
-            for bit in self.verifiers
-            if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
-        }
-        if isinstance(self.falsifiers, set): # because default is an empty list
-            fal_states = {
-                bitvec_to_substates(bit, N)
-                for bit in self.falsifiers
-                if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
-            }
-            return f"< {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >"
-        return pretty_set_print(ver_states)
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        if isinstance(other, PropositionDefaults):
-            return self.name == other.name
-        return False
-
-    def set_colors(self, name, indent_num, truth_value, world_state, use_colors):
-        if not use_colors:
-            VOID = ""
-            return VOID, VOID, VOID
-        RED, GREEN, RESET = "\033[31m", "\033[32m", "\033[0m" 
-        FULL, PART = "\033[37m", "\033[33m"
-        if indent_num == 1:
-            FULL, PART = (GREEN, GREEN) if truth_value else (RED, RED)
-            if truth_value is None:
-                print(
-                    f"\n{RED}WARNING:{RESET}"
-                    f"{name} is neither true nor false at {world_state}.\n"
-                )
-        return RESET, FULL, PART
-
-
 class ModelConstraints:
     """Takes semantics and proposition_class as arguments to build generate
     and storing all Z3 constraints. This class is passed to ModelStructure."""
@@ -381,6 +276,7 @@ class ModelConstraints:
             self.semantics.premise_behavior(
                 premise,
                 self.semantics.main_world,
+                self.semantics.main_time,
             )
             for premise in self.premises
         ]
@@ -388,6 +284,7 @@ class ModelConstraints:
             self.semantics.conclusion_behavior(
                 conclusion,
                 self.semantics.main_world,
+                self.semantics.main_time,
             )
             for conclusion in self.conclusions
         ]

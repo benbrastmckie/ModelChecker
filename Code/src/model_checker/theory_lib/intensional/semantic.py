@@ -1,17 +1,28 @@
 import z3
 
-from model_checker.model import (
-    IntensionalSemanticDefaults,
-    IntensionalPropositionDefaults,
-)
+# Try local imports first (for development)
+try:
+    from src.model_checker.model import (
+        SemanticDefaults,
+        PropositionDefaults,
+    )
+    from src.model_checker.utils import (
+        ForAll,
+        Exists,
+        bitvec_to_substates,
+    )
+except ImportError:
+    # Fall back to installed package imports
+    from model_checker.model import (
+        SemanticDefaults,
+        PropositionDefaults,
+    )
+    from model_checker.utils import (
+        ForAll,
+        Exists,
+        bitvec_to_substates,
+    )
 
-from model_checker.utils import (
-    ForAll,
-    Exists,
-    bitvec_to_substates,
-)
-
-from model_checker import syntactic
 
 
 ##############################################################################
@@ -19,7 +30,7 @@ from model_checker import syntactic
 ##############################################################################
 
 
-class Semantics(IntensionalSemanticDefaults):
+class IntensionalSemantics(SemanticDefaults):
     """Defines the semantic model for bimodal logic, including primitive relations,
     frame constraints for task transitions between world states, and evaluation
     of truth conditions."""
@@ -52,7 +63,7 @@ class Semantics(IntensionalSemanticDefaults):
         self.TimeSort = z3.IntSort()
         # Create a sort for times using integers
 
-        self.main_time = z3.Int('main_time', self.TimeSort)
+        self.main_time = z3.Int('main_time')
 
         self.truth_condition = z3.Function(
             "truth_condition",
@@ -100,8 +111,8 @@ class Semantics(IntensionalSemanticDefaults):
 
         # Define frame constraints
         self.frame_constraints = [
-            lawful,
-            seriel,
+            # lawful,
+            # seriel,
         ]
 
         # Define invalidity conditions
@@ -130,11 +141,7 @@ class Semantics(IntensionalSemanticDefaults):
         # recursive case
         operator = sentence.operator  # store operator
         arguments = sentence.arguments or () # store arguments
-        return operator.true_at(
-            *arguments,  # this is a possibly empty tuple
-            eval_world,  # passed through from above
-            eval_time  # passed through from above
-        )  # apply semantics for the operator
+        return operator.true_at(*arguments, eval_world, eval_time) # apply semantics
 
     def false_at(self, sentence, eval_world, eval_time):
         """Returns a Z3 formula that is satisfied when the sentence is false at eval_world at eval_time.
@@ -150,7 +157,7 @@ class Semantics(IntensionalSemanticDefaults):
         return z3.Not(self.true_at(sentence, eval_world, eval_time))
 
 
-class IntensionalProposition(IntensionalPropositionDefaults):
+class IntensionalProposition(PropositionDefaults):
     """Defines the proposition assigned to the sentences of the language.
     all user has to keep for their own class is super().__init__ and super().__poster_init__
     in the __init__ method.

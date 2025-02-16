@@ -1,11 +1,18 @@
 import z3
 
-from model_checker.utils import (
-    ForAll,
-    Exists,
-)
-
-from model_checker import syntactic
+# Try local imports first (for development)
+try:
+    from src.model_checker.utils import (
+        ForAll,
+        Exists,
+    )
+    from src.model_checker import syntactic
+except ImportError:
+    from model_checker.utils import (
+        ForAll,
+        Exists,
+    )
+    from model_checker import syntactic
 
 ##############################################################################
 ############################ EXTENSIONAL OPERATORS ###########################
@@ -151,7 +158,7 @@ class BotOperator(syntactic.Operator):
         world_state = eval_world[eval_time]
         return world_state == world_state
 
-    def find_truth_condition(self, eval_world, eval_time, eval_time):
+    def find_truth_condition(self, eval_world, eval_time):
         """Returns (empty set, all bits)."""
         return set(), set(self.semantics.all_bits)
 
@@ -172,7 +179,7 @@ class NecessityOperator(syntactic.Operator):
     def true_at(self, argument, eval_world, eval_time):
         semantics = self.semantics
         tau = z3.Array('true_world_tau', semantics.TimeSort, semantics.WorldStateSort)
-        return ForAll(
+        return z3.ForAll(
             tau,
             semantics.true_at(argument, tau, eval_time),
         )
@@ -180,7 +187,7 @@ class NecessityOperator(syntactic.Operator):
     def false_at(self, argument, eval_world, eval_time):
         semantics = self.semantics
         mu = z3.Array('false_world_tau', semantics.TimeSort, semantics.WorldStateSort)
-        return ForAll(
+        return z3.ForAll(
             mu,
             semantics.false_at(argument, mu, eval_time),
         )
