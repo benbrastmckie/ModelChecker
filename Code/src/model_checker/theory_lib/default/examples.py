@@ -14,6 +14,7 @@ sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.p
 from semantic import (
     Semantics,
     Proposition,
+    ModelStructure,
 )
 
 from operators import (
@@ -50,6 +51,7 @@ example_settings = {  # defaults can be tailored to each example
 default_theory = {
     "semantics": Semantics,
     "proposition": Proposition,
+    "model": ModelStructure,
     "operators": default_operators,
     # default theory does not require a translation dictionary for comparison
     # since the examples are stated in the language of the default theory

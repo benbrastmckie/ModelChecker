@@ -1,3 +1,5 @@
+import sys
+import time
 import z3
 
 # Try local imports first (for development)
@@ -11,6 +13,7 @@ try:
         ForAll,
         Exists,
         bitvec_to_substates,
+        int_to_binary,
     )
     from src.model_checker import syntactic
 except ImportError:
@@ -24,6 +27,7 @@ except ImportError:
         ForAll,
         Exists,
         bitvec_to_substates,
+        int_to_binary,
     )
     from model_checker import syntactic
 
@@ -32,7 +36,6 @@ except ImportError:
 ##############################################################################
 ######################### SEMANTICS AND PROPOSITIONS #########################
 ##############################################################################
-
 
 class BimodalSemantics(SemanticDefaults):
     """Defines the semantic model for bimodal logic, including primitive relations,
@@ -121,9 +124,8 @@ class BimodalSemantics(SemanticDefaults):
         ]
 
         # Define invalidity conditions
-        self.premise_behavior = self.true_at
-        self.conclusion_behavior = self.false_at
-
+        self.premise_behavior = lambda premise: self.true_at(premise, self.main_world, self.main_time)
+        self.conclusion_behavior = lambda conclusion: self.true_at(conclusion, self.main_world, self.main_time)
 
     def true_at(self, sentence, eval_world, eval_time):
         """Returns a Z3 formula that is satisfied when the sentence is true at eval_world at eval_time.
@@ -162,7 +164,7 @@ class BimodalSemantics(SemanticDefaults):
         return z3.Not(self.true_at(sentence, eval_world, eval_time))
 
 
-class IntensionalProposition(PropositionDefaults):
+class BimodalProposition(PropositionDefaults):
     """Defines the proposition assigned to the sentences of the language.
     all user has to keep for their own class is super().__init__ and super().__poster_init__
     in the __init__ method.
@@ -275,7 +277,8 @@ class IntensionalProposition(PropositionDefaults):
         )
 
 
-class ModelStructure(ModelDefaults):
+# TODO: continue adapting to BimodalSemantics
+class BimodalStructure(ModelDefaults):
 
     def __init__(self, model_constraints, max_time=1):
 
@@ -283,20 +286,16 @@ class ModelStructure(ModelDefaults):
 
         # Store possible_bits, world_bits, and main_world from the Z3 model
         if not self.z3_model_status:
-            self.poss_bits, self.world_bits, self.main_world = None, None, None
+            self.main_world, self.main_time = None, None
             return
-        self.poss_bits = [
-            bit
-            for bit in self.all_bits
-            if bool(self.z3_model.evaluate(self.semantics.possible(bit)))  # type: ignore
-        ]
-        self.world_bits = [
-            bit
-            for bit in self.poss_bits
-            if bool(self.z3_model.evaluate(self.semantics.is_world(bit)))  # type: ignore
-        ]
+        # self.poss_bits = [
+        #     bit
+        #     for bit in self.all_bits
+        #     if bool(self.z3_model.evaluate(self.semantics.possible(bit)))  # type: ignore
+        # ]
         if not self.z3_model is None:
             self.main_world = self.z3_model[self.main_world]
+            self.main_time = self.z3_model[self.main_time]
 
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
@@ -345,7 +344,6 @@ class ModelStructure(ModelDefaults):
             elif self.settings['print_impossible']:
                 format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
 
-
     def print_all(self, default_settings, example_name, theory_name, output=sys.__stdout__):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
@@ -361,3 +359,30 @@ class ModelStructure(ModelDefaults):
                 print(f"Total Run Time: {total_time} seconds\n", file=output)
                 print(f"{'='*40}", file=output)
             return
+
+    def print_to(self, default_settings, example_name, theory_name, print_constraints=None, output=sys.__stdout__):
+        """append all elements of the model to the file provided
+        
+        Args:
+            print_constraints: Whether to print constraints. Defaults to value in settings.
+            output: Output stream to print to. Defaults to sys.stdout.
+        """
+        if print_constraints is None:
+            print_constraints = self.settings["print_constraints"]
+        if self.timeout:
+            print(f"TIMEOUT: {self.timeout}")
+            print(f"No model for example {example_name} found before timeout.", file=output)
+            print(f"Try increasing max_time > {self.max_time}.\n", file=output)
+            return
+        self.print_all(default_settings, example_name, theory_name, output)
+        if print_constraints and self.unsat_core is not None:
+            self.print_grouped_constraints(output)
+
+    def save_to(self, example_name, theory_name, include_constraints, output):
+        """append all elements of the model to the file provided"""
+        constraints = self.model_constraints.all_constraints
+        self.print_all(example_name, theory_name, output)
+        self.build_test_file(output)
+        if include_constraints:
+            print("# Satisfiable constraints", file=output)
+            print(f"all_constraints = {constraints}", file=output)

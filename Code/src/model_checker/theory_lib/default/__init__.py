@@ -17,14 +17,12 @@ from .operators import (
     BotOperator,
     IdentityOperator,
     CounterfactualOperator,
-    ImpositionOperator,
     NecessityOperator,
 
     # defined operators
     ConditionalOperator,
     BiconditionalOperator,
     MightCounterfactualOperator,
-    MightImpositionOperator,
     DefPossibilityOperator,
 )
 

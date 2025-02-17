@@ -1,11 +1,20 @@
 import z3
 
-from model_checker.utils import (
-    ForAll,
-    Exists,
-)
 
-from model_checker import syntactic
+# Try local imports first (for development)
+try:
+    from src.model_checker.utils import (
+        ForAll,
+        Exists,
+    )
+    from src.model_checker import syntactic
+except ImportError:
+    # Fall back to installed package imports
+    from model_checker.utils import (
+        ForAll,
+        Exists,
+    )
+    from model_checker import syntactic
 
 ##############################################################################
 ############################ EXTENSIONAL OPERATORS ###########################

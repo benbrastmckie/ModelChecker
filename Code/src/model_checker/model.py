@@ -6,15 +6,10 @@ things in hidden_things right now:
 '''
 
 import sys
-
 from contextlib import redirect_stdout
-
 import time
-
 from functools import reduce
-
 from string import Template
-
 from z3 import (
     And,
     ArrayRef,
@@ -29,14 +24,11 @@ from z3 import (
     sat,
     simplify,
 )
-
 from .utils import (
     bitvec_to_substates,
-    int_to_binary,
     not_implemented_string,
     pretty_set_print,
 )
-
 inputs_template = Template(
 '''Z3 run time: ${z3_model_runtime} seconds
 """
@@ -273,19 +265,11 @@ class ModelConstraints:
             )
         ]
         self.premise_constraints = [
-            self.semantics.premise_behavior(
-                premise,
-                self.semantics.main_world,
-                self.semantics.main_time,
-            )
+            self.semantics.premise_behavior(premise)
             for premise in self.premises
         ]
         self.conclusion_constraints = [
-            self.semantics.conclusion_behavior(
-                conclusion,
-                self.semantics.main_world,
-                self.semantics.main_time,
-            )
+            self.semantics.conclusion_behavior(conclusion)
             for conclusion in self.conclusions
         ]
         self.all_constraints = (
@@ -508,24 +492,6 @@ class ModelDefaults:
         for index, con in enumerate(constraints, start=1):
             print(f"{index}. {con}\n", file=output)
 
-    def print_to(self, default_settings, example_name, theory_name, print_constraints=None, output=sys.__stdout__):
-        """append all elements of the model to the file provided
-        
-        Args:
-            print_constraints: Whether to print constraints. Defaults to value in settings.
-            output: Output stream to print to. Defaults to sys.stdout.
-        """
-        if print_constraints is None:
-            print_constraints = self.settings["print_constraints"]
-        if self.timeout:
-            print(f"TIMEOUT: {self.timeout}")
-            print(f"No model for example {example_name} found before timeout.", file=output)
-            print(f"Try increasing max_time > {self.max_time}.\n", file=output)
-            return
-        self.print_all(default_settings, example_name, theory_name, output)
-        if print_constraints and self.unsat_core is not None:
-            self.print_grouped_constraints(output)
-
     def build_test_file(self, output):
         """generates a test file from input to be saved"""
 
@@ -538,20 +504,10 @@ class ModelDefaults:
         inputs_content = inputs_template.substitute(inputs_data)
         print(inputs_content, file=output)
 
-    def save_to(self, example_name, theory_name, include_constraints, output):
-        """append all elements of the model to the file provided"""
-        constraints = self.model_constraints.all_constraints
-        self.print_all(example_name, theory_name, output)
-        self.build_test_file(output)
-        if include_constraints:
-            print("# Satisfiable constraints", file=output)
-            print(f"all_constraints = {constraints}", file=output)
-
     def recursive_print(self, sentence, eval_world, indent_num, use_colors):
         if indent_num == 2:  # NOTE: otherwise second lines don't indent
             indent_num += 1
         if sentence.sentence_letter is not None:  # Print sentence letter
-            # print(f"OUTPUT REC PRINT: {output is sys.__stdout__}")
             sentence.proposition.print_proposition(eval_world, indent_num, use_colors)
             return
         operator = sentence.original_operator
@@ -647,3 +603,4 @@ class ModelDefaults:
         """Print Z3 runtime and separator footer."""
         print(f"\nZ3 Run Time: {self.z3_model_runtime} seconds", file=output)
         print(f"\n{'='*40}\n", file=output)
+
