@@ -261,7 +261,11 @@ class BuildModule:
                 with ThreadPoolExecutor() as executor:
                     # Submit the build task
                     future = executor.submit(
-                        BuildExample, self, semantic_theory, example_case
+                        BuildExample,
+                        self,
+                        semantic_theory,
+                        example_case,
+                        model_structure_class,
                     )
                     
                     # Create and update progress indicator
@@ -382,7 +386,7 @@ class BuildProject:
 class BuildExample:
     """Class to create and store model structure with settings as attributes."""
 
-    def __init__(self, build_module, semantic_theory, example_case):
+    def __init__(self, build_module, semantic_theory, example_case, model_structure_class):
         """Initialize model structure from module flags."""
         self.module = build_module.module
         self.module_flags = build_module.module_flags
@@ -400,7 +404,7 @@ class BuildExample:
         )
 
         # Create model structure
-        self.model_structure = ModelStructure(
+        self.model_structure = model_structure_class(
             self.model_constraints, 
             self.settings['max_time'],
         )

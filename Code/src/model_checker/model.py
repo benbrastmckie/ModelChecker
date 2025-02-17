@@ -352,7 +352,7 @@ class ModelConstraints:
                 print(f"{index}. {sent}", file=output)
 
 # TODO: expose elements that need to change to accommodate bimodal logic
-class ModelStructure:
+class ModelDefaults:
     """Solves and stores the Z3 model for an instance of ModelSetup."""
 
     def __init__(self, model_constraints, max_time=1):
@@ -362,18 +362,18 @@ class ModelStructure:
         self.model_constraints = model_constraints
         self.max_time = max_time
 
+        # Store from model_constraint.semantics
+        self.semantics = self.model_constraints.semantics
+        self.main_world = self.semantics.main_world
+        self.all_bits = self.semantics.all_bits
+        self.N = self.semantics.N
+
         # Store from model_constraint.syntax
         self.syntax = self.model_constraints.syntax
         self.start_time = self.syntax.start_time
         self.premises = self.syntax.premises
         self.conclusions = self.syntax.conclusions
         self.sentence_letters = self.syntax.sentence_letters
-
-        # Store from model_constraint.semantics
-        self.semantics = self.model_constraints.semantics
-        self.main_world = self.semantics.main_world
-        self.all_bits = self.semantics.all_bits
-        self.N = self.semantics.N
 
         # Store from model_constraint
         self.proposition_class = self.model_constraints.proposition_class
@@ -389,23 +389,6 @@ class ModelStructure:
         self.unsat_core = z3_model if not z3_model_status else None
         self.z3_model_status = z3_model_status
         self.z3_model_runtime = z3_model_runtime
-
-        # Store possible_bits, world_bits, and main_world from the Z3 model
-        if not self.z3_model_status:
-            self.poss_bits, self.world_bits, self.main_world = None, None, None
-            return
-        self.poss_bits = [
-            bit
-            for bit in self.all_bits
-            if bool(self.z3_model.evaluate(self.semantics.possible(bit)))  # type: ignore
-        ]
-        self.world_bits = [
-            bit
-            for bit in self.poss_bits
-            if bool(self.z3_model.evaluate(self.semantics.is_world(bit)))  # type: ignore
-        ]
-        if not self.z3_model is None:
-            self.main_world = self.z3_model[self.main_world]
 
         # Define ANSI color codes
         self.COLORS = {
@@ -467,20 +450,6 @@ class ModelStructure:
                 self.interpret(sent_obj.arguments)
             sent_obj.update_proposition(self)
 
-    def print_evaluation(self, output=sys.__stdout__):
-        """print the evaluation world and all sentences letters that true/false
-        in that world"""
-        BLUE = ""
-        RESET = ""
-        main_world = self.main_world
-        if output is sys.__stdout__:
-            BLUE = "\033[34m"
-            RESET = "\033[0m"
-        print(
-            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N)}{RESET}\n",
-            file=output,
-        )
-
     def print_grouped_constraints(self, output=sys.__stdout__):
         """Prints constraints organized by their groups (frame, model, premises, conclusions)"""
         groups = {
@@ -514,7 +483,6 @@ class ModelStructure:
         
         # Organize constraints into groups
         for constraint in constraints:
-            constraint_str = str(constraint)
             if constraint in self.model_constraints.frame_constraints:
                 groups["FRAME"].append(constraint)
             elif constraint in self.model_constraints.model_constraints:
@@ -570,7 +538,6 @@ class ModelStructure:
         inputs_content = inputs_template.substitute(inputs_data)
         print(inputs_content, file=output)
 
-
     def save_to(self, example_name, theory_name, include_constraints, output):
         """append all elements of the model to the file provided"""
         constraints = self.model_constraints.all_constraints
@@ -579,39 +546,6 @@ class ModelStructure:
         if include_constraints:
             print("# Satisfiable constraints", file=output)
             print(f"all_constraints = {constraints}", file=output)
-
-    def print_states(self, output=sys.__stdout__):
-        """Print all fusions of atomic states in the model."""
-
-        def binary_bitvector(bit):
-            return (
-                bit.sexpr()
-                if self.N % 4 != 0
-                else int_to_binary(int(bit.sexpr()[2:], 16), self.N)
-            )
-        
-        def format_state(bin_rep, state, color, label=""):
-            """Helper function to format and print a state."""
-            label_str = f" ({label})" if label else ""
-            use_colors = output is sys.__stdout__
-            if use_colors:
-                print(f"  {self.WHITE}{bin_rep} = {color}{state}{label_str}{self.RESET}", file=output)
-            else:
-                print(f"  {bin_rep} = {state}{label_str}", file=output)
-        
-        # Print formatted state space
-        print("State Space:", file=output)
-        for bit in self.all_bits:
-            state = bitvec_to_substates(bit, self.N)
-            bin_rep = binary_bitvector(bit)
-            if bit == 0:
-                format_state(bin_rep, state, self.COLORS["initial"])
-            elif bit in self.world_bits:
-                format_state(bin_rep, state, self.COLORS["world"], "world")
-            elif bit in self.poss_bits:
-                format_state(bin_rep, state, self.COLORS["possible"])
-            elif self.settings['print_impossible']:
-                format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
 
     def recursive_print(self, sentence, eval_world, indent_num, use_colors):
         if indent_num == 2:  # NOTE: otherwise second lines don't indent
@@ -713,19 +647,3 @@ class ModelStructure:
         """Print Z3 runtime and separator footer."""
         print(f"\nZ3 Run Time: {self.z3_model_runtime} seconds", file=output)
         print(f"\n{'='*40}\n", file=output)
-
-    def print_all(self, default_settings, example_name, theory_name, output=sys.__stdout__):
-        """prints states, sentence letters evaluated at the designated world and
-        recursively prints each sentence and its parts"""
-        model_status = self.z3_model_status
-        self.print_info(model_status, default_settings, example_name, theory_name, output)
-        if model_status:
-            self.print_states(output)
-            self.print_evaluation(output)
-            self.print_input_sentences(output)
-            self.print_model(output)
-            if output is sys.__stdout__:
-                total_time = round(time.time() - self.start_time, 4) 
-                print(f"Total Run Time: {total_time} seconds\n", file=output)
-                print(f"{'='*40}", file=output)
-            return

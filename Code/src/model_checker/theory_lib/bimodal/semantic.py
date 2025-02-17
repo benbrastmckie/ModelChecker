@@ -5,6 +5,7 @@ try:
     from src.model_checker.model import (
         SemanticDefaults,
         PropositionDefaults,
+        ModelDefaults,
     )
     from src.model_checker.utils import (
         ForAll,
@@ -17,6 +18,7 @@ except ImportError:
     from model_checker.model import (
         SemanticDefaults,
         PropositionDefaults,
+        ModelDefaults,
     )
     from model_checker.utils import (
         ForAll,
@@ -172,7 +174,6 @@ class IntensionalProposition(PropositionDefaults):
         self.eval_world = model_structure.main_world if eval_world == 'main' else eval_world
         self.eval_time = model_structure.main_time if eval_time == 'now' else eval_time
         self.truth_set, self.false_set = self.find_proposition()
-        
 
     def __eq__(self, other):
         return (
@@ -272,3 +273,91 @@ class IntensionalProposition(PropositionDefaults):
             f"{'  ' * indent_num}{FULL}|{self.name}| = {self}{RESET}"
             f"  {PART}({truth_value} in {world_state}){RESET}"
         )
+
+
+class ModelStructure(ModelDefaults):
+
+    def __init__(self, model_constraints, max_time=1):
+
+        super().__init__(model_constraints, max_time)
+
+        # Store possible_bits, world_bits, and main_world from the Z3 model
+        if not self.z3_model_status:
+            self.poss_bits, self.world_bits, self.main_world = None, None, None
+            return
+        self.poss_bits = [
+            bit
+            for bit in self.all_bits
+            if bool(self.z3_model.evaluate(self.semantics.possible(bit)))  # type: ignore
+        ]
+        self.world_bits = [
+            bit
+            for bit in self.poss_bits
+            if bool(self.z3_model.evaluate(self.semantics.is_world(bit)))  # type: ignore
+        ]
+        if not self.z3_model is None:
+            self.main_world = self.z3_model[self.main_world]
+
+    def print_evaluation(self, output=sys.__stdout__):
+        """print the evaluation world and all sentences letters that true/false
+        in that world"""
+        BLUE = ""
+        RESET = ""
+        main_world = self.main_world
+        if output is sys.__stdout__:
+            BLUE = "\033[34m"
+            RESET = "\033[0m"
+        print(
+            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N)}{RESET}\n",
+            file=output,
+        )
+
+    def print_states(self, output=sys.__stdout__):
+        """Print all fusions of atomic states in the model."""
+
+        def binary_bitvector(bit):
+            return (
+                bit.sexpr()
+                if self.N % 4 != 0
+                else int_to_binary(int(bit.sexpr()[2:], 16), self.N)
+            )
+        
+        def format_state(bin_rep, state, color, label=""):
+            """Helper function to format and print a state."""
+            label_str = f" ({label})" if label else ""
+            use_colors = output is sys.__stdout__
+            if use_colors:
+                print(f"  {self.WHITE}{bin_rep} = {color}{state}{label_str}{self.RESET}", file=output)
+            else:
+                print(f"  {bin_rep} = {state}{label_str}", file=output)
+        
+        # Print formatted state space
+        print("State Space:", file=output)
+        for bit in self.all_bits:
+            state = bitvec_to_substates(bit, self.N)
+            bin_rep = binary_bitvector(bit)
+            if bit == 0:
+                format_state(bin_rep, state, self.COLORS["initial"])
+            elif bit in self.world_bits:
+                format_state(bin_rep, state, self.COLORS["world"], "world")
+            elif bit in self.poss_bits:
+                format_state(bin_rep, state, self.COLORS["possible"])
+            elif self.settings['print_impossible']:
+                format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
+
+
+    def print_all(self, default_settings, example_name, theory_name, output=sys.__stdout__):
+        """prints states, sentence letters evaluated at the designated world and
+        recursively prints each sentence and its parts"""
+        model_status = self.z3_model_status
+        self.print_info(model_status, default_settings, example_name, theory_name, output)
+        if model_status:
+            self.print_states(output)
+            self.print_evaluation(output)
+            self.print_input_sentences(output)
+            self.print_model(output)
+            if output is sys.__stdout__:
+                total_time = round(time.time() - self.start_time, 4) 
+                print(f"Total Run Time: {total_time} seconds\n", file=output)
+                print(f"{'='*40}", file=output)
+            return
