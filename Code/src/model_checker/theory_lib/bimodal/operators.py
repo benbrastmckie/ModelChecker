@@ -2,16 +2,8 @@ import z3
 
 # Try local imports first (for development)
 try:
-    from src.model_checker.utils import (
-        ForAll,
-        Exists,
-    )
     from src.model_checker import syntactic
 except ImportError:
-    from model_checker.utils import (
-        ForAll,
-        Exists,
-    )
     from model_checker import syntactic
 
 ##############################################################################
@@ -169,7 +161,7 @@ class BotOperator(syntactic.Operator):
 
 
 ##############################################################################
-########################### INTENSIONAL OPERATORS ############################
+############################## MODAL OPERATORS ###############################
 ##############################################################################
 
 class NecessityOperator(syntactic.Operator):
@@ -192,16 +184,63 @@ class NecessityOperator(syntactic.Operator):
             semantics.false_at(argument, mu, eval_time),
         )
     
+    # TODO: replace with (world, time) pairs, calling this the extension
     def find_truth_condition(self, argument, eval_world, eval_time):
-        evaluate = argument.proposition.model_structure.z3_model.evaluate
-        if bool(evaluate(self.true_at(argument, eval_world, eval_time))):
-            return {self.semantics.all_bits}, set()
-        if bool(evaluate(self.false_at(argument, eval_world, eval_time))):
-            return set(), {self.semantics.all_bits}
-        raise ValueError(
-            f"{self.name} {argument} "
-            f"is neither true nor false in the world {eval_world}."
+        Y_V, Y_F = argument.proposition.find_proposition()
+        Z_V = {self.semantics.all_bits} if Y_V else set()
+        Z_F = set() if Y_F else {self.semantics.all_bits}
+        return Z_V, Z_F
+
+        # FROM BEFORE
+        # evaluate = argument.proposition.model_structure.z3_model.evaluate
+        # if bool(evaluate(self.true_at(argument, eval_world, eval_time))):
+        #     return {self.semantics.all_bits}, set()
+
+    def print_method(self, sentence_obj, eval_world, eval_time, indent_num, use_colors):
+        """Print counterfactual and the antecedent in the eval_world. Then
+        print the consequent in each alternative to the evaluation world.
+        """
+        world_state = eval_world[eval_time]
+        all_worlds = sentence_obj.proposition.model_structure.world_bits
+        self.print_over_worlds(sentence_obj, world_state, all_worlds, indent_num, use_colors)
+    
+
+##############################################################################
+############################## TENSE OPERATORS ###############################
+##############################################################################
+
+class FutureOperator(syntactic.Operator):
+    name = "\\Future"
+    arity = 1
+
+    def true_at(self, argument, eval_world, eval_time):
+        semantics = self.semantics
+        x = z3.Ints('true_time_x')
+        return z3.ForAll(
+            x,
+            z3.Implies(
+                eval_time < x,
+                semantics.true_at(argument, eval_world, x),
+            )
         )
+    
+    def false_at(self, argument, eval_world, eval_time):
+        semantics = self.semantics
+        x = z3.Ints('false_time_x')
+        return z3.Exists(
+            x,
+            z3.And(
+                eval_time < x,
+                semantics.false_at(argument, eval_world, x),
+            )
+        )
+    
+    # TODO: replace with (world, time) pairs, calling this the extension
+    def find_truth_condition(self, argument, eval_world, eval_time):
+        Y_V, Y_F = argument.proposition.find_proposition()
+        Z_V = {self.semantics.all_bits} if Y_V else set()
+        Z_F = set() if Y_F else {self.semantics.all_bits}
+        return Z_V, Z_F
     
     def print_method(self, sentence_obj, eval_world, eval_time, indent_num, use_colors):
         """Print counterfactual and the antecedent in the eval_world. Then
@@ -269,13 +308,20 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
         self.print_over_worlds(sentence_obj, world_state, all_worlds, indent_num, use_colors)
 
 intensional_operators = syntactic.OperatorCollection(
-    # primitive operators
+    # extensional operators
     NegationOperator,
     AndOperator,
     OrOperator,
+
+    # extremal operators
     TopOperator,
     BotOperator,
+
+    # modal operators
     NecessityOperator,
+
+    # tense operators
+    FutureOperator,
 
     # defined operators
     ConditionalOperator,

@@ -351,6 +351,7 @@ class ModelConstraints:
             for index, sent in enumerate(conclusions, start=start_con_num):
                 print(f"{index}. {sent}", file=output)
 
+# TODO: expose elements that need to change to accommodate bimodal logic
 class ModelStructure:
     """Solves and stores the Z3 model for an instance of ModelSetup."""
 
@@ -491,13 +492,13 @@ class ModelStructure:
         
         # Get the relevant constraints based on model status
         if self.z3_model:
-            print("\nSATISFIABLE CONSTRAINTS:", file=output)
+            print("SATISFIABLE CONSTRAINTS:", file=output)
             constraints = self.model_constraints.all_constraints
         elif self.unsat_core is not None:
-            print("\nUNSATISFIABLE CORE CONSTRAINTS:", file=output)
+            print("UNSATISFIABLE CORE CONSTRAINTS:", file=output)
             constraints = [self.constraint_dict[str(c)] for c in self.unsat_core]
         else:
-            print("\nNO CONSTRAINTS AVAILABLE", file=output)
+            print("NO CONSTRAINTS AVAILABLE", file=output)
             constraints = []
             
         # Print summary of constraint groups
