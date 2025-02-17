@@ -12,8 +12,9 @@ import os
 sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.path
 
 from semantic import (
+    BimodalStructure,
     BimodalSemantics,
-    IntensionalProposition,
+    BimodalProposition,
 )
 
 from operators import (
@@ -47,7 +48,8 @@ example_settings = {  # defaults can be tailored to each example
 
 intensional_theory = {
     "semantics": BimodalSemantics,
-    "proposition": IntensionalProposition,
+    "proposition": BimodalProposition,
+    "model": BimodalStructure,
     "operators": intensional_operators,
     # translation dictionary is only required for comparison theories
 }

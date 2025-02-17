@@ -1,17 +1,33 @@
 import z3
+import sys
+import time
 
-from model_checker.model import (
-    PropositionDefaults,
-    SemanticDefaults,
-)
-
-from model_checker.utils import (
-    ForAll,
-    Exists,
-    bitvec_to_substates,
-)
-
-from model_checker import syntactic
+# Try local imports first (for development)
+try:
+    from src.model_checker.model import (
+        PropositionDefaults,
+        SemanticDefaults,
+        ModelDefaults,
+    )
+    from src.model_checker.utils import (
+        ForAll,
+        Exists,
+        bitvec_to_substates,
+    )
+    from src.model_checker import syntactic
+except ImportError:
+    # Fall back to installed package imports
+    from model_checker.model import (
+        PropositionDefaults,
+        SemanticDefaults,
+        ModelDefaults,
+    )
+    from model_checker.utils import (
+        ForAll,
+        Exists,
+        bitvec_to_substates,
+    )
+    from model_checker import syntactic
 
 
 ##############################################################################
@@ -64,8 +80,8 @@ class Semantics(SemanticDefaults):
         ]
 
         # Define invalidity conditions
-        self.premise_behavior = self.true_at
-        self.conclusion_behavior = self.false_at
+        self.premise_behavior = lambda premise: self.true_at(premise, self.main_world)
+        self.conclusion_behavior = lambda conclusion: self.true_at(conclusion, self.main_world)
 
     def compatible(self, bit_x, bit_y):
         """the fusion of bit_x and bit_y is possible
@@ -567,3 +583,116 @@ class Proposition(PropositionDefaults):
             f"  {PART}({truth_value} in {world_state}){RESET}"
         )
 
+
+class ModelStructure(ModelDefaults):
+
+    def __init__(self, model_constraints, max_time=1):
+
+        super().__init__(model_constraints, max_time)
+
+        # Store possible_bits, world_bits, and main_world from the Z3 model
+        if not self.z3_model_status:
+            self.poss_bits, self.world_bits, self.main_world = None, None, None
+            return
+        self.poss_bits = [
+            bit
+            for bit in self.all_bits
+            if bool(self.z3_model.evaluate(self.semantics.possible(bit)))  # type: ignore
+        ]
+        self.world_bits = [
+            bit
+            for bit in self.poss_bits
+            if bool(self.z3_model.evaluate(self.semantics.is_world(bit)))  # type: ignore
+        ]
+        if not self.z3_model is None:
+            self.main_world = self.z3_model[self.main_world]
+
+    def print_evaluation(self, output=sys.__stdout__):
+        """print the evaluation world and all sentences letters that true/false
+        in that world"""
+        BLUE = ""
+        RESET = ""
+        main_world = self.main_world
+        if output is sys.__stdout__:
+            BLUE = "\033[34m"
+            RESET = "\033[0m"
+        print(
+            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N)}{RESET}\n",
+            file=output,
+        )
+
+    def print_states(self, output=sys.__stdout__):
+        """Print all fusions of atomic states in the model."""
+
+        def binary_bitvector(bit):
+            return (
+                bit.sexpr()
+                if self.N % 4 != 0
+                else int_to_binary(int(bit.sexpr()[2:], 16), self.N)
+            )
+        
+        def format_state(bin_rep, state, color, label=""):
+            """Helper function to format and print a state."""
+            label_str = f" ({label})" if label else ""
+            use_colors = output is sys.__stdout__
+            if use_colors:
+                print(f"  {self.WHITE}{bin_rep} = {color}{state}{label_str}{self.RESET}", file=output)
+            else:
+                print(f"  {bin_rep} = {state}{label_str}", file=output)
+        
+        # Print formatted state space
+        print("State Space:", file=output)
+        for bit in self.all_bits:
+            state = bitvec_to_substates(bit, self.N)
+            bin_rep = binary_bitvector(bit)
+            if bit == 0:
+                format_state(bin_rep, state, self.COLORS["initial"])
+            elif bit in self.world_bits:
+                format_state(bin_rep, state, self.COLORS["world"], "world")
+            elif bit in self.poss_bits:
+                format_state(bin_rep, state, self.COLORS["possible"])
+            elif self.settings['print_impossible']:
+                format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
+
+    def print_all(self, default_settings, example_name, theory_name, output=sys.__stdout__):
+        """prints states, sentence letters evaluated at the designated world and
+        recursively prints each sentence and its parts"""
+        model_status = self.z3_model_status
+        self.print_info(model_status, default_settings, example_name, theory_name, output)
+        if model_status:
+            self.print_states(output)
+            self.print_evaluation(output)
+            self.print_input_sentences(output)
+            self.print_model(output)
+            if output is sys.__stdout__:
+                total_time = round(time.time() - self.start_time, 4) 
+                print(f"Total Run Time: {total_time} seconds\n", file=output)
+                print(f"{'='*40}", file=output)
+            return
+
+    def print_to(self, default_settings, example_name, theory_name, print_constraints=None, output=sys.__stdout__):
+        """append all elements of the model to the file provided
+        
+        Args:
+            print_constraints: Whether to print constraints. Defaults to value in settings.
+            output: Output stream to print to. Defaults to sys.stdout.
+        """
+        if print_constraints is None:
+            print_constraints = self.settings["print_constraints"]
+        if self.timeout:
+            print(f"TIMEOUT: {self.timeout}")
+            print(f"No model for example {example_name} found before timeout.", file=output)
+            print(f"Try increasing max_time > {self.max_time}.\n", file=output)
+            return
+        self.print_all(default_settings, example_name, theory_name, output)
+        if print_constraints and self.unsat_core is not None:
+            self.print_grouped_constraints(output)
+
+    def save_to(self, example_name, theory_name, include_constraints, output):
+        """append all elements of the model to the file provided"""
+        constraints = self.model_constraints.all_constraints
+        self.print_all(example_name, theory_name, output)
+        self.build_test_file(output)
+        if include_constraints:
+            print("# Satisfiable constraints", file=output)
+            print(f"all_constraints = {constraints}", file=output)

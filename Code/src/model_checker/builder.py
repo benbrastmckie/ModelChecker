@@ -22,10 +22,7 @@ except ImportError:
     )
     from model_checker.syntactic import OperatorCollection
 
-from .model import (
-    ModelConstraints,
-    ModelStructure,
-)
+from .model import ModelConstraints
 from .syntactic import Syntax
 
 
@@ -133,6 +130,7 @@ class BuildModule:
         """Try a single N value and return (success, runtime)"""
         premises, conclusions, settings = example_case
         semantics_class = semantic_theory["semantics"]
+        model_structure_class = semantic_theory["model"]
         operators = semantic_theory["operators"]
         syntax = Syntax(premises, conclusions, operators)
         semantics = semantics_class(settings['N'])
@@ -142,7 +140,7 @@ class BuildModule:
             semantics,
             semantic_theory["proposition"],
         )
-        model_structure = ModelStructure(model_constraints, settings['max_time'])
+        model_structure = model_structure_class(model_constraints, settings['max_time'])
         run_time = model_structure.z3_model_runtime
         success = run_time < settings['max_time']
         if success:
@@ -265,7 +263,7 @@ class BuildModule:
                         self,
                         semantic_theory,
                         example_case,
-                        model_structure_class,
+                        semantic_theory["model"]
                     )
                     
                     # Create and update progress indicator
