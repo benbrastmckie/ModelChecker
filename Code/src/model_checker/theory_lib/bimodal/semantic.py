@@ -11,6 +11,7 @@ try:
         Exists,
         bitvec_to_substates,
     )
+    from src.model_checker import syntactic
 except ImportError:
     # Fall back to installed package imports
     from model_checker.model import (
@@ -22,6 +23,7 @@ except ImportError:
         Exists,
         bitvec_to_substates,
     )
+    from model_checker import syntactic
 
 
 
@@ -30,7 +32,7 @@ except ImportError:
 ##############################################################################
 
 
-class IntensionalSemantics(SemanticDefaults):
+class BimodalSemantics(SemanticDefaults):
     """Defines the semantic model for bimodal logic, including primitive relations,
     frame constraints for task transitions between world states, and evaluation
     of truth conditions."""
@@ -68,6 +70,7 @@ class IntensionalSemantics(SemanticDefaults):
         self.truth_condition = z3.Function(
             "truth_condition",
             self.WorldStateSort,
+            syntactic.AtomSort,
             z3.BoolSort()
         )
 
@@ -111,7 +114,7 @@ class IntensionalSemantics(SemanticDefaults):
 
         # Define frame constraints
         self.frame_constraints = [
-            # lawful,
+            lawful,
             # seriel,
         ]
 
@@ -136,7 +139,7 @@ class IntensionalSemantics(SemanticDefaults):
         # base case
         if sentence_letter is not None:                     
             eval_world_state = eval_world[eval_time]
-            return self.truth_condition(eval_world_state)  # true in main_world
+            return self.truth_condition(eval_world_state, sentence_letter)  # true in main_world
 
         # recursive case
         operator = sentence.operator  # store operator

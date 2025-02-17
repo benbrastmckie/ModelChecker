@@ -12,7 +12,7 @@ import os
 sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.path
 
 from semantic import (
-    IntensionalSemantics,
+    BimodalSemantics,
     IntensionalProposition,
 )
 
@@ -26,7 +26,7 @@ from operators import (
 ########################
 
 general_settings = {
-    "print_constraints": False,
+    "print_constraints": True,
     "print_impossible": False,
     "print_z3": False,
     "save_output": False,
@@ -37,8 +37,6 @@ example_settings = {  # defaults can be tailored to each example
     'N' : 3,
     'contingent' : False,
     'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
     'max_time' : 1,
 }
 
@@ -48,7 +46,7 @@ example_settings = {  # defaults can be tailored to each example
 ####################################
 
 intensional_theory = {
-    "semantics": IntensionalSemantics,
+    "semantics": BimodalSemantics,
     "proposition": IntensionalProposition,
     "operators": intensional_operators,
     # translation dictionary is only required for comparison theories

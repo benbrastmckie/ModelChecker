@@ -273,7 +273,7 @@ class BuildModule:
                         print(f"\rRunning model-checker: {progress_chars[i]}", end="", flush=True)
                         i = (i + 1) % len(progress_chars)
                         time.sleep(0.1)
-                    print("\rRunning model-checker: Done" + " " * 10)
+                    print("\rRunning model-checker: Done" + " " * 10 + "\n")
                     
                     try:
                         example = future.result(timeout=0)  # Get result if ready
