@@ -58,6 +58,7 @@ class Semantics(SemanticDefaults):
         self.falsify = z3.Function("falsify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
         self.possible = z3.Function("possible", z3.BitVecSort(N), z3.BoolSort())
         self.main_world = z3.BitVec("w", N)
+        self.main_point = self.main_world
 
         # Define the frame constraints
         x, y = z3.BitVecs("frame_x frame_y", N)
@@ -378,7 +379,8 @@ class Proposition(PropositionDefaults):
     def __init__(self, sentence, model_structure, eval_world='main'):
 
         super().__init__(sentence, model_structure)
-        self.eval_world = model_structure.main_world if eval_world == 'main' else eval_world
+
+        self.eval_world = model_structure.main_point if eval_world == 'main' else eval_world
         self.verifiers, self.falsifiers = self.find_proposition()
         
 
@@ -589,6 +591,9 @@ class ModelStructure(ModelDefaults):
     def __init__(self, model_constraints, max_time=1):
 
         super().__init__(model_constraints, max_time)
+
+        # Get main point
+        self.main_world = self.main_point
 
         # Store possible_bits, world_bits, and main_world from the Z3 model
         if not self.z3_model_status:

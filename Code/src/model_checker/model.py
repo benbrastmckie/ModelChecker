@@ -85,6 +85,9 @@ class SemanticDefaults:
         self.null_bit = BitVecVal(0, self.N)
         self.all_bits = [BitVecVal(i, self.N) for i in range(1 << self.N)]
         
+        # Define main_point
+        self.main_point = None
+
         # Define the frame constraints
         self.frame_constraints = None
 
@@ -156,18 +159,19 @@ class PropositionDefaults:
         if self.__class__ == PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
 
-        # Store values from sentence
-        self.name = sentence.name
-        self.operator = sentence.operator
-        self.arguments = sentence.arguments
-        self.sentence_letter = sentence.sentence_letter
-
-        # Store values from model_structure argument
+        # Store inputs
+        self.sentence = sentence
         self.model_structure = model_structure
-        self.N = self.model_structure.N
-        self.model_constraints = self.model_structure.model_constraints
+        self.N = self.model_structure.semantics.N
+
+        # Store values from sentence
+        self.name = self.sentence.name
+        self.operator = self.sentence.operator
+        self.arguments = self.sentence.arguments
+        self.sentence_letter = self.sentence.sentence_letter
 
         # Store values from model_constraints
+        self.model_constraints = self.model_structure.model_constraints
         self.semantics = self.model_constraints.semantics
         self.sentence_letters = self.model_constraints.sentence_letters
         self.settings = self.model_constraints.settings
@@ -216,7 +220,6 @@ class PropositionDefaults:
         if indent_num == 1:
             FULL, PART = (GREEN, GREEN) if truth_value else (RED, RED)
             if truth_value is None:
-                # world_state = bitvec_to_substates(eval_world, N)
                 print(
                     f"\n{RED}WARNING:{RESET}"
                     f"{name} is neither true nor false at {world_state}.\n"
@@ -335,6 +338,7 @@ class ModelConstraints:
             for index, sent in enumerate(conclusions, start=start_con_num):
                 print(f"{index}. {sent}", file=output)
 
+
 # TODO: expose elements that need to change to accommodate bimodal logic
 class ModelDefaults:
     """Solves and stores the Z3 model for an instance of ModelSetup."""
@@ -346,9 +350,9 @@ class ModelDefaults:
         self.model_constraints = model_constraints
         self.max_time = max_time
 
-        # Store from model_constraint.semantics
+        # Store from model_constraints.semantics
         self.semantics = self.model_constraints.semantics
-        self.main_world = self.semantics.main_world
+        self.main_point = self.semantics.main_point
         self.all_bits = self.semantics.all_bits
         self.N = self.semantics.N
 
@@ -504,14 +508,14 @@ class ModelDefaults:
         inputs_content = inputs_template.substitute(inputs_data)
         print(inputs_content, file=output)
 
-    def recursive_print(self, sentence, eval_world, indent_num, use_colors):
+    def recursive_print(self, sentence, eval_point, indent_num, use_colors):
         if indent_num == 2:  # NOTE: otherwise second lines don't indent
             indent_num += 1
         if sentence.sentence_letter is not None:  # Print sentence letter
-            sentence.proposition.print_proposition(eval_world, indent_num, use_colors)
+            sentence.proposition.print_proposition(eval_point, indent_num, use_colors)
             return
         operator = sentence.original_operator
-        operator.print_method(sentence, eval_world, indent_num, use_colors)  # Print complex sentence
+        operator.print_method(sentence, eval_point, indent_num, use_colors)  # Print complex sentence
 
     def print_input_sentences(self, output):
         """Prints the interpreted premises and conclusions, leveraging recursive_print."""
@@ -525,7 +529,7 @@ class ModelDefaults:
                     print(f"{index}.", end="", file=output)
                     with redirect_stdout(destination):
                         use_colors = output is sys.__stdout__
-                        self.recursive_print(sentence, self.main_world, 1, use_colors)
+                        self.recursive_print(sentence, self.main_point, 1, use_colors)
                         print(file=output)
         
         start_index = 1
