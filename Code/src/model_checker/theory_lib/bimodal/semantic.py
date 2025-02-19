@@ -263,7 +263,8 @@ class BimodalProposition(PropositionDefaults):
         
         # Evaluate the BitVecRef using the Z3 model
         eval_world_state = model.evaluate(eval_point)
-        
+        print(f"DEBUG {eval_world_state} TYPE {type(eval_world_state)}")
+
         truth_value = semantics.true_at(self.sentence, self.eval_world, self.eval_time)
         world_state = bitvec_to_substates(eval_world_state, semantics.N)
         RESET, FULL, PART = self.set_colors(
