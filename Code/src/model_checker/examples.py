@@ -11,6 +11,7 @@ from src.model_checker.semantic import (
     Semantics,
     ImpositionSemantics,
     Proposition,
+    ModelStructure,
 )
 
 from src.model_checker.defined import (
@@ -51,6 +52,7 @@ default_operators = syntactic.OperatorCollection(
 default_theory = {
     "semantics": Semantics,
     "proposition": Proposition,
+    "model": ModelStructure,
     "operators": default_operators,
 }
 
@@ -62,6 +64,7 @@ imposition_dictionary = {
 imposition_theory = {
     "semantics": ImpositionSemantics,
     "proposition": Proposition,
+    "model": Proposition,
     "operators": default_operators,
     "dictionary": imposition_dictionary,
 }
@@ -125,7 +128,6 @@ CF_CM_1_example = [
     # CF_CM_1_settings,
     example_settings,
 ]
-
 
 # CF_CM_2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
 CF_CM_2_premises = ['(A \\circleright C)']
@@ -357,7 +359,6 @@ CF_CM_21_example = [
 ############################
 
 # CF_TH_1: COUNTERFACTUAL IDENTITY
-# N = 3
 CF_TH_1_premises = []
 CF_TH_1_conclusions = ['(A \\boxright A)']
 CF_TH_1_example = [
@@ -367,7 +368,6 @@ CF_TH_1_example = [
 ]
 
 # CF_TH_2: COUNTERFACTUAL MODUS PONENS
-# N = 3
 CF_TH_2_premises = ['A','(A \\boxright B)']
 CF_TH_2_conclusions = ['B']
 CF_TH_2_example = [
@@ -377,7 +377,6 @@ CF_TH_2_example = [
 ]
 
 # CF_TH_3: WEAKENED TRANSITIVITY
-# N = 3
 CF_TH_3_premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
 CF_TH_3_conclusions = ['(A \\boxright C)']
 CF_TH_3_example = [
@@ -387,7 +386,6 @@ CF_TH_3_example = [
 ]
 
 # CF_TH_4: ANTECEDENT DISJUNCTION TO CONJUNCTION
-# N = 3
 CF_TH_4_premises = ['((A \\vee B) \\boxright C)']
 CF_TH_4_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_TH_4_example = [
@@ -397,7 +395,6 @@ CF_TH_4_example = [
 ]
 
 # CF_TH_5: SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-# N = 4
 CF_TH_5_premises = ['((A \\vee B) \\boxright C)']
 CF_TH_5_conclusions = ['(A \\boxright C)']
 CF_TH_5_example = [
@@ -417,7 +414,6 @@ CF_TH_6_example = [
 ]
 
 # CF_TH_7:
-# N = 3
 CF_TH_7_premises = [
     '(A \\boxright C)',
     '(B \\boxright C)',
@@ -430,9 +426,7 @@ CF_TH_7_example = [
     example_settings,
 ]
 
-
 # CF_TH_8:
-# N = 3
 CF_TH_8_premises = ['(A \\boxright (B \\wedge C))']
 CF_TH_8_conclusions = ['(A \\boxright B)']
 CF_TH_8_example = [
@@ -442,7 +436,6 @@ CF_TH_8_example = [
 ]
 
 # CF_TH_9:
-# N = 3
 CF_TH_9_premises = ['(A \\boxright B)','(A \\boxright C)']
 CF_TH_9_conclusions = ['(A \\boxright (B \\wedge C))']
 CF_TH_9_example = [
@@ -451,7 +444,7 @@ CF_TH_9_example = [
     example_settings,
 ]
 
-# # CF_TH__T10: FACTIVITY MIGHT
+# CF_TH_10: FACTIVITY MIGHT
 CF_TH_10_premises = ['A','B']
 CF_TH_10_conclusions = ['(A \\circleright B)']
 CF_TH_10_example = [
@@ -460,8 +453,7 @@ CF_TH_10_example = [
     example_settings,
 ]
 
-# # CF_TH__T11: DEFINITION OF NEC
-# N = 4
+# CF_TH_11: DEFINITION OF NEC
 CF_TH_11_premises = ['(\\neg A \\boxright \\bot)']
 CF_TH_11_conclusions = ['(\\top \\boxright A)']
 CF_TH_11_example = [

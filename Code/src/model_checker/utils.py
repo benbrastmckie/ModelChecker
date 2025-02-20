@@ -166,23 +166,66 @@ def index_to_substate(index):
     return ((number//26) + 1) * letter
 
 
+# def bitvec_to_substates(bit_vec, N):
+#     '''converts bitvectors to fusions of atomic states.'''
+#     bit_vec_as_string = bit_vec.sexpr()
+#     if 'x' in bit_vec_as_string: # if we have a hexadecimal, ie N=4m
+#         integer = int(bit_vec_as_string[2:],16)
+#         bit_vec_as_string = int_to_binary(integer, N)
+#     bit_vec_backwards = bit_vec_as_string[::-1]
+#     state_repr = ""
+#     for i, char in enumerate(bit_vec_backwards):
+#         if char == "b":
+#             if not state_repr:
+#                 return "□"  #  null state
+#             return state_repr[0 : len(state_repr) - 1]
+#         if char == "1":
+#             state_repr += index_to_substate(i)
+#             state_repr += "."
+#     raise ValueError("should have run into 'b' at the end but didn't")
+
+
 def bitvec_to_substates(bit_vec, N):
     '''converts bitvectors to fusions of atomic states.'''
     bit_vec_as_string = bit_vec.sexpr()
-    if 'x' in bit_vec_as_string: # if we have a hexadecimal, ie N=4m
-        integer = int(bit_vec_as_string[2:],16)
+    
+    # Handle different formats of bit vector representation
+    if 'x' in bit_vec_as_string:  # hexadecimal format
+        integer = int(bit_vec_as_string[2:], 16)
         bit_vec_as_string = int_to_binary(integer, N)
+    elif bit_vec_as_string.startswith('#'):  # already in binary format
+        bit_vec_as_string = bit_vec_as_string
+    else:  # decimal format
+        try:
+            integer = int(bit_vec_as_string)
+            bit_vec_as_string = '#b' + format(integer, f'0{N}b')
+        except ValueError:
+            # If we can't parse as integer, assume it's already in correct format
+            pass
+    
+    # Remove the '#b' prefix if present
+    if bit_vec_as_string.startswith('#b'):
+        bit_vec_as_string = bit_vec_as_string[2:]
+    
+    # Ensure we have the correct number of bits
+    if len(bit_vec_as_string) < N:
+        bit_vec_as_string = '0' * (N - len(bit_vec_as_string)) + bit_vec_as_string
+    
+    # Process the bits
     bit_vec_backwards = bit_vec_as_string[::-1]
     state_repr = ""
+    
+    # If all zeros, return null state
+    if all(b == '0' for b in bit_vec_backwards):
+        return "□"
+        
     for i, char in enumerate(bit_vec_backwards):
-        if char == "b":
-            if not state_repr:
-                return "□"  #  null state
-            return state_repr[0 : len(state_repr) - 1]
         if char == "1":
             state_repr += index_to_substate(i)
             state_repr += "."
-    raise ValueError("should have run into 'b' at the end but didn't")
+            
+    # Remove trailing dot if present
+    return state_repr[:-1] if state_repr else "□"
 
 
 ### Z3 HELPERS ###

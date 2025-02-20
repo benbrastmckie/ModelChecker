@@ -2,6 +2,9 @@
 
 from src.model_checker.model import (
     ModelConstraints,
+)
+
+from src.model_checker.theory_lib.default.semantic import (
     ModelStructure,
 )
 
