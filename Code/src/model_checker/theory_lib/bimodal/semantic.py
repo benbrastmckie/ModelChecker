@@ -14,6 +14,7 @@ try:
         Exists,
         bitvec_to_substates,
         int_to_binary,
+        pretty_set_print,
     )
     from src.model_checker import syntactic
 except ImportError:
@@ -28,6 +29,7 @@ except ImportError:
         Exists,
         bitvec_to_substates,
         int_to_binary,
+        pretty_set_print,
     )
     from model_checker import syntactic
 
@@ -49,16 +51,40 @@ class BimodalSemantics(SemanticDefaults):
         'max_time' : 1,
     }
 
-    def __init__(self, N):
+    def __init__(self, N, M):
 
         # Initialize the superclass to set defaults
-        super().__init__(N)
+        super().__init__()
 
-        ### Define the Z3 primitives ###
+        # Store the number of states
+        self.N = N
+
+        # Define the primitive sorts
 
         self.WorldStateSort = z3.BitVecSort(N)
         # Create a sort for world states using bitvectors such as <001101>
         # N determines how many distinct worlds we can represent
+
+        self.TimeSort = z3.IntSort()
+        # Create a sort for times using integers
+
+
+        # Define all states and top and bottom
+        max_value = (1 << self.N) - 1 # NOTE: faster than 2**self.N - 1
+        self.full_bit = z3.BitVecVal(max_value, self.N)
+        self.null_bit = z3.BitVecVal(0, self.N)
+        self.all_bits = [z3.BitVecVal(i, self.N) for i in range(1 << self.N)]
+
+        # Define all times between 0 and M inclusive
+        self.all_times = [z3.IntVal(i) for i in range(M)]
+
+        # Define all evolutions from times to world states 
+        self.all_evolutions = [
+            z3.Array(f'world_function_{i}', self.TimeSort, self.WorldStateSort) 
+            for i in range(len(self.all_bits) ** len(self.all_times))
+        ]
+
+        ### Define the Z3 primitives ###
 
         self.task = z3.Function(
             "Task",
@@ -67,16 +93,16 @@ class BimodalSemantics(SemanticDefaults):
             z3.BoolSort()
         )  # Define a binary task relation between world states
         
-        self.TimeSort = z3.IntSort()
-        # Create a sort for times using integers
-
         self.main_time = z3.Int('main_time')
         # Define an arbitrary time at which to evaluate sentences 
 
         self.main_world = z3.Array('main_world', self.TimeSort, self.WorldStateSort)
         # Define an arbitrary world at which to evaluate sentences 
 
-        self.main_point = (self.main_world, self.main_time)
+        self.main_point = {
+            "world": self.main_world,
+            "time": self.main_time,
+        }
 
         self.truth_condition = z3.Function(
             "truth_condition",
@@ -102,6 +128,14 @@ class BimodalSemantics(SemanticDefaults):
             )
         )  # Require there to be a task from every world state to its successor
 
+        bounded = z3.ForAll(
+            tau,
+            z3.Or([z3.ForAll(
+                x,
+                tau[x] == evolution[x]
+            ) for evolution in self.all_evolutions])
+        ),
+
         u, v = z3.BitVecs("frame_state_u frame_state_v", N)
         # Define variables for world states with names to indicate constraint
         seriel = ForAll(
@@ -115,12 +149,62 @@ class BimodalSemantics(SemanticDefaults):
         # Define frame constraints
         self.frame_constraints = [
             lawful,
+            bounded,
             # seriel,
         ]
 
+        # Store valid world-arrays after model is found
+        self.valid_world_arrays = []
+
+        def find_valid_world_arrays(self, max_time):
+            """Find all world arrays that satisfy the frame constraints.
+            
+            Args:
+                max_time: Maximum time point to consider
+                
+            Returns:
+                List of valid world arrays, where each array maps time points to world states
+            """
+            # Create a new array to test possibilities
+            test_array = z3.Array('test_world', self.TimeSort, self.WorldStateSort)
+            
+            # Get all possible world states from the model
+            world_states = []
+            for i in range(2**self.N):  # All possible bitvectors of length N
+                world_states.append(z3.BitVecVal(i, self.N))
+                
+            def check_array_validity(assignments):
+                """Check if a specific array assignment satisfies frame constraints"""
+                # Create constraints for this specific assignment
+                assignment_constraints = []
+                for t, w in assignments.items():
+                    assignment_constraints.append(test_array[t] == w)
+                    
+                # Check if this assignment satisfies frame constraints
+                s = z3.Solver()
+                s.add(self.frame_constraints)
+                s.add(assignment_constraints)
+                return s.check() == z3.sat
+                
+            # Generate all possible assignments recursively
+            def generate_assignments(current_time=0, current_assignment={}):
+                if current_time > max_time:
+                    if check_array_validity(current_assignment):
+                        self.valid_world_arrays.append(current_assignment.copy())
+                    return
+                    
+                for world in world_states:
+                    current_assignment[current_time] = world
+                    generate_assignments(current_time + 1, current_assignment)
+                    current_assignment.pop(current_time)
+                    
+            generate_assignments()
+            return self.valid_world_arrays
+
         # Define invalidity conditions
+        # TODO: fix
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_world, self.main_time)
-        self.conclusion_behavior = lambda conclusion: self.true_at(conclusion, self.main_world, self.main_time)
+        self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_world, self.main_time)
 
     def true_at(self, sentence, eval_world, eval_time):
         """Returns a Z3 formula that is satisfied when the sentence is true at eval_world at eval_time.
@@ -169,9 +253,9 @@ class BimodalProposition(PropositionDefaults):
 
         super().__init__(sentence, bimodal_structure)
 
-        main_world, main_time = bimodal_structure.main_point
-        self.eval_world = main_world if eval_world == 'main' else eval_world
-        self.eval_time = main_time if eval_time == 'now' else eval_time
+        main_point = bimodal_structure.main_point
+        self.eval_world = main_point["world"] if eval_world == 'main' else eval_world
+        self.eval_time = main_point["time"] if eval_time == 'now' else eval_time
         self.truth_set, self.false_set = self.find_proposition()
 
     def __eq__(self, other):
@@ -180,6 +264,31 @@ class BimodalProposition(PropositionDefaults):
             and self.false_set == other.false_condition
             and self.name == other.name
         )
+
+    def __repr__(self):
+        N = self.model_structure.model_constraints.semantics.N
+        z3_model = self.model_structure.z3_model
+        
+        # Handle truth set
+        truth_worlds = set()
+        for bit in self.truth_set:
+            if hasattr(bit, 'as_ast'):  # If it's a Z3 BitVec
+                evaluated_bit = z3_model.evaluate(bit)
+                truth_worlds.add(bitvec_to_substates(evaluated_bit, N))
+            else:  # If it's already evaluated
+                print(f"BIT {bit} TYPE {type(bit)}")
+                truth_worlds.add(bitvec_to_substates(bit, N))
+                
+        # Handle false set
+        false_worlds = set()
+        for bit in self.false_set:  # Note: Changed from truth_set to false_set
+            if hasattr(bit, 'as_ast'):  # If it's a Z3 BitVec
+                evaluated_bit = z3_model.evaluate(bit)
+                false_worlds.add(bitvec_to_substates(evaluated_bit, N))
+            else:  # If it's already evaluated
+                false_worlds.add(bitvec_to_substates(bit, N))
+                
+        return f"< {pretty_set_print(truth_worlds)}, {pretty_set_print(false_worlds)} >"
 
     def proposition_constraints(self, sentence_letter):
         """Returns Z3 constraints for a sentence letter based on user settings.
@@ -237,7 +346,6 @@ class BimodalProposition(PropositionDefaults):
     def find_proposition(self):
         """takes self, returns the V, F tuple
         used in find_verifiers_and_falsifiers"""
-        all_world_states = self.model_structure.all_bits
         model = self.model_structure.z3_model
         semantics = self.semantics
         eval_world = self.eval_world
@@ -247,7 +355,7 @@ class BimodalProposition(PropositionDefaults):
         sentence_letter = self.sentence_letter
         if sentence_letter is not None:
             T, F = set(), set()
-            for world_state in all_world_states:
+            for world_state in self.model_structure.all_bits:
                 T.add(world_state) if model.evaluate(
                     semantics.true_at(self.sentence, eval_world, eval_time)
                 ) else F.add(world_state)
@@ -261,22 +369,39 @@ class BimodalProposition(PropositionDefaults):
         semantics = self.model_structure.model_constraints.semantics
         model = self.model_structure.z3_model
         
-        # Evaluate the BitVecRef using the Z3 model
-        eval_world_state = model.evaluate(eval_point)
-        print(f"DEBUG {eval_world_state} TYPE {type(eval_world_state)}")
+        # Get the time value
+        eval_time = eval_point["time"]
+        time_val = model.evaluate(eval_time).as_long()
+        
+        # Get the world state
+        eval_world = eval_point["world"]
 
-        truth_value = semantics.true_at(self.sentence, self.eval_world, self.eval_time)
-        world_state = bitvec_to_substates(eval_world_state, semantics.N)
+        # print(f"EVAL {eval_world} TYPE {type(eval_world)}")
+        # if hasattr(eval_world, 'as_ast'):  # If eval_world is already evaluated
+        #     world_state = eval_world
+        # else:  # If eval_world is an array
+        #     print("CHECK")
+
+        world_at_time = eval_world[time_val]
+        world_state = model.evaluate(world_at_time)
+        
+        # Get truth value
+        truth_value = model.evaluate(
+            semantics.true_at(self.sentence, self.eval_world, self.eval_time)
+        )
+        
+        # Convert to substates representation directly
+        world_state_repr = bitvec_to_substates(world_state, semantics.N)
         RESET, FULL, PART = self.set_colors(
             self.name,
             indent_num,
             truth_value,
-            world_state,
+            world_state_repr,
             use_colors
         )
         print(
             f"{'  ' * indent_num}{FULL}|{self.name}| = {self}{RESET}"
-            f"  {PART}({truth_value} in {world_state}){RESET}"
+            f"  {PART}({truth_value} in {world_state_repr}){RESET}"
         )
 
 
@@ -288,7 +413,8 @@ class BimodalStructure(ModelDefaults):
         super().__init__(model_constraints, max_time)
 
         # Get main point
-        self.main_world, self.main_time = self.main_point
+        self.main_world = self.main_point["world"]
+        self.main_time = self.main_point["time"]
 
         # Initialize Z3 model values
         self.z3_main_world = None
@@ -299,7 +425,13 @@ class BimodalStructure(ModelDefaults):
         if self.z3_model_status and self.z3_model is not None:
             self.z3_main_world = self.z3_model[self.main_world]
             self.z3_main_time = self.z3_model[self.main_time]
-            if self.z3_main_world is not None and self.z3_main_time is not None:
+            self.main_point["world"] = self.z3_main_world
+            self.main_point["time"] = self.z3_main_time
+            # TODO: continue
+            # Get all worlds
+            # self.all_worlds = 
+            # tau = z3.Array('frame_world_tau', self.TimeSort, self.WorldStateSort)
+            if self.z3_main_world is not None and self.z3_main_time is not None: #  TODO: fix
                 world_at_time = self.z3_main_world[self.z3_main_time]  # type: ignore
                 self.z3_main_world_state = self.z3_model.evaluate(world_at_time)  # type: ignore
 
@@ -311,7 +443,7 @@ class BimodalStructure(ModelDefaults):
         if output is sys.__stdout__:
             BLUE = "\033[34m"
             RESET = "\033[0m"
-        if self.z3_main_world is None or self.z3_main_time is None:
+        if self.z3_main_world_state is None:
             print("No evaluation world state available - no valid model found\n", file=output)
             return
         eval_world_state = self.z3_main_world_state

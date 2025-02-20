@@ -30,10 +30,8 @@ class NegationOperator(syntactic.Operator):
         return Y_F, Y_V
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Prints the proposition and its argument."""
-        eval_world, eval_time = eval_point
-        world_state = eval_world[eval_time]
-        self.general_print(sentence_obj, world_state, indent_num, use_colors)
+        """Prints the proposition and its arguments."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class AndOperator(syntactic.Operator):
@@ -66,9 +64,7 @@ class AndOperator(syntactic.Operator):
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition and its arguments."""
-        eval_world, eval_time = eval_point
-        world_state = eval_world[eval_time]
-        self.general_print(sentence_obj, world_state, indent_num, use_colors)
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class OrOperator(syntactic.Operator):
@@ -101,9 +97,7 @@ class OrOperator(syntactic.Operator):
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition and its arguments."""
-        eval_world, eval_time = eval_point
-        world_state = eval_world[eval_time]
-        self.general_print(sentence_obj, world_state, indent_num, use_colors)
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 ##############################################################################
@@ -132,10 +126,8 @@ class TopOperator(syntactic.Operator):
         return set(self.semantics.all_bits), set()
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Prints the proposition."""
-        eval_world, eval_time = eval_point
-        world_state = eval_world[eval_time]
-        self.general_print(sentence_obj, world_state, indent_num, use_colors)
+        """Prints the proposition and its arguments."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class BotOperator(syntactic.Operator):
@@ -159,10 +151,8 @@ class BotOperator(syntactic.Operator):
         return set(), set(self.semantics.all_bits)
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Prints the proposition."""
-        eval_world, eval_time = eval_point
-        world_state = eval_world[eval_time]
-        self.general_print(sentence_obj, world_state, indent_num, use_colors)
+        """Prints the proposition and its arguments."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 ##############################################################################
@@ -193,9 +183,9 @@ class NecessityOperator(syntactic.Operator):
     def find_truth_condition(self, argument, eval_world, eval_time):
         Y_V, Y_F = argument.proposition.find_proposition()
         # Convert list to tuple so it can be added to a set
-        all_bits_tuple = tuple(self.semantics.all_bits)
-        Z_V = {all_bits_tuple} if Y_V else set()
-        Z_F = set() if Y_F else {all_bits_tuple}
+        all_bits_tuple = set(self.semantics.all_bits)
+        Z_V = all_bits_tuple if Y_V else set()
+        Z_F = set() if Y_F else all_bits_tuple
         return Z_V, Z_F
 
         # FROM BEFORE
@@ -207,10 +197,8 @@ class NecessityOperator(syntactic.Operator):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
-        eval_world, eval_time = eval_point
-        world_state = eval_world[eval_time]
-        all_worlds = sentence_obj.proposition.model_structure.all_bits
-        self.print_over_worlds(sentence_obj, world_state, all_worlds, indent_num, use_colors)
+        all_worlds = sentence_obj.proposition.model_structure.all_worlds
+        self.print_over_worlds(sentence_obj, eval_point, all_worlds, indent_num, use_colors)
     
 
 ##############################################################################
@@ -254,10 +242,8 @@ class FutureOperator(syntactic.Operator):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
-        eval_world, eval_time = eval_point
-        world_state = eval_world[eval_time]
-        all_worlds = sentence_obj.proposition.model_structure.world_bits
-        self.print_over_worlds(sentence_obj, world_state, all_worlds, indent_num, use_colors)
+        all_worlds = sentence_obj.proposition.model_structure.time_bits
+        self.print_over_times(sentence_obj, eval_point, all_times, indent_num, use_colors)
 
 
 ##############################################################################
@@ -275,9 +261,7 @@ class ConditionalOperator(syntactic.DefinedOperator):
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        eval_world, eval_time = eval_point
-        world_state = eval_world[eval_time]
-        self.general_print(sentence_obj, world_state, indent_num, use_colors)
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class BiconditionalOperator(syntactic.DefinedOperator):
@@ -293,9 +277,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
-        eval_world, eval_time = eval_point
-        world_state = eval_world[eval_time]
-        self.general_print(sentence_obj, world_state, indent_num, use_colors)
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 ##############################################################################
@@ -314,10 +296,8 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
-        eval_world, eval_time = eval_point
-        world_state = eval_world[eval_time]
         all_worlds = sentence_obj.proposition.model_structure.world_bits
-        self.print_over_worlds(sentence_obj, world_state, all_worlds, indent_num, use_colors)
+        self.print_over_worlds(sentence_obj, eval_point, all_worlds, indent_num, use_colors)
 
 intensional_operators = syntactic.OperatorCollection(
     # extensional operators

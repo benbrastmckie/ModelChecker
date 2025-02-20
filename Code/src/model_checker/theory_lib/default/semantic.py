@@ -13,6 +13,8 @@ try:
         ForAll,
         Exists,
         bitvec_to_substates,
+        pretty_set_print,
+        int_to_binary,
     )
     from src.model_checker import syntactic
 except ImportError:
@@ -26,6 +28,8 @@ except ImportError:
         ForAll,
         Exists,
         bitvec_to_substates,
+        pretty_set_print,
+        int_to_binary,
     )
     from model_checker import syntactic
 
@@ -51,14 +55,25 @@ class Semantics(SemanticDefaults):
     def __init__(self, N):
 
         # Initialize the superclass to set defaults
-        super().__init__(N)
+        super().__init__()
+
+        # Store the number of states
+        self.N = N
+
+        # Define all states and top and bottom
+        max_value = (1 << self.N) - 1 # NOTE: faster than 2**self.N - 1
+        self.full_bit = z3.BitVecVal(max_value, self.N)
+        self.null_bit = z3.BitVecVal(0, self.N)
+        self.all_bits = [z3.BitVecVal(i, self.N) for i in range(1 << self.N)]
 
         # Define the Z3 primitives
         self.verify = z3.Function("verify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
         self.falsify = z3.Function("falsify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
         self.possible = z3.Function("possible", z3.BitVecSort(N), z3.BoolSort())
         self.main_world = z3.BitVec("w", N)
-        self.main_point = self.main_world
+        self.main_point = {
+            "world" : self.main_world
+        }
 
         # Define the frame constraints
         x, y = z3.BitVecs("frame_x frame_y", N)
@@ -82,7 +97,7 @@ class Semantics(SemanticDefaults):
 
         # Define invalidity conditions
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_world)
-        self.conclusion_behavior = lambda conclusion: self.true_at(conclusion, self.main_world)
+        self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_world)
 
     def compatible(self, bit_x, bit_y):
         """the fusion of bit_x and bit_y is possible
@@ -168,38 +183,40 @@ class Semantics(SemanticDefaults):
         arguments = sentence.arguments or ()
         return operator.false_at(*arguments, eval_world)
 
-    def extended_verify(self, state, sentence, eval_world):
+    def extended_verify(self, state, sentence, eval_point):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             return self.verify(state, sentence_letter)
         operator = sentence.operator
         arguments = sentence.arguments or ()
-        return operator.extended_verify(state, *arguments, eval_world)
+        return operator.extended_verify(state, *arguments, eval_point)
     
-    def extended_falsify(self, state, sentence, eval_world):
+    def extended_falsify(self, state, sentence, eval_point):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             return self.falsify(state, sentence_letter)
         operator = sentence.operator
         arguments = sentence.arguments or ()
-        return operator.extended_falsify(state, *arguments, eval_world)
+        return operator.extended_falsify(state, *arguments, eval_point)
 
-    def calculate_alternative_worlds(self, verifiers, eval_world, model_structure):
-        """Calculate alternative worlds given verifiers and eval_world."""
+    def calculate_alternative_worlds(self, verifiers, eval_point, model_structure):
+        """Calculate alternative worlds given verifiers and eval_point."""
         is_alt = model_structure.semantics.is_alternative
         eval = model_structure.z3_model.evaluate
-        world_bits = model_structure.world_bits
+        world_bits = model_structure.z3_world_bits
+        eval_world = eval_point["world"]
         return {
             pw for ver in verifiers
             for pw in world_bits
             if eval(is_alt(pw, ver, eval_world))
         }
 
-    def calculate_outcome_worlds(self, verifiers, eval_world, model_structure):
-        """Calculate alternative worlds given verifiers and eval_world."""
+    def calculate_outcome_worlds(self, verifiers, eval_point, model_structure):
+        """Calculate alternative worlds given verifiers and eval_point."""
         imposition = model_structure.semantics.imposition
         eval = model_structure.z3_model.evaluate
         world_bits = model_structure.world_bits
+        eval_world = eval_point["world"]
         return {
             pw for ver in verifiers
             for pw in world_bits
@@ -316,53 +333,56 @@ class ImpositionSemantics(SemanticDefaults):
             self.maximal(bit_w),
         )
 
-    def true_at(self, sentence, eval_world):
+    def true_at(self, sentence, eval_point):
         """
         derived_object is always a list, eval world a BitVector
         derived_object is the third kind of derived_object
         """
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
+            eval_world = eval_point["world"]
             x = z3.BitVec("t_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
         operator = sentence.operator
         arguments = sentence.arguments or ()
-        return operator.true_at(*arguments, eval_world)
+        return operator.true_at(*arguments, eval_point)
 
-    def false_at(self, sentence, eval_world):
+    def false_at(self, sentence, eval_point):
         """
         derived_object is always a list, eval world a BitVector
         derived_object is the third kind of derived_object
         """
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
+            eval_world = eval_point["world"]
             x = z3.BitVec("f_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
         operator = sentence.operator
         arguments = sentence.arguments or ()
-        return operator.false_at(*arguments, eval_world)
+        return operator.false_at(*arguments, eval_point)
 
-    def extended_verify(self, state, sentence, eval_world):
+    def extended_verify(self, state, sentence, eval_point):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             return self.verify(state, sentence_letter)
         operator = sentence.operator
         arguments = sentence.arguments or ()
-        return operator.extended_verify(state, *arguments, eval_world)
+        return operator.extended_verify(state, *arguments, eval_point)
     
-    def extended_falsify(self, state, sentence, eval_world):
+    def extended_falsify(self, state, sentence, eval_point):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             return self.falsify(state, sentence_letter)
         operator = sentence.operator
         arguments = sentence.arguments or ()
-        return operator.extended_falsify(state, *arguments, eval_world)
+        return operator.extended_falsify(state, *arguments, eval_point)
 
-    def calculate_outcome_worlds(self, verifiers, eval_world, model_structure):
-        """Calculate alternative worlds given verifiers and eval_world."""
+    def calculate_outcome_worlds(self, verifiers, eval_point, model_structure):
+        """Calculate alternative worlds given verifiers and eval_point."""
         imposition = model_structure.semantics.imposition
         eval = model_structure.z3_model.evaluate
         world_bits = model_structure.world_bits
+        eval_world = eval_point["world"]
         return {
             pw for ver in verifiers
             for pw in world_bits
@@ -380,16 +400,39 @@ class Proposition(PropositionDefaults):
 
         super().__init__(sentence, model_structure)
 
-        self.eval_world = model_structure.main_point if eval_world == 'main' else eval_world
+        self.eval_world = model_structure.main_point["world"] if eval_world == 'main' else eval_world
         self.verifiers, self.falsifiers = self.find_proposition()
         
-
     def __eq__(self, other):
         return (
             self.verifiers == other.verifiers
             and self.falsifiers == other.falsifiers
             and self.name == other.name
         )
+
+    # NOTE: is responsive to unilateral/bilateral props, so long as
+    # falsifiers, if there are any, are _sets_; the default is a list,
+    # so if it is a list, it is because the defaults are unchanged, meaning
+    # the proposition is unilateral (a prop with no falsifiers but within
+    # a bilateral system would have an empty set as falsifiers, not the
+    # default empty list)
+    def __repr__(self):
+        N = self.model_structure.model_constraints.semantics.N
+        possible = self.model_structure.model_constraints.semantics.possible
+        z3_model = self.model_structure.z3_model
+        ver_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self.verifiers
+            if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
+        }
+        if isinstance(self.falsifiers, set): # because default is an empty list
+            fal_states = {
+                bitvec_to_substates(bit, N)
+                for bit in self.falsifiers
+                if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
+            }
+            return f"< {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >"
+        return pretty_set_print(ver_states)
 
     def proposition_constraints(self, sentence_letter):
         """
@@ -549,7 +592,7 @@ class Proposition(PropositionDefaults):
             return operator.find_verifiers_and_falsifiers(*arguments, eval_world)
         raise ValueError(f"Their is no proposition for {self}.")
 
-    def truth_value_at(self, world):
+    def truth_value_at(self, eval_world):
         """Checks if there is a verifier or falsifier in world and not both."""
         semantics = self.model_structure.model_constraints.semantics
         z3_model = self.model_structure.z3_model
@@ -558,25 +601,26 @@ class Proposition(PropositionDefaults):
         exists_verifier = False
         exists_falsifier = False
         for ver_bit in self.verifiers:
-            if z3_model.evaluate(semantics.is_part_of(ver_bit, world)):
+            if z3_model.evaluate(semantics.is_part_of(ver_bit, eval_world)):
                 ver_witness = ver_bit
                 exists_verifier = True
                 break
         for fal_bit in self.falsifiers:
-            if z3_model.evaluate(semantics.is_part_of(fal_bit, world)):
+            if z3_model.evaluate(semantics.is_part_of(fal_bit, eval_world)):
                 fal_witness = fal_bit
                 exists_falsifier = True
                 break
         if exists_verifier == exists_falsifier:
             print( # NOTE: a warning is preferable to raising an error
-                f"WARNING: the world {bitvec_to_substates(world, self.N)} contains both:\n "
+                f"WARNING: the world {bitvec_to_substates(eval_world, self.N)} contains both:\n "
                 f"  The verifier {bitvec_to_substates(ver_witness, self.N)}; and"
                 f"  The falsifier {bitvec_to_substates(fal_witness, self.N)}."
             )
         return exists_verifier
     
-    def print_proposition(self, eval_world, indent_num, use_colors):
+    def print_proposition(self, eval_point, indent_num, use_colors):
         N = self.model_structure.model_constraints.semantics.N
+        eval_world = eval_point["world"]
         truth_value = self.truth_value_at(eval_world)
         world_state = bitvec_to_substates(eval_world, N)
         RESET, FULL, PART = self.set_colors(self.name, indent_num, truth_value, world_state, use_colors)
@@ -593,31 +637,34 @@ class ModelStructure(ModelDefaults):
         super().__init__(model_constraints, max_time)
 
         # Get main point
-        self.main_world = self.main_point
+        self.main_world = self.main_point["world"]
 
-        # Store possible_bits, world_bits, and main_world from the Z3 model
-        if not self.z3_model_status:
-            self.poss_bits, self.world_bits, self.main_world = None, None, None
-            return
-        self.poss_bits = [
-            bit
-            for bit in self.all_bits
-            if bool(self.z3_model.evaluate(self.semantics.possible(bit)))  # type: ignore
-        ]
-        self.world_bits = [
-            bit
-            for bit in self.poss_bits
-            if bool(self.z3_model.evaluate(self.semantics.is_world(bit)))  # type: ignore
-        ]
-        if not self.z3_model is None:
-            self.main_world = self.z3_model[self.main_world]
+        # Initialize Z3 model values
+        self.z3_main_world = None
+        self.z3_poss_bits = None
+        self.z3_world_bits = None 
+
+        # Only evaluate if we have a valid model
+        if self.z3_model_status and self.z3_model is not None:
+            self.z3_main_world = self.z3_model[self.main_world]
+            self.main_point["world"] = self.z3_main_world
+            self.z3_poss_bits = [
+                bit
+                for bit in self.all_bits
+                if bool(self.z3_model.evaluate(self.semantics.possible(bit)))  # type: ignore
+            ]
+            self.z3_world_bits = [
+                bit
+                for bit in self.z3_poss_bits
+                if bool(self.z3_model.evaluate(self.semantics.is_world(bit)))  # type: ignore
+            ]
 
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
         in that world"""
         BLUE = ""
         RESET = ""
-        main_world = self.main_world
+        main_world = self.main_point["world"]
         if output is sys.__stdout__:
             BLUE = "\033[34m"
             RESET = "\033[0m"
@@ -652,9 +699,9 @@ class ModelStructure(ModelDefaults):
             bin_rep = binary_bitvector(bit)
             if bit == 0:
                 format_state(bin_rep, state, self.COLORS["initial"])
-            elif bit in self.world_bits:
+            elif bit in self.z3_world_bits:
                 format_state(bin_rep, state, self.COLORS["world"], "world")
-            elif bit in self.poss_bits:
+            elif bit in self.z3_poss_bits:
                 format_state(bin_rep, state, self.COLORS["possible"])
             elif self.settings['print_impossible']:
                 format_state(bin_rep, state, self.COLORS["impossible"], "impossible")

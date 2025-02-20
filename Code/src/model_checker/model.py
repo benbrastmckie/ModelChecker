@@ -27,7 +27,6 @@ from z3 import (
 from .utils import (
     bitvec_to_substates,
     not_implemented_string,
-    pretty_set_print,
 )
 inputs_template = Template(
 '''Z3 run time: ${z3_model_runtime} seconds
@@ -71,20 +70,11 @@ class SemanticDefaults:
     """Includes default attributes and methods to be inherited by a semantics
     including frame constraints, truth and falsity, and logical consequence."""
 
-    def __init__(self, N):
+    def __init__(self):
 
         # Store the name
         self.name = self.__class__.__name__
 
-        # Store the number of states
-        self.N = N
-
-        # Define top and bottom states
-        max_value = (1 << self.N) - 1 # NOTE: faster than 2**self.N - 1
-        self.full_bit = BitVecVal(max_value, self.N)
-        self.null_bit = BitVecVal(0, self.N)
-        self.all_bits = [BitVecVal(i, self.N) for i in range(1 << self.N)]
-        
         # Define main_point
         self.main_point = None
 
@@ -175,33 +165,6 @@ class PropositionDefaults:
         self.semantics = self.model_constraints.semantics
         self.sentence_letters = self.model_constraints.sentence_letters
         self.settings = self.model_constraints.settings
-
-        # Set defaults for verifiers and falsifiers (important they are lists)
-        self.verifiers, self.falsifiers = [], []
-
-    # NOTE: is responsive to unilateral/bilateral props, so long as
-    # falsifiers, if there are any, are _sets_; the default is a list,
-    # so if it is a list, it is because the defaults are unchanged, meaning
-    # the proposition is unilateral (a prop with no falsifiers but within
-    # a bilateral system would have an empty set as falsifiers, not the
-    # default empty list)
-    def __repr__(self):
-        N = self.model_structure.model_constraints.semantics.N
-        possible = self.model_structure.model_constraints.semantics.possible
-        z3_model = self.model_structure.z3_model
-        ver_states = {
-            bitvec_to_substates(bit, N)
-            for bit in self.verifiers
-            if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
-        }
-        if isinstance(self.falsifiers, set): # because default is an empty list
-            fal_states = {
-                bitvec_to_substates(bit, N)
-                for bit in self.falsifiers
-                if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
-            }
-            return f"< {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >"
-        return pretty_set_print(ver_states)
 
     def __hash__(self):
         return hash(self.name)
@@ -353,7 +316,7 @@ class ModelDefaults:
         # Store from model_constraints.semantics
         self.semantics = self.model_constraints.semantics
         self.main_point = self.semantics.main_point
-        self.all_bits = self.semantics.all_bits
+        self.all_bits = self.semantics.all_bits # TODO: move?
         self.N = self.semantics.N
 
         # Store from model_constraint.syntax
@@ -367,16 +330,13 @@ class ModelDefaults:
         self.proposition_class = self.model_constraints.proposition_class
         self.settings = self.model_constraints.settings
 
-        # Solve Z3 constraints and store values
-        timeout, z3_model, z3_model_status, z3_model_runtime = self.solve(
-            self.model_constraints,
-            self.max_time,
-        )
-        self.timeout = timeout
-        self.z3_model = z3_model if z3_model_status else None
-        self.unsat_core = z3_model if not z3_model_status else None
-        self.z3_model_status = z3_model_status
-        self.z3_model_runtime = z3_model_runtime
+        # Solve Z3 constraints and store results
+        solver_restults = self.solve(self.model_constraints, self.max_time)
+        self._process_solver_results(solver_restults)
+
+        # Exit early if no valid model was found
+        if self.timeout or self.z3_model is None:
+            return
 
         # Define ANSI color codes
         self.COLORS = {
@@ -391,6 +351,22 @@ class ModelDefaults:
 
         # Recursively update propositions
         self.interpret(self.premises + self.conclusions)
+
+    def _process_solver_results(self, solver_results):
+        """Process and store the results from the Z3 solver.
+        
+        Args:
+            solver_results: Tuple containing (timeout, z3_model, z3_model_status, z3_model_runtime)
+        """
+        timeout, z3_model, z3_model_status, z3_model_runtime = solver_results
+        
+        self.timeout = timeout
+        self.z3_model_status = z3_model_status
+        self.z3_model_runtime = z3_model_runtime
+        
+        # Store either the model or unsat core based on status
+        self.z3_model = z3_model if z3_model_status else None
+        self.unsat_core = z3_model if not z3_model_status else None
 
     def solve(self, model_constraints, max_time):
         solver = Solver()
@@ -414,15 +390,37 @@ class ModelDefaults:
 
         solver.set("timeout", int(max_time * 1000))  # time in seconds
         try:
-            model_start = time.time()  # start benchmark timer
+            def measure_runtime():
+                """Calculate the runtime of the solver check."""
+                end_time = time.time()
+                return round(end_time - start_time, 4)
+
+            def create_result(is_timeout, model_or_core, is_satisfiable):
+                """Create a standardized result tuple."""
+                return is_timeout, model_or_core, is_satisfiable, measure_runtime()
+
+            start_time = time.time()
             result = solver.check()
-            model_end = time.time()  # end benchmark timer
-            model_runtime = round(model_end - model_start, 4)
+            
             if result == sat:
-                return False, solver.model(), True, model_runtime
+                return create_result(
+                    is_timeout=False,
+                    model_or_core=solver.model(),
+                    is_satisfiable=True
+                )
+            
             if solver.reason_unknown() == "timeout":
-                return True, None, False, model_runtime
-            return False, solver.unsat_core(), False, model_runtime
+                return create_result(
+                    is_timeout=True,
+                    model_or_core=None,
+                    is_satisfiable=False
+                )
+            
+            return create_result(
+                is_timeout=False,
+                model_or_core=solver.unsat_core(),
+                is_satisfiable=False
+            )
         except RuntimeError as e:  # Handle unexpected exceptions
             print(f"An error occurred while running `solve_constraints()`: {e}")
             return True, None, False, None

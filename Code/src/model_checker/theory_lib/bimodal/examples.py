@@ -63,7 +63,7 @@ intensional_theory = {
 CF_CM_1_premises = ['\\Box (A \\vee B)']
 CF_CM_1_conclusions = ['(\\Box A \\vee \\Box B)']
 CF_CM_1_settings = {
-    'N' : 5,
+    'N' : 3,
     'contingent' : False,
     'disjoint' : False,
     'max_time' : 1,
@@ -78,7 +78,7 @@ CF_CM_1_example = [
 CF_CM_2_premises = ['(A \\vee B)']
 CF_CM_2_conclusions = ['(A \\wedge B)']
 CF_CM_2_settings = {
-    'N' : 5,
+    'N' : 3,
     'contingent' : False,
     'disjoint' : False,
     'max_time' : 1,

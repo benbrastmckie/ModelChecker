@@ -198,18 +198,18 @@ class Operator:
     def __hash__(self):
         return hash((self.name, self.arity))
 
-    def general_print(self, sentence_obj, eval_world, indent_num, use_colors):
+    def general_print(self, sentence_obj, eval_point, indent_num, use_colors):
         proposition = sentence_obj.proposition
         model_structure = proposition.model_structure
 
-        proposition.print_proposition(eval_world, indent_num, use_colors)
+        proposition.print_proposition(eval_point, indent_num, use_colors)
         indent_num += 1
 
         if sentence_obj.original_arguments:
             for arg in sentence_obj.original_arguments:
-                model_structure.recursive_print(arg, eval_world, indent_num, use_colors)
+                model_structure.recursive_print(arg, eval_point, indent_num, use_colors)
 
-    def print_over_worlds(self, sentence_obj, eval_world, other_worlds, indent_num, use_colors):
+    def print_over_worlds(self, sentence_obj, eval_point, other_worlds, indent_num, use_colors):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
@@ -224,26 +224,69 @@ class Operator:
         model_structure = proposition.model_structure
         N = proposition.N
 
-        proposition.print_proposition(eval_world, indent_num, use_colors)
+        proposition.print_proposition(eval_point, indent_num, use_colors)
         indent_num += 1
 
         if len(arguments) == 1:
             argument = arguments[0]
             for world in other_worlds:
-                model_structure.recursive_print(argument, world, indent_num, use_colors)
+                pass_point = eval_point.copy()
+                pass_point["world"] = world
+                model_structure.recursive_print(argument, pass_point, indent_num, use_colors)
         if len(arguments) == 2:
             left_argument, right_argument = arguments
-            model_structure.recursive_print(left_argument, eval_world, indent_num, use_colors)
+            model_structure.recursive_print(left_argument, eval_point, indent_num, use_colors)
             indent_num += 1
             other_world_strings = {bitvec_to_substates(u, N) for u in other_worlds}
             print(
                 f'{"  " * indent_num}{CYAN}|{left_argument}|-alternatives '
-                f'to {bitvec_to_substates(eval_world, N)} = '
+                f'to {bitvec_to_substates(eval_point["world"], N)} = '
                 f'{pretty_set_print(other_world_strings)}{RESET}'
             )
             indent_num += 1
             for alt_world in other_worlds:
-                model_structure.recursive_print(right_argument, alt_world, indent_num, use_colors)
+                alt_point = eval_point.copy()
+                alt_point["world"] = alt_world
+                model_structure.recursive_print(right_argument, alt_point, indent_num, use_colors)
+    
+    def print_over_times(self, sentence_obj, eval_point, other_times, indent_num, use_colors):
+        """Print counterfactual and the antecedent in the eval_world. Then
+        print the consequent in each alternative to the evaluation world.
+        """
+        # Move to class or config for flexibility
+        if use_colors:
+            CYAN, RESET = '\033[36m', '\033[0m'
+        else:
+            CYAN, RESET = '', ''
+
+        arguments = sentence_obj.original_arguments
+        proposition = sentence_obj.proposition
+        model_structure = proposition.model_structure
+        N = proposition.N
+
+        proposition.print_proposition(eval_point, indent_num, use_colors)
+        indent_num += 1
+
+        if len(arguments) == 1:
+            argument = arguments[0]
+            for time in other_times:
+                eval_point["time"] = time
+                model_structure.recursive_print(argument, eval_point, indent_num, use_colors)
+        if len(arguments) == 2:
+            left_argument, right_argument = arguments
+            model_structure.recursive_print(left_argument, eval_point, indent_num, use_colors)
+            indent_num += 1
+            other_world_strings = {bitvec_to_substates(u, N) for u in other_times}
+            print(
+                f'{"  " * indent_num}{CYAN}|{left_argument}|-alternatives '
+                f'to {bitvec_to_substates(eval_point["world"], N)} = '
+                f'{pretty_set_print(other_world_strings)}{RESET}'
+            )
+            indent_num += 1
+            for alt_world in other_times:
+                alt_point = eval_point.copy()
+                alt_point["world"] = alt_world
+                model_structure.recursive_print(right_argument, alt_point, indent_num, use_colors)
     
 class DefinedOperator(Operator):
     """Represents an operator defined in terms of other operators."""

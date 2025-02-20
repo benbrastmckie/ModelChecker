@@ -558,6 +558,11 @@ class BuildExample:
     
         return updated_settings
 
+    def check_result(self):
+        model_expectation = self.settings["model"]
+        model_findings = self.model_structure.z3_model_status
+        return model_findings == model_expectation
+
     def print_result(self, example_name, theory_name):
         """Prints resulting model or no model if none is found."""
         model_structure = self.model_structure
