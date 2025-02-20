@@ -153,8 +153,7 @@ class BuildModule:
         else:
             print(
                 f"{model_structure.semantics.name} ({theory_name}): "
-                f"TIMED OUT\n" +
-                f"  RUN TIME = {run_time}, " +
+                f"TIMED OUT\n  RUN TIME = {run_time}, " +
                 f"MAX TIME = {settings['max_time']}, " +
                 f"N = {example_case[2]['N']}."
             )
@@ -397,14 +396,15 @@ class BuildExample:
         self.model_constraints = ModelConstraints(
             self.settings,
             self.example_syntax,
+            # TODO: replace with parameters dictionary
             self.semantics(self.settings['N']),
             self.proposition,
         )
 
-        # Create model structure
+        # Create model structure with max_time from settings
         self.model_structure = model_structure_class(
-            self.model_constraints, 
-            self.settings['max_time'],
+            model_constraints=self.model_constraints,
+            max_time=self.settings['max_time']
         )
 
 

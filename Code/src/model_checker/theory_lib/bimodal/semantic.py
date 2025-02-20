@@ -58,6 +58,7 @@ class BimodalSemantics(SemanticDefaults):
 
         # Store the number of states
         self.N = N
+        self.M = M
 
         # Define the primitive sorts
 
@@ -156,55 +157,56 @@ class BimodalSemantics(SemanticDefaults):
         # Store valid world-arrays after model is found
         self.valid_world_arrays = []
 
-        def find_valid_world_arrays(self, max_time):
-            """Find all world arrays that satisfy the frame constraints.
-            
-            Args:
-                max_time: Maximum time point to consider
-                
-            Returns:
-                List of valid world arrays, where each array maps time points to world states
-            """
-            # Create a new array to test possibilities
-            test_array = z3.Array('test_world', self.TimeSort, self.WorldStateSort)
-            
-            # Get all possible world states from the model
-            world_states = []
-            for i in range(2**self.N):  # All possible bitvectors of length N
-                world_states.append(z3.BitVecVal(i, self.N))
-                
-            def check_array_validity(assignments):
-                """Check if a specific array assignment satisfies frame constraints"""
-                # Create constraints for this specific assignment
-                assignment_constraints = []
-                for t, w in assignments.items():
-                    assignment_constraints.append(test_array[t] == w)
-                    
-                # Check if this assignment satisfies frame constraints
-                s = z3.Solver()
-                s.add(self.frame_constraints)
-                s.add(assignment_constraints)
-                return s.check() == z3.sat
-                
-            # Generate all possible assignments recursively
-            def generate_assignments(current_time=0, current_assignment={}):
-                if current_time > max_time:
-                    if check_array_validity(current_assignment):
-                        self.valid_world_arrays.append(current_assignment.copy())
-                    return
-                    
-                for world in world_states:
-                    current_assignment[current_time] = world
-                    generate_assignments(current_time + 1, current_assignment)
-                    current_assignment.pop(current_time)
-                    
-            generate_assignments()
-            return self.valid_world_arrays
-
         # Define invalidity conditions
         # TODO: fix
+
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_world, self.main_time)
         self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_world, self.main_time)
+
+    def find_valid_world_arrays(self, max_time):
+        """Find all world arrays that satisfy the frame constraints.
+        
+        Args:
+            max_time: Maximum time point to consider
+            
+        Returns:
+            List of valid world arrays, where each array maps time points to world states
+        """
+        # Create a new array to test possibilities
+        test_array = z3.Array('test_world', self.TimeSort, self.WorldStateSort)
+        
+        # Get all possible world states from the model
+        world_states = []
+        for i in range(2**self.N):  # All possible bitvectors of length N
+            world_states.append(z3.BitVecVal(i, self.N))
+            
+        def check_array_validity(assignments):
+            """Check if a specific array assignment satisfies frame constraints"""
+            # Create constraints for this specific assignment
+            assignment_constraints = []
+            for t, w in assignments.items():
+                assignment_constraints.append(test_array[t] == w)
+                
+            # Check if this assignment satisfies frame constraints
+            s = z3.Solver()
+            s.add(self.frame_constraints)
+            s.add(assignment_constraints)
+            return s.check() == z3.sat
+            
+        # Generate all possible assignments recursively
+        def generate_assignments(current_time=0, current_assignment={}):
+            if current_time > max_time:
+                if check_array_validity(current_assignment):
+                    self.valid_world_arrays.append(current_assignment.copy())
+                return
+                
+            for world in world_states:
+                current_assignment[current_time] = world
+                generate_assignments(current_time + 1, current_assignment)
+                current_assignment.pop(current_time)
+                
+        generate_assignments()
+        return self.valid_world_arrays
 
     def true_at(self, sentence, eval_world, eval_time):
         """Returns a Z3 formula that is satisfied when the sentence is true at eval_world at eval_time.

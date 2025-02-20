@@ -8,6 +8,7 @@ try:
         PropositionDefaults,
         SemanticDefaults,
         ModelDefaults,
+        ModelConstraints,
     )
     from src.model_checker.utils import (
         ForAll,
@@ -23,6 +24,7 @@ except ImportError:
         PropositionDefaults,
         SemanticDefaults,
         ModelDefaults,
+        ModelConstraints,
     )
     from model_checker.utils import (
         ForAll,
@@ -231,7 +233,16 @@ class ImpositionSemantics(SemanticDefaults):
     def __init__(self, N):
 
         # Initialize the superclass to set defaults
-        super().__init__(N)
+        super().__init__()
+
+        # Store the number of states
+        self.N = N
+
+        # Define all states and top and bottom
+        max_value = (1 << self.N) - 1 # NOTE: faster than 2**self.N - 1
+        self.full_bit = z3.BitVecVal(max_value, self.N)
+        self.null_bit = z3.BitVecVal(0, self.N)
+        self.all_bits = [z3.BitVecVal(i, self.N) for i in range(1 << self.N)]
 
         # Define the Z3 primitives
         self.verify = z3.Function("verify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
@@ -245,6 +256,9 @@ class ImpositionSemantics(SemanticDefaults):
             z3.BoolSort()     # bool
         )
         self.main_world = z3.BitVec("w", N)
+        self.main_point = {
+            "world" : self.main_world
+        }
 
         # Define the frame constraints
         x, y, z, u = z3.BitVecs("frame_x frame_y, frame_z, frame_u", N)
@@ -305,8 +319,8 @@ class ImpositionSemantics(SemanticDefaults):
         ]
 
         # Define invalidity conditions
-        self.premise_behavior = self.true_at
-        self.conclusion_behavior = self.false_at
+        self.premise_behavior = lambda premise: self.true_at(premise, self.main_world)
+        self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_world)
 
     def compatible(self, bit_x, bit_y):
         """the fusion of bit_x and bit_y is possible
@@ -333,33 +347,31 @@ class ImpositionSemantics(SemanticDefaults):
             self.maximal(bit_w),
         )
 
-    def true_at(self, sentence, eval_point):
+    def true_at(self, sentence, eval_world):
         """
         derived_object is always a list, eval world a BitVector
         derived_object is the third kind of derived_object
         """
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
-            eval_world = eval_point["world"]
             x = z3.BitVec("t_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
         operator = sentence.operator
         arguments = sentence.arguments or ()
-        return operator.true_at(*arguments, eval_point)
+        return operator.true_at(*arguments, eval_world)
 
-    def false_at(self, sentence, eval_point):
+    def false_at(self, sentence, eval_world):
         """
         derived_object is always a list, eval world a BitVector
         derived_object is the third kind of derived_object
         """
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
-            eval_world = eval_point["world"]
             x = z3.BitVec("f_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
         operator = sentence.operator
         arguments = sentence.arguments or ()
-        return operator.false_at(*arguments, eval_point)
+        return operator.false_at(*arguments, eval_world)
 
     def extended_verify(self, state, sentence, eval_point):
         sentence_letter = sentence.sentence_letter
@@ -381,7 +393,7 @@ class ImpositionSemantics(SemanticDefaults):
         """Calculate alternative worlds given verifiers and eval_point."""
         imposition = model_structure.semantics.imposition
         eval = model_structure.z3_model.evaluate
-        world_bits = model_structure.world_bits
+        world_bits = model_structure.z3_world_bits
         eval_world = eval_point["world"]
         return {
             pw for ver in verifiers
@@ -633,6 +645,17 @@ class Proposition(PropositionDefaults):
 class ModelStructure(ModelDefaults):
 
     def __init__(self, model_constraints, max_time=1):
+        """Initialize ModelStructure with model constraints and optional max time.
+        
+        Args:
+            model_constraints: ModelConstraints object containing all constraints
+            max_time: Maximum time in seconds to allow for solving. Defaults to 1.
+        """
+        if not isinstance(model_constraints, ModelConstraints):
+            raise TypeError(
+                f"Expected model_constraints to be a ModelConstraints object, got {type(model_constraints)}. "
+                "Make sure you're passing the correct model_constraints object."
+            )
 
         super().__init__(model_constraints, max_time)
 

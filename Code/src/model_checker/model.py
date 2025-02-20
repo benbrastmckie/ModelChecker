@@ -18,16 +18,22 @@ from z3 import (
     ExprRef,
     IsMember,
     Not,
-    BitVecVal,
     SetAdd,
     Solver,
     sat,
     simplify,
 )
-from .utils import (
-    bitvec_to_substates,
-    not_implemented_string,
-)
+
+# Try local imports first (for development)
+try:
+    from src.model_checker.utils import (
+        not_implemented_string,
+    )
+except ImportError:
+    # Fall back to installed package imports
+    from model_checker.utils import (
+        not_implemented_string,
+    )
 inputs_template = Template(
 '''Z3 run time: ${z3_model_runtime} seconds
 """
@@ -148,6 +154,13 @@ class PropositionDefaults:
         # Raise error if instantiated directly instead of as a bare class
         if self.__class__ == PropositionDefaults:
             raise NotImplementedError(not_implemented_string(self.__class__.__name__))
+
+        # Validate model_structure
+        if not hasattr(model_structure, 'semantics'):
+            raise TypeError(
+                f"Expected model_structure to be a ModelStructure object, got {type(model_structure)}. "
+                "Make sure you're passing the correct model_structure object when creating propositions."
+            )
 
         # Store inputs
         self.sentence = sentence

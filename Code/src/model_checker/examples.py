@@ -492,7 +492,7 @@ example_range = {
     # "CF_CM_20" : CF_CM_20_example,
     # "CF_CM_21" : CF_CM_21_example,
     # Theorems
-    # "CF_TH_1" : CF_TH_1_example,
+    "CF_TH_1" : CF_TH_1_example,
     # "CF_TH_2" : CF_TH_2_example,
     # "CF_TH_3" : CF_TH_3_example,
     # "CF_TH_4" : CF_TH_4_example,
