@@ -3,13 +3,30 @@
 ##########################
 
 import z3
-from model_checker.utils import (
-    ForAll,
-    Exists,
-    bitvec_to_substates,
-)
-from model_checker import model
-from model_checker import syntactic
+import sys
+import time
+
+
+try: # Try local imports first (for development)
+    from src.model_checker.utils import (
+        ForAll,
+        Exists,
+        bitvec_to_substates,
+        pretty_set_print,
+        int_to_binary,
+    )
+    from src.model_checker import model
+    from src.model_checker import syntactic
+except ImportError:
+    from model_checker.utils import (
+        ForAll,
+        Exists,
+        bitvec_to_substates,
+        pretty_set_print,
+        int_to_binary,
+    )
+    from model_checker import model
+    from model_checker import syntactic
 
 class ExclusionSemantics(model.SemanticDefaults):
 
@@ -25,9 +42,11 @@ class ExclusionSemantics(model.SemanticDefaults):
     }
 
     def __init__(self, N):
+
         # Initialize the superclass to set defaults
         super().__init__(N)
 
+        # Define the Z3 primitives
         self.verify = z3.Function(
             "verify",  # name
             z3.BitVecSort(N),  # first argument type: bitvector
@@ -41,6 +60,9 @@ class ExclusionSemantics(model.SemanticDefaults):
             z3.BoolSort(),  # return type: boolean
         )
         self.main_world = z3.BitVec("w", N)
+        self.main_point = {
+            "world" : self.main_world
+        }
 
         # Define frame constraints
         x, y = z3.BitVecs("frame_x frame_y", self.N)
@@ -105,9 +127,8 @@ class ExclusionSemantics(model.SemanticDefaults):
             # neg_cosmopolitanism, # NOTE: this is unsatisfiable
         ]
 
-        # Define invalidity conditions
-        self.premise_behavior = self.true_at
-        self.conclusion_behavior = lambda x,y: z3.Not(self.true_at(x,y))
+        self.premise_behavior = lambda premise: self.true_at(premise, self.main_point["world"])
+        self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point["world"])
 
     def conflicts(self, bit_e1, bit_e2):
         f1, f2 = z3.BitVecs("f1 f2", self.N)
@@ -271,6 +292,7 @@ class ExclusionSemantics(model.SemanticDefaults):
     def occurs(self, bit_s):
         return self.is_part_of(bit_s, self.main_world)
     
+    # TODO: should this be eval_point?
     def true_at(self, sentence, eval_world):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
@@ -285,6 +307,9 @@ class ExclusionSemantics(model.SemanticDefaults):
         operator = sentence.operator
         arguments = sentence.arguments or ()
         return operator.true_at(*arguments, eval_world)
+
+    def false_at(self, sentence, eval_point):
+        return z3.Not(self.true_at(sentence, eval_point))
 
     def extended_verify(self, state, sentence, eval_world):
         sentence_letter = sentence.sentence_letter
@@ -305,11 +330,31 @@ class UnilateralProposition(model.PropositionDefaults):
         """TODO"""
 
         super().__init__(sentence_obj, model_structure)
-        self.eval_world = model_structure.main_world if eval_world == 'main' else eval_world
+        self.eval_world = model_structure.main_point["world"] if eval_world == 'main' else eval_world
         self.verifiers = self.find_proposition()
 
     def __eq__(self, other):
         return (self.verifiers == other.verifiers)
+
+    def __repr__(self):
+        N = self.model_structure.model_constraints.semantics.N
+        possible = self.model_structure.model_constraints.semantics.possible
+        z3_model = self.model_structure.z3_model
+        ver_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self.verifiers
+            if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
+        }
+        # NOTE: I left this b/c I think it may make sense to add falsifiers
+        # these would be defined as the exact excluders
+        # if isinstance(self.falsifiers, set): # because default is an empty list
+        #     fal_states = {
+        #         bitvec_to_substates(bit, N)
+        #         for bit in self.falsifiers
+        #         if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
+        #     }
+        #     return f"< {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >"
+        return pretty_set_print(ver_states)
 
     def proposition_constraints(self, sentence_letter):
         """
@@ -450,16 +495,17 @@ class UnilateralProposition(model.PropositionDefaults):
             return operator.find_verifiers(*arguments, eval_world)
         raise ValueError(f"Their is no proposition for {self.name}.")
 
-    def truth_value_at(self, world):
+    def truth_value_at(self, eval_world):
         """Checks if there is a verifier in world."""
         semantics = self.model_structure.semantics
         z3_model = self.model_structure.z3_model
         for ver_bit in self.verifiers:
-            if z3_model.evaluate(semantics.is_part_of(ver_bit, world)):
+            if z3_model.evaluate(semantics.is_part_of(ver_bit, eval_world)):
                 return True
         return False
 
-    def print_proposition(self, eval_world, indent_num, use_colors):
+    def print_proposition(self, eval_point, indent_num, use_colors):
+        eval_world = eval_point["world"]
         N = self.model_structure.semantics.N
         truth_value = self.truth_value_at(eval_world)
         world_state = bitvec_to_substates(eval_world, N)
@@ -469,3 +515,131 @@ class UnilateralProposition(model.PropositionDefaults):
             f"  {PART}({truth_value} in {world_state}){RESET}"
         )
 
+class ExclusionStructure(model.ModelDefaults):
+
+    def __init__(self, model_constraints, settings):
+        """Initialize ModelStructure with model constraints and optional max time.
+        
+        Args:
+            model_constraints: ModelConstraints object containing all constraints
+            max_time: Maximum time in seconds to allow for solving. Defaults to 1.
+        """
+        if not isinstance(model_constraints, model.ModelConstraints):
+            raise TypeError(
+                f"Expected model_constraints to be a ModelConstraints object, got {type(model_constraints)}. "
+                "Make sure you're passing the correct model_constraints object."
+            )
+
+        super().__init__(model_constraints, settings)
+
+        # Get main point
+        self.main_world = self.main_point["world"]
+
+        # Initialize Z3 model values
+        self.z3_main_world = None
+        self.z3_world_bits = None 
+
+        # Only evaluate if we have a valid model
+        if self.z3_model_status and self.z3_model is not None:
+            self.z3_main_world = self.z3_model[self.main_world]
+            self.main_point["world"] = self.z3_main_world
+            self.z3_poss_bits = [
+                bit
+                for bit in self.all_bits
+                if bool(self.z3_model.evaluate(self.semantics.possible(bit)))  # type: ignore
+            ]
+            self.z3_world_bits = [
+                bit
+                for bit in self.all_bits
+                if bool(self.z3_model.evaluate(self.semantics.is_world(bit)))  # type: ignore
+            ]
+
+    def print_evaluation(self, output=sys.__stdout__):
+        """print the evaluation world and all sentences letters that true/false
+        in that world"""
+        BLUE = ""
+        RESET = ""
+        main_world = self.main_point["world"]
+        if output is sys.__stdout__:
+            BLUE = "\033[34m"
+            RESET = "\033[0m"
+        print(
+            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N)}{RESET}\n",
+            file=output,
+        )
+
+    def print_states(self, output=sys.__stdout__):
+        """Print all fusions of atomic states in the model."""
+
+        def binary_bitvector(bit):
+            return (
+                bit.sexpr()
+                if self.N % 4 != 0
+                else int_to_binary(int(bit.sexpr()[2:], 16), self.N)
+            )
+        
+        def format_state(bin_rep, state, color, label=""):
+            """Helper function to format and print a state."""
+            label_str = f" ({label})" if label else ""
+            use_colors = output is sys.__stdout__
+            if use_colors:
+                print(f"  {self.WHITE}{bin_rep} = {color}{state}{label_str}{self.RESET}", file=output)
+            else:
+                print(f"  {bin_rep} = {state}{label_str}", file=output)
+        
+        # Print formatted state space
+        print("State Space:", file=output)
+        for bit in self.all_bits:
+            state = bitvec_to_substates(bit, self.N)
+            bin_rep = binary_bitvector(bit)
+            if bit == 0:
+                format_state(bin_rep, state, self.COLORS["initial"])
+            elif bit in self.z3_world_bits:
+                format_state(bin_rep, state, self.COLORS["world"], "world")
+            elif bit in self.z3_poss_bits:
+                format_state(bin_rep, state, self.COLORS["possible"])
+            elif self.settings['print_impossible']:
+                format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
+
+    def print_all(self, default_settings, example_name, theory_name, output=sys.__stdout__):
+        """prints states, sentence letters evaluated at the designated world and
+        recursively prints each sentence and its parts"""
+        model_status = self.z3_model_status
+        self.print_info(model_status, default_settings, example_name, theory_name, output)
+        if model_status:
+            self.print_states(output)
+            self.print_evaluation(output)
+            self.print_input_sentences(output)
+            self.print_model(output)
+            if output is sys.__stdout__:
+                total_time = round(time.time() - self.start_time, 4) 
+                print(f"Total Run Time: {total_time} seconds\n", file=output)
+                print(f"{'='*40}", file=output)
+            return
+
+    def print_to(self, default_settings, example_name, theory_name, print_constraints=None, output=sys.__stdout__):
+        """append all elements of the model to the file provided
+        
+        Args:
+            print_constraints: Whether to print constraints. Defaults to value in settings.
+            output: Output stream to print to. Defaults to sys.stdout.
+        """
+        if print_constraints is None:
+            print_constraints = self.settings["print_constraints"]
+        if self.timeout:
+            print(f"TIMEOUT: {self.timeout}")
+            print(f"No model for example {example_name} found before timeout.", file=output)
+            print(f"Try increasing max_time > {self.max_time}.\n", file=output)
+            return
+        self.print_all(default_settings, example_name, theory_name, output)
+        if print_constraints and self.unsat_core is not None:
+            self.print_grouped_constraints(output)
+
+    def save_to(self, example_name, theory_name, include_constraints, output):
+        """append all elements of the model to the file provided"""
+        constraints = self.model_constraints.all_constraints
+        self.print_all(example_name, theory_name, output)
+        self.build_test_file(output)
+        if include_constraints:
+            print("# Satisfiable constraints", file=output)
+            print(f"all_constraints = {constraints}", file=output)

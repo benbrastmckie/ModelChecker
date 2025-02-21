@@ -45,6 +45,11 @@ Settings Options:
 - non_null: Whether to enforce non-null valuations
 - max_time: Maximum computation time in seconds
 
+Development:
+------
+- From the 'model_checker/Code/' directory, run:
+    python3 -m src.model_checker.cli path/to/theory_lib/exclusion/examples.py
+
 Usage:
 ------
 1. From project directory, run the following in the terminal:
@@ -75,43 +80,39 @@ More information can be found in the README.md for the exclusion theory.
 ### DEFINE THE IMPORTS ###
 ##########################
 
-import sys
 import os
-sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.path
+import sys
+
+# Add the current directory to sys.path
+sys.path.append(os.path.dirname(__file__))
+
+# Exclusion
 from semantic import (
     ExclusionSemantics,
     UnilateralProposition,
+    ExclusionStructure,
 )
 from operators import (
-    UniAndOperator, UniOrOperator, ExclusionOperator, # extensional
-    UniIdentityOperator, # constitutive
+    exclusion_operators,
 )
-from model_checker.primitive import (
-    AndOperator,
-    IdentityOperator,
-    NegationOperator,
-    OrOperator,
-)
-from model_checker.semantic import Proposition, Semantics
-from model_checker import syntactic
+
+from src.model_checker.theory_lib import default
+
+# Default
+try: # Try local imports first (for development)
+    from src.model_checker.theory_lib import default
+except ImportError:
+    # Fall back to installed package imports
+    from src.model_checker.theory_lib import default
 
 ####################################
 ### DEFINE THE SEMANTIC THEORIES ###
 ####################################
 
-exclusion_operators = syntactic.OperatorCollection(
-    UniAndOperator, UniOrOperator, ExclusionOperator, # extensional
-    UniIdentityOperator, # constitutive
-)
-
-default_operators = syntactic.OperatorCollection(
-    NegationOperator, AndOperator, OrOperator, # extensional
-    IdentityOperator, # constitutive
-)
-
 exclusion_theory = {
     "semantics": ExclusionSemantics,
     "proposition": UnilateralProposition,
+    "model": ExclusionStructure,
     "operators": exclusion_operators,
 }
 
@@ -123,9 +124,10 @@ default_dictionary = {
 }
 
 default_theory = {
-    "semantics": Semantics,
-    "proposition": Proposition,
-    "operators": default_operators,
+    "semantics": default.Semantics,
+    "proposition": default.Proposition,
+    "model": default.ModelStructure,
+    "operators": default.default_operators,
     "dictionary": default_dictionary,
 }
 
@@ -150,6 +152,7 @@ example_settings = {
     'non_null' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 
 # premises = ['\\exclude (A \\univee B)']
@@ -197,6 +200,7 @@ EX_CM_1_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 EX_CM_1_example = [
     [], # premises
@@ -214,6 +218,7 @@ EX_CM_9_settings = { # agree
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 EX_CM_9_example = [
     [], # premises
@@ -231,6 +236,7 @@ EX_CM_8_settings = { # agree
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 EX_CM_8_example = [
     ['(A \\uniwedge (B \\univee C))'], # premises
@@ -248,6 +254,7 @@ EX_CM_2_settings = { # agree
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 EX_CM_2_example = [
     ['((A \\univee B) \\uniwedge (A \\univee C))'], # premises
@@ -265,6 +272,7 @@ EX_CM_3_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 EX_CM_3_example = [
     ['\\exclude \\exclude A'], # premises
@@ -282,6 +290,7 @@ EX_CM_4_settings = { # TODO: print discrepancies
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 EX_CM_4_example = [
     ['\\exclude \\exclude \\exclude A'], # premises
@@ -299,6 +308,7 @@ EX_CM_5_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 EX_CM_5_example = [
     [], # premises
@@ -316,6 +326,7 @@ EX_CM_6_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 EX_CM_6_example = [
     ['\\exclude \\exclude \\exclude \\exclude A'], # premises
@@ -356,6 +367,7 @@ EX_TH_1_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_1_example = [
     ['(A \\univee B)', '\\exclude B'], # premises
@@ -373,6 +385,7 @@ EX_TH_2_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_2_example = [
     ['\\exclude (A \\uniwedge B)'], # premises
@@ -390,6 +403,7 @@ EX_TH_3_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_3_example = [
     ['(\\exclude A \\univee \\exclude B)'], # premises
@@ -407,6 +421,7 @@ EX_TH_3_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_3_example = [
     ['\\exclude (A \\univee B)'], # premises
@@ -424,6 +439,7 @@ EX_TH_4_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_4_example = [
     ['(\\exclude A \\uniwedge \\exclude B)'], # premises
@@ -441,6 +457,7 @@ EX_TH_5_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_5_example = [
     ['(A \\univee (B \\uniwedge C))'], # premises
@@ -458,6 +475,7 @@ EX_TH_6_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_6_example = [
     ['((A \\univee B) \\uniwedge (A \\univee C))'], # premises
@@ -475,6 +493,7 @@ EX_TH_7_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_7_example = [
     ['(A \\uniwedge (B \\univee C))'], # premises
@@ -492,6 +511,7 @@ EX_TH_8_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_8_example = [
     ['((A \\uniwedge B) \\univee (A \\uniwedge C))'], # premises
@@ -509,6 +529,7 @@ EX_TH_9_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_9_example = [
     ['(A \\uniwedge (A \\univee B))'], # premises
@@ -526,6 +547,7 @@ EX_TH_10_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_10_example = [
     ['A'], # premises
@@ -543,6 +565,7 @@ EX_TH_11_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_11_example = [
     ['(A \\univee (A \\uniwedge B))'], # premises
@@ -560,6 +583,7 @@ EX_TH_12_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_12_example = [
     ['A'], # premises
@@ -577,6 +601,7 @@ EX_TH_13_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_13_example = [
     ['((A \\uniwedge B) \\uniwedge C)'], # premises
@@ -594,6 +619,7 @@ EX_TH_14_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_14_example = [
     ['(A \\uniwedge (B \\uniwedge C))'], # premises
@@ -611,6 +637,7 @@ EX_TH_15_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_15_example = [
     ['((A \\univee B) \\univee C)'], # premises
@@ -628,6 +655,7 @@ EX_TH_16_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
 EX_TH_16_example = [
     ['(A \\univee (B \\univee C))'], # premises

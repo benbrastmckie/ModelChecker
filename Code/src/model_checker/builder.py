@@ -44,7 +44,6 @@ class BuildModule:
         "print_z3": False,
         "save_output": False,
         "maximize": False,
-        "minimize": False,
     }
 
     def __init__(self, module_flags):
@@ -514,6 +513,8 @@ class BuildExample:
         3. Returns the final merged and validated settings dictionary
         """
 
+        # TODO: right now the merged settings gets carried over from one example
+        # to the next which is not how it should be
         def merge_settings(example_settings, general_settings):
             """Adds example_settings to general_settings, mentioning overlaps."""
             # Track and merge settings

@@ -4,15 +4,17 @@ __version__ = "0.0.1"
 from .semantic import (
     ExclusionSemantics,
     UnilateralProposition,
+    ExclusionStructure,
 )
 
-# Import specific items from primitive
-from .operators import (
-    UniAndOperator, UniOrOperator, ExclusionOperator, # extensional
-    UniIdentityOperator, # constitutive
-)
+# Import all operators
+from .operators import exclusion_operators
 
-from .examples import (
-    example_range,
-    semantic_theories,
-    ) 
+from .examples import example_range
+
+# Define the public API of the package
+__all__ = [
+    "ExclusionSemantics", "UnilateralProposition", "ExclusionStructure",  # semantic
+    "exclusion_operators",  # operators
+    "example_range"  # examples
+]

@@ -7,8 +7,8 @@ From the project directory, run: model_checker examples.py
 ### DEFINE THE IMPORTS ###
 ##########################
 
-import sys
 import os
+import sys
 sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.path
 
 from semantic import (
@@ -17,11 +17,9 @@ from semantic import (
     Proposition,
     ModelStructure,
 )
-
 from operators import (
     default_operators,
 )
-
 
 ########################
 ### DEFAULT SETTINGS ###
@@ -959,26 +957,26 @@ semantic_theories = {
 example_range = {
     # Counterfactual Countermodels
     "CF_CM_1" : CF_CM_1_example,
-    "CF_CM_2" : CF_CM_2_example,
-    "CF_CM_3" : CF_CM_3_example,
-    "CF_CM_4" : CF_CM_4_example,
-    "CF_CM_5" : CF_CM_5_example,
-    "CF_CM_6" : CF_CM_6_example,
-    "CF_CM_7" : CF_CM_7_example,
-    "CF_CM_8" : CF_CM_8_example,
-    "CF_CM_9" : CF_CM_9_example,
-    "CF_CM_10" : CF_CM_10_example,
-    "CF_CM_11" : CF_CM_11_example,
-    "CF_CM_12" : CF_CM_12_example,
-    "CF_CM_13" : CF_CM_13_example,
-    "CF_CM_14" : CF_CM_14_example,
-    "CF_CM_15" : CF_CM_15_example,
-    "CF_CM_16" : CF_CM_16_example,
-    "CF_CM_17" : CF_CM_17_example,
-    "CF_CM_18" : CF_CM_18_example,
-    "CF_CM_19" : CF_CM_19_example,
-    "CF_CM_20" : CF_CM_20_example,
-    "CF_CM_21" : CF_CM_21_example,
+    # "CF_CM_2" : CF_CM_2_example,
+    # "CF_CM_3" : CF_CM_3_example,
+    # "CF_CM_4" : CF_CM_4_example,
+    # "CF_CM_5" : CF_CM_5_example,
+    # "CF_CM_6" : CF_CM_6_example,
+    # "CF_CM_7" : CF_CM_7_example,
+    # "CF_CM_8" : CF_CM_8_example,
+    # "CF_CM_9" : CF_CM_9_example,
+    # "CF_CM_10" : CF_CM_10_example,
+    # "CF_CM_11" : CF_CM_11_example,
+    # "CF_CM_12" : CF_CM_12_example,
+    # "CF_CM_13" : CF_CM_13_example,
+    # "CF_CM_14" : CF_CM_14_example,
+    # "CF_CM_15" : CF_CM_15_example,
+    # "CF_CM_16" : CF_CM_16_example,
+    # "CF_CM_17" : CF_CM_17_example,
+    # "CF_CM_18" : CF_CM_18_example,
+    # "CF_CM_19" : CF_CM_19_example,
+    # "CF_CM_20" : CF_CM_20_example,
+    # "CF_CM_21" : CF_CM_21_example,
 
     # Counterfactual Theorems
     # "CF_TH_2" : CF_TH_2_example,

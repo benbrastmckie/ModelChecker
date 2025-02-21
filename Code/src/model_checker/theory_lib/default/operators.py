@@ -1,3 +1,7 @@
+##########################
+### DEFINE THE IMPORTS ###
+##########################
+
 import z3
 
 # Try local imports first (for development)
@@ -5,7 +9,6 @@ try:
     from src.model_checker.utils import (
         ForAll,
         Exists,
-        bitvec_to_substates,
     )
     from src.model_checker import syntactic
 except ImportError:
@@ -13,7 +16,6 @@ except ImportError:
     from model_checker.utils import (
         ForAll,
         Exists,
-        bitvec_to_substates,
     )
     from model_checker import syntactic
 
@@ -931,7 +933,7 @@ class MightImpositionOperator(syntactic.DefinedOperator):
 ####################### DEFINED INTENSIONAL OPERATORS ########################
 ##############################################################################
 
-class DefPossibilityOperator(syntactic.DefinedOperator):
+class PossibilityOperator(syntactic.DefinedOperator):
 
     name = "\\Diamond"
     arity = 1
@@ -963,6 +965,6 @@ default_operators = syntactic.OperatorCollection(
     ConditionalOperator,
     BiconditionalOperator,
     MightCounterfactualOperator,
-    DefPossibilityOperator,
+    PossibilityOperator,
 )
 
