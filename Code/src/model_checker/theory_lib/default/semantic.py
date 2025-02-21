@@ -1,3 +1,7 @@
+##########################
+### DEFINE THE IMPORTS ###
+##########################
+
 import z3
 import sys
 import time
@@ -57,16 +61,7 @@ class Semantics(SemanticDefaults):
     def __init__(self, N):
 
         # Initialize the superclass to set defaults
-        super().__init__()
-
-        # Store the number of states
-        self.N = N
-
-        # Define all states and top and bottom
-        max_value = (1 << self.N) - 1 # NOTE: faster than 2**self.N - 1
-        self.full_bit = z3.BitVecVal(max_value, self.N)
-        self.null_bit = z3.BitVecVal(0, self.N)
-        self.all_bits = [z3.BitVecVal(i, self.N) for i in range(1 << self.N)]
+        super().__init__(N)
 
         # Define the Z3 primitives
         self.verify = z3.Function("verify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
@@ -233,16 +228,7 @@ class ImpositionSemantics(SemanticDefaults):
     def __init__(self, N):
 
         # Initialize the superclass to set defaults
-        super().__init__()
-
-        # Store the number of states
-        self.N = N
-
-        # Define all states and top and bottom
-        max_value = (1 << self.N) - 1 # NOTE: faster than 2**self.N - 1
-        self.full_bit = z3.BitVecVal(max_value, self.N)
-        self.null_bit = z3.BitVecVal(0, self.N)
-        self.all_bits = [z3.BitVecVal(i, self.N) for i in range(1 << self.N)]
+        super().__init__(N)
 
         # Define the Z3 primitives
         self.verify = z3.Function("verify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
@@ -629,7 +615,7 @@ class Proposition(PropositionDefaults):
                 f"  The falsifier {bitvec_to_substates(fal_witness, self.N)}."
             )
         return exists_verifier
-    
+
     def print_proposition(self, eval_point, indent_num, use_colors):
         N = self.model_structure.model_constraints.semantics.N
         eval_world = eval_point["world"]
