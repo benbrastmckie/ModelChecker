@@ -1,62 +1,66 @@
-"""run 'pytest' from the default_theory project directory."""
+"""
+1. To run all tests in the file run from your PROJECT_DIRECTORY:
+pytest PROJECT_DIRECTORY/test/test_default.py
+
+2. To run a specific example test by name:
+pytest PROJECT_DIRECTORY/test/test_default.py -k "example_name"
+
+3. To see more detailed output including print statements:
+pytest -v PROJECT_DIRECTORY/test/test_default.py
+
+4. To see the most detailed output with full traceback:
+pytest -vv PROJECT_DIRECTORY/test/test_default.py
+
+5. To see test progress in real-time:
+pytest -v PROJECT_DIRECTORY/test/test_default.py --capture=no
+"""
 
 import pytest
 
-from model_checker.builder import BuildExample, BuildModule
-from model_checker.semantic import ModelStructure
+from model_checker.model import ModelConstraints
+from model_checker.theory_lib.default.semantic import (
+    ModelStructure,
+    Proposition,
+    Semantics,
+)
 from model_checker.syntactic import Syntax
-
-from ..examples import (
+from model_checker.theory_lib.default.examples import (
     example_range,
-    default_theory,
+    default_operators,
 )
 
 
-module = BuildModule
 
-def test_examples(example_range, default_theory):
 
-    semantics
-    proposition
-    operators
-    dictionary
+def run_test(example_case):
 
-    for example_name, example_case in example_range.items():
+    premises, conclusions, settings = example_case
 
-        premises
-        conclusions
-        example_settings
+    example_syntax = Syntax(premises, conclusions, default_operators)
 
-        example_syntax = Syntax(premises, conclusions, operators)
+    semantics = Semantics(settings['N'])
 
-        # Create model constraints
-        model_constraints = ModelConstraints(
-            settings,
-            example_syntax,
-            semantics(self.settings['N']),
-            proposition,
-        )
+    # Create model constraints
+    model_constraints = ModelConstraints(
+        settings,
+        example_syntax,
+        semantics,
+        Proposition,
+    )
 
-        # Create model structure
-        model_structure = ModelStructure(
-            model_constraints, 
-            settings['max_time'],
-        )
+    # Create model structure
+    model_structure = ModelStructure(
+        model_constraints, 
+        settings,
+    )
 
-        return result.check_result
+    return model_structure.check_result
 
-def test_CF_CM1():
-# COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    premises = ['(A \\boxright C)']
-    conclusions = ['((A \\wedge B) \\boxright C)']
-    settings = {
-        'N' : 3,
-        'contingent' : True,
-        'non_null' : True,
-        'non_empty' : True,
-        'disjoint' : False,
-        'desired_status' : True,
-        'print_impossible' : True,
-        'max_time' : max_time,
-    }
+@pytest.mark.parametrize("example_name,example_case", example_range.items())
+def test_example_cases(example_name, example_case):
+    """Test each example case from example_range."""
+    result = run_test(example_case)
+    assert result, f"Test failed for example: {example_name}"
+
+
 

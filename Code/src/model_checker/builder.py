@@ -10,20 +10,25 @@ try:
     from src.model_checker import __version__
     from src.model_checker.model import (
         SemanticDefaults,
-        PropositionDefaults
+        PropositionDefaults,
+        ModelConstraints,
     )
-    from src.model_checker.syntactic import OperatorCollection
+    from src.model_checker.syntactic import (
+        OperatorCollection, 
+        Syntax,
+    )
 except ImportError:
     # Fall back to installed package imports
     from model_checker import __version__
     from model_checker.model import (
         SemanticDefaults,
-        PropositionDefaults
+        PropositionDefaults,
+        ModelConstraints,
     )
-    from model_checker.syntactic import OperatorCollection
-
-from .model import ModelConstraints
-from .syntactic import Syntax
+    from model_checker.syntactic import (
+        OperatorCollection,
+        Syntax,
+    )
 
 
 class BuildModule:
@@ -403,8 +408,8 @@ class BuildExample:
 
         # Create model structure with max_time from settings
         self.model_structure = model_structure_class(
-            model_constraints=self.model_constraints,
-            max_time=self.settings['max_time']
+            self.model_constraints,
+            self.settings
         )
 
 
