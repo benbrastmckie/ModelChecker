@@ -98,8 +98,8 @@ class Semantics(SemanticDefaults):
         ]
 
         # Define invalidity conditions
-        self.premise_behavior = lambda premise: self.true_at(premise, self.main_world)
-        self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_world)
+        self.premise_behavior = lambda premise: self.true_at(premise, self.main_point["world"])
+        self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point["world"])
 
     def compatible(self, bit_x, bit_y):
         """the fusion of bit_x and bit_y is possible
@@ -644,7 +644,7 @@ class Proposition(PropositionDefaults):
 
 class ModelStructure(ModelDefaults):
 
-    def __init__(self, model_constraints, max_time=1):
+    def __init__(self, model_constraints, settings):
         """Initialize ModelStructure with model constraints and optional max time.
         
         Args:
@@ -657,7 +657,7 @@ class ModelStructure(ModelDefaults):
                 "Make sure you're passing the correct model_constraints object."
             )
 
-        super().__init__(model_constraints, max_time)
+        super().__init__(model_constraints, settings)
 
         # Get main point
         self.main_world = self.main_point["world"]

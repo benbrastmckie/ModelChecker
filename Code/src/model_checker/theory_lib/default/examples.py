@@ -85,7 +85,7 @@ CF_CM_1_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_1_example = [
     CF_CM_1_premises,
@@ -103,7 +103,7 @@ CF_CM_2_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_2_example = [
     CF_CM_2_premises,
@@ -121,7 +121,7 @@ CF_CM_3_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_3_example = [
     CF_CM_3_premises,
@@ -139,7 +139,7 @@ CF_CM_4_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_4_example = [
     CF_CM_4_premises,
@@ -157,7 +157,7 @@ CF_CM_5_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_5_example = [
     CF_CM_5_premises,
@@ -175,7 +175,7 @@ CF_CM_6_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_6_example = [
     CF_CM_6_premises,
@@ -193,7 +193,7 @@ CF_CM_7_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_7_example = [
     CF_CM_7_premises,
@@ -211,7 +211,7 @@ CF_CM_8_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_8_example = [
     CF_CM_8_premises,
@@ -229,7 +229,7 @@ CF_CM_9_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_9_example = [
     CF_CM_9_premises,
@@ -247,7 +247,7 @@ CF_CM_10_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_10_example = [
     CF_CM_10_premises,
@@ -265,7 +265,7 @@ CF_CM_11_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_11_example = [
     CF_CM_11_premises,
@@ -283,7 +283,7 @@ CF_CM_12_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_12_example = [
     CF_CM_12_premises,
@@ -309,7 +309,7 @@ CF_CM_13_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 2,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_13_example = [
     CF_CM_13_premises,
@@ -342,7 +342,7 @@ CF_CM_14_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 2,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_14_example = [
     CF_CM_14_premises,
@@ -360,7 +360,7 @@ CF_CM_15_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 2,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_15_example = [
     CF_CM_15_premises,
@@ -378,7 +378,7 @@ CF_CM_16_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 2,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_16_example = [
     CF_CM_16_premises,
@@ -396,7 +396,7 @@ CF_CM_17_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 2,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_17_example = [
     CF_CM_17_premises,
@@ -414,7 +414,7 @@ CF_CM_18_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 2,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_18_example = [
     CF_CM_18_premises,
@@ -432,7 +432,7 @@ CF_CM_19_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 2,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_19_example = [
     CF_CM_19_premises,
@@ -450,7 +450,7 @@ CF_CM_20_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 2,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_20_example = [
     CF_CM_20_premises,
@@ -468,7 +468,7 @@ CF_CM_21_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 2,
-    'model' : True,
+    'expectation' : True,
 }
 CF_CM_21_example = [
     CF_CM_21_premises,
@@ -488,7 +488,7 @@ CL_CM_3_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CL_CM_3_example = [
     CL_CM_3_premises,
@@ -506,7 +506,7 @@ CL_CM_4_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CL_CM_4_example = [
     CL_CM_4_premises,
@@ -524,7 +524,7 @@ CL_CM_5_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CL_CM_5_example = [
     CL_CM_5_premises,
@@ -542,7 +542,7 @@ CL_CM_6_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CL_CM_6_example = [
     CL_CM_6_premises,
@@ -560,7 +560,7 @@ CL_CM_10_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'model' : True,
+    'expectation' : True,
 }
 CL_CM_10_example = [
     CL_CM_10_premises,
@@ -584,7 +584,7 @@ CF_TH_1_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CF_TH_1_example = [
     CF_TH_1_premises,
@@ -602,7 +602,7 @@ CF_TH_2_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CF_TH_2_example = [
     CF_TH_2_premises,
@@ -620,7 +620,7 @@ CF_TH_3_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CF_TH_3_example = [
     CF_TH_3_premises,
@@ -638,7 +638,7 @@ CF_TH_4_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CF_TH_4_example = [
     CF_TH_4_premises,
@@ -656,7 +656,7 @@ CF_TH_5_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CF_TH_5_example = [
     CF_TH_5_premises,
@@ -674,7 +674,7 @@ CF_TH_6_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CF_TH_6_example = [
     CF_TH_6_premises,
@@ -696,7 +696,7 @@ CF_TH_7_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CF_TH_7_example = [
     CF_TH_7_premises,
@@ -714,7 +714,7 @@ CF_TH_8_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CF_TH_8_example = [
     CF_TH_8_premises,
@@ -732,7 +732,7 @@ CF_TH_9_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CF_TH_9_example = [
     CF_TH_9_premises,
@@ -750,7 +750,7 @@ CF_TH_10_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CF_TH_10_example = [
     CF_TH_10_premises,
@@ -768,7 +768,7 @@ CF_TH_11_settings = {
     'non_empty' : True,
     'non_null' : True,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CF_TH_11_example = [
     CF_TH_11_premises,
@@ -786,7 +786,7 @@ CF_TH_12_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CF_TH_12_example = [
     CF_TH_12_premises,
@@ -808,7 +808,7 @@ CL_TH_1_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CL_TH_1_example = [
     CL_TH_1_premises,
@@ -826,7 +826,7 @@ CL_TH_2_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CL_TH_2_example = [
     CL_TH_2_premises,
@@ -844,7 +844,7 @@ CL_TH_3_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CL_TH_3_example = [
     CL_TH_3_premises,
@@ -862,7 +862,7 @@ CL_TH_4_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CL_TH_4_example = [
     CL_TH_4_premises,
@@ -880,7 +880,7 @@ CL_TH_5_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CL_TH_5_example = [
     CL_TH_5_premises,
@@ -898,7 +898,7 @@ CL_TH_6_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CL_TH_6_example = [
     CL_TH_6_premises,
@@ -916,7 +916,7 @@ CL_TH_7_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CL_TH_7_example = [
     CL_TH_7_premises,
@@ -934,7 +934,7 @@ CL_TH_8_settings = {
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
-    'model' : False,
+    'expectation' : False,
 }
 CL_TH_8_example = [
     CL_TH_8_premises,
@@ -959,26 +959,26 @@ semantic_theories = {
 example_range = {
     # Counterfactual Countermodels
     "CF_CM_1" : CF_CM_1_example,
-    # "CF_CM_2" : CF_CM_2_example,
-    # "CF_CM_3" : CF_CM_3_example,
-    # "CF_CM_4" : CF_CM_4_example,
-    # "CF_CM_5" : CF_CM_5_example,
-    # "CF_CM_6" : CF_CM_6_example,
-    # "CF_CM_7" : CF_CM_7_example,
-    # "CF_CM_8" : CF_CM_8_example,
-    # "CF_CM_9" : CF_CM_9_example,
-    # "CF_CM_10" : CF_CM_10_example,
-    # "CF_CM_11" : CF_CM_11_example,
-    # "CF_CM_12" : CF_CM_12_example,
-    # "CF_CM_13" : CF_CM_13_example,
-    # "CF_CM_14" : CF_CM_14_example,
-    # "CF_CM_15" : CF_CM_15_example,
-    # "CF_CM_16" : CF_CM_16_example,
-    # "CF_CM_17" : CF_CM_17_example,
-    # "CF_CM_18" : CF_CM_18_example,
-    # "CF_CM_19" : CF_CM_19_example,
-    # "CF_CM_20" : CF_CM_20_example,
-    # "CF_CM_21" : CF_CM_21_example,
+    "CF_CM_2" : CF_CM_2_example,
+    "CF_CM_3" : CF_CM_3_example,
+    "CF_CM_4" : CF_CM_4_example,
+    "CF_CM_5" : CF_CM_5_example,
+    "CF_CM_6" : CF_CM_6_example,
+    "CF_CM_7" : CF_CM_7_example,
+    "CF_CM_8" : CF_CM_8_example,
+    "CF_CM_9" : CF_CM_9_example,
+    "CF_CM_10" : CF_CM_10_example,
+    "CF_CM_11" : CF_CM_11_example,
+    "CF_CM_12" : CF_CM_12_example,
+    "CF_CM_13" : CF_CM_13_example,
+    "CF_CM_14" : CF_CM_14_example,
+    "CF_CM_15" : CF_CM_15_example,
+    "CF_CM_16" : CF_CM_16_example,
+    "CF_CM_17" : CF_CM_17_example,
+    "CF_CM_18" : CF_CM_18_example,
+    "CF_CM_19" : CF_CM_19_example,
+    "CF_CM_20" : CF_CM_20_example,
+    "CF_CM_21" : CF_CM_21_example,
 
     # Counterfactual Theorems
     # "CF_TH_2" : CF_TH_2_example,

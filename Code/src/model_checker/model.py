@@ -34,6 +34,7 @@ except ImportError:
     from model_checker.utils import (
         not_implemented_string,
     )
+
 inputs_template = Template(
 '''Z3 run time: ${z3_model_runtime} seconds
 """
@@ -319,12 +320,14 @@ class ModelConstraints:
 class ModelDefaults:
     """Solves and stores the Z3 model for an instance of ModelSetup."""
 
-    def __init__(self, model_constraints, max_time=1):
+    def __init__(self, model_constraints, settings):
         self.constraint_dict = {} # hopefully temporary, for unsat_core
 
         # Store arguments
         self.model_constraints = model_constraints
-        self.max_time = max_time
+        self.settings = settings
+        self.max_time = self.settings["max_time"]
+        self.expectation = self.settings["expectation"]
 
         # Store from model_constraints.semantics
         self.semantics = self.model_constraints.semantics
@@ -437,6 +440,9 @@ class ModelDefaults:
         except RuntimeError as e:  # Handle unexpected exceptions
             print(f"An error occurred while running `solve_constraints()`: {e}")
             return True, None, False, None
+
+    def check_result(self):
+        return self.z3_model_status == self.settings["expectation"]
 
     def interpret(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
