@@ -352,19 +352,22 @@ class OperatorCollection:
     def items(self):
         yield from self.operator_dictionary.items()
 
-    def add_operator(self, input):
+    def add_operator(self, operator):
         """Input is either an operator class (of type 'type') or a list/tuple of operator classes."""
-        if isinstance(input, (list, tuple, set)):
-            for operator_class in input:
+        if isinstance(operator, OperatorCollection):
+            for op_name, op_class in operator.items():
+                self.add_operator(op_class)
+        elif isinstance(operator, (list, tuple, set)):
+            for operator_class in operator:
                 self.add_operator(operator_class)
-        elif isinstance(input, type):
-            if input.name in self.operator_dictionary.keys():
+        elif isinstance(operator, type):
+            if operator.name in self.operator_dictionary.keys():
                 return
-            if getattr(input, "name", None) is None:
-                raise ValueError(f"Operator class {input.__name__} has no name defined.")
-            self.operator_dictionary[input.name] = input
+            if getattr(operator, "name", None) is None:
+                raise ValueError(f"Operator class {operator.__name__} has no name defined.")
+            self.operator_dictionary[operator.name] = operator
         else:
-            raise TypeError(f"Unexpected input type {type(input)} for add_operator.")
+            raise TypeError(f"Unexpected input type {type(operator)} for add_operator.")
 
     def apply_operator(self, prefix_sentence):
         if len(prefix_sentence) == 1:

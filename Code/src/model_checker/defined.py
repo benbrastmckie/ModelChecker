@@ -84,7 +84,7 @@ class DefEssenceOperator(syntactic.DefinedOperator):
 
 class MightCounterfactualOperator(syntactic.DefinedOperator):
 
-    name = "\\circleright"
+    name = "\\diamondright"
     arity = 2
 
     def derived_definition(self, leftarg, rightarg):

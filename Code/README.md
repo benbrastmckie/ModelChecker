@@ -8,7 +8,7 @@ Instead of only developing a model-theoretic version of a semantics and working 
   - `rightarrow` for the _material conditional_
   - `leftrightarrow` for the _material biconditional_
   - `boxright` for the _must counterfactual conditional_
-  - `circleright` for the _might counterfactual conditional_
+  - `diamondright` for the _might counterfactual conditional_
   - `Box` for _necessity_
   - `Diamond` for _possibility_
   - `leq` for _ground_ read 'sufficient for'

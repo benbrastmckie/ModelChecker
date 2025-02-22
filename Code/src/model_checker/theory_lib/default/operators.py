@@ -2,6 +2,8 @@
 ### DEFINE THE IMPORTS ###
 ##########################
 
+print(f"Loading {__name__}")
+
 import z3
 
 # Try local imports first (for development)

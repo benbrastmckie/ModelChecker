@@ -1,20 +1,18 @@
 __version__ = "0.0.1"
 
+print(f"Loading {__name__}")
+
+# Define the public API of the package
+__all__ = [
+    "ImpositionSemantics",  # semantic
+    "imposition_operators",  # operators
+]
+
 # Import specific items from semantic
 from .semantic import (
     ImpositionSemantics,
 )
 
-# Import specific items from primitive
-from .operators import (
-    # primitive operators
-    ImpositionOperator,
+# Import all operators
+from .operators import imposition_operators
 
-    # defined operators
-    MightImpositionOperator,
-)
-
-from .examples import (
-    example_range,
-    semantic_theories,
-    ) 
