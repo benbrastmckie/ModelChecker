@@ -1,11 +1,70 @@
 """
-INSTRUCTIONS: this module defines the semantic_theories and example_range.
-From the project directory, run: model_checker examples.py
+Examples Module for counterfactual conditionals and constitutive operators.
+
+Module Structure:
+----------------
+1. Imports:
+   - System utilities (os, sys)
+   - Local semantic definitions (Semantics, ImpositionSemantics, etc.)
+   - Local operator definitions
+
+2. Settings:
+   - general_settings: Global settings for output and computation
+   - example_settings: Default parameters for individual examples
+
+3. Semantic Theories:
+   - default_theory: Default semantic framework (Brast-McKie)
+   - imposition_theory: Semantic framework for comparison (Fine)
+
+4. Example Categories:
+   a) Counterfactual Countermodels (CF_CM_*):
+      - Tests for invalid counterfactual arguments
+      - Each example includes premises, conclusions, and settings
+   
+   b) Constitutive Logic Countermodels (CL_CM_*):
+      - Tests for invalid constitutive logic arguments
+   
+   c) Counterfactual Theorems (CF_TH_*):
+      - Tests for valid counterfactual arguments
+   
+   d) Constitutive Logic Theorems (CL_TH_*):
+      - Tests for valid constitutive logic arguments
+
+5. Configuration:
+   - semantic_theories: Dictionary of semantic theories to test
+   - example_range: Dictionary of example cases to evaluate
+
+Example Format:
+--------------
+Each example is defined as [premises, conclusions, settings] where:
+- premises: List of formulas serving as assumptions
+- conclusions: List of formulas to test
+- settings: Dictionary with parameters like:
+  * N: Number of atomic propositions
+  * contingent: Use contingent valuations
+  * disjoint: Enforce disjoint valuations
+  * non_empty: Enforce non-empty valuations
+  * non_null: Enforce non-null valuations
+  * max_time: Maximum computation time
+  * expectation: Expected result
+
+Usage:
+------
+From the project directory, run:
+    model_checker examples.py
+
+Notes:
+------
+- At least one semantic theory must be included in semantic_theories
+- At least one example must be included in example_range
 """
+
 
 ##########################
 ### DEFINE THE IMPORTS ###
 ##########################
+
+print(f"Loading {__name__}")
 
 import os
 import sys
@@ -13,7 +72,6 @@ sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.p
 
 from semantic import (
     Semantics,
-    ImpositionSemantics,
     Proposition,
     ModelStructure,
 )
@@ -56,18 +114,19 @@ default_theory = {
     # since the examples are stated in the language of the default theory
 }
 
-imposition_dictionary = {
-    "\\boxright" : "\\imposition",
-    "\\diamondright" : "\\could",
-}
+"""Uncommnent to add another theory to compare."""
+# translation_dictionary = {
+#     "\\operatorA" : "\\operatorB",
+# }
+#
+# imposition_theory = {
+#     "semantics": AlternativeSemantics,
+#     "proposition": AlternativeProposition,
+#     "model": AlternativeStructure,
+#     "operators": alternative_operators,
+#     "dictionary": translation_dictionary,
+# }
 
-imposition_theory = {
-    "semantics": ImpositionSemantics,
-    "proposition": Proposition,
-    "model": ModelStructure,
-    "operators": default_operators,
-    "dictionary": imposition_dictionary,
-}
 
 #####################
 ### COUNTERMODELS ###
@@ -473,6 +532,8 @@ CF_CM_21_example = [
     CF_CM_21_conclusions,
     CF_CM_21_settings,
 ]
+
+
 
 ### CONSTITUTIVE OPERATORS ###
 
@@ -949,7 +1010,7 @@ CL_TH_8_example = [
 # NOTE: at least one theory is required, multiple are permitted for comparison
 semantic_theories = {
     "Brast-McKie" : default_theory,
-    # "Fine" : imposition_theory,
+    # "Author" : alternative_theory,  # to be defined above (optional)
     # additional theories will require their own translation dictionaries
 }
 

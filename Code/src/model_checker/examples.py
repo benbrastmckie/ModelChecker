@@ -58,7 +58,7 @@ default_theory = {
 
 imposition_dictionary = {
     "\\boxright" : "\\imposition",
-    "\\circleright" : "\\could",
+    "\\diamondright" : "\\could",
 }
 
 imposition_theory = {
@@ -130,8 +130,8 @@ CF_CM_1_example = [
 ]
 
 # CF_CM_2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-CF_CM_2_premises = ['(A \\circleright C)']
-CF_CM_2_conclusions = ['((A \\wedge B) \\circleright C)']
+CF_CM_2_premises = ['(A \\diamondright C)']
+CF_CM_2_conclusions = ['((A \\wedge B) \\diamondright C)']
 CF_CM_2_example = [
     CF_CM_2_premises,
     CF_CM_2_conclusions,
@@ -446,7 +446,7 @@ CF_TH_9_example = [
 
 # CF_TH_10: FACTIVITY MIGHT
 CF_TH_10_premises = ['A','B']
-CF_TH_10_conclusions = ['(A \\circleright B)']
+CF_TH_10_conclusions = ['(A \\diamondright B)']
 CF_TH_10_example = [
     CF_TH_10_premises,
     CF_TH_10_conclusions,

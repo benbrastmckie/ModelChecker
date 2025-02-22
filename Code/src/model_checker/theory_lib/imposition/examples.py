@@ -83,20 +83,60 @@ More information can be found in the README.md for the exclusion theory.
 ### DEFINE THE IMPORTS ###
 ##########################
 
+print(f"Loading {__name__}")
+
 import sys
 import os
 sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.path
 
-from model_checker.semantic import (
-    Semantics,
-    Proposition,
-)
+from semantic import ImpositionSemantics
+from operators import imposition_operators
 
-from semantic import (
-    ImpositionSemantics,
-)
+# Default
+try: # Try local imports first (for development)
+    from src.model_checker.theory_lib.default import (
+        Semantics,
+        Proposition,
+        ModelStructure,
+        default_operators,
+    )
+except ImportError:
+    # Fall back to installed package imports
+    from src.model_checker.theory_lib.default import (
+        Semantics,
+        Proposition,
+        ModelStructure,
+        default_operators,
+    )
 
-from operators import combined_operators
+
+####################################
+### DEFINE THE SEMANTIC THEORIES ###
+####################################
+
+# imposition_operators.add_operator(default_operators)
+
+imposition_theory = {
+    "semantics": ImpositionSemantics,
+    "proposition": Proposition,
+    "model": ModelStructure,
+    "operators": imposition_operators,
+    # base theory does not require a translation dictionary for comparison
+    # since the examples are stated in the language of the default theory
+}
+
+imposition_dictionary = {
+    "\\imposition" : "\\boxright",
+    "\\could" : "\\diamondright",
+}
+
+default_theory = {
+    "semantics": Semantics,
+    "proposition": Proposition,
+    "model": ModelStructure,
+    "operators": default_operators,
+    "dictionary": imposition_dictionary,
+}
 
 
 ########################
@@ -118,32 +158,9 @@ example_settings = {  # defaults can be tailored to each example
     'non_empty' : False,
     'non_null' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 
-
-####################################
-### DEFINE THE SEMANTIC THEORIES ###
-####################################
-
-default_theory = {
-    "semantics": Semantics,
-    "proposition": Proposition,
-    "operators": combined_operators,
-    # default theory does not require a translation dictionary for comparison
-    # since the examples are stated in the language of the default theory
-}
-
-imposition_dictionary = {
-    "\\boxright" : "\\imposition",
-    "\\circleright" : "\\could",
-}
-
-imposition_theory = {
-    "semantics": ImpositionSemantics,
-    "proposition": Proposition,
-    "operators": combined_operators,
-    "dictionary": imposition_dictionary,
-}
 
 
 #####################
@@ -160,6 +177,7 @@ CF_CM_1_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 CF_CM_1_example = [
     CF_CM_1_premises,
@@ -168,8 +186,8 @@ CF_CM_1_example = [
 ]
 
 # CF_CM_2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-CF_CM_2_premises = ['(A \\circleright C)']
-CF_CM_2_conclusions = ['((A \\wedge B) \\circleright C)']
+CF_CM_2_premises = ['(A \\diamondright C)']
+CF_CM_2_conclusions = ['((A \\wedge B) \\diamondright C)']
 CF_CM_2_settings = {
     'N' : 4,
     'contingent' : True,
@@ -177,6 +195,7 @@ CF_CM_2_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 CF_CM_2_example = [
     CF_CM_2_premises,
@@ -194,6 +213,7 @@ CF_CM_7_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 CF_CM_7_example = [
     CF_CM_7_premises,
@@ -211,6 +231,7 @@ CF_CM_10_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 CF_CM_10_example = [
     CF_CM_10_premises,
@@ -236,6 +257,7 @@ CF_CM_13_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 CF_CM_13_example = [
     CF_CM_13_premises,
@@ -255,6 +277,7 @@ CL_CM_3_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 CL_CM_3_example = [
     CL_CM_3_premises,
@@ -272,6 +295,7 @@ CL_CM_4_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 CL_CM_4_example = [
     CL_CM_4_premises,
@@ -289,6 +313,7 @@ CL_CM_5_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 CL_CM_5_example = [
     CL_CM_5_premises,
@@ -306,6 +331,7 @@ CL_CM_6_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 CL_CM_6_example = [
     CL_CM_6_premises,
@@ -323,6 +349,7 @@ CL_CM_10_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 CL_CM_10_example = [
     CL_CM_10_premises,
@@ -367,7 +394,7 @@ CF_TH_5_example = [
 CF_TH_10_settings = example_settings  # copy defaults
 CF_TH_10_settings['N'] = 4  # change atomic number
 CF_TH_10_premises = ['A','B']
-CF_TH_10_conclusions = ['(A \\circleright B)']
+CF_TH_10_conclusions = ['(A \\diamondright B)']
 CF_TH_10_example = [
     CF_TH_10_premises,
     CF_TH_10_conclusions,
@@ -475,34 +502,13 @@ example_range = {
     # Counterfactual Countermodels
     "CF_CM_1" : CF_CM_1_example,
     "CF_CM_2" : CF_CM_2_example,
-    # "CF_CM_7" : CF_CM_7_example,
-    # "CF_CM_10" : CF_CM_10_example,
-    # "CF_CM_13" : CF_CM_13_example,
+    "CF_CM_7" : CF_CM_7_example,
+    "CF_CM_10" : CF_CM_10_example,
+    "CF_CM_13" : CF_CM_13_example,
     # Counterfactual Theorems
-    # "CF_TH_2" : CF_TH_2_example,
-    # "CF_TH_3" : CF_TH_3_example,
-    # "CF_TH_5" : CF_TH_5_example,
-    # "CF_TH_10" : CF_TH_10_example,
-    # "CF_TH_11" : CF_TH_11_example,
+    "CF_TH_2" : CF_TH_2_example,
+    "CF_TH_3" : CF_TH_3_example,
+    "CF_TH_5" : CF_TH_5_example,
+    "CF_TH_10" : CF_TH_10_example,
+    "CF_TH_11" : CF_TH_11_example,
 }
-
-# # NOTE: comment out Fine in semantic_theories to test these examples
-# example_range = {
-#     # Constitutive Countermodels
-#     "CL_CM_3" : CL_CM_3_example,
-#     "CL_CM_4" : CL_CM_4_example,
-#     "CL_CM_5" : CL_CM_5_example,
-#     "CL_CM_6" : CL_CM_6_example,
-#     "CL_CM_10" : CL_CM_10_example,
-#     # Constitutive Theorems
-#     "CL_TH_1" : CL_TH_1_example,
-#     "CL_TH_2" : CL_TH_2_example,
-#     "CL_TH_3" : CL_TH_3_example,
-#     "CL_TH_4" : CL_TH_4_example,
-#     "CL_TH_5" : CL_TH_5_example,
-#     "CL_TH_6" : CL_TH_6_example,
-#     "CL_TH_7" : CL_TH_7_example,
-#     "CL_TH_8" : CL_TH_8_example,
-# }
-#     
-#

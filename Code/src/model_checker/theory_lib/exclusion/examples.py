@@ -92,11 +92,7 @@ from semantic import (
     UnilateralProposition,
     ExclusionStructure,
 )
-from operators import (
-    exclusion_operators,
-)
-
-from src.model_checker.theory_lib import default
+from operators import exclusion_operators
 
 # Default
 try: # Try local imports first (for development)
@@ -114,6 +110,8 @@ exclusion_theory = {
     "proposition": UnilateralProposition,
     "model": ExclusionStructure,
     "operators": exclusion_operators,
+    # base theory does not require a translation dictionary for comparison
+    # since the examples are stated in the language of the default theory
 }
 
 default_dictionary = {

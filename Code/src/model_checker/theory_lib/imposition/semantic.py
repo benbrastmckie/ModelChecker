@@ -1,15 +1,42 @@
+##########################
+### DEFINE THE IMPORTS ###
+##########################
+
+print(f"Loading {__name__}")
+
 import z3
+import sys
+import time
 
-from model_checker.model import (
-    SemanticDefaults,
-)
+# Try local imports first (for development)
+try:
+    from src.model_checker.model import (
+        SemanticDefaults,
+        ModelDefaults,
+        ModelConstraints,
+    )
+    from src.model_checker.utils import (
+        ForAll,
+        Exists,
+        bitvec_to_substates,
+        int_to_binary,
+    )
+    from src.model_checker import syntactic
+except ImportError:
+    # Fall back to installed package imports
+    from model_checker.model import (
+        SemanticDefaults,
+        ModelDefaults,
+        ModelConstraints,
+    )
+    from model_checker.utils import (
+        ForAll,
+        Exists,
+        bitvec_to_substates,
+        int_to_binary,
+    )
+    from model_checker import syntactic
 
-from model_checker.utils import (
-    ForAll,
-    Exists,
-)
-
-from model_checker import syntactic
 
 
 ##############################################################################
@@ -37,6 +64,9 @@ class ImpositionSemantics(SemanticDefaults):
             z3.BoolSort()     # bool
         )
         self.main_world = z3.BitVec("w", N)
+        self.main_point = {
+            "world" : self.main_world
+        }
 
         # Define the frame constraints
         x, y, z, u = z3.BitVecs("frame_x frame_y, frame_z, frame_u", N)
@@ -97,8 +127,8 @@ class ImpositionSemantics(SemanticDefaults):
         ]
 
         # Define invalidity conditions
-        self.premise_behavior = self.true_at
-        self.conclusion_behavior = self.false_at
+        self.premise_behavior = lambda premise: self.true_at(premise, self.main_point["world"])
+        self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point["world"])
 
     def compatible(self, bit_x, bit_y):
         """the fusion of bit_x and bit_y is possible
@@ -124,6 +154,10 @@ class ImpositionSemantics(SemanticDefaults):
             self.possible(bit_w),
             self.maximal(bit_w),
         )
+
+    def is_alternative(self, outcome_world, state, eval_point):
+        """Returns whether outcome_world is an alternative to eval_point via state"""
+        return self.imposition(state, eval_point, outcome_world)
 
     def true_at(self, sentence, eval_world):
         """
@@ -151,30 +185,30 @@ class ImpositionSemantics(SemanticDefaults):
         arguments = sentence.arguments or ()
         return operator.false_at(*arguments, eval_world)
 
-    def extended_verify(self, state, sentence, eval_world):
+    def extended_verify(self, state, sentence, eval_point):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             return self.verify(state, sentence_letter)
         operator = sentence.operator
         arguments = sentence.arguments or ()
-        return operator.extended_verify(state, *arguments, eval_world)
+        return operator.extended_verify(state, *arguments, eval_point)
     
-    def extended_falsify(self, state, sentence, eval_world):
+    def extended_falsify(self, state, sentence, eval_point):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             return self.falsify(state, sentence_letter)
         operator = sentence.operator
         arguments = sentence.arguments or ()
-        return operator.extended_falsify(state, *arguments, eval_world)
+        return operator.extended_falsify(state, *arguments, eval_point)
 
-    def calculate_outcome_worlds(self, verifiers, eval_world, model_structure):
-        """Calculate alternative worlds given verifiers and eval_world."""
+    def calculate_alternative_worlds(self, verifiers, eval_point, model_structure):
+        """Calculate alternative worlds given verifiers and eval_point."""
         imposition = model_structure.semantics.imposition
         eval = model_structure.z3_model.evaluate
-        world_bits = model_structure.world_bits
+        world_bits = model_structure.z3_world_bits
+        eval_world = eval_point["world"]
         return {
             pw for ver in verifiers
             for pw in world_bits
             if eval(imposition(ver, eval_world, pw))
         }
-
