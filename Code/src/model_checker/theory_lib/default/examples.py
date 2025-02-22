@@ -1,62 +1,70 @@
 """
-Examples Module for counterfactual conditionals and constitutive operators.
+Examples Module for the unified theory (Brast-McKie).
+
+This module provides a collection of test cases for the unified semantics
+including both countermodels showing invalidity and theorems showing validity.
 
 Module Structure:
 ----------------
 1. Imports:
    - System utilities (os, sys)
-   - Local semantic definitions (Semantics, ImpositionSemantics, etc.)
-   - Local operator definitions
+   - Local semantic definitions (Semantics, Proposition, ModelStructure)
+   - Local operator definitions (default_operators)
 
 2. Settings:
-   - general_settings: Global settings for output and computation
-   - example_settings: Default parameters for individual examples
+   - general_settings: Global settings for output and debugging
+   - example_settings: Default parameters for test cases
 
-3. Semantic Theories:
-   - default_theory: Default semantic framework (Brast-McKie)
-   - imposition_theory: Semantic framework for comparison (Fine)
+3. Semantic Theory:
+   - default_theory: Default semantic framework with components:
+     * semantics: Core semantic class
+     * proposition: Proposition handling
+     * model: Model structure implementation
+     * operators: Logical operators
 
 4. Example Categories:
    a) Counterfactual Countermodels (CF_CM_*):
       - Tests for invalid counterfactual arguments
-      - Each example includes premises, conclusions, and settings
+      - Includes antecedent strengthening, transitivity, contraposition
+      - Complex examples like Sobel sequences
    
    b) Constitutive Logic Countermodels (CL_CM_*):
-      - Tests for invalid constitutive logic arguments
+      - Tests for invalid constitutive arguments
+      - Ground/essence operators and identity relations
    
    c) Counterfactual Theorems (CF_TH_*):
       - Tests for valid counterfactual arguments
+      - Basic properties like identity and modus ponens
+      - Modal interactions with necessity
    
    d) Constitutive Logic Theorems (CL_TH_*):
-      - Tests for valid constitutive logic arguments
-
-5. Configuration:
-   - semantic_theories: Dictionary of semantic theories to test
-   - example_range: Dictionary of example cases to evaluate
+      - Tests for valid constitutive arguments
+      - Relationships between ground, essence and identity
 
 Example Format:
 --------------
 Each example is defined as [premises, conclusions, settings] where:
 - premises: List of formulas serving as assumptions
 - conclusions: List of formulas to test
-- settings: Dictionary with parameters like:
+- settings: Dictionary with parameters:
   * N: Number of atomic propositions
   * contingent: Use contingent valuations
   * disjoint: Enforce disjoint valuations
   * non_empty: Enforce non-empty valuations
   * non_null: Enforce non-null valuations
-  * max_time: Maximum computation time
-  * expectation: Expected result
+  * max_time: Maximum computation time (seconds)
+  * expectation: Expected result (True for countermodel found)
 
-Usage:
-------
-From the project directory, run:
-    model_checker examples.py
+Configuration:
+-------------
+- semantic_theories: Dictionary mapping theory names to implementations
+- example_range: Dictionary mapping example names to test cases
 
 Notes:
 ------
-- At least one semantic theory must be included in semantic_theories
-- At least one example must be included in example_range
+- Additional semantic theories can be added by defining their components
+  and translation dictionaries
+- The example_range can be modified to run different subsets of tests
 """
 
 
@@ -114,7 +122,7 @@ default_theory = {
     # since the examples are stated in the language of the default theory
 }
 
-"""Uncommnent to add another theory to compare."""
+"""NOTE: Uncommnent below to add another theory to compare."""
 # translation_dictionary = {
 #     "\\operatorA" : "\\operatorB",
 # }
@@ -356,7 +364,7 @@ CF_CM_13_premises = [
     '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
     '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)',
     '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)',
-    '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)', # 327.2 seconds on the MIT servers; now .01244 seconds
+    '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)',
 ]
 CF_CM_13_conclusions = []
 CF_CM_13_settings = {
