@@ -83,8 +83,6 @@ More information can be found in the README.md for the exclusion theory.
 ### DEFINE THE IMPORTS ###
 ##########################
 
-print(f"Loading {__name__}")
-
 import sys
 import os
 sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.path

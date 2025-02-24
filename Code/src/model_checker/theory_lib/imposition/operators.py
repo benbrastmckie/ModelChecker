@@ -1,7 +1,5 @@
 import z3
 
-print(f"Loading {__name__}")
-
 # Try local imports first (for development)
 try:
     from src.model_checker.utils import (

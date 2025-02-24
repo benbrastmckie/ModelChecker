@@ -1,7 +1,5 @@
 __version__ = "0.0.1"
 
-print(f"Loading {__name__}")
-
 # Define the public API of the package
 __all__ = [
     "Semantics", "Proposition", "ModelStructure",  # semantic
