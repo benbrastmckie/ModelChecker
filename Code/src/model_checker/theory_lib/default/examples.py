@@ -72,8 +72,6 @@ Notes:
 ### DEFINE THE IMPORTS ###
 ##########################
 
-print(f"Loading {__name__}")
-
 import os
 import sys
 sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.path
@@ -122,7 +120,25 @@ default_theory = {
     # since the examples are stated in the language of the default theory
 }
 
-"""NOTE: Uncommnent below to add another theory to compare."""
+"""
+INFO: With respect to adding semantic theories to compare.
+
+The semantic.py module will have to be expanded to include definitions of the
+following or else importing definitions from the theory_lib:
+- AlternativeSemantics
+- AlternativeProposition
+- AlternativeStructure
+
+The operators.py module will have to be expanded to include:
+- alternative_operators
+
+The translation between theories may then be specified here as indicated below:
+- translation_dictionary
+
+
+NOTE: Uncommnent below to add another theory to compare, changing names as desired.
+"""
+
 # translation_dictionary = {
 #     "\\operatorA" : "\\operatorB",
 # }
@@ -139,6 +155,24 @@ default_theory = {
 #####################
 ### COUNTERMODELS ###
 #####################
+
+# # CF_CM_0: COUNTERFACTUAL IMPORTATION
+# CF_CM_0_premises = ['(A \\boxright (B \\boxright C))']
+# CF_CM_0_conclusions = ['((A \\wedge B) \\boxright C)']
+# CF_CM_0_settings = {
+#     'N' : 6,
+#     'contingent' : True,
+#     'non_null' : True,
+#     'non_empty' : True,
+#     'disjoint' : False,
+#     'max_time' : 10,
+#     'expectation' : True,
+# }
+# CF_CM_0_example = [
+#     CF_CM_0_premises,
+#     CF_CM_0_conclusions,
+#     CF_CM_0_settings,
+# ]
 
 # CF_CM_1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
 CF_CM_1_premises = ['\\neg A', '(A \\boxright C)']
@@ -1025,32 +1059,33 @@ semantic_theories = {
 # NOTE: at least one example is required, multiple are permitted for comparison
 example_range = {
     # Counterfactual Countermodels
-    "CF_CM_1" : CF_CM_1_example,
-    "CF_CM_2" : CF_CM_2_example,
-    "CF_CM_3" : CF_CM_3_example,
-    "CF_CM_4" : CF_CM_4_example,
-    "CF_CM_5" : CF_CM_5_example,
-    "CF_CM_6" : CF_CM_6_example,
-    "CF_CM_7" : CF_CM_7_example,
-    "CF_CM_8" : CF_CM_8_example,
-    "CF_CM_9" : CF_CM_9_example,
-    "CF_CM_10" : CF_CM_10_example,
-    "CF_CM_11" : CF_CM_11_example,
-    "CF_CM_12" : CF_CM_12_example,
-    "CF_CM_13" : CF_CM_13_example,
-    "CF_CM_14" : CF_CM_14_example,
-    "CF_CM_15" : CF_CM_15_example,
-    "CF_CM_16" : CF_CM_16_example,
-    "CF_CM_17" : CF_CM_17_example,
-    "CF_CM_18" : CF_CM_18_example,
-    "CF_CM_19" : CF_CM_19_example,
-    "CF_CM_20" : CF_CM_20_example,
-    "CF_CM_21" : CF_CM_21_example,
+    "CF_CM_0" : CF_CM_0_example,
+    # "CF_CM_1" : CF_CM_1_example,
+    # "CF_CM_2" : CF_CM_2_example,
+    # "CF_CM_3" : CF_CM_3_example,
+    # "CF_CM_4" : CF_CM_4_example,
+    # "CF_CM_5" : CF_CM_5_example,
+    # "CF_CM_6" : CF_CM_6_example,
+    # "CF_CM_7" : CF_CM_7_example,
+    # "CF_CM_8" : CF_CM_8_example,
+    # "CF_CM_9" : CF_CM_9_example,
+    # "CF_CM_10" : CF_CM_10_example,
+    # "CF_CM_11" : CF_CM_11_example,
+    # "CF_CM_12" : CF_CM_12_example,
+    # "CF_CM_13" : CF_CM_13_example,
+    # "CF_CM_14" : CF_CM_14_example,
+    # "CF_CM_15" : CF_CM_15_example,
+    # "CF_CM_16" : CF_CM_16_example,
+    # "CF_CM_17" : CF_CM_17_example,
+    # "CF_CM_18" : CF_CM_18_example,
+    # "CF_CM_19" : CF_CM_19_example,
+    # "CF_CM_20" : CF_CM_20_example,
+    # "CF_CM_21" : CF_CM_21_example,
 
     # Counterfactual Theorems
-    "CF_TH_2" : CF_TH_2_example,
-    "CF_TH_3" : CF_TH_3_example,
-    "CF_TH_5" : CF_TH_5_example,
-    "CF_TH_10" : CF_TH_10_example,
-    "CF_TH_11" : CF_TH_11_example,
+    # "CF_TH_2" : CF_TH_2_example,
+    # "CF_TH_3" : CF_TH_3_example,
+    # "CF_TH_5" : CF_TH_5_example,
+    # "CF_TH_10" : CF_TH_10_example,
+    # "CF_TH_11" : CF_TH_11_example,
 }

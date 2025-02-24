@@ -5,6 +5,16 @@ try:
 except ImportError:
     __version__ = "unknown"
 
+
+# Define the public API of the package
+__all__ = [
+    "model", "syntactic",                           # modules
+    "ParseFileFlags",                               # main.py
+    "ForAll", "Exists", "bitvec_to_substates",      # utils.py
+    "BuildModule", "BuildProject", "BuildExample",  # builder.py
+    "BuildModule", "BuildExample", "main",
+]
+
 # Import model as a whole
 from . import model
 
@@ -25,52 +35,8 @@ from .builder import (
     BuildExample,
 )
 
-# Import specific items from semantic
-from .semantic import (
-    Semantics,
-    ImpositionSemantics,
-    Proposition,
-)
-
-# Import specific items from primitive
-from .primitive import (
-    AndOperator, NegationOperator, OrOperator,            # extensional
-    TopOperator, BotOperator,                             # top and bottom
-    IdentityOperator, GroundOperator, EssenceOperator,    # constitutive
-    RelevanceOperator,                                    # relevance
-    NecessityOperator, PossibilityOperator,               # modal
-    CounterfactualOperator, ImpositionOperator,           # counterfactual
-)
-
-from .defined import (
-    ConditionalOperator, BiconditionalOperator,           # extensional
-    DefEssenceOperator, DefGroundOperator,                # constitutive
-    MightCounterfactualOperator, MightImpositionOperator, # counterfactual
-    
-)
-
-
 # Import specific items from __main__
 from .__main__ import (
     ParseFileFlags,
     main,
 )
-
-# Define the public API of the package
-__all__ = [
-    "model", "syntactic",                                       # modules
-    "ParseFileFlags",                                           # main.py
-    "ForAll", "Exists", "bitvec_to_substates",                  # utils.py
-    "BuildModule", "BuildProject", "BuildExample",              # builder.py
-    "Semantics", "ImpositionSemantics", "Proposition",          # semantic.py
-    "ConditionalOperator", "BiconditionalOperator",
-    "DefEssenceOperator", "DefGroundOperator",
-    "MightCounterfactualOperator", "MightImpositionOperator",
-    "AndOperator", "NegationOperator", "OrOperator",
-    "TopOperator", "BotOperator",
-    "IdentityOperator", "GroundOperator", "EssenceOperator",
-    "RelevanceOperator",
-    "NecessityOperator", "PossibilityOperator",
-    "CounterfactualOperator", "ImpositionOperator",
-    "BuildModule", "BuildExample", "main",
-]
