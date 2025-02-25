@@ -3,35 +3,25 @@
 ##########################
 
 import z3
-import sys
-import time
 
 # Try local imports first (for development)
 try:
     from src.model_checker.model import (
         SemanticDefaults,
-        ModelDefaults,
-        ModelConstraints,
     )
     from src.model_checker.utils import (
         ForAll,
         Exists,
-        bitvec_to_substates,
-        int_to_binary,
     )
     from src.model_checker import syntactic
 except ImportError:
     # Fall back to installed package imports
     from model_checker.model import (
         SemanticDefaults,
-        ModelDefaults,
-        ModelConstraints,
     )
     from model_checker.utils import (
         ForAll,
         Exists,
-        bitvec_to_substates,
-        int_to_binary,
     )
     from model_checker import syntactic
 
@@ -45,29 +35,39 @@ class ImpositionSemantics(SemanticDefaults):
     """Includes the semantic primitives, semantic definitions, frame
     constraints, truth and falsity theories, and premise/conclusion behavior."""
 
-    def __init__(self, N):
+    DEFAULT_EXAMPLE_SETTINGS = {
+        'N' : 3,
+        'contingent' : False,
+        'non_empty' : False,
+        'non_null' : False,
+        'disjoint' : False,
+        'max_time' : 1,
+        'expectation' : None,
+    }
+
+    def __init__(self, settings):
 
         # Initialize the superclass to set defaults
-        super().__init__(N)
+        super().__init__(settings)
 
         # Define the Z3 primitives
-        self.verify = z3.Function("verify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
-        self.falsify = z3.Function("falsify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
-        self.possible = z3.Function("possible", z3.BitVecSort(N), z3.BoolSort())
+        self.verify = z3.Function("verify", z3.BitVecSort(self.N), syntactic.AtomSort, z3.BoolSort())
+        self.falsify = z3.Function("falsify", z3.BitVecSort(self.N), syntactic.AtomSort, z3.BoolSort())
+        self.possible = z3.Function("possible", z3.BitVecSort(self.N), z3.BoolSort())
         self.imposition = z3.Function( # needed to encode Fine's semantics
             "imposition",
-            z3.BitVecSort(N), # state imposed
-            z3.BitVecSort(N), # world being imposed on
-            z3.BitVecSort(N), # outcome world
+            z3.BitVecSort(self.N), # state imposed
+            z3.BitVecSort(self.N), # world being imposed on
+            z3.BitVecSort(self.N), # outcome world
             z3.BoolSort()     # bool
         )
-        self.main_world = z3.BitVec("w", N)
+        self.main_world = z3.BitVec("w", self.N)
         self.main_point = {
             "world" : self.main_world
         }
 
         # Define the frame constraints
-        x, y, z, u = z3.BitVecs("frame_x frame_y, frame_z, frame_u", N)
+        x, y, z, u = z3.BitVecs("frame_x frame_y, frame_z, frame_u", self.N)
         possibility_downard_closure = ForAll(
             [x, y],
             z3.Implies(z3.And(self.possible(y), self.is_part_of(x, y)), self.possible(x)),

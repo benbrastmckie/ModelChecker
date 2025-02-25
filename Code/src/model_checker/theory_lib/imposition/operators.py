@@ -18,7 +18,7 @@ except ImportError:
         Exists,
     )
     from model_checker import syntactic
-    from src.model_checker.theory_lib.default.operators import (
+    from model_checker.theory_lib.default.operators import (
         default_operators,
         NegationOperator,
     )

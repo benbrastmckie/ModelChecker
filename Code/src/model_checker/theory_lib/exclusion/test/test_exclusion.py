@@ -17,39 +17,17 @@ pytest -v PROJECT_DIRECTORY/test/test_exclusion.py --capture=no
 
 import pytest
 
-import os
-import sys
-
-# Add the current directory to sys.path
-sys.path.append(os.path.dirname(__file__))
-
-try: # Try local imports first (for development)
-    from src.model_checker.model import ModelConstraints
-    from src.model_checker.theory_lib.exclusion.semantic import (
-        ExclusionStructure,
-        UnilateralProposition,
-        ExclusionSemantics,
-    )
-    from src.model_checker.syntactic import Syntax
-    from src.model_checker.theory_lib.exclusion.examples import (
-        example_range,
-        exclusion_operators,
-    )
-except ImportError:
-    # Fall back to installed package imports
-    from model_checker.model import ModelConstraints
-    from model_checker.theory_lib.exclusion.semantic import (
-        ExclusionStructure,
-        UnilateralProposition,
-        ExclusionSemantics,
-    )
-    from model_checker.syntactic import Syntax
-    from model_checker.theory_lib.exclusion.examples import (
-        example_range,
-        exclusion_operators,
-    )
-
-
+from model_checker import (
+    ModelConstraints,
+    Syntax,
+)
+from model_checker.theory_lib.exclusion import (
+    ExclusionStructure,
+    UnilateralProposition,
+    ExclusionSemantics,
+    exclusion_operators,
+)
+from model_checker.theory_lib.exclusion.examples import example_range
 
 def run_test(example_case):
 
@@ -57,7 +35,7 @@ def run_test(example_case):
 
     example_syntax = Syntax(premises, conclusions, exclusion_operators)
 
-    semantics = ExclusionSemantics(settings['N'])
+    semantics = ExclusionSemantics(settings)
 
     # Create model constraints
     model_constraints = ModelConstraints(

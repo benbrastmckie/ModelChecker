@@ -69,7 +69,8 @@ Notes:
 
 import os
 import sys
-sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.path
+# Add the current directory to sys.path
+sys.path.append(os.path.dirname(__file__))
 
 from semantic import (
     Semantics,
@@ -276,7 +277,7 @@ CF_CM_6_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : True,
 }
 CF_CM_6_example = [
@@ -533,7 +534,7 @@ CF_CM_19_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 3,
     'expectation' : True,
 }
 CF_CM_19_example = [
@@ -551,7 +552,7 @@ CF_CM_20_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 3,
     'expectation' : True,
 }
 CF_CM_20_example = [
@@ -580,7 +581,9 @@ CF_CM_21_example = [
 
 
 
+##############################
 ### CONSTITUTIVE OPERATORS ###
+##############################
 
 # CL_CM_3: GROUND CONJUNCTION SUPPLEMENTATION
 CL_CM_3_premises = ['(A \\leq B)','(C \\leq D)']
@@ -1063,31 +1066,48 @@ example_range = {
     # Counterfactual Countermodels
     # "CF_CM_0" : CF_CM_0_example,
     "CF_CM_1" : CF_CM_1_example,
-    # "CF_CM_2" : CF_CM_2_example,
-    # "CF_CM_3" : CF_CM_3_example,
-    # "CF_CM_4" : CF_CM_4_example,
-    # "CF_CM_5" : CF_CM_5_example,
-    # "CF_CM_6" : CF_CM_6_example,
-    # "CF_CM_7" : CF_CM_7_example,
-    # "CF_CM_8" : CF_CM_8_example,
-    # "CF_CM_9" : CF_CM_9_example,
-    # "CF_CM_10" : CF_CM_10_example,
-    # "CF_CM_11" : CF_CM_11_example,
-    # "CF_CM_12" : CF_CM_12_example,
-    # "CF_CM_13" : CF_CM_13_example,
-    # "CF_CM_14" : CF_CM_14_example,
-    # "CF_CM_15" : CF_CM_15_example,
-    # "CF_CM_16" : CF_CM_16_example,
-    # "CF_CM_17" : CF_CM_17_example,
-    # "CF_CM_18" : CF_CM_18_example,
-    # "CF_CM_19" : CF_CM_19_example,
-    # "CF_CM_20" : CF_CM_20_example,
-    # "CF_CM_21" : CF_CM_21_example,
+    "CF_CM_2" : CF_CM_2_example,
+    "CF_CM_3" : CF_CM_3_example,
+    "CF_CM_4" : CF_CM_4_example,
+    "CF_CM_5" : CF_CM_5_example,
+    "CF_CM_6" : CF_CM_6_example,
+    "CF_CM_7" : CF_CM_7_example,
+    "CF_CM_8" : CF_CM_8_example,
+    "CF_CM_9" : CF_CM_9_example,
+    "CF_CM_10" : CF_CM_10_example,
+    "CF_CM_11" : CF_CM_11_example,
+    "CF_CM_12" : CF_CM_12_example,
+    "CF_CM_13" : CF_CM_13_example,
+    "CF_CM_14" : CF_CM_14_example,
+    "CF_CM_15" : CF_CM_15_example,
+    "CF_CM_16" : CF_CM_16_example,
+    "CF_CM_17" : CF_CM_17_example,
+    "CF_CM_18" : CF_CM_18_example,
+    "CF_CM_19" : CF_CM_19_example,
+    "CF_CM_20" : CF_CM_20_example,
+    "CF_CM_21" : CF_CM_21_example,
 
     # Counterfactual Theorems
-    # "CF_TH_2" : CF_TH_2_example,
-    # "CF_TH_3" : CF_TH_3_example,
-    # "CF_TH_5" : CF_TH_5_example,
-    # "CF_TH_10" : CF_TH_10_example,
-    # "CF_TH_11" : CF_TH_11_example,
+    "CF_TH_1" : CF_TH_1_example,
+    "CF_TH_2" : CF_TH_2_example,
+    "CF_TH_3" : CF_TH_3_example,
+    "CF_TH_4" : CF_TH_4_example,
+    "CF_TH_5" : CF_TH_5_example,
+    "CF_TH_6" : CF_TH_6_example,
+    "CF_TH_7" : CF_TH_7_example,
+    "CF_TH_8" : CF_TH_8_example,
+    "CF_TH_9" : CF_TH_9_example,
+    "CF_TH_10" : CF_TH_10_example,
+    "CF_TH_11" : CF_TH_11_example,
+    "CF_TH_12" : CF_TH_12_example,
+
+    # Constitutive Theorems
+    "CL_TH_1" : CL_TH_1_example,
+    "CL_TH_2" : CL_TH_2_example,
+    "CL_TH_3" : CL_TH_3_example,
+    "CL_TH_4" : CL_TH_4_example,
+    "CL_TH_5" : CL_TH_5_example,
+    "CL_TH_6" : CL_TH_6_example,
+    "CL_TH_7" : CL_TH_7_example,
+    "CL_TH_8" : CL_TH_8_example,
 }

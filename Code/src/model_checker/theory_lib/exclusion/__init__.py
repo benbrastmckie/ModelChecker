@@ -5,7 +5,6 @@ __version__ = "0.0.1"
 __all__ = [
     "ExclusionSemantics", "UnilateralProposition", "ExclusionStructure",  # semantic
     "exclusion_operators",  # operators
-    "example_range"  # examples
 ]
 
 # Import specific items from semantic
@@ -18,4 +17,5 @@ from .semantic import (
 # Import all operators
 from .operators import exclusion_operators
 
-from .examples import example_range
+# NOTE: this will cause circular imports
+# from .examples import example_range

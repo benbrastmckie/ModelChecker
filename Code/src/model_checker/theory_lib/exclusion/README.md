@@ -19,6 +19,10 @@ These  will be discussed below, beginning with `examples.py` in the following se
 
 The following subsections will describe each of the elements involved in basic usage.
 
+## Testing
+
+Run `pytest` from the project directory to quickly evaluate whether the examples included in `examples.py` return the expected result.
+
 ### Examples
 
 Run `model-checker examples.py` from within the project directory to test the examples included the `example_range` defined in `examples.py`.

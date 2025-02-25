@@ -14,13 +14,19 @@ __all__ = [
     "get_example", "get_theory",
     "BuildModule", "BuildProject", "BuildExample",  # builder.py
     "BuildModule", "BuildExample", "main",
+    "ModelConstraints",
+    "Syntax",
 ]
 
 # Import model as a whole
-from . import model
+from .model import (
+    ModelConstraints,
+)
 
 # Import syntactic as a whole
-from . import syntactic
+from .syntactic import (
+    Syntax,
+)
 
 # Import specific items from utils
 from .utils import (

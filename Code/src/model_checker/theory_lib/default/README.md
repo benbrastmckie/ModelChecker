@@ -14,3 +14,7 @@ This package includes the following templates:
 ## Basic Usage
 
 > TO BE CONTINUED...
+
+## Testing
+
+Run `pytest` from the project directory to quickly evaluate whether the examples included in `examples.py` return the expected result.
