@@ -122,7 +122,7 @@ class BimodalSemantics(SemanticDefaults):
                 x,
                 tau[x] == evolution[x]
             ) for evolution in self.all_evolutions])
-        ),
+        )
 
         u, v = z3.BitVecs("frame_state_u frame_state_v", self.N)
         # Define variables for world states with names to indicate constraint

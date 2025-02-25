@@ -35,11 +35,11 @@ general_settings = {
 }
 
 example_settings = {  # defaults can be tailored to each example
-    'N' : 3,  # 2^N number of states
-    'M' : 3, # M + 1 number of times
+    'N' : 2,  # 2^N number of states
+    'M' : 2, # M + 1 number of times
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 5,
 }
 
 
@@ -64,11 +64,11 @@ intensional_theory = {
 CF_CM_1_premises = ['\\Box (A \\vee B)']
 CF_CM_1_conclusions = ['(\\Box A \\vee \\Box B)']
 CF_CM_1_settings = {
-    'N' : 3,
-    'M' : 3,
+    'N' : 2,
+    'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : True,
 }
 CF_CM_1_example = [
@@ -92,6 +92,23 @@ CF_CM_2_example = [
     CF_CM_2_premises,
     CF_CM_2_conclusions,
     CF_CM_2_settings,
+]
+
+# CF_CM_3: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+CF_CM_3_premises = ['(A \\vee B)']
+CF_CM_3_conclusions = ['(A \\wedge B)']
+CF_CM_3_settings = {
+    'N' : 2,
+    'M' : 2,
+    'contingent' : False,
+    'disjoint' : False,
+    'max_time' : 1,
+    'expectation' : True,
+}
+CF_CM_3_example = [
+    CF_CM_3_premises,
+    CF_CM_3_conclusions,
+    CF_CM_3_settings,
 ]
 
 
@@ -133,9 +150,10 @@ semantic_theories = {
 # NOTE: at least one example is required, multiple are permitted for comparison
 example_range = {
     # Counterfactual Countermodels
-    "CF_CM_1" : CF_CM_1_example,
-    "CF_CM_2" : CF_CM_2_example,
+    # "CF_CM_1" : CF_CM_1_example,
+    # "CF_CM_2" : CF_CM_2_example,
+    "CF_CM_3" : CF_CM_3_example,
 
     # Counterfactual Theorems
-    "CF_TH_1" : CF_TH_1_example,
+    # "CF_TH_1" : CF_TH_1_example,
 }
