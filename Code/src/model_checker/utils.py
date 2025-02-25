@@ -16,7 +16,7 @@ from z3 import(
     BitVecVal,
     Or,
     substitute,
-) 
+)
 
 ### SYNTACTIC HELPERS ###
 
@@ -361,3 +361,33 @@ def get_theory(name, semantic_theories):
     if name not in semantic_theories:
         raise KeyError(f"Theory {name} not found. Available theories: {list(semantic_theories.keys())}")
     return semantic_theories[name]
+
+
+### TESTING ###
+
+def run_test(
+    example_case,
+    semantic_class,
+    proposition_class,
+    operator_collection,
+    syntax_class,
+    model_constraints,
+    model_structure,
+):
+    premises, conclusions, settings = example_case
+    example_syntax = syntax_class(premises, conclusions, operator_collection)
+    semantics = semantic_class(settings)
+    # Create model constraints
+    model_constraints = model_constraints(
+        settings,
+        example_syntax,
+        semantics,
+        proposition_class,
+    )
+    # Create model structure
+    model_structure = model_structure(
+        model_constraints, 
+        settings,
+    )
+    return model_structure.check_result
+

@@ -24,41 +24,26 @@ from model_checker import (
 from model_checker.theory_lib.default import (
     ModelStructure,
     Proposition,
-    Semantics,
-    default_operators,
+)
+from model_checker.theory_lib.imposition import (
+    ImpositionSemantics,
+    imposition_operators,
 )
 from model_checker.theory_lib.imposition.examples import example_range
-
-
-
-def run_test(example_case):
-
-    premises, conclusions, settings = example_case
-
-    example_syntax = Syntax(premises, conclusions, default_operators)
-
-    semantics = Semantics(settings)
-
-    # Create model constraints
-    model_constraints = ModelConstraints(
-        settings,
-        example_syntax,
-        semantics,
-        Proposition,
-    )
-
-    # Create model structure
-    model_structure = ModelStructure(
-        model_constraints, 
-        settings,
-    )
-
-    return model_structure.check_result
+from model_checker.utils import run_test
 
 @pytest.mark.parametrize("example_name,example_case", example_range.items())
 def test_example_cases(example_name, example_case):
     """Test each example case from example_range."""
-    result = run_test(example_case)
+    result = run_test(
+        example_case,
+        ImpositionSemantics,
+        Proposition,
+        imposition_operators,
+        Syntax,
+        ModelConstraints,
+        ModelStructure,
+    )
     assert result, f"Test failed for example: {example_name}"
 
 

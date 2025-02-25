@@ -35,6 +35,7 @@ from .utils import (
     bitvec_to_substates,
     get_theory,
     get_example,
+    run_test,
 )
 
 # Import specific items from utils
