@@ -17,18 +17,17 @@ pytest -v PROJECT_DIRECTORY/test/test_default.py --capture=no
 
 import pytest
 
-from model_checker.model import ModelConstraints
-from model_checker.theory_lib.default.semantic import (
+from model_checker import (
+    ModelConstraints,
+    Syntax,
+)
+from model_checker.theory_lib.default import (
     ModelStructure,
     Proposition,
     Semantics,
-)
-from model_checker.syntactic import Syntax
-from model_checker.theory_lib.default.examples import (
-    example_range,
     default_operators,
 )
-
+from model_checker.theory_lib.default.examples import example_range
 
 
 
@@ -38,7 +37,7 @@ def run_test(example_case):
 
     example_syntax = Syntax(premises, conclusions, default_operators)
 
-    semantics = Semantics(settings['N'])
+    semantics = Semantics(settings)
 
     # Create model constraints
     model_constraints = ModelConstraints(

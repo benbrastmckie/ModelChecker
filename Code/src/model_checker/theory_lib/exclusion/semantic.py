@@ -39,27 +39,28 @@ class ExclusionSemantics(model.SemanticDefaults):
         'disjoint' : False,
         'fusion_closure' : False,
         'max_time' : 1,
+        'expectation' : None,
     }
 
-    def __init__(self, N):
+    def __init__(self, settings):
 
         # Initialize the superclass to set defaults
-        super().__init__(N)
+        super().__init__(settings)
 
         # Define the Z3 primitives
         self.verify = z3.Function(
             "verify",  # name
-            z3.BitVecSort(N),  # first argument type: bitvector
+            z3.BitVecSort(self.N),  # first argument type: bitvector
             syntactic.AtomSort,  # second argument type: sentence letter
             z3.BoolSort(),  # return type: boolean
         )
         self.excludes = z3.Function(
             "excludes",  # name
-            z3.BitVecSort(N),  # first argument type: bitvector
-            z3.BitVecSort(N),  # second argument type: bitvector
+            z3.BitVecSort(self.N),  # first argument type: bitvector
+            z3.BitVecSort(self.N),  # second argument type: bitvector
             z3.BoolSort(),  # return type: boolean
         )
-        self.main_world = z3.BitVec("w", N)
+        self.main_world = z3.BitVec("w", self.N)
         self.main_point = {
             "world" : self.main_world
         }

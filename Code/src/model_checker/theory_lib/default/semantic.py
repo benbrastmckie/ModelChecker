@@ -56,24 +56,25 @@ class Semantics(SemanticDefaults):
         'non_null' : False,
         'disjoint' : False,
         'max_time' : 1,
+        'expectation' : None,
     }
 
-    def __init__(self, N):
+    def __init__(self, settings):
 
         # Initialize the superclass to set defaults
-        super().__init__(N)
+        super().__init__(settings)
 
         # Define the Z3 primitives
-        self.verify = z3.Function("verify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
-        self.falsify = z3.Function("falsify", z3.BitVecSort(N), syntactic.AtomSort, z3.BoolSort())
-        self.possible = z3.Function("possible", z3.BitVecSort(N), z3.BoolSort())
-        self.main_world = z3.BitVec("w", N)
+        self.verify = z3.Function("verify", z3.BitVecSort(self.N), syntactic.AtomSort, z3.BoolSort())
+        self.falsify = z3.Function("falsify", z3.BitVecSort(self.N), syntactic.AtomSort, z3.BoolSort())
+        self.possible = z3.Function("possible", z3.BitVecSort(self.N), z3.BoolSort())
+        self.main_world = z3.BitVec("w", self.N)
         self.main_point = {
             "world" : self.main_world
         }
 
         # Define the frame constraints
-        x, y = z3.BitVecs("frame_x frame_y", N)
+        x, y = z3.BitVecs("frame_x frame_y", self.N)
         possibility_downard_closure = ForAll(
             [x, y],
             z3.Implies(

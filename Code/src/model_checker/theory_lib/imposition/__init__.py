@@ -14,3 +14,5 @@ from .semantic import (
 # Import all operators
 from .operators import imposition_operators
 
+# NOTE: this will cause circular imports
+# from .examples import example_range

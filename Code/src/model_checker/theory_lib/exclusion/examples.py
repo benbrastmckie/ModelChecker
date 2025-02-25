@@ -82,7 +82,6 @@ More information can be found in the README.md for the exclusion theory.
 
 import os
 import sys
-
 # Add the current directory to sys.path
 sys.path.append(os.path.dirname(__file__))
 
@@ -765,30 +764,30 @@ semantic_theories = {
 example_range = {
     # Countermodels
     "EX_CM_1" : EX_CM_1_example, # disagree
-    # "EX_CM_2" : EX_CM_2_example,
-    # "EX_CM_3" : EX_CM_3_example, # disagree
-    # "EX_CM_4" : EX_CM_4_example, # disagree
-    # "EX_CM_5" : EX_CM_5_example, # disagree
-    # "EX_CM_6" : EX_CM_6_example, # disagree
+    "EX_CM_2" : EX_CM_2_example,
+    "EX_CM_3" : EX_CM_3_example, # disagree
+    "EX_CM_4" : EX_CM_4_example, # disagree
+    "EX_CM_5" : EX_CM_5_example, # disagree
+    "EX_CM_6" : EX_CM_6_example, # disagree
     # "EX_CM_7" : EX_CM_7_example, # disagree
 
     # Theorems
     "EX_TH_1" : EX_TH_1_example,
-    # "EX_TH_2" : EX_TH_2_example,
-    # "EX_TH_3" : EX_TH_3_example,
-    # "EX_TH_4" : EX_TH_4_example,
-    # "EX_TH_5" : EX_TH_5_example,
-    # "EX_TH_6" : EX_TH_6_example,
-    # "EX_TH_7" : EX_TH_7_example,
-    # "EX_TH_8" : EX_TH_8_example,
-    # "EX_TH_9" : EX_TH_9_example,
-    # "EX_TH_10" : EX_TH_10_example,
-    # "EX_TH_11" : EX_TH_11_example,
-    # "EX_TH_12" : EX_TH_12_example,
-    # "EX_TH_13" : EX_TH_13_example,
-    # "EX_TH_14" : EX_TH_14_example,
-    # "EX_TH_15" : EX_TH_15_example,
-    # "EX_TH_16" : EX_TH_16_example,
+    "EX_TH_2" : EX_TH_2_example,
+    "EX_TH_3" : EX_TH_3_example,
+    "EX_TH_4" : EX_TH_4_example,
+    "EX_TH_5" : EX_TH_5_example,
+    "EX_TH_6" : EX_TH_6_example,
+    "EX_TH_7" : EX_TH_7_example,
+    "EX_TH_8" : EX_TH_8_example,
+    "EX_TH_9" : EX_TH_9_example,
+    "EX_TH_10" : EX_TH_10_example,
+    "EX_TH_11" : EX_TH_11_example,
+    "EX_TH_12" : EX_TH_12_example,
+    "EX_TH_13" : EX_TH_13_example,
+    "EX_TH_14" : EX_TH_14_example,
+    "EX_TH_15" : EX_TH_15_example,
+    "EX_TH_16" : EX_TH_16_example,
 
     # Testing
     # "UNIEQUIV PLAYGROUND" : UNIEQUIV_PLAYGROUND

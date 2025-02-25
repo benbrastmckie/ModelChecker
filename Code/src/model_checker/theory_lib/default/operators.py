@@ -909,7 +909,7 @@ class MightImpositionOperator(syntactic.DefinedOperator):
     name = "\\could"
     arity = 2
 
-    def derived_definition(self, leftarg, rightarg):
+    def derived_definition(self, leftarg, rightarg): # type: ignore
         return [
             NegationOperator, [
                 ImpositionOperator,
@@ -956,6 +956,9 @@ default_operators = syntactic.OperatorCollection(
     TopOperator,
     BotOperator,
     IdentityOperator,
+    GroundOperator,
+    EssenceOperator,
+    RelevanceOperator,
     CounterfactualOperator,
     MightImpositionOperator,
     ImpositionOperator,
