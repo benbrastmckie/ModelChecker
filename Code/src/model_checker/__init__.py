@@ -11,6 +11,7 @@ __all__ = [
     "model", "syntactic",                           # modules
     "ParseFileFlags",                               # main.py
     "ForAll", "Exists", "bitvec_to_substates",      # utils.py
+    "get_example", "get_theory",
     "BuildModule", "BuildProject", "BuildExample",  # builder.py
     "BuildModule", "BuildExample", "main",
 ]
@@ -26,6 +27,8 @@ from .utils import (
     ForAll,
     Exists,
     bitvec_to_substates,
+    get_theory,
+    get_example,
 )
 
 # Import specific items from utils

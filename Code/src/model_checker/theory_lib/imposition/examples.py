@@ -107,6 +107,14 @@ except ImportError:
         default_operators,
     )
 
+__all__ = [
+    'general_settings',
+    'example_settings',
+    'imposition_theory',
+    'semantic_theories',
+    'example_range',
+]
+
 
 ####################################
 ### DEFINE THE SEMANTIC THEORIES ###

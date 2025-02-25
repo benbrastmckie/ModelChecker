@@ -330,3 +330,34 @@ def flatten(structured_list):
         if isinstance(elem, list):
             flattened.extend(flatten(elem))
     return flattened
+
+
+### API ###
+
+def get_example(name, example_range):
+    """Get a specific example by name from the provided example range
+    
+    Args:
+        name (str): Name of the example to retrieve
+        example_range (dict): Dictionary containing the examples
+        
+    Returns:
+        list: [premises, conclusions, settings]
+    """
+    if name not in example_range:
+        raise KeyError(f"Example {name} not found. Available examples: {list(example_range.keys())}")
+    return example_range[name]
+
+def get_theory(name, semantic_theories):
+    """Get a specific semantic theory by name from the provided theories
+    
+    Args:
+        name (str): Name of the theory to retrieve
+        semantic_theories (dict): Dictionary containing the semantic theories
+        
+    Returns:
+        dict: Dictionary containing semantics, proposition, model, and operators
+    """
+    if name not in semantic_theories:
+        raise KeyError(f"Theory {name} not found. Available theories: {list(semantic_theories.keys())}")
+    return semantic_theories[name]
