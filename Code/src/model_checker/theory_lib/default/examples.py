@@ -67,11 +67,6 @@ Notes:
 - The example_range can be modified to run different subsets of tests
 """
 
-
-##########################
-### DEFINE THE IMPORTS ###
-##########################
-
 import os
 import sys
 sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.path
@@ -84,6 +79,14 @@ from semantic import (
 from operators import (
     default_operators,
 )
+
+__all__ = [
+    'general_settings',
+    'example_settings',
+    'default_theory',
+    'semantic_theories',
+    'example_range',
+]
 
 ########################
 ### DEFAULT SETTINGS ###
@@ -1042,7 +1045,6 @@ CL_TH_8_example = [
     CL_TH_8_conclusions,
     CL_TH_8_settings,
 ]
-
 
 
 ###############################################

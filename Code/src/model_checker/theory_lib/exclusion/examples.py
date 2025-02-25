@@ -94,7 +94,7 @@ from semantic import (
 )
 from operators import exclusion_operators
 
-# Default
+# Default + Utils
 try: # Try local imports first (for development)
     from src.model_checker.theory_lib.default import (
         Semantics,
@@ -110,6 +110,14 @@ except ImportError:
         ModelStructure,
         default_operators,
     )
+
+__all__ = [
+    'general_settings',
+    'example_settings',
+    'exclusion_theory',
+    'semantic_theories',
+    'example_range',
+]
 
 ####################################
 ### DEFINE THE SEMANTIC THEORIES ###
