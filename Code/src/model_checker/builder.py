@@ -525,7 +525,7 @@ class BuildExample:
             """Adds example_settings to general_settings, mentioning overlaps."""
             # Track and merge settings
 
-            combined_settings = general_settings
+            combined_settings = general_settings.copy()
             for key, example_value in example_settings.items():
                 # Get value from module settings or use default
                 general_value = combined_settings.get(key, example_value)
