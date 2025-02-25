@@ -100,7 +100,7 @@ try: # Try local imports first (for development)
     )
 except ImportError:
     # Fall back to installed package imports
-    from src.model_checker.theory_lib.default import (
+    from model_checker.theory_lib.default import (
         Semantics,
         Proposition,
         ModelStructure,

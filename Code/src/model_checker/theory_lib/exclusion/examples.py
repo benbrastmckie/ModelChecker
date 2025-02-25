@@ -96,10 +96,20 @@ from operators import exclusion_operators
 
 # Default
 try: # Try local imports first (for development)
-    from src.model_checker.theory_lib import default
+    from src.model_checker.theory_lib.default import (
+        Semantics,
+        Proposition,
+        ModelStructure,
+        default_operators,
+    )
 except ImportError:
     # Fall back to installed package imports
-    from src.model_checker.theory_lib import default
+    from model_checker.theory_lib.default import (
+        Semantics,
+        Proposition,
+        ModelStructure,
+        default_operators,
+    )
 
 ####################################
 ### DEFINE THE SEMANTIC THEORIES ###
@@ -122,10 +132,10 @@ default_dictionary = {
 }
 
 default_theory = {
-    "semantics": default.Semantics,
-    "proposition": default.Proposition,
-    "model": default.ModelStructure,
-    "operators": default.default_operators,
+    "semantics": Semantics,
+    "proposition": Proposition,
+    "model": ModelStructure,
+    "operators": default_operators,
     "dictionary": default_dictionary,
 }
 

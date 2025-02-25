@@ -1059,8 +1059,8 @@ semantic_theories = {
 # NOTE: at least one example is required, multiple are permitted for comparison
 example_range = {
     # Counterfactual Countermodels
-    "CF_CM_0" : CF_CM_0_example,
-    # "CF_CM_1" : CF_CM_1_example,
+    # "CF_CM_0" : CF_CM_0_example,
+    "CF_CM_1" : CF_CM_1_example,
     # "CF_CM_2" : CF_CM_2_example,
     # "CF_CM_3" : CF_CM_3_example,
     # "CF_CM_4" : CF_CM_4_example,
