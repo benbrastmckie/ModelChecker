@@ -47,6 +47,8 @@ class BimodalSemantics(SemanticDefaults):
     DEFAULT_EXAMPLE_SETTINGS = {
         'N' : 3,
         'contingent' : False,
+        'non_empty' : False,
+        'non_null' : False,
         'disjoint' : False,
         'max_time' : 1,
     }
@@ -54,11 +56,11 @@ class BimodalSemantics(SemanticDefaults):
     def __init__(self, N, M):
 
         # Initialize the superclass to set defaults
-        super().__init__()
+        super().__init__(N)
 
-        # Store the number of states
-        self.N = N
+        # Define all times between 0 and M inclusive
         self.M = M
+        self.all_times = [z3.IntVal(i) for i in range(M)]
 
         # Define the primitive sorts
 
@@ -68,16 +70,6 @@ class BimodalSemantics(SemanticDefaults):
 
         self.TimeSort = z3.IntSort()
         # Create a sort for times using integers
-
-
-        # Define all states and top and bottom
-        max_value = (1 << self.N) - 1 # NOTE: faster than 2**self.N - 1
-        self.full_bit = z3.BitVecVal(max_value, self.N)
-        self.null_bit = z3.BitVecVal(0, self.N)
-        self.all_bits = [z3.BitVecVal(i, self.N) for i in range(1 << self.N)]
-
-        # Define all times between 0 and M inclusive
-        self.all_times = [z3.IntVal(i) for i in range(M)]
 
         # Define all evolutions from times to world states 
         self.all_evolutions = [
