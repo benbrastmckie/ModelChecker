@@ -401,7 +401,7 @@ class BuildExample:
             self.settings,
             self.example_syntax,
             # TODO: replace with parameters dictionary
-            self.semantics(self.settings['N']),
+            self.semantics(self.settings),
             self.proposition,
         )
 
@@ -513,6 +513,12 @@ class BuildExample:
         3. Returns the final merged and validated settings dictionary
         """
 
+        def update_example_settings(example_settings):
+            default_example_settings = self.semantics.DEFAULT_EXAMPLE_SETTINGS
+            for key, value in example_settings.items():
+                default_example_settings[key] = value
+            return default_example_settings
+
         # TODO: right now the merged settings gets carried over from one example
         # to the next which is not how it should be
         def merge_settings(example_settings, general_settings):
@@ -559,10 +565,11 @@ class BuildExample:
             return updated_settings
     
         # Merge and update settings
-        all_settings = merge_settings(example_settings, self.module.general_settings)
-        updated_settings = disjoin_flags(all_settings)
+        updated_example_settings = update_example_settings(example_settings)
+        all_settings = merge_settings(updated_example_settings, self.module.general_settings)
+        flag_updated_settings = disjoin_flags(all_settings)
     
-        return updated_settings
+        return flag_updated_settings
 
     def check_result(self):
         model_expectation = self.settings["model"]

@@ -35,7 +35,8 @@ general_settings = {
 }
 
 example_settings = {  # defaults can be tailored to each example
-    'N' : 3,
+    'N' : 3,  # 2^N number of states
+    'M' : 3, # M + 1 number of times
     'contingent' : False,
     'disjoint' : False,
     'max_time' : 1,
@@ -64,9 +65,11 @@ CF_CM_1_premises = ['\\Box (A \\vee B)']
 CF_CM_1_conclusions = ['(\\Box A \\vee \\Box B)']
 CF_CM_1_settings = {
     'N' : 3,
+    'M' : 3,
     'contingent' : False,
     'disjoint' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 CF_CM_1_example = [
     CF_CM_1_premises,
@@ -79,9 +82,11 @@ CF_CM_2_premises = ['(A \\vee B)']
 CF_CM_2_conclusions = ['(A \\wedge B)']
 CF_CM_2_settings = {
     'N' : 3,
+    'M' : 3,
     'contingent' : False,
     'disjoint' : False,
     'max_time' : 1,
+    'expectation' : True,
 }
 CF_CM_2_example = [
     CF_CM_2_premises,
@@ -99,10 +104,18 @@ CF_CM_2_example = [
 # CF_TH_2: COUNTERFACTUAL MODUS PONENS
 CF_TH_1_premises = ['\\Box (A \\rightarrow B)']
 CF_TH_1_conclusions = ['(\\Box A \\rightarrow \\Box B)']
+CF_TH_1_settings = {
+    'N' : 3,
+    'M' : 3,
+    'contingent' : False,
+    'disjoint' : False,
+    'max_time' : 1,
+    'expectation' : False,
+}
 CF_TH_1_example = [
     CF_TH_1_premises,
     CF_TH_1_conclusions,
-    example_settings,  # can use example_settings from above
+    CF_TH_1_settings,  # can use example_settings from above
 ]
 
 

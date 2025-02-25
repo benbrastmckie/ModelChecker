@@ -47,24 +47,19 @@ class BimodalSemantics(SemanticDefaults):
     DEFAULT_EXAMPLE_SETTINGS = {
         'N' : 3,
         'contingent' : False,
-        'non_empty' : False,
-        'non_null' : False,
         'disjoint' : False,
         'max_time' : 1,
+        'expectation' : True,
     }
 
-    def __init__(self, N, M):
+    def __init__(self, settings):
 
         # Initialize the superclass to set defaults
-        super().__init__(N)
-
-        # Define all times between 0 and M inclusive
-        self.M = M
-        self.all_times = [z3.IntVal(i) for i in range(M)]
+        super().__init__(settings)
 
         # Define the primitive sorts
 
-        self.WorldStateSort = z3.BitVecSort(N)
+        self.WorldStateSort = z3.BitVecSort(self.N)
         # Create a sort for world states using bitvectors such as <001101>
         # N determines how many distinct worlds we can represent
 
@@ -129,7 +124,7 @@ class BimodalSemantics(SemanticDefaults):
             ) for evolution in self.all_evolutions])
         ),
 
-        u, v = z3.BitVecs("frame_state_u frame_state_v", N)
+        u, v = z3.BitVecs("frame_state_u frame_state_v", self.N)
         # Define variables for world states with names to indicate constraint
         seriel = ForAll(
             u,
