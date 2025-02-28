@@ -66,7 +66,7 @@ class ExclusionSemantics(model.SemanticDefaults):
         }
 
         # Define frame constraints
-        x, y = z3.BitVecs("frame_x frame_y", self.N)
+        x, y, z = z3.BitVecs("frame_x frame_y frame_z", self.N)
         actuality = self.is_world(self.main_world)
         
         # Basic exclusion properties
@@ -124,16 +124,49 @@ class ExclusionSemantics(model.SemanticDefaults):
             )
         )
 
+        excluders = ForAll(
+            x,
+            z3.Implies(
+                x != self.null_bit,
+                Exists(
+                    y,
+                    self.excludes(y, x)
+                )
+            )
+        )
+
+        partial_excluders = ForAll(
+            x,
+            z3.Implies(
+                x != self.null_bit,
+                Exists(
+                    [y, z],
+                    z3.And(
+                        self.is_part_of(y, x),
+                        self.excludes(z, y)
+                    )
+                )
+            )
+        )
+
+        # NOTE: used to prove that the null_state is always possible
+        impossible_null = z3.Not(self.possible(self.null_bit))
+        
+
         # Set frame constraints
         self.frame_constraints = [
             # Core constraints
             actuality,
             exclusion_symmetry,
-            null_state,
 
             # Optional complex constraints
             harmony,
             rashomon,   # guards against emergent impossibility (pg 538)
+
+            # Additional constraints
+            null_state,
+            excluders,
+            # partial_excluders,
         ]
 
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_point["world"])
@@ -469,7 +502,7 @@ class UnilateralProposition(model.PropositionDefaults):
                 z3.BitVecSort(N)            # bitvector return type
             )
 
-            w, x, y, z, u, v = z3.BitVecs("w, x y z u v", N)
+            w, m, x, y, z, u, v = z3.BitVecs("w m x y z u v", N)
 
             possibly_true = Exists(
                 w,
@@ -479,13 +512,12 @@ class UnilateralProposition(model.PropositionDefaults):
                 )
             )
             possibly_false = Exists(
-                w,
+                m,
                 z3.And(
-                    semantics.possible(w),
                     ForAll( # 1. for every extended_verifiers x of the argument, there 
                         x,  #    is some part y of x where h(x) excludes y                                    
                         z3.Implies(
-                            semantics.verify(x, sentence_letter), # member of argument's set of verifiers
+                            semantics.verify(x, sentence_letter), # member of sentence_letter's set of verifiers
                             Exists(
                                 y,
                                 z3.And(
@@ -495,11 +527,11 @@ class UnilateralProposition(model.PropositionDefaults):
                             )
                         )
                     ),
-                    ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the argument
+                    ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the sentence_letter
                         z,
                         z3.Implies(
                             semantics.verify(z, sentence_letter),
-                            is_part_of(h(z), w),
+                            is_part_of(h(z), m),
                         )
                     ),
                     ForAll( # 3. the state is the smallest state to satisfy condition 2
@@ -509,10 +541,10 @@ class UnilateralProposition(model.PropositionDefaults):
                                 v,
                                 z3.Implies(
                                     semantics.verify(v, sentence_letter),
-                                    is_part_of(h(v), w)
+                                    is_part_of(h(v), m)
                                 )
                             ),
-                            is_part_of(w, u)
+                            is_part_of(m, u)
                         )
                     )
                 )
@@ -674,16 +706,16 @@ class ExclusionStructure(model.ModelDefaults):
             #                         if self.z3_model.evaluate(self.semantics.is_part_of(bit_v, bit_y)):
             #                             if self.z3_model.evaluate(self.semantics.excludes(bit_u, bit_v)):
             #                                 print(f"EXCLUDERS: {bitvec_to_substates(bit_u, self.N)} excludes {bitvec_to_substates(bit_v, self.N)}\n")
-            #
-            # print()
-            # for bit_x, bit_y in self.z3_conflicts:
-            #     print(f"Conflicts: {bitvec_to_substates(bit_x, self.N)} conflicts with {bitvec_to_substates(bit_y, self.N)}")
-            # for bit_x, bit_y in self.z3_coheres:
-            #     print(f"  Coheres: {bitvec_to_substates(bit_x, self.N)} coheres with {bitvec_to_substates(bit_y, self.N)}")
-            # for bit_x, bit_y in self.z3_excludes:
-            #     print(f" Excludes: {bitvec_to_substates(bit_x, self.N)} excludes {bitvec_to_substates(bit_y, self.N)}")
-            # for bit_x in self.z3_poss_bits:
-            #     print(f" Possible: {bitvec_to_substates(bit_x, self.N)}")
+
+            print()
+            for bit_x, bit_y in self.z3_conflicts:
+                print(f"Conflicts: {bitvec_to_substates(bit_x, self.N)} conflicts with {bitvec_to_substates(bit_y, self.N)}")
+            for bit_x, bit_y in self.z3_coheres:
+                print(f"  Coheres: {bitvec_to_substates(bit_x, self.N)} coheres with {bitvec_to_substates(bit_y, self.N)}")
+            for bit_x, bit_y in self.z3_excludes:
+                print(f" Excludes: {bitvec_to_substates(bit_x, self.N)} excludes {bitvec_to_substates(bit_y, self.N)}")
+            for bit_x in self.z3_poss_bits:
+                print(f" Possible: {bitvec_to_substates(bit_x, self.N)}")
 
     # def conflicts(self, bit_e1, bit_e2):
     #     f1, f2 = z3.BitVecs("f1 f2", self.N)
