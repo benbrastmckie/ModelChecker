@@ -79,22 +79,22 @@ class SemanticDefaults:
     """Includes default attributes and methods to be inherited by a semantics
     including frame constraints, truth and falsity, and logical consequence."""
 
-    def __init__(self, settings):
+    def __init__(self, combined_settings):
 
         # Store the name
         self.name = self.__class__.__name__
 
         # Define all states and top and bottom if N is specified
-        if 'N' in settings.keys():
-            self.N = settings['N']
+        if 'N' in combined_settings.keys():
+            self.N = combined_settings['N']
             max_value = (1 << self.N) - 1 # NOTE: faster than 2**self.N - 1
             self.full_bit = BitVecVal(max_value, self.N)
             self.null_bit = BitVecVal(0, self.N)
             self.all_bits = [BitVecVal(i, self.N) for i in range(1 << self.N)]
 
         # Define all times between 0 and M inclusive
-        if 'M' in settings.keys():
-            self.M = settings['M']
+        if 'M' in combined_settings.keys():
+            self.M = combined_settings['M']
             self.all_times = [IntVal(i) for i in range(self.M)]
 
         # Define main_point
