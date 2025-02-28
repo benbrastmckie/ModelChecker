@@ -205,6 +205,26 @@ example_settings = {
 ### COUNTERMODELS ###
 #####################
 
+# TRIVIAL CASE FOR CHECKING FRAME CONSTRAINTS
+EX_CM_0_premises = []
+EX_CM_0_conclusions = []
+EX_CM_0_settings = {
+    'N' : 1,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 2,
+    'expectation' : True,
+}
+EX_CM_0_example = [
+    EX_CM_0_premises,
+    EX_CM_0_conclusions,
+    EX_CM_0_settings,
+]
+
 # DOUBLE NEGATION ELIMINATION IDENTITY
 EX_CM_1_premises = []
 EX_CM_1_conclusions = ['(A \\uniequiv \\exclude \\exclude A)']
@@ -216,7 +236,7 @@ EX_CM_1_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : True,
 }
 EX_CM_1_example = [
@@ -271,7 +291,7 @@ EX_CM_2_conclusions = ['(A \\uniwedge (B \\univee C))']
 EX_CM_2_settings = { # agree
     'N' : 3,
     'possible' : False,
-    'contingent' : False,
+    'contingent' : True,
     'non_empty' : False,
     'non_null' : False,
     'disjoint' : False,
@@ -365,22 +385,24 @@ EX_CM_6_example = [
     EX_CM_6_settings
 ]
 
-# # CONJUNCTION DEMORGANS
-# EX_CM_7_settings = {
-#     'N' : 3,
-#     'possible' : False,
-#     'contingent' : False,
-#     'non_empty' : False,
-#     'non_null' : False,
-#     'disjoint' : False,
-#     'fusion_closure' : False,
-#     'max_time' : 1,
-# }
-# EX_CM_7_example = [ # TODO: fix example
-#     ['\\exclude \\exclude \\exclude \\exclude A']
-#     ['\\exclude \\exclude A']
-#     EX_CM_7_settings
-# ]
+# CONJUNCTION DEMORGANS
+EX_CM_7_premises = ['\\exclude (A \\uniwedge B)']
+EX_CM_7_conclusions = ['(\\exclude A \\univee \\exclude B)']
+EX_CM_7_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+}
+EX_CM_7_example = [
+    EX_CM_7_premises,
+    EX_CM_7_conclusions,
+    EX_CM_7_settings
+]
 
 
 
@@ -763,31 +785,32 @@ semantic_theories = {
 # NOTE: at least one example is required, multiple are permitted for comparison
 example_range = {
     # Countermodels
-    "EX_CM_1" : EX_CM_1_example, # disagree
-    "EX_CM_2" : EX_CM_2_example,
-    "EX_CM_3" : EX_CM_3_example, # disagree
-    "EX_CM_4" : EX_CM_4_example, # disagree
-    "EX_CM_5" : EX_CM_5_example, # disagree
-    "EX_CM_6" : EX_CM_6_example, # disagree
-    # "EX_CM_7" : EX_CM_7_example, # disagree
+    "EX_CM_0" : EX_CM_0_example,
+    # "EX_CM_1" : EX_CM_1_example,
+    # "EX_CM_2" : EX_CM_2_example,
+    # "EX_CM_3" : EX_CM_3_example,
+    # "EX_CM_4" : EX_CM_4_example, # FALSE PREMISE MODEL
+    # "EX_CM_5" : EX_CM_5_example, # TRUE CONCLUSION MODEL
+    # "EX_CM_6" : EX_CM_6_example, # TRUE CONCLUSION MODEL
+    # "EX_CM_7" : EX_CM_7_example,
 
-    # Theorems
-    "EX_TH_1" : EX_TH_1_example,
-    "EX_TH_2" : EX_TH_2_example,
-    "EX_TH_3" : EX_TH_3_example,
-    "EX_TH_4" : EX_TH_4_example,
-    "EX_TH_5" : EX_TH_5_example,
-    "EX_TH_6" : EX_TH_6_example,
-    "EX_TH_7" : EX_TH_7_example,
-    "EX_TH_8" : EX_TH_8_example,
-    "EX_TH_9" : EX_TH_9_example,
-    "EX_TH_10" : EX_TH_10_example,
-    "EX_TH_11" : EX_TH_11_example,
-    "EX_TH_12" : EX_TH_12_example,
-    "EX_TH_13" : EX_TH_13_example,
-    "EX_TH_14" : EX_TH_14_example,
-    "EX_TH_15" : EX_TH_15_example,
-    "EX_TH_16" : EX_TH_16_example,
+    # # Theorems
+    # "EX_TH_1" : EX_TH_1_example,
+    # "EX_TH_2" : EX_TH_2_example,
+    # "EX_TH_3" : EX_TH_3_example,
+    # "EX_TH_4" : EX_TH_4_example,
+    # "EX_TH_5" : EX_TH_5_example,
+    # "EX_TH_6" : EX_TH_6_example,
+    # "EX_TH_7" : EX_TH_7_example,
+    # "EX_TH_8" : EX_TH_8_example,
+    # "EX_TH_9" : EX_TH_9_example,
+    # "EX_TH_10" : EX_TH_10_example,
+    # "EX_TH_11" : EX_TH_11_example,
+    # "EX_TH_12" : EX_TH_12_example,
+    # "EX_TH_13" : EX_TH_13_example,
+    # "EX_TH_14" : EX_TH_14_example,
+    # "EX_TH_15" : EX_TH_15_example,
+    # "EX_TH_16" : EX_TH_16_example,
 
     # Testing
     # "UNIEQUIV PLAYGROUND" : UNIEQUIV_PLAYGROUND

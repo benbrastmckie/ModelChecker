@@ -36,71 +36,80 @@ class ExclusionOperator(syntactic.Operator):
         )
 
     def extended_verify(self, state, argument, eval_point):
-        sem = self.semantics
-        N, extended_verify, excludes = sem.N, sem.extended_verify, sem.excludes
-        is_part_of = sem.is_part_of
-        h = z3.Function(f"h_{(state, argument)}", z3.BitVecSort(N), z3.BitVecSort(N))
-        v, x, y, z, s = z3.BitVecs("v x y z s", N)
-        # return self.precludes(state, arg_set)
+        """Defines the extended verification conditions for the exclusion operator.
+        
+        This function implements the formal semantics of exclusion by defining when a state
+        is an extended verifier of an exclusion formula. A state is an extended verifier if:
+        
+        1. For every extended verifier v of the argument, there exists a part s of v that is 
+           excluded by h(v), where h is a function mapping verifiers to states
+        2. For all extended verifiers x of the argument, h(x) is a part of the given state
+        3. The given state is minimal with respect to condition 2
+        
+        Args:
+            state: A bitvector representing the state to check
+            argument: The argument of the exclusion operator
+            eval_point: The evaluation point in the model
+            
+        Returns:
+            A Z3 formula that is true iff the state is an extended verifier of the exclusion
+            formula at the given evaluation point
+        """
+
+        # Abbreviations
+        semantics = self.semantics
+        N = semantics.N
+        extended_verify = semantics.extended_verify
+        excludes = semantics.excludes
+        is_part_of = semantics.is_part_of
+
+        # NOTE: that Z3 can introduce arbitrary functions demonstrates its expressive power
+        h = z3.Function(
+            f"h_{(state, argument)}",   # function name
+            z3.BitVecSort(N),           # bitvector argument type
+            z3.BitVecSort(N)            # bitvector return type
+        )
+
+        x, y, z, u, v = z3.BitVecs("x y z u v", N)
         return z3.And(
-            ForAll( # 1. every extended_verifier v for arg has a part s where
-                v,  # h(v) excludes s
+            ForAll( # 1. for every extended_verifiers x of the argument, there 
+                x,  #    is some part y of x where h(x) excludes y                                    
                 z3.Implies(
-                    extended_verify(v, argument, eval_point), # member of argument's set of verifiers
+                    extended_verify(x, argument, eval_point), # member of argument's set of verifiers
                     Exists(
-                        s,
+                        y,
                         z3.And(
-                            excludes(h(v), s),
-                            is_part_of(s, v)
+                            is_part_of(y, x),
+                            excludes(h(x), y)
                         )
                     )
                 )
             ),
-            ForAll( # 2. h(x) is a part of the state for all extended_veriers x of arg
-                x,
+            ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the argument
+                z,
                 z3.Implies(
-                    extended_verify(x, argument, eval_point),
-                    is_part_of(h(x), state),
+                    extended_verify(z, argument, eval_point),
+                    is_part_of(h(z), state),
                 )
             ),
             ForAll( # 3. the state is the smallest state to satisfy condition 2
-                z,
+                u,
                 z3.Implies(
                     ForAll(
-                        y,
+                        v,
                         z3.Implies(
-                            extended_verify(y, argument, eval_point),
-                            is_part_of(h(y), state)
+                            extended_verify(v, argument, eval_point),
+                            is_part_of(h(v), state)
                         )
                     ),
-                    z == state
+                    is_part_of(state, u)
                 )
             )
         )
 
-    # # TODO: why doesn't this work?
-    # def find_verifiers(self, argument, eval_point):
-    #     model = argument.proposition.model_structure.z3_model
-    #     all_bits = self.semantics.all_bits
-    #     result = set()
-    #     for x in all_bits:
-    #         # Create and evaluate the formula with the model
-    #         formula = self.extended_verify(x, argument, eval_point)
-    #         if model.evaluate(formula):
-    #             result.add(x)
-    #     return result
-
-    # TODO: might help to also find falsifiers here
     def find_verifiers(self, argument, eval_point):
-        all_bits = self.semantics.all_bits
-        result = set()
-        for x in all_bits:
-            # Get the extended verification conditions for this bit
-            formula = self.extended_verify(x, argument, eval_point)
-            # If the formula is True (not a Z3 expression), add x to results
-            if formula is True:
-                result.add(x)
-        return result
+        """Returns the set of precluders for the argument's proposition."""
+        return argument.proposition.precluders
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation

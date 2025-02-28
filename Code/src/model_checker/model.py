@@ -181,7 +181,10 @@ class PropositionDefaults:
         # Store inputs
         self.sentence = sentence
         self.model_structure = model_structure
+
+        # Store values from model_structure
         self.N = self.model_structure.semantics.N
+        self.main_point = self.model_structure.main_point
 
         # Store values from sentence
         self.name = self.sentence.name
