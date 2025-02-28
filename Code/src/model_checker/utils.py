@@ -68,7 +68,10 @@ def op_left_right(tokens):
         if not tokens:
             raise ValueError(f"Expected an argument after the operator {operator}")
         if not balanced_parentheses(tokens):
-            raise ValueError("Unbalanced parentheses")
+            raise ValueError(
+                f"Unbalanced parentheses for the tokens {tokens} " + 
+                f"with the operator {operator}."
+            )
         return tokens  # Remaining tokens are the right argument
 
     def cut_parentheses(left, tokens):

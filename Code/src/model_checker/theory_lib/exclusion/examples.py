@@ -152,7 +152,7 @@ default_theory = {
 
 general_settings = {
     "print_constraints": False,
-    "print_impossible": False,
+    "print_impossible": True,
     "print_z3": False,
     "save_output": False,
     "maximize": False,
@@ -229,7 +229,7 @@ EX_CM_0_example = [
 EX_CM_1_premises = []
 EX_CM_1_conclusions = ['(A \\uniequiv \\exclude \\exclude A)']
 EX_CM_1_settings = {
-    'N' : 3,
+    'N' : 2,
     'possible' : False,
     'contingent' : False,
     'non_empty' : False,
@@ -245,53 +245,13 @@ EX_CM_1_example = [
     EX_CM_1_settings,
 ]
 
-# REVERSE DISTRIBUTION: DISJUNCTION OVER CONJUNCTION
-EX_CM_9_premises = []
-EX_CM_9_conclusions = ['(A \\uniwedge (B \\univee C)) \\uniequiv ((A \\univee B) \\uniwedge (A \\univee C))']
-EX_CM_9_settings = { # agree
-    'N' : 3,
-    'possible' : False,
-    'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'disjoint' : False,
-    'fusion_closure' : False,
-    'max_time' : 1,
-    'expectation' : True,
-}
-EX_CM_9_example = [
-    EX_CM_9_premises,
-    EX_CM_9_conclusions,
-    EX_CM_9_settings,
-]
-
-# REVERSE DISTRIBUTION: DISJUNCTION OVER CONJUNCTION
-EX_CM_8_premises = ['(A \\uniwedge (B \\univee C))']
-EX_CM_8_conclusions = ['((A \\univee B) \\uniwedge (A \\univee C))']
-EX_CM_8_settings = { # agree
-    'N' : 3,
-    'possible' : False,
-    'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'disjoint' : False,
-    'fusion_closure' : False,
-    'max_time' : 1,
-    'expectation' : True,
-}
-EX_CM_8_example = [
-    EX_CM_8_premises,
-    EX_CM_8_conclusions,
-    EX_CM_8_settings,
-]
-
-# REVERSE DISTRIBUTION: DISJUNCTION OVER CONJUNCTION
-EX_CM_2_premises = ['((A \\univee B) \\uniwedge (A \\univee C))']
-EX_CM_2_conclusions = ['(A \\uniwedge (B \\univee C))']
+# DISTRIBUTION IDENTITY: CONJUNCTION OVER DISJUNCTION 
+EX_CM_2_premises = []
+EX_CM_2_conclusions = ['((A \\uniwedge (B \\univee C)) \\uniequiv ((A \\uniwedge B) \\univee (A \\uniwedge C)))']
 EX_CM_2_settings = { # agree
     'N' : 3,
     'possible' : False,
-    'contingent' : True,
+    'contingent' : False,
     'non_empty' : False,
     'non_null' : False,
     'disjoint' : False,
@@ -305,10 +265,10 @@ EX_CM_2_example = [
     EX_CM_2_settings,
 ]
 
-# DOUBLE NEGATION ELIMINATION
-EX_CM_3_premises = ['\\exclude \\exclude A']
-EX_CM_3_conclusions = ['A']
-EX_CM_3_settings = {
+# DISTRIBUTION ENTAILMENT: CONJUNCTION OVER DISJUNCTION 
+EX_CM_3_premises = ['(A \\uniwedge (B \\univee C))']
+EX_CM_3_conclusions = ['((A \\uniwedge B) \\univee (A \\uniwedge C))']
+EX_CM_3_settings = { # agree
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -322,13 +282,33 @@ EX_CM_3_settings = {
 EX_CM_3_example = [
     EX_CM_3_premises,
     EX_CM_3_conclusions,
-    EX_CM_3_settings
+    EX_CM_3_settings,
 ]
 
-# TRIPLE NEGATION ENTAILMENT
-EX_CM_4_premises = ['\\exclude \\exclude \\exclude A']
-EX_CM_4_conclusions = ['\\exclude A']
-EX_CM_4_settings = { # TODO: print discrepancies
+# REVERSE DISTRIBUTION ENTAILMENT: CONJUNCTION OVER DISJUNCTION 
+EX_CM_4_premises = ['((A \\uniwedge B) \\univee (A \\uniwedge C))']
+EX_CM_4_conclusions = ['(A \\uniwedge (B \\univee C))']
+EX_CM_4_settings = { # agree
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 2,
+    'expectation' : True,
+}
+EX_CM_4_example = [
+    EX_CM_4_premises,
+    EX_CM_4_conclusions,
+    EX_CM_4_settings,
+]
+
+# DISTRIBUTION IDENTITY: DISJUNCTION OVER CONJUNCTION  
+EX_CM_5_premises = []
+EX_CM_5_conclusions = ['((A \\univee (B \\uniwedge C)) \\uniequiv ((A \\univee B) \\uniwedge (A \\univee C)))']
+EX_CM_5_settings = { # agree
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -339,36 +319,16 @@ EX_CM_4_settings = { # TODO: print discrepancies
     'max_time' : 1,
     'expectation' : True,
 }
-EX_CM_4_example = [
-    EX_CM_4_premises,
-    EX_CM_4_conclusions,
-    EX_CM_4_settings
-]
-
-# TRIPLE NEGATION IDENTITY
-EX_CM_5_premises = []
-EX_CM_5_conclusions = ['(\\exclude A \\uniequiv \\exclude \\exclude \\exclude A)']
-EX_CM_5_settings = {
-    'N' : 3,
-    'possible' : False,
-    'contingent' : False,
-    'non_empty' : True,
-    'non_null' : True,
-    'disjoint' : False,
-    'fusion_closure' : False,
-    'max_time' : 1,
-    'expectation' : True,
-}
 EX_CM_5_example = [
     EX_CM_5_premises,
     EX_CM_5_conclusions,
-    EX_CM_5_settings, # these can be customized by example
+    EX_CM_5_settings,
 ]
 
-# QUADRUPLE NEGATION
-EX_CM_6_premises = ['\\exclude \\exclude \\exclude \\exclude A']
-EX_CM_6_conclusions = ['\\exclude \\exclude A']
-EX_CM_6_settings = {
+# DISTRIBUTION ENTAILMENT: CONJUNCTION OVER DISJUNCTION 
+EX_CM_6_premises = ['(A \\univee (B \\uniwedge C))']
+EX_CM_6_conclusions = ['((A \\univee B) \\uniwedge (A \\univee C))']
+EX_CM_6_settings = { # agree
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -382,13 +342,13 @@ EX_CM_6_settings = {
 EX_CM_6_example = [
     EX_CM_6_premises,
     EX_CM_6_conclusions,
-    EX_CM_6_settings
+    EX_CM_6_settings,
 ]
 
-# CONJUNCTION DEMORGANS
-EX_CM_7_premises = ['\\exclude (A \\uniwedge B)']
-EX_CM_7_conclusions = ['(\\exclude A \\univee \\exclude B)']
-EX_CM_7_settings = {
+# REVERSE DISTRIBUTION ENTAILMENT: DISJUNCTION OVER CONJUNCTION
+EX_CM_7_premises = ['((A \\univee B) \\uniwedge (A \\univee C))']
+EX_CM_7_conclusions = ['(A \\univee (B \\uniwedge C))']
+EX_CM_7_settings = { # agree
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -396,13 +356,113 @@ EX_CM_7_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 2,
+    'expectation' : True,
 }
 EX_CM_7_example = [
     EX_CM_7_premises,
     EX_CM_7_conclusions,
-    EX_CM_7_settings
+    EX_CM_7_settings,
 ]
+
+# # DOUBLE NEGATION ELIMINATION
+# EX_CM_3_premises = ['\\exclude \\exclude A']
+# EX_CM_3_conclusions = ['A']
+# EX_CM_3_settings = {
+#     'N' : 3,
+#     'possible' : False,
+#     'contingent' : False,
+#     'non_empty' : False,
+#     'non_null' : False,
+#     'disjoint' : False,
+#     'fusion_closure' : False,
+#     'max_time' : 1,
+#     'expectation' : True,
+# }
+# EX_CM_3_example = [
+#     EX_CM_3_premises,
+#     EX_CM_3_conclusions,
+#     EX_CM_3_settings
+# ]
+#
+# # TRIPLE NEGATION ENTAILMENT
+# EX_CM_4_premises = ['\\exclude \\exclude \\exclude A']
+# EX_CM_4_conclusions = ['\\exclude A']
+# EX_CM_4_settings = { # TODO: print discrepancies
+#     'N' : 3,
+#     'possible' : False,
+#     'contingent' : False,
+#     'non_empty' : False,
+#     'non_null' : False,
+#     'disjoint' : False,
+#     'fusion_closure' : False,
+#     'max_time' : 1,
+#     'expectation' : True,
+# }
+# EX_CM_4_example = [
+#     EX_CM_4_premises,
+#     EX_CM_4_conclusions,
+#     EX_CM_4_settings
+# ]
+#
+# # TRIPLE NEGATION IDENTITY
+# EX_CM_5_premises = []
+# EX_CM_5_conclusions = ['(\\exclude A \\uniequiv \\exclude \\exclude \\exclude A)']
+# EX_CM_5_settings = {
+#     'N' : 3,
+#     'possible' : False,
+#     'contingent' : False,
+#     'non_empty' : True,
+#     'non_null' : True,
+#     'disjoint' : False,
+#     'fusion_closure' : False,
+#     'max_time' : 1,
+#     'expectation' : True,
+# }
+# EX_CM_5_example = [
+#     EX_CM_5_premises,
+#     EX_CM_5_conclusions,
+#     EX_CM_5_settings, # these can be customized by example
+# ]
+#
+# # QUADRUPLE NEGATION
+# EX_CM_6_premises = ['\\exclude \\exclude \\exclude \\exclude A']
+# EX_CM_6_conclusions = ['\\exclude \\exclude A']
+# EX_CM_6_settings = {
+#     'N' : 3,
+#     'possible' : False,
+#     'contingent' : False,
+#     'non_empty' : False,
+#     'non_null' : False,
+#     'disjoint' : False,
+#     'fusion_closure' : False,
+#     'max_time' : 1,
+#     'expectation' : True,
+# }
+# EX_CM_6_example = [
+#     EX_CM_6_premises,
+#     EX_CM_6_conclusions,
+#     EX_CM_6_settings
+# ]
+#
+# # CONJUNCTION DEMORGANS
+# EX_CM_7_premises = ['\\exclude (A \\uniwedge B)']
+# EX_CM_7_conclusions = ['(\\exclude A \\univee \\exclude B)']
+# EX_CM_7_settings = {
+#     'N' : 3,
+#     'possible' : False,
+#     'contingent' : False,
+#     'non_empty' : False,
+#     'non_null' : False,
+#     'disjoint' : False,
+#     'fusion_closure' : False,
+#     'max_time' : 1,
+# }
+# EX_CM_7_example = [
+#     EX_CM_7_premises,
+#     EX_CM_7_conclusions,
+#     EX_CM_7_settings
+# ]
 
 
 
@@ -786,13 +846,13 @@ semantic_theories = {
 example_range = {
     # Countermodels
     "EX_CM_0" : EX_CM_0_example,
-    # "EX_CM_1" : EX_CM_1_example,
-    # "EX_CM_2" : EX_CM_2_example,
-    # "EX_CM_3" : EX_CM_3_example,
-    # "EX_CM_4" : EX_CM_4_example, # FALSE PREMISE MODEL
-    # "EX_CM_5" : EX_CM_5_example, # TRUE CONCLUSION MODEL
-    # "EX_CM_6" : EX_CM_6_example, # TRUE CONCLUSION MODEL
-    # "EX_CM_7" : EX_CM_7_example,
+    "EX_CM_1" : EX_CM_1_example,
+    "EX_CM_2" : EX_CM_2_example,
+    "EX_CM_3" : EX_CM_3_example,
+    "EX_CM_4" : EX_CM_4_example, # FALSE PREMISE MODEL
+    "EX_CM_5" : EX_CM_5_example, # TRUE CONCLUSION MODEL
+    "EX_CM_6" : EX_CM_6_example, # TRUE CONCLUSION MODEL
+    "EX_CM_7" : EX_CM_7_example,
 
     # # Theorems
     # "EX_TH_1" : EX_TH_1_example,

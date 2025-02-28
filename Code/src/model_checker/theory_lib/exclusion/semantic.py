@@ -68,6 +68,8 @@ class ExclusionSemantics(model.SemanticDefaults):
         # Define frame constraints
         x, y = z3.BitVecs("frame_x frame_y", self.N)
         actuality = self.is_world(self.main_world)
+        
+        # Basic exclusion properties
         exclusion_symmetry = ForAll(
             [x, y],
             z3.Implies(
@@ -75,6 +77,14 @@ class ExclusionSemantics(model.SemanticDefaults):
                 self.excludes(y, x)
             )
         )
+        
+        # Null state excludes nothing
+        null_state = ForAll(
+            x,
+            z3.Not(self.excludes(self.null_bit, x))
+        )
+        
+        # Harmony between worlds and possibility
         harmony = ForAll( 
             [x, y],
             z3.Implies(
@@ -83,8 +93,10 @@ class ExclusionSemantics(model.SemanticDefaults):
                     self.coheres(x, y)
                 ),
                 self.possible(y)
-            )
+            ),
         )
+        
+        # Rashomon principle
         rashomon = ForAll(
             [x, y],
             z3.Implies(
@@ -96,10 +108,12 @@ class ExclusionSemantics(model.SemanticDefaults):
                 self.compossible(x, y),
             ),
         )
-        cosmopolitanism = ForAll( # NOTE: redundant given finiteness
-            x,                    # since adding the negation of this is unsat
-            z3.Implies(           # there is no need to impose cosmopolitanism  
-                self.possible(x),
+
+        # Cosmopolitanism principle
+        cosmopolitanism = ForAll(   # NOTE: redundant for finite models
+            x,                      # since adding the negation of this is unsat
+            z3.Implies(             # there is no need to impose cosmopolitanism  
+                self.possible(x),   # it has been included for clarity
                 Exists(
                     y,
                     z3.And(
@@ -109,67 +123,42 @@ class ExclusionSemantics(model.SemanticDefaults):
                 )
             )
         )
-        no_null_excluder = ForAll(
-            x,
-            z3.Not(self.excludes(self.null_bit, x))
-        )
-
-        null_excluder = z3.Not(no_null_excluder)
-        null_is_possible = self.possible(self.null_bit)
-        null_is_not_possible = z3.Not(self.possible(self.null_bit))
-
-        neg_actuality = z3.Not(actuality)
-        neg_exclusion_symmetry = z3.Not(exclusion_symmetry)
-        neg_cosmopolitanism = z3.Not(cosmopolitanism)
-        neg_harmony = z3.Not(harmony)
-        neg_rashomon = z3.Not(rashomon)
 
         # Set frame constraints
         self.frame_constraints = [
-            # neg_actuality, # NOTE: this is satisfiable
-            # neg_exclusion_symmetry, # NOTE: this is satisfiable
-            # neg_harmony, # NOTE: this is satisfiable
-            # neg_rashomon, # NOTE: this is satisfiable
-            # neg_cosmopolitanism, # NOTE: this is unsatisfiable
-            # cosmopolitanism, # NOTE: see note above
-
-            # Uncontroversial
+            # Core constraints
             actuality,
             exclusion_symmetry,
+            null_state,
 
-            # More complex
-            # harmony,
-            # rashomon,   # guards against emergent impossibility (pg 538)
-
-            # TODO: these should be unsat but they are sat
-            # null_is_possible,
-            # null_excluder, 
-
-            no_null_excluder, 
-
+            # Optional complex constraints
+            harmony,
+            rashomon,   # guards against emergent impossibility (pg 538)
         ]
 
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_point["world"])
         self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point["world"])
 
-    def conflicts(self, bit_e1, bit_e2):
-        f1, f2 = z3.BitVecs("f1 f2", self.N)
-        return z3.And(
-            self.is_part_of(f1, bit_e1),
-            self.is_part_of(f2, bit_e2),
-            self.excludes(f1, f2),
-        )
-
+    # # TODO: this has to be the problem but looks find
     # def conflicts(self, bit_e1, bit_e2):
     #     f1, f2 = z3.BitVecs("f1 f2", self.N)
-    #     return Exists(
-    #         [f1, f2],
-    #         z3.And(
-    #             self.is_part_of(f1, bit_e1),
-    #             self.is_part_of(f2, bit_e2),
-    #             self.excludes(f1, f2),
-    #         ),
+    #     return z3.And(
+    #         self.is_part_of(f1, bit_e1),
+    #         self.is_part_of(f2, bit_e2),
+    #         self.excludes(f1, f2),
     #     )
+
+    # TODO: this has to be the problem but looks find
+    def conflicts(self, bit_e1, bit_e2):
+        f1, f2 = z3.BitVecs("f1 f2", self.N)
+        return Exists(
+            [f1, f2],
+            z3.And(
+                self.is_part_of(f1, bit_e1),
+                self.is_part_of(f2, bit_e2),
+                self.excludes(f1, f2),
+            ),
+        )
 
     def coheres(self, bit_e1, bit_e2):
         return z3.Not(self.conflicts(bit_e1, bit_e2))
@@ -661,47 +650,40 @@ class ExclusionStructure(model.ModelDefaults):
                 for bit_y in self.all_bits
                 if self.z3_model.evaluate(self.semantics.excludes(bit_x, bit_y))
             ]
-            # self.z3_is_part_of = [
-            #     (bit_x, bit_y)
-            #     for bit_x in self.all_bits
-            #     for bit_y in self.all_bits
-            #     if bool(self.z3_model.evaluate(self.semantics.is_part_of(bit_x, bit_y)))  # type: ignore
-            # ]
-            self.z3_coheres = [
-                (bit_x, bit_y)
-                for bit_x in self.all_bits
-                for bit_y in self.all_bits
-                if self.z3_model.evaluate(self.semantics.coheres(bit_x, bit_y))
-            ]
             self.z3_conflicts = [
                 (bit_x, bit_y)
                 for bit_x in self.all_bits
                 for bit_y in self.all_bits
                 if self.z3_model.evaluate(self.semantics.conflicts(bit_x, bit_y))
             ]
-            print()
-            # for bit_x, bit_y in self.z3_is_part_of:
-            #     print(f"Parthood: {bitvec_to_substates(bit_x, self.N)} is part of {bitvec_to_substates(bit_y, self.N)}")
-            for bit_x in self.all_bits:
-                for bit_y in self.all_bits:
-                    if self.z3_model.evaluate(self.semantics.conflicts(bit_x, bit_y)):
-                        print(f"CONFLICT: {bitvec_to_substates(bit_x, self.N)} conflicts with {bitvec_to_substates(bit_y, self.N)}")
-                        for bit_u in self.all_bits:
-                            if self.z3_model.evaluate(self.semantics.is_part_of(bit_u, bit_x)):
-                                for bit_v in self.all_bits:
-                                    if self.z3_model.evaluate(self.semantics.is_part_of(bit_v, bit_y)):
-                                        if self.z3_model.evaluate(self.semantics.excludes(bit_u, bit_v)):
-                                            print(f"EXCLUDERS: {bitvec_to_substates(bit_u, self.N)} excludes {bitvec_to_substates(bit_v, self.N)}\n")
+            self.z3_coheres = [
+                (bit_x, bit_y)
+                for bit_x in self.all_bits
+                for bit_y in self.all_bits
+                if self.z3_model.evaluate(self.semantics.coheres(bit_x, bit_y))
+            ]
 
-            print()
-            for bit_x, bit_y in self.z3_coheres:
-                print(f"Conflicts: {bitvec_to_substates(bit_x, self.N)} conflicts with {bitvec_to_substates(bit_y, self.N)}")
-            for bit_x, bit_y in self.z3_coheres:
-                print(f"  Coheres: {bitvec_to_substates(bit_x, self.N)} coheres with {bitvec_to_substates(bit_y, self.N)}")
-            for bit_x, bit_y in self.z3_excludes:
-                print(f" Excludes: {bitvec_to_substates(bit_x, self.N)} excludes {bitvec_to_substates(bit_y, self.N)}")
-            for bit_x in self.z3_poss_bits:
-                print(f" Possible: {bitvec_to_substates(bit_x, self.N)}")
+            # print()
+            # for bit_x in self.all_bits:
+            #     for bit_y in self.all_bits:
+            #         if self.z3_model.evaluate(self.semantics.conflicts(bit_x, bit_y)):
+            #             print(f"CONFLICT: {bitvec_to_substates(bit_x, self.N)} conflicts with {bitvec_to_substates(bit_y, self.N)}")
+            #             for bit_u in self.all_bits:
+            #                 if self.z3_model.evaluate(self.semantics.is_part_of(bit_u, bit_x)):
+            #                     for bit_v in self.all_bits:
+            #                         if self.z3_model.evaluate(self.semantics.is_part_of(bit_v, bit_y)):
+            #                             if self.z3_model.evaluate(self.semantics.excludes(bit_u, bit_v)):
+            #                                 print(f"EXCLUDERS: {bitvec_to_substates(bit_u, self.N)} excludes {bitvec_to_substates(bit_v, self.N)}\n")
+            #
+            # print()
+            # for bit_x, bit_y in self.z3_conflicts:
+            #     print(f"Conflicts: {bitvec_to_substates(bit_x, self.N)} conflicts with {bitvec_to_substates(bit_y, self.N)}")
+            # for bit_x, bit_y in self.z3_coheres:
+            #     print(f"  Coheres: {bitvec_to_substates(bit_x, self.N)} coheres with {bitvec_to_substates(bit_y, self.N)}")
+            # for bit_x, bit_y in self.z3_excludes:
+            #     print(f" Excludes: {bitvec_to_substates(bit_x, self.N)} excludes {bitvec_to_substates(bit_y, self.N)}")
+            # for bit_x in self.z3_poss_bits:
+            #     print(f" Possible: {bitvec_to_substates(bit_x, self.N)}")
 
     # def conflicts(self, bit_e1, bit_e2):
     #     f1, f2 = z3.BitVecs("f1 f2", self.N)
