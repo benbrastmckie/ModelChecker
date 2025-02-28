@@ -209,7 +209,7 @@ example_settings = {
 EX_CM_0_premises = []
 EX_CM_0_conclusions = []
 EX_CM_0_settings = {
-    'N' : 1,
+    'N' : 2,
     'possible' : False,
     'contingent' : False,
     'non_empty' : False,
@@ -376,14 +376,14 @@ EX_CM_7_example = [
 EX_CM_8_premises = []
 EX_CM_8_conclusions = ['(A \\uniequiv \\exclude \\exclude A)']
 EX_CM_8_settings = {
-    'N' : 5,
+    'N' : 2,
     'possible' : False,
     'contingent' : False,
     'non_empty' : False,
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 10,
+    'max_time' : 5,
     'expectation' : True,
 }
 EX_CM_8_example = [
@@ -893,14 +893,14 @@ semantic_theories = {
 example_range = {
     # Countermodels
     # "EX_CM_0" : EX_CM_0_example,
-    "EX_CM_1" : EX_CM_1_example,
+    # "EX_CM_1" : EX_CM_1_example,
     # "EX_CM_2" : EX_CM_2_example,
     # "EX_CM_3" : EX_CM_3_example,
     # "EX_CM_4" : EX_CM_4_example,
     # "EX_CM_5" : EX_CM_5_example,
     # "EX_CM_6" : EX_CM_6_example,
     # "EX_CM_7" : EX_CM_7_example,
-    # "EX_CM_8" : EX_CM_8_example,
+    "EX_CM_8" : EX_CM_8_example,
     # "EX_CM_9" : EX_CM_9_example,
     # "EX_CM_10" : EX_CM_10_example,
     # "EX_CM_11" : EX_CM_11_example,
