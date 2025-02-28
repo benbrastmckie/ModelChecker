@@ -13,8 +13,11 @@ import string
 
 from z3 import(
     And,
+    BitVecSort,
     BitVecVal,
+    EmptySet,
     Or,
+    SetAdd,
     substitute,
 )
 
@@ -229,12 +232,6 @@ def bitvec_to_substates(bit_vec, N):
 
 
 ### Z3 HELPERS ###
-
-# def z3_set(python_set, N):
-#     z3_set = z3.EmptySet(z3.BitVecSort(N))
-#     for elem in python_set:
-#         z3_set = z3.SetAdd(z3_set, elem)
-#     return z3_set
 
 # def z3_set_to_python_set(z3_set, domain):
 #     python_set = set()

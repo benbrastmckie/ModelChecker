@@ -43,8 +43,8 @@ class NegationOperator(syntactic.Operator):
     def extended_falsify(self, state, arg, eval_point):
         return self.semantics.extended_verify(state, arg, eval_point)
 
-    def find_verifiers_and_falsifiers(self, arg_sent_obj, eval_point):
-        Y_V, Y_F = arg_sent_obj.proposition.find_proposition()
+    def find_verifiers_and_falsifiers(self, argument, eval_point):
+        Y_V, Y_F = argument.proposition.find_proposition()
         return Y_F, Y_V
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
@@ -162,10 +162,10 @@ class OrOperator(syntactic.Operator):
         )
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_point):
-        sem = self.semantics
+        semantics = self.semantics
         Y_V, Y_F = left_sent_obj.proposition.find_proposition()
         Z_V, Z_F = right_sent_obj.proposition.find_proposition()
-        return sem.coproduct(Y_V, Z_V), sem.product(Y_F, Z_F)
+        return semantics.coproduct(Y_V, Z_V), semantics.product(Y_F, Z_F)
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation
