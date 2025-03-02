@@ -56,6 +56,7 @@ class Semantics(SemanticDefaults):
         'non_null' : False,
         'disjoint' : False,
         'max_time' : 1,
+        'iterate' : 1,
         'expectation' : None,
     }
 
@@ -456,7 +457,7 @@ class Proposition(PropositionDefaults):
 
 class ModelStructure(ModelDefaults):
 
-    def __init__(self, model_constraints, settings, old_z3_model=None):
+    def __init__(self, model_constraints, settings):
         """Initialize ModelStructure with model constraints and optional max time.
         
         Args:
