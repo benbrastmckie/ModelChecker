@@ -5,6 +5,7 @@ things in hidden_things right now:
     - ModelStructure
 '''
 
+import z3
 import sys
 from contextlib import redirect_stdout
 import time
@@ -338,7 +339,7 @@ class ModelConstraints:
 class ModelDefaults:
     """Solves and stores the Z3 model for an instance of ModelSetup."""
 
-    def __init__(self, model_constraints, settings):
+    def __init__(self, model_constraints, settings, old_z3_models=None):
         self.constraint_dict = {} # hopefully temporary, for unsat_core
 
         # Store arguments
@@ -365,7 +366,7 @@ class ModelDefaults:
         self.settings = self.model_constraints.settings
 
         # Solve Z3 constraints and store results
-        solver_restults = self.solve(self.model_constraints, self.max_time)
+        solver_restults = self.solve(self.model_constraints, self.max_time, old_z3_models)
         self._process_solver_results(solver_restults)
 
         # Exit early if no valid model was found
@@ -402,60 +403,74 @@ class ModelDefaults:
         self.z3_model = z3_model if z3_model_status else None
         self.unsat_core = z3_model if not z3_model_status else None
 
-    def solve(self, model_constraints, max_time):
+    def _setup_solver(self, model_constraints):
+        """Initialize Z3 solver and add base constraints."""
         solver = Solver()
-        # Track each constraint with a unique name
-        fc, mc, pc, cc = (
-            model_constraints.frame_constraints,
-            model_constraints.model_constraints,
-            model_constraints.premise_constraints,
-            model_constraints.conclusion_constraints
+        constraint_groups = [
+            (model_constraints.frame_constraints, "frame"),
+            (model_constraints.model_constraints, "model"), 
+            (model_constraints.premise_constraints, "premises"),
+            (model_constraints.conclusion_constraints, "conclusions")
+        ]
+        
+        for constraints, group_name in constraint_groups:
+            for ix, constraint in enumerate(constraints):
+                c_id = f"{group_name}{ix+1}"
+                solver.assert_and_track(constraint, c_id)
+                self.constraint_dict[c_id] = constraint
+                
+        return solver
+
+    def _add_difference_constraints(self, solver, prev_model, model_index):
+        """Add constraints requiring difference from a previous model."""
+        different_model_constraints = []
+        
+        # Check differences in sentence letter assignments
+        for letter in self.model_constraints.sentence_letters:
+            old_value = prev_model.eval(letter)
+            different_model_constraints.append(letter != old_value)
+        
+        # Check differences in primitive relations/functions
+        for primitive_name, primitive in self.model_constraints.semantics.__dict__.items():
+            if isinstance(primitive, z3.ExprRef):
+                old_value = prev_model.eval(primitive)
+                different_model_constraints.append(primitive != old_value)
+        
+        solver.assert_and_track(
+            z3.Or(*different_model_constraints),
+            f"different_from_model_{model_index}"
         )
-        for c_group, c_group_name in [
-            (fc, "frame"),
-            (mc, "model"),
-            (pc, "premises"),
-            (cc, "conclusions")
-        ]:
-            for ix, c in enumerate(c_group):
-                c_id = f"{c_group_name}{ix+1}"
-                solver.assert_and_track(c, c_id)
-                self.constraint_dict[c_id] = c
 
-        solver.set("timeout", int(max_time * 1000))  # time in seconds
+    def _create_result(self, is_timeout, model_or_core, is_satisfiable, start_time):
+        """Create a standardized result tuple."""
+        runtime = round(time.time() - start_time, 4)
+        return is_timeout, model_or_core, is_satisfiable, runtime
+
+    def solve(self, model_constraints, max_time, old_z3_models=None):
+        """Solve the model constraints and return the results."""
         try:
-            def measure_runtime():
-                """Calculate the runtime of the solver check."""
-                end_time = time.time()
-                return round(end_time - start_time, 4)
+            solver = self._setup_solver(model_constraints)
+            
+            # Add difference constraints if we have previous models
+            if old_z3_models is not None:
+                for model_index, prev_model in enumerate(old_z3_models):
+                    self._add_difference_constraints(solver, prev_model, model_index)
 
-            def create_result(is_timeout, model_or_core, is_satisfiable):
-                """Create a standardized result tuple."""
-                return is_timeout, model_or_core, is_satisfiable, measure_runtime()
-
+            # Set timeout and solve
+            solver.set("timeout", int(max_time * 1000))
             start_time = time.time()
             result = solver.check()
             
+            # Handle different solver outcomes
             if result == sat:
-                return create_result(
-                    is_timeout=False,
-                    model_or_core=solver.model(),
-                    is_satisfiable=True
-                )
+                return self._create_result(False, solver.model(), True, start_time)
             
             if solver.reason_unknown() == "timeout":
-                return create_result(
-                    is_timeout=True,
-                    model_or_core=None,
-                    is_satisfiable=False
-                )
+                return self._create_result(True, None, False, start_time)
             
-            return create_result(
-                is_timeout=False,
-                model_or_core=solver.unsat_core(),
-                is_satisfiable=False
-            )
-        except RuntimeError as e:  # Handle unexpected exceptions
+            return self._create_result(False, solver.unsat_core(), False, start_time)
+            
+        except RuntimeError as e:
             print(f"An error occurred while running `solve_constraints()`: {e}")
             return True, None, False, None
 

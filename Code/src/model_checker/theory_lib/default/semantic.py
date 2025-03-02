@@ -456,7 +456,7 @@ class Proposition(PropositionDefaults):
 
 class ModelStructure(ModelDefaults):
 
-    def __init__(self, model_constraints, settings):
+    def __init__(self, model_constraints, settings, old_z3_model=None):
         """Initialize ModelStructure with model constraints and optional max time.
         
         Args:
