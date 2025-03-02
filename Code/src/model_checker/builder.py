@@ -322,7 +322,13 @@ class BuildModule:
                 old_z3_model = example.model_structure.z3_model
                 
                 example.find_next_model(old_z3_model)
+                if example.model_structure.z3_model is None:
+                    print("\nNo more models found.")
+                    break
                 example.print_result(example_name, theory_name)
+                
+                if example.settings["iterate"] <= 1:
+                    break
                 return example
 
     def run_examples(self):

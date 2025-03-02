@@ -696,48 +696,6 @@ class ExclusionStructure(model.ModelDefaults):
                 if self.z3_model.evaluate(self.semantics.coheres(bit_x, bit_y))
             ]
 
-            self.debug_print()
-
-    def debug_print(self):
-        print()
-        for bit_x, bit_y in self.z3_conflicts:
-            print(f"Conflicts: {bitvec_to_substates(bit_x, self.N)} conflicts with {bitvec_to_substates(bit_y, self.N)}")
-        for bit_x, bit_y in self.z3_coheres:
-            print(f"  Coheres: {bitvec_to_substates(bit_x, self.N)} coheres with {bitvec_to_substates(bit_y, self.N)}")
-        for bit_x, bit_y in self.z3_excludes:
-            print(f" Excludes: {bitvec_to_substates(bit_x, self.N)} excludes {bitvec_to_substates(bit_y, self.N)}")
-        for bit_x in self.z3_poss_bits:
-            print(f" Possible: {bitvec_to_substates(bit_x, self.N)}")
-
-        # Print all h functions from the model
-        if self.z3_model:
-            print("\nFunctions: (name: input, output)")
-            for decl in self.z3_model.decls():
-                if decl.name().startswith('h_'):
-                    # Create a BitVec for the argument
-                    arg = z3.BitVec("h_arg", self.N)
-                    # Create the function application with the argument
-                    h_func_app = decl(arg)
-                    for bit_x in self.all_bits:
-                        try:
-                            # Evaluate by substituting the actual bit value
-                            h_val = self.z3_model.evaluate(z3.substitute(h_func_app, (arg, bit_x)))
-                            print(f"  {decl.name()}: {bitvec_to_substates(bit_x, self.N)} → {bitvec_to_substates(h_val, self.N)}")
-                        except Exception as e:
-                            continue
-
-        # print()
-        # for bit_x in self.all_bits:
-        #     for bit_y in self.all_bits:
-        #         if self.z3_model.evaluate(self.semantics.conflicts(bit_x, bit_y)):
-        #             print(f"CONFLICT: {bitvec_to_substates(bit_x, self.N)} conflicts with {bitvec_to_substates(bit_y, self.N)}")
-        #             for bit_u in self.all_bits:
-        #                 if self.z3_model.evaluate(self.semantics.is_part_of(bit_u, bit_x)):
-        #                     for bit_v in self.all_bits:
-        #                         if self.z3_model.evaluate(self.semantics.is_part_of(bit_v, bit_y)):
-        #                             if self.z3_model.evaluate(self.semantics.excludes(bit_u, bit_v)):
-        #                                 print(f"EXCLUDERS: {bitvec_to_substates(bit_u, self.N)} excludes {bitvec_to_substates(bit_v, self.N)}\n")
-
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
         in that world"""
@@ -785,6 +743,46 @@ class ExclusionStructure(model.ModelDefaults):
             elif self.settings['print_impossible']:
                 format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
 
+    def print_exclusion(self, output=sys.__stdout__):
+        print()
+        for bit_x, bit_y in self.z3_conflicts:
+            print(f"Conflicts: {bitvec_to_substates(bit_x, self.N)} conflicts with {bitvec_to_substates(bit_y, self.N)}")
+        for bit_x, bit_y in self.z3_coheres:
+            print(f"  Coheres: {bitvec_to_substates(bit_x, self.N)} coheres with {bitvec_to_substates(bit_y, self.N)}")
+        for bit_x, bit_y in self.z3_excludes:
+            print(f" Excludes: {bitvec_to_substates(bit_x, self.N)} excludes {bitvec_to_substates(bit_y, self.N)}")
+        for bit_x in self.z3_poss_bits:
+            print(f" Possible: {bitvec_to_substates(bit_x, self.N)}")
+
+        # Print all h functions from the model
+        if self.z3_model:
+            print("\nFunctions: (name: input, output)")
+            for decl in self.z3_model.decls():
+                if decl.name().startswith('h_'):
+                    # Create a BitVec for the argument
+                    arg = z3.BitVec("h_arg", self.N)
+                    # Create the function application with the argument
+                    h_func_app = decl(arg)
+                    for bit_x in self.all_bits:
+                        try:
+                            # Evaluate by substituting the actual bit value
+                            h_val = self.z3_model.evaluate(z3.substitute(h_func_app, (arg, bit_x)))
+                            print(f"  {decl.name()}: {bitvec_to_substates(bit_x, self.N)} → {bitvec_to_substates(h_val, self.N)}")
+                        except Exception as e:
+                            continue
+
+        # print()
+        # for bit_x in self.all_bits:
+        #     for bit_y in self.all_bits:
+        #         if self.z3_model.evaluate(self.semantics.conflicts(bit_x, bit_y)):
+        #             print(f"CONFLICT: {bitvec_to_substates(bit_x, self.N)} conflicts with {bitvec_to_substates(bit_y, self.N)}")
+        #             for bit_u in self.all_bits:
+        #                 if self.z3_model.evaluate(self.semantics.is_part_of(bit_u, bit_x)):
+        #                     for bit_v in self.all_bits:
+        #                         if self.z3_model.evaluate(self.semantics.is_part_of(bit_v, bit_y)):
+        #                             if self.z3_model.evaluate(self.semantics.excludes(bit_u, bit_v)):
+        #                                 print(f"EXCLUDERS: {bitvec_to_substates(bit_u, self.N)} excludes {bitvec_to_substates(bit_v, self.N)}\n")
+
     def print_all(self, default_settings, example_name, theory_name, output=sys.__stdout__):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
@@ -792,6 +790,7 @@ class ExclusionStructure(model.ModelDefaults):
         self.print_info(model_status, default_settings, example_name, theory_name, output)
         if model_status:
             self.print_states(output)
+            self.print_exclusion(output)
             self.print_evaluation(output)
             self.print_input_sentences(output)
             self.print_model(output)
