@@ -372,8 +372,15 @@ class ModelDefaults:
         self.proposition_class = self.model_constraints.proposition_class
         self.settings = self.model_constraints.settings
 
-        # Solve Z3 constraints and store results
+        # Initialize Z3 attributes
         self.solver = None # TODO: still needed?
+        self.timeout = None
+        self.z3_model = None
+        self.unsat_core = None
+        self.z3_model_status = None
+        self.z3_model_runtime = None
+
+        # Solve Z3 constraints and store results
         solver_results = self.solve(self.model_constraints, self.max_time)
         self._process_solver_results(solver_results)
 
@@ -408,8 +415,10 @@ class ModelDefaults:
         self.z3_model_runtime = z3_model_runtime
         
         # Store either the model or unsat core based on status
-        self.z3_model = z3_model if z3_model_status else None
-        self.unsat_core = z3_model if not z3_model_status else None
+        if z3_model_status:
+            self.z3_model = z3_model
+        else:
+            self.unsat_core = z3_model
 
     def _setup_solver(self, model_constraints):
         """Initialize Z3 solver and add base constraints."""
@@ -438,25 +447,46 @@ class ModelDefaults:
         """Solve the model constraints and return the results."""
         try:
             self.solver = self._setup_solver(model_constraints)
-            solver = self.solver
 
             # Set timeout and solve
-            solver.set("timeout", int(max_time * 1000))
+            self.solver.set("timeout", int(max_time * 1000))
             start_time = time.time()
-            result = solver.check()
+            result = self.solver.check()
             
             # Handle different solver outcomes
             if result == sat:
-                return self._create_result(False, solver.model(), True, start_time)
+                return self._create_result(False, self.solver.model(), True, start_time)
             
-            if solver.reason_unknown() == "timeout":
+            if self.solver.reason_unknown() == "timeout":
                 return self._create_result(True, None, False, start_time)
             
-            return self._create_result(False, solver.unsat_core(), False, start_time)
+            return self._create_result(False, self.solver.unsat_core(), False, start_time)
             
         except RuntimeError as e:
             print(f"An error occurred while running `solve_constraints()`: {e}")
             return True, None, False, None
+    
+    # def re_solve(self):
+    #     """Solve the model constraints and return the results."""
+    #     try:
+    #         if self.solver is None:
+    #             return
+    #
+    #         start_time = time.time()
+    #         result = self.solver.check()
+    #         
+    #         # Handle different solver outcomes
+    #         if result == sat:
+    #             return self._create_result(False, self.solver.model(), True, start_time)
+    #         
+    #         if self.solver.reason_unknown() == "timeout":
+    #             return self._create_result(True, None, False, start_time)
+    #         
+    #         return self._create_result(False, self.solver.unsat_core(), False, start_time)
+    #         
+    #     except RuntimeError as e:
+    #         print(f"An error occurred while running `solve_constraints()`: {e}")
+    #         return True, None, False, None
 
     def check_result(self):
         return self.z3_model_status == self.settings["expectation"]

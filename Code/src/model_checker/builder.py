@@ -320,30 +320,31 @@ class BuildModule:
         2. Initial model generation
         3. Iterative model finding if requested
         """
-        try:
-            # Translate operators if dictionary exists
-            translated_case = self._translate_if_needed(example_case, semantic_theory)
+        # TODO: add try/except back in
+        # try:
+        # Translate operators if dictionary exists
+        translated_case = self._translate_if_needed(example_case, semantic_theory)
+        
+        # Generate initial model
+        with ThreadPoolExecutor() as executor:
+            example = self.run_single_iteration(
+                executor, translated_case, example_name, theory_name, semantic_theory
+            )
             
-            # Generate initial model
-            with ThreadPoolExecutor() as executor:
-                example = self.run_single_iteration(
-                    executor, translated_case, example_name, theory_name, semantic_theory
+            if not example:
+                return None
+                
+            # Handle iteration if requested
+            if example.settings.get("iterate", 0) > 1:
+                example = self._process_iterations(
+                    example, translated_case, example_name, theory_name
                 )
                 
-                if not example:
-                    return None
-                    
-                # Handle iteration if requested
-                if example.settings.get("iterate", 0) > 1:
-                    example = self._process_iterations(
-                        example, translated_case, example_name, theory_name
-                    )
-                    
-                return example
+            return example
                 
-        except Exception as e:
-            print(f"\nError processing example '{example_name}': {str(e)}")
-            return None
+        # except Exception as e:
+        #     print(f"\nError processing example '{example_name}': {str(e)}")
+        #     return None
             
     def _translate_if_needed(self, example_case, semantic_theory):
         """Translate operators if a dictionary is provided in the semantic theory.
@@ -373,19 +374,19 @@ class BuildModule:
         """
         while example.settings["iterate"] > 1:
             # Update settings for next iteration
-            new_case = list(example_case)
-            new_case[2] = example.settings.copy()
-            new_case[2]["iterate"] -= 1
+            example.settings["iterate"] -= 1
             
             # Find next model
             old_z3_model = example.model_structure.z3_model
-            example.find_next_model(old_z3_model)
+            found_model = example.find_next_model(old_z3_model)
             
             # Check if we found another model
-            model = example.model_structure.z3_model
-            status = example.model_structure.z3_model_status
-            if model is None or status is False:
+            if not found_model or example.model_structure.z3_model_status is False:
                 print("\nNo more models found.")
+                break
+                
+            if example.model_structure.z3_model is None:
+                print("\nFailed to find next model.")
                 break
                 
             example.print_result(example_name, theory_name)
@@ -401,7 +402,10 @@ class BuildModule:
         """
         for example_name, example_case in self.example_range.items():
             for theory_name, semantic_theory in self.semantic_theories.items():
-                self.process_example(example_name, example_case, theory_name, semantic_theory)
+                # Make setting reset for each semantic_theory
+                example_copy = list(example_case)
+                example_copy[2] = example_case[2].copy()
+                self.process_example(example_name, example_copy, theory_name, semantic_theory)
 
 class BuildProject:
     """Handles project generation and setup."""
@@ -534,11 +538,52 @@ class BuildExample:
             self.model_constraints,
             self.settings,
         )
+        self.solver = self.model_structure.solver
 
     def find_next_model(self, old_z3_model):
         if old_z3_model is None:
-            return
+            return False
 
+        new_model_constraint = self.find_difference_constraint(old_z3_model)
+        self.model_constraints.all_constraints.append(new_model_constraint)
+
+        # NOTE: this updates the solver and attempts to rebuild the model_structure
+        # self._update_solver(old_z3_model)
+        # new_result = self.model_structure.re_solve()
+        # self.model_structure._process_solver_results(new_result)
+
+        # Create new model structure
+        self.model_structure = self.model_structure_class(
+            self.model_constraints,
+            self.settings,
+        )
+        
+        # Check if we found a valid model
+        return self.model_structure.z3_model is not None
+
+    # def _update_solver(self, old_z3_model):
+    #     """Add constraints requiring difference from a previous model."""
+    #     solver = self.model_structure.solver
+    #     different_model_constraints = []
+    #     
+    #     # Check differences in sentence letter assignments
+    #     for letter in self.model_constraints.sentence_letters:
+    #         old_value = old_z3_model.eval(letter)
+    #         different_model_constraints.append(letter != old_value)
+    #     
+    #     # Check differences in primitive relations/functions
+    #     for primitive_name, primitive in self.model_constraints.semantics.__dict__.items():
+    #         if isinstance(primitive, z3.ExprRef):
+    #             old_value = old_z3_model.eval(primitive)
+    #             different_model_constraints.append(primitive != old_value)
+    #     
+    #     solver.assert_and_track(
+    #         z3.Or(*different_model_constraints),
+    #         f"different_from_model_{hash(str(old_z3_model))}"
+    #     )
+    #     self.solver = solver
+
+    def find_difference_constraint(self, old_z3_model):
         different_model_constraints = []
         
         # Check differences in sentence letter assignments
@@ -551,14 +596,9 @@ class BuildExample:
             if isinstance(primitive, z3.ExprRef):
                 old_value = old_z3_model.eval(primitive)
                 different_model_constraints.append(primitive != old_value)
+                print(f"Primitive to vary between models: {primitive_name}")
 
-        difference = z3.Or(*different_model_constraints)
-        self.model_constraints.all_constraints.append(difference)
-
-        self.model_structure = self.model_structure_class(
-            self.model_constraints,
-            self.settings,
-        )
+        return z3.Or(*different_model_constraints)
 
     # def find_next_model(self, old_z3_model):
     #     if old_z3_model is None:
@@ -570,32 +610,12 @@ class BuildExample:
         #     for model_index, prev_model in enumerate(self.old_z3_models):
         #         self._add_difference_constraints(model_index, prev_model)
 
-    def _load_old_model(self, old_z3_model):
-        if self.old_z3_models is None:
-            self.old_z3_models = [old_z3_model]
-        else:
-            self.old_z3_models.append(old_z3_model)
+    # def _load_old_model(self, old_z3_model):
+    #     if self.old_z3_models is None:
+    #         self.old_z3_models = [old_z3_model]
+    #     else:
+    #         self.old_z3_models.append(old_z3_model)
 
-    def _add_difference_constraints(self, model_index, prev_model):
-        """Add constraints requiring difference from a previous model."""
-        solver = self.model_structure.solver
-        different_model_constraints = []
-        
-        # Check differences in sentence letter assignments
-        for letter in self.model_constraints.sentence_letters:
-            old_value = prev_model.eval(letter)
-            different_model_constraints.append(letter != old_value)
-        
-        # Check differences in primitive relations/functions
-        for primitive_name, primitive in self.model_constraints.semantics.__dict__.items():
-            if isinstance(primitive, z3.ExprRef):
-                old_value = prev_model.eval(primitive)
-                different_model_constraints.append(primitive != old_value)
-        
-        solver.assert_and_track(
-            z3.Or(*different_model_constraints),
-            f"different_from_model_{model_index}"
-        )
 
     def _validate_semantic_theory(self, semantic_theory):
         """Validates that semantic_theory contains the required components in the correct order.
