@@ -1,3 +1,4 @@
+import z3
 import os
 import importlib.util
 import concurrent.futures
@@ -267,7 +268,7 @@ class BuildModule:
             """Display completion message."""
             print("\rRunning model-checker: Done" + " " * 10 + "\n")
 
-    def run_single_iteration(self, executor, example_case, example_name, theory_name, semantic_theory, old_z3_models=None):
+    def run_single_iteration(self, executor, example_case, example_name, theory_name, semantic_theory):
         """Run a single iteration of the model checker with progress tracking."""
         future = executor.submit(
             BuildExample,
@@ -275,7 +276,6 @@ class BuildModule:
             semantic_theory,
             example_case,
             semantic_theory["model"],
-            old_z3_models,
         )
         
         spinner = self.ProgressSpinner()
@@ -319,11 +319,11 @@ class BuildModule:
                 new_case = list(example_case)
                 new_case[2] = example.settings.copy()
                 new_case[2]["iterate"] -= 1
-                old_z3_models = [example.z3_model]
+                old_z3_model = example.model_structure.z3_model
                 
-                example = self.run_single_iteration(
-                    executor, new_case, example_name, theory_name, semantic_theory, old_z3_models
-                )
+                example.find_next_model(old_z3_model)
+                example.print_result(example_name, theory_name)
+                return example
 
     def run_examples(self):
         """Process and execute each example case with all semantic theories.
@@ -435,7 +435,7 @@ class BuildProject:
 class BuildExample:
     """Class to create and store model structure with settings as attributes."""
 
-    def __init__(self, build_module, semantic_theory, example_case, model_structure_class, old_z3_models=None):
+    def __init__(self, build_module, semantic_theory, example_case, model_structure_class):
         """Initialize model structure from module flags."""
         self.module = build_module.module
         self.module_flags = build_module.module_flags
@@ -443,6 +443,7 @@ class BuildExample:
         self.premises, self.conclusions, self.example_settings = self._validate_example(example_case)
         self.settings = self._validate_settings(self.example_settings)
         self.example_syntax = Syntax(self.premises, self.conclusions, self.operators)
+        self.old_z3_models = None
 
         # Create model constraints
         self.model_constraints = ModelConstraints(
@@ -457,14 +458,44 @@ class BuildExample:
         self.model_structure = model_structure_class(
             self.model_constraints,
             self.settings,
-            old_z3_models
         )
-        if old_z3_models is None:
-            self.z3_model = [self.model_structure.z3_model]
-        else:
-            old_z3_models.append(self.model_structure.z3_model)
-            self.z3_model = old_z3_models
 
+    def find_next_model(self, old_z3_model):
+        if old_z3_model is None:
+            return
+        self._load_old_model(old_z3_model)
+
+        # Add difference constraints if we have previous models
+        if self.old_z3_models is not None:
+            for model_index, prev_model in enumerate(self.old_z3_models):
+                self._add_difference_constraints(model_index, prev_model)
+
+    def _load_old_model(self, old_z3_model):
+        if self.old_z3_models is None:
+            self.old_z3_models = [old_z3_model]
+        else:
+            self.old_z3_models.append(old_z3_model)
+
+    def _add_difference_constraints(self, model_index, prev_model):
+        """Add constraints requiring difference from a previous model."""
+        solver = self.model_structure.solver
+        different_model_constraints = []
+        
+        # Check differences in sentence letter assignments
+        for letter in self.model_constraints.sentence_letters:
+            old_value = prev_model.eval(letter)
+            different_model_constraints.append(letter != old_value)
+        
+        # Check differences in primitive relations/functions
+        for primitive_name, primitive in self.model_constraints.semantics.__dict__.items():
+            if isinstance(primitive, z3.ExprRef):
+                old_value = prev_model.eval(primitive)
+                different_model_constraints.append(primitive != old_value)
+        
+        solver.assert_and_track(
+            z3.Or(*different_model_constraints),
+            f"different_from_model_{model_index}"
+        )
 
     def _validate_semantic_theory(self, semantic_theory):
         """Validates that semantic_theory contains the required components in the correct order.

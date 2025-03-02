@@ -376,7 +376,7 @@ EX_CM_7_example = [
 EX_CM_8_premises = []
 EX_CM_8_conclusions = ['(A \\uniequiv \\exclude \\exclude A)']
 EX_CM_8_settings = {
-    'N' : 2,
+    'N' : 1,
     'possible' : False,
     'contingent' : False,
     'non_empty' : False,
@@ -384,6 +384,7 @@ EX_CM_8_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 5,
+    'iterate' : 5,
     'expectation' : True,
 }
 EX_CM_8_example = [

@@ -240,6 +240,7 @@ class ModelConstraints:
         self.semantics = semantics
         self.proposition_class = proposition_class
         self.settings = settings
+        # self.old_z3_models = None
 
         # Store syntax values
         self.premises = self.syntax.premises
@@ -283,6 +284,12 @@ class ModelConstraints:
         premises = list(self.syntax.premises)
         conclusions = list(self.syntax.conclusions)
         return f"ModelConstraints for premises {premises} and conclusions {conclusions}"
+
+    # def _store_z3_model(self, old_z3_model):
+    #     if self.old_z3_models is None:
+    #         self.old_z3_models = [old_z3_model]
+    #     else:
+    #         self.old_z3_models.append(old_z3_model)
 
     def _load_sentence_letters(self):
         sentence_letters = []
@@ -339,7 +346,7 @@ class ModelConstraints:
 class ModelDefaults:
     """Solves and stores the Z3 model for an instance of ModelSetup."""
 
-    def __init__(self, model_constraints, settings, old_z3_models=None):
+    def __init__(self, model_constraints, settings):
         self.constraint_dict = {} # hopefully temporary, for unsat_core
 
         # Store arguments
@@ -366,8 +373,9 @@ class ModelDefaults:
         self.settings = self.model_constraints.settings
 
         # Solve Z3 constraints and store results
-        solver_restults = self.solve(self.model_constraints, self.max_time, old_z3_models)
-        self._process_solver_results(solver_restults)
+        self.solver = None
+        solver_results = self.solve(self.model_constraints, self.max_time)
+        self._process_solver_results(solver_results)
 
         # Exit early if no valid model was found
         if self.timeout or self.z3_model is None:
@@ -421,40 +429,16 @@ class ModelDefaults:
                 
         return solver
 
-    def _add_difference_constraints(self, solver, prev_model, model_index):
-        """Add constraints requiring difference from a previous model."""
-        different_model_constraints = []
-        
-        # Check differences in sentence letter assignments
-        for letter in self.model_constraints.sentence_letters:
-            old_value = prev_model.eval(letter)
-            different_model_constraints.append(letter != old_value)
-        
-        # Check differences in primitive relations/functions
-        for primitive_name, primitive in self.model_constraints.semantics.__dict__.items():
-            if isinstance(primitive, z3.ExprRef):
-                old_value = prev_model.eval(primitive)
-                different_model_constraints.append(primitive != old_value)
-        
-        solver.assert_and_track(
-            z3.Or(*different_model_constraints),
-            f"different_from_model_{model_index}"
-        )
-
     def _create_result(self, is_timeout, model_or_core, is_satisfiable, start_time):
         """Create a standardized result tuple."""
         runtime = round(time.time() - start_time, 4)
         return is_timeout, model_or_core, is_satisfiable, runtime
 
-    def solve(self, model_constraints, max_time, old_z3_models=None):
+    def solve(self, model_constraints, max_time):
         """Solve the model constraints and return the results."""
         try:
-            solver = self._setup_solver(model_constraints)
-            
-            # Add difference constraints if we have previous models
-            if old_z3_models is not None:
-                for model_index, prev_model in enumerate(old_z3_models):
-                    self._add_difference_constraints(solver, prev_model, model_index)
+            self.solver = self._setup_solver(model_constraints)
+            solver = self.solver
 
             # Set timeout and solve
             solver.set("timeout", int(max_time * 1000))
