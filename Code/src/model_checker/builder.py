@@ -304,32 +304,93 @@ class BuildModule:
             return None
 
     def process_example(self, example_name, example_case, theory_name, semantic_theory):
-        """Process a single example with the given semantic theory."""
-        # Translate operators if dictionary exists
-        if semantic_theory.get("dictionary"):
-            example_case = self.translate(example_case, semantic_theory["dictionary"])
+        """Process a single example with the given semantic theory.
+        
+        Args:
+            example_name (str): Name of the example being processed
+            example_case (list): List containing [premises, conclusions, settings]
+            theory_name (str): Name of the semantic theory being used
+            semantic_theory (dict): Dictionary containing semantic theory configuration
             
-        with ThreadPoolExecutor() as executor:
-            example = self.run_single_iteration(
-                executor, example_case, example_name, theory_name, semantic_theory
-            )
+        Returns:
+            BuildExample: The processed example object, or None if processing failed
             
-            # Handle iteration if needed
-            while example and example.settings.get("iterate", 0) > 1:
-                new_case = list(example_case)
-                new_case[2] = example.settings.copy()
-                new_case[2]["iterate"] -= 1
-                old_z3_model = example.model_structure.z3_model
+        This method handles:
+        1. Operator translation if needed
+        2. Initial model generation
+        3. Iterative model finding if requested
+        """
+        try:
+            # Translate operators if dictionary exists
+            translated_case = self._translate_if_needed(example_case, semantic_theory)
+            
+            # Generate initial model
+            with ThreadPoolExecutor() as executor:
+                example = self.run_single_iteration(
+                    executor, translated_case, example_name, theory_name, semantic_theory
+                )
                 
-                example.find_next_model(old_z3_model)
-                if example.model_structure.z3_model is None:
-                    print("\nNo more models found.")
-                    break
-                example.print_result(example_name, theory_name)
-                
-                if example.settings["iterate"] <= 1:
-                    break
+                if not example:
+                    return None
+                    
+                # Handle iteration if requested
+                if example.settings.get("iterate", 0) > 1:
+                    example = self._process_iterations(
+                        example, translated_case, example_name, theory_name
+                    )
+                    
                 return example
+                
+        except Exception as e:
+            print(f"\nError processing example '{example_name}': {str(e)}")
+            return None
+            
+    def _translate_if_needed(self, example_case, semantic_theory):
+        """Translate operators if a dictionary is provided in the semantic theory.
+        
+        Args:
+            example_case (list): Original example case
+            semantic_theory (dict): Semantic theory configuration
+            
+        Returns:
+            list: Translated example case, or original if no translation needed
+        """
+        if semantic_theory.get("dictionary"):
+            return self.translate(example_case.copy(), semantic_theory["dictionary"])
+        return example_case
+        
+    def _process_iterations(self, example, example_case, example_name, theory_name):
+        """Process additional model iterations if requested.
+        
+        Args:
+            example (BuildExample): Current example being processed
+            example_case (list): Current example case
+            example_name (str): Name of the example
+            theory_name (str): Name of the semantic theory
+            
+        Returns:
+            BuildExample: The final example after all iterations
+        """
+        while example.settings["iterate"] > 1:
+            # Update settings for next iteration
+            new_case = list(example_case)
+            new_case[2] = example.settings.copy()
+            new_case[2]["iterate"] -= 1
+            
+            # Find next model
+            old_z3_model = example.model_structure.z3_model
+            example.find_next_model(old_z3_model)
+            
+            # Check if we found another model
+            model = example.model_structure.z3_model
+            status = example.model_structure.z3_model_status
+            if model is None or status is False:
+                print("\nNo more models found.")
+                break
+                
+            example.print_result(example_name, theory_name)
+            
+        return example
 
     def run_examples(self):
         """Process and execute each example case with all semantic theories.
@@ -443,13 +504,21 @@ class BuildExample:
 
     def __init__(self, build_module, semantic_theory, example_case, model_structure_class):
         """Initialize model structure from module flags."""
+        # Store from build_module
         self.module = build_module.module
         self.module_flags = build_module.module_flags
+
+        # Unpack semantic_theory and example_case
         self.semantics, self.proposition, self.operators, self.dictionary = self._validate_semantic_theory(semantic_theory)
         self.premises, self.conclusions, self.example_settings = self._validate_example(example_case)
-        self.settings = self._validate_settings(self.example_settings)
         self.example_syntax = Syntax(self.premises, self.conclusions, self.operators)
-        self.old_z3_models = None
+        self.settings = self._validate_settings(self.example_settings)
+
+        # Store model_structure_class
+        self.model_structure_class = model_structure_class
+
+        # TODO: is this needed still
+        # self.old_z3_models = None
 
         # Create model constraints
         self.model_constraints = ModelConstraints(
@@ -461,7 +530,7 @@ class BuildExample:
         )
 
         # Create model structure with max_time from settings
-        self.model_structure = model_structure_class(
+        self.model_structure = self.model_structure_class(
             self.model_constraints,
             self.settings,
         )
@@ -469,12 +538,37 @@ class BuildExample:
     def find_next_model(self, old_z3_model):
         if old_z3_model is None:
             return
-        self._load_old_model(old_z3_model)
 
-        # Add difference constraints if we have previous models
-        if self.old_z3_models is not None:
-            for model_index, prev_model in enumerate(self.old_z3_models):
-                self._add_difference_constraints(model_index, prev_model)
+        different_model_constraints = []
+        
+        # Check differences in sentence letter assignments
+        for letter in self.model_constraints.sentence_letters:
+            old_value = old_z3_model.eval(letter)
+            different_model_constraints.append(letter != old_value)
+        
+        # Check differences in primitive relations/functions
+        for primitive_name, primitive in self.model_constraints.semantics.__dict__.items():
+            if isinstance(primitive, z3.ExprRef):
+                old_value = old_z3_model.eval(primitive)
+                different_model_constraints.append(primitive != old_value)
+
+        difference = z3.Or(*different_model_constraints)
+        self.model_constraints.all_constraints.append(difference)
+
+        self.model_structure = self.model_structure_class(
+            self.model_constraints,
+            self.settings,
+        )
+
+    # def find_next_model(self, old_z3_model):
+    #     if old_z3_model is None:
+    #         return
+        # self._load_old_model(old_z3_model)
+        #
+        # # Add difference constraints if we have previous models
+        # if self.old_z3_models is not None:
+        #     for model_index, prev_model in enumerate(self.old_z3_models):
+        #         self._add_difference_constraints(model_index, prev_model)
 
     def _load_old_model(self, old_z3_model):
         if self.old_z3_models is None:
