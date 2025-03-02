@@ -13,7 +13,10 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
       - past
       - necessity
   - implement
-- [:] applications
+- tools
+  - [ ] iterate
+  - [ ] minimize
+- applications
   - [:] _M_ Champollion
     - [.] examples
     - [x] divide into modules
@@ -21,9 +24,9 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] implement
     - [x] separate from default
 - [x] benchmarks
-- [:] unit tests
-  - [:] example unit tests
-  - [ ] add unit tests to theories
+- [x] unit tests
+  - [x] example unit tests
+  - [x] add unit tests to theories
 - [.] documentation
   - [.] _B_ doc strings
   - [x] _B_ readmes

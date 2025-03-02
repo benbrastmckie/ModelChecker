@@ -4,6 +4,7 @@ import concurrent.futures
 import time
 import shutil
 import subprocess
+from concurrent.futures.thread import ThreadPoolExecutor
 
 # Try local imports first (for development)
 try:
@@ -249,44 +250,91 @@ class BuildModule:
             self.compare_semantics(example_theory_tuples)
             print(f"\n{'='*40}")
 
+    class ProgressSpinner:
+        """Displays an animated progress spinner while a task runs."""
+        
+        def __init__(self):
+            self.progress_chars = ["-", "\\", "|", "/"]
+            self.current = 0
+            
+        def update(self):
+            """Update and display the next spinner character."""
+            print(f"\rRunning model-checker: {self.progress_chars[self.current]}", 
+                  end="", flush=True)
+            self.current = (self.current + 1) % len(self.progress_chars)
+            
+        def complete(self):
+            """Display completion message."""
+            print("\rRunning model-checker: Done" + " " * 10 + "\n")
+
+    def run_single_iteration(self, executor, example_case, example_name, theory_name, semantic_theory, old_z3_models=None):
+        """Run a single iteration of the model checker with progress tracking."""
+        future = executor.submit(
+            BuildExample,
+            self,
+            semantic_theory,
+            example_case,
+            semantic_theory["model"],
+            old_z3_models,
+        )
+        
+        spinner = self.ProgressSpinner()
+        start_time = time.time()
+        example_max_time = example_case[2]["max_time"]
+        
+        while not future.done() and (time.time() - start_time) < example_max_time:
+            spinner.update()
+            time.sleep(0.1)
+            
+        spinner.complete()
+        
+        try:
+            example = future.result(timeout=0)
+            if example is None:
+                return None
+                
+            example.print_result(example_name, theory_name)
+            return example
+            
+        except TimeoutError:
+            print(f"\nExample '{example_name}' timed out after {example_max_time} seconds")
+            return None
+        except Exception as e:
+            print(f"\nError running example '{example_name}': {str(e)}")
+            return None
+
+    def process_example(self, example_name, example_case, theory_name, semantic_theory):
+        """Process a single example with the given semantic theory."""
+        # Translate operators if dictionary exists
+        if semantic_theory.get("dictionary"):
+            example_case = self.translate(example_case, semantic_theory["dictionary"])
+            
+        with ThreadPoolExecutor() as executor:
+            example = self.run_single_iteration(
+                executor, example_case, example_name, theory_name, semantic_theory
+            )
+            
+            # Handle iteration if needed
+            while example and example.settings.get("iterate", 0) > 1:
+                new_case = list(example_case)
+                new_case[2] = example.settings.copy()
+                new_case[2]["iterate"] -= 1
+                old_z3_models = [example.z3_model]
+                
+                example = self.run_single_iteration(
+                    executor, new_case, example_name, theory_name, semantic_theory, old_z3_models
+                )
+
     def run_examples(self):
+        """Process and execute each example case with all semantic theories.
+        
+        Iterates through example cases and theories, translating operators if needed.
+        Runs model checking with progress indicator and timeout handling.
+        Prints results or timeout message for each example/theory combination.
+        """
         for example_name, example_case in self.example_range.items():
             for theory_name, semantic_theory in self.semantic_theories.items():
-                dictionary = semantic_theory.get("dictionary", None)
-                if dictionary:
-                    example_case = self.translate(example_case, dictionary)
-                example_max_time = example_case[2]["max_time"]
-
-                from concurrent.futures import ThreadPoolExecutor, TimeoutError
-
-                with ThreadPoolExecutor() as executor:
-                    # Submit the build task
-                    future = executor.submit(
-                        BuildExample,
-                        self,
-                        semantic_theory,
-                        example_case,
-                        semantic_theory["model"]
-                    )
-                    
-                    # Create and update progress indicator
-                    print("Running model-checker: ", end="", flush=True)
-                    start_time = time.time()
-                    progress_chars = ["-", "\\", "|", "/"]
-                    i = 0
-                    while not future.done() and (time.time() - start_time) < example_max_time:
-                        print(f"\rRunning model-checker: {progress_chars[i]}", end="", flush=True)
-                        i = (i + 1) % len(progress_chars)
-                        time.sleep(0.1)
-                    print("\rRunning model-checker: Done" + " " * 10 + "\n")
-                    
-                    try:
-                        example = future.result(timeout=0)  # Get result if ready
-                        if example is not None:
-                            example.print_result(example_name, theory_name)
-                    except TimeoutError:
-                        print(f"\nExample '{example_name}' timed out after {example_max_time} seconds")
-
+                self.process_example(example_name, example_case, theory_name, semantic_theory)
 
 class BuildProject:
     """Handles project generation and setup."""
@@ -387,7 +435,7 @@ class BuildProject:
 class BuildExample:
     """Class to create and store model structure with settings as attributes."""
 
-    def __init__(self, build_module, semantic_theory, example_case, model_structure_class):
+    def __init__(self, build_module, semantic_theory, example_case, model_structure_class, old_z3_models=None):
         """Initialize model structure from module flags."""
         self.module = build_module.module
         self.module_flags = build_module.module_flags
@@ -408,8 +456,14 @@ class BuildExample:
         # Create model structure with max_time from settings
         self.model_structure = model_structure_class(
             self.model_constraints,
-            self.settings
+            self.settings,
+            old_z3_models
         )
+        if old_z3_models is None:
+            self.z3_model = [self.model_structure.z3_model]
+        else:
+            old_z3_models.append(self.model_structure.z3_model)
+            self.z3_model = old_z3_models
 
 
     def _validate_semantic_theory(self, semantic_theory):
