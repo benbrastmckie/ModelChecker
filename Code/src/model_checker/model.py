@@ -373,7 +373,7 @@ class ModelDefaults:
         self.settings = self.model_constraints.settings
 
         # Solve Z3 constraints and store results
-        self.solver = None
+        self.solver = None # TODO: still needed?
         solver_results = self.solve(self.model_constraints, self.max_time)
         self._process_solver_results(solver_results)
 
