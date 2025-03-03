@@ -384,7 +384,7 @@ EX_CM_8_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 5,
-    'iterate' : 5,
+    'iterate' : 3,
     'expectation' : True,
 }
 EX_CM_8_example = [

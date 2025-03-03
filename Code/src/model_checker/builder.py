@@ -14,6 +14,7 @@ try:
         SemanticDefaults,
         PropositionDefaults,
         ModelConstraints,
+        ModelDefaults,
     )
     from src.model_checker.syntactic import (
         OperatorCollection, 
@@ -26,6 +27,7 @@ except ImportError:
         SemanticDefaults,
         PropositionDefaults,
         ModelConstraints,
+        ModelDefaults,
     )
     from model_checker.syntactic import (
         OperatorCollection,
@@ -274,8 +276,7 @@ class BuildModule:
             BuildExample,
             self,
             semantic_theory,
-            example_case,
-            semantic_theory["model"],
+            example_case
         )
         
         spinner = self.ProgressSpinner()
@@ -334,11 +335,12 @@ class BuildModule:
             if not example:
                 return None
                 
-            # Handle iteration if requested
-            if example.settings.get("iterate", 0) > 1:
-                example = self._process_iterations(
-                    example, translated_case, example_name, theory_name
-                )
+            # TODO: if keep, remove process_iterations from example for-loop
+            # # Handle iteration if requested
+            # if example.settings.get("iterate", 0) > 1:
+            #     example = self._process_iterations(
+            #         example, translated_case, example_name, theory_name
+            #     )
                 
             return example
                 
@@ -360,7 +362,7 @@ class BuildModule:
             return self.translate(example_case.copy(), semantic_theory["dictionary"])
         return example_case
         
-    def _process_iterations(self, example, example_case, example_name, theory_name):
+    def process_iterations(self, example_name, example_case, theory_name, semantic_theory):
         """Process additional model iterations if requested.
         
         Args:
@@ -372,6 +374,9 @@ class BuildModule:
         Returns:
             BuildExample: The final example after all iterations
         """
+        example = BuildExample(self, semantic_theory, example_case)
+        example_max_time = example_case[2]["max_time"]
+
         while example.settings["iterate"] > 1:
             # Update settings for next iteration
             example.settings["iterate"] -= 1
@@ -405,7 +410,10 @@ class BuildModule:
                 # Make setting reset for each semantic_theory
                 example_copy = list(example_case)
                 example_copy[2] = example_case[2].copy()
-                self.process_example(example_name, example_copy, theory_name, semantic_theory)
+                if example_copy[2]["iterate"] > 1:
+                    self.process_iterations(example_name, example_copy, theory_name, semantic_theory)
+                else:
+                    self.process_example(example_name, example_copy, theory_name, semantic_theory)
 
 class BuildProject:
     """Handles project generation and setup."""
@@ -506,25 +514,28 @@ class BuildProject:
 class BuildExample:
     """Class to create and store model structure with settings as attributes."""
 
-    def __init__(self, build_module, semantic_theory, example_case, model_structure_class):
+    def __init__(self, build_module, semantic_theory, example_case):
         """Initialize model structure from module flags."""
         # Store from build_module
         self.module = build_module.module
         self.module_flags = build_module.module_flags
 
-        # Unpack semantic_theory and example_case
-        self.semantics, self.proposition, self.operators, self.dictionary = self._validate_semantic_theory(semantic_theory)
+        # Unpack and store semantic_theory
+        self.semantics = None
+        self.proposition = None
+        self.operators = None
+        self.dictionary = None
+        self.model_structure_class = None
+        self._validate_semantic_theory(semantic_theory)
+
+        # Unpack and store example_case
         self.premises, self.conclusions, self.example_settings = self._validate_example(example_case)
         self.example_syntax = Syntax(self.premises, self.conclusions, self.operators)
         self.settings = self._validate_settings(self.example_settings)
 
-        # Store model_structure_class
-        self.model_structure_class = model_structure_class
-
-        # TODO: is this needed still
-        # self.old_z3_models = None
-
         # Create model constraints
+        if self.semantics is None:
+            raise AttributeError(f"Semantics is None in BuildExample.")
         self.model_constraints = ModelConstraints(
             self.settings,
             self.example_syntax,
@@ -534,6 +545,8 @@ class BuildExample:
         )
 
         # Create model structure with max_time from settings
+        if self.model_structure_class is None:
+            raise AttributeError(f"The model_structure_class is None in BuildExample.")
         self.model_structure = self.model_structure_class(
             self.model_constraints,
             self.settings,
@@ -547,41 +560,39 @@ class BuildExample:
         new_model_constraint = self.find_difference_constraint(old_z3_model)
         self.model_constraints.all_constraints.append(new_model_constraint)
 
-        # NOTE: this updates the solver and attempts to rebuild the model_structure
-        # self._update_solver(old_z3_model)
-        # new_result = self.model_structure.re_solve()
-        # self.model_structure._process_solver_results(new_result)
+        # update the solver by ruling out the old_z3_model
+        self._update_solver(old_z3_model)
+        new_result = self.model_structure.re_solve()
+        self.model_structure._process_solver_results(new_result)
+        new_z3_model = self.model_structure.z3_model
+        new_z3_model_status = self.model_structure.z3_model_status
+        if new_z3_model_status and new_z3_model is not None:
+            self.model_structure._update_model_structure(new_z3_model)
 
-        # Create new model structure
-        self.model_structure = self.model_structure_class(
-            self.model_constraints,
-            self.settings,
-        )
-        
         # Check if we found a valid model
         return self.model_structure.z3_model is not None
 
-    # def _update_solver(self, old_z3_model):
-    #     """Add constraints requiring difference from a previous model."""
-    #     solver = self.model_structure.solver
-    #     different_model_constraints = []
-    #     
-    #     # Check differences in sentence letter assignments
-    #     for letter in self.model_constraints.sentence_letters:
-    #         old_value = old_z3_model.eval(letter)
-    #         different_model_constraints.append(letter != old_value)
-    #     
-    #     # Check differences in primitive relations/functions
-    #     for primitive_name, primitive in self.model_constraints.semantics.__dict__.items():
-    #         if isinstance(primitive, z3.ExprRef):
-    #             old_value = old_z3_model.eval(primitive)
-    #             different_model_constraints.append(primitive != old_value)
-    #     
-    #     solver.assert_and_track(
-    #         z3.Or(*different_model_constraints),
-    #         f"different_from_model_{hash(str(old_z3_model))}"
-    #     )
-    #     self.solver = solver
+    def _update_solver(self, old_z3_model):
+        """Add constraints requiring difference from a previous model."""
+        solver = self.model_structure.solver
+        different_model_constraints = []
+        
+        # Check differences in sentence letter assignments
+        for letter in self.model_constraints.sentence_letters:
+            old_value = old_z3_model.eval(letter)
+            different_model_constraints.append(letter != old_value)
+        
+        # Check differences in primitive relations/functions
+        for primitive_name, primitive in self.model_constraints.semantics.__dict__.items():
+            if isinstance(primitive, z3.ExprRef):
+                old_value = old_z3_model.eval(primitive)
+                different_model_constraints.append(primitive != old_value)
+        
+        solver.assert_and_track(
+            z3.Or(*different_model_constraints),
+            f"different_from_model_{hash(str(old_z3_model))}"
+        )
+        self.solver = solver
 
     def find_difference_constraint(self, old_z3_model):
         different_model_constraints = []
@@ -636,30 +647,35 @@ class BuildExample:
                 "(Semantics, Proposition, OperatorCollection)"
             )
 
-        semantics = semantic_theory["semantics"]
-        proposition = semantic_theory["proposition"] 
-        operators = semantic_theory["operators"]
-        dictionary = semantic_theory.get("operators", None)
+        self.semantics = semantic_theory["semantics"]
+        self.proposition = semantic_theory["proposition"] 
+        self.operators = semantic_theory["operators"]
+        self.dictionary = semantic_theory.get("dictionary", None)
+        self.model_structure_class = semantic_theory["model"]
 
         # Validate semantics is subclass of SemanticDefaults
         if not issubclass(semantic_theory["semantics"], SemanticDefaults):
             raise TypeError(
-                f"First element must be a subclass of SemanticDefaults, got {type(semantics)}"
+                f"First element must be a subclass of SemanticDefaults, got {type(self.semantics)}"
             )
 
         # Validate proposition is subclass of PropositionDefaults
-        if not issubclass(proposition, PropositionDefaults):
+        if not issubclass(self.proposition, PropositionDefaults):
             raise TypeError(
-                f"Second element must be a subclass of PropositionDefaults, got {type(proposition)}"
+                f"Second element must be a subclass of PropositionDefaults, got {type(self.proposition)}"
             )
 
         # Validate operators is instance of OperatorCollection
-        if not isinstance(operators, OperatorCollection):
+        if not isinstance(self.operators, OperatorCollection):
             raise TypeError(
-                f"Third element must be an instance of OperatorCollection, got {type(operators)}"
+                f"Third element must be an instance of OperatorCollection, got {type(self.operators)}"
             )
 
-        return semantics, proposition, operators, dictionary
+        # Validate model_structure_class is instance of ModelDefaults
+        if not issubclass(self.model_structure_class, ModelDefaults):
+            raise TypeError(
+                f"Third element must be an instance of OperatorCollection, got {type(self.operators)}"
+            )
 
     def _validate_example(self, example_case):
         """Validates that example_case contains lists of strings and a dictionary.
