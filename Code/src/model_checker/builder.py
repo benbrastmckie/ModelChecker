@@ -1,5 +1,6 @@
 import z3
 import os
+import inspect
 import importlib.util
 import concurrent.futures
 import time
@@ -374,29 +375,42 @@ class BuildModule:
         Returns:
             BuildExample: The final example after all iterations
         """
-        example = BuildExample(self, semantic_theory, example_case)
-        example_max_time = example_case[2]["max_time"]
-
-        while example.settings["iterate"] > 1:
-            # Update settings for next iteration
-            example.settings["iterate"] -= 1
+        try:
+            example = BuildExample(self, semantic_theory, example_case)
+            example_max_time = example_case[2]["max_time"]
             
-            # Find next model
-            old_z3_model = example.model_structure.z3_model
-            found_model = example.find_next_model(old_z3_model)
+            # Print initial model
+            if example.model_structure.z3_model is not None:
+                example.print_result(example_name, theory_name)
             
-            # Check if we found another model
-            if not found_model or example.model_structure.z3_model_status is False:
-                print("\nNo more models found.")
-                break
+            while example.settings["iterate"] > 1:
+                # Update settings for next iteration
+                example.settings["iterate"] -= 1
                 
-            if example.model_structure.z3_model is None:
-                print("\nFailed to find next model.")
-                break
+                # Find next model
+                old_z3_model = example.model_structure.z3_model
+                if old_z3_model is None:
+                    print("\nNo valid model to iterate from.")
+                    break
+                    
+                found_model = example.find_next_model(old_z3_model)
                 
-            example.print_result(example_name, theory_name)
+                # Check if we found another model
+                if not found_model or example.model_structure.z3_model_status is False:
+                    print("\nNo more models found.")
+                    break
+                    
+                if example.model_structure.z3_model is None:
+                    print("\nFailed to find next model.")
+                    break
+                    
+                example.print_result(example_name, theory_name)
+                
+            return example
             
-        return example
+        except Exception as e:
+            print(f"\nError processing iterations for example '{example_name}': {str(e)}")
+            return None
 
     def run_examples(self):
         """Process and execute each example case with all semantic theories.
@@ -554,62 +568,146 @@ class BuildExample:
         self.solver = self.model_structure.solver
 
     def find_next_model(self, old_z3_model):
+        """Find the next model that differs from the previous one."""
         if old_z3_model is None:
+            print("Warning: No previous model provided to find_next_model")
             return False
 
-        new_model_constraint = self.find_difference_constraint(old_z3_model)
-        self.model_constraints.all_constraints.append(new_model_constraint)
-
-        # update the solver by ruling out the old_z3_model
-        self._update_solver(old_z3_model)
-        new_result = self.model_structure.re_solve()
-        self.model_structure._process_solver_results(new_result)
-        new_z3_model = self.model_structure.z3_model
-        new_z3_model_status = self.model_structure.z3_model_status
-        if new_z3_model_status and new_z3_model is not None:
-            self.model_structure._update_model_structure(new_z3_model)
-
-        # Check if we found a valid model
-        return self.model_structure.z3_model is not None
+        try:
+            # Update the solver by ruling out the old_z3_model
+            self._update_solver(old_z3_model)
+            
+            # Try to find a new model
+            new_result = self.model_structure.re_solve()
+            if new_result is None:
+                print("Warning: re_solve() returned None")
+                return False
+                
+            # Process the results
+            try:
+                self.model_structure._process_solver_results(new_result)
+            except Exception as e:
+                print(f"Error processing solver results: {e}")
+                return False
+            
+            # Check if we found a valid new model
+            if not self.model_structure.z3_model_status:
+                print("Warning: Model status is False")
+                return False
+                
+            if self.model_structure.z3_model is None:
+                print("Warning: Z3 model is None")
+                return False
+                
+            try:
+                self.model_structure._update_model_structure(
+                    self.model_structure.z3_model
+                )
+                return True
+            except z3.Z3Exception as e:
+                print(f"Warning: Failed to update model structure: {e}")
+                print("Current model state:")
+                print(f"  Model status: {self.model_structure.z3_model_status}")
+                print(f"  Model type: {type(self.model_structure.z3_model)}")
+                return False
+            
+        except z3.Z3Exception as e:
+            print(f"Warning: Z3 exception in find_next_model: {e}")
+            return False
+        except Exception as e:
+            print(f"Error in find_next_model: {str(e)}")
+            print(f"Error type: {type(e)}")
+            import traceback
+            print(f"Traceback:\n{traceback.format_exc()}")
+            return False
 
     def _update_solver(self, old_z3_model):
-        """Add constraints requiring difference from a previous model."""
-        solver = self.model_structure.solver
-        different_model_constraints = []
+        """Add constraints requiring difference from a previous model.
         
-        # Check differences in sentence letter assignments
-        for letter in self.model_constraints.sentence_letters:
-            old_value = old_z3_model.eval(letter)
-            different_model_constraints.append(letter != old_value)
-        
-        # Check differences in primitive relations/functions
-        for primitive_name, primitive in self.model_constraints.semantics.__dict__.items():
-            if isinstance(primitive, z3.ExprRef):
-                old_value = old_z3_model.eval(primitive)
-                different_model_constraints.append(primitive != old_value)
-        
-        solver.assert_and_track(
-            z3.Or(*different_model_constraints),
-            f"different_from_model_{hash(str(old_z3_model))}"
-        )
-        self.solver = solver
+        Only creates constraints for primitive functions and sentence letters,
+        leaving all other aspects of the model free to remain the same or change.
+        """
+        try:
+            solver = self.model_structure.solver
+            different_model_constraints = []
+            
+            # Process sentence letters
+            for letter in self.model_constraints.sentence_letters:
+                if not isinstance(letter, z3.ExprRef):
+                    continue
+                try:
+                    old_value = old_z3_model.eval(letter, model_completion=True)
+                    if old_value is not None:
+                        # Create proper Z3 comparison
+                        different_model_constraints.append(letter != old_value)
+                except z3.Z3Exception as e:
+                    print(f"Warning: Failed to evaluate letter {letter}: {e}")
+                    continue
 
-    def find_difference_constraint(self, old_z3_model):
-        different_model_constraints = []
-        
-        # Check differences in sentence letter assignments
-        for letter in self.model_constraints.sentence_letters:
-            old_value = old_z3_model.eval(letter)
-            different_model_constraints.append(letter != old_value)
-        
-        # Check differences in primitive relations/functions
-        for primitive_name, primitive in self.model_constraints.semantics.__dict__.items():
-            if isinstance(primitive, z3.ExprRef):
-                old_value = old_z3_model.eval(primitive)
-                different_model_constraints.append(primitive != old_value)
-                print(f"Primitive to vary between models: {primitive_name}")
+            # Process primitive functions
+            for name, func in self.model_constraints.semantics.__dict__.items():
+                # Skip non-Z3 items and internal attributes
+                if name.startswith('_') or not isinstance(func, z3.FuncDeclRef):
+                    print(f"EXCLUDED: {name} TYPE: {type(func)}")
+                    continue
+                    
+                print(f"KEPT: {name} TYPE: {type(func)}")
+                try:
+                    if isinstance(func, z3.FuncDeclRef):
+                        # For function declarations, we need to create differences in their interpretations
+                        arity = func.arity()
+                        if arity > 0:
+                            # For functions with arguments, create existential constraint
+                            # that requires some input to produce a different output
+                            args = [z3.Int(f'arg_{i}') for i in range(arity)]
+                            func_app = func(*args)
+                            # Create constraint requiring some input to give different output
+                            different_model_constraints.append(
+                                z3.Exists(args, func_app != old_z3_model.eval(func_app, model_completion=True))
+                            )
+                    # elif isinstance(func, z3.ExprRef):
+                    #     # For direct expressions
+                    #     old_value = old_z3_model.eval(func, model_completion=True)
+                    #     if old_value is not None:
+                    #         different_model_constraints.append(func != old_value)
+                            
+                except z3.Z3Exception as e:
+                    print(f"Warning: Failed to process {name}: {e}")
+                    continue
 
-        return z3.Or(*different_model_constraints)
+            # Add the disjunction of differences as a constraint
+            if different_model_constraints:
+                print("DEBUG", different_model_constraints)
+                try:
+                    constraint = z3.Or(*different_model_constraints)
+                    solver.assert_and_track(
+                        constraint,
+                        f"different_from_model_{hash(str(old_z3_model))}"
+                    )
+                    self.solver = solver
+                except z3.Z3Exception as e:
+                    print(f"Warning: Failed to create constraint: {e}")
+                
+        except Exception as e:
+            print(f"Error in _update_solver: {str(e)}")
+            raise
+
+    # def find_difference_constraint(self, old_z3_model):
+    #     different_model_constraints = []
+    #     
+    #     # Check differences in sentence letter assignments
+    #     for letter in self.model_constraints.sentence_letters:
+    #         old_value = old_z3_model.eval(letter)
+    #         different_model_constraints.append(letter != old_value)
+    #     
+    #     # Check differences in primitive relations/functions
+    #     for primitive_name, primitive in self.model_constraints.semantics.__dict__.items():
+    #         if isinstance(primitive, z3.ExprRef):
+    #             old_value = old_z3_model.eval(primitive)
+    #             different_model_constraints.append(primitive != old_value)
+    #             print(f"Primitive to vary between models: {primitive_name}")
+    #
+    #     return z3.Or(*different_model_constraints)
 
     # def find_next_model(self, old_z3_model):
     #     if old_z3_model is None:
@@ -801,10 +899,46 @@ class BuildExample:
         """Prints resulting model or no model if none is found."""
         model_structure = self.model_structure
         default_settings = self.example_settings
-        model_structure.print_to(default_settings, example_name, theory_name)
-        if model_structure.settings["save_output"]:
-            file_name, save_constraints = self.ask_save()
-            self.save_or_append(model_structure, file_name, save_constraints, example_name, theory_name)
+        
+        try:
+            if model_structure.z3_model is None:
+                print(f"\nNo model found for example '{example_name}' with theory '{theory_name}'")
+                return
+                
+            # # Debug info before printing
+            # print("\nModel debug information:")
+            # print(f"  Model status: {model_structure.z3_model_status}")
+            # print(f"  Model type: {type(model_structure.z3_model)}")
+            
+            try:
+                # Verify model is still satisfiable
+                if not model_structure.solver.check().r > 0:
+                    print("Warning: Model is no longer satisfiable")
+                    return
+                    
+                model_structure.print_to(default_settings, example_name, theory_name)
+                
+            except z3.Z3Exception as e:
+                print(f"\nZ3 error while printing model: {str(e)}")
+                print("Model state:")
+                print(f"  Solver status: {model_structure.solver.check()}")
+                print(f"  Model exists: {model_structure.z3_model is not None}")
+                return
+            
+            if model_structure.settings["save_output"]:
+                file_name, save_constraints = self.ask_save()
+                self.save_or_append(model_structure, file_name, save_constraints, example_name, theory_name)
+                
+        except AttributeError as e:
+            print(f"\nError printing model for example '{example_name}': {str(e)}")
+            # print("This may indicate that the model evaluation failed or the evaluation world was not properly set.")
+            # print(f"Model structure type: {type(model_structure)}")
+            # print(f"Available attributes: {dir(model_structure)}")
+        except Exception as e:
+            print(f"\nUnexpected error printing model for example '{example_name}': {str(e)}")
+            print(f"Error type: {type(e)}")
+            import traceback
+            print(f"Traceback:\n{traceback.format_exc()}")
 
     def ask_save(self):
         """print the model and prompt user to store the output"""

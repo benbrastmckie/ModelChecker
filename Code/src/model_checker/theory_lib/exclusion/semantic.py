@@ -656,11 +656,6 @@ class ExclusionStructure(model.ModelDefaults):
 
         super().__init__(model_constraints, combined_settings)
 
-        # # TODO: simplify this
-        # # Initialize Z3 model values
-        # self.z3_main_world = None
-        # self.z3_world_bits = None 
-
         # Only evaluate if we have a valid model
         if self.z3_model_status and self.z3_model is not None:
             self._update_model_structure(self.z3_model)
