@@ -656,45 +656,42 @@ class ExclusionStructure(model.ModelDefaults):
 
         super().__init__(model_constraints, combined_settings)
 
-        # Get main point
-        self.main_world = self.main_point["world"]
-
-        # Initialize Z3 model values
-        self.z3_main_world = None
-        self.z3_world_bits = None 
-
         # Only evaluate if we have a valid model
         if self.z3_model_status and self.z3_model is not None:
-            self.z3_main_world = self.z3_model[self.main_world]
-            self.main_point["world"] = self.z3_main_world
-            self.z3_poss_bits = [
-                bit
-                for bit in self.all_bits
-                if self.z3_model.evaluate(self.semantics.possible(bit))
-            ]
-            self.z3_world_bits = [
-                bit
-                for bit in self.all_bits
-                if self.z3_model.evaluate(self.semantics.is_world(bit))
-            ]
-            self.z3_excludes = [
-                (bit_x, bit_y)
-                for bit_x in self.all_bits
-                for bit_y in self.all_bits
-                if self.z3_model.evaluate(self.semantics.excludes(bit_x, bit_y))
-            ]
-            self.z3_conflicts = [
-                (bit_x, bit_y)
-                for bit_x in self.all_bits
-                for bit_y in self.all_bits
-                if self.z3_model.evaluate(self.semantics.conflicts(bit_x, bit_y))
-            ]
-            self.z3_coheres = [
-                (bit_x, bit_y)
-                for bit_x in self.all_bits
-                for bit_y in self.all_bits
-                if self.z3_model.evaluate(self.semantics.coheres(bit_x, bit_y))
-            ]
+            self._update_model_structure(self.z3_model)
+
+    def _update_model_structure(self, z3_model):
+        evaluate = z3_model.evaluate
+        self.main_world = self.main_point["world"]
+        self.main_point["world"] = z3_model[self.main_world]
+        self.z3_poss_bits = [
+            bit
+            for bit in self.all_bits
+            if evaluate(self.semantics.possible(bit))
+        ]
+        self.z3_world_bits = [
+            bit
+            for bit in self.all_bits
+            if evaluate(self.semantics.is_world(bit))
+        ]
+        self.z3_excludes = [
+            (bit_x, bit_y)
+            for bit_x in self.all_bits
+            for bit_y in self.all_bits
+            if evaluate(self.semantics.excludes(bit_x, bit_y))
+        ]
+        self.z3_conflicts = [
+            (bit_x, bit_y)
+            for bit_x in self.all_bits
+            for bit_y in self.all_bits
+            if evaluate(self.semantics.conflicts(bit_x, bit_y))
+        ]
+        self.z3_coheres = [
+            (bit_x, bit_y)
+            for bit_x in self.all_bits
+            for bit_y in self.all_bits
+            if evaluate(self.semantics.coheres(bit_x, bit_y))
+        ]
 
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
@@ -730,7 +727,7 @@ class ExclusionStructure(model.ModelDefaults):
                 print(f"  {bin_rep} = {state}{label_str}", file=output)
         
         # Print formatted state space
-        print("State Space:", file=output)
+        print("State Space", file=output)
         for bit in self.all_bits:
             state = bitvec_to_substates(bit, self.N)
             bin_rep = binary_bitvector(bit)
@@ -744,19 +741,19 @@ class ExclusionStructure(model.ModelDefaults):
                 format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
 
     def print_exclusion(self, output=sys.__stdout__):
-        print()
+        print("\nConflicts") if self.z3_conflicts else None
         for bit_x, bit_y in self.z3_conflicts:
-            print(f"Conflicts: {bitvec_to_substates(bit_x, self.N)} conflicts with {bitvec_to_substates(bit_y, self.N)}")
+            print(f"  {bitvec_to_substates(bit_x, self.N)} conflicts with {bitvec_to_substates(bit_y, self.N)}")
+        print("\nCoherence") if self.z3_coheres else None
         for bit_x, bit_y in self.z3_coheres:
-            print(f"  Coheres: {bitvec_to_substates(bit_x, self.N)} coheres with {bitvec_to_substates(bit_y, self.N)}")
+            print(f"  {bitvec_to_substates(bit_x, self.N)} coheres with {bitvec_to_substates(bit_y, self.N)}")
+        print("\nExclusion") if self.z3_excludes else None
         for bit_x, bit_y in self.z3_excludes:
-            print(f" Excludes: {bitvec_to_substates(bit_x, self.N)} excludes {bitvec_to_substates(bit_y, self.N)}")
-        for bit_x in self.z3_poss_bits:
-            print(f" Possible: {bitvec_to_substates(bit_x, self.N)}")
+            print(f"  {bitvec_to_substates(bit_x, self.N)} excludes {bitvec_to_substates(bit_y, self.N)}")
 
         # Print all h functions from the model
         if self.z3_model:
-            print("\nFunctions: (name: input, output)")
+            print("\nFunctions")
             for decl in self.z3_model.decls():
                 if decl.name().startswith('h_'):
                     # Create a BitVec for the argument
