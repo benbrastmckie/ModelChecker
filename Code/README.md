@@ -1,4 +1,4 @@
-This package draws on the SMT solver [Z3](https://github.com/Z3Prover/z3) to provide a [programmatic semantics]() for a number of hyperintensional operators along with a general purpose methodology for developing novel programmatic semantic theories and studying their resulting logics.
+This package draws on the SMT solver [Z3](https://github.com/Z3Prover/z3) to provide a programmatic semantics for a number of hyperintensional operators along with a general purpose methodology for developing novel programmatic semantic theories and studying their resulting logics.
 Rather than computing whether a given sentence is a logical consequence of some set of sentences by hand, these resources allow users to find countermodels or establish logical consequence up to a finite level complexity specified by the user.
 Instead of only developing a model-theoretic version of a semantics and working out the consequence with pen and paper, this project provides tooling for finding hyperintensional countermodels and establish validity over models up to a user specified level of complexity in a propositional language with the following operators:
 
@@ -18,7 +18,7 @@ Instead of only developing a model-theoretic version of a semantics and working 
 
 ### Screenshot
 
-> NOTE: Additional images can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Images/screenshots.md).
+> Images can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Images/screenshots.md).
 
 ## Programmatic Semantics
 
@@ -34,6 +34,20 @@ Although computational resources are common place, the ability to make use of th
 For instance, [Prover9 and Mace](https://www.cs.unm.edu/~mccune/prover9/) are restricted to first-order and equational statements.
 However, for the purposes of semantics, it is desirable to: (1) introduce a range of primitive operators; (2) specify novel semantic clauses for those operators; (3) define frame constraints and a space of models for the resulting language; (4) test which sentences are a logical consequence of which; and (5) print readable countermodels if there are any.
 Rather than displacing model theory and proof theory, developing and testing a programmatic semantics for a language aims to support the study of extensionally adequate logics before attempting to establish completeness.
+
+## TheoryLib
+
+The `model-checker` includes a growing library of semantic theories, each of which:
+
+  - Introduces the primitive that make up a frame
+  - Defines the propositions over the frame
+  - Defines the models of the language
+  - Provides semantic clauses for the operators included in the language
+  - Includes a range of examples of logical consequences and countermodels
+
+Once the extension of a semantic theory has been adequately explored with adequate results, that theory can be included in the [`TheoryLib`](https://github.com/benbrastmckie/ModelChecker/tree/master/Code/src/model_checker/theory_lib) which can then be pulled down using the .
+Existing theories can then be pulled down by other users, facilitating exchange.
+See [Usage](#usage) below for details.
 
 ## Installation
 
@@ -121,8 +135,8 @@ Users can override these settings from the command line by including the followi
   - Include `-c` to set `contingent = True`.
   - Include `-d` to set `disjoint = True`.
   - Include `-e` to set `non_empty = True`.
-  - Include `-n` to set `non_null = True`.
   - Include `-i` to set `print_impossibe = True`.
+  - Include `-n` to set `non_null = True`.
   - Include `-p` to set `print_constraints = True`.
   - Include `-s` to set `save_bool = True`.
   - Include `-z` to set `print_z3 = True`.
