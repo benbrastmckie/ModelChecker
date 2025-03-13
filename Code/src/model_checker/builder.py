@@ -290,20 +290,20 @@ class BuildModule:
             
         spinner.complete()
         
-        try:
-            example = future.result(timeout=0)
-            if example is None:
-                return None
-                
-            example.print_result(example_name, theory_name)
-            return example
+        # try:
+        example = future.result(timeout=0)
+        if example is None:
+            return None
             
-        except TimeoutError:
-            print(f"\nExample '{example_name}' timed out after {example_max_time} seconds")
-            return None
-        except Exception as e:
-            print(f"\nError running example '{example_name}': {str(e)}")
-            return None
+        example.print_result(example_name, theory_name)
+        return example
+            
+        # except TimeoutError:
+        #     print(f"\nExample '{example_name}' timed out after {example_max_time} seconds")
+        #     return None
+        # except Exception as e:
+        #     print(f"\nError running example '{example_name}': {str(e)}")
+        #     return None
 
     def process_example(self, example_name, example_case, theory_name, semantic_theory):
         """Process a single example with the given semantic theory.
@@ -336,12 +336,15 @@ class BuildModule:
             if not example:
                 return None
                 
-            # TODO: if keep, remove process_iterations from example for-loop
+            # # TODO: if keep, remove process_iterations from example for-loop
             # # Handle iteration if requested
             # if example.settings.get("iterate", 0) > 1:
-            #     example = self._process_iterations(
-            #         example, translated_case, example_name, theory_name
-            #     )
+            #     # example_copy = list(example_case)
+            #     # example_copy[2] = example_case[2].copy()
+            #     example = self.process_iterations(example_name, example_case, theory_name, semantic_theory)
+            #     # example = self.process_iterations(
+            #     #     example, translated_case, example_name, theory_name
+            #     # )
                 
             return example
                 
@@ -424,7 +427,8 @@ class BuildModule:
                 # Make setting reset for each semantic_theory
                 example_copy = list(example_case)
                 example_copy[2] = example_case[2].copy()
-                if example_copy[2]["iterate"] > 1:
+                iterate = example_copy[2].get("iterate", 0)
+                if iterate is not None and iterate > 1:
                     self.process_iterations(example_name, example_copy, theory_name, semantic_theory)
                 else:
                     self.process_example(example_name, example_copy, theory_name, semantic_theory)
@@ -833,10 +837,10 @@ class BuildExample:
         """
 
         def update_example_settings(example_settings):
-            default_example_settings = self.semantics.DEFAULT_EXAMPLE_SETTINGS
-            for key, value in example_settings.items():
-                default_example_settings[key] = value
-            return default_example_settings
+            # TODO: fix linter warning
+            merged_settings = self.semantics.DEFAULT_EXAMPLE_SETTINGS.copy()
+            merged_settings.update(example_settings)
+            return merged_settings
 
         # TODO: right now the merged settings gets carried over from one example
         # to the next which is not how it should be
@@ -900,45 +904,45 @@ class BuildExample:
         model_structure = self.model_structure
         default_settings = self.example_settings
         
-        try:
-            if model_structure.z3_model is None:
-                print(f"\nNo model found for example '{example_name}' with theory '{theory_name}'")
-                return
-                
-            # # Debug info before printing
-            # print("\nModel debug information:")
-            # print(f"  Model status: {model_structure.z3_model_status}")
-            # print(f"  Model type: {type(model_structure.z3_model)}")
+        # try:
+        if model_structure.z3_model is None:
+            print(f"\nNo countermodel found for example '{example_name}' with theory '{theory_name}'")
+            return
             
-            try:
-                # Verify model is still satisfiable
-                if not model_structure.solver.check().r > 0:
-                    print("Warning: Model is no longer satisfiable")
-                    return
-                    
-                model_structure.print_to(default_settings, example_name, theory_name)
-                
-            except z3.Z3Exception as e:
-                print(f"\nZ3 error while printing model: {str(e)}")
-                print("Model state:")
-                print(f"  Solver status: {model_structure.solver.check()}")
-                print(f"  Model exists: {model_structure.z3_model is not None}")
-                return
+        # # Debug info before printing
+        # print("\nModel debug information:")
+        # print(f"  Model status: {model_structure.z3_model_status}")
+        # print(f"  Model type: {type(model_structure.z3_model)}")
+        
+        # try:
+        # Verify model is still satisfiable
+        if model_structure.solver.check() != z3.sat:
+            print("Warning: Model is no longer satisfiable")
+            return
             
-            if model_structure.settings["save_output"]:
-                file_name, save_constraints = self.ask_save()
-                self.save_or_append(model_structure, file_name, save_constraints, example_name, theory_name)
-                
-        except AttributeError as e:
-            print(f"\nError printing model for example '{example_name}': {str(e)}")
-            # print("This may indicate that the model evaluation failed or the evaluation world was not properly set.")
-            # print(f"Model structure type: {type(model_structure)}")
-            # print(f"Available attributes: {dir(model_structure)}")
-        except Exception as e:
-            print(f"\nUnexpected error printing model for example '{example_name}': {str(e)}")
-            print(f"Error type: {type(e)}")
-            import traceback
-            print(f"Traceback:\n{traceback.format_exc()}")
+        model_structure.print_to(default_settings, example_name, theory_name)
+            
+        # except z3.Z3Exception as e:
+        #     print(f"\nZ3 error while printing model: {str(e)}")
+        #     print("Model state:")
+        #     print(f"  Solver status: {model_structure.solver.check()}")
+        #     print(f"  Model exists: {model_structure.z3_model is not None}")
+        #     return
+        
+        if model_structure.settings["save_output"]:
+            file_name, save_constraints = self.ask_save()
+            self.save_or_append(model_structure, file_name, save_constraints, example_name, theory_name)
+            
+        # except AttributeError as e:
+        #     print(f"\nError printing model for example '{example_name}': {str(e)}")
+        #     # print("This may indicate that the model evaluation failed or the evaluation world was not properly set.")
+        #     # print(f"Model structure type: {type(model_structure)}")
+        #     # print(f"Available attributes: {dir(model_structure)}")
+        # except Exception as e:
+        #     print(f"\nUnexpected error printing model for example '{example_name}': {str(e)}")
+        #     print(f"Error type: {type(e)}")
+        #     import traceback
+        #     print(f"Traceback:\n{traceback.format_exc()}")
 
     def ask_save(self):
         """print the model and prompt user to store the output"""

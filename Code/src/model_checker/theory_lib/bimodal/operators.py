@@ -1,10 +1,13 @@
 import z3
 
+
 # Try local imports first (for development)
 try:
     from src.model_checker import syntactic
+    from src.model_checker.utils import pretty_set_print
 except ImportError:
     from model_checker import syntactic
+    from model_checker.utils import pretty_set_print
 
 ##############################################################################
 ############################ EXTENSIONAL OPERATORS ###########################
@@ -198,8 +201,21 @@ class NecessityOperator(syntactic.Operator):
         print the consequent in each alternative to the evaluation world.
         """
         all_worlds = sentence_obj.proposition.model_structure.all_worlds
+        # eval_time = eval_point["time"]
+        # z3_model = sentence_obj.proposition.model_structure.z3_model
+        # 
+        # print("\nDEBUG: World States at time =", eval_time)
+        # for i, world in enumerate(all_worlds):
+        #     # Evaluate the time first to get concrete value
+        #     concrete_time = z3_model.evaluate(eval_time)
+        #     # Then evaluate the array to get concrete array
+        #     concrete_array = z3_model.evaluate(world)
+        #     # Finally evaluate the world state at that time
+        #     world_state = z3_model.evaluate(concrete_array[concrete_time])
+        #     print(f"World {i}: {world_state}")
+        # print()  # Empty line for better readability
         self.print_over_worlds(sentence_obj, eval_point, all_worlds, indent_num, use_colors)
-    
+   
 
 ##############################################################################
 ############################## TENSE OPERATORS ###############################
@@ -286,18 +302,31 @@ class BiconditionalOperator(syntactic.DefinedOperator):
 
 class DefPossibilityOperator(syntactic.DefinedOperator):
 
-    name = "\\possible"
+    name = "\\Diamond"
     arity = 1
 
-    def derived_definition(self, arg):  # type: ignore
-        return [NegationOperator, [NecessityOperator, [NegationOperator, arg]]]
+    def derived_definition(self, argument):  # type: ignore
+        return [NegationOperator, [NecessityOperator, [NegationOperator, argument]]]
     
-    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+    def print_method(self, argument, eval_point, indent_num, use_colors):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
-        all_worlds = sentence_obj.proposition.model_structure.world_bits
-        self.print_over_worlds(sentence_obj, eval_point, all_worlds, indent_num, use_colors)
+        all_worlds = argument.proposition.model_structure.all_worlds
+        # eval_time = eval_point["time"]
+        # z3_model = sentence_obj.proposition.model_structure.z3_model
+        # 
+        # print("\nDEBUG: World States at time =", eval_time)
+        # for i, world in enumerate(all_worlds):
+        #     # Evaluate the time first to get concrete value
+        #     concrete_time = z3_model.evaluate(eval_time)
+        #     # Then evaluate the array to get concrete array
+        #     concrete_array = z3_model.evaluate(world)
+        #     # Finally evaluate the world state at that time
+        #     world_state = z3_model.evaluate(concrete_array[concrete_time])
+        #     print(f"World {i}: {world_state}")
+        # print()  # Empty line for better readability
+        self.print_over_worlds(argument, eval_point, all_worlds, indent_num, use_colors)
 
 intensional_operators = syntactic.OperatorCollection(
     # extensional operators

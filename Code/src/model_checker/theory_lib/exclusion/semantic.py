@@ -38,6 +38,7 @@ class ExclusionSemantics(model.SemanticDefaults):
         'non_null' : False, # TODO: check about falsifiers
         'disjoint' : False,
         'fusion_closure' : False,
+        'iterate' : 1,
         'max_time' : 1,
         'expectation' : None,
     }

@@ -45,7 +45,7 @@ The `model-checker` includes a growing library of semantic theories, each of whi
   - Provides semantic clauses for the operators included in the language
   - Includes a range of examples of logical consequences and countermodels
 
-Once the extension of a semantic theory has been adequately explored with adequate results, that theory can be included in the [`TheoryLib`](https://github.com/benbrastmckie/ModelChecker/tree/master/Code/src/model_checker/theory_lib) which can then be pulled down using the .
+Once the extension of a semantic theory has been adequately explored with adequate results, that theory can be included in the `TheoryLib` which can then be pulled down using the .
 Existing theories can then be pulled down by other users, facilitating exchange.
 See [Usage](#usage) below for details.
 

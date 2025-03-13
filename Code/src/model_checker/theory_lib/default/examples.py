@@ -608,6 +608,31 @@ CF_CM_21_example = [
 ### CONSTITUTIVE OPERATORS ###
 ##############################
 
+# ML_CM_1: 
+ML_CM_1_premises = ['\\Box (A \\vee B)']
+ML_CM_1_conclusions = ['\\Box A \\vee \\Box B']
+ML_CM_1_settings = {
+    'N' : 3,
+    'contingent' : True,
+    'non_null' : True,
+    'non_empty' : True,
+    'disjoint' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+ML_CM_1_example = [
+    ML_CM_1_premises,
+    ML_CM_1_conclusions,
+    ML_CM_1_settings,
+]
+
+
+
+##############################
+### CONSTITUTIVE OPERATORS ###
+##############################
+
 # CL_CM_3: GROUND CONJUNCTION SUPPLEMENTATION
 CL_CM_3_premises = ['(A \\leq B)','(C \\leq D)']
 CL_CM_3_conclusions = ['((A \\wedge C) \\leq (B \\wedge D))']
@@ -1113,7 +1138,7 @@ semantic_theories = {
 example_range = {
     # Counterfactual Countermodels
     # "CF_CM_0" : CF_CM_0_example,
-    "CF_CM_1" : CF_CM_1_example,
+    # "CF_CM_1" : CF_CM_1_example,
     # "CF_CM_2" : CF_CM_2_example,
     # "CF_CM_3" : CF_CM_3_example,
     # "CF_CM_4" : CF_CM_4_example,
@@ -1134,7 +1159,9 @@ example_range = {
     # "CF_CM_19" : CF_CM_19_example,
     # "CF_CM_20" : CF_CM_20_example,
     # "CF_CM_21" : CF_CM_21_example,
-    #
+
+    "ML_CM_1" : ML_CM_1_example,
+
     # # Counterfactual Theorems
     # "CF_TH_1" : CF_TH_1_example,
     # "CF_TH_2" : CF_TH_2_example,
