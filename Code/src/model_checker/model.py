@@ -400,8 +400,11 @@ class ModelDefaults:
         if self.timeout or self.z3_model is None:
             return
 
+        # NOTE: this was moved to BuildExample to 
         # Recursively update propositions
-        self.interpret(self.premises + self.conclusions)
+        # for sent in self.premises + self.conclusions:
+        #     print(f"SENTENCE {sent}; TYPE {type(sent)}")
+        # self.interpret(self.premises + self.conclusions)
 
     def _process_solver_results(self, solver_results):
         """Process and store the results from the Z3 solver.
@@ -495,7 +498,10 @@ class ModelDefaults:
 
     def interpret(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
-        prefix_sent to that instance, returning the input sentences."""
+        prefix_sent to that instance, returning the input sentences.
+        This should only be called after a valid Z3 model is found."""
+        if not self.z3_model:
+            return
 
         for sent_obj in sentences:
             if sent_obj.proposition is not None:
@@ -588,15 +594,21 @@ class ModelDefaults:
         
         def print_sentences(title_singular, title_plural, sentences, start_index, destination):
             """Helper function to print a list of sentences with a title."""
-            if sentences:
-                title = title_singular if len(sentences) < 2 else title_plural
-                print(title, file=output)
-                for index, sentence in enumerate(sentences, start=start_index):
-                    print(f"{index}.", end="", file=output)
-                    with redirect_stdout(destination):
-                        use_colors = output is sys.__stdout__
-                        self.recursive_print(sentence, self.main_point, 1, use_colors)
-                        print(file=output)
+            if not sentences:
+                return
+                
+            if not self.z3_model:
+                print("No valid model available - cannot interpret sentences", file=output)
+                return
+                
+            title = title_singular if len(sentences) < 2 else title_plural
+            print(title, file=output)
+            for index, sentence in enumerate(sentences, start=start_index):
+                print(f"{index}.", end="", file=output)
+                with redirect_stdout(destination):
+                    use_colors = output is sys.__stdout__
+                    self.recursive_print(sentence, self.main_point, 1, use_colors)
+                    print(file=output)
         
         start_index = 1
         print_sentences(

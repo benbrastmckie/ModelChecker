@@ -169,29 +169,70 @@ class NecessityOperator(syntactic.Operator):
     def true_at(self, argument, eval_world, eval_time):
         semantics = self.semantics
         tau = z3.Array('true_world_tau', semantics.TimeSort, semantics.WorldStateSort)
+        x = z3.Int("frame_time_x frame_time_y")
+        # Only consider worlds that satisfy frame constraints
         return z3.ForAll(
             tau,
-            semantics.true_at(argument, tau, eval_time),
+            # z3.Implies(
+            #     # The world must be lawful
+            #     z3.ForAll(
+            #         x,
+            #         z3.Implies(
+            #             z3.And(x >= 0, x < semantics.M - 1),
+            #             semantics.task(tau[x], tau[x + 1])
+            #         )
+            #     ),
+            # Then check if the argument is true in that world
+            semantics.true_at(argument, tau, eval_time)
+            # )
         )
     
     def false_at(self, argument, eval_world, eval_time):
         semantics = self.semantics
-        mu = z3.Array('false_world_tau', semantics.TimeSort, semantics.WorldStateSort)
-        return z3.ForAll(
-            mu,
-            semantics.false_at(argument, mu, eval_time),
+        tau = z3.Array('true_world_tau', semantics.TimeSort, semantics.WorldStateSort)
+        x = z3.Int("frame_time_x frame_time_y")
+        # Only consider worlds that satisfy frame constraints
+        return z3.Exists(
+            tau,
+            # z3.And(
+            #     # The world must be lawful
+            #     z3.ForAll(
+            #         x,
+            #         z3.Implies(
+            #             z3.And(x >= 0, x < semantics.M - 1),
+            #             semantics.task(tau[x], tau[x + 1])
+            #         )
+            #     ),
+            # Then check if the argument is false in that world
+            semantics.false_at(argument, tau, eval_time)
+            # )
         )
     
+    # CONTINUE
     # TODO: replace with (world, time) pairs, calling this the extension
     def find_truth_condition(self, argument, eval_world, eval_time):
+        """Gets truth/false sets for necessity of argument."""
         Y_V, Y_F = argument.proposition.find_proposition()
-        # Convert list to tuple so it can be added to a set
-        all_bits_tuple = set(self.semantics.all_bits)
-        Z_V = all_bits_tuple if Y_V else set()
-        Z_F = set() if Y_F else all_bits_tuple
-        return Z_V, Z_F
+        all_world_states = set(self.semantics.all_bits)
+        
+        # For necessity:
+        # - If argument is false anywhere (Y_F not empty), necessity is false everywhere
+        # - If argument is true everywhere (Y_F empty), necessity is true everywhere
+        if Y_F:
+            return set(), all_world_states  # False everywhere
+        return all_world_states, set()  # True everywhere
 
         # FROM BEFORE
+        # Y_V, Y_F = argument.proposition.find_proposition()
+        # all_world_states = set(self.semantics.all_bits)
+        # print(f"VER {Y_V} FAL {Y_F} ALL {all_world_states}")
+        #
+        # # Convert list to tuple so it can be added to a set
+        # Z_V = set() if Y_F else all_world_states
+        # Z_F = all_world_states if Y_F else set()
+        # return Z_V, Z_F
+
+        # FROM BEFORE BEFORE
         # evaluate = argument.proposition.model_structure.z3_model.evaluate
         # if bool(evaluate(self.true_at(argument, eval_world, eval_time))):
         #     return {self.semantics.all_bits}, set()
@@ -200,10 +241,10 @@ class NecessityOperator(syntactic.Operator):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
-        all_worlds = sentence_obj.proposition.model_structure.all_worlds
+        all_worlds = sentence_obj.proposition.model_structure.all_worlds.values()
+
         # eval_time = eval_point["time"]
         # z3_model = sentence_obj.proposition.model_structure.z3_model
-        # 
         # print("\nDEBUG: World States at time =", eval_time)
         # for i, world in enumerate(all_worlds):
         #     # Evaluate the time first to get concrete value
@@ -214,6 +255,7 @@ class NecessityOperator(syntactic.Operator):
         #     world_state = z3_model.evaluate(concrete_array[concrete_time])
         #     print(f"World {i}: {world_state}")
         # print()  # Empty line for better readability
+
         self.print_over_worlds(sentence_obj, eval_point, all_worlds, indent_num, use_colors)
    
 
@@ -258,7 +300,7 @@ class FutureOperator(syntactic.Operator):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
-        all_worlds = sentence_obj.proposition.model_structure.time_bits
+        all_times = sentence_obj.proposition.model_structure.all_times
         self.print_over_times(sentence_obj, eval_point, all_times, indent_num, use_colors)
 
 
@@ -312,10 +354,15 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
         """Print counterfactual and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
-        all_worlds = argument.proposition.model_structure.all_worlds
+        all_worlds = argument.proposition.model_structure.all_worlds.values()
+
+        # world_functions = argument.proposition.model_structure.world_mappings
+        # for world in world_functions:
+        #     print(f"WORLD {world} TYPE {type(world)}")
+
         # eval_time = eval_point["time"]
-        # z3_model = sentence_obj.proposition.model_structure.z3_model
-        # 
+        # z3_model = argument.proposition.model_structure.z3_model
+
         # print("\nDEBUG: World States at time =", eval_time)
         # for i, world in enumerate(all_worlds):
         #     # Evaluate the time first to get concrete value
@@ -326,6 +373,7 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
         #     world_state = z3_model.evaluate(concrete_array[concrete_time])
         #     print(f"World {i}: {world_state}")
         # print()  # Empty line for better readability
+
         self.print_over_worlds(argument, eval_point, all_worlds, indent_num, use_colors)
 
 intensional_operators = syntactic.OperatorCollection(

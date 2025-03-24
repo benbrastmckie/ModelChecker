@@ -569,6 +569,8 @@ class BuildExample:
             self.model_constraints,
             self.settings,
         )
+        sentence_objects = self.model_structure.premises + self.model_structure.conclusions
+        self.model_structure.interpret(sentence_objects)
         self.solver = self.model_structure.solver
 
     def find_next_model(self, old_z3_model):
@@ -907,6 +909,10 @@ class BuildExample:
         # try:
         if model_structure.z3_model is None:
             print(f"\nNo countermodel found for example '{example_name}' with theory '{theory_name}'")
+            constraints = model_structure.model_constraints.all_constraints
+            print(f"CONSTRAINTS {constraints} TYPE {type(constraints)}")
+            # for con in constraints:
+            #     print(f"CONSTRAINT {con}")
             return
             
         # # Debug info before printing
