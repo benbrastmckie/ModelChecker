@@ -66,12 +66,6 @@ class BimodalSemantics(SemanticDefaults):
         self.TimeSort = z3.IntSort()
         # Create a sort for times using integers
 
-        # # Define all evolutions from times to world states 
-        # self.all_worlds = [
-        #     z3.Array(f'world_function_{i}', self.TimeSort, self.WorldStateSort) 
-        #     for i in range(len(self.all_bits) ** len(self.all_times))
-        # ]
-
         ### Define the Z3 primitives ###
 
         self.task = z3.Function(
@@ -89,20 +83,18 @@ class BimodalSemantics(SemanticDefaults):
             z3.ArraySort(self.TimeSort, self.WorldStateSort)  # Output: world array
         )
 
-        # Main world will be world_function applied to ID 0
-        self.main_world = self.world_function(0)  # Use first world as main by default
-        
         # Add constraint that world IDs must be non-negative
-        self.world_id_constraint = z3.ForAll(
-            [z3.Int('world_id')],
-            z3.Implies(
-                self.world_function(z3.Int('world_id')) != None,
-                z3.Int('world_id') >= 0
-            )
+        positive_world_id = z3.Int('positive_world_id')
+        world_id_constraint = z3.ForAll(
+            positive_world_id,
+            positive_world_id >= 0
         )
 
-        self.main_time = z3.Int('main_time')
+        # Main world will be world_function applied to ID 0
+        self.main_world = self.world_function(0)
+        
         # Define an arbitrary time at which to evaluate sentences 
+        self.main_time = z3.Int('main_time')
 
         # Ensure main_time is within valid range
         time_constraints = z3.And(
@@ -110,11 +102,13 @@ class BimodalSemantics(SemanticDefaults):
             self.main_time < self.M
         )
 
+        # Define main_point at which premises and conclusions are evaluated
         self.main_point = {
             "world": self.main_world,
             "time": self.main_time,
         }
 
+        # Assign sentence letters a truth-value at each world_states
         self.truth_condition = z3.Function(
             "truth_condition",
             self.WorldStateSort,
@@ -122,69 +116,68 @@ class BimodalSemantics(SemanticDefaults):
             z3.BoolSort()
         )
 
-        # ### Define the frame constraints ###
-        # tau = z3.Array('frame_world_tau', self.TimeSort, self.WorldStateSort)
-        # x = z3.Int("frame_time_x")
-        # lawful = z3.ForAll(
-        #     [tau, x],  # Pass variables as a list
-        #     z3.Implies(
-        #         z3.And(x >= 0, x < self.M - 1),
-        #         self.task(tau[x], tau[x + 1])
-        #     )
-        # )  # Require there to be a task from every world state to its successor
-
-        # Define frame constraints
-        self.frame_constraints = [
-            time_constraints,
-        ]
+        # Each atomic sentence must have a definite truth value at each world state
+        world_state = z3.BitVec('tc_world_state', self.N)
+        atom = z3.Const('atom_interpretation', syntactic.AtomSort)
+        definite_truth = z3.ForAll(
+            [world_state, atom],
+            z3.Or(
+                self.truth_condition(world_state, atom),
+                z3.Not(self.truth_condition(world_state, atom))
+            )
+        )
 
         # Add lawful transitions constraint that applies to any world array
-        world_id = z3.Int('frame_world_id')
-        time_x = z3.Int('frame_time_x')
+        lawful_world_id = z3.Int('lawful_world_id')
+        lawful_time = z3.Int('lawful_time')
         lawful = z3.ForAll(
-            [world_id, time_x],  # Pass world ID and time variables
+            [lawful_world_id, lawful_time],  # Pass world ID and time variables
             z3.Implies(
                 z3.And(
-                    world_id >= 0,  # Valid world ID
-                    time_x >= 0, time_x < self.M - 1  # Valid time
+                    lawful_world_id >= 0,  # Valid world ID
+                    lawful_time >= 0, lawful_time < self.M - 1  # Valid time
                 ),
                 self.task(
-                    z3.Select(self.world_function(world_id), time_x),
-                    z3.Select(self.world_function(world_id), time_x + 1)
+                    z3.Select(self.world_function(lawful_world_id), lawful_time),
+                    z3.Select(self.world_function(lawful_world_id), lawful_time + 1)
                 )
             )
         )
-        self.frame_constraints.append(lawful)
 
-        # Add distinctness constraints that apply to any two different worlds
-        world_id1 = z3.Int('distinct_world_id1')
-        world_id2 = z3.Int('distinct_world_id2')
-        time_t = z3.Int('distinct_time')
+        # # Ensure we have at least two distinct worlds
+        # world_0 = self.world_function(0)
+        # world_1 = self.world_function(1)
+        # two_worlds_exist = z3.And(
+        #     z3.Select(world_0, 0) == z3.Select(world_0, 0),  # world_0 exists
+        #     z3.Select(world_1, 0) == z3.Select(world_1, 0),  # world_1 exists
+        #     # Allow worlds to differ in truth values
+        #     z3.Exists([atom],
+        #         z3.Or(
+        #             z3.And(
+        #                 self.truth_condition(z3.Select(world_0, 0), atom),
+        #                 z3.Not(self.truth_condition(z3.Select(world_1, 0), atom))
+        #             ),
+        #             z3.And(
+        #                 z3.Not(self.truth_condition(z3.Select(world_0, 0), atom)),
+        #                 self.truth_condition(z3.Select(world_1, 0), atom)
+        #             )
+        #         )
+        #     )
+        # )
         
-        # Worlds are distinct if they differ in their sequence of states
-        different_worlds = z3.ForAll(
-            [world_id1, world_id2],
-            z3.Implies(
-                z3.And(
-                    world_id1 >= 0, world_id2 >= 0,
-                    world_id1 != world_id2
-                ),
-                # Check if worlds differ in their state sequences
-                z3.Or([
-                    z3.Select(self.world_function(world_id1), t) != 
-                    z3.Select(self.world_function(world_id2), t)
-                    for t in range(self.M)
-                ])
-            )
-        )
-        # self.frame_constraints.append(different_worlds)
+        # Add minimal truth condition constraints to frame constraints
+        self.frame_constraints = [
+            # world_id_constraint,
+            time_constraints,
+            definite_truth,
+            lawful,
+            # two_worlds_exist,
+        ]
 
         # Store valid world-arrays after model is found
         self.valid_world_arrays = []
 
         # Define invalidity conditions
-        # TODO: fix
-
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_world, self.main_time)
         self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_world, self.main_time)
 
@@ -611,6 +604,14 @@ class BimodalStructure(ModelDefaults):
     def __init__(self, model_constraints, max_time=1):
         # Initialize parent class first
         super().__init__(model_constraints, max_time)
+
+        truth_conditions = self.semantics.truth_condition
+        print(f"Truth Conditions Function:")
+        print(f"  - Name: {truth_conditions.name()}")
+        print(f"  - Arity: {truth_conditions.arity()}")
+        print(f"  - Domain(s): {[truth_conditions.domain(i) for i in range(truth_conditions.arity())]}")
+        print(f"  - Range: {truth_conditions.range()}")
+        print(f"  - Declaration: {truth_conditions}")
 
         # Get main point
         self.main_world = self.main_point["world"]

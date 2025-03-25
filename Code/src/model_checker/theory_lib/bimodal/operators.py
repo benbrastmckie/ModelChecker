@@ -168,60 +168,34 @@ class NecessityOperator(syntactic.Operator):
 
     def true_at(self, argument, eval_world, eval_time):
         semantics = self.semantics
-        world_id = z3.Int('nec_true_world_id')
-        # tau = z3.Array('nec_true_world_tau', semantics.TimeSort, semantics.WorldStateSort)
-        # Only consider worlds that satisfy frame constraints
+        nec_true_world_id = z3.Int('nec_true_world_id')
         return z3.ForAll(
-            world_id,
-            # z3.Implies(
-            #     # The world must be lawful
-            #     z3.ForAll(
-            #         x,
-            #         z3.Implies(
-            #             z3.And(x >= 0, x < semantics.M - 1),
-            #             semantics.task(tau[x], tau[x + 1])
-            #         )
-            #     ),
-            # Then check if the argument is true in that world
-            semantics.true_at(argument, semantics.world_function(world_id), eval_time)
-            # )
+            nec_true_world_id,
+            semantics.true_at(argument, semantics.world_function(nec_true_world_id), eval_time)
         )
     
     def false_at(self, argument, eval_world, eval_time):
         semantics = self.semantics
-        world_id = z3.Int('nec_false_world_id')
-        # tau = z3.Array('true_world_tau', semantics.TimeSort, semantics.WorldStateSort)
-        # x = z3.Int("frame_time_x frame_time_y")
-        # Only consider worlds that satisfy frame constraints
+        nec_false_world_id = z3.Int('nec_false_world_id')
         return z3.Exists(
-            world_id,
-            # z3.And(
-            #     # The world must be lawful
-            #     z3.ForAll(
-            #         x,
-            #         z3.Implies(
-            #             z3.And(x >= 0, x < semantics.M - 1),
-            #             semantics.task(tau[x], tau[x + 1])
-            #         )
-            #     ),
-            # Then check if the argument is false in that world
-            semantics.false_at(argument, semantics.world_function(world_id), eval_time)
-            # )
+            nec_false_world_id,
+            semantics.false_at(argument, semantics.world_function(nec_false_world_id), eval_time)
         )
-    
-    # CONTINUE
-    # TODO: replace with (world, time) pairs, calling this the extension
-    def find_truth_condition(self, argument, eval_world, eval_time):
-        """Gets truth/false sets for necessity of argument."""
-        Y_V, Y_F = argument.proposition.find_proposition()
-        all_world_states = set(self.semantics.all_bits)
-        
-        # For necessity:
-        # - If argument is false anywhere (Y_F not empty), necessity is false everywhere
-        # - If argument is true everywhere (Y_F empty), necessity is true everywhere
-        if Y_F:
-            return set(), all_world_states  # False everywhere
-        return all_world_states, set()  # True everywhere
+
+    # def false_at(self, argument, eval_world, eval_time):
+    #     semantics = self.semantics
+    #     nec_false_world_id = z3.Int('nec_false_world_id')
+    #     # tau = z3.Array('true_world_tau', semantics.TimeSort, semantics.WorldStateSort)
+    #     # x = z3.Int("frame_time_x frame_time_y")
+    #     # Only consider worlds that satisfy frame constraints
+    #     return z3.Exists(
+    #         nec_false_world_id,
+    #         # z3.And(
+    #     # - If argument is false anywhere (Y_F not empty), necessity is false everywhere
+    #     # - If argument is true everywhere (Y_F empty), necessity is true everywhere
+    #     if Y_F:
+    #         return set(), all_world_states  # False everywhere
+    #     return all_world_states, set()  # True everywhere
 
         # FROM BEFORE
         # Y_V, Y_F = argument.proposition.find_proposition()
@@ -237,6 +211,14 @@ class NecessityOperator(syntactic.Operator):
         # evaluate = argument.proposition.model_structure.z3_model.evaluate
         # if bool(evaluate(self.true_at(argument, eval_world, eval_time))):
         #     return {self.semantics.all_bits}, set()
+
+    def find_truth_condition(self, argument, eval_world, eval_time):
+        """Gets truth/false sets for necessity of argument."""
+        Y_V, Y_F = argument.proposition.find_proposition()
+        all_world_states = set(self.semantics.all_bits)
+        if Y_F:
+            return set(), all_world_states  # False everywhere
+        return all_world_states, set()  # True everywhere
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print counterfactual and the antecedent in the eval_world. Then
