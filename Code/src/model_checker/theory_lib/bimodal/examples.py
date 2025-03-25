@@ -134,7 +134,7 @@ CF_CM_5_premises = ['\\Diamond A', '\\Diamond B']
 CF_CM_5_conclusions = ['\\Diamond (A \\wedge B)']
 CF_CM_5_settings = {
     'N' : 2,
-    'M' : 1,
+    'M' : 2,
     'contingent' : False,
     'disjoint' : False,
     'max_time' : 1,
@@ -152,7 +152,7 @@ CF_CM_6_premises = ['\\Diamond A']
 CF_CM_6_conclusions = ['\\Box A']
 CF_CM_6_settings = {
     'N' : 2,
-    'M' : 1,
+    'M' : 2,
     'contingent' : False,
     'disjoint' : False,
     'max_time' : 1,
@@ -224,7 +224,7 @@ example_range = {
     "CF_CM_1" : CF_CM_1_example, # PROBLEM
     # "CF_CM_2" : CF_CM_2_example,
     # "CF_CM_3" : CF_CM_3_example,
-    # "CF_CM_4" : CF_CM_4_example, # PROBLEM
+    # "CF_CM_4" : CF_CM_4_example,
     # "CF_CM_5" : CF_CM_5_example, # PROBLEM
     # "CF_CM_6" : CF_CM_6_example, # PROBLEM
     # "CF_CM_7" : CF_CM_7_example, # PROBLEM

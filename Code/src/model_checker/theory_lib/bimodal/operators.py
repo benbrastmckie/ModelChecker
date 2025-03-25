@@ -168,11 +168,11 @@ class NecessityOperator(syntactic.Operator):
 
     def true_at(self, argument, eval_world, eval_time):
         semantics = self.semantics
-        tau = z3.Array('true_world_tau', semantics.TimeSort, semantics.WorldStateSort)
-        x = z3.Int("frame_time_x frame_time_y")
+        world_id = z3.Int('nec_true_world_id')
+        # tau = z3.Array('nec_true_world_tau', semantics.TimeSort, semantics.WorldStateSort)
         # Only consider worlds that satisfy frame constraints
         return z3.ForAll(
-            tau,
+            world_id,
             # z3.Implies(
             #     # The world must be lawful
             #     z3.ForAll(
@@ -183,17 +183,18 @@ class NecessityOperator(syntactic.Operator):
             #         )
             #     ),
             # Then check if the argument is true in that world
-            semantics.true_at(argument, tau, eval_time)
+            semantics.true_at(argument, semantics.world_function(world_id), eval_time)
             # )
         )
     
     def false_at(self, argument, eval_world, eval_time):
         semantics = self.semantics
-        tau = z3.Array('true_world_tau', semantics.TimeSort, semantics.WorldStateSort)
-        x = z3.Int("frame_time_x frame_time_y")
+        world_id = z3.Int('nec_false_world_id')
+        # tau = z3.Array('true_world_tau', semantics.TimeSort, semantics.WorldStateSort)
+        # x = z3.Int("frame_time_x frame_time_y")
         # Only consider worlds that satisfy frame constraints
         return z3.Exists(
-            tau,
+            world_id,
             # z3.And(
             #     # The world must be lawful
             #     z3.ForAll(
@@ -204,7 +205,7 @@ class NecessityOperator(syntactic.Operator):
             #         )
             #     ),
             # Then check if the argument is false in that world
-            semantics.false_at(argument, tau, eval_time)
+            semantics.false_at(argument, semantics.world_function(world_id), eval_time)
             # )
         )
     
