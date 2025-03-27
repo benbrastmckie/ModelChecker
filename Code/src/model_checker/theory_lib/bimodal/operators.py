@@ -171,16 +171,25 @@ class NecessityOperator(syntactic.Operator):
         It is important that no restrictions are placed on accessibility between worlds."""
         semantics = self.semantics
         world_id = z3.Int('nec_true_world_id')
+
+        # # Add debug print
+        # print(f"\nDEBUG: Evaluating necessity operator")
+        # print(f"Argument: {argument}")
+        # print(f"Eval world: {eval_world}")
+        # print(f"Eval time: {eval_time}")
+        
         # Quantify over all worlds without any accessibility restrictions
-        return z3.ForAll(
+        result = z3.ForAll(
             world_id,
             z3.Implies(
-                # If world_id is used in world_function
-                z3.Select(semantics.world_function(world_id), 0) == z3.Select(semantics.world_function(world_id), 0),
+                # If world_id is used in the world_function
+                semantics.world_exists(world_id, eval_time),
                 # Then world_id makes the argument true
                 semantics.true_at(argument, semantics.world_function(world_id), eval_time)
             )
         )
+        # print(f"Necessity result: {result}")
+        return result
 
     def false_at(self, argument, eval_world, eval_time):
         """Returns true if argument is false in at least one possible world at eval_time.
@@ -191,8 +200,8 @@ class NecessityOperator(syntactic.Operator):
         return z3.Exists(
             world_id,
             z3.And(
-                # The world_id is used in world_function
-                z3.Select(semantics.world_function(world_id), 0) == z3.Select(semantics.world_function(world_id), 0),
+                # The world_id is used in the world_function
+                semantics.world_exists(world_id, eval_time),
                 # And world_id makes the argument false
                 semantics.false_at(argument, semantics.world_function(world_id), eval_time)
             )

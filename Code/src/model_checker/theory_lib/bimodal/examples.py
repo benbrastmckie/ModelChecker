@@ -27,9 +27,9 @@ from operators import (
 ########################
 
 general_settings = {
-    "print_constraints": True,
+    "print_constraints": False,
     "print_impossible": True,
-    "print_z3": True,
+    "print_z3": False,
     "save_output": False,
     "maximize": False,
 }
@@ -221,13 +221,13 @@ semantic_theories = {
 # NOTE: at least one example is required, multiple are permitted for comparison
 example_range = {
     # Counterfactual Countermodels
-    "CF_CM_1" : CF_CM_1_example, # PROBLEM
+    "CF_CM_1" : CF_CM_1_example,
     # "CF_CM_2" : CF_CM_2_example,
     # "CF_CM_3" : CF_CM_3_example,
     # "CF_CM_4" : CF_CM_4_example,
-    # "CF_CM_5" : CF_CM_5_example, # PROBLEM
-    # "CF_CM_6" : CF_CM_6_example, # PROBLEM
-    # "CF_CM_7" : CF_CM_7_example, # PROBLEM
+    # "CF_CM_5" : CF_CM_5_example,
+    # "CF_CM_6" : CF_CM_6_example,
+    # "CF_CM_7" : CF_CM_7_example,
 
     # Counterfactual Theorems
     # "CF_TH_1" : CF_TH_1_example,
