@@ -168,24 +168,34 @@ class NecessityOperator(syntactic.Operator):
 
     def true_at(self, argument, eval_world, eval_time):
         """Returns true if argument is true in all possible worlds at eval_time.
-        No restrictions are placed on accessibility between worlds."""
+        It is important that no restrictions are placed on accessibility between worlds."""
         semantics = self.semantics
-        nec_true_world_id = z3.Int('nec_true_world_id')
+        world_id = z3.Int('nec_true_world_id')
         # Quantify over all worlds without any accessibility restrictions
         return z3.ForAll(
-            nec_true_world_id,
-            semantics.true_at(argument, semantics.world_function(nec_true_world_id), eval_time)
+            world_id,
+            z3.Implies(
+                # If world_id is used in world_function
+                z3.Select(semantics.world_function(world_id), 0) == z3.Select(semantics.world_function(world_id), 0),
+                # Then world_id makes the argument true
+                semantics.true_at(argument, semantics.world_function(world_id), eval_time)
+            )
         )
 
     def false_at(self, argument, eval_world, eval_time):
         """Returns true if argument is false in at least one possible world at eval_time.
-        No restrictions are placed on accessibility between worlds."""
+        It is important that no restrictions are placed on accessibility between worlds."""
         semantics = self.semantics
-        nec_false_world_id = z3.Int('nec_false_world_id')
+        world_id = z3.Int('nec_false_world_id')
         # Allow any world to serve as a counterexample without accessibility restrictions
         return z3.Exists(
-            nec_false_world_id,
-            semantics.false_at(argument, semantics.world_function(nec_false_world_id), eval_time)
+            world_id,
+            z3.And(
+                # The world_id is used in world_function
+                z3.Select(semantics.world_function(world_id), 0) == z3.Select(semantics.world_function(world_id), 0),
+                # And world_id makes the argument false
+                semantics.false_at(argument, semantics.world_function(world_id), eval_time)
+            )
         )
 
     # def true_at(self, argument, eval_world, eval_time):
@@ -312,12 +322,25 @@ class NecessityOperator(syntactic.Operator):
         #     return {self.semantics.all_bits}, set()
 
     def find_truth_condition(self, argument, eval_world, eval_time):
-        """Gets truth/false sets for necessity of argument."""
-        Y_V, Y_F = argument.proposition.find_proposition()
+        """Gets truth/false sets for necessity of argument.
+        □φ is true at a world w iff φ is true at all worlds accessible from w."""
+        model_structure = argument.proposition.model_structure
+        z3_model = model_structure.z3_model
+        semantics = self.semantics
+        
+        # Check if argument is true in all worlds
+        all_true = True
+        for world_array in model_structure.all_worlds.values():
+            truth_expr = semantics.true_at(argument, world_array, eval_time)
+            evaluated_expr = z3_model.evaluate(truth_expr)
+            if not z3.is_true(evaluated_expr):
+                all_true = False
+                break
+        
         all_world_states = set(self.semantics.all_bits)
-        if Y_F:
-            return set(), all_world_states  # False everywhere
-        return all_world_states, set()  # True everywhere
+        if all_true:
+            return all_world_states, set()  # True everywhere
+        return set(), all_world_states  # False everywhere
 
     def print_method(self, argument, eval_point, indent_num, use_colors):
         """Print counterfactual and the antecedent in the eval_world. Then
@@ -325,26 +348,29 @@ class NecessityOperator(syntactic.Operator):
         """
         # Get model structure and z3 model
         model_structure = argument.proposition.model_structure
-        z3_model = model_structure.z3_model
-
-        main_world = model_structure.main_world
-        main_time = model_structure.main_time
-        z3_main_world = z3_model.evaluate(main_world)
-        z3_main_time = z3_model.evaluate(main_time)
-        print(f"MAIN WORLD {z3_main_world} MAIN TIME {z3_main_time}")
-        z3_main_state = z3_model.evaluate(z3_main_world[z3_main_time])
-        print(f"MAIN STATE {z3_main_state}")
-
         all_worlds = model_structure.all_worlds.values()
-        eval_time = eval_point["time"]
+        # print(f"EVAL WORLD {eval_point['world']} EVAL TIME {eval_point['time']}")
+        # world_mappings = model_structure.world_mappings
+        # z3_model = model_structure.z3_model
+        #
+        # main_world = model_structure.main_world
+        # main_time = model_structure.main_time
+        # z3_main_world = z3_model.evaluate(main_world)
+        # z3_main_time = z3_model.evaluate(main_time)
+        # print(f"MAIN WORLD {z3_main_world} MAIN TIME {z3_main_time}")
+        # z3_main_state = z3_model.evaluate(z3_main_world[z3_main_time])
+        # print(f"MAIN STATE {z3_main_state}")
 
-        # Print all_worlds contents
-        print("\nWorlds from all_worlds:")
-        for i, world in enumerate(all_worlds):
-            concrete_time = z3_model.evaluate(eval_time)
-            concrete_array = z3_model.evaluate(world)
-            world_state = z3_model.evaluate(concrete_array[concrete_time])
-            print(f"World {i}: {world_state}")
+        # eval_time = eval_point["time"]
+        #
+        # # Print all_worlds contents
+        # print("\nWorlds from all_worlds:")
+        # for i, world in enumerate(all_worlds):
+        #     concrete_time = z3_model.evaluate(eval_time)
+        #     concrete_array = z3_model.evaluate(world)
+        #     world_state = z3_model.evaluate(concrete_array[concrete_time])
+        #     print(f"WORLD {world} TYPE {type(world)}")
+        #     print(f"World {i}: {world_state}")
             
         self.print_over_worlds(argument, eval_point, all_worlds, indent_num, use_colors)
    
