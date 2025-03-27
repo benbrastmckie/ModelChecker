@@ -347,6 +347,18 @@ class ModelDefaults:
     """Solves and stores the Z3 model for an instance of ModelSetup."""
 
     def __init__(self, model_constraints, settings):
+        # Define ANSI color codes
+        self.COLORS = {
+            "default": "\033[37m",  # WHITE
+            "world": "\033[34m",    # BLUE
+            "possible": "\033[36m", # CYAN
+            "impossible": "\033[35m", # MAGENTA
+            "initial": "\033[33m",  # YELLOW
+        }
+        self.RESET = "\033[0m"
+        self.WHITE = self.COLORS["default"]
+
+        # TODO: is this still needed?
         self.constraint_dict = {} # hopefully temporary, for unsat_core
 
         # Store arguments
@@ -372,8 +384,15 @@ class ModelDefaults:
         self.proposition_class = self.model_constraints.proposition_class
         self.settings = self.model_constraints.settings
 
-        # Solve Z3 constraints and store results
+        # Initialize Z3 attributes
         self.solver = None # TODO: still needed?
+        self.timeout = None
+        self.z3_model = None
+        self.unsat_core = None
+        self.z3_model_status = None
+        self.z3_model_runtime = None
+
+        # Solve Z3 constraints and store results
         solver_results = self.solve(self.model_constraints, self.max_time)
         self._process_solver_results(solver_results)
 
@@ -381,19 +400,11 @@ class ModelDefaults:
         if self.timeout or self.z3_model is None:
             return
 
-        # Define ANSI color codes
-        self.COLORS = {
-            "default": "\033[37m",  # WHITE
-            "world": "\033[34m",    # BLUE
-            "possible": "\033[36m", # CYAN
-            "impossible": "\033[35m", # MAGENTA
-            "initial": "\033[33m",  # YELLOW
-        }
-        self.RESET = "\033[0m"
-        self.WHITE = self.COLORS["default"]
-
+        # NOTE: this was moved to BuildExample to 
         # Recursively update propositions
-        self.interpret(self.premises + self.conclusions)
+        # for sent in self.premises + self.conclusions:
+        #     print(f"SENTENCE {sent}; TYPE {type(sent)}")
+        # self.interpret(self.premises + self.conclusions)
 
     def _process_solver_results(self, solver_results):
         """Process and store the results from the Z3 solver.
@@ -408,8 +419,10 @@ class ModelDefaults:
         self.z3_model_runtime = z3_model_runtime
         
         # Store either the model or unsat core based on status
-        self.z3_model = z3_model if z3_model_status else None
-        self.unsat_core = z3_model if not z3_model_status else None
+        if z3_model_status:
+            self.z3_model = z3_model
+        else:
+            self.unsat_core = z3_model
 
     def _setup_solver(self, model_constraints):
         """Initialize Z3 solver and add base constraints."""
@@ -438,24 +451,46 @@ class ModelDefaults:
         """Solve the model constraints and return the results."""
         try:
             self.solver = self._setup_solver(model_constraints)
-            solver = self.solver
 
             # Set timeout and solve
-            solver.set("timeout", int(max_time * 1000))
+            self.solver.set("timeout", int(max_time * 1000))
             start_time = time.time()
-            result = solver.check()
+            result = self.solver.check()
             
             # Handle different solver outcomes
             if result == sat:
-                return self._create_result(False, solver.model(), True, start_time)
+                return self._create_result(False, self.solver.model(), True, start_time)
             
-            if solver.reason_unknown() == "timeout":
+            if self.solver.reason_unknown() == "timeout":
                 return self._create_result(True, None, False, start_time)
             
-            return self._create_result(False, solver.unsat_core(), False, start_time)
+            return self._create_result(False, self.solver.unsat_core(), False, start_time)
             
         except RuntimeError as e:
             print(f"An error occurred while running `solve_constraints()`: {e}")
+            return True, None, False, None
+    
+    def re_solve(self):
+        """Re-solve the existing model constraints and return the results."""
+        try:
+            assert self.solver is not None
+            # Re-apply timeout setting
+            self.solver.set("timeout", int(self.max_time * 1000))
+            
+            start_time = time.time()
+            result = self.solver.check()
+            
+            # Handle different solver outcomes
+            if result == sat:
+                return self._create_result(False, self.solver.model(), True, start_time)
+            
+            if self.solver.reason_unknown() == "timeout":
+                return self._create_result(True, None, False, start_time)
+            
+            return self._create_result(False, self.solver.unsat_core(), False, start_time)
+            
+        except RuntimeError as e:
+            print(f"An error occurred while running `re_solve()`: {e}")
             return True, None, False, None
 
     def check_result(self):
@@ -463,7 +498,10 @@ class ModelDefaults:
 
     def interpret(self, sentences):
         """Updates each instance of Sentence in sentences by adding the
-        prefix_sent to that instance, returning the input sentences."""
+        prefix_sent to that instance, returning the input sentences.
+        This should only be called after a valid Z3 model is found."""
+        if not self.z3_model:
+            return
 
         for sent_obj in sentences:
             if sent_obj.proposition is not None:
@@ -556,15 +594,21 @@ class ModelDefaults:
         
         def print_sentences(title_singular, title_plural, sentences, start_index, destination):
             """Helper function to print a list of sentences with a title."""
-            if sentences:
-                title = title_singular if len(sentences) < 2 else title_plural
-                print(title, file=output)
-                for index, sentence in enumerate(sentences, start=start_index):
-                    print(f"{index}.", end="", file=output)
-                    with redirect_stdout(destination):
-                        use_colors = output is sys.__stdout__
-                        self.recursive_print(sentence, self.main_point, 1, use_colors)
-                        print(file=output)
+            if not sentences:
+                return
+                
+            if not self.z3_model:
+                print("No valid model available - cannot interpret sentences", file=output)
+                return
+                
+            title = title_singular if len(sentences) < 2 else title_plural
+            print(title, file=output)
+            for index, sentence in enumerate(sentences, start=start_index):
+                print(f"{index}.", end="", file=output)
+                with redirect_stdout(destination):
+                    use_colors = output is sys.__stdout__
+                    self.recursive_print(sentence, self.main_point, 1, use_colors)
+                    print(file=output)
         
         start_index = 1
         print_sentences(

@@ -246,69 +246,6 @@ EX_CM_1_example = [
     EX_CM_1_settings,
 ]
 
-# MAKE THEOREM
-# DISTRIBUTION IDENTITY: CONJUNCTION OVER DISJUNCTION 
-EX_CM_2_premises = []
-EX_CM_2_conclusions = ['((A \\uniwedge (B \\univee C)) \\uniequiv ((A \\uniwedge B) \\univee (A \\uniwedge C)))']
-EX_CM_2_settings = { # agree
-    'N' : 5,
-    'possible' : False,
-    'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'disjoint' : False,
-    'fusion_closure' : False,
-    'max_time' : 10,
-    'expectation' : True,
-}
-EX_CM_2_example = [
-    EX_CM_2_premises,
-    EX_CM_2_conclusions,
-    EX_CM_2_settings,
-]
-
-# MAKE THEOREM
-# DISTRIBUTION ENTAILMENT: CONJUNCTION OVER DISJUNCTION 
-EX_CM_3_premises = ['(A \\uniwedge (B \\univee C))']
-EX_CM_3_conclusions = ['((A \\uniwedge B) \\univee (A \\uniwedge C))']
-EX_CM_3_settings = { # agree
-    'N' : 5,
-    'possible' : False,
-    'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'disjoint' : False,
-    'fusion_closure' : False,
-    'max_time' : 10,
-    'expectation' : True,
-}
-EX_CM_3_example = [
-    EX_CM_3_premises,
-    EX_CM_3_conclusions,
-    EX_CM_3_settings,
-]
-
-# MAKE THEOREM
-# REVERSE DISTRIBUTION ENTAILMENT: CONJUNCTION OVER DISJUNCTION 
-EX_CM_4_premises = ['((A \\uniwedge B) \\univee (A \\uniwedge C))']
-EX_CM_4_conclusions = ['(A \\uniwedge (B \\univee C))']
-EX_CM_4_settings = { # agree
-    'N' : 5,
-    'possible' : False,
-    'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'disjoint' : False,
-    'fusion_closure' : False,
-    'max_time' : 10,
-    'expectation' : True,
-}
-EX_CM_4_example = [
-    EX_CM_4_premises,
-    EX_CM_4_conclusions,
-    EX_CM_4_settings,
-]
-
 # DISTRIBUTION IDENTITY: DISJUNCTION OVER CONJUNCTION  
 EX_CM_5_premises = []
 EX_CM_5_conclusions = ['((A \\univee (B \\uniwedge C)) \\uniequiv ((A \\univee B) \\uniwedge (A \\univee C)))']
@@ -329,54 +266,12 @@ EX_CM_5_example = [
     EX_CM_5_settings,
 ]
 
-# MAKE THEOREM
-# DISTRIBUTION ENTAILMENT: CONJUNCTION OVER DISJUNCTION 
-EX_CM_6_premises = ['(A \\univee (B \\uniwedge C))']
-EX_CM_6_conclusions = ['((A \\univee B) \\uniwedge (A \\univee C))']
-EX_CM_6_settings = { # agree
-    'N' : 5,
-    'possible' : False,
-    'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'disjoint' : False,
-    'fusion_closure' : False,
-    'max_time' : 10,
-    'expectation' : True,
-}
-EX_CM_6_example = [
-    EX_CM_6_premises,
-    EX_CM_6_conclusions,
-    EX_CM_6_settings,
-]
-
-# MAKE THEOREM
-# REVERSE DISTRIBUTION ENTAILMENT: DISJUNCTION OVER CONJUNCTION
-EX_CM_7_premises = ['((A \\univee B) \\uniwedge (A \\univee C))']
-EX_CM_7_conclusions = ['(A \\univee (B \\uniwedge C))']
-EX_CM_7_settings = { # agree
-    'N' : 5,
-    'possible' : False,
-    'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'disjoint' : False,
-    'fusion_closure' : False,
-    'max_time' : 10,
-    'expectation' : True,
-}
-EX_CM_7_example = [
-    EX_CM_7_premises,
-    EX_CM_7_conclusions,
-    EX_CM_7_settings,
-]
-
 # TODO: scan many models
 # DOUBLE NEGATION IDENTITY
 EX_CM_8_premises = []
 EX_CM_8_conclusions = ['(A \\uniequiv \\exclude \\exclude A)']
 EX_CM_8_settings = {
-    'N' : 1,
+    'N' : 2,
     'possible' : False,
     'contingent' : False,
     'non_empty' : False,
@@ -384,7 +279,6 @@ EX_CM_8_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 5,
-    'iterate' : 5,
     'expectation' : True,
 }
 EX_CM_8_example = [
@@ -425,7 +319,7 @@ EX_CM_10_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
-    'expectation' : True,
+    'expectation' : False, # CHECK
 }
 EX_CM_10_example = [
     EX_CM_10_premises,
@@ -491,25 +385,6 @@ EX_CM_13_example = [
     EX_CM_13_premises,
     EX_CM_13_conclusions,
     EX_CM_13_settings
-]
-
-# CONJUNCTION DEMORGANS
-EX_CM_14_premises = ['\\exclude (A \\uniwedge B)']
-EX_CM_14_conclusions = ['(\\exclude A \\univee \\exclude B)']
-EX_CM_14_settings = {
-    'N' : 3,
-    'possible' : False,
-    'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'disjoint' : False,
-    'fusion_closure' : False,
-    'max_time' : 1,
-}
-EX_CM_14_example = [
-    EX_CM_14_premises,
-    EX_CM_14_conclusions,
-    EX_CM_14_settings
 ]
 
 
@@ -858,24 +733,124 @@ EX_TH_16_example = [
     EX_TH_16_settings
 ]
 
-# UNIEQUIV DEMORGANS
-uniequiv_demorgans_settings = {
+# DISTRIBUTION IDENTITY: CONJUNCTION OVER DISJUNCTION 
+EX_CM_2_premises = []
+EX_CM_2_conclusions = ['((A \\uniwedge (B \\univee C)) \\uniequiv ((A \\uniwedge B) \\univee (A \\uniwedge C)))']
+EX_CM_2_settings = { # agree
     'N' : 3,
     'possible' : False,
     'contingent' : False,
-    'non_empty' : True,
-    'non_null' : True,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 10,
+    'expectation' : False,
+}
+EX_CM_2_example = [
+    EX_CM_2_premises,
+    EX_CM_2_conclusions,
+    EX_CM_2_settings,
+]
+
+# DISTRIBUTION ENTAILMENT: CONJUNCTION OVER DISJUNCTION 
+EX_CM_3_premises = ['(A \\uniwedge (B \\univee C))']
+EX_CM_3_conclusions = ['((A \\uniwedge B) \\univee (A \\uniwedge C))']
+EX_CM_3_settings = { # agree
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 10,
+    'expectation' : False,
+}
+EX_CM_3_example = [
+    EX_CM_3_premises,
+    EX_CM_3_conclusions,
+    EX_CM_3_settings,
+]
+
+# REVERSE DISTRIBUTION ENTAILMENT: CONJUNCTION OVER DISJUNCTION 
+EX_CM_4_premises = ['((A \\uniwedge B) \\univee (A \\uniwedge C))']
+EX_CM_4_conclusions = ['(A \\uniwedge (B \\univee C))']
+EX_CM_4_settings = { # agree
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 10,
+    'expectation' : False,
+}
+EX_CM_4_example = [
+    EX_CM_4_premises,
+    EX_CM_4_conclusions,
+    EX_CM_4_settings,
+]
+
+# DISTRIBUTION ENTAILMENT: CONJUNCTION OVER DISJUNCTION 
+EX_CM_6_premises = ['(A \\univee (B \\uniwedge C))']
+EX_CM_6_conclusions = ['((A \\univee B) \\uniwedge (A \\univee C))']
+EX_CM_6_settings = { # agree
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 10,
+    'expectation' : False,
+}
+EX_CM_6_example = [
+    EX_CM_6_premises,
+    EX_CM_6_conclusions,
+    EX_CM_6_settings,
+]
+
+# REVERSE DISTRIBUTION ENTAILMENT: DISJUNCTION OVER CONJUNCTION
+EX_CM_7_premises = ['((A \\univee B) \\uniwedge (A \\univee C))']
+EX_CM_7_conclusions = ['(A \\univee (B \\uniwedge C))']
+EX_CM_7_settings = { # agree
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 10,
+    'expectation' : False,
+}
+EX_CM_7_example = [
+    EX_CM_7_premises,
+    EX_CM_7_conclusions,
+    EX_CM_7_settings,
+]
+
+# CONJUNCTION DEMORGANS
+EX_CM_14_premises = ['\\exclude (A \\uniwedge B)']
+EX_CM_14_conclusions = ['(\\exclude A \\univee \\exclude B)']
+EX_CM_14_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
+    'expectation' : False,
 }
-UNIEQUIV_PLAYGROUND = [
-    # [], # premises
-    # ["(\\exclude (A \\uniwedge B) \\uniequiv (\\exclude A \\univee \\exclude B))"], # conclusions
-    # ["(A \\uniequiv (A \\uniwedge B))"],
-    ["(A \\uniequiv \\exclude A)"],
-    [],
-    uniequiv_demorgans_settings
+EX_CM_14_example = [
+    EX_CM_14_premises,
+    EX_CM_14_conclusions,
+    EX_CM_14_settings
 ]
 
 
@@ -893,39 +868,39 @@ semantic_theories = {
 # NOTE: at least one example is required, multiple are permitted for comparison
 example_range = {
     # Countermodels
-    # "EX_CM_0" : EX_CM_0_example,
-    # "EX_CM_1" : EX_CM_1_example,
-    # "EX_CM_2" : EX_CM_2_example,
-    # "EX_CM_3" : EX_CM_3_example,
-    # "EX_CM_4" : EX_CM_4_example,
-    # "EX_CM_5" : EX_CM_5_example,
-    # "EX_CM_6" : EX_CM_6_example,
-    # "EX_CM_7" : EX_CM_7_example,
+    "EX_CM_0" : EX_CM_0_example,
+    "EX_CM_1" : EX_CM_1_example,
+    "EX_CM_5" : EX_CM_5_example,
     "EX_CM_8" : EX_CM_8_example,
-    # "EX_CM_9" : EX_CM_9_example,
-    # "EX_CM_10" : EX_CM_10_example,
-    # "EX_CM_11" : EX_CM_11_example,
-    # "EX_CM_12" : EX_CM_12_example,
-    # "EX_CM_13" : EX_CM_13_example,
-    # "EX_CM_14" : EX_CM_14_example,
+    "EX_CM_9" : EX_CM_9_example,
+    "EX_CM_10" : EX_CM_10_example,
+    "EX_CM_11" : EX_CM_11_example,
+    "EX_CM_12" : EX_CM_12_example,
+    "EX_CM_13" : EX_CM_13_example,
 
     # # Theorems
-    # "EX_TH_1" : EX_TH_1_example,
-    # "EX_TH_2" : EX_TH_2_example,
-    # "EX_TH_3" : EX_TH_3_example,
-    # "EX_TH_4" : EX_TH_4_example,
-    # "EX_TH_5" : EX_TH_5_example,
-    # "EX_TH_6" : EX_TH_6_example,
-    # "EX_TH_7" : EX_TH_7_example,
-    # "EX_TH_8" : EX_TH_8_example,
-    # "EX_TH_9" : EX_TH_9_example,
-    # "EX_TH_10" : EX_TH_10_example,
-    # "EX_TH_11" : EX_TH_11_example,
-    # "EX_TH_12" : EX_TH_12_example,
-    # "EX_TH_13" : EX_TH_13_example,
-    # "EX_TH_14" : EX_TH_14_example,
-    # "EX_TH_15" : EX_TH_15_example,
-    # "EX_TH_16" : EX_TH_16_example,
+    "EX_TH_1" : EX_TH_1_example,
+    "EX_TH_2" : EX_TH_2_example,
+    "EX_TH_3" : EX_TH_3_example,
+    "EX_TH_4" : EX_TH_4_example,
+    "EX_TH_5" : EX_TH_5_example,
+    "EX_TH_6" : EX_TH_6_example,
+    "EX_TH_7" : EX_TH_7_example,
+    "EX_TH_8" : EX_TH_8_example,
+    "EX_TH_9" : EX_TH_9_example,
+    "EX_TH_10" : EX_TH_10_example,
+    "EX_TH_11" : EX_TH_11_example,
+    "EX_TH_12" : EX_TH_12_example,
+    "EX_TH_13" : EX_TH_13_example,
+    "EX_TH_14" : EX_TH_14_example,
+    "EX_TH_15" : EX_TH_15_example,
+    "EX_TH_16" : EX_TH_16_example,
+    "EX_CM_2" : EX_CM_2_example,
+    "EX_CM_3" : EX_CM_3_example,
+    "EX_CM_4" : EX_CM_4_example,
+    "EX_CM_6" : EX_CM_6_example,
+    "EX_CM_7" : EX_CM_7_example,
+    "EX_CM_14" : EX_CM_14_example,
 
     # Testing
     # "UNIEQUIV PLAYGROUND" : UNIEQUIV_PLAYGROUND

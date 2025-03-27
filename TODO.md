@@ -13,10 +13,10 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
       - past
       - necessity
   - implement
-- tools
-  - [ ] iterate
+- [ ] tools
+  - [.] iterate
   - [ ] minimize
-- applications
+- [:] applications
   - [:] _M_ Champollion
     - [.] examples
     - [x] divide into modules

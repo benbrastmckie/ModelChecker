@@ -45,11 +45,16 @@ class BimodalSemantics(SemanticDefaults):
     of truth conditions."""
 
     DEFAULT_EXAMPLE_SETTINGS = {
-        'N' : 3,
-        'contingent' : False,
-        'disjoint' : False,
-        'max_time' : 1,
-        'expectation' : True,
+        # Number of world_states
+        'N': 3,
+        # Whether sentence_letters are assigned to contingent propositions
+        'contingent': False,
+        # Whether sentence_letters are assigned to distinct world_states
+        'disjoint': False,
+        # Maximum time Z3 is permitted to look for a model
+        'max_time': 1,
+        # Whether a model is expected or not (used for unit testing)
+        'expectation': True,
     }
 
     def __init__(self, settings):
@@ -57,40 +62,48 @@ class BimodalSemantics(SemanticDefaults):
         # Initialize the superclass to set defaults
         super().__init__(settings)
 
-        # Define the primitive sorts
+        # Initialize sorts, primitives, and frame_constraints
+        self.define_sorts()
+        self.define_primitives()
+        self.frame_constraints = self.build_frame_constraints()
+        self.define_invalidity()
 
+    def define_sorts(self):
+        """Define the Z3 sorts used in the bimodal logic model.
+
+        Create three sorts:
+        - WorldStateSort: BitVecSort for representing world states as bitvectors
+        - TimeSort: IntSort for representing time points
+        - WorldIdSort: IntSort for mapping world IDs to world arrays
+        """
         self.WorldStateSort = z3.BitVecSort(self.N)
-        # Create a sort for world states using bitvectors such as <001101>
-        # N determines how many distinct worlds we can represent
-
         self.TimeSort = z3.IntSort()
-        # Create a sort for times using integers
+        self.WorldIdSort = z3.IntSort()
 
-        # Define all evolutions from times to world states 
-        self.all_evolutions = [
-            z3.Array(f'world_function_{i}', self.TimeSort, self.WorldStateSort) 
-            for i in range(len(self.all_bits) ** len(self.all_times))
-        ]
 
-        ### Define the Z3 primitives ###
-
+    def define_primitives(self):
+        """Define the Z3 primitive functions and relations used in the bimodal logic model.
+        
+        This method initializes:
+        - task: A binary relation between world states representing task transitions
+        - world_function: A mapping from world IDs to world arrays (time -> world state)
+        - truth_condition: A function assigning truth values to atomic propositions at world states
+        - main_world: The primary world array used for evaluation (world_function applied to ID 0)
+        - main_time: The time point at which sentences are evaluated
+        - main_point: Dictionary containing the main world and time for evaluation
+        """
         self.task = z3.Function(
             "Task",
             self.WorldStateSort,
             self.WorldStateSort,
             z3.BoolSort()
-        )  # Define a binary task relation between world states
-        
-        self.main_time = z3.Int('main_time')
-        # Define an arbitrary time at which to evaluate sentences 
+        )
 
-        self.main_world = z3.Array('main_world', self.TimeSort, self.WorldStateSort)
-        # Define an arbitrary world at which to evaluate sentences 
-
-        self.main_point = {
-            "world": self.main_world,
-            "time": self.main_time,
-        }
+        self.world_function = z3.Function(
+            'world_function', 
+            self.WorldIdSort,  # Input: world ID 
+            z3.ArraySort(self.TimeSort, self.WorldStateSort)  # Output: world_array
+        )
 
         self.truth_condition = z3.Function(
             "truth_condition",
@@ -99,119 +112,251 @@ class BimodalSemantics(SemanticDefaults):
             z3.BoolSort()
         )
 
-        ### Define the frame constraints ###
+        self.main_world = self.world_function(0)
 
-        tau = z3.Array('frame_world_tau', self.TimeSort, self.WorldStateSort)
-        # declare possible world variable named to reflect the constraint
-        x, y = z3.Ints("frame_time_x frame_time_y")
-        # declare two time variables with names to reflect the constraint
-        lawful = z3.ForAll(
-            tau,
-            z3.ForAll(
-                [x, y],
-                z3.Implies(
-                    y == x + 1,
-                    self.task(tau[x], tau[y])
-                )
+        self.main_time = z3.Int('main_time')
+
+        self.main_point = {
+            "world": self.main_world,
+            "time": self.main_time,
+        }
+
+    def build_frame_constraints(self):
+        """Build the frame constraints for the bimodal logic model.
+
+        This method constructs the fundamental constraints that define the behavior of the model:
+        1. Time constraints - Ensures main_time is within valid range
+        2. Truth value constraints - Each atomic sentence must have a definite truth value at each world state
+        3. Lawful transitions - World function must respect task relation between consecutive states
+        4. Task restriction - Task relation only holds between consecutive states in some world line
+        5. Reachability - Every world state must be reachable through world_function
+
+        Returns:
+            list: A list of Z3 constraints that define the frame conditions for the model
+        """
+        time_constraints = self.time_exists(self.main_time)
+
+        world_state = z3.BitVec('world_state', self.N)
+        atom = z3.Const('atom_interpretation', syntactic.AtomSort)
+        definite_truth = z3.ForAll(
+            [world_state, atom],
+            z3.Or(
+                self.truth_condition(world_state, atom),
+                z3.Not(self.truth_condition(world_state, atom))
             )
-        )  # Require there to be a task from every world state to its successor
-
-        bounded = z3.ForAll(
-            tau,
-            z3.Or([z3.ForAll(
-                x,
-                tau[x] == evolution[x]
-            ) for evolution in self.all_evolutions])
         )
 
-        u, v = z3.BitVecs("frame_state_u frame_state_v", self.N)
-        # Define variables for world states with names to indicate constraint
-        seriel = ForAll(
-            u,
-            Exists(
-                v,
-                self.task(u, v)
+        lawful_world_id = z3.Int('lawful_world_id')
+        lawful_time = z3.Int('lawful_time')
+        lawful = z3.ForAll(
+            [lawful_world_id, lawful_time],
+            z3.Implies(
+                z3.And(
+                    self.world_exists(lawful_world_id, lawful_time),
+                    self.time_exists(lawful_time, -1),
+                ),
+                self.task(
+                    z3.Select(self.world_function(lawful_world_id), lawful_time),
+                    z3.Select(self.world_function(lawful_world_id), lawful_time + 1)
+                )
             )
-        )  # Serial: Require every world state to see some state
+        )
+        
+        some_state = z3.BitVec('task_restrict_some_state', self.N)
+        next_state = z3.BitVec('task_restrict_next_state', self.N)
+        task_world_id = z3.Int('task_world_id')
+        task_time = z3.Int('task_time')
+        task_restriction = z3.ForAll(
+            [some_state, next_state],
+            z3.Implies(
+                self.task(some_state, next_state),
+                z3.Exists(
+                    [task_world_id, task_time],
+                    z3.And(
+                        self.world_exists(task_world_id, task_time),
+                        self.time_exists(task_time, -1),
+                        some_state == z3.Select(self.world_function(task_world_id), task_time),
+                        next_state == z3.Select(self.world_function(task_world_id), task_time + 1)
+                    )
+                )
+            )
+        )
 
-        # Define frame constraints
-        self.frame_constraints = [
+        reachable_world_id = z3.Int('reachable_world_id')
+        reachable_time = z3.Int('reachable_time')
+        reachable_state = z3.BitVec('reachable_state', self.N)
+        reachable = z3.ForAll(
+            [reachable_state],
+            z3.Exists(
+                [reachable_world_id, reachable_time],
+                z3.And(
+                    self.world_exists(reachable_world_id, reachable_time),
+                    self.time_exists(reachable_time),
+                    z3.Select(self.world_function(reachable_world_id), reachable_time) == reachable_state
+                )
+            )
+        )
+
+        return [
+            time_constraints,
+            definite_truth,
             lawful,
-            bounded,
-            # seriel,
+            task_restriction,
+            reachable,
         ]
 
-        # Store valid world-arrays after model is found
-        self.valid_world_arrays = []
+    def define_invalidity(self):
+        """Define the behavior for premises and conclusions in invalidity checks.
 
-        # Define invalidity conditions
-        # TODO: fix
+        This method sets up two lambda functions that specify how premises and conclusions 
+        should be evaluated when checking for invalidity:
 
+        - premise_behavior: Evaluates whether a premise is true at the main world and time
+        - conclusion_behavior: Evaluates whether a conclusion is false at the main world and time
+
+        These behaviors are used to find counterexamples that demonstrate invalidity of arguments
+        by showing a case where all premises are true but the conclusion is false.
+        """
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_world, self.main_time)
         self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_world, self.main_time)
 
-    def find_valid_world_arrays(self, max_time):
-        """Find all world arrays that satisfy the frame constraints.
-        
-        Args:
-            max_time: Maximum time point to consider
-            
-        Returns:
-            List of valid world arrays, where each array maps time points to world states
-        """
-        # Create a new array to test possibilities
-        test_array = z3.Array('test_world', self.TimeSort, self.WorldStateSort)
-        
-        # Get all possible world states from the model
-        world_states = []
-        for i in range(2**self.N):  # All possible bitvectors of length N
-            world_states.append(z3.BitVecVal(i, self.N))
-            
-        def check_array_validity(assignments):
-            """Check if a specific array assignment satisfies frame constraints"""
-            # Create constraints for this specific assignment
-            assignment_constraints = []
-            for t, w in assignments.items():
-                assignment_constraints.append(test_array[t] == w)
-                
-            # Check if this assignment satisfies frame constraints
-            s = z3.Solver()
-            s.add(self.frame_constraints)
-            s.add(assignment_constraints)
-            return s.check() == z3.sat
-            
-        # Generate all possible assignments recursively
-        def generate_assignments(current_time=0, current_assignment={}):
-            if current_time > max_time:
-                if check_array_validity(current_assignment):
-                    self.valid_world_arrays.append(current_assignment.copy())
-                return
-                
-            for world in world_states:
-                current_assignment[current_time] = world
-                generate_assignments(current_time + 1, current_assignment)
-                current_assignment.pop(current_time)
-                
-        generate_assignments()
-        return self.valid_world_arrays
+        ### SCRAP ###
 
+        # world_id_constraint,
+        # world_id_range,
+        # abundant_worlds,
+        # two_worlds_exist,
+
+        # Store valid world-arrays after model is found
+        # self.valid_world_arrays = []
+
+        # # Calculate number of possible functions from times [0,M) to world states
+        # # For each time point, we have 2^N possible world states
+        # # Total number of possible functions = (2^N)^M where M is the interval length
+        # max_world_id = z3.IntVal(pow(2 ** self.N, self.M))
+        # # Add constraint to restrict world IDs to valid range
+        # world_id = z3.Int('world_id_constraint')
+        # world_id_range = z3.ForAll(
+        #     world_id,
+        #     z3.Implies(
+        #         # If world_id is used in world_function
+        #         z3.Select(self.world_function(world_id), 0) == z3.Select(self.world_function(world_id), 0),
+        #         # Then it must be in valid range
+        #         z3.And(
+        #             world_id >= 0,
+        #             world_id < max_world_id
+        #         )
+        #     )
+        # )
+
+        # # Add constraint that world IDs must be non-negative
+        # positive_world_id = z3.Int('positive_world_id')
+        # world_id_constraint = z3.ForAll(
+        #     positive_world_id,
+        #     z3.Implies(
+        #         z3.Select(self.world_function(positive_world_id), 0) == z3.Select(self.world_function(positive_world_id), 0),
+        #         positive_world_id >= 0
+        #     )
+        # )
+
+        # # For each world and time offset, there exists a time-shifted world
+        # abundant_world_id = z3.Int('abundant_world_id')
+        # pos_shifted_world_id = z3.Int('pos_shifted_world_id')
+        # neg_shifted_world_id = z3.Int('neg_shifted_world_id')
+        # offset_time = z3.Int('offset_time')
+        # base_time = z3.Int('base_time')
+        # abundant_worlds = z3.ForAll(
+        #     [abundant_world_id, offset_time],  # For each world and time offset
+        #     z3.Implies(
+        #         z3.And(
+        #             offset_time > 0,
+        #             offset_time < self.M
+        #         ),
+        #         z3.Exists(
+        #             [pos_shifted_world_id, neg_shifted_world_id],  # There exists another world
+        #             z3.ForAll(
+        #                 [atom, base_time],  # For each atom and time
+        #                 z3.And(
+        #                     # Truth conditions match between worlds with positive time offset
+        #                     self.truth_condition(
+        #                         z3.Select(self.world_function(abundant_world_id), base_time),
+        #                         atom
+        #                     ) ==
+        #                     self.truth_condition(
+        #                         z3.Select(self.world_function(pos_shifted_world_id), base_time + offset_time),
+        #                         atom
+        #                     ),
+        #                     # Truth conditions match between worlds with negative time offset
+        #                     self.truth_condition(
+        #                         z3.Select(self.world_function(abundant_world_id), base_time),
+        #                         atom
+        #                     ) ==
+        #                     self.truth_condition(
+        #                         z3.Select(self.world_function(neg_shifted_world_id), base_time - offset_time),
+        #                         atom
+        #                     )
+        #                 )
+        #             )
+        #         )
+        #     )
+        # )
+
+        # # Add lawful transitions constraint that applies to any world array
+        # lawful_world_id = z3.Int('lawful_world_id')
+        # lawful_time = z3.Int('lawful_time')
+        # lawful = z3.ForAll(
+        #     [lawful_world_id, lawful_time],  # Pass world ID and time variables
+        #     z3.Implies(
+        #         z3.And(
+        #             lawful_world_id >= 0,  # Valid world ID
+        #             lawful_time >= 0, lawful_time < self.M - 1  # Valid time
+        #         ),
+        #         self.task(
+        #             z3.Select(self.world_function(lawful_world_id), lawful_time),
+        #             z3.Select(self.world_function(lawful_world_id), lawful_time + 1)
+        #         )
+        #     )
+        # )
+
+        # # Ensure we have at least two distinct worlds
+        # world_0 = self.world_function(0)
+        # world_1 = self.world_function(1)
+        # two_worlds_exist = z3.And(
+        #     z3.Select(world_0, 0) == z3.Select(world_0, 0),  # world_0 exists
+        #     z3.Select(world_1, 0) == z3.Select(world_1, 0),  # world_1 exists
+        #     # Allow worlds to differ in truth values
+        #     z3.Exists([atom],
+        #         z3.Or(
+        #             z3.And(
+        #                 self.truth_condition(z3.Select(world_0, 0), atom),
+        #                 z3.Not(self.truth_condition(z3.Select(world_1, 0), atom))
+        #             ),
+        #             z3.And(
+        #                 z3.Not(self.truth_condition(z3.Select(world_0, 0), atom)),
+        #                 self.truth_condition(z3.Select(world_1, 0), atom)
+        #             )
+        #         )
+        #     )
+        # )
+        
     def true_at(self, sentence, eval_world, eval_time):
         """Returns a Z3 formula that is satisfied when the sentence is true at eval_world at eval_time.
 
         Args:
             sentence: The sentence to evaluate
-            eval_world: The world state array at which to evaluate the sentence
+            eval_world: The world state array or single world state at which to evaluate the sentence
             eval_time: The time point at which to evaluate the sentence
             
         Returns:
             Z3 formula that is satisfied when sentence is true at eval_world at eval_time
         """
+
         sentence_letter = sentence.sentence_letter  # store sentence letter
 
         # base case
-        if sentence_letter is not None:                     
-            eval_world_state = eval_world[eval_time]
-            return self.truth_condition(eval_world_state, sentence_letter)  # true in main_world
+        if sentence_letter is not None:
+            eval_world_state = z3.Select(eval_world, eval_time)
+            return self.truth_condition(eval_world_state, sentence_letter)
 
         # recursive case
         operator = sentence.operator  # store operator
@@ -231,6 +376,140 @@ class BimodalSemantics(SemanticDefaults):
         """
         return z3.Not(self.true_at(sentence, eval_world, eval_time))
 
+    def world_exists(self, world_id, time=None):
+        """Checks existence of a world array in the model's state space.
+
+        The state space size is determined by:
+        - Each world state is a bitvector of length N (2^N possible states)
+        - Each world maps M time points to states ((2^N)^M possible functions)
+        - Total unique world arrays = 2^(N*M)
+
+        Args:
+            world_id: World identifier to check
+            time: Optional time point. If None, checks existence at any valid time
+
+        Returns:
+            Z3 formula satisfied when the world exists, checking:
+            1. World state is a valid bitvector (implicit Z3 check)
+            2. State transitions follow task relation (frame constraints)
+            3. World ID maps to an actual model world
+        """
+        max_world_number = pow(2 ** self.N, 2 * self.M)
+        world_valid = z3.And(world_id >= 0, world_id < max_world_number)
+        
+        if time is None:
+            any_time = z3.Int('world_exists_time')
+            world_state = z3.Select(self.world_function(world_id), any_time)
+            return z3.And(
+                world_valid,
+                z3.Exists(
+                    any_time,
+                    world_state == world_state
+                )
+            )
+        else:
+            world_state = z3.Select(self.world_function(world_id), time)
+            return z3.And(
+                world_valid,
+                world_state == world_state
+            )
+
+    def time_exists(self, time, offset=0):
+        """Check if a world array exists for the given world ID."""
+        return z3.And(time >= 0, time < self.M + offset)
+
+    def extract_model_worlds(self, z3_model):
+        """Extract all world states from a found model by examining model declarations
+        and recovering all worlds that satisfy the task relation.
+        
+        Args:
+            z3_model: The Z3 model to extract worlds from
+            
+        Returns:
+            Tuple containing:
+            1. Dictionary mapping world arrays to their time-state mappings
+               {world_array: {time: bitvector_state}}
+            2. Dictionary containing main world mapping {time: bitvector_state}
+            3. Dictionary of all unique world arrays {world_key: array}
+        """
+        main_world_mapping = {}
+        world_mappings = {}
+        all_worlds = {}
+        seen_sigs = set()
+        world_count = 0
+
+        def get_array_signature(world_array):
+            """Generate a unique signature for a world array based on its state sequence"""
+            return tuple(str(z3_model.eval(z3.Select(world_array, t))) 
+                       for t in range(self.M))
+
+        def create_world_array(initial_state, world_id):
+            """Create a new world array starting with the given state and following task relation"""
+            array = z3.Array(f'world_function_{world_id:02d}', self.TimeSort, self.WorldStateSort)
+            array = z3.Store(array, 0, initial_state)
+            
+            # Fill remaining states following task relation
+            current_state = initial_state
+            for t in range(1, self.M):
+                found_next = False
+                for next_val in range(2**self.N):
+                    next_state = z3.BitVecVal(next_val, self.N)
+                    if z3.is_true(z3_model.eval(self.task(current_state, next_state))):
+                        array = z3.Store(array, t, next_state)
+                        current_state = next_state
+                        found_next = True
+                        break
+                if not found_next:
+                    # If no valid next state found, use current state
+                    array = z3.Store(array, t, current_state)
+            return array
+
+        # First, get the main world and add it
+        main_world_array = z3_model.eval(self.main_world)
+        main_sig = get_array_signature(main_world_array)
+        seen_sigs.add(main_sig)
+        all_worlds['world_function_00'] = main_world_array
+        world_count += 1
+
+        # Examine model declarations to find all world arrays
+        for decl in z3_model.decls():
+            if decl.name().startswith('world_function_'):
+                array = z3_model.get_interp(decl)
+                if array is not None:
+                    sig = get_array_signature(array)
+                    if sig not in seen_sigs:
+                        seen_sigs.add(sig)
+                        key = f'world_function_{world_count:02d}'
+                        all_worlds[key] = array
+                        world_count += 1
+
+        # Generate additional worlds from all possible initial states
+        for state_val in range(2**self.N):
+            initial_state = z3.BitVecVal(state_val, self.N)
+            world_array = create_world_array(initial_state, world_count)
+            sig = get_array_signature(world_array)
+            
+            if sig not in seen_sigs:
+                seen_sigs.add(sig)
+                key = f'world_function_{world_count:02d}'
+                all_worlds[key] = world_array
+                world_count += 1
+
+        # Process all world arrays to create mappings
+        for world_key, world_array in all_worlds.items():
+            time_states = {}
+            for time in range(self.M):
+                state = z3_model.eval(z3.Select(world_array, time))
+                state_val = bitvec_to_substates(state, self.N)
+                time_states[time] = state_val
+            world_mappings[world_key] = time_states
+
+            # If this is the main world, create its mapping
+            if get_array_signature(world_array) == main_sig:
+                main_world_mapping = time_states.copy()
+
+        return world_mappings, main_world_mapping, all_worlds
+
 
 class BimodalProposition(PropositionDefaults):
     """Defines the proposition assigned to the sentences of the language.
@@ -238,24 +517,23 @@ class BimodalProposition(PropositionDefaults):
     in the __init__ method.
     """
 
-    def __init__(self, sentence, bimodal_structure, eval_world='main', eval_time='now'):
+    def __init__(self, sentence, model_structure, eval_world='main', eval_time='now'):
 
-        super().__init__(sentence, bimodal_structure)
+        super().__init__(sentence, model_structure)
 
-        main_point = bimodal_structure.main_point
-        self.eval_world = main_point["world"] if eval_world == 'main' else eval_world
-        self.eval_time = main_point["time"] if eval_time == 'now' else eval_time
+        self.z3_model = self.model_structure.z3_model
+        self.eval_world = self.main_point["world"] if eval_world == 'main' else eval_world
+        self.eval_time = self.main_point["time"] if eval_time == 'now' else eval_time
         self.truth_set, self.false_set = self.find_proposition()
 
     def __eq__(self, other):
         return (
-            self.truth_set == other.truth_condition
-            and self.false_set == other.false_condition
+            self.truth_set == other.truth_set
+            and self.false_set == other.false_set
             and self.name == other.name
         )
 
     def __repr__(self):
-        N = self.model_structure.model_constraints.semantics.N
         z3_model = self.model_structure.z3_model
         
         # Handle truth set
@@ -263,19 +541,20 @@ class BimodalProposition(PropositionDefaults):
         for bit in self.truth_set:
             if hasattr(bit, 'as_ast'):  # If it's a Z3 BitVec
                 evaluated_bit = z3_model.evaluate(bit)
-                truth_worlds.add(bitvec_to_substates(evaluated_bit, N))
+                truth_worlds.add(bitvec_to_substates(evaluated_bit, self.N))
             else:  # If it's already evaluated
                 print(f"BIT {bit} TYPE {type(bit)}")
-                truth_worlds.add(bitvec_to_substates(bit, N))
+                truth_worlds.add(bitvec_to_substates(bit, self.N))
                 
         # Handle false set
         false_worlds = set()
         for bit in self.false_set:  # Note: Changed from truth_set to false_set
             if hasattr(bit, 'as_ast'):  # If it's a Z3 BitVec
                 evaluated_bit = z3_model.evaluate(bit)
-                false_worlds.add(bitvec_to_substates(evaluated_bit, N))
+                false_worlds.add(bitvec_to_substates(evaluated_bit, self.N))
             else:  # If it's already evaluated
-                false_worlds.add(bitvec_to_substates(bit, N))
+                print(f"BIT {bit} TYPE {type(bit)}")
+                false_worlds.add(bitvec_to_substates(bit, self.N))
                 
         return f"< {pretty_set_print(truth_worlds)}, {pretty_set_print(false_worlds)} >"
 
@@ -303,7 +582,7 @@ class BimodalProposition(PropositionDefaults):
             )
             possibly_false = Exists(
                 y,
-                semantics.false_at(x, sentence_letter)
+                semantics.false_at(y, sentence_letter)
             )
             return [possibly_true, possibly_false]
 
@@ -337,50 +616,62 @@ class BimodalProposition(PropositionDefaults):
         used in find_verifiers_and_falsifiers"""
         model = self.model_structure.z3_model
         semantics = self.semantics
-        eval_world = self.eval_world
-        eval_time = self.eval_time
-        operator = self.operator
         arguments = self.arguments or ()
-        sentence_letter = self.sentence_letter
-        if sentence_letter is not None:
+        if self.sentence_letter is not None:
             T, F = set(), set()
-            for world_state in self.model_structure.all_bits:
-                T.add(world_state) if model.evaluate(
-                    semantics.true_at(self.sentence, eval_world, eval_time)
-                ) else F.add(world_state)
+            # Use the actual world arrays from all_worlds
+            for world_array in self.model_structure.all_worlds.values():
+                for time in range(self.semantics.M):
+                    # Get the world state at this time point
+                    world_state = model.evaluate(world_array[time])
+                    # Evaluate if the sentence is true at this world and time
+                    evaluated_expr = model.evaluate(
+                        semantics.true_at(self.sentence, world_array, time)
+                    )
+                    if z3.is_true(evaluated_expr):
+                        T.add(world_state)
+                    else:
+                        F.add(world_state)
             return T, F
-        if operator is not None:
-            return operator.find_truth_condition(*arguments, eval_world, eval_time)
-        raise ValueError(f"Their is no proposition for {self}.")
+        if self.operator is not None:
+            return self.operator.find_truth_condition(*arguments, self.eval_world, self.eval_time)
+        raise ValueError(f"There is no proposition for {self}.")
 
-    # TODO: want eval_point to be tuple; currently it is a world_state
+    # TODO: change to handle world-time pairs
+    def truth_value_at(self, eval_state):
+        """Checks if there is a verifier or falsifier in world and not both."""
+        true_in_eval_world = eval_state in self.truth_set
+        false_in_eval_world = eval_state in self.false_set
+        if true_in_eval_world == false_in_eval_world:
+            print( # NOTE: a warning is preferable to raising an error
+                f"WARNING: the world {bitvec_to_substates(eval_state, self.N)} makes "
+                f"{self} both true and false."
+            )
+        return true_in_eval_world
+
     def print_proposition(self, eval_point, indent_num, use_colors):
-        semantics = self.model_structure.model_constraints.semantics
-        model = self.model_structure.z3_model
+        """Print the proposition and it's truth value at the evaluation point."""
         
-        # Get the time value
+        if self.z3_model is None:
+            print(f"{'  ' * indent_num}Cannot evaluate proposition - no valid model found")
+            return
+
+        # Get the world, time value, and world_state
         eval_time = eval_point["time"]
-        time_val = model.evaluate(eval_time).as_long()
-        
-        # Get the world state
         eval_world = eval_point["world"]
 
-        # print(f"EVAL {eval_world} TYPE {type(eval_world)}")
-        # if hasattr(eval_world, 'as_ast'):  # If eval_world is already evaluated
-        #     world_state = eval_world
-        # else:  # If eval_world is an array
-        #     print("CHECK")
+        if eval_world is None:
+            print(f"{'  ' * indent_num}Cannot evaluate proposition - no evaluation world available")
+            return
 
-        world_at_time = eval_world[time_val]
-        world_state = model.evaluate(world_at_time)
+        if eval_time is None:
+            print(f"{'  ' * indent_num}Cannot evaluate proposition - no evaluation time available")
+            return
         
-        # Get truth value
-        truth_value = model.evaluate(
-            semantics.true_at(self.sentence, self.eval_world, self.eval_time)
-        )
-        
-        # Convert to substates representation directly
-        world_state_repr = bitvec_to_substates(world_state, semantics.N)
+        world_state = self.z3_model.evaluate(eval_world[eval_time])
+        truth_value = self.truth_value_at(world_state)
+
+        world_state_repr = bitvec_to_substates(world_state, self.N)
         RESET, FULL, PART = self.set_colors(
             self.name,
             indent_num,
@@ -404,29 +695,35 @@ class BimodalStructure(ModelDefaults):
         # Get main point
         self.main_world = self.main_point["world"]
         self.main_time = self.main_point["time"]
+        self.M = self.semantics.M
+        self.all_times = range(1, self.M + 1)
 
         # Initialize Z3 model values
         self.z3_main_world = None
         self.z3_main_time = None
         self.z3_main_world_state = None
+        self.world_mappings = None  # Will store all world states after model is found
 
         # Only evaluate if we have a valid model
         if self.z3_model_status and self.z3_model is not None:
-            self.z3_main_world = self.z3_model[self.main_world]
-            self.z3_main_time = self.z3_model[self.main_time]
-            self.main_point["world"] = self.z3_main_world
-            self.main_point["time"] = self.z3_main_time
-            # TODO: continue
-            # Get all worlds
-            # self.all_worlds = 
-            # tau = z3.Array('frame_world_tau', self.TimeSort, self.WorldStateSort)
-            if self.z3_main_world is not None and self.z3_main_time is not None: #  TODO: fix
-                world_at_time = self.z3_main_world[self.z3_main_time]  # type: ignore
-                self.z3_main_world_state = self.z3_model.evaluate(world_at_time)  # type: ignore
+            # Evaluate the main world array and time
+            # TODO: avoid storing z3_main_world and z3_main_time?
+            self.z3_main_world = self.z3_model.evaluate(self.main_world)
+            self.z3_main_time = self.z3_model.evaluate(self.main_time)
+            # self.main_point["world"] = self.z3_main_world
+            # self.main_point["time"] = self.z3_main_time
+            # Extract all world mappings from the model
+            self.world_mappings, self.main_world_mapping, self.all_worlds = self.semantics.extract_model_worlds(self.z3_model)
+            if self.z3_main_world is not None and self.z3_main_time is not None:
+                # Evaluate the world state of the main_world at the main_time
+                self.z3_main_world_state = self.z3_model.evaluate(z3.Select(self.z3_main_world, self.z3_main_time))
 
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false
         in that world"""
+        if self.z3_model is None:
+            raise ValueError(f"Cannot print_evaluation when z3_model is None.")
+
         BLUE = ""
         RESET = ""
         if output is sys.__stdout__:
@@ -435,13 +732,28 @@ class BimodalStructure(ModelDefaults):
         if self.z3_main_world_state is None:
             print("No evaluation world state available - no valid model found\n", file=output)
             return
+
+        main_world = self.z3_main_world
+        main_world_mapping = self.main_world_mapping
+
+        # Create the sequence of states connected by arrows
+        state_sequence = []
+        for time in sorted(main_world_mapping.keys()):
+            state_sequence.append(str(main_world_mapping[time]))
+        # Join states with arrows and print
+        world_line = " ==> ".join(state_sequence)
+
+        eval_time = self.z3_main_time
         eval_world_state = self.z3_main_world_state
         print(
-            f"The evaluation world state is: {BLUE}{bitvec_to_substates(eval_world_state, self.N)}{RESET}\n",
+            f"\nEvaluation Point:\n"
+            + f"  {BLUE}World: {world_line}{RESET}\n"
+            + f"  {BLUE}Time: {eval_time}{RESET}\n"
+            + f"  {BLUE}World State: {bitvec_to_substates(eval_world_state, self.N)}{RESET}\n",
             file=output,
         )
 
-    def print_worlds(self, output=sys.__stdout__):
+    def print_worlds_and_times(self, output=sys.__stdout__):
         """Print all fusions of atomic states in the model."""
 
         def binary_bitvector(bit):
@@ -459,13 +771,21 @@ class BimodalStructure(ModelDefaults):
                 print(f"  {self.WHITE}{bin_rep} = {color}{state}{label_str}{self.RESET}", file=output)
             else:
                 print(f"  {bin_rep} = {state}{label_str}", file=output)
-        
+
         # Print formatted state space
-        print("State Space:", file=output)
-        for bit in self.all_bits:
-            state = bitvec_to_substates(bit, self.N)
-            bin_rep = binary_bitvector(bit)
-            format_state(bin_rep, state, self.COLORS["world"], "world")
+        print("Possible Worlds:", file=output)
+        if self.z3_model is None or self.world_mappings is None:
+            raise ValueError("Can't print possible worlds without a z3_model.")
+        for world_array, time_states in self.world_mappings.items():
+
+            # Create the sequence of states connected by arrows
+            state_sequence = []
+            for time in sorted(time_states.keys()):
+                state_sequence.append(str(time_states[time]))
+                
+            # Join states with arrows and print
+            world_line = " ==> ".join(state_sequence)
+            print(f"  {world_array}: {world_line}", file=output)
 
     def print_all(self, default_settings, example_name, theory_name, output=sys.__stdout__):
         """prints states, sentence letters evaluated at the designated world and
@@ -473,7 +793,7 @@ class BimodalStructure(ModelDefaults):
         model_status = self.z3_model_status
         self.print_info(model_status, default_settings, example_name, theory_name, output)
         if model_status:
-            self.print_worlds(output)
+            self.print_worlds_and_times(output)
             self.print_evaluation(output)
             self.print_input_sentences(output)
             self.print_model(output)
