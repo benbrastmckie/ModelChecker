@@ -209,8 +209,8 @@ class Operator:
             for arg in sentence_obj.original_arguments:
                 model_structure.recursive_print(arg, eval_point, indent_num, use_colors)
 
-    def print_over_worlds(self, sentence_obj, eval_point, other_worlds, indent_num, use_colors):
-        """Print counterfactual and the antecedent in the eval_world. Then
+    def print_over_worlds(self, sentence, eval_point, all_worlds, indent_num, use_colors):
+        """Print counterfactual/modal and the antecedent in the eval_world. Then
         print the consequent in each alternative to the evaluation world.
         """
         # Move to class or config for flexibility
@@ -219,8 +219,8 @@ class Operator:
         else:
             CYAN, RESET = '', ''
 
-        arguments = sentence_obj.original_arguments
-        proposition = sentence_obj.proposition
+        arguments = sentence.original_arguments
+        proposition = sentence.proposition
         model_structure = proposition.model_structure
         N = proposition.N
 
@@ -228,23 +228,23 @@ class Operator:
         indent_num += 1
 
         if len(arguments) == 1:
-            argument = arguments[0]
-            for world in other_worlds:
+            sentence = arguments[0]
+            for world in all_worlds:
                 pass_point = eval_point.copy()
                 pass_point["world"] = world
-                model_structure.recursive_print(argument, pass_point, indent_num, use_colors)
+                model_structure.recursive_print(sentence, pass_point, indent_num, use_colors)
         if len(arguments) == 2:
             left_argument, right_argument = arguments
             model_structure.recursive_print(left_argument, eval_point, indent_num, use_colors)
             indent_num += 1
-            other_world_strings = {bitvec_to_substates(u, N) for u in other_worlds}
+            other_world_strings = {bitvec_to_substates(u, N) for u in all_worlds}
             print(
                 f'{"  " * indent_num}{CYAN}|{left_argument}|-alternatives '
                 f'to {bitvec_to_substates(eval_point["world"], N)} = '
                 f'{pretty_set_print(other_world_strings)}{RESET}'
             )
             indent_num += 1
-            for alt_world in other_worlds:
+            for alt_world in all_worlds:
                 alt_point = eval_point.copy()
                 alt_point["world"] = alt_world
                 model_structure.recursive_print(right_argument, alt_point, indent_num, use_colors)
