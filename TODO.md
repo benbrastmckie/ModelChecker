@@ -4,15 +4,14 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Plan
 
-- tense
-  - design
-    - intensional semantics
-    - proposition
-    - operators
-      - future
-      - past
-      - necessity
-  - implement
+- bimodal semantics
+  - intensional semantics
+  - proposition
+  - operators
+    - future
+    - past
+    - [:] necessity
+      - [ ] add abundance constraint
 - [ ] tools
   - [.] iterate
   - [ ] minimize
