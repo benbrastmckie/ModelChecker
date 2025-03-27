@@ -696,7 +696,7 @@ class BimodalStructure(ModelDefaults):
         self.main_world = self.main_point["world"]
         self.main_time = self.main_point["time"]
         self.M = self.semantics.M
-        self.all_times = range(1, self.M + 1)
+        self.all_times = range(0, self.M)
 
         # Initialize Z3 model values
         self.z3_main_world = None

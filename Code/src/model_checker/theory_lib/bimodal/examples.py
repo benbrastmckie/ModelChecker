@@ -56,14 +56,15 @@ intensional_theory = {
 }
 
 
-#####################
-### COUNTERMODELS ###
-#####################
+###########################
+### MODAL COUNTERMODELS ###
+###########################
 
-# CF_CM_1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-CF_CM_1_premises = ['\\Box (A \\vee B)']
-CF_CM_1_conclusions = ['(\\Box A \\vee \\Box B)']
-CF_CM_1_settings = {
+
+# BM_CM_1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+BM_CM_1_premises = ['\\Box (A \\vee B)']
+BM_CM_1_conclusions = ['(\\Box A \\vee \\Box B)']
+BM_CM_1_settings = {
     'N' : 2,
     'M' : 2,
     'contingent' : False,
@@ -71,16 +72,16 @@ CF_CM_1_settings = {
     'max_time' : 5,
     'expectation' : True,
 }
-CF_CM_1_example = [
-    CF_CM_1_premises,
-    CF_CM_1_conclusions,
-    CF_CM_1_settings,
+BM_CM_1_example = [
+    BM_CM_1_premises,
+    BM_CM_1_conclusions,
+    BM_CM_1_settings,
 ]
 
-# CF_CM_2: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-CF_CM_2_premises = ['(A \\vee B)']
-CF_CM_2_conclusions = ['(A \\wedge B)']
-CF_CM_2_settings = {
+# BM_CM_2: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+BM_CM_2_premises = ['(A \\vee B)']
+BM_CM_2_conclusions = ['(A \\wedge B)']
+BM_CM_2_settings = {
     'N' : 2,
     'M' : 2,
     'contingent' : False,
@@ -88,16 +89,16 @@ CF_CM_2_settings = {
     'max_time' : 1,
     'expectation' : True,
 }
-CF_CM_2_example = [
-    CF_CM_2_premises,
-    CF_CM_2_conclusions,
-    CF_CM_2_settings,
+BM_CM_2_example = [
+    BM_CM_2_premises,
+    BM_CM_2_conclusions,
+    BM_CM_2_settings,
 ]
 
-# CF_CM_3: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-CF_CM_3_premises = ['A', '\\neg B']
-CF_CM_3_conclusions = ['\\Diamond (A \\wedge B)']
-CF_CM_3_settings = {
+# BM_CM_3: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+BM_CM_3_premises = ['A', '\\neg B']
+BM_CM_3_conclusions = ['\\Diamond (A \\wedge B)']
+BM_CM_3_settings = {
     'N' : 2,
     'M' : 2,
     'contingent' : False,
@@ -105,16 +106,16 @@ CF_CM_3_settings = {
     'max_time' : 1,
     'expectation' : True,
 }
-CF_CM_3_example = [
-    CF_CM_3_premises,
-    CF_CM_3_conclusions,
-    CF_CM_3_settings,
+BM_CM_3_example = [
+    BM_CM_3_premises,
+    BM_CM_3_conclusions,
+    BM_CM_3_settings,
 ]
 
-# CF_CM_4: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-CF_CM_4_premises = ['A']
-CF_CM_4_conclusions = ['\\Box A']
-CF_CM_4_settings = {
+# BM_CM_4: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+BM_CM_4_premises = ['A']
+BM_CM_4_conclusions = ['\\Box A']
+BM_CM_4_settings = {
     'N' : 2,
     'M' : 2,
     'contingent' : False,
@@ -122,17 +123,17 @@ CF_CM_4_settings = {
     'max_time' : 1,
     'expectation' : True,
 }
-CF_CM_4_example = [
-    CF_CM_4_premises,
-    CF_CM_4_conclusions,
-    CF_CM_4_settings,
+BM_CM_4_example = [
+    BM_CM_4_premises,
+    BM_CM_4_conclusions,
+    BM_CM_4_settings,
 ]
 
 
-# CF_CM_5: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-CF_CM_5_premises = ['\\Diamond A', '\\Diamond B']
-CF_CM_5_conclusions = ['\\Diamond (A \\wedge B)']
-CF_CM_5_settings = {
+# BM_CM_5: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+BM_CM_5_premises = ['\\Diamond A', '\\Diamond B']
+BM_CM_5_conclusions = ['\\Diamond (A \\wedge B)']
+BM_CM_5_settings = {
     'N' : 2,
     'M' : 2,
     'contingent' : False,
@@ -140,17 +141,17 @@ CF_CM_5_settings = {
     'max_time' : 1,
     'expectation' : True,
 }
-CF_CM_5_example = [
-    CF_CM_5_premises,
-    CF_CM_5_conclusions,
-    CF_CM_5_settings,
+BM_CM_5_example = [
+    BM_CM_5_premises,
+    BM_CM_5_conclusions,
+    BM_CM_5_settings,
 ]
 
 
-# CF_CM_6: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-CF_CM_6_premises = ['\\Diamond A']
-CF_CM_6_conclusions = ['\\Box A']
-CF_CM_6_settings = {
+# BM_CM_6: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+BM_CM_6_premises = ['\\Diamond A']
+BM_CM_6_conclusions = ['\\Box A']
+BM_CM_6_settings = {
     'N' : 2,
     'M' : 2,
     'contingent' : False,
@@ -158,18 +159,17 @@ CF_CM_6_settings = {
     'max_time' : 1,
     'expectation' : True,
 }
-CF_CM_6_example = [
-    CF_CM_6_premises,
-    CF_CM_6_conclusions,
-    CF_CM_6_settings,
+BM_CM_6_example = [
+    BM_CM_6_premises,
+    BM_CM_6_conclusions,
+    BM_CM_6_settings,
 ]
 
 
-# CF_CM_4: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-CF_CM_7_premises = ['\\Diamond A', '\\Diamond B']
-# CF_CM_7_premises = ['\\neg \\Box \\neg A', '\\neg \\Box \\neg B']
-CF_CM_7_conclusions = ['(A \\wedge \\neg B)']
-CF_CM_7_settings = {
+# BM_CM_7: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+BM_CM_7_premises = ['\\Diamond A', '\\Diamond B']
+BM_CM_7_conclusions = ['(A \\wedge \\neg B)']
+BM_CM_7_settings = {
     'N' : 2,
     'M' : 2,
     'contingent' : False,
@@ -177,10 +177,33 @@ CF_CM_7_settings = {
     'max_time' : 1,
     'expectation' : True,
 }
-CF_CM_7_example = [
-    CF_CM_7_premises,
-    CF_CM_7_conclusions,
-    CF_CM_7_settings,
+BM_CM_7_example = [
+    BM_CM_7_premises,
+    BM_CM_7_conclusions,
+    BM_CM_7_settings,
+]
+
+
+
+###########################
+### MODAL COUNTERMODELS ###
+###########################
+
+# BM_CM_8: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+BM_CM_8_premises = ['A']
+BM_CM_8_conclusions = ['\\Future A']
+BM_CM_8_settings = {
+    'N' : 2,
+    'M' : 2,
+    'contingent' : False,
+    'disjoint' : False,
+    'max_time' : 1,
+    'expectation' : True,
+}
+BM_CM_8_example = [
+    BM_CM_8_premises,
+    BM_CM_8_conclusions,
+    BM_CM_8_settings,
 ]
 
 
@@ -189,10 +212,10 @@ CF_CM_7_example = [
 ### LOGICAL CONSEQUENCES ###
 ############################
 
-# CF_TH_2: COUNTERFACTUAL MODUS PONENS
-CF_TH_1_premises = ['\\Box (A \\rightarrow B)']
-CF_TH_1_conclusions = ['(\\Box A \\rightarrow \\Box B)']
-CF_TH_1_settings = {
+# BM_TH_2: COUNTERFACTUAL MODUS PONENS
+BM_TH_1_premises = ['\\Box (A \\rightarrow B)']
+BM_TH_1_conclusions = ['(\\Box A \\rightarrow \\Box B)']
+BM_TH_1_settings = {
     'N' : 3,
     'M' : 3,
     'contingent' : False,
@@ -200,11 +223,29 @@ CF_TH_1_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-CF_TH_1_example = [
-    CF_TH_1_premises,
-    CF_TH_1_conclusions,
-    CF_TH_1_settings,  # can use example_settings from above
+BM_TH_1_example = [
+    BM_TH_1_premises,
+    BM_TH_1_conclusions,
+    BM_TH_1_settings,  # can use example_settings from above
 ]
+
+# BM_TH_2: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+BM_TH_2_premises = ['A']
+BM_TH_2_conclusions = ['\\Future \\past A']
+BM_TH_2_settings = {
+    'N' : 2,
+    'M' : 2,
+    'contingent' : False,
+    'disjoint' : False,
+    'max_time' : 1,
+    'expectation' : True,
+}
+BM_TH_2_example = [
+    BM_TH_2_premises,
+    BM_TH_2_conclusions,
+    BM_TH_2_settings,
+]
+
 
 
 
@@ -221,14 +262,16 @@ semantic_theories = {
 # NOTE: at least one example is required, multiple are permitted for comparison
 example_range = {
     # Counterfactual Countermodels
-    "CF_CM_1" : CF_CM_1_example,
-    # "CF_CM_2" : CF_CM_2_example,
-    # "CF_CM_3" : CF_CM_3_example,
-    # "CF_CM_4" : CF_CM_4_example,
-    # "CF_CM_5" : CF_CM_5_example,
-    # "CF_CM_6" : CF_CM_6_example,
-    # "CF_CM_7" : CF_CM_7_example,
+    # "BM_CM_1" : BM_CM_1_example,
+    # "BM_CM_2" : BM_CM_2_example,
+    # "BM_CM_3" : BM_CM_3_example,
+    # "BM_CM_4" : BM_CM_4_example,
+    # "BM_CM_5" : BM_CM_5_example,
+    # "BM_CM_6" : BM_CM_6_example,
+    # "BM_CM_7" : BM_CM_7_example,
+    "BM_CM_8" : BM_CM_8_example,
 
     # Counterfactual Theorems
-    # "CF_TH_1" : CF_TH_1_example,
+    # "BM_TH_1" : BM_TH_1_example,
+    # "BM_TH_2" : BM_TH_2_example,
 }
