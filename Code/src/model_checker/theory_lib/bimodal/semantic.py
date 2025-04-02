@@ -62,6 +62,10 @@ class BimodalSemantics(SemanticDefaults):
         # Initialize the superclass to set defaults
         super().__init__(settings)
 
+        # Initialize always true/false worlds, updated in the model_structure
+        self.all_true = {}
+        self.all_false = {}
+
         # Initialize sorts, primitives, and frame_constraints
         self.define_sorts()
         self.define_primitives()
@@ -524,12 +528,12 @@ class BimodalProposition(PropositionDefaults):
         self.z3_model = self.model_structure.z3_model
         self.eval_world = self.main_point["world"] if eval_world == 'main' else eval_world
         self.eval_time = self.main_point["time"] if eval_time == 'now' else eval_time
-        self.truth_set, self.false_set = self.find_proposition()
+        self.extension = self.find_extension()
+        self.truth_set, self.false_set = self.extract_world_states()
 
     def __eq__(self, other):
         return (
-            self.truth_set == other.truth_set
-            and self.false_set == other.false_set
+            self.extension == other.extension
             and self.name == other.name
         )
 
@@ -538,23 +542,23 @@ class BimodalProposition(PropositionDefaults):
         
         # Handle truth set
         truth_worlds = set()
-        for bit in self.truth_set:
-            if hasattr(bit, 'as_ast'):  # If it's a Z3 BitVec
-                evaluated_bit = z3_model.evaluate(bit)
+        for world_state in self.truth_set:
+            if hasattr(world_state, 'as_ast'):  # If it's a Z3 BitVec
+                evaluated_bit = z3_model.evaluate(world_state)
                 truth_worlds.add(bitvec_to_substates(evaluated_bit, self.N))
             else:  # If it's already evaluated
-                print(f"BIT {bit} TYPE {type(bit)}")
-                truth_worlds.add(bitvec_to_substates(bit, self.N))
+                print(f"BIT {world_state} TYPE {type(world_state)}")
+                truth_worlds.add(bitvec_to_substates(world_state, self.N))
                 
         # Handle false set
         false_worlds = set()
-        for bit in self.false_set:  # Note: Changed from truth_set to false_set
-            if hasattr(bit, 'as_ast'):  # If it's a Z3 BitVec
-                evaluated_bit = z3_model.evaluate(bit)
+        for world_state in self.false_set:  # Note: Changed from truth_set to false_set
+            if hasattr(world_state, 'as_ast'):  # If it's a Z3 BitVec
+                evaluated_bit = z3_model.evaluate(world_state)
                 false_worlds.add(bitvec_to_substates(evaluated_bit, self.N))
             else:  # If it's already evaluated
-                print(f"BIT {bit} TYPE {type(bit)}")
-                false_worlds.add(bitvec_to_substates(bit, self.N))
+                print(f"BIT {world_state} TYPE {type(world_state)}")
+                false_worlds.add(bitvec_to_substates(world_state, self.N))
                 
         return f"< {pretty_set_print(truth_worlds)}, {pretty_set_print(false_worlds)} >"
 
@@ -611,38 +615,61 @@ class BimodalProposition(PropositionDefaults):
             constraints.extend(get_disjoint_constraints())
         return constraints
 
-    def find_proposition(self):
+    def find_extension(self):
         """takes self, returns the V, F tuple
         used in find_verifiers_and_falsifiers"""
-        model = self.model_structure.z3_model
-        semantics = self.semantics
         arguments = self.arguments or ()
+        all_arrays = self.model_structure.all_worlds.values()
+        all_times = self.model_structure.all_times
         if self.sentence_letter is not None:
-            T, F = set(), set()
-            # Use the actual world arrays from all_worlds
-            for world_array in self.model_structure.all_worlds.values():
-                for time in range(self.semantics.M):
-                    # Get the world state at this time point
-                    world_state = model.evaluate(world_array[time])
-                    # Evaluate if the sentence is true at this world and time
-                    evaluated_expr = model.evaluate(
-                        semantics.true_at(self.sentence, world_array, time)
-                    )
+            world_dictionary = {}
+            for world_array in all_arrays:
+                true_times = []
+                false_times = []
+                for time in all_times:
+                    truth_expr = self.model_structure.semantics.true_at(self.sentence, world_array, time)
+                    evaluated_expr = self.z3_model.evaluate(truth_expr)
                     if z3.is_true(evaluated_expr):
-                        T.add(world_state)
-                    else:
-                        F.add(world_state)
-            return T, F
+                        true_times.append(time)
+                    else: false_times.append(time)
+                world_dictionary[world_array] = (true_times, false_times)
+            return world_dictionary
         if self.operator is not None:
             return self.operator.find_truth_condition(*arguments, self.eval_world, self.eval_time)
         raise ValueError(f"There is no proposition for {self}.")
 
-    # TODO: change to handle world-time pairs
-    def truth_value_at(self, eval_state):
+    def extract_world_states(self) -> tuple[set, set]:
+        """Extract sets of world states where the proposition is true and false.
+        
+        Processes the proposition's temporal profiles for each world array to determine
+        the set of world states where the proposition is true and where it is false.
+        
+        Returns:
+            tuple[set, set]: A pair of sets containing:
+                - First set: World states where the proposition is true
+                - Second set: World states where the proposition is false
+        """
+        # Extract states where proposition is true using set comprehension
+        truth_states = {
+            world_array[time]
+            for world_array, (true_times, _) in self.extension.items()
+            for time in true_times
+        }
+        # Extract states where proposition is false using set comprehension
+        false_states = {
+            world_array[time]
+            for world_array, (_, false_times) in self.extension.items()
+            for time in false_times
+        }
+        return truth_states, false_states
+
+    def truth_value_at(self, eval_world, eval_time):
         """Checks if there is a verifier or falsifier in world and not both."""
-        true_in_eval_world = eval_state in self.truth_set
-        false_in_eval_world = eval_state in self.false_set
+        true_times, false_times = self.extension[eval_world]
+        true_in_eval_world = eval_time in true_times
+        false_in_eval_world = eval_time in false_times
         if true_in_eval_world == false_in_eval_world:
+            eval_state = eval_world[eval_time]
             print( # NOTE: a warning is preferable to raising an error
                 f"WARNING: the world {bitvec_to_substates(eval_state, self.N)} makes "
                 f"{self} both true and false."
@@ -668,8 +695,8 @@ class BimodalProposition(PropositionDefaults):
             print(f"{'  ' * indent_num}Cannot evaluate proposition - no evaluation time available")
             return
         
+        truth_value = self.truth_value_at(eval_world, eval_time)
         world_state = self.z3_model.evaluate(eval_world[eval_time])
-        truth_value = self.truth_value_at(world_state)
 
         world_state_repr = bitvec_to_substates(world_state, self.N)
         RESET, FULL, PART = self.set_colors(
@@ -710,13 +737,47 @@ class BimodalStructure(ModelDefaults):
             # TODO: avoid storing z3_main_world and z3_main_time?
             self.z3_main_world = self.z3_model.evaluate(self.main_world)
             self.z3_main_time = self.z3_model.evaluate(self.main_time)
-            # self.main_point["world"] = self.z3_main_world
-            # self.main_point["time"] = self.z3_main_time
+            self.main_point["world"] = self.z3_main_world
+            self.main_point["time"] = self.z3_main_time
             # Extract all world mappings from the model
             self.world_mappings, self.main_world_mapping, self.all_worlds = self.semantics.extract_model_worlds(self.z3_model)
             if self.z3_main_world is not None and self.z3_main_time is not None:
                 # Evaluate the world state of the main_world at the main_time
                 self.z3_main_world_state = self.z3_model.evaluate(z3.Select(self.z3_main_world, self.z3_main_time))
+            for world_array in self.all_worlds:
+                self.semantics.all_true[world_array] = (list(self.all_times), [])
+                self.semantics.all_false[world_array] = ([], list(self.all_times))
+
+
+    # def find_truth_condition(self, sentence):
+    #     """Find the temporal extension of a sentence across all worlds in the model.
+    #
+    #     For each world array in the model, determines the times at which the given sentence
+    #     is true in that world, creating a mapping from worlds to their temporal profiles.
+    #
+    #     Args:
+    #         sentence: The sentence whose extension is to be found
+    #
+    #     Returns:
+    #         dict: A mapping from world arrays to lists of time points where the sentence is true,
+    #              or None if no valid model exists. The structure is:
+    #              {world_array: [t1, t2, ...]} where each time is a time point where the 
+    #              sentence is true in that world
+    #     """
+    #     if self.z3_model is None or self.world_mappings is None:
+    #         return None
+    #     world_dictionary = {}
+    #     for world_array in self.all_worlds.values():
+    #         temporal_profile = []
+    #         inverse_profile = []
+    #         for time in self.all_times:
+    #             truth_expr = self.semantics.true_at(sentence, world_array, time)
+    #             evaluated_expr = self.z3_model.evaluate(truth_expr)
+    #             if z3.is_true(evaluated_expr):
+    #                 temporal_profile.append(time)
+    #             else: inverse_profile.append(time)
+    #         world_dictionary[world_array] = (temporal_profile, inverse_profile)
+    #     return world_dictionary
 
     def print_evaluation(self, output=sys.__stdout__):
         """print the evaluation world and all sentences letters that true/false

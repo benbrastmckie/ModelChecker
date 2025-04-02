@@ -268,8 +268,8 @@ example_range = {
     # "BM_CM_4" : BM_CM_4_example,
     # "BM_CM_5" : BM_CM_5_example,
     # "BM_CM_6" : BM_CM_6_example,
-    # "BM_CM_7" : BM_CM_7_example,
-    "BM_CM_8" : BM_CM_8_example,
+    "BM_CM_7" : BM_CM_7_example,
+    # "BM_CM_8" : BM_CM_8_example,
 
     # Counterfactual Theorems
     # "BM_TH_1" : BM_TH_1_example,

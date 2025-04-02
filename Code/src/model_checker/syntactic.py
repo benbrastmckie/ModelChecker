@@ -1,17 +1,32 @@
 """
-This module defines the following classes, culminating in the Syntax class
-which is passed to ModelConstraints:
-    - **Sentence:** this class is responsible for carrying all values relevant to
-    each infix_sentence input by the user in the premises or conclusions.
-    - **Operator:** this class sets a number of general defaults that are used by
-    the operators the user defines as well as the DefinedOperator class.
-    - **DefinedOperator:** ... TODO
-    - **OperatorCollection:** this class is responsible for storing all user
-    defined operators, passing this collection of operators to Syntax.
-    - **Syntax:** this class is responsible for generating a dictionary of sentence
-    objects for all premises, conclusions, and their subsentences. By drawing
-    on the input operator_collection, all sentences in the dictionary are
-    initialized to generate and store original_types for each.
+This module provides the core syntactic components for logical formula processing and
+operator management in the model checker. It defines five main classes:
+
+    - Sentence: Represents logical formulas and handles their transformation between
+      infix and prefix notation. It maintains all metadata needed for evaluation,
+      including operator linkages, semantic bindings, and proposition values.
+
+    - Operator: Abstract base class for all logical operators. Defines the interface
+      for operator behavior and provides common functionality for instantiation,
+      equality testing, and result visualization.
+
+    - DefinedOperator: Extends Operator to support complex operators that can be
+      expressed in terms of more primitive ones. Ensures proper validation of
+      operator definitions and arity matching.
+
+    - OperatorCollection: Registry and management system for all logical operators.
+      Provides methods for operator registration, lookup, and application while
+      ensuring operator uniqueness and proper typing.
+
+    - Syntax: Orchestrates the parsing and structuring of logical arguments.
+      Processes premises and conclusions, builds a comprehensive sentence hierarchy,
+      validates operator dependencies, and prepares the logical structure for
+      semantic evaluation.
+
+The module forms the foundation for translating user-input logical formulas into
+a structured representation that can be evaluated by the model checker's semantic
+components. It ensures proper typing, handles operator definitions, and validates
+the logical structure before semantic processing begins.
 """
 
 from .utils import (
@@ -31,13 +46,29 @@ from z3 import Const, DeclareSort, ExprRef
 AtomSort = DeclareSort("AtomSort")
 
 class Sentence:
-    """Given an infix_sentence as input, an instance of this class store the
-    original infix_sentence which is used to name the class instance, as well
-    as converting and storing that infix_sentence as a prefix_sentence. The
-    class instance is later updated in: (1) Syntax to store a original_type which
-    depends on an operator_collection; (2) ModelConstraints to store a
-    derived_object and operator which depend on the semantics; and (3)
-    ModelStructure to store a proposition for the sentence."""
+    """Represents a logical sentence with support for both infix and prefix notation.
+    
+    This class provides the foundation for representing logical formulas in the model checker.
+    It handles conversion between infix notation (human-readable) and prefix notation 
+    (machine-processable), and stores all metadata needed for evaluation.
+    
+    The lifecycle of a Sentence instance involves multiple update phases:
+    1. Creation: Stores infix and converts to prefix notation
+    2. Type Update: In Syntax.initialize_sentences(), links to operator classes
+    3. Object Update: In ModelConstraints, links to semantic operators
+    4. Proposition Update: In ModelStructure, builds proposition for evaluation
+    
+    Attributes:
+        name (str): The original infix representation of the sentence
+        prefix_sentence (list): The sentence in prefix notation
+        complexity (int): The nesting depth of the sentence
+        original_arguments (list): Sentence objects for subexpressions
+        original_operator (str/obj): The main operator (initially a string)
+        arguments (list): Updated sentence objects (after type update)
+        operator (obj): Semantic operator object (after object update)
+        sentence_letter (obj): For atomic sentences, their Z3 representation
+        proposition (obj): The proposition representing this sentence (after proposition update)
+    """
 
     def __init__(self, infix_sentence):
         
@@ -74,15 +105,45 @@ class Sentence:
         return self.name
 
     def prefix(self, infix_sentence):
-        """For converting from infix to prefix notation without knowing which
-        which operators the language includes."""
+        """Converts infix notation to prefix notation.
+        
+        Transforms a logical expression from infix format (e.g., "(p ∧ q)") to prefix format
+        (e.g., ["∧", "p", "q"]) for easier processing by the model checker. This conversion
+        works without prior knowledge of specific operators in the language.
+        
+        Args:
+            infix_sentence (str): A logical expression in infix notation
+            
+        Returns:
+            tuple: A pair containing:
+                - list: The expression in prefix notation
+                - int: The complexity (nesting depth) of the expression
+        """
+
         tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
         derived_object, complexity = parse_expression(tokens)
         return derived_object, complexity
 
     def infix(self, prefix):
-        """Takes a sentence in prefix notation (in any of the three kinds)
-        and translates it to infix notation (a string)."""
+        """Converts prefix notation to infix notation.
+        
+        Transforms a logical expression from prefix format (e.g., ["∧", "p", "q"]) to infix 
+        format (e.g., "(p ∧ q)"), handling various input types including sentence objects, 
+        Z3 expressions, strings, and nested lists.
+        
+        Args:
+            prefix: The expression in prefix notation, which can be:
+                - A Sentence object (with a 'name' attribute)
+                - A Z3 ExprRef object
+                - A string (already in infix form)
+                - A list/tuple (in prefix order: [operator, arg1, arg2, ...])
+            
+        Returns:
+            str: The expression converted to infix notation
+            
+        Raises:
+            TypeError: If the input has an unsupported type
+        """
 
         if hasattr(prefix, 'name'):
             return prefix.name
@@ -102,10 +163,22 @@ class Sentence:
         raise TypeError(f"The prefix {prefix} has a type error in infix().")
 
     def update_types(self, operator_collection): # used in Syntax
-        """Draws on the operator_collection to apply the operators that occur
-        in the prefix_sentence in order to generate a original_type which has
-        operator classes in place of operator strings and AtomSorts in place
-        of sentence letters. If the operator is not primitive, then ."""
+        """Updates the sentence with proper operator types from the operator collection.
+        
+        This method uses the operator_collection to replace the string representation
+        of operators in the prefix_sentence with actual operator class objects, and
+        to replace sentence letters with Z3 AtomSort objects. For defined operators,
+        it also handles the derivation of the types based on their definitions.
+        
+        The method updates the following attributes:
+        - original_operator: The main operator class (if not an atomic sentence)
+        - operator: The derived operator class after handling defined operators
+        - arguments: The arguments to the operator (after type updates)
+        - sentence_letter: For atomic sentences, their Z3 representation
+        
+        Args:
+            operator_collection (OperatorCollection): Collection of available operators
+        """
 
         def primitive_operator(original_type):
             """Checks if the main operator is primitive."""
@@ -146,9 +219,20 @@ class Sentence:
         self.operator, self.arguments, self.sentence_letter = store_types(derived_type)
     
     def update_objects(self, model_constraints): # used in ModelConstraints init
-        """Given an instance of ModelConstraints, this method updates the values
-        of self.derived_object and self.operator with the semantics that
-        model_constraints includes."""
+        """Links the sentence to concrete operator instances with semantics.
+        
+        Given an instance of ModelConstraints, this method updates the operator
+        references from operator classes to actual operator instances initialized
+        with the specific semantics implementation from model_constraints.
+        
+        This step is crucial for connecting the syntactic representation to the
+        semantic evaluation framework, allowing operators to access the semantic
+        methods needed for truth/falsity evaluation.
+        
+        Args:
+            model_constraints (ModelConstraints): The model constraints object containing
+                the semantics implementation to use for operator instantiation
+        """
 
         def activate_operator(some_type):
             if some_type is None: # operator is None if sentence_letter
@@ -167,7 +251,26 @@ class Sentence:
 
 
 class Operator:
-    """Defaults inherited by every operator."""
+    """Base class for all logical operators in the model checker.
+    
+    This abstract class defines the interface and common functionality for all logical
+    operators in the system. It provides core functionality for operator instantiation,
+    equality testing, and printing methods used in result visualization.
+    
+    Concrete operator classes must implement specific semantic functions such as:
+    - true_at/false_at: For truth/falsity conditions
+    - extended_verify/extended_falsify: For hyperintensional semantics 
+    - find_verifiers_and_falsifiers: For finding exact verification sets
+    - print_method: For displaying evaluation details
+    
+    Class Attributes:
+        name (str): The symbol representing this operator
+        arity (int): The number of arguments this operator takes
+        primitive (bool): Whether this operator is primitive (default: True)
+    
+    Attributes:
+        semantics (object): The semantics object this operator uses for evaluation
+    """
 
     name = None
     arity = None
@@ -199,6 +302,20 @@ class Operator:
         return hash((self.name, self.arity))
 
     def general_print(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Prints a general evaluation of a sentence at a given evaluation point.
+
+        This method provides a standard way to print a sentence's evaluation results,
+        including the sentence itself and its subformulas (arguments) recursively.
+
+        Args:
+            sentence_obj (Sentence): The sentence object to be printed
+            eval_point (dict): The evaluation point containing world, time, and other context
+            indent_num (int): The number of indentation levels for formatting
+            use_colors (bool): Whether to use ANSI color codes in the output
+
+        The method first prints the proposition for the sentence at the given evaluation
+        point, then recursively prints all subformulas (if any) with increased indentation.
+        """
         proposition = sentence_obj.proposition
         model_structure = proposition.model_structure
 
@@ -210,8 +327,25 @@ class Operator:
                 model_structure.recursive_print(arg, eval_point, indent_num, use_colors)
 
     def print_over_worlds(self, sentence, eval_point, all_worlds, indent_num, use_colors):
-        """Print counterfactual/modal and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
+        """Print evaluation details for modal/counterfactual operators across possible worlds.
+
+        This method handles the printing of evaluation results for modal and counterfactual
+        operators, showing both the evaluation in the current world and in alternative worlds.
+        For counterfactuals, it prints the antecedent in the evaluation world and the
+        consequent in each alternative world.
+
+        Args:
+            sentence (Sentence): The sentence object being evaluated
+            eval_point (dict): The current evaluation point containing world and time info
+            all_worlds (list): List of all relevant alternative worlds to consider
+            indent_num (int): Number of spaces to indent the output
+            use_colors (bool): Whether to use ANSI color codes in output
+
+        The output format shows:
+        1. The full sentence evaluation at the current point
+        2. For unary operators: evaluation in each alternative world
+        3. For binary operators: antecedent evaluation, followed by consequent
+           evaluation in each alternative world
         """
         # Move to class or config for flexibility
         if use_colors:
@@ -250,8 +384,25 @@ class Operator:
                 model_structure.recursive_print(right_argument, alt_point, indent_num, use_colors)
     
     def print_over_times(self, sentence_obj, eval_point, other_times, indent_num, use_colors):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
+        """Print evaluation details for temporal operators across different time points.
+
+        This method handles the printing of evaluation results for temporal operators,
+        showing both the evaluation at the current time point and at other relevant
+        time points. For binary temporal operators, it prints the first argument at
+        the evaluation time and the second argument at each alternative time point.
+
+        Args:
+            sentence_obj (Sentence): The sentence object being evaluated
+            eval_point (dict): The current evaluation point containing world and time info
+            other_times (list): List of all relevant alternative time points to consider
+            indent_num (int): Number of spaces to indent the output
+            use_colors (bool): Whether to use ANSI color codes in output
+
+        The output format shows:
+        1. The full sentence evaluation at the current point
+        2. For unary operators: evaluation at each alternative time point
+        3. For binary operators: first argument evaluation at current time,
+           followed by second argument evaluation at each alternative time point
         """
         # Move to class or config for flexibility
         if use_colors:
@@ -289,14 +440,41 @@ class Operator:
                 model_structure.recursive_print(right_argument, alt_point, indent_num, use_colors)
     
 class DefinedOperator(Operator):
-    """Represents an operator defined in terms of other operators."""
+    """Represents a logical operator defined in terms of other operators.
+    
+    Defined operators are non-primitive operators that can be expressed using 
+    combinations of more basic operators. For example, implication (→) can be 
+    defined in terms of negation and disjunction (¬p ∨ q).
+    
+    Subclasses must implement the derived_definition method which specifies
+    how the operator can be expressed in terms of other operators. The class
+    validates that the arity matches the defined derivation.
+    
+    Class Attributes:
+        primitive (bool): Always False for defined operators
+        
+    Required methods for subclasses:
+        derived_definition(*args): Returns the definition in terms of other operators
+    """
 
     primitive = False
 
     def derived_definition(self, *args):
         """
         Returns the definition of the operator in terms of other operators.
-        Must be implemented by subclasses.
+        
+        This method specifies how a defined operator can be expressed using other
+        (typically primitive) operators. For example, an implementation for implication
+        might return ['∨', ['¬', arg1], arg2] where arg1 and arg2 are the arguments.
+        
+        Args:
+            *args: The arguments to the operator (number must match the operator's arity)
+            
+        Returns:
+            list: A nested list structure representing the definition in prefix notation
+            
+        Raises:
+            NotImplementedError: This method must be implemented by all subclasses
         """
         raise NotImplementedError(
             f"Derived operator class {self.__class__.__name__} must implement the derived_definition method."
@@ -308,8 +486,19 @@ class DefinedOperator(Operator):
 
     def _validate_arity(self):
         """
-        Validates that the 'arity' attribute matches the number of arguments
-        in the 'derived_definition' method (excluding 'self').
+        Validates that the operator's declared arity matches its implementation.
+        
+        This method ensures consistency between the operator's declared 'arity' class attribute
+        and the number of parameters in its 'derived_definition' method. This validation is
+        crucial for maintaining type safety and preventing runtime errors.
+        
+        For example, if an operator declares arity=2 but its derived_definition method
+        only accepts one argument (plus self), this validation will fail.
+        
+        Raises:
+            AttributeError: If the operator class doesn't define an 'arity' attribute
+            ValueError: If the declared arity doesn't match the number of parameters
+                       in the derived_definition method
         """
         # Retrieve the signature of the derived_definition method
         signature = inspect.signature(self.derived_definition)
@@ -336,7 +525,18 @@ class DefinedOperator(Operator):
 
 
 class OperatorCollection:
-    """Stores the operators that will be passed to Syntax."""
+    """A registry for all logical operators available in the model checking system.
+    
+    This class acts as a container for operator classes (both primitive and defined),
+    organizing them by name for easy lookup and application. It provides methods for
+    adding operators to the collection and applying them to expressions.
+    
+    The collection is used by the Syntax class to convert string representations
+    of operators into their corresponding operator classes during sentence parsing.
+    
+    Attributes:
+        operator_dictionary (dict): Maps operator names to their corresponding classes
+    """
 
     def __init__(self, *input):
         self.operator_dictionary = {}
@@ -353,7 +553,31 @@ class OperatorCollection:
         yield from self.operator_dictionary.items()
 
     def add_operator(self, operator):
-        """Input is either an operator class (of type 'type') or a list/tuple of operator classes."""
+        """Adds one or more operator classes to the operator collection.
+
+        This method accepts either a single operator class or multiple operator classes
+        in a container (list, tuple, or set) and adds them to the operator dictionary.
+        It also handles adding operators from another OperatorCollection instance.
+
+        For each operator added, its name is used as the key in the operator dictionary.
+        If an operator with the same name already exists, it is skipped.
+
+        Args:
+            operator: Can be one of:
+                - A single operator class (type)
+                - A list/tuple/set of operator classes
+                - An OperatorCollection instance
+
+        Raises:
+            TypeError: If the input is not an operator class, collection of operator
+                      classes, or OperatorCollection instance
+            ValueError: If an operator class doesn't have a name defined
+
+        Examples:
+            collection.add_operator(AndOperator)  # Add single operator
+            collection.add_operator([AndOperator, OrOperator])  # Add multiple operators
+            collection.add_operator(other_collection)  # Merge collections
+        """
         if isinstance(operator, OperatorCollection):
             for op_name, op_class in operator.items():
                 self.add_operator(op_class)
@@ -370,6 +594,31 @@ class OperatorCollection:
             raise TypeError(f"Unexpected input type {type(operator)} for add_operator.")
 
     def apply_operator(self, prefix_sentence):
+        """Converts a prefix notation sentence into a list of operator classes and atomic terms.
+
+        This method processes a sentence in prefix notation, converting operator strings to their
+        corresponding operator classes from the collection and handling atomic sentences and
+        extremal operators (\\top, \\bot). It recursively processes all subexpressions.
+
+        Args:
+            prefix_sentence (list): A sentence in prefix notation where operators and atoms
+                                  are represented as strings
+
+        Returns:
+            list: A nested list structure where:
+                - String operators are replaced with their operator classes
+                - Atomic sentences are converted to Z3 Const objects
+                - Extremal operators (\\top, \\bot) are converted to their operator classes
+
+        Raises:
+            ValueError: If an atomic term is neither a valid sentence letter nor an extremal operator
+            TypeError: If an operator is not provided as a string
+
+        Examples:
+            ["∧", "p", "q"] -> [AndOperator, Const("p", AtomSort), Const("q", AtomSort)]
+            ["\\top"] -> [TopOperator]
+            ["p"] -> [Const("p", AtomSort)]
+        """
         if len(prefix_sentence) == 1:
             atom = prefix_sentence[0]
             if atom in {"\\top", "\\bot"}:  # Handle extremal operators
@@ -385,29 +634,32 @@ class OperatorCollection:
             raise TypeError(f"Expected operator name as a string, got {type(op).__name__}.")
         return activated
 
-    # # NOTE: UPDATE OP STRATEGY
-    # def duplicate(self):
-    #     """Creates a shallow copy of the OperatorCollection."""
-    #     new_collection = OperatorCollection()
-    #     new_collection.operator_dictionary = self.operator_dictionary.copy()
-    #     return new_collection
-    #
-    # # NOTE: UPDATE OP STRATEGY
-    # def update_operators(self, semantics):
-    #     operators = self.operator_dictionary
-    #     for key in operators.keys():
-    #         if isinstance(operators[key], type):
-    #             operators[key] = operators[key](semantics)
-
 
 class Syntax:
-    """Takes infix_premises, infix_conclusions, and operator_collection as
-    arguments, generating and storing instances of the Sentence class.
-    Draws on Sentence instances for the premises and conclusions in order to
-    store a dictionary which includes all subsentences for each before drawing
-    on the operator_collection in order to initialize the original_types in each
-    sentence object in the dictionary. Lists are then stored for the premises,
-    conclusions, and all sentence_letters that occur in theses sentences."""
+    """Processes logical formulas and builds a structured representation of an argument.
+    
+    This class takes premises and conclusions in infix notation along with an operator
+    collection, and constructs a comprehensive representation of the logical argument.
+    It handles parsing sentences, organizing them hierarchically, and preparing them
+    for semantic evaluation.
+    
+    The class performs several key functions:
+    1. Parses infix sentences into structured objects
+    2. Creates a dictionary of all sentences and subsentences
+    3. Links operators in sentences to their operator classes
+    4. Extracts all atomic sentence letters used in the argument
+    5. Validates that defined operators don't have circular dependencies
+    
+    Attributes:
+        infix_premises (list): Original premise sentences in infix notation
+        infix_conclusions (list): Original conclusion sentences in infix notation
+        operator_collection (OperatorCollection): Available logical operators
+        all_sentences (dict): Maps sentence strings to their Sentence objects
+        sentence_letters (list): All atomic sentence letters in the argument
+        premises (list): Sentence objects for all premises
+        conclusions (list): Sentence objects for all conclusions
+        start_time (float): When the syntax processing began
+    """
 
     def __init__(
         self,
@@ -435,8 +687,25 @@ class Syntax:
         self.circularity_check(operator_collection)
 
     def initialize_sentences(self, infix_sentences):
-        """Takes a list of sentences composing the dictionaries of subsentences
-        for each, resulting in a dictionary that includes all subsentences."""
+        """Processes a list of sentences and builds a comprehensive dictionary of all sentences and their subsentences.
+        
+        This method takes a list of infix sentences and:
+        1. Converts each sentence into a Sentence object
+        2. Recursively processes all subsentences
+        3. Stores all sentences and subsentences in self.all_sentences
+        4. Updates sentence types using the operator collection
+        5. Identifies and stores atomic sentence letters
+        
+        Args:
+            infix_sentences (list): A list of strings representing logical formulas in infix notation
+            
+        Returns:
+            list: A list of Sentence objects corresponding to the input sentences
+            
+        Side Effects:
+            - Updates self.all_sentences with all sentences and subsentences
+            - Updates self.sentence_letters with atomic sentence letters found
+        """
 
         def build_sentence(infix_sentence):
             if infix_sentence in self.all_sentences.keys():
@@ -458,10 +727,23 @@ class Syntax:
             return sentence
 
         def initialize_types(sentence):
-            """Draws on the operator_collection in order to initialize all sentences
-            in the input by replacing operator strings with operator classes and
-            updating original_type in that sentence_obj. If the main operator is not
-            primitive, derived_arguments are updated with derived_types."""
+            """Initializes sentence types using the operator collection.
+            
+            This method performs two key functions:
+            1. Replaces operator strings with their corresponding operator classes from
+               the operator collection
+            2. Updates the sentence's type information (original_type, arguments)
+            
+            For non-primitive operators (defined operators), this also processes their
+            derived arguments according to their definitions.
+            
+            Args:
+                sentence (Sentence): The sentence object to initialize
+                
+            Side Effects:
+                - Updates sentence.original_type with operator classes
+                - Updates sentence.arguments for defined operators
+            """
             # TODO: confirm not needed with derived operators
             # if sentence.original_arguments:
             #     for argument in sentence.original_arguments:
@@ -486,7 +768,28 @@ class Syntax:
         return sentence_objects
 
     def circularity_check(self, operator_collection):
-        """Detects circular dependencies among operators and ensures all dependencies are within the collection."""
+        """Validates operator dependencies and detects circular definitions.
+        
+        This method performs two key validation checks on the operator collection:
+        1. Ensures all operator dependencies are defined within the collection
+        2. Detects any circular dependencies between defined operators
+        
+        For example, if operator A is defined in terms of B, and B is defined in
+        terms of A, this would be detected as a circular dependency. Similarly,
+        if an operator references an undefined operator C, this would raise an error.
+        
+        Args:
+            operator_collection (OperatorCollection): The collection of operators to validate
+            
+        Raises:
+            ValueError: If an operator depends on undefined operators
+            RecursionError: If circular dependencies are detected between operators
+            
+        Example:
+            If operator Implies is defined as (¬p ∨ q) but ¬ is not in the collection,
+            this would raise a ValueError. If Implies is defined using Or and Or is
+            defined using Implies, this would raise a RecursionError.
+        """
         dependency_graph = {}
         operator_set = set(operator_collection.operator_dictionary.values())
 

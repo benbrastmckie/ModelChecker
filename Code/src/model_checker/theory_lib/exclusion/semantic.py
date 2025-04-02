@@ -83,7 +83,7 @@ class ExclusionSemantics(model.SemanticDefaults):
         # NOTE: adding the negation of this constraint is satisfiable and so not already entailed
         null_state = ForAll(
             x,
-            z3.Not(self.excludes(self.null_bit, x))
+            z3.Not(self.excludes(self.null_state, x))
         )
         
         # Harmony between worlds and possibility
@@ -129,7 +129,7 @@ class ExclusionSemantics(model.SemanticDefaults):
         excluders = ForAll(
             x,
             z3.Implies(
-                x != self.null_bit,
+                x != self.null_state,
                 Exists(
                     y,
                     self.excludes(y, x)
@@ -140,7 +140,7 @@ class ExclusionSemantics(model.SemanticDefaults):
         partial_excluders = ForAll(
             x,
             z3.Implies(
-                x != self.null_bit,
+                x != self.null_state,
                 Exists(
                     [y, z],
                     z3.And(
@@ -152,7 +152,7 @@ class ExclusionSemantics(model.SemanticDefaults):
         )
 
         # NOTE: used to prove that the null_state is always possible
-        impossible_null = z3.Not(self.possible(self.null_bit))
+        impossible_null = z3.Not(self.possible(self.null_state))
         
 
         # Set frame constraints
@@ -667,30 +667,30 @@ class ExclusionStructure(model.ModelDefaults):
         self.main_point["world"] = z3_model[self.main_world]
         self.z3_poss_bits = [
             bit
-            for bit in self.all_bits
+            for bit in self.all_states
             if evaluate(self.semantics.possible(bit))
         ]
         self.z3_world_bits = [
             bit
-            for bit in self.all_bits
+            for bit in self.all_states
             if evaluate(self.semantics.is_world(bit))
         ]
         self.z3_excludes = [
             (bit_x, bit_y)
-            for bit_x in self.all_bits
-            for bit_y in self.all_bits
+            for bit_x in self.all_states
+            for bit_y in self.all_states
             if evaluate(self.semantics.excludes(bit_x, bit_y))
         ]
         self.z3_conflicts = [
             (bit_x, bit_y)
-            for bit_x in self.all_bits
-            for bit_y in self.all_bits
+            for bit_x in self.all_states
+            for bit_y in self.all_states
             if evaluate(self.semantics.conflicts(bit_x, bit_y))
         ]
         self.z3_coheres = [
             (bit_x, bit_y)
-            for bit_x in self.all_bits
-            for bit_y in self.all_bits
+            for bit_x in self.all_states
+            for bit_y in self.all_states
             if evaluate(self.semantics.coheres(bit_x, bit_y))
         ]
 
@@ -729,7 +729,7 @@ class ExclusionStructure(model.ModelDefaults):
         
         # Print formatted state space
         print("State Space", file=output)
-        for bit in self.all_bits:
+        for bit in self.all_states:
             state = bitvec_to_substates(bit, self.N)
             bin_rep = binary_bitvector(bit)
             if bit == 0:
@@ -761,7 +761,7 @@ class ExclusionStructure(model.ModelDefaults):
                     arg = z3.BitVec("h_arg", self.N)
                     # Create the function application with the argument
                     h_func_app = decl(arg)
-                    for bit_x in self.all_bits:
+                    for bit_x in self.all_states:
                         try:
                             # Evaluate by substituting the actual bit value
                             h_val = self.z3_model.evaluate(z3.substitute(h_func_app, (arg, bit_x)))

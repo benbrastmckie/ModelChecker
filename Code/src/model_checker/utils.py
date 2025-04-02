@@ -1,10 +1,14 @@
 """
-This file contains all helper functions used in `hidden_things.py`
+Utility functions for the model checker system.
+
+This module provides various helper functions for manipulating bit vectors,
+parsing logical expressions, and converting between different representations
+used throughout the model checker.
 
 NOTES:
-Any latex commands must have double backslash.
-Operators include `\\` and sentence letters do not.
-The operators `\\top` and `\\bot` are reserved.
+- Any LaTeX commands must have double backslash 
+- Operators include `\\` (e.g., `\\wedge`) and sentence letters do not
+- The operators `\\top` and `\\bot` are reserved for tautology and contradiction
 """
 
 ### IMPORTS AND DEFINITIONS ###
@@ -13,11 +17,8 @@ import string
 
 from z3 import(
     And,
-    BitVecSort,
     BitVecVal,
-    EmptySet,
     Or,
-    SetAdd,
     substitute,
 )
 
@@ -126,9 +127,25 @@ def op_left_right(tokens):
 ### PRINT HELPERS ###
 
 def pretty_set_print(set_with_strings):
-    """input a set with strings print that same set but with no quotation marks around each
-    individual string, and also with the set in order returns the set as a string
-    Used in print_vers_and_fals() and print_alt_worlds()"""
+    """Formats a set of strings for readable display.
+    
+    This function takes a set of strings and returns a properly formatted string
+    representation with the elements sorted and separated by commas. It removes
+    quotation marks from the elements and displays an empty set using the
+    mathematical empty set symbol.
+    
+    Args:
+        set_with_strings (set): A set containing string elements
+        
+    Returns:
+        str: A formatted string representation of the set
+        
+    Examples:
+        >>> pretty_set_print({'a', 'c', 'b'})
+        '{a, b, c}'
+        >>> pretty_set_print(set())
+        '∅'
+    """
     sorted_set = sorted(list(set_with_strings))  # actually type list, not set
     print_str = "{"
     for i, elem in enumerate(sorted_set):
@@ -139,6 +156,20 @@ def pretty_set_print(set_with_strings):
     return print_str if print_str != "{}" else '∅'
 
 def binary_bitvector(bit, N):
+    """Converts a Z3 bit vector to a binary string representation.
+    
+    This function takes a Z3 bit vector and converts it to a binary string
+    representation with the appropriate number of bits. For bit widths that
+    are not multiples of 4, it uses the raw string expression; otherwise,
+    it converts from hexadecimal to binary.
+    
+    Args:
+        bit: A Z3 bit vector
+        N (int): The bit width to use for the representation
+        
+    Returns:
+        str: A binary string representation of the bit vector
+    """
     return (
         bit.sexpr()
         if N % 4 != 0
@@ -253,9 +284,19 @@ def bitvec_to_substates(bit_vec, N):
 #     return simplify(z3_expr)
 
 def ForAll(bvs, formula):
-    """
-    generates constraints by substituting all possible bitvectors for the variables in the formula
-    before taking the conjunction of those constraints
+    """Implements universal quantification over bit vectors for Z3.
+    
+    This function explicitly generates universal quantification by substituting
+    all possible bit vector values for the variables in the formula and taking
+    the conjunction of the resulting constraints. This approach allows for
+    more direct control over quantification than using Z3's built-in ForAll.
+    
+    Args:
+        bvs: Either a single Z3 bit vector or a list of bit vectors to quantify over
+        formula: The Z3 formula to quantify
+        
+    Returns:
+        BoolRef: A Z3 formula representing the conjunction of all substituted constraints
     """
     constraints = []
     if not isinstance(bvs, list):
@@ -278,9 +319,19 @@ def ForAll(bvs, formula):
     return And(constraints)
 
 def Exists(bvs, formula):
-    """
-    generates constraints by substituting all possible bitvectors for the variables in the formula
-    before taking the disjunction of those constraints
+    """Implements existential quantification over bit vectors for Z3.
+    
+    This function explicitly generates existential quantification by substituting
+    all possible bit vector values for the variables in the formula and taking
+    the disjunction of the resulting constraints. This approach allows for
+    more direct control over quantification than using Z3's built-in Exists.
+    
+    Args:
+        bvs: Either a single Z3 bit vector or a list of bit vectors to quantify over
+        formula: The Z3 formula to quantify
+        
+    Returns:
+        BoolRef: A Z3 formula representing the disjunction of all substituted constraints
     """
     constraints = []
     if not isinstance(bvs, list):
@@ -374,6 +425,25 @@ def run_test(
     model_constraints,
     model_structure,
 ):
+    """Run a model checking test with the given components.
+    
+    This function creates a complete model checking pipeline by instantiating
+    the syntax, semantics, model constraints, and model structure with the
+    provided components. It then checks if the resulting model matches the
+    expected behavior defined in the example settings.
+    
+    Args:
+        example_case (list): A list containing [premises, conclusions, settings]
+        semantic_class: The semantic theory class to use
+        proposition_class: The proposition class to use
+        operator_collection (OperatorCollection): Collection of operators
+        syntax_class: The syntax class to use (normally Syntax)
+        model_constraints: The model constraints class to use
+        model_structure: The model structure class to use
+        
+    Returns:
+        bool: True if the model matches the expected behavior, False otherwise
+    """
     premises, conclusions, settings = example_case
     example_syntax = syntax_class(premises, conclusions, operator_collection)
     semantics = semantic_class(settings)
