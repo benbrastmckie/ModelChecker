@@ -1,4 +1,4 @@
-This package draws on the SMT solver [Z3](https://github.com/Z3Prover/z3) to provide a programmatic semantics for a number of hyperintensional operators along with a general purpose methodology for developing novel programmatic semantic theories and studying their resulting logics.
+This package deploys the SMT solver [Z3](https://github.com/Z3Prover/z3) to provide a programmatic semantics for a number of hyperintensional operators along with a general purpose methodology for developing novel programmatic semantic theories and studying their resulting logics.
 Rather than computing whether a given sentence is a logical consequence of some set of sentences by hand, these resources allow users to find countermodels or establish logical consequence up to a finite level complexity specified by the user.
 Instead of only developing a model-theoretic version of a semantics and working out the consequence with pen and paper, this project provides tooling for finding hyperintensional countermodels and establish validity over models up to a user specified level of complexity in a propositional language with the following operators:
 
@@ -15,6 +15,8 @@ Instead of only developing a model-theoretic version of a semantics and working 
   - `sqsubseteq` for _essence_ read 'necessary for'
   - `equiv` for _propositional identity_ read 'just is for'
   - `preceq` for _relevance_
+
+More specific details about the implementation of this hyperintensional semantics can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/default/README.md).
 
 ### Screenshot
 
