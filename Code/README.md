@@ -16,7 +16,7 @@ This tool is intended to be used alongside and in support of the development of 
   - `equiv` for _propositional identity_ read 'just is for'
   - `preceq` for _relevance_
 
-More specific details about the implementation of this hyperintensional semantics can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/default/README.md) as well as the [handout]() from a talk on the programmatic semantic methodology.
+More specific details about the implementation of this hyperintensional semantics can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/default/README.md) as well as the [handout](https://github.com/benbrastmckie/ModelChecker/blob/master/ProgrammaticSemantics.pdf) from a talk on the programmatic semantic methodology that this project provides.
 
 ### Screenshot
 
