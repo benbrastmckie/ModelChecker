@@ -19,8 +19,6 @@ Constitutive Operators:
     - IdentityOperator (≡): Content identity between propositions
     - GroundOperator (≤): Grounding/entailment relation
     - EssenceOperator (⊑): Essence relation between propositions
-
-Relevance Operators:
     - RelevanceOperator (≼): Content relevance between propositions
 
 Counterfactual Operators:
@@ -1340,10 +1338,6 @@ class EssenceOperator(syntactic.Operator):
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
-###############################################################################
-############################# RELEVANCE OPERATORS #############################
-###############################################################################
-
 class RelevanceOperator(syntactic.Operator):
     """Implementation of the relevance operator (≼).
     
@@ -2346,27 +2340,153 @@ class PossibilityOperator(syntactic.DefinedOperator):
         self.print_over_worlds(sentence_obj, eval_point, all_worlds, indent_num, use_colors)
 
 
+class CFNecessityOperator(syntactic.DefinedOperator):
+    """Implementation of the counterfactual necessity operator.
+    
+    This operator represents 'it is counterfactually necessary that', defined as
+    ⊤ □→ A. It is true when A holds in all ⊤-alternatives to the evaluation world
+    (which amounts to all worlds).
+    
+    As a defined operator, it derives its semantics from the definition in terms
+    of the counterfactual operator and the top operator.
+    
+    Class Attributes:
+        name (str): Symbol representing counterfactual necessity ("\\CFBox")
+        arity (int): Number of arguments (1)
+        primitive (bool): Always False for defined operators
+    """
+
+    name = "\\CFBox"
+    arity = 1
+
+    def derived_definition(self, argument): # type: ignore
+        """Defines the counterfactual necessity operator □_CF A as ⊤ □→ A.
+        
+        The counterfactual necessity operator is defined in terms of more basic operators:
+        the counterfactual conditional and the top operator. □_CF A is equivalent to
+        ⊤ □→ A, meaning 'if anything were the case (which it always is), A would be the case'.
+        
+        Args:
+            argument: The argument of the counterfactual necessity operator (A)
+            
+        Returns:
+            list: A nested list structure representing ⊤ □→ A in terms of
+                 primitive operators CounterfactualOperator and TopOperator
+        """
+        return [CounterfactualOperator, [TopOperator], argument]
+
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """
+        For modal and counterfactual operators, this method:
+        1. Prints the full proposition at the current evaluation point
+        2. Prints the antecedent's evaluation at the current world
+        3. Prints the consequent's at all alternative worlds being considered
+        4. Uses increased indentation to show the nested structure
+        
+        Args:
+            sentence_obj (Sentence): The sentence object containing the proposition
+            eval_point (dict): The point of evaluation (typically a world)
+            indent_num (int): The current indentation level for formatting output
+            use_colors (bool): Whether to use ANSI color codes in output
+        """
+        is_alt = self.semantics.calculate_alternative_worlds
+        model_structure = sentence_obj.proposition.model_structure
+        left_argument_obj = sentence_obj.original_arguments[0]
+        left_argument_verifiers = left_argument_obj.proposition.verifiers
+        alt_worlds = is_alt(left_argument_verifiers, eval_point, model_structure)
+        self.print_over_worlds(sentence_obj, eval_point, alt_worlds, indent_num, use_colors)
+
+class CFPossibilityOperator(syntactic.DefinedOperator):
+    """Implementation of the counterfactual possibility operator.
+    
+    This operator represents 'it is counterfactually possible that', defined as
+    ⊤ ◇→ A. It is true when A holds in at least one ⊤-alternative to the evaluation world
+    (which amounts to some possible world).
+    
+    As a defined operator, it derives its semantics from the definition in terms
+    of the might counterfactual operator and the top operator.
+    
+    Class Attributes:
+        name (str): Symbol representing counterfactual possibility ("\\CFDiamond")
+        arity (int): Number of arguments (1)
+        primitive (bool): Always False for defined operators
+    """
+
+    name = "\\CFDiamond"
+    arity = 1
+
+    def derived_definition(self, argument): # type: ignore
+        """Defines the counterfactual possibility operator ◇_CF A as ⊤ ◇→ A.
+        
+        The counterfactual possibility operator is defined in terms of more basic operators:
+        the might counterfactual operator and the top operator. ◇_CF A is equivalent to
+        ⊤ ◇→ A, meaning 'if anything were the case (which it always is), A might be the case'.
+        
+        Args:
+            argument: The argument of the counterfactual possibility operator (A)
+            
+        Returns:
+            list: A nested list structure representing ⊤ ◇→ A in terms of
+                 primitive operators MightCounterfactualOperator and TopOperator
+        """
+        return [MightCounterfactualOperator, [TopOperator], argument]
+
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """
+        For modal and counterfactual operators, this method:
+        1. Prints the full proposition at the current evaluation point
+        2. Prints the antecedent's evaluation at the current world
+        3. Prints the consequent's at all alternative worlds being considered
+        4. Uses increased indentation to show the nested structure
+        
+        Args:
+            sentence_obj (Sentence): The sentence object containing the proposition
+            eval_point (dict): The point of evaluation (typically a world)
+            indent_num (int): The current indentation level for formatting output
+            use_colors (bool): Whether to use ANSI color codes in output
+        """
+        is_alt = self.semantics.calculate_alternative_worlds
+        model_structure = sentence_obj.proposition.model_structure
+        left_argument_obj = sentence_obj.original_arguments[0]
+        left_argument_verifiers = left_argument_obj.proposition.verifiers
+        alt_worlds = is_alt(left_argument_verifiers, eval_point, model_structure)
+        self.print_over_worlds(sentence_obj, eval_point, alt_worlds, indent_num, use_colors)
+
 
 default_operators = syntactic.OperatorCollection(
-    # primitive operators
+    # primitive extensional operators
     NegationOperator,
     AndOperator,
     OrOperator,
+
+    # primitive extremal operators
     TopOperator,
     BotOperator,
+
+    # primitive constitutive operators
     IdentityOperator,
     GroundOperator,
     EssenceOperator,
     RelevanceOperator,
+    
+    # primitive counterfactual operators
     CounterfactualOperator,
-    MightImpositionOperator,
     ImpositionOperator,
+
+    # primitive modal operators
     NecessityOperator,
 
-    # defined operators
+    # defined extensional operators
     ConditionalOperator,
     BiconditionalOperator,
+
+    # defined counterfactual operators
     MightCounterfactualOperator,
+    MightImpositionOperator,
+
+    # defined modal operators
     PossibilityOperator,
+    CFNecessityOperator,
+    CFPossibilityOperator,
 )
 
