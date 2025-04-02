@@ -27,10 +27,14 @@ class NegationOperator(syntactic.Operator):
         """Returns false if argument is true."""
         return self.semantics.true_at(argument, eval_world, eval_time)
 
-    def find_truth_condition(self, arg_sent_obj, eval_world, eval_time):
-        """Returns truth and false sets for negation."""
-        Y_V, Y_F = arg_sent_obj.proposition.find_proposition()
-        return Y_F, Y_V
+    def find_truth_condition(self, argument, eval_world, eval_time):
+        """Gets truth-condition for the negation of an argument."""
+        argument_truth_condition = argument.proposition.extension
+        new_truth_condition = {}
+        for world_array, temporal_profile in argument_truth_condition.items():
+            true_times, false_times = temporal_profile
+            new_truth_condition[world_array] = (false_times, true_times)
+        return new_truth_condition
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition and its arguments."""
@@ -60,11 +64,20 @@ class AndOperator(syntactic.Operator):
         )
 
     def find_truth_condition(self, leftarg, rightarg, eval_world, eval_time):
-        """Gets truth/false sets for conjunction of arguments."""
-        Y_V, Y_F = leftarg.proposition.find_proposition()
-        Z_V, Z_F = rightarg.proposition.find_proposition()
-        return Y_V.intersection(Z_V), Y_F.union(Z_F)
-    
+        """Gets truth-condition for the conjunction of two arguments."""
+        leftarg_truth_condition = leftarg.proposition.extension
+        rightarg_truth_condition = rightarg.proposition.extension
+        new_truth_condition = {}
+        for world_array, temporal_profile in leftarg_truth_condition.items():
+            left_true_times, left_false_times = temporal_profile
+            right_true_times, right_false_times = rightarg_truth_condition[world_array]
+            # Find intersection while preserving order from left_true_times
+            new_true_times = [t for t in left_true_times if t in right_true_times]
+            # Find union while preserving order and removing duplicates
+            new_false_times = sorted(set(left_false_times) | set(right_false_times))
+            new_truth_condition[world_array] = (new_true_times, new_false_times)
+        return new_truth_condition
+
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition and its arguments."""
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
@@ -93,10 +106,19 @@ class OrOperator(syntactic.Operator):
         )
 
     def find_truth_condition(self, leftarg, rightarg, eval_world, eval_time):
-        """Gets truth/false sets for disjunction of arguments."""
-        Y_V, Y_F = leftarg.proposition.find_proposition()
-        Z_V, Z_F = rightarg.proposition.find_proposition()
-        return Y_V.union(Z_V), Y_F.intersection(Z_F)
+        """Gets truth-condition for the conjunction of two arguments."""
+        leftarg_truth_condition = leftarg.proposition.extension
+        rightarg_truth_condition = rightarg.proposition.extension
+        new_truth_condition = {}
+        for world_array, temporal_profile in leftarg_truth_condition.items():
+            left_true_times, left_false_times = temporal_profile
+            right_true_times, right_false_times = rightarg_truth_condition[world_array]
+            # Find intersection while preserving order from left_true_times
+            new_true_times = sorted(set(left_true_times) | set(right_true_times))
+            # Find union while preserving order and removing duplicates
+            new_false_times = [t for t in left_false_times if t in right_false_times]
+            new_truth_condition[world_array] = (new_true_times, new_false_times)
+        return new_truth_condition
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition and its arguments."""
@@ -126,7 +148,7 @@ class TopOperator(syntactic.Operator):
 
     def find_truth_condition(self, eval_world, eval_time):
         """Returns (all bits, empty set)."""
-        return set(self.semantics.all_bits), set()
+        return self.semantics.all_true
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition and its arguments."""
@@ -151,11 +173,12 @@ class BotOperator(syntactic.Operator):
 
     def find_truth_condition(self, eval_world, eval_time):
         """Returns (empty set, all bits)."""
-        return set(), set(self.semantics.all_bits)
+        return self.semantics.all_false
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition and its arguments."""
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
+
 
 
 ##############################################################################
@@ -197,25 +220,15 @@ class NecessityOperator(syntactic.Operator):
         )
 
     def find_truth_condition(self, argument, eval_world, eval_time):
-        """Gets truth/false sets for necessity of argument.
-        □φ is true at a world w iff φ is true at all worlds accessible from w."""
+        """Gets truth-condition for: 'It is necessary that: argument'."""
         model_structure = argument.proposition.model_structure
-        z3_model = model_structure.z3_model
-        semantics = self.semantics
-        
-        # Check if argument is true in all worlds
-        all_true = True
-        for world_array in model_structure.all_worlds.values():
-            truth_expr = semantics.true_at(argument, world_array, eval_time)
-            evaluated_expr = z3_model.evaluate(truth_expr)
-            if not z3.is_true(evaluated_expr):
-                all_true = False
-                break
-        
-        all_world_states = set(self.semantics.all_bits)
-        if all_true:
-            return all_world_states, set()  # True everywhere
-        return set(), all_world_states  # False everywhere
+        argument_extension = argument.proposition.extension
+        for world_array, temporal_profile in argument_extension.items():
+            true_times, false_times = temporal_profile
+            if eval_time in false_times:
+                # If eval_time is in false_times, mark all times as false for all worlds
+                return self.semantics.all_false
+        return self.semantics.all_true
 
     def print_method(self, argument, eval_point, indent_num, use_colors):
         """Print counterfactual and the antecedent in the eval_world. Then
@@ -224,6 +237,7 @@ class NecessityOperator(syntactic.Operator):
         all_worlds = argument.proposition.model_structure.all_worlds.values()
         self.print_over_worlds(argument, eval_point, all_worlds, indent_num, use_colors)
    
+
 
 ##############################################################################
 ############################## TENSE OPERATORS ###############################
@@ -259,12 +273,26 @@ class FutureOperator(syntactic.Operator):
             )
         )
     
-    # TODO: replace with (world, time) pairs, calling this the extension
     def find_truth_condition(self, argument, eval_world, eval_time):
-        Y_V, Y_F = argument.proposition.find_proposition()
-        Z_V = self.semantics.all_bits if Y_V else set()
-        Z_F = set() if Y_F else self.semantics.all_bits
-        return Z_V, Z_F
+        """Gets truth-condition for 'It is always going to be: argument'."""
+        model_structure = argument.proposition.model_structure
+        argument_extension = argument.proposition.extension
+        new_truth_condition = {}
+        for world_array, temporal_profile in argument_extension.items():
+            true_times, false_times = temporal_profile
+            if not false_times:  # If false_times is empty
+                new_truth_condition[world_array] = (model_structure.all_times, [])
+            else:
+                final_false_time = false_times.pop()
+                new_true_times = []
+                new_false_times = []
+                for time in model_structure.all_times:
+                    if time > final_false_time:
+                        new_true_times.append(time)
+                    else:
+                        new_false_times.append(time)
+                new_truth_condition[world_array] = (new_true_times, new_false_times)
+        return new_truth_condition
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print counterfactual and the antecedent in the eval_world. Then
@@ -304,12 +332,23 @@ class PastOperator(syntactic.Operator):
             )
         )
     
-    # TODO: replace with (world, time) pairs, calling this the extension
     def find_truth_condition(self, argument, eval_world, eval_time):
-        Y_V, Y_F = argument.proposition.find_proposition()
-        Z_V = self.semantics.all_bits if Y_V else set()
-        Z_F = set() if Y_F else self.semantics.all_bits
-        return Z_V, Z_F
+        """Gets truth-condition for 'It always has been: argument'."""
+        model_structure = argument.proposition.model_structure
+        argument_extension = argument.proposition.extension
+        new_truth_condition = {}
+        for world_array, temporal_profile in argument_extension.items():
+            true_times, false_times = temporal_profile
+            first_false_time = false_times.pop(0) # TODO: check this is the first time
+            new_true_times = []
+            new_false_times = []
+            for time in model_structure.all_times:
+                if time < first_false_time:
+                    new_true_times.append(time)
+                else:
+                    new_false_times.append(time)
+            new_truth_condition[world_array] = (new_true_times, new_false_times)
+        return new_truth_condition
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         all_times = sentence_obj.proposition.model_structure.all_times

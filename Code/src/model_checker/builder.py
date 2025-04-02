@@ -1,6 +1,47 @@
+"""Model checker builder module for constructing and executing modal logic examples.
+
+This module provides the core functionality for building and executing modal logic model
+checking examples. It contains three main classes:
+
+BuildModule:
+    Manages loading and executing model checking examples from Python modules. Handles
+    dynamic module loading, configuration settings, and coordinating the model checking
+    process across different semantic theories.
+
+BuildProject:
+    Creates new theory implementation projects from templates. Handles directory
+    structure creation, file copying, and initial setup of new modal logic theory
+    implementations.
+
+BuildExample:
+    Handles individual model checking examples, including model construction,
+    constraint generation, and result evaluation. Manages the interaction between
+    syntactic representations and semantic theories.
+
+The module supports:
+- Dynamic loading of Python modules containing modal logic examples
+- Comparison of different semantic theories on the same logical problems
+- Creation of new theory implementation projects from templates
+- Model finding with configurable settings and constraints
+- Result visualization and saving
+- Operator translation between different notational systems
+
+Example usage:
+    # Load and run examples from a module
+    module = BuildModule(module_flags)
+    module.run_examples()
+
+    # Create a new theory project
+    project = BuildProject("theory_name")
+    project.generate("project_name")
+
+    # Build and evaluate a specific example
+    example = BuildExample(build_module, semantic_theory, example_case)
+    example.print_result("example_name", "theory_name")
+"""
+
 import z3
 import os
-import inspect
 import importlib.util
 import concurrent.futures
 import time
@@ -37,10 +78,29 @@ except ImportError:
 
 
 class BuildModule:
-    """Load and store module values with settings and validation.
+    """Manages loading and executing model checking examples from Python modules.
     
-    This class handles loading a Python module and extracting its model checking
-    configuration including premises, conclusions, and various settings.
+    This class is responsible for dynamically loading a Python module containing modal logic
+    examples, extracting configuration settings, and coordinating the model checking process.
+    It provides functionality for running examples with different logical theories, comparing
+    performance across semantic implementations, and translating between different notations.
+    
+    The class supports both single example processing and comparative analysis of multiple
+    semantic theories on the same logical problems.
+    
+    Attributes:
+        module_flags: Command-line flags that override module settings
+        module_path (str): File path to the Python module being loaded
+        module_name (str): Name of the module (without extension)
+        module: The loaded Python module object
+        semantic_theories (dict): Mapping of theory names to their implementations
+        example_range (dict): Mapping of example names to their definitions
+        general_settings (dict): General configuration settings for model checking
+        print_impossible (bool): Whether to print models that are impossible
+        print_constraints (bool): Whether to print Z3 constraints
+        print_z3 (bool): Whether to print raw Z3 output
+        save_output (bool): Whether to save results to files
+        maximize (bool): Whether to maximize the model size
     """
     
     DEFAULT_GENERAL_SETTINGS = {
@@ -52,14 +112,15 @@ class BuildModule:
     }
 
     def __init__(self, module_flags):
-        """Initialize BuildModule with module name and path.
+        """Initialize BuildModule with module flags containing configuration.
         
         Args:
-            module_name: Name of the module to load
-            module_path: File path to the module
+            module_flags: Object containing configuration flags including file_path
+                          and other optional settings that override module settings
         
         Raises:
-            ImportError: If module cannot be loaded
+            ImportError: If the module cannot be loaded
+            AttributeError: If required attributes are missing from the module
         """
 
         self.module_flags = module_flags
@@ -109,7 +170,25 @@ class BuildModule:
         return getattr(self.module, attr_name, {})
 
     def _load_general_settings(self):
-        """Initialize all settings from module with defaults and flag overrides."""
+        """Initialize settings by combining module defaults, user settings, and flag overrides.
+        
+        This method merges settings from multiple sources in the following priority order:
+        1. Command-line flag overrides (highest priority)
+        2. User-defined module settings
+        3. Default general settings (lowest priority)
+        
+        The method handles:
+        - Loading settings from the module if present
+        - Applying default values for missing settings
+        - Overriding settings with command-line flags when specified
+        
+        Returns:
+            dict: Complete settings dictionary with all values resolved
+            
+        Note:
+            Only boolean command-line flags that are explicitly set to True will
+            override existing settings.
+        """
 
         general_settings = getattr( # Permits user to replace general_settings
             self.module,
@@ -136,7 +215,24 @@ class BuildModule:
         return general_settings
 
     def try_single_N(self, theory_name, semantic_theory, example_case):
-        """Try a single N value and return (success, runtime)"""
+        """Try a single N value and return (success, runtime).
+        
+        Attempts to find a model with a specific N value (number of worlds) for a given
+        semantic theory and example case. Times out after the maximum allowed time.
+        
+        Args:
+            theory_name (str): Name of the semantic theory being tested
+            semantic_theory (dict): Dictionary containing the semantic theory implementation
+            example_case (list): List containing [premises, conclusions, settings]
+            
+        Returns:
+            tuple: (success, runtime) where:
+                - success (bool): True if model found within max time, False otherwise
+                - runtime (float): Time taken to attempt finding the model
+                
+        The method prints progress information including theory name, runtime, max time
+        allowed, and N value used. If the attempt times out, it prints a timeout message.
+        """
         premises, conclusions, settings = example_case
         semantics_class = semantic_theory["semantics"]
         model_structure_class = semantic_theory["model"]
@@ -169,6 +265,28 @@ class BuildModule:
         return success, run_time
 
     def compare_semantics(self, example_theory_tuples):
+        """Compare different semantic theories by finding maximum model sizes.
+        
+        This method attempts to find the maximum model size (N) for each semantic theory
+        by incrementally testing larger values of N until a timeout occurs. It runs the
+        tests concurrently using a ProcessPoolExecutor for better performance.
+        
+        Args:
+            example_theory_tuples: List of tuples containing (theory_name, semantic_theory, example_case)
+                where example_case is [premises, conclusions, settings]
+                
+        Returns:
+            list: List of tuples containing (theory_name, max_N) where max_N is the largest
+                  number of worlds for which a model was found within the time limit
+                  
+        The method prints progress information for each attempt, including:
+        - Theory name and implementation
+        - Runtime and maximum allowed time
+        - Current N value being tested
+        - Timeout notifications when applicable
+        """
+        results = []
+        active_cases = {}  # Track active cases and their current N values
         results = []
         active_cases = {}  # Track active cases and their current N values
         
@@ -216,7 +334,25 @@ class BuildModule:
         return results
 
     def translate(self, example_case, dictionary):
-        """Use dictionary to replace logical operators."""
+        """Use dictionary to replace logical operators in logical formulas.
+        
+        Takes a dictionary mapping old operators to new operators and replaces all
+        occurrences of old operators with their new versions in the premises and
+        conclusions.
+        
+        Args:
+            example_case (list): A list containing [premises, conclusions, settings]
+            dictionary (dict): Mapping of old operators to new operators
+            
+        Returns:
+            list: New example case with translated operators in premises and conclusions
+            
+        Example:
+            >>> example_case = [["\\nec p"], ["\\pos p"], {"N": 3}]
+            >>> dictionary = {"\\nec": "\\Box", "\\pos": "\\Diamond"} 
+            >>> translate(example_case, dictionary)
+            [["\\Box p"], ["\\Diamond p"], {"N": 3}]
+        """
         premises, conclusions, settings = example_case
         def replace_operators(logical_list, dictionary):
             for old, new in dictionary.items():
@@ -227,6 +363,33 @@ class BuildModule:
         return [new_premises, new_conclusion, settings]
 
     def translate_example(self, example_case, semantic_theories):
+        """Translates example case for each semantic theory using their dictionaries.
+
+        Takes an example case and applies any operator translations defined in each semantic
+        theory's dictionary to create theory-specific versions of the example.
+
+        Args:
+            example_case (list): List containing [premises, conclusions, settings]
+            semantic_theories (dict): Dictionary mapping theory names to their implementations
+
+        Returns:
+            list: List of tuples (theory_name, semantic_theory, translated_case) where:
+                - theory_name (str): Name of the semantic theory
+                - semantic_theory (dict): The semantic theory implementation
+                - translated_case (list): Example case with operators translated for that theory
+
+        Example:
+            >>> example_case = [["\\nec p"], ["\\pos p"], {"N": 3}]
+            >>> semantic_theories = {
+            ...     "S4": {"dictionary": {"\\nec": "\\Box", "\\pos": "\\Diamond"}, ...},
+            ...     "S5": {"dictionary": {"\\nec": "□", "\\pos": "◇"}, ...}
+            ... }
+            >>> translate_example(example_case, semantic_theories)
+            [
+                ("S4", s4_theory, [["\\Box p"], ["\\Diamond p"], {"N": 3}]),
+                ("S5", s5_theory, [["□ p"], ["◇ p"], {"N": 3}])
+            ]
+        """
         example_theory_tuples = []
         for theory_name, semantic_theory in semantic_theories.items():
             translated_case = example_case
@@ -238,6 +401,19 @@ class BuildModule:
         return example_theory_tuples
 
     def run_comparison(self):
+        """Compare different semantic theories by running examples and printing results.
+        
+        Iterates through each example in example_range and runs it against all semantic theories.
+        For each example:
+        1. Prints example name and details (premises and conclusions)
+        2. Translates operators according to each theory's dictionary
+        3. Compares semantic theories by finding maximum model sizes
+        4. Prints results showing which theories could handle larger models
+        
+        The comparison helps evaluate the relative efficiency and capabilities of different
+        semantic theories when applied to the same examples
+        """
+
         print()
         for example_name, example_case in self.example_range.items():
             premises, conclusions, settings = example_case
@@ -272,7 +448,27 @@ class BuildModule:
             print("\rRunning model-checker: Done" + " " * 10 + "\n")
 
     def run_single_iteration(self, executor, example_case, example_name, theory_name, semantic_theory):
-        """Run a single iteration of the model checker with progress tracking."""
+        """Run a single iteration of the model checker with progress tracking.
+
+        Executes one iteration of the model checker while displaying an animated progress
+        spinner. Handles timeouts and result processing.
+
+        Args:
+            executor: ThreadPoolExecutor instance for running the model checker
+            example_case: List containing [premises, conclusions, settings]
+            example_name: Name of the example being processed
+            theory_name: Name of the semantic theory being used
+            semantic_theory: Dictionary containing the semantic theory implementation
+
+        Returns:
+            BuildExample: The processed example object if successful, None if failed or timed out
+
+        The method:
+        1. Submits the model checking task to the executor
+        2. Displays an animated progress spinner while waiting
+        3. Handles timeouts based on example settings
+        4. Processes and prints results if successful
+        """
         future = executor.submit(
             BuildExample,
             self,
@@ -367,6 +563,20 @@ class BuildModule:
         return example_case
         
     def process_iterations(self, example_name, example_case, theory_name, semantic_theory):
+        """Process multiple iterations of model checking for a given example.
+        
+        This method attempts to find multiple models for the given example by
+        iteratively solving and then adding constraints to find distinct models.
+        
+        Args:
+            example_name (str): Name of the example being processed
+            example_case (list): The example case containing [premises, conclusions, settings]
+            theory_name (str): Name of the semantic theory being used
+            semantic_theory (dict): Dictionary containing the semantic theory implementation
+        
+        Returns:
+            None: Results are printed to standard output
+        """
         """Process additional model iterations if requested.
         
         Args:
@@ -434,7 +644,21 @@ class BuildModule:
                     self.process_example(example_name, example_copy, theory_name, semantic_theory)
 
 class BuildProject:
-    """Handles project generation and setup."""
+    """Creates a new theory implementation project from a template.
+    
+    This class handles the creation of a new modal logic theory implementation
+    by copying and configuring template files. It sets up the directory structure,
+    renames files appropriately, and initializes the basic implementation files.
+    
+    The generated project includes operators.py, semantic.py, examples.py, and 
+    test files that provide the foundation for implementing a new modal logic theory.
+    
+    Attributes:
+        theory (str): Name of the new theory to create
+        theory_dir (str): Directory path for the new theory
+        template_dir (str): Path to the template directory
+        test_dir (str): Directory path for tests
+    """
 
     DEFAULT_FILES = {
         "examples.py": "examples.py",
@@ -450,7 +674,17 @@ class BuildProject:
         self.destination_dir: str = ""
 
     def ask_generate(self):
-        """Prompt user to create a test file."""
+        """Prompt user to create a new theory implementation project.
+        
+        Asks the user if they want to generate a new project for the current theory.
+        If yes, prompts for a project name and calls generate(). If no, displays
+        information about running existing example files.
+        
+        The method handles:
+        - User confirmation for project creation
+        - Project name input validation 
+        - Fallback instructions for using existing examples
+        """
         result = input(f"Would you like to generate a new {self.theory}-project? (y/n): ")
         if result not in {'Yes', 'yes', 'Ye', 'ye', 'Y', 'y'}:
             print("\nYou can run an example.py file that already exists with the command:\n")
@@ -461,11 +695,24 @@ class BuildProject:
         self.generate(test_name)
 
     def generate(self, name):
-        """
-        Generate a new project by copying template files and setting up structure.
+        """Generate a new theory implementation project from templates.
+        
+        Creates a new project directory with the standard theory implementation structure
+        by copying and configuring template files. The project name will be prefixed
+        with 'project_' to maintain consistent naming conventions.
         
         Args:
-            name: Base name for the project (will be prefixed with 'project_')
+            name (str): Base name for the project, should use snake_case formatting
+            
+        Raises:
+            ValueError: If project name is empty or invalid
+            FileExistsError: If project directory already exists
+            FileNotFoundError: If template files cannot be found
+            
+        The generated project includes:
+        - examples.py: Sample model checking examples
+        - operators.py: Logical operator definitions
+        - semantics.py: Semantic theory implementation
         """
         self.project_name = 'project_' + name
         if not self.project_name:
@@ -530,7 +777,28 @@ class BuildProject:
 
 
 class BuildExample:
-    """Class to create and store model structure with settings as attributes."""
+    """Handles the creation and evaluation of a single model checking example.
+    
+    This class takes a semantic theory and an example case (premises, conclusions, and settings),
+    constructs a logical model, and evaluates the validity of the argument. It provides methods
+    for finding models, printing results, and saving the model to a file.
+    
+    The class integrates the syntactic representation of sentences with the semantic theory
+    to create constraints that Z3 can solve, producing a model or countermodel for the argument.
+    
+    Attributes:
+        build_module (BuildModule): The parent module managing the model checking process
+        semantic_theory (dict): The semantic theory implementation to use
+        example_case (list): The example case containing premises, conclusions, and settings
+        semantics_class: The class implementing the semantic theory
+        model_class: The class implementing the model structure
+        proposition_class: The class implementing propositions
+        operators (OperatorCollection): The collection of logical operators
+        premises (list): The premise sentences
+        conclusions (list): The conclusion sentences
+        settings (dict): Configuration settings for the model
+        model_structure: The resulting model structure after solving
+    """
 
     def __init__(self, build_module, semantic_theory, example_case):
         """Initialize model structure from module flags."""
@@ -574,7 +842,24 @@ class BuildExample:
         self.solver = self.model_structure.solver
 
     def find_next_model(self, old_z3_model):
-        """Find the next model that differs from the previous one."""
+        """Find a new model that differs from the previous one.
+        
+        Attempts to find a new model that is semantically distinct from the provided previous
+        model by adding constraints that require at least one difference in either:
+        - Sentence letter valuations
+        - Primitive function/relation interpretations
+        
+        Args:
+            old_z3_model: The previous Z3 model to differentiate from
+            
+        Returns:
+            bool: True if a new distinct model was found, False otherwise
+            
+        Note:
+            The method focuses on semantic differences rather than just structural ones,
+            meaning the new model must interpret some component differently rather than
+            just having different internal representation.
+        """
         if old_z3_model is None:
             print("Warning: No previous model provided to find_next_model")
             return False
@@ -628,10 +913,21 @@ class BuildExample:
             return False
 
     def _update_solver(self, old_z3_model):
-        """Add constraints requiring difference from a previous model.
+        """Add constraints to ensure the next model differs from the previous one.
         
-        Only creates constraints for primitive functions and sentence letters,
-        leaving all other aspects of the model free to remain the same or change.
+        Adds Z3 constraints that require the new model to differ from the previous model
+        in at least one of:
+        - The valuation of sentence letters
+        - The interpretation of primitive functions/relations
+        
+        Other aspects of the model structure (e.g., accessibility relations) are not
+        constrained and may remain the same or change freely.
+        
+        Args:
+            old_z3_model: The previous Z3 model to differentiate from
+            
+        Raises:
+            z3.Z3Exception: If constraint creation fails
         """
         try:
             solver = self.model_structure.solver
@@ -651,7 +947,8 @@ class BuildExample:
                     continue
 
             # Process primitive functions
-            for name, func in self.model_constraints.semantics.__dict__.items():
+            semantics_dict = getattr(self.model_constraints.semantics, '__dict__', {})
+            for name, func in semantics_dict.items():
                 # Skip non-Z3 items and internal attributes
                 if name.startswith('_') or not isinstance(func, z3.FuncDeclRef):
                     print(f"EXCLUDED: {name} TYPE: {type(func)}")
@@ -683,7 +980,7 @@ class BuildExample:
 
             # Add the disjunction of differences as a constraint
             if different_model_constraints:
-                print("DEBUG", different_model_constraints)
+                # print("DEBUG", different_model_constraints)
                 try:
                     constraint = z3.Or(*different_model_constraints)
                     solver.assert_and_track(
@@ -733,18 +1030,31 @@ class BuildExample:
 
 
     def _validate_semantic_theory(self, semantic_theory):
-        """Validates that semantic_theory contains the required components in the correct order.
+        """Validates and extracts components from the semantic theory dictionary.
+        
+        Ensures the semantic theory dictionary contains all required components with valid types
+        and stores them as instance attributes. Required components include semantics class,
+        proposition class, operator collection, and model structure class.
         
         Args:
-            semantic_theory: A tuple/list containing (Semantics, Proposition, OperatorCollection)
-            
-        Returns:
-            The validated semantic_theory
-            
+            semantic_theory (dict): Dictionary containing:
+                - "semantics": Class inheriting from SemanticDefaults
+                - "proposition": Class inheriting from PropositionDefaults  
+                - "operators": Instance of OperatorCollection
+                - "model": Class inheriting from ModelDefaults
+                - "dictionary" (optional): Dictionary mapping operators to alternate notation
+                
         Raises:
-            TypeError: If any component has an invalid type
+            TypeError: If any component is missing or has an invalid type
+            
+        Note:
+            Components are stored as instance attributes:
+            - self.semantics: The semantic theory class
+            - self.proposition: The proposition handling class
+            - self.operators: The operator collection instance
+            - self.dictionary: Optional operator translation dictionary
+            - self.model_structure_class: The model structure class
         """
-
         if not isinstance(semantic_theory, dict) or len(semantic_theory) < 3:
             raise TypeError(
                 "semantic_theory must be a tuple/list containing exactly 3 elements: "
@@ -839,8 +1149,19 @@ class BuildExample:
         """
 
         def update_example_settings(example_settings):
-            # TODO: fix linter warning
-            merged_settings = self.semantics.DEFAULT_EXAMPLE_SETTINGS.copy()
+            """Merge example settings with default semantic settings.
+
+            Args:
+                example_settings (dict): Settings specific to the current example
+
+            Returns:
+                dict: Merged settings dictionary containing defaults from semantics class
+                      updated with provided example settings
+            """
+            if self.semantics is None:
+                merged_settings = {} 
+            else:
+                merged_settings = self.semantics.DEFAULT_EXAMPLE_SETTINGS.copy()
             merged_settings.update(example_settings)
             return merged_settings
 
@@ -897,61 +1218,73 @@ class BuildExample:
         return flag_updated_settings
 
     def check_result(self):
+        """Compare the model findings against expected model existence.
+        
+        Returns:
+            bool: True if model findings match expectations, False otherwise.
+            
+        The method compares the actual model status (whether a model was found)
+        against the expected model status specified in settings["model"].
+        This is used to verify if the model checker produced the expected result
+        (e.g., finding a model when one should exist, or not finding one when
+        none should exist).
+        """
         model_expectation = self.settings["model"]
         model_findings = self.model_structure.z3_model_status
         return model_findings == model_expectation
 
     def print_result(self, example_name, theory_name):
-        """Prints resulting model or no model if none is found."""
+        """Prints resulting model or no model if none is found.
+        
+        This method handles the display of model checking results, including:
+        - Printing the model structure if a valid model is found
+        - Displaying a message if no countermodel exists
+        - Checking model satisfiability
+        - Handling output saving if requested
+        
+        Args:
+            example_name (str): The name of the example being checked
+            theory_name (str): The name of the semantic theory being used
+            
+        The method also coordinates with the model structure's print_to method for
+        detailed model output and handles the save_output setting by prompting the
+        user for file saving preferences when appropriate.
+        """
         model_structure = self.model_structure
         default_settings = self.example_settings
         
-        # try:
-        if model_structure.z3_model is None:
-            print(f"\nNo countermodel found for example '{example_name}' with theory '{theory_name}'")
-            constraints = model_structure.model_constraints.all_constraints
-            print(f"CONSTRAINTS {constraints} TYPE {type(constraints)}")
-            # for con in constraints:
-            #     print(f"CONSTRAINT {con}")
-            return
-            
-        # # Debug info before printing
-        # print("\nModel debug information:")
-        # print(f"  Model status: {model_structure.z3_model_status}")
-        # print(f"  Model type: {type(model_structure.z3_model)}")
-        
-        # try:
-        # Verify model is still satisfiable
-        if model_structure.solver.check() != z3.sat:
-            print("Warning: Model is no longer satisfiable")
-            return
+        # TODO: sort out what this was doing in the iterate function
+        # if model_structure.z3_model is None:
+        #     print(f"\nNo countermodel found for example '{example_name}' with theory '{theory_name}'")
+        #     constraints = model_structure.model_constraints.all_constraints
+        #     print(f"CONSTRAINTS {constraints} TYPE {type(constraints)}")
+        #     return
+        #
+        # if model_structure.solver.check() != z3.sat:
+        #     print("Warning: Model is no longer satisfiable")
+        #     return
             
         model_structure.print_to(default_settings, example_name, theory_name)
             
-        # except z3.Z3Exception as e:
-        #     print(f"\nZ3 error while printing model: {str(e)}")
-        #     print("Model state:")
-        #     print(f"  Solver status: {model_structure.solver.check()}")
-        #     print(f"  Model exists: {model_structure.z3_model is not None}")
-        #     return
-        
         if model_structure.settings["save_output"]:
             file_name, save_constraints = self.ask_save()
             self.save_or_append(model_structure, file_name, save_constraints, example_name, theory_name)
             
-        # except AttributeError as e:
-        #     print(f"\nError printing model for example '{example_name}': {str(e)}")
-        #     # print("This may indicate that the model evaluation failed or the evaluation world was not properly set.")
-        #     # print(f"Model structure type: {type(model_structure)}")
-        #     # print(f"Available attributes: {dir(model_structure)}")
-        # except Exception as e:
-        #     print(f"\nUnexpected error printing model for example '{example_name}': {str(e)}")
-        #     print(f"Error type: {type(e)}")
-        #     import traceback
-        #     print(f"Traceback:\n{traceback.format_exc()}")
-
     def ask_save(self):
-        """print the model and prompt user to store the output"""
+        """Prompts the user to save the model output and specify output options.
+        
+        This method handles the user interaction for saving model output by:
+        1. Asking if the user wants to save the output
+        2. If yes, asking if Z3 constraints should be included
+        3. Prompting for a filename (blank for appending to project file)
+        
+        Returns:
+            tuple: (file_name, save_constraints) where:
+                - file_name (str or None): Name for output file, None if no save requested,
+                                         empty string for appending to project file
+                - save_constraints (bool): Whether to include Z3 constraints in output
+        """
+
         result = input("Would you like to save the output? (y/n):\n")
         if not result in ['Yes', 'yes', 'Ye', 'ye', 'Y', 'y']:
             return None, None
@@ -965,7 +1298,27 @@ class BuildExample:
         return file_name, print_cons
 
     def save_or_append(self, model_structure, file_name, save_constraints, example_name, theory_name):
-        """Option to save or append if a model is found."""
+        """Option to save or append model output to a file.
+        
+        This method handles saving the model output either by appending to an existing file
+        or creating a new file. It supports two modes of operation:
+        
+        1. Append Mode: If file_name is empty, appends the output to the project's module file
+        2. New File Mode: If file_name is provided, creates a new .py file in the project directory
+        
+        Args:
+            model_structure: The model structure containing the results to save
+            file_name (str): Target filename (empty for append mode)
+            save_constraints (bool): Whether to include Z3 constraints in output
+            example_name (str): Name of the example being saved
+            theory_name (str): Name of the semantic theory used
+            
+        The method handles directory creation if needed and uses appropriate formatting
+        for both append and new file modes. For append mode, it wraps the output in
+        triple quotes. For new file mode, it creates a properly formatted Python file
+        with a title comment.
+        """
+
         if file_name is None:
             return
         if len(file_name) == 0:

@@ -25,16 +25,29 @@ except ImportError:
 
 
 class ParseFileFlags:
-    """Handles command line argument parsing and flag management."""
+    """Parses command line arguments and manages configuration flags for the model checker application.
+    
+    This class provides a centralized way to handle command-line interface (CLI) arguments,
+    process various configuration flags, and manage the overall execution settings of the
+    model checker tool."""
 
     def __init__(self):
-        """Initialize parser with default configuration."""
+        """Initialize the argument parser with default configuration settings.
+        
+        Sets up the parser instance variable but does not process any arguments.
+        The actual parsing happens later in the parse() method."""
         self.parser = self._create_parser()
         self.flags = None
         self.package_name = None
 
     def _create_parser(self):
-        """Create and configure the argument parser."""
+        """Create and configure the argument parser with all supported command line options.
+        
+        Returns:
+            argparse.ArgumentParser: A configured parser that handles all command line arguments
+            including file paths, semantic theory options, output controls, and utility flags.
+        """
+        # Create the parser
         parser = argparse.ArgumentParser(
             prog='model-checker',
             usage='%(prog)s [options] input',
@@ -46,7 +59,6 @@ class ParseFileFlags:
             More information can be found at:
             https://github.com/benbrastmckie/ModelChecker/""",
         )
-        
         # Add arguments
         parser.add_argument(
             "file_path",
@@ -132,12 +144,42 @@ class ParseFileFlags:
         return parser
 
     def parse(self):
-        """Parse command line arguments and store results."""
+        """Parse command line arguments and store results in instance variables.
+        
+        This method processes the command line arguments using argparse and stores
+        the parsed flags and package name in the instance variables self.flags
+        and self.package_name respectively.
+        
+        Returns:
+            tuple: A tuple containing (parsed_args, package_name) where:
+                - parsed_args: The parsed command line arguments
+                - package_name: The name of the package (model-checker)
+        """
         self.flags = self.parser.parse_args()
         self.package_name = self.parser.prog
         return self.flags, self.package_name
 
 def main():
+    """Main entry point for the model checker application.
+
+    This function handles the primary execution flow of the model checker:
+    
+    1. If no arguments are provided, it launches the interactive project generator
+    2. Otherwise, it processes command line arguments to:
+        - Upgrade the package if requested
+        - Load a specific semantic theory if specified
+        - Run model comparisons if maximize flag is set
+        - Execute model checking on provided examples
+    
+    The function supports various modes of operation:
+    - Interactive project generation
+    - Package upgrade via pip
+    - Loading specific semantic theories
+    - Running model comparisons
+    - Executing model checks on example files
+
+    No parameters or return values as this is the main program entry point.
+    """
     if len(sys.argv) < 2:
         builder = BuildProject()
         builder.ask_generate()
