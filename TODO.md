@@ -5,13 +5,14 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 ## Plan
 
 - bimodal semantics
-  - intensional semantics
+  - semantics
+    - [ ] add abundance constraint
   - proposition
+    - [ ] extension
   - operators
-    - future
-    - past
-    - [:] necessity
-      - [ ] add abundance constraint
+    - [x] future
+    - [x] past
+    - [x] necessity
 - [ ] tools
   - [.] iterate
   - [ ] minimize
@@ -19,7 +20,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
   - [:] _M_ Champollion
     - [.] examples
     - [x] divide into modules
-  - [x] _B_ Fine
+  - [x] Fine
     - [x] implement
     - [x] separate from default
 - [x] benchmarks
@@ -27,15 +28,12 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] example unit tests
   - [x] add unit tests to theories
 - [.] documentation
-  - [.] _B_ doc strings
-  - [x] _B_ readmes
-    - [ ] imposition
-    - [x] exclusion
-    - [x] default
-  - [ ] _B_ wiki
-    - [ ] methodology
-    - [ ] _B_ architecture
-    - [ ] _B_ semantics
+  - [x] code base
+  - [:] default
+  - [.] exclusion
+  - imposition
+  - bimodal
+  - wiki
 - [ ] subject-matter operators
 
 ## Applications
@@ -62,20 +60,40 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Documentation
 
-- [ ] document applications
-- [ ] code base docstrings
-  - [:] `syntactic.py`
-    - [ ] defined operators doc string
-    - [x] all other doc strings
-  - [ ] `semantic.py`
-  - [ ] `operators.py`
-  - [ ] `model.py`
-  - [ ] `utils.py`
+- [.] theories
+  - [:] default
+    - [x] docstrings
+    - [x] readme
+    - [ ] design
+  - exclusion
+    - docstrings
+    - [.] readme
+    - design
+  - imposition
+    - docstrings
+    - readme
+    - design
+  - bimodal
+    - docstrings
+    - readme
+    - design
+- [:] code base
+  - [x] readme
+  - [x] docstrings
+    - [x] `__init__.py`
+    - [x] `builder.py`
+    - [x] `syntactic.py`
+    - [x] `model.py`
+    - [x] `utils.py`
+  - [ ] wiki
+    - [ ] methodology
+    - [ ] architecture
+    - [ ] semantics
 - [ ] _B_ rewrite architecture doc
 - [ ] _B_ write semantics doc
-- [ ] clean up project directory
-  - [ ] delete old
-  - [ ] decapitalize directories
+- [x] clean up project directory
+  - [x] delete old
+  - [x] decapitalize directories
 
 ## Implementation
 
