@@ -201,8 +201,8 @@ The examples currently included in `examples.py` are organized into four main ca
 
    - Tests valid counterfactual arguments including:
      - Identity: `A □→ A`
-     - Modus ponens: `A, A □→ B` ⊢ `B`
-     - Modal interactions: `□A` ⊢ `⊤ □→ A`
+     - Modus ponens: `A, A □→ B` ⊨ `B`
+     - Modal interactions: `□A` ⊨ `⊤ □→ A`
 
 3. **Constitutive Logic Countermodels (CL*CM*\*)**
 
@@ -213,8 +213,8 @@ The examples currently included in `examples.py` are organized into four main ca
 
 4. **Constitutive Logic Theorems (CL*TH*\*)**
    - Tests valid constitutive arguments including:
-     - Ground to essence: `A ≤ B` ⊢ `¬A ⊑ ¬B`
-     - Identity properties: `A ≡ B` ⊢ `¬A ≡ ¬B`
+     - Ground to essence: `A ≤ B` ⊨ `¬A ⊑ ¬B`
+     - Identity properties: `A ≡ B` ⊨ `¬A ≡ ¬B`
 
 The module defines three key data structures:
 
