@@ -1,0 +1,23 @@
+# ModelChecker Project Guidelines
+
+## Build/Test Commands
+- Run all tests: `pytest`
+- Run specific test file: `pytest path/to/test_file.py`
+- Run specific test: `pytest path/to/test_file.py -k "test_name"`
+- Verbose output: `pytest -v` or `pytest -vv`
+- Show real-time output: `pytest --capture=no`
+- Run with timing info: `pytest --durations=0`
+
+## Code Style
+- **Imports**: Standard imports first, grouped external imports, then local imports
+- **Docstrings**: Triple double quotes `"""` with Args, Returns, Examples sections
+- **Types**: Use type hints for function parameters and return values
+- **Naming**: snake_case for functions/variables, PascalCase for classes
+- **Function Length**: Keep functions focused and concise
+- **Error Handling**: Use appropriate Exception types with descriptive messages
+- **Z3 Usage**: Group Z3 imports, use Z3 types consistently (BitVecVal, BoolRef)
+
+## Project Structure
+- Core modules in `src/model_checker/`
+- Theory implementations in `theory_lib/`
+- Tests in both root `test/` and within theory modules
