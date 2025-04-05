@@ -14,7 +14,9 @@ rm -rf dist
 rm -rf src/model_checker.egg-info
 
 # Run tests for specific theory directories
-theory_dirs=("default" "exclusion" "imposition") # "bimodal" 
+# theory_dirs=("default" "exclusion" "imposition")
+# Or get theory directories from __all__ in theory_lib/__init__.py
+theory_dirs=($(PYTHONPATH=src python3 -c "from model_checker.theory_lib import __all__; print(' '.join(__all__))"))
 failed_dirs=()
 
 echo "Running tests for specific theory directories..."
