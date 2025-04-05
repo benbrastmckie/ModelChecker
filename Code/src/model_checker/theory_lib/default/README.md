@@ -2,13 +2,15 @@
 
 The hyperintensional semantics implements the semantic theories defended in the following papers:
 
-- Brast-McKie ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w) (2021)
-- Brast-McKie ["Counterfactual Worlds"](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf) (2025)
+- Brast-McKie (2021) ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w), Journal of Philosophical Logic
+- Brast-McKie (2025) ["Counterfactual Worlds"](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf), Journal of Philosophical Logic
 
 This work builds on the truthmaker semantics developed by Kit Fine in the following papers:
 
-- Fine ["Counterfactuals without Possible Worlds"](https://link.springer.com/article/10.1007/BF00248737) (2012)
-- Fine ["A Theory of Truthmaker Content I: Conjunction, Disjunction and Negation"](https://link.springer.com/article/10.1007/s10992-016-9413-y) (2017)
+- Fine (2017) ["Counterfactuals without Possible Worlds"](https://link.springer.com/article/10.1007/BF00248737), Journal of Philosophy
+- Fine (2017) ["A Theory of Truthmaker Content I: Conjunction, Disjunction and Negation"](https://link.springer.com/article/10.1007/s10992-016-9413-y), Journal of Philosophical Logic
+- Fine (2017) ["A Theory of Truthmaker Content II: Subject-Matter, Common Content, Remainder and Ground"](https://doi.org/10.1007/s10992-016-9419-5) Journal of Philosophical Logic
+- Fine (2017) ["Truthmaker Semantics"](https://doi.org/10.1002/9781118972090.ch22), Wiley-Blackwell
 
 I have implemented Fine's semantics for the counterfactual conditional alongside the account that I defend for comparison.
 Whereas Fine's semantics is provided for `\\imposition`, the semantics I defend will be used to interpret `\\boxright`.
