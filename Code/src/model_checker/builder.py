@@ -661,10 +661,10 @@ class BuildProject:
     """
 
     DEFAULT_FILES = {
-        "examples.py": "examples.py",
-        "operators.py": "operators.py",
-        "semantics.py": "semantics.py",
-        "README.md": "README.md",
+        "examples.py"  : "examples.py",
+        "operators.py" : "operators.py",
+        "semantics.py" : "semantics.py",
+        "README.md"    : "README.md",
     }
 
     def __init__(self, theory: str = 'default'):
