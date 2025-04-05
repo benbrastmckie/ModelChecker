@@ -25,8 +25,6 @@ Usage:
     result = prop.evaluate()
 """
 
-from importlib.metadata import version
-
 # Import specific items from semantic
 from .semantic import (
     Semantics,
@@ -37,10 +35,7 @@ from .semantic import (
 # Import all operators
 from .operators import default_operators
 
-try:
-    __version__ = version("model-checker")
-except ImportError:
-    __version__ = "unknown"
+__version__ = "unknown"
 
 # Define the public API of the package
 __all__ = [

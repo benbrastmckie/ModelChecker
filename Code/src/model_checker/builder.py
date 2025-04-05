@@ -48,6 +48,7 @@ import time
 import shutil
 import subprocess
 from concurrent.futures.thread import ThreadPoolExecutor
+from importlib.metadata import version
 
 # Try local imports first (for development)
 try:
@@ -743,8 +744,36 @@ class BuildProject:
             raise FileExistsError(f"Directory '{self.destination_dir}' already exists.")
 
     def _copy_project_files(self):
-        """Copy template files to new project directory."""
+        """Copy template files to new project directory and update version."""
+        # First copy all files
         shutil.copytree(self.source_dir, self.destination_dir)
+        
+        # Update __init__.py with current version from pyproject.toml
+        init_path = os.path.join(self.destination_dir, "__init__.py")
+        if os.path.exists(init_path):
+            with open(init_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Find and read pyproject.toml
+            current_dir = os.path.dirname(__file__)
+            while current_dir != '/':
+                pyproject_path = os.path.join(current_dir, 'pyproject.toml')
+                if os.path.exists(pyproject_path):
+                    with open(pyproject_path, 'r', encoding='utf-8') as f:
+                        pyproject_content = f.read()
+                        # Extract version using basic string operations
+                        version_line = [line for line in pyproject_content.split('\n') 
+                                     if line.strip().startswith('version = ')][0]
+                        current_version = version_line.split('=')[1].strip().strip('"\'')
+                        break
+                current_dir = os.path.dirname(current_dir)
+            else:
+                current_version = "0.8.18"  # Fallback to hardcoded version
+            
+            new_content = content.replace("unknown", current_version)
+            
+            with open(init_path, 'w', encoding='utf-8') as f:
+                f.write(new_content)
 
     def _rename_files(self):
         """Rename project files according to template."""
