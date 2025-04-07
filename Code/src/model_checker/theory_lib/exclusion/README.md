@@ -166,6 +166,12 @@ The `semantics.py` module consists of two classes which define the models of the
 
 > TO BE CONTINUED...
 
+### Methodology
+
+#### Settings
+
+TODO: how to use settings
+
 ### Semantics
 
 ### Propositions
