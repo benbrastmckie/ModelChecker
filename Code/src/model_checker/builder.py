@@ -801,7 +801,21 @@ class BuildProject:
         print(example_script)
         if os.path.exists(example_script):
             print("\nRunning the example script...")
-            subprocess.run(["model-checker", example_script])
+            try:
+                # Use sys.executable to ensure we use the correct Python interpreter
+                import sys
+                subprocess.run(["model-checker", example_script], 
+                             check=True,
+                             timeout=30)  # Add 30 second timeout
+            except subprocess.TimeoutExpired:
+                print("\nScript execution timed out. You can run it manually with:")
+                print(f"model-checker {example_script}")
+            except subprocess.CalledProcessError as e:
+                print(f"\nError running example script: {e}")
+                print(f"You can run it manually with: model-checker {example_script}")
+            except Exception as e:
+                print(f"\nUnexpected error: {e}")
+                print(f"You can run it manually with: model-checker {example_script}")
         else:
             print(f"\nFailed to run: model-checker {example_script}")
 
