@@ -4,6 +4,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Plan
 
+- debug readme issue
 - bimodal semantics
   - semantics
     - [ ] add abundance constraint
@@ -18,6 +19,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] minimize
 - [:] applications
   - [:] _M_ Champollion
+    - [ ] all_bits
     - [.] examples
     - [x] divide into modules
   - [x] Fine

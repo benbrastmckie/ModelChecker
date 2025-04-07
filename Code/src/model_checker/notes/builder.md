@@ -16,6 +16,7 @@
 The primary issues appear to be:
 
 1. **File naming discrepancies**: The code expects `semantics.py` in some places and `semantic.py` in others
+  - NOTE: For now I would like to maintain `semantic.py`.
 2. **Incomplete file verification**: Files are copied but not always checked to confirm they exist
 3. **Installation differences**: When pip-installed, the template files may not be properly included or accessed
 4. **Inadequate fallbacks**: Missing required templates don't have proper fallback mechanisms
