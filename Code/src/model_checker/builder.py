@@ -488,7 +488,7 @@ class BuildModule:
         spinner.complete()
         
         # try:
-        example = future.result(timeout=0)
+        example = future.result(timeout=example_max_time)  # Use the example's max_time instead of 0
         if example is None:
             return None
             
