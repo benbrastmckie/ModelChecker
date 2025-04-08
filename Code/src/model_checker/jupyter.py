@@ -9,26 +9,36 @@ Main components:
 - InteractiveModelExplorer: Class for interactive model exploration
 - convert_ansi_to_html: Utility for converting ANSI terminal output to HTML
 - model_to_graph/visualize_model: Functions for visualizing models graphically
+- setup_environment: Sets up the Python path for notebooks
+- import_notebook_modules: Imports and returns key modules needed for notebooks
+- diagnostic_info: Returns diagnostic information about the environment
 
 Usage:
-    from model_checker.notebook import InteractiveModelExplorer
+    from model_checker.jupyter import InteractiveModelExplorer
     
     # Create and display explorer
     explorer = InteractiveModelExplorer()
     explorer.display()
     
     # Check a specific formula
-    from model_checker.notebook import check_formula_interactive
+    from model_checker.jupyter import check_formula_interactive
     check_formula_interactive("□(p → q) → (□p → □q)")
 """
 
 import io
 from contextlib import redirect_stdout
 from typing import List, Dict, Any, Optional, Union, Callable
+import os
+import sys
+import importlib
 
 # Core dependencies
-from model_checker import BuildExample, get_theory
-from model_checker.theory_lib import get_examples, get_semantic_theories
+try:
+    from model_checker import BuildExample, get_theory
+    from model_checker.theory_lib import get_examples, get_semantic_theories
+except ImportError:
+    # We may need to set up the environment first
+    pass
 
 # Interactive UI and visualization
 try:
@@ -39,6 +49,102 @@ try:
     HAVE_IPYWIDGETS = True
 except ImportError:
     HAVE_IPYWIDGETS = False
+
+
+def setup_environment():
+    """
+    Set up the environment for notebooks by adding the correct paths
+    to sys.path and ensuring all modules can be imported properly.
+    """
+    # Get the location of this file
+    current_file = os.path.abspath(__file__)
+    # Up 3 directories: jupyter.py -> model_checker -> src -> Code
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_file)))
+    
+    # Add project root and src directory to path if not already there
+    paths_to_add = [
+        project_root,
+        os.path.join(project_root, 'src'),
+    ]
+    
+    for path in paths_to_add:
+        if path not in sys.path:
+            sys.path.insert(0, path)
+    
+    # Try to import model_checker and reload if necessary
+    try:
+        import model_checker
+        # If already imported but from wrong location, reload
+        if hasattr(model_checker, '__file__'):
+            expected_path = os.path.join(project_root, 'src', 'model_checker')
+            if not model_checker.__file__.startswith(expected_path):
+                importlib.reload(model_checker)
+                # Also reload this module to ensure it has the correct imports
+                importlib.reload(sys.modules[__name__])
+    except ImportError:
+        pass  # Will be caught when notebook tries to import
+    
+    return {
+        'project_root': project_root,
+        'sys_path': sys.path
+    }
+
+
+def import_notebook_modules():
+    """
+    Import and return the key modules needed for notebooks.
+    Returns a dictionary with the imported modules.
+    """
+    # First ensure environment is set up
+    setup_environment()
+    
+    try:
+        import model_checker
+        from model_checker.jupyter import InteractiveModelExplorer, check_formula
+        from model_checker.theory_lib import get_semantic_theories
+        
+        return {
+            'model_checker': model_checker,
+            'InteractiveModelExplorer': InteractiveModelExplorer,
+            'check_formula': check_formula,
+            'get_semantic_theories': get_semantic_theories
+        }
+    except ImportError as e:
+        print(f"Error importing modules: {e}")
+        print("Current sys.path:")
+        for p in sys.path:
+            print(f"  {p}")
+        return {}
+
+
+def diagnostic_info():
+    """
+    Return diagnostic information about the environment
+    """
+    env_info = setup_environment()
+    
+    # Try imports
+    try:
+        import model_checker
+        mc_location = model_checker.__file__
+        mc_version = model_checker.__version__
+    except ImportError:
+        mc_location = "Not found"
+        mc_version = "Not found"
+    
+    # Check this module
+    try:
+        jupyter_location = __file__
+    except NameError:
+        jupyter_location = "Not found"
+    
+    return {
+        'project_root': env_info['project_root'],
+        'sys_path': env_info['sys_path'],
+        'model_checker_location': mc_location,
+        'model_checker_version': mc_version,
+        'jupyter_module_location': jupyter_location,
+    }
 
 
 def convert_ansi_to_html(ansi_text: str) -> str:
@@ -203,12 +309,19 @@ class InteractiveModelExplorer:
         Args:
             theory_name: Name of the semantic theory to use
         """
+        # Ensure environment is set up
+        setup_environment()
+        
         if not HAVE_IPYWIDGETS:
             raise ImportError(
                 "ipywidgets is required for InteractiveModelExplorer. "
                 "Install it with: pip install ipywidgets matplotlib networkx"
             )
             
+        # Import necessary components now that environment is set up
+        from model_checker import get_theory
+        from model_checker.theory_lib import get_semantic_theories
+        
         self.theory_name = theory_name
         self.theory = get_theory(theory_name)
         self.settings = {
@@ -372,7 +485,11 @@ class InteractiveModelExplorer:
     
     def _get_available_theories(self):
         """Get the list of available theories."""
+        # Ensure model_checker is properly imported
+        setup_environment()
+        
         try:
+            from model_checker.theory_lib import get_semantic_theories
             theories = list(get_semantic_theories().keys())
             return theories
         except Exception as e:
@@ -385,6 +502,7 @@ class InteractiveModelExplorer:
     
     def _on_theory_change(self, change):
         """Handle theory change."""
+        from model_checker import get_theory
         self.theory_name = change['new']
         self.theory = get_theory(self.theory_name)
     
@@ -412,6 +530,8 @@ class InteractiveModelExplorer:
             try:
                 # Create a minimal BuildModule for the BuildExample
                 from model_checker.builder import BuildModule
+                from model_checker import BuildExample
+                
                 build_module = type('BuildModule', (), {
                     'module': None,
                     'module_flags': type('Flags', (), {})
@@ -571,7 +691,13 @@ def check_formula(formula, theory_name="default", premises=None, settings=None):
     Returns:
         HTML display of the result
     """
+    # Ensure environment is set up
+    setup_environment()
+    
+    # Import dependencies
     from IPython.display import display, HTML
+    from model_checker import get_theory, BuildExample
+    from model_checker.builder import BuildModule
     
     theory = get_theory(theory_name)
     premises = premises or []
@@ -582,7 +708,6 @@ def check_formula(formula, theory_name="default", premises=None, settings=None):
     example = [premises, [formula], _settings]
     
     # Create a minimal BuildModule for the BuildExample
-    from model_checker.builder import BuildModule
     build_module = type('BuildModule', (), {
         'module': None,
         'module_flags': type('Flags', (), {})

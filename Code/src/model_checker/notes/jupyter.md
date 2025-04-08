@@ -2,7 +2,7 @@
 
 > Support Jupyter notebooks in the model-checker
 
-## Implementation Plan: Strategy 2 - Interactive Model Explorer
+## Implementation Overview: Interactive Model Explorer
 
 This implementation plan outlines how to create an interactive model explorer for Jupyter notebooks using the ModelChecker framework and Jupyter widgets.
 
