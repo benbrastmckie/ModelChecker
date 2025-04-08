@@ -147,6 +147,35 @@ explorer = InteractiveModelExplorer()
 explorer.display()
 ```
 
+## Current Implementation
+
+The ModelChecker Jupyter integration has been implemented as described in the project design notes, providing an interactive environment for exploring logical models. The key components include:
+
+1. **jupyter.py Module**: Contains the core implementation for Jupyter integration:
+   - `InteractiveModelExplorer`: Interactive UI for model exploration
+   - `check_formula()`: Function for checking formula validity
+   - `check_formula_interactive()`: Creates an explorer for a specific formula
+   - Visualization utilities: `model_to_graph()` and `visualize_model()`
+
+2. **Key Features Implemented**:
+   - Converting ANSI color codes to HTML for notebook display
+   - Interactive widget-based UI with settings panel
+   - Ability to switch between text and graph visualization
+   - Support for different logical theories
+   - Formula checking with premises
+   - Finding alternative models with the "Find Next Model" button
+   - Unicode operator support for easier formula entry
+
+3. **Dependencies**:
+   - ipywidgets: For interactive UI components
+   - matplotlib: For visualization of models
+   - networkx: For graph representation of models
+
+4. **Environment Setup**:
+   - `setup_environment()`: Handles Python path configuration
+   - `import_notebook_modules()`: Manages imports for notebooks
+   - Error handling for missing dependencies
+
 ## Workflow Guide
 
 ### Starting a Jupyter Server
