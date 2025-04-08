@@ -1,52 +1,82 @@
 """Model checker theory library.
 
-This module provides access to various logical theories through lazy loading.
-It also includes utility functions for accessing examples from each theory.
+This module provides access to various logical theories implementing programmatic 
+semantics for modal, counterfactual, and hyperintensional operators. Theories are
+loaded on-demand through lazy loading for better performance.
 
-Theories:
+Each theory implements:
+- Semantic model structures with state fusion, part-hood relations, etc.
+- Logical operators with specific verification and falsification conditions
+- Proposition evaluation within the semantic framework
+- Example models demonstrating the theory's principles
+
+Available Theories:
 - default: Standard bilateral truthmaker semantics
-- exclusion: Unilateral semantics with exclusion relations
+- exclusion: Unilateral semantics with exclusion relations 
 - imposition: Semantics with imposition relations
-- bimodal: Bimodal semantics for counterfactuals and imposition
+- bimodal: Bimodal semantics for counterfactuals and imposition (experimental)
 
-Examples access:
-- get_examples(theory_name): Access examples from a specific theory
-- get_test_examples(theory_name): Access test examples from a theory
-- get_semantic_theories(theory_name): Access semantic theory implementations
+The module supports theory extension through a central registry. To add a new theory:
+1. Create a new directory under theory_lib/
+2. Implement semantic.py, operators.py, and examples.py
+3. Add test cases in a test/ subdirectory
+4. Register the theory name in AVAILABLE_THEORIES
+
+Usage Examples:
+    # Import a specific theory
+    from model_checker.theory_lib import default
+    
+    # Use with BuildExample constructor
+    from model_checker import BuildExample
+    model = BuildExample("simple_modal", default)
+    
+    # Access examples from a theory
+    from model_checker.theory_lib import get_examples
+    examples = get_examples('default')
+    
+    # Get test examples for unit testing
+    from model_checker.theory_lib import get_test_examples
+    test_examples = get_test_examples('default')
+    
+    # Discover all available theories
+    from model_checker.theory_lib import discover_theories
+    all_theories = discover_theories()
 """
 
 import importlib
 import os
 
-# Registry of available theories
-# Add new theories to this list when implementing them
+# Registry of available theories - add new theories here
 AVAILABLE_THEORIES = [
-    'default',
-    'exclusion',
-    'imposition',
-    # 'bimodal',
-    # Add new theories here
+    'default',      # Standard bilateral truthmaker semantics
+    'exclusion',    # Unilateral semantics with exclusion relations
+    'imposition',   # Semantics with imposition relations
+    # 'bimodal',    # Experimental bimodal semantics (in development)
 ]
-
-# IMPORTANT NOTE FOR DEVELOPERS:
-# When adding a new theory to AVAILABLE_THEORIES above,
-# you must also manually add it to the __all__ list below
-# to avoid linter errors and ensure proper exports.
 
 # Dictionary to cache loaded theory modules
 _theory_modules = {}
 
 def get_examples(theory_name):
-    """Access examples from a specific theory without circular imports.
+    """Access example model configurations from a specific theory.
+    
+    Each theory provides a set of examples that demonstrate its logical principles.
+    These examples are used for demonstration and model checking.
     
     Args:
-        theory_name (str): Name of the theory ('default', 'exclusion', etc.)
+        theory_name (str): Name of the registered theory ('default', 'exclusion', etc.)
         
     Returns:
-        dict: A dictionary of example cases for model checking
+        dict: Dictionary mapping example names to (premises, conclusions, settings) tuples
         
     Raises:
-        ValueError: If the theory name is not recognized
+        ValueError: If the theory is not registered or examples cannot be loaded
+        
+    Example:
+        >>> from model_checker.theory_lib import get_examples
+        >>> default_examples = get_examples('default')
+        >>> print(list(default_examples.keys()))
+        ['CF_CM_1', 'CF_TH_14']
     """
     if theory_name not in AVAILABLE_THEORIES:
         raise ValueError(f"Unknown theory: {theory_name}")
@@ -58,16 +88,27 @@ def get_examples(theory_name):
         raise ValueError(f"Could not load examples for theory '{theory_name}': {str(e)}")
 
 def get_test_examples(theory_name):
-    """Access test examples from a specific theory without circular imports.
+    """Access test examples from a specific theory for unit testing.
+    
+    These examples include test cases with expected results for automated testing.
+    Each example typically includes premises, conclusions, settings, and expected outcome.
     
     Args:
-        theory_name (str): Name of the theory ('default', 'exclusion', etc.)
+        theory_name (str): Name of the registered theory ('default', 'exclusion', etc.)
         
     Returns:
-        dict: A dictionary of test example cases for unit testing
+        dict: Dictionary mapping test names to (premises, conclusions, settings) tuples
         
-    Raises
-        ValueError: If the theory name is not recognized
+    Raises:
+        ValueError: If the theory is not registered or test examples cannot be loaded
+        
+    Example:
+        >>> from model_checker.theory_lib import get_test_examples
+        >>> tests = get_test_examples('default')
+        >>> # Use with pytest parametrization
+        >>> @pytest.mark.parametrize("example_name, example_case", tests.items())
+        >>> def test_examples(example_name, example_case):
+        >>>     # Test implementation
     """
     if theory_name not in AVAILABLE_THEORIES:
         raise ValueError(f"Unknown theory: {theory_name}")
@@ -81,14 +122,23 @@ def get_test_examples(theory_name):
 def get_semantic_theories(theory_name):
     """Access semantic theory implementations from a specific theory.
     
+    This function returns the semantic theory implementations that define
+    the logical behavior of each theory variant.
+    
     Args:
-        theory_name (str): Name of the theory ('default', 'exclusion', etc.)
+        theory_name (str): Name of the registered theory ('default', 'exclusion', etc.)
         
     Returns:
-        dict: A dictionary mapping theory names to implementations
+        dict: Dictionary mapping semantic theory names to their implementation classes
         
     Raises:
-        ValueError: If the theory name is not recognized
+        ValueError: If the theory is not registered or semantic theories cannot be loaded
+        
+    Example:
+        >>> from model_checker.theory_lib import get_semantic_theories
+        >>> semantics = get_semantic_theories('default')
+        >>> # Access a specific semantic theory variant
+        >>> bilateral = semantics.get('bilateral')
     """
     if theory_name not in AVAILABLE_THEORIES:
         raise ValueError(f"Unknown theory: {theory_name}")
@@ -100,21 +150,27 @@ def get_semantic_theories(theory_name):
         raise ValueError(f"Could not load semantic theories for theory '{theory_name}': {str(e)}")
 
 def discover_theories():
-    """Automatically discover available theories based on directory structure.
+    """Discover available theories by scanning the directory structure.
     
-    This function is for development and debugging purposes.
-    In production, use the AVAILABLE_THEORIES list.
+    Identifies directories that have the required files to be considered a theory
+    implementation (examples.py and operators.py). Used primarily for development
+    to find unregistered theories.
     
     Returns:
-        list: List of discovered theory names
+        list: Alphabetically sorted list of discovered theory names
+        
+    Example:
+        >>> from model_checker.theory_lib import discover_theories, AVAILABLE_THEORIES
+        >>> discovered = discover_theories()
+        >>> unregistered = [t for t in discovered if t not in AVAILABLE_THEORIES]
+        >>> print(f"Unregistered theories found: {unregistered}")
     """
     current_dir = os.path.dirname(os.path.abspath(__file__))
     theories = []
     
-    # Look for directories that contain both examples.py and operators.py
+    # Find directories containing both examples.py and operators.py
     for item in os.listdir(current_dir):
         if os.path.isdir(os.path.join(current_dir, item)) and not item.startswith('__'):
-            # Check if this has the structure of a theory module
             examples_path = os.path.join(current_dir, item, 'examples.py')
             operators_path = os.path.join(current_dir, item, 'operators.py')
             if os.path.exists(examples_path) and os.path.exists(operators_path):
@@ -122,43 +178,45 @@ def discover_theories():
     
     return sorted(theories)
 
-# Create a dictionary of placeholder attributes for lazy loading
-_placeholders = {name: None for name in AVAILABLE_THEORIES}
-
-# Only include utility functions and registry in __all__
-# This avoids linter errors about missing modules
+# Public API
 __all__ = [
-    # Registry
     'AVAILABLE_THEORIES',
-    
-    # Utility functions
     'get_examples',
     'get_test_examples',
     'get_semantic_theories',
     'discover_theories',
 ]
 
-# NOTE: For linting purposes, the following code helps the linter understand
-# that these modules can be imported from theory_lib, even though they're
-# actually loaded on-demand by __getattr__ for better performance.
-# This is a common Python pattern for modules that want lazy loading.
-
-# Recommended approach for importing:
-# from model_checker.theory_lib import get_examples  # Utility function
-# from model_checker.theory_lib import default       # Specific theory module
-
-# We don't include theories in __all__ to avoid linter errors with "missing modules",
-# but they ARE importable at runtime.
-
-# No dynamic imports here - let __getattr__ handle them as needed
+# Lazy loading implementation via __getattr__
 
 def __getattr__(name):
-    """Lazy load theory modules when accessed."""
+    """Lazily load theory modules when accessed.
+    
+    This special method implements Python's attribute lookup protocol.
+    When a module attribute is requested that doesn't exist in globals(),
+    Python calls this method to resolve it.
+    
+    Args:
+        name (str): Name of the requested attribute
+        
+    Returns:
+        module: The imported theory module if the name matches a registered theory
+        
+    Raises:
+        AttributeError: If the name is not a registered theory
+        
+    Example:
+        # This triggers __getattr__('default')
+        from model_checker.theory_lib import default
+    """
     if name in AVAILABLE_THEORIES:
+        # Load and cache the module if not already loaded
         if name not in _theory_modules:
-            # Import the theory module
-            module = importlib.import_module(f".{name}", package=__name__)
-            _theory_modules[name] = module
+            try:
+                module = importlib.import_module(f".{name}", package=__name__)
+                _theory_modules[name] = module
+            except ImportError as e:
+                raise AttributeError(f"Failed to import theory '{name}': {str(e)}")
         return _theory_modules[name]
     
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

@@ -4,7 +4,6 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Plan
 
-- debug readme issue
 - exclusion semantics
   - [ ] documentation
   - [.] add more examples
@@ -12,32 +11,34 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] create documentation
     - [x] import problem in `theory_lib/__init__.py`
     - [x] fix cli issue
+    - [ ] refactor API for jupyter
     - [ ] test with jupyter notebooks
     - [ ] update documentation
   - [x] all_bits bug
   - [x] divide into modules
-- bimodal semantics
-  - semantics
-    - [ ] add abundance constraint
-  - proposition
-    - [ ] extension
-  - operators
+- [ ] debug readme issue
+- [ ] bimodal semantics
+  - [ ] semantics
+    - [ ] time_shift constraint
+    - [ ] abundance constraint
+  - [x] proposition
+    - [x] extension
+  - [x] operators
     - [x] future
     - [x] past
     - [x] necessity
 - [ ] tools
   - [.] iterate
+    - refactor threading
   - [ ] minimize
-- [ ] improve version management
-- [ ] add unit tests throughout
-- fix CLI testing in a deeper way
-- refactor API
-  - minimal changes for jupyter
+- improve version management
+- add unit tests throughout
+- refactor API in a deeper way
 - [x] update script
   - [x] build script
   - [x] document
 - [x] fix unit testing
-  - [ ] document
+  - [x] document
   - [x] build test script
   - [x] expose `examples_range`
   - [x] expose `test_examples_range`
