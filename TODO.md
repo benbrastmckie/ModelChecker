@@ -7,14 +7,16 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 - exclusion semantics
   - [ ] documentation
   - [.] add more examples
-  - [.] improve API for jupyter
+  - [.] integrate jupyter notebooks
     - [x] create documentation
     - [x] import problem in `theory_lib/__init__.py`
     - [x] fix cli issue
     - [x] refactor API for jupyter
     - [x] install jupyter and dependencies
-    - [ ] revise API documentation
+    - [x] revise API documentation
     - [ ] debug jupyter notebooks
+      - [ ] `exclusion_demo.ipynb`
+      - [ ] `jupyter_demo.ipynb` 
     - [ ] update documentation
   - [x] all_bits bug
   - [x] divide into modules

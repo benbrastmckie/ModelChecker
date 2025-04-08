@@ -323,9 +323,18 @@ class InteractiveModelExplorer:
         from model_checker.theory_lib import get_semantic_theories
         
         self.theory_name = theory_name
-        # Fix the TypeError by getting semantic theories first
-        semantic_theories = get_semantic_theories()
-        self.theory = get_theory(theory_name, semantic_theories)
+        
+        # Handle the special case for the "default" theory which is named "Brast-McKie" in semantic_theories
+        from model_checker.utils import get_theory
+        
+        # Get semantic theories from the specified theory
+        semantic_theories = get_semantic_theories(theory_name)
+        
+        # Try to get the specified theory, or handle "default" special case
+        if theory_name == "default" and "Brast-McKie" in semantic_theories:
+            self.theory = semantic_theories["Brast-McKie"]
+        else:
+            self.theory = get_theory(theory_name, semantic_theories)
         self.settings = {
             'N': 3,
             'max_time': 5,
@@ -358,8 +367,19 @@ class InteractiveModelExplorer:
         self.settings_accordion = self._build_settings_ui()
         
         # Theory selector
+        available_theories = self._get_available_theories()
+        
+        # Ensure the current theory_name is in the available theories
+        if self.theory_name not in available_theories:
+            if len(available_theories) > 0:
+                self.theory_name = available_theories[0]
+            else:
+                # Add default as fallback if no theories available
+                available_theories = ["default"]
+                self.theory_name = "default"
+                
         self.theory_selector = widgets.Dropdown(
-            options=self._get_available_theories(),
+            options=available_theories,
             value=self.theory_name,
             description='Theory:',
             style={'description_width': 'initial'}
@@ -491,12 +511,38 @@ class InteractiveModelExplorer:
         setup_environment()
         
         try:
-            from model_checker.theory_lib import get_semantic_theories
-            theories = list(get_semantic_theories().keys())
+            from model_checker.theory_lib import get_semantic_theories, AVAILABLE_THEORIES
+            
+            # Map theory names to display names
+            theory_mapping = {}
+            
+            # Add each available theory and get its semantic theories
+            for theory in AVAILABLE_THEORIES:
+                try:
+                    semantic_theory = get_semantic_theories(theory)
+                    
+                    # Special case for default theory
+                    if theory == "default" and "Brast-McKie" in semantic_theory:
+                        theory_mapping["default"] = "Brast-McKie"
+                    else:
+                        for key in semantic_theory.keys():
+                            theory_mapping[theory] = key
+                except Exception:
+                    # Skip theories that can't be loaded
+                    pass
+            
+            # Return list of available theories with proper display/internal mapping
+            # Make sure "default" is always in the list
+            theories = list(theory_mapping.keys())
+            if "default" not in theories:
+                theories.append("default")
+                
             return theories
+            
         except Exception as e:
             print(f"Error getting available theories: {e}")
-            return [self.theory_name]
+            # Always include default as a fallback
+            return ["default"]
     
     def _update_setting(self, key, value):
         """Update a setting value."""
@@ -507,8 +553,15 @@ class InteractiveModelExplorer:
         from model_checker import get_theory
         from model_checker.theory_lib import get_semantic_theories
         self.theory_name = change['new']
-        semantic_theories = get_semantic_theories()
-        self.theory = get_theory(self.theory_name, semantic_theories)
+        
+        # Get semantic theories from the specified theory
+        semantic_theories = get_semantic_theories(self.theory_name)
+        
+        # Try to get the specified theory, or handle "default" special case
+        if self.theory_name == "default" and "Brast-McKie" in semantic_theories:
+            self.theory = semantic_theories["Brast-McKie"]
+        else:
+            self.theory = get_theory(self.theory_name, semantic_theories)
     
     def _on_viz_change(self, change):
         """Handle visualization change."""

@@ -1,6 +1,104 @@
-# Model-Checker
+# ModelChecker
 
-TODO: expand
+The ModelChecker is a programmatic semantics framework for implementing and comparing logical theories, with a focus on modal, counterfactual, and hyperintensional logic. It provides tooling for defining semantic theories, testing logical principles, and finding countermodels.
+
+## API Architecture
+
+The ModelChecker framework follows a modular architecture designed to separate core functionality from theory-specific implementations:
+
+### Core Components
+
+1. **Builder Module** (`builder.py`)
+   - `BuildExample`: Creates a model from a named example within a theory
+   - `BuildModule`: Loads and runs examples from a specific module
+   - `BuildProject`: Creates new theory implementations from templates
+
+2. **Model Module** (`model.py`)
+   - `ModelConstraints`: Core model checking and constraint solving
+   - `ModelDefaults`: Base class for semantic model implementations
+   - `SemanticDefaults`: Base semantics with default implementations
+   - `PropositionDefaults`: Base proposition class for formula evaluation
+
+3. **Syntactic Module** (`syntactic.py`)
+   - `Syntax`: Parses and processes logical formulas
+   - `Operator`: Base class for logical operators
+   - `DefinedOperator`: Base class for operators defined in terms of primitives
+
+4. **Utils Module** (`utils.py`)
+   - Helper functions for common operations
+   - Theory loading via `get_theory()`
+   - Example loading via `get_example()`
+   - Testing via `run_test()`
+
+5. **Main Module** (`__main__.py`)
+   - Command-line interface and entry points
+   - Argument parsing and dispatch
+
+6. **Jupyter Module** (`jupyter.py`)
+   - `InteractiveModelExplorer`: Interactive UI for Jupyter notebooks
+   - `check_formula()`: Quick formula checking for notebooks
+
+### Theory Library
+
+The `theory_lib` package contains specific implementations of logical theories:
+
+1. **Theory Registry** (`theory_lib/__init__.py`)
+   - Central registry of available theories
+   - Lazy loading of theory implementations
+   - Utilities for discovering and accessing theories
+
+2. **Individual Theories**
+   - Each theory follows a standardized structure:
+     - `semantic.py`: Core semantic framework implementation
+     - `operators.py`: Operator definitions and semantics
+     - `examples.py`: Test cases and examples
+     - `test/`: Unit tests for the theory
+
+### API Flow
+
+The typical API usage flow follows these steps:
+
+1. **Theory Selection**: Get a theory via `get_theory()`
+2. **Model Building**: Create a model with `BuildExample` or `BuildModule`
+3. **Formula Evaluation**: Check formulas using the model's methods
+4. **Result Analysis**: Analyze results and possibly find countermodels
+
+```python
+# A typical workflow might look like:
+from model_checker import BuildExample, get_theory
+
+# 1. Load a theory
+theory = get_theory("default")
+
+# 2. Create a model
+model = BuildExample("simple_modal", theory)
+
+# 3. Check a formula 
+result = model.check_formula("\\Box p -> p")
+
+# 4. Analyze the result
+print(f"Formula is {'valid' if result else 'invalid'}")
+```
+
+### Object Hierarchy
+
+The object hierarchy for model checking flows as follows:
+
+1. **BuildExample/BuildModule**: Top-level coordination
+2. **ModelConstraints**: Constraint generation and solving
+3. **Syntax**: Formula parsing and normalization
+4. **Theory-specific semantics**: Semantic interpretation
+5. **Theory-specific proposition**: Formula evaluation
+6. **Theory-specific operators**: Operator behavior
+
+### Extension Points
+
+The framework is designed to be extended in several ways:
+
+1. **New Theories**: Add new theory directories to `theory_lib/`
+2. **New Operators**: Subclass `Operator` or `DefinedOperator`
+3. **New Semantics**: Subclass `SemanticDefaults`
+4. **New Interfaces**: Add new builders or integration points
 
 ## Development
 
