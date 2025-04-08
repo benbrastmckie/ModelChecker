@@ -115,7 +115,7 @@ __all__ = [
     'example_settings',
     'exclusion_theory',
     'semantic_theories',
-    'example_range',
+    'test_example_range',
 ]
 
 ####################################

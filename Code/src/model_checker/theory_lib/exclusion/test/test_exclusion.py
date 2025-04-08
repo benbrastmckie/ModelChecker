@@ -27,10 +27,10 @@ from model_checker.theory_lib.exclusion import (
     ExclusionSemantics,
     exclusion_operators,
 )
-from model_checker.theory_lib.exclusion.examples import example_range
+from model_checker.theory_lib.exclusion.examples import test_example_range
 from model_checker.utils import run_test
 
-@pytest.mark.parametrize("example_name,example_case", example_range.items())
+@pytest.mark.parametrize("example_name,example_case", test_example_range.items())
 def test_example_cases(example_name, example_case):
     """Test each example case from example_range."""
     result = run_test(

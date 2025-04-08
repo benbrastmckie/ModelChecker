@@ -17,8 +17,6 @@ Examples access:
 
 import importlib
 import os
-import sys
-from types import ModuleType
 
 # Registry of available theories
 # Add new theories to this list when implementing them
@@ -29,6 +27,11 @@ AVAILABLE_THEORIES = [
     # 'bimodal',
     # Add new theories here
 ]
+
+# IMPORTANT NOTE FOR DEVELOPERS:
+# When adding a new theory to AVAILABLE_THEORIES above,
+# you must also manually add it to the __all__ list below
+# to avoid linter errors and ensure proper exports.
 
 # Dictionary to cache loaded theory modules
 _theory_modules = {}
@@ -122,11 +125,9 @@ def discover_theories():
 # Create a dictionary of placeholder attributes for lazy loading
 _placeholders = {name: None for name in AVAILABLE_THEORIES}
 
-# Update __all__ to include all available theories
+# Only include utility functions and registry in __all__
+# This avoids linter errors about missing modules
 __all__ = [
-    # Theories
-    *AVAILABLE_THEORIES,
-    
     # Registry
     'AVAILABLE_THEORIES',
     
@@ -136,6 +137,20 @@ __all__ = [
     'get_semantic_theories',
     'discover_theories',
 ]
+
+# NOTE: For linting purposes, the following code helps the linter understand
+# that these modules can be imported from theory_lib, even though they're
+# actually loaded on-demand by __getattr__ for better performance.
+# This is a common Python pattern for modules that want lazy loading.
+
+# Recommended approach for importing:
+# from model_checker.theory_lib import get_examples  # Utility function
+# from model_checker.theory_lib import default       # Specific theory module
+
+# We don't include theories in __all__ to avoid linter errors with "missing modules",
+# but they ARE importable at runtime.
+
+# No dynamic imports here - let __getattr__ handle them as needed
 
 def __getattr__(name):
     """Lazy load theory modules when accessed."""

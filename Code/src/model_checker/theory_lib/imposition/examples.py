@@ -112,7 +112,7 @@ __all__ = [
     'example_settings',
     'imposition_theory',
     'semantic_theories',
-    'example_range',
+    'test_example_range',
 ]
 
 
