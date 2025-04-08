@@ -49,6 +49,10 @@ def setup_model_checker_env():
         else:
             import model_checker
         
+        # Make sure jupyter module is properly imported
+        if "model_checker.jupyter" in sys.modules:
+            importlib.reload(sys.modules["model_checker.jupyter"])
+        
         print(f"Imported model_checker from {sys.modules['model_checker'].__file__}")
         return True
     except ImportError as e:
@@ -61,12 +65,17 @@ setup_success = setup_model_checker_env()
 # Diagnostic information
 if setup_success:
     import model_checker
-    from model_checker.jupyter import diagnostic_info
-    
-    # Print diagnostic info
-    info = diagnostic_info()
     print(f"ModelChecker version: {model_checker.__version__}")
-    print(f"ModelChecker location: {info['model_checker_location']}")
+    print(f"ModelChecker location: {model_checker.__file__}")
+    
+    # Check if jupyter module is available
+    try:
+        from model_checker.jupyter import diagnostic_info
+        info = diagnostic_info()
+        print(f"Jupyter module location: {info['jupyter_module_location']}")
+        print("ModelChecker Jupyter integration is ready to use")
+    except ImportError:
+        print("Jupyter module not available. You may need to install ipywidgets, matplotlib, and networkx.")
 else:
     print("Failed to set up ModelChecker environment")
 """
