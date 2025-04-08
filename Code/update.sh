@@ -40,14 +40,14 @@ if [ ${#failed_dirs[@]} -gt 0 ]; then
     echo "Continuing with build and upload despite test failures..."
 fi
 
-# Run python3 -m build
-python3 -m build
-
-# Check if the build was successful
-if [ $? -eq 0 ]; then
-    # Run twine upload dist/*
-    twine upload dist/*
-else
-    echo "Build failed. Aborting upload."
-fi
+# # Run python3 -m build
+# python3 -m build
+#
+# # Check if the build was successful
+# if [ $? -eq 0 ]; then
+#     # Run twine upload dist/*
+#     twine upload dist/*
+# else
+#     echo "Build failed. Aborting upload."
+# fi
 

@@ -9,7 +9,7 @@ Extensional Operators:
     - AndOperator (∧): Logical conjunction 
     - OrOperator (∨): Logical disjunction
     - ConditionalOperator (→): Material implication (defined)
-    - BiconditionalOperator (↔): Material biconditional (defined)
+    - BiconditionalOperator (←→): Material biconditional (defined)
 
 Extremal Operators:
     - TopOperator (⊤): Logical tautology/truth
@@ -2099,7 +2099,7 @@ class ConditionalOperator(syntactic.DefinedOperator):
 
 
 class BiconditionalOperator(syntactic.DefinedOperator):
-    """Implementation of material biconditional/equivalence (↔).
+    """Implementation of material biconditional/equivalence (←→).
     
     This operator represents the material biconditional 'A if and only if B',
     defined as (A → B) ∧ (B → A). It is true when A and B have the same truth value
@@ -2118,10 +2118,10 @@ class BiconditionalOperator(syntactic.DefinedOperator):
     arity = 2
 
     def derived_definition(self, leftarg, rightarg): # type: ignore
-        """Defines the material biconditional A ↔ B as (A → B) ∧ (B → A).
+        """Defines the material biconditional A ←→ B as (A → B) ∧ (B → A).
         
         The material biconditional is defined in terms of more basic operators:
-        conjunction and material implication. A ↔ B is equivalent to 
+        conjunction and material implication. A ←→ B is equivalent to 
         (A → B) ∧ (B → A), meaning the biconditional is true when A and B
         have the same truth value.
         

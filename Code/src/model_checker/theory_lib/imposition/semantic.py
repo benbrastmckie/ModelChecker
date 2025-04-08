@@ -203,10 +203,10 @@ class ImpositionSemantics(SemanticDefaults):
         """Calculate alternative worlds given verifiers and eval_point."""
         imposition = model_structure.semantics.imposition
         eval = model_structure.z3_model.evaluate
-        world_bits = model_structure.z3_world_bits
+        world_states = model_structure.z3_world_states
         eval_world = eval_point["world"]
         return {
             pw for ver in verifiers
-            for pw in world_bits
+            for pw in world_states
             if eval(imposition(ver, eval_world, pw))
         }

@@ -5,6 +5,22 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 ## Plan
 
 - debug readme issue
+- refactor API
+- unit testing
+  - [x] expose `examples_range`
+  - [x] expose `test_examples_range`
+  - [ ] call `test_examples_range` in pytests
+- exclusion semantics
+  - [ ] improve API for jupyter
+    - [x] create documentation
+    - [x] import problem in `theory_lib/__init__.py`
+    - [x] fix cli issue
+    - [ ] test with jupyter notebooks
+    - [ ] update documentation
+  - [ ] documentation
+  - [.] populate examples
+  - [x] all_bits bug
+  - [x] divide into modules
 - bimodal semantics
   - semantics
     - [ ] add abundance constraint
@@ -17,16 +33,14 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 - [ ] tools
   - [.] iterate
   - [ ] minimize
-- [:] applications
-  - [:] exclusion
-    - [ ] exclusion API
-    - [ ] all_bits
-    - [ ] distinguish mandatory settings
-    - [.] examples
-    - [x] divide into modules
-  - [x] Fine
-    - [x] implement
-    - [x] separate from default
+- [ ] improve version management
+- [ ] add unit tests throughout
+- fix CLI testing in a deeper way
+- refactor API
+  - minimal changes for jupyter
+- [x] imposition semantics
+  - [x] implement
+  - [x] separate from default
 - [x] benchmarks
 - [x] unit tests
   - [x] example unit tests

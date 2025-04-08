@@ -112,7 +112,7 @@ The operators are organized into the following categories:
 
    - Basic truth-functional operators from classical logic
    - Includes primitives like negation (¬), conjunction (∧), and disjunction (∨)
-   - Defined operators include material implication (→) and biconditional (↔)
+   - Defined operators include material implication (→) and biconditional (←→)
    - The semantics for these operators is developed in Fine (2017)
 
 2. **Extremal Operators**
@@ -276,7 +276,7 @@ It brings together the following key elements:
 
    - Exposes `default_operators` from `operators.py`
    - This is a comprehensive dictionary of logical operators including:
-     - Extensional operators (¬, ∧, ∨, →, ↔)
+     - Extensional operators (¬, ∧, ∨, →, ←→)
      - Modal operators (□, ◇)
      - Counterfactual operators (□→, ◇→)
      - Constitutive operators (≡, ≤, ⊑, ≼)

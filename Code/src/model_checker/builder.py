@@ -48,7 +48,6 @@ import time
 import shutil
 import subprocess
 from concurrent.futures.thread import ThreadPoolExecutor
-from importlib.metadata import version
 
 # Try local imports first (for development)
 try:
@@ -1363,8 +1362,11 @@ class BuildExample:
         with a title comment.
         """
 
+        # Handle the case where file_name is None (user declined to save)
         if file_name is None:
             return
+        
+        # Handle empty string (append to existing file)
         if len(file_name) == 0:
             with open(f"{self.module.module_path}", 'a', encoding="utf-8") as f:
                 print('\n"""', file=f)

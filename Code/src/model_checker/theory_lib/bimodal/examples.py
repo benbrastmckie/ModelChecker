@@ -259,6 +259,22 @@ semantic_theories = {
     # additional theories will require their own translation dictionaries
 }
 
+test_example_range = {
+    # Counterfactual Countermodels
+    "BM_CM_1" : BM_CM_1_example,
+    "BM_CM_2" : BM_CM_2_example,
+    "BM_CM_3" : BM_CM_3_example,
+    "BM_CM_4" : BM_CM_4_example,
+    "BM_CM_5" : BM_CM_5_example,
+    "BM_CM_6" : BM_CM_6_example,
+    "BM_CM_7" : BM_CM_7_example,
+    "BM_CM_8" : BM_CM_8_example,
+
+    # Counterfactual Theorems
+    "BM_TH_1" : BM_TH_1_example,
+    "BM_TH_2" : BM_TH_2_example,
+}
+
 # NOTE: at least one example is required, multiple are permitted for comparison
 example_range = {
     # Counterfactual Countermodels

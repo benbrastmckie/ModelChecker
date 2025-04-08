@@ -7,14 +7,21 @@ Classes:
 
 Operators:
     default_operators: Dictionary of standard logical operators including:
-        - Extensional: ¬ (not), ∧ (and), ∨ (or), → (if), ↔ (iff)
+        - Extensional: ¬ (not), ∧ (and), ∨ (or), → (if), ←→ (iff)
         - Modal: □ (necessary), ◇ (possible)
         - Counterfactual: □→ (would), ◇→ (might)
         - Constitutive: ≡ (identical), ≤ (grounds), ⊑ (essence)
 
+Examples:
+    Access examples through utility functions in theory_lib:
+    - theory_lib.get_examples('default'): Gets the example_range dictionary
+    - theory_lib.get_test_examples('default'): Gets test example cases
+    - theory_lib.get_semantic_theories('default'): Gets semantic theory implementations
+
 Usage:
     from model_checker.theory_lib.default import Semantics, Proposition, ModelStructure
     from model_checker.theory_lib.default import default_operators
+    from model_checker.theory_lib import get_examples
 
     # Create a semantics and model structure
     semantics = Semantics(settings)
@@ -23,6 +30,9 @@ Usage:
     # Evaluate formulas
     prop = Proposition(formula, model)
     result = prop.evaluate()
+    
+    # Access examples
+    examples = get_examples('default')
 """
 
 # Import specific items from semantic
@@ -42,6 +52,6 @@ __all__ = [
     "Semantics",         # Configures semantic framework and evaluation rules
     "Proposition",       # Represents and evaluates logical formulas
     "ModelStructure",    # Manages model's state space and accessibility relations
-    "default_operators", # Standard logical operators (¬,∧,∨,→,↔,□,◇,etc.)
+    "default_operators", # Standard logical operators (¬,∧,∨,→,←→,□,◇,etc.)
     "__version__",       # Package version information
 ]
