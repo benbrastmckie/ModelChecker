@@ -20,6 +20,9 @@ classifiers = [
 keywords = ["semantics", "Z3", "logic", "counterfactuals", "modality", "model checker", "theorem prover", "hyperintensionality"]
 dependencies = [
     "z3-solver",
+    "ipywidgets",  # Optional: For interactive notebook components
+    "matplotlib",  # Optional: For visualization
+    "networkx",    # Optional: For graph representation
 ]
 requires-python = ">=3.8"
 

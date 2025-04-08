@@ -149,6 +149,52 @@ Additional flags have been included in order to manage the package version:
   - Include `-v` to print the installed version number.
   - Include `-u` to upgrade to the latest version.
 
+## Jupyter Notebook Integration
+
+ModelChecker can be used interactively in Jupyter notebooks, allowing for dynamic exploration of logical models with an interactive interface.
+
+### Installation
+
+To use ModelChecker in Jupyter notebooks, install with optional dependencies:
+
+```bash
+pip install ipywidgets matplotlib networkx
+```
+
+### Basic Usage
+
+For quick formula checking:
+
+```python
+from model_checker.notebook import check_formula
+
+# Check a modal formula
+check_formula("□(p → q) → (□p → □q)")
+
+# Check with premises
+check_formula("q", premises=["p", "p → q"])
+```
+
+### Interactive Explorer
+
+For interactive exploration with a UI:
+
+```python
+from model_checker.notebook import InteractiveModelExplorer
+
+# Create and display the explorer
+explorer = InteractiveModelExplorer()
+explorer.display()
+```
+
+The interactive explorer provides:
+- Formula input with syntax highlighting
+- Theory selection and settings customization
+- Multiple visualization options
+- Ability to find alternative models
+
+For a complete demonstration, see the `examples/jupyter_demo.ipynb` notebook and the `examples/README_jupyter.md` documentation.
+
 ## Hyperintensional Semantics
 
 This section sketches the underlying semantics.
