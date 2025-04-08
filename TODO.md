@@ -11,7 +11,8 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] create documentation
     - [x] import problem in `theory_lib/__init__.py`
     - [x] fix cli issue
-    - [ ] refactor API for jupyter
+    - [.] refactor API for jupyter
+    - [ ] install jupyter and dependencies
     - [ ] test with jupyter notebooks
     - [ ] update documentation
   - [x] all_bits bug
