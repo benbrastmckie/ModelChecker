@@ -11,6 +11,7 @@ Key Features:
     - Syntactic parsing and model building
     - Built-in example models and theories
     - Integration with Z3 theorem prover
+    - Jupyter notebook integration
 
 Basic Usage:
     >>> from model_checker import BuildExample, get_theory
@@ -30,7 +31,7 @@ except ImportError:
 
 # Define the public API of the package
 __all__ = [
-    "model", "syntactic",                           # modules
+    "model", "syntactic", "jupyter",                # modules
     "ParseFileFlags",                               # main.py
     "ForAll", "Exists", "bitvec_to_substates",      # utils.py
     "get_example", "get_theory", "run_test",
@@ -38,6 +39,7 @@ __all__ = [
     "BuildModule", "BuildExample", "main",
     "ModelConstraints",
     "Syntax",
+    "InteractiveModelExplorer", "check_formula",    # jupyter.py
 ]
 
 # Import model as a whole
@@ -60,7 +62,7 @@ from .utils import (
     run_test,
 )
 
-# Import specific items from utils
+# Import specific items from builder
 from .builder import (
     BuildModule,
     BuildProject,
@@ -72,3 +74,13 @@ from .__main__ import (
     ParseFileFlags,
     main,
 )
+
+# Import jupyter components
+try:
+    from .jupyter import (
+        InteractiveModelExplorer,
+        check_formula,
+    )
+except ImportError:
+    # Missing dependencies for jupyter functionality
+    pass
