@@ -323,7 +323,9 @@ class InteractiveModelExplorer:
         from model_checker.theory_lib import get_semantic_theories
         
         self.theory_name = theory_name
-        self.theory = get_theory(theory_name)
+        # Fix the TypeError by getting semantic theories first
+        semantic_theories = get_semantic_theories()
+        self.theory = get_theory(theory_name, semantic_theories)
         self.settings = {
             'N': 3,
             'max_time': 5,
@@ -503,8 +505,10 @@ class InteractiveModelExplorer:
     def _on_theory_change(self, change):
         """Handle theory change."""
         from model_checker import get_theory
+        from model_checker.theory_lib import get_semantic_theories
         self.theory_name = change['new']
-        self.theory = get_theory(self.theory_name)
+        semantic_theories = get_semantic_theories()
+        self.theory = get_theory(self.theory_name, semantic_theories)
     
     def _on_viz_change(self, change):
         """Handle visualization change."""
@@ -665,6 +669,76 @@ def check_formula_interactive(formula, theory_name="default", premises=None):
     Returns:
         Explorer widget
     """
+    # Convert any Unicode operators to their LaTeX equivalents
+    def normalize_formula(f):
+        # First ensure we're dealing with a string
+        if not isinstance(f, str):
+            return f
+        
+        # The operators in the ModelChecker expect double backslashes in normal strings
+        # We need to use double backslashes here since we're not using raw strings
+        # Common Unicode to LaTeX mappings
+        replacements = {
+            '→': '\\\\rightarrow',  # This becomes \\rightarrow in memory
+            '∧': '\\\\wedge',
+            '∨': '\\\\vee',
+            '¬': '\\\\neg',
+            '□': '\\\\Box',
+            '◇': '\\\\Diamond',
+            '↔': '\\\\leftrightarrow',
+            '≡': '\\\\equiv',
+            '⊥': '\\\\bot',
+            '⊤': '\\\\top'
+        }
+        
+        # Add support for exclusion operators
+        exclusion_replacements = {
+            '\\exclude': '\\\\exclude',  # For exclusion theory
+            '\\uniwedge': '\\\\uniwedge',
+            '\\univee': '\\\\univee',
+            '\\uniequiv': '\\\\uniequiv'
+        }
+        
+        # First handle Unicode operators
+        for unicode_op, latex_op in replacements.items():
+            f = f.replace(unicode_op, latex_op)
+            
+        # Then handle exclusion operators if found in normal strings (not raw strings)
+        if '\\e' in f and not f.startswith('r"') and not f.startswith("r'"):
+            for ex_op, ex_latex_op in exclusion_replacements.items():
+                f = f.replace(ex_op, ex_latex_op)
+        
+        return f
+    
+    # Helper function to ensure binary operators are properly parenthesized
+    def ensure_parentheses(f):
+        """Ensure binary operators are wrapped in parentheses."""
+        binary_operators = [
+            '\\rightarrow', '\\wedge', '\\vee', '\\leftrightarrow', '\\equiv',
+            '\\uniwedge', '\\univee', '\\uniequiv'
+        ]
+        
+        for op in binary_operators:
+            if op in f and not (f.startswith('(') and f.endswith(')')):
+                # If it contains a binary operator and isn't already parenthesized, wrap it
+                f = f"({f})"
+                break  # Only add one set of outer parentheses
+        
+        return f
+    
+    # Normalize the formula and premises
+    formula = normalize_formula(formula)
+    formula = ensure_parentheses(formula)
+    
+    if premises:
+        # Make sure each premise has parentheses if it's an operator expression
+        normalized_premises = []
+        for p in premises:
+            p = normalize_formula(p)
+            p = ensure_parentheses(p)
+            normalized_premises.append(p)
+        premises = normalized_premises
+        
     explorer = InteractiveModelExplorer(theory_name)
     explorer.formula_input.value = formula
     if premises:
@@ -694,12 +768,98 @@ def check_formula(formula, theory_name="default", premises=None, settings=None):
     # Ensure environment is set up
     setup_environment()
     
+    # Convert any Unicode operators to their LaTeX equivalents
+    def normalize_formula(f):
+        # First ensure we're dealing with a string
+        if not isinstance(f, str):
+            return f
+        
+        # The operators in the ModelChecker expect double backslashes in normal strings
+        # We need to use double backslashes here since we're not using raw strings
+        # Common Unicode to LaTeX mappings
+        replacements = {
+            '→': '\\\\rightarrow',  # This becomes \\rightarrow in memory
+            '∧': '\\\\wedge',
+            '∨': '\\\\vee',
+            '¬': '\\\\neg',
+            '□': '\\\\Box',
+            '◇': '\\\\Diamond',
+            '↔': '\\\\leftrightarrow',
+            '≡': '\\\\equiv',
+            '⊥': '\\\\bot',
+            '⊤': '\\\\top'
+        }
+        
+        # Add support for exclusion operators
+        exclusion_replacements = {
+            '\\exclude': '\\\\exclude',  # For exclusion theory
+            '\\uniwedge': '\\\\uniwedge',
+            '\\univee': '\\\\univee',
+            '\\uniequiv': '\\\\uniequiv'
+        }
+        
+        # First handle Unicode operators
+        for unicode_op, latex_op in replacements.items():
+            f = f.replace(unicode_op, latex_op)
+            
+        # Then handle exclusion operators if found in normal strings (not raw strings)
+        if '\\e' in f and not f.startswith('r"') and not f.startswith("r'"):
+            for ex_op, ex_latex_op in exclusion_replacements.items():
+                f = f.replace(ex_op, ex_latex_op)
+        
+        return f
+    
+    # Helper function to ensure binary operators are properly parenthesized
+    def ensure_parentheses(f):
+        """Ensure binary operators are wrapped in parentheses."""
+        binary_operators = [
+            '\\rightarrow', '\\wedge', '\\vee', '\\leftrightarrow', '\\equiv',
+            '\\uniwedge', '\\univee', '\\uniequiv'
+        ]
+        
+        for op in binary_operators:
+            if op in f and not (f.startswith('(') and f.endswith(')')):
+                # If it contains a binary operator and isn't already parenthesized, wrap it
+                f = f"({f})"
+                break  # Only add one set of outer parentheses
+        
+        return f
+        
+    # Normalize the formula and premises
+    formula = normalize_formula(formula)
+    formula = ensure_parentheses(formula)
+    
+    if premises:
+        # Make sure each premise has parentheses if it's an operator expression
+        normalized_premises = []
+        for p in premises:
+            p = normalize_formula(p)
+            p = ensure_parentheses(p)
+            normalized_premises.append(p)
+        premises = normalized_premises
+    
     # Import dependencies
     from IPython.display import display, HTML
-    from model_checker import get_theory, BuildExample
+    from model_checker import BuildExample
     from model_checker.builder import BuildModule
+    from model_checker.theory_lib import get_semantic_theories
     
-    theory = get_theory(theory_name)
+    # Get semantic theories and then the specific theory
+    semantic_theories = get_semantic_theories(theory_name)
+    from model_checker.utils import get_theory
+    
+    # TODO: avoid special case by getting to the bottom of the issue
+    # Handle special case for default theory which is named "Brast-McKie" in semantic_theories
+    if theory_name == "default" and "default" not in semantic_theories and "Brast-McKie" in semantic_theories:
+        theory = semantic_theories["Brast-McKie"]
+    else:
+        # If semantic_theories has only one entry, use that regardless of the name
+        if len(semantic_theories) == 1:
+            theory_key = list(semantic_theories.keys())[0]
+            theory = semantic_theories[theory_key]
+        else:
+            # Otherwise, try to get the theory by name
+            theory = get_theory(theory_name, semantic_theories)
     premises = premises or []
     _settings = {'N': 3, 'max_time': 5, 'model': True}
     if settings:
@@ -707,9 +867,9 @@ def check_formula(formula, theory_name="default", premises=None, settings=None):
     
     example = [premises, [formula], _settings]
     
-    # Create a minimal BuildModule for the BuildExample
+    # Create a minimal BuildModule for the BuildExample with all required attributes
     build_module = type('BuildModule', (), {
-        'module': None,
+        'module': type('Module', (), {'general_settings': {}}),
         'module_flags': type('Flags', (), {})
     })
     

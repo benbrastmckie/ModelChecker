@@ -10,9 +10,23 @@ To use ModelChecker with Jupyter notebooks, you need:
 
 1. Python 3.8 or later
 2. ModelChecker package installed
-3. Jupyter and supporting libraries
+3. Jupyter and supporting libraries (ipywidgets, matplotlib, networkx)
 
-### 2. Step-by-Step Installation
+There are two ways to use the ModelChecker with jupyter notebooks:
+
+1. Standard Installation (pip-based systems):
+   - Uses pip package manager to install Jupyter, ModelChecker, and dependencies
+   - Suitable for most standard Python environments
+   - Simple installation through pip commands
+
+2. NixOS Installation:
+   - Uses Nix package manager and provided shell environment
+   - Specifically designed for NixOS systems
+   - Includes automated setup scripts and environment management
+
+### 2. Standard Installation (pip-based systems)
+
+For most systems where pip is the primary package manager:
 
 #### Install Jupyter and Required Libraries
 
@@ -24,27 +38,20 @@ pip install jupyter notebook
 pip install ipywidgets matplotlib networkx
 ```
 
-#### Verify Installation
+#### Install ModelChecker
 
-After installation, verify that everything is installed correctly:
+There are two ways to install ModelChecker:
+
+##### From PyPI:
 
 ```bash
-# Check that Jupyter is installed
-jupyter --version
-
-# Check that ipywidgets is installed
-pip list | grep ipywidgets
-
-# Check that ModelChecker is installed
-pip list | grep model-checker
+pip install model-checker
 ```
 
-### 3. Installing from Development Source
-
-If you're working directly from the repository:
+##### From Development Source:
 
 ```bash
-# Clone repository (if you haven't already)
+# Clone repository
 git clone https://github.com/benbrastmckie/ModelChecker.git
 cd ModelChecker
 
@@ -53,9 +60,96 @@ cd Code
 pip install -e .
 ```
 
+#### Verify Installation
+
+```bash
+# Check that Jupyter is installed
+jupyter --version
+
+# Check that ModelChecker is installed
+pip list | grep model-checker
+```
+
+### 3. NixOS Installation
+
+NixOS uses a different approach to package management. For NixOS users, we provide a specialized installation method.
+
+#### Quick Start for NixOS
+
+The simplest way to get started on NixOS:
+
+```bash
+# Clone repository
+git clone https://github.com/benbrastmckie/ModelChecker.git
+cd ModelChecker/Code
+
+# Start Jupyter with ModelChecker available
+./run_jupyter.sh
+```
+
+This script:
+- Creates a nix-shell environment with all required dependencies
+- Sets up your Python path to find the ModelChecker package
+- Launches Jupyter notebook
+
+#### Manual Setup for NixOS
+
+If you prefer to set up things manually:
+
+1. Enter the nix-shell:
+   ```bash
+   cd /path/to/ModelChecker/Code
+   nix-shell
+   ```
+
+2. Create symlinks for Python path:
+   ```bash
+   ./jupyter_link.py
+   ```
+
+3. Start Jupyter:
+   ```bash
+   jupyter notebook
+   ```
+
+For more detailed instructions specific to NixOS, see our [NixOS Jupyter Guide](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/jupyter/NixOS_jupyter.md).
+
+## Using ModelChecker in Jupyter
+
+### Basic Imports
+
+```python
+# Import the package
+import model_checker
+
+# Import the interactive tools
+from model_checker.jupyter import check_formula, InteractiveModelExplorer
+```
+
+### Basic Formula Checking
+
+```python
+# Check a simple propositional formula
+check_formula("p → (q → p)")
+
+# Check a modal formula
+check_formula("□(p → q) → (□p → □q)")
+
+# Check validity with premises
+check_formula("q", premises=["p", "p → q"])
+```
+
+### Interactive Explorer
+
+```python
+# Create and display the explorer
+explorer = InteractiveModelExplorer()
+explorer.display()
+```
+
 ## Workflow Guide
 
-### 1. Starting a Jupyter Server
+### Starting a Jupyter Server
 
 Navigate to your project directory and start the Jupyter server:
 
@@ -67,23 +161,23 @@ cd /path/to/ModelChecker
 jupyter notebook
 ```
 
-This will open a web browser showing the Jupyter file explorer. Navigate to the `Code/jupyter` directory to find the example notebooks.
+This will open a web browser showing the Jupyter file explorer. Navigate to the example notebooks to get started.
 
-### 2. Working with Jupyter Notebooks
+### Working with Jupyter Notebooks
 
-#### 2.1 Basic Controls
+#### Basic Controls
 
 - **Run a cell**: Click on a cell and press `Shift+Enter`
 - **Create a new cell**: Click the `+` button in the toolbar
 - **Change cell type**: Use the dropdown in the toolbar to select Markdown or Code
 - **Save notebook**: Press `Ctrl+S` or use File → Save
 
-#### 2.2 Cell Types
+#### Cell Types
 
 - **Code cells**: Contain Python code that you can execute
 - **Markdown cells**: Contain formatted text, helpful for documentation
 
-#### 2.3 Common Keyboard Shortcuts
+#### Common Keyboard Shortcuts
 
 - `Shift+Enter`: Run the current cell and move to the next
 - `Ctrl+Enter`: Run the current cell and stay on it
@@ -92,32 +186,97 @@ This will open a web browser showing the Jupyter file explorer. Navigate to the 
 - `Esc` then `B`: Insert cell below current cell
 - `Esc` then `D,D` (press D twice): Delete current cell
 
-### 3. Using ModelChecker in Jupyter
+## ModelChecker Jupyter Features
 
-#### 3.1 Basic Formula Checking
+### 1. Formula Checking
+
+The `check_formula` function provides a simple way to check the validity of a formula:
 
 ```python
-from model_checker.notebook import check_formula
-
-# Check a simple propositional formula
-check_formula("p → (q → p)")
-
-# Check a modal formula
-check_formula("□(p → q) → (□p → □q)")
-
-# Check validity with premises
-check_formula("q", premises=["p", "p → q"])
+check_formula(formula, theory_name="default", premises=None, settings=None)
 ```
 
-#### 3.2 Interactive Explorer
+Parameters:
+- `formula`: The formula to check
+- `theory_name`: The semantic theory to use (default, exclusion, etc.)
+- `premises`: Optional list of premises
+- `settings`: Optional dict of settings
+
+Returns:
+- An HTML display object showing the result
+
+### 2. Interactive Explorer
+
+The `InteractiveModelExplorer` class provides a widget-based interface for model exploration:
 
 ```python
-from model_checker.notebook import InteractiveModelExplorer
-
-# Create and display the explorer
-explorer = InteractiveModelExplorer()
+explorer = InteractiveModelExplorer(theory_name="default")
 explorer.display()
 ```
+
+UI Components:
+- **Formula input**: Text field for the formula to check
+- **Premises input**: Textarea for multiple premise entry
+- **Theory selector**: Dropdown to select semantic theory
+- **Settings panel**: Controls for N, max_time, etc.
+- **Control buttons**: Check Formula and Find Next Model
+- **Visualization selector**: Switch between text and graph views
+
+### 3. Visualization Options
+
+Two visualization modes are available:
+
+1. **Text Output**: Shows the full model details as formatted text
+2. **Graph Visualization**: Displays a graphical representation of the model
+
+To switch, use the radio buttons in the explorer UI.
+
+## Example Workflows
+
+### 1. Development Workflow
+
+1. **Edit code**:
+   - Make changes to ModelChecker source files
+   - Implement new features or fix bugs
+
+2. **Test interactively** in Jupyter:
+   - Import the modified modules
+   - Try out new functions
+   - Visualize results
+
+3. **Document findings**:
+   - Add markdown cells explaining the behavior
+   - Save example notebooks demonstrating features
+
+### 2. Research Workflow
+
+1. **Formulate logical problems**:
+   - Define premises and formulas to check
+   - Choose appropriate semantic theories
+
+2. **Explore with interactive tool**:
+   - Use the InteractiveModelExplorer
+   - Try different settings and theories
+   - Find and analyze countermodels
+
+3. **Document results**:
+   - Save interesting models
+   - Export visualizations
+   - Document findings in markdown cells
+
+### 3. Teaching Workflow
+
+1. **Create example notebooks**:
+   - Demonstrate logical concepts
+   - Provide exercises for students
+
+2. **Guide interactive exploration**:
+   - Show how different formulas behave in various theories
+   - Illustrate countermodels
+
+3. **Share and discuss**:
+   - Export notebooks to share with students
+   - Use visualizations in presentations
 
 ## Workflow for NeoVim Users
 
@@ -199,98 +358,6 @@ jupyter notebook
 :terminal jupyter notebook
 ```
 
-## Example Workflows
-
-### 1. Development Workflow
-
-1. **Edit code** in NeoVim:
-   - Make changes to ModelChecker source files
-   - Implement new features or fix bugs
-
-2. **Test interactively** in Jupyter:
-   - Import the modified modules
-   - Try out new functions
-   - Visualize results
-
-3. **Document findings**:
-   - Add markdown cells explaining the behavior
-   - Save example notebooks demonstrating features
-
-### 2. Research Workflow
-
-1. **Formulate logical problems**:
-   - Define premises and formulas to check
-   - Choose appropriate semantic theories
-
-2. **Explore with interactive tool**:
-   - Use the InteractiveModelExplorer
-   - Try different settings and theories
-   - Find and analyze countermodels
-
-3. **Document results**:
-   - Save interesting models
-   - Export visualizations
-   - Document findings in markdown cells
-
-### 3. Teaching Workflow
-
-1. **Create example notebooks**:
-   - Demonstrate logical concepts
-   - Provide exercises for students
-
-2. **Guide interactive exploration**:
-   - Show how different formulas behave in various theories
-   - Illustrate countermodels
-
-3. **Share and discuss**:
-   - Export notebooks to share with students
-   - Use visualizations in presentations
-
-## ModelChecker Jupyter Features
-
-### 1. Formula Checking
-
-The `check_formula` function provides a simple way to check the validity of a formula:
-
-```python
-check_formula(formula, theory_name="default", premises=None, settings=None)
-```
-
-Parameters:
-- `formula`: The formula to check
-- `theory_name`: The semantic theory to use (default, exclusion, etc.)
-- `premises`: Optional list of premises
-- `settings`: Optional dict of settings
-
-Returns:
-- An HTML display object showing the result
-
-### 2. Interactive Explorer
-
-The `InteractiveModelExplorer` class provides a widget-based interface for model exploration:
-
-```python
-explorer = InteractiveModelExplorer(theory_name="default")
-explorer.display()
-```
-
-UI Components:
-- **Formula input**: Text field for the formula to check
-- **Premises input**: Textarea for multiple premise entry
-- **Theory selector**: Dropdown to select semantic theory
-- **Settings panel**: Controls for N, max_time, etc.
-- **Control buttons**: Check Formula and Find Next Model
-- **Visualization selector**: Switch between text and graph views
-
-### 3. Visualization Options
-
-Two visualization modes are available:
-
-1. **Text Output**: Shows the full model details as formatted text
-2. **Graph Visualization**: Displays a graphical representation of the model
-
-To switch, use the radio buttons in the explorer UI.
-
 ## Troubleshooting
 
 ### Common Issues and Solutions
@@ -303,11 +370,13 @@ To switch, use the radio buttons in the explorer UI.
 2. **Widgets not displaying**:
    ```
    Solution: Install and enable widgets: pip install ipywidgets
+   jupyter nbextension enable --py widgetsnbextension
    ```
 
 3. **ImportError when importing ModelChecker**:
    ```
-   Solution: Ensure ModelChecker is installed: pip install -e .
+   Solution (pip): Ensure ModelChecker is installed: pip install -e .
+   Solution (NixOS): Run the jupyter_link.py script
    ```
 
 4. **Visualization not working**:
@@ -320,13 +389,18 @@ To switch, use the radio buttons in the explorer UI.
    Solution: Check plugin documentation and requirements
    ```
 
+6. **NixOS-specific issues**:
+   ```
+   Solution: See NixOS_jupyter.md for detailed troubleshooting
+   ```
+
 ### Getting Help
 
 If you encounter issues:
 
 1. Check the ModelChecker [GitHub issues](https://github.com/benbrastmckie/ModelChecker/issues)
 2. Consult the [Jupyter documentation](https://jupyter.org/documentation)
-3. For NeoVim integration issues, refer to the specific plugin documentation
+3. For NixOS-specific issues, see the [NixOS Jupyter Guide](NixOS_jupyter.md)
 
 ## Advanced Topics
 
@@ -372,7 +446,8 @@ jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser
 - [Matplotlib Documentation](https://matplotlib.org/stable/users/index.html)
 - [NeoVim Jupyter Plugin](https://github.com/jupyter-vim/jupyter-vim)
 - [ModelChecker GitHub](https://github.com/benbrastmckie/ModelChecker)
+- [NixOS Jupyter Guide](NixOS_jupyter.md)
 
 ## Example Notebook
 
-The `jupyter_demo.ipynb` notebook in this directory provides a complete demonstration of all features of the ModelChecker Jupyter integration.
+The `jupyter_demo.ipynb` notebook in this directory provides a complete demonstration of all features of the ModelChecker Jupyter integration. For NixOS users, an example notebook is also automatically created when running `./run_jupyter.sh` or `./jupyter_link.py --launch`.

@@ -92,9 +92,11 @@ check_formula("(A \\equiv A)")
 
 # Check a more complex formula with custom settings
 check_formula(
-    "□(p → q) → (□p → □q)",
+    # "(□A → □B)"
+    "(\\Box A \\rightarrow \\Box B)",
     theory_name="default",
-    premises=["p"],
+    # "□(A → B)"
+    premises=["\\Box (A \\rightarrow B)"],
     settings={'N': 4, 'max_time': 10}
 )
 ```
@@ -163,8 +165,8 @@ To compare different semantic theories:
 
 ```python
 # Check a formula in different theories
-check_formula("□p → p", theory_name="default")
-check_formula("□p → p", theory_name="exclusion")
+check_formula("\\Box A \\rightarrow A", theory_name="default")
+check_formula("\\neg\\neg A \\rightarrow A", theory_name="exclusion")
 ```
 
 ### Exporting Results

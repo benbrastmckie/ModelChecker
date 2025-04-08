@@ -1,793 +1,285 @@
-# Programmatic Semantics Theory Library
+# ModelChecker Theory Library
 
-## API
+## Overview
 
-### Library Structure
+The ModelChecker Theory Library is a collection of formal semantic theories implemented using Z3 constraint solving for logical reasoning. Each theory provides a programmatic implementation of a different semantic framework, enabling automated verification of logical arguments and discovery of countermodels.
 
-The ModelChecker framework provides a modular API for implementing and working with different logical theories. The API is organized in several layers:
+The library follows a modular architecture that allows:
+- Comparison between different semantic theories
+- Extension with new theories
+- Reuse of common components
+- Standardized testing and evaluation
 
-1. **Core Framework** (`model_checker`): Provides the foundational classes and utilities for model checking
-2. **Theory Library** (`model_checker.theory_lib`): Contains specific implementations of logical theories
-3. **Individual Theories**: Each theory implements its own semantic interpretation and operators
+## Available Theories
 
-### Core Framework API
+The library currently includes the following theories:
 
-The core framework provides these key components:
+### Default Theory (Hyperintensional Semantics)
+- **Primary Author**: Ben Brast-McKie
+- **Description**: Implements a hyperintensional semantics for counterfactuals, constitutive operators, and modal logic.
+- **Key Papers**: 
+  - Brast-McKie (2021) "Identity and Aboutness", Journal of Philosophical Logic
+  - Brast-McKie (2025) "Counterfactual Worlds", Journal of Philosophical Logic
+- **Key Features**:
+  - State-based hyperintensional propositions with verifiers and falsifiers
+  - Truthmaker semantics for extensional connectives
+  - Counterfactual conditionals via alternatives
+  - Constitutive operators for essence, ground, and identity
 
-```python
-from model_checker import (
-    # High-level builders
-    BuildExample, BuildModule, BuildProject,
-    
-    # Core classes
-    ModelConstraints, Syntax,
-    
-    # Utility functions
-    ForAll, Exists, bitvec_to_substates,
-    
-    # Library access functions
-    get_theory, get_example, run_test
-)
-```
+### Exclusion Theory
+- **Primary Authors**: Lucas Champollion & Paul Bernard
+- **Description**: Implements exclusion semantics for counterfactuals and related operators.
+- **Key Paper**: Bernard & Champollion "Exclusion Counterfactuals" 
+- **Key Features**:
+  - Unilateral operators (conjunction, disjunction)
+  - Exclusion operator
+  - Alternative approach to counterfactual semantics
 
-#### Builder Functions
+### Imposition Theory
+- **Primary Author**: Kit Fine
+- **Description**: Implements Fine's truthmaker semantics for counterfactuals.
+- **Key Papers**:
+  - Fine (2012) "Counterfactuals without Possible Worlds", Journal of Philosophy
+  - Fine (2012) "A Theory of Truth-Conditional Content", Synthese
+- **Key Features**:
+  - Imposition operator for counterfactuals
+  - Could operator for possibility
+  - Distinctive approach to counterfactual reasoning
 
-- `BuildExample(name, theory)`: Creates a model from a named example within a theory
-- `BuildModule(module_name)`: Loads and runs examples from a specific module
-- `BuildProject(name, settings)`: Creates new theory implementations from templates
+### Bimodal Theory
+- **Description**: Extends default theory with temporal modal operators.
+- **Key Features**:
+  - Both counterfactual and temporal modalities
+  - Interaction between different modal operators
+  - Extended framework for reasoning about time and possibility
 
-#### Utility Functions
+## Theory Architecture
 
-- `get_theory(name)`: Loads a theory module by name (e.g., "default", "exclusion")
-- `get_example(name, theory)`: Retrieves a specific example from a theory
-- `run_test(example, theory)`: Runs a specific test case with the given theory
+Each theory in the library follows a standardized architecture consisting of:
 
-### Theory Library API
+### Core Components
 
-The theory library (`model_checker.theory_lib`) exposes individual theories through lazy loading:
+1. **Semantics** (`semantic.py`)
+   - Defines the semantic framework and model structure
+   - Implements core semantic relations and operations
+   - Specifies Z3 constraints that define the theory
 
-```python
-from model_checker.theory_lib import default, exclusion, imposition
-```
+2. **Operators** (`operators.py`)
+   - Implements logical operators and their semantics
+   - Defines primitive operators with verification/falsification conditions
+   - Provides derived operators based on primitives
 
-When accessed, each theory module is loaded on demand and cached for subsequent access.
+3. **Examples** (`examples.py`)
+   - Contains test cases to verify theory behavior
+   - Includes both valid theorems and countermodels
+   - Provides configuration settings for model checking
 
-#### Utility Functions
+4. **API** (`__init__.py`)
+   - Exports the theory's public interface
+   - Manages dependencies between components
+   - Provides a clean entry point for users
 
-The theory library also provides utility functions for accessing examples:
+### Standard Files
 
-```python
-from model_checker.theory_lib import (
-    get_examples,
-    get_test_examples,
-    get_semantic_theories
-)
+Each theory directory contains:
 
-# Get examples from a specific theory
-default_examples = get_examples('default')
-exclusion_examples = get_examples('exclusion')
+- `README.md`: Documentation specific to the theory
+- `__init__.py`: Public API and dependency management
+- `semantic.py`: Core semantic framework implementation
+- `operators.py`: Operator definitions and semantics
+- `examples.py`: Test cases and examples
+- `test/`: Unit tests for the theory (when available)
+- `notebooks/`: Jupyter notebook demonstrations (when available)
 
-# Get test examples for unit testing
-test_examples = get_test_examples('default')
+## Using Theories
 
-# Get semantic theory implementations
-semantic_theories = get_semantic_theories('default')
-```
-
-### Individual Theory APIs
-
-Each theory follows a standardized API pattern while implementing its specific semantics:
-
-#### Default Theory
-
-```python
-from model_checker.theory_lib.default import (
-    # Core semantic classes
-    Semantics, Proposition, ModelStructure,
-    
-    # Operators collection
-    default_operators
-)
-```
-
-#### Exclusion Theory
-
-```python
-from model_checker.theory_lib.exclusion import (
-    # Core semantic classes
-    ExclusionSemantics, UnilateralProposition, ExclusionStructure,
-    
-    # Operators collection
-    exclusion_operators
-)
-```
-
-#### Imposition Theory
+### Basic Import Pattern
 
 ```python
-from model_checker.theory_lib.imposition import (
-    # Core semantic classes
-    ImpositionSemantics,
-    
-    # Operators collection
-    imposition_operators
-)
-```
-
-#### Bimodal Theory
-
-```python
-from model_checker.theory_lib.bimodal import (
-    # Core semantic classes
-    Semantics, ImpositionSemantics, Proposition,
-    
-    # Individual operators
-    NegationOperator, AndOperator, OrOperator,
-    TopOperator, BotOperator, IdentityOperator,
-    CounterfactualOperator, ImpositionOperator, NecessityOperator,
-    
-    # Defined operators
-    ConditionalOperator, BiconditionalOperator,
-    MightCounterfactualOperator, MightImpositionOperator,
-    DefPossibilityOperator
-)
-```
-
-### Accessing Examples
-
-The framework provides a unified way to access examples from any theory:
-
-```python
-# From theory_lib utils
-from model_checker.theory_lib import get_examples
-examples = get_examples('default')
-
-# Directly from examples module (alternative approach)
-from model_checker.theory_lib.default.examples import (
-    example_range,
-    test_example_range,
-    semantic_theories
-)
-```
-
-### Common API Pattern
-
-Each theory implementation follows this pattern:
-
-1. **Semantic Classes**:
-   - Extend `model.SemanticDefaults` to implement theory-specific semantics
-   - Extend `model.PropositionDefaults` for logical formula evaluation
-   - Provide methods for semantic relations (fusion, part-of, exclusion, etc.)
-
-2. **Operators**:
-   - Define operators that implement the theory's logical connectives
-   - Each operator implements truth conditions and verification/falsification relations
-   - Operators are collected in a dictionary (e.g., `default_operators`)
-
-3. **Examples**:
-   - Define test cases as [premises, conclusions, settings]
-   - Categorize as countermodels or theorems
-   - Provide configuration settings for model checking
-   - Access through utility functions to avoid circular imports
-
-### Usage Example
-
-```python
-from model_checker import BuildExample, get_theory
+from model_checker import get_theory
 from model_checker.theory_lib import get_examples
 
 # Load a theory
-theory = get_theory("default")
+theory = get_theory("default")  # or "exclusion", "imposition", "bimodal"
+
+# Get examples from the theory
+examples = get_examples("default")
 
 # Create a model from an example
-model = BuildExample("simple_modal", theory)
+from model_checker import BuildExample
+model = BuildExample("example_name", theory)
 
 # Check a formula
 result = model.check_formula("\\Box p -> p")
 print(result)
-
-# Access examples
-examples = get_examples("default")
-for name, example in examples.items():
-    print(f"Example {name}: {example[0]}")  # Premises
 ```
 
-### Extending with New Theories
+### Theory Selection and Configuration
+
+```python
+from model_checker import BuildExample
+
+# Load with specific settings
+settings = {
+    "N": 4,               # Number of atomic states
+    "contingent": True,   # Require contingent valuations
+    "non_empty": True,    # Require non-empty verifiers/falsifiers
+    "disjoint": False,    # Allow overlapping verifiers/falsifiers
+    "max_time": 5         # Maximum solving time (seconds)
+}
+
+# Build example with theory and settings
+model = BuildExample("example_name", get_theory("default"), settings=settings)
+```
+
+### Comparing Theories
+
+```python
+from model_checker import BuildModule
+
+# Create a module to compare theories
+module = BuildModule("comparison")
+
+# Add theories to compare
+module.add_theory("default")
+module.add_theory("exclusion")
+
+# Run tests across theories
+module.run_tests(["test1", "test2"])
+```
+
+## Extending with New Theories
 
 To create a new theory:
 
-1. Create a new directory under `theory_lib/`
-2. Implement `semantic.py` with your theory-specific semantics
-3. Implement `operators.py` with your logical operators
-4. Define `__init__.py` to export your public API
-5. Add examples in `examples.py`
-6. Register your theory in `theory_lib/__init__.py`
-7. Add support for the new theory in `theory_lib/utils.py`
+1. Create a directory under `theory_lib/` (e.g., `theory_lib/my_theory/`)
+2. Implement the required files:
+   - `semantic.py`: Define your semantic framework
+   - `operators.py`: Implement your logical operators
+   - `examples.py`: Create test cases
+   - `__init__.py`: Export your public API
+   - `README.md`: Document your theory
 
-## API Refactoring Strategies
+3. Register your theory in `theory_lib/__init__.py`
 
-The following strategies propose different approaches to enhance the ModelChecker API architecture. These options vary in scope, complexity, and backward compatibility impact.
+### Minimal Theory Template
 
-### Strategy 1: Standardized Theory Registry
-
-**Goal**: Create a centralized registry system for theory implementations to reduce redundancy and simplify extension.
-
-**Implementation**:
-1. Create a `TheoryRegistry` class in model_checker.registry module:
 ```python
-class TheoryRegistry:
-    """Central registry for theory implementations."""
+# semantic.py
+from model_checker.model import SemanticDefaults, PropositionDefaults, ModelDefaults
+
+class MySemantics(SemanticDefaults):
+    """Core semantics for my theory."""
+    # Implement semantic primitives and relations
+
+class MyProposition(PropositionDefaults):
+    """Proposition implementation for my theory."""
+    # Implement proposition evaluation
+
+class MyModelStructure(ModelDefaults):
+    """Model structure for my theory."""
+    # Implement model construction and evaluation
+
+# operators.py
+from model_checker.syntactic import Operator, DefinedOperator
+
+class MyOperator(Operator):
+    """A primitive operator in my theory."""
     def __init__(self):
-        self._theories = {}
-        
-    def register(self, name, theory_module):
-        """Register a theory implementation."""
-        self._theories[name] = theory_module
-        
-    def get_theory(self, name):
-        """Get a registered theory by name."""
-        if name not in self._theories:
-            self._load_theory(name)
-        return self._theories[name]
-        
-    def get_examples(self, theory_name):
-        """Get examples from a theory."""
-        theory = self.get_theory(theory_name)
-        return self._get_examples_from_theory(theory)
-        
-    def _load_theory(self, name):
-        """Dynamic loading of theory implementations."""
-        # Load theory dynamically
-```
-
-2. Update the `model_checker.__init__` to use the registry:
-```python
-from .registry import theory_registry
-
-def get_theory(name):
-    """Get a theory by name using the registry."""
-    return theory_registry.get_theory(name)
+        super().__init__("my_op", "\\myop", 1)  # name, symbol, arity
     
-def get_examples(theory_name):
-    """Get examples from a theory."""
-    return theory_registry.get_examples(theory_name)
+    # Implement semantic methods
+
+my_operators = {
+    "\\myop": MyOperator(),
+    # Add more operators
+}
+
+# __init__.py
+from .semantic import MySemantics, MyProposition, MyModelStructure
+from .operators import my_operators
+
+__all__ = [
+    "MySemantics", "MyProposition", "MyModelStructure",
+    "my_operators"
+]
 ```
 
-**Benefits**:
-- Centralized management of theories
-- Standardized interface for all theories
-- Automatic discovery of new theories
-- Simplified extension process
+## Advanced Features
 
-**Drawbacks**:
-- Requires significant refactoring
-- May introduce compatibility issues with existing code
-- Adds architectural complexity
+### Theory Translation
 
-### Strategy 2: Protocol-based Theory Interface
-
-**Goal**: Define formal interfaces for theory implementations to ensure consistency.
-
-**Implementation**:
-1. Define protocols for theory components:
-```python
-from typing import Protocol, Dict, Any, List
-
-class SemanticProtocol(Protocol):
-    """Protocol for semantic implementations."""
-    def __init__(self, settings: Dict[str, Any]) -> None: ...
-    def compatible(self, a: Any, b: Any) -> bool: ...
-    # Other required methods
-
-class PropositionProtocol(Protocol):
-    """Protocol for proposition implementations."""
-    def __init__(self, formula: str, model: Any) -> None: ...
-    def evaluate(self) -> bool: ...
-    # Other required methods
-
-class TheoryProtocol(Protocol):
-    """Protocol for complete theory implementations."""
-    semantics: type
-    proposition: type
-    model: type
-    operators: Dict[str, Any]
-```
-
-2. Update existing theories to implement these protocols
-3. Add validation in the API to ensure protocol compliance
-
-**Benefits**:
-- Clear contract for theory implementations
-- Static type checking support
-- Self-documenting interfaces
-- Easier debugging of implementation issues
-
-**Drawbacks**:
-- Requires Python 3.8+ for full Protocol support
-- May constrain flexibility for specialized theories
-- Additional validation overhead
-
-### Strategy 3: Composable Model Components
-
-**Goal**: Refactor the core model checking engine to support more flexible composition of components.
-
-**Implementation**:
-1. Extract interfaces for core components:
-```python
-class ConstraintGenerator:
-    """Generates Z3 constraints from logical formulas."""
-    def generate_constraints(self, formula, context):
-        """Generate constraints for a formula."""
-        
-class ModelSolver:
-    """Solves constraint satisfaction problems."""
-    def solve(self, constraints, settings):
-        """Find a model satisfying constraints."""
-        
-class ResultInterpreter:
-    """Interprets solver results into semantic terms."""
-    def interpret(self, solver_result, context):
-        """Interpret solver results."""
-```
-
-2. Refactor ModelConstraints to use these components:
-```python
-class ModelConstraints:
-    """Coordinates model constraint generation and solving."""
-    def __init__(self, settings, syntax, semantics, proposition,
-                 constraint_generator=None, solver=None, interpreter=None):
-        self.constraint_generator = constraint_generator or DefaultConstraintGenerator()
-        self.solver = solver or DefaultModelSolver()
-        self.interpreter = interpreter or DefaultResultInterpreter()
-        # ...
-```
-
-**Benefits**:
-- Greater flexibility in component replacement
-- Easier testing of individual components
-- Support for alternative constraint solvers beyond Z3
-- More modular architecture
-
-**Drawbacks**:
-- Significant refactoring required
-- May increase complexity for simple use cases
-- Potential performance overhead from abstraction
-
-### Strategy 4: Module-Level Configuration
-
-**Goal**: Improve configuration management across the framework with a centralized approach.
-
-**Implementation**:
-1. Create a central configuration system:
-```python
-class Configuration:
-    """Central configuration for ModelChecker."""
-    _instance = None
-    
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._init_defaults()
-        return cls._instance
-    
-    def _init_defaults(self):
-        self.settings = {
-            "print_constraints": False,
-            "print_impossible": False,
-            "print_z3": False,
-            "save_output": False,
-            "maximize": False,
-            # More settings
-        }
-        
-    def configure(self, **kwargs):
-        """Update configuration settings."""
-        self.settings.update(kwargs)
-        
-    def get(self, key, default=None):
-        """Get a configuration setting."""
-        return self.settings.get(key, default)
-```
-
-2. Use throughout the codebase:
-```python
-from .config import config
-
-class BuildExample:
-    def __init__(self, name, theory):
-        self.verbose = config.get("verbose", False)
-        # ...
-
-class ModelStructure:
-    def __init__(self, constraints, settings=None):
-        self.show_model = config.get("show_model", True)
-        # ...
-```
-
-**Benefits**:
-- Consistent configuration across components
-- Global defaults with local overrides
-- Simplified initialization code
-- Centralized documentation of settings
-
-**Drawbacks**:
-- Potential for global state issues
-- May hide dependencies between components
-- Requires careful thread safety consideration
-
-### Strategy 5: Simplified Theory Factory
-
-**Goal**: Create a factory pattern for theory creation that simplifies the API without major refactoring.
-
-**Implementation**:
-1. Add a theory factory module:
-```python
-class TheoryFactory:
-    """Factory for creating theory instances."""
-    @staticmethod
-    def create_theory(name, settings=None):
-        """Create a theory instance by name."""
-        settings = settings or {}
-        if name == "default":
-            from model_checker.theory_lib.default import (
-                Semantics, Proposition, ModelStructure, default_operators
-            )
-            return {
-                "semantics": Semantics(settings),
-                "proposition": Proposition,
-                "model": ModelStructure,
-                "operators": default_operators,
-            }
-        elif name == "exclusion":
-            # Similar structure for other theories
-        else:
-            raise ValueError(f"Unknown theory: {name}")
-```
-
-2. Use the factory in high-level API:
-```python
-def build_example(name, theory_name, settings=None):
-    """Build an example with a specific theory."""
-    theory = TheoryFactory.create_theory(theory_name, settings)
-    return BuildExample(name, theory)
-```
-
-**Benefits**:
-- Simplified API for common use cases
-- No significant architectural changes
-- Maintains backward compatibility
-- Easier onboarding for new users
-
-**Drawbacks**:
-- Less flexibility than other approaches
-- May not address deeper architectural issues
-- Limited extensibility
-
-### Strategy 6: Enhanced Operator System
-
-**Goal**: Refactor the operator system to support more complex logical operators and reduce duplication.
-
-**Implementation**:
-1. Create an enhanced operator base with composition support:
-```python
-class EnhancedOperator:
-    """Base class for logical operators with composition support."""
-    def __init__(self, name, symbol, arity):
-        self.name = name
-        self.symbol = symbol
-        self.arity = arity
-        
-    def compose(self, other_operator):
-        """Create a new operator by composition."""
-        return ComposedOperator(self, other_operator)
-        
-    # Core semantic methods
-    
-class ComposedOperator(EnhancedOperator):
-    """An operator composed of multiple operators."""
-    def __init__(self, outer, inner):
-        self.outer = outer
-        self.inner = inner
-        super().__init__(
-            f"{outer.name}_{inner.name}",
-            f"{outer.symbol}({inner.symbol})",
-            max(outer.arity, inner.arity)
-        )
-        
-    # Implementation of semantic methods through composition
-```
-
-2. Create a centralized operator registry:
-```python
-class OperatorRegistry:
-    """Central registry for operators across theories."""
-    def __init__(self):
-        self._operators = {}
-        
-    def register(self, operator, theory=None):
-        """Register an operator, optionally with a theory."""
-        key = (operator.name, theory)
-        self._operators[key] = operator
-        
-    def get(self, name, theory=None):
-        """Get an operator by name and optional theory."""
-        return self._operators.get((name, theory)) or self._operators.get((name, None))
-        
-    def create_collection(self, theory=None):
-        """Create an operator collection for a theory."""
-        return {op.name: op for key, op in self._operators.items() 
-                if key[1] == theory or key[1] is None}
-```
-
-**Benefits**:
-- Reduced duplication across theory implementations
-- Support for operator composition and transformation
-- Centralized operator management
-- Easier creation of derived operators
-
-**Drawbacks**:
-- Significant refactoring required
-- Potential performance impact from abstraction
-- May complicate simple theory implementations
-
-### Strategy 7: Inheritance-Based Theory Structure
-
-**Goal**: Refactor theories to use inheritance more effectively, allowing specialized theories to build on general ones.
-
-**Implementation**:
-1. Create a base theory module:
-```python
-class BaseSemantics:
-    """Base semantics shared by all theories."""
-    def __init__(self, settings):
-        self.settings = settings
-        # Common semantics implementation
-        
-class BaseProposition:
-    """Base proposition logic shared by all theories."""
-    def __init__(self, formula, model):
-        self.formula = formula
-        self.model = model
-        # Common proposition implementation
-```
-
-2. Modify theories to inherit from base classes:
-```python
-# In default/semantic.py
-from model_checker.base_theory import BaseSemantics, BaseProposition
-
-class Semantics(BaseSemantics):
-    """Default theory semantics."""
-    def __init__(self, settings):
-        super().__init__(settings)
-        # Default-specific semantics
-        
-class Proposition(BaseProposition):
-    """Default theory proposition logic."""
-    def __init__(self, formula, model):
-        super().__init__(formula, model)
-        # Default-specific proposition logic
-```
-
-**Benefits**:
-- Clear inheritance hierarchy
-- Reduced code duplication
-- Easier to create derivative theories
-- Better code organization
-
-**Drawbacks**:
-- May force unnatural hierarchies in some cases
-- Potential for "diamond problem" in multiple inheritance
-- Requires careful design of base classes
-
-### Strategy 8: API Facade Pattern
-
-**Goal**: Create a simplified API facade that hides implementation details and provides a more intuitive interface.
-
-**Implementation**:
-1. Create a high-level API module:
-```python
-class ModelChecker:
-    """High-level API for model checking."""
-    def __init__(self, theory_name="default", settings=None):
-        self.theory_name = theory_name
-        self.settings = settings or {}
-        self._theory = self._load_theory()
-        
-    def _load_theory(self):
-        """Load the specified theory."""
-        from model_checker.utils import get_theory
-        from model_checker.theory_lib import get_examples
-        theory = get_theory(self.theory_name)
-        theory["examples"] = get_examples(self.theory_name)
-        return theory
-        
-    def check_formula(self, formula, premises=None):
-        """Check if a formula follows from premises."""
-        example = self._create_example(premises, [formula])
-        return self._check_example(example)
-        
-    def find_model(self, formulas):
-        """Find a model satisfying all formulas."""
-        example = self._create_example(formulas, [])
-        return self._check_example(example)
-        
-    def _create_example(self, premises, conclusions):
-        """Create an example from premises and conclusions."""
-        premises = premises or []
-        return [premises, conclusions, self.settings]
-        
-    def _check_example(self, example):
-        """Check an example using BuildExample."""
-        from model_checker import BuildExample
-        model = BuildExample("custom", self._theory, example)
-        return model.result
-```
-
-2. Use in simplified client code:
-```python
-from model_checker.api import ModelChecker
-
-# Create a model checker with default theory
-checker = ModelChecker()
-
-# Check if a formula is valid
-result = checker.check_formula("\\Box p -> p")
-print(f"Formula is {'valid' if result else 'invalid'}")
-
-# Find a model satisfying formulas
-model = checker.find_model(["p", "q", "p -> q"])
-print(f"Model found: {model}")
-```
-
-**Benefits**:
-- Simplified API for common use cases
-- Hides implementation details
-- More intuitive for new users
-- Can evolve independently of internal implementation
-
-**Drawbacks**:
-- Additional layer of abstraction
-- May limit access to advanced features
-- Potential duplication with existing BuildExample functionality
-
-### Summary and Recommendations
-
-The refactoring strategies above represent different approaches to improving the ModelChecker API, ranging from targeted enhancements to comprehensive architectural changes.
-
-**Recommended short-term improvements:**
-1. **Strategy 5 (Simplified Theory Factory)**: Provides immediate API improvements with minimal refactoring
-2. **Strategy 4 (Module-Level Configuration)**: Addresses configuration inconsistencies without major structural changes
-3. **Strategy 8 (API Facade Pattern)**: Creates a more user-friendly interface layer without changing internals
-
-**Recommended medium-term improvements:**
-1. **Strategy 1 (Standardized Theory Registry)**: Centralizes theory management and simplifies extension
-2. **Strategy 6 (Enhanced Operator System)**: Reduces duplication in operator implementations
-3. **Strategy 7 (Inheritance-Based Theory Structure)**: Improves code reuse between theories
-
-**Recommended long-term improvements:**
-1. **Strategy 2 (Protocol-based Theory Interface)**: Formalizes interfaces for more robust implementations
-2. **Strategy 3 (Composable Model Components)**: Enables more flexible architecture for advanced use cases
-
-For immediate API improvements with minimal disruption, implementing Strategy 5 (Simplified Theory Factory) alongside Strategy 8 (API Facade Pattern) would provide the best balance of improved usability and backward compatibility.
-
-## NixOS Development Setup
-
-When developing on NixOS, you may encounter issues with Python package imports and module resolution. Here are long-term solutions to improve the development experience:
-
-### Development Environment Setup
-
-Create a dedicated development environment that ensures your local source code is prioritized:
+Theories can provide translation dictionaries to map operators between theories:
 
 ```python
-# setup_dev.py
-import os
-import sys
-import subprocess
+# Translation from Theory A to Theory B
+translation_dict = {
+    "\\opA": "\\opB",
+    "\\another_opA": "\\another_opB"
+}
 
-# Get the absolute path to the src directory
-src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'src'))
-
-# Create or modify .env file to set PYTHONPATH
-with open('.env', 'w') as f:
-    f.write(f'PYTHONPATH={src_path}:$PYTHONPATH\n')
-
-# Try to create a development install
-try:
-    subprocess.run(['pip', 'install', '-e', '.', '--user'], check=True)
-    print("Development installation successful")
-except subprocess.CalledProcessError:
-    print("Could not install package for development. You may need to run manually: pip install -e . --user")
-
-print(f"Development environment set up. Run 'source .env' before development.")
-print(f"Added {src_path} to PYTHONPATH")
-```
-
-### Development CLI Entry Point
-
-Create a dedicated development CLI entry point that ensures it uses your local code:
-
-```python
-# dev_cli.py
-#!/usr/bin/env python3
-"""Development CLI entry point that ensures local code is used."""
-
-import os
-import sys
-
-# Ensure local src is prioritized
-src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'src'))
-sys.path.insert(0, src_path)
-
-# Import all necessary modules explicitly from local source
-try:
-    from src.model_checker.__main__ import main
-except ImportError as e:
-    print(f"Error importing from local source: {e}")
-    print(f"Current sys.path: {sys.path}")
-    sys.exit(1)
-
-if __name__ == "__main__":
-    # Pass command line arguments
-    sys.argv = [sys.argv[0]] + sys.argv[1:]
-    main()
-```
-
-Make it executable:
-```bash
-chmod +x dev_cli.py
-```
-
-Usage:
-```bash
-./dev_cli.py path/to/example.py
-```
-
-### NixOS-specific Development Shell
-
-Create a `shell.nix` file for a dedicated development environment:
-
-```nix
-{ pkgs ? import <nixpkgs> {} }:
-
-pkgs.mkShell {
-  buildInputs = with pkgs; [
-    python3
-    python3Packages.z3
-    python3Packages.pytest
-    python3Packages.pip
-    python3Packages.setuptools
-    python3Packages.wheel
-  ];
-  
-  shellHook = ''
-    # Set up local development environment
-    export PYTHONPATH="$PWD/src:$PYTHONPATH"
-    export PATH="$PWD:$PATH"
-    
-    echo "ModelChecker development environment activated"
-    echo "Run './dev_cli.py example.py' to use local source code"
-  '';
+# Use in theory definition
+theory_a = {
+    "semantics": SemanticA,
+    "proposition": PropositionA,
+    "operators": operators_a,
+    "dictionary": translation_dict  # Used when translating to theory B
 }
 ```
 
-Usage:
-```bash
-nix-shell  # Enter the development environment
-./dev_cli.py examples.py  # Run with local source code
+### Custom Model Constraints
+
+Theories can define custom constraints on models:
+
+```python
+class CustomSemantics(SemanticDefaults):
+    def get_constraints(self):
+        """Add custom constraints to the model."""
+        constraints = super().get_constraints()
+        
+        # Add theory-specific constraints
+        my_constraint = self.z3.ForAll([self.s1, self.s2],
+                          self.z3.Implies(self.custom_relation(self.s1, self.s2),
+                                      self.some_condition(self.s1, self.s2)))
+        constraints.append(my_constraint)
+        
+        return constraints
 ```
 
-Combined with direnv, this provides a seamless development experience:
+### Visualization Support
 
-```bash
-# .envrc
-use_nix
+Theories can provide custom visualization methods for Jupyter notebook integration:
+
+```python
+class CustomModelStructure(ModelDefaults):
+    def visualize(self):
+        """Custom visualization for this theory."""
+        import matplotlib.pyplot as plt
+        # Implement theory-specific visualization
+        return plt.gcf()
 ```
 
-Then:
-```bash
-direnv allow  # One-time setup
-./dev_cli.py examples.py  # Automatically uses the correct environment
-```
+## Best Practices
 
-These solutions ensure that your local source code is always used during development, avoiding conflicts with installed packages.
+1. **Consistent Naming**: Follow established naming conventions
+2. **Documentation**: Include thorough docstrings and README files
+3. **Examples**: Provide comprehensive test cases
+4. **Unit Tests**: Include tests to verify theory correctness
+5. **Modular Design**: Keep semantic components separate from operators
+6. **Code Reuse**: Inherit from base classes when possible
+7. **Error Handling**: Validate inputs and provide helpful error messages
+8. **Performance**: Consider constraint complexity and solving time
+
+## Theory Contribution Guidelines
+
+When contributing a new theory:
+
+1. Ensure your theory follows the standard architecture
+2. Include comprehensive documentation
+3. Provide test cases that demonstrate key features
+4. Add Jupyter notebook examples when possible
+5. Submit a pull request with a description of your theory
+
+## API Reference
+
+See the [API Documentation](../README.md) for detailed information on the ModelChecker API.
