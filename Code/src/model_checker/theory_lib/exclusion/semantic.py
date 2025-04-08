@@ -670,7 +670,7 @@ class ExclusionStructure(model.ModelDefaults):
             for bit in self.all_states
             if evaluate(self.semantics.possible(bit))
         ]
-        self.z3_world_bits = [
+        self.z3_world_states = [
             bit
             for bit in self.all_states
             if evaluate(self.semantics.is_world(bit))
@@ -734,7 +734,7 @@ class ExclusionStructure(model.ModelDefaults):
             bin_rep = binary_bitvector(bit)
             if bit == 0:
                 format_state(bin_rep, state, self.COLORS["initial"])
-            elif bit in self.z3_world_bits:
+            elif bit in self.z3_world_states:
                 format_state(bin_rep, state, self.COLORS["world"], "world")
             elif bit in self.z3_poss_bits:
                 format_state(bin_rep, state, self.COLORS["possible"])

@@ -1,29 +1,149 @@
-"""Model checker theory library."""
+"""Model checker theory library.
 
-# Initialize empty module attributes
-default = None
-exclusion = None
-imposition = None
+This module provides access to various logical theories through lazy loading.
+It also includes utility functions for accessing examples from each theory.
 
-__all__ = [
+Theories:
+- default: Standard bilateral truthmaker semantics
+- exclusion: Unilateral semantics with exclusion relations
+- imposition: Semantics with imposition relations
+- bimodal: Bimodal semantics for counterfactuals and imposition
+
+Examples access:
+- get_examples(theory_name): Access examples from a specific theory
+- get_test_examples(theory_name): Access test examples from a theory
+- get_semantic_theories(theory_name): Access semantic theory implementations
+"""
+
+import importlib
+import os
+import sys
+from types import ModuleType
+
+# Registry of available theories
+# Add new theories to this list when implementing them
+AVAILABLE_THEORIES = [
     'default',
     'exclusion',
-    'imposition'
+    'imposition',
+    # 'bimodal',
+    # Add new theories here
+]
+
+# Dictionary to cache loaded theory modules
+_theory_modules = {}
+
+def get_examples(theory_name):
+    """Access examples from a specific theory without circular imports.
+    
+    Args:
+        theory_name (str): Name of the theory ('default', 'exclusion', etc.)
+        
+    Returns:
+        dict: A dictionary of example cases for model checking
+        
+    Raises:
+        ValueError: If the theory name is not recognized
+    """
+    if theory_name not in AVAILABLE_THEORIES:
+        raise ValueError(f"Unknown theory: {theory_name}")
+    
+    try:
+        module = importlib.import_module(f".{theory_name}.examples", package=__name__)
+        return module.example_range
+    except (ImportError, AttributeError) as e:
+        raise ValueError(f"Could not load examples for theory '{theory_name}': {str(e)}")
+
+def get_test_examples(theory_name):
+    """Access test examples from a specific theory without circular imports.
+    
+    Args:
+        theory_name (str): Name of the theory ('default', 'exclusion', etc.)
+        
+    Returns:
+        dict: A dictionary of test example cases for unit testing
+        
+    Raises
+        ValueError: If the theory name is not recognized
+    """
+    if theory_name not in AVAILABLE_THEORIES:
+        raise ValueError(f"Unknown theory: {theory_name}")
+    
+    try:
+        module = importlib.import_module(f".{theory_name}.examples", package=__name__)
+        return module.test_example_range
+    except (ImportError, AttributeError) as e:
+        raise ValueError(f"Could not load test examples for theory '{theory_name}': {str(e)}")
+
+def get_semantic_theories(theory_name):
+    """Access semantic theory implementations from a specific theory.
+    
+    Args:
+        theory_name (str): Name of the theory ('default', 'exclusion', etc.)
+        
+    Returns:
+        dict: A dictionary mapping theory names to implementations
+        
+    Raises:
+        ValueError: If the theory name is not recognized
+    """
+    if theory_name not in AVAILABLE_THEORIES:
+        raise ValueError(f"Unknown theory: {theory_name}")
+    
+    try:
+        module = importlib.import_module(f".{theory_name}.examples", package=__name__)
+        return module.semantic_theories
+    except (ImportError, AttributeError) as e:
+        raise ValueError(f"Could not load semantic theories for theory '{theory_name}': {str(e)}")
+
+def discover_theories():
+    """Automatically discover available theories based on directory structure.
+    
+    This function is for development and debugging purposes.
+    In production, use the AVAILABLE_THEORIES list.
+    
+    Returns:
+        list: List of discovered theory names
+    """
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    theories = []
+    
+    # Look for directories that contain both examples.py and operators.py
+    for item in os.listdir(current_dir):
+        if os.path.isdir(os.path.join(current_dir, item)) and not item.startswith('__'):
+            # Check if this has the structure of a theory module
+            examples_path = os.path.join(current_dir, item, 'examples.py')
+            operators_path = os.path.join(current_dir, item, 'operators.py')
+            if os.path.exists(examples_path) and os.path.exists(operators_path):
+                theories.append(item)
+    
+    return sorted(theories)
+
+# Create a dictionary of placeholder attributes for lazy loading
+_placeholders = {name: None for name in AVAILABLE_THEORIES}
+
+# Update __all__ to include all available theories
+__all__ = [
+    # Theories
+    *AVAILABLE_THEORIES,
+    
+    # Registry
+    'AVAILABLE_THEORIES',
+    
+    # Utility functions
+    'get_examples',
+    'get_test_examples',
+    'get_semantic_theories',
+    'discover_theories',
 ]
 
 def __getattr__(name):
-    global default, exclusion, imposition
+    """Lazy load theory modules when accessed."""
+    if name in AVAILABLE_THEORIES:
+        if name not in _theory_modules:
+            # Import the theory module
+            module = importlib.import_module(f".{name}", package=__name__)
+            _theory_modules[name] = module
+        return _theory_modules[name]
     
-    if name == 'default':
-        from . import default as mod
-        default = mod
-        return default
-    elif name == 'exclusion':
-        from . import exclusion as mod
-        exclusion = mod
-        return exclusion
-    elif name == 'imposition':
-        from . import imposition as mod
-        imposition = mod
-        return imposition
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
