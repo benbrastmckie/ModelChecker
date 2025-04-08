@@ -4,276 +4,185 @@ This guide provides detailed instructions for setting up and using the ModelChec
 
 ## Introduction
 
-NixOS has a different approach to package management compared to other Linux distributions. Since the typical `pip install -e .` approach doesn't work well in NixOS's immutable environment, we need to use Nix-specific tools and approaches.
+NixOS has a different approach to package management compared to other Linux distributions. Since the typical `pip install -e .` approach doesn't work well in NixOS's immutable environment, we've created a symlink-based workflow to make development with Jupyter more convenient.
 
-## 1. Basic Requirements
+## Quick Start
 
-To use ModelChecker with Jupyter notebooks, you need:
+The simplest way to use ModelChecker with Jupyter notebooks in NixOS is:
 
-1. Python 3.8 or later
-2. ModelChecker package available on the Python path
-3. Jupyter and supporting libraries (ipywidgets, matplotlib, networkx)
-4. Z3 theorem prover
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/benbrastmckie/ModelChecker.git
+   cd ModelChecker/Code
+   ```
 
-## 2. Setup Instructions
+2. Run the provided script:
+   ```bash
+   ./run_jupyter.sh
+   ```
 
-### 2.1 Using the provided `shell.nix`
+This will:
+- Enter a nix-shell with all needed dependencies
+- Create symlinks to make model_checker importable in Python
+- Launch Jupyter notebook
+- Create an example notebook demonstrating the key features
 
-The ModelChecker repository includes a `shell.nix` file pre-configured with all the necessary dependencies for running ModelChecker with Jupyter notebooks.
+## Manual Setup
 
-#### Step 1: Enter the development shell
+If you prefer to set up things manually or need more control, follow these steps:
 
-Navigate to the ModelChecker Code directory and enter the Nix shell:
+### 1. Enter the nix-shell
+
+The repository includes a `shell.nix` file with the minimal dependencies required:
 
 ```bash
 cd /path/to/ModelChecker/Code
 nix-shell
 ```
 
-This will create a development environment with Python, Z3, Jupyter, and all the required dependencies.
+### 2. Set up the Python path
 
-#### Step 2: Start Jupyter Notebook
+Run the jupyter_link.py script to create symlinks:
 
-Once inside the Nix shell, you can start the Jupyter notebook server:
+```bash
+./jupyter_link.py
+```
+
+### 3. Start Jupyter
+
+Once inside the nix-shell with the symlinks set up:
 
 ```bash
 jupyter notebook
 ```
 
-This will open a web browser with the Jupyter file explorer. Navigate to the example notebooks in one of these directories:
-- `src/model_checker/theory_lib/jupyter/jupyter_demo.ipynb`
-- `src/model_checker/theory_lib/exclusion/notebooks/exclusion_demo.ipynb`
+### 4. Create a new notebook or open an existing one
 
-### 2.2 Customizing `shell.nix` (if needed)
+You can now create a new notebook or use the provided example notebook that demonstrates the key features.
 
-If you need to customize the environment, you can modify the `shell.nix` file:
+## Development Workflow
 
-```nix
-{ pkgs ? import <nixpkgs> {} }:
+When working on ModelChecker with Jupyter notebooks:
 
-pkgs.mkShell {
-  buildInputs = with pkgs; [
-    python3
-    python3Packages.z3
-    python3Packages.pytest
-    python3Packages.jupyter
-    python3Packages.notebook
-    python3Packages.ipywidgets
-    python3Packages.matplotlib
-    python3Packages.networkx
-    python3Packages.pip
-    python3Packages.setuptools
-    python3Packages.wheel
-    # Add any other packages you need here
-  ];
-  
-  shellHook = ''
-    # Set up local development environment
-    export PYTHONPATH="$PWD:$PWD/src:$PYTHONPATH"
-    export PATH="$PWD:$PATH"
-    
-    # Make dev_cli.py executable
-    chmod +x $PWD/dev_cli.py
-    
-    # Create symlink for notebook import (optional, helps in some environments)
-    mkdir -p $HOME/.local/lib/python3.*/site-packages/model_checker
-    ln -sf $PWD/src/model_checker/* $HOME/.local/lib/python3.*/site-packages/model_checker/ 2>/dev/null
-    
-    echo "ModelChecker development environment activated"
-    echo "Run './dev_cli.py example.py' to use local source code"
-    echo "Run 'jupyter notebook' to start Jupyter with model_checker available"
-  '';
-}
-```
+1. Make changes to your ModelChecker code
+2. The changes are automatically available in Jupyter, thanks to the symlinks
+3. No need to run `pip install -e .` or restart the kernel after code changes
 
-### 2.3 Using Home Manager
+## Using ModelChecker in Jupyter Notebooks
 
-If you use Home Manager, you can add these packages to your configuration:
+### Basic Imports
 
-```nix
-home.packages = with pkgs.python3Packages; [
-  jupyter
-  notebook
-  ipywidgets
-  matplotlib
-  networkx
-  z3
-];
-```
-
-Then set up the environment in your Jupyter notebook using the first cell shown in the "Using ModelChecker in Jupyter Notebooks" section below.
-
-### 2.4 Creating a Temporary Environment
-
-You can create a temporary environment without modifying `shell.nix`:
-
-```bash
-nix-shell -p "python3.withPackages(ps: with ps; [ jupyter notebook ipywidgets matplotlib networkx z3 ])"
-```
-
-Then adjust your PYTHONPATH manually in the notebook:
+To use ModelChecker in your notebooks:
 
 ```python
-import sys
-sys.path.insert(0, "/path/to/ModelChecker/Code")
-sys.path.insert(0, "/path/to/ModelChecker/Code/src")
+# Import the package
+import model_checker
+
+# Import the interactive tools
+from model_checker.jupyter import check_formula, InteractiveModelExplorer
 ```
 
-## 3. Using ModelChecker in Jupyter Notebooks
+### Formula Checking
 
-### First Cell Setup
-
-Every notebook that uses ModelChecker should start with a setup cell to ensure the environment is properly configured:
+Use the `check_formula` function for simple formula checking:
 
 ```python
-# Set up the environment for the model_checker package
-import sys
-import os
-import importlib
+# Check a simple formula
+check_formula("(A \\equiv A)")
 
-# Helper function to setup imports
-def setup_model_checker_env():
-    # Try to find the ModelChecker project root
-    possible_roots = [
-        # If notebook is in the repo structure
-        os.path.abspath(os.path.join(os.getcwd(), "../../../../../")),
-        os.path.abspath(os.path.join(os.getcwd(), "../../../../")),
-        os.path.abspath(os.path.join(os.getcwd(), "../../../")),
-        os.path.abspath(os.path.join(os.getcwd(), "../../")),
-        # Common installation paths
-        os.path.expanduser("~/Documents/Philosophy/Projects/ModelChecker/Code"),
-        os.path.expanduser("~/ModelChecker/Code"),
-    ]
-    
-    project_root = None
-    for path in possible_roots:
-        if os.path.isdir(path) and os.path.isdir(os.path.join(path, "src", "model_checker")):
-            project_root = path
-            break
-    
-    if project_root is None:
-        print("Could not find ModelChecker project root. Please specify the path manually.")
-        return False
-    
-    # Add project root and src directory to path
-    paths_to_add = [project_root, os.path.join(project_root, "src")]
-    for path in paths_to_add:
-        if path not in sys.path:
-            sys.path.insert(0, path)
-    
-    # Try importing model_checker
-    try:
-        # If already imported, reload to ensure we're using the correct version
-        if "model_checker" in sys.modules:
-            importlib.reload(sys.modules["model_checker"])
-        else:
-            import model_checker
-        
-        print(f"Imported model_checker from {sys.modules['model_checker'].__file__}")
-        return True
-    except ImportError as e:
-        print(f"Error importing model_checker: {e}")
-        return False
-
-# Run the setup
-setup_success = setup_model_checker_env()
-
-# Diagnostic information
-if setup_success:
-    import model_checker
-    print(f"ModelChecker version: {model_checker.__version__}")
-    print(f"ModelChecker location: {model_checker.__file__}")
-else:
-    print("Failed to set up ModelChecker environment")
+# Check a more complex formula with custom settings
+check_formula(
+    "□(p → q) → (□p → □q)",
+    theory_name="default",
+    premises=["p"],
+    settings={'N': 4, 'max_time': 10}
+)
 ```
 
-### Importing ModelChecker
+### Interactive Explorer
 
-After the setup cell, you can import ModelChecker components:
-
-```python
-from model_checker.jupyter import InteractiveModelExplorer, check_formula
-```
-
-### Example: Checking a Formula
+For more interactive exploration:
 
 ```python
-# Check a simple propositional formula
-check_formula("p → (q → p)")
-
-# Check a modal formula
-check_formula("□(p → q) → (□p → □q)")
-```
-
-### Example: Using the Interactive Explorer
-
-```python
-# Create an explorer with the default theory
+# Create an interactive explorer
 explorer = InteractiveModelExplorer()
 
 # Display the interactive UI
 explorer.display()
 ```
 
-## 4. Working with Different Theories
+The interactive explorer provides UI controls for:
+- Formula input
+- Premises input
+- Theory selection
+- Model settings
+- Finding alternative models
+- Visualization options
 
-ModelChecker supports various logical theories. You can specify which theory to use:
+## Troubleshooting
+
+### Common Issues
+
+1. **"No module named 'model_checker'"**
+   - Run `./jupyter_link.py` again to recreate the symlinks
+   - Make sure you're running Jupyter from the nix-shell
+
+2. **Missing dependencies**
+   - Make sure you're in the nix-shell when running Jupyter
+   - Check that the shell.nix file includes all necessary packages
+
+3. **Jupyter widgets not displaying**
+   - Run `jupyter nbextension enable --py widgetsnbextension --sys-prefix` in the nix-shell
+   - Ensure that ipywidgets is in the shell.nix buildInputs
+
+4. **Changes to code not reflected in Jupyter**
+   - Try restarting the kernel (Kernel → Restart)
+   - Run `import importlib; importlib.reload(model_checker)` in a notebook cell
+
+### File Paths
+
+If you move your notebooks out of the ModelChecker directory, you'll need to adjust the setup. Either:
+
+1. Run `jupyter_link.py` from the ModelChecker/Code directory before starting Jupyter
+2. Use a notebook with a first cell that modifies sys.path to include the ModelChecker code
+
+## Advanced Usage
+
+### Testing New Features
+
+To test new features you're developing:
+
+1. Make changes to the ModelChecker source code
+2. Use Jupyter notebooks to interactively test these changes
+3. Document your findings in the notebooks
+4. When satisfied, write proper unit tests in the test/ directory
+
+### Multiple Theory Support
+
+To compare different semantic theories:
 
 ```python
-# Check in default theory
+# Check a formula in different theories
 check_formula("□p → p", theory_name="default")
-
-# Check in exclusion theory
 check_formula("□p → p", theory_name="exclusion")
 ```
 
-## 5. Customizing Settings
+### Exporting Results
 
-You can customize model settings:
+You can export your notebooks and results:
 
-```python
-custom_settings = {
-    'N': 4,              # Number of atomic propositions
-    'max_time': 10,      # Maximum solving time in seconds
-    'contingent': True,  # Use contingent valuations
-    'non_empty': True,   # Ensure non-empty valuations
-}
+```bash
+# Convert to HTML
+jupyter nbconvert --to html your_notebook.ipynb
 
-check_formula("p ∨ q ∨ r ∨ s", settings=custom_settings)
+# Convert to PDF (requires LaTeX)
+jupyter nbconvert --to pdf your_notebook.ipynb
 ```
 
-## 6. Troubleshooting
+## Contributing
 
-### Common Issues and Solutions
+If you improve the Jupyter integration:
 
-1. **Module Not Found Error**
-   
-   If you see `ModuleNotFoundError: No module named 'model_checker'`, check:
-   - Are you running Jupyter from within the nix-shell?
-   - Did the first setup cell run correctly?
-   - Check the PYTHONPATH with `print(sys.path)` to ensure the ModelChecker paths are included
-
-2. **Missing Dependencies**
-   
-   If you see errors about missing packages:
-   - Update your shell.nix to include the required packages
-   - Re-enter the nix-shell
-
-3. **Old Module Version Used**
-   
-   If changes to your code aren't reflected:
-   - Call `importlib.reload(model_checker)` to reload the module
-   - Restart the Jupyter kernel (Kernel → Restart)
-
-4. **Jupyter Widget Issues**
-   
-   If widgets aren't displaying:
-   - Ensure ipywidgets is properly installed in your nix-shell
-   - Try running `jupyter nbextension enable --py widgetsnbextension`
-
-### Getting Help
-
-For more help:
-1. Check the ModelChecker [GitHub issues](https://github.com/benbrastmckie/ModelChecker/issues)
-2. Consult the [Jupyter documentation](https://jupyter.org/documentation)
-3. For NixOS-specific issues, check the [NixOS Wiki](https://nixos.wiki/wiki/Python)
+1. Update this documentation with any new features
+2. Test your changes on both NixOS and other operating systems
+3. Submit your changes via a pull request
