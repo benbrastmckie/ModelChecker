@@ -133,8 +133,8 @@ class SemanticDefaults:
     Attributes:
         name (str): Name of the semantics implementation class
         N (int): Bit-width for state representation (if provided in settings)
-        full_bit (BitVecVal): Maximum possible state (if N is provided)
-        null_bit (BitVecVal): Empty state (if N is provided)
+        full_state (BitVecVal): Maximum possible state (if N is provided)
+        null_state (BitVecVal): Empty state (if N is provided)
         all_states (list): All possible bit vectors of width N (if N is provided)
         M (int): Number of times for temporal semantics (if provided in settings)
         all_times (list): All possible time points (if M is provided)

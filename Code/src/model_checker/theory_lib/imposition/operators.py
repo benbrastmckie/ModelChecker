@@ -61,19 +61,19 @@ class ImpositionOperator(syntactic.Operator):
             )
 
     def extended_verify(self, state, leftarg, rightarg, eval_point):
-        # TODO: add constraint which requires state to be the null_bit
+        # TODO: add constraint which requires state to be the null_state
         return self.true_at(leftarg, rightarg, eval_point)
     
     def extended_falsify(self, state, leftarg, rightarg, eval_point):
-        # TODO: add constraint which requires state to be the null_bit
+        # TODO: add constraint which requires state to be the null_state
         return self.false_at(leftarg, rightarg, eval_point)
 
     def find_verifiers_and_falsifiers(self, leftarg, rightarg, eval_point):
         evaluate = leftarg.proposition.model_structure.z3_model.evaluate
         if bool(evaluate(self.true_at(leftarg, rightarg, eval_point))):
-            return {self.semantics.null_bit}, set()
+            return {self.semantics.null_state}, set()
         if bool(evaluate(self.false_at(leftarg, rightarg, eval_point))):
-            return set(), {self.semantics.null_bit}
+            return set(), {self.semantics.null_state}
         raise ValueError(
             f"{leftarg.name} {self.name} {rightarg.name} "
             f"is neither true nor false in the world {eval_point}."
