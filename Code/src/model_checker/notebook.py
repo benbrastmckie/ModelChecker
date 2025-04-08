@@ -1,58 +1,55 @@
-# Jupyter Notebook Integration
+"""
+Jupyter Notebook integration module for ModelChecker.
 
-> Support Jupyter notebooks in the model-checker
+This module provides interactive tools for using ModelChecker in Jupyter notebooks,
+including widgets for model exploration, visualization capabilities, and notebook-friendly
+output formatting.
 
-## Implementation Plan: Strategy 2 - Interactive Model Explorer
+Main components:
+- InteractiveModelExplorer: Class for interactive model exploration
+- convert_ansi_to_html: Utility for converting ANSI terminal output to HTML
+- model_to_graph/visualize_model: Functions for visualizing models graphically
 
-This implementation plan outlines how to create an interactive model explorer for Jupyter notebooks using the ModelChecker framework and Jupyter widgets.
+Usage:
+    from model_checker.notebook import InteractiveModelExplorer
+    
+    # Create and display explorer
+    explorer = InteractiveModelExplorer()
+    explorer.display()
+    
+    # Check a specific formula
+    from model_checker.notebook import check_formula_interactive
+    check_formula_interactive("□(p → q) → (□p → □q)")
+"""
 
-### 1. Dependencies and Requirements
+import io
+from contextlib import redirect_stdout
+from typing import List, Dict, Any, Optional, Union, Callable
 
-The interactive model explorer will require the following dependencies:
-
-```python
-# Core dependencies (already in the project)
+# Core dependencies
 from model_checker import BuildExample, get_theory
-from model_checker.theory_lib import get_examples
+from model_checker.theory_lib import get_examples, get_semantic_theories
 
-# New dependencies for notebook integration
-import ipywidgets as widgets
-from IPython.display import display, HTML, clear_output
-import matplotlib.pyplot as plt
-import networkx as nx
-```
+# Interactive UI and visualization
+try:
+    import ipywidgets as widgets
+    from IPython.display import display, HTML, clear_output
+    import matplotlib.pyplot as plt
+    import networkx as nx
+    HAVE_IPYWIDGETS = True
+except ImportError:
+    HAVE_IPYWIDGETS = False
 
-These additional libraries will need to be added to the project's dependencies in `pyproject.toml`:
 
-```toml
-dependencies = [
-    "z3-solver",
-    "ipywidgets",  # For interactive UI components
-    "matplotlib",  # For visualization
-    "networkx",    # For graph representation
-]
-```
-
-### 2. Project Structure
-
-Create a new module `notebook.py` in the `model_checker` package:
-
-```
-model_checker/
-├── __init__.py
-├── ...
-└── notebook.py  # New file for notebook integration
-```
-
-### 3. Implementation Components
-
-#### 3.1. ANSI Color Conversion
-
-First, implement a utility function to convert ANSI color codes to HTML for proper display in Jupyter:
-
-```python
-def convert_ansi_to_html(ansi_text):
-    """Convert ANSI color codes to HTML for Jupyter notebook display."""
+def convert_ansi_to_html(ansi_text: str) -> str:
+    """Convert ANSI color codes to HTML for Jupyter notebook display.
+    
+    Args:
+        ansi_text: Text containing ANSI color codes
+        
+    Returns:
+        HTML formatted text with ANSI codes converted to CSS styles
+    """
     # ANSI color to CSS mapping
     ansi_to_css = {
         "\033[0m": "</span>",   # Reset
@@ -78,15 +75,10 @@ def convert_ansi_to_html(ansi_text):
         html_text += "</span>" * (open_spans - close_spans)
     
     # Wrap in a pre tag to preserve formatting
-    return f"<pre>{html_text}</pre>"
-```
+    return f"<pre style='white-space: pre-wrap;'>{html_text}</pre>"
 
-#### 3.2. Model Output Capture
 
-Implement a wrapper to capture the model output (which normally goes to stdout) for display in Jupyter:
-
-```python
-def capture_model_output(model, method, *args, **kwargs):
+def capture_model_output(model, method: str, *args, **kwargs) -> str:
     """Capture the output of a model method that prints to stdout.
     
     Args:
@@ -97,20 +89,12 @@ def capture_model_output(model, method, *args, **kwargs):
     Returns:
         str: The captured output
     """
-    import io
-    from contextlib import redirect_stdout
-    
     output_buffer = io.StringIO()
     with redirect_stdout(output_buffer):
         getattr(model, method)(*args, **kwargs)
     return output_buffer.getvalue()
-```
 
-#### 3.3. Model Visualization
 
-Implement graph-based visualization of models:
-
-```python
 def model_to_graph(model):
     """Convert a model to a NetworkX graph for visualization.
     
@@ -120,19 +104,46 @@ def model_to_graph(model):
     Returns:
         G: NetworkX DiGraph representing the model
     """
+    import networkx as nx
+    
     G = nx.DiGraph()
     
     # Add nodes (states)
     for state in model.z3_world_states:
-        state_str = model.semantics.bitvec_to_substates(state, model.N)
+        # Convert BitVec to string representation
+        if hasattr(model.semantics, 'bitvec_to_substates'):
+            state_str = model.semantics.bitvec_to_substates(state, model.N)
+        else:
+            # Fallback if the specific method isn't available
+            from model_checker.utils import bitvec_to_substates
+            state_str = bitvec_to_substates(state, model.N)
+            
         attrs = {"world": True}
         G.add_node(state_str, **attrs)
     
-    # If you have accessibility relations, add edges
-    # (This depends on your specific model structure)
-    # ...
+    # Add the main/evaluation world with special attribute
+    main_world = model.main_point["world"]
+    if hasattr(model.semantics, 'bitvec_to_substates'):
+        main_str = model.semantics.bitvec_to_substates(main_world, model.N)
+    else:
+        from model_checker.utils import bitvec_to_substates
+        main_str = bitvec_to_substates(main_world, model.N)
     
+    # Update the node or add it if it doesn't exist
+    if main_str in G.nodes:
+        G.nodes[main_str]['main'] = True
+    else:
+        G.add_node(main_str, world=True, main=True)
+    
+    # If we have potential accessibility relations in different theories 
+    # (specific to modal logics)
+    if hasattr(model, 'accessibility_relation'):
+        # This would need to be customized based on how accessibility is represented
+        # in each theory
+        pass
+        
     return G
+
 
 def visualize_model(model, figsize=(10, 6)):
     """Visualize a model as a graph.
@@ -144,19 +155,32 @@ def visualize_model(model, figsize=(10, 6)):
     Returns:
         fig: Matplotlib figure
     """
+    import matplotlib.pyplot as plt
+    import networkx as nx
+    
     G = model_to_graph(model)
     
     fig, ax = plt.subplots(figsize=figsize)
     pos = nx.spring_layout(G)
     
     # Draw nodes
-    world_nodes = [n for n, d in G.nodes(data=True) if d.get("world", False)]
-    other_nodes = [n for n in G.nodes() if n not in world_nodes]
+    world_nodes = [n for n, d in G.nodes(data=True) if d.get("world", False) and not d.get("main", False)]
+    main_node = [n for n, d in G.nodes(data=True) if d.get("main", False)]
+    other_nodes = [n for n in G.nodes() if n not in world_nodes and n not in main_node]
     
+    # Main evaluation world
+    if main_node:
+        nx.draw_networkx_nodes(G, pos, nodelist=main_node, 
+                              node_color="gold", node_size=700)
+    
+    # Regular world states
     nx.draw_networkx_nodes(G, pos, nodelist=world_nodes, 
                           node_color="lightblue", node_size=500)
-    nx.draw_networkx_nodes(G, pos, nodelist=other_nodes, 
-                          node_color="lightgray", node_size=300)
+    
+    # Other states
+    if other_nodes:
+        nx.draw_networkx_nodes(G, pos, nodelist=other_nodes, 
+                              node_color="lightgray", node_size=300)
     
     # Draw edges
     nx.draw_networkx_edges(G, pos, arrows=True)
@@ -168,13 +192,8 @@ def visualize_model(model, figsize=(10, 6)):
     plt.tight_layout()
     
     return fig
-```
 
-#### 3.4. Interactive Model Explorer Class
 
-The main class for the interactive model explorer:
-
-```python
 class InteractiveModelExplorer:
     """Interactive model explorer for Jupyter notebooks."""
     
@@ -184,8 +203,12 @@ class InteractiveModelExplorer:
         Args:
             theory_name: Name of the semantic theory to use
         """
-        from model_checker import get_theory
-        
+        if not HAVE_IPYWIDGETS:
+            raise ImportError(
+                "ipywidgets is required for InteractiveModelExplorer. "
+                "Install it with: pip install ipywidgets matplotlib networkx"
+            )
+            
         self.theory_name = theory_name
         self.theory = get_theory(theory_name)
         self.settings = {
@@ -193,7 +216,8 @@ class InteractiveModelExplorer:
             'max_time': 5,
             'contingent': True,
             'non_empty': True,
-            'print_constraints': False
+            'print_constraints': False,
+            'model': True  # Default to looking for a satisfying model
         }
         self.model = None
         self._build_ui()
@@ -348,8 +372,12 @@ class InteractiveModelExplorer:
     
     def _get_available_theories(self):
         """Get the list of available theories."""
-        from model_checker.theory_lib import get_semantic_theories
-        return list(get_semantic_theories().keys())
+        try:
+            theories = list(get_semantic_theories().keys())
+            return theories
+        except Exception as e:
+            print(f"Error getting available theories: {e}")
+            return [self.theory_name]
     
     def _update_setting(self, key, value):
         """Update a setting value."""
@@ -398,6 +426,8 @@ class InteractiveModelExplorer:
                 
             except Exception as e:
                 print(f"Error checking formula: {str(e)}")
+                import traceback
+                traceback.print_exc()
     
     def _on_next_model_click(self, button):
         """Handle next model button click."""
@@ -426,26 +456,35 @@ class InteractiveModelExplorer:
         view_type = self.viz_selector.value
         
         with self.output_area:
+            clear_output()
             if view_type == 'Text Output':
                 # Capture and display text output
-                output = capture_model_output(
-                    self.model.model_structure, 
-                    'print_all',
-                    self.model.example_settings,
-                    'interactive_check',
-                    self.theory_name
-                )
-                html_output = convert_ansi_to_html(output)
-                display(HTML(html_output))
+                try:
+                    output = capture_model_output(
+                        self.model.model_structure, 
+                        'print_all',
+                        self.model.example_settings,
+                        'interactive_check',
+                        self.theory_name
+                    )
+                    html_output = convert_ansi_to_html(output)
+                    display(HTML(html_output))
+                except Exception as e:
+                    print(f"Error displaying text output: {str(e)}")
+                    import traceback
+                    traceback.print_exc()
                 
                 # Show validity result
-                formula = self.formula_input.value
-                valid = self.model.check_result()
-                color = "green" if valid else "red"
-                display(HTML(
-                    f"<h3>Formula: {formula}</h3>"
-                    f"<p><b>Valid:</b> <span style='color:{color}'>{valid}</span></p>"
-                ))
+                try:
+                    formula = self.formula_input.value
+                    valid = self.model.check_result()
+                    color = "green" if valid else "red"
+                    display(HTML(
+                        f"<h3>Formula: {formula}</h3>"
+                        f"<p><b>Valid:</b> <span style='color:{color}'>{valid}</span></p>"
+                    ))
+                except Exception as e:
+                    print(f"Error displaying validity result: {str(e)}")
                 
             elif view_type == 'Graph Visualization':
                 # Display graph visualization
@@ -464,6 +503,8 @@ class InteractiveModelExplorer:
                     
                 except Exception as e:
                     print(f"Error creating visualization: {str(e)}")
+                    import traceback
+                    traceback.print_exc()
                     # Fall back to text display
                     self.viz_selector.value = 'Text Output'
     
@@ -480,33 +521,19 @@ class InteractiveModelExplorer:
         if self.model is None:
             return "<p>No model has been created yet.</p>"
             
-        output = capture_model_output(
-            self.model.model_structure, 
-            'print_all',
-            self.model.example_settings,
-            'interactive_check',
-            self.theory_name
-        )
-        return convert_ansi_to_html(output)
-```
+        try:
+            output = capture_model_output(
+                self.model.model_structure, 
+                'print_all',
+                self.model.example_settings,
+                'interactive_check',
+                self.theory_name
+            )
+            return convert_ansi_to_html(output)
+        except Exception as e:
+            return f"<p>Error getting output: {str(e)}</p>"
 
-### 4. Example Usage
 
-```python
-from model_checker.notebook import InteractiveModelExplorer
-
-# Create the explorer with default theory
-explorer = InteractiveModelExplorer()
-
-# Display the interactive UI
-explorer.display()
-```
-
-### 5. Integration with Existing Notebooks
-
-To make it easy to use with existing notebooks, add helper functions:
-
-```python
 def check_formula_interactive(formula, theory_name="default", premises=None):
     """Create an interactive model explorer for a specific formula.
     
@@ -528,85 +555,59 @@ def check_formula_interactive(formula, theory_name="default", premises=None):
     
     # Return the explorer for further interaction
     return explorer
-```
-
-### 6. Implementation Challenges and Solutions
-
-1. **Model Builder Integration**:
-   - Challenge: The BuildExample class expects a BuildModule object with certain attributes
-   - Solution: Create a minimal BuildModule-like object with the necessary attributes
-
-2. **ANSI Color Conversion**:
-   - Challenge: Terminal output uses ANSI colors that don't display in notebooks
-   - Solution: Implement a conversion function for ANSI codes to HTML
-
-3. **State Visualization**:
-   - Challenge: Creating a visual representation of the model structure
-   - Solution: Use NetworkX to create a graph representation of states and relations
-
-4. **Output Capture**:
-   - Challenge: Model methods print to stdout instead of returning values
-   - Solution: Use redirect_stdout to capture printed output
-
-5. **Asynchronous Model Checking**:
-   - Challenge: Long-running model checks can block the notebook UI
-   - Solution: Future improvement - use IPython's background tasks for non-blocking execution
-
-### 7. Future Enhancements
-
-1. **Advanced Visualization**: 
-   - Implement interactive graph visualization with zooming/panning
-   - Add node highlighting to visualize formula evaluation
-
-2. **Formula Builder**:
-   - Add a visual formula builder with logical operator buttons
-   - Provide syntax validation for user input
-
-3. **Result Export**:
-   - Add options to export models as LaTeX or JSON
-   - Enable saving visualizations as PNG/SVG
-
-4. **Theory Comparison**:
-   - Add side-by-side comparison of the same formula in different theories
-   - Highlight semantic differences between theories
-
-5. **Tutorial Integration**:
-   - Create example notebooks showcasing logical concepts
-   - Build interactive exercises with feedback
-
-### 8. Implementation Timeline
-
-1. **Phase 1 (Core Functionality)**:
-   - Implement ANSI to HTML conversion
-   - Create the InteractiveModelExplorer class with basic UI
-   - Add formula checking and results display
-
-2. **Phase 2 (Visualization)**:
-   - Implement model to graph conversion
-   - Add basic visualization using NetworkX/Matplotlib
-   - Create alternative model finding UI
-
-3. **Phase 3 (Advanced Features)**:
-   - Add theory comparison capabilities
-   - Implement export functionality
-   - Create example notebooks and documentation
-
-### 9. Testing
-
-Develop tests for the Jupyter integration:
-
-1. Test the ANSI to HTML conversion with various model outputs
-2. Verify model checking results match the CLI version
-3. Test with complex formulas across different theories
-4. Ensure compatibility with various Jupyter environments
-
-### 10. Documentation
-
-Create comprehensive documentation:
-
-1. Add docstrings to all functions and classes
-2. Create example notebooks showcasing the interactive explorer
-3. Add usage instructions to the main README.md
-4. Document integration with existing workflows
 
 
+def check_formula(formula, theory_name="default", premises=None, settings=None):
+    """Check a formula and return the result in a notebook-friendly way.
+    
+    This is a simpler alternative to the interactive explorer for quick checks.
+    
+    Args:
+        formula: The formula to check
+        theory_name: The semantic theory to use
+        premises: Optional list of premises 
+        settings: Optional dict of settings
+        
+    Returns:
+        HTML display of the result
+    """
+    from IPython.display import display, HTML
+    
+    theory = get_theory(theory_name)
+    premises = premises or []
+    _settings = {'N': 3, 'max_time': 5, 'model': True}
+    if settings:
+        _settings.update(settings)
+    
+    example = [premises, [formula], _settings]
+    
+    # Create a minimal BuildModule for the BuildExample
+    from model_checker.builder import BuildModule
+    build_module = type('BuildModule', (), {
+        'module': None,
+        'module_flags': type('Flags', (), {})
+    })
+    
+    # Build and check the model
+    model = BuildExample(build_module, theory, example)
+    
+    # Get the output
+    output = capture_model_output(
+        model.model_structure,
+        'print_all',
+        model.example_settings,
+        'formula_check',
+        theory_name
+    )
+    
+    # Format and display
+    valid = model.check_result()
+    color = "green" if valid else "red"
+    
+    html_result = HTML(
+        f"<h3>Formula: {formula}</h3>"
+        f"<p><b>Valid:</b> <span style='color:{color}'>{valid}</span></p>"
+        f"{convert_ansi_to_html(output)}"
+    )
+    
+    return html_result
