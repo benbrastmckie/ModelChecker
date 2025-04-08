@@ -18,8 +18,10 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
   - [.] iterate
   - [ ] minimize
 - [:] applications
-  - [:] _M_ Champollion
+  - [:] exclusion
+    - [ ] exclusion API
     - [ ] all_bits
+    - [ ] distinguish mandatory settings
     - [.] examples
     - [x] divide into modules
   - [x] Fine

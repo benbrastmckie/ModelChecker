@@ -400,7 +400,7 @@ class UnilateralProposition(model.PropositionDefaults):
 
         self.z3_model = model_structure.z3_model
         self.eval_world = model_structure.main_point["world"] if eval_world == 'main' else eval_world
-        self.all_worlds = model_structure.all_worlds
+        self.all_states = model_structure.all_states
         self.verifiers = self.find_proposition()
         self.precluders = self.find_precluders(self.verifiers)
 
@@ -430,9 +430,9 @@ class UnilateralProposition(model.PropositionDefaults):
     def find_precluders(self, py_verifier_set):
         z3_verifier_set = self.semantics.z3_set(py_verifier_set, self.N)
         precludes = self.semantics.precludes
-        all_worlds = self.semantics.all_worlds
+        all_states = self.semantics.all_states
         result = set()
-        for state in all_worlds:
+        for state in all_states:
             preclude_formula = precludes(state, z3_verifier_set)
             preclude_result = self.z3_model.evaluate(preclude_formula)
             # Check if the evaluated result is True
@@ -603,7 +603,7 @@ class UnilateralProposition(model.PropositionDefaults):
     def find_proposition(self):
         """takes self, returns the V, F tuple
         used in find_verifiers"""
-        all_worlds = self.model_structure.all_worlds
+        all_states = self.model_structure.all_states
         model = self.model_structure.z3_model
         semantics = self.semantics
         eval_world = self.eval_world
@@ -612,7 +612,7 @@ class UnilateralProposition(model.PropositionDefaults):
         sentence_letter = self.sentence_letter
         if sentence_letter is not None:
             V = {
-                bit for bit in all_worlds
+                bit for bit in all_states
                 if model.evaluate(semantics.verify(bit, sentence_letter))
             }
             return V
@@ -770,13 +770,13 @@ class ExclusionStructure(model.ModelDefaults):
                             continue
 
         # print()
-        # for bit_x in self.all_worlds:
-        #     for bit_y in self.all_worlds:
+        # for bit_x in self.all_states:
+        #     for bit_y in self.all_states:
         #         if self.z3_model.evaluate(self.semantics.conflicts(bit_x, bit_y)):
         #             print(f"CONFLICT: {bitvec_to_substates(bit_x, self.N)} conflicts with {bitvec_to_substates(bit_y, self.N)}")
-        #             for bit_u in self.all_worlds:
+        #             for bit_u in self.all_states:
         #                 if self.z3_model.evaluate(self.semantics.is_part_of(bit_u, bit_x)):
-        #                     for bit_v in self.all_worlds:
+        #                     for bit_v in self.all_states:
         #                         if self.z3_model.evaluate(self.semantics.is_part_of(bit_v, bit_y)):
         #                             if self.z3_model.evaluate(self.semantics.excludes(bit_u, bit_v)):
         #                                 print(f"EXCLUDERS: {bitvec_to_substates(bit_u, self.N)} excludes {bitvec_to_substates(bit_v, self.N)}\n")

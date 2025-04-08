@@ -219,14 +219,14 @@ class UniIdentityOperator(syntactic.Operator):
 
     def extended_verify(self, state, leftarg, rightarg, eval_point):
         return z3.And(
-            state == self.semantics.null_bit,
+            state == self.semantics.null_state,
             self.true_at(leftarg, rightarg, eval_point)
         )
 
     def find_verifiers(self, left_sent_obj, right_sent_obj, eval_point):
         Y_V = left_sent_obj.proposition.find_proposition()
         Z_V = right_sent_obj.proposition.find_proposition()
-        return {self.semantics.null_bit} if Y_V == Z_V else set()
+        return {self.semantics.null_state} if Y_V == Z_V else set()
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation
