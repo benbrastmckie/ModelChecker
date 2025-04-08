@@ -1,18 +1,12 @@
 { pkgs ? import <nixpkgs> {} }:
 
 pkgs.mkShell {
+  # Include required packages including setuptools for pkg_resources
   buildInputs = with pkgs; [
     python3
     python3Packages.z3
-    python3Packages.pytest
-    python3Packages.jupyter
-    python3Packages.notebook
-    python3Packages.ipywidgets
-    python3Packages.matplotlib
-    python3Packages.networkx
+    python3Packages.setuptools  # Provides pkg_resources
     python3Packages.pip
-    python3Packages.setuptools
-    python3Packages.wheel
   ];
   
   shellHook = ''
@@ -20,15 +14,18 @@ pkgs.mkShell {
     export PYTHONPATH="$PWD:$PWD/src:$PYTHONPATH"
     export PATH="$PWD:$PATH"
     
-    # Make dev_cli.py executable
+    # Make scripts executable
     chmod +x $PWD/dev_cli.py
-    
-    # Create symlink for notebook import
-    mkdir -p $HOME/.local/lib/python3.*/site-packages/model_checker
-    ln -sf $PWD/src/model_checker/* $HOME/.local/lib/python3.*/site-packages/model_checker/ 2>/dev/null
+    chmod +x $PWD/run_jupyter_demo.py
+    chmod +x $PWD/simple_jupyter_test.py
     
     echo "ModelChecker development environment activated"
-    echo "Run './dev_cli.py example.py' to use local source code"
-    echo "Run 'jupyter notebook' to start Jupyter with model_checker available"
+    echo ""
+    echo "To test the model-checker without Jupyter, run:"
+    echo "  ./simple_jupyter_test.py"
+    echo ""
+    echo "If you want to run the interactive notebook, make sure you have"
+    echo "all required dependencies and run:"
+    echo "  jupyter notebook --no-browser src/model_checker/theory_lib/jupyter/jupyter_demo.ipynb"
   '';
 }
