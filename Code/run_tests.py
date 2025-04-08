@@ -12,9 +12,9 @@ import subprocess
 
 def get_registered_theories():
     """Get the list of registered theories from theory_lib."""
-    code_dir = os.path.join(os.path.dirname(__file__), 'Code')
+    # We're now in the Code directory, so we can just use src directly
     env = os.environ.copy()
-    env['PYTHONPATH'] = os.path.join(code_dir, 'src')
+    env['PYTHONPATH'] = os.path.join(os.path.dirname(__file__), 'src')
     
     # Get the list of theories from AVAILABLE_THEORIES
     result = subprocess.run(
@@ -22,7 +22,7 @@ def get_registered_theories():
         capture_output=True,
         text=True,
         env=env,
-        cwd=code_dir
+        cwd=os.path.dirname(__file__)
     )
     
     if result.returncode != 0:
@@ -34,7 +34,8 @@ def get_registered_theories():
 
 def run_tests(theories=None, verbose=False):
     """Run tests for the specified theories."""
-    code_dir = os.path.join(os.path.dirname(__file__), 'Code')
+    # We're now in the Code directory
+    code_dir = os.path.dirname(__file__)
     
     # If no theories specified, get all registered ones
     if not theories:
@@ -48,6 +49,7 @@ def run_tests(theories=None, verbose=False):
     print("=" * 80)
     
     failed_theories = []
+    
     for theory in theories:
         test_dir = os.path.join("src", "model_checker", "theory_lib", theory)
         
@@ -57,26 +59,30 @@ def run_tests(theories=None, verbose=False):
             print(f"Directory not found for theory: {theory}")
             continue
         
-        # Construct command for running the test
-        command = ["pytest", test_dir]
-        if verbose:
-            command.append("-v")
+        # Check specifically for the test subdirectory
+        test_subdir = os.path.join(full_test_dir, "test")
+        if os.path.exists(test_subdir):
+            # If there's a test subdirectory, target that specifically
+            test_dir = os.path.join(test_dir, "test")
+        
+        env = os.environ.copy()
+        env['PYTHONPATH'] = os.path.join(code_dir, 'src')
         
         print(f"\nTesting theory: {theory}")
         print("-" * 50)
         
-        # Run the test
-        env = os.environ.copy()
-        env['PYTHONPATH'] = os.path.join(code_dir, 'src')
-        
         try:
-            result = subprocess.run(
-                command,
-                cwd=code_dir,
-                env=env
-            )
+            # Construct command for running the test
+            run_command = ["pytest", test_dir]
+            if verbose:
+                run_command.append("-v")
+            
+            # Run the tests
+            result = subprocess.run(run_command, cwd=code_dir, env=env)
+            
             if result.returncode != 0:
                 failed_theories.append(theory)
+            
         except Exception as e:
             print(f"Error running tests for {theory}: {str(e)}")
             failed_theories.append(theory)
@@ -87,6 +93,12 @@ def run_tests(theories=None, verbose=False):
     for theory in theories:
         status = "FAILED" if theory in failed_theories else "PASSED"
         print(f"  {theory}: {status}")
+    
+    # Print overall success/failure message
+    if failed_theories:
+        print(f"\nFAILED: {len(failed_theories)} theories had test failures")
+    else:
+        print("\nSUCCESS: All tests passed!")
     
     return 1 if failed_theories else 0
 

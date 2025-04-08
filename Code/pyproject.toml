@@ -21,6 +21,7 @@ keywords = ["semantics", "Z3", "logic", "counterfactuals", "modality", "model ch
 dependencies = [
     "z3-solver",
 ]
+requires-python = ">=3.8"
 
 [project.urls]
 Homepage = "https://github.com/benbrastmckie/ModelChecker"
@@ -28,3 +29,21 @@ Issues = "https://github.com/benbrastmckie/ModelChecker/issues"
 
 [project.scripts]
 model-checker = "model_checker.__main__:run"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+testpaths = ["src/model_checker/theory_lib"]
+python_files = "test_*.py"
+python_classes = "Test*"
+addopts = "--durations=0 -v --import-mode=importlib"
+markers = [
+    "countermodel: Tests that verify a countermodel exists",
+    "theorem: Tests that verify a formula is a theorem",
+    "performance: Tests that verify performance characteristics",
+]
