@@ -71,14 +71,14 @@ from z3 import (
     simplify,
 )
 
-# Try local imports first (for development)
+# Try installed package imports first
 try:
-    from src.model_checker.utils import (
+    from model_checker.utils import (
         not_implemented_string,
     )
 except ImportError:
-    # Fall back to installed package imports
-    from model_checker.utils import (
+    # Fall back to local imports for development
+    from src.model_checker.utils import (
         not_implemented_string,
     )
 

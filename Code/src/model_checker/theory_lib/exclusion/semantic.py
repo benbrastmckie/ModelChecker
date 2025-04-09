@@ -7,17 +7,7 @@ import sys
 import time
 
 
-try: # Try local imports first (for development)
-    from src.model_checker.utils import (
-        ForAll,
-        Exists,
-        bitvec_to_substates,
-        pretty_set_print,
-        int_to_binary,
-    )
-    from src.model_checker import model
-    from src.model_checker import syntactic
-except ImportError:
+try: # Try installed package imports first
     from model_checker.utils import (
         ForAll,
         Exists,
@@ -27,6 +17,17 @@ except ImportError:
     )
     from model_checker import model
     from model_checker import syntactic
+except ImportError:
+    # Fall back to local imports for development
+    from src.model_checker.utils import (
+        ForAll,
+        Exists,
+        bitvec_to_substates,
+        pretty_set_print,
+        int_to_binary,
+    )
+    from src.model_checker import model
+    from src.model_checker import syntactic
 
 class ExclusionSemantics(model.SemanticDefaults):
 

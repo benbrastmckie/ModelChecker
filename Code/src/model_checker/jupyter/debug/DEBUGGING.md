@@ -166,7 +166,7 @@ def test_imports():
         ("model_checker", "Main package"),
         ("model_checker.jupyter", "Jupyter integration"),
         ("model_checker.jupyter.environment", "Environment module"),
-        ("model_checker.jupyter.operators", "Operator handling"),
+        ("model_checker.jupyter.unicode_operators", "Operator handling"),
         ("model_checker.jupyter.display", "Visualization"),
         ("model_checker.jupyter.interactive", "Interactive UI"),
         ("model_checker.jupyter.adapters", "Theory adapters"),
@@ -247,7 +247,7 @@ def test_environment_module():
 def test_operators_module():
     print("\nTesting operators module...")
     try:
-        from model_checker.jupyter.operators import unicode_to_latex, latex_to_unicode
+        from model_checker.jupyter.unicode_operators import unicode_to_latex, latex_to_unicode
         
         # Test Unicode conversion
         unicode_formula = "p → q ∧ □r"
@@ -685,7 +685,7 @@ def run_debug_tests():
         ("check_formula", "from model_checker import check_formula"),
         ("ModelExplorer", "from model_checker import ModelExplorer"),
         ("setup_environment", "from model_checker.jupyter.environment import setup_environment"),
-        ("unicode_to_latex", "from model_checker.jupyter.operators import unicode_to_latex")
+        ("unicode_to_latex", "from model_checker.jupyter.unicode_operators import unicode_to_latex")
     ]
     
     for func_name, import_stmt in functions:

@@ -1,13 +1,14 @@
 import z3
 
 
-# Try local imports first (for development)
+# Try installed package imports first
 try:
-    from src.model_checker import syntactic
-    from src.model_checker.utils import pretty_set_print
-except ImportError:
     from model_checker import syntactic
     from model_checker.utils import pretty_set_print
+except ImportError:
+    # Fall back to local imports for development
+    from src.model_checker import syntactic
+    from src.model_checker.utils import pretty_set_print
 
 ##############################################################################
 ############################ EXTENSIONAL OPERATORS ###########################

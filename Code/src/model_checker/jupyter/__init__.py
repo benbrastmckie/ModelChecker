@@ -21,7 +21,7 @@ from .display import (
     display_formula_check, 
     display_countermodel
 )
-from .operators import unicode_to_latex, latex_to_unicode
+from .unicode_operators import unicode_to_latex, latex_to_unicode
 from .environment import setup_environment, get_available_theories
 from .utils import load_examples
 

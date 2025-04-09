@@ -8,17 +8,17 @@ import sys
 import subprocess
 import argparse
 
-# Try local imports first (for development)
+# Try installed package imports first
 try:
-    from src.model_checker import __version__
-    from src.model_checker.builder import (
+    from model_checker import __version__
+    from model_checker.builder import (
         BuildProject,
         BuildModule,
     )
 except ImportError:
-    # Fall back to installed package imports
-    from model_checker import __version__
-    from model_checker.builder import (
+    # Fall back to local imports for development
+    from src.model_checker import __version__
+    from src.model_checker.builder import (
         BuildProject,
         BuildModule,
     )
