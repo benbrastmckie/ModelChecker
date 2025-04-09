@@ -52,20 +52,20 @@ Dependencies:
 
 import z3
 
-# Try local imports first (for development)
+# Try installed package imports first
 try:
-    from src.model_checker.utils import (
-        ForAll,
-        Exists,
-    )
-    from src.model_checker import syntactic
-except ImportError:
-    # Fall back to installed package imports
     from model_checker.utils import (
         ForAll,
         Exists,
     )
     from model_checker import syntactic
+except ImportError:
+    # Fall back to local imports for development
+    from src.model_checker.utils import (
+        ForAll,
+        Exists,
+    )
+    from src.model_checker import syntactic
 
 
 

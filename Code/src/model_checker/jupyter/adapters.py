@@ -148,7 +148,7 @@ class DefaultTheoryAdapter(TheoryAdapter):
         Returns:
             str: Formatted formula string
         """
-        from .operators import normalize_formula
+        from .unicode_operators import normalize_formula
         from .utils import sanitize_formula
         
         # Convert and sanitize for HTML display
@@ -226,7 +226,7 @@ class ExclusionTheoryAdapter(TheoryAdapter):
         Returns:
             str: Formatted formula string
         """
-        from .operators import normalize_formula
+        from .unicode_operators import normalize_formula
         from .utils import sanitize_formula
         
         # Convert and sanitize for HTML display, using exclusion operators
@@ -298,7 +298,7 @@ class ImpositionTheoryAdapter(TheoryAdapter):
         Returns:
             str: Formatted formula string
         """
-        from .operators import normalize_formula
+        from .unicode_operators import normalize_formula
         from .utils import sanitize_formula
         
         # Convert and sanitize for HTML display
@@ -345,7 +345,7 @@ class BimodalTheoryAdapter(TheoryAdapter):
         Returns:
             str: Formatted formula string
         """
-        from .operators import normalize_formula
+        from .unicode_operators import normalize_formula
         from .utils import sanitize_formula
         
         # Convert and sanitize for HTML display

@@ -216,7 +216,7 @@ The integration supports both LaTeX and Unicode notations for operators for bett
 
 ```python
 from model_checker import check_formula
-from model_checker.jupyter.operators import unicode_to_latex, latex_to_unicode
+from model_checker.jupyter.unicode_operators import unicode_to_latex, latex_to_unicode
 
 # Using Unicode operators for better readability in notebooks
 check_formula("□p → p")  # Modal necessity

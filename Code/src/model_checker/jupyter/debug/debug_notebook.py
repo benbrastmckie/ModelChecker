@@ -80,7 +80,7 @@ def test_unicode_operators():
     """Test Unicode operator handling."""
     print("\nTesting Unicode operator handling...")
     try:
-        from model_checker.jupyter.operators import unicode_to_latex, latex_to_unicode
+        from model_checker.jupyter.unicode_operators import unicode_to_latex, latex_to_unicode
         
         # Test conversion
         unicode_formula = "p → (q ∧ ¬r) ∨ □s"

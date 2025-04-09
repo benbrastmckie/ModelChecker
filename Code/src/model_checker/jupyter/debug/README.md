@@ -44,7 +44,7 @@ These tools are designed to help you identify and fix issues with the ModelCheck
 
 For more detailed debugging information, see:
 
-- `/src/model_checker/jupyter/DEBUGGING.md`: Comprehensive debugging workflow
+- `/src/model_checker/jupyter/debug/DEBUGGING.md`: Comprehensive debugging workflow
 - `/src/model_checker/jupyter/TROUBLESHOOTING.md`: Common issues and solutions
 - `/src/model_checker/jupyter/NixOS_jupyter.md`: NixOS-specific guidance
 

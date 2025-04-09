@@ -94,16 +94,16 @@ from semantic import (
 from operators import exclusion_operators
 
 # Default + Utils
-try: # Try local imports first (for development)
-    from src.model_checker.theory_lib.default import (
+try: # Try installed package imports first
+    from model_checker.theory_lib.default import (
         Semantics,
         Proposition,
         ModelStructure,
         default_operators,
     )
 except ImportError:
-    # Fall back to installed package imports
-    from model_checker.theory_lib.default import (
+    # Fall back to local imports for development
+    from src.model_checker.theory_lib.default import (
         Semantics,
         Proposition,
         ModelStructure,

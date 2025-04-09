@@ -73,7 +73,7 @@ def check_jupyter_integration():
     # Check components within jupyter
     components = [
         "model_checker.jupyter.environment",
-        "model_checker.jupyter.operators",
+        "model_checker.jupyter.unicode_operators",
         "model_checker.jupyter.utils",
         "model_checker.jupyter.adapters",
         "model_checker.jupyter.display",
