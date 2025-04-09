@@ -39,7 +39,9 @@ __all__ = [
     "BuildModule", "BuildExample", "main",
     "ModelConstraints",
     "Syntax",
-    "InteractiveModelExplorer", "check_formula",    # jupyter.py
+    # jupyter components
+    "check_formula", "find_countermodel", "explore_formula",
+    "ModelExplorer", "FormulaChecker",
 ]
 
 # Import model as a whole
@@ -78,8 +80,11 @@ from .__main__ import (
 # Import jupyter components
 try:
     from .jupyter import (
-        InteractiveModelExplorer,
         check_formula,
+        find_countermodel,
+        explore_formula,
+        ModelExplorer,
+        FormulaChecker,
     )
 except ImportError:
     # Missing dependencies for jupyter functionality
