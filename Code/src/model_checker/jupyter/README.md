@@ -384,8 +384,8 @@ The Jupyter integration is designed to be extensible, particularly for supportin
 1. **Theory Adapters**  
    Add new adapters in `adapters.py` for custom theory visualizations.
 
-2. **Operator Mappings**  
-   Extend operator mappings in `operators.py` for theory-specific operators.
+2. **Unicode Operator Mappings**  
+   Extend Unicode operator mappings in `unicode_operators.py` for theory-specific operators.
 
 3. **UI Customization**  
    The UI components in `interactive.py` can be extended for custom interfaces.
@@ -399,7 +399,7 @@ The architecture follows a modular design with clean separation of concerns:
 - `display.py`: Visualization utilities
 - `environment.py`: Environment setup
 - `interactive.py`: UI components
-- `operators.py`: Operator handling
+- `unicode_operators.py`: Unicode operator handling and LaTeX conversions
 - `utils.py`: Shared utilities
 
 For further development guidance, see the implementation strategy in `notes/jupyter.md`.
