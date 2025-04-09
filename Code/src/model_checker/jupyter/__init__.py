@@ -14,26 +14,52 @@ Interactive usage:
     explorer.display()
 """
 
-# Public API - import statements will be updated as modules are implemented
-from .interactive import ModelExplorer #, FormulaChecker
-# from .display import (
-#     display_model, 
-#     display_formula_check, 
-#     display_countermodel
-# )
-# from .unicode import unicode_to_latex, latex_to_unicode
-# from .environment import setup_environment, get_available_theories
-# from .utils import load_examples
+# Define the public API
+__all__ = [
+    # High-level functions
+    "check_formula",
+    "find_countermodel",
+    "explore_formula",
+    
+    # UI Components
+    "ModelExplorer",
+    "FormulaChecker",
+    
+    # Display Functions
+    "display_model",
+    "display_formula_check",
+    "display_countermodel",
+    
+    # Utilities
+    "unicode_to_latex",
+    "latex_to_unicode",
+    "setup_environment",
+    "get_available_theories",
+    "load_examples",
+]
+
+# Public API - UI Components
+from .interactive import ModelExplorer, FormulaChecker
+
+# Public API - Display Functions
+from .display import (
+    display_model, 
+    display_formula_check, 
+    display_countermodel
+)
+
+# Public API - Utilities
+from .unicode import unicode_to_latex, latex_to_unicode
+from .environment import setup_environment, get_available_theories
+from .utils import load_examples
 
 # Simplified API functions
 def check_formula(formula, theory_name="default", premises=None, settings=None):
     """Check if a formula is valid given premises."""
-    from .display import display_formula_check
     return display_formula_check(formula, theory_name, premises, settings)
 
 def find_countermodel(formula, theory_name="default", premises=None, settings=None):
     """Find a countermodel for a formula with optional premises."""
-    from .display import display_countermodel
     return display_countermodel(formula, theory_name, premises, settings)
 
 def explore_formula(formula, theory_name="default", premises=None, settings=None):
