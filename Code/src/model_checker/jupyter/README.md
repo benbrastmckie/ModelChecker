@@ -6,23 +6,27 @@ This package provides a robust integration between the ModelChecker framework an
 
 1. [Overview](#overview)
 2. [Installation](#installation)
-3. [Basic Usage](#basic-usage)
+3. [Syntax Guidelines](#syntax-guidelines)
+   - [Well-Formed Formulas](#well-formed-formulas)
+   - [Operator Notation](#operator-notation)
+   - [Escaping Characters](#escaping-characters)
+4. [Basic Usage](#basic-usage)
    - [Simple Formula Checking](#simple-formula-checking)
    - [Working with Premises](#working-with-premises)
    - [Finding Countermodels](#finding-countermodels)
    - [Interactive Explorer](#interactive-explorer)
-4. [Advanced Features](#advanced-features)
+5. [Advanced Features](#advanced-features)
    - [Working with Different Theories](#working-with-different-theories)
    - [Custom Settings](#custom-settings)
    - [Unicode Operator Support](#unicode-operator-support)
    - [Loading Example Libraries](#loading-example-libraries)
    - [Visualization Options](#visualization-options)
-5. [Component Reference](#component-reference)
+6. [Component Reference](#component-reference)
    - [High-Level Functions](#high-level-functions)
    - [UI Components](#ui-components)
    - [Utility Functions](#utility-functions)
-6. [Troubleshooting](#troubleshooting)
-7. [Developer Notes](#developer-notes)
+7. [Troubleshooting](#troubleshooting)
+8. [Developer Notes](#developer-notes)
 
 ## Overview
 
@@ -54,6 +58,65 @@ python -m pip install -e .
 ```
 
 For more information using Jupyter notebooks in NixOS, see [NixOS User Guide](NixOS_jupyter.md).
+
+## Syntax Guidelines
+
+When writing logical formulas in the ModelChecker, it's important to follow specific syntax rules to ensure proper parsing and evaluation.
+
+### Well-Formed Formulas
+
+A well-formed formula in the ModelChecker must be one of the following:
+
+1. **Atomic Sentence**: 
+   - A single letter or continuous string of alphanumeric characters (e.g., `p`, `q`, `prop1`)
+   - Examples: `A`, `p`, `sentence1`
+
+2. **Unary Operation**:
+   - A unary operator followed by a formula
+   - Format: `\\unary_operator formula`
+   - Examples: `\\neg p`, `\\Box q`, `\\Diamond (p \\wedge q)`
+
+3. **Binary Operation**:
+   - Two formulas connected by a binary operator and wrapped in parentheses
+   - Format: `(formula1 \\binary_operator formula2)`
+   - Examples: `(p \\wedge q)`, `(p \\vee (q \\rightarrow r))`
+   - **Note**: Outer parentheses are mandatory for binary operations
+
+### Operator Notation
+
+All operators must be prefixed with double backslashes (`\\`) to escape them properly. The most common operators include:
+
+| Operator     | Notation      | Description     |
+|--------------|---------------|-----------------|
+| Negation     | `\\neg`       | Not             |
+| Conjunction  | `\\wedge`     | And             |
+| Disjunction  | `\\vee`       | Or              |
+| Implication  | `\\rightarrow`| If-then         |
+| Equivalence  | `\\leftrightarrow`| If and only if |
+| Necessity    | `\\Box`       | Modal necessity |
+| Possibility  | `\\Diamond`   | Modal possibility|
+| Tautology    | `\\top`       | Always true     |
+| Contradiction| `\\bot`       | Always false    |
+
+### Escaping Characters
+
+The requirement for double backslashes is due to how Python handles escape characters in strings. This is a common source of confusion when writing logical formulas.
+
+**Problem**: In a Python string, a single backslash (`\`) is an escape character. For example, `\n` is interpreted as a newline, not the literal characters `\` and `n`.
+
+**Solution**: To represent an actual backslash in a Python string, you need to escape it with another backslash. Therefore, to get a single `\` in the output, you need to write `\\` in your string.
+
+**Examples**:
+- To represent `\wedge` in a Python string, you must write `\\wedge`
+- Incorrect: `"p \wedge q"` (Python will try to interpret `\w` as an escape sequence)
+- Correct: `"p \\wedge q"` (Python will interpret this as `p \wedge q`)
+
+**Alternative Approaches**:
+1. **Raw strings**: Using Python raw strings with `r"..."` notation: `r"\wedge"`. However, for consistency and clarity, we recommend using double backslashes throughout the codebase.
+
+2. **Unicode symbols**: For better readability, the ModelChecker supports Unicode symbols as alternatives to LaTeX notation (see [Unicode Operator Support](#unicode-operator-support)).
+
+**Convention**: Throughout the ModelChecker, we consistently use double backslashes in operator notation to ensure clarity and prevent escaping issues.
 
 ## Basic Usage
 
@@ -149,13 +212,13 @@ check_formula("p ∨ q ∨ r ∨ s", settings=settings)
 
 ### Unicode Operator Support
 
-The integration supports both LaTeX and Unicode notations for operators:
+The integration supports both LaTeX and Unicode notations for operators for better readability in notebooks. However, it's important to understand that **Unicode characters are automatically converted to LaTeX notation** internally before being passed to the model checker.
 
 ```python
 from model_checker import check_formula
 from model_checker.jupyter.operators import unicode_to_latex, latex_to_unicode
 
-# Using Unicode operators
+# Using Unicode operators for better readability in notebooks
 check_formula("□p → p")  # Modal necessity
 check_formula("p ∧ q")   # Conjunction
 check_formula("p ∨ q")   # Disjunction
@@ -163,9 +226,45 @@ check_formula("¬p")      # Negation
 check_formula("p → q")   # Implication
 
 # Convert between notations
-latex = unicode_to_latex("p → (q ∧ ¬r)")
-unicode = latex_to_unicode("\\Box p \\rightarrow p")
+latex = unicode_to_latex("p → (q ∧ ¬r)")  # Converts to "p \\rightarrow (q \\wedge \\neg r)"
+unicode = latex_to_unicode("\\Box p \\rightarrow p")  # Converts to "□p → p"
 ```
+
+#### Unicode to LaTeX Conversion
+
+The system automatically normalizes formulas, converting Unicode operators to their LaTeX counterparts with double backslashes. This is necessary because the internal model checker only understands LaTeX notation.
+
+| Unicode | LaTeX Equivalent | Description |
+|---------|------------------|-------------|
+| →       | `\\rightarrow`   | Implication |
+| ∧       | `\\wedge`        | Conjunction |
+| ∨       | `\\vee`          | Disjunction |
+| ¬       | `\\neg`          | Negation    |
+| □       | `\\Box`          | Necessity   |
+| ◇       | `\\Diamond`      | Possibility |
+| ↔       | `\\leftrightarrow`| Equivalence |
+| ≡       | `\\equiv`        | Equivalence |
+| ⊥       | `\\bot`          | False       |
+| ⊤       | `\\top`          | True        |
+
+#### Theory-Specific Unicode Operators
+
+Some theories like the exclusion theory have specialized operators with Unicode representations:
+
+| Unicode | LaTeX Equivalent | Description |
+|---------|------------------|-------------|
+| ⦻       | `\\exclude`      | Exclusion   |
+| ⊓       | `\\uniwedge`     | Unilateral conjunction |
+| ⊔       | `\\univee`       | Unilateral disjunction |
+| ≔       | `\\uniequiv`     | Unilateral equivalence |
+
+#### Important Notes on Unicode Usage
+
+1. **Internal Conversion**: All Unicode operators are automatically converted to LaTeX notation before processing.
+2. **Display Only**: Unicode is primarily for display and readability in notebooks.
+3. **Formula Normalization**: When setting formulas in the ModelExplorer or FormulaChecker, the system calls `normalize_formula()` which handles conversion.
+4. **Custom Operators**: If you define custom operators, they must have LaTeX notation with double backslashes and optionally Unicode equivalents.
+5. **Error Prevention**: Using Unicode ensures proper escaping, avoiding common errors with backslash escaping in strings.
 
 ### Loading Example Libraries
 
