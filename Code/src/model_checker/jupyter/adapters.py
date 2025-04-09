@@ -5,9 +5,9 @@ These adapters provide a consistent interface for working with different
 semantic theories in the notebook environment.
 """
 
-import importlib
+# import importlib
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Any #, Dict, List, Optional, Union, Tuple
 
 # Import as needed to avoid circular imports
 # import networkx as nx
@@ -27,7 +27,7 @@ class TheoryAdapter(ABC):
         self.theory_name = theory_name
     
     @abstractmethod
-    def model_to_graph(self, model: Any) -> 'nx.DiGraph':
+    def model_to_graph(self, model: Any) -> 'nx.DiGraph': # type: ignore
         """
         Convert a model to a networkx graph for visualization.
         
@@ -91,7 +91,7 @@ class TheoryAdapter(ABC):
 class DefaultTheoryAdapter(TheoryAdapter):
     """Adapter for the default hyperintensional theory."""
     
-    def model_to_graph(self, model: Any) -> 'nx.DiGraph':
+    def model_to_graph(self, model: Any) -> 'nx.DiGraph': # type: ignore
         """
         Convert default model to graph.
         
@@ -194,7 +194,7 @@ class DefaultTheoryAdapter(TheoryAdapter):
 class ExclusionTheoryAdapter(TheoryAdapter):
     """Adapter for exclusion theory."""
     
-    def model_to_graph(self, model: Any) -> 'nx.DiGraph':
+    def model_to_graph(self, model: Any) -> 'nx.DiGraph': # type: ignore
         """
         Convert exclusion model to graph.
         
@@ -275,7 +275,7 @@ class ExclusionTheoryAdapter(TheoryAdapter):
 class ImpositionTheoryAdapter(TheoryAdapter):
     """Adapter for imposition theory."""
     
-    def model_to_graph(self, model: Any) -> 'nx.DiGraph':
+    def model_to_graph(self, model: Any) -> 'nx.DiGraph': # type: ignore
         """
         Convert imposition model to graph.
         
@@ -322,7 +322,7 @@ class ImpositionTheoryAdapter(TheoryAdapter):
 class BimodalTheoryAdapter(TheoryAdapter):
     """Adapter for bimodal theory."""
     
-    def model_to_graph(self, model: Any) -> 'nx.DiGraph':
+    def model_to_graph(self, model: Any) -> 'nx.DiGraph': # type: ignore
         """
         Convert bimodal model to graph.
         
