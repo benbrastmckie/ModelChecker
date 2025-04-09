@@ -216,7 +216,7 @@ The integration supports both LaTeX and Unicode notations for operators for bett
 
 ```python
 from model_checker import check_formula
-from model_checker.jupyter.unicode_operators import unicode_to_latex, latex_to_unicode
+from model_checker.jupyter.unicode import unicode_to_latex, latex_to_unicode
 
 # Using Unicode operators for better readability in notebooks
 check_formula("□p → p")  # Modal necessity
@@ -385,7 +385,7 @@ The Jupyter integration is designed to be extensible, particularly for supportin
    Add new adapters in `adapters.py` for custom theory visualizations.
 
 2. **Unicode Operator Mappings**  
-   Extend Unicode operator mappings in `unicode_operators.py` for theory-specific operators.
+   Extend Unicode operator mappings in `unicode.py` for theory-specific operators.
 
 3. **UI Customization**  
    The UI components in `interactive.py` can be extended for custom interfaces.
@@ -399,7 +399,7 @@ The architecture follows a modular design with clean separation of concerns:
 - `display.py`: Visualization utilities
 - `environment.py`: Environment setup
 - `interactive.py`: UI components
-- `unicode_operators.py`: Unicode operator handling and LaTeX conversions
+- `unicode.py`: Unicode operator handling and LaTeX conversions
 - `utils.py`: Shared utilities
 
 For further development guidance, see the implementation strategy in `notes/jupyter.md`.

@@ -15,15 +15,15 @@ Interactive usage:
 """
 
 # Public API - import statements will be updated as modules are implemented
-from .interactive import ModelExplorer, FormulaChecker
-from .display import (
-    display_model, 
-    display_formula_check, 
-    display_countermodel
-)
-from .unicode_operators import unicode_to_latex, latex_to_unicode
-from .environment import setup_environment, get_available_theories
-from .utils import load_examples
+from .interactive import ModelExplorer #, FormulaChecker
+# from .display import (
+#     display_model, 
+#     display_formula_check, 
+#     display_countermodel
+# )
+# from .unicode import unicode_to_latex, latex_to_unicode
+# from .environment import setup_environment, get_available_theories
+# from .utils import load_examples
 
 # Simplified API functions
 def check_formula(formula, theory_name="default", premises=None, settings=None):

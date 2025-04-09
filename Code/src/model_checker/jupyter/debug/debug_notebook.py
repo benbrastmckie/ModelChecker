@@ -76,11 +76,11 @@ def test_environment_setup():
         traceback.print_exc()
         return False
 
-def test_unicode_operators():
+def test_unicode():
     """Test Unicode operator handling."""
     print("\nTesting Unicode operator handling...")
     try:
-        from model_checker.jupyter.unicode_operators import unicode_to_latex, latex_to_unicode
+        from model_checker.jupyter.unicode import unicode_to_latex, latex_to_unicode
         
         # Test conversion
         unicode_formula = "p → (q ∧ ¬r) ∨ □s"
@@ -129,7 +129,7 @@ def main():
         test_basic_imports,
         test_environment_setup,
         test_formula_checking,
-        test_unicode_operators,
+        test_unicode,
         test_theory_examples
     ]
     
