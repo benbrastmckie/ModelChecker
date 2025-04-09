@@ -32,6 +32,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] create jupyter subpackage
       - [x] update documentation
       - [x] test jupyter notebooks
+      - [.] cleanup linter errors
   - [x] all_bits bug
   - [x] divide into modules
 - improve version management
