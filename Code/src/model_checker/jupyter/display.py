@@ -207,7 +207,7 @@ def _create_graph_visualization(model: Any, adapter: Any) -> 'plt.Figure':
 def display_formula_check(formula: str, 
                           theory_name: str = "default", 
                           premises: Optional[List[str]] = None, 
-                          settings: Optional[Dict[str, Any]] = None) -> 'HTML':
+                          settings: Optional[Dict[str, Any]] = None) -> 'HTML': # type: ignore
     """
     Display formula checking results.
     
@@ -306,7 +306,7 @@ def display_formula_check(formula: str,
 def display_countermodel(formula: str, 
                          theory_name: str = "default", 
                          premises: Optional[List[str]] = None, 
-                         settings: Optional[Dict[str, Any]] = None) -> 'HTML':
+                         settings: Optional[Dict[str, Any]] = None) -> 'HTML': # type: ignore
     """
     Display a countermodel for a formula if one exists.
     
