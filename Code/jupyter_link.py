@@ -207,14 +207,16 @@ def launch_jupyter():
 def main():
     parser = argparse.ArgumentParser(description="Set up ModelChecker for Jupyter notebooks")
     parser.add_argument("--launch", action="store_true", help="Launch Jupyter notebook after setup")
+    parser.add_argument("--example", action="store_true", help="Create an example notebook")
     args = parser.parse_args()
     
     # Create symlinks
     if create_symlink():
         print("\nSetup complete! ModelChecker is now available in Jupyter notebooks.")
         
-        # Create example notebook
-        example_path = create_jupyter_example()
+        # Create example notebook only if explicitly requested
+        if args.example:
+            example_path = create_jupyter_example()
         
         print("\nQuick Start:")
         print("1. Run 'jupyter notebook' to start the Jupyter server")

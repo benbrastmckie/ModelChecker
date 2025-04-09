@@ -104,12 +104,12 @@ def latex_to_unicode(formula: str) -> str:
     Convert LaTeX notation to Unicode operators.
     
     Args:
-        formula: Formula string with LaTeX commands
+        formula: Formula string with LaTeX commands (with either single or double backslashes)
         
     Returns:
         str: Formula with LaTeX commands converted to Unicode
     """
-    # LaTeX to Unicode mappings (reverse of unicode_to_latex)
+    # LaTeX to Unicode mappings (single backslash version)
     replacements = {
         '\\rightarrow': '→',
         '\\wedge': '∧',
@@ -128,12 +128,16 @@ def latex_to_unicode(formula: str) -> str:
         '\\uniequiv': '≔'
     }
     
-    # Replace LaTeX commands with their Unicode equivalents
+    # First handle double backslash version (\\rightarrow, etc.)
+    double_backslash_replacements = {f"\\{key}": value for key, value in replacements.items()}
+    
+    # Replace double backslash LaTeX commands first
+    for latex_op, unicode_op in double_backslash_replacements.items():
+        formula = formula.replace(latex_op, unicode_op)
+    
+    # Then replace single backslash commands (for any that weren't caught by the double replacement)
     for latex_op, unicode_op in replacements.items():
-        # Need to handle both \\rightarrow and \rightarrow
-        # since strings might be formatted differently
-        formula = formula.replace(f"{latex_op}", unicode_op)
-        formula = formula.replace(f"\\{latex_op}", unicode_op)
+        formula = formula.replace(latex_op, unicode_op)
     
     return formula
 
@@ -162,6 +166,41 @@ def ensure_parentheses(formula: str) -> str:
         return f"({formula})"
     
     return formula
+
+
+def test_unicode_latex_conversion():
+    """
+    Test the conversion between Unicode and LaTeX notation.
+    
+    This function tests both directions of conversion:
+    1. Unicode to LaTeX: Ensures proper double backslashes
+    2. LaTeX to Unicode: Ensures proper handling of both single and double backslashes
+    
+    Returns:
+        bool: True if all tests pass, raises AssertionError otherwise
+    """
+    # Test unicode to latex
+    unicode_formula = "p → (q ∧ ¬r) ∨ □s"
+    expected_latex = "p \\rightarrow (q \\wedge \\neg r) \\vee \\Box s"
+    actual_latex = unicode_to_latex(unicode_formula)
+    assert expected_latex in actual_latex, f"Unicode to LaTeX conversion failed.\nExpected: {expected_latex}\nGot: {actual_latex}"
+    
+    # Test latex to unicode with double backslashes
+    double_backslash_formula = "(p \\\\rightarrow (q \\\\wedge \\\\neg r) \\\\vee \\\\Box s)"
+    expected_unicode = "(p → (q ∧ ¬r) ∨ □s)"
+    actual_unicode = latex_to_unicode(double_backslash_formula)
+    assert actual_unicode == expected_unicode, f"Double backslash LaTeX to Unicode conversion failed.\nExpected: {expected_unicode}\nGot: {actual_unicode}"
+    
+    # Test latex to unicode with single backslashes
+    single_backslash_formula = "(p \\rightarrow (q \\wedge \\neg r) \\vee \\Box s)"
+    actual_unicode = latex_to_unicode(single_backslash_formula)
+    assert actual_unicode == expected_unicode, f"Single backslash LaTeX to Unicode conversion failed.\nExpected: {expected_unicode}\nGot: {actual_unicode}"
+    
+    # Test round trip conversion
+    round_trip = latex_to_unicode(unicode_to_latex(unicode_formula))
+    assert round_trip == unicode_formula, f"Round trip conversion failed.\nExpected: {unicode_formula}\nGot: {round_trip}"
+    
+    return True
 
 
 def get_theory_operators(theory_name: str) -> Dict[str, Dict[str, str]]:

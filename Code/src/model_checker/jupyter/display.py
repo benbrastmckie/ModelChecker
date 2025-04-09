@@ -77,7 +77,11 @@ def display_model(model: Any, visualization_type: str = "text", show_details: bo
     Display a model with text or graph visualization.
     
     Args:
-        model: ModelStructure object or BuildExample object
+        model: Model object to display. Can be:
+             - BuildExample instance
+             - ModelStructure instance 
+             - An object with model_structure attribute
+             - A custom wrapper with model_structure and example_settings attributes
         visualization_type: Type of visualization ('text' or 'graph')
         show_details: Whether to show detailed model information
         
@@ -86,19 +90,30 @@ def display_model(model: Any, visualization_type: str = "text", show_details: bo
     """
     from IPython.display import display, HTML
     from .adapters import TheoryAdapter
+    import inspect
     
-    # Handle the case where model is a BuildExample rather than ModelStructure
+    if model is None:
+        return HTML("<p>No model available</p>")
+    
+    # Extract model_structure and example_settings based on the type of model
     if hasattr(model, 'model_structure'):
+        # Case 1: Model has a model_structure attribute (like BuildExample or wrapper)
         model_structure = model.model_structure
         example_settings = getattr(model, 'example_settings', {})
         theory_name = getattr(model, 'theory_name', "default")
-    else:
+    elif hasattr(model, 'print_all') and inspect.ismethod(model.print_all):
+        # Case 2: Model is a ModelStructure itself
         model_structure = model
-        example_settings = {}
+        # Try to get settings from the model structure
+        example_settings = getattr(model, 'settings', {})
         theory_name = "default"
+    else:
+        # Unknown model type
+        return HTML(f"<p>Unsupported model type: {type(model).__name__}. "
+                   "Expected BuildExample, ModelStructure, or an object with model_structure attribute.</p>")
     
-    if not model:
-        return HTML("<p>No model available</p>")
+    if not model_structure:
+        return HTML("<p>No model structure available</p>")
     
     # Get the appropriate adapter
     adapter = TheoryAdapter.get_adapter(theory_name)
