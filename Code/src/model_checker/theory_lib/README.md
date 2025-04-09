@@ -89,7 +89,7 @@ Each theory directory contains:
 - `operators.py`: Operator definitions and semantics
 - `examples.py`: Test cases and examples
 - `test/`: Unit tests for the theory (when available)
-- `notebooks/`: Jupyter notebook demonstrations (when available)
+- `notebooks/`: Jupyter notebook demonstrations and examples (when available)
 
 ## Using Theories
 
@@ -246,7 +246,31 @@ class CustomSemantics(SemanticDefaults):
         return constraints
 ```
 
-### Visualization Support
+### Jupyter Notebook Integration
+
+Each theory can include Jupyter notebooks for interactive exploration, documentation, and demonstration. These notebooks serve several important purposes:
+
+1. **Theory Documentation**: Explain your theory's semantics with interactive examples
+2. **Feature Demonstrations**: Show your theory's operators and key principles in action
+3. **Research Exploration**: Provide tools for researchers to experiment with the theory
+4. **Teaching Resources**: Create educational materials for students and newcomers
+5. **Countermodel Demonstrations**: Show specific examples of interesting countermodels
+
+Notebooks should be placed in a `notebooks/` directory within your theory package, for example:
+```
+theory_lib/
+└── my_theory/
+    ├── __init__.py
+    ├── semantic.py
+    ├── operators.py
+    ├── examples.py
+    └── notebooks/
+        ├── introduction.ipynb   # Basic introduction to the theory
+        ├── operators.ipynb      # Examples of operator behavior
+        └── countermodels.ipynb  # Interesting countermodel examples
+```
+
+#### Theory-Specific Visualizations
 
 Theories can provide custom visualization methods for Jupyter notebook integration:
 
@@ -258,6 +282,10 @@ class CustomModelStructure(ModelDefaults):
         # Implement theory-specific visualization
         return plt.gcf()
 ```
+
+These visualization methods will be automatically used by the Jupyter integration when displaying models.
+
+For comprehensive information about Jupyter notebook integration, including implementation details, APIs, and usage examples, see the [Jupyter Integration Documentation](../jupyter/README.md).
 
 ## Best Practices
 
@@ -277,7 +305,7 @@ When contributing a new theory:
 1. Ensure your theory follows the standard architecture
 2. Include comprehensive documentation
 3. Provide test cases that demonstrate key features
-4. Add Jupyter notebook examples when possible
+4. Add Jupyter notebook examples in a `notebooks/` directory
 5. Submit a pull request with a description of your theory
 
 ## API Reference

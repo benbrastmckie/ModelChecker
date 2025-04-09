@@ -14,10 +14,9 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] refactor API for jupyter
     - [x] install jupyter and dependencies
     - [x] revise API documentation
-    - [ ] debug jupyter notebooks
-      - [ ] `exclusion_demo.ipynb`
-      - [ ] `jupyter_demo.ipynb` 
-    - [ ] update documentation
+    - [.] create jupyter subpackage
+      - [:] update documentation
+      - [ ] test jupyter notebooks
   - [x] all_bits bug
   - [x] divide into modules
 - [ ] debug readme issue

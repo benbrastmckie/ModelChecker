@@ -34,9 +34,12 @@ The ModelChecker framework follows a modular architecture designed to separate c
    - Command-line interface and entry points
    - Argument parsing and dispatch
 
-6. **Jupyter Module** (`jupyter.py`)
-   - `InteractiveModelExplorer`: Interactive UI for Jupyter notebooks
-   - `check_formula()`: Quick formula checking for notebooks
+6. **Jupyter Package** (`jupyter/`)
+   - Interactive exploration of logical models in notebooks
+   - Formula checking, countermodel finding, and visualization 
+   - Support for Unicode and LaTeX notation
+   - Theory-specific adapters for consistent interfaces
+   - See [Jupyter Integration Documentation](jupyter/README.md) for details
 
 ### Theory Library
 
@@ -224,3 +227,47 @@ AVAILABLE_THEORIES = [
 ```
 
 Once registered, your theory will be automatically discovered by the development scripts, tests will be run during CI/CD processes, and users will be able to access it with the `-l` flag.
+
+## Jupyter Notebook Integration
+
+The ModelChecker framework includes comprehensive Jupyter notebook integration, allowing interactive exploration of logical models and theories in a user-friendly environment.
+
+### Overview
+
+Jupyter notebooks provide an ideal environment for working with logical theories by combining:
+- Interactive formula checking and evaluation
+- Visual representation of models and countermodels
+- Rich documentation with explanatory text and examples
+- Experimental workflow for theory development and comparison
+
+The `jupyter` package in ModelChecker offers both high-level functions for quick tasks and interactive components for deeper exploration:
+
+```python
+# Basic formula checking
+from model_checker import check_formula
+check_formula("p → (q → p)")
+
+# Interactive exploration
+from model_checker import ModelExplorer
+explorer = ModelExplorer()
+explorer.display()
+```
+
+### Key Features
+
+- **Formula Checking**: Verify validity of formulas with optional premises
+- **Countermodel Finding**: Search for models that falsify a formula
+- **Interactive UI**: Customizable widgets for theory exploration
+- **Visualization**: Both text and graph-based visualization options
+- **Unicode Support**: Work directly with logical symbols (→, ∧, ∨, □, ◇, etc.)
+- **Theory-Specific Extensions**: Adapters for different semantic theories
+- **Example Libraries**: Access to pre-defined examples from theories
+
+### Use Cases
+
+1. **Theory Development**: Experiment with semantic theories interactively
+2. **Teaching**: Create interactive demonstrations of logical concepts
+3. **Research**: Explore relationships between different logical systems
+4. **Documentation**: Create rich, interactive documentation for theories
+
+For detailed information about the Jupyter integration, including installation, usage examples, and customization options, see the [Jupyter Integration Documentation](jupyter/README.md).
