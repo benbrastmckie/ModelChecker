@@ -4,21 +4,6 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Plan
 
-- exclusion semantics
-  - [ ] documentation
-  - [.] add more examples
-  - [.] integrate jupyter notebooks
-    - [x] create documentation
-    - [x] import problem in `theory_lib/__init__.py`
-    - [x] fix cli issue
-    - [x] refactor API for jupyter
-    - [x] install jupyter and dependencies
-    - [x] revise API documentation
-    - [.] create jupyter subpackage
-      - [:] update documentation
-      - [ ] test jupyter notebooks
-  - [x] all_bits bug
-  - [x] divide into modules
 - [ ] debug readme issue
 - [ ] bimodal semantics
   - [ ] semantics
@@ -34,6 +19,21 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
   - [.] iterate
     - refactor threading
   - [ ] minimize
+- exclusion semantics
+  - [ ] documentation
+  - [.] add more examples
+  - [x] integrate jupyter notebooks
+    - [x] create documentation
+    - [x] import problem in `theory_lib/__init__.py`
+    - [x] fix cli issue
+    - [x] refactor API for jupyter
+    - [x] install jupyter and dependencies
+    - [x] revise API documentation
+    - [x] create jupyter subpackage
+      - [x] update documentation
+      - [x] test jupyter notebooks
+  - [x] all_bits bug
+  - [x] divide into modules
 - improve version management
 - add unit tests throughout
 - refactor API in a deeper way

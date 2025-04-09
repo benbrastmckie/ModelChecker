@@ -454,7 +454,7 @@ class ModelExplorer:
         Args:
             formula: Formula string
         """
-        from .unicode_operators import normalize_formula
+        from .unicode import normalize_formula
         self.formula_input.value = normalize_formula(formula)
     
     def set_premises(self, premises: Union[List[str], str]):
@@ -464,7 +464,7 @@ class ModelExplorer:
         Args:
             premises: List of premise strings or a single string
         """
-        from .unicode_operators import normalize_formula
+        from .unicode import normalize_formula
         
         if isinstance(premises, list):
             self.premises_input.value = "\n".join(
@@ -623,7 +623,7 @@ class FormulaChecker:
         Args:
             formula: Formula string
         """
-        from .unicode_operators import normalize_formula
+        from .unicode import normalize_formula
         self.formula_input.value = normalize_formula(formula)
     
     def set_premises(self, premises: Union[List[str], str]):
@@ -633,7 +633,7 @@ class FormulaChecker:
         Args:
             premises: List of premise strings or a single string
         """
-        from .unicode_operators import normalize_formula
+        from .unicode import normalize_formula
         
         if isinstance(premises, list):
             self.premises_input.value = "\n".join(

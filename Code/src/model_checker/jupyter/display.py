@@ -221,7 +221,7 @@ def display_formula_check(formula: str,
         IPython.display.HTML: HTML display of the result
     """
     from IPython.display import HTML
-    from .unicode_operators import normalize_formula
+    from .unicode import normalize_formula
     
     try:
         from model_checker import BuildExample, get_theory
