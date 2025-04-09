@@ -150,7 +150,7 @@ def display_model(model: Any, visualization_type: str = "text", show_details: bo
         return HTML(f"<p>Unsupported visualization type: {visualization_type}</p>")
 
 
-def _create_graph_visualization(model: Any, adapter: Any) -> 'plt.Figure':
+def _create_graph_visualization(model: Any, adapter: Any) -> 'plt.Figure': # type: ignore
     """
     Create a graph visualization of a model.
     
