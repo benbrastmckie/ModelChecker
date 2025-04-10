@@ -222,8 +222,23 @@ def index_to_substate(index):
 #     raise ValueError("should have run into 'b' at the end but didn't")
 
 
+# TODO: refactor creating a worlds-specific function
 def bitvec_to_substates(bit_vec, N):
     '''converts bitvectors to fusions of atomic states.'''
+    # Safety check for non-BitVec objects
+    if not hasattr(bit_vec, 'sexpr'):
+        # Handle the case where we don't have a proper BitVec
+        if hasattr(bit_vec, '__int__'):
+            # If it can be converted to int, use that
+            return bitvec_to_substates(BitVecVal(int(bit_vec), N), N)
+        else:
+            # Check if it's a Z3 QuantifierRef or other Z3 object
+            if hasattr(bit_vec, 'ast') or hasattr(bit_vec, 'ctx'):
+                # It's a Z3 object but not a BitVec - return a placeholder
+                return f"<z3-obj>"
+            # Fall back to a safe representation
+            return f"<unknown-{str(bit_vec)}>"
+    
     bit_vec_as_string = bit_vec.sexpr()
     
     # Handle different formats of bit vector representation
@@ -263,6 +278,51 @@ def bitvec_to_substates(bit_vec, N):
             
     # Remove trailing dot if present
     return state_repr[:-1] if state_repr else "□"
+
+
+def bitvec_to_worldstate(bit_vec, N=None):
+    """Converts a bitvector to a simple alphabetic world state label.
+    
+    Maps bitvector values to letters: 0→a, 1→b, 2→c, ..., 25→z, 26→aa, 27→bb, etc.
+    
+    Args:
+        bit_vec: Z3 bitvector or integer value
+        N: number of bits (optional, only used for error handling)
+        
+    Returns:
+        A string representation of the world state using letters
+    """
+    try:
+        # Get integer value from bitvector
+        if hasattr(bit_vec, 'as_long'):
+            value = bit_vec.as_long()
+        elif hasattr(bit_vec, 'sexpr'):
+            # Handle different formats of bit vector representation
+            bit_vec_as_string = bit_vec.sexpr()
+            if 'x' in bit_vec_as_string:  # hexadecimal format
+                value = int(bit_vec_as_string[2:], 16)
+            elif bit_vec_as_string.startswith('#b'):  # binary format
+                value = int(bit_vec_as_string[2:], 2)
+            else:  # decimal format
+                value = int(bit_vec_as_string)
+        elif isinstance(bit_vec, int):
+            value = bit_vec
+        else:
+            return f"<unknown-{bit_vec}>"
+            
+        # Convert integer to letter representation
+        if value < 26:
+            # Single letter for values 0-25 (a-z)
+            return chr(97 + value)  # ASCII 'a' starts at 97
+        else:
+            # Double letters for values >= 26 (aa, bb, etc.)
+            letter_idx = value % 26
+            repeat = value // 26 + 1
+            letter = chr(97 + letter_idx)
+            return letter * repeat
+            
+    except (AttributeError, ValueError):
+        return f"<unknown-{bit_vec}>"
 
 
 ### Z3 HELPERS ###

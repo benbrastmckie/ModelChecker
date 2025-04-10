@@ -47,12 +47,15 @@ class NegationOperator(syntactic.Operator):
             argument: The argument to negate
             eval_world: The world ID for evaluation context
             eval_time: The time for evaluation context
+            
+        Returns:
+            dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
+                 where the true and false times are swapped from the argument's extension
         """
-        argument_truth_condition = argument.proposition.extension
         new_truth_condition = {}
-        for world_array, temporal_profile in argument_truth_condition.items():
+        for world_id, temporal_profile in argument.proposition.extension.items():
             true_times, false_times = temporal_profile
-            new_truth_condition[world_array] = (false_times, true_times)
+            new_truth_condition[world_id] = (false_times, true_times)
         return new_truth_condition
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
@@ -104,18 +107,28 @@ class AndOperator(syntactic.Operator):
             rightarg: The right argument of the conjunction
             eval_world: The world ID for evaluation context
             eval_time: The time for evaluation context
+            
+        Returns:
+            dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
+                 where true_times are the intersection of both arguments' true times,
+                 and false_times are the union of both arguments' false times
         """
         leftarg_truth_condition = leftarg.proposition.extension
         rightarg_truth_condition = rightarg.proposition.extension
         new_truth_condition = {}
-        for world_array, temporal_profile in leftarg_truth_condition.items():
+        
+        for world_id, temporal_profile in leftarg_truth_condition.items():
             left_true_times, left_false_times = temporal_profile
-            right_true_times, right_false_times = rightarg_truth_condition[world_array]
+            right_true_times, right_false_times = rightarg_truth_condition[world_id]
+            
             # Find intersection while preserving order from left_true_times
             new_true_times = [t for t in left_true_times if t in right_true_times]
+            
             # Find union while preserving order and removing duplicates
             new_false_times = sorted(set(left_false_times) | set(right_false_times))
-            new_truth_condition[world_array] = (new_true_times, new_false_times)
+            
+            new_truth_condition[world_id] = (new_true_times, new_false_times)
+            
         return new_truth_condition
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
@@ -167,18 +180,28 @@ class OrOperator(syntactic.Operator):
             rightarg: The right argument of the disjunction
             eval_world: The world ID for evaluation context
             eval_time: The time for evaluation context
+            
+        Returns:
+            dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
+                 where true_times are the union of both arguments' true times,
+                 and false_times are the intersection of both arguments' false times
         """
         leftarg_truth_condition = leftarg.proposition.extension
         rightarg_truth_condition = rightarg.proposition.extension
         new_truth_condition = {}
-        for world_array, temporal_profile in leftarg_truth_condition.items():
+        
+        for world_id, temporal_profile in leftarg_truth_condition.items():
             left_true_times, left_false_times = temporal_profile
-            right_true_times, right_false_times = rightarg_truth_condition[world_array]
+            right_true_times, right_false_times = rightarg_truth_condition[world_id]
+            
             # Find union of true times
             new_true_times = sorted(set(left_true_times) | set(right_true_times))
+            
             # Find intersection of false times
             new_false_times = [t for t in left_false_times if t in right_false_times]
-            new_truth_condition[world_array] = (new_true_times, new_false_times)
+            
+            new_truth_condition[world_id] = (new_true_times, new_false_times)
+            
         return new_truth_condition
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
@@ -212,7 +235,16 @@ class TopOperator(syntactic.Operator):
         return world_state != world_state
 
     def find_truth_condition(self, eval_world, eval_time):
-        """Returns (all bits, empty set)."""
+        """Returns the extension where all times are true at all worlds.
+        
+        Args:
+            eval_world: The world ID for evaluation context
+            eval_time: The time for evaluation context
+            
+        Returns:
+            dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
+                 where for each world, all times are true and no times are false
+        """
         return self.semantics.all_true
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
@@ -241,7 +273,16 @@ class BotOperator(syntactic.Operator):
         return world_state == world_state
 
     def find_truth_condition(self, eval_world, eval_time):
-        """Returns (empty set, all bits)."""
+        """Returns the extension where all times are false at all worlds.
+        
+        Args:
+            eval_world: The world ID for evaluation context
+            eval_time: The time for evaluation context
+            
+        Returns:
+            dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
+                 where for each world, no times are true and all times are false
+        """
         return self.semantics.all_false
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
@@ -260,50 +301,75 @@ class NecessityOperator(syntactic.Operator):
 
     def true_at(self, argument, eval_world, eval_time):
         """Returns true if argument is true in all possible worlds at eval_time.
-        It is important that no restrictions are placed on accessibility between worlds."""
+        
+        This implementation uses direct quantification over world histories,
+        checking that the argument is true in all valid worlds at the evaluation time.
+        No accessibility relation is used (S5 modal logic).
+        """
         semantics = self.semantics
+        
+        # Directly quantify over world histories using world_ids
         world_id = z3.Int('nec_true_world_id')
         return z3.ForAll(
             world_id,
             z3.Implies(
-                # If world_id is used in the world_function
-                semantics.world_exists(world_id, eval_time),
-                # Then world_id makes the argument true
+                # Only consider valid world histories
+                semantics.is_world(world_id),
+                # The argument must be true in that world at eval_time
                 semantics.true_at(argument, world_id, eval_time)
             )
         )
 
     def false_at(self, argument, eval_world, eval_time):
         """Returns true if argument is false in at least one possible world at eval_time.
-        It is important that no restrictions are placed on accessibility between worlds."""
+        
+        This implementation uses direct quantification over world histories,
+        checking that the argument is false in at least one valid world at the evaluation time.
+        No accessibility relation is used (S5 modal logic).
+        """
         semantics = self.semantics
+        
+        # Directly quantify over world histories using world_ids
         world_id = z3.Int('nec_false_world_id')
         return z3.Exists(
             world_id,
             z3.And(
-                # The world_id is used in the world_function
-                semantics.world_exists(world_id, eval_time),
-                # And world_id makes the argument false
+                # This must be a valid world history
+                semantics.is_world(world_id),
+                # The argument must be false in this world at eval_time
                 semantics.false_at(argument, world_id, eval_time)
             )
         )
 
     def find_truth_condition(self, argument, eval_world, eval_time):
-        """Gets truth-condition for: 'It is necessary that: argument'."""
-        model_structure = argument.proposition.model_structure
-        argument_extension = argument.proposition.extension
-        for world_array, temporal_profile in argument_extension.items():
+        """Gets truth-condition for: 'It is necessary that: argument'.
+        
+        Args:
+            argument: The argument to apply necessity to
+            eval_world: The world ID for evaluation context
+            eval_time: The time for evaluation context
+            
+        Returns:
+            dict: A dictionary mapping world_ids to (true_times, false_times) pairs.
+                 If argument is true at eval_time in all possible worlds, returns all true;
+                 otherwise, returns all false.
+        """
+        for world_id, temporal_profile in argument.proposition.extension.items():
             true_times, false_times = temporal_profile
             if eval_time in false_times:
-                # If eval_time is in false_times, mark all times as false for all worlds
                 return self.semantics.all_false
         return self.semantics.all_true
 
     def print_method(self, argument, eval_point, indent_num, use_colors):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
+        """Print the modal operator and its argument across all possible worlds.
         """
-        all_worlds = argument.proposition.model_structure.all_worlds.values()
+        # Get the model structure and all world IDs
+        model_structure = argument.proposition.model_structure
+        
+        # Get all worlds (IDs) for evaluation
+        all_worlds = list(model_structure.world_arrays.keys())
+        
+        # Pass the worlds to print_over_worlds
         self.print_over_worlds(argument, eval_point, all_worlds, indent_num, use_colors)
    
 
@@ -317,13 +383,7 @@ class FutureOperator(syntactic.Operator):
     arity = 1
 
     def true_at(self, argument, eval_world, eval_time):
-        """Returns true if argument is true at all future times in this world's interval.
-        
-        Args:
-            argument: The argument to apply the future operator to
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
-        """
+        """Returns true if argument is true at all future times in this world's interval."""
         semantics = self.semantics
         time = z3.Int('future_true_time')
         return z3.ForAll(
@@ -367,32 +427,59 @@ class FutureOperator(syntactic.Operator):
             argument: The argument to apply the future operator to
             eval_world: The world ID for evaluation context
             eval_time: The time for evaluation context
+            
+        Returns:
+            dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
+                 where a time is true if all future times make the argument true.
+                 
+        Raises:
+            KeyError: If world_time_intervals information is missing for a required world_id.
+                      This follows the fail-fast philosophy to make errors explicit.
         """
         model_structure = argument.proposition.model_structure
+        semantics = model_structure.semantics
         argument_extension = argument.proposition.extension
         new_truth_condition = {}
-        for world_array, temporal_profile in argument_extension.items():
+        
+        for world_id, temporal_profile in argument_extension.items():
             true_times, false_times = temporal_profile
-            if not false_times:  # If false_times is empty
-                new_truth_condition[world_array] = (model_structure.all_times, [])
-            else:
-                # Get a copy to avoid modifying the original
-                false_times_copy = list(false_times)
-                final_false_time = max(false_times_copy) if false_times_copy else -1
-                new_true_times = []
-                new_false_times = []
-                for time in model_structure.all_times:
-                    if time > final_false_time:
-                        new_true_times.append(time)
-                    else:
-                        new_false_times.append(time)
-                new_truth_condition[world_array] = (new_true_times, new_false_times)
+            
+            # Start with empty lists for future times
+            new_true_times = []
+            new_false_times = []
+            
+            # Get the valid times for this world's interval - fail fast if missing
+            if world_id not in semantics.world_time_intervals:
+                raise KeyError(f"No time interval found for world_id {world_id}. Cannot evaluate Future operator.")
+                
+            start_time, end_time = semantics.world_time_intervals[world_id]
+            world_times = list(range(start_time, end_time + 1))
+            
+            # Calculate which times make Future true/false
+            for time_point in world_times:
+                # Check if there are any world_times strictly after this time_point
+                future_times = [t for t in world_times if t > time_point]
+                
+                # If there are no future times in this world's interval, the Future operator is vacuously true
+                if not future_times:
+                    new_true_times.append(time_point)
+                    continue
+                    
+                # Find all false times that are after this time point
+                future_false_times = [t for t in false_times if t > time_point and t in world_times]
+                
+                # If there are no false times in the future, this time point makes \Future true
+                if len(future_false_times) == 0:
+                    new_true_times.append(time_point)
+                else:
+                    new_false_times.append(time_point)
+            
+            # Store the results for this world_id
+            new_truth_condition[world_id] = (new_true_times, new_false_times)
         return new_truth_condition
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
-        """
+        """Print temporal operator evaluation across different time points."""
         all_times = sentence_obj.proposition.model_structure.all_times
         self.print_over_times(sentence_obj, eval_point, all_times, indent_num, use_colors)
 
@@ -452,23 +539,54 @@ class PastOperator(syntactic.Operator):
             argument: The argument to apply the past operator to
             eval_world: The world ID for evaluation context
             eval_time: The time for evaluation context
+            
+        Returns:
+            dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
+                 where a time is true if all past times make the argument true.
+                 
+        Raises:
+            KeyError: If world_time_intervals information is missing for a required world_id.
+                     This follows the fail-fast philosophy to make errors explicit.
         """
         model_structure = argument.proposition.model_structure
+        semantics = model_structure.semantics
         argument_extension = argument.proposition.extension
         new_truth_condition = {}
-        for world_array, temporal_profile in argument_extension.items():
+        
+        for world_id, temporal_profile in argument_extension.items():
             true_times, false_times = temporal_profile
-            # Get a copy to avoid modifying the original
-            false_times_copy = list(false_times)
-            first_false_time = min(false_times_copy) if false_times_copy else float('inf')
             new_true_times = []
             new_false_times = []
-            for time in model_structure.all_times:
-                if time < first_false_time:
-                    new_true_times.append(time)
+            
+            # Get the valid times for this world's interval - fail fast if missing
+            if world_id not in semantics.world_time_intervals:
+                raise KeyError(f"No time interval found for world_id {world_id}. Cannot evaluate Past operator.")
+                
+            start_time, end_time = semantics.world_time_intervals[world_id]
+            world_times = list(range(start_time, end_time + 1))
+            
+            # For any time point, \Past is true if there are no false times before it
+            for time_point in world_times:
+                # Check if there are any world_times strictly before this time_point
+                past_times = [t for t in world_times if t < time_point]
+                
+                # If there are no past times in this world's interval, the Past operator is vacuously true
+                if not past_times:
+                    new_true_times.append(time_point)
+                    continue
+                    
+                # Find all false times that are before this time point
+                # Only consider times within this world's interval
+                past_false_times = [t for t in false_times if t < time_point and t in world_times]
+                
+                # If there are no false times in the past, this time point makes \Past true
+                if len(past_false_times) == 0:
+                    new_true_times.append(time_point)
                 else:
-                    new_false_times.append(time)
-            new_truth_condition[world_array] = (new_true_times, new_false_times)
+                    new_false_times.append(time_point)
+                    
+            new_truth_condition[world_id] = (new_true_times, new_false_times)
+                
         return new_truth_condition
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
@@ -522,19 +640,113 @@ class BiconditionalOperator(syntactic.DefinedOperator):
 ####################### DEFINED INTENSIONAL OPERATORS ########################
 ##############################################################################
 
-class DefPossibilityOperator(syntactic.DefinedOperator):
+class PossibilityOperator(syntactic.Operator):
+    """Possibility operator (Diamond) for modal logic.
+    
+    This operator evaluates to true if there exists at least one possible world
+    where the argument is true. It uses direct quantification over world histories.
+    """
+    name = "\\possible"
+    arity = 1
+    
+    def true_at(self, argument, eval_world, eval_time):
+        """Returns true if argument is true in at least one possible world at eval_time.
+        
+        This implementation uses direct quantification over world histories,
+        checking that the argument is true in at least one valid world at the evaluation time.
+        No accessibility relation is used (S5 modal logic).
+        """
+        semantics = self.semantics
+        
+        # Directly quantify over world histories using world_ids
+        world_id = z3.Int('diamond_true_world_id')
+        return z3.Exists(
+            world_id,
+            z3.And(
+                # This must be a valid world history
+                semantics.is_world(world_id),
+                # The argument must be true in this world at eval_time
+                semantics.true_at(argument, world_id, eval_time)
+            )
+        )
+    
+    def false_at(self, argument, eval_world, eval_time):
+        """Returns true if argument is false in all possible worlds at eval_time.
+        
+        This implementation uses direct quantification over world histories,
+        checking that the argument is false in all valid worlds at the evaluation time.
+        No accessibility relation is used (S5 modal logic).
+        """
+        semantics = self.semantics
+        
+        # Directly quantify over world histories using world_ids
+        world_id = z3.Int('diamond_false_world_id')
+        return z3.ForAll(
+            world_id,
+            z3.Implies(
+                # Only consider valid world histories
+                semantics.is_world(world_id),
+                # The argument must be false in that world at eval_time
+                semantics.false_at(argument, world_id, eval_time)
+            )
+        )
+    
+    def find_truth_condition(self, argument, eval_world, eval_time):
+        """Gets truth-condition for: 'It is possible that: argument'.
+        
+        Args:
+            argument: The argument to apply possibility to
+            eval_world: The world ID for evaluation context
+            eval_time: The time for evaluation context
+            
+        Returns:
+            dict: A dictionary mapping world_ids to (true_times, false_times) pairs.
+                 If argument is true at eval_time in at least one possible world, returns all true;
+                 otherwise, returns all false.
+        """
+        # Invert the truth condition of Box(Not(argument))
+        for world_id, temporal_profile in argument.proposition.extension.items():
+            true_times, false_times = temporal_profile
+            if eval_time in true_times:
+                return self.semantics.all_true
+        return self.semantics.all_false
+    
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Print the possibility operator and its argument across all possible worlds.
+        """
+        # Get the model structure and all world IDs
+        model_structure = sentence_obj.proposition.model_structure
+        
+        # Get all worlds (IDs) for evaluation
+        all_worlds = list(model_structure.world_arrays.keys())
+        
+        # Pass the worlds to print_over_worlds
+        self.print_over_worlds(sentence_obj, eval_point, all_worlds, indent_num, use_colors)
 
+# Keep the defined version for backward compatibility
+class DefPossibilityOperator(syntactic.DefinedOperator):
+    """Possibility operator (Diamond) defined in terms of negation and necessity.
+    
+    This is a legacy implementation that defines Diamond as Not(Box(Not(argument))).
+    New code should use the direct PossibilityOperator implementation.
+    """
     name = "\\Diamond"
     arity = 1
 
     def derived_definition(self, argument):  # type: ignore
+        """Define possibility in terms of negation and necessity."""
         return [NegationOperator, [NecessityOperator, [NegationOperator, argument]]]
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Print counterfactual and the antecedent in the eval_world. Then
-        print the consequent in each alternative to the evaluation world.
+        """Print the possibility operator and its argument across all possible worlds.
         """
-        all_worlds = sentence_obj.proposition.model_structure.all_worlds.values()
+        # Get the model structure and all world IDs
+        model_structure = sentence_obj.proposition.model_structure
+        
+        # Get all worlds (IDs) for evaluation
+        all_worlds = list(model_structure.world_arrays.keys())
+        
+        # Pass the worlds to print_over_worlds
         self.print_over_worlds(sentence_obj, eval_point, all_worlds, indent_num, use_colors)
 
 ##############################################################################
@@ -550,6 +762,7 @@ class DefFutureOperator(syntactic.DefinedOperator):
         return [NegationOperator, [FutureOperator, [NegationOperator, argument]]]
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Print temporal operator evaluation across different time points."""
         all_times = sentence_obj.proposition.model_structure.all_times
         self.print_over_times(sentence_obj, eval_point, all_times, indent_num, use_colors)
 
@@ -562,6 +775,7 @@ class DefPastOperator(syntactic.DefinedOperator):
         return [NegationOperator, [PastOperator, [NegationOperator, argument]]]
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Print temporal operator evaluation across different time points."""
         all_times = sentence_obj.proposition.model_structure.all_times
         self.print_over_times(sentence_obj, eval_point, all_times, indent_num, use_colors)
 
@@ -578,6 +792,7 @@ intensional_operators = syntactic.OperatorCollection(
 
     # modal operators
     NecessityOperator,
+    PossibilityOperator,
 
     # tense operators
     FutureOperator,
@@ -586,7 +801,7 @@ intensional_operators = syntactic.OperatorCollection(
     # defined operators
     ConditionalOperator,
     BiconditionalOperator,
-    DefPossibilityOperator,
+    DefPossibilityOperator,  # Kept for backward compatibility
     DefFutureOperator,
     DefPastOperator,
 )
