@@ -12,7 +12,6 @@ try:
     from model_checker.utils import (
         ForAll,
         Exists,
-        bitvec_to_substates,
         bitvec_to_worldstate,
         pretty_set_print,
     )
@@ -27,9 +26,7 @@ except ImportError:
     from src.model_checker.utils import (
         ForAll,
         Exists,
-        bitvec_to_substates,
         bitvec_to_worldstate,
-        int_to_binary,
         pretty_set_print,
     )
     from src.model_checker import syntactic
@@ -895,6 +892,7 @@ class BimodalSemantics(SemanticDefaults):
             time_val = time
         elif hasattr(time, 'as_long'):
             # Z3 value with numerical representation, convert to Z3 Int
+            # TODO: linter error
             time_val = z3.IntVal(time.as_long())
         else:
             # Cannot use this time value

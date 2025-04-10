@@ -45,6 +45,12 @@ from .semantic import (
 # Import all operators
 from .operators import default_operators
 
+# Import examples for access through the API
+from .examples import (
+    example_range,
+    semantic_theories,
+)
+
 __version__ = "unknown"
 
 # Define the public API of the package
@@ -53,5 +59,7 @@ __all__ = [
     "Proposition",       # Represents and evaluates logical formulas
     "ModelStructure",    # Manages model's state space and accessibility relations
     "default_operators", # Standard logical operators (¬,∧,∨,→,←→,□,◇,etc.)
+    "example_range",         # Dictionary of example test cases
+    "semantic_theories",     # Dictionary of semantic theory implementations
     "__version__",       # Package version information
 ]

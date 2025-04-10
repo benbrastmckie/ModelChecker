@@ -1,3 +1,34 @@
+"""Implements the operators for bimodal logic in the model checker.
+
+This module provides implementations of various logical operators used in bimodal logic,
+which combines temporal and modal reasoning. The operators are organized into several
+categories based on their semantic role:
+
+Extensional Operators:
+    - NegationOperator (¬): Logical negation
+    - AndOperator (∧): Logical conjunction 
+    - OrOperator (∨): Logical disjunction
+    - ConditionalOperator (→): Material implication (defined)
+    - BiconditionalOperator (↔): Material biconditional (defined)
+
+Extremal Operators:
+    - TopOperator (⊤): Logical tautology/truth
+    - BotOperator (⊥): Logical contradiction/falsity
+
+Modal Operators:
+    - NecessityOperator (□): Truth in all possible worlds
+    - PossibilityOperator (◇): Truth in at least one possible world
+
+Temporal Operators:
+    - FutureOperator (⏵): Truth at all future times
+    - PastOperator (⏴): Truth at all past times
+    - DefFutureOperator: Possibility of future truth (defined)
+    - DefPastOperator: Possibility of past truth (defined)
+
+All operators adhere to a fail-fast philosophy, raising explicit errors when
+required data is missing or invalid rather than attempting fallbacks.
+"""
+
 import z3
 
 

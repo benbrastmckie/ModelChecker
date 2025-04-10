@@ -68,19 +68,23 @@ Notes:
 - The example_range can be modified to run different subsets of tests
 """
 
-import os
-import sys
-# Add the current directory to sys.path
-sys.path.append(os.path.dirname(__file__))
-
-from semantic import (
-    Semantics,
-    Proposition,
-    ModelStructure,
-)
-from operators import (
-    default_operators,
-)
+# TODO: are try/except blocks still needed for development?
+# Try installed package imports first
+try:
+    from model_checker.theory_lib.default.semantic import (
+        Semantics,
+        Proposition,
+        ModelStructure,
+    )
+    from model_checker.theory_lib.default.operators import default_operators
+except ImportError:
+    # Fall back to local imports for development
+    from .semantic import (
+        Semantics,
+        Proposition,
+        ModelStructure,
+    )
+    from .operators import default_operators
 
 __all__ = [
     'general_settings',
