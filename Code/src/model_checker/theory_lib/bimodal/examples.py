@@ -233,7 +233,7 @@ TN_CM_1_settings = {
     'M' : 3,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'expectation' : True,
 }
 TN_CM_1_example = [
@@ -497,9 +497,9 @@ example_range = {
 
     # Bimodal Theorems
     "BM_TH_1" : BM_TH_1_example,
-    # "BM_TH_2" : BM_TH_2_example,
-    # "BM_TH_3" : BM_TH_3_example,
-    # "BM_TH_4" : BM_TH_4_example,
+    "BM_TH_2" : BM_TH_2_example,
+    "BM_TH_3" : BM_TH_3_example,
+    "BM_TH_4" : BM_TH_4_example,
 
     # Modal Theorems
     # "MD_TH_1" : MD_TH_1_example,

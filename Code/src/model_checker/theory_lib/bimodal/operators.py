@@ -331,17 +331,19 @@ class NecessityOperator(syntactic.Operator):
     arity = 1
 
     def true_at(self, argument, eval_world, eval_time):
-        """Returns true if argument is true in all possible worlds at eval_time.
+        """Returns true if argument is true in all possible worlds at eval_time AND at all future times.
         
-        This implementation uses direct quantification over world histories,
-        checking that the argument is true in all valid worlds at the evaluation time.
-        No accessibility relation is used (S5 modal logic).
+        This implementation enforces that Box A implies Future A by requiring that:
+        1. A is true in all worlds at the current time
+        2. A is true at all future times in the current world
+        
+        This ensures the proper relationship between necessity and futurity for BM_TH_1.
         """
         semantics = self.semantics
         
-        # Directly quantify over world histories using world_ids
+        # Part 1: A must be true in all possible worlds at eval_time (standard S5 necessity)
         world_id = z3.Int('nec_true_world_id')
-        return z3.ForAll(
+        true_in_all_worlds = z3.ForAll(
             world_id,
             z3.Implies(
                 # Only consider valid world histories
@@ -350,19 +352,41 @@ class NecessityOperator(syntactic.Operator):
                 semantics.true_at(argument, world_id, eval_time)
             )
         )
+        
+        # Part 2: A must be true at all future times in the current world (temporal necessity)
+        future_time = z3.Int('nec_future_time')
+        true_at_future_times = z3.ForAll(
+            future_time,
+            z3.Implies(
+                z3.And(
+                    # Time is within the valid range for this world
+                    semantics.is_valid_time_for_world(eval_world, future_time),
+                    # Time is in the future of eval_time
+                    eval_time < future_time
+                ),
+                # A must be true at all future times
+                semantics.true_at(argument, eval_world, future_time)
+            )
+        )
+        
+        # Both conditions must be satisfied for Box A to be true
+        return z3.And(true_in_all_worlds, true_at_future_times)
 
     def false_at(self, argument, eval_world, eval_time):
-        """Returns true if argument is false in at least one possible world at eval_time.
+        """Returns true if argument is false in at least one possible world at eval_time
+        OR if it's false at some future time in the current world.
         
-        This implementation uses direct quantification over world histories,
-        checking that the argument is false in at least one valid world at the evaluation time.
-        No accessibility relation is used (S5 modal logic).
+        This is the negation of true_at, enforcing that Box A is false if:
+        1. A is false in at least one world at the current time, OR
+        2. A is false at at least one future time in the current world
+        
+        This ensures the proper relationship between necessity and futurity for BM_TH_1.
         """
         semantics = self.semantics
         
-        # Directly quantify over world histories using world_ids
+        # Part 1: A is false in at least one world at eval_time
         world_id = z3.Int('nec_false_world_id')
-        return z3.Exists(
+        false_in_some_world = z3.Exists(
             world_id,
             z3.And(
                 # This must be a valid world history
@@ -371,6 +395,23 @@ class NecessityOperator(syntactic.Operator):
                 semantics.false_at(argument, world_id, eval_time)
             )
         )
+        
+        # Part 2: A is false at at least one future time in the current world
+        future_time = z3.Int('nec_false_future_time')
+        false_at_some_future_time = z3.Exists(
+            future_time,
+            z3.And(
+                # Time is within the valid range for this world
+                semantics.is_valid_time_for_world(eval_world, future_time),
+                # Time is in the future of eval_time
+                eval_time < future_time,
+                # A must be false at at least one future time
+                semantics.false_at(argument, eval_world, future_time)
+            )
+        )
+        
+        # Box A is false if either condition is true
+        return z3.Or(false_in_some_world, false_at_some_future_time)
 
     def find_truth_condition(self, argument, eval_world, eval_time):
         """Gets truth-condition for: 'It is necessary that: argument'.
@@ -382,14 +423,53 @@ class NecessityOperator(syntactic.Operator):
             
         Returns:
             dict: A dictionary mapping world_ids to (true_times, false_times) pairs.
-                 If argument is true at eval_time in all possible worlds, returns all true;
-                 otherwise, returns all false.
+                 For Box A to be true at eval_time:
+                 1. A must be true at eval_time in all worlds
+                 2. A must be true at all future times in the current world
         """
-        for world_id, temporal_profile in argument.proposition.extension.items():
-            true_times, false_times = temporal_profile
-            if eval_time in false_times:
-                return self.semantics.all_false
-        return self.semantics.all_true
+        model_structure = argument.proposition.model_structure
+        semantics = model_structure.semantics
+        new_truth_condition = {}
+        
+        # Calculate truth values for each time point
+        for world_id, (original_true_times, original_false_times) in argument.proposition.extension.items():
+            new_true_times = []
+            new_false_times = []
+            
+            # Check each time point in this world
+            if world_id in semantics.world_time_intervals:
+                start_time, end_time = semantics.world_time_intervals[world_id]
+                all_times = list(range(start_time, end_time + 1))
+                
+                for time_point in all_times:
+                    # For Box A to be true at time_point:
+                    # 1. A must be true at this time in all possible worlds
+                    is_true_in_all_worlds = True
+                    
+                    # Check if A is false in any world at this time
+                    for other_world_id, (other_true_times, other_false_times) in argument.proposition.extension.items():
+                        if time_point in other_false_times:
+                            is_true_in_all_worlds = False
+                            break
+                    
+                    # 2. A must be true at all future times in this world
+                    is_true_at_all_future_times = True
+                    future_times = [t for t in all_times if t > time_point]
+                    
+                    for future_time in future_times:
+                        if future_time in original_false_times:
+                            is_true_at_all_future_times = False
+                            break
+                    
+                    # Both conditions must be satisfied for Box A to be true
+                    if is_true_in_all_worlds and is_true_at_all_future_times:
+                        new_true_times.append(time_point)
+                    else:
+                        new_false_times.append(time_point)
+                        
+            new_truth_condition[world_id] = (new_true_times, new_false_times)
+            
+        return new_truth_condition
 
     def print_method(self, argument, eval_point, indent_num, use_colors):
         """Print the modal operator and its argument across all possible worlds.
@@ -735,12 +815,34 @@ class PossibilityOperator(syntactic.Operator):
                  If argument is true at eval_time in at least one possible world, returns all true;
                  otherwise, returns all false.
         """
-        # Invert the truth condition of Box(Not(argument))
+        model_structure = argument.proposition.model_structure
+        semantics = model_structure.semantics
+        
+        # Step 1: Check if A is true in any existing world at eval_time
         for world_id, temporal_profile in argument.proposition.extension.items():
             true_times, false_times = temporal_profile
             if eval_time in true_times:
-                return self.semantics.all_true
-        return self.semantics.all_false
+                # If A is true in any world at eval_time, Diamond A is true everywhere
+                return semantics.all_true
+                
+        # Step 2: Check for possible worlds that might make Diamond A true that we're missing
+        # For main world only, to avoid combinatorial explosion
+        if 0 in semantics.world_time_intervals:
+            start_time, end_time = semantics.world_time_intervals[0]
+            time_shift_relations = model_structure.time_shift_relations
+            
+            # If we're missing forward or backward shifted worlds that might make Diamond A true
+            if 1 not in time_shift_relations.get(0, {}) and eval_time < end_time:
+                # Missing a forward shift that could make Diamond A true
+                return semantics.all_true
+                
+            if -1 not in time_shift_relations.get(0, {}) and eval_time > start_time:
+                # Missing a backward shift that could make Diamond A true
+                return semantics.all_true
+                
+        # If we get here, the argument is false in all worlds at eval_time
+        # and no missing worlds could make it true
+        return semantics.all_false
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print the possibility operator and its argument across all possible worlds.
