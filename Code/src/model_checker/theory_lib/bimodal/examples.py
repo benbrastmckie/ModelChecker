@@ -229,7 +229,7 @@ MD_CM_7_example = [
 TN_CM_1_premises = ['A']
 TN_CM_1_conclusions = ['\\Future A']
 TN_CM_1_settings = {
-    'N' : 2,
+    'N' : 1,
     'M' : 3,
     'contingent' : False,
     'disjoint' : False,
@@ -486,7 +486,7 @@ example_range = {
     # "MD_CM_7" : MD_CM_7_example,
 
     # Tense Countermodels
-    # "TN_CM_1" : TN_CM_1_example,
+    "TN_CM_1" : TN_CM_1_example,
     # "TN_CM_2" : TN_CM_2_example,
 
     # Bimodal Countermodels
@@ -496,8 +496,8 @@ example_range = {
     ### THEOREMS ###
 
     # Bimodal Theorems
-    "BM_TH_1" : BM_TH_1_example,
-    "BM_TH_2" : BM_TH_2_example,
+    # "BM_TH_1" : BM_TH_1_example,
+    # "BM_TH_2" : BM_TH_2_example,
     # "BM_TH_3" : BM_TH_3_example,
     # "BM_TH_4" : BM_TH_4_example,
 
