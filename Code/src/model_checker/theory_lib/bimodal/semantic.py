@@ -1733,6 +1733,7 @@ class BimodalStructure(ModelDefaults):
                               f"This indicates a fundamental model access issue: {str(e)}")
                     raise ValueError(error_msg) from e
             else:
+                # TODO: make fail-fast with error report
                 # Set a placeholder value
                 self.z3_main_world_state = None
             

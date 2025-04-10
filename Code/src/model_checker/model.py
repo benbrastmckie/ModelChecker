@@ -681,12 +681,6 @@ class ModelDefaults:
         if self.timeout or self.z3_model is None:
             return
 
-        # NOTE: this was moved to BuildExample to 
-        # Recursively update propositions
-        # for sent in self.premises + self.conclusions:
-        #     print(f"SENTENCE {sent}; TYPE {type(sent)}")
-        # self.interpret(self.premises + self.conclusions)
-
     def _process_solver_results(self, solver_results):
         """Process and store the results from the Z3 solver.
         
