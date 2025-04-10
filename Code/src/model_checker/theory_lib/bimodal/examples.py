@@ -498,8 +498,8 @@ example_range = {
     # Bimodal Theorems
     "BM_TH_1" : BM_TH_1_example,
     "BM_TH_2" : BM_TH_2_example,
-    "BM_TH_3" : BM_TH_3_example,
-    "BM_TH_4" : BM_TH_4_example,
+    # "BM_TH_3" : BM_TH_3_example,
+    # "BM_TH_4" : BM_TH_4_example,
 
     # Modal Theorems
     # "MD_TH_1" : MD_TH_1_example,

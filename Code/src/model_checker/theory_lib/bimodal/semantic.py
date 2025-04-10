@@ -257,7 +257,7 @@ class BimodalSemantics(SemanticDefaults):
         world_interval_constraint = self.build_world_interval_constraint()
         
         # 8. All valid time-shifted worlds exist
-        abundance_constraint = self.new_abundance_constraint()
+        best_abundance_constraint = self.best_abundance_constraint()
         # abundance_constraint = self.build_abundance_constraint()
 
         # Improved abundance constraint that applies to all worlds
@@ -394,11 +394,11 @@ class BimodalSemantics(SemanticDefaults):
             convex_world_ordering,
             lawful,
             world_interval_constraint,
-            abundance_constraint,  # Full abundance - very slow
+            best_abundance_constraint,  # Full abundance - very slow
             # improved_abundance_constraint,  # Improved version - can still timeout
             # simplified_abundance_constraint,  # Main world only - fastest option
             world_uniqueness,
-            # task_restriction,
+            task_restriction,
         ]
 
     def is_valid_time(self, given_time, offset=0):
@@ -590,7 +590,7 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
     
-    def new_abundance_constraint(self):
+    def best_abundance_constraint(self):
         """Build constraint ensuring necessary time-shifted worlds exist.
         
         The abundance property ensures that for any world that can be shifted forward
@@ -996,7 +996,7 @@ class BimodalSemantics(SemanticDefaults):
             
         return all_worlds
     
-    def _extract_world_arrays(self, z3_model, worlds):
+    def _extract_world_arrays(self, z3_model, all_worlds):
         """Gets arrays for each world ID.
         
         Extracts the array representation for each valid world in the model,
@@ -1011,7 +1011,7 @@ class BimodalSemantics(SemanticDefaults):
         """
         world_arrays = {}
         
-        for world_id in worlds:
+        for world_id in all_worlds:
             try:
                 # Extract this valid world history array
                 world_array_expr = self.world_function(world_id)
@@ -1021,14 +1021,15 @@ class BimodalSemantics(SemanticDefaults):
                 
                 # Store the array regardless of its representation type
                 world_arrays[world_id] = world_array
-            # TODO: raise an error here
+
+            # TODO: add print to test
             except z3.Z3Exception:
                 # Skip worlds that can't be extracted
                 pass
                 
         return world_arrays
     
-    def _extract_time_intervals(self, z3_model, worlds):
+    def _extract_time_intervals(self, z3_model, all_worlds):
         """Extracts valid time intervals for each world.
         
         Args:
@@ -1041,7 +1042,7 @@ class BimodalSemantics(SemanticDefaults):
         # Reset time intervals dictionary
         self.world_time_intervals = {}
         
-        for world_id in worlds:
+        for world_id in all_worlds:
             try:
                 start_time = z3_model.eval(self.world_interval_start(world_id)).as_long()
                 end_time = z3_model.eval(self.world_interval_end(world_id)).as_long()
