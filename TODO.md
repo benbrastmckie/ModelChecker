@@ -2,19 +2,39 @@
 
 Specific tasks can be marked with _M_ or _B_ when relevant.
 
+## SCRATCH
+
+- I'm working on refactoring the bimodal/ subpackage. Can you read the documentation in CLAUDE.md before studying bimodal/semantics.py to familiarize yourself with the codebase. Then take a look at bimodal/notes/LAMBDA.md to get a sense of the problem I am having as well as the solution that I am thinking about. Can you evaluate this solution, appending some different approaches for implementing this solution to LAMBDA.md as well as some alternative approaches that I might consider.  
+- Can you read bimodal/notes/DYNAMIC.md and append a detailed implementaton strategy to this document?
+- I'm working on refactoring the bimodal/ subpackage. Can you read the documentation in CLAUDE.md before studying bimodal/semantics.py to familiarize yourself with the codebase. Then take a look at bimodal/notes/DYNAMIC.md to get a sense of the problem I am having as well as the implementation strategy that I am thinking about before implementing this strategy.  
+
 ## Plan
 
-- [ ] debug readme issue
-- [ ] bimodal semantics
-  - [ ] semantics
+- bimodal semantics
+  - semantics
+    - [ ] debug tense operators
+      - [ ] develop array only strategy
+      - [ ] develop lambda only strategy
     - [ ] time_shift constraint
     - [ ] abundance constraint
+    - remove `time_shift_relations`
+    - fix world history printing
+    - refactor
+      - project building
+      - example execution
+    - claude
+      - [x] improve design philosophy
+      - [x] add subpackage outline and warnings
+      - add debugging philosophy
+    - [x] ask claude to check for consistencies in extract method etc
+    - [x] add abundance constraint
   - [x] proposition
     - [x] extension
   - [x] operators
     - [x] future
     - [x] past
     - [x] necessity
+- [ ] debug readme issue
 - [ ] tools
   - [.] iterate
     - refactor threading
@@ -40,6 +60,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 - improve version management
 - add unit tests throughout
 - refactor API in a deeper way
+  - clean up non-determinism throughout
 - [x] update script
   - [x] build script
   - [x] document
@@ -57,7 +78,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] example unit tests
   - [x] add unit tests to theories
 - [.] documentation
-  - [x] code base
+  - [:] code base
   - [:] default
   - [.] exclusion
   - imposition

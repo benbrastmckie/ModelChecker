@@ -326,6 +326,7 @@ class Operator:
             for arg in sentence_obj.original_arguments:
                 model_structure.recursive_print(arg, eval_point, indent_num, use_colors)
 
+    # TODO: make this method more deterministic
     def print_over_worlds(self, sentence, eval_point, all_worlds, indent_num, use_colors):
         """Print evaluation details for modal/counterfactual operators across possible worlds.
 
@@ -358,6 +359,16 @@ class Operator:
         model_structure = proposition.model_structure
         N = proposition.N
 
+        # TODO: make more deterministic
+        # Handle both world_id and traditional world approaches for compatibility
+        # In the bimodal theory, we're now using world_id but the base code expects world
+        if "world" in eval_point:
+            current_world_id = eval_point["world"]
+            if "world" not in eval_point and hasattr(model_structure, "get_world_array"):
+                eval_point["world"] = model_structure.get_world_array(current_world_id)
+        else:
+            current_world = eval_point.get("world")
+
         proposition.print_proposition(eval_point, indent_num, use_colors)
         indent_num += 1
 
@@ -365,21 +376,61 @@ class Operator:
             sentence = arguments[0]
             for world in all_worlds:
                 pass_point = eval_point.copy()
+                # Set the world directly - could be a world_id (int) or world array
+                # The downstream print_proposition method should handle both appropriately
                 pass_point["world"] = world
                 model_structure.recursive_print(sentence, pass_point, indent_num, use_colors)
+                
         if len(arguments) == 2:
             left_argument, right_argument = arguments
             model_structure.recursive_print(left_argument, eval_point, indent_num, use_colors)
             indent_num += 1
-            other_world_strings = {bitvec_to_substates(u, N) for u in all_worlds}
+            
+            # TODO: is there an approach that is agnostic about what the eval_point includes?
+            # Handle displaying world state for both traditional and new approach
+            if "world" in eval_point:
+                if "time" in eval_point and hasattr(eval_point["world"], "__getitem__"):
+                    # Bimodal case: world is an array/mapping indexed by time
+                    current_world_state = bitvec_to_substates(eval_point["world"][eval_point["time"]], N)
+                elif hasattr(eval_point["world"], "as_ast") or isinstance(eval_point["world"], int):
+                    # Default case: world is directly a bitvec
+                    current_world_state = bitvec_to_substates(eval_point["world"], N)
+                else:
+                    # Any other case
+                    current_world_state = str(eval_point["world"])
+            else:
+                current_world_state = "current world"
+                
+            other_world_strings = set()
+            for world in all_worlds:
+                try:
+                    # Try to get the world state at the current time
+                    if "time" in eval_point and hasattr(world, "__getitem__"):
+                        # Bimodal case: world is an array/mapping indexed by time
+                        world_state = bitvec_to_substates(world[eval_point["time"]], N)
+                        other_world_strings.add(str(world_state))
+                    elif hasattr(world, "as_ast") or isinstance(world, int):
+                        # Default case: world is directly a bitvec
+                        world_state = bitvec_to_substates(world, N)
+                        other_world_strings.add(str(world_state))
+                    else:
+                        other_world_strings.add(str(world))
+                except Exception as e:
+                    # Add error information if needed for debugging
+                    # print(f"Error getting world state: {e}")
+                    other_world_strings.add(str(world))
+                    
             print(
                 f'{"  " * indent_num}{CYAN}|{left_argument}|-alternatives '
-                f'to {bitvec_to_substates(eval_point["world"], N)} = '
+                f'to {current_world_state} = '
                 f'{pretty_set_print(other_world_strings)}{RESET}'
             )
+            
             indent_num += 1
             for alt_world in all_worlds:
                 alt_point = eval_point.copy()
+                # Set the world directly - could be a world_id (int) or world array
+                # The downstream print_proposition method should handle both appropriately
                 alt_point["world"] = alt_world
                 model_structure.recursive_print(right_argument, alt_point, indent_num, use_colors)
     
@@ -397,14 +448,7 @@ class Operator:
             other_times (list): List of all relevant alternative time points to consider
             indent_num (int): Number of spaces to indent the output
             use_colors (bool): Whether to use ANSI color codes in output
-
-        The output format shows:
-        1. The full sentence evaluation at the current point
-        2. For unary operators: evaluation at each alternative time point
-        3. For binary operators: first argument evaluation at current time,
-           followed by second argument evaluation at each alternative time point
         """
-        # Move to class or config for flexibility
         if use_colors:
             CYAN, RESET = '\033[36m', '\033[0m'
         else:
@@ -413,30 +457,43 @@ class Operator:
         arguments = sentence_obj.original_arguments
         proposition = sentence_obj.proposition
         model_structure = proposition.model_structure
-        N = proposition.N
+        
+        # Store the original time value to restore it later
+        original_time = eval_point["time"]
 
+        # Print the main proposition
         proposition.print_proposition(eval_point, indent_num, use_colors)
         indent_num += 1
 
         if len(arguments) == 1:
+            # For unary operators like Future/Past, we evaluate at different times
             argument = arguments[0]
             for time in other_times:
-                eval_point["time"] = time
-                model_structure.recursive_print(argument, eval_point, indent_num, use_colors)
+                # Create a copy with updated time but same world
+                temp_point = eval_point.copy()
+                temp_point["time"] = time
+                model_structure.recursive_print(argument, temp_point, indent_num, use_colors)
+            
+            # Restore the original time value
+            eval_point["time"] = original_time
+                
         if len(arguments) == 2:
+            # For binary operators
             left_argument, right_argument = arguments
             model_structure.recursive_print(left_argument, eval_point, indent_num, use_colors)
             indent_num += 1
-            other_world_strings = {bitvec_to_substates(u, N) for u in other_times}
+            
+            # Display the time alternatives
             print(
                 f'{"  " * indent_num}{CYAN}|{left_argument}|-alternatives '
-                f'to {bitvec_to_substates(eval_point["world"], N)} = '
-                f'{pretty_set_print(other_world_strings)}{RESET}'
+                f'to time {eval_point["time"]} = '
+                f'{pretty_set_print([f"t={t}" for t in other_times])}{RESET}'
             )
+            
             indent_num += 1
-            for alt_world in other_times:
+            for alt_time in other_times:
                 alt_point = eval_point.copy()
-                alt_point["world"] = alt_world
+                alt_point["time"] = alt_time
                 model_structure.recursive_print(right_argument, alt_point, indent_num, use_colors)
     
 class DefinedOperator(Operator):

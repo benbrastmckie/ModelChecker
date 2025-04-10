@@ -445,7 +445,7 @@ class BuildModule:
             
         def complete(self):
             """Display completion message."""
-            print("\rRunning model-checker: Done" + " " * 10 + "\n")
+            print("\r" + " " * 30 + "\r", end="", flush=True)
 
     def run_single_iteration(self, executor, example_case, example_name, theory_name, semantic_theory):
         """Run a single iteration of the model checker with progress tracking.
