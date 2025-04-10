@@ -257,8 +257,9 @@ class BimodalSemantics(SemanticDefaults):
         world_interval_constraint = self.build_world_interval_constraint()
         
         # 8. All valid time-shifted worlds exist
-        abundance_constraint = self.new_abundance_constraint()
-        # abundance_constraint = self.build_abundance_constraint()
+        new_abundance_constraint = self.new_abundance_constraint()
+        build_abundance_constraint = self.build_abundance_constraint()
+        old_abundance_constraint = self.old_abundance_constraint()
 
         # Improved abundance constraint that applies to all worlds
         source_world = z3.Int('abundance_source_id')
@@ -394,9 +395,10 @@ class BimodalSemantics(SemanticDefaults):
             convex_world_ordering,
             lawful,
             world_interval_constraint,
-            abundance_constraint,  # Full abundance - very slow
-            # improved_abundance_constraint,  # Improved version - can still timeout
-            # simplified_abundance_constraint,  # Main world only - fastest option
+            # abundance_constraint,  # Original implementation - very slow
+            new_abundance_constraint,  # More efficient implementation
+            # build_abundance_constraint,  # More efficient implementation
+            # simplified_abundance_constraint,  # Main world only - fastest but less complete
             world_uniqueness,
             # task_restriction,
         ]
@@ -431,51 +433,101 @@ class BimodalSemantics(SemanticDefaults):
             given_time <= self.world_interval_end(given_world)
         )
 
+    def can_shift_by(self, given_world, shift_amount):
+        """Check if a world can be shifted by a given amount (Z3 expression).
+        
+        This helper function generalizes can_shift_forward and can_shift_backward,
+        determining whether a world can be shifted by any integer amount.
+        
+        Args:
+            given_world: World identifier
+            shift_amount: Integer amount to shift (positive for forward, negative for backward)
+            
+        Returns:
+            Z3 formula that is true if the world can be shifted by the specified amount
+        """
+        # Convert shift_amount to Z3 integer if it isn't already
+        if not isinstance(shift_amount, z3.ArithRef):
+            shift_amount = z3.IntVal(shift_amount)
+            
+        # Get interval bounds
+        start_time = self.world_interval_start(given_world)
+        end_time = self.world_interval_end(given_world)
+        
+        # Check if shift is possible - both new start and end must be within global range
+        new_start = start_time + shift_amount
+        new_end = end_time + shift_amount
+        
+        return z3.And(
+            # New start time must be within global range
+            new_start >= z3.IntVal(-self.M + 1),
+            # New end time must be within global range
+            new_end < z3.IntVal(self.M)
+        )
+        
     def can_shift_forward(self, given_world):
         """Check if a world can be shifted forward by 1 (Z3 expression).
         
         Args:
-            world_id: World identifier
+            given_world: World identifier
             
         Returns:
             Z3 formula that is true if the world can be shifted forward
         """
-        # A world can shift forward if its end time + 1 is still within global range
-        return self.world_interval_end(given_world) < z3.IntVal(self.M - 1)
+        # Use the general can_shift_by function with shift_amount=1
+        return self.can_shift_by(given_world, 1)
     
     def is_shifted_by(self, source_world, shift, target_world):
         """Predicate that target_id is a world shifted from source_id by shift amount.
         
         Args:
-            source_id: Source world identifier
-            shift: Shift amount
-            target_id: Target world identifier
+            source_world: Source world identifier
+            shift: Shift amount (integer or Z3 int)
+            target_world: Target world identifier
             
         Returns:
             Z3 formula that is true if target is shifted from source by amount
         """
+        # Ensure shift is a Z3 IntVal if it's not already
+        if isinstance(shift, int):
+            shift_val = z3.IntVal(shift)
+        elif isinstance(shift, z3.ArithRef) and shift.sort() == z3.IntSort():
+            shift_val = shift  # Already a Z3 integer
+        else:
+            # This shouldn't happen in normal usage - if it does, it will fail with a clear error
+            raise TypeError(f"shift must be an integer or Z3 integer, got {type(shift)}: {shift}")
+            
         return z3.And(
             # Both must be valid worlds
-            # self.is_world(source_world),
-            # self.is_world(target_world),
+            self.is_world(source_world),
+            self.is_world(target_world),
             # Target interval must be shifted by the specified amount
-            self.world_interval_start(target_world) == self.world_interval_start(source_world) + z3.IntVal(shift),
-            self.world_interval_end(target_world) == self.world_interval_end(source_world) + z3.IntVal(shift),
+            self.world_interval_start(target_world) == self.world_interval_start(source_world) + shift_val,
+            self.world_interval_end(target_world) == self.world_interval_end(source_world) + shift_val,
             # World states must match when shifted
-            self.matching_states_when_shifted(source_world, shift, target_world)
+            self.matching_states_when_shifted(source_world, shift_val, target_world)
         )
 
     def matching_states_when_shifted(self, source_world, shift, target_world):
         """Check if states match when shifted between world arrays.
         
         Args:
-            source_id: Source world identifier
-            shift: Shift amount
-            target_id: Target world identifier
+            source_world: Source world identifier
+            shift: Shift amount (integer or Z3 int)
+            target_world: Target world identifier
             
         Returns:
             Z3 formula that is true if states match when shifted
         """
+        # Ensure shift is a Z3 IntVal if it's not already
+        if isinstance(shift, int):
+            shift_val = z3.IntVal(shift)
+        elif isinstance(shift, z3.ArithRef) and shift.sort() == z3.IntSort():
+            shift_val = shift  # Already a Z3 integer
+        else:
+            # This shouldn't happen in normal usage - if it does, it will fail with a clear error
+            raise TypeError(f"shift must be an integer or Z3 integer, got {type(shift)}: {shift}")
+            
         time = z3.Int('shift_check_time')
         source_array = self.world_function(source_world)
         target_array = self.world_function(target_world)
@@ -491,12 +543,12 @@ class BimodalSemantics(SemanticDefaults):
                     ),
                     # Shifted time is within target interval
                     z3.And(
-                        time + z3.IntVal(shift) >= self.world_interval_start(target_world),
-                        time + z3.IntVal(shift) <= self.world_interval_end(target_world)
+                        time + shift_val >= self.world_interval_start(target_world),
+                        time + shift_val <= self.world_interval_end(target_world)
                     )
                 ),
                 # States must match when shifted
-                z3.Select(source_array, time) == z3.Select(target_array, time + z3.IntVal(shift))
+                z3.Select(source_array, time) == z3.Select(target_array, time + shift_val)
             )
         )
     
@@ -509,8 +561,8 @@ class BimodalSemantics(SemanticDefaults):
         Returns:
             Z3 formula that is true if the world can be shifted backward
         """
-        # A world can shift backward if its start time - 1 is still within global range
-        return self.world_interval_start(world_id) > z3.IntVal(-self.M + 1)
+        # Use the general can_shift_by function with shift_amount=-1
+        return self.can_shift_by(world_id, -1)
     
     def build_world_interval_constraint(self):
         """Build constraint ensuring each world has a valid time interval."""
@@ -590,14 +642,14 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
     
-    def new_abundance_constraint(self):
+    def build_abundance_constraint(self):
         """Build constraint ensuring necessary time-shifted worlds exist.
         
         The abundance property ensures that for any world that can be shifted forward
         or backward in time (while staying within valid time bounds), there exists a
         corresponding world that represents that time shift.
         """
-        source_world = z3.Int('abundance_source_id')
+        source_world = z3.Int('abundance_source')
         forward_world = z3.Int('forward_world')
         backwards_world = z3.Int('backwards_world')
         
@@ -639,55 +691,49 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
         return abundance_constraint
-
-    def build_abundance_constraint(self):
-        """Build constraint ensuring necessary time-shifted worlds exist.
         
-        The abundance property ensures that for any world that can be shifted forward
-        or backward in time (while staying within valid time bounds), there exists a
-        corresponding world that represents that time shift.
+    def new_abundance_constraint(self):
+        """More efficient constraint ensuring necessary time-shifted worlds exist.
+        
+        This version:
+        1. Uses the can_shift_by helper function to cover both forward and backward shifts
+        2. Generalizes to any shift amount (not just +1/-1)
+        3. Uses a single existential quantifier instead of two separate ones
+        4. Covers the same logical constraints but with a more efficient formulation
+        
+        Returns:
+            Z3 formula ensuring all required time-shifted worlds exist
         """
-        source_world = z3.Int('abundance_source_id')
-        forward_world = z3.Int('forward_world')
-        backwards_world = z3.Int('backwards_world')
+        # Variables for source world and target world
+        source_world = z3.Int('source_world')
+        target_world = z3.Int('target_world')
         
-        # Each world must have appropriate time-shifted counterparts
+        # Variable for shift amount - we'll only use +1 and -1 for essential shifts
+        shift_amount = z3.Int('shift_amount')
+        
+        # For any source world and shift amount (+1 or -1)...
         abundance_constraint = z3.ForAll(
-            [source_world],
+            [source_world, shift_amount],
             z3.Implies(
-                # If the source_world is a valid world
-                self.is_world(source_world),
-                # Then both:
                 z3.And(
-                    # Forwards condition
-                    z3.Implies(
-                        # If source can shift forward
-                        self.can_shift_forward(source_world),
-                        # Then some forward-shifted world exists
-                        z3.Exists(
-                            [forward_world],
-                            z3.And(
-                                self.is_world(source_world),
-                                self.is_shifted_by(source_world, 1, forward_world)
-                            )
-                        )
-                    ),
-                    # Backwards condition
-                    z3.Implies(
-                        # If source can shift backwards
-                        self.can_shift_backward(source_world),
-                        # Then some backwards-shifted world exists
-                        z3.Exists(
-                            [backwards_world],
-                            z3.And(
-                                self.is_world(source_world),
-                                self.is_shifted_by(source_world, -1, backwards_world)
-                            )
-                        )
+                    # The source_world is a valid world
+                    self.is_world(source_world),
+                    # The shift amount is either +1 or -1
+                    z3.Or(shift_amount == 1, shift_amount == -1),
+                    # The world can be shifted by this amount
+                    self.can_shift_by(source_world, shift_amount)
+                ),
+                # Then there exists a target world that is shifted from source by this amount
+                z3.Exists(
+                    [target_world],
+                    z3.And(
+                        self.is_world(target_world),
+                        self.is_shifted_by(source_world, shift_amount, target_world)
                     )
                 )
             )
         )
+        
         return abundance_constraint
 
     def old_abundance_constraint(self):
@@ -732,6 +778,54 @@ class BimodalSemantics(SemanticDefaults):
                 )
             )
         )
+        return abundance_constraint
+        
+    def an_abundance_constraint(self):
+        """More efficient constraint ensuring necessary time-shifted worlds exist.
+        
+        This version uses separate forward and backward constraints but with a more
+        consistent implementation using the can_shift_by helper function.
+        
+        Returns:
+            Z3 formula ensuring all required time-shifted worlds exist
+        """
+        # Variables for source world and target worlds
+        source_world = z3.Int('new_abundance_source')
+        forward_target = z3.Int('new_abundance_fwd')
+        backward_target = z3.Int('new_abundance_bwd')
+        
+        # For any source world, ensure forward and backward shifted worlds exist if needed
+        abundance_constraint = z3.ForAll(
+            [source_world],
+            z3.Implies(
+                # If source_world is a valid world
+                self.is_world(source_world),
+                # Then both forward and backward conditions must be satisfied
+                z3.And(
+                    # Forward shift condition
+                    z3.Implies(
+                        # If world can shift forward (by +1)
+                        self.can_shift_by(source_world, z3.IntVal(1)),
+                        # Then there exists a forward-shifted world
+                        z3.Exists(
+                            [forward_target],
+                            self.is_shifted_by(source_world, z3.IntVal(1), forward_target)
+                        )
+                    ),
+                    # Backward shift condition
+                    z3.Implies(
+                        # If world can shift backward (by -1)
+                        self.can_shift_by(source_world, z3.IntVal(-1)),
+                        # Then there exists a backward-shifted world
+                        z3.Exists(
+                            [backward_target],
+                            self.is_shifted_by(source_world, z3.IntVal(-1), backward_target)
+                        )
+                    )
+                )
+            )
+        )
+        
         return abundance_constraint
 
 
