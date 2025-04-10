@@ -11,21 +11,19 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 ## Plan
 
 - bimodal semantics
+  - develop bimodal lambda only strategy
   - semantics
-    - [ ] debug tense operators
-      - [ ] develop array only strategy
-      - [ ] develop lambda only strategy
     - [ ] time_shift constraint
     - [ ] abundance constraint
-    - remove `time_shift_relations`
-    - fix world history printing
-    - refactor
-      - project building
-      - example execution
-    - claude
+    - [ ] remove `time_shift_relations`
+    - [ ] fix world history printing
+    - [x] debug tense operators
+      - [x] develop array only strategy
+      - [x] develop dynamic strategy
+    - [x] claude
       - [x] improve design philosophy
       - [x] add subpackage outline and warnings
-      - add debugging philosophy
+      - [x] add debugging philosophy
     - [x] ask claude to check for consistencies in extract method etc
     - [x] add abundance constraint
   - [x] proposition
@@ -60,6 +58,8 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 - improve version management
 - add unit tests throughout
 - refactor API in a deeper way
+  - project building
+  - example execution
   - clean up non-determinism throughout
 - [x] update script
   - [x] build script

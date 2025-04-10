@@ -51,7 +51,7 @@ AVAILABLE_THEORIES = [
     'default',      # Standard bilateral truthmaker semantics
     'exclusion',    # Unilateral semantics with exclusion relations
     'imposition',   # Semantics with imposition relations
-    # 'bimodal',    # Experimental bimodal semantics (in development)
+    'bimodal',      # Bimodal semantics
 ]
 
 # Dictionary to cache loaded theory modules

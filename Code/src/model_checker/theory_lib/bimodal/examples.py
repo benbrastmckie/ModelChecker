@@ -1,30 +1,45 @@
 """
-INSTRUCTIONS: this module defines the semantic_theories and example_range.
-From the project directory, run: model_checker examples.py
+Examples Module for bimodal logic theory.
+
+This module provides a collection of test cases for bimodal semantic theory,
+which combines temporal and modal operators to reason about what is true
+at different times and in different possible worlds.
+
+Module Structure:
+----------------
+1. Imports:
+   - System utilities (os, sys)
+   - Local semantic definitions (BimodalSemantics, BimodalProposition, BimodalStructure)
+   - Local operator definitions (intensional_operators)
+
+2. Semantic Theory:
+   - default_theory: Default bimodal semantic framework
+   - semantic_theories: Dictionary of semantic theory implementations
+
+3. Example Definitions:
+   - example_range: Dictionary of example test cases
 """
 
-##########################
-### DEFINE THE IMPORTS ###
-##########################
+# Try installed package imports first
+try:
+    from model_checker.theory_lib.bimodal.semantic import (
+        BimodalStructure,
+        BimodalSemantics,
+        BimodalProposition,
+    )
+    from model_checker.theory_lib.bimodal.operators import intensional_operators
+except ImportError:
+    # Fall back to local imports for development
+    from .semantic import (
+        BimodalStructure,
+        BimodalSemantics,
+        BimodalProposition,
+    )
+    from .operators import intensional_operators
 
-import sys
-import os
-sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.path
-
-from semantic import (
-    BimodalStructure,
-    BimodalSemantics,
-    BimodalProposition,
-)
-
-from operators import (
-    intensional_operators,
-)
-
-
-########################
+#######################
 ### DEFAULT SETTINGS ###
-########################
+#######################
 
 general_settings = {
     "print_constraints": False,
