@@ -42,8 +42,8 @@ except ImportError:
 #######################
 
 general_settings = {
-    "print_constraints": True,
-    "print_z3": True,
+    "print_constraints": False,
+    "print_z3": False,
     "save_output": False,
     "maximize": False,
 }
