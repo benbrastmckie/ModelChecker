@@ -427,27 +427,29 @@ class NecessityOperator(syntactic.Operator):
                  1. A must be true at eval_time in all worlds
                  2. A must be true at all future times in the current world
         """
-        model_structure = argument.proposition.model_structure
-        semantics = model_structure.semantics
+        semantics =  argument.proposition.model_structure.semantics
         new_truth_condition = {}
         
-        # Calculate truth values for each time point
-        for world_id, (original_true_times, original_false_times) in argument.proposition.extension.items():
+        # Calculate temporal_profile for each world
+        for store_world, original_temporal_profile in argument.proposition.extension.items():
+            original_true_times, original_false_times = original_temporal_profile
             new_true_times = []
             new_false_times = []
             
             # Check each time point in this world
-            if world_id in semantics.world_time_intervals:
-                start_time, end_time = semantics.world_time_intervals[world_id]
+            if store_world in semantics.world_time_intervals:
+                start_time, end_time = semantics.world_time_intervals[store_world]
                 all_times = list(range(start_time, end_time + 1))
                 
+                # For Box A to be true at time_point:
                 for time_point in all_times:
-                    # For Box A to be true at time_point:
+
                     # 1. A must be true at this time in all possible worlds
                     is_true_in_all_worlds = True
                     
                     # Check if A is false in any world at this time
-                    for other_world_id, (other_true_times, other_false_times) in argument.proposition.extension.items():
+                    for other_world_id, other_temporal_profile in argument.proposition.extension.items():
+                        other_true_times, other_false_times = other_temporal_profile
                         if time_point in other_false_times:
                             is_true_in_all_worlds = False
                             break
@@ -455,7 +457,7 @@ class NecessityOperator(syntactic.Operator):
                     # 2. A must be true at all future times in this world
                     is_true_at_all_future_times = True
                     future_times = [t for t in all_times if t > time_point]
-                    
+
                     for future_time in future_times:
                         if future_time in original_false_times:
                             is_true_at_all_future_times = False
@@ -467,7 +469,7 @@ class NecessityOperator(syntactic.Operator):
                     else:
                         new_false_times.append(time_point)
                         
-            new_truth_condition[world_id] = (new_true_times, new_false_times)
+            new_truth_condition[store_world] = (new_true_times, new_false_times)
             
         return new_truth_condition
 

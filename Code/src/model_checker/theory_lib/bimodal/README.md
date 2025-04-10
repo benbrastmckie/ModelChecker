@@ -3,10 +3,12 @@
 ## Overview
 
 The bimodal theory implements a temporal-modal logic with two types of operators:
+
 1. Temporal operators for reasoning about what is true at different times
 2. Modal operators for reasoning about other world histories
 
 This implementation is designed to study bimodal logics where:
+
 - World histories are sequences of world states over time
 - Each world state is an instantaneous configuration of the system
 - World histories follow lawful transitions between consecutive states
@@ -15,6 +17,7 @@ This implementation is designed to study bimodal logics where:
 ## Contents
 
 This package includes the following components:
+
 - `__init__.py` to expose definitions
 - `examples.py` defines a number of examples to test
 - `operators.py` defines the primitive and derived operators
@@ -25,6 +28,7 @@ This package includes the following components:
 The bimodal logic is defined by the following key frame constraints that determine the structure of models:
 
 ### 1. Valid World Constraint
+
 Every model must have at least one world history (designated as world 0) that is marked as valid.
 
 ```python
@@ -32,6 +36,7 @@ valid_main_world = self.is_world(self.main_world)
 ```
 
 ### 2. Valid Time Constraint
+
 Every model must have a valid evaluation time (designated as time 0).
 
 ```python
@@ -39,6 +44,7 @@ valid_main_time = self.is_valid_time(self.main_time)
 ```
 
 ### 3. Classical Truth Constraint
+
 Each atomic sentence must have a consistent classical truth value at each world state.
 
 ```python
@@ -52,6 +58,7 @@ z3.ForAll(
 ```
 
 ### 4. World Enumeration Constraint
+
 World histories must be enumerated in sequence starting from 0.
 
 ```python
@@ -65,6 +72,7 @@ z3.ForAll(
 ```
 
 ### 5. Convex World Ordering Constraint
+
 There can be no gaps in the enumeration of worlds (ensures worlds are created in sequence).
 
 ```python
@@ -81,6 +89,7 @@ z3.ForAll(
 ```
 
 ### 6. Lawful Transition Constraint
+
 Each world history must follow lawful transitions between consecutive states.
 
 ```python
@@ -102,6 +111,7 @@ z3.ForAll(
 ```
 
 ### 7. World Interval Constraint
+
 Each world history must have a valid time interval with consistent state transitions.
 
 ```python
@@ -115,6 +125,7 @@ world_interval_constraint = z3.ForAll(
 ```
 
 ### 8. Abundance Constraint
+
 Each world history that can be time-shifted must have appropriately shifted counterparts.
 
 ```python
@@ -131,6 +142,7 @@ z3.Implies(
 ```
 
 ### 9. World Uniqueness Constraint
+
 No two worlds can have identical histories over their entire intervals.
 
 ```python
@@ -163,7 +175,9 @@ z3.ForAll(
 The necessity operator `\Box A` has a complex, bimodal semantics that combines both modal and temporal requirements:
 
 #### Truth Condition
+
 `\Box A` is true at world `w` at time `t` if and only if:
+
 1. A is true at time `t` in all possible worlds, **AND**
 2. A is true at all future times in the current world `w`
 
@@ -177,7 +191,7 @@ def true_at(self, argument, eval_world, eval_time):
             semantics.true_at(argument, world_id, eval_time)
         )
     )
-    
+
     # Part 2: A must be true at all future times in the current world
     true_at_future_times = z3.ForAll(
         future_time,
@@ -189,13 +203,15 @@ def true_at(self, argument, eval_world, eval_time):
             semantics.true_at(argument, eval_world, future_time)
         )
     )
-    
+
     # Both conditions must be satisfied for Box A to be true
     return z3.And(true_in_all_worlds, true_at_future_times)
 ```
 
 #### Falsity Condition
+
 `\Box A` is false at world `w` at time `t` if and only if:
+
 1. A is false at time `t` in at least one possible world, **OR**
 2. A is false at at least one future time in the current world `w`
 
@@ -209,7 +225,7 @@ def false_at(self, argument, eval_world, eval_time):
             semantics.false_at(argument, world_id, eval_time)
         )
     )
-    
+
     # Part 2: A is false at at least one future time in the current world
     false_at_some_future_time = z3.Exists(
         future_time,
@@ -219,7 +235,7 @@ def false_at(self, argument, eval_world, eval_time):
             semantics.false_at(argument, eval_world, future_time)
         )
     )
-    
+
     # Box A is false if either condition is true
     return z3.Or(false_in_some_world, false_at_some_future_time)
 ```
@@ -229,6 +245,7 @@ def false_at(self, argument, eval_world, eval_time):
 The future operator `\Future A` has a purely temporal semantics:
 
 #### Truth Condition
+
 `\Future A` is true at world `w` at time `t` if and only if A is true at all future times in world `w`.
 
 ```python
@@ -246,6 +263,7 @@ def true_at(self, argument, eval_world, eval_time):
 ```
 
 #### Falsity Condition
+
 `\Future A` is false at world `w` at time `t` if and only if A is false at at least one future time in world `w`.
 
 ```python
@@ -265,6 +283,7 @@ def false_at(self, argument, eval_world, eval_time):
 The past operator `\Past A` also has a purely temporal semantics:
 
 #### Truth Condition
+
 `\Past A` is true at world `w` at time `t` if and only if A is true at all past times in world `w`.
 
 ```python
@@ -282,6 +301,7 @@ def true_at(self, argument, eval_world, eval_time):
 ```
 
 #### Falsity Condition
+
 `\Past A` is false at world `w` at time `t` if and only if A is false at at least one past time in world `w`.
 
 ```python
@@ -301,12 +321,15 @@ def false_at(self, argument, eval_world, eval_time):
 The bimodal semantics validates the following important theorems:
 
 1. **Box-Future Theorem**: `\Box A → \Future A`
+
    - If A is necessarily true, then it is always true in the future
 
 2. **Box-Past Theorem**: `\Box A → \Past A`
+
    - If A is necessarily true, then it was always true in the past
 
 3. **Possibility-Future Theorem**: `\future A → \Diamond A`
+
    - If A is possibly true in the future, then A is possible
 
 4. **Possibility-Past Theorem**: `\past A → \Diamond A`
@@ -317,6 +340,7 @@ The bimodal semantics validates the following important theorems:
 ### World and Time Representation
 
 In the bimodal implementation:
+
 - World states are represented as bitvectors (fusions of atomic states)
 - Time points are integers (allowing negative times)
 - World histories are modeled as arrays mapping time points to world states
@@ -326,6 +350,7 @@ In the bimodal implementation:
 ### Time Interval Handling
 
 Each world has a valid time interval defined by:
+
 - `world_interval_start(world_id)`: The start time for this world history
 - `world_interval_end(world_id)`: The end time for this world history
 
@@ -357,12 +382,14 @@ result = model.check_formula("A \\rightarrow \\Future A")
 ### Custom Settings
 
 The bimodal theory supports several settings:
+
 - `N`: Number of world states (default: 2)
 - `M`: Number of time points (default: 2)
 - `contingent`: Whether sentence letters are assigned to contingent propositions
 - `disjoint`: Whether sentence letters are assigned to distinct world states
 
 Example with custom settings:
+
 ```python
 settings = {
     'N': 3,        # 3 possible world states
