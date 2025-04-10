@@ -42,8 +42,8 @@ except ImportError:
 #######################
 
 general_settings = {
-    "print_constraints": False,
-    "print_z3": False,
+    "print_constraints": True,
+    "print_z3": True,
     "save_output": False,
     "maximize": False,
 }
@@ -287,7 +287,7 @@ BM_CM_1_example = [
 BM_CM_2_premises = ['\\Past A']
 BM_CM_2_conclusions = ['\\Box A']
 BM_CM_2_settings = {
-    'N' : 2,
+    'N' : 1,
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
@@ -311,6 +311,7 @@ BM_CM_2_example = [
 # BM_TH_1: Necessary Future Perpetuity
 BM_TH_1_premises = ['\\Box A']
 BM_TH_1_conclusions = ['\\Future A']
+# BM_TH_1_conclusions = ['\\Past A', 'A', '\\Future A']
 BM_TH_1_settings = {
     'N' : 2,
     'M' : 2,
@@ -480,7 +481,7 @@ example_range = {
     # "MD_CM_2" : MD_CM_2_example,
     # "MD_CM_3" : MD_CM_3_example,
     # "MD_CM_4" : MD_CM_4_example,
-    "MD_CM_5" : MD_CM_5_example,
+    # "MD_CM_5" : MD_CM_5_example,
     # "MD_CM_6" : MD_CM_6_example,
     # "MD_CM_7" : MD_CM_7_example,
 
@@ -489,7 +490,7 @@ example_range = {
     # "TN_CM_2" : TN_CM_2_example,
 
     # Bimodal Countermodels
-    "BM_CM_1" : BM_CM_1_example,
+    # "BM_CM_1" : BM_CM_1_example,
     # "BM_CM_2" : BM_CM_2_example,
 
     ### THEOREMS ###
