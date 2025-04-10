@@ -43,7 +43,6 @@ except ImportError:
 
 general_settings = {
     "print_constraints": False,
-    "print_impossible": True,
     "print_z3": False,
     "save_output": False,
     "maximize": False,
@@ -51,10 +50,10 @@ general_settings = {
 
 example_settings = {  # defaults can be tailored to each example
     'N' : 2,  # 2^N number of states
-    'M' : 2, # M + 1 number of times
+    'M' : 2, # M number of times
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 2,
 }
 
 
@@ -83,7 +82,7 @@ EX_CM_1_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : True,
 }
 EX_CM_1_example = [
@@ -106,7 +105,7 @@ MD_CM_1_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 2,
     'expectation' : True,
 }
 MD_CM_1_example = [
@@ -123,7 +122,7 @@ MD_CM_2_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : True,
 }
 MD_CM_2_example = [
@@ -140,7 +139,7 @@ MD_CM_3_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : True,
 }
 MD_CM_3_example = [
@@ -157,7 +156,7 @@ MD_CM_4_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : True,
 }
 MD_CM_4_example = [
@@ -175,7 +174,7 @@ MD_CM_5_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : True,
 }
 MD_CM_5_example = [
@@ -193,7 +192,7 @@ MD_CM_6_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : True,
 }
 MD_CM_6_example = [
@@ -211,7 +210,7 @@ MD_CM_7_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : True,
 }
 MD_CM_7_example = [
@@ -231,10 +230,10 @@ TN_CM_1_premises = ['A']
 TN_CM_1_conclusions = ['\\Future A']
 TN_CM_1_settings = {
     'N' : 2,
-    'M' : 4,
+    'M' : 3,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : True,
 }
 TN_CM_1_example = [
@@ -271,7 +270,7 @@ TN_CM_2_example = [
 BM_CM_1_premises = ['\\Future A']
 BM_CM_1_conclusions = ['\\Box A']
 BM_CM_1_settings = {
-    'N' : 2,
+    'N' : 1,
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
@@ -314,10 +313,10 @@ BM_TH_1_premises = ['\\Box A']
 BM_TH_1_conclusions = ['\\Future A']
 BM_TH_1_settings = {
     'N' : 2,
-    'M' : 3,
+    'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : False,
 }
 BM_TH_1_example = [
@@ -330,11 +329,11 @@ BM_TH_1_example = [
 BM_TH_2_premises = ['\\future A']
 BM_TH_2_conclusions = ['\\Diamond A']
 BM_TH_2_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : False,
 }
 BM_TH_2_example = [
@@ -347,11 +346,11 @@ BM_TH_2_example = [
 BM_TH_3_premises = ['\\Box A']
 BM_TH_3_conclusions = ['\\Past A']
 BM_TH_3_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : False,
 }
 BM_TH_3_example = [
@@ -364,11 +363,11 @@ BM_TH_3_example = [
 BM_TH_4_premises = ['\\past A']
 BM_TH_4_conclusions = ['\\Diamond A']
 BM_TH_4_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : False,
 }
 BM_TH_4_example = [
@@ -394,7 +393,7 @@ MD_TH_1_settings = {
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : False,
 }
 MD_TH_1_example = [
@@ -411,7 +410,7 @@ MD_TH_2_settings = {
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 2,
     'expectation' : False,
 }
 MD_TH_2_example = [
@@ -481,7 +480,7 @@ example_range = {
     # "MD_CM_2" : MD_CM_2_example,
     # "MD_CM_3" : MD_CM_3_example,
     # "MD_CM_4" : MD_CM_4_example,
-    # "MD_CM_5" : MD_CM_5_example,
+    "MD_CM_5" : MD_CM_5_example,
     # "MD_CM_6" : MD_CM_6_example,
     # "MD_CM_7" : MD_CM_7_example,
 
@@ -490,7 +489,7 @@ example_range = {
     # "TN_CM_2" : TN_CM_2_example,
 
     # Bimodal Countermodels
-    # "BM_CM_1" : BM_CM_1_example,
+    "BM_CM_1" : BM_CM_1_example,
     # "BM_CM_2" : BM_CM_2_example,
 
     ### THEOREMS ###

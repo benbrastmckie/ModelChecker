@@ -18,6 +18,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [ ] abundance constraint
     - [ ] remove `time_shift_relations`
     - [ ] fix world history printing
+    - [ ] remove `max_world_id`
     - [x] debug tense operators
       - [x] develop array only strategy
       - [x] develop dynamic strategy
