@@ -10,9 +10,10 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Plan
 
-- bimodal semantics
-  - develop bimodal lambda only strategy
-  - semantics
+- [ ] research try/except for development
+- [ ] bimodal semantics
+  - [ ] develop bimodal lambda only strategy
+  - [ ] semantics
     - [ ] time_shift constraint
     - [ ] abundance constraint
     - [ ] remove `time_shift_relations`
