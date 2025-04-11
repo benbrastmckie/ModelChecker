@@ -257,77 +257,13 @@ class BimodalSemantics(SemanticDefaults):
         world_interval_constraint = self.build_world_interval_constraint()
         
         # 8. All valid time-shifted worlds exist
-        best_abundance_constraint = self.best_abundance_constraint()
-        # abundance_constraint = self.build_abundance_constraint()
+        abundance_constraint = self.build_abundance_constraint()
+        build_abundance_constraint = self.other_abundance_constraint()
+        old_abundance_constraint = self.old_abundance_constraint()
+        improved_abundance_constraint = self.improved_abundance_constraint()
+        simplifed_abundance_constraint = self.simplified_abundance_constraint()
+        skolem_abundance = self.skolem_abundance_constraint()
 
-        # Improved abundance constraint that applies to all worlds
-        source_world = z3.Int('abundance_source_id')
-        forward_world = z3.Int('forward_world')
-        backward_world = z3.Int('backward_world')
-        
-        # Create a full abundance constraint that applies to all worlds
-        # This is essential for modal operators to work correctly
-        improved_abundance_constraint = z3.ForAll(
-            [source_world],
-            z3.Implies(
-                # If source_world is a valid world
-                self.is_world(source_world),
-                # Then ensure both forward and backward shifted worlds exist if possible
-                z3.And(
-                    # Forward condition
-                    z3.Implies(
-                        self.can_shift_forward(source_world),
-                        z3.Exists(
-                            [forward_world],
-                            z3.And(
-                                self.is_world(forward_world),
-                                self.is_shifted_by(source_world, 1, forward_world)
-                            )
-                        )
-                    ),
-                    # Backward condition
-                    z3.Implies(
-                        self.can_shift_backward(source_world),
-                        z3.Exists(
-                            [backward_world],
-                            z3.And(
-                                self.is_world(backward_world),
-                                self.is_shifted_by(source_world, -1, backward_world)
-                            )
-                        )
-                    )
-                )
-            )
-        )
-        
-        # 8. Simplified abundance constraint for main world only
-        main_fwd = z3.Int('main_fwd')
-        main_bwd = z3.Int('main_bwd')
-        simplified_abundance_constraint = z3.And(
-            # If main world exists and can shift forward, ensure a +1 shifted world exists
-            z3.Implies(
-                z3.And(
-                    self.is_world(z3.IntVal(0)),              # Main world exists
-                    self.can_shift_forward(z3.IntVal(0))      # Can shift forward
-                ),
-                z3.Exists(
-                    [main_fwd],                               # Forward-shifted world
-                    self.is_shifted_by(z3.IntVal(0), 1, main_fwd)
-                )
-            ),
-            # If main world exists and can shift backward, ensure a -1 shifted world exists
-            z3.Implies(
-                z3.And(
-                    self.is_world(z3.IntVal(0)),              # Main world exists
-                    self.can_shift_backward(z3.IntVal(0))     # Can shift backward
-                ),
-                z3.Exists(
-                    [main_bwd],                              # Backward-shifted world
-                    self.is_shifted_by(z3.IntVal(0), -1, main_bwd)
-                )
-            )
-        )
-        
         # 9. Every valid world is unique
         world_one = z3.Int('world_one')
         world_two = z3.Int('world_two')
@@ -385,7 +321,6 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
         
-
         return [
             valid_main_world,
             valid_main_time,
@@ -394,11 +329,10 @@ class BimodalSemantics(SemanticDefaults):
             convex_world_ordering,
             lawful,
             world_interval_constraint,
-            best_abundance_constraint,  # Full abundance - very slow
-            # improved_abundance_constraint,  # Improved version - can still timeout
-            # simplified_abundance_constraint,  # Main world only - fastest option
+            skolem_abundance,
+
             world_uniqueness,
-            task_restriction,
+            # task_restriction,
         ]
 
     def is_valid_time(self, given_time, offset=0):
@@ -590,7 +524,7 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
     
-    def best_abundance_constraint(self):
+    def build_abundance_constraint(self):
         """Build constraint ensuring necessary time-shifted worlds exist.
         
         The abundance property ensures that for any world that can be shifted forward
@@ -617,7 +551,7 @@ class BimodalSemantics(SemanticDefaults):
                         z3.Exists(
                             [forward_world],
                             z3.And(
-                                self.is_world(source_world),
+                                self.is_world(forward_world),
                                 self.is_shifted_by(source_world, 1, forward_world)
                             )
                         )
@@ -630,7 +564,7 @@ class BimodalSemantics(SemanticDefaults):
                         z3.Exists(
                             [backwards_world],
                             z3.And(
-                                self.is_world(source_world),
+                                self.is_world(backwards_world),
                                 self.is_shifted_by(source_world, -1, backwards_world)
                             )
                         )
@@ -640,7 +574,7 @@ class BimodalSemantics(SemanticDefaults):
         )
         return abundance_constraint
 
-    def build_abundance_constraint(self):
+    def other_abundance_constraint(self):
         """Build constraint ensuring necessary time-shifted worlds exist.
         
         The abundance property ensures that for any world that can be shifted forward
@@ -734,7 +668,142 @@ class BimodalSemantics(SemanticDefaults):
         )
         return abundance_constraint
 
-
+    def improved_abundance_constraint(self):
+        """Build constraint ensuring necessary time-shifted worlds exist.
+        
+        The abundance property ensures that for any world that can be shifted forward
+        or backward in time (while staying within valid time bounds), there exists a
+        corresponding world that represents that time shift.
+        """
+        # Improved abundance constraint that applies to all worlds
+        source_world = z3.Int('abundance_source_id')
+        forward_world = z3.Int('forward_world')
+        backward_world = z3.Int('backward_world')
+        
+        # Create a full abundance constraint that applies to all worlds
+        # This is essential for modal operators to work correctly
+        return z3.ForAll(
+            [source_world],
+            z3.Implies(
+                # If source_world is a valid world
+                self.is_world(source_world),
+                # Then ensure both forward and backward shifted worlds exist if possible
+                z3.And(
+                    # Forward condition
+                    z3.Implies(
+                        self.can_shift_forward(source_world),
+                        z3.Exists(
+                            [forward_world],
+                            z3.And(
+                                self.is_world(forward_world),
+                                self.is_shifted_by(source_world, 1, forward_world)
+                            )
+                        )
+                    ),
+                    # Backward condition
+                    z3.Implies(
+                        self.can_shift_backward(source_world),
+                        z3.Exists(
+                            [backward_world],
+                            z3.And(
+                                self.is_world(backward_world),
+                                self.is_shifted_by(source_world, -1, backward_world)
+                            )
+                        )
+                    )
+                )
+            )
+        )
+        
+    def simplified_abundance_constraint(self):
+        """Build constraint ensuring necessary time-shifted worlds exist.
+        
+        The abundance property ensures that for any world that can be shifted forward
+        or backward in time (while staying within valid time bounds), there exists a
+        corresponding world that represents that time shift.
+        """
+        # Improved abundance constraint that applies to all worlds
+        source_world = z3.Int('abundance_source_id')
+        forward_world = z3.Int('forward_world')
+        backward_world = z3.Int('backward_world')
+        
+        # Create a full abundance constraint that applies to all worlds
+        main_fwd = z3.Int('main_fwd')
+        main_bwd = z3.Int('main_bwd')
+        return z3.And(
+            # If main world exists and can shift forward, ensure a +1 shifted world exists
+            z3.Implies(
+                z3.And(
+                    self.is_world(z3.IntVal(0)),              # Main world exists
+                    self.can_shift_forward(z3.IntVal(0))      # Can shift forward
+                ),
+                z3.Exists(
+                    [main_fwd],                               # Forward-shifted world
+                    self.is_shifted_by(z3.IntVal(0), 1, main_fwd)
+                )
+            ),
+            # If main world exists and can shift backward, ensure a -1 shifted world exists
+            z3.Implies(
+                z3.And(
+                    self.is_world(z3.IntVal(0)),              # Main world exists
+                    self.can_shift_backward(z3.IntVal(0))     # Can shift backward
+                ),
+                z3.Exists(
+                    [main_bwd],                              # Backward-shifted world
+                    self.is_shifted_by(z3.IntVal(0), -1, main_bwd)
+                )
+            )
+        )
+        
+    def skolem_abundance_constraint(self):
+        """Build constraint ensuring necessary time-shifted worlds exist using Skolemization.
+        
+        The abundance property ensures that for any world that can be shifted forward
+        or backward in time (while staying within valid time bounds), there exists a
+        corresponding world that represents that time shift.
+        
+        This implementation uses Skolem functions to eliminate nested quantifiers,
+        which can improve Z3 performance.
+        """
+        # Define Skolem functions that directly compute the necessary worlds
+        forward_of = z3.Function('forward_of', self.WorldIdSort, self.WorldIdSort)
+        backward_of = z3.Function('backward_of', self.WorldIdSort, self.WorldIdSort)
+        
+        # Variable for world being constrained
+        source_world = z3.Int('abundance_source_id')
+        
+        # Use Skolem functions instead of existential quantifiers
+        return z3.ForAll(
+            [source_world],
+            z3.Implies(
+                # If the source_world is a valid world
+                self.is_world(source_world),
+                # Then both:
+                z3.And(
+                    # Forwards condition - if source can shift forward
+                    z3.Implies(
+                        self.can_shift_forward(source_world),
+                        z3.And(
+                            # The forward_of function must produce a valid world
+                            self.is_world(forward_of(source_world)),
+                            # The produced world must be properly shifted
+                            self.is_shifted_by(source_world, 1, forward_of(source_world))
+                        )
+                    ),
+                    # Backwards condition - if source can shift backwards
+                    z3.Implies(
+                        self.can_shift_backward(source_world),
+                        z3.And(
+                            # The backward_of function must produce a valid world
+                            self.is_world(backward_of(source_world)),
+                            # The produced world must be properly shifted
+                            self.is_shifted_by(source_world, -1, backward_of(source_world))
+                        )
+                    )
+                )
+            )
+        )
+        
     def define_invalidity(self):
         """Define the behavior for premises and conclusions in invalidity checks.
 
@@ -1905,11 +1974,16 @@ class BimodalStructure(ModelDefaults):
         """
         if print_constraints is None:
             print_constraints = self.settings["print_constraints"]
-        if self.timeout:
-            print(f"TIMEOUT: {self.timeout}")
+            
+        # Check if we actually timed out (runtime >= max_time)
+        actual_timeout = hasattr(self, 'z3_model_runtime') and self.z3_model_runtime >= self.max_time
+        
+        # Only show timeout if we really timed out and didn't find a model
+        if actual_timeout and (not hasattr(self, 'z3_model') or self.z3_model is None):
+            print(f"\nTIMEOUT: Model search exceeded maximum time of {self.max_time} seconds", file=output)
             print(f"No model for example {example_name} found before timeout.", file=output)
             print(f"Try increasing max_time > {self.max_time}.\n", file=output)
-            return
+            # return
         self.print_all(default_settings, example_name, theory_name, output)
         if print_constraints and self.unsat_core is not None:
             self.print_grouped_constraints(output)

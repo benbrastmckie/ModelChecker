@@ -808,11 +808,14 @@ class ExclusionStructure(model.ModelDefaults):
         """
         if print_constraints is None:
             print_constraints = self.settings["print_constraints"]
-        if self.timeout:
-            print(f"TIMEOUT: {self.timeout}")
+        # Check if we actually timed out (runtime >= max_time)
+        actual_timeout = hasattr(self, 'z3_model_runtime') and self.z3_model_runtime >= self.max_time
+        
+        # Only show timeout if we really timed out and didn't find a model
+        if actual_timeout and (not hasattr(self, 'z3_model') or self.z3_model is None):
+            print(f"\nTIMEOUT: Model search exceeded maximum time of {self.max_time} seconds", file=output)
             print(f"No model for example {example_name} found before timeout.", file=output)
             print(f"Try increasing max_time > {self.max_time}.\n", file=output)
-            return
         self.print_all(default_settings, example_name, theory_name, output)
         if print_constraints and self.unsat_core is not None:
             self.print_grouped_constraints(output)

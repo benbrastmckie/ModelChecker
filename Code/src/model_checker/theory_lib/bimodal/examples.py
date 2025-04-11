@@ -230,10 +230,10 @@ TN_CM_1_premises = ['A']
 TN_CM_1_conclusions = ['\\Future A']
 TN_CM_1_settings = {
     'N' : 1,
-    'M' : 3,
+    'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 10,
+    'max_time' : 2,
     'expectation' : True,
 }
 TN_CM_1_example = [
@@ -242,7 +242,7 @@ TN_CM_1_example = [
     TN_CM_1_settings,
 ]
 
-# TN_CM_1: 
+# TN_CM_2: 
 TN_CM_2_premises = ['\\future A', '\\future B']
 TN_CM_2_conclusions = ['\\future (A \\wedge B)']
 TN_CM_2_settings = {
@@ -313,11 +313,11 @@ BM_TH_1_premises = ['\\Box A']
 BM_TH_1_conclusions = ['\\Future A']
 # BM_TH_1_conclusions = ['\\Past A', 'A', '\\Future A']
 BM_TH_1_settings = {
-    'N' : 2,
+    'N' : 1,
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 5,
     'expectation' : False,
 }
 BM_TH_1_example = [
@@ -330,11 +330,11 @@ BM_TH_1_example = [
 BM_TH_2_premises = ['\\future A']
 BM_TH_2_conclusions = ['\\Diamond A']
 BM_TH_2_settings = {
-    'N' : 2,
+    'N' : 1,
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 5,
     'expectation' : False,
 }
 BM_TH_2_example = [
@@ -347,7 +347,7 @@ BM_TH_2_example = [
 BM_TH_3_premises = ['\\Box A']
 BM_TH_3_conclusions = ['\\Past A']
 BM_TH_3_settings = {
-    'N' : 2,
+    'N' : 1,
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
@@ -364,7 +364,7 @@ BM_TH_3_example = [
 BM_TH_4_premises = ['\\past A']
 BM_TH_4_conclusions = ['\\Diamond A']
 BM_TH_4_settings = {
-    'N' : 2,
+    'N' : 1,
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
@@ -487,19 +487,19 @@ example_range = {
 
     # Tense Countermodels
     "TN_CM_1" : TN_CM_1_example,
-    # "TN_CM_2" : TN_CM_2_example,
+    "TN_CM_2" : TN_CM_2_example,
 
     # Bimodal Countermodels
-    # "BM_CM_1" : BM_CM_1_example,
-    # "BM_CM_2" : BM_CM_2_example,
+    "BM_CM_1" : BM_CM_1_example,
+    "BM_CM_2" : BM_CM_2_example,
 
     ### THEOREMS ###
 
     # Bimodal Theorems
-    # "BM_TH_1" : BM_TH_1_example,
-    # "BM_TH_2" : BM_TH_2_example,
-    # "BM_TH_3" : BM_TH_3_example,
-    # "BM_TH_4" : BM_TH_4_example,
+    "BM_TH_1" : BM_TH_1_example,
+    "BM_TH_2" : BM_TH_2_example,
+    "BM_TH_3" : BM_TH_3_example,
+    "BM_TH_4" : BM_TH_4_example,
 
     # Modal Theorems
     # "MD_TH_1" : MD_TH_1_example,
