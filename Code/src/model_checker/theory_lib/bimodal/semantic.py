@@ -56,6 +56,16 @@ class BimodalSemantics(SemanticDefaults):
         # Whether a model is expected or not (used for unit testing)
         'expectation': True,
     }
+    
+    # Bimodal-specific general settings defaults
+    DEFAULT_GENERAL_SETTINGS = {
+        "print_impossible": False,
+        "print_constraints": False,
+        "print_z3": False,
+        "save_output": False,
+        "maximize": False,
+        "align_vertically": True,  # Bimodal prefers vertical alignment by default
+    }
 
     def __init__(self, settings):
 
