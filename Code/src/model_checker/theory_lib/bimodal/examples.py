@@ -20,22 +20,13 @@ Module Structure:
    - example_range: Dictionary of example test cases
 """
 
-# Try installed package imports first
-try:
-    from model_checker.theory_lib.bimodal.semantic import (
-        BimodalStructure,
-        BimodalSemantics,
-        BimodalProposition,
-    )
-    from model_checker.theory_lib.bimodal.operators import bimodal_operators
-except ImportError:
-    # Fall back to local imports for development
-    from .semantic import (
-        BimodalStructure,
-        BimodalSemantics,
-        BimodalProposition,
-    )
-    from .operators import bimodal_operators
+# Standard imports
+from model_checker.theory_lib.bimodal.semantic import (
+    BimodalStructure,
+    BimodalSemantics,
+    BimodalProposition,
+)
+from model_checker.theory_lib.bimodal.operators import bimodal_operators
 
 #######################
 ### DEFAULT SETTINGS ###
@@ -468,7 +459,7 @@ example_range = {
     ### COUNTERMODELS ###
 
     # Extensional Countermodels
-    # "EX_CM_1" : EX_CM_1_example,
+    "EX_CM_1" : EX_CM_1_example,
     
     # Modal Countermodels
     # "MD_CM_1" : MD_CM_1_example,
@@ -480,11 +471,11 @@ example_range = {
     # "MD_CM_7" : MD_CM_7_example,
 
     # Tense Countermodels
-    "TN_CM_1" : TN_CM_1_example,
+    # "TN_CM_1" : TN_CM_1_example,
     # "TN_CM_2" : TN_CM_2_example,
 
     # Bimodal Countermodels
-    "BM_CM_1" : BM_CM_1_example,
+    # "BM_CM_1" : BM_CM_1_example,
     # "BM_CM_2" : BM_CM_2_example,
 
     ### THEOREMS ###

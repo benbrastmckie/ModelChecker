@@ -80,6 +80,11 @@ def display_countermodel(*args, **kwargs):
     """Display a countermodel."""
     missing_dependencies_error("display_countermodel")
 
+class FormulaChecker:
+    """Formula checking widget (stub class)."""
+    def __init__(self, *args, **kwargs):
+        missing_dependencies_error("FormulaChecker")
+
 # Add stub functions to API
 __all__.extend([
     "check_formula",
@@ -88,18 +93,14 @@ __all__.extend([
     "display_model",
     "display_formula_check",
     "display_countermodel",
-    "has_jupyter_dependencies"
+    "has_jupyter_dependencies",
+    "FormulaChecker"
 ])
 
-# Only try importing actual implementations if dependencies are available
+# Import implementations if dependencies are available
 if has_jupyter_dependencies():
-    try:
-        # Only attempt to import real implementations if dependencies are available
-        from .display import display_model, display_formula_check, display_countermodel
-        from .interactive import ModelExplorer, check_formula, find_countermodel, explore_formula
-        
-        # Add ModelExplorer to API
-        __all__.append("ModelExplorer")
-    except ImportError:
-        # No warnings needed - stub functions will be used
-        pass
+    from .display import display_model, display_formula_check, display_countermodel
+    from .interactive import ModelExplorer, check_formula, find_countermodel, explore_formula, FormulaChecker
+    
+    # Add ModelExplorer and FormulaChecker to API
+    __all__.extend(["ModelExplorer", "FormulaChecker"])

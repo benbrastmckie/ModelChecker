@@ -24,10 +24,11 @@ https://github.com/benbrastmckie/ModelChecker
 """
 
 from importlib.metadata import version
+__version__ = "unknown"
 try:
     __version__ = version("model-checker")
 except ImportError:
-    __version__ = "unknown"
+    pass
 
 # Define the public API of the package
 __all__ = [
@@ -77,15 +78,11 @@ from .__main__ import (
     main,
 )
 
-# Import jupyter components
-try:
-    from .jupyter import (
-        check_formula,
-        find_countermodel,
-        explore_formula,
-        ModelExplorer,
-        FormulaChecker,
-    )
-except ImportError:
-    # Missing dependencies for jupyter functionality
-    pass
+# Import jupyter components if they are available
+from .jupyter import (
+    check_formula,
+    find_countermodel,
+    explore_formula,
+    ModelExplorer,
+    FormulaChecker,
+)

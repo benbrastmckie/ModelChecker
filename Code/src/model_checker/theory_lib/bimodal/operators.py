@@ -32,14 +32,8 @@ required data is missing or invalid rather than attempting fallbacks.
 import z3
 
 
-# Try installed package imports first
-try:
-    from model_checker import syntactic
-    from model_checker.utils import pretty_set_print
-except ImportError:
-    # Fall back to local imports for development
-    from src.model_checker import syntactic
-    from src.model_checker.utils import pretty_set_print
+from model_checker import syntactic
+from model_checker.utils import pretty_set_print
 
 ##############################################################################
 ############################ EXTENSIONAL OPERATORS ###########################

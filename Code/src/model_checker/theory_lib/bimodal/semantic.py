@@ -2,34 +2,19 @@ import sys
 import time
 import z3
 
-# Try installed package imports first
-try:
-    from model_checker.model import (
-        SemanticDefaults,
-        PropositionDefaults,
-        ModelDefaults,
-    )
-    from model_checker.utils import (
-        ForAll,
-        Exists,
-        bitvec_to_worldstate,
-        pretty_set_print,
-    )
-    from model_checker import syntactic
-except ImportError:
-    # Fall back to local imports for development
-    from src.model_checker.model import (
-        SemanticDefaults,
-        PropositionDefaults,
-        ModelDefaults,
-    )
-    from src.model_checker.utils import (
-        ForAll,
-        Exists,
-        bitvec_to_worldstate,
-        pretty_set_print,
-    )
-    from src.model_checker import syntactic
+# Standard imports
+from model_checker.model import (
+    SemanticDefaults,
+    PropositionDefaults,
+    ModelDefaults,
+)
+from model_checker.utils import (
+    ForAll,
+    Exists,
+    bitvec_to_worldstate,
+    pretty_set_print,
+)
+from model_checker import syntactic
 
 
 
@@ -1918,7 +1903,7 @@ class BimodalStructure(ModelDefaults):
         min_time, max_time = self._get_time_range(self.world_histories)
         
         # 2. Create a list of all times in ascending order
-        all_times = sorted(range(min_time, max_time + 1))
+        all_times = sorted(range(int(min_time), int(max_time) + 1))
         
         # 3. Format states for each world at each time
         formatted_states = self._create_formatted_states(self.world_histories, all_times)
