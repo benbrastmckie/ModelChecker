@@ -16,9 +16,9 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] semantics
     - [ ] time_shift constraint
     - [ ] abundance constraint
-    - [ ] remove `time_shift_relations`
-    - [ ] fix world history printing
+    - [ ] center world history printing
     - [ ] remove `max_world_id`
+    - [x] define `time_shift_relations`
     - [x] debug tense operators
       - [x] develop array only strategy
       - [x] develop dynamic strategy
