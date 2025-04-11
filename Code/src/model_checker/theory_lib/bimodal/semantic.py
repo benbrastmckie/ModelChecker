@@ -171,6 +171,7 @@ class BimodalSemantics(SemanticDefaults):
         7. World interval constraint - Ensures each world has a valid time interval
         8. Abundance constraint - Ensures necessary time-shifted worlds exist
         9. Systematic world relationship - Explicitly defines relationships between world IDs
+        10. Task state minimization - Encourages minimal changes between consecutive world states
         
         The frame constraints ensure that world histories represent lawful evolutions of world states
         over time, following the task relation which specifies valid state transitions.
@@ -264,7 +265,10 @@ class BimodalSemantics(SemanticDefaults):
         # 9. Systematic world relationship - Explicitly defines relationships between world IDs
         systematic_world_relationship = self.build_systematic_world_relationship()
 
-        # 10. Every valid world is unique
+        # 10. Task state minimization - Encourages minimal changes between consecutive world states
+        task_minimization = self.build_task_minimization_constraint()
+
+        # 11. Every valid world is unique
         world_one = z3.Int('world_one')
         world_two = z3.Int('world_two')
         some_time = z3.Int('some_time')
@@ -290,7 +294,7 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
 
-        # 11. Task relation only holds between states in lawful world histories
+        # 12. Task relation only holds between states in lawful world histories
         some_state = z3.BitVec('task_restrict_some_state', self.N)
         next_state = z3.BitVec('task_restrict_next_state', self.N)
         task_world = z3.Int('task_world')
@@ -328,14 +332,17 @@ class BimodalSemantics(SemanticDefaults):
             enumeration_constraint,
             convex_world_ordering,
             lawful,
-            world_interval,                     # Original interval constraint - complex with nested quantifiers
-            # time_interval,                      # Optimized version with pre-computed intervals
-            skolem_abundance,                   # Skolemized abundance constraint for better performance
-            # systematic_world_relationship,      # New constraint explicitly defining world relationships
+            skolem_abundance,
             world_uniqueness,
+            time_interval,
 
-            # OPTIONAL
+            # MAYBE
             # task_restriction,
+            # task_minimization,                # Task state minimization constraint
+
+            # DEAD
+            # world_interval,                   # Replaced by time_interval
+            # systematic_world_relationship,    # New constraint explicitly defining world relationships
         ]
 
     def is_valid_time(self, given_time, offset=0):
@@ -623,6 +630,33 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
 
+    def build_task_minimization_constraint(self):
+        """Build constraint encouraging minimal changes between consecutive world states.
+        
+        This constraint guides Z3 to prefer solutions where consecutive world states
+        are identical when possible, reducing unnecessary state changes and potentially
+        reducing the search space.
+        
+        Returns:
+            Z3 formula: Constraint encouraging minimal state changes
+        """
+        world_id = z3.Int('minimal_world')
+        time_point = z3.Int('minimal_time')
+        
+        return z3.ForAll(
+            [world_id, time_point],
+            z3.Implies(
+                z3.And(
+                    self.is_world(world_id),
+                    self.is_valid_time_for_world(world_id, time_point),
+                    self.is_valid_time_for_world(world_id, time_point + 1)
+                ),
+                # Encourage identical states if possible (soft constraint)
+                z3.Select(self.world_function(world_id), time_point) == 
+                z3.Select(self.world_function(world_id), time_point + 1)
+            )
+        )
+    
 
     def build_systematic_world_relationship(self):
         """Constraint explicitly defining relationships between world IDs.
