@@ -156,7 +156,7 @@ class BimodalSemantics(SemanticDefaults):
         self.main_point = {
             "world": self.main_world,  
             "time": self.main_time,
-        }
+        } 
 
     def build_frame_constraints(self):
         """Build the frame constraints for the bimodal logic model.
@@ -170,6 +170,7 @@ class BimodalSemantics(SemanticDefaults):
         6. Valid worlds - Constraints on which world_ids map to valid world histories
         7. World interval constraint - Ensures each world has a valid time interval
         8. Abundance constraint - Ensures necessary time-shifted worlds exist
+        9. Systematic world relationship - Explicitly defines relationships between world IDs
         
         The frame constraints ensure that world histories represent lawful evolutions of world states
         over time, following the task relation which specifies valid state transitions.
@@ -254,13 +255,16 @@ class BimodalSemantics(SemanticDefaults):
         )
         
         # 7. World interval constraint
-        world_interval_constraint = self.build_world_interval_constraint()
+        world_interval = self.world_interval_constraint()
         time_interval = self.time_interval_constraint()
         
         # 8. All valid time-shifted worlds exist
         skolem_abundance = self.skolem_abundance_constraint()
+        
+        # 9. Systematic world relationship - Explicitly defines relationships between world IDs
+        systematic_world_relationship = self.build_systematic_world_relationship()
 
-        # 9. Every valid world is unique
+        # 10. Every valid world is unique
         world_one = z3.Int('world_one')
         world_two = z3.Int('world_two')
         some_time = z3.Int('some_time')
@@ -286,7 +290,7 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
 
-        # 10. Task relation only holds between states in lawful world histories
+        # 11. Task relation only holds between states in lawful world histories
         some_state = z3.BitVec('task_restrict_some_state', self.N)
         next_state = z3.BitVec('task_restrict_next_state', self.N)
         task_world = z3.Int('task_world')
@@ -324,9 +328,10 @@ class BimodalSemantics(SemanticDefaults):
             enumeration_constraint,
             convex_world_ordering,
             lawful,
-            world_interval_constraint,   # Original interval constraint - complex with nested quantifiers
-            # time_interval, # Optimized version with pre-computed intervals
-            skolem_abundance,              # Skolemized abundance constraint for better performance
+            world_interval,                     # Original interval constraint - complex with nested quantifiers
+            # time_interval,                      # Optimized version with pre-computed intervals
+            skolem_abundance,                   # Skolemized abundance constraint for better performance
+            # systematic_world_relationship,      # New constraint explicitly defining world relationships
             world_uniqueness,
 
             # OPTIONAL
@@ -441,7 +446,7 @@ class BimodalSemantics(SemanticDefaults):
         # A world can shift backward if its start time - 1 is still within global range
         return self.world_interval_start(world_id) > z3.IntVal(-self.M + 1)
     
-    def build_world_interval_constraint(self):
+    def world_interval_constraint(self):
         """Build constraint ensuring each world has a valid time interval."""
         # Define all valid time intervals
         time_intervals = self.generate_time_intervals(self.M)
@@ -617,6 +622,127 @@ class BimodalSemantics(SemanticDefaults):
                 )
             )
         )
+
+
+    def build_systematic_world_relationship(self):
+        """Constraint explicitly defining relationships between world IDs.
+        
+        This constraint explicitly defines the relationships between world IDs,
+        potentially making it easier for Z3 to organize the model by providing
+        direct guidance on world relationships.
+        
+        Returns:
+            Z3 formula: Combined constraint defining systematic world relationships
+        """
+        # Define forward_of and backward_of functions if they don't exist
+        if not hasattr(self, 'forward_of'):
+            self.forward_of = z3.Function('forward_of', self.WorldIdSort, self.WorldIdSort)
+        if not hasattr(self, 'backward_of'):
+            self.backward_of = z3.Function('backward_of', self.WorldIdSort, self.WorldIdSort)
+            
+        constraints = []
+        
+        # Ensure world 0 exists (main world)
+        constraints.append(self.is_world(0))
+        
+        # Define world 1 as backward-shifted from world 0 if possible
+        constraints.append(
+            z3.Implies(
+                z3.And(
+                    self.is_world(0),
+                    self.can_shift_backward(0)
+                ),
+                z3.And(
+                    self.is_world(1),
+                    self.is_shifted_by(0, -1, 1),
+                    # Connect to Skolem function
+                    self.backward_of(0) == 1
+                )
+            )
+        )
+        
+        # Define world 2 as forward-shifted from world 0 if possible
+        constraints.append(
+            z3.Implies(
+                z3.And(
+                    self.is_world(0),
+                    self.can_shift_forward(0)
+                ),
+                z3.And(
+                    self.is_world(2),
+                    self.is_shifted_by(0, 1, 2),
+                    # Connect to Skolem function
+                    self.forward_of(0) == 2
+                )
+            )
+        )
+        
+        # Continue the pattern for worlds 1 and 2
+        # Define world 3 as backward-shifted from world 1 if possible
+        constraints.append(
+            z3.Implies(
+                z3.And(
+                    self.is_world(1),
+                    self.can_shift_backward(1)
+                ),
+                z3.And(
+                    self.is_world(3),
+                    self.is_shifted_by(1, -1, 3),
+                    # Connect to Skolem function
+                    self.backward_of(1) == 3
+                )
+            )
+        )
+        
+        # Define world 4 as backward-shifted from world 2 if possible
+        constraints.append(
+            z3.Implies(
+                z3.And(
+                    self.is_world(2),
+                    self.can_shift_backward(2)
+                ),
+                z3.And(
+                    self.is_world(4),
+                    self.is_shifted_by(2, -1, 4),
+                    # Connect to Skolem function
+                    self.backward_of(2) == 4
+                )
+            )
+        )
+        
+        # Define world 5 as forward-shifted from world 1 if possible
+        constraints.append(
+            z3.Implies(
+                z3.And(
+                    self.is_world(1),
+                    self.can_shift_forward(1)
+                ),
+                z3.And(
+                    self.is_world(5),
+                    self.is_shifted_by(1, 1, 5),
+                    # Connect to Skolem function
+                    self.forward_of(1) == 5
+                )
+            )
+        )
+        
+        # Define world 6 as forward-shifted from world 2 if possible
+        constraints.append(
+            z3.Implies(
+                z3.And(
+                    self.is_world(2),
+                    self.can_shift_forward(2)
+                ),
+                z3.And(
+                    self.is_world(6),
+                    self.is_shifted_by(2, 1, 6),
+                    # Connect to Skolem function
+                    self.forward_of(2) == 6
+                )
+            )
+        )
+        
+        return z3.And(*constraints)
         
     def define_invalidity(self):
         """Define the behavior for premises and conclusions in invalidity checks.
