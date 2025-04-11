@@ -115,23 +115,49 @@ class SettingsManager:
             Dictionary of settings with flag overrides applied
         
         Note:
-            Prints warnings for any flag that doesn't correspond to an existing setting
+            Prints warnings only for flags actually provided by the user that don't 
+            correspond to an existing setting
         """
         if module_flags is None:
             return settings
             
         merged_settings = settings.copy()
         
-        # Apply all boolean flag overrides - both True and False values should override
-        # But only override existing settings and warn about unknown flags
+        # Determine which flags were actually provided on the command line
+        # This is based on the raw arguments stored in _parsed_args
+        user_provided_flags = set()
+        
+        # Extract flags from the raw command line arguments
+        if hasattr(module_flags, '_parsed_args') and module_flags._parsed_args:
+            for arg in module_flags._parsed_args:
+                if arg.startswith('--'):
+                    # Long format (--flag)
+                    flag_name = arg[2:]
+                    # Handle arguments with values (--flag=value)
+                    if '=' in flag_name:
+                        flag_name = flag_name.split('=')[0]
+                    user_provided_flags.add(flag_name)
+                elif arg.startswith('-') and len(arg) == 2:
+                    # Short format (-f)
+                    short_flag = arg[1]
+                    # Convert to long name if mapping exists
+                    if hasattr(module_flags, '_short_to_long'):
+                        long_name = module_flags._short_to_long.get(short_flag)
+                        if long_name:
+                            user_provided_flags.add(long_name)
+        
+        # Apply all flag overrides - both boolean and non-boolean
         for key, value in vars(module_flags).items():
-            if isinstance(value, bool):
-                if key in merged_settings:
-                    merged_settings[key] = value
-                else:
-                    # Check if this is a flag we should warn about (ignore internal attributes and file_path)
-                    if not key.startswith('_') and key != 'file_path':
-                        print(f"Warning: Flag '{key}' doesn't correspond to any known setting")
+            # Skip internal attributes and file_path
+            if key.startswith('_') or key == 'file_path':
+                continue
+                
+            # Override if the setting exists
+            if key in merged_settings:
+                merged_settings[key] = value
+            # Warn only if this was explicitly provided by the user
+            elif key in user_provided_flags:
+                print(f"Warning: Flag '{key}' doesn't correspond to any known setting")
                 
         return merged_settings
     

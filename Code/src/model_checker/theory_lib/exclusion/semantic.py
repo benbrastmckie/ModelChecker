@@ -51,7 +51,6 @@ class ExclusionSemantics(model.SemanticDefaults):
         "print_z3": False,
         "save_output": False,
         "maximize": False,
-        "align_vertically": False,  # Exclusion theory uses horizontal alignment by default
     }
 
     def __init__(self, combined_settings): # TODO: 
