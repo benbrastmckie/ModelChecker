@@ -487,11 +487,11 @@ example_range = {
 
     # Tense Countermodels
     "TN_CM_1" : TN_CM_1_example,
-    "TN_CM_2" : TN_CM_2_example,
+    # "TN_CM_2" : TN_CM_2_example,
 
     # Bimodal Countermodels
-    "BM_CM_1" : BM_CM_1_example,
-    "BM_CM_2" : BM_CM_2_example,
+    # "BM_CM_1" : BM_CM_1_example,
+    # "BM_CM_2" : BM_CM_2_example,
 
     ### THEOREMS ###
 
