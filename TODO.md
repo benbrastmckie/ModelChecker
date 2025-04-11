@@ -1,25 +1,17 @@
 # TODO
 
-Specific tasks can be marked with _M_ or _B_ when relevant.
-
 ## SCRATCH
 
-- I'm working on refactoring the bimodal/ subpackage. Can you read the documentation in CLAUDE.md before studying bimodal/semantics.py to familiarize yourself with the codebase. Then take a look at bimodal/notes/LAMBDA.md to get a sense of the problem I am having as well as the solution that I am thinking about. Can you evaluate this solution, appending some different approaches for implementing this solution to LAMBDA.md as well as some alternative approaches that I might consider.  
-- Can you read bimodal/notes/DYNAMIC.md and append a detailed implementaton strategy to this document?
-- I'm working on refactoring the bimodal/ subpackage. Can you read the documentation in CLAUDE.md before studying bimodal/semantics.py to familiarize yourself with the codebase. Then take a look at bimodal/notes/DYNAMIC.md to get a sense of the problem I am having as well as the implementation strategy that I am thinking about before implementing this strategy.  
+
 
 ## Plan
 
-- [ ] tools
-  - [ ] iterate
-  - [ ] maximize
-  - [ ] minimize
-- [ ] bimodal
-  - [ ] semantics
+- bimodal
+  - semantics
+    - [ ] add comments to examples
     - [ ] settings
       - [ ] disjoint
       - [ ] contingent
-    - [ ] add comments to examples
     - [ ] optimize
       - [ ] remove/enforce `max_world_id`
       - [ ] clean up frame constraints
@@ -35,7 +27,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
       - [x] improve design philosophy
       - [x] add subpackage outline and warnings
       - [x] add debugging philosophy
-    - [x] ask claude to check for consistencies in extract method etc
+    - [x] check for consistencies in extract method etc
     - [x] add abundance constraint
   - [x] proposition
     - [x] extension
@@ -45,7 +37,10 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] necessity
 - [x] debug readme issue
 - general
-  - research try/except for development
+  - [ ] tools
+    - [ ] iterate
+    - [ ] maximize
+    - [ ] minimize
   - create print module
   - theory metadata
   - refactor theory tests
@@ -57,6 +52,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - project building
     - example execution
     - clean up non-determinism throughout
+  - [x] research try/except for development
   - [x] create settings module
 - exclusion semantics
   - [ ] documentation

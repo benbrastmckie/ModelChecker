@@ -71,16 +71,10 @@ from z3 import (
     simplify,
 )
 
-# Try installed package imports first
-try:
-    from model_checker.utils import (
-        not_implemented_string,
-    )
-except ImportError:
-    # Fall back to local imports for development
-    from src.model_checker.utils import (
-        not_implemented_string,
-    )
+# Standard imports
+from model_checker.utils import (
+    not_implemented_string,
+)
 
 inputs_template = Template(
 '''Z3 run time: ${z3_model_runtime} seconds

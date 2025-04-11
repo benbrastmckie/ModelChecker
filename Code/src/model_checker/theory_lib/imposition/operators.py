@@ -1,27 +1,15 @@
 import z3
 
 # Try installed package imports first
-try:
-    from model_checker.utils import (
-        ForAll,
-        Exists,
-    )
-    from model_checker import syntactic
-    from model_checker.theory_lib.default.operators import (
-        default_operators,
-        NegationOperator,
-    )
-except ImportError:
-    # Fall back to local imports for development
-    from src.model_checker.utils import (
-        ForAll,
-        Exists,
-    )
-    from src.model_checker import syntactic
-    from src.model_checker.theory_lib.default.operators import (
-        default_operators,
-        NegationOperator,
-    )
+from model_checker.utils import (
+    ForAll,
+    Exists,
+)
+from model_checker import syntactic
+from model_checker.theory_lib.default.operators import (
+    default_operators,
+    NegationOperator,
+)
 
 ##############################################################################
 ####################### PRIMITIVE IMPOSITION OPERATORS #######################

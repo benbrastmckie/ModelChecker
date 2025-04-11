@@ -8,20 +8,12 @@ import sys
 import subprocess
 import argparse
 
-# Try installed package imports first
-try:
-    from model_checker import __version__
-    from model_checker.builder import (
-        BuildProject,
-        BuildModule,
-    )
-except ImportError:
-    # Fall back to local imports for development
-    from src.model_checker import __version__
-    from src.model_checker.builder import (
-        BuildProject,
-        BuildModule,
-    )
+# Standard imports
+from model_checker import __version__
+from model_checker.builder import (
+    BuildProject,
+    BuildModule,
+)
 
 
 class ParseFileFlags:

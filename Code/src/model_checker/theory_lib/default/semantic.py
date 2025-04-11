@@ -54,38 +54,21 @@ import z3
 import sys
 import time
 
-# Try installed package imports first
-try:
-    from model_checker.model import (
-        PropositionDefaults,
-        SemanticDefaults,
-        ModelDefaults,
-        ModelConstraints,
-    )
-    from model_checker.utils import (
-        ForAll,
-        Exists,
-        bitvec_to_substates,
-        pretty_set_print,
-        int_to_binary,
-    )
-    from model_checker import syntactic
-except ImportError:
-    # Fall back to local imports for development
-    from src.model_checker.model import (
-        PropositionDefaults,
-        SemanticDefaults,
-        ModelDefaults,
-        ModelConstraints,
-    )
-    from src.model_checker.utils import (
-        ForAll,
-        Exists,
-        bitvec_to_substates,
-        pretty_set_print,
-        int_to_binary,
-    )
-    from src.model_checker import syntactic
+# Standard imports
+from model_checker.model import (
+    PropositionDefaults,
+    SemanticDefaults,
+    ModelDefaults,
+    ModelConstraints,
+)
+from model_checker.utils import (
+    ForAll,
+    Exists,
+    bitvec_to_substates,
+    pretty_set_print,
+    int_to_binary,
+)
+from model_checker import syntactic
 
 
 

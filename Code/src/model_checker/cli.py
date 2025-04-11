@@ -38,17 +38,8 @@ def debug_imports():
 # Run the debug function
 debug_imports()
 
-# Import main function - prioritize installed package imports
-try:
-    from model_checker.__main__ import main
-except ImportError:
-    # Fall back to local imports for development
-    try:
-        from src.model_checker.__main__ import main
-    except ImportError:
-        # Last resort: add parent directory to sys.path
-        sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-        from model_checker.__main__ import main
+# Import main function directly
+from model_checker.__main__ import main
 
 # Create a custom main function that overrides any save_or_append behavior
 def custom_main():

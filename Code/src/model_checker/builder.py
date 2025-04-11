@@ -49,32 +49,18 @@ import shutil
 import subprocess
 from concurrent.futures.thread import ThreadPoolExecutor
 
-# Try installed package imports first
-try:
-    from model_checker import __version__
-    from model_checker.model import (
-        SemanticDefaults,
-        PropositionDefaults,
-        ModelConstraints,
-        ModelDefaults,
-    )
-    from model_checker.syntactic import (
-        OperatorCollection,
-        Syntax,
-    )
-except ImportError:
-    # Fall back to local imports for development
-    from src.model_checker import __version__
-    from src.model_checker.model import (
-        SemanticDefaults,
-        PropositionDefaults,
-        ModelConstraints,
-        ModelDefaults,
-    )
-    from src.model_checker.syntactic import (
-        OperatorCollection, 
-        Syntax,
-    )
+# Standard imports
+from model_checker import __version__
+from model_checker.model import (
+    SemanticDefaults,
+    PropositionDefaults,
+    ModelConstraints,
+    ModelDefaults,
+)
+from model_checker.syntactic import (
+    OperatorCollection,
+    Syntax,
+)
 
 
 class BuildModule:
