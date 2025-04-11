@@ -17,7 +17,6 @@ class MockSemantics:
     DEFAULT_GENERAL_SETTINGS = {
         'print_z3': False,
         'print_constraints': False,
-        'align_vertically': False,
     }
 
 class MockBuildModule:

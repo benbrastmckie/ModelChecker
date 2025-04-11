@@ -48,7 +48,6 @@ DEFAULT_GENERAL_SETTINGS = {
     "print_z3": False,
     "save_output": False,
     "maximize": False,
-    "align_vertically": True,  # Bimodal prefers vertical alignment by default
 }
 ```
 

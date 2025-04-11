@@ -52,7 +52,6 @@ class ImpositionSemantics(SemanticDefaults):
         "print_z3": False,
         "save_output": False,
         "maximize": False,
-        "align_vertically": False,  # Imposition theory uses horizontal alignment by default
     }
 
     def __init__(self, settings):

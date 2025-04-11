@@ -161,7 +161,34 @@ class ParseFileFlags:
                 - parsed_args: The parsed command line arguments
                 - package_name: The name of the package (model-checker)
         """
+        # Create a mapping from short flag names to long names
+        self._short_to_long = {
+            'c': 'contingent',
+            'd': 'disjoint',
+            'e': 'non_empty',
+            'l': 'load_theory',
+            'm': 'maximize',
+            'n': 'non_null',
+            'p': 'print_constraints',
+            's': 'save_output',
+            'i': 'print_impossible',
+            'v': 'version',
+            'u': 'upgrade',
+            'z': 'print_z3',
+            'a': 'align_vertically'
+        }
+        
+        # Store the original command line arguments
+        import sys
+        self._parsed_args = sys.argv[1:]
+        
+        # Parse the arguments
         self.flags = self.parser.parse_args()
+        
+        # Add the mapping and args to the flags object for use in settings manager
+        self.flags._short_to_long = self._short_to_long
+        self.flags._parsed_args = self._parsed_args
+        
         self.package_name = self.parser.prog
         return self.flags, self.package_name
 
