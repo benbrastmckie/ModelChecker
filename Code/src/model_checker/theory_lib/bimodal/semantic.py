@@ -213,20 +213,28 @@ class BimodalSemantics(SemanticDefaults):
         # MAYBE: Task state minimization - Encourages minimal changes between consecutive world states
         task_minimization = self.build_task_minimization_constraint()
 
-        return [ # NOTE: order matters!
-            valid_main_world,
-            valid_main_time,
-            classical_truth,
-            enumerated_worlds,
-            convex_ordering,
-            lawful_worlds,
-            skolem_abundance,
-            world_uniqueness,
-            time_interval,
+        return [
+            # Start with the simplest constraints that establish validity conditions
+            valid_main_world,       # The main world must be valid (simple constraint)
+            valid_main_time,        # The main time must be valid (simple constraint)
+            enumerated_worlds,      # World enumeration starts at 0 (simple constraint)
+            
+            # Structural constraints on the world organization
+            convex_ordering,        # Worlds form a convex ordering (medium complexity)
+            time_interval,          # Each world has a valid time interval (medium complexity)
+            
+            # Core semantic constraints
+            classical_truth,        # Each atom has a definite truth value (provides strong guidance to the solver)
+            
+            # Complex relational constraints
+            world_uniqueness,       # Every valid world is unique (helps prune the search space)
+            lawful_worlds,          # World states have task transitions (fundamental constraint)
+            skolem_abundance,       # All valid time-shifted worlds exist (most complex, put later)
+            
             # task_restriction,     # MAYBE
             # task_minimization,    # MAYBE
         ]
-
+    
     def is_valid_time(self, given_time, offset=0):
         """Check if a time point exists in the expanded time domain.
         
@@ -608,127 +616,6 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
     
-
-    def build_systematic_world_relationship(self):
-        """Constraint explicitly defining relationships between world IDs.
-        
-        This constraint explicitly defines the relationships between world IDs,
-        potentially making it easier for Z3 to organize the model by providing
-        direct guidance on world relationships.
-        
-        Returns:
-            Z3 formula: Combined constraint defining systematic world relationships
-        """
-        # Define forward_of and backward_of functions if they don't exist
-        if not hasattr(self, 'forward_of'):
-            self.forward_of = z3.Function('forward_of', self.WorldIdSort, self.WorldIdSort)
-        if not hasattr(self, 'backward_of'):
-            self.backward_of = z3.Function('backward_of', self.WorldIdSort, self.WorldIdSort)
-            
-        constraints = []
-        
-        # Ensure world 0 exists (main world)
-        constraints.append(self.is_world(0))
-        
-        # Define world 1 as backward-shifted from world 0 if possible
-        constraints.append(
-            z3.Implies(
-                z3.And(
-                    self.is_world(0),
-                    self.can_shift_backward(0)
-                ),
-                z3.And(
-                    self.is_world(1),
-                    self.is_shifted_by(0, -1, 1),
-                    # Connect to Skolem function
-                    self.backward_of(0) == 1
-                )
-            )
-        )
-        
-        # Define world 2 as forward-shifted from world 0 if possible
-        constraints.append(
-            z3.Implies(
-                z3.And(
-                    self.is_world(0),
-                    self.can_shift_forward(0)
-                ),
-                z3.And(
-                    self.is_world(2),
-                    self.is_shifted_by(0, 1, 2),
-                    # Connect to Skolem function
-                    self.forward_of(0) == 2
-                )
-            )
-        )
-        
-        # Continue the pattern for worlds 1 and 2
-        # Define world 3 as backward-shifted from world 1 if possible
-        constraints.append(
-            z3.Implies(
-                z3.And(
-                    self.is_world(1),
-                    self.can_shift_backward(1)
-                ),
-                z3.And(
-                    self.is_world(3),
-                    self.is_shifted_by(1, -1, 3),
-                    # Connect to Skolem function
-                    self.backward_of(1) == 3
-                )
-            )
-        )
-        
-        # Define world 4 as backward-shifted from world 2 if possible
-        constraints.append(
-            z3.Implies(
-                z3.And(
-                    self.is_world(2),
-                    self.can_shift_backward(2)
-                ),
-                z3.And(
-                    self.is_world(4),
-                    self.is_shifted_by(2, -1, 4),
-                    # Connect to Skolem function
-                    self.backward_of(2) == 4
-                )
-            )
-        )
-        
-        # Define world 5 as forward-shifted from world 1 if possible
-        constraints.append(
-            z3.Implies(
-                z3.And(
-                    self.is_world(1),
-                    self.can_shift_forward(1)
-                ),
-                z3.And(
-                    self.is_world(5),
-                    self.is_shifted_by(1, 1, 5),
-                    # Connect to Skolem function
-                    self.forward_of(1) == 5
-                )
-            )
-        )
-        
-        # Define world 6 as forward-shifted from world 2 if possible
-        constraints.append(
-            z3.Implies(
-                z3.And(
-                    self.is_world(2),
-                    self.can_shift_forward(2)
-                ),
-                z3.And(
-                    self.is_world(6),
-                    self.is_shifted_by(2, 1, 6),
-                    # Connect to Skolem function
-                    self.forward_of(2) == 6
-                )
-            )
-        )
-        
-        return z3.And(*constraints)
-        
     def define_invalidity(self):
         """Define the behavior for premises and conclusions in invalidity checks.
 
