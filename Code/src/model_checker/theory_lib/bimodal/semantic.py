@@ -1974,7 +1974,7 @@ class BimodalStructure(ModelDefaults):
         
         # Find time range and world IDs
         min_time, max_time = self._get_time_range(self.world_histories)
-        all_times = sorted(range(min_time, max_time + 1))
+        all_times = sorted(range(int(min_time), int(max_time) + 1))
         world_ids = sorted(self.world_histories.keys())
         
         # Create formatted states and determine column widths

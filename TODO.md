@@ -16,7 +16,6 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] minimize
 - [ ] bimodal
   - [ ] semantics
-    - [.] center world history printing
     - [ ] settings
       - [ ] disjoint
       - [ ] contingent
@@ -25,6 +24,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
       - [ ] remove/enforce `max_world_id`
       - [ ] clean up frame constraints
       - [ ] develop bimodal lambda only strategy
+    - [x] center world history printing
     - [x] abundance constraint
     - [x] time_shift constraint
     - [x] define `time_shift_relations`
@@ -45,13 +45,14 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] necessity
 - [x] debug readme issue
 - general
+  - test `README.md` in each theory
   - theory metadata
   - research try/except for development
   - refactor threading
   - improve version management
   - add unit tests throughout
   - refactor API
-    - improve flags and settings
+    - [ ] improve flags and settings
     - project building
     - example execution
     - clean up non-determinism throughout
