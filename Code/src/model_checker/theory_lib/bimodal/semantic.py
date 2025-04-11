@@ -1784,6 +1784,114 @@ class BimodalStructure(ModelDefaults):
             world_line = " ==> ".join(state_sequence)
             print(f"  {GRAY}W_{world_id}: {world_line}{RESET}", file=output)
         
+        
+    def format_time(self, time):
+        """Format time with appropriate sign for display.
+        
+        Args:
+            time: Time point to format
+            
+        Returns:
+            str: Formatted time string with sign prefix
+        """
+        if time > 0:
+            return f"+{time}"  # Add + prefix for positive non-zero times
+        return f"{time}"  # Negative times already have - prefix, zero is just 0
+        
+    def print_world_histories(self, output=sys.__stdout__):
+        """Print all world histories with time-aligned columns.
+        
+        This method prints world histories in a format where states at the same
+        time points are vertically aligned, making it easier to compare states
+        across different world histories.
+        
+        Args:
+            output: Output stream to print to. Defaults to sys.stdout.
+        """
+        print("World Histories:", file=output)
+        if self.z3_model is None or not hasattr(self, 'world_histories') or self.world_histories is None:
+            print("No valid world histories available", file=output)
+            return
+
+        # Set up colors
+        GRAY = ""
+        RESET = ""
+        if output is sys.__stdout__:
+            GRAY = "\033[37m"
+            RESET = "\033[0m"
+        
+        # 1. Determine the full time range
+        min_time = float('inf')
+        max_time = float('-inf')
+        for world_id, time_states in self.world_histories.items():
+            for time in time_states:
+                min_time = min(min_time, time)
+                max_time = max(max_time, time)
+        
+        # 2. Create a list of all times in ascending order
+        all_times = sorted(range(min_time, max_time + 1))
+        
+        # 3. Map each time to its position in the output
+        # Store formatted states for each world at each time
+        formatted_states = {}
+        for world_id, time_states in self.world_histories.items():
+            formatted_states[world_id] = {}
+            for time in all_times:
+                if time in time_states:
+                    # Format time with appropriate sign
+                    formatted_time = self.format_time(time)
+                    # Create formatted state string
+                    formatted_states[world_id][time] = f"({formatted_time}:{time_states[time]})"
+        
+        # 4. Determine column width for each time
+        column_widths = {}
+        for time in all_times:
+            max_width = 0
+            for world_id in formatted_states:
+                if time in formatted_states[world_id]:
+                    max_width = max(max_width, len(formatted_states[world_id][time]))
+            column_widths[time] = max_width
+        
+        # Calculate starting position for each time column
+        time_positions = {}
+        current_pos = 0
+        for time in all_times:
+            time_positions[time] = current_pos
+            current_pos += column_widths[time] + 5  # Width + space for " ==> "
+        
+        # 5. Print each world history with aligned columns
+        for world_id in sorted(self.world_histories.keys()):
+            # Calculate actual world line with proper spacing
+            world_line = []
+            
+            # Initialize the line with spaces
+            total_width = max(time_positions.values()) + column_widths.get(all_times[-1], 0)
+            line = [" "] * total_width
+            
+            # Add each visible state at its appropriate position
+            visible_times = sorted([t for t in all_times if t in formatted_states[world_id]])
+            
+            for i, time in enumerate(visible_times):
+                state_str = formatted_states[world_id][time]
+                pos = time_positions[time]
+                
+                # Add the state
+                for j, char in enumerate(state_str):
+                    if pos + j < len(line):
+                        line[pos + j] = char
+                
+                # Add arrow if not the last state
+                if i < len(visible_times) - 1:
+                    arrow_pos = pos + len(state_str)
+                    arrow = " ==> "
+                    for j, char in enumerate(arrow):
+                        if arrow_pos + j < len(line):
+                            line[arrow_pos + j] = char
+            
+            # Convert to string and print
+            world_line = "".join(line).rstrip()
+            print(f"  {GRAY}W_{world_id}: {world_line}{RESET}", file=output)
+        
     def print_all(self, default_settings, example_name, theory_name, output=sys.__stdout__):
         """Print complete model information including worlds, evaluation point, and sentences.
         
@@ -1796,7 +1904,7 @@ class BimodalStructure(ModelDefaults):
         model_status = self.z3_model_status
         self.print_info(model_status, default_settings, example_name, theory_name, output)
         if model_status:
-            self.print_worlds_and_times(output)
+            self.print_world_histories(output)
             self.print_evaluation(output)
             self.print_input_sentences(output)
             self.print_model(output)
