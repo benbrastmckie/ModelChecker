@@ -10,14 +10,20 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Plan
 
-- [ ] research try/except for development
-- [ ] bimodal semantics
-  - [ ] develop bimodal lambda only strategy
+- [ ] debug readme issue
+- [ ] tools
+  - [.] iterate
+    - refactor threading
+  - [ ] minimize
+  - [ ] maximize N/M
+- bimodal
   - [ ] semantics
-    - [ ] time_shift constraint
-    - [ ] abundance constraint
     - [ ] center world history printing
     - [ ] remove `max_world_id`
+    - [ ] optimize frame constraints
+    - [ ] develop bimodal lambda only strategy
+    - [x] time_shift constraint
+    - [x] abundance constraint
     - [x] define `time_shift_relations`
     - [x] debug tense operators
       - [x] develop array only strategy
@@ -34,11 +40,6 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] future
     - [x] past
     - [x] necessity
-- [ ] debug readme issue
-- [ ] tools
-  - [.] iterate
-    - refactor threading
-  - [ ] minimize
 - exclusion semantics
   - [ ] documentation
   - [.] add more examples
@@ -57,21 +58,23 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
       - cli flag to create notebook
   - [x] all_bits bug
   - [x] divide into modules
-- improve version management
-- add unit tests throughout
-- refactor API in a deeper way
-  - project building
-  - example execution
-  - clean up non-determinism throughout
-- [x] update script
-  - [x] build script
-  - [x] document
-- [x] fix unit testing
-  - [x] document
-  - [x] build test script
-  - [x] expose `examples_range`
-  - [x] expose `test_examples_range`
-  - [x] call `test_examples_range` in pytests
+- general
+  - remove try/except for development
+  - improve version management
+  - unit testing
+  - refactor API
+    - project building
+    - example execution
+    - clean up non-determinism throughout
+  - [x] update script
+    - [x] build script
+    - [x] document
+  - [x] fix unit testing
+    - [x] document
+    - [x] build test script
+    - [x] expose `examples_range`
+    - [x] expose `test_examples_range`
+    - [x] call `test_examples_range` in pytests
 - [x] imposition semantics
   - [x] implement
   - [x] separate from default
