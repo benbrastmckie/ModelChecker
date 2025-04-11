@@ -1990,8 +1990,8 @@ class BimodalStructure(ModelDefaults):
                     max_width = max(max_width, state_width)
             column_widths[world_id] = max_width
         
-        # Fixed width for the Time column
-        time_col_width = 10
+        # Fixed width for the Time column (reduced for compactness)
+        time_col_width = 6  # Reduced from 10
         
         # Calculate positions for each column separator to ensure alignment
         separator_positions = [time_col_width]  # Start after the time column
@@ -2010,8 +2010,12 @@ class BimodalStructure(ModelDefaults):
         
         print(f"  {GRAY}{header}{RESET}", file=output)
         
-        # Create a separator line matching the header length
-        separator = "=" * len(header)
+        # Create a separator line matching the header length with pipe characters
+        separator_parts = ["=" * time_col_width]
+        for world_id in world_ids:
+            separator_parts.append("=|=" + "=" * column_widths[world_id])
+            
+        separator = "".join(separator_parts)
         print(f"  {GRAY}{separator}{RESET}", file=output)
         
         # Print each time row
@@ -2044,7 +2048,7 @@ class BimodalStructure(ModelDefaults):
             
             # Add arrow between rows (except after the last time)
             if time < max_time:
-                arrow_parts = [" " * time_col_width]  # Start with space for time column
+                arrow_parts = [" " * time_col_width]  # Space for time column using updated width
                 
                 for i, world_id in enumerate(world_ids):
                     # Calculate position for the arrow in this column
