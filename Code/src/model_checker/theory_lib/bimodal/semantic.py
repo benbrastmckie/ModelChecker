@@ -214,25 +214,23 @@ class BimodalSemantics(SemanticDefaults):
         task_minimization = self.build_task_minimization_constraint()
 
         return [
-            # Start with the simplest constraints that establish validity conditions
-            valid_main_world,       # The main world must be valid (simple constraint)
-            valid_main_time,        # The main time must be valid (simple constraint)
-            enumerated_worlds,      # World enumeration starts at 0 (simple constraint)
-            
-            # Structural constraints on the world organization
-            convex_ordering,        # Worlds form a convex ordering (medium complexity)
-            time_interval,          # Each world has a valid time interval (medium complexity)
-            
-            # Core semantic constraints
-            classical_truth,        # Each atom has a definite truth value (provides strong guidance to the solver)
-            
-            # Complex relational constraints
-            world_uniqueness,       # Every valid world is unique (helps prune the search space)
-            lawful_worlds,          # World states have task transitions (fundamental constraint)
-            skolem_abundance,       # All valid time-shifted worlds exist (most complex, put later)
-            
-            # task_restriction,     # MAYBE
-            # task_minimization,    # MAYBE
+            valid_main_world,
+            valid_main_time,
+            classical_truth,
+            enumeration_constraint,
+            convex_world_ordering,
+            lawful,
+            skolem_abundance,
+            world_uniqueness,
+            time_interval,
+
+            # MAYBE
+            # task_restriction,
+            # task_minimization,                # Task state minimization constraint
+
+            # DEAD
+            # world_interval,                   # Replaced by time_interval
+            # systematic_world_relationship,    # New constraint explicitly defining world relationships
         ]
     
     def is_valid_time(self, given_time, offset=0):
