@@ -102,15 +102,6 @@ class BuildModule:
         save_output (bool): Whether to save results to files
         maximize (bool): Whether to maximize the model size
     """
-    
-    DEFAULT_GENERAL_SETTINGS = {
-        "print_impossible": False,
-        "print_constraints": False,
-        "print_z3": False,
-        "save_output": False,
-        "maximize": False,
-        "align_vertically": False,
-    }
 
     def __init__(self, module_flags):
         """Initialize BuildModule with module flags containing configuration.
@@ -123,6 +114,8 @@ class BuildModule:
             ImportError: If the module cannot be loaded
             AttributeError: If required attributes are missing from the module
         """
+        # Import here to avoid circular imports
+        from model_checker.settings import SettingsManager, DEFAULT_GENERAL_SETTINGS
 
         self.module_flags = module_flags
         self.module_path = self.module_flags.file_path
@@ -133,8 +126,20 @@ class BuildModule:
         self.semantic_theories = self._load_attribute("semantic_theories")
         self.example_range = self._load_attribute("example_range")
 
+        # Initialize settings manager with first semantic theory (can be updated per theory later)
+        first_theory = next(iter(self.semantic_theories.values()))
+        self.settings_manager = SettingsManager(first_theory, DEFAULT_GENERAL_SETTINGS)
+        
         # Load general settings
-        self.general_settings = self._load_general_settings()
+        user_general_settings = getattr(self.module, "general_settings", None)
+        self.general_settings = self.settings_manager.validate_general_settings(user_general_settings)
+        
+        # Apply flag overrides for general settings
+        self.general_settings = self.settings_manager.apply_flag_overrides(self.general_settings, self.module_flags)
+        
+        # Also set attributes for backward compatibility
+        for key, value in self.general_settings.items():
+            setattr(self, key, value)
 
     def _load_module(self):
         """Load the Python module from file.
@@ -170,50 +175,6 @@ class BuildModule:
             )
         return getattr(self.module, attr_name, {})
 
-    def _load_general_settings(self):
-        """Initialize settings by combining module defaults, user settings, and flag overrides.
-        
-        This method merges settings from multiple sources in the following priority order:
-        1. Command-line flag overrides (highest priority)
-        2. User-defined module settings
-        3. Default general settings (lowest priority)
-        
-        The method handles:
-        - Loading settings from the module if present
-        - Applying default values for missing settings
-        - Overriding settings with command-line flags when specified
-        
-        Returns:
-            dict: Complete settings dictionary with all values resolved
-            
-        Note:
-            Only boolean command-line flags that are explicitly set to True will
-            override existing settings.
-        """
-
-        general_settings = getattr( # Permits user to replace general_settings
-            self.module,
-            "general_settings",
-            self.DEFAULT_GENERAL_SETTINGS
-        )
-
-        # Initialize each setting from module_settings with fallback to defaults
-        for key, default_value in self.DEFAULT_GENERAL_SETTINGS.items():
-            # Check if there's a flag override
-            flag_value = getattr(self.module_flags, key, None)
-            if flag_value is True:  # Only override if flag is explicitly True
-                value = flag_value
-            else:  # Use module setting or fall back to default
-                value = general_settings.get(key, default_value)
-            setattr(self, key, value)
-        
-        # Store complete settings dict with flag overrides
-        general_settings = {
-            key: getattr(self, key)
-            for key in self.DEFAULT_GENERAL_SETTINGS
-        }
-
-        return general_settings
 
     def try_single_N(self, theory_name, semantic_theory, example_case):
         """Try a single N value and return (success, runtime).
@@ -936,6 +897,8 @@ class BuildExample:
 
     def __init__(self, build_module, semantic_theory, example_case):
         """Initialize model structure from module flags."""
+        from model_checker.settings import SettingsManager
+        
         # Store from build_module
         self.module = build_module.module
         self.module_flags = build_module.module_flags
@@ -947,11 +910,23 @@ class BuildExample:
         self.dictionary = None
         self.model_structure_class = None
         self._validate_semantic_theory(semantic_theory)
+        
+        # Create settings manager specifically for this theory
+        self.settings_manager = SettingsManager(
+            {"semantics": self.semantics},
+            build_module.general_settings  # Use module's settings as fallback
+        )
 
         # Unpack and store example_case
         self.premises, self.conclusions, self.example_settings = self._validate_example(example_case)
         self.example_syntax = Syntax(self.premises, self.conclusions, self.operators)
-        self.settings = self._validate_settings(self.example_settings)
+        
+        # Get complete settings using the settings manager
+        self.settings = self.settings_manager.get_complete_settings(
+            build_module.general_settings,
+            self.example_settings,
+            self.module_flags
+        )
 
         # Create model constraints
         if self.semantics is None:
@@ -1268,88 +1243,32 @@ class BuildExample:
         return example_case
 
     def _validate_settings(self, example_settings):
-        """Validates and merges example settings with general settings and module flags.
+        """Validates and merges example settings with general settings and module flags using SettingsManager.
         
         Args:
             example_settings: Dictionary containing settings specific to this example
             
         Returns:
             Dictionary containing the merged and validated settings with module flag overrides
-            
-        The function performs three steps:
-        1. Merges example settings with general settings, warning about overlaps
-        2. Updates boolean settings based on module flags
-        3. Returns the final merged and validated settings dictionary
         """
-
-        def update_example_settings(example_settings):
-            """Merge example settings with default semantic settings.
-
-            Args:
-                example_settings (dict): Settings specific to the current example
-
-            Returns:
-                dict: Merged settings dictionary containing defaults from semantics class
-                      updated with provided example settings
-            """
-            if self.semantics is None:
-                merged_settings = {} 
-            else:
-                merged_settings = self.semantics.DEFAULT_EXAMPLE_SETTINGS.copy()
-            merged_settings.update(example_settings)
-            return merged_settings
-
-        # TODO: right now the merged settings gets carried over from one example
-        # to the next which is not how it should be
-        def merge_settings(example_settings, general_settings):
-            """Adds example_settings to general_settings, mentioning overlaps."""
-            # Track and merge settings
-
-            combined_settings = general_settings.copy()
-            for key, example_value in example_settings.items():
-                # Get value from module settings or use default
-                general_value = combined_settings.get(key, example_value)
-                
-                # Check if we're replacing an existing general setting
-                if key in general_settings.keys() and example_value != general_value:
-                    print(
-                        f"Warning: Example setting '{key} = {example_value}' is " +
-                        f"replacing the general setting '{key} = {general_value}'."
-                    )
-                
-                # Update the settings
-                combined_settings[key] = example_value
-    
-            return combined_settings
-    
-        def disjoin_flags(all_settings):
-            """Override settings with command line flag values.
-            
-            Takes the merged settings dictionary and updates any boolean settings
-            that have corresponding command line flags set to True. Only updates
-            settings that already exist in the settings dictionary.
-
-            Args:
-                all_settings: Dictionary containing the merged general and example settings
-
-            Returns:
-                Dictionary with settings updated based on command line flag values
-            """
-            module_flags = self.module_flags
-            updated_settings = all_settings.copy()
-            # Check each command line flag
-            for key, value in vars(module_flags).items():
-                # Only override if flag is boolean, True, and setting exists
-                if isinstance(value, bool) and value and key in updated_settings:
-                    updated_settings[key] = value
-            return updated_settings
-    
-        # Merge and update settings
-        updated_example_settings = update_example_settings(example_settings)
-        all_settings = merge_settings(updated_example_settings, self.module.general_settings)
-        flag_updated_settings = disjoin_flags(all_settings)
-    
-        return flag_updated_settings
+        from model_checker.settings import SettingsManager, DEFAULT_GENERAL_SETTINGS
+        
+        # Create settings manager for this specific theory if it doesn't exist
+        if not hasattr(self, 'settings_manager'):
+            self.settings_manager = SettingsManager(
+                {"semantics": self.semantics}, 
+                DEFAULT_GENERAL_SETTINGS
+            )
+        
+        # Use the settings manager to get complete settings
+        from_module = getattr(self.module, "general_settings", {})
+        complete_settings = self.settings_manager.get_complete_settings(
+            from_module,
+            example_settings,
+            self.module_flags
+        )
+        
+        return complete_settings
 
     def check_result(self):
         """Compare the model findings against expected model existence.
