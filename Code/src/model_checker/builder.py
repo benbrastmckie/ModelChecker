@@ -477,19 +477,24 @@ class BuildModule:
             
         This method handles:
         1. Operator translation if needed
-        2. Initial model generation
-        3. Iterative model finding if requested
+        2. Creating a theory-specific SettingsManager
+        3. Initial model generation
+        4. Iterative model finding if requested
         """
         # TODO: add try/except back in
         # try:
+        # Import settings manager for this specific theory
+        from model_checker.settings import SettingsManager, DEFAULT_GENERAL_SETTINGS
+        
+        # Create a theory-specific settings manager
+        theory_settings_manager = SettingsManager(
+            {"semantics": semantic_theory["semantics"]},
+            DEFAULT_GENERAL_SETTINGS
+        )
+        
         # Translate operators if dictionary exists
         translated_case = self._translate_if_needed(example_case, semantic_theory)
-        
-        # Add the align_vertically setting from general settings to example settings
-        premises, conclusions, settings = translated_case
-        if "align_vertically" not in settings:
-            settings["align_vertically"] = self.general_settings.get("align_vertically", False)
-        translated_case = [premises, conclusions, settings]
+        premises, conclusions, example_settings = translated_case
         
         # Generate initial model
         with ThreadPoolExecutor() as executor:
@@ -1242,33 +1247,8 @@ class BuildExample:
 
         return example_case
 
-    def _validate_settings(self, example_settings):
-        """Validates and merges example settings with general settings and module flags using SettingsManager.
-        
-        Args:
-            example_settings: Dictionary containing settings specific to this example
-            
-        Returns:
-            Dictionary containing the merged and validated settings with module flag overrides
-        """
-        from model_checker.settings import SettingsManager, DEFAULT_GENERAL_SETTINGS
-        
-        # Create settings manager for this specific theory if it doesn't exist
-        if not hasattr(self, 'settings_manager'):
-            self.settings_manager = SettingsManager(
-                {"semantics": self.semantics}, 
-                DEFAULT_GENERAL_SETTINGS
-            )
-        
-        # Use the settings manager to get complete settings
-        from_module = getattr(self.module, "general_settings", {})
-        complete_settings = self.settings_manager.get_complete_settings(
-            from_module,
-            example_settings,
-            self.module_flags
-        )
-        
-        return complete_settings
+    # _validate_settings method has been removed as it's now redundant
+    # The BuildExample constructor already uses SettingsManager.get_complete_settings
 
     def check_result(self):
         """Compare the model findings against expected model existence.

@@ -44,6 +44,16 @@ class ImpositionSemantics(SemanticDefaults):
         'max_time' : 1,
         'expectation' : None,
     }
+    
+    # Default general settings for the imposition theory
+    DEFAULT_GENERAL_SETTINGS = {
+        "print_impossible": False,
+        "print_constraints": False,
+        "print_z3": False,
+        "save_output": False,
+        "maximize": False,
+        "align_vertically": False,  # Imposition theory uses horizontal alignment by default
+    }
 
     def __init__(self, settings):
 

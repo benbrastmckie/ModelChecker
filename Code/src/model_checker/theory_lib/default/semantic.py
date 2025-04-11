@@ -125,6 +125,16 @@ class Semantics(SemanticDefaults):
         'iterate' : 1,
         'expectation' : None,
     }
+    
+    # Default general settings for the default theory
+    DEFAULT_GENERAL_SETTINGS = {
+        "print_impossible": False,
+        "print_constraints": False,
+        "print_z3": False,
+        "save_output": False,
+        "maximize": False,
+        "align_vertically": False,  # Default theory uses horizontal alignment by default
+    }
 
     def __init__(self, settings):
 
@@ -942,7 +952,7 @@ class ModelStructure(ModelDefaults):
             output (file, optional): Output stream to write to. Defaults to sys.stdout
         """
         model_status = self.z3_model_status
-        self.print_info(model_status, default_settings, example_name, theory_name, output)
+        self.print_info(model_status, self.settings, example_name, theory_name, output)
         if model_status:
             self.print_states(output)
             self.print_evaluation(output)
@@ -978,7 +988,7 @@ class ModelStructure(ModelDefaults):
             print(f"\nTIMEOUT: Model search exceeded maximum time of {self.max_time} seconds", file=output)
             print(f"No model for example {example_name} found before timeout.", file=output)
             print(f"Try increasing max_time > {self.max_time}.\n", file=output)
-        self.print_all(default_settings, example_name, theory_name, output)
+        self.print_all(self.settings, example_name, theory_name, output)
         if print_constraints and self.unsat_core is not None:
             self.print_grouped_constraints(output)
 

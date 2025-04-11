@@ -1130,7 +1130,10 @@ class ModelDefaults:
         # Print example information
         self._print_section_header(example_name, header, output)
         self._print_model_details(theory_name, output)
-        self._print_modified_settings(default_settings, output)
+        
+        # Use theory's DEFAULT_EXAMPLE_SETTINGS as the baseline for comparison
+        theory_default_settings = self.model_constraints.semantics.DEFAULT_EXAMPLE_SETTINGS
+        self._print_modified_settings(theory_default_settings, output)
         
         # Print constraints and runtime
         self.model_constraints.print_enumerate(output)

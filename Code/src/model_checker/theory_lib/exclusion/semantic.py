@@ -43,6 +43,16 @@ class ExclusionSemantics(model.SemanticDefaults):
         'max_time' : 1,
         'expectation' : None,
     }
+    
+    # Default general settings for the exclusion theory
+    DEFAULT_GENERAL_SETTINGS = {
+        "print_impossible": False,
+        "print_constraints": False,
+        "print_z3": False,
+        "save_output": False,
+        "maximize": False,
+        "align_vertically": False,  # Exclusion theory uses horizontal alignment by default
+    }
 
     def __init__(self, combined_settings): # TODO: 
 
@@ -786,7 +796,7 @@ class ExclusionStructure(model.ModelDefaults):
         """prints states, sentence letters evaluated at the designated world and
         recursively prints each sentence and its parts"""
         model_status = self.z3_model_status
-        self.print_info(model_status, default_settings, example_name, theory_name, output)
+        self.print_info(model_status, self.settings, example_name, theory_name, output)
         if model_status:
             self.print_states(output)
             self.print_exclusion(output)
@@ -816,14 +826,14 @@ class ExclusionStructure(model.ModelDefaults):
             print(f"\nTIMEOUT: Model search exceeded maximum time of {self.max_time} seconds", file=output)
             print(f"No model for example {example_name} found before timeout.", file=output)
             print(f"Try increasing max_time > {self.max_time}.\n", file=output)
-        self.print_all(default_settings, example_name, theory_name, output)
+        self.print_all(self.settings, example_name, theory_name, output)
         if print_constraints and self.unsat_core is not None:
             self.print_grouped_constraints(output)
 
     def save_to(self, example_name, theory_name, include_constraints, output):
         """append all elements of the model to the file provided"""
         constraints = self.model_constraints.all_constraints
-        self.print_all(example_name, theory_name, output)
+        self.print_all(self.settings, example_name, theory_name, output)
         self.build_test_file(output)
         if include_constraints:
             print("# Satisfiable constraints", file=output)
