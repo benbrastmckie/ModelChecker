@@ -326,7 +326,6 @@ class BimodalSemantics(SemanticDefaults):
         )
         
         return [
-            # NOTE: order matters!
             valid_main_world,
             valid_main_time,
             classical_truth,
