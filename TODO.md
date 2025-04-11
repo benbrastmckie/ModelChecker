@@ -16,7 +16,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
   - [ ] minimize
 - [ ] bimodal
   - [ ] semantics
-    - [ ] center world history printing
+    - [.] center world history printing
     - [ ] settings
       - [ ] disjoint
       - [ ] contingent
@@ -45,6 +45,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] necessity
 - [x] debug readme issue
 - general
+  - theory metadata
   - research try/except for development
   - refactor threading
   - improve version management
