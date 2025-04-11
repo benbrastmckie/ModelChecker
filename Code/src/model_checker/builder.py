@@ -778,20 +778,31 @@ class BuildProject:
 
     def _copy_files(self):
         """Copy all files from source to destination directory."""
+        # Directories to ignore
+        ignore_dirs = ['__pycache__', '.ipynb_checkpoints']
+        
         # Copy all files from source to destination
         for item in os.listdir(self.source_dir):
+            # Skip __pycache__ and other ignored directories
+            if item in ignore_dirs:
+                continue
+                
             source_item = os.path.join(self.source_dir, item)
             dest_item = os.path.join(self.destination_dir, item)
             
             try:
                 if os.path.isdir(source_item):
-                    # Copy directories recursively
-                    shutil.copytree(source_item, dest_item)
-                    # self.log(f"Copied directory: {item}")
+                    # Copy directories recursively, but ignore __pycache__ and .ipynb_checkpoints
+                    shutil.copytree(
+                        source_item, 
+                        dest_item,
+                        ignore=shutil.ignore_patterns(*ignore_dirs)
+                    )
+                    self.log(f"Copied directory: {item}")
                 else:
                     # Copy files
                     shutil.copy2(source_item, dest_item)
-                    # self.log(f"Copied file: {item}")
+                    self.log(f"Copied file: {item}")
             except Exception as e:
                 self.log(f"Error copying {item}: {str(e)}", "ERROR")
 
