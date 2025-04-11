@@ -162,19 +162,20 @@ class BimodalSemantics(SemanticDefaults):
         """Build the frame constraints for the bimodal logic model.
 
         This method constructs the fundamental constraints that define the behavior of the model:
-        1. Time constraints - Ensures main_time is within valid range
-        2. Truth value constraints - Each atomic sentence must have a definite truth value at each instantaneous world state
-        3. Lawful transitions - Each world history must follow the task relation between consecutive states
-        4. Task restriction - The task relation only holds between consecutive states that appear in some world history
-        5. World diversity - Ensures different world histories exist for proper modal evaluation
-        6. Valid worlds - Constraints on which world_ids map to valid world histories
-        7. World interval constraint - Ensures each world has a valid time interval
-        8. Abundance constraint - Ensures necessary time-shifted worlds exist
-        9. Systematic world relationship - Explicitly defines relationships between world IDs
-        10. Task state minimization - Encourages minimal changes between consecutive world states
-        
+        1. Valid main world - Ensures the main world is a valid world
+        2. Valid main time - Ensures main time is within valid range
+        3. Classical truth - Each atomic sentence must have a definite truth value at each instantaneous world state
+        4. Enumerated worlds - World enumeration starts at 0
+        5. Convex ordering - The worlds form a convex ordering
+        6. Lawful worlds - Each world state has task to its successor, if any
+        7. Skolem abundance - All valid time-shifted worlds exist
+        8. World uniqueness - Every valid world is unique
+        9. Time interval - Each world has a valid time interval
+
         The frame constraints ensure that world histories represent lawful evolutions of world states
         over time, following the task relation which specifies valid state transitions.
+
+        NOTE: The order of the frame constraints turns out to matter a great deal.
 
         Returns:
             list: A list of Z3 constraints that define the frame conditions for the model
@@ -212,8 +213,7 @@ class BimodalSemantics(SemanticDefaults):
         # MAYBE: Task state minimization - Encourages minimal changes between consecutive world states
         task_minimization = self.build_task_minimization_constraint()
 
-        return [
-            # NOTE: order matters!
+        return [ # NOTE: order matters!
             valid_main_world,
             valid_main_time,
             classical_truth,
@@ -223,10 +223,8 @@ class BimodalSemantics(SemanticDefaults):
             skolem_abundance,
             world_uniqueness,
             time_interval,
-
-            # MAYBE
-            # task_restriction,
-            # task_minimization,
+            # task_restriction,     # MAYBE
+            # task_minimization,    # MAYBE
         ]
 
     def is_valid_time(self, given_time, offset=0):
