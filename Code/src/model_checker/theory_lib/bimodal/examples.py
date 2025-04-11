@@ -10,7 +10,7 @@ Module Structure:
 1. Imports:
    - System utilities (os, sys)
    - Local semantic definitions (BimodalSemantics, BimodalProposition, BimodalStructure)
-   - Local operator definitions (intensional_operators)
+   - Local operator definitions (bimodal_operators)
 
 2. Semantic Theory:
    - default_theory: Default bimodal semantic framework
@@ -27,7 +27,7 @@ try:
         BimodalSemantics,
         BimodalProposition,
     )
-    from model_checker.theory_lib.bimodal.operators import intensional_operators
+    from model_checker.theory_lib.bimodal.operators import bimodal_operators
 except ImportError:
     # Fall back to local imports for development
     from .semantic import (
@@ -35,7 +35,7 @@ except ImportError:
         BimodalSemantics,
         BimodalProposition,
     )
-    from .operators import intensional_operators
+    from .operators import bimodal_operators
 
 #######################
 ### DEFAULT SETTINGS ###
@@ -58,7 +58,7 @@ bimodal_theory = {
     "semantics": BimodalSemantics,
     "proposition": BimodalProposition,
     "model": BimodalStructure,
-    "operators": intensional_operators,
+    "operators": bimodal_operators,
     # translation dictionary is only required for comparison theories
 }
 
@@ -67,7 +67,7 @@ bimodal_theory = {
 ### EXTENSIONAL COUNTERMODELS ###
 #################################
 
-# EX_CM_1: 
+# EX_CM_1: DISJUNCTION TO CONJUNCTION
 EX_CM_1_premises = ['(A \\vee B)']
 EX_CM_1_conclusions = ['(A \\wedge B)']
 EX_CM_1_settings = {
@@ -90,7 +90,7 @@ EX_CM_1_example = [
 ### MODAL COUNTERMODELS ###
 ###########################
 
-# MD_CM_1: 
+# MD_CM_1: DISTRIBUTE NECESSITY OVER DISJUNCTION
 MD_CM_1_premises = ['\\Box (A \\vee B)']
 MD_CM_1_conclusions = ['(\\Box A \\vee \\Box B)']
 MD_CM_1_settings = {
@@ -107,7 +107,7 @@ MD_CM_1_example = [
     MD_CM_1_settings,
 ]
 
-# MD_CM_2: 
+# MD_CM_2: DISTRIBUTE POSSIBILITY OVER CONJUNCTION
 MD_CM_2_premises = ['\\Diamond (A \\vee B)']
 MD_CM_2_conclusions = ['(\\Diamond A \\wedge \\Diamond B)']
 MD_CM_2_settings = {

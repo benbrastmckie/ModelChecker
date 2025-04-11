@@ -26,7 +26,7 @@ from model_checker.theory_lib.bimodal import (
     BimodalStructure,
     BimodalProposition,
     BimodalSemantics,
-    intensional_operators,
+    bimodal_operators,
 )
 from model_checker.theory_lib.bimodal.examples import test_example_range
 
@@ -37,7 +37,7 @@ def test_example_cases(example_name, example_case):
         example_case,
         BimodalSemantics,
         BimodalProposition,
-        intensional_operators,
+        bimodal_operators,
         Syntax,
         ModelConstraints,
         BimodalStructure,

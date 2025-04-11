@@ -2,18 +2,26 @@
 
 ## Overview
 
-The bimodal theory implements a temporal-modal logic that combines two types of modalities:
+The bimodal theory implements a semantics for the following operators:
 
-1. **Temporal operators**: For reasoning about what is true at different times (past and future)
-2. **Modal operators**: For reasoning about alternative world histories
+1. **Temporal operators**: For reasoning about different times (past and future)
+2. **Modal operators**: For reasoning about different world histories
+3. **Extensional operator**: For classical reasoning
 
 This implementation provides a framework to study bimodal logics where:
 
 - World histories are sequences of world states evolving over time
 - Each world state is an instantaneous configuration of the system
-- World histories follow lawful transitions between consecutive states
-- Time points can be negative, zero, or positive integers, constituting convex intervals
-- Modal and temporal operators can interact in complex ways
+- Sentence letters are assigned truth-values at world states alone (times are exogenous)
+- World states are not inherently indexed to any time or times
+- World histories follow lawful transitions between consecutive world states
+- Times can be negative, zero, or positive integers
+- Each world history has a temporal interval that includes 0 (the evaluation time)
+- World histories may be temporally shifted by including the same sequence of world states
+- Every world history that can be temporally shifted has a temporally shifted counterpart
+
+The abundance of temporally shifted worlds ensures that world states are agnostic about the times at which they occur.
+It follows that what is necessarily the case is always the case, and what is sometimes the case is possible.
 
 ### Package Contents
 
@@ -28,48 +36,40 @@ This package includes the following core modules:
 
 ### BimodalSemantics
 
-The `BimodalSemantics` class defines the fundamental semantic model, including:
+The `BimodalSemantics` class defines the semantic models for the language, including:
 
 - **Primitive relations**: Task transitions between world states
 - **Frame constraints**: Rules that define valid model structures
 - **Truth conditions**: How to evaluate atomic propositions at world states
 
+The semantics is independent of the operators defined over the semantics.
+This modular design makes it easy to compare semantic theories for the same operators as well as to compare operators for the same semantics.
+
 ### BimodalProposition
 
-The `BimodalProposition` class represents propositions assigned to sentences, handling:
+The `BimodalProposition` class handles the interpretation and representation of sentences over a model.
+This includes:
 
 - **Extension calculation**: Computing truth/falsity across worlds and times
 - **Truth evaluation**: Checking truth values at specific world-time pairs
 - **Proposition display**: Visualizing propositions in the model
 
+Although sentence letters may be evaluated at world states on their own, tense and modal operators can only be interpreted at a world history and time.
+
 ### BimodalStructure
 
-The `BimodalStructure` class manages the complete model structure:
+The `BimodalStructure` class manages the model structure extracted from a Z3 model:
 
-- **World arrays**: Mappings from time points to world states
 - **Time intervals**: Valid intervals for each world history
+- **World arrays**: Mappings from time points to world states
 - **Time-shift relations**: Relationships between shifted world histories
-- **Visualization**: Methods to display the model structure
-
-NOTE: These codeblocks included below are abridged for readability.
-Consult the modules above for complete information.
+- **Visualization**: Methods to display the resulting model structure
 
 ## Basic Usage
 
 > Outline of the `examples.py` module.
 
 ### General Definitions
-
-The following are general settings that apply to all examples in `examples.py` and are mostly useful for debugging.
-
-```python
-# Default General Settings
-general_settings = {
-    "print_constraints": False,  # For debugging
-    "print_z3": False,  # For debugging
-    "save_output": False,
-}
-```
 
 The following defines the theory that will be used to test examples, consisting of the following four ingredients:
 
@@ -78,7 +78,7 @@ bimodal_theory = {
     "semantics": BimodalSemantics,
     "proposition": BimodalProposition,
     "model": BimodalStructure,
-    "operators": intensional_operators,
+    "operators": bimodal_operators,
 }
 ```
 
@@ -91,6 +91,17 @@ semantic_theories = {
 }
 ```
 
+The following are general settings that apply to all examples in `examples.py` and are mostly useful for debugging.
+
+```python
+# Default General Settings
+general_settings = {
+    "print_constraints": False,  # For debugging
+    "print_z3": False,  # For debugging
+    "save_output": False,
+}
+```
+
 ### Examples
 
 Each example is structured as a list containing:
@@ -99,53 +110,9 @@ Each example is structured as a list containing:
 2. Conclusions (list of formulas)
 3. Settings dictionary (including N, M, max_time, and crucially, expectation)
 
-Consider the following countermodel:
+Examples are run with the command `model-checker examples.py` from your project directory.
 
-```python
-# Countermodel showing that Future A does not imply Box A
-BM_CM_1_premises = ['\\Future A']
-BM_CM_1_conclusions = ['\\Box A']
-BM_CM_1_settings = {
-    'N': 1,
-    'M': 2,
-    'contingent': False,  # (under construction)
-    'disjoint': False,    # (under construction)
-    'max_time': 5,
-    'expectation': True,  # Expects to find a countermodel
-}
-BM_CM_1_example = [
-    BM_CM_1_premises,
-    BM_CM_1_conclusions,
-    BM_CM_1_settings,
-]
-```
-
-Next consider the following theorem:
-
-```python
-# Theorem showing that Box A implies Future A
-BM_TH_1_premises = ['\\Box A']
-BM_TH_1_conclusions = ['\\Future A']
-BM_TH_1_settings = {
-    'N': 1,
-    'M': 2,
-    'contingent': False,
-    'disjoint': False,
-    'max_time': 5,
-    'expectation': False,  # Expects NOT to find a countermodel
-}
-BM_TH_1_example = [
-    BM_TH_1_premises,
-    BM_TH_1_conclusions,
-    BM_TH_1_settings,
-]
-```
-
-**Key Differences:**
-- BM_CM_1 shows that "Future A → Box A" is not valid (has a countermodel)
-- BM_TH_1 shows that "Box A → Future A" is valid (no countermodel exists)
-
-### Custom Settings
+#### Example Settings
 
 The bimodal theory supports several configurable settings:
 
@@ -166,18 +133,59 @@ DEFAULT_EXAMPLE_SETTINGS = {
 }
 ```
 
-These settings control:
+#### Countermodel Example
 
-- `N`: Number of possible world states (2^N total possible states)
-- `M`: Number of time points in each world history
-- `contingent`: Whether sentence letters are assigned to contingent propositions
-- `disjoint`: Whether sentence letters are assigned to distinct world states
-- `max_time`: Maximum time (in seconds) Z3 is allowed to spend trying to find a model
-- `expectation`: Whether a model is expected (used for unit testing)
+Examples that are expected to have countermodels may be presented as follows:
+
+```python
+# Countermodel showing that Future A does not imply Box A
+BM_CM_1_premises = ['\\Future A']
+BM_CM_1_conclusions = ['\\Box A']
+BM_CM_1_settings = {
+    'N': 1,
+    'M': 2,
+    'contingent': False,
+    'disjoint': False,
+    'max_time': 5,
+    'expectation': True,  # Expects to find a countermodel
+}
+BM_CM_1_example = [
+    BM_CM_1_premises,
+    BM_CM_1_conclusions,
+    BM_CM_1_settings,
+]
+```
+
+**BM_CM_1:** Shows that "Future A → Box A" is not valid (has a countermodel).
+
+#### Theorem Example
+
+Examples that are not expected to have countermodels may be presented as follows:
+
+```python
+# Theorem showing that Box A implies Future A
+BM_TH_1_premises = ['\\Box A']
+BM_TH_1_conclusions = ['\\Future A']
+BM_TH_1_settings = {
+    'N': 1,
+    'M': 2,
+    'contingent': False,
+    'disjoint': False,
+    'max_time': 5,
+    'expectation': False,  # Expects NOT to find a countermodel
+}
+BM_TH_1_example = [
+    BM_TH_1_premises,
+    BM_TH_1_conclusions,
+    BM_TH_1_settings,
+]
+```
+
+**BM_TH_1:** Shows that "Box A → Future A" is valid (no countermodel exists).
 
 ### Testing
 
-The examples are then collected in dictionaries:
+The examples are then collected into dictionaries with `name_string : example` entries:
 
 ```python
 example_range = {
@@ -187,7 +195,10 @@ example_range = {
 }
 ```
 
-The `semantic_theories` and `example_range` are then processed by the model-checker along with `general_settings`.
+The `semantic_theories` are then used to evaluate the examples in the `example_range` given the `general_settings`.
+It is typical to include many examples, most of which are commented out in order to focus on particular cases.
+
+An optional `test_example_range` may be provided for automating testing when developing semantic theories:
 
 ```python
 test_example_range = {
@@ -198,24 +209,36 @@ test_example_range = {
 }
 ```
 
-The `test_example_range` automates unit testing and will not play a role when `model-checker examples.py` is run.
+See the [README.md](test/README.md) in the `test/` directory for further details on setting up unit testing.py` is run.
 
-### Necessity Operator (`\Box`)
+## Bimodal Language
 
-The necessity operator (`\Box`) evaluates whether a formula holds across all possible worlds at a given time.
+> [NOTE] The code blocks included below are abridged for readability.
+> Consult the `operators.py` for the complete implementation of the semantic clauses for the language.
 
-This operator implements 'it is necessarily the case that'.
-It evaluates whether its argument is true in every possible world at the evaluation time.
+Formal languages implemented in the `model-checker` must conform to the following specifications:
 
-Key Properties:
-- Evaluates truth across all possible worlds at a fixed time
+- Operators are designated with a double backslash as in `\\Box` and `\\Future`.
+- Sentence letters are alpha-numeric strings as in `A`, `B_2`, `Mary_sings`, etc., using underscore `_` for spaces.
+- Parentheses must be included around sentences whose main connective is a binary operator.
+- Parentheses must NOT be included around sentences whose main connective is a unary operator.
+
+### Necessity Operator (`\\Box`)
+
+The necessity operator (`\\Box`) evaluates whether a formula holds across all possible worlds at a given time.
+
+This operator implements 'It is necessarily the case that' which takes one sentence as an argument.
+The operator evaluates whether its argument is true in every possible world at the evaluation time.
+
+**Key Properties:**
+
+- Evaluates truth across all possible worlds at a fixed evaluation time (purely modal)
 - Returns true only if the argument is true in ALL possible worlds
 - Returns false if there exists ANY possible world where the argument is false
-- Purely modal (not temporal) - evaluates across worlds at a single time point
 
 #### Truth Condition
 
-`\Box A` is true at world `w` at time `t` if and only if A is true in all possible worlds at time `t`.
+`\\Box A` is true in `eval_world` at `eval_time` if and only if `A` is true in all world histories at `eval_time`.
 
 ```python
 def true_at(self, argument, eval_world, eval_time):
@@ -230,7 +253,7 @@ def true_at(self, argument, eval_world, eval_time):
 
 #### Falsity Condition
 
-`\Box A` is false at world `w` at time `t` if and only if A is false in at least one possible world at time `t`.
+`\\Box A` is false in `eval_world` at `eval_time` if and only if `A` is false in some world history at `eval_time`.
 
 ```python
 def false_at(self, argument, eval_world, eval_time):
@@ -243,9 +266,19 @@ def false_at(self, argument, eval_world, eval_time):
     )
 ```
 
-### Future Operator (`\Future`)
+### Future Operator (`\\Future`)
 
-The future operator `\Future A` has a purely temporal semantics:
+The future operator (`\\Future`) evaluates whether a formula holds at all future times in a given world history.
+
+This operator implements 'It will always be the case that' which takes one sentence as an argument.
+The operator evaluates whether its argument is true at every future time point in the current world history.
+Future times are understood to exclude the present time of evaluation.
+
+**Key Properties:**
+
+- Evaluates truth across all future times in the current world history (purely temporal)
+- Returns true only if the argument is true at ALL future times
+- Returns false if there exists ANY future time where the argument is false
 
 #### Truth Condition
 
