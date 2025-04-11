@@ -46,7 +46,20 @@ except ImportError:
 ##############################################################################
 
 class NegationOperator(syntactic.Operator):
-    """Logical negation operator that inverts the truth value of its argument."""
+    """Logical negation operator that inverts the truth value of its argument.
+    
+    This operator implements classical logical negation (¬). When applied to a formula A,
+    it returns true when A is false and false when A is true.
+    
+    Key Properties:
+        - Involutive: ¬¬A ≡ A
+        - Preserves excluded middle: A ∨ ¬A is a tautology
+        - Preserves non-contradiction: ¬(A ∧ ¬A) is a tautology
+        - Truth-functional: Value depends only on truth value of argument
+        
+    Example:
+        If p means "it's raining", then ¬p means "it's not raining"
+    """
 
     name = "\\neg"
     arity = 1
@@ -95,7 +108,23 @@ class NegationOperator(syntactic.Operator):
 
 
 class AndOperator(syntactic.Operator):
-    """Logical conjunction operator."""
+    """Logical conjunction operator that returns true when both arguments are true.
+    
+    This operator implements classical logical conjunction (∧). When applied to formulas
+    A and B, it returns true when both A and B are true, and false otherwise.
+    
+    Key Properties:
+        - Commutative: A ∧ B ≡ B ∧ A
+        - Associative: (A ∧ B) ∧ C ≡ A ∧ (B ∧ C)
+        - Identity: A ∧ ⊤ ≡ A
+        - Annihilator: A ∧ ⊥ ≡ ⊥
+        - Idempotent: A ∧ A ≡ A
+        - Truth-functional: Value depends only on truth values of arguments
+        
+    Example:
+        If p means "it's raining" and q means "it's cold", then (p ∧ q) means 
+        "it's raining and it's cold"
+    """
 
     name = "\\wedge"
     arity = 2
@@ -168,7 +197,23 @@ class AndOperator(syntactic.Operator):
 
 
 class OrOperator(syntactic.Operator):
-    """Logical disjunction operator."""
+    """Logical disjunction operator that returns true when at least one argument is true.
+    
+    This operator implements classical logical disjunction (∨). When applied to formulas
+    A and B, it returns true when either A or B (or both) are true, and false otherwise.
+    
+    Key Properties:
+        - Commutative: A ∨ B ≡ B ∨ A
+        - Associative: (A ∨ B) ∨ C ≡ A ∨ (B ∨ C)
+        - Identity: A ∨ ⊥ ≡ A
+        - Annihilator: A ∨ ⊤ ≡ ⊤
+        - Idempotent: A ∨ A ≡ A
+        - Truth-functional: Value depends only on truth values of arguments
+        
+    Example:
+        If p means "it's raining" and q means "it's cold", then (p ∨ q) means 
+        "it's raining or it's cold (or both)"
+    """
 
     name = "\\vee"
     arity = 2
@@ -245,7 +290,20 @@ class OrOperator(syntactic.Operator):
 ##############################################################################
 
 class BotOperator(syntactic.Operator):
-    """Top element of the space of propositions is true at all worlds and times."""
+    """Bottom element of the space of propositions is false at all worlds and times.
+    
+    This operator implements logical falsity (⊥). It evaluates to false at every world
+    and time point in the model structure.
+    
+    Key Properties:
+        - Always evaluates to false regardless of context
+        - Identity element for disjunction: ⊥ ∨ A ≡ A
+        - Annihilator for conjunction: ⊥ ∧ A ≡ ⊥
+        - Negation gives top: ¬⊥ ≡ ⊤
+        
+    Example:
+        ⊥ represents a logical contradiction like "it's raining and not raining"
+    """
 
     name = "\\bot"
     arity = 0
@@ -288,6 +346,28 @@ class BotOperator(syntactic.Operator):
 ##############################################################################
 
 class NecessityOperator(syntactic.Operator):
+    """Modal operator that evaluates whether a formula holds in all possible worlds.
+
+    This operator implements 'it is necessary that'. It evaluates whether its argument
+    holds in all possible worlds at the current time.
+
+    Key Properties:
+        - Evaluates truth across all possible worlds at the current time
+        - Returns true only if the argument is true in ALL possible worlds
+        - Returns false if there exists ANY possible world where the argument is false
+        - Dual of possibility: □A ≡ ¬◇¬A
+        - Only considers worlds within the valid model structure
+
+    Methods:
+        true_at: Returns true if argument holds in all possible worlds
+        false_at: Returns true if argument fails in some possible world
+        find_truth_condition: Computes temporal profiles for all worlds
+        print_method: Displays evaluation across different possible worlds
+
+    Example:
+        If p means "it's raining", then □p means "it is necessarily raining"
+        (true in all possible worlds at the current time).
+    """
     name = "\\Box"
     arity = 1
 
@@ -685,6 +765,23 @@ class PastOperator(syntactic.Operator):
 ##############################################################################
 
 class ConditionalOperator(syntactic.DefinedOperator):
+    """Material conditional operator that returns true unless the antecedent is true and consequent false.
+    
+    This operator implements classical material implication (→). When applied to formulas
+    A and B, it returns true when either A is false or B is true, and false otherwise.
+    
+    Key Properties:
+        - Defined as: A → B ≡ ¬A ∨ B
+        - Vacuously true when antecedent is false
+        - Truth-functional: Value depends only on truth values of arguments
+        - Not equivalent to natural language "if-then"
+        - Supports modus ponens: From A and A → B, infer B
+        - Supports modus tollens: From ¬B and A → B, infer ¬A
+        
+    Example:
+        If p means "it's raining" and q means "the ground is wet", then (p → q) means 
+        "if it's raining then the ground is wet" (in the material sense)
+    """
 
     name = "\\rightarrow"
     arity = 2
@@ -699,6 +796,23 @@ class ConditionalOperator(syntactic.DefinedOperator):
 
 
 class BiconditionalOperator(syntactic.DefinedOperator):
+    """Material biconditional operator that returns true when both arguments have the same truth value.
+    
+    This operator implements classical material biconditional (↔). When applied to formulas
+    A and B, it returns true when A and B have the same truth value (both true or both false).
+    
+    Key Properties:
+        - Defined as: A ↔ B ≡ (A → B) ∧ (B → A)
+        - Commutative: A ↔ B ≡ B ↔ A
+        - Reflexive: A ↔ A is a tautology
+        - Truth-functional: Value depends only on truth values of arguments
+        - Not equivalent to natural language "if and only if"
+        - Represents logical equivalence between formulas
+        
+    Example:
+        If p means "it's raining" and q means "there are clouds", then (p ↔ q) means 
+        "it's raining if and only if there are clouds" (in the material sense)
+    """
 
     name = "\\leftrightarrow"
     arity = 2
@@ -720,7 +834,20 @@ class BiconditionalOperator(syntactic.DefinedOperator):
 ##############################################################################
 
 class TopOperator(syntactic.DefinedOperator):
-    """Top element of the space of propositions is true at all worlds and times."""
+    """Top element of the space of propositions is true at all worlds and times.
+    
+    This operator implements logical truth (⊤). It evaluates to true at every world
+    and time point in the model structure.
+    
+    Key Properties:
+        - Always evaluates to true regardless of context
+        - Identity element for conjunction: ⊤ ∧ A ≡ A
+        - Annihilator for disjunction: ⊤ ∨ A ≡ ⊤
+        - Negation gives bottom: ¬⊤ ≡ ⊥
+        
+    Example:
+        ⊤ represents a logical tautology like "it's raining or not raining"
+    """
 
     name = "\\top"
     arity = 0
@@ -740,7 +867,26 @@ class TopOperator(syntactic.DefinedOperator):
 ##############################################################################
 
 class DefPossibilityOperator(syntactic.DefinedOperator):
-    """Possibility operator (Diamond) defined in terms of negation and necessity."""
+    """Modal operator that evaluates whether a formula holds in at least one possible world.
+
+    This operator implements 'it is possible that'. It evaluates whether its argument
+    holds in at least one possible world at the current time.
+
+    Key Properties:
+        - Evaluates truth across all possible worlds at the current time
+        - Returns true if the argument is true in ANY possible world
+        - Returns false if the argument is false in ALL possible worlds
+        - Defined as the dual of necessity: ◇A ≡ ¬□¬A
+        - Only considers worlds within the valid model structure
+
+    Methods:
+        derived_definition: Defines possibility in terms of negation and necessity
+        print_method: Displays evaluation across different possible worlds
+
+    Example:
+        If p means "it's raining", then ◇p means "it is possible that it's raining"
+        (true in at least one possible world at the current time).
+    """
     name = "\\Diamond"
     arity = 1
 
@@ -767,6 +913,27 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
 ##############################################################################
 
 class DefFutureOperator(syntactic.DefinedOperator):
+    """Temporal operator that evaluates whether a formula holds at some future time.
+
+    This operator implements 'it will at some point be the case that'. It evaluates
+    whether its argument is true at at least one future time within the eval_world
+    (after the present).
+
+    Key Properties:
+        - Evaluates truth across all future times in the current world
+        - Returns true if the argument is true at ANY future time
+        - Returns false if the argument is false at ALL future times
+        - Defined as the dual of future necessity: ⏵A ≡ ¬⏵¬A
+        - Only considers times within the valid interval for the current world
+
+    Methods:
+        derived_definition: Defines future possibility in terms of negation and future necessity
+        print_method: Displays evaluation across different time points
+
+    Example:
+        If p means "it's raining", then ⏵p means "it will at some point be raining"
+        (true at at least one future time).
+    """
 
     name = "\\future"
     arity = 1
@@ -793,7 +960,7 @@ class DefPastOperator(syntactic.DefinedOperator):
         self.print_over_times(sentence_obj, eval_point, all_times, indent_num, use_colors)
 
 
-intensional_operators = syntactic.OperatorCollection(
+bimodal_operators = syntactic.OperatorCollection(
     # extensional operators
     NegationOperator,
     AndOperator,

@@ -11,14 +11,20 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 ## Plan
 
 - [ ] tools
-  - [.] iterate
-    - refactor threading
+  - [ ] iterate
+  - [ ] maximize
   - [ ] minimize
 - [ ] bimodal
   - [ ] semantics
-    - [ ] develop bimodal lambda only strategy
     - [ ] center world history printing
-    - [ ] remove `max_world_id`
+    - [ ] settings
+      - [ ] disjoint
+      - [ ] contingent
+    - [ ] add comments to examples
+    - [ ] optimize
+      - [ ] remove/enforce `max_world_id`
+      - [ ] clean up frame constraints
+      - [ ] develop bimodal lambda only strategy
     - [x] abundance constraint
     - [x] time_shift constraint
     - [x] define `time_shift_relations`
@@ -38,6 +44,15 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] past
     - [x] necessity
 - [x] debug readme issue
+- general
+  - research try/except for development
+  - refactor threading
+  - improve version management
+  - add unit tests throughout
+  - refactor API
+    - project building
+    - example execution
+    - clean up non-determinism throughout
 - exclusion semantics
   - [ ] documentation
   - [.] add more examples
@@ -56,14 +71,6 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
       - cli flag to create notebook
   - [x] all_bits bug
   - [x] divide into modules
-- general
-  - research try/except for development
-  - improve version management
-  - add unit tests throughout
-  - API
-    - project building
-    - example execution
-    - clean up non-determinism throughout
 - [x] update script
   - [x] build script
   - [x] document
