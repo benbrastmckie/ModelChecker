@@ -34,7 +34,14 @@ The ModelChecker framework follows a modular architecture designed to separate c
    - Command-line interface and entry points
    - Argument parsing and dispatch
 
-6. **Jupyter Package** (`jupyter/`)
+6. **Settings Package** (`settings/`)
+   - Centralized settings management system
+   - Theory-specific default settings
+   - Validation and warning systems for unknown settings
+   - Command-line flag integration
+   - See [Settings Documentation](settings/README.md) for details
+
+7. **Jupyter Package** (`jupyter/`)
    - Interactive exploration of logical models in notebooks
    - Formula checking, countermodel finding, and visualization 
    - Support for Unicode and LaTeX notation
@@ -102,6 +109,28 @@ The framework is designed to be extended in several ways:
 2. **New Operators**: Subclass `Operator` or `DefinedOperator`
 3. **New Semantics**: Subclass `SemanticDefaults`
 4. **New Interfaces**: Add new builders or integration points
+
+### Theory-Specific Design
+
+Each theory in the ModelChecker framework is designed to be self-contained with its own appropriate defaults and settings. This design follows several key principles:
+
+1. **Relevance Principle**: Theories should only define settings that are relevant to their specific semantics. For example:
+   - Temporal theories like `bimodal` include time-related settings like `M` (number of time points)
+   - Visualization settings like `align_vertically` only appear in theories where they make sense
+
+2. **Clear Defaults**: Each theory defines its own default settings via:
+   - `DEFAULT_EXAMPLE_SETTINGS`: For example-specific settings
+   - `DEFAULT_GENERAL_SETTINGS`: For general output and behavior settings
+
+3. **Warning System**: The framework warns about unknown settings only when:
+   - A user explicitly provides a command-line flag that doesn't correspond to a setting in the theory
+   - A user includes a setting in their configuration that isn't defined in the theory's defaults
+
+For detailed information about settings management and theory-specific settings:
+- [Settings System Documentation](settings/README.md)
+- [Default Theory Settings](theory_lib/default/README.md#default-theory-settings)
+- [Bimodal Theory Settings](theory_lib/bimodal/README.md#bimodal-specific-settings)
+- [Exclusion Theory Settings](theory_lib/exclusion/README.md#theory-specific-settings)
 
 ## Development
 

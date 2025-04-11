@@ -112,7 +112,7 @@ Each example is structured as a list containing:
 
 Examples are run with the command `model-checker examples.py` from your project directory.
 
-#### Example Settings
+#### Bimodal-Specific Settings
 
 The bimodal theory supports several configurable settings:
 
@@ -120,7 +120,7 @@ The bimodal theory supports several configurable settings:
 DEFAULT_EXAMPLE_SETTINGS = {
     # Number of world_states
     'N': 2,
-    # Number of times
+    # Number of times - specific to bimodal's temporal dimension
     'M': 2,
     # Whether sentence_letters are assigned to contingent propositions
     'contingent': False,
@@ -131,7 +131,31 @@ DEFAULT_EXAMPLE_SETTINGS = {
     # Whether a model is expected or not (used for unit testing)
     'expectation': True,
 }
+
+# Bimodal-specific general settings that affect display format
+DEFAULT_GENERAL_SETTINGS = {
+    "print_impossible": False,
+    "print_constraints": False,
+    "print_z3": False, 
+    "save_output": False,
+    "maximize": False,
+    "align_vertically": True,  # Bimodal-specific setting for timeline visualization
+}
 ```
+
+The bimodal theory defines two unique settings not found in other theories:
+
+1. **M**: Controls the number of time points in the temporal dimension. Higher values allow for longer world histories but increase computational complexity.
+
+2. **align_vertically**: When set to `True`, displays world histories with time flowing vertically (top to bottom) which is often easier to read for bimodal models. When set to `False`, displays world histories horizontally.
+
+You can override the vertical alignment using the `-a` or `--align_vertically` flag when running the command-line tool:
+
+```
+model-checker examples.py -a  # Force vertical alignment
+```
+
+For detailed information about the settings management system and how it handles theory-specific settings, see the [Settings Documentation](../../settings/README.md).
 
 #### Countermodel Example
 
