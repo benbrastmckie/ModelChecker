@@ -481,17 +481,17 @@ example_range = {
     # "MD_CM_2" : MD_CM_2_example,
     # "MD_CM_3" : MD_CM_3_example,
     # "MD_CM_4" : MD_CM_4_example,
-    # "MD_CM_5" : MD_CM_5_example,
-    # "MD_CM_6" : MD_CM_6_example,
+    "MD_CM_5" : MD_CM_5_example,
+    "MD_CM_6" : MD_CM_6_example,
     # "MD_CM_7" : MD_CM_7_example,
 
     # Tense Countermodels
     "TN_CM_1" : TN_CM_1_example,
-    # "TN_CM_2" : TN_CM_2_example,
+    "TN_CM_2" : TN_CM_2_example,
 
     # Bimodal Countermodels
-    # "BM_CM_1" : BM_CM_1_example,
-    # "BM_CM_2" : BM_CM_2_example,
+    "BM_CM_1" : BM_CM_1_example,
+    "BM_CM_2" : BM_CM_2_example,
 
     ### THEOREMS ###
 
