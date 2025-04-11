@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "model-checker"
-version = "0.8.26"
+version = "0.9.1"
 description = "A hyperintensional theorem prover for modal, counterfactual conditional, constitutive explanatory, and extensional operators."
 authors = [
     { name = "Benjamin Brast-McKie", email = "benbrastmckie@gmail.com" },
@@ -19,12 +19,32 @@ classifiers = [
 ]
 keywords = ["semantics", "Z3", "logic", "counterfactuals", "modality", "model checker", "theorem prover", "hyperintensionality"]
 dependencies = [
-    "z3-solver",
-    "ipywidgets",  # Optional: For interactive notebook components
-    "matplotlib",  # Optional: For visualization
-    "networkx",    # Optional: For graph representation
+    "z3-solver>=4.8.0",  # Core dependency for constraint solving
 ]
 requires-python = ">=3.8"
+
+# Optional dependencies
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0.0",      # For running tests
+    "pytest-cov",         # For test coverage
+]
+jupyter = [
+    "ipywidgets>=7.0.0",  # For interactive notebook components
+    "matplotlib>=3.0.0",  # For visualization of models
+    "networkx>=2.0",      # For graph representation of models
+    "jupyter",            # For notebook environment
+    "ipython",            # For interactive features
+]
+all = [
+    "pytest>=6.0.0",
+    "pytest-cov",
+    "ipywidgets>=7.0.0",
+    "matplotlib>=3.0.0",
+    "networkx>=2.0",
+    "jupyter",
+    "ipython",
+]
 
 [project.urls]
 Homepage = "https://github.com/benbrastmckie/ModelChecker"
@@ -35,9 +55,13 @@ model-checker = "model_checker.__main__:run"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["README.md", "*.md", "*.ipynb"]
 
 [tool.pytest.ini_options]
 pythonpath = "src"

@@ -1,0 +1,25 @@
+include README.md
+include LICENSE
+include MANIFEST.in
+
+# Include all Python files
+recursive-include src *.py
+
+# Include all package documentation and notebooks
+recursive-include src *.md
+recursive-include src *.ipynb
+
+# Specifically include theory README files
+recursive-include src/model_checker/theory_lib README.md
+recursive-include src/model_checker/theory_lib/bimodal README.md
+recursive-include src/model_checker/theory_lib/default README.md
+recursive-include src/model_checker/theory_lib/exclusion README.md
+recursive-include src/model_checker/theory_lib/imposition README.md
+recursive-include src/model_checker/theory_lib/old_test README.md
+
+# Include Jupyter documentation
+recursive-include src/model_checker/jupyter README.md TROUBLESHOOTING.md NixOS_jupyter.md
+recursive-include src/model_checker/jupyter/debug README.md DEBUGGING.md
+
+# Include any other important documentation
+recursive-include src/model_checker README.md

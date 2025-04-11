@@ -53,11 +53,36 @@ See [Usage](#usage) below for details.
 
 ## Installation
 
-```
+### Basic Installation
+
+For core functionality (command line interface and model checking):
+
+```bash
 pip install model-checker
 ```
 
-The project has the `z3-solver` as a dependency and will be installed automatically.
+This installs the essential `z3-solver` dependency needed for constraint solving.
+
+### Optional Features
+
+For Jupyter notebook integration with interactive visualizations:
+
+```bash
+pip install model-checker[jupyter]
+```
+
+For development tools (running tests):
+
+```bash
+pip install model-checker[dev]
+```
+
+For a complete installation with all features:
+
+```bash
+pip install model-checker[all]
+```
+
 More information can be found in the accessible installation [instructions](https://github.com/benbrastmckie/ModelChecker/blob/master/installation.md).
 
 ## Updating

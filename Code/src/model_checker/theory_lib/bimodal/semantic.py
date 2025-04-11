@@ -1019,7 +1019,7 @@ class BimodalSemantics(SemanticDefaults):
         elif hasattr(time, 'as_long'):
             # Z3 value with numerical representation, convert to Z3 Int
             # TODO: linter error
-            time_val = z3.IntVal(time.as_long())
+            time_val = z3.IntVal(time.as_long())  # type: ignore
         else:
             # Cannot use this time value
             raise TypeError(f"Time parameter must be an integer or Z3 Int, got {type(time)}: {time}")

@@ -14,6 +14,35 @@ from typing import Dict, List, Any, Optional, Union
 # import matplotlib.pyplot as plt
 # import networkx as nx
 
+# Define high-level display functions
+def display_model(*args, **kwargs):
+    """Display a model visualization."""
+    try:
+        from IPython.display import display, HTML
+        # Implementation goes here
+        return HTML("<div>Model display (placeholder)</div>")
+    except ImportError:
+        raise ImportError("IPython is required for this feature. Install with 'pip install model-checker[jupyter]'")
+
+def display_formula_check(formula, theory_name="default", premises=None, settings=None):
+    """Display results of checking if a formula is valid given premises."""
+    try:
+        from IPython.display import display, HTML
+        # Implementation goes here
+        result = {"valid": True, "formula": formula, "theory": theory_name}
+        return HTML(f"<div>Formula check: {formula} in {theory_name} (placeholder)</div>")
+    except ImportError:
+        raise ImportError("IPython is required for this feature. Install with 'pip install model-checker[jupyter]'")
+
+def display_countermodel(formula, theory_name="default", premises=None, settings=None):
+    """Display a countermodel for a formula with optional premises."""
+    try:
+        from IPython.display import display, HTML
+        # Implementation goes here
+        return HTML(f"<div>Countermodel for: {formula} in {theory_name} (placeholder)</div>")
+    except ImportError:
+        raise ImportError("IPython is required for this feature. Install with 'pip install model-checker[jupyter]'")
+
 
 def convert_ansi_to_html(ansi_text: str) -> str:
     """

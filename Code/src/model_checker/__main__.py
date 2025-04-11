@@ -180,6 +180,25 @@ def main():
 
     No parameters or return values as this is the main program entry point.
     """
+    # Check for Jupyter dependencies if they'll be needed
+    jupyter_flags = ["-j", "--jupyter", "-n", "--notebook"]
+    needs_jupyter = any(flag in sys.argv for flag in jupyter_flags)
+    
+    if needs_jupyter:
+        # Check for required dependencies if Jupyter features are requested
+        missing_deps = []
+        for pkg in ["ipywidgets", "matplotlib", "networkx"]:
+            try:
+                __import__(pkg)
+            except ImportError:
+                missing_deps.append(pkg)
+                
+        if missing_deps:
+            print(f"Error: The following required dependencies are missing: {', '.join(missing_deps)}")
+            print("To use Jupyter notebook features, install them with:")
+            print("  pip install model-checker[jupyter]")
+            return
+    
     if len(sys.argv) < 2:
         builder = BuildProject()
         builder.ask_generate()
