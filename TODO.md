@@ -45,7 +45,6 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] necessity
 - [x] debug readme issue
 - general
-  - [ ] create settings module
   - research try/except for development
   - create print module
   - theory metadata
@@ -58,6 +57,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - project building
     - example execution
     - clean up non-determinism throughout
+  - [x] create settings module
 - exclusion semantics
   - [ ] documentation
   - [.] add more examples

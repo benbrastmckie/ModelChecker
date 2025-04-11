@@ -77,29 +77,63 @@ By removing the hash mark from `EX_TH_1`, both examples will be tested in turn.
 
 ### Settings
 
-In addition to the settings included in each example, there are also general settings which control the output:
+The exclusion semantics defines its own specific set of settings relevant to its semantic theory. There are two types of settings:
 
-    general_settings = {
-        "print_constraints": False,
-        "print_impossible": False,
-        "print_z3": False,
-        "save_output": False,
-    }
+#### General Settings
 
-The default example settings are also included for reference, though may be omitted if no example includes those settings (e.g., by replacing `EX_TH_1_settings` with `example_settings`):
+General settings control the output and behavior of the model checker:
 
-    example_settings = {
-        'N' : 3,
-        'possible' : False,
-        'contingent' : False,
-        'disjoint' : False,
-        'non_empty' : False,
-        'non_null' : False,
-        'fusion_closure' : False,
-        'max_time' : 1,
-    }
+```python
+DEFAULT_GENERAL_SETTINGS = {
+    "print_constraints": False,  # Print constraints when no model is found
+    "print_impossible": False,   # Print impossible states
+    "print_z3": False,           # Print raw Z3 model
+    "save_output": False,        # Prompt to save output
+    "maximize": False,           # Use for theory comparison
+    # Note: align_vertically is not included as it's only relevant for bimodal theory
+}
+```
 
-If settings are omitted from an example (e.g., no value of `N` is provided), the defaults above will be assumed, issuing a notification the user.
+#### Example Settings
+
+Example settings control the behavior of specific examples:
+
+```python
+DEFAULT_EXAMPLE_SETTINGS = {
+    # Core settings used by all theories
+    'N': 3,                   # Number of atomic states
+    'max_time': 1,            # Maximum solver time
+    
+    # Exclusion-specific settings
+    'possible': False,        # Whether states must be possible
+    'contingent': False,      # Whether propositions must be contingent
+    'disjoint': False,        # Whether propositions must have disjoint subject matters
+    'non_empty': False,       # Whether propositions must have non-empty verifier/falsifier sets
+    'non_null': False,        # Whether null states can be verifiers/falsifiers
+    'fusion_closure': False,  # Whether to enforce fusion closure
+    
+    # Note: 'M' is not included as it's only relevant for temporal theories like bimodal
+}
+```
+
+If settings are omitted from an example (e.g., no value of `N` is provided), the defaults above will be assumed, with the system issuing a notification to the user.
+
+#### Theory-Specific Settings
+
+The exclusion theory defines several settings not found in other theories:
+
+1. **possible**: Controls whether states must be possible
+2. **fusion_closure**: Controls whether fusion closure is enforced
+3. **non_empty**: Controls whether propositions must have non-empty verifier/falsifier sets
+4. **non_null**: Controls whether null states can be verifiers/falsifiers
+
+Similarly, the exclusion theory excludes settings that don't apply to it, like:
+- **M**: Only relevant for theories with a temporal dimension (bimodal)
+- **align_vertically**: Only relevant for theories with time-based visualization (bimodal)
+
+If you use command-line flags for settings not defined in the exclusion theory (like `-a` for align_vertically), you'll see a warning that the flag doesn't correspond to a known setting, but the system will continue to run normally.
+
+For a comprehensive overview of the settings management system and how theory-specific settings are handled, please refer to the [Settings Documentation](../../settings/README.md).
 
 ### Semantic Theories
 

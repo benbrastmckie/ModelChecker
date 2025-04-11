@@ -36,6 +36,43 @@ This package includes the following modules:
 
 The contents of each will be provided in the following subsections.
 
+### Default Theory Settings
+
+The default theory defines the following settings:
+
+```python
+DEFAULT_EXAMPLE_SETTINGS = {
+    # Number of atomic states
+    'N': 3,
+    # Whether sentence_letters are assigned to contingent propositions
+    'contingent': False,
+    # Whether sentence_letters are assigned to distinct states
+    'disjoint': False,
+    # Maximum time Z3 is permitted to look for a model
+    'max_time': 1,
+    # Whether a model is expected or not (used for unit testing)
+    'expectation': True,
+}
+
+DEFAULT_GENERAL_SETTINGS = {
+    "print_impossible": False,
+    "print_constraints": False,
+    "print_z3": False,
+    "save_output": False,
+    "maximize": False,
+    # Note: align_vertically is not included since it's only relevant for bimodal theory
+}
+```
+
+The default theory explicitly omits settings that aren't applicable to it, following the principle that each theory should only define settings relevant to its specific semantics. For example, the default theory doesn't define:
+
+- `M`: Only relevant for theories with a temporal dimension (like bimodal)
+- `align_vertically`: Only relevant for theories with time-based visualization (like bimodal)
+
+If you provide command-line flags for settings that don't exist in a theory (like using `-e` for 'non_empty' with the default theory), you'll see a warning that the flag doesn't correspond to any known setting, but the system will continue running normally.
+
+For more information about how the settings system handles theory-specific settings, please see the [Settings Documentation](../../settings/README.md).
+
 ### `Semantic.py`
 
 This module is central to the model checker as it specifies the semantic primitives that everything else builds upon.

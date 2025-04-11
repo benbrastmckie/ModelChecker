@@ -160,7 +160,68 @@ To create a new theory:
    - `__init__.py`: Export your public API
    - `README.md`: Document your theory
 
-3. Register your theory in `theory_lib/__init__.py`
+3. Implement theory-specific settings in `semantic.py`
+4. Register your theory in `theory_lib/__init__.py`
+
+### Theory-Specific Settings
+
+Each theory in the ModelChecker framework defines its own settings based on the **relevance principle** - only include settings that are relevant to your specific semantic theory. There are two types of settings:
+
+#### Default Example Settings
+
+These settings control the behavior of specific examples:
+
+```python
+# In your semantic.py file
+class MySemantics(SemanticDefaults):
+    DEFAULT_EXAMPLE_SETTINGS = {
+        # Core settings included by most theories
+        'N': 3,                   # Number of atomic states (required)
+        'max_time': 1,            # Maximum solver time (required)
+        'contingent': False,      # Whether propositions must be contingent
+        
+        # Theory-specific settings (include only what's relevant)
+        'my_special_setting': False,  # Setting unique to your theory
+    }
+```
+
+#### Default General Settings
+
+These settings control global behavior and output format:
+
+```python
+# In your semantic.py file
+class MySemantics(SemanticDefaults):
+    DEFAULT_GENERAL_SETTINGS = {
+        # Common output settings
+        "print_constraints": False,
+        "print_z3": False,
+        "save_output": False,
+        
+        # Theory-specific settings (only if needed)
+        "my_display_setting": True,  # Setting unique to your theory
+    }
+```
+
+#### Settings Guidelines
+
+1. **Only include settings relevant to your theory**
+   - Don't implement settings that don't apply to your semantic framework
+   - For example, temporal theories include `M` and `align_vertically`, but others don't
+
+2. **Common settings across theories**
+   - `N`: Number of atomic states (required by all theories)
+   - `max_time`: Maximum solver time (required by all theories)
+   - `contingent`: Whether propositions must be contingent (common but optional)
+   - `disjoint`: Whether propositions must have disjoint subject matters (common but optional)
+
+3. **Theory-specific settings examples**
+   - `M`: Number of time points (bimodal theory only)
+   - `align_vertically`: Display time flowing vertically (bimodal theory only)
+   - `non_empty`: Non-empty verifier/falsifier sets (exclusion theory)
+   - `fusion_closure`: Enforce fusion closure (exclusion theory)
+
+For detailed information about the settings system and how theory-specific settings are managed, see the [Settings Documentation](../settings/README.md).
 
 ### Minimal Theory Template
 
@@ -170,6 +231,22 @@ from model_checker.model import SemanticDefaults, PropositionDefaults, ModelDefa
 
 class MySemantics(SemanticDefaults):
     """Core semantics for my theory."""
+    
+    # Define theory-specific default settings
+    DEFAULT_EXAMPLE_SETTINGS = {
+        'N': 3,                   # Number of atomic states (required)
+        'max_time': 1,            # Maximum solver time (required)
+        'contingent': False,      # Common optional setting
+        # Add only settings relevant to your theory
+    }
+    
+    DEFAULT_GENERAL_SETTINGS = {
+        "print_constraints": False,
+        "print_z3": False,
+        "save_output": False,
+        # Add only settings relevant to your theory
+    }
+    
     # Implement semantic primitives and relations
 
 class MyProposition(PropositionDefaults):
