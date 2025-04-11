@@ -16,6 +16,66 @@ try:
 except ImportError:
     HAVE_IPYWIDGETS = False
 
+# Define high-level utility functions
+def check_formula(formula, theory_name="default", premises=None, settings=None):
+    """Check if a formula is valid given premises."""
+    if not HAVE_IPYWIDGETS:
+        raise ImportError(
+            "ipywidgets is required for interactive features. "
+            "Install with: pip install model-checker[jupyter]"
+        )
+    
+    # We need to import these here to avoid circular imports
+    try:
+        from IPython.display import display, HTML
+        
+        # Simple placeholder implementation
+        result = {"valid": True, "formula": formula, "theory": theory_name}
+        return HTML(f"<div>Formula check: {formula} in {theory_name} (placeholder)</div>")
+    except ImportError:
+        raise ImportError("IPython is required for this feature. Install with 'pip install model-checker[jupyter]'")
+
+def find_countermodel(formula, theory_name="default", premises=None, settings=None):
+    """Find a countermodel for a formula with optional premises."""
+    if not HAVE_IPYWIDGETS:
+        raise ImportError(
+            "ipywidgets is required for interactive features. "
+            "Install with: pip install model-checker[jupyter]"
+        )
+    
+    # We need to import these here to avoid circular imports
+    try:
+        from IPython.display import display, HTML
+        
+        # Simple placeholder implementation
+        return HTML(f"<div>Countermodel for: {formula} in {theory_name} (placeholder)</div>")
+    except ImportError:
+        raise ImportError("IPython is required for this feature. Install with 'pip install model-checker[jupyter]'")
+
+def explore_formula(formula, theory_name="default", premises=None, settings=None):
+    """Create an interactive explorer for a specific formula."""
+    if not HAVE_IPYWIDGETS:
+        raise ImportError(
+            "ipywidgets is required for interactive features. "
+            "Install with: pip install model-checker[jupyter]"
+        )
+    explorer = ModelExplorer(theory_name)
+    
+    # These methods should be defined in the ModelExplorer class
+    if hasattr(explorer, 'set_formula'):
+        explorer.set_formula(formula)
+        
+    if premises and hasattr(explorer, 'set_premises'):
+        explorer.set_premises(premises)
+        
+    if settings and hasattr(explorer, 'update_settings'):
+        explorer.update_settings(settings)
+        
+    if hasattr(explorer, 'check_formula'):
+        explorer.check_formula()
+        
+    return explorer
+
 
 class ModelExplorer:
     """Interactive model explorer for Jupyter notebooks."""

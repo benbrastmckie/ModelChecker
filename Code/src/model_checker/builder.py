@@ -647,25 +647,34 @@ class BuildProject:
     """Creates a new theory implementation project from a template.
     
     This class handles the creation of a new modal logic theory implementation
-    by copying and configuring template files. It sets up the directory structure,
-    renames files appropriately, and initializes the basic implementation files.
+    by copying and configuring template files. It sets up the directory structure
+    and initializes the basic implementation files.
     
-    The generated project includes operators.py, semantic.py, examples.py, and 
-    test files that provide the foundation for implementing a new modal logic theory.
+    The generated project includes necessary files from the source theory,
+    such as operators.py, semantic.py, examples.py, and README.md, providing
+    the foundation for implementing a new modal logic theory.
     
     Attributes:
-        theory (str): Name of the new theory to create
-        theory_dir (str): Directory path for the new theory
-        template_dir (str): Path to the template directory
-        test_dir (str): Directory path for tests
+        theory (str): Name of the source theory to use as template
+        source_dir (str): Directory path to the source theory
+        project_name (str): Name of the new project (will be prefixed with 'project_')
+        destination_dir (str): Directory path for the new project
+        log_messages (list): Log of actions and messages during project generation
     """
 
-    DEFAULT_FILES = {
-        "examples.py"  : "examples.py",
-        "operators.py" : "operators.py",
-        "semantics.py" : "semantics.py",
-        "README.md"    : "README.md",
-    }
+    # Essential files that should be present in a valid theory
+    ESSENTIAL_FILES = [
+        "README.md",
+        "__init__.py"
+    ]
+    
+    # Core files that will be highlighted in the success message
+    CORE_FILES = [
+        "examples.py",
+        "operators.py",
+        "semantic.py",
+        "README.md"
+    ]
 
     def __init__(self, theory: str = 'default'):
         """Initialize project builder with specified theory."""
@@ -673,6 +682,22 @@ class BuildProject:
         self.source_dir = os.path.join(os.path.dirname(__file__), 'theory_lib', theory)
         self.project_name: str = ""
         self.destination_dir: str = ""
+        self.log_messages = []
+
+    def log(self, message, level="INFO"):
+        """Log a message with a specified level.
+        
+        Args:
+            message (str): The message to log
+            level (str): The log level (INFO, WARNING, ERROR)
+        """
+        self.log_messages.append(f"[{level}] {message}")
+        if level == "ERROR":
+            print(f"Error: {message}")
+        elif level == "WARNING":
+            print(f"Warning: {message}")
+        else:
+            print(message)
 
     def ask_generate(self):
         """Prompt user to create a new theory implementation project.
@@ -695,11 +720,12 @@ class BuildProject:
         test_name = input("Enter the name of your project using snake_case: ")
         self.generate(test_name)
 
+    
     def generate(self, name):
         """Generate a new theory implementation project from templates.
         
         Creates a new project directory with the standard theory implementation structure
-        by copying and configuring template files. The project name will be prefixed
+        by copying all files from the source theory. The project name will be prefixed
         with 'project_' to maintain consistent naming conventions.
         
         Args:
@@ -708,12 +734,7 @@ class BuildProject:
         Raises:
             ValueError: If project name is empty or invalid
             FileExistsError: If project directory already exists
-            FileNotFoundError: If template files cannot be found
-            
-        The generated project includes:
-        - examples.py: Sample model checking examples
-        - operators.py: Logical operator definitions
-        - semantics.py: Semantic theory implementation
+            FileNotFoundError: If source theory cannot be found
         """
         self.project_name = 'project_' + name
         if not self.project_name:
@@ -721,39 +742,78 @@ class BuildProject:
         self.destination_dir = os.path.join(os.getcwd(), self.project_name)
 
         try:
-            self._validate_paths()
-            self._copy_project_files()
-            self._rename_files()
+            self._validate_source_directory()
+            self._create_destination_directory()
+            self._copy_files()
+            self._update_init_file()
+            self._validate_essential_files()
             self._print_success_message()
             self._handle_example_script()
 
-        except FileNotFoundError as e:
-            print(f"Error: {e}")
         except Exception as e:
-            print(f"An unexpected error occurred: {e}")
+            print(f"An error occurred: {e}")
 
-    def _validate_paths(self):
-        """Validate source and destination paths."""
+    def _validate_source_directory(self):
+        """Verify the source directory exists and contains necessary files."""
         if not os.path.exists(self.source_dir):
             raise FileNotFoundError(
                 f"The semantic theory '{self.theory}' was not found in '{self.source_dir}'."
             )
+            
+        # Check for essential files
+        missing_files = []
+        for file in self.ESSENTIAL_FILES:
+            file_path = os.path.join(self.source_dir, file)
+            if not os.path.exists(file_path):
+                missing_files.append(file)
+                
+        if missing_files:
+            self.log(f"Missing essential files in source directory: {', '.join(missing_files)}", "WARNING")
 
+    def _create_destination_directory(self):
+        """Create the destination directory if it doesn't exist."""
         if os.path.exists(self.destination_dir):
             raise FileExistsError(f"Directory '{self.destination_dir}' already exists.")
+        os.makedirs(self.destination_dir)
 
-    def _copy_project_files(self):
-        """Copy template files to new project directory and update version."""
-        # First copy all files
-        shutil.copytree(self.source_dir, self.destination_dir)
-        
-        # Update __init__.py with current version from pyproject.toml
+    def _copy_files(self):
+        """Copy all files from source to destination directory."""
+        # Copy all files from source to destination
+        for item in os.listdir(self.source_dir):
+            source_item = os.path.join(self.source_dir, item)
+            dest_item = os.path.join(self.destination_dir, item)
+            
+            try:
+                if os.path.isdir(source_item):
+                    # Copy directories recursively
+                    shutil.copytree(source_item, dest_item)
+                    # self.log(f"Copied directory: {item}")
+                else:
+                    # Copy files
+                    shutil.copy2(source_item, dest_item)
+                    # self.log(f"Copied file: {item}")
+            except Exception as e:
+                self.log(f"Error copying {item}: {str(e)}", "ERROR")
+
+    def _update_init_file(self):
+        """Update the __init__.py file with the current version."""
         init_path = os.path.join(self.destination_dir, "__init__.py")
         if os.path.exists(init_path):
             with open(init_path, 'r', encoding='utf-8') as f:
                 content = f.read()
             
-            # Find and read pyproject.toml
+            # Find version from pyproject.toml or use default
+            current_version = self._get_current_version()
+            
+            # Replace version in __init__.py
+            new_content = content.replace("unknown", current_version)
+            
+            with open(init_path, 'w', encoding='utf-8') as f:
+                f.write(new_content)
+
+    def _get_current_version(self):
+        """Extract the current version from pyproject.toml."""
+        try:
             current_dir = os.path.dirname(__file__)
             while current_dir != '/':
                 pyproject_path = os.path.join(current_dir, 'pyproject.toml')
@@ -763,31 +823,44 @@ class BuildProject:
                         # Extract version using basic string operations
                         version_line = [line for line in pyproject_content.split('\n') 
                                      if line.strip().startswith('version = ')][0]
-                        current_version = version_line.split('=')[1].strip().strip('"\'')
-                        break
+                        return version_line.split('=')[1].strip().strip('"\'')
                 current_dir = os.path.dirname(current_dir)
-            else:
-                current_version = "0.8.18"  # Fallback to hardcoded version
-            
-            new_content = content.replace("unknown", current_version)
-            
-            with open(init_path, 'w', encoding='utf-8') as f:
-                f.write(new_content)
+            return "0.8.18"  # Fallback version
+        except Exception as e:
+            self.log(f"Could not determine current version: {e}", "WARNING")
+            return "0.8.18"  # Fallback version
 
-    def _rename_files(self):
-        """Rename project files according to template."""
-        for old_name, new_name in self.DEFAULT_FILES.items():
-            old_path = os.path.join(self.destination_dir, old_name)
-            new_path = os.path.join(self.destination_dir, new_name)
-            if os.path.exists(old_path):
-                os.rename(old_path, new_path)
+    def _validate_essential_files(self):
+        """Verify all essential files were copied to the destination."""
+        missing_files = []
+        for file in self.ESSENTIAL_FILES:
+            file_path = os.path.join(self.destination_dir, file)
+            source_path = os.path.join(self.source_dir, file)
+            
+            # If file exists in source but not in destination, try to copy it again
+            if os.path.exists(source_path) and not os.path.exists(file_path):
+                try:
+                    # Try direct binary copy as a backup method
+                    with open(source_path, 'rb') as src, open(file_path, 'wb') as dst:
+                        dst.write(src.read())
+                except Exception:
+                    missing_files.append(file)
+            elif not os.path.exists(file_path):
+                missing_files.append(file)
+                
+        if missing_files:
+            self.log(f"Missing essential files in generated project: {', '.join(missing_files)}", "ERROR")
 
     def _print_success_message(self):
         """Print success message with created files."""
         print(f"\nProject generated at: {self.destination_dir}\n")
         print("The following modules were created:")
-        for _, new_name in self.DEFAULT_FILES.items():
-            print(f"  {new_name}")
+        
+        # List core files that were actually copied
+        for file in sorted(os.listdir(self.destination_dir)):
+            # Show all .py files and README.md
+            if file.endswith(".py") or file == "README.md":
+                print(f"  {file}")
 
     def _handle_example_script(self):
         """Handle running the example script if requested."""

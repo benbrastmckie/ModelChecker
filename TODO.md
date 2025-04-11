@@ -10,20 +10,17 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
 
 ## Plan
 
-- [ ] debug readme issue
 - [ ] tools
   - [.] iterate
     - refactor threading
   - [ ] minimize
-  - [ ] maximize N/M
-- bimodal
+- [ ] bimodal
   - [ ] semantics
+    - [ ] develop bimodal lambda only strategy
     - [ ] center world history printing
     - [ ] remove `max_world_id`
-    - [ ] optimize frame constraints
-    - [ ] develop bimodal lambda only strategy
-    - [x] time_shift constraint
     - [x] abundance constraint
+    - [x] time_shift constraint
     - [x] define `time_shift_relations`
     - [x] debug tense operators
       - [x] develop array only strategy
@@ -40,6 +37,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] future
     - [x] past
     - [x] necessity
+- [x] debug readme issue
 - exclusion semantics
   - [ ] documentation
   - [.] add more examples
@@ -59,22 +57,22 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
   - [x] all_bits bug
   - [x] divide into modules
 - general
-  - remove try/except for development
+  - research try/except for development
   - improve version management
-  - unit testing
-  - refactor API
+  - add unit tests throughout
+  - API
     - project building
     - example execution
     - clean up non-determinism throughout
-  - [x] update script
-    - [x] build script
-    - [x] document
-  - [x] fix unit testing
-    - [x] document
-    - [x] build test script
-    - [x] expose `examples_range`
-    - [x] expose `test_examples_range`
-    - [x] call `test_examples_range` in pytests
+- [x] update script
+  - [x] build script
+  - [x] document
+- [x] fix unit testing
+  - [x] document
+  - [x] build test script
+  - [x] expose `examples_range`
+  - [x] expose `test_examples_range`
+  - [x] call `test_examples_range` in pytests
 - [x] imposition semantics
   - [x] implement
   - [x] separate from default
