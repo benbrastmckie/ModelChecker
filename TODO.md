@@ -45,8 +45,9 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] necessity
 - [x] debug readme issue
 - general
-  - [ ] improve flags and settings
+  - [ ] create settings module
   - research try/except for development
+  - create print module
   - theory metadata
   - refactor theory tests
     - create documentation
