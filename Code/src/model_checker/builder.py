@@ -109,6 +109,7 @@ class BuildModule:
         "print_z3": False,
         "save_output": False,
         "maximize": False,
+        "align_vertically": False,
     }
 
     def __init__(self, module_flags):
@@ -522,6 +523,12 @@ class BuildModule:
         # try:
         # Translate operators if dictionary exists
         translated_case = self._translate_if_needed(example_case, semantic_theory)
+        
+        # Add the align_vertically setting from general settings to example settings
+        premises, conclusions, settings = translated_case
+        if "align_vertically" not in settings:
+            settings["align_vertically"] = self.general_settings.get("align_vertically", False)
+        translated_case = [premises, conclusions, settings]
         
         # Generate initial model
         with ThreadPoolExecutor() as executor:

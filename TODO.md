@@ -51,6 +51,7 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
   - improve version management
   - add unit tests throughout
   - refactor API
+    - improve flags and settings
     - project building
     - example execution
     - clean up non-determinism throughout

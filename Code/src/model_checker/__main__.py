@@ -141,6 +141,12 @@ class ParseFileFlags:
             action='store_true',
             help='Overrides to print Z3 model or unsat_core.'
         )
+        parser.add_argument(
+            '--align_vertically',
+            '-a',
+            action='store_true',
+            help='Overrides to display world histories vertically with time flowing from top to bottom.'
+        )
         return parser
 
     def parse(self):
