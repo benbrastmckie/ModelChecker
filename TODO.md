@@ -45,14 +45,15 @@ Specific tasks can be marked with _M_ or _B_ when relevant.
     - [x] necessity
 - [x] debug readme issue
 - general
-  - test `README.md` in each theory
-  - theory metadata
+  - [ ] improve flags and settings
   - research try/except for development
+  - theory metadata
+  - refactor theory tests
+    - create documentation
   - refactor threading
   - improve version management
   - add unit tests throughout
   - refactor API
-    - [ ] improve flags and settings
     - project building
     - example execution
     - clean up non-determinism throughout
