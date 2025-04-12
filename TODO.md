@@ -6,6 +6,10 @@
 
 ## Plan
 
+- [ ] default semantics
+  - [ ] improve name
+  - [ ] unit test circular defs
+  - [ ] benchmarking
 - bimodal
   - semantics
     - [ ] optimize
@@ -130,11 +134,7 @@
 
 ## Documentation
 
-- [.] theories
-  - [:] default
-    - [x] docstrings
-    - [x] readme
-    - [ ] design
+- [:] theories
   - exclusion
     - docstrings
     - [.] readme
@@ -143,11 +143,19 @@
     - docstrings
     - readme
     - design
-  - bimodal
-    - docstrings
-    - readme
-    - design
+  - [x] default
+    - [x] docstrings
+    - [x] readme
+    - [x] design
+  - [x] bimodal
+    - [x] docstrings
+    - [x] readme
+    - [x] design
 - [:] code base
+  - [ ] wiki
+    - [ ] methodology
+    - [ ] architecture
+    - [ ] semantics
   - [x] readme
   - [x] docstrings
     - [x] `__init__.py`
@@ -155,94 +163,14 @@
     - [x] `syntactic.py`
     - [x] `model.py`
     - [x] `utils.py`
-  - [ ] wiki
-    - [ ] methodology
-    - [ ] architecture
-    - [ ] semantics
-- [ ] _B_ rewrite architecture doc
-- [ ] _B_ write semantics doc
 - [x] clean up project directory
   - [x] delete old
   - [x] decapitalize directories
 
-## Implementation
-
-1. [:] An Operator class for each primitive operator:
-  - [x] the Operator class itself
-    - [x] attribute for arity
-    - [x] attribute for name
-    - [x] confirm changes
-  - [x] for each operator
-    - [x] attribute for semantics
-    - [x] methods for truth and falsity at a world
-    - [x] methods for verification and falsification at a world
-    - [x] printing methods
-  - [:] operators to implement:
-    - [:] defined operators
-      - [x] debug given `sentence_obj` integration
-      - [x] _M_ move derived definition upstream
-      - [x] check definitional loops etc
-      - [.] _B_ add doc strings
-    - [x] might counterfactual
-      - [x] defined
-      - [x] unit tests
-    - [x] modal
-      - [x] primitive
-      - [x] defined in terms of counterfactual and top
-        - [x] debug
-      - [x] unit tests
-      - [ ] verifiers and falsifiers
-    - [x] constitutive
-      - [x] define primitive identity operator
-      - [x] define essence, ground, and relevance in terms of identity
-      - [x] add print methods
-      - [x] debug true conclusion and false premise models
-      - [x] unit tests
-      - [ ] verifiers and falsifiers
-    - [:] defined operators
-      - [x] definitions
-      - [ ] unit tests
-    - [x] relevance
-      - [x] semantics
-      - [x] unit tests
-      - [ ] verifiers and falsifiers
-    - [:] imposition counterfactual
-      - [x] add z3 primitive semantics
-      - [x] add frame constraints
-      - [x] define operator
-      - [x] unit tests
-      - [:] benchmarking
-      - [ ] verifiers and falsifiers
-    - [x] extensional
-      - [:] unit tests
-        - [ ] wedge
-        - [ ] vee
-    - [x] extremal
-      - [x] define extremal elements in `hidden_things.py`
-      - [x] define two primitive extremal operators in `exposed_things.py`
-      - [x] add print methods
-      - [ ] verifiers and falsifiers
-      - [ ] unit tests
-    - [x] must counterfactual
-      - [x] debug
-      - [x] add print method
-      - [x] fix indenting
-      - [x] unit tests
-      - [ ] verifiers and falsifiers
-
 ## Z3 Research
 
-- [ ] document problems
-  - [ ] no quantifiers
 - [ ] create Z3 issue
-- [.] email CS faculty
-  - [x] https://people.csail.mit.edu/mcarbin/ -- Michael Carbin
-  - [x] http://adam.chlipala.net/ -- Adam Chlipala
-  - [.] https://people.csail.mit.edu/asolar/ -- Armando Solar-Lezama
-  - [ ] https://people.csail.mit.edu/henrycg/ -- Henry Corrigan-Gibbs
-  - [ ] https://www.csail.mit.edu/person/frans-kaashoek -- Frans Kaashoek
-  - [ ] https://people.csail.mit.edu/mengjia/ -- Megjia Yan
-
+- [ ] lambda worlds
 
 
 
@@ -255,6 +183,69 @@
 <!-- BONEYARD -->
 
 # Completed
+
+## Implementation
+
+1. [x] An Operator class for each primitive operator:
+  - [x] the Operator class itself
+    - [x] attribute for arity
+    - [x] attribute for name
+    - [x] confirm changes
+  - [x] for each operator
+    - [x] attribute for semantics
+    - [x] methods for truth and falsity at a world
+    - [x] methods for verification and falsification at a world
+    - [x] printing methods
+  - [x] operators to implement:
+    - [x] defined operators
+      - [x] debug given `sentence_obj` integration
+      - [x] _M_ move derived definition upstream
+      - [x] check definitional loops etc
+      - [x] _B_ add doc strings
+    - [x] might counterfactual
+      - [x] defined
+      - [x] unit tests
+    - [x] modal
+      - [x] primitive
+      - [x] defined in terms of counterfactual and top
+        - [x] debug
+      - [x] unit tests
+      - [x] verifiers and falsifiers
+    - [x] constitutive
+      - [x] define primitive identity operator
+      - [x] define essence, ground, and relevance in terms of identity
+      - [x] add print methods
+      - [x] debug true conclusion and false premise models
+      - [x] unit tests
+      - [x] verifiers and falsifiers
+    - [x] defined operators
+      - [x] definitions
+    - [x] relevance
+      - [x] semantics
+      - [x] unit tests
+      - [x] verifiers and falsifiers
+    - [x] imposition counterfactual
+      - [x] add z3 primitive semantics
+      - [x] add frame constraints
+      - [x] define operator
+      - [x] unit tests
+      - [x] verifiers and falsifiers
+    - [x] extensional
+      - [x] unit tests
+        - [x] wedge
+        - [x] vee
+    - [x] extremal
+      - [x] define extremal elements in `hidden_things.py`
+      - [x] define two primitive extremal operators in `exposed_things.py`
+      - [x] add print methods
+      - [x] verifiers and falsifiers
+      - [x] unit tests
+    - [x] must counterfactual
+      - [x] debug
+      - [x] add print method
+      - [x] fix indenting
+      - [x] unit tests
+      - [x] verifiers and falsifiers
 
 ## Diagnostic Tools
 
