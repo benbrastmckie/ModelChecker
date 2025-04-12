@@ -11,6 +11,7 @@
   - [ ] unit test circular defs
   - [ ] benchmarking
 - bimodal
+  - update pypi doc
   - semantics
     - [ ] optimize
       - [ ] remove/enforce `max_world_id`
