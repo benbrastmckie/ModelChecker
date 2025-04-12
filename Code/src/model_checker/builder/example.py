@@ -151,25 +151,12 @@ class BuildExample:
         """
         result = self.get_result()
         
-        # Print headers if names are provided
-        if example_name and theory_name:
-            print(f"EXAMPLE: {example_name}", file=output)
-            print(f"THEORY: {theory_name}", file=output)
-        
-        # Print model status
-        if result["model_found"]:
-            print("MODEL FOUND", file=output)
-        else:
-            print("NO MODEL FOUND", file=output)
-            
-        # Print runtime
-        print(f"Runtime: {result['runtime']:.4f} seconds", file=output)
-        
-        # Print model details if a model was found
-        if result["model_found"] and self.model_structure.z3_model is not None:
-            self.model_structure.print_to(
-                self.settings, 
-                example_name or "example", 
-                theory_name or "theory",
-                output=output
-            )
+        # Print model details always using print_to
+        # The print_to method will handle both model found and no model found cases
+        # This maintains compatibility with the original implementation
+        self.model_structure.print_to(
+            self.settings, 
+            example_name or "example", 
+            theory_name or "theory",
+            output=output
+        )
