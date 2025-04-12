@@ -42,23 +42,24 @@
     - [x] necessity
 - [x] debug readme issue
 - general
-  - [ ] tools
-    - [ ] iterate
-    - [ ] maximize
-    - [ ] minimize
   - theory metadata
   - unit tests
+    - [:] settings
+    - [.] builder
     - jupyter
-    - bimodal
-    - default
-    - settings
-    - exclusion
-    - imposition
+    - [x] theory_lib
+      - [x] default
+      - [x] bimodal
+      - [x] exclusion
+      - [x] imposition
   - refactor as subpackages with tests
     - create print module
-    - builder
+    - [.] builder
       - threading
-      - iteration
+      - [ ] tools
+        - [ ] iterate
+        - [ ] maximize
+        - [ ] minimize
     - model
     - syntactic
   - refactor API
