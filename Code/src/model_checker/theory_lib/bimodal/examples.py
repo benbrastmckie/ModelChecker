@@ -536,7 +536,7 @@ example_range = {
     # "EX_CM_1" : EX_CM_1_example,
     
     # Modal Countermodels
-    "MD_CM_1" : MD_CM_1_example,
+    # "MD_CM_1" : MD_CM_1_example,
     # "MD_CM_2" : MD_CM_2_example,
     # "MD_CM_3" : MD_CM_3_example,
     # "MD_CM_4" : MD_CM_4_example,
@@ -548,7 +548,7 @@ example_range = {
     # "TN_CM_2" : TN_CM_2_example,
 
     # Bimodal Countermodels
-    # "BM_CM_1" : BM_CM_1_example,
+    "BM_CM_1" : BM_CM_1_example,
     # "BM_CM_2" : BM_CM_2_example,
     # "BM_CM_3" : BM_CM_3_example,
     # "BM_CM_4" : BM_CM_4_example,
