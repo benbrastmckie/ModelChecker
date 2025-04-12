@@ -37,11 +37,20 @@ class SettingsManager:
         self.semantic_theory = semantic_theory
         
         # Get DEFAULT_GENERAL_SETTINGS from theory or fall back to global defaults
-        self.DEFAULT_GENERAL_SETTINGS = getattr(
-            semantic_theory.get("semantics"), 
-            "DEFAULT_GENERAL_SETTINGS", 
-            global_defaults or {}
-        )
+        semantics_class = semantic_theory.get("semantics")
+        print(f"DEBUG - semantics_class: {semantics_class}")
+        print(f"DEBUG - semantics_class has DEFAULT_GENERAL_SETTINGS: {hasattr(semantics_class, 'DEFAULT_GENERAL_SETTINGS')}")
+        
+        if hasattr(semantics_class, 'DEFAULT_GENERAL_SETTINGS'):
+            print(f"DEBUG - semantics_class.DEFAULT_GENERAL_SETTINGS: {semantics_class.DEFAULT_GENERAL_SETTINGS}")
+            
+        theory_defaults = getattr(semantics_class, "DEFAULT_GENERAL_SETTINGS", None)
+        print(f"DEBUG - theory_defaults: {theory_defaults}")
+        print(f"DEBUG - global_defaults: {global_defaults}")
+        
+        # Always prefer theory-specific defaults over global defaults
+        self.DEFAULT_GENERAL_SETTINGS = theory_defaults if theory_defaults is not None else (global_defaults or {})
+        print(f"DEBUG - final DEFAULT_GENERAL_SETTINGS: {self.DEFAULT_GENERAL_SETTINGS}")
         
         # Get DEFAULT_EXAMPLE_SETTINGS from theory
         self.DEFAULT_EXAMPLE_SETTINGS = semantic_theory["semantics"].DEFAULT_EXAMPLE_SETTINGS
@@ -58,10 +67,15 @@ class SettingsManager:
         Note:
             Prints warnings for any settings not defined in DEFAULT_GENERAL_SETTINGS
         """
+        print(f"DEBUG - validate_general_settings - Starting with user_general_settings: {user_general_settings}")
+        print(f"DEBUG - validate_general_settings - self.DEFAULT_GENERAL_SETTINGS: {self.DEFAULT_GENERAL_SETTINGS}")
+        
         if user_general_settings is None:
+            print("DEBUG - validate_general_settings - user_general_settings is None, returning defaults copy")
             return self.DEFAULT_GENERAL_SETTINGS.copy()
             
         merged_settings = self.DEFAULT_GENERAL_SETTINGS.copy()
+        print(f"DEBUG - validate_general_settings - merged_settings starting with defaults: {merged_settings}")
         
         # Check for unknown settings
         for key in user_general_settings:
@@ -70,9 +84,13 @@ class SettingsManager:
         
         # Merge valid settings
         valid_keys = set(user_general_settings.keys()).intersection(self.DEFAULT_GENERAL_SETTINGS.keys())
+        print(f"DEBUG - validate_general_settings - valid_keys: {valid_keys}")
+        
         for key in valid_keys:
             merged_settings[key] = user_general_settings[key]
+            print(f"DEBUG - validate_general_settings - Setting {key} to {user_general_settings[key]}")
             
+        print(f"DEBUG - validate_general_settings - Final merged_settings: {merged_settings}")
         return merged_settings
     
     def validate_example_settings(self, user_example_settings):
@@ -146,18 +164,23 @@ class SettingsManager:
                         if long_name:
                             user_provided_flags.add(long_name)
         
-        # Apply all flag overrides - both boolean and non-boolean
+        # Only apply flag overrides that were explicitly provided by the user
+        # This ensures defaults aren't applied when flags weren't specified
+        print(f"DEBUG - apply_flag_overrides - user_provided_flags: {user_provided_flags}")
+        
         for key, value in vars(module_flags).items():
             # Skip internal attributes and file_path
             if key.startswith('_') or key == 'file_path':
                 continue
                 
-            # Override if the setting exists
-            if key in merged_settings:
-                merged_settings[key] = value
-            # Warn only if this was explicitly provided by the user
-            elif key in user_provided_flags:
-                print(f"Warning: Flag '{key}' doesn't correspond to any known setting")
+            # Only override if this flag was explicitly provided by the user
+            if key in user_provided_flags:
+                # Override if the setting exists
+                if key in merged_settings:
+                    print(f"DEBUG - apply_flag_overrides - Applying user-provided flag {key}={value}")
+                    merged_settings[key] = value
+                else:
+                    print(f"Warning: Flag '{key}' doesn't correspond to any known setting")
                 
         return merged_settings
     

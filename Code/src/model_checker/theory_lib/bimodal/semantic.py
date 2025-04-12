@@ -1770,7 +1770,7 @@ class BimodalStructure(ModelDefaults):
             state_sequence.append(str(main_world_history[time]))
         
         # Join states with arrows and print
-        world_line = " ==> ".join(state_sequence)
+        world_line = " =⟹ ".join(state_sequence)
 
         # Get evaluation time and state
         eval_time = self.main_time
@@ -1868,7 +1868,7 @@ class BimodalStructure(ModelDefaults):
         current_pos = 0
         for time in all_times:
             time_positions[time] = current_pos
-            current_pos += column_widths[time] + 5  # Width + space for " ==> "
+            current_pos += column_widths[time] + 4  # Width + space for " ==> "
         return time_positions
     
     def _create_world_line(self, world_id, all_times, formatted_states, time_positions, column_widths):
@@ -1903,7 +1903,7 @@ class BimodalStructure(ModelDefaults):
             # Add arrow if not the last state
             if i < len(visible_times) - 1:
                 arrow_pos = pos + len(state_str)
-                arrow = " ==> "
+                arrow = " =⟹ "
                 for j, char in enumerate(arrow):
                     if arrow_pos + j < len(line):
                         line[arrow_pos + j] = char
@@ -1987,7 +1987,7 @@ class BimodalStructure(ModelDefaults):
         Args:
             output: Output stream to print to. Defaults to sys.stdout.
         """
-        print("World Histories (Time Flows ↓):", file=output)
+        print("World Histories:", file=output)
         if self.z3_model is None or not hasattr(self, 'world_histories') or self.world_histories is None:
             print("No valid world histories available", file=output)
             return

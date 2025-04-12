@@ -48,7 +48,7 @@ DEFAULT_GENERAL_SETTINGS = {
     "print_z3": False,
     "save_output": False,
     "maximize": False,
-    "align_vertically": True,  # Only relevant for bimodal theory
+    "align_vertically": False,  # Only relevant for bimodal theory
 }
 
 # Default theory doesn't include align_vertically as it's not applicable
