@@ -732,7 +732,7 @@ CL_CM_10_example = [
 CF_TH_1_premises = []
 CF_TH_1_conclusions = ['(A \\boxright A)']
 CF_TH_1_settings = {
-    'N' : 4,
+    'N' : 2,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -1217,7 +1217,7 @@ example_range = {
     # "ML_CM_1" : ML_CM_1_example,
 
     # Counterfactual Theorems
-    "CF_TH_1" : CF_TH_1_example,
+    # "CF_TH_1" : CF_TH_1_example,
     # "CF_TH_2" : CF_TH_2_example,
     # "CF_TH_3" : CF_TH_3_example,
     # "CF_TH_4" : CF_TH_4_example,

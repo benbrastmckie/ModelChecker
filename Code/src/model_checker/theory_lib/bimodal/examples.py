@@ -360,8 +360,8 @@ MD_TH_2_premises = ['\\Box A']
 MD_TH_2_conclusions = []
 MD_TH_2_settings = {
     'N' : 1,
-    'M' : 1,
-    'contingent' : True,
+    'M' : 2,
+    'contingent' : False,
     'disjoint' : False,
     'max_time' : 2,
     'expectation' : True,
