@@ -355,7 +355,7 @@ MD_TH_1_example = [
     MD_TH_1_settings,
 ]
 
-# BM_CM_1: TEST CONTINGENCY
+# MD_TH_2: TEST CONTINGENCY
 MD_TH_2_premises = ['\\Box A']
 MD_TH_2_conclusions = []
 MD_TH_2_settings = {
@@ -370,6 +370,40 @@ MD_TH_2_example = [
     MD_TH_2_premises,
     MD_TH_2_conclusions,
     MD_TH_2_settings,
+]
+
+# MD_TH_3: TEST DISJOINT
+MD_TH_3_premises = ['A', 'B']
+MD_TH_3_conclusions = []
+MD_TH_3_settings = {
+    'N' : 2,
+    'M' : 2,
+    'contingent' : False,
+    'disjoint' : True,
+    'max_time' : 10,  # Increased timeout
+    'expectation' : True,
+}
+MD_TH_3_example = [
+    MD_TH_3_premises,
+    MD_TH_3_conclusions,
+    MD_TH_3_settings,
+]
+
+# MD_TH_4: TEST BOTH CONTINGENT AND DISJOINT
+MD_TH_4_premises = ['A', 'B']
+MD_TH_4_conclusions = []
+MD_TH_4_settings = {
+    'N' : 2,
+    'M' : 2,
+    'contingent' : True,
+    'disjoint' : True,
+    'max_time' : 2,
+    'expectation' : True,
+}
+MD_TH_4_example = [
+    MD_TH_4_premises,
+    MD_TH_4_conclusions,
+    MD_TH_4_settings,
 ]
 
 
@@ -497,6 +531,9 @@ test_example_range = {
     "MD_CM_4" : MD_CM_4_example,
     "MD_CM_5" : MD_CM_5_example,
     "MD_CM_6" : MD_CM_6_example,
+    "MD_TH_2" : MD_TH_2_example,
+    "MD_TH_3" : MD_TH_3_example,
+    "MD_TH_4" : MD_TH_4_example,
 
     # Tense Countermodels
     "TN_CM_1" : TN_CM_1_example,
@@ -560,6 +597,8 @@ example_range = {
     # Modal Theorems
     # "MD_TH_1" : MD_TH_1_example,
     "MD_TH_2" : MD_TH_2_example,
+    # "MD_TH_3" : MD_TH_3_example,
+    # "MD_TH_4" : MD_TH_4_example,
 
     # Tense Theorems
     # "TN_TH_2" : TN_TH_2_example,
