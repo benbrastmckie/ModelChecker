@@ -222,6 +222,12 @@ class MySemantics(SemanticDefaults):
    - `fusion_closure`: Enforce fusion closure (exclusion theory)
 
 For detailed information about the settings system and how theory-specific settings are managed, see the [Settings Documentation](../settings/README.md).
+You can also find theory specific settings here:
+
+- [Default Theory Settings](theory_lib/default/README.md#default-theory-settings)
+- [Bimodal Theory Settings](theory_lib/bimodal/README.md#bimodal-specific-settings)
+- [Exclusion Theory Settings](theory_lib/exclusion/README.md#theory-specific-settings)
+
 
 ### Minimal Theory Template
 

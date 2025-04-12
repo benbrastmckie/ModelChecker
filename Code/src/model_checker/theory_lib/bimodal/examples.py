@@ -272,7 +272,7 @@ BM_CM_2_example = [
 
 # MD_CM_3: POSSIBILITY TO SOME FUTURE
 BM_CM_3_premises = ['\\Diamond A']
-BM_CM_3_conclusions = ['\\future']
+BM_CM_3_conclusions = ['\\future A']
 BM_CM_3_settings = {
     'N' : 2,
     'M' : 2,

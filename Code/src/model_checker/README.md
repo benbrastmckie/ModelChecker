@@ -9,32 +9,38 @@ The ModelChecker framework follows a modular architecture designed to separate c
 ### Core Components
 
 1. **Builder Module** (`builder.py`)
+
    - `BuildExample`: Creates a model from a named example within a theory
    - `BuildModule`: Loads and runs examples from a specific module
    - `BuildProject`: Creates new theory implementations from templates
 
 2. **Model Module** (`model.py`)
+
    - `ModelConstraints`: Core model checking and constraint solving
    - `ModelDefaults`: Base class for semantic model implementations
    - `SemanticDefaults`: Base semantics with default implementations
    - `PropositionDefaults`: Base proposition class for formula evaluation
 
 3. **Syntactic Module** (`syntactic.py`)
+
    - `Syntax`: Parses and processes logical formulas
    - `Operator`: Base class for logical operators
    - `DefinedOperator`: Base class for operators defined in terms of primitives
 
 4. **Utils Module** (`utils.py`)
+
    - Helper functions for common operations
    - Theory loading via `get_theory()`
    - Example loading via `get_example()`
    - Testing via `run_test()`
 
 5. **Main Module** (`__main__.py`)
+
    - Command-line interface and entry points
    - Argument parsing and dispatch
 
 6. **Settings Package** (`settings/`)
+
    - Centralized settings management system
    - Theory-specific default settings
    - Validation and warning systems for unknown settings
@@ -43,7 +49,7 @@ The ModelChecker framework follows a modular architecture designed to separate c
 
 7. **Jupyter Package** (`jupyter/`)
    - Interactive exploration of logical models in notebooks
-   - Formula checking, countermodel finding, and visualization 
+   - Formula checking, countermodel finding, and visualization
    - Support for Unicode and LaTeX notation
    - Theory-specific adapters for consistent interfaces
    - See [Jupyter Integration Documentation](jupyter/README.md) for details
@@ -53,6 +59,7 @@ The ModelChecker framework follows a modular architecture designed to separate c
 The `theory_lib` package contains specific implementations of logical theories:
 
 1. **Theory Registry** (`theory_lib/__init__.py`)
+
    - Central registry of available theories
    - Lazy loading of theory implementations
    - Utilities for discovering and accessing theories
@@ -83,7 +90,7 @@ theory = get_theory("default")
 # 2. Create a model
 model = BuildExample("simple_modal", theory)
 
-# 3. Check a formula 
+# 3. Check a formula
 result = model.check_formula("\\Box p -> p")
 
 # 4. Analyze the result
@@ -115,10 +122,12 @@ The framework is designed to be extended in several ways:
 Each theory in the ModelChecker framework is designed to be self-contained with its own appropriate defaults and settings. This design follows several key principles:
 
 1. **Relevance Principle**: Theories should only define settings that are relevant to their specific semantics. For example:
+
    - Temporal theories like `bimodal` include time-related settings like `M` (number of time points)
    - Visualization settings like `align_vertically` only appear in theories where they make sense
 
 2. **Clear Defaults**: Each theory defines its own default settings via:
+
    - `DEFAULT_EXAMPLE_SETTINGS`: For example-specific settings
    - `DEFAULT_GENERAL_SETTINGS`: For general output and behavior settings
 
@@ -127,10 +136,9 @@ Each theory in the ModelChecker framework is designed to be self-contained with 
    - A user includes a setting in their configuration that isn't defined in the theory's defaults
 
 For detailed information about settings management and theory-specific settings:
+
 - [Settings System Documentation](settings/README.md)
-- [Default Theory Settings](theory_lib/default/README.md#default-theory-settings)
-- [Bimodal Theory Settings](theory_lib/bimodal/README.md#bimodal-specific-settings)
-- [Exclusion Theory Settings](theory_lib/exclusion/README.md#theory-specific-settings)
+- [Theory Library Documentation](theory_lib/README.md#theory-specific-settings)
 
 ## Development
 
@@ -176,7 +184,8 @@ The `update.py` script manages version updates, testing, building, and uploading
 ```
 
 The script:
-1. Updates version numbers in pyproject.toml and __init__.py
+
+1. Updates version numbers in pyproject.toml and **init**.py
 2. Runs tests for all registered theories (using run_tests.py)
 3. Builds the package
 4. Uploads to PyPI using twine
@@ -264,6 +273,7 @@ The ModelChecker framework includes comprehensive Jupyter notebook integration, 
 ### Overview
 
 Jupyter notebooks provide an ideal environment for working with logical theories by combining:
+
 - Interactive formula checking and evaluation
 - Visual representation of models and countermodels
 - Rich documentation with explanatory text and examples
