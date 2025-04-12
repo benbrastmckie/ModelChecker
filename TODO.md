@@ -8,13 +8,13 @@
 
 - bimodal
   - semantics
-    - [x] settings
-      - [x] disjoint
-      - [x] contingent
     - [ ] optimize
       - [ ] remove/enforce `max_world_id`
       - [ ] clean up frame constraints
       - [ ] develop bimodal lambda only strategy
+    - [x] settings
+      - [x] disjoint
+      - [x] contingent
     - [x] add comments to examples
     - [x] center world history printing
     - [x] abundance constraint
@@ -41,17 +41,26 @@
     - [ ] iterate
     - [ ] maximize
     - [ ] minimize
-  - create print module
   - theory metadata
-  - refactor theory tests
-    - create documentation
-  - refactor threading
-  - improve version management
-  - add unit tests throughout
+  - unit tests
+    - jupyter
+    - bimodal
+    - default
+    - exclusion
+    - imposition
+  - refactor as subpackages with tests
+    - create print module
+    - builder
+      - threading
+      - iteration
+    - model
+    - syntactic
   - refactor API
-    - project building
-    - example execution
-    - clean up non-determinism throughout
+    - version management
+  - dissolve `utils.py`?
+  - [x] clean up non-determinism throughout
+  - [x] example execution
+  - [x] project building
   - [x] research try/except for development
   - [x] create settings module
 - exclusion semantics

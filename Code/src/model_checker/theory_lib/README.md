@@ -229,6 +229,36 @@ You can also find theory specific settings here:
 - [Exclusion Theory Settings](theory_lib/exclusion/README.md#theory-specific-settings)
 
 
+### Operator Constraints and Syntax Rules
+
+When implementing operators for your theory, adhere to these important constraints:
+
+1. **Reserved Nullary Operators**:
+   - `\\top` and `\\bot` are designated nullary operators that cannot be reused as operator names
+   - These represent logical truth and falsehood respectively and have special parsing treatment
+
+2. **Well-Formed Formula Rules**:
+   - Binary operators must have outer parentheses in well-formed sentences: `(A \\wedge B)`
+   - Unary operators do not use parentheses for their main connective: `\\neg A`
+   - Nested expressions follow standard parenthesization rules: `\\neg (A \\wedge B)`
+
+3. **LaTeX Notation**:
+   - All special symbols should use LaTeX notation: `\\wedge`, `\\vee`, `\\neg`, etc.
+   - Operators are designated with a double backslash as in `\\Box` and `\\Future`
+   - Custom operators should follow this pattern: `\\myoperator`
+
+4. **Sentence Letters**:
+   - Sentence letters are alpha-numeric strings: `A`, `B_2`, `Mary_sings`, etc.
+   - Use underscore `_` for spaces in sentence letters (e.g., `Mary_sings`)
+   - Sentence letters must not start with a backslash (reserved for operators)
+
+5. **Parsing Considerations**:
+   - The parser treats sentences as space-separated tokens
+   - Ensure proper spacing in complex formulas: `(A \\wedge (B \\vee C))`
+   - Avoid operator names that could conflict with reserved operators
+
+Following these constraints ensures proper parsing and evaluation of logical formulas within the model checker framework.
+
 ### Minimal Theory Template
 
 ```python
