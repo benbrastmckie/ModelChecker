@@ -51,6 +51,7 @@
     - jupyter
     - bimodal
     - default
+    - settings
     - exclusion
     - imposition
   - refactor as subpackages with tests
