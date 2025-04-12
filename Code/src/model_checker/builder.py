@@ -118,13 +118,10 @@ class BuildModule:
         
         # Load general settings
         user_general_settings = getattr(self.module, "general_settings", None)
-        print(f"DEBUG - BuildModule - user_general_settings from module: {user_general_settings}")
         self.general_settings = self.settings_manager.validate_general_settings(user_general_settings)
-        print(f"DEBUG - BuildModule - self.general_settings after validation: {self.general_settings}")
         
         # Apply flag overrides for general settings
         self.general_settings = self.settings_manager.apply_flag_overrides(self.general_settings, self.module_flags)
-        print(f"DEBUG - BuildModule - self.general_settings after flag overrides: {self.general_settings}")
         
         # Also set attributes for backward compatibility
         for key, value in self.general_settings.items():
@@ -915,15 +912,6 @@ class BuildExample:
         self.premises, self.conclusions, self.example_settings = self._validate_example(example_case)
         self.example_syntax = Syntax(self.premises, self.conclusions, self.operators)
         
-        # Debug settings process with source info
-        print(f"DEBUG - Theory DEFAULT_GENERAL_SETTINGS: {self.settings_manager.DEFAULT_GENERAL_SETTINGS}")
-        print(f"DEBUG - build_module.general_settings from examples.py: {build_module.general_settings}")
-        print(f"DEBUG - From examples module: {hasattr(self.module, 'general_settings')}")
-        if hasattr(self.module, 'general_settings'):
-            print(f"DEBUG - self.module.general_settings: {self.module.general_settings}")
-        print(f"DEBUG - Example settings: {self.example_settings}")
-        print(f"DEBUG - Module flags: {self.module_flags}")
-        
         # Get complete settings using the settings manager
         self.settings = self.settings_manager.get_complete_settings(
             build_module.general_settings,
@@ -931,8 +919,6 @@ class BuildExample:
             self.module_flags
         )
         
-        print(f"DEBUG - Final settings: {self.settings}")
-
         # Create model constraints
         if self.semantics is None:
             raise AttributeError(f"Semantics is None in BuildExample.")
@@ -1094,7 +1080,6 @@ class BuildExample:
 
             # Add the disjunction of differences as a constraint
             if different_model_constraints:
-                # print("DEBUG", different_model_constraints)
                 try:
                     constraint = z3.Or(*different_model_constraints)
                     solver.assert_and_track(

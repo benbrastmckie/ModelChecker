@@ -333,6 +333,7 @@ class BimodalSemantics(SemanticDefaults):
             # MAYBE
             # task_restriction,
             # task_minimization,
+            # world_interval,
         ]
 
     def is_valid_time(self, given_time, offset=0):
@@ -1183,7 +1184,7 @@ class BimodalProposition(PropositionDefaults):
         super().__init__(sentence, model_structure)
 
         self.z3_model = self.model_structure.z3_model
-        self.M = self.model_structure.semantics.M if hasattr(self.model_structure.semantics, 'M') else 2
+        self.M = self.model_structure.semantics.M
         
         # Set the evaluation world ID
         if eval_world == 'main':
@@ -1262,91 +1263,58 @@ class BimodalProposition(PropositionDefaults):
                 
         return f"< {pretty_set_print(truth_worlds)}, {pretty_set_print(false_worlds)} >"
 
-    @classmethod
-    def proposition_constraints(cls, model_constraints, sentence_letter):
+    def proposition_constraints(self, sentence_letter):
         """Returns Z3 constraints for a sentence letter based on user settings.
         
-        Generates optional constraints (contingent and disjoint) appropriate for
-        bimodal semantics based on the settings provided.
+        Generates classical constraints and optional constraints (non-null, contingent, 
+        and disjoint) depending on the user settings.
         
         Args:
-            model_constraints: The ModelConstraints object containing settings and semantics
             sentence_letter: The sentence letter to generate constraints for
         
         Returns:
             list: Z3 constraints for the sentence letter
         """
-        semantics = model_constraints.semantics
-        settings = model_constraints.settings
+        semantics = self.semantics
 
         def get_contingent_constraints():
             """The contingent constraints require that a sentence letter is true
-            at some world and time pair, and false at some world and time pair."""
-
-            # Create unique variable names for Z3 quantification
-            contingent_world_t = z3.Int('contingent_world_t')
-            contingent_time_t = z3.Int('contingent_time_t')
-            
-            # The sentence must be true somewhere in the model
-            possibly_true = z3.Exists(
-                [contingent_world_t, contingent_time_t],
-                z3.And(
-                    semantics.is_world(contingent_world_t),
-                    semantics.is_valid_time_for_world(contingent_world_t, contingent_time_t),
-                    semantics.true_at(sentence_letter, contingent_world_t, contingent_time_t)
-                )
+            at some world state and false at some world state."""
+            true_contingent_state = z3.BitVec("true_contingent_state", semantics.N)
+            false_contingent_state = z3.BitVec("false_contingent_state", semantics.N)
+            possibly_true = Exists(
+                [true_contingent_state],
+                semantics.truth_condition(true_contingent_state, sentence_letter)
             )
-            
-            # Create unique variable names for Z3 quantification
-            contingent_world_f = z3.Int('contingent_world_f')
-            contingent_time_f = z3.Int('contingent_time_f')
-
-            # The sentence must be false somewhere in the model
-            possibly_false = z3.Exists(
-                [contingent_world_f, contingent_time_f],
-                z3.And(
-                    semantics.is_world(contingent_world_f),
-                    semantics.is_valid_time_for_world(contingent_world_f, contingent_time_f),
-                    semantics.false_at(sentence_letter, contingent_world_f, contingent_time_f)
-                )
+            possibly_false = Exists(
+                [false_contingent_state],
+                z3.Not(semantics.truth_condition(false_contingent_state, sentence_letter))
             )
-            
             return [possibly_true, possibly_false]
 
         def get_disjoint_constraints():
             """The disjoint_constraints ensure that no two sentence letters can
-            be true at the same world state at the same time."""
-            disjoint_world = z3.Int('disjoint_world')
-            disjoint_time = z3.Int('disjoint_time')
+            be true at the same world state."""
+            disjoint_state = z3.BitVec("disjoint_state", semantics.N)
             disjoint_constraints = []
-            
-            for other_letter in model_constraints.sentence_letters:
+            for other_letter in self.sentence_letters:
                 if other_letter is not sentence_letter:
-                    # Ensure the two sentence letters are never both true at the same world and time
-                    other_disjoint_atom = z3.ForAll(
-                        [disjoint_world, disjoint_time],
-                        z3.Implies(
-                            z3.And(
-                                semantics.is_world(disjoint_world),
-                                semantics.is_valid_time_for_world(disjoint_world, disjoint_time)
-                            ),
-                            z3.Or(
-                                semantics.false_at(sentence_letter, disjoint_world, disjoint_time),
-                                semantics.false_at(other_letter, disjoint_world, disjoint_time)
-                            )
+                    other_is_disjoint = ForAll(
+                        disjoint_state,
+                        z3.Or(
+                            z3.Not(semantics.truth_condition(disjoint_state, sentence_letter)),
+                            z3.Not(semantics.truth_condition(disjoint_state, other_letter))
                         )
                     )
-                    disjoint_constraints.append(other_disjoint_atom)
-                    
+                    disjoint_constraints.append(other_is_disjoint)
             return disjoint_constraints
 
-        # Collect constraints based on settings
+        # Collect constraints
         constraints = []
-        if settings.get('contingent', False):
+        if self.settings['contingent']:
             constraints.extend(get_contingent_constraints())
-        if settings.get('disjoint', False):
+        if self.settings['disjoint']:
             constraints.extend(get_disjoint_constraints())
-            
         return constraints
 
     def find_extension(self):
