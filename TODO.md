@@ -8,7 +8,6 @@
 
 - bimodal
   - semantics
-    - [ ] add comments to examples
     - [ ] settings
       - [ ] disjoint
       - [ ] contingent
@@ -16,6 +15,7 @@
       - [ ] remove/enforce `max_world_id`
       - [ ] clean up frame constraints
       - [ ] develop bimodal lambda only strategy
+    - [x] add comments to examples
     - [x] center world history printing
     - [x] abundance constraint
     - [x] time_shift constraint
