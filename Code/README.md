@@ -24,8 +24,8 @@ More specific details about the implementation of this hyperintensional semantic
 
 ## Programmatic Semantics
 
-A programmatic methodology in semantics streamlines the otherwise computationally grueling process of developing and testing novel semantic theories and exploring their logics.
-Although computational systems cannot search the space of all models (typically a proper class), the absence of bitvector countermodels up to a finite level of complexity provides evidence for logical consequence, where the strength of this evidence increases with the range of distinct models surveyed.
+A programmatic methodology in semantics streamlines the otherwise grueling process of developing and testing novel semantic theories and exploring their logics by writing pen and paper proofs.
+Although computational systems cannot search the space of all models (typically a proper class), the absence of Z3 countermodels up to a finite level of complexity provides evidence for logical consequence, where the strength of this evidence increases with the range of distinct models surveyed.
 If finite countermodels exist, users will be able to generate and print those models rather than attempting to do so by hand.
 
 The [hyperintensional semantics](#Hyperintensional-Semantics) for the operators indicated above is briefly discussed below.
