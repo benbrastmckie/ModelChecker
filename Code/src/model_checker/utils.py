@@ -32,11 +32,15 @@ def parse_expression(tokens):
         raise ValueError("Empty token list")
     token = tokens.pop(0)  # Get the next token
     if token == "(":  # Handle binary operator case (indicated by parentheses)
+        if not tokens:  # Check if tokens are empty after removing first token
+            raise ValueError(f"Empty token list after opening parenthesis")
         closing_parentheses = tokens.pop()  # Remove the closing parenthesis
         if closing_parentheses != ")":
             raise SyntaxError(
                 f"The sentence {tokens} is missing a closing parenthesis."
             )
+        if not tokens:  # Check if tokens are empty after removing parentheses
+            raise ValueError(f"Empty token list after removing parentheses")
         operator, left, right = op_left_right(tokens)
         left_arg, left_comp = parse_expression(left)  # Parse the left argument
         right_arg, right_comp = parse_expression(right)  # Parse the right argument
@@ -44,8 +48,12 @@ def parse_expression(tokens):
         return [operator, left_arg, right_arg], complexity 
     if token.isalnum():  # Handle atomic sentences
         return [token], 0
-    elif token in {"\\top", "\\bot"}:  # Handle extremal operators
-        return [token], 0
+    elif token.startswith("\\"):  # Handle all LaTeX operators 
+        # This includes: \top, \bot, \Future, \Past, \future, \past, etc.
+        if not tokens:  # Check if tokens are empty after operator
+            raise ValueError(f"Empty token list after operator {token}")
+        arg, comp = parse_expression(tokens)
+        return [token, arg], comp + 1
     arg, comp = parse_expression(tokens)
     return [token, arg], comp + 1 
 

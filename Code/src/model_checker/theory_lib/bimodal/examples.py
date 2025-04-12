@@ -89,7 +89,7 @@ EX_CM_1_example = [
 
 # MD_CM_1: DISTRIBUTE NECESSITY OVER DISJUNCTION
 MD_CM_1_premises = ['\\Box (A \\vee B)']
-MD_CM_1_conclusions = ['(\\Box A \\vee \\Box B)']
+MD_CM_1_conclusions = ['\\Box A', '\\Box B']
 MD_CM_1_settings = {
     'N' : 1,
     'M' : 1,
@@ -306,6 +306,7 @@ BM_CM_4_example = [
 
 
 
+
 ##############################################################################
 ################################## THEOREMS ##################################
 ##############################################################################
@@ -352,6 +353,23 @@ MD_TH_1_example = [
     MD_TH_1_premises,
     MD_TH_1_conclusions,
     MD_TH_1_settings,
+]
+
+# BM_CM_1: TEST CONTINGENCY
+MD_TH_2_premises = ['\\Box A']
+MD_TH_2_conclusions = []
+MD_TH_2_settings = {
+    'N' : 1,
+    'M' : 1,
+    'contingent' : True,
+    'disjoint' : False,
+    'max_time' : 2,
+    'expectation' : True,
+}
+MD_TH_2_example = [
+    MD_TH_2_premises,
+    MD_TH_2_conclusions,
+    MD_TH_2_settings,
 ]
 
 
@@ -514,40 +532,41 @@ example_range = {
     ### COUNTERMODELS ###
 
     # Extensional Countermodels
-    "EX_CM_1" : EX_CM_1_example,
+    # "EX_CM_1" : EX_CM_1_example,
     
     # Modal Countermodels
-    "MD_CM_1" : MD_CM_1_example,
-    "MD_CM_2" : MD_CM_2_example,
-    "MD_CM_3" : MD_CM_3_example,
-    "MD_CM_4" : MD_CM_4_example,
-    "MD_CM_5" : MD_CM_5_example,
-    "MD_CM_6" : MD_CM_6_example,
+    # "MD_CM_1" : MD_CM_1_example,
+    # "MD_CM_2" : MD_CM_2_example,
+    # "MD_CM_3" : MD_CM_3_example,
+    # "MD_CM_4" : MD_CM_4_example,
+    # "MD_CM_5" : MD_CM_5_example,
+    # "MD_CM_6" : MD_CM_6_example,
 
     # Tense Countermodels
-    "TN_CM_1" : TN_CM_1_example,
-    "TN_CM_2" : TN_CM_2_example,
+    # "TN_CM_1" : TN_CM_1_example,
+    # "TN_CM_2" : TN_CM_2_example,
 
     # Bimodal Countermodels
-    "BM_CM_1" : BM_CM_1_example,
-    "BM_CM_2" : BM_CM_2_example,
-    "BM_CM_3" : BM_CM_3_example,
-    "BM_CM_4" : BM_CM_4_example,
+    # "BM_CM_1" : BM_CM_1_example,
+    # "BM_CM_2" : BM_CM_2_example,
+    # "BM_CM_3" : BM_CM_3_example,
+    # "BM_CM_4" : BM_CM_4_example,
 
     ### THEOREMS ###
 
     # Extensional Theorems
-    "EX_TH_1" : EX_TH_1_example,
+    # "EX_TH_1" : EX_TH_1_example,
 
     # Modal Theorems
-    "MD_TH_1" : MD_TH_1_example,
+    # "MD_TH_1" : MD_TH_1_example,
+    "MD_TH_2" : MD_TH_2_example,
 
     # Tense Theorems
-    "TN_TH_2" : TN_TH_2_example,
+    # "TN_TH_2" : TN_TH_2_example,
 
     # Bimodal Theorems
-    "BM_TH_1" : BM_TH_1_example,
-    "BM_TH_2" : BM_TH_2_example,
-    "BM_TH_3" : BM_TH_3_example,
-    "BM_TH_4" : BM_TH_4_example,
+    # "BM_TH_1" : BM_TH_1_example,
+    # "BM_TH_2" : BM_TH_2_example,
+    # "BM_TH_3" : BM_TH_3_example,
+    # "BM_TH_4" : BM_TH_4_example,
 }

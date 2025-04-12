@@ -1279,29 +1279,31 @@ class BimodalProposition(PropositionDefaults):
         def get_contingent_constraints():
             """The contingent constraints require that a sentence letter is true
             at some world state and false at some world state."""
-            x, y = z3.BitVecs("prop_cont_x prop_cont_y", semantics.N)
+            contingent_world = z3.Int('contingent_world')
+            contingent_time = z3.Int('contingent_time')
             possibly_true = Exists(
-                x,
-                semantics.true_at(x, sentence_letter)
+                [contingent_world, contingent_time],
+                semantics.true_at(sentence_letter, contingent_world, contingent_time)
             )
             possibly_false = Exists(
-                y,
-                semantics.false_at(y, sentence_letter)
+                [contingent_world, contingent_time],
+                semantics.false_at(sentence_letter, contingent_world, contingent_time)
             )
             return [possibly_true, possibly_false]
 
         def get_disjoint_constraints():
             """The disjoint_constraints ensure that no two sentence letters can
             be true at the same world state."""
-            x = z3.BitVec("prop_dj_x", semantics.N)
+            disjoint_world = z3.Int('disjoint_world')
+            disjoint_time = z3.Int('disjoint_time')
             disjoint_constraints = []
             for other_letter in self.sentence_letters:
                 if other_letter is not sentence_letter:
                     other_disjoint_atom = ForAll(
-                        x,
+                        [disjoint_world, disjoint_time],
                         z3.Or(
-                            semantics.false_at(x, sentence_letter),
-                            semantics.false_at(x, other_letter)
+                            semantics.false_at(sentence_letter, disjoint_world, disjoint_time),
+                            semantics.false_at(other_letter, disjoint_world, disjoint_time)
                         )
                     )
                     disjoint_constraints.append(other_disjoint_atom)
