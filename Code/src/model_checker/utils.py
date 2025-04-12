@@ -50,6 +50,9 @@ def parse_expression(tokens):
         return [token], 0
     elif token.startswith("\\"):  # Handle all LaTeX operators 
         # This includes: \top, \bot, \Future, \Past, \future, \past, etc.
+        # Special case for nullary operators like \top and \bot
+        if token in {"\\top", "\\bot"}:
+            return [token], 0
         if not tokens:  # Check if tokens are empty after operator
             raise ValueError(f"Empty token list after operator {token}")
         arg, comp = parse_expression(tokens)

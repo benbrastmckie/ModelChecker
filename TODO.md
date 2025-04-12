@@ -8,9 +8,9 @@
 
 - bimodal
   - semantics
-    - [ ] settings
-      - [ ] disjoint
-      - [ ] contingent
+    - [x] settings
+      - [x] disjoint
+      - [x] contingent
     - [ ] optimize
       - [ ] remove/enforce `max_world_id`
       - [ ] clean up frame constraints

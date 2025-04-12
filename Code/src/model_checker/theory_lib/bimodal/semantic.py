@@ -477,6 +477,54 @@ class BimodalSemantics(SemanticDefaults):
         )
         return world_interval_constraint
 
+    def time_interval_constraint(self):
+        """Build an optimized constraint ensuring each world has a valid time interval.
+        
+        This optimized version avoids nested universal quantifiers by directly
+        constraining the interval functions to specific values for each world.
+        It pre-computes the valid interval options and creates direct constraints
+        rather than using nested quantification.
+        
+        Returns:
+            Z3 formula that constrains world intervals to valid values
+        """
+        # Generate valid time intervals
+        time_intervals = self.generate_time_intervals(self.M)
+        
+        # Variable for world being constrained
+        interval_world = z3.Int('interval_world')
+        
+        # Create direct mapping for interval bounds
+        interval_constraints = []
+        
+        # For each valid world ID, create direct interval constraints
+        for world_id in range(self.max_world_id):
+            # Create a condition for this specific world ID
+            world_condition = (interval_world == world_id)
+            
+            # Create interval options for this world
+            world_interval_options = []
+            
+            # For any time interval in time_intervals with start_time and end_time
+            for i, (start_time, end_time) in enumerate(time_intervals):
+                # Create a direct constraint for this interval option
+                interval_option = z3.And(
+                    self.world_interval_start(world_id) == z3.IntVal(start_time),
+                    self.world_interval_end(world_id) == z3.IntVal(end_time)
+                )
+                world_interval_options.append(interval_option)
+            
+            # A world must have exactly one of the valid intervals if it exists
+            world_constraint = z3.Implies(
+                self.is_world(world_id),
+                z3.Or(*world_interval_options)
+            )
+            
+            interval_constraints.append(world_constraint)
+        
+        # Combine all world constraints
+        return z3.And(*interval_constraints)
+
     def has_interval(self, given_world, start_time, end_time):
         """Predicate indicating a world has a specific interval.
         
@@ -765,54 +813,6 @@ class BimodalSemantics(SemanticDefaults):
             intervals.append((start, end))
         return intervals
         
-    def time_interval_constraint(self):
-        """Build an optimized constraint ensuring each world has a valid time interval.
-        
-        This optimized version avoids nested universal quantifiers by directly
-        constraining the interval functions to specific values for each world.
-        It pre-computes the valid interval options and creates direct constraints
-        rather than using nested quantification.
-        
-        Returns:
-            Z3 formula that constrains world intervals to valid values
-        """
-        # Generate valid time intervals
-        time_intervals = self.generate_time_intervals(self.M)
-        
-        # Variable for world being constrained
-        interval_world = z3.Int('interval_world')
-        
-        # Create direct mapping for interval bounds
-        interval_constraints = []
-        
-        # For each valid world ID, create direct interval constraints
-        for world_id in range(self.max_world_id):
-            # Create a condition for this specific world ID
-            world_condition = (interval_world == world_id)
-            
-            # Create interval options for this world
-            world_interval_options = []
-            
-            # For any time interval in time_intervals with start_time and end_time
-            for i, (start_time, end_time) in enumerate(time_intervals):
-                # Create a direct constraint for this interval option
-                interval_option = z3.And(
-                    self.world_interval_start(world_id) == z3.IntVal(start_time),
-                    self.world_interval_end(world_id) == z3.IntVal(end_time)
-                )
-                world_interval_options.append(interval_option)
-            
-            # A world must have exactly one of the valid intervals if it exists
-            world_constraint = z3.Implies(
-                self.is_world(world_id),
-                z3.Or(*world_interval_options)
-            )
-            
-            interval_constraints.append(world_constraint)
-        
-        # Combine all world constraints
-        return z3.And(*interval_constraints)
-
     def is_time_shifted(self, source_world_id, shift_amount, target_world_id):
         """Determines if target_world_id is a time-shifted version of source_world_id by shift_amount.
         
