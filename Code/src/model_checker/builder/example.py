@@ -149,7 +149,9 @@ class BuildExample:
         
         # Add model structure details if a model was found
         if self.model_structure.z3_model_status and self.model_structure.z3_model:
-            result["worlds"] = self.model_structure.get_world_count()
+            # Most model structures will have num_worlds attribute
+            if hasattr(self.model_structure, 'num_worlds'):
+                result["worlds"] = self.model_structure.num_worlds
             # Add additional model details as needed
             
         return result
@@ -157,10 +159,10 @@ class BuildExample:
     def find_next_model(self):
         """Find a new model that differs from the previous one.
         
-        Attempts to find a new model that is semantically distinct from the previous
-        model by adding constraints that require at least one difference in either:
-        - Sentence letter valuations
-        - Primitive function/relation interpretations
+        Uses the refactored approach to find a semantically distinct model by:
+        1. Creating extended constraints requiring difference from the current model
+        2. Building a completely new model structure from scratch
+        3. Calculating differences between the models for presentation
         
         Returns:
             bool: True if a new distinct model was found, False otherwise
@@ -169,32 +171,33 @@ class BuildExample:
             return False
             
         try:
-            # Get variables to consider for differences
-            variables = []
+            # Import the ModelIterator dynamically to avoid circular imports
+            from model_checker.builder.iterate import ModelIterator
             
-            # Add sentence letters
-            variables.extend(self.model_constraints.sentence_letters)
+            # Create a model iterator for this build example
+            iterator = ModelIterator(self)
             
-            # Add primitive functions from semantics
-            semantics_dict = getattr(self.model_constraints.semantics, '__dict__', {})
-            for name, func in semantics_dict.items():
-                if not name.startswith('_') and isinstance(func, z3.ExprRef):
-                    variables.append(func)
+            # Override to find just one more model
+            iterator.max_iterations = 2  # Initial + 1 more
             
-            # Use z3_utils to find next model
-            success, new_model = find_next_z3_model(
-                self.solver, 
-                self.model_structure.z3_model, 
-                variables
-            )
+            # Find the next model
+            model_structures = iterator.iterate()
             
-            if not success or new_model is None:
+            # Check if we found a new model
+            if len(model_structures) <= 1:
                 return False
                 
-            # Update model structure with new model
-            self.model_structure.z3_model = new_model
-            self.model_structure.z3_model_status = True
-            self.model_structure._update_model_structure(new_model)
+            # Replace our model structure with the new one
+            new_structure = model_structures[-1]
+            
+            # Keep a reference to the old structure for comparison
+            old_structure = self.model_structure
+            
+            # Update the build example with the new structure
+            self.model_structure = new_structure
+            
+            # We don't need to print differences here since they'll be printed by print_to
+            # when the model is displayed through print_model
             
             return True
             
@@ -203,6 +206,8 @@ class BuildExample:
             return False
         except Exception as e:
             print(f"Error while finding next model: {e}")
+            import traceback
+            print(traceback.format_exc())
             return False
     
     def print_model(self, example_name=None, theory_name=None, output=sys.stdout):

@@ -78,7 +78,6 @@ from model_checker.theory_lib.default.operators import default_operators
 
 __all__ = [
     'general_settings',
-    'example_settings',
     'default_theory',
     'semantic_theories',
     'example_range',
@@ -90,20 +89,12 @@ __all__ = [
 
 general_settings = {
     "print_constraints": False,
-    "print_impossible": False,
+    "print_impossible": True,
     "print_z3": False,
     "save_output": False,
     "maximize": False,
 }
 
-example_settings = {  # defaults can be tailored to each example
-    'N' : 3,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-}
 
 
 ####################################
@@ -184,7 +175,7 @@ CF_CM_1_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'iterate' : 1,
+    'iterate' : 2,
     'expectation' : True,
 }
 CF_CM_1_example = [

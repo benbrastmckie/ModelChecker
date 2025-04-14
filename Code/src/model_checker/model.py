@@ -1088,11 +1088,74 @@ class ModelDefaults:
                 print(self.z3_model, file=output)
             else:
                 print(self.unsat_core, file=output)
-        if self.settings["print_z3"]:
-            if self.z3_model_status:
-                print(self.z3_model, file=output)
-            else:
-                print(self.unsat_core, file=output)
+                
+    def calculate_model_differences(self, previous_structure):
+        """Calculate theory-specific differences between this model and a previous one.
+        
+        This method identifies semantic differences that are meaningful in this theory's
+        context. The default implementation returns None, indicating that the basic
+        difference calculation should be used instead.
+        
+        Each theory should override this method to detect differences in its specific
+        semantic primitives, such as worlds, times, accessibility relations, etc.
+        
+        Args:
+            previous_structure: The previous model structure to compare against
+            
+        Returns:
+            dict: Theory-specific differences between the models, or None to use basic detection
+        """
+        # Default implementation returns None, meaning use basic difference detection
+        return None
+        
+    def print_model_differences(self, output=sys.stdout):
+        """Prints differences between this model and the previous one.
+        
+        Default implementation that provides basic difference display.
+        Theory-specific classes should override this to provide more detailed output.
+        
+        Args:
+            output (file, optional): Output stream to write to. Defaults to sys.stdout.
+        """
+        if not hasattr(self, 'model_differences') or not self.model_differences:
+            print("No previous model to compare with.", file=output)
+            return
+        
+        print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
+        
+        # Print sentence letter differences
+        letter_diffs = self.model_differences.get('sentence_letters', {})
+        if letter_diffs:
+            print("Sentence Letter Changes:", file=output)
+            for letter, values in letter_diffs.items():
+                print(f"  {letter}: {values['old']} → {values['new']}", file=output)
+            print("", file=output)
+            
+        # Print semantic function differences
+        func_diffs = self.model_differences.get('semantic_functions', {})
+        if func_diffs:
+            print("Semantic Function Changes:", file=output)
+            for func_name, values in func_diffs.items():
+                print(f"  {func_name}:", file=output)
+                for input_val, change in values.items():
+                    print(f"    Input {input_val}: {change['old']} → {change['new']}", file=output)
+            print("", file=output)
+            
+        # Print model structure differences
+        struct_diffs = self.model_differences.get('model_structure', {})
+        if struct_diffs:
+            print("Model Structure Changes:", file=output)
+            for component, values in struct_diffs.items():
+                print(f"  {component}: {values['old']} → {values['new']}", file=output)
+            print("", file=output)
+        
+        # Print structural metrics if available
+        print("Structural Properties:", file=output)
+        print(f"  Worlds: {len(getattr(self, 'z3_world_states', []))}", file=output)
+            
+        # If the model is marked as isomorphic to a previous model, note that
+        if hasattr(self, 'isomorphic_to_previous') and self.isomorphic_to_previous:
+            print("NOTE: This model may be isomorphic to a previous model despite syntactic differences.", file=output)
 
     def print_info(self, model_status, default_settings, example_name, theory_name, output):
         """Print comprehensive model information and analysis results.

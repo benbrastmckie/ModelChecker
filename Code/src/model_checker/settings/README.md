@@ -165,3 +165,124 @@ Potential enhancements for the future:
 3. **Documentation**: Generate settings documentation from the code
 4. **Schema Validation**: More sophisticated schema validation for complex settings
 5. **UI Components**: Settings UI for interactive environments
+
+## Implementing New Settings
+
+When implementing new settings for existing or new theories in the ModelChecker framework, follow these guidelines to ensure consistency and proper integration with the settings system.
+
+### Adding Settings to a Theory
+
+1. **Identify Need**: Determine if your theory genuinely needs a new setting. New settings should:
+   - Control specific aspects of semantics relevant to your theory
+   - Modify constraint generation behavior
+   - Configure output or visualization features
+
+2. **Define in DEFAULT_EXAMPLE_SETTINGS or DEFAULT_GENERAL_SETTINGS**:
+   ```python
+   class YourSemantics(SemanticDefaults):
+       DEFAULT_EXAMPLE_SETTINGS = {
+           # Existing settings
+           'N': 3,
+           'max_time': 1,
+           # New setting with default value
+           'your_new_setting': default_value,
+       }
+   ```
+
+3. **Use the Setting in Code**: Access through the `self.settings` dictionary:
+   ```python
+   if self.settings['your_new_setting']:
+       # Implement behavior when setting is enabled
+   ```
+
+4. **Document the Setting**: Add comments explaining the purpose and impact of your setting.
+
+### Adding Command-Line Flags
+
+To expose a setting as a command-line flag:
+
+1. **Update the CLI Module**: Add your flag to the appropriate argument parser in `cli.py`:
+   ```python
+   parser.add_argument(
+       '--your-flag', '-y',  # Long and short forms
+       dest='your_new_setting',  # Must match the setting name
+       action='store_true',  # For boolean flags
+       help='Description of what this flag does'
+   )
+   ```
+
+2. **For Non-Boolean Settings**: Use appropriate argument type:
+   ```python
+   parser.add_argument(
+       '--value-flag', '-v',
+       dest='value_setting',
+       type=int,  # Specify type (int, float, str)
+       default=None,  # Allow None to detect if user provided it
+       help='Description of what this flag does'
+   )
+   ```
+
+### Testing New Settings
+
+1. **Add Unit Tests**: Create test cases that verify:
+   - Setting is properly passed from CLI to example
+   - Setting triggers expected behavior changes
+   - Setting defaults work correctly
+
+2. **Test Flag Overrides**: Verify command-line flags properly override defaults:
+   ```python
+   # In test_settings.py
+   def test_your_new_setting_flag_override():
+       # Setup mock args with your flag
+       mock_args = Mock()
+       mock_args.your_new_setting = True
+       # Verify it overrides the default in the final settings
+   ```
+
+### Example: Adding a "normalize" Setting
+
+Here's a complete example of adding a new "normalize" setting that normalizes state representations:
+
+1. **Update the Semantic Class**:
+   ```python
+   class YourSemantics(SemanticDefaults):
+       DEFAULT_EXAMPLE_SETTINGS = {
+           'N': 3,
+           'max_time': 1,
+           'normalize': False,  # New setting
+       }
+       
+       def process_state(self, state):
+           if self.settings['normalize']:
+               return self.normalize_state(state)
+           return state
+           
+       def normalize_state(self, state):
+           # Implementation of normalization
+           pass
+   ```
+
+2. **Add CLI Flag**:
+   ```python
+   # In cli.py
+   parser.add_argument(
+       '--normalize', '-n',
+       dest='normalize',
+       action='store_true',
+       help='Normalize state representations for cleaner output'
+   )
+   ```
+
+3. **Document the Setting**:
+   - Add to this README.md under "Example Settings"
+   - Update any relevant theory documentation
+   - Include examples of usage in docstrings
+
+### Best Practices
+
+1. **Theory-Specific vs. Global**: Consider if your setting should be theory-specific or available to all theories
+2. **Default Values**: Choose defaults that make the system work without user intervention
+3. **Naming**: Use clear, descriptive names that indicate the setting's purpose
+4. **Fail Fast**: If a setting is used incorrectly, let errors occur naturally rather than adding complex validation
+5. **Consistency**: Follow existing naming patterns and behavior conventions
+6. **Documentation**: Always update this documentation when adding new settings

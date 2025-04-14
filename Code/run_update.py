@@ -95,27 +95,52 @@ def clean_build_dirs():
     print("Cleaned build directories")
 
 def run_tests():
-    """Run tests for all registered theories using run_tests.py."""
+    """Run package and theory tests using test_package.py and test_theories.py."""
     response = input("Do you want to run tests? (y/N): ").strip().lower()
     if response != 'y':
         print("Skipping tests")
         return True  # Continue with build even without running tests
     
-    # Load and run the run_tests.py module
-    tests_script = Path(__file__).parent / 'run_tests.py'
-    if not tests_script.exists():
-        print("Error: run_tests.py not found")
+    # First run package tests
+    package_tests_script = Path(__file__).parent / 'test_package.py'
+    if not package_tests_script.exists():
+        print("Error: test_package.py not found")
         return False
     
-    # Import the run_tests module
-    run_tests_module = load_module_from_path('run_tests', str(tests_script))
+    # Import the test_package module
+    package_tests_module = load_module_from_path('test_package', str(package_tests_script))
     
-    # Run tests
-    print("Running tests...")
-    tests_passed = run_tests_module.run_tests() == 0
+    # Run package tests
+    print("\nRunning package component tests...")
+    print("=" * 80)
+    package_tests_passed = package_tests_module.run_package_tests() == 0
     
-    if not tests_passed:
-        response = input("Tests failed. Continue with build and upload anyway? (y/N): ").strip().lower()
+    if not package_tests_passed:
+        response = input("\nPackage tests failed. Continue with theory tests? (y/N): ").strip().lower()
+        if response != 'y':
+            return False  # Stop the process if user chooses not to continue
+    
+    # Now run theory tests
+    theory_tests_script = Path(__file__).parent / 'test_theories.py'
+    if not theory_tests_script.exists():
+        print("Error: test_theories.py not found")
+        return False
+    
+    # Import the test_theories module
+    theory_tests_module = load_module_from_path('test_theories', str(theory_tests_script))
+    
+    # Run theory tests
+    print("\nRunning theory tests...")
+    print("=" * 80)
+    theory_tests_passed = theory_tests_module.run_tests() == 0
+    
+    if not theory_tests_passed:
+        response = input("\nTheory tests failed. Continue with build and upload anyway? (y/N): ").strip().lower()
+        return response == 'y'
+    
+    if not package_tests_passed:
+        # Ask again if package tests failed but theory tests passed
+        response = input("\nPackage tests failed, but theory tests passed. Continue with build and upload? (y/N): ").strip().lower()
         return response == 'y'
     
     return True  # All tests passed

@@ -7,6 +7,7 @@ Main Components:
     BuildModule: Manages loading and executing model checking examples from Python modules.
     BuildProject: Creates new theory implementation projects from templates.
     BuildExample: Handles individual model checking examples.
+    ModelIterator: Finds multiple distinct models for a logical example.
 
 The package follows the project's design philosophy:
 - Fail Fast: Let errors occur naturally rather than adding conditional logic
@@ -15,9 +16,10 @@ The package follows the project's design philosophy:
 - No Silent Failures: Don't catch exceptions or provide defaults just to avoid errors
 """
 
-__all__ = ['BuildModule', 'BuildProject', 'BuildExample']
+__all__ = ['BuildModule', 'BuildProject', 'BuildExample', 'ModelIterator', 'iterate_example']
 
 # Import for backward compatibility during transition
 from model_checker.builder.module import BuildModule
 from model_checker.builder.project import BuildProject
 from model_checker.builder.example import BuildExample
+from model_checker.builder.iterate import ModelIterator, iterate_example

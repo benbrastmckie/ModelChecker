@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 """Test runner for ModelChecker theories.
 
-This script runs tests for theories registered in the theory_lib. 
-It follows the same approach as update.sh but in a more Pythonic way.
+This script runs tests for theories registered in the theory_lib.
+It provides a standardized way to test all registered theories or specific ones.
 """
 
 import os
 import sys
 import argparse
 import subprocess
+from typing import List, Optional
 
 def get_registered_theories():
-    """Get the list of registered theories from theory_lib."""
+    """Get the list of registered theories from theory_lib.
+    
+    Returns:
+        List[str]: List of registered theory names
+    """
     # We're now in the Code directory, so we can just use src directly
     env = os.environ.copy()
     env['PYTHONPATH'] = os.path.join(os.path.dirname(__file__), 'src')
@@ -32,8 +37,17 @@ def get_registered_theories():
     theories = result.stdout.strip().split()
     return theories
 
-def run_tests(theories=None, verbose=False):
-    """Run tests for the specified theories."""
+def run_tests(theories: Optional[List[str]] = None, verbose: bool = False, failfast: bool = False):
+    """Run tests for the specified theories.
+    
+    Args:
+        theories: List of theory names to test. If None, tests all registered theories.
+        verbose: Whether to run tests in verbose mode
+        failfast: Whether to stop after the first failure
+        
+    Returns:
+        int: Exit code (0 for success, 1 for failures)
+    """
     # We're now in the Code directory
     code_dir = os.path.dirname(__file__)
     
@@ -76,22 +90,35 @@ def run_tests(theories=None, verbose=False):
             run_command = ["pytest", test_dir]
             if verbose:
                 run_command.append("-v")
+            if failfast:
+                run_command.append("-xvs")
             
             # Run the tests
             result = subprocess.run(run_command, cwd=code_dir, env=env)
             
             if result.returncode != 0:
                 failed_theories.append(theory)
+                if failfast:
+                    # Stop on first failure
+                    break
             
         except Exception as e:
             print(f"Error running tests for {theory}: {str(e)}")
             failed_theories.append(theory)
+            if failfast:
+                break
     
     # Print summary
     print("\n" + "=" * 80)
     print("Test Summary:")
     for theory in theories:
-        status = "FAILED" if theory in failed_theories else "PASSED"
+        if failfast and theory not in failed_theories and len(failed_theories) > 0:
+            # If we're in failfast mode and stopped after a failure,
+            # mark untested theories as SKIPPED
+            status = "SKIPPED" if theory not in theories[:theories.index(failed_theories[0])+1] else \
+                    "FAILED" if theory in failed_theories else "PASSED"
+        else:
+            status = "FAILED" if theory in failed_theories else "PASSED"
         print(f"  {theory}: {status}")
     
     # Print overall success/failure message
@@ -115,9 +142,14 @@ def main():
         action="store_true", 
         help="Enable verbose output"
     )
+    parser.add_argument(
+        "--failfast", "-x", 
+        action="store_true", 
+        help="Stop after first failure"
+    )
     
     args = parser.parse_args()
-    exit_code = run_tests(args.theories, args.verbose)
+    exit_code = run_tests(args.theories, args.verbose, args.failfast)
     sys.exit(exit_code)
 
 if __name__ == "__main__":

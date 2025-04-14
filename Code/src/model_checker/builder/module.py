@@ -209,6 +209,8 @@ class BuildModule:
                 - success (bool): True if model found within max time, False otherwise
                 - runtime (float): Time taken to attempt finding the model
         """
+        from model_checker.model import ModelConstraints
+
         premises, conclusions, settings = example_case
         semantics_class = semantic_theory["semantics"]
         model_structure_class = semantic_theory["model"]
@@ -256,8 +258,6 @@ class BuildModule:
             list: List of tuples containing (theory_name, max_N) where max_N is the largest
                   number of worlds for which a model was found within the time limit
         """
-        from model_checker.model import ModelConstraints
-        
         results = []
         active_cases = {}  # Track active cases and their current N values
         
@@ -331,11 +331,97 @@ class BuildModule:
             self.compare_semantics(example_theory_tuples)
             print(f"\n{'='*40}")
 
+    def process_example(self, example_name, example_case, theory_name, semantic_theory):
+        """Process a single model checking example.
+        
+        Args:
+            example_name (str): Name of the example being processed
+            example_case (list): The example case containing [premises, conclusions, settings]
+            theory_name (str): Name of the semantic theory being used
+            semantic_theory (dict): Dictionary containing the semantic theory implementation
+            
+        Returns:
+            BuildExample: The example after processing
+        """
+        from model_checker.builder.example import BuildExample
+        from model_checker.builder.iterate import ModelIterator
+        import sys
+        
+        # Create and solve the example
+        example = BuildExample(self, semantic_theory, example_case)
+        
+        # Check if a model was found
+        if not example.model_structure.z3_model_status:
+            example.print_model(example_name, theory_name)
+            return example
+        
+        # Get the iterate count
+        iterate_count = example.settings.get('iterate', 1)
+        
+        # Print the first model with numbering if we're iterating
+        if iterate_count > 1:
+            print(f"\nMODEL 1/{iterate_count}")
+            
+        example.print_model(example_name, theory_name)
+        
+        # Return if we don't need to iterate
+        if iterate_count <= 1:
+            return example
+        
+        try:
+            # Create iterator and find additional models
+            iterator = ModelIterator(example)
+            model_structures = iterator.iterate()
+            
+            # Skip the first model which is already printed
+            # Track distinct models for numbering
+            distinct_count = 1
+            total_distinct = iterator.distinct_models_found
+            
+            for i, structure in enumerate(model_structures[1:], start=2):
+                # Only display non-isomorphic models with their differences
+                if not hasattr(structure, '_is_isomorphic') or not structure._is_isomorphic:
+                    distinct_count += 1
+                    
+                    # Skip printing differences directly - they will be printed by print_model
+                    # through model_structure.print_to()
+                    
+                    # Print the new model header with the correct denominator
+                    print(f"\nMODEL {distinct_count}/{total_distinct}")
+                    
+                    # Set the current model structure and print it
+                    example.model_structure = structure
+                    
+                    # Mark the last model to prevent partial output issues
+                    if distinct_count == total_distinct:
+                        structure._is_last_model = True
+                        
+                    example.print_model(f"{example_name}", theory_name)
+                    
+                # For isomorphic models that are skipped, we could optionally add a subtle indicator
+                # Uncomment to show skipped models
+                # elif hasattr(structure, '_is_isomorphic') and structure._is_isomorphic:
+                #     print(f"\n(Skipped isomorphic model variant {i})")
+            
+            # Print summary after all models have been displayed
+            print(f"\nFound {iterator.distinct_models_found} distinct models out of {iterator.checked_model_count} checked.")
+            
+            # Check if there was any partial output
+            if hasattr(example.model_structure, 'model_differences') and not hasattr(example.model_structure, '_is_last_model'):
+                # Clear out any partial difference output
+                print("\n" + "="*40)
+        
+        except Exception as e:
+            print(f"Error during iteration: {str(e)}")
+            import traceback
+            print(traceback.format_exc())
+        
+        return example
+        
     def process_iterations(self, example_name, example_case, theory_name, semantic_theory):
         """Process multiple iterations of model checking for a given example.
         
-        This method attempts to find multiple models for the given example by
-        iteratively solving and then adding constraints to find distinct models.
+        Uses ModelIterator to find multiple distinct models for the example.
         
         Args:
             example_name (str): Name of the example being processed
@@ -346,49 +432,8 @@ class BuildModule:
         Returns:
             BuildExample: The final example after all iterations
         """
-        from model_checker.builder.example import BuildExample
-        
-        try:
-            # Start with initial model
-            spinner = Spinner(message=f"Running {example_name} with {theory_name}")
-            spinner.start()
-            
-            try:
-                example = BuildExample(self, semantic_theory, example_case)
-            finally:
-                spinner.stop()
-                
-            # Print initial model
-            if example.model_structure.z3_model_status is True:
-                example.print_model(example_name, theory_name)
-            
-            # Process additional iterations if requested
-            iterations_remaining = example.settings.get("iterate", 0)
-            while iterations_remaining > 1:
-                # Update settings for next iteration
-                iterations_remaining -= 1
-                example.settings["iterate"] = iterations_remaining
-                
-                # Find next model
-                spinner.start()
-                try:
-                    success = example.find_next_model()
-                finally:
-                    spinner.stop()
-                
-                # Check if we found another model
-                if not success or example.model_structure.z3_model_status is False:
-                    print("\nNo more models found.")
-                    break
-                    
-                # Print the new model
-                example.print_model(example_name, theory_name)
-                
-            return example
-            
-        except Exception as e:
-            print(f"\nError processing iterations for example '{example_name}': {str(e)}")
-            return None
+        # Forward to the new process_example method which handles iteration in a better way
+        return self.process_example(example_name, example_case, theory_name, semantic_theory)
 
     def run_examples(self):
         """Process and execute each example case with all semantic theories.
@@ -405,18 +450,6 @@ class BuildModule:
                 example_copy = list(example_case)
                 example_copy[2] = example_case[2].copy()
                 
-                # Check if we need to run iterations
-                if example_copy[2].get("iterate", 0) > 1:
-                    self.process_iterations(example_name, example_copy, theory_name, semantic_theory)
-                else:
-                    # Run a single model check
-                    example = self.run_model_check(
-                        example_copy, 
-                        example_name, 
-                        theory_name, 
-                        semantic_theory
-                    )
-                    
-                    # Display results
-                    if example:
-                        example.print_model(example_name=example_name, theory_name=theory_name)
+                # Process the example with our new unified approach
+                # This handles both single models and iterations consistently
+                self.process_example(example_name, example_copy, theory_name, semantic_theory)

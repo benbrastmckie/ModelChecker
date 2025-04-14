@@ -361,7 +361,7 @@ MD_TH_2_conclusions = []
 MD_TH_2_settings = {
     'N' : 1,
     'M' : 2,
-    'contingent' : False,
+    'contingent' : True,
     'disjoint' : False,
     'max_time' : 2,
     'expectation' : True,
@@ -536,7 +536,7 @@ example_range = {
     # "EX_CM_1" : EX_CM_1_example,
     
     # Modal Countermodels
-    # "MD_CM_1" : MD_CM_1_example,
+    "MD_CM_1" : MD_CM_1_example,
     # "MD_CM_2" : MD_CM_2_example,
     # "MD_CM_3" : MD_CM_3_example,
     # "MD_CM_4" : MD_CM_4_example,
@@ -560,13 +560,13 @@ example_range = {
 
     # Modal Theorems
     # "MD_TH_1" : MD_TH_1_example,
-    "MD_TH_2" : MD_TH_2_example,
+    # "MD_TH_2" : MD_TH_2_example,
 
     # Tense Theorems
     # "TN_TH_2" : TN_TH_2_example,
 
     # Bimodal Theorems
-    "BM_TH_1" : BM_TH_1_example,
+    # "BM_TH_1" : BM_TH_1_example,
     # "BM_TH_2" : BM_TH_2_example,
     # "BM_TH_3" : BM_TH_3_example,
     # "BM_TH_4" : BM_TH_4_example,

@@ -7,6 +7,7 @@ and initial setup of new modal logic theory implementations.
 
 import os
 import sys
+import re
 import shutil
 import subprocess
 
@@ -213,35 +214,52 @@ class BuildProject:
             version = self._get_current_version()
             
             # Replace version in content
-            new_content = content.replace("unknown", version)
+            # Look specifically for the __version__ line and replace it
+            import re
+            version_pattern = re.compile(r'__version__\s*=\s*["\'].*?["\']')
+            new_content = version_pattern.sub(f'__version__ = "{version}"', content)
+            
+            # If no replacement was made (no pattern match), default to simple replacement
+            if new_content == content:
+                new_content = content.replace('__version__ = "unknown"', f'__version__ = "{version}"')
             
             with open(init_path, 'w', encoding='utf-8') as f:
                 f.write(new_content)
     
     def _get_current_version(self):
-        """Extract the current version from pyproject.toml.
+        """Extract the current version from the installed model-checker package.
         
         Returns:
             str: Current version number, or fallback version if not found
         """
         try:
-            # Look for pyproject.toml in parent directories
-            current_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-            pyproject_path = os.path.join(current_dir, 'pyproject.toml')
-            
-            if os.path.exists(pyproject_path):
-                with open(pyproject_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                    
-                # Find version line
-                for line in content.split('\n'):
-                    if line.strip().startswith('version = '):
-                        return line.split('=')[1].strip().strip('"\'')
+            # First try to get version from importlib.metadata (most reliable)
+            try:
+                from importlib.metadata import version
+                return version("model-checker")
+            except (ImportError, ModuleNotFoundError):
+                # Fallback to package __version__
+                from model_checker import __version__
+                if __version__ != "unknown":
+                    return __version__
+                
+                # Final fallback to pyproject.toml
+                current_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+                pyproject_path = os.path.join(current_dir, 'pyproject.toml')
+                
+                if os.path.exists(pyproject_path):
+                    with open(pyproject_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
                         
-            return "0.0.0"  # Fallback
+                    # Find version line
+                    for line in content.split('\n'):
+                        if line.strip().startswith('version = '):
+                            return line.split('=')[1].strip().strip('"\'')
+            
+            return "unknown"  # Fallback to unknown
             
         except Exception:
-            return "0.0.0"  # Fallback on any error
+            return "unknown"  # Fallback on any error
     
     def _verify_essential_files(self, project_dir):
         """Verify all essential files were copied successfully.
