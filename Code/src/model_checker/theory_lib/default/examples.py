@@ -206,7 +206,7 @@ CF_CM_2_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'iterate' : 1,
+    'iterate' : 2,
     'expectation' : True,
 }
 CF_CM_2_example = [
@@ -1194,8 +1194,8 @@ semantic_theories = {
 example_range = {
     # Counterfactual Countermodels
     # "CF_CM_0" : CF_CM_0_example,
-    "CF_CM_1" : CF_CM_1_example,
-    # "CF_CM_2" : CF_CM_2_example,
+    # "CF_CM_1" : CF_CM_1_example,
+    "CF_CM_2" : CF_CM_2_example,
     # "CF_CM_3" : CF_CM_3_example,
     # "CF_CM_4" : CF_CM_4_example,
     # "CF_CM_5" : CF_CM_5_example,
