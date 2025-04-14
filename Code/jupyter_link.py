@@ -206,7 +206,7 @@ def launch_jupyter():
 
 def main():
     parser = argparse.ArgumentParser(description="Set up ModelChecker for Jupyter notebooks")
-    parser.add_argument("--launch", action="store_true", help="Launch Jupyter notebook after setup")
+    # parser.add_argument("--launch", action="store_true", help="Launch Jupyter notebook after setup")
     parser.add_argument("--example", action="store_true", help="Create an example notebook")
     args = parser.parse_args()
     
@@ -224,8 +224,8 @@ def main():
         print("3. Use model_checker.jupyter module for interactive features")
         
         # Launch Jupyter if requested
-        if args.launch:
-            launch_jupyter()
+        # if args.launch:
+        launch_jupyter()
     else:
         print("\nSetup failed. Please check the error messages above.")
         sys.exit(1)
