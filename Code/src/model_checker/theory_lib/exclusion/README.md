@@ -25,6 +25,29 @@ Run `pytest` from the project directory to quickly evaluate whether the examples
 
 ### Examples
 
+#### Accessing Examples
+
+You can access examples from this theory using the parent module's functions:
+
+```python
+from model_checker.theory_lib import get_examples, get_test_examples, get_semantic_theories
+
+# Get all examples from the exclusion theory
+examples = get_examples('exclusion')
+
+# Access a specific example
+example = examples['EX_CM_1']
+premises, conclusions, settings = example
+
+# Get test examples for automated testing
+test_examples = get_test_examples('exclusion')
+
+# Get semantic theory implementations
+theories = get_semantic_theories('exclusion')
+```
+
+#### Running Examples
+
 Run `model-checker examples.py` from within the project directory to test the examples included the `example_range` defined in `examples.py`.
 Here are two such examples:
 

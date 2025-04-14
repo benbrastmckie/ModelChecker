@@ -104,6 +104,29 @@ general_settings = {
 
 ### Examples
 
+#### Accessing Examples
+
+You can access examples from this theory using the parent module's functions:
+
+```python
+from model_checker.theory_lib import get_examples, get_test_examples, get_semantic_theories
+
+# Get all examples from the bimodal theory
+examples = get_examples('bimodal')
+
+# Access a specific example
+example = examples['BM_CM_1']
+premises, conclusions, settings = example
+
+# Get test examples for automated testing
+test_examples = get_test_examples('bimodal')
+
+# Get semantic theory implementations
+theories = get_semantic_theories('bimodal')
+```
+
+#### Example Structure
+
 Each example is structured as a list containing:
 
 1. Premises (list of formulas)

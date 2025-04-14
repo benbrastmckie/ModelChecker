@@ -85,13 +85,63 @@ class BuildModule:
             ImportError: If module cannot be loaded
         """
         try:
-            spec = importlib.util.spec_from_file_location(self.module_name, self.module_path)
+            # Add the parent directory to sys.path to enable package imports
+            module_dir = os.path.dirname(os.path.abspath(self.module_path))
+            
+            # Set up the appropriate package context for relative imports
+            package_parts = []
+            current_dir = module_dir
+            
+            # Build package name by traversing directories upward until we find no __init__.py
+            while os.path.exists(os.path.join(current_dir, "__init__.py")):
+                package_parts.insert(0, os.path.basename(current_dir))
+                parent_dir = os.path.dirname(current_dir)
+                
+                # Stop if we reach the root directory
+                if parent_dir == current_dir:
+                    break
+                current_dir = parent_dir
+            
+            # Create the package name and make sure the parent directory is in sys.path
+            if package_parts:
+                package_name = ".".join(package_parts)
+                # Add the parent of the top-level package to sys.path
+                parent_of_package = os.path.dirname(current_dir)
+                if parent_of_package not in sys.path:
+                    sys.path.insert(0, parent_of_package)
+            else:
+                # If no package structure detected, treat as standalone module
+                package_name = ""
+                # Add the module directory to path so sibling modules can be imported
+                if module_dir not in sys.path:
+                    sys.path.insert(0, module_dir)
+            
+            # Load the module
+            spec = importlib.util.spec_from_file_location(
+                self.module_name, 
+                self.module_path, 
+                submodule_search_locations=[module_dir]
+            )
             if spec is None or spec.loader is None:
                 raise ImportError("Module spec could not be loaded.")
+            
             module = importlib.util.module_from_spec(spec)
+            
+            # Set the package attribute to enable relative imports
+            if package_name:
+                module.__package__ = package_name
+            
+            # Execute the module
             spec.loader.exec_module(module)
             return module
+            
         except Exception as e:
+            if "attempted relative import" in str(e):
+                # More helpful error message for relative import issues
+                raise ImportError(
+                    f"Relative import error in '{self.module_name}': {e}\n"
+                    f"To use relative imports, make sure your project follows Python package structure with __init__.py files."
+                ) from e
             raise ImportError(f"Failed to load the module '{self.module_name}': {e}") from e
 
     def _load_attribute(self, attr_name):

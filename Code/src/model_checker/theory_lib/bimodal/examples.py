@@ -21,12 +21,12 @@ Module Structure:
 """
 
 # Standard imports
-from model_checker.theory_lib.bimodal.semantic import (
+from .semantic import (
     BimodalStructure,
     BimodalSemantics,
     BimodalProposition,
 )
-from model_checker.theory_lib.bimodal.operators import bimodal_operators
+from .operators import bimodal_operators
 
 #######################
 ### DEFAULT SETTINGS ###
@@ -38,7 +38,6 @@ general_settings = {
     "save_output": False,
     "align_vertically": False,
 }
-
 
 
 

@@ -83,12 +83,8 @@ More information can be found in the README.md for the exclusion theory.
 ### DEFINE THE IMPORTS ###
 ##########################
 
-import sys
-import os
-sys.path.append(os.path.dirname(__file__))  # Add the current directory to sys.path
-
-from semantic import ImpositionSemantics
-from operators import imposition_operators
+from .semantic import ImpositionSemantics
+from .operators import imposition_operators
 
 # Default
 from model_checker.theory_lib.default import (

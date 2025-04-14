@@ -211,6 +211,35 @@ The module provides:
 - Comparison between semantic theories
 - Flexible unit test specification
 
+#### Accessing Examples
+
+You can access examples from this theory using the `get_examples` function from the parent module:
+
+```python
+from model_checker.theory_lib import get_examples
+
+# Get all examples from the default theory
+examples = get_examples('default')
+
+# Access a specific example
+example = examples['CF_CM_1']
+premises, conclusions, settings = example
+```
+
+For test examples or semantic theories:
+
+```python
+from model_checker.theory_lib import get_test_examples, get_semantic_theories
+
+# Get test examples for automated testing
+test_examples = get_test_examples('default')
+
+# Get semantic theory implementations
+theories = get_semantic_theories('default')
+```
+
+#### Example Structure
+
 Each example is structured as a list containing premises, conclusions, and settings:
 
 ```python

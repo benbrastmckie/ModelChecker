@@ -77,6 +77,7 @@
   - theory metadata
   - logging
   - refactor API
+    - [x] package imports
     - [:] loaded projects have the wrong version
     - version management
   - dissolve `utils.py`?

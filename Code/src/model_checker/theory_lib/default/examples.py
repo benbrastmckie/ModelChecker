@@ -69,12 +69,12 @@ Notes:
 """
 
 # Standard imports
-from model_checker.theory_lib.default.semantic import (
+from .semantic import (
     Semantics,
     Proposition,
     ModelStructure,
 )
-from model_checker.theory_lib.default.operators import default_operators
+from .operators import default_operators
 
 __all__ = [
     'general_settings',
@@ -175,7 +175,7 @@ CF_CM_1_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'iterate' : 2,
+    'iterate' : 1,
     'expectation' : True,
 }
 CF_CM_1_example = [
