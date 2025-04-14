@@ -2,9 +2,9 @@ __version__ = "unknown"
 
 # Import specific items from semantic
 from .semantic import (
-    Semantics,
-    ImpositionSemantics,
-    Proposition,
+    BimodalSemantics,
+    # ImpositionSemantics,
+    # Proposition,
 )
 
 # Import specific items from primitive
@@ -15,16 +15,16 @@ from .operators import (
     OrOperator,
     TopOperator,
     BotOperator,
-    IdentityOperator,
-    CounterfactualOperator,
-    ImpositionOperator,
+    # IdentityOperator,
+    # CounterfactualOperator,
+    # ImpositionOperator,
     NecessityOperator,
 
     # defined operators
     ConditionalOperator,
     BiconditionalOperator,
-    MightCounterfactualOperator,
-    MightImpositionOperator,
+    # MightCounterfactualOperator,
+    # MightImpositionOperator,
     DefPossibilityOperator,
 )
 
