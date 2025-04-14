@@ -77,9 +77,9 @@
   - theory metadata
   - logging
   - refactor API
+    - [ ] theory version management
+    - [x] loaded projects have the wrong version
     - [x] package imports
-    - [:] loaded projects have the wrong version
-    - version management
   - dissolve `utils.py`?
   - [x] clean up non-determinism throughout
   - [x] example execution
