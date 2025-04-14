@@ -1,10 +1,11 @@
 [build-system]
+
 requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "model-checker"
-version = "0.8.26"
+version = "0.8.28"
 description = "A hyperintensional theorem prover for modal, counterfactual conditional, constitutive explanatory, and extensional operators."
 authors = [
     { name = "Benjamin Brast-McKie", email = "benbrastmckie@gmail.com" },
@@ -28,7 +29,7 @@ requires-python = ">=3.8"
 
 [project.urls]
 Homepage = "https://github.com/benbrastmckie/ModelChecker"
-Issues = "https://github.com/benbrastmckie/ModelChecker/issues"
+  Issues = "https://github.com/benbrastmckie/ModelChecker/issues"
 
 [project.scripts]
 model-checker = "model_checker.__main__:run"
