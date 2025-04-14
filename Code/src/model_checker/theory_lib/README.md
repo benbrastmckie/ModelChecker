@@ -93,7 +93,72 @@ Each theory directory contains:
 
 ## Using Theories
 
-### Basic Import Pattern
+### Import Strategies
+
+Theory projects support two primary import strategies, each with different use cases:
+
+#### 1. Local Module Imports (for Generated Projects)
+
+When you generate a new theory project with `model-checker -l bimodal`, the examples.py file uses local imports:
+
+```python
+# Standard imports
+import sys
+import os
+
+# Add current directory to path before importing modules
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
+# Direct imports from local modules
+from semantic import BimodalStructure, BimodalSemantics, BimodalProposition
+from operators import bimodal_operators
+```
+
+**Benefits:**
+- Simple, direct imports from files in the same directory
+- Projects can be run directly with `model-checker examples.py`
+- Changes to the local files are immediately reflected
+- Ideal for development and experimentation
+
+**When to use:**
+- When you want to modify and experiment with a theory
+- When creating a standalone project
+- When running the examples.py file directly
+
+#### 2. Package Imports (for Comparison)
+
+To compare your modified theory with the original implementation, you can use package imports:
+
+```python
+# Import from the core package
+from model_checker.theory_lib.bimodal import (
+    BimodalStructure, 
+    BimodalSemantics, 
+    BimodalProposition
+)
+from model_checker.theory_lib.bimodal import bimodal_operators
+
+# Or more generally
+from model_checker import get_theory
+from model_checker.theory_lib import get_examples
+
+# Load the original theory
+theory = get_theory("bimodal")
+```
+
+**Benefits:**
+- Access to the original implementations for comparison
+- Consistency with the package's versioned APIs
+- Clear separation between your modifications and the original
+
+**When to use:**
+- When comparing your modifications to the original
+- When extending the original without modifying it
+- When using multiple theories together
+
+### Basic Usage Examples
 
 ```python
 from model_checker import get_theory

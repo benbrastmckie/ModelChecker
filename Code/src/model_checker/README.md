@@ -117,6 +117,27 @@ The framework is designed to be extended in several ways:
 3. **New Semantics**: Subclass `SemanticDefaults`
 4. **New Interfaces**: Add new builders or integration points
 
+### Import Strategies
+
+When working with theory implementations, you have two primary import strategies:
+
+1. **Local Imports** - For modifying and customizing a theory:
+   ```python
+   # When working in a generated project
+   from semantic import SemanticClass
+   from operators import my_operators
+   ```
+
+2. **Package Imports** - For using the original implementations:
+   ```python
+   # Accessing theory from the main package
+   from model_checker.theory_lib.default import Semantics, default_operators
+   ```
+
+This flexibility allows you to both experiment with modifications in standalone projects and compare against original implementations. When you generate a new project with `model-checker -l theory_name`, the generated files include import handling code that makes local imports work correctly.
+
+For more details on import strategies and theory customization, see the [Theory Library Documentation](theory_lib/README.md#import-strategies).
+
 ### Theory-Specific Design
 
 Each theory in the ModelChecker framework is designed to be self-contained with its own appropriate defaults and settings. This design follows several key principles:

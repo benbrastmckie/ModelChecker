@@ -32,12 +32,13 @@ import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
-from .semantic import (
+
+from semantic import (
     BimodalStructure,
     BimodalSemantics,
     BimodalProposition,
 )
-from .operators import bimodal_operators
+from operators import bimodal_operators
 
 #######################
 ### DEFAULT SETTINGS ###
