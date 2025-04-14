@@ -88,6 +88,38 @@ Alternatively, run which chains the command above together:
 
 For more information using Jupyter notebooks in NixOS, see [NixOS User Guide](NixOS_jupyter.md).
 
+## Basic Usage
+
+### Getting Started with Jupyter Notebooks
+
+To use ModelChecker with Jupyter notebooks, follow these steps:
+
+1. **Start Jupyter Notebook Server**
+
+   After installing the package and dependencies, start Jupyter:
+
+   ```bash
+   jupyter notebook
+   ```
+
+   This will open your default web browser with the Jupyter interface.
+
+2. **Create a New Notebook**
+
+   - Click "New" → "Python 3" to create a new notebook
+   - Or navigate to an existing notebook and open it
+
+3. **Import and Use ModelChecker**
+
+   In a notebook cell, import the ModelChecker components:
+
+   ```python
+   # Import core components
+   from model_checker.jupyter import check_formula, ModelExplorer
+   ```
+
+   Now you're ready to use the ModelChecker features in your notebook!
+
 ## Syntax Guidelines
 
 When writing logical formulas in the ModelChecker, it's important to follow specific syntax rules to ensure proper parsing and evaluation.
@@ -147,39 +179,7 @@ The requirement for double backslashes is due to how Python handles escape chara
 
 **Convention**: Throughout the ModelChecker, we consistently use double backslashes in operator notation to ensure clarity and prevent escaping issues.
 
-## Basic Usage
-
-### Getting Started with Jupyter Notebooks
-
-To use ModelChecker with Jupyter notebooks, follow these steps:
-
-1. **Start Jupyter Notebook Server**
-
-   After installing the package and dependencies, start Jupyter:
-
-   ```bash
-   jupyter notebook
-   ```
-
-   This will open your default web browser with the Jupyter interface.
-
-2. **Create a New Notebook**
-
-   - Click "New" → "Python 3" to create a new notebook
-   - Or navigate to an existing notebook and open it
-
-3. **Import and Use ModelChecker**
-
-   In a notebook cell, import the ModelChecker components:
-
-   ```python
-   # Import core components
-   from model_checker.jupyter import check_formula, ModelExplorer
-   ```
-
-   Now you're ready to use the ModelChecker features in your notebook!
-
-### Running Example Notebooks
+## Running Example Notebooks
 
 ModelChecker comes with pre-built example notebooks:
 
