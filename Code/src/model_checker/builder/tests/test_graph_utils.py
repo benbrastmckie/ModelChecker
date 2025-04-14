@@ -37,8 +37,9 @@ class TestModelGraph:
         semantics = MagicMock()
         model_constraints.semantics = semantics
         
-        # Setup num_worlds
+        # Setup num_worlds and world_states
         model_structure.num_worlds = 2
+        model_structure.z3_world_states = [0, 1]
         
         # Configure the z3_model to return values for letters
         def mock_eval(expr, model_completion=True):

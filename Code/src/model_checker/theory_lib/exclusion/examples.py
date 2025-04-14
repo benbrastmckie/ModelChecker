@@ -80,18 +80,13 @@ More information can be found in the README.md for the exclusion theory.
 ### DEFINE THE IMPORTS ###
 ##########################
 
-import os
-import sys
-# Add the current directory to sys.path
-sys.path.append(os.path.dirname(__file__))
-
 # Exclusion
-from semantic import (
+from .semantic import (
     ExclusionSemantics,
     UnilateralProposition,
     ExclusionStructure,
 )
-from operators import exclusion_operators
+from .operators import exclusion_operators
 
 # Default + Utils
 from model_checker.theory_lib.default import (

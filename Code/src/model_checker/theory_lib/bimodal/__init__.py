@@ -47,23 +47,13 @@ from .semantic import (
 # Import operators collection
 from .operators import bimodal_operators
 
-# Import examples for access through the API
-from .examples import (
-    example_range,
-    semantic_theories,
-    test_example_range,
-)
-
 __version__ = "unknown"
 
 # Define the public API of the package
 __all__ = [
-    "BimodalSemantics",      # Configures semantic framework with temporal and modal operators
-    "BimodalProposition",    # Represents and evaluates formulas in temporal-modal contexts
-    "BimodalStructure",      # Manages world histories (sequences of states over time)
-    "bimodal_operators", # Logical operators (¬,∧,∨,→,↔,□,◇,⏵,⏴,etc.)
-    "example_range",         # Dictionary of example test cases
-    "semantic_theories",     # Dictionary of semantic theory implementations
-    "test_example_range",    # Dictionary of examples used for automated testing
-    "__version__",           # Package version information
+    "BimodalSemantics",   # Configures semantic framework with temporal and modal operators
+    "BimodalProposition", # Represents and evaluates formulas in temporal-modal contexts
+    "BimodalStructure",   # Manages world histories (sequences of states over time)
+    "bimodal_operators",  # Logical operators (¬,∧,∨,→,↔,□,◇,⏵,⏴,etc.)
+    "__version__",        # Package version information
 ]
