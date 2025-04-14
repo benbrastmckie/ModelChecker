@@ -42,19 +42,48 @@ Key features:
 
 ## Installation
 
-The Jupyter integration is included with the ModelChecker package. To use it, you need to install ModelChecker and the required dependencies for Jupyter integration:
+The Jupyter integration is included with the ModelChecker package. The simplest way to install it with all required dependencies is:
 
 ```bash
-pip install model-checker
-pip install ipywidgets matplotlib networkx
+pip install model-checker[jupyter]
 ```
+
+This installs the base package along with all Jupyter-related dependencies (ipywidgets, matplotlib, networkx, jupyter, etc.).
+
+If you prefer manual installation or need to troubleshoot dependencies:
+
+```bash
+# Install base package
+pip install model-checker
+
+# Install Jupyter dependencies separately
+pip install ipywidgets matplotlib networkx jupyter
+```
+
+### Development Installation
+
+For developers working with the codebase:
+
+```bash
+# Clone the repository
+git clone https://github.com/benbrastmckie/ModelChecker.git
+cd ModelChecker/Code
+
+# Install in development mode with jupyter extras
+pip install -e .[jupyter]
+```
+
+### NixOS-Specific Installation
 
 For NixOS users:
 ```bash
 # From the ModelChecker/Code directory
 nix-shell
-cd src
-python -m pip install -e .
+./jupyter_link.py --launch
+```
+Alternatively, run which chains the command above together:
+```
+./run_jupyter.sh
 ```
 
 For more information using Jupyter notebooks in NixOS, see [NixOS User Guide](NixOS_jupyter.md).
@@ -120,12 +149,59 @@ The requirement for double backslashes is due to how Python handles escape chara
 
 ## Basic Usage
 
+### Getting Started with Jupyter Notebooks
+
+To use ModelChecker with Jupyter notebooks, follow these steps:
+
+1. **Start Jupyter Notebook Server**
+
+   After installing the package and dependencies, start Jupyter:
+
+   ```bash
+   jupyter notebook
+   ```
+
+   This will open your default web browser with the Jupyter interface.
+
+2. **Create a New Notebook**
+
+   - Click "New" → "Python 3" to create a new notebook
+   - Or navigate to an existing notebook and open it
+
+3. **Import and Use ModelChecker**
+
+   In a notebook cell, import the ModelChecker components:
+
+   ```python
+   # Import core components
+   from model_checker.jupyter import check_formula, ModelExplorer
+   ```
+
+   Now you're ready to use the ModelChecker features in your notebook!
+
+### Running Example Notebooks
+
+ModelChecker comes with pre-built example notebooks:
+
+```bash
+# Navigate to the examples directory
+cd /path/to/model-checker/site-packages/model_checker/jupyter/notebooks
+
+# Or if you've cloned the repository
+cd ModelChecker/Code/src/model_checker/jupyter/notebooks
+
+# Start Jupyter in that directory
+jupyter notebook
+```
+
+Then open `basic_demo.ipynb` or `options_demo.ipynb` to see demonstrations of the package's features.
+
 ### Simple Formula Checking
 
 The most basic use case is checking if a formula is valid:
 
 ```python
-from model_checker import check_formula
+from model_checker.jupyter import check_formula
 
 # Check a simple formula
 result = check_formula("p → (q → p)")
@@ -138,7 +214,7 @@ This will display an HTML output showing whether the formula is valid and detail
 You can check logical consequences by providing premises:
 
 ```python
-from model_checker import check_formula
+from model_checker.jupyter import check_formula
 
 # Check if premises entail a conclusion
 check_formula("q", premises=["p", "p → q"])
@@ -149,7 +225,7 @@ check_formula("q", premises=["p", "p → q"])
 To specifically look for countermodels to an invalid formula:
 
 ```python
-from model_checker import find_countermodel
+from model_checker.jupyter import find_countermodel
 
 # Find a countermodel where p doesn't imply q
 countermodel = find_countermodel("p → q")
@@ -160,7 +236,7 @@ countermodel = find_countermodel("p → q")
 For interactive exploration, use the `ModelExplorer`:
 
 ```python
-from model_checker import ModelExplorer
+from model_checker.jupyter import ModelExplorer
 
 # Create and display an interactive explorer
 explorer = ModelExplorer()
@@ -182,7 +258,7 @@ The explorer provides a UI with:
 ModelChecker supports multiple semantic theories. You can specify which theory to use:
 
 ```python
-from model_checker import check_formula
+from model_checker.jupyter import check_formula
 
 # Check a formula in the default theory
 check_formula("□(p → q) → (□p → □q)", theory_name="default")
@@ -196,7 +272,7 @@ check_formula(r"\exclude (P \uniwedge Q)", theory_name="exclusion")
 You can customize the model checking settings:
 
 ```python
-from model_checker import check_formula
+from model_checker.jupyter import check_formula
 
 # Custom settings
 settings = {
@@ -215,7 +291,7 @@ check_formula("p ∨ q ∨ r ∨ s", settings=settings)
 The integration supports both LaTeX and Unicode notations for operators for better readability in notebooks. However, it's important to understand that **Unicode characters are automatically converted to LaTeX notation** internally before being passed to the model checker.
 
 ```python
-from model_checker import check_formula
+from model_checker.jupyter import check_formula
 from model_checker.jupyter.unicode import unicode_to_latex, latex_to_unicode
 
 # Using Unicode operators for better readability in notebooks
@@ -303,17 +379,40 @@ explorer.display()
 
 - **`check_formula(formula, theory_name="default", premises=None, settings=None)`**  
   Checks if a formula is valid, optionally with premises and in a specific theory.
+  
+  ```python
+  from model_checker.jupyter import check_formula
+  check_formula("p → q", premises=["p"])
+  ```
 
 - **`find_countermodel(formula, theory_name="default", premises=None, settings=None)`**  
   Searches for a countermodel to a formula.
+  
+  ```python
+  from model_checker.jupyter import find_countermodel
+  find_countermodel("p → q")
+  ```
 
 - **`explore_formula(formula, theory_name="default", premises=None, settings=None)`**  
   Creates a pre-configured interactive explorer for a formula.
+  
+  ```python
+  from model_checker.jupyter import explore_formula
+  explore_formula("p → (q → p)")
+  ```
 
 ### UI Components
 
 - **`ModelExplorer(theory_name="default")`**  
   Full-featured interactive UI for exploring models.
+  
+  ```python
+  from model_checker.jupyter import ModelExplorer
+  explorer = ModelExplorer()
+  explorer.display()
+  ```
+  
+  Methods:
   - `display()`: Show the explorer UI
   - `set_formula(formula)`: Set the formula to check
   - `set_premises(premises)`: Set the premises
@@ -323,6 +422,14 @@ explorer.display()
 
 - **`FormulaChecker(theory_name="default")`**  
   Simplified UI just for checking formulas.
+  
+  ```python
+  from model_checker.jupyter import FormulaChecker
+  checker = FormulaChecker()
+  checker.display()
+  ```
+  
+  Methods:
   - `display()`: Show the checker UI
   - `set_formula(formula)`: Set the formula to check
   - `set_premises(premises)`: Set the premises
@@ -343,13 +450,21 @@ explorer.display()
 ### Common Issues
 
 1. **Missing Dependencies**  
-   If you see errors about missing modules, install the required dependencies:
+   If you see errors about missing modules or import errors for `ModelExplorer`:
    ```bash
-   pip install ipywidgets matplotlib networkx
+   # Install the missing dependencies
+   pip install model-checker[jupyter]
+   
+   # Or install dependencies individually
+   pip install ipywidgets matplotlib networkx jupyter
    ```
 
 2. **Import Errors**  
-   If you encounter import errors, try setting up the environment manually:
+   If you encounter import errors like "cannot import name 'ModelExplorer'", make sure:
+   - You're importing from the correct module: `from model_checker.jupyter import ModelExplorer`
+   - You have all required dependencies installed
+   
+   If still having issues, try setting up the environment manually:
    ```python
    from model_checker.jupyter.environment import manually_setup_paths
    manually_setup_paths("/path/to/ModelChecker/Code")
