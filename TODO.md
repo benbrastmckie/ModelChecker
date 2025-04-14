@@ -42,27 +42,42 @@
     - [x] necessity
 - [x] debug readme issue
 - general
-  - theory metadata
   - unit tests
     - [:] settings
-    - [.] builder
+    - [:] builder
     - jupyter
+      - move `jupyter_link.py`?
     - [x] theory_lib
       - [x] default
       - [x] bimodal
       - [x] exclusion
       - [x] imposition
-  - refactor as subpackages with tests
-    - create print module
-    - [.] builder
-      - threading
+  - refactor as subpackages
+    - [x] builder
       - [ ] tools
-        - [ ] iterate
+        - [:] iterate models
+          - [:] non-isomorphic difference only
+            - [ ] debug consecutive model differences
+            - [ ] do more testing to watch for bad cases
+            - [x] confirm old settings have been removed
+            - [x] print number of models skipped/found
+            - [x] add new max_attempts setting and flag
+          - [ ] match colors and print impossible in differences
+          - [x] move print specifications to semantics
+          - [x] print differences with states
         - [ ] maximize
         - [ ] minimize
+      - [ ] cleanup module
+      - [ ] update docs
+      - [x] remove `test_builder.py`?
+      - [x] threading
     - model
     - syntactic
+      - don't require outer parentheses
+  - theory metadata
+  - logging
   - refactor API
+    - [:] loaded projects have the wrong version
     - version management
   - dissolve `utils.py`?
   - [x] clean up non-determinism throughout

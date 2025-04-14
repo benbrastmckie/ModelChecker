@@ -28,6 +28,9 @@ requires-python = ">=3.8"
 dev = [
     "pytest>=6.0.0",      # For running tests
     "pytest-cov",         # For test coverage
+    "pytest-xvs",         # For failfast testing
+    "build",              # For building packages
+    "twine",              # For uploading to PyPI
 ]
 jupyter = [
     "ipywidgets>=7.0.0",  # For interactive notebook components
@@ -39,6 +42,9 @@ jupyter = [
 all = [
     "pytest>=6.0.0",
     "pytest-cov",
+    "pytest-xvs",
+    "build",
+    "twine",
     "ipywidgets>=7.0.0",
     "matplotlib>=3.0.0",
     "networkx>=2.0",

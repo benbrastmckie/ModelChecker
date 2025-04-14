@@ -148,47 +148,71 @@ This section provides information for contributors who want to develop or extend
 
 The repository includes several utility scripts that help with development, testing, and releasing:
 
-#### 1. Running Tests (`run_tests.py`)
+#### 1. Running Theory Tests (`test_theories.py`)
 
-The `run_tests.py` script automatically discovers and runs tests for all registered theories in the framework. It uses the centralized `AVAILABLE_THEORIES` registry in `theory_lib/__init__.py` to determine which theories to test.
+The `test_theories.py` script automatically discovers and runs tests for all registered theories in the framework. It uses the centralized `AVAILABLE_THEORIES` registry in `theory_lib/__init__.py` to determine which theories to test.
 
 ```bash
 # Run tests for all registered theories
-./run_tests.py
+./test_theories.py
 
 # Run tests for specific theories
-./run_tests.py --theories default exclusion
+./test_theories.py --theories default exclusion
 
 # Run tests with verbose output
-./run_tests.py -v
+./test_theories.py -v
 
-# List all registered theories
-./run_tests.py --list
+# Run tests with failfast (stop after first failure)
+./test_theories.py -x
 ```
 
 The script searches for test directories within each theory directory and runs pytest on them. It provides a summary of test results at the end.
 
-#### 2. Package Updates (`update.py`)
+#### 2. Running Package Component Tests (`test_package.py`)
 
-The `update.py` script manages version updates, testing, building, and uploading to PyPI:
+The `test_package.py` script runs tests for non-theory package components like `builder`, `settings`, etc.
+
+```bash
+# Run tests for all components
+./test_package.py
+
+# Run tests for specific components
+./test_package.py --components builder settings
+
+# List available testable components
+./test_package.py --list
+
+# Run with verbose output
+./test_package.py -v
+
+# Run with failfast (stop after first failure)
+./test_package.py -x
+```
+
+The script dynamically discovers components with test directories and provides a consistent interface for running their tests.
+
+#### 3. Package Updates (`run_update.py`)
+
+The `run_update.py` script manages version updates, testing, building, and uploading to PyPI:
 
 ```bash
 # Regular update (with prompts for testing)
-./update.py
+./run_update.py
 
 # Skip version increment but still run tests and upload
-./update.py --no-version
+./run_update.py --no-version
 
 # Skip the upload step (useful for testing the build process)
-./update.py --no-upload
+./run_update.py --no-upload
 ```
 
 The script:
 
-1. Updates version numbers in pyproject.toml and **init**.py
-2. Runs tests for all registered theories (using run_tests.py)
-3. Builds the package
-4. Uploads to PyPI using twine
+1. Updates version numbers in pyproject.toml and __init__.py
+2. Runs package component tests (using test_package.py)
+3. Runs theory tests (using test_theories.py)
+4. Builds the package
+5. Uploads to PyPI using twine
 
 #### 3. Development CLI (`dev_cli.py`)
 

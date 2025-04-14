@@ -106,6 +106,8 @@ class Semantics(SemanticDefaults):
         'disjoint' : False,
         'max_time' : 1,
         'iterate' : 1,
+        'iteration_timeout': 1.0,
+        'iteration_attempts': 5,
         'expectation' : None,
     }
     
@@ -815,6 +817,10 @@ class ModelStructure(ModelDefaults):
         self.z3_main_world = None
         self.z3_possible_states = None
         self.z3_world_states = None 
+        
+        # Initialize attributes for difference tracking
+        self.model_differences = None  # Will store differences with previous model
+        self.previous_model = None     # Reference to previous model for comparison
 
         # Only evaluate if we have a valid model
         if self.z3_model_status and self.z3_model is not None:
@@ -963,7 +969,7 @@ class ModelStructure(ModelDefaults):
         if print_constraints is None:
             print_constraints = self.settings["print_constraints"]
         # Check if we actually timed out (runtime >= max_time)
-        actual_timeout = hasattr(self, 'z3_model_runtime') and self.z3_model_runtime >= self.max_time
+        actual_timeout = hasattr(self, 'z3_model_runtime') and self.z3_model_runtime is not None and self.z3_model_runtime >= self.max_time
         
         # Only show timeout if we really timed out and didn't find a model
         if actual_timeout and (not hasattr(self, 'z3_model') or self.z3_model is None):
@@ -971,8 +977,660 @@ class ModelStructure(ModelDefaults):
             print(f"No model for example {example_name} found before timeout.", file=output)
             print(f"Try increasing max_time > {self.max_time}.\n", file=output)
         self.print_all(self.settings, example_name, theory_name, output)
+        
+        # Print model differences if they exist and this isn't an isomorphic model
+        if (not hasattr(self, '_is_isomorphic') or not self._is_isomorphic) and \
+           hasattr(self, 'model_differences') and self.model_differences:
+            self.print_model_differences(output)
+            
         if print_constraints and self.unsat_core is not None:
             self.print_grouped_constraints(output)
+
+    def get_world_properties(self, world, z3_model):
+        """Get properties of a specific world for graph representation.
+        
+        This method extracts relevant properties from a world state that are
+        used for isomorphism checking. This helps identify structurally
+        equivalent worlds across different models.
+        
+        Args:
+            world: The world state to analyze
+            z3_model: The current Z3 model
+            
+        Returns:
+            dict: Dictionary of world properties
+        """
+        properties = {}
+        
+        # Check if this is the main world
+        if z3_model.evaluate(world == self.main_point["world"]):
+            properties["is_main_world"] = True
+            
+        # Add other theory-specific properties
+        try:
+            # Check if this is a maximal world
+            if hasattr(self.semantics, 'maximal'):
+                properties["is_maximal"] = bool(z3_model.evaluate(self.semantics.maximal(world)))
+                
+            # Check world size (number of set bits)
+            from model_checker.utils import bitvec_to_substates
+            substate_repr = bitvec_to_substates(world, self.semantics.N)
+            set_bits = substate_repr.count('1')
+            properties["size"] = set_bits
+            
+        except Exception as e:
+            # Log any errors but don't fail
+            with open("/tmp/world_properties.log", "a") as f:
+                f.write(f"Error getting properties for world {world}: {str(e)}\n")
+        
+        return properties
+    
+    def get_relation_edges(self, z3_model):
+        """Get theory-specific relation edges for graph representation.
+        
+        This method extracts any additional relations between worlds
+        beyond the basic accessibility relation. This helps with
+        isomorphism checking by capturing all structural relations.
+        
+        Args:
+            z3_model: The current Z3 model
+            
+        Returns:
+            list: List of tuples (source, target, attributes) for additional edges
+        """
+        extra_edges = []
+        
+        try:
+            # Get world states
+            world_states = self.z3_world_states
+            if not world_states:
+                return extra_edges
+                
+            # Map world states to indices for graph representation
+            world_to_idx = {str(world): i for i, world in enumerate(world_states)}
+            
+            # Add edges for semantic relations if available
+            # For example, if there's a compatibility relation:
+            if hasattr(self.semantics, 'compatible'):
+                for i, w1 in enumerate(world_states):
+                    for j, w2 in enumerate(world_states):
+                        if i != j:  # Don't check self-compatibility
+                            try:
+                                is_compatible = bool(z3_model.evaluate(self.semantics.compatible(w1, w2)))
+                                if is_compatible:
+                                    extra_edges.append((i, j, {"relation": "compatible"}))
+                            except Exception:
+                                pass
+                                
+        except Exception as e:
+            # Log any errors but don't fail
+            with open("/tmp/relation_edges.log", "a") as f:
+                f.write(f"Error getting relation edges: {str(e)}\n")
+                
+        return extra_edges
+    
+    def get_structural_constraints(self, z3_model):
+        """Generate constraints that force structural differences in the model.
+        
+        This method creates Z3 constraints that, when added to the solver,
+        will force the next model to have a different structure from the
+        current one. This is used for finding non-isomorphic models.
+        
+        Args:
+            z3_model: The current Z3 model to differ from
+            
+        Returns:
+            list: List of Z3 constraints that force structural differences
+        """
+        constraints = []
+        
+        try:
+            semantics = self.semantics
+            
+            # Force a different structure for the main world
+            main_world = z3_model.evaluate(self.main_point["world"])
+            constraints.append(self.main_point["world"] != main_world)
+            
+            # Force different maximal worlds count
+            if self.z3_world_states:
+                world_count = len(self.z3_world_states)
+                # Create a constraint to force a different number of worlds
+                # This is theory-specific and may need adjustment
+                world_vars = []
+                if self.z3_possible_states is None:
+                    raise ValueError(f"No possible states stored in {self} during get_structural_constraints.")
+                for state in self.z3_possible_states:
+                    world_vars.append(semantics.is_world(state))
+                    
+                if world_vars:
+                    world_count_expr = z3.Sum([z3.If(var, 1, 0) for var in world_vars])
+                    constraints.append(world_count_expr != world_count)
+                    
+        except Exception as e:
+            # Log any errors but don't fail
+            with open("/tmp/structural_constraints.log", "a") as f:
+                f.write(f"Error generating structural constraints: {str(e)}\n")
+                
+        return constraints
+    
+    def _get_verifier_falsifier_states(self, letter):
+        """Get the verifier and falsifier states for a sentence letter.
+        
+        Args:
+            letter: The sentence letter to check
+            
+        Returns:
+            tuple: (verifier_states, falsifier_states) as sets of state strings
+        """
+        from model_checker.utils import bitvec_to_substates, pretty_set_print
+        
+        N = self.semantics.N
+        z3_model = self.z3_model
+        possible = self.semantics.possible
+        verify = self.semantics.verify
+        falsify = self.semantics.falsify
+        
+        verifier_states = set()
+        falsifier_states = set()
+        
+        for state in self.all_states:
+            try:
+                # Check if this state is possible
+                is_possible = bool(z3_model.evaluate(possible(state)))
+                
+                if is_possible:
+                    # Check if this state verifies the letter
+                    if bool(z3_model.evaluate(verify(state, letter))):
+                        state_name = bitvec_to_substates(state, N)
+                        verifier_states.add(state_name)
+                        
+                    # Check if this state falsifies the letter
+                    if bool(z3_model.evaluate(falsify(state, letter))):
+                        state_name = bitvec_to_substates(state, N)
+                        falsifier_states.add(state_name)
+            except Exception:
+                pass
+                
+        return verifier_states, falsifier_states
+        
+    def _get_friendly_letter_name(self, letter):
+        """Convert a Z3 letter representation to a user-friendly name.
+        
+        Args:
+            letter: The Z3 letter representation
+            
+        Returns:
+            str: A user-friendly name like "A" or "p0"
+        """
+        letter_str = str(letter)
+        if "AtomSort!val!" in letter_str:
+            # Try to convert to a letter name (A, B, C, etc.)
+            try:
+                idx = int(letter_str.split("AtomSort!val!")[-1])
+                if 0 <= idx < 26:
+                    return chr(65 + idx)  # A-Z for first 26 letters
+                else:
+                    return f"p{idx}"  # p0, p1, etc. for others
+            except ValueError:
+                # If conversion fails, just use the raw string
+                return letter_str
+        return letter_str
+    
+    def calculate_model_differences(self, previous_structure):
+        """Calculate theory-specific differences between this model and a previous one.
+        
+        For the default theory, this detects differences in:
+        - Possible states
+        - World states
+        - Part-whole relationships
+        - Compatibility relations
+        - Verification and falsification of atomic propositions
+        
+        Args:
+            previous_structure: The previous model structure to compare against
+            
+        Returns:
+            dict: Default theory-specific differences
+        """
+        if not hasattr(previous_structure, 'z3_model') or previous_structure.z3_model is None:
+            return None
+            
+        # Initialize differences structure with default theory's specific categories
+        differences = {
+            "sentence_letters": {},  # Changed propositions
+            "worlds": {             # Changes in world states
+                "added": [],
+                "removed": []
+            },
+            "possible_states": {    # Changes in possible states
+                "added": [],
+                "removed": []
+            },
+            "parthood": {},         # Changes in part-whole relationships
+            "compatibility": {}     # Changes in state compatibility
+        }
+        
+        # Get Z3 models
+        new_model = self.z3_model
+        prev_model = previous_structure.z3_model
+        
+        # Compare possible states
+        try:
+            prev_possible = set(getattr(previous_structure, 'z3_possible_states', []))
+            new_possible = set(getattr(self, 'z3_possible_states', []))
+            
+            added_possible = new_possible - prev_possible
+            removed_possible = prev_possible - new_possible
+            
+            if added_possible:
+                differences["possible_states"]["added"] = list(added_possible)
+            if removed_possible:
+                differences["possible_states"]["removed"] = list(removed_possible)
+            
+            # Compare world states
+            prev_worlds = set(getattr(previous_structure, 'z3_world_states', []))
+            new_worlds = set(getattr(self, 'z3_world_states', []))
+            
+            added_worlds = new_worlds - prev_worlds
+            removed_worlds = prev_worlds - new_worlds
+            
+            if added_worlds:
+                differences["worlds"]["added"] = list(added_worlds)
+            if removed_worlds:
+                differences["worlds"]["removed"] = list(removed_worlds)
+                
+            # Check for part-whole relationship changes (specific to default theory)
+            if hasattr(self.semantics, 'is_part_of'):
+                parthood_changes = {}
+                # Sample a subset of state pairs to check for parthood changes
+                for x in self.z3_possible_states[:10]:  # Limit to avoid too much computation
+                    for y in self.z3_possible_states[:10]:
+                        if x == y:
+                            continue
+                        try:
+                            old_parthood = bool(prev_model.evaluate(self.semantics.is_part_of(x, y)))
+                            new_parthood = bool(new_model.evaluate(self.semantics.is_part_of(x, y)))
+                            
+                            if old_parthood != new_parthood:
+                                key = f"{bitvec_to_substates(x, self.semantics.N)}, {bitvec_to_substates(y, self.semantics.N)}"
+                                parthood_changes[key] = {
+                                    "old": old_parthood,
+                                    "new": new_parthood
+                                }
+                        except Exception:
+                            pass
+                
+                if parthood_changes:
+                    differences["parthood"] = parthood_changes
+                    
+            # Check for compatibility changes (specific to default theory)
+            if hasattr(self.semantics, 'compatible'):
+                compatibility_changes = {}
+                # Sample a subset of state pairs to check for compatibility changes
+                for x in self.z3_possible_states[:10]:  # Limit to avoid too much computation
+                    for y in self.z3_possible_states[:10]:
+                        if x == y:
+                            continue
+                        try:
+                            old_compatible = bool(prev_model.evaluate(self.semantics.compatible(x, y)))
+                            new_compatible = bool(new_model.evaluate(self.semantics.compatible(x, y)))
+                            
+                            if old_compatible != new_compatible:
+                                key = f"{bitvec_to_substates(x, self.semantics.N)}, {bitvec_to_substates(y, self.semantics.N)}"
+                                compatibility_changes[key] = {
+                                    "old": old_compatible,
+                                    "new": new_compatible
+                                }
+                        except Exception:
+                            pass
+                
+                if compatibility_changes:
+                    differences["compatibility"] = compatibility_changes
+        except Exception as e:
+            # Log but continue with other difference detection
+            print(f"Error comparing state differences: {e}")
+        
+        # Compare sentence letter valuations with default theory's semantics
+        letter_differences = self._calculate_proposition_differences(previous_structure)
+        if letter_differences:
+            differences["sentence_letters"] = letter_differences
+        
+        # If no meaningful differences found, return None to signal fallback to basic detection
+        if (not differences["sentence_letters"] and
+            not differences["worlds"]["added"] and not differences["worlds"]["removed"] and
+            not differences["possible_states"]["added"] and not differences["possible_states"]["removed"] and
+            not differences.get("parthood") and not differences.get("compatibility")):
+            return None
+            
+        return differences
+
+    def _calculate_proposition_differences(self, previous_structure):
+        """Calculate differences in proposition valuations between models.
+        
+        This is a helper method for calculate_model_differences that specifically
+        focuses on changes in how atomic propositions are verified and falsified.
+        
+        Args:
+            previous_structure: The previous model structure
+            
+        Returns:
+            dict: Mapping from proposition names to differences in verifiers/falsifiers
+        """
+        from model_checker.utils import bitvec_to_substates
+        letter_diffs = {}
+        
+        for letter in self.model_constraints.sentence_letters:
+            # Get current verifiers and falsifiers
+            current_verifiers, current_falsifiers = self._get_verifier_falsifier_states(letter)
+            
+            # Get previous verifiers and falsifiers
+            prev_verifiers, prev_falsifiers = previous_structure._get_verifier_falsifier_states(letter)
+            
+            # Check if there are differences
+            if current_verifiers != prev_verifiers or current_falsifiers != prev_falsifiers:
+                letter_diffs[str(letter)] = {
+                    "verifiers": {
+                        "old": prev_verifiers,
+                        "new": current_verifiers,
+                        "added": current_verifiers - prev_verifiers,
+                        "removed": prev_verifiers - current_verifiers
+                    },
+                    "falsifiers": {
+                        "old": prev_falsifiers,
+                        "new": current_falsifiers,
+                        "added": current_falsifiers - prev_falsifiers,
+                        "removed": prev_falsifiers - current_falsifiers
+                    }
+                }
+        
+        return letter_diffs
+
+    def print_model_differences(self, output=sys.stdout):
+        """Print the differences between this model and the previous one using default theory's semantics.
+        
+        This method displays the specific changes between models using the default theory's
+        concepts of states, worlds, part-whole relationships, and verifier/falsifier sets.
+        
+        Args:
+            output (file, optional): Output stream to write to. Defaults to sys.stdout.
+        """
+        from model_checker.utils import bitvec_to_substates, pretty_set_print
+        
+        if not hasattr(self, 'model_differences') or not self.model_differences:
+            print("No previous model to compare with.", file=output)
+            return
+        
+        # Print header
+        print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
+        
+        # Print world and state changes
+        self._print_state_changes(output)
+        
+        # Print proposition changes 
+        self._print_proposition_differences(output)
+        
+        # Print relation changes specific to default theory
+        self._print_relation_differences(output)
+        
+        # Print structural metrics
+        self._print_structural_metrics(output)
+
+    def _print_state_changes(self, output=sys.stdout):
+        """Print changes to the state space using default theory's format and colors."""
+        from model_checker.utils import bitvec_to_substates
+        diffs = self.model_differences
+        
+        # Print world changes
+        worlds = diffs.get("worlds", {})
+        if worlds.get("added") or worlds.get("removed"):
+            print("World Changes:", file=output)
+            
+            # Added worlds with world coloring
+            for world in worlds.get("added", []):
+                state_repr = bitvec_to_substates(world, self.semantics.N)
+                print(f"  + {self.COLORS['world']}{state_repr} (world){self.RESET}", file=output)
+                
+            # Removed worlds with world coloring
+            for world in worlds.get("removed", []):
+                state_repr = bitvec_to_substates(world, self.semantics.N)
+                print(f"  - {self.COLORS['world']}{state_repr} (world){self.RESET}", file=output)
+        
+        # Print possible state changes
+        possible = diffs.get("possible_states", {})
+        if possible.get("added") or possible.get("removed"):
+            print("\nPossible State Changes:", file=output)
+            
+            # Added possible states with possible coloring
+            for state in possible.get("added", []):
+                state_repr = bitvec_to_substates(state, self.semantics.N)
+                print(f"  + {self.COLORS['possible']}{state_repr}{self.RESET}", file=output)
+                
+            # Removed possible states
+            for state in possible.get("removed", []):
+                state_repr = bitvec_to_substates(state, self.semantics.N)
+                print(f"  - {self.COLORS['possible']}{state_repr}{self.RESET}", file=output)
+
+    def _print_proposition_differences(self, output=sys.stdout):
+        """Print changes to proposition valuations using default theory's format."""
+        from model_checker.utils import pretty_set_print
+        letters = self.model_differences.get("sentence_letters", {})
+        if not letters:
+            return
+        
+        print("\nProposition Changes:", file=output)
+        for letter_str, changes in letters.items():
+            # Get a user-friendly name for the letter
+            friendly_name = self._get_friendly_letter_name(letter_str)
+            print(f"  {friendly_name}:", file=output)
+            
+            # Print verifier changes
+            if "verifiers" in changes:
+                ver_changes = changes["verifiers"]
+                print(f"    Verifiers: {pretty_set_print(ver_changes['new'])}", file=output)
+                
+                if ver_changes.get("added"):
+                    print(f"      + {self.COLORS['possible']}{pretty_set_print(ver_changes['added'])}{self.RESET}", file=output)
+                if ver_changes.get("removed"):
+                    print(f"      - {self.COLORS['possible']}{pretty_set_print(ver_changes['removed'])}{self.RESET}", file=output)
+            
+            # Print falsifier changes
+            if "falsifiers" in changes:
+                fal_changes = changes["falsifiers"]
+                print(f"    Falsifiers: {pretty_set_print(fal_changes['new'])}", file=output)
+                
+                if fal_changes.get("added"):
+                    print(f"      + {self.COLORS['possible']}{pretty_set_print(fal_changes['added'])}{self.RESET}", file=output)
+                if fal_changes.get("removed"):
+                    print(f"      - {self.COLORS['possible']}{pretty_set_print(fal_changes['removed'])}{self.RESET}", file=output)
+
+    def _print_relation_differences(self, output=sys.stdout):
+        """Print changes to relations specific to the default theory."""
+        diffs = self.model_differences
+        
+        # Print part-whole relationship changes
+        if diffs.get("parthood"):
+            print("\nPart-Whole Relationship Changes:", file=output)
+            for pair, change in diffs["parthood"].items():
+                status = "now part of" if change["new"] else "no longer part of"
+                print(f"  {pair}: {status}", file=output)
+        
+        # Print compatibility relationship changes
+        if diffs.get("compatibility"):
+            print("\nCompatibility Relationship Changes:", file=output)
+            for pair, change in diffs["compatibility"].items():
+                status = "now compatible" if change["new"] else "no longer compatible"
+                print(f"  {pair}: {status}", file=output)
+
+    def _print_structural_metrics(self, output=sys.stdout):
+        """Print structural metrics for the model."""
+        print("\nStructural Properties:", file=output)
+        print(f"  Worlds: {len(self.z3_world_states)}", file=output)
+        
+        # Add graph-theoretic properties if available
+        if hasattr(self, 'model_graph'):
+            try:
+                graph = self.model_graph.graph
+                
+                # Degree distributions
+                in_degrees = sorted(d for _, d in graph.in_degree())
+                out_degrees = sorted(d for _, d in graph.out_degree())
+                print(f"  In-degree distribution: {in_degrees}", file=output)
+                print(f"  Out-degree distribution: {out_degrees}", file=output)
+                
+                # Connected components
+                import networkx as nx
+                components = nx.number_connected_components(graph.to_undirected())
+                print(f"  connected_components: {components}", file=output)
+            except Exception:
+                pass
+    
+    def _get_friendly_letter_name(self, letter_str):
+        """Convert a letter representation to a user-friendly name."""
+        if "AtomSort!val!" in letter_str:
+            # Try to convert to a letter name (A, B, C, etc.)
+            try:
+                idx = int(letter_str.split("AtomSort!val!")[-1])
+                if 0 <= idx < 26:
+                    return chr(65 + idx)  # A-Z for first 26 letters
+                else:
+                    return f"p{idx}"  # p0, p1, etc. for others
+            except ValueError:
+                pass
+        return letter_str
+
+    def _update_model_structure(self, new_model, previous_structure=None):
+        """Update the model structure with a new Z3 model and compute differences.
+        
+        Args:
+            new_model: The new Z3 model to use
+            previous_structure: The previous model structure to compare with (optional)
+        """
+        # Update core model references
+        self.z3_model = new_model
+        self.z3_model_status = True
+        
+        # Update derived properties based on the new model
+        if self.z3_model is not None:
+            self.z3_main_world = self.z3_model[self.main_world]
+            self.main_point["world"] = self.z3_main_world
+            self.z3_possible_states = [
+                bit
+                for bit in self.all_states
+                if bool(self.z3_model.evaluate(self.semantics.possible(bit)))
+            ]
+            self.z3_world_states = [
+                bit
+                for bit in self.z3_possible_states
+                if bool(self.z3_model.evaluate(self.semantics.is_world(bit)))
+            ]
+        
+        # Calculate and store differences if we have a previous structure
+        if previous_structure is not None:
+            self.model_differences = self._compute_model_differences(previous_structure)
+            self.previous_model = previous_structure
+    
+    def _compute_model_differences(self, previous_structure):
+        """Compute differences between this model structure and the previous one.
+        
+        Args:
+            previous_structure: The previous model structure to compare with
+            
+        Returns:
+            dict: Structured differences between the models
+        """
+        differences = {
+            'sentence_letters': {},
+            'semantic_functions': {},
+            'model_structure': {}
+        }
+        
+        # Compare sentence letter valuations
+        for letter in self.model_constraints.sentence_letters:
+            current_verifiers, current_falsifiers = self._get_verifier_falsifier_states(letter)
+            prev_verifiers, prev_falsifiers = previous_structure._get_verifier_falsifier_states(letter)
+            
+            if current_verifiers != prev_verifiers or current_falsifiers != prev_falsifiers:
+                differences['sentence_letters'][letter] = {
+                    'old': (prev_verifiers, prev_falsifiers),
+                    'new': (current_verifiers, current_falsifiers)
+                }
+        
+        # Compare semantic function interpretations for relations like 'R' if available
+        semantics = self.semantics
+        prev_semantics = previous_structure.semantics
+        
+        for attr_name in dir(semantics):
+            if attr_name.startswith('_'):
+                continue
+                
+            attr = getattr(semantics, attr_name)
+            if not isinstance(attr, z3.FuncDeclRef):
+                continue
+                
+            # Get domain size
+            arity = attr.arity()
+            if arity == 0:
+                continue
+            
+            # For unary and binary functions, check specific values
+            if arity <= 2:
+                # Get the domain size (number of worlds)
+                n_worlds = len(self.z3_world_states)
+                
+                # Create constraints for all relevant inputs
+                func_diffs = {}
+                for inputs in self._generate_input_combinations(arity, n_worlds):
+                    try:
+                        # Check values in both models
+                        args = [z3.IntVal(i) for i in inputs]
+                        curr_value = self.z3_model.eval(attr(*args), model_completion=True)
+                        prev_value = previous_structure.z3_model.eval(attr(*args), model_completion=True)
+                        
+                        # Store if different
+                        if str(curr_value) != str(prev_value): 
+                            func_diffs[inputs] = {
+                                'old': prev_value,
+                                'new': curr_value
+                            }
+                    except z3.Z3Exception:
+                        pass
+                
+                if func_diffs:
+                    differences['semantic_functions'][attr_name] = func_diffs
+        
+        # Compare model structure components
+        current_world_count = len(self.z3_world_states)
+        prev_world_count = len(previous_structure.z3_world_states)
+        
+        if current_world_count != prev_world_count:
+            differences['model_structure']['world_count'] = {
+                'old': prev_world_count,
+                'new': current_world_count
+            }
+        
+        # Check if there are any differences
+        if (not differences['sentence_letters'] and 
+            not differences['semantic_functions'] and 
+            not differences['model_structure']):
+            return None
+        
+        return differences
+    
+    def _generate_input_combinations(self, arity, domain_size):
+        """Generate all relevant input combinations for a function of given arity.
+        
+        Args:
+            arity: Number of arguments the function takes
+            domain_size: Size of the domain (typically number of worlds)
+            
+        Returns:
+            list: All relevant input combinations
+        """
+        import itertools
+        # For n-ary functions, generate all combinations of inputs
+        # from the domain, which is typically the world indices
+        domain = range(domain_size)
+        return itertools.product(domain, repeat=arity)
 
     def save_to(self, example_name, theory_name, include_constraints, output):
         """Save the model details to a file.
@@ -988,6 +1646,12 @@ class ModelStructure(ModelDefaults):
         """
         constraints = self.model_constraints.all_constraints
         self.print_all(example_name, theory_name, output)
+        
+        # Include model differences in the output file if they exist and this isn't a stopped model
+        if (not hasattr(self, '_is_stopped_model') or not self._is_stopped_model) and \
+           hasattr(self, 'model_differences') and self.model_differences:
+            self.print_model_differences(output)
+            
         self.build_test_file(output)
         if include_constraints:
             print("# Satisfiable constraints", file=output)
