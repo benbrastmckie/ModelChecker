@@ -83,6 +83,15 @@ More information can be found in the README.md for the exclusion theory.
 ### DEFINE THE IMPORTS ###
 ##########################
 
+# Standard imports
+import sys
+import os
+
+# Add current directory to path before importing modules
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
 from .semantic import ImpositionSemantics
 from .operators import imposition_operators
 
