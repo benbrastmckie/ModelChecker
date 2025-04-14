@@ -76,12 +76,18 @@ from .utils import (
     run_test,
 )
 
-# Import specific items from builder
-from .builder import (
-    BuildModule,
-    BuildProject,
-    BuildExample,
-)
+# # Import specific items from builder
+# from .builder import (
+#     BuildModule,
+#     BuildProject,
+#     BuildExample,
+# )
+
+# Import for backward compatibility during transition
+from .builder.module import BuildModule
+from .builder.project import BuildProject
+from .builder.example import BuildExample
+# from model_checker.builder.iterate import ModelIterator, iterate_example
 
 # Import specific items from __main__
 from .__main__ import (
