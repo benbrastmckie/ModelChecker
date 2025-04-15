@@ -7,6 +7,7 @@ pkgs.mkShell {
     python3Packages.z3
     python3Packages.setuptools  # Provides pkg_resources
     python3Packages.pip
+    python3Packages.networkx
   ];
   
   shellHook = ''

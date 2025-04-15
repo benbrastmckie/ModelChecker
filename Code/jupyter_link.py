@@ -8,10 +8,11 @@ This approach works well in NixOS and other environments where you can't easily
 install packages with pip.
 
 Usage:
-    ./jupyter_link.py [--launch]
+    ./jupyter_link.py [--no-launch] [--example]
 
 Options:
-    --launch    Launch Jupyter notebook after setup
+    --no-launch    Don't launch Jupyter notebook after setup
+    --example      Create an example notebook
 
 After running this script, the ModelChecker package will be available
 in Jupyter notebooks without needing to modify PYTHONPATH in each notebook.
@@ -207,6 +208,7 @@ def launch_jupyter():
 def main():
     parser = argparse.ArgumentParser(description="Set up ModelChecker for Jupyter notebooks")
     parser.add_argument("--example", action="store_true", help="Create an example notebook")
+    parser.add_argument("--no-launch", action="store_true", help="Don't launch Jupyter notebook after setup")
     args = parser.parse_args()
     
     # Create symlinks
@@ -217,10 +219,12 @@ def main():
         if args.example:
             example_path = create_jupyter_example()
         
-        print("\nLaunching Jupyter notebook...")
-        
-        # Always launch Jupyter
-        launch_jupyter()
+        # Launch Jupyter by default unless --no-launch is specified
+        if not args.no_launch:
+            print("\nLaunching Jupyter notebook...")
+            launch_jupyter()
+        else:
+            print("\nTo launch Jupyter notebook, run: jupyter notebook")
     else:
         print("\nSetup failed. Please check the error messages above.")
         sys.exit(1)
