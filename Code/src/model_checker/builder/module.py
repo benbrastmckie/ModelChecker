@@ -433,6 +433,8 @@ class BuildModule:
             # Skip the first model which is already printed
             # Track distinct models for numbering
             distinct_count = 1
+            # Use iterate_count for the expected total models rather than actual found models
+            expected_total = iterate_count
             total_distinct = iterator.distinct_models_found
             
             for i, structure in enumerate(model_structures[1:], start=2):
@@ -443,7 +445,7 @@ class BuildModule:
                     # For the first model, just print it
                     if distinct_count == 1:
                         # Print model header
-                        print(f"\nMODEL {distinct_count}/{total_distinct}")
+                        print(f"\nMODEL {distinct_count}/{expected_total}")
                         
                         # Set the current model structure
                         example.model_structure = structure
@@ -501,13 +503,13 @@ class BuildModule:
                             print(f"Error printing model differences: {str(e)}")
                                 
                         # Print model header
-                        print(f"\nMODEL {distinct_count}/{total_distinct}")
+                        print(f"\nMODEL {distinct_count}/{expected_total}")
                         
                         # Set the current model structure
                         example.model_structure = structure
                         
                         # Mark the last model to prevent partial output issues
-                        if distinct_count == total_distinct:
+                        if distinct_count == total_distinct or distinct_count == expected_total:
                             structure._is_last_model = True
                             
                         # Print the model
@@ -518,8 +520,14 @@ class BuildModule:
                 # elif hasattr(structure, '_is_isomorphic') and structure._is_isomorphic:
                 #     print(f"\n(Skipped isomorphic model variant {i})")
             
+            # Print any debug messages that were accumulated during iteration
+            if hasattr(iterator, 'debug_messages') and iterator.debug_messages:
+                print("\nIteration Notes:")
+                for message in iterator.debug_messages:
+                    print(f"  {message}")
+            
             # Print summary after all models have been displayed
-            print(f"\nFound {iterator.distinct_models_found} distinct models out of {iterator.checked_model_count} checked.")
+            print(f"\nFound {iterator.distinct_models_found}/{expected_total} distinct models out of {iterator.checked_model_count} checked.")
             
             # Check if there was any partial output
             if hasattr(example.model_structure, 'model_differences') and not hasattr(example.model_structure, '_is_last_model'):

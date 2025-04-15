@@ -1089,8 +1089,9 @@ class ModelStructure(ModelDefaults):
             
         except Exception as e:
             # Log any errors but don't fail
-            with open("/tmp/world_properties.log", "a") as f:
-                f.write(f"Error getting properties for world {world}: {str(e)}\n")
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.debug(f"Error getting properties for world {world}: {str(e)}")
         
         return properties
     
@@ -1133,8 +1134,9 @@ class ModelStructure(ModelDefaults):
                                 
         except Exception as e:
             # Log any errors but don't fail
-            with open("/tmp/relation_edges.log", "a") as f:
-                f.write(f"Error getting relation edges: {str(e)}\n")
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.debug(f"Error getting relation edges: {str(e)}")
                 
         return extra_edges
     
@@ -1177,8 +1179,9 @@ class ModelStructure(ModelDefaults):
                     
         except Exception as e:
             # Log any errors but don't fail
-            with open("/tmp/structural_constraints.log", "a") as f:
-                f.write(f"Error generating structural constraints: {str(e)}\n")
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.debug(f"Error generating structural constraints: {str(e)}")
                 
         return constraints
     
@@ -1649,7 +1652,10 @@ class ModelStructure(ModelDefaults):
                                 pass
                                 
         except Exception as e:
-            print(f"Error generating structural constraints: {e}")
+            # Log to debug stream instead of printing to user
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.debug(f"Error generating structural constraints: {e}")
             
         return constraints
         
@@ -1752,7 +1758,10 @@ class ModelStructure(ModelDefaults):
                         break
                         
         except Exception as e:
-            print(f"Error generating stronger constraints: {e}")
+            # Log to debug stream instead of printing to user
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.debug(f"Error generating stronger constraints: {e}")
             
         return constraints
 
