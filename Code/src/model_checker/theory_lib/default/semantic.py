@@ -1127,6 +1127,7 @@ class ModelStructure(ModelDefaults):
         possible = self.semantics.possible
         verify = self.semantics.verify
         falsify = self.semantics.falsify
+        print_impossible = self.settings.get('print_impossible', False)
         
         verifier_states = set()
         falsifier_states = set()
@@ -1136,7 +1137,8 @@ class ModelStructure(ModelDefaults):
                 # Check if this state is possible
                 is_possible = bool(z3_model.evaluate(possible(state)))
                 
-                if is_possible:
+                # Include the state if it's possible or if print_impossible is enabled
+                if is_possible or print_impossible:
                     # Check if this state verifies the letter
                     if bool(z3_model.evaluate(verify(state, letter))):
                         state_name = bitvec_to_substates(state, N)
@@ -1204,8 +1206,7 @@ class ModelStructure(ModelDefaults):
                 "added": [],
                 "removed": []
             },
-            "parthood": {},         # Changes in part-whole relationships
-            "compatibility": {}     # Changes in state compatibility
+            "parthood": {}          # Changes in part-whole relationships
         }
         
         # Get Z3 models
@@ -1261,29 +1262,7 @@ class ModelStructure(ModelDefaults):
                 if parthood_changes:
                     differences["parthood"] = parthood_changes
                     
-            # Check for compatibility changes (specific to default theory)
-            if hasattr(self.semantics, 'compatible'):
-                compatibility_changes = {}
-                # Sample a subset of state pairs to check for compatibility changes
-                for x in self.z3_possible_states[:10]:  # Limit to avoid too much computation
-                    for y in self.z3_possible_states[:10]:
-                        if x == y:
-                            continue
-                        try:
-                            old_compatible = bool(prev_model.evaluate(self.semantics.compatible(x, y)))
-                            new_compatible = bool(new_model.evaluate(self.semantics.compatible(x, y)))
-                            
-                            if old_compatible != new_compatible:
-                                key = f"{bitvec_to_substates(x, self.semantics.N)}, {bitvec_to_substates(y, self.semantics.N)}"
-                                compatibility_changes[key] = {
-                                    "old": old_compatible,
-                                    "new": new_compatible
-                                }
-                        except Exception:
-                            pass
-                
-                if compatibility_changes:
-                    differences["compatibility"] = compatibility_changes
+            # We no longer collect compatibility changes to save computational resources
         except Exception as e:
             # Log but continue with other difference detection
             print(f"Error comparing state differences: {e}")
@@ -1297,7 +1276,7 @@ class ModelStructure(ModelDefaults):
         if (not differences["sentence_letters"] and
             not differences["worlds"]["added"] and not differences["worlds"]["removed"] and
             not differences["possible_states"]["added"] and not differences["possible_states"]["removed"] and
-            not differences.get("parthood") and not differences.get("compatibility")):
+            not differences.get("parthood")):
             return None
             
         return differences
@@ -1395,18 +1374,56 @@ class ModelStructure(ModelDefaults):
         
         # Print possible state changes
         possible = diffs.get("possible_states", {})
-        if possible.get("added") or possible.get("removed"):
+        impossible_added = []
+        impossible_removed = []
+        
+        # Filter possible and impossible states
+        possible_added = []
+        possible_removed = []
+        
+        for state in possible.get("added", []):
+            if bool(self.z3_model.evaluate(self.semantics.possible(state))):
+                possible_added.append(state)
+            else:
+                impossible_added.append(state)
+                
+        for state in possible.get("removed", []):
+            # Need to use previous model for evaluating removed states
+            if hasattr(self, 'previous_model') and self.previous_model and hasattr(self.previous_model, 'z3_model'):
+                if bool(self.previous_model.z3_model.evaluate(self.semantics.possible(state))):
+                    possible_removed.append(state)
+                else:
+                    impossible_removed.append(state)
+            else:
+                possible_removed.append(state)  # Default to possible if can't check
+        
+        # Print possible state changes
+        if possible_added or possible_removed:
             print("\nPossible State Changes:", file=output)
             
             # Added possible states with possible coloring
-            for state in possible.get("added", []):
+            for state in possible_added:
                 state_repr = bitvec_to_substates(state, self.semantics.N)
                 print(f"  + {self.COLORS['possible']}{state_repr}{self.RESET}", file=output)
                 
             # Removed possible states
-            for state in possible.get("removed", []):
+            for state in possible_removed:
                 state_repr = bitvec_to_substates(state, self.semantics.N)
                 print(f"  - {self.COLORS['possible']}{state_repr}{self.RESET}", file=output)
+                
+        # Print impossible state changes only if print_impossible is enabled
+        if self.settings.get('print_impossible', False) and (impossible_added or impossible_removed):
+            print("\nImpossible State Changes:", file=output)
+            
+            # Added impossible states with impossible coloring
+            for state in impossible_added:
+                state_repr = bitvec_to_substates(state, self.semantics.N)
+                print(f"  + {self.COLORS['impossible']}{state_repr} (impossible){self.RESET}", file=output)
+                
+            # Removed impossible states with impossible coloring
+            for state in impossible_removed:
+                state_repr = bitvec_to_substates(state, self.semantics.N)
+                print(f"  - {self.COLORS['impossible']}{state_repr} (impossible){self.RESET}", file=output)
 
     def _print_proposition_differences(self, output=sys.stdout):
         """Print changes to proposition valuations using default theory's format."""
@@ -1452,12 +1469,7 @@ class ModelStructure(ModelDefaults):
                 status = "now part of" if change["new"] else "no longer part of"
                 print(f"  {pair}: {status}", file=output)
         
-        # # Print compatibility relationship changes
-        # if diffs.get("compatibility"):
-        #     print("\nCompatibility Relationship Changes:", file=output)
-        #     for pair, change in diffs["compatibility"].items():
-        #         status = "now compatible" if change["new"] else "no longer compatible"
-        #         print(f"  {pair}: {status}", file=output)
+        # Compatibility relationship changes are no longer printed
 
     def _print_structural_metrics(self, output=sys.stdout):
         """Print structural metrics for the model."""
