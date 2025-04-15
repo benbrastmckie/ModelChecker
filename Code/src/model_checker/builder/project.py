@@ -8,6 +8,7 @@ and initial setup of new modal logic theory implementations.
 import os
 import shutil
 import subprocess
+from typing import Union
 
 class BuildProject:
     """Creates a new theory implementation project from templates.
@@ -93,7 +94,7 @@ class BuildProject:
         except Exception as e:
             print(f"Error creating project: {e}")
         
-    def generate(self, name: str, destination_dir: str | None = None):
+    def generate(self, name: str, destination_dir: Union[str, None] = None):
         """Generate a new theory implementation project from templates.
         
         Args:
