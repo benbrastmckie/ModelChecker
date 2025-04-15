@@ -6,11 +6,10 @@
 
 ## Plan
 
-- [ ] bugs
-  - [ ] jupyter
-  - [ ] builder
-    - [ ] improve dev docs
-    - [ ] 
+- bugs
+  - [x] jupyter
+    - [x] improve dev docs
+  - [x] builder
   - [x] holden import
 - [ ] default semantics
   - [ ] improve name
@@ -51,8 +50,7 @@
   - unit tests
     - [:] settings
     - [:] builder
-    - jupyter
-      - move `jupyter_link.py`?
+    - [x] jupyter
     - [x] theory_lib
       - [x] default
       - [x] bimodal

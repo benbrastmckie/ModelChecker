@@ -6,8 +6,6 @@ and initial setup of new modal logic theory implementations.
 """
 
 import os
-import sys
-import re
 import shutil
 import subprocess
 
