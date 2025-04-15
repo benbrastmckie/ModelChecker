@@ -677,6 +677,9 @@ class ModelIterator:
         Raises:
             RuntimeError: If constraint generation fails
         """
+        print("\n==== DEBUG: _create_difference_constraint ====")
+        print(f"Creating difference constraints from {len(previous_models)} previous models")
+        
         # Get key structures from build_example
         model_structure = self.build_example.model_structure
         model_constraints = self.build_example.model_constraints
@@ -685,20 +688,30 @@ class ModelIterator:
         # For each previous model, create a constraint requiring at least one difference
         model_diff_constraints = []
         
-        for prev_model in previous_models:
+        for model_idx, prev_model in enumerate(previous_models):
+            print(f"\nProcessing previous model #{model_idx+1}:")
+            
             # Components that could differ
             diff_components = []
             
             # 1. Sentence letter valuations
+            print("  Checking sentence letter valuations:")
+            letter_count = 0
             for letter in model_constraints.sentence_letters:
                 try:
                     prev_value = prev_model.eval(letter, model_completion=True)
                     diff_components.append(letter != prev_value)
-                except z3.Z3Exception:
-                    pass
+                    letter_count += 1
+                    print(f"    - Added constraint for letter {letter}: must differ from {prev_value}")
+                except z3.Z3Exception as e:
+                    print(f"    - Skipped letter {letter}: {str(e)}")
+            
+            print(f"  Added {letter_count} sentence letter constraints")
             
             # TODO: move functionality into theory's semantic.py modules
             # 2. Semantic function interpretations
+            print("  Checking semantic function interpretations:")
+            func_count = 0
             for attr_name in dir(semantics):
                 if attr_name.startswith('_'):
                     continue
@@ -712,12 +725,16 @@ class ModelIterator:
                 if arity == 0:
                     continue
                 
+                print(f"    Function {attr_name} (arity {arity}):")
+                
                 # For unary and binary functions, check specific values
                 if arity <= 2:
                     # Get the domain size (number of worlds)
                     n_worlds = getattr(model_structure, 'num_worlds', 5)  # Default to 5 if not available
+                    print(f"      Domain size (num_worlds): {n_worlds}")
                     
                     # Create constraints for all relevant inputs
+                    input_count = 0
                     for inputs in self._generate_input_combinations(arity, n_worlds):
                         try:
                             # Check what this function returns in the previous model
@@ -726,22 +743,49 @@ class ModelIterator:
                             
                             # Add constraint requiring it to be different
                             diff_components.append(attr(*args) != prev_value)
-                        except z3.Z3Exception:
-                            pass
+                            input_count += 1
+                            
+                            if input_count <= 3 or input_count % 10 == 0:  # Limit log output for large input sets
+                                print(f"        Added constraint for input {inputs}: must differ from {prev_value}")
+                        except z3.Z3Exception as e:
+                            if input_count <= 3:
+                                print(f"        Skipped input {inputs}: {str(e)}")
+                    
+                    func_count += 1
+                    print(f"      Added {input_count} input constraints for this function")
+                else:
+                    print(f"      Skipped: arity > 2 ({arity})")
+            
+            print(f"  Added constraints for {func_count} semantic functions")
             
             # 3. Theory-specific model components (if available)
             if hasattr(model_structure, 'get_differentiable_components'):
-                for component, args, prev_value in model_structure.get_differentiable_components(prev_model):
+                print("  Checking theory-specific differentiable components:")
+                theory_components = list(model_structure.get_differentiable_components(prev_model))
+                
+                for idx, (component, args, prev_value) in enumerate(theory_components):
                     diff_components.append(component(*args) != prev_value)
+                    if idx < 5 or idx % 10 == 0:  # Limit log output for large component sets
+                        print(f"    - Added constraint for component {component.__name__}{args}: must differ from {prev_value}")
+                
+                print(f"  Added {len(theory_components)} theory-specific component constraints")
+            else:
+                print("  No theory-specific get_differentiable_components method available")
             
             # Create a single constraint for this model requiring at least one difference
             if diff_components:
                 model_diff_constraints.append(z3.Or(diff_components))
+                print(f"  Total differentiable components for model #{model_idx+1}: {len(diff_components)}")
+            else:
+                print(f"  WARNING: No differentiable components found for model #{model_idx+1}")
         
         # The new model must be different from ALL previous models
         if model_diff_constraints:
-            return z3.And(model_diff_constraints)
+            combined_constraint = z3.And(model_diff_constraints)
+            print(f"\nCreated combined constraint requiring difference from all {len(previous_models)} previous models")
+            return combined_constraint
         else:
+            print("\nERROR: Could not create any difference constraints")
             raise RuntimeError("Could not create any difference constraints")
     
     def _create_non_isomorphic_constraint(self, z3_model):
@@ -757,9 +801,14 @@ class ModelIterator:
         Returns:
             z3.ExprRef: Z3 constraint expression or None if creation fails
         """
+        print("\n==== DEBUG: _create_non_isomorphic_constraint ====")
+        
         if not HAS_NETWORKX:
+            print("NetworkX not available, skipping isomorphism check")
             return None
             
+        print("NetworkX available, creating non-isomorphic constraints")
+        
         # Get model structure and constraints
         model_structure = self.build_example.model_structure
         model_constraints = self.build_example.model_constraints
@@ -773,22 +822,32 @@ class ModelIterator:
                 world_states = getattr(model_structure, 'world_states', [])
                 
             if not world_states:
+                print("No world states found, cannot create non-isomorphic constraints")
                 return None
+                
+            print(f"Found {len(world_states)} world states")
             
             # Create constraints to force structural differences
             constraints = []
             
             # 1. Force different accessibility relation pattern
             if hasattr(semantics, 'R') and len(world_states) > 0:
+                print("Theory has accessibility relation R, checking existing pattern")
                 # Count current accessibility relation pattern
                 edge_pattern = {}
+                edge_count = 0
+                
                 for i, w1 in enumerate(world_states):
                     for j, w2 in enumerate(world_states):
                         try:
                             relation_value = bool(z3_model.eval(semantics.R(w1, w2), model_completion=True))
                             edge_pattern[(i, j)] = relation_value
-                        except Exception:
-                            pass
+                            if relation_value:
+                                edge_count += 1
+                        except Exception as e:
+                            print(f"  Error evaluating R({w1}, {w2}): {str(e)}")
+                
+                print(f"  Current model has {edge_count} accessibility edges")
                 
                 # Create constraints to force different edge patterns
                 edge_flip_constraints = []
@@ -798,11 +857,16 @@ class ModelIterator:
                         # Force this specific edge to be different
                         if current_value:
                             edge_flip_constraints.append(z3.Not(semantics.R(w1, w2)))
+                            if i < 3 and j < 3:  # Limit debug output
+                                print(f"  Added constraint: R({w1}, {w2}) must be False (currently True)")
                         else:
                             edge_flip_constraints.append(semantics.R(w1, w2))
+                            if i < 3 and j < 3:  # Limit debug output
+                                print(f"  Added constraint: R({w1}, {w2}) must be True (currently False)")
                 
                 # Add edge flip constraints
                 constraints.extend(edge_flip_constraints)
+                print(f"  Added {len(edge_flip_constraints)} accessibility relation constraints")
             
             # 2. Force different truth value patterns at each world
             for i, world in enumerate(world_states):
@@ -893,7 +957,10 @@ class ModelIterator:
                 world_states = getattr(model_structure, 'world_states', [])
                 
             if not world_states:
+                print("No world states found, cannot create non-isomorphic constraints")
                 return None
+                
+            print(f"Found {len(world_states)} world states")
                 
             # 1. Force different number of worlds if possible
             # This constraint becomes more extreme with each escape attempt
