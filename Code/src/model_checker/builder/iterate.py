@@ -120,6 +120,64 @@ class ModelIterator:
             persistent_solver.add(assertion)
         return persistent_solver
         
+    def _display_model_differences(self, model_structure, output=sys.stdout):
+        """Display differences between the current model and previous ones.
+        
+        Delegates to theory-specific formatting when available.
+        
+        Args:
+            model_structure: The model structure with differences
+            output: Output stream to write to
+        """
+        if not hasattr(model_structure, 'model_differences') or not model_structure.model_differences:
+            return
+            
+        # Try theory-specific difference formatting
+        if hasattr(model_structure, 'format_model_differences'):
+            try:
+                model_structure.format_model_differences(model_structure.model_differences, output)
+                return
+            except Exception as e:
+                logger.warning(f"Error in theory-specific difference formatting: {e}")
+        
+        # Try legacy method for backward compatibility
+        if hasattr(model_structure, 'print_model_differences'):
+            try:
+                model_structure.print_model_differences(output)
+                return
+            except Exception as e:
+                logger.warning(f"Error in legacy difference formatting: {e}")
+        
+        # Fall back to generic difference display
+        self._display_basic_differences(model_structure, output)
+    
+    def _display_basic_differences(self, model_structure, output=sys.stdout):
+        """Fall back method to display model differences in a generic way."""
+        differences = model_structure.model_differences
+        if not differences:
+            return
+            
+        print("\n=== MODEL DIFFERENCES ===\n", file=output)
+        
+        # Print sentence letter differences
+        if 'sentence_letters' in differences and differences['sentence_letters']:
+            print("Sentence Letter Changes:", file=output)
+            for letter, change in differences['sentence_letters'].items():
+                print(f"  {letter}: changed from previous model", file=output)
+        
+        # Print semantic function differences
+        if 'semantic_functions' in differences and differences['semantic_functions']:
+            print("\nSemantic Function Changes:", file=output)
+            for func, changes in differences['semantic_functions'].items():
+                print(f"  {func}: {len(changes)} input(s) changed", file=output)
+        
+        # Print model structure differences
+        if 'model_structure' in differences and differences['model_structure']:
+            print("\nModel Structure Changes:", file=output)
+            for component, change in differences['model_structure'].items():
+                if 'old' in change and 'new' in change:
+                    print(f"  {component}: {change['old']} -> {change['new']}", file=output)
+    
     def iterate(self):
         """Find multiple distinct models up to max_iterations.
         
@@ -216,14 +274,39 @@ class ModelIterator:
                             self.solver.add(stronger_constraint)
                             self._isomorphic_attempts = 0  # Reset counter
                             
-                            # Add a timeout for this attempt
-                            attempt_timeout = min(max_time * 2, 5.0)  # Reasonable timeout for the stronger constraint
+                            # Add a timeout for this attempt - use a longer timeout for stronger constraints
+                            attempt_timeout = min(max_time * 4, 10.0)  # Longer timeout for stronger constraints
+                            print(f"  Attempting to satisfy stronger constraints (timeout: {attempt_timeout}s)")
                             attempt_start = time.time()
                             
-                            while time.time() - attempt_start < attempt_timeout:
-                                # Attempt to find a model with the new constraints
-                                if self.solver.check() == z3.sat:
+                            # Set solver timeout
+                            self.solver.set("timeout", int(attempt_timeout * 1000))
+                            
+                            # First check immediately
+                            result = self.solver.check()
+                            if result == z3.sat:
+                                print("  Found satisfiable model with stronger constraints!")
+                                # Continue with the loop to process this model
+                                continue
+                            
+                            # If not immediately satisfiable, try a few more times with short intervals
+                            retry_count = 0
+                            max_retries = 3
+                            while retry_count < max_retries and time.time() - attempt_start < attempt_timeout:
+                                retry_count += 1
+                                print(f"  Retry attempt {retry_count}/{max_retries}...")
+                                
+                                # Try with different solver seeds or tactics
+                                self.solver.push()  # Save the current solver state
+                                self.solver.add(z3.Int(f"retry_seed_{retry_count}") == retry_count)  # Add a dummy constraint to change the solver's behavior
+                                result = self.solver.check()
+                                if result == z3.sat:
+                                    print("  Found satisfiable model on retry!")
                                     break
+                                self.solver.pop()  # Restore the solver state
+                                
+                                # Brief pause between retries
+                                time.sleep(0.1)
                             
                             # If we couldn't satisfy the constraint within timeout, stop
                             if self.solver.check() != z3.sat:
@@ -253,7 +336,9 @@ class ModelIterator:
                 
                 # Calculate and store differences for the presentation layer to use
                 differences = self._calculate_differences(new_structure, self.model_structures[-1])
-                new_structure.model_differences = differences
+                
+                # Display the differences between models using theory-specific display when available
+                self._display_model_differences(new_structure)
                 
                 # Add the new model and structure to our results
                 self.found_models.append(new_model)
@@ -499,33 +584,48 @@ class ModelIterator:
     def _calculate_differences(self, new_structure, previous_structure):
         """Calculate differences between two model structures.
         
-        This method delegates to theory-specific difference detection by:
-        1. First delegating to the theory's calculate_model_differences method if available
-        2. Falling back to basic sentence letter and function comparison if not
+        Delegates to theory-specific difference detection when available,
+        falling back to a generic implementation when not.
         
         Args:
             new_structure: The new model structure
-            previous_structure: The previous model structure to compare against
+            previous_structure: The previous model structure
             
         Returns:
-            dict: Structured differences between the models, with content specific to the theory
+            dict: Structured differences between the models
         """
-        # Initialize an empty differences structure
-        differences = {}
-        
-        # First, try to delegate to theory-specific difference detection
-        if hasattr(new_structure, 'calculate_model_differences'):
+        # Try theory-specific difference detection
+        if hasattr(new_structure, 'detect_model_differences'):
             try:
-                # Call the theory's own difference detection method
-                theory_differences = new_structure.calculate_model_differences(previous_structure)
-                if theory_differences:
-                    differences.update(theory_differences)
+                differences = new_structure.detect_model_differences(previous_structure)
+                if differences:
+                    # Store the differences with the new structure
+                    new_structure.model_differences = differences
+                    
+                    # Store a reference to the previous structure for display purposes
+                    new_structure.previous_structure = previous_structure
+                    
+                    return differences
             except Exception as e:
                 logger.warning(f"Error in theory-specific difference detection: {e}")
         
-        # If no theory-specific differences detected, fall back to basic comparison
-        if not differences:
-            differences = self._calculate_basic_differences(new_structure, previous_structure)
+        # Try legacy 'calculate_model_differences' method for backward compatibility
+        if hasattr(new_structure, 'calculate_model_differences'):
+            try:
+                theory_differences = new_structure.calculate_model_differences(previous_structure)
+                if theory_differences:
+                    # Store the differences with the new structure
+                    new_structure.model_differences = theory_differences
+                    
+                    # Store a reference to the previous structure for display purposes
+                    new_structure.previous_structure = previous_structure
+                    
+                    return theory_differences
+            except Exception as e:
+                logger.warning(f"Error in legacy theory-specific difference detection: {e}")
+        
+        # Fall back to generic implementation
+        differences = self._calculate_basic_differences(new_structure, previous_structure)
         
         # Store the differences with the new structure
         new_structure.model_differences = differences
@@ -663,10 +763,8 @@ class ModelIterator:
     def _create_difference_constraint(self, previous_models):
         """Create a Z3 constraint requiring difference from all previous models.
         
-        The constraint ensures the new model differs in at least one of:
-        - Sentence letter valuations
-        - Semantic function interpretations
-        - Model structure components
+        Delegates to theory-specific constraint generation when available,
+        falling back to a generic implementation when not.
         
         Args:
             previous_models: List of Z3 models to differ from
@@ -691,86 +789,65 @@ class ModelIterator:
         for model_idx, prev_model in enumerate(previous_models):
             print(f"\nProcessing previous model #{model_idx+1}:")
             
-            # Components that could differ
+            # Try to use theory-specific difference constraints
+            if hasattr(semantics, 'create_difference_constraints'):
+                try:
+                    theory_constraints = semantics.create_difference_constraints(prev_model)
+                    if theory_constraints:
+                        print(f"  Using theory-specific difference constraints")
+                        model_diff_constraints.append(z3.Or(theory_constraints))
+                        continue
+                except Exception as e:
+                    print(f"  Error in theory-specific constraints: {e}")
+            
+            # Fall back to generic implementation if theory-specific not available
             diff_components = []
             
-            # 1. Sentence letter valuations
-            print("  Checking sentence letter valuations:")
-            letter_count = 0
-            for letter in model_constraints.sentence_letters:
+            # 1. Use theory's differentiable functions if available
+            if hasattr(semantics, 'get_differentiable_functions'):
                 try:
-                    prev_value = prev_model.eval(letter, model_completion=True)
-                    diff_components.append(letter != prev_value)
-                    letter_count += 1
-                    print(f"    - Added constraint for letter {letter}: must differ from {prev_value}")
-                except z3.Z3Exception as e:
-                    print(f"    - Skipped letter {letter}: {str(e)}")
-            
-            print(f"  Added {letter_count} sentence letter constraints")
-            
-            # TODO: move functionality into theory's semantic.py modules
-            # 2. Semantic function interpretations
-            print("  Checking semantic function interpretations:")
-            func_count = 0
-            for attr_name in dir(semantics):
-                if attr_name.startswith('_'):
-                    continue
+                    diff_funcs = semantics.get_differentiable_functions()
+                    print(f"  Using {len(diff_funcs)} theory-provided differentiable functions")
                     
-                attr = getattr(semantics, attr_name)
-                if not isinstance(attr, z3.FuncDeclRef):
-                    continue
-                    
-                # Get domain size
-                arity = attr.arity()
-                if arity == 0:
-                    continue
-                
-                print(f"    Function {attr_name} (arity {arity}):")
-                
-                # For unary and binary functions, check specific values
-                if arity <= 2:
-                    # Get the domain size (number of worlds)
-                    n_worlds = getattr(model_structure, 'num_worlds', 5)  # Default to 5 if not available
-                    print(f"      Domain size (num_worlds): {n_worlds}")
-                    
-                    # Create constraints for all relevant inputs
-                    input_count = 0
-                    for inputs in self._generate_input_combinations(arity, n_worlds):
-                        try:
-                            # Check what this function returns in the previous model
-                            args = [z3.IntVal(i) for i in inputs]
-                            prev_value = prev_model.eval(attr(*args), model_completion=True)
+                    for func, arity, description in diff_funcs:
+                        print(f"    Function {description} (arity {arity}):")
+                        
+                        # For unary and binary functions, check specific values
+                        if arity <= 2:
+                            # Get the domain size (number of worlds)
+                            n_worlds = getattr(model_structure, 'num_worlds', 5)  # Default to 5 if not available
+                            print(f"      Domain size (num_worlds): {n_worlds}")
                             
-                            # Add constraint requiring it to be different
-                            diff_components.append(attr(*args) != prev_value)
-                            input_count += 1
+                            # Skip if part-whole relation function since it requires bit vectors instead of integers
+                            if description == "part-whole relation":
+                                print("      Skipping part-whole relation - requires bit vectors instead of integers")
+                                continue
+                                
+                            if func == semantics.is_part_of:
+                                print("      Skipping is_part_of - requires bit vectors instead of integers")
+                                continue
                             
-                            if input_count <= 3 or input_count % 10 == 0:  # Limit log output for large input sets
-                                print(f"        Added constraint for input {inputs}: must differ from {prev_value}")
-                        except z3.Z3Exception as e:
-                            if input_count <= 3:
-                                print(f"        Skipped input {inputs}: {str(e)}")
-                    
-                    func_count += 1
-                    print(f"      Added {input_count} input constraints for this function")
-                else:
-                    print(f"      Skipped: arity > 2 ({arity})")
-            
-            print(f"  Added constraints for {func_count} semantic functions")
-            
-            # 3. Theory-specific model components (if available)
-            if hasattr(model_structure, 'get_differentiable_components'):
-                print("  Checking theory-specific differentiable components:")
-                theory_components = list(model_structure.get_differentiable_components(prev_model))
-                
-                for idx, (component, args, prev_value) in enumerate(theory_components):
-                    diff_components.append(component(*args) != prev_value)
-                    if idx < 5 or idx % 10 == 0:  # Limit log output for large component sets
-                        print(f"    - Added constraint for component {component.__name__}{args}: must differ from {prev_value}")
-                
-                print(f"  Added {len(theory_components)} theory-specific component constraints")
-            else:
-                print("  No theory-specific get_differentiable_components method available")
+                            # Create constraints for all relevant inputs
+                            input_count = 0
+                            for inputs in self._generate_input_combinations(arity, n_worlds):
+                                try:
+                                    # Check what this function returns in the previous model
+                                    args = [z3.IntVal(i) for i in inputs]
+                                    prev_value = prev_model.eval(func(*args), model_completion=True)
+                                    
+                                    # Add constraint requiring it to be different
+                                    diff_components.append(func(*args) != prev_value)
+                                    input_count += 1
+                                    
+                                    if input_count <= 3 or input_count % 10 == 0:  # Limit log output
+                                        print(f"        Added constraint for input {inputs}: must differ from {prev_value}")
+                                except z3.Z3Exception as e:
+                                    if input_count <= 3:
+                                        print(f"        Skipped input {inputs}: {str(e)}")
+                            
+                            print(f"      Added {input_count} input constraints for this function")
+                except Exception as e:
+                    print(f"  Error processing differentiable functions: {e}")
             
             # Create a single constraint for this model requiring at least one difference
             if diff_components:
@@ -910,9 +987,13 @@ class ModelIterator:
                 try:
                     theory_constraints = model_structure.get_structural_constraints(z3_model)
                     if theory_constraints:
-                        constraints.extend(theory_constraints)
-                except Exception:
-                    pass
+                        print(f"  Adding {len(theory_constraints)} theory-specific structural constraints")
+                        for i, constraint in enumerate(theory_constraints):
+                            constraints.append(constraint)
+                            if i < 3:  # Log only a few constraints for debug
+                                print(f"    - Added theory constraint {i+1}")
+                except Exception as e:
+                    print(f"  Error getting theory-specific structural constraints: {str(e)}")
             
             # Add the constraints to force a different structure
             if constraints:
@@ -1089,8 +1170,13 @@ class ModelIterator:
                 try:
                     theory_constraints = model_structure.get_stronger_constraints(isomorphic_model, escape_attempt)
                     if theory_constraints:
-                        constraints.extend(theory_constraints)
+                        print(f"  Adding {len(theory_constraints)} theory-specific stronger constraints")
+                        for i, constraint in enumerate(theory_constraints):
+                            constraints.append(constraint)
+                            if i < 3:  # Log only a few constraints for debug
+                                print(f"    - Added theory constraint {i+1}")
                 except Exception as e:
+                    print(f"  Error getting theory-specific stronger constraints: {str(e)}")
                     if hasattr(logger, 'debug'):
                         logger.debug(f"Error getting theory constraints: {str(e)}")
             

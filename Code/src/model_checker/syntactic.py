@@ -45,6 +45,19 @@ from z3 import Const, DeclareSort, ExprRef
 
 AtomSort = DeclareSort("AtomSort")
 
+def AtomVal(i):
+    """Create a constant of AtomSort with the given index.
+    
+    This helper function creates atomic proposition values for use in semantics.
+    
+    Args:
+        i (int): The index for the atomic proposition
+        
+    Returns:
+        Const: A Z3 constant of AtomSort
+    """
+    return Const(f"AtomSort!val!{i}", AtomSort)
+
 class Sentence:
     """Represents a logical sentence with support for both infix and prefix notation.
     
