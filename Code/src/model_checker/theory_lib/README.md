@@ -5,6 +5,7 @@
 The ModelChecker Theory Library is a collection of formal semantic theories implemented using Z3 constraint solving for logical reasoning. Each theory provides a programmatic implementation of a different semantic framework, enabling automated verification of logical arguments and discovery of countermodels.
 
 The library follows a modular architecture that allows:
+
 - Comparison between different semantic theories
 - Extension with new theories
 - Reuse of common components
@@ -15,9 +16,10 @@ The library follows a modular architecture that allows:
 The library currently includes the following theories:
 
 ### Default Theory (Hyperintensional Semantics)
+
 - **Primary Author**: Ben Brast-McKie
 - **Description**: Implements a hyperintensional semantics for counterfactuals, constitutive operators, and modal logic.
-- **Key Papers**: 
+- **Key Papers**:
   - Brast-McKie (2021) "Identity and Aboutness", Journal of Philosophical Logic
   - Brast-McKie (2025) "Counterfactual Worlds", Journal of Philosophical Logic
 - **Key Features**:
@@ -27,15 +29,17 @@ The library currently includes the following theories:
   - Constitutive operators for essence, ground, and identity
 
 ### Exclusion Theory
+
 - **Primary Authors**: Lucas Champollion & Paul Bernard
 - **Description**: Implements exclusion semantics for counterfactuals and related operators.
-- **Key Paper**: Bernard & Champollion "Exclusion Counterfactuals" 
+- **Key Paper**: Bernard & Champollion "Exclusion Counterfactuals"
 - **Key Features**:
   - Unilateral operators (conjunction, disjunction)
   - Exclusion operator
   - Alternative approach to counterfactual semantics
 
 ### Imposition Theory
+
 - **Primary Author**: Kit Fine
 - **Description**: Implements Fine's truthmaker semantics for counterfactuals.
 - **Key Papers**:
@@ -47,6 +51,7 @@ The library currently includes the following theories:
   - Distinctive approach to counterfactual reasoning
 
 ### Bimodal Theory
+
 - **Description**: Extends default theory with temporal modal operators.
 - **Key Features**:
   - Both counterfactual and temporal modalities
@@ -60,16 +65,19 @@ Each theory in the library follows a standardized architecture consisting of:
 ### Core Components
 
 1. **Semantics** (`semantic.py`)
+
    - Defines the semantic framework and model structure
    - Implements core semantic relations and operations
    - Specifies Z3 constraints that define the theory
 
 2. **Operators** (`operators.py`)
+
    - Implements logical operators and their semantics
    - Defines primitive operators with verification/falsification conditions
    - Provides derived operators based on primitives
 
 3. **Examples** (`examples.py`)
+
    - Contains test cases to verify theory behavior
    - Includes both valid theorems and countermodels
    - Provides configuration settings for model checking
@@ -117,12 +125,14 @@ from operators import bimodal_operators
 ```
 
 **Benefits:**
+
 - Simple, direct imports from files in the same directory
 - Projects can be run directly with `model-checker examples.py`
 - Changes to the local files are immediately reflected
 - Ideal for development and experimentation
 
 **When to use:**
+
 - When you want to modify and experiment with a theory
 - When creating a standalone project
 - When running the examples.py file directly
@@ -134,8 +144,8 @@ To compare your modified theory with the original implementation, you can use pa
 ```python
 # Import from the core package
 from model_checker.theory_lib.bimodal import (
-    BimodalStructure, 
-    BimodalSemantics, 
+    BimodalStructure,
+    BimodalSemantics,
     BimodalProposition
 )
 from model_checker.theory_lib.bimodal import bimodal_operators
@@ -149,11 +159,13 @@ theory = get_theory("bimodal")
 ```
 
 **Benefits:**
+
 - Access to the original implementations for comparison
 - Consistency with the package's versioned APIs
 - Clear separation between your modifications and the original
 
 **When to use:**
+
 - When comparing your modifications to the original
 - When extending the original without modifying it
 - When using multiple theories together
@@ -219,6 +231,7 @@ To create a new theory:
 
 1. Create a directory under `theory_lib/` (e.g., `theory_lib/my_theory/`)
 2. Implement the required files:
+
    - `semantic.py`: Define your semantic framework
    - `operators.py`: Implement your logical operators
    - `examples.py`: Create test cases
@@ -244,7 +257,7 @@ class MySemantics(SemanticDefaults):
         'N': 3,                   # Number of atomic states (required)
         'max_time': 1,            # Maximum solver time (required)
         'contingent': False,      # Whether propositions must be contingent
-        
+
         # Theory-specific settings (include only what's relevant)
         'my_special_setting': False,  # Setting unique to your theory
     }
@@ -262,7 +275,7 @@ class MySemantics(SemanticDefaults):
         "print_constraints": False,
         "print_z3": False,
         "save_output": False,
-        
+
         # Theory-specific settings (only if needed)
         "my_display_setting": True,  # Setting unique to your theory
     }
@@ -271,10 +284,12 @@ class MySemantics(SemanticDefaults):
 #### Settings Guidelines
 
 1. **Only include settings relevant to your theory**
+
    - Don't implement settings that don't apply to your semantic framework
    - For example, temporal theories include `M` and `align_vertically`, but others don't
 
 2. **Common settings across theories**
+
    - `N`: Number of atomic states (required by all theories)
    - `max_time`: Maximum solver time (required by all theories)
    - `contingent`: Whether propositions must be contingent (common but optional)
@@ -293,26 +308,29 @@ You can also find theory specific settings here:
 - [Bimodal Theory Settings](theory_lib/bimodal/README.md#bimodal-specific-settings)
 - [Exclusion Theory Settings](theory_lib/exclusion/README.md#theory-specific-settings)
 
-
 ### Operator Constraints and Syntax Rules
 
 When implementing operators for your theory, adhere to these important constraints:
 
 1. **Reserved Nullary Operators**:
+
    - `\\top` and `\\bot` are designated nullary operators that cannot be reused as operator names
    - These represent logical truth and falsehood respectively and have special parsing treatment
 
 2. **Well-Formed Formula Rules**:
+
    - Binary operators must have outer parentheses in well-formed sentences: `(A \\wedge B)`
    - Unary operators do not use parentheses for their main connective: `\\neg A`
    - Nested expressions follow standard parenthesization rules: `\\neg (A \\wedge B)`
 
 3. **LaTeX Notation**:
+
    - All special symbols should use LaTeX notation: `\\wedge`, `\\vee`, `\\neg`, etc.
    - Operators are designated with a double backslash as in `\\Box` and `\\Future`
    - Custom operators should follow this pattern: `\\myoperator`
 
 4. **Sentence Letters**:
+
    - Sentence letters are alpha-numeric strings: `A`, `B_2`, `Mary_sings`, etc.
    - Use underscore `_` for spaces in sentence letters (e.g., `Mary_sings`)
    - Sentence letters must not start with a backslash (reserved for operators)
@@ -332,7 +350,7 @@ from model_checker.model import SemanticDefaults, PropositionDefaults, ModelDefa
 
 class MySemantics(SemanticDefaults):
     """Core semantics for my theory."""
-    
+
     # Define theory-specific default settings
     DEFAULT_EXAMPLE_SETTINGS = {
         'N': 3,                   # Number of atomic states (required)
@@ -340,14 +358,14 @@ class MySemantics(SemanticDefaults):
         'contingent': False,      # Common optional setting
         # Add only settings relevant to your theory
     }
-    
+
     DEFAULT_GENERAL_SETTINGS = {
         "print_constraints": False,
         "print_z3": False,
         "save_output": False,
         # Add only settings relevant to your theory
     }
-    
+
     # Implement semantic primitives and relations
 
 class MyProposition(PropositionDefaults):
@@ -365,7 +383,7 @@ class MyOperator(Operator):
     """A primitive operator in my theory."""
     def __init__(self):
         super().__init__("my_op", "\\myop", 1)  # name, symbol, arity
-    
+
     # Implement semantic methods
 
 my_operators = {
@@ -414,13 +432,13 @@ class CustomSemantics(SemanticDefaults):
     def get_constraints(self):
         """Add custom constraints to the model."""
         constraints = super().get_constraints()
-        
+
         # Add theory-specific constraints
         my_constraint = self.z3.ForAll([self.s1, self.s2],
                           self.z3.Implies(self.custom_relation(self.s1, self.s2),
                                       self.some_condition(self.s1, self.s2)))
         constraints.append(my_constraint)
-        
+
         return constraints
 ```
 
@@ -435,6 +453,7 @@ Each theory can include Jupyter notebooks for interactive exploration, documenta
 5. **Countermodel Demonstrations**: Show specific examples of interesting countermodels
 
 Notebooks should be placed in a `notebooks/` directory within your theory package, for example:
+
 ```
 theory_lib/
 └── my_theory/
