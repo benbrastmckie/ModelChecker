@@ -62,6 +62,13 @@
         - [ ] maximize
         - [ ] minimize
         - [x] iterate models
+          - [ ] revise iterate settings
+            - [ ] update DEFAULTS
+            - [ ] update `theory_lib/notes/iterate.md`
+          - [ ] revise `builder/README.md`
+          - [ ] add iterator to other theories
+          - [ ] revise `theory_lib/README.md`
+          - [ ] revise `model_checker/README.md`
           - [x] non-isomorphic difference only
             - [x] debug consecutive model differences
             - [x] do more testing to watch for bad cases
