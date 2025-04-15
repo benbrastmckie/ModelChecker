@@ -1408,8 +1408,8 @@ class ModelStructure(ModelDefaults):
             print("No differences detected between models.", file=output)
             return
         
-        # Print header
-        print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
+        # Print header with newlines for clear separation
+        print("\n\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
         
         # Store differences temporarily to use existing helper methods
         self.temp_differences = differences

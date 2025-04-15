@@ -396,6 +396,13 @@ class BuildModule:
         from model_checker.builder.example import BuildExample
         from model_checker.builder.iterate import ModelIterator
         import sys
+        import logging
+        
+        # Disable all debug logs for cleaner output
+        logging.getLogger().setLevel(logging.ERROR)
+        # Specifically disable iteration logs
+        for logger_name in ["model_checker", "model_checker.builder", "model_checker.builder.iterate"]:
+            logging.getLogger(logger_name).setLevel(logging.ERROR)
         
         # Create and solve the example
         example = BuildExample(self, semantic_theory, example_case)
@@ -433,21 +440,78 @@ class BuildModule:
                 if not hasattr(structure, '_is_isomorphic') or not structure._is_isomorphic:
                     distinct_count += 1
                     
-                    # If we have model differences, print them first
-                    if hasattr(structure, 'model_differences') and structure.model_differences:
-                        structure.print_model_differences()
-                    
-                    # Print the model differences before printing the new model
-                    print(f"\nMODEL {distinct_count}/{total_distinct}")
-                    
-                    # Set the current model structure and print it
-                    example.model_structure = structure
-                    
-                    # Mark the last model to prevent partial output issues
-                    if distinct_count == total_distinct:
-                        structure._is_last_model = True
+                    # For the first model, just print it
+                    if distinct_count == 1:
+                        # Print model header
+                        print(f"\nMODEL {distinct_count}/{total_distinct}")
                         
-                    example.print_model(f"{example_name}", theory_name)
+                        # Set the current model structure
+                        example.model_structure = structure
+                        
+                        # Print the model
+                        example.print_model(f"{example_name}", theory_name)
+                    else:
+                        # For subsequent models, first print the differences then the model
+                        # Print detailed differences between this model and the previous one
+                        previous_model = model_structures[i-2]  # The -2 is because i starts at 1, plus we want the previous model
+                        
+                        # Recalculate the detailed differences between this model and the previous one
+                        # This ensures we get the full detailed differences rather than just the summary
+                        from model_checker.builder.iterate import ModelIterator
+                        
+                        # Get a valid previous model
+                        previous_idx = i - 2  # models_structures[0] is the first model, and we're at i=0 for the second model (1-indexed)
+                        if previous_idx >= 0 and previous_idx < len(model_structures):
+                            previous_model = model_structures[previous_idx]
+                            
+                            # Store a reference to the original iterator if we haven't already
+                            if not hasattr(example, '_iterator'):
+                                example._iterator = ModelIterator(example)
+                                
+                            # Use the existing iterator to calculate full differences
+                            try:
+                                # First try using theory-specific difference detection
+                                structure.model_differences = example._iterator._calculate_differences(
+                                    structure, previous_model)
+                                structure.previous_structure = previous_model
+                            except Exception as e:
+                                print(f"\nError calculating detailed differences: {str(e)}")
+                                # Fall back to basic difference calculation
+                                try:
+                                    structure.model_differences = example._iterator._calculate_basic_differences(
+                                        structure, previous_model)
+                                    structure.previous_structure = previous_model
+                                except Exception as e2:
+                                    print(f"\nError in fallback difference calculator: {str(e2)}")
+                        
+                        # Now print the differences
+                        try:
+                            # Use format_model_differences if available (theory-specific detailed formatting)
+                            if hasattr(structure, 'format_model_differences') and structure.model_differences:
+                                structure.format_model_differences(structure.model_differences)
+                            # Fall back to generic print_model_differences
+                            elif hasattr(structure, 'print_model_differences'):
+                                structure.print_model_differences()
+                            # Last resort: use the iterator's display function
+                            elif hasattr(example._iterator, '_display_model_differences'):
+                                example._iterator._display_model_differences(structure)
+                            else:
+                                print("\nCould not display model differences: no compatible display method found.")
+                        except Exception as e:
+                            print(f"Error printing model differences: {str(e)}")
+                                
+                        # Print model header
+                        print(f"\nMODEL {distinct_count}/{total_distinct}")
+                        
+                        # Set the current model structure
+                        example.model_structure = structure
+                        
+                        # Mark the last model to prevent partial output issues
+                        if distinct_count == total_distinct:
+                            structure._is_last_model = True
+                            
+                        # Print the model
+                        example.print_model(f"{example_name}", theory_name)
                     
                 # For isomorphic models that are skipped, we could optionally add a subtle indicator
                 # Uncomment to show skipped models

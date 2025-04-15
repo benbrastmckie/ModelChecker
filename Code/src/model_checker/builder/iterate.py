@@ -25,7 +25,8 @@ if not logger.handlers:
     formatter = logging.Formatter('[ITERATION] %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
+    # Set to WARNING level to suppress debug messages
+    logger.setLevel(logging.WARNING)
 
 # Check if NetworkX is available for isomorphism checking
 try:
@@ -130,7 +131,13 @@ class ModelIterator:
             output: Output stream to write to
         """
         if not hasattr(model_structure, 'model_differences') or not model_structure.model_differences:
-            return
+            # If no model_differences are found but we have a previous_structure reference,
+            # try to calculate differences on the fly
+            if hasattr(model_structure, 'previous_structure') and model_structure.previous_structure is not None:
+                model_structure.model_differences = self._calculate_differences(
+                    model_structure, model_structure.previous_structure)
+            else:
+                return
             
         # Try theory-specific difference formatting
         if hasattr(model_structure, 'format_model_differences'):
@@ -159,24 +166,123 @@ class ModelIterator:
             
         print("\n=== MODEL DIFFERENCES ===\n", file=output)
         
-        # Print sentence letter differences
+        # Print sentence letter differences with more detail
         if 'sentence_letters' in differences and differences['sentence_letters']:
             print("Sentence Letter Changes:", file=output)
             for letter, change in differences['sentence_letters'].items():
-                print(f"  {letter}: changed from previous model", file=output)
+                # Try to get a user-friendly letter name
+                letter_name = letter
+                if hasattr(model_structure, '_get_friendly_letter_name'):
+                    try:
+                        letter_name = model_structure._get_friendly_letter_name(str(letter))
+                    except:
+                        pass
+                        
+                # Print basic change
+                if isinstance(change, dict) and 'old' in change and 'new' in change:
+                    # Format for detailed difference info
+                    old_val, new_val = None, None
+                    
+                    # Handle tuple format (verifiers, falsifiers)
+                    if isinstance(change['old'], tuple) and isinstance(change['new'], tuple):
+                        old_verifiers, old_falsifiers = change['old']
+                        new_verifiers, new_falsifiers = change['new']
+                        
+                        print(f"  {letter_name}:", file=output)
+                        print(f"    Verifiers: changed from {old_verifiers} to {new_verifiers}", file=output)
+                        print(f"    Falsifiers: changed from {old_falsifiers} to {new_falsifiers}", file=output)
+                    else:
+                        # Handle simple value changes
+                        print(f"  {letter_name}: {change['old']} -> {change['new']}", file=output)
+                else:
+                    # Fallback for simpler change format
+                    print(f"  {letter_name}: changed from previous model", file=output)
         
-        # Print semantic function differences
+        # Print world and state changes if available
+        if 'worlds' in differences:
+            print("\nWorld Changes:", file=output)
+            worlds = differences['worlds']
+            if 'added' in worlds and worlds['added']:
+                from model_checker.utils import bitvec_to_substates
+                for world in worlds['added']:
+                    try:
+                        state_repr = bitvec_to_substates(world, model_structure.semantics.N)
+                        print(f"  + {state_repr} (world)", file=output)
+                    except:
+                        print(f"  + {world} (world)", file=output)
+                        
+            if 'removed' in worlds and worlds['removed']:
+                from model_checker.utils import bitvec_to_substates
+                for world in worlds['removed']:
+                    try:
+                        state_repr = bitvec_to_substates(world, model_structure.semantics.N)
+                        print(f"  - {state_repr} (world)", file=output)
+                    except:
+                        print(f"  - {world} (world)", file=output)
+        
+        # Print possible state changes if available
+        if 'possible_states' in differences:
+            print("\nPossible State Changes:", file=output)
+            states = differences['possible_states']
+            if 'added' in states and states['added']:
+                from model_checker.utils import bitvec_to_substates
+                for state in states['added']:
+                    try:
+                        state_repr = bitvec_to_substates(state, model_structure.semantics.N)
+                        print(f"  + {state_repr}", file=output)
+                    except:
+                        print(f"  + {state}", file=output)
+                        
+            if 'removed' in states and states['removed']:
+                from model_checker.utils import bitvec_to_substates
+                for state in states['removed']:
+                    try:
+                        state_repr = bitvec_to_substates(state, model_structure.semantics.N)
+                        print(f"  - {state_repr}", file=output)
+                    except:
+                        print(f"  - {state}", file=output)
+        
+        # Print semantic function differences with more detail
         if 'semantic_functions' in differences and differences['semantic_functions']:
             print("\nSemantic Function Changes:", file=output)
             for func, changes in differences['semantic_functions'].items():
-                print(f"  {func}: {len(changes)} input(s) changed", file=output)
+                if isinstance(changes, dict) and changes:
+                    # Print function name
+                    print(f"  {func}:", file=output)
+                    # Show sample changes (limit to 5 to avoid overwhelming output)
+                    sample_count = 0
+                    for input_vals, change in changes.items():
+                        if sample_count < 5:  # Limit to 5 examples
+                            if isinstance(change, dict) and 'old' in change and 'new' in change:
+                                print(f"    Input {input_vals}: {change['old']} -> {change['new']}", file=output)
+                            else:
+                                print(f"    Input {input_vals}: changed", file=output)
+                            sample_count += 1
+                    
+                    # Show count if there are more changes
+                    total_changes = len(changes)
+                    if total_changes > 5:
+                        print(f"    ... and {total_changes - 5} more changes", file=output)
+                else:
+                    # Fallback for simpler change format
+                    print(f"  {func}: {len(changes) if isinstance(changes, dict) else 'unknown'} input(s) changed", file=output)
         
         # Print model structure differences
         if 'model_structure' in differences and differences['model_structure']:
             print("\nModel Structure Changes:", file=output)
             for component, change in differences['model_structure'].items():
-                if 'old' in change and 'new' in change:
+                if isinstance(change, dict) and 'old' in change and 'new' in change:
                     print(f"  {component}: {change['old']} -> {change['new']}", file=output)
+                else:
+                    print(f"  {component}: changed", file=output)
+                    
+        # Print part-whole relationship changes if available
+        if 'parthood' in differences and differences.get('parthood'):
+            print("\nPart-Whole Relationship Changes:", file=output)
+            for pair, change in differences['parthood'].items():
+                if isinstance(change, dict) and 'old' in change and 'new' in change:
+                    status = "now part of" if change['new'] else "no longer part of"
+                    print(f"  {pair}: {status}", file=output)
     
     def iterate(self):
         """Find multiple distinct models up to max_iterations.
@@ -250,7 +356,7 @@ class ModelIterator:
                 if is_isomorphic:
                     # Mark the structure as isomorphic for reference
                     new_structure._is_isomorphic = True
-                    print(f"Found an isomorphic model (check #{self.checked_model_count})")
+                    logger.debug(f"Found an isomorphic model (check #{self.checked_model_count})")
                     
                     # Track number of consecutive isomorphic models found
                     if not hasattr(self, '_isomorphic_attempts'):
@@ -337,8 +443,8 @@ class ModelIterator:
                 # Calculate and store differences for the presentation layer to use
                 differences = self._calculate_differences(new_structure, self.model_structures[-1])
                 
-                # Display the differences between models using theory-specific display when available
-                self._display_model_differences(new_structure)
+                # We no longer display differences here - this will be handled by the presentation layer
+                # self._display_model_differences(new_structure)
                 
                 # Add the new model and structure to our results
                 self.found_models.append(new_model)
@@ -775,8 +881,8 @@ class ModelIterator:
         Raises:
             RuntimeError: If constraint generation fails
         """
-        print("\n==== DEBUG: _create_difference_constraint ====")
-        print(f"Creating difference constraints from {len(previous_models)} previous models")
+        logger.debug("\n==== DEBUG: _create_difference_constraint ====")
+        logger.debug(f"Creating difference constraints from {len(previous_models)} previous models")
         
         # Get key structures from build_example
         model_structure = self.build_example.model_structure
@@ -787,18 +893,18 @@ class ModelIterator:
         model_diff_constraints = []
         
         for model_idx, prev_model in enumerate(previous_models):
-            print(f"\nProcessing previous model #{model_idx+1}:")
+            logger.debug(f"\nProcessing previous model #{model_idx+1}:")
             
             # Try to use theory-specific difference constraints
             if hasattr(semantics, 'create_difference_constraints'):
                 try:
                     theory_constraints = semantics.create_difference_constraints(prev_model)
                     if theory_constraints:
-                        print(f"  Using theory-specific difference constraints")
+                        logger.debug(f"  Using theory-specific difference constraints")
                         model_diff_constraints.append(z3.Or(theory_constraints))
                         continue
                 except Exception as e:
-                    print(f"  Error in theory-specific constraints: {e}")
+                    logger.debug(f"  Error in theory-specific constraints: {e}")
             
             # Fall back to generic implementation if theory-specific not available
             diff_components = []
@@ -859,10 +965,10 @@ class ModelIterator:
         # The new model must be different from ALL previous models
         if model_diff_constraints:
             combined_constraint = z3.And(model_diff_constraints)
-            print(f"\nCreated combined constraint requiring difference from all {len(previous_models)} previous models")
+            logger.debug(f"\nCreated combined constraint requiring difference from all {len(previous_models)} previous models")
             return combined_constraint
         else:
-            print("\nERROR: Could not create any difference constraints")
+            logger.error("\nERROR: Could not create any difference constraints")
             raise RuntimeError("Could not create any difference constraints")
     
     def _create_non_isomorphic_constraint(self, z3_model):
@@ -878,13 +984,13 @@ class ModelIterator:
         Returns:
             z3.ExprRef: Z3 constraint expression or None if creation fails
         """
-        print("\n==== DEBUG: _create_non_isomorphic_constraint ====")
+        logger.debug("\n==== DEBUG: _create_non_isomorphic_constraint ====")
         
         if not HAS_NETWORKX:
-            print("NetworkX not available, skipping isomorphism check")
+            logger.debug("NetworkX not available, skipping isomorphism check")
             return None
             
-        print("NetworkX available, creating non-isomorphic constraints")
+        logger.debug("NetworkX available, creating non-isomorphic constraints")
         
         # Get model structure and constraints
         model_structure = self.build_example.model_structure
@@ -899,17 +1005,17 @@ class ModelIterator:
                 world_states = getattr(model_structure, 'world_states', [])
                 
             if not world_states:
-                print("No world states found, cannot create non-isomorphic constraints")
+                logger.debug("No world states found, cannot create non-isomorphic constraints")
                 return None
                 
-            print(f"Found {len(world_states)} world states")
+            logger.debug(f"Found {len(world_states)} world states")
             
             # Create constraints to force structural differences
             constraints = []
             
             # 1. Force different accessibility relation pattern
             if hasattr(semantics, 'R') and len(world_states) > 0:
-                print("Theory has accessibility relation R, checking existing pattern")
+                logger.debug("Theory has accessibility relation R, checking existing pattern")
                 # Count current accessibility relation pattern
                 edge_pattern = {}
                 edge_count = 0
@@ -987,13 +1093,13 @@ class ModelIterator:
                 try:
                     theory_constraints = model_structure.get_structural_constraints(z3_model)
                     if theory_constraints:
-                        print(f"  Adding {len(theory_constraints)} theory-specific structural constraints")
+                        logger.debug(f"  Adding {len(theory_constraints)} theory-specific structural constraints")
                         for i, constraint in enumerate(theory_constraints):
                             constraints.append(constraint)
                             if i < 3:  # Log only a few constraints for debug
-                                print(f"    - Added theory constraint {i+1}")
+                                logger.debug(f"    - Added theory constraint {i+1}")
                 except Exception as e:
-                    print(f"  Error getting theory-specific structural constraints: {str(e)}")
+                    logger.debug(f"  Error getting theory-specific structural constraints: {str(e)}")
             
             # Add the constraints to force a different structure
             if constraints:
@@ -1038,10 +1144,10 @@ class ModelIterator:
                 world_states = getattr(model_structure, 'world_states', [])
                 
             if not world_states:
-                print("No world states found, cannot create non-isomorphic constraints")
+                logger.debug("No world states found, cannot create non-isomorphic constraints")
                 return None
                 
-            print(f"Found {len(world_states)} world states")
+            logger.debug(f"Found {len(world_states)} world states")
                 
             # 1. Force different number of worlds if possible
             # This constraint becomes more extreme with each escape attempt
