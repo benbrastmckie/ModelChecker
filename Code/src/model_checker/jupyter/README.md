@@ -179,6 +179,62 @@ The requirement for double backslashes is due to how Python handles escape chara
 
 **Convention**: Throughout the ModelChecker, we consistently use double backslashes in operator notation to ensure clarity and prevent escaping issues.
 
+### Unicode Operator Support
+
+The integration supports both LaTeX and Unicode notations for operators for better readability in notebooks. However, it's important to understand that **Unicode characters are automatically converted to LaTeX notation** internally before being passed to the model checker.
+
+```python
+from model_checker.jupyter import check_formula
+from model_checker.jupyter.unicode import unicode_to_latex, latex_to_unicode
+
+# Using Unicode operators for better readability in notebooks
+check_formula("□p → p")  # Modal necessity
+check_formula("p ∧ q")   # Conjunction
+check_formula("p ∨ q")   # Disjunction
+check_formula("¬p")      # Negation
+check_formula("p → q")   # Implication
+
+# Convert between notations
+latex = unicode_to_latex("p → (q ∧ ¬r)")  # Converts to "p \\rightarrow (q \\wedge \\neg r)"
+unicode = latex_to_unicode("\\Box p \\rightarrow p")  # Converts to "□p → p"
+```
+
+#### Unicode to LaTeX Conversion
+
+The system automatically normalizes formulas, converting Unicode operators to their LaTeX counterparts with double backslashes. This is necessary because the internal model checker only understands LaTeX notation.
+
+| Unicode | LaTeX Equivalent | Description |
+|---------|------------------|-------------|
+| →       | `\\rightarrow`   | Implication |
+| ∧       | `\\wedge`        | Conjunction |
+| ∨       | `\\vee`          | Disjunction |
+| ¬       | `\\neg`          | Negation    |
+| □       | `\\Box`          | Necessity   |
+| ◇       | `\\Diamond`      | Possibility |
+| ↔       | `\\leftrightarrow`| Equivalence |
+| ≡       | `\\equiv`        | Equivalence |
+| ⊥       | `\\bot`          | False       |
+| ⊤       | `\\top`          | True        |
+
+#### Theory-Specific Unicode Operators
+
+Some theories like the exclusion theory have specialized operators with Unicode representations:
+
+| Unicode | LaTeX Equivalent | Description |
+|---------|------------------|-------------|
+| ⦻       | `\\exclude`      | Exclusion   |
+| ⊓       | `\\uniwedge`     | Unilateral conjunction |
+| ⊔       | `\\univee`       | Unilateral disjunction |
+| ≔       | `\\uniequiv`     | Unilateral equivalence |
+
+#### Important Notes on Unicode Usage
+
+1. **Internal Conversion**: All Unicode operators are automatically converted to LaTeX notation before processing.
+2. **Display Only**: Unicode is primarily for display and readability in notebooks.
+3. **Formula Normalization**: When setting formulas in the ModelExplorer or FormulaChecker, the system calls `normalize_formula()` which handles conversion.
+4. **Custom Operators**: If you define custom operators, they must have LaTeX notation with double backslashes and optionally Unicode equivalents.
+5. **Error Prevention**: Using Unicode ensures proper escaping, avoiding common errors with backslash escaping in strings.
+
 ## Running Example Notebooks
 
 ModelChecker comes with pre-built example notebooks:
@@ -285,62 +341,6 @@ settings = {
 
 check_formula("p ∨ q ∨ r ∨ s", settings=settings)
 ```
-
-### Unicode Operator Support
-
-The integration supports both LaTeX and Unicode notations for operators for better readability in notebooks. However, it's important to understand that **Unicode characters are automatically converted to LaTeX notation** internally before being passed to the model checker.
-
-```python
-from model_checker.jupyter import check_formula
-from model_checker.jupyter.unicode import unicode_to_latex, latex_to_unicode
-
-# Using Unicode operators for better readability in notebooks
-check_formula("□p → p")  # Modal necessity
-check_formula("p ∧ q")   # Conjunction
-check_formula("p ∨ q")   # Disjunction
-check_formula("¬p")      # Negation
-check_formula("p → q")   # Implication
-
-# Convert between notations
-latex = unicode_to_latex("p → (q ∧ ¬r)")  # Converts to "p \\rightarrow (q \\wedge \\neg r)"
-unicode = latex_to_unicode("\\Box p \\rightarrow p")  # Converts to "□p → p"
-```
-
-#### Unicode to LaTeX Conversion
-
-The system automatically normalizes formulas, converting Unicode operators to their LaTeX counterparts with double backslashes. This is necessary because the internal model checker only understands LaTeX notation.
-
-| Unicode | LaTeX Equivalent | Description |
-|---------|------------------|-------------|
-| →       | `\\rightarrow`   | Implication |
-| ∧       | `\\wedge`        | Conjunction |
-| ∨       | `\\vee`          | Disjunction |
-| ¬       | `\\neg`          | Negation    |
-| □       | `\\Box`          | Necessity   |
-| ◇       | `\\Diamond`      | Possibility |
-| ↔       | `\\leftrightarrow`| Equivalence |
-| ≡       | `\\equiv`        | Equivalence |
-| ⊥       | `\\bot`          | False       |
-| ⊤       | `\\top`          | True        |
-
-#### Theory-Specific Unicode Operators
-
-Some theories like the exclusion theory have specialized operators with Unicode representations:
-
-| Unicode | LaTeX Equivalent | Description |
-|---------|------------------|-------------|
-| ⦻       | `\\exclude`      | Exclusion   |
-| ⊓       | `\\uniwedge`     | Unilateral conjunction |
-| ⊔       | `\\univee`       | Unilateral disjunction |
-| ≔       | `\\uniequiv`     | Unilateral equivalence |
-
-#### Important Notes on Unicode Usage
-
-1. **Internal Conversion**: All Unicode operators are automatically converted to LaTeX notation before processing.
-2. **Display Only**: Unicode is primarily for display and readability in notebooks.
-3. **Formula Normalization**: When setting formulas in the ModelExplorer or FormulaChecker, the system calls `normalize_formula()` which handles conversion.
-4. **Custom Operators**: If you define custom operators, they must have LaTeX notation with double backslashes and optionally Unicode equivalents.
-5. **Error Prevention**: Using Unicode ensures proper escaping, avoiding common errors with backslash escaping in strings.
 
 ### Loading Example Libraries
 

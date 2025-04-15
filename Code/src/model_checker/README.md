@@ -91,7 +91,7 @@ theory = get_theory("default")
 model = BuildExample("simple_modal", theory)
 
 # 3. Check a formula
-result = model.check_formula("\\Box p -> p")
+result = model.check_formula("(\\Box A \\rightarrow A)")
 
 # 4. Analyze the result
 print(f"Formula is {'valid' if result else 'invalid'}")
@@ -161,135 +161,6 @@ For detailed information about settings management and theory-specific settings:
 - [Settings System Documentation](settings/README.md)
 - [Theory Library Documentation](theory_lib/README.md#theory-specific-settings)
 
-## Development
-
-This section provides information for contributors who want to develop or extend the ModelChecker framework.
-
-### Development Scripts
-
-The repository includes several utility scripts that help with development, testing, and releasing:
-
-#### 1. Running Theory Tests (`test_theories.py`)
-
-The `test_theories.py` script automatically discovers and runs tests for all registered theories in the framework. It uses the centralized `AVAILABLE_THEORIES` registry in `theory_lib/__init__.py` to determine which theories to test.
-
-```bash
-# Run tests for all registered theories
-./test_theories.py
-
-# Run tests for specific theories
-./test_theories.py --theories default exclusion
-
-# Run tests with verbose output
-./test_theories.py -v
-
-# Run tests with failfast (stop after first failure)
-./test_theories.py -x
-```
-
-The script searches for test directories within each theory directory and runs pytest on them. It provides a summary of test results at the end.
-
-#### 2. Running Package Component Tests (`test_package.py`)
-
-The `test_package.py` script runs tests for non-theory package components like `builder`, `settings`, etc.
-
-```bash
-# Run tests for all components
-./test_package.py
-
-# Run tests for specific components
-./test_package.py --components builder settings
-
-# List available testable components
-./test_package.py --list
-
-# Run with verbose output
-./test_package.py -v
-
-# Run with failfast (stop after first failure)
-./test_package.py -x
-```
-
-The script dynamically discovers components with test directories and provides a consistent interface for running their tests.
-
-#### 3. Package Updates (`run_update.py`)
-
-The `run_update.py` script manages version updates, testing, building, and uploading to PyPI:
-
-```bash
-# Regular update (with prompts for testing)
-./run_update.py
-
-# Skip version increment but still run tests and upload
-./run_update.py --no-version
-
-# Skip the upload step (useful for testing the build process)
-./run_update.py --no-upload
-```
-
-The script:
-
-1. Updates version numbers in pyproject.toml and __init__.py
-2. Runs package component tests (using test_package.py)
-3. Runs theory tests (using test_theories.py)
-4. Builds the package
-5. Uploads to PyPI using twine
-
-#### 3. Development CLI (`dev_cli.py`)
-
-The `dev_cli.py` script provides a development-mode CLI that uses the local source code:
-
-```bash
-# Run the development CLI with an example file
-./dev_cli.py examples.py
-
-# Run with CLI flags
-./dev_cli.py -v
-```
-
-This script ensures that your local source code is used instead of any installed package version, which is particularly useful during development.
-
-### NixOS Development
-
-Developing on NixOS requires special consideration due to its immutable package management system. This section covers NixOS-specific setup.
-
-#### Shell Environment
-
-The repository includes a `shell.nix` file that defines the development environment:
-
-```bash
-# Enter the development environment
-nix-shell
-
-# With direnv installed (automatic environment activation)
-# First, allow the .envrc file once:
-direnv allow
-# Then the environment will be automatically loaded when you enter the directory
-```
-
-The shell environment sets up all necessary dependencies and environment variables, especially `PYTHONPATH`, to ensure that the local source code is used.
-
-#### Path Resolution
-
-On NixOS, package installation in development mode (`pip install -e .`) may not work as expected due to read-only filesystem restrictions. The development scripts address this by:
-
-1. Using explicit `PYTHONPATH` settings to prioritize local source code
-2. Providing wrapper scripts that manage the correct Python import paths
-3. Using importlib for dynamic imports instead of relying on installed packages
-
-#### Using dev_cli.py on NixOS
-
-The `dev_cli.py` script is particularly important on NixOS since it:
-
-1. Correctly sets `sys.path` to prioritize local source code
-2. Enables running the CLI without modifying system packages
-3. Works seamlessly with the nix-shell environment
-
-```bash
-# Inside the nix-shell (or with direnv enabled)
-./dev_cli.py path/to/example.py
-```
-
 ### Adding New Theories
 
 To add a new theory to the framework:
@@ -329,7 +200,7 @@ The `jupyter` package in ModelChecker offers both high-level functions for quick
 ```python
 # Basic formula checking
 from model_checker import check_formula
-check_formula("p → (q → p)")
+check_formula("(p \\rightarrow (q \\rightarrow p))")
 
 # Interactive exploration
 from model_checker import ModelExplorer
