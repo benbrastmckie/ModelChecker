@@ -20,6 +20,7 @@ classifiers = [
 keywords = ["semantics", "Z3", "logic", "counterfactuals", "modality", "model checker", "theorem prover", "hyperintensionality"]
 dependencies = [
     "z3-solver>=4.8.0",  # Core dependency for constraint solving
+    "networkx>=2.0",     # For graph representation of models
 ]
 requires-python = ">=3.8"
 
