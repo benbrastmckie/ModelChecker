@@ -7,8 +7,11 @@
 ## Plan
 
 - [ ] bugs
+  - [ ] jupyter
   - [ ] builder
-  - [ ] holden
+    - [ ] improve dev docs
+    - [ ] 
+  - [x] holden import
 - [ ] default semantics
   - [ ] improve name
   - [ ] unit test circular defs
