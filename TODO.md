@@ -62,9 +62,11 @@
         - [ ] maximize
         - [ ] minimize
         - [x] iterate models
+          - [ ] add debugging to see which constraints do what when iterating
+          - [ ] move all theory specific constraint finding to `semantic.py`
           - [ ] revise iterate settings
-            - [ ] update DEFAULTS
-            - [ ] update `theory_lib/notes/iterate.md`
+          - [ ] update DEFAULTS
+          - [ ] report networkx not available
           - [ ] revise `builder/README.md`
           - [ ] add iterator to other theories
           - [ ] revise `theory_lib/README.md`
