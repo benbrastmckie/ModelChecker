@@ -62,15 +62,19 @@
         - [ ] maximize
         - [ ] minimize
         - [x] iterate models
-          - [ ] add debugging to see which constraints do what when iterating
-          - [ ] move all theory specific constraint finding to `semantic.py`
+          - [.] move all theory specific constraint finding to `semantic.py`
           - [ ] revise iterate settings
           - [ ] update DEFAULTS
           - [ ] report networkx not available
-          - [ ] revise `builder/README.md`
           - [ ] add iterator to other theories
+            - [ ] bimodal
+            - [ ] exclusion
+            - [ ] imposition
+          - [ ] unit tests
+          - [ ] revise `builder/README.md`
           - [ ] revise `theory_lib/README.md`
           - [ ] revise `model_checker/README.md`
+          - [x] add debugging to see which constraints do what when iterating
           - [x] non-isomorphic difference only
             - [x] debug consecutive model differences
             - [x] do more testing to watch for bad cases

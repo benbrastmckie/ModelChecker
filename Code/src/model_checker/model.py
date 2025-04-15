@@ -1128,7 +1128,13 @@ class ModelDefaults:
         if letter_diffs:
             print("Sentence Letter Changes:", file=output)
             for letter, values in letter_diffs.items():
-                print(f"  {letter}: {values['old']} → {values['new']}", file=output)
+                try:
+                    if 'old' in values and 'new' in values:
+                        print(f"  {letter}: {values['old']} → {values['new']}", file=output)
+                    else:
+                        print(f"  {letter}: changed from previous model", file=output)
+                except (KeyError, TypeError) as e:
+                    print(f"  {letter}: changed from previous model", file=output)
             print("", file=output)
             
         # Print semantic function differences
@@ -1138,7 +1144,13 @@ class ModelDefaults:
             for func_name, values in func_diffs.items():
                 print(f"  {func_name}:", file=output)
                 for input_val, change in values.items():
-                    print(f"    Input {input_val}: {change['old']} → {change['new']}", file=output)
+                    try:
+                        if 'old' in change and 'new' in change:
+                            print(f"    Input {input_val}: {change['old']} → {change['new']}", file=output)
+                        else:
+                            print(f"    Input {input_val}: changed from previous model", file=output)
+                    except (KeyError, TypeError) as e:
+                        print(f"    Input {input_val}: changed from previous model", file=output)
             print("", file=output)
             
         # Print model structure differences
@@ -1146,7 +1158,13 @@ class ModelDefaults:
         if struct_diffs:
             print("Model Structure Changes:", file=output)
             for component, values in struct_diffs.items():
-                print(f"  {component}: {values['old']} → {values['new']}", file=output)
+                try:
+                    if 'old' in values and 'new' in values:
+                        print(f"  {component}: {values['old']} → {values['new']}", file=output)
+                    else:
+                        print(f"  {component}: changed from previous model", file=output)
+                except (KeyError, TypeError) as e:
+                    print(f"  {component}: changed from previous model", file=output)
             print("", file=output)
         
         # Print structural metrics if available

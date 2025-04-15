@@ -423,6 +423,77 @@ class Semantics(SemanticDefaults):
             for pw in world_states
             if eval(imposition(ver, eval_world, pw))
         }
+        
+    def get_differentiable_functions(self):
+        """Returns functions that should be used to create difference constraints.
+        
+        Each theory can define which Z3 functions should be evaluated when 
+        creating constraints to differentiate models.
+        
+        Returns:
+            list: Tuples of (function_ref, arity, description)
+        """
+        # Return sentence letter verification and falsification functions
+        # Format: (function_reference, arity, human_readable_name)
+        return [
+            (self.verify, 2, "verification"),
+            (self.falsify, 2, "falsification"),
+            # Add part-whole relation which is fundamental to default theory
+            (self.is_part_of, 2, "part-whole relation"),
+            # Add possible state determination
+            (self.possible, 1, "possibility"),
+            # Add world determination
+            (self.is_world, 1, "world state")
+        ]
+        
+    def create_difference_constraints(self, prev_model):
+        """Create theory-specific constraints to differentiate models.
+        
+        This method creates constraints that, when added to a solver,
+        will ensure the next model differs from prev_model in ways that
+        are semantically meaningful for this theory.
+        
+        Args:
+            prev_model: The previous Z3 model to differ from
+            
+        Returns:
+            list: Z3 constraints that force meaningful differences
+        """
+        constraints = []
+        
+        # For default theory: constrain verification and falsification for all states
+        # We don't have direct access to sentence_letters here, so we'll focus on
+        # the semantic functions instead
+        
+        # Get some sample atoms to work with
+        # We'll use at least the first 3 atoms from AtomSort, which should be sufficient
+        # for most examples
+        atoms = [syntactic.AtomVal(i) for i in range(3)]
+        
+        # For each state and atom, create constraints on verification and falsification
+        for state in range(2**self.N):
+            state_bv = z3.BitVecVal(state, self.N)
+            
+            # Only check states that are possible in the previous model
+            try:
+                if not prev_model.eval(self.possible(state_bv), model_completion=True):
+                    continue
+            except z3.Z3Exception:
+                continue
+                
+            for atom in atoms:
+                try:
+                    # Check verification
+                    prev_verifies = prev_model.eval(self.verify(state_bv, atom), model_completion=True)
+                    constraints.append(self.verify(state_bv, atom) != prev_verifies)
+                    
+                    # Check falsification
+                    prev_falsifies = prev_model.eval(self.falsify(state_bv, atom), model_completion=True)
+                    constraints.append(self.falsify(state_bv, atom) != prev_falsifies)
+                except z3.Z3Exception:
+                    pass
+                    
+        return constraints
 
 
 class Proposition(PropositionDefaults):
@@ -1176,21 +1247,20 @@ class ModelStructure(ModelDefaults):
                 return letter_str
         return letter_str
     
-    def calculate_model_differences(self, previous_structure):
-        """Calculate theory-specific differences between this model and a previous one.
+    def detect_model_differences(self, previous_structure):
+        """Calculate differences between this model and a previous one.
         
-        For the default theory, this detects differences in:
-        - Possible states
-        - World states
-        - Part-whole relationships
-        - Compatibility relations
+        This method detects differences between models with the default theory's semantics:
+        - Possible states and world states
         - Verification and falsification of atomic propositions
+        - Part-whole relationships (is_part_of function)
+        - Other semantic function interpretations
         
         Args:
-            previous_structure: The previous model structure to compare against
+            previous_structure: The previous model to compare against
             
         Returns:
-            dict: Default theory-specific differences
+            dict: Structured differences between models
         """
         if not hasattr(previous_structure, 'z3_model') or previous_structure.z3_model is None:
             return None
@@ -1322,23 +1392,27 @@ class ModelStructure(ModelDefaults):
         
         return letter_diffs
 
-    def print_model_differences(self, output=sys.stdout):
-        """Print the differences between this model and the previous one using default theory's semantics.
+    def format_model_differences(self, differences, output=sys.stdout):
+        """Format and print the differences between models using default theory's semantics.
         
         This method displays the specific changes between models using the default theory's
         concepts of states, worlds, part-whole relationships, and verifier/falsifier sets.
         
         Args:
+            differences: Structured differences as returned by detect_model_differences
             output (file, optional): Output stream to write to. Defaults to sys.stdout.
         """
         from model_checker.utils import bitvec_to_substates, pretty_set_print
         
-        if not hasattr(self, 'model_differences') or not self.model_differences:
-            print("No previous model to compare with.", file=output)
+        if not differences:
+            print("No differences detected between models.", file=output)
             return
         
         # Print header
         print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
+        
+        # Store differences temporarily to use existing helper methods
+        self.temp_differences = differences
         
         # Print world and state changes
         self._print_state_changes(output)
@@ -1349,13 +1423,13 @@ class ModelStructure(ModelDefaults):
         # Print relation changes specific to default theory
         self._print_relation_differences(output)
         
-        # # Print structural metrics
-        # self._print_structural_metrics(output)
+        # Clean up the temporary storage
+        delattr(self, 'temp_differences')
 
     def _print_state_changes(self, output=sys.stdout):
         """Print changes to the state space using default theory's format and colors."""
         from model_checker.utils import bitvec_to_substates
-        diffs = self.model_differences
+        diffs = getattr(self, 'temp_differences', self.model_differences)
         
         # Print world changes
         worlds = diffs.get("worlds", {})
@@ -1428,7 +1502,8 @@ class ModelStructure(ModelDefaults):
     def _print_proposition_differences(self, output=sys.stdout):
         """Print changes to proposition valuations using default theory's format."""
         from model_checker.utils import pretty_set_print
-        letters = self.model_differences.get("sentence_letters", {})
+        diffs = getattr(self, 'temp_differences', self.model_differences)
+        letters = diffs.get("sentence_letters", {})
         if not letters:
             return
         
@@ -1460,7 +1535,7 @@ class ModelStructure(ModelDefaults):
 
     def _print_relation_differences(self, output=sys.stdout):
         """Print changes to relations specific to the default theory."""
-        diffs = self.model_differences
+        diffs = getattr(self, 'temp_differences', self.model_differences)
         
         # Print part-whole relationship changes
         if diffs.get("parthood"):
@@ -1507,6 +1582,179 @@ class ModelStructure(ModelDefaults):
             except ValueError:
                 pass
         return letter_str
+        
+    def get_structural_constraints(self, z3_model):
+        """Generate constraints that force structural differences in the model.
+        
+        This method creates Z3 constraints that, when added to the solver,
+        will force the next model to have a different structure from the
+        current one. These include constraints on world counts, state organization,
+        and verification/falsification patterns.
+        
+        Args:
+            z3_model: The current Z3 model to differ from
+            
+        Returns:
+            list: List of Z3 constraints that force structural differences
+        """
+        constraints = []
+        
+        try:
+            semantics = self.semantics
+            
+            # 1. Force a different structure for possible states
+            possible_states = self.z3_possible_states or []
+            possible_state_count = len(possible_states)
+            
+            # Force a different number of possible states
+            possible_count_expr = z3.IntVal(0)
+            for state in self.all_states:
+                possible_count_expr = z3.If(semantics.possible(state), possible_count_expr + 1, possible_count_expr)
+            
+            constraints.append(possible_count_expr != possible_state_count)
+            
+            # 2. Force a different arrangement of states and worlds
+            if len(possible_states) > 0:
+                for state in possible_states[:3]:  # Limit to first few states to avoid too many constraints
+                    # Flip is_world status for some states
+                    is_world_val = bool(z3_model.eval(semantics.is_world(state), model_completion=True))
+                    constraints.append(semantics.is_world(state) != is_world_val)
+                    
+                    # Flip possibility status for some states not in possible_states
+                    # Find a state not in possible_states
+                    non_possible_states = [s for s in self.all_states if s not in possible_states]
+                    if non_possible_states:
+                        for non_possible in non_possible_states[:2]:  # Add a few constraints
+                            constraints.append(semantics.possible(non_possible))
+                    
+                    # Force main world to be different
+                    constraints.append(self.main_point["world"] != z3_model.eval(self.main_point["world"], model_completion=True))
+            
+            # 3. Force different part-whole relationships
+            # This is more involved because it requires bit vectors
+            # Choose a few example states to flip part-of relationships
+            if len(possible_states) >= 2:
+                for i, s1 in enumerate(possible_states[:3]):
+                    for j, s2 in enumerate(possible_states[:3]):
+                        if i != j:
+                            # Get current part-of status
+                            try:
+                                is_part_val = bool(z3_model.eval(semantics.is_part_of(s1, s2), model_completion=True))
+                                # Flip it
+                                if is_part_val:
+                                    constraints.append(z3.Not(semantics.is_part_of(s1, s2)))
+                                else:
+                                    constraints.append(semantics.is_part_of(s1, s2))
+                            except z3.Z3Exception:
+                                pass
+                                
+        except Exception as e:
+            print(f"Error generating structural constraints: {e}")
+            
+        return constraints
+        
+    def get_stronger_constraints(self, z3_model, escape_attempt):
+        """Generate stronger constraints for escaping isomorphic models.
+        
+        This method creates more aggressive constraints when multiple
+        isomorphic models have been found in a row. It attempts to create
+        constraints that force drastically different models.
+        
+        Args:
+            z3_model: The isomorphic Z3 model to differ from
+            escape_attempt: Current escape attempt number (used to escalate constraint strength)
+            
+        Returns:
+            list: List of Z3 constraints for escaping isomorphic models
+        """
+        constraints = []
+        
+        try:
+            semantics = self.semantics
+            
+            # 1. Force drastically different world and state counts
+            possible_states = self.z3_possible_states or []
+            world_states = self.z3_world_states or []
+            
+            # Count expressions for worlds and possible states
+            possible_count_expr = z3.IntVal(0)
+            for state in self.all_states:
+                possible_count_expr = z3.If(semantics.possible(state), possible_count_expr + 1, possible_count_expr)
+                
+            world_count_expr = z3.IntVal(0)
+            for state in self.all_states:
+                world_count_expr = z3.If(semantics.is_world(state), world_count_expr + 1, world_count_expr)
+            
+            # Force very different counts based on escape attempt
+            if escape_attempt == 1:
+                # First attempt: try doubling or halving
+                constraints.append(possible_count_expr >= len(possible_states) * 2)
+                constraints.append(possible_count_expr <= max(1, len(possible_states) // 2))
+                constraints.append(world_count_expr >= len(world_states) * 2)
+                constraints.append(world_count_expr <= max(1, len(world_states) // 2))
+            else:
+                # Later attempts: try more extreme values
+                constraints.append(world_count_expr == 1)  # Try single world
+                constraints.append(world_count_expr == len(self.all_states))  # Try max worlds
+                
+                # Try to make all states possible or none except minimal required
+                constraints.append(possible_count_expr == len(self.all_states))
+                min_states = max(1, len(world_states))
+                constraints.append(possible_count_expr == min_states)
+            
+            # 2. Force radically different verification/falsification patterns
+            atoms = [syntactic.AtomVal(i) for i in range(3)]
+            
+            # Create constraints based on escape attempt level
+            for atom in atoms:
+                # Try to make all states verify or falsify this atom
+                all_verify = []
+                all_falsify = []
+                
+                for state in possible_states:
+                    all_verify.append(semantics.verify(state, atom))
+                    all_falsify.append(semantics.falsify(state, atom))
+                
+                if escape_attempt == 1:
+                    # First attempt: flip all verification/falsification
+                    for state in possible_states[:min(5, len(possible_states))]:
+                        try:
+                            verifies = bool(z3_model.eval(semantics.verify(state, atom), model_completion=True))
+                            falsifies = bool(z3_model.eval(semantics.falsify(state, atom), model_completion=True))
+                            
+                            if verifies:
+                                constraints.append(z3.Not(semantics.verify(state, atom)))
+                            else:
+                                constraints.append(semantics.verify(state, atom))
+                                
+                            if falsifies:
+                                constraints.append(z3.Not(semantics.falsify(state, atom)))
+                            else:
+                                constraints.append(semantics.falsify(state, atom))
+                        except z3.Z3Exception:
+                            pass
+                else:
+                    # Later attempts: try extreme patterns
+                    if all_verify:
+                        constraints.append(z3.And(all_verify))  # All states verify
+                        constraints.append(z3.Not(z3.Or(all_verify)))  # No states verify
+                        
+                    if all_falsify:
+                        constraints.append(z3.And(all_falsify))  # All states falsify
+                        constraints.append(z3.Not(z3.Or(all_falsify)))  # No states falsify
+                  
+            # 3. Force different main world
+            if len(world_states) > 1:
+                current_main = z3_model.eval(self.main_point["world"], model_completion=True)
+                for world in world_states:
+                    if world != current_main:
+                        constraints.append(self.main_point["world"] == world)
+                        break
+                        
+        except Exception as e:
+            print(f"Error generating stronger constraints: {e}")
+            
+        return constraints
 
     def _update_model_structure(self, new_model, previous_structure=None):
         """Update the model structure with a new Z3 model and compute differences.
