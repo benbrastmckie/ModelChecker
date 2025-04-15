@@ -42,7 +42,7 @@ class TestModelIterator:
             'max_time': 1.0,
             'check_isomorphism': False,
             'max_attempts': 5,
-            'max_escape_attempts': 3
+            'escape_attempts': 3
         }
         
         # Create mock semantics
@@ -237,7 +237,7 @@ class TestModelIterator:
         # Set up the _isomorphic_attempts counter to simulate consecutive isomorphic models
         iterator._isomorphic_attempts = 5  # Just above the default threshold
         iterator.escape_attempts = 0
-        iterator.settings = {'max_escape_attempts': 2, 'iteration_attempts': 5}
+        iterator.settings = {'escape_attempts': 2, 'iteration_attempts': 5}
         
         # Mock some model structure
         mock_model = MagicMock()
@@ -258,9 +258,9 @@ class TestModelIterator:
         assert iterator._isomorphic_attempts == 5
         assert iterator.escape_attempts == 1
         
-        # Now manually test the max_escape_attempts logic
+        # Now manually test the escape_attempts logic
         iterator.escape_attempts = 2  # Set to the limit
-        if iterator.escape_attempts >= iterator.settings['max_escape_attempts']:
+        if iterator.escape_attempts >= iterator.settings['escape_attempts']:
             should_stop = True
         else:
             should_stop = False
@@ -345,7 +345,7 @@ class TestModelIterator:
         self.mock_build_example.settings = {
             'iterate': 5,
             'max_attempts': 3,
-            'max_escape_attempts': 2,
+            'escape_attempts': 2,
             'check_isomorphism': True
         }
         
@@ -354,7 +354,7 @@ class TestModelIterator:
         
         assert settings['iterate'] == 5
         assert settings['max_attempts'] == 3
-        assert settings['max_escape_attempts'] == 2
+        assert settings['escape_attempts'] == 2
         assert settings['check_isomorphism'] is True
         
         # Test with invalid settings (per implementation, this should raise ValueError)
@@ -363,7 +363,7 @@ class TestModelIterator:
         self.mock_build_example.settings = {
             'iterate': 3,  # Using valid settings
             'max_attempts': 3,
-            'max_escape_attempts': 2
+            'escape_attempts': 2
         }
         
         # Create a new iterator with valid settings to test
@@ -373,7 +373,7 @@ class TestModelIterator:
         # Verify valid settings are preserved
         assert settings['iterate'] == 3
         assert settings['max_attempts'] == 3
-        assert settings['max_escape_attempts'] == 2
+        assert settings['escape_attempts'] == 2
 
 
 def test_class_exists():

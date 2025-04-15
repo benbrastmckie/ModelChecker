@@ -13,8 +13,6 @@ import time
 import traceback
 import logging
 import sys
-import copy
-from typing import List, Dict, Tuple, Any, Optional, Union
 
 from model_checker.builder.example import BuildExample
 from model_checker.builder.progress import Spinner
@@ -151,7 +149,7 @@ class ModelIterator:
         
         # Track attempts to escape isomorphic models
         self.escape_attempts = 0
-        max_escape_attempts = self.settings.get('max_escape_attempts', 3)
+        escape_attempts = self.settings.get('escape_attempts', 3)
         
         # Start iteration from second model
         while self.current_iteration < self.max_iterations:
@@ -206,11 +204,11 @@ class ModelIterator:
                     if self._isomorphic_attempts >= iteration_attempts:
                         self.escape_attempts += 1
                         
-                        if self.escape_attempts >= max_escape_attempts:
-                            print(f"Made {max_escape_attempts} attempts to escape isomorphic models without success. Stopping search.")
+                        if self.escape_attempts >= escape_attempts:
+                            print(f"Made {escape_attempts} attempts to escape isomorphic models without success. Stopping search.")
                             break
                             
-                        print(f"Skipping after {iteration_attempts} consecutive isomorphic models. Applying stronger constraints (attempt {self.escape_attempts}/{max_escape_attempts})...")
+                        print(f"Skipping after {iteration_attempts} consecutive isomorphic models. Applying stronger constraints (attempt {self.escape_attempts}/{escape_attempts})...")
                         
                         # Create stronger constraints and continue
                         stronger_constraint = self._create_stronger_constraint(new_model)
@@ -699,6 +697,7 @@ class ModelIterator:
                 except z3.Z3Exception:
                     pass
             
+            # TODO: move functionality into theory's semantic.py modules
             # 2. Semantic function interpretations
             for attr_name in dir(semantics):
                 if attr_name.startswith('_'):
@@ -1081,7 +1080,7 @@ class ModelIterator:
         - iterate: Maximum number of models to find (int > 0)
         - iterate_timeout: Maximum time to spend on all iterations (optional)
         - iteration_attempts: Maximum consecutive isomorphic models before applying stronger constraints
-        - max_escape_attempts: Maximum attempts to escape from isomorphic models before giving up
+        - escape_attempts: Maximum attempts to escape from isomorphic models before giving up
         
         Returns:
             dict: Validated iteration settings
@@ -1096,7 +1095,7 @@ class ModelIterator:
             return {
                 'iterate': 1,
                 'iteration_attempts': 5,
-                'max_escape_attempts': 3
+                'escape_attempts': 3
             }
             
         # Validate iterate
@@ -1116,12 +1115,9 @@ class ModelIterator:
         validated_settings = settings.copy()
         validated_settings['iterate'] = iterate
         
-        # Add difference type setting
-        diff_type = settings.get('difference_type', 'syntactic')
-        allowed_types = ['syntactic', 'structural', 'non_isomorphic', 'semantic']
-        if diff_type not in allowed_types:
-            diff_type = 'syntactic'
-        validated_settings['difference_type'] = diff_type
+        # Note: The difference type setting has been simplified as the current implementation
+        # uses a consistent approach for all difference types
+        validated_settings['difference_type'] = 'semantic'  # Always use the default approach
         
         # Add and validate iteration_attempts (default to 5)
         # First check for old max_attempts name for backward compatibility
@@ -1130,11 +1126,11 @@ class ModelIterator:
             iteration_attempts = 5
         validated_settings['iteration_attempts'] = iteration_attempts
         
-        # Add and validate max_escape_attempts (default to 3)
-        max_escape_attempts = settings.get('max_escape_attempts', 3)
-        if not isinstance(max_escape_attempts, int) or max_escape_attempts <= 0:
-            max_escape_attempts = 3
-        validated_settings['max_escape_attempts'] = max_escape_attempts
+        # Add and validate escape_attempts (default to 3)
+        escape_attempts = settings.get('escape_attempts', 3)
+        if not isinstance(escape_attempts, int) or escape_attempts <= 0:
+            escape_attempts = 3
+        validated_settings['escape_attempts'] = escape_attempts
         
         # Add iteration timeout setting (default to 1.0 seconds)
         # First check for old isomorphism_timeout name for backward compatibility
