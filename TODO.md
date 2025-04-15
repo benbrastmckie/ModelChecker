@@ -6,6 +6,9 @@
 
 ## Plan
 
+- [ ] bugs
+  - [ ] builder
+  - [ ] holden
 - [ ] default semantics
   - [ ] improve name
   - [ ] unit test circular defs
