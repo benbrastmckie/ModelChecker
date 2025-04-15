@@ -1,6 +1,6 @@
 # ModelChecker
 
-The ModelChecker is a programmatic semantics framework for implementing and comparing logical theories, with a focus on modal, counterfactual, and hyperintensional logic. It provides tooling for defining semantic theories, testing logical principles, and finding countermodels.
+The ModelChecker is a programmatic semantic framework for implementing and comparing logical theories, with a focus on modal, counterfactual, and hyperintensional logic. It provides tooling for defining semantic theories, testing logical principles, and finding countermodels.
 
 ## API Architecture
 
