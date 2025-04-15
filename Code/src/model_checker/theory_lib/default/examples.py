@@ -101,7 +101,7 @@ __all__ = [
 
 general_settings = {
     "print_constraints": False,
-    "print_impossible": True,
+    "print_impossible": False,
     "print_z3": False,
     "save_output": False,
     "maximize": False,
@@ -206,7 +206,7 @@ CF_CM_2_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'iterate' : 2,
+    'iterate' : 1,
     'expectation' : True,
 }
 CF_CM_2_example = [

@@ -61,7 +61,7 @@
       - [ ] tools
         - [:] iterate models
           - [:] non-isomorphic difference only
-            - [ ] debug consecutive model differences
+            - [x] debug consecutive model differences
             - [ ] do more testing to watch for bad cases
             - [x] confirm old settings have been removed
             - [x] print number of models skipped/found
