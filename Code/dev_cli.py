@@ -36,9 +36,16 @@ if __name__ == "__main__":
     
     # Get command line arguments
     if len(sys.argv) > 1:
+        # Fix common command variations
+        
         # Fix the -load/-l argument to correctly handle load_theory flag
         if "-load" in sys.argv:
             load_index = sys.argv.index("-load")
+            sys.argv[load_index] = "-l"
+            
+        # Handle variations like --load
+        if "--load" in sys.argv:
+            load_index = sys.argv.index("--load")
             sys.argv[load_index] = "-l"
         
         args = sys.argv[1:]

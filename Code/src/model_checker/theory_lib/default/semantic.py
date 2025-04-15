@@ -978,10 +978,8 @@ class ModelStructure(ModelDefaults):
             print(f"Try increasing max_time > {self.max_time}.\n", file=output)
         self.print_all(self.settings, example_name, theory_name, output)
         
-        # Print model differences if they exist and this isn't an isomorphic model
-        if (not hasattr(self, '_is_isomorphic') or not self._is_isomorphic) and \
-           hasattr(self, 'model_differences') and self.model_differences:
-            self.print_model_differences(output)
+        # We no longer print differences here, they're printed before the model
+        # The differences are now printed by the BuildModule class in iterate.py
             
         if print_constraints and self.unsat_core is not None:
             self.print_grouped_constraints(output)
@@ -1372,8 +1370,8 @@ class ModelStructure(ModelDefaults):
         # Print relation changes specific to default theory
         self._print_relation_differences(output)
         
-        # Print structural metrics
-        self._print_structural_metrics(output)
+        # # Print structural metrics
+        # self._print_structural_metrics(output)
 
     def _print_state_changes(self, output=sys.stdout):
         """Print changes to the state space using default theory's format and colors."""
@@ -1454,12 +1452,12 @@ class ModelStructure(ModelDefaults):
                 status = "now part of" if change["new"] else "no longer part of"
                 print(f"  {pair}: {status}", file=output)
         
-        # Print compatibility relationship changes
-        if diffs.get("compatibility"):
-            print("\nCompatibility Relationship Changes:", file=output)
-            for pair, change in diffs["compatibility"].items():
-                status = "now compatible" if change["new"] else "no longer compatible"
-                print(f"  {pair}: {status}", file=output)
+        # # Print compatibility relationship changes
+        # if diffs.get("compatibility"):
+        #     print("\nCompatibility Relationship Changes:", file=output)
+        #     for pair, change in diffs["compatibility"].items():
+        #         status = "now compatible" if change["new"] else "no longer compatible"
+        #         print(f"  {pair}: {status}", file=output)
 
     def _print_structural_metrics(self, output=sys.stdout):
         """Print structural metrics for the model."""
