@@ -368,11 +368,16 @@ class ModelIterator:
                     if self._isomorphic_attempts >= iteration_attempts:
                         self.escape_attempts += 1
                         
+                        # Initialize debug messages list if it doesn't exist
+                        if not hasattr(self, 'debug_messages'):
+                            self.debug_messages = []
+                        
                         if self.escape_attempts >= escape_attempts:
-                            print(f"Made {escape_attempts} attempts to escape isomorphic models without success. Stopping search.")
+                            self.debug_messages.append(f"Made {escape_attempts} attempts to escape isomorphic models without success. Stopping search.")
                             break
                             
-                        print(f"Skipping after {iteration_attempts} consecutive isomorphic models. Applying stronger constraints (attempt {self.escape_attempts}/{escape_attempts})...")
+                        # Store the message instead of printing it immediately
+                        self.debug_messages.append(f"Skipping after {iteration_attempts} consecutive isomorphic models. Applying stronger constraints (attempt {self.escape_attempts}/{escape_attempts})...")
                         
                         # Create stronger constraints and continue
                         stronger_constraint = self._create_stronger_constraint(new_model)
@@ -382,7 +387,7 @@ class ModelIterator:
                             
                             # Add a timeout for this attempt - use a longer timeout for stronger constraints
                             attempt_timeout = min(max_time * 4, 10.0)  # Longer timeout for stronger constraints
-                            print(f"  Attempting to satisfy stronger constraints (timeout: {attempt_timeout}s)")
+                            self.debug_messages.append(f"  Attempting to satisfy stronger constraints (timeout: {attempt_timeout}s)")
                             attempt_start = time.time()
                             
                             # Set solver timeout
@@ -391,7 +396,7 @@ class ModelIterator:
                             # First check immediately
                             result = self.solver.check()
                             if result == z3.sat:
-                                print("  Found satisfiable model with stronger constraints!")
+                                self.debug_messages.append("  Found satisfiable model with stronger constraints!")
                                 # Continue with the loop to process this model
                                 continue
                             
@@ -400,14 +405,14 @@ class ModelIterator:
                             max_retries = 3
                             while retry_count < max_retries and time.time() - attempt_start < attempt_timeout:
                                 retry_count += 1
-                                print(f"  Retry attempt {retry_count}/{max_retries}...")
+                                self.debug_messages.append(f"  Retry attempt {retry_count}/{max_retries}...")
                                 
                                 # Try with different solver seeds or tactics
                                 self.solver.push()  # Save the current solver state
                                 self.solver.add(z3.Int(f"retry_seed_{retry_count}") == retry_count)  # Add a dummy constraint to change the solver's behavior
                                 result = self.solver.check()
                                 if result == z3.sat:
-                                    print("  Found satisfiable model on retry!")
+                                    self.debug_messages.append("  Found satisfiable model on retry!")
                                     break
                                 self.solver.pop()  # Restore the solver state
                                 
@@ -416,10 +421,10 @@ class ModelIterator:
                             
                             # If we couldn't satisfy the constraint within timeout, stop
                             if self.solver.check() != z3.sat:
-                                print("Failed to satisfy stronger constraints, stopping search")
+                                self.debug_messages.append("Failed to satisfy stronger constraints, stopping search")
                                 break
                         else:
-                            print("Could not create stronger constraints, stopping search")
+                            self.debug_messages.append("Could not create stronger constraints, stopping search")
                             break
                         continue
                     
@@ -429,7 +434,10 @@ class ModelIterator:
                         self.solver.add(iso_constraint)
                         continue  # Skip to next attempt without incrementing
                     else:
-                        print("Could not create non-isomorphic constraint, stopping")
+                        # Initialize debug messages list if it doesn't exist
+                        if not hasattr(self, 'debug_messages'):
+                            self.debug_messages = []
+                        self.debug_messages.append("Could not create non-isomorphic constraint, stopping search")
                         break
                 
                 # This is a genuine new model
@@ -455,8 +463,14 @@ class ModelIterator:
                 self.solver.add(self._create_difference_constraint([new_model]))
                 
             except Exception as e:
-                print(f"Error during iteration: {str(e)}")
-                print(traceback.format_exc())
+                # Initialize debug messages list if it doesn't exist
+                if not hasattr(self, 'debug_messages'):
+                    self.debug_messages = []
+                self.debug_messages.append(f"Error during iteration: {str(e)}")
+                
+                # Print the traceback to stderr for debugging but don't show it to the user
+                import sys
+                print(traceback.format_exc(), file=sys.stderr)
                 break
         
         # Return all model structures without printing summary here
@@ -988,6 +1002,7 @@ class ModelIterator:
         
         if not HAS_NETWORKX:
             logger.debug("NetworkX not available, skipping isomorphism check")
+            print("NetworkX dependency not available; skipping isomorphism check.")
             return None
             
         logger.debug("NetworkX available, creating non-isomorphic constraints")
@@ -1108,7 +1123,10 @@ class ModelIterator:
                 return combined_constraint
                 
         except Exception as e:
-            print(f"Warning: Failed to create non-isomorphic constraints: {str(e)}")
+            # Initialize debug messages list if it doesn't exist
+            if not hasattr(self, 'debug_messages'):
+                self.debug_messages = []
+            self.debug_messages.append(f"Warning: Failed to create non-isomorphic constraints: {str(e)}")
             
         return None
         
@@ -1130,7 +1148,7 @@ class ModelIterator:
         model_structure = self.build_example.model_structure
         model_constraints = self.build_example.model_constraints
         semantics = model_constraints.semantics
-        
+
         # Create stronger structural constraints
         constraints = []
         
@@ -1276,13 +1294,19 @@ class ModelIterator:
                 try:
                     theory_constraints = model_structure.get_stronger_constraints(isomorphic_model, escape_attempt)
                     if theory_constraints:
-                        print(f"  Adding {len(theory_constraints)} theory-specific stronger constraints")
+                        # Initialize debug messages list if it doesn't exist
+                        if not hasattr(self, 'debug_messages'):
+                            self.debug_messages = []
+                        self.debug_messages.append(f"  Adding {len(theory_constraints)} theory-specific stronger constraints")
                         for i, constraint in enumerate(theory_constraints):
                             constraints.append(constraint)
                             if i < 3:  # Log only a few constraints for debug
-                                print(f"    - Added theory constraint {i+1}")
+                                self.debug_messages.append(f"    - Added theory constraint {i+1}")
                 except Exception as e:
-                    print(f"  Error getting theory-specific stronger constraints: {str(e)}")
+                    # Initialize debug messages list if it doesn't exist
+                    if not hasattr(self, 'debug_messages'):
+                        self.debug_messages = []
+                    self.debug_messages.append(f"  Error getting theory-specific stronger constraints: {str(e)}")
                     if hasattr(logger, 'debug'):
                         logger.debug(f"Error getting theory constraints: {str(e)}")
             
@@ -1326,9 +1350,15 @@ class ModelIterator:
                     return constraints[0] if constraints else None
                 
         except Exception as e:
-            print(f"Warning: Failed to create stronger constraints: {str(e)}")
+            # Initialize debug messages list if it doesn't exist
+            if not hasattr(self, 'debug_messages'):
+                self.debug_messages = []
+            self.debug_messages.append(f"Warning: Failed to create stronger constraints: {str(e)}")
+            
+            # Print the traceback to stderr for debugging but don't show it to the user
+            import sys
             import traceback
-            print(traceback.format_exc())
+            print(traceback.format_exc(), file=sys.stderr)
             
         return None
     

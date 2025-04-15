@@ -70,6 +70,7 @@
             - [ ] bimodal
             - [ ] exclusion
             - [ ] imposition
+          - [ ] refactor module (too long)
           - [ ] unit tests
           - [ ] revise `builder/README.md`
           - [ ] revise `theory_lib/README.md`
@@ -97,6 +98,7 @@
       - don't require outer parentheses
   - theory metadata
   - logging
+  - remove `save_to`
   - refactor API
     - [ ] theory version management
     - [x] loaded projects have the wrong version
