@@ -433,10 +433,11 @@ class BuildModule:
                 if not hasattr(structure, '_is_isomorphic') or not structure._is_isomorphic:
                     distinct_count += 1
                     
-                    # Skip printing differences directly - they will be printed by print_model
-                    # through model_structure.print_to()
+                    # If we have model differences, print them first
+                    if hasattr(structure, 'model_differences') and structure.model_differences:
+                        structure.print_model_differences()
                     
-                    # Print the new model header with the correct denominator
+                    # Print the model differences before printing the new model
                     print(f"\nMODEL {distinct_count}/{total_distinct}")
                     
                     # Set the current model structure and print it

@@ -32,14 +32,6 @@ class BuildProject:
         "semantic.py",
         "examples.py"
     ]
-    
-    # Core files that will be highlighted in the success message
-    CORE_FILES = [
-        "examples.py",
-        "operators.py",
-        "semantic.py",
-        "README.md"
-    ]
 
     def __init__(self, theory: str = 'default'):
         """Initialize project builder with specified theory.
@@ -70,12 +62,11 @@ class BuildProject:
             level (str): The log level (INFO, WARNING, ERROR)
         """
         self.log_messages.append(f"[{level}] {message}")
+        # Only print error and warning messages immediately
         if level == "ERROR":
             print(f"Error: {message}")
         elif level == "WARNING":
             print(f"Warning: {message}")
-        else:
-            print(message)
     
     def ask_generate(self):
         """Prompt user to create a new theory implementation project.
@@ -102,7 +93,7 @@ class BuildProject:
         except Exception as e:
             print(f"Error creating project: {e}")
         
-    def generate(self, name: str, destination_dir: str = None):
+    def generate(self, name: str, destination_dir: str | None = None):
         """Generate a new theory implementation project from templates.
         
         Args:
@@ -133,11 +124,11 @@ class BuildProject:
         if os.path.exists(self.destination_dir):
             raise FileExistsError(f"Directory '{self.destination_dir}' already exists.")
             
-        # Create the project directory
+        # Create the project directory and collect files that were copied
         os.makedirs(self.destination_dir)
         
         try:
-            # Copy files from source to destination
+            # Copy files from source to destination, without printing progress
             self._copy_files(self.destination_dir)
             
             # Customize project files
@@ -291,19 +282,44 @@ class BuildProject:
             )
     
     def _print_success_message(self, project_dir):
-        """Print success message with created files.
+        """Print success message with created files as a tree structure.
         
         Args:
             project_dir: Path to the project directory
         """
         print(f"\nProject generated at: {project_dir}\n")
-        print("The following modules were created:")
+        print("Project structure:")
         
-        # List core files that were actually copied
-        for file in sorted(os.listdir(project_dir)):
-            # Show all .py files and README.md
-            if file.endswith(".py") or file == "README.md":
-                print(f"  {file}")
+        # Print the project root
+        print(f"└── {os.path.basename(project_dir)}/")
+        
+        # Get all items in the project directory
+        all_items = sorted(os.listdir(project_dir))
+        files = [item for item in all_items if os.path.isfile(os.path.join(project_dir, item))]
+        dirs = [item for item in all_items if os.path.isdir(os.path.join(project_dir, item))]
+        
+        # Print files first
+        for i, file in enumerate(files):
+            prefix = "    ├── " if i < len(files) - 1 or dirs else "    └── "
+            print(f"{prefix}{file}")
+        
+        # Then print directories and their contents
+        for i, directory in enumerate(dirs):
+            dir_prefix = "    ├── " if i < len(dirs) - 1 else "    └── "
+            print(f"{dir_prefix}{directory}/")
+            
+            # Get files in the subdirectory
+            subdir_path = os.path.join(project_dir, directory)
+            subdir_items = sorted(os.listdir(subdir_path))
+            
+            # Filter out __pycache__ directories
+            subdir_items = [item for item in subdir_items if not item.startswith('__pycache__')]
+            
+            for j, subitem in enumerate(subdir_items):
+                sub_prefix = "    │   ├── " if i < len(dirs) - 1 else "        ├── "
+                if j == len(subdir_items) - 1:
+                    sub_prefix = "    │   └── " if i < len(dirs) - 1 else "        └── "
+                print(f"{sub_prefix}{subitem}")
     
     def _handle_example_script(self, project_dir):
         """Handle running the example script if requested.

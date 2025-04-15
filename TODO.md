@@ -72,7 +72,8 @@
         - [ ] maximize
         - [ ] minimize
       - [ ] cleanup module
-      - [ ] update docs
+      - [x] update docs
+      - [x] improve printing
       - [x] remove `test_builder.py`?
       - [x] threading
     - model

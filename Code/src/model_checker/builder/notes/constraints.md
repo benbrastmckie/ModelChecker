@@ -156,10 +156,10 @@ def process_example(self, example_name, example_case, theory_name, semantic_theo
     for i, structure in enumerate(model_structures[1:], start=2):
         if not hasattr(structure, '_is_isomorphic') or not structure._is_isomorphic:
             distinct_count += 1
+            # Set current model and print it
             # Print model header
             print(f"\nMODEL {distinct_count}/{example.settings.get('iterate', 1)}")
             
-            # Set current model and print it
             example.model_structure = structure
             example.print_model(f"{example_name} (Distinct model {distinct_count})", theory_name)
     
