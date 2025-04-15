@@ -1,6 +1,16 @@
-This package deploys the SMT solver [Z3](https://github.com/Z3Prover/z3) to provide a programmatic semantics for a number of hyperintensional operators along with a general purpose methodology for developing novel programmatic semantic theories and studying their resulting logics.
-Rather than computing whether a given sentence is a logical consequence of some set of sentences by hand, these resources allow users to find countermodels or establish logical consequence up to a finite level complexity specified by the user.
-This tool is intended to be used alongside and in support of the development of a model-theoretic version of a semantics, providing tooling for quickly finding hyperintensional countermodels and establish validity over models up to a user specified level of complexity in a propositional language with the following operators:
+This package is built on the SMT solver [Z3](https://github.com/Z3Prover/z3) to provide a programmatic semantics for a range of hyperintensional operators along with a general purpose methodology for developing novel programmatic semantic theories and studying their logics.
+The background theory is developed in Brast-McKie (2025) and Brast-McKie (2021) as well as number of papers in preparation.
+Here is a [handout](https://github.com/benbrastmckie/ModelChecker/blob/master/ProgrammaticSemantics.pdf) from a talk on the programmatic semantic methodology that this project provides.
+
+## The Language of Thought
+
+Intensional action is predicated on forethought and planning, where this applies to AI agents as much as it does to human agents.
+Since strategic planning requires agents to contemplate nearby counterfactual possibilities, temporal eventualities, and causal and constitutive explanatory relationships, it is important to equip AI with the conceptual resources needed to think counterfactually, causally, modally, and temporally.
+Whereas logic has traditionally focused on small language fragments, this project develops a unified semantics for a _Language of Thought_ (LoT) for AI agents to plan and reason with.
+I am working to extend this list to include indicative conditionals, epistemic modals, and probability operators for reasoning under uncertainty as well as deontic modal and explanatory operators for aligning with other agents in navigating preferences and values.
+
+Rather than computing whether a given sentence is a logical consequence of some set of sentences by hand (typical in logic), these resources allow users to find countermodels or establish logical consequence up to a finite level complexity specified by the user.
+This package integrates with formal methods to provide tooling for quickly finding hyperintensional countermodels and establish validity in a propositional language with the following operators:
 
   - `neg` for _negation_
   - `wedge` for _conjunction_
@@ -11,16 +21,16 @@ This tool is intended to be used alongside and in support of the development of 
   - `diamondright` for the _might counterfactual conditional_
   - `Box` for _necessity_
   - `Diamond` for _possibility_
+  - `Future` read 'it will always be the case that'
+  - `future` read 'it will be the case that'
+  - `Past` read 'it always has been the case that'
+  - `past` read 'it has been the case that'
   - `leq` for _ground_ read 'sufficient for'
   - `sqsubseteq` for _essence_ read 'necessary for'
   - `equiv` for _propositional identity_ read 'just is for'
   - `preceq` for _relevance_
 
-More specific details about the implementation of this hyperintensional semantics can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/default/README.md) as well as the [handout](https://github.com/benbrastmckie/ModelChecker/blob/master/ProgrammaticSemantics.pdf) from a talk on the programmatic semantic methodology that this project provides.
-
-### Screenshot
-
-> Images can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Images/screenshots.md).
+More specific details about the implementation of this hyperintensional semantics can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/README.md).
 
 ## Programmatic Semantics
 
@@ -197,7 +207,7 @@ from model_checker.notebook import check_formula
 check_formula("□(p → q) → (□p → □q)")
 
 # Check with premises
-check_formula("q", premises=["p", "p → q"])
+check_formula("q", premises=["p", "p \\boxright q"])
 ```
 
 ### Interactive Explorer

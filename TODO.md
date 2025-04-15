@@ -58,20 +58,23 @@
       - [x] imposition
   - refactor as subpackages
     - [x] builder
-      - [ ] tools
-        - [:] iterate models
-          - [:] non-isomorphic difference only
+      - [.] tools
+        - [ ] maximize
+        - [ ] minimize
+        - [x] iterate models
+          - [x] non-isomorphic difference only
             - [x] debug consecutive model differences
-            - [ ] do more testing to watch for bad cases
+            - [x] do more testing to watch for bad cases
             - [x] confirm old settings have been removed
             - [x] print number of models skipped/found
             - [x] add new max_attempts setting and flag
-          - [ ] match colors and print impossible in differences
+          - [x] match colors and print impossible in differences
           - [x] move print specifications to semantics
           - [x] print differences with states
-        - [ ] maximize
-        - [ ] minimize
-      - [ ] cleanup module
+      - [ ] cleanup builder directory
+        - [ ] API
+        - [ ] documentation
+        - [ ] unit tests
       - [x] update docs
       - [x] improve printing
       - [x] remove `test_builder.py`?
