@@ -107,7 +107,6 @@ MD_CM_1_settings = {
     'contingent' : False,
     'disjoint' : False,
     'max_time' : 2,
-    'iterate' : 2,
     'expectation' : True,
 }
 MD_CM_1_example = [

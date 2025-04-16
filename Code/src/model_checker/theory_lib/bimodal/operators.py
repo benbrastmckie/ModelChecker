@@ -395,7 +395,7 @@ class NecessityOperator(syntactic.Operator):
                 # Where other_world is a valid world
                 semantics.is_world(other_world),
                 # And the argument is false in other_world at the eval_time
-                semantics.true_at(argument, other_world, eval_time)
+                semantics.false_at(argument, other_world, eval_time)
             )
         )
 
