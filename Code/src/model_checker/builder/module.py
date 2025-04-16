@@ -394,7 +394,7 @@ class BuildModule:
             BuildExample: The example after processing
         """
         from model_checker.builder.example import BuildExample
-        from model_checker.builder.iterate import ModelIterator
+        from model_checker.iterate import iterate_example
         import sys
         import logging
         
@@ -426,16 +426,15 @@ class BuildModule:
             return example
         
         try:
-            # Create iterator and find additional models
-            iterator = ModelIterator(example)
-            model_structures = iterator.iterate()
+            # Find additional models using the iterate_example function
+            model_structures = iterate_example(example, max_iterations=iterate_count)
             
             # Skip the first model which is already printed
             # Track distinct models for numbering
             distinct_count = 1
             # Use iterate_count for the expected total models rather than actual found models
             expected_total = iterate_count
-            total_distinct = iterator.distinct_models_found
+            total_distinct = sum(1 for s in model_structures if not hasattr(s, '_is_isomorphic') or not s._is_isomorphic)
             
             for i, structure in enumerate(model_structures[1:], start=2):
                 # Only display non-isomorphic models with their differences
@@ -459,32 +458,24 @@ class BuildModule:
                         
                         # Recalculate the detailed differences between this model and the previous one
                         # This ensures we get the full detailed differences rather than just the summary
-                        from model_checker.builder.iterate import ModelIterator
-                        
                         # Get a valid previous model
                         previous_idx = i - 2  # models_structures[0] is the first model, and we're at i=0 for the second model (1-indexed)
                         if previous_idx >= 0 and previous_idx < len(model_structures):
                             previous_model = model_structures[previous_idx]
-                            
-                            # Store a reference to the original iterator if we haven't already
-                            if not hasattr(example, '_iterator'):
-                                example._iterator = ModelIterator(example)
                                 
-                            # Use the existing iterator to calculate full differences
+                            # Use the model structure's detect_model_differences if available
                             try:
                                 # First try using theory-specific difference detection
-                                structure.model_differences = example._iterator._calculate_differences(
-                                    structure, previous_model)
-                                structure.previous_structure = previous_model
+                                if hasattr(structure, 'detect_model_differences'):
+                                    structure.model_differences = structure.detect_model_differences(previous_model)
+                                    structure.previous_structure = previous_model
+                                else:
+                                    # Check if structure has calculate_model_differences for legacy support
+                                    if hasattr(structure, 'calculate_model_differences'):
+                                        structure.model_differences = structure.calculate_model_differences(previous_model)
+                                        structure.previous_structure = previous_model
                             except Exception as e:
                                 print(f"\nError calculating detailed differences: {str(e)}")
-                                # Fall back to basic difference calculation
-                                try:
-                                    structure.model_differences = example._iterator._calculate_basic_differences(
-                                        structure, previous_model)
-                                    structure.previous_structure = previous_model
-                                except Exception as e2:
-                                    print(f"\nError in fallback difference calculator: {str(e2)}")
                         
                         # Now print the differences
                         try:
@@ -494,9 +485,11 @@ class BuildModule:
                             # Fall back to generic print_model_differences
                             elif hasattr(structure, 'print_model_differences'):
                                 structure.print_model_differences()
-                            # Last resort: use the iterator's display function
-                            elif hasattr(example._iterator, '_display_model_differences'):
-                                example._iterator._display_model_differences(structure)
+                            # Last resort: use the ModelStructure's generic methods
+                            elif hasattr(structure, 'model_differences') and structure.model_differences:
+                                # Just print the differences directly
+                                print("\n=== MODEL DIFFERENCES ===\n")
+                                print(structure.model_differences)
                             else:
                                 print("\nCould not display model differences: no compatible display method found.")
                         except Exception as e:
@@ -520,14 +513,9 @@ class BuildModule:
                 # elif hasattr(structure, '_is_isomorphic') and structure._is_isomorphic:
                 #     print(f"\n(Skipped isomorphic model variant {i})")
             
-            # Print any debug messages that were accumulated during iteration
-            if hasattr(iterator, 'debug_messages') and iterator.debug_messages:
-                print("\nIteration Notes:")
-                for message in iterator.debug_messages:
-                    print(f"  {message}")
-            
             # Print summary after all models have been displayed
-            print(f"\nFound {iterator.distinct_models_found}/{expected_total} distinct models out of {iterator.checked_model_count} checked.")
+            distinct_count = sum(1 for s in model_structures if not hasattr(s, '_is_isomorphic') or not s._is_isomorphic)
+            print(f"\nFound {distinct_count}/{expected_total} distinct models.")
             
             # Check if there was any partial output
             if hasattr(example.model_structure, 'model_differences') and not hasattr(example.model_structure, '_is_last_model'):
