@@ -62,15 +62,14 @@
         - [ ] maximize
         - [ ] minimize
         - [x] iterate models
-          - [.] move all theory specific constraint finding to `semantic.py`
-          - [ ] revise iterate settings
+          - [ ] refactor module
+            - [ ] revise iterate settings
           - [ ] update DEFAULTS
           - [ ] report networkx not available
           - [ ] add iterator to other theories
             - [ ] bimodal
             - [ ] exclusion
             - [ ] imposition
-          - [ ] refactor module (too long)
           - [ ] unit tests
           - [ ] revise `builder/README.md`
           - [ ] revise `theory_lib/README.md`

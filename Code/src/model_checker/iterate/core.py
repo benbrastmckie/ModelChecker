@@ -1,0 +1,1111 @@
+"""Base implementation for model iteration.
+
+This module provides the abstract base class and theory-agnostic utilities for
+finding multiple semantically distinct models for logical examples. Specific
+theory implementations extend the BaseModelIterator class to provide
+theory-specific functionality.
+
+The iteration framework handles:
+1. Creating constraints that ensure each new model differs from previous models
+2. Checking for model isomorphism to avoid structural duplicates
+3. Visualizing the differences between models
+4. Managing the iteration process and termination conditions
+"""
+
+import z3
+import itertools
+import time
+import traceback
+import logging
+import sys
+import importlib
+
+from model_checker.builder.example import BuildExample
+from model_checker.builder.progress import Spinner
+from model_checker.iterate.graph_utils import ModelGraph
+
+# Configure logging
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter('[ITERATION] %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.WARNING)
+
+# Check if NetworkX is available for isomorphism checking
+try:
+    import networkx as nx
+    HAS_NETWORKX = True
+except ImportError:
+    HAS_NETWORKX = False
+
+
+class BaseModelIterator:
+    """Base class for all model iterators.
+    
+    This class provides the core iteration framework but relies on 
+    theory-specific subclasses to implement certain methods.
+    
+    Attributes:
+        build_example: The BuildExample instance with the initial model
+        max_iterations: Maximum number of models to find (from settings)
+        found_models: List of Z3 models found so far
+        model_structures: List of model structures found so far
+        current_iteration: Current iteration count
+        settings: Validated iteration settings
+    """
+    
+    def __init__(self, build_example):
+        """Initialize with a BuildExample that already has a valid model.
+        
+        Args:
+            build_example: BuildExample instance with a valid model
+            
+        Raises:
+            ValueError: If the build_example has no valid model
+            TypeError: If build_example is not a BuildExample instance
+        """
+        # Type validation
+        if not isinstance(build_example, BuildExample):
+            raise TypeError(
+                f"Expected BuildExample instance, got {type(build_example).__name__}"
+            )
+            
+        # Model validation
+        if not hasattr(build_example, 'model_structure') or build_example.model_structure is None:
+            raise ValueError("BuildExample has no model_structure")
+            
+        if not hasattr(build_example.model_structure, 'z3_model_status') or \
+           not build_example.model_structure.z3_model_status:
+            raise ValueError("BuildExample does not have a valid model")
+            
+        if not hasattr(build_example.model_structure, 'z3_model') or \
+           build_example.model_structure.z3_model is None:
+            raise ValueError("BuildExample has no Z3 model")
+            
+        # Initialize properties
+        self.build_example = build_example
+        self.settings = self._get_iteration_settings()
+        
+        # Debug settings
+        logger.debug(f"Settings: {self.settings}")
+        logger.debug(f"Original settings: {getattr(build_example, 'settings', {})}")
+            
+        self.max_iterations = self.settings.get('iterate', 1)
+        self.current_iteration = 1  # First model is already found
+        
+        # Store the initial model and model structure
+        self.found_models = [build_example.model_structure.z3_model]
+        self.model_structures = [build_example.model_structure]
+        
+        # Create a persistent solver that will accumulate constraints
+        self.solver = self._create_persistent_solver()
+        
+        # Initialize graph representation for the model
+        self.model_graphs = []
+        if HAS_NETWORKX:
+            try:
+                initial_graph = ModelGraph(
+                    self.build_example.model_structure,
+                    self.found_models[0]
+                )
+                self.model_graphs.append(initial_graph)
+                # Store the graph with the model structure for reference
+                self.build_example.model_structure.model_graph = initial_graph
+            except Exception as e:
+                logger.warning(f"Could not create graph for initial model: {str(e)}")
+    
+    def _create_persistent_solver(self):
+        """Create a persistent solver with the initial model's constraints."""
+        original_solver = self.build_example.model_structure.solver
+        persistent_solver = z3.Solver()
+        for assertion in original_solver.assertions():
+            persistent_solver.add(assertion)
+        return persistent_solver
+        
+    def display_model_differences(self, model_structure, output=sys.stdout):
+        """Display differences between the current model and previous ones.
+        
+        Args:
+            model_structure: The model structure with differences
+            output: Output stream to write to
+        """
+        if not hasattr(model_structure, 'model_differences') or not model_structure.model_differences:
+            # If no model_differences are found but we have a previous_structure reference,
+            # try to calculate differences on the fly
+            if hasattr(model_structure, 'previous_structure') and model_structure.previous_structure is not None:
+                model_structure.model_differences = self._calculate_differences(
+                    model_structure, model_structure.previous_structure)
+            else:
+                return
+            
+        # Try theory-specific difference formatting
+        if hasattr(model_structure, 'format_model_differences'):
+            try:
+                model_structure.format_model_differences(model_structure.model_differences, output)
+                return
+            except Exception as e:
+                logger.warning(f"Error in theory-specific difference formatting: {e}")
+        
+        # Try legacy method for backward compatibility
+        if hasattr(model_structure, 'print_model_differences'):
+            try:
+                model_structure.print_model_differences(output)
+                return
+            except Exception as e:
+                logger.warning(f"Error in legacy difference formatting: {e}")
+        
+        # Fall back to generic difference display
+        self._display_basic_differences(model_structure, output)
+    
+    def _display_basic_differences(self, model_structure, output=sys.stdout):
+        """Fall back method to display model differences in a generic way."""
+        differences = model_structure.model_differences
+        if not differences:
+            return
+            
+        print("\n=== MODEL DIFFERENCES ===\n", file=output)
+        
+        # Print sentence letter differences with more detail
+        if 'sentence_letters' in differences and differences['sentence_letters']:
+            print("Sentence Letter Changes:", file=output)
+            for letter, change in differences['sentence_letters'].items():
+                # Try to get a user-friendly letter name
+                letter_name = letter
+                if hasattr(model_structure, '_get_friendly_letter_name'):
+                    try:
+                        letter_name = model_structure._get_friendly_letter_name(str(letter))
+                    except:
+                        pass
+                        
+                # Print basic change
+                if isinstance(change, dict) and 'old' in change and 'new' in change:
+                    # Format for detailed difference info
+                    old_val, new_val = None, None
+                    
+                    # Handle tuple format (verifiers, falsifiers)
+                    if isinstance(change['old'], tuple) and isinstance(change['new'], tuple):
+                        old_verifiers, old_falsifiers = change['old']
+                        new_verifiers, new_falsifiers = change['new']
+                        
+                        print(f"  {letter_name}:", file=output)
+                        print(f"    Verifiers: changed from {old_verifiers} to {new_verifiers}", file=output)
+                        print(f"    Falsifiers: changed from {old_falsifiers} to {new_falsifiers}", file=output)
+                    else:
+                        # Handle simple value changes
+                        print(f"  {letter_name}: {change['old']} -> {change['new']}", file=output)
+                else:
+                    # Fallback for simpler change format
+                    print(f"  {letter_name}: changed from previous model", file=output)
+        
+        # Print world and state changes if available
+        if 'worlds' in differences:
+            print("\nWorld Changes:", file=output)
+            worlds = differences['worlds']
+            if 'added' in worlds and worlds['added']:
+                from model_checker.utils import bitvec_to_substates
+                for world in worlds['added']:
+                    try:
+                        state_repr = bitvec_to_substates(world, model_structure.semantics.N)
+                        print(f"  + {state_repr} (world)", file=output)
+                    except:
+                        print(f"  + {world} (world)", file=output)
+                        
+            if 'removed' in worlds and worlds['removed']:
+                from model_checker.utils import bitvec_to_substates
+                for world in worlds['removed']:
+                    try:
+                        state_repr = bitvec_to_substates(world, model_structure.semantics.N)
+                        print(f"  - {state_repr} (world)", file=output)
+                    except:
+                        print(f"  - {world} (world)", file=output)
+        
+        # Print possible state changes if available
+        if 'possible_states' in differences:
+            print("\nPossible State Changes:", file=output)
+            states = differences['possible_states']
+            if 'added' in states and states['added']:
+                from model_checker.utils import bitvec_to_substates
+                for state in states['added']:
+                    try:
+                        state_repr = bitvec_to_substates(state, model_structure.semantics.N)
+                        print(f"  + {state_repr}", file=output)
+                    except:
+                        print(f"  + {state}", file=output)
+                        
+            if 'removed' in states and states['removed']:
+                from model_checker.utils import bitvec_to_substates
+                for state in states['removed']:
+                    try:
+                        state_repr = bitvec_to_substates(state, model_structure.semantics.N)
+                        print(f"  - {state_repr}", file=output)
+                    except:
+                        print(f"  - {state}", file=output)
+        
+        # Print semantic function differences with more detail
+        if 'semantic_functions' in differences and differences['semantic_functions']:
+            print("\nSemantic Function Changes:", file=output)
+            for func, changes in differences['semantic_functions'].items():
+                if isinstance(changes, dict) and changes:
+                    # Print function name
+                    print(f"  {func}:", file=output)
+                    # Show sample changes (limit to 5 to avoid overwhelming output)
+                    sample_count = 0
+                    for input_vals, change in changes.items():
+                        if sample_count < 5:  # Limit to 5 examples
+                            if isinstance(change, dict) and 'old' in change and 'new' in change:
+                                print(f"    Input {input_vals}: {change['old']} -> {change['new']}", file=output)
+                            else:
+                                print(f"    Input {input_vals}: changed", file=output)
+                            sample_count += 1
+                    
+                    # Show count if there are more changes
+                    total_changes = len(changes)
+                    if total_changes > 5:
+                        print(f"    ... and {total_changes - 5} more changes", file=output)
+                else:
+                    # Fallback for simpler change format
+                    print(f"  {func}: {len(changes) if isinstance(changes, dict) else 'unknown'} input(s) changed", file=output)
+        
+        # Print model structure differences
+        if 'model_structure' in differences and differences['model_structure']:
+            print("\nModel Structure Changes:", file=output)
+            for component, change in differences['model_structure'].items():
+                if isinstance(change, dict) and 'old' in change and 'new' in change:
+                    print(f"  {component}: {change['old']} -> {change['new']}", file=output)
+                else:
+                    print(f"  {component}: changed", file=output)
+                    
+        # Print part-whole relationship changes if available
+        if 'parthood' in differences and differences.get('parthood'):
+            print("\nPart-Whole Relationship Changes:", file=output)
+            for pair, change in differences['parthood'].items():
+                if isinstance(change, dict) and 'old' in change and 'new' in change:
+                    status = "now part of" if change['new'] else "no longer part of"
+                    print(f"  {pair}: {status}", file=output)
+    
+    def iterate(self):
+        """Find multiple distinct models up to max_iterations.
+        
+        Returns:
+            list: All found model structures (including the initial one)
+        """
+        # Proceed only if first model was successful
+        if not self.build_example.model_structure.z3_model_status:
+            raise RuntimeError("Cannot iterate when no initial model was found")
+        
+        # Set up timeout for the entire process
+        max_time = self.settings.get('max_time', 1.0)
+        iteration_timeout = max(max_time * 10, 30.0)
+        start_time = time.time()
+        
+        # Track distinct models found (separate from iteration count)
+        self.distinct_models_found = 1  # Starting with initial model
+        
+        # Track all models checked (including isomorphic ones)
+        self.checked_model_count = 1
+        
+        # Track attempts to escape isomorphic models
+        self.escape_attempts = 0
+        escape_attempts = self.settings.get('escape_attempts', 3)
+        
+        # Start iteration from second model
+        while self.current_iteration < self.max_iterations:
+            try:
+                # Check timeout
+                current_time = time.time()
+                if current_time - start_time > iteration_timeout:
+                    logger.warning(f"Iteration process exceeded timeout of {iteration_timeout} seconds")
+                    break
+                
+                # Create extended constraints requiring difference from all previous models
+                try:
+                    extended_constraints = self._create_extended_constraints()
+                except RuntimeError as e:
+                    logger.warning(f"Could not create extended constraints: {str(e)}")
+                    break
+                
+                # Solve with extended constraints
+                result = self.solver.check()
+                if result != z3.sat:
+                    logger.info("No more models satisfy the extended constraints")
+                    break
+                
+                # Get the new model
+                new_model = self.solver.model()
+                self.checked_model_count += 1
+                
+                # Build a completely new model structure with the extended constraints
+                new_structure = self._build_new_model_structure(new_model)
+                
+                if not new_structure:
+                    logger.warning("Could not create new model structure, stopping iteration")
+                    break
+                
+                # Check for isomorphism if NetworkX is available
+                is_isomorphic = False
+                if HAS_NETWORKX:
+                    is_isomorphic = self._check_isomorphism(new_structure, new_model)
+                
+                if is_isomorphic:
+                    # Mark the structure as isomorphic for reference
+                    new_structure._is_isomorphic = True
+                    logger.debug(f"Found an isomorphic model (check #{self.checked_model_count})")
+                    
+                    # Track number of consecutive isomorphic models found
+                    if not hasattr(self, '_isomorphic_attempts'):
+                        self._isomorphic_attempts = 0
+                    self._isomorphic_attempts += 1
+                    
+                    # If we've found too many isomorphic models in a row, apply stronger constraints
+                    iteration_attempts = self.settings.get('iteration_attempts', 5)
+                    if self._isomorphic_attempts >= iteration_attempts:
+                        self.escape_attempts += 1
+                        
+                        # Initialize debug messages list if it doesn't exist
+                        if not hasattr(self, 'debug_messages'):
+                            self.debug_messages = []
+                        
+                        if self.escape_attempts >= escape_attempts:
+                            self.debug_messages.append(f"Made {escape_attempts} attempts to escape isomorphic models without success. Stopping search.")
+                            break
+                            
+                        # Store the message instead of printing it immediately
+                        self.debug_messages.append(f"Skipping after {iteration_attempts} consecutive isomorphic models. Applying stronger constraints (attempt {self.escape_attempts}/{escape_attempts})...")
+                        
+                        # Create stronger constraints and continue
+                        stronger_constraint = self._create_stronger_constraint(new_model)
+                        if stronger_constraint is not None:
+                            self.solver.add(stronger_constraint)
+                            self._isomorphic_attempts = 0  # Reset counter
+                            
+                            # Add a timeout for this attempt - use a longer timeout for stronger constraints
+                            attempt_timeout = min(max_time * 4, 10.0)  # Longer timeout for stronger constraints
+                            self.debug_messages.append(f"  Attempting to satisfy stronger constraints (timeout: {attempt_timeout}s)")
+                            attempt_start = time.time()
+                            
+                            # Set solver timeout
+                            self.solver.set("timeout", int(attempt_timeout * 1000))
+                            
+                            # First check immediately
+                            result = self.solver.check()
+                            if result == z3.sat:
+                                self.debug_messages.append("  Found satisfiable model with stronger constraints!")
+                                # Continue with the loop to process this model
+                                continue
+                            
+                            # If not immediately satisfiable, try a few more times with short intervals
+                            retry_count = 0
+                            max_retries = 3
+                            while retry_count < max_retries and time.time() - attempt_start < attempt_timeout:
+                                retry_count += 1
+                                self.debug_messages.append(f"  Retry attempt {retry_count}/{max_retries}...")
+                                
+                                # Try with different solver seeds or tactics
+                                self.solver.push()  # Save the current solver state
+                                self.solver.add(z3.Int(f"retry_seed_{retry_count}") == retry_count)  # Add a dummy constraint to change the solver's behavior
+                                result = self.solver.check()
+                                if result == z3.sat:
+                                    self.debug_messages.append("  Found satisfiable model on retry!")
+                                    break
+                                self.solver.pop()  # Restore the solver state
+                                
+                                # Brief pause between retries
+                                time.sleep(0.1)
+                            
+                            # If we couldn't satisfy the constraint within timeout, stop
+                            if self.solver.check() != z3.sat:
+                                self.debug_messages.append("Failed to satisfy stronger constraints, stopping search")
+                                break
+                        else:
+                            self.debug_messages.append("Could not create stronger constraints, stopping search")
+                            break
+                        continue
+                    
+                    # Add a non-isomorphism constraint and try again
+                    iso_constraint = self._create_non_isomorphic_constraint(new_model)
+                    if iso_constraint is not None:  # Check for None explicitly instead of using truth value
+                        self.solver.add(iso_constraint)
+                        continue  # Skip to next attempt without incrementing
+                    else:
+                        # Initialize debug messages list if it doesn't exist
+                        if not hasattr(self, 'debug_messages'):
+                            self.debug_messages = []
+                        self.debug_messages.append("Could not create non-isomorphic constraint, stopping search")
+                        break
+                
+                # This is a genuine new model
+                new_structure._is_isomorphic = False
+                self.distinct_models_found += 1
+                
+                # Reset counters on successful distinct model
+                self._isomorphic_attempts = 0
+                self.escape_attempts = 0
+                
+                # Calculate and store differences for the presentation layer to use
+                differences = self._calculate_differences(new_structure, self.model_structures[-1])
+                
+                # Add the new model and structure to our results
+                self.found_models.append(new_model)
+                self.model_structures.append(new_structure)
+                self.current_iteration += 1
+                
+                # Add the new model to the solver constraints to ensure the next model is different
+                self.solver.add(self._create_difference_constraint([new_model]))
+                
+            except Exception as e:
+                # Initialize debug messages list if it doesn't exist
+                if not hasattr(self, 'debug_messages'):
+                    self.debug_messages = []
+                self.debug_messages.append(f"Error during iteration: {str(e)}")
+                
+                # Print the traceback to stderr for debugging but don't show it to the user
+                print(traceback.format_exc(), file=sys.stderr)
+                break
+        
+        # Return all model structures without printing summary here
+        # Summary will be printed by the presentation layer (process_example)
+        return self.model_structures
+    
+    def reset_iterator(self):
+        """Reset the iterator to its initial state.
+        
+        Clears:
+        - All found models except the initial one
+        - Any added differentiation constraints
+        - Iteration counters
+        - Status flags
+        
+        Returns:
+            self: For method chaining
+        """
+        # Keep only the initial model
+        if len(self.found_models) > 0:
+            initial_model = self.found_models[0]
+            self.found_models = [initial_model]
+            
+        # Keep only the initial model structure
+        if len(self.model_structures) > 0:
+            initial_structure = self.model_structures[0]
+            self.model_structures = [initial_structure]
+            
+        # Reset all counters and flags
+        self.current_iteration = 1
+        self._isomorphic_attempts = 0
+        self.distinct_models_found = 1
+        self.checked_model_count = 1
+        self.escape_attempts = 0
+        
+        # Reset solver to original constraints
+        self.solver = self._create_persistent_solver()
+        
+        # Reset graph representations
+        if HAS_NETWORKX:
+            if len(self.model_structures) > 0:
+                # Keep only the initial model graph
+                try:
+                    initial_structure = self.model_structures[0]
+                    initial_model = self.found_models[0]
+                    initial_graph = ModelGraph(initial_structure, initial_model)
+                    self.model_graphs = [initial_graph]
+                except Exception as e:
+                    logger.warning(f"Failed to reset model graphs: {str(e)}")
+                    self.model_graphs = []
+            else:
+                self.model_graphs = []
+        
+        return self
+    
+    def _create_extended_constraints(self):
+        """Create extended constraints that require difference from all previous models.
+        
+        Returns:
+            list: Z3 constraints requiring difference from all previous models
+            
+        Raises:
+            RuntimeError: If constraint generation fails
+        """
+        # Get original constraints from the first model
+        original_constraints = list(self.build_example.model_structure.solver.assertions())
+        
+        # Create difference constraints for all previous models
+        difference_constraints = []
+        for model in self.found_models:
+            diff_constraint = self._create_difference_constraint([model])
+            difference_constraints.append(diff_constraint)
+        
+        # Add structural constraints to help find different models
+        if HAS_NETWORKX:
+            for model in self.found_models:
+                iso_constraint = self._create_non_isomorphic_constraint(model)
+                if iso_constraint is not None:  # Check for None explicitly instead of using truth value
+                    difference_constraints.append(iso_constraint)
+        
+        return original_constraints + difference_constraints
+        
+    def _build_new_model_structure(self, z3_model):
+        """Build a completely new model structure from a Z3 model.
+        
+        Instead of updating an existing model structure, this creates a fresh
+        model structure from scratch, proper initialization with the Z3 model.
+        
+        Args:
+            z3_model: Z3 model to use for the new structure
+            
+        Returns:
+            ModelStructure: A new model structure built from scratch
+        """
+        try:
+            # Get original build example to extract settings and constraints
+            original_build_example = self.build_example
+            
+            # Create a fresh ModelConstraints instance but without the Z3 model
+            model_constraints = original_build_example.model_constraints
+            
+            # Create a new bare model structure 
+            # DO NOT use the constructor that tries to evaluate Z3 values
+            klass = original_build_example.model_structure.__class__
+            new_structure = object.__new__(klass)
+            
+            # Initialize only the attributes needed before Z3 model evaluation
+            self._initialize_base_attributes(new_structure, model_constraints, original_build_example.settings)
+            
+            # Now set the Z3 model after basic initialization
+            new_structure.z3_model = z3_model
+            new_structure.z3_model_status = True
+            
+            # Transfer runtime from original model structure
+            new_structure.z3_model_runtime = original_build_example.model_structure.z3_model_runtime
+            
+            # Properly initialize Z3-dependent attributes
+            self._initialize_z3_dependent_attributes(new_structure, z3_model)
+            
+            # Interpret sentences
+            sentence_objects = new_structure.premises + new_structure.conclusions
+            new_structure.interpret(sentence_objects)
+            
+            return new_structure
+            
+        except Exception as e:
+            logger.error(f"Error building new model structure: {str(e)}")
+            logger.debug(traceback.format_exc())
+            return None
+            
+    def _initialize_base_attributes(self, model_structure, model_constraints, settings):
+        """Initialize basic attributes of a model structure that don't depend on the Z3 model.
+        
+        This initializes the core attributes needed before Z3 model evaluation,
+        following a proper two-phase initialization pattern.
+        
+        Args:
+            model_structure: The model structure to initialize
+            model_constraints: The model constraints to use
+            settings: The settings to use
+        """
+        # Define ANSI color codes (copied from ModelDefaults.__init__)
+        model_structure.COLORS = {
+            "default": "\033[37m",  # WHITE
+            "world": "\033[34m",    # BLUE
+            "possible": "\033[36m", # CYAN
+            "impossible": "\033[35m", # MAGENTA
+            "initial": "\033[33m",  # YELLOW
+        }
+        model_structure.RESET = "\033[0m"
+        model_structure.WHITE = model_structure.COLORS["default"]
+        
+        # Copy attributes from ModelDefaults.__init__
+        model_structure.model_constraints = model_constraints
+        model_structure.settings = settings
+        model_structure.max_time = settings.get("max_time", 1.0)
+        model_structure.expectation = settings.get("expectation", True)
+        
+        # Set semantics and related attributes
+        model_structure.semantics = model_constraints.semantics
+        model_structure.main_point = model_structure.semantics.main_point
+        model_structure.all_states = model_structure.semantics.all_states
+        model_structure.N = model_structure.semantics.N
+        
+        # Set syntax and related attributes
+        model_structure.syntax = model_constraints.syntax
+        model_structure.start_time = model_structure.syntax.start_time
+        model_structure.premises = model_structure.syntax.premises
+        model_structure.conclusions = model_structure.syntax.conclusions
+        model_structure.sentence_letters = model_structure.syntax.sentence_letters
+        
+        # Set proposition class and solver
+        model_structure.proposition_class = model_constraints.proposition_class
+        model_structure.solver = z3.Solver()
+        for assertion in model_constraints.all_constraints:
+            model_structure.solver.add(assertion)
+        
+        # Initialize Z3 model attributes as None
+        model_structure.z3_model = None
+        model_structure.z3_model_status = None
+        model_structure.z3_model_runtime = None
+        model_structure.timeout = None
+        model_structure.unsat_core = None
+        
+        # Get main world from main_point
+        if hasattr(model_structure.main_point, "get"):
+            model_structure.main_world = model_structure.main_point.get("world")
+        
+        # Initialize Z3 values as None
+        model_structure.z3_main_world = None
+        model_structure.z3_possible_states = None 
+        model_structure.z3_world_states = None
+        
+        # Initialize difference tracking
+        model_structure.model_differences = None
+        
+    def _initialize_z3_dependent_attributes(self, model_structure, z3_model):
+        """Initialize attributes that depend on the Z3 model.
+        
+        This is the second phase of initialization that evaluates Z3 model values.
+        
+        Args:
+            model_structure: The model structure to initialize
+            z3_model: The Z3 model to use
+        """
+        # Initialize main world evaluation
+        model_structure.z3_main_world = z3_model.eval(model_structure.main_world, model_completion=True) 
+        model_structure.main_point["world"] = model_structure.z3_main_world
+        
+        # Initialize possible states
+        semantics = model_structure.semantics
+        model_structure.z3_possible_states = [
+            state for state in model_structure.all_states
+            if bool(z3_model.eval(semantics.possible(state), model_completion=True))
+        ]
+        
+        # Initialize world states 
+        model_structure.z3_world_states = [
+            state for state in model_structure.z3_possible_states
+            if bool(z3_model.eval(semantics.is_world(state), model_completion=True))
+        ]
+        
+        # Allow theory-specific initialization
+        if hasattr(model_structure, 'initialize_from_z3_model'):
+            model_structure.initialize_from_z3_model(z3_model)
+    
+    # Abstract methods that must be implemented by theory-specific subclasses
+    
+    def _calculate_differences(self, new_structure, previous_structure):
+        """Calculate differences between two model structures.
+        
+        Delegates to theory-specific difference detection when available,
+        falling back to a generic implementation when not.
+        
+        Args:
+            new_structure: The new model structure
+            previous_structure: The previous model structure
+            
+        Returns:
+            dict: Structured differences between the models
+        """
+        # Try theory-specific difference detection
+        if hasattr(new_structure, 'detect_model_differences'):
+            try:
+                differences = new_structure.detect_model_differences(previous_structure)
+                if differences:
+                    # Store the differences with the new structure
+                    new_structure.model_differences = differences
+                    
+                    # Store a reference to the previous structure for display purposes
+                    new_structure.previous_structure = previous_structure
+                    
+                    return differences
+            except Exception as e:
+                logger.warning(f"Error in theory-specific difference detection: {e}")
+        
+        # Try legacy 'calculate_model_differences' method for backward compatibility
+        if hasattr(new_structure, 'calculate_model_differences'):
+            try:
+                theory_differences = new_structure.calculate_model_differences(previous_structure)
+                if theory_differences:
+                    # Store the differences with the new structure
+                    new_structure.model_differences = theory_differences
+                    
+                    # Store a reference to the previous structure for display purposes
+                    new_structure.previous_structure = previous_structure
+                    
+                    return theory_differences
+            except Exception as e:
+                logger.warning(f"Error in legacy theory-specific difference detection: {e}")
+        
+        # Fall back to generic implementation
+        differences = self._calculate_basic_differences(new_structure, previous_structure)
+        
+        # Store the differences with the new structure
+        new_structure.model_differences = differences
+        
+        # Store a reference to the previous structure for display purposes
+        new_structure.previous_structure = previous_structure
+        
+        return differences
+        
+    def _calculate_basic_differences(self, new_structure, previous_structure):
+        """Fallback method to calculate basic differences when theory-specific detection is not available.
+        
+        This provides a minimal difference detection focused on sentence letters and Z3 functions,
+        without any theory-specific semantic interpretation.
+        
+        Args:
+            new_structure: The new model structure
+            previous_structure: The previous model structure to compare against
+            
+        Returns:
+            dict: Basic differences between the models
+        """
+        # Get Z3 models
+        new_model = new_structure.z3_model
+        previous_model = previous_structure.z3_model
+        
+        # Initialize basic differences structure
+        differences = {
+            "sentence_letters": {},
+            "semantic_functions": {}
+        }
+        
+        # Compare sentence letter valuations (common to all theories)
+        for letter in self.build_example.model_constraints.sentence_letters:
+            try:
+                prev_value = previous_model.eval(letter, model_completion=True)
+                new_value = new_model.eval(letter, model_completion=True)
+                
+                if str(prev_value) != str(new_value):
+                    differences["sentence_letters"][str(letter)] = {
+                        "old": prev_value,
+                        "new": new_value
+                    }
+            except z3.Z3Exception:
+                pass
+        
+        # Compare semantic function interpretations (common to all theories)
+        semantics = new_structure.semantics
+        for attr_name in dir(semantics):
+            if attr_name.startswith('_'):
+                continue
+                
+            attr = getattr(semantics, attr_name)
+            if not isinstance(attr, z3.FuncDeclRef):
+                continue
+                
+            arity = attr.arity()
+            if arity == 0:
+                continue
+            
+            # For unary and binary functions, check specific values
+            if arity <= 2:
+                n_worlds = getattr(new_structure, 'num_worlds', 5)  # Default to 5 if not available
+                
+                func_diffs = {}
+                for inputs in self._generate_input_combinations(arity, n_worlds):
+                    try:
+                        args = [z3.IntVal(i) for i in inputs]
+                        prev_value = previous_model.eval(attr(*args), model_completion=True)
+                        new_value = new_model.eval(attr(*args), model_completion=True)
+                        
+                        if str(prev_value) != str(new_value):
+                            func_diffs[str(inputs)] = {
+                                "old": prev_value,
+                                "new": new_value
+                            }
+                    except z3.Z3Exception:
+                        pass
+                
+                if func_diffs:
+                    differences["semantic_functions"][attr_name] = func_diffs
+        
+        return differences
+    
+    def _check_isomorphism(self, new_structure, new_model):
+        """Check if a model is isomorphic to any previous model.
+        
+        Args:
+            new_structure: The model structure to check
+            new_model: The Z3 model to check
+            
+        Returns:
+            bool: True if the model is isomorphic to any previous model
+        """
+        if not HAS_NETWORKX:
+            return False
+            
+        try:
+            # Create a graph representation of the new model
+            new_graph = ModelGraph(new_structure, new_model)
+            
+            # Store the graph with the model structure
+            new_structure.model_graph = new_graph
+            
+            # Check if this model is isomorphic to any previous model
+            is_isomorphic = False
+            
+            # Calculate isomorphism with a timeout
+            start_time = time.time()
+            iteration_timeout = self.settings.get('iteration_timeout', 1.0)
+            
+            for prev_graph in self.model_graphs:
+                # Check if timeout exceeded
+                if time.time() - start_time > iteration_timeout:
+                    logger.warning("Isomorphism check timed out, skipping further checks.")
+                    break
+                    
+                # Check isomorphism
+                if new_graph.is_isomorphic(prev_graph):
+                    is_isomorphic = True
+                    # Mark the structure as isomorphic
+                    new_structure.isomorphic_to_previous = True
+                    break
+            
+            # If not isomorphic, add the graph to our collection
+            if not is_isomorphic:
+                self.model_graphs.append(new_graph)
+                
+            return is_isomorphic
+            
+        except Exception as e:
+            logger.warning(f"Isomorphism check failed: {str(e)}")
+            return False
+    
+    def _create_difference_constraint(self, previous_models):
+        """Create a Z3 constraint requiring difference from all previous models.
+        
+        This is an abstract method that should be implemented by theory-specific subclasses.
+        
+        Args:
+            previous_models: List of Z3 models to differ from
+            
+        Returns:
+            z3.ExprRef: Z3 constraint expression
+            
+        Raises:
+            NotImplementedError: If the subclass does not implement this method
+        """
+        raise NotImplementedError("This method must be implemented by a theory-specific subclass")
+    
+    def _create_non_isomorphic_constraint(self, z3_model):
+        """Create a constraint that forces structural differences to avoid isomorphism.
+        
+        This is an abstract method that should be implemented by theory-specific subclasses.
+        
+        Args:
+            z3_model: The Z3 model to differ from
+        
+        Returns:
+            z3.ExprRef: Z3 constraint expression or None if creation fails
+            
+        Raises:
+            NotImplementedError: If the subclass does not implement this method
+        """
+        raise NotImplementedError("This method must be implemented by a theory-specific subclass")
+        
+    def _create_stronger_constraint(self, isomorphic_model):
+        """Create stronger constraints after multiple isomorphism failures.
+        
+        This is an abstract method that should be implemented by theory-specific subclasses.
+        
+        Args:
+            isomorphic_model: The Z3 model that was isomorphic
+        
+        Returns:
+            z3.ExprRef: Z3 constraint expression or None if creation fails
+            
+        Raises:
+            NotImplementedError: If the subclass does not implement this method
+        """
+        raise NotImplementedError("This method must be implemented by a theory-specific subclass")
+    
+    def _get_iteration_settings(self):
+        """Extract and validate iteration settings from BuildExample.
+        
+        Settings:
+        - iterate: Maximum number of models to find (int > 0)
+        - iterate_timeout: Maximum time to spend on all iterations (optional)
+        - iteration_attempts: Maximum consecutive isomorphic models before applying stronger constraints
+        - escape_attempts: Maximum attempts to escape from isomorphic models before giving up
+        
+        Returns:
+            dict: Validated iteration settings
+            
+        Raises:
+            ValueError: If settings are invalid
+        """
+        # Get settings from the build example
+        settings = getattr(self.build_example, 'settings', {})
+        if not settings:
+            # If no settings found, use defaults
+            return {
+                'iterate': 1,
+                'iteration_attempts': 5,
+                'escape_attempts': 3
+            }
+            
+        # Validate iterate
+        iterate = settings.get('iterate', 1)
+        if not isinstance(iterate, int):
+            try:
+                iterate = int(iterate)
+            except (ValueError, TypeError):
+                raise ValueError(
+                    f"The 'iterate' setting must be an integer, got {type(iterate).__name__}"
+                )
+                
+        if iterate < 1:
+            raise ValueError(f"The 'iterate' setting must be positive, got {iterate}")
+            
+        # Copy settings to avoid modifying the original
+        validated_settings = settings.copy()
+        validated_settings['iterate'] = iterate
+        
+        # Note: The difference type setting has been simplified as the current implementation
+        # uses a consistent approach for all difference types
+        validated_settings['difference_type'] = 'semantic'  # Always use the default approach
+        
+        # Add and validate iteration_attempts (default to 5)
+        # First check for old max_attempts name for backward compatibility
+        iteration_attempts = settings.get('iteration_attempts', settings.get('max_attempts', 5))
+        if not isinstance(iteration_attempts, int) or iteration_attempts <= 0:
+            iteration_attempts = 5
+        validated_settings['iteration_attempts'] = iteration_attempts
+        
+        # Add and validate escape_attempts (default to 3)
+        escape_attempts = settings.get('escape_attempts', 3)
+        if not isinstance(escape_attempts, int) or escape_attempts <= 0:
+            escape_attempts = 3
+        validated_settings['escape_attempts'] = escape_attempts
+        
+        # Add iteration timeout setting (default to 1.0 seconds)
+        # First check for old isomorphism_timeout name for backward compatibility
+        iteration_timeout = settings.get('iteration_timeout', settings.get('isomorphism_timeout', 1.0))
+        if not isinstance(iteration_timeout, (int, float)) or iteration_timeout <= 0:
+            iteration_timeout = 1.0
+        validated_settings['iteration_timeout'] = iteration_timeout
+        
+        # Validate iterate_timeout if present (overall timeout)
+        if 'iterate_timeout' in settings:
+            timeout = settings['iterate_timeout']
+            if not isinstance(timeout, (int, float)) or timeout <= 0:
+                raise ValueError(
+                    f"The 'iterate_timeout' setting must be a positive number, got {timeout}"
+                )
+                
+        return validated_settings
+    
+    def _generate_input_combinations(self, arity, domain_size):
+        """Generate all relevant input combinations for a function of given arity.
+        
+        Args:
+            arity: Number of arguments the function takes
+            domain_size: Size of the domain (typically number of worlds)
+            
+        Returns:
+            list: All relevant input combinations
+        """
+        # For n-ary functions, generate all combinations of inputs
+        # from the domain, which is typically the world indices
+        domain = range(domain_size)
+        return itertools.product(domain, repeat=arity)
+
+
+# Module-level convenience functions
+
+def iterate_example(example, max_iterations=None):
+    """Convenience function to iterate an example and find multiple models.
+    
+    This function dynamically selects the appropriate iterator class based on
+    the theory used in the example.
+    
+    Args:
+        example: BuildExample instance with a solved model
+        max_iterations: Override for maximum iterations (optional)
+        
+    Returns:
+        list: All found model structures
+        
+    Raises:
+        ValueError: If iteration is not possible with this example
+        ImportError: If the theory does not have an iterator implementation
+    """
+    if not isinstance(example, BuildExample):
+        raise TypeError(f"Expected BuildExample, got {type(example).__name__}")
+    
+    # We need to use 'default' as the theory for now since that's what we've implemented
+    # This is a temporary solution until all theories are properly implemented
+    theory_name = 'default'
+    
+    # For debugging, print some information about the example
+    print(f"\nDEBUG: Using theory '{theory_name}' for iteration", file=sys.stderr)
+    if hasattr(example, 'semantics') and example.semantics is not None:
+        semantics_module = example.semantics.__class__.__module__
+        semantics_class = example.semantics.__class__.__name__
+        print(f"DEBUG: Semantics module: {semantics_module}", file=sys.stderr)
+        print(f"DEBUG: Semantics class: {semantics_class}", file=sys.stderr)
+    
+    # In the future, we can determine the theory name from the semantics module path
+    # This is commented out for now since it's not working correctly
+    """
+    # Determine the theory name from the semantics class
+    if hasattr(example, 'semantics') and example.semantics is not None:
+        # Get the module name of the semantics class
+        semantics_module = example.semantics.__class__.__module__
+        # Extract the theory name from the module path
+        # E.g., model_checker.theory_lib.default.semantic -> default
+        try:
+            theory_parts = semantics_module.split('.')
+            # Look for theory_lib in the path
+            if 'theory_lib' in theory_parts:
+                theory_index = theory_parts.index('theory_lib') + 1
+                if theory_index < len(theory_parts):
+                    theory_name = theory_parts[theory_index]
+                else:
+                    raise ValueError("Cannot determine theory name from semantics module path")
+            else:
+                raise ValueError("Semantics module is not in theory_lib package")
+        except Exception as e:
+            raise ValueError(f"Failed to determine theory name: {str(e)}")
+    else:
+        raise ValueError("BuildExample has no semantics instance")
+    """
+    
+    # Get the appropriate iterator class for this theory
+    iterator_class = get_iterator_class(theory_name)
+    
+    # Create the iterator
+    iterator = iterator_class(example)
+    
+    # Override max_iterations if provided
+    if max_iterations is not None:
+        if not isinstance(max_iterations, int) or max_iterations < 1:
+            raise ValueError(f"max_iterations must be a positive integer, got {max_iterations}")
+        iterator.max_iterations = max_iterations
+        
+    # Perform iteration
+    return iterator.iterate()
+
+
+def get_iterator_class(theory_name):
+    """Get the appropriate iterator class for a theory.
+    
+    Args:
+        theory_name: Name of the theory.
+        
+    Returns:
+        class: The appropriate iterator class.
+        
+    Raises:
+        ImportError: If the theory does not have an iterator implementation.
+    """
+    try:
+        # Import the theory-specific module
+        module_path = f"model_checker.theory_lib.{theory_name}.iterate"
+        iterate_module = importlib.import_module(module_path)
+        
+        # Get the class (assuming naming convention TheoryNameModelIterator)
+        class_name = f"{theory_name.capitalize()}ModelIterator"
+        iterator_class = getattr(iterate_module, class_name)
+        
+        return iterator_class
+    except (ImportError, AttributeError) as e:
+        raise ImportError(f"Theory '{theory_name}' does not implement a model iterator: {e}")
