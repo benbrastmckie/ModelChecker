@@ -7,11 +7,15 @@ Classes:
     ExclusionSemantics: Configures the exclusion semantics framework and evaluation rules
     UnilateralProposition: Represents and evaluates formulas using unilateral verification
     ExclusionStructure: Manages the model structure with exclusion relations
+    ExclusionModelIterator: Finds multiple distinct models for exclusion semantics examples
 
 Operators:
     exclusion_operators: Dictionary of unilateral logical operators including:
         - Unilateral: ⊻ (exclude), ⊓ (uniwedge), ⊔ (univee), ≔ (uniequiv)
         - Extremal: ⊤ (top), ⊥ (bottom)
+
+Functions:
+    iterate_example: Find multiple distinct models for an exclusion semantics example
 
 Examples:
     Access examples through utility functions in theory_lib:
@@ -32,6 +36,10 @@ Usage:
     prop = UnilateralProposition(formula, model)
     result = prop.evaluate()
     
+    # Find multiple models
+    from model_checker.theory_lib.exclusion import iterate_example
+    models = iterate_example(example, max_iterations=5)
+    
     # Access examples
     examples = get_examples('exclusion')
 """
@@ -48,11 +56,16 @@ from .semantic import (
 # Import all operators
 from .operators import exclusion_operators
 
+# Import iteration functionality
+from .iterate import ExclusionModelIterator, iterate_example
+
 # Define the public API of the package
 __all__ = [
     "ExclusionSemantics",     # Exclusion semantics framework and evaluation rules
     "UnilateralProposition",  # Represents formulas with unilateral verification
     "ExclusionStructure",     # Manages model structure with exclusion relations
     "exclusion_operators",    # Unilateral logical operators (⊻,⊓,⊔,≔,etc.)
+    "ExclusionModelIterator", # Iterator for finding multiple distinct models
+    "iterate_example",        # Function to find multiple distinct models
     "__version__",            # Package version information
 ]

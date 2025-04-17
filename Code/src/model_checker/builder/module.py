@@ -428,11 +428,19 @@ class BuildModule:
         try:
             # Get the theory-specific iterate_example function
             try:
-                # We need to map from the theory name to the actual module name
-                # In this case, we always use 'default' module regardless of the theory name
-                # This is a fix for the fact that theory_name might be a display name (like "Brast-McKie")
-                # rather than an actual module name
-                module_name = "default"  # Use default for all theories for now
+                # Map display name to module name
+                # This mapping handles cases where theory_name is a display name (like "Brast-McKie")
+                # rather than the actual module name used for imports
+                theory_display_to_module = {
+                    "Brast-McKie": "default",
+                    "Default": "default",
+                    "Exclusion": "exclusion",
+                    "Imposition": "imposition",
+                    "Bimodal": "bimodal"
+                }
+                
+                # Get the module name from the mapping or use the theory name directly
+                module_name = theory_display_to_module.get(theory_name, theory_name.lower())
                 
                 # Import the theory module to access its iterate_example function
                 theory_module = importlib.import_module(f"model_checker.theory_lib.{module_name}")
