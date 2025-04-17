@@ -904,8 +904,8 @@ test_example_range = {
 example_range = {
     # Countermodels
     # "EX_CM_0" : EX_CM_0_example,
-    # "EX_CM_1" : EX_CM_1_example,
-    "EX_CM_5" : EX_CM_5_example,
+    "EX_CM_1" : EX_CM_1_example,
+    # "EX_CM_5" : EX_CM_5_example,
     # "EX_CM_8" : EX_CM_8_example,
     # "EX_CM_9" : EX_CM_9_example,
     # "EX_CM_10" : EX_CM_10_example,

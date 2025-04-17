@@ -505,19 +505,26 @@ class BuildModule:
                         
                         # Now print the differences
                         try:
+                            # Force setting to properly colorize output
+                            print("\033[1m\033[0m", end="")  # Force ANSI escape sequence processing
+                            
                             # Use format_model_differences if available (theory-specific detailed formatting)
                             if hasattr(structure, 'format_model_differences') and structure.model_differences:
                                 structure.format_model_differences(structure.model_differences)
                             # Fall back to generic print_model_differences
                             elif hasattr(structure, 'print_model_differences'):
-                                structure.print_model_differences()
+                                # Print the color test first to ensure terminal capabilities are recognized
+                                if not structure.print_model_differences():
+                                    # If method returns False, no differences were found or displayed
+                                    pass  # Let's suppress the "No differences" message per requirements
                             # Last resort: use the ModelStructure's generic methods
                             elif hasattr(structure, 'model_differences') and structure.model_differences:
                                 # Just print the differences directly
                                 print("\n=== MODEL DIFFERENCES ===\n")
                                 print(structure.model_differences)
                             else:
-                                print("\nCould not display model differences: no compatible display method found.")
+                                # Let's also suppress this message as it's similar to "No model differences"
+                                pass
                         except Exception as e:
                             print(f"Error printing model differences: {str(e)}")
                                 

@@ -2,28 +2,11 @@
 
 ## SCRATCH
 
-Functions
-  h_(z, A): □ → b
-  h_(z, A): a → b
-  h_(z, A): b → b
-  h_(z, A): a.b → b
-  h_(v, A): □ → b
-  h_(v, A): a → b
-  h_(v, A): b → b
-  h_(v, A): a.b → b
-  h_(ver \exclude (A \univee \exclude A), (A \univee \exclude A)): □ → a.b
-  h_(ver \exclude (A \univee \exclude A), (A \univee \exclude A)): a → a
-  h_(ver \exclude (A \univee \exclude A), (A \univee \exclude A)): b → a.b
-  h_(ver \exclude (A \univee \exclude A), (A \univee \exclude A)): a.b → a.b
-  h_(x, A): □ → □
-  h_(x, A): a → □
-  h_(x, A): b → □
-  h_(x, A): a.b → □
 
 
 ## Plan
 
-- [ ] default semantics
+- [ ] default semantic
   - [ ] improve name
   - [ ] unit test circular defs
   - [ ] benchmarking
@@ -71,18 +54,19 @@ Functions
   - refactor as subpackages
     - [x] iterate models
       - [:] refactor module
-        - [ ] revise iterate settings
-        - [ ] add theory iterate tests to `test_package.py`
+        - [ ] make iterate settings uniform
+        - [ ] add iterate tests to `test_package.py`
+        - [ ] move iterate components out of semantic.py
         - [ ] update DEFAULTS
         - [ ] report networkx not available
-        - [ ] move iterate components out of semantic.py
-        - [ ] make fail-fast
-        - [ ] make iterate start at 0
       - [.] add iterator to other theories
         - [:] exclusion
+          - [ ] color differences
+          - [ ] don't print impossible when setting is false
+          - [ ] color outputs
         - [.] bimodal
-        - [.] imposition
-      - [ ] update unit tests
+        - [ ] imposition
+      - [ ] unit tests
       - [ ] update docs
         - [ ] revise `iterate/README.md`
         - [ ] revise `builder/README.md`
@@ -144,6 +128,11 @@ Functions
       - cli flag to create notebook
   - [x] all_bits bug
   - [x] divide into modules
+- [x] bugs
+  - [x] jupyter
+    - [x] improve dev docs
+  - [x] builder
+  - [x] holden import
 - [x] update script
   - [x] build script
   - [x] document

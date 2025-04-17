@@ -498,29 +498,31 @@ class ExclusionModelIterator(BaseModelIterator):
         
         print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
         
+        # Determine if we should use colors
+        use_colors = output is sys.__stdout__
+        BLUE = "\033[34m" if use_colors else ""
+        CYAN = "\033[36m" if use_colors else ""
+        RESET = "\033[0m" if use_colors else ""
+        
         # Print world changes
         if 'worlds' in differences and (differences['worlds'].get('added') or differences['worlds'].get('removed')):
             print("World Changes:", file=output)
-            
-            # Dump the actual world list for debugging
-            print(f"DEBUG DISPLAY: Added worlds: {differences['worlds']['added']}", file=sys.stderr)
-            print(f"DEBUG DISPLAY: Removed worlds: {differences['worlds']['removed']}", file=sys.stderr)
             
             if differences['worlds'].get('added'):
                 for world in differences['worlds']['added']:
                     try:
                         world_str = bitvec_to_substates(world, model_structure.semantics.N)
-                        print(f"  + {world_str} (world)", file=output)
+                        print(f"  + {BLUE}{world_str} (world){RESET}", file=output)
                     except Exception as e:
-                        print(f"  + {world} (world) [Error: {e}]", file=output)
+                        print(f"  + {BLUE}{world} (world){RESET}", file=output)
             
             if differences['worlds'].get('removed'):
                 for world in differences['worlds']['removed']:
                     try:
                         world_str = bitvec_to_substates(world, model_structure.semantics.N)
-                        print(f"  - {world_str} (world)", file=output)
+                        print(f"  - {BLUE}{world_str} (world){RESET}", file=output)
                     except Exception as e:
-                        print(f"  - {world} (world) [Error: {e}]", file=output)
+                        print(f"  - {BLUE}{world} (world){RESET}", file=output)
         
         # Print possible state changes
         if 'possible_states' in differences and (differences['possible_states'].get('added') or differences['possible_states'].get('removed')):
@@ -530,17 +532,17 @@ class ExclusionModelIterator(BaseModelIterator):
                 for state in differences['possible_states']['added']:
                     try:
                         state_str = bitvec_to_substates(state, model_structure.semantics.N)
-                        print(f"  + {state_str}", file=output)
+                        print(f"  + {CYAN}{state_str}{RESET}", file=output)
                     except:
-                        print(f"  + {state}", file=output)
+                        print(f"  + {CYAN}{state}{RESET}", file=output)
             
             if differences['possible_states'].get('removed'):
                 for state in differences['possible_states']['removed']:
                     try:
                         state_str = bitvec_to_substates(state, model_structure.semantics.N)
-                        print(f"  - {state_str}", file=output)
+                        print(f"  - {CYAN}{state_str}{RESET}", file=output)
                     except:
-                        print(f"  - {state}", file=output)
+                        print(f"  - {CYAN}{state}{RESET}", file=output)
         
         # Print sentence letter verification changes
         if 'sentence_letters' in differences and differences['sentence_letters']:
