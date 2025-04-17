@@ -212,6 +212,7 @@ EX_CM_0_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 2,
+    'iterate' : 2,
     'expectation' : True,
 }
 EX_CM_0_example = [
@@ -856,8 +857,8 @@ EX_CM_14_example = [
 
 # NOTE: at least one theory is required, multiple are permitted for comparison
 semantic_theories = {
-    "ChampollionBernard" : exclusion_theory,
-    # "Brast-McKie" : default_theory,
+    "exclusion" : exclusion_theory,
+    # "default" : default_theory,
 }
 
 test_example_range = {
@@ -911,8 +912,8 @@ example_range = {
     # "EX_CM_13" : EX_CM_13_example,
 
     # Theorems
-    "EX_TH_1" : EX_TH_1_example,
-    # "EX_TH_2" : EX_TH_2_example,
+    # "EX_TH_1" : EX_TH_1_example,
+    # "EX_TH_2" : EX_TH_2_example, 
     # "EX_TH_3" : EX_TH_3_example,
     # "EX_TH_4" : EX_TH_4_example,
     # "EX_TH_5" : EX_TH_5_example,
