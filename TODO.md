@@ -6,11 +6,6 @@
 
 ## Plan
 
-- bugs
-  - [x] jupyter
-    - [x] improve dev docs
-  - [x] builder
-  - [x] holden import
 - [ ] default semantics
   - [ ] improve name
   - [ ] unit test circular defs
@@ -67,14 +62,18 @@
             - [ ] add theory iterate tests to `test_package.py`
             - [ ] update DEFAULTS
             - [ ] report networkx not available
-          - [ ] add iterator to other theories
+            - [ ] move iterate components out of semantic.py
+            - [ ] make fail-fast
+          - [.] add iterator to other theories
+            - [:] exclusion
             - [.] bimodal
-            - [ ] exclusion
-            - [ ] imposition
-          - [ ] unit tests
-          - [ ] revise `builder/README.md`
-          - [ ] revise `theory_lib/README.md`
-          - [ ] revise `model_checker/README.md`
+            - [.] imposition
+          - [ ] update unit tests
+          - [ ] update docs
+            - [ ] revise `iterate/README.md`
+            - [ ] revise `builder/README.md`
+            - [ ] revise `theory_lib/README.md`
+            - [ ] revise `model_checker/README.md`
           - [x] add debugging to see which constraints do what when iterating
           - [x] non-isomorphic difference only
             - [x] debug consecutive model differences
@@ -127,6 +126,11 @@
       - cli flag to create notebook
   - [x] all_bits bug
   - [x] divide into modules
+- [x] bugs
+  - [x] jupyter
+    - [x] improve dev docs
+  - [x] builder
+  - [x] holden import
 - [x] update script
   - [x] build script
   - [x] document

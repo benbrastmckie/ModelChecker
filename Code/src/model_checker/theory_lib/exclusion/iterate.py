@@ -81,6 +81,10 @@ class ExclusionModelIterator(BaseModelIterator):
         Returns:
             dict: Dictionary of differences with exclusion theory semantics
         """
+        # For debugging
+        import sys
+        print("\nDEBUG: Starting exclusion difference calculation", file=sys.stderr)
+        
         # Get Z3 models
         new_model = new_structure.z3_model
         previous_model = previous_structure.z3_model
@@ -93,9 +97,12 @@ class ExclusionModelIterator(BaseModelIterator):
             "exclusion_relations": {}
         }
         
-        # Compare worlds and possible states
+        # Compare worlds
         old_worlds = set(getattr(previous_structure, "z3_world_states", []))
         new_worlds = set(getattr(new_structure, "z3_world_states", []))
+        
+        print(f"DEBUG: Old worlds: {list(old_worlds)}", file=sys.stderr)
+        print(f"DEBUG: New worlds: {list(new_worlds)}", file=sys.stderr)
         
         # Find added/removed worlds
         for world in new_worlds:
@@ -106,9 +113,12 @@ class ExclusionModelIterator(BaseModelIterator):
             if world not in new_worlds:
                 differences["worlds"]["removed"].append(world)
         
-        # Compare possible states
-        old_states = set(getattr(previous_structure, "z3_poss_bits", getattr(previous_structure, "z3_possible_states", [])))
-        new_states = set(getattr(new_structure, "z3_poss_bits", getattr(new_structure, "z3_possible_states", [])))
+        # Compare possible states - use the standard z3_possible_states attribute name
+        old_states = set(getattr(previous_structure, "z3_possible_states", []))
+        new_states = set(getattr(new_structure, "z3_possible_states", []))
+            
+        print(f"DEBUG: Old possible states: {list(old_states)}", file=sys.stderr)
+        print(f"DEBUG: New possible states: {list(new_states)}", file=sys.stderr)
         
         # Find added/removed possible states
         for state in new_states:
@@ -187,7 +197,27 @@ class ExclusionModelIterator(BaseModelIterator):
                     except Exception:
                         # Skip problematic state pairs
                         pass
-                
+        
+        # Final check for actual differences
+        has_differences = (
+            differences["worlds"]["added"] or 
+            differences["worlds"]["removed"] or
+            differences["possible_states"]["added"] or 
+            differences["possible_states"]["removed"] or
+            differences["sentence_letters"] or
+            differences["exclusion_relations"]
+        )
+        
+        print(f"DEBUG: Has differences: {has_differences}", file=sys.stderr)
+        if has_differences:
+            print(f"DEBUG: Difference summary:", file=sys.stderr)
+            print(f"  Worlds added: {len(differences['worlds']['added'])}", file=sys.stderr)
+            print(f"  Worlds removed: {len(differences['worlds']['removed'])}", file=sys.stderr)
+            print(f"  Possible states added: {len(differences['possible_states']['added'])}", file=sys.stderr)
+            print(f"  Possible states removed: {len(differences['possible_states']['removed'])}", file=sys.stderr)
+            print(f"  Sentence letter changes: {len(differences['sentence_letters'])}", file=sys.stderr)
+            print(f"  Exclusion relation changes: {len(differences['exclusion_relations'])}", file=sys.stderr)
+        
         return differences
     
     def _create_difference_constraint(self, previous_models):
@@ -466,10 +496,25 @@ class ExclusionModelIterator(BaseModelIterator):
             model_structure: The model structure with differences
             output: Output stream for writing output
         """
-        if not hasattr(model_structure, 'model_differences') or not model_structure.model_differences:
+        if not hasattr(model_structure, 'model_differences'):
             return
             
         differences = model_structure.model_differences
+        if not differences:
+            return
+            
+        # Check if there are actual differences
+        has_diffs = (
+            differences.get('worlds', {}).get('added') or 
+            differences.get('worlds', {}).get('removed') or
+            differences.get('possible_states', {}).get('added') or 
+            differences.get('possible_states', {}).get('removed') or
+            differences.get('sentence_letters') or 
+            differences.get('exclusion_relations')
+        )
+        
+        if not has_diffs:
+            return
         
         print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
         
@@ -477,21 +522,25 @@ class ExclusionModelIterator(BaseModelIterator):
         if 'worlds' in differences and (differences['worlds'].get('added') or differences['worlds'].get('removed')):
             print("World Changes:", file=output)
             
+            # Dump the actual world list for debugging
+            print(f"DEBUG DISPLAY: Added worlds: {differences['worlds']['added']}", file=sys.stderr)
+            print(f"DEBUG DISPLAY: Removed worlds: {differences['worlds']['removed']}", file=sys.stderr)
+            
             if differences['worlds'].get('added'):
                 for world in differences['worlds']['added']:
                     try:
                         world_str = bitvec_to_substates(world, model_structure.semantics.N)
                         print(f"  + {world_str} (world)", file=output)
-                    except:
-                        print(f"  + {world} (world)", file=output)
+                    except Exception as e:
+                        print(f"  + {world} (world) [Error: {e}]", file=output)
             
             if differences['worlds'].get('removed'):
                 for world in differences['worlds']['removed']:
                     try:
                         world_str = bitvec_to_substates(world, model_structure.semantics.N)
                         print(f"  - {world_str} (world)", file=output)
-                    except:
-                        print(f"  - {world} (world)", file=output)
+                    except Exception as e:
+                        print(f"  - {world} (world) [Error: {e}]", file=output)
         
         # Print possible state changes
         if 'possible_states' in differences and (differences['possible_states'].get('added') or differences['possible_states'].get('removed')):
@@ -604,6 +653,146 @@ class ExclusionModelIterator(BaseModelIterator):
                     print(f"  {pair}: changed", file=output)
 
 
+# Static function for displaying model differences
+def display_model_differences(model_structure, output=sys.stdout):
+    """Display differences between models using exclusion theory semantics.
+    
+    This static function can be called directly from the model structure.
+    
+    Args:
+        model_structure: Model structure with differences to display
+        output: Output stream for displaying differences
+    """
+    if not hasattr(model_structure, 'model_differences'):
+        return
+        
+    differences = model_structure.model_differences
+    if not differences:
+        return
+        
+    # Check if we have actual differences
+    has_diffs = (
+        differences.get('worlds', {}).get('added') or 
+        differences.get('worlds', {}).get('removed') or
+        differences.get('possible_states', {}).get('added') or 
+        differences.get('possible_states', {}).get('removed') or
+        differences.get('sentence_letters') or 
+        differences.get('exclusion_relations')
+    )
+    
+    if not has_diffs:
+        return
+    
+    print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
+    
+    # Print world changes
+    if 'worlds' in differences and (differences['worlds'].get('added') or differences['worlds'].get('removed')):
+        print("World Changes:", file=output)
+        
+        if differences['worlds'].get('added'):
+            for world in differences['worlds']['added']:
+                try:
+                    world_str = bitvec_to_substates(world, model_structure.semantics.N)
+                    print(f"  + {world_str} (world)", file=output)
+                except:
+                    print(f"  + {world} (world)", file=output)
+        
+        if differences['worlds'].get('removed'):
+            for world in differences['worlds']['removed']:
+                try:
+                    world_str = bitvec_to_substates(world, model_structure.semantics.N)
+                    print(f"  - {world_str} (world)", file=output)
+                except:
+                    print(f"  - {world} (world)", file=output)
+    
+    # Print possible state changes
+    if 'possible_states' in differences and (differences['possible_states'].get('added') or differences['possible_states'].get('removed')):
+        print("\nPossible State Changes:", file=output)
+        
+        if differences['possible_states'].get('added'):
+            for state in differences['possible_states']['added']:
+                try:
+                    state_str = bitvec_to_substates(state, model_structure.semantics.N)
+                    print(f"  + {state_str}", file=output)
+                except:
+                    print(f"  + {state}", file=output)
+        
+        if differences['possible_states'].get('removed'):
+            for state in differences['possible_states']['removed']:
+                try:
+                    state_str = bitvec_to_substates(state, model_structure.semantics.N)
+                    print(f"  - {state_str}", file=output)
+                except:
+                    print(f"  - {state}", file=output)
+    
+    # Print exclusion relationship changes
+    if 'exclusion_relations' in differences and differences['exclusion_relations']:
+        print("\nExclusion Relationship Changes:", file=output)
+        
+        for pair, change in differences['exclusion_relations'].items():
+            # Try to parse the state pair
+            try:
+                states = pair.split(',')
+                if len(states) == 2:
+                    state1_bitvec = int(states[0])
+                    state2_bitvec = int(states[1])
+                    
+                    state1_str = bitvec_to_substates(state1_bitvec, model_structure.semantics.N)
+                    state2_str = bitvec_to_substates(state2_bitvec, model_structure.semantics.N)
+                    
+                    if change.get('new'):
+                        print(f"  {state1_str} now excludes {state2_str}", file=output)
+                    else:
+                        print(f"  {state1_str} no longer excludes {state2_str}", file=output)
+                    continue
+            except:
+                pass
+            
+            # Fall back to simple representation
+            if isinstance(change, dict) and 'old' in change and 'new' in change:
+                status = "now excludes" if change['new'] else "no longer excludes"
+                print(f"  {pair}: {status}", file=output)
+            else:
+                print(f"  {pair}: changed", file=output)
+
+# Static function for displaying differences without an iterator instance
+def display_differences(model_structure, output=sys.stdout):
+    """Display differences between models using exclusion theory semantics.
+    
+    This static function can be called directly without creating an iterator instance.
+    
+    Args:
+        model_structure: Model structure with differences to display
+        output: Output stream for displaying differences
+    """
+    # Check if we have differences to display
+    if not hasattr(model_structure, 'model_differences'):
+        print("No model_differences attribute", file=output)
+        return
+        
+    # Get the model differences
+    differences = model_structure.model_differences
+    
+    # Check if differences exist
+    has_diffs = False
+    if differences and isinstance(differences, dict):
+        # Check for actual content in the difference categories
+        if ((differences.get('worlds', {}).get('added') or 
+             differences.get('worlds', {}).get('removed') or
+             differences.get('possible_states', {}).get('added') or
+             differences.get('possible_states', {}).get('removed') or
+             differences.get('sentence_letters') or 
+             differences.get('exclusion_relations'))):
+            has_diffs = True
+            
+    if not has_diffs:
+        print("No differences found between models", file=output)
+        return
+        
+    # Use the ExclusionModelIterator's display method with a temporary instance
+    temp_iterator = object.__new__(ExclusionModelIterator)
+    temp_iterator.display_model_differences(model_structure, output)
+
 # Wrapper function for use in theory examples
 def iterate_example(example, max_iterations=None):
     """Find multiple models for an exclusion theory example.
@@ -625,5 +814,98 @@ def iterate_example(example, max_iterations=None):
     if max_iterations is not None:
         iterator.max_iterations = max_iterations
     
+    # Print debug info
+    import sys
+    print("DEBUG CORE: Setting model_differences = True", file=sys.stderr)
+    
     # Perform iteration
-    return iterator.iterate()
+    model_structures = iterator.iterate()
+    
+    # Enable difference display on the model structures
+    for i in range(1, len(model_structures)):
+        # Explicitly call the difference calculation between consecutive models
+        if i > 0:
+            previous_structure = model_structures[i-1] 
+            current_structure = model_structures[i]
+            
+            # Calculate differences and store them in the current structure
+            differences = iterator._calculate_exclusion_differences(current_structure, previous_structure)
+            current_structure.model_differences = differences
+            current_structure.previous_structure = previous_structure
+            
+            # Directly display the differences
+            print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n")
+            
+            # World changes
+            if differences.get('worlds', {}).get('added') or differences.get('worlds', {}).get('removed'):
+                print("World Changes:")
+                
+                if differences.get('worlds', {}).get('added'):
+                    for world in differences['worlds']['added']:
+                        try:
+                            world_str = bitvec_to_substates(world, current_structure.N)
+                            print(f"  + {world_str} (world)")
+                        except:
+                            print(f"  + {world} (world)")
+                
+                if differences.get('worlds', {}).get('removed'):
+                    for world in differences['worlds']['removed']:
+                        try:
+                            world_str = bitvec_to_substates(world, current_structure.N)
+                            print(f"  - {world_str} (world)")
+                        except:
+                            print(f"  - {world} (world)")
+            
+            # Possible state changes
+            if differences.get('possible_states', {}).get('added') or differences.get('possible_states', {}).get('removed'):
+                print("\nPossible State Changes:")
+                
+                if differences.get('possible_states', {}).get('added'):
+                    for state in differences['possible_states']['added']:
+                        try:
+                            state_str = bitvec_to_substates(state, current_structure.N)
+                            print(f"  + {state_str}")
+                        except:
+                            print(f"  + {state}")
+                
+                if differences.get('possible_states', {}).get('removed'):
+                    for state in differences['possible_states']['removed']:
+                        try:
+                            state_str = bitvec_to_substates(state, current_structure.N)
+                            print(f"  - {state_str}")
+                        except:
+                            print(f"  - {state}")
+            
+            # Exclusion relationship changes
+            if differences.get('exclusion_relations', {}):
+                print("\nExclusion Relationship Changes:")
+                
+                for pair, change in differences['exclusion_relations'].items():
+                    # Try to parse the state pair
+                    try:
+                        states = pair.split(',')
+                        if len(states) == 2:
+                            state1_bitvec = int(states[0])
+                            state2_bitvec = int(states[1])
+                            
+                            state1_str = bitvec_to_substates(state1_bitvec, current_structure.N)
+                            state2_str = bitvec_to_substates(state2_bitvec, current_structure.N)
+                            
+                            if change.get('new'):
+                                print(f"  {state1_str} now excludes {state2_str}")
+                            else:
+                                print(f"  {state1_str} no longer excludes {state2_str}")
+                            continue
+                    except:
+                        pass
+                    
+                    # Fall back to simple representation
+                    if isinstance(change, dict) and 'old' in change and 'new' in change:
+                        status = "now excludes" if change['new'] else "no longer excludes"
+                        print(f"  {pair}: {status}")
+                    else:
+                        print(f"  {pair}: changed")
+                        
+            print("") # Extra line after differences
+    
+    return model_structures
