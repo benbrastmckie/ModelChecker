@@ -40,6 +40,10 @@ class BimodalSemantics(SemanticDefaults):
         'max_time': 1,
         # Whether a model is expected or not (used for unit testing)
         'expectation': True,
+        # Number of model iterations to generate
+        'iterate': 1,
+        # Timeout for each iteration
+        'iteration_timeout': 1.0,
     }
     
     # Bimodal-specific general settings defaults

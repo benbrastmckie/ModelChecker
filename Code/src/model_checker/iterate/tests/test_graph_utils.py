@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 # Try importing necessary modules, skipping tests if not available
 try:
     import networkx as nx
-    from model_checker.builder.graph_utils import ModelGraph
+    from model_checker.iterate.graph_utils import ModelGraph
     HAS_DEPENDENCIES = True
 except ImportError:
     HAS_DEPENDENCIES = False
