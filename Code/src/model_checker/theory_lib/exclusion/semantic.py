@@ -312,7 +312,7 @@ class ExclusionSemantics(model.SemanticDefaults):
                 3. For all f in set_S, h(f) excludes some part u of f
         """
         h = z3.Function(
-            f"h_{(state, z3_set)}*", # function name type: string
+            f"h_{state, z3_set}", # function name type: string
             z3.BitVecSort(self.N),  # argument type: bitvector
             z3.BitVecSort(self.N)   # return type: bitvector
         )
@@ -739,6 +739,49 @@ class ExclusionStructure(model.ModelDefaults):
             elif self.settings['print_impossible']:
                 format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
 
+    def print_h_functions(self):
+        """Print the h_ function values in the model.
+        
+        This displays the preclusion functions mapping states to their
+        corresponding values based on the actual Z3 model.
+        """
+        if not self.z3_model:
+            return
+            
+        print("\nFunctions")
+        
+        # Find all h_ functions in the model
+        h_funcs = []
+        for decl in self.z3_model.decls():
+            if decl.name().startswith('h_'):
+                h_funcs.append(decl)
+        
+        if not h_funcs:
+            # Don't print anything if no h-functions found
+            return
+            
+        # For each h-function, evaluate it for all states
+        for func in h_funcs:
+            # Create argument for the function
+            arg = z3.BitVec("h_arg", self.N)
+            h_func_app = func(arg)
+            
+            # Try to evaluate for each state
+            for state in self.all_states:
+                try:
+                    # Get the corresponding output value
+                    result = self.z3_model.evaluate(z3.substitute(h_func_app, (arg, state)))
+                    
+                    # Format the output
+                    input_state = bitvec_to_substates(state, self.N)
+                    output_state = bitvec_to_substates(result.as_long(), self.N)
+                    
+                    # Print in the required format
+                    print(f"  {func.name()}: {input_state} → {output_state}")
+                except Exception:
+                    # Skip if we can't evaluate this input
+                    pass
+
     def print_exclusion(self, output=sys.__stdout__):
         z3_conflicts = getattr(self, 'z3_conflicts', [])
         print("\nConflicts") if z3_conflicts else None
@@ -755,22 +798,8 @@ class ExclusionStructure(model.ModelDefaults):
         for bit_x, bit_y in z3_excludes:
             print(f"  {bitvec_to_substates(bit_x, self.N)} excludes {bitvec_to_substates(bit_y, self.N)}")
 
-        # Print all h functions from the model
-        if self.z3_model:
-            print("\nFunctions")
-            for decl in self.z3_model.decls():
-                if decl.name().startswith('h_'):
-                    # Create a BitVec for the argument
-                    arg = z3.BitVec("h_arg", self.N)
-                    # Create the function application with the argument
-                    h_func_app = decl(arg)
-                    for bit_x in self.all_states:
-                        try:
-                            # Evaluate by substituting the actual bit value
-                            h_val = self.z3_model.evaluate(z3.substitute(h_func_app, (arg, bit_x)))
-                            print(f"  {decl.name()}: {bitvec_to_substates(bit_x, self.N)} → {bitvec_to_substates(h_val, self.N)}")
-                        except Exception as e:
-                            continue
+        # Print the h-functions
+        self.print_h_functions()
 
         # print()
         # for bit_x in self.all_states:
@@ -826,9 +855,6 @@ class ExclusionStructure(model.ModelDefaults):
         if hasattr(self, 'model_differences') and self.model_differences:
             differences = self.model_differences
             
-            # Debug print to check the structure
-            print("\nDEBUG: Model differences structure", file=sys.stderr)
-            print(f"Keys: {list(differences.keys())}", file=sys.stderr)
             
             # Check if there are any actual differences - check all possible difference types
             has_diffs = (

@@ -81,10 +81,6 @@ class ExclusionModelIterator(BaseModelIterator):
         Returns:
             dict: Dictionary of differences with exclusion theory semantics
         """
-        # For debugging
-        import sys
-        print("\nDEBUG: Starting exclusion difference calculation", file=sys.stderr)
-        
         # Get Z3 models
         new_model = new_structure.z3_model
         previous_model = previous_structure.z3_model
@@ -101,9 +97,6 @@ class ExclusionModelIterator(BaseModelIterator):
         old_worlds = set(getattr(previous_structure, "z3_world_states", []))
         new_worlds = set(getattr(new_structure, "z3_world_states", []))
         
-        print(f"DEBUG: Old worlds: {list(old_worlds)}", file=sys.stderr)
-        print(f"DEBUG: New worlds: {list(new_worlds)}", file=sys.stderr)
-        
         # Find added/removed worlds
         for world in new_worlds:
             if world not in old_worlds:
@@ -116,9 +109,6 @@ class ExclusionModelIterator(BaseModelIterator):
         # Compare possible states - use the standard z3_possible_states attribute name
         old_states = set(getattr(previous_structure, "z3_possible_states", []))
         new_states = set(getattr(new_structure, "z3_possible_states", []))
-            
-        print(f"DEBUG: Old possible states: {list(old_states)}", file=sys.stderr)
-        print(f"DEBUG: New possible states: {list(new_states)}", file=sys.stderr)
         
         # Find added/removed possible states
         for state in new_states:
@@ -207,16 +197,6 @@ class ExclusionModelIterator(BaseModelIterator):
             differences["sentence_letters"] or
             differences["exclusion_relations"]
         )
-        
-        print(f"DEBUG: Has differences: {has_differences}", file=sys.stderr)
-        if has_differences:
-            print(f"DEBUG: Difference summary:", file=sys.stderr)
-            print(f"  Worlds added: {len(differences['worlds']['added'])}", file=sys.stderr)
-            print(f"  Worlds removed: {len(differences['worlds']['removed'])}", file=sys.stderr)
-            print(f"  Possible states added: {len(differences['possible_states']['added'])}", file=sys.stderr)
-            print(f"  Possible states removed: {len(differences['possible_states']['removed'])}", file=sys.stderr)
-            print(f"  Sentence letter changes: {len(differences['sentence_letters'])}", file=sys.stderr)
-            print(f"  Exclusion relation changes: {len(differences['exclusion_relations'])}", file=sys.stderr)
         
         return differences
     
@@ -814,9 +794,8 @@ def iterate_example(example, max_iterations=None):
     if max_iterations is not None:
         iterator.max_iterations = max_iterations
     
-    # Print debug info
+    # Import sys
     import sys
-    print("DEBUG CORE: Setting model_differences = True", file=sys.stderr)
     
     # Perform iteration
     model_structures = iterator.iterate()
@@ -832,6 +811,36 @@ def iterate_example(example, max_iterations=None):
             differences = iterator._calculate_exclusion_differences(current_structure, previous_structure)
             current_structure.model_differences = differences
             current_structure.previous_structure = previous_structure
+            
+            # Make sure all relationship data is updated for subsequent models
+            # This is crucial to display Conflicts, Coherence and Exclusion sections
+            if hasattr(current_structure, 'z3_model') and current_structure.z3_model is not None:
+                # Recalculate all relationship data for the current model
+                evaluate = current_structure.z3_model.evaluate
+                semantics = current_structure.semantics
+                all_states = current_structure.all_states
+                
+                # Update relationship data for the model
+                current_structure.z3_conflicts = [
+                    (bit_x, bit_y)
+                    for bit_x in all_states
+                    for bit_y in all_states
+                    if evaluate(semantics.conflicts(bit_x, bit_y))
+                ]
+                
+                current_structure.z3_coheres = [
+                    (bit_x, bit_y)
+                    for bit_x in all_states
+                    for bit_y in all_states
+                    if evaluate(semantics.coheres(bit_x, bit_y))
+                ]
+                
+                current_structure.z3_excludes = [
+                    (bit_x, bit_y)
+                    for bit_x in all_states
+                    for bit_y in all_states
+                    if evaluate(semantics.excludes(bit_x, bit_y))
+                ]
             
             # Directly display the differences
             print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n")
