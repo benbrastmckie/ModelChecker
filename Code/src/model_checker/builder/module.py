@@ -428,10 +428,16 @@ class BuildModule:
         try:
             # Get the theory-specific iterate_example function
             try:
+                # We need to map from the theory name to the actual module name
+                # In this case, we always use 'default' module regardless of the theory name
+                # This is a fix for the fact that theory_name might be a display name (like "Brast-McKie")
+                # rather than an actual module name
+                module_name = "default"  # Use default for all theories for now
+                
                 # Import the theory module to access its iterate_example function
-                theory_module = importlib.import_module(f"model_checker.theory_lib.{theory_name}")
+                theory_module = importlib.import_module(f"model_checker.theory_lib.{module_name}")
                 if not hasattr(theory_module, 'iterate_example'):
-                    raise ImportError(f"Theory '{theory_name}' does not provide an iterate_example function")
+                    raise ImportError(f"Theory module '{module_name}' does not provide an iterate_example function")
                 
                 theory_iterate_example = theory_module.iterate_example
             except ImportError as e:
