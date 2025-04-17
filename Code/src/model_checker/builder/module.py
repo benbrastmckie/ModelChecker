@@ -394,14 +394,14 @@ class BuildModule:
             BuildExample: The example after processing
         """
         from model_checker.builder.example import BuildExample
-        from model_checker.iterate import iterate_example
         import sys
         import logging
+        import importlib
         
         # Disable all debug logs for cleaner output
         logging.getLogger().setLevel(logging.ERROR)
         # Specifically disable iteration logs
-        for logger_name in ["model_checker", "model_checker.builder", "model_checker.builder.iterate"]:
+        for logger_name in ["model_checker", "model_checker.builder", "model_checker.iterate"]:
             logging.getLogger(logger_name).setLevel(logging.ERROR)
         
         # Create and solve the example
@@ -426,8 +426,20 @@ class BuildModule:
             return example
         
         try:
-            # Find additional models using the iterate_example function
-            model_structures = iterate_example(example, max_iterations=iterate_count)
+            # Get the theory-specific iterate_example function
+            try:
+                # Import the theory module to access its iterate_example function
+                theory_module = importlib.import_module(f"model_checker.theory_lib.{theory_name}")
+                if not hasattr(theory_module, 'iterate_example'):
+                    raise ImportError(f"Theory '{theory_name}' does not provide an iterate_example function")
+                
+                theory_iterate_example = theory_module.iterate_example
+            except ImportError as e:
+                print(f"Error: {e}", file=sys.stderr)
+                return example
+            
+            # Find additional models using the theory-specific iterate_example function
+            model_structures = theory_iterate_example(example, max_iterations=iterate_count)
             
             # Skip the first model which is already printed
             # Track distinct models for numbering

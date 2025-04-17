@@ -8,8 +8,7 @@ theory-specific functionality.
 The iteration framework handles:
 1. Creating constraints that ensure each new model differs from previous models
 2. Checking for model isomorphism to avoid structural duplicates
-3. Visualizing the differences between models
-4. Managing the iteration process and termination conditions
+3. Managing the iteration process and termination conditions
 """
 
 import z3
@@ -18,7 +17,6 @@ import time
 import traceback
 import logging
 import sys
-import importlib
 
 from model_checker.builder.example import BuildExample
 from model_checker.builder.progress import Spinner
@@ -115,6 +113,11 @@ class BaseModelIterator:
                 self.build_example.model_structure.model_graph = initial_graph
             except Exception as e:
                 logger.warning(f"Could not create graph for initial model: {str(e)}")
+        
+        # Initialize diagnostic tracking
+        self.debug_messages = []
+        self.checked_model_count = 1
+        self.distinct_models_found = 1
     
     def _create_persistent_solver(self):
         """Create a persistent solver with the initial model's constraints."""
@@ -123,167 +126,6 @@ class BaseModelIterator:
         for assertion in original_solver.assertions():
             persistent_solver.add(assertion)
         return persistent_solver
-        
-    def display_model_differences(self, model_structure, output=sys.stdout):
-        """Display differences between the current model and previous ones.
-        
-        Args:
-            model_structure: The model structure with differences
-            output: Output stream to write to
-        """
-        if not hasattr(model_structure, 'model_differences') or not model_structure.model_differences:
-            # If no model_differences are found but we have a previous_structure reference,
-            # try to calculate differences on the fly
-            if hasattr(model_structure, 'previous_structure') and model_structure.previous_structure is not None:
-                model_structure.model_differences = self._calculate_differences(
-                    model_structure, model_structure.previous_structure)
-            else:
-                return
-            
-        # Try theory-specific difference formatting
-        if hasattr(model_structure, 'format_model_differences'):
-            try:
-                model_structure.format_model_differences(model_structure.model_differences, output)
-                return
-            except Exception as e:
-                logger.warning(f"Error in theory-specific difference formatting: {e}")
-        
-        # Try legacy method for backward compatibility
-        if hasattr(model_structure, 'print_model_differences'):
-            try:
-                model_structure.print_model_differences(output)
-                return
-            except Exception as e:
-                logger.warning(f"Error in legacy difference formatting: {e}")
-        
-        # Fall back to generic difference display
-        self._display_basic_differences(model_structure, output)
-    
-    def _display_basic_differences(self, model_structure, output=sys.stdout):
-        """Fall back method to display model differences in a generic way."""
-        differences = model_structure.model_differences
-        if not differences:
-            return
-            
-        print("\n=== MODEL DIFFERENCES ===\n", file=output)
-        
-        # Print sentence letter differences with more detail
-        if 'sentence_letters' in differences and differences['sentence_letters']:
-            print("Sentence Letter Changes:", file=output)
-            for letter, change in differences['sentence_letters'].items():
-                # Try to get a user-friendly letter name
-                letter_name = letter
-                if hasattr(model_structure, '_get_friendly_letter_name'):
-                    try:
-                        letter_name = model_structure._get_friendly_letter_name(str(letter))
-                    except:
-                        pass
-                        
-                # Print basic change
-                if isinstance(change, dict) and 'old' in change and 'new' in change:
-                    # Format for detailed difference info
-                    old_val, new_val = None, None
-                    
-                    # Handle tuple format (verifiers, falsifiers)
-                    if isinstance(change['old'], tuple) and isinstance(change['new'], tuple):
-                        old_verifiers, old_falsifiers = change['old']
-                        new_verifiers, new_falsifiers = change['new']
-                        
-                        print(f"  {letter_name}:", file=output)
-                        print(f"    Verifiers: changed from {old_verifiers} to {new_verifiers}", file=output)
-                        print(f"    Falsifiers: changed from {old_falsifiers} to {new_falsifiers}", file=output)
-                    else:
-                        # Handle simple value changes
-                        print(f"  {letter_name}: {change['old']} -> {change['new']}", file=output)
-                else:
-                    # Fallback for simpler change format
-                    print(f"  {letter_name}: changed from previous model", file=output)
-        
-        # Print world and state changes if available
-        if 'worlds' in differences:
-            print("\nWorld Changes:", file=output)
-            worlds = differences['worlds']
-            if 'added' in worlds and worlds['added']:
-                from model_checker.utils import bitvec_to_substates
-                for world in worlds['added']:
-                    try:
-                        state_repr = bitvec_to_substates(world, model_structure.semantics.N)
-                        print(f"  + {state_repr} (world)", file=output)
-                    except:
-                        print(f"  + {world} (world)", file=output)
-                        
-            if 'removed' in worlds and worlds['removed']:
-                from model_checker.utils import bitvec_to_substates
-                for world in worlds['removed']:
-                    try:
-                        state_repr = bitvec_to_substates(world, model_structure.semantics.N)
-                        print(f"  - {state_repr} (world)", file=output)
-                    except:
-                        print(f"  - {world} (world)", file=output)
-        
-        # Print possible state changes if available
-        if 'possible_states' in differences:
-            print("\nPossible State Changes:", file=output)
-            states = differences['possible_states']
-            if 'added' in states and states['added']:
-                from model_checker.utils import bitvec_to_substates
-                for state in states['added']:
-                    try:
-                        state_repr = bitvec_to_substates(state, model_structure.semantics.N)
-                        print(f"  + {state_repr}", file=output)
-                    except:
-                        print(f"  + {state}", file=output)
-                        
-            if 'removed' in states and states['removed']:
-                from model_checker.utils import bitvec_to_substates
-                for state in states['removed']:
-                    try:
-                        state_repr = bitvec_to_substates(state, model_structure.semantics.N)
-                        print(f"  - {state_repr}", file=output)
-                    except:
-                        print(f"  - {state}", file=output)
-        
-        # Print semantic function differences with more detail
-        if 'semantic_functions' in differences and differences['semantic_functions']:
-            print("\nSemantic Function Changes:", file=output)
-            for func, changes in differences['semantic_functions'].items():
-                if isinstance(changes, dict) and changes:
-                    # Print function name
-                    print(f"  {func}:", file=output)
-                    # Show sample changes (limit to 5 to avoid overwhelming output)
-                    sample_count = 0
-                    for input_vals, change in changes.items():
-                        if sample_count < 5:  # Limit to 5 examples
-                            if isinstance(change, dict) and 'old' in change and 'new' in change:
-                                print(f"    Input {input_vals}: {change['old']} -> {change['new']}", file=output)
-                            else:
-                                print(f"    Input {input_vals}: changed", file=output)
-                            sample_count += 1
-                    
-                    # Show count if there are more changes
-                    total_changes = len(changes)
-                    if total_changes > 5:
-                        print(f"    ... and {total_changes - 5} more changes", file=output)
-                else:
-                    # Fallback for simpler change format
-                    print(f"  {func}: {len(changes) if isinstance(changes, dict) else 'unknown'} input(s) changed", file=output)
-        
-        # Print model structure differences
-        if 'model_structure' in differences and differences['model_structure']:
-            print("\nModel Structure Changes:", file=output)
-            for component, change in differences['model_structure'].items():
-                if isinstance(change, dict) and 'old' in change and 'new' in change:
-                    print(f"  {component}: {change['old']} -> {change['new']}", file=output)
-                else:
-                    print(f"  {component}: changed", file=output)
-                    
-        # Print part-whole relationship changes if available
-        if 'parthood' in differences and differences.get('parthood'):
-            print("\nPart-Whole Relationship Changes:", file=output)
-            for pair, change in differences['parthood'].items():
-                if isinstance(change, dict) and 'old' in change and 'new' in change:
-                    status = "now part of" if change['new'] else "no longer part of"
-                    print(f"  {pair}: {status}", file=output)
     
     def iterate(self):
         """Find multiple distinct models up to max_iterations.
@@ -300,12 +142,6 @@ class BaseModelIterator:
         iteration_timeout = max(max_time * 10, 30.0)
         start_time = time.time()
         
-        # Track distinct models found (separate from iteration count)
-        self.distinct_models_found = 1  # Starting with initial model
-        
-        # Track all models checked (including isomorphic ones)
-        self.checked_model_count = 1
-        
         # Track attempts to escape isomorphic models
         self.escape_attempts = 0
         escape_attempts = self.settings.get('escape_attempts', 3)
@@ -316,20 +152,20 @@ class BaseModelIterator:
                 # Check timeout
                 current_time = time.time()
                 if current_time - start_time > iteration_timeout:
-                    logger.warning(f"Iteration process exceeded timeout of {iteration_timeout} seconds")
+                    self.debug_messages.append(f"Iteration process exceeded timeout of {iteration_timeout} seconds")
                     break
                 
                 # Create extended constraints requiring difference from all previous models
                 try:
                     extended_constraints = self._create_extended_constraints()
                 except RuntimeError as e:
-                    logger.warning(f"Could not create extended constraints: {str(e)}")
+                    self.debug_messages.append(f"Could not create extended constraints: {str(e)}")
                     break
                 
                 # Solve with extended constraints
                 result = self.solver.check()
                 if result != z3.sat:
-                    logger.info("No more models satisfy the extended constraints")
+                    self.debug_messages.append("No more models satisfy the extended constraints")
                     break
                 
                 # Get the new model
@@ -340,7 +176,7 @@ class BaseModelIterator:
                 new_structure = self._build_new_model_structure(new_model)
                 
                 if not new_structure:
-                    logger.warning("Could not create new model structure, stopping iteration")
+                    self.debug_messages.append("Could not create new model structure, stopping iteration")
                     break
                 
                 # Check for isomorphism if NetworkX is available
@@ -362,10 +198,6 @@ class BaseModelIterator:
                     iteration_attempts = self.settings.get('iteration_attempts', 5)
                     if self._isomorphic_attempts >= iteration_attempts:
                         self.escape_attempts += 1
-                        
-                        # Initialize debug messages list if it doesn't exist
-                        if not hasattr(self, 'debug_messages'):
-                            self.debug_messages = []
                         
                         if self.escape_attempts >= escape_attempts:
                             self.debug_messages.append(f"Made {escape_attempts} attempts to escape isomorphic models without success. Stopping search.")
@@ -429,9 +261,6 @@ class BaseModelIterator:
                         self.solver.add(iso_constraint)
                         continue  # Skip to next attempt without incrementing
                     else:
-                        # Initialize debug messages list if it doesn't exist
-                        if not hasattr(self, 'debug_messages'):
-                            self.debug_messages = []
                         self.debug_messages.append("Could not create non-isomorphic constraint, stopping search")
                         break
                 
@@ -445,6 +274,10 @@ class BaseModelIterator:
                 
                 # Calculate and store differences for the presentation layer to use
                 differences = self._calculate_differences(new_structure, self.model_structures[-1])
+                new_structure.model_differences = differences
+                
+                # Store reference to previous structure for comparison
+                new_structure.previous_structure = self.model_structures[-1]
                 
                 # Add the new model and structure to our results
                 self.found_models.append(new_model)
@@ -455,9 +288,6 @@ class BaseModelIterator:
                 self.solver.add(self._create_difference_constraint([new_model]))
                 
             except Exception as e:
-                # Initialize debug messages list if it doesn't exist
-                if not hasattr(self, 'debug_messages'):
-                    self.debug_messages = []
                 self.debug_messages.append(f"Error during iteration: {str(e)}")
                 
                 # Print the traceback to stderr for debugging but don't show it to the user
@@ -496,6 +326,7 @@ class BaseModelIterator:
         self.distinct_models_found = 1
         self.checked_model_count = 1
         self.escape_attempts = 0
+        self.debug_messages = []
         
         # Reset solver to original constraints
         self.solver = self._create_persistent_solver()
@@ -688,64 +519,25 @@ class BaseModelIterator:
         if hasattr(model_structure, 'initialize_from_z3_model'):
             model_structure.initialize_from_z3_model(z3_model)
     
-    # Abstract methods that must be implemented by theory-specific subclasses
-    
     def _calculate_differences(self, new_structure, previous_structure):
         """Calculate differences between two model structures.
         
-        Delegates to theory-specific difference detection when available,
-        falling back to a generic implementation when not.
+        This is the base implementation that handles theory-agnostic difference detection.
+        Theory-specific subclasses should override this method with their own
+        difference detection logic.
         
         Args:
             new_structure: The new model structure
             previous_structure: The previous model structure
             
         Returns:
-            dict: Structured differences between the models
+            dict: Dictionary of differences between models
         """
-        # Try theory-specific difference detection
-        if hasattr(new_structure, 'detect_model_differences'):
-            try:
-                differences = new_structure.detect_model_differences(previous_structure)
-                if differences:
-                    # Store the differences with the new structure
-                    new_structure.model_differences = differences
-                    
-                    # Store a reference to the previous structure for display purposes
-                    new_structure.previous_structure = previous_structure
-                    
-                    return differences
-            except Exception as e:
-                logger.warning(f"Error in theory-specific difference detection: {e}")
-        
-        # Try legacy 'calculate_model_differences' method for backward compatibility
-        if hasattr(new_structure, 'calculate_model_differences'):
-            try:
-                theory_differences = new_structure.calculate_model_differences(previous_structure)
-                if theory_differences:
-                    # Store the differences with the new structure
-                    new_structure.model_differences = theory_differences
-                    
-                    # Store a reference to the previous structure for display purposes
-                    new_structure.previous_structure = previous_structure
-                    
-                    return theory_differences
-            except Exception as e:
-                logger.warning(f"Error in legacy theory-specific difference detection: {e}")
-        
-        # Fall back to generic implementation
-        differences = self._calculate_basic_differences(new_structure, previous_structure)
-        
-        # Store the differences with the new structure
-        new_structure.model_differences = differences
-        
-        # Store a reference to the previous structure for display purposes
-        new_structure.previous_structure = previous_structure
-        
-        return differences
-        
+        # Fall back to the basic difference detection which is theory-agnostic
+        return self._calculate_basic_differences(new_structure, previous_structure)
+    
     def _calculate_basic_differences(self, new_structure, previous_structure):
-        """Fallback method to calculate basic differences when theory-specific detection is not available.
+        """Theory-agnostic method to calculate basic differences between two model structures.
         
         This provides a minimal difference detection focused on sentence letters and Z3 functions,
         without any theory-specific semantic interpretation.
@@ -764,11 +556,39 @@ class BaseModelIterator:
         # Initialize basic differences structure
         differences = {
             "sentence_letters": {},
-            "semantic_functions": {}
+            "semantic_functions": {},
+            "worlds": {"added": [], "removed": []},
+            "possible_states": {"added": [], "removed": []}
         }
         
+        # Compare worlds and possible states
+        old_worlds = getattr(previous_structure, "z3_world_states", [])
+        new_worlds = getattr(new_structure, "z3_world_states", [])
+        
+        # Find added/removed worlds
+        for world in new_worlds:
+            if world not in old_worlds:
+                differences["worlds"]["added"].append(world)
+        
+        for world in old_worlds:
+            if world not in new_worlds:
+                differences["worlds"]["removed"].append(world)
+        
+        # Compare possible states
+        old_states = getattr(previous_structure, "z3_possible_states", [])
+        new_states = getattr(new_structure, "z3_possible_states", [])
+        
+        # Find added/removed possible states
+        for state in new_states:
+            if state not in old_states:
+                differences["possible_states"]["added"].append(state)
+        
+        for state in old_states:
+            if state not in new_states:
+                differences["possible_states"]["removed"].append(state)
+        
         # Compare sentence letter valuations (common to all theories)
-        for letter in self.build_example.model_constraints.sentence_letters:
+        for letter in new_structure.sentence_letters:
             try:
                 prev_value = previous_model.eval(letter, model_completion=True)
                 new_value = new_model.eval(letter, model_completion=True)
@@ -797,7 +617,7 @@ class BaseModelIterator:
             
             # For unary and binary functions, check specific values
             if arity <= 2:
-                n_worlds = getattr(new_structure, 'num_worlds', 5)  # Default to 5 if not available
+                n_worlds = len(getattr(new_structure, 'z3_world_states', [])) or 5  # Default to 5 if not available
                 
                 func_diffs = {}
                 for inputs in self._generate_input_combinations(arity, n_worlds):
@@ -821,6 +641,10 @@ class BaseModelIterator:
     
     def _check_isomorphism(self, new_structure, new_model):
         """Check if a model is isomorphic to any previous model.
+        
+        This uses NetworkX to check graph isomorphism between models.
+        Theory-specific subclasses should override this method if they
+        need custom isomorphism checking.
         
         Args:
             new_structure: The model structure to check
@@ -868,6 +692,8 @@ class BaseModelIterator:
         except Exception as e:
             logger.warning(f"Isomorphism check failed: {str(e)}")
             return False
+    
+    # Abstract methods that must be implemented by theory-specific subclasses
     
     def _create_difference_constraint(self, previous_models):
         """Create a Z3 constraint requiring difference from all previous models.
@@ -959,12 +785,7 @@ class BaseModelIterator:
         validated_settings = settings.copy()
         validated_settings['iterate'] = iterate
         
-        # Note: The difference type setting has been simplified as the current implementation
-        # uses a consistent approach for all difference types
-        validated_settings['difference_type'] = 'semantic'  # Always use the default approach
-        
         # Add and validate iteration_attempts (default to 5)
-        # First check for old max_attempts name for backward compatibility
         iteration_attempts = settings.get('iteration_attempts', settings.get('max_attempts', 5))
         if not isinstance(iteration_attempts, int) or iteration_attempts <= 0:
             iteration_attempts = 5
@@ -977,7 +798,6 @@ class BaseModelIterator:
         validated_settings['escape_attempts'] = escape_attempts
         
         # Add iteration timeout setting (default to 1.0 seconds)
-        # First check for old isomorphism_timeout name for backward compatibility
         iteration_timeout = settings.get('iteration_timeout', settings.get('isomorphism_timeout', 1.0))
         if not isinstance(iteration_timeout, (int, float)) or iteration_timeout <= 0:
             iteration_timeout = 1.0
@@ -1009,103 +829,26 @@ class BaseModelIterator:
         return itertools.product(domain, repeat=arity)
 
 
-# Module-level convenience functions
-
+# Module-level convenience function with theory-agnostic implementation
 def iterate_example(example, max_iterations=None):
-    """Convenience function to iterate an example and find multiple models.
+    """Iterate a BuildExample to find multiple models.
     
-    This function dynamically selects the appropriate iterator class based on
-    the theory used in the example.
-    
-    Args:
-        example: BuildExample instance with a solved model
-        max_iterations: Override for maximum iterations (optional)
-        
-    Returns:
-        list: All found model structures
-        
-    Raises:
-        ValueError: If iteration is not possible with this example
-        ImportError: If the theory does not have an iterator implementation
-    """
-    if not isinstance(example, BuildExample):
-        raise TypeError(f"Expected BuildExample, got {type(example).__name__}")
-    
-    # We need to use 'default' as the theory for now since that's what we've implemented
-    # This is a temporary solution until all theories are properly implemented
-    theory_name = 'default'
-    
-    # For debugging, print some information about the example
-    print(f"\nDEBUG: Using theory '{theory_name}' for iteration", file=sys.stderr)
-    if hasattr(example, 'semantics') and example.semantics is not None:
-        semantics_module = example.semantics.__class__.__module__
-        semantics_class = example.semantics.__class__.__name__
-        print(f"DEBUG: Semantics module: {semantics_module}", file=sys.stderr)
-        print(f"DEBUG: Semantics class: {semantics_class}", file=sys.stderr)
-    
-    # In the future, we can determine the theory name from the semantics module path
-    # This is commented out for now since it's not working correctly
-    """
-    # Determine the theory name from the semantics class
-    if hasattr(example, 'semantics') and example.semantics is not None:
-        # Get the module name of the semantics class
-        semantics_module = example.semantics.__class__.__module__
-        # Extract the theory name from the module path
-        # E.g., model_checker.theory_lib.default.semantic -> default
-        try:
-            theory_parts = semantics_module.split('.')
-            # Look for theory_lib in the path
-            if 'theory_lib' in theory_parts:
-                theory_index = theory_parts.index('theory_lib') + 1
-                if theory_index < len(theory_parts):
-                    theory_name = theory_parts[theory_index]
-                else:
-                    raise ValueError("Cannot determine theory name from semantics module path")
-            else:
-                raise ValueError("Semantics module is not in theory_lib package")
-        except Exception as e:
-            raise ValueError(f"Failed to determine theory name: {str(e)}")
-    else:
-        raise ValueError("BuildExample has no semantics instance")
-    """
-    
-    # Get the appropriate iterator class for this theory
-    iterator_class = get_iterator_class(theory_name)
-    
-    # Create the iterator
-    iterator = iterator_class(example)
-    
-    # Override max_iterations if provided
-    if max_iterations is not None:
-        if not isinstance(max_iterations, int) or max_iterations < 1:
-            raise ValueError(f"max_iterations must be a positive integer, got {max_iterations}")
-        iterator.max_iterations = max_iterations
-        
-    # Perform iteration
-    return iterator.iterate()
-
-
-def get_iterator_class(theory_name):
-    """Get the appropriate iterator class for a theory.
+    This function is designed to be imported and used by theory-specific implementations
+    that will provide their own iterator class.
     
     Args:
-        theory_name: Name of the theory.
+        example: A BuildExample instance.
+        max_iterations: Maximum number of models to find.
         
     Returns:
-        class: The appropriate iterator class.
+        list: List of BuildExample instances with distinct models.
         
     Raises:
-        ImportError: If the theory does not have an iterator implementation.
+        NotImplementedError: This base function should not be called directly.
     """
-    try:
-        # Import the theory-specific module
-        module_path = f"model_checker.theory_lib.{theory_name}.iterate"
-        iterate_module = importlib.import_module(module_path)
-        
-        # Get the class (assuming naming convention TheoryNameModelIterator)
-        class_name = f"{theory_name.capitalize()}ModelIterator"
-        iterator_class = getattr(iterate_module, class_name)
-        
-        return iterator_class
-    except (ImportError, AttributeError) as e:
-        raise ImportError(f"Theory '{theory_name}' does not implement a model iterator: {e}")
+    # This base implementation should not be called directly
+    raise NotImplementedError(
+        "iterate_example in core.py should not be called directly. "
+        "Theory packages should provide their own iterate_example implementations "
+        "that use their specific iterator class."
+    )
