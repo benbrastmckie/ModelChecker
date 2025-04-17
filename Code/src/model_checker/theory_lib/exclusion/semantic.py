@@ -1083,7 +1083,6 @@ class ExclusionStructure(model.ModelDefaults):
         import sys
         
         if not hasattr(self, 'model_differences') or not self.model_differences:
-            print("No model differences to display.")
             return False
             
         # First, check if there are any actual differences
@@ -1098,10 +1097,14 @@ class ExclusionStructure(model.ModelDefaults):
         )
         
         if not has_diffs:
-            print("No significant structural differences between models.")
             return False
             
         print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n")
+        
+        # Set up colors manually (don't rely on self.COLORS which might not be available in all output contexts)
+        BLUE = "\033[34m"
+        CYAN = "\033[36m"
+        RESET = "\033[0m"
         
         # World changes
         if 'worlds' in differences and (differences['worlds'].get('added') or differences['worlds'].get('removed')):
@@ -1119,9 +1122,9 @@ class ExclusionStructure(model.ModelDefaults):
                             world_int = world
                             
                         world_str = bitvec_to_substates(world_int, self.N)
-                        print(f"  + {world_str} (world)")
+                        print(f"  + {BLUE}{world_str} (world){RESET}")
                     except Exception as e:
-                        print(f"  + {world} (world) [Error: {e}]")
+                        print(f"  + {BLUE}{world} (world){RESET}")
             
             if differences['worlds'].get('removed'):
                 for world in differences['worlds']['removed']:
@@ -1135,9 +1138,9 @@ class ExclusionStructure(model.ModelDefaults):
                             world_int = world
                             
                         world_str = bitvec_to_substates(world_int, self.N)
-                        print(f"  - {world_str} (world)")
+                        print(f"  - {BLUE}{world_str} (world){RESET}")
                     except Exception as e:
-                        print(f"  - {world} (world) [Error: {e}]")
+                        print(f"  - {BLUE}{world} (world){RESET}")
         
         # Possible state changes
         if 'possible_states' in differences and (differences['possible_states'].get('added') or differences['possible_states'].get('removed')):
@@ -1155,9 +1158,9 @@ class ExclusionStructure(model.ModelDefaults):
                             state_int = state
                             
                         state_str = bitvec_to_substates(state_int, self.N)
-                        print(f"  + {state_str}")
+                        print(f"  + {CYAN}{state_str}{RESET}")
                     except Exception as e:
-                        print(f"  + {state} [Error: {e}]")
+                        print(f"  + {CYAN}{state}{RESET}")
             
             if differences['possible_states'].get('removed'):
                 for state in differences['possible_states']['removed']:
@@ -1171,9 +1174,9 @@ class ExclusionStructure(model.ModelDefaults):
                             state_int = state
                             
                         state_str = bitvec_to_substates(state_int, self.N)
-                        print(f"  - {state_str}")
+                        print(f"  - {CYAN}{state_str}{RESET}")
                     except Exception as e:
-                        print(f"  - {state} [Error: {e}]")
+                        print(f"  - {CYAN}{state}{RESET}")
         
         # Exclusion relationship changes
         if 'exclusion_relations' in differences and differences['exclusion_relations']:
