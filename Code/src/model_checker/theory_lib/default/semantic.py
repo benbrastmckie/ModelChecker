@@ -1049,9 +1049,6 @@ class ModelStructure(ModelDefaults):
             print(f"Try increasing max_time > {self.max_time}.\n", file=output)
         self.print_all(self.settings, example_name, theory_name, output)
         
-        # We no longer print differences here, they're printed before the model
-        # The differences are now printed by the BuildModule class in iterate.py
-            
         if print_constraints and self.unsat_core is not None:
             self.print_grouped_constraints(output)
 
