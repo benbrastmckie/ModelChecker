@@ -62,8 +62,11 @@
         - [ ] maximize
         - [ ] minimize
         - [x] iterate models
-          - [ ] refactor module
+          - [:] refactor module
+            - [ ] debug bimodal
             - [ ] revise iterate settings
+            - [ ] add iterate tests to `test_package.py`
+            - [ ]
           - [ ] update DEFAULTS
           - [ ] report networkx not available
           - [ ] add iterator to other theories

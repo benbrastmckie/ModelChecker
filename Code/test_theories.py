@@ -73,10 +73,15 @@ def run_tests(theories: Optional[List[str]] = None, verbose: bool = False, failf
             print(f"Directory not found for theory: {theory}")
             continue
         
-        # Check specifically for the test subdirectory
+        # Check specifically for the tests or test subdirectory
+        tests_subdir = os.path.join(full_test_dir, "tests")
         test_subdir = os.path.join(full_test_dir, "test")
-        if os.path.exists(test_subdir):
-            # If there's a test subdirectory, target that specifically
+        
+        if os.path.exists(tests_subdir):
+            # If there's a tests subdirectory, target that specifically
+            test_dir = os.path.join(test_dir, "tests")
+        elif os.path.exists(test_subdir):
+            # For backward compatibility, also check for the test subdirectory
             test_dir = os.path.join(test_dir, "test")
         
         env = os.environ.copy()
