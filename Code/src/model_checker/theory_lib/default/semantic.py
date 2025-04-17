@@ -1546,28 +1546,29 @@ class ModelStructure(ModelDefaults):
         
         # Compatibility relationship changes are no longer printed
 
-    def _print_structural_metrics(self, output=sys.stdout):
-        """Print structural metrics for the model."""
-        print("\nStructural Properties:", file=output)
-        print(f"  Worlds: {len(self.z3_world_states)}", file=output)
-        
-        # Add graph-theoretic properties if available
-        if hasattr(self, 'model_graph'):
-            try:
-                graph = self.model_graph.graph
-                
-                # Degree distributions
-                in_degrees = sorted(d for _, d in graph.in_degree())
-                out_degrees = sorted(d for _, d in graph.out_degree())
-                print(f"  In-degree distribution: {in_degrees}", file=output)
-                print(f"  Out-degree distribution: {out_degrees}", file=output)
-                
-                # Connected components
-                import networkx as nx
-                components = nx.number_connected_components(graph.to_undirected())
-                print(f"  connected_components: {components}", file=output)
-            except Exception:
-                pass
+    # # TODO: remove
+    # def _print_structural_metrics(self, output=sys.stdout):
+    #     """Print structural metrics for the model."""
+    #     print("\nStructural Properties:", file=output)
+    #     print(f"  Worlds: {len(self.z3_world_states)}", file=output)
+    #     
+    #     # Add graph-theoretic properties if available
+    #     if hasattr(self, 'model_graph'):
+    #         try:
+    #             graph = self.model_graph.graph
+    #             
+    #             # Degree distributions
+    #             in_degrees = sorted(d for _, d in graph.in_degree())
+    #             out_degrees = sorted(d for _, d in graph.out_degree())
+    #             print(f"  In-degree distribution: {in_degrees}", file=output)
+    #             print(f"  Out-degree distribution: {out_degrees}", file=output)
+    #             
+    #             # Connected components
+    #             import networkx as nx
+    #             components = nx.number_connected_components(graph.to_undirected())
+    #             print(f"  connected_components: {components}", file=output)
+    #         except Exception:
+    #             pass
     
     def _get_friendly_letter_name(self, letter_str):
         """Convert a letter representation to a user-friendly name."""

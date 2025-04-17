@@ -61,9 +61,9 @@
         - [ ] report networkx not available
       - [.] add iterator to other theories
         - [:] exclusion
-          - [ ] color differences
+          - [x] refactor `iterate.py`
+          - [x] color outputs
           - [ ] don't print impossible when setting is false
-          - [ ] color outputs
         - [.] bimodal
         - [ ] imposition
       - [ ] unit tests
