@@ -6,12 +6,16 @@ significant way.
 
 Classes:
     ImpositionSemantics: Configures semantic framework with imposition operations
+    ImpositionModelIterator: Finds multiple distinct models for imposition semantics examples
 
 Operators:
     imposition_operators: Dictionary of logical operators including:
         - Extensional: ¬ (neg), ∧ (and), ∨ (or), → (conditional), ↔ (biconditional)
         - Imposition: ↪ (imposition), ⟂ (could)
         - Extremal: ⊤ (top), ⊥ (bottom)
+
+Functions:
+    iterate_example: Find multiple distinct models for an imposition semantics example
 
 Examples:
     Access examples through utility functions in theory_lib:
@@ -27,6 +31,10 @@ Usage:
     # Create a semantics and model structure
     semantics = ImpositionSemantics(settings)
     
+    # Find multiple models
+    from model_checker.theory_lib.imposition import iterate_example
+    models = iterate_example(example, max_iterations=5)
+    
     # Access examples
     examples = get_examples('imposition')
 """
@@ -41,9 +49,14 @@ from .semantic import (
 # Import all operators
 from .operators import imposition_operators
 
+# Import iteration functionality
+from .iterate import ImpositionModelIterator, iterate_example
+
 # Define the public API of the package
 __all__ = [
-    "ImpositionSemantics",  # Semantic framework with imposition operations
-    "imposition_operators", # Logical operators including imposition (↪) and could (⟂)
-    "__version__",          # Package version information
+    "ImpositionSemantics",    # Semantic framework with imposition operations
+    "imposition_operators",   # Logical operators including imposition (↪) and could (⟂)
+    "ImpositionModelIterator", # Iterator for finding multiple distinct models
+    "iterate_example",        # Function to find multiple distinct models
+    "__version__",            # Package version information
 ]
