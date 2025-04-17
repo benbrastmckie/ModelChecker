@@ -275,6 +275,7 @@ class BaseModelIterator:
                 # Calculate and store differences for the presentation layer to use
                 differences = self._calculate_differences(new_structure, self.model_structures[-1])
                 new_structure.model_differences = differences
+                print(f"DEBUG CORE: Setting model_differences = {bool(differences)}")
                 
                 # Store reference to previous structure for comparison
                 new_structure.previous_structure = self.model_structures[-1]
