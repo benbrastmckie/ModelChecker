@@ -107,8 +107,8 @@ class ExclusionModelIterator(BaseModelIterator):
                 differences["worlds"]["removed"].append(world)
         
         # Compare possible states
-        old_states = set(getattr(previous_structure, "z3_possible_states", []))
-        new_states = set(getattr(new_structure, "z3_possible_states", []))
+        old_states = set(getattr(previous_structure, "z3_poss_bits", getattr(previous_structure, "z3_possible_states", [])))
+        new_states = set(getattr(new_structure, "z3_poss_bits", getattr(new_structure, "z3_possible_states", [])))
         
         # Find added/removed possible states
         for state in new_states:

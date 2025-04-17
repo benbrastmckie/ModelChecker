@@ -734,20 +734,25 @@ class ExclusionStructure(model.ModelDefaults):
                 format_state(bin_rep, state, self.COLORS["initial"])
             elif bit in self.z3_world_states:
                 format_state(bin_rep, state, self.COLORS["world"], "world")
-            elif bit in self.z3_poss_bits:
+            elif bit in getattr(self, 'z3_poss_bits', getattr(self, 'z3_possible_states', [])):
                 format_state(bin_rep, state, self.COLORS["possible"])
             elif self.settings['print_impossible']:
                 format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
 
     def print_exclusion(self, output=sys.__stdout__):
-        print("\nConflicts") if self.z3_conflicts else None
-        for bit_x, bit_y in self.z3_conflicts:
+        z3_conflicts = getattr(self, 'z3_conflicts', [])
+        print("\nConflicts") if z3_conflicts else None
+        for bit_x, bit_y in z3_conflicts:
             print(f"  {bitvec_to_substates(bit_x, self.N)} conflicts with {bitvec_to_substates(bit_y, self.N)}")
-        print("\nCoherence") if self.z3_coheres else None
-        for bit_x, bit_y in self.z3_coheres:
+            
+        z3_coheres = getattr(self, 'z3_coheres', [])
+        print("\nCoherence") if z3_coheres else None
+        for bit_x, bit_y in z3_coheres:
             print(f"  {bitvec_to_substates(bit_x, self.N)} coheres with {bitvec_to_substates(bit_y, self.N)}")
-        print("\nExclusion") if self.z3_excludes else None
-        for bit_x, bit_y in self.z3_excludes:
+            
+        z3_excludes = getattr(self, 'z3_excludes', [])
+        print("\nExclusion") if z3_excludes else None
+        for bit_x, bit_y in z3_excludes:
             print(f"  {bitvec_to_substates(bit_x, self.N)} excludes {bitvec_to_substates(bit_y, self.N)}")
 
         # Print all h functions from the model
