@@ -255,7 +255,7 @@ EX_CM_5_settings = { # agree
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 1,
-    'iterate' : 2,
+    # 'iterate' : 2,
     'expectation' : True,
 }
 EX_CM_5_example = [

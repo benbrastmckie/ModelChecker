@@ -57,7 +57,7 @@ class ExclusionOperator(syntactic.Operator):
 
         # NOTE: that Z3 can introduce arbitrary functions demonstrates its expressive power
         h = z3.Function(
-            f"h_{(state, argument)}",   # function name
+            f"h_{state, argument}",   # function name
             z3.BitVecSort(N),           # bitvector argument type
             z3.BitVecSort(N)            # bitvector return type
         )
