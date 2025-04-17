@@ -739,16 +739,39 @@ class ExclusionStructure(model.ModelDefaults):
             elif self.settings['print_impossible']:
                 format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
 
-    def print_h_functions(self):
+    def print_h_functions(self, output=sys.__stdout__):
         """Print the h_ function values in the model.
         
         This displays the preclusion functions mapping states to their
         corresponding values based on the actual Z3 model.
+        
+        Args:
+            output: Output stream to write the functions to. Defaults to sys.__stdout__.
         """
         if not self.z3_model:
             return
+        
+        # Set up colors
+        use_colors = output is sys.__stdout__
+        WHITE = self.WHITE if use_colors else ""
+        RESET = self.RESET if use_colors else ""
+        WORLD_COLOR = self.COLORS["world"] if use_colors else ""
+        POSSIBLE_COLOR = self.COLORS["possible"] if use_colors else ""
+        IMPOSSIBLE_COLOR = self.COLORS["impossible"] if use_colors else ""
+        
+        def get_state_color(bit):
+            if bit in self.z3_world_states:
+                return WORLD_COLOR
+            elif bit in self.z3_possible_states:
+                return POSSIBLE_COLOR
+            else:
+                return IMPOSSIBLE_COLOR
+                
+        def should_include_state(bit):
+            # Check if we should include this state based on print_impossible setting
+            return bit in self.z3_possible_states or bit in self.z3_world_states or self.settings['print_impossible']
             
-        print("\nFunctions")
+        print("\nFunctions", file=output)
         
         # Find all h_ functions in the model
         h_funcs = []
@@ -768,38 +791,91 @@ class ExclusionStructure(model.ModelDefaults):
             
             # Try to evaluate for each state
             for state in self.all_states:
+                # Skip impossible states if print_impossible is False
+                if not should_include_state(state):
+                    continue
+                    
                 try:
                     # Get the corresponding output value
                     result = self.z3_model.evaluate(z3.substitute(h_func_app, (arg, state)))
+                    
+                    # Skip if result is not a possible state and print_impossible is False
+                    if not should_include_state(result.as_long()):
+                        continue
                     
                     # Format the output
                     input_state = bitvec_to_substates(state, self.N)
                     output_state = bitvec_to_substates(result.as_long(), self.N)
                     
-                    # Print in the required format
-                    print(f"  {func.name()}: {input_state} → {output_state}")
+                    # Apply colors based on state type
+                    in_color = get_state_color(state)
+                    out_color = get_state_color(result.as_long())
+                    
+                    # Print in the required format with colors
+                    print(f"  {func.name()}: {in_color}{input_state}{RESET} → {out_color}{output_state}{RESET}", file=output)
                 except Exception:
                     # Skip if we can't evaluate this input
                     pass
 
     def print_exclusion(self, output=sys.__stdout__):
+        # Set up colors
+        use_colors = output is sys.__stdout__
+        WHITE = self.WHITE if use_colors else ""
+        RESET = self.RESET if use_colors else ""
+        WORLD_COLOR = self.COLORS["world"] if use_colors else ""
+        POSSIBLE_COLOR = self.COLORS["possible"] if use_colors else ""
+        IMPOSSIBLE_COLOR = self.COLORS["impossible"] if use_colors else ""
+        
+        def get_state_color(bit):
+            if bit in self.z3_world_states:
+                return WORLD_COLOR
+            elif bit in self.z3_possible_states:
+                return POSSIBLE_COLOR
+            else:
+                return IMPOSSIBLE_COLOR
+                
+        def should_include_state(bit):
+            # Check if we should include this state based on print_impossible setting
+            return bit in self.z3_possible_states or bit in self.z3_world_states or self.settings['print_impossible']
+        
+        # Filter and print conflicts
         z3_conflicts = getattr(self, 'z3_conflicts', [])
-        print("\nConflicts") if z3_conflicts else None
-        for bit_x, bit_y in z3_conflicts:
-            print(f"  {bitvec_to_substates(bit_x, self.N)} conflicts with {bitvec_to_substates(bit_y, self.N)}")
-            
+        filtered_conflicts = [(x, y) for x, y in z3_conflicts if should_include_state(x) and should_include_state(y)]
+        if filtered_conflicts:
+            print("\nConflicts", file=output)
+            for bit_x, bit_y in filtered_conflicts:
+                color_x = get_state_color(bit_x)
+                color_y = get_state_color(bit_y)
+                x_state = bitvec_to_substates(bit_x, self.N)
+                y_state = bitvec_to_substates(bit_y, self.N)
+                print(f"  {color_x}{x_state}{RESET} conflicts with {color_y}{y_state}{RESET}", file=output)
+        
+        # Filter and print coherence
         z3_coheres = getattr(self, 'z3_coheres', [])
-        print("\nCoherence") if z3_coheres else None
-        for bit_x, bit_y in z3_coheres:
-            print(f"  {bitvec_to_substates(bit_x, self.N)} coheres with {bitvec_to_substates(bit_y, self.N)}")
-            
+        filtered_coheres = [(x, y) for x, y in z3_coheres if should_include_state(x) and should_include_state(y)]
+        if filtered_coheres:
+            print("\nCoherence", file=output)
+            for bit_x, bit_y in filtered_coheres:
+                color_x = get_state_color(bit_x)
+                color_y = get_state_color(bit_y)
+                x_state = bitvec_to_substates(bit_x, self.N)
+                y_state = bitvec_to_substates(bit_y, self.N)
+                print(f"  {color_x}{x_state}{RESET} coheres with {color_y}{y_state}{RESET}", file=output)
+        
+        # Filter and print exclusions
         z3_excludes = getattr(self, 'z3_excludes', [])
-        print("\nExclusion") if z3_excludes else None
-        for bit_x, bit_y in z3_excludes:
-            print(f"  {bitvec_to_substates(bit_x, self.N)} excludes {bitvec_to_substates(bit_y, self.N)}")
+        filtered_excludes = [(x, y) for x, y in z3_excludes if should_include_state(x) and should_include_state(y)]
+        if filtered_excludes:
+            print("\nExclusion", file=output)
+            for bit_x, bit_y in filtered_excludes:
+                color_x = get_state_color(bit_x)
+                color_y = get_state_color(bit_y)
+                x_state = bitvec_to_substates(bit_x, self.N)
+                y_state = bitvec_to_substates(bit_y, self.N)
+                print(f"  {color_x}{x_state}{RESET} excludes {color_y}{y_state}{RESET}", file=output)
 
         # Print the h-functions
-        self.print_h_functions()
+        self.print_h_functions(output)
 
         # print()
         # for bit_x in self.all_states:

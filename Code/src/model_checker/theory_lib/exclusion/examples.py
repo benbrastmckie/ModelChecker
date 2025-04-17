@@ -147,7 +147,7 @@ default_theory = {
 
 general_settings = {
     "print_constraints": False,
-    "print_impossible": True,
+    "print_impossible": False,
     "print_z3": False,
     "save_output": False,
     "maximize": False,
