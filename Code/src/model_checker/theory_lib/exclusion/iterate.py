@@ -679,26 +679,48 @@ def iterate_example(example, max_iterations=None):
                 semantics = current_structure.semantics
                 all_states = current_structure.all_states
                 
+                # First update the z3_possible_states list to fix the impossible state display issue
+                # Make sure we're using evaluate properly by using is_true to handle Z3 objects correctly
+                possible_states = []
+                for state in all_states:
+                    result = evaluate(semantics.possible(state))
+                    is_possible = z3.is_true(result)
+                    if is_possible:
+                        possible_states.append(state)
+                        
+                # Store the possible states
+                current_structure.z3_possible_states = possible_states
+                
+                # The null state should always be possible (semantics requirement)
+                if 0 not in current_structure.z3_possible_states:
+                    current_structure.z3_possible_states.append(0)
+                
+                # Update the z3_world_states list for completeness
+                current_structure.z3_world_states = [
+                    state for state in current_structure.z3_possible_states
+                    if z3.is_true(evaluate(semantics.is_world(state)))
+                ]
+                
                 # Update relationship data for the model
                 current_structure.z3_conflicts = [
                     (bit_x, bit_y)
                     for bit_x in all_states
                     for bit_y in all_states
-                    if evaluate(semantics.conflicts(bit_x, bit_y))
+                    if z3.is_true(evaluate(semantics.conflicts(bit_x, bit_y)))
                 ]
                 
                 current_structure.z3_coheres = [
                     (bit_x, bit_y)
                     for bit_x in all_states
                     for bit_y in all_states
-                    if evaluate(semantics.coheres(bit_x, bit_y))
+                    if z3.is_true(evaluate(semantics.coheres(bit_x, bit_y)))
                 ]
                 
                 current_structure.z3_excludes = [
                     (bit_x, bit_y)
                     for bit_x in all_states
                     for bit_y in all_states
-                    if evaluate(semantics.excludes(bit_x, bit_y))
+                    if z3.is_true(evaluate(semantics.excludes(bit_x, bit_y)))
                 ]
             
             # Display the differences using the class method
