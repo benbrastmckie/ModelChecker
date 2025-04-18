@@ -836,7 +836,11 @@ class ExclusionStructure(model.ModelDefaults):
                 
         def should_include_state(bit):
             # Check if we should include this state based on print_impossible setting
-            return bit in self.z3_possible_states or bit in self.z3_world_states or self.settings['print_impossible']
+            # Always include the null state (bit 0)
+            return (bit == 0 or 
+                   bit in self.z3_possible_states or 
+                   bit in self.z3_world_states or 
+                   self.settings['print_impossible'])
         
         # Filter and print conflicts
         z3_conflicts = getattr(self, 'z3_conflicts', [])
