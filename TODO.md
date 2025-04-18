@@ -54,18 +54,18 @@
   - refactor as subpackages
     - [x] iterate models
       - [:] refactor module
-        - [ ] make iterate settings uniform
-        - [ ] add iterate tests to `test_package.py`
+        - [x] make iterate settings uniform
+        - [x] add iterate tests to `test_package.py`
+        - [x] update DEFAULTS
         - [ ] move iterate components out of semantic.py
-        - [ ] update DEFAULTS
         - [ ] report networkx not available
       - [.] add iterator to other theories
-        - [:] exclusion
-          - [x] refactor `iterate.py`
-          - [x] color outputs
-          - [ ] don't print impossible when setting is false
         - [.] bimodal
         - [ ] imposition
+        - [x] exclusion
+          - [x] refactor `iterate.py`
+          - [x] color outputs
+          - [x] don't print impossible when setting is false
       - [ ] unit tests
       - [ ] update docs
         - [ ] revise `iterate/README.md`

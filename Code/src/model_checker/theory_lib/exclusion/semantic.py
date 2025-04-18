@@ -28,6 +28,8 @@ class ExclusionSemantics(model.SemanticDefaults):
         'disjoint' : False,
         'fusion_closure' : False,
         'iterate' : 1,
+        'iteration_timeout': 1.0,
+        'iteration_attempts': 5,
         'max_time' : 1,
         'expectation' : None,
     }
@@ -663,33 +665,48 @@ class ExclusionStructure(model.ModelDefaults):
         evaluate = z3_model.evaluate
         self.main_world = self.main_point["world"]
         self.main_point["world"] = z3_model[self.main_world]
-        self.z3_possible_states = [
-            bit
-            for bit in self.all_states
-            if evaluate(self.semantics.possible(bit))
-        ]
+        
+        # Update possible states with proper Z3 boolean handling
+        possible_states = []
+        for state in self.all_states:
+            result = evaluate(self.semantics.possible(state))
+            is_possible = z3.is_true(result)
+            if is_possible:
+                possible_states.append(state)
+        
+        # Store the possible states
+        self.z3_possible_states = possible_states
+        
+        # The null state should always be possible (semantics requirement)
+        if 0 not in self.z3_possible_states:
+            self.z3_possible_states.append(0)
+        
+        # Update world states with proper Z3 boolean handling
         self.z3_world_states = [
-            bit
-            for bit in self.all_states
-            if evaluate(self.semantics.is_world(bit))
+            state for state in self.z3_possible_states
+            if z3.is_true(evaluate(self.semantics.is_world(state)))
         ]
+        
+        # Update relationship data with proper Z3 boolean handling
         self.z3_excludes = [
             (bit_x, bit_y)
             for bit_x in self.all_states
             for bit_y in self.all_states
-            if evaluate(self.semantics.excludes(bit_x, bit_y))
+            if z3.is_true(evaluate(self.semantics.excludes(bit_x, bit_y)))
         ]
+        
         self.z3_conflicts = [
             (bit_x, bit_y)
             for bit_x in self.all_states
             for bit_y in self.all_states
-            if evaluate(self.semantics.conflicts(bit_x, bit_y))
+            if z3.is_true(evaluate(self.semantics.conflicts(bit_x, bit_y)))
         ]
+        
         self.z3_coheres = [
             (bit_x, bit_y)
             for bit_x in self.all_states
             for bit_y in self.all_states
-            if evaluate(self.semantics.coheres(bit_x, bit_y))
+            if z3.is_true(evaluate(self.semantics.coheres(bit_x, bit_y)))
         ]
 
     def print_evaluation(self, output=sys.__stdout__):
@@ -931,237 +948,144 @@ class ExclusionStructure(model.ModelDefaults):
         # Print model information    
         self.print_all(self.settings, example_name, theory_name, output)
         
-        # Check for model differences - improved implementation
-        if hasattr(self, 'model_differences') and self.model_differences:
-            differences = self.model_differences
-            
-            
-            # Check if there are any actual differences - check all possible difference types
-            has_diffs = (
-                differences.get('worlds', {}).get('added') or 
-                differences.get('worlds', {}).get('removed') or
-                differences.get('possible_states', {}).get('added') or 
-                differences.get('possible_states', {}).get('removed') or
-                differences.get('sentence_letters') or
-                differences.get('exclusion_relations')
-            )
-            
-            if has_diffs:
-                print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
-                
-                # World changes
-                if 'worlds' in differences and (differences['worlds'].get('added') or differences['worlds'].get('removed')):
-                    print("World Changes:", file=output)
-                    
-                    if differences['worlds'].get('added'):
-                        for world in differences['worlds']['added']:
-                            try:
-                                # Convert BitVecRef to int if needed
-                                if hasattr(world, 'as_long'):
-                                    world_int = world.as_long()
-                                elif isinstance(world, str) and world.isdigit():
-                                    world_int = int(world)
-                                else:
-                                    world_int = world
-                                    
-                                world_str = bitvec_to_substates(world_int, self.N)
-                                print(f"  + {world_str} (world)", file=output)
-                            except Exception as e:
-                                print(f"  + {world} (world) [Error: {e}]", file=output)
-                    
-                    if differences['worlds'].get('removed'):
-                        for world in differences['worlds']['removed']:
-                            try:
-                                # Convert BitVecRef to int if needed
-                                if hasattr(world, 'as_long'):
-                                    world_int = world.as_long()
-                                elif isinstance(world, str) and world.isdigit():
-                                    world_int = int(world)
-                                else:
-                                    world_int = world
-                                    
-                                world_str = bitvec_to_substates(world_int, self.N)
-                                print(f"  - {world_str} (world)", file=output)
-                            except Exception as e:
-                                print(f"  - {world} (world) [Error: {e}]", file=output)
-                
-                # Possible state changes
-                if 'possible_states' in differences and (differences['possible_states'].get('added') or differences['possible_states'].get('removed')):
-                    print("\nPossible State Changes:", file=output)
-                    
-                    if differences['possible_states'].get('added'):
-                        for state in differences['possible_states']['added']:
-                            try:
-                                # Convert BitVecRef to int if needed
-                                if hasattr(state, 'as_long'):
-                                    state_int = state.as_long()
-                                elif isinstance(state, str) and state.isdigit():
-                                    state_int = int(state)
-                                else:
-                                    state_int = state
-                                    
-                                state_str = bitvec_to_substates(state_int, self.N)
-                                print(f"  + {state_str}", file=output)
-                            except Exception as e:
-                                print(f"  + {state} [Error: {e}]", file=output)
-                    
-                    if differences['possible_states'].get('removed'):
-                        for state in differences['possible_states']['removed']:
-                            try:
-                                # Convert BitVecRef to int if needed
-                                if hasattr(state, 'as_long'):
-                                    state_int = state.as_long()
-                                elif isinstance(state, str) and state.isdigit():
-                                    state_int = int(state)
-                                else:
-                                    state_int = state
-                                    
-                                state_str = bitvec_to_substates(state_int, self.N)
-                                print(f"  - {state_str}", file=output)
-                            except Exception as e:
-                                print(f"  - {state} [Error: {e}]", file=output)
-                
-                # Sentence letter verification changes
-                if 'sentence_letters' in differences and differences['sentence_letters']:
-                    print("\nSentence Letter Changes:", file=output)
-                    
-                    for letter, changes in differences['sentence_letters'].items():
-                        # Print letter changes
-                        print(f"  {letter}:", file=output)
-                        
-                        # Handle detailed verifier changes
-                        if isinstance(changes, dict) and 'verifiers' in changes:
-                            # Verifier changes
-                            if changes['verifiers'].get('added'):
-                                added_states = []
-                                for state in changes['verifiers']['added']:
-                                    try:
-                                        # Convert BitVecRef to int if needed
-                                        if hasattr(state, 'as_long'):
-                                            state_int = state.as_long()
-                                        elif isinstance(state, str) and state.isdigit():
-                                            state_int = int(state)
-                                        else:
-                                            state_int = state
-                                            
-                                        state_str = bitvec_to_substates(state_int, self.N)
-                                        added_states.append(state_str)
-                                    except:
-                                        added_states.append(str(state))
-                                added_str = ', '.join(added_states)
-                                print(f"    Verifiers: + {{{added_str}}}", file=output)
-                                
-                            if changes['verifiers'].get('removed'):
-                                removed_states = []
-                                for state in changes['verifiers']['removed']:
-                                    try:
-                                        # Convert BitVecRef to int if needed
-                                        if hasattr(state, 'as_long'):
-                                            state_int = state.as_long()
-                                        elif isinstance(state, str) and state.isdigit():
-                                            state_int = int(state)
-                                        else:
-                                            state_int = state
-                                            
-                                        state_str = bitvec_to_substates(state_int, self.N)
-                                        removed_states.append(state_str)
-                                    except:
-                                        removed_states.append(str(state))
-                                removed_str = ', '.join(removed_states)
-                                print(f"    Verifiers: - {{{removed_str}}}", file=output)
-                        
-                        # Handle simpler format showing old and new values
-                        elif isinstance(changes, dict) and 'old' in changes and 'new' in changes:
-                            try:
-                                old_ver_str = "{"
-                                for v in changes['old']:
-                                    # Convert BitVecRef to int if needed
-                                    if hasattr(v, 'as_long'):
-                                        v_int = v.as_long()
-                                    elif isinstance(v, str) and v.isdigit():
-                                        v_int = int(v)
-                                    else:
-                                        v_int = v
-                                    old_ver_str += bitvec_to_substates(v_int, self.N) + ", "
-                                old_ver_str = old_ver_str.rstrip(", ") + "}"
-                                
-                                new_ver_str = "{"
-                                for v in changes['new']:
-                                    # Convert BitVecRef to int if needed
-                                    if hasattr(v, 'as_long'):
-                                        v_int = v.as_long()
-                                    elif isinstance(v, str) and v.isdigit():
-                                        v_int = int(v)
-                                    else:
-                                        v_int = v
-                                    new_ver_str += bitvec_to_substates(v_int, self.N) + ", "
-                                new_ver_str = new_ver_str.rstrip(", ") + "}"
-                                
-                                print(f"    Verifiers: {old_ver_str} -> {new_ver_str}", file=output)
-                            except Exception as e:
-                                # Fall back to simple representation
-                                print(f"    Verifiers: {changes['old']} -> {changes['new']} [Error: {e}]", file=output)
-                
-                # Exclusion relationship changes
-                if 'exclusion_relations' in differences and differences['exclusion_relations']:
-                    print("\nExclusion Relationship Changes:", file=output)
-                    
-                    for pair, change in differences['exclusion_relations'].items():
-                        # Try to parse the state pair
-                        try:
-                            states = pair.split(',')
-                            if len(states) == 2:
-                                # Convert to ints properly
-                                state1 = states[0].strip()
-                                state2 = states[1].strip()
-                                
-                                # Handle different input types
-                                if hasattr(state1, 'as_long'):
-                                    state1_bitvec = state1.as_long()
-                                elif state1.isdigit():
-                                    state1_bitvec = int(state1)
-                                else:
-                                    state1_bitvec = state1
-                                    
-                                if hasattr(state2, 'as_long'):
-                                    state2_bitvec = state2.as_long()
-                                elif state2.isdigit():
-                                    state2_bitvec = int(state2)
-                                else:
-                                    state2_bitvec = state2
-                                
-                                state1_str = bitvec_to_substates(state1_bitvec, self.N)
-                                state2_str = bitvec_to_substates(state2_bitvec, self.N)
-                                
-                                if change.get('new'):
-                                    print(f"  {state1_str} now excludes {state2_str}", file=output)
-                                else:
-                                    print(f"  {state1_str} no longer excludes {state2_str}", file=output)
-                                continue
-                        except Exception as e:
-                            print(f"  Error parsing state pair '{pair}': {e}", file=sys.stderr)
-                        
-                        # Fall back to simple representation
-                        if isinstance(change, dict) and 'old' in change and 'new' in change:
-                            status = "now excludes" if change['new'] else "no longer excludes"
-                            print(f"  {pair}: {status}", file=output)
-                        else:
-                            print(f"  {pair}: changed", file=output)
-            else:
-                print("\nNo significant structural differences between models.", file=output)
+        # Model differences are now handled by the module.py code
+        # and printed through the print_model_differences method
         
         # Print constraints if requested
         if print_constraints and self.unsat_core is not None:
             self.print_grouped_constraints(output)
             
-    def print_model_differences(self):
+    def detect_model_differences(self, previous_structure):
+        """Calculate differences between this model and a previous one.
+        
+        This method implements the model-specific calculation of differences,
+        focusing on the aspects relevant to exclusion theory: worlds, possible states,
+        exclusion relationships, and sentence letter verifications.
+        
+        Args:
+            previous_structure: The previous model structure to compare against
+            
+        Returns:
+            dict: Dictionary structure of differences
+        """
+        # Get Z3 models
+        current_model = self.z3_model
+        previous_model = previous_structure.z3_model
+        
+        # Initialize exclusion theory-specific differences structure
+        differences = {
+            "worlds": {"added": [], "removed": []},
+            "possible_states": {"added": [], "removed": []},
+            "sentence_letters": {},
+            "exclusion_relations": {}
+        }
+        
+        # Get all state collections
+        old_worlds = set(getattr(previous_structure, "z3_world_states", []))
+        new_worlds = set(getattr(self, "z3_world_states", []))
+        old_states = set(getattr(previous_structure, "z3_possible_states", []))
+        new_states = set(getattr(self, "z3_possible_states", []))
+        
+        # Find added/removed worlds
+        for world in new_worlds:
+            if world not in old_worlds:
+                differences["worlds"]["added"].append(world)
+        
+        for world in old_worlds:
+            if world not in new_worlds:
+                differences["worlds"]["removed"].append(world)
+        
+        # Find added/removed possible states
+        for state in new_states:
+            if state not in old_states:
+                differences["possible_states"]["added"].append(state)
+        
+        for state in old_states:
+            if state not in new_states:
+                differences["possible_states"]["removed"].append(state)
+        
+        # Compare verification for each sentence letter
+        for letter in self.sentence_letters:
+            old_verifiers = []
+            new_verifiers = []
+            
+            # Check verifiers
+            for state in old_states.union(new_states):
+                try:
+                    # For previously possible states
+                    if state in old_states:
+                        if z3.is_true(previous_model.evaluate(self.semantics.verifies(letter, state))):
+                            old_verifiers.append(state)
+                
+                    # For currently possible states
+                    if state in new_states:
+                        if z3.is_true(current_model.evaluate(self.semantics.verifies(letter, state))):
+                            new_verifiers.append(state)
+                except Exception:
+                    # Skip problematic states
+                    pass
+            
+            # Only record differences if something changed
+            old_verifiers_set = set(old_verifiers)
+            new_verifiers_set = set(new_verifiers)
+            
+            added_verifiers = [state for state in new_verifiers if state not in old_verifiers_set]
+            removed_verifiers = [state for state in old_verifiers if state not in new_verifiers_set]
+            
+            if added_verifiers or removed_verifiers:
+                differences["sentence_letters"][str(letter)] = {
+                    "old": old_verifiers,
+                    "new": new_verifiers,
+                    "verifiers": {
+                        "added": added_verifiers,
+                        "removed": removed_verifiers
+                    }
+                }
+                
+        # Compare exclusion relationships
+        if hasattr(self.semantics, 'excludes'):
+            all_states = list(old_states.union(new_states))
+            for i, state1 in enumerate(all_states):
+                for j, state2 in enumerate(all_states[i:], i):
+                    # Skip identical states
+                    if state1 == state2:
+                        continue
+                        
+                    try:
+                        # Check if exclusion relationship changed
+                        old_excludes = False
+                        new_excludes = False
+                        
+                        if state1 in old_states and state2 in old_states:
+                            old_excludes = z3.is_true(previous_model.evaluate(self.semantics.excludes(state1, state2)))
+                            
+                        if state1 in new_states and state2 in new_states:
+                            new_excludes = z3.is_true(current_model.evaluate(self.semantics.excludes(state1, state2)))
+                            
+                        if old_excludes != new_excludes:
+                            state_pair = f"{state1},{state2}"
+                            differences["exclusion_relations"][state_pair] = {
+                                "old": old_excludes,
+                                "new": new_excludes
+                            }
+                    except Exception:
+                        # Skip problematic state pairs
+                        pass
+        
+        return differences
+    
+    def print_model_differences(self, output=sys.stdout):
         """Display model differences if they exist.
         
-        This method is called by the module.py's process_example method
+        This method is called by module.py's process_example method or BaseModelIterator
         to display differences between consecutive models.
-        """
-        import sys
         
+        Args:
+            output: Output stream to write to. Defaults to sys.stdout.
+        
+        Returns:
+            bool: True if differences were displayed, False otherwise
+        """
         if not hasattr(self, 'model_differences') or not self.model_differences:
             return False
             
@@ -1179,16 +1103,22 @@ class ExclusionStructure(model.ModelDefaults):
         if not has_diffs:
             return False
             
-        print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n")
+        print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
         
-        # Set up colors manually (don't rely on self.COLORS which might not be available in all output contexts)
-        BLUE = "\033[34m"
-        CYAN = "\033[36m"
-        RESET = "\033[0m"
+        # Set up colors
+        use_colors = output is sys.__stdout__
+        if use_colors:
+            BLUE = "\033[34m"
+            CYAN = "\033[36m"
+            RESET = "\033[0m"
+        else:
+            BLUE = ""
+            CYAN = ""
+            RESET = ""
         
         # World changes
         if 'worlds' in differences and (differences['worlds'].get('added') or differences['worlds'].get('removed')):
-            print("World Changes:")
+            print("World Changes:", file=output)
             
             if differences['worlds'].get('added'):
                 for world in differences['worlds']['added']:
@@ -1202,9 +1132,9 @@ class ExclusionStructure(model.ModelDefaults):
                             world_int = world
                             
                         world_str = bitvec_to_substates(world_int, self.N)
-                        print(f"  + {BLUE}{world_str} (world){RESET}")
-                    except Exception as e:
-                        print(f"  + {BLUE}{world} (world){RESET}")
+                        print(f"  + {BLUE}{world_str} (world){RESET}", file=output)
+                    except Exception:
+                        print(f"  + {BLUE}{world} (world){RESET}", file=output)
             
             if differences['worlds'].get('removed'):
                 for world in differences['worlds']['removed']:
@@ -1218,13 +1148,13 @@ class ExclusionStructure(model.ModelDefaults):
                             world_int = world
                             
                         world_str = bitvec_to_substates(world_int, self.N)
-                        print(f"  - {BLUE}{world_str} (world){RESET}")
-                    except Exception as e:
-                        print(f"  - {BLUE}{world} (world){RESET}")
+                        print(f"  - {BLUE}{world_str} (world){RESET}", file=output)
+                    except Exception:
+                        print(f"  - {BLUE}{world} (world){RESET}", file=output)
         
         # Possible state changes
         if 'possible_states' in differences and (differences['possible_states'].get('added') or differences['possible_states'].get('removed')):
-            print("\nPossible State Changes:")
+            print("\nPossible State Changes:", file=output)
             
             if differences['possible_states'].get('added'):
                 for state in differences['possible_states']['added']:
@@ -1238,9 +1168,9 @@ class ExclusionStructure(model.ModelDefaults):
                             state_int = state
                             
                         state_str = bitvec_to_substates(state_int, self.N)
-                        print(f"  + {CYAN}{state_str}{RESET}")
-                    except Exception as e:
-                        print(f"  + {CYAN}{state}{RESET}")
+                        print(f"  + {CYAN}{state_str}{RESET}", file=output)
+                    except Exception:
+                        print(f"  + {CYAN}{state}{RESET}", file=output)
             
             if differences['possible_states'].get('removed'):
                 for state in differences['possible_states']['removed']:
@@ -1254,13 +1184,13 @@ class ExclusionStructure(model.ModelDefaults):
                             state_int = state
                             
                         state_str = bitvec_to_substates(state_int, self.N)
-                        print(f"  - {CYAN}{state_str}{RESET}")
-                    except Exception as e:
-                        print(f"  - {CYAN}{state}{RESET}")
+                        print(f"  - {CYAN}{state_str}{RESET}", file=output)
+                    except Exception:
+                        print(f"  - {CYAN}{state}{RESET}", file=output)
         
         # Exclusion relationship changes
         if 'exclusion_relations' in differences and differences['exclusion_relations']:
-            print("\nExclusion Relationship Changes:")
+            print("\nExclusion Relationship Changes:", file=output)
             
             for pair, change in differences['exclusion_relations'].items():
                 # Try to parse the state pair
@@ -1290,9 +1220,9 @@ class ExclusionStructure(model.ModelDefaults):
                         state2_str = bitvec_to_substates(state2_bitvec, self.N)
                         
                         if change.get('new'):
-                            print(f"  {state1_str} now excludes {state2_str}")
+                            print(f"  {state1_str} now excludes {state2_str}", file=output)
                         else:
-                            print(f"  {state1_str} no longer excludes {state2_str}")
+                            print(f"  {state1_str} no longer excludes {state2_str}", file=output)
                         continue
                 except Exception as e:
                     print(f"  Error parsing state pair '{pair}': {e}", file=sys.stderr)
@@ -1300,9 +1230,9 @@ class ExclusionStructure(model.ModelDefaults):
                 # Fall back to simple representation
                 if isinstance(change, dict) and 'old' in change and 'new' in change:
                     status = "now excludes" if change['new'] else "no longer excludes"
-                    print(f"  {pair}: {status}")
+                    print(f"  {pair}: {status}", file=output)
                 else:
-                    print(f"  {pair}: changed")
+                    print(f"  {pair}: changed", file=output)
         
         return True
 
