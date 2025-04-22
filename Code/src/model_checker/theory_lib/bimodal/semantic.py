@@ -77,30 +77,41 @@ class BimodalSemantics(SemanticDefaults):
         This implementation ensures that each new instance of BimodalSemantics 
         starts with a clean slate by resetting all shared resources that could
         potentially cause interference between different examples.
+        
+        IMPORTANT: This method is critical for ensuring that examples run independently
+        and don't affect each other's results or performance. The BimodalSemantics
+        implementation demonstrates best practices for implementing this method in
+        theory-specific semantics classes:
+        
+        1. Call the parent implementation first using super()._reset_global_state()
+        2. Clear any theory-specific cache dictionaries
+        3. Reset mutable state while preserving necessary immutable definitions
+        4. Explicitly force garbage collection to release Z3 resources
+        
+        For more information, see theory_lib/notes/separation.md.
         """
+        # Call parent implementation first
+        super()._reset_global_state()
+        
         # Clear any cached world time intervals from previous examples
         self.world_time_intervals = {}
         
-        # Clear any previously stored world arrays
-        if hasattr(self, 'world_function'):
-            delattr(self, 'world_function')
-            
-        # Reset task relation (relation between world states)
-        if hasattr(self, 'task'):
-            delattr(self, 'task')
-            
-        # Reset is_world function (validity of world IDs)
-        if hasattr(self, 'is_world'):
-            delattr(self, 'is_world')
-            
-        # Reset truth condition function
-        if hasattr(self, 'truth_condition'):
-            delattr(self, 'truth_condition')
-            
-        # Reset main world and time point
+        # Clear model cache values
+        if hasattr(self, 'model_structure'):
+            delattr(self, 'model_structure')
+        
+        # Reset mutable caches
+        self.all_true = {}
+        self.all_false = {}
+        
+        # Reset main point references (but not the definitions created in __init__)
         self.main_world = 0
         self.main_time = None
         self.main_point = None
+        
+        # Force garbage collection to free any Z3 resources
+        import gc
+        gc.collect()
         
 
     def define_sorts(self):
@@ -1685,8 +1696,15 @@ class BimodalStructure(ModelDefaults):
             model_constraints (ModelConstraints): Constraints for model generation
             max_time (int): Maximum solving time in seconds
         """
+        # Explicitly reset any Z3 resources before initializing
+        import gc
+        gc.collect()
+
         # Initialize parent class first
         super().__init__(model_constraints, max_time)
+
+        # We don't want to reset semantics again here as it would 
+        # remove necessary attributes already defined in __init__
 
         # Initialize temporal and world attributes
         self.M = self.semantics.M
@@ -1704,6 +1722,9 @@ class BimodalStructure(ModelDefaults):
         self.z3_main_world_state = None
         # Initialize main_time with a default value (0) to avoid AttributeError
         self.main_time = 0
+        
+        # Force another garbage collection to ensure no Z3 resources leak
+        gc.collect()
 
         # Only evaluate if we have a valid model
         if self.z3_model_status and self.z3_model is not None:

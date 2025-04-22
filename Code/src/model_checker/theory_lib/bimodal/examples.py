@@ -624,21 +624,12 @@ test_example_range = {
 example_range = {
 
     ### COUNTERMODELS ###
-
-    # Extensional Countermodels
-    # "EX_CM_1" : EX_CM_1_example,
     
-    # Modal Countermodels first to test order independence
-    # "MD_CM_1" : MD_CM_1_example,
-    # "MD_CM_2" : MD_CM_2_example,
-    # "MD_CM_3" : MD_CM_3_example,
-    # "MD_CM_4" : MD_CM_4_example,
-    # "MD_CM_5" : MD_CM_5_example,
-    # "MD_CM_6" : MD_CM_6_example,
+    # Modal Countermodels
+    "MD_CM_1" : MD_CM_1_example,
     
     # Tense Countermodels
-    # "TN_CM_1" : TN_CM_1_example,
-    # "TN_CM_2" : TN_CM_2_example,
+    "TN_CM_1" : TN_CM_1_example,
     
     # Bimodal Countermodel
     "BM_CM_1" : BM_CM_1_example,
@@ -659,7 +650,7 @@ example_range = {
     # "TN_TH_2" : TN_TH_2_example,
 
     # Bimodal Theorems
-    "BM_TH_1" : BM_TH_1_example,
+    # "BM_TH_1" : BM_TH_1_example,
     # "BM_TH_2" : BM_TH_2_example,
     # "BM_TH_3" : BM_TH_3_example,
     # "BM_TH_4" : BM_TH_4_example,
