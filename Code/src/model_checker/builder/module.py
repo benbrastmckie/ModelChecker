@@ -596,18 +596,20 @@ class BuildModule:
         import sys
         import gc
         
-        # For each example, create a completely fresh environment
+        # For each example, create a clean environment with preserved Z3 module
         for example_name, example_case in self.example_range.items():
             # Force garbage collection to clean up any lingering Z3 objects
             gc.collect()
             
-            # Create a completely fresh solver for this example
-            z3._main_ctx = None  # Force Z3 to create a fresh context
+            # Reset Z3 context to create a fresh environment for this example
+            import z3
+            if hasattr(z3, '_main_ctx'):
+                z3._main_ctx = None
             
-            # Create a new instance of Z3 for this example
-            # This ensures complete isolation between examples
-            new_z3 = __import__('z3')
+            # Force another garbage collection to ensure clean state
+            gc.collect()
             
+            # Run the system in a clean state
             for theory_name, semantic_theory in self.semantic_theories.items():
                 # Make setting reset for each semantic_theory
                 example_copy = list(example_case)
@@ -615,4 +617,8 @@ class BuildModule:
                 
                 # Process the example with our new unified approach
                 # This handles both single models and iterations consistently
-                self.process_example(example_name, example_copy, theory_name, semantic_theory)
+                try:
+                    self.process_example(example_name, example_copy, theory_name, semantic_theory)
+                finally:
+                    # Force cleanup after each example to prevent state leaks
+                    gc.collect()
