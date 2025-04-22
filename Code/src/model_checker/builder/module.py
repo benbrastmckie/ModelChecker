@@ -596,12 +596,16 @@ class BuildModule:
         import sys
         import gc
         
-        # For each example, create a clean environment with preserved Z3 module
+        # For each example, create a completely isolated Z3 environment
+        # This ensures no state leakage between examples, solving the timeout issues
+        # that can occur when running multiple examples in sequence
         for example_name, example_case in self.example_range.items():
             # Force garbage collection to clean up any lingering Z3 objects
             gc.collect()
             
             # Reset Z3 context to create a fresh environment for this example
+            # This is the critical fix for ensuring proper Z3 state isolation
+            # Each example gets its own fresh Z3 context, preventing any state leakage
             import z3
             if hasattr(z3, '_main_ctx'):
                 z3._main_ctx = None

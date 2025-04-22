@@ -1366,5 +1366,5 @@ class ModelDefaults:
     def _print_runtime_footer(self, output):
         """Print Z3 runtime and separator footer."""
         print(f"\nZ3 Run Time: {self.z3_model_runtime} seconds", file=output)
-        print(f"\n{'='*40}\n", file=output)
+        print(f"\n{'='*40}", file=output)
 
