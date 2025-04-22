@@ -375,8 +375,12 @@ class NecessityOperator(syntactic.Operator):
         return z3.ForAll(
             other_world,
             z3.Implies(
-                # If other_world is a valid world
-                semantics.is_world(other_world),
+                z3.And(
+                    # If other_world is a valid world
+                    semantics.is_world(other_world),
+                    # And eval_time is in other_world
+                    semantics.is_valid_time_for_world(other_world, eval_time),
+                ),
                 # Then the argument is true in other_world at the eval_time
                 semantics.true_at(argument, other_world, eval_time)
             )
@@ -394,6 +398,8 @@ class NecessityOperator(syntactic.Operator):
             z3.And(
                 # Where other_world is a valid world
                 semantics.is_world(other_world),
+                # And eval_time is in other_world
+                semantics.is_valid_time_for_world(other_world, eval_time),
                 # And the argument is false in other_world at the eval_time
                 semantics.false_at(argument, other_world, eval_time)
             )

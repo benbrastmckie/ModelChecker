@@ -334,10 +334,10 @@ BM_CM_2_premises = ['\\Past A']
 BM_CM_2_conclusions = ['\\Box A']
 BM_CM_2_settings = {
     'N' : 1,
-    'M' : 2,
-    'contingent' : True,
+    'M' : 1,
+    'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 2,
     'expectation' : True,
 }
 BM_CM_2_example = [
@@ -351,10 +351,10 @@ BM_CM_3_premises = ['\\Diamond A']
 BM_CM_3_conclusions = ['\\future A']
 BM_CM_3_settings = {
     'N' : 1,
-    'M' : 2,
-    'contingent' : True,
+    'M' : 1,
+    'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 2,
     'expectation' : True,
 }
 BM_CM_3_example = [
@@ -380,22 +380,6 @@ BM_CM_4_example = [
     BM_CM_4_settings,
 ]
 
-# MD_CM_5: POSSIBILITY TO SOME PAST
-BM_CM_5_premises = ['\\Box A']
-BM_CM_5_conclusions = ['\\Future \\Box A']
-BM_CM_5_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : False,
-    'disjoint' : False,
-    'max_time' : 5,
-    'expectation' : True,
-}
-BM_CM_5_example = [
-    BM_CM_5_premises,
-    BM_CM_5_conclusions,
-    BM_CM_5_settings,
-]
 
 
 
@@ -562,6 +546,22 @@ BM_TH_4_example = [
     BM_TH_4_settings,
 ]
 
+# MD_CM_5: NECESSITY TO ALL FUTURE NECESSITY
+BM_TH_5_premises = ['\\Box A']
+BM_TH_5_conclusions = ['\\Future \\Box A']
+BM_TH_5_settings = {
+    'N' : 1,
+    'M' : 2,
+    'contingent' : True,
+    'disjoint' : False,
+    'max_time' : 5,
+    'expectation' : False,
+}
+BM_TH_5_example = [
+    BM_TH_5_premises,
+    BM_TH_5_conclusions,
+    BM_TH_5_settings,
+]
 
 
 
@@ -641,11 +641,10 @@ example_range = {
     # "TN_CM_2" : TN_CM_2_example,
     
     # Bimodal Countermodel
-    # "BM_CM_1" : BM_CM_1_example,
+    "BM_CM_1" : BM_CM_1_example,
     # "BM_CM_2" : BM_CM_2_example,
     # "BM_CM_3" : BM_CM_3_example,
     # "BM_CM_4" : BM_CM_4_example,
-    "BM_CM_5" : BM_CM_5_example,
 
     ### THEOREMS ###
 
@@ -660,10 +659,11 @@ example_range = {
     # "TN_TH_2" : TN_TH_2_example,
 
     # Bimodal Theorems
-    # "BM_TH_1" : BM_TH_1_example,
+    "BM_TH_1" : BM_TH_1_example,
     # "BM_TH_2" : BM_TH_2_example,
     # "BM_TH_3" : BM_TH_3_example,
     # "BM_TH_4" : BM_TH_4_example,
+    # "BM_TH_5" : BM_TH_5_example,
 }
 
 

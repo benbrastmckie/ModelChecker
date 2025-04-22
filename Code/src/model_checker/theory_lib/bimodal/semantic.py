@@ -1240,8 +1240,9 @@ class BimodalProposition(PropositionDefaults):
         self.extension = self.find_extension()
         
         # Extract world states sets for use in representation
-        self.truth_set, self.false_set = self.extract_world_states()
+        # self.truth_set, self.false_set = self.extract_world_states()
         # self.truth_set, self.false_set = self.extract_pairs()
+        self.truth_set, self.false_set = self._find_proposition_at(self.eval_time)
 
     def __eq__(self, other):
         return (
@@ -1420,133 +1421,109 @@ class BimodalProposition(PropositionDefaults):
             
         raise ValueError(f"There is no proposition for {self}.")
 
-    def extract_pairs(self) -> tuple[set, set]:
-        # Extract states where proposition is true
-        true_pairs = set()
-        false_pairs = set()
+    # def extract_pairs(self) -> tuple[set, set]:
+    #     # Extract states where proposition is true
+    #     true_pairs = set()
+    #     false_pairs = set()
+    #
+    #     for world_id, (true_times, false_times) in self.extension.items():
+    #         for true_time in true_times:
+    #             true_pair = f'(W_{world_id},{true_time})'
+    #             true_pairs.add(true_pair)
+    #         for false_time in true_times:
+    #             false_pair = f'(W_{world_id},{false_time})'
+    #             false_pairs.add(false_pair)
+    #     return true_pairs, false_pairs
 
-        for world_id, (true_times, false_times) in self.extension.items():
-            print(f"\n[DEBUG] Processing world {world_id}:")
-            for true_time in true_times:
-                true_pair = f'(W_{world_id},{true_time})'
-                true_pairs.add(true_pair)
-                print(f"[DEBUG]   - True pair: {true_pair}")
-            for false_time in true_times:
-                false_pair = f'(W_{world_id},{false_time})'
-                false_pairs.add(false_pair)
-                print(f"[DEBUG]   - False pair: {false_pair}")
-        return true_pairs, false_pairs
-
-    def extract_world_states(self) -> tuple[set, set]:
-        """Extract sets of world states where the proposition is true and false.
-        
-        Processes the proposition's temporal profiles for each world to determine
-        the set of world states where the proposition is true and where it is false.
-        
-        Returns:
-            tuple[set, set]: A pair of sets containing:
-                - First set: World states where the proposition is true
-                - Second set: World states where the proposition is false
-                
-        Raises:
-            KeyError: If a required world ID is missing
-            ValueError: If world state extraction fails in a way that breaks the model
-        """
-        # Debug prints
-        print(f"\n[DEBUG] Extracting world states for proposition: {self.name}")
-        print(f"[DEBUG] Extension: {self.extension}")
-        
-        # Extract states where proposition is true
-        truth_states = set()
-        false_states = set()
-        
-        for world_id, (true_times, false_times) in self.extension.items():
-            print(f"\n[DEBUG] Processing world {world_id}:")
-            print(f"[DEBUG]   - True times: {true_times}")
-            print(f"[DEBUG]   - False times: {false_times}")
-            
-            # Get the world array for this world ID - fail if not found
-            if world_id not in self.model_structure.world_arrays:
-                raise KeyError(f"World {world_id} not in world_arrays, but required for proposition {self.name}")
-                
-            world_array = self.model_structure.world_arrays[world_id]
-            
-            # Prefer world histories when available
-            if world_id in self.model_structure.world_histories:
-                world_history = self.model_structure.world_histories[world_id]
-                print(f"[DEBUG]   World history for W_{world_id}: {world_history}")
-                
-                # Process true times
-                for time in true_times:
-                    if time not in world_history:
-                        print(f"[DEBUG]   Skipping time {time} (not in world history)")
-                        # Skip times that aren't in the world history instead of raising an error
-                        # This handles cases where time intervals don't perfectly match
-                        continue
-                        
-                    state = world_history[time]
-                    print(f"[DEBUG]   Adding state '{state}' (from W_{world_id}, t={time}) to truth set")
-                    # Add the state to the truth set
-                    if isinstance(state, str):
-                        truth_states.add(state)
-                    else:
-                        # Convert to string representation if needed
-                        state_str = str(state)
-                        truth_states.add(state_str)
-                
-                # Process false times
-                for time in false_times:
-                    if time not in world_history:
-                        print(f"[DEBUG]   Skipping time {time} (not in world history)")
-                        # Skip times that aren't in the world history instead of raising an error
-                        continue
-                        
-                    state = world_history[time]
-                    print(f"[DEBUG]   Adding state '{state}' (from W_{world_id}, t={time}) to false set")
-                    # Add the state to the false set
-                    if isinstance(state, str):
-                        false_states.add(state)
-                    else:
-                        # Convert to string representation if needed
-                        state_str = str(state)
-                        false_states.add(state_str)
-            else:
-                # Direct array access using safe_select
-                print(f"[DEBUG]   No world history available, using direct array access")
-                
-                # Process true times
-                for time in true_times:
-                    try:
-                        # Use safe_select with direct time value - it handles type conversion
-                        state = self.model_structure.semantics.safe_select(
-                            self.z3_model, world_array, time)
-                        state_val = bitvec_to_worldstate(state)
-                        print(f"[DEBUG]   Adding state '{state_val}' (from W_{world_id}, t={time}) to truth set")
-                        truth_states.add(state_val)
-                    except (TypeError, z3.Z3Exception) as e:
-                        error_msg = f"Failed to extract state at world {world_id}, time {time}: {e}"
-                        print(f"[DEBUG] ERROR: {error_msg}")
-                        raise ValueError(error_msg) from e
-                
-                # Process false times
-                for time in false_times:
-                    try:
-                        # Use safe_select with direct time value - it handles type conversion
-                        state = self.model_structure.semantics.safe_select(
-                            self.z3_model, world_array, time)
-                        state_val = bitvec_to_worldstate(state)
-                        print(f"[DEBUG]   Adding state '{state_val}' (from W_{world_id}, t={time}) to false set")
-                        false_states.add(state_val)
-                    except (TypeError, z3.Z3Exception) as e:
-                        error_msg = f"Failed to extract state at world {world_id}, time {time}: {e}"
-                        print(f"[DEBUG] ERROR: {error_msg}")
-                        raise ValueError(error_msg) from e
-        
-        print(f"\n[DEBUG] Final truth_states: {truth_states}")
-        print(f"[DEBUG] Final false_states: {false_states}")
-        print(f"[DEBUG] Overlap: {truth_states.intersection(false_states)}")
-                
-        return truth_states, false_states
+    # def extract_world_states(self) -> tuple[set, set]:
+    #     """Extract sets of world states where the proposition is true and false.
+    #     
+    #     Processes the proposition's temporal profiles for each world to determine
+    #     the set of world states where the proposition is true and where it is false.
+    #     
+    #     Returns:
+    #         tuple[set, set]: A pair of sets containing:
+    #             - First set: World states where the proposition is true
+    #             - Second set: World states where the proposition is false
+    #             
+    #     Raises:
+    #         KeyError: If a required world ID is missing
+    #         ValueError: If world state extraction fails in a way that breaks the model
+    #     """
+    #     
+    #     # Extract states where proposition is true
+    #     truth_states = set()
+    #     false_states = set()
+    #     
+    #     for world_id, (true_times, false_times) in self.extension.items():
+    #         
+    #         # Get the world array for this world ID - fail if not found
+    #         if world_id not in self.model_structure.world_arrays:
+    #             raise KeyError(f"World {world_id} not in world_arrays, but required for proposition {self.name}")
+    #         world_array = self.model_structure.world_arrays[world_id]
+    #         
+    #         # Prefer world histories when available
+    #         if world_id in self.model_structure.world_histories:
+    #             world_history = self.model_structure.world_histories[world_id]
+    #             
+    #             # Process true times
+    #             for time in true_times:
+    #                 if time not in world_history:
+    #                     # Skip times that aren't in the world history instead of raising an error
+    #                     # This handles cases where time intervals don't perfectly match
+    #                     continue
+    #                     
+    #                 state = world_history[time]
+    #                 # Add the state to the truth set
+    #                 if isinstance(state, str):
+    #                     truth_states.add(state)
+    #                 else:
+    #                     # Convert to string representation if needed
+    #                     state_str = str(state)
+    #                     truth_states.add(state_str)
+    #             
+    #             # Process false times
+    #             for time in false_times:
+    #                 if time not in world_history:
+    #                     # Skip times that aren't in the world history instead of raising an error
+    #                     continue
+    #                     
+    #                 state = world_history[time]
+    #                 # Add the state to the false set
+    #                 if isinstance(state, str):
+    #                     false_states.add(state)
+    #                 else:
+    #                     # Convert to string representation if needed
+    #                     state_str = str(state)
+    #                     false_states.add(state_str)
+    #         else:
+    #             # Direct array access using safe_select
+    #             
+    #             # Process true times
+    #             for time in true_times:
+    #                 try:
+    #                     # Use safe_select with direct time value - it handles type conversion
+    #                     state = self.model_structure.semantics.safe_select(
+    #                         self.z3_model, world_array, time)
+    #                     state_val = bitvec_to_worldstate(state)
+    #                     truth_states.add(state_val)
+    #                 except (TypeError, z3.Z3Exception) as e:
+    #                     error_msg = f"Failed to extract state at world {world_id}, time {time}: {e}"
+    #                     raise ValueError(error_msg) from e
+    #             
+    #             # Process false times
+    #             for time in false_times:
+    #                 try:
+    #                     # Use safe_select with direct time value - it handles type conversion
+    #                     state = self.model_structure.semantics.safe_select(
+    #                         self.z3_model, world_array, time)
+    #                     state_val = bitvec_to_worldstate(state)
+    #                     false_states.add(state_val)
+    #                 except (TypeError, z3.Z3Exception) as e:
+    #                     error_msg = f"Failed to extract state at world {world_id}, time {time}: {e}"
+    #                     raise ValueError(error_msg) from e
+    #     
+    #     return truth_states, false_states
 
     def truth_value_at(self, eval_world, eval_time):
         """Checks if the proposition is true at the given world and time.
@@ -1590,6 +1567,47 @@ class BimodalProposition(PropositionDefaults):
                 pass
                 
         return true_in_eval_world
+
+    def _find_proposition_at(self, eval_time):
+        """Find the proposition's extension at a specific evaluation point.
+        
+        This method determines which world states make the proposition true and false
+        at the specified evaluation time by examining the proposition's extension
+        across all worlds.
+        
+        Args:
+            eval_point (dict): Dictionary containing evaluation information with keys:
+                - time (int): The time point at which to evaluate
+                - world (int): The world ID (not used in this method since we collect
+                             states from all worlds at the given time)
+                
+        Returns:
+            str: A string representation of the proposition's extension at the evaluation
+                 point in the format "< truth_states, false_states >" where:
+                 - truth_states: Set of world states where proposition is true at eval_time
+                 - false_states: Set of world states where proposition is false at eval_time
+        """
+        # Initialize sets to collect world states where proposition is true/false
+        truth_states = set()
+        false_states = set()
+
+        # Examine each world's extension at the evaluation time
+        for world_id, (true_times, false_times) in self.extension.items():
+            # Get the world history containing time->state mappings
+            world_history = self.model_structure.world_histories[world_id]
+
+            # If eval_time is in true_times, add the corresponding state to truth_states
+            if eval_time in true_times:
+                state = world_history[eval_time]
+                truth_states.add(state)
+                
+            # If eval_time is in false_times, add the corresponding state to false_states
+            if eval_time in false_times:
+                state = world_history[eval_time]
+                false_states.add(state)
+                
+        # Return proposition's extension at eval_time
+        return truth_states, false_states
 
     # TODO: make print from operator truth_condition
     def print_proposition(self, eval_point, indent_num, use_colors):
@@ -1636,7 +1654,7 @@ class BimodalProposition(PropositionDefaults):
             world_state_repr,
             use_colors
         )
-        
+
         # Print the proposition
         print(
             f"{'  ' * indent_num}{FULL}|{self.name}| = {self}{RESET}"
