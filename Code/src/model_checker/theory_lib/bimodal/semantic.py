@@ -1250,9 +1250,8 @@ class BimodalProposition(PropositionDefaults):
         # Calculate the extension (truth/falsity at each world and time)
         self.extension = self.find_extension()
         
+        # TODO: adapt find_truth_condition in operators.py to use eval_point
         # Extract world states sets for use in representation
-        # self.truth_set, self.false_set = self.extract_world_states()
-        # self.truth_set, self.false_set = self.extract_pairs()
         self.truth_set, self.false_set = self._find_proposition_at(self.eval_time)
 
     def __eq__(self, other):

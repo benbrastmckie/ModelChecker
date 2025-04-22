@@ -432,6 +432,9 @@ class NecessityOperator(syntactic.Operator):
             start_time, end_time = semantics.world_time_intervals[current_world]
             # Generate a list of all valid times for this world
             world_time_interval = list(range(start_time, end_time + 1))
+            # # Skip worlds that do not include the eval_time
+            # if eval_time not in world_time_interval:
+            #     continue
             # Initialize lists to store times when necessity is true/false
             true_times, false_times = [], []
 
