@@ -12,57 +12,75 @@ This work builds on the truthmaker semantics developed by Kit Fine in the follow
 - Fine (2017) ["A Theory of Truthmaker Content II: Subject-Matter, Common Content, Remainder and Ground"](https://doi.org/10.1007/s10992-016-9419-5) Journal of Philosophical Logic
 - Fine (2017) ["Truthmaker Semantics"](https://doi.org/10.1002/9781118972090.ch22), Wiley-Blackwell
 
-I have implemented Fine's semantics for the counterfactual conditional alongside the account that I defend for comparison.
-Whereas Fine's semantics is provided for `\\imposition`, the semantics I defend will be used to interpret `\\boxright`.
+I have implemented Fine's semantics for the counterfactual conditional alongside the present theory in the `imposition` theory for comparison.
+You can create an imposition project with `model-checker -l imposition`.
 
-In order to provide an overview of the hyperintensional semantics, this document will include the following sections below:
+## Table of Contents
 
-- Package Contents
-- Basic Usage
-- Unit Testing
-- Programmatic Semantics
+- [Basic Usage](#basic-usage)
+  - [Settings](#settings)
+  - [Example Structure](#example-structure)
+  - [Running Examples](#running-examples)
+    - [1. From the Command Line](#1-from-the-command-line)
+    - [2. In VSCodium/VSCode](#2-in-vscodiumvscode)
+    - [3. In Development Mode](#3-in-development-mode)
+    - [4. Using the API](#4-using-the-api)
+  - [Finding Multiple Models](#finding-multiple-models)
+- [Model Iteration](#model-iteration)
+  - [Iteration Architecture](#iteration-architecture)
+  - [Using Model Iteration](#using-model-iteration)
+  - [Visual Differences](#visual-differences)
+  - [Performance Considerations](#performance-considerations)
+- [Unit Testing](#unit-testing)
+  - [Running Tests](#running-tests)
+  - [Test Examples](#test-examples)
+- [Package Contents](#package-contents)
+  - [Directory Structure](#directory-structure)
+  - [Core Modules](#core-modules)
+    - [Semantic.py](#semanticpy)
+    - [Operators.py](#operatorspy)
+    - [Examples.py](#examplespy)
+    - [Iterate.py](#iteratepy)
+    - [Init Module](#init-module)
+  - [Operator Categories](#operator-categories)
+  - [Class Relationships](#class-relationships)
 
-The hyperintensional semantics provides an example of the more general programmatic methodology developed alongside this project.
-Further details about the more general project can also be found in the project [repository](https://github.com/benbrastmckie/ModelChecker).
+## Basic Usage
 
-## Package Contents
+### Settings
 
-This package includes the following modules:
+The default theory defines two types of settings:
 
-- `semantic.py` defines the default semantics for the operators included.
-- `operators.py` defines the primitive and derived operators.
-- `examples.py` defines a number of examples to test.
-- `__init__.py` to expose definitions.
+#### General Settings
 
-The contents of each will be provided in the following subsections.
-
-### Default Theory Settings
-
-The default theory defines the following settings:
+General settings control output and debugging behavior:
 
 ```python
-DEFAULT_EXAMPLE_SETTINGS = {
-    # Number of atomic states
-    'N': 3,
-    # Whether sentence_letters are assigned to contingent propositions
-    'contingent': False,
-    # Whether sentence_letters are assigned to distinct states
-    'disjoint': False,
-    # Maximum time Z3 is permitted to look for a model
-    'max_time': 1,
-    # Whether a model is expected or not (used for unit testing)
-    'expectation': True,
-}
-
-DEFAULT_GENERAL_SETTINGS = {
-    "print_impossible": False,
-    "print_constraints": False,
-    "print_z3": False,
-    "save_output": False,
-    "maximize": False,
-    # Note: align_vertically is not included since it's only relevant for bimodal theory
+general_settings = {
+    "print_constraints": False,  # Print constraints when no model is found
+    "print_impossible": False,   # Print impossible states
+    "print_z3": False,           # Print raw Z3 model
+    "save_output": False,        # Prompt to save output
+    "maximize": False,           # Maximize common components across models
 }
 ```
+
+#### Example Settings
+
+Example settings control the specific behavior of model checking:
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `N` | int | 3 | Number of atomic states (determines state space size) |
+| `contingent` | bool | False | Whether sentence letters are assigned to contingent propositions |
+| `disjoint` | bool | False | Whether sentence letters must have disjoint subject matters |
+| `non_empty` | bool | False | Whether proposition must have non-empty verifier/falsifier sets |
+| `non_null` | bool | False | Whether null state can be a verifier/falsifier |
+| `max_time` | int | 1 | Maximum Z3 solver time in seconds |
+| `iterate` | int | 1 | Number of distinct models to find |
+| `iteration_timeout` | float | 1.0 | Maximum time per iteration when searching for multiple models |
+| `iteration_attempts` | int | 5 | Number of attempts for finding non-isomorphic models |
+| `expectation` | bool | None | Expected model finding result (for testing) |
 
 The default theory explicitly omits settings that aren't applicable to it, following the principle that each theory should only define settings relevant to its specific semantics. For example, the default theory doesn't define:
 
@@ -73,7 +91,271 @@ If you provide command-line flags for settings that don't exist in a theory (lik
 
 For more information about how the settings system handles theory-specific settings, please see the [Settings Documentation](../../settings/README.md).
 
-### `Semantic.py`
+### Example Structure
+
+Examples are structured as a list containing three elements:
+
+```python
+[premises, conclusions, settings]
+```
+
+Where:
+- `premises`: List of formulas that must be true in the model
+- `conclusions`: List of formulas to check (invalid if all premises are true and at least one conclusion is false)
+- `settings`: Dictionary of settings for this example
+
+Here's a complete example definition:
+
+```python
+# Counterfactual Antecedent Strengthening
+example = [
+    ['\\neg A', '(A \\boxright C)'],           # Premises 
+    ['((A \\wedge B) \\boxright C)'],          # Conclusions
+    {                                          # Settings
+        'N': 4,
+        'contingent': True,
+        'non_null': True,
+        'non_empty': True,
+        'max_time': 1,
+        'iterate': 1,
+    }
+]
+```
+
+### Running Examples
+
+You can run examples in several ways:
+
+#### 1. From the Command Line
+
+```bash
+# Run the default example from examples.py
+model-checker path/to/examples.py
+
+# Run with constraints printed 
+model-checker -p path/to/examples.py
+
+# Run with Z3 output
+model-checker -z path/to/examples.py
+```
+
+#### 2. In VSCodium/VSCode
+
+1. Open the `examples.py` file in VSCodium/VSCode
+2. Use one of these methods:
+   - Click the "Run Python File" play button in the top-right corner
+   - Right-click in the editor and select "Run Python File in Terminal"
+   - Use keyboard shortcut (Shift+Enter) to run selected lines
+
+#### 3. In Development Mode
+
+For development purposes, you can use the `dev_cli.py` script from the project root directory:
+
+```bash
+# Run the default example from examples.py
+./dev_cli.py path/to/examples.py
+
+# Run with constraints printed 
+./dev_cli.py -p path/to/examples.py
+
+# Run with Z3 output
+./dev_cli.py -z path/to/examples.py
+```
+
+#### 4. Using the API
+
+The default theory exposes a clean API:
+
+```python
+from model_checker.theory_lib.default import (
+    Semantics, Proposition, ModelStructure, default_operators
+)
+from model_checker import ModelConstraints
+from model_checker.theory_lib import get_examples
+
+# Get examples
+examples = get_examples('default')
+example_data = examples['CF_CM_1']
+premises, conclusions, settings = example_data
+
+# Create semantic structure
+semantics = Semantics(settings)
+model_constraints = ModelConstraints(semantics, default_operators)
+model = ModelStructure(model_constraints, settings)
+
+# Check a formula
+prop = Proposition("A \\wedge B", model)
+is_true = prop.truth_value_at(model.main_world)
+```
+
+## Model Iteration
+
+The default theory provides a sophisticated model iteration framework through the `DefaultModelIterator` class defined in `iterate.py`. This functionality allows you to find multiple distinct models for a given set of constraints.
+
+### Iteration Architecture
+
+The model iteration system is built on four key concepts:
+
+1. **Model Difference Detection**: Identifies meaningful differences between models in terms of:
+   - World state changes (added or removed worlds)
+   - Possible state changes (new states becoming possible/impossible)
+   - Changes in verification and falsification of sentence letters
+   - Changes in part-whole relationships between states
+
+2. **Difference Constraints**: Creates Z3 constraints that force the next model to differ from previous ones by requiring at least one change in:
+   - Verification or falsification of atomic propositions
+   - Part-whole relationships between states
+   - Possible state or world status
+
+3. **Non-Isomorphism Constraints**: Forces structural differences in models by:
+   - Changing the number of worlds
+   - Modifying verification/falsification patterns
+   - Altering part-whole relationship structure
+
+4. **Escape Strategies**: When the solver repeatedly finds isomorphic models, increasingly aggressive constraints are applied:
+   - First attempt: Target significantly different world counts
+   - Later attempts: Force extreme property values (minimal/maximal worlds, all/no verifiers)
+
+### Using Model Iteration
+
+Model iteration can be enabled through two methods:
+
+1. **Example Settings**: Add `'iterate': n` to your example settings, where `n` is the maximum number of models to find.
+
+```python
+example_settings = {
+    'N': 3,
+    'max_time': 1,
+    'iterate': 5,  # Find up to 5 models
+    'iteration_timeout': 1.0  # Timeout per iteration
+}
+```
+
+2. **Direct API**: Use the `iterate_example()` function:
+
+```python
+from model_checker.theory_lib.default.iterate import iterate_example
+
+# Create a BuildExample instance first
+models = iterate_example(example, max_iterations=5)
+```
+
+### Visual Differences
+
+When running in iteration mode, the system will show differences between consecutive models:
+
+```
+=== DIFFERENCES FROM PREVIOUS MODEL ===
+
+World Changes:
+  + 110 (world)
+  - 011 (world)
+
+Possible State Changes:
+  + 100
+  - 001
+
+Proposition Changes:
+  A:
+    Verifiers: + {100}
+    Verifiers: - {001}
+    Falsifiers: + {010}
+    Falsifiers: - {110}
+
+Part-Whole Relationship Changes:
+  001,110: no longer part of
+  100,111: now part of
+```
+
+### Performance Considerations
+
+- Each iteration may take up to the specified `iteration_timeout` value
+- Increasing `N` (number of atomic states) significantly increases the search space
+- For complex constraints, consider increasing both `max_time` and `iteration_timeout`
+
+## Unit Testing
+
+### Running Tests
+
+The default theory includes comprehensive test cases:
+
+```bash
+# Run all default theory tests
+pytest src/model_checker/theory_lib/default/tests/
+
+# Run specific test file
+pytest src/model_checker/theory_lib/default/tests/test_default.py
+
+# Run a specific test by name
+pytest src/model_checker/theory_lib/default/tests/test_default.py -k "CF_CM_1"
+
+# Run with verbose output
+pytest -v src/model_checker/theory_lib/default/tests/test_default.py
+
+# Run with real-time output
+pytest -v src/model_checker/theory_lib/default/tests/test_default.py --capture=no
+```
+
+### Test Examples
+
+The default theory provides a comprehensive suite of test examples covering:
+
+1. **Counterfactual Countermodels** (`CF_CM_*`):
+   - Tests for invalid counterfactual arguments
+   - Includes antecedent strengthening, transitivity, contraposition examples
+   - Complex scenarios like Sobel sequences
+
+2. **Counterfactual Theorems** (`CF_TH_*`):
+   - Tests for valid counterfactual arguments
+   - Basic properties like identity and modus ponens
+   - Modal interactions with necessity
+
+3. **Constitutive Logic Countermodels** (`CL_CM_*`):
+   - Tests for invalid constitutive arguments
+   - Ground/essence operators and identity relations
+
+4. **Constitutive Logic Theorems** (`CL_TH_*`):
+   - Tests for valid constitutive arguments
+   - Relationships between ground, essence and identity
+
+These examples are available through the API:
+
+```python
+from model_checker.theory_lib import get_test_examples
+
+# Get all test examples
+test_examples = get_test_examples('default')
+
+# Access a specific test example
+example = test_examples['CF_CM_1']
+```
+
+## Package Contents
+
+### Directory Structure
+
+The default theory package has the following structure:
+
+```
+default/
+├── __init__.py           # Public API and imports
+├── examples.py           # Example definitions for testing
+├── iterate.py            # Iteration functionality for finding multiple models
+├── operators.py          # Logical operator definitions
+├── README.md             # Documentation (this file)
+├── semantic.py           # Core semantic classes
+├── notebooks/            # Jupyter notebook examples
+│   ├── default_demo.ipynb  # Interactive demos
+│   └── README.md         # Notebook documentation
+└── tests/                # Test suite
+    ├── __init__.py       # Test package initialization
+    ├── test_default.py   # Main theory tests
+    └── test_iterate.py   # Iteration-specific tests
+```
+
+### Core Modules
+
+#### Semantic.py
 
 This module is central to the model checker as it specifies the semantic primitives that everything else builds upon.
 The `semantic.py` module consists of three main classes that work together:
@@ -127,19 +409,7 @@ The `semantic.py` module consists of three main classes that work together:
   - Model evaluation
   - Visualization and printing utilities
 
-#### Class Integration
-
-- The Semantics class provides the foundational semantic definitions for the Proposition and ModelStructure classes
-- The Proposition class uses the Semantics class to determine truth values and verifier/falsifier sets
-- The ModelStructure class uses both the Semantics and Proposition classes to build and evaluate semantic models
-
-The module is designed to permit extensions of the semantics by:
-
-- Increasing modularity by separating the definition of operators in `operators.py` from the semantics
-- Subclassing the Semantics to add new semantic primitives or constraints
-- Extending the ModelStructure to support different kinds of semantic models defined from a Z3 model
-
-### `Operators.py`
+#### Operators.py
 
 The `operators.py` module implements the semantics for the logical operators deployed in `examples.py`.
 Each operator is a class that inherits from either the base Operator class (for primitive operators) or DefinedOperator class (for operators defined in terms of primitives) from the syntactic module.
@@ -193,16 +463,7 @@ Each operator class implements four key methods that define its semantic behavio
 - `find_verifiers_and_falsifiers`: Compute the verifier and falsifier sets
 - `print_method`: Handle pretty printing of formulas with truth values
 
-The module integrates with other components:
-
-- Uses the Semantics class from `semantic.py` for core semantic operations
-- Inherits from base classes in `syntactic.py` for operator structure
-- Interfaces with Z3 through bit vector operations for constraint solving
-- Works with ModelStructure for model evaluation and printing
-
-The operators are collected in the `default_operators` collection, which is used by the model checker to recognize and interpret formulas in the input language.
-
-### `Examples.py`
+#### Examples.py
 
 The `examples.py` module contains a comprehensive collection of logical inferences organized into countermodels and theorems.
 The module provides:
@@ -211,78 +472,11 @@ The module provides:
 - Comparison between semantic theories
 - Flexible unit test specification
 
-#### Accessing Examples
-
-You can access examples from this theory using the `get_examples` function from the parent module:
-
-```python
-from model_checker.theory_lib import get_examples
-
-# Get all examples from the default theory
-examples = get_examples('default')
-
-# Access a specific example
-example = examples['CF_CM_1']
-premises, conclusions, settings = example
-```
-
-For test examples or semantic theories:
-
-```python
-from model_checker.theory_lib import get_test_examples, get_semantic_theories
-
-# Get test examples for automated testing
-test_examples = get_test_examples('default')
-
-# Get semantic theory implementations
-theories = get_semantic_theories('default')
-```
-
-#### Example Structure
-
 Each example is structured as a list containing premises, conclusions, and settings:
 
 ```python
 example = [premises, conclusions, settings]
 ```
-
-Each example includes configurable settings:
-
-- `N`: Number of atomic states
-- `contingent`: Use contingent valuations
-- `disjoint`: Enforce disjoint valuations
-- `non_empty`: Enforce non-empty valuations
-- `max_time`: Maximum computation time
-- `iterate`: Number of iterations
-- `expectation`: Expected result (True for countermodel found)
-
-The examples currently included in `examples.py` are organized into four main categories:
-
-1. **Counterfactual Countermodels (CF*CM*\*)**
-
-   - Tests invalid counterfactual arguments including:
-     - Antecedent strengthening: `A □→ C` ⊭ `(A ∧ B) □→ C`
-     - Transitivity: `A □→ B, B □→ C` ⊭ `A □→ C`
-     - Sobel sequences demonstrating context sensitivity
-
-2. **Counterfactual Theorems (CF*TH*\*)**
-
-   - Tests valid counterfactual arguments including:
-     - Identity: `A □→ A`
-     - Modus ponens: `A, A □→ B` ⊨ `B`
-     - Modal interactions: `□A` ⊨ `⊤ □→ A`
-
-3. **Constitutive Logic Countermodels (CL*CM*\*)**
-
-   - Tests invalid constitutive arguments involving:
-     - Ground operator (≤): Content-based entailment
-     - Essence operator (⊑): Content-based necessity
-     - Identity operator (≡): Content equivalence
-
-4. **Constitutive Logic Theorems (CL*TH*\*)**
-   - Tests valid constitutive arguments including:
-     - Ground to essence: `A ≤ B` ⊨ `¬A ⊑ ¬B`
-     - Identity properties: `A ≡ B` ⊨ `¬A ≡ ¬B`
 
 The module defines three key data structures:
 
@@ -294,14 +488,6 @@ semantic_theories = {
     # Additional theories can be added
 }
 ```
-
-Each theory specifies:
-
-- Core semantic class
-- Proposition handling
-- Model structure
-- Operator definitions
-- Optional notation dictionary
 
 2. **example_range**: Defines examples for the model checker
 
@@ -323,56 +509,96 @@ test_example_range = {
 }
 ```
 
-All examples use operators defined in `operators.py` and rely on the semantic foundations provided by `semantic.py`.
+#### Iterate.py
 
-### `__init__.py`
+Implements model iteration functionality:
 
-The `__init__.py` module serves as the entry point and public API for the hyperintensional semantics package, organizing and exposing the core components in a clean, intuitive way.
-It brings together the following key elements:
+```python
+class DefaultModelIterator(BaseModelIterator):
+    """Model iterator for the default theory."""
+    
+    def _calculate_differences(self, new_structure, previous_structure):
+        """Calculate differences between models."""
+        pass
+        
+    def _create_difference_constraint(self, previous_models):
+        """Create constraints to force different models."""
+        pass
+        
+    def _create_non_isomorphic_constraint(self, z3_model):
+        """Create constraints for structural differences."""
+        pass
+        
+    def _create_stronger_constraint(self, isomorphic_model):
+        """Create stronger constraints to escape isomorphic models."""
+        pass
 
-1. **Core Classes**
+def iterate_example(example, max_iterations=None):
+    """Find multiple models for a default theory example."""
+    iterator = DefaultModelIterator(example)
+    if max_iterations is not None:
+        iterator.max_iterations = max_iterations
+    return iterator.iterate()
+```
 
-   - Exposes the three fundamental classes from `semantic.py`:
-     - `Semantics`: The semantic framework and evaluation rules
-     - `Proposition`: Representation and evaluation of logical formulas
-     - `ModelStructure`: Management of state spaces and accessibility relations
-   - These classes work together to provide the complete semantic machinery
+#### Init Module
 
-2. **Operator Collection**
+Exposes the public API:
 
-   - Exposes `default_operators` from `operators.py`
-   - This is a comprehensive dictionary of logical operators including:
-     - Extensional operators (¬, ∧, ∨, →, ←→)
-     - Modal operators (□, ◇)
-     - Counterfactual operators (□→, ◇→)
-     - Constitutive operators (≡, ≤, ⊑, ≼)
-   - Each operator is properly configured with its semantic interpretation
+```python
+from .semantic import Semantics, Proposition, ModelStructure
+from .operators import default_operators
+from .iterate import DefaultModelIterator, iterate_example
 
-3. **Integration Layer**
+__all__ = [
+    "Semantics",             # Core semantic framework
+    "Proposition",           # Proposition representation
+    "ModelStructure",        # Model structure management
+    "default_operators",     # Logical operators
+    "DefaultModelIterator",  # Model iteration
+    "iterate_example",       # Helper function for iteration
+]
+```
 
-   - Carefully manages imports to avoid circular dependencies
-   - Provides a clean public API through `__all__`
-   - Includes version information via `__version__`
-   - Comments indicate potential extensions (e.g., example integration)
+### Operator Categories
 
-4. **Usage Pattern**
-   - Demonstrates the typical workflow:
-     1. Import needed components
-     2. Create semantic framework
-     3. Build model structure
-     4. Construct and evaluate propositions
-   - Makes it easy to get started with basic model checking
+The default theory implements operators in five categories:
 
-## Basic Usage
+1. **Extensional Operators**
+   - Basic truth-functional operators from classical logic
+   - Includes primitives like negation (¬), conjunction (∧), disjunction (∨)
+   - Defined operators like material implication (→) and biconditional (↔)
 
-> TO BE CONTINUED...
+2. **Extremal Operators**
+   - Logical constants: top (⊤) for tautology and bottom (⊥) for contradiction
+   - Fixed truth values regardless of context
+   - Not interdefinable with negation in bilateral semantics
 
-## Unit Testing
+3. **Constitutive Operators**
+   - Express relationships between propositional content
+   - Identity (≡): exact content identity between propositions
+   - Ground (≤): content-based entailment relation
+   - Essence (⊑): content-based necessity relation
+   - Relevance (≼): content-based relevance relation
 
-> TO BE CONTINUED...
+4. **Counterfactual Operators**
+   - Handle counterfactual reasoning about alternative possibilities
+   - Counterfactual conditional (□→): "if A were the case, B would be the case"
+   - Might counterfactual (◇→): "if A were the case, B might be the case"
 
-Run `pytest` from the project directory to quickly evaluate whether the examples included in `examples.py` return the expected result.
+5. **Modal Operators**
+   - Handle necessity and possibility
+   - Necessity (□): "it is necessarily the case that"
+   - Possibility (◇): "it is possibly the case that"
 
-## Programmatic Semantics
+### Class Relationships
 
-> TO BE CONTINUED...
+The default theory architecture follows a clear separation of concerns:
+
+- `Semantics` provides the core semantic framework
+- `Proposition` uses the `Semantics` to evaluate and represent formulas
+- `ModelStructure` manages the overall model built from `Semantics` and `Proposition`
+- `DefaultModelIterator` extends the model finding to multiple distinct models
+- `Operators` define how complex formulas should be evaluated
+
+This modular design allows for extension and specialization of each component independently.

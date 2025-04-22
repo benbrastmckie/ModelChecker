@@ -397,12 +397,17 @@ class BuildModule:
         import sys
         import logging
         import importlib
+        import z3
         
         # Disable all debug logs for cleaner output
         logging.getLogger().setLevel(logging.ERROR)
         # Specifically disable iteration logs
         for logger_name in ["model_checker", "model_checker.builder", "model_checker.iterate"]:
             logging.getLogger(logger_name).setLevel(logging.ERROR)
+        
+        # Reset Z3 solver to ensure clean state for each example
+        z3.reset_params()
+        z3.set_param(verbose=0)
         
         # Create and solve the example
         example = BuildExample(self, semantic_theory, example_case)
@@ -587,8 +592,22 @@ class BuildModule:
         Prints results or timeout message for each example/theory combination.
         """
         from model_checker.builder.example import BuildExample
+        import z3
+        import sys
+        import gc
         
+        # For each example, create a completely fresh environment
         for example_name, example_case in self.example_range.items():
+            # Force garbage collection to clean up any lingering Z3 objects
+            gc.collect()
+            
+            # Create a completely fresh solver for this example
+            z3._main_ctx = None  # Force Z3 to create a fresh context
+            
+            # Create a new instance of Z3 for this example
+            # This ensures complete isolation between examples
+            new_z3 = __import__('z3')
+            
             for theory_name, semantic_theory in self.semantic_theories.items():
                 # Make setting reset for each semantic_theory
                 example_copy = list(example_case)

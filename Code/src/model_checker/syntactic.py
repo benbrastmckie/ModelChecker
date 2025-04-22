@@ -372,15 +372,15 @@ class Operator:
         model_structure = proposition.model_structure
         N = proposition.N
 
-        # TODO: make more deterministic
-        # Handle both world_id and traditional world approaches for compatibility
-        # In the bimodal theory, we're now using world_id but the base code expects world
-        if "world" in eval_point:
-            current_world_id = eval_point["world"]
-            if "world" not in eval_point and hasattr(model_structure, "get_world_array"):
-                eval_point["world"] = model_structure.get_world_array(current_world_id)
-        else:
-            current_world = eval_point.get("world")
+        # # TODO: remove block
+        # # Handle both world_id and traditional world approaches for compatibility
+        # # In the bimodal theory, we're now using world_id but the base code expects world
+        # if "world" in eval_point:
+        #     current_world_id = eval_point["world"]
+        #     if "world" not in eval_point and hasattr(model_structure, "get_world_array"):
+        #         eval_point["world"] = model_structure.get_world_array(current_world_id)
+        # else:
+        #     current_world = eval_point.get("world")
 
         proposition.print_proposition(eval_point, indent_num, use_colors)
         indent_num += 1

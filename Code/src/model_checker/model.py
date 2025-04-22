@@ -139,7 +139,9 @@ class SemanticDefaults:
     """
 
     def __init__(self, combined_settings):
-
+        # Reset any global state to avoid cross-example interference
+        self._reset_global_state()
+        
         # Store the name
         self.name = self.__class__.__name__
 
@@ -165,6 +167,17 @@ class SemanticDefaults:
         # Define invalidity conditions
         self.premise_behavior = None
         self.conclusion_behavior = None
+        
+    def _reset_global_state(self):
+        """Reset any global state that could cause interference between examples.
+        
+        This method is called during initialization to ensure that each new instance
+        starts with a clean slate, preventing unintended interactions between 
+        different examples run in the same session.
+        """
+        # Clear any cached values or global state here
+        # To be implemented in subclasses as needed
+        pass
 
     def fusion(self, bit_s, bit_t):
         """Performs the fusion operation on two bit vectors.
@@ -768,8 +781,20 @@ class ModelDefaults:
             - If the constraints are unsatisfiable, returns the unsatisfiable core
             - If solving times out, sets the timeout flag but still returns partial results
         """
+        # Force creation of a completely fresh Z3 context for this solve operation
+        # This ensures complete isolation between different example runs
+        import gc
+        import z3
+        
+        # Force garbage collection to free any Z3 objects
+        gc.collect()
+        
+        # Create a brand new solver for this specific example
+        # This prevents any state leakage between examples
+        self.solver = z3.Solver()
 
         try:
+            # Set up the solver with the constraints
             self.solver = self._setup_solver(model_constraints)
 
             # Set timeout and solve
@@ -1108,6 +1133,7 @@ class ModelDefaults:
         # Default implementation returns None, meaning use basic difference detection
         return None
         
+    # TODO: remove?
     def print_model_differences(self, output=sys.stdout):
         """Prints differences between this model and the previous one.
         

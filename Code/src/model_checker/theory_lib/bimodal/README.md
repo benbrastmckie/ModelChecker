@@ -1,5 +1,35 @@
 # Bimodal Logic Implementation
 
+## Table of Contents
+
+- [Overview](#overview)
+  - [Package Contents](#package-contents)
+- [Basic Usage](#basic-usage)
+  - [Settings](#settings)
+  - [Example Structure](#example-structure)
+  - [Running Examples](#running-examples)
+    - [1. From the Command Line](#1-from-the-command-line)
+    - [2. In VSCodium/VSCode](#2-in-vscodiumvscode)
+    - [3. In Development Mode](#3-in-development-mode)
+    - [4. Using the API](#4-using-the-api)
+  - [Theory Configuration](#theory-configuration)
+- [Key Classes](#key-classes)
+  - [BimodalSemantics](#bimodalsemantics)
+  - [BimodalProposition](#bimodalpropositon)
+  - [BimodalStructure](#bimodalstructure)
+- [Bimodal Language](#bimodal-language)
+  - [Necessity Operator](#necessity-operator-box)
+  - [Future Operator](#future-operator-future)
+  - [Past Operator](#past-operator-past)
+- [Important Theorems](#important-theorems)
+- [Implementation Details](#implementation-details)
+  - [World and Time Representation](#world-and-time-representation)
+  - [Time-Shift Relations](#time-shift-relations)
+  - [Model Extraction Process](#model-extraction-process)
+- [Frame Constraints](#frame-constraints)
+- [Known Limitations](#known-limitations)
+- [References](#references)
+
 ## Overview
 
 The bimodal theory implements a semantics for the following operators:
@@ -67,77 +97,11 @@ The `BimodalStructure` class manages the model structure extracted from a Z3 mod
 
 ## Basic Usage
 
-> Outline of the `examples.py` module.
+The bimodal theory provides a framework for working with temporal and modal operators in combination. This section explains how to use the theory's main components and run examples.
 
-### General Definitions
+### Settings
 
-The following defines the theory that will be used to test examples, consisting of the following four ingredients:
-
-```python
-bimodal_theory = {
-    "semantics": BimodalSemantics,
-    "proposition": BimodalProposition,
-    "model": BimodalStructure,
-    "operators": bimodal_operators,
-}
-```
-
-Although multiple theories can be used in parallel, at least one theory (such as defined above) must be included in the following:
-
-```python
-semantic_theories = {
-    "Brast-McKie" : bimodal_theory,
-    # additional theories will require translation dictionaries
-}
-```
-
-The following are general settings that apply to all examples in `examples.py` and are mostly useful for debugging.
-
-```python
-# Default General Settings
-general_settings = {
-    "print_constraints": False,  # For debugging
-    "print_z3": False,  # For debugging
-    "save_output": False,
-}
-```
-
-### Examples
-
-#### Accessing Examples
-
-You can access examples from this theory using the parent module's functions:
-
-```python
-from model_checker.theory_lib import get_examples, get_test_examples, get_semantic_theories
-
-# Get all examples from the bimodal theory
-examples = get_examples('bimodal')
-
-# Access a specific example
-example = examples['BM_CM_1']
-premises, conclusions, settings = example
-
-# Get test examples for automated testing
-test_examples = get_test_examples('bimodal')
-
-# Get semantic theory implementations
-theories = get_semantic_theories('bimodal')
-```
-
-#### Example Structure
-
-Each example is structured as a list containing:
-
-1. Premises (list of formulas)
-2. Conclusions (list of formulas)
-3. Settings dictionary (including N, M, max_time, and crucially, expectation)
-
-Examples are run with the command `model-checker examples.py` from your project directory.
-
-#### Bimodal-Specific Settings
-
-The bimodal theory supports several configurable settings:
+The bimodal theory supports the following configurable settings:
 
 ```python
 DEFAULT_EXAMPLE_SETTINGS = {
@@ -172,13 +136,130 @@ The bimodal theory defines two unique settings not found in other theories:
 
 2. **align_vertically**: When set to `True`, displays world histories with time flowing vertically (top to bottom) which is often easier to read for bimodal models. When set to `False`, displays world histories horizontally.
 
-You can override the vertical alignment using the `-a` or `--align_vertically` flag when running the command-line tool:
+### Example Structure
 
-```
-model-checker examples.py -a  # Force vertical alignment
+Each example is structured as a list containing three elements:
+
+```python
+[premises, conclusions, settings]
 ```
 
-For detailed information about the settings management system and how it handles theory-specific settings, see the [Settings Documentation](../../settings/README.md).
+Where:
+- `premises`: List of formulas that must be true in the model
+- `conclusions`: List of formulas to check (invalid if all premises are true and at least one conclusion is false)
+- `settings`: Dictionary of settings for this example
+
+Here's a complete example definition:
+
+```python
+# Countermodel showing that Future A does not imply Box A
+BM_CM_1_premises = ['\\Future A']
+BM_CM_1_conclusions = ['\\Box A']
+BM_CM_1_settings = {
+    'N': 1,
+    'M': 2,
+    'contingent': False,
+    'disjoint': False,
+    'max_time': 5,
+    'expectation': True,  # Expects to find a countermodel
+}
+BM_CM_1_example = [
+    BM_CM_1_premises,
+    BM_CM_1_conclusions,
+    BM_CM_1_settings,
+]
+```
+
+### Running Examples
+
+You can run examples in several ways:
+
+#### 1. From the Command Line
+
+```bash
+# Run the default example from examples.py
+model-checker path/to/examples.py
+
+# Run with constraints printed 
+model-checker -p path/to/examples.py
+
+# Run with Z3 output
+model-checker -z path/to/examples.py
+
+# Force vertical alignment for display (bimodal-specific)
+model-checker -a path/to/examples.py
+```
+
+#### 2. In VSCodium/VSCode
+
+1. Open the `examples.py` file in VSCodium/VSCode
+2. Use one of these methods:
+   - Click the "Run Python File" play button in the top-right corner
+   - Right-click in the editor and select "Run Python File in Terminal"
+   - Use keyboard shortcut (Shift+Enter) to run selected lines
+
+#### 3. In Development Mode
+
+For development purposes, you can use the `dev_cli.py` script from the project root directory:
+
+```bash
+# Run the examples file
+./dev_cli.py path/to/examples.py
+
+# Run with constraints printed
+./dev_cli.py -p path/to/examples.py
+
+# Run with Z3 output and constraints printed (combined flags)
+./dev_cli.py -z path/to/examples.py
+
+# Run with vertical alignment (bimodal-specific)
+./dev_cli.py -a path/to/examples.py
+```
+
+#### 4. Using the API
+
+The bimodal theory exposes a clean API:
+
+```python
+from model_checker.theory_lib.bimodal import (
+    BimodalSemantics, BimodalProposition, BimodalStructure, bimodal_operators
+)
+from model_checker import ModelConstraints
+from model_checker.theory_lib import get_examples
+
+# Get examples
+examples = get_examples('bimodal')
+example_data = examples['BM_CM_1']
+premises, conclusions, settings = example_data
+
+# Create semantic structure
+semantics = BimodalSemantics(settings)
+model_constraints = ModelConstraints(semantics, bimodal_operators)
+model = BimodalStructure(model_constraints, settings)
+
+# Check a formula
+prop = BimodalProposition("\\Box A", model)
+is_true = prop.truth_value_at(model.main_world, model.main_time)
+```
+
+### Theory Configuration
+
+The bimodal theory is defined by combining several components:
+
+```python
+bimodal_theory = {
+    "semantics": BimodalSemantics,
+    "proposition": BimodalProposition,
+    "model": BimodalStructure,
+    "operators": bimodal_operators,
+}
+
+# Define which theories to use when running examples
+semantic_theories = {
+    "Brast-McKie" : bimodal_theory,
+    # additional theories will require translation dictionaries
+}
+```
 
 #### Countermodel Example
 

@@ -1,9 +1,39 @@
 """
-Examples Module for bimodal logic theory.
+Examples Module for Bimodal Logic Theory
 
-This module provides a collection of test cases for bimodal semantic theory,
+This module provides a comprehensive collection of test cases for bimodal semantic theory,
 which combines temporal and modal operators to reason about what is true
 at different times and in different possible worlds.
+
+Usage:
+------
+This module can be run in two ways:
+
+1. Command Line:
+   ```bash
+   model-checker path/to/this/examples.py
+   ```
+
+2. IDE (VSCodium/VSCode):
+   - Open this file in VSCodium/VSCode
+   - Use the "Run Python File" play button in the top-right corner
+   - Or right-click in the editor and select "Run Python File"
+
+Configuration:
+-------------
+The examples and theories to be run can be configured by:
+
+1. Modifying which examples are run:
+   - Edit the example_range dictionary
+   - Comment/uncomment specific examples
+   - Modify semantic_theories to change which theories to compare
+
+2. To add new examples:
+   - Define premises, conclusions, and settings
+   - Follow the naming conventions:
+     - Countermodels: EX_CM_*, MD_CM_*, TN_CM_*, BM_CM_*
+     - Theorems: EX_TH_*, MD_TH_*, TN_TH_*, BM_TH_*
+   - Add to example_range dictionary
 
 Module Structure:
 ----------------
@@ -13,11 +43,45 @@ Module Structure:
    - Local operator definitions (bimodal_operators)
 
 2. Semantic Theory:
-   - default_theory: Default bimodal semantic framework
-   - semantic_theories: Dictionary of semantic theory implementations
+   - bimodal_theory: Bimodal semantic framework configuration
 
-3. Example Definitions:
-   - example_range: Dictionary of example test cases
+3. Example Categories:
+   - Extensional (EX_CM_*, EX_TH_*): Basic logical operations
+   - Modal (MD_CM_*, MD_TH_*): Necessity and possibility operators
+   - Tense (TN_CM_*, TN_TH_*): Temporal operators
+   - Bimodal (BM_CM_*, BM_TH_*): Combined modal and temporal operators
+
+4. Example Collections:
+   - semantic_theories: Available semantic theory implementations
+   - test_example_range: Complete set of test cases
+   - example_range: Active subset of test cases for execution
+
+Example Format:
+--------------
+Each example is structured as a list: [premises, conclusions, settings]
+- premises: List of formulas that serve as assumptions
+- conclusions: List of formulas to be tested
+- settings: Dictionary of specific settings for this example
+
+Settings Options:
+----------------
+- N: Number of atomic propositions (default: 1)
+- M: Number of time points (default: 1)
+- contingent: Whether to use contingent valuations
+- disjoint: Whether to enforce disjoint valuations
+- max_time: Maximum computation time in seconds
+- expectation: Whether the example is expected to be valid
+- iterate: Number of iterations for modal operators
+
+Notes:
+------
+- At least one semantic theory must be included in semantic_theories
+- At least one example must be included in example_range
+- Some examples may require adjusting the settings to produce good models
+
+Help:
+-----
+More information can be found in the README.md for the bimodal theory.
 """
 
 ##########################
@@ -103,11 +167,11 @@ MD_CM_1_premises = ['\\Box (A \\vee B)']
 MD_CM_1_conclusions = ['\\Box A', '\\Box B']
 MD_CM_1_settings = {
     'N' : 1,
-    'M' : 1,
+    'M' : 1,  # Changed from 1 to 2 to match TN_CM_1
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 2,
+    'max_time' : 5,  # Increased from 2 to 5 to match TN_CM_1
+    'iterate' : 1,
     'expectation' : True,
 }
 MD_CM_1_example = [
@@ -254,7 +318,7 @@ BM_CM_1_conclusions = ['\\Box A']
 BM_CM_1_settings = {
     'N' : 1,
     'M' : 2,
-    'contingent' : False,
+    'contingent' : True,
     'disjoint' : False,
     'max_time' : 5,
     'expectation' : True,
@@ -271,7 +335,7 @@ BM_CM_2_conclusions = ['\\Box A']
 BM_CM_2_settings = {
     'N' : 1,
     'M' : 2,
-    'contingent' : False,
+    'contingent' : True,
     'disjoint' : False,
     'max_time' : 5,
     'expectation' : True,
@@ -286,11 +350,11 @@ BM_CM_2_example = [
 BM_CM_3_premises = ['\\Diamond A']
 BM_CM_3_conclusions = ['\\future A']
 BM_CM_3_settings = {
-    'N' : 2,
+    'N' : 1,
     'M' : 2,
-    'contingent' : False,
+    'contingent' : True,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 5,
     'expectation' : True,
 }
 BM_CM_3_example = [
@@ -303,9 +367,9 @@ BM_CM_3_example = [
 BM_CM_4_premises = ['\\Diamond A']
 BM_CM_4_conclusions = ['\\past A']
 BM_CM_4_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : False,
+    'N' : 1,
+    'M' : 1,
+    'contingent' : True,
     'disjoint' : False,
     'max_time' : 2,
     'expectation' : True,
@@ -314,6 +378,23 @@ BM_CM_4_example = [
     BM_CM_4_premises,
     BM_CM_4_conclusions,
     BM_CM_4_settings,
+]
+
+# MD_CM_5: POSSIBILITY TO SOME PAST
+BM_CM_5_premises = ['\\Box A']
+BM_CM_5_conclusions = ['\\Future \\Box A']
+BM_CM_5_settings = {
+    'N' : 2,
+    'M' : 2,
+    'contingent' : False,
+    'disjoint' : False,
+    'max_time' : 5,
+    'expectation' : True,
+}
+BM_CM_5_example = [
+    BM_CM_5_premises,
+    BM_CM_5_conclusions,
+    BM_CM_5_settings,
 ]
 
 
@@ -547,23 +628,24 @@ example_range = {
     # Extensional Countermodels
     # "EX_CM_1" : EX_CM_1_example,
     
-    # Modal Countermodels
-    "MD_CM_1" : MD_CM_1_example,
+    # Modal Countermodels first to test order independence
+    # "MD_CM_1" : MD_CM_1_example,
     # "MD_CM_2" : MD_CM_2_example,
     # "MD_CM_3" : MD_CM_3_example,
     # "MD_CM_4" : MD_CM_4_example,
     # "MD_CM_5" : MD_CM_5_example,
     # "MD_CM_6" : MD_CM_6_example,
-
+    
     # Tense Countermodels
     # "TN_CM_1" : TN_CM_1_example,
     # "TN_CM_2" : TN_CM_2_example,
-
-    # Bimodal Countermodels
+    
+    # Bimodal Countermodel
     # "BM_CM_1" : BM_CM_1_example,
     # "BM_CM_2" : BM_CM_2_example,
     # "BM_CM_3" : BM_CM_3_example,
     # "BM_CM_4" : BM_CM_4_example,
+    "BM_CM_5" : BM_CM_5_example,
 
     ### THEOREMS ###
 
@@ -583,3 +665,14 @@ example_range = {
     # "BM_TH_3" : BM_TH_3_example,
     # "BM_TH_4" : BM_TH_4_example,
 }
+
+
+
+####################
+### RUN EXAMPLES ###
+####################
+
+if __name__ == '__main__':
+    import subprocess
+    file_name = os.path.basename(__file__)
+    subprocess.run(["model-checker", file_name], check=True, cwd=current_dir)

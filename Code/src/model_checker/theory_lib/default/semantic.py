@@ -1392,6 +1392,7 @@ class ModelStructure(ModelDefaults):
         
         return letter_diffs
 
+    # TODO: move theory specific iterate methods to default/semantic.py
     def format_model_differences(self, differences, output=sys.stdout):
         """Format and print the differences between models using default theory's semantics.
         
@@ -1409,7 +1410,7 @@ class ModelStructure(ModelDefaults):
             return
         
         # Print header with newlines for clear separation
-        print("\n\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
+        print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
         
         # Store differences temporarily to use existing helper methods
         self.temp_differences = differences
@@ -1897,6 +1898,7 @@ class ModelStructure(ModelDefaults):
         domain = range(domain_size)
         return itertools.product(domain, repeat=arity)
 
+    # TODO: remove?
     def save_to(self, example_name, theory_name, include_constraints, output):
         """Save the model details to a file.
         

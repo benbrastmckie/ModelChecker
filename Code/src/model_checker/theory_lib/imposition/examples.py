@@ -1,41 +1,61 @@
 """
-Examples Module for Imposition Theory Testing
+Examples Module for Imposition Theory
 
 This module defines a comprehensive test suite for comparing different semantic theories,
 particularly focusing on counterfactual conditionals and constitutive operators.
 
-Module Structure:
-----------------
-1. Imports:
-   - Local semantic and operator definitions
-   - Core model checker primitives
-   - System utilities
+Usage:
+------
+This module can be run in two ways:
 
-2. Semantic Theories: include semantics, proposition theory, operators, and translation dictionary.
-   - Fine's imposition theory
-   - Brast-McKie's default theory
-   - imposition_dictionary: Translates from default to imposition sentences
-   
-3. Example Types:
-   a) Countermodels (CM):
-      - Tests for invalid arguments
-      - Prefixed with 'CF_CM_' for counterfactuals
-      - Prefixed with 'CL_CM_' for constitutive logic
-   
-   b) Theorems (TH):
-      - Tests for valid arguments
-      - Prefixed with 'CF_TH_' for counterfactuals
-      - Prefixed with 'CL_TH_' for constitutive logic
+1. Command Line:
+   ```bash
+   model-checker path/to/this/examples.py
+   ```
 
-4. Settings Configuration:
-   - general_settings: Global settings for output and computation
-   - example_settings: Default parameters for individual examples
-   - Each example can override these with custom settings
+2. IDE (VSCodium/VSCode):
+   - Open this file in VSCodium/VSCode
+   - Use the "Run Python File" play button in the top-right corner
+   - Or right-click in the editor and select "Run Python File"
 
 Configuration:
 -------------
-- semantic_theories: Dictionary of semantic theories to test with
-- example_range: Dictionary of example cases to evaluate
+The examples and theories to be run can be configured by:
+
+1. Modifying which examples are run:
+   - Edit the example_range dictionary
+   - Comment/uncomment specific examples
+   - Modify semantic_theories to change which theories to compare
+
+2. To add new examples:
+   - Define premises, conclusions, and settings
+   - Follow the naming conventions:
+     - Countermodels: CF_CM_*, CL_CM_*
+     - Theorems: CF_TH_*, CL_TH_*
+   - Add to example_range dictionary
+
+Module Structure:
+----------------
+1. Imports:
+   - System utilities (os, sys)
+   - Local semantic definitions (ImpositionSemantics)
+   - Local operator definitions (imposition_operators)
+   - Default theory components for comparison
+
+2. Semantic Theories:
+   - imposition_theory: Fine's imposition theory with components
+   - default_theory: Brast-McKie's default theory (for comparison)
+   - imposition_dictionary: Translation between theories
+
+3. Example Categories:
+   a) Counterfactual Countermodels (CF_CM_*):
+      - Tests for invalid counterfactual arguments
+      - Includes antecedent strengthening, transitivity, contraposition
+      - Complex examples like Sobel sequences
+   
+   b) Counterfactual Theorems (CF_TH_*):
+      - Tests for valid counterfactual arguments
+      - Basic properties like identity and modus ponens
 
 Example Format:
 --------------
@@ -53,21 +73,6 @@ Settings Options:
 - non_null: Whether to enforce non-null valuations
 - max_time: Maximum computation time in seconds
 
-Usage:
-------
-1. From project directory, run the following in the terminal:
-   model_checker examples.py
-
-2. To modify which examples run:
-   - Edit the example_range dictionary
-   - Comment/uncomment specific examples
-   - Modify semantic_theories to change which theories to compare
-
-3. To add new examples:
-   - Follow the naming convention (CF_CM_*, CF_TH_*, CL_CM_*, CL_TH_*)
-   - Define premises, conclusions, and settings
-   - Add to example_range dictionary
-
 Notes:
 ------
 - At least one semantic theory must be included in semantic_theories
@@ -76,7 +81,7 @@ Notes:
 
 Help:
 -----
-More information can be found in the README.md for the exclusion theory.
+More information can be found in the README.md for the imposition theory.
 """
 
 ##########################
@@ -905,3 +910,14 @@ example_range = {
     # "CF_TH_11" : CF_TH_11_example,
     # "CF_TH_12" : CF_TH_12_example,
 }
+
+
+
+####################
+### RUN EXAMPLES ###
+####################
+
+if __name__ == '__main__':
+    import subprocess
+    file_name = os.path.basename(__file__)
+    subprocess.run(["model-checker", file_name], check=True, cwd=current_dir)

@@ -63,7 +63,7 @@ class BimodalModelIterator(BaseModelIterator):
                 if differences:
                     return differences
             except Exception as e:
-                logger.warning(f"Error in bimodal theory difference detection: {e}")
+                pass
         
         # Fall back to our own implementation
         differences = self._calculate_bimodal_differences(new_structure, previous_structure)
@@ -371,7 +371,7 @@ class BimodalModelIterator(BaseModelIterator):
         Returns:
             z3.ExprRef: Z3 constraint requiring difference from previous models
         """
-        logger.debug("Creating difference constraints for bimodal theory")
+        pass
         
         # Get key structures from build_example
         model_structure = self.build_example.model_structure
@@ -504,7 +504,7 @@ class BimodalModelIterator(BaseModelIterator):
                 constraints.append(world_count > current_worlds)
                 
         except Exception as e:
-            logger.debug(f"Error creating world count constraint: {e}")
+            pass
         
         # 2. Try to force different world intervals
         try:

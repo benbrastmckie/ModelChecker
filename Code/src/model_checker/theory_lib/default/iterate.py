@@ -488,6 +488,7 @@ class DefaultModelIterator(BaseModelIterator):
             
         differences = model_structure.model_differences
         
+        # TODO: does not seem to be used
         print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
         
         # Print world changes
