@@ -1,33 +1,56 @@
 """
+Examples Module for Exclusion Theory
+
 This module tests the unilateral exclusion semantics, providing a means by which
 to evaluate the logical relationships in a language with an exclusion operator
 and comparing the result to the bilateral semantics.
 
+Usage:
+------
+This module can be run in two ways:
+
+1. Command Line:
+   ```bash
+   model-checker path/to/this/examples.py
+   ```
+
+2. IDE (VSCodium/VSCode):
+   - Open this file in VSCodium/VSCode
+   - Use the "Run Python File" play button in the top-right corner
+   - Or right-click in the editor and select "Run Python File"
+
+Configuration:
+-------------
+The examples and theories to be run can be configured by:
+
+1. Modifying which examples are run:
+   - Edit the example_range dictionary
+   - Comment/uncomment specific examples
+   - Modify semantic_theories to change which theories to compare
+
+2. To add new examples:
+   - Define premises, conclusions, and settings
+   - Follow the naming conventions:
+     - Countermodels: EX_CM_*
+     - Theorems: EX_TH_*
+   - Add to example_range dictionary
+
 Module Structure:
 ----------------
 1. Imports:
-   - Local semantic and operator definitions
-   - Core model checker primitives
-   - System utilities
+   - System utilities (os, sys)
+   - Local semantic definitions (ExclusionSemantics, UnilateralProposition, ExclusionStructure)
+   - Local operator definitions (exclusion_operators)
+   - Default theory components for comparison
 
-2. Semantic Theories: include semantics, proposition theory, operators, and translation dictionary. 
+2. Semantic Theories:
    - exclusion_theory: Implements exclusion logic with unilateral operators
    - default_theory: Classical logic implementation for comparison
    - default_dictionary: Translates from unilateral to bilateral sentences
 
-3. Example Types:
+3. Example Categories:
    - Countermodels (EX_CM_*): Examples demonstrating invalid inferences
    - Logical Consequences (EX_TH_*): Examples of valid logical relationships
-
-4. Settings Configuration:
-   - general_settings: Global settings for output and computation
-   - example_settings: Default parameters for individual examples
-   - Each example can override these with custom settings
-
-Configuration:
--------------
-- semantic_theories: Dictionary of semantic theories to test with
-- example_range: Dictionary of example cases to evaluate
 
 Example Format:
 --------------
@@ -43,27 +66,10 @@ Settings Options:
 - disjoint: Whether to enforce disjoint valuations
 - non_empty: Whether to enforce non-empty valuations
 - non_null: Whether to enforce non-null valuations
+- fusion_closure: Whether to enforce fusion closure
 - max_time: Maximum computation time in seconds
-
-Development:
-------
-- From the 'model_checker/Code/' directory, run:
-    python3 -m src.model_checker.cli path/to/theory_lib/exclusion/examples.py
-
-Usage:
-------
-1. From project directory, run the following in the terminal:
-    model-checker examples.py
-
-2. To modify which examples run:
-   - Edit the example_range dictionary
-   - Comment/uncomment specific examples
-   - Modify semantic_theories to change which theories to compare
-
-3. To add new examples:
-   - Follow the naming convention (CF_CM_*, CF_TH_*, CL_CM_*, CL_TH_*)
-   - Define premises, conclusions, and settings
-   - Add to example_range dictionary
+- iterate: Number of iterations for modal operators
+- expectation: Whether the example is expected to be valid
 
 Notes:
 ------
@@ -939,3 +945,14 @@ example_range = {
     # "EX_CM_7" : EX_CM_7_example,
     # "EX_CM_14" : EX_CM_14_example,
 }
+
+
+
+####################
+### RUN EXAMPLES ###
+####################
+
+if __name__ == '__main__':
+    import subprocess
+    file_name = os.path.basename(__file__)
+    subprocess.run(["model-checker", file_name], check=True, cwd=current_dir)

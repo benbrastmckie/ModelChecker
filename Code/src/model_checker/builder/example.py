@@ -61,7 +61,15 @@ class BuildExample:
             AttributeError: If required components are missing
         """
         from model_checker.settings import SettingsManager
+        import z3
         
+        # Reset Z3 context to ensure a clean state for this example
+        # This helps ensure different examples don't interfere with each other
+        try:
+            z3.main_ctx().solver.reset()
+        except Exception:
+            pass
+            
         # Store build_module reference
         self.build_module = build_module
         

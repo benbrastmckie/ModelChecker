@@ -446,6 +446,7 @@ class NecessityOperator(syntactic.Operator):
             # Store the temporal profile for this world
             new_truth_condition[current_world] = (true_times, false_times)
 
+        # print("TEST", new_truth_condition)
         # Return result dictionary
         return new_truth_condition
             
@@ -599,8 +600,10 @@ class FutureOperator(syntactic.Operator):
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print temporal operator evaluation across different time points."""
-        all_times = sentence_obj.proposition.model_structure.all_times
-        self.print_over_times(sentence_obj, eval_point, all_times, indent_num, use_colors)
+        eval_world = eval_point["world"]
+        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
+        eval_world_times = eval_world_history.keys()
+        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
 
 
 class PastOperator(syntactic.Operator):
@@ -749,8 +752,12 @@ class PastOperator(syntactic.Operator):
             indent_num: The indentation level
             use_colors: Whether to use colors in output
         """
-        all_times = sentence_obj.proposition.model_structure.all_times
-        self.print_over_times(sentence_obj, eval_point, all_times, indent_num, use_colors)
+        eval_world = eval_point["world"]
+        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
+        eval_world_times = eval_world_history.keys()
+        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
+
+
 
 
 
@@ -937,8 +944,11 @@ class DefFutureOperator(syntactic.DefinedOperator):
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print temporal operator evaluation across different time points."""
-        all_times = sentence_obj.proposition.model_structure.all_times
-        self.print_over_times(sentence_obj, eval_point, all_times, indent_num, use_colors)
+        eval_world = eval_point["world"]
+        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
+        eval_world_times = eval_world_history.keys()
+        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
+
 
 class DefPastOperator(syntactic.DefinedOperator):
 
@@ -950,8 +960,12 @@ class DefPastOperator(syntactic.DefinedOperator):
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print temporal operator evaluation across different time points."""
-        all_times = sentence_obj.proposition.model_structure.all_times
-        self.print_over_times(sentence_obj, eval_point, all_times, indent_num, use_colors)
+        eval_world = eval_point["world"]
+        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
+        eval_world_times = eval_world_history.keys()
+        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
+
+
 
 
 bimodal_operators = syntactic.OperatorCollection(

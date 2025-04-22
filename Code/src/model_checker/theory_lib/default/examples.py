@@ -1,8 +1,38 @@
 """
-Examples Module for the unified theory (Brast-McKie).
+Examples Module for Default Theory
 
-This module provides a collection of test cases for the unified semantics
+This module provides a collection of test cases for the unified semantics,
 including both countermodels showing invalidity and theorems showing validity.
+
+Usage:
+------
+This module can be run in two ways:
+
+1. Command Line:
+   ```bash
+   model-checker path/to/this/examples.py
+   ```
+
+2. IDE (VSCodium/VSCode):
+   - Open this file in VSCodium/VSCode
+   - Use the "Run Python File" play button in the top-right corner
+   - Or right-click in the editor and select "Run Python File"
+
+Configuration:
+-------------
+The examples and theories to be run can be configured by:
+
+1. Modifying which examples are run:
+   - Edit the example_range dictionary
+   - Comment/uncomment specific examples
+   - Modify semantic_theories to change which theories to compare
+
+2. To add new examples:
+   - Define premises, conclusions, and settings
+   - Follow the naming conventions:
+     - Countermodels: CF_CM_*, ML_CM_*, CL_CM_*
+     - Theorems: CF_TH_*, ML_TH_*, CL_TH_*
+   - Add to example_range dictionary
 
 Module Structure:
 ----------------
@@ -11,18 +41,14 @@ Module Structure:
    - Local semantic definitions (Semantics, Proposition, ModelStructure)
    - Local operator definitions (default_operators)
 
-2. Settings:
-   - general_settings: Global settings for output and debugging
-   - example_settings: Default parameters for test cases
-
-3. Semantic Theory:
+2. Semantic Theory:
    - default_theory: Default semantic framework with components:
      * semantics: Core semantic class
      * proposition: Proposition handling
      * model: Model structure implementation
      * operators: Logical operators
 
-4. Example Categories:
+3. Example Categories:
    a) Counterfactual Countermodels (CF_CM_*):
       - Tests for invalid counterfactual arguments
       - Includes antecedent strengthening, transitivity, contraposition
@@ -43,29 +69,31 @@ Module Structure:
 
 Example Format:
 --------------
-Each example is defined as [premises, conclusions, settings] where:
-- premises: List of formulas serving as assumptions
-- conclusions: List of formulas to test
-- settings: Dictionary with parameters:
-  * N: Number of atomic propositions
-  * contingent: Use contingent valuations
-  * disjoint: Enforce disjoint valuations
-  * non_empty: Enforce non-empty valuations
-  * non_null: Enforce non-null valuations
-  * max_time: Maximum computation time (seconds)
-  'iterate' : 1,
-  * expectation: Expected result (True for countermodel found)
+Each example is structured as a list: [premises, conclusions, settings]
+- premises: List of formulas that serve as assumptions
+- conclusions: List of formulas to be tested
+- settings: Dictionary of specific settings for this example
 
-Configuration:
--------------
-- semantic_theories: Dictionary mapping theory names to implementations
-- example_range: Dictionary mapping example names to test cases
+Settings Options:
+----------------
+- N: Number of atomic propositions (default: 3)
+- contingent: Whether to use contingent valuations
+- disjoint: Whether to enforce disjoint valuations
+- non_empty: Whether to enforce non-empty valuations
+- non_null: Whether to enforce non-null valuations
+- max_time: Maximum computation time in seconds
+- iterate: Number of iterations for modal operators
+- expectation: Expected result (True for countermodel found)
 
 Notes:
 ------
-- Additional semantic theories can be added by defining their components
-  and translation dictionaries
-- The example_range can be modified to run different subsets of tests
+- At least one semantic theory must be included in semantic_theories
+- At least one example must be included in example_range
+- Some examples may require adjusting the settings to produce good models
+
+Help:
+-----
+More information can be found in the README.md for the default theory.
 """
 
 ##########################
@@ -489,13 +517,13 @@ CF_CM_15_example = [
 CF_CM_16_premises = ['\\neg A','(A \\boxright (B \\vee C))']
 CF_CM_16_conclusions = ['(A \\boxright B)','(A \\boxright C)']
 CF_CM_16_settings = {
-    'N' : 4,
+    'N' : 3,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 2,
-    'iterate' : 1,
+    'iterate' : 2,
     'expectation' : True,
 }
 CF_CM_16_example = [
@@ -1195,7 +1223,7 @@ example_range = {
     # Counterfactual Countermodels
     # "CF_CM_0" : CF_CM_0_example,
     # "CF_CM_1" : CF_CM_1_example,
-    "CF_CM_2" : CF_CM_2_example,
+    # "CF_CM_2" : CF_CM_2_example,
     # "CF_CM_3" : CF_CM_3_example,
     # "CF_CM_4" : CF_CM_4_example,
     # "CF_CM_5" : CF_CM_5_example,
@@ -1209,7 +1237,7 @@ example_range = {
     # "CF_CM_13" : CF_CM_13_example,
     # "CF_CM_14" : CF_CM_14_example,
     # "CF_CM_15" : CF_CM_15_example,
-    # "CF_CM_16" : CF_CM_16_example,
+    "CF_CM_16" : CF_CM_16_example,
     # "CF_CM_17" : CF_CM_17_example,
     # "CF_CM_18" : CF_CM_18_example,
     # "CF_CM_19" : CF_CM_19_example,
@@ -1243,3 +1271,13 @@ example_range = {
     # "CL_TH_7" : CL_TH_7_example,
     # "CL_TH_8" : CL_TH_8_example,
 }
+
+
+####################
+### RUN EXAMPLES ###
+####################
+
+if __name__ == '__main__':
+    import subprocess
+    file_name = os.path.basename(__file__)
+    subprocess.run(["model-checker", file_name], check=True, cwd=current_dir)

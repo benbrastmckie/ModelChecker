@@ -2,7 +2,7 @@
 
 ## SCRATCH
 
-
+Read CLAUDE.md and then look at iterate.py and semantic.py in both the default/ and exclusion/ theories in theory_lib/ in order to help me update the README.md files in default/ and exclusion/ to provide a careful description of how iteration works. 
 
 ## Plan
 
@@ -11,6 +11,7 @@
   - [ ] unit test circular defs
   - [ ] benchmarking
 - bimodal
+  - `print_over_times` loops over all times
   - update pypi doc
   - semantics
     - [ ] optimize
@@ -54,11 +55,12 @@
   - refactor as subpackages
     - [x] iterate models
       - [:] refactor module
+        - [ ] move iterate components out of semantic.py
+          - [ ] DIFFERENCES FROM PREVIOUS MODEL occurs in too many places
+        - [ ] report networkx not available
         - [x] make iterate settings uniform
         - [x] add iterate tests to `test_package.py`
         - [x] update DEFAULTS
-        - [ ] move iterate components out of semantic.py
-        - [ ] report networkx not available
       - [.] add iterator to other theories
         - [.] bimodal
         - [ ] imposition
