@@ -405,6 +405,7 @@ class NecessityOperator(syntactic.Operator):
             )
         )
 
+    # TODO: should this use eval_world and eval_time?
     def find_truth_condition(self, argument, eval_world, eval_time):
         """Gets truth-condition for: 'It is necessary that: argument'.
         
@@ -452,7 +453,6 @@ class NecessityOperator(syntactic.Operator):
             # Store the temporal profile for this world
             new_truth_condition[current_world] = (true_times, false_times)
 
-        # print("TEST", new_truth_condition)
         # Return result dictionary
         return new_truth_condition
             

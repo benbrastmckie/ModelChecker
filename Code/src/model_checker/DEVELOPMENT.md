@@ -289,6 +289,49 @@ When updating documentation:
 3. Update tables of contents when adding sections
 4. Include code examples for API changes
 
+## Z3 Solver State Management
+
+The ModelChecker uses Z3 solver for constraint solving. Proper management of Z3 solver state is critical for ensuring that examples run independently and don't affect each other's results or performance.
+
+### Key Considerations
+
+1. **State Isolation**: Each example should have its own isolated solver state to prevent interference.
+   
+2. **Resource Cleanup**: Z3 solver resources should be properly cleaned up after each example run:
+   ```python
+   # Always clean up Z3 resources when done
+   solver = None
+   model = None
+   import gc
+   gc.collect()
+   ```
+
+3. **Theory-specific Caches**: Semantic theories should implement `_reset_global_state()` to clear any caches:
+   ```python
+   def _reset_global_state(self):
+       super()._reset_global_state()  # Call parent implementation
+       self._theory_specific_cache = {}  # Reset any caches
+   ```
+
+4. **Model Structure Initialization**: When implementing a custom ModelStructure, ensure proper garbage collection:
+   ```python
+   def __init__(self, model_constraints, max_time):
+       # Force garbage collection before initialization
+       import gc
+       gc.collect()
+       
+       # Initialize parent class
+       super().__init__(model_constraints, max_time)
+       
+       # Your initialization code
+       # ...
+       
+       # Force garbage collection again after initialization
+       gc.collect()
+   ```
+
+For a detailed implementation overview, see `theory_lib/notes/separation.md`.
+
 ---
 
 For more detailed information, refer to:
