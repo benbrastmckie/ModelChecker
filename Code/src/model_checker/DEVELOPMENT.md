@@ -295,8 +295,18 @@ The ModelChecker uses Z3 solver for constraint solving. Proper management of Z3 
 
 ### Key Considerations
 
-1. **State Isolation**: Each example should have its own isolated solver state to prevent interference.
+1. **Z3 Context Isolation**: The most critical aspect of Z3 solver state management is resetting the Z3 context between examples:
+   ```python
+   # CRITICAL: Reset Z3 context between examples to prevent state leakage
+   import z3
+   if hasattr(z3, '_main_ctx'):
+       z3._main_ctx = None
+   import gc
+   gc.collect()
+   ```
    
+   Without this step, examples can interfere with each other, causing timeouts or incorrect results.
+
 2. **Resource Cleanup**: Z3 solver resources should be properly cleaned up after each example run:
    ```python
    # Always clean up Z3 resources when done
@@ -328,6 +338,23 @@ The ModelChecker uses Z3 solver for constraint solving. Proper management of Z3 
        
        # Force garbage collection again after initialization
        gc.collect()
+   ```
+
+5. **Example Isolation**: When running multiple examples, ensure each gets a fresh Z3 context:
+   ```python
+   for example_name, example_case in examples.items():
+       # Reset Z3 context to create a fresh environment for this example
+       import z3
+       if hasattr(z3, '_main_ctx'):
+           z3._main_ctx = None
+       gc.collect()
+       
+       try:
+           # Process the example with a fresh Z3 context
+           process_example(example_name, example_case)
+       finally:
+           # Force cleanup
+           gc.collect()
    ```
 
 For a detailed implementation overview, see `theory_lib/notes/separation.md`.
