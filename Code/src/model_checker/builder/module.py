@@ -382,6 +382,25 @@ class BuildModule:
             print(f"\n{'='*40}")
 
     def process_example(self, example_name, example_case, theory_name, semantic_theory):
+        """Process a single model checking example with a fresh Z3 context.
+        
+        Args:
+            example_name (str): Name of the example being processed
+            example_case (list): The example case containing [premises, conclusions, settings]
+            theory_name (str): Name of the semantic theory being used
+            semantic_theory (dict): Dictionary containing the semantic theory implementation
+            
+        Returns:
+            BuildExample: The example after processing
+        """
+        from model_checker.utils import Z3ContextManager
+        
+        # Always reset Z3 context at the start of processing a new example
+        Z3ContextManager.reset_context()
+        
+        # Disable debug logs for cleaner output
+        import logging
+        logging.getLogger().setLevel(logging.ERROR)
         """Process a single model checking example.
         
         Args:

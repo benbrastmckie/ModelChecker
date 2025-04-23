@@ -516,6 +516,7 @@ class FutureOperator(syntactic.Operator):
                     # Time is in the future of eval_time
                     eval_time < future_time,
                 ),
+                # Then the argument is true in the eval_world at the future_time
                 semantics.true_at(argument, eval_world, future_time),
             )
         )
@@ -537,6 +538,7 @@ class FutureOperator(syntactic.Operator):
                 semantics.is_valid_time_for_world(eval_world, future_time),
                 # Time is in the future of eval_time
                 eval_time < future_time,
+                # And the argument is true in the eval_world at the future_time
                 semantics.false_at(argument, eval_world, future_time),
             )
         )
@@ -651,17 +653,18 @@ class PastOperator(syntactic.Operator):
             eval_time: The time for evaluation context
         """
         semantics = self.semantics
-        time = z3.Int('past_true_time')
+        past_time = z3.Int('past_true_time')
         return z3.ForAll(
-            time,
+            past_time,
             z3.Implies(
                 z3.And(
-                    # Time is within the valid range for this world's interval
-                    semantics.is_valid_time_for_world(eval_world, time),
-                    # Time is in the past of eval_time
-                    eval_time > time,
+                    # If the past_time is within the eval_world's time interval
+                    semantics.is_valid_time_for_world(eval_world, past_time),
+                    # And the past_time is before the eval_time
+                    past_time < eval_time,
                 ),
-                semantics.true_at(argument, eval_world, time),
+                # Then the argument is true at the past_time in the eval_world
+                semantics.true_at(argument, eval_world, past_time),
             )
         )
     
@@ -674,15 +677,16 @@ class PastOperator(syntactic.Operator):
             eval_time: The time for evaluation context
         """
         semantics = self.semantics
-        time = z3.Int('past_false_time')
+        past_time = z3.Int('past_false_time')
         return z3.Exists(
-            time,
+            past_time,
             z3.And(
-                # Time is within the valid range for this world's interval
-                semantics.is_valid_time_for_world(eval_world, time),
-                # Time is in the past of eval_time
-                eval_time > time,
-                semantics.false_at(argument, eval_world, time),
+                # The past_time is within the eval_world's time interval
+                semantics.is_valid_time_for_world(eval_world, past_time),
+                # The past_time is before the eval_time
+                past_time < eval_time,
+                # And the argument is true at the past_time in the eval_world
+                semantics.false_at(argument, eval_world, past_time),
             )
         )
     
