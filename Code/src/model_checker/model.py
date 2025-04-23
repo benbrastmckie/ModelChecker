@@ -170,32 +170,34 @@ class SemanticDefaults:
     def _reset_global_state(self):
         """Reset any global state that could cause interference between examples.
         
-        This method is called during initialization to ensure that each new instance
-        starts with a clean slate, preventing unintended interactions between 
-        different examples run in the same session.
+        Following the fail-fast philosophy, this method explicitly resets all cached
+        state that could lead to non-deterministic behavior between examples.
         
-        The proper implementation of this method is critical for Z3 solver state isolation.
-        Each example should run independently without being affected by previous examples.
-        Without proper state reset, complex examples may time out or produce different results
-        depending on execution order.
-        
-        Each subclass MUST override this method to reset any theory-specific caches
-        or stateful properties, while also calling the parent implementation to ensure
-        proper cleanup of shared resources.
+        Subclasses MUST override this method and call super()._reset_global_state()
+        to ensure proper cleanup of both shared and theory-specific resources.
         
         Example for subclasses:
-        ```python
-        def _reset_global_state(self):
-            super()._reset_global_state()  # Call parent implementation first
-            self._theory_specific_cache = {}  # Reset theory-specific cache
-            self._solver_history = []  # Reset any other stateful properties
-        ```
         
-        See BimodalSemantics._reset_global_state for a comprehensive implementation example.
-        For detailed guidance on Z3 solver state management, see theory_lib/notes/separation.md.
+        def _reset_global_state(self):
+            # Always call parent implementation first
+            super()._reset_global_state()
+            
+            # Reset theory-specific caches
+            self._theory_specific_cache = {}
+            
+            # Clear any references to model structures
+            if hasattr(self, 'model_structure'):
+                delattr(self, 'model_structure')
+                
+            # Reset mutable data structures but preserve immutable definitions
+            self.data_cache = {}
         """
-        # Initialize general caches
+        # Reset general caches
         self._cached_values = {}
+        
+        # Reset Z3 context to ensure clean state
+        from model_checker.utils import Z3ContextManager
+        Z3ContextManager.reset_context()
         
         # Force garbage collection to release any lingering Z3 objects
         import gc
@@ -706,9 +708,9 @@ class ModelDefaults:
         self.z3_model_status = None
         self.z3_model_runtime = None
         
-        # Ensure any static/global state is reset
-        import gc
-        gc.collect()
+        # Reset Z3 context before creating a new solver to ensure isolation
+        from model_checker.utils import Z3ContextManager
+        Z3ContextManager.reset_context()
 
         # Solve Z3 constraints and store results
         solver_results = self.solve(self.model_constraints, self.max_time)
@@ -823,7 +825,7 @@ class ModelDefaults:
         ```
         
         For comprehensive information on Z3 solver state management, see:
-        - theory_lib/notes/separation.md
+        - theory_lib/notes/solvers.md
         - DEVELOPMENT.md section on Z3 Solver State Management
         """
         import gc
@@ -836,15 +838,19 @@ class ModelDefaults:
         if hasattr(self, 'example_context'):
             self.example_context = None
         
+        # Reset Z3 context to ensure clean state for future solver instances
+        from model_checker.utils import Z3ContextManager
+        Z3ContextManager.reset_context()
+        
         # Force garbage collection to release Z3 resources
         gc.collect()
     
     def solve(self, model_constraints, max_time):
         """Uses the Z3 solver to find a model satisfying the given constraints.
         
-        This method sets up the Z3 solver with all the constraints derived from
-        the premises, conclusions, and frame conditions, then attempts to find
-        a satisfying assignment that represents a valid model.
+        Creates a completely fresh Z3 context for each example to ensure
+        proper isolation and deterministic behavior regardless of which
+        examples were run previously.
         
         Args:
             model_constraints (ModelConstraints): The logical constraints to solve
@@ -857,17 +863,31 @@ class ModelDefaults:
             - If the constraints are unsatisfiable, returns the unsatisfiable core
             - If solving times out, sets the timeout flag but still returns partial results
         """
-        # Force creation of a completely fresh Z3 context for this solve operation
-        # This ensures complete isolation between different example runs
-        import gc
-        import z3
+        from model_checker.utils import Z3ContextManager
         
-        # Force garbage collection to free any Z3 objects
+        # Force garbage collection
+        import gc
         gc.collect()
         
-        # Create a fresh new solver for this specific example
-        # This prevents any state leakage between examples
+        # Reset Z3 context to ensure clean state - add extra debugging for diagnosing leakage
+        print(f"DEBUG: Resetting Z3 context in solve() for {model_constraints}")
+        Z3ContextManager.reset_context()
+        
+        # Import z3 after context reset to ensure it uses the fresh context
+        import z3
+        
+        # Force a new module import to ensure clean state
+        import importlib
+        importlib.reload(z3)
+        
+        # Create a new solver with the fresh context
         self.solver = z3.Solver()
+        
+        # Print Z3 context and solver information for debugging
+        ctx_id = id(z3._main_ctx) if hasattr(z3, '_main_ctx') else id(z3.main_ctx) if hasattr(z3, 'main_ctx') else 'No context found'
+        print(f"DEBUG: Z3 Context ID: {ctx_id}")
+        print(f"DEBUG: Solver ID: {id(self.solver)}")
+        print(f"DEBUG: Example: {getattr(model_constraints, 'example_name', 'Unknown')}")
 
         try:
             # Set up the solver with the constraints
@@ -877,6 +897,9 @@ class ModelDefaults:
             self.solver.set("timeout", int(max_time * 1000))
             start_time = time.time()
             result = self.solver.check()
+            
+            # Print result for debugging
+            print(f"DEBUG: Solver result for {getattr(model_constraints, 'example_name', 'Unknown')}: {result}")
             
             # Handle different solver outcomes
             if result == z3.sat:
@@ -888,10 +911,11 @@ class ModelDefaults:
             return self._create_result(False, self.solver.unsat_core(), False, start_time)
             
         except RuntimeError as e:
-            print(f"An error occurred while running `solve_constraints()`: {e}")
+            print(f"An error occurred during solving: {e}")
             return True, None, False, None
         finally:
             # Ensure proper cleanup to prevent any possible state leakage
+            print(f"DEBUG: Cleaning up solver resources for {getattr(model_constraints, 'example_name', 'Unknown')}")
             self._cleanup_solver_resources()
     
     def re_solve(self):
@@ -935,8 +959,8 @@ class ModelDefaults:
             print(f"An error occurred while running `re_solve()`: {e}")
             return True, None, False, None
         finally:
-            # Don't do full cleanup here as we may need to reuse the context
-            # Just release any temporary resources
+            # Don't reset the Z3 context here as we need to preserve the solver state
+            # Just release any temporary resources via garbage collection
             import gc
             gc.collect()
 

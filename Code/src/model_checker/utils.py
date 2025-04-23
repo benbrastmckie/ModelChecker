@@ -22,6 +22,68 @@ from z3 import(
     substitute,
 )
 
+class Z3ContextManager:
+    """Provides centralized management of Z3 solver contexts.
+    
+    This class ensures proper isolation between different solver instances by explicitly
+    resetting the Z3 global context when needed. It implements a fail-fast approach
+    and enforces deterministic behavior by preventing state leakage between examples.
+    """
+    
+    @staticmethod
+    def reset_context():
+        """Explicitly reset the Z3 global context.
+        
+        This method forces Z3 to create a fresh context for the next solver instance,
+        ensuring complete isolation between different examples.
+        
+        Note: Z3 stores its context in either '_main_ctx' or 'main_ctx' depending on
+        the Z3 version. This method handles both cases for maximum compatibility.
+        """
+        import z3
+        
+        # Print debug info before reset
+        ctx_id = id(z3._main_ctx) if hasattr(z3, '_main_ctx') else id(z3.main_ctx) if hasattr(z3, 'main_ctx') else 'No context found'
+        print(f"DEBUG: Pre-reset Z3 Context ID: {ctx_id}")
+        
+        # Handle both possible attribute names for Z3 context
+        if hasattr(z3, '_main_ctx'):
+            # Print debug info about the context before clearing
+            print(f"DEBUG: Resetting Z3 _main_ctx: {z3._main_ctx}")
+            
+            # Store any cached solvers/objects before reset
+            cached_items = None
+            if hasattr(z3._main_ctx, 'solver_factory'):
+                cached_items = z3._main_ctx.solver_factory
+                print(f"DEBUG: Found solver_factory cache with {len(cached_items) if cached_items else 0} items")
+                
+            # Reset the context completely
+            z3._main_ctx = None
+            
+        elif hasattr(z3, 'main_ctx'):
+            print(f"DEBUG: Resetting Z3 main_ctx: {z3.main_ctx}")
+            z3.main_ctx = None
+            
+        # Force garbage collection to ensure clean state
+        import gc
+        print(f"DEBUG: Running garbage collection")
+        gc.collect()
+        
+        # Try to clear other Z3 caches that might persist
+        if hasattr(z3, 'clear_parser_cache'):
+            print(f"DEBUG: Clearing Z3 parser cache")
+            z3.clear_parser_cache()
+            
+        # Print debug info after reset
+        try:
+            # Re-import z3 to see the new context
+            import importlib
+            importlib.reload(z3)
+            ctx_id = id(z3._main_ctx) if hasattr(z3, '_main_ctx') else id(z3.main_ctx) if hasattr(z3, 'main_ctx') else 'No context found'
+            print(f"DEBUG: Post-reset Z3 Context ID: {ctx_id}")
+        except Exception as e:
+            print(f"DEBUG: Error checking post-reset context: {e}")
+
 ### SYNTACTIC HELPERS ###
 
 def parse_expression(tokens):
