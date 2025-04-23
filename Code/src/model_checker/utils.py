@@ -42,47 +42,21 @@ class Z3ContextManager:
         """
         import z3
         
-        # Print debug info before reset
-        ctx_id = id(z3._main_ctx) if hasattr(z3, '_main_ctx') else id(z3.main_ctx) if hasattr(z3, 'main_ctx') else 'No context found'
-        print(f"DEBUG: Pre-reset Z3 Context ID: {ctx_id}")
-        
         # Handle both possible attribute names for Z3 context
         if hasattr(z3, '_main_ctx'):
-            # Print debug info about the context before clearing
-            print(f"DEBUG: Resetting Z3 _main_ctx: {z3._main_ctx}")
-            
-            # Store any cached solvers/objects before reset
-            cached_items = None
-            if hasattr(z3._main_ctx, 'solver_factory'):
-                cached_items = z3._main_ctx.solver_factory
-                print(f"DEBUG: Found solver_factory cache with {len(cached_items) if cached_items else 0} items")
-                
             # Reset the context completely
             z3._main_ctx = None
             
         elif hasattr(z3, 'main_ctx'):
-            print(f"DEBUG: Resetting Z3 main_ctx: {z3.main_ctx}")
             z3.main_ctx = None
             
-        # Force garbage collection to ensure clean state
-        import gc
-        print(f"DEBUG: Running garbage collection")
-        gc.collect()
-        
         # Try to clear other Z3 caches that might persist
         if hasattr(z3, 'clear_parser_cache'):
-            print(f"DEBUG: Clearing Z3 parser cache")
             z3.clear_parser_cache()
             
-        # Print debug info after reset
-        try:
-            # Re-import z3 to see the new context
-            import importlib
-            importlib.reload(z3)
-            ctx_id = id(z3._main_ctx) if hasattr(z3, '_main_ctx') else id(z3.main_ctx) if hasattr(z3, 'main_ctx') else 'No context found'
-            print(f"DEBUG: Post-reset Z3 Context ID: {ctx_id}")
-        except Exception as e:
-            print(f"DEBUG: Error checking post-reset context: {e}")
+        # Re-import z3 to use the new context
+        import importlib
+        importlib.reload(z3)
 
 ### SYNTACTIC HELPERS ###
 
