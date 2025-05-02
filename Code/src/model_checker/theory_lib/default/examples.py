@@ -1049,8 +1049,9 @@ CF_TH_12_example = [
 ]
 
 
-
-### CONSTITUTIVE OPERATORS ###
+#############################
+### CONSTITUTIVE THEOREMS ###
+#############################
 
 # CL_TH_1: GROUND TO ESSENCE
 CL_TH_1_premises = ['(A \\leq B)']
@@ -1204,6 +1205,101 @@ CL_TH_8_example = [
     CL_TH_8_settings,
 ]
 
+# CL_TH_9: ABSORPTION IDENTITY
+CL_TH_9_premises = ['(A \\vee (A \\wedge B))']
+CL_TH_9_conclusions = ['(A \\wedge (A \\vee B))']
+CL_TH_9_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CL_TH_9_example = [
+    CL_TH_9_premises,
+    CL_TH_9_conclusions,
+    CL_TH_9_settings,
+]
+
+# CL_TH_10: ABSORPTION REDUCTION: CONJUNCTION OVER DISJUNCTION
+CL_TH_10_premises = []
+CL_TH_10_conclusions = ['(A \\reduction (A \\wedge (A \\vee B)))']
+CL_TH_10_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CL_TH_10_example = [
+    CL_TH_10_premises,
+    CL_TH_10_conclusions,
+    CL_TH_10_settings,
+]
+
+# CL_TH_11: ABSORPTION REDUCTION: DISJUNCTION OVER CONJUNCTION
+CL_TH_11_premises = []
+CL_TH_11_conclusions = ['(A \\reduction (A \\vee (A \\wedge B)))']
+CL_TH_11_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CL_TH_11_example = [
+    CL_TH_11_premises,
+    CL_TH_11_conclusions,
+    CL_TH_11_settings,
+]
+
+# CL_TH_12: DISTRIBUTION REDUCTION: DISJUNCTION OVER CONJUNCTION
+CL_TH_12_premises = []
+CL_TH_12_conclusions = ['((A \\vee (A \\wedge B)) \\reduction (A \\wedge (A \\vee B)))']
+CL_TH_12_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CL_TH_12_example = [
+    CL_TH_12_premises,
+    CL_TH_12_conclusions,
+    CL_TH_12_settings,
+]
+
+# CL_TH_13: DISTRIBUTION REDUCTION: CONJUNCTION OVER DISJUNCTION
+CL_TH_13_premises = []
+CL_TH_13_conclusions = ['((A \\wedge (A \\vee B)) \\reduction (A \\vee (A \\wedge B)))']
+CL_TH_13_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CL_TH_13_example = [
+    CL_TH_13_premises,
+    CL_TH_13_conclusions,
+    CL_TH_13_settings,
+]
+
 
 #########################################
 ### SPECIFY EXAMPLES FOR UNIT TESTING ###
@@ -1307,8 +1403,8 @@ example_range = {
     # Constitutive Countermodels
     "CL_CM_1" : CL_CM_1_example,  # EQUIVALENCE OF TAUTOLOGIES
     # "CL_CM_2" : CL_CM_2_example,  # EQUIVALENCE OF CONTRADICTIONS
-    # "CL_CM_3" : CL_CM_3_example,
-    # "CL_CM_4" : CL_CM_4_example,
+    # "CL_CM_3" : CL_CM_3_example,  # GROUND CONJUNCTION SUPPLEMENTATION
+    # "CL_CM_4" : CL_CM_4_example,  # ESSENCE DISJUNCTION SUPPLEMENTATION
     # "CL_CM_5" : CL_CM_5_example,  # ABSORPTION OR/AND
     # "CL_CM_6" : CL_CM_6_example,  # ABSORPTION AND/OR
     # "CL_CM_7" : CL_CM_7_example,  # DISTRIBUTION AND/OR
@@ -1329,14 +1425,19 @@ example_range = {
     # "CF_TH_12" : CF_TH_12_example,
 
     # Constitutive Theorems
-    # "CL_TH_1" : CL_TH_1_example,
-    # "CL_TH_2" : CL_TH_2_example,
+    # "CL_TH_1" : CL_TH_1_example,  # GROUND TO ESSENCE
+    # "CL_TH_2" : CL_TH_2_example,  # ESSENCE TO GROUND
     # "CL_TH_3" : CL_TH_3_example,  # ESSENCE TO IDENTITY
     # "CL_TH_4" : CL_TH_4_example,  # IDENTITY TO ESSENCE
     # "CL_TH_5" : CL_TH_5_example,  # GROUND TO IDENTITY
     # "CL_TH_6" : CL_TH_6_example,  # IDENTITY TO GROUND
-    # "CL_TH_7" : CL_TH_7_example,
-    # "CL_TH_8" : CL_TH_8_example,
+    # "CL_TH_7" : CL_TH_7_example,  # NEGATION TRANSPARENCY
+    # "CL_TH_8" : CL_TH_8_example,  # REVERSE NEGATION TRANSPARENCY
+    # "CL_TH_9" : CL_TH_9_example,  # ABSORPTION IDENTITY
+    # "CL_TH_10" : CL_TH_10_example,  # ABSORPTION REDUCTION: AND/OR
+    # "CL_TH_11" : CL_TH_11_example,  # ABSORPTION REDUCTION: OR/AND
+    # "CL_TH_12" : CL_TH_12_example,  # DISTRIBUTION REDUCTION: OR/AND
+    # "CL_TH_13" : CL_TH_13_example,  # DISTRIBUTION REDUCTION: AND/OR
 }
 
 
