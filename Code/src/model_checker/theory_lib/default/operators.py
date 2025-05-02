@@ -367,8 +367,6 @@ class OrOperator(syntactic.Operator):
         """
         sem = self.semantics
         return z3.Or(sem.true_at(leftarg, eval_point), sem.true_at(rightarg, eval_point))
-        sem = self.semantics
-        return z3.Or(sem.true_at(leftarg, eval_point), sem.true_at(rightarg, eval_point))
 
     def false_at(self, leftarg, rightarg, eval_point):
         """Defines falsity conditions for disjunction at an evaluation point.
@@ -483,7 +481,6 @@ class OrOperator(syntactic.Operator):
             indent_num (int): The current indentation level
             use_colors (bool): Whether to use colored output for formatting
         """
-        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
@@ -732,36 +729,52 @@ class IdentityOperator(syntactic.Operator):
         Returns:
             BoolRef: Z3 expression representing the truth condition
         """
-        N = self.semantics.N
-        sem = self.semantics
-        x = z3.BitVec("t_id_x", N)
+        semantics = self.semantics          # Import the semantics
+        N = semantics.N                     # Import the number of atomic states
+        x = z3.BitVec("true_identity_x", N) # Z3 BitVector variable of length N
         return z3.And(
+            # Condition 1: Every verifier of A must also be a verifier of B
+            # For every state x,
             ForAll(
                 x,
                 z3.Implies(
-                    sem.extended_verify(x, leftarg, eval_point),
-                    sem.extended_verify(x, rightarg, eval_point)
+                    # If x verifies A
+                    semantics.extended_verify(x, leftarg, eval_point),
+                    # Then x verifies B
+                    semantics.extended_verify(x, rightarg, eval_point)
                 ),
             ),
+            # Condition 2: Every falsifier of A must also be a falsifier of B
+            # For every state x,
             ForAll(
                 x,
                 z3.Implies(
-                    sem.extended_falsify(x, leftarg, eval_point),
-                    sem.extended_falsify(x, rightarg, eval_point)
+                    # If x falsifies A
+                    semantics.extended_falsify(x, leftarg, eval_point),
+                    # Then x falsifies B
+                    semantics.extended_falsify(x, rightarg, eval_point)
                 ),
             ),
+            # Condition 3: Every verifier of B must also be a verifier of A
+            # For every state x,
             ForAll(
                 x,
                 z3.Implies(
-                    sem.extended_verify(x, rightarg, eval_point),
-                    sem.extended_verify(x, leftarg, eval_point)
+                    # If x verifies B
+                    semantics.extended_verify(x, rightarg, eval_point),
+                    # Then x verifies A
+                    semantics.extended_verify(x, leftarg, eval_point)
                 ),
             ),
+            # Condition 4: Every falsifier of B must also be a falsifier of A
+            # For every state x,
             ForAll(
                 x,
                 z3.Implies(
-                    sem.extended_falsify(x, rightarg, eval_point),
-                    sem.extended_falsify(x, leftarg, eval_point)
+                    # If x falsifies B
+                    semantics.extended_falsify(x, rightarg, eval_point),
+                    # Then x falsifies A
+                    semantics.extended_falsify(x, leftarg, eval_point)
                 ),
             )
         )
@@ -783,36 +796,52 @@ class IdentityOperator(syntactic.Operator):
         Returns:
             BoolRef: Z3 expression representing the falsity condition
         """
-        sem = self.semantics
-        N = self.semantics.N
-        x = z3.BitVec("f_id_x", N)
+        semantics = self.semantics              # Import the semantics
+        N = semantics.N                         # Import the number of atomic states
+        x = z3.BitVec("false_identity_x", N)    # Z3 BitVector variable of length N
         return z3.Or(
+            # Condition 1: There exists a verifier of A that is not a verifier of B
+            # There exists a state x,
             Exists(
                 x,
                 z3.And(
-                    sem.extended_verify(x, leftarg, eval_point),
-                    z3.Not(sem.extended_verify(x, rightarg, eval_point))
+                    # Where x verifies A
+                    semantics.extended_verify(x, leftarg, eval_point),
+                    # But x does not verify B
+                    z3.Not(semantics.extended_verify(x, rightarg, eval_point))
                 ),
             ),
+            # Condition 2: There exists a falsifier of A that is not a falsifier of B
+            # There exists a state x,
             Exists(
                 x,
                 z3.And(
-                    sem.extended_falsify(x, leftarg, eval_point),
-                    z3.Not(sem.extended_falsify(x, rightarg, eval_point))
+                    # Where x falsifies A
+                    semantics.extended_falsify(x, leftarg, eval_point),
+                    # But x does not falsify B
+                    z3.Not(semantics.extended_falsify(x, rightarg, eval_point))
                 ),
             ),
+            # Condition 3: There exists a verifier of B that is not a verifier of A
+            # There exists a state x,
             Exists(
                 x,
                 z3.And(
-                    sem.extended_verify(x, rightarg, eval_point),
-                    z3.Not(sem.extended_verify(x, leftarg, eval_point))
+                    # Where x verifies B
+                    semantics.extended_verify(x, rightarg, eval_point),
+                    # But x does not verify A
+                    z3.Not(semantics.extended_verify(x, leftarg, eval_point))
                 ),
             ),
+            # Condition 4: There exists a falsifier of B that is not a falsifier of A
+            # There exists a state x,
             Exists(
                 x,
                 z3.And(
-                    sem.extended_falsify(x, rightarg, eval_point),
-                    z3.Not(sem.extended_falsify(x, leftarg, eval_point))
+                    # Where x falsifies B
+                    semantics.extended_falsify(x, rightarg, eval_point),
+                    # But x does not falsify A
+                    z3.Not(semantics.extended_falsify(x, leftarg, eval_point))
                 ),
             )
         )
@@ -902,16 +931,16 @@ class IdentityOperator(syntactic.Operator):
 
 
 class GroundOperator(syntactic.Operator):
-    """Implementation of the ground/entailment operator (≤).
+    """Implementation of the ground/disjunctive-part operator (≤).
     
     This operator represents the grounding relation between propositions, where
-    A ≤ B means that A grounds B or A entails B. The relation captures when the
-    content of one proposition serves as the ground or basis for another.
+    A ≤ B means that A grounds B or A is a disjunctive-part of B. The relation
+    captures when one proposition serves as the ground for another.
     
     The truth conditions involve several requirements:
-    1. Every verifier of A must also be a verifier of B
-    2. Falsifiers of A and B must combine to falsify B
-    3. Every falsifier of B must have a part that falsifies A
+        1. Every verifier of A must also be a verifier of B
+        2. The fusion of falsifiers for A and B must falsify B
+        3. Every falsifier of B must have a part that falsifies A
     
     Class Attributes:
         name (str): Symbol representing the ground relation ("\\leq")
@@ -925,9 +954,9 @@ class GroundOperator(syntactic.Operator):
         """Defines truth conditions for the ground relation at an evaluation point.
         
         The ground relation A ≤ B is true at an evaluation point when:
-        1. Every verifier of A is also a verifier of B
-        2. Falsifiers of A and B combine to falsify B
-        3. Every falsifier of B has a part that falsifies A
+            1. Every verifier of A is also a verifier of B
+            2. The fusion of falsifiers for A and B must falsify B
+            3. Every falsifier of B has a part that falsifies A
         
         Args:
             leftarg (Sentence): The ground proposition (A)
@@ -937,37 +966,52 @@ class GroundOperator(syntactic.Operator):
         Returns:
             BoolRef: Z3 expression representing the truth condition
         """
-        N = self.semantics.N
-        sem = self.semantics
-        x = z3.BitVec("t_seq_x", N)
-        y = z3.BitVec("t_seq_y", N)
+        semantics = self.semantics          # Import the semantics
+        N = semantics.N                     # Import the number of atomic states
+        x = z3.BitVec("true_ground_x", N)   # Z3 BitVector variable of length N
+        y = z3.BitVec("true_ground_y", N)   # Z3 BitVector variable of length N
         return z3.And(
+            # Condition 1: Every verifier of A is also a verifier of B
+            # For every state x,
             ForAll(
-                x,
+                [x],
                 z3.Implies(
-                    sem.extended_verify(x, leftarg, eval_point),
-                    sem.extended_verify(x, rightarg, eval_point)
+                    # If x verifies A
+                    semantics.extended_verify(x, leftarg, eval_point),
+                    # Then x verifies B
+                    semantics.extended_verify(x, rightarg, eval_point)
                 )
             ),
+            # Condition 2: Fusing falsifiers of A and B yields a falsifier of B
+            # For any states x and y,
             ForAll(
                 [x, y],
                 z3.Implies(
                     z3.And(
-                        sem.extended_falsify(x, leftarg, eval_point),
-                        sem.extended_falsify(y, rightarg, eval_point)
+                        # If x falsifies A
+                        semantics.extended_falsify(x, leftarg, eval_point),
+                        # And y falsifies B 
+                        semantics.extended_falsify(y, rightarg, eval_point)
                     ),
-                    sem.extended_falsify(sem.fusion(x, y), rightarg, eval_point)
+                    # Then the fusion x.y falsifies B
+                    semantics.extended_falsify(semantics.fusion(x, y), rightarg, eval_point)
                 ),
             ),
+            # Condition 3: Every falsifier of B has a part that falsifies A
+            # For every state x,
             ForAll(
-                x,
+                [x],
                 z3.Implies(
-                    sem.extended_falsify(x, rightarg, eval_point),
+                    # If x falsifies B,
+                    semantics.extended_falsify(x, rightarg, eval_point),
+                    # Then there is some state y,
                     Exists(
                         y,
                         z3.And(
-                            sem.extended_falsify(y, leftarg, eval_point),
-                            sem.is_part_of(y, x),
+                            # Where y falsifies A
+                            semantics.extended_falsify(y, leftarg, eval_point),
+                            # And y is a part of x
+                            semantics.is_part_of(y, x),
                         )
                     )
                 ),
@@ -978,9 +1022,9 @@ class GroundOperator(syntactic.Operator):
         """Defines falsity conditions for the ground relation at an evaluation point.
         
         The ground relation A ≤ B is false at an evaluation point if any of these hold:
-        1. There exists a verifier of A that is not a verifier of B
-        2. There exist falsifiers of A and B whose fusion does not falsify B
-        3. There exists a falsifier of B that has no part falsifying A
+            1. There exists a verifier of A that is not a verifier of B
+            2. There exist falsifiers of A and B whose fusion does not falsify B
+            3. There exists a falsifier of B that has no part falsifying A
         
         Args:
             leftarg (Sentence): The ground proposition (A)
@@ -990,35 +1034,50 @@ class GroundOperator(syntactic.Operator):
         Returns:
             BoolRef: Z3 expression representing the falsity condition
         """
-        sem = self.semantics
-        N = self.semantics.N
-        x = z3.BitVec("f_seq_x", N)
-        y = z3.BitVec("f_seq_y", N)
+        semantics = self.semantics          # Import the semantics
+        N = semantics.N                     # Import the number of atomic states
+        x = z3.BitVec("false_ground_x", N)  # Z3 BitVector variable of length N
+        y = z3.BitVec("false_ground_y", N)  # Z3 BitVector variable of length N
         return z3.Or(
+            # Condition 1: There exists a verifier of A that is not a verifier of B
+            # There exists a state x,
             Exists(
-                x,
+                [x],
                 z3.And(
-                    sem.extended_verify(x, leftarg, eval_point),
-                    z3.Not(sem.extended_verify(x, rightarg, eval_point))
+                    # Where x verifies A
+                    semantics.extended_verify(x, leftarg, eval_point),
+                    # But x does not verify B
+                    z3.Not(semantics.extended_verify(x, rightarg, eval_point))
                 )
             ),
+            # Condition 2: There exist falsifiers of A and B whose fusion does not falsify B
+            # There exist states x and y,
             Exists(
                 [x, y],
                 z3.And(
-                    sem.extended_falsify(x, leftarg, eval_point),
-                    sem.extended_falsify(y, rightarg, eval_point),
-                    z3.Not(sem.extended_falsify(sem.fusion(x, y), rightarg, eval_point))
+                    # Where x falsifies A
+                    semantics.extended_falsify(x, leftarg, eval_point),
+                    # And y falsifies B
+                    semantics.extended_falsify(y, rightarg, eval_point),
+                    # But their fusion does not falsify B
+                    z3.Not(semantics.extended_falsify(semantics.fusion(x, y), rightarg, eval_point))
                 ),
             ),
+            # Condition 3: There exists a falsifier of B that has no part falsifying A
+            # There exists a state x,
             Exists(
-                x,
+                [x],
                 z3.And(
-                    sem.extended_falsify(x, rightarg, eval_point),
+                    # Where x falsifies B
+                    semantics.extended_falsify(x, rightarg, eval_point),
+                    # And for every state y,
                     ForAll(
                         y,
                         z3.Implies(
-                            sem.extended_falsify(y, leftarg, eval_point),
-                            z3.Not(sem.is_part_of(y, x)),
+                            # If y falsifies A
+                            semantics.extended_falsify(y, leftarg, eval_point),
+                            # Then y is not a part of x
+                            z3.Not(semantics.is_part_of(y, x)),
                         )
                     )
                 ),

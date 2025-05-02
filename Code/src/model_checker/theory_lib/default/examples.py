@@ -129,7 +129,7 @@ __all__ = [
 
 general_settings = {
     "print_constraints": False,
-    "print_impossible": False,
+    "print_impossible": True,
     "print_z3": False,
     "save_output": False,
     "maximize": False,
@@ -654,9 +654,47 @@ ML_CM_1_example = [
 
 
 
-##############################
-### CONSTITUTIVE OPERATORS ###
-##############################
+##################################
+### CONSTITUTIVE COUNTERMODELS ###
+##################################
+
+# CL_CM_1: EQUIVALENCE OF TAUTOLOGIES
+CL_CM_1_premises = []
+CL_CM_1_conclusions = ['((A \\vee \\neg A) \\equiv (B \\vee \\neg B))']
+CL_CM_1_settings = {
+    'N' : 4,
+    'contingent' : True,
+    'non_null' : False,
+    'non_empty' : False,
+    'disjoint' : True,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+CL_CM_1_example = [
+    CL_CM_1_premises,
+    CL_CM_1_conclusions,
+    CL_CM_1_settings,
+]
+
+# CL_CM_1: EQUIVALENCE OF CONTRADICTIONS
+CL_CM_2_premises = []
+CL_CM_2_conclusions = ['((A \\wedge \\neg A) \\equiv (B \\wedge \\neg B))']
+CL_CM_2_settings = {
+    'N' : 4,
+    'contingent' : True,
+    'non_null' : False,
+    'non_empty' : False,
+    'disjoint' : True,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+CL_CM_2_example = [
+    CL_CM_2_premises,
+    CL_CM_2_conclusions,
+    CL_CM_2_settings,
+]
 
 # CL_CM_3: GROUND CONJUNCTION SUPPLEMENTATION
 CL_CM_3_premises = ['(A \\leq B)','(C \\leq D)']
@@ -700,11 +738,11 @@ CL_CM_4_example = [
 CL_CM_5_premises = []
 CL_CM_5_conclusions = ['(A \\equiv (A \\vee (A \\wedge B)))']
 CL_CM_5_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
+    'non_null' : False,
+    'non_empty' : False,
+    'disjoint' : True,
     'max_time' : 1,
     'iterate' : 1,
     'expectation' : True,
@@ -719,11 +757,11 @@ CL_CM_5_example = [
 CL_CM_6_premises = []
 CL_CM_6_conclusions = ['(A \\equiv (A \\wedge (A \\vee B)))']
 CL_CM_6_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
+    'non_null' : False,
+    'non_empty' : False,
+    'disjoint' : True,
     'max_time' : 1,
     'iterate' : 1,
     'expectation' : True,
@@ -734,23 +772,42 @@ CL_CM_6_example = [
     CL_CM_6_settings,
 ]
 
-# CL_CM_10: IDENTITY DISTRIBUTION
-CL_CM_10_premises = []
-CL_CM_10_conclusions = ['((A \\vee (B \\wedge C)) \\equiv ((A \\vee B) \\wedge (A \\vee C)))']
-CL_CM_10_settings = {
+# CL_CM_10: IDENTITY DISTRIBUTION: CONJUNCTION OVER DISJUNCTION
+CL_CM_7_premises = []
+CL_CM_7_conclusions = ['((A \\wedge (B \\vee C)) \\equiv ((A \\wedge B) \\vee (A \\wedge C)))']
+CL_CM_7_settings = {
     'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
+    'contingent' : False,
+    'non_null' : False,
+    'non_empty' : False,
+    'disjoint' : True,
     'max_time' : 1,
     'iterate' : 1,
     'expectation' : True,
 }
-CL_CM_10_example = [
-    CL_CM_10_premises,
-    CL_CM_10_conclusions,
-    CL_CM_10_settings,
+CL_CM_7_example = [
+    CL_CM_7_premises,
+    CL_CM_7_conclusions,
+    CL_CM_7_settings,
+]
+
+# CL_CM_8: IDENTITY DISTRIBUTION: DISJUNCTION OVER CONJUNCTION
+CL_CM_8_premises = []
+CL_CM_8_conclusions = ['((A \\vee (B \\wedge C)) \\equiv ((A \\vee B) \\wedge (A \\vee C)))']
+CL_CM_8_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'non_null' : False,
+    'non_empty' : False,
+    'disjoint' : True,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+CL_CM_8_example = [
+    CL_CM_8_premises,
+    CL_CM_8_conclusions,
+    CL_CM_8_settings,
 ]
 
 
@@ -1237,7 +1294,7 @@ example_range = {
     # "CF_CM_13" : CF_CM_13_example,
     # "CF_CM_14" : CF_CM_14_example,
     # "CF_CM_15" : CF_CM_15_example,
-    "CF_CM_16" : CF_CM_16_example,
+    # "CF_CM_16" : CF_CM_16_example,
     # "CF_CM_17" : CF_CM_17_example,
     # "CF_CM_18" : CF_CM_18_example,
     # "CF_CM_19" : CF_CM_19_example,
@@ -1246,6 +1303,16 @@ example_range = {
 
     # Modal Countermodels
     # "ML_CM_1" : ML_CM_1_example,
+
+    # Constitutive Countermodels
+    "CL_CM_1" : CL_CM_1_example,  # EQUIVALENCE OF TAUTOLOGIES
+    # "CL_CM_2" : CL_CM_2_example,  # EQUIVALENCE OF CONTRADICTIONS
+    # "CL_CM_3" : CL_CM_3_example,
+    # "CL_CM_4" : CL_CM_4_example,
+    # "CL_CM_5" : CL_CM_5_example,  # ABSORPTION OR/AND
+    # "CL_CM_6" : CL_CM_6_example,  # ABSORPTION AND/OR
+    # "CL_CM_7" : CL_CM_7_example,  # DISTRIBUTION AND/OR
+    # "CL_CM_8" : CL_CM_8_example,  # DISTRIBUTION OR/AND
 
     # Counterfactual Theorems
     # "CF_TH_1" : CF_TH_1_example,
@@ -1264,10 +1331,10 @@ example_range = {
     # Constitutive Theorems
     # "CL_TH_1" : CL_TH_1_example,
     # "CL_TH_2" : CL_TH_2_example,
-    # "CL_TH_3" : CL_TH_3_example,
-    # "CL_TH_4" : CL_TH_4_example,
-    # "CL_TH_5" : CL_TH_5_example,
-    # "CL_TH_6" : CL_TH_6_example,
+    # "CL_TH_3" : CL_TH_3_example,  # ESSENCE TO IDENTITY
+    # "CL_TH_4" : CL_TH_4_example,  # IDENTITY TO ESSENCE
+    # "CL_TH_5" : CL_TH_5_example,  # GROUND TO IDENTITY
+    # "CL_TH_6" : CL_TH_6_example,  # IDENTITY TO GROUND
     # "CL_TH_7" : CL_TH_7_example,
     # "CL_TH_8" : CL_TH_8_example,
 }
