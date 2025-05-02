@@ -2503,6 +2503,59 @@ class CFPossibilityOperator(syntactic.DefinedOperator):
         self.print_over_worlds(sentence_obj, eval_point, alt_worlds, indent_num, use_colors)
 
 
+
+##############################################################################
+####################### DEFINED CONSTITUTIVE OPERATORS #######################
+##############################################################################
+
+class ReductionOperator(syntactic.DefinedOperator):
+    """Implementation of material implication/conditional (→).
+    
+    This operator represents the material conditional 'if A then B', defined as
+    ¬A ∨ B. It is true when either A is false or B is true (or both).
+    
+    As a defined operator, it has no direct semantic implementation but instead
+    derives its semantics from its definition in terms of more basic operators.
+    
+    Class Attributes:
+        name (str): Symbol representing material implication ("\\rightarrow")
+        arity (int): Number of arguments (2)
+        primitive (bool): Always False for defined operators
+    """
+
+    name = "\\reduction"
+    arity = 2
+
+    def derived_definition(self, leftarg, rightarg): # type: ignore
+        """Defines the material conditional A → B as ¬A ∨ B.
+        
+        The material conditional is defined in terms of more basic operators:
+        negation and disjunction. A → B is equivalent to ¬A ∨ B, meaning
+        the conditional is true when either A is false or B is true.
+        
+        Args:
+            leftarg: The antecedent of the conditional (A)
+            rightarg: The consequent of the conditional (B)
+            
+        Returns:
+            list: A nested list structure representing ¬A ∨ B in terms of
+                 primitive operators OrOperator and NegationOperator
+        """
+        return [AndOperator, [GroundOperator, leftarg, rightarg], [EssenceOperator, leftarg, rightarg]]
+    
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Prints the bottom element with proper indentation and formatting.
+        
+        Args:
+            sentence_obj (Sentence): The sentence object containing the proposition
+            eval_point (dict): The point of evaluation (typically a world)
+            indent_num (int): The current indentation level
+            use_colors (bool): Whether to use colored output for formatting
+        """
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
+
+
+
 default_operators = syntactic.OperatorCollection(
     # primitive extensional operators
     NegationOperator,
@@ -2538,5 +2591,8 @@ default_operators = syntactic.OperatorCollection(
     PossibilityOperator,
     CFNecessityOperator,
     CFPossibilityOperator,
+
+    # defined constitutive operators
+    ReductionOperator,
 )
 
