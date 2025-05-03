@@ -7,9 +7,9 @@
 
 - [ ] theory docs
   - [ ] `README.md`
-  - [ ] `THEORY_ARCHITECTURE.md`
   - [ ] `jupyter/README.md`
   - [ ] `tests/README.md`
+  - [x] `THEORY_ARCHITECTURE.md`
 - [ ] default semantic
   - [ ] improve name
   - [ ] unit test circular defs

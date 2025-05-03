@@ -17,8 +17,8 @@ The library currently includes the following theories:
 
 ### Default Theory (Hyperintensional Semantics)
 
-- **Theory Author**: Brast-McKie
-- **Implementation Authors**: Brast-McKie and Buitrago
+- **Theory Author**: Benjamin Brast-McKie
+- **Implementation Authors**: Benjamin Brast-McKie and Miguel Buitrago
 - **Description**: Implements a hyperintensional semantics for counterfactuals, constitutive operators, and modal logic.
 - **Key Papers**:
   - Brast-McKie (2021) "Identity and Aboutness", Journal of Philosophical Logic
@@ -32,7 +32,7 @@ The library currently includes the following theories:
 ### Exclusion Theory
 
 - **Primary Authors**: Lucas Champollion & Paul Bernard
-- **Implementation Authors**: Brast-McKie and Buitrago
+- **Implementation Authors**: Benjamin Brast-McKie and Buitrago
 - **Description**: Implements exclusion semantics for counterfactuals and related operators.
 - **Key Paper**: Bernard & Champollion "Exclusion Counterfactuals"
 - **Key Features**:
@@ -44,7 +44,7 @@ The library currently includes the following theories:
 
 - **Primary Author**: Kit Fine
 - **Description**: Implements Fine's truthmaker semantics for counterfactuals.
-- **Implementation Author**: Brast-McKie
+- **Implementation Author**: Benjamin Brast-McKie
 - **Key Papers**:
   - Fine (2012) "Counterfactuals without Possible Worlds", Journal of Philosophy
   - Fine (2012) "A Theory of Truth-Conditional Content", Synthese
@@ -55,15 +55,15 @@ The library currently includes the following theories:
 
 ### Bimodal Theory
 
-- **Theory Author**: Brast-McKie
-- **Implementation Author**: Brast-McKie
+- **Theory Author**: Benjamin Brast-McKie
+- **Implementation Author**: Benjamin Brast-McKie
 - **Description**: Extends default theory with temporal modal operators.
 - **Key Features**:
   - Both counterfactual and temporal modalities
   - Interaction between different modal operators
   - Extended framework for reasoning about time and possibility
 
-For a detailed overview of the standardized architecture that each theory follows, see [THEORY_ARCHITECTURE.md](THEORY_ARCHITECTURE.md).
+For a detailed overview of the standard architecture that each theory follows, see [THEORY_ARCHITECTURE.md](THEORY_ARCHITECTURE.md).
 
 ## Using Theories
 
@@ -191,21 +191,106 @@ module.add_theory("exclusion")
 module.run_tests(["test1", "test2"])
 ```
 
-## Extending with New Theories
+## Contributing New Theories
 
-To create a new theory:
+New semantic theories can be submitted to the ModelChecker Theory Library by following the guidelines detailed below.
+For questions or assistance, please open an [issue](https://github.com/benbrastmckie/ModelChecker/issues) on the GitHub repository, providing a detailed description of the problem that you are having and creating a new issue for each separate topic.
 
-1. Create a directory under `theory_lib/` (e.g., `theory_lib/my_theory/`)
-2. Implement the required files:
+### Why Contribute?
 
-   - `semantic.py`: Define your semantic framework
+- **Share your research**: Make your semantic theory accessible to other researchers
+- **Enable verification**: Allow others to test logical arguments in your framework
+- **Receive feedback**: Get input from the community on your semantic approach
+- **Compare theories**: See how your theory handles examples compared to others
+
+### Getting Started
+
+Follow these steps to develop and contribute a new theory to the ModelChecker project:
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/benjaminbrastmckie/ModelChecker.git
+   cd ModelChecker
+   ```
+
+2. **Create a New Branch**:
+   ```bash
+   git checkout -b theory/my-new-theory
+   ```
+
+3. **Generate a Template Project**:
+   Choose the existing `THEORY_NAME` that most closely resembles your intended theory (e.g., default, bimodal, exclusion, imposition) and use it as a template:
+   ```bash
+   model-checker -l THEORY_NAME
+   ```
+   This creates a local project with all necessary files based on the bimodal theory.
+   Choose an appropriate `theory_name` for your project, where the theory directory will be renamed again later.
+
+4. **Implement Your Theory**:
+   Modify the generated files to implement your semantic framework:
+   - `semantic.py`: Define your semantic classes and relations
    - `operators.py`: Implement your logical operators
-   - `examples.py`: Create test cases
-   - `__init__.py`: Export your public API
-   - `README.md`: Document your theory
+   - `examples.py`: Create test cases specific to your theory
+   - `__init__.py`: Update exports with your theory's classes
+   - `README.md`: Document your theory's features and usage
 
-3. Implement theory-specific settings in `semantic.py`
-4. Register your theory in `theory_lib/__init__.py`
+5. **Test Your Implementation**:
+   ```bash
+   # Run your examples
+   model-checker examples.py
+   
+   # Run specific tests
+   model-checker -t my_test_name
+   ```
+
+6. **Move Your Theory to the Library**:
+   Once your theory is working locally, integrate it into the main library:
+   ```bash
+   # Create a directory for your theory in the library
+   mkdir -p Code/src/model_checker/theory_lib/my_theory
+   
+   # Move your project directory to the theory library
+   mv project_theory_name/* Code/src/model_checker/theory_lib/my_theory/
+   ```
+
+7. **Register Your Theory**:
+   Add your theory to the `__all__` list in `Code/src/model_checker/theory_lib/__init__.py`:
+   ```python
+   __all__ = [
+       "default",
+       "exclusion",
+       "imposition",
+       "bimodal",
+       "my_theory"  # Add your theory here
+   ]
+   ```
+
+8. **Submit a Pull Request**:
+   ```bash
+   # Commit your changes
+   git add Code/src/model_checker/theory_lib/my_theory
+   git add Code/src/model_checker/theory_lib/__init__.py
+   git commit -m "Add MyTheory implementation"
+   
+   # Push to your fork
+   git push origin theory/my-new-theory
+   ```
+   
+   Then open a pull request on GitHub with:
+   - A clear description of your theory
+   - References to relevant papers or research
+   - Examples of what makes your theory unique
+   - Any special requirements or dependencies
+
+### Required Files for a New Theory
+
+Each theory must include these core files:
+
+- `semantic.py`: Define your semantic framework
+- `operators.py`: Implement your logical operators
+- `examples.py`: Create test cases
+- `__init__.py`: Export your public API
+- `README.md`: Document your theory
 
 ### Theory-Specific Settings
 
@@ -250,12 +335,10 @@ class MySemantics(SemanticDefaults):
 #### Settings Guidelines
 
 1. **Only include settings relevant to your theory**
-
    - Don't implement settings that don't apply to your semantic framework
    - For example, temporal theories include `M` and `align_vertically`, but others don't
 
 2. **Common settings across theories**
-
    - `N`: Number of atomic states (required by all theories)
    - `max_time`: Maximum solver time (required by all theories)
    - `contingent`: Whether propositions must be contingent (common but optional)
@@ -279,24 +362,20 @@ You can also find theory specific settings here:
 When implementing operators for your theory, adhere to these important constraints:
 
 1. **Reserved Nullary Operators**:
-
    - `\\top` and `\\bot` are designated nullary operators that cannot be reused as operator names
    - These represent logical truth and falsehood respectively and have special parsing treatment
 
 2. **Well-Formed Formula Rules**:
-
    - Binary operators must have outer parentheses in well-formed sentences: `(A \\wedge B)`
    - Unary operators do not use parentheses for their main connective: `\\neg A`
    - Nested expressions follow standard parenthesization rules: `\\neg (A \\wedge B)`
 
 3. **LaTeX Notation**:
-
    - All special symbols should use LaTeX notation: `\\wedge`, `\\vee`, `\\neg`, etc.
    - Operators are designated with a double backslash as in `\\Box` and `\\Future`
    - Custom operators should follow this pattern: `\\myoperator`
 
 4. **Sentence Letters**:
-
    - Sentence letters are alpha-numeric strings: `A`, `B_2`, `Mary_sings`, etc.
    - Use underscore `_` for spaces in sentence letters (e.g., `Mary_sings`)
    - Sentence letters must not start with a backslash (reserved for operators)
@@ -352,10 +431,15 @@ class MyOperator(Operator):
 
     # Implement semantic methods
 
-my_operators = {
-    "\\myop": MyOperator(),
-    # Add more operators
-}
+my_operators = syntactic.OperatorCollection(
+    # primitive extensional operators
+    NegationOperator,
+    AndOperator,
+    OrOperator,
+
+    # new operators
+    NewOperator,
+    OtherNewOperator,
 
 # __init__.py
 from .semantic import MySemantics, MyProposition, MyModelStructure
@@ -421,12 +505,17 @@ Each theory can include Jupyter notebooks for interactive exploration, documenta
 Notebooks should be placed in a `notebooks/` directory within your theory package, for example:
 
 ```
+```markdown
 theory_lib/
 └── my_theory/
     ├── __init__.py
     ├── semantic.py
     ├── operators.py
     ├── examples.py
+    ├── test/
+    │   ├── test_semantic.py     # Tests for semantic components
+    │   ├── test_operators.py    # Tests for operators
+    │   └── test_examples.py     # Tests for example models
     └── notebooks/
         ├── introduction.ipynb   # Basic introduction to the theory
         ├── operators.ipynb      # Examples of operator behavior
