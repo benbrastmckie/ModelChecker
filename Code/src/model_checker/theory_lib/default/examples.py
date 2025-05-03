@@ -1401,14 +1401,14 @@ example_range = {
     # "ML_CM_1" : ML_CM_1_example,
 
     # Constitutive Countermodels
-    "CL_CM_1" : CL_CM_1_example,  # EQUIVALENCE OF TAUTOLOGIES
+    # "CL_CM_1" : CL_CM_1_example,  # EQUIVALENCE OF TAUTOLOGIES
     # "CL_CM_2" : CL_CM_2_example,  # EQUIVALENCE OF CONTRADICTIONS
     # "CL_CM_3" : CL_CM_3_example,  # GROUND CONJUNCTION SUPPLEMENTATION
     # "CL_CM_4" : CL_CM_4_example,  # ESSENCE DISJUNCTION SUPPLEMENTATION
     # "CL_CM_5" : CL_CM_5_example,  # ABSORPTION OR/AND
     # "CL_CM_6" : CL_CM_6_example,  # ABSORPTION AND/OR
     # "CL_CM_7" : CL_CM_7_example,  # DISTRIBUTION AND/OR
-    # "CL_CM_8" : CL_CM_8_example,  # DISTRIBUTION OR/AND
+    "CL_CM_8" : CL_CM_8_example,  # DISTRIBUTION OR/AND
 
     # Counterfactual Theorems
     # "CF_TH_1" : CF_TH_1_example,
