@@ -5,10 +5,11 @@
 
 ## Plan
 
-- [ ] docs
-  - [ ] jupyter how to
-  - [ ] theory architecture
-  - [ ] theory how to
+- [ ] theory docs
+  - [ ] `README.md`
+  - [ ] `THEORY_ARCHITECTURE.md`
+  - [ ] `jupyter/README.md`
+  - [ ] `tests/README.md`
 - [ ] default semantic
   - [ ] improve name
   - [ ] unit test circular defs

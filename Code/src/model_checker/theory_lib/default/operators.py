@@ -2527,19 +2527,19 @@ class ReductionOperator(syntactic.DefinedOperator):
     arity = 2
 
     def derived_definition(self, leftarg, rightarg): # type: ignore
-        """Defines the material conditional A → B as ¬A ∨ B.
+        """Defines the reduction relation A \\reduction B as (A ≤ B) ∧ (A ⊑ B).
         
-        The material conditional is defined in terms of more basic operators:
-        negation and disjunction. A → B is equivalent to ¬A ∨ B, meaning
-        the conditional is true when either A is false or B is true.
+        The reduction relation is defined in terms of more basic operators:
+        ground and essence. A \\reduction B is equivalent to (A ≤ B) ∧ (A ⊑ B),
+        meaning A reduces to B when A both grounds B and is essential to B.
         
         Args:
-            leftarg: The antecedent of the conditional (A)
-            rightarg: The consequent of the conditional (B)
+            leftarg: The reducing proposition (A)
+            rightarg: The reduced-to proposition (B)
             
         Returns:
-            list: A nested list structure representing ¬A ∨ B in terms of
-                 primitive operators OrOperator and NegationOperator
+            list: A nested list structure representing (A ≤ B) ∧ (A ⊑ B) in terms of
+                 primitive operators AndOperator, GroundOperator, and EssenceOperator
         """
         return [AndOperator, [GroundOperator, leftarg, rightarg], [EssenceOperator, leftarg, rightarg]]
     
