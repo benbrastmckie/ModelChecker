@@ -7,6 +7,7 @@
 
 - [ ] docs
   - [ ] jupyter how to
+  - [ ] theory architecture
   - [ ] theory how to
 - [ ] default semantic
   - [ ] improve name

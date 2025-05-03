@@ -201,39 +201,159 @@ This module defines the logical operators used in the theory. It typically inclu
 
 ### The `examples.py` Module
 
-This module contains examples and test cases for the theory and typically includes:
+This module contains examples and test cases for the theory and must include specific required definitions as well as optional components:
 
-#### 1. Example Definitions
+#### 1. Example Categories
 
-- **Valid Formulas**: Examples of formulas that should be valid in the theory
-  - Test cases for basic logical principles
-  - Examples of theory-specific valid formulas
+- **Countermodels (Naming Convention: XX_CM_#)**
+  - **Modal Logic (ML_CM_#)**: Countermodels for modal principles
+  - **Counterfactual Logic (CF_CM_#)**: Countermodels for counterfactual principles
+  - **Constitutive Logic (CL_CM_#)**: Countermodels for constitutive principles
 
-- **Invalid Formulas**: Examples of formulas that should be invalid in the theory
-  - Counterexamples to non-theorems
-  - Examples of theory-specific invalid formulas
+- **Theorems (Naming Convention: XX_TH_#)**
+  - **Modal Logic (ML_TH_#)**: Theorems of modal logic
+  - **Counterfactual Logic (CF_TH_#)**: Theorems of counterfactual logic
+  - **Constitutive Logic (CL_TH_#)**: Theorems of constitutive logic
 
-- **Test Examples**: Formal test cases to be included in unit tests
-  - Countermodel examples that demonstrate invalid formulas
-  - Theorem examples that validate logical principles
-  - Examples with specific settings for edge case testing
+#### 2. Example Definitions
 
-#### 2. Example Configuration
+- **Countermodel Example (Invalid Formula)**
+  ```python
+  # ML_CM_1: BOX NECESSITATION FAILURE
+  ML_CM_1_premises = ['A']
+  ML_CM_1_conclusions = ['\\Box A']
+  ML_CM_1_settings = {
+      'N': 3,
+      'contingent': True,
+      'non_empty': True,
+      'disjoint': False,
+      'max_time': 1,
+      'expectation': True,  # Expect to find a countermodel
+  }
+  ML_CM_1_example = [
+      ML_CM_1_premises,
+      ML_CM_1_conclusions,
+      ML_CM_1_settings,
+  ]
+  ```
 
-- **Setting Variations**: Examples with different semantic settings
-  - Parameter variations (e.g., number of states, contingency)
-  - Constraint variations (e.g., disjointness, non-emptiness)
-  - Model existence expectations used by the unit tests to register adequacy
+- **Theorem Example (Valid Formula)**
+  ```python
+  # CL_TH_2: IDENTITY AND GROUND
+  CL_TH_2_premises = []
+  CL_TH_2_conclusions = ['((A = B) \\imp (A \\Ground B))']
+  CL_TH_2_settings = {
+      'N': 3,
+      'contingent': False,
+      'non_empty': True, 
+      'disjoint': False,
+      'max_time': 1,
+      'expectation': False,  # Expect no countermodel (theorem is valid)
+  }
+  CL_TH_2_example = [
+      CL_TH_2_premises,
+      CL_TH_2_conclusions,
+      CL_TH_2_settings,
+  ]
+  ```
 
-#### 3. Demonstration Examples
+#### 3. Example Configuration Options
 
-- **Pedagogical Examples**: Clear examples that demonstrate theory features
-  - Basic theory principles
-  - Key differentiators from other theories
+- **Core Settings (Required)**
+  ```python
+  "example_settings": {
+      "N": 3,               # Number of atomic states (required)
+      "max_time": 1,        # Maximum solver time in seconds (required)
+      "expectation": True,  # True=expect countermodel, False=expect theorem
+  }
+  ```
 
-- **Complex Examples**: Advanced examples for testing edge cases
-  - Stress tests for the solver
-  - Complex formula combinations
+- **Proposition Constraints (Optional)**
+  ```python
+  "example_settings": {
+      "contingent": True,   # Require contingent valuations
+      "non_empty": True,    # Require non-empty verifier/falsifier sets
+      "non_null": True,     # Prevent null states as verifiers/falsifiers
+      "disjoint": False,    # Control overlapping constraints
+  }
+  ```
+
+- **Theory-Specific Settings (Optional)**
+  ```python
+  "example_settings": {
+      "iterate": 1,         # Number of models to find
+  }
+  ```
+
+#### 1. Required Module Definitions
+
+- **`semantic_theories` Dictionary**: Contains at least one theory definition
+  ```python
+  semantic_theories = {
+      "Brast-McKie": {
+          "semantics": Semantics,
+          "proposition": Proposition,
+          "model": ModelStructure,
+          "operators": default_operators
+      }
+  }
+  ```
+
+- **`example_range` Dictionary**: Specifies which examples to run
+  ```python
+  example_range = {
+      "ML_CM_1": ML_CM_1_example,  # Modal Logic Countermodel 1
+      "CL_TH_2": CL_TH_2_example,  # Constitutive Logic Theorem 2
+  }
+  ```
+
+- **`test_example_range` Dictionary**: Examples for unit testing
+  ```python
+  test_example_range = {
+      "ML_CM_1": ML_CM_1_example,
+      "CL_TH_2": CL_TH_2_example,
+  }
+  ```
+
+- **`general_settings` Dictionary**: Global settings for all examples
+  ```python
+  general_settings = {
+      "print_constraints": False,
+      "print_impossible": True,
+      "print_z3": False,
+      "save_output": False,
+  }
+  ```
+
+- **`__all__` List**: Exports specific variables for import
+  ```python
+  __all__ = [
+      'general_settings',
+      'default_theory',
+      'semantic_theories',
+      'example_range',
+      'test_example_range',
+  ]
+  ```
+
+#### 5. Using Example Dictionaries
+
+- **For Manual Testing**: Use `example_range` to specify which examples to run
+  ```python
+  # Uncomment specific examples to include them in the test run
+  example_range = {
+      "ML_CM_1": ML_CM_1_example,  # Include this countermodel example
+      # "CL_TH_2": CL_TH_2_example,  # Exclude this theorem example
+  }
+  ```
+
+- **For Unit Testing**: Use `test_example_range` to include examples in automated tests
+  ```python
+  test_example_range = {
+      "ML_CM_1": ML_CM_1_example,
+      "CL_TH_2": CL_TH_2_example,
+  }
+  ```
 
 ### The `__init__.py` Module
 
