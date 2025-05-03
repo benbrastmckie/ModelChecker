@@ -2,10 +2,12 @@
 
 ## SCRATCH
 
-Read CLAUDE.md and then look at iterate.py and semantic.py in both the default/ and exclusion/ theories in theory_lib/ in order to help me update the README.md files in default/ and exclusion/ to provide a careful description of how iteration works. 
 
 ## Plan
 
+- [ ] docs
+  - [ ] jupyter how to
+  - [ ] theory how to
 - [ ] default semantic
   - [ ] improve name
   - [ ] unit test circular defs
