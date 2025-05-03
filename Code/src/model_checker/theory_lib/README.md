@@ -77,51 +77,197 @@ Each theory in the library follows a standardized architecture consisting of:
 
 ### The `semantic.py` Module
 
-This module consists of the following classes:
+This module implements the core semantic framework for the theory and typically consists of three primary classes:
 
-1. **Semantics Class**
+#### 1. Semantics Class
 
-   - Specifies the semantic primitives
-     - Z3 sorts provide the basic types for the semantic primitives to use
-     - Z3 primitives provide basic relations and functions used by the semantics
-     - Z3 primitives must include a `truth_condition` function for sentence letters
-   - Provides definitions in terms of the primitives
-     - These are used to help simplify the statement of the Z3 constraints
-   - Provides the main evaluation point parameters (dictionary)
-   - Implements core semantic definitions in terms of the  primitives
-   - Specifies Z3 frame constraints
-     - Frame constraints should accord with the intended reading of the primitives
-     - Should be example agnostic and not controlled by settings
-   - Provides settings used to adjust model output
-     - General settings provide example agnostic controls
-     - Example settings provide examples specific controls
-   - Includes `true_at` and `false_at` methods for evaluating sentences
-     - Should return a Z3 constraint for all sentences
-     - Sentence letters should directly appeal to the `truth_condition` function
-     - Dispatch to the `true_at` and `false_at` methods for the main operator for complex sentences
-   - Extraction methods for model building
-     - In order to represent models, primitive elements are gathered and returned
-     - These methods are to be called in the `Structure` class
+The Semantics class (e.g., `Semantics`, `BimodalSemantics`, etc.) provides the foundation of the semantic theory and defines:
 
-2. **Proposition Class**
+- **Z3 Semantic Primitives**:
+  - **Z3 Sorts**: Define basic types used in the theory (e.g., states, worlds, times)
+  - **Z3 Functions**: Declare primitive relations and functions (e.g., `verify`, `falsify`, `possible`)
+  - **Z3 Constants**: Define reference points for evaluation (e.g., `main_world`)
+
+- **Semantic Relations and Operations**:
+  - **State Relations**: Define relations between states (e.g., `is_part_of`, `compatible`, `fusion`)
+  - **World Identification**: Methods to identify worlds within the model (e.g., `is_world`, `maximal`)
+  - **Relation Definitions**: Define theory-specific relations (e.g., `is_alternative`, `accessibility`)
+
+- **Evaluation Context Management**:
+  - **Main Evaluation Point**: The primary context for evaluation (e.g., `main_point`)
+  - **Frame Constraints**: Constraints that define the logical frame for the theory
+  - **Validity Conditions**: Behaviors for premise and conclusion evaluation
+
+- **Truth Evaluation Methods**:
+  - **true_at/false_at**: Methods to evaluate truth/falsity of sentences at evaluation points
+  - **extended_verify/extended_falsify**: Methods to determine verifiers/falsifiers for complex formulas
+
+- **Extraction Methods**: Provides data needed by the Structure class
+  - **Primitive Elements**: Methods to extract primitive elements from the model (states, verifiers, falsifiers)
+  - **Defined Elements**: Methods to extract the defined elements from a model (compatibility, worlds, alternatives)
+
+- **Settings Management**:
+  - **DEFAULT_EXAMPLE_SETTINGS**: Theory-specific example settings with defaults
+  - **DEFAULT_GENERAL_SETTINGS**: Theory-specific general settings for output control
+
+#### 2. Proposition Class
+
+The Proposition class (e.g., `Proposition`, `BimodalProposition`, etc.) represents propositional content in the theory and provides:
+
+- **Proposition Representation**:
+  - **Verifiers and Falsifiers**: Sets of states that verify/falsify propositions
+  - **Truth Values**: Methods to determine truth values at evaluation points
+  - **Proposition Constraints**: Z3 constraints governing what counts as a proposition
+
+- **Constraint Generation**:
+  - **Standard Constraints**: Semantic constraints for default behavior (e.g., no truth-value gaps/gluts)
+  - **Optional Constraints**: Settings-based constraints (contingency, disjointness, etc.)
+
+- **Model Integration**:
+  - **Extraction Methods**: Methods to extract verifiers/falsifiers from models
+  - **Evaluation Methods**: Methods to evaluate propositions in models
+  - **Visualization Methods**: Methods to display propositional content
+
+- **Equality and Representation**:
+  - **Comparison Operations**: Methods to compare propositions
+  - **String Representation**: Formatted display of propositional content
+
+#### 3. ModelStructure Class
+
+The ModelStructure class (e.g., `ModelStructure`, `BimodalStructure`) manages the overall semantic model and provides:
+
+- **Model Construction**:
+  - **Z3 Model Management**: Integration with Z3 solver and model
+  - **Representation Management**: Methods to construct and manage model representation
+  - **Constraint Handling**: Methods to process and apply constraints
+
+- **Evaluation Infrastructure**:
+  - **Element Identification**: Methods to identify elements in the model
+  - **Evaluation Methods**: Methods to evaluate formulas in the model
+
+- **Model Visualization**:
+  - **Element Display**: Methods to print a model's elements
+  - **Evaluation Display**: Methods to show evaluation results
+  - **Difference Tracking**: Methods to track changes between models
+
+- **Model Persistence**:
+  - **Serialization**: Methods to save model structures
+  - **Diagnostics**: Methods to record model information
+  - **Test Generation**: Methods to generate test cases from models
+
+- **Theory-Specific Model Operations**:
+  - **Structure Analysis**: Methods to analyze model properties
+  - **Relation Calculations**: Methods to compute theory-specific relations
+  - **Structural Constraints**: Methods to force structural variations
 
 ### The `operators.py` Module
 
-   - Implements logical operators and their semantics
-   - Defines primitive operators with verification/falsification conditions
-   - Provides derived operators based on primitives
+This module defines the logical operators used in the theory. It typically includes:
+
+#### 1. Primary Operator Classes
+
+- **Basic Operators**: Implementations of primitive logical operators (e.g., conjunction, disjunction, etc.)
+  - Inherit from `Operator` class
+  - Define names, symbols, and arities
+  - Implement semantic clauses for truth/falsity evaluation
+  - Provide verification/falsification conditions (if hyperintensional)
+
+- **Derived Operators**: Operators defined in terms of other operators
+  - Inherit from `DefinedOperator` class
+  - Define equivalence with combinations of primitive operators
+  - May override semantic methods for efficiency
+
+- **Special Operators**: Theory-specific operators (e.g., counterfactual, modal operators, etc.)
+  - Implement specialized semantic clauses
+  - Define unique verification/falsification conditions
+  - Provide theory-specific evaluation methods
+
+#### 2. Operator Registry
+
+- **Operator Collection**: Dictionary of all operators in the theory
+  - Maps operator symbols to operator instances
+  - Serves as the registry for the theory's operators
+  - Used by the parser to handle formulas
+
+- **Export Management**: Functions to expose operators to other modules
+  - Provides public access to operator instances
+  - Manages dependencies between operators
+
+#### 3. Common Operator Implementations
+
+- **Truth-Functional Operators**: Standard logical operators (e.g., negation, conjunction, disjunction, implication)
+- **Modal Operators**: Operators for possibility and necessity
+- **Theory-Specific Operators**: Specialized operators unique to the theory (e.g., counterfactual, essence, ground)
 
 ### The `examples.py` Module
 
-   - Contains test cases to verify theory behavior
-   - Includes both valid theorems and countermodels
-   - Provides configuration settings for model checking
+This module contains examples and test cases for the theory and typically includes:
+
+#### 1. Example Definitions
+
+- **Valid Formulas**: Examples of formulas that should be valid in the theory
+  - Test cases for basic logical principles
+  - Examples of theory-specific valid formulas
+
+- **Invalid Formulas**: Examples of formulas that should be invalid in the theory
+  - Counterexamples to non-theorems
+  - Examples of theory-specific invalid formulas
+
+- **Test Examples**: Formal test cases to be included in unit tests
+  - Countermodel examples that demonstrate invalid formulas
+  - Theorem examples that validate logical principles
+  - Examples with specific settings for edge case testing
+
+#### 2. Example Configuration
+
+- **Setting Variations**: Examples with different semantic settings
+  - Parameter variations (e.g., number of states, contingency)
+  - Constraint variations (e.g., disjointness, non-emptiness)
+  - Model existence expectations used by the unit tests to register adequacy
+
+#### 3. Demonstration Examples
+
+- **Pedagogical Examples**: Clear examples that demonstrate theory features
+  - Basic theory principles
+  - Key differentiators from other theories
+
+- **Complex Examples**: Advanced examples for testing edge cases
+  - Stress tests for the solver
+  - Complex formula combinations
 
 ### The `__init__.py` Module
 
-   - Exports the theory's public interface
-   - Manages dependencies between components
-   - Provides a clean entry point for users
+This module provides the public API for the theory and typically includes:
+
+#### 1. Import Management
+
+- **Module Exports**: Exposed classes and functions
+  - Public classes (Semantics, Proposition, ModelStructure)
+  - Operator collections
+  - Utility functions
+
+- **Dependency Management**: Import necessary components
+  - Standard library imports
+  - Core framework imports
+  - Theory-specific imports
+
+#### 2. Theory Registration
+
+- **Theory Information**: Metadata about the theory
+  - Theory name
+  - Version information
+  - Author information
+
+- **API Construction**: Functions to build the theory's API
+  - Initialization functions
+  - Integration with the broader framework
+
+#### 3. Convenience Functions
+
+- **Shorthand Access**: Simplified access to common operations
+  - Formula checking functions
+  - Model building functions
+  - Example loading functions
 
 ## Using Theories
 
