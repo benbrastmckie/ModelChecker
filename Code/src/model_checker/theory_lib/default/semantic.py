@@ -424,77 +424,6 @@ class Semantics(SemanticDefaults):
             if eval(imposition(ver, eval_world, pw))
         }
         
-    def get_differentiable_functions(self):
-        """Returns functions that should be used to create difference constraints.
-        
-        Each theory can define which Z3 functions should be evaluated when 
-        creating constraints to differentiate models.
-        
-        Returns:
-            list: Tuples of (function_ref, arity, description)
-        """
-        # Return sentence letter verification and falsification functions
-        # Format: (function_reference, arity, human_readable_name)
-        return [
-            (self.verify, 2, "verification"),
-            (self.falsify, 2, "falsification"),
-            # Add part-whole relation which is fundamental to default theory
-            (self.is_part_of, 2, "part-whole relation"),
-            # Add possible state determination
-            (self.possible, 1, "possibility"),
-            # Add world determination
-            (self.is_world, 1, "world state")
-        ]
-        
-    def create_difference_constraints(self, prev_model):
-        """Create theory-specific constraints to differentiate models.
-        
-        This method creates constraints that, when added to a solver,
-        will ensure the next model differs from prev_model in ways that
-        are semantically meaningful for this theory.
-        
-        Args:
-            prev_model: The previous Z3 model to differ from
-            
-        Returns:
-            list: Z3 constraints that force meaningful differences
-        """
-        constraints = []
-        
-        # For default theory: constrain verification and falsification for all states
-        # We don't have direct access to sentence_letters here, so we'll focus on
-        # the semantic functions instead
-        
-        # Get some sample atoms to work with
-        # We'll use at least the first 3 atoms from AtomSort, which should be sufficient
-        # for most examples
-        atoms = [syntactic.AtomVal(i) for i in range(3)]
-        
-        # For each state and atom, create constraints on verification and falsification
-        for state in range(2**self.N):
-            state_bv = z3.BitVecVal(state, self.N)
-            
-            # Only check states that are possible in the previous model
-            try:
-                if not prev_model.eval(self.possible(state_bv), model_completion=True):
-                    continue
-            except z3.Z3Exception:
-                continue
-                
-            for atom in atoms:
-                try:
-                    # Check verification
-                    prev_verifies = prev_model.eval(self.verify(state_bv, atom), model_completion=True)
-                    constraints.append(self.verify(state_bv, atom) != prev_verifies)
-                    
-                    # Check falsification
-                    prev_falsifies = prev_model.eval(self.falsify(state_bv, atom), model_completion=True)
-                    constraints.append(self.falsify(state_bv, atom) != prev_falsifies)
-                except z3.Z3Exception:
-                    pass
-                    
-        return constraints
-
 
 class Proposition(PropositionDefaults):
     """Concrete implementation of propositions for the default semantic theory.
@@ -1137,51 +1066,6 @@ class ModelStructure(ModelDefaults):
                 
         return extra_edges
     
-    def get_structural_constraints(self, z3_model):
-        """Generate constraints that force structural differences in the model.
-        
-        This method creates Z3 constraints that, when added to the solver,
-        will force the next model to have a different structure from the
-        current one. This is used for finding non-isomorphic models.
-        
-        Args:
-            z3_model: The current Z3 model to differ from
-            
-        Returns:
-            list: List of Z3 constraints that force structural differences
-        """
-        constraints = []
-        
-        try:
-            semantics = self.semantics
-            
-            # Force a different structure for the main world
-            main_world = z3_model.evaluate(self.main_point["world"])
-            constraints.append(self.main_point["world"] != main_world)
-            
-            # Force different maximal worlds count
-            if self.z3_world_states:
-                world_count = len(self.z3_world_states)
-                # Create a constraint to force a different number of worlds
-                # This is theory-specific and may need adjustment
-                world_vars = []
-                if self.z3_possible_states is None:
-                    raise ValueError(f"No possible states stored in {self} during get_structural_constraints.")
-                for state in self.z3_possible_states:
-                    world_vars.append(semantics.is_world(state))
-                    
-                if world_vars:
-                    world_count_expr = z3.Sum([z3.If(var, 1, 0) for var in world_vars])
-                    constraints.append(world_count_expr != world_count)
-                    
-        except Exception as e:
-            # Log any errors but don't fail
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.debug(f"Error generating structural constraints: {str(e)}")
-                
-        return constraints
-    
     def _get_verifier_falsifier_states(self, letter):
         """Get the verifier and falsifier states for a sentence letter.
         
@@ -1224,29 +1108,6 @@ class ModelStructure(ModelDefaults):
                 
         return verifier_states, falsifier_states
         
-    def _get_friendly_letter_name(self, letter):
-        """Convert a Z3 letter representation to a user-friendly name.
-        
-        Args:
-            letter: The Z3 letter representation
-            
-        Returns:
-            str: A user-friendly name like "A" or "p0"
-        """
-        letter_str = str(letter)
-        if "AtomSort!val!" in letter_str:
-            # Try to convert to a letter name (A, B, C, etc.)
-            try:
-                idx = int(letter_str.split("AtomSort!val!")[-1])
-                if 0 <= idx < 26:
-                    return chr(65 + idx)  # A-Z for first 26 letters
-                else:
-                    return f"p{idx}"  # p0, p1, etc. for others
-            except ValueError:
-                # If conversion fails, just use the raw string
-                return letter_str
-        return letter_str
-    
     def detect_model_differences(self, previous_structure):
         """Calculate differences between this model and a previous one.
         
@@ -1545,32 +1406,6 @@ class ModelStructure(ModelDefaults):
                 status = "now part of" if change["new"] else "no longer part of"
                 print(f"  {pair}: {status}", file=output)
         
-        # Compatibility relationship changes are no longer printed
-
-    # # TODO: remove
-    # def _print_structural_metrics(self, output=sys.stdout):
-    #     """Print structural metrics for the model."""
-    #     print("\nStructural Properties:", file=output)
-    #     print(f"  Worlds: {len(self.z3_world_states)}", file=output)
-    #     
-    #     # Add graph-theoretic properties if available
-    #     if hasattr(self, 'model_graph'):
-    #         try:
-    #             graph = self.model_graph.graph
-    #             
-    #             # Degree distributions
-    #             in_degrees = sorted(d for _, d in graph.in_degree())
-    #             out_degrees = sorted(d for _, d in graph.out_degree())
-    #             print(f"  In-degree distribution: {in_degrees}", file=output)
-    #             print(f"  Out-degree distribution: {out_degrees}", file=output)
-    #             
-    #             # Connected components
-    #             import networkx as nx
-    #             components = nx.number_connected_components(graph.to_undirected())
-    #             print(f"  connected_components: {components}", file=output)
-    #         except Exception:
-    #             pass
-    
     def _get_friendly_letter_name(self, letter_str):
         """Convert a letter representation to a user-friendly name."""
         if "AtomSort!val!" in letter_str:
