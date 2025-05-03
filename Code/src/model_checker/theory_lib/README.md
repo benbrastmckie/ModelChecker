@@ -2,7 +2,7 @@
 
 ## Overview
 
-The ModelChecker Theory Library is a collection of formal semantic theories implemented using Z3 constraint solving for logical reasoning. Each theory provides a programmatic implementation of a different semantic framework, enabling automated verification of logical arguments and discovery of countermodels.
+The ModelChecker Theory Library is a collection of semantic theories implemented using Z3. Each theory provides a programmatic implementation of a different semantic framework, enabling automated verification of logical arguments and discovery of countermodels.
 
 The library follows a modular architecture that allows:
 
@@ -17,7 +17,8 @@ The library currently includes the following theories:
 
 ### Default Theory (Hyperintensional Semantics)
 
-- **Primary Author**: Ben Brast-McKie
+- **Theory Author**: Brast-McKie
+- **Implementation Authors**: Brast-McKie and Buitrago
 - **Description**: Implements a hyperintensional semantics for counterfactuals, constitutive operators, and modal logic.
 - **Key Papers**:
   - Brast-McKie (2021) "Identity and Aboutness", Journal of Philosophical Logic
@@ -31,6 +32,7 @@ The library currently includes the following theories:
 ### Exclusion Theory
 
 - **Primary Authors**: Lucas Champollion & Paul Bernard
+- **Implementation Authors**: Brast-McKie and Buitrago
 - **Description**: Implements exclusion semantics for counterfactuals and related operators.
 - **Key Paper**: Bernard & Champollion "Exclusion Counterfactuals"
 - **Key Features**:
@@ -42,6 +44,7 @@ The library currently includes the following theories:
 
 - **Primary Author**: Kit Fine
 - **Description**: Implements Fine's truthmaker semantics for counterfactuals.
+- **Implementation Author**: Brast-McKie
 - **Key Papers**:
   - Fine (2012) "Counterfactuals without Possible Worlds", Journal of Philosophy
   - Fine (2012) "A Theory of Truth-Conditional Content", Synthese
@@ -52,6 +55,8 @@ The library currently includes the following theories:
 
 ### Bimodal Theory
 
+- **Theory Author**: Brast-McKie
+- **Implementation Author**: Brast-McKie
 - **Description**: Extends default theory with temporal modal operators.
 - **Key Features**:
   - Both counterfactual and temporal modalities
@@ -62,35 +67,6 @@ The library currently includes the following theories:
 
 Each theory in the library follows a standardized architecture consisting of:
 
-### Core Components
-
-1. **Semantics** (`semantic.py`)
-
-   - Defines the semantic framework and model structure
-   - Implements core semantic relations and operations
-   - Specifies Z3 constraints that define the theory
-
-2. **Operators** (`operators.py`)
-
-   - Implements logical operators and their semantics
-   - Defines primitive operators with verification/falsification conditions
-   - Provides derived operators based on primitives
-
-3. **Examples** (`examples.py`)
-
-   - Contains test cases to verify theory behavior
-   - Includes both valid theorems and countermodels
-   - Provides configuration settings for model checking
-
-4. **API** (`__init__.py`)
-   - Exports the theory's public interface
-   - Manages dependencies between components
-   - Provides a clean entry point for users
-
-### Standard Files
-
-Each theory directory contains:
-
 - `README.md`: Documentation specific to the theory
 - `__init__.py`: Public API and dependency management
 - `semantic.py`: Core semantic framework implementation
@@ -98,6 +74,54 @@ Each theory directory contains:
 - `examples.py`: Test cases and examples
 - `test/`: Unit tests for the theory (when available)
 - `notebooks/`: Jupyter notebook demonstrations and examples (when available)
+
+### The `semantic.py` Module
+
+This module consists of the following classes:
+
+1. **Semantics Class**
+
+   - Specifies the semantic primitives
+     - Z3 sorts provide the basic types for the semantic primitives to use
+     - Z3 primitives provide basic relations and functions used by the semantics
+     - Z3 primitives must include a `truth_condition` function for sentence letters
+   - Provides definitions in terms of the primitives
+     - These are used to help simplify the statement of the Z3 constraints
+   - Provides the main evaluation point parameters (dictionary)
+   - Implements core semantic definitions in terms of the  primitives
+   - Specifies Z3 frame constraints
+     - Frame constraints should accord with the intended reading of the primitives
+     - Should be example agnostic and not controlled by settings
+   - Provides settings used to adjust model output
+     - General settings provide example agnostic controls
+     - Example settings provide examples specific controls
+   - Includes `true_at` and `false_at` methods for evaluating sentences
+     - Should return a Z3 constraint for all sentences
+     - Sentence letters should directly appeal to the `truth_condition` function
+     - Dispatch to the `true_at` and `false_at` methods for the main operator for complex sentences
+   - Extraction methods for model building
+     - In order to represent models, primitive elements are gathered and returned
+     - These methods are to be called in the `Structure` class
+
+2. **Proposition Class**
+
+### The `operators.py` Module
+
+   - Implements logical operators and their semantics
+   - Defines primitive operators with verification/falsification conditions
+   - Provides derived operators based on primitives
+
+### The `examples.py` Module
+
+   - Contains test cases to verify theory behavior
+   - Includes both valid theorems and countermodels
+   - Provides configuration settings for model checking
+
+### The `__init__.py` Module
+
+   - Exports the theory's public interface
+   - Manages dependencies between components
+   - Provides a clean entry point for users
 
 ## Using Theories
 
