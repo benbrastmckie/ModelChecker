@@ -210,7 +210,7 @@ To contribute changes back to the ModelChecker project:
 
 If your changes require new dependencies:
 
-1. **Add to pyproject.toml**:
+1. **Add to `pyproject.toml`**:
    ```toml
    # Core dependencies
    dependencies = [
@@ -227,7 +227,7 @@ If your changes require new dependencies:
    ]
    ```
 
-2. **Update shell.nix** for NixOS developers:
+2. **Update `shell.nix`** for NixOS developers:
    ```nix
    buildInputs = with pkgs; [
      python3
