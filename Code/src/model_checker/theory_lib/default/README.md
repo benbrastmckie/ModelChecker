@@ -339,7 +339,12 @@ The default theory package has the following structure:
 ```
 default/
 ├── __init__.py           # Public API and imports
-├── examples.py           # Example definitions for testing
+├── examples/             # Example definitions for testing, organized by category
+│   ├── __init__.py       # Main entry point for examples
+│   ├── counterfactual.py # Counterfactual-specific examples
+│   ├── constitutive.py   # Constitutive-specific examples
+│   ├── modal.py          # Modal-specific examples
+│   └── extensional.py    # Extensional-specific examples
 ├── iterate.py            # Iteration functionality for finding multiple models
 ├── operators.py          # Logical operator definitions
 ├── README.md             # Documentation (this file)
@@ -463,10 +468,16 @@ Each operator class implements four key methods that define its semantic behavio
 - `find_verifiers_and_falsifiers`: Compute the verifier and falsifier sets
 - `print_method`: Handle pretty printing of formulas with truth values
 
-#### Examples.py
+#### Examples Package
 
-The `examples.py` module contains a comprehensive collection of logical inferences organized into countermodels and theorems.
-The module provides:
+The `examples/` package contains a comprehensive collection of logical inferences organized into separate modules by operator type:
+
+- `counterfactual.py`: Examples for counterfactual operators
+- `constitutive.py`: Examples for constitutive operators (ground, essence, identity)
+- `modal.py`: Examples for modal operators (necessity, possibility)
+- `extensional.py`: Examples for extensional operators (conjunction, disjunction, etc.)
+
+The main entry point is `examples/__init__.py`, which provides:
 
 - Testing of logical properties
 - Comparison between semantic theories
@@ -508,6 +519,12 @@ test_example_range = {
     # Additional test examples...
 }
 ```
+
+This modular organization provides several benefits:
+- Better separation of concerns
+- Easier navigation of similar examples
+- More maintainable codebase 
+- Ability to extend with new example categories without modifying existing code
 
 #### Iterate.py
 

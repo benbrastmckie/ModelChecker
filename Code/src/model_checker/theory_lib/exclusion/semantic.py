@@ -375,8 +375,8 @@ class ExclusionSemantics(model.SemanticDefaults):
         arguments = sentence.arguments or ()
         return operator.true_at(*arguments, eval_world)
 
-    def false_at(self, sentence, eval_point):
-        return z3.Not(self.true_at(sentence, eval_point))
+    def false_at(self, sentence, eval_world):
+        return z3.Not(self.true_at(sentence, eval_world))
 
     def extended_verify(self, state, sentence, eval_world):
         sentence_letter = sentence.sentence_letter

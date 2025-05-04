@@ -5,8 +5,19 @@
 
 ## Plan
 
+- [ ] unit tests
+  - [ ] bimodal
+  - [ ] default
+  - [ ] exclusion
+  - [ ] imposition
+  - [ ] builder
+  - [ ] iterate
+  - [ ] jupyter
 - [ ] other
-  - [ ] make `eval_point` uniform
+  - [x] integrate `theory_lib/old_test/` examples
+    - [:] refactor `examples.py`
+    - [ ] confirm that builder still works
+  - [x] make `eval_point` uniform
 - [ ] theory docs
   - [ ] `jupyter/README.md`
   - [ ] `tests/README.md`
@@ -62,35 +73,35 @@
   - refactor as subpackages
     - [x] iterate models
       - [:] refactor module
-        - [ ] move iterate components out of semantic.py
-          - [ ] DIFFERENCES FROM PREVIOUS MODEL occurs in too many places
-        - [ ] report networkx not available
-        - [x] make iterate settings uniform
-        - [x] add iterate tests to `test_package.py`
-        - [x] update DEFAULTS
-      - [.] add iterator to other theories
-        - [.] bimodal
-        - [ ] imposition
-        - [x] exclusion
-          - [x] refactor `iterate.py`
-          - [x] color outputs
-          - [x] don't print impossible when setting is false
-      - [ ] unit tests
-      - [ ] update docs
-        - [ ] revise `iterate/README.md`
-        - [ ] revise `builder/README.md`
-        - [ ] revise `theory_lib/README.md`
-        - [ ] revise `model_checker/README.md`
-      - [x] add debugging to see which constraints do what when iterating
-      - [x] non-isomorphic difference only
-        - [x] debug consecutive model differences
-        - [x] do more testing to watch for bad cases
-        - [x] confirm old settings have been removed
-        - [x] print number of models skipped/found
-        - [x] add new max_attempts setting and flag
-      - [x] match colors and print impossible in differences
-      - [x] move print specifications to semantics
-      - [x] print differences with states
+- [ ] report networkx not available
+  - [ ] move iterate components out of semantic.py
+    - [x] DIFFERENCES FROM PREVIOUS MODEL occurs in too many places
+  - [x] make iterate settings uniform
+  - [x] add iterate tests to `test_package.py`
+  - [x] update DEFAULTS
+- [.] add iterator to other theories
+  - [.] bimodal
+  - [ ] imposition
+  - [x] exclusion
+    - [x] refactor `iterate.py`
+    - [x] color outputs
+    - [x] don't print impossible when setting is false
+- [ ] unit tests
+- [ ] update docs
+  - [ ] revise `iterate/README.md`
+  - [ ] revise `builder/README.md`
+  - [ ] revise `theory_lib/README.md`
+  - [ ] revise `model_checker/README.md`
+- [x] add debugging to see which constraints do what when iterating
+- [x] non-isomorphic difference only
+  - [x] debug consecutive model differences
+  - [x] do more testing to watch for bad cases
+  - [x] confirm old settings have been removed
+  - [x] print number of models skipped/found
+  - [x] add new max_attempts setting and flag
+- [x] match colors and print impossible in differences
+- [x] move print specifications to semantics
+- [x] print differences with states
     - [x] builder
       - [.] tools
         - [ ] maximize
@@ -104,6 +115,7 @@
       - [x] remove `test_builder.py`?
       - [x] threading
     - model
+    - printer
     - syntactic
       - don't require outer parentheses
   - theory metadata
