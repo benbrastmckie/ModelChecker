@@ -129,37 +129,45 @@ You can run examples in several ways:
 #### 1. From the Command Line
 
 ```bash
-# Run the default example from examples.py
-model-checker path/to/examples.py
+# Run a specific example module
+model-checker path/to/examples/counterfactual.py
+
+# Run the combined examples from __init__.py
+model-checker path/to/examples/__init__.py
 
 # Run with constraints printed 
-model-checker -p path/to/examples.py
+model-checker -p path/to/examples/modal.py
 
 # Run with Z3 output
-model-checker -z path/to/examples.py
+model-checker -z path/to/examples/constitutive.py
 ```
 
 #### 2. In VSCodium/VSCode
 
-1. Open the `examples.py` file in VSCodium/VSCode
+1. Open any example module (e.g., `examples/counterfactual.py`) in VSCodium/VSCode
 2. Use one of these methods:
    - Click the "Run Python File" play button in the top-right corner
    - Right-click in the editor and select "Run Python File in Terminal"
    - Use keyboard shortcut (Shift+Enter) to run selected lines
+   
+You can also open the combined entry point (`examples/__init__.py`) to run examples from multiple modules.
 
 #### 3. In Development Mode
 
 For development purposes, you can use the `dev_cli.py` script from the project root directory:
 
 ```bash
-# Run the default example from examples.py
-./dev_cli.py path/to/examples.py
+# Run a specific example module
+./dev_cli.py path/to/examples/counterfactual.py
+
+# Run the combined examples from __init__.py
+./dev_cli.py path/to/examples/__init__.py
 
 # Run with constraints printed 
-./dev_cli.py -p path/to/examples.py
+./dev_cli.py -p path/to/examples/modal.py
 
 # Run with Z3 output
-./dev_cli.py -z path/to/examples.py
+./dev_cli.py -z path/to/examples/constitutive.py
 ```
 
 #### 4. Using the API
@@ -171,11 +179,19 @@ from model_checker.theory_lib.default import (
     Semantics, Proposition, ModelStructure, default_operators
 )
 from model_checker import ModelConstraints
-from model_checker.theory_lib import get_examples
 
-# Get examples
+# Import example collections directly
+from model_checker.theory_lib.default.examples import (
+    counterfactual_examples,
+    modal_examples
+)
+
+# Or use the helper function to get all examples
+from model_checker.theory_lib import get_examples
 examples = get_examples('default')
-example_data = examples['CF_CM_1']
+
+# Get a specific example
+example_data = counterfactual_examples['CF_CM_1']
 premises, conclusions, settings = example_data
 
 # Create semantic structure
@@ -339,12 +355,14 @@ The default theory package has the following structure:
 ```
 default/
 ├── __init__.py           # Public API and imports
-├── examples/             # Example definitions for testing, organized by category
-│   ├── __init__.py       # Main entry point for examples
-│   ├── counterfactual.py # Counterfactual-specific examples
-│   ├── constitutive.py   # Constitutive-specific examples
-│   ├── modal.py          # Modal-specific examples
-│   └── extensional.py    # Extensional-specific examples
+├── examples/             # Example definitions organized by category
+│   ├── __init__.py       # Main entry point for examples with consolidated collections
+│   ├── README.md         # Examples documentation
+│   ├── counterfactual.py # Counterfactual-specific examples (independently runnable)
+│   ├── constitutive.py   # Constitutive-specific examples (independently runnable)
+│   ├── modal.py          # Modal-specific examples (independently runnable)
+│   ├── extensional.py    # Extensional-specific examples (independently runnable)
+│   └── relevance.py      # Relevance-specific examples (independently runnable)
 ├── iterate.py            # Iteration functionality for finding multiple models
 ├── operators.py          # Logical operator definitions
 ├── README.md             # Documentation (this file)
@@ -472,14 +490,18 @@ Each operator class implements four key methods that define its semantic behavio
 
 The `examples/` package contains a comprehensive collection of logical inferences organized into separate modules by operator type:
 
-- `counterfactual.py`: Examples for counterfactual operators
+- `counterfactual.py`: Examples for counterfactual operators (would/might conditionals)
 - `constitutive.py`: Examples for constitutive operators (ground, essence, identity)
 - `modal.py`: Examples for modal operators (necessity, possibility)
 - `extensional.py`: Examples for extensional operators (conjunction, disjunction, etc.)
+- `relevance.py`: Examples for relevance operators (content relevance)
+
+See the [Examples README](examples/README.md) for detailed documentation on each module.
 
 The main entry point is `examples/__init__.py`, which provides:
 
-- Testing of logical properties
+- Consolidated collections of examples from all modules
+- Testing of logical properties across theories
 - Comparison between semantic theories
 - Flexible unit test specification
 
@@ -489,38 +511,26 @@ Each example is structured as a list containing premises, conclusions, and setti
 example = [premises, conclusions, settings]
 ```
 
-The module defines three key data structures:
+The package defines several key collections:
 
-1. **semantic_theories**: Maps theory names to their implementations
+1. **Example Collections by Category**:
+   - `counterfactual_examples`: All counterfactual examples
+   - `modal_examples`: All modal examples
+   - `constitutive_examples`: All constitutive examples
+   - `extensional_examples`: All extensional examples
+   - `relevance_examples`: All relevance examples
 
-```python
-semantic_theories = {
-    "Brast-McKie": default_theory,
-    # Additional theories can be added
-}
-```
+2. **Example Collections by Type**:
+   - `counterfactual_cm_examples`: Counterfactual countermodels
+   - `counterfactual_th_examples`: Counterfactual theorems
+   - Similar collections for other categories
 
-2. **example_range**: Defines examples for the model checker
-
-```python
-example_range = {
-    "CF_CM_1": CF_CM_1_example,
-    "CF_TH_1": CF_TH_1_example,
-    # Additional examples...
-}
-```
-
-3. **test_example_range**: Specifies examples for automated testing
-
-```python
-test_example_range = {
-    "CF_CM_1": CF_CM_1_example,
-    "CF_CM_2": CF_CM_2_example,
-    # Additional test examples...
-}
-```
+3. **Consolidated Collections for Testing**:
+   - `test_example_range`: All examples combined for unit testing
+   - `example_range`: Selected examples for direct execution
 
 This modular organization provides several benefits:
+- Independent execution of individual example modules
 - Better separation of concerns
 - Easier navigation of similar examples
 - More maintainable codebase 
