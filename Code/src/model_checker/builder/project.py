@@ -25,14 +25,7 @@ class BuildProject:
         log_messages (list): Log of actions and messages during project generation
     """
 
-    # Essential files that should be present in a valid theory
-    ESSENTIAL_FILES = [
-        "README.md",
-        "__init__.py",
-        "operators.py",
-        "semantic.py",
-        "examples.py"
-    ]
+    # No longer enforcing essential files to allow for flexible project structures
 
     def __init__(self, theory: str = 'default'):
         """Initialize project builder with specified theory.
@@ -135,9 +128,8 @@ class BuildProject:
             # Customize project files
             self._update_file_contents(self.destination_dir)
             
-            # Verify all essential files exist
-            self._verify_essential_files(self.destination_dir)
-            
+            # No longer verifying essential files
+            # Simply return the created directory
             return self.destination_dir
             
         except Exception as e:
@@ -251,36 +243,7 @@ class BuildProject:
         except Exception:
             return "unknown"  # Fallback on any error
     
-    def _verify_essential_files(self, project_dir):
-        """Verify all essential files were copied successfully.
-        
-        Args:
-            project_dir: Path to the project directory
-            
-        Raises:
-            FileNotFoundError: If any essential file is missing
-        """
-        missing_files = []
-        
-        for file in self.ESSENTIAL_FILES:
-            file_path = os.path.join(project_dir, file)
-            source_path = os.path.join(self.source_dir, file)
-            
-            # If file exists in source but not in destination, try to copy it again
-            if os.path.exists(source_path) and not os.path.exists(file_path):
-                try:
-                    # Try direct binary copy as a backup method
-                    with open(source_path, 'rb') as src, open(file_path, 'wb') as dst:
-                        dst.write(src.read())
-                except Exception:
-                    missing_files.append(file)
-            elif not os.path.exists(file_path):
-                missing_files.append(file)
-                
-        if missing_files:
-            raise FileNotFoundError(
-                f"Failed to create essential files: {', '.join(missing_files)}"
-            )
+    # The _verify_essential_files method has been removed to allow for more flexible project structures
     
     def _print_success_message(self, project_dir):
         """Print success message with created files as a tree structure.
@@ -328,30 +291,36 @@ class BuildProject:
         Args:
             project_dir: Path to the project directory
         """
-        result = input("Would you like to test the example script? (y/n): ")
+        result = input("Would you like to test an example in your project? (y/n): ")
         if result.lower() not in {'yes', 'ye', 'y'}:
-            print(f"\nRun the following command to test your project:\n\nmodel-checker {project_dir}/examples.py\n")
+            print(f"\nYou can test your project by running:\n\nmodel-checker <path-to-example-file>\n")
             return
 
+        # Check for examples.py or examples/__init__.py
         example_script = os.path.join(project_dir, "examples.py")
-        print(example_script)
+        examples_init = os.path.join(project_dir, "examples", "__init__.py")
+        
         if os.path.exists(example_script):
-            print("\nRunning the example script...")
-            try:
-                # Use subprocess to run the example script
-                subprocess.run(["model-checker", example_script], 
-                             check=True,
-                             timeout=30)  # Add 30 second timeout
-            except subprocess.TimeoutExpired:
-                print("\nScript execution timed out. You can run it manually with:")
-                print(f"model-checker {example_script}")
-            except subprocess.CalledProcessError as e:
-                print(f"\nError running example script: {e}")
-                print(f"You can run it manually with: model-checker {example_script}")
-            except Exception as e:
-                print(f"\nUnexpected error: {e}")
-                print(f"You can run it manually with: model-checker {example_script}")
+            selected_example = example_script
+        elif os.path.exists(examples_init):
+            selected_example = examples_init
         else:
-            print(f"\nFailed to run: model-checker {example_script}")
-            print(f"The examples.py file was not found at: {example_script}")
-            print(f"Please check if the file exists and try running it manually.")
+            print("\nNo examples.py or examples/__init__.py found.")
+            print(f"\nYou can test your project by running:\n\nmodel-checker <path-to-example-file>\n")
+            return
+            
+        print(f"\nRunning example: {selected_example}")
+        try:
+            # Use subprocess to run the example script
+            subprocess.run(["model-checker", selected_example], 
+                         check=True,
+                         timeout=30)  # Add 30 second timeout
+        except subprocess.TimeoutExpired:
+            print("\nScript execution timed out. You can run it manually with:")
+            print(f"model-checker {selected_example}")
+        except subprocess.CalledProcessError as e:
+            print(f"\nError running example: {e}")
+            print(f"You can run it manually with: model-checker {selected_example}")
+        except Exception as e:
+            print(f"\nUnexpected error: {e}")
+            print(f"You can run it manually with: model-checker {selected_example}")
