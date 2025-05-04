@@ -5,10 +5,7 @@
 ### High Priority
 
 - [ ] `verify_model`
-  - [x] bimodal
-  - [ ] default
-  - [ ] exclusion
-  - [ ] imposition
+  - [ ] move to `model.py`
 - [ ] `jupyter/README.md`
 - [ ] theory metadata
   - [ ] licence

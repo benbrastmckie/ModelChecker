@@ -486,9 +486,9 @@ semantic_theories = {
 # Uncomment examples you wish to run
 example_range = {
     # Uncomment to run specific countermodel examples:
-    # "RL_CM_1": RL_CM_1_example,  # ANTECEDENT STRENGTHENING
+    "RL_CM_1": RL_CM_1_example,  # ANTECEDENT STRENGTHENING
     # "RL_CM_2": RL_CM_2_example,  # ANTECEDENT WEAKENING
-    "RL_CM_3": RL_CM_3_example,  # RELEVANCE TRANSITIVITY
+    # "RL_CM_3": RL_CM_3_example,  # RELEVANCE TRANSITIVITY
     # "RL_CM_4": RL_CM_4_example,  # RELEVANT IMPLICATION: GROUND
     # "RL_CM_5": RL_CM_5_example,  # RELEVANT IMPLICATION: ESSENCE
     # "RL_CM_6": RL_CM_6_example,  # RELEVANT IMPLICATION: IDENTITY

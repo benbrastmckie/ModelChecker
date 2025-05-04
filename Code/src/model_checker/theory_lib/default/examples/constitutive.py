@@ -50,6 +50,11 @@ from ..semantic import (
 # Import operators
 from ..operators import default_operators
 
+
+#####################
+### COUNTERMODELS ###
+#####################
+
 # CL_CM_1: EQUIVALENCE OF TAUTOLOGIES
 CL_CM_1_premises = []
 CL_CM_1_conclusions = ['((A \\vee \\neg A) \\equiv (B \\vee \\neg B))']
@@ -201,6 +206,88 @@ CL_CM_8_example = [
     CL_CM_8_conclusions,
     CL_CM_8_settings,
 ]
+
+# CL_CM_9: STRICT IMPLICATION TO GROUND
+CL_CM_9_premises = ['\\Box (A \\rightarrow B)']
+CL_CM_9_conclusions = ['(A \\leq B)']
+CL_CM_9_settings = {
+    'N' : 3,
+    'contingent' : True,
+    'non_null' : True,
+    'non_empty' : True,
+    'disjoint' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+CL_CM_9_example = [
+    CL_CM_9_premises,
+    CL_CM_9_conclusions,
+    CL_CM_9_settings,
+]
+
+# CL_CM_10: STRICT IMPLICATION TO ESSENCE
+CL_CM_10_premises = ['\\Box (B \\rightarrow A)']
+CL_CM_10_conclusions = ['(A \\sqsubseteq B)']
+CL_CM_10_settings = {
+    'N' : 3,
+    'contingent' : True,
+    'non_null' : True,
+    'non_empty' : True,
+    'disjoint' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+CL_CM_10_example = [
+    CL_CM_10_premises,
+    CL_CM_10_conclusions,
+    CL_CM_10_settings,
+]
+
+# CL_CM_11: ESSENCE DISTRIBUTION
+CL_CM_11_premises = []
+CL_CM_11_conclusions = ['(((A \\vee B) \\wedge (A \\vee C)) \\sqsubseteq (A \\vee (B \\wedge C)))']
+CL_CM_11_settings = {
+    'N' : 3,
+    'contingent' : True,
+    'non_null' : True,
+    'non_empty' : True,
+    'disjoint' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+CL_CM_11_example = [
+    CL_CM_11_premises,
+    CL_CM_11_conclusions,
+    CL_CM_11_settings,
+]
+
+# CL_CM_12: GROUND DISTRIBUTION
+CL_CM_12_premises = []
+CL_CM_12_conclusions = ['(((A \\wedge B) \\vee (A \\wedge C)) \\leq (A \\wedge (B \\vee C)))']
+CL_CM_12_settings = {
+    'N' : 3,
+    'contingent' : True,
+    'non_null' : True,
+    'non_empty' : True,
+    'disjoint' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+CL_CM_12_example = [
+    CL_CM_12_premises,
+    CL_CM_12_conclusions,
+    CL_CM_12_settings,
+]
+
+
+
+################
+### THEOREMS ###
+################
 
 # CL_TH_1: GROUND TO ESSENCE
 CL_TH_1_premises = ['(A \\leq B)']
@@ -449,81 +536,45 @@ CL_TH_13_example = [
     CL_TH_13_settings,
 ]
 
-# CL_CM_9: STRICT IMPLICATION TO GROUND
-CL_CM_9_premises = ['\\Box (A \\rightarrow B)']
-CL_CM_9_conclusions = ['(A \\leq B)']
-CL_CM_9_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
+# CL_TH_14: GROUND TO STRICT IMPLICATION
+CL_TH_14_premises = ['(A \\leq B)']
+CL_TH_14_conclusions = ['\\Box (A \\rightarrow B)']
+CL_TH_14_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'non_null' : False,
+    'non_empty' : False,
     'disjoint' : False,
     'max_time' : 1,
     'iterate' : 1,
     'expectation' : True,
 }
-CL_CM_9_example = [
-    CL_CM_9_premises,
-    CL_CM_9_conclusions,
-    CL_CM_9_settings,
+CL_TH_14_example = [
+    CL_TH_14_premises,
+    CL_TH_14_conclusions,
+    CL_TH_14_settings,
 ]
 
-# CL_CM_10: STRICT IMPLICATION TO ESSENCE
-CL_CM_10_premises = ['\\Box (B \\rightarrow A)']
-CL_CM_10_conclusions = ['(A \\sqsubseteq B)']
-CL_CM_10_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
+# CL_TH_15: ESSENCE TO CONVERSE STRICT IMPLICATION
+CL_TH_15_premises = ['(A \\sqsubseteq B)']
+CL_TH_15_conclusions = ['\\Box (B \\rightarrow A)']
+CL_TH_15_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'non_null' : False,
+    'non_empty' : False,
     'disjoint' : False,
     'max_time' : 1,
     'iterate' : 1,
     'expectation' : True,
 }
-CL_CM_10_example = [
-    CL_CM_10_premises,
-    CL_CM_10_conclusions,
-    CL_CM_10_settings,
+CL_TH_15_example = [
+    CL_TH_15_premises,
+    CL_TH_15_conclusions,
+    CL_TH_15_settings,
 ]
 
-# CL_CM_11: ESSENCE DISTRIBUTION
-CL_CM_11_premises = []
-CL_CM_11_conclusions = ['(((A \\vee B) \\wedge (A \\vee C)) \\sqsubseteq (A \\vee (B \\wedge C)))']
-CL_CM_11_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
-}
-CL_CM_11_example = [
-    CL_CM_11_premises,
-    CL_CM_11_conclusions,
-    CL_CM_11_settings,
-]
 
-# CL_CM_12: GROUND DISTRIBUTION
-CL_CM_12_premises = []
-CL_CM_12_conclusions = ['(((A \\wedge B) \\vee (A \\wedge C)) \\leq (A \\wedge (B \\vee C)))']
-CL_CM_12_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
-}
-CL_CM_12_example = [
-    CL_CM_12_premises,
-    CL_CM_12_conclusions,
-    CL_CM_12_settings,
-]
 
 # Create collections for different constitutive example types
 constitutive_cm_examples = {
@@ -555,6 +606,8 @@ constitutive_th_examples = {
     "CL_TH_11": CL_TH_11_example,
     "CL_TH_12": CL_TH_12_example,
     "CL_TH_13": CL_TH_13_example,
+    "CL_TH_14": CL_TH_14_example,
+    "CL_TH_15": CL_TH_15_example,
 }
 
 # Combined collection of all constitutive examples
@@ -585,7 +638,21 @@ semantic_theories = {
 # Specify which examples to run by default when running this module directly
 # Uncomment examples you wish to run
 example_range = {
-    # Uncomment to run specific examples:
+    # Uncomment to run specific countermodel examples:
+    "CL_CM_1": CL_CM_1_example,  # EQUIVALENCE OF TAUTOLOGIES
+    "CL_CM_2": CL_CM_2_example,  # EQUIVALENCE OF CONTRADICTIONS
+    "CL_CM_3": CL_CM_3_example,  # GROUND CONJUNCTION SUPPLEMENTATION
+    "CL_CM_4": CL_CM_4_example,  # ESSENCE DISJUNCTION SUPPLEMENTATION
+    "CL_CM_5": CL_CM_5_example,  # IDENTITY ABSORPTION: DISJUNCTION OVER CONJUNCTION
+    "CL_CM_6": CL_CM_6_example,  # IDENTITY ABSORPTION: CONJUNCTION OVER DISJUNCTION
+    "CL_CM_7": CL_CM_7_example,  # IDENTITY DISTRIBUTION: CONJUNCTION OVER DISJUNCTION
+    "CL_CM_8": CL_CM_8_example,  # IDENTITY DISTRIBUTION: DISJUNCTION OVER CONJUNCTION
+    "CL_CM_9": CL_CM_9_example,  # STRICT IMPLICATION TO GROUND
+    "CL_CM_10": CL_CM_10_example,  # STRICT IMPLICATION TO ESSENCE
+    "CL_CM_11": CL_CM_11_example,  # ESSENCE DISTRIBUTION
+    "CL_CM_12": CL_CM_12_example,  # GROUND DISTRIBUTION
+
+    # Uncomment to run specific theorem examples:
     "CL_TH_1": CL_TH_1_example,  # GROUND TO ESSENCE
     "CL_TH_2": CL_TH_2_example,  # ESSENCE TO GROUND
     "CL_TH_3": CL_TH_3_example,  # ESSENCE TO IDENTITY
@@ -599,6 +666,8 @@ example_range = {
     "CL_TH_11": CL_TH_11_example,  # ABSORPTION REDUCTION: DISJUNCTION OVER CONJUNCTION
     "CL_TH_12": CL_TH_12_example,  # DISTRIBUTION REDUCTION: DISJUNCTION OVER CONJUNCTION
     "CL_TH_13": CL_TH_13_example,  # DISTRIBUTION REDUCTION: CONJUNCTION OVER DISJUNCTION
+    "CL_TH_14": CL_TH_14_example,  # GROUND TO STRICT IMPLICATION
+    "CL_TH_15": CL_TH_15_example,  # ESSENCE TO CONVERSE STRICT IMPLICATION
     
     # Quick test example - comment out or replace as needed
     # "CL_CM_8": CL_CM_8_example,
