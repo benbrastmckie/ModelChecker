@@ -15,7 +15,7 @@
   - [ ] jupyter
 - [ ] other
   - [x] integrate `theory_lib/old_test/` examples
-    - [:] refactor `examples.py`
+    - [x] refactor `examples.py`
     - [ ] confirm that builder still works
   - [x] make `eval_point` uniform
 - [ ] theory docs
