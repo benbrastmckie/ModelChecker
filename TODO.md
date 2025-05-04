@@ -1,9 +1,55 @@
 # TODO
 
-## SCRATCH
+## Current Tasks
 
+### High Priority
 
-## Plan
+- [ ] `verify_model`
+  - [x] bimodal
+  - [ ] default
+  - [ ] exclusion
+  - [ ] imposition
+- [ ] `jupyter/README.md`
+- [ ] theory metadata
+  - [ ] licence
+  - versioning
+    - theory versioning
+    - model_checker versioning
+
+### Refactoring
+
+- make subpackage
+  - utils
+  - syntactic
+    - [ ] don't require outer parentheses
+    - [ ] permit unicode
+  - model
+  - print
+
+- [:] package unit tests
+  - [:] settings
+  - [:] builder
+  - [:] iterate
+  - [:] jupyter
+
+- [.] iterator for theories
+  - [:] bimodal
+  - [:] default
+  - [:] exclusion
+  - [ ] imposition
+
+- [ ] builder cleanup
+  - [ ] tools
+    - [ ] maximize
+    - [ ] minimize
+  - [ ] final polish
+
+- [ ] Logging improvements
+- [ ] Remove `save_to`
+
+- [ ] report issues
+  - [ ] report networkx not available
+  - [ ] move iterate components out of semantic.py
 
 - [ ] unit tests
   - [ ] bimodal
@@ -13,177 +59,28 @@
   - [ ] builder
   - [ ] iterate
   - [ ] jupyter
-- [ ] other
-  - [x] integrate `theory_lib/old_test/` examples
-    - [x] refactor `examples.py`
-    - [ ] confirm that builder still works
-  - [x] make `eval_point` uniform
-- [ ] theory docs
-  - [ ] `jupyter/README.md`
-  - [ ] `tests/README.md`
-  - [:] `README.md`
-    - [ ] reorganize
-  - [x] `THEORY_ARCHITECTURE.md`
+
+### Semantic Theories
+
+- [ ] bimodal
+  - [:] infinite times refactor
+  - [ ] `print_over_times` loops over all times
+  - [ ] update pypi doc
+  - [ ] semantics optimization
+    - [ ] remove/enforce `max_world_id`
+    - [ ] clean up frame constraints
+    - [ ] develop bimodal lambda only strategy
+  - [.] add iterator to bimodal theory
+
 - [ ] default semantic
-  - [ ] improve name
+  - [ ] subject-matter
+  - [ ] relevance
+  - [ ] improve name: LoT
   - [ ] unit test circular defs
   - [ ] benchmarking
-- bimodal
-  - `print_over_times` loops over all times
-  - update pypi doc
-  - semantics
-    - [ ] optimize
-      - [ ] remove/enforce `max_world_id`
-      - [ ] clean up frame constraints
-      - [ ] develop bimodal lambda only strategy
-    - [x] settings
-      - [x] disjoint
-      - [x] contingent
-    - [x] add comments to examples
-    - [x] center world history printing
-    - [x] abundance constraint
-    - [x] time_shift constraint
-    - [x] define `time_shift_relations`
-    - [x] debug tense operators
-      - [x] develop array only strategy
-      - [x] develop dynamic strategy
-    - [x] claude
-      - [x] improve design philosophy
-      - [x] add subpackage outline and warnings
-      - [x] add debugging philosophy
-    - [x] check for consistencies in extract method etc
-    - [x] add abundance constraint
-  - [x] proposition
-    - [x] extension
-  - [x] operators
-    - [x] future
-    - [x] past
-    - [x] necessity
-- [x] debug readme issue
-- general
-  - unit tests
-    - [:] settings
-    - [:] builder
-    - [x] jupyter
-    - [x] theory_lib
-      - [x] default
-      - [x] bimodal
-      - [x] exclusion
-      - [x] imposition
-  - refactor as subpackages
-    - [x] iterate models
-      - [:] refactor module
-- [ ] report networkx not available
-  - [ ] move iterate components out of semantic.py
-    - [x] DIFFERENCES FROM PREVIOUS MODEL occurs in too many places
-  - [x] make iterate settings uniform
-  - [x] add iterate tests to `test_package.py`
-  - [x] update DEFAULTS
-- [.] add iterator to other theories
-  - [.] bimodal
-  - [ ] imposition
-  - [x] exclusion
-    - [x] refactor `iterate.py`
-    - [x] color outputs
-    - [x] don't print impossible when setting is false
-- [ ] unit tests
-- [ ] update docs
-  - [ ] revise `iterate/README.md`
-  - [ ] revise `builder/README.md`
-  - [ ] revise `theory_lib/README.md`
-  - [ ] revise `model_checker/README.md`
-- [x] add debugging to see which constraints do what when iterating
-- [x] non-isomorphic difference only
-  - [x] debug consecutive model differences
-  - [x] do more testing to watch for bad cases
-  - [x] confirm old settings have been removed
-  - [x] print number of models skipped/found
-  - [x] add new max_attempts setting and flag
-- [x] match colors and print impossible in differences
-- [x] move print specifications to semantics
-- [x] print differences with states
-    - [x] builder
-      - [.] tools
-        - [ ] maximize
-        - [ ] minimize
-      - [ ] cleanup builder directory
-        - [ ] API
-        - [ ] documentation
-        - [ ] unit tests
-      - [x] update docs
-      - [x] improve printing
-      - [x] remove `test_builder.py`?
-      - [x] threading
-    - model
-    - printer
-    - syntactic
-      - don't require outer parentheses
-  - theory metadata
-  - logging
-  - remove `save_to`
-  - refactor API
-    - [ ] theory version management
-    - [x] loaded projects have the wrong version
-    - [x] package imports
-  - dissolve `utils.py`?
-  - [x] clean up non-determinism throughout
-  - [x] example execution
-  - [x] project building
-  - [x] research try/except for development
-  - [x] create settings module
-- exclusion semantics
-  - [ ] documentation
-  - [.] add more examples
-  - [x] integrate jupyter notebooks
-    - [x] create documentation
-    - [x] import problem in `theory_lib/__init__.py`
-    - [x] fix cli issue
-    - [x] refactor API for jupyter
-    - [x] install jupyter and dependencies
-    - [x] revise API documentation
-    - [x] create jupyter subpackage
-      - [x] update documentation
-      - [x] test jupyter notebooks
-      - [:] cleanup linter errors
-      - import local subpackage
-      - cli flag to create notebook
-  - [x] all_bits bug
-  - [x] divide into modules
-- [x] bugs
-  - [x] jupyter
-    - [x] improve dev docs
-  - [x] builder
-  - [x] holden import
-- [x] update script
-  - [x] build script
-  - [x] document
-- [x] fix unit testing
-  - [x] document
-  - [x] build test script
-  - [x] expose `examples_range`
-  - [x] expose `test_examples_range`
-  - [x] call `test_examples_range` in pytests
-- [x] imposition semantics
-  - [x] implement
-  - [x] separate from default
-- [x] benchmarks
-- [x] unit tests
-  - [x] example unit tests
-  - [x] add unit tests to theories
-- [.] documentation
-  - [:] code base
-  - [:] default
-  - [.] exclusion
-  - imposition
-  - bimodal
-  - wiki
-- [ ] subject-matter operators
+  - [ ] make examples compare relevant alternatives
 
-## Applications
-
-### Exclusion Semantics
-
-- [.] _M_ test exclusion semantics
+- [.] exclusion semantics
   - [.] build range of examples
   - [x] test frame constraints
     - [ ] add constraint that exclusion is nonempty?
@@ -193,16 +90,28 @@
   - [.] test theorems proven in the paper
     - [ ] do the proofs require all the axioms?
     - [x] are any of the other axioms derivable?
-- [.] documentation and cleanup
-- [.] unit tests
-  - [x] _B_ setup tests
-  - [ ] add examples
-- [ ] run comparisons with bilateral semantics
-  - [ ] max atomic complexity `N` before timeout
-  - [ ] max sentence/atomic complexity before too many constraints to build
+  - [.] documentation and cleanup
+  - [.] unit tests
+    - [x] setup tests
+  - [ ] run comparisons with bilateral semantics
+    - [ ] max atomic complexity `N` before timeout
+    - [ ] max sentence/atomic complexity before too many constraints to build
+  - [ ] add comparison
 
-## Documentation
+- imposition semantics
+  - test comparison and iterator
 
+### Documentation
+
+- [ ] overhaul
+  - [ ] `tests/README.md`
+  - [:] `README.md`
+    - [ ] reorganize
+  - [ ] revise `iterate/README.md`
+  - [ ] revise `builder/README.md`
+  - [ ] revise `theory_lib/README.md`
+  - [ ] revise `model_checker/README.md`
+  - [ ] wiki
 - [:] theories
   - exclusion
     - docstrings
@@ -236,7 +145,7 @@
   - [x] delete old
   - [x] decapitalize directories
 
-## Z3 Research
+### Z3 Research
 
 - [ ] create Z3 issue
 - [ ] lambda worlds
@@ -246,77 +155,71 @@
 
 
 
+## Completed Items
 
+### Implementation
 
-
-<!-- BONEYARD -->
-
-# Completed
-
-## Implementation
-
-1. [x] An Operator class for each primitive operator:
-  - [x] the Operator class itself
-    - [x] attribute for arity
-    - [x] attribute for name
-    - [x] confirm changes
-  - [x] for each operator
-    - [x] attribute for semantics
-    - [x] methods for truth and falsity at a world
-    - [x] methods for verification and falsification at a world
-    - [x] printing methods
-  - [x] operators to implement:
-    - [x] defined operators
-      - [x] debug given `sentence_obj` integration
-      - [x] _M_ move derived definition upstream
-      - [x] check definitional loops etc
-      - [x] _B_ add doc strings
-    - [x] might counterfactual
-      - [x] defined
-      - [x] unit tests
-    - [x] modal
-      - [x] primitive
-      - [x] defined in terms of counterfactual and top
-        - [x] debug
-      - [x] unit tests
-      - [x] verifiers and falsifiers
-    - [x] constitutive
-      - [x] define primitive identity operator
-      - [x] define essence, ground, and relevance in terms of identity
-      - [x] add print methods
-      - [x] debug true conclusion and false premise models
-      - [x] unit tests
-      - [x] verifiers and falsifiers
-    - [x] defined operators
-      - [x] definitions
-    - [x] relevance
-      - [x] semantics
-      - [x] unit tests
-      - [x] verifiers and falsifiers
-    - [x] imposition counterfactual
-      - [x] add z3 primitive semantics
-      - [x] add frame constraints
-      - [x] define operator
-      - [x] unit tests
-      - [x] verifiers and falsifiers
-    - [x] extensional
-      - [x] unit tests
-        - [x] wedge
-        - [x] vee
-    - [x] extremal
-      - [x] define extremal elements in `hidden_things.py`
-      - [x] define two primitive extremal operators in `exposed_things.py`
-      - [x] add print methods
-      - [x] verifiers and falsifiers
-      - [x] unit tests
-    - [x] must counterfactual
+- [x] the Operator class itself
+  - [x] attribute for arity
+  - [x] attribute for name
+  - [x] confirm changes
+- [x] for each operator
+  - [x] attribute for semantics
+  - [x] methods for truth and falsity at a world
+  - [x] methods for verification and falsification at a world
+  - [x] printing methods
+- [x] operators to implement:
+  - [x] defined operators
+    - [x] debug given `sentence_obj` integration
+    - [x] _M_ move derived definition upstream
+    - [x] check definitional loops etc
+    - [x] _B_ add doc strings
+  - [x] might counterfactual
+    - [x] defined
+    - [x] unit tests
+  - [x] modal
+    - [x] primitive
+    - [x] defined in terms of counterfactual and top
       - [x] debug
-      - [x] add print method
-      - [x] fix indenting
-      - [x] unit tests
-      - [x] verifiers and falsifiers
+    - [x] unit tests
+    - [x] verifiers and falsifiers
+  - [x] constitutive
+    - [x] define primitive identity operator
+    - [x] define essence, ground, and relevance in terms of identity
+    - [x] add print methods
+    - [x] debug true conclusion and false premise models
+    - [x] unit tests
+    - [x] verifiers and falsifiers
+  - [x] defined operators
+    - [x] definitions
+  - [x] relevance
+    - [x] semantics
+    - [x] unit tests
+    - [x] verifiers and falsifiers
+  - [x] imposition counterfactual
+    - [x] add z3 primitive semantics
+    - [x] add frame constraints
+    - [x] define operator
+    - [x] unit tests
+    - [x] verifiers and falsifiers
+  - [x] extensional
+    - [x] unit tests
+      - [x] wedge
+      - [x] vee
+  - [x] extremal
+    - [x] define extremal elements in `hidden_things.py`
+    - [x] define two primitive extremal operators in `exposed_things.py`
+    - [x] add print methods
+    - [x] verifiers and falsifiers
+    - [x] unit tests
+  - [x] must counterfactual
+    - [x] debug
+    - [x] add print method
+    - [x] fix indenting
+    - [x] unit tests
+    - [x] verifiers and falsifiers
 
-## Diagnostic Tools
+### Diagnostic Tools
 
 - [x] error reporting
   - [x] convert bvs to states in raise Errors
@@ -332,7 +235,7 @@
 - [x] create project template
 - [x] add check/continues and test
 
-## Release v0.8
+### Release v0.8
 
 - [x] _B_ add utilities
   - [x] comparison
@@ -359,7 +262,7 @@
   - [x] `disjoint`
   - [x] `non_empty`
 
-## CLI
+### CLI
 
 - [x] add save functions to `ModelStructure`
 - [x] flags
@@ -374,7 +277,7 @@
 - [x] refactor printing and saving
 - [x] progress bar
 
-## Release v0.7
+### Release v0.7
 
 - [x] project template
 - [x] bypass semantics
@@ -392,7 +295,7 @@
   - [x] debug `IMP_CM2`
 - [x] separate Fine's semantics
 
-## API
+### API
 
 - [x] create `__init__.py` and add all imports
 - [x] move any functions with general uses to `utils.py`
@@ -401,7 +304,7 @@
 - [x] create `api_example.py` to import from `model-checker`
 - [x] confirm `api_example.py` works
 
-## Documentation
+### Documentation
 
 - [x] _B_ revise pypi readme
   - [x] semantics overview
@@ -410,75 +313,82 @@
   - [x] semantics overview
   - [x] update paper link
 
-## Implementation (class semantics)
+### Implementation (class semantics)
 
 1. [x] ModelConstraints class for storing user inputs and their results:
-  - [x] arguments: operator classes, semantics class
-  - [x] attributes:
-    - [x] settings and flags
-    - [x] premises and conclusions
-    - [x] prefix premises and conclusions
-    - [x] all subsentences of the premises and conclusions
-    - [x] sentence letters
-    - [x] Z3 constraints including (drawing on methods from semantics and operator classes):
-      - [x] frame constraints
-      - [x] model constraints (currently called proposition constraints)
-      - [x] premise constraints
-      - [x] conclusion constraints
-      - [x] all constraints
-  - [x] methods:
-    - [x] infix to prefix methods
-    - [x] subsentences extraction methods
-    - [x] sentence letters extraction methods
-    - [x] prefix to infix methods
-    - [x] solver
-2. [x] Semantics classes:
-  - [x] attributes for Z3 primitives:
-    - [x] verify
-    - [x] falsify
-    - [x] possible
-    - [x] main world
+
+- [x] arguments: operator classes, semantics class
+- [x] attributes:
+  - [x] settings and flags
+  - [x] premises and conclusions
+  - [x] prefix premises and conclusions
+  - [x] all subsentences of the premises and conclusions
+  - [x] sentence letters
+  - [x] Z3 constraints including (drawing on methods from semantics and operator classes):
     - [x] frame constraints
-    - [x] premise and conclusion behavior
-  - [x] semantic methods:
-    - [x] fusion
-    - [x] parthood
-    - [x] compatible
-    - [x] maximal
-    - [x] world
-    - [x] max-compatible
-    - [x] alternative
-    - [x] true-at
-    - [x] false-at
-    - [x] model constraints (assigning each sentence letter to a proposition)
-  - [x] printing methods:
-    - [x] divide `rec_print`
-    - [x] verifiers for a sentence
-    - [x] falsify for a sentence
-    - [x] state fusion
-  - [x] error reporting
-    - [x] definitional loops
+    - [x] model constraints (currently called proposition constraints)
+    - [x] premise constraints
+    - [x] conclusion constraints
+    - [x] all constraints
+- [x] methods:
+  - [x] infix to prefix methods
+  - [x] subsentences extraction methods
+  - [x] sentence letters extraction methods
+  - [x] prefix to infix methods
+  - [x] solver
+
+2. [x] Semantics classes:
+
+- [x] attributes for Z3 primitives:
+  - [x] verify
+  - [x] falsify
+  - [x] possible
+  - [x] main world
+  - [x] frame constraints
+  - [x] premise and conclusion behavior
+- [x] semantic methods:
+  - [x] fusion
+  - [x] parthood
+  - [x] compatible
+  - [x] maximal
+  - [x] world
+  - [x] max-compatible
+  - [x] alternative
+  - [x] true-at
+  - [x] false-at
+  - [x] model constraints (assigning each sentence letter to a proposition)
+- [x] printing methods:
+  - [x] divide `rec_print`
+  - [x] verifiers for a sentence
+  - [x] falsify for a sentence
+  - [x] state fusion
+- [x] error reporting
+  - [x] definitional loops
+
 3. [x] Proposition class:
-  - [x] syntactic attributes:
-    - [x] prefix sentence
-    - [x] infix sentence (called name)
-    - [x] complexity
-  - [x] semantic attributes:
-    - [x] `verifiers`
-    - [x] `falsifiers`
-    - [x] `truth_at`
+
+- [x] syntactic attributes:
+  - [x] prefix sentence
+  - [x] infix sentence (called name)
+  - [x] complexity
+- [x] semantic attributes:
+  - [x] `verifiers`
+  - [x] `falsifiers`
+  - [x] `truth_at`
+
 4. [x] ModelStructure class:
-  - [x] arguments: ModelConstraints instance
-  - [x] attributes:
-    - [x] resulting Z3 model including:
-      - [x] timeout value
-      - [x] model status
-      - [x] Z3 model
-      - [x] model runtime
-    - [x] dictionary for all propositions for all subsentences
-  - [x] general methods for printing
-  - [x] unsat core
-  - [x] print benchmarks
+
+- [x] arguments: ModelConstraints instance
+- [x] attributes:
+  - [x] resulting Z3 model including:
+    - [x] timeout value
+    - [x] model status
+    - [x] Z3 model
+    - [x] model runtime
+  - [x] dictionary for all propositions for all subsentences
+- [x] general methods for printing
+- [x] unsat core
+- [x] print benchmarks
 - [x] pre-processing module
   - [x] add backslashes
   - [x] design algorithm for simplifying prefix sentences
@@ -488,7 +398,7 @@
   - [x] fix imports
   - [x] _B_ check that world-hood constraint is not needed for finite spaces
 
-## Documentation
+### Documentation
 
 - [x] _M_ doc strings for functions
 - [x] _M_ revise architecture description
@@ -503,7 +413,7 @@
   - [x] modal
   - [x] relevance
 
-## Patch
+### Patch
 
 - [x] disjoint subject-mater for all propositions
 - [x] help flag
@@ -513,7 +423,7 @@
   - [x] if timeout, should reduce N rather than halt
   - [x] seems to erroneously increase N
 
-## v0.5 Release 
+### v0.5 Release
 
 - [x] prompt user to increase time if timeout
 - [x] add examples to test file
@@ -543,9 +453,9 @@
   - [x] remove `print_unsat_core`
   - [x] timeout
 
-## Examples
+### Examples
 
-- [x] `\neg B, A \boxright B` does not entail `\neg B \boxright \neg A` 
+- [x] `\neg B, A \boxright B` does not entail `\neg B \boxright \neg A`
   - works without `\neg B`.
   - [ ] _B_ step through `neg_unsat.md` building model
 - [x] `\neg A, A \boxright C` does not entails `(A \wedge B) \boxright C`
@@ -559,7 +469,7 @@
   - this does not find models for N = 3
   - very slow for N = 5 (ran for minutes on the remote server)
 
-## Package
+### Package
 
 - [x] added an update bash script
 - [x] _B_ add version flag
@@ -591,7 +501,7 @@
   - [x] include help in template output
   - [x] document package release protocols
 
-## Print
+### Print
 
 - [x] printing
   - [x] _M_ `backslash` function, adding double backslashes if none
@@ -599,6 +509,7 @@
   - [x] _M_ refactor `rec_print`
   - [x] _B_ refactor `print_to` and `save_to`
 - [x] print the proposition for each sub-sentence
+
   - [x] _B_ print proposition for extensional sentences immediately
   - [x] _B_ design recursive structure in `strategies`
   - [x] _B_ tested new `print_props`
@@ -611,15 +522,15 @@
 - [x] move model builder definitions that concern bits from `print` into `model_definitions`
   - keep all definitions that concern states in `print`
 
-## Data Structure
+### Data Structure
 
 - [x] _M_ abstract model builder functions from `print` to build data structure functions in `model`
   - [x] sketch design in `strategies` for how modules relate
   - [x] _M_ divide classes into `ModelStructure` and `Propositions`
 - [x] abstract on `eval_world` to generalize `alt_bits` function
-Tasks that have been completed.
+      Tasks that have been completed.
 
-## Semantics
+### Semantics
 
 - [x] finite quantifiers
   - [x] debug
@@ -651,7 +562,7 @@ Tasks that have been completed.
   - [x] debug
 - [x] _B_ organize semantics
 
-## Refine and Optimize
+### Refine and Optimize
 
 - [x] `optional_generate_test` in `test_complete`
   - [x] abstract helper functions
@@ -730,7 +641,7 @@ Tasks that have been completed.
   - M: seems you can just use `==` (I'm pretty sure but not 100% sure). I left the `Equivalent` function we had and replaced its body to the new definition `==`; if you notice any changes or anything going wrong, we can always switch back to the old one. However, I am almost certain that if equivalence isn't represented by `==`, then there is no function for equivalence (cf: https://microsoft.github.io/z3guide/docs/logic/propositional-logic, and in the list of all funcs in Z3, could not find anything that looked like it'd reasonably be equivalence)
   - B: Awesome! It works great!
 
-## Models
+### Models
 
 - [x] _B_ `A \boxright C` and `\neg (A \boxright \neg B)` does not entail `\neg ((A \wedge B) \boxright C)`
 - [x] weakening
@@ -748,7 +659,7 @@ Tasks that have been completed.
     - [.] figure out why this constraint is causing trouble
       - [x] _B_ email Graham
 
-## Print
+### Print
 
 - [x] _M_ extract helper function from `alt_bits` def in `print.py`
 - [x] _B_ abstract on multiple occurrences of `all_bits`
@@ -764,7 +675,7 @@ Tasks that have been completed.
 - [x] _M_ name all atomic states in the model with lowercase letters `a, b, c, ...`
 - [x] _M_ represent all states in the model as fusions, e.g., `a.b.c, d.e, a, ...`
 
-## Planning
+### Planning
 
 - [x] review and revise plan for the project
 - [x] create scaffolding for documentation, TODOS, and project updates
@@ -773,13 +684,13 @@ Tasks that have been completed.
   - [x] is latex ok for the overview?
 - [x] get git working
 
-## Definitions
+### Definitions
 
 - [x] _M_ `extended_verify` see strategies
 - [x] _M_ `extended_falsify` see strategies
-    - M: at the end of `semantics.py` (both extended verify and falsify)
+  - M: at the end of `semantics.py` (both extended verify and falsify)
 - [x] _M_ recursive definition of `true` see strategies
-    - M: at the end of `semantics.py`
+  - M: at the end of `semantics.py`
 - [x] _B_ `proposition` see strategies
 - [x] _B_ add docstrings to `definitions.py`
 - [x] _B_ maximal
@@ -787,7 +698,7 @@ Tasks that have been completed.
 - [x] _B_ world
 - [x] _B_ create test file
 
-## Python
+### Python
 
 - [x] _M_ sentence letter extractor
 - [x] _M_ prefix function
@@ -800,9 +711,10 @@ Tasks that have been completed.
       - _B_: sounds good.
     - [x] _B_ move notes elsewhere
 
-## Strategies
+### Strategies
 
 - [x] _B_ model checker design strategies
+
   - [:] model constraints
     - [x] _B_ outline
     - [x] _B_ email Graham
@@ -820,7 +732,7 @@ Tasks that have been completed.
   - [x] create issue
 - [x] research what Z3 wants for predicates to be interpreted
 
-## Z3
+### Z3
 
 - [x] set up test solvers in Z3 with constraints
   - [x] troubleshoot `is_part_of` in `parts.py`

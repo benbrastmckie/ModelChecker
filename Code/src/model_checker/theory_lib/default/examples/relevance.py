@@ -485,12 +485,29 @@ semantic_theories = {
 # Specify which examples to run by default when running this module directly
 # Uncomment examples you wish to run
 example_range = {
-    # Uncomment to run specific examples:
-    # "RL_CM_1": RL_CM_1_example,
-    # "RL_TH_1": RL_TH_1_example,
-    
-    # Quick test example - comment out or replace as needed
-    "RL_CM_3": RL_CM_3_example,
+    # Uncomment to run specific countermodel examples:
+    # "RL_CM_1": RL_CM_1_example,  # ANTECEDENT STRENGTHENING
+    # "RL_CM_2": RL_CM_2_example,  # ANTECEDENT WEAKENING
+    "RL_CM_3": RL_CM_3_example,  # RELEVANCE TRANSITIVITY
+    # "RL_CM_4": RL_CM_4_example,  # RELEVANT IMPLICATION: GROUND
+    # "RL_CM_5": RL_CM_5_example,  # RELEVANT IMPLICATION: ESSENCE
+    # "RL_CM_6": RL_CM_6_example,  # RELEVANT IMPLICATION: IDENTITY
+    # "RL_CM_7": RL_CM_7_example,  # STRICT IMPLICATION
+    # "RL_CM_8": RL_CM_8_example,  # REVERSE DISTRIBUTION: DISJUNCTION OVER CONJUNCTION
+    # "RL_CM_9": RL_CM_9_example,  # REVERSE DISTRIBUTION: CONJUNCTION OVER DISJUNCTION
+    # "RL_CM_10": RL_CM_10_example,  # CONJUNCTION INTRODUCTION
+    # "RL_CM_11": RL_CM_11_example,  # DISJUNCTION INTRODUCTION
+
+    # Uncomment to run specific theorem examples:
+    # "RL_TH_1": RL_TH_1_example,  # RELEVANCE TO CONJUNCTION
+    # "RL_TH_2": RL_TH_2_example,  # RELEVANCE TO DISJUNCTION
+    # "RL_TH_3": RL_TH_3_example,  # CONJUNCTION TO RELEVANCE
+    # "RL_TH_4": RL_TH_4_example,  # DISJUNCTION TO RELEVANCE
+    # "RL_TH_5": RL_TH_5_example,  # CONJUNCTION INTRODUCTION
+    # "RL_TH_6": RL_TH_6_example,  # DISJUNCTION INTRODUCTION
+    # "RL_TH_7": RL_TH_7_example,  # GROUNDING RELEVANCE
+    # "RL_TH_8": RL_TH_8_example,  # ESSENCE RELEVANCE
+    # "RL_TH_9": RL_TH_9_example,  # IDENTITY RELEVANCE
 }
 
 # Make this module runnable from the command line

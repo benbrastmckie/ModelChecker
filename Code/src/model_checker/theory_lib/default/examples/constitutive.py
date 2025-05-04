@@ -586,11 +586,22 @@ semantic_theories = {
 # Uncomment examples you wish to run
 example_range = {
     # Uncomment to run specific examples:
-    # "CL_CM_1": CL_CM_1_example,
-    # "CL_TH_1": CL_TH_1_example,
+    "CL_TH_1": CL_TH_1_example,  # GROUND TO ESSENCE
+    "CL_TH_2": CL_TH_2_example,  # ESSENCE TO GROUND
+    "CL_TH_3": CL_TH_3_example,  # ESSENCE TO IDENTITY
+    "CL_TH_4": CL_TH_4_example,  # IDENTITY TO ESSENCE
+    "CL_TH_5": CL_TH_5_example,  # GROUND TO IDENTITY
+    "CL_TH_6": CL_TH_6_example,  # IDENTITY TO GROUND
+    "CL_TH_7": CL_TH_7_example,  # NEGATION TRANSPARENCY
+    "CL_TH_8": CL_TH_8_example,  # REVERSE NEGATION TRANSPARENCY
+    "CL_TH_9": CL_TH_9_example,  # ABSORPTION IDENTITY
+    "CL_TH_10": CL_TH_10_example,  # ABSORPTION REDUCTION: CONJUNCTION OVER DISJUNCTION
+    "CL_TH_11": CL_TH_11_example,  # ABSORPTION REDUCTION: DISJUNCTION OVER CONJUNCTION
+    "CL_TH_12": CL_TH_12_example,  # DISTRIBUTION REDUCTION: DISJUNCTION OVER CONJUNCTION
+    "CL_TH_13": CL_TH_13_example,  # DISTRIBUTION REDUCTION: CONJUNCTION OVER DISJUNCTION
     
     # Quick test example - comment out or replace as needed
-    "CL_CM_8": CL_CM_8_example,
+    # "CL_CM_8": CL_CM_8_example,
 }
 
 # Make this module runnable from the command line
