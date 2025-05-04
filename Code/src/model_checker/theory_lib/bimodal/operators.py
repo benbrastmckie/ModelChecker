@@ -58,33 +58,36 @@ class NegationOperator(syntactic.Operator):
     name = "\\neg"
     arity = 1
 
-    def true_at(self, argument, eval_world, eval_time):
+    def true_at(self, argument, eval_point):
         """Returns true if argument is false.
         
         Args:
             argument: The argument to negate
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
         """
-        return self.semantics.false_at(argument, eval_world, eval_time)
+        return self.semantics.false_at(argument, eval_point)
 
-    def false_at(self, argument, eval_world, eval_time):
+    def false_at(self, argument, eval_point):
         """Returns false if argument is true.
         
         Args:
             argument: The argument to negate
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
         """
-        return self.semantics.true_at(argument, eval_world, eval_time)
+        return self.semantics.true_at(argument, eval_point)
 
-    def find_truth_condition(self, argument, eval_world, eval_time):
+    def find_truth_condition(self, argument, eval_point):
         """Gets truth-condition for the negation of an argument.
         
         Args:
             argument: The argument to negate
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
             
         Returns:
             dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
@@ -123,44 +126,47 @@ class AndOperator(syntactic.Operator):
     name = "\\wedge"
     arity = 2
 
-    def true_at(self, leftarg, rightarg, eval_world, eval_time):
+    def true_at(self, leftarg, rightarg, eval_point):
         """Returns true if both arguments are true.
         
         Args:
             leftarg: The left argument of the conjunction
             rightarg: The right argument of the conjunction
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
         """
         semantics = self.semantics
         return z3.And(
-            semantics.true_at(leftarg, eval_world, eval_time),
-            semantics.true_at(rightarg, eval_world, eval_time)
+            semantics.true_at(leftarg, eval_point),
+            semantics.true_at(rightarg, eval_point)
         )
 
-    def false_at(self, leftarg, rightarg, eval_world, eval_time):
+    def false_at(self, leftarg, rightarg, eval_point):
         """Returns true if either argument is false.
         
         Args:
             leftarg: The left argument of the conjunction
             rightarg: The right argument of the conjunction
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
         """
         semantics = self.semantics
         return z3.Or(
-            semantics.false_at(leftarg, eval_world, eval_time),
-            semantics.false_at(rightarg, eval_world, eval_time)
+            semantics.false_at(leftarg, eval_point),
+            semantics.false_at(rightarg, eval_point)
         )
 
-    def find_truth_condition(self, leftarg, rightarg, eval_world, eval_time):
+    def find_truth_condition(self, leftarg, rightarg, eval_point):
         """Gets truth-condition for the conjunction of two arguments.
         
         Args:
             leftarg: The left argument of the conjunction
             rightarg: The right argument of the conjunction
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
             
         Returns:
             dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
@@ -212,44 +218,47 @@ class OrOperator(syntactic.Operator):
     name = "\\vee"
     arity = 2
 
-    def true_at(self, leftarg, rightarg, eval_world, eval_time):
+    def true_at(self, leftarg, rightarg, eval_point):
         """Returns true if either argument is true.
         
         Args:
             leftarg: The left argument of the disjunction
             rightarg: The right argument of the disjunction
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
         """
         semantics = self.semantics
         return z3.Or(
-            semantics.true_at(leftarg, eval_world, eval_time),
-            semantics.true_at(rightarg, eval_world, eval_time)
+            semantics.true_at(leftarg, eval_point),
+            semantics.true_at(rightarg, eval_point)
         )
 
-    def false_at(self, leftarg, rightarg, eval_world, eval_time):
+    def false_at(self, leftarg, rightarg, eval_point):
         """Returns true if both arguments are false.
         
         Args:
             leftarg: The left argument of the disjunction
             rightarg: The right argument of the disjunction
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
         """
         semantics = self.semantics
         return z3.And(
-            semantics.false_at(leftarg, eval_world, eval_time),
-            semantics.false_at(rightarg, eval_world, eval_time)
+            semantics.false_at(leftarg, eval_point),
+            semantics.false_at(rightarg, eval_point)
         )
 
-    def find_truth_condition(self, leftarg, rightarg, eval_world, eval_time):
+    def find_truth_condition(self, leftarg, rightarg, eval_point):
         """Gets truth-condition for the disjunction of two arguments.
         
         Args:
             leftarg: The left argument of the disjunction
             rightarg: The right argument of the disjunction
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
             
         Returns:
             dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
@@ -302,26 +311,33 @@ class BotOperator(syntactic.Operator):
     name = "\\bot"
     arity = 0
 
-    def true_at(self, eval_world, eval_time):
+    def true_at(self, eval_point):
         """Returns true if world state != itself (always false)."""
+        # Extract world and time from eval_point
+        eval_world = eval_point["world"]
+        eval_time = eval_point["time"]
         # Get the world array from the world ID
         world_array = self.semantics.world_function(eval_world)
         world_state = z3.Select(world_array, eval_time)
         return world_state != world_state
 
-    def false_at(self, eval_world, eval_time):
+    def false_at(self, eval_point):
         """Returns true if world state == itself (always true)."""
+        # Extract world and time from eval_point
+        eval_world = eval_point["world"]
+        eval_time = eval_point["time"]
         # Get the world array from the world ID
         world_array = self.semantics.world_function(eval_world)
         world_state = z3.Select(world_array, eval_time)
         return world_state == world_state
 
-    def find_truth_condition(self, eval_world, eval_time):
+    def find_truth_condition(self, eval_point):
         """Returns the extension where all times are false at all worlds.
         
         Args:
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
             
         Returns:
             dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
@@ -365,9 +381,12 @@ class NecessityOperator(syntactic.Operator):
     name = "\\Box"
     arity = 1
 
-    def true_at(self, argument, eval_world, eval_time):
+    def true_at(self, argument, eval_point):
         """Returns true if argument is true in all possible worlds at the eval_time."""
         semantics = self.semantics
+        
+        # Extract time from eval_point
+        eval_time = eval_point["time"]
         
         # The argument must be true in all worlds at the eval_time
         other_world = z3.Int('nec_true_world')
@@ -382,13 +401,16 @@ class NecessityOperator(syntactic.Operator):
                     semantics.is_valid_time_for_world(other_world, eval_time),
                 ),
                 # Then the argument is true in other_world at the eval_time
-                semantics.true_at(argument, other_world, eval_time)
+                semantics.true_at(argument, {"world": other_world, "time": eval_time})
             )
         )
 
-    def false_at(self, argument, eval_world, eval_time):
+    def false_at(self, argument, eval_point):
         """Returns true if argument is false in any possible worlds at the eval_time."""
         semantics = self.semantics
+        
+        # Extract time from eval_point
+        eval_time = eval_point["time"]
         
         # The argument must be false in some world at the eval_time
         other_world = z3.Int('nec_true_world')
@@ -401,18 +423,19 @@ class NecessityOperator(syntactic.Operator):
                 # And eval_time is in other_world
                 semantics.is_valid_time_for_world(other_world, eval_time),
                 # And the argument is false in other_world at the eval_time
-                semantics.false_at(argument, other_world, eval_time)
+                semantics.false_at(argument, {"world": other_world, "time": eval_time})
             )
         )
 
-    # TODO: should this use eval_world and eval_time?
-    def find_truth_condition(self, argument, eval_world, eval_time):
+    # TODO: should this use eval_point?
+    def find_truth_condition(self, argument, eval_point):
         """Gets truth-condition for: 'It is necessary that: argument'.
         
         Args:
             argument: The argument to apply necessity to
-            eval_world: The world ID for evaluation context (not used)
-            eval_time: The time for evaluation context (not used)
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context (not used)
+                - "time": The time for evaluation context (not used)
             
         Returns:
             dict: A dictionary mapping world_ids to (true_times, false_times) pairs.
@@ -503,9 +526,14 @@ class FutureOperator(syntactic.Operator):
     name = "\\Future"
     arity = 1
 
-    def true_at(self, argument, eval_world, eval_time):
+    def true_at(self, argument, eval_point):
         """Returns true if argument is true at all future times in this world's interval."""
         semantics = self.semantics
+        
+        # Extract world and time from eval_point
+        eval_world = eval_point["world"]
+        eval_time = eval_point["time"]
+        
         future_time = z3.Int('future_true_time')
         return z3.ForAll(
             future_time,
@@ -517,19 +545,25 @@ class FutureOperator(syntactic.Operator):
                     eval_time < future_time,
                 ),
                 # Then the argument is true in the eval_world at the future_time
-                semantics.true_at(argument, eval_world, future_time),
+                semantics.true_at(argument, {"world": eval_world, "time": future_time}),
             )
         )
     
-    def false_at(self, argument, eval_world, eval_time):
+    def false_at(self, argument, eval_point):
         """Returns true if argument is false at at least one future time in this world's interval.
         
         Args:
             argument: The argument to apply the future operator to
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
         """
         semantics = self.semantics
+        
+        # Extract world and time from eval_point
+        eval_world = eval_point["world"]
+        eval_time = eval_point["time"]
+        
         future_time = z3.Int('future_false_time')
         return z3.Exists(
             future_time,
@@ -539,17 +573,18 @@ class FutureOperator(syntactic.Operator):
                 # Time is in the future of eval_time
                 eval_time < future_time,
                 # And the argument is true in the eval_world at the future_time
-                semantics.false_at(argument, eval_world, future_time),
+                semantics.false_at(argument, {"world": eval_world, "time": future_time}),
             )
         )
     
-    def find_truth_condition(self, argument, eval_world, eval_time):
+    def find_truth_condition(self, argument, eval_point):
         """Gets truth-condition for 'It will always be the case that: argument'.
         
         Args:
             argument: The argument to apply the future operator to
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
             
         Returns:
             dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
@@ -644,15 +679,21 @@ class PastOperator(syntactic.Operator):
     name = "\\Past"
     arity = 1
 
-    def true_at(self, argument, eval_world, eval_time):
+    def true_at(self, argument, eval_point):
         """Returns true if argument is true at all past times in this world's interval.
         
         Args:
             argument: The argument to apply the past operator to
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
         """
         semantics = self.semantics
+        
+        # Extract world and time from eval_point
+        eval_world = eval_point["world"]
+        eval_time = eval_point["time"]
+        
         past_time = z3.Int('past_true_time')
         return z3.ForAll(
             past_time,
@@ -664,19 +705,25 @@ class PastOperator(syntactic.Operator):
                     past_time < eval_time,
                 ),
                 # Then the argument is true at the past_time in the eval_world
-                semantics.true_at(argument, eval_world, past_time),
+                semantics.true_at(argument, {"world": eval_world, "time": past_time}),
             )
         )
     
-    def false_at(self, argument, eval_world, eval_time):
+    def false_at(self, argument, eval_point):
         """Returns true if argument is false at at least one past time in this world's interval.
         
         Args:
             argument: The argument to apply the past operator to
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
         """
         semantics = self.semantics
+        
+        # Extract world and time from eval_point
+        eval_world = eval_point["world"]
+        eval_time = eval_point["time"]
+        
         past_time = z3.Int('past_false_time')
         return z3.Exists(
             past_time,
@@ -686,17 +733,18 @@ class PastOperator(syntactic.Operator):
                 # The past_time is before the eval_time
                 past_time < eval_time,
                 # And the argument is true at the past_time in the eval_world
-                semantics.false_at(argument, eval_world, past_time),
+                semantics.false_at(argument, {"world": eval_world, "time": past_time}),
             )
         )
     
-    def find_truth_condition(self, argument, eval_world, eval_time):
+    def find_truth_condition(self, argument, eval_point):
         """Gets truth-condition for 'It has always been the case that: argument'.
         
         Args:
             argument: The argument to apply the past operator to
-            eval_world: The world ID for evaluation context
-            eval_time: The time for evaluation context
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
             
         Returns:
             dict: A dictionary mapping world_ids to (true_times, false_times) pairs,

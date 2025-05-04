@@ -755,9 +755,10 @@ class BimodalSemantics(SemanticDefaults):
         These behaviors are used to find counterexamples that demonstrate invalidity of arguments
         by showing a case where all premises are true but the conclusion is false.
         """
-        # Use world ID directly instead of the world array
-        premise_behavior = lambda premise: self.true_at(premise, self.main_world, self.main_time)
-        conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_world, self.main_time)
+        # Create main_point dictionary with world and time
+        main_point = {"world": self.main_world, "time": self.main_time}
+        premise_behavior = lambda premise: self.true_at(premise, main_point)
+        conclusion_behavior = lambda conclusion: self.false_at(conclusion, main_point)
         return premise_behavior, conclusion_behavior
         
     def verify_model(self, z3_model, premises, conclusions):
@@ -785,7 +786,8 @@ class BimodalSemantics(SemanticDefaults):
         # Check that all premises are true at the main point
         for premise in premises:
             try:
-                premise_expr = self.true_at(premise, self.main_world, self.main_time)
+                main_point = {"world": self.main_world, "time": self.main_time}
+                premise_expr = self.true_at(premise, main_point)
                 result = z3_model.eval(premise_expr)
                 if not z3.is_true(result):
                     verification_results["premises_verified"] = False
@@ -796,7 +798,8 @@ class BimodalSemantics(SemanticDefaults):
         # Check that all conclusions are false at the main point
         for conclusion in conclusions:
             try:
-                conclusion_expr = self.false_at(conclusion, self.main_world, self.main_time)
+                main_point = {"world": self.main_world, "time": self.main_time}
+                conclusion_expr = self.false_at(conclusion, main_point)
                 result = z3_model.eval(conclusion_expr)
                 if not z3.is_true(result):
                     verification_results["conclusions_verified"] = False
@@ -806,17 +809,22 @@ class BimodalSemantics(SemanticDefaults):
         
         return verification_results
 
-    def true_at(self, sentence, eval_world, eval_time):
-        """Returns a Z3 formula that is satisfied when the sentence is true at the given world at eval_time.
+    def true_at(self, sentence, eval_point):
+        """Returns a Z3 formula that is satisfied when the sentence is true at the given evaluation point.
 
         Args:
             sentence: The sentence to evaluate
-            eval_world: The world ID (integer) at which to evaluate the sentence
-            eval_time: The time point at which to evaluate the sentence
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID (integer) at which to evaluate the sentence
+                - "time": The time point at which to evaluate the sentence
             
         Returns:
-            Z3 formula that is satisfied when sentence is true at eval_world at eval_time
+            Z3 formula that is satisfied when sentence is true at eval_point
         """
+        # Extract world and time from eval_point
+        eval_world = eval_point["world"]
+        eval_time = eval_point["time"]
+        
         # Get the world array from the world ID
         world_array = self.world_function(eval_world)
         
@@ -830,20 +838,21 @@ class BimodalSemantics(SemanticDefaults):
         # recursive case
         operator = sentence.operator  # store operator
         arguments = sentence.arguments or () # store arguments
-        return operator.true_at(*arguments, eval_world, eval_time) # apply semantics
+        return operator.true_at(*arguments, eval_point) # apply semantics
 
-    def false_at(self, sentence, eval_world, eval_time):
-        """Returns a Z3 formula that is satisfied when the sentence is false at eval_world at eval_time.
+    def false_at(self, sentence, eval_point):
+        """Returns a Z3 formula that is satisfied when the sentence is false at the given evaluation point.
 
         Args:
             sentence: The sentence to evaluate
-            eval_world: The world ID at which to evaluate the sentence
-            eval_time: The time point at which to evaluate the sentence
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID at which to evaluate the sentence
+                - "time": The time point at which to evaluate the sentence
             
         Returns:
-            Z3 formula that is satisfied when sentence is false at eval_world at eval_time
+            Z3 formula that is satisfied when sentence is false at eval_point
         """
-        return z3.Not(self.true_at(sentence, eval_world, eval_time))
+        return z3.Not(self.true_at(sentence, eval_point))
 
     def generate_time_intervals(self, M):
         """Generate all valid time intervals of length M that include time 0.

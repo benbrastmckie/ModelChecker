@@ -270,6 +270,27 @@ EX_CM_5_example = [
     EX_CM_5_settings,
 ]
 
+# DISTRIBUTION AND/OR (from t_exclusion.py test_CMP_CM1)
+EX_CM_15_premises = ['((A \\univee B) \\uniwedge (A \\univee B))']
+EX_CM_15_conclusions = ['(A \\uniwedge (B \\univee C))']
+EX_CM_15_settings = {
+    'N' : 3,
+    'possible' : True,
+    'contingent' : True,
+    'non_null' : True,
+    'non_empty' : True,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+    'iterate' : 2,
+    'expectation' : True,
+}
+EX_CM_15_example = [
+    EX_CM_15_premises,
+    EX_CM_15_conclusions,
+    EX_CM_15_settings,
+]
+
 # TODO: scan many models
 # DOUBLE NEGATION IDENTITY
 EX_CM_8_premises = []
@@ -739,6 +760,46 @@ EX_TH_16_example = [
     EX_TH_16_settings
 ]
 
+# DE MORGAN NOT/OR (from t_exclusion.py test_CMP_T1)
+EX_TH_17_premises = ['\\exclude (A \\univee B)']
+EX_TH_17_conclusions = ['(\\exclude A \\uniwedge \\exclude B)']
+EX_TH_17_settings = {
+    'N' : 3,
+    'possible' : True,
+    'contingent' : True,
+    'non_empty' : True,
+    'non_null' : True,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+    'expectation' : False,
+}
+EX_TH_17_example = [
+    EX_TH_17_premises,
+    EX_TH_17_conclusions,
+    EX_TH_17_settings
+]
+
+# DE MORGAN NOT/AND (from t_exclusion.py test_IMP_T2)
+EX_TH_18_premises = ['(A \\uniwedge (B \\univee C))']
+EX_TH_18_conclusions = ['((A \\univee B) \\uniwedge (A \\univee B))']
+EX_TH_18_settings = {
+    'N' : 3,
+    'possible' : True,
+    'contingent' : True,
+    'non_empty' : True,
+    'non_null' : True,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+    'expectation' : False,
+}
+EX_TH_18_example = [
+    EX_TH_18_premises,
+    EX_TH_18_conclusions,
+    EX_TH_18_settings
+]
+
 # DISTRIBUTION IDENTITY: CONJUNCTION OVER DISJUNCTION 
 EX_CM_2_premises = []
 EX_CM_2_conclusions = ['((A \\uniwedge (B \\univee C)) \\uniequiv ((A \\uniwedge B) \\univee (A \\uniwedge C)))']
@@ -882,6 +943,7 @@ test_example_range = {
     "EX_CM_11" : EX_CM_11_example,
     "EX_CM_12" : EX_CM_12_example,
     "EX_CM_13" : EX_CM_13_example,
+    "EX_CM_15" : EX_CM_15_example,
 
     # # Theorems
     "EX_TH_1" : EX_TH_1_example,
@@ -900,6 +962,8 @@ test_example_range = {
     "EX_TH_14" : EX_TH_14_example,
     "EX_TH_15" : EX_TH_15_example,
     "EX_TH_16" : EX_TH_16_example,
+    "EX_TH_17" : EX_TH_17_example,
+    "EX_TH_18" : EX_TH_18_example,
     "EX_CM_2" : EX_CM_2_example,
     "EX_CM_3" : EX_CM_3_example,
     "EX_CM_4" : EX_CM_4_example,
@@ -920,6 +984,7 @@ example_range = {
     # "EX_CM_11" : EX_CM_11_example,
     # "EX_CM_12" : EX_CM_12_example,
     # "EX_CM_13" : EX_CM_13_example,
+    "EX_CM_15" : EX_CM_15_example,
 
     # Theorems
     # "EX_TH_1" : EX_TH_1_example,
@@ -938,6 +1003,8 @@ example_range = {
     # "EX_TH_14" : EX_TH_14_example,
     # "EX_TH_15" : EX_TH_15_example,
     # "EX_TH_16" : EX_TH_16_example,
+    "EX_TH_17" : EX_TH_17_example,
+    "EX_TH_18" : EX_TH_18_example,
     # "EX_CM_2" : EX_CM_2_example,
     # "EX_CM_3" : EX_CM_3_example,
     # "EX_CM_4" : EX_CM_4_example,
