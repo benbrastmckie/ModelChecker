@@ -1561,10 +1561,9 @@ class RelevanceOperator(syntactic.Operator):
                 - falsifiers (set): Contains null_state if A is not relevant to B, empty otherwise
         """
         product = self.semantics.product
-        coproduct = self.semantics.coproduct
         Y_V, Y_F = left_sent_obj.proposition.find_proposition()
         Z_V, Z_F = right_sent_obj.proposition.find_proposition()
-        if product(Y_V, Z_V) == Z_V and coproduct(Y_F, Z_F) == Z_F:
+        if product(Y_V, Z_V).issubset(Z_V) and product(Y_F, Z_F).issubset(Z_F):
             return {self.semantics.null_state}, set()
         return set(), {self.semantics.null_state}
     

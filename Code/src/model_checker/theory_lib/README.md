@@ -223,7 +223,7 @@ Follow these steps to develop and contribute a new theory to the ModelChecker pr
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/benjaminbrastmckie/ModelChecker.git
+   git clone https://github.com/benbrastmckie/ModelChecker.git
    cd ModelChecker
    ```
 
