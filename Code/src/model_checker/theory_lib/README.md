@@ -13,6 +13,7 @@ The library follows a modular architecture that allows:
 
 ## Available Theories
 
+For a detailed overview of the standard architecture that each theory follows, see [THEORY_ARCHITECTURE.md](THEORY_ARCHITECTURE.md).
 The library currently includes the following theories:
 
 ### Default Theory (Hyperintensional Semantics)
@@ -29,6 +30,8 @@ The library currently includes the following theories:
   - Counterfactual conditionals via alternatives
   - Constitutive operators for essence, ground, and identity
 
+More information abut the default theory can be found in [default/README.md](default/README.md).
+
 ### Exclusion Theory
 
 - **Primary Authors**: Lucas Champollion & Paul Bernard
@@ -39,6 +42,8 @@ The library currently includes the following theories:
   - Unilateral operators (conjunction, disjunction)
   - Exclusion operator
   - Alternative approach to counterfactual semantics
+
+More information abut the exclusion theory can be found in [exclusion/README.md](exclusion/README.md).
 
 ### Imposition Theory
 
@@ -53,6 +58,8 @@ The library currently includes the following theories:
   - Could operator for possibility
   - Distinctive approach to counterfactual reasoning
 
+More information abut the imposition theory can be found in [imposition/README.md](imposition/README.md).
+
 ### Bimodal Theory
 
 - **Theory Author**: Benjamin Brast-McKie
@@ -63,9 +70,16 @@ The library currently includes the following theories:
   - Interaction between different modal operators
   - Extended framework for reasoning about time and possibility
 
-For a detailed overview of the standard architecture that each theory follows, see [THEORY_ARCHITECTURE.md](THEORY_ARCHITECTURE.md).
+More information abut the bimodal theory can be found in [bimodal/README.md](bimodal/README.md).
 
 ## Using Theories
+
+This section includes details for the following:
+
+- Import Strategies
+- Basic Usage Examples
+- Theory Selection and Configuration
+- Comparing Theories
 
 ### Import Strategies
 

@@ -5,10 +5,13 @@
 
 ## Plan
 
+- [ ] other
+  - [ ] make `eval_point` uniform
 - [ ] theory docs
-  - [ ] `README.md`
   - [ ] `jupyter/README.md`
   - [ ] `tests/README.md`
+  - [:] `README.md`
+    - [ ] reorganize
   - [x] `THEORY_ARCHITECTURE.md`
 - [ ] default semantic
   - [ ] improve name
