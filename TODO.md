@@ -6,7 +6,7 @@
 
 - [.] jupyter
   - [.] demos
-    - [ ] default
+    - [x] default
     - [ ] bimodal
     - [ ] imposition
     - [x] exclusion
