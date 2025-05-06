@@ -1374,8 +1374,9 @@ class BimodalProposition(PropositionDefaults):
             
         elif self.operator is not None:
             # For complex sentences, delegate to the operator's find_truth_condition method
-            # Consistently use world ID
-            return self.operator.find_truth_condition(*arguments, self.eval_world, self.eval_time)
+            # Create an eval_point dictionary to pass world and time consistently
+            eval_point = {"world": self.eval_world, "time": self.eval_time}
+            return self.operator.find_truth_condition(*arguments, eval_point)
             
         raise ValueError(f"There is no proposition for {self}.")
 
