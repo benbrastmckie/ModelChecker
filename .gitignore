@@ -6,6 +6,9 @@
 *.log
 *.synctex.gz
 *.pyc
+*.ipynb_checkpoints
+**/CLAUDE.md
+
 Code/__pycache__
 Examples/__pycache__
 model_checker/package/__pycache__
@@ -30,7 +33,6 @@ s10988-023-09407-z.pdf
 Code/src/new_checker/__pycache__/exposed_things.cpython-312.pyc
 Code/src/new_checker/__pycache__/hidden_helpers.cpython-312.pyc
 Code/.venv
-Code/CLAUDE.md
 
 # Ignore all directories named 'notes' anywhere in the repository
 notes/

@@ -221,10 +221,15 @@ For questions or assistance, please open an [issue](https://github.com/benbrastm
 
 Follow these steps to develop and contribute a new theory to the ModelChecker project:
 
-1. **Clone the Repository**:
+1. **Fork and Clone**:
    ```bash
-   git clone https://github.com/benbrastmckie/ModelChecker.git
+   # First, fork the repository on GitHub
+   # Then clone your fork
+   git clone https://github.com/YOUR-USERNAME/ModelChecker.git
    cd ModelChecker
+   
+   # Add the original repo as upstream
+   git remote add upstream https://github.com/benbrastmckie/ModelChecker.git
    ```
 
 2. **Create a New Branch**:
@@ -281,14 +286,36 @@ Follow these steps to develop and contribute a new theory to the ModelChecker pr
 
 8. **Submit a Pull Request**:
    ```bash
-   # Commit your changes
+   # Ensure your fork is up to date with upstream
+   git fetch upstream
+   git checkout main
+   git merge upstream/main
+   
+   # Switch back to your feature branch and rebase on main
+   git checkout theory/my-new-theory
+   git rebase main
+   
+   # Stage and commit your changes
    git add Code/src/model_checker/theory_lib/my_theory
    git add Code/src/model_checker/theory_lib/__init__.py
    git commit -m "Add MyTheory implementation"
    
    # Push to your fork
-   git push origin theory/my-new-theory
+   git push -u origin theory/my-new-theory
    ```
+   
+   Then go to your fork on GitHub and click "Compare & pull request". In your pull request:
+   - Use a clear title that describes your theory (e.g. "Add MyTheory implementation")
+   - Provide a detailed description including:
+     - Overview of your semantic theory
+     - Key features and innovations
+     - References to relevant papers
+     - Example use cases
+     - Any special requirements or dependencies
+   - Check that the "base repository" is set to the main ModelChecker repo
+   - Check that the "base" branch is `main`
+   - Check that the "head repository" is your fork
+   - Check that the "compare" branch is `theory/my-new-theory`
    
    Then open a pull request on GitHub with:
    - A clear description of your theory

@@ -95,7 +95,7 @@ CL_CM_2_example = [
 
 # CL_CM_3: GROUND CONJUNCTION SUPPLEMENTATION
 CL_CM_3_premises = ['(A \\leq B)','(C \\leq D)']
-CL_CM_3_conclusions = ['((A \\vee C) \\leq (B \\vee D))']
+CL_CM_3_conclusions = ['((A \\wedge C) \\leq (B \\wedge D))']
 CL_CM_3_settings = {
     'N' : 3,
     'contingent' : True,
@@ -114,7 +114,7 @@ CL_CM_3_example = [
 
 # CL_CM_4: ESSENCE DISJUNCTION SUPPLEMENTATION
 CL_CM_4_premises = ['(A \\sqsubseteq B)','(C \\sqsubseteq D)']
-CL_CM_4_conclusions = ['((A \\wedge C) \\sqsubseteq (B \\wedge D))']
+CL_CM_4_conclusions = ['((A \\vee C) \\sqsubseteq (B \\vee D))']
 CL_CM_4_settings = {
     'N' : 3,
     'contingent' : True,

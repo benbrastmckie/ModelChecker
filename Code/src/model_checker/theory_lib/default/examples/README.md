@@ -11,6 +11,7 @@ This directory contains organized collections of logical examples for the defaul
 - [Example Collections](#example-collections)
 - [Testing with Examples](#testing-with-examples)
 - [Adding New Examples](#adding-new-examples)
+- [Jupyter Notebooks](#jupyter-notebooks)
 
 ## Module Organization
 
@@ -207,3 +208,17 @@ example_range = {
     # uncomment other examples as needed
 }
 ```
+
+## Jupyter Notebooks
+
+Interactive Jupyter notebooks are available for each example category in the [notebooks](../notebooks/) directory. These notebooks provide a more interactive way to explore the examples and visualize the model structures.
+
+| Example Module | Corresponding Notebook |
+|----------------|------------------------|
+| `counterfactual.py` | [counterfactual.ipynb](../notebooks/counterfactual.ipynb) |
+| `constitutive.py` | [constitutive.ipynb](../notebooks/constitutive.ipynb) |
+| `modal.py` | [modal.ipynb](../notebooks/modal.ipynb) |
+| `extensional.py` | [extensional.ipynb](../notebooks/extensional.ipynb) |
+| `relevance.py` | [relevance.ipynb](../notebooks/relevance.ipynb) |
+
+For detailed documentation on the notebooks, see the [notebooks README](../notebooks/README.md).
