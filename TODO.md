@@ -4,10 +4,12 @@
 
 ### High Priority
 
-- [ ] `verify_model`
-  - [ ] merge from other branch
-  - [ ] move to `model.py`
-- [ ] jupyter
+- [.] jupyter
+  - [.] demos
+    - [ ] default
+    - [ ] bimodal
+    - [ ] imposition
+    - [x] exclusion
   - [ ] `jupyter/README.md`
 - [ ] theory metadata
   - [ ] licence
@@ -16,6 +18,14 @@
     - model_checker versioning
 
 ### Refactoring
+
+- settings
+  - imposition
+  - add link in `theory_lib/README.md`
+
+- [ ] `verify_model`
+  - [ ] merge from other branch
+  - [ ] move to `model.py`
 
 - make subpackage
   - utils
