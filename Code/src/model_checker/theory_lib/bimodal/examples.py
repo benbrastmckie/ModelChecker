@@ -643,8 +643,8 @@ example_range = {
     # Bimodal Countermodel
     # "BM_CM_1" : BM_CM_1_example,
     # "BM_CM_2" : BM_CM_2_example,
-    "BM_CM_3" : BM_CM_3_example,
-    "BM_CM_4" : BM_CM_4_example,
+    # "BM_CM_3" : BM_CM_3_example,
+    # "BM_CM_4" : BM_CM_4_example,
 
     ### THEOREMS ###
 

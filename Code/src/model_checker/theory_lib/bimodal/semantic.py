@@ -1359,7 +1359,7 @@ class BimodalProposition(PropositionDefaults):
                     # Pass the world_id directly to the true_at method
                     # Allow Z3 exceptions to propagate naturally - fail fast
                     truth_expr = self.model_structure.semantics.true_at(
-                        self.sentence, world_id, time
+                        self.sentence, {"world" : world_id, "time" : time}
                     )
                     evaluated_expr = self.z3_model.evaluate(truth_expr)
                     if z3.is_true(evaluated_expr):
