@@ -5,8 +5,10 @@
 ### High Priority
 
 - [ ] `verify_model`
+  - [ ] merge from other branch
   - [ ] move to `model.py`
-- [ ] `jupyter/README.md`
+- [ ] jupyter
+  - [ ] `jupyter/README.md`
 - [ ] theory metadata
   - [ ] licence
   - versioning
