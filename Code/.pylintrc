@@ -3,6 +3,7 @@ init-hook='import sys; sys.path.append("/nix/store/gga7w47nbyf13ap1f1pvp9ik146z6
 init-hook='import sys; sys.path.append("src")'
 init-hook='import sys; sys.path.append("src/model_checker")'
 ; init-hook='import sys; sys.path.append("src/new_checker")'
+ignore=*.ipynb
 
 [pytest]
 testpaths = src/model_checker/test
