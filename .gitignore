@@ -36,3 +36,4 @@ Code/CLAUDE.md
 notes/
 **/notes/
 Code/src/model_checker/builder/notes_
+*.ipynb_checkpoints
