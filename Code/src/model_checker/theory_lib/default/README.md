@@ -368,8 +368,12 @@ default/
 ├── README.md             # Documentation (this file)
 ├── semantic.py           # Core semantic classes
 ├── notebooks/            # Jupyter notebook examples
-│   ├── default_demo.ipynb  # Interactive demos
-│   └── README.md         # Notebook documentation
+│   ├── README.md         # Notebook documentation
+│   ├── constitutive.ipynb  # Interactive constitutive logic demos
+│   ├── counterfactual.ipynb # Interactive counterfactual logic demos
+│   ├── extensional.ipynb   # Interactive extensional logic demos
+│   ├── modal.ipynb        # Interactive modal logic demos
+│   └── relevance.ipynb    # Interactive relevance logic demos
 └── tests/                # Test suite
     ├── __init__.py       # Test package initialization
     ├── test_default.py   # Main theory tests
@@ -499,11 +503,12 @@ The `examples/` package contains a comprehensive collection of logical inference
 See the [Examples README](examples/README.md) for detailed documentation on each module.
 
 The main entry point is `examples/__init__.py`, which provides:
-
 - Consolidated collections of examples from all modules
 - Testing of logical properties across theories
 - Comparison between semantic theories
 - Flexible unit test specification
+
+##### Example Structure
 
 Each example is structured as a list containing premises, conclusions, and settings:
 
@@ -535,6 +540,29 @@ This modular organization provides several benefits:
 - Easier navigation of similar examples
 - More maintainable codebase 
 - Ability to extend with new example categories without modifying existing code
+
+#### Jupyter Notebooks
+
+The `notebooks/` directory contains interactive Jupyter notebooks for exploring the default theory:
+
+- `constitutive.ipynb`: Interactive demonstration of ground, essence, and identity operators
+- `counterfactual.ipynb`: Examples of counterfactual reasoning patterns and countermodels
+- `extensional.ipynb`: Classical logic with focus on conjunction, disjunction, and material implication
+- `modal.ipynb`: Exploration of necessity and possibility operators with modal axioms
+- `relevance.ipynb`: Content-sensitive relevance logic demonstrations
+
+Each notebook provides:
+- Visual model structure exploration with color-coded states
+- Step-by-step evaluation of premises and conclusions
+- Verification and falsification patterns for each formula
+- Direct correspondence with examples in the `examples/` package
+
+Notebooks offer an excellent starting point for users to:
+- Understand why certain arguments are valid or invalid
+- Visualize the semantic structure underlying logical operators
+- Explore the relationships between different logical systems
+
+See the [Notebooks README](notebooks/README.md) for comprehensive documentation on usage and output formats.
 
 #### Iterate.py
 
