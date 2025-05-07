@@ -3,6 +3,15 @@
 This module provides the BuildProject class for creating new theory implementation 
 projects from templates. It handles directory structure creation, file copying, 
 and initial setup of new modal logic theory implementations.
+
+Each new theory created includes:
+- Version information (theory-specific and model-checker version compatibility)
+- License files (GPL-3.0 by default)
+- Citation templates for academic attribution
+- Standard theory implementation structure
+
+The BuildProject ensures all new theories adhere to the project's licensing
+and code structure requirements automatically.
 """
 
 import os
@@ -192,21 +201,149 @@ class BuildProject:
             with open(init_path, 'r', encoding='utf-8') as f:
                 content = f.read()
                 
-            # Get current version
-            version = self._get_current_version()
+            # Get core package version and add theory version
+            model_checker_version = self._get_current_version()
+            theory_version = "0.1.0"  # Initial version for all new theories
             
-            # Replace version in content
-            # Look specifically for the __version__ line and replace it
-            import re
-            version_pattern = re.compile(r'__version__\s*=\s*["\'].*?["\']')
-            new_content = version_pattern.sub(f'__version__ = "{version}"', content)
-            
-            # If no replacement was made (no pattern match), default to simple replacement
-            if new_content == content:
-                new_content = content.replace('__version__ = "unknown"', f'__version__ = "{version}"')
+            # Update the content with both versions
+            new_content = self._update_version_info(content, model_checker_version, theory_version)
             
             with open(init_path, 'w', encoding='utf-8') as f:
                 f.write(new_content)
+        
+        # Add LICENSE.md file if it doesn't exist
+        self._add_license_file(project_dir)
+        
+        # Add CITATION.md file if it doesn't exist
+        self._add_citation_file(project_dir)
+    
+    def _update_version_info(self, content, model_checker_version, theory_version):
+        """Update version information in content.
+        
+        Args:
+            content (str): The file content to update
+            model_checker_version (str): Current model_checker version
+            theory_version (str): Initial theory version
+            
+        Returns:
+            str: Updated content with version information
+        """
+        import re
+        
+        # Update model_checker_version
+        mc_version_pattern = re.compile(
+            r'__model_checker_version__\s*=\s*["\'].*?["\']'
+        )
+        
+        # Try to replace existing model_checker_version
+        mc_replaced = False
+        if '__model_checker_version__' in content:
+            content = mc_version_pattern.sub(
+                f'__model_checker_version__ = "{model_checker_version}"', 
+                content
+            )
+            mc_replaced = True
+        
+        # Update theory version
+        version_pattern = re.compile(r'__version__\s*=\s*["\'].*?["\']')
+        
+        # Try to replace existing version
+        version_replaced = False
+        if '__version__' in content:
+            content = version_pattern.sub(f'__version__ = "{theory_version}"', content)
+            version_replaced = True
+        
+        # If neither was found, we need to add them
+        if not mc_replaced or not version_replaced:
+            # Add import for get_model_checker_version
+            if 'from model_checker.utils import get_model_checker_version' not in content:
+                import_pattern = re.compile(r'(from[\s\S]*?\n\n|import[\s\S]*?\n\n)')
+                content = import_pattern.sub(
+                    r'\1# Import version utilities\nfrom model_checker.utils import get_model_checker_version\n\n',
+                    content
+                )
+            
+            # Look for a good place to add version information
+            # Try before __all__ list
+            all_pattern = re.compile(r'__all__\s*=\s*\[')
+            if all_pattern.search(content):
+                # Add version info before __all__
+                version_block = f"\n# Version information\n__version__ = \"{theory_version}\"  # Theory version\n__model_checker_version__ = \"{model_checker_version}\"  # ModelChecker version this was built with\n\n"
+                content = all_pattern.sub(version_block + "__all__ = [", content)
+                
+                # Also update the __all__ list to include version attributes
+                all_content_pattern = re.compile(r'__all__\s*=\s*\[([\s\S]*?)\]')
+                all_content_match = all_content_pattern.search(content)
+                if all_content_match:
+                    all_items = all_content_match.group(1)
+                    if '"__version__"' not in all_items and "'__version__'" not in all_items:
+                        # Add version attributes to __all__
+                        updated_all = all_items.rstrip() + ',\n    "__version__",                # Theory version information\n    "__model_checker_version__",  # Compatible ModelChecker version\n'
+                        content = all_content_pattern.sub(f"__all__ = [{updated_all}]", content)
+            else:
+                # Just append to the end
+                content += f"\n# Version information\n__version__ = \"{theory_version}\"\n__model_checker_version__ = \"{model_checker_version}\"\n"
+        
+        return content
+    
+    def _add_license_file(self, project_dir):
+        """Add a license file to the project if it doesn't exist.
+        
+        Args:
+            project_dir (str): Path to the project directory
+        """
+        license_path = os.path.join(project_dir, "LICENSE.md")
+        if not os.path.exists(license_path):
+            try:
+                # Import the license template function
+                from model_checker.utils import get_license_template
+                
+                # Generate license text
+                license_text = get_license_template("GPL-3.0")
+                
+                # Write license file
+                with open(license_path, 'w', encoding='utf-8') as f:
+                    f.write(license_text)
+                
+                self.log(f"Created LICENSE.md file")
+            except Exception as e:
+                self.log(f"Error creating license file: {str(e)}", "WARNING")
+    
+    def _add_citation_file(self, project_dir):
+        """Add a citation file to the project if it doesn't exist.
+        
+        Args:
+            project_dir (str): Path to the project directory
+        """
+        citation_path = os.path.join(project_dir, "CITATION.md")
+        if not os.path.exists(citation_path):
+            try:
+                # Get current year
+                import datetime
+                year = datetime.datetime.now().year
+                
+                # Generate citation text
+                citation_text = f"""# Citation Information
+
+If you use this theory implementation in academic work, please cite:
+
+[Author]. ({year}). [Theory Name]: A semantic theory implementation for the
+ModelChecker framework.
+
+## Theory Implementation Notes
+
+This theory implementation is part of the ModelChecker framework.
+For more detailed information about the theory's mathematical foundations,
+please include additional references here.
+"""
+                
+                # Write citation file
+                with open(citation_path, 'w', encoding='utf-8') as f:
+                    f.write(citation_text)
+                
+                self.log(f"Created CITATION.md file")
+            except Exception as e:
+                self.log(f"Error creating citation file: {str(e)}", "WARNING")
     
     def _get_current_version(self):
         """Extract the current version from the installed model-checker package.
@@ -215,28 +352,33 @@ class BuildProject:
             str: Current version number, or fallback version if not found
         """
         try:
-            # First try to get version from importlib.metadata (most reliable)
+            # First try to use the utility function
             try:
-                from importlib.metadata import version
-                return version("model-checker")
-            except (ImportError, ModuleNotFoundError):
-                # Fallback to package __version__
-                from model_checker import __version__
-                if __version__ != "unknown":
-                    return __version__
-                
-                # Final fallback to pyproject.toml
-                current_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-                pyproject_path = os.path.join(current_dir, 'pyproject.toml')
-                
-                if os.path.exists(pyproject_path):
-                    with open(pyproject_path, 'r', encoding='utf-8') as f:
-                        content = f.read()
-                        
-                    # Find version line
-                    for line in content.split('\n'):
-                        if line.strip().startswith('version = '):
-                            return line.split('=')[1].strip().strip('"\'')
+                from model_checker.utils import get_model_checker_version
+                return get_model_checker_version()
+            except ImportError:
+                # Fallback to importlib.metadata
+                try:
+                    from importlib.metadata import version
+                    return version("model-checker")
+                except (ImportError, ModuleNotFoundError):
+                    # Fallback to package __version__
+                    from model_checker import __version__
+                    if __version__ != "unknown":
+                        return __version__
+                    
+                    # Final fallback to pyproject.toml
+                    current_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+                    pyproject_path = os.path.join(current_dir, 'pyproject.toml')
+                    
+                    if os.path.exists(pyproject_path):
+                        with open(pyproject_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                            
+                        # Find version line
+                        for line in content.split('\n'):
+                            if line.strip().startswith('version = '):
+                                return line.split('=')[1].strip().strip('"\'')
             
             return "unknown"  # Fallback to unknown
             

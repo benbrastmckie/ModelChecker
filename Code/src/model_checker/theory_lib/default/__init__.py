@@ -53,15 +53,21 @@ from .operators import default_operators
 # Import iteration functionality
 from .iterate import DefaultModelIterator, iterate_example
 
-__version__ = "unknown"
+# Import version utilities
+from model_checker.utils import get_model_checker_version
+
+# Version information
+__version__ = "1.0.0"  # Theory version
+__model_checker_version__ = get_model_checker_version()  # ModelChecker version this was built with
 
 # Define the public API of the package
 __all__ = [
-    "Semantics",             # Configures semantic framework and evaluation rules
-    "Proposition",           # Represents and evaluates logical formulas
-    "ModelStructure",        # Manages model's state space and accessibility relations
-    "default_operators",     # Standard logical operators (¬,∧,∨,→,←→,□,◇,etc.)
-    "DefaultModelIterator",  # Iterator for finding multiple models
-    "iterate_example",       # Function to find multiple models for an example
-    "__version__",           # Package version information
+    "Semantics",                  # Configures semantic framework and evaluation rules
+    "Proposition",                # Represents and evaluates logical formulas
+    "ModelStructure",             # Manages model's state space and accessibility relations
+    "default_operators",          # Standard logical operators (¬,∧,∨,→,←→,□,◇,etc.)
+    "DefaultModelIterator",       # Iterator for finding multiple models
+    "iterate_example",            # Function to find multiple models for an example
+    "__version__",                # Theory version information
+    "__model_checker_version__",  # Compatible ModelChecker version
 ]

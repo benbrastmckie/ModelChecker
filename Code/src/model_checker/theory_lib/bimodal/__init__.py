@@ -29,6 +29,9 @@ Usage:
     from model_checker.theory_lib.bimodal import bimodal_operators
     from model_checker.theory_lib import get_examples
 
+# Import version utilities
+from model_checker.utils import get_model_checker_version
+
     # Create a semantics and model structure
     semantics = BimodalSemantics(settings)
     model = BimodalStructure(semantics)
@@ -45,6 +48,9 @@ Usage:
     examples = get_examples('bimodal')
 """
 
+# Import version utilities
+from model_checker.utils import get_model_checker_version
+
 # Import specific items from semantic
 from .semantic import (
     BimodalSemantics,
@@ -52,15 +58,27 @@ from .semantic import (
     BimodalStructure,
 )
 
+# Import version utilities
+from model_checker.utils import get_model_checker_version
+
 # Import operators collection
 from .operators import bimodal_operators
+
+# Import version utilities
+from model_checker.utils import get_model_checker_version
 
 # Import iteration functionality
 from .iterate import BimodalModelIterator, iterate_example
 
-__version__ = "unknown"
+# Import version utilities
+from model_checker.utils import get_model_checker_version
+
+__version__ = "1.0.0"
 
 # Define the public API of the package
+
+# Version information
+__model_checker_version__ = "0.9.20"  # ModelChecker version this was built with
 __all__ = [
     "BimodalSemantics",       # Configures semantic framework with temporal and modal operators
     "BimodalProposition",     # Represents and evaluates formulas in temporal-modal contexts
@@ -68,5 +86,6 @@ __all__ = [
     "bimodal_operators",      # Logical operators (¬,∧,∨,→,↔,□,◇,⏵,⏴,etc.)
     "BimodalModelIterator",   # Iterator for finding multiple distinct models
     "iterate_example",        # Function to find multiple distinct models
-    "__version__",            # Package version information
+    "__version__",            # Package version information,
+    "__model_checker_version__",  # Compatible ModelChecker version
 ]

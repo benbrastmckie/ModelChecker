@@ -43,6 +43,26 @@ The `model-checker` includes a growing library of semantic theories, each of whi
 
 Once the extension of a semantic theory has been adequately explored with adequate results, that theory can be included in the `TheoryLib`.
 
+## Licensing
+
+ModelChecker is licensed under the GNU General Public License v3.0 (GPL-3.0). This license ensures that the software remains free and open-source. Key aspects of the licensing include:
+
+- **Core Package**: The main ModelChecker framework is licensed under GPL-3.0
+- **Theory Library**: All theories in the `theory_lib` directory are also individually licensed under GPL-3.0
+- **Derivative Works**: According to GPL-3.0 terms, any derivative works, including new theories based on existing ones, must maintain the same license
+- **Academic Attribution**: Each theory includes a CITATION.md file with proper academic attribution information
+
+### Contributing New Theories
+
+When contributing a new theory to the ModelChecker framework:
+
+1. Your contribution must be compatible with the GPL-3.0 license
+2. Your theory will be automatically licensed under GPL-3.0 when added to the theory library
+3. You retain copyright for your specific implementation but grant license under GPL-3.0
+4. Academic attribution for your theory will be maintained in CITATION.md
+
+The licensing structure is designed to ensure that the ModelChecker ecosystem remains open and accessible while providing proper attribution to theory authors.
+
 ## Installation
 
 ### Basic Installation

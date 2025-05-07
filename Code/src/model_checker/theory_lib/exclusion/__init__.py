@@ -28,6 +28,9 @@ Usage:
     from model_checker.theory_lib.exclusion import exclusion_operators
     from model_checker.theory_lib import get_examples
 
+# Import version utilities
+from model_checker.utils import get_model_checker_version
+
     # Create a semantics and model structure
     semantics = ExclusionSemantics(settings)
     model = ExclusionStructure(semantics)
@@ -44,7 +47,10 @@ Usage:
     examples = get_examples('exclusion')
 """
 
-__version__ = "unknown"
+# Import version utilities
+from model_checker.utils import get_model_checker_version
+
+__version__ = "1.0.0"
 
 # Import specific items from semantic
 from .semantic import (
@@ -53,13 +59,25 @@ from .semantic import (
     ExclusionStructure,
 )
 
+# Import version utilities
+from model_checker.utils import get_model_checker_version
+
 # Import all operators
 from .operators import exclusion_operators
+
+# Import version utilities
+from model_checker.utils import get_model_checker_version
 
 # Import iteration functionality
 from .iterate import ExclusionModelIterator, iterate_example
 
+# Import version utilities
+from model_checker.utils import get_model_checker_version
+
 # Define the public API of the package
+
+# Version information
+__model_checker_version__ = "0.9.20"  # ModelChecker version this was built with
 __all__ = [
     "ExclusionSemantics",     # Exclusion semantics framework and evaluation rules
     "UnilateralProposition",  # Represents formulas with unilateral verification
@@ -67,5 +85,6 @@ __all__ = [
     "exclusion_operators",    # Unilateral logical operators (⊻,⊓,⊔,≔,etc.)
     "ExclusionModelIterator", # Iterator for finding multiple distinct models
     "iterate_example",        # Function to find multiple distinct models
-    "__version__",            # Package version information
+    "__version__",            # Package version information,
+    "__model_checker_version__",  # Compatible ModelChecker version
 ]

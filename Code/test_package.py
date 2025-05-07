@@ -10,6 +10,7 @@ import sys
 import glob
 import argparse
 import subprocess
+import importlib.util
 from typing import List, Optional, Dict
 
 def discover_components() -> Dict[str, str]:
@@ -22,7 +23,7 @@ def discover_components() -> Dict[str, str]:
     code_dir = os.path.dirname(__file__)
     src_dir = os.path.join(code_dir, 'src', 'model_checker')
     
-    # Find all test directories (excluding theory_lib tests)
+    # Find all test directories
     components = {}
     
     # Check top-level utils tests
@@ -32,16 +33,19 @@ def discover_components() -> Dict[str, str]:
     
     # Check subdirectory tests
     for item in os.listdir(src_dir):
-        # Skip theory_lib as it's handled by theory_tests.py
-        if item == 'theory_lib':
-            continue
-            
         item_path = os.path.join(src_dir, item)
         if os.path.isdir(item_path):
             # Check if there's a tests subdirectory
             test_dir = os.path.join(item_path, 'tests')
             if os.path.exists(test_dir) and os.path.isdir(test_dir):
-                components[item] = os.path.join("src", "model_checker", item, "tests")
+                # Skip theory-specific tests in theory_lib (these are handled by test_theories.py)
+                if item == 'theory_lib':
+                    # Add only theory_lib common tests (not individual theory tests)
+                    theory_test_files = glob.glob(os.path.join(test_dir, "test_*.py"))
+                    if theory_test_files:
+                        components['theory_lib'] = os.path.join("src", "model_checker", "theory_lib", "tests")
+                else:
+                    components[item] = os.path.join("src", "model_checker", item, "tests")
     
     return components
 
@@ -58,6 +62,27 @@ def list_available_components() -> None:
         print(f"  - {name} ({path})")
     print()
     print("Run tests with: python test_package.py [--components component1 component2 ...]")
+
+def setup_environment():
+    """Set up the environment for running tests and metadata operations.
+    
+    This ensures PYTHONPATH includes the src directory for proper imports.
+    
+    Returns:
+        dict: Environment with PYTHONPATH properly set
+    """
+    code_dir = os.path.dirname(__file__)
+    src_path = os.path.join(code_dir, 'src')
+    
+    # Add src directory to Python path for importing modules
+    if src_path not in sys.path:
+        sys.path.insert(0, src_path)
+    
+    # Create environment with PYTHONPATH set for subprocess calls
+    env = os.environ.copy()
+    env['PYTHONPATH'] = src_path
+    
+    return env
 
 def run_package_tests(
     components: Optional[List[str]] = None, 
@@ -81,10 +106,9 @@ def run_package_tests(
         list_available_components()
         return 0
     
-    # We're now in the Code directory
+    # Set up environment and get code directory
+    env = setup_environment()
     code_dir = os.path.dirname(__file__)
-    env = os.environ.copy()
-    env['PYTHONPATH'] = os.path.join(code_dir, 'src')
     
     # Get the list of available components
     available_components = discover_components()
@@ -163,32 +187,144 @@ def run_package_tests(
     
     return 1 if failed_components else 0
 
+def run_metadata_operations(args):
+    """Run metadata management operations.
+    
+    Args:
+        args: Command-line arguments
+    
+    Returns:
+        int: Exit code (0 for success, 1 for failure)
+    """
+    try:
+        # Set up environment
+        setup_environment()
+        
+        # Import metadata functions directly
+        from model_checker.theory_lib.meta_data import (
+            update_all_theory_versions,
+            create_all_license_files,
+            create_all_citation_files,
+            verify_metadata_consistency,
+            print_metadata_report
+        )
+        
+        # Process commands
+        if args.update_versions:
+            print(f"Updating all theory versions to {args.update_versions}...")
+            results = update_all_theory_versions(args.update_versions)
+            print("Update results:")
+            for theory, version in results.items():
+                print(f"  {theory}: {version}")
+            print()
+        
+        if args.create_licenses:
+            print(f"Creating {args.license_type} license files...")
+            author_info = {"name": args.author} if args.author else None
+            results = create_all_license_files(args.license_type, author_info)
+            print("License creation results:")
+            for theory, success in results.items():
+                status = "Success" if success else "Failed"
+                print(f"  {theory}: {status}")
+            print()
+        
+        if args.create_citations:
+            print("Creating citation files...")
+            author_info = {"name": args.author} if args.author else None
+            results = create_all_citation_files(author_info)
+            print("Citation creation results:")
+            for theory, success in results.items():
+                status = "Success" if success else "Failed"
+                print(f"  {theory}: {status}")
+            print()
+        
+        # Always print the report if specified, or if no other actions were taken
+        if args.metadata_report or not (args.update_versions or args.create_licenses or args.create_citations):
+            print_metadata_report()
+        
+        return 0
+    except Exception as e:
+        print(f"Error running metadata operations: {e}")
+        return 1
+
 def main():
     """Main entry point for the script."""
     parser = argparse.ArgumentParser(description="Run tests for ModelChecker package components")
-    parser.add_argument(
+    
+    # Testing-related arguments
+    test_group = parser.add_argument_group("Test Options")
+    test_group.add_argument(
         "--components", 
         nargs="+", 
         help="Components to test. Default: all available components."
     )
-    parser.add_argument(
+    test_group.add_argument(
         "--verbose", "-v", 
         action="store_true", 
         help="Enable verbose output"
     )
-    parser.add_argument(
+    test_group.add_argument(
         "--failfast", "-x", 
         action="store_true", 
         help="Stop after first failure"
     )
-    parser.add_argument(
+    test_group.add_argument(
         "--list", "-l", 
         action="store_true",
         help="List available components"
     )
     
+    # Metadata-related arguments
+    metadata_group = parser.add_argument_group("Metadata Management")
+    metadata_group.add_argument(
+        "--metadata-report", 
+        action="store_true", 
+        help="Print metadata consistency report"
+    )
+    metadata_group.add_argument(
+        "--update-versions", 
+        metavar="VERSION", 
+        help="Update all theory versions to specified value"
+    )
+    metadata_group.add_argument(
+        "--create-licenses", 
+        action="store_true", 
+        help="Create license files for all theories"
+    )
+    metadata_group.add_argument(
+        "--create-citations", 
+        action="store_true", 
+        help="Create citation files for all theories"
+    )
+    metadata_group.add_argument(
+        "--author", 
+        metavar="NAME", 
+        help="Author name for license and citation files"
+    )
+    metadata_group.add_argument(
+        "--license-type", 
+        metavar="TYPE", 
+        default="GPL-3.0", 
+        help="License type (default: GPL-3.0)"
+    )
+    
     args = parser.parse_args()
-    exit_code = run_package_tests(args.components, args.verbose, args.failfast, args.list)
+    
+    # Determine if we're running metadata operations
+    running_metadata = any([
+        args.metadata_report,
+        args.update_versions is not None,
+        args.create_licenses,
+        args.create_citations
+    ])
+    
+    if running_metadata:
+        # Run metadata operations
+        exit_code = run_metadata_operations(args)
+    else:
+        # Run tests
+        exit_code = run_package_tests(args.components, args.verbose, args.failfast, args.list)
+    
     sys.exit(exit_code)
 
 if __name__ == "__main__":
