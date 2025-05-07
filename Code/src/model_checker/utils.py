@@ -5,6 +5,8 @@ This module provides various helper functions for manipulating bit vectors,
 parsing logical expressions, and converting between different representations
 used throughout the model checker.
 
+It also includes functions for versioning and licensing information.
+
 NOTES:
 - Any LaTeX commands must have double backslash 
 - Operators include `\\` (e.g., `\\wedge`) and sentence letters do not
@@ -14,6 +16,10 @@ NOTES:
 ### IMPORTS AND DEFINITIONS ###
 
 import string
+import os
+import importlib
+import datetime
+from importlib.metadata import version
 
 from z3 import(
     And,
@@ -557,6 +563,106 @@ def get_theory(name, semantic_theories=None):
     
     return semantic_theories[name]
 
+
+### VERSIONING AND LICENSING ###
+
+def get_model_checker_version():
+    """Get the current model_checker package version.
+    
+    Returns:
+        str: Current version as defined in pyproject.toml or "unknown"
+    """
+    try:
+        return version("model-checker")
+    except ImportError:
+        # Try fallback method by reading __init__.py
+        try:
+            from model_checker import __version__
+            return __version__
+        except (ImportError, AttributeError):
+            return "unknown"
+
+def get_theory_version(theory_name):
+    """Get the version of a specific theory.
+    
+    Args:
+        theory_name (str): Name of the theory
+        
+    Returns:
+        str: Theory version or "unknown" if not found
+        
+    Raises:
+        ValueError: If theory_name is not a valid registered theory
+    """
+    try:
+        # Import theory_lib
+        from model_checker.theory_lib import AVAILABLE_THEORIES
+        
+        if theory_name not in AVAILABLE_THEORIES:
+            raise ValueError(f"Theory '{theory_name}' not found. Available theories: {AVAILABLE_THEORIES}")
+        
+        # Import the theory module
+        theory_module = importlib.import_module(f"model_checker.theory_lib.{theory_name}")
+        
+        # Get version
+        if hasattr(theory_module, "__version__"):
+            return theory_module.__version__
+        
+        return "unknown"
+    except ImportError as e:
+        raise ValueError(f"Could not load theory '{theory_name}': {str(e)}")
+
+def check_theory_compatibility(theory_name):
+    """Check if a theory is compatible with the current model_checker version.
+    
+    Args:
+        theory_name (str): Name of the theory
+        
+    Returns:
+        bool: True if compatible, False otherwise
+        
+    Raises:
+        ValueError: If theory_name is not a valid registered theory
+    """
+    try:
+        # Import theory_lib
+        from model_checker.theory_lib import AVAILABLE_THEORIES
+        
+        if theory_name not in AVAILABLE_THEORIES:
+            raise ValueError(f"Theory '{theory_name}' not found. Available theories: {AVAILABLE_THEORIES}")
+        
+        # Import the theory module
+        theory_module = importlib.import_module(f"model_checker.theory_lib.{theory_name}")
+        
+        # Check if the theory has model_checker version info
+        if hasattr(theory_module, "__model_checker_version__"):
+            theory_mc_version = theory_module.__model_checker_version__
+            current_mc_version = get_model_checker_version()
+            
+            # Simple version comparison for now
+            # Could be enhanced with more sophisticated version comparison logic
+            return theory_mc_version == current_mc_version
+        
+        # If no version info is available, assume compatible
+        return True
+    except ImportError:
+        # If we can't import the theory, it's not compatible
+        return False
+
+def get_license_template(license_type="GPL-3.0", author_info=None):
+    """Get license text for a specified license type (placeholder).
+    
+    Args:
+        license_type (str): Type of license (GPL-3.0, MIT, etc.)
+        author_info (dict): Author information (name, email, year)
+        
+    Returns:
+        str: License text with author information filled in
+    """
+    year = datetime.datetime.now().year
+    author_name = author_info.get("name", "[Author Name]") if author_info else "[Author Name]"
+    
+    return f"[LICENSE PLACEHOLDER - {license_type}]\nCopyright (c) {year} {author_name}"
 
 ### TESTING ###
 

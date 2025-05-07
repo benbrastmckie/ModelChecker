@@ -217,6 +217,33 @@ For questions or assistance, please open an [issue](https://github.com/benbrastm
 - **Receive feedback**: Get input from the community on your semantic approach
 - **Compare theories**: See how your theory handles examples compared to others
 
+## Licensing and Attribution
+
+All theories in the ModelChecker Theory Library are licensed under the GNU General Public License v3.0 (GPL-3.0). This ensures that:
+
+1. **Open Source Philosophy**: All theories remain freely available and modifiable
+2. **Copyleft Protection**: Any derivative works must also be licensed under GPL-3.0
+3. **Academic Attribution**: Academic credit is preserved through citation requirements
+
+### Theory Licensing Structure
+
+Each theory includes:
+
+- **LICENSE.md**: Contains the GPL-3.0 license text specific to the theory
+- **CITATION.md**: Contains proper academic citation information 
+- **Version Tracking**: Each theory has its own version, tracked in `__init__.py`
+
+### License Compliance for Theory Authors
+
+When contributing a theory:
+
+1. Your theory must be compatible with GPL-3.0 licensing
+2. You retain copyright for your theory implementation
+3. By contributing, you agree to license your theory under GPL-3.0
+4. Proper academic attribution will be maintained in CITATION.md
+
+This structure ensures that the ModelChecker ecosystem remains open while providing proper attribution to theory authors.
+
 ### Getting Started
 
 Follow these steps to develop and contribute a new theory to the ModelChecker project:

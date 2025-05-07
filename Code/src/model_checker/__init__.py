@@ -23,12 +23,9 @@ For more examples and detailed documentation, please see:
 https://github.com/benbrastmckie/ModelChecker
 """
 
-from importlib.metadata import version
-__version__ = "unknown"
-try:
-    __version__ = version("model-checker")
-except ImportError:
-    pass
+from .utils import get_model_checker_version
+
+__version__ = get_model_checker_version()
 
 # Define the public API of the package
 __all__ = [

@@ -45,6 +45,7 @@ Usage Examples:
 
 import importlib
 import os
+import datetime
 
 # Registry of available theories - add new theories here
 AVAILABLE_THEORIES = [
@@ -56,6 +57,12 @@ AVAILABLE_THEORIES = [
 
 # Dictionary to cache loaded theory modules
 _theory_modules = {}
+
+# Dictionary to cache theory versions
+_theory_versions = {}
+
+# Dictionary to cache theory license information
+_theory_licenses = {}
 
 def get_examples(theory_name):
     """Access example model configurations from a specific theory.
@@ -178,6 +185,160 @@ def discover_theories():
     
     return sorted(theories)
 
+# Version and License utility functions
+def get_theory_version_registry():
+    """Get a dictionary of all theory versions.
+    
+    Returns:
+        dict: Dictionary mapping theory names to their versions
+    """
+    versions = {}
+    for theory_name in AVAILABLE_THEORIES:
+        try:
+            if theory_name in _theory_versions:
+                versions[theory_name] = _theory_versions[theory_name]
+            else:
+                # Try to import the theory if not already in registry
+                theory_module = importlib.import_module(f".{theory_name}", package=__name__)
+                version = getattr(theory_module, "__version__", "unknown")
+                _theory_versions[theory_name] = version
+                versions[theory_name] = version
+        except ImportError:
+            versions[theory_name] = "unknown"
+    
+    return versions
+
+def get_theory_license_info(theory_name):
+    """Get license information for a specific theory.
+    
+    Args:
+        theory_name (str): Name of the registered theory
+        
+    Returns:
+        dict: Dictionary containing license information
+        
+    Raises:
+        ValueError: If the theory is not registered
+    """
+    if theory_name not in AVAILABLE_THEORIES:
+        raise ValueError(f"Unknown theory: {theory_name}")
+    
+    # Return from cache if available
+    if theory_name in _theory_licenses:
+        return _theory_licenses[theory_name]
+    
+    # Try to load license information
+    try:
+        # Check if the theory has a LICENSE.md file
+        theory_dir = os.path.dirname(os.path.abspath(__file__))
+        license_path = os.path.join(theory_dir, theory_name, "LICENSE.md")
+        
+        license_info = {
+            "type": "Unknown",
+            "text": "No license information available",
+            "path": None
+        }
+        
+        if os.path.exists(license_path):
+            with open(license_path, 'r', encoding='utf-8') as f:
+                license_text = f.read()
+                
+            # Try to determine license type from content
+            license_type = "Unknown"
+            if "GNU GENERAL PUBLIC LICENSE" in license_text:
+                license_type = "GPL-3.0"
+            elif "MIT License" in license_text:
+                license_type = "MIT"
+                
+            license_info = {
+                "type": license_type,
+                "text": license_text,
+                "path": license_path
+            }
+        
+        # Cache the result
+        _theory_licenses[theory_name] = license_info
+        return license_info
+    except Exception as e:
+        # In case of any error, return a default
+        return {
+            "type": "Unknown",
+            "text": f"Failed to load license information: {str(e)}",
+            "path": None
+        }
+
+def create_license_file(theory_name, license_type="GPL-3.0", author_info=None):
+    """Create a license file for a theory.
+    
+    Args:
+        theory_name (str): Name of the registered theory
+        license_type (str): Type of license (GPL-3.0, MIT, etc.)
+        author_info (dict): Author information (name, email, year)
+        
+    Returns:
+        bool: True if license was created successfully, False otherwise
+        
+    Raises:
+        ValueError: If the theory is not registered
+    """
+    if theory_name not in AVAILABLE_THEORIES:
+        raise ValueError(f"Unknown theory: {theory_name}")
+    
+    try:
+        # Get theory directory
+        theory_dir = os.path.dirname(os.path.abspath(__file__))
+        license_path = os.path.join(theory_dir, theory_name, "LICENSE.md")
+        
+        # Get license template
+        from ..utils import get_license_template
+        license_text = get_license_template(license_type, author_info)
+        
+        # Write license file
+        with open(license_path, 'w', encoding='utf-8') as f:
+            f.write(license_text)
+        
+        # Update cache
+        _theory_licenses[theory_name] = {
+            "type": license_type,
+            "text": license_text,
+            "path": license_path
+        }
+        
+        return True
+    except Exception as e:
+        print(f"Failed to create license file: {str(e)}")
+        return False
+
+def create_citation_file(theory_name, citation_text):
+    """Create a citation file for a theory.
+    
+    Args:
+        theory_name (str): Name of the registered theory
+        citation_text (str): Citation text in markdown format
+        
+    Returns:
+        bool: True if citation was created successfully, False otherwise
+        
+    Raises:
+        ValueError: If the theory is not registered
+    """
+    if theory_name not in AVAILABLE_THEORIES:
+        raise ValueError(f"Unknown theory: {theory_name}")
+    
+    try:
+        # Get theory directory
+        theory_dir = os.path.dirname(os.path.abspath(__file__))
+        citation_path = os.path.join(theory_dir, theory_name, "CITATION.md")
+        
+        # Write citation file
+        with open(citation_path, 'w', encoding='utf-8') as f:
+            f.write(citation_text)
+        
+        return True
+    except Exception as e:
+        print(f"Failed to create citation file: {str(e)}")
+        return False
+
 # Public API
 __all__ = [
     'AVAILABLE_THEORIES',
@@ -185,6 +346,10 @@ __all__ = [
     'get_test_examples',
     'get_semantic_theories',
     'discover_theories',
+    'get_theory_version_registry',
+    'get_theory_license_info',
+    'create_license_file',
+    'create_citation_file',
 ]
 
 # Lazy loading implementation via __getattr__
