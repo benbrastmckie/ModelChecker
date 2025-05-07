@@ -11,11 +11,15 @@
     - [x] default
     - [x] exclusion
   - [x] `jupyter/README.md`
-- [ ] theory metadata
-  - [ ] licence
-  - versioning
-    - theory versioning
-    - model_checker versioning
+- [.] theory metadata
+  - [:] licence
+    - [x] implement licencing
+    - [ ] add licence content
+    - [ ] test
+  - [:] versioning
+    - [x] theory versioning
+    - [x] model_checker versioning
+    - [ ] test
 
 ### Refactoring
 
