@@ -35,7 +35,7 @@ Code/src/new_checker/__pycache__/hidden_helpers.cpython-312.pyc
 Code/.venv
 
 # Ignore all directories named 'notes' anywhere in the repository
-notes/
 **/notes/
+**/specs/
 Code/src/model_checker/builder/notes_
 *.ipynb_checkpoints

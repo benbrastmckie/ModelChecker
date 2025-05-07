@@ -6,11 +6,11 @@
 
 - [.] jupyter
   - [.] demos
-    - [x] default
     - [ ] bimodal
     - [ ] imposition
+    - [x] default
     - [x] exclusion
-  - [ ] `jupyter/README.md`
+  - [x] `jupyter/README.md`
 - [ ] theory metadata
   - [ ] licence
   - versioning
