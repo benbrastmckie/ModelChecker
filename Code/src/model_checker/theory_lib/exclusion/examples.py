@@ -920,6 +920,27 @@ EX_CM_14_example = [
     EX_CM_14_settings
 ]
 
+# DEMORGANS IDENTITY
+EX_DMI_premises = []
+EX_DMI_conclusions = ["(\\exclude (P \\uniwedge Q) \\uniequiv (\\exclude P \\univee \\exclude Q))"] # should find cm if here
+EX_DMI_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 1,
+    'expectation' : False,
+}
+EX_DMI_example = [
+    EX_DMI_premises,
+    EX_DMI_conclusions,
+    EX_DMI_settings
+]
+
+
 
 
 ###############################################
@@ -976,19 +997,19 @@ test_example_range = {
 example_range = {
     # Countermodels
     # "EX_CM_0" : EX_CM_0_example,
-    # "EX_CM_1" : EX_CM_1_example,
+    "EX_CM_1" : EX_CM_1_example,
     # "EX_CM_5" : EX_CM_5_example,
     # "EX_CM_8" : EX_CM_8_example,
-    "EX_CM_9" : EX_CM_9_example,
+    # "EX_CM_9" : EX_CM_9_example,
     # "EX_CM_10" : EX_CM_10_example,
     # "EX_CM_11" : EX_CM_11_example,
     # "EX_CM_12" : EX_CM_12_example,
     # "EX_CM_13" : EX_CM_13_example,
-    "EX_CM_15" : EX_CM_15_example,
+    # "EX_CM_15" : EX_CM_15_example,
 
     # Theorems
     # "EX_TH_1" : EX_TH_1_example,
-    # "EX_TH_2" : EX_TH_2_example, 
+    "EX_TH_2" : EX_TH_2_example, 
     # "EX_TH_3" : EX_TH_3_example,
     # "EX_TH_4" : EX_TH_4_example,
     # "EX_TH_5" : EX_TH_5_example,
@@ -1003,14 +1024,17 @@ example_range = {
     # "EX_TH_14" : EX_TH_14_example,
     # "EX_TH_15" : EX_TH_15_example,
     # "EX_TH_16" : EX_TH_16_example,
-    "EX_TH_17" : EX_TH_17_example,
-    "EX_TH_18" : EX_TH_18_example,
+    # "EX_TH_17" : EX_TH_17_example,
+    # "EX_TH_18" : EX_TH_18_example,
     # "EX_CM_2" : EX_CM_2_example,
     # "EX_CM_3" : EX_CM_3_example,
     # "EX_CM_4" : EX_CM_4_example,
     # "EX_CM_6" : EX_CM_6_example,
     # "EX_CM_7" : EX_CM_7_example,
     # "EX_CM_14" : EX_CM_14_example,
+
+    # Other
+    "EX_DMI": EX_DMI_example,
 }
 
 
