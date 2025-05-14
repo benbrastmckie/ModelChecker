@@ -137,6 +137,7 @@ class ExclusionOperatorBase(syntactic.Operator):
     def true_at(self, arg, eval_point):
         """doc string place holder"""
         x = z3.BitVec(f"ver \\exclude {arg}", self.semantics.N) # think this has to be a unique name
+        # M: why does above have to be unique name? (that comment is probably very old lol)
         return Exists(
             x,
             z3.And(
