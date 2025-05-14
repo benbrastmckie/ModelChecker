@@ -209,11 +209,8 @@ class ExclusionSemantics(model.SemanticDefaults):
         Determines if a state is a world by checking if it is possible and maximal.
         A state is maximal if it has no proper extension that is possible.
 
-        Args:
-            bit_s: BitVec representing the state to check
-
-        Returns:
-            z3.BoolRef: Formula that is true iff bit_s is a world
+        Args: bit_s: BitVec representing the state to check
+        Returns: z3.BoolRef: Formula that is true iff bit_s is a world
         """
         m = z3.BitVec("m", self.N)
         return z3.And(
@@ -302,7 +299,7 @@ class UnilateralProposition(model.PropositionDefaults):
         #     return f"< {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >"
         return pretty_set_print(ver_states)
 
-    def find_precluders(self): # TODO: THIS NEEDS TO BE CHANGED
+    def find_precluders(self):
         all_states = self.semantics.all_states
         result = set()
         neg_verify = self.model_structure.syntax.OperatorCollection["\\exclude"].extended_verify
@@ -386,7 +383,8 @@ class UnilateralProposition(model.PropositionDefaults):
                     semantics.verify(w, sentence_letter)
                 )
             )
-
+            # NOTE: this should not be a problem for finding the negation of these, since this add
+            # these to the model
             neg_verify = self.model_structure.syntax.OperatorCollection["\\exclude"].extended_verify
             possibly_false = Exists(m, z3.And(semantics.possible(m),
                                               neg_verify(m, self.sentence)))

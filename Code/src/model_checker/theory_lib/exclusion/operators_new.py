@@ -10,150 +10,6 @@ from model_checker.utils import (
 )
 from model_checker import syntactic
 
-class ExclusionOperator(syntactic.Operator):
-    """doc string place holder"""
-
-    name = "\\exclude"
-    arity = 1
-
-    def true_at(self, arg, eval_point):
-        """doc string place holder"""
-        x = z3.BitVec(f"ver \\exclude {arg}", self.semantics.N) # think this has to be a unique name
-        return Exists(
-            x,
-            z3.And(
-                self.extended_verify(x, arg, eval_point),
-                self.semantics.is_part_of(x, eval_point)
-            )
-        )
-
-    def extended_verify(self, state, argument, eval_point):
-        """Defines the extended verification conditions for the exclusion operator.
-        
-        This function implements the formal semantics of exclusion by defining when a state
-        is an extended verifier of an exclusion formula. A state is an extended verifier if:
-        
-        1. For every extended verifier v of the argument, there exists a part s of v that is 
-           excluded by h(v), where h is a function mapping verifiers to states
-        2. For all extended verifiers x of the argument, h(x) is a part of the given state
-        3. The given state is minimal with respect to condition 2
-        
-        Args:
-            state: A bitvector representing the state to check
-            argument: The argument of the exclusion operator (a Sentence type)
-            eval_point: The evaluation point in the model
-            
-        Returns:
-            A Z3 formula that is true iff the state is an extended verifier of the exclusion
-            formula at the given evaluation point
-        """
-
-        # Abbreviations
-        semantics = self.semantics
-        N = semantics.N
-        extended_verify = semantics.extended_verify
-        excludes = semantics.excludes
-        is_part_of = semantics.is_part_ofs
-        is_proper_part_of = semantics.is_proper_part_of
-        h_ix = semantics.h_ix
-        H = semantics.H
-        h = z3.Array(z3.BitVecSort(N), z3.BitVecSort(N))
-
-
-        x, y, z, u, v = z3.BitVecs("x y z u v", N)
-
-        # state_UB = ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the argument
-        #         z,
-        #         z3.Implies(
-        #             extended_verify(z, argument, eval_point),
-        #             is_part_of(h(z), state),
-        #         )
-        #     )
-        # state_LUB = z3.Not(Exists(y, z3.And(ForAll(z, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h(z),y))), z3.And(is_part_of(y,state), y != state))))
-        # exclude_part = ForAll( # 1. for every extended_verifiers x of the argument, there 
-        #         x,  #    is some part y of x where h(x) excludes y                                    
-        #         z3.Implies(
-        #             extended_verify(x, argument, eval_point), # member of argument's set of verifiers
-        #             Exists(
-        #                 y,
-        #                 z3.And(
-        #                     is_part_of(y, x),
-        #                     excludes(h(x), y)
-        #                 )
-        #             )
-        #         )
-        #     )
-        return z3.Exists(h, z3.And(ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the argument
-                z,
-                z3.Implies(
-                    extended_verify(z, argument, eval_point),
-                    is_part_of(h[z], state),
-                )
-            ), 
-                      z3.Not(Exists(y, z3.And(ForAll(z, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h[z],y))), z3.And(is_part_of(y,state), y != state)))), 
-                      ForAll( # 1. for every extended_verifiers x of the argument, there 
-                x,  #    is some part y of x where h(x) excludes y                                    
-                z3.Implies(
-                    extended_verify(x, argument, eval_point), # member of argument's set of verifiers
-                    Exists(
-                        y,
-                        z3.And(
-                            is_part_of(y, x),
-                            excludes(h[x], y)
-                        )
-                    )
-                )
-            ))
-        )
-
-
-
-
-        # return z3.And(
-        #     ForAll( # 1. for every extended_verifiers x of the argument, there 
-        #         x,  #    is some part y of x where h(x) excludes y                                    
-        #         z3.Implies(
-        #             extended_verify(x, argument, eval_point), # member of argument's set of verifiers
-        #             Exists(
-        #                 y,
-        #                 z3.And(
-        #                     is_part_of(y, x),
-        #                     excludes(h(x), y)
-        #                 )
-        #             )
-        #         )
-        #     ),
-        #     ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the argument
-        #         z,
-        #         z3.Implies(
-        #             extended_verify(z, argument, eval_point),
-        #             is_part_of(h(z), state),
-        #         )
-        #     ),
-        #     ForAll( # 3. the state is the smallest state to satisfy condition 2
-        #         u,
-        #         z3.Implies(
-        #             ForAll(
-        #                 v,
-        #                 z3.Implies(
-        #                     extended_verify(v, argument, eval_point),
-        #                     is_part_of(h(v), state)
-        #                 )
-        #             ),
-        #             is_part_of(state, u)
-        #         )
-        #     )
-        # )
-
-    def find_verifiers(self, argument, eval_point):
-        """Returns the set of precluders for the argument's proposition."""
-        return argument.proposition.precluders
-
-    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Prints the proposition for sentence_obj, increases the indentation
-        by 1, and prints the argument."""
-        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
-
 
 class UniAndOperator(syntactic.Operator):
     """doc string place holder"""
@@ -271,6 +127,86 @@ class UniIdentityOperator(syntactic.Operator):
         by 1, and prints both of the arguments."""
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
+
+class ExclusionOperatorBase(syntactic.Operator):
+    """doc string place holder"""
+
+    name = "\\exclude"
+    arity = 1
+
+    def true_at(self, arg, eval_point):
+        """doc string place holder"""
+        x = z3.BitVec(f"ver \\exclude {arg}", self.semantics.N) # think this has to be a unique name
+        return Exists(
+            x,
+            z3.And(
+                self.extended_verify(x, arg, eval_point),
+                self.semantics.is_part_of(x, eval_point)
+            )
+        )
+
+    def find_verifiers(self, argument, eval_point):
+        """Returns the set of precluders for the argument's proposition."""
+        return argument.proposition.precluders
+
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Prints the proposition for sentence_obj, increases the indentation
+        by 1, and prints the argument."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
+
+
+class ExclusionOperatorQuantifyArrays(syntactic.ExclusionOperatorBase):
+
+    name = "\\exclude"
+    arity = 1
+
+    def extended_verify(self, state, argument, eval_point):
+        """this implementation quantifies over Z3 Arrays. 
+        Advantages: TYPE HERE
+
+        Disadvantages: TYPE HERE
+        
+        """
+
+        # Abbreviations
+        semantics = self.semantics
+        N = semantics.N
+        extended_verify = semantics.extended_verify
+        excludes = semantics.excludes
+        is_part_of = semantics.is_part_ofs
+        is_proper_part_of = semantics.is_proper_part_of
+        h_ix = semantics.h_ix
+        H = semantics.H
+        h = z3.Array(z3.BitVecSort(N), z3.BitVecSort(N))
+
+        x, y, z, u, v = z3.BitVecs("x y z u v", N)
+
+        return z3.Exists(h, z3.And(ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the argument
+                z,
+                z3.Implies(
+                    extended_verify(z, argument, eval_point),
+                    is_part_of(h[z], state),
+                )
+            ), 
+                      z3.Not(Exists(y, z3.And(ForAll(z, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h[z],y))), z3.And(is_part_of(y,state), y != state)))), 
+                      ForAll( # 1. for every extended_verifiers x of the argument, there 
+                x,  #    is some part y of x where h(x) excludes y                                    
+                z3.Implies(
+                    extended_verify(x, argument, eval_point), # member of argument's set of verifiers
+                    Exists(
+                        y,
+                        z3.And(
+                            is_part_of(y, x),
+                            excludes(h[x], y)
+                        )
+                    )
+                )
+            ))
+        )
+
+
+
+ExclusionOperator = ExclusionOperatorQuantifyArrays
 
 exclusion_operators = syntactic.OperatorCollection(
     UniAndOperator, UniOrOperator, ExclusionOperator, # extensional
