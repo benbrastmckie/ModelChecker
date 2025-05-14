@@ -40,7 +40,7 @@ class ExclusionOperator(syntactic.Operator):
         
         Args:
             state: A bitvector representing the state to check
-            argument: The argument of the exclusion operator
+            argument: The argument of the exclusion operator (a Sentence type)
             eval_point: The evaluation point in the model
             
         Returns:
@@ -53,21 +53,11 @@ class ExclusionOperator(syntactic.Operator):
         N = semantics.N
         extended_verify = semantics.extended_verify
         excludes = semantics.excludes
-        is_part_of = semantics.is_part_of
-
-        # # NOTE: that Z3 can introduce arbitrary functions demonstrates its expressive power
-        # h = z3.Function(
-        #     f"h_{state, argument}",   # function name
-        #     z3.BitVecSort(N),           # bitvector argument type
-        #     z3.BitVecSort(N)            # bitvector return type
-        # )
-
-        h = z3.Array(
-            f"h_{state, argument}",   # function name
-            z3.BitVecSort(N),           # bitvector argument type
-            z3.BitVecSort(N)            # bitvector return type
-        )
-
+        is_part_of = semantics.is_part_ofs
+        is_proper_part_of = semantics.is_proper_part_of
+        h_ix = semantics.h_ix
+        H = semantics.H
+        h = z3.Array(z3.BitVecSort(N), z3.BitVecSort(N))
 
 
         x, y, z, u, v = z3.BitVecs("x y z u v", N)

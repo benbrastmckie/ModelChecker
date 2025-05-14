@@ -66,6 +66,11 @@ class ExclusionSemantics(model.SemanticDefaults):
             "world" : self.main_world
         }
 
+        # Define things for quantifying over functions
+        self.h_ix = z3.Int("h_ix")
+        h_func_sort = z3.ArraySort(z3.BitVecSort(self.N), z3.BitVecSort(self.N)) # h: S -> S
+        self.H = z3.Function("H", z3.IntSort(), h_func_sort)
+
         # Define frame constraints
         x, y, z = z3.BitVecs("frame_x frame_y frame_z", self.N)
         actuality = self.is_world(self.main_world)
@@ -225,65 +230,6 @@ class ExclusionSemantics(model.SemanticDefaults):
         )
 
     
-    # def precludes(self, state, z3_set):
-    #     """
-    #     Determines if a state precludes a set of states by finding a function h
-    #     that maps each state in set_S to a part of some state such that for each
-    #     state f in set_S, h(f) excludes some part of f.
-    
-    #     Args:
-    #         state: BitVec representing the state to check
-    #         set_S: Set of BitVecs representing the states to check against
-    
-    #     Returns:
-    #         z3.BoolRef: Formula that is true iff state precludes set_S, meaning there exists a function h and state s such that:
-    #             1. For all x in set_S, h(x) is part of s
-    #             2. s is the smallest state satisfying condition 1
-    #             3. For all f in set_S, h(f) excludes some part u of f
-    #     """
-    #     h = z3.Function(
-    #         f"h_{state, z3_set}", # function name type: string
-    #         z3.BitVecSort(self.N),  # argument type: bitvector
-    #         z3.BitVecSort(self.N)   # return type: bitvector
-    #     )
-
-    #     x, y, z, u, v = z3.BitVecs("x y z u v", self.N)
-    #     return z3.And(
-    #         ForAll( # 1. for every extended_verifiers x of the argument, there 
-    #             x,  #    is some part y of x where h(x) excludes y                                    
-    #             z3.Implies(
-    #                 z3_set[x],
-    #                 Exists(
-    #                     y,
-    #                     z3.And(
-    #                         self.is_part_of(y, x),
-    #                         self.excludes(h(x), y)
-    #                     )
-    #                 )
-    #             )
-    #         ),
-    #         ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the argument
-    #             z,
-    #             z3.Implies(
-    #                 z3_set[z],
-    #                 self.is_part_of(h(z), state),
-    #             )
-    #         ),
-    #         ForAll( # 3. the state is the smallest state to satisfy condition 2
-    #             u,
-    #             z3.Implies(
-    #                 ForAll(
-    #                     v,
-    #                     z3.Implies(
-    #                         z3_set[v],
-    #                         self.is_part_of(h(v), state)
-    #                     )
-    #                 ),
-    #                 self.is_part_of(state, u)
-    #             )
-    #         )
-    #     )
-
     def occurs(self, bit_s):
         return self.is_part_of(bit_s, self.main_world)
     
@@ -330,7 +276,8 @@ class UnilateralProposition(model.PropositionDefaults):
         self.eval_world = model_structure.main_point["world"] if eval_world == 'main' else eval_world
         self.all_states = model_structure.all_states
         self.verifiers = self.find_proposition()
-        self.precluders = self.find_precluders(self.verifiers)
+        self.precluders = self.find_precluders()
+        # self.exact_excluders = self.find_exact_excluders()
 
     def __eq__(self, other):
         return (self.verifiers == other.verifiers)
@@ -355,15 +302,13 @@ class UnilateralProposition(model.PropositionDefaults):
         #     return f"< {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >"
         return pretty_set_print(ver_states)
 
-    def find_precluders(self, py_verifier_set): # TODO: THIS NEEDS TO BE CHANGED
-        z3_verifier_set = self.semantics.z3_set(py_verifier_set, self.N)
-        precludes = self.semantics.precludes
+    def find_precluders(self): # TODO: THIS NEEDS TO BE CHANGED
         all_states = self.semantics.all_states
         result = set()
+        neg_verify = self.model_structure.syntax.OperatorCollection["\\exclude"].extended_verify
         for state in all_states:
-            preclude_formula = precludes(state, z3_verifier_set)
+            preclude_formula = neg_verify(state, self.sentence)
             preclude_result = self.z3_model.evaluate(preclude_formula)
-            # Check if the evaluated result is True
             if preclude_result == True:
                 result.add(state)
         return result
@@ -441,45 +386,10 @@ class UnilateralProposition(model.PropositionDefaults):
                     semantics.verify(w, sentence_letter)
                 )
             )
-            # TODO: TRY TO GET RID OF THIS
-            possibly_false = Exists(
-                m,
-                z3.And(
-                    ForAll( # 1. for every extended_verifiers x of the argument, there 
-                        x,  #    is some part y of x where h(x) excludes y                                    
-                        z3.Implies(
-                            semantics.verify(x, sentence_letter), # member of sentence_letter's set of verifiers
-                            Exists(
-                                y,
-                                z3.And(
-                                    is_part_of(y, x),
-                                    excludes(h(x), y)
-                                )
-                            )
-                        )
-                    ),
-                    ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the sentence_letter
-                        z,
-                        z3.Implies(
-                            semantics.verify(z, sentence_letter),
-                            is_part_of(h(z), m),
-                        )
-                    ),
-                    ForAll( # 3. the state is the smallest state to satisfy condition 2
-                        u,
-                        z3.Implies(
-                            ForAll(
-                                v,
-                                z3.Implies(
-                                    semantics.verify(v, sentence_letter),
-                                    is_part_of(h(v), m)
-                                )
-                            ),
-                            is_part_of(m, u)
-                        )
-                    )
-                )
-            )
+
+            neg_verify = self.model_structure.syntax.OperatorCollection["\\exclude"].extended_verify
+            possibly_false = Exists(m, z3.And(semantics.possible(m),
+                                              neg_verify(m, self.sentence)))
             return [possibly_true, possibly_false]
 
         def get_disjoint_constraints():
@@ -530,8 +440,7 @@ class UnilateralProposition(model.PropositionDefaults):
         return constraints
 
     def find_proposition(self):
-        """takes self, returns the V, F tuple
-        used in find_verifiers"""
+        """takes self, returns the set V used in find_verifiers"""
         all_states = self.model_structure.all_states
         model = self.model_structure.z3_model
         semantics = self.semantics
