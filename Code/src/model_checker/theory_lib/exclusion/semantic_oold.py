@@ -66,12 +66,6 @@ class ExclusionSemantics(model.SemanticDefaults):
             "world" : self.main_world
         }
 
-        # DEFINE THINGS FOR QUANTIFYING OVER FUNCS
-        self.h_ix = z3.Int("h_ix") # used for H: Z -> (S -> S)
-        h_func_sort = z3.ArraySort(z3.BitVecSort(self.N), z3.BitVecSort(self.N)) # h: S -> S
-        self.H = z3.Function("H", z3.IntSort(), h_func_sort) # H: Z -> (S -> S)
-        self.counter = 0 # for naming new funcs
-
         # Define frame constraints
         x, y, z = z3.BitVecs("frame_x frame_y frame_z", self.N)
         actuality = self.is_world(self.main_world)
@@ -159,116 +153,6 @@ class ExclusionSemantics(model.SemanticDefaults):
 
         # NOTE: used to prove that the null_state is always possible
         impossible_null = z3.Not(self.possible(self.null_state))
-
-
-        # TODO: this has to be the problem but looks find
-        def conflicts(self, bit_e1, bit_e2):
-            f1, f2 = z3.BitVecs("f1 f2", self.N)
-            return Exists(
-                [f1, f2],
-                z3.And(
-                    self.is_part_of(f1, bit_e1),
-                    self.is_part_of(f2, bit_e2),
-                    self.excludes(f1, f2),
-                ),
-            )
-
-        def coheres(self, bit_e1, bit_e2):
-            return z3.Not(self.conflicts(bit_e1, bit_e2))
-
-        def possible(self, bit_e):
-            return self.coheres(bit_e, bit_e)
-
-        def compossible(self, bit_e1, bit_e2):
-            return self.possible(self.fusion(bit_e1, bit_e2))
-
-        # B: compossible => coheres but not vice versa
-        # would they be equivalent if the following constraint were added:
-        # (CON_REF) if x and y are parts of s that exclude each other, then s excludes s
-
-        def is_world(self, bit_s):
-            """
-            Determines if a state is a world by checking if it is possible and maximal.
-            A state is maximal if it has no proper extension that is possible.
-
-            Args:
-                bit_s: BitVec representing the state to check
-
-            Returns:
-                z3.BoolRef: Formula that is true iff bit_s is a world
-            """
-            m = z3.BitVec("m", self.N)
-            return z3.And(
-                self.possible(bit_s),
-                z3.Not(
-                    Exists(
-                        m,
-                        z3.And(
-                            self.is_proper_part_of(bit_s, m),
-                            self.possible(m)
-                        )
-                    )
-                )
-            )
-
-        def necessary(self, bit_e1):
-            x = z3.BitVec("nec_x", self.N)
-            return ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
-
-        def collectively_excludes(self, bit_s, set_P):
-            return self.excludes(bit_s, self.total_fusion(set_P))
-
-        def individually_excludes(self, bit_s, set_P):
-            sub_s, p = z3.BitVecs("sub_s p", self.N)
-            P = self.z3_set(set_P, self.N)
-            cond_a = Exists(
-                [sub_s, p],
-                z3.And(self.is_part_of(sub_s, bit_s), P[p], self.excludes(sub_s, p)),
-            )
-            # Sigma is upper bound on excluders of set P
-            Sigma = z3.BitVec(str(set_P), self.N)
-            x, y, z, p = z3.BitVecs("x y z p", self.N)
-            Sigma_UB = ForAll(
-                x,
-                z3.Implies(
-                    Exists(
-                        p,
-                        z3.And(
-                            P[p],
-                            self.excludes(x, p)
-                        )
-                    ),
-                    self.is_part_of(x, Sigma)
-                ),
-            )
-            # Sigma is the least upper bound on excluders of set P
-            Sigma_LUB = ForAll(
-                z,
-                z3.Implies(
-                    ForAll(
-                        y,
-                        z3.Implies(
-                            Exists(
-                                p,
-                                z3.And(
-                                    P[p],
-                                    self.excludes(y, p)
-                                )
-                            ),
-                            self.is_part_of(y, z),
-                        ),
-                    ),
-                    self.is_part_of(z, Sigma)
-                ),
-            )
-
-            return z3.And(
-                cond_a,
-                Sigma_UB,
-                Sigma_LUB,
-                self.is_part_of(bit_s, Sigma)
-            )
-
         
 
         # Set frame constraints
@@ -289,6 +173,15 @@ class ExclusionSemantics(model.SemanticDefaults):
 
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_point["world"])
         self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point["world"])
+
+    # # TODO: this has to be the problem but looks find
+    # def conflicts(self, bit_e1, bit_e2):
+    #     f1, f2 = z3.BitVecs("f1 f2", self.N)
+    #     return z3.And(
+    #         self.is_part_of(f1, bit_e1),
+    #         self.is_part_of(f2, bit_e2),
+    #         self.excludes(f1, f2),
+    #     )
 
     # TODO: this has to be the problem but looks find
     def conflicts(self, bit_e1, bit_e2):
@@ -320,8 +213,11 @@ class ExclusionSemantics(model.SemanticDefaults):
         Determines if a state is a world by checking if it is possible and maximal.
         A state is maximal if it has no proper extension that is possible.
 
-        Args: bit_s: BitVec representing the state to check
-        Returns: z3.BoolRef: Formula that is true iff bit_s is a world
+        Args:
+            bit_s: BitVec representing the state to check
+
+        Returns:
+            z3.BoolRef: Formula that is true iff bit_s is a world
         """
         m = z3.BitVec("m", self.N)
         return z3.And(
@@ -337,7 +233,129 @@ class ExclusionSemantics(model.SemanticDefaults):
             )
         )
 
+    def necessary(self, bit_e1):
+        x = z3.BitVec("nec_x", self.N)
+        return ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
+
+    def collectively_excludes(self, bit_s, set_P):
+        return self.excludes(bit_s, self.total_fusion(set_P))
+
+    def individually_excludes(self, bit_s, set_P):
+        sub_s, p = z3.BitVecs("sub_s p", self.N)
+        P = self.z3_set(set_P, self.N)
+        cond_a = Exists(
+            [sub_s, p],
+            z3.And(self.is_part_of(sub_s, bit_s), P[p], self.excludes(sub_s, p)),
+        )
+        # Sigma is upper bound on excluders of set P
+        Sigma = z3.BitVec(str(set_P), self.N)
+        x, y, z, p = z3.BitVecs("x y z p", self.N)
+        Sigma_UB = ForAll(
+            x,
+            z3.Implies(
+                Exists(
+                    p,
+                    z3.And(
+                        P[p],
+                        self.excludes(x, p)
+                    )
+                ),
+                self.is_part_of(x, Sigma)
+            ),
+        )
+        # Sigma is the least upper bound on excluders of set P
+        Sigma_LUB = ForAll(
+            z,
+            z3.Implies(
+                ForAll(
+                    y,
+                    z3.Implies(
+                        Exists(
+                            p,
+                            z3.And(
+                                P[p],
+                                self.excludes(y, p)
+                            )
+                        ),
+                        self.is_part_of(y, z),
+                    ),
+                ),
+                z == Sigma
+            ),
+        )
+
+        return z3.And(
+            cond_a,
+            Sigma_UB,
+            Sigma_LUB,
+            self.is_part_of(bit_s, Sigma)
+        )
+
+    def emergently_excludes(self, bit_s, set_P):
+        return z3.And(
+            self.collectively_excludes(bit_s, set_P),
+            z3.Not(self.individually_excludes(bit_s, set_P)),
+        )
+
+    def precludes(self, state, z3_set):
+        """
+        Determines if a state precludes a set of states by finding a function h
+        that maps each state in set_S to a part of some state such that for each
+        state f in set_S, h(f) excludes some part of f.
     
+        Args:
+            state: BitVec representing the state to check
+            set_S: Set of BitVecs representing the states to check against
+    
+        Returns:
+            z3.BoolRef: Formula that is true iff state precludes set_S, meaning there exists a function h and state s such that:
+                1. For all x in set_S, h(x) is part of s
+                2. s is the smallest state satisfying condition 1
+                3. For all f in set_S, h(f) excludes some part u of f
+        """
+        h = z3.Function(
+            f"h_{state, z3_set}", # function name type: string
+            z3.BitVecSort(self.N),  # argument type: bitvector
+            z3.BitVecSort(self.N)   # return type: bitvector
+        )
+
+        x, y, z, u, v = z3.BitVecs("x y z u v", self.N)
+        return z3.And(
+            ForAll( # 1. for every extended_verifiers x of the argument, there 
+                x,  #    is some part y of x where h(x) excludes y                                    
+                z3.Implies(
+                    z3_set[x],
+                    Exists(
+                        y,
+                        z3.And(
+                            self.is_part_of(y, x),
+                            self.excludes(h(x), y)
+                        )
+                    )
+                )
+            ),
+            ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the argument
+                z,
+                z3.Implies(
+                    z3_set[z],
+                    self.is_part_of(h(z), state),
+                )
+            ),
+            ForAll( # 3. the state is the smallest state to satisfy condition 2
+                u,
+                z3.Implies(
+                    ForAll(
+                        v,
+                        z3.Implies(
+                            z3_set[v],
+                            self.is_part_of(h(v), state)
+                        )
+                    ),
+                    self.is_part_of(state, u)
+                )
+            )
+        )
+
     def occurs(self, bit_s):
         return self.is_part_of(bit_s, self.main_world)
     
@@ -384,8 +402,7 @@ class UnilateralProposition(model.PropositionDefaults):
         self.eval_world = model_structure.main_point["world"] if eval_world == 'main' else eval_world
         self.all_states = model_structure.all_states
         self.verifiers = self.find_proposition()
-        self.precluders = self.find_precluders()
-        # self.exact_excluders = self.find_exact_excluders()
+        self.precluders = self.find_precluders(self.verifiers)
 
     def __eq__(self, other):
         return (self.verifiers == other.verifiers)
@@ -410,14 +427,15 @@ class UnilateralProposition(model.PropositionDefaults):
         #     return f"< {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >"
         return pretty_set_print(ver_states)
 
-    def find_precluders(self):
+    def find_precluders(self, py_verifier_set):
+        z3_verifier_set = self.semantics.z3_set(py_verifier_set, self.N)
+        precludes = self.semantics.precludes
         all_states = self.semantics.all_states
         result = set()
-        dummy_neg = self.model_constraints.syntax.operator_collection["\\exclude"](self.semantics)
         for state in all_states:
-            preclude_formula = dummy_neg.extended_verify(state, self.sentence, self.eval_world)
-            # preclude_formula = neg_verify(state, self.sentence)
+            preclude_formula = precludes(state, z3_verifier_set)
             preclude_result = self.z3_model.evaluate(preclude_formula)
+            # Check if the evaluated result is True
             if preclude_result == True:
                 result.add(state)
         return result
@@ -428,8 +446,6 @@ class UnilateralProposition(model.PropositionDefaults):
         constraints and optionally the non-null, contingent, and disjoint
         constraints depending on the user settings."""
 
-
-        # assert False, type(sentence_letter)
         semantics = self.semantics
         N = semantics.N
 
@@ -482,7 +498,12 @@ class UnilateralProposition(model.PropositionDefaults):
             is_part_of = semantics.is_part_of
 
             # NOTE: that Z3 can introduce arbitrary functions demonstrates its expressive power
-            h = z3.Array("h", z3.BitVecSort(N), z3.BitVecSort(N))
+            h = z3.Function(
+                f"h_{sentence_letter}",   # function name
+                z3.BitVecSort(N),           # bitvector argument type
+                z3.BitVecSort(N)            # bitvector return type
+            )
+
             w, m, x, y, z, u, v = z3.BitVecs("w m x y z u v", N)
 
             possibly_true = Exists(
@@ -492,32 +513,44 @@ class UnilateralProposition(model.PropositionDefaults):
                     semantics.verify(w, sentence_letter)
                 )
             )
-            # NOTE: this should not be a problem for finding the negation of these, since this add
-            # these to the model
-            dummy_neg = self.syntax.operator_collection["\\exclude"](self.semantics)
-            possibly_false = Exists(m, z3.And(semantics.possible(m),
-                                              z3.Exists(h, z3.And(ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the argument
-                z,
-                z3.Implies(
-                    semantics.verify(z, sentence_letter),
-                    is_part_of(h[z], m),
-                )
-            ), 
-                      z3.Not(Exists(y, z3.And(ForAll(z, z3.Implies(semantics.verify(x, sentence_letter), is_part_of(h[z],y))), z3.And(is_part_of(y,m), y != m)))), 
-                      ForAll( # 1. for every extended_verifiers x of the argument, there 
-                x,  #    is some part y of x where h(x) excludes y                                    
-                z3.Implies(
-                    semantics.verify(x, sentence_letter), # member of argument's set of verifiers
-                    Exists(
-                        y,
-                        z3.And(
-                            is_part_of(y, x),
-                            excludes(h[x], y)
+            possibly_false = Exists(
+                m,
+                z3.And(
+                    ForAll( # 1. for every extended_verifiers x of the argument, there 
+                        x,  #    is some part y of x where h(x) excludes y                                    
+                        z3.Implies(
+                            semantics.verify(x, sentence_letter), # member of sentence_letter's set of verifiers
+                            Exists(
+                                y,
+                                z3.And(
+                                    is_part_of(y, x),
+                                    excludes(h(x), y)
+                                )
+                            )
+                        )
+                    ),
+                    ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the sentence_letter
+                        z,
+                        z3.Implies(
+                            semantics.verify(z, sentence_letter),
+                            is_part_of(h(z), m),
+                        )
+                    ),
+                    ForAll( # 3. the state is the smallest state to satisfy condition 2
+                        u,
+                        z3.Implies(
+                            ForAll(
+                                v,
+                                z3.Implies(
+                                    semantics.verify(v, sentence_letter),
+                                    is_part_of(h(v), m)
+                                )
+                            ),
+                            is_part_of(m, u)
                         )
                     )
                 )
-            ))
-        )))
+            )
             return [possibly_true, possibly_false]
 
         def get_disjoint_constraints():
@@ -568,7 +601,8 @@ class UnilateralProposition(model.PropositionDefaults):
         return constraints
 
     def find_proposition(self):
-        """takes self, returns the set V used in find_verifiers"""
+        """takes self, returns the V, F tuple
+        used in find_verifiers"""
         all_states = self.model_structure.all_states
         model = self.model_structure.z3_model
         semantics = self.semantics

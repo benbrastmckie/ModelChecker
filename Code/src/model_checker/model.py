@@ -443,7 +443,7 @@ class ModelConstraints:
     
     Attributes:
         settings (dict): Configuration settings for model generation
-        syntax (Syntax): The syntactic representation of the argument
+        syntax (Syntax): The syntactic representation of the argument # TODO: Not sure this is right?
         semantics (Semantics): The semantic theory being used
         proposition_class (class): The class used to create propositions
         sentences (dict): All sentences in the argument
