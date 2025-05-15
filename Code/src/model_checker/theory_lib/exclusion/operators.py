@@ -249,12 +249,18 @@ class ExclusionOperatorBoundedQuantifyIndices(ExclusionOperatorBase):
 
     def extended_verify(self, state, argument, eval_point):
         """this implementation quantifies over a bound range of indices. 
-        Bound is 2^(N+3). Calculated based on reasonable upper bound estimates for number of
-        negations per sentence (2) times number of sentences (4) times number of verifiers (O(n))
-        
-        Advantages: slow and STEADY wins the race
+        Bound is 2^(N+5). Calculated based on reasonable upper bound estimates for number of
+        negations per sentence (2) times number of sentences (4) times number of verifiers (O(n)),
+        and then adding 2 to that (2^(N+3+2)). 
 
-        Disadvantages: SLOW and steady wins the race
+        The reason for this bound is that the bound for the space of functions is O(n^n), n=2^N,
+        which gets huge very fast. So if you want to try quantifying over a bounded set of indices
+        to avoid using Z3 quantifiers, this is what you should do. 
+        
+        Advantages: slow and STEADY wins the race—avoids unpredictable runtime of Z3 quantifiers
+
+        Disadvantages: SLOW and steady wins the race. Also it could be the case that more indices
+        than the bound estimate provides are needed. 
         """
         # Abbreviations
         semantics = self.semantics
