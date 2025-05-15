@@ -249,27 +249,6 @@ EX_CM_1_example = [
     EX_CM_1_settings,
 ]
 
-# DISTRIBUTION IDENTITY: DISJUNCTION OVER CONJUNCTION  
-EX_CM_5_premises = []
-EX_CM_5_conclusions = ['((A \\univee (B \\uniwedge C)) \\uniequiv ((A \\univee B) \\uniwedge (A \\univee C)))']
-EX_CM_5_settings = { # agree
-    'N' : 3,
-    'possible' : False,
-    'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'disjoint' : False,
-    'fusion_closure' : False,
-    'max_time' : 1,
-    'iterate' : 2,
-    'expectation' : True,
-}
-EX_CM_5_example = [
-    EX_CM_5_premises,
-    EX_CM_5_conclusions,
-    EX_CM_5_settings,
-]
-
 # DISTRIBUTION AND/OR (from t_exclusion.py test_CMP_CM1)
 EX_CM_15_premises = ['((A \\univee B) \\uniwedge (A \\univee B))']
 EX_CM_15_conclusions = ['(A \\uniwedge (B \\univee C))']
@@ -421,9 +400,9 @@ EX_CM_13_example = [
 ############################
 
 # DISJUNCTIVE SYLLOGISM
-EX_TH_1_premises = ['(A \\univee B)', '\\exclude B']
-EX_TH_1_conclusions = ['A']
-EX_TH_1_settings = {
+DISJ_SYLL_premises = ['(A \\univee B)', '\\exclude B']
+DISJ_SYLL_conclusions = ['A']
+DISJ_SYLL_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -434,16 +413,16 @@ EX_TH_1_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_1_example = [
-    EX_TH_1_premises,
-    EX_TH_1_conclusions,
-    EX_TH_1_settings
+DISJ_SYLL_example = [
+    DISJ_SYLL_premises,
+    DISJ_SYLL_conclusions,
+    DISJ_SYLL_settings
 ]
 
 # CONJUNCTION DEMORGANS LR
-EX_TH_2_premises = ['\\exclude (A \\uniwedge B)']
-EX_TH_2_conclusions = ['(\\exclude A \\univee \\exclude B)']
-EX_TH_2_settings = {
+CONJ_DM_LR_premises = ['\\exclude (A \\uniwedge B)']
+CONJ_DM_LR_conclusions = ['(\\exclude A \\univee \\exclude B)']
+CONJ_DM_LR_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -454,16 +433,16 @@ EX_TH_2_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_2_example = [
-    EX_TH_2_premises,
-    EX_TH_2_conclusions,
-    EX_TH_2_settings
+CONJ_DM_LR_example = [
+    CONJ_DM_LR_premises,
+    CONJ_DM_LR_conclusions,
+    CONJ_DM_LR_settings
 ]
 
 # CONJUNCTION DEMORGANS RL
-EX_TH_3_premises = ['(\\exclude A \\univee \\exclude B)']
-EX_TH_3_conclusions = ['\\exclude (A \\uniwedge B)']
-EX_TH_3_settings = {
+CONJ_DM_RL_premises = ['(\\exclude A \\univee \\exclude B)']
+CONJ_DM_RL_conclusions = ['\\exclude (A \\uniwedge B)']
+CONJ_DM_RL_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -474,16 +453,16 @@ EX_TH_3_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_3_example = [
-    EX_TH_3_premises,
-    EX_TH_3_conclusions,
-    EX_TH_3_settings
+CONJ_DM_RL_example = [
+    CONJ_DM_RL_premises,
+    CONJ_DM_RL_conclusions,
+    CONJ_DM_RL_settings
 ]
 
 # DISJUNCTION DEMORGANS LR
-EX_TH_3_premises = ['\\exclude (A \\univee B)']
-EX_TH_3_conclusions = ['(\\exclude A \\uniwedge \\exclude B)']
-EX_TH_3_settings = {
+DISJ_DM_LR_premises = ['\\exclude (A \\univee B)']
+DISJ_DM_LR_conclusions = ['(\\exclude A \\uniwedge \\exclude B)']
+DISJ_DM_LR_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -494,16 +473,16 @@ EX_TH_3_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_3_example = [
-    EX_TH_3_premises,
-    EX_TH_3_conclusions,
-    EX_TH_3_settings
+DISJ_DM_LR_example = [
+    DISJ_DM_LR_premises,
+    DISJ_DM_LR_conclusions,
+    DISJ_DM_LR_settings
 ]
 
 # DISJUNCTION DEMORGANS RL
-EX_TH_4_premises = ['(\\exclude A \\uniwedge \\exclude B)']
-EX_TH_4_conclusions = ['\\exclude (A \\univee B)']
-EX_TH_4_settings = {
+DISJ_DM_RL_premises = ['(\\exclude A \\uniwedge \\exclude B)']
+DISJ_DM_RL_conclusions = ['\\exclude (A \\univee B)']
+DISJ_DM_RL_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -514,16 +493,16 @@ EX_TH_4_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_4_example = [
-    EX_TH_4_premises,
-    EX_TH_4_conclusions,
-    EX_TH_4_settings
+DISJ_DM_RL_example = [
+    DISJ_DM_RL_premises,
+    DISJ_DM_RL_conclusions,
+    DISJ_DM_RL_settings
 ]
 
 # DISJUNCTION DISTRIBUTION LR
-EX_TH_5_premises = ['(A \\univee (B \\uniwedge C))']
-EX_TH_5_conclusions = ['((A \\univee B) \\uniwedge (A \\univee C))']
-EX_TH_5_settings = {
+DISJ_DIST_LR_premises = ['(A \\univee (B \\uniwedge C))']
+DISJ_DIST_LR_conclusions = ['((A \\univee B) \\uniwedge (A \\univee C))']
+DISJ_DIST_LR_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -534,16 +513,16 @@ EX_TH_5_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_5_example = [
-    EX_TH_5_premises,
-    EX_TH_5_conclusions,
-    EX_TH_5_settings
+DISJ_DIST_LR_example = [
+    DISJ_DIST_LR_premises,
+    DISJ_DIST_LR_conclusions,
+    DISJ_DIST_LR_settings
 ]
 
 # DISJUNCTION DISTRIBUTION RL
-EX_TH_6_premises = ['((A \\univee B) \\uniwedge (A \\univee C))']
-EX_TH_6_conclusions = ['(A \\univee (B \\uniwedge C))']
-EX_TH_6_settings = {
+DISJ_DIST_RL_premises = ['((A \\univee B) \\uniwedge (A \\univee C))']
+DISJ_DIST_RL_conclusions = ['(A \\univee (B \\uniwedge C))']
+DISJ_DIST_RL_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -554,16 +533,16 @@ EX_TH_6_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_6_example = [
-    EX_TH_6_premises,
-    EX_TH_6_conclusions,
-    EX_TH_6_settings
+DISJ_DIST_RL_example = [
+    DISJ_DIST_RL_premises,
+    DISJ_DIST_RL_conclusions,
+    DISJ_DIST_RL_settings
 ]
 
 # CONJUNCTION DISTRIBUTION LR
-EX_TH_7_premises = ['(A \\uniwedge (B \\univee C))']
-EX_TH_7_conclusions = ['((A \\uniwedge B) \\univee (A \\uniwedge C))']
-EX_TH_7_settings = {
+CONJ_DIST_LR_premises = ['(A \\uniwedge (B \\univee C))']
+CONJ_DIST_LR_conclusions = ['((A \\uniwedge B) \\univee (A \\uniwedge C))']
+CONJ_DIST_LR_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -574,16 +553,16 @@ EX_TH_7_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_7_example = [
-    EX_TH_7_premises,
-    EX_TH_7_conclusions,
-    EX_TH_7_settings
+CONJ_DIST_LR_example = [
+    CONJ_DIST_LR_premises,
+    CONJ_DIST_LR_conclusions,
+    CONJ_DIST_LR_settings
 ]
 
 # CONJUNCTION DISTRIBUTION RL
-EX_TH_8_premises = ['((A \\uniwedge B) \\univee (A \\uniwedge C))']
-EX_TH_8_conclusions = ['(A \\uniwedge (B \\univee C))']
-EX_TH_8_settings = {
+CONJ_DIST_RL_premises = ['((A \\uniwedge B) \\univee (A \\uniwedge C))']
+CONJ_DIST_RL_conclusions = ['(A \\uniwedge (B \\univee C))']
+CONJ_DIST_RL_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -594,16 +573,16 @@ EX_TH_8_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_8_example = [
-    EX_TH_8_premises,
-    EX_TH_8_conclusions,
-    EX_TH_8_settings
+CONJ_DIST_RL_example = [
+    CONJ_DIST_RL_premises,
+    CONJ_DIST_RL_conclusions,
+    CONJ_DIST_RL_settings
 ]
 
 # CONJUNCTION ABSORPTION RL
-EX_TH_9_premises = ['(A \\uniwedge (A \\univee B))']
-EX_TH_9_conclusions = ['A']
-EX_TH_9_settings = {
+CONJ_ABS_RL_premises = ['(A \\uniwedge (A \\univee B))']
+CONJ_ABS_RL_conclusions = ['A']
+CONJ_ABS_RL_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -614,16 +593,16 @@ EX_TH_9_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_9_example = [
-    EX_TH_9_premises,
-    EX_TH_9_conclusions,
-    EX_TH_9_settings
+CONJ_ABS_RL_example = [
+    CONJ_ABS_RL_premises,
+    CONJ_ABS_RL_conclusions,
+    CONJ_ABS_RL_settings
 ]
 
 # CONJUNCTION ABSORPTION LR
-EX_TH_10_premises = ['A']
-EX_TH_10_conclusions = ['(A \\uniwedge (A \\univee B))']
-EX_TH_10_settings = {
+CONJ_ABS_LR_premises = ['A']
+CONJ_ABS_LR_conclusions = ['(A \\uniwedge (A \\univee B))']
+CONJ_ABS_LR_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -634,16 +613,16 @@ EX_TH_10_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_10_example = [
-    EX_TH_10_premises,
-    EX_TH_10_conclusions,
-    EX_TH_10_settings
+CONJ_ABS_LR_example = [
+    CONJ_ABS_LR_premises,
+    CONJ_ABS_LR_conclusions,
+    CONJ_ABS_LR_settings
 ]
 
 # DISJUNCTION ABSORPTION RL
-EX_TH_11_premises = ['(A \\univee (A \\uniwedge B))']
-EX_TH_11_conclusions = ['A']
-EX_TH_11_settings = {
+DISJ_ABS_RL_premises = ['(A \\univee (A \\uniwedge B))']
+DISJ_ABS_RL_conclusions = ['A']
+DISJ_ABS_RL_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -654,16 +633,16 @@ EX_TH_11_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_11_example = [
-    EX_TH_11_premises,
-    EX_TH_11_conclusions,
-    EX_TH_11_settings
+DISJ_ABS_RL_example = [
+    DISJ_ABS_RL_premises,
+    DISJ_ABS_RL_conclusions,
+    DISJ_ABS_RL_settings
 ]
 
 # DISJUNCTION ABSORPTION LR
-EX_TH_12_premises = ['A']
-EX_TH_12_conclusions = ['(A \\univee (A \\uniwedge B))']
-EX_TH_12_settings = {
+DISJ_ABS_LR_premises = ['A']
+DISJ_ABS_LR_conclusions = ['(A \\univee (A \\uniwedge B))']
+DISJ_ABS_LR_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -674,16 +653,16 @@ EX_TH_12_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_12_example = [
-    EX_TH_12_premises,
-    EX_TH_12_conclusions,
-    EX_TH_12_settings
+DISJ_ABS_LR_example = [
+    DISJ_ABS_LR_premises,
+    DISJ_ABS_LR_conclusions,
+    DISJ_ABS_LR_settings
 ]
 
 # CONJUNCTION ASSOCIATIVITY RL
-EX_TH_13_premises = ['((A \\uniwedge B) \\uniwedge C)']
-EX_TH_13_conclusions = ['(A \\uniwedge (B \\uniwedge C))']
-EX_TH_13_settings = {
+CONJ_ASSOC_RL_premises = ['((A \\uniwedge B) \\uniwedge C)']
+CONJ_ASSOC_RL_conclusions = ['(A \\uniwedge (B \\uniwedge C))']
+CONJ_ASSOC_RL_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -694,16 +673,16 @@ EX_TH_13_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_13_example = [
-    EX_TH_13_premises,
-    EX_TH_13_conclusions,
-    EX_TH_13_settings
+CONJ_ASSOC_RL_example = [
+    CONJ_ASSOC_RL_premises,
+    CONJ_ASSOC_RL_conclusions,
+    CONJ_ASSOC_RL_settings
 ]
 
 # CONJUNCTION ASSOCIATIVITY LR
-EX_TH_14_premises = ['(A \\uniwedge (B \\uniwedge C))']
-EX_TH_14_conclusions = ['((A \\uniwedge B) \\uniwedge C)']
-EX_TH_14_settings = {
+CONJ_ASSOC_LR_premises = ['(A \\uniwedge (B \\uniwedge C))']
+CONJ_ASSOC_LR_conclusions = ['((A \\uniwedge B) \\uniwedge C)']
+CONJ_ASSOC_LR_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -714,16 +693,16 @@ EX_TH_14_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_14_example = [
-    EX_TH_14_premises,
-    EX_TH_14_conclusions,
-    EX_TH_14_settings
+CONJ_ASSOC_LR_example = [
+    CONJ_ASSOC_LR_premises,
+    CONJ_ASSOC_LR_conclusions,
+    CONJ_ASSOC_LR_settings
 ]
 
 # DISJUNCTION ASSOCIATIVITY RL
-EX_TH_15_premises = ['((A \\univee B) \\univee C)']
-EX_TH_15_conclusions = ['(A \\univee (B \\univee C))']
-EX_TH_15_settings = {
+DISJ_ASSOC_RL_premises = ['((A \\univee B) \\univee C)']
+DISJ_ASSOC_RL_conclusions = ['(A \\univee (B \\univee C))']
+DISJ_ASSOC_RL_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -734,16 +713,16 @@ EX_TH_15_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_15_example = [
-    EX_TH_15_premises,
-    EX_TH_15_conclusions,
-    EX_TH_15_settings
+DISJ_ASSOC_RL_example = [
+    DISJ_ASSOC_RL_premises,
+    DISJ_ASSOC_RL_conclusions,
+    DISJ_ASSOC_RL_settings
 ]
 
 # DISJUNCTION ASSOCIATIVITY LR
-EX_TH_16_premises = ['(A \\univee (B \\univee C))']
-EX_TH_16_conclusions = ['((A \\univee B) \\univee C)']
-EX_TH_16_settings = {
+DISJ_ASSOC_LR_premises = ['(A \\univee (B \\univee C))']
+DISJ_ASSOC_LR_conclusions = ['((A \\univee B) \\univee C)']
+DISJ_ASSOC_LR_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -754,10 +733,10 @@ EX_TH_16_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_TH_16_example = [
-    EX_TH_16_premises,
-    EX_TH_16_conclusions,
-    EX_TH_16_settings
+DISJ_ASSOC_LR_example = [
+    DISJ_ASSOC_LR_premises,
+    DISJ_ASSOC_LR_conclusions,
+    DISJ_ASSOC_LR_settings
 ]
 
 # DE MORGAN NOT/OR (from t_exclusion.py test_CMP_T1)
@@ -801,9 +780,9 @@ EX_TH_18_example = [
 ]
 
 # DISTRIBUTION IDENTITY: CONJUNCTION OVER DISJUNCTION 
-EX_CM_2_premises = []
-EX_CM_2_conclusions = ['((A \\uniwedge (B \\univee C)) \\uniequiv ((A \\uniwedge B) \\univee (A \\uniwedge C)))']
-EX_CM_2_settings = { # agree
+CONJ_DIST_ID_premises = []
+CONJ_DIST_ID_conclusions = ['((A \\uniwedge (B \\univee C)) \\uniequiv ((A \\uniwedge B) \\univee (A \\uniwedge C)))']
+CONJ_DIST_ID_settings = { # agree
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -814,16 +793,16 @@ EX_CM_2_settings = { # agree
     'max_time' : 10,
     'expectation' : False,
 }
-EX_CM_2_example = [
-    EX_CM_2_premises,
-    EX_CM_2_conclusions,
-    EX_CM_2_settings,
+CONJ_DIST_ID_example = [
+    CONJ_DIST_ID_premises,
+    CONJ_DIST_ID_conclusions,
+    CONJ_DIST_ID_settings,
 ]
 
-# DISTRIBUTION ENTAILMENT: CONJUNCTION OVER DISJUNCTION 
-EX_CM_3_premises = ['(A \\uniwedge (B \\univee C))']
-EX_CM_3_conclusions = ['((A \\uniwedge B) \\univee (A \\uniwedge C))']
-EX_CM_3_settings = { # agree
+# DISTRIBUTION IDENTITY: DISJUNCTION OVER CONJUNCTION  
+DISJ_DIST_ID_premises = []
+DISJ_DIST_ID_conclusions = ['((A \\univee (B \\uniwedge C)) \\uniequiv ((A \\univee B) \\uniwedge (A \\univee C)))']
+DISJ_DIST_ID_settings = { # agree
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -832,81 +811,22 @@ EX_CM_3_settings = { # agree
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 10,
-    'expectation' : False,
+    'iterate' : 1,
+    'expectation' : True,
 }
-EX_CM_3_example = [
-    EX_CM_3_premises,
-    EX_CM_3_conclusions,
-    EX_CM_3_settings,
+DISJ_DIST_ID_example = [
+    DISJ_DIST_ID_premises,
+    DISJ_DIST_ID_conclusions,
+    DISJ_DIST_ID_settings,
 ]
 
-# REVERSE DISTRIBUTION ENTAILMENT: CONJUNCTION OVER DISJUNCTION 
-EX_CM_4_premises = ['((A \\uniwedge B) \\univee (A \\uniwedge C))']
-EX_CM_4_conclusions = ['(A \\uniwedge (B \\univee C))']
-EX_CM_4_settings = { # agree
+# CONJUNCTIVE DEMORGANS IDENTITY
+CONJ_DM_ID_premises = []
+CONJ_DM_ID_conclusions = ["(\\exclude (P \\uniwedge Q) \\uniequiv (\\exclude P \\univee \\exclude Q))"] # should find cm if here
+CONJ_DM_ID_settings = {
     'N' : 3,
     'possible' : False,
-    'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'disjoint' : False,
-    'fusion_closure' : False,
-    'max_time' : 10,
-    'expectation' : False,
-}
-EX_CM_4_example = [
-    EX_CM_4_premises,
-    EX_CM_4_conclusions,
-    EX_CM_4_settings,
-]
-
-# DISTRIBUTION ENTAILMENT: CONJUNCTION OVER DISJUNCTION 
-EX_CM_6_premises = ['(A \\univee (B \\uniwedge C))']
-EX_CM_6_conclusions = ['((A \\univee B) \\uniwedge (A \\univee C))']
-EX_CM_6_settings = { # agree
-    'N' : 3,
-    'possible' : False,
-    'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'disjoint' : False,
-    'fusion_closure' : False,
-    'max_time' : 10,
-    'expectation' : False,
-}
-EX_CM_6_example = [
-    EX_CM_6_premises,
-    EX_CM_6_conclusions,
-    EX_CM_6_settings,
-]
-
-# REVERSE DISTRIBUTION ENTAILMENT: DISJUNCTION OVER CONJUNCTION
-EX_CM_7_premises = ['((A \\univee B) \\uniwedge (A \\univee C))']
-EX_CM_7_conclusions = ['(A \\univee (B \\uniwedge C))']
-EX_CM_7_settings = { # agree
-    'N' : 3,
-    'possible' : False,
-    'contingent' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'disjoint' : False,
-    'fusion_closure' : False,
-    'max_time' : 10,
-    'expectation' : False,
-}
-EX_CM_7_example = [
-    EX_CM_7_premises,
-    EX_CM_7_conclusions,
-    EX_CM_7_settings,
-]
-
-# CONJUNCTION DEMORGANS
-EX_CM_14_premises = ['\\exclude (A \\uniwedge B)']
-EX_CM_14_conclusions = ['(\\exclude A \\univee \\exclude B)']
-EX_CM_14_settings = {
-    'N' : 3,
-    'possible' : False,
-    'contingent' : False,
+    'contingent' : True,
     'non_empty' : False,
     'non_null' : False,
     'disjoint' : False,
@@ -914,19 +834,19 @@ EX_CM_14_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_CM_14_example = [
-    EX_CM_14_premises,
-    EX_CM_14_conclusions,
-    EX_CM_14_settings
+CONJ_DM_ID_example = [
+    CONJ_DM_ID_premises,
+    CONJ_DM_ID_conclusions,
+    CONJ_DM_ID_settings
 ]
 
-# DEMORGANS IDENTITY
-EX_DMI_premises = []
-EX_DMI_conclusions = ["(\\exclude (P \\uniwedge Q) \\uniequiv (\\exclude P \\univee \\exclude Q))"] # should find cm if here
-EX_DMI_settings = {
+# DISJUNCTIVE DEMORGANS IDENTITY
+DISJ_DM_ID_premises = []
+DISJ_DM_ID_conclusions = ["(\\exclude (P \\uniwedge Q) \\uniequiv (\\exclude P \\univee \\exclude Q))"] # should find cm if here
+DISJ_DM_ID_settings = {
     'N' : 3,
     'possible' : False,
-    'contingent' : False,
+    'contingent' : True,
     'non_empty' : False,
     'non_null' : False,
     'disjoint' : False,
@@ -934,10 +854,10 @@ EX_DMI_settings = {
     'max_time' : 1,
     'expectation' : False,
 }
-EX_DMI_example = [
-    EX_DMI_premises,
-    EX_DMI_conclusions,
-    EX_DMI_settings
+DISJ_DM_ID_example = [
+    DISJ_DM_ID_premises,
+    DISJ_DM_ID_conclusions,
+    DISJ_DM_ID_settings
 ]
 
 
@@ -957,7 +877,7 @@ test_example_range = {
     # Countermodels
     "EX_CM_0" : EX_CM_0_example,
     "EX_CM_1" : EX_CM_1_example,
-    "EX_CM_5" : EX_CM_5_example,
+    "EX_CM_5" : DISJ_DIST_ID_example,
     "EX_CM_8" : EX_CM_8_example,
     "EX_CM_9" : EX_CM_9_example,
     "EX_CM_10" : EX_CM_10_example,
@@ -967,30 +887,26 @@ test_example_range = {
     "EX_CM_15" : EX_CM_15_example,
 
     # # Theorems
-    "EX_TH_1" : EX_TH_1_example,
-    "EX_TH_2" : EX_TH_2_example,
-    "EX_TH_3" : EX_TH_3_example,
-    "EX_TH_4" : EX_TH_4_example,
-    "EX_TH_5" : EX_TH_5_example,
-    "EX_TH_6" : EX_TH_6_example,
-    "EX_TH_7" : EX_TH_7_example,
-    "EX_TH_8" : EX_TH_8_example,
-    "EX_TH_9" : EX_TH_9_example,
-    "EX_TH_10" : EX_TH_10_example,
-    "EX_TH_11" : EX_TH_11_example,
-    "EX_TH_12" : EX_TH_12_example,
-    "EX_TH_13" : EX_TH_13_example,
-    "EX_TH_14" : EX_TH_14_example,
-    "EX_TH_15" : EX_TH_15_example,
-    "EX_TH_16" : EX_TH_16_example,
+    "EX_TH_1" : DISJ_SYLL_example,
+    "EX_TH_2" : CONJ_DM_LR_example,
+    "EX_TH_3" : CONJ_DM_RL_example,
+    "DISJ_DM_LR" : DISJ_DM_LR_example,
+    "EX_TH_4" : DISJ_DM_RL_example,
+    "EX_TH_5" : DISJ_DIST_LR_example,
+    "EX_TH_6" : DISJ_DIST_RL_example,
+    "EX_TH_7" : CONJ_DIST_LR_example,
+    "EX_TH_8" : CONJ_DIST_RL_example,
+    "EX_TH_9" : CONJ_ABS_RL_example,
+    "EX_TH_10" : CONJ_ABS_LR_example,
+    "EX_TH_11" : DISJ_ABS_RL_example,
+    "EX_TH_12" : DISJ_ABS_LR_example,
+    "EX_TH_13" : CONJ_ASSOC_RL_example,
+    "EX_TH_14" : CONJ_ASSOC_LR_example,
+    "EX_TH_15" : DISJ_ASSOC_RL_example,
+    "EX_TH_16" : DISJ_ASSOC_LR_example,
     "EX_TH_17" : EX_TH_17_example,
     "EX_TH_18" : EX_TH_18_example,
-    "EX_CM_2" : EX_CM_2_example,
-    "EX_CM_3" : EX_CM_3_example,
-    "EX_CM_4" : EX_CM_4_example,
-    "EX_CM_6" : EX_CM_6_example,
-    "EX_CM_7" : EX_CM_7_example,
-    "EX_CM_14" : EX_CM_14_example,
+    "EX_CM_2" : CONJ_DIST_ID_example,
 }
 
 # NOTE: at least one example is required, multiple are permitted for comparison
@@ -998,7 +914,6 @@ example_range = {
     # Countermodels
     # "EX_CM_0" : EX_CM_0_example,
     # "EX_CM_1" : EX_CM_1_example,
-    # "EX_CM_5" : EX_CM_5_example,
     # "EX_CM_8" : EX_CM_8_example,
     # "EX_CM_9" : EX_CM_9_example,
     # "EX_CM_10" : EX_CM_10_example,
@@ -1008,33 +923,35 @@ example_range = {
     # "EX_CM_15" : EX_CM_15_example,
 
     # Theorems
-    # "EX_TH_1" : EX_TH_1_example,
-    # "EX_TH_2" : EX_TH_2_example, 
-    # "EX_TH_3" : EX_TH_3_example,
-    # "EX_TH_4" : EX_TH_4_example,
-    # "EX_TH_5" : EX_TH_5_example,
-    # "EX_TH_6" : EX_TH_6_example,
-    # "EX_TH_7" : EX_TH_7_example,
-    # "EX_TH_8" : EX_TH_8_example,
-    # "EX_TH_9" : EX_TH_9_example,
-    # "EX_TH_10" : EX_TH_10_example,
-    # "EX_TH_11" : EX_TH_11_example,
-    # "EX_TH_12" : EX_TH_12_example,
-    # "EX_TH_13" : EX_TH_13_example,
-    # "EX_TH_14" : EX_TH_14_example,
-    # "EX_TH_15" : EX_TH_15_example,
-    # "EX_TH_16" : EX_TH_16_example,
-    # "EX_TH_17" : EX_TH_17_example,
-    # "EX_TH_18" : EX_TH_18_example,
-    "EX_CM_2" : EX_CM_2_example,
-    "EX_CM_3" : EX_CM_3_example,
-    "EX_CM_4" : EX_CM_4_example,
-    "EX_CM_6" : EX_CM_6_example,
-    "EX_CM_7" : EX_CM_7_example,
-    "EX_CM_14" : EX_CM_14_example,
+    "Disjunctive Syllogism" : DISJ_SYLL_example,
 
-    # Other
-    # "EX_DMI": EX_DMI_example,
+    "Conjunctive DeMorgan's LR" : CONJ_DM_LR_example, 
+    "Conjunctive DeMorgan's RL" : CONJ_DM_RL_example,
+    "Disjunctive DeMorgan's LR" : DISJ_DM_LR_example,
+    "Disjunctive DeMorgan's RL" : DISJ_DM_RL_example,
+
+    "Conjunctive Distribution LR" : CONJ_DIST_LR_example,
+    "Conjunctive Distribution RL" : CONJ_DIST_RL_example,
+    "Disjunctive Distribution LR" : DISJ_DIST_LR_example,
+    "Disjunctive Distribution RL" : DISJ_DIST_RL_example,
+
+    "Conjunctive Absorption LR" : CONJ_ABS_LR_example,
+    "Conjunctive Absorption RL" : CONJ_ABS_RL_example,
+    "Disjunctive Absorption LR" : DISJ_ABS_LR_example,
+    "Disjunctive Absorption RL" : DISJ_ABS_RL_example,
+
+    "Conjunctive Associativity LR" : CONJ_ASSOC_LR_example,
+    "Conjunctive Associativity RL" : CONJ_ASSOC_RL_example,
+    "Disjunctive Associativity LR" : DISJ_ASSOC_LR_example,
+    "Disjunctive Associativity RL" : DISJ_ASSOC_RL_example,
+
+    "EX_TH_17" : EX_TH_17_example,
+    "EX_TH_18" : EX_TH_18_example,
+
+    # "Conjuctive DeMorgan's Identity" : CONJ_DM_ID_example,
+    # "Disjunctive DeMorgan's Identity" : DISJ_DM_ID_example,
+    # "Conjunctive Distribution Identity" : CONJ_DIST_ID_example,
+    # "Disjuctive Distribution Identity" : DISJ_DIST_ID_example,
 }
 
 

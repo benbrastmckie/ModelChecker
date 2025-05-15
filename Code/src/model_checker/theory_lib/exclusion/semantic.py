@@ -67,9 +67,10 @@ class ExclusionSemantics(model.SemanticDefaults):
         }
 
         # DEFINE THINGS FOR QUANTIFYING OVER FUNCS
-        self.h_ix = z3.Int("h_ix") # used for H: Z -> (S -> S)
+        self.h_ix = z3.BitVec("h_ix", self.N + 3) # used for H: Z -> (S -> S)
         h_func_sort = z3.ArraySort(z3.BitVecSort(self.N), z3.BitVecSort(self.N)) # h: S -> S
-        self.H = z3.Function("H", z3.IntSort(), h_func_sort) # H: Z -> (S -> S)
+        self.H = z3.Function("H", z3.BitVecSort(self.N+3), h_func_sort) # H: Z -> (S -> S)
+        # NOTE: see calculations in your notebook for N + 3 justification
         self.counter = 0 # for naming new funcs
 
         # Define frame constraints
@@ -482,7 +483,7 @@ class UnilateralProposition(model.PropositionDefaults):
             is_part_of = semantics.is_part_of
 
             # NOTE: that Z3 can introduce arbitrary functions demonstrates its expressive power
-            h = z3.Array("h", z3.BitVecSort(N), z3.BitVecSort(N))
+            h = z3.Function(f"h_{sentence_letter}", z3.BitVecSort(N), z3.BitVecSort(N))
             w, m, x, y, z, u, v = z3.BitVecs("w m x y z u v", N)
 
             possibly_true = Exists(
@@ -494,30 +495,36 @@ class UnilateralProposition(model.PropositionDefaults):
             )
             # NOTE: this should not be a problem for finding the negation of these, since this add
             # these to the model
-            dummy_neg = self.syntax.operator_collection["\\exclude"](self.semantics)
+            # dummy_neg = self.syntax.operator_collection["\\exclude"](self.semantics)
+
             possibly_false = Exists(m, z3.And(semantics.possible(m),
-                                              z3.Exists(h, z3.And(ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the argument
-                z,
-                z3.Implies(
-                    semantics.verify(z, sentence_letter),
-                    is_part_of(h[z], m),
-                )
-            ), 
-                      z3.Not(Exists(y, z3.And(ForAll(z, z3.Implies(semantics.verify(x, sentence_letter), is_part_of(h[z],y))), z3.And(is_part_of(y,m), y != m)))), 
-                      ForAll( # 1. for every extended_verifiers x of the argument, there 
-                x,  #    is some part y of x where h(x) excludes y                                    
-                z3.Implies(
-                    semantics.verify(x, sentence_letter), # member of argument's set of verifiers
-                    Exists(
-                        y,
-                        z3.And(
-                            is_part_of(y, x),
-                            excludes(h[x], y)
-                        )
-                    )
-                )
+             z3.And(ForAll(x, z3.Implies(semantics.verify(x, sentence_letter), Exists(y, z3.And(is_part_of(y, x), excludes(h(x), y))))), # cond 1
+               ForAll(x, z3.Implies(semantics.verify(x, sentence_letter), is_part_of(h(x), m))), # UB
+               ForAll(z, z3.Implies(ForAll(x, z3.Implies(semantics.verify(x, sentence_letter), is_part_of(h(x), z))), is_part_of(m, z)))) # LUB
             ))
-        )))
+        #     possibly_false = Exists(m, z3.And(semantics.possible(m),
+        #                                       z3.Exists(h, z3.And(ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the argument
+        #         z,
+        #         z3.Implies(
+        #             semantics.verify(z, sentence_letter),
+        #             is_part_of(h[z], m),
+        #         )
+        #     ), 
+        #               z3.Not(Exists(y, z3.And(ForAll(z, z3.Implies(semantics.verify(x, sentence_letter), is_part_of(h[z],y))), z3.And(is_part_of(y,m), y != m)))), 
+        #               ForAll( # 1. for every extended_verifiers x of the argument, there 
+        #         x,  #    is some part y of x where h(x) excludes y                                    
+        #         z3.Implies(
+        #             semantics.verify(x, sentence_letter), # member of argument's set of verifiers
+        #             Exists(
+        #                 y,
+        #                 z3.And(
+        #                     is_part_of(y, x),
+        #                     excludes(h[x], y)
+        #                 )
+        #             )
+        #         )
+        #     ))
+        # )))
             return [possibly_true, possibly_false]
 
         def get_disjoint_constraints():
