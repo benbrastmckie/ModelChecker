@@ -363,11 +363,11 @@ class ExclusionOperatorNameArrays(ExclusionOperatorBase):
             )
 
 
-NF = ExclusionOperatorNameFunctions
-NA = ExclusionOperatorNameArrays
 QA = ExclusionOperatorQuantifyArrays
 QI = ExclusionOperatorQuantifyIndices
 BQI = ExclusionOperatorBoundedQuantifyIndices
+NF = ExclusionOperatorNameFunctions
+NA = ExclusionOperatorNameArrays
 
 ExclusionOperator = QA
 
