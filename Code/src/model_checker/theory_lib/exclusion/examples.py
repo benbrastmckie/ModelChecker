@@ -167,7 +167,7 @@ example_settings = {
     'non_empty' : False,
     'non_null' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : True,
 }
 
@@ -218,7 +218,7 @@ EX_CM_0_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 2,
-    'iterate' : 2,
+    'iterate' : 1,
     'expectation' : True,
 }
 EX_CM_0_example = [
@@ -239,14 +239,57 @@ EX_CM_1_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
-    'iterate' : 2,
+    'max_time' : 5,
+    'iterate' : 1,
     'expectation' : True,
 }
 EX_CM_1_example = [
     EX_CM_1_premises,
     EX_CM_1_conclusions,
     EX_CM_1_settings,
+]
+
+# NO GLUTS
+# GLUTS_premises = ['A', '\\exclude A']
+GLUTS_premises = ['(A \\uniwedge \\exclude A)']
+GLUTS_conclusions = []
+GLUTS_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 5,
+    'iterate' : 1,
+    'expectation' : True,
+}
+GLUTS_example = [
+    GLUTS_premises,
+    GLUTS_conclusions,
+    GLUTS_settings,
+]
+
+# NO GAPS
+GAPS_premises = []
+GAPS_conclusions = ['(A \\univee \\exclude A)']
+GAPS_settings = {
+    'N' : 3,
+    'possible' : False,
+    'contingent' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'disjoint' : False,
+    'fusion_closure' : False,
+    'max_time' : 5,
+    'iterate' : 1,
+    'expectation' : True,
+}
+GAPS_example = [
+    GAPS_premises,
+    GAPS_conclusions,
+    GAPS_settings,
 ]
 
 # DISTRIBUTION AND/OR (from t_exclusion.py test_CMP_CM1)
@@ -260,8 +303,8 @@ EX_CM_15_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
-    'iterate' : 2,
+    'max_time' : 5,
+    'iterate' : 1,
     'expectation' : True,
 }
 EX_CM_15_example = [
@@ -272,9 +315,9 @@ EX_CM_15_example = [
 
 # TODO: scan many models
 # DOUBLE NEGATION IDENTITY
-EX_CM_8_premises = []
-EX_CM_8_conclusions = ['(A \\uniequiv \\exclude \\exclude A)']
-EX_CM_8_settings = {
+DN_ID_premises = []
+DN_ID_conclusions = ['(A \\uniequiv \\exclude \\exclude A)']
+DN_ID_settings = {
     'N' : 2,
     'possible' : False,
     'contingent' : False,
@@ -283,40 +326,40 @@ EX_CM_8_settings = {
     'disjoint' : False,
     'fusion_closure' : False,
     'max_time' : 5,
-    'iterate' : 2,
+    'iterate' : 1,
     'expectation' : True,
 }
-EX_CM_8_example = [
-    EX_CM_8_premises,
-    EX_CM_8_conclusions,
-    EX_CM_8_settings,
+DN_ID_example = [
+    DN_ID_premises,
+    DN_ID_conclusions,
+    DN_ID_settings,
 ]
 
 # DOUBLE NEGATION ELIMINATION
-EX_CM_9_premises = ['\\exclude \\exclude A']
-EX_CM_9_conclusions = ['A']
-EX_CM_9_settings = {
+DN_ELIM_premises = ['\\exclude \\exclude A']
+DN_ELIM_conclusions = ['A']
+DN_ELIM_settings = {
     'N' : 3,
     'possible' : False,
-    'contingent' : False,
+    'contingent' : True,
     'non_empty' : False,
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
-    'iterate' : 2,
+    'max_time' : 5,
+    'iterate' : 1,
     'expectation' : True,
 }
-EX_CM_9_example = [
-    EX_CM_9_premises,
-    EX_CM_9_conclusions,
-    EX_CM_9_settings
+DN_ELIM_example = [
+    DN_ELIM_premises,
+    DN_ELIM_conclusions,
+    DN_ELIM_settings
 ]
 
 # DOUBLE NEGATION INTRODUCTION
-EX_CM_10_premises = ['A']
-EX_CM_10_conclusions = ['\\exclude \\exclude A']
-EX_CM_10_settings = {
+DN_INTRO_premises = ['A']
+DN_INTRO_conclusions = ['\\exclude \\exclude A']
+DN_INTRO_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -324,19 +367,19 @@ EX_CM_10_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False, # CHECK
 }
-EX_CM_10_example = [
-    EX_CM_10_premises,
-    EX_CM_10_conclusions,
-    EX_CM_10_settings
+DN_INTRO_example = [
+    DN_INTRO_premises,
+    DN_INTRO_conclusions,
+    DN_INTRO_settings
 ]
 
 # TRIPLE NEGATION ENTAILMENT
-EX_CM_11_premises = ['\\exclude \\exclude \\exclude A']
-EX_CM_11_conclusions = ['\\exclude A']
-EX_CM_11_settings = { # TODO: print discrepancies
+TN_ENTAIL_premises = ['\\exclude \\exclude \\exclude A']
+TN_ENTAIL_conclusions = ['\\exclude A']
+TN_ENTAIL_settings = { # TODO: print discrepancies
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -344,19 +387,19 @@ EX_CM_11_settings = { # TODO: print discrepancies
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : True,
 }
-EX_CM_11_example = [
-    EX_CM_11_premises,
-    EX_CM_11_conclusions,
-    EX_CM_11_settings
+TN_ENTAIL_example = [
+    TN_ENTAIL_premises,
+    TN_ENTAIL_conclusions,
+    TN_ENTAIL_settings
 ]
 
 # TRIPLE NEGATION IDENTITY
-EX_CM_12_premises = []
-EX_CM_12_conclusions = ['(\\exclude A \\uniequiv \\exclude \\exclude \\exclude A)']
-EX_CM_12_settings = {
+TN_ID_premises = []
+TN_ID_conclusions = ['(\\exclude A \\uniequiv \\exclude \\exclude \\exclude A)']
+TN_ID_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -364,19 +407,19 @@ EX_CM_12_settings = {
     'non_null' : True,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : True,
 }
-EX_CM_12_example = [
-    EX_CM_12_premises,
-    EX_CM_12_conclusions,
-    EX_CM_12_settings, # these can be customized by example
+TN_ID_example = [
+    TN_ID_premises,
+    TN_ID_conclusions,
+    TN_ID_settings, # these can be customized by example
 ]
 
 # QUADRUPLE NEGATION
-EX_CM_13_premises = ['\\exclude \\exclude \\exclude \\exclude A']
-EX_CM_13_conclusions = ['\\exclude \\exclude A']
-EX_CM_13_settings = {
+QN_ENTAIL_premises = ['\\exclude \\exclude \\exclude \\exclude A']
+QN_ENTAIL_conclusions = ['\\exclude \\exclude A']
+QN_ENTAIL_settings = {
     'N' : 3,
     'possible' : False,
     'contingent' : False,
@@ -384,13 +427,13 @@ EX_CM_13_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'expectation' : True,
 }
-EX_CM_13_example = [
-    EX_CM_13_premises,
-    EX_CM_13_conclusions,
-    EX_CM_13_settings
+QN_ENTAIL_example = [
+    QN_ENTAIL_premises,
+    QN_ENTAIL_conclusions,
+    QN_ENTAIL_settings
 ]
 
 
@@ -410,7 +453,7 @@ DISJ_SYLL_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 DISJ_SYLL_example = [
@@ -430,7 +473,7 @@ CONJ_DM_LR_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 CONJ_DM_LR_example = [
@@ -450,7 +493,7 @@ CONJ_DM_RL_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 CONJ_DM_RL_example = [
@@ -470,7 +513,7 @@ DISJ_DM_LR_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 DISJ_DM_LR_example = [
@@ -490,7 +533,7 @@ DISJ_DM_RL_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 DISJ_DM_RL_example = [
@@ -510,7 +553,7 @@ DISJ_DIST_LR_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 DISJ_DIST_LR_example = [
@@ -530,7 +573,7 @@ DISJ_DIST_RL_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 DISJ_DIST_RL_example = [
@@ -550,7 +593,7 @@ CONJ_DIST_LR_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 CONJ_DIST_LR_example = [
@@ -570,7 +613,7 @@ CONJ_DIST_RL_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 CONJ_DIST_RL_example = [
@@ -590,7 +633,7 @@ CONJ_ABS_RL_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 CONJ_ABS_RL_example = [
@@ -610,7 +653,7 @@ CONJ_ABS_LR_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 CONJ_ABS_LR_example = [
@@ -630,7 +673,7 @@ DISJ_ABS_RL_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 DISJ_ABS_RL_example = [
@@ -650,7 +693,7 @@ DISJ_ABS_LR_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 DISJ_ABS_LR_example = [
@@ -670,7 +713,7 @@ CONJ_ASSOC_RL_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 CONJ_ASSOC_RL_example = [
@@ -690,7 +733,7 @@ CONJ_ASSOC_LR_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 CONJ_ASSOC_LR_example = [
@@ -710,7 +753,7 @@ DISJ_ASSOC_RL_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 DISJ_ASSOC_RL_example = [
@@ -730,7 +773,7 @@ DISJ_ASSOC_LR_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 DISJ_ASSOC_LR_example = [
@@ -750,7 +793,7 @@ EX_TH_17_settings = {
     'non_null' : True,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 EX_TH_17_example = [
@@ -770,7 +813,7 @@ EX_TH_18_settings = {
     'non_null' : True,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 EX_TH_18_example = [
@@ -831,7 +874,7 @@ CONJ_DM_ID_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 CONJ_DM_ID_example = [
@@ -851,7 +894,7 @@ DISJ_DM_ID_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 1,
+    'max_time' : 5,
     'expectation' : False,
 }
 DISJ_DM_ID_example = [
@@ -878,12 +921,12 @@ test_example_range = {
     "EX_CM_0" : EX_CM_0_example,
     "EX_CM_1" : EX_CM_1_example,
     "EX_CM_5" : DISJ_DIST_ID_example,
-    "EX_CM_8" : EX_CM_8_example,
-    "EX_CM_9" : EX_CM_9_example,
-    "EX_CM_10" : EX_CM_10_example,
-    "EX_CM_11" : EX_CM_11_example,
-    "EX_CM_12" : EX_CM_12_example,
-    "EX_CM_13" : EX_CM_13_example,
+    "EX_CM_8" : DN_ID_example,
+    "EX_CM_9" : DN_ELIM_example,
+    "EX_CM_10" : DN_INTRO_example,
+    "EX_CM_11" : TN_ENTAIL_example,
+    "EX_CM_12" : TN_ID_example,
+    "EX_CM_13" : QN_ENTAIL_example,
     "EX_CM_15" : EX_CM_15_example,
 
     # # Theorems
@@ -911,45 +954,55 @@ test_example_range = {
 
 # NOTE: at least one example is required, multiple are permitted for comparison
 example_range = {
-    # Countermodels
+
+    # Frame
+    # "No Gaps" : GAPS_example,
+    # "No Gluts" : GLUTS_example,
+    # "EX_CM_1" : EX_CM_1_example, # false premise model
+
+    # Negation
+    # "Double Negation Introduction" : DN_INTRO_example,
+    # "Double Negation Elimination" : DN_ELIM_example,
+    # "Triple Negation Entailment" : TN_ENTAIL_example,
+    # "Quadruple Negation Entailment" : QN_ENTAIL_example,
+
+
+    # Classical Theorems (All should hold)
+    # "Disjunctive Syllogism" : DISJ_SYLL_example,
+
+    # "Conjunctive DeMorgan's LR" : CONJ_DM_LR_example, 
+    # "Conjunctive DeMorgan's RL" : CONJ_DM_RL_example,
+    # "Disjunctive DeMorgan's LR" : DISJ_DM_LR_example,
+    # "Disjunctive DeMorgan's RL" : DISJ_DM_RL_example,
+
+    # "Conjunctive Distribution LR" : CONJ_DIST_LR_example,
+    # "Conjunctive Distribution RL" : CONJ_DIST_RL_example,
+    # "Disjunctive Distribution LR" : DISJ_DIST_LR_example,
+    # "Disjunctive Distribution RL" : DISJ_DIST_RL_example,
+
+    # "Conjunctive Absorption LR" : CONJ_ABS_LR_example,
+    # "Conjunctive Absorption RL" : CONJ_ABS_RL_example,
+    # "Disjunctive Absorption LR" : DISJ_ABS_LR_example,
+    # "Disjunctive Absorption RL" : DISJ_ABS_RL_example,
+
+    # "Conjunctive Associativity LR" : CONJ_ASSOC_LR_example,
+    # "Conjunctive Associativity RL" : CONJ_ASSOC_RL_example,
+    # "Disjunctive Associativity LR" : DISJ_ASSOC_LR_example,
+    # "Disjunctive Associativity RL" : DISJ_ASSOC_RL_example,
+
+
+    # Other
     # "EX_CM_0" : EX_CM_0_example,
-    # "EX_CM_1" : EX_CM_1_example,
-    # "EX_CM_8" : EX_CM_8_example,
-    # "EX_CM_9" : EX_CM_9_example,
-    # "EX_CM_10" : EX_CM_10_example,
-    # "EX_CM_11" : EX_CM_11_example,
-    # "EX_CM_12" : EX_CM_12_example,
-    # "EX_CM_13" : EX_CM_13_example,
     # "EX_CM_15" : EX_CM_15_example,
+    # "EX_TH_17" : EX_TH_17_example,
+    # "EX_TH_18" : EX_TH_18_example,
 
-    # Theorems
-    "Disjunctive Syllogism" : DISJ_SYLL_example,
 
-    "Conjunctive DeMorgan's LR" : CONJ_DM_LR_example, 
-    "Conjunctive DeMorgan's RL" : CONJ_DM_RL_example,
-    "Disjunctive DeMorgan's LR" : DISJ_DM_LR_example,
-    "Disjunctive DeMorgan's RL" : DISJ_DM_RL_example,
-
-    "Conjunctive Distribution LR" : CONJ_DIST_LR_example,
-    "Conjunctive Distribution RL" : CONJ_DIST_RL_example,
-    "Disjunctive Distribution LR" : DISJ_DIST_LR_example,
-    "Disjunctive Distribution RL" : DISJ_DIST_RL_example,
-
-    "Conjunctive Absorption LR" : CONJ_ABS_LR_example,
-    "Conjunctive Absorption RL" : CONJ_ABS_RL_example,
-    "Disjunctive Absorption LR" : DISJ_ABS_LR_example,
-    "Disjunctive Absorption RL" : DISJ_ABS_RL_example,
-
-    "Conjunctive Associativity LR" : CONJ_ASSOC_LR_example,
-    "Conjunctive Associativity RL" : CONJ_ASSOC_RL_example,
-    "Disjunctive Associativity LR" : DISJ_ASSOC_LR_example,
-    "Disjunctive Associativity RL" : DISJ_ASSOC_RL_example,
-
-    "EX_TH_17" : EX_TH_17_example,
-    "EX_TH_18" : EX_TH_18_example,
-
-    # "Conjuctive DeMorgan's Identity" : CONJ_DM_ID_example,
-    # "Disjunctive DeMorgan's Identity" : DISJ_DM_ID_example,
+    # Identity
+    # "Double Negation Identity" : DN_ID_example,
+    # "Triple Negation Identity" : TN_ID_example,
+    "Conjuctive DeMorgan's Identity" : CONJ_DM_ID_example,
+    "Disjunctive DeMorgan's Identity" : DISJ_DM_ID_example,
     # "Conjunctive Distribution Identity" : CONJ_DIST_ID_example,
     # "Disjuctive Distribution Identity" : DISJ_DIST_ID_example,
 }

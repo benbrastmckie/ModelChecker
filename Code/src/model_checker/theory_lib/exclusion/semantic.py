@@ -67,9 +67,18 @@ class ExclusionSemantics(model.SemanticDefaults):
         }
 
         # DEFINE THINGS FOR QUANTIFYING OVER FUNCS
-        self.h_ix = z3.BitVec("h_ix", self.N + 3) # used for H: Z -> (S -> S)
-        h_func_sort = z3.ArraySort(z3.BitVecSort(self.N), z3.BitVecSort(self.N)) # h: S -> S
-        self.H = z3.Function("H", z3.BitVecSort(self.N+3), h_func_sort) # H: Z -> (S -> S)
+        h_sort = z3.ArraySort(z3.BitVecSort(self.N), z3.BitVecSort(self.N)) # h: S -> S
+
+        # BQI
+        self.B_h_ix = z3.BitVec("h_ix", self.N + 5) # used for H: Z -> (S -> S)
+        self.BH = z3.Function("H", z3.BitVecSort(self.N + 5), h_sort) # H: Z -> (S -> S)
+
+        # QI
+        self.H = z3.Function("H", z3.BitVecSort(self.N), h_sort) # H: Z -> (S -> S)
+
+        # QA
+        self.h = z3.Array(f"h", z3.BitVecSort(self.N), z3.BitVecSort(self.N))
+
         # NOTE: see calculations in your notebook for N + 3 justification
         self.counter = 0 # for naming new funcs
 
@@ -283,7 +292,7 @@ class ExclusionSemantics(model.SemanticDefaults):
             rashomon,   # guards against emergent impossibility (pg 538)
 
             # Additional constraints
-            null_state,
+            # null_state,
             # excluders,
             # partial_excluders,
         ]
@@ -869,7 +878,10 @@ class ExclusionStructure(model.ModelDefaults):
                 print(f"  {color_x}{x_state}{RESET} excludes {color_y}{y_state}{RESET}", file=output)
 
         # Print the h-functions
-        self.print_h_functions(output)
+        # self.print_h_functions(output)
+        for x in self.z3_model:
+            if "h_" in str(x):
+                print(x)
 
         # print()
         # for bit_x in self.all_states:
