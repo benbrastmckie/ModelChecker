@@ -166,7 +166,7 @@ class ExclusionSemantics(model.SemanticDefaults):
             rashomon,   # guards against emergent impossibility (pg 538)
 
             # Additional constraints
-            null_state,
+            # null_state,
             # excluders,
             # partial_excluders,
         ]

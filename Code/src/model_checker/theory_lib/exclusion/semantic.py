@@ -173,6 +173,17 @@ class ExclusionSemantics(model.SemanticDefaults):
             )
         )
 
+        possibility_downard_closure = ForAll(
+            [x, y],
+            z3.Implies(
+                z3.And(
+                    self.possible(y),
+                    self.is_part_of(x, y)
+                ),
+                self.possible(x)
+            ),
+        )
+
         # NOTE: used to prove that the null_state is always possible
         impossible_null = z3.Not(self.possible(self.null_state))
         not_necessary_null = z3.Not(self.necessary(self.null_state))
@@ -185,7 +196,7 @@ class ExclusionSemantics(model.SemanticDefaults):
 
             # Given by Champollion
             harmony,
-            # cosmopolitanism, # entailed
+            cosmopolitanism, # entailed for finite models (see footnote 19, pg 537)
             rashomon,   # guards against emergent impossibility (pg 538)
 
             # Suggested by Champollion
@@ -196,10 +207,11 @@ class ExclusionSemantics(model.SemanticDefaults):
             # excluders,
             # partial_excluders,
 
-            # For testing
+            # For testing frame constraint entailments
             # not_necessary_null,
             # impossible_null,
             # z3.Not(plenitude),
+            # z3.Not(possibility_downard_closure),
         ]
 
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_point["world"])
@@ -261,28 +273,31 @@ class ExclusionSemantics(model.SemanticDefaults):
     def occurs(self, bit_s):
         return self.is_part_of(bit_s, self.main_world)
     
-    # TODO: should this be eval_point?
-    def true_at(self, sentence, eval_world): # pg 545
-        sentence_letter = sentence.sentence_letter
-        if sentence_letter is not None:
-            x = z3.BitVec("t_atom_x", self.N)
-            return Exists(
-                x,
-                z3.And(
-                    self.is_part_of(x, eval_world),
-                    self.verify(x, sentence_letter)
-                )
-            )
-        operator = sentence.operator
-        arguments = sentence.arguments or ()
-        return operator.true_at(*arguments, eval_world)
+    # # TODO: should this be eval_point?
+    # def true_at(self, sentence, eval_world): # pg 545
+    #     sentence_letter = sentence.sentence_letter
+    #     if sentence_letter is not None:
+    #         x = z3.BitVec("t_atom_x", self.N)
+    #         return Exists(
+    #             x,
+    #             z3.And(
+    #                 self.is_part_of(x, eval_world),
+    #                 self.verify(x, sentence_letter)
+    #             )
+    #         )
+    #     operator = sentence.operator
+    #     arguments = sentence.arguments or ()
+    #     return operator.true_at(*arguments, eval_world)
+    
+    # def false_at(self, sentence, eval_world): 
+    #     return z3.Not(self.true_at(sentence, eval_world))
     
     def true_at(self, sentence, eval_world): # pg 545
         x = z3.BitVec("true_at_x", self.N)
         return Exists(x, z3.And(self.is_part_of(x, eval_world),
                                 self.extended_verify(x, sentence, eval_world)))
 
-    def false_at(self, sentence, eval_world): # pg 545
+    def false_at(self, sentence, eval_world): # negation of above pushed in
         x = z3.BitVec("true_at_x", self.N)
         return ForAll(x, z3.Implies(self.extended_verify(x, sentence, eval_world),
                                 z3.Not(self.is_part_of(x, eval_world))))
@@ -311,7 +326,7 @@ class UnilateralProposition(model.PropositionDefaults):
         self.eval_world = model_structure.main_point["world"] if eval_world == 'main' else eval_world
         self.all_states = model_structure.all_states
         self.verifiers = self.find_proposition()
-        self.precluders = self.find_precluders()
+        # self.precluders = self.find_precluders()
         # self.exact_excluders = self.find_exact_excluders()
 
     def __eq__(self, other):
@@ -337,17 +352,17 @@ class UnilateralProposition(model.PropositionDefaults):
         #     return f"< {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >"
         return pretty_set_print(ver_states)
 
-    def find_precluders(self):
-        all_states = self.semantics.all_states
-        result = set()
-        dummy_neg = self.model_constraints.syntax.operator_collection["\\exclude"](self.semantics)
-        for state in all_states:
-            preclude_formula = dummy_neg.extended_verify(state, self.sentence, self.eval_world)
-            # preclude_formula = neg_verify(state, self.sentence)
-            preclude_result = self.z3_model.evaluate(preclude_formula)
-            if preclude_result == True:
-                result.add(state)
-        return result
+    # def find_precluders(self):
+    #     all_states = self.semantics.all_states
+    #     result = set()
+    #     dummy_neg = self.model_constraints.syntax.operator_collection["\\exclude"](self.semantics)
+    #     for state in all_states:
+    #         preclude_formula = dummy_neg.extended_verify(state, self.sentence, self.eval_world)
+    #         # preclude_formula = neg_verify(state, self.sentence)
+    #         preclude_result = self.z3_model.evaluate(preclude_formula)
+    #         if preclude_result == True:
+    #             result.add(state)
+    #     return result
 
     def proposition_constraints(self, sentence_letter):
         """

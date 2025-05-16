@@ -167,7 +167,10 @@ class ExclusionOperatorBase(syntactic.Operator):
             # preclude_result = z3.simplify(z3_model.evaluate())
             # print(type(preclude_result), bool(preclude_result))
             if z3_solver.check(self.extended_verify(state, argument, eval_point)):
-                print(state)
+                # the reason why we get all of them: because this is saying "see if we could add this
+                # as a verifier to argument. If possible, then we're successful." We are not capturing
+                # whether this is in fact a verifier according to the model! But how do you do that then?
+                # print(state)
                 result.add(state)
         return result
 
