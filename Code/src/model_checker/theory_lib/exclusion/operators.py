@@ -152,6 +152,8 @@ class ExclusionOperatorBase(syntactic.Operator):
         # return argument.proposition.precluders
         all_states = self.semantics.all_states
         z3_model = argument.proposition.model_structure.z3_model
+        z3_solver = argument.proposition.model_structure.stored_solver
+        # print(z3_model)
         result = set()
         # return {s for s in all_states if z3.is_true(z3_model.evaluate(self.extended_verify(s, argument, eval_point)))}
         for state in all_states:
@@ -164,8 +166,8 @@ class ExclusionOperatorBase(syntactic.Operator):
             # assert False, (type(preclude_result_formula), type(preclude_result_evaluated), type(preclude_result_simplified))
             # preclude_result = z3.simplify(z3_model.evaluate())
             # print(type(preclude_result), bool(preclude_result))
-            if z3.is_true(z3_model.evaluate(self.extended_verify(state, argument, eval_point))):
-                assert False
+            if z3_solver.check(self.extended_verify(state, argument, eval_point)):
+                print(state)
                 result.add(state)
         return result
 
@@ -193,13 +195,16 @@ class ExclusionOperatorQuantifyArrays(ExclusionOperatorBase):
         excludes = semantics.excludes
         is_part_of = semantics.is_part_of
         semantics.counter += 1
-        h = z3.Array(f"h_{semantics.counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+        h = z3.Array(f"f_{semantics.counter}", z3.BitVecSort(N), z3.BitVecSort(N))
         # h = semantics.h
         # name needs to be unique for embedded negation: will o.w. pick up a var w the same name
+        # actually I think not an issue. Because embedded Exists(h, ...) will not pick up any
+        # extra bindings because the other h's are outside its scope. More concerning is the x, 
+        # but we seem to do that all the time... 
 
         # print(semantics.counter)
 
-        x, y, z, u, v = z3.BitVecs("x y z u v", N)
+        x, y, z, u, v = z3.BitVecs("excl_ver_x excl_ver_y excl_ver_z excl_ver_u excl_ver_v", N)
 
         return z3.Exists(h, z3.And(
             ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), Exists(y, z3.And(is_part_of(y, x), excludes(h[x], y))))), # cond 1
