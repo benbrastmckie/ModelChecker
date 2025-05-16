@@ -694,6 +694,7 @@ class ModelDefaults:
 
         # Initialize Z3 attributes
         self.solver = None
+        self.stored_solver = None
         self.timeout = None
         self.z3_model = None
         self.unsat_core = None
@@ -709,7 +710,7 @@ class ModelDefaults:
         self._process_solver_results(solver_results)
 
         # Exit early if no valid model was found
-        if self.timeout or self.z3_model is None:
+        if self.timeout or self.z3_model is None: # M: does this do anything?
             return
 
     def _process_solver_results(self, solver_results):
@@ -817,7 +818,7 @@ class ModelDefaults:
         ```
         
         For comprehensive information on Z3 solver state management, see:
-        - theory_lib/notes/solvers.md
+        - theory_lib/notes/solvers.md # TODO: file doesnt exist
         - DEVELOPMENT.md section on Z3 Solver State Management
         """
         # Remove references to solver and model
@@ -851,6 +852,7 @@ class ModelDefaults:
         
         # Create a new solver
         self.solver = z3.Solver()
+        self.stored_solver = self.solver
 
         try:
             # Set up the solver with the constraints
@@ -876,6 +878,7 @@ class ModelDefaults:
         finally:
             # Ensure proper cleanup to prevent any possible state leakage
             self._cleanup_solver_resources()
+            # NOTE: if a new solver is used every time, why do we need to clean the solver up?
     
     def re_solve(self):
         """Re-solve the existing model constraints with the current solver state.

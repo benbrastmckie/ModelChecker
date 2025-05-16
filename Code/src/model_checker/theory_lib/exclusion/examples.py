@@ -207,9 +207,9 @@ example_settings = {
 #####################
 
 # TRIVIAL CASE FOR CHECKING FRAME CONSTRAINTS
-EX_CM_0_premises = []
-EX_CM_0_conclusions = []
-EX_CM_0_settings = {
+EMPTY_premises = []
+EMPTY_conclusions = []
+EMPTY_settings = {
     'N' : 2,
     'possible' : False,
     'contingent' : False,
@@ -221,10 +221,10 @@ EX_CM_0_settings = {
     'iterate' : 1,
     'expectation' : True,
 }
-EX_CM_0_example = [
-    EX_CM_0_premises,
-    EX_CM_0_conclusions,
-    EX_CM_0_settings,
+EMPTY_example = [
+    EMPTY_premises,
+    EMPTY_conclusions,
+    EMPTY_settings,
 ]
 
 # CONTRADICTION CASE FOR TESTING
@@ -341,7 +341,7 @@ DN_ELIM_conclusions = ['A']
 DN_ELIM_settings = {
     'N' : 3,
     'possible' : False,
-    'contingent' : True,
+    'contingent' : False,
     'non_empty' : False,
     'non_null' : False,
     'disjoint' : False,
@@ -387,7 +387,7 @@ TN_ENTAIL_settings = { # TODO: print discrepancies
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : True,
 }
 TN_ENTAIL_example = [
@@ -407,7 +407,7 @@ TN_ID_settings = {
     'non_null' : True,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : True,
 }
 TN_ID_example = [
@@ -427,7 +427,7 @@ QN_ENTAIL_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 10,
+    'max_time' : 20,
     'expectation' : True,
 }
 QN_ENTAIL_example = [
@@ -918,7 +918,7 @@ semantic_theories = {
 
 test_example_range = {
     # Countermodels
-    "EX_CM_0" : EX_CM_0_example,
+    "EX_CM_0" : EMPTY_example,
     "EX_CM_1" : EX_CM_1_example,
     "EX_CM_5" : DISJ_DIST_ID_example,
     "EX_CM_8" : DN_ID_example,
@@ -956,18 +956,18 @@ test_example_range = {
 example_range = {
 
     # Frame
+    # "Only Frame Constraints" : EMPTY_example,
     # "No Gaps" : GAPS_example,
     # "No Gluts" : GLUTS_example,
     # "EX_CM_1" : EX_CM_1_example, # false premise model
 
-    # Negation
+
+    # Classical Negation Theorems (All should hold)
     # "Double Negation Introduction" : DN_INTRO_example,
     # "Double Negation Elimination" : DN_ELIM_example,
     # "Triple Negation Entailment" : TN_ENTAIL_example,
     # "Quadruple Negation Entailment" : QN_ENTAIL_example,
 
-
-    # Classical Theorems (All should hold)
     # "Disjunctive Syllogism" : DISJ_SYLL_example,
 
     # "Conjunctive DeMorgan's LR" : CONJ_DM_LR_example, 
@@ -975,6 +975,8 @@ example_range = {
     # "Disjunctive DeMorgan's LR" : DISJ_DM_LR_example,
     # "Disjunctive DeMorgan's RL" : DISJ_DM_RL_example,
 
+
+    # Classical And/Or Theorems (All should hold)
     # "Conjunctive Distribution LR" : CONJ_DIST_LR_example,
     # "Conjunctive Distribution RL" : CONJ_DIST_RL_example,
     # "Disjunctive Distribution LR" : DISJ_DIST_LR_example,
@@ -992,7 +994,6 @@ example_range = {
 
 
     # Other
-    # "EX_CM_0" : EX_CM_0_example,
     # "EX_CM_15" : EX_CM_15_example,
     # "EX_TH_17" : EX_TH_17_example,
     # "EX_TH_18" : EX_TH_18_example,
@@ -1001,8 +1002,8 @@ example_range = {
     # Identity
     # "Double Negation Identity" : DN_ID_example,
     # "Triple Negation Identity" : TN_ID_example,
-    "Conjuctive DeMorgan's Identity" : CONJ_DM_ID_example,
-    "Disjunctive DeMorgan's Identity" : DISJ_DM_ID_example,
+    # "Conjuctive DeMorgan's Identity" : CONJ_DM_ID_example, # is a CM
+    # "Disjunctive DeMorgan's Identity" : DISJ_DM_ID_example, # is a THM
     # "Conjunctive Distribution Identity" : CONJ_DIST_ID_example,
     # "Disjuctive Distribution Identity" : DISJ_DIST_ID_example,
 }

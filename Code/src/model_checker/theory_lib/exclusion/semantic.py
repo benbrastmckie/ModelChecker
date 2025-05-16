@@ -82,6 +82,7 @@ class ExclusionSemantics(model.SemanticDefaults):
         # NOTE: see calculations in your notebook for N + 3 justification
         self.counter = 0 # for naming new funcs
 
+
         # Define frame constraints
         x, y, z = z3.BitVecs("frame_x frame_y frame_z", self.N)
         actuality = self.is_world(self.main_world)
@@ -97,10 +98,7 @@ class ExclusionSemantics(model.SemanticDefaults):
         
         # Null state excludes nothing
         # NOTE: adding the negation of this constraint is satisfiable and so not already entailed
-        null_state = ForAll(
-            x,
-            z3.Not(self.excludes(self.null_state, x))
-        )
+        null_state = ForAll(x, z3.Not(self.excludes(self.null_state, x)))
         
         # Harmony between worlds and possibility
         harmony = ForAll( 
@@ -142,6 +140,14 @@ class ExclusionSemantics(model.SemanticDefaults):
             )
         )
 
+        cumulativity = None # TODO: if e excludes e' and f excludes f', then e ⊔ f excludes e' ⊔ f'
+
+
+        plenitude = ForAll(x, z3.And(z3.Implies(self.possible(x), Exists(y, z3.And(self.coheres(x,y), self.is_world(y)))), 
+                                     z3.Implies(Exists(y, z3.And(self.coheres(x,y), self.is_world(y))), self.possible(x))
+                                     )
+                        )
+
         excluders = ForAll(
             x,
             z3.Implies(
@@ -169,117 +175,7 @@ class ExclusionSemantics(model.SemanticDefaults):
 
         # NOTE: used to prove that the null_state is always possible
         impossible_null = z3.Not(self.possible(self.null_state))
-
-
-        # TODO: this has to be the problem but looks find
-        def conflicts(self, bit_e1, bit_e2):
-            f1, f2 = z3.BitVecs("f1 f2", self.N)
-            return Exists(
-                [f1, f2],
-                z3.And(
-                    self.is_part_of(f1, bit_e1),
-                    self.is_part_of(f2, bit_e2),
-                    self.excludes(f1, f2),
-                ),
-            )
-
-        def coheres(self, bit_e1, bit_e2):
-            return z3.Not(self.conflicts(bit_e1, bit_e2))
-
-        def possible(self, bit_e):
-            return self.coheres(bit_e, bit_e)
-
-        def compossible(self, bit_e1, bit_e2):
-            return self.possible(self.fusion(bit_e1, bit_e2))
-
-        # B: compossible => coheres but not vice versa
-        # would they be equivalent if the following constraint were added:
-        # (CON_REF) if x and y are parts of s that exclude each other, then s excludes s
-
-        def is_world(self, bit_s):
-            """
-            Determines if a state is a world by checking if it is possible and maximal.
-            A state is maximal if it has no proper extension that is possible.
-
-            Args:
-                bit_s: BitVec representing the state to check
-
-            Returns:
-                z3.BoolRef: Formula that is true iff bit_s is a world
-            """
-            m = z3.BitVec("m", self.N)
-            return z3.And(
-                self.possible(bit_s),
-                z3.Not(
-                    Exists(
-                        m,
-                        z3.And(
-                            self.is_proper_part_of(bit_s, m),
-                            self.possible(m)
-                        )
-                    )
-                )
-            )
-
-        def necessary(self, bit_e1):
-            x = z3.BitVec("nec_x", self.N)
-            return ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
-
-        def collectively_excludes(self, bit_s, set_P):
-            return self.excludes(bit_s, self.total_fusion(set_P))
-
-        def individually_excludes(self, bit_s, set_P):
-            sub_s, p = z3.BitVecs("sub_s p", self.N)
-            P = self.z3_set(set_P, self.N)
-            cond_a = Exists(
-                [sub_s, p],
-                z3.And(self.is_part_of(sub_s, bit_s), P[p], self.excludes(sub_s, p)),
-            )
-            # Sigma is upper bound on excluders of set P
-            Sigma = z3.BitVec(str(set_P), self.N)
-            x, y, z, p = z3.BitVecs("x y z p", self.N)
-            Sigma_UB = ForAll(
-                x,
-                z3.Implies(
-                    Exists(
-                        p,
-                        z3.And(
-                            P[p],
-                            self.excludes(x, p)
-                        )
-                    ),
-                    self.is_part_of(x, Sigma)
-                ),
-            )
-            # Sigma is the least upper bound on excluders of set P
-            Sigma_LUB = ForAll(
-                z,
-                z3.Implies(
-                    ForAll(
-                        y,
-                        z3.Implies(
-                            Exists(
-                                p,
-                                z3.And(
-                                    P[p],
-                                    self.excludes(y, p)
-                                )
-                            ),
-                            self.is_part_of(y, z),
-                        ),
-                    ),
-                    self.is_part_of(z, Sigma)
-                ),
-            )
-
-            return z3.And(
-                cond_a,
-                Sigma_UB,
-                Sigma_LUB,
-                self.is_part_of(bit_s, Sigma)
-            )
-
-        
+        not_necessary_null = z3.Not(self.necessary(self.null_state))
 
         # Set frame constraints
         self.frame_constraints = [
@@ -287,18 +183,28 @@ class ExclusionSemantics(model.SemanticDefaults):
             actuality,
             exclusion_symmetry,
 
-            # Optional complex constraints
+            # Given by Champollion
             harmony,
+            # cosmopolitanism, # entailed
             rashomon,   # guards against emergent impossibility (pg 538)
 
-            # Additional constraints
+            # Suggested by Champollion
+            # cumulativity,
+
+            # Modifications
             # null_state,
             # excluders,
             # partial_excluders,
+
+            # For testing
+            # not_necessary_null,
+            # impossible_null,
+            # z3.Not(plenitude),
         ]
 
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_point["world"])
         self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point["world"])
+        # self.conclusion_behavior = lambda conclusion: z3.Not(self.true_at(conclusion, self.main_point["world"]))
 
     # TODO: this has to be the problem but looks find
     def conflicts(self, bit_e1, bit_e2):
@@ -320,6 +226,10 @@ class ExclusionSemantics(model.SemanticDefaults):
 
     def compossible(self, bit_e1, bit_e2):
         return self.possible(self.fusion(bit_e1, bit_e2))
+    
+    def necessary(self, bit_e1):
+        x = z3.BitVec("nec_x", self.N)
+        return ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
 
     # B: compossible => coheres but not vice versa
     # would they be equivalent if the following constraint were added:
@@ -352,7 +262,7 @@ class ExclusionSemantics(model.SemanticDefaults):
         return self.is_part_of(bit_s, self.main_world)
     
     # TODO: should this be eval_point?
-    def true_at(self, sentence, eval_world):
+    def true_at(self, sentence, eval_world): # pg 545
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             x = z3.BitVec("t_atom_x", self.N)
@@ -366,16 +276,23 @@ class ExclusionSemantics(model.SemanticDefaults):
         operator = sentence.operator
         arguments = sentence.arguments or ()
         return operator.true_at(*arguments, eval_world)
+    
+    def true_at(self, sentence, eval_world): # pg 545
+        x = z3.BitVec("true_at_x", self.N)
+        return Exists(x, z3.And(self.is_part_of(x, eval_world),
+                                self.extended_verify(x, sentence, eval_world)))
 
-    def false_at(self, sentence, eval_world):
-        return z3.Not(self.true_at(sentence, eval_world))
+    def false_at(self, sentence, eval_world): # pg 545
+        x = z3.BitVec("true_at_x", self.N)
+        return ForAll(x, z3.Implies(self.extended_verify(x, sentence, eval_world),
+                                z3.Not(self.is_part_of(x, eval_world))))
 
     def extended_verify(self, state, sentence, eval_world):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             return self.verify(state, sentence_letter)
         operator = sentence.operator
-        arguments = sentence.arguments or ()
+        arguments = sentence.arguments
         return operator.extended_verify(state, *arguments, eval_world)
 
 
@@ -602,7 +519,7 @@ class UnilateralProposition(model.PropositionDefaults):
             return operator.find_verifiers(*arguments, eval_world)
         raise ValueError(f"Their is no proposition for {self.name}.")
 
-    def truth_value_at(self, eval_world):
+    def truth_value_at(self, eval_world): # pg 545
         """Checks if there is a verifier in world."""
         semantics = self.model_structure.semantics
         z3_model = self.model_structure.z3_model
