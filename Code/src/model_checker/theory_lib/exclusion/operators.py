@@ -148,7 +148,26 @@ class ExclusionOperatorBase(syntactic.Operator):
 
     def find_verifiers(self, argument, eval_point):
         """Returns the set of precluders for the argument's proposition."""
-        return argument.proposition.precluders
+        # for
+        # return argument.proposition.precluders
+        all_states = self.semantics.all_states
+        z3_model = argument.proposition.model_structure.z3_model
+        result = set()
+        # return {s for s in all_states if z3.is_true(z3_model.evaluate(self.extended_verify(s, argument, eval_point)))}
+        for state in all_states:
+            # preclude_result_formula = self.extended_verify(state, argument, eval_point)
+            # preclude_result_evaluated = z3_model.evaluate(preclude_result_formula)
+            # preclude_result_simplified = z3.simplify(preclude_result_evaluated)
+            # prea = z3_model.evaluate(preclude_result_simplified)
+            # assert False, preclude_result_simplified == prea
+            # assert False, z3.is_true(z3_model.evaluate(preclude_result_formula))
+            # assert False, (type(preclude_result_formula), type(preclude_result_evaluated), type(preclude_result_simplified))
+            # preclude_result = z3.simplify(z3_model.evaluate())
+            # print(type(preclude_result), bool(preclude_result))
+            if z3.is_true(z3_model.evaluate(self.extended_verify(state, argument, eval_point))):
+                assert False
+                result.add(state)
+        return result
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation
@@ -166,48 +185,191 @@ class ExclusionOperatorQuantifyArrays(ExclusionOperatorBase):
         Advantages: TYPE HERE
 
         Disadvantages: TYPE HERE
-        
         """
-
         # Abbreviations
         semantics = self.semantics
         N = semantics.N
         extended_verify = semantics.extended_verify
         excludes = semantics.excludes
         is_part_of = semantics.is_part_of
-        is_proper_part_of = semantics.is_proper_part_of
-        h_ix = semantics.h_ix
-        H = semantics.H
-        h = z3.Array("h", z3.BitVecSort(N), z3.BitVecSort(N))
+        semantics.counter += 1
+        h = z3.Array(f"h_{semantics.counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+        # h = semantics.h
+        # name needs to be unique for embedded negation: will o.w. pick up a var w the same name
+
+        # print(semantics.counter)
 
         x, y, z, u, v = z3.BitVecs("x y z u v", N)
 
-        return z3.Exists(h, z3.And(ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the argument
-                z,
-                z3.Implies(
-                    extended_verify(z, argument, eval_point),
-                    is_part_of(h[z], state),
-                )
-            ), 
-                      z3.Not(Exists(y, z3.And(ForAll(z, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h[z],y))), z3.And(is_part_of(y,state), y != state)))), 
-                      ForAll( # 1. for every extended_verifiers x of the argument, there 
-                x,  #    is some part y of x where h(x) excludes y                                    
-                z3.Implies(
-                    extended_verify(x, argument, eval_point), # member of argument's set of verifiers
-                    Exists(
-                        y,
-                        z3.And(
-                            is_part_of(y, x),
-                            excludes(h[x], y)
-                        )
-                    )
-                )
+        return z3.Exists(h, z3.And(
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), Exists(y, z3.And(is_part_of(y, x), excludes(h[x], y))))), # cond 1
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h[x], state))), # UB
+            ForAll(z, z3.Implies(ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h[x], z))), is_part_of(state, z))) # LUB
             ))
-        )
+    
+
+class ExclusionOperatorQuantifyIndices(ExclusionOperatorBase):
+
+    name = "\\exclude"
+    arity = 1
+
+    def extended_verify(self, state, argument, eval_point):
+        """this implementation quantifies over a bound range of indices. 
+        Bound is 2^(N+3). Calculated based on reasonable upper bound estimates for number of
+        negations per sentence (2) times number of sentences (4) times number of verifiers (O(n))
+        
+        Advantages: slow and STEADY wins the race
+
+        Disadvantages: SLOW and steady wins the race
+        """
+        # Abbreviations
+        semantics = self.semantics
+        N = semantics.N
+        extended_verify = semantics.extended_verify
+        excludes = semantics.excludes
+        is_part_of = semantics.is_part_of
+        # ix = semantics.h_ix
+        H = semantics.H
+        semantics.counter += 1
+        ix = z3.BitVec(f"ix_{semantics.counter}", N)
+
+        x, y, z, u, v = z3.BitVecs("x y z u v", N)
+
+        return z3.Exists(ix, z3.And(
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), Exists(y, z3.And(is_part_of(y, x), excludes(H(ix)[x], y))))), # cond 1
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(H(ix)[x], state))), # UB
+            ForAll(z, z3.Implies(ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(H(ix)[x], z))), is_part_of(state, z))) # LUB
+            ))
 
 
+class ExclusionOperatorBoundedQuantifyIndices(ExclusionOperatorBase):
 
-ExclusionOperator = ExclusionOperatorQuantifyArrays
+    name = "\\exclude"
+    arity = 1
+
+    def extended_verify(self, state, argument, eval_point):
+        """this implementation quantifies over a bound range of indices. 
+        Bound is 2^(N+5). Calculated based on reasonable upper bound estimates for number of
+        negations per sentence (2) times number of sentences (4) times number of verifiers (O(n)),
+        and then adding 2 to that (2^(N+3+2)). 
+
+        The reason for this bound is that the bound for the space of functions is O(n^n), n=2^N,
+        which gets huge very fast. So if you want to try quantifying over a bounded set of indices
+        to avoid using Z3 quantifiers, this is what you should do. 
+        
+        Advantages: slow and STEADY wins the race—avoids unpredictable runtime of Z3 quantifiers
+
+        Disadvantages: SLOW and steady wins the race. Also it could be the case that more indices
+        than the bound estimate provides are needed. 
+        """
+        # Abbreviations
+        semantics = self.semantics
+        N = semantics.N
+        extended_verify = semantics.extended_verify
+        excludes = semantics.excludes
+        is_part_of = semantics.is_part_of
+        ix = semantics.B_h_ix
+        H = semantics.BH
+
+        x, y, z, u, v = z3.BitVecs("x y z u v", N)
+
+        return Exists(ix, z3.And(
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), Exists(y, z3.And(is_part_of(y, x), excludes(H(ix)[x], y))))), # cond 1
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(H(ix)[x], state))), # UB
+            ForAll(z, z3.Implies(ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(H(ix)[x], z))), is_part_of(state, z))) # LUB
+            ))
+    
+
+class ExclusionOperatorNameFunctions(ExclusionOperatorBase):
+
+    name = "\\exclude"
+    arity = 1
+
+    def extended_verify(self, state, argument, eval_point):
+        """this implementation names h functions, using an increasing counter to ensure
+        they're distinct. 
+        
+        Advantages: TYPE HERE
+
+        Disadvantages: TYPE HERE
+        """
+        # Abbreviations
+        semantics = self.semantics
+        N = semantics.N
+        extended_verify = semantics.extended_verify
+        excludes = semantics.excludes
+        is_part_of = semantics.is_part_of
+
+        semantics.counter += 1
+        h = z3.Function(f"h_{semantics.counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+        # print(h, semantics.counter)
+
+        x, y, z, u, v = z3.BitVecs("x y z u v", N)
+
+        # constraint = z3.And(
+        #     ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), Exists(y, z3.And(is_part_of(y, x), excludes(h(x), y))))), # cond 1
+        #     ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h(x), state))), # UB
+        #     ForAll(z, z3.Implies(ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h(x), z))), is_part_of(state, z))) # LUB
+        #     )
+        
+        constraint = z3.And(
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), Exists(y, z3.And(is_part_of(y, x), excludes(h(x), y))))), # cond 1
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h(x), state))), # UB
+            ForAll(z, z3.Implies(ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h(x), z))), is_part_of(state, z))) # LUB
+            )
+
+        if semantics.counter in {1,2,3}:
+            print(argument)
+            print(constraint)
+
+        return constraint
+        # return z3.And(
+        #     ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), Exists(y, z3.And(is_part_of(y, x), excludes(h(x), y))))), # cond 1
+        #     ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h(x), state))), # UB
+        #     ForAll(z, z3.Implies(ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h(x), z))), is_part_of(state, z))) # LUB
+        #     )
+    
+
+class ExclusionOperatorNameArrays(ExclusionOperatorBase):
+
+    name = "\\exclude"
+    arity = 1
+
+    def extended_verify(self, state, argument, eval_point):
+        """this implementation names h functions, using an increasing counter to ensure
+        they're distinct. 
+        
+        Advantages: TYPE HERE
+
+        Disadvantages: TYPE HERE
+        """
+        # Abbreviations
+        semantics = self.semantics
+        N = semantics.N
+        extended_verify = semantics.extended_verify
+        excludes = semantics.excludes
+        is_part_of = semantics.is_part_of
+
+        h = z3.Array(f"h_{semantics.counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+        semantics.counter += 1
+        # print(semantics.counter)
+
+        x, y, z, u, v = z3.BitVecs("x y z u v", N)
+
+        return z3.And(
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), Exists(y, z3.And(is_part_of(y, x), excludes(h[x], y))))), # cond 1
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h[x], state))), # UB
+            ForAll(z, z3.Implies(ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h[x], z))), is_part_of(state, z))) # LUB
+            )
+
+
+QA = ExclusionOperatorQuantifyArrays
+QI = ExclusionOperatorQuantifyIndices
+BQI = ExclusionOperatorBoundedQuantifyIndices
+NF = ExclusionOperatorNameFunctions
+NA = ExclusionOperatorNameArrays
+
+ExclusionOperator = QA
 
 exclusion_operators = syntactic.OperatorCollection(
     UniAndOperator, UniOrOperator, ExclusionOperator, # extensional
