@@ -688,7 +688,11 @@ class UnilateralProposition(model.PropositionDefaults):
         raise ValueError(f"There is no proposition for {self.name}.")
 
     def truth_value_at(self, eval_point): # pg 545
-        """Checks if there is a verifier in world.
+        """Checks if the sentence is true at eval_point using Z3 model evaluation.
+        
+        This implementation directly uses the semantics.true_at method to evaluate
+        the truth value, ensuring consistency between Z3 constraint satisfaction
+        and displayed truth values.
         
         Args:
             eval_point: Dictionary containing evaluation parameters:
@@ -700,10 +704,43 @@ class UnilateralProposition(model.PropositionDefaults):
         semantics = self.model_structure.semantics
         z3_model = self.model_structure.z3_model
         
-        for ver_bit in self.verifiers:
-            if z3_model.evaluate(semantics.is_part_of(ver_bit, eval_point["world"])):
-                return True
-        return False
+        # Debug output for premise evaluation - commented out but preserved for future use
+        """
+        if "\\exclude" in str(self.sentence):
+            print("\n=== DEBUG TRUTH EVALUATION ===")
+            print(f"Sentence: {self.sentence}")
+            print(f"Operator: {self.sentence.operator.name if self.sentence.operator else None}")
+            
+            # Get formula using the same method as in premise_behavior
+            formula = semantics.true_at(self.sentence, eval_point)
+            print(f"Formula: {formula}")
+            
+            # Evaluate the formula in the Z3 model
+            result = z3_model.evaluate(formula)
+            print(f"Z3 result: {result} (type: {type(result)})")
+            print(f"Interpreted as: {z3.is_true(result)}")
+            
+            # Compare with constraint from premise_behavior
+            premise_constraint = semantics.premise_behavior(self.sentence)
+            print(f"Premise constraint: {premise_constraint}")
+            premise_result = z3_model.evaluate(premise_constraint)
+            print(f"Premise result: {premise_result} (type: {type(premise_result)})")
+            print(f"Interpreted as: {z3.is_true(premise_result)}")
+            print("=== END DEBUG ===\n")
+            
+            return z3.is_true(result)
+        else:
+            # Use the semantics.true_at method directly
+            formula = semantics.true_at(self.sentence, eval_point)
+            result = z3_model.evaluate(formula)
+            return z3.is_true(result)
+        """
+        
+        # Use the semantics.true_at method directly - this is the same formula
+        # used in premise_behavior for constraint generation
+        formula = semantics.true_at(self.sentence, eval_point)
+        result = z3_model.evaluate(formula)
+        return z3.is_true(result)
 
     def print_proposition(self, eval_point, indent_num, use_colors):
         """Print the proposition with its truth value at the evaluation point.
