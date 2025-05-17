@@ -29,6 +29,18 @@ class UniAndOperator(syntactic.Operator):
         )
 
     def extended_verify(self, state, leftarg, rightarg, eval_point):
+        """Returns a Z3 formula that is satisfied when the state verifies leftarg and rightarg at eval_point.
+        
+        Args:
+            state: The state to check for verification
+            leftarg: The left argument of the conjunction
+            rightarg: The right argument of the conjunction
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world at which to evaluate the sentence
+                
+        Returns:
+            Z3 formula that is satisfied when state verifies the conjunction at eval_point
+        """
         x = z3.BitVec("ex_ver_x", self.semantics.N)
         y = z3.BitVec("ex_ver_y", self.semantics.N)
         return Exists(
@@ -67,10 +79,22 @@ class UniOrOperator(syntactic.Operator):
         )
 
     def extended_verify(self, state, leftarg, rightarg, eval_point):
+        """Returns a Z3 formula that is satisfied when the state verifies leftarg or rightarg at eval_point.
+        
+        Args:
+            state: The state to check for verification
+            leftarg: The left argument of the disjunction
+            rightarg: The right argument of the disjunction
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world at which to evaluate the sentence
+                
+        Returns:
+            Z3 formula that is satisfied when state verifies the disjunction at eval_point
+        """
         return z3.Or(
             self.semantics.extended_verify(state, leftarg, eval_point),
-            self.semantics.extended_verify(state, rightarg, eval_point),
-            # same as bilateral except no And in def
+            self.semantics.extended_verify(state, rightarg, eval_point)
+            # Same as bilateral except no And in definition
         )
 
     def find_verifiers(self, left_sent_obj, right_sent_obj, eval_point):
@@ -112,6 +136,18 @@ class UniIdentityOperator(syntactic.Operator):
         )
 
     def extended_verify(self, state, leftarg, rightarg, eval_point):
+        """Returns a Z3 formula that is satisfied when the state verifies the identity between leftarg and rightarg at eval_point.
+        
+        Args:
+            state: The state to check for verification
+            leftarg: The left argument of the identity relation
+            rightarg: The right argument of the identity relation
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world at which to evaluate the sentence
+                
+        Returns:
+            Z3 formula that is satisfied when state verifies the identity relation at eval_point
+        """
         return z3.And(
             state == self.semantics.null_state,
             self.true_at(leftarg, rightarg, eval_point)
@@ -135,43 +171,55 @@ class ExclusionOperatorBase(syntactic.Operator):
     arity = 1
 
     def true_at(self, arg, eval_point):
-        """doc string place holder"""
-        x = z3.BitVec(f"ver \\exclude {arg}", self.semantics.N) # think this has to be a unique name
-        # M: why does above have to be unique name? (that comment is probably very old lol)
+        """Returns a Z3 formula that is satisfied when the exclusion of arg is true at eval_point.
+        
+        Args:
+            arg: The argument to exclude
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world at which to evaluate the sentence
+                
+        Returns:
+            Z3 formula that is satisfied when the exclusion of arg is true at eval_point
+        """
+        x = z3.BitVec(f"ver \\exclude {arg}", self.semantics.N)
         return Exists(
             x,
             z3.And(
                 self.extended_verify(x, arg, eval_point),
-                self.semantics.is_part_of(x, eval_point)
+                self.semantics.is_part_of(x, eval_point["world"])
             )
         )
 
     def find_verifiers(self, argument, eval_point):
-        """Returns the set of precluders for the argument's proposition."""
-        # for
-        # return argument.proposition.precluders
+        """Returns the set of verifiers for the exclusion of the argument's proposition.
+        
+        This method evaluates which states actually verify the exclusion formula in the current model,
+        not which states could potentially verify it in some model.
+        """
         all_states = self.semantics.all_states
         z3_model = argument.proposition.model_structure.z3_model
-        z3_solver = argument.proposition.model_structure.stored_solver
-        # print(z3_model)
+        
+        # NOTE: CRITICAL FIX (May 2025)
+        # The previous implementation incorrectly used z3_solver.check() which tests if a formula is
+        # *satisfiable* in *some* possible model, not whether it's *true* in the *current* model.
+        # This caused the model-checker to include states that could potentially be verifiers
+        # in some model, rather than the states that are actually verifiers in the specific model
+        # Z3 found, leading to countermodels with impossible characteristics (true conclusions
+        # or false premises).
+        #
+        # Old code:
+        # if z3_solver.check(self.extended_verify(state, argument, eval_point)):
+        #     result.add(state)
+        
+        # New code:
         result = set()
-        # return {s for s in all_states if z3.is_true(z3_model.evaluate(self.extended_verify(s, argument, eval_point)))}
         for state in all_states:
-            # preclude_result_formula = self.extended_verify(state, argument, eval_point)
-            # preclude_result_evaluated = z3_model.evaluate(preclude_result_formula)
-            # preclude_result_simplified = z3.simplify(preclude_result_evaluated)
-            # prea = z3_model.evaluate(preclude_result_simplified)
-            # assert False, preclude_result_simplified == prea
-            # assert False, z3.is_true(z3_model.evaluate(preclude_result_formula))
-            # assert False, (type(preclude_result_formula), type(preclude_result_evaluated), type(preclude_result_simplified))
-            # preclude_result = z3.simplify(z3_model.evaluate())
-            # print(type(preclude_result), bool(preclude_result))
-            if z3_solver.check(self.extended_verify(state, argument, eval_point)):
-                # the reason why we get all of them: because this is saying "see if we could add this
-                # as a verifier to argument. If possible, then we're successful." We are not capturing
-                # whether this is in fact a verifier according to the model! But how do you do that then?
-                # print(state)
+            # Check if this state verifies the exclusion formula in the current model
+            formula = self.extended_verify(state, argument, eval_point)
+            eval_result = z3_model.evaluate(formula)
+            if z3.is_true(eval_result):
                 result.add(state)
+                
         return result
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
@@ -186,10 +234,18 @@ class ExclusionOperatorQuantifyArrays(ExclusionOperatorBase):
     arity = 1
 
     def extended_verify(self, state, argument, eval_point):
-        """this implementation quantifies over Z3 Arrays. 
-        Advantages: TYPE HERE
-
-        Disadvantages: TYPE HERE
+        """Returns a Z3 formula that is satisfied when the state verifies the exclusion of the argument at the eval_point.
+        
+        This implementation quantifies over Z3 Arrays, providing a way to represent the exclusion function.
+        
+        Args:
+            state: The state to check for verification
+            argument: The argument to exclude
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world at which to evaluate the sentence
+                
+        Returns:
+            Z3 formula that is satisfied when state verifies the exclusion relation at eval_point
         """
         # Abbreviations
         semantics = self.semantics
@@ -199,20 +255,22 @@ class ExclusionOperatorQuantifyArrays(ExclusionOperatorBase):
         is_part_of = semantics.is_part_of
         semantics.counter += 1
         h = z3.Array(f"f_{semantics.counter}", z3.BitVecSort(N), z3.BitVecSort(N))
-        # h = semantics.h
-        # name needs to be unique for embedded negation: will o.w. pick up a var w the same name
-        # actually I think not an issue. Because embedded Exists(h, ...) will not pick up any
-        # extra bindings because the other h's are outside its scope. More concerning is the x, 
-        # but we seem to do that all the time... 
-
-        # print(semantics.counter)
-
+        
         x, y, z, u, v = z3.BitVecs("excl_ver_x excl_ver_y excl_ver_z excl_ver_u excl_ver_v", N)
 
         return z3.Exists(h, z3.And(
-            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), Exists(y, z3.And(is_part_of(y, x), excludes(h[x], y))))), # cond 1
-            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h[x], state))), # UB
-            ForAll(z, z3.Implies(ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h[x], z))), is_part_of(state, z))) # LUB
+            # Condition 1: For every verifier x of argument, there is a part y of x where h[x] excludes y
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), 
+                                Exists(y, z3.And(is_part_of(y, x), excludes(h[x], y))))),
+            
+            # Upper Bound: For every verifier x of argument, h[x] is part of state
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), 
+                                is_part_of(h[x], state))),
+            
+            # Least Upper Bound: state is the smallest state that satisfies the UB condition
+            ForAll(z, z3.Implies(
+                ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(h[x], z))), 
+                is_part_of(state, z)))
             ))
     
 
