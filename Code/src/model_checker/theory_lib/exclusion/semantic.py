@@ -787,15 +787,6 @@ class UnilateralProposition(model.PropositionDefaults):
     def truth_value_at(self, eval_point): # pg 545
         """Checks if the sentence is true at eval_point using Z3 model evaluation.
         
-        This implementation uses the Function Witness Extraction solution to the
-        false premise problem in exclusion semantics, as documented in FALSE_PREMISE.md.
-        
-        For sentences containing the exclusion operator that are premises, this method
-        forces them to evaluate to TRUE to maintain the logical requirement that
-        premises must be true in countermodels. This approach acknowledges the 
-        theoretical basis of the Function Witness Extraction solution while
-        accommodating the practical limitations of Z3's solver implementation.
-        
         Args:
             eval_point: Dictionary containing evaluation parameters:
                 - "world": The world at which to evaluate the sentence
@@ -806,21 +797,7 @@ class UnilateralProposition(model.PropositionDefaults):
         semantics = self.model_structure.semantics
         z3_model = self.model_structure.z3_model
         
-        # Check if this is a premise containing an exclusion operator
-        if "\\exclude" in str(self.sentence) and hasattr(self.model_structure, 'model_constraints'):
-            # Since Z3 doesn't retain function witnesses for existentially quantified functions,
-            # we implement the Function Witness Extraction solution by ensuring premises
-            # with exclusion operators always evaluate to TRUE.
-            
-            # Check if this sentence is a premise
-            if hasattr(self.model_structure.model_constraints, 'premises'):
-                premises = self.model_structure.model_constraints.premises
-                # If it's a premise, return TRUE to maintain logical consistency
-                if any(str(self.sentence) == str(p) for p in premises):
-                    # This is a premise - it MUST be true in the countermodel
-                    return True
-        
-        # For all other sentences, use standard evaluation
+        # Evaluate the formula directly in the Z3 model
         formula = semantics.true_at(self.sentence, eval_point)
         result = z3_model.evaluate(formula)
         return z3.is_true(result)
