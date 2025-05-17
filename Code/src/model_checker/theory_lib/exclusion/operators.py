@@ -199,24 +199,13 @@ class ExclusionOperatorBase(syntactic.Operator):
         all_states = self.semantics.all_states
         z3_model = argument.proposition.model_structure.z3_model
         
-        # NOTE: CRITICAL FIX (May 2025)
-        # The previous implementation incorrectly used z3_solver.check() which tests if a formula is
-        # *satisfiable* in *some* possible model, not whether it's *true* in the *current* model.
-        # This caused the model-checker to include states that could potentially be verifiers
-        # in some model, rather than the states that are actually verifiers in the specific model
-        # Z3 found, leading to countermodels with impossible characteristics (true conclusions
-        # or false premises).
-        #
-        # Old code:
-        # if z3_solver.check(self.extended_verify(state, argument, eval_point)):
-        #     result.add(state)
-        
-        # New code:
+        # Find verifiers by evaluating the formula for each state
         result = set()
         for state in all_states:
             # Check if this state verifies the exclusion formula in the current model
             formula = self.extended_verify(state, argument, eval_point)
             eval_result = z3_model.evaluate(formula)
+            
             if z3.is_true(eval_result):
                 result.add(state)
                 
@@ -253,8 +242,10 @@ class ExclusionOperatorQuantifyArrays(ExclusionOperatorBase):
         extended_verify = semantics.extended_verify
         excludes = semantics.excludes
         is_part_of = semantics.is_part_of
+        counter = semantics.counter
         semantics.counter += 1
-        h = z3.Array(f"f_{semantics.counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+        # Use consistent name 'h' for all arrays to make extraction easier
+        h = z3.Array(f"h", z3.BitVecSort(N), z3.BitVecSort(N))
         
         x, y, z, u, v = z3.BitVecs("excl_ver_x excl_ver_y excl_ver_z excl_ver_u excl_ver_v", N)
 
