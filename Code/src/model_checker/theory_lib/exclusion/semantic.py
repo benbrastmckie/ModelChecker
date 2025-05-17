@@ -218,7 +218,6 @@ class ExclusionSemantics(model.SemanticDefaults):
         self.main_point = {"world": self.main_world}
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
         self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
-        # self.conclusion_behavior = lambda conclusion: z3.Not(self.true_at(conclusion, self.main_point["world"]))
 
     # TODO: this has to be the problem but looks find
     def conflicts(self, bit_e1, bit_e2):
@@ -244,6 +243,65 @@ class ExclusionSemantics(model.SemanticDefaults):
     def necessary(self, bit_e1):
         x = z3.BitVec("nec_x", self.N)
         return ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
+        
+    def precludes(self, state, z3_set):
+        """
+        Determines if a state precludes a set of states by finding a function h
+        that maps each state in set_S to a part of some state such that for each
+        state f in set_S, h(f) excludes some part of f.
+    
+        Args:
+            state: BitVec representing the state to check
+            set_S: Set of BitVecs representing the states to check against
+    
+        Returns:
+            z3.BoolRef: Formula that is true iff state precludes set_S, meaning there exists a function h and state s such that:
+                1. For all x in set_S, h(x) is part of s
+                2. s is the smallest state satisfying condition 1
+                3. For all f in set_S, h(f) excludes some part u of f
+        """
+        h = z3.Function(
+            f"h_{state, z3_set}", # function name type: string
+            z3.BitVecSort(self.N),  # argument type: bitvector
+            z3.BitVecSort(self.N)   # return type: bitvector
+        )
+
+        x, y, z, u, v = z3.BitVecs("x y z u v", self.N)
+        return z3.And(
+            ForAll( # 1. for every extended_verifiers x of the argument, there 
+                x,  #    is some part y of x where h(x) excludes y                                    
+                z3.Implies(
+                    z3_set[x],
+                    Exists(
+                        y,
+                        z3.And(
+                            self.is_part_of(y, x),
+                            self.excludes(h(x), y)
+                        )
+                    )
+                )
+            ),
+            ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the argument
+                z,
+                z3.Implies(
+                    z3_set[z],
+                    self.is_part_of(h(z), state),
+                )
+            ),
+            ForAll( # 3. the state is the smallest state to satisfy condition 2
+                u,
+                z3.Implies(
+                    ForAll(
+                        v,
+                        z3.Implies(
+                            z3_set[v],
+                            self.is_part_of(h(v), u)
+                        )
+                    ),
+                    self.is_part_of(state, u)
+                )
+            )
+        )
 
     # B: compossible => coheres but not vice versa
     # would they be equivalent if the following constraint were added:
@@ -305,9 +363,25 @@ class ExclusionSemantics(model.SemanticDefaults):
         Returns:
             Z3 formula that is satisfied when sentence is true at eval_point
         """
-        x = z3.BitVec("true_at_x", self.N)
-        return Exists(x, z3.And(self.is_part_of(x, eval_point["world"]),
-                                self.extended_verify(x, sentence, eval_point)))
+        eval_world = eval_point["world"] if isinstance(eval_point, dict) else eval_point
+        
+        # Handle atomic sentences
+        sentence_letter = sentence.sentence_letter
+        if sentence_letter is not None:
+            x = z3.BitVec("t_atom_x", self.N)
+            return Exists(
+                x,
+                z3.And(
+                    self.is_part_of(x, eval_world),
+                    self.verify(x, sentence_letter)
+                )
+            )
+        
+        # Handle compound sentences by directly delegating to the operator
+        # This follows the old implementation and preserves logical properties like associativity
+        operator = sentence.operator
+        arguments = sentence.arguments or ()
+        return operator.true_at(*arguments, eval_point)
 
     def false_at(self, sentence, eval_point): # direct negation of true_at
         """Returns a Z3 formula that is satisfied when the sentence is false at the given evaluation point.
@@ -320,13 +394,7 @@ class ExclusionSemantics(model.SemanticDefaults):
         Returns:
             Z3 formula that is satisfied when sentence is false at eval_point
         """
-        # NOTE: There are two ways to define false_at:
-        # 1. As the negation of true_at
-        # 2. By pushing the negation inward to the verifier level
-        #
-        # For unilateral semantics, using option 1 ensures logical consistency
-        # This makes false_at work correctly with the premise/conclusion behavior
-        # defined in the model constraints
+        # Direct negation of truth - this preserves logical equivalences in the formula structure
         return z3.Not(self.true_at(sentence, eval_point))
 
     def extended_verify(self, state, sentence, eval_point):
@@ -376,8 +444,7 @@ class UnilateralProposition(model.PropositionDefaults):
         
         self.all_states = model_structure.all_states
         self.verifiers = self.find_proposition()
-        # self.precluders = self.find_precluders()
-        # self.exact_excluders = self.find_exact_excluders()
+        self.precluders = self.find_precluders(self.verifiers)
 
     def __eq__(self, other):
         return (self.verifiers == other.verifiers)
@@ -402,17 +469,46 @@ class UnilateralProposition(model.PropositionDefaults):
         #     return f"< {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >"
         return pretty_set_print(ver_states)
 
-    # def find_precluders(self):
-    #     all_states = self.semantics.all_states
-    #     result = set()
-    #     dummy_neg = self.model_constraints.syntax.operator_collection["\\exclude"](self.semantics)
-    #     for state in all_states:
-    #         preclude_formula = dummy_neg.extended_verify(state, self.sentence, self.eval_world)
-    #         # preclude_formula = neg_verify(state, self.sentence)
-    #         preclude_result = self.z3_model.evaluate(preclude_formula)
-    #         if preclude_result == True:
-    #             result.add(state)
-    #     return result
+    def find_precluders(self, py_verifier_set):
+        """Finds the set of states that preclude the verifiers of this proposition.
+        
+        This implementation must match the ExclusionOperatorQuantifyArrays (QA) extended_verify method.
+        Since QA uses z3.Array, we need to construct a similar formula here to find precluders.
+        
+        Args:
+            py_verifier_set: Set of verifiers in Python format
+            
+        Returns:
+            set: The set of states that are precluders for this proposition
+        """
+        # First try using the z3_set approach if precludes is defined
+        if hasattr(self.semantics, 'precludes'):
+            z3_verifier_set = self.semantics.z3_set(py_verifier_set, self.N)
+            precludes = self.semantics.precludes
+            all_states = self.semantics.all_states
+            result = set()
+            for state in all_states:
+                preclude_formula = precludes(state, z3_verifier_set)
+                preclude_result = self.z3_model.evaluate(preclude_formula)
+                # Check if the evaluated result is True
+                if preclude_result == True:
+                    result.add(state)
+            return result
+        
+        # If precludes isn't defined, we need to compute it directly using ExclusionOperator's verify method
+        # Create a dummy ExclusionOperator instance to use its extended_verify method
+        exclusion_op = self.model_constraints.syntax.operator_collection["\\exclude"](self.semantics)
+        all_states = self.semantics.all_states
+        result = set()
+        
+        # For each state, check if it's a precluder by evaluating the exclusion formula
+        for state in all_states:
+            verify_formula = exclusion_op.extended_verify(state, self.sentence, self.eval_point)
+            verify_result = self.z3_model.evaluate(verify_formula)
+            if z3.is_true(verify_result):
+                result.add(state)
+                
+        return result
 
     def proposition_constraints(self, sentence_letter):
         """

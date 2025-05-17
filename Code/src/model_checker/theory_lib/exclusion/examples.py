@@ -95,7 +95,15 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
-# Exclusion
+# # OLD Exclusion
+# from semantic_old import (
+#     ExclusionSemantics,
+#     UnilateralProposition,
+#     ExclusionStructure,
+# )
+# from operators_old import exclusion_operators
+
+# NEW Exclusion
 from semantic import (
     ExclusionSemantics,
     UnilateralProposition,
@@ -956,10 +964,10 @@ test_example_range = {
 example_range = {
 
     # # Frame
-    "Only Frame Constraints" : EMPTY_example,
-    "No Gaps" : GAPS_example,
-    "No Gluts" : GLUTS_example,
-    "EX_CM_1" : EX_CM_1_example, # false premise model
+    # "Only Frame Constraints" : EMPTY_example,
+    # "No Gaps" : GAPS_example,
+    # "No Gluts" : GLUTS_example,
+    # "EX_CM_1" : EX_CM_1_example, # false premise model
 
 
     # # Classical Negation Theorems (All should hold)
@@ -977,20 +985,20 @@ example_range = {
 
 
     # Classical And/Or Theorems (All should hold)
-    "Conjunctive Distribution LR" : CONJ_DIST_LR_example,
-    "Conjunctive Distribution RL" : CONJ_DIST_RL_example,
-    "Disjunctive Distribution LR" : DISJ_DIST_LR_example,
-    "Disjunctive Distribution RL" : DISJ_DIST_RL_example,
+    # "Conjunctive Distribution LR" : CONJ_DIST_LR_example,
+    # "Conjunctive Distribution RL" : CONJ_DIST_RL_example,
+    # "Disjunctive Distribution LR" : DISJ_DIST_LR_example,
+    # "Disjunctive Distribution RL" : DISJ_DIST_RL_example,
 
-    "Conjunctive Absorption LR" : CONJ_ABS_LR_example,
-    "Conjunctive Absorption RL" : CONJ_ABS_RL_example,
-    "Disjunctive Absorption LR" : DISJ_ABS_LR_example,
-    "Disjunctive Absorption RL" : DISJ_ABS_RL_example,
+    # "Conjunctive Absorption LR" : CONJ_ABS_LR_example,
+    # "Conjunctive Absorption RL" : CONJ_ABS_RL_example,
+    # "Disjunctive Absorption LR" : DISJ_ABS_LR_example,
+    # "Disjunctive Absorption RL" : DISJ_ABS_RL_example,
 
-    "Conjunctive Associativity LR" : CONJ_ASSOC_LR_example,
-    "Conjunctive Associativity RL" : CONJ_ASSOC_RL_example,
-    "Disjunctive Associativity LR" : DISJ_ASSOC_LR_example,
-    "Disjunctive Associativity RL" : DISJ_ASSOC_RL_example,
+    # "Conjunctive Associativity LR" : CONJ_ASSOC_LR_example,
+    # "Conjunctive Associativity RL" : CONJ_ASSOC_RL_example,
+    # "Disjunctive Associativity LR" : DISJ_ASSOC_LR_example,
+    # "Disjunctive Associativity RL" : DISJ_ASSOC_RL_example,
 
 
     # # Identity
@@ -998,8 +1006,8 @@ example_range = {
     # "Triple Negation Identity" : TN_ID_example,
     # "Conjuctive DeMorgan's Identity" : CONJ_DM_ID_example, # expect CM
     # "Disjunctive DeMorgan's Identity" : DISJ_DM_ID_example, # expect THM
-    "Conjunctive Distribution Identity" : CONJ_DIST_ID_example, # expect THM
-    "Disjuctive Distribution Identity" : DISJ_DIST_ID_example, # expect THM
+    # "Conjunctive Distribution Identity" : CONJ_DIST_ID_example, # expect THM
+    # "Disjuctive Distribution Identity" : DISJ_DIST_ID_example, # expect THM
 
 
     # Other
