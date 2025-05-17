@@ -214,8 +214,10 @@ class ExclusionSemantics(model.SemanticDefaults):
             # z3.Not(possibility_downard_closure),
         ]
 
-        self.premise_behavior = lambda premise: self.true_at(premise, self.main_point["world"])
-        self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point["world"])
+        # Define main_point dictionary with world
+        self.main_point = {"world": self.main_world}
+        self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
+        self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
         # self.conclusion_behavior = lambda conclusion: z3.Not(self.true_at(conclusion, self.main_point["world"]))
 
     # TODO: this has to be the problem but looks find
@@ -292,23 +294,59 @@ class ExclusionSemantics(model.SemanticDefaults):
     # def false_at(self, sentence, eval_world): 
     #     return z3.Not(self.true_at(sentence, eval_world))
     
-    def true_at(self, sentence, eval_world): # pg 545
-        x = z3.BitVec("true_at_x", self.N)
-        return Exists(x, z3.And(self.is_part_of(x, eval_world),
-                                self.extended_verify(x, sentence, eval_world)))
+    def true_at(self, sentence, eval_point): # pg 545
+        """Returns a Z3 formula that is satisfied when the sentence is true at the given evaluation point.
 
-    def false_at(self, sentence, eval_world): # negation of above pushed in
+        Args:
+            sentence: The sentence to evaluate
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world at which to evaluate the sentence
+            
+        Returns:
+            Z3 formula that is satisfied when sentence is true at eval_point
+        """
         x = z3.BitVec("true_at_x", self.N)
-        return ForAll(x, z3.Implies(self.extended_verify(x, sentence, eval_world),
-                                z3.Not(self.is_part_of(x, eval_world))))
+        return Exists(x, z3.And(self.is_part_of(x, eval_point["world"]),
+                                self.extended_verify(x, sentence, eval_point)))
 
-    def extended_verify(self, state, sentence, eval_world):
+    def false_at(self, sentence, eval_point): # direct negation of true_at
+        """Returns a Z3 formula that is satisfied when the sentence is false at the given evaluation point.
+
+        Args:
+            sentence: The sentence to evaluate
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world at which to evaluate the sentence
+            
+        Returns:
+            Z3 formula that is satisfied when sentence is false at eval_point
+        """
+        # NOTE: There are two ways to define false_at:
+        # 1. As the negation of true_at
+        # 2. By pushing the negation inward to the verifier level
+        #
+        # For unilateral semantics, using option 1 ensures logical consistency
+        # This makes false_at work correctly with the premise/conclusion behavior
+        # defined in the model constraints
+        return z3.Not(self.true_at(sentence, eval_point))
+
+    def extended_verify(self, state, sentence, eval_point):
+        """Returns a Z3 formula that is satisfied when the state verifies the sentence at eval_point.
+        
+        Args:
+            state: The state to check for verification
+            sentence: The sentence to evaluate
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world at which to evaluate the sentence
+                
+        Returns:
+            Z3 formula that is satisfied when state verifies sentence at eval_point
+        """
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             return self.verify(state, sentence_letter)
         operator = sentence.operator
         arguments = sentence.arguments
-        return operator.extended_verify(state, *arguments, eval_world)
+        return operator.extended_verify(state, *arguments, eval_point)
 
 
 class UnilateralProposition(model.PropositionDefaults):
@@ -317,13 +355,25 @@ class UnilateralProposition(model.PropositionDefaults):
     in the __init__ method.
     """
 
-    def __init__(self, sentence_obj, model_structure, eval_world='main'):
-        """TODO"""
-
+    def __init__(self, sentence_obj, model_structure, eval_point=None):
+        """Initialize a UnilateralProposition with the given sentence, model structure, and evaluation point.
+        
+        Args:
+            sentence_obj: The sentence object
+            model_structure: The model structure
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world at which to evaluate the sentence
+                
+        Notes:
+            If eval_point is None, model_structure.main_point will be used.
+        """
         super().__init__(sentence_obj, model_structure)
 
         self.z3_model = model_structure.z3_model
-        self.eval_world = model_structure.main_point["world"] if eval_world == 'main' else eval_world
+        
+        # Simple deterministic behavior - no conditional types
+        self.eval_point = model_structure.main_point if eval_point is None else eval_point
+        
         self.all_states = model_structure.all_states
         self.verifiers = self.find_proposition()
         # self.precluders = self.find_precluders()
@@ -516,38 +566,61 @@ class UnilateralProposition(model.PropositionDefaults):
         return constraints
 
     def find_proposition(self):
-        """takes self, returns the set V used in find_verifiers"""
+        """Find the set of verifiers for this proposition.
+        
+        Returns:
+            set: The set of states that verify this proposition
+        """
         all_states = self.model_structure.all_states
         model = self.model_structure.z3_model
         semantics = self.semantics
-        eval_world = self.eval_world
+        eval_point = self.eval_point
         operator = self.operator
         arguments = self.arguments or ()
         sentence_letter = self.sentence_letter
+        
         if sentence_letter is not None:
             V = {
                 bit for bit in all_states
                 if model.evaluate(semantics.verify(bit, sentence_letter))
             }
             return V
+        
         if operator is not None:
-            return operator.find_verifiers(*arguments, eval_world)
-        raise ValueError(f"Their is no proposition for {self.name}.")
+            return operator.find_verifiers(*arguments, eval_point)
+            
+        raise ValueError(f"There is no proposition for {self.name}.")
 
-    def truth_value_at(self, eval_world): # pg 545
-        """Checks if there is a verifier in world."""
+    def truth_value_at(self, eval_point): # pg 545
+        """Checks if there is a verifier in world.
+        
+        Args:
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world at which to evaluate the sentence
+                
+        Returns:
+            bool: True if the proposition is true at eval_point, False otherwise
+        """
         semantics = self.model_structure.semantics
         z3_model = self.model_structure.z3_model
+        
         for ver_bit in self.verifiers:
-            if z3_model.evaluate(semantics.is_part_of(ver_bit, eval_world)):
+            if z3_model.evaluate(semantics.is_part_of(ver_bit, eval_point["world"])):
                 return True
         return False
 
     def print_proposition(self, eval_point, indent_num, use_colors):
-        eval_world = eval_point["world"]
+        """Print the proposition with its truth value at the evaluation point.
+        
+        Args:
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world at which to evaluate the sentence
+            indent_num: Number of indentations to use
+            use_colors: Whether to use colors in the output
+        """
         N = self.model_structure.semantics.N
-        truth_value = self.truth_value_at(eval_world)
-        world_state = bitvec_to_substates(eval_world, N)
+        truth_value = self.truth_value_at(eval_point)
+        world_state = bitvec_to_substates(eval_point["world"], N)
         RESET, FULL, PART = self.set_colors(self.name, indent_num, truth_value, world_state, use_colors)
         print(
             f"{'  ' * indent_num}{FULL}|{self.name}| = {self}{RESET}"
