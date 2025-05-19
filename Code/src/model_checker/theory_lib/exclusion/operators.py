@@ -272,13 +272,14 @@ class ExclusionOperatorQuantifyIndices(ExclusionOperatorBase):
     arity = 1
 
     def extended_verify(self, state, argument, eval_point):
-        """this implementation quantifies over a bound range of indices. 
-        Bound is 2^(N+3). Calculated based on reasonable upper bound estimates for number of
-        negations per sentence (2) times number of sentences (4) times number of verifiers (O(n))
+        """
         
-        Advantages: slow and STEADY wins the race
+        Advantages: In principle, I think could avoid issue of Z3 finding a satisfying formula
+        but not not keeping it in the model. In this implementation, the functions are stored in
+        and array, and then that could be used for evaluation at a model. However right now it is
+        not working (will work on next). 
 
-        Disadvantages: SLOW and steady wins the race
+        Disadvantages: Infinite domain, Z3 quantifiers. 
         """
         # Abbreviations
         semantics = self.semantics
@@ -397,9 +398,9 @@ class ExclusionOperatorNameArrays(ExclusionOperatorBase):
         """this implementation names h functions, using an increasing counter to ensure
         they're distinct. 
         
-        Advantages: TYPE HERE
+        Advantages: Same as NF, modulo differences in Z3's implementation of these data structures
 
-        Disadvantages: TYPE HERE
+        Disadvantages: Same as NF, modulo differences in Z3's implementation of these data structures
         """
         # Abbreviations
         semantics = self.semantics
@@ -427,7 +428,7 @@ BQI = ExclusionOperatorBoundedQuantifyIndices
 NF = ExclusionOperatorNameFunctions
 NA = ExclusionOperatorNameArrays
 
-ExclusionOperator = QA
+ExclusionOperator = QI
 
 exclusion_operators = syntactic.OperatorCollection(
     UniAndOperator, UniOrOperator, ExclusionOperator, # extensional
