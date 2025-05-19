@@ -69,7 +69,7 @@ class ExclusionSemantics(model.SemanticDefaults):
         # DEFINE THINGS FOR QUANTIFYING OVER FUNCS
         h_sort = z3.ArraySort(z3.BitVecSort(self.N), z3.BitVecSort(self.N)) # h: S -> S
 
-        # BQI
+        # BQI # NOTE: see calculations in your notebook for N + 3 justification
         self.B_h_ix = z3.BitVec("h_ix", self.N + 5) # used for H: Z -> (S -> S)
         self.BH = z3.Function("H", z3.BitVecSort(self.N + 5), h_sort) # H: Z -> (S -> S)
 
@@ -82,12 +82,11 @@ class ExclusionSemantics(model.SemanticDefaults):
         # Storage for function witnesses (used for evaluating exclusion formulas consistently)
         self.function_witnesses = {}
 
-        # NOTE: see calculations in your notebook for N + 3 justification
         self.counter = 0 # for naming new funcs
 
 
         # Define frame constraints
-        x, y, z = z3.BitVecs("frame_x frame_y frame_z", self.N)
+        x, y, z, u = z3.BitVecs("frame_x frame_y frame_z frame_u", self.N)
         actuality = self.is_world(self.main_world)
         
         # Basic exclusion properties
@@ -143,7 +142,8 @@ class ExclusionSemantics(model.SemanticDefaults):
             )
         )
 
-        cumulativity = None # TODO: if e excludes e' and f excludes f', then e ⊔ f excludes e' ⊔ f'
+        # if e excludes e' and f excludes f', then e ⊔ f excludes e' ⊔ f'
+        cumulativity = ForAll([x, y, z, u], z3.Implies(z3.And(self.excludes(x,z), self.excludes(y,u)), self.excludes(self.fusion(x,y), self.fusion(z,u))))
 
 
         plenitude = ForAll(x, z3.And(z3.Implies(self.possible(x), Exists(y, z3.And(self.coheres(x,y), self.is_world(y)))), 
@@ -294,7 +294,7 @@ class ExclusionSemantics(model.SemanticDefaults):
                 def array_witness(x):
                     x_val = z3.BitVecVal(x, self.N) if isinstance(x, int) else x
                     return z3_model.evaluate(decl[x_val])
-                result[name] = array_witness
+                result[name] = array_witness # lambda x. h(x)
             # For Function type witnesses (from NameFunctions implementation)
             else:
                 def make_function_witness(func_decl):
