@@ -204,7 +204,8 @@ class ExclusionOperatorBase(syntactic.Operator):
         for state in all_states:
             # Check if this state verifies the exclusion formula in the current model
             formula = self.extended_verify(state, argument, eval_point)
-            eval_result = z3_model.evaluate(formula)
+            # eval_result = z3_model.evaluate(formula)
+            eval_result = self.semantics.evaluate_with_witness(formula, z3_model)
             
             if z3.is_true(eval_result):
                 result.add(state)
