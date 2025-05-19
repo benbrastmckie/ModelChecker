@@ -2,8 +2,8 @@
 
 If you use this theory implementation in academic work, please cite:
 
-Benjamin Brast-McKie. (2025). Exclusion: A semantic theory implementation for the
-ModelChecker framework.
+Miguel Buitrago and Benjamin Brast-McKie, (2025).
+
 
 ## Theory Implementation Notes
 
