@@ -963,21 +963,21 @@ test_example_range = {
 # NOTE: at least one example is required, multiple are permitted for comparison
 example_range = {
 
-    # Frame
+    # # Frame
 
-    "Only Frame Constraints" : EMPTY_example,
-    "No Gaps" : GAPS_example,
-    "No Gluts" : GLUTS_example,
-    "EX_CM_1" : EX_CM_1_example, # false premise model
+    # "Only Frame Constraints" : EMPTY_example,
+    # "No Gaps" : GAPS_example,
+    # "No Gluts" : GLUTS_example,
+    # "EX_CM_1" : EX_CM_1_example, # false premise model
 
 
-    # Classical Negation Theorems (All should hold)
+    # # Classical Negation Theorems (All should hold)
 
     "Double Negation Introduction" : DN_INTRO_example,
     "Double Negation Elimination" : DN_ELIM_example,
-    "Triple Negation Entailment" : TN_ENTAIL_example,
-    "Quadruple Negation Entailment" : QN_ENTAIL_example,
-    "Disjunctive Syllogism" : DISJ_SYLL_example,
+    # "Triple Negation Entailment" : TN_ENTAIL_example,
+    # "Quadruple Negation Entailment" : QN_ENTAIL_example,
+    # "Disjunctive Syllogism" : DISJ_SYLL_example,
 
     "Conjunctive DeMorgan's LR" : CONJ_DM_LR_example, 
     "Conjunctive DeMorgan's RL" : CONJ_DM_RL_example,
@@ -1003,16 +1003,16 @@ example_range = {
     "Disjunctive Associativity RL" : DISJ_ASSOC_RL_example,
 
 
-    # Identity
+    # # Identity
 
-    "Double Negation Identity" : DN_ID_example, # has countermodel
-    "Triple Negation Identity" : TN_ID_example, # has countermodel
-    "Conjuctive DeMorgan's Identity" : CONJ_DM_ID_example, # expect CM
-    "Disjunctive DeMorgan's Identity" : DISJ_DM_ID_example, # expect THM
-    "Conjunctive Distribution Identity" : CONJ_DIST_ID_example, # expect THM
-    "Disjuctive Distribution Identity" : DISJ_DIST_ID_example, # expect CM
-        # NOTE: this is invalid for the same reason as in the bilateral semantics
-        # however, here the dual is valid, breaking the duality of the operators
+    # "Double Negation Identity" : DN_ID_example, # has countermodel
+    # "Triple Negation Identity" : TN_ID_example, # has countermodel
+    # "Conjuctive DeMorgan's Identity" : CONJ_DM_ID_example, # expect CM
+    # "Disjunctive DeMorgan's Identity" : DISJ_DM_ID_example, # expect THM
+    # "Conjunctive Distribution Identity" : CONJ_DIST_ID_example, # expect THM
+    # "Disjuctive Distribution Identity" : DISJ_DIST_ID_example, # expect CM
+    #     # NOTE: this is invalid for the same reason as in the bilateral semantics
+    #     # however, here the dual is valid, breaking the duality of the operators
 
 
     # Other
