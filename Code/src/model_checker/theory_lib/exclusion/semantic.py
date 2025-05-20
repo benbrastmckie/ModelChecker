@@ -841,7 +841,6 @@ class ExclusionStructure(model.ModelDefaults):
         # Only evaluate if we have a valid model
         if self.z3_model_status and self.z3_model is not None:
             self._update_model_structure(self.z3_model)
-            print(self.z3_model)
 
     def _update_model_structure(self, z3_model):
         evaluate = z3_model.evaluate
