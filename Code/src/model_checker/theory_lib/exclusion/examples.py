@@ -973,8 +973,8 @@ example_range = {
 
     # # Classical Negation Theorems (All should hold)
 
-    "Double Negation Introduction" : DN_INTRO_example,
-    "Double Negation Elimination" : DN_ELIM_example,
+    # "Double Negation Introduction" : DN_INTRO_example,
+    # "Double Negation Elimination" : DN_ELIM_example,
     # "Triple Negation Entailment" : TN_ENTAIL_example,
     # "Quadruple Negation Entailment" : QN_ENTAIL_example,
     # "Disjunctive Syllogism" : DISJ_SYLL_example,
@@ -987,20 +987,20 @@ example_range = {
 
     # Classical And/Or Theorems (All should hold)
 
-    "Conjunctive Distribution LR" : CONJ_DIST_LR_example,
-    "Conjunctive Distribution RL" : CONJ_DIST_RL_example,
-    "Disjunctive Distribution LR" : DISJ_DIST_LR_example,
-    "Disjunctive Distribution RL" : DISJ_DIST_RL_example,
+    # "Conjunctive Distribution LR" : CONJ_DIST_LR_example,
+    # "Conjunctive Distribution RL" : CONJ_DIST_RL_example,
+    # "Disjunctive Distribution LR" : DISJ_DIST_LR_example,
+    # "Disjunctive Distribution RL" : DISJ_DIST_RL_example,
 
-    "Conjunctive Absorption LR" : CONJ_ABS_LR_example,
-    "Conjunctive Absorption RL" : CONJ_ABS_RL_example,
-    "Disjunctive Absorption LR" : DISJ_ABS_LR_example,
-    "Disjunctive Absorption RL" : DISJ_ABS_RL_example,
+    # "Conjunctive Absorption LR" : CONJ_ABS_LR_example,
+    # "Conjunctive Absorption RL" : CONJ_ABS_RL_example,
+    # "Disjunctive Absorption LR" : DISJ_ABS_LR_example,
+    # "Disjunctive Absorption RL" : DISJ_ABS_RL_example,
 
-    "Conjunctive Associativity LR" : CONJ_ASSOC_LR_example,
-    "Conjunctive Associativity RL" : CONJ_ASSOC_RL_example,
-    "Disjunctive Associativity LR" : DISJ_ASSOC_LR_example,
-    "Disjunctive Associativity RL" : DISJ_ASSOC_RL_example,
+    # "Conjunctive Associativity LR" : CONJ_ASSOC_LR_example,
+    # "Conjunctive Associativity RL" : CONJ_ASSOC_RL_example,
+    # "Disjunctive Associativity LR" : DISJ_ASSOC_LR_example,
+    # "Disjunctive Associativity RL" : DISJ_ASSOC_RL_example,
 
 
     # # Identity
