@@ -299,6 +299,41 @@ class ExclusionOperatorQuantifyIndices(ExclusionOperatorBase):
             ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(H(ix)[x], state))), # UB
             ForAll(z, z3.Implies(ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(H(ix)[x], z))), is_part_of(state, z))) # LUB
             ))
+    
+
+class ExclusionOperatorQuantifyIndices2(ExclusionOperatorBase):
+
+    name = "\\exclude"
+    arity = 1
+
+    def extended_verify(self, state, argument, eval_point):
+        """
+        
+        Advantages: In principle, I think could avoid issue of Z3 finding a satisfying formula
+        but not not keeping it in the model. In this implementation, the functions are stored in
+        and array, and then that could be used for evaluation at a model. However right now it is
+        not working (will work on next). 
+
+        Disadvantages: Infinite domain, Z3 quantifiers. 
+        """
+        # Abbreviations
+        semantics = self.semantics
+        N = semantics.N
+        extended_verify = semantics.extended_verify
+        excludes = semantics.excludes
+        is_part_of = semantics.is_part_of
+        # ix = semantics.h_ix
+        H = semantics.H2
+        semantics.counter += 1
+        ix = z3.Int(f"ix_{semantics.counter}")
+
+        x, y, z, u, v = z3.BitVecs("x y z u v", N)
+
+        return z3.Exists(ix, z3.And(
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), Exists(y, z3.And(is_part_of(y, x), excludes(H(ix, x), y))))), # cond 1
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(H(ix, x), state))), # UB
+            ForAll(z, z3.Implies(ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(H(ix, x), z))), is_part_of(state, z))) # LUB
+            ))
 
 
 class ExclusionOperatorBoundedQuantifyIndices(ExclusionOperatorBase):
@@ -424,11 +459,12 @@ class ExclusionOperatorNameArrays(ExclusionOperatorBase):
 
 QA = ExclusionOperatorQuantifyArrays
 QI = ExclusionOperatorQuantifyIndices
+QI2 = ExclusionOperatorQuantifyIndices2
 BQI = ExclusionOperatorBoundedQuantifyIndices
 NF = ExclusionOperatorNameFunctions
 NA = ExclusionOperatorNameArrays
 
-ExclusionOperator = QI
+ExclusionOperator = QI2
 
 exclusion_operators = syntactic.OperatorCollection(
     UniAndOperator, UniOrOperator, ExclusionOperator, # extensional
