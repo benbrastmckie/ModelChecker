@@ -74,7 +74,7 @@ class ExclusionSemantics(model.SemanticDefaults):
         self.BH = z3.Function("H", z3.BitVecSort(self.N + 5), h_sort) # H: Z -> (S -> S)
 
         # QI
-        self.H = z3.Function("H", z3.BitVecSort(self.N), h_sort) # H: Z -> (S -> S)
+        self.H = z3.Function("H", z3.IntSort(), h_sort) # H: Z -> (S -> S)
 
         # QA
         self.h = z3.Array(f"h", z3.BitVecSort(self.N), z3.BitVecSort(self.N))
