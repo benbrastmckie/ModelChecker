@@ -290,7 +290,7 @@ class ExclusionOperatorQuantifyIndices(ExclusionOperatorBase):
         # ix = semantics.h_ix
         H = semantics.H
         semantics.counter += 1
-        ix = z3.BitVec(f"ix_{semantics.counter}", N)
+        ix = z3.Int(f"ix_{semantics.counter}")
 
         x, y, z, u, v = z3.BitVecs("x y z u v", N)
 
