@@ -1,0 +1,6 @@
+# Miguel Project Summary
+
+My project deliverables consist of the following things:
+- Five new definitions for the negation operator in the exclusion semantifs, available in the `operators.py` file of this branch
+- Modifications to the exclusion semantics to avoid repetitive code (multiple uses of a preclude function) and adding definitions of constraints Champollions suggests could be added to the theory (viz., cumulativity)
+- In these files (docstrings of operators), discussion of advantages and disadvantages of the strategies and future directions. 
