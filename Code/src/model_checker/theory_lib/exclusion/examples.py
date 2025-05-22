@@ -161,7 +161,7 @@ default_theory = {
 
 general_settings = {
     "print_constraints": False,
-    "print_impossible": False,
+    "print_impossible": True,
     "print_z3": False,
     "save_output": False,
     "maximize": False,
@@ -290,7 +290,7 @@ GAPS_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
-    'max_time' : 5,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -857,7 +857,7 @@ DISJ_DIST_ID_settings = { # agree
     'N' : 3,
     'possible' : False,
     'contingent' : False,
-    'non_empty' : False,
+    'non_empty' : True,
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure' : False,
@@ -964,24 +964,25 @@ test_example_range = {
 example_range = {
 
     # # Frame
+
     # "Only Frame Constraints" : EMPTY_example,
     # "No Gaps" : GAPS_example,
     # "No Gluts" : GLUTS_example,
-    "EX_CM_1" : EX_CM_1_example, # false premise model
+    # "EX_CM_1" : EX_CM_1_example, # false premise model
 
 
     # # Classical Negation Theorems (All should hold)
+
     # "Double Negation Introduction" : DN_INTRO_example,
     # "Double Negation Elimination" : DN_ELIM_example,
     # "Triple Negation Entailment" : TN_ENTAIL_example,
     # "Quadruple Negation Entailment" : QN_ENTAIL_example,
-
     # "Disjunctive Syllogism" : DISJ_SYLL_example,
 
-    # "Conjunctive DeMorgan's LR" : CONJ_DM_LR_example, 
-    # "Conjunctive DeMorgan's RL" : CONJ_DM_RL_example,
-    # "Disjunctive DeMorgan's LR" : DISJ_DM_LR_example,
-    # "Disjunctive DeMorgan's RL" : DISJ_DM_RL_example,
+    "Conjunctive DeMorgan's LR" : CONJ_DM_LR_example, 
+    "Conjunctive DeMorgan's RL" : CONJ_DM_RL_example,
+    "Disjunctive DeMorgan's LR" : DISJ_DM_LR_example,
+    "Disjunctive DeMorgan's RL" : DISJ_DM_RL_example,
 
 
     # Classical And/Or Theorems (All should hold)
@@ -1002,14 +1003,16 @@ example_range = {
     # "Disjunctive Associativity RL" : DISJ_ASSOC_RL_example,
 
 
-    # Identity
+    # # Identity
 
-    # "Double Negation Identity" : DN_ID_example,
-    # "Triple Negation Identity" : TN_ID_example,
+    # "Double Negation Identity" : DN_ID_example, # has countermodel
+    # "Triple Negation Identity" : TN_ID_example, # has countermodel
     # "Conjuctive DeMorgan's Identity" : CONJ_DM_ID_example, # expect CM
     # "Disjunctive DeMorgan's Identity" : DISJ_DM_ID_example, # expect THM
     # "Conjunctive Distribution Identity" : CONJ_DIST_ID_example, # expect THM
-    # "Disjuctive Distribution Identity" : DISJ_DIST_ID_example, # expect THM
+    # "Disjuctive Distribution Identity" : DISJ_DIST_ID_example, # expect CM
+    #     # NOTE: this is invalid for the same reason as in the bilateral semantics
+    #     # however, here the dual is valid, breaking the duality of the operators
 
 
     # Other

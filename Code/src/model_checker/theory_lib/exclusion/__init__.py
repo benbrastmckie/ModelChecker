@@ -59,6 +59,11 @@ from .semantic import (
     ExclusionStructure,
 )
 
+from .semantic_old import ExclusionSemantics as OldExclusionSemantics
+from .semantic_old import UnilateralProposition as OldUnilateralProposition
+from .semantic_old import ExclusionStructure as OldExclusionStructure
+from .operators_old import exclusion_operators as old_exclusion_operators
+
 # Import version utilities
 from model_checker.utils import get_model_checker_version
 

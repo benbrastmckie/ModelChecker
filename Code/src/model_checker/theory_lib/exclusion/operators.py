@@ -199,24 +199,14 @@ class ExclusionOperatorBase(syntactic.Operator):
         all_states = self.semantics.all_states
         z3_model = argument.proposition.model_structure.z3_model
         
-        # NOTE: CRITICAL FIX (May 2025)
-        # The previous implementation incorrectly used z3_solver.check() which tests if a formula is
-        # *satisfiable* in *some* possible model, not whether it's *true* in the *current* model.
-        # This caused the model-checker to include states that could potentially be verifiers
-        # in some model, rather than the states that are actually verifiers in the specific model
-        # Z3 found, leading to countermodels with impossible characteristics (true conclusions
-        # or false premises).
-        #
-        # Old code:
-        # if z3_solver.check(self.extended_verify(state, argument, eval_point)):
-        #     result.add(state)
-        
-        # New code:
+        # Find verifiers by evaluating the formula for each state
         result = set()
         for state in all_states:
             # Check if this state verifies the exclusion formula in the current model
             formula = self.extended_verify(state, argument, eval_point)
-            eval_result = z3_model.evaluate(formula)
+            # eval_result = z3_model.evaluate(formula)
+            eval_result = self.semantics.evaluate_with_witness(formula, z3_model)
+            
             if z3.is_true(eval_result):
                 result.add(state)
                 
@@ -253,8 +243,10 @@ class ExclusionOperatorQuantifyArrays(ExclusionOperatorBase):
         extended_verify = semantics.extended_verify
         excludes = semantics.excludes
         is_part_of = semantics.is_part_of
+        counter = semantics.counter
         semantics.counter += 1
-        h = z3.Array(f"f_{semantics.counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+        # Use consistent name 'h' for all arrays to make extraction easier
+        h = z3.Array(f"h", z3.BitVecSort(N), z3.BitVecSort(N))
         
         x, y, z, u, v = z3.BitVecs("excl_ver_x excl_ver_y excl_ver_z excl_ver_u excl_ver_v", N)
 
@@ -280,13 +272,14 @@ class ExclusionOperatorQuantifyIndices(ExclusionOperatorBase):
     arity = 1
 
     def extended_verify(self, state, argument, eval_point):
-        """this implementation quantifies over a bound range of indices. 
-        Bound is 2^(N+3). Calculated based on reasonable upper bound estimates for number of
-        negations per sentence (2) times number of sentences (4) times number of verifiers (O(n))
+        """
         
-        Advantages: slow and STEADY wins the race
+        Advantages: In principle, I think could avoid issue of Z3 finding a satisfying formula
+        but not not keeping it in the model. In this implementation, the functions are stored in
+        and array, and then that could be used for evaluation at a model. However right now it is
+        not working (will work on next). 
 
-        Disadvantages: SLOW and steady wins the race
+        Disadvantages: Infinite domain, Z3 quantifiers. 
         """
         # Abbreviations
         semantics = self.semantics
@@ -297,7 +290,7 @@ class ExclusionOperatorQuantifyIndices(ExclusionOperatorBase):
         # ix = semantics.h_ix
         H = semantics.H
         semantics.counter += 1
-        ix = z3.BitVec(f"ix_{semantics.counter}", N)
+        ix = z3.Int(f"ix_{semantics.counter}")
 
         x, y, z, u, v = z3.BitVecs("x y z u v", N)
 
@@ -305,6 +298,41 @@ class ExclusionOperatorQuantifyIndices(ExclusionOperatorBase):
             ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), Exists(y, z3.And(is_part_of(y, x), excludes(H(ix)[x], y))))), # cond 1
             ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(H(ix)[x], state))), # UB
             ForAll(z, z3.Implies(ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(H(ix)[x], z))), is_part_of(state, z))) # LUB
+            ))
+    
+
+class ExclusionOperatorQuantifyIndices2(ExclusionOperatorBase):
+
+    name = "\\exclude"
+    arity = 1
+
+    def extended_verify(self, state, argument, eval_point):
+        """
+        
+        Advantages: In principle, I think could avoid issue of Z3 finding a satisfying formula
+        but not not keeping it in the model. In this implementation, the functions are stored in
+        and array, and then that could be used for evaluation at a model. However right now it is
+        not working (will work on next). 
+
+        Disadvantages: Infinite domain, Z3 quantifiers. 
+        """
+        # Abbreviations
+        semantics = self.semantics
+        N = semantics.N
+        extended_verify = semantics.extended_verify
+        excludes = semantics.excludes
+        is_part_of = semantics.is_part_of
+        # ix = semantics.h_ix
+        H = semantics.H2
+        semantics.counter += 1
+        ix = z3.Int(f"ix_{semantics.counter}")
+
+        x, y, z, u, v = z3.BitVecs("x y z u v", N)
+
+        return z3.Exists(ix, z3.And(
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), Exists(y, z3.And(is_part_of(y, x), excludes(H(ix, x), y))))), # cond 1
+            ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(H(ix, x), state))), # UB
+            ForAll(z, z3.Implies(ForAll(x, z3.Implies(extended_verify(x, argument, eval_point), is_part_of(H(ix, x), z))), is_part_of(state, z))) # LUB
             ))
 
 
@@ -405,9 +433,9 @@ class ExclusionOperatorNameArrays(ExclusionOperatorBase):
         """this implementation names h functions, using an increasing counter to ensure
         they're distinct. 
         
-        Advantages: TYPE HERE
+        Advantages: Same as NF, modulo differences in Z3's implementation of these data structures
 
-        Disadvantages: TYPE HERE
+        Disadvantages: Same as NF, modulo differences in Z3's implementation of these data structures
         """
         # Abbreviations
         semantics = self.semantics
@@ -431,11 +459,12 @@ class ExclusionOperatorNameArrays(ExclusionOperatorBase):
 
 QA = ExclusionOperatorQuantifyArrays
 QI = ExclusionOperatorQuantifyIndices
+QI2 = ExclusionOperatorQuantifyIndices2
 BQI = ExclusionOperatorBoundedQuantifyIndices
 NF = ExclusionOperatorNameFunctions
 NA = ExclusionOperatorNameArrays
 
-ExclusionOperator = QA
+ExclusionOperator = QI2
 
 exclusion_operators = syntactic.OperatorCollection(
     UniAndOperator, UniOrOperator, ExclusionOperator, # extensional
