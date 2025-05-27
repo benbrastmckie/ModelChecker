@@ -7,16 +7,12 @@ The [TheoryLib](src/model_checker/theory_lib/) includes the semantic theories th
 
 You can find more information about the background semantic theory provided for the LoT [here](http://www.benbrastmckie.com/research#access).
 
-## The Formal Language of Thought (Logos)
+## The Language of Thought (_Logos_)
 
 Intensional action is predicated on forethought and planning, where this applies to AI agents as much as it does to human agents.
-Since strategic planning requires agents to contemplate nearby counterfactual possibilities, temporal eventualities, and causal and constitutive explanatory relationships, it is important to equip AI with the conceptual resources needed to think in these ways.
-The _Logos_ is a formal language of thought which provides these logical resources.
+Since strategic planning requires agents to contemplate counterfactual possibilities, temporal eventualities, causal and constitutive explanatory relationships, as well as reason under uncertainty about what is permissible or ought to be the case, it is important to equip AI with the conceptual resources needed to think in these ways.
 
-I am working to extend the Logos to include indicative conditionals, epistemic modals, belief and revision operators, and probability operators for reasoning under uncertainty.
-Following these additions I aim to include deontic modal and normative explanatory operators for cooperating with other agents in optimizing preferences and values.
-
-The Logos currently includes semantic clauses for the following operators:
+_Logos_ is a unified formal language of thought which provides these logical resources and currently includes semantic clauses for the following operators:
 
 - `neg` for _negation_
 - `wedge` for _conjunction_
@@ -36,11 +32,15 @@ The Logos currently includes semantic clauses for the following operators:
 - `equiv` for _propositional identity_ read 'just is for'
 - `preceq` for _relevance_
 
+To complete _Phase I_, I am working to extend the _Logos_ to include causal operators and quantifiers.
+_Phase II_ of this project aims to include indicative conditionals, epistemic modals, belief and revision operators, and probability operators for reasoning under uncertainty.
+Following these additions, _Phase III_ will include deontic modal and normative explanatory operators for cooperating with other agents in optimizing preferences and values.
+
 More specific details about the implementation of these semantic clauses can be found [here](src/model_checker/theory_lib/README.md) as well as information about the package architecture [here](src/model_checker/README.md).
 
 ## TheoryLib
 
-Whereas the Logos provides a unified semantic theory, the `TheoryLib` includes a library of pure semantic theories for small language fragments that may be variously combined and modified, each of which:
+Whereas the _Logos_ provides a unified semantic theory, the `TheoryLib` includes a library of pure semantic theories for small language fragments that may be variously combined and modified, each of which:
 
 - Introduces the semantic primitives that make up a frame
 - Defines the propositions over a frame needed to interpret the language
@@ -249,7 +249,7 @@ For a demonstration, see the `examples/jupyter_demo.ipynb` notebook and the `exa
 
 ## Hyperintensional Semantics
 
-The semantics for the Logos is hyperintensional insofar as sentences are evaluated at _states_ which may be partial rather than total as in intensional semantic theories, fixing the truth values of only some sentence letters.
+The semantics for the _Logos_ is hyperintensional insofar as sentences are evaluated at _states_ which may be partial rather than total as in intensional semantic theories, fixing the truth values of only some sentence letters.
 States are modeled by bitvectors of a specified length (e.g., `#b00101` has length `5`), where _state fusion_ is modeled by the bitwise OR operator `|`.
 For instance, `#b00101 | #b11001 = #b11101`.
 The _atomic states_ have exactly one occurrence of `1` and the _null state_ has no occurrences of `1`.
