@@ -57,12 +57,11 @@ The ModelChecker framework follows a modular architecture designed to separate c
    - Theory-specific adapters for consistent interfaces
    - See [Jupyter Integration Documentation](jupyter/README.md) for details
 
-### Theory Library
+### TheoryLib
 
-The `theory_lib` package contains specific implementations of logical theories:
+The `TheoryLib` contains programmatic semantic theories for fragment langages:
 
 1. **Theory Registry** (`theory_lib/__init__.py`)
-
    - Central registry of available theories
    - Lazy loading of theory implementations
    - Utilities for discovering and accessing theories

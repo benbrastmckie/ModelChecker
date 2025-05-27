@@ -1,8 +1,9 @@
-# ModelChecker Theory Library
+# TheoryLib
 
 ## Overview
 
-The ModelChecker Theory Library is a collection of semantic theories implemented using Z3. Each theory provides a programmatic implementation of a different semantic framework, enabling automated verification of logical arguments and discovery of countermodels.
+The `TheoryLib` includes a collection of programmatic semantic theories implemented using Z3.
+Each theory enables automated verification of the validity of logical arguments as well as the discovery of countermodels.
 
 The library follows a modular architecture that allows:
 
@@ -16,21 +17,23 @@ The library follows a modular architecture that allows:
 For a detailed overview of the standard architecture that each theory follows, see [THEORY_ARCHITECTURE.md](THEORY_ARCHITECTURE.md).
 The library currently includes the following theories:
 
-### Default Theory (Hyperintensional Semantics)
+### _Logos_
+
+The _Logos_ provides a unified hyperintensional semantic theory.
 
 - **Theory Author**: Benjamin Brast-McKie
-- **Implementation Authors**: Benjamin Brast-McKie and Miguel Buitrago
+- **Contributors**: Benjamin Brast-McKie and Miguel Buitrago
 - **Description**: Implements a hyperintensional semantics for counterfactuals, constitutive operators, and modal logic.
 - **Key Papers**:
   - Brast-McKie (2021) "Identity and Aboutness", Journal of Philosophical Logic
   - Brast-McKie (2025) "Counterfactual Worlds", Journal of Philosophical Logic
 - **Key Features**:
-  - State-based hyperintensional propositions with verifiers and falsifiers
+  - Hyperintensional bilateral propositions
   - Truthmaker semantics for extensional connectives
-  - Counterfactual conditionals via alternatives
-  - Constitutive operators for essence, ground, and identity
+  - Counterfactual conditionals via alternative world-states
+  - Constitutive operators for essence, ground, and propositional identity
 
-More information abut the default theory can be found in [default/README.md](default/README.md).
+More information about the _Logos_ can be found in [default/README.md](default/README.md).
 
 ### Exclusion Theory
 
