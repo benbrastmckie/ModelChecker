@@ -125,8 +125,8 @@ model-checker -u
 
 Run `model-checker` in the terminal without arguments to create a new project with the following modules:
 
-- `semantic.py` specifies the Z3 primitives, frame constraints, models, theory of logical consequence, defined semantic terms, theory of propositions, and print instructions for displaying countermodels for the default semantics.
-- `operators.py` specifies the semantic clauses for the primitive operators included in the default language along with a number of defined operators.
+- `semantic.py` specifies the Z3 primitives, frame constraints, models, theory of logical consequence, defined semantic terms, theory of propositions, and print instructions for displaying countermodels.
+- `operators.py` specifies the semantic clauses for the primitive operators included in the _Logos_ along with a number of defined operators.
 - `examples/` includes modules with collections of examples and settings.
 - `notebooks/` includes Jupyter Notebooks for exploring theories and discussing findings.
 - `tests/` includes unit tests which aid in rapidly prototyping theories.

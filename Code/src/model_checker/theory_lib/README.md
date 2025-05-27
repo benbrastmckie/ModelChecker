@@ -67,11 +67,8 @@ More information abut the imposition theory can be found in [imposition/README.m
 
 - **Theory Author**: Benjamin Brast-McKie
 - **Implementation Author**: Benjamin Brast-McKie
-- **Description**: Extends default theory with temporal modal operators.
-- **Key Features**:
-  - Both counterfactual and temporal modalities
-  - Interaction between different modal operators
-  - Extended framework for reasoning about time and possibility
+- **Description**: Includes modal and temporal operators
+- **Key Features**: Interaction between tense and circumstantial modality
 
 More information abut the bimodal theory can be found in [bimodal/README.md](bimodal/README.md).
 
