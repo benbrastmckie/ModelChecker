@@ -7,14 +7,16 @@ The [TheoryLib](src/model_checker/theory_lib/) includes the semantic theories th
 
 You can find more information about the background semantic theory provided for the LoT [here](http://www.benbrastmckie.com/research#access).
 
-## The Language of Thought
+## The Formal Language of Thought (Logos)
 
 Intensional action is predicated on forethought and planning, where this applies to AI agents as much as it does to human agents.
 Since strategic planning requires agents to contemplate nearby counterfactual possibilities, temporal eventualities, and causal and constitutive explanatory relationships, it is important to equip AI with the conceptual resources needed to think in these ways.
-I am working to extend this list to include indicative conditionals, epistemic modals, belief and revision operators, and probability operators for reasoning under uncertainty.
+The _Logos_ is a formal language of thought which provides these logical resources.
+
+I am working to extend the Logos to include indicative conditionals, epistemic modals, belief and revision operators, and probability operators for reasoning under uncertainty.
 Following these additions I aim to include deontic modal and normative explanatory operators for cooperating with other agents in optimizing preferences and values.
 
-This package currently includes hyperintensional semantic clauses for the following operators:
+The Logos currently includes semantic clauses for the following operators:
 
 - `neg` for _negation_
 - `wedge` for _conjunction_
@@ -34,22 +36,22 @@ This package currently includes hyperintensional semantic clauses for the follow
 - `equiv` for _propositional identity_ read 'just is for'
 - `preceq` for _relevance_
 
-More specific details about the implementation of these semantic clauses can be found [here](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/README.md).
+More specific details about the implementation of these semantic clauses can be found [here](src/model_checker/theory_lib/README.md) as well as information about the package architecture [here](src/model_checker/README.md).
 
 ## TheoryLib
 
-The `model-checker` includes a library of semantic theories, each of which:
+Whereas the Logos provides a unified semantic theory, the `TheoryLib` includes a library of pure semantic theories for small language fragments that may be variously combined and modified, each of which:
 
 - Introduces the semantic primitives that make up a frame
 - Defines the propositions over a frame needed to interpret the language
 - Defines the models of the language by assigning sentence letters to propositions
-- Provides semantic clauses for the primitive operators included in the language
+- Provides semantic clauses for the primitive operators included in the language fragment
 - Draws on the primitive operators to define a number of additional operators
 - Includes a range of examples of logical consequences and countermodels
 
-Once the extension of a semantic theory has been explored with adequate range of results, that theory can be included in the `TheoryLib` with a pull request.
+Local instances of the semantic theories within the `TheoryLib` may be generated using `model-checker -l THEORY_NAME` and then modified.
+Once the extension of a new or modified semantic theory has been explored with adequate range of results, that theory can be contributed to the `TheoryLib` with a pull request.
 See the [theory_lib/README.md](src/model_checker/theory_lib/README.md) for further details on the existing theories as well as contributing new theories.
-
 
 ### Licensing
 
@@ -211,19 +213,17 @@ pip install ipywidgets matplotlib networkx
 
 ### Basic Usage
 
-For quick formula checking, both LaTeX and some unicode characters are accepted:
-
 ```python
 from model_checker.notebook import check_formula
 
 # Check a counterfactual formula
-check_formula("(A \\vee B \\boxright C) \\rightarrow (A \\boxright C)")
+check_formula("((A \\vee B \\boxright C) \\rightarrow (A \\boxright C))")
 
 # Check a modal formula
-check_formula("□(p → q) → (□p → □q)")
+check_formula("(\\Box (A \\rightarrow B) \\rightarrow (\\Box A \\rightarrow \\Box B))")
 
 # Check with premises
-check_formula("q", premises=["p", "p \\diamondright q"])
+check_formula("B", premises=["A", "(A \\diamondright B)"])
 ```
 
 ### Interactive Explorer
@@ -249,10 +249,7 @@ For a demonstration, see the `examples/jupyter_demo.ipynb` notebook and the `exa
 
 ## Hyperintensional Semantics
 
-This section sketches the underlying semantics.
-More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker). 
-
-The semantics is hyperintensional insofar as sentences are evaluated at _states_ which may be partial rather than total as in intensional semantic theories.
+The semantics for the Logos is hyperintensional insofar as sentences are evaluated at _states_ which may be partial rather than total as in intensional semantic theories, fixing the truth values of only some sentence letters.
 States are modeled by bitvectors of a specified length (e.g., `#b00101` has length `5`), where _state fusion_ is modeled by the bitwise OR operator `|`.
 For instance, `#b00101 | #b11001 = #b11101`.
 The _atomic states_ have exactly one occurrence of `1` and the _null state_ has no occurrences of `1`.
@@ -282,7 +279,6 @@ Given a world state `w` and state `s`, an `s`_-alternative_ to `w` is any world 
 A _must counterfactual conditional sentences_ `A boxright B` is true at a world state `w` just in case its consequent is true at any `s`-alternative to `w` for any verifier `s` for the antecedent of the counterfactual.
 A _might counterfactual conditional sentences_ `A boxright B` is true at a world state `w` just in case its consequent is true at some `s`-alternative to `w` for some verifier `s` for the antecedent of the counterfactual.
 The semantic theory for counterfactual conditionals is motivated and further elaborated in this accompanying [paper](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf).
-This account builds on [Fine 2012](https://www.pdcnet.org/jphil/content/jphil_2012_0109_0003_0221_0246) and [Fine2012a](https://link.springer.com/article/10.1007/s11229-012-0094-y?error=cookies_not_supported&code=5166a4da-1834-438c-9f93-75b61f58b6db).
 
 A _grounding sentence_ `A leq B` may be read '`A` is _sufficient for_ `B`' and an _essence sentence_ `A sqsubseteq B` may be read '`A` is _necessary for_ `B`'.
 A _propositional identity sentence_ `A equiv B` may be read '`A` _just is for_ `B`'.
