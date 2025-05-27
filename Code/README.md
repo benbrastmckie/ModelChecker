@@ -7,7 +7,7 @@ The [TheoryLib](src/model_checker/theory_lib/) includes the semantic theories th
 
 You can find more information about the background semantic theory provided for the LoT [here](http://www.benbrastmckie.com/research#access).
 
-## The Language of Thought (_Logos_)
+## _Logos_: A Formal Language of Thought
 
 Intensional action is predicated on forethought and planning, where this applies to AI agents as much as it does to human agents.
 Since strategic planning requires agents to contemplate counterfactual possibilities, temporal eventualities, causal and constitutive explanatory relationships, as well as reason under uncertainty about what is permissible or ought to be the case, it is important to equip AI with the conceptual resources needed to think in these ways.
@@ -36,7 +36,7 @@ To complete _Phase I_, I am working to extend the _Logos_ to include causal oper
 _Phase II_ of this project aims to include indicative conditionals, epistemic modals, belief and revision operators, and probability operators for reasoning under uncertainty.
 Following these additions, _Phase III_ will include deontic modal and normative explanatory operators for cooperating with other agents in optimizing preferences and values.
 
-More specific details about the implementation of these semantic clauses can be found [here](src/model_checker/theory_lib/README.md) as well as information about the package architecture [here](src/model_checker/README.md).
+More specific details about the implementation of these semantic clauses can be found [here](Code/src/model_checker/theory_lib/README.md) as well as information about the package architecture [here](Code/src/model_checker/README.md).
 
 ## TheoryLib
 
