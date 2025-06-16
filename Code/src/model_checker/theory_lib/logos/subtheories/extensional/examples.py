@@ -370,7 +370,7 @@ semantic_theories = {
 # Uncomment examples you wish to run
 example_range = {
     # Quick test examples - comment out or replace as needed
-    "EXT_TH_1": EXT_TH_1_example,  # Modus ponens
+    "EXT_CM_2": EXT_CM_2_example,  # Modus ponens
     "EXT_TH_6": EXT_TH_6_example,  # Law of excluded middle
 }
 

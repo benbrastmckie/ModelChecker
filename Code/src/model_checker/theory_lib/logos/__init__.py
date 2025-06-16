@@ -20,7 +20,7 @@ def get_theory(subtheories=None):
         subtheories: List of subtheory names to load, or None for all
     
     Returns:
-        Dict with 'semantics', 'proposition', 'model' classes
+        Dict with 'semantics', 'proposition', 'model' classes and operators
     """
     registry = LogosOperatorRegistry()
     if subtheories:

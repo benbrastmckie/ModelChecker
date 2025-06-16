@@ -17,6 +17,9 @@ from model_checker.utils import (
 )
 from model_checker import syntactic
 
+# Import required operators for defined operators
+from ..extensional.operators import AndOperator
+
 
 class IdentityOperator(syntactic.Operator):
     """Implementation of the identity operator (a).
@@ -461,11 +464,9 @@ class ReductionOperator(syntactic.DefinedOperator):
     name = "\\reduction"
     arity = 2
 
-    def connective_def(self, leftarg, rightarg):
+    def derived_definition(self, leftarg, rightarg):
         """Defines reduction as conjunction of ground and essence."""
-        ground = self.syntax.sentence("\\leq", leftarg, rightarg)
-        essence = self.syntax.sentence("\\sqsubseteq", leftarg, rightarg)
-        return self.syntax.sentence("\\wedge", ground, essence)
+        return [AndOperator, [GroundOperator, leftarg, rightarg], [EssenceOperator, leftarg, rightarg]]
 
 
 def get_operators():

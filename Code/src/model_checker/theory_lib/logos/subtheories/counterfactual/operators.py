@@ -16,6 +16,9 @@ from model_checker.utils import (
 )
 from model_checker import syntactic
 
+# Import required operators for defined operators
+from ..extensional.operators import NegationOperator
+
 
 class CounterfactualOperator(syntactic.Operator):
     """Implementation of the counterfactual conditional.
@@ -114,11 +117,9 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
     name = "\\diamondright"
     arity = 2
 
-    def connective_def(self, leftarg, rightarg):
+    def derived_definition(self, leftarg, rightarg):
         """Defines might counterfactual as negation of counterfactual with negated consequent."""
-        negated_right = self.syntax.sentence("\\neg", rightarg)
-        cf_conditional = self.syntax.sentence("\\boxright", leftarg, negated_right)
-        return self.syntax.sentence("\\neg", cf_conditional)
+        return [NegationOperator, [CounterfactualOperator, leftarg, [NegationOperator, rightarg]]]
 
 
 class ImpositionOperator(syntactic.Operator):
@@ -202,11 +203,9 @@ class MightImpositionOperator(syntactic.DefinedOperator):
     name = "\\could"
     arity = 2
 
-    def connective_def(self, leftarg, rightarg):
+    def derived_definition(self, leftarg, rightarg):
         """Defines might imposition as negation of imposition with negated consequent."""
-        negated_right = self.syntax.sentence("\\neg", rightarg)
-        imposition = self.syntax.sentence("\\imposition", leftarg, negated_right)
-        return self.syntax.sentence("\\neg", imposition)
+        return [NegationOperator, [ImpositionOperator, leftarg, [NegationOperator, rightarg]]]
 
 
 def get_operators():
