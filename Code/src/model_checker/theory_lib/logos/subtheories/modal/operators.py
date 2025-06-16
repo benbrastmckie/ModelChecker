@@ -101,6 +101,11 @@ class PossibilityOperator(syntactic.DefinedOperator):
         """Defines possibility as negation of necessity of negation."""
         return [NegationOperator, [NecessityOperator, [NegationOperator, argument]]]
 
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Prints modal operators with evaluation over all worlds."""
+        all_worlds = sentence_obj.proposition.model_structure.z3_world_states
+        self.print_over_worlds(sentence_obj, eval_point, all_worlds, indent_num, use_colors)
+
 
 class CFNecessityOperator(syntactic.DefinedOperator):
     """Implementation of counterfactual necessity (\\CFBox).
@@ -116,6 +121,11 @@ class CFNecessityOperator(syntactic.DefinedOperator):
         """Defines counterfactual necessity using modal necessity."""
         return [NecessityOperator, argument]
 
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Prints modal operators with evaluation over all worlds."""
+        all_worlds = sentence_obj.proposition.model_structure.z3_world_states
+        self.print_over_worlds(sentence_obj, eval_point, all_worlds, indent_num, use_colors)
+
 
 class CFPossibilityOperator(syntactic.DefinedOperator):
     """Implementation of counterfactual possibility (\\CFDiamond).
@@ -130,6 +140,11 @@ class CFPossibilityOperator(syntactic.DefinedOperator):
     def derived_definition(self, argument):
         """Defines counterfactual possibility using modal possibility."""
         return [PossibilityOperator, argument]
+
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Prints modal operators with evaluation over all worlds."""
+        all_worlds = sentence_obj.proposition.model_structure.z3_world_states
+        self.print_over_worlds(sentence_obj, eval_point, all_worlds, indent_num, use_colors)
 
 
 def get_operators():
