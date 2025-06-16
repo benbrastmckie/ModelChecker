@@ -53,6 +53,7 @@ AVAILABLE_THEORIES = [
     'exclusion',    # Unilateral semantics with exclusion relations
     'imposition',   # Semantics with imposition relations
     'bimodal',      # Bimodal semantics
+    'logos',        # Modular logos theory with subtheories
 ]
 
 # Dictionary to cache loaded theory modules

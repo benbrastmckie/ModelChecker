@@ -2,8 +2,8 @@
 Modal Subtheory for Logos Theory
 
 This subtheory implements modal logical operators:
-- Necessity (¡)
-- Possibility (Ç)
+- Necessity (â–¡)
+- Possibility (â—‡)
 - Counterfactual Necessity (\CFBox)
 - Counterfactual Possibility (\CFDiamond)
 """

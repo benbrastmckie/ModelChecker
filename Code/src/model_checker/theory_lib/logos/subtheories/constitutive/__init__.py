@@ -2,10 +2,10 @@
 Constitutive Subtheory for Logos Theory
 
 This subtheory implements constitutive logical operators:
-- Identity (a)
-- Ground (d)
-- Essence (�)
-- Relevance (|)
+- Identity (≡)
+- Ground (≤)
+- Essence (⊑)
+- Relevance (≼)
 - Reduction (\reduction)
 """
 

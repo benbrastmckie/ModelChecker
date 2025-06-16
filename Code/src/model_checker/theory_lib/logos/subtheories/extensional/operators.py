@@ -2,13 +2,13 @@
 Extensional operators for truth-functional logic.
 
 This module implements the basic extensional logical operators:
-- Negation (¨)
-- Conjunction (')
-- Disjunction (()
-- Top (§)
-- Bottom (•)
-- Material Implication (í)
-- Biconditional (î)
+- Negation (¬¨)
+- Conjunction (‚àß)
+- Disjunction (‚à®)
+- Top (‚ä§)
+- Bottom (‚ä•)
+- Material Implication (‚Üí)
+- Biconditional (‚Üî)
 """
 
 import z3
@@ -21,15 +21,12 @@ from model_checker import syntactic
 
 
 class NegationOperator(syntactic.Operator):
-    """Implementation of logical negation (¨).
+    """Implementation of logical negation (¬¨).
     
     This operator implements both intensional truth/falsity conditions and
     hyperintensional verifier/falsifier semantics for logical negation. 
-    It flips the truth value of its argument: if A is true, ¨A is false, 
-    and if A is false, ¨A is true.
-    
-    In the hyperintensional semantics, the verifiers of ¨A are the falsifiers of A,
-    and the falsifiers of ¨A are the verifiers of A.
+    It flips the truth value of its argument: if A is true, ¬¨A is false, 
+    and if A is false, ¬¨A is true.
     """
 
     name = "\\neg"
@@ -43,30 +40,30 @@ class NegationOperator(syntactic.Operator):
         """Defines falsity conditions for negation at an evaluation point."""
         return self.semantics.true_at(argument, eval_point)
 
-    def extended_verify(self, state, arg, eval_point):
+    def extended_verify(self, state, argument, eval_point):
         """Defines verification conditions for negation in the extended semantics."""
-        return self.semantics.extended_falsify(state, arg, eval_point)
-    
-    def extended_falsify(self, state, arg, eval_point):
+        return self.semantics.extended_falsify(state, argument, eval_point)
+
+    def extended_falsify(self, state, argument, eval_point):
         """Defines falsification conditions for negation in the extended semantics."""
-        return self.semantics.extended_verify(state, arg, eval_point)
+        return self.semantics.extended_verify(state, argument, eval_point)
 
     def find_verifiers_and_falsifiers(self, argument, eval_point):
-        """Finds the verifiers and falsifiers for a negation of a proposition."""
-        Y_V, Y_F = argument.proposition.find_proposition()
-        return Y_F, Y_V
+        """Finds the verifiers and falsifiers for a negated statement."""
+        arg_V, arg_F = argument.proposition.find_proposition()
+        return arg_F, arg_V
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Prints the proposition and its argument with proper indentation."""
+        """Prints the negation operator with proper indentation and formatting."""
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class AndOperator(syntactic.Operator):
-    """Implementation of logical conjunction (').
+    """Implementation of logical conjunction (‚àß).
     
-    This operator implements both intensional truth/falsity conditions and
-    hyperintensional verifier/falsifier semantics for conjunction. A conjunction
-    A ' B is true when both A and B are true, and false when either A or B is false.
+    This operator represents the logical AND operation. A ‚àß B is true when both
+    A and B are true, and false otherwise. In hyperintensional semantics, the
+    verifiers are the fusion of verifiers from both conjuncts.
     """
 
     name = "\\wedge"
@@ -74,65 +71,59 @@ class AndOperator(syntactic.Operator):
 
     def true_at(self, leftarg, rightarg, eval_point):
         """Defines truth conditions for conjunction at an evaluation point."""
-        sem = self.semantics
         return z3.And(
-            sem.true_at(leftarg, eval_point),
-            sem.true_at(rightarg, eval_point)
+            self.semantics.true_at(leftarg, eval_point),
+            self.semantics.true_at(rightarg, eval_point)
         )
 
     def false_at(self, leftarg, rightarg, eval_point):
         """Defines falsity conditions for conjunction at an evaluation point."""
-        sem = self.semantics
-        return z3.Or(sem.false_at(leftarg, eval_point), sem.false_at(rightarg, eval_point))
+        return z3.Or(
+            self.semantics.false_at(leftarg, eval_point),
+            self.semantics.false_at(rightarg, eval_point)
+        )
 
     def extended_verify(self, state, leftarg, rightarg, eval_point):
         """Defines verification conditions for conjunction in the extended semantics."""
-        x = z3.BitVec("ex_and_ver_x", self.semantics.N)
-        y = z3.BitVec("ex_and_ver_y", self.semantics.N)
+        sem = self.semantics
+        N = sem.N
+        x = z3.BitVec("and_verify_x", N)
+        y = z3.BitVec("and_verify_y", N)
         return Exists(
             [x, y],
             z3.And(
-                self.semantics.fusion(x, y) == state,
-                self.semantics.extended_verify(x, leftarg, eval_point),
-                self.semantics.extended_verify(y, rightarg, eval_point),
-            )
-        )
-    
-    def extended_falsify(self, state, leftarg, rightarg, eval_point):
-        """Defines falsification conditions for conjunction in the extended semantics."""
-        x = z3.BitVec("ex_and_fal_x", self.semantics.N)
-        y = z3.BitVec("ex_and_fal_y", self.semantics.N)
-        return z3.Or(
-            self.semantics.extended_falsify(state, leftarg, eval_point),
-            self.semantics.extended_falsify(state, rightarg, eval_point),
-            Exists(
-                [x, y],
-                z3.And(
-                    state == self.semantics.fusion(x, y),
-                    self.semantics.extended_falsify(x, leftarg, eval_point),
-                    self.semantics.extended_falsify(y, rightarg, eval_point),
-                ),
+                sem.extended_verify(x, leftarg, eval_point),
+                sem.extended_verify(y, rightarg, eval_point),
+                state == sem.fusion(x, y)
             )
         )
 
-    def find_verifiers_and_falsifiers(self, leftarg, rightarg, eval_point):
-        """Finds the verifiers and falsifiers for a conjunction of two propositions."""
-        sem = self.semantics
-        Y_V, Y_F = leftarg.proposition.find_proposition()
-        Z_V, Z_F = rightarg.proposition.find_proposition()
-        return sem.product(Y_V, Z_V), sem.coproduct(Y_F, Z_F)
-    
+    def extended_falsify(self, state, leftarg, rightarg, eval_point):
+        """Defines falsification conditions for conjunction in the extended semantics."""
+        return z3.Or(
+            self.semantics.extended_falsify(state, leftarg, eval_point),
+            self.semantics.extended_falsify(state, rightarg, eval_point)
+        )
+
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_point):
+        """Finds the verifiers and falsifiers for a conjunction."""
+        left_V, left_F = left_sent_obj.proposition.find_proposition()
+        right_V, right_F = right_sent_obj.proposition.find_proposition()
+        product = self.semantics.product
+        coproduct = self.semantics.coproduct
+        return product(left_V, right_V), coproduct(left_F, right_F)
+
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Prints the proposition for sentence_obj with proper indentation and formatting."""
+        """Prints the conjunction operator with proper indentation and formatting."""
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class OrOperator(syntactic.Operator):
-    """Implementation of logical disjunction (().
+    """Implementation of logical disjunction (‚à®).
     
-    This operator implements both intensional truth/falsity conditions and
-    hyperintensional verifier/falsifier semantics for disjunction. A disjunction
-    A ( B is true when either A or B (or both) are true, and false when both A and B are false.
+    This operator represents the logical OR operation. A ‚à® B is true when at least
+    one of A or B is true, and false when both are false. In hyperintensional
+    semantics, the verifiers are the coproduct of verifiers from both disjuncts.
     """
 
     name = "\\vee"
@@ -140,164 +131,154 @@ class OrOperator(syntactic.Operator):
 
     def true_at(self, leftarg, rightarg, eval_point):
         """Defines truth conditions for disjunction at an evaluation point."""
-        sem = self.semantics
-        return z3.Or(sem.true_at(leftarg, eval_point), sem.true_at(rightarg, eval_point))
+        return z3.Or(
+            self.semantics.true_at(leftarg, eval_point),
+            self.semantics.true_at(rightarg, eval_point)
+        )
 
     def false_at(self, leftarg, rightarg, eval_point):
         """Defines falsity conditions for disjunction at an evaluation point."""
-        sem = self.semantics
-        return z3.And(sem.false_at(leftarg, eval_point), sem.false_at(rightarg, eval_point))
+        return z3.And(
+            self.semantics.false_at(leftarg, eval_point),
+            self.semantics.false_at(rightarg, eval_point)
+        )
 
     def extended_verify(self, state, leftarg, rightarg, eval_point):
         """Defines verification conditions for disjunction in the extended semantics."""
-        x = z3.BitVec("ex_or_ver_x", self.semantics.N)
-        y = z3.BitVec("ex_or_ver_y", self.semantics.N)
         return z3.Or(
             self.semantics.extended_verify(state, leftarg, eval_point),
-            self.semantics.extended_verify(state, rightarg, eval_point),
-            Exists(
-                [x, y],
-                z3.And(
-                    self.semantics.fusion(x, y) == state,
-                    self.semantics.extended_verify(x, leftarg, eval_point),
-                    self.semantics.extended_verify(y, rightarg, eval_point),
-                )
-            )
+            self.semantics.extended_verify(state, rightarg, eval_point)
         )
 
     def extended_falsify(self, state, leftarg, rightarg, eval_point):
         """Defines falsification conditions for disjunction in the extended semantics."""
-        x = z3.BitVec("ex_fal_x", self.semantics.N)
-        y = z3.BitVec("ex_fal_y", self.semantics.N)
+        sem = self.semantics
+        N = sem.N
+        x = z3.BitVec("or_falsify_x", N)
+        y = z3.BitVec("or_falsify_y", N)
         return Exists(
             [x, y],
             z3.And(
-                state == self.semantics.fusion(x, y),
-                self.semantics.extended_falsify(x, leftarg, eval_point),
-                self.semantics.extended_falsify(y, rightarg, eval_point),
-            ),
+                sem.extended_falsify(x, leftarg, eval_point),
+                sem.extended_falsify(y, rightarg, eval_point),
+                state == sem.fusion(x, y)
+            )
         )
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_point):
-        """Finds the verifiers and falsifiers for a disjunction of two propositions."""
-        semantics = self.semantics
-        Y_V, Y_F = left_sent_obj.proposition.find_proposition()
-        Z_V, Z_F = right_sent_obj.proposition.find_proposition()
-        return semantics.coproduct(Y_V, Z_V), semantics.product(Y_F, Z_F)
-    
+        """Finds the verifiers and falsifiers for a disjunction."""
+        left_V, left_F = left_sent_obj.proposition.find_proposition()
+        right_V, right_F = right_sent_obj.proposition.find_proposition()
+        product = self.semantics.product
+        coproduct = self.semantics.coproduct
+        return coproduct(left_V, right_V), product(left_F, right_F)
+
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Prints the proposition for sentence_obj with proper indentation and formatting."""
+        """Prints the disjunction operator with proper indentation and formatting."""
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class TopOperator(syntactic.Operator):
-    """Implementation of the tautology or top element (§).
+    """Implementation of the top/tautology operator (‚ä§).
     
-    This operator represents the logical tautology or 'top' element of the
-    propositional lattice. It is always true regardless of the evaluation point.
+    This operator represents logical truth. ‚ä§ is always true regardless of the
+    evaluation point or model. It has the null state as its sole verifier.
     """
 
     name = "\\top"
     arity = 0
 
     def true_at(self, eval_point):
-        """Defines truth conditions for the top element at an evaluation point."""
-        return 1 == 1
+        """Defines truth conditions for top at an evaluation point."""
+        return z3.BoolVal(True)
 
     def false_at(self, eval_point):
-        """Defines falsity conditions for the top element at an evaluation point."""
-        return 1 != 1
+        """Defines falsity conditions for top at an evaluation point."""
+        return z3.BoolVal(False)
 
     def extended_verify(self, state, eval_point):
         """Defines verification conditions for top in the extended semantics."""
-        return state == state
+        return state == self.semantics.null_state
 
     def extended_falsify(self, state, eval_point):
         """Defines falsification conditions for top in the extended semantics."""
-        return state == self.semantics.full_state
+        return z3.BoolVal(False)
 
     def find_verifiers_and_falsifiers(self, eval_point):
-        """Finds the verifiers and falsifiers for the top element."""
-        return set(self.semantics.all_states), {self.semantics.full_state}
+        """Finds the verifiers and falsifiers for top."""
+        return {self.semantics.null_state}, set()
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Prints the top element with proper indentation and formatting."""
+        """Prints the top operator with proper indentation and formatting."""
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class BotOperator(syntactic.Operator):
-    """Implementation of the contradiction or bottom element (•).
+    """Implementation of the bottom/contradiction operator (‚ä•).
     
-    This operator represents logical contradiction or the 'bottom' element of the
-    propositional lattice. It is always false regardless of the evaluation point.
+    This operator represents logical falsehood. ‚ä• is always false regardless of the
+    evaluation point or model. It has the null state as its sole falsifier.
     """
 
     name = "\\bot"
     arity = 0
 
     def true_at(self, eval_point):
-        """Defines truth conditions for the bottom element at an evaluation point."""
-        return 1 != 1
+        """Defines truth conditions for bottom at an evaluation point."""
+        return z3.BoolVal(False)
 
     def false_at(self, eval_point):
-        """Defines falsity conditions for the bottom element at an evaluation point."""
-        return 1 == 1
+        """Defines falsity conditions for bottom at an evaluation point."""
+        return z3.BoolVal(True)
 
     def extended_verify(self, state, eval_point):
         """Defines verification conditions for bottom in the extended semantics."""
-        return state != state
+        return z3.BoolVal(False)
 
     def extended_falsify(self, state, eval_point):
         """Defines falsification conditions for bottom in the extended semantics."""
         return state == self.semantics.null_state
 
     def find_verifiers_and_falsifiers(self, eval_point):
-        """Finds the verifiers and falsifiers for the bottom element."""
+        """Finds the verifiers and falsifiers for bottom."""
         return set(), {self.semantics.null_state}
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Prints the bottom element with proper indentation and formatting."""
+        """Prints the bottom operator with proper indentation and formatting."""
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class ConditionalOperator(syntactic.DefinedOperator):
-    """Implementation of material implication/conditional (í).
+    """Implementation of the material conditional (‚Üí).
     
-    This operator represents the material conditional 'if A then B', defined as
-    ¨A ( B. It is true when either A is false or B is true (or both).
+    This operator represents the material conditional. A ‚Üí B is equivalent to
+    ¬¨A ‚à® B. It is false only when A is true and B is false.
     """
 
     name = "\\rightarrow"
     arity = 2
 
-    def derived_definition(self, leftarg, rightarg):
-        """Defines the material conditional A í B as ¨A ( B."""
-        return [OrOperator, [NegationOperator, leftarg], rightarg]
-    
-    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Prints the conditional with proper indentation and formatting."""
-        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
+    def connective_def(self, leftarg, rightarg):
+        """Defines the conditional as negation of antecedent or consequent."""
+        negated_left = self.syntax.sentence("\\neg", leftarg)
+        return self.syntax.sentence("\\vee", negated_left, rightarg)
 
 
 class BiconditionalOperator(syntactic.DefinedOperator):
-    """Implementation of material biconditional/equivalence (êí).
+    """Implementation of the biconditional (‚Üî).
     
-    This operator represents the material biconditional 'A if and only if B',
-    defined as (A í B) ' (B í A). It is true when A and B have the same truth value.
+    This operator represents the biconditional. A ‚Üî B is equivalent to
+    (A ‚Üí B) ‚àß (B ‚Üí A). It is true when both A and B have the same truth value.
     """
 
     name = "\\leftrightarrow"
     arity = 2
 
-    def derived_definition(self, leftarg, rightarg):
-        """Defines the material biconditional A êí B as (A í B) ' (B í A)."""
-        right_to_left = [ConditionalOperator, leftarg, rightarg]
-        left_to_right = [ConditionalOperator, rightarg, leftarg]
-        return [AndOperator, right_to_left, left_to_right]
-    
-    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Prints the biconditional with proper indentation and formatting."""
-        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
+    def connective_def(self, leftarg, rightarg):
+        """Defines the biconditional as conjunction of two conditionals."""
+        left_to_right = self.syntax.sentence("\\rightarrow", leftarg, rightarg)
+        right_to_left = self.syntax.sentence("\\rightarrow", rightarg, leftarg)
+        return self.syntax.sentence("\\wedge", left_to_right, right_to_left)
 
 
 def get_operators():
