@@ -2,13 +2,13 @@
 Extensional Subtheory for Logos Theory
 
 This subtheory implements truth-functional (extensional) logical operators:
-- Negation (¬)
-- Conjunction (') 
-- Disjunction (()
-- Material Implication (’)
-- Biconditional (”)
-- Top (¤)
-- Bottom (¥)
+- Negation (Â¬)
+- Conjunction (âˆ§) 
+- Disjunction (âˆ¨)
+- Material Implication (â†’)
+- Biconditional (â†”)
+- Top (âŠ¤)
+- Bottom (âŠ¥)
 """
 
 from .operators import get_operators

@@ -55,7 +55,8 @@ class LogosOperatorRegistry:
             # Get operators from the subtheory
             if hasattr(module, 'get_operators'):
                 operators = module.get_operators()
-                self.operator_collection.update(operators)
+                for op_name, op_class in operators.items():
+                    self.operator_collection.add_operator(op_class)
             
             self.loaded_subtheories[name] = module
             return module

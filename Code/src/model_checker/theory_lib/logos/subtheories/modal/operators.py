@@ -2,8 +2,8 @@
 Modal operators for necessity and possibility.
 
 This module implements modal logical operators:
-- Necessity (¡)
-- Possibility (Ç)  
+- Necessity (ï¿½)
+- Possibility (ï¿½)  
 - Counterfactual Necessity (\CFBox)
 - Counterfactual Possibility (\CFDiamond)
 """
@@ -18,10 +18,10 @@ from model_checker import syntactic
 
 
 class NecessityOperator(syntactic.Operator):
-    """Implementation of the necessity/universal modality (¡).
+    """Implementation of the necessity/universal modality (ï¿½).
     
     This operator represents the modal necessity 'it is necessarily the case that',
-    often written as ¡A. The semantics involves quantifying over all possible worlds
+    often written as ï¿½A. The semantics involves quantifying over all possible worlds
     in the model and checking if A is true in all of them.
     """
     name = "\\Box"
@@ -83,6 +83,54 @@ class NecessityOperator(syntactic.Operator):
         self.print_over_worlds(sentence_obj, eval_point, all_worlds, indent_num, use_colors)
 
 
+class PossibilityOperator(syntactic.DefinedOperator):
+    """Implementation of the possibility/existential modality (â—‡).
+    
+    This operator represents the modal possibility 'it is possibly the case that',
+    often written as â—‡A. It is defined as the negation of necessity of negation:
+    â—‡A â‰¡ Â¬â–¡Â¬A.
+    """
+    
+    name = "\\Diamond"
+    arity = 1
+    
+    def connective_def(self, argument):
+        """Defines possibility as negation of necessity of negation."""
+        negated_arg = self.syntax.sentence("\\neg", argument)
+        necessity_neg = self.syntax.sentence("\\Box", negated_arg)
+        return self.syntax.sentence("\\neg", necessity_neg)
+
+
+class CFNecessityOperator(syntactic.DefinedOperator):
+    """Implementation of counterfactual necessity (\\CFBox).
+    
+    This operator represents counterfactual necessity, which is defined
+    using the modal necessity operator in the context of counterfactual logic.
+    """
+    
+    name = "\\CFBox"
+    arity = 1
+    
+    def connective_def(self, argument):
+        """Defines counterfactual necessity using modal necessity."""
+        return self.syntax.sentence("\\Box", argument)
+
+
+class CFPossibilityOperator(syntactic.DefinedOperator):
+    """Implementation of counterfactual possibility (\\CFDiamond).
+    
+    This operator represents counterfactual possibility, which is defined
+    using the modal possibility operator in the context of counterfactual logic.
+    """
+    
+    name = "\\CFDiamond"
+    arity = 1
+    
+    def connective_def(self, argument):
+        """Defines counterfactual possibility using modal possibility."""
+        return self.syntax.sentence("\\Diamond", argument)
+
+
 def get_operators():
     """
     Get all modal operators.
@@ -92,4 +140,7 @@ def get_operators():
     """
     return {
         "\\Box": NecessityOperator,
+        "\\Diamond": PossibilityOperator,
+        "\\CFBox": CFNecessityOperator,
+        "\\CFDiamond": CFPossibilityOperator,
     }
