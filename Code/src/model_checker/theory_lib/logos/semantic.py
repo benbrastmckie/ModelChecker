@@ -120,6 +120,251 @@ class LogosSemantics(SemanticDefaults):
             self.maximal(state_w),
         )
 
+    def true_at(self, sentence, eval_world):
+        """Determines if a sentence is true at a given evaluation world.
+        
+        For atomic sentences (sentence_letters), it checks if there exists some state x 
+        that is part of the evaluation world such that x verifies the sentence letter.
+        
+        For complex sentences, it delegates to the operator's true_at method with the 
+        sentence's arguments and evaluation world.
+        
+        Args:
+            sentence (Sentence): The sentence to evaluate
+            eval_world (BitVecRef): The world at which to evaluate the sentence
+            
+        Returns:
+            BoolRef: Z3 constraint expressing whether the sentence is true at eval_world
+        """
+        sentence_letter = sentence.sentence_letter
+        if sentence_letter is not None:
+            x = z3.BitVec("t_atom_x", self.N)
+            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
+        operator = sentence.operator
+        arguments = sentence.arguments or ()
+        return operator.true_at(*arguments, eval_world)
+
+    def false_at(self, sentence, eval_world):
+        """Determines if a sentence is false at a given evaluation world.
+        
+        For atomic sentences (sentence_letters), it checks if there exists some state x 
+        that is part of the evaluation world such that x falsifies the sentence letter.
+        
+        For complex sentences, it delegates to the operator's false_at method with the 
+        sentence's arguments and evaluation world.
+        
+        Args:
+            sentence (Sentence): The sentence to evaluate
+            eval_world (BitVecRef): The world at which to evaluate the sentence
+            
+        Returns:
+            BoolRef: Z3 constraint expressing whether the sentence is false at eval_world
+        """
+        sentence_letter = sentence.sentence_letter
+        if sentence_letter is not None:
+            x = z3.BitVec("f_atom_x", self.N)
+            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
+        operator = sentence.operator
+        arguments = sentence.arguments or ()
+        return operator.false_at(*arguments, eval_world)
+
+    def extended_verify(self, state, sentence, eval_point):
+        """Determines if a state verifies a sentence at an evaluation point.
+        
+        This method extends the hyperintensional verification relation to all
+        sentences of the language in order to determine whether a specific state
+        is a verifier for a given sentence at a particular evaluation point.
+        
+        For atomic sentences (those with a sentence_letter), it directly uses the verify
+        relation to determine if the state verifies the atomic sentence.
+        
+        For complex sentences (those with an operator), it delegates to the operator's
+        extended_verify method which handles the verification conditions specific to
+        that operator.
+        
+        Args:
+            state (BitVecRef): The state being tested as a verifier
+            sentence (Sentence): The sentence to check
+            eval_point (dict): The evaluation point context
+            
+        Returns:
+            BoolRef: Z3 constraint expressing the verification condition
+        """
+        sentence_letter = sentence.sentence_letter
+        if sentence_letter is not None:
+            return self.verify(state, sentence_letter)
+        operator = sentence.operator
+        arguments = sentence.arguments or ()
+        return operator.extended_verify(state, *arguments, eval_point)
+    
+    def extended_falsify(self, state, sentence, eval_point):
+        """Determines if a state falsifies a sentence at an evaluation point.
+        
+        This method extends the hyperintensional falsification relation to all
+        sentences of the language in order to determine whether a specific state
+        is a falsifier for a given sentence at a particular evaluation point.
+        
+        For atomic sentences (those with a sentence_letter), it directly uses the falsify
+        relation to determine if the state falsifies the atomic sentence.
+        
+        For complex sentences (those with an operator), it delegates to the operator's
+        extended_falsify method which handles the falsification conditions specific to
+        that operator.
+        
+        Args:
+            state (BitVecRef): The state being tested as a falsifier
+            sentence (Sentence): The sentence to check
+            eval_point (dict): The evaluation point context
+            
+        Returns:
+            BoolRef: Z3 constraint expressing the falsification condition
+        """
+        sentence_letter = sentence.sentence_letter
+        if sentence_letter is not None:
+            return self.falsify(state, sentence_letter)
+        operator = sentence.operator
+        arguments = sentence.arguments or ()
+        return operator.extended_falsify(state, *arguments, eval_point)
+
+    def max_compatible_part(self, state_x, state_w, state_y):
+        \"\"\"Determines if state_x is the maximal part of state_w compatible with state_y.
+        
+        This method checks whether state_x is a largest substate of state_w that maintains
+        compatibility with state_y (there may be more than one). This is used to
+        determine the alternative worlds used in the counterfactual semantics.
+        
+        Args:
+            state_x (BitVecRef): The state being tested as maximal compatible part
+            state_w (BitVecRef): The state containing state_x
+            state_y (BitVecRef): The state that state_x must be compatible with
+            
+        Returns:
+            BoolRef: Z3 constraint expressing whether state_x is a maximal part
+                    of state_w that is compatible with state_y
+        \"\"\"
+        z = z3.BitVec(\"max_part\", self.N)
+        return z3.And(
+            self.is_part_of(state_x, state_w),
+            self.compatible(state_x, state_y),
+            ForAll(
+                z,
+                z3.Implies(
+                    z3.And(
+                        self.is_part_of(z, state_w),
+                        self.compatible(z, state_y),
+                        self.is_part_of(state_x, z),
+                    ),
+                    state_x == z,
+                ),
+            ),
+        )
+
+    def is_alternative(self, state_u, state_y, state_w):
+        \"\"\"Determines if a state represents an alternative world resulting from
+        imposing one state on another.
+        
+        This method checks whether state_u is a possible world that results from imposing state_y
+        on world state_w. The alternative world must contain state_y as a part and must also
+        contain a maximal part of state_w that is compatible with state_y.
+        
+        Args:
+            state_u (BitVecRef): The state being tested as an alternative world
+            state_y (BitVecRef): The state being imposed
+            state_w (BitVecRef): The world state being modified
+            
+        Returns:
+            BoolRef: Z3 constraint expressing whether state_u is an alternative world
+                    resulting from imposing state_y on state_w
+        \"\"\"
+        z = z3.BitVec(\"alt_z\", self.N)
+        return z3.And(
+            self.is_world(state_u),
+            self.is_part_of(state_y, state_u),
+            Exists(z, z3.And(self.is_part_of(z, state_u), self.max_compatible_part(z, state_w, state_y))),
+        )
+
+    def calculate_alternative_worlds(self, verifiers, eval_point, model_structure):
+        \"\"\"Calculates alternative worlds where a given state is imposed.
+        
+        This method identifies all alternative worlds generated by the verifiers
+        and evaluation world. These alternative worlds are used in the semantics
+        for counterfactual conditionals.
+        
+        Args:
+            verifiers (set): Set of states verifying the antecedent
+            eval_point (dict): The evaluation point containing the reference world
+            model_structure (ModelStructure): The model being evaluated
+            
+        Returns:
+            set: Set of alternative worlds where the antecedent is true
+        \"\"\"
+        is_alt = model_structure.semantics.is_alternative
+        eval = model_structure.z3_model.evaluate
+        world_states = model_structure.z3_world_states
+        eval_world = eval_point[\"world\"]
+        return {
+            pw for ver in verifiers
+            for pw in world_states
+            if eval(is_alt(pw, ver, eval_world))
+        }
+
+    def product(self, set_A, set_B):
+        \"\"\"Compute the set of all pairwise fusions between elements of two sets.
+        
+        Args:
+            set_A (set): First set of bit vectors
+            set_B (set): Second set of bit vectors
+            
+        Returns:
+            set: A set containing the fusion of each element from set_A with each element from set_B
+            
+        Note:
+            Uses bitwise OR as the fusion operation between elements
+        \"\"\"
+        product_set = set()
+        for bit_a in set_A:
+            for bit_b in set_B:
+                from z3 import simplify
+                bit_ab = simplify(bit_a | bit_b)
+                product_set.add(bit_ab)
+        return product_set
+
+    def coproduct(self, set_A, set_B):
+        \"\"\"Compute the union of two sets closed under pairwise fusion.
+        
+        Takes two sets and returns their union plus all possible fusions between
+        their elements. The result is a set containing:
+        1. All elements from both input sets
+        2. All pairwise fusions between elements from the two sets
+        
+        Args:
+            set_A (set): First set of bit vectors
+            set_B (set): Second set of bit vectors
+            
+        Returns:
+            set: The union of set_A and set_B closed under pairwise fusion
+        \"\"\"
+        A_U_B = set_A.union(set_B)
+        return A_U_B.union(self.product(set_A, set_B))
+
+    def closer_world(self, world_u, world_v, eval_point):
+        \"\"\"Determines if world_u is closer than world_v to the evaluation world.
+        
+        This is a placeholder implementation for counterfactual semantics.
+        A full implementation would define a similarity metric between worlds.
+        
+        Args:
+            world_u (BitVecRef): First world to compare
+            world_v (BitVecRef): Second world to compare  
+            eval_point (dict): The evaluation point containing reference world
+            
+        Returns:
+            BoolRef: Z3 constraint expressing whether world_u is closer than world_v
+        \"\"\"
+        # Placeholder: for now, just return False (no ordering)
+        # A real implementation would define closeness based on similarity metrics
+        return z3.BoolVal(False)
+
 
 class LogosProposition(PropositionDefaults):
     """
