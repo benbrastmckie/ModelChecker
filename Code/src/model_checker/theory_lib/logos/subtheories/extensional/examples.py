@@ -363,7 +363,7 @@ extensional_theory = {
 
 # Specify which theories to use
 semantic_theories = {
-    "Logos-Extensional": extensional_theory,
+    "Brast-McKie": extensional_theory,
 }
 
 # Specify which examples to run by default when running this module directly

@@ -363,7 +363,7 @@ constitutive_theory = {
 
 # Specify which theories to use
 semantic_theories = {
-    "Logos-Constitutive": constitutive_theory,
+    "Brast-McKie": constitutive_theory,
 }
 
 # Specify which examples to run by default when running this module directly
