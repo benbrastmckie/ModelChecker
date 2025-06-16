@@ -44,8 +44,13 @@ class LogosSemantics(SemanticDefaults):
         'iterate': False,
     }
     
-    def __init__(self, operator_registry=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, combined_settings=None, operator_registry=None, **kwargs):
+        # Ensure we have default settings
+        if combined_settings is None:
+            combined_settings = self.DEFAULT_EXAMPLE_SETTINGS.copy()
+            combined_settings.update(kwargs)
+        
+        super().__init__(combined_settings, **kwargs)
         self.operator_registry = operator_registry
     
     def load_subtheories(self, subtheories=None):
@@ -175,8 +180,11 @@ class LogosProposition(PropositionDefaults):
     with support for all subtheory operators.
     """
     
-    def __init__(self, semantics, operators=None):
-        super().__init__(semantics)
+    def __init__(self, sentence=None, model_structure=None, operators=None):
+        # This is a base class that will be instantiated with proper parameters
+        # when used in the actual model checking framework
+        if sentence is not None and model_structure is not None:
+            super().__init__(sentence, model_structure)
         self.operators = operators or {}
     
     def proposition_constraints(self, premise_sentences, conclusion_sentences, settings):
