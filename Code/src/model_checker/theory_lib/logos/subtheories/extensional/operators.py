@@ -258,10 +258,9 @@ class ConditionalOperator(syntactic.DefinedOperator):
     name = "\\rightarrow"
     arity = 2
 
-    def connective_def(self, leftarg, rightarg):
+    def derived_definition(self, leftarg, rightarg):
         """Defines the conditional as negation of antecedent or consequent."""
-        negated_left = self.syntax.sentence("\\neg", leftarg)
-        return self.syntax.sentence("\\vee", negated_left, rightarg)
+        return [OrOperator, [NegationOperator, leftarg], rightarg]
 
 
 class BiconditionalOperator(syntactic.DefinedOperator):
@@ -274,11 +273,9 @@ class BiconditionalOperator(syntactic.DefinedOperator):
     name = "\\leftrightarrow"
     arity = 2
 
-    def connective_def(self, leftarg, rightarg):
+    def derived_definition(self, leftarg, rightarg):
         """Defines the biconditional as conjunction of two conditionals."""
-        left_to_right = self.syntax.sentence("\\rightarrow", leftarg, rightarg)
-        right_to_left = self.syntax.sentence("\\rightarrow", rightarg, leftarg)
-        return self.syntax.sentence("\\wedge", left_to_right, right_to_left)
+        return [AndOperator, [ConditionalOperator, leftarg, rightarg], [ConditionalOperator, rightarg, leftarg]]
 
 
 def get_operators():

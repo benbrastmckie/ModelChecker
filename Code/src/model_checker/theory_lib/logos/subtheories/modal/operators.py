@@ -16,6 +16,9 @@ from model_checker.utils import (
 )
 from model_checker import syntactic
 
+# Import required operators for defined operators
+from ..extensional.operators import NegationOperator
+
 
 class NecessityOperator(syntactic.Operator):
     """Implementation of the necessity/universal modality (�).
@@ -94,11 +97,9 @@ class PossibilityOperator(syntactic.DefinedOperator):
     name = "\\Diamond"
     arity = 1
     
-    def connective_def(self, argument):
+    def derived_definition(self, argument):
         """Defines possibility as negation of necessity of negation."""
-        negated_arg = self.syntax.sentence("\\neg", argument)
-        necessity_neg = self.syntax.sentence("\\Box", negated_arg)
-        return self.syntax.sentence("\\neg", necessity_neg)
+        return [NegationOperator, [NecessityOperator, [NegationOperator, argument]]]
 
 
 class CFNecessityOperator(syntactic.DefinedOperator):
@@ -111,9 +112,9 @@ class CFNecessityOperator(syntactic.DefinedOperator):
     name = "\\CFBox"
     arity = 1
     
-    def connective_def(self, argument):
+    def derived_definition(self, argument):
         """Defines counterfactual necessity using modal necessity."""
-        return self.syntax.sentence("\\Box", argument)
+        return [NecessityOperator, argument]
 
 
 class CFPossibilityOperator(syntactic.DefinedOperator):
@@ -126,9 +127,9 @@ class CFPossibilityOperator(syntactic.DefinedOperator):
     name = "\\CFDiamond"
     arity = 1
     
-    def connective_def(self, argument):
+    def derived_definition(self, argument):
         """Defines counterfactual possibility using modal possibility."""
-        return self.syntax.sentence("\\Diamond", argument)
+        return [PossibilityOperator, argument]
 
 
 def get_operators():
