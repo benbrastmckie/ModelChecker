@@ -39,3 +39,6 @@ Code/.venv
 **/specs/
 Code/src/model_checker/builder/notes_
 *.ipynb_checkpoints
+Code/ARCHITECTURE.md
+Code/DEVELOPMENT.md
+Code/STYLE_GUIDE.md
