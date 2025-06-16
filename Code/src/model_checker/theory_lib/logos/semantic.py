@@ -105,10 +105,7 @@ class LogosSemantics(SemanticDefaults):
         return ForAll(
             x,
             z3.Implies(
-                z3.And(
-                    self.possible(x),
-                    self.compatible(state_w, x)
-                ),
+                self.compatible(x, state_w),
                 self.is_part_of(x, state_w),
             ),
         )
@@ -402,7 +399,15 @@ class LogosProposition(PropositionDefaults):
         semantics = self.semantics
         
         def get_classical_constraints():
-            """Generate classical constraints following default theory pattern."""
+            """Generate constraints that enforce classical behavior by ruling out
+            truth value gaps and gluts.
+            
+            These constraints ensure:
+            1. If two states verify a proposition, their fusion also verifies it
+            2. If two states falsify a proposition, their fusion also falsifies it  
+            3. No verifier is compatible with any falsifier (no gluts)
+            4. Every possible state must be compatible with either a verifier or falsifier (no gaps)
+            """
             x, y = z3.BitVecs("cl_prop_x cl_prop_y", semantics.N)
             
             verifier_fusion_closure = ForAll(
@@ -426,54 +431,64 @@ class LogosProposition(PropositionDefaults):
                 ),
             )
             no_glut = ForAll(
-                [x],
-                z3.Not(z3.And(
-                    semantics.verify(x, sentence_letter),
-                    semantics.falsify(x, sentence_letter)
-                )),
+                [x, y],
+                z3.Implies(
+                    z3.And(
+                        semantics.verify(x, sentence_letter),
+                        semantics.falsify(y, sentence_letter)
+                    ),
+                    z3.Not(semantics.compatible(x, y)),
+                ),
             )
             no_gap = ForAll(
-                [x],
+                x,
                 z3.Implies(
                     semantics.possible(x),
-                    z3.Or(
-                        Exists(
-                            [y],
-                            z3.And(
+                    Exists(
+                        y,
+                        z3.And(
+                            semantics.compatible(x, y),
+                            z3.Or(
                                 semantics.verify(y, sentence_letter),
-                                semantics.compatible(x, y)
-                            ),
-                        ),
-                        Exists(
-                            [y],
-                            z3.And(
-                                semantics.falsify(y, sentence_letter),
-                                semantics.compatible(x, y)
+                                semantics.falsify(y, sentence_letter)
                             ),
                         ),
                     ),
                 ),
             )
-            return [verifier_fusion_closure, falsifier_fusion_closure, no_glut, no_gap]
+            return [
+                verifier_fusion_closure,
+                falsifier_fusion_closure,
+                no_glut,
+                no_gap
+            ]
 
         def get_contingent_constraints():
-            """Generate contingency constraints."""
+            """The contingent constraints ensure that each atomic proposition has
+            at least one possible verifier and one possible falsifier, which implicitly
+            guarantees that no null states are verifiers or falsifiers."""
             x, y = z3.BitVecs("ct_cont_x ct_cont_y", semantics.N)
+            possible_verifier = Exists(
+                x,
+                z3.And(semantics.possible(x), semantics.verify(x, sentence_letter))
+            )
+            possible_falsifier = Exists(
+                y,
+                z3.And(semantics.possible(y), semantics.falsify(y, sentence_letter))
+            )
             return [
-                z3.Exists(
-                    [x, y],
-                    z3.And(
-                        semantics.verify(x, sentence_letter),
-                        semantics.falsify(y, sentence_letter)
-                    )
-                )
+                possible_verifier,
+                possible_falsifier,
             ]
 
         def get_non_null_constraints():
-            """Generate non-null constraints."""
+            """The non_null constraints prevent null states (empty states) from being verifiers
+            or falsifiers. These constraints are important to prevent trivial satisfaction of
+            the disjoint constraints, though they are already entailed by the contingent constraints
+            when those are enabled."""
             return [
-                z3.Not(semantics.verify(semantics.null_state, sentence_letter)),
-                z3.Not(semantics.falsify(semantics.null_state, sentence_letter))
+                z3.Not(semantics.verify(0, sentence_letter)),
+                z3.Not(semantics.falsify(0, sentence_letter)),
             ]
 
         def get_disjoint_constraints():
@@ -490,7 +505,10 @@ class LogosProposition(PropositionDefaults):
             ]
 
         def get_non_empty_constraints():
-            """Generate non-empty constraints."""
+            """The non_empty constraints ensure that each atomic proposition has at least one
+            verifier and one falsifier. While these constraints are implied by the contingent
+            constraints, they are included separately to prevent trivial satisfaction of the
+            disjoint constraints when contingent constraints are not enabled."""
             x, y = z3.BitVecs("ct_empty_x ct_empty_y", semantics.N)
             return [
                 z3.Exists(
@@ -613,6 +631,32 @@ class LogosProposition(PropositionDefaults):
             f"{'  ' * indent_num}{FULL}|{self.name}| = {self}{RESET}"
             f"  {PART}({truth_value} in {world_state}){RESET}"
         )
+
+    def __repr__(self):
+        """Return a string representation of the proposition.
+        
+        Returns a string showing the verifiers and falsifiers of the proposition
+        in set notation. Only includes possible states unless print_impossible
+        setting is enabled.
+        
+        Returns:
+            str: A string of the form "< {verifiers}, {falsifiers} >" where each
+                set contains the binary representations of the states
+        """
+        N = self.model_structure.model_constraints.semantics.N
+        possible = self.model_structure.model_constraints.semantics.possible
+        z3_model = self.model_structure.z3_model
+        ver_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self.verifiers
+            if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
+        }
+        fal_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self.falsifiers
+            if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
+        }
+        return f"< {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >"
 
 
 class LogosModelStructure(ModelDefaults):
