@@ -121,6 +121,10 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
         """Defines might counterfactual as negation of counterfactual with negated consequent."""
         return [NegationOperator, [CounterfactualOperator, leftarg, [NegationOperator, rightarg]]]
 
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Prints the might counterfactual with proper indentation and formatting."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
+
 
 class ImpositionOperator(syntactic.Operator):
     """Implementation of the imposition operator.
@@ -206,6 +210,10 @@ class MightImpositionOperator(syntactic.DefinedOperator):
     def derived_definition(self, leftarg, rightarg):
         """Defines might imposition as negation of imposition with negated consequent."""
         return [NegationOperator, [ImpositionOperator, leftarg, [NegationOperator, rightarg]]]
+
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Prints the might imposition with proper indentation and formatting."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 def get_operators():

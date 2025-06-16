@@ -262,6 +262,10 @@ class ConditionalOperator(syntactic.DefinedOperator):
         """Defines the conditional as negation of antecedent or consequent."""
         return [OrOperator, [NegationOperator, leftarg], rightarg]
 
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Prints the conditional operator with proper indentation and formatting."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
+
 
 class BiconditionalOperator(syntactic.DefinedOperator):
     """Implementation of the biconditional (↔).
@@ -276,6 +280,10 @@ class BiconditionalOperator(syntactic.DefinedOperator):
     def derived_definition(self, leftarg, rightarg):
         """Defines the biconditional as conjunction of two conditionals."""
         return [AndOperator, [ConditionalOperator, leftarg, rightarg], [ConditionalOperator, rightarg, leftarg]]
+
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Prints the biconditional operator with proper indentation and formatting."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 def get_operators():

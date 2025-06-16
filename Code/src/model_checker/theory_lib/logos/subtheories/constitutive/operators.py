@@ -468,6 +468,10 @@ class ReductionOperator(syntactic.DefinedOperator):
         """Defines reduction as conjunction of ground and essence."""
         return [AndOperator, [GroundOperator, leftarg, rightarg], [EssenceOperator, leftarg, rightarg]]
 
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Prints the reduction operator with proper indentation and formatting."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
+
 
 def get_operators():
     """
