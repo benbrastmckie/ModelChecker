@@ -709,5 +709,5 @@ def run_test(
         model_constraints, 
         settings,
     )
-    return model_structure.check_result
+    return model_structure.check_result()
 

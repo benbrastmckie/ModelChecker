@@ -6,7 +6,7 @@ This subtheory implements constitutive logical operators:
 - Ground (≤)
 - Essence (⊑)
 - Relevance (≼)
-- Reduction (\reduction)
+- Reduction (⇒)
 """
 
 from .operators import get_operators

@@ -389,7 +389,7 @@ CF_CM_16_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 2,
-    'iterate' : 2,
+    'iterate' : 1,
     'expectation' : True,
 }
 CF_CM_16_example = [
@@ -792,16 +792,12 @@ semantic_theories = {
 }
 
 # Specify which examples to run by default when running this module directly
-# Uncomment examples you wish to run
+# All examples included by default
+# example_range = counterfactual_examples
+
+# Or set specific examples
 example_range = {
-    # Uncomment to run specific examples:
-    # "CF_CM_1": CF_CM_1_example,
-    # "CF_CM_3": CF_CM_3_example,
-    # "CF_TH_1": CF_TH_1_example,
-    # "CF_TH_3": CF_TH_3_example,
-    
-    # Quick test example - comment out or replace as needed
-    "CF_CM_2": CF_CM_2_example,
+    "CF_TH_4": CF_TH_4_example,
 }
 
 # Make this module runnable from the command line
