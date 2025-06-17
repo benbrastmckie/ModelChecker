@@ -100,9 +100,21 @@ class AndOperator(syntactic.Operator):
 
     def extended_falsify(self, state, leftarg, rightarg, eval_point):
         """Defines falsification conditions for conjunction in the extended semantics."""
+        sem = self.semantics
+        N = sem.N
+        x = z3.BitVec("and_falsify_x", N)
+        y = z3.BitVec("and_falsify_y", N)
         return z3.Or(
-            self.semantics.extended_falsify(state, leftarg, eval_point),
-            self.semantics.extended_falsify(state, rightarg, eval_point)
+            sem.extended_falsify(state, leftarg, eval_point),
+            sem.extended_falsify(state, rightarg, eval_point),
+            Exists(
+                [x, y],
+                z3.And(
+                    sem.extended_falsify(x, leftarg, eval_point),
+                    sem.extended_falsify(y, rightarg, eval_point),
+                    state == sem.fusion(x, y)
+                )
+            )
         )
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_point):
@@ -145,9 +157,21 @@ class OrOperator(syntactic.Operator):
 
     def extended_verify(self, state, leftarg, rightarg, eval_point):
         """Defines verification conditions for disjunction in the extended semantics."""
+        sem = self.semantics
+        N = sem.N
+        x = z3.BitVec("or_verify_x", N)
+        y = z3.BitVec("or_verify_y", N)
         return z3.Or(
-            self.semantics.extended_verify(state, leftarg, eval_point),
-            self.semantics.extended_verify(state, rightarg, eval_point)
+            sem.extended_verify(state, leftarg, eval_point),
+            sem.extended_verify(state, rightarg, eval_point),
+            Exists(
+                [x, y],
+                z3.And(
+                    sem.extended_verify(x, leftarg, eval_point),
+                    sem.extended_verify(y, rightarg, eval_point),
+                    state == sem.fusion(x, y)
+                )
+            )
         )
 
     def extended_falsify(self, state, leftarg, rightarg, eval_point):
