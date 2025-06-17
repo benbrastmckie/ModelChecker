@@ -432,29 +432,29 @@ REL_TH_9_example = [
 
 # Create collections for different relevance example types
 relevance_cm_examples = {
-    "REL_CM_1": REL_CM_1_example,
-    "REL_CM_2": REL_CM_2_example,
-    "REL_CM_3": REL_CM_3_example,
-    "REL_CM_4": REL_CM_4_example,
-    "REL_CM_5": REL_CM_5_example,
-    "REL_CM_6": REL_CM_6_example,
-    "REL_CM_7": REL_CM_7_example,
-    "REL_CM_8": REL_CM_8_example,
-    "REL_CM_9": REL_CM_9_example,
-    "REL_CM_10": REL_CM_10_example,
-    "REL_CM_11": REL_CM_11_example,
+    "REL_CM_1": REL_CM_1_example,  # ANTECEDENT STRENGTHENING
+    "REL_CM_2": REL_CM_2_example,  # ANTECEDENT WEAKENING
+    "REL_CM_3": REL_CM_3_example,  # RELEVANCE TRANSITIVITY
+    "REL_CM_4": REL_CM_4_example,  # RELEVANT IMPLICATION: GROUND
+    "REL_CM_5": REL_CM_5_example,  # RELEVANT IMPLICATION: ESSENCE
+    "REL_CM_6": REL_CM_6_example,  # RELEVANT IMPLICATION: IDENTITY
+    "REL_CM_7": REL_CM_7_example,  # STRICT IMPLICATION
+    "REL_CM_8": REL_CM_8_example,  # REVERSE DISTRIBUTION: DISJUNCTION OVER CONJUNCTION
+    "REL_CM_9": REL_CM_9_example,  # REVERSE DISTRIBUTION: CONJUNCTION OVER DISJUNCTION
+    "REL_CM_10": REL_CM_10_example,  # CONJUNCTION INTRODUCTION
+    "REL_CM_11": REL_CM_11_example,  # DISJUNCTION INTRODUCTION
 }
 
 relevance_th_examples = {
-    "REL_TH_1": REL_TH_1_example,
-    "REL_TH_2": REL_TH_2_example,
-    "REL_TH_3": REL_TH_3_example,
-    "REL_TH_4": REL_TH_4_example,
-    # "REL_TH_5": REL_TH_5_example, # TODO: should not have countermodels
-    # "REL_TH_6": REL_TH_6_example, # TODO: should not have countermodels
-    "REL_TH_7": REL_TH_7_example,
-    "REL_TH_8": REL_TH_8_example,
-    "REL_TH_9": REL_TH_9_example,
+    "REL_TH_1": REL_TH_1_example,  # RELEVANCE TO CONJUNCTION
+    "REL_TH_2": REL_TH_2_example,  # RELEVANCE TO DISJUNCTION
+    "REL_TH_3": REL_TH_3_example,  # CONJUNCTION TO RELEVANCE
+    "REL_TH_4": REL_TH_4_example,  # DISJUNCTION TO RELEVANCE
+    "REL_TH_5": REL_TH_5_example,  # CONJUNCTION INTRODUCTION
+    "REL_TH_6": REL_TH_6_example,  # DISJUNCTION INTRODUCTION
+    "REL_TH_7": REL_TH_7_example,  # GROUNDING RELEVANCE
+    "REL_TH_8": REL_TH_8_example,  # ESSENCE RELEVANCE
+    "REL_TH_9": REL_TH_9_example,  # IDENTITY RELEVANCE
 }
 
 # Combined collection of all relevance examples
@@ -492,7 +492,19 @@ example_range = relevance_examples
 
 # # Or specify individual examples to run
 # example_range = {
-#     "REL_CM_1": REL_CM_1_example,
+#
+#     # COUNTERMODELS
+#     "REL_CM_1": REL_CM_1_example,  # ANTECEDENT STRENGTHENING
+#     "REL_CM_2": REL_CM_2_example,  # ANTECEDENT WEAKENING
+#     "REL_CM_3": REL_CM_3_example,  # RELEVANCE TRANSITIVITY
+#     "REL_CM_7": REL_CM_7_example,  # STRICT IMPLICATION
+#
+#     # THEOREMS
+#     "REL_TH_5": REL_TH_5_example,  # CONJUNCTION INTRODUCTION
+#     "REL_TH_6": REL_TH_6_example,  # DISJUNCTION INTRODUCTION
+#     "REL_TH_7": REL_TH_7_example,  # GROUNDING RELEVANCE
+#     "REL_TH_8": REL_TH_8_example,  # ESSENCE RELEVANCE
+#
 # }
 
 # Make this module runnable from the command line

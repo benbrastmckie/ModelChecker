@@ -733,7 +733,7 @@ counterfactual_th_examples = {
     "CF_TH_1": CF_TH_1_example,  # COUNTERFACTUAL IDENTITY
     "CF_TH_2": CF_TH_2_example,  # COUNTERFACTUAL MODUS PONENS
     "CF_TH_3": CF_TH_3_example,  # WEAKENED TRANSITIVITY
-    # "CF_TH_4": CF_TH_4_example,  # ANTECEDENT DISJUNCTION TO CONJUNCTION # TODO: fix discrepancy
+    "CF_TH_4": CF_TH_4_example,  # ANTECEDENT DISJUNCTION TO CONJUNCTION # TODO: fix discrepancy
     "CF_TH_5": CF_TH_5_example,  # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
     "CF_TH_6": CF_TH_6_example,  # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
     "CF_TH_7": CF_TH_7_example,  # COUNTERFACTUAL DISJUNCTION INTRODUCTION
@@ -776,22 +776,23 @@ semantic_theories = {
 # All examples included by default
 example_range = counterfactual_examples
 
-# # Or set specific examples
-# example_range = {
-#
-#     # COUNTERMODELS
-#     "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-#     "CF_CM_2": CF_CM_2_example,  # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-#     "CF_CM_7": CF_CM_7_example,  # COUNTERFACTUAL CONTRAPOSITION
-#     "CF_CM_18": CF_CM_18_example,  # MUST FACTIVITY
-#
-#     # THEOREMS
-#     "CF_TH_5": CF_TH_5_example,  # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-#     "CF_TH_9": CF_TH_9_example,  # COUNTERFACTUAL CONJUNCTION INTRODUCTION
-#     "CF_TH_10": CF_TH_10_example,  # MIGHT FACTIVITY
-#     "CF_TH_11": CF_TH_11_example,  # DEFINITION OF NEC
-#
-# }
+# Or set specific examples
+example_range = {
+
+    # COUNTERMODELS
+    # "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # "CF_CM_2": CF_CM_2_example,  # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # "CF_CM_7": CF_CM_7_example,  # COUNTERFACTUAL CONTRAPOSITION
+    # "CF_CM_18": CF_CM_18_example,  # MUST FACTIVITY
+
+    # THEOREMS
+    "CF_TH_4": CF_TH_4_example,  # ANTECEDENT DISJUNCTION TO CONJUNCTION # TODO: fix discrepancy
+    # "CF_TH_5": CF_TH_5_example,  # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    # "CF_TH_9": CF_TH_9_example,  # COUNTERFACTUAL CONJUNCTION INTRODUCTION
+    # "CF_TH_10": CF_TH_10_example,  # MIGHT FACTIVITY
+    # "CF_TH_11": CF_TH_11_example,  # DEFINITION OF NEC
+
+}
 
 
 # Make this module runnable from the command line

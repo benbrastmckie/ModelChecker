@@ -84,8 +84,8 @@ class LogosSemantics(SemanticDefaults):
         ]
 
         # Define invalidity conditions
-        self.premise_behavior = lambda premise: self.true_at(premise, self.main_point["world"])
-        self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point["world"])
+        self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
+        self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
     
     def load_subtheories(self, subtheories=None):
         """Load specified subtheories."""
@@ -562,7 +562,8 @@ class LogosProposition(PropositionDefaults):
             }
             return V, F
         if operator is not None:
-            return operator.find_verifiers_and_falsifiers(*arguments, eval_world)
+            eval_point = {"world": eval_world}
+            return operator.find_verifiers_and_falsifiers(*arguments, eval_point)
         raise ValueError(f"Their is no proposition for {self}.")
 
     def truth_value_at(self, eval_world):

@@ -797,6 +797,7 @@ semantic_theories = {
 
 # Or set specific examples
 example_range = {
+    "CF_CM_3": CF_CM_3_example,
     "CF_TH_4": CF_TH_4_example,
 }
 
