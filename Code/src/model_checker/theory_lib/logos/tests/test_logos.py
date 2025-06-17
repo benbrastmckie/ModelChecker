@@ -174,12 +174,14 @@ class TestLogosSemantics:
         theory = logos.get_theory()
         semantics_class = theory['semantics']
         
-        # Should be able to instantiate with default settings
-        semantics = semantics_class()
+        # Use smaller N value to avoid exponential explosion in ForAll function
+        test_settings = {'N': 3}
+        semantics = semantics_class(test_settings)
         assert semantics is not None
         
         # Should have basic attributes
         assert hasattr(semantics, 'N')
+        assert semantics.N == 3
     
     def test_proposition_creation(self):
         """Test that proposition class is available."""

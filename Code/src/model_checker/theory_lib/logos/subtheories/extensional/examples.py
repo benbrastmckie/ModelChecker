@@ -367,12 +367,8 @@ semantic_theories = {
 }
 
 # Specify which examples to run by default when running this module directly
-# Uncomment examples you wish to run
-example_range = {
-    # Quick test examples - comment out or replace as needed
-    "EXT_CM_2": EXT_CM_2_example,  # Modus ponens
-    "EXT_TH_6": EXT_TH_6_example,  # Law of excluded middle
-}
+# All examples included by default
+example_range = extensional_examples
 
 # Make this module runnable from the command line
 if __name__ == '__main__':

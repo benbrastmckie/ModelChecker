@@ -747,45 +747,8 @@ semantic_theories = {
 }
 
 # Specify which examples to run by default when running this module directly
-# Uncomment examples you wish to run
-example_range = {
-    # Uncomment to run specific countermodel examples:
-    # "CL_CM_1": CL_CM_1_example,  # EQUIVALENCE OF TAUTOLOGIES
-    # "CL_CM_2": CL_CM_2_example,  # EQUIVALENCE OF CONTRADICTIONS
-    # "CL_CM_3": CL_CM_3_example,  # GROUND CONJUNCTION SUPPLEMENTATION
-    # "CL_CM_4": CL_CM_4_example,  # ESSENCE DISJUNCTION SUPPLEMENTATION
-    # "CL_CM_5": CL_CM_5_example,  # IDENTITY ABSORPTION: DISJUNCTION OVER CONJUNCTION
-    # "CL_CM_6": CL_CM_6_example,  # IDENTITY ABSORPTION: CONJUNCTION OVER DISJUNCTION
-    # "CL_CM_7": CL_CM_7_example,  # IDENTITY DISTRIBUTION: CONJUNCTION OVER DISJUNCTION
-    # "CL_CM_8": CL_CM_8_example,  # IDENTITY DISTRIBUTION: DISJUNCTION OVER CONJUNCTION
-    # "CL_CM_9": CL_CM_9_example,  # STRICT IMPLICATION TO GROUND
-    # "CL_CM_10": CL_CM_10_example,  # STRICT IMPLICATION TO ESSENCE
-    # "CL_CM_11": CL_CM_11_example,  # ESSENCE DISTRIBUTION
-    # "CL_CM_12": CL_CM_12_example,  # GROUND DISTRIBUTION
-    "CL_CM_13": CL_CM_13_example,  # SHANNON EXPANSION
-    "CL_CM_14": CL_CM_14_example,  # DUAL SHANNON EXPANSION
-
-    # Uncomment to run specific theorem examples:
-    # "CL_TH_1": CL_TH_1_example,  # GROUND TO ESSENCE
-    # "CL_TH_2": CL_TH_2_example,  # ESSENCE TO GROUND
-    # "CL_TH_3": CL_TH_3_example,  # ESSENCE TO IDENTITY
-    # "CL_TH_4": CL_TH_4_example,  # IDENTITY TO ESSENCE
-    # "CL_TH_5": CL_TH_5_example,  # GROUND TO IDENTITY
-    # "CL_TH_6": CL_TH_6_example,  # IDENTITY TO GROUND
-    # "CL_TH_7": CL_TH_7_example,  # NEGATION TRANSPARENCY
-    # "CL_TH_8": CL_TH_8_example,  # REVERSE NEGATION TRANSPARENCY
-    # "CL_TH_9": CL_TH_9_example,  # ABSORPTION IDENTITY
-    # "CL_TH_10": CL_TH_10_example,  # ABSORPTION REDUCTION: CONJUNCTION OVER DISJUNCTION
-    # "CL_TH_11": CL_TH_11_example,  # ABSORPTION REDUCTION: DISJUNCTION OVER CONJUNCTION
-    # "CL_TH_12": CL_TH_12_example,  # DISTRIBUTION REDUCTION: DISJUNCTION OVER CONJUNCTION
-    # "CL_TH_13": CL_TH_13_example,  # DISTRIBUTION REDUCTION: CONJUNCTION OVER DISJUNCTION
-    # "CL_TH_14": CL_TH_14_example,  # GROUND TO STRICT IMPLICATION
-    # "CL_TH_15": CL_TH_15_example,  # ESSENCE TO CONVERSE STRICT IMPLICATION
-    # "CL_TH_16": CL_TH_16_example,  # GROUNDING ANTI-SYMMETRY
-    # "CL_TH_17": CL_TH_17_example,  # ESSENCE ANTI-SYMMETRY
-    # "CL_TH_18": CL_TH_18_example,  # GROUNDING TRANSITIVITY
-    # "CL_TH_19": CL_TH_19_example,  # ESSENCE TRANSITIVITY
-}
+# All examples included by default
+example_range = constitutive_examples
 
 # Make this module runnable from the command line
 if __name__ == '__main__':

@@ -198,7 +198,7 @@ class TopOperator(syntactic.Operator):
 
     def extended_verify(self, state, eval_point):
         """Defines verification conditions for top in the extended semantics."""
-        return state == self.semantics.null_state
+        return state == state
 
     def extended_falsify(self, state, eval_point):
         """Defines falsification conditions for top in the extended semantics."""
@@ -206,7 +206,7 @@ class TopOperator(syntactic.Operator):
 
     def find_verifiers_and_falsifiers(self, eval_point):
         """Finds the verifiers and falsifiers for top."""
-        return {self.semantics.null_state}, set()
+        return set(self.semantics.all_states), set()
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the top operator with proper indentation and formatting."""

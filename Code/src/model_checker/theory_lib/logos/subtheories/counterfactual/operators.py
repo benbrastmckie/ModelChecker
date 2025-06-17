@@ -33,46 +33,33 @@ class CounterfactualOperator(syntactic.Operator):
 
     def true_at(self, leftarg, rightarg, eval_point):
         """Defines truth conditions for counterfactual conditional at an evaluation point."""
-        sem = self.semantics
-        u = z3.BitVec("t_cf_u", sem.N)
-        v = z3.BitVec("t_cf_v", sem.N)
-        
+        semantics = self.semantics
+        N = semantics.N
+        x = z3.BitVec("t_cf_x", N)
+        u = z3.BitVec("t_cf_u", N)
         return ForAll(
-            [u, v],
+            [x, u],
             z3.Implies(
                 z3.And(
-                    sem.is_world(u),
-                    sem.is_world(v),
-                    sem.extended_verify(u, leftarg, eval_point),
-                    sem.extended_verify(v, leftarg, eval_point),
-                    sem.closer_world(u, v, eval_point)
+                    semantics.extended_verify(x, leftarg, eval_point),
+                    semantics.is_alternative(u, x, eval_point)
                 ),
-                sem.extended_verify(u, rightarg, eval_point)
+                semantics.true_at(rightarg, u),
             ),
         )
 
     def false_at(self, leftarg, rightarg, eval_point):
         """Defines falsity conditions for counterfactual conditional at an evaluation point."""
-        sem = self.semantics
-        u = z3.BitVec("f_cf_u", sem.N)
-        
+        semantics = self.semantics
+        N = semantics.N
+        x = z3.BitVec("f_cf_x", N)
+        u = z3.BitVec("f_cf_u", N)
         return Exists(
-            u,
+            [x, u],
             z3.And(
-                sem.is_world(u),
-                sem.extended_verify(u, leftarg, eval_point),
-                sem.extended_falsify(u, rightarg, eval_point),
-                ForAll(
-                    z3.BitVec("f_cf_v", sem.N),
-                    z3.Implies(
-                        z3.And(
-                            sem.is_world(z3.BitVec("f_cf_v", sem.N)),
-                            sem.extended_verify(z3.BitVec("f_cf_v", sem.N), leftarg, eval_point)
-                        ),
-                        z3.Not(sem.closer_world(z3.BitVec("f_cf_v", sem.N), u, eval_point))
-                    )
-                )
-            ),
+                semantics.extended_verify(x, leftarg, eval_point),
+                semantics.is_alternative(u, x, eval_point),
+                semantics.false_at(rightarg, u)),
         )
 
     def extended_verify(self, state, leftarg, rightarg, eval_point):

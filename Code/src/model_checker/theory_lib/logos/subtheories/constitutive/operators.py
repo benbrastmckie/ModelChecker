@@ -2,11 +2,11 @@
 Constitutive operators for hyperintensional logic.
 
 This module implements constitutive logical operators:
-- Identity (a)
-- Ground (d)
-- Essence (�)
-- Relevance (|)
-- Reduction (\reduction)
+- Identity (≡)
+- Ground (≤)
+- Essence (⊑)
+- Relevance (≼)
+- Reduction (⇒)
 """
 
 import z3

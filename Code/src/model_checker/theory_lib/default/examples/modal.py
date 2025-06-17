@@ -554,16 +554,25 @@ semantic_theories = {
     "Brast-McKie": default_theory,
 }
 
-# Specify which examples to run by default when running this module directly
-# Uncomment examples you wish to run
+# # Specify which examples to run by default when running this module directly
+# # All examples included by default
+# example_range = modal_examples
+
+# Or specify individual examples
 example_range = {
-    # Uncomment to run specific examples:
+
+    ### COUNTERMODELS ###
+
+    # "ML_CM_1": ML_CM_1_example,
     # "ML_CM_2": ML_CM_2_example,
+    # "ML_CM_3": ML_CM_3_example,
+
+    ### THEOREMS ###
+
     # "ML_TH_1": ML_TH_1_example,
-    # "ML_DEF_1": ML_DEF_1_example,
-    
-    # Quick test example - comment out or replace as needed
-    "ML_CM_1": ML_CM_1_example,
+    # "ML_TH_2": ML_TH_2_example,
+    # "ML_TH_3": ML_TH_3_example,
+    "ML_TH_13": ML_TH_13_example,
 }
 
 # Make this module runnable from the command line

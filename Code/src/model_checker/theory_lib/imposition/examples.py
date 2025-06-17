@@ -932,7 +932,7 @@ IM_TH_6_example = [
     IM_TH_6_settings,
 ]
 
-# IM_TH_10: MIGHT FACTIVITY
+# IM_TH_10: MIGHT COUNTERFACTUAL FACTIVITY
 IM_TH_10_premises = ['A', 'B']
 IM_TH_10_conclusions = ['(A \\could B)']
 IM_TH_10_settings = {
@@ -968,7 +968,7 @@ CF_TH_11_example = [
     CF_TH_11_settings,
 ]
 
-# CF_TH_12: DEFINITION OF NEC
+# CF_TH_12: DEFINITION OF MUST COUNTERFACTUAL
 CF_TH_12_premises = ['(\\neg A \\boxright \\bot)']
 CF_TH_12_conclusions = ['(\\top \\boxright A)']
 CF_TH_12_settings = {
@@ -994,7 +994,7 @@ CF_TH_12_example = [
 # NOTE: at least one theory is required, multiple are permitted for comparison
 semantic_theories = {
     "Fine" : imposition_theory,
-    # "Brast-McKie" : default_theory,
+    "Brast-McKie" : default_theory,
     # additional theories will require their own translation dictionaries
 }
 
@@ -1054,8 +1054,8 @@ test_example_range = {
 example_range = {
     # Counterfactual Countermodels
     "CF_CM_1" : CF_CM_1_example,
-    # "CF_CM_2" : CF_CM_2_example,
-    # "CF_CM_3" : CF_CM_3_example,
+    "CF_CM_2" : CF_CM_2_example,
+    "CF_CM_3" : CF_CM_3_example,
     # "CF_CM_4" : CF_CM_4_example,
     # "CF_CM_5" : CF_CM_5_example,
     # "CF_CM_6" : CF_CM_6_example,

@@ -786,10 +786,10 @@ class LogosModelStructure(ModelDefaults):
         RESET = ""
         main_world = self.main_point["world"]
         if output is sys.__stdout__:
-            BLUE = "\\033[34m"
-            RESET = "\\033[0m"
+            BLUE = "\033[34m"
+            RESET = "\033[0m"
         print(
-            f"\\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N)}{RESET}\\n",
+            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N)}{RESET}\n",
             file=output,
         )
 
