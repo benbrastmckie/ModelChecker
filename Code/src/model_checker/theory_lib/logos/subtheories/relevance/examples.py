@@ -458,7 +458,7 @@ relevance_th_examples = {
 }
 
 # Combined collection of all relevance examples
-relevance_examples = {**relevance_cm_examples, **relevance_th_examples}
+unit_tests = {**relevance_cm_examples, **relevance_th_examples}
 
 # Default settings
 general_settings = {

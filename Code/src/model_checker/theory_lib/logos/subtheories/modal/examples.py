@@ -555,7 +555,7 @@ modal_def_examples = {
 }
 
 # Combined collection of all modal examples
-modal_examples = {**modal_cm_examples, **modal_th_examples, **modal_def_examples}
+unit_tests = {**modal_cm_examples, **modal_th_examples, **modal_def_examples}
 
 # Default settings
 general_settings = {

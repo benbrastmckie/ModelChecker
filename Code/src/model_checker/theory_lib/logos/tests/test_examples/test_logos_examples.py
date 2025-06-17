@@ -34,9 +34,9 @@ from model_checker.theory_lib.logos.semantic import (
 from model_checker.theory_lib.logos.operators import LogosOperatorRegistry
 
 # Import unified examples from the main logos examples module
-from model_checker.theory_lib.logos.examples import test_example_range
+from model_checker.theory_lib.logos.examples import unit_tests
 
-@pytest.mark.parametrize("example_name, example_case", test_example_range.items())
+@pytest.mark.parametrize("example_name, example_case", unit_tests.items())
 def test_logos_examples(example_name, example_case):
     """Test each logos example case from all subtheories."""
     
