@@ -69,42 +69,56 @@ logos/
 
 ### Command-Line Interface
 
-The testing framework supports granular test execution through command-line flags:
+The testing framework follows an **inclusive-by-default** approach where flags specify restrictions rather than additions. Without restricting flags, all available tests are run.
 
 ```bash
-# Test all examples across all subtheories
+# Test everything: all examples + all unit tests across all subtheories (DEFAULT)
 python test_theories.py --theories logos
 
-# Test specific subtheory examples
-python test_theories.py --theories logos --examples --extensional
-python test_theories.py --theories logos --examples --counterfactual
+# Test everything for specific subtheory: examples + unit tests
+python test_theories.py --theories logos --modal
+python test_theories.py --theories logos --counterfactual
 
-# Test specific examples by name
+# RESTRICT to examples only (removes unit tests)
+python test_theories.py --theories logos --examples
+python test_theories.py --theories logos --modal --examples
+
+# RESTRICT to unit/implementation tests only (removes examples)
+python test_theories.py --theories logos --package
+python test_theories.py --theories logos --modal --package
+
+# RESTRICT to specific examples by name (removes unit tests + other examples)
 python test_theories.py --theories logos --examples CF_CM_1
 python test_theories.py --theories logos --examples CF_CM_1 CF_TH_2 MOD_CM_3
 python test_theories.py --theories logos --examples "CF_CM_*"  # Wildcard pattern
 
-# Test unit tests only
-python test_theories.py --theories logos --unit
+# RESTRICT to specific unit test categories (removes examples + other unit tests)
+python test_theories.py --theories logos --package --operators
+python test_theories.py --theories logos --package --semantics
 
-# Test specific unit test categories
-python test_theories.py --theories logos --unit --operators
-python test_theories.py --theories logos --unit --semantics
-
-# Combine flags for precise testing
-python test_theories.py --theories logos --examples --counterfactual --unit --operators
-python test_theories.py --theories logos --examples CF_CM_1 --unit --operators
+# Multiple restrictions can be combined
+python test_theories.py --theories logos --modal --examples  # Modal examples only
+python test_theories.py --theories logos --counterfactual --package --operators  # CF operator tests only
 ```
+
+#### Inclusive-by-Default Philosophy
+
+The CLI design follows these principles:
+
+1. **Maximum Coverage by Default**: Without restriction flags, run all available tests
+2. **Flags as Filters**: Each flag removes/restricts rather than adds tests
+3. **Intuitive Combinations**: Multiple flags create intersection (AND logic)
+4. **Clear Intent**: Flag names clearly indicate what they restrict to
 
 #### Example Name Specification
 
 When example names are provided as arguments:
 
-1. **Exact Match**: Test only the specified examples
+1. **Exact Match**: Test only the specified examples (restricts all others)
    - `CF_CM_1` - Tests only this specific example
    - `CF_CM_1 CF_TH_2` - Tests only these two examples
 
-2. **Pattern Matching**: Support wildcard patterns
+2. **Pattern Matching**: Support wildcard patterns (restricts to matches)
    - `"CF_CM_*"` - Tests all counterfactual countermodel examples
    - `"*_TH_*"` - Tests all theorem examples across subtheories
    - `"MOD_*"` - Tests all modal examples
@@ -116,7 +130,7 @@ When example names are provided as arguments:
 
 4. **Subtheory Context**:
    - When combined with subtheory flags, validate examples belong to that subtheory
-   - Without subtheory flags, search across all subtheories
+   - Subtheory flags restrict to that subtheory's tests
 
 ### Test Discovery and Registration
 

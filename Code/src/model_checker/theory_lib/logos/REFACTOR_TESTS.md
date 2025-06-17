@@ -229,89 +229,129 @@ Key features:
 
 #### 4.1 Extend test_theories.py
 
-Add support for granular testing flags:
+Add support for inclusive-by-default testing with restriction flags:
 
 ```python
 def add_logos_args(parser):
-    """Add logos-specific argument parsing."""
+    """Add logos-specific argument parsing with inclusive-by-default approach."""
     logos_group = parser.add_argument_group('logos testing options')
     
-    # Test type selection
+    # Test type restrictions (default: run both examples and unit tests)
     logos_group.add_argument('--examples', nargs='*', 
-                           help='Run example tests only. Optionally specify example names')
-    logos_group.add_argument('--unit', action='store_true', 
-                           help='Run unit tests only')
+                           help='RESTRICT to example tests only. Optionally specify example names')
+    logos_group.add_argument('--package', action='store_true', 
+                           help='RESTRICT to unit/implementation tests only')
     
-    # Subtheory selection
+    # Subtheory restrictions (default: all subtheories)
     logos_group.add_argument('--extensional', action='store_true',
-                           help='Test extensional subtheory only')
+                           help='RESTRICT to extensional subtheory only')
     logos_group.add_argument('--modal', action='store_true',
-                           help='Test modal subtheory only') 
+                           help='RESTRICT to modal subtheory only') 
     logos_group.add_argument('--constitutive', action='store_true',
-                           help='Test constitutive subtheory only')
+                           help='RESTRICT to constitutive subtheory only')
     logos_group.add_argument('--counterfactual', action='store_true',
-                           help='Test counterfactual subtheory only')
+                           help='RESTRICT to counterfactual subtheory only')
     logos_group.add_argument('--relevance', action='store_true',
-                           help='Test relevance subtheory only')
+                           help='RESTRICT to relevance subtheory only')
     
-    # Unit test categories
+    # Unit test category restrictions (default: all unit test categories)
     logos_group.add_argument('--semantics', action='store_true',
-                           help='Test semantic methods only')
+                           help='RESTRICT to semantic method tests only')
     logos_group.add_argument('--operators', action='store_true',
-                           help='Test operator implementations only')
+                           help='RESTRICT to operator implementation tests only')
     logos_group.add_argument('--registry', action='store_true',
-                           help='Test registry functionality only')
+                           help='RESTRICT to registry functionality tests only')
+    logos_group.add_argument('--proposition', action='store_true',
+                           help='RESTRICT to proposition tests only')
+    logos_group.add_argument('--model-structure', action='store_true',
+                           help='RESTRICT to model structure tests only')
+    logos_group.add_argument('--error-conditions', action='store_true',
+                           help='RESTRICT to error condition tests only')
 ```
 
 #### 4.2 Implement Test Selection Logic
 
 ```python
 def build_logos_test_command(args):
-    """Build pytest command for logos testing."""
+    """Build pytest command for logos testing with inclusive-by-default approach."""
     base_dir = "src/model_checker/theory_lib/logos/tests"
     command = ["pytest"]
     
-    # Determine test directories
-    if args.examples is not None and not args.unit:
-        command.append(f"{base_dir}/test_examples")
-    elif args.unit and args.examples is None:
-        command.append(f"{base_dir}/test_unit") 
-    elif args.examples is None and not args.unit:
-        command.append(base_dir)  # All tests
+    # Start with all tests, then apply restrictions
+    test_directories = []
+    test_filters = []
     
-    # Handle specific example names
+    # Determine test type restrictions
+    run_examples = True
+    run_unit_tests = True
+    
+    if args.examples is not None:
+        # Restrict to examples only
+        run_unit_tests = False
+        test_directories.append(f"{base_dir}/test_examples")
+    elif args.package:
+        # Restrict to unit tests only
+        run_examples = False
+        test_directories.append(f"{base_dir}/test_unit")
+    else:
+        # Default: run both examples and unit tests
+        test_directories.append(base_dir)
+    
+    # Handle specific example names (most restrictive)
     if args.examples and len(args.examples) > 0:
-        # User specified specific examples
         example_names = args.examples
         if len(example_names) == 1 and '*' in example_names[0]:
             # Wildcard pattern
-            command.extend(["-k", example_names[0].replace('*', '')])
+            test_filters.append(example_names[0].replace('*', ''))
         else:
             # Exact matches - create OR expression
             test_expr = " or ".join(f"test_logos_examples[{name}]" for name in example_names)
-            command.extend(["-k", test_expr])
-    elif args.examples is not None:
-        # --examples flag without specific names (run all examples)
-        # Add subtheory filters if specified
-        if args.extensional:
-            command.extend(["-k", "extensional or EXT_"])
-        elif args.modal:
-            command.extend(["-k", "modal or MOD_"])
-        elif args.constitutive:
-            command.extend(["-k", "constitutive or CON_"])
-        elif args.counterfactual:
-            command.extend(["-k", "counterfactual or CF_"])
-        elif args.relevance:
-            command.extend(["-k", "relevance or REL_"])
+            test_filters.append(f"({test_expr})")
     
-    # Add unit test filters
-    if args.unit:
+    # Apply subtheory restrictions
+    subtheory_filters = []
+    if args.extensional:
+        subtheory_filters.append("(extensional or EXT_)")
+    if args.modal:
+        subtheory_filters.append("(modal or MOD_)")
+    if args.constitutive:
+        subtheory_filters.append("(constitutive or CON_ or CL_)")
+    if args.counterfactual:
+        subtheory_filters.append("(counterfactual or CF_)")
+    if args.relevance:
+        subtheory_filters.append("(relevance or REL_)")
+    
+    # If any subtheory specified, restrict to those
+    if subtheory_filters:
+        test_filters.append(f"({' or '.join(subtheory_filters)})")
+    
+    # Apply unit test category restrictions (only if running unit tests)
+    if run_unit_tests and args.package:
+        unit_filters = []
         if args.semantics:
-            command.extend(["-k", "semantic"])
-        elif args.operators:
-            command.extend(["-k", "operator"])
-        elif args.registry:
-            command.extend(["-k", "registry"])
+            unit_filters.append("semantic")
+        if args.operators:
+            unit_filters.append("operator")
+        if args.registry:
+            unit_filters.append("registry")
+        if args.proposition:
+            unit_filters.append("proposition")
+        if getattr(args, 'model_structure', False):
+            unit_filters.append("model_structure")
+        if getattr(args, 'error_conditions', False):
+            unit_filters.append("error_condition")
+        
+        # If any unit test categories specified, restrict to those
+        if unit_filters:
+            test_filters.append(f"({' or '.join(unit_filters)})")
+    
+    # Add directories to command
+    command.extend(test_directories)
+    
+    # Combine all filters with AND logic
+    if test_filters:
+        combined_filter = " and ".join(test_filters)
+        command.extend(["-k", combined_filter])
     
     return command
 
@@ -377,20 +417,29 @@ This ensures:
 #### 5.2 Validation Process
 
 ```bash
-# Test that the refactored structure works correctly
+# Test that the refactored structure works correctly (DEFAULT: all tests)
 python test_theories.py --theories logos
 
-# Test new granular options
-python test_theories.py --theories logos --examples
-python test_theories.py --theories logos --unit
-python test_theories.py --theories logos --examples --counterfactual
-python test_theories.py --theories logos --unit --operators
+# Test new inclusive-by-default approach with restrictions
+python test_theories.py --theories logos --examples  # Examples only
+python test_theories.py --theories logos --package   # Unit tests only
+python test_theories.py --theories logos --counterfactual  # All CF tests (examples + unit)
+python test_theories.py --theories logos --counterfactual --examples  # CF examples only
+python test_theories.py --theories logos --package --operators  # Operator unit tests only
 
-# Test specific example selection
-python test_theories.py --theories logos --examples CF_CM_1
-python test_theories.py --theories logos --examples CF_CM_1 CF_TH_2
-python test_theories.py --theories logos --examples "CF_*"
-python test_theories.py --theories logos --examples "*_TH_*"
+# Test specific example selection (most restrictive)
+python test_theories.py --theories logos --examples CF_CM_1  # One example only
+python test_theories.py --theories logos --examples CF_CM_1 CF_TH_2  # Two examples only
+python test_theories.py --theories logos --examples "CF_*"  # CF examples only
+python test_theories.py --theories logos --examples "*_TH_*"  # All theorem examples only
+
+# Test subtheory + unit test category combinations
+python test_theories.py --theories logos --modal --package --semantics  # Modal semantic tests only
+
+# Validate inclusive behavior
+python test_theories.py --theories logos  # Should run ~150+ tests (all examples + all unit tests)
+python test_theories.py --theories logos --modal  # Should run ~50+ tests (modal examples + all unit tests)
+python test_theories.py --theories logos --modal --examples  # Should run ~25 tests (modal examples only)
 
 # Compare results to ensure no regressions
 ```
@@ -419,16 +468,48 @@ Create `THEORY_TESTING_TEMPLATE.md` that other theories can follow:
 - CLI integration patterns
 - Common fixture patterns
 
+## Inclusive-by-Default Philosophy
+
+The refactored testing system follows an **inclusive-by-default** approach that prioritizes comprehensive coverage:
+
+### Core Principles
+
+1. **Maximum Coverage by Default**: Without any restriction flags, the system runs all available tests
+2. **Flags as Filters**: Each CLI flag removes/restricts tests rather than adding them
+3. **Intersection Logic**: Multiple flags create an AND relationship (intersection of restrictions)
+4. **Clear Intent**: Flag names explicitly indicate they are restrictions (e.g., "RESTRICT to...")
+
+### Behavior Examples
+
+| Command | Behavior | Tests Run |
+|---------|----------|-----------|
+| `--logos` | All tests (DEFAULT) | All examples + all unit tests |
+| `--logos --modal` | All modal tests | Modal examples + all unit tests |
+| `--logos --examples` | Examples only | All examples (no unit tests) |
+| `--logos --package` | Unit tests only | All unit tests (no examples) |
+| `--logos --modal --examples` | Modal examples only | Modal examples only |
+| `--logos --package --operators` | Operator tests only | Operator unit tests only |
+| `--logos --examples CF_CM_1` | Specific example only | One example only |
+
+### Design Rationale
+
+- **Developer Productivity**: Running `--logos` gives maximum feedback without remembering specific flags
+- **CI/CD Friendly**: Default behavior provides comprehensive validation
+- **Debugging Support**: Easy to restrict to specific areas when debugging
+- **Predictable Logic**: Always starts with "everything" then removes based on flags
+
 ## Expected Outcomes
 
 ### Immediate Benefits
 
 1. **Clear Test Separation**: Distinct example vs. unit tests
 2. **No Duplication**: Single location for each type of test
-3. **Granular Control**: Precise testing through CLI flags
-4. **Targeted Example Testing**: Run specific examples by name for rapid debugging
-5. **Comprehensive Coverage**: Both integration and unit testing
-6. **Maintainable Structure**: Easy to understand and modify
+3. **Inclusive-by-Default**: Maximum test coverage without explicit flags
+4. **Flexible Restrictions**: Precise testing through restriction flags
+5. **Targeted Example Testing**: Run specific examples by name for rapid debugging
+6. **Comprehensive Coverage**: Both integration and unit testing by default
+7. **Maintainable Structure**: Easy to understand and modify
+8. **Intuitive CLI**: Flags restrict rather than add, making behavior predictable
 
 ### Long-term Benefits  
 
