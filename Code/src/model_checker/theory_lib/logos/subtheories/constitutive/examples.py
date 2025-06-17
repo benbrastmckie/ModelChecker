@@ -724,7 +724,7 @@ constitutive_th_examples = {
 }
 
 # Combined collection of all constitutive examples
-constitutive_examples = {**constitutive_cm_examples, **constitutive_th_examples}
+unit_tests = {**constitutive_cm_examples, **constitutive_th_examples}
 
 # Default settings
 general_settings = {

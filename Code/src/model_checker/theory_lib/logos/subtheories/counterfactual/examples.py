@@ -745,7 +745,7 @@ counterfactual_th_examples = {
 }
 
 # Combined collection of all counterfactual examples
-counterfactual_examples = {**counterfactual_cm_examples, **counterfactual_th_examples}
+unit_tests = {**counterfactual_cm_examples, **counterfactual_th_examples}
 
 # Default settings
 general_settings = {

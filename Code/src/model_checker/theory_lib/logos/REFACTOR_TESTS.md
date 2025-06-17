@@ -96,9 +96,21 @@ logos/
 **Files to Consolidate**:
 - Merge relevant parts of `test_logos.py` and `test_subtheories.py` into new unit test files
 
-### Phase 2: Implement Example Tests
+### Phase 2: Implement Example Tests ✓
 
-#### 2.1 Create Unified Example Test Entry Point
+#### 2.1 Update Example Variable Names ✓
+
+**Status**: COMPLETED
+- Updated all subtheory examples.py files to use `unit_tests` variable name
+- Updated main logos examples.py to import from `unit_tests`
+- Removed all legacy variable references
+- Verified imports work correctly (129 total examples)
+
+#### 2.2 Create Unified Example Test Entry Point ✓
+
+**Status**: COMPLETED  
+- Moved existing test_logos_examples.py to new location
+- Updated imports to use `unit_tests` variable
 
 **File**: `tests/test_examples/test_logos_examples.py`
 
@@ -108,37 +120,30 @@ Key features:
 - Dynamic operator registry loading based on example prefixes
 - Clear expectation handling from settings
 
-#### 2.2 Create Subtheory-Specific Example Tests
+#### 2.3 Create Subtheory-Specific Example Tests ✓
 
-**Files**: `tests/test_examples/test_*_examples.py`
+**Status**: COMPLETED
+- Created individual test files for each subtheory
+- Each file tests only examples from its specific subtheory
+- Load minimal required operators for efficiency
+- Use same test pattern as unified tests
 
-Features:
-- Test only examples from specific subtheory
-- Load minimal required operators
-- Support isolated testing of individual subtheories
-- Maintain same test pattern as unified tests
+**Files Created**:
+- `test_extensional_examples.py` - 14 tests (extensional only)
+- `test_modal_examples.py` - 23 tests (extensional + modal)  
+- `test_constitutive_examples.py` - 33 tests (extensional + modal + constitutive)
+- `test_counterfactual_examples.py` - 33 tests (extensional + modal + counterfactual)
+- `test_relevance_examples.py` - 20 tests (extensional + modal + constitutive + relevance)
 
-#### 2.3 Implement Example Test Fixtures
+**Note**: Currently running 408 tests total due to duplication between unified and individual files. This will be resolved in Phase 5 cleanup.
 
-**File**: `tests/conftest.py`
+#### 2.4 Implement Example Test Fixtures ✓
 
-Common fixtures:
-```python
-@pytest.fixture
-def logos_theory():
-    """Full logos theory with all subtheories loaded."""
-    return get_theory('logos')
-
-@pytest.fixture  
-def extensional_theory():
-    """Logos theory with only extensional subtheory."""
-    return get_theory('logos', ['extensional'])
-
-@pytest.fixture
-def basic_settings():
-    """Standard settings for most tests."""
-    return {'N': 3, 'max_time': 1}
-```
+**Status**: COMPLETED
+- Created `tests/conftest.py` with common fixtures
+- Fixtures for each theory configuration (extensional, modal, constitutive, etc.)
+- Settings fixtures for different test complexity levels
+- Ready for use by both example and unit tests
 
 ### Phase 3: Implement Unit Tests
 

@@ -53,29 +53,29 @@ from .semantic import (
 # Import operators
 from .operators import LogosOperatorRegistry
 
-# Import subtheory examples
+# Import subtheory examples using standardized variable name
 try:
-    from .subtheories.extensional.examples import extensional_examples
+    from .subtheories.extensional.examples import unit_tests as extensional_examples
 except ImportError:
     extensional_examples = {}
 
 try:
-    from .subtheories.modal.examples import modal_examples
+    from .subtheories.modal.examples import unit_tests as modal_examples
 except ImportError:
     modal_examples = {}
 
 try:
-    from .subtheories.constitutive.examples import constitutive_examples
+    from .subtheories.constitutive.examples import unit_tests as constitutive_examples
 except ImportError:
     constitutive_examples = {}
 
 try:
-    from .subtheories.counterfactual.examples import counterfactual_examples
+    from .subtheories.counterfactual.examples import unit_tests as counterfactual_examples
 except ImportError:
     counterfactual_examples = {}
 
 try:
-    from .subtheories.relevance.examples import relevance_examples
+    from .subtheories.relevance.examples import unit_tests as relevance_examples
 except ImportError:
     relevance_examples = {}
 
@@ -121,7 +121,7 @@ basic_logos_examples = {
 
 # Aggregate all examples (subtheories already have prefixes)
 # Note: Constitutive examples use CL_* prefix in their files but we convert to CON_* for consistency
-test_example_range = {
+unit_tests = {
     **extensional_examples,  # Already has EXT_ prefix
     **modal_examples,        # Already has MOD_ prefix
     **{k.replace('CL_', 'CON_'): v for k, v in constitutive_examples.items()},  # Convert CL_* to CON_*
@@ -130,10 +130,11 @@ test_example_range = {
 }
 
 # Also include basic examples for validation
-test_example_range.update(basic_logos_examples)
+unit_tests.update(basic_logos_examples)
 
-# For backward compatibility
-all_logos_examples = test_example_range
+# Aliases for main dictionary
+test_example_range = unit_tests
+all_logos_examples = unit_tests
 
 # Create collections by type
 logos_cm_examples = {}
@@ -179,7 +180,7 @@ semantic_theories = {
 }
 
 # Default example range (for compatibility with existing framework)
-example_range = test_example_range
+example_range = unit_tests
 
 # Provide access to individual subtheory example collections
 subtheory_examples = {
@@ -222,11 +223,11 @@ def get_examples_by_type(example_type='all'):
         dict: Filtered examples
     """
     if example_type == 'all':
-        return test_example_range
+        return unit_tests
     elif example_type == 'countermodel':
-        return {k: v for k, v in test_example_range.items() if '_CM_' in k}
+        return {k: v for k, v in unit_tests.items() if '_CM_' in k}
     elif example_type == 'theorem':  
-        return {k: v for k, v in test_example_range.items() if '_TH_' in k or '_DEF_' in k or 'LOGOS_BASIC_' in k}
+        return {k: v for k, v in unit_tests.items() if '_TH_' in k or '_DEF_' in k or 'LOGOS_BASIC_' in k}
     else:
         raise ValueError("example_type must be 'countermodel', 'theorem', or 'all'")
 
@@ -245,7 +246,7 @@ def get_example_stats():
         'counterfactual': len(counterfactual_examples),
         'relevance': len(relevance_examples),
         'basic': len(basic_logos_examples),
-        'total': len(test_example_range)
+        'total': len(unit_tests)
     }
     return stats
 

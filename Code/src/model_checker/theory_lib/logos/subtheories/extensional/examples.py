@@ -337,8 +337,8 @@ extensional_th_examples = {
     "EXT_TH_12": EXT_TH_12_example,
 }
 
-# Combined collection of all extensional examples
-extensional_examples = {**extensional_cm_examples, **extensional_th_examples}
+# Combined collection of all extensional examples - using standardized variable name
+unit_tests = {**extensional_cm_examples, **extensional_th_examples}
 
 # Default settings
 general_settings = {
@@ -368,7 +368,7 @@ semantic_theories = {
 
 # Specify which examples to run by default when running this module directly
 # All examples included by default
-example_range = extensional_examples
+example_range = unit_tests
 
 # Make this module runnable from the command line
 if __name__ == '__main__':
