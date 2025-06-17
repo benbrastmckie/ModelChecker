@@ -583,28 +583,26 @@ semantic_theories = {
     "Brast-McKie": modal_theory,
 }
 
-# Test all examples defined above
-example_range = modal_examples
+# # Test all examples defined above
+# example_range = modal_examples
 
-# # Specify which examples to run by default when running this module directly
-# # Testing with first few examples first
-# example_range = {
-#
-#     ### COUNTERMODELS ###
-#
-#     "MOD_CM_1": MOD_CM_1_example,  # POSSIBILITY TO NECESSITY
-#     "MOD_CM_2": MOD_CM_2_example,  # POSSIBILITY TO ACTUALITY
-#     "MOD_CM_3": MOD_CM_3_example,  # MATERIAL IMPLICATION TO COUNTERFACTUAL
-#     "MOD_CM_4": MOD_CM_4_example,  # COUNTERFACTUAL TO STRICT IMPLICATION
-#
-#     ### THEOREMS ###
-#
-#     "MOD_TH_5": MOD_TH_5_example,   # MODAL K AXIOM
-#     "MOD_TH_6": MOD_TH_6_example,   # NECESSITATION RULE
-#     "MOD_TH_7": MOD_TH_7_example,   # COUNTERFACTUAL NECESSITY IMPLIES NECESSITY
-#     "MOD_TH_8": MOD_TH_8_example,   # POSSIBILITY IMPLIES COUNTERFACTUAL POSSIBILITY
-#
-# }
+# Specify which examples to run by default when running this module directly
+# Testing with first few examples first
+example_range = {
+
+    # COUNTERMODELS
+    "MOD_CM_1": MOD_CM_1_example,  # POSSIBILITY TO NECESSITY
+    "MOD_CM_2": MOD_CM_2_example,  # POSSIBILITY TO ACTUALITY
+    "MOD_CM_3": MOD_CM_3_example,  # MATERIAL IMPLICATION TO COUNTERFACTUAL
+    "MOD_CM_4": MOD_CM_4_example,  # COUNTERFACTUAL TO STRICT IMPLICATION
+
+    # THEOREMS
+    "MOD_TH_5": MOD_TH_5_example,   # MODAL K AXIOM
+    "MOD_TH_6": MOD_TH_6_example,   # NECESSITATION RULE
+    "MOD_TH_7": MOD_TH_7_example,   # COUNTERFACTUAL NECESSITY IMPLIES NECESSITY
+    "MOD_TH_8": MOD_TH_8_example,   # POSSIBILITY IMPLIES COUNTERFACTUAL POSSIBILITY
+
+}
 
 # Make this module runnable from the command line
 if __name__ == '__main__':
