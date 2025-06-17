@@ -4,6 +4,11 @@ Tests for constitutive subtheory examples.
 This test file runs all examples from the constitutive subtheory examples.py file
 using the same pattern as the default theory tests.
 
+NOTE: For comprehensive logos theory testing, use the main logos test file:
+./test_theories.py --theories logos -v
+
+This file provides constitutive-specific testing for development and debugging.
+
 To run these tests:
 1. All tests: pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py
 2. Specific test: pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py -k "CL_CM_1"

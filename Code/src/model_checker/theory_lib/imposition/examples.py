@@ -1053,9 +1053,9 @@ test_example_range = {
 # NOTE: at least one example is required, multiple are permitted for comparison
 example_range = {
     # Counterfactual Countermodels
-    "CF_CM_1" : CF_CM_1_example,
-    "CF_CM_2" : CF_CM_2_example,
-    "CF_CM_3" : CF_CM_3_example,
+    # "CF_CM_1" : CF_CM_1_example,
+    # "CF_CM_2" : CF_CM_2_example,
+    # "CF_CM_3" : CF_CM_3_example,
     # "CF_CM_4" : CF_CM_4_example,
     # "CF_CM_5" : CF_CM_5_example,
     # "CF_CM_6" : CF_CM_6_example,
@@ -1076,7 +1076,7 @@ example_range = {
     # "CF_CM_21" : CF_CM_21_example,
 
     # Counterfactual Theorems
-    "CF_TH_1" : CF_TH_1_example,
+    # "CF_TH_1" : CF_TH_1_example,
     # "CF_TH_2" : CF_TH_2_example,
     # "CF_TH_3" : CF_TH_3_example,
     # "CF_TH_4" : CF_TH_4_example,

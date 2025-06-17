@@ -1,23 +1,22 @@
 """
-Tests for all logos subtheory examples.
+Test runner for all logos theory examples.
 
-This test file runs all examples from all logos subtheories following the same
-pattern as the default theory tests.
+This test file runs all examples from all logos subtheories using the same pattern 
+as the default theory tests. It serves as the main entry point for test_theories.py
+when running tests for the logos theory.
 
-1. To run all tests in the file run from your PROJECT_DIRECTORY:
-   pytest src/model_checker/theory_lib/logos/tests/test_logos_examples.py
+The logos theory is modular with examples from:
+- Extensional: Truth-functional operators 
+- Modal: Necessity and possibility operators
+- Constitutive: Ground, essence, and identity operators
+- Counterfactual: Counterfactual conditional operators  
+- Relevance: Content-sensitive relevance operators
 
-2. To run a specific example test by name:
-   pytest src/model_checker/theory_lib/logos/tests/test_logos_examples.py -k "EXT_CM_1"
-
-3. To see more detailed output including print statements:
-   pytest -v src/model_checker/theory_lib/logos/tests/test_logos_examples.py
-
-4. To see the most detailed output with full traceback:
-   pytest -vv src/model_checker/theory_lib/logos/tests/test_logos_examples.py
-
-5. To see test progress in real-time:
-   pytest -v src/model_checker/theory_lib/logos/tests/test_logos_examples.py --capture=no
+To run these tests:
+1. All tests: pytest src/model_checker/theory_lib/logos/tests/test_logos_examples.py
+2. Specific test: pytest src/model_checker/theory_lib/logos/tests/test_logos_examples.py -k "EXT_TH_1"
+3. Verbose output: pytest -v src/model_checker/theory_lib/logos/tests/test_logos_examples.py
+4. Via test runner: ./test_theories.py --theories logos -v
 """
 
 import pytest
@@ -34,25 +33,12 @@ from model_checker.theory_lib.logos.semantic import (
 )
 from model_checker.theory_lib.logos.operators import LogosOperatorRegistry
 
-# Import all subtheory examples
-from model_checker.theory_lib.logos.subtheories.extensional.examples import extensional_examples
-from model_checker.theory_lib.logos.subtheories.modal.examples import modal_examples
-from model_checker.theory_lib.logos.subtheories.constitutive.examples import constitutive_examples
-from model_checker.theory_lib.logos.subtheories.counterfactual.examples import counterfactual_examples
-from model_checker.theory_lib.logos.subtheories.relevance.examples import relevance_examples
-
-# Create unified test example range (following default theory pattern)
-test_example_range = {
-    **extensional_examples,
-    **modal_examples,
-    **constitutive_examples,
-    **counterfactual_examples,
-    **relevance_examples,
-}
+# Import unified examples from the main logos examples module
+from model_checker.theory_lib.logos.examples import test_example_range
 
 @pytest.mark.parametrize("example_name, example_case", test_example_range.items())
-def test_example_cases(example_name, example_case):
-    """Test each example case from all subtheories."""
+def test_logos_examples(example_name, example_case):
+    """Test each logos example case from all subtheories."""
     
     # Create the appropriate operator registry based on the example type
     # This matches how each subtheory runs its own examples
@@ -62,14 +48,17 @@ def test_example_cases(example_name, example_case):
         registry.load_subtheories(['extensional'])
     elif example_name.startswith('MOD_'):
         registry.load_subtheories(['extensional', 'modal', 'counterfactual'])
-    elif example_name.startswith('CL_'):
+    elif example_name.startswith('CON_'):
         registry.load_subtheories(['extensional', 'constitutive', 'modal'])
     elif example_name.startswith('CF_'):
-        registry.load_subtheories(['extensional', 'counterfactual'])
+        registry.load_subtheories(['extensional', 'modal', 'counterfactual'])
     elif example_name.startswith('REL_'):
-        registry.load_subtheories(['extensional', 'modal', 'constitutive', 'relevance'])
+        registry.load_subtheories(['extensional', 'constitutive', 'modal', 'relevance'])
+    elif example_name.startswith('LOGOS_BASIC_'):
+        # Basic examples need full operator set
+        registry.load_subtheories(['extensional', 'modal', 'constitutive', 'counterfactual', 'relevance'])
     else:
-        # Default to all subtheories
+        # Default to all subtheories for unknown examples
         registry.load_subtheories(['extensional', 'modal', 'constitutive', 'counterfactual', 'relevance'])
     
     result = run_test(
@@ -81,8 +70,17 @@ def test_example_cases(example_name, example_case):
         ModelConstraints,
         LogosModelStructure,
     )
-    # Check expectation setting: True = countermodel expected, False = theorem expected
+    
+    # For logos subtheories, we follow the default theory pattern:
+    # - True result means a countermodel was found (invalid argument)
+    # - False result means no countermodel found (valid argument)
+    # Most examples are countermodels (CM) showing invalidity, so we expect True
+    # Theorem examples (TH) show validity, so we expect False
     settings = example_case[2] if len(example_case) > 2 else {}
-    expected_result = settings.get('expectation', True)  # Default to True (countermodel expected)
+    expected_result = settings.get('expectation', True)  # Use expectation from settings
     
     assert result == expected_result, f"Test failed for example: {example_name}. Expected {expected_result}, got {result}"
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

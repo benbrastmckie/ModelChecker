@@ -752,26 +752,26 @@ semantic_theories = {
     "Brast-McKie": constitutive_theory,
 }
 
-# Specify which examples to run by default when running this module directly
-# All examples included by default
-example_range = constitutive_examples
+# # Specify which examples to run by default when running this module directly
+# # All examples included by default
+# example_range = constitutive_examples
 
-# # Or specify particular examples to run
-# example_range = {
-#
-#     # COUNTERMODELS
-#     "CL_CM_1": CL_CM_1_example,   # EQUIVALENCE OF TAUTOLOGIES
-#     "CL_CM_2": CL_CM_2_example,   # EQUIVALENCE OF CONTRADICTIONS
-#     "CL_CM_3": CL_CM_3_example,   # GROUND CONJUNCTION SUPPLEMENTATION
-#     "CL_CM_4": CL_CM_4_example,   # ESSENCE DISJUNCTION SUPPLEMENTATION
-#
-#     # THEOREMS
-#     "CL_TH_1": CL_TH_1_example,   # GROUND TO ESSENCE
-#     "CL_TH_3": CL_TH_3_example,   # ESSENCE TO IDENTITY
-#     "CL_TH_7": CL_TH_7_example,   # NEGATION TRANSPARENCY
-#     "CL_TH_14": CL_TH_14_example, # GROUND TO STRICT IMPLICATION
-#
-# }
+# Or specify particular examples to run
+example_range = {
+
+    # COUNTERMODELS
+    "CL_CM_1": CL_CM_1_example,   # EQUIVALENCE OF TAUTOLOGIES
+    "CL_CM_2": CL_CM_2_example,   # EQUIVALENCE OF CONTRADICTIONS
+    "CL_CM_3": CL_CM_3_example,   # GROUND CONJUNCTION SUPPLEMENTATION
+    "CL_CM_4": CL_CM_4_example,   # ESSENCE DISJUNCTION SUPPLEMENTATION
+
+    # THEOREMS
+    "CL_TH_1": CL_TH_1_example,   # GROUND TO ESSENCE
+    "CL_TH_3": CL_TH_3_example,   # ESSENCE TO IDENTITY
+    "CL_TH_7": CL_TH_7_example,   # NEGATION TRANSPARENCY
+    "CL_TH_14": CL_TH_14_example, # GROUND TO STRICT IMPLICATION
+
+}
 
 # Make this module runnable from the command line
 if __name__ == '__main__':

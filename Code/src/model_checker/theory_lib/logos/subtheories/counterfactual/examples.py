@@ -772,25 +772,24 @@ semantic_theories = {
     "Brast-McKie": counterfactual_theory,
 }
 
-# Specify which examples to run by default when running this module directly
-# All examples included by default
-example_range = counterfactual_examples
+# # Specify which examples to run by default when running this module directly
+# # All examples included by default
+# example_range = counterfactual_examples
 
 # Or set specific examples
 example_range = {
 
     # COUNTERMODELS
-    # "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    # "CF_CM_2": CF_CM_2_example,  # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    # "CF_CM_7": CF_CM_7_example,  # COUNTERFACTUAL CONTRAPOSITION
-    # "CF_CM_18": CF_CM_18_example,  # MUST FACTIVITY
+    "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    "CF_CM_2": CF_CM_2_example,  # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    "CF_CM_7": CF_CM_7_example,  # COUNTERFACTUAL CONTRAPOSITION
+    "CF_CM_18": CF_CM_18_example,  # MUST FACTIVITY
 
     # THEOREMS
-    "CF_TH_4": CF_TH_4_example,  # ANTECEDENT DISJUNCTION TO CONJUNCTION # TODO: fix discrepancy
-    # "CF_TH_5": CF_TH_5_example,  # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-    # "CF_TH_9": CF_TH_9_example,  # COUNTERFACTUAL CONJUNCTION INTRODUCTION
-    # "CF_TH_10": CF_TH_10_example,  # MIGHT FACTIVITY
-    # "CF_TH_11": CF_TH_11_example,  # DEFINITION OF NEC
+    "CF_TH_5": CF_TH_5_example,  # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    "CF_TH_9": CF_TH_9_example,  # COUNTERFACTUAL CONJUNCTION INTRODUCTION
+    "CF_TH_10": CF_TH_10_example,  # MIGHT FACTIVITY
+    "CF_TH_11": CF_TH_11_example,  # DEFINITION OF NEC
 
 }
 

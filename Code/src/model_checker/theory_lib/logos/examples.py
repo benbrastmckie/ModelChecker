@@ -1,12 +1,37 @@
 """
-Examples Module for Logos Theory
+Unified Examples Module for Logos Theory
 
-This module aggregates examples from all logos subtheories and provides
-unified access to comprehensive test cases across extensional, modal,
-constitutive, and counterfactual logic domains.
+This module aggregates examples from all logos subtheories into a unified 
+`test_example_range` dictionary that can be used by test_theories.py.
 
-The examples follow the pattern established by the default theory examples,
-with proper formatting and operator usage for the model-checker framework.
+The logos theory is modular, with examples distributed across subtheories:
+- Extensional: Truth-functional operators (¬,∧,∨,→,↔,⊤,⊥)
+- Modal: Necessity and possibility operators (□,◇,CFBox,CFDiamond)
+- Constitutive: Ground, essence, and identity operators (≡,≤,⊑,≼,⊓)
+- Counterfactual: Counterfactual conditional operators (□→,◇→,⊙,♦)
+- Relevance: Content-sensitive relevance operators (≺)
+
+This module imports and combines all subtheory examples with prefixed names
+to avoid conflicts and maintain traceability back to the originating subtheory.
+
+Usage:
+------
+This module provides the examples needed for test_theories.py integration:
+
+```bash
+# Run all logos theory tests  
+./test_theories.py --theories logos -v
+
+# Access examples programmatically
+from model_checker.theory_lib.logos.examples import test_example_range
+```
+
+Example Name Prefixes:
+- EXT_*: Extensional examples  
+- MOD_*: Modal examples
+- CON_*: Constitutive examples (Note: renamed from CL_* to CON_* for consistency)
+- CF_*: Counterfactual examples
+- REL_*: Relevance examples
 """
 
 # Standard imports for example modules
@@ -49,6 +74,11 @@ try:
 except ImportError:
     counterfactual_examples = {}
 
+try:
+    from .subtheories.relevance.examples import relevance_examples
+except ImportError:
+    relevance_examples = {}
+
 # Basic test examples for logos theory validation
 basic_logos_examples = {
     # Quick validation tests
@@ -89,13 +119,21 @@ basic_logos_examples = {
     ],
 }
 
-# Aggregate all examples from subtheories
-all_logos_examples = {}
-all_logos_examples.update(basic_logos_examples)
-all_logos_examples.update(extensional_examples)
-all_logos_examples.update(modal_examples)
-all_logos_examples.update(constitutive_examples)
-all_logos_examples.update(counterfactual_examples)
+# Aggregate all examples (subtheories already have prefixes)
+# Note: Constitutive examples use CL_* prefix in their files but we convert to CON_* for consistency
+test_example_range = {
+    **extensional_examples,  # Already has EXT_ prefix
+    **modal_examples,        # Already has MOD_ prefix
+    **{k.replace('CL_', 'CON_'): v for k, v in constitutive_examples.items()},  # Convert CL_* to CON_*
+    **counterfactual_examples,  # Already has CF_ prefix
+    **relevance_examples,       # Already has REL_ prefix
+}
+
+# Also include basic examples for validation
+test_example_range.update(basic_logos_examples)
+
+# For backward compatibility
+all_logos_examples = test_example_range
 
 # Create collections by type
 logos_cm_examples = {}
@@ -125,7 +163,7 @@ general_settings = {
 
 # Create operator registry for full logos theory
 logos_registry = LogosOperatorRegistry()
-logos_registry.load_subtheories(['extensional', 'modal', 'constitutive', 'counterfactual'])
+logos_registry.load_subtheories(['extensional', 'modal', 'constitutive', 'counterfactual', 'relevance'])
 
 # Define the semantic theory
 logos_theory = {
@@ -140,92 +178,89 @@ semantic_theories = {
     "Logos-Full": logos_theory,
 }
 
-# Quick test range for basic validation
-test_example_range = {
-    "LOGOS_BASIC_MODUS_PONENS": basic_logos_examples["LOGOS_BASIC_MODUS_PONENS"],
-    "LOGOS_BASIC_TAUTOLOGY": basic_logos_examples["LOGOS_BASIC_TAUTOLOGY"],
-    "LOGOS_BASIC_EXCLUDED_MIDDLE": basic_logos_examples["LOGOS_BASIC_EXCLUDED_MIDDLE"],
-}
-
 # Default example range (for compatibility with existing framework)
 example_range = test_example_range
 
-# Examples by subtheory for selective testing
-extensional_only_examples = {}
-modal_only_examples = {}
-constitutive_only_examples = {}
-counterfactual_only_examples = {}
+# Provide access to individual subtheory example collections
+subtheory_examples = {
+    'extensional': extensional_examples,
+    'modal': modal_examples,
+    'constitutive': constitutive_examples,
+    'counterfactual': counterfactual_examples,
+    'relevance': relevance_examples,
+}
 
-# Populate subtheory-specific collections
-for name, example in all_logos_examples.items():
-    if name.startswith("EXT_"):
-        extensional_only_examples[name] = example
-    elif name.startswith("MOD_"):
-        modal_only_examples[name] = example
-    elif name.startswith("CON_"):
-        constitutive_only_examples[name] = example
-    elif name.startswith("CF_"):
-        counterfactual_only_examples[name] = example
-
-# Helper functions for accessing examples
+# Helper function to get examples by subtheory
 def get_examples_by_subtheory(subtheory_name):
-    """Get examples for a specific subtheory."""
-    if subtheory_name == "extensional":
-        return extensional_only_examples
-    elif subtheory_name == "modal":
-        return modal_only_examples
-    elif subtheory_name == "constitutive":
-        return constitutive_only_examples
-    elif subtheory_name == "counterfactual":
-        return counterfactual_only_examples
-    else:
-        return {}
-
-def get_examples_by_type(example_type):
-    """Get examples by type (countermodel or theorem)."""
-    if example_type == "countermodel" or example_type == "cm":
-        return logos_cm_examples
-    elif example_type == "theorem" or example_type == "th":
-        return logos_th_examples
-    else:
-        return all_logos_examples
-
-def get_basic_examples():
-    """Get basic validation examples."""
-    return basic_logos_examples
-
-def get_all_examples():
-    """Get all logos examples."""
-    return all_logos_examples
-
-# Statistics
-def print_example_statistics():
-    """Print statistics about available examples."""
-    total = len(all_logos_examples)
-    theorems = len(logos_th_examples)
-    countermodels = len(logos_cm_examples)
+    """
+    Get examples from a specific subtheory.
     
-    by_subtheory = {
-        "extensional": len(extensional_only_examples),
-        "modal": len(modal_only_examples),
-        "constitutive": len(constitutive_only_examples),
-        "counterfactual": len(counterfactual_only_examples),
-        "basic": len(basic_logos_examples)
+    Args:
+        subtheory_name (str): Name of the subtheory ('extensional', 'modal', etc.)
+        
+    Returns:
+        dict: Examples from the specified subtheory
+        
+    Raises:
+        ValueError: If subtheory_name is not valid
+    """
+    if subtheory_name not in subtheory_examples:
+        valid_names = list(subtheory_examples.keys())
+        raise ValueError(f"Invalid subtheory '{subtheory_name}'. Valid options: {valid_names}")
+    
+    return subtheory_examples[subtheory_name]
+
+# Helper function to get examples by type (countermodel vs theorem)
+def get_examples_by_type(example_type='all'):
+    """
+    Get examples filtered by type.
+    
+    Args:
+        example_type (str): 'countermodel' (CM), 'theorem' (TH), or 'all'
+        
+    Returns:
+        dict: Filtered examples
+    """
+    if example_type == 'all':
+        return test_example_range
+    elif example_type == 'countermodel':
+        return {k: v for k, v in test_example_range.items() if '_CM_' in k}
+    elif example_type == 'theorem':  
+        return {k: v for k, v in test_example_range.items() if '_TH_' in k or '_DEF_' in k or 'LOGOS_BASIC_' in k}
+    else:
+        raise ValueError("example_type must be 'countermodel', 'theorem', or 'all'")
+
+# Statistics about the examples
+def get_example_stats():
+    """
+    Get statistics about the example distribution across subtheories.
+    
+    Returns:
+        dict: Statistics including counts per subtheory and total examples
+    """
+    stats = {
+        'extensional': len(extensional_examples),
+        'modal': len(modal_examples),
+        'constitutive': len(constitutive_examples),
+        'counterfactual': len(counterfactual_examples),
+        'relevance': len(relevance_examples),
+        'basic': len(basic_logos_examples),
+        'total': len(test_example_range)
     }
-    
-    print(f"Logos Theory Examples Statistics:")
-    print(f"  Total examples: {total}")
-    print(f"  Theorems: {theorems}")
-    print(f"  Countermodels: {countermodels}")
-    print(f"  By subtheory:")
-    for subtheory, count in by_subtheory.items():
-        print(f"    {subtheory}: {count}")
+    return stats
 
-# Make this module runnable from the command line
+# Make this module runnable from the command line for testing
 if __name__ == '__main__':
-    print_example_statistics()
+    # Print example statistics
+    stats = get_example_stats()
+    print("Logos Theory Example Statistics:")
+    print("=" * 40)
+    for subtheory, count in stats.items():
+        if subtheory != 'total':
+            print(f"{subtheory.capitalize()}: {count} examples")
+    print(f"Total: {stats['total']} examples")
     
-    # Run a quick test
-    import subprocess
+    # Optionally run the unified examples through model-checker
     file_name = os.path.basename(__file__)
-    subprocess.run(["model-checker", file_name], check=True, cwd=current_dir)
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    print(f"\nTo test examples, run: ./dev_cli.py {file_name}")

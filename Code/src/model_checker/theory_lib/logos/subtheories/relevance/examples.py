@@ -486,26 +486,26 @@ semantic_theories = {
     "Brast-McKie": relevance_theory,
 }
 
-# Specify which examples to run by default when running this module directly
-# All examples included by default
-example_range = relevance_examples
+# # Specify which examples to run by default when running this module directly
+# # All examples included by default
+# example_range = relevance_examples
 
-# # Or specify individual examples to run
-# example_range = {
-#
-#     # COUNTERMODELS
-#     "REL_CM_1": REL_CM_1_example,  # ANTECEDENT STRENGTHENING
-#     "REL_CM_2": REL_CM_2_example,  # ANTECEDENT WEAKENING
-#     "REL_CM_3": REL_CM_3_example,  # RELEVANCE TRANSITIVITY
-#     "REL_CM_7": REL_CM_7_example,  # STRICT IMPLICATION
-#
-#     # THEOREMS
-#     "REL_TH_5": REL_TH_5_example,  # CONJUNCTION INTRODUCTION
-#     "REL_TH_6": REL_TH_6_example,  # DISJUNCTION INTRODUCTION
-#     "REL_TH_7": REL_TH_7_example,  # GROUNDING RELEVANCE
-#     "REL_TH_8": REL_TH_8_example,  # ESSENCE RELEVANCE
-#
-# }
+# Or specify individual examples to run
+example_range = {
+
+    # COUNTERMODELS
+    "REL_CM_1": REL_CM_1_example,  # ANTECEDENT STRENGTHENING
+    "REL_CM_2": REL_CM_2_example,  # ANTECEDENT WEAKENING
+    "REL_CM_3": REL_CM_3_example,  # RELEVANCE TRANSITIVITY
+    "REL_CM_7": REL_CM_7_example,  # STRICT IMPLICATION
+
+    # THEOREMS
+    "REL_TH_5": REL_TH_5_example,  # CONJUNCTION INTRODUCTION
+    "REL_TH_6": REL_TH_6_example,  # DISJUNCTION INTRODUCTION
+    "REL_TH_7": REL_TH_7_example,  # GROUNDING RELEVANCE
+    "REL_TH_8": REL_TH_8_example,  # ESSENCE RELEVANCE
+
+}
 
 # Make this module runnable from the command line
 if __name__ == '__main__':
