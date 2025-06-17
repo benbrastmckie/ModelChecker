@@ -38,7 +38,7 @@ class NecessityOperator(syntactic.Operator):
             u,
             z3.Implies(
                 sem.is_world(u),
-                sem.true_at(argument, u),
+                sem.true_at(argument, {"world": u}),
             ),
         )
     
@@ -50,7 +50,7 @@ class NecessityOperator(syntactic.Operator):
             u,
             z3.And(
                 sem.is_world(u),
-                sem.false_at(argument, u),
+                sem.false_at(argument, {"world": u}),
             ),
         )
     
