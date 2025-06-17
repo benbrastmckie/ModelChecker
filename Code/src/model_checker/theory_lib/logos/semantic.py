@@ -117,53 +117,59 @@ class LogosSemantics(SemanticDefaults):
             self.maximal(state_w),
         )
 
-    def true_at(self, sentence, eval_world):
-        """Determines if a sentence is true at a given evaluation world.
+    def true_at(self, sentence, eval_point):
+        """Determines if a sentence is true at a given evaluation point.
         
         For atomic sentences (sentence_letters), it checks if there exists some state x 
         that is part of the evaluation world such that x verifies the sentence letter.
         
         For complex sentences, it delegates to the operator's true_at method with the 
-        sentence's arguments and evaluation world.
+        sentence's arguments and evaluation point.
         
         Args:
             sentence (Sentence): The sentence to evaluate
-            eval_world (BitVecRef): The world at which to evaluate the sentence
+            eval_point (dict): The evaluation point containing a "world" key
             
         Returns:
-            BoolRef: Z3 constraint expressing whether the sentence is true at eval_world
+            BoolRef: Z3 constraint expressing whether the sentence is true at eval_point
         """
+        # Extract world from evaluation point
+        eval_world = eval_point["world"]
+        
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             x = z3.BitVec("t_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
         operator = sentence.operator
         arguments = sentence.arguments or ()
-        return operator.true_at(*arguments, eval_world)
+        return operator.true_at(*arguments, eval_point)
 
-    def false_at(self, sentence, eval_world):
-        """Determines if a sentence is false at a given evaluation world.
+    def false_at(self, sentence, eval_point):
+        """Determines if a sentence is false at a given evaluation point.
         
         For atomic sentences (sentence_letters), it checks if there exists some state x 
         that is part of the evaluation world such that x falsifies the sentence letter.
         
         For complex sentences, it delegates to the operator's false_at method with the 
-        sentence's arguments and evaluation world.
+        sentence's arguments and evaluation point.
         
         Args:
             sentence (Sentence): The sentence to evaluate
-            eval_world (BitVecRef): The world at which to evaluate the sentence
+            eval_point (dict): The evaluation point containing a "world" key
             
         Returns:
-            BoolRef: Z3 constraint expressing whether the sentence is false at eval_world
+            BoolRef: Z3 constraint expressing whether the sentence is false at eval_point
         """
+        # Extract world from evaluation point
+        eval_world = eval_point["world"]
+        
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             x = z3.BitVec("f_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
         operator = sentence.operator
         arguments = sentence.arguments or ()
-        return operator.false_at(*arguments, eval_world)
+        return operator.false_at(*arguments, eval_point)
 
     def extended_verify(self, state, sentence, eval_point):
         """Determines if a state verifies a sentence at an evaluation point.

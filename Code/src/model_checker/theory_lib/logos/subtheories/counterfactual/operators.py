@@ -44,7 +44,7 @@ class CounterfactualOperator(syntactic.Operator):
                     semantics.extended_verify(x, leftarg, eval_point),
                     semantics.is_alternative(u, x, eval_point["world"])
                 ),
-                semantics.true_at(rightarg, u),
+                semantics.true_at(rightarg, {"world": u}),
             ),
         )
 
@@ -59,7 +59,7 @@ class CounterfactualOperator(syntactic.Operator):
             z3.And(
                 semantics.extended_verify(x, leftarg, eval_point),
                 semantics.is_alternative(u, x, eval_point["world"]),
-                semantics.false_at(rightarg, u)),
+                semantics.false_at(rightarg, {"world": u})),
         )
 
     def extended_verify(self, state, leftarg, rightarg, eval_point):
