@@ -176,6 +176,239 @@ class TestConfigValidator:
             raise ValueError(f"Unknown components: {invalid}. Available: {available_str}")
 
 
+class ExampleTestRunner:
+    """Runs integration tests from examples.py files."""
+    
+    def __init__(self, code_dir: Path):
+        self.code_dir = code_dir
+        self.src_dir = code_dir / "src"
+    
+    def run_theory_examples(self, theory: str, subtheories: List[str], config: TestConfig) -> int:
+        """Run example tests for a specific theory with optional subtheory filtering."""
+        if theory == 'logos':
+            return self._run_logos_example_tests(subtheories, config)
+        else:
+            return self._run_standard_example_tests(theory, config)
+    
+    def _run_logos_example_tests(self, subtheories: List[str], config: TestConfig) -> int:
+        """Run logos example tests from subtheory directories."""
+        overall_exit_code = 0
+        
+        # Determine which subtheories to test
+        target_subtheories = subtheories if subtheories else ['modal', 'counterfactual', 'extensional', 'constitutive', 'relevance']
+        
+        for subtheory in target_subtheories:
+            subtheory_test_dir = self.src_dir / "model_checker" / "theory_lib" / "logos" / "subtheories" / subtheory / "tests"
+            
+            if not subtheory_test_dir.exists():
+                print(f"      Warning: No tests found for logos {subtheory} subtheory")
+                continue
+            
+            print(f"      Testing {subtheory} subtheory examples")
+            
+            # Build command for subtheory examples
+            command = ["pytest", str(subtheory_test_dir)]
+            command.extend(["-k", "example"])  # Only example tests (matches both "examples" and "example_cases")
+            
+            if config.verbose:
+                command.append("-v")
+            if config.failfast:
+                command.append("-x")
+            
+            # Execute tests
+            env = self._setup_environment()
+            try:
+                result = subprocess.run(command, cwd=self.code_dir, env=env)
+                if result.returncode != 0:
+                    overall_exit_code = result.returncode
+                    if config.failfast:
+                        break
+            except Exception as e:
+                print(f"      Error running {subtheory} examples: {e}")
+                overall_exit_code = 1
+                if config.failfast:
+                    break
+        
+        return overall_exit_code
+    
+    def _run_standard_example_tests(self, theory: str, config: TestConfig) -> int:
+        """Run example tests for standard theories (non-logos)."""
+        test_dir = self.src_dir / "model_checker" / "theory_lib" / theory / "tests"
+        
+        if not test_dir.exists():
+            print(f"    Warning: No test directory found for {theory}")
+            return 0
+        
+        # Build pytest command
+        command = ["pytest", str(test_dir)]
+        command.extend(["-k", "example"])  # Only example tests (matches both "examples" and "example_cases")
+        
+        if config.verbose:
+            command.append("-v")
+        if config.failfast:
+            command.append("-x")
+        
+        # Set up environment and execute
+        env = self._setup_environment()
+        try:
+            result = subprocess.run(command, cwd=self.code_dir, env=env)
+            return result.returncode
+        except Exception as e:
+            print(f"    Error running example tests for {theory}: {e}")
+            return 1
+    
+    
+    def _setup_environment(self) -> Dict[str, str]:
+        """Set up environment for test execution."""
+        env = os.environ.copy()
+        env['PYTHONPATH'] = str(self.src_dir)
+        return env
+
+
+class UnitTestRunner:
+    """Runs unit tests for theory implementations."""
+    
+    def __init__(self, code_dir: Path):
+        self.code_dir = code_dir
+        self.src_dir = code_dir / "src"
+    
+    def run_theory_units(self, theory: str, subtheories: List[str], config: TestConfig) -> int:
+        """Run unit tests for a specific theory with optional subtheory filtering."""
+        if theory == 'logos':
+            return self._run_logos_unit_tests(subtheories, config)
+        else:
+            return self._run_standard_unit_tests(theory, config)
+    
+    def _run_logos_unit_tests(self, subtheories: List[str], config: TestConfig) -> int:
+        """Run logos unit tests from main tests directory with subtheory filtering."""
+        test_dir = self.src_dir / "model_checker" / "theory_lib" / "logos" / "tests"
+        
+        if not test_dir.exists():
+            print(f"    Warning: No test directory found for logos")
+            return 0
+        
+        # Build command for logos unit tests
+        command = ["pytest", str(test_dir)]
+        
+        # Add subtheory filtering if specified
+        if subtheories:
+            # Build filter for specific subtheories
+            subtheory_patterns = {
+                'modal': '(modal or MOD_)',
+                'counterfactual': '(counterfactual or CF_)', 
+                'extensional': '(extensional or EXT_)',
+                'constitutive': '(constitutive or CON_ or CL_)',
+                'relevance': '(relevance or REL_)'
+            }
+            
+            patterns = [subtheory_patterns[sub] for sub in subtheories if sub in subtheory_patterns]
+            if patterns:
+                filter_expr = f"({' or '.join(patterns)}) and not example"
+                command.extend(["-k", filter_expr])
+            else:
+                command.extend(["-k", "not example"])  # Just exclude examples
+        else:
+            command.extend(["-k", "not example"])  # Exclude example tests
+        
+        if config.verbose:
+            command.append("-v")
+        if config.failfast:
+            command.append("-x")
+        
+        # Execute tests
+        env = self._setup_environment()
+        try:
+            result = subprocess.run(command, cwd=self.code_dir, env=env)
+            return result.returncode
+        except Exception as e:
+            print(f"    Error running unit tests for logos: {e}")
+            return 1
+    
+    def _run_standard_unit_tests(self, theory: str, config: TestConfig) -> int:
+        """Run unit tests for standard theories (non-logos)."""
+        test_dir = self.src_dir / "model_checker" / "theory_lib" / theory / "tests"
+        
+        if not test_dir.exists():
+            print(f"    Warning: No test directory found for {theory}")
+            return 0
+        
+        # Build pytest command
+        command = ["pytest", str(test_dir)]
+        command.extend(["-k", "not example"])  # Exclude example tests
+        
+        if config.verbose:
+            command.append("-v")
+        if config.failfast:
+            command.append("-x")
+        
+        # Set up environment and execute
+        env = self._setup_environment()
+        try:
+            result = subprocess.run(command, cwd=self.code_dir, env=env)
+            return result.returncode
+        except Exception as e:
+            print(f"    Error running unit tests for {theory}: {e}")
+            return 1
+    
+    
+    def _setup_environment(self) -> Dict[str, str]:
+        """Set up environment for test execution."""
+        env = os.environ.copy()
+        env['PYTHONPATH'] = str(self.src_dir)
+        return env
+
+
+class PackageTestRunner:
+    """Runs package/infrastructure component tests."""
+    
+    def __init__(self, code_dir: Path):
+        self.code_dir = code_dir
+        self.src_dir = code_dir / "src"
+    
+    def run_component_tests(self, component: str, config: TestConfig) -> int:
+        """Run tests for a specific package component."""
+        if component == "theory_lib":
+            test_dir = self.src_dir / "model_checker" / "theory_lib" / "tests"
+        else:
+            test_dir = self.src_dir / "model_checker" / component / "tests"
+        
+        if not test_dir.exists():
+            print(f"    Warning: No test directory found for {component}")
+            return 0
+        
+        # Build pytest command
+        command = self._build_pytest_command(test_dir, config)
+        
+        # Set up environment
+        env = self._setup_environment()
+        
+        # Execute tests
+        try:
+            result = subprocess.run(command, cwd=self.code_dir, env=env)
+            return result.returncode
+        except Exception as e:
+            print(f"    Error running package tests for {component}: {e}")
+            return 1
+    
+    def _build_pytest_command(self, test_dir: Path, config: TestConfig) -> List[str]:
+        """Build pytest command for package tests."""
+        command = ["pytest", str(test_dir)]
+        
+        # Add standard pytest options
+        if config.verbose:
+            command.append("-v")
+        if config.failfast:
+            command.append("-x")
+        
+        return command
+    
+    def _setup_environment(self) -> Dict[str, str]:
+        """Set up environment for test execution."""
+        env = os.environ.copy()
+        env['PYTHONPATH'] = str(self.src_dir)
+        return env
+
+
 class TestRunner:
     """Main test runner coordinating all test execution."""
     
@@ -332,30 +565,57 @@ class TestRunner:
             print(f"Components: {', '.join(config.components)}")
     
     def _run_example_tests(self, config: TestConfig) -> TestResults:
-        """Run example tests - placeholder for Phase 2."""
+        """Run example tests for specified theories/subtheories."""
         results = TestResults()
+        example_runner = ExampleTestRunner(self.code_dir)
+        
         for theory in config.theories:
-            # Placeholder: will be implemented in Phase 2
-            print(f"  [PLACEHOLDER] Example tests for {theory}")
-            results.add_theory_result(theory, 'examples', 0)  # Success placeholder
+            subtheories = config.subtheories.get(theory, [])
+            print(f"  Running example tests for {theory}")
+            if subtheories:
+                print(f"    Subtheories: {', '.join(subtheories)}")
+            
+            exit_code = example_runner.run_theory_examples(theory, subtheories, config)
+            results.add_theory_result(theory, 'examples', exit_code)
+            
+            if exit_code != 0 and config.failfast:
+                break
+        
         return results
     
     def _run_unit_tests(self, config: TestConfig) -> TestResults:
-        """Run unit tests - placeholder for Phase 2."""
+        """Run unit tests for specified theories/subtheories."""
         results = TestResults()
+        unit_runner = UnitTestRunner(self.code_dir)
+        
         for theory in config.theories:
-            # Placeholder: will be implemented in Phase 2
-            print(f"  [PLACEHOLDER] Unit tests for {theory}")
-            results.add_theory_result(theory, 'unit', 0)  # Success placeholder
+            subtheories = config.subtheories.get(theory, [])
+            print(f"  Running unit tests for {theory}")
+            if subtheories:
+                print(f"    Subtheories: {', '.join(subtheories)}")
+            
+            exit_code = unit_runner.run_theory_units(theory, subtheories, config)
+            results.add_theory_result(theory, 'unit', exit_code)
+            
+            if exit_code != 0 and config.failfast:
+                break
+        
         return results
     
     def _run_package_tests(self, config: TestConfig) -> TestResults:
-        """Run package tests - placeholder for Phase 2."""
+        """Run package tests for specified components."""
         results = TestResults()
+        package_runner = PackageTestRunner(self.code_dir)
+        
         for component in config.components:
-            # Placeholder: will be implemented in Phase 2
-            print(f"  [PLACEHOLDER] Package tests for {component}")
-            results.add_component_result(component, 0)  # Success placeholder
+            print(f"  Running package tests for {component}")
+            
+            exit_code = package_runner.run_component_tests(component, config)
+            results.add_component_result(component, exit_code)
+            
+            if exit_code != 0 and config.failfast:
+                break
+        
         return results
 
 
