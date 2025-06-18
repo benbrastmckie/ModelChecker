@@ -52,17 +52,70 @@ print(f"Box p -> p is {'valid' if result else 'invalid'}")  # ASCII output for c
 
 ### Project Generation
 
-TODO: 
-- explain the process of theory generation and development step-by-step
-- link to a more detailed installation guide in /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/INSTALLATION.md
+The logos theory can be used as a foundation for developing custom semantic theories. Here's a step-by-step guide:
+
+#### Step 1: Generate a New Project
 
 ```bash
 # Generate a new logos-based project
 model-checker -l logos
-
-# Develop a new logos-based that has been generated project
-./dev_cli.py -l logos
 ```
+
+This command will:
+1. Prompt you to create a new logos-based project
+2. Ask for a project name (use snake_case)
+3. Create a `project_<your_name>/` directory with:
+   - Complete logos theory implementation
+   - Example files demonstrating usage
+   - Test infrastructure
+   - Documentation templates
+
+#### Step 2: Project Structure
+
+Your generated project will have this structure:
+```
+project_<name>/
+├── __init__.py          # Package initialization
+├── semantic.py          # Core semantic implementation
+├── operators.py         # Operator definitions
+├── examples.py          # Example formulas and tests
+├── subtheories/        # Modular operator implementations
+│   ├── extensional/
+│   ├── modal/
+│   ├── constitutive/
+│   ├── counterfactual/
+│   └── relevance/
+├── tests/              # Unit and integration tests
+├── notebooks/          # Jupyter notebooks for exploration
+├── README.md           # Project documentation
+├── LICENSE.md          # GPL-3.0 license
+└── CITATION.md         # Academic attribution
+
+```
+
+#### Step 3: Development Workflow
+
+1. **Modify the theory**: Edit files in your project to customize the semantic theory
+2. **Test your changes**: Run examples to verify your modifications work correctly
+3. **Use development mode**: For iterative development, use:
+   ```bash
+   ./dev_cli.py project_<name>/examples.py
+   ```
+
+#### Step 4: Running Examples
+
+```bash
+# Run the default examples
+model-checker project_<name>/examples.py
+
+# Run with specific settings
+model-checker project_<name>/examples.py -c -n -e
+
+# Run tests
+pytest project_<name>/tests/
+```
+
+For detailed installation instructions including Python setup and troubleshooting, see the [Installation Guide](../../../../../../../Docs/INSTALLATION.md).
 
 ## Subtheory Reference
 
@@ -343,35 +396,191 @@ result = check_formula("(\\Box p \\rightarrow p)", theory='logos')
 
 ## Contributing
 
-TODO: 
-- provide more details while also linking to /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/docs/DEVELOPMENT.md
-- DEVELOPMENT has been moved to /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/docs/DEVELOPMENT.md
+We welcome contributions to the Logos theory! Whether you're adding new operators, fixing bugs, or improving documentation, your contributions help advance this unified semantic framework.
+
+For general development guidelines, coding standards, and the overall contribution process, see the [Development Guide](../../../DEVELOPMENT.md).
 
 ### Adding New Subtheories
 
-1. Create directory: `subtheories/new_subtheory/`
-2. Implement required files:
-   - `__init__.py`: API exports
-   - `operators.py`: Operator implementations
-   - `examples.py`: Usage examples
-   - `README.md`: Documentation
+Creating a new subtheory extends the Logos with additional logical operators. Here's a detailed guide:
 
-3. Register in operator loading system
-4. Add comprehensive tests
-5. Update documentation
+#### 1. Create the Subtheory Structure
+
+```bash
+# Create directory structure
+mkdir -p subtheories/new_subtheory/tests
+```
+
+#### 2. Implement Required Files
+
+**`subtheories/new_subtheory/__init__.py`**:
+```python
+"""New subtheory for [description]."""
+
+from .operators import get_operators
+
+__all__ = ['get_operators']
+```
+
+**`subtheories/new_subtheory/operators.py`**:
+```python
+"""Operator implementations for new subtheory."""
+
+from model_checker.syntactic import Operator, DefinedOperator
+
+class NewOperator(Operator):
+    """Implementation of new operator."""
+    def __init__(self):
+        super().__init__("\\new", 2)  # Name and arity
+    
+    def semantic_clause(self, sentence):
+        # Implement semantic evaluation
+        pass
+
+def get_operators():
+    """Return dictionary of operators."""
+    return {
+        '\\new': NewOperator,
+    }
+```
+
+**`subtheories/new_subtheory/examples.py`**:
+```python
+"""Examples demonstrating the new operators."""
+
+new_example = [
+    ['premise1', 'premise2'],  # Premises
+    ['conclusion'],            # Conclusions
+    {'N': 3}                   # Settings
+]
+
+examples_list = [new_example]
+```
+
+**`subtheories/new_subtheory/README.md`**:
+Document your subtheory including:
+- Overview and motivation
+- Operator descriptions and semantics
+- Usage examples
+- Academic references
+
+#### 3. Register in Operator Loading System
+
+Update `operators.py` in the main logos directory:
+
+```python
+# In SUBTHEORY_INFO, add:
+'new_subtheory': {
+    'module': 'new_subtheory',
+    'dependencies': ['extensional'],  # If needed
+}
+```
+
+#### 4. Add Comprehensive Tests
+
+Create tests in `subtheories/new_subtheory/tests/`:
+- `test_new_subtheory_examples.py`: Validate logical principles
+- Include both valid inferences and expected countermodels
+- Follow existing test patterns
+
+#### 5. Update Documentation
+
+- Add subtheory to this README's overview
+- Update operator counts
+- Add to the subtheory reference section
+- Link test documentation
 
 ### Extending Existing Subtheories
 
-1. Add new operators to appropriate `operators.py`
-2. Update `get_operators()` function
-3. Add examples and tests
-4. Document new operators
+To add new operators to existing subtheories:
+
+#### 1. Add Operator Implementation
+
+In the appropriate `subtheories/[name]/operators.py`:
+
+```python
+class NewOperator(Operator):
+    """Docstring explaining the operator."""
+    def __init__(self):
+        super().__init__("\\newop", arity)
+    
+    def semantic_clause(self, sentence):
+        # Implementation
+        pass
+```
+
+#### 2. Update get_operators()
+
+Add your operator to the returned dictionary:
+
+```python
+def get_operators():
+    return {
+        # Existing operators...
+        '\\newop': NewOperator,
+    }
+```
+
+#### 3. Add Examples and Tests
+
+- Add examples to `examples.py` demonstrating the operator
+- Create test cases validating its behavior
+- Document any interactions with other operators
+
+#### 4. Document the Operator
+
+- Update the subtheory's README
+- Add to operator tables with proper LaTeX/Unicode notation
+- Include usage examples
+
+### Code Quality Standards
+
+- Follow PEP 8 style guidelines
+- Include comprehensive docstrings
+- Write clear, self-documenting code
+- Add type hints where beneficial
+- Ensure all tests pass before submitting
+
+### Testing Requirements
+
+Before submitting a PR:
+
+```bash
+# Run all logos tests
+python test_theories.py --theories logos
+
+# Run specific subtheory tests
+pytest src/model_checker/theory_lib/logos/subtheories/your_subtheory/tests/
+
+# Check code style
+flake8 src/model_checker/theory_lib/logos/
+```
+
+### Pull Request Process
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/new-operator`
+3. Make your changes following the guidelines above
+4. Ensure all tests pass
+5. Update documentation
+6. Submit a pull request with:
+   - Clear description of changes
+   - Motivation for additions
+   - Any relevant academic references
+
+For more details on the development process, testing philosophy, and project architecture, see the [Development Guide](../../../DEVELOPMENT.md).
 
 ## References
 
-TODO: include Fine's other papers and my papers
+- Brast-McKie (2021) ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w), Journal of Philosophical Logic
+- Brast-McKie (2025) ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8), Journal of Philosophical Logic
 
-- **Truthmaker Semantics**: Fine (2017), "Truthmaker Semantics"
+This work builds on the truthmaker semantics developed by Kit Fine in the following papers:
+
+- Fine (2017) ["Counterfactuals without Possible Worlds"](https://link.springer.com/article/10.1007/BF00248737), Journal of Philosophy
+- Fine (2017) ["A Theory of Truthmaker Content I: Conjunction, Disjunction and Negation"](https://link.springer.com/article/10.1007/s10992-016-9413-y), Journal of Philosophical Logic
+- Fine (2017) ["A Theory of Truthmaker Content II: Subject-Matter, Common Content, Remainder and Ground"](https://doi.org/10.1007/s10992-016-9419-5) Journal of Philosophical Logic
+- Fine (2017) ["Truthmaker Semantics"](https://doi.org/10.1002/9781118972090.ch22), Wiley-Blackwell
 
 ## License
 

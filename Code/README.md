@@ -37,7 +37,7 @@ To complete _Phase I_, I am working to extend the _Logos_ to include causal oper
 _Phase II_ of this project aims to include indicative conditionals, epistemic modals, belief and revision operators, and probability operators for reasoning under uncertainty.
 Following these additions, _Phase III_ will include deontic modal and normative explanatory operators for cooperating with other agents in optimizing preferences and values.
 
-More specific details about the implementation of these semantic clauses can be found [here](Code/src/model_checker/theory_lib/README.md) as well as information about the package architecture [here](Code/src/model_checker/README.md).
+More specific details about the implementation of these semantic clauses can be found in the [logos/README.md](Code/src/model_checker/theory_lib/logos/README.md) as well as information about the package architecture [model_checker/README.md](Code/src/model_checker/README.md).
 
 ## TheoryLib
 
@@ -52,7 +52,7 @@ Whereas the _Logos_ provides a unified semantic theory, the `TheoryLib` includes
 
 Local instances of the semantic theories within the `TheoryLib` may be generated using `model-checker -l THEORY_NAME` and then modified.
 Once the extension of a new or modified semantic theory has been explored with adequate range of results, that theory can be contributed to the `TheoryLib` with a pull request.
-See the [theory_lib/README.md](src/model_checker/theory_lib/README.md) for further details on the existing theories as well as contributing new theories.
+See the [theory_lib/README.md](Code/src/model_checker/theory_lib/README.md) for further details on the existing theories as well as contributing new theories.
 
 ### Licensing
 
@@ -73,6 +73,7 @@ When contributing a new theory to the ModelChecker framework:
 4. Academic attribution for your theory will be maintained in CITATION.md
 
 The licensing structure is designed to ensure that the ModelChecker ecosystem remains open and accessible while providing proper attribution to theory authors.
+More information can be found in [Docs/DEVELOPMENT.md](../Docs/DEVELOPMENT.md).
 
 ## Installation
 
@@ -142,7 +143,7 @@ Run `model-checker` in the terminal without arguments to create a new project wi
 - `tests/` includes unit tests which aid in rapidly prototyping theories.
 
 Alternatively, run `model-checker -l THEORY_NAME` to create a copy of the semantic theory with the name 'THEORY_NAME'.
-The library of available semantic theories can be found [here](https://github.com/benbrastmckie/ModelChecker/tree/master/Code/src/model_checker/theory_lib).
+The library of available semantic theories can be found [theory_lib/README.md](Code/src/model_checker/theory_lib/README.md).
 Additional theories can be added by submitting a pull request.
 
 After changing to the project directory that you created, run `model-checker project_examples.py` to find a countermodel if there is any.
@@ -304,6 +305,6 @@ Whereas the first three constitutive operators are interdefinable, relevance is 
 - `A equiv B  :=  (A leq B) wedge (B leq A)  :=  (A sqsubseteq B) wedge (B sqsubseteq A)`.
 - `A preceq B  :=  (A wedge B) leq B :=  (A vee B) sqsubseteq B`.
 
-Instead of a Boolean lattice as in extensional and intensional semantics theories, the space of hyperintensional propositions forms a non-interlaced bilattice as described in this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w), building on [Fine 2017](https://link.springer.com/article/10.1007/s10992-016-9413-y).
+Instead of a Boolean lattice as in extensional and intensional semantics theories, the space of hyperintensional propositions forms a non-interlaced bilattice as described in the paper ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w), building on [Fine 2017](https://link.springer.com/article/10.1007/s10992-016-9413-y).
 
-More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker) as well as in this recent [paper](https://link.springer.com/article/10.1007/s10992-025-09793-8). 
+More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker) as well as in paper ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8). 
