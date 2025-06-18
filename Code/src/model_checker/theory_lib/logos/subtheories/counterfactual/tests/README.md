@@ -178,4 +178,4 @@ For more information about counterfactual logic and testing strategy, see:
 - [Logos Theory README](../../README.md)
 - [Logos Unit Testing Policy](../../UNIT_TESTS.md)
 - [Counterfactual Subtheory README](../README.md)
-- [Counterfactual Semantics Paper](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf)
+- [Paper](https://link.springer.com/article/10.1007/s10992-025-09793-8)

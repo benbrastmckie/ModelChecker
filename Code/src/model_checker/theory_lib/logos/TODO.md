@@ -2,11 +2,6 @@
 
 Tasks that remain before the next release.
 
-## Tests
-
-- clean up the various tests in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/`, removing any that are unnecessary and moving the remaining tests to a Code/tests/ directory
-- get all tests to pass when running `./Code/test_theories.py -v` making sure that the old `default/` theory tests are no longer included
-
 ## Jupyter Notebooks
 
 - Look at the default/ theory to see how to implement Jupyter Notebooks for the logos/ theory
