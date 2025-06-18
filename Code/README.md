@@ -306,5 +306,4 @@ Whereas the first three constitutive operators are interdefinable, relevance is 
 - `A preceq B  :=  (A wedge B) leq B :=  (A vee B) sqsubseteq B`.
 
 Instead of a Boolean lattice as in extensional and intensional semantics theories, the space of hyperintensional propositions forms a non-interlaced bilattice as described in the paper ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w), building on [Fine 2017](https://link.springer.com/article/10.1007/s10992-016-9413-y).
-
-More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker) as well as in paper ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8). 
+This framework is further extended in the paper ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8). 
