@@ -846,4 +846,3 @@ For more information on bimodal logics and related topics, see:
 
 - The full ModelChecker documentation in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/README.md`
 - The test suite in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/test/`
-- The Counterfactuals paper in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Counterfactuals.pdf`

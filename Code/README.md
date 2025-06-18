@@ -6,9 +6,9 @@ In addition to the unified semantics for the Logos, this package provides suppor
 The [`TheoryLib`](src/model_checker/theory_lib/) includes the semantic theories that are available for users to import or use as a template to develop novel theories that can be contributed to the `TheoryLib` by pull request.
 
 You can find more information about development [here](docs/DEVELOPMENT.md) and the background semantic theory provided for the Logos [here](http://www.benbrastmckie.com/research#access).
-The semantics and logic for counterfactual conditionals is developed in this [paper](https://link-springer-com.libproxy.mit.edu/article/10.1007/s10992-025-09793-8).
+The semantics and logic for counterfactual conditionals is developed in this [paper](https://link.springer.com/article/10.1007/s10992-025-09793-8).
 
-## _Logos_: A Formal Language of Thought
+## _LOGOS_: A Formal Language of Thought
 
 Intensional action is predicated on forethought and planning, where this applies to AI agents as much as it does to human agents.
 Since strategic planning requires agents to contemplate counterfactual possibilities, temporal eventualities, causal and constitutive explanatory relationships, as well as reason under uncertainty about what is permissible or ought to be the case, it is important to equip AI with the conceptual resources needed to think in these ways.
@@ -106,7 +106,16 @@ For a complete installation with all features:
 pip install model-checker[all]
 ```
 
-More installation information can be found in the [accessible instructions](https://github.com/benbrastmckie/ModelChecker/blob/master/installation.md).
+### Need Help with Installation?
+
+**📋 For detailed installation instructions, including terminal usage for beginners:** see [INSTALLATION.md](../Docs/INSTALLATION.md)
+
+The detailed guide covers:
+- How to open and use the terminal on Mac/Windows/Linux
+- Step-by-step Python installation for all operating systems  
+- Troubleshooting common installation issues
+- Platform-specific installation notes
+- Virtual environment setup
 
 ## Updating
 
@@ -279,7 +288,7 @@ A _necessity sentence_ `Box A` is true at a world just in case every world state
 Given a world state `w` and state `s`, an `s`_-alternative_ to `w` is any world state to include as parts both `s` and a maximal part of `w` that is compatible with `s`.
 A _must counterfactual conditional sentences_ `A boxright B` is true at a world state `w` just in case its consequent is true at any `s`-alternative to `w` for any verifier `s` for the antecedent of the counterfactual.
 A _might counterfactual conditional sentences_ `A boxright B` is true at a world state `w` just in case its consequent is true at some `s`-alternative to `w` for some verifier `s` for the antecedent of the counterfactual.
-The semantic theory for counterfactual conditionals is motivated and further elaborated in this accompanying [paper](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf).
+The semantic theory for counterfactual conditionals is motivated and further elaborated in this accompanying [paper](https://link.springer.com/article/10.1007/s10992-025-09793-8).
 
 A _grounding sentence_ `A leq B` may be read '`A` is _sufficient for_ `B`' and an _essence sentence_ `A sqsubseteq B` may be read '`A` is _necessary for_ `B`'.
 A _propositional identity sentence_ `A equiv B` may be read '`A` _just is for_ `B`'.
@@ -297,4 +306,4 @@ Whereas the first three constitutive operators are interdefinable, relevance is 
 
 Instead of a Boolean lattice as in extensional and intensional semantics theories, the space of hyperintensional propositions forms a non-interlaced bilattice as described in this [paper](https://link.springer.com/article/10.1007/s10992-021-09612-w), building on [Fine 2017](https://link.springer.com/article/10.1007/s10992-016-9413-y).
 
-More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker) as well as in this recent [manuscript](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf). 
+More information can be found in the GitHub [repository](https://github.com/benbrastmckie/ModelChecker) as well as in this recent [paper](https://link.springer.com/article/10.1007/s10992-025-09793-8). 

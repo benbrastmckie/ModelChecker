@@ -49,12 +49,12 @@ if __name__ == "__main__":
             sys.argv[load_index] = "-l"
         
         args = sys.argv[1:]
+        # Set sys.argv for the main function
+        sys.argv = [sys.argv[0]] + args
+        # Call the main function
+        main()
     else:
-        # If no arguments provided, use the logos example
-        args = [os.path.join(src_path, "model_checker", "theory_lib", "logos", "examples.py")]
-    
-    # Set sys.argv for the main function
-    sys.argv = [sys.argv[0]] + args
-    
-    # Call the main function
-    main()
+        # If no arguments provided, mimic the installed behavior
+        from model_checker.builder import BuildProject
+        builder = BuildProject()
+        builder.ask_generate()

@@ -3,7 +3,7 @@
 The hyperintensional semantics implements the semantic theories defended in the following papers:
 
 - Brast-McKie (2021) ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w), Journal of Philosophical Logic
-- Brast-McKie (2025) ["Counterfactual Worlds"](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf), Journal of Philosophical Logic
+- Brast-McKie (2025) ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8), Journal of Philosophical Logic
 
 This work builds on the truthmaker semantics developed by Kit Fine in the following papers:
 
