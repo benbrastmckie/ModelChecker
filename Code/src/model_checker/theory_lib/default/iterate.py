@@ -449,7 +449,7 @@ class DefaultModelIterator(BaseModelIterator):
                             try:
                                 if bool(isomorphic_model.eval(semantics.is_part_of(state1, state2), model_completion=True)):
                                     current_parts += 1
-                            except:
+                            except Exception:
                                 pass
                 
                 # Parthood count expression

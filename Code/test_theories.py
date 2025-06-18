@@ -12,10 +12,10 @@ import subprocess
 from typing import List, Optional
 
 def get_registered_theories():
-    """Get the list of registered theories from theory_lib.
+    """Get the list of registered theories from theory_lib, excluding default theory.
     
     Returns:
-        List[str]: List of registered theory names
+        List[str]: List of registered theory names (excluding 'default')
     """
     # We're now in the Code directory, so we can just use src directly
     env = os.environ.copy()
@@ -35,6 +35,8 @@ def get_registered_theories():
         return []
     
     theories = result.stdout.strip().split()
+    # Exclude default theory as requested
+    theories = [t for t in theories if t != 'default']
     return theories
 
 

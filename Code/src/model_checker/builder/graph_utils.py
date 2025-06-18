@@ -126,7 +126,7 @@ class ModelGraph:
                 f.write(f"Added node {i} with properties: {properties}\n")
         
         # Add edges for accessibility relations
-        if hasattr(semantics, 'R') and len(world_states) > 0:
+        if hasattr(semantics, 'R') and world_states:
             for i, w1 in enumerate(world_states):
                 for j, w2 in enumerate(world_states):
                     try:
@@ -301,7 +301,7 @@ class ModelGraph:
         metrics['out_degree_distribution'] = out_degrees
         
         # Connected components (for accessibility)
-        if len(self.graph) > 0:
+        if self.graph:
             # Convert to undirected for components
             undirected = self.graph.to_undirected()
             metrics['connected_components'] = nx.number_connected_components(undirected)

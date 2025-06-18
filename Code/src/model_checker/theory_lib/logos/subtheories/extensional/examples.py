@@ -370,6 +370,19 @@ semantic_theories = {
 # All examples included by default
 example_range = unit_tests
 
+def get_examples():
+    """
+    Get all extensional examples.
+    
+    Returns:
+        dict: Dictionary containing all extensional examples
+    """
+    return {
+        'countermodels': extensional_cm_examples,
+        'theorems': extensional_th_examples,
+        'all': unit_tests
+    }
+
 # Make this module runnable from the command line
 if __name__ == '__main__':
     import subprocess

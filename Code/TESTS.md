@@ -21,9 +21,25 @@ These test runners provide a unified interface for testing different aspects of 
 - **Builder**: Project creation and management tools
 - **Settings**: Configuration and settings management
 - **Utils**: Utility functions and shared helpers
-- **Theory Library**: Common functionality across theories (e.g., metadata, versioning)
+- **Theory Library**: Common functionality across theories (e.g., metadata, versioning, discovery)
 - **Iterator**: Model iteration and enumeration
 - Other non-theory specific components
+
+#### Theory Library Infrastructure Testing
+
+The theory library includes specialized infrastructure tests in `src/model_checker/theory_lib/tests/` that verify:
+
+- **Metadata Management**: Version tracking, citation files, license generation across all theories
+- **Theory Discovery**: Automatic loading and registration of semantic theories
+- **Cross-Theory Integration**: Compatibility and consistency between different theories
+- **Library Infrastructure**: Core functionality that all theories depend on
+
+These infrastructure tests are run via:
+```bash
+python test_package.py --components theory_lib
+```
+
+For detailed documentation on theory library testing, including theory-specific tests and debugging guides, see [theory_lib/tests/README.md](src/model_checker/theory_lib/tests/README.md).
 
 ### Usage
 
@@ -123,13 +139,18 @@ python test_theories.py --theories default bimodal --verbose
 
 ### Available Theories
 
-Theories are automatically discovered from the `theory_lib` directory. Common theories include:
+Theories are automatically discovered from the `theory_lib` directory. Current theories include:
 
-- `default`: Tests for the default bilateral truthmaker semantics
+- `logos`: Tests for modular hyperintensional truthmaker semantics with comprehensive subtheory testing
+- `default`: Tests for the default bilateral truthmaker semantics  
 - `exclusion`: Tests for unilateral semantics with exclusion relations
 - `imposition`: Tests for semantics with imposition relations
-- `bimodal`: Tests for bimodal semantics
-- `logos`: Tests for modular hyperintensional truthmaker semantics with advanced CLI
+- `bimodal`: Tests for bimodal temporal semantics
+
+Each theory includes its own comprehensive test suite - see individual theory documentation:
+- [theory_lib/logos/tests/README.md](src/model_checker/theory_lib/logos/tests/README.md) - Logos theory testing
+- [theory_lib/default/tests/README.md](src/model_checker/theory_lib/default/tests/README.md) - Default theory testing
+- Additional theory-specific testing documentation in respective theory directories
 
 To see all available theories:
 ```bash
@@ -217,7 +238,7 @@ This testing approach provides:
 - **Granular Control**: Precise targeting for debugging
 - **Fast Development**: Quick testing of specific components
 
-**Template Available**: See `src/model_checker/theory_lib/THEORY_TESTING_TEMPLATE.md` for implementing similar testing in other theories.
+**Template Available**: See `docs/THEORY_TESTING_TEMPLATE.md` for implementing similar testing in other theories.
 
 ### Output Format
 

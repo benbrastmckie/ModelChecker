@@ -14,7 +14,7 @@ The library follows a modular architecture that allows:
 
 ## Available Theories
 
-For a detailed overview of the standard architecture that each theory follows, see [THEORY_ARCHITECTURE.md](THEORY_ARCHITECTURE.md).
+For a detailed overview of the standard architecture that each theory follows, see [THEORY_ARCHITECTURE.md](../../../docs/THEORY_ARCHITECTURE.md).
 The library currently includes the following theories:
 
 ### _Logos_
@@ -33,7 +33,7 @@ The _Logos_ provides a unified hyperintensional semantic theory.
   - Counterfactual conditionals via alternative world-states
   - Constitutive operators for essence, ground, and propositional identity
 
-More information about the _Logos_ can be found in [default/README.md](default/README.md).
+More information about the _Logos_ can be found in [logos/README.md](logos/README.md).
 
 ### Exclusion Theory
 
@@ -157,7 +157,7 @@ from model_checker import get_theory
 from model_checker.theory_lib import get_examples
 
 # Load a theory
-theory = get_theory("default")  # or "exclusion", "imposition", "bimodal"
+theory = get_theory("logos")  # or "exclusion", "imposition", "bimodal"
 
 # Get examples from the theory
 examples = get_examples("default")
@@ -186,7 +186,7 @@ settings = {
 }
 
 # Build example with theory and settings
-model = BuildExample("example_name", get_theory("default"), settings=settings)
+model = BuildExample("example_name", get_theory("logos"), settings=settings)
 ```
 
 ### Comparing Theories
@@ -606,6 +606,42 @@ class CustomModelStructure(ModelDefaults):
 These visualization methods will be automatically used by the Jupyter integration when displaying models.
 
 For comprehensive information about Jupyter notebook integration, including implementation details, APIs, and usage examples, see the [Jupyter Integration Documentation](../jupyter/README.md).
+
+## Testing
+
+The theory library includes comprehensive testing infrastructure to ensure reliability and correctness across all semantic theories.
+
+### Test Organization
+
+**Infrastructure Tests** ([tests/README.md](tests/README.md)):
+- Common functionality shared across theories
+- Metadata management (versioning, citations, licenses)
+- Theory discovery and loading mechanisms
+- Cross-theory compatibility and integration
+
+**Theory-Specific Tests**:
+- Individual theory implementations and their logical properties
+- See individual theory directories for detailed test documentation:
+  - [logos/tests/README.md](logos/tests/README.md) - Logos theory and subtheories
+  - [default/tests/README.md](default/tests/README.md) - Default semantic theory
+  - [exclusion/tests/README.md](exclusion/tests/README.md) - Exclusion semantics
+  - [imposition/tests/README.md](imposition/tests/README.md) - Imposition semantics
+  - [bimodal/tests/README.md](bimodal/tests/README.md) - Bimodal temporal logic
+
+### Running Tests
+
+```bash
+# Test theory library infrastructure
+python test_package.py --components theory_lib
+
+# Test specific theories
+python test_theories.py --theories logos exclusion imposition
+
+# Test everything
+python test_package.py && python test_theories.py
+```
+
+For detailed testing information, debugging guides, and development workflows, see [tests/README.md](tests/README.md).
 
 ## Best Practices
 

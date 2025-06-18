@@ -4,28 +4,47 @@
 
 ### High Priority
 
-- [.] jupyter
-  - [.] demos
-    - [ ] bimodal
-    - [ ] imposition
-    - [x] default
-    - [x] exclusion
-  - [x] `jupyter/README.md`
+- [ ] logos
+  - [x] unit tests
+  - [ ] settings
+  - [ ] tools
+    - [ ] jupyter
+    - [ ] iteration
+    - [ ] minimizer
+    - [ ] maximizer
 - [.] theory metadata
   - [:] licence
-    - [x] implement licencing
+    - [x] implement licensing
     - [ ] add licence content
     - [ ] test
   - [:] versioning
     - [x] theory versioning
     - [x] model_checker versioning
     - [ ] test
+- [ ] docs
+  - [ ] general
+    - [ ] installation
+    - [ ] development
+  - [ ] logos
+    - [ ] readme
+    - [ ] tests
+- [ ] clean up
+  - [ ]
+  - [ ] tests in main dir
+  - [ ] syntactic
+    - [ ] don't require outer parentheses
+    - [ ] remove TODOs from docs to be consistent
 
 ### Refactoring
 
-- settings
-  - imposition
-  - add link in `theory_lib/README.md`
+- [.] jupyter
+  - [.] demos
+    - [ ] bimodal
+    - [ ] imposition
+    - [ ] logos
+    - [x] default
+    - [x] exclusion
+  - [x] `jupyter/README.md`
 
 - [ ] `verify_model`
   - [ ] merge from other branch
@@ -34,7 +53,6 @@
 - make subpackage
   - utils
   - syntactic
-    - [ ] don't require outer parentheses
     - [ ] permit unicode
   - model
   - print

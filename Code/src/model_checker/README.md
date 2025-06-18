@@ -87,7 +87,7 @@ The typical API usage flow follows these steps:
 from model_checker import BuildExample, get_theory
 
 # 1. Load a theory
-theory = get_theory("default")
+theory = get_theory("logos")
 
 # 2. Create a model
 model = BuildExample("simple_modal", theory)
@@ -175,7 +175,7 @@ To add a new theory to the framework:
 ```python
 # In theory_lib/__init__.py
 AVAILABLE_THEORIES = [
-    'default',
+    'logos',
     'exclusion',
     'imposition',
     'your_new_theory',  # Add your theory here

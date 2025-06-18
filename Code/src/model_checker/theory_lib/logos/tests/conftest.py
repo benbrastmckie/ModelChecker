@@ -54,6 +54,7 @@ def basic_settings():
         'non_null': True,
         'non_empty': True,
         'disjoint': False,
+        'expectation': True,
     }
 
 
@@ -63,6 +64,11 @@ def minimal_settings():
     return {
         'N': 2,
         'max_time': 1,
+        'expectation': True,
+        'contingent': True,
+        'non_null': True,
+        'non_empty': True,
+        'disjoint': True,
     }
 
 
@@ -76,4 +82,5 @@ def complex_settings():
         'non_null': True,
         'non_empty': True,
         'disjoint': True,
+        'expectation': True,
     }

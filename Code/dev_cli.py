@@ -50,8 +50,8 @@ if __name__ == "__main__":
         
         args = sys.argv[1:]
     else:
-        # If no arguments provided, use the default example
-        args = [os.path.join(src_path, "model_checker", "theory_lib", "default", "examples.py")]
+        # If no arguments provided, use the logos example
+        args = [os.path.join(src_path, "model_checker", "theory_lib", "logos", "examples.py")]
     
     # Set sys.argv for the main function
     sys.argv = [sys.argv[0]] + args

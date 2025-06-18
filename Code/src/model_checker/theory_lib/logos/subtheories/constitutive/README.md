@@ -10,7 +10,7 @@ The Constitutive Subtheory implements **5 logical operators** for content relati
 - **Ground** (`\\leq`): "A grounds B" or "A is a disjunctive-part of B"
 - **Essence** (`\\sqsubseteq`): "A is essential to B" or "A is a conjunctive-part of B"
 - **Relevance** (`\\preceq`): "A is relevant to B"
-- **Reduction** (`\\reduction`): "A reduces to B" (ground + essence)
+- **Reduction** (`\\Rightarrow`): "A reduces to B" (ground + essence)
 
 This implementation follows the semantic theory developed in:
 - Brast-McKie (2021) ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w), Journal of Philosophical Logic
@@ -214,7 +214,7 @@ model-checker src/model_checker/theory_lib/logos/subtheories/constitutive/exampl
 
 ### Reduction
 
-**Symbol**: `\\reduction`  
+**Symbol**: `\\Rightarrow`  
 **Name**: Reduction  
 **Arity**: 2 (binary)  
 **Type**: Defined operator
@@ -226,13 +226,13 @@ model-checker src/model_checker/theory_lib/logos/subtheories/constitutive/exampl
 **Usage Examples**:
 ```python
 # Basic reduction
-"(p \\reduction q)"  # p reduces to q
+"(p \\Rightarrow q)"  # p reduces to q
 
 # Reduction with absorption laws
-"(A \\reduction (A \\wedge (A \\vee B)))"  # Valid absorption reduction
+"(A \\Rightarrow (A \\wedge (A \\vee B)))"  # Valid absorption reduction
 
 # Reduction with distribution
-"((A \\vee (A \\wedge B)) \\reduction (A \\wedge (A \\vee B)))"  # Valid distribution reduction
+"((A \\vee (A \\wedge B)) \\Rightarrow (A \\wedge (A \\vee B)))"  # Valid distribution reduction
 ```
 
 **Key Properties**:
@@ -294,6 +294,23 @@ model-checker src/model_checker/theory_lib/logos/subtheories/constitutive/exampl
 # Run with debugging output
 ./dev_cli.py -p -z src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
 ```
+
+#### Running Tests
+
+The constitutive subtheory includes **33 comprehensive test examples** covering all five operators through both countermodel and theorem examples. Tests validate hyperintensional content relationships and demonstrate where classical principles fail.
+
+```bash
+# Run all constitutive tests
+pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/
+
+# Run specific example
+pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py -k "CL_CM_1"
+
+# Run via project test runner
+python test_theories.py --theories logos --constitutive --examples
+```
+
+**For detailed test documentation, examples, and debugging guidance, see [tests/README.md](tests/README.md)**
 
 #### Programmatic Access
 
@@ -506,7 +523,7 @@ operators = get_operators()
 #     "\\leq": GroundOperator,
 #     "\\sqsubseteq": EssenceOperator,
 #     "\\preceq": RelevanceOperator,
-#     "\\reduction": ReductionOperator
+#     "\\Rightarrow": ReductionOperator
 # }
 ```
 
@@ -573,7 +590,7 @@ The constitutive operators exhibit interesting interdefinability patterns:
 **Reduction Decomposition**:
 ```python
 # A reduces to B iff A grounds B and A is essential for B
-"(A \\reduction B) \\equiv ((A \\leq B) \\wedge (A \\sqsubseteq B))"  # By definition
+"(A \\Rightarrow B) \\equiv ((A \\leq B) \\wedge (A \\sqsubseteq B))"  # By definition
 ```
 
 ### Content Sensitivity

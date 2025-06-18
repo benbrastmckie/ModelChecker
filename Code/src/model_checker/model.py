@@ -819,7 +819,7 @@ class ModelDefaults:
         
         For comprehensive information on Z3 solver state management, see:
         - theory_lib/notes/solvers.md # TODO: file doesnt exist
-        - DEVELOPMENT.md section on Z3 Solver State Management
+        - ../../docs/DEVELOPMENT.md section on Z3 Solver State Management
         """
         # Remove references to solver and model
         self.solver = None

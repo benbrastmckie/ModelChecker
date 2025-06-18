@@ -312,12 +312,12 @@ class BaseModelIterator:
             self: For method chaining
         """
         # Keep only the initial model
-        if len(self.found_models) > 0:
+        if self.found_models:
             initial_model = self.found_models[0]
             self.found_models = [initial_model]
             
         # Keep only the initial model structure
-        if len(self.model_structures) > 0:
+        if self.model_structures:
             initial_structure = self.model_structures[0]
             self.model_structures = [initial_structure]
             
@@ -334,7 +334,7 @@ class BaseModelIterator:
         
         # Reset graph representations
         if HAS_NETWORKX:
-            if len(self.model_structures) > 0:
+            if self.model_structures:
                 # Keep only the initial model graph
                 try:
                     initial_structure = self.model_structures[0]

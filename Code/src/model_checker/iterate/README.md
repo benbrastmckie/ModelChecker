@@ -59,7 +59,7 @@ from model_checker.theory_lib.default import iterate_example
 from model_checker import BuildExample, get_theory
 
 # Create an example with a valid model
-theory = get_theory("default")
+theory = get_theory("logos")
 example = BuildExample("example_name", theory)
 example.check_formula("p | ~p")  # Ensure a model has been found
 
