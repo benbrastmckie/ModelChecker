@@ -22,9 +22,9 @@ class TestBuildProject(unittest.TestCase):
         shutil.rmtree(self.temp_dir)
     
     def test_project_initialization_default(self):
-        """Test that BuildProject initializes with default theory."""
+        """Test that BuildProject initializes with logos theory."""
         builder = BuildProject()
-        self.assertEqual(builder.theory, 'default')
+        self.assertEqual(builder.theory, 'logos')
         self.assertTrue(os.path.exists(builder.source_dir))
     
     def test_project_initialization_logos(self):

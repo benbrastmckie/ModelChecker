@@ -95,8 +95,8 @@ Each found model includes a `model_differences` property that details how it dif
 ```python
 from model_checker.builder import BuildProject
 
-# Create a project builder using 'default' theory as template
-project = BuildProject('default')
+# Create a project builder using 'logos' theory as template
+project = BuildProject('logos')
 
 # Generate a new project
 project_path = project.generate('my_theory')
@@ -141,7 +141,7 @@ from model_checker import BuildExample, get_theory
 from model_checker.builder.iterate import ModelIterator
 
 # Create a model with the default theory
-theory = get_theory("default")
+theory = get_theory("logos")
 example = BuildExample("simple_modal", theory, settings={"iterate": 3, "max_time": 5})
 
 # Check if the model is satisfiable

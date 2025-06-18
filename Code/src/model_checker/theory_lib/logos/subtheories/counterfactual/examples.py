@@ -774,27 +774,34 @@ semantic_theories = {
 
 # # Specify which examples to run by default when running this module directly
 # # All examples included by default
-# example_range = counterfactual_examples
+# example_range = unit_tests
 
 # Or set specific examples
 example_range = {
 
-    # COUNTERMODELS
-
-    # "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    # "CF_CM_2": CF_CM_2_example,  # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    # "CF_CM_7": CF_CM_7_example,  # COUNTERFACTUAL CONTRAPOSITION
-    # "CF_CM_18": CF_CM_18_example,  # MUST FACTIVITY
-
-    # THEOREMS
-
-    # "CF_TH_5": CF_TH_5_example,  # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    # Test some failing theorem examples
+    "CF_TH_1": CF_TH_1_example,  # COUNTERFACTUAL IDENTITY
+    "CF_TH_2": CF_TH_2_example,  # COUNTERFACTUAL MODUS PONENS
     "CF_TH_9": CF_TH_9_example,  # COUNTERFACTUAL CONJUNCTION INTRODUCTION
-    # "CF_TH_10": CF_TH_10_example,  # MIGHT FACTIVITY
-    # "CF_TH_11": CF_TH_11_example,  # DEFINITION OF NEC
+    
+    # Also test a countermodel that should pass
+    "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
 
 }
 
+
+def get_examples():
+    """
+    Get all counterfactual examples.
+    
+    Returns:
+        dict: Dictionary containing all counterfactual examples
+    """
+    return {
+        'countermodels': counterfactual_cm_examples,
+        'theorems': counterfactual_th_examples,
+        'all': unit_tests
+    }
 
 # Make this module runnable from the command line
 if __name__ == '__main__':

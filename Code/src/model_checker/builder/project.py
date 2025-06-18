@@ -36,7 +36,7 @@ class BuildProject:
 
     # No longer enforcing essential files to allow for flexible project structures
 
-    def __init__(self, theory: str = 'default'):
+    def __init__(self, theory: str = 'logos'):
         """Initialize project builder with specified theory.
         
         Args:

@@ -589,7 +589,7 @@ class UnilateralProposition(model.PropositionDefaults):
                 preclude_formula = precludes(state, z3_verifier_set)
                 preclude_result = self.z3_model.evaluate(preclude_formula)
                 # Check if the evaluated result is True
-                if preclude_result == True:
+                if preclude_result:
                     result.add(state)
             return result
         

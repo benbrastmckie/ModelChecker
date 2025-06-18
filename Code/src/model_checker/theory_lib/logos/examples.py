@@ -79,45 +79,9 @@ try:
 except ImportError:
     relevance_examples = {}
 
-# Basic test examples for logos theory validation
-basic_logos_examples = {
-    # Quick validation tests
-    "LOGOS_BASIC_MODUS_PONENS": [
-        ["A", "A \\rightarrow B"],  # premises
-        ["B"],                      # conclusions
-        {"N": 3, "contingent": False, "max_time": 1, "expectation": False}
-    ],
-    
-    "LOGOS_BASIC_CONJUNCTION": [
-        ["A", "B"],
-        ["A \\wedge B"],
-        {"N": 3, "contingent": False, "max_time": 1, "expectation": False}
-    ],
-    
-    "LOGOS_BASIC_TAUTOLOGY": [
-        [],
-        ["\\top"],
-        {"N": 3, "contingent": False, "max_time": 1, "expectation": False}
-    ],
-    
-    "LOGOS_BASIC_EXCLUDED_MIDDLE": [
-        [],
-        ["A \\vee \\neg A"],
-        {"N": 3, "contingent": False, "max_time": 1, "expectation": False}
-    ],
-    
-    "LOGOS_BASIC_MODAL_K": [
-        ["\\Box (A \\rightarrow B)", "\\Box A"],
-        ["\\Box B"],
-        {"N": 4, "contingent": False, "max_time": 2, "expectation": False}
-    ],
-    
-    "LOGOS_BASIC_IDENTITY_REFLEXIVE": [
-        [],
-        ["A \\equiv A"],
-        {"N": 4, "contingent": False, "max_time": 2, "expectation": False}
-    ],
-}
+# Note: Basic examples removed as they are redundant with subtheory examples
+# Modus ponens -> EXT_TH_1, Conjunction -> EXT_TH_3, etc.
+# Modal logic K -> MOD_TH_*, Identity reflexive -> CON_TH_*
 
 # Aggregate all examples (subtheories already have prefixes)
 # Note: Constitutive examples use CL_* prefix in their files but we convert to CON_* for consistency
@@ -129,8 +93,7 @@ unit_tests = {
     **relevance_examples,       # Already has REL_ prefix
 }
 
-# Also include basic examples for validation
-unit_tests.update(basic_logos_examples)
+# Basic examples removed - see subtheory examples instead
 
 # Aliases for main dictionary
 test_example_range = unit_tests
@@ -144,7 +107,7 @@ logos_th_examples = {}
 for name, example in all_logos_examples.items():
     if "_CM_" in name:
         logos_cm_examples[name] = example
-    elif "_TH_" in name or "LOGOS_BASIC_" in name:
+    elif "_TH_" in name:
         logos_th_examples[name] = example
     else:
         # Default to theorem if unclear
@@ -227,7 +190,7 @@ def get_examples_by_type(example_type='all'):
     elif example_type == 'countermodel':
         return {k: v for k, v in unit_tests.items() if '_CM_' in k}
     elif example_type == 'theorem':  
-        return {k: v for k, v in unit_tests.items() if '_TH_' in k or '_DEF_' in k or 'LOGOS_BASIC_' in k}
+        return {k: v for k, v in unit_tests.items() if '_TH_' in k or '_DEF_' in k}
     else:
         raise ValueError("example_type must be 'countermodel', 'theorem', or 'all'")
 
@@ -245,7 +208,7 @@ def get_example_stats():
         'constitutive': len(constitutive_examples),
         'counterfactual': len(counterfactual_examples),
         'relevance': len(relevance_examples),
-        'basic': len(basic_logos_examples),
+        'basic': 0,  # Basic examples removed
         'total': len(unit_tests)
     }
     return stats

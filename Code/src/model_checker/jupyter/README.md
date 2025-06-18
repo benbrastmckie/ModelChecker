@@ -187,16 +187,16 @@ The integration supports both LaTeX and Unicode notations for operators for bett
 from model_checker.jupyter import check_formula
 from model_checker.jupyter.unicode import unicode_to_latex, latex_to_unicode
 
-# Using Unicode operators for better readability in notebooks
-check_formula("□p → p")  # Modal necessity
-check_formula("p ∧ q")   # Conjunction
-check_formula("p ∨ q")   # Disjunction
-check_formula("¬p")      # Negation
-check_formula("p → q")   # Implication
+# Using ASCII LaTeX operators (recommended)
+check_formula("(\\Box p \\rightarrow p)")  # Modal necessity
+check_formula("(p \\wedge q)")   # Conjunction
+check_formula("(p \\vee q)")   # Disjunction
+check_formula("\\neg p")      # Negation
+check_formula("(p \\rightarrow q)")   # Implication
 
-# Convert between notations
-latex = unicode_to_latex("p → (q ∧ ¬r)")  # Converts to "p \\rightarrow (q \\wedge \\neg r)"
-unicode = latex_to_unicode("\\Box p \\rightarrow p")  # Converts to "□p → p"
+# Convert between notations (examples only - use ASCII LaTeX in practice)
+latex = unicode_to_latex("(p → (q ∧ ¬r))")  # Converts to "(p \\rightarrow (q \\wedge \\neg r))"
+unicode = latex_to_unicode("(\\Box p \\rightarrow p)")  # Converts to "(□p → p)"
 ```
 
 #### Unicode to LaTeX Conversion

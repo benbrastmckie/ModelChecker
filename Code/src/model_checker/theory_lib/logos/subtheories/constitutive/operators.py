@@ -454,14 +454,14 @@ class RelevanceOperator(syntactic.Operator):
 
 
 class ReductionOperator(syntactic.DefinedOperator):
-    """Implementation of the reduction operator (\\reduction).
+    """Implementation of the reduction operator (\\Rightarrow).
     
     This operator represents the reduction relation between propositions, where
-    A \\reduction B means that A reduces to B. This is defined as the conjunction
+    A \\Rightarrow B means that A reduces to B. This is defined as the conjunction
     of ground and essence: (A ≤ B) ∧ (A ⊑ B).
     """
 
-    name = "\\reduction"
+    name = "\\Rightarrow"
     arity = 2
 
     def derived_definition(self, leftarg, rightarg):
@@ -485,5 +485,5 @@ def get_operators():
         "\\leq": GroundOperator,
         "\\sqsubseteq": EssenceOperator,
         "\\preceq": RelevanceOperator,
-        "\\reduction": ReductionOperator,
+        "\\Rightarrow": ReductionOperator,
     }

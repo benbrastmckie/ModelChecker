@@ -128,13 +128,13 @@ This guide helps you solve common issues when using ModelChecker in Jupyter note
    - Use parentheses around binary operators
    - For LaTeX syntax, use double backslashes in strings
 
-2. **Try Unicode notation**:
+2. **Check parentheses and syntax**:
    ```python
-   # Instead of
-   check_formula("\\Box p \\rightarrow p")
+   # Correct format with outermost parentheses for binary operators
+   check_formula("(\\Box p \\rightarrow p)")
    
-   # Try Unicode
-   check_formula("□p → p")
+   # Also ensure proper escaping of backslashes
+   check_formula("(\\Box p \\rightarrow p)")
    ```
 
 3. **Simplify the formula** to isolate the issue:

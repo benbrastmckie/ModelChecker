@@ -500,7 +500,7 @@ CL_TH_9_example = [
 
 # CL_TH_10: ABSORPTION REDUCTION: CONJUNCTION OVER DISJUNCTION
 CL_TH_10_premises = []
-CL_TH_10_conclusions = ['(A \\reduction (A \\wedge (A \\vee B)))']
+CL_TH_10_conclusions = ['(A \\Rightarrow (A \\wedge (A \\vee B)))']
 CL_TH_10_settings = {
     'N' : 4,
     'contingent' : False,
@@ -519,7 +519,7 @@ CL_TH_10_example = [
 
 # CL_TH_11: ABSORPTION REDUCTION: DISJUNCTION OVER CONJUNCTION
 CL_TH_11_premises = []
-CL_TH_11_conclusions = ['(A \\reduction (A \\vee (A \\wedge B)))']
+CL_TH_11_conclusions = ['(A \\Rightarrow (A \\vee (A \\wedge B)))']
 CL_TH_11_settings = {
     'N' : 4,
     'contingent' : False,
@@ -538,7 +538,7 @@ CL_TH_11_example = [
 
 # CL_TH_12: DISTRIBUTION REDUCTION: DISJUNCTION OVER CONJUNCTION
 CL_TH_12_premises = []
-CL_TH_12_conclusions = ['((A \\vee (A \\wedge B)) \\reduction (A \\wedge (A \\vee B)))']
+CL_TH_12_conclusions = ['((A \\vee (A \\wedge B)) \\Rightarrow (A \\wedge (A \\vee B)))']
 CL_TH_12_settings = {
     'N' : 4,
     'contingent' : False,
@@ -557,7 +557,7 @@ CL_TH_12_example = [
 
 # CL_TH_13: DISTRIBUTION REDUCTION: CONJUNCTION OVER DISJUNCTION
 CL_TH_13_premises = []
-CL_TH_13_conclusions = ['((A \\wedge (A \\vee B)) \\reduction (A \\vee (A \\wedge B)))']
+CL_TH_13_conclusions = ['((A \\wedge (A \\vee B)) \\Rightarrow (A \\vee (A \\wedge B)))']
 CL_TH_13_settings = {
     'N' : 4,
     'contingent' : False,
@@ -620,6 +620,8 @@ CL_TH_16_settings = {
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
     'max_time' : 2,
     'expectation' : False,
 }
@@ -637,6 +639,8 @@ CL_TH_17_settings = {
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
     'max_time' : 2,
     'expectation' : False,
 }
@@ -654,6 +658,8 @@ CL_TH_18_settings = {
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
     'max_time' : 2,
     'expectation' : False,
 }
@@ -671,6 +677,8 @@ CL_TH_19_settings = {
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
     'max_time' : 2,
     'expectation' : False,
 }
@@ -759,21 +767,27 @@ semantic_theories = {
 # Or specify particular examples to run
 example_range = {
 
-    # COUNTERMODELS
-
+    # Test some failing theorem examples  
+    "CL_TH_1": CL_TH_1_example,   # GROUND TO ESSENCE
+    "CL_TH_3": CL_TH_3_example,   # ESSENCE TO IDENTITY
+    
+    # Also test a countermodel that should pass
     "CL_CM_1": CL_CM_1_example,   # EQUIVALENCE OF TAUTOLOGIES
-    # "CL_CM_2": CL_CM_2_example,   # EQUIVALENCE OF CONTRADICTIONS
-    # "CL_CM_3": CL_CM_3_example,   # GROUND CONJUNCTION SUPPLEMENTATION
-    # "CL_CM_4": CL_CM_4_example,   # ESSENCE DISJUNCTION SUPPLEMENTATION
-
-    # THEOREMS
-
-    # "CL_TH_1": CL_TH_1_example,   # GROUND TO ESSENCE
-    # "CL_TH_3": CL_TH_3_example,   # ESSENCE TO IDENTITY
-    # "CL_TH_7": CL_TH_7_example,   # NEGATION TRANSPARENCY
-    # "CL_TH_14": CL_TH_14_example, # GROUND TO STRICT IMPLICATION
 
 }
+
+def get_examples():
+    """
+    Get all constitutive examples.
+    
+    Returns:
+        dict: Dictionary containing all constitutive examples
+    """
+    return {
+        'countermodels': constitutive_cm_examples,
+        'theorems': constitutive_th_examples,
+        'all': unit_tests
+    }
 
 # Make this module runnable from the command line
 if __name__ == '__main__':

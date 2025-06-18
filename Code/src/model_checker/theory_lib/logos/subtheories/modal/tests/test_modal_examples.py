@@ -5,9 +5,9 @@ This test file runs all examples from the modal subtheory examples.py file
 using the logos testing framework.
 
 To run these tests:
-1. All tests: pytest src/model_checker/theory_lib/logos/tests/test_examples/test_modal_examples.py
-2. Specific test: pytest src/model_checker/theory_lib/logos/tests/test_examples/test_modal_examples.py -k "MOD_CM_1"
-3. Verbose output: pytest -v src/model_checker/theory_lib/logos/tests/test_examples/test_modal_examples.py
+1. All tests: pytest src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py
+2. Specific test: pytest src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py -k "MOD_CM_1"
+3. Verbose output: pytest -v src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py
 """
 
 import pytest
@@ -30,9 +30,9 @@ from model_checker.theory_lib.logos.subtheories.modal.examples import unit_tests
 def test_modal_examples(example_name, example_case):
     """Test each modal example case."""
     
-    # Create operator registry for modal theory
+    # Create operator registry for modal theory (includes counterfactual for \\boxright operator)
     registry = LogosOperatorRegistry()
-    registry.load_subtheories(['extensional', 'modal'])
+    registry.load_subtheories(['extensional', 'modal', 'counterfactual'])
     
     result = run_test(
         example_case,
@@ -44,11 +44,8 @@ def test_modal_examples(example_name, example_case):
         LogosModelStructure,
     )
     
-    # Extract expected result from settings
-    settings = example_case[2] if len(example_case) > 2 else {}
-    expected_result = settings.get('expectation', True)
-    
-    assert result == expected_result, f"Test failed for example: {example_name}. Expected {expected_result}, got {result}"
+    # The run_test function returns True if the model matches expectations, False otherwise
+    assert result, f"Test failed for example: {example_name}. Model result did not match expectation value in settings."
 
 
 if __name__ == "__main__":

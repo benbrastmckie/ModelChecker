@@ -15,7 +15,7 @@ Key Features:
 
 Basic Usage:
     >>> from model_checker import BuildExample, get_theory
-    >>> theory = get_theory("default")
+    >>> theory = get_theory("logos")
     >>> model = BuildExample("simple_modal", theory)
     >>> model.check_formula("\\Box p -> p")
 

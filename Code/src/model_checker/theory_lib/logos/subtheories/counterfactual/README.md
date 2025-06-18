@@ -59,7 +59,7 @@ theory = logos.get_theory(['counterfactual'])
 from model_checker import BuildExample
 model = BuildExample("cf_example", theory)
 
-# Counterfactual modus ponens: If A and (A ¡’ B), then B
+# Counterfactual modus ponens: If A and (A ï¿½ï¿½ B), then B
 result = model.check_validity(["A", "(A \\boxright B)"], ["B"])
 print(f"Counterfactual Modus Ponens: {'Valid' if result else 'Invalid'}")
 ```
@@ -88,14 +88,14 @@ model-checker src/model_checker/theory_lib/logos/subtheories/counterfactual/exam
 
 ### Counterfactual Conditional
 
-**Symbol**: `\\boxright` (¡’)  
+**Symbol**: `\\boxright` (ï¿½ï¿½)  
 **Name**: Counterfactual Conditional  
 **Arity**: 2 (binary)  
 **Type**: Primitive operator
 
 **Meaning**: "If A were the case, then B would be the case"
 
-**Truth Conditions**: A counterfactual conditional A ¡’ B is true at an evaluation point when, for all states x that verify A and all alternative worlds u to x, B is true at u.
+**Truth Conditions**: A counterfactual conditional A ï¿½ï¿½ B is true at an evaluation point when, for all states x that verify A and all alternative worlds u to x, B is true at u.
 
 **Usage Examples**:
 ```python
@@ -124,7 +124,7 @@ model-checker src/model_checker/theory_lib/logos/subtheories/counterfactual/exam
 
 **Meaning**: "If A were the case, then B might be the case"
 
-**Definition**: `¬(A ¡’ ¬B)` - Defined as the negation of the counterfactual conditional with negated consequent.
+**Definition**: `ï¿½(A ï¿½ï¿½ ï¿½B)` - Defined as the negation of the counterfactual conditional with negated consequent.
 
 **Usage Examples**:
 ```python
@@ -174,7 +174,7 @@ model-checker src/model_checker/theory_lib/logos/subtheories/counterfactual/exam
 
 **Meaning**: "A could impose B"
 
-**Definition**: `¬(A imposition ¬B)` - Defined as the negation of imposition with negated consequent.
+**Definition**: `ï¿½(A imposition ï¿½B)` - Defined as the negation of imposition with negated consequent.
 
 **Usage Examples**:
 ```python
@@ -226,6 +226,23 @@ model-checker src/model_checker/theory_lib/logos/subtheories/counterfactual/exam
 # Run with debugging output
 ./dev_cli.py -p -z src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py
 ```
+
+#### Running Tests
+
+The counterfactual subtheory includes **33 comprehensive test examples** covering all four operators through both countermodel and theorem examples. Tests validate hypothetical reasoning principles and demonstrate where counterfactual inferences fail.
+
+```bash
+# Run all counterfactual tests
+pytest src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/
+
+# Run specific example
+pytest src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py -k "CF_CM_1"
+
+# Run via project test runner
+python test_theories.py --theories logos --counterfactual --examples
+```
+
+**For detailed test documentation, examples, and debugging guidance, see [tests/README.md](tests/README.md)**
 
 #### Programmatic Access
 
@@ -290,11 +307,11 @@ The counterfactual subtheory implements the semantic theory developed in Brast-M
 
 ### Truth Conditions
 
-#### Counterfactual Conditional (A ¡’ B)
+#### Counterfactual Conditional (A ï¿½ï¿½ B)
 
 **True at evaluation point w** when:
 ```
- x,u: (x verifies A ' u is alternative to x relative to w) ’ B is true at u
+ x,u: (x verifies A ' u is alternative to x relative to w) ï¿½ B is true at u
 ```
 
 **False at evaluation point w** when:
@@ -306,7 +323,7 @@ The counterfactual subtheory implements the semantic theory developed in Brast-M
 
 **True at evaluation point w** when:
 ```
- u,v: (u verifies A ' v verifies B) ’ (u  v) verifies B
+ u,v: (u verifies A ' v verifies B) ï¿½ (u  v) verifies B
 ```
 Where `` represents the fusion operation on states.
 
@@ -327,19 +344,19 @@ This ensures counterfactuals behave as **world-sensitive** rather than **state-s
 **Valid Principles** (should always find models for premises but not conclusions):
 
 1. **CF_TH_1 - Counterfactual Identity**: 
-   - `[] ¨ (A \\boxright A)`
+   - `[] ï¿½ (A \\boxright A)`
    - Counterfactuals are reflexive
 
 2. **CF_TH_2 - Counterfactual Modus Ponens**:
-   - `[A, (A \\boxright B)] ¨ B`  
+   - `[A, (A \\boxright B)] ï¿½ B`  
    - Basic inference rule for counterfactuals
 
 3. **CF_TH_3 - Weakened Transitivity**:
-   - `[(A \\boxright B), ((A \\wedge B) \\boxright C)] ¨ (A \\boxright C)`
+   - `[(A \\boxright B), ((A \\wedge B) \\boxright C)] ï¿½ (A \\boxright C)`
    - Restricted form of transitivity that remains valid
 
 4. **CF_TH_10 - Might Factivity**:
-   - `[A, B] ¨ (A \\diamondright B)`
+   - `[A, B] ï¿½ (A \\diamondright B)`
    - If both antecedent and consequent are true, might counterfactual holds
 
 ### Countermodel Examples
@@ -347,36 +364,36 @@ This ensures counterfactuals behave as **world-sensitive** rather than **state-s
 **Invalid Principles** (should find countermodels where premises are true but conclusions false):
 
 1. **CF_CM_1 - Counterfactual Antecedent Strengthening**:
-   - `[\\neg A, (A \\boxright C)] ­ ((A \\wedge B) \\boxright C)`
+   - `[\\neg A, (A \\boxright C)] ï¿½ ((A \\wedge B) \\boxright C)`
    - Strengthening antecedent can change truth value
 
 2. **CF_CM_7 - Counterfactual Contraposition**:
-   - `[(A \\boxright B)] ­ (\\neg B \\boxright \\neg A)`
+   - `[(A \\boxright B)] ï¿½ (\\neg B \\boxright \\neg A)`
    - Contraposition fails for counterfactuals
 
 3. **CF_CM_10 - Transitivity**:
-   - `[(A \\boxright B), (B \\boxright C)] ­ (A \\boxright C)`
+   - `[(A \\boxright B), (B \\boxright C)] ï¿½ (A \\boxright C)`
    - Transitivity is generally invalid
 
 4. **CF_CM_18 - Must Factivity**:
-   - `[A, B] ­ (A \\boxright B)`
+   - `[A, B] ï¿½ (A \\boxright B)`
    - Truth of antecedent and consequent doesn't guarantee counterfactual
 
 ### Logical Properties
 
 **Properties that HOLD**:
 - Reflexivity: `(A \\boxright A)` 
-- Modus Ponens: `A, (A \\boxright B) ¨ B`
-- Weakened Transitivity: `(A \\boxright B), ((A ' B) \\boxright C) ¨ (A \\boxright C)`
-- Would-to-Might: `(A \\boxright B) ¨ (A \\diamondright B)`
-- Might Factivity: `A, B ¨ (A \\diamondright B)`
+- Modus Ponens: `A, (A \\boxright B) ï¿½ B`
+- Weakened Transitivity: `(A \\boxright B), ((A ' B) \\boxright C) ï¿½ (A \\boxright C)`
+- Would-to-Might: `(A \\boxright B) ï¿½ (A \\diamondright B)`
+- Might Factivity: `A, B ï¿½ (A \\diamondright B)`
 
 **Properties that FAIL**:
-- Antecedent Strengthening: `(A \\boxright C) ­ ((A ' B) \\boxright C)`
-- Contraposition: `(A \\boxright B) ­ (¬B \\boxright ¬A)`
-- Transitivity: `(A \\boxright B), (B \\boxright C) ­ (A \\boxright C)`
-- Must Factivity: `A, B ­ (A \\boxright B)`
-- Exportation: `((A ' B) \\boxright C) ­ (A \\boxright (B \\boxright C))`
+- Antecedent Strengthening: `(A \\boxright C) ï¿½ ((A ' B) \\boxright C)`
+- Contraposition: `(A \\boxright B) ï¿½ (ï¿½B \\boxright ï¿½A)`
+- Transitivity: `(A \\boxright B), (B \\boxright C) ï¿½ (A \\boxright C)`
+- Must Factivity: `A, B ï¿½ (A \\boxright B)`
+- Exportation: `((A ' B) \\boxright C) ï¿½ (A \\boxright (B \\boxright C))`
 
 ## Integration
 

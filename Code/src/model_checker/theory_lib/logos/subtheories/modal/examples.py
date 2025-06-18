@@ -604,6 +604,20 @@ example_range = {
 
 }
 
+def get_examples():
+    """
+    Get all modal examples.
+    
+    Returns:
+        dict: Dictionary containing all modal examples
+    """
+    return {
+        'countermodels': modal_cm_examples,
+        'theorems': modal_th_examples,
+        'definitions': modal_def_examples,
+        'all': unit_tests
+    }
+
 # Make this module runnable from the command line
 if __name__ == '__main__':
     import subprocess

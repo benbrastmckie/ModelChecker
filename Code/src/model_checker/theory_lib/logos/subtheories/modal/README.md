@@ -83,6 +83,23 @@ model-checker src/model_checker/theory_lib/logos/subtheories/modal/examples.py
 ./dev_cli.py -l logos  # Select modal subtheory during setup
 ```
 
+### Running Tests
+
+The modal subtheory includes **23 comprehensive test examples** covering all four modal operators through both countermodel and theorem examples. Tests validate modal logic principles and demonstrate interactions with necessity and possibility.
+
+```bash
+# Run all modal tests
+pytest src/model_checker/theory_lib/logos/subtheories/modal/tests/
+
+# Run specific example
+pytest src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py -k "MOD_TH_1"
+
+# Run via project test runner
+python test_theories.py --theories logos --modal --examples
+```
+
+**For detailed test documentation, examples, and debugging guidance, see [tests/README.md](tests/README.md)**
+
 ## Operator Reference
 
 ### Necessity
@@ -563,7 +580,7 @@ The modal subtheory reveals the distinction between truth-functional and modal o
 ## References
 
 - Lewis (1973) "Counterfactuals", Harvard University Press
-- Kripke (1963) "Semantical Analysis of Modal Logic", Zeitschrift für mathematische Logik
+- Kripke (1963) "Semantical Analysis of Modal Logic", Zeitschrift fï¿½r mathematische Logik
 - Hughes & Cresswell (1996) "A New Introduction to Modal Logic", Routledge
 - For semantic framework details, see [Logos Theory README](../../README.md)
 

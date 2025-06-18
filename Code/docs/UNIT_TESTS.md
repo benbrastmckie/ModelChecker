@@ -1,8 +1,10 @@
-# Unit Testing Policy for Logos Theory
+# Unit Testing Policy and Standards
 
 ## Overview
 
-This document establishes the systematic testing methodology for the logos theory implementation, serving as the foundation for a standardized testing approach that will be extended to other theories in the ModelChecker framework.
+This document establishes the systematic testing methodology for semantic theories in the ModelChecker framework, with the logos theory implementation serving as the reference implementation for standardized testing approaches.
+
+> **Note**: This document provides detailed testing standards. For practical testing guides and running tests, see [../TESTS.md](../TESTS.md) and [../src/model_checker/theory_lib/tests/README.md](../src/model_checker/theory_lib/tests/README.md).
 
 ## Testing Philosophy
 
@@ -19,7 +21,7 @@ Following the project's design philosophy outlined in CLAUDE.md, our testing app
 
 **Purpose**: Validate that the model checker produces correct results for logical examples
 **Scope**: End-to-end testing of complete logical arguments
-**Location**: `tests/test_examples/`
+**Location**: `subtheories/*/tests/` and `tests/test_logos_examples.py`
 
 **Characteristics**:
 - Test complete model checking pipeline from formula parsing to result validation
@@ -31,7 +33,7 @@ Following the project's design philosophy outlined in CLAUDE.md, our testing app
 
 **Purpose**: Validate individual software components work correctly
 **Scope**: Testing specific classes, methods, and functions in isolation
-**Location**: `tests/test_unit/`
+**Location**: `tests/` (alongside general examples)
 
 **Characteristics**:
 - Test semantic methods directly (without full model checking pipeline)
@@ -46,23 +48,18 @@ Following the project's design philosophy outlined in CLAUDE.md, our testing app
 logos/
 ├── tests/
 │   ├── __init__.py
-│   ├── test_examples/
-│   │   ├── __init__.py
-│   │   ├── test_logos_examples.py       # All unified examples
-│   │   ├── test_extensional_examples.py # Extensional subtheory examples
-│   │   ├── test_modal_examples.py       # Modal subtheory examples
-│   │   ├── test_constitutive_examples.py # Constitutive subtheory examples
-│   │   ├── test_counterfactual_examples.py # Counterfactual subtheory examples
-│   │   └── test_relevance_examples.py   # Relevance subtheory examples
-│   ├── test_unit/
-│   │   ├── __init__.py
-│   │   ├── test_semantic_methods.py     # Test LogosSemantics methods
-│   │   ├── test_operators.py            # Test operator implementations
-│   │   ├── test_registry.py             # Test LogosOperatorRegistry
-│   │   ├── test_proposition.py          # Test LogosProposition
-│   │   ├── test_model_structure.py      # Test LogosModelStructure
-│   │   └── test_error_conditions.py     # Test error handling
-│   └── conftest.py                      # Pytest configuration and fixtures
+│   ├── test_logos_examples.py       # All unified examples
+│   ├── test_semantic_methods.py     # Test LogosSemantics methods
+│   ├── test_operators.py            # Test operator implementations
+│   ├── test_registry.py             # Test LogosOperatorRegistry
+│   ├── test_proposition.py          # Test LogosProposition
+│   └── conftest.py                  # Pytest configuration and fixtures
+├── subtheories/
+│   ├── extensional/tests/test_extensional_examples.py
+│   ├── modal/tests/test_modal_examples.py
+│   ├── constitutive/tests/test_constitutive_examples.py
+│   ├── counterfactual/tests/test_counterfactual_examples.py
+│   └── relevance/tests/test_relevance_examples.py
 ```
 
 ## Test Execution Framework
@@ -275,3 +272,10 @@ This testing methodology serves as a template for other theories:
 5. **Validate Fix**: Ensure all related tests still pass
 
 This testing policy ensures systematic, maintainable, and comprehensive testing that supports the logos theory's role as a foundation for the entire ModelChecker project's testing strategy.
+
+## Related Documentation
+
+- [../TESTS.md](../TESTS.md) - Complete testing guide with practical usage information
+- [../src/model_checker/theory_lib/tests/README.md](../src/model_checker/theory_lib/tests/README.md) - Theory library infrastructure testing
+- [../src/model_checker/theory_lib/logos/tests/README.md](../src/model_checker/theory_lib/logos/tests/README.md) - Logos theory testing documentation
+- Individual theory test documentation in respective theory directories

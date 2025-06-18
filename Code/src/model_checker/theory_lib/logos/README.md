@@ -1,6 +1,8 @@
-# Logos Theory: Modular Hyperintensional Truthmaker Semantics
+# LOGOS: A Unified Formal Language of Thought
 
-The **Logos Theory** is a modular implementation of hyperintensional truthmaker semantics that organizes logical operators by domain. It provides a clean, maintainable alternative to monolithic theory implementations by separating operators into focused subtheories.
+The **Logos Semantic Theory** is a modular implementation of a bilateral hyperintensional semantics for the Logos, a formal language of thought that is both unified and extensible.
+By restricting to finite models of a user-specified size, the semantics for the Logos provides a machine-checkable theory of logical consequence.
+The semantics aims to assist efforts to axiomatize the operators included in the Logos by providing a principled way to explore logical reasoning within the Logos.
 
 ## Overview
 
@@ -44,18 +46,22 @@ from model_checker import BuildExample
 model = BuildExample("modal_example", theory)
 
 # Check a formula
-result = model.check_formula("\\Box p \\rightarrow p")
-print(f"□p → p is {'valid' if result else 'invalid'}")
+result = model.check_formula("(\\Box p \\rightarrow p)")
+print(f"Box p -> p is {'valid' if result else 'invalid'}")  # ASCII output for clarity
 ```
 
 ### Project Generation
 
+TODO: 
+- explain the process of theory generation and development step-by-step
+- link to a more detailed installation guide in /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/INSTALLATION.md
+
 ```bash
 # Generate a new logos-based project
-./dev_cli.py -l logos
-
-# Or interactively
 model-checker -l logos
+
+# Develop a new logos-based that has been generated project
+./dev_cli.py -l logos
 ```
 
 ## Subtheory Reference
@@ -63,6 +69,8 @@ model-checker -l logos
 ### Extensional Subtheory
 
 Truth-functional operators following classical propositional logic.
+
+**Note**: Always use the ASCII LaTeX operators (left column) in code. Unicode symbols (middle column) are shown for reference only.
 
 | Operator | Symbol | Name | Arity | Description |
 |----------|---------|------|-------|-------------|
@@ -77,10 +85,10 @@ Truth-functional operators following classical propositional logic.
 **Example Usage:**
 ```python
 # Modus ponens
-model.check_validity(["p", "p \\rightarrow q"], ["q"])  # → True
+model.check_validity(["p", "(p \\rightarrow q)"], ["q"])  # Returns True
 
 # Law of excluded middle  
-model.check_validity([], ["p \\vee \\neg p"])  # → True
+model.check_validity([], ["(p \\vee \\neg p)"])  # Returns True
 ```
 
 ### Modal Subtheory
@@ -99,10 +107,10 @@ Operators for necessity and possibility with counterfactual variants.
 **Example Usage:**
 ```python
 # Necessity implies truth
-model.check_validity(["\\Box p"], ["p"])  # → True
+model.check_validity(["\\Box p"], ["p"])  # Returns True
 
 # Possibility consistency
-model.check_validity(["\\Diamond p"], ["\\neg \\Box \\neg p"])  # → True
+model.check_validity(["\\Diamond p"], ["(\\neg \\Box \\neg p)"])  # Returns True
 ```
 
 ### Constitutive Subtheory
@@ -115,15 +123,15 @@ Operators for ground, essence, identity, and reduction relationships.
 | `\\leq` | ≤ | Ground | 2 | Grounding relation |
 | `\\sqsubseteq` | ⊑ | Essence | 2 | Essence relation |
 | `\\preceq` | ≼ | Relevance | 2 | Relevance relation |
-| `\\reduction` | reduction | Reduction | 2 | Ground + essence |
+| `\\Rightarrow` | ⇒ | Reduction | 2 | Ground + essence |
 
 **Example Usage:**
 ```python
 # Identity is reflexive
-model.check_validity([], ["p \\equiv p"])  # → True
+model.check_validity([], ["(p \\equiv p)"])  # Returns True
 
 # Ground relationship
-model.check_validity(["p \\leq q", "p"], ["q"])  # → True
+model.check_validity(["(p \\leq q)", "p"], ["q"])  # Returns True
 ```
 
 ### Counterfactual Subtheory
@@ -140,7 +148,7 @@ Operators for counterfactual reasoning and imposition.
 **Example Usage:**
 ```python
 # Counterfactual reasoning
-model.check_formula("(p \\boxright q) \\rightarrow (p \\diamondright q)")
+model.check_formula("((p \\boxright q) \\rightarrow (p \\diamondright q))")
 ```
 
 ## Architecture
@@ -211,127 +219,59 @@ from model_checker import BuildExample
 model = BuildExample("logos_demo", theory)
 
 # Test mixed logic
-premises = ["\\Box (p \\equiv q)", "p \\wedge r"]
-conclusion = "\\Box q \\wedge r"
+premises = ["\\Box (p \\equiv q)", "(p \\wedge r)"]
+conclusion = "(\\Box q \\wedge r)"
 result = model.check_validity(premises, [conclusion])
 ```
 
 ## Testing
 
-The logos theory implements a comprehensive **dual-testing framework** with **inclusive-by-default** CLI control:
+The Logos theory implements a comprehensive testing framework covering both implementation-level unit tests and logical validation through examples.
 
-### Test Architecture
+### Test Organization
 
-**Two Test Types**:
-- **Example Tests**: 129 logical examples testing model checker on real arguments
-- **Unit Tests**: 109 implementation tests validating software components
+**Core Theory Tests** (in `tests/`):
+- **Integration Tests**: Cross-subtheory examples and complete theory validation
+- **Unit Tests**: Implementation testing of semantic methods, operators, and registry
+- **[Detailed Documentation](tests/README.md)**
 
-**Clean Organization**:
-```
-tests/
-├── test_examples/     # Example tests (integration)
-│   ├── test_logos_examples.py      # All 129 examples
-│   ├── test_extensional_examples.py # 14 extensional examples
-│   ├── test_modal_examples.py      # 23 modal examples
-│   ├── test_constitutive_examples.py # 33 constitutive examples
-│   ├── test_counterfactual_examples.py # 33 counterfactual examples
-│   └── test_relevance_examples.py  # 20 relevance examples
-└── test_unit/         # Unit tests (implementation)
-    ├── test_semantic_methods.py    # LogosSemantics, LogosProposition
-    ├── test_operators.py           # All operator implementations
-    ├── test_registry.py            # LogosOperatorRegistry
-    ├── test_proposition.py         # LogosProposition specific
-    ├── test_model_structure.py     # LogosModelStructure specific
-    └── test_error_conditions.py    # Error handling and edge cases
-```
+**Subtheory-Specific Tests**:
+- **Extensional** (14 examples): Truth-functional logic validation → [tests/README.md](subtheories/extensional/tests/README.md)
+- **Modal** (23 examples): Necessity/possibility reasoning → [tests/README.md](subtheories/modal/tests/README.md)
+- **Constitutive** (33 examples): Content relationships and hyperintensional logic → [tests/README.md](subtheories/constitutive/tests/README.md)
+- **Counterfactual** (33 examples): Hypothetical reasoning and counterfactuals → [tests/README.md](subtheories/counterfactual/tests/README.md)
+- **Relevance** (20 examples): Relevance-sensitive logical principles → [tests/README.md](subtheories/relevance/tests/README.md)
 
-### Running Tests - Inclusive-by-Default CLI
+### Running Tests
 
-**Basic Usage** (runs ALL tests by default):
+**All Logos Tests**:
 ```bash
-# All logos tests: 129 examples + 109 unit tests = 238+ total
+# Run complete test suite
 python test_theories.py --theories logos
 
-# All tests with verbose output
-python test_theories.py --theories logos -v
-```
-
-**Test Type Restrictions**:
-```bash
-# Examples only (129 tests)
+# Examples only
 python test_theories.py --theories logos --examples
 
-# Unit tests only (109 tests) 
+# Unit tests only
 python test_theories.py --theories logos --package
 ```
 
-**Subtheory Restrictions**:
+**Subtheory-Specific Testing**:
 ```bash
-# All extensional tests (examples + unit tests)
-python test_theories.py --theories logos --extensional
+# All tests for specific subtheory
+python test_theories.py --theories logos --constitutive
 
-# Modal examples only (~23 tests)
+# Examples for specific subtheory
 python test_theories.py --theories logos --modal --examples
 
-# Counterfactual unit tests only
-python test_theories.py --theories logos --counterfactual --package
+# Direct pytest execution
+pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/
 ```
 
-**Specific Example Testing**:
-```bash
-# Single example (2 tests - appears in 2 test files)
-python test_theories.py --theories logos --examples EXT_CM_1
-
-# Multiple examples
-python test_theories.py --theories logos --examples EXT_CM_1 CF_TH_2
-
-# Wildcard patterns
-python test_theories.py --theories logos --examples "CF_*"    # All CF examples
-python test_theories.py --theories logos --examples "*_TH_*" # All theorems
-```
-
-**Unit Test Categories**:
-```bash
-# Operator implementation tests only
-python test_theories.py --theories logos --package --operators
-
-# Semantic method tests only  
-python test_theories.py --theories logos --package --semantics
-
-# Error condition tests only
-python test_theories.py --theories logos --package --error-conditions
-```
-
-**Complex Combinations**:
-```bash
-# Modal semantic tests only
-python test_theories.py --theories logos --modal --package --semantics
-
-# Extensional examples with verbose output
-python test_theories.py --theories logos --extensional --examples -v
-```
-
-### Test Coverage
-
-**Example Tests (129 total)**:
-- **Extensional**: 14 examples (truth-functional logic)
-- **Modal**: 23 examples (necessity/possibility)  
-- **Constitutive**: 33 examples (ground/essence/identity)
-- **Counterfactual**: 33 examples (counterfactual reasoning)
-- **Relevance**: 20 examples (relevance-sensitive logic)
-
-**Unit Tests (109 total)**:
-- **Semantic Methods**: LogosSemantics, LogosProposition, LogosModelStructure
-- **Operator Implementation**: All 20 operators across 5 subtheories
-- **Registry Functionality**: Dynamic loading, dependencies, state management
-- **Error Conditions**: Invalid inputs, resource limits, edge cases
-- **Integration**: Component compatibility, theory configurations
-
-**Key Features**:
-- **No Duplication**: Single source of truth for each test
-- **Inclusive-by-Default**: Maximum coverage without explicit flags
-- **Granular Control**: Precise targeting with restriction flags
-- **Fast Debugging**: Run specific examples or components quickly
+**For complete testing documentation, including debugging guides, test structure, and advanced usage, see:**
+- **Core Theory Tests**: [tests/README.md](tests/README.md)
+- **Unit Testing Policy**: [UNIT_TESTS.md](UNIT_TESTS.md)
+- **Individual Subtheory Test Documentation**: Linked above
 
 ## API Reference
 
@@ -392,7 +332,7 @@ theory = logos.get_theory(['extensional', 'modal'])
 from model_checker.jupyter import check_formula
 
 # Use logos theory
-result = check_formula("\\Box p \\rightarrow p", theory='logos')
+result = check_formula("(\\Box p \\rightarrow p)", theory='logos')
 ```
 
 ### Performance Considerations
@@ -401,25 +341,11 @@ result = check_formula("\\Box p \\rightarrow p", theory='logos')
 - **Caching**: Operator registry caches loaded modules
 - **Minimal overhead**: Only load needed operators
 
-## Migration from Default Theory
-
-The logos theory provides the same 20 operators as the default theory, organized modularly:
-
-### Key Differences
-
-1. **Modular structure** vs. monolithic file
-2. **Selective loading** vs. all-or-nothing
-3. **Clean separation** vs. mixed domains
-4. **Easier maintenance** vs. complex interdependencies
-
-### Migration Steps
-
-1. Replace `default` with `logos` in theory loading
-2. Optionally specify subtheories for selective loading
-3. Update import statements to use modular structure
-4. Test existing examples with new theory
-
 ## Contributing
+
+TODO: 
+- provide more details while also linking to /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/docs/DEVELOPMENT.md
+- DEVELOPMENT has been moved to /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/docs/DEVELOPMENT.md
 
 ### Adding New Subtheories
 
@@ -443,10 +369,12 @@ The logos theory provides the same 20 operators as the default theory, organized
 
 ## References
 
+TODO: include Fine's other papers and my papers
+
 - **Truthmaker Semantics**: Fine (2017), "Truthmaker Semantics"
-- **Hyperintensional Logic**: Berto & Restall (2019), "Hyperintensional Logics"
-- **Ground Theory**: Correia & Schnieder (2012), "Metaphysical Grounding"
 
 ## License
+
+TODO: add a licence and include a link here
 
 The logos theory is part of the ModelChecker package and follows the same licensing terms. See `LICENSE.md` for details.

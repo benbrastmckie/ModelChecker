@@ -5,7 +5,7 @@ Rather than computing whether a given sentence is a logical consequence of some 
 In addition to the unified semantics for the Logos, this package provides support for users to develop their own programmatic semantic theories.
 The [`TheoryLib`](src/model_checker/theory_lib/) includes the semantic theories that are available for users to import or use as a template to develop novel theories that can be contributed to the `TheoryLib` by pull request.
 
-You can find more information about development [here](src/model_checker/theory_lib/DEVELOPMENT.md) and the background semantic theory provided for the Logos [here](http://www.benbrastmckie.com/research#access).
+You can find more information about development [here](docs/DEVELOPMENT.md) and the background semantic theory provided for the Logos [here](http://www.benbrastmckie.com/research#access).
 The semantics and logic for counterfactual conditionals is developed in this [paper](https://link-springer-com.libproxy.mit.edu/article/10.1007/s10992-025-09793-8).
 
 ## _Logos_: A Formal Language of Thought

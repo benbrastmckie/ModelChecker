@@ -507,6 +507,19 @@ example_range = {
 
 }
 
+def get_examples():
+    """
+    Get all relevance examples.
+    
+    Returns:
+        dict: Dictionary containing all relevance examples
+    """
+    return {
+        'countermodels': relevance_cm_examples,
+        'theorems': relevance_th_examples,
+        'all': unit_tests
+    }
+
 # Make this module runnable from the command line
 if __name__ == '__main__':
     import subprocess

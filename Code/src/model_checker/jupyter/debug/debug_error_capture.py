@@ -79,7 +79,7 @@ def run_with_error_capture(code_block, block_name):
                 for key, value in frame.f_locals.items():
                     try:
                         print(f"  {key}: {repr(value)[:100]}")
-                    except:
+                    except Exception:
                         print(f"  {key}: <cannot display value>")
                 tb = tb.tb_next
         
