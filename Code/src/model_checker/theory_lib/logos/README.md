@@ -218,27 +218,120 @@ result = model.check_validity(premises, [conclusion])
 
 ## Testing
 
-The logos theory includes comprehensive test coverage:
+The logos theory implements a comprehensive **dual-testing framework** with **inclusive-by-default** CLI control:
 
-### Running Tests
+### Test Architecture
 
+**Two Test Types**:
+- **Example Tests**: 129 logical examples testing model checker on real arguments
+- **Unit Tests**: 109 implementation tests validating software components
+
+**Clean Organization**:
+```
+tests/
+├── test_examples/     # Example tests (integration)
+│   ├── test_logos_examples.py      # All 129 examples
+│   ├── test_extensional_examples.py # 14 extensional examples
+│   ├── test_modal_examples.py      # 23 modal examples
+│   ├── test_constitutive_examples.py # 33 constitutive examples
+│   ├── test_counterfactual_examples.py # 33 counterfactual examples
+│   └── test_relevance_examples.py  # 20 relevance examples
+└── test_unit/         # Unit tests (implementation)
+    ├── test_semantic_methods.py    # LogosSemantics, LogosProposition
+    ├── test_operators.py           # All operator implementations
+    ├── test_registry.py            # LogosOperatorRegistry
+    ├── test_proposition.py         # LogosProposition specific
+    ├── test_model_structure.py     # LogosModelStructure specific
+    └── test_error_conditions.py    # Error handling and edge cases
+```
+
+### Running Tests - Inclusive-by-Default CLI
+
+**Basic Usage** (runs ALL tests by default):
 ```bash
-# All logos tests
+# All logos tests: 129 examples + 109 unit tests = 238+ total
 python test_theories.py --theories logos
 
-# Specific test categories
-pytest src/model_checker/theory_lib/logos/tests/test_logos.py -v
-pytest src/model_checker/theory_lib/logos/tests/test_subtheories.py -v
+# All tests with verbose output
+python test_theories.py --theories logos -v
+```
+
+**Test Type Restrictions**:
+```bash
+# Examples only (129 tests)
+python test_theories.py --theories logos --examples
+
+# Unit tests only (109 tests) 
+python test_theories.py --theories logos --package
+```
+
+**Subtheory Restrictions**:
+```bash
+# All extensional tests (examples + unit tests)
+python test_theories.py --theories logos --extensional
+
+# Modal examples only (~23 tests)
+python test_theories.py --theories logos --modal --examples
+
+# Counterfactual unit tests only
+python test_theories.py --theories logos --counterfactual --package
+```
+
+**Specific Example Testing**:
+```bash
+# Single example (2 tests - appears in 2 test files)
+python test_theories.py --theories logos --examples EXT_CM_1
+
+# Multiple examples
+python test_theories.py --theories logos --examples EXT_CM_1 CF_TH_2
+
+# Wildcard patterns
+python test_theories.py --theories logos --examples "CF_*"    # All CF examples
+python test_theories.py --theories logos --examples "*_TH_*" # All theorems
+```
+
+**Unit Test Categories**:
+```bash
+# Operator implementation tests only
+python test_theories.py --theories logos --package --operators
+
+# Semantic method tests only  
+python test_theories.py --theories logos --package --semantics
+
+# Error condition tests only
+python test_theories.py --theories logos --package --error-conditions
+```
+
+**Complex Combinations**:
+```bash
+# Modal semantic tests only
+python test_theories.py --theories logos --modal --package --semantics
+
+# Extensional examples with verbose output
+python test_theories.py --theories logos --extensional --examples -v
 ```
 
 ### Test Coverage
 
-- **43 total tests** (27 main + 16 subtheory)
-- **Theory loading and registration**
-- **Individual subtheory isolation** 
-- **Cross-subtheory integration**
-- **Semantic framework validation**
-- **Builder and CLI integration**
+**Example Tests (129 total)**:
+- **Extensional**: 14 examples (truth-functional logic)
+- **Modal**: 23 examples (necessity/possibility)  
+- **Constitutive**: 33 examples (ground/essence/identity)
+- **Counterfactual**: 33 examples (counterfactual reasoning)
+- **Relevance**: 20 examples (relevance-sensitive logic)
+
+**Unit Tests (109 total)**:
+- **Semantic Methods**: LogosSemantics, LogosProposition, LogosModelStructure
+- **Operator Implementation**: All 20 operators across 5 subtheories
+- **Registry Functionality**: Dynamic loading, dependencies, state management
+- **Error Conditions**: Invalid inputs, resource limits, edge cases
+- **Integration**: Component compatibility, theory configurations
+
+**Key Features**:
+- **No Duplication**: Single source of truth for each test
+- **Inclusive-by-Default**: Maximum coverage without explicit flags
+- **Granular Control**: Precise targeting with restriction flags
+- **Fast Debugging**: Run specific examples or components quickly
 
 ## API Reference
 

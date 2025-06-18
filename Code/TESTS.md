@@ -129,11 +129,95 @@ Theories are automatically discovered from the `theory_lib` directory. Common th
 - `exclusion`: Tests for unilateral semantics with exclusion relations
 - `imposition`: Tests for semantics with imposition relations
 - `bimodal`: Tests for bimodal semantics
+- `logos`: Tests for modular hyperintensional truthmaker semantics with advanced CLI
 
 To see all available theories:
 ```bash
 python test_theories.py --list
 ```
+
+### Advanced Theory Testing: Logos Example
+
+The **logos theory** implements a comprehensive **dual-testing framework** that serves as a template for other theories. It demonstrates advanced testing capabilities with **inclusive-by-default** CLI control:
+
+#### Dual Testing Architecture
+
+**Two Test Types**:
+- **Example Tests** (129 tests): Integration tests using real logical arguments
+- **Unit Tests** (109 tests): Implementation tests for individual components
+
+#### Inclusive-by-Default CLI
+
+The logos theory supports granular test control while defaulting to maximum coverage:
+
+```bash
+# All logos tests (examples + unit tests = 238+ total)
+python test_theories.py --theories logos
+
+# Restrict to examples only (129 tests)
+python test_theories.py --theories logos --examples
+
+# Restrict to unit tests only (109 tests) 
+python test_theories.py --theories logos --package
+```
+
+#### Subtheory-Specific Testing
+
+```bash
+# All extensional tests (examples + unit tests)
+python test_theories.py --theories logos --extensional
+
+# Modal examples only (~23 tests)
+python test_theories.py --theories logos --modal --examples
+
+# Counterfactual unit tests only
+python test_theories.py --theories logos --counterfactual --package
+```
+
+#### Precise Example Targeting
+
+```bash
+# Single example (appears in multiple test files)
+python test_theories.py --theories logos --examples EXT_CM_1
+
+# Multiple specific examples
+python test_theories.py --theories logos --examples EXT_CM_1 CF_TH_2
+
+# Wildcard patterns
+python test_theories.py --theories logos --examples "CF_*"    # All CF examples
+python test_theories.py --theories logos --examples "*_TH_*" # All theorems
+```
+
+#### Unit Test Categories
+
+```bash
+# Operator implementation tests only
+python test_theories.py --theories logos --package --operators
+
+# Semantic method tests only  
+python test_theories.py --theories logos --package --semantics
+
+# Error condition tests only
+python test_theories.py --theories logos --package --error-conditions
+```
+
+#### Complex Combinations
+
+```bash
+# Modal semantic tests only
+python test_theories.py --theories logos --modal --package --semantics
+
+# Extensional examples with verbose output
+python test_theories.py --theories logos --extensional --examples -v
+```
+
+This testing approach provides:
+- **No Duplication**: Single source of truth for each test
+- **Inclusive-by-Default**: Maximum coverage without explicit flags
+- **Granular Control**: Precise targeting for debugging
+- **Fast Development**: Quick testing of specific components
+
+**Template Available**: See `src/model_checker/theory_lib/THEORY_TESTING_TEMPLATE.md` for implementing similar testing in other theories.
 
 ### Output Format
 
