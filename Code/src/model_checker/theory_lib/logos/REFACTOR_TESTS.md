@@ -225,9 +225,15 @@ Key features:
 - TestIntegrationErrorConditions: theory loading, component mismatches
 - TestRecoveryAndCleanup: error recovery, memory cleanup, state consistency
 
-### Phase 4: Enhanced CLI Integration
+### Phase 4: Enhanced CLI Integration ✓
 
-#### 4.1 Extend test_theories.py
+#### 4.1 Extend test_theories.py ✓
+
+**Status**: COMPLETED
+- Extended test_theories.py with logos-specific CLI functionality
+- Implemented inclusive-by-default approach with restriction flags
+- Added comprehensive argument parsing for all logos testing options
+- Verified functionality with extensive testing
 
 Add support for inclusive-by-default testing with restriction flags:
 
@@ -269,7 +275,29 @@ def add_logos_args(parser):
                            help='RESTRICT to error condition tests only')
 ```
 
-#### 4.2 Implement Test Selection Logic
+#### 4.2 Implement Test Selection Logic ✓
+
+**Status**: COMPLETED
+- Implemented build_logos_test_command() function with inclusive-by-default logic
+- Added validate_example_names() for example name validation with helpful error messages
+- Modified run_tests() to detect logos theory and apply specialized testing logic
+- Updated main() to conditionally add logos arguments and convert to kwargs format
+
+**Key Implementation Features**:
+- **Inclusive Logic**: Default behavior runs all tests, flags restrict scope
+- **Test Type Control**: --examples and --package flags for test type restriction
+- **Subtheory Filtering**: All 5 subtheory flags for granular control
+- **Unit Test Categories**: 6 unit test category flags for precise targeting
+- **Example Name Support**: Exact names and wildcard patterns
+- **Validation**: Comprehensive validation with suggestions for typos
+
+**Verified Functionality**:
+- `--theories logos` runs all tests (252+ total)
+- `--theories logos --examples` restricts to examples only (129 tests)
+- `--theories logos --package` restricts to unit tests only (109 tests)
+- `--theories logos --extensional --examples` restricts to extensional examples (28 tests)
+- `--theories logos --examples EXT_CM_1` runs specific example (2 tests)
+- `--theories logos --examples "EXT_CM*"` supports wildcards (2 tests)
 
 ```python
 def build_logos_test_command(args):
