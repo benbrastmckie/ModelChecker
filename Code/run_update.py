@@ -4,29 +4,26 @@ ModelChecker Package Update Script
 
 This script:
 1. Updates the version numbers in pyproject.toml and __init__.py
-2. Optionally runs tests for all registered theories (using run_tests.py)
+2. Optionally runs comprehensive tests using the unified run_tests.py
 3. Builds the package and uploads it to PyPI using twine
 
+The testing phase uses the unified test runner which includes:
+- Theory examples tests (integration tests from examples.py files)
+- Unit tests (component/implementation tests)
+- Package tests (framework infrastructure tests)
+
 Usage:
-    python update.py               # Run the update process
-    python update.py --no-version  # Skip version increment
-    python update.py --no-upload   # Skip the upload step
+    python run_update.py               # Run the full update process
+    python run_update.py --no-version  # Skip version increment
+    python run_update.py --no-upload   # Skip the upload step
 """
 
 import os
 import re
 import sys
 import shutil
-import importlib.util
 import subprocess
 from pathlib import Path
-
-def load_module_from_path(module_name, module_path):
-    """Load a Python module from a file path."""
-    spec = importlib.util.spec_from_file_location(module_name, module_path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
 
 def get_current_version():
     """Get the current version from pyproject.toml."""
@@ -95,55 +92,45 @@ def clean_build_dirs():
     print("Cleaned build directories")
 
 def run_tests():
-    """Run package and theory tests using test_package.py and test_theories.py."""
-    response = input("Do you want to run tests? (y/N): ").strip().lower()
+    """Run comprehensive tests using the unified run_tests.py script."""
+    response = input("Do you want to run tests before building? (y/N): ").strip().lower()
     if response != 'y':
         print("Skipping tests")
         return True  # Continue with build even without running tests
     
-    # First run package tests
-    package_tests_script = Path(__file__).parent / 'test_package.py'
-    if not package_tests_script.exists():
-        print("Error: test_package.py not found")
+    # Check if the unified test runner exists
+    test_runner_script = Path(__file__).parent / 'run_tests.py'
+    if not test_runner_script.exists():
+        print("Error: run_tests.py not found")
         return False
     
-    # Import the test_package module
-    package_tests_module = load_module_from_path('test_package', str(package_tests_script))
-    
-    # Run package tests
-    print("\nRunning package component tests...")
+    print("\nRunning comprehensive tests with unified test runner...")
     print("=" * 80)
-    package_tests_passed = package_tests_module.run_package_tests() == 0
     
-    if not package_tests_passed:
-        response = input("\nPackage tests failed. Continue with theory tests? (y/N): ").strip().lower()
-        if response != 'y':
-            return False  # Stop the process if user chooses not to continue
+    # Run all tests using the unified test runner
+    # This runs examples, unit tests, and package tests for all theories (excluding default)
+    result = subprocess.run([
+        sys.executable, 
+        str(test_runner_script),
+        '--verbose'
+    ], cwd=Path(__file__).parent)
     
-    # Now run theory tests
-    theory_tests_script = Path(__file__).parent / 'test_theories.py'
-    if not theory_tests_script.exists():
-        print("Error: test_theories.py not found")
-        return False
+    tests_passed = result.returncode == 0
     
-    # Import the test_theories module
-    theory_tests_module = load_module_from_path('test_theories', str(theory_tests_script))
-    
-    # Run theory tests
-    print("\nRunning theory tests...")
-    print("=" * 80)
-    theory_tests_passed = theory_tests_module.run_tests() == 0
-    
-    if not theory_tests_passed:
-        response = input("\nTheory tests failed. Continue with build and upload anyway? (y/N): ").strip().lower()
+    if not tests_passed:
+        print("\n" + "=" * 80)
+        print("Some tests failed. You can:")
+        print("1. Continue with build anyway (not recommended)")
+        print("2. Fix the failing tests and run the update script again")
+        print("3. Run specific tests: ./run_tests.py --examples logos modal")
+        print("4. Run package tests only: ./run_tests.py --package")
+        
+        response = input("\nContinue with build and upload despite test failures? (y/N): ").strip().lower()
         return response == 'y'
     
-    if not package_tests_passed:
-        # Ask again if package tests failed but theory tests passed
-        response = input("\nPackage tests failed, but theory tests passed. Continue with build and upload? (y/N): ").strip().lower()
-        return response == 'y'
-    
-    return True  # All tests passed
+    print("\n" + "=" * 80)
+    print("All tests passed successfully!")
+    return True
 
 def build_package():
     """Build the package using python -m build."""
