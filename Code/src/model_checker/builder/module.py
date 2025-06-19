@@ -75,6 +75,68 @@ class BuildModule:
         for key, value in self.general_settings.items():
             setattr(self, key, value)
 
+    def _is_generated_project(self, module_dir):
+        """Detect if module is from a generated project.
+        
+        Generated projects are identified by the project_ prefix pattern.
+        This approach is structure-agnostic and works regardless of 
+        internal theory organization. Checks both the current directory
+        and parent directories for the project_ pattern.
+        
+        Args:
+            module_dir (str): Directory containing the module
+            
+        Returns:
+            bool: True if module is from a generated project
+        """
+        # Check current directory
+        current_name = os.path.basename(module_dir)
+        if current_name.startswith('project_'):
+            return True
+        
+        # Check parent directories up to a reasonable depth
+        current_path = module_dir
+        for _ in range(3):  # Check up to 3 levels up
+            parent_path = os.path.dirname(current_path)
+            if parent_path == current_path:  # Reached root
+                break
+            parent_name = os.path.basename(parent_path)
+            if parent_name.startswith('project_'):
+                return True
+            current_path = parent_path
+        
+        return False
+
+    def _find_project_directory(self, module_dir):
+        """Find the root directory of a generated project.
+        
+        Traverses up the directory tree to find the directory with project_ prefix.
+        
+        Args:
+            module_dir (str): Directory containing the module
+            
+        Returns:
+            str: Path to the project root directory
+        """
+        # Check current directory first
+        current_name = os.path.basename(module_dir)
+        if current_name.startswith('project_'):
+            return module_dir
+        
+        # Check parent directories
+        current_path = module_dir
+        for _ in range(3):  # Check up to 3 levels up
+            parent_path = os.path.dirname(current_path)
+            if parent_path == current_path:  # Reached root
+                break
+            parent_name = os.path.basename(parent_path)
+            if parent_name.startswith('project_'):
+                return parent_path
+            current_path = parent_path
+        
+        # Fallback to module_dir if no project directory found
+        return module_dir
+
     def _load_module(self):
         """Load the Python module from file.
         
@@ -85,36 +147,56 @@ class BuildModule:
             ImportError: If module cannot be loaded
         """
         try:
-            # Add the parent directory to sys.path to enable package imports
             module_dir = os.path.dirname(os.path.abspath(self.module_path))
             
-            # Set up the appropriate package context for relative imports
-            package_parts = []
-            current_dir = module_dir
+            # Check if this is a generated project
+            is_generated_project = self._is_generated_project(module_dir)
             
-            # Build package name by traversing directories upward until we find no __init__.py
-            while os.path.exists(os.path.join(current_dir, "__init__.py")):
-                package_parts.insert(0, os.path.basename(current_dir))
-                parent_dir = os.path.dirname(current_dir)
+            if is_generated_project:
+                # Find the actual project directory (may be current dir or a parent)
+                project_dir = self._find_project_directory(module_dir)
+                project_name = os.path.basename(project_dir)
                 
-                # Stop if we reach the root directory
-                if parent_dir == current_dir:
-                    break
-                current_dir = parent_dir
-            
-            # Create the package name and make sure the parent directory is in sys.path
-            if package_parts:
-                package_name = ".".join(package_parts)
-                # Add the parent of the top-level package to sys.path
-                parent_of_package = os.path.dirname(current_dir)
-                if parent_of_package not in sys.path:
-                    sys.path.insert(0, parent_of_package)
-            else:
-                # If no package structure detected, treat as standalone module
-                package_name = ""
-                # Add the module directory to path so sibling modules can be imported
+                # For generated projects, ensure both project and parent directories are in sys.path
+                # This enables both relative imports and sibling module imports
+                project_parent = os.path.dirname(project_dir)
+                if project_parent not in sys.path:
+                    sys.path.insert(0, project_parent)
+                if project_dir not in sys.path:
+                    sys.path.insert(0, project_dir)
                 if module_dir not in sys.path:
                     sys.path.insert(0, module_dir)
+                
+                # Set package context to enable relative imports
+                # If we're in a subdirectory, build the full package path
+                if module_dir != project_dir:
+                    # Calculate relative path from project to module directory
+                    rel_path = os.path.relpath(module_dir, project_dir)
+                    subpackage_parts = rel_path.split(os.sep)
+                    package_name = project_name + "." + ".".join(subpackage_parts)
+                else:
+                    package_name = project_name
+            else:
+                # Existing package detection logic for theory_lib and installed packages
+                package_parts = []
+                current_dir = module_dir
+                
+                while os.path.exists(os.path.join(current_dir, "__init__.py")):
+                    package_parts.insert(0, os.path.basename(current_dir))
+                    parent_dir = os.path.dirname(current_dir)
+                    if parent_dir == current_dir:
+                        break
+                    current_dir = parent_dir
+                
+                if package_parts:
+                    package_name = ".".join(package_parts)
+                    parent_of_package = os.path.dirname(current_dir)
+                    if parent_of_package not in sys.path:
+                        sys.path.insert(0, parent_of_package)
+                else:
+                    package_name = ""
+                    if module_dir not in sys.path:
+                        sys.path.insert(0, module_dir)
             
             # Load the module
             spec = importlib.util.spec_from_file_location(
@@ -127,21 +209,27 @@ class BuildModule:
             
             module = importlib.util.module_from_spec(spec)
             
-            # Set the package attribute to enable relative imports
+            # Set package attribute for relative imports
             if package_name:
                 module.__package__ = package_name
             
-            # Execute the module
             spec.loader.exec_module(module)
             return module
             
         except Exception as e:
             if "attempted relative import" in str(e):
-                # More helpful error message for relative import issues
-                raise ImportError(
-                    f"Relative import error in '{self.module_name}': {e}\n"
-                    f"To use relative imports, make sure your project follows Python package structure with __init__.py files."
-                ) from e
+                # Enhanced error message for relative import issues
+                if self._is_generated_project(os.path.dirname(os.path.abspath(self.module_path))):
+                    raise ImportError(
+                        f"Relative import error in generated project '{self.module_name}': {e}\n"
+                        f"Generated projects should have their imports properly configured. "
+                        f"This may indicate an issue with the project template or generation process."
+                    ) from e
+                else:
+                    raise ImportError(
+                        f"Relative import error in '{self.module_name}': {e}\n"
+                        f"To use relative imports, make sure your project follows Python package structure with __init__.py files."
+                    ) from e
             raise ImportError(f"Failed to load the module '{self.module_name}': {e}") from e
 
     def _load_attribute(self, attr_name):
