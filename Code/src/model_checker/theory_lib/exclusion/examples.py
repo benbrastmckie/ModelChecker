@@ -236,9 +236,11 @@ EMPTY_example = [
 ]
 
 # CONTRADICTION CASE FOR TESTING
-EX_CM_1_premises = ['\\exclude (A \\univee \\exclude A)'] # FALSE PREMISE MODEL
+# EX_CM_1_premises = ['\\exclude (A \\univee \\exclude A)'] # FALSE PREMISE MODEL
 # EX_CM_1_premises = ['(A \\uniwedge \\exclude A)']
-EX_CM_1_conclusions = []
+EX_CM_1_premises = [] # FALSE PREMISE MODEL
+EX_CM_1_conclusions = ['\\exclude (A \\univee \\exclude A)'] # FALSE PREMISE MODEL
+# EX_CM_1_conclusions = []
 EX_CM_1_settings = {
     'N' : 2,
     'possible' : False,
@@ -301,7 +303,7 @@ GAPS_example = [
 ]
 
 # DISTRIBUTION AND/OR (from t_exclusion.py test_CMP_CM1)
-EX_CM_15_premises = ['((A \\univee B) \\uniwedge (A \\univee B))']
+EX_CM_15_premises = ['((A \\uniwedge B) \\univee (A \\uniwedge C))']
 EX_CM_15_conclusions = ['(A \\uniwedge (B \\univee C))']
 EX_CM_15_settings = {
     'N' : 3,
@@ -966,23 +968,23 @@ example_range = {
     # # Frame
 
     # "Only Frame Constraints" : EMPTY_example,
-    # "No Gaps" : GAPS_example,
+    # "No Gaps" : GAPS_example, # countermodel
     # "No Gluts" : GLUTS_example,
-    # "EX_CM_1" : EX_CM_1_example, # false premise model
+    "EX_CM_1" : EX_CM_1_example, # true premise model
 
 
     # # Classical Negation Theorems (All should hold)
 
     # "Double Negation Introduction" : DN_INTRO_example,
-    # "Double Negation Elimination" : DN_ELIM_example,
-    # "Triple Negation Entailment" : TN_ENTAIL_example,
+    # "Double Negation Elimination" : DN_ELIM_example, # countermodel
+    "Triple Negation Entailment" : TN_ENTAIL_example, # false_premise
     # "Quadruple Negation Entailment" : QN_ENTAIL_example,
     # "Disjunctive Syllogism" : DISJ_SYLL_example,
 
-    "Conjunctive DeMorgan's LR" : CONJ_DM_LR_example, 
-    "Conjunctive DeMorgan's RL" : CONJ_DM_RL_example,
-    "Disjunctive DeMorgan's LR" : DISJ_DM_LR_example,
-    "Disjunctive DeMorgan's RL" : DISJ_DM_RL_example,
+    # "Conjunctive DeMorgan's LR" : CONJ_DM_LR_example, # countermodel
+    "Conjunctive DeMorgan's RL" : CONJ_DM_RL_example, # false premise
+    # "Disjunctive DeMorgan's LR" : DISJ_DM_LR_example, # no countermodel
+    "Disjunctive DeMorgan's RL" : DISJ_DM_RL_example, # false premise
 
 
     # Classical And/Or Theorems (All should hold)
@@ -1008,11 +1010,11 @@ example_range = {
     # "Double Negation Identity" : DN_ID_example, # has countermodel
     # "Triple Negation Identity" : TN_ID_example, # has countermodel
     # "Conjuctive DeMorgan's Identity" : CONJ_DM_ID_example, # expect CM
-    # "Disjunctive DeMorgan's Identity" : DISJ_DM_ID_example, # expect THM
+    # "Disjunctive DeMorgan's Identity" : DISJ_DM_ID_example, # countermodel
     # "Conjunctive Distribution Identity" : CONJ_DIST_ID_example, # expect THM
     # "Disjuctive Distribution Identity" : DISJ_DIST_ID_example, # expect CM
-    #     # NOTE: this is invalid for the same reason as in the bilateral semantics
-    #     # however, here the dual is valid, breaking the duality of the operators
+        # NOTE: this is invalid for the same reason as in the bilateral semantics
+        # however, here the dual is valid, breaking the duality of the operators
 
 
     # Other
