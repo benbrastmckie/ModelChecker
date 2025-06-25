@@ -2,53 +2,35 @@
 
 ## Issue Summary
 
-When running the exclusion theory model checker with certain complex formulas like `\exclude (A \univee \exclude A)`, countermodels are generated where premises evaluate to false. This violates a fundamental principle of logical inference: premises must be true in valid countermodels.
+When running the exclusion theory model checker with formulas containing exclusion operators, some countermodels are generated where premises that should be true evaluate to false during model display. This violates a fundamental principle of logical inference: premises must be true in valid countermodels.
 
-This document analyzes the root causes of this issue and proposes potential solutions.
+This document analyzes the current state of this issue based on running the examples in December 2024.
 
-## Model Output Demonstrating the Issue
+## Current State of the Issue (December 2024)
 
-Running the exclusion/examples.py file shows:
+Running `./dev_cli.py` on exclusion/examples.py shows the following problematic cases:
 
-```
-EXAMPLE EX_CM_1: there is a countermodel.
+### 1. Triple Negation Entailment
+- **Premise**: `\exclude \exclude \exclude A` - evaluates to **FALSE**
+- **Conclusion**: `\exclude A` - evaluates to **FALSE**
+- **Issue**: Premise should be TRUE in countermodel
 
-Atomic States: 2
-Semantic Theory: exclusion
+### 2. Conjunctive DeMorgan's RL 
+- **Premise**: `(\exclude A \univee \exclude B)` - evaluates to **TRUE** ✓
+- **Conclusion**: `\exclude (A \uniwedge B)` - evaluates to **FALSE** ✓
+- **Status**: This is working correctly
 
-State Space
-  #b00 = □
-  #b01 = a (world)
-  #b10 = b (world)
+### 3. Disjunctive DeMorgan's RL
+- **Premise**: `(\exclude A \uniwedge \exclude B)` - evaluates to **FALSE**
+- **Conclusion**: `\exclude (A \univee B)` - evaluates to **FALSE**
+- **Issue**: Premise should be TRUE in countermodel
 
-Conflicts
-  a conflicts with b
-  b conflicts with a
+### 4. EX_CM_1 (No premise case)
+- **Premise**: None (empty list)
+- **Conclusion**: `\exclude (A \univee \exclude A)` - evaluates to **FALSE** ✓
+- **Status**: This is working correctly (no premises to be true)
 
-Coherence
-  □ coheres with □
-  □ coheres with a
-  □ coheres with b
-  a coheres with □
-  a coheres with a
-  b coheres with □
-  b coheres with b
-
-Exclusion
-  a excludes b
-  b excludes a
-
-The evaluation world is: a
-
-INTERPRETED PREMISE:
-1. |\exclude (A \univee \exclude A)| = ∅  (False in a)
-      |(A \univee \exclude A)| = {b}  (False in a)
-        |A| = {b}  (False in a)
-        |\exclude A| = ∅  (False in a)
-          |A| = {b}  (False in a)
-```
-
-The premise `\exclude (A \univee \exclude A)` is evaluated as false in the model world 'a', even though premises should always be true in a valid model.
+The core issue is that **complex exclusion formulas in premises sometimes evaluate to false when they should be true**.
 
 ## Technical Analysis
 
@@ -72,17 +54,19 @@ The premise `\exclude (A \univee \exclude A)` is evaluated as false in the model
    - The solver finds a model satisfying all constraints simultaneously
    - When quantifiers are involved, Z3 only needs to prove existence, not provide a specific function
 
-### Root Cause
+### Root Cause Analysis
 
-The fundamental problem is in how Z3 handles existentially quantified formulas:
+The fundamental problem stems from how Z3 handles existentially quantified formulas in the exclusion operator:
 
-1. During constraint solving, Z3 only needs to prove that *some* function could make the formula `\exclude (A \univee \exclude A)` true at the evaluation world.
-2. However, when evaluating the same formula in the generated model, Z3 uses the *specific* function instance it chose.
-3. This leads to a contradiction: the model satisfies the abstract constraint "there exists a function making the premise true" but the specific function Z3 found doesn't actually make the premise true when evaluated.
+1. **Constraint Generation Phase**: Z3 successfully finds models where the constraint "there exists a function h making the premise true" is satisfied
+2. **Truth Evaluation Phase**: The same formula evaluates to false because Z3 doesn't retain the specific function witness it used during constraint solving
+3. **Behavioral Verification**: The `premise_behavior` and `conclusion_behavior` logic in semantic.py (lines 227-228) is correct:
+   ```python
+   self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
+   self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
+   ```
 
-The issue is essentially a mismatch between:
-- **Satisfiability**: "There exists a function making this true"
-- **Evaluation**: "The specific function in this model makes this true"
+The issue is a **constraint satisfaction vs. truth evaluation mismatch** specific to existentially quantified exclusion operators.
 
 ## Z3 Constraint Generation and Evaluation
 
@@ -396,16 +380,31 @@ Our implementation of the Function Witness Extraction approach revealed several 
    - Standard logical inferences like disjunctive syllogism
    - Tests of double negation introduction/elimination and other classical principles
 
-This approach satisfies our key requirements:
-- It preserves the original semantics of the exclusion operator during constraint generation
-- It ensures logical consistency by making premises true in countermodels
-- It avoids invasive changes to the core semantic implementation
-- It doesn't require Z3 to expose internals that are unavailable through its API
+This approach addresses the key issue:
+- **Constraint Generation**: Preserves the original semantics during model finding
+- **Truth Display**: Ensures logical consistency by showing premises as true
+- **Z3 Limitations**: Works around Z3's inability to expose function witnesses
+- **Minimal Changes**: Doesn't require restructuring the core semantics
 
-The solution recognizes that premise truth is a fundamental requirement of logical inference, and pragmatically enforces this requirement while working within Z3's constraints.
+**Current Status**: The issue persists in the current codebase. Examples like "Triple Negation Entailment" and "Disjunctive DeMorgan's RL" still show false premises, indicating the proposed fixes have not been fully implemented or are not working as expected.
 
-## Conclusion
+## Current Status and Next Steps
 
-The false premise issue in the exclusion theory reveals a fundamental challenge in implementing quantified operators in Z3-based model checkers. The issue stems from the mismatch between how Z3 handles existential quantification during constraint solving versus model evaluation.
+As of December 2024, the false premise issue in the exclusion theory remains partially unresolved:
 
-While our fix to use consistent formula evaluation improved the situation, addressing the root cause requires deeper modifications to how exclusion semantics are implemented or how models are verified after generation. The recommended two-phase approach provides a practical solution while maintaining the intended semantics of the exclusion operator.
+### What Works:
+- Simple premises without complex exclusion nesting
+- Cases with no premises (like EX_CM_1)
+- Some DeMorgan's law examples
+
+### What Still Fails:
+- Premises with nested exclusion operators (e.g., `\exclude \exclude \exclude A`)
+- Complex exclusion formulas in conjunctive/disjunctive contexts
+
+### Recommended Next Steps:
+1. **Implement the Function Witness Extraction** approach more completely
+2. **Add explicit premise validation** to catch and warn about false premise cases
+3. **Consider reformulating complex exclusion operators** to avoid deep nesting of existential quantifiers
+4. **Implement a two-phase verification system** that separates constraint satisfaction from truth evaluation
+
+The issue highlights a fundamental limitation in using Z3 for non-classical logics with existentially quantified operators.
