@@ -1016,6 +1016,8 @@ all_example_range = {
     # Identity examples
     "CONJ_DIST_ID" : CONJ_DIST_ID_example,
     "DISJ_DIST_ID" : DISJ_DIST_ID_example,
+    "CONJ_DM_ID" : CONJ_DM_ID_example,
+    "DISJ_DM_ID" : DISJ_DM_ID_example,
 }
 
 # NOTE: at least one example is required, multiple are permitted for comparison
