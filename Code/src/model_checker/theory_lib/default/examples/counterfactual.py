@@ -801,7 +801,7 @@ example_range = {
     # "CF_TH_3": CF_TH_3_example,
     
     # Quick test example - comment out or replace as needed
-    "CF_CM_2": CF_CM_2_example,
+    "CF_CM_1": CF_CM_1_example,
 }
 
 # Make this module runnable from the command line
