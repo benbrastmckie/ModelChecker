@@ -457,6 +457,90 @@ class ExclusionOperatorNameArrays(ExclusionOperatorBase):
             )
 
 
+class ExclusionOperatorSkolemized(ExclusionOperatorBase):
+    """Skolemized Functions (SK) strategy - eliminates existential quantifiers entirely.
+    
+    This implementation replaces existential quantifiers with direct Skolem functions,
+    addressing the fundamental issue where Z3 finds satisfying formulas but doesn't
+    preserve function witnesses in the model.
+    
+    Advantages:
+    - Eliminates existential quantifier issues completely
+    - More deterministic behavior through explicit function definition
+    - Better function witness extraction due to direct function naming
+    - Potentially more reliable countermodel generation
+    
+    Disadvantages:
+    - Requires careful Skolem function management
+    - May have performance implications due to additional function constraints
+    """
+
+    name = "\\exclude"
+    arity = 1
+
+    def extended_verify(self, state, argument, eval_point):
+        """Returns a Z3 formula using Skolemized functions instead of existential quantifiers.
+        
+        The three-condition exclusion semantics is implemented using direct Skolem functions:
+        - h_sk: Main exclusion function (BitVec -> BitVec)  
+        - y_sk: Skolem function for condition 1 witness (BitVec -> BitVec)
+        
+        Args:
+            state: The state to check for verification
+            argument: The argument to exclude
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world at which to evaluate the sentence
+                
+        Returns:
+            Z3 formula with Skolemized functions instead of existential quantifiers
+        """
+        # Abbreviations
+        semantics = self.semantics
+        N = semantics.N
+        extended_verify = semantics.extended_verify
+        excludes = semantics.excludes
+        is_part_of = semantics.is_part_of
+        
+        # Create unique Skolem functions for this exclusion instance
+        semantics.counter += 1
+        counter = semantics.counter
+        
+        # Main exclusion function: maps verifiers to their exclusion states
+        h_sk = z3.Function(f"h_sk_{counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+        
+        # Witness function for condition 1: maps verifiers to witness parts
+        y_sk = z3.Function(f"y_sk_{counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+        
+        # Variables
+        x, z = z3.BitVecs(f"sk_x_{counter} sk_z_{counter}", N)
+
+        return z3.And(
+            # Condition 1: For every verifier x of argument, y_sk(x) is part of x and h_sk(x) excludes y_sk(x)
+            ForAll(x, z3.Implies(
+                extended_verify(x, argument, eval_point), 
+                z3.And(
+                    is_part_of(y_sk(x), x), 
+                    excludes(h_sk(x), y_sk(x))
+                )
+            )),
+            
+            # Upper Bound: For every verifier x of argument, h_sk(x) is part of state
+            ForAll(x, z3.Implies(
+                extended_verify(x, argument, eval_point), 
+                is_part_of(h_sk(x), state)
+            )),
+            
+            # Least Upper Bound: state is the smallest state satisfying the UB condition
+            ForAll(z, z3.Implies(
+                ForAll(x, z3.Implies(
+                    extended_verify(x, argument, eval_point), 
+                    is_part_of(h_sk(x), z)
+                )), 
+                is_part_of(state, z)
+            ))
+        )
+
+
 QA = ExclusionOperatorQuantifyArrays
 QI = ExclusionOperatorQuantifyIndices
 QI2 = ExclusionOperatorQuantifyIndices2
