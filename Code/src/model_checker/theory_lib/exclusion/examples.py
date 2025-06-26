@@ -1026,59 +1026,62 @@ example_range = {
     # # Frame
 
     # "Only Frame Constraints" : EMPTY_example,
-    # "No Gaps" : GAPS_example, # countermodel
-    # "No Gluts" : GLUTS_example,
-    "EX_CM_1" : EX_CM_1_example, # true premise model
+    "No Gaps" : GAPS_example, # countermodel
+    "No Gluts" : GLUTS_example,
+    # "EX_CM_1" : EX_CM_1_example, # countermodel
 
 
     # # Classical Negation Theorems (All should hold)
 
-    # "Double Negation Introduction" : DN_INTRO_example,
-    # "Double Negation Elimination" : DN_ELIM_example, # countermodel
+    "Double Negation Introduction" : DN_INTRO_example,
+    "Double Negation Elimination" : DN_ELIM_example, # countermodel
     "Triple Negation Entailment" : TN_ENTAIL_example, # false_premise
-    # "Quadruple Negation Entailment" : QN_ENTAIL_example,
-    # "Disjunctive Syllogism" : DISJ_SYLL_example,
+    "Quadruple Negation Entailment" : QN_ENTAIL_example,
+    "Disjunctive Syllogism" : DISJ_SYLL_example,
 
-    # "Conjunctive DeMorgan's LR" : CONJ_DM_LR_example, # countermodel
+    "Conjunctive DeMorgan's LR" : CONJ_DM_LR_example, # countermodel
     "Conjunctive DeMorgan's RL" : CONJ_DM_RL_example, # false premise
-    # "Disjunctive DeMorgan's LR" : DISJ_DM_LR_example, # no countermodel
+    "Disjunctive DeMorgan's LR" : DISJ_DM_LR_example, # no countermodel
     "Disjunctive DeMorgan's RL" : DISJ_DM_RL_example, # false premise
 
 
     # Classical And/Or Theorems (All should hold)
 
-    # "Conjunctive Distribution LR" : CONJ_DIST_LR_example,
-    # "Conjunctive Distribution RL" : CONJ_DIST_RL_example,
-    # "Disjunctive Distribution LR" : DISJ_DIST_LR_example,
-    # "Disjunctive Distribution RL" : DISJ_DIST_RL_example,
+    "Conjunctive Distribution LR" : CONJ_DIST_LR_example,
+    "Conjunctive Distribution RL" : CONJ_DIST_RL_example,
+    "Disjunctive Distribution LR" : DISJ_DIST_LR_example,
+    "Disjunctive Distribution RL" : DISJ_DIST_RL_example,
 
-    # "Conjunctive Absorption LR" : CONJ_ABS_LR_example,
-    # "Conjunctive Absorption RL" : CONJ_ABS_RL_example,
-    # "Disjunctive Absorption LR" : DISJ_ABS_LR_example,
-    # "Disjunctive Absorption RL" : DISJ_ABS_RL_example,
+    "Conjunctive Absorption LR" : CONJ_ABS_LR_example,
+    "Conjunctive Absorption RL" : CONJ_ABS_RL_example,
+    "Disjunctive Absorption LR" : DISJ_ABS_LR_example,
+    "Disjunctive Absorption RL" : DISJ_ABS_RL_example,
 
-    # "Conjunctive Associativity LR" : CONJ_ASSOC_LR_example,
-    # "Conjunctive Associativity RL" : CONJ_ASSOC_RL_example,
-    # "Disjunctive Associativity LR" : DISJ_ASSOC_LR_example,
-    # "Disjunctive Associativity RL" : DISJ_ASSOC_RL_example,
+    "Conjunctive Associativity LR" : CONJ_ASSOC_LR_example,
+    "Conjunctive Associativity RL" : CONJ_ASSOC_RL_example,
+    "Disjunctive Associativity LR" : DISJ_ASSOC_LR_example,
+    "Disjunctive Associativity RL" : DISJ_ASSOC_RL_example,
 
 
-    # # Identity
+    # Identity
 
-    # "Double Negation Identity" : DN_ID_example, # has countermodel
-    # "Triple Negation Identity" : TN_ID_example, # has countermodel
-    # "Conjuctive DeMorgan's Identity" : CONJ_DM_ID_example, # expect CM
-    # "Disjunctive DeMorgan's Identity" : DISJ_DM_ID_example, # countermodel
-    # "Conjunctive Distribution Identity" : CONJ_DIST_ID_example, # expect THM
-    # "Disjuctive Distribution Identity" : DISJ_DIST_ID_example, # expect CM
+    "Double Negation Identity" : DN_ID_example, # has countermodel
+    "Triple Negation Identity" : TN_ID_example, # has countermodel
+    "Conjuctive DeMorgan's Identity" : CONJ_DM_ID_example, # expect CM
+    "Disjunctive DeMorgan's Identity" : DISJ_DM_ID_example, # countermodel
+    "Conjunctive Distribution Identity" : CONJ_DIST_ID_example, # expect THM
+    "Disjuctive Distribution Identity" : DISJ_DIST_ID_example, # expect CM
+
         # NOTE: this is invalid for the same reason as in the bilateral semantics
         # however, here the dual is valid, breaking the duality of the operators
 
 
     # Other
-    # "EX_CM_15" : EX_CM_15_example,
-    # "EX_TH_17" : EX_TH_17_example,
-    # "EX_TH_18" : EX_TH_18_example,
+
+    "EX_CM_15" : EX_CM_15_example,
+    "EX_TH_17" : EX_TH_17_example,
+    "EX_TH_18" : EX_TH_18_example,
+
 }
 
 

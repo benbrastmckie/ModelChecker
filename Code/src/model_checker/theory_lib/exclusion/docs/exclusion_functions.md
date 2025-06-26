@@ -330,15 +330,47 @@ It's like defining multiplication without showing the times table:
 
 ### Performance Comparison
 
-| Strategy | Success Rate | Speed  | Reliability | Approach                      |
-| -------- | ------------ | ------ | ----------- | ----------------------------- |
-| QI2      | 34.4%        | 1.781s | 63.6%       | Quantify over integer indices |
-| SK       | 50.0%        | 0.315s | 52.9%       | Replace exists with functions |
-| CD       | 50.0%        | 0.377s | 52.9%       | Enumerate constraints         |
-| MS       | 50.0%        | 0.387s | 52.9%       | Use type system               |
-| UF       | 50.0%        | 0.397s | 52.9%       | Axiomatize behavior           |
+| Strategy | Success Rate | Speed  | Reliability | Valid Models | Invalid Models | Approach                      |
+| -------- | ------------ | ------ | ----------- | ------------ | -------------- | ----------------------------- |
+| QA       | 18.8%        | 0.373s | **83.3%**   | 5            | 1              | Quantify over arrays (conservative) |
+| QI2      | 34.4%        | 1.781s | **63.6%**   | 7            | 3              | Quantify over integer indices |
+| SK       | 50.0%        | 0.315s | 52.9%       | 9            | 8              | Replace exists with functions |
+| CD       | 50.0%        | 0.377s | 52.9%       | 9            | 8              | Enumerate constraints         |
+| MS       | 50.0%        | 0.387s | 52.9%       | 9            | 8              | Use type system (default)     |
+| UF       | 50.0%        | 0.397s | 52.9%       | 9            | 8              | Axiomatize behavior           |
 
-*Note: Results shown are from testing on 32 examples including all DeMorgan and distribution laws*
+*Note: Results from testing on 34 examples. Reliability = percentage of found models that are valid (no false premises).*
+
+### Understanding the Trade-offs
+
+The strategies exhibit a fundamental trade-off between **success rate** (finding more models) and **reliability** (avoiding false premises):
+
+1. **High Reliability, Low Coverage**: 
+   - **QA Strategy**: 83.3% reliability but only finds 6 models (18.8% success)
+   - Best for: Applications where correctness is critical and false premises must be minimized
+
+2. **Balanced Approach**:
+   - **QI2 Strategy**: 63.6% reliability with 34.4% success rate
+   - Best for: General use cases requiring good balance of coverage and correctness
+
+3. **High Coverage, Lower Reliability**:
+   - **MS/SK/CD/UF Strategies**: 50% success rate but 52.9% reliability
+   - Best for: Research and exploration where finding more models is prioritized
+
+### Which Strategy Should You Use?
+
+**For Production Systems** (where incorrect results are costly):
+- Consider **QA** (most reliable) or **QI2** (balanced)
+- These minimize false premise issues at the cost of finding fewer models
+
+**For Research/Exploration** (where coverage is important):
+- Use **MS** (current default) or other Phase 3 strategies
+- These find the most models but require careful validation
+
+**For Specific Use Cases**:
+- **Debugging**: SK strategy provides clearest function traces
+- **Small domains**: CD strategy with explicit enumeration
+- **Theoretical work**: UF strategy with clean axiomatization
 
 ### Key Improvements Over QI2
 
@@ -353,31 +385,49 @@ The improvements stem from addressing QI2's fundamental limitation: its continue
 
 ### Conceptual Differences
 
-1. **QI2 (Current Default)**
-   - Intermediate approach using integer indices
-   - Still relies on existential quantifiers
-   - Slower due to complex quantification
-   - Higher reliability but lower success rate
+**Conservative Strategies** (prioritize correctness):
 
-2. **SK (Skolemization)**
-   - Most direct elimination of existential quantifiers
+1. **QA (Quantify Arrays)**
+   - Most conservative approach with highest reliability (83.3%)
+   - Uses Z3 arrays but finds fewer models
+   - Best when false premises must be avoided
+
+2. **QI2 (Quantify Indices)**
+   - Balanced approach with good reliability (63.6%)
+   - Integer indexing provides moderate success rate
+   - Best general-purpose trade-off
+
+**Aggressive Strategies** (prioritize coverage):
+
+3. **MS (Multi-Sort)** - Current Default
+   - Type-safe approach with highest success rate (50%)
+   - Leverages Z3's type system for extensibility
+   - Accepts more false premises for broader coverage
+
+4. **SK (Skolemization)**
+   - Direct elimination of existential quantifiers
    - Creates explicit witness functions
-   - Good for debugging and analysis
+   - Good for debugging despite lower reliability
 
-3. **CD (Constraints)**
+5. **CD (Constraints)**
    - Most explicit and controllable
    - Limited by enumeration size
-   - Good for small, finite domains
+   - Trade-off depends on domain size
 
-4. **MS (Multi-Sort)**
-   - Most extensible for future enhancements
-   - Leverages Z3's type system
-   - Good for complex type hierarchies
-
-5. **UF (Axioms)**
+6. **UF (Axioms)**
    - Most mathematically elegant
-   - Best integration with Z3's architecture
-   - Good for theoretical analysis
+   - Clean axiomatic approach
+   - Similar trade-offs to other aggressive strategies
+
+### The Reliability-Coverage Spectrum
+
+```
+High Reliability                                          High Coverage
+<------------------------------------------------------------------>
+QA (83.3%)    QI2 (63.6%)    |    MS/SK/CD/UF (52.9%)
+5 valid       7 valid        |    9 valid models each
+models        models         |    (but more false premises)
+```
 
 ---
 
