@@ -222,7 +222,7 @@ Update `FINDINGS.md` with:
    ```python
    class ExclusionOperatorSkolemized(ExclusionOperatorBase):
        def extended_verify(self, state, argument, eval_point):
-           # Replace h.  x. ... with direct Skolem functions h_sk_n(x)
+           # Replace with direct Skolem functions h_sk_n(x)
            h_sk = z3.Function(f"h_sk_{self.semantics.counter}", 
                               z3.BitVecSort(N), z3.BitVecSort(N))
            # Implement three-condition semantics with direct function

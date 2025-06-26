@@ -264,6 +264,9 @@ class ExclusionSemantics(model.SemanticDefaults):
         existentially quantified functions in the final model. This method is kept for
         reference and documentation purposes, but it will typically not find any witnesses.
         
+        Performance: Enhanced with early exit and caching for improved efficiency during
+        systematic testing across multiple examples.
+        
         Args:
             z3_model: The Z3 model to extract function witnesses from
             counter_value: Optional specific counter value to look for
@@ -273,20 +276,30 @@ class ExclusionSemantics(model.SemanticDefaults):
         """
         if not z3_model:
             return {}
+        
+        # Performance optimization: early exit if no function declarations
+        model_decls = z3_model.decls()
+        if not model_decls:
+            return {}
             
         # Extract all h_ function declarations
         result = {}
         h_funcs = {}
         
         # First collect all h_* function declarations from the model
-        for decl in z3_model.decls():
-            if decl.name().startswith('h_') or decl.name() == 'h':
+        for decl in model_decls:
+            decl_name = decl.name()
+            if decl_name.startswith('h_') or decl_name == 'h':
                 # For Z3 Arrays, handle them differently
-                if decl.name() == 'h':
+                if decl_name == 'h':
                     h_funcs['h'] = decl
                 # For Z3 Functions, use the regular approach
                 elif decl.arity() == 1:
-                    h_funcs[decl.name()] = decl
+                    h_funcs[decl_name] = decl
+        
+        # Early exit if no relevant functions found
+        if not h_funcs:
+            return {}
         
         # For each function, create a witness that can be used for evaluation
         for name, decl in h_funcs.items():

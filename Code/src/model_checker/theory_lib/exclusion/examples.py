@@ -125,6 +125,7 @@ __all__ = [
     'exclusion_theory',
     'semantic_theories',
     'test_example_range',
+    'all_example_range',
 ]
 
 ####################################
@@ -960,6 +961,61 @@ test_example_range = {
     "EX_TH_17" : EX_TH_17_example,
     "EX_TH_18" : EX_TH_18_example,
     "EX_CM_2" : CONJ_DIST_ID_example,
+}
+
+# Comprehensive example range including all examples for enhanced testing
+all_example_range = {
+    # Frame examples
+    "EMPTY" : EMPTY_example,
+    "GLUTS" : GLUTS_example,
+    "GAPS" : GAPS_example,
+    
+    # Basic countermodel examples
+    "EX_CM_1" : EX_CM_1_example,
+    "EX_CM_15" : EX_CM_15_example,
+    
+    # Classical negation examples
+    "DN_ID" : DN_ID_example,
+    "DN_ELIM" : DN_ELIM_example,
+    "DN_INTRO" : DN_INTRO_example,
+    "TN_ENTAIL" : TN_ENTAIL_example,
+    "TN_ID" : TN_ID_example,
+    "QN_ENTAIL" : QN_ENTAIL_example,
+    
+    # Logical operations
+    "DISJ_SYLL" : DISJ_SYLL_example,
+    
+    # DeMorgan's laws
+    "CONJ_DM_LR" : CONJ_DM_LR_example,
+    "CONJ_DM_RL" : CONJ_DM_RL_example,
+    "DISJ_DM_LR" : DISJ_DM_LR_example,
+    "DISJ_DM_RL" : DISJ_DM_RL_example,
+    
+    # Distribution laws
+    "DISJ_DIST_LR" : DISJ_DIST_LR_example,
+    "DISJ_DIST_RL" : DISJ_DIST_RL_example,
+    "CONJ_DIST_LR" : CONJ_DIST_LR_example,
+    "CONJ_DIST_RL" : CONJ_DIST_RL_example,
+    
+    # Absorption laws
+    "CONJ_ABS_RL" : CONJ_ABS_RL_example,
+    "CONJ_ABS_LR" : CONJ_ABS_LR_example,
+    "DISJ_ABS_RL" : DISJ_ABS_RL_example,
+    "DISJ_ABS_LR" : DISJ_ABS_LR_example,
+    
+    # Associativity laws
+    "CONJ_ASSOC_RL" : CONJ_ASSOC_RL_example,
+    "CONJ_ASSOC_LR" : CONJ_ASSOC_LR_example,
+    "DISJ_ASSOC_RL" : DISJ_ASSOC_RL_example,
+    "DISJ_ASSOC_LR" : DISJ_ASSOC_LR_example,
+    
+    # Additional examples
+    "EX_TH_17" : EX_TH_17_example,
+    "EX_TH_18" : EX_TH_18_example,
+    
+    # Identity examples
+    "CONJ_DIST_ID" : CONJ_DIST_ID_example,
+    "DISJ_DIST_ID" : DISJ_DIST_ID_example,
 }
 
 # NOTE: at least one example is required, multiple are permitted for comparison

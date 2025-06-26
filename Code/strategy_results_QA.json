@@ -1,0 +1,382 @@
+{
+  "strategy": "QA",
+  "timestamp": 1750957468.8513741,
+  "summary": {
+    "num_examples": 32,
+    "successful_models": 6,
+    "success_rate": 0.1875,
+    "invalid_countermodels": 1,
+    "invalid_rate": 0.16666666666666666,
+    "avg_solving_time": 0.37301650643348694,
+    "total_time": 11.936528205871582
+  },
+  "results": {
+    "EMPTY": {
+      "model_found": true,
+      "solving_time": 0.05247020721435547,
+      "premise_evaluations": [],
+      "conclusion_evaluations": [],
+      "is_valid_countermodel": true,
+      "error_message": null
+    },
+    "GLUTS": {
+      "model_found": false,
+      "solving_time": 0.08629250526428223,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "GAPS": {
+      "model_found": false,
+      "solving_time": 0.07682394981384277,
+      "premise_evaluations": [],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "EX_CM_1": {
+      "model_found": true,
+      "solving_time": 0.06687712669372559,
+      "premise_evaluations": [],
+      "conclusion_evaluations": [
+        false
+      ],
+      "is_valid_countermodel": true,
+      "error_message": null
+    },
+    "EX_CM_15": {
+      "model_found": false,
+      "solving_time": 0.08616399765014648,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "DN_ID": {
+      "model_found": true,
+      "solving_time": 0.07250261306762695,
+      "premise_evaluations": [],
+      "conclusion_evaluations": [
+        false
+      ],
+      "is_valid_countermodel": true,
+      "error_message": null
+    },
+    "DN_ELIM": {
+      "model_found": true,
+      "solving_time": 0.26714277267456055,
+      "premise_evaluations": [
+        false
+      ],
+      "conclusion_evaluations": [
+        false
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "DN_INTRO": {
+      "model_found": false,
+      "solving_time": 0.2659873962402344,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "TN_ENTAIL": {
+      "model_found": false,
+      "solving_time": 0.4907033443450928,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "TN_ID": {
+      "model_found": true,
+      "solving_time": 3.938112735748291,
+      "premise_evaluations": [],
+      "conclusion_evaluations": [
+        false
+      ],
+      "is_valid_countermodel": true,
+      "error_message": null
+    },
+    "QN_ENTAIL": {
+      "model_found": false,
+      "solving_time": 4.337143898010254,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "DISJ_SYLL": {
+      "model_found": false,
+      "solving_time": 0.09834766387939453,
+      "premise_evaluations": [
+        null,
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "CONJ_DM_LR": {
+      "model_found": false,
+      "solving_time": 0.1148078441619873,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "CONJ_DM_RL": {
+      "model_found": false,
+      "solving_time": 0.11757421493530273,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "DISJ_DM_LR": {
+      "model_found": false,
+      "solving_time": 0.22890901565551758,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "DISJ_DM_RL": {
+      "model_found": false,
+      "solving_time": 0.10646390914916992,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "DISJ_DIST_LR": {
+      "model_found": false,
+      "solving_time": 0.07098817825317383,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "DISJ_DIST_RL": {
+      "model_found": false,
+      "solving_time": 0.07540273666381836,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "CONJ_DIST_LR": {
+      "model_found": false,
+      "solving_time": 0.07509183883666992,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "CONJ_DIST_RL": {
+      "model_found": false,
+      "solving_time": 0.07522749900817871,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "CONJ_ABS_RL": {
+      "model_found": false,
+      "solving_time": 0.07161784172058105,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "CONJ_ABS_LR": {
+      "model_found": false,
+      "solving_time": 0.07417583465576172,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "DISJ_ABS_RL": {
+      "model_found": false,
+      "solving_time": 0.0709531307220459,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "DISJ_ABS_LR": {
+      "model_found": false,
+      "solving_time": 0.07254600524902344,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "CONJ_ASSOC_RL": {
+      "model_found": false,
+      "solving_time": 0.07665205001831055,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "CONJ_ASSOC_LR": {
+      "model_found": false,
+      "solving_time": 0.07292652130126953,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "DISJ_ASSOC_RL": {
+      "model_found": false,
+      "solving_time": 0.0730428695678711,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "DISJ_ASSOC_LR": {
+      "model_found": false,
+      "solving_time": 0.07341647148132324,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "EX_TH_17": {
+      "model_found": false,
+      "solving_time": 0.23906803131103516,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "EX_TH_18": {
+      "model_found": false,
+      "solving_time": 0.09810590744018555,
+      "premise_evaluations": [
+        null
+      ],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "CONJ_DIST_ID": {
+      "model_found": false,
+      "solving_time": 0.08330607414245605,
+      "premise_evaluations": [],
+      "conclusion_evaluations": [
+        null
+      ],
+      "is_valid_countermodel": false,
+      "error_message": null
+    },
+    "DISJ_DIST_ID": {
+      "model_found": true,
+      "solving_time": 0.22768402099609375,
+      "premise_evaluations": [],
+      "conclusion_evaluations": [
+        false
+      ],
+      "is_valid_countermodel": true,
+      "error_message": null
+    }
+  }
+}
