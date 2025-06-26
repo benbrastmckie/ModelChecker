@@ -464,9 +464,58 @@ BQI = ExclusionOperatorBoundedQuantifyIndices
 NF = ExclusionOperatorNameFunctions
 NA = ExclusionOperatorNameArrays
 
+# Strategy registry for all available exclusion operators
+STRATEGY_REGISTRY = {
+    "QA": ExclusionOperatorQuantifyArrays,
+    "QI": ExclusionOperatorQuantifyIndices,
+    "QI2": ExclusionOperatorQuantifyIndices2,
+    "BQI": ExclusionOperatorBoundedQuantifyIndices,
+    "NF": ExclusionOperatorNameFunctions,
+    "NA": ExclusionOperatorNameArrays,
+}
+
+# Default strategy
+DEFAULT_STRATEGY = "QI2"
 ExclusionOperator = QI2
 
-exclusion_operators = syntactic.OperatorCollection(
-    UniAndOperator, UniOrOperator, ExclusionOperator, # extensional
-    UniIdentityOperator, # constitutive
-)
+def get_strategy_operator(strategy_name=None):
+    """Get exclusion operator class for specified strategy.
+    
+    Args:
+        strategy_name (str, optional): Name of strategy to use. 
+                                     If None, uses DEFAULT_STRATEGY.
+                                     
+    Returns:
+        class: Exclusion operator class for the strategy
+        
+    Raises:
+        ValueError: If strategy_name is not in STRATEGY_REGISTRY
+    """
+    if strategy_name is None:
+        strategy_name = DEFAULT_STRATEGY
+    
+    if strategy_name not in STRATEGY_REGISTRY:
+        available = list(STRATEGY_REGISTRY.keys())
+        raise ValueError(f"Unknown strategy '{strategy_name}'. Available strategies: {available}")
+    
+    return STRATEGY_REGISTRY[strategy_name]
+
+def create_operator_collection(strategy_name=None):
+    """Create operator collection with specified exclusion strategy.
+    
+    Args:
+        strategy_name (str, optional): Name of exclusion strategy to use.
+                                     If None, uses DEFAULT_STRATEGY.
+                                     
+    Returns:
+        OperatorCollection: Collection with the specified exclusion operator
+    """
+    exclusion_operator_class = get_strategy_operator(strategy_name)
+    
+    return syntactic.OperatorCollection(
+        UniAndOperator, UniOrOperator, exclusion_operator_class, # extensional
+        UniIdentityOperator, # constitutive
+    )
+
+# Default operator collection (backward compatibility)
+exclusion_operators = create_operator_collection(DEFAULT_STRATEGY)
