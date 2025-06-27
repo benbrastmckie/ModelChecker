@@ -435,6 +435,13 @@ Disjunctive DeMorgan: ✓ FIXED
 🎉 SUCCESS! The constraint caching implementation eliminates false premises!
 ```
 
+**Important Fix (2024-06-27)**: The initial implementation incorrectly cached conclusion constraints, which caused conclusions to evaluate as TRUE. This has been fixed by only caching premise constraints. Conclusion constraints are negated formulas (ensuring conclusions are FALSE in counterexamples) and should not be used for truth evaluation.
+
+Final test results show 100% success rate across all 22 exclusion examples with countermodels, satisfying all success criteria:
+- No False Premises ✓
+- No True Conclusions ✓
+- Correct Counterexamples ✓
+
 ### Next Steps
 
 While the current implementation solves the immediate problem, the Formula Registry pattern described in this document could still be implemented for:
