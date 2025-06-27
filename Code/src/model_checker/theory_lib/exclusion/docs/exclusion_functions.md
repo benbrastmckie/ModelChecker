@@ -578,5 +578,4 @@ All strategies now correctly evaluate premises and conclusions thanks to the con
 
 - **Z3 Documentation**: https://github.com/Z3Prover/z3/wiki
 - **SMT-LIB Standard**: http://smtlib.cs.uiowa.edu/
-- **Truthmaker Semantics**: Fine, K. (2017). "Truthmaker Semantics"
 - **Skolemization**: Fitting, M. (1996). "First-Order Logic and Automated Theorem Proving"
