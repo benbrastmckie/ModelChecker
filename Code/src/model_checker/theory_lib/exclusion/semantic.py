@@ -646,24 +646,19 @@ class UnilateralProposition(model.PropositionDefaults):
         
         self.all_states = model_structure.all_states
         
-        # Cache the constraint formula if available
+        # Cache the constraint formula if available (ONLY for premises)
+        # Note: We do NOT cache conclusion constraints because they are negated
+        # (they ensure conclusions are false in counterexamples)
         self.constraint_formula = None
         if hasattr(model_structure, 'model_constraints'):
             constraints = model_structure.model_constraints
             
-            # Find the constraint for this sentence
+            # Find the constraint for this sentence (premises only)
             for i, premise in enumerate(constraints.premises):
                 if premise is sentence_obj:
                     if i < len(constraints.premise_constraints):
                         self.constraint_formula = constraints.premise_constraints[i]
                         break
-                        
-            if self.constraint_formula is None:
-                for i, conclusion in enumerate(constraints.conclusions):
-                    if conclusion is sentence_obj:
-                        if i < len(constraints.conclusion_constraints):
-                            self.constraint_formula = constraints.conclusion_constraints[i]
-                            break
         
         self.verifiers = self.find_proposition()
         self.precluders = self.find_precluders(self.verifiers)
