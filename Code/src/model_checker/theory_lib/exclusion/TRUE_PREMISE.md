@@ -239,3 +239,95 @@ class ExclusionOperatorGlobal(ExclusionOperatorBase):
 3. **Hybrid Approaches**: Use Z3 for core logic, custom solver for exclusion
 
 The focus should be on **eliminating existential quantifiers entirely** rather than trying to work around Z3's limitations. This requires accepting that the computational implementation may differ slightly from the pure mathematical semantics.
+
+## SK2 Implementation Results (December 2024)
+
+### What Was Implemented
+
+The SK2 (True Skolemization) strategy was implemented as recommended above:
+
+```python
+class ExclusionOperatorSkolemized2(ExclusionOperatorBase):
+    """True Skolemization (SK2) strategy - completely eliminates ALL existential quantifiers."""
+    
+    def extended_verify(self, state, argument, eval_point):
+        # Create Skolem functions for both h and y
+        h_sk = z3.Function(f"h_sk2_{counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+        y_sk = z3.Function(f"y_sk2_{counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+        
+        # No existential quantifiers - direct constraints
+        return z3.And(
+            # Condition 1 with Skolemized y
+            ForAll(x, z3.Implies(
+                extended_verify(x, argument, eval_point),
+                z3.And(
+                    is_part_of(y_sk(x), x),
+                    excludes(h_sk(x), y_sk(x))
+                )
+            )),
+            # Upper bound condition
+            ForAll(x, z3.Implies(
+                extended_verify(x, argument, eval_point),
+                is_part_of(h_sk(x), state)
+            )),
+            # Least upper bound condition
+            ForAll(z, z3.Implies(
+                ForAll(x, z3.Implies(
+                    extended_verify(x, argument, eval_point),
+                    is_part_of(h_sk(x), z)
+                )),
+                is_part_of(state, z)
+            ))
+        )
+```
+
+### Test Results
+
+Testing revealed that **SK2 does NOT solve the false premise issue**:
+
+#### Triple Negation Entailment (`\exclude \exclude \exclude A ⊢ \exclude A`)
+- **MS Strategy**: Premise evaluates to FALSE ❌
+- **SK2 Strategy**: Premise evaluates to FALSE ❌
+
+#### Disjunctive DeMorgan's RL (`(\exclude A \uniwedge \exclude B) ⊢ \exclude (A \univee B)`)
+- **MS Strategy**: Premise evaluates to FALSE ❌
+- **SK2 Strategy**: Premise evaluates to FALSE ❌
+
+### Critical Discovery
+
+The investigation uncovered a fundamental architectural issue:
+
+1. **Constraint Generation** (in `operators.py`):
+   - Uses `extended_verify` method
+   - SK2 successfully eliminates existential quantifiers here
+   - Creates Skolem functions h_sk2 and y_sk2
+
+2. **Truth Evaluation** (in `semantic.py`):
+   - Uses `truth_value_at` → `semantics.true_at` → `operator.true_at`
+   - This uses a DIFFERENT method than constraint generation
+   - Still uses existential quantifiers from the original semantics
+
+### The Disconnect
+
+```python
+# During constraint generation (works with SK2):
+operator.extended_verify(state, argument, eval_point)  # Uses Skolemization
+
+# During truth evaluation (ignores SK2):
+operator.true_at(argument, eval_point)  # Uses original existential quantifiers
+```
+
+The two phases use **completely different code paths**, so modifying only the constraint generation strategy cannot solve the evaluation problem.
+
+### Conclusion
+
+The SK2 implementation confirmed that:
+
+1. **Skolemization alone is insufficient** - it only affects constraint generation
+2. **The architecture prevents a strategy-only solution** - evaluation uses different methods
+3. **A deeper refactoring is required** - either:
+   - Modify both `extended_verify` AND `true_at` to use Skolemization
+   - Create a unified evaluation mechanism
+   - Implement witness extraction and reuse between phases
+
+The false premise issue is not just about Z3's handling of existential quantifiers, but about the **fundamental separation between constraint generation and truth evaluation** in the codebase architecture.

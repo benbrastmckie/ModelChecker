@@ -221,6 +221,10 @@ class ExclusionSemantics(model.SemanticDefaults):
         # Define main_point dictionary with world
         self.main_point = {"world": self.main_world}
         
+        # Initialize counter and cache for Skolem functions in atomic sentences
+        self.atom_skolem_counter = 0
+        self.atom_skolem_cache = {}  # Cache to reuse Skolem functions
+        
         # Define premise and conclusion behaviors
         # The premise_behavior function is crucial for ensuring that all premises are true
         # in the countermodel - during model generation, this adds constraints to Z3
@@ -446,14 +450,36 @@ class ExclusionSemantics(model.SemanticDefaults):
         # Handle atomic sentences
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
-            x = z3.BitVec("t_atom_x", self.N)
-            return Exists(
-                x,
-                z3.And(
-                    self.is_part_of(x, eval_world),
-                    self.verify(x, sentence_letter)
-                )
+            # Create or reuse a Skolem function that maps worlds to verifying states
+            # Use sentence letter name as cache key
+            cache_key = str(sentence_letter)
+            
+            if cache_key not in self.atom_skolem_cache:
+                # Create new Skolem function and cache it
+                self.atom_skolem_counter += 1
+                f_atom = z3.Function(f"f_atom_{cache_key}_{self.atom_skolem_counter}", 
+                                   z3.BitVecSort(self.N), z3.BitVecSort(self.N))
+                self.atom_skolem_cache[cache_key] = f_atom
+            else:
+                # Reuse existing Skolem function
+                f_atom = self.atom_skolem_cache[cache_key]
+            
+            # The formula: f_atom(eval_world) is part of eval_world and verifies the sentence
+            return z3.And(
+                self.is_part_of(f_atom(eval_world), eval_world),
+                self.verify(f_atom(eval_world), sentence_letter)
             )
+
+            # NOTE: this was from before skolemizing
+            x = z3.BitVec("t_atom_x", self.N)
+            # return Exists(
+            #     x,
+            #     z3.And(
+            #         self.is_part_of(x, eval_world),
+            #         self.verify(x, sentence_letter)
+            #     )
+            # )
+
         
         # Handle compound sentences by directly delegating to the operator
         # This follows the old implementation and preserves logical properties like associativity

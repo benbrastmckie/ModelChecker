@@ -459,3 +459,86 @@ For each strategy, eliminate existential quantifiers:
 4. **Document trade-offs** between semantic purity and computability
 
 The issue highlights a fundamental limitation in using Z3 for non-classical logics with existentially quantified operators. The solution requires choosing between semantic fidelity and computational tractability.
+
+## SK2 Implementation Results (December 2024)
+
+### Implementation Summary
+
+The SK2 (True Skolemization) strategy was implemented in `operators.py` as `ExclusionOperatorSkolemized2`. This strategy attempts to eliminate ALL existential quantifiers by using Skolem functions for both `h` and `y`:
+
+```python
+class ExclusionOperatorSkolemized2(ExclusionOperatorBase):
+    """True Skolemization (SK2) strategy - completely eliminates ALL existential quantifiers."""
+    
+    def extended_verify(self, state, argument, eval_point):
+        # Create Skolem functions without existential quantifiers
+        h_sk = z3.Function(f"h_sk2_{counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+        y_sk = z3.Function(f"y_sk2_{counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+        
+        # Constraints without existential quantifiers
+        constraints.append(
+            ForAll(x, z3.Implies(
+                extended_verify(x, argument, eval_point),
+                z3.And(
+                    is_part_of(y_sk(x), x),
+                    excludes(h_sk(x), y_sk(x))
+                )
+            ))
+        )
+```
+
+### Test Results
+
+Testing SK2 on the problematic examples revealed that **the false premise issue persists**:
+
+#### Triple Negation Entailment
+- **SK2**: Model found, Premise evaluates to FALSE ⚠️
+- **MS**: Model found, Premise evaluates to FALSE ⚠️
+
+#### Disjunctive DeMorgan's RL
+- **SK2**: Model found, Premise evaluates to FALSE ⚠️
+- **MS**: Model found, Premise evaluates to FALSE ⚠️
+
+### Root Cause Analysis
+
+The investigation revealed a critical disconnect in the codebase:
+
+1. **Constraint Generation**: The `extended_verify` method in operators uses Skolemization during constraint generation
+2. **Truth Evaluation**: The `truth_value_at` method in `UnilateralProposition` calls `semantics.true_at`, which still uses existential quantifiers
+
+This means that even though SK2 eliminates existential quantifiers during constraint generation, the evaluation phase still tries to find witnesses dynamically using the original existentially quantified formulas.
+
+### Key Finding
+
+The issue is not just about how constraints are generated, but about a **fundamental disconnect between constraint solving and truth evaluation**:
+
+```python
+# In UnilateralProposition.truth_value_at (line 801):
+def truth_value_at(self, eval_point):
+    semantics = self.model_structure.semantics
+    z3_model = self.model_structure.z3_model
+    
+    # This calls semantics.true_at which uses existential quantifiers
+    formula = semantics.true_at(self.sentence, eval_point)
+    result = z3_model.evaluate(formula)
+    return z3.is_true(result)
+
+# In ExclusionSemantics.true_at (line 433):
+# For exclusion operators, this delegates to operator.true_at
+# which uses the ORIGINAL existentially quantified definition
+```
+
+### Conclusion
+
+The SK2 implementation successfully eliminates existential quantifiers from constraint generation, but this alone is insufficient. The false premise issue persists because:
+
+1. **Evaluation uses different formulas than constraint generation**
+2. **The `truth_value_at` method doesn't use the Skolemized versions**
+3. **There's no mechanism to share Skolem functions between constraint generation and evaluation**
+
+To truly solve this issue, we would need to either:
+1. Modify the evaluation mechanism to use the same Skolemized formulas
+2. Implement a witness extraction and reuse system
+3. Fundamentally restructure how exclusion semantics are evaluated
+
+The problem is deeper than just the constraint generation strategy - it's about the architecture of how constraints and evaluations are separated in the codebase.

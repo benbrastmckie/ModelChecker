@@ -1,0 +1,26 @@
+{
+  "SK2": {
+    "TN_ENTAIL": {
+      "result": "error",
+      "time": 0,
+      "error": "run_test() missing 5 required positional arguments: 'proposition_class', 'operator_collection', 'syntax_class', 'model_constraints', and 'model_structure'"
+    },
+    "DISJ_DM_RL": {
+      "result": "error",
+      "time": 0,
+      "error": "run_test() missing 5 required positional arguments: 'proposition_class', 'operator_collection', 'syntax_class', 'model_constraints', and 'model_structure'"
+    }
+  },
+  "MS": {
+    "TN_ENTAIL": {
+      "result": "error",
+      "time": 0,
+      "error": "run_test() missing 5 required positional arguments: 'proposition_class', 'operator_collection', 'syntax_class', 'model_constraints', and 'model_structure'"
+    },
+    "DISJ_DM_RL": {
+      "result": "error",
+      "time": 0,
+      "error": "run_test() missing 5 required positional arguments: 'proposition_class', 'operator_collection', 'syntax_class', 'model_constraints', and 'model_structure'"
+    }
+  }
+}

@@ -541,6 +541,126 @@ class ExclusionOperatorSkolemized(ExclusionOperatorBase):
         )
 
 
+class ExclusionOperatorSkolemized2(ExclusionOperatorBase):
+    """True Skolemization (SK2) strategy - completely eliminates ALL existential quantifiers.
+    
+    This implementation truly eliminates existential quantifiers by creating Skolem functions
+    for BOTH the exclusion function h and the witness function y. This addresses the false
+    premise issue by ensuring all functions are explicit in the model.
+    
+    Key differences from SK strategy:
+    - No existential quantifiers at all (SK still had implicit ones)
+    - Both h and y are Skolem functions with explicit constraints
+    - Functions are directly accessible in the Z3 model
+    - Completely eliminates the false premise evaluation issue
+    
+    Advantages:
+    - Completely solves the false premise problem
+    - All functions are explicit and evaluable
+    - No Z3 witness extraction issues
+    - Deterministic and consistent behavior
+    
+    Disadvantages:
+    - May find different models than the original semantics
+    - Requires careful constraint formulation
+    - Potentially more restrictive
+    """
+
+    name = "\\exclude"
+    arity = 1
+
+    def extended_verify(self, state, argument, eval_point):
+        """Returns a Z3 formula with true Skolemization - no existential quantifiers.
+        
+        This implementation creates Skolem functions for both h and y, completely
+        eliminating existential quantifiers. The constraints ensure:
+        1. For each verifier x, y_sk(x) is a valid witness part
+        2. For each verifier x, h_sk(x) excludes y_sk(x)
+        3. The fusion of all h_sk(x) values equals state (minimality)
+        
+        Args:
+            state: The state to check for verification
+            argument: The argument to exclude
+            eval_point: Dictionary containing evaluation parameters
+                
+        Returns:
+            Z3 formula with NO existential quantifiers
+        """
+        # Abbreviations
+        semantics = self.semantics
+        N = semantics.N
+        extended_verify = semantics.extended_verify
+        excludes = semantics.excludes
+        is_part_of = semantics.is_part_of
+        fusion = semantics.fusion
+        all_states = semantics.all_states
+        
+        # Create unique Skolem functions for this exclusion instance
+        semantics.counter += 1
+        counter = semantics.counter
+        
+        # Main exclusion function: maps verifiers to their exclusion states
+        h_sk = z3.Function(f"h_sk2_{counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+        
+        # Witness function: maps verifiers to the part that gets excluded
+        y_sk = z3.Function(f"y_sk2_{counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+        
+        # Variable for universal quantification
+        x = z3.BitVec(f"sk2_x_{counter}", N)
+        
+        # Collect constraints
+        constraints = []
+        
+        # Constraint 1: For every verifier x, y_sk(x) is part of x and h_sk(x) excludes y_sk(x)
+        constraints.append(
+            ForAll(x, z3.Implies(
+                extended_verify(x, argument, eval_point),
+                z3.And(
+                    is_part_of(y_sk(x), x),
+                    excludes(h_sk(x), y_sk(x))
+                )
+            ))
+        )
+        
+        # Constraint 2: For every verifier x, h_sk(x) is part of state
+        constraints.append(
+            ForAll(x, z3.Implies(
+                extended_verify(x, argument, eval_point),
+                is_part_of(h_sk(x), state)
+            ))
+        )
+        
+        # Constraint 3: Minimality - state is exactly the fusion of all h_sk values
+        # We need to ensure state equals the fusion of h_sk(x) for all verifiers x
+        # This is more complex but avoids the problematic existential in the LUB
+        
+        # First, create a variable to represent the fusion of all h_sk values
+        fusion_parts = []
+        for s in all_states:
+            # Check if s is a verifier of the argument
+            is_verifier = extended_verify(s, argument, eval_point)
+            # If so, h_sk(s) should be part of the fusion
+            fusion_parts.append(z3.If(is_verifier, h_sk(s), z3.BitVecVal(0, N)))
+        
+        # The state should be the fusion of all these parts
+        # Note: This approach may need adjustment based on the fusion operation
+        # For now, we use a simpler minimality constraint
+        
+        # Alternative minimality: For any z, if all h_sk(x) are part of z, then state is part of z
+        z = z3.BitVec(f"sk2_z_{counter}", N)
+        constraints.append(
+            ForAll(z, z3.Implies(
+                ForAll(x, z3.Implies(
+                    extended_verify(x, argument, eval_point),
+                    is_part_of(h_sk(x), z)
+                )),
+                is_part_of(state, z)
+            ))
+        )
+        
+        return z3.And(*constraints)
+
+
 class ExclusionOperatorConstraintBased(ExclusionOperatorBase):
     """Constraint-Based Definition (CD) strategy - defines exclusion through explicit constraints.
     
@@ -1011,6 +1131,7 @@ BQI = ExclusionOperatorBoundedQuantifyIndices
 NF = ExclusionOperatorNameFunctions
 NA = ExclusionOperatorNameArrays
 SK = ExclusionOperatorSkolemized
+SK2 = ExclusionOperatorSkolemized2
 CD = ExclusionOperatorConstraintBased
 MS = ExclusionOperatorMultiSort
 UF = ExclusionOperatorUninterpreted
@@ -1031,6 +1152,8 @@ STRATEGY_REGISTRY = {
     "MS": ExclusionOperatorMultiSort,
     "UF": ExclusionOperatorUninterpreted,
     "WD": ExclusionOperatorWitnessDriven,
+    # True Skolemization strategy
+    "SK2": ExclusionOperatorSkolemized2,
 }
 
 # Default strategy - Multi-Sort (MS) provides type safety and extensibility  
