@@ -155,29 +155,87 @@ As of December 2024, the false premise issue **persists in the exclusion theory*
 
 ### Current State:
 1. **False premises appear** in "Triple Negation Entailment" and "Disjunctive DeMorgan's RL"
-2. **Function witness extraction approach** is documented but not yet implemented
-3. **Z3 limitations** prevent direct access to existential quantifier witnesses
+2. **Root cause identified**: Z3's existential quantifier handling prevents function witness access
+3. **All current strategies affected**: MS, SK, CD, UF all use existential quantification
+
+### Investigation Summary (December 2024):
+
+Through detailed analysis, we've confirmed:
+
+1. **The Problem Pattern**:
+   - Formulas with nested exclusions (e.g., `\exclude \exclude \exclude A`) consistently fail
+   - Each exclusion layer adds existential quantifiers: ∃h₁.∃h₂.∃h₃...
+   - Z3 proves satisfiability but cannot provide the witness functions
+
+2. **Strategy Analysis**:
+   - **MS (Multi-Sort)**: Current default, 50% success rate but 47% false premises
+   - **SK (Skolemization)**: Attempts to eliminate ∃ but still uses them for witnesses
+   - **CD (Constraints)**: Limited by enumeration size
+   - **UF (Axioms)**: Clean approach but retains existential quantifiers
+
+3. **Why Current Strategies Fail**:
+   All strategies ultimately generate formulas like:
+   ```
+   ∃h. ∀x. (x verifies φ) → ∃y. (y ⊑ x ∧ h(x) excludes y)
+   ```
+   The nested ∃h and ∃y cannot be evaluated after solving.
 
 ### Recommended Implementation Path:
 
-**Phase 1: Operator Reformulation**
-- Modify exclusion operators to use concrete functions instead of existential quantification
-- Implement Skolemization approach as detailed in FALSE_PREMISE.md
-- Ensure semantic equivalence with current exclusion semantics
+**Phase 1: True Skolemization Implementation**
+```python
+class ExclusionOperatorSkolemized2(ExclusionOperatorBase):
+    def extended_verify(self, state, argument, eval_point):
+        # Create Skolem functions WITHOUT existential quantifiers
+        h_sk = z3.Function(f"h_sk_{self.counter}", BitVec(N), BitVec(N))
+        y_sk = z3.Function(f"y_sk_{self.counter}", BitVec(N), BitVec(N))
+        
+        # Direct constraints, no ∃
+        return z3.And(
+            # For all verifiers, constraints hold
+            z3.ForAll(x, z3.Implies(
+                verify(x, argument),
+                z3.And(
+                    is_part_of(y_sk(x), x),
+                    excludes(h_sk(x), y_sk(x)),
+                    is_part_of(h_sk(x), state)
+                )
+            )),
+            # Minimality without existential quantifiers
+            ...
+        )
+```
 
-**Phase 2: Testing and Validation**
-- Test reformulated operators with problematic examples
-- Verify that premises evaluate correctly
-- Ensure conclusions maintain logical validity
+**Phase 2: Global Function Alternative**
+```python
+# Define once at module level
+EXCLUSION_FUNC = z3.Function("excl_global", BitVec(N), BitVec(N), BitVec(N))
 
-**Phase 3: Performance and Optimization**
-- Optimize the concrete function approach for larger models
-- Document the semantic differences (if any) from the original approach
-- Update examples and tests to work with the new implementation
+class ExclusionOperatorGlobal(ExclusionOperatorBase):
+    def extended_verify(self, state, argument, eval_point):
+        # Use global function with argument encoding
+        arg_id = self.encode_argument(argument)
+        return self.verify_with_global(state, arg_id, EXCLUSION_FUNC)
+```
+
+**Phase 3: Validation and Comparison**
+- Test both approaches on all 34 examples
+- Measure: success rate, reliability, false premise elimination
+- Document semantic differences from original
+
+### Expected Outcomes:
+
+1. **Elimination of False Premises**: No existential quantifiers means consistent evaluation
+2. **Trade-offs**:
+   - May find different models than original semantics
+   - Potentially more restrictive (fewer models found)
+   - But all found models will be valid
+
+3. **Performance**: Should be faster (no quantifier alternation)
 
 ### Long-term Research Directions:
-1. **Alternative SMT Solvers**: Explore solvers that provide better access to function witnesses
-2. **Custom Model Checkers**: Develop specialized verification systems for non-classical logics
-3. **Hybrid Approaches**: Combine symbolic and concrete evaluation methods
+1. **Semantic Reformulation**: Design exclusion semantics without problematic quantifier patterns
+2. **Custom Verification**: Build specialized model checker for exclusion logic
+3. **Hybrid Approaches**: Use Z3 for core logic, custom solver for exclusion
 
-The focus should be on **structural solutions** that address the root cause rather than **symptomatic fixes** that merely hide the evaluation inconsistency. This aligns with the project's design philosophy of preferring architectural improvements over workarounds.
+The focus should be on **eliminating existential quantifiers entirely** rather than trying to work around Z3's limitations. This requires accepting that the computational implementation may differ slightly from the pure mathematical semantics.

@@ -401,10 +401,61 @@ As of December 2024, the false premise issue in the exclusion theory remains par
 - Premises with nested exclusion operators (e.g., `\exclude \exclude \exclude A`)
 - Complex exclusion formulas in conjunctive/disjunctive contexts
 
-### Recommended Next Steps:
-1. **Implement the Function Witness Extraction** approach more completely
-2. **Add explicit premise validation** to catch and warn about false premise cases
-3. **Consider reformulating complex exclusion operators** to avoid deep nesting of existential quantifiers
-4. **Implement a two-phase verification system** that separates constraint satisfaction from truth evaluation
+### Root Cause Analysis (December 2024)
 
-The issue highlights a fundamental limitation in using Z3 for non-classical logics with existentially quantified operators.
+After detailed investigation, the root cause has been definitively identified:
+
+1. **Existential Quantifier Mismatch**: The exclusion operator uses existential quantifiers in its definition:
+   ```
+   ∃h. ∀x. (x verifies φ) → ∃y. (y ⊑ x ∧ h(x) excludes y)
+   ```
+
+2. **Z3's Two-Phase Problem**:
+   - **Constraint Phase**: Z3 proves "∃h such that P(h)" is satisfiable
+   - **Evaluation Phase**: Z3 cannot provide the specific h it found
+   - **Result**: The formula evaluates to false even though it was satisfied
+
+3. **MS Strategy Analysis**: The current Multi-Sort (MS) strategy creates typed functions (h_ms_N) but still uses existential quantification, which perpetuates the problem.
+
+### Concrete Solutions
+
+Based on the investigation, here are the most promising solutions:
+
+#### 1. Skolemization Approach (Recommended)
+Replace existential quantifiers with explicit Skolem functions:
+```python
+# Instead of: ∃h. P(h)
+# Use: P(h_skolem_N) where h_skolem_N is a named function
+h_skolem = z3.Function(f"h_skolem_{counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+```
+**Advantages**: No existential quantifiers, functions explicit in model
+**Implementation**: Modify ExclusionOperator to use Skolem functions directly
+
+#### 2. Global Exclusion Function
+Define a single global exclusion function used everywhere:
+```python
+# Single function: exclusion_func(state, proposition) → excluded_state
+GLOBAL_EXCLUSION = z3.Function("global_excl", z3.BitVecSort(N), z3.BitVecSort(N), z3.BitVecSort(N))
+```
+**Advantages**: No per-instance quantification, consistent behavior
+**Trade-off**: Less flexibility in exclusion patterns
+
+#### 3. Constraint Preprocessing
+Transform existential formulas before sending to Z3:
+- Detect exclusion patterns
+- Replace with equivalent Skolemized versions
+- Maintain semantic equivalence
+
+#### 4. Strategy-Specific Solutions
+For each strategy, eliminate existential quantifiers:
+- **SK Strategy**: Already attempts Skolemization but needs completion
+- **CD Strategy**: Use explicit constraint enumeration for small domains
+- **UF Strategy**: Define axioms without existential quantifiers
+
+### Immediate Action Items:
+1. **Implement Skolemization** in a new strategy (e.g., SK2)
+2. **Test on problematic examples** (Triple Negation, Disjunctive DeMorgan's)
+3. **Compare performance** with current strategies
+4. **Document trade-offs** between semantic purity and computability
+
+The issue highlights a fundamental limitation in using Z3 for non-classical logics with existentially quantified operators. The solution requires choosing between semantic fidelity and computational tractability.
