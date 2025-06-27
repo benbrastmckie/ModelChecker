@@ -181,12 +181,22 @@ class ExclusionOperatorBase(syntactic.Operator):
         Returns:
             Z3 formula that is satisfied when the exclusion of arg is true at eval_point
         """
+        semantics = self.semantics
+        eval_world = eval_point["world"] if isinstance(eval_point, dict) else eval_point
+        
+        # Use registry for consistency if available
+        if hasattr(semantics, 'formula_registry') and hasattr(semantics, 'use_formula_registry') and semantics.use_formula_registry:
+            # Note: The formula registry will be called from true_at_cached in semantic.py
+            # This method is called when the registry delegates back to us
+            # So we still need to return the formula, but it will be cached by the registry
+            pass
+        
         x = z3.BitVec(f"ver \\exclude {arg}", self.semantics.N)
         return Exists(
             x,
             z3.And(
                 self.extended_verify(x, arg, eval_point),
-                self.semantics.is_part_of(x, eval_point["world"])
+                self.semantics.is_part_of(x, eval_world)
             )
         )
 

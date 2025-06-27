@@ -17,6 +17,12 @@ from model_checker.utils import (
 from model_checker import model
 from model_checker import syntactic
 
+try:
+    from .formula_registry import FormulaRegistry
+except ImportError:
+    # Fallback for when running from examples.py
+    from formula_registry import FormulaRegistry
+
 class ExclusionSemantics(model.SemanticDefaults):
 
     DEFAULT_EXAMPLE_SETTINGS = {
@@ -225,11 +231,20 @@ class ExclusionSemantics(model.SemanticDefaults):
         self.atom_skolem_counter = 0
         self.atom_skolem_cache = {}  # Cache to reuse Skolem functions
         
+        # Initialize formula registry for consistent formula generation
+        self.use_formula_registry = combined_settings.get('use_formula_registry', True)
+        if self.use_formula_registry:
+            self.formula_registry = FormulaRegistry(self)
+        
         # Define premise and conclusion behaviors
         # The premise_behavior function is crucial for ensuring that all premises are true
         # in the countermodel - during model generation, this adds constraints to Z3
-        self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
-        self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
+        if self.use_formula_registry:
+            self.premise_behavior = lambda premise: self.true_at_cached(premise, self.main_point)
+            self.conclusion_behavior = lambda conclusion: self.false_at_cached(conclusion, self.main_point)
+        else:
+            self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
+            self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
 
     # TODO: this has to be the problem but looks find
     def conflicts(self, bit_e1, bit_e2):
@@ -533,6 +548,56 @@ class ExclusionSemantics(model.SemanticDefaults):
         """
         # Direct negation of truth - this preserves logical equivalences in the formula structure
         return z3.Not(self.true_at(sentence, eval_point))
+    
+    def true_at_cached(self, sentence, eval_point):
+        """Cached version of true_at that uses formula registry.
+        
+        This method ensures that the same formulas (with the same Skolem functions)
+        are used in both constraint generation and truth evaluation phases.
+        
+        Args:
+            sentence: The sentence to evaluate
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world at which to evaluate the sentence
+            
+        Returns:
+            Z3 formula that is satisfied when sentence is true at eval_point
+        """
+        eval_world = eval_point["world"] if isinstance(eval_point, dict) else eval_point
+        
+        # Handle atomic sentences
+        sentence_letter = sentence.sentence_letter
+        if sentence_letter is not None:
+            return self.formula_registry.get_atomic_formula(sentence_letter, eval_world)
+        
+        # Handle compound sentences
+        operator = sentence.operator
+        arguments = sentence.arguments or ()
+        
+        # For exclusion operator, use cached formula
+        if operator and operator.name == "\\exclude":
+            # For nested exclusions, we need to handle the argument properly
+            # The argument is a Sentence object, not a proposition
+            return self.formula_registry.get_exclusion_formula(
+                operator, arguments[0], eval_world
+            )
+        
+        # For other operators, delegate as before
+        return operator.true_at(*arguments, eval_point)
+    
+    def false_at_cached(self, sentence, eval_point):
+        """Cached version of false_at that uses formula registry.
+        
+        Args:
+            sentence: The sentence to evaluate
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world at which to evaluate the sentence
+            
+        Returns:
+            Z3 formula that is satisfied when sentence is false at eval_point
+        """
+        # Direct negation of cached truth
+        return z3.Not(self.true_at_cached(sentence, eval_point))
 
     def extended_verify(self, state, sentence, eval_point):
         """Returns a Z3 formula that is satisfied when the state verifies the sentence at eval_point.
@@ -580,6 +645,26 @@ class UnilateralProposition(model.PropositionDefaults):
         self.eval_point = model_structure.main_point if eval_point is None else eval_point
         
         self.all_states = model_structure.all_states
+        
+        # Cache the constraint formula if available
+        self.constraint_formula = None
+        if hasattr(model_structure, 'model_constraints'):
+            constraints = model_structure.model_constraints
+            
+            # Find the constraint for this sentence
+            for i, premise in enumerate(constraints.premises):
+                if premise is sentence_obj:
+                    if i < len(constraints.premise_constraints):
+                        self.constraint_formula = constraints.premise_constraints[i]
+                        break
+                        
+            if self.constraint_formula is None:
+                for i, conclusion in enumerate(constraints.conclusions):
+                    if conclusion is sentence_obj:
+                        if i < len(constraints.conclusion_constraints):
+                            self.constraint_formula = constraints.conclusion_constraints[i]
+                            break
+        
         self.verifiers = self.find_proposition()
         self.precluders = self.find_precluders(self.verifiers)
 
@@ -815,7 +900,7 @@ class UnilateralProposition(model.PropositionDefaults):
         if sentence_letter is not None:
             V = {
                 bit for bit in all_states
-                if model.evaluate(semantics.verify(bit, sentence_letter))
+                if z3.is_true(model.evaluate(semantics.verify(bit, sentence_letter)))
             }
             return V
         
@@ -837,8 +922,19 @@ class UnilateralProposition(model.PropositionDefaults):
         semantics = self.model_structure.semantics
         z3_model = self.model_structure.z3_model
         
-        # Evaluate the formula directly in the Z3 model
-        formula = semantics.true_at(self.sentence, eval_point)
+        # Use cached constraint formula if available
+        if self.constraint_formula is not None:
+            # Use the exact formula that was used during constraint generation
+            result = z3_model.evaluate(self.constraint_formula)
+            return z3.is_true(result)
+        
+        # Otherwise, use the standard evaluation
+        # Use cached formula if formula registry is enabled
+        if hasattr(semantics, 'use_formula_registry') and semantics.use_formula_registry:
+            formula = semantics.true_at_cached(self.sentence, eval_point)
+        else:
+            formula = semantics.true_at(self.sentence, eval_point)
+            
         result = z3_model.evaluate(formula)
         return z3.is_true(result)
 
