@@ -1,0 +1,830 @@
+{
+  "QA": {
+    "CONJ_ABS_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ABS_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ASSOC_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ASSOC_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_ID": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_ID": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ABS_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ABS_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ASSOC_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ASSOC_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_ID": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_ID": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_SYLL": {
+      "model": false,
+      "error": true
+    },
+    "DN_ELIM": {
+      "model": false,
+      "error": true
+    },
+    "DN_ID": {
+      "model": false,
+      "error": true
+    },
+    "DN_INTRO": {
+      "model": false,
+      "error": true
+    },
+    "EMPTY": {
+      "model": false,
+      "error": true
+    },
+    "EX_CM_15": {
+      "model": false,
+      "error": true
+    },
+    "EX_CM_1": {
+      "model": false,
+      "error": true
+    },
+    "EX_TH_17": {
+      "model": false,
+      "error": true
+    },
+    "EX_TH_18": {
+      "model": false,
+      "error": true
+    },
+    "GAPS": {
+      "model": false,
+      "error": true
+    },
+    "GLUTS": {
+      "model": false,
+      "error": true
+    },
+    "QN_ENTAIL": {
+      "model": false,
+      "error": true
+    },
+    "TN_ENTAIL": {
+      "model": false,
+      "error": true
+    },
+    "TN_ID": {
+      "model": false,
+      "error": true
+    }
+  },
+  "QI2": {
+    "CONJ_ABS_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ABS_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ASSOC_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ASSOC_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_ID": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_ID": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ABS_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ABS_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ASSOC_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ASSOC_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_ID": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_ID": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_SYLL": {
+      "model": false,
+      "error": true
+    },
+    "DN_ELIM": {
+      "model": false,
+      "error": true
+    },
+    "DN_ID": {
+      "model": false,
+      "error": true
+    },
+    "DN_INTRO": {
+      "model": false,
+      "error": true
+    },
+    "EMPTY": {
+      "model": false,
+      "error": true
+    },
+    "EX_CM_15": {
+      "model": false,
+      "error": true
+    },
+    "EX_CM_1": {
+      "model": false,
+      "error": true
+    },
+    "EX_TH_17": {
+      "model": false,
+      "error": true
+    },
+    "EX_TH_18": {
+      "model": false,
+      "error": true
+    },
+    "GAPS": {
+      "model": false,
+      "error": true
+    },
+    "GLUTS": {
+      "model": false,
+      "error": true
+    },
+    "QN_ENTAIL": {
+      "model": false,
+      "error": true
+    },
+    "TN_ENTAIL": {
+      "model": false,
+      "error": true
+    },
+    "TN_ID": {
+      "model": false,
+      "error": true
+    }
+  },
+  "SK": {
+    "CONJ_ABS_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ABS_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ASSOC_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ASSOC_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_ID": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_ID": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ABS_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ABS_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ASSOC_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ASSOC_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_ID": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_ID": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_SYLL": {
+      "model": false,
+      "error": true
+    },
+    "DN_ELIM": {
+      "model": false,
+      "error": true
+    },
+    "DN_ID": {
+      "model": false,
+      "error": true
+    },
+    "DN_INTRO": {
+      "model": false,
+      "error": true
+    },
+    "EMPTY": {
+      "model": false,
+      "error": true
+    },
+    "EX_CM_15": {
+      "model": false,
+      "error": true
+    },
+    "EX_CM_1": {
+      "model": false,
+      "error": true
+    },
+    "EX_TH_17": {
+      "model": false,
+      "error": true
+    },
+    "EX_TH_18": {
+      "model": false,
+      "error": true
+    },
+    "GAPS": {
+      "model": false,
+      "error": true
+    },
+    "GLUTS": {
+      "model": false,
+      "error": true
+    },
+    "QN_ENTAIL": {
+      "model": false,
+      "error": true
+    },
+    "TN_ENTAIL": {
+      "model": false,
+      "error": true
+    },
+    "TN_ID": {
+      "model": false,
+      "error": true
+    }
+  },
+  "CD": {
+    "CONJ_ABS_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ABS_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ASSOC_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ASSOC_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_ID": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_ID": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ABS_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ABS_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ASSOC_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ASSOC_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_ID": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_ID": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_SYLL": {
+      "model": false,
+      "error": true
+    },
+    "DN_ELIM": {
+      "model": false,
+      "error": true
+    },
+    "DN_ID": {
+      "model": false,
+      "error": true
+    },
+    "DN_INTRO": {
+      "model": false,
+      "error": true
+    },
+    "EMPTY": {
+      "model": false,
+      "error": true
+    },
+    "EX_CM_15": {
+      "model": false,
+      "error": true
+    },
+    "EX_CM_1": {
+      "model": false,
+      "error": true
+    },
+    "EX_TH_17": {
+      "model": false,
+      "error": true
+    },
+    "EX_TH_18": {
+      "model": false,
+      "error": true
+    },
+    "GAPS": {
+      "model": false,
+      "error": true
+    },
+    "GLUTS": {
+      "model": false,
+      "error": true
+    },
+    "QN_ENTAIL": {
+      "model": false,
+      "error": true
+    },
+    "TN_ENTAIL": {
+      "model": false,
+      "error": true
+    },
+    "TN_ID": {
+      "model": false,
+      "error": true
+    }
+  },
+  "MS": {
+    "CONJ_ABS_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ABS_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ASSOC_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ASSOC_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_ID": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_ID": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ABS_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ABS_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ASSOC_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ASSOC_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_ID": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_ID": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_SYLL": {
+      "model": false,
+      "error": true
+    },
+    "DN_ELIM": {
+      "model": false,
+      "error": true
+    },
+    "DN_ID": {
+      "model": false,
+      "error": true
+    },
+    "DN_INTRO": {
+      "model": false,
+      "error": true
+    },
+    "EMPTY": {
+      "model": false,
+      "error": true
+    },
+    "EX_CM_15": {
+      "model": false,
+      "error": true
+    },
+    "EX_CM_1": {
+      "model": false,
+      "error": true
+    },
+    "EX_TH_17": {
+      "model": false,
+      "error": true
+    },
+    "EX_TH_18": {
+      "model": false,
+      "error": true
+    },
+    "GAPS": {
+      "model": false,
+      "error": true
+    },
+    "GLUTS": {
+      "model": false,
+      "error": true
+    },
+    "QN_ENTAIL": {
+      "model": false,
+      "error": true
+    },
+    "TN_ENTAIL": {
+      "model": false,
+      "error": true
+    },
+    "TN_ID": {
+      "model": false,
+      "error": true
+    }
+  },
+  "UF": {
+    "CONJ_ABS_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ABS_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ASSOC_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_ASSOC_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_ID": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DIST_RL": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_ID": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_LR": {
+      "model": false,
+      "error": true
+    },
+    "CONJ_DM_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ABS_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ABS_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ASSOC_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_ASSOC_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_ID": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DIST_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_ID": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_LR": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_DM_RL": {
+      "model": false,
+      "error": true
+    },
+    "DISJ_SYLL": {
+      "model": false,
+      "error": true
+    },
+    "DN_ELIM": {
+      "model": false,
+      "error": true
+    },
+    "DN_ID": {
+      "model": false,
+      "error": true
+    },
+    "DN_INTRO": {
+      "model": false,
+      "error": true
+    },
+    "EMPTY": {
+      "model": false,
+      "error": true
+    },
+    "EX_CM_15": {
+      "model": false,
+      "error": true
+    },
+    "EX_CM_1": {
+      "model": false,
+      "error": true
+    },
+    "EX_TH_17": {
+      "model": false,
+      "error": true
+    },
+    "EX_TH_18": {
+      "model": false,
+      "error": true
+    },
+    "GAPS": {
+      "model": false,
+      "error": true
+    },
+    "GLUTS": {
+      "model": false,
+      "error": true
+    },
+    "QN_ENTAIL": {
+      "model": false,
+      "error": true
+    },
+    "TN_ENTAIL": {
+      "model": false,
+      "error": true
+    },
+    "TN_ID": {
+      "model": false,
+      "error": true
+    }
+  }
+}

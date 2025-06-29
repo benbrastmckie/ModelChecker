@@ -646,19 +646,10 @@ class UnilateralProposition(model.PropositionDefaults):
         
         self.all_states = model_structure.all_states
         
-        # Cache the constraint formula if available (ONLY for premises)
-        # Note: We do NOT cache conclusion constraints because they are negated
-        # (they ensure conclusions are false in counterexamples)
-        self.constraint_formula = None
-        if hasattr(model_structure, 'model_constraints'):
-            constraints = model_structure.model_constraints
-            
-            # Find the constraint for this sentence (premises only)
-            for i, premise in enumerate(constraints.premises):
-                if premise is sentence_obj:
-                    if i < len(constraints.premise_constraints):
-                        self.constraint_formula = constraints.premise_constraints[i]
-                        break
+        # REMOVED: The constraint formula caching was causing incorrect evaluation
+        # The constraint formulas used during model generation should not be reused
+        # for truth evaluation, as they force premises to be true regardless of
+        # the actual verifier structure
         
         self.verifiers = self.find_proposition()
         self.precluders = self.find_precluders(self.verifiers)
@@ -916,22 +907,16 @@ class UnilateralProposition(model.PropositionDefaults):
         """
         semantics = self.model_structure.semantics
         z3_model = self.model_structure.z3_model
+        eval_world = eval_point["world"] if isinstance(eval_point, dict) else eval_point
         
-        # Use cached constraint formula if available
-        if self.constraint_formula is not None:
-            # Use the exact formula that was used during constraint generation
-            result = z3_model.evaluate(self.constraint_formula)
-            return z3.is_true(result)
+        # Check if there exists a verifier that is part of the evaluation world
+        # This is the standard truthmaker semantics evaluation
+        for verifier in self.verifiers:
+            if z3.is_true(z3_model.evaluate(semantics.is_part_of(verifier, eval_world))):
+                return True
         
-        # Otherwise, use the standard evaluation
-        # Use cached formula if formula registry is enabled
-        if hasattr(semantics, 'use_formula_registry') and semantics.use_formula_registry:
-            formula = semantics.true_at_cached(self.sentence, eval_point)
-        else:
-            formula = semantics.true_at(self.sentence, eval_point)
-            
-        result = z3_model.evaluate(formula)
-        return z3.is_true(result)
+        # If no verifier is part of the evaluation world, the proposition is false
+        return False
 
     def print_proposition(self, eval_point, indent_num, use_colors):
         """Print the proposition with its truth value at the evaluation point.
