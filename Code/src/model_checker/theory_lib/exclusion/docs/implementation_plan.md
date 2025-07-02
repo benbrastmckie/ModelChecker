@@ -4,6 +4,35 @@
 
 This plan outlines the phased implementation of correct recursive semantics for the exclusion operator, ensuring that `true_at` methods properly reduce to verifier existence conditions. Each phase builds on the previous one and includes specific testing milestones.
 
+## Core Design Principles
+
+### Modularity and Extensibility
+The implementation must maintain strict modularity to ensure the framework remains extensible to new operators without modifying core semantic functions. This is achieved through:
+
+1. **Two-Case Pattern**: Semantic functions only distinguish between:
+   - Atomic sentences (sentence_letters)
+   - Complex sentences (which delegate to their operator)
+
+2. **No Operator Hardcoding**: Functions like `true_at` and `extended_verify` should never contain conditions like:
+   ```python
+   # WRONG - breaks modularity
+   if sentence.is_exclusion():
+       # exclusion-specific logic
+   elif sentence.is_conjunction():
+       # conjunction-specific logic
+   ```
+
+3. **Operator Delegation**: Complex sentences always delegate to their operator's methods:
+   ```python
+   # CORRECT - maintains modularity
+   if sentence.sentence_letter is not None:
+       # atomic case
+   else:
+       return sentence.operator.true_at(*sentence.arguments, eval_point)
+   ```
+
+This ensures new operators can be added by simply defining their class in operators.py without touching the semantic core.
+
 ## Phase 1: Foundation and Analysis (Week 1)
 
 ### Objectives
@@ -79,38 +108,56 @@ class SK_ExclusionOperator(ExclusionOperator):
                           z3.BitVecSort(self.semantics.N), 
                           z3.BitVecSort(self.semantics.N))
         
-        return Exists([s], z3.And(
+        return z3.Exists([s], z3.And(
             self.semantics.is_part_of(s, eval_point["world"]),
-            self.encode_three_conditions_sk(s, h_sk, y_sk, argument)
+            self.encode_three_conditions_sk(s, h_sk, y_sk, argument, eval_point)
         ))
     
-    def encode_three_conditions_sk(self, s, h_sk, y_sk, argument):
+    def encode_three_conditions_sk(self, s, h_sk, y_sk, argument, eval_point):
         """Encode the three conditions using Skolem functions."""
+        # Get verifier constraint for argument by recursive call
+        arg_verifies = lambda v: self.semantics.true_at(argument, {"world": v})
+        
+        # Encode the three conditions...
         # Implementation details...
 ```
 
-#### 2.2 Recursive Integration
+#### 2.2 Modular Operator Pattern
+**IMPORTANT**: To maintain modularity and extensibility, the semantic functions should only distinguish between atomic sentences (sentence_letters) and complex sentences. Complex sentences should always delegate to their operator's methods without hardcoding operator-specific logic.
+
 ```python
-def get_argument_verifiers_constraint(self, argument):
-    """Recursively obtain verifier constraints for argument."""
-    if argument.is_atomic():
-        return lambda v: self.semantics.verify(v, argument.atom)
-    else:
-        # Recursive call to argument's true_at
-        return lambda v: self.semantics.true_at(argument, {"world": v})
+class ExclusionSemantics:
+    def true_at(self, sentence, eval_point):
+        """Base true_at that maintains modularity."""
+        if sentence.sentence_letter is not None:
+            # Atomic case: reduce to verifier existence
+            v = z3.BitVec(f"v_{id(sentence)}", self.N)
+            return z3.Exists([v], z3.And(
+                self.verify(v, sentence.sentence_letter),
+                self.is_part_of(v, eval_point["world"])
+            ))
+        else:
+            # Complex case: delegate to operator's true_at method
+            return sentence.operator.true_at(*sentence.arguments, eval_point)
 ```
 
-#### 2.3 Extended Verify Implementation
+#### 2.3 Operator-Specific Implementation
 ```python
-def extended_verify(self, state, sentence, eval_point):
-    """Implement extended verification with proper recursion."""
-    if sentence.is_atomic():
-        return self.semantics.verify(state, sentence.atom)
-    elif sentence.is_exclusion():
-        # Use SK implementation
-        return self.sk_extended_verify(state, sentence.argument, eval_point)
-    # Other operators...
+class SK_ExclusionOperator(ExclusionOperator):
+    def extended_verify(self, state, sentence, eval_point):
+        """
+        Extended verification that maintains modularity.
+        Each operator class implements its own extended_verify.
+        """
+        if sentence.sentence_letter is not None:
+            # Atomic case
+            return self.semantics.verify(state, sentence.sentence_letter)
+        else:
+            # Complex case: delegate to operator's extended_verify
+            return sentence.operator.extended_verify(state, *sentence.arguments, eval_point)
 ```
+
+**Note**: This pattern ensures that adding new operators only requires defining their class in operators.py without modifying core semantic functions. The semantics remain extensible and modular.
 
 ### Deliverables
 - `sk_exclusion.py`: Complete SK implementation
@@ -210,14 +257,18 @@ class DirectComputationOperator(ExclusionOperator):
 class VerifierComputer:
     def compute_verifiers(self, sentence):
         """Pre-compute all verifiers for a sentence."""
-        if sentence.is_atomic():
+        if sentence.sentence_letter is not None:
+            # Atomic case
             return self.atomic_verifiers(sentence)
-        elif sentence.is_exclusion():
-            return self.exclusion_verifiers(sentence.argument)
-        # Other operators...
+        else:
+            # Complex case: delegate to operator's verifier computation
+            return sentence.operator.compute_verifiers(*sentence.arguments, self)
     
-    def exclusion_verifiers(self, argument):
+class DirectComputationExclusionOperator(ExclusionOperator):
+    def compute_verifiers(self, argument, verifier_computer):
         """Compute verifiers for exclusion using three conditions."""
+        # Get verifiers of argument recursively
+        arg_verifiers = verifier_computer.compute_verifiers(argument)
         # Direct computation algorithm...
 ```
 
@@ -317,6 +368,22 @@ assert correctly_encodes_three_conditions(exclusion_true_at)
 - **Code clarity**: Clear recursive structure
 - **Maintainability**: Well-documented and tested
 - **Extensibility**: Easy to add new operators
+
+## Implementation Notes
+
+### Recursive Pattern
+All operators must follow the same recursive pattern:
+1. Their `true_at` method returns a formula asserting verifier existence
+2. They use `self.semantics.true_at` for recursive calls on subformulas
+3. They never inspect the type of their arguments beyond atomic/complex distinction
+
+### Adding New Operators
+Thanks to the modular design, adding a new operator only requires:
+1. Define the operator class in operators.py
+2. Implement its `true_at` and `extended_verify` methods
+3. No changes needed to semantic.py or any core functions
+
+This modularity is crucial for the framework's extensibility and must be preserved throughout all phases of implementation.
 
 ## Timeline Summary
 
