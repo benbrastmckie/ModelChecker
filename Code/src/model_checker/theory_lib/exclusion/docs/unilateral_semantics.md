@@ -495,7 +495,7 @@ The four new strategies represent different ways to solve QI2's core limitation:
 3. **Multi-Sort (MS)**: Adds structure through typing
 4. **Axioms (UF)**: Defines behavior through mathematical properties
 
-The remarkable convergence of these strategies (all achieving 50% success rate), demonstrating that the key insightavoiding problematic existential quantifier patternscan be realized through multiple paths. The choice between strategies depends on:
+The remarkable convergence of these strategies (all achieving 50% success rate), demonstrating that the key insight—avoiding problematic existential quantifier patterns—can be realized through multiple paths. The choice between strategies depends on:
 
 - Your specific use case
 - Performance requirements
