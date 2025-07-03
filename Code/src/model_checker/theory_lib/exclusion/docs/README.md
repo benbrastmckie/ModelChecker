@@ -160,14 +160,17 @@ When implementing changes:
 ## Current Status
 
 - **Theory**: Well-documented and understood
-- **Problem**: Identified and analyzed  
-- **Previous Attempt**: Phase 1 complete, Phase 2 in progress on semantic_old.py/operators_old.py
+- **Problem**: Identified as fundamental architectural limitation
+- **Previous Attempt**: Phases 1-3 complete on semantic_old.py/operators_old.py
+  - Discovered false premise issue persists across all implementation strategies
 - **Current Effort**: New refactoring of semantic.py/operators.py
   - Phase 1: ✅ Completed - Analysis and preparation
-  - Phase 2: ✅ Completed - Simplified to single strategy + restored print functionality
-  - Phase 3: ⏳ Next - Implement correct recursive semantics
-- **Next Steps**: Begin Phase 3 to fix the false premise issue
-- **Test Status**: 10 examples with false premises (vs 8 baseline), examples fully runnable
+  - Phase 2: ✅ Completed - Simplified to single strategy (70% code reduction)
+  - Phase 3: ✅ Completed - Identified Skolem function limitation as root cause
+  - Phase 4: ⏳ Ready - Testing and validation with known limitations
+  - Phase 5: ⏳ Pending - Documentation and optimization
+- **Key Finding**: False premise issue cannot be fixed without major architectural changes
+- **Test Status**: 10 examples with false premises (all involve exclusion operator)
 
 ## Guided Tour: Research Trajectory
 
