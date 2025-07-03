@@ -63,7 +63,7 @@ class ExclusionTestRunner:
             
             # Create model constraints
             from model_checker.model import ModelConstraints
-            constraints = ModelConstraints(semantics, syntax, combined_settings, UnilateralProposition)
+            constraints = ModelConstraints(combined_settings, syntax, semantics, UnilateralProposition)
             
             # Create structure
             structure = ExclusionStructure(constraints, combined_settings)

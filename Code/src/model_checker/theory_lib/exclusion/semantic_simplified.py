@@ -398,8 +398,6 @@ class UnilateralProposition(model.PropositionDefaults):
     
     def __init__(self, sentence, model_structure):
         super().__init__(sentence, model_structure)
-        self.z3_model = model_structure.z3_model
-        self.verifiers = self.find_proposition()
     
     @classmethod
     def proposition_constraints(cls, model_constraints, letter_id):
@@ -416,15 +414,6 @@ class UnilateralProposition(model.PropositionDefaults):
             self.sentence, 
             self.model_structure.semantics.main_point
         )
-    
-    def __repr__(self):
-        """Return pretty-printed representation of verifiers."""
-        N = self.model_structure.semantics.N
-        ver_states = {
-            bitvec_to_substates(bit, N)
-            for bit in self.verifiers
-        }
-        return pretty_set_print(ver_states)
 
     def truth_value_at(self, eval_point):
         """Evaluate truth value at a point."""
@@ -442,15 +431,12 @@ class UnilateralProposition(model.PropositionDefaults):
 
     def print_method(self, eval_point, indent_num, use_colors):
         """Print the proposition."""
-        self.print_proposition(eval_point, indent_num, use_colors)
-        
-    def print_proposition(self, eval_point, indent_num, use_colors):
-        """Print the proposition with its truth value at the evaluation point."""
         N = self.model_structure.semantics.N
-        z3_formula = self.truth_value_at(eval_point)
-        truth_value = z3.is_true(self.model_structure.z3_model.evaluate(z3_formula))
+        truth_value = self.truth_value_at(eval_point)
         world_state = bitvec_to_substates(eval_point["world"], N)
-        RESET, FULL, PART = self.set_colors(self.name, indent_num, truth_value, world_state, use_colors)
+        RESET, FULL, PART = self.set_colors(
+            self.name, indent_num, truth_value, world_state, use_colors
+        )
         print(
             f"{'  ' * indent_num}{FULL}|{self.name}| = {self}{RESET}"
             f"  {PART}({truth_value} in {world_state}){RESET}"
@@ -473,10 +459,6 @@ class ExclusionStructure(model.ModelDefaults):
         # Only evaluate if we have a valid model
         if self.z3_model_status and self.z3_model is not None:
             self._update_model_structure(self.z3_model)
-            
-            # Create propositions for sentences
-            self.interpret(self.premises)
-            self.interpret(self.conclusions)
 
     def _update_model_structure(self, z3_model):
         """Update model structure from Z3 model."""
@@ -499,24 +481,10 @@ class ExclusionStructure(model.ModelDefaults):
         if 0 not in self.z3_possible_states:
             self.z3_possible_states.append(0)
         
-        # Update world states with proper Z3 boolean handling
-        self.z3_world_states = [
-            state for state in self.z3_possible_states
-            if z3.is_true(evaluate(self.semantics.is_world(state)))
-        ]
-        
         # Update impossible states
         self.z3_impossible_states = [
             i for i in range(len(self.all_states)) 
             if i not in self.z3_possible_states
-        ]
-        
-        # Update conflicts/exclusion data
-        self.z3_excludes = [
-            (bit_x, bit_y)
-            for bit_x in self.all_states
-            for bit_y in self.all_states
-            if z3.is_true(evaluate(self.semantics.excludes(bit_x, bit_y)))
         ]
 
     def true_at(self, sentence, eval_point):
@@ -555,147 +523,3 @@ class ExclusionStructure(model.ModelDefaults):
                 if z3.is_true(self.z3_model.evaluate(constraint)):
                     result[state_x].add(state_y)
         return result
-    
-    def print_to(self, default_settings, example_name, theory_name, print_constraints=None, output=sys.__stdout__):
-        """Print the model details to the specified output stream.
-        
-        This method provides compatibility with the framework's expected interface
-        by delegating to the print_all method.
-        
-        Args:
-            default_settings (dict): Default configuration settings for the model
-            example_name (str): Name of the example being evaluated
-            theory_name (str): Name of the logical theory being used
-            print_constraints (bool, optional): Whether to print model constraints.
-            output (TextIO, optional): Output stream to write to. Defaults to sys.stdout.
-        """
-        if print_constraints is None:
-            print_constraints = self.settings.get("print_constraints", False)
-            
-        # Check if we actually timed out
-        actual_timeout = hasattr(self, 'z3_model_runtime') and self.z3_model_runtime is not None and self.z3_model_runtime >= self.max_time
-        
-        # Only show timeout if we really timed out and didn't find a model
-        if actual_timeout and (not hasattr(self, 'z3_model') or self.z3_model is None):
-            print(f"\nTIMEOUT: Model search exceeded maximum time of {self.max_time} seconds", file=output)
-            print(f"No model for example {example_name} found before timeout.", file=output)
-            print(f"Try increasing max_time > {self.max_time}.\n", file=output)
-            
-        # Print model information    
-        self.print_all(self.settings, example_name, theory_name, output)
-        
-        # Print constraints if requested
-        if print_constraints and self.unsat_core is not None:
-            self.print_grouped_constraints(output)
-            
-    def print_all(self, default_settings, example_name, theory_name, output=sys.__stdout__):
-        """Print comprehensive model information including states and evaluation."""
-        model_status = self.z3_model_status
-        self.print_info(model_status, self.settings, example_name, theory_name, output)
-        if model_status:
-            self.print_states(output)
-            self.print_exclusion(output)
-            self.print_evaluation(output)
-            self.print_input_sentences(output)
-            self.print_model(output)
-            if output is sys.__stdout__:
-                total_time = round(time.time() - self.start_time, 4) 
-                print(f"Total Run Time: {total_time} seconds\n", file=output)
-                print(f"{'='*40}", file=output)
-            return
-            
-    def print_states(self, output=sys.__stdout__):
-        """Print all fusions of atomic states in the model."""
-        def binary_bitvector(bit):
-            return (
-                bit.sexpr()
-                if self.N % 4 != 0
-                else int_to_binary(int(bit.sexpr()[2:], 16), self.N)
-            )
-        
-        def format_state(bin_rep, state, color, label=""):
-            """Helper function to format and print a state."""
-            label_str = f" ({label})" if label else ""
-            use_colors = output is sys.__stdout__
-            if use_colors:
-                print(f"  {self.WHITE}{bin_rep} = {color}{state}{label_str}{self.RESET}", file=output)
-            else:
-                print(f"  {bin_rep} = {state}{label_str}", file=output)
-        
-        # Define colors (if not already defined)
-        if not hasattr(self, 'COLORS'):
-            self.COLORS = {
-                "default": "\033[37m",  # WHITE
-                "world": "\033[34m",    # BLUE
-                "possible": "\033[36m", # CYAN
-                "impossible": "\033[35m", # MAGENTA
-                "initial": "\033[33m",  # YELLOW
-            }
-        self.WHITE = self.COLORS["default"]
-        self.RESET = "\033[0m"
-        
-        # Print formatted state space
-        print("State Space", file=output)
-        for bit in self.all_states:
-            state = bitvec_to_substates(bit, self.N)
-            bin_rep = binary_bitvector(bit)
-            if bit == 0:
-                format_state(bin_rep, state, self.COLORS["initial"])
-            elif bit in self.z3_world_states:
-                format_state(bin_rep, state, self.COLORS["world"], "world")
-            elif bit in self.z3_possible_states:
-                format_state(bin_rep, state, self.COLORS["possible"])
-            elif self.settings['print_impossible']:
-                format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
-                
-    def print_exclusion(self, output=sys.__stdout__):
-        """Print exclusion relationships."""
-        # Set up colors
-        use_colors = output is sys.__stdout__
-        WHITE = self.COLORS["default"] if use_colors else ""
-        RESET = self.RESET if use_colors else ""
-        WORLD_COLOR = self.COLORS["world"] if use_colors else ""
-        POSSIBLE_COLOR = self.COLORS["possible"] if use_colors else ""
-        IMPOSSIBLE_COLOR = self.COLORS["impossible"] if use_colors else ""
-        
-        def get_state_color(bit):
-            if bit in self.z3_world_states:
-                return WORLD_COLOR
-            elif bit in self.z3_possible_states:
-                return POSSIBLE_COLOR
-            else:
-                return IMPOSSIBLE_COLOR
-                
-        def should_include_state(bit):
-            # Check if we should include this state based on print_impossible setting
-            # Always include the null state (bit 0)
-            return (bit == 0 or 
-                   bit in self.z3_possible_states or 
-                   bit in self.z3_world_states or 
-                   self.settings['print_impossible'])
-        
-        # Filter and print conflicts/exclusions
-        filtered_excludes = [(x, y) for x, y in self.z3_excludes if should_include_state(x) and should_include_state(y)]
-        if filtered_excludes:
-            print("\nExcludes", file=output)
-            for bit_x, bit_y in filtered_excludes:
-                state_x = bitvec_to_substates(bit_x, self.N)
-                state_y = bitvec_to_substates(bit_y, self.N)
-                color_x = get_state_color(bit_x)
-                color_y = get_state_color(bit_y)
-                print(f"  {WHITE}{color_x}{state_x}{WHITE} ✖ {color_y}{state_y}{RESET}", file=output)
-        else:
-            print("\nExcludes\n  (none)", file=output)
-            
-    def print_evaluation(self, output=sys.__stdout__):
-        """Print the evaluation world and all sentence letters that are true/false in that world."""
-        BLUE = ""
-        RESET = ""
-        main_world = self.main_point["world"]
-        if output is sys.__stdout__:
-            BLUE = "\033[34m"
-            RESET = "\033[0m"
-        print(
-            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N)}{RESET}\n",
-            file=output,
-        )
