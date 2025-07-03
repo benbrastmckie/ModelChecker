@@ -1,0 +1,309 @@
+{
+  "timestamp": "2025-07-03 10:07:12",
+  "summary": {
+    "total_examples": 32,
+    "false_premise_count": 0,
+    "true_conclusion_count": 0,
+    "error_count": 32,
+    "improved_from_baseline": 1,
+    "regressed_from_baseline": 0
+  },
+  "comparison": {
+    "improved": [
+      "EX_TH_17"
+    ],
+    "regressed": [],
+    "unchanged": [
+      "No Gaps",
+      "No Gluts",
+      "Double Negation Introduction",
+      "Double Negation Elimination",
+      "Triple Negation Entailment",
+      "Quadruple Negation Entailment",
+      "Disjunctive Syllogism",
+      "Conjunctive DeMorgan's LR",
+      "Conjunctive DeMorgan's RL",
+      "Disjunctive DeMorgan's LR",
+      "Disjunctive DeMorgan's RL",
+      "Conjunctive Distribution LR",
+      "Conjunctive Distribution RL",
+      "Disjunctive Distribution LR",
+      "Disjunctive Distribution RL",
+      "Conjunctive Absorption LR",
+      "Conjunctive Absorption RL",
+      "Disjunctive Absorption LR",
+      "Disjunctive Absorption RL",
+      "Conjunctive Associativity LR",
+      "Conjunctive Associativity RL",
+      "Disjunctive Associativity LR",
+      "Disjunctive Associativity RL",
+      "Double Negation Identity",
+      "Triple Negation Identity",
+      "Conjuctive DeMorgan's Identity",
+      "Disjunctive DeMorgan's Identity",
+      "Conjunctive Distribution Identity",
+      "Disjuctive Distribution Identity",
+      "EX_CM_15",
+      "EX_TH_18"
+    ],
+    "new_issues": []
+  },
+  "detailed_results": {
+    "No Gaps": {
+      "name": "No Gaps",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.05280280113220215,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "No Gluts": {
+      "name": "No Gluts",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04870939254760742,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Double Negation Introduction": {
+      "name": "Double Negation Introduction",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04795432090759277,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Double Negation Elimination": {
+      "name": "Double Negation Elimination",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04944753646850586,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Triple Negation Entailment": {
+      "name": "Triple Negation Entailment",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.048330068588256836,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Quadruple Negation Entailment": {
+      "name": "Quadruple Negation Entailment",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04897475242614746,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Disjunctive Syllogism": {
+      "name": "Disjunctive Syllogism",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04819369316101074,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Conjunctive DeMorgan's LR": {
+      "name": "Conjunctive DeMorgan's LR",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.047502756118774414,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Conjunctive DeMorgan's RL": {
+      "name": "Conjunctive DeMorgan's RL",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04931497573852539,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Disjunctive DeMorgan's LR": {
+      "name": "Disjunctive DeMorgan's LR",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.052583932876586914,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Disjunctive DeMorgan's RL": {
+      "name": "Disjunctive DeMorgan's RL",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.048525333404541016,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Conjunctive Distribution LR": {
+      "name": "Conjunctive Distribution LR",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04711341857910156,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Conjunctive Distribution RL": {
+      "name": "Conjunctive Distribution RL",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04779052734375,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Disjunctive Distribution LR": {
+      "name": "Disjunctive Distribution LR",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.0487217903137207,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Disjunctive Distribution RL": {
+      "name": "Disjunctive Distribution RL",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04874873161315918,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Conjunctive Absorption LR": {
+      "name": "Conjunctive Absorption LR",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04895448684692383,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Conjunctive Absorption RL": {
+      "name": "Conjunctive Absorption RL",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04736924171447754,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Disjunctive Absorption LR": {
+      "name": "Disjunctive Absorption LR",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04761624336242676,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Disjunctive Absorption RL": {
+      "name": "Disjunctive Absorption RL",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04791879653930664,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Conjunctive Associativity LR": {
+      "name": "Conjunctive Associativity LR",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.0482635498046875,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Conjunctive Associativity RL": {
+      "name": "Conjunctive Associativity RL",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04784107208251953,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Disjunctive Associativity LR": {
+      "name": "Disjunctive Associativity LR",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.05274510383605957,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Disjunctive Associativity RL": {
+      "name": "Disjunctive Associativity RL",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.05367755889892578,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Double Negation Identity": {
+      "name": "Double Negation Identity",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.026068925857543945,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Triple Negation Identity": {
+      "name": "Triple Negation Identity",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.0499272346496582,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Conjuctive DeMorgan's Identity": {
+      "name": "Conjuctive DeMorgan's Identity",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04898691177368164,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Disjunctive DeMorgan's Identity": {
+      "name": "Disjunctive DeMorgan's Identity",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.047078847885131836,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Conjunctive Distribution Identity": {
+      "name": "Conjunctive Distribution Identity",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.049448490142822266,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "Disjuctive Distribution Identity": {
+      "name": "Disjuctive Distribution Identity",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.05609607696533203,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "EX_CM_15": {
+      "name": "EX_CM_15",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.04810380935668945,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "EX_TH_17": {
+      "name": "EX_TH_17",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.05127859115600586,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    },
+    "EX_TH_18": {
+      "name": "EX_TH_18",
+      "has_model": false,
+      "false_premises": [],
+      "true_conclusions": [],
+      "execution_time": 0.05531454086303711,
+      "error": "ModelConstraints.__init__() missing 1 required positional argument: 'proposition_class'"
+    }
+  }
+}
