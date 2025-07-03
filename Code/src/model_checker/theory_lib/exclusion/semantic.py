@@ -251,134 +251,134 @@ class ExclusionSemantics(model.SemanticDefaults):
         x = z3.BitVec("nec_x", self.N)
         return ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
         
-    def extract_function_witness(self, z3_model, counter_value=None):
-        """Extracts Z3's function witnesses from the model for exclusion formulas.
+    # def extract_function_witness(self, z3_model, counter_value=None):
+    #     """Extracts Z3's function witnesses from the model for exclusion formulas.
+    #
+    #     This method finds the function witnesses (h functions) that Z3 created to satisfy
+    #     existential quantifiers in exclusion formulas. These witnesses are crucial for
+    #     ensuring that exclusion formulas evaluate consistently between constraint
+    #     satisfaction and truth evaluation.
+    #
+    #     Note: Our investigation has shown that Z3 does not retain function witnesses for
+    #     existentially quantified functions in the final model. This method is kept for
+    #     reference and documentation purposes, but it will typically not find any witnesses.
+    #
+    #     Performance: Enhanced with early exit and caching for improved efficiency during
+    #     systematic testing across multiple examples.
+    #
+    #     Args:
+    #         z3_model: The Z3 model to extract function witnesses from
+    #         counter_value: Optional specific counter value to look for
+    #
+    #     Returns:
+    #         dict: Mapping from function names to witness functions
+    #     """
+    #     if not z3_model:
+    #         return {}
+    #
+    #     # Performance optimization: early exit if no function declarations
+    #     model_decls = z3_model.decls()
+    #     if not model_decls:
+    #         return {}
+    #
+    #     # Extract all h_ function declarations
+    #     result = {}
+    #     h_funcs = {}
+    #
+    #     # First collect all h_* function declarations from the model
+    #     for decl in model_decls:
+    #         decl_name = decl.name()
+    #         if decl_name.startswith('h_') or decl_name == 'h':
+    #             # For Z3 Arrays, handle them differently
+    #             if decl_name == 'h':
+    #                 h_funcs['h'] = decl
+    #             # For Z3 Functions, use the regular approach
+    #             elif decl.arity() == 1:
+    #                 h_funcs[decl_name] = decl
+    #
+    #     # Early exit if no relevant functions found
+    #     if not h_funcs:
+    #         return {}
+    #
+    #     # For each function, create a witness that can be used for evaluation
+    #     for name, decl in h_funcs.items():
+    #         # For Array type witnesses (from QuantifyArrays implementation)
+    #         if name == 'h':
+    #             def array_witness(x):
+    #                 x_val = z3.BitVecVal(x, self.N) if isinstance(x, int) else x
+    #                 return z3_model.evaluate(decl[x_val])
+    #             result[name] = array_witness # lambda x. h(x)
+    #         # For Function type witnesses (from NameFunctions implementation)
+    #         else:
+    #             def make_function_witness(func_decl):
+    #                 def witness(x):
+    #                     x_val = z3.BitVecVal(x, self.N) if isinstance(x, int) else x
+    #                     return z3_model.evaluate(func_decl(x_val))
+    #                 return witness
+    #             result[name] = make_function_witness(decl)
+    #
+    #     # Store the witnesses in the semantics object for later use
+    #     self.function_witnesses.update(result)
+    #     return result
         
-        This method finds the function witnesses (h functions) that Z3 created to satisfy
-        existential quantifiers in exclusion formulas. These witnesses are crucial for
-        ensuring that exclusion formulas evaluate consistently between constraint
-        satisfaction and truth evaluation.
-        
-        Note: Our investigation has shown that Z3 does not retain function witnesses for
-        existentially quantified functions in the final model. This method is kept for
-        reference and documentation purposes, but it will typically not find any witnesses.
-        
-        Performance: Enhanced with early exit and caching for improved efficiency during
-        systematic testing across multiple examples.
-        
-        Args:
-            z3_model: The Z3 model to extract function witnesses from
-            counter_value: Optional specific counter value to look for
-            
-        Returns:
-            dict: Mapping from function names to witness functions
-        """
-        if not z3_model:
-            return {}
-        
-        # Performance optimization: early exit if no function declarations
-        model_decls = z3_model.decls()
-        if not model_decls:
-            return {}
-            
-        # Extract all h_ function declarations
-        result = {}
-        h_funcs = {}
-        
-        # First collect all h_* function declarations from the model
-        for decl in model_decls:
-            decl_name = decl.name()
-            if decl_name.startswith('h_') or decl_name == 'h':
-                # For Z3 Arrays, handle them differently
-                if decl_name == 'h':
-                    h_funcs['h'] = decl
-                # For Z3 Functions, use the regular approach
-                elif decl.arity() == 1:
-                    h_funcs[decl_name] = decl
-        
-        # Early exit if no relevant functions found
-        if not h_funcs:
-            return {}
-        
-        # For each function, create a witness that can be used for evaluation
-        for name, decl in h_funcs.items():
-            # For Array type witnesses (from QuantifyArrays implementation)
-            if name == 'h':
-                def array_witness(x):
-                    x_val = z3.BitVecVal(x, self.N) if isinstance(x, int) else x
-                    return z3_model.evaluate(decl[x_val])
-                result[name] = array_witness # lambda x. h(x)
-            # For Function type witnesses (from NameFunctions implementation)
-            else:
-                def make_function_witness(func_decl):
-                    def witness(x):
-                        x_val = z3.BitVecVal(x, self.N) if isinstance(x, int) else x
-                        return z3_model.evaluate(func_decl(x_val))
-                    return witness
-                result[name] = make_function_witness(decl)
-        
-        # Store the witnesses in the semantics object for later use
-        self.function_witnesses.update(result)
-        return result
-        
-    def precludes(self, state, z3_set):
-        """
-        Determines if a state precludes a set of states by finding a function h
-        that maps each state in set_S to a part of some state such that for each
-        state f in set_S, h(f) excludes some part of f.
-    
-        Args:
-            state: BitVec representing the state to check
-            set_S: Set of BitVecs representing the states to check against
-    
-        Returns:
-            z3.BoolRef: Formula that is true iff state precludes set_S, meaning there exists a function h and state s such that:
-                1. For all x in set_S, h(x) is part of s
-                2. s is the smallest state satisfying condition 1
-                3. For all f in set_S, h(f) excludes some part u of f
-        """
-        h = z3.Function(
-            f"h_{state, z3_set}", # function name type: string
-            z3.BitVecSort(self.N),  # argument type: bitvector
-            z3.BitVecSort(self.N)   # return type: bitvector
-        )
-
-        x, y, z, u, v = z3.BitVecs("x y z u v", self.N)
-        return z3.And(
-            ForAll( # 1. for every extended_verifiers x of the argument, there 
-                x,  #    is some part y of x where h(x) excludes y                                    
-                z3.Implies(
-                    z3_set[x],
-                    Exists(
-                        y,
-                        z3.And(
-                            self.is_part_of(y, x),
-                            self.excludes(h(x), y)
-                        )
-                    )
-                )
-            ),
-            ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the argument
-                z,
-                z3.Implies(
-                    z3_set[z],
-                    self.is_part_of(h(z), state),
-                )
-            ),
-            ForAll( # 3. the state is the smallest state to satisfy condition 2
-                u,
-                z3.Implies(
-                    ForAll(
-                        v,
-                        z3.Implies(
-                            z3_set[v],
-                            self.is_part_of(h(v), u)
-                        )
-                    ),
-                    self.is_part_of(state, u)
-                )
-            )
-        )
+    # def precludes(self, state, z3_set):
+    #     """
+    #     Determines if a state precludes a set of states by finding a function h
+    #     that maps each state in set_S to a part of some state such that for each
+    #     state f in set_S, h(f) excludes some part of f.
+    #
+    #     Args:
+    #         state: BitVec representing the state to check
+    #         set_S: Set of BitVecs representing the states to check against
+    #
+    #     Returns:
+    #         z3.BoolRef: Formula that is true iff state precludes set_S, meaning there exists a function h and state s such that:
+    #             1. For all x in set_S, h(x) is part of s
+    #             2. s is the smallest state satisfying condition 1
+    #             3. For all f in set_S, h(f) excludes some part u of f
+    #     """
+    #     h = z3.Function(
+    #         f"h_{state, z3_set}", # function name type: string
+    #         z3.BitVecSort(self.N),  # argument type: bitvector
+    #         z3.BitVecSort(self.N)   # return type: bitvector
+    #     )
+    #
+    #     x, y, z, u, v = z3.BitVecs("x y z u v", self.N)
+    #     return z3.And(
+    #         ForAll( # 1. for every extended_verifiers x of the argument, there 
+    #             x,  #    is some part y of x where h(x) excludes y                                    
+    #             z3.Implies(
+    #                 z3_set[x],
+    #                 Exists(
+    #                     y,
+    #                     z3.And(
+    #                         self.is_part_of(y, x),
+    #                         self.excludes(h(x), y)
+    #                     )
+    #                 )
+    #             )
+    #         ),
+    #         ForAll( # 2. h(z) is a part of the state for all extended_verifiers z of the argument
+    #             z,
+    #             z3.Implies(
+    #                 z3_set[z],
+    #                 self.is_part_of(h(z), state),
+    #             )
+    #         ),
+    #         ForAll( # 3. the state is the smallest state to satisfy condition 2
+    #             u,
+    #             z3.Implies(
+    #                 ForAll(
+    #                     v,
+    #                     z3.Implies(
+    #                         z3_set[v],
+    #                         self.is_part_of(h(v), u)
+    #                     )
+    #                 ),
+    #                 self.is_part_of(state, u)
+    #             )
+    #         )
+    #     )
 
     # B: compossible => coheres but not vice versa
     # would they be equivalent if the following constraint were added:
