@@ -43,7 +43,7 @@ class ExclusionSemantics(model.SemanticDefaults):
         "maximize": False,
     }
 
-    def __init__(self, combined_settings): # TODO: 
+    def __init__(self, combined_settings):
 
         # Initialize the superclass to set defaults
         super().__init__(combined_settings)
@@ -227,7 +227,6 @@ class ExclusionSemantics(model.SemanticDefaults):
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
         self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
 
-    # TODO: this has to be the problem but looks find
     def conflicts(self, bit_e1, bit_e2):
         f1, f2 = z3.BitVecs("f1 f2", self.N)
         return Exists(
@@ -411,25 +410,6 @@ class ExclusionSemantics(model.SemanticDefaults):
     def occurs(self, bit_s):
         return self.is_part_of(bit_s, self.main_world)
     
-    # # TODO: should this be eval_point?
-    # def true_at(self, sentence, eval_world): # pg 545
-    #     sentence_letter = sentence.sentence_letter
-    #     if sentence_letter is not None:
-    #         x = z3.BitVec("t_atom_x", self.N)
-    #         return Exists(
-    #             x,
-    #             z3.And(
-    #                 self.is_part_of(x, eval_world),
-    #                 self.verify(x, sentence_letter)
-    #             )
-    #         )
-    #     operator = sentence.operator
-    #     arguments = sentence.arguments or ()
-    #     return operator.true_at(*arguments, eval_world)
-    
-    # def false_at(self, sentence, eval_world): 
-    #     return z3.Not(self.true_at(sentence, eval_world))
-    
     def true_at(self, sentence, eval_point): # pg 545
         """Returns a Z3 formula that is satisfied when the sentence is true at the given evaluation point.
 
@@ -456,16 +436,8 @@ class ExclusionSemantics(model.SemanticDefaults):
             )
         
         # Handle compound sentences by directly delegating to the operator
-        # This follows the old implementation and preserves logical properties like associativity
         operator = sentence.operator
         arguments = sentence.arguments or ()
-        
-        # Special case for exclusion operator if we're using function witness extraction
-        if operator and operator.name == "\\exclude" and hasattr(self, 'z3_model'):
-            # This branch is taken during truth evaluation after model generation
-            # The function witnesses will be used to evaluate exclusion formulas consistently
-            return operator.true_at(*arguments, eval_point)
-        
         return operator.true_at(*arguments, eval_point)
         
     def evaluate_with_witness(self, formula, z3_model, witness_funcs=None):
