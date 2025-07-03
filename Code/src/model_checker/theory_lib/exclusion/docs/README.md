@@ -70,8 +70,8 @@ This directory contains documentation for the exclusion semantics implementation
 
 **Status**: Template ready, to be populated during implementation.
 
-### 6. [TODO.md](TODO.md) - Implementation Task Tracking
-**Purpose**: Detailed task list following the implementation plan with 115 specific tasks across all phases.
+### 6. [TODO.md](TODO.md) - Original Implementation Task Tracking
+**Purpose**: Detailed task list following the implementation plan with 115 specific tasks across all phases for refactoring semantic_old.py and operators_old.py.
 
 **Organization**:
 - Tasks grouped by implementation phase
@@ -79,7 +79,29 @@ This directory contains documentation for the exclusion semantics implementation
 - Meta tasks for ongoing quality assurance
 - Progress tracking and completion metrics
 
-**Use this** to track day-to-day implementation progress.
+**Status**: Phase 1 completed, Phase 2 in progress. False premises persist despite SK implementation.
+
+### 7. [new_implementation.md](new_implementation.md) - Current Refactoring Plan
+**Purpose**: Comprehensive plan for refactoring the current semantic.py and operators.py based on lessons learned.
+
+**Key Innovations**:
+- Simplify to single strategy FIRST
+- Focus on Skolemized (SK) approach
+- Use custom quantifiers for predictability
+- 5-phase implementation with rigorous testing
+
+**Timeline**: 17-22 hours across 5 phases.
+
+### 8. [TODO_new_refactor.md](TODO_new_refactor.md) - Current Implementation Tasks
+**Purpose**: Tracks 90 specific tasks for the new refactoring effort on semantic.py and operators.py.
+
+**Organization**:
+- More focused than original TODO
+- Emphasizes simplification before correction
+- Detailed success criteria per phase
+- Progress metrics clearly defined
+
+**Use this** to track the current refactoring effort.
 
 ## Reading Order
 
@@ -127,9 +149,10 @@ When implementing changes:
 ## Current Status
 
 - **Theory**: Well-documented and understood
-- **Problem**: Identified and analyzed
-- **Solution**: Designed and planned
-- **Implementation**: Ready to begin Phase 1
+- **Problem**: Identified and analyzed  
+- **Previous Attempt**: Phase 1 complete, Phase 2 in progress on semantic_old.py/operators_old.py
+- **Current Effort**: New refactoring plan created for semantic.py/operators.py
+- **Next Steps**: Begin Phase 1 of new implementation (simplification-first approach)
 
 ## Guided Tour: Research Trajectory
 
@@ -189,7 +212,21 @@ We developed a phased implementation plan focusing on:
 
 ### What's Next
 
-We're now ready to implement the solution, carefully tracking results at each phase. The TODO list provides 115 specific tasks to complete, with rigorous testing between phases.
+#### Current Refactoring Effort (December 2024)
+
+We are now undertaking a new refactoring effort that applies lessons learned from the previous implementation attempts:
+
+1. **New Target**: Refactoring the current `semantic.py` and `operators.py` (not the old versions)
+2. **Key Innovation**: Simplifying to a single exclusion strategy (Skolemized) before fixing semantics
+3. **Documentation**: 
+   - [new_implementation.md](new_implementation.md) - Detailed phased plan for current refactor
+   - [TODO_new_refactor.md](TODO_new_refactor.md) - 90 specific tasks for the new implementation
+
+This approach prioritizes simplification and correctness over maintaining multiple strategies.
+
+#### Previous Implementation Work
+
+The original implementation plan targeted `semantic_old.py` and `operators_old.py`:
 
 *Track progress in [TODO.md](TODO.md) and results in [findings.md](findings.md)*
 
@@ -209,4 +246,4 @@ Key takeaways:
 
 ---
 
-*Last Updated: [Current Date]*
+*Last Updated: December 2024*
