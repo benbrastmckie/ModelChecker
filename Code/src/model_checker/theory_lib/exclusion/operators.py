@@ -4,6 +4,7 @@ This replaces the multi-strategy approach with a focused implementation.
 """
 
 import z3
+import itertools
 from model_checker.utils import ForAll, Exists
 from model_checker import syntactic
 
@@ -209,23 +210,20 @@ class ExclusionOperator(syntactic.Operator):
 
     def find_verifiers(self, argument, eval_point):
         """
-        Find verifiers by evaluating the extended_verify formula.
-        This ensures consistency with constraint generation.
-        """
-        all_states = self.semantics.all_states
-        z3_model = argument.proposition.model_structure.z3_model
+        Find verifiers for the exclusion operator.
         
-        result = set()
-        for state in all_states:
-            # Check if this state verifies the exclusion formula
-            formula = self.extended_verify(state, argument, eval_point)
-            # Use direct Z3 evaluation (no special witness handling)
-            eval_result = z3_model.evaluate(formula)
-            
-            if z3.is_true(eval_result):
-                result.add(state)
-                
-        return result
+        Since we cannot reconstruct the Skolem functions used during constraint
+        generation, we need to delegate to find_verifying_states. However, this
+        creates new Skolem functions, which is the root cause of the mismatch.
+        
+        For now, we accept this limitation and return the result of find_verifying_states.
+        A proper fix would require restructuring how verifiers are computed.
+        """
+        # This is problematic because it creates new Skolem functions,
+        # but it's the best we can do without major restructuring
+        model_structure = argument.proposition.model_structure
+        exclusion_sentence = syntactic.Sentence(self, argument)
+        return model_structure.find_verifying_states(exclusion_sentence, eval_point)
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print exclusion."""
