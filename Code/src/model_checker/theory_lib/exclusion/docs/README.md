@@ -263,5 +263,3 @@ Key takeaways:
 - Document the journey, not just the destination
 
 ---
-
-*Last Updated: January 2025*
