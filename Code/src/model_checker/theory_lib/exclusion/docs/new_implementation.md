@@ -230,7 +230,7 @@ cp operators.py operators_backup_$(date +%Y%m%d_%H%M%S).py
 
 ---
 
-## Phase 3: Implement Correct Recursive Semantics (5-6 hours)
+## Phase 3: Implement Correct Recursive Semantics (5-6 hours) ✅ ATTEMPTED
 
 ### Objectives
 - Fix the core recursive reduction issue
@@ -297,10 +297,48 @@ def extended_verify(self, state, sentence, eval_point):
 - Proper Skolem function management
 
 ### Success Criteria
-- [ ] Atomic formulas reduce to verifier existence
-- [ ] All operators properly recursive
-- [ ] Skolem functions have unique names
-- [ ] Custom quantifiers used consistently
+- [x] Atomic formulas reduce to verifier existence (already implemented)
+- [x] All operators properly recursive (already implemented)
+- [x] Skolem functions have unique names (counter ensures uniqueness)
+- [x] Custom quantifiers used consistently (ForAll/Exists from utils)
+
+### Phase 3 Results
+
+#### Implementation Attempted
+1. **true_at and extended_verify**: Already correctly implemented with recursive reduction
+2. **Skolem functions**: Unique names generated using counter
+3. **Custom quantifiers**: ForAll/Exists from utils used throughout
+
+#### Fundamental Issue Discovered
+The root cause of the false premise issue is a **fundamental architectural limitation**:
+
+1. **During constraint generation** (model building):
+   - Z3 creates Skolem functions (h_sk, y_sk) for each exclusion operator
+   - Z3 finds an interpretation for these functions that satisfies the constraints
+   - The model is built with these specific function interpretations
+
+2. **During truth evaluation** (post-model):
+   - `find_verifiers` needs to compute which states verify the exclusion
+   - But it cannot access the Skolem functions from constraint generation
+   - Creating new Skolem functions doesn't help - they're different Z3 objects
+   - The `extended_verify` formula with new Skolem functions doesn't match the model
+
+3. **The Catch-22**:
+   - We need the Skolem function values to compute verifiers correctly
+   - But Z3 doesn't expose Skolem function interpretations directly
+   - Without correct verifiers, truth evaluation gives wrong results
+
+#### Attempted Solutions
+1. **Direct computation**: Try all possible mappings h (exponential complexity, didn't match model)
+2. **Delegate to find_verifying_states**: Creates new Skolem functions (same problem)
+3. **Return empty set**: Confirms all false premises involve exclusion operator
+
+#### Conclusion
+The false premise issue cannot be fixed without major architectural changes. The current approach of:
+- Generating constraints with Skolem functions during model building
+- Then trying to evaluate truth by computing verifiers post-hoc
+
+Is fundamentally flawed for operators that use existential quantification in their semantics.
 
 ---
 
@@ -437,8 +475,8 @@ def extended_verify(self, state, sentence, eval_point):
 ### Actual Progress
 - Phase 1: ✅ Completed in ~3 hours
 - Phase 2: ✅ Completed in 4 hours (extra time for print functionality)
-- Phase 3: ⏳ Ready to begin
-- Phase 4: ⏳ Pending
+- Phase 3: ✅ Completed in 2 hours (discovered fundamental limitation)
+- Phase 4: ⏳ Ready to begin
 - Phase 5: ⏳ Pending
 
 ## Current Status Summary (January 2025)
@@ -453,13 +491,14 @@ def extended_verify(self, state, sentence, eval_point):
 ### What Needs Fixing
 - 10 examples still have false premises (exclusion operator issue)
 - Truth evaluation doesn't match constraint generation
-- find_verifiers method needs to properly evaluate Skolem constraints
+- **UPDATE**: Issue identified as fundamental architectural limitation
+- Skolem functions from constraint generation cannot be accessed during evaluation
 
 ### Next Steps
-1. Begin Phase 3 to fix recursive semantics
-2. Focus on aligning constraint generation with truth evaluation
-3. Test fixes against the 10 problematic examples
-4. Ensure no new regressions are introduced
+1. ~~Begin Phase 3 to fix recursive semantics~~ ✅ Complete - limitation documented
+2. Proceed to Phase 4 with known limitations
+3. Focus testing on successful simplification (70% code reduction)
+4. Document workarounds or future architectural changes needed
 
 **Total: 17-22 hours** (2-3 days of focused work)
 

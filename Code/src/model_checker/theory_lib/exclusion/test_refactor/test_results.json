@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-07-03 10:34:06",
+  "timestamp": "2025-07-03 11:50:41",
   "summary": {
     "total_examples": 32,
     "false_premise_count": 10,
@@ -54,7 +54,7 @@
       "has_model": true,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.05008363723754883,
+      "execution_time": 0.1007242202758789,
       "error": null
     },
     "No Gluts": {
@@ -64,7 +64,7 @@
         "(A \\uniwedge \\exclude A)"
       ],
       "true_conclusions": [],
-      "execution_time": 0.04842543601989746,
+      "execution_time": 0.10962557792663574,
       "error": null
     },
     "Double Negation Introduction": {
@@ -72,7 +72,7 @@
       "has_model": true,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.06183123588562012,
+      "execution_time": 0.18948602676391602,
       "error": null
     },
     "Double Negation Elimination": {
@@ -82,7 +82,7 @@
         "\\exclude \\exclude A"
       ],
       "true_conclusions": [],
-      "execution_time": 0.0612025260925293,
+      "execution_time": 0.17148709297180176,
       "error": null
     },
     "Triple Negation Entailment": {
@@ -92,7 +92,7 @@
         "\\exclude \\exclude \\exclude A"
       ],
       "true_conclusions": [],
-      "execution_time": 0.1024169921875,
+      "execution_time": 0.5725619792938232,
       "error": null
     },
     "Quadruple Negation Entailment": {
@@ -102,7 +102,7 @@
         "\\exclude \\exclude \\exclude \\exclude A"
       ],
       "true_conclusions": [],
-      "execution_time": 0.31301426887512207,
+      "execution_time": 2.2045702934265137,
       "error": null
     },
     "Disjunctive Syllogism": {
@@ -112,7 +112,7 @@
         "\\exclude B"
       ],
       "true_conclusions": [],
-      "execution_time": 0.04997992515563965,
+      "execution_time": 0.07824182510375977,
       "error": null
     },
     "Conjunctive DeMorgan's LR": {
@@ -122,7 +122,7 @@
         "\\exclude (A \\uniwedge B)"
       ],
       "true_conclusions": [],
-      "execution_time": 0.06349802017211914,
+      "execution_time": 0.2025623321533203,
       "error": null
     },
     "Conjunctive DeMorgan's RL": {
@@ -132,7 +132,7 @@
         "(\\exclude A \\univee \\exclude B)"
       ],
       "true_conclusions": [],
-      "execution_time": 0.058739662170410156,
+      "execution_time": 0.30245471000671387,
       "error": null
     },
     "Disjunctive DeMorgan's LR": {
@@ -142,7 +142,7 @@
         "\\exclude (A \\univee B)"
       ],
       "true_conclusions": [],
-      "execution_time": 0.05235624313354492,
+      "execution_time": 0.18886709213256836,
       "error": null
     },
     "Disjunctive DeMorgan's RL": {
@@ -152,7 +152,7 @@
         "(\\exclude A \\uniwedge \\exclude B)"
       ],
       "true_conclusions": [],
-      "execution_time": 0.049722909927368164,
+      "execution_time": 0.19333672523498535,
       "error": null
     },
     "Conjunctive Distribution LR": {
@@ -160,7 +160,7 @@
       "has_model": false,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.04649949073791504,
+      "execution_time": 0.0646522045135498,
       "error": null
     },
     "Conjunctive Distribution RL": {
@@ -168,7 +168,7 @@
       "has_model": false,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.03940463066101074,
+      "execution_time": 0.09236335754394531,
       "error": null
     },
     "Disjunctive Distribution LR": {
@@ -176,7 +176,7 @@
       "has_model": false,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.03933358192443848,
+      "execution_time": 0.056269168853759766,
       "error": null
     },
     "Disjunctive Distribution RL": {
@@ -184,7 +184,7 @@
       "has_model": false,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.055759429931640625,
+      "execution_time": 0.053995609283447266,
       "error": null
     },
     "Conjunctive Absorption LR": {
@@ -192,7 +192,7 @@
       "has_model": false,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.03990936279296875,
+      "execution_time": 0.054931640625,
       "error": null
     },
     "Conjunctive Absorption RL": {
@@ -200,7 +200,7 @@
       "has_model": false,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.0392460823059082,
+      "execution_time": 0.05013704299926758,
       "error": null
     },
     "Disjunctive Absorption LR": {
@@ -208,7 +208,7 @@
       "has_model": false,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.043531179428100586,
+      "execution_time": 0.04972124099731445,
       "error": null
     },
     "Disjunctive Absorption RL": {
@@ -216,7 +216,7 @@
       "has_model": false,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.03949928283691406,
+      "execution_time": 0.05047106742858887,
       "error": null
     },
     "Conjunctive Associativity LR": {
@@ -224,7 +224,7 @@
       "has_model": false,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.046518564224243164,
+      "execution_time": 0.0861818790435791,
       "error": null
     },
     "Conjunctive Associativity RL": {
@@ -232,7 +232,7 @@
       "has_model": false,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.04722738265991211,
+      "execution_time": 0.07674407958984375,
       "error": null
     },
     "Disjunctive Associativity LR": {
@@ -240,7 +240,7 @@
       "has_model": false,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.04013228416442871,
+      "execution_time": 0.0661618709564209,
       "error": null
     },
     "Disjunctive Associativity RL": {
@@ -248,7 +248,7 @@
       "has_model": false,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.04771065711975098,
+      "execution_time": 0.05752921104431152,
       "error": null
     },
     "Double Negation Identity": {
@@ -256,7 +256,7 @@
       "has_model": true,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.02851724624633789,
+      "execution_time": 0.12923836708068848,
       "error": null
     },
     "Triple Negation Identity": {
@@ -264,7 +264,7 @@
       "has_model": true,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.19829535484313965,
+      "execution_time": 1.4019100666046143,
       "error": null
     },
     "Conjuctive DeMorgan's Identity": {
@@ -272,7 +272,7 @@
       "has_model": true,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.08446192741394043,
+      "execution_time": 0.5386805534362793,
       "error": null
     },
     "Disjunctive DeMorgan's Identity": {
@@ -280,7 +280,7 @@
       "has_model": true,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.07852602005004883,
+      "execution_time": 0.49939393997192383,
       "error": null
     },
     "Conjunctive Distribution Identity": {
@@ -288,7 +288,7 @@
       "has_model": false,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.055433034896850586,
+      "execution_time": 0.06509566307067871,
       "error": null
     },
     "Disjuctive Distribution Identity": {
@@ -296,7 +296,7 @@
       "has_model": true,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.045914411544799805,
+      "execution_time": 0.13112616539001465,
       "error": null
     },
     "EX_CM_15": {
@@ -304,7 +304,7 @@
       "has_model": false,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.052690982818603516,
+      "execution_time": 0.05342411994934082,
       "error": null
     },
     "EX_TH_17": {
@@ -314,7 +314,7 @@
         "\\exclude (A \\univee B)"
       ],
       "true_conclusions": [],
-      "execution_time": 0.05371379852294922,
+      "execution_time": 0.20099782943725586,
       "error": null
     },
     "EX_TH_18": {
@@ -322,7 +322,7 @@
       "has_model": false,
       "false_premises": [],
       "true_conclusions": [],
-      "execution_time": 0.05109810829162598,
+      "execution_time": 0.05918717384338379,
       "error": null
     }
   }
