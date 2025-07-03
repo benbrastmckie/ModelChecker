@@ -104,10 +104,48 @@ This TODO list tracks the implementation of correct recursive semantics for excl
 
 ---
 
-## Phase 3: Constraint-Based Enhancements (Week 3)
+## Phase 3: Reduced Semantics Implementation (Week 3) ✓ COMPLETED
 
-### Hybrid Implementation
-- [ ] Create `sk_cd_hybrid.py` module
+### Clean Implementation
+- [x] Create `reduced_semantic.py` module
+  - [x] Implement only two Z3 primitives: verify and excludes
+  - [x] Derive all other relations from primitives
+  - [x] Clean separation of concerns
+
+- [x] Create `reduced_operators.py` module
+  - [x] Implement all operators with proper recursive semantics
+  - [x] Use Skolem functions for exclusion encoding
+  - [x] Maintain modularity principles
+
+- [x] Create `reduced_theory.py` module
+  - [x] Integrate with model checker framework
+  - [x] Provide theory entry point
+
+### Testing
+- [x] Create `test_reduced_comprehensive.py`
+  - [x] Test all 34 examples
+  - [x] Focus on 8 problematic examples
+  - [x] Generate comparative results
+
+- [x] Performance validation
+  - [x] Achieved 4.3x speedup (0.091s vs 0.393s baseline)
+  - [x] Maintained correctness for valid examples
+  - [x] Created `reduced_results.json`
+
+### Documentation
+- [x] Update `findings.md` with Phase 3 results
+- [x] Document critical discovery about semantic theory
+- [x] Note that false premise issue persists
+
+### Success Criteria Checklist
+- [x] Clean implementation with proper modularity ✓
+- [x] Performance improved significantly ✓ (4.3x faster)
+- [ ] All 34 examples handled successfully ❌ (8 still have false premises)
+- [x] Code clarity improved ✓
+
+---
+
+## Phase 4: Constraint-Based Enhancements (Week 3)
   - [ ] Implement `SK_CD_ExclusionOperator`
   - [ ] Add domain size detection
   - [ ] Implement enumeration for small domains
@@ -291,21 +329,22 @@ This TODO list tracks the implementation of correct recursive semantics for excl
 ### Phase Status
 - [x] Phase 1: Foundation and Analysis ✓ COMPLETED
 - [x] Phase 2: SK Implementation ✓ COMPLETED (with unresolved issues)
-- [ ] Phase 3: Hybrid Enhancements
-- [ ] Phase 4: Direct Computation
+- [x] Phase 3: Reduced Semantics ✓ COMPLETED (false premises persist)
+- [ ] Phase 4: Constraint-Based Enhancements
 - [ ] Phase 5: Integration
 
 ### Key Milestones
 - [x] Baseline metrics established ✓
 - [ ] First correct implementation (no false premises) ❌
-- [ ] Performance targets met
+- [x] Performance targets met ✓ (4.3x speedup achieved)
 - [ ] Full integration complete
 - [ ] Documentation finalized
 
 ### Critical Issues Discovered
-- **False Premise Problem Persists**: All implementation strategies (including SK) still produce false premises for 8 examples
+- **False Premise Problem Persists**: All implementation strategies (baseline, SK, reduced) produce false premises for same 8 examples
 - **Circular Dependency Resolved**: Must use `extended_verify` not `true_at` in constraint generation
 - **Implementation Pattern Established**: Operators must extend base classes, not create parallel hierarchies
+- **Semantic Theory Issue Identified**: The problem appears to be in the semantic theory itself, not the implementation
 
 ### Publication Readiness
 - [ ] Technical results documented
@@ -316,6 +355,6 @@ This TODO list tracks the implementation of correct recursive semantics for excl
 ---
 
 *Last Updated: 2025-07-02*
-*Total Tasks: 115*
-*Completed: 44*
-*In Progress: 1*
+*Total Tasks: 129*
+*Completed: 70*
+*In Progress: 0*

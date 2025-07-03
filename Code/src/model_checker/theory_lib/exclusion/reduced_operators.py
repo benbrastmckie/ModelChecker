@@ -83,9 +83,8 @@ class ExclusionOperator(syntactic.Operator):
     
     def find_verifiers(self, argument, eval_point):
         """Find the set of verifiers for the exclusion formula."""
-        # This is evaluation, not constraint generation
-        # Will be implemented when we have a Z3 model
-        return set()
+        # For exclusion, verifiers are the precluders of the argument
+        return argument.proposition.precluders
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print method for exclusion operator."""
@@ -134,8 +133,10 @@ class UniAndOperator(syntactic.Operator):
     
     def find_verifiers(self, left_sent_obj, right_sent_obj, eval_point):
         """Find verifiers for conjunction."""
-        # This is evaluation, not constraint generation
-        return set()
+        # For conjunction, verifiers are the product (pairwise fusion) of component verifiers
+        Y_V = left_sent_obj.proposition.find_proposition()
+        Z_V = right_sent_obj.proposition.find_proposition()
+        return self.semantics.product(Y_V, Z_V)
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print method for conjunction."""
@@ -180,8 +181,10 @@ class UniOrOperator(syntactic.Operator):
     
     def find_verifiers(self, left_sent_obj, right_sent_obj, eval_point):
         """Find verifiers for disjunction."""
-        # This is evaluation, not constraint generation
-        return set()
+        # For disjunction, verifiers are the union of component verifiers
+        Y_V = left_sent_obj.proposition.find_proposition()
+        Z_V = right_sent_obj.proposition.find_proposition()
+        return Y_V.union(Z_V)
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print method for disjunction."""
@@ -232,8 +235,10 @@ class UniIdentityOperator(syntactic.Operator):
     
     def find_verifiers(self, left_sent_obj, right_sent_obj, eval_point):
         """Find verifiers for identity."""
-        # This is evaluation, not constraint generation
-        return set()
+        # For identity, only null verifies when arguments have same verifiers
+        Y_V = left_sent_obj.proposition.find_proposition()
+        Z_V = right_sent_obj.proposition.find_proposition()
+        return {self.semantics.null_state} if Y_V == Z_V else set()
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print method for identity."""

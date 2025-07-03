@@ -198,18 +198,166 @@ class ReducedExclusionSemantics(model.SemanticDefaults):
         else:
             # Complex case: delegate to operator
             return sentence.operator.extended_verify(state, *sentence.arguments, eval_point)
+    
+    def z3_set(self, py_set, N):
+        """Convert a Python set of states to a Z3 characteristic function."""
+        # Create a function that returns True for states in the set
+        x = z3.BitVec("set_member", N)
+        if not py_set:
+            # Empty set
+            return z3.Function("empty_set", z3.BitVecSort(N), z3.BoolSort())
+        
+        # Build OR of all states in the set
+        conditions = []
+        for state in py_set:
+            conditions.append(x == state)
+        
+        # Return a lambda-like function
+        return lambda y: z3.Or(*[y == s for s in py_set]) if py_set else z3.BoolVal(False)
+    
+    def precludes(self, state, z3_set):
+        """
+        Determines if a state precludes a set of states.
+        
+        This implements the three conditions for preclusion using Skolem functions.
+        """
+        h = z3.Function(
+            f"h_precl_{self.get_unique_id()}", 
+            z3.BitVecSort(self.N),  # argument type: bitvector
+            z3.BitVecSort(self.N)   # return type: bitvector
+        )
+
+        x, y, z, u, v = z3.BitVecs("precl_x precl_y precl_z precl_u precl_v", self.N)
+        return z3.And(
+            ForAll( # 1. for every state x in the set, there is some part y of x where h(x) excludes y
+                x,
+                z3.Implies(
+                    z3_set(x),
+                    Exists(
+                        y,
+                        z3.And(
+                            self.is_part_of(y, x),
+                            self.excludes(h(x), y)
+                        )
+                    )
+                )
+            ),
+            ForAll( # 2. h(z) is a part of the state for all z in the set
+                z,
+                z3.Implies(
+                    z3_set(z),
+                    self.is_part_of(h(z), state),
+                )
+            ),
+            ForAll( # 3. the state is the smallest state to satisfy condition 2
+                u,
+                z3.Implies(
+                    ForAll(
+                        v,
+                        z3.Implies(
+                            z3_set(v),
+                            self.is_part_of(h(v), u)
+                        )
+                    ),
+                    self.is_part_of(state, u)
+                )
+            )
+        )
+    
+    def product(self, set_A, set_B):
+        """Compute the set of all pairwise fusions between elements of two sets."""
+        result = set()
+        for a in set_A:
+            for b in set_B:
+                result.add(self.fusion(a, b))
+        return result
 
 
 class UnilateralProposition(model.PropositionDefaults):
     """Unilateral proposition for exclusion semantics."""
     
+    def __init__(self, sentence_obj, model_structure, eval_world='main'):
+        """Initialize unilateral proposition."""
+        super().__init__(sentence_obj, model_structure)
+        self.eval_world = eval_world
+        
+        # Find verifiers if model exists
+        if self.model_structure.z3_model:
+            self.verifiers = self.find_proposition()
+            self.precluders = self.find_precluders(self.verifiers)
+        else:
+            self.verifiers = set()
+            self.precluders = set()
+    
+    @classmethod
+    def proposition_constraints(cls, model_constraints, sentence_letter):
+        """Generate constraints for atomic propositions.
+        
+        For unilateral semantics, we don't need additional constraints
+        beyond what's in the semantic model. The verify relation is
+        already constrained by the frame constraints.
+        """
+        return []  # No additional constraints needed
+    
     def find_proposition(self):
         """Find the set of verifiers for this proposition."""
         # This is Z3 model evaluation, not constraint generation
-        if self.model_structure.z3_model:
-            return super().find_proposition()
-        else:
+        if not self.model_structure.z3_model:
             return set()
+            
+        all_states = self.model_structure.all_states
+        model = self.model_structure.z3_model
+        semantics = self.semantics
+        operator = self.operator
+        arguments = self.arguments or ()
+        sentence_letter = self.sentence_letter
+        
+        if sentence_letter is not None:
+            # For atomic sentences, find states that verify it
+            V = {
+                bit for bit in all_states
+                if model.evaluate(semantics.verify(bit, sentence_letter))
+            }
+            return V
+        
+        if operator is not None:
+            # For complex sentences, delegate to operator
+            return operator.find_verifiers(*arguments, self.eval_world)
+            
+        raise ValueError(f"No proposition for {self.name}.")
+    
+    def truth_value_at(self, eval_point):
+        """Check if there is a verifier in the world at eval_point."""
+        semantics = self.model_structure.semantics
+        z3_model = self.model_structure.z3_model
+        
+        # Extract world from eval_point
+        if isinstance(eval_point, dict):
+            eval_world = eval_point.get("world")
+        else:
+            eval_world = eval_point
+            
+        # Check if any verifier is part of the evaluation world
+        for ver_bit in self.verifiers:
+            if z3_model.evaluate(semantics.is_part_of(ver_bit, eval_world)):
+                return True
+        return False
+    
+    def find_precluders(self, py_verifier_set):
+        """Find states that preclude the given set of verifiers."""
+        # Convert Python set to Z3 set
+        z3_verifier_set = self.semantics.z3_set(py_verifier_set, self.N)
+        precludes = self.semantics.precludes
+        all_states = self.semantics.all_states
+        result = set()
+        
+        for state in all_states:
+            preclude_formula = precludes(state, z3_verifier_set)
+            preclude_result = self.model_structure.z3_model.evaluate(preclude_formula)
+            # Check if the evaluated result is True
+            if preclude_result == True:
+                result.add(state)
+        return result
 
 
 class ExclusionStructure(model.ModelDefaults):
