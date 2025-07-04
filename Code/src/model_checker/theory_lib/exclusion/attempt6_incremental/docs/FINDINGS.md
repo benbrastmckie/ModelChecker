@@ -146,62 +146,235 @@ All Phase 2 tests pass successfully (9 new tests):
 - Test coverage: 21 tests, all passing
 - Phase 2 additions: Enhanced semantic.py, operators.py, new test_phase2.py
 
-## Phase 3: Framework Integration Analysis (In Progress)
+## Phase 3: Framework Integration Analysis (Completed)
 
 ### Summary
-Phase 3 revealed a fundamental architectural mismatch between the incremental approach and the ModelChecker framework's constraint generation model.
+Phase 3 revealed a fundamental architectural mismatch between the incremental approach and the ModelChecker framework's constraint generation model. The incompatibility is not a mere implementation detail but reflects deep assumptions about how model checking should work.
 
-### Key Finding
-The ModelChecker framework operates on a **batch constraint model**:
-1. All constraints are generated upfront via `true_at` calls
-2. The complete constraint set is then passed to Z3 solver
-3. A single solve operation finds a model (or proves unsatisfiability)
+### The Incompatibility in Detail
 
-The incremental approach requires a **streaming constraint model**:
-1. Constraints are generated one at a time
-2. After each constraint, solver state is checked
-3. Witness values are extracted from partial models
-4. Early termination is possible when sufficient witnesses are found
+#### Current Framework Architecture
 
-### Integration Challenges
+The ModelChecker follows a strict **two-phase pipeline**:
 
-1. **Constraint Generation Timing**: The framework calls `true_at` during initialization, before any solving occurs. The incremental approach needs interleaved constraint generation and solving.
+```
+Phase 1: Constraint Generation (Pure)
+├── Parse syntactic structures
+├── Generate ALL constraints via recursive true_at() calls
+├── Create Skolem functions for existential quantifiers
+└── Collect constraints in ModelConstraints object
 
-2. **Solver State Management**: The framework creates a fresh solver for each example. The incremental approach needs persistent solver state across multiple constraint additions.
+Phase 2: Solving and Evaluation (Isolated)
+├── Pass complete constraint set to Z3
+├── Z3 finds satisfying model (or proves UNSAT)
+├── Extract model values
+└── Evaluate semantic properties using final model
+```
 
-3. **Witness Extraction Points**: The framework only has access to the final model. The incremental approach needs access to intermediate models during constraint building.
+Key architectural assumptions:
+- **Separation of Concerns**: Constraint generation is pure and side-effect free
+- **Batch Processing**: All constraints exist before any solving occurs
+- **Single Model**: One solve operation produces one complete model
+- **Immutable Pipeline**: No feedback from solving to constraint generation
 
-### Current Status
-- Infrastructure components (WitnessStore, TruthCache, IncrementalVerifier) are fully implemented
-- Witness extraction from Z3 models works correctly
-- Incremental constraint building with backtracking is functional
-- Three-condition verification for exclusion operator is implemented
-- Framework integration tests show the static approach is still being used
+#### What Exclusion Theory Needs
 
-### Architectural Options
+The exclusion operator `∇φ` has truth conditions requiring:
+```
+w ⊨ ∇φ iff ∃h,y such that:
+1. ∀x ∈ Ver(φ): y(x) ⊑ x ∧ h(x) ⊲ y(x)
+2. ∀x ∈ Ver(φ): h(x) ⊑ w  
+3. w = ⨆{h(x) : x ∈ Ver(φ)}
+```
 
-1. **Option A: Modify Framework Core**
-   - Change ModelConstraints to support incremental constraint generation
-   - Modify solve() to support incremental solving with callbacks
-   - Significant changes to core framework architecture
+The problem: Computing `Ver(φ)` requires knowing the witness functions h and y, but these are only determined during solving. This creates a **circular dependency**:
 
-2. **Option B: Custom Model Structure**
-   - Create IncrementalModelStructure that overrides solve()
-   - Intercept constraint generation and make it incremental
-   - Less invasive but requires careful coordination
+```
+To generate constraints for ∇φ:
+  → Need to know Ver(φ)
+    → Need to evaluate φ with witness mappings
+      → Need to solve constraints to get witness values
+        → But we're still generating constraints!
+```
 
-3. **Option C: Hybrid Approach**
-   - Use incremental verification as a pre-processing step
-   - Generate witness mappings first, then use them in static constraints
-   - Maintains framework compatibility but loses some incremental benefits
+#### Why Current Workarounds Fail
 
-### Recommendation
-The false premise problem in exclusion theory stems from the inability to access Skolem function witnesses during two-phase evaluation. While the incremental approach successfully addresses this at a technical level, integrating it with the ModelChecker's batch-oriented architecture would require fundamental framework changes.
+1. **Skolem Functions**: Created during Phase 1 but interpretations only available in Phase 2
+2. **Two-Phase Evaluation**: Phase 2 cannot access Phase 1's Skolem witnesses
+3. **Static Verifiers**: Must compute Ver(φ) without witness information
+4. **Result**: False premise problem - constraints become unsatisfiable
 
-The implementation demonstrates that:
-1. Witness extraction and persistence is technically feasible
-2. Incremental constraint building with backtracking works
-3. The three-level architecture can be properly connected
-4. The architectural mismatch is with the framework, not the theory
+### Detailed Framework Redesign Proposal
 
-This suggests that the exclusion theory's requirements may be fundamentally incompatible with the current ModelChecker framework's architecture, which was designed for theories that don't require incremental witness access.
+#### Core Architectural Changes
+
+1. **Replace Two-Phase Pipeline with Incremental Architecture**
+
+```python
+class IncrementalModelChecker:
+    def check_validity(self, premises, conclusions):
+        solver = IncrementalSolver()
+        witness_store = WitnessStore()
+        
+        # Incremental constraint building
+        for constraint in self.generate_constraints_lazily(premises, conclusions):
+            solver.push()  # Checkpoint
+            solver.add(constraint)
+            
+            if solver.check() == SAT:
+                model = solver.model()
+                witness_store.extract_witnesses(model)
+                
+                # Early termination if we have enough info
+                if self.can_evaluate_with_current_witnesses(witness_store):
+                    return self.evaluate_validity(witness_store)
+            else:
+                solver.pop()  # Backtrack
+                # Try alternative constraint generation strategy
+        
+        return self.final_evaluation()
+```
+
+2. **Constraint Generation as Coroutine**
+
+Instead of pure functions, constraint generators become coroutines that can:
+- Yield constraints one at a time
+- Receive witness information from partial models
+- Adjust generation strategy based on solver feedback
+
+```python
+def generate_exclusion_constraints(self, formula, witness_store):
+    # Initial constraints
+    yield self.basic_exclusion_setup()
+    
+    # Wait for initial witness values
+    witnesses = yield
+    witness_store.update(witnesses)
+    
+    # Generate refined constraints using witness info
+    if witness_store.has_sufficient_info():
+        yield self.refined_constraints_with_witnesses(witness_store)
+    else:
+        yield self.request_more_witnesses()
+```
+
+3. **Solver State Management**
+
+```python
+class PersistentSolver:
+    def __init__(self):
+        self.solver = z3.Solver()
+        self.checkpoint_stack = []
+        self.witness_history = []
+    
+    def checkpoint(self):
+        """Save current solver state"""
+        self.solver.push()
+        self.checkpoint_stack.append(len(self.witness_history))
+    
+    def backtrack(self):
+        """Restore previous solver state"""
+        self.solver.pop()
+        checkpoint = self.checkpoint_stack.pop()
+        self.witness_history = self.witness_history[:checkpoint]
+    
+    def add_constraint_with_feedback(self, constraint):
+        """Add constraint and return solving feedback"""
+        self.solver.add(constraint)
+        result = self.solver.check()
+        
+        if result == z3.sat:
+            model = self.solver.model()
+            witnesses = self.extract_witnesses(model)
+            self.witness_history.append(witnesses)
+            return SolverFeedback(SAT, witnesses)
+        else:
+            return SolverFeedback(UNSAT, None)
+```
+
+4. **Witness-Aware Semantic Evaluation**
+
+```python
+class WitnessAwareSemantics:
+    def __init__(self, witness_store):
+        self.witness_store = witness_store
+    
+    def true_at(self, formula, world):
+        """Generate constraints with access to current witnesses"""
+        if isinstance(formula, ExclusionFormula):
+            # Can now access witness mappings during constraint generation
+            h_mapping = self.witness_store.get_mapping('h_sk')
+            y_mapping = self.witness_store.get_mapping('y_sk')
+            
+            if h_mapping and y_mapping:
+                # Generate precise constraints using witness values
+                return self.exclusion_with_witnesses(formula, world, h_mapping, y_mapping)
+            else:
+                # Generate initial constraints that will help find witnesses
+                return self.exclusion_initial_constraints(formula, world)
+```
+
+#### API Changes
+
+1. **New Theory Interface**
+
+```python
+class IncrementalTheory:
+    def constraint_generator(self, formula, context):
+        """Yields constraints incrementally"""
+        pass
+    
+    def update_context(self, partial_model):
+        """Updates context with information from partial model"""
+        pass
+    
+    def can_conclude(self, context):
+        """Checks if we have enough information to conclude"""
+        pass
+```
+
+2. **Modified BuildExample**
+
+```python
+class IncrementalBuildExample:
+    def solve(self):
+        solver = IncrementalSolver(self.semantics)
+        
+        # Generate constraints incrementally
+        for constraint_batch in self.semantics.constraint_generator():
+            feedback = solver.add_constraints(constraint_batch)
+            
+            if feedback.has_witnesses:
+                self.semantics.update_context(feedback.witnesses)
+            
+            if self.semantics.can_conclude():
+                return self.create_result()
+```
+
+### Migration Strategy
+
+1. **Phase 1**: Add incremental interfaces alongside existing ones
+2. **Phase 2**: Migrate theories that need incremental solving
+3. **Phase 3**: Optimize framework for incremental use cases
+4. **Phase 4**: Deprecate batch-only interfaces
+
+### Benefits of Redesign
+
+1. **Solves False Premise Problem**: Witness information available during constraint generation
+2. **Better Performance**: Early termination when sufficient witnesses found
+3. **More Expressive**: Supports theories with circular dependencies
+4. **Debugging**: Step-by-step constraint generation aids debugging
+5. **Flexibility**: Theories can choose batch or incremental mode
+
+### Challenges
+
+1. **Backward Compatibility**: Need to support existing theories
+2. **Complexity**: Incremental solving is more complex than batch
+3. **Performance**: Some theories may be slower in incremental mode
+4. **Testing**: Need new test infrastructure for incremental behavior
+
+### Conclusion
+
+The incompatibility between exclusion theory and the ModelChecker framework stems from fundamentally different assumptions about information flow during model checking. The framework assumes a linear pipeline (syntax → constraints → model → evaluation), while exclusion theory requires circular information flow (constraints ↔ witnesses ↔ evaluation).
+
+A successful redesign would transform the ModelChecker from a batch processor to an incremental, coroutine-based system where constraint generation and solving are interleaved, allowing theories to access partial model information during constraint generation. This would not only solve the exclusion theory's false premise problem but also enable more sophisticated semantic theories that require dynamic constraint generation based on solver feedback.
