@@ -59,25 +59,16 @@ from .semantic import (
     ExclusionStructure,
 )
 
-from .semantic_old import ExclusionSemantics as OldExclusionSemantics
-from .semantic_old import UnilateralProposition as OldUnilateralProposition
-from .semantic_old import ExclusionStructure as OldExclusionStructure
-from .operators_old import exclusion_operators as old_exclusion_operators
-
-# Import version utilities
-from model_checker.utils import get_model_checker_version
-
 # Import all operators
 from .operators import exclusion_operators
 
-# Import version utilities
-from model_checker.utils import get_model_checker_version
-
-# Import iteration functionality
-from .iterate import ExclusionModelIterator, iterate_example
-
-# Import version utilities
-from model_checker.utils import get_model_checker_version
+# Import iteration functionality - only if it exists
+try:
+    from .iterate import ExclusionModelIterator, iterate_example
+except ImportError:
+    # iterate module may not exist in all configurations
+    ExclusionModelIterator = None
+    iterate_example = None
 
 # Define the public API of the package
 
@@ -88,8 +79,10 @@ __all__ = [
     "UnilateralProposition",  # Represents formulas with unilateral verification
     "ExclusionStructure",     # Manages model structure with exclusion relations
     "exclusion_operators",    # Unilateral logical operators (⊻,⊓,⊔,≔,etc.)
-    "ExclusionModelIterator", # Iterator for finding multiple distinct models
-    "iterate_example",        # Function to find multiple distinct models
     "__version__",            # Package version information,
     "__model_checker_version__",  # Compatible ModelChecker version
 ]
+
+# Only add iteration items if they were imported successfully
+if ExclusionModelIterator is not None:
+    __all__.extend(["ExclusionModelIterator", "iterate_example"])
