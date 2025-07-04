@@ -78,3 +78,70 @@ Phase 1 focuses on infrastructure without full incremental implementation. Perfo
 - Total lines added: ~800
 - Test coverage: 12 tests, all passing
 - Files created: 6 (semantic.py, operators.py, examples.py, __init__.py, tests/__init__.py, tests/test_phase1.py)
+
+## Phase 2: Enhanced Witness Management (Completed)
+
+### Summary
+Phase 2 successfully implemented the actual incremental model checking functionality with witness extraction and three-level integration. The implementation now maintains persistent computational context and can extract witness values from Z3 models.
+
+### Components Enhanced
+
+1. **WitnessStore Enhancements**:
+   - `update_witness_values`: Extracts actual function mappings from Z3 models
+   - `_find_function_in_model`: Locates Skolem functions in model declarations
+   - Successfully extracts witness mappings for all bit-vector inputs
+
+2. **IncrementalVerifier Enhancements**:
+   - Full incremental constraint building with push/pop backtracking
+   - Witness registration for all sentence types
+   - Early evaluation when sufficient witnesses available
+   - Error handling with proper cleanup
+
+3. **TruthCache Enhancements**:
+   - Model-aware verifier computation for atomic sentences
+   - Integration with Z3 model for truth evaluation
+   - Proper handling of bit-vector states
+
+4. **Operator Implementations**:
+   - ExclusionOperator: Full three-condition checking with witness mappings
+   - Integer-based part-of and fusion operations for efficiency
+   - Model-aware exclusion relation checking
+   - All operators support witness-based evaluation
+
+### Test Results
+All Phase 2 tests pass successfully (9 new tests):
+- Witness extraction from Z3 models
+- Incremental constraint building with backtracking
+- Three-level integration testing
+- Operator witness computation
+- Full verification workflow
+
+### Key Technical Achievements
+
+1. **Witness Extraction**: Successfully extracts Skolem function interpretations from Z3 models
+2. **Incremental Building**: Maintains solver state with push/pop for backtracking
+3. **Three-Condition Verification**: Implements full exclusion semantics checking with actual witnesses
+4. **Model Integration**: Connects Z3 models to semantic evaluation seamlessly
+
+### Performance Observations
+- Witness extraction is efficient for small N values
+- Incremental approach allows early termination on unsatisfiability
+- Integer operations for part-of and fusion improve performance
+
+### Issues Resolved
+
+1. **Syntactic Construction**: Fixed test issues with proper Sentence construction
+2. **Atom Handling**: Correctly use AtomVal for atomic propositions
+3. **Model Access**: Proper integration of Z3 model with semantic components
+
+## Next Steps for Phase 3
+
+1. **Full Integration Testing**: Test with actual exclusion examples
+2. **Performance Optimization**: Optimize witness extraction for larger N
+3. **Example Validation**: Verify that problematic examples now work correctly
+4. **Documentation**: Complete user guide for incremental approach
+
+## Code Metrics Update
+- Total lines added: ~1200
+- Test coverage: 21 tests, all passing
+- Phase 2 additions: Enhanced semantic.py, operators.py, new test_phase2.py

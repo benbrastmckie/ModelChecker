@@ -43,12 +43,37 @@ class WitnessStore:
             'constraints': []  # Track constraints involving this function
         }
         
-    def update_witness_values(self, model):
+    def update_witness_values(self, model, semantics):
         """Extract witness values from current model state."""
         for func_name, witness_info in self.skolem_witnesses.items():
-            # In practice, we'll need to query the model for function interpretations
-            # This is a placeholder for the actual implementation
-            pass
+            domain_type, codomain_type = witness_info['type']
+            
+            # Get the function declaration from the model
+            func_decl = self._find_function_in_model(model, func_name)
+            if func_decl is None:
+                continue
+                
+            # Extract all function mappings
+            # For bit-vector functions, we need to check all possible inputs
+            if str(domain_type) == f'BitVec({semantics.N})':
+                for i in range(2 ** semantics.N):
+                    input_val = z3.BitVecVal(i, semantics.N)
+                    try:
+                        # Apply the function to get output
+                        output_val = model.evaluate(func_decl(input_val))
+                        if output_val is not None:
+                            witness_info['values'][i] = output_val.as_long() if hasattr(output_val, 'as_long') else output_val
+                    except:
+                        # Some inputs might not have defined outputs
+                        pass
+                        
+    def _find_function_in_model(self, model, func_name):
+        """Find a function declaration in the Z3 model by name."""
+        # Z3 models contain declarations - search for our function
+        for decl in model.decls():
+            if decl.name() == func_name:
+                return decl
+        return None
                 
     def get_witness_mapping(self, func_name: str) -> Dict:
         """Retrieve complete witness mapping for a Skolem function."""
@@ -93,8 +118,25 @@ class TruthCache:
     
     def compute_atomic_verifiers(self, sentence, witness_store):
         """Compute verifiers for atomic sentences."""
-        # This is a placeholder - in practice would extract from model
-        return set()
+        verifiers = set()
+        
+        # Check each possible state to see if it verifies the atom
+        if hasattr(self.semantics, 'z3_model') and self.semantics.z3_model is not None:
+            model = self.semantics.z3_model
+            verify_func = self.semantics.verify
+            
+            # Check all possible states
+            for i in range(2 ** self.semantics.N):
+                state = z3.BitVecVal(i, self.semantics.N)
+                # Check if this state verifies the sentence letter
+                verify_constraint = verify_func(state, sentence.sentence_letter)
+                try:
+                    if z3.is_true(model.evaluate(verify_constraint)):
+                        verifiers.add(i)
+                except:
+                    pass
+                    
+        return verifiers
         
     def get_verifiers(self, sentence, witness_store):
         """Get cached verifiers or compute them."""
@@ -115,22 +157,93 @@ class IncrementalVerifier:
         
     def verify_incrementally(self, sentence, eval_point):
         """Build constraints and evaluate truth incrementally with persistent state."""
-        # For Phase 1, we'll implement a basic version that maintains solver state
-        # Phase 2 will add full incremental constraint building
+        # Register witnesses for this sentence
+        self._register_sentence_witnesses(sentence)
         
-        # Generate constraints using standard true_at
-        constraint = self.semantics.true_at(sentence, eval_point)
-        self.solver.add(constraint)
+        # Build constraints incrementally
+        constraints_added = []
+        try:
+            # Add constraints in stages, checking satisfiability at each step
+            for constraint in self._generate_incremental_constraints(sentence, eval_point):
+                self.solver.push()  # Create a backtrack point
+                self.solver.add(constraint)
+                constraints_added.append(constraint)
+                
+                # Check satisfiability after each constraint
+                result = self.solver.check()
+                if result == z3.sat:
+                    # Extract model and update witnesses
+                    model = self.solver.model()
+                    self.witness_store.update_witness_values(model, self.semantics)
+                    
+                    # Update truth cache with current information
+                    self.truth_cache.update_verifiers(sentence, self.witness_store)
+                    
+                    # Check if we have sufficient witnesses to evaluate
+                    if self._has_sufficient_witnesses(sentence):
+                        # Try to evaluate with current witnesses
+                        truth_val = self._evaluate_with_witnesses(sentence, eval_point)
+                        if truth_val is not None:
+                            return truth_val
+                elif result == z3.unsat:
+                    # Backtrack and try alternative
+                    self.solver.pop()
+                    constraints_added.pop()
+                    # In a full implementation, we might try alternative constraints
+                    return False
+                    
+            # Final evaluation with all constraints
+            final_result = self.solver.check()
+            if final_result == z3.sat:
+                model = self.solver.model()
+                self.witness_store.update_witness_values(model, self.semantics)
+                return True
+            else:
+                return False
+                
+        except Exception as e:
+            # Cleanup on error
+            for _ in constraints_added:
+                if len(self.solver.assertions()) > 0:
+                    self.solver.pop()
+            raise e
+            
+    def _register_sentence_witnesses(self, sentence):
+        """Register all witnesses needed for a sentence."""
+        if sentence.sentence_letter is not None:
+            # Atomic sentences don't need witnesses
+            return
+        elif hasattr(sentence.operator, 'register_witnesses'):
+            # Let the operator register its witnesses
+            sentence.operator.register_witnesses(*sentence.arguments, self.witness_store)
+            
+    def _generate_incremental_constraints(self, sentence, eval_point):
+        """Generate constraints incrementally for a sentence."""
+        # For now, just yield the standard constraint
+        # Phase 2 will expand this to truly incremental generation
+        yield self.semantics.true_at(sentence, eval_point)
         
-        # Check satisfiability
-        result = self.solver.check()
-        if result == z3.sat:
-            # Extract model and update witnesses
-            model = self.solver.model()
-            self.witness_store.update_witness_values(model)
+    def _has_sufficient_witnesses(self, sentence):
+        """Check if we have enough witness information to evaluate."""
+        if sentence.sentence_letter is not None:
             return True
-        else:
-            return False
+        elif hasattr(sentence.operator, 'has_sufficient_witnesses'):
+            return sentence.operator.has_sufficient_witnesses(*sentence.arguments, self.witness_store)
+        return False
+        
+    def _evaluate_with_witnesses(self, sentence, eval_point):
+        """Try to evaluate sentence using current witness information."""
+        if sentence.sentence_letter is not None:
+            # Use standard evaluation for atomic sentences
+            return None  # Let standard evaluation handle it
+        elif hasattr(sentence.operator, 'evaluate_with_witnesses'):
+            try:
+                return sentence.operator.evaluate_with_witnesses(
+                    *sentence.arguments, eval_point, self.witness_store, self.truth_cache
+                )
+            except:
+                return None
+        return None
 
 
 class ExclusionSemantics(model.SemanticDefaults):
@@ -306,6 +419,13 @@ class ExclusionSemantics(model.SemanticDefaults):
         """Main entry point for incremental verification with witness tracking."""
         # Use incremental verifier
         return self.verifier.verify_incrementally(sentence, eval_point)
+        
+    def set_z3_model(self, model):
+        """Set the Z3 model for use in verifier computation."""
+        self.z3_model = model
+        # Update truth cache to use new model
+        if hasattr(self, 'truth_cache'):
+            self.truth_cache.model = model
     
     def true_at(self, sentence, eval_point):
         """

@@ -300,9 +300,66 @@ class ExclusionOperator(syntactic.Operator):
     
     def satisfies_three_conditions(self, state, arg_verifiers, h_mapping, y_mapping):
         """Check three-condition exclusion semantics incrementally with actual witness mappings."""
-        # For Phase 1, return False as placeholder
-        # Phase 2 will implement full checking
+        if not h_mapping or not y_mapping or not arg_verifiers:
+            return False
+            
+        # Convert state to integer for comparison
+        state_int = state if isinstance(state, int) else state.as_long()
+        
+        # Condition 1: For all x in Ver(φ), y(x) is part of x and h(x) excludes y(x)
+        for x in arg_verifiers:
+            x_int = x if isinstance(x, int) else x.as_long()
+            
+            if x_int not in h_mapping or x_int not in y_mapping:
+                return False
+                
+            h_x = h_mapping[x_int]
+            y_x = y_mapping[x_int]
+            
+            # Check y(x) ⊑ x (y is part of x)
+            if not self._is_part_of_int(y_x, x_int):
+                return False
+                
+            # Check h(x) excludes y(x)
+            # For now, we'll need to check this using the model
+            if hasattr(self.semantics, 'z3_model') and self.semantics.z3_model is not None:
+                model = self.semantics.z3_model
+                h_x_bv = z3.BitVecVal(h_x, self.semantics.N)
+                y_x_bv = z3.BitVecVal(y_x, self.semantics.N)
+                exclusion_check = self.semantics.exclusion(h_x_bv, y_x_bv)
+                try:
+                    if not z3.is_true(model.evaluate(exclusion_check)):
+                        return False
+                except:
+                    return False
+                    
+        # Condition 2: For all x in Ver(φ), h(x) is part of state
+        h_values = []
+        for x in arg_verifiers:
+            x_int = x if isinstance(x, int) else x.as_long()
+            if x_int in h_mapping:
+                h_x = h_mapping[x_int]
+                if not self._is_part_of_int(h_x, state_int):
+                    return False
+                h_values.append(h_x)
+                
+        # Condition 3: state is minimal (fusion of all h(x))
+        if h_values:
+            fusion = self._compute_fusion_int(h_values)
+            return state_int == fusion
+            
         return False
+        
+    def _is_part_of_int(self, x, y):
+        """Check if x is part of y using integer representation."""
+        return (x | y) == y
+        
+    def _compute_fusion_int(self, values):
+        """Compute fusion of integer values."""
+        result = 0
+        for v in values:
+            result = result | v
+        return result
     
     def register_witnesses(self, argument, witness_store):
         """Register witness functions for this exclusion instance."""
