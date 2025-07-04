@@ -1,21 +1,12 @@
 """
-Incremental model checking implementation for exclusion theory.
+Incremental exclusion theory implementation.
 
-This module implements a three-level integration architecture that maintains
-continuous interaction between Syntax, Truth-Conditions, and Extensions levels
-to solve the false premise problem in exclusion semantics.
+This attempt addresses the fundamental architectural issue in exclusion semantics
+by maintaining persistent computational context across the three levels of
+programmatic semantics: Syntax → Truth-Conditions → Extensions.
 """
 
-from .incremental_core import (
-    WitnessStore,
-    TruthCache,
-    IncrementalVerifier,
-    ThreeLevelIntegrator
-)
+from .semantic import ExclusionSemantics, UnilateralProposition
+from .operators import exclusion_operators
 
-__all__ = [
-    'WitnessStore',
-    'TruthCache', 
-    'IncrementalVerifier',
-    'ThreeLevelIntegrator'
-]
+__all__ = ['ExclusionSemantics', 'UnilateralProposition', 'exclusion_operators']

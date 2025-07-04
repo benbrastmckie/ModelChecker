@@ -10,20 +10,132 @@ This document provides a detailed, phased implementation plan for introducing in
 4. **Testable Phases**: Each phase must be fully tested before proceeding
 5. **Documentation Updates**: Documentation must be updated with each phase
 6. **Future Migration**: New modules include TODOs explaining their eventual integration into core ModelChecker
+7. **Standard Module Structure**: Implementation must follow the standard theory structure:
+   - `semantic.py` - Semantic model implementation extending BaseExclusionSemantics
+   - `operators.py` - Operator definitions extending base exclusion operators
+   - `examples.py` - Runnable examples compatible with `dev_cli.py`
+   - `tests/` - Directory containing all unit tests and integration tests
+8. **Unicode Restrictions**: Unicode characters should only be used in comments, not in code
+9. **Parentheses Requirements**: All sentences with binary operators as their main operator must be wrapped in parentheses
+10. **dev_cli.py Compatibility**: The `examples.py` file must be runnable with the standard development CLI tool
+11. **Reference Implementation**: Compare with `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/exclusion/` for standard patterns
+12. **Example Consistency**: Examples in `examples.py` must match those in the main exclusion theory, using the same:
+    - Example names and docstrings
+    - Formula structures and operators
+    - Settings dictionaries with N, contingent, disjoint, etc.
+    - List format: `[premises, conclusions, settings]`
+13. **Testing Directory**: All tests must be placed in a `tests/` subdirectory with:
+    - Phase-specific test files (e.g., `test_phase1.py`, `test_phase2.py`)
+    - Integration tests across phases
+    - Clear naming conventions for test discovery
+14. **Findings Documentation**: All findings, test results, and observations must be recorded in:
+    - `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/exclusion/attempt6_incremental/docs/FINDINGS.md`
+    - Update after each phase with results, issues encountered, and solutions
+    - Include performance metrics and comparison with static approach
+    - Document any deviations from the original plan and rationale
+
+## Module Structure Requirements
+
+### Core Modules
+
+1. **semantic.py**
+   - Must import and extend `BaseExclusionSemantics` from parent exclusion module
+   - Export class named exactly `ExclusionSemantics` for framework discovery
+   - Implement incremental verification methods while maintaining base interface
+   - Include witness tracking and truth caching infrastructure
+
+2. **operators.py**
+   - Must import base operators: `ExclusionOperator`, `UniAndOperator`, `UniOrOperator`, `UniIdentityOperator`
+   - Extend each operator with incremental witness tracking methods
+   - Use operator names matching parent: `\\exclude`, `\\uniwedge`, `\\univee`, `\\uniequiv`
+   - Export operator collection for semantic model to use
+
+3. **examples.py**
+   - Must use exact example structure from parent exclusion/examples.py
+   - Import format: `from semantic import ExclusionSemantics`
+   - Define examples using list format: `[premises, conclusions, settings]`
+   - Example names must match parent (e.g., `DN_ELIM_example`, `TN_ENTAIL_example`)
+   - Settings dictionary must include same keys: N, contingent, disjoint, non_empty, non_null, fusion_closure, max_time, expectation
+   - **Must be runnable with dev_cli.py**: `./dev_cli.py -p -z src/model_checker/theory_lib/exclusion/attempt6_incremental/examples.py`
+   - **Required Examples to Include** (these are the problematic cases):
+     - `DN_ELIM_example`: Double negation elimination
+     - `TN_ENTAIL_example`: Triple negation entailment
+     - `QN_ENTAIL_example`: Quadruple negation entailment
+     - `DISJ_SYLL_example`: Disjunctive syllogism
+     - `CONJ_DM_LR_example`: Conjunction DeMorgan's law (L→R)
+     - `CONJ_DM_RL_example`: Conjunction DeMorgan's law (R→L)
+     - `DISJ_DM_LR_example`: Disjunction DeMorgan's law (L→R)
+     - `DISJ_DM_RL_example`: Disjunction DeMorgan's law (R→L)
+     - `NO_GLUT_example`: No gluts
+     - `T17_example`: Theorem 17
+
+4. **tests/**
+   - All test files go in this subdirectory
+   - Use consistent naming: `test_phase1.py`, `test_phase2.py`, etc.
+   - Integration tests: `test_integration.py`
+   - Keep test utilities and helpers in `tests/test_utils.py`
+
+### Implementation Guidelines
+
+1. **Import Patterns**
+   ```python
+   # In semantic.py
+   import sys
+   import os
+   sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+   from semantic import ExclusionSemantics as BaseExclusionSemantics
+   ```
+
+2. **Class Naming**
+   - Semantic class MUST be named `ExclusionSemantics` (not `IncrementalExclusionSemantics`)
+   - This ensures `dev_cli.py` can discover and run the theory
+
+3. **Operator Compatibility**
+   - Operators must maintain same names and arity as parent
+   - Binary operators require parentheses in formulas
+   - Unary operators (like `\\exclude`) do not need parentheses
 
 ## Phase Structure
 
 Each phase follows this workflow:
 1. **Implementation**: Create/modify code following the architectural design
-2. **Testing**: Comprehensive testing of phase deliverables
-3. **Documentation**: Update relevant documentation
+2. **Testing**: Comprehensive testing of phase deliverables in tests/ directory
+3. **Documentation**: Update relevant documentation including FINDINGS.md
 4. **Commit**: Commit changes before proceeding to next phase
+
+### FINDINGS.md Structure
+
+The findings document should include:
+- **Phase Summary**: What was implemented and tested
+- **Test Results**: Specific examples that passed/failed
+- **Performance Metrics**: Timing and memory usage comparisons
+- **Issues Encountered**: Problems and how they were resolved
+- **Key Insights**: What was learned about the incremental approach
+- **Next Steps**: Recommendations for subsequent phases
 
 ## Executive Summary
 
 Previous attempts (1-5) have definitively demonstrated that the false premise problem in exclusion semantics stems from the **fundamental two-phase architectural separation** between constraint generation and truth evaluation, not from representational issues. The witness array implementation (attempt 5) provided conclusive evidence that alternative representations cannot bridge this gap.
 
 This document presents an **incremental model checking strategy** that maintains continuous interaction between the three levels of the ModelChecker's programmatic semantic methodology: **Syntax → Truth-Conditions → Extensions**. Unlike previous representation-based solutions, this approach addresses the **three-level integration** problem through **persistent computational context** across all levels.
+
+### Key Innovation
+
+The incremental approach solves the Skolem function accessibility problem by:
+1. **Maintaining solver state** between constraint generation and truth evaluation
+2. **Incrementally building constraints** while simultaneously updating witness mappings
+3. **Preserving witness interpretations** in accessible data structures throughout verification
+4. **Enabling circular information flow** between syntax, truth-conditions, and extensions
+
+### Implementation Strategy
+
+The implementation extends the existing exclusion theory modules while adding:
+- **WitnessStore**: Captures and preserves Skolem function interpretations
+- **TruthCache**: Maintains incremental truth evaluations with dependency tracking
+- **IncrementalVerifier**: Unifies constraint generation and truth evaluation
+- **Extended Operators**: Each operator gains witness-aware evaluation methods
+
+All components follow ModelChecker standards and integrate seamlessly with the existing framework.
 
 ## Design Constraint: Modular Operator Architecture
 
@@ -519,31 +631,37 @@ class TruthEvaluator:
 
 ## Migration Strategy
 
-### Phase 1: Proof of Concept ✓ COMPLETED
+### Phase 1: Proof of Concept (RESTRUCTURING NEEDED)
 
-1. **Minimal Implementation**: Incremental verification for simple exclusion formulas ✓
-   - Created `incremental_core.py` with WitnessStore, TruthCache, IncrementalVerifier
-   - Implemented ThreeLevelIntegrator for high-level orchestration
-   
-2. **Witness Store Prototype**: Basic implementation of persistent witness tracking ✓
-   - WitnessStore tracks Skolem functions and their interpretations
-   - Support for BitVec domains with incremental value extraction
-   - Dependency tracking between witnesses
-   
-3. **Integration Testing**: Verify compatibility with existing operator interfaces ✓
-   - Created comprehensive test suite in `test_phase1.py`
-   - All 14 unit tests passing
-   - Verified mock compatibility for future integration
-   
-4. **Performance Baseline**: Measure overhead compared to static approach ✓
-   - Test execution time: ~0.077s for core infrastructure
-   - Memory footprint acceptable for witness storage
-   
-**Phase 1 Deliverables:**
-- `__init__.py` - Module exports
-- `incremental_core.py` - Core infrastructure (495 lines)
-- `test_phase1.py` - Comprehensive test suite (292 lines)
-- All tests passing, ready for Phase 2
+**Original Implementation** (Non-compliant with standards):
+- Created `incremental_core.py` with WitnessStore, TruthCache, IncrementalVerifier
+- Created `incremental_operators.py` and `incremental_semantic.py`
+- Tests placed in root directory instead of tests/ subdirectory
+- Did not follow standard module structure from parent exclusion
+
+**Required Restructuring for Phase 1**:
+
+1. **Create Standard Module Structure**:
+   - `semantic.py` - Extending BaseExclusionSemantics with incremental features
+   - `operators.py` - Extending base operators with witness tracking
+   - `examples.py` - Using parent exclusion example format
+   - `tests/` directory for all test files
+
+2. **Core Infrastructure Classes** (to be integrated into semantic.py):
+   - WitnessStore: Persistent witness tracking across solver interactions
+   - TruthCache: Incremental truth evaluation with dependency tracking
+   - IncrementalVerifier: Unified constraint generation and truth evaluation
+   - ThreeLevelIntegrator: Orchestrates Syntax-Truth-Conditions-Extensions flow
+
+3. **Testing Structure**:
+   - Move `test_phase1.py` to `tests/test_phase1.py`
+   - Move `test_phase2.py` to `tests/test_phase2.py`
+   - Create `tests/__init__.py` for test discovery
+
+4. **Implementation Guidelines**:
+   - Semantic class must be named `ExclusionSemantics`
+   - Import patterns must match parent exclusion module
+   - Examples must use list format `[premises, conclusions, settings]`
 
 ### Phase 2: Core Implementation
 
