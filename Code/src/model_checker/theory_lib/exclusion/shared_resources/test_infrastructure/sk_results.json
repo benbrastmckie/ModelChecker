@@ -1,0 +1,66 @@
+{
+  "timestamp": "2025-07-02T07:40:02.427201",
+  "examples": {
+    "DN_ELIM": {
+      "model_found": false,
+      "valid": false,
+      "error": "name 'create_sk_operators' is not defined",
+      "time": 2.86102294921875e-06
+    },
+    "TN_ENTAIL": {
+      "model_found": false,
+      "valid": false,
+      "error": "name 'create_sk_operators' is not defined",
+      "time": 9.5367431640625e-07
+    },
+    "QN_ENTAIL": {
+      "model_found": false,
+      "valid": false,
+      "error": "name 'create_sk_operators' is not defined",
+      "time": 7.152557373046875e-07
+    },
+    "CONJ_DM_LR": {
+      "model_found": false,
+      "valid": false,
+      "error": "name 'create_sk_operators' is not defined",
+      "time": 4.76837158203125e-07
+    },
+    "CONJ_DM_RL": {
+      "model_found": false,
+      "valid": false,
+      "error": "name 'create_sk_operators' is not defined",
+      "time": 4.76837158203125e-07
+    },
+    "DISJ_DM_LR": {
+      "model_found": false,
+      "valid": false,
+      "error": "name 'create_sk_operators' is not defined",
+      "time": 2.384185791015625e-07
+    },
+    "DISJ_DM_RL": {
+      "model_found": false,
+      "valid": false,
+      "error": "name 'create_sk_operators' is not defined",
+      "time": 7.152557373046875e-07
+    },
+    "EX_TH_17": {
+      "model_found": false,
+      "valid": false,
+      "error": "name 'create_sk_operators' is not defined",
+      "time": 4.76837158203125e-07
+    }
+  },
+  "summary": {
+    "total": 8,
+    "model_found": 0,
+    "no_model": 0,
+    "valid": 0,
+    "invalid": 0,
+    "false_premise_count": 0,
+    "true_conclusion_count": 0,
+    "errors": 8,
+    "success_rate": 0.0,
+    "model_rate": 0.0,
+    "average_time": 8.642673492431641e-07
+  }
+}
