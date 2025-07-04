@@ -1,5 +1,35 @@
 # Exclusion Theory Implementation: Complete Findings Report
 
+## Update: Attempt 6 - Incremental Approach (2025-07-04)
+
+### Summary
+Implemented a sophisticated incremental verification system with witness extraction and persistent solver state. While technically successful at the component level, the approach revealed a fundamental architectural mismatch with the ModelChecker framework.
+
+### Technical Achievements
+1. **WitnessStore**: Successfully extracts and persists Skolem function mappings from Z3 models
+2. **IncrementalVerifier**: Implements push/pop backtracking with constraint-by-constraint solving
+3. **Three-Level Integration**: Connects syntax, truth-conditions, and extensions through witness tracking
+4. **Witness-Based Operators**: All operators support incremental evaluation with witness mappings
+
+### Key Finding
+The ModelChecker framework's batch constraint generation model is fundamentally incompatible with the incremental approach's need for interleaved constraint generation and solving. The framework:
+- Generates all constraints upfront before solving
+- Creates fresh solver instances for each example
+- Only provides access to the final model
+
+While the incremental approach requires:
+- Streaming constraint generation with immediate solving
+- Persistent solver state across constraints
+- Access to intermediate models for witness extraction
+
+### Conclusion
+The false premise problem persists not due to implementation limitations but due to an architectural mismatch between the exclusion theory's requirements (incremental witness access) and the framework's design (batch constraint processing). This suggests the need for either:
+1. A fundamental redesign of the ModelChecker framework
+2. A different theoretical approach that works within batch constraints
+3. Acceptance that exclusion theory may be incompatible with this framework
+
+---
+
 ## Executive Summary
 
 The exclusion theory implementation reveals the three-fold nature of the ModelChecker's **programmatic semantic methodology**: **Syntax → Truth-Conditions → Extensions**. The journey uncovers a fundamental architectural issue in how these three levels interact during model checking. Despite multiple implementation strategies, a consistent pattern emerges: the two-phase architecture creates computational barriers between truth-conditions (Z3 constraints) and extensions (Z3 models), preventing correct evaluation of exclusion formulas.
