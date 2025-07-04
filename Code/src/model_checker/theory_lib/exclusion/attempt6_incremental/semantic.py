@@ -344,7 +344,7 @@ class ExclusionSemantics(model.SemanticDefaults):
             [x, y],
             self.exclusion(x, y) == self.exclusion(y, x)
         )
-        constraints.append(("exclusion_symmetric", symmetric))
+        constraints.append(symmetric)
         
         # Exclusion respects parthood
         parthood_respect = ForAll(
@@ -357,9 +357,45 @@ class ExclusionSemantics(model.SemanticDefaults):
                 self.exclusion(x, z)
             )
         )
-        constraints.append(("exclusion_parthood", parthood_respect))
+        constraints.append(parthood_respect)
         
         return constraints
+    
+    def conflicts(self, bit_e1, bit_e2):
+        """Check if two states contain parts that exclude each other."""
+        f1, f2 = z3.BitVecs("f1 f2", self.N)
+        return Exists(
+            [f1, f2],
+            z3.And(
+                self.is_part_of(f1, bit_e1),
+                self.is_part_of(f2, bit_e2),
+                self.exclusion(f1, f2),
+            ),
+        )
+    
+    def coheres(self, bit_e1, bit_e2):
+        """Check if two states cohere (don't conflict)."""
+        return z3.Not(self.conflicts(bit_e1, bit_e2))
+    
+    def possible(self, bit_e):
+        """Check if a state is possible (self-coherent)."""
+        return self.coheres(bit_e, bit_e)
+    
+    def is_world(self, bit_s):
+        """Check if a state is a world (possible and maximal)."""
+        m = z3.BitVec("m", self.N)
+        return z3.And(
+            self.possible(bit_s),
+            z3.Not(
+                Exists(
+                    m,
+                    z3.And(
+                        self.is_proper_part_of(bit_s, m),
+                        self.possible(m)
+                    )
+                )
+            )
+        )
     
     def atom_constraints(self, letter_id, sentence_letters, settings):
         """
@@ -489,7 +525,7 @@ class ExclusionSemantics(model.SemanticDefaults):
                     self.is_part_of(self.fusion(x, y), z)
                 )
             )
-            constraints.append(("fusion_closure", fusion_closure))
+            constraints.append(fusion_closure)
         
         return constraints
 
@@ -516,10 +552,33 @@ class UnilateralProposition(model.PropositionDefaults):
 
     def find_proposition(self):
         """Find the set of verifiers for this sentence."""
-        return self.model_structure.find_verifying_states(
-            self.sentence,
-            self.model_structure.main_point
-        )
+        model = self.model_structure.z3_model
+        semantics = self.model_structure.semantics
+        eval_world = self.model_structure.main_point["world"]
+        
+        if self.sentence.sentence_letter is not None:
+            # Atomic sentence - find verifiers directly
+            V = {
+                state for state in self.model_structure.all_states
+                if model.evaluate(semantics.verify(state, self.sentence.sentence_letter))
+            }
+            return V
+        elif self.sentence.operator is not None:
+            # Complex sentence - delegate to operator
+            return self.sentence.operator.find_verifiers(
+                *self.sentence.arguments, self.model_structure.main_point
+            )
+        else:
+            raise ValueError(f"No proposition for {self.sentence}")
+
+    def truth_value_at(self, eval_world):
+        """Check if there is a verifier in world."""
+        semantics = self.model_structure.semantics
+        z3_model = self.model_structure.z3_model
+        for ver_bit in self.verifiers:
+            if z3_model.evaluate(semantics.is_part_of(ver_bit, eval_world)):
+                return True
+        return False
 
     def print_proposition(self, evaluation_point, indent_num, use_colors):
         """Print proposition details for unilateral semantics."""

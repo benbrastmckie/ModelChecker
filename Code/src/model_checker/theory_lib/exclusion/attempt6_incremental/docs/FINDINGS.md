@@ -145,3 +145,63 @@ All Phase 2 tests pass successfully (9 new tests):
 - Total lines added: ~1200
 - Test coverage: 21 tests, all passing
 - Phase 2 additions: Enhanced semantic.py, operators.py, new test_phase2.py
+
+## Phase 3: Framework Integration Analysis (In Progress)
+
+### Summary
+Phase 3 revealed a fundamental architectural mismatch between the incremental approach and the ModelChecker framework's constraint generation model.
+
+### Key Finding
+The ModelChecker framework operates on a **batch constraint model**:
+1. All constraints are generated upfront via `true_at` calls
+2. The complete constraint set is then passed to Z3 solver
+3. A single solve operation finds a model (or proves unsatisfiability)
+
+The incremental approach requires a **streaming constraint model**:
+1. Constraints are generated one at a time
+2. After each constraint, solver state is checked
+3. Witness values are extracted from partial models
+4. Early termination is possible when sufficient witnesses are found
+
+### Integration Challenges
+
+1. **Constraint Generation Timing**: The framework calls `true_at` during initialization, before any solving occurs. The incremental approach needs interleaved constraint generation and solving.
+
+2. **Solver State Management**: The framework creates a fresh solver for each example. The incremental approach needs persistent solver state across multiple constraint additions.
+
+3. **Witness Extraction Points**: The framework only has access to the final model. The incremental approach needs access to intermediate models during constraint building.
+
+### Current Status
+- Infrastructure components (WitnessStore, TruthCache, IncrementalVerifier) are fully implemented
+- Witness extraction from Z3 models works correctly
+- Incremental constraint building with backtracking is functional
+- Three-condition verification for exclusion operator is implemented
+- Framework integration tests show the static approach is still being used
+
+### Architectural Options
+
+1. **Option A: Modify Framework Core**
+   - Change ModelConstraints to support incremental constraint generation
+   - Modify solve() to support incremental solving with callbacks
+   - Significant changes to core framework architecture
+
+2. **Option B: Custom Model Structure**
+   - Create IncrementalModelStructure that overrides solve()
+   - Intercept constraint generation and make it incremental
+   - Less invasive but requires careful coordination
+
+3. **Option C: Hybrid Approach**
+   - Use incremental verification as a pre-processing step
+   - Generate witness mappings first, then use them in static constraints
+   - Maintains framework compatibility but loses some incremental benefits
+
+### Recommendation
+The false premise problem in exclusion theory stems from the inability to access Skolem function witnesses during two-phase evaluation. While the incremental approach successfully addresses this at a technical level, integrating it with the ModelChecker's batch-oriented architecture would require fundamental framework changes.
+
+The implementation demonstrates that:
+1. Witness extraction and persistence is technically feasible
+2. Incremental constraint building with backtracking works
+3. The three-level architecture can be properly connected
+4. The architectural mismatch is with the framework, not the theory
+
+This suggests that the exclusion theory's requirements may be fundamentally incompatible with the current ModelChecker framework's architecture, which was designed for theories that don't require incremental witness access.
