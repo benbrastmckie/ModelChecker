@@ -53,9 +53,38 @@ class UniAndOperator(syntactic.Operator):
     
     def evaluate_with_witnesses(self, left_arg, right_arg, eval_point, witness_store, truth_cache):
         """Evaluate conjunction truth incrementally using witnesses."""
-        verifiers = self.compute_verifiers(left_arg, right_arg, witness_store, truth_cache)
-        eval_world = eval_point['world']
-        return any(self.semantics.is_part_of(v, eval_world) for v in verifiers)
+        # Phase 2: Use truth cache for incremental evaluation
+        left_truth = truth_cache.get_truth_value(left_arg, eval_point, witness_store)
+        right_truth = truth_cache.get_truth_value(right_arg, eval_point, witness_store)
+        
+        # If either is None (incomplete), fallback to verifier computation
+        if left_truth is None or right_truth is None:
+            verifiers = self.compute_verifiers(left_arg, right_arg, witness_store, truth_cache)
+            eval_world = eval_point['world']
+            
+            # Convert to list for iteration
+            verifier_list = list(verifiers) if verifiers else []
+            for v in verifier_list:
+                try:
+                    # Use Z3 evaluation if available
+                    if hasattr(self.semantics, 'z3_model') and self.semantics.z3_model is not None:
+                        is_part = self.semantics.z3_model.evaluate(
+                            self.semantics.is_part_of(v, eval_world)
+                        )
+                        if z3.is_true(is_part):
+                            return True
+                    else:
+                        # Fallback to direct check
+                        v_int = v if isinstance(v, int) else v.as_long()
+                        w_int = eval_world if isinstance(eval_world, int) else eval_world.as_long()
+                        if (v_int | w_int) == w_int:
+                            return True
+                except:
+                    pass
+            return False
+        
+        # Both have truth values - conjunction is true if both are true
+        return left_truth and right_truth
     
     def has_sufficient_witnesses(self, left_arg, right_arg, witness_store):
         """Check if arguments have sufficient witnesses for incremental evaluation."""
@@ -108,9 +137,38 @@ class UniOrOperator(syntactic.Operator):
     
     def evaluate_with_witnesses(self, left_arg, right_arg, eval_point, witness_store, truth_cache):
         """Evaluate disjunction truth incrementally using witnesses."""
-        verifiers = self.compute_verifiers(left_arg, right_arg, witness_store, truth_cache)
-        eval_world = eval_point['world']
-        return any(self.semantics.is_part_of(v, eval_world) for v in verifiers)
+        # Phase 2: Use truth cache for incremental evaluation
+        left_truth = truth_cache.get_truth_value(left_arg, eval_point, witness_store)
+        right_truth = truth_cache.get_truth_value(right_arg, eval_point, witness_store)
+        
+        # If either is None (incomplete), fallback to verifier computation
+        if left_truth is None or right_truth is None:
+            verifiers = self.compute_verifiers(left_arg, right_arg, witness_store, truth_cache)
+            eval_world = eval_point['world']
+            
+            # Convert to list for iteration
+            verifier_list = list(verifiers) if verifiers else []
+            for v in verifier_list:
+                try:
+                    # Use Z3 evaluation if available
+                    if hasattr(self.semantics, 'z3_model') and self.semantics.z3_model is not None:
+                        is_part = self.semantics.z3_model.evaluate(
+                            self.semantics.is_part_of(v, eval_world)
+                        )
+                        if z3.is_true(is_part):
+                            return True
+                    else:
+                        # Fallback to direct check
+                        v_int = v if isinstance(v, int) else v.as_long()
+                        w_int = eval_world if isinstance(eval_world, int) else eval_world.as_long()
+                        if (v_int | w_int) == w_int:
+                            return True
+                except:
+                    pass
+            return False
+        
+        # Both have truth values - disjunction is true if either is true
+        return left_truth or right_truth
     
     def has_sufficient_witnesses(self, left_arg, right_arg, witness_store):
         """Check if arguments have sufficient witnesses for incremental evaluation."""
@@ -448,9 +506,50 @@ class ExclusionOperator(syntactic.Operator):
 
     def evaluate_with_witnesses(self, argument, eval_point, witness_store, truth_cache):
         """Evaluate exclusion truth incrementally using witnesses."""
+        # Phase 2: Check witness completeness first
+        h_name = f"h_sk_{id(self)}"
+        y_name = f"y_sk_{id(self)}"
+        
+        if witness_store.has_witnesses_for([h_name, y_name]):
+            # We have complete witness mappings - use them for evaluation
+            h_mapping = witness_store.get_witness_mapping(h_name)
+            y_mapping = witness_store.get_witness_mapping(y_name)
+            
+            if h_mapping and y_mapping:
+                # Get verifiers of the argument using truth cache
+                arg_verifiers = truth_cache.get_verifiers(argument, witness_store)
+                
+                # Check if eval_point satisfies the three conditions
+                eval_world = eval_point['world']
+                eval_world_int = eval_world if isinstance(eval_world, int) else eval_world.as_long()
+                
+                if self.satisfies_three_conditions(eval_world_int, arg_verifiers, h_mapping, y_mapping):
+                    return True
+        
+        # Fallback: compute verifiers and check
         verifiers = self.compute_verifiers(argument, witness_store, truth_cache)
         eval_world = eval_point['world']
-        return any(self.semantics.is_part_of(v, eval_world) for v in verifiers)
+        
+        # Convert to list for iteration
+        verifier_list = list(verifiers) if verifiers else []
+        for v in verifier_list:
+            try:
+                # Use Z3 evaluation if available
+                if hasattr(self.semantics, 'z3_model') and self.semantics.z3_model is not None:
+                    is_part = self.semantics.z3_model.evaluate(
+                        self.semantics.is_part_of(v, eval_world)
+                    )
+                    if z3.is_true(is_part):
+                        return True
+                else:
+                    # Fallback to direct check
+                    v_int = v if isinstance(v, int) else v.as_long()
+                    w_int = eval_world if isinstance(eval_world, int) else eval_world.as_long()
+                    if (v_int | w_int) == w_int:
+                        return True
+            except:
+                pass
+        return False
     
     def has_sufficient_witnesses(self, argument, witness_store):
         """Check if we have complete witness mappings for incremental evaluation."""
