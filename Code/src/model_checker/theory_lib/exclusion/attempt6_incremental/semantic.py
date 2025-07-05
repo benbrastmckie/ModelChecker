@@ -284,6 +284,15 @@ class ExclusionSemantics(model.SemanticDefaults):
     proposition_class_name = "UnilateralProposition"
     
     def __init__(self, settings):
+        # Initialize exclusion relation BEFORE super().__init__
+        # because parent class methods use it
+        self.excludes = z3.Function(
+            "excludes", 
+            z3.BitVecSort(settings['N']), 
+            z3.BitVecSort(settings['N']), 
+            z3.BoolSort()
+        )
+        
         super().__init__(settings)
         
         # Initialize relation_symbols list if not present
@@ -298,6 +307,29 @@ class ExclusionSemantics(model.SemanticDefaults):
         self.verifier = IncrementalVerifier(self)
         self.truth_cache = self.verifier.truth_cache
         
+        # Define main world and frame constraints
+        self.main_world = z3.BitVec("main_world", self.N)
+        self.main_point = {'world': self.main_world}
+        
+        # Create BitVec variables for frame constraints
+        x = z3.BitVec("frame_x", self.N)
+        y = z3.BitVec("frame_y", self.N)
+        
+        # Set frame constraints (following default theory pattern)
+        possibility_downward_closure = ForAll(
+            [x, y],
+            z3.Implies(
+                z3.And(self.is_world(x), self.is_part_of(y, x)),
+                self.possible(y),
+            ),
+        )
+        is_main_world = self.is_world(self.main_world)
+        
+        self.frame_constraints = [
+            possibility_downward_closure,
+            is_main_world,
+        ]
+        
         # Initialize verify relation
         self.verify = z3.Function(
             "verify",
@@ -306,14 +338,9 @@ class ExclusionSemantics(model.SemanticDefaults):
             z3.BoolSort(),
         )
         
-        # Initialize exclusion relation
-        if getattr(self, "exclusion", None) is None:
-            exclusion_name = "Exclusion"
-            exclusion_arity = self.N * self.N
-            self.exclusion = z3.Function(
-                exclusion_name, *([z3.BitVecSort(self.N)] * 2), z3.BoolSort()
-            )
-            self.relation_symbols.append(self.exclusion)
+        # Initialize relation symbols (excludes already defined in __init__)
+        if hasattr(self, 'excludes'):
+            self.relation_symbols.append(self.excludes)
         
         # Set bitvector elements
         self.bitvec_elements = list(self.get_all_bitvectors())
@@ -345,7 +372,7 @@ class ExclusionSemantics(model.SemanticDefaults):
         # Exclusion is symmetric
         symmetric = ForAll(
             [x, y],
-            self.exclusion(x, y) == self.exclusion(y, x)
+            self.excludes(x, y) == self.excludes(y, x)
         )
         constraints.append(symmetric)
         
@@ -355,9 +382,9 @@ class ExclusionSemantics(model.SemanticDefaults):
             z3.Implies(
                 z3.And(
                     self.is_part_of(x, y),
-                    self.exclusion(y, z)
+                    self.excludes(y, z)
                 ),
-                self.exclusion(x, z)
+                self.excludes(x, z)
             )
         )
         constraints.append(parthood_respect)
@@ -372,7 +399,7 @@ class ExclusionSemantics(model.SemanticDefaults):
             z3.And(
                 self.is_part_of(f1, bit_e1),
                 self.is_part_of(f2, bit_e2),
-                self.exclusion(f1, f2),
+                self.excludes(f1, f2),
             ),
         )
     
@@ -507,7 +534,8 @@ class ExclusionSemantics(model.SemanticDefaults):
     
     def _get_frame_constraints(self):
         """Get frame constraints for exclusion semantics."""
-        constraints = []
+        # Start with the basic frame constraints
+        constraints = self.frame_constraints.copy()
         
         # Add exclusion relation constraints
         constraints.extend(self.setup_exclusion_constraints())
@@ -595,4 +623,16 @@ class UnilateralProposition(model.PropositionDefaults):
             CYAN, RESET = '', ''
             
         prefix = " " * indent_num
-        print(f"{prefix}Verifiers: {pretty_set_print(self.verifiers)}")
+        
+        # Format verifiers for printing - handle Z3 expressions
+        if self.verifiers:
+            verifier_strs = []
+            for v in self.verifiers:
+                if hasattr(v, 'sexpr'):
+                    # Z3 expression - use its string representation
+                    verifier_strs.append(str(v))
+                else:
+                    verifier_strs.append(str(v))
+            print(f"{prefix}Verifiers: {{{', '.join(sorted(verifier_strs))}}}")
+        else:
+            print(f"{prefix}Verifiers: ∅")

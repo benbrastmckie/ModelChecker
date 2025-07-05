@@ -96,6 +96,20 @@ class UniAndOperator(syntactic.Operator):
                            right_arg.operator.has_sufficient_witnesses(
                                *right_arg.arguments, witness_store))
         return left_sufficient and right_sufficient
+    
+    def generate_witness_constraints(self, left_arg, right_arg, eval_point, witness_store, depth):
+        """Generate witness constraints for conjunction."""
+        constraints = []
+        # Recursively generate constraints for arguments
+        if hasattr(left_arg.operator, 'generate_witness_constraints'):
+            constraints.extend(left_arg.operator.generate_witness_constraints(
+                *left_arg.arguments, eval_point, witness_store, depth
+            ))
+        if hasattr(right_arg.operator, 'generate_witness_constraints'):
+            constraints.extend(right_arg.operator.generate_witness_constraints(
+                *right_arg.arguments, eval_point, witness_store, depth
+            ))
+        return constraints
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print conjunction."""
@@ -180,6 +194,20 @@ class UniOrOperator(syntactic.Operator):
                            right_arg.operator.has_sufficient_witnesses(
                                *right_arg.arguments, witness_store))
         return left_sufficient or right_sufficient
+    
+    def generate_witness_constraints(self, left_arg, right_arg, eval_point, witness_store, depth):
+        """Generate witness constraints for disjunction."""
+        constraints = []
+        # Recursively generate constraints for arguments
+        if hasattr(left_arg.operator, 'generate_witness_constraints'):
+            constraints.extend(left_arg.operator.generate_witness_constraints(
+                *left_arg.arguments, eval_point, witness_store, depth
+            ))
+        if hasattr(right_arg.operator, 'generate_witness_constraints'):
+            constraints.extend(right_arg.operator.generate_witness_constraints(
+                *right_arg.arguments, eval_point, witness_store, depth
+            ))
+        return constraints
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print disjunction."""
@@ -255,24 +283,8 @@ class ExclusionOperator(syntactic.Operator):
         """
         sem = self.semantics
         
-        # For testing: temporarily use simple negation to verify incremental works
-        # TODO: Restore full three-condition semantics once extended_verify is fixed
-        if True:  # Temporary flag for testing
-            # Register witnesses for tracking (even with simple semantics)
-            if hasattr(sem, 'witness_store') and sem.witness_store is not None:
-                h_sk_name = f"h_sk_{id(self)}_{sem.counter}"
-                y_sk_name = f"y_sk_{id(self)}_{sem.counter}"
-                sem.counter += 1
-                sem.witness_store.register_skolem_function(
-                    h_sk_name, z3.BitVecSort(sem.N), z3.BitVecSort(sem.N)
-                )
-                sem.witness_store.register_skolem_function(
-                    y_sk_name, z3.BitVecSort(sem.N), z3.BitVecSort(sem.N)
-                )
-            # Use simple negation for now
-            return z3.Not(sem.true_at(argument, eval_point))
-        
-        # Full implementation (disabled for now)
+        # Phase 3: Enable full three-condition semantics
+        # The incremental architecture now supports witness tracking
         # Generate unique Skolem function names
         h_sk_name = f"h_sk_{id(self)}_{sem.counter}"
         y_sk_name = f"y_sk_{id(self)}_{sem.counter}"
@@ -316,7 +328,7 @@ class ExclusionOperator(syntactic.Operator):
                 sem.extended_verify(x, argument, eval_point),
                 z3.And(
                     sem.is_part_of(y_sk(x), x),
-                    sem.exclusion(h_sk(x), y_sk(x))
+                    sem.excludes(h_sk(x), y_sk(x))
                 )
             )
         )
@@ -365,12 +377,99 @@ class ExclusionOperator(syntactic.Operator):
     
     def _true_at_with_witnesses(self, argument, eval_point, h_sk_name, y_sk_name):
         """
-        Evaluate using existing witness mappings (future optimization).
-        For now, regenerate constraints.
+        Evaluate using existing witness mappings for optimized constraint generation.
+        
+        Phase 3: This method now uses cached witness values to generate more
+        targeted constraints, reducing the search space for Z3.
         """
-        # TODO: In Phase 2, implement evaluation using cached witness mappings
-        # For now, fall back to generating constraints
-        return self._true_at_generate_witnesses(argument, eval_point, h_sk_name, y_sk_name)
+        sem = self.semantics
+        
+        # Get cached witness mappings
+        h_mapping = sem.witness_store.get_witness_mapping(h_sk_name)
+        y_mapping = sem.witness_store.get_witness_mapping(y_sk_name)
+        
+        if not h_mapping or not y_mapping:
+            # Fall back to full generation if mappings incomplete
+            return self._true_at_generate_witnesses(argument, eval_point, h_sk_name, y_sk_name)
+        
+        # Create Skolem functions
+        h_sk = z3.Function(h_sk_name, z3.BitVecSort(sem.N), z3.BitVecSort(sem.N))
+        y_sk = z3.Function(y_sk_name, z3.BitVecSort(sem.N), z3.BitVecSort(sem.N))
+        
+        # Generate constraints that respect the cached witness values
+        constraints = []
+        
+        # Add constraints for known witness values
+        for x_val, h_val in h_mapping.items():
+            constraints.append(h_sk(x_val) == h_val)
+        for x_val, y_val in y_mapping.items():
+            constraints.append(y_sk(x_val) == y_val)
+        
+        # Add the three-condition constraints with the pre-determined witnesses
+        x = z3.BitVec(f"x_ex_cached_{sem.counter}", sem.N)
+        sem.counter += 1
+        
+        # The three conditions still need to be satisfied
+        condition1 = ForAll([x], 
+            z3.Implies(
+                sem.extended_verify(x, argument, eval_point),
+                z3.And(
+                    sem.is_part_of(y_sk(x), x),
+                    sem.excludes(h_sk(x), y_sk(x))
+                )
+            )
+        )
+        
+        condition2 = ForAll([x],
+            z3.Implies(
+                sem.extended_verify(x, argument, eval_point),
+                sem.is_part_of(h_sk(x), eval_point["world"])
+            )
+        )
+        
+        # For condition 3, we can be more specific with cached values
+        h_values = [h_mapping.get(x, h_sk(x)) for x in range(2 ** sem.N)]
+        condition3 = self._build_minimality_constraint(eval_point["world"], h_values, argument)
+        
+        return z3.And(z3.And(constraints), condition1, condition2, condition3)
+    
+    def _build_minimality_constraint(self, world, h_values, argument):
+        """Build the minimality constraint (condition 3) for exclusion semantics."""
+        sem = self.semantics
+        
+        # First part: all h_sk(x) values are part of world
+        h_vals = z3.BitVec(f"h_vals_{sem.counter}", sem.N)
+        x = z3.BitVec(f"x_min_{sem.counter}", sem.N)
+        sem.counter += 1
+        
+        condition3_setup = ForAll([h_vals],
+            z3.Implies(
+                Exists([x], z3.And(
+                    sem.extended_verify(x, argument, {"world": world}),
+                    z3.Or([h_vals == h_v for h_v in h_values if isinstance(h_v, int)])
+                )),
+                sem.is_part_of(h_vals, world)
+            )
+        )
+        
+        # Second part: world is minimal
+        s = z3.BitVec(f"s_min_{sem.counter}", sem.N)
+        sem.counter += 1
+        
+        condition3_minimal = ForAll([s],
+            z3.Implies(
+                z3.And(
+                    ForAll([x], z3.Implies(
+                        sem.extended_verify(x, argument, {"world": world}),
+                        z3.Or([sem.is_part_of(h_v, s) for h_v in h_values if isinstance(h_v, int)])
+                    )),
+                    s != world
+                ),
+                z3.Not(sem.is_part_of(s, world))
+            )
+        )
+        
+        return z3.And(condition3_setup, condition3_minimal)
 
     def extended_verify(self, state, argument, eval_point):
         """
@@ -451,7 +550,7 @@ class ExclusionOperator(syntactic.Operator):
                 model = self.semantics.z3_model
                 h_x_bv = z3.BitVecVal(h_x, self.semantics.N)
                 y_x_bv = z3.BitVecVal(y_x, self.semantics.N)
-                exclusion_check = self.semantics.exclusion(h_x_bv, y_x_bv)
+                exclusion_check = self.semantics.excludes(h_x_bv, y_x_bv)
                 try:
                     if not z3.is_true(model.evaluate(exclusion_check)):
                         return False
@@ -557,6 +656,43 @@ class ExclusionOperator(syntactic.Operator):
         y_name = f"y_sk_{id(self)}"
         return (witness_store.is_witness_complete(h_name) and 
                 witness_store.is_witness_complete(y_name))
+    
+    def generate_witness_constraints(self, argument, eval_point, witness_store, depth):
+        """Generate witness-specific constraints based on current witness information.
+        
+        This method is called during incremental verification to generate
+        refined constraints based on available witness values.
+        """
+        constraints = []
+        
+        # Get witness names
+        h_name = f"h_sk_{id(self)}"
+        y_name = f"y_sk_{id(self)}"
+        
+        # Check if we have witness values
+        if witness_store.has_witnesses_for([h_name, y_name]):
+            # Get witness mappings
+            h_mapping = witness_store.get_witness_mapping(h_name)
+            y_mapping = witness_store.get_witness_mapping(y_name)
+            
+            # Generate constraints that enforce witness values
+            for x_val, h_val in h_mapping.items():
+                # Create constraint: h_sk(x_val) = h_val
+                h_func = z3.Function(h_name, 
+                                   z3.BitVecSort(self.semantics.N), 
+                                   z3.BitVecSort(self.semantics.N))
+                constraint = h_func(z3.BitVecVal(x_val, self.semantics.N)) == z3.BitVecVal(h_val, self.semantics.N)
+                constraints.append(constraint)
+            
+            for x_val, y_val in y_mapping.items():
+                # Create constraint: y_sk(x_val) = y_val
+                y_func = z3.Function(y_name,
+                                   z3.BitVecSort(self.semantics.N),
+                                   z3.BitVecSort(self.semantics.N))
+                constraint = y_func(z3.BitVecVal(x_val, self.semantics.N)) == z3.BitVecVal(y_val, self.semantics.N)
+                constraints.append(constraint)
+        
+        return constraints
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print exclusion."""

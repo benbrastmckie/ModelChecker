@@ -51,6 +51,9 @@ class IncrementalModelStructure(ModelStructure):
         self.settings = settings
         self.max_time = self.settings["max_time"]
         self.expectation = self.settings["expectation"]
+        
+        # Store model_constraints for framework compatibility
+        self.model_constraints = model_constraints
 
         # Extract what we need directly from model_constraints
         self.semantics = model_constraints.semantics
@@ -71,9 +74,18 @@ class IncrementalModelStructure(ModelStructure):
         self.truth_cache = TruthCache(self.semantics)
         self.incremental_solver = IncrementalSolver(self.semantics)
         
-        # Connect witness store and truth cache to semantics for operator access
+        # Phase 3: Create IncrementalVerifier for full integration
+        self.incremental_verifier = IncrementalVerifier(
+            self.semantics, 
+            self.incremental_solver.solver,
+            self.witness_store,
+            self.truth_cache
+        )
+        
+        # Connect components to semantics for operator access
         self.semantics.witness_store = self.witness_store
         self.semantics.truth_cache = self.truth_cache
+        self.semantics.incremental_verifier = self.incremental_verifier
         
         # Generate and solve constraints using pure incremental approach
         solver_results = self.solve_incrementally_pure(self.max_time)
@@ -81,6 +93,10 @@ class IncrementalModelStructure(ModelStructure):
         
         # Store model data for framework compatibility
         self.unsat_core = None if self.z3_model_status else self.z3_model
+        
+        # Store solver reference for framework compatibility
+        self.solver = self.incremental_solver.solver
+        self.stored_solver = self.solver
         
         # Continue with default ModelStructure initialization if we have a model
         if self.z3_model_status and self.z3_model is not None:
@@ -247,10 +263,23 @@ class IncrementalModelStructure(ModelStructure):
     def _add_premise_constraints_incremental(self):
         """Add premise constraints using incremental evaluation with witness tracking."""
         for i, premise in enumerate(self.premises):
-            # Generate constraint using incremental approach
-            constraint = self._generate_incremental_constraint(
-                premise, self.main_point, constraint_type="premise"
-            )
+            # Phase 3: Check if we can use IncrementalVerifier for early termination
+            if self._should_use_incremental_verification(premise):
+                # Use IncrementalVerifier for complex formulas with witnesses
+                result = self.incremental_verifier.verify_incrementally(premise, self.main_point)
+                if result is False:  # Definitely false
+                    return False
+                elif result is True:  # Definitely true, add simplified constraint
+                    constraint = z3.BoolVal(True)
+                else:  # Need full constraint
+                    constraint = self._generate_incremental_constraint(
+                        premise, self.main_point, constraint_type="premise"
+                    )
+            else:
+                # Use standard constraint generation for simple formulas
+                constraint = self._generate_incremental_constraint(
+                    premise, self.main_point, constraint_type="premise"
+                )
             
             result = self.incremental_solver.add_constraint_incrementally(
                 constraint, f"premise_{i}", self.witness_store
@@ -258,6 +287,22 @@ class IncrementalModelStructure(ModelStructure):
             if not result:
                 return False
         return True
+    
+    def _should_use_incremental_verification(self, sentence):
+        """Determine if a sentence would benefit from incremental verification."""
+        # Use incremental verification for complex formulas with exclusion
+        if sentence.sentence_letter is not None:
+            return False  # Atomic sentences don't benefit
+        
+        # Check if sentence contains exclusion operators
+        def has_exclusion(sent):
+            if sent.sentence_letter is not None:
+                return False
+            if sent.operator.name == "\\exclude":
+                return True
+            return any(has_exclusion(arg) for arg in sent.arguments)
+        
+        return has_exclusion(sentence)
     
     def _add_conclusion_constraints_incremental(self):
         """Add conclusion constraints using incremental evaluation for countermodel search."""
@@ -738,13 +783,41 @@ class IncrementalVerifier:
         """Generate constraints based on current witness information."""
         constraints = []
         
-        # Check if we have new witness information to constrain
+        # Phase 3: Enhanced witness-based constraint generation
+        if sentence.sentence_letter is not None:
+            # No witness constraints for atomic sentences
+            return constraints
+        
+        # Check if operator can generate witness-specific constraints
         if hasattr(sentence.operator, 'generate_witness_constraints'):
             new_constraints = sentence.operator.generate_witness_constraints(
                 *sentence.arguments, eval_point, self.witness_store, depth
             )
             for c in new_constraints:
                 constraints.append((c, f"witness_depth_{depth}"))
+        else:
+            # For operators without specific witness constraint generation,
+            # try to refine based on current witness information
+            if sentence.operator.name == "\\exclude":
+                # Get witness names for this exclusion instance
+                h_name = f"h_sk_{id(sentence.operator)}"
+                y_name = f"y_sk_{id(sentence.operator)}"
+                
+                if self.witness_store.has_witnesses_for([h_name, y_name]):
+                    # We have complete witnesses - can generate targeted constraints
+                    h_mapping = self.witness_store.get_witness_mapping(h_name)
+                    y_mapping = self.witness_store.get_witness_mapping(y_name)
+                    
+                    # Add constraints that pin down the witness values
+                    for x_val, h_val in h_mapping.items():
+                        c = z3.Function(h_name, z3.BitVecSort(self.semantics.N), 
+                                      z3.BitVecSort(self.semantics.N))(x_val) == h_val
+                        constraints.append((c, f"witness_pin_{h_name}_{x_val}"))
+                    
+                    for x_val, y_val in y_mapping.items():
+                        c = z3.Function(y_name, z3.BitVecSort(self.semantics.N),
+                                      z3.BitVecSort(self.semantics.N))(x_val) == y_val
+                        constraints.append((c, f"witness_pin_{y_name}_{x_val}"))
         
         return constraints
     
