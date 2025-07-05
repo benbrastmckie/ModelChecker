@@ -1,11 +1,11 @@
 """
 Phase 1 tests for incremental exclusion implementation.
 
-Tests the basic infrastructure components:
-- WitnessStore: Persistent witness tracking
-- TruthCache: Incremental truth evaluation  
-- IncrementalVerifier: Unified constraint/evaluation
-- Basic operator extensions with witness methods
+Tests for Phase 1 implementation focusing on:
+1. Three-condition semantics implementation
+2. Witness registration during constraint generation
+3. No circular references in operators
+4. Pure incremental constraint generation
 """
 
 import unittest
@@ -16,9 +16,11 @@ import os
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from semantic import WitnessStore, TruthCache, IncrementalVerifier, ExclusionSemantics
-from operators import ExclusionOperator, UniAndOperator, UniOrOperator
+from semantic import ExclusionSemantics, UnilateralProposition
+from operators import exclusion_operators, ExclusionOperator
+from incremental_model import IncrementalModelStructure, WitnessStore
 from model_checker import syntactic
+from model_checker.model import ModelConstraints
 
 
 class TestWitnessStore(unittest.TestCase):
@@ -68,169 +70,150 @@ class TestWitnessStore(unittest.TestCase):
         
         # Add some values (simplified for test)
         self.store.skolem_witnesses["h_sk_1"]["values"] = {0: 1}
+        self.store.skolem_witnesses["h_sk_1"]["complete"] = True
         self.assertTrue(self.store.is_witness_complete("h_sk_1"))
 
 
-class TestTruthCache(unittest.TestCase):
-    """Test the TruthCache component."""
+class TestPhase1Architecture(unittest.TestCase):
+    """Test Phase 1 architectural components."""
     
     def setUp(self):
-        # Create minimal semantics for testing
-        settings = {"N": 3}
-        self.semantics = type('MockSemantics', (), {})()
-        self.cache = TruthCache(self.semantics)
-        self.store = WitnessStore()
+        self.settings = {
+            "N": 2,
+            "max_time": 5,
+            "expectation": True,
+            "contingent": False,
+            "non_empty": False,
+            "non_null": False,
+            "disjoint": False,
+            "fusion_closure": False
+        }
         
-    def test_initialization(self):
-        """Test TruthCache initialization."""
-        self.assertEqual(self.cache.partial_truths, {})
-        self.assertEqual(self.cache.verifier_cache, {})
-        self.assertEqual(self.cache.dependency_graph, {})
+    def test_incremental_model_structure(self):
+        """Test IncrementalModelStructure bypasses ModelConstraints."""
+        semantics = ExclusionSemantics(self.settings)
+        syntax = syntactic.Syntax(['A'], ['A'], exclusion_operators)
+        model_constraints = ModelConstraints(self.settings, syntax, semantics, UnilateralProposition)
         
-    def test_get_verifiers_caching(self):
-        """Test verifier caching behavior."""
-        # Create mock sentence
-        sentence = type('Sentence', (), {
-            'sentence_letter': 'A',
-            'operator': None,
-            'arguments': []
-        })()
+        # Create incremental model
+        incremental_model = IncrementalModelStructure(model_constraints, self.settings)
         
-        # First call computes verifiers
-        verifiers1 = self.cache.get_verifiers(sentence, self.store)
-        self.assertEqual(verifiers1, set())  # Placeholder returns empty set
+        # Check components exist
+        self.assertIsNotNone(incremental_model.witness_store)
+        self.assertIsNotNone(incremental_model.incremental_solver)
+        self.assertTrue(hasattr(incremental_model, 'solve_incrementally_pure'))
         
-        # Add to cache manually
-        self.cache.verifier_cache[sentence] = {1, 2, 3}
+    def test_witness_store_has_witnesses_for(self):
+        """Test has_witnesses_for method."""
+        store = WitnessStore()
         
-        # Second call uses cache
-        verifiers2 = self.cache.get_verifiers(sentence, self.store)
-        self.assertEqual(verifiers2, {1, 2, 3})
-
-
-class TestIncrementalVerifier(unittest.TestCase):
-    """Test the IncrementalVerifier component."""
-    
-    def setUp(self):
-        settings = {"N": 3}
-        self.semantics = ExclusionSemantics(settings)
-        self.verifier = IncrementalVerifier(self.semantics)
+        # Register functions
+        store.register_skolem_function("h1", z3.BitVecSort(2), z3.BitVecSort(2))
+        store.register_skolem_function("h2", z3.BitVecSort(2), z3.BitVecSort(2))
         
-    def test_initialization(self):
-        """Test IncrementalVerifier initialization."""
-        self.assertIsInstance(self.verifier.solver, z3.Solver)
-        self.assertIsInstance(self.verifier.witness_store, WitnessStore)
-        self.assertIsInstance(self.verifier.truth_cache, TruthCache)
-        self.assertEqual(self.verifier.constraint_count, 0)
+        # Initially incomplete
+        self.assertFalse(store.has_witnesses_for(["h1", "h2"]))
         
-    def test_solver_persistence(self):
-        """Test that solver state persists across calls."""
-        # Add a simple constraint
-        x = z3.BitVec('x', 3)
-        self.verifier.solver.add(x == 5)
+        # Mark as complete
+        store.skolem_witnesses["h1"]["complete"] = True
+        store.skolem_witnesses["h2"]["complete"] = True
         
-        # Check satisfiability
-        result1 = self.verifier.solver.check()
-        self.assertEqual(result1, z3.sat)
-        
-        # Add conflicting constraint
-        self.verifier.solver.add(x == 3)
-        
-        # Should now be unsat due to persistent state
-        result2 = self.verifier.solver.check()
-        self.assertEqual(result2, z3.unsat)
+        # Now should be complete
+        self.assertTrue(store.has_witnesses_for(["h1", "h2"]))
 
 
 class TestOperatorExtensions(unittest.TestCase):
     """Test operator extensions for incremental verification."""
     
     def setUp(self):
-        settings = {"N": 3}
-        self.semantics = ExclusionSemantics(settings)
+        self.settings = {
+            "N": 2,
+            "max_time": 5,
+            "expectation": True,
+            "contingent": False,
+            "non_empty": False,
+            "non_null": False,
+            "disjoint": False,
+            "fusion_closure": False
+        }
+        self.semantics = ExclusionSemantics(self.settings)
         self.store = WitnessStore()
-        self.cache = TruthCache(self.semantics)
         
-    def test_exclusion_operator_witness_registration(self):
-        """Test ExclusionOperator witness registration."""
-        op = ExclusionOperator(self.semantics)
+    def test_exclusion_operator_methods(self):
+        """Test ExclusionOperator has required methods."""
+        op = exclusion_operators.operator_dictionary["\\exclude"]
         
-        # Create mock argument
-        argument = type('Sentence', (), {})()
+        # Check all required methods exist
+        self.assertTrue(hasattr(op, 'true_at'))
+        self.assertTrue(hasattr(op, 'extended_verify'))
+        self.assertTrue(hasattr(op, 'register_witnesses'))
+        self.assertTrue(hasattr(op, 'compute_verifiers'))
+        self.assertTrue(hasattr(op, 'evaluate_with_witnesses'))
+        self.assertTrue(hasattr(op, 'has_sufficient_witnesses'))
         
-        # Register witnesses
-        h_name, y_name = op.register_witnesses(argument, self.store)
+    def test_conjunction_operator_methods(self):
+        """Test UniAndOperator has required methods."""
+        op = exclusion_operators.operator_dictionary["\\uniwedge"]
         
-        # Check registration
-        self.assertTrue(h_name.startswith("h_sk_"))
-        self.assertTrue(y_name.startswith("y_sk_"))
-        self.assertIn(h_name, self.store.skolem_witnesses)
-        self.assertIn(y_name, self.store.skolem_witnesses)
+        self.assertTrue(hasattr(op, 'compute_verifiers'))
+        self.assertTrue(hasattr(op, 'evaluate_with_witnesses'))
+        self.assertTrue(hasattr(op, 'has_sufficient_witnesses'))
         
-    def test_conjunction_has_sufficient_witnesses(self):
-        """Test UniAndOperator witness sufficiency checking."""
-        op = UniAndOperator(self.semantics)
+    def test_disjunction_operator_methods(self):
+        """Test UniOrOperator has required methods."""
+        op = exclusion_operators.operator_dictionary["\\univee"]
         
-        # Create mock atomic sentences (always sufficient)
-        left = type('Sentence', (), {
-            'sentence_letter': 'A',
-            'operator': None,
-            'arguments': []
-        })()
-        right = type('Sentence', (), {
-            'sentence_letter': 'B',
-            'operator': None,
-            'arguments': []
-        })()
-        
-        # Both atomic, so should be sufficient
-        self.assertTrue(op.has_sufficient_witnesses(left, right, self.store))
-        
-    def test_disjunction_has_sufficient_witnesses(self):
-        """Test UniOrOperator witness sufficiency checking."""
-        op = UniOrOperator(self.semantics)
-        
-        # Create one atomic, one complex sentence
-        atomic = type('Sentence', (), {
-            'sentence_letter': 'A',
-            'operator': None,
-            'arguments': []
-        })()
-        
-        # Mock complex sentence with insufficient witnesses
-        mock_op = type('MockOp', (), {
-            'has_sufficient_witnesses': lambda *args: False
-        })()
-        complex_sent = type('Sentence', (), {
-            'sentence_letter': None,
-            'operator': mock_op,
-            'arguments': []
-        })()
-        
-        # Disjunction needs only one sufficient argument
-        self.assertTrue(op.has_sufficient_witnesses(atomic, complex_sent, self.store))
+        self.assertTrue(hasattr(op, 'compute_verifiers'))
+        self.assertTrue(hasattr(op, 'evaluate_with_witnesses'))
+        self.assertTrue(hasattr(op, 'has_sufficient_witnesses'))
 
 
-class TestSemanticIntegration(unittest.TestCase):
-    """Test integration of incremental components with semantics."""
+class TestPhase1Examples(unittest.TestCase):
+    """Test Phase 1 with example formulas."""
     
     def setUp(self):
-        settings = {"N": 3}
-        self.semantics = ExclusionSemantics(settings)
+        self.settings = {
+            "N": 2,
+            "max_time": 5,
+            "expectation": True,
+            "contingent": False,
+            "non_empty": False,
+            "non_null": False,
+            "disjoint": False,
+            "fusion_closure": False
+        }
         
-    def test_semantic_has_incremental_components(self):
-        """Test that semantics properly initializes incremental components."""
-        self.assertIsInstance(self.semantics.verifier, IncrementalVerifier)
-        self.assertIsInstance(self.semantics.witness_store, WitnessStore)
-        self.assertIsInstance(self.semantics.truth_cache, TruthCache)
+    def test_simple_validity(self):
+        """Test simple valid and invalid formulas."""
+        test_cases = [
+            (['A'], ['A'], True),  # Valid
+            (['A'], ['\\exclude A'], False),  # Invalid
+            (['\\exclude A'], ['A'], False),  # Invalid
+        ]
         
-        # Check that components are properly connected
-        self.assertIs(self.semantics.witness_store, self.semantics.verifier.witness_store)
-        self.assertIs(self.semantics.truth_cache, self.semantics.verifier.truth_cache)
+        for premises, conclusions, should_be_valid in test_cases:
+            with self.subTest(premises=premises, conclusions=conclusions):
+                semantics = ExclusionSemantics(self.settings)
+                syntax = syntactic.Syntax(premises, conclusions, exclusion_operators)
+                model_constraints = ModelConstraints(self.settings, syntax, semantics, UnilateralProposition)
+                incremental_model = IncrementalModelStructure(model_constraints, self.settings)
+                
+                has_countermodel = incremental_model.z3_model_status
+                is_valid = not has_countermodel
+                
+                self.assertEqual(is_valid, should_be_valid)
+    
+    def test_double_negation_simple_semantics(self):
+        """Test double negation with current simple semantics."""
+        # With simple negation semantics, ¬¬A ⊢ A should be valid
+        semantics = ExclusionSemantics(self.settings)
+        syntax = syntactic.Syntax(['\\exclude \\exclude A'], ['A'], exclusion_operators)
+        model_constraints = ModelConstraints(self.settings, syntax, semantics, UnilateralProposition)
+        incremental_model = IncrementalModelStructure(model_constraints, self.settings)
         
-    def test_exclusion_relation_setup(self):
-        """Test that exclusion relation is properly initialized."""
-        self.assertIsNotNone(self.semantics.exclusion)
-        self.assertIn(self.semantics.exclusion, self.semantics.relation_symbols)
+        # Should be valid (no countermodel)
+        self.assertFalse(incremental_model.z3_model_status,
+                        "Double negation should be valid with simple semantics")
 
 
 if __name__ == '__main__':

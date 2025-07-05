@@ -290,9 +290,12 @@ class ExclusionSemantics(model.SemanticDefaults):
         if not hasattr(self, 'relation_symbols'):
             self.relation_symbols = []
         
-        # Core components for incremental verification
+        # Initialize witness store for incremental approach
+        # This will be connected by IncrementalModelStructure
+        self.witness_store = None
+        
+        # Core components for incremental verification (legacy from Phase 2)
         self.verifier = IncrementalVerifier(self)
-        self.witness_store = self.verifier.witness_store
         self.truth_cache = self.verifier.truth_cache
         
         # Initialize verify relation
@@ -544,11 +547,14 @@ class UnilateralProposition(model.PropositionDefaults):
     @classmethod
     def proposition_constraints(cls, model_constraints, letter_id):
         """Generate constraints for atomic propositions."""
-        return model_constraints.semantics.atom_constraints(
+        # Get the labeled constraints from atom_constraints
+        labeled_constraints = model_constraints.semantics.atom_constraints(
             letter_id,
             model_constraints.sentence_letters,
             model_constraints.settings
         )
+        # Extract just the Z3 constraints from the (label, constraint) tuples
+        return [constraint for label, constraint in labeled_constraints]
 
     def find_proposition(self):
         """Find the set of verifiers for this sentence."""

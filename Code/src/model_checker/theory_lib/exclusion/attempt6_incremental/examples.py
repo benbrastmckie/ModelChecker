@@ -15,6 +15,7 @@ import sys
 # Import incremental exclusion components
 from .semantic import ExclusionSemantics, UnilateralProposition
 from .operators import exclusion_operators
+from .incremental_model import IncrementalModelStructure
 
 # Import default theory for comparison
 from model_checker.theory_lib.default import (
@@ -32,7 +33,7 @@ from model_checker.theory_lib.default import (
 exclusion_theory = {
     "semantics": ExclusionSemantics,
     "proposition": UnilateralProposition,
-    "model": ModelStructure,
+    "model": IncrementalModelStructure,
     "operators": exclusion_operators,
     "dictionary": {}  # No translation needed for exclusion theory
 }
