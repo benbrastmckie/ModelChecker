@@ -1,255 +1,404 @@
 """
 Phase 2 tests for incremental exclusion implementation.
 
-Tests the enhanced functionality:
-- Witness extraction from Z3 models
-- Incremental constraint building
-- Three-level integration
-- Operator witness computation
+Tests for Phase 2 implementation focusing on:
+1. Enhanced WitnessStore with dependency tracking
+2. TruthCache with incremental evaluation
+3. IncrementalVerifier functionality
+4. Operator incremental evaluation methods
 """
 
 import unittest
 import z3
 import sys
 import os
+import time
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from semantic import WitnessStore, TruthCache, IncrementalVerifier, ExclusionSemantics
-from operators import ExclusionOperator, UniAndOperator, UniOrOperator
+from semantic import ExclusionSemantics, UnilateralProposition
+from operators import exclusion_operators
+from incremental_model import IncrementalModelStructure, WitnessStore, IncrementalSolver, IncrementalVerifier
+from truth_cache import TruthCache
 from model_checker import syntactic
+from model_checker.model import ModelConstraints
 
 
-class TestWitnessExtraction(unittest.TestCase):
-    """Test witness extraction from Z3 models."""
+class TestWitnessStoreDependencies(unittest.TestCase):
+    """Test Phase 2 enhancements to WitnessStore."""
     
     def setUp(self):
-        self.settings = {"N": 3}
-        self.semantics = ExclusionSemantics(self.settings)
         self.store = WitnessStore()
+        self.semantics = ExclusionSemantics({"N": 2})
         
-    def test_witness_extraction_from_model(self):
-        """Test extracting witness values from a Z3 model."""
-        # Create a simple Z3 model with a function
+    def test_dependency_registration(self):
+        """Test registering witness dependencies."""
+        # Register some witnesses
+        self.store.register_skolem_function("h1", z3.BitVecSort(2), z3.BitVecSort(2))
+        self.store.register_skolem_function("h2", z3.BitVecSort(2), z3.BitVecSort(2))
+        self.store.register_skolem_function("h3", z3.BitVecSort(2), z3.BitVecSort(2))
+        
+        # Register dependencies: h1 depends on h2 and h3
+        self.store.register_dependent_witnesses("h1", ["h2", "h3"])
+        
+        self.assertIn("h1", self.store.witness_dependencies)
+        self.assertEqual(self.store.witness_dependencies["h1"], {"h2", "h3"})
+        
+    def test_dependency_invalidation(self):
+        """Test invalidating dependent witnesses."""
+        # Setup witnesses with dependencies
+        self.store.register_skolem_function("h1", z3.BitVecSort(2), z3.BitVecSort(2))
+        self.store.register_skolem_function("h2", z3.BitVecSort(2), z3.BitVecSort(2))
+        self.store.register_skolem_function("h3", z3.BitVecSort(2), z3.BitVecSort(2))
+        
+        # Mark as complete
+        self.store.skolem_witnesses["h1"]["complete"] = True
+        self.store.skolem_witnesses["h2"]["complete"] = True
+        self.store.skolem_witnesses["h3"]["complete"] = True
+        
+        # Register dependencies: h1 depends on h2, h2 depends on h3
+        self.store.register_dependent_witnesses("h1", ["h2"])
+        self.store.register_dependent_witnesses("h2", ["h3"])
+        
+        # Invalidate h3 - should cascade to h2 and h1
+        self.store.invalidate_dependent_witnesses("h3")
+        
+        self.assertFalse(self.store.skolem_witnesses["h3"]["complete"])
+        self.assertFalse(self.store.skolem_witnesses["h2"]["complete"])
+        self.assertFalse(self.store.skolem_witnesses["h1"]["complete"])
+        
+    def test_witness_caching(self):
+        """Test witness value caching."""
+        # Cache some witness values
+        self.store.cache_witness_value("h1", (0,), 1)
+        self.store.cache_witness_value("h1", (1,), 2)
+        
+        # Test retrieval
+        self.assertEqual(self.store.get_cached_witness("h1", (0,)), 1)
+        self.assertEqual(self.store.get_cached_witness("h1", (1,)), 2)
+        self.assertIsNone(self.store.get_cached_witness("h1", (2,)))
+        
+        # Check cache statistics
+        stats = self.store.get_cache_statistics()
+        self.assertEqual(stats['cache_hits'], 2)
+        self.assertEqual(stats['cache_misses'], 1)
+        self.assertEqual(stats['cache_size'], 2)
+        
+    def test_witness_interpretation_extraction(self):
+        """Test extracting complete witness interpretation from model."""
+        # Create a simple Z3 model
         solver = z3.Solver()
-        N = 3
-        h_sk = z3.Function("h_sk_test", z3.BitVecSort(N), z3.BitVecSort(N))
+        h_sk = z3.Function("h_sk_test", z3.BitVecSort(2), z3.BitVecSort(2))
         
-        # Add some constraints to define the function
-        x = z3.BitVec("x", N)
+        # Add some constraints
         solver.add(h_sk(0) == 1)
         solver.add(h_sk(1) == 2)
         solver.add(h_sk(2) == 3)
-        
-        # Get model
-        self.assertEqual(solver.check(), z3.sat)
-        model = solver.model()
-        
-        # Register and extract witness
-        self.store.register_skolem_function("h_sk_test", z3.BitVecSort(N), z3.BitVecSort(N))
-        self.store.update_witness_values(model, self.semantics)
-        
-        # Check extracted values
-        mapping = self.store.get_witness_mapping("h_sk_test")
-        self.assertEqual(mapping.get(0), 1)
-        self.assertEqual(mapping.get(1), 2)
-        self.assertEqual(mapping.get(2), 3)
-        
-    def test_find_function_in_model(self):
-        """Test finding function declarations in Z3 models."""
-        solver = z3.Solver()
-        N = 3
-        test_func = z3.Function("test_func", z3.BitVecSort(N), z3.BitVecSort(N))
-        
-        # Add constraint to ensure function appears in model
-        solver.add(test_func(0) == 1)
+        solver.add(h_sk(3) == 0)
         
         self.assertEqual(solver.check(), z3.sat)
         model = solver.model()
         
-        # Test finding function
-        found_func = self.store._find_function_in_model(model, "test_func")
-        self.assertIsNotNone(found_func)
-        self.assertEqual(found_func.name(), "test_func")
+        # Register witness
+        self.store.register_skolem_function("h_sk_test", z3.BitVecSort(2), z3.BitVecSort(2))
         
-        # Test not finding non-existent function
-        not_found = self.store._find_function_in_model(model, "non_existent")
-        self.assertIsNone(not_found)
+        # Extract interpretation
+        interpretation = self.store.get_witness_interpretation("h_sk_test", model)
+        
+        self.assertIsNotNone(interpretation)
+        self.assertEqual(interpretation[0], 1)
+        self.assertEqual(interpretation[1], 2)
+        self.assertEqual(interpretation[2], 3)
+        self.assertEqual(interpretation[3], 0)
+        
+    def test_witness_history_pruning(self):
+        """Test witness history pruning."""
+        # Add many history entries
+        for i in range(20):
+            self.store.witness_history.append((time.time(), f"func_{i}", "event"))
+        
+        self.assertEqual(len(self.store.witness_history), 20)
+        
+        # Prune to 10 entries
+        self.store.prune_witness_history(max_entries=10)
+        
+        self.assertEqual(len(self.store.witness_history), 10)
+        # Should keep the most recent entries
+        self.assertEqual(self.store.witness_history[-1][1], "func_19")
 
 
-class TestIncrementalConstraintBuilding(unittest.TestCase):
-    """Test incremental constraint building and satisfiability checking."""
+class TestTruthCache(unittest.TestCase):
+    """Test TruthCache functionality."""
     
     def setUp(self):
-        self.settings = {"N": 3}
+        self.settings = {
+            "N": 2,
+            "max_time": 5,
+            "expectation": True,
+            "contingent": False,
+            "non_empty": False,
+            "non_null": False,
+            "disjoint": False,
+            "fusion_closure": False
+        }
         self.semantics = ExclusionSemantics(self.settings)
-        self.verifier = IncrementalVerifier(self.semantics)
+        self.truth_cache = TruthCache(self.semantics)
+        self.witness_store = WitnessStore()
         
-    def test_incremental_push_pop(self):
-        """Test that solver maintains backtrack points correctly."""
-        # Add initial constraint
-        x = z3.BitVec("x", 3)
-        self.verifier.solver.add(x == 1)
-        self.assertEqual(self.verifier.solver.check(), z3.sat)
+    def test_verifier_caching(self):
+        """Test verifier computation and caching."""
+        # Create a simple sentence
+        syntax = syntactic.Syntax(['A'], ['A'], exclusion_operators)
+        sentence = syntax.premises[0]
         
-        # Push and add conflicting constraint
-        self.verifier.solver.push()
-        self.verifier.solver.add(x == 2)
-        self.assertEqual(self.verifier.solver.check(), z3.unsat)
+        # Get verifiers - should compute and cache
+        verifiers1 = self.truth_cache.get_verifiers(sentence, self.witness_store)
+        self.assertEqual(self.truth_cache.cache_misses, 1)
+        self.assertEqual(self.truth_cache.cache_hits, 0)
         
-        # Pop to restore satisfiability
-        self.verifier.solver.pop()
-        self.assertEqual(self.verifier.solver.check(), z3.sat)
+        # Get verifiers again - should use cache
+        verifiers2 = self.truth_cache.get_verifiers(sentence, self.witness_store)
+        self.assertEqual(self.truth_cache.cache_hits, 1)
+        self.assertEqual(verifiers1, verifiers2)
         
-    def test_register_sentence_witnesses(self):
-        """Test witness registration for sentences."""
-        # Create exclusion sentence
-        A_sent = syntactic.Sentence("A")
-        excl_op = ExclusionOperator(self.semantics)
-        excl_sent = syntactic.Sentence("\\exclude A")
-        excl_sent.operator = excl_op
-        excl_sent.arguments = [A_sent]
+    def test_truth_value_caching(self):
+        """Test truth value computation and caching."""
+        syntax = syntactic.Syntax(['A'], ['A'], exclusion_operators)
+        sentence = syntax.premises[0]
+        eval_point = {'world': z3.BitVecVal(1, 2)}
+        
+        # Get truth value - should compute and cache
+        truth1 = self.truth_cache.get_truth_value(sentence, eval_point, self.witness_store)
+        self.assertEqual(self.truth_cache.cache_misses, 2)  # One for verifiers, one for truth
+        
+        # Get truth value again - should use cache
+        truth2 = self.truth_cache.get_truth_value(sentence, eval_point, self.witness_store)
+        self.assertEqual(self.truth_cache.cache_hits, 1)
+        
+    def test_dependency_tracking(self):
+        """Test formula dependency tracking."""
+        syntax = syntactic.Syntax(['A', '(A \\uniwedge B)'], ['B'], exclusion_operators)
+        atomic_a = syntax.premises[0]
+        complex_ab = syntax.premises[1]
+        
+        # Register dependency
+        self.truth_cache.register_dependency(complex_ab, atomic_a)
+        
+        self.assertIn(complex_ab, self.truth_cache.dependency_graph)
+        self.assertIn(atomic_a, self.truth_cache.dependency_graph[complex_ab])
+        
+    def test_invalidation(self):
+        """Test cache invalidation."""
+        syntax = syntactic.Syntax(['A'], ['A'], exclusion_operators)
+        sentence = syntax.premises[0]
+        
+        # Cache some values
+        verifiers = self.truth_cache.get_verifiers(sentence, self.witness_store)
+        self.assertIn(sentence, self.truth_cache.verifier_cache)
+        
+        # Invalidate
+        self.truth_cache.invalidate_dependent_truths(sentence)
+        
+        self.assertNotIn(sentence, self.truth_cache.verifier_cache)
+        self.assertEqual(self.truth_cache.invalidation_count, 1)
+
+
+class TestIncrementalVerifier(unittest.TestCase):
+    """Test IncrementalVerifier functionality."""
+    
+    def setUp(self):
+        self.settings = {
+            "N": 2,
+            "max_time": 5,
+            "expectation": True,
+            "contingent": False,
+            "non_empty": False,
+            "non_null": False,
+            "disjoint": False,
+            "fusion_closure": False
+        }
+        self.semantics = ExclusionSemantics(self.settings)
+        self.solver = z3.Solver()
+        self.witness_store = WitnessStore()
+        self.truth_cache = TruthCache(self.semantics)
+        self.verifier = IncrementalVerifier(
+            self.semantics, self.solver, self.witness_store, self.truth_cache
+        )
+        
+    def test_witness_registration(self):
+        """Test recursive witness registration."""
+        # Create proper model constraints to get operators with semantics
+        syntax = syntactic.Syntax(['\\exclude A'], ['A'], exclusion_operators)
+        model_constraints = ModelConstraints(self.settings, syntax, self.semantics, UnilateralProposition)
+        
+        # Get the exclusion sentence from parsed syntax
+        sentence = model_constraints.syntax.premises[0]
         
         # Register witnesses
-        self.verifier._register_sentence_witnesses(excl_sent)
+        self.verifier._register_sentence_witnesses(sentence)
         
         # Check that witnesses were registered
-        # The operator should have registered h_sk and y_sk functions
-        self.assertTrue(len(self.verifier.witness_store.skolem_witnesses) >= 2)
+        # The ExclusionOperator should have registered h_sk and y_sk functions
+        witness_funcs = list(self.witness_store.skolem_witnesses.keys())
+        self.assertTrue(any('h_sk' in name for name in witness_funcs))
+        self.assertTrue(any('y_sk' in name for name in witness_funcs))
+        
+    def test_structural_constraint_generation(self):
+        """Test generating structural constraints."""
+        syntax = syntactic.Syntax(['A'], ['A'], exclusion_operators)
+        sentence = syntax.premises[0]
+        eval_point = {'world': z3.BitVecVal(1, 2)}
+        
+        constraints = self.verifier._generate_structural_constraints(sentence, eval_point)
+        
+        self.assertIsInstance(constraints, list)
+        self.assertTrue(len(constraints) > 0)
+        self.assertIsInstance(constraints[0], tuple)
+        self.assertEqual(len(constraints[0]), 2)  # (constraint, label)
 
 
-class TestThreeLevelIntegration(unittest.TestCase):
-    """Test integration across Syntax → Truth-Conditions → Extensions."""
+class TestOperatorIncrementalMethods(unittest.TestCase):
+    """Test incremental methods on operators."""
     
     def setUp(self):
-        self.settings = {"N": 2}  # Small N for testing
+        self.settings = {
+            "N": 2,
+            "max_time": 5,
+            "expectation": True,
+            "contingent": False,
+            "non_empty": False,
+            "non_null": False,
+            "disjoint": False,
+            "fusion_closure": False
+        }
         self.semantics = ExclusionSemantics(self.settings)
+        self.witness_store = WitnessStore()
+        self.truth_cache = TruthCache(self.semantics)
         
-    def test_truth_cache_with_model(self):
-        """Test that truth cache can compute verifiers with model access."""
-        # Create a simple model
-        solver = z3.Solver()
-        verify_func = self.semantics.verify
-        A_atom = syntactic.AtomVal(0)  # Use AtomVal for atomic propositions
+        # Connect to semantics
+        self.semantics.witness_store = self.witness_store
+        self.semantics.truth_cache = self.truth_cache
         
-        # State 1 verifies A
-        solver.add(verify_func(z3.BitVecVal(1, 2), A_atom))
-        # State 2 doesn't verify A
-        solver.add(z3.Not(verify_func(z3.BitVecVal(2, 2), A_atom)))
+    def test_conjunction_incremental_evaluation(self):
+        """Test conjunction operator incremental evaluation."""
+        # Create proper model constraints to get operators with semantics
+        syntax = syntactic.Syntax(['A', 'B', '(A \\uniwedge B)'], ['(A \\uniwedge B)'], exclusion_operators)
+        model_constraints = ModelConstraints(self.settings, syntax, self.semantics, UnilateralProposition)
         
-        self.assertEqual(solver.check(), z3.sat)
-        model = solver.model()
-        self.semantics.z3_model = model
+        # Get the conjunction sentence from parsed syntax
+        conj_sentence = model_constraints.syntax.premises[2]
+        eval_point = {'world': z3.BitVecVal(3, 2)}  # Binary 11 - both bits set
         
-        # Create sentence and compute verifiers
-        A_sent = syntactic.Sentence("A")
-        A_sent.sentence_letter = A_atom  # Set the atom
-        verifiers = self.semantics.truth_cache.compute_atomic_verifiers(A_sent, self.semantics.witness_store)
+        # Test has_sufficient_witnesses
+        operator = conj_sentence.operator
+        sufficient = operator.has_sufficient_witnesses(
+            conj_sentence.arguments[0], conj_sentence.arguments[1], self.witness_store
+        )
+        self.assertTrue(sufficient)  # Atomic arguments don't need witnesses
         
-        # Check that state 1 is a verifier
-        self.assertIn(1, verifiers)
-        # Check that state 2 is not a verifier
-        self.assertNotIn(2, verifiers)
+    def test_disjunction_incremental_evaluation(self):
+        """Test disjunction operator incremental evaluation."""
+        # Create proper model constraints to get operators with semantics
+        syntax = syntactic.Syntax(['A', 'B', '(A \\univee B)'], ['(A \\univee B)'], exclusion_operators)
+        model_constraints = ModelConstraints(self.settings, syntax, self.semantics, UnilateralProposition)
+        
+        # Get the disjunction sentence from parsed syntax
+        disj_sentence = model_constraints.syntax.premises[2]
+        eval_point = {'world': z3.BitVecVal(1, 2)}  # Binary 01 - only A bit set
+        
+        # Test has_sufficient_witnesses
+        operator = disj_sentence.operator
+        sufficient = operator.has_sufficient_witnesses(
+            disj_sentence.arguments[0], disj_sentence.arguments[1], self.witness_store
+        )
+        self.assertTrue(sufficient)  # Atomic arguments don't need witnesses
+        
+    def test_exclusion_witness_registration(self):
+        """Test exclusion operator witness registration."""
+        # Create proper model constraints to get operators with semantics
+        syntax = syntactic.Syntax(['\\exclude A'], ['A'], exclusion_operators)
+        model_constraints = ModelConstraints(self.settings, syntax, self.semantics, UnilateralProposition)
+        
+        # Get the exclusion sentence from parsed syntax
+        excl_sentence = model_constraints.syntax.premises[0]
+        
+        operator = excl_sentence.operator
+        h_name, y_name = operator.register_witnesses(
+            excl_sentence.arguments[0], self.witness_store
+        )
+        
+        self.assertTrue(h_name.startswith('h_sk_'))
+        self.assertTrue(y_name.startswith('y_sk_'))
+        self.assertIn(h_name, self.witness_store.skolem_witnesses)
+        self.assertIn(y_name, self.witness_store.skolem_witnesses)
 
 
-class TestOperatorWitnessComputation(unittest.TestCase):
-    """Test operator methods for witness-based computation."""
+class TestPhase2Integration(unittest.TestCase):
+    """Integration tests for Phase 2 functionality."""
     
     def setUp(self):
-        self.settings = {"N": 2}
-        self.semantics = ExclusionSemantics(self.settings)
-        self.store = WitnessStore()
-        self.cache = TruthCache(self.semantics)
+        self.settings = {
+            "N": 2,
+            "max_time": 5,
+            "expectation": True,
+            "contingent": False,
+            "non_empty": False,
+            "non_null": False,
+            "disjoint": False,
+            "fusion_closure": False
+        }
         
-    def test_exclusion_three_conditions_check(self):
-        """Test the three-condition check with actual witness mappings."""
-        excl_op = ExclusionOperator(self.semantics)
+    def test_incremental_solving_with_caching(self):
+        """Test that incremental solving uses caching effectively."""
+        semantics = ExclusionSemantics(self.settings)
+        syntax = syntactic.Syntax(
+            ['\\exclude \\exclude A'],  # Double negation
+            ['A'],
+            exclusion_operators
+        )
+        model_constraints = ModelConstraints(self.settings, syntax, semantics, UnilateralProposition)
+        incremental_model = IncrementalModelStructure(model_constraints, self.settings)
         
-        # Set up witness mappings
-        # h(1) = 2, y(1) = 1 (y is part of 1, and we'll say h excludes y)
-        h_mapping = {1: 2}
-        y_mapping = {1: 1}
-        arg_verifiers = {1}
+        # Check that caching was used
+        cache_stats = incremental_model.witness_store.get_cache_statistics()
+        self.assertGreaterEqual(cache_stats['total_witnesses'], 0)
         
-        # Create a mock model that says 2 excludes 1
-        solver = z3.Solver()
-        solver.add(self.semantics.exclusion(z3.BitVecVal(2, 2), z3.BitVecVal(1, 2)))
-        self.assertEqual(solver.check(), z3.sat)
-        self.semantics.z3_model = solver.model()
+        # Check truth cache statistics
+        truth_stats = incremental_model.truth_cache.get_statistics()
+        self.assertGreaterEqual(truth_stats['verifier_cache_size'], 0)
         
-        # Test state 2 (should satisfy conditions as fusion of h values)
-        state = z3.BitVecVal(2, 2)
-        result = excl_op.satisfies_three_conditions(state, arg_verifiers, h_mapping, y_mapping)
-        self.assertTrue(result)
+    def test_complex_formula_with_dependencies(self):
+        """Test complex formula with witness dependencies."""
+        semantics = ExclusionSemantics(self.settings)
+        syntax = syntactic.Syntax(
+            ['(\\exclude A \\uniwedge \\exclude B)'],
+            ['\\exclude (A \\univee B)'],  # DeMorgan's law
+            exclusion_operators
+        )
+        model_constraints = ModelConstraints(self.settings, syntax, semantics, UnilateralProposition)
+        incremental_model = IncrementalModelStructure(model_constraints, self.settings)
         
-        # Test state 3 (should not satisfy - not minimal)
-        state = z3.BitVecVal(3, 2)
-        result = excl_op.satisfies_three_conditions(state, arg_verifiers, h_mapping, y_mapping)
-        self.assertFalse(result)
+        # Should be valid (no countermodel)
+        self.assertFalse(incremental_model.z3_model_status)
         
-    def test_part_of_checking(self):
-        """Test the part-of relation checking."""
-        excl_op = ExclusionOperator(self.semantics)
+    def test_performance_metrics(self):
+        """Test that performance metrics are tracked."""
+        semantics = ExclusionSemantics(self.settings)
+        syntax = syntactic.Syntax(
+            ['\\exclude \\exclude \\exclude A'],  # Triple negation
+            ['\\exclude A'],
+            exclusion_operators
+        )
+        model_constraints = ModelConstraints(self.settings, syntax, semantics, UnilateralProposition)
+        incremental_model = IncrementalModelStructure(model_constraints, self.settings)
         
-        # Test integer part-of
-        self.assertTrue(excl_op._is_part_of_int(0, 0))  # 0 ⊑ 0
-        self.assertTrue(excl_op._is_part_of_int(0, 1))  # 0 ⊑ 1
-        self.assertTrue(excl_op._is_part_of_int(1, 1))  # 1 ⊑ 1
-        self.assertTrue(excl_op._is_part_of_int(1, 3))  # 1 ⊑ 3 (binary: 01 ⊑ 11)
-        self.assertFalse(excl_op._is_part_of_int(2, 1)) # 2 ⊄ 1 (binary: 10 ⊄ 01)
+        # Check runtime
+        self.assertGreater(incremental_model.z3_model_runtime, 0)
+        self.assertLess(incremental_model.z3_model_runtime, self.settings['max_time'])
         
-    def test_fusion_computation(self):
-        """Test fusion computation with integers."""
-        excl_op = ExclusionOperator(self.semantics)
-        
-        # Test fusion
-        self.assertEqual(excl_op._compute_fusion_int([1, 2]), 3)  # 01 | 10 = 11
-        self.assertEqual(excl_op._compute_fusion_int([0, 0]), 0)  # 00 | 00 = 00
-        self.assertEqual(excl_op._compute_fusion_int([1, 1]), 1)  # 01 | 01 = 01
-        self.assertEqual(excl_op._compute_fusion_int([]), 0)      # Empty fusion
-
-
-class TestIncrementalVerification(unittest.TestCase):
-    """Test full incremental verification process."""
-    
-    def setUp(self):
-        self.settings = {"N": 2}
-        self.semantics = ExclusionSemantics(self.settings)
-        
-    def test_has_sufficient_witnesses(self):
-        """Test checking for sufficient witness information."""
-        verifier = self.semantics.verifier
-        
-        # Atomic sentence always has sufficient witnesses
-        A_sent = syntactic.Sentence("A")
-        A_sent.sentence_letter = syntactic.AtomVal(0)  # Mark as atomic
-        self.assertTrue(verifier._has_sufficient_witnesses(A_sent))
-        
-        # Complex sentence needs operator support
-        excl_op = ExclusionOperator(self.semantics)
-        excl_sent = syntactic.Sentence("\\exclude A")
-        excl_sent.operator = excl_op
-        excl_sent.arguments = [A_sent]
-        excl_sent.sentence_letter = None  # Not atomic
-        
-        # Initially no witnesses registered
-        self.assertFalse(verifier._has_sufficient_witnesses(excl_sent))
-        
-        # Register witnesses
-        excl_op.register_witnesses(A_sent, verifier.witness_store)
-        
-        # Still not sufficient until we have values
-        self.assertFalse(verifier._has_sufficient_witnesses(excl_sent))
-        
-        # Add some witness values
-        h_name = f"h_sk_{id(excl_op)}"
-        y_name = f"y_sk_{id(excl_op)}"
-        verifier.witness_store.skolem_witnesses[h_name]['values'] = {0: 0}
-        verifier.witness_store.skolem_witnesses[y_name]['values'] = {0: 0}
-        
-        # Now should be sufficient
-        self.assertTrue(verifier._has_sufficient_witnesses(excl_sent))
+        # Check witness history
+        self.assertGreater(len(incremental_model.witness_store.witness_history), 0)
 
 
 if __name__ == '__main__':

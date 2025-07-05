@@ -13,6 +13,10 @@ from typing import Dict, Set, List, Optional, Tuple, Any
 
 from model_checker.model import ModelDefaults
 from model_checker.theory_lib.default import ModelStructure
+try:
+    from .truth_cache import TruthCache
+except ImportError:
+    from truth_cache import TruthCache
 
 
 class IncrementalModelStructure(ModelStructure):
@@ -64,10 +68,12 @@ class IncrementalModelStructure(ModelStructure):
         
         # Initialize incremental components
         self.witness_store = WitnessStore()
+        self.truth_cache = TruthCache(self.semantics)
         self.incremental_solver = IncrementalSolver(self.semantics)
         
-        # Connect witness store to semantics for operator access
+        # Connect witness store and truth cache to semantics for operator access
         self.semantics.witness_store = self.witness_store
+        self.semantics.truth_cache = self.truth_cache
         
         # Generate and solve constraints using pure incremental approach
         solver_results = self.solve_incrementally_pure(self.max_time)
@@ -386,13 +392,23 @@ class WitnessStore:
     Stores and manages witness values extracted from Z3 models during
     incremental solving. This enables accessing Skolem function interpretations
     throughout the verification process.
+    
+    Phase 2 enhancements:
+    - Dependency tracking between witnesses
+    - Caching of witness values with smart invalidation
+    - History tracking for debugging and optimization
     """
     
     def __init__(self):
         self.skolem_witnesses = {}      # func_name -> witness data
         self.existential_witnesses = {} # witness_name -> value
-        self.witness_dependencies = {}  # dependency tracking
+        self.witness_dependencies = {}  # func_name -> set of dependent func_names
+        self.witness_cache = {}         # (func_name, args) -> cached result
+        self.witness_history = []       # list of (timestamp, func_name, event)
+        self.invalidation_queue = []    # functions pending invalidation
         self.counter = 0
+        self.cache_hits = 0
+        self.cache_misses = 0
         
     def register_skolem_function(self, func_name: str, domain_type, codomain_type):
         """Register a Skolem function for witness tracking."""
@@ -402,6 +418,8 @@ class WitnessStore:
             'constraints': [],
             'complete': False
         }
+        # Record in history
+        self.witness_history.append((time.time(), func_name, "registered"))
         
     def update_witness_values(self, model, semantics):
         """Extract witness values from current Z3 model."""
@@ -467,3 +485,273 @@ class WitnessStore:
         self.skolem_witnesses.clear()
         self.existential_witnesses.clear()
         self.witness_dependencies.clear()
+        self.witness_cache.clear()
+        self.witness_history.clear()
+        self.invalidation_queue.clear()
+        self.cache_hits = 0
+        self.cache_misses = 0
+    
+    # Phase 2 methods: Dependency tracking
+    
+    def register_dependent_witnesses(self, parent_func: str, child_funcs: List[str]):
+        """Track witness dependencies for incremental updates."""
+        if parent_func not in self.witness_dependencies:
+            self.witness_dependencies[parent_func] = set()
+        self.witness_dependencies[parent_func].update(child_funcs)
+        
+        # Record in history
+        self.witness_history.append((time.time(), parent_func, f"registered_deps: {child_funcs}"))
+    
+    def invalidate_dependent_witnesses(self, func_name: str):
+        """Invalidate witnesses that depend on changed values."""
+        # Add to invalidation queue
+        if func_name not in self.invalidation_queue:
+            self.invalidation_queue.append(func_name)
+        
+        # Process invalidation queue
+        while self.invalidation_queue:
+            current_func = self.invalidation_queue.pop(0)
+            
+            # Mark as incomplete
+            if current_func in self.skolem_witnesses:
+                self.skolem_witnesses[current_func]['complete'] = False
+            
+            # Clear cached values for this function
+            keys_to_remove = [key for key in self.witness_cache if key[0] == current_func]
+            for key in keys_to_remove:
+                del self.witness_cache[key]
+            
+            # Find and invalidate dependent witnesses
+            for parent, children in self.witness_dependencies.items():
+                if current_func in children and parent not in self.invalidation_queue:
+                    self.invalidation_queue.append(parent)
+            
+            # Record in history
+            self.witness_history.append((time.time(), current_func, "invalidated"))
+    
+    def get_witness_interpretation(self, func_name: str, model):
+        """Get complete function interpretation from model with caching."""
+        cache_key = (func_name, id(model))
+        
+        # Check cache first
+        if cache_key in self.witness_cache:
+            self.cache_hits += 1
+            return self.witness_cache[cache_key]
+        
+        self.cache_misses += 1
+        
+        # Extract interpretation
+        if func_name not in self.skolem_witnesses:
+            return None
+            
+        witness_info = self.skolem_witnesses[func_name]
+        domain_type, codomain_type = witness_info['type']
+        
+        # Find function in model
+        func_decl = self._find_function_in_model(model, func_name)
+        if func_decl is None:
+            return None
+        
+        # Build complete interpretation
+        interpretation = {}
+        if str(domain_type).startswith('BitVec'):
+            n = int(str(domain_type).split('(')[1].split(')')[0])
+            for i in range(2 ** n):
+                input_val = z3.BitVecVal(i, n)
+                try:
+                    output_val = model.evaluate(func_decl(input_val))
+                    if output_val is not None:
+                        interpretation[i] = (
+                            output_val.as_long() if hasattr(output_val, 'as_long')
+                            else output_val
+                        )
+                except:
+                    pass
+        
+        # Cache the result
+        if interpretation:
+            self.witness_cache[cache_key] = interpretation
+        
+        return interpretation
+    
+    # Phase 2 methods: Smart caching
+    
+    def get_cached_witness(self, func_name: str, args: Tuple) -> Optional[Any]:
+        """Get cached witness value if available."""
+        cache_key = (func_name, args)
+        if cache_key in self.witness_cache:
+            self.cache_hits += 1
+            return self.witness_cache[cache_key]
+        self.cache_misses += 1
+        return None
+    
+    def cache_witness_value(self, func_name: str, args: Tuple, value: Any):
+        """Cache a witness value."""
+        cache_key = (func_name, args)
+        self.witness_cache[cache_key] = value
+    
+    def get_cache_statistics(self) -> Dict[str, Any]:
+        """Get cache performance statistics."""
+        total_requests = self.cache_hits + self.cache_misses
+        hit_rate = self.cache_hits / total_requests if total_requests > 0 else 0
+        return {
+            'cache_hits': self.cache_hits,
+            'cache_misses': self.cache_misses,
+            'hit_rate': hit_rate,
+            'cache_size': len(self.witness_cache),
+            'total_witnesses': len(self.skolem_witnesses)
+        }
+    
+    def prune_witness_history(self, max_entries: int = 1000):
+        """Prune witness history to prevent unbounded growth."""
+        if len(self.witness_history) > max_entries:
+            self.witness_history = self.witness_history[-max_entries:]
+    
+    def get_witness_dependencies(self, func_name: str) -> Set[str]:
+        """Get all functions that depend on the given function."""
+        dependents = set()
+        for parent, children in self.witness_dependencies.items():
+            if func_name in children:
+                dependents.add(parent)
+                # Recursively add dependencies
+                dependents.update(self.get_witness_dependencies(parent))
+        return dependents
+
+
+class IncrementalVerifier:
+    """
+    Unified constraint generation and truth evaluation for incremental solving.
+    
+    This class orchestrates the incremental verification process, managing
+    the interplay between constraint generation, witness extraction, and
+    truth evaluation.
+    """
+    
+    def __init__(self, semantics, solver, witness_store, truth_cache):
+        self.semantics = semantics
+        self.solver = solver
+        self.witness_store = witness_store
+        self.truth_cache = truth_cache
+        self.verification_depth = 0
+        self.max_verification_depth = 10
+        
+    def verify_incrementally(self, sentence, eval_point):
+        """
+        Full incremental verification with witness tracking.
+        
+        This method implements the core incremental algorithm:
+        1. Register witnesses for the sentence tree
+        2. Generate constraints incrementally
+        3. Extract witnesses as constraints are added
+        4. Evaluate truth as soon as sufficient information is available
+        """
+        # Phase 1: Register all witnesses for sentence tree
+        self._register_sentence_witnesses(sentence)
+        
+        # Phase 2: Build constraints incrementally
+        constraint_gen = self._constraint_generator(sentence, eval_point)
+        
+        # Phase 3: Interleave constraint addition with witness extraction
+        for constraint_batch in constraint_gen:
+            self.solver.push()
+            
+            for constraint_info in constraint_batch:
+                constraint, label = constraint_info
+                self.solver.add(constraint)
+            
+            if self.solver.check() == z3.sat:
+                model = self.solver.model()
+                self.witness_store.update_witness_values(model, self.semantics)
+                
+                # Check if we have enough information to evaluate
+                if self._can_evaluate(sentence):
+                    return self._evaluate_with_witnesses(sentence, eval_point)
+            else:
+                # Unsatisfiable - backtrack
+                self.solver.pop()
+                return False
+        
+        # If we've exhausted constraints, do final evaluation
+        return self._evaluate_with_witnesses(sentence, eval_point)
+    
+    def _register_sentence_witnesses(self, sentence):
+        """Recursively register witnesses for a sentence tree."""
+        if sentence.sentence_letter is not None:
+            # Atomic sentence - no witnesses needed
+            return
+        
+        # Register witnesses for this operator
+        if hasattr(sentence.operator, 'register_witnesses'):
+            # ExclusionOperator has only one argument
+            if len(sentence.arguments) == 1:
+                sentence.operator.register_witnesses(
+                    sentence.arguments[0], self.witness_store
+                )
+            else:
+                # For binary operators that might have register_witnesses
+                sentence.operator.register_witnesses(
+                    *sentence.arguments, self.witness_store
+                )
+        
+        # Recursively register for arguments
+        for arg in sentence.arguments:
+            self._register_sentence_witnesses(arg)
+    
+    def _constraint_generator(self, sentence, eval_point):
+        """
+        Generate constraints in batches for incremental addition.
+        
+        This generator yields constraint batches based on the sentence
+        structure and current witness availability.
+        """
+        # Start with basic structural constraints
+        yield self._generate_structural_constraints(sentence, eval_point)
+        
+        # Generate witness-dependent constraints
+        depth = 0
+        while depth < self.max_verification_depth and not self._can_evaluate(sentence):
+            constraints = self._generate_witness_constraints(sentence, eval_point, depth)
+            if constraints:
+                yield constraints
+            depth += 1
+    
+    def _generate_structural_constraints(self, sentence, eval_point):
+        """Generate basic structural constraints for a sentence."""
+        constraints = []
+        
+        if sentence.sentence_letter is not None:
+            # Atomic sentence constraint
+            v = z3.BitVec(f"v_struct_{id(sentence)}", self.semantics.N)
+            constraint = z3.Exists([v], z3.And(
+                self.semantics.verify(v, sentence.sentence_letter),
+                self.semantics.is_part_of(v, eval_point["world"])
+            ))
+            constraints.append((constraint, f"atomic_{sentence.sentence_letter}"))
+        else:
+            # Complex sentence - use operator
+            constraint = sentence.operator.true_at(*sentence.arguments, eval_point)
+            constraints.append((constraint, f"operator_{sentence.operator.name}"))
+        
+        return constraints
+    
+    def _generate_witness_constraints(self, sentence, eval_point, depth):
+        """Generate constraints based on current witness information."""
+        constraints = []
+        
+        # Check if we have new witness information to constrain
+        if hasattr(sentence.operator, 'generate_witness_constraints'):
+            new_constraints = sentence.operator.generate_witness_constraints(
+                *sentence.arguments, eval_point, self.witness_store, depth
+            )
+            for c in new_constraints:
+                constraints.append((c, f"witness_depth_{depth}"))
+        
+        return constraints
+    
+    def _can_evaluate(self, sentence):
+        """Check if we have sufficient information to evaluate the sentence."""
+        return self.truth_cache.has_sufficient_witnesses(sentence, self.witness_store)
+    
+    def _evaluate_with_witnesses(self, sentence, eval_point):
+        """Evaluate sentence truth using current witness information."""
+        return self.truth_cache.evaluate_incrementally(sentence, eval_point, self.witness_store)
