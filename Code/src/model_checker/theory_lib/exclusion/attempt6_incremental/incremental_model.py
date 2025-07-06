@@ -9,10 +9,12 @@ solver state and extract witness values during constraint generation.
 
 import z3
 import time
+import sys
 from typing import Dict, Set, List, Optional, Tuple, Any
 
 from model_checker.model import ModelDefaults
 from model_checker.theory_lib.default import ModelStructure
+from model_checker.utils import bitvec_to_substates
 try:
     from .truth_cache import TruthCache
 except ImportError:
@@ -112,6 +114,9 @@ class IncrementalModelStructure(ModelStructure):
                 state for state in self.z3_possible_states
                 if bool(self.z3_model.evaluate(self.semantics.is_world(state)))
             ]
+            
+            # Initialize exclusion relations for printing
+            self._update_exclusion_relations()
             
             # Initialize attributes for difference tracking
             self.model_differences = None
@@ -362,6 +367,258 @@ class IncrementalModelStructure(ModelStructure):
         """Create standardized result tuple."""
         runtime = round(time.time() - start_time, 4)
         return is_timeout, model_or_core, is_satisfiable, runtime
+    
+    def _update_exclusion_relations(self):
+        """Update exclusion relation data for printing (following original exclusion theory pattern)."""
+        if not self.z3_model:
+            return
+            
+        evaluate = self.z3_model.evaluate
+        
+        # Update exclusion relationships using Z3 boolean handling
+        self.z3_excludes = [
+            (bit_x, bit_y)
+            for bit_x in self.all_states
+            for bit_y in self.all_states
+            if z3.is_true(evaluate(self.semantics.excludes(bit_x, bit_y)))
+        ]
+        
+        self.z3_conflicts = [
+            (bit_x, bit_y)
+            for bit_x in self.all_states
+            for bit_y in self.all_states
+            if z3.is_true(evaluate(self.semantics.conflicts(bit_x, bit_y)))
+        ]
+        
+        self.z3_coheres = [
+            (bit_x, bit_y)
+            for bit_x in self.all_states
+            for bit_y in self.all_states
+            if z3.is_true(evaluate(self.semantics.coheres(bit_x, bit_y)))
+        ]
+
+    def print_evaluation(self, output=sys.__stdout__):
+        """Print the evaluation world (following original exclusion theory pattern)."""
+        BLUE = ""
+        RESET = ""
+        main_world = self.main_point["world"]
+        if output is sys.__stdout__:
+            BLUE = "\033[34m"
+            RESET = "\033[0m"
+        print(
+            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N)}{RESET}\n",
+            file=output,
+        )
+
+    def print_states(self, output=sys.__stdout__):
+        """Print all fusions of atomic states in the model (following original exclusion theory pattern)."""
+        from model_checker.utils import bitvec_to_substates, int_to_binary
+
+        def binary_bitvector(bit):
+            return (
+                bit.sexpr()
+                if self.N % 4 != 0
+                else int_to_binary(int(bit.sexpr()[2:], 16), self.N)
+            )
+        
+        def format_state(bin_rep, state, color, label=""):
+            """Helper function to format and print a state."""
+            label_str = f" ({label})" if label else ""
+            use_colors = output is sys.__stdout__
+            if use_colors:
+                print(f"  {self.WHITE}{bin_rep} = {color}{state}{label_str}{self.RESET}", file=output)
+            else:
+                print(f"  {bin_rep} = {state}{label_str}", file=output)
+        
+        # Print formatted state space
+        print("State Space", file=output)
+        for bit in self.all_states:
+            state = bitvec_to_substates(bit, self.N)
+            bin_rep = binary_bitvector(bit)
+            if bit == 0:
+                format_state(bin_rep, state, self.COLORS["initial"])
+            elif bit in self.z3_world_states:
+                format_state(bin_rep, state, self.COLORS["world"], "world")
+            elif bit in self.z3_possible_states:
+                format_state(bin_rep, state, self.COLORS["possible"])
+            elif self.settings['print_impossible']:
+                format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
+
+    def print_h_functions(self, output=sys.__stdout__):
+        """Print the h_ function values in the model (following original exclusion theory pattern)."""
+        from model_checker.utils import bitvec_to_substates
+        
+        if not self.z3_model:
+            return
+        
+        # Set up colors
+        use_colors = output is sys.__stdout__
+        WHITE = self.WHITE if use_colors else ""
+        RESET = self.RESET if use_colors else ""
+        WORLD_COLOR = self.COLORS["world"] if use_colors else ""
+        POSSIBLE_COLOR = self.COLORS["possible"] if use_colors else ""
+        IMPOSSIBLE_COLOR = self.COLORS["impossible"] if use_colors else ""
+        
+        def get_state_color(bit):
+            if bit in self.z3_world_states:
+                return WORLD_COLOR
+            elif bit in self.z3_possible_states:
+                return POSSIBLE_COLOR
+            else:
+                return IMPOSSIBLE_COLOR
+                
+        def should_include_state(bit):
+            # Check if we should include this state based on print_impossible setting
+            return bit in self.z3_possible_states or bit in self.z3_world_states or self.settings['print_impossible']
+            
+        print("\nFunctions", file=output)
+        
+        # Find all h_ functions in the model
+        h_funcs = []
+        for decl in self.z3_model.decls():
+            if decl.name().startswith('h_'):
+                h_funcs.append(decl)
+        
+        if not h_funcs:
+            # Don't print anything if no h-functions found
+            return
+            
+        # For each h-function, evaluate it for all states
+        for func in h_funcs:
+            # Create argument for the function
+            arg = z3.BitVec("h_arg", self.N)
+            h_func_app = func(arg)
+            
+            # Try to evaluate for each state
+            for state in self.all_states:
+                # Skip impossible states if print_impossible is False
+                if not should_include_state(state):
+                    continue
+                    
+                try:
+                    # Get the corresponding output value
+                    result = self.z3_model.evaluate(z3.substitute(h_func_app, (arg, state)))
+                    
+                    # Skip if result is not a possible state and print_impossible is False
+                    if not should_include_state(result.as_long()):
+                        continue
+                    
+                    # Format the output
+                    input_state = bitvec_to_substates(state, self.N)
+                    output_state = bitvec_to_substates(result.as_long(), self.N)
+                    
+                    # Apply colors based on state type
+                    in_color = get_state_color(state)
+                    out_color = get_state_color(result.as_long())
+                    
+                    # Print in the required format with colors
+                    print(f"  {func.name()}: {in_color}{input_state}{RESET} → {out_color}{output_state}{RESET}", file=output)
+                except Exception:
+                    # Skip if we can't evaluate this input
+                    pass
+
+    def print_exclusion(self, output=sys.__stdout__):
+        """Print exclusion relations (following original exclusion theory pattern)."""
+        from model_checker.utils import bitvec_to_substates
+        
+        # Set up colors
+        use_colors = output is sys.__stdout__
+        WHITE = self.WHITE if use_colors else ""
+        RESET = self.RESET if use_colors else ""
+        WORLD_COLOR = self.COLORS["world"] if use_colors else ""
+        POSSIBLE_COLOR = self.COLORS["possible"] if use_colors else ""
+        IMPOSSIBLE_COLOR = self.COLORS["impossible"] if use_colors else ""
+        
+        def get_state_color(bit):
+            if bit in self.z3_world_states:
+                return WORLD_COLOR
+            elif bit in self.z3_possible_states:
+                return POSSIBLE_COLOR
+            else:
+                return IMPOSSIBLE_COLOR
+                
+        def should_include_state(bit):
+            # Check if we should include this state based on print_impossible setting
+            # Always include the null state (bit 0)
+            return (bit == 0 or 
+                   bit in self.z3_possible_states or 
+                   bit in self.z3_world_states or 
+                   self.settings['print_impossible'])
+        
+        # Filter and print conflicts
+        z3_conflicts = getattr(self, 'z3_conflicts', [])
+        filtered_conflicts = [(x, y) for x, y in z3_conflicts if should_include_state(x) and should_include_state(y)]
+        if filtered_conflicts:
+            print("\nConflicts", file=output)
+            for bit_x, bit_y in filtered_conflicts:
+                color_x = get_state_color(bit_x)
+                color_y = get_state_color(bit_y)
+                x_state = bitvec_to_substates(bit_x, self.N)
+                y_state = bitvec_to_substates(bit_y, self.N)
+                print(f"  {color_x}{x_state}{RESET} conflicts with {color_y}{y_state}{RESET}", file=output)
+        
+        # Filter and print coherence
+        z3_coheres = getattr(self, 'z3_coheres', [])
+        filtered_coheres = [(x, y) for x, y in z3_coheres if should_include_state(x) and should_include_state(y)]
+        if filtered_coheres:
+            print("\nCoherence", file=output)
+            for bit_x, bit_y in filtered_coheres:
+                color_x = get_state_color(bit_x)
+                color_y = get_state_color(bit_y)
+                x_state = bitvec_to_substates(bit_x, self.N)
+                y_state = bitvec_to_substates(bit_y, self.N)
+                print(f"  {color_x}{x_state}{RESET} coheres with {color_y}{y_state}{RESET}", file=output)
+        
+        # Filter and print exclusions
+        z3_excludes = getattr(self, 'z3_excludes', [])
+        filtered_excludes = [(x, y) for x, y in z3_excludes if should_include_state(x) and should_include_state(y)]
+        if filtered_excludes:
+            print("\nExclusion", file=output)
+            for bit_x, bit_y in filtered_excludes:
+                color_x = get_state_color(bit_x)
+                color_y = get_state_color(bit_y)
+                x_state = bitvec_to_substates(bit_x, self.N)
+                y_state = bitvec_to_substates(bit_y, self.N)
+                print(f"  {color_x}{x_state}{RESET} excludes {color_y}{y_state}{RESET}", file=output)
+
+        # Print the h-functions
+        self.print_h_functions(output)
+
+    def print_all(self, default_settings, example_name, theory_name, output=sys.__stdout__):
+        """Print complete model information (following original exclusion theory pattern)."""
+        model_status = self.z3_model_status
+        self.print_info(model_status, default_settings, example_name, theory_name, output)
+        if model_status:
+            self.print_states(output)
+            self.print_exclusion(output)
+            self.print_evaluation(output)
+            self.print_input_sentences(output)
+            self.print_model(output)
+            if output is sys.__stdout__:
+                total_time = round(time.time() - self.start_time, 4) 
+                print(f"Total Run Time: {total_time} seconds\n", file=output)
+                print(f"{'='*40}", file=output)
+            return
+
+    def print_to(self, default_settings, example_name, theory_name, print_constraints=None, output=sys.__stdout__):
+        """Print all model elements (following original exclusion theory pattern)."""
+        if print_constraints is None:
+            print_constraints = self.settings["print_constraints"]
+        # Check if we actually timed out (runtime >= max_time)
+        actual_timeout = hasattr(self, 'z3_model_runtime') and self.z3_model_runtime >= self.max_time
+        
+        # Only show timeout if we really timed out and didn't find a model
+        if actual_timeout and (not hasattr(self, 'z3_model') or self.z3_model is None):
+            print(f"\nTIMEOUT: Model search exceeded maximum time of {self.max_time} seconds", file=output)
+            print(f"No model for example {example_name} found before timeout.", file=output)
+            print(f"Try increasing max_time > {self.max_time}.\n", file=output)
+            
+        # Print model information    
+        self.print_all(self.settings, example_name, theory_name, output)
+        
+        # Print constraints if requested
+        if print_constraints and self.unsat_core is not None:
+            self.print_grouped_constraints(output)
 
 
 class IncrementalSolver:

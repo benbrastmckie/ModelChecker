@@ -571,6 +571,18 @@ class UnilateralProposition(model.PropositionDefaults):
         super().__init__(sentence, model_structure)
         self.z3_model = model_structure.z3_model
         self.verifiers = self.find_proposition()
+
+    def __repr__(self):
+        """String representation of unilateral proposition (following original exclusion theory pattern)."""
+        N = self.model_structure.semantics.N
+        possible = self.model_structure.semantics.possible
+        z3_model = self.model_structure.z3_model
+        ver_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self.verifiers
+            if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
+        }
+        return pretty_set_print(ver_states)
     
     @classmethod
     def proposition_constraints(cls, model_constraints, letter_id):
@@ -592,10 +604,15 @@ class UnilateralProposition(model.PropositionDefaults):
         
         if self.sentence.sentence_letter is not None:
             # Atomic sentence - find verifiers directly
-            V = {
-                state for state in self.model_structure.all_states
-                if model.evaluate(semantics.verify(state, self.sentence.sentence_letter))
-            }
+            V = set()
+            for state in self.model_structure.all_states:
+                try:
+                    result = model.evaluate(semantics.verify(state, self.sentence.sentence_letter))
+                    if z3.is_true(result):
+                        V.add(state)
+                except:
+                    # If evaluation fails, skip this state
+                    pass
             return V
         elif self.sentence.operator is not None:
             # Complex sentence - delegate to operator
@@ -614,25 +631,14 @@ class UnilateralProposition(model.PropositionDefaults):
                 return True
         return False
 
-    def print_proposition(self, evaluation_point, indent_num, use_colors):
-        """Print proposition details for unilateral semantics."""
-        # In unilateral semantics, we only print verifiers
-        if use_colors:
-            CYAN, RESET = '\033[36m', '\033[0m'
-        else:
-            CYAN, RESET = '', ''
-            
-        prefix = " " * indent_num
-        
-        # Format verifiers for printing - handle Z3 expressions
-        if self.verifiers:
-            verifier_strs = []
-            for v in self.verifiers:
-                if hasattr(v, 'sexpr'):
-                    # Z3 expression - use its string representation
-                    verifier_strs.append(str(v))
-                else:
-                    verifier_strs.append(str(v))
-            print(f"{prefix}Verifiers: {{{', '.join(sorted(verifier_strs))}}}")
-        else:
-            print(f"{prefix}Verifiers: ∅")
+    def print_proposition(self, eval_point, indent_num, use_colors):
+        """Print proposition details for unilateral semantics (following original exclusion theory pattern)."""
+        eval_world = eval_point["world"]
+        N = self.model_structure.semantics.N
+        truth_value = self.truth_value_at(eval_world)
+        world_state = bitvec_to_substates(eval_world, N)
+        RESET, FULL, PART = self.set_colors(self.name, indent_num, truth_value, world_state, use_colors)
+        print(
+            f"{'  ' * indent_num}{FULL}|{self.name}| = {self}{RESET}"
+            f"  {PART}({truth_value} in {world_state}){RESET}"
+        )
