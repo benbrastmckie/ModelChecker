@@ -978,7 +978,7 @@ example_range = {
     
     # Classical negation examples (Problematic in static)
     "Negation to Sentence": NEG_TO_SENT_example,
-    "Sentence to Negation": SENT_TO_NEG_example,
+    # "Sentence to Negation": SENT_TO_NEG_example,
     # "Double Negation Introduction": DN_INTRO_example,
     # "Double Negation Elimination": DN_ELIM_example,
     # "Triple Negation Entailment": TN_ENTAIL_example,
