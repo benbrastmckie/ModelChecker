@@ -188,6 +188,47 @@ ATOMIC_example = [
 ### (PROBLEMATIC IN STATIC) #
 #############################
 
+# NEGATION TO SENTENCE
+NEG_TO_SENT_premises = ['\\exclude A']
+NEG_TO_SENT_conclusions = ['A']
+NEG_TO_SENT_settings = {
+    'N': 3,
+    'possible': False,
+    'contingent': True,
+    'non_empty': True,
+    'non_null': True,
+    'disjoint': False,
+    'fusion_closure': False,
+    'max_time': 5,
+    'expectation': False,  # Note: expectation differs from elimination
+}
+NEG_TO_SENT_example = [
+    NEG_TO_SENT_premises,
+    NEG_TO_SENT_conclusions,
+    NEG_TO_SENT_settings
+]
+
+# SENTENCE TO NEGATION
+SENT_TO_NEG_premises = ['A']
+SENT_TO_NEG_conclusions = ['\\exclude A']
+SENT_TO_NEG_settings = {
+    'N': 3,
+    'possible': False,
+    'contingent': True,
+    'non_empty': True,
+    'non_null': True,
+    'disjoint': False,
+    'fusion_closure': False,
+    'max_time': 5,
+    'expectation': False,  # Note: expectation differs from elimination
+}
+SENT_TO_NEG_example = [
+    SENT_TO_NEG_premises,
+    SENT_TO_NEG_conclusions,
+    SENT_TO_NEG_settings
+]
+
+
 # DOUBLE NEGATION ELIMINATION (FALSE PREMISE in static approach)
 DN_ELIM_premises = ['\\exclude \\exclude A']
 DN_ELIM_conclusions = ['A']
@@ -925,59 +966,61 @@ EX_CM_15_example = [
 
 # Which examples to run - comprehensive test suite
 example_range = {
-    # Frame examples
-    "Only Frame Constraints": EMPTY_example,
-    "No Gaps": GAPS_example,
-    "No Gluts": GLUTS_example,
-    "Atomic Example": ATOMIC_example,
+    # # Frame examples
+    # "Only Frame Constraints": EMPTY_example,
+    # "No Gaps": GAPS_example,
+    # "No Gluts": GLUTS_example,
+    # "Atomic Example": ATOMIC_example,
     
-    # Basic countermodel examples
-    "EX_CM_1": EX_CM_1_example,
-    "EX_CM_15": EX_CM_15_example,
+    # # Basic countermodel examples
+    # "EX_CM_1": EX_CM_1_example,
+    # "EX_CM_15": EX_CM_15_example,
     
     # Classical negation examples (Problematic in static)
-    "Double Negation Introduction": DN_INTRO_example,
-    "Double Negation Elimination": DN_ELIM_example,
-    "Triple Negation Entailment": TN_ENTAIL_example,
-    "Quadruple Negation Entailment": QN_ENTAIL_example,
-    "Disjunctive Syllogism": DISJ_SYLL_example,
-    
-    # DeMorgan's laws (Problematic in static)
-    "Conjunctive DeMorgan's LR": CONJ_DM_LR_example,
-    "Conjunctive DeMorgan's RL": CONJ_DM_RL_example,
-    "Disjunctive DeMorgan's LR": DISJ_DM_LR_example,
-    "Disjunctive DeMorgan's RL": DISJ_DM_RL_example,
-    
-    # Distribution laws
-    "Conjunctive Distribution LR": CONJ_DIST_LR_example,
-    "Conjunctive Distribution RL": CONJ_DIST_RL_example,
-    "Disjunctive Distribution LR": DISJ_DIST_LR_example,
-    "Disjunctive Distribution RL": DISJ_DIST_RL_example,
-    
-    # Absorption laws
-    "Conjunctive Absorption LR": CONJ_ABS_LR_example,
-    "Conjunctive Absorption RL": CONJ_ABS_RL_example,
-    "Disjunctive Absorption LR": DISJ_ABS_LR_example,
-    "Disjunctive Absorption RL": DISJ_ABS_RL_example,
-    
-    # Associativity laws
-    "Conjunctive Associativity LR": CONJ_ASSOC_LR_example,
-    "Conjunctive Associativity RL": CONJ_ASSOC_RL_example,
-    "Disjunctive Associativity LR": DISJ_ASSOC_LR_example,
-    "Disjunctive Associativity RL": DISJ_ASSOC_RL_example,
-    
-    # Identity examples
-    "Double Negation Identity": DN_ID_example,
-    "Triple Negation Identity": TN_ID_example,
-    "Conjunctive DeMorgan's Identity": CONJ_DM_ID_example,
-    "Disjunctive DeMorgan's Identity": DISJ_DM_ID_example,
-    "Conjunctive Distribution Identity": CONJ_DIST_ID_example,
-    "Disjunctive Distribution Identity": DISJ_DIST_ID_example,
-    
-    # Complex examples
-    "T17 (DeMorgan Theorem)": T17_example,
-    "EX_TH_17": EX_TH_17_example,
-    "EX_TH_18": EX_TH_18_example,
+    "Negation to Sentence": NEG_TO_SENT_example,
+    "Sentence to Negation": SENT_TO_NEG_example,
+    # "Double Negation Introduction": DN_INTRO_example,
+    # "Double Negation Elimination": DN_ELIM_example,
+    # "Triple Negation Entailment": TN_ENTAIL_example,
+    # "Quadruple Negation Entailment": QN_ENTAIL_example,
+    # "Disjunctive Syllogism": DISJ_SYLL_example,
+    #
+    # # DeMorgan's laws (Problematic in static)
+    # "Conjunctive DeMorgan's LR": CONJ_DM_LR_example,
+    # "Conjunctive DeMorgan's RL": CONJ_DM_RL_example,
+    # "Disjunctive DeMorgan's LR": DISJ_DM_LR_example,
+    # "Disjunctive DeMorgan's RL": DISJ_DM_RL_example,
+    #
+    # # Distribution laws
+    # "Conjunctive Distribution LR": CONJ_DIST_LR_example,
+    # "Conjunctive Distribution RL": CONJ_DIST_RL_example,
+    # "Disjunctive Distribution LR": DISJ_DIST_LR_example,
+    # "Disjunctive Distribution RL": DISJ_DIST_RL_example,
+    #
+    # # Absorption laws
+    # "Conjunctive Absorption LR": CONJ_ABS_LR_example,
+    # "Conjunctive Absorption RL": CONJ_ABS_RL_example,
+    # "Disjunctive Absorption LR": DISJ_ABS_LR_example,
+    # "Disjunctive Absorption RL": DISJ_ABS_RL_example,
+    #
+    # # Associativity laws
+    # "Conjunctive Associativity LR": CONJ_ASSOC_LR_example,
+    # "Conjunctive Associativity RL": CONJ_ASSOC_RL_example,
+    # "Disjunctive Associativity LR": DISJ_ASSOC_LR_example,
+    # "Disjunctive Associativity RL": DISJ_ASSOC_RL_example,
+    #
+    # # Identity examples
+    # "Double Negation Identity": DN_ID_example,
+    # "Triple Negation Identity": TN_ID_example,
+    # "Conjunctive DeMorgan's Identity": CONJ_DM_ID_example,
+    # "Disjunctive DeMorgan's Identity": DISJ_DM_ID_example,
+    # "Conjunctive Distribution Identity": CONJ_DIST_ID_example,
+    # "Disjunctive Distribution Identity": DISJ_DIST_ID_example,
+    #
+    # # Complex examples
+    # "T17 (DeMorgan Theorem)": T17_example,
+    # "EX_TH_17": EX_TH_17_example,
+    # "EX_TH_18": EX_TH_18_example,
 }
 
 # Test subset - uncomment to run just problematic examples
