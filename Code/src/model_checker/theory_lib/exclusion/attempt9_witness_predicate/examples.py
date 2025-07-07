@@ -334,14 +334,11 @@ example_range = {
 
 # Test subset - focus on core problematic examples
 test_example_range = {
-    "NEG_TO_SENT": NEG_TO_SENT_example,
-    "DN_ELIM": DN_ELIM_example,
-    "TN_ENTAIL": TN_ENTAIL_example,
-    "CONJ_DM_LR": CONJ_DM_LR_example,
+    "NO_GLUT": NO_GLUT_example,
 }
 
 # Switch between full suite and test subset
-# example_range = test_example_range  # Uncomment to use test subset
+example_range = test_example_range  # Uncomment to use test subset
 
 # Which semantic theories to compare
 semantic_theories = {
