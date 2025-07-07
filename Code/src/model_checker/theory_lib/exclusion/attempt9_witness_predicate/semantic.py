@@ -533,6 +533,20 @@ class WitnessPredicateProposition(PropositionDefaults):
         """Print the proposition."""
         self.print_proposition(eval_point, indent_num, use_colors)
         
+    def __repr__(self):
+        """Return pretty-printed representation of verifiers."""
+        from model_checker.utils import bitvec_to_substates, pretty_set_print
+        
+        N = self.model_structure.semantics.N
+        possible = self.model_structure.semantics.possible
+        z3_model = self.model_structure.z3_model
+        ver_states = {
+            bitvec_to_substates(bit, N)
+            for bit in self.verifiers
+            if z3.is_true(z3_model.evaluate(possible(bit))) or self.settings.get('print_impossible', False)
+        }
+        return pretty_set_print(ver_states)
+        
     def print_proposition(self, eval_point, indent_num, use_colors):
         """Print the proposition with its truth value at the evaluation point."""
         from model_checker.utils import bitvec_to_substates
