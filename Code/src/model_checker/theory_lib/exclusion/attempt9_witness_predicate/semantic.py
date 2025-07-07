@@ -84,31 +84,38 @@ class WitnessPredicateSemantics(SemanticDefaults):
         self._setup_frame_constraints()
         
     def _define_semantic_relations(self):
-        """Define additional semantic relations needed for exclusion logic."""
-        N = self.N
+        """Define semantic relations using the same definitions as the main exclusion theory."""
+        # These are defined as methods, not Z3 primitives, following attempt1_refactor_old
+        pass
         
-        # Possible relation - states that could exist
-        self.possible = z3.Function(
-            "possible",
-            z3.BitVecSort(N),
-            z3.BoolSort()
+    def conflicts(self, bit_e1, bit_e2):
+        """Check if two states conflict (have parts that exclude each other)."""
+        f1, f2 = z3.BitVecs("f1 f2", self.N)
+        return Exists(
+            [f1, f2],
+            z3.And(
+                self.is_part_of(f1, bit_e1),
+                self.is_part_of(f2, bit_e2),
+                self.excludes(f1, f2),
+            ),
         )
-        
-        # Coherence relation - states that don't exclude each other
-        self.coheres = z3.Function(
-            "coheres",
-            z3.BitVecSort(N),
-            z3.BitVecSort(N),
-            z3.BoolSort()
-        )
-        
-        # Compossible relation - states that can coexist
-        self.compossible = z3.Function(
-            "compossible",
-            z3.BitVecSort(N),
-            z3.BitVecSort(N),
-            z3.BoolSort()
-        )
+
+    def coheres(self, bit_e1, bit_e2):
+        """Two states cohere if they don't conflict."""
+        return z3.Not(self.conflicts(bit_e1, bit_e2))
+
+    def possible(self, bit_e):
+        """A state is possible if it coheres with itself."""
+        return self.coheres(bit_e, bit_e)
+
+    def compossible(self, bit_e1, bit_e2):
+        """Two states are compossible if their fusion is possible."""
+        return self.possible(self.fusion(bit_e1, bit_e2))
+
+    def necessary(self, bit_e1):
+        """A state is necessary if it's compossible with all possible states."""
+        x = z3.BitVec("nec_x", self.N)
+        return ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
         
     def is_world(self, bit_s):
         """
@@ -278,8 +285,8 @@ class WitnessPredicateSemantics(SemanticDefaults):
             return sentence.operator.true_at(*sentence.arguments, eval_point)
             
     def _setup_frame_constraints(self):
-        """Setup basic frame constraints for the exclusion semantics."""
-        x, y, z, u = z3.BitVecs("frame_x frame_y frame_z frame_u", self.N)
+        """Setup frame constraints matching the main exclusion theory."""
+        x, y, z = z3.BitVecs("frame_x frame_y frame_z", self.N)
         
         # Actuality constraint
         actuality = self.is_world(self.main_world)
@@ -296,26 +303,92 @@ class WitnessPredicateSemantics(SemanticDefaults):
         # Null state excludes nothing
         null_state = ForAll(x, z3.Not(self.excludes(self.null_state, x)))
         
-        # Store frame constraints
-        self.basic_constraints = [
+        # Harmony between worlds and possibility
+        harmony = ForAll( 
+            [x, y],
+            z3.Implies(
+                z3.And(
+                    self.is_world(x),
+                    self.coheres(x, y)
+                ),
+                self.possible(y)
+            ),
+        )
+        
+        # Rashomon principle
+        rashomon = ForAll(
+            [x, y],
+            z3.Implies(
+                z3.And(
+                    self.possible(x),
+                    self.possible(y),
+                    self.coheres(x, y)
+                ),
+                self.compossible(x, y),
+            ),
+        )
+
+        # Cosmopolitanism principle
+        cosmopolitanism = ForAll(
+            x,
+            z3.Implies(
+                self.possible(x),
+                Exists(
+                    y,
+                    z3.And(
+                        self.is_world(y),
+                        self.is_part_of(x, y)
+                    )
+                )
+            )
+        )
+
+        # Excluders exist for non-null states
+        excluders = ForAll(
+            x,
+            z3.Implies(
+                x != self.null_state,
+                Exists(
+                    y,
+                    self.excludes(y, x)
+                )
+            )
+        )
+
+        # Partial excluders
+        partial_excluders = ForAll(
+            x,
+            z3.Implies(
+                x != self.null_state,
+                Exists(
+                    [y, z],
+                    z3.And(
+                        self.is_part_of(y, x),
+                        self.excludes(z, y)
+                    )
+                )
+            )
+        )
+        
+        # Set frame constraints (same selection as attempt1_refactor_old)
+        self.frame_constraints = [
+            # Core constraints
             actuality,
             exclusion_symmetry,
-            null_state
+
+            # Optional complex constraints
+            harmony,
+            rashomon,   # guards against emergent impossibility (pg 538)
+
+            # Additional constraints
+            # null_state,
+            # excluders,
+            # partial_excluders,
         ]
-        
-        # Set frame_constraints attribute required by ModelConstraints
-        self.frame_constraints = self.basic_constraints
         
     def _get_frame_constraints(self):
         """Get all frame constraints for the model."""
-        constraints = []
-        constraints.extend(self.basic_constraints)
-        
-        # Add standard semantic constraints
-        if hasattr(self, 'semantic_constraints'):
-            constraints.extend(self.semantic_constraints)
-            
-        return constraints
+        return self.frame_constraints
         
     def _exclusion_verify_constraint(self, state, argument, eval_point):
         """Generate basic exclusion verification constraint."""
