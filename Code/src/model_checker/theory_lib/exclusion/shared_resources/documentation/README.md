@@ -1,18 +1,21 @@
 # Exclusion Semantics Documentation
 
-This directory contains documentation for the exclusion semantics implementation in the ModelChecker framework. The documents trace the evolution from initial implementation through analysis, new strategy development, and a comprehensive implementation plan.
+This directory contains documentation for the exclusion semantics implementation in the ModelChecker framework. The documents trace the evolution from initial implementation through analysis, new strategy development, and comprehensive findings about fundamental limitations.
 
 ## Quick Navigation
 
 - **Start Here**: [Guided Tour](#guided-tour-research-trajectory)
-- **Current Work**: [TODO.md](TODO.md) - Active task tracking
-- **Latest Results**: [findings.md](findings.md) - Implementation findings
-- **Technical Plan**: [implementation_plan.md](implementation_plan.md) - Detailed phases
+- **Current Status**: [new_implementation.md](new_implementation.md) - Latest implementation status
+- **Key Finding**: [skolem_limitation.md](skolem_limitation.md) - Fundamental architectural limitation
+- **All Attempts**: [../../ATTEMPT_SUMMARIES.md](../../ATTEMPT_SUMMARIES.md) - Complete history
+- **Latest Results**: [findings.md](findings.md) - Comprehensive findings
 
 ## Document Overview
 
-### 1. [unilateral_semantics.md](unilateral_semantics.md) - Project Overview
-**Purpose**: Provides the theoretical foundation and project overview for unilateral truthmaker semantics with exclusion operators.
+### Core Documents (Current & Essential)
+
+#### 1. [unilateral_semantics.md](unilateral_semantics.md) - Theoretical Foundation
+**Purpose**: Provides the theoretical foundation for unilateral truthmaker semantics with exclusion operators.
 
 **Key Topics**:
 - Philosophical motivation for unilateral semantics
@@ -20,111 +23,128 @@ This directory contains documentation for the exclusion semantics implementation
 - Comparison with bilateral semantics
 - Initial implementation challenges
 
-**Read this first** to understand the theoretical background and motivation.
+**Read this first** to understand the theoretical background.
 
-### 2. [old_strategies.md](old_strategies.md) - Original Implementation Strategies
-**Purpose**: Documents the various semantic strategies developed by Miguel for implementing exclusion operators.
+#### 2. [findings.md](findings.md) - Comprehensive Results
+**Purpose**: Documents all findings from implementation attempts, including the discovery of fundamental limitations.
 
-**Strategies Covered**:
+**Key Topics**:
+- Results from all 6+ attempts
+- Performance metrics and test results
+- Discovery of architectural limitation
+- Recommendations for future work
+
+**Essential reading** for understanding what has been tried and why certain approaches fail.
+
+#### 3. [skolem_limitation.md](skolem_limitation.md) - Technical Limitation Analysis
+**Purpose**: Explains the fundamental architectural limitation preventing correct implementation.
+
+**Key Topics**:
+- Two-phase architecture mismatch
+- Why Skolem functions can't be accessed in Phase 2
+- Detailed technical analysis with examples
+- Why this affects all strategies
+
+**Critical document** explaining why the false premise issue cannot be fixed without architectural changes.
+
+#### 4. [new_implementation.md](new_implementation.md) - Current Implementation Status
+**Purpose**: Tracks the latest refactoring effort and its results.
+
+**Key Topics**:
+- Phase-by-phase implementation progress
+- Simplification to single strategy
+- Discovery process of the limitation
+- Current state of the codebase
+
+**Use this** to understand the current implementation status.
+
+### Strategy Analysis Documents
+
+#### 5. [strategy_analysis_original.md](strategy_analysis_original.md) - Original Strategy Research
+**Purpose**: Documents Miguel's analysis of 11 different implementation strategies.
+
+**Strategies Analyzed**:
 - QA (Quantify Arrays) - Conservative approach with 83.3% reliability
-- QI2 (Quantify Indices 2) - Current default with balanced performance
+- QI2 (Quantify Indices 2) - Balanced performance
 - SK (Skolemized Functions) - Eliminates existential quantifiers
-- CD (Constraint-Based Definition) - Explicit enumeration approach
+- CD (Constraint-Based Definition) - Explicit enumeration
 - MS (Multi-Sort) - Type-safe implementation
 - UF (Uninterpreted Functions) - Axiomatic approach
+- Others: QI, BQI, NF, NA, WD
 
-**Key Finding**: All strategies showed a trade-off between success rate and reliability, with false premise issues affecting all approaches.
+**Key Finding**: All strategies showed trade-offs between success rate and reliability.
 
-### 3. [new_strategies.md](new_strategies.md) - New Strategic Directions
-**Purpose**: Outlines new approaches to address the fundamental disconnect between constraint generation and truth evaluation.
+#### 6. [strategy_analysis_PCT.md](strategy_analysis_PCT.md) - PCT Strategy Analysis
+**Purpose**: Analyzes the disconnect between constraint generation and truth evaluation.
 
-**New Concepts**:
+**Key Concepts**:
 - Precise Constraint Translation (PCT)
 - Correct recursive semantics
 - Direct Computation Strategy (DCS)
-- Hybrid approaches combining existing strategies
+- Hybrid approaches
 
-**Key Insight**: The issue isn't that `true_at` approximates, but that operator implementations don't properly reduce to verifier existence conditions.
+**Key Insight**: Operator implementations don't properly reduce to verifier existence conditions.
 
-### 4. [implementation_plan.md](implementation_plan.md) - Phased Implementation Plan
-**Purpose**: Provides a detailed, phased approach to implementing correct recursive semantics.
+#### 7. [future_research_directions.md](future_research_directions.md) - Alternative Approaches
+**Purpose**: Outlines strategies to work around the Skolem function limitation.
 
-**Phases**:
-1. **Foundation and Analysis** - Understand current failures
-2. **Skolemized Functions Implementation** - Implement SK with correct recursion
-3. **Constraint-Based Enhancements** - Add CD optimizations
-4. **Direct Computation Strategy** - Ideal implementation
-5. **Integration and Documentation** - Final integration
+**Categories**:
+- A: Give up on full unilateral semantics
+- B: Accept the limitation
+- C: Change the model-checking architecture
+- D: Alternative semantic implementations
+- E: Hybrid approaches
 
-**Timeline**: 5-week implementation with testing between phases.
+### Implementation Documentation
 
-### 5. [findings.md](findings.md) - Implementation Findings (In Progress)
-**Purpose**: Track results and findings from each implementation phase.
+#### 8. [incremental_plan.md](incremental_plan.md) - Incremental Approach (Attempt 6)
+**Purpose**: Detailed plan for incremental model checking with witness extraction.
 
-**Structure**:
-- Phase-by-phase test results
-- Performance metrics
-- Issues discovered and resolved
-- Comparative analysis across strategies
-- Lessons learned
+**Key Finding**: Incremental solving introduces additional bugs beyond the core limitation.
 
-**Status**: Template ready, to be populated during implementation.
+### Task Tracking
 
-### 6. [TODO.md](TODO.md) - Original Implementation Task Tracking
-**Purpose**: Detailed task list following the implementation plan with 115 specific tasks across all phases for refactoring semantic_old.py and operators_old.py.
+#### 9. [TODO_new_refactor.md](TODO_new_refactor.md) - Current Task List
+**Purpose**: 90 tasks for refactoring current semantic.py and operators.py.
 
-**Organization**:
-- Tasks grouped by implementation phase
-- Clear success criteria for each phase
-- Meta tasks for ongoing quality assurance
-- Progress tracking and completion metrics
+**Status**: Active task tracking (though implementation revealed fundamental limitations)
 
-**Status**: Phase 1 completed, Phase 2 in progress. False premises persist despite SK implementation.
+### Phase Reports (in phase_reports/)
 
-### 7. [new_implementation.md](new_implementation.md) - Current Refactoring Plan
-**Purpose**: Comprehensive plan for refactoring the current semantic.py and operators.py based on lessons learned.
+#### Phase 2 Completion
+- Successful simplification to single strategy (70% code reduction)
+- Detailed test results
 
-**Key Innovations**:
-- Simplify to single strategy FIRST
-- Focus on Skolemized (SK) approach
-- Use custom quantifiers for predictability
-- 5-phase implementation with rigorous testing
+#### Phase 3 Completion  
+- Discovery of fundamental architectural limitation
+- Technical analysis of why it can't be fixed
 
-**Timeline**: 17-22 hours across 5 phases.
+### Historical Documents (in historical/)
 
-### 8. [TODO_new_refactor.md](TODO_new_refactor.md) - Current Implementation Tasks
-**Purpose**: Tracks 90 specific tasks for the new refactoring effort on semantic.py and operators.py.
+These documents are preserved for reference but are no longer actively maintained:
+- Original implementation plans
+- Task lists for old implementations  
+- Reorganization documentation
+- Technical fixes applied to early attempts
 
-**Organization**:
-- More focused than original TODO
-- Emphasizes simplification before correction
-- Detailed success criteria per phase
-- Progress metrics clearly defined
+## Recommended Reading Order
 
-**Use this** to track the current refactoring effort.
+### For Understanding the Problem:
+1. `unilateral_semantics.md` - Theoretical foundation
+2. `strategy_analysis_original.md` - Initial strategy analysis
+3. `findings.md` - What has been tried and discovered
+4. `skolem_limitation.md` - Why it can't be fixed
 
-### 9. [phase2_completion.md](phase2_completion.md) - Phase 2 Results
-**Purpose**: Documents the completion of Phase 2 - simplification to single strategy.
+### For Current Status:
+1. `../../ATTEMPT_SUMMARIES.md` - Complete history of attempts
+2. `new_implementation.md` - Latest implementation status
+3. `phase_reports/phase3_completion.md` - Discovery of limitation
+4. `future_research_directions.md` - Alternative approaches
 
-**Key Results**:
-- Successfully removed multi-strategy complexity (~70% code reduction)
-- Single Skolemized (SK) strategy implementation
-- 10 examples with false premises (vs 8 in baseline)
-- Clean, maintainable codebase ready for Phase 3
-
-**Status**: Phase 2 completed in 4 hours (including print functionality restoration).
-
-## Reading Order
-
-For **theoretical understanding**:
-1. `unilateral_semantics.md` - Philosophical foundation
-2. `old_strategies.md` - Current implementation landscape
-3. `new_strategies.md` - Proposed improvements
-
-For **implementation work**:
-1. `new_strategies.md` - Understand the new approach
-2. `implementation_plan.md` - Follow the phased plan
-3. `findings.md` - Track progress and results
+### For Implementation Details:
+1. `strategy_analysis_PCT.md` - Technical analysis of the core problem
+2. `incremental_plan.md` - Attempt 6's sophisticated approach
+3. `TODO_new_refactor.md` - Detailed task breakdown
 
 ## Key Concepts
 
@@ -159,107 +179,65 @@ When implementing changes:
 
 ## Current Status
 
-- **Theory**: Well-documented and understood
-- **Problem**: Identified as fundamental architectural limitation
-- **Previous Attempt**: Phases 1-3 complete on semantic_old.py/operators_old.py
-  - Discovered false premise issue persists across all implementation strategies
-- **Current Effort**: New refactoring of semantic.py/operators.py
-  - Phase 1: ✅ Completed - Analysis and preparation
-  - Phase 2: ✅ Completed - Simplified to single strategy (70% code reduction)
-  - Phase 3: ✅ Completed - Identified Skolem function limitation as root cause
-  - Phase 4: ⏳ Ready - Testing and validation with known limitations
-  - Phase 5: ⏳ Pending - Documentation and optimization
-- **Key Finding**: False premise issue cannot be fixed without major architectural changes
-- **Test Status**: 10 examples with false premises (all involve exclusion operator)
+### Problem Understanding
+- **Theory**: Well-documented unilateral semantics with exclusion operator
+- **Core Issue**: Fundamental architectural mismatch between Z3's two-phase solving and exclusion semantics
+- **Root Cause**: Skolem functions from Phase 1 are inaccessible in Phase 2, preventing correct witness extraction
 
-## Guided Tour: Research Trajectory
+### Implementation History
+- **6+ Attempts**: All hit the same fundamental limitation
+- **Code Simplification**: 70% reduction achieved (Attempt 4)
+- **Performance**: 4.3x improvement with reduced semantics (Attempt 3)
+- **Test Results**: 8-10 examples consistently show false premises
 
-### The Journey So Far
+### Key Discovery
+- **Phase 3 Finding**: The false premise issue cannot be fixed without architectural changes
+- **Attempt 6 Finding**: Incremental solving introduces additional bugs beyond the core limitation
+- **Conclusion**: All strategies (QA, SK, CD, MS, etc.) fail for the same fundamental reason
 
-#### 1. **The Beginning: Unilateral Semantics**
-We started with a philosophical motivation: can we build a simpler truthmaker semantics using only verifiers (no falsifiers)? The exclusion operator would handle negation through a complex three-condition definition. *See [unilateral_semantics.md](unilateral_semantics.md)*
+### Future Directions
+See [future_research_directions.md](future_research_directions.md) for alternative approaches that could work around the limitation.
 
-#### 2. **Initial Implementation Challenges**
-Miguel developed six different strategies (QA, QI2, SK, CD, MS, UF) to implement the exclusion operator. Each showed a fundamental trade-off:
-- **Conservative strategies** (QA): High reliability (83%) but low coverage (19%)
-- **Aggressive strategies** (SK, CD, MS, UF): Higher coverage (50%) but more false premises
+## Summary: The Exclusion Semantics Journey
 
-*Key Learning*: The existential quantifiers in the three-condition definition created severe implementation challenges. *See [old_strategies.md](old_strategies.md)*
+### What We Tried to Build
+A unilateral truthmaker semantics using only verifiers (no falsifiers), with a complex three-condition exclusion operator handling negation.
 
-#### 3. **The Core Problem Discovered**
-Through extensive testing, we discovered that countermodels often had:
-- Premises that evaluated to false (when they should be true)
-- Conclusions that evaluated to true (when they should be false)
+### What We Discovered
+Through 6+ implementation attempts, we discovered a fundamental architectural limitation:
+- Z3's two-phase solving (constraint generation → model extraction) prevents access to Skolem functions in Phase 2
+- This makes it impossible to correctly evaluate the exclusion operator's existential conditions
+- All strategies (QA, SK, CD, MS, etc.) fail for the same reason
 
-*Key Insight*: There was a disconnect between how constraints were generated (using Z3 formulas) and how truth was evaluated (using verifier membership). *See [new_strategies.md](new_strategies.md)*
+### Key Lessons
+1. **Technical**: The model checker's architecture fundamentally conflicts with exclusion semantics
+2. **Philosophical**: Implementation constraints can reveal deep theoretical insights
+3. **Practical**: Sometimes the best outcome is understanding why something can't work
 
-#### 4. **The Breakthrough Understanding**
-The issue wasn't that `true_at` methods approximate truthmaker semantics. Rather, the operator implementations weren't correctly implementing the recursive reduction to verifier existence conditions. The `true_at` method should recursively reduce to statements about verifier existence, maintaining consistency throughout.
+### Current State
+- The limitation is well-understood and documented
+- Code has been simplified by 70% for clarity
+- Future work must either accept the limitation or change the architecture
 
-*Key Learning*: We need to ensure proper recursive semantic structure, not replace the entire framework. *See [new_strategies.md](new_strategies.md) sections on PCT*
+For the complete research trajectory and detailed findings, see the documents above.
 
-#### 5. **The Solution Path**
-We developed a phased implementation plan focusing on:
-- **Phase 1**: Understanding exactly where recursive reduction fails
-- **Phase 2**: Implementing Skolemized Functions (SK) with correct recursion
-- **Phase 3**: Adding Constraint-Based (CD) optimizations
-- **Phase 4**: Developing Direct Computation Strategy (DCS)
-- **Phase 5**: Integration and documentation
+## Directory Structure
 
-*See [implementation_plan.md](implementation_plan.md) for details*
+### Main Directory
+Core documentation files:
+- `README.md` - This overview
+- `unilateral_semantics.md` - Theoretical foundation
+- `findings.md` - Comprehensive results
+- `skolem_limitation.md` - Technical limitation explanation
+- `new_implementation.md` - Current implementation status
+- `future_research_directions.md` - Alternative approaches
+- `strategy_analysis_original.md` - Miguel's 11-strategy analysis
+- `strategy_analysis_PCT.md` - PCT approach analysis
+- `incremental_plan.md` - Attempt 6 documentation
+- `TODO_new_refactor.md` - Active task tracking
 
-### Lessons Learned
-
-#### Technical Lessons
-
-1. **Quantifier Complexity**: Nested existential quantifiers in logical definitions create severe implementation challenges in constraint solvers.
-
-2. **Recursive Structure is Key**: Complex logical operators must properly implement recursive reduction to base semantic conditions.
-
-3. **Consistency is Critical**: The same semantic logic must govern both constraint generation and truth evaluation.
-
-4. **Trade-offs are Revealing**: The reliability/coverage trade-off in different strategies revealed the fundamental tension in the implementation.
-
-#### Philosophical Lessons
-
-1. **Simplicity Has Costs**: While unilateral semantics is philosophically simpler, the complexity shifts to the exclusion operator.
-
-2. **Implementation Informs Theory**: The computational challenges reveal deep insights about the logical structure.
-
-3. **Modularity Matters**: Maintaining clean separation between syntax and semantics is both philosophically and practically important.
-
-### What's Next
-
-#### Current Refactoring Effort (December 2024)
-
-We are now undertaking a new refactoring effort that applies lessons learned from the previous implementation attempts:
-
-1. **New Target**: Refactoring the current `semantic.py` and `operators.py` (not the old versions)
-2. **Key Innovation**: Simplifying to a single exclusion strategy (Skolemized) before fixing semantics
-3. **Documentation**: 
-   - [new_implementation.md](new_implementation.md) - Detailed phased plan for current refactor
-   - [TODO_new_refactor.md](TODO_new_refactor.md) - 90 specific tasks for the new implementation
-
-This approach prioritizes simplification and correctness over maintaining multiple strategies.
-
-#### Previous Implementation Work
-
-The original implementation plan targeted `semantic_old.py` and `operators_old.py`:
-
-*Track progress in [TODO.md](TODO.md) and results in [findings.md](findings.md)*
-
-### For Researchers
-
-This project demonstrates:
-- How computational implementation can reveal theoretical insights
-- The importance of maintaining conceptual clarity while solving technical problems
-- The value of systematic, phased approaches to complex problems
-
-### For Implementers
-
-Key takeaways:
-- Always ensure your recursive structures properly reduce to base cases
-- Test extensively with automated counterexample generation
-- Document the journey, not just the destination
+### Subdirectories
+- `phase_reports/` - Phase 2 and 3 completion reports
+- `historical/` - Archived implementation plans and organizational docs
 
 ---

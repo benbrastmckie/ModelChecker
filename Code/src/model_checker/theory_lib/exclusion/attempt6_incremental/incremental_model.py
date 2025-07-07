@@ -203,21 +203,35 @@ class IncrementalModelStructure(ModelStructure):
             self.incremental_solver.reset()
             self.incremental_solver.set_timeout(max_time)
             
+            print("\n=== INCREMENTAL SOLVING DEBUG ===")
+            
             # Phase 1: Add frame constraints (semantic structure)
+            print("\nPhase 1: Adding frame constraints...")
             if not self._add_frame_constraints():
+                print("  ❌ Frame constraints made system UNSAT!")
                 return self._create_result(False, None, False, start_time)
+            print("  ✓ Frame constraints OK")
             
             # Phase 2: Add atomic proposition constraints  
+            print("\nPhase 2: Adding atomic constraints...")
             if not self._add_atomic_constraints():
+                print("  ❌ Atomic constraints made system UNSAT!")
                 return self._create_result(False, None, False, start_time)
+            print("  ✓ Atomic constraints OK")
             
             # Phase 3: Add premise constraints with incremental evaluation
+            print("\nPhase 3: Adding premise constraints...")
             if not self._add_premise_constraints_incremental():
+                print("  ❌ Premise constraints made system UNSAT!")
                 return self._create_result(False, None, False, start_time)
+            print("  ✓ Premise constraints OK")
             
             # Phase 4: Add conclusion constraints for countermodel search
+            print("\nPhase 4: Adding conclusion constraints...")
             if not self._add_conclusion_constraints_incremental():
+                print("  ❌ Conclusion constraints made system UNSAT!")
                 return self._create_result(False, None, False, start_time)
+            print("  ✓ Conclusion constraints OK")
             
             # Final check and extract complete model
             final_result = self.incremental_solver.check()
@@ -658,12 +672,27 @@ class IncrementalSolver:
             # Check satisfiability
             result = self.solver.check()
             
+            if constraint_id.startswith("frame"):
+                print(f"    Adding {constraint_id}: {result}")
+            elif constraint_id == "premise_0":
+                print(f"    Adding {constraint_id}: {result}")
+                if result == z3.unsat:
+                    print(f"\n    Premise constraint that failed:")
+                    print(f"    Type: {type(constraint)}")
+                    constraint_str = str(constraint)
+                    if len(constraint_str) > 1000:
+                        print(f"    Size: {len(constraint_str)} characters")
+                        print(f"    First 500 chars: {constraint_str[:500]}")
+                    else:
+                        print(f"    Full constraint: {constraint_str}")
+            
             if result == z3.sat:
                 # Extract witness information from current model
                 model = self.solver.model()
                 witness_store.update_witness_values(model, self.semantics)
                 return True
             elif result == z3.unsat:
+                print(f"    ❌ Constraint {constraint_id} is UNSAT - backtracking")
                 # Backtrack - this constraint makes the system unsatisfiable
                 self.solver.pop()
                 self.constraint_stack.pop()
