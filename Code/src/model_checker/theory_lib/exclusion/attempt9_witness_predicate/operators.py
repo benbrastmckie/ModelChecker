@@ -301,23 +301,27 @@ class PredicateConjunctionOperator(Operator):
         
     def compute_verifiers(self, arg1, arg2, model, eval_point):
         """Standard conjunction semantics using product of verifier sets."""
-        # Get verifiers for each argument by using the model's verifying states
-        ver1 = model.find_verifying_states(arg1, eval_point)
-        ver2 = model.find_verifying_states(arg2, eval_point)
+        # Get verifiers for each argument by using the semantics' verifier computation
+        ver1 = self.semantics.extended_compute_verifiers(arg1, model, eval_point)
+        ver2 = self.semantics.extended_compute_verifiers(arg2, model, eval_point)
         
         # Use product method to compute all fusions
-        return self.semantics.product(ver1, ver2)
+        return self.semantics.product(set(ver1), set(ver2))
         
     def extended_verify(self, state, arg1, arg2, eval_point):
         """Standard conjunction constraint."""
-        x1 = z3.BitVec('x1', self.semantics.N)
-        x2 = z3.BitVec('x2', self.semantics.N)
+        x1 = z3.BitVec(f'conj_x1_{self.semantics.counter}', self.semantics.N)
+        x2 = z3.BitVec(f'conj_x2_{self.semantics.counter}', self.semantics.N)
+        self.semantics.counter += 1
         
-        return z3.Exists([x1, x2],
+        # Use the same structure as the main exclusion theory
+        from model_checker.utils import Exists
+        return Exists(
+            [x1, x2],
             z3.And(
+                self.semantics.fusion(x1, x2) == state,
                 self.semantics.extended_verify(x1, arg1, eval_point),
                 self.semantics.extended_verify(x2, arg2, eval_point),
-                state == self.semantics.fusion(x1, x2)
             )
         )
         
