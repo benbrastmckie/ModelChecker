@@ -390,11 +390,6 @@ class WitnessPredicateSemantics(SemanticDefaults):
         """Get all frame constraints for the model."""
         return self.frame_constraints
         
-    def _exclusion_verify_constraint(self, state, argument, eval_point):
-        """Generate basic exclusion verification constraint."""
-        # This is a placeholder - the actual constraint is generated
-        # by the witness constraint generator
-        return z3.BoolVal(True)  # Will be overridden by witness constraints
         
     def atom_constraints(self, letter_id, sentence_letters, settings):
         """

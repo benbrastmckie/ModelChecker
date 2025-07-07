@@ -165,11 +165,120 @@ class PredicateExclusionOperator(Operator):
         
     def extended_verify(self, state, argument, eval_point):
         """
-        Standard constraint generation for exclusion.
+        Implement three-condition exclusion semantics with witness predicates.
+        
+        This implements the full exclusion semantics directly in the operator,
+        making it modular and self-contained while using witness predicates
+        for the existential quantification.
         """
-        # This generates the constraint that state verifies exclusion
-        # The actual witness values are determined by the witness predicates
-        return self.semantics._exclusion_verify_constraint(state, argument, eval_point)
+        # Abbreviations
+        sem = self.semantics
+        N = sem.N
+        extended_verify = sem.extended_verify
+        excludes = sem.excludes
+        is_part_of = sem.is_part_of
+        
+        # Get formula string for witness lookup
+        # Handle different argument types
+        if hasattr(argument, 'sentence_letter') and argument.sentence_letter is not None:
+            # Z3 expression - extract the name
+            if hasattr(argument.sentence_letter, 'decl') and hasattr(argument.sentence_letter.decl(), 'name'):
+                arg_str = argument.sentence_letter.decl().name()
+            else:
+                arg_str = str(argument.sentence_letter)
+        elif hasattr(argument, 'name'):
+            arg_str = argument.name
+        elif hasattr(argument, 'proposition'):
+            arg_str = argument.proposition
+        else:
+            arg_str = str(argument)
+            
+        formula_str = f"\\exclude({arg_str})"
+        
+        # Ensure witness predicates are registered for this formula
+        if f"{formula_str}_h" not in sem.witness_registry.predicates:
+            sem.witness_registry.register_witness_predicates(formula_str)
+            
+        # Get witness predicates for this formula
+        h_pred = sem.witness_registry.predicates.get(f"{formula_str}_h")
+        y_pred = sem.witness_registry.predicates.get(f"{formula_str}_y")
+        
+        
+        # If witness predicates aren't available, fall back to Skolem functions
+        if h_pred is None or y_pred is None:
+            # Create unique Skolem functions for this exclusion instance
+            sem.counter += 1
+            counter = sem.counter
+            
+            h_sk = z3.Function(f"h_sk_{counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+            y_sk = z3.Function(f"y_sk_{counter}", z3.BitVecSort(N), z3.BitVecSort(N))
+            
+            # Variables
+            x = z3.BitVec(f"sk_x_{counter}", N)
+            z = z3.BitVec(f"sk_z_{counter}", N)
+
+            return z3.And(
+                # Condition 1: For every verifier x of argument, 
+                # y_sk(x) is part of x and h_sk(x) excludes y_sk(x)
+                ForAll([x], z3.Implies(
+                    extended_verify(x, argument, eval_point), 
+                    z3.And(
+                        is_part_of(y_sk(x), x), 
+                        excludes(h_sk(x), y_sk(x))
+                    )
+                )),
+                
+                # Condition 2 (Upper Bound): For every verifier x of argument, 
+                # h_sk(x) is part of state
+                ForAll([x], z3.Implies(
+                    extended_verify(x, argument, eval_point), 
+                    is_part_of(h_sk(x), state)
+                )),
+                
+                # Condition 3 (Least Upper Bound): state is the smallest state 
+                # satisfying the UB condition
+                ForAll([z], z3.Implies(
+                    ForAll([x], z3.Implies(
+                        extended_verify(x, argument, eval_point), 
+                        is_part_of(h_sk(x), z)
+                    )), 
+                    is_part_of(state, z)
+                ))
+            )
+        
+        # Use witness predicates for the three-condition semantics
+        x = z3.BitVec(f"wp_x_{sem.counter}", N)
+        z = z3.BitVec(f"wp_z_{sem.counter}", N)
+        sem.counter += 1
+
+        return z3.And(
+            # Condition 1: For every verifier x of argument, 
+            # y_pred(x) is part of x and h_pred(x) excludes y_pred(x)
+            ForAll([x], z3.Implies(
+                extended_verify(x, argument, eval_point), 
+                z3.And(
+                    is_part_of(y_pred(x), x), 
+                    excludes(h_pred(x), y_pred(x))
+                )
+            )),
+            
+            # Condition 2 (Upper Bound): For every verifier x of argument, 
+            # h_pred(x) is part of state
+            ForAll([x], z3.Implies(
+                extended_verify(x, argument, eval_point), 
+                is_part_of(h_pred(x), state)
+            )),
+            
+            # Condition 3 (Least Upper Bound): state is the smallest state 
+            # satisfying the UB condition
+            ForAll([z], z3.Implies(
+                ForAll([x], z3.Implies(
+                    extended_verify(x, argument, eval_point), 
+                    is_part_of(h_pred(x), z)
+                )), 
+                is_part_of(state, z)
+            ))
+        )
         
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print exclusion."""
@@ -217,6 +326,10 @@ class PredicateConjunctionOperator(Operator):
                 state == self.semantics.fusion(x1, x2)
             )
         )
+        
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Print conjunction."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class PredicateDisjunctionOperator(Operator):
