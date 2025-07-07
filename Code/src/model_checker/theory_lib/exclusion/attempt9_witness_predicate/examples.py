@@ -79,6 +79,9 @@ from .operators import witness_predicate_operators
 # Import exclusion theory components for proper printing
 from model_checker.theory_lib.exclusion import ExclusionStructure
 
+# Import custom structure that includes witness predicate printing
+from .semantic import WitnessPredicateStructure
+
 # Import default theory for comparison
 from model_checker.theory_lib.default import (
     Semantics,
@@ -95,7 +98,7 @@ from model_checker.theory_lib.default import (
 exclusion_theory = {
     "semantics": WitnessPredicateSemantics,
     "proposition": WitnessPredicateProposition,
-    "model": ExclusionStructure,
+    "model": WitnessPredicateStructure,
     "operators": witness_predicate_operators,
     "dictionary": {}  # No translation needed for exclusion theory
 }
