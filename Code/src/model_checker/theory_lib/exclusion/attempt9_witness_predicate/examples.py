@@ -338,7 +338,7 @@ test_example_range = {
 }
 
 # Switch between full suite and test subset
-example_range = test_example_range  # Uncomment to use test subset
+# example_range = test_example_range  # Uncomment to use test subset
 
 # Which semantic theories to compare
 semantic_theories = {
