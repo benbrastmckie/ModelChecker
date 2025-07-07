@@ -120,6 +120,10 @@ class WitnessPredicateSemantics(SemanticDefaults):
         x = z3.BitVec("nec_x", self.N)
         return ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
         
+    def product(self, set_X, set_Y):
+        """Compute the product of two sets of states."""
+        return {self.fusion(x, y) for x in set_X for y in set_Y}
+        
     def is_world(self, bit_s):
         """
         Determines if a state is a world by checking if it is possible and maximal.

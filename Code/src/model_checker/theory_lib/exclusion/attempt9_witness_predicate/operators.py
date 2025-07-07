@@ -300,19 +300,13 @@ class PredicateConjunctionOperator(Operator):
         )
         
     def compute_verifiers(self, arg1, arg2, model, eval_point):
-        """Standard conjunction semantics."""
-        ver1 = self.semantics.extended_compute_verifiers(arg1, model, eval_point)
-        ver2 = self.semantics.extended_compute_verifiers(arg2, model, eval_point)
+        """Standard conjunction semantics using product of verifier sets."""
+        # Get verifiers for each argument by using the model's verifying states
+        ver1 = model.find_verifying_states(arg1, eval_point)
+        ver2 = model.find_verifying_states(arg2, eval_point)
         
-        # Fusion of verifiers
-        verifiers = []
-        for v1 in ver1:
-            for v2 in ver2:
-                fusion_result = self.eval_fusion(v1, v2, model.z3_model)
-                if fusion_result is not None:
-                    verifiers.append(fusion_result)
-                    
-        return verifiers
+        # Use product method to compute all fusions
+        return self.semantics.product(ver1, ver2)
         
     def extended_verify(self, state, arg1, arg2, eval_point):
         """Standard conjunction constraint."""
