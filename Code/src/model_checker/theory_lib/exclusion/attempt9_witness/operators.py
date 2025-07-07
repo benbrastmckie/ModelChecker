@@ -14,16 +14,16 @@ from typing import List, Set, Optional
 from .witness_model import WitnessAwareModel
 
 
-class PredicateExclusionOperator(Operator):
+class UniNegationOperator(Operator):
     """
-    Exclusion operator that queries witness predicates from the model.
+    UniNegation operator that queries witness predicates from the model.
     """
     
     name = "\\exclude"
     arity = 1
     
     def true_at(self, arg, eval_point):
-        """Exclusion is true when there's a verifier in the evaluation world."""
+        """UniNegation is true when there's a verifier in the evaluation world."""
         x = z3.BitVec(f"ver_{self.semantics.counter}", self.semantics.N)
         self.semantics.counter += 1
         
@@ -53,18 +53,18 @@ class PredicateExclusionOperator(Operator):
         
         verifiers = []
         for state in range(2**self.semantics.N):
-            if self._verifies_exclusion_with_predicates(
+            if self._verifies_uninegation_with_predicates(
                 state, formula_str, arg_verifiers, model
             ):
                 verifiers.append(state)
                 
         return verifiers
         
-    def _verifies_exclusion_with_predicates(self, state: int, formula_str: str,
+    def _verifies_uninegation_with_predicates(self, state: int, formula_str: str,
                                           arg_verifiers: List[int],
                                           model: WitnessAwareModel) -> bool:
         """
-        Check if state verifies exclusion using witness predicates.
+        Check if state verifies uninegation using witness predicates.
         """
         # Check if model has witness predicates for this formula
         if not model.has_witness_for(formula_str):
@@ -165,9 +165,9 @@ class PredicateExclusionOperator(Operator):
         
     def extended_verify(self, state, argument, eval_point):
         """
-        Implement three-condition exclusion semantics with witness predicates.
+        Implement three-condition uninegation semantics with witness predicates.
         
-        This implements the full exclusion semantics directly in the operator,
+        This implements the full uninegation semantics directly in the operator,
         making it modular and self-contained while using witness predicates
         for the existential quantification.
         """
@@ -281,12 +281,12 @@ class PredicateExclusionOperator(Operator):
         )
         
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Print exclusion."""
+        """Print uninegation."""
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
-class PredicateConjunctionOperator(Operator):
-    """Conjunction operator for witness predicate semantics."""
+class UniConjunctionOperator(Operator):
+    """Conjunction operator for witness semantics."""
     
     name = "\\uniwedge"
     arity = 2
@@ -330,8 +330,8 @@ class PredicateConjunctionOperator(Operator):
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
-class PredicateDisjunctionOperator(Operator):
-    """Disjunction operator for witness predicate semantics."""
+class UniDisjunctionOperator(Operator):
+    """Disjunction operator for witness semantics."""
     
     name = "\\univee"
     arity = 2
@@ -364,8 +364,8 @@ class PredicateDisjunctionOperator(Operator):
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
-class PredicateIdentityOperator(Operator):
-    """Identity operator for witness predicate semantics."""
+class UniIdentityOperator(Operator):
+    """Identity operator for witness semantics."""
     
     name = "\\uniequiv"
     arity = 2
@@ -425,13 +425,13 @@ class PredicateIdentityOperator(Operator):
 
 
 def create_operators():
-    """Create operator collection for witness predicate exclusion semantics."""
+    """Create operator collection for witness uninegation semantics."""
     return OperatorCollection(
-        PredicateExclusionOperator,
-        PredicateConjunctionOperator,
-        PredicateDisjunctionOperator,
-        PredicateIdentityOperator,
+        UniNegationOperator,
+        UniConjunctionOperator,
+        UniDisjunctionOperator,
+        UniIdentityOperator,
     )
 
 # Export the operator collection
-witness_predicate_operators = create_operators()
+witness_operators = create_operators()

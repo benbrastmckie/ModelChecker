@@ -2,9 +2,9 @@
 Constraint generation for witness predicates.
 
 This module generates Z3 constraints that define witness predicates based on
-the three-condition exclusion semantics. The key insight is that by making
+the three-condition uninegation semantics. The key insight is that by making
 witness functions part of the model as predicates, we can generate constraints
-that explicitly define their behavior according to the exclusion semantics.
+that explicitly define their behavior according to the uninegation semantics.
 """
 
 import z3
@@ -14,7 +14,7 @@ from typing import List, Tuple, Optional
 class WitnessConstraintGenerator:
     """
     Generates constraints that define witness predicates
-    based on the three-condition exclusion semantics.
+    based on the three-condition uninegation semantics.
     """
     
     def __init__(self, semantics):
@@ -27,7 +27,7 @@ class WitnessConstraintGenerator:
                                    eval_point) -> List[z3.BoolRef]:
         """
         Generate constraints that define the witness predicates
-        for an exclusion formula.
+        for a uninegation formula.
         """
         constraints = []
         
@@ -35,8 +35,8 @@ class WitnessConstraintGenerator:
         for state in range(2**self.N):
             state_bv = z3.BitVecVal(state, self.N)
             
-            # Check if this state could verify the exclusion
-            if self._could_verify_exclusion(state, formula_ast, eval_point):
+            # Check if this state could verify the uninegation
+            if self._could_verify_uninegation(state, formula_ast, eval_point):
                 # Generate constraints for witness values at this state
                 state_constraints = self._witness_constraints_for_state(
                     state_bv, formula_ast, h_pred, y_pred, eval_point
@@ -49,9 +49,9 @@ class WitnessConstraintGenerator:
                 
         return constraints
         
-    def _could_verify_exclusion(self, state: int, formula_ast, eval_point) -> bool:
+    def _could_verify_uninegation(self, state: int, formula_ast, eval_point) -> bool:
         """
-        Heuristic check if a state could potentially verify an exclusion.
+        Heuristic check if a state could potentially verify a uninegation.
         This helps reduce the number of constraints.
         """
         # For now, consider all states as potential verifiers
@@ -61,13 +61,13 @@ class WitnessConstraintGenerator:
     def _witness_constraints_for_state(self, state, formula_ast,
                                      h_pred, y_pred, eval_point) -> List[z3.BoolRef]:
         """
-        Generate witness constraints for a specific state verifying exclusion.
+        Generate witness constraints for a specific state verifying uninegation.
         """
         constraints = []
         argument = formula_ast.arguments[0]
         x = z3.BitVec('x', self.N)
         
-        # If state verifies the exclusion, then:
+        # If state verifies the uninegation, then:
         verify_excl = self.semantics.extended_verify(state, formula_ast, eval_point)
         
         # Condition 1: For all verifiers of argument, h and y satisfy requirements
@@ -92,7 +92,7 @@ class WitnessConstraintGenerator:
         # Condition 3: Minimality
         condition3 = self._minimality_constraint(state, argument, h_pred, y_pred, eval_point)
         
-        # If state verifies exclusion, then all three conditions hold
+        # If state verifies uninegation, then all three conditions hold
         constraints.append(
             z3.Implies(
                 verify_excl,
@@ -100,7 +100,7 @@ class WitnessConstraintGenerator:
             )
         )
         
-        # Conversely, if all conditions hold, state verifies exclusion
+        # Conversely, if all conditions hold, state verifies uninegation
         constraints.append(
             z3.Implies(
                 z3.And(condition1, condition2, condition3),

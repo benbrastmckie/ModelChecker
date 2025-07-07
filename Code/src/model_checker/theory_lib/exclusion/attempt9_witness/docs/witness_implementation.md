@@ -465,7 +465,7 @@ from .witness_model import WitnessAwareModel
 
 class PredicateExclusionOperator(Operator):
     """
-    Exclusion operator that queries witness predicates from the model.
+    Unilateral negation operator that queries witness predicates from the model.
     """
     
     def __init__(self, semantics):
