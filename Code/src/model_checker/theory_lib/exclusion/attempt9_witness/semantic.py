@@ -2,8 +2,8 @@
 Witness predicate semantics implementation.
 
 This module implements the core semantics that includes witness functions as
-model predicates. It extends the standard exclusion semantics by registering
-witness predicates for all exclusion formulas and generating constraints
+model predicates. It extends the standard uninegation semantics by registering
+witness predicates for all uninegation formulas and generating constraints
 that define their behavior.
 """
 
@@ -15,11 +15,11 @@ from model_checker import model
 from model_checker.model import ModelDefaults, SemanticDefaults, PropositionDefaults
 from model_checker.utils import ForAll, Exists, bitvec_to_substates, pretty_set_print, int_to_binary
 from model_checker import syntactic
-from .witness_model import WitnessAwareModel, WitnessPredicateRegistry
+from .witness_model import WitnessAwareModel, WitnessRegistry
 from .witness_constraints import WitnessConstraintGenerator
 
 
-class WitnessPredicateSemantics(SemanticDefaults):
+class WitnessSemantics(SemanticDefaults):
     """
     Semantics that includes witness functions as model predicates.
     """
@@ -39,7 +39,7 @@ class WitnessPredicateSemantics(SemanticDefaults):
         'expectation': None,
     }
     
-    # Default general settings for the exclusion theory
+    # Default general settings for the uninegation theory
     DEFAULT_GENERAL_SETTINGS = {
         "print_impossible": False,
         "print_constraints": False,
@@ -50,12 +50,12 @@ class WitnessPredicateSemantics(SemanticDefaults):
     
     def __init__(self, settings):
         super().__init__(settings)
-        self.witness_registry = WitnessPredicateRegistry(self.N)
+        self.witness_registry = WitnessRegistry(self.N)
         self.constraint_generator = WitnessConstraintGenerator(self)
         self._processed_formulas = set()
         self._formula_ast_mapping = {}  # Store formula string -> AST mapping
         
-        # Define Z3 primitives needed for exclusion semantics
+        # Define Z3 primitives needed for uninegation semantics
         self.verify = z3.Function(
             "verify",
             z3.BitVecSort(self.N),
@@ -87,7 +87,7 @@ class WitnessPredicateSemantics(SemanticDefaults):
         self._setup_frame_constraints()
         
     def _define_semantic_relations(self):
-        """Define semantic relations using the same definitions as the main exclusion theory."""
+        """Define semantic relations using the same definitions as the main uninegation theory."""
         # These are defined as methods, not Z3 primitives, following attempt1_refactor_old
         pass
         
@@ -163,7 +163,7 @@ class WitnessPredicateSemantics(SemanticDefaults):
         premises = eval_point.get("premises", [])
         conclusions = eval_point.get("conclusions", [])
         
-        # First pass: identify all exclusion formulas and create witness predicates
+        # First pass: identify all uninegation formulas and create witness predicates
         all_formulas = premises + conclusions
         for formula in all_formulas:
             self._register_witness_predicates_recursive(formula)
@@ -195,14 +195,14 @@ class WitnessPredicateSemantics(SemanticDefaults):
             
     def _register_witness_predicates_recursive(self, formula):
         """
-        Recursively register witness predicates for all exclusion
+        Recursively register witness predicates for all uninegation
         subformulas in the formula.
         """
         if self._is_processed(formula):
             return
             
         if hasattr(formula, 'operator') and formula.operator.name == "\\exclude":
-            # Register witness predicates for this exclusion
+            # Register witness predicates for this uninegation
             formula_str = self._formula_to_string(formula)
             self.witness_registry.register_witness_predicates(formula_str)
             self._processed_formulas.add(formula_str)
@@ -292,14 +292,14 @@ class WitnessPredicateSemantics(SemanticDefaults):
             return sentence.operator.true_at(*sentence.arguments, eval_point)
             
     def _setup_frame_constraints(self):
-        """Setup frame constraints matching the main exclusion theory."""
+        """Setup frame constraints matching the main uninegation theory."""
         x, y, z = z3.BitVecs("frame_x frame_y frame_z", self.N)
         
         # Actuality constraint
         actuality = self.is_world(self.main_world)
         
-        # Basic exclusion properties
-        exclusion_symmetry = ForAll(
+        # Basic uninegation properties
+        uninegation_symmetry = ForAll(
             [x, y],
             z3.Implies(
                 self.excludes(x, y),
@@ -381,7 +381,7 @@ class WitnessPredicateSemantics(SemanticDefaults):
         self.frame_constraints = [
             # Core constraints
             actuality,
-            exclusion_symmetry,
+            uninegation_symmetry,
 
             # Optional complex constraints
             harmony,
@@ -455,9 +455,9 @@ class WitnessPredicateSemantics(SemanticDefaults):
         return z3.Not(self.true_at(conclusion, self.main_point))
 
 
-class PredicateModelAdapter(ModelDefaults):
+class WitnessModelAdapter(ModelDefaults):
     """
-    Adapter to make witness predicate semantics compatible with ModelChecker.
+    Adapter to make witness semantics compatible with ModelChecker.
     """
     
     DEFAULT_EXAMPLE_SETTINGS = {
@@ -475,7 +475,7 @@ class PredicateModelAdapter(ModelDefaults):
         'expectation': None,
     }
     
-    # Default general settings for the exclusion theory
+    # Default general settings for the uninegation theory
     DEFAULT_GENERAL_SETTINGS = {
         "print_impossible": False,
         "print_constraints": False,
@@ -486,7 +486,7 @@ class PredicateModelAdapter(ModelDefaults):
     
     def __init__(self, settings):
         super().__init__(settings)
-        self.semantics = WitnessPredicateSemantics(settings)
+        self.semantics = WitnessSemantics(settings)
         self.settings = settings
         
     def build_model(self, eval_point):
@@ -502,7 +502,7 @@ class PredicateModelAdapter(ModelDefaults):
         return self.semantics.extended_compute_verifiers(sentence, model, eval_point)
 
 
-class WitnessPredicateStructure(model.ModelDefaults):
+class WitnessStructure(model.ModelDefaults):
     """Extended model structure for witness predicate semantics with full printing."""
     
     def __init__(self, model_constraints, combined_settings):
@@ -556,7 +556,7 @@ class WitnessPredicateStructure(model.ModelDefaults):
             if i not in self.z3_possible_states
         ]
         
-        # Update exclusion data
+        # Update uninegation data
         self.z3_excludes = [
             (bit_x, bit_y)
             for bit_x in self.all_states
@@ -644,7 +644,7 @@ class WitnessPredicateStructure(model.ModelDefaults):
         self.print_info(model_status, self.settings, example_name, theory_name, output)
         if model_status:
             self.print_states(output)
-            self.print_exclusion(output)
+            self.print_uninegation(output)
             self.print_evaluation(output)
             self.print_input_sentences(output)
             self.print_model(output)
@@ -701,8 +701,8 @@ class WitnessPredicateStructure(model.ModelDefaults):
             elif self.settings['print_impossible']:
                 format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
                 
-    def print_exclusion(self, output=sys.__stdout__):
-        """Print conflicts, coherence, exclusion relationships, and witness functions."""
+    def print_uninegation(self, output=sys.__stdout__):
+        """Print conflicts, coherence, uninegation relationships, and witness functions."""
         from model_checker.utils import bitvec_to_substates
         import sys
         
@@ -754,10 +754,10 @@ class WitnessPredicateStructure(model.ModelDefaults):
                 y_state = bitvec_to_substates(bit_y, self.N)
                 print(f"  {color_x}{x_state}{RESET} coheres with {color_y}{y_state}{RESET}", file=output)
         
-        # Filter and print exclusions  
+        # Filter and print uninegations  
         filtered_excludes = [(x, y) for x, y in self.z3_excludes if should_include_state(x) and should_include_state(y)]
         if filtered_excludes:
-            print("\nExclusion", file=output)
+            print("\nUnilateral Exclusion", file=output)
             for bit_x, bit_y in filtered_excludes:
                 state_x = bitvec_to_substates(bit_x, self.N)
                 state_y = bitvec_to_substates(bit_y, self.N)
@@ -875,7 +875,7 @@ class WitnessPredicateStructure(model.ModelDefaults):
         )
 
 
-class WitnessPredicateProposition(PropositionDefaults):
+class WitnessProposition(PropositionDefaults):
     """Proposition class for witness predicate semantics."""
     
     def __init__(self, sentence, model_structure):

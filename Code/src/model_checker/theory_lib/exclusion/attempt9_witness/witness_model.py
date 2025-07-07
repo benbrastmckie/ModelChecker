@@ -16,7 +16,7 @@ class WitnessAwareModel:
     Model that treats witness functions as first-class predicates.
     
     In addition to standard predicates (verify, exclude, fusion, etc.),
-    this model includes witness predicates for exclusion formulas.
+    this model includes witness predicates for uninegation formulas.
     """
     
     def __init__(self, z3_model, semantics, witness_predicates):
@@ -75,7 +75,7 @@ class WitnessAwareModel:
         return witness_map
 
 
-class WitnessPredicateRegistry:
+class WitnessRegistry:
     """
     Registry for all witness predicates in the model.
     Tracks which formulas have associated witness functions.
