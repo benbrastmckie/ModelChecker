@@ -1,0 +1,98 @@
+{
+  "timestamp": "2025-07-02T07:58:00.115815",
+  "examples": {
+    "DN_ELIM": {
+      "model_found": true,
+      "false_premises": [
+        "\\exclude \\exclude A"
+      ],
+      "true_conclusions": [],
+      "valid": false,
+      "time": 0.5100171566009521,
+      "error": null
+    },
+    "TN_ENTAIL": {
+      "model_found": true,
+      "false_premises": [
+        "\\exclude \\exclude \\exclude A"
+      ],
+      "true_conclusions": [],
+      "valid": false,
+      "time": 1.0061793327331543,
+      "error": null
+    },
+    "QN_ENTAIL": {
+      "model_found": true,
+      "false_premises": [
+        "\\exclude \\exclude \\exclude \\exclude A"
+      ],
+      "true_conclusions": [],
+      "valid": false,
+      "time": 2.6412618160247803,
+      "error": null
+    },
+    "CONJ_DM_LR": {
+      "model_found": true,
+      "false_premises": [
+        "\\exclude (A \\uniwedge B)"
+      ],
+      "true_conclusions": [],
+      "valid": false,
+      "time": 0.5059123039245605,
+      "error": null
+    },
+    "CONJ_DM_RL": {
+      "model_found": true,
+      "false_premises": [
+        "(\\exclude A \\univee \\exclude B)"
+      ],
+      "true_conclusions": [],
+      "valid": false,
+      "time": 0.5260498523712158,
+      "error": null
+    },
+    "DISJ_DM_LR": {
+      "model_found": true,
+      "false_premises": [
+        "\\exclude (A \\univee B)"
+      ],
+      "true_conclusions": [],
+      "valid": false,
+      "time": 0.4910924434661865,
+      "error": null
+    },
+    "DISJ_DM_RL": {
+      "model_found": true,
+      "false_premises": [
+        "(\\exclude A \\uniwedge \\exclude B)"
+      ],
+      "true_conclusions": [],
+      "valid": false,
+      "time": 0.47321224212646484,
+      "error": null
+    },
+    "EX_TH_17": {
+      "model_found": true,
+      "false_premises": [
+        "\\exclude (A \\univee B)"
+      ],
+      "true_conclusions": [],
+      "valid": false,
+      "time": 0.5085744857788086,
+      "error": null
+    }
+  },
+  "summary": {
+    "total": 8,
+    "model_found": 8,
+    "no_model": 0,
+    "valid": 0,
+    "invalid": 8,
+    "false_premise_count": 8,
+    "true_conclusion_count": 0,
+    "errors": 0,
+    "success_rate": 0.0,
+    "model_rate": 1.0,
+    "average_time": 0.8327874541282654
+  }
+}
