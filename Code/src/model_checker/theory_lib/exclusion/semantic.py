@@ -5,6 +5,10 @@ This module implements the core semantics that includes witness functions as
 model predicates. It extends the standard uninegation semantics by registering
 witness predicates for all uninegation formulas and generating constraints
 that define their behavior.
+
+This module integrates the WitnessAwareModel, WitnessRegistry, and 
+WitnessConstraintGenerator classes that were previously in separate modules
+for simplified architecture and reduced import complexity.
 """
 
 import z3
@@ -15,8 +19,244 @@ from model_checker import model
 from model_checker.model import ModelDefaults, SemanticDefaults, PropositionDefaults
 from model_checker.utils import ForAll, Exists, bitvec_to_substates, pretty_set_print, int_to_binary
 from model_checker import syntactic
-from .witness_model import WitnessAwareModel, WitnessRegistry
-from .witness_constraints import WitnessConstraintGenerator
+# Integrated witness model and constraint generator classes
+
+
+class WitnessAwareModel:
+    """
+    Model that treats witness functions as first-class predicates.
+    
+    In addition to standard predicates (verify, exclude, fusion, etc.),
+    this model includes witness predicates for uninegation formulas.
+    """
+    
+    def __init__(self, z3_model, semantics, witness_predicates):
+        self.z3_model = z3_model
+        self.semantics = semantics
+        self.witness_predicates = witness_predicates
+        # Cache for evaluated predicates
+        self._cache = {}
+        
+    def eval(self, expr):
+        """Standard Z3 model evaluation."""
+        return self.z3_model.eval(expr)
+        
+    def has_witness_for(self, formula_str: str) -> bool:
+        """Check if model has witness predicates for given formula."""
+        return f"{formula_str}_h" in self.witness_predicates
+        
+    def get_h_witness(self, formula_str: str, state: int) -> Optional[int]:
+        """
+        Get h(state) for the given formula.
+        This is the key method that makes witnesses accessible.
+        """
+        h_pred = self.witness_predicates.get(f"{formula_str}_h")
+        if h_pred is None:
+            return None
+            
+        # Query the witness predicate
+        state_bv = z3.BitVecVal(state, self.semantics.N)
+        result = self.eval(h_pred(state_bv))
+        if z3.is_bv_value(result):
+            return result.as_long()
+        return None
+        
+    def get_y_witness(self, formula_str: str, state: int) -> Optional[int]:
+        """Get y(state) for the given formula."""
+        y_pred = self.witness_predicates.get(f"{formula_str}_y")
+        if y_pred is None:
+            return None
+            
+        state_bv = z3.BitVecVal(state, self.semantics.N)
+        result = self.eval(y_pred(state_bv))
+        if z3.is_bv_value(result):
+            return result.as_long()
+        return None
+        
+    def get_all_witness_values(self, formula_str: str) -> Dict[int, Tuple[int, int]]:
+        """Get all witness values for a formula."""
+        witness_map = {}
+        
+        for state in range(2**self.semantics.N):
+            h_val = self.get_h_witness(formula_str, state)
+            y_val = self.get_y_witness(formula_str, state)
+            if h_val is not None and y_val is not None:
+                witness_map[state] = (h_val, y_val)
+                
+        return witness_map
+
+
+class WitnessRegistry:
+    """
+    Registry for all witness predicates in the model.
+    Tracks which formulas have associated witness functions.
+    """
+    
+    def __init__(self, N: int):
+        self.N = N
+        self.predicates: Dict[str, z3.FuncDeclRef] = {}
+        self.formula_mapping: Dict[str, Set[str]] = {}
+        
+    def register_witness_predicates(self, formula_str: str) -> Tuple[z3.FuncDeclRef, z3.FuncDeclRef]:
+        """
+        Register witness predicates h and y for a formula.
+        Returns (h_predicate, y_predicate).
+        """
+        h_name = f"{formula_str}_h"
+        y_name = f"{formula_str}_y"
+        
+        # Create Z3 functions for witness predicates
+        h_pred = z3.Function(h_name, z3.BitVecSort(self.N), z3.BitVecSort(self.N))
+        y_pred = z3.Function(y_name, z3.BitVecSort(self.N), z3.BitVecSort(self.N))
+        
+        self.predicates[h_name] = h_pred
+        self.predicates[y_name] = y_pred
+        
+        self.formula_mapping[formula_str] = {h_name, y_name}
+        
+        return h_pred, y_pred
+        
+    def get_all_predicates(self) -> Dict[str, z3.FuncDeclRef]:
+        """Get all registered witness predicates."""
+        return self.predicates.copy()
+        
+    def clear(self):
+        """Clear all registered predicates."""
+        self.predicates.clear()
+        self.formula_mapping.clear()
+
+
+class WitnessConstraintGenerator:
+    """
+    Generates constraints that define witness predicates
+    based on the three-condition uninegation semantics.
+    """
+    
+    def __init__(self, semantics):
+        self.semantics = semantics
+        self.N = semantics.N
+        
+    def generate_witness_constraints(self, formula_str: str, formula_ast,
+                                   h_pred: z3.FuncDeclRef,
+                                   y_pred: z3.FuncDeclRef,
+                                   eval_point) -> List[z3.BoolRef]:
+        """
+        Generate constraints that define the witness predicates
+        for a uninegation formula.
+        """
+        constraints = []
+        
+        # For each potential verifier state
+        for state in range(2**self.N):
+            state_bv = z3.BitVecVal(state, self.N)
+            
+            # Check if this state could verify the uninegation
+            if self._could_verify_uninegation(state, formula_ast, eval_point):
+                # Generate constraints for witness values at this state
+                state_constraints = self._witness_constraints_for_state(
+                    state_bv, formula_ast, h_pred, y_pred, eval_point
+                )
+                constraints.extend(state_constraints)
+            else:
+                # No witness needed for non-verifying states
+                # Could optionally constrain to undefined/zero
+                pass
+                
+        return constraints
+        
+    def _could_verify_uninegation(self, state: int, formula_ast, eval_point) -> bool:
+        """
+        Heuristic check if a state could potentially verify a uninegation.
+        This helps reduce the number of constraints.
+        """
+        # For now, consider all states as potential verifiers
+        # Could be optimized based on formula structure
+        return True
+        
+    def _witness_constraints_for_state(self, state, formula_ast,
+                                     h_pred, y_pred, eval_point) -> List[z3.BoolRef]:
+        """
+        Generate witness constraints for a specific state verifying uninegation.
+        """
+        constraints = []
+        argument = formula_ast.arguments[0]
+        x = z3.BitVec('x', self.N)
+        
+        # If state verifies the uninegation, then:
+        verify_excl = self.semantics.extended_verify(state, formula_ast, eval_point)
+        
+        # Condition 1: For all verifiers of argument, h and y satisfy requirements
+        condition1 = z3.ForAll([x],
+            z3.Implies(
+                self.semantics.extended_verify(x, argument, eval_point),
+                z3.And(
+                    self.semantics.is_part_of(y_pred(x), x),
+                    self.semantics.excludes(h_pred(x), y_pred(x))
+                )
+            )
+        )
+        
+        # Condition 2: All h values are part of state
+        condition2 = z3.ForAll([x],
+            z3.Implies(
+                self.semantics.extended_verify(x, argument, eval_point),
+                self.semantics.is_part_of(h_pred(x), state)
+            )
+        )
+        
+        # Condition 3: Minimality
+        condition3 = self._minimality_constraint(state, argument, h_pred, y_pred, eval_point)
+        
+        # If state verifies uninegation, then all three conditions hold
+        constraints.append(
+            z3.Implies(
+                verify_excl,
+                z3.And(condition1, condition2, condition3)
+            )
+        )
+        
+        # Conversely, if all conditions hold, state verifies uninegation
+        constraints.append(
+            z3.Implies(
+                z3.And(condition1, condition2, condition3),
+                verify_excl
+            )
+        )
+        
+        return constraints
+        
+    def _minimality_constraint(self, state, argument, h_pred, y_pred, eval_point):
+        """Generate the minimality constraint for witness predicates."""
+        z = z3.BitVec('z', self.N)
+        x = z3.BitVec('x', self.N)
+        
+        return z3.ForAll([z],
+            z3.Implies(
+                z3.And(
+                    self.semantics.is_part_of(z, state),
+                    z != state,
+                    # All h values fit in z
+                    z3.ForAll([x],
+                        z3.Implies(
+                            self.semantics.extended_verify(x, argument, eval_point),
+                            self.semantics.is_part_of(h_pred(x), z)
+                        )
+                    )
+                ),
+                # Then z doesn't satisfy condition 1
+                z3.Not(
+                    z3.ForAll([x],
+                        z3.Implies(
+                            self.semantics.extended_verify(x, argument, eval_point),
+                            z3.And(
+                                self.semantics.is_part_of(y_pred(x), x),
+                                self.semantics.excludes(h_pred(x), y_pred(x))
+                            )
+                        )
+                    )
+                )
+            )
+        )
 
 
 class WitnessSemantics(SemanticDefaults):

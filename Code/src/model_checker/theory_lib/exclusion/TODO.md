@@ -1,11 +1,11 @@
 # TODO
 
-- [ ] model_checker
+- [.] model_checker
   - [x] compare old strategies
   - [x] make spec file for new strategy
-  - [ ] implement new strategy
-  - [ ] test and compare with old
-  - [ ] document process
+  - [x] implement new strategy
+  - [x] test and compare with old
+  - [x] document process
   - [ ] check data with Lucas
   - [ ] compare with bilateral semantics
 - [ ] paper
