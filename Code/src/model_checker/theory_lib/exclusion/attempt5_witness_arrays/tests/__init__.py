@@ -1,1 +1,0 @@
-"""Tests for witness array exclusion implementation."""
