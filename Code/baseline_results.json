@@ -1,0 +1,222 @@
+{
+  "timestamp": "2025-07-02T06:54:49.395875",
+  "examples": {
+    "EMPTY": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.030578136444091797
+    },
+    "GLUTS": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.06664013862609863
+    },
+    "GAPS": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.06474089622497559
+    },
+    "EX_CM_1": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.02776026725769043
+    },
+    "EX_CM_15": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.057982683181762695
+    },
+    "DN_ID": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.02736949920654297
+    },
+    "DN_ELIM": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.054720401763916016
+    },
+    "DN_INTRO": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05599522590637207
+    },
+    "TN_ENTAIL": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05808210372924805
+    },
+    "TN_ID": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05602693557739258
+    },
+    "QN_ENTAIL": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05892491340637207
+    },
+    "DISJ_SYLL": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.054767608642578125
+    },
+    "CONJ_DM_LR": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.06004643440246582
+    },
+    "CONJ_DM_RL": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05483269691467285
+    },
+    "DISJ_DM_LR": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.054364919662475586
+    },
+    "DISJ_DM_RL": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05932211875915527
+    },
+    "DISJ_DIST_LR": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05553865432739258
+    },
+    "DISJ_DIST_RL": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.059983015060424805
+    },
+    "CONJ_DIST_LR": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05436992645263672
+    },
+    "CONJ_DIST_RL": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05489349365234375
+    },
+    "CONJ_ABS_RL": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05929827690124512
+    },
+    "CONJ_ABS_LR": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.056075096130371094
+    },
+    "DISJ_ABS_RL": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05559206008911133
+    },
+    "DISJ_ABS_LR": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.06020760536193848
+    },
+    "CONJ_ASSOC_RL": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05544328689575195
+    },
+    "CONJ_ASSOC_LR": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.060075998306274414
+    },
+    "DISJ_ASSOC_RL": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05617356300354004
+    },
+    "DISJ_ASSOC_LR": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.060013532638549805
+    },
+    "EX_TH_17": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.056780338287353516
+    },
+    "EX_TH_18": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05829048156738281
+    },
+    "CONJ_DIST_ID": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05670952796936035
+    },
+    "DISJ_DIST_ID": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.056639909744262695
+    },
+    "CONJ_DM_ID": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.0576934814453125
+    },
+    "DISJ_DM_ID": {
+      "model_found": false,
+      "valid": false,
+      "error": "'ExclusionSemantics' object is not iterable",
+      "time": 0.05083012580871582
+    }
+  },
+  "summary": {
+    "total": 34,
+    "model_found": 0,
+    "no_model": 0,
+    "valid": 0,
+    "invalid": 0,
+    "false_premise_count": 0,
+    "true_conclusion_count": 0,
+    "errors": 34,
+    "success_rate": 0.0,
+    "model_rate": 0.0,
+    "average_time": 0.05490480451022878
+  }
+}

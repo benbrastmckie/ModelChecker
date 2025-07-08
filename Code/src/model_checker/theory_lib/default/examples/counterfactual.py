@@ -797,8 +797,14 @@ semantic_theories = {
 
 # Or set specific examples
 example_range = {
-    "CF_CM_3": CF_CM_3_example,
-    "CF_TH_4": CF_TH_4_example,
+    # Uncomment to run specific examples:
+    # "CF_CM_1": CF_CM_1_example,
+    # "CF_CM_3": CF_CM_3_example,
+    # "CF_TH_1": CF_TH_1_example,
+    # "CF_TH_3": CF_TH_3_example,
+    
+    # Quick test example - comment out or replace as needed
+    "CF_CM_1": CF_CM_1_example,
 }
 
 # Make this module runnable from the command line
