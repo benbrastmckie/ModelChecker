@@ -1,4 +1,4 @@
-# Strategy 2: Multi-Strategy Implementation
+# Strategy 1: Multi-Strategy Implementation
 
 ## Overview
 **Date**: Pre-2024  

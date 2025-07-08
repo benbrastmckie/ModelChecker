@@ -19,7 +19,7 @@ class UniNegationOperator(Operator):
     UniNegation operator that queries witness predicates from the model.
     """
     
-    name = "\\exclude"
+    name = "\\func_unineg"
     arity = 1
     
     def true_at(self, arg, eval_point):
@@ -39,9 +39,9 @@ class UniNegationOperator(Operator):
         """
         Compute verifiers by querying witness predicates.
         """
-        if not isinstance(model, WitnessAwareModel):
-            # Fallback for compatibility
-            return []
+        # Require witness-aware model
+        assert isinstance(model, WitnessAwareModel), \
+            "UniNegationOperator requires WitnessAwareModel with witness predicates"
             
         # Get verifiers of the argument
         arg_verifiers = self.semantics.extended_compute_verifiers(
@@ -49,7 +49,7 @@ class UniNegationOperator(Operator):
         )
         
         # Get formula string for witness lookup
-        formula_str = f"\\exclude({self.semantics._formula_to_string(argument)})"
+        formula_str = f"\\func_unineg({self.semantics._formula_to_string(argument)})"
         
         verifiers = []
         for state in range(2**self.semantics.N):
@@ -66,9 +66,9 @@ class UniNegationOperator(Operator):
         """
         Check if state verifies uninegation using witness predicates.
         """
-        # Check if model has witness predicates for this formula
-        if not model.has_witness_for(formula_str):
-            return False
+        # Require witness predicates for this formula
+        assert model.has_witness_for(formula_str), \
+            f"Missing witness predicates for formula: {formula_str}"
             
         # Verify three conditions using witness predicates
         # Condition 1 & 2: For each verifier, check h and y values
@@ -76,8 +76,8 @@ class UniNegationOperator(Operator):
             h_v = model.get_h_witness(formula_str, v)
             y_v = model.get_y_witness(formula_str, v)
             
-            if h_v is None or y_v is None:
-                return False
+            assert h_v is not None and y_v is not None, \
+                f"Witness values must exist for verifier {v} in formula {formula_str}"
                 
             # Check condition 1: y_v ⊑ v and h_v excludes y_v
             if not self._eval_is_part_of(y_v, v, model):
@@ -113,10 +113,10 @@ class UniNegationOperator(Operator):
             all_h_fit_in_z = True
             for v in arg_verifiers:
                 h_v = model.get_h_witness(formula_str, v)
-                if h_v is not None:
-                    if not self._eval_is_part_of(h_v, z, model):
-                        all_h_fit_in_z = False
-                        break
+                assert h_v is not None, f"h witness must exist for verifier {v}"
+                if not self._eval_is_part_of(h_v, z, model):
+                    all_h_fit_in_z = False
+                    break
                         
             if all_h_fit_in_z:
                 # z should not satisfy condition 1
@@ -125,9 +125,8 @@ class UniNegationOperator(Operator):
                     h_v = model.get_h_witness(formula_str, v)
                     y_v = model.get_y_witness(formula_str, v)
                     
-                    if h_v is None or y_v is None:
-                        z_satisfies_cond1 = False
-                        break
+                    assert h_v is not None and y_v is not None, \
+                        f"Witness values must exist for verifier {v}"
                         
                     if not (self._eval_is_part_of(y_v, v, model) and
                            self._eval_excludes(h_v, y_v, model)):
@@ -193,58 +192,15 @@ class UniNegationOperator(Operator):
         else:
             arg_str = str(argument)
             
-        formula_str = f"\\exclude({arg_str})"
+        formula_str = f"\\func_unineg({arg_str})"
         
         # Ensure witness predicates are registered for this formula
         if f"{formula_str}_h" not in sem.witness_registry.predicates:
             sem.witness_registry.register_witness_predicates(formula_str)
             
-        # Get witness predicates for this formula
-        h_pred = sem.witness_registry.predicates.get(f"{formula_str}_h")
-        y_pred = sem.witness_registry.predicates.get(f"{formula_str}_y")
-        
-        
-        # If witness predicates aren't available, fall back to Skolem functions
-        if h_pred is None or y_pred is None:
-            # Create unique Skolem functions for this exclusion instance
-            sem.counter += 1
-            counter = sem.counter
-            
-            h_sk = z3.Function(f"h_sk_{counter}", z3.BitVecSort(N), z3.BitVecSort(N))
-            y_sk = z3.Function(f"y_sk_{counter}", z3.BitVecSort(N), z3.BitVecSort(N))
-            
-            # Variables
-            x = z3.BitVec(f"sk_x_{counter}", N)
-            z = z3.BitVec(f"sk_z_{counter}", N)
-
-            return z3.And(
-                # Condition 1: For every verifier x of argument, 
-                # y_sk(x) is part of x and h_sk(x) excludes y_sk(x)
-                ForAll([x], z3.Implies(
-                    extended_verify(x, argument, eval_point), 
-                    z3.And(
-                        is_part_of(y_sk(x), x), 
-                        excludes(h_sk(x), y_sk(x))
-                    )
-                )),
-                
-                # Condition 2 (Upper Bound): For every verifier x of argument, 
-                # h_sk(x) is part of state
-                ForAll([x], z3.Implies(
-                    extended_verify(x, argument, eval_point), 
-                    is_part_of(h_sk(x), state)
-                )),
-                
-                # Condition 3 (Least Upper Bound): state is the smallest state 
-                # satisfying the UB condition
-                ForAll([z], z3.Implies(
-                    ForAll([x], z3.Implies(
-                        extended_verify(x, argument, eval_point), 
-                        is_part_of(h_sk(x), z)
-                    )), 
-                    is_part_of(state, z)
-                ))
-            )
+        # Get witness predicates for this formula - they must exist
+        h_pred = sem.witness_registry.predicates[f"{formula_str}_h"]
+        y_pred = sem.witness_registry.predicates[f"{formula_str}_y"]
         
         # Use witness predicates for the three-condition semantics
         x = z3.BitVec(f"wp_x_{sem.counter}", N)
