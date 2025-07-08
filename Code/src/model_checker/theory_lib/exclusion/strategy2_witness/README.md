@@ -1,10 +1,97 @@
 # Strategy 2: Witness Predicates for Exclusion Semantics
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [What This Theory Provides](#what-this-theory-provides)
+3. [Quick Start](#quick-start)
+4. [Architecture](#architecture)
+5. [How It Works](#how-it-works)
+6. [Theoretical Comparison](#theoretical-comparison)
+7. [Usage Example](#usage-example)
+8. [Key Insights](#key-insights)
+9. [Performance Characteristics](#performance-characteristics)
+10. [Future Directions](#future-directions)
+11. [Related Documentation](#related-documentation)
+
 ## Overview
 
-This directory implements the **witness predicate** solution for Champollion-Bernard (CB) preclusion semantics within the ModelChecker framework. The key innovation is treating existentially quantified witness functions as first-class model predicates, enabling Z3 to correctly handle complex nested formulas with existential quantification.
+This directory implements a solution to a fundamental challenge in computational semantics: how to handle **existentially quantified functions** in logical theories. It provides two distinct approaches to **unilateral negation** within the ModelChecker framework:
 
-**Key Achievement**: All 41 test examples execute correctly, solving the persistent "false premise problem" that affected previous implementations.
+1. **Champollion-Bernard (CB) Preclusion** (`\func_unineg`): Function-based semantics using witness predicates
+2. **Fine Preclusion** (`\set_unineg`): Set-based semantics without function quantification
+
+The key innovation in implementing the first theory is to make existentially quantified functions have witnesses that are **first-class model predicates**, enabling the Z3 theorem prover to correctly handle complex nested formulas that were previously intractable.
+
+**Key Achievement**: All 41 test examples now execute correctly, solving the persistent "false premise problem" that plagued earlier implementations.
+
+## What This Theory Provides
+
+### Two Semantic Approaches
+
+This implementation provides two different ways to understand unilateral negation:
+
+| Approach | Operator | Description | When to Use |
+|----------|----------|-------------|-------------|
+| **CB Preclusion** | `\func_unineg` | Uses witness functions h and y to map verifiers to their excluded parts | When you need fine-grained control over exclusion relationships |
+| **Fine Preclusion** | `\set_unineg` | Uses set operations without functions | When you prefer simpler, set-based reasoning |
+
+### Problem Solved
+
+In classical logic, negation is straightforward: ¬A is true when A is false. But in **exclusion semantics**, negation is more complex:
+
+- A state **precludes** (or excludes) a proposition when it contains parts that are incompatible with the proposition
+- This requires existential quantification: "there exist functions h and y such that..."
+- Z3 struggles with quantifying over functions, leading to incorrect results
+
+Our solution: **make the functions explicit** as witness predicates in the model structure.
+
+### Related Documentation
+
+- **[Parent Exclusion Theory](../README.md)**: Overview of the broader exclusion theory
+- **[Witness Predicates Explained](docs/WITNESS.md)**: Accessible introduction to witness predicates
+- **[Implementation Planning](docs/PLAN_2.md)**: Strategic design decisions
+- **[Z3 Background](/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/Z3_BACKGROUND.md)**: Introduction to Z3 and SMT solvers
+
+## Quick Start
+
+### Running Examples
+
+To run the test examples and see the theory in action:
+
+```bash
+# Run all examples in this theory
+model-checker src/model_checker/theory_lib/exclusion/strategy2_witness/examples.py
+
+# Run Fine preclusion comparison tests
+model-checker src/model_checker/theory_lib/exclusion/strategy2_witness/examples_fine.py
+
+# Run with specific settings (for developers)
+./dev_cli.py -p -z src/model_checker/theory_lib/exclusion/strategy2_witness/examples.py
+```
+
+### What You'll See
+
+The examples demonstrate:
+- **18 Theorems**: Valid logical principles (e.g., distribution laws, absorption laws)
+- **23 Countermodels**: Invalid inferences that the system correctly rejects
+- **Witness Functions**: The model output shows the h and y mappings for each formula
+
+Example output snippet:
+```
+Functions
+  \func_unineg(A)_h: □ → □
+  \func_unineg(A)_h: a → b
+  \func_unineg(A)_h: b → a
+  \func_unineg(A)_h: a.b → a.b
+  
+  \func_unineg(A)_y: □ → □
+  \func_unineg(A)_y: a → a
+  \func_unineg(A)_y: b → b
+  \func_unineg(A)_y: a.b → a
+```
+
+This shows exactly how each verifier is mapped to its excluding/excluded parts.
 
 ## Architecture
 
