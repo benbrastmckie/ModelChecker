@@ -939,3 +939,4 @@ class WitnessProposition(PropositionDefaults):
         print(
             f"{'  ' * indent_num}{FULL}|{self.name}| = {self}{RESET}"
             f"  {PART}({truth_value} in {world_state}){RESET}"
+        )
