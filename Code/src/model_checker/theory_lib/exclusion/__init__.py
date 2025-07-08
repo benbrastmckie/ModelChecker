@@ -7,10 +7,8 @@ to extract or reconstruct witness functions, they simply exist as queryable
 predicates alongside verify and exclude.
 """
 
-from .semantic import WitnessSemantics, WitnessModelAdapter, WitnessProposition, WitnessStructure
+from .semantic import WitnessSemantics, WitnessModelAdapter, WitnessProposition, WitnessStructure, WitnessAwareModel, WitnessRegistry, WitnessConstraintGenerator
 from .operators import witness_operators
-from .witness_model import WitnessAwareModel, WitnessRegistry
-from .witness_constraints import WitnessConstraintGenerator
 
 # For ModelChecker discovery
 DefaultSemantics = WitnessSemantics

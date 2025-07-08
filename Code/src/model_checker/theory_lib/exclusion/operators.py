@@ -11,7 +11,7 @@ import z3
 from model_checker.syntactic import Operator, OperatorCollection
 from model_checker.utils import ForAll, Exists
 from typing import List, Set, Optional
-from .witness_model import WitnessAwareModel
+from .semantic import WitnessAwareModel
 
 
 class UniNegationOperator(Operator):
