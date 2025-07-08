@@ -5,6 +5,7 @@
 This directory implements Bernard and Champollion's unilateral exclusion theory within the ModelChecker's **three-fold programmatic semantic methodology**: **Syntax → Truth-Conditions → Extensions**. This contrasts with the bilateral semantics approach developed by Kit Fine and Benjamin Brast-McKie, as exemplified in the logos theory.
 
 ### Semantic Approaches
+
 - **Unilateral Semantics** (Bernard & Champollion): Propositions have only verifiers; negation emerges through an exclusion relation between states
 - **Bilateral Semantics** (Fine & Brast-McKie): Propositions have both verifiers and falsifiers; negation is primitive
 
@@ -17,10 +18,87 @@ The exclusion theory provides a case study in how semantic theories requiring ex
 The ModelChecker implements a systematic methodology transforming between three fundamental levels:
 
 1. **Syntax Level**: Sentence objects, AST structures, formula representations
-2. **Truth-Conditions Level**: Z3 constraints, logical requirements, semantic primitives  
+2. **Truth-Conditions Level**: Z3 constraints, logical requirements, semantic primitives
 3. **Extensions Level**: Z3 models, concrete interpretations, state spaces
 
-The exclusion theory requires **circular information flow** between all three levels, making it an ideal test case for architectural approaches to programmatic semantics.
+## Two Approaches to Unilateral Semantics
+
+This directory explores two distinct semantic theories for unilateral negation (exclusion/preclusion), comparing their computational properties and logical relationships:
+
+### Champollion-Bernard (CB) Preclusion
+**Operator**: `\func_unineg`  
+**Status**: Fully implemented using witness predicates
+
+CB preclusion uses **function-based semantics** where a state e precludes a proposition A when there exist witness functions h and y satisfying three conditions:
+1. **Exclusion**: For every verifier of A, h maps it to something that excludes a part of it
+2. **Upper Bound**: All h-values are parts of e
+3. **Minimality**: e is the smallest state satisfying conditions 1-2
+
+This approach requires handling existential quantification over functions, which we solve using witness predicates.
+
+### Fine's Preclusion
+**Operator**: `\set_unineg`  
+**Status**: Fully implemented without witness functions
+
+Fine's preclusion uses **set-based semantics** where a state e precludes a proposition A when e is the fusion of a set T such that:
+1. **Coverage**: Every verifier of A has some part excluded by some member of T
+2. **Relevance**: Every member of T excludes some part of some verifier of A
+
+This approach avoids function quantification entirely, working directly with sets of states.
+
+### Comparing the Approaches
+
+Our implementation enables direct comparison of these semantic theories:
+
+| Aspect | CB Preclusion (`\func_unineg`) | Fine Preclusion (`\set_unineg`) |
+|--------|--------------------------------|----------------------------------|
+| **Semantics** | Function-based (h and y mappings) | Set-based (coverage & relevance) |
+| **Implementation** | Requires witness predicates | Direct set enumeration |
+| **Expressiveness** | More fine-grained | Coarser-grained |
+| **Complexity** | Higher (function quantification) | Lower (finite sets) |
+| **Debugging** | Can inspect h and y mappings | Can inspect set T |
+
+### Key Finding: Logical Relationship
+
+Our tests confirm that **CB preclusion is strictly stronger than Fine preclusion**:
+- Every CB precluder is also a Fine precluder
+- Some Fine precluders are NOT CB precluders
+
+This is demonstrated in `strategy2_witness/examples_fine.py` which directly compares both approaches on the same formulas.
+
+### Implementation Details
+
+Both semantic theories are implemented in **[strategy2_witness/](strategy2_witness/)** with:
+- `operators.py`: Contains both `UniNegationOperator` (CB) and `FineUniNegation` (Fine)
+- `examples.py`: Tests CB preclusion with witness predicates
+- `examples_fine.py`: Compares CB and Fine approaches
+- `docs/WITNESS.md`: Detailed explanation of both theories
+
+See **[strategy2_witness/README.md](strategy2_witness/README.md)** for complete documentation.
+
+### Strategy 1: Fine Semantics Without Witnesses
+**Directory**: `strategy1_multi/`  
+**Status**: Planned implementation
+
+Strategy 1 implements **only Fine's set-based preclusion semantics** (`\set_unineg`) using the older ModelChecker framework without witness predicates. This approach:
+- Uses direct set enumeration and finite search
+- Avoids all function quantification and witness infrastructure
+- Provides a baseline comparison for computational efficiency
+- Tests whether Fine semantics can be implemented cleanly without advanced features
+
+Key differences from Strategy 2:
+- **No CB preclusion**: Does not implement `\func_unineg` at all
+- **No witnesses**: Uses traditional ModelChecker architecture
+- **Pure Fine semantics**: Only set-based coverage and relevance conditions
+- **Simpler codebase**: Minimal dependencies on advanced Z3 features
+
+See **[strategy1_multi/docs/PLAN_1.md](strategy1_multi/docs/PLAN_1.md)** for the detailed implementation plan.
+
+### Strategy 2: Both Semantics With Witnesses
+**Directory**: `strategy2_witness/`  
+**Status**: Fully implemented
+
+Strategy 2 implements **both CB and Fine semantics** using witness predicates to handle the function quantification challenges in CB preclusion. This is currently the recommended approach for research comparing the two semantic theories.
 
 ## The Innovation: Witness Functions as Model Predicates
 
@@ -38,7 +116,7 @@ class WitnessAwareModel:
         h_pred = self.witness_predicates.get(f"{formula_str}_h")
         if h_pred is None:
             return None
-            
+
         # Query the witness predicate
         state_bv = z3.BitVecVal(state, self.semantics.N)
         result = self.eval(h_pred(state_bv))
@@ -52,6 +130,7 @@ This simple change enables the model to answer questions about witness mappings 
 ### Why This Matters
 
 The unilateral negation operator `¬A` has complex semantics involving existential quantification:
+
 - A state verifies `¬A` if there exist witness functions h and y satisfying three conditions
 - Previous attempts lost access to these witnesses after constraint generation
 - Without witnesses, we couldn't compute verifiers correctly during truth evaluation
@@ -80,14 +159,14 @@ class WitnessRegistry:
         """Register h and y predicates for a formula."""
         h_name = f"{formula_str}_h"
         y_name = f"{formula_str}_y"
-        
+
         # Create Z3 functions for witness predicates
         h_pred = z3.Function(h_name, z3.BitVecSort(self.N), z3.BitVecSort(self.N))
         y_pred = z3.Function(y_name, z3.BitVecSort(self.N), z3.BitVecSort(self.N))
-        
+
         self.predicates[h_name] = h_pred
         self.predicates[y_name] = y_pred
-        
+
         return h_pred, y_pred
 ```
 
@@ -96,11 +175,13 @@ class WitnessRegistry:
 We maintain the ModelChecker's two-phase architecture:
 
 **Phase 1: Constraint Generation**
+
 - Establish witness mappings via Z3 constraints
 - Register witness predicates in the model
 - Generate three-condition semantics constraints
 
 **Phase 2: Truth Evaluation**
+
 - Query established witness mappings
 - Compute verifiers using witness values
 - Determine truth at evaluation points
@@ -115,7 +196,7 @@ class UniNegationOperator(Operator):
         """Compute verifiers by querying witness predicates."""
         # Get formula string for witness lookup
         formula_str = f"\\exclude({self.semantics._formula_to_string(argument)})"
-        
+
         verifiers = []
         for state in range(2**self.semantics.N):
             if self._verifies_uninegation_with_predicates(
@@ -169,6 +250,7 @@ NEG_TO_SENT = [
 ## Test Results Summary
 
 ### Theorems (18 total)
+
 - Basic atomic inference: `A ⊢ A`
 - Distribution laws: `A ∧ (B ∨ C) ⊢ (A ∧ B) ∨ (A ∧ C)`
 - Absorption laws: `A ⊢ A ∧ (A ∨ B)`
@@ -176,6 +258,7 @@ NEG_TO_SENT = [
 - Identity principles: `⊢ (A ∧ (B ∨ C)) ≡ ((A ∧ B) ∨ (A ∧ C))`
 
 ### Countermodels (23 total)
+
 - Negation principles: `A ⊢ ¬A` (correctly fails)
 - Double negation: `¬¬A ⊢ A` (correctly fails)
 - DeMorgan's laws (all four forms find countermodels)
@@ -276,26 +359,32 @@ The exclusion theory implementation consists of five core modules that work toge
 ### Core Modules
 
 #### `__init__.py`
+
 Theory registration and public API:
+
 - Exports `WitnessSemantics`, `WitnessProposition`, `WitnessStructure`
 - Provides `witness_operators` collection
 - Registers theory with ModelChecker framework
 
 #### `semantic.py` (426 lines)
+
 **Primary orchestration layer** implementing `WitnessSemantics(SemanticDefaults)`:
 
 **Key Components:**
+
 - `WitnessSemantics`: Main semantic class coordinating all components
 - `WitnessRegistry`: Centralized witness function management
 - `WitnessConstraintGenerator`: Semantic constraint generation
 
 **Core Methods:**
+
 - `build_model()`: Two-phase model construction (register predicates → generate constraints)
 - `_register_witness_predicates_recursive()`: Formula tree traversal for witness registration
 - `_generate_all_witness_constraints()`: Constraint generation for all registered witnesses
 - Semantic relations: `conflicts()`, `coherence()`, `is_part_of()`, `excludes()`, `fusion()`
 
 **Settings:**
+
 ```python
 DEFAULT_EXAMPLE_SETTINGS = {
     'N': 3, 'possible': False, 'contingent': False,
@@ -305,13 +394,16 @@ DEFAULT_EXAMPLE_SETTINGS = {
 ```
 
 #### `witness_model.py` (203 lines)
+
 **Extended model structure** providing witness function access:
 
 **Key Classes:**
+
 - `WitnessAwareModel`: Extended model with witness query capabilities
 - `WitnessRegistry`: Predicate registration and management system
 
 **Core Methods:**
+
 ```python
 def get_h_witness(self, formula_str: str, state: int) -> Optional[int]:
     """Query h witness function for formula at state."""
@@ -324,34 +416,41 @@ def has_witness_for(self, formula_str: str) -> bool:
 ```
 
 #### `witness_constraints.py` (184 lines)
+
 **Constraint generation** implementing three-condition semantics:
 
 **Key Class:**
+
 - `WitnessConstraintGenerator`: Translates semantic conditions to Z3 constraints
 
 **Core Methods:**
+
 - `generate_constraints()`: Main constraint generation for witness predicates
 - `_three_condition_constraints()`: Implements the formal semantic definition
 - `_minimality_constraints()`: Ensures minimal verifying states
 - `_witness_domain_constraints()`: Domain restrictions for witness functions
 
 **Semantic Implementation:**
+
 ```python
 # Condition 1: ∀x ∈ Ver(φ): ∃y ⊑ x where h(x) excludes y
-# Condition 2: ∀x ∈ Ver(φ): h(x) ⊑ s  
+# Condition 2: ∀x ∈ Ver(φ): h(x) ⊑ s
 # Condition 3: s is minimal satisfying conditions 1-2
 ```
 
 #### `operators.py` (437 lines)
+
 **Operator implementations** using witness predicates:
 
 **Key Classes:**
+
 - `UniNegationOperator`: Exclusion operator (`\\exclude`) with witness queries
 - `UniConjunctionOperator`: Conjunction using product semantics
-- `UniDisjunctionOperator`: Disjunction using union semantics  
+- `UniDisjunctionOperator`: Disjunction using union semantics
 - `UniIdentityOperator`: Identity based on verifier set equality
 
 **Core Pattern:**
+
 ```python
 def compute_verifiers(self, argument, model, eval_point):
     """Compute verifiers by querying witness predicates from model."""
@@ -364,14 +463,17 @@ def compute_verifiers(self, argument, model, eval_point):
 ```
 
 #### `examples.py` (147 lines)
+
 **Test cases and demonstrations** using standard ModelChecker syntax:
 
 **Test Categories:**
+
 - **Theorems (18)**: Basic inference, distribution laws, absorption, associativity
 - **Countermodels (23)**: Negation principles, DeMorgan's laws, frame constraints
 - **Edge Cases**: Empty premises, complex nested formulas
 
 **Example Structure:**
+
 ```python
 def neg_to_sent():
     """NEG_TO_SENT: ¬A ⊢ A (should find countermodel)"""
@@ -425,7 +527,7 @@ The implementation follows all ModelChecker conventions:
 ## Performance Characteristics
 
 - **Constraint Generation**: O(2^N × |formulas|) - acceptable for typical N=3
-- **Witness Storage**: O(|formulas| × 2^N) - minimal memory overhead  
+- **Witness Storage**: O(|formulas| × 2^N) - minimal memory overhead
 - **Query Performance**: O(1) per witness lookup
 - **Overall Impact**: Negligible performance cost for complete correctness
 

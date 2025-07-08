@@ -1,22 +1,36 @@
-# Implementation Plan: Simplified Fine-Preclusion Semantics
+# Strategy 1: Fine Semantics Without Witnesses
 
 ## Overview
 
-This plan outlines a simplified implementation of Fine-preclusion semantics alongside the existing Champollion-Bernard (CB) preclusion semantics. Unlike CB preclusion which requires complex function quantification and multiple implementation strategies, Fine preclusion operates directly on sets of states without function quantification. This allows for a much cleaner implementation with a single, straightforward approach.
+This plan outlines **Strategy 1**: implementing **only Fine's set-based preclusion semantics** using the traditional ModelChecker framework without witness predicates. This provides a baseline implementation that:
 
-## Key Differences Between CB and Fine Preclusion
+- Uses **only Fine semantics** (`\set_unineg`) - no CB preclusion at all
+- Operates in the **older ModelChecker framework** without witness infrastructure
+- Provides **direct set enumeration** without function quantification
+- Enables **performance comparison** with Strategy 2's witness-based approach
 
-### Champollion-Bernard (CB) Preclusion
-- **Definition**: Event `e` CB-precludes set `S` if there exists a function `h` such that:
-  1. `e = {h(f_i) | f_i ∈ S}` (e is the fusion of h-images)
-  2. For all `f_i ∈ S`, `h(f_i)` excludes some part of `f_i`
-- **Key feature**: Requires a single function `h` that maps each element of S
+Unlike Strategy 2 which implements both CB and Fine semantics using witness predicates, Strategy 1 focuses exclusively on demonstrating that Fine semantics can be implemented cleanly and efficiently without advanced Z3 features.
 
-### Fine Preclusion
+## Strategy 1 Focus: Fine Semantics Only
+
+This strategy implements **only Fine preclusion semantics** for computational comparison purposes. Understanding Fine semantics:
+
+### Fine Preclusion (Strategy 1 Implementation)
+- **Operator**: `\set_unineg` 
 - **Definition**: Event `e` Fine-precludes set `S` if `e` is the fusion of set `T` where:
   1. (Coverage) For all `s ∈ S`, some `t ∈ T` excludes some part of `s`
   2. (Relevance) For all `t ∈ T`, some `s ∈ S` where `t` excludes some part of `s`
-- **Key feature**: No function quantification; uses set-based conditions
+- **Key advantage**: No function quantification; uses only set-based conditions
+- **Implementation**: Direct set enumeration using traditional ModelChecker architecture
+
+### Comparison with Strategy 2
+- **Strategy 1**: Only Fine semantics, no witnesses, older framework
+- **Strategy 2**: Both CB and Fine semantics, with witness predicates, advanced framework
+
+This enables direct comparison of:
+1. **Computational efficiency**: Traditional vs witness-based approaches
+2. **Implementation complexity**: Simple set operations vs function quantification  
+3. **Semantic expressiveness**: Fine-only vs CB+Fine capabilities
 
 ## Implementation Strategy
 
@@ -24,49 +38,51 @@ This plan outlines a simplified implementation of Fine-preclusion semantics alon
 
 #### 1.1 Create FineUniNegation Operator
 - **File**: `operators.py`
-- **Class**: `FineUniNegation` (extends `Operator` directly, no base class needed)
-- **Key Insight**: No function quantification means no need for ExclusionOperatorBase or multiple strategies
+- **Class**: `FineUniNegation` (extends standard `Operator` class)
+- **Key Insight**: No function quantification enables direct implementation in traditional framework
 - **Implementation approach**:
   ```python
   class FineUniNegation(Operator):
       def __init__(self, operand):
           super().__init__(operand)
-          self.name = r'\finexclude'
+          self.name = r'\set_unineg'
           
       def _verification_conditions(self, model):
-          # Direct implementation without function quantification
+          # Direct set-based implementation
           # 1. Get verifiers of operand (set S)
           # 2. For each state e, check if exists set T such that:
           #    - e = fusion(T)
           #    - Coverage: ∀s∈S ∃t∈T: excludes(t, part_of(s))
           #    - Relevance: ∀t∈T ∃s∈S: excludes(t, part_of(s))
-          # Use Z3 booleans for T membership, no functions needed
+          # Use Z3 booleans for T membership, no witness functions needed
   ```
 
-#### 1.2 Single Implementation Strategy
-- **No multiple strategies needed**: Fine preclusion's set-based approach eliminates the complexity that required 11 different strategies in CB preclusion
-- **Direct constraint generation**: Use Z3's finite domain capabilities without complex workarounds
-- **Clean separation**: Keep Fine preclusion logic separate from existing CB implementations
+#### 1.2 Traditional Framework Implementation
+- **Single, clean approach**: Fine preclusion's set-based semantics fit naturally in the traditional ModelChecker architecture
+- **No witness infrastructure**: Uses standard Z3 constraint generation without advanced model extensions
+- **Direct set enumeration**: Leverages Z3's finite domain capabilities for straightforward implementation
+- **Baseline comparison**: Provides performance and complexity baseline for Strategy 2 comparison
 
 ### Phase 2: Clean Integration
 
-#### 2.1 Simplify Existing Code Structure
-- **Remove ExclusionOperatorBase dependency**: Fine preclusion doesn't inherit from it
-- **Keep existing operators intact**: Don't modify the CB preclusion implementations
-- **Register operator cleanly**:
+#### 2.1 Traditional Framework Integration
+- **Standalone implementation**: No dependencies on complex base classes or witness infrastructure
+- **Standard ModelChecker patterns**: Uses traditional `Operator` inheritance and constraint generation
+- **Clean operator registration**:
   ```python
   operators.register(
-      token=r'\finexclude',
+      token=r'\set_unineg',
       precedence=1,
       operator_class=FineUniNegation,
-      description='Fine-preclusion negation (set-based, no functions)'
+      description='Fine preclusion (set-based, traditional framework)'
   )
   ```
 
 #### 2.2 Implementation Details
-- **Use existing infrastructure**: Leverage `model.states()`, `model.excludes()`, `model.fusion()`
-- **Avoid complexity**: No counters, no Skolem functions, no witness tracking
-- **Clear semantics**: State `e` verifies `\finexclude A` iff `e` Fine-precludes the set of A-verifiers
+- **Use standard infrastructure**: Leverage existing `model.states()`, `model.excludes()`, `model.fusion()`
+- **Traditional approach**: No witness functions, no advanced Z3 features, no function quantification
+- **Pure Fine semantics**: State `e` verifies `\set_unineg A` iff `e` Fine-precludes the set of A-verifiers
+- **Performance baseline**: Provides comparison point for witness-based Strategy 2
 
 ### Phase 3: Testing Infrastructure
 
