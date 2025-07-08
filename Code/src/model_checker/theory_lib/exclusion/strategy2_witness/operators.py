@@ -206,6 +206,16 @@ class UniNegationOperator(Operator):
         
         # If witness predicates aren't available, fall back to Skolem functions
         if h_pred is None or y_pred is None:
+            # Log that we're using Skolem functions
+            print(f"\n[WARNING] SKOLEM FUNCTIONS BEING USED:")
+            print(f"  - Function: UniNegationOperator.extended_verify")
+            print(f"  - Module: strategy2_witness.operators")
+            print(f"  - Formula: {formula_str}")
+            print(f"  - Reason: Witness predicates not available")
+            print(f"  - h_pred: {'Missing' if h_pred is None else 'Available'}")
+            print(f"  - y_pred: {'Missing' if y_pred is None else 'Available'}")
+            print()
+            
             # Create unique Skolem functions for this exclusion instance
             sem.counter += 1
             counter = sem.counter
@@ -424,10 +434,273 @@ class UniIdentityOperator(Operator):
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
+class FineUniNegation(Operator):
+    """
+    Fine preclusion operator - implements Fine's set-based preclusion semantics.
+    No witness functions needed since all quantifiers are over finite state space.
+    """
+    
+    name = "\\finexclude"
+    arity = 1
+    
+    def true_at(self, arg, eval_point):
+        """Fine preclusion is true when there's a verifier in the evaluation world."""
+        x = z3.BitVec(f"fine_ver_{self.semantics.counter}", self.semantics.N)
+        self.semantics.counter += 1
+        
+        return Exists(
+            [x],
+            z3.And(
+                self.extended_verify(x, arg, eval_point),
+                self.semantics.is_part_of(x, eval_point["world"])
+            )
+        )
+    
+    def compute_verifiers(self, argument, model, eval_point):
+        """
+        Compute verifiers using Fine preclusion semantics.
+        No witness predicates needed - directly check set conditions.
+        """
+        # Get verifiers of the argument (set S)
+        S_verifiers = self.semantics.extended_compute_verifiers(
+            argument, model, eval_point
+        )
+        
+        if not S_verifiers:
+            # If S is empty, any state vacuously Fine-precludes it
+            return list(range(2**self.semantics.N))
+        
+        verifiers = []
+        # Check each potential verifier e
+        for e in range(2**self.semantics.N):
+            if self._verifies_fine_preclusion(e, S_verifiers, model):
+                verifiers.append(e)
+                
+        return verifiers
+    
+    def _verifies_fine_preclusion(self, e: int, S_verifiers: List[int], 
+                                  model) -> bool:
+        """
+        Check if state e Fine-precludes the set S_verifiers.
+        e Fine-precludes S if e = ⊔T where:
+        1. Coverage: ∀s∈S ∃t∈T: t excludes some part of s
+        2. Relevance: ∀t∈T ∃s∈S: t excludes some part of s
+        """
+        # Try all possible subsets T of states
+        num_states = 2**self.semantics.N
+        
+        # For each possible subset T (represented as a bitmask)
+        for T_mask in range(2**num_states):
+            T_states = [i for i in range(num_states) if (T_mask >> i) & 1]
+            
+            if not T_states:
+                continue  # Empty T cannot work
+                
+            # Check if e is the fusion of T
+            if not self._check_fusion_equals(e, T_states, model):
+                continue
+                
+            # Check coverage condition
+            if not self._check_coverage(S_verifiers, T_states, model):
+                continue
+                
+            # Check relevance condition  
+            if not self._check_relevance(T_states, S_verifiers, model):
+                continue
+                
+            # Found a valid T
+            return True
+            
+        return False
+    
+    def _check_fusion_equals(self, e: int, T_states: List[int], model) -> bool:
+        """Check if e equals the fusion of states in T."""
+        if not T_states:
+            return False
+            
+        # Compute fusion of all states in T
+        fusion_result = T_states[0]
+        for t in T_states[1:]:
+            fusion_val = self._eval_fusion(fusion_result, t, model)
+            if fusion_val is None:
+                return False
+            fusion_result = fusion_val
+            
+        return fusion_result == e
+    
+    def _check_coverage(self, S_verifiers: List[int], T_states: List[int], 
+                       model) -> bool:
+        """Check coverage: ∀s∈S ∃t∈T: t excludes some part of s."""
+        for s in S_verifiers:
+            found_excluding_t = False
+            for t in T_states:
+                # Check if t excludes some part of s
+                if self._excludes_some_part(t, s, model):
+                    found_excluding_t = True
+                    break
+            if not found_excluding_t:
+                return False
+        return True
+    
+    def _check_relevance(self, T_states: List[int], S_verifiers: List[int], 
+                        model) -> bool:
+        """Check relevance: ∀t∈T ∃s∈S: t excludes some part of s."""
+        for t in T_states:
+            found_excluded_s = False
+            for s in S_verifiers:
+                # Check if t excludes some part of s
+                if self._excludes_some_part(t, s, model):
+                    found_excluded_s = True
+                    break
+            if not found_excluded_s:
+                return False
+        return True
+    
+    def _excludes_some_part(self, t: int, s: int, model) -> bool:
+        """Check if t excludes some part of s."""
+        # Check all parts of s
+        for part in range(2**self.semantics.N):
+            if self._eval_is_part_of(part, s, model):
+                if self._eval_excludes(t, part, model):
+                    return True
+        return False
+    
+    def _eval_is_part_of(self, x: int, y: int, model) -> bool:
+        """Evaluate is_part_of relation using the model."""
+        x_bv = z3.BitVecVal(x, self.semantics.N)
+        y_bv = z3.BitVecVal(y, self.semantics.N)
+        result = model.eval(self.semantics.is_part_of(x_bv, y_bv))
+        return z3.is_true(result)
+    
+    def _eval_excludes(self, x: int, y: int, model) -> bool:
+        """Evaluate excludes relation using the model."""
+        x_bv = z3.BitVecVal(x, self.semantics.N)
+        y_bv = z3.BitVecVal(y, self.semantics.N)
+        result = model.eval(self.semantics.excludes(x_bv, y_bv))
+        return z3.is_true(result)
+    
+    def _eval_fusion(self, x: int, y: int, model) -> Optional[int]:
+        """Evaluate fusion operation using the model."""
+        x_bv = z3.BitVecVal(x, self.semantics.N)
+        y_bv = z3.BitVecVal(y, self.semantics.N)
+        result = model.eval(self.semantics.fusion(x_bv, y_bv))
+        if z3.is_bv_value(result):
+            return result.as_long()
+        return None
+    
+    def extended_verify(self, state, argument, eval_point):
+        """
+        Fine preclusion verification conditions as Z3 constraints.
+        
+        State verifies \\finexclude(A) if state Fine-precludes the set of A-verifiers.
+        """
+        sem = self.semantics
+        N = sem.N
+        
+        # We'll use a different encoding: represent T as constraints on states
+        # For efficiency, we'll directly encode the Fine preclusion conditions
+        
+        # Variables for the computation
+        counter = self.semantics.counter
+        self.semantics.counter += 1
+        
+        # Helper: check if a given subset T works
+        def check_T_subset(T_states_constraint):
+            # Variables
+            s = z3.BitVec(f"s_fine_{counter}", N)
+            t = z3.BitVec(f"t_fine_{counter}", N)
+            y = z3.BitVec(f"y_fine_{counter}", N)
+            
+            # Coverage: ∀s∈S ∃t∈T: t excludes some part of s
+            coverage = ForAll([s],
+                z3.Implies(
+                    sem.extended_verify(s, argument, eval_point),
+                    Exists([t, y],
+                        z3.And(
+                            T_states_constraint(t),
+                            sem.is_part_of(y, s),
+                            sem.excludes(t, y)
+                        )
+                    )
+                )
+            )
+            
+            # Relevance: ∀t∈T ∃s∈S: t excludes some part of s
+            relevance = ForAll([t],
+                z3.Implies(
+                    T_states_constraint(t),
+                    Exists([s, y],
+                        z3.And(
+                            sem.extended_verify(s, argument, eval_point),
+                            sem.is_part_of(y, s),
+                            sem.excludes(t, y)
+                        )
+                    )
+                )
+            )
+            
+            return z3.And(coverage, relevance)
+        
+        # Try different approaches to find a valid T
+        # Approach 1: T consists of all states that exclude some part of some S-verifier
+        s1 = z3.BitVec(f"s1_{counter}", N) 
+        y1 = z3.BitVec(f"y1_{counter}", N)
+        
+        T_constraint = lambda t: Exists([s1, y1],
+            z3.And(
+                sem.extended_verify(s1, argument, eval_point),
+                sem.is_part_of(y1, s1),
+                sem.excludes(t, y1)
+            )
+        )
+        
+        # Check if state is fusion of such T
+        # For simplicity, we'll check specific cases
+        
+        # Case 1: state itself forms T (singleton)
+        case1 = z3.And(
+            check_T_subset(lambda t: t == state),
+            # state must exclude part of some S-verifier
+            Exists([s1, y1],
+                z3.And(
+                    sem.extended_verify(s1, argument, eval_point),
+                    sem.is_part_of(y1, s1),
+                    sem.excludes(state, y1)
+                )
+            )
+        )
+        
+        # Case 2: state is fusion of multiple excluding states
+        # This is more complex - for now we'll use a simplified version
+        x1 = z3.BitVec(f"x1_{counter}", N)
+        x2 = z3.BitVec(f"x2_{counter}", N)
+        
+        case2 = Exists([x1, x2],
+            z3.And(
+                sem.fusion(x1, x2) == state,
+                x1 != x2,  # Non-trivial decomposition
+                # Both parts must be in our T
+                T_constraint(x1),
+                T_constraint(x2),
+                # Check coverage and relevance for {x1, x2}
+                check_T_subset(lambda t: z3.Or(t == x1, t == x2))
+            )
+        )
+        
+        # Return disjunction of cases
+        return z3.Or(case1, case2)
+    
+    
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Print Fine preclusion."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
+
+
 def create_operators():
     """Create operator collection for witness uninegation semantics."""
     return OperatorCollection(
         UniNegationOperator,
+        FineUniNegation,
         UniConjunctionOperator,
         UniDisjunctionOperator,
         UniIdentityOperator,
