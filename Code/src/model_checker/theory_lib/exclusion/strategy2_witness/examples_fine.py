@@ -61,7 +61,7 @@ example_settings = {
 
 # Test 1: Basic Fine preclusion
 FINE_BASIC_premises = []
-FINE_BASIC_conclusions = ['\\finexclude A']
+FINE_BASIC_conclusions = ['\\set_unineg A']
 FINE_BASIC_settings = {
     'N': 2,
     'possible': False,
@@ -81,7 +81,7 @@ FINE_BASIC_example = [
 
 # Test 2: Fine preclusion with premise
 FINE_WITH_PREMISE_premises = ['A']
-FINE_WITH_PREMISE_conclusions = ['\\finexclude A']
+FINE_WITH_PREMISE_conclusions = ['\\set_unineg A']
 FINE_WITH_PREMISE_settings = {
     'N': 2,
     'possible': False,
@@ -100,8 +100,8 @@ FINE_WITH_PREMISE_example = [
 ]
 
 # Test 3: CLAIM_1_A Verification - CB implies Fine
-COMPARE_CB_FINE_premises = ['\\exclude A']
-COMPARE_CB_FINE_conclusions = ['\\finexclude A']
+COMPARE_CB_FINE_premises = ['\\func_unineg A']
+COMPARE_CB_FINE_conclusions = ['\\set_unineg A']
 COMPARE_CB_FINE_settings = {
     'N': 2,
     'possible': False,
@@ -121,7 +121,7 @@ COMPARE_CB_FINE_example = [
 
 # Test 4: Double Fine negation
 FINE_DOUBLE_NEG_premises = ['A']
-FINE_DOUBLE_NEG_conclusions = ['\\finexclude \\finexclude A']
+FINE_DOUBLE_NEG_conclusions = ['\\set_unineg \\set_unineg A']
 FINE_DOUBLE_NEG_settings = {
     'N': 2,
     'possible': False,
@@ -140,8 +140,8 @@ FINE_DOUBLE_NEG_example = [
 ]
 
 # Test 5: Fine DeMorgan's Law
-FINE_DEMORGAN_premises = ['\\finexclude (A \\uniwedge B)']
-FINE_DEMORGAN_conclusions = ['(\\finexclude A \\univee \\finexclude B)']
+FINE_DEMORGAN_premises = ['\\set_unineg (A \\uniwedge B)']
+FINE_DEMORGAN_conclusions = ['(\\set_unineg A \\univee \\set_unineg B)']
 FINE_DEMORGAN_settings = {
     'N': 2,
     'possible': False,
@@ -160,8 +160,8 @@ FINE_DEMORGAN_example = [
 ]
 
 # Test 6: CLAIM_1_B Verification - Fine implies CB
-CLAIM1_CB_IMPLIES_FINE_premises = ['\\finexclude A']
-CLAIM1_CB_IMPLIES_FINE_conclusions = ['\\exclude A']
+CLAIM1_CB_IMPLIES_FINE_premises = ['\\set_unineg A']
+CLAIM1_CB_IMPLIES_FINE_conclusions = ['\\func_unineg A']
 CLAIM1_CB_IMPLIES_FINE_settings = {
     'N': 3,
     'possible': False,
