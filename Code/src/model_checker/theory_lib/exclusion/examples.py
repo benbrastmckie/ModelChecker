@@ -176,7 +176,7 @@ ATOMIC_settings = {
     'disjoint': False,
     'fusion_closure': False,
     'max_time': 2,
-    'expectation': True,
+    'expectation': False,
 }
 ATOMIC_example = [
     ATOMIC_premises,
@@ -201,7 +201,7 @@ NEG_TO_SENT_settings = {
     'disjoint': False,
     'fusion_closure': False,
     'max_time': 5,
-    'expectation': False,  # Note: expectation differs from elimination
+    'expectation': True,  # Note: expectation differs from elimination
 }
 NEG_TO_SENT_example = [
     NEG_TO_SENT_premises,
@@ -221,7 +221,7 @@ SENT_TO_NEG_settings = {
     'disjoint': False,
     'fusion_closure': False,
     'max_time': 5,
-    'expectation': False,  # Note: expectation differs from elimination
+    'expectation': True,  # Note: expectation differs from elimination
 }
 SENT_TO_NEG_example = [
     SENT_TO_NEG_premises,
@@ -302,7 +302,7 @@ CONJ_DM_LR_settings = {
     'disjoint': False,
     'fusion_closure': False,
     'max_time': 5,
-    'expectation': False,
+    'expectation': True,
 }
 CONJ_DM_LR_example = [
     CONJ_DM_LR_premises,
@@ -342,7 +342,7 @@ DN_INTRO_settings = {
     'disjoint': False,
     'fusion_closure': False,
     'max_time': 5,
-    'expectation': False,  # Note: expectation differs from elimination
+    'expectation': True,  # Note: expectation differs from elimination
 }
 DN_INTRO_example = [
     DN_INTRO_premises,
@@ -423,7 +423,7 @@ CONJ_DM_RL_settings = {
     'disjoint': False,
     'fusion_closure': False,
     'max_time': 5,
-    'expectation': False,
+    'expectation': True,
 }
 CONJ_DM_RL_example = [
     CONJ_DM_RL_premises,
@@ -443,7 +443,7 @@ DISJ_DM_LR_settings = {
     'disjoint': False,
     'fusion_closure': False,
     'max_time': 5,
-    'expectation': False,
+    'expectation': True,
 }
 DISJ_DM_LR_example = [
     DISJ_DM_LR_premises,
@@ -463,7 +463,7 @@ DISJ_DM_RL_settings = {
     'disjoint': False,
     'fusion_closure': False,
     'max_time': 5,
-    'expectation': False,
+    'expectation': True,
 }
 DISJ_DM_RL_example = [
     DISJ_DM_RL_premises,
@@ -801,7 +801,7 @@ EX_TH_17_settings = {
     'disjoint': False,
     'fusion_closure': False,
     'max_time': 5,
-    'expectation': False,
+    'expectation': True,
 }
 EX_TH_17_example = [
     EX_TH_17_premises,
@@ -886,7 +886,7 @@ CONJ_DM_ID_settings = {
     'disjoint': False,
     'fusion_closure': False,
     'max_time': 5,
-    'expectation': False,
+    'expectation': True,
 }
 CONJ_DM_ID_example = [
     CONJ_DM_ID_premises,
@@ -906,7 +906,7 @@ DISJ_DM_ID_settings = {
     'disjoint': False,
     'fusion_closure': False,
     'max_time': 5,
-    'expectation': False,
+    'expectation': True,
 }
 DISJ_DM_ID_example = [
     DISJ_DM_ID_premises,
@@ -952,7 +952,7 @@ EX_CM_15_settings = {
     'fusion_closure': False,
     'max_time': 5,
     'iterate': 1,
-    'expectation': True,
+    'expectation': False,
 }
 EX_CM_15_example = [
     EX_CM_15_premises,
@@ -967,60 +967,60 @@ EX_CM_15_example = [
 # Which examples to run - comprehensive test suite
 example_range = {
     # Frame examples
-    "Only Frame Constraints": EMPTY_example,                    # COUNTERMODEL
-    "No Gaps": GAPS_example,                                    # COUNTERMODEL
-    "No Gluts": NO_GLUT_example,                                # COUNTERMODEL
-    "Atomic Example": ATOMIC_example,                           # THEOREM
+    "EX_CM_01_Frame": EMPTY_example,                           # COUNTERMODEL
+    "EX_CM_02_Gaps": GAPS_example,                             # COUNTERMODEL
+    "EX_CM_03_Gluts": NO_GLUT_example,                         # COUNTERMODEL
+    "EX_TH_01_Atomic": ATOMIC_example,                         # THEOREM
     
     # Basic countermodel examples
-    "EX_CM_1": EX_CM_1_example,                                 # COUNTERMODEL
-    "EX_CM_15": EX_CM_15_example,                               # THEOREM
+    "EX_CM_04_Basic": EX_CM_1_example,                          # COUNTERMODEL
+    "EX_TH_02_Distribution": EX_CM_15_example,                  # THEOREM
     
     # Bilateral negation examples (Problematic in static)
-    "Negation to Sentence": NEG_TO_SENT_example,                # COUNTERMODEL
-    "Sentence to Negation": SENT_TO_NEG_example,                # COUNTERMODEL
-    "Double Negation Introduction": DN_INTRO_example,           # COUNTERMODEL
-    "Double Negation Elimination": DN_ELIM_example,             # COUNTERMODEL
-    "Triple Negation Entailment": TN_ENTAIL_example,            # COUNTERMODEL
-    "Quadruple Negation Entailment": QN_ENTAIL_example,         # COUNTERMODEL
-    "Disjunctive Syllogism": DISJ_SYLL_example,                 # THEOREM
+    "EX_CM_05_NegToSent": NEG_TO_SENT_example,                 # COUNTERMODEL
+    "EX_CM_06_SentToNeg": SENT_TO_NEG_example,                 # COUNTERMODEL
+    "EX_CM_07_DNIntro": DN_INTRO_example,                      # COUNTERMODEL
+    "EX_CM_08_DNElim": DN_ELIM_example,                        # COUNTERMODEL
+    "EX_CM_09_TNEntail": TN_ENTAIL_example,                    # COUNTERMODEL
+    "EX_CM_10_QNEntail": QN_ENTAIL_example,                    # COUNTERMODEL
+    "EX_TH_03_DisjSyll": DISJ_SYLL_example,                    # THEOREM
 
     # DeMorgan's laws (Problematic in static)
-    "Conjunctive DeMorgan's LR": CONJ_DM_LR_example,            # COUNTERMODEL
-    "Conjunctive DeMorgan's RL": CONJ_DM_RL_example,            # COUNTERMODEL
-    "Disjunctive DeMorgan's LR": DISJ_DM_LR_example,            # COUNTERMODEL
-    "Disjunctive DeMorgan's RL": DISJ_DM_RL_example,            # COUNTERMODEL
+    "EX_CM_11_ConjDMLR": CONJ_DM_LR_example,                   # COUNTERMODEL
+    "EX_CM_12_ConjDMRL": CONJ_DM_RL_example,                   # COUNTERMODEL
+    "EX_CM_13_DisjDMLR": DISJ_DM_LR_example,                   # COUNTERMODEL
+    "EX_CM_14_DisjDMRL": DISJ_DM_RL_example,                   # COUNTERMODEL
 
     # Distribution laws
-    "Conjunctive Distribution LR": CONJ_DIST_LR_example,        # THEOREM
-    "Conjunctive Distribution RL": CONJ_DIST_RL_example,        # THEOREM
-    "Disjunctive Distribution LR": DISJ_DIST_LR_example,        # THEOREM
-    "Disjunctive Distribution RL": DISJ_DIST_RL_example,        # THEOREM
+    "EX_TH_04_ConjDistLR": CONJ_DIST_LR_example,               # THEOREM
+    "EX_TH_05_ConjDistRL": CONJ_DIST_RL_example,               # THEOREM
+    "EX_TH_06_DisjDistLR": DISJ_DIST_LR_example,               # THEOREM
+    "EX_TH_07_DisjDistRL": DISJ_DIST_RL_example,               # THEOREM
 
     # Absorption laws
-    "Conjunctive Absorption LR": CONJ_ABS_LR_example,           # THEOREM
-    "Conjunctive Absorption RL": CONJ_ABS_RL_example,           # THEOREM
-    "Disjunctive Absorption LR": DISJ_ABS_LR_example,           # THEOREM
-    "Disjunctive Absorption RL": DISJ_ABS_RL_example,           # THEOREM
+    "EX_TH_08_ConjAbsLR": CONJ_ABS_LR_example,                 # THEOREM
+    "EX_TH_09_ConjAbsRL": CONJ_ABS_RL_example,                 # THEOREM
+    "EX_TH_10_DisjAbsLR": DISJ_ABS_LR_example,                 # THEOREM
+    "EX_TH_11_DisjAbsRL": DISJ_ABS_RL_example,                 # THEOREM
 
     # Associativity laws
-    "Conjunctive Associativity LR": CONJ_ASSOC_LR_example,      # THEOREM
-    "Conjunctive Associativity RL": CONJ_ASSOC_RL_example,      # THEOREM
-    "Disjunctive Associativity LR": DISJ_ASSOC_LR_example,      # THEOREM
-    "Disjunctive Associativity RL": DISJ_ASSOC_RL_example,      # THEOREM
+    "EX_TH_12_ConjAssocLR": CONJ_ASSOC_LR_example,             # THEOREM
+    "EX_TH_13_ConjAssocRL": CONJ_ASSOC_RL_example,             # THEOREM
+    "EX_TH_14_DisjAssocLR": DISJ_ASSOC_LR_example,             # THEOREM
+    "EX_TH_15_DisjAssocRL": DISJ_ASSOC_RL_example,             # THEOREM
 
     # Identity examples
-    "Double Negation Identity": DN_ID_example,                  # COUNTERMODEL
-    "Triple Negation Identity": TN_ID_example,                  # COUNTERMODEL
-    "Conjunctive DeMorgan's Identity": CONJ_DM_ID_example,      # COUNTERMODEL
-    "Disjunctive DeMorgan's Identity": DISJ_DM_ID_example,      # COUNTERMODEL
-    "Conjunctive Distribution Identity": CONJ_DIST_ID_example,  # THEOREM
-    "Disjunctive Distribution Identity": DISJ_DIST_ID_example,  # COUNTERMODEL
+    "EX_CM_15_DNId": DN_ID_example,                            # COUNTERMODEL
+    "EX_CM_16_TNId": TN_ID_example,                            # COUNTERMODEL
+    "EX_CM_17_ConjDMId": CONJ_DM_ID_example,                   # COUNTERMODEL
+    "EX_CM_18_DisjDMId": DISJ_DM_ID_example,                   # COUNTERMODEL
+    "EX_TH_16_ConjDistId": CONJ_DIST_ID_example,               # THEOREM
+    "EX_CM_19_DisjDistId": DISJ_DIST_ID_example,               # COUNTERMODEL
 
     # Complex examples
-    "T17 (DeMorgan Theorem)": T17_example,                      # COUNTERMODEL
-    "EX_TH_17": EX_TH_17_example,                               # COUNTERMODEL  
-    "EX_TH_18": EX_TH_18_example,                               # THEOREM
+    "EX_CM_20_T17DeMorgan": T17_example,                       # COUNTERMODEL
+    "EX_CM_21_DeMorganNot": EX_TH_17_example,                  # COUNTERMODEL  
+    "EX_TH_17_Complex": EX_TH_18_example,                      # THEOREM
 }
 
 # Test subset - uncomment to run just problematic examples

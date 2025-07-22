@@ -21,7 +21,7 @@ The ModelChecker implements a systematic methodology transforming between three 
 2. **Truth-Conditions Level**: Z3 constraints, logical requirements, semantic primitives
 3. **Extensions Level**: Z3 models, concrete interpretations, state spaces
 
-> **For a comprehensive explanation of this methodology with detailed examples and comparisons between bilateral and unilateral semantics, see [The Three-Level Methodology for Programmatic Semantics](../../../../Docs/METHODOLOGY.md).**
+# Note: METHODOLOGY.md file referenced here does not exist yet
 
 ## Two Approaches to Unilateral Semantics
 
