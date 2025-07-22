@@ -927,7 +927,8 @@ semantic_theories = {
     # "default" : default_theory,
 }
 
-test_example_range = {
+# Strategy 1 examples dictionary - combined collection
+unit_tests = test_example_range = {
     # Countermodels
     "EX_CM_0" : EMPTY_example,
     "EX_CM_1" : EX_CM_1_example,

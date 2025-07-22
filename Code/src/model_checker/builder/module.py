@@ -547,6 +547,7 @@ class BuildModule:
                     "Brast-McKie": "logos",  # Brast-McKie is the logos theory
                     "Default": "default",
                     "Exclusion": "exclusion",
+                    "unilateral_theory": "exclusion",  # Exclusion theory's internal name
                     "Imposition": "imposition",
                     "Bimodal": "bimodal",
                     "Logos": "logos"

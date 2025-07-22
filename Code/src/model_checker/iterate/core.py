@@ -21,6 +21,8 @@ import sys
 from model_checker.builder.example import BuildExample
 from model_checker.builder.progress import Spinner
 from model_checker.iterate.graph_utils import ModelGraph
+from model_checker.iterate.progress import IterationProgress
+from model_checker.iterate.stats import IterationStatistics
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -117,7 +119,15 @@ class BaseModelIterator:
         # Initialize diagnostic tracking
         self.debug_messages = []
         self.checked_model_count = 1
+        
+        # Initialize isomorphism cache
+        self._isomorphism_cache = {}
         self.distinct_models_found = 1
+        
+        # Initialize statistics tracking
+        self.stats = IterationStatistics()
+        # Add initial model stats
+        self.stats.add_model(self.build_example.model_structure, {})
     
     def _create_persistent_solver(self):
         """Create a persistent solver with the initial model's constraints."""
@@ -161,6 +171,15 @@ class BaseModelIterator:
         consecutive_invalid = 0
         max_consecutive_invalid = self.settings.get('max_invalid_attempts', 5)
         
+        # Initialize progress bar if enabled
+        progress = None
+        if self.settings.get('show_progress', True):
+            progress = IterationProgress(
+                self.max_iterations,
+                f"Finding {self.max_iterations} models"
+            )
+            progress.update(self.distinct_models_found, self.checked_model_count)
+        
         # Start iteration from second model
         while self.current_iteration < self.max_iterations:
             try:
@@ -193,13 +212,23 @@ class BaseModelIterator:
                     logger.debug(f"Solver check took {check_time:.2f} seconds, result: {result}")
                 
                 if result != z3.sat:
-                    self.debug_messages.append("No more models satisfy the extended constraints")
-                    self.debug_messages.append(f"[ITERATION] Stopped at model {self.current_iteration}/{self.max_iterations} - no more satisfiable models")
+                    # Better error messages based on context
+                    if self.current_iteration == 1:
+                        message = "No additional models exist that satisfy all constraints"
+                    else:
+                        message = f"Found {self.distinct_models_found} distinct models (requested {self.max_iterations})"
+                    
+                    self.debug_messages.append(f"[ITERATION] {message}")
+                    # Don't finish progress here - let it finish at the end
                     break
                 
                 # Get the new model
                 new_model = self.solver.model()
                 self.checked_model_count += 1
+                
+                # Update progress
+                if progress:
+                    progress.update(self.distinct_models_found, self.checked_model_count)
                 
                 # Build a completely new model structure with the extended constraints
                 new_structure = self._build_new_model_structure(new_model)
@@ -336,6 +365,13 @@ class BaseModelIterator:
                 self.model_structures.append(new_structure)
                 self.current_iteration += 1
                 
+                # Add statistics for this model
+                self.stats.add_model(new_structure, differences)
+                
+                # Update progress with new distinct model
+                if progress:
+                    progress.update(self.distinct_models_found, self.checked_model_count)
+                
                 # Add the new model to the solver constraints to ensure the next model is different
                 self.solver.add(self._create_difference_constraint([new_model]))
                 
@@ -345,6 +381,13 @@ class BaseModelIterator:
                 # Print the traceback to stderr for debugging but don't show it to the user
                 print(traceback.format_exc(), file=sys.stderr)
                 break
+        
+        # Complete progress display
+        if progress:
+            if self.distinct_models_found == self.max_iterations:
+                progress.finish(f"Successfully found all {self.max_iterations} requested models")
+            else:
+                progress.finish(f"Found {self.distinct_models_found} distinct models (requested {self.max_iterations})")
         
         # Return all model structures without printing summary here
         # Summary will be printed by the presentation layer (process_example)
@@ -358,6 +401,18 @@ class BaseModelIterator:
         """
         # Filter to only return [ITERATION] messages for user display
         return [msg for msg in self.debug_messages if "[ITERATION]" in msg]
+    
+    def get_iteration_summary(self):
+        """Get a summary of the iteration statistics.
+        
+        Returns:
+            dict: Dictionary containing iteration statistics
+        """
+        return self.stats.get_summary()
+    
+    def print_iteration_summary(self):
+        """Print a summary of iteration statistics."""
+        self.stats.print_summary()
     
     def reset_iterator(self):
         """Reset the iterator to its initial state.
@@ -709,7 +764,7 @@ class BaseModelIterator:
         return differences
     
     def _check_isomorphism(self, new_structure, new_model):
-        """Check if a model is isomorphic to any previous model.
+        """Check if a model is isomorphic to any previous model with caching.
         
         This uses NetworkX to check graph isomorphism between models.
         Theory-specific subclasses should override this method if they
@@ -728,6 +783,13 @@ class BaseModelIterator:
         try:
             # Create a graph representation of the new model
             new_graph = ModelGraph(new_structure, new_model)
+            
+            # Generate cache key based on graph properties
+            cache_key = self._generate_graph_cache_key(new_graph)
+            
+            # Check cache first
+            if cache_key in self._isomorphism_cache:
+                return self._isomorphism_cache[cache_key]
             
             # Store the graph with the model structure
             new_structure.model_graph = new_graph
@@ -752,6 +814,9 @@ class BaseModelIterator:
                     new_structure.isomorphic_to_previous = True
                     break
             
+            # Cache the result
+            self._isomorphism_cache[cache_key] = is_isomorphic
+            
             # If not isomorphic, add the graph to our collection
             if not is_isomorphic:
                 self.model_graphs.append(new_graph)
@@ -761,6 +826,23 @@ class BaseModelIterator:
         except Exception as e:
             logger.warning(f"Isomorphism check failed: {str(e)}")
             return False
+    
+    def _generate_graph_cache_key(self, graph):
+        """Generate a cache key based on graph structure.
+        
+        Args:
+            graph: ModelGraph instance
+            
+        Returns:
+            tuple: Cache key based on graph invariants
+        """
+        # Use graph invariants as cache key
+        return (
+            graph.graph.number_of_nodes(),
+            graph.graph.number_of_edges(),
+            tuple(sorted(graph.graph.degree())),
+            # Add more invariants as needed
+        )
     
     # Abstract methods that must be implemented by theory-specific subclasses
     

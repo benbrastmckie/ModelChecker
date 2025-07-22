@@ -27,6 +27,8 @@ class TestExclusionExamples:
         """Test that examples module exists and has expected structure."""
         assert hasattr(examples, 'example_range')
         assert hasattr(examples, 'semantic_theories')
+        assert hasattr(examples, 'unit_tests')
+        assert hasattr(examples, 'test_example_range')
         
     def test_example_structure(self):
         """Test that examples have proper structure."""
@@ -46,7 +48,7 @@ class TestExclusionExamples:
 
 
 # Create parameterized tests for all examples
-@pytest.mark.parametrize("example_name, example_case", examples.example_range.items())
+@pytest.mark.parametrize("example_name, example_case", examples.unit_tests.items())
 def test_exclusion_examples(example_name, example_case):
     """Test each exclusion example case."""
     

@@ -1024,7 +1024,8 @@ example_range = {
 }
 
 # Test subset - uncomment to run just problematic examples
-test_example_range = {
+# Strategy 2 examples dictionary - combined collection
+unit_tests = test_example_range = {
     # Additional quick tests to get theorem/countermodel status
     "EMPTY": EMPTY_example,
     "ATOMIC": ATOMIC_example,
