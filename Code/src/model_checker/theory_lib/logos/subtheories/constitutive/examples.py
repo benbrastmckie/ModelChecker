@@ -65,7 +65,7 @@ CL_CM_1_settings = {
     'non_empty' : False,
     'disjoint' : True,
     'max_time' : 1,
-    'iterate' : 1,
+    'iterate' : 2,
     'expectation' : True,
 }
 CL_CM_1_example = [
@@ -767,13 +767,13 @@ semantic_theories = {
 # Or specify particular examples to run
 example_range = {
 
+    # Also test a countermodel that should pass
+    "CL_CM_1": CL_CM_1_example,   # EQUIVALENCE OF TAUTOLOGIES
+
     # Test some failing theorem examples  
     "CL_TH_1": CL_TH_1_example,   # GROUND TO ESSENCE
     "CL_TH_3": CL_TH_3_example,   # ESSENCE TO IDENTITY
     
-    # Also test a countermodel that should pass
-    "CL_CM_1": CL_CM_1_example,   # EQUIVALENCE OF TAUTOLOGIES
-
 }
 
 def get_examples():

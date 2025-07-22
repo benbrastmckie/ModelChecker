@@ -107,6 +107,8 @@ The Logos provides a unified hyperintensional semantic theory using the **modula
 
 More information about the Logos theory can be found in [logos/README.md](logos/README.md).
 
+**Interactive Learning**: [Jupyter Notebooks](logos/notebooks/README.md) - Complete tutorial collection with hands-on demonstrations
+
 ### Exclusion Theory (Simple Pattern)
 
 The Exclusion Theory implements unilateral semantics using the **simple single-file architecture**.
@@ -123,6 +125,8 @@ The Exclusion Theory implements unilateral semantics using the **simple single-f
   - Compact, focused implementation
 
 More information about the exclusion theory can be found in [exclusion/README.md](exclusion/README.md).
+
+**Interactive Learning**: [Jupyter Notebooks](exclusion/notebooks/README.md) - Explore unilateral semantics and architectural innovations
 
 ### Imposition Theory
 
@@ -285,6 +289,12 @@ module.run_tests(["test1", "test2"])
 
 New semantic theories can be submitted to the ModelChecker Theory Library by following the guidelines detailed below.
 For questions or assistance, please open an [issue](https://github.com/benbrastmckie/ModelChecker/issues) on the GitHub repository, providing a detailed description of the problem that you are having and creating a new issue for each separate topic.
+
+### Implementation Guides
+
+- **[Theory Architecture Guide](THEORY_ARCHITECTURE.md)**: Choose between Simple and Modular patterns based on your theory's complexity
+- **[Theory Testing Framework Guide](tests/README.md#theory-testing-framework-guide)**: Comprehensive testing implementation for both architectural patterns
+- **[Jupyter Integration](../jupyter/README.md)**: Make your theory available in interactive notebooks
 
 ### Why Contribute?
 

@@ -380,6 +380,8 @@ theory = logos.get_theory(['extensional', 'modal'])
 
 ### Integration with Jupyter
 
+The Logos theory includes comprehensive Jupyter notebook tutorials and demonstrations. See **[notebooks/README.md](notebooks/README.md)** for the complete interactive learning environment.
+
 ```python
 # Interactive model checking
 from model_checker.jupyter import check_formula
@@ -387,6 +389,11 @@ from model_checker.jupyter import check_formula
 # Use logos theory
 result = check_formula("(\\Box p \\rightarrow p)", theory='logos')
 ```
+
+**Available Notebooks**:
+- **[Main Theory Demo](notebooks/logos_demo.ipynb)**: Complete introduction with all 5 subtheories
+- **[Modal Operators](notebooks/subtheories/modal_operators_demo.ipynb)**: Hyperintensional modal logic
+- **[Extensional Operators](notebooks/subtheories/extensional_operators_demo.ipynb)**: Truthmaker semantics for classical logic
 
 ### Performance Considerations
 
