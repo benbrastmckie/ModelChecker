@@ -91,7 +91,8 @@ The library currently includes the following theories:
 The Logos provides a unified hyperintensional semantic theory using the **modular subtheory architecture**.
 
 - **Theory Author**: Benjamin Brast-McKie
-- **Contributors**: Benjamin Brast-McKie and Miguel Buitrago
+- **Implementation Author**: Benjamin Brast-McKie
+- **Contributors**: Miguel Buitrago
 - **Architecture**: Modular (5 subtheories with 20+ operators)
 - **Description**: Implements a hyperintensional semantics for counterfactuals, constitutive operators, and modal logic.
 - **Key Papers**:
@@ -111,7 +112,7 @@ More information about the Logos theory can be found in [logos/README.md](logos/
 The Exclusion Theory implements unilateral semantics using the **simple single-file architecture**.
 
 - **Primary Authors**: Lucas Champollion & Paul Bernard
-- **Implementation Authors**: Benjamin Brast-McKie and Miguel Buitrago
+- **Implementation Authors**: Miguel Buitrago and Benjamin Brast-McKie
 - **Architecture**: Simple (4 operators in single file)
 - **Description**: Implements exclusion semantics for counterfactuals and related operators.
 - **Key Paper**: Bernard & Champollion "Exclusion Counterfactuals"
