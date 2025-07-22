@@ -818,7 +818,7 @@ class ModelDefaults:
         ```
         
         For comprehensive information on Z3 solver state management, see:
-        - theory_lib/notes/solvers.md # TODO: file doesnt exist
+        - theory_lib/specs/solvers.md
         - ../../docs/DEVELOPMENT.md section on Z3 Solver State Management
         """
         # Remove references to solver and model
@@ -1199,7 +1199,7 @@ class ModelDefaults:
         # Default implementation returns None, meaning use basic difference detection
         return None
         
-    # TODO: remove?
+    # TODO: Is this needed or can it be removed? Evaluate when working on the iterator tool
     def print_model_differences(self, output=sys.stdout):
         """Prints differences between this model and the previous one.
         

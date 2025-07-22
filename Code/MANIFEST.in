@@ -15,7 +15,6 @@ recursive-include src/model_checker/theory_lib/bimodal README.md
 recursive-include src/model_checker/theory_lib/default README.md
 recursive-include src/model_checker/theory_lib/exclusion README.md
 recursive-include src/model_checker/theory_lib/imposition README.md
-recursive-include src/model_checker/theory_lib/old_test README.md
 
 # Include Jupyter documentation
 recursive-include src/model_checker/jupyter README.md TROUBLESHOOTING.md NixOS_jupyter.md

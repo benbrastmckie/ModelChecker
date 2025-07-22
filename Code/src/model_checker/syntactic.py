@@ -781,9 +781,6 @@ class Syntax:
             if infix_sentence in self.all_sentences.keys():
                 return self.all_sentences[infix_sentence]
             sentence = Sentence(infix_sentence)
-            # TODO: confirm not needed
-            # if sentence.original_operator:
-            #     self.operators_used.append(sentence.original_operator)
             self.all_sentences[sentence.name] = sentence
             if sentence.original_arguments is None:
                 if sentence.name.isalnum():
@@ -814,10 +811,6 @@ class Syntax:
                 - Updates sentence.original_type with operator classes
                 - Updates sentence.arguments for defined operators
             """
-            # TODO: confirm not needed with derived operators
-            # if sentence.original_arguments:
-            #     for argument in sentence.original_arguments:
-            #         initialize_types(argument)
             sentence.update_types(self.operator_collection)
             if sentence.arguments: # NOTE: must happen after arguments are stored
                 sentence_arguments = []
@@ -829,9 +822,6 @@ class Syntax:
 
         sentence_objects = []
         for infix_sent in infix_sentences:
-            # TODO: this check/continue leads to errors
-            # if infix_sent in self.all_sentences.keys():
-            #     continue
             sentence = build_sentence(infix_sent)
             initialize_types(sentence)
             sentence_objects.append(sentence)

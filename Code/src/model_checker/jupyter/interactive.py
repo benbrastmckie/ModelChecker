@@ -17,7 +17,7 @@ except ImportError:
     HAVE_IPYWIDGETS = False
 
 # Define high-level utility functions
-def check_formula(formula, theory_name="default", premises=None, settings=None):
+def check_formula(formula, theory_name="logos", premises=None, settings=None):
     """Check if a formula is valid given premises."""
     if not HAVE_IPYWIDGETS:
         raise ImportError(
@@ -25,17 +25,64 @@ def check_formula(formula, theory_name="default", premises=None, settings=None):
             "Install with: pip install model-checker[jupyter]"
         )
     
-    # We need to import these here to avoid circular imports
     try:
         from IPython.display import display, HTML
+        from model_checker import BuildExample
+        from model_checker.theory_lib import logos, exclusion
         
-        # Simple placeholder implementation
-        result = {"valid": True, "formula": formula, "theory": theory_name}
-        return HTML(f"<div>Formula check: {formula} in {theory_name} (placeholder)</div>")
+        # Get the appropriate theory
+        if theory_name == "logos":
+            theory = logos.get_theory()
+        elif theory_name == "exclusion":
+            theory = {
+                'semantics': exclusion.WitnessSemantics,
+                'proposition': exclusion.WitnessProposition,
+                'model': exclusion.WitnessStructure,
+                'operators': exclusion.witness_operators
+            }
+        else:
+            # Fall back to logos for unsupported theories
+            theory = logos.get_theory()
+            theory_name = "logos"
+        
+        # Set up default settings
+        if settings is None:
+            settings = {'N': 3, 'max_time': 5}
+        
+        # Set up premises
+        if premises is None:
+            premises = []
+        elif isinstance(premises, str):
+            premises = [premises]
+        
+        # Create example and check
+        example = [premises, [formula], settings]
+        model = BuildExample("jupyter_check", theory, example)
+        
+        # Get result
+        valid = model.check_result()
+        
+        # Create HTML output
+        color = "green" if valid else "red"
+        premises_text = " with premises: " + ", ".join(premises) if premises else ""
+        
+        html_output = f"""
+        <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
+            <h3>Formula Check Result</h3>
+            <p><strong>Theory:</strong> {theory_name}</p>
+            <p><strong>Formula:</strong> {formula}{premises_text}</p>
+            <p><strong>Result:</strong> <span style='color:{color}; font-weight:bold'>{'Valid' if valid else 'Invalid'}</span></p>
+        </div>
+        """
+        
+        return HTML(html_output)
+        
     except ImportError:
         raise ImportError("IPython is required for this feature. Install with 'pip install model-checker[jupyter]'")
+    except Exception as e:
+        return HTML(f"<div style='color: red;'>Error checking formula: {str(e)}</div>")
 
-def find_countermodel(formula, theory_name="default", premises=None, settings=None):
+def find_countermodel(formula, theory_name="logos", premises=None, settings=None):
     """Find a countermodel for a formula with optional premises."""
     if not HAVE_IPYWIDGETS:
         raise ImportError(
@@ -43,16 +90,92 @@ def find_countermodel(formula, theory_name="default", premises=None, settings=No
             "Install with: pip install model-checker[jupyter]"
         )
     
-    # We need to import these here to avoid circular imports
     try:
         from IPython.display import display, HTML
+        from model_checker import BuildExample
+        from model_checker.theory_lib import logos, exclusion
+        from io import StringIO
         
-        # Simple placeholder implementation
-        return HTML(f"<div>Countermodel for: {formula} in {theory_name} (placeholder)</div>")
+        # Get the appropriate theory
+        if theory_name == "logos":
+            theory = logos.get_theory()
+        elif theory_name == "exclusion":
+            theory = {
+                'semantics': exclusion.WitnessSemantics,
+                'proposition': exclusion.WitnessProposition,
+                'model': exclusion.WitnessStructure,
+                'operators': exclusion.witness_operators
+            }
+        else:
+            # Fall back to logos for unsupported theories
+            theory = logos.get_theory()
+            theory_name = "logos"
+        
+        # Set up default settings for countermodel search
+        if settings is None:
+            settings = {'N': 3, 'max_time': 5, 'expectation': False}  # Expect invalid for countermodel
+        else:
+            settings = settings.copy()
+            settings['expectation'] = False  # Override to search for countermodel
+        
+        # Set up premises
+        if premises is None:
+            premises = []
+        elif isinstance(premises, str):
+            premises = [premises]
+        
+        # Create example and check for countermodel
+        example = [premises, [formula], settings]
+        model = BuildExample("jupyter_countermodel", theory, example)
+        
+        # Get result
+        valid = model.check_result()
+        
+        # Create HTML output
+        if not valid:
+            # Found a countermodel - capture model output
+            output = StringIO()
+            try:
+                model.model_structure.print_all(output=output)
+                model_output = output.getvalue()
+            except:
+                model_output = "Model details unavailable"
+            
+            premises_text = " with premises: " + ", ".join(premises) if premises else ""
+            
+            html_output = f"""
+            <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
+                <h3>Countermodel Found</h3>
+                <p><strong>Theory:</strong> {theory_name}</p>
+                <p><strong>Formula:</strong> {formula}{premises_text}</p>
+                <p><strong>Result:</strong> <span style='color:red; font-weight:bold'>Invalid (countermodel exists)</span></p>
+                <details>
+                    <summary>Show Countermodel</summary>
+                    <pre style="background: #f5f5f5; padding: 10px; margin-top: 10px;">{model_output}</pre>
+                </details>
+            </div>
+            """
+        else:
+            # No countermodel found - formula is valid
+            premises_text = " with premises: " + ", ".join(premises) if premises else ""
+            
+            html_output = f"""
+            <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
+                <h3>No Countermodel</h3>
+                <p><strong>Theory:</strong> {theory_name}</p>
+                <p><strong>Formula:</strong> {formula}{premises_text}</p>
+                <p><strong>Result:</strong> <span style='color:green; font-weight:bold'>Valid (no countermodel found)</span></p>
+            </div>
+            """
+        
+        return HTML(html_output)
+        
     except ImportError:
         raise ImportError("IPython is required for this feature. Install with 'pip install model-checker[jupyter]'")
+    except Exception as e:
+        return HTML(f"<div style='color: red;'>Error searching for countermodel: {str(e)}</div>")
 
-def explore_formula(formula, theory_name="default", premises=None, settings=None):
+def explore_formula(formula, theory_name="logos", premises=None, settings=None):
     """Create an interactive explorer for a specific formula."""
     if not HAVE_IPYWIDGETS:
         raise ImportError(

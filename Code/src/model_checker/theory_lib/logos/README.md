@@ -115,7 +115,7 @@ model-checker project_<name>/examples.py -c -n -e
 pytest project_<name>/tests/
 ```
 
-For detailed installation instructions including Python setup and troubleshooting, see the [Installation Guide](../../../../../../../Docs/INSTALLATION.md).
+For detailed installation instructions including Python setup and troubleshooting, see the [Installation Guide](../../../../docs/INSTALLATION.md).
 
 ## Subtheory Reference
 

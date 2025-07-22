@@ -14,15 +14,85 @@ The library follows a modular architecture that allows:
 
 ## Available Theories
 
-For a detailed overview of the standard architecture that each theory follows, see [THEORY_ARCHITECTURE.md](../../../docs/THEORY_ARCHITECTURE.md).
+The theory library includes theories with different architectural approaches optimized for their semantic complexity. Each theory follows common interface patterns while adapting structure to their specific needs.
+
+### Theory Architecture Patterns
+
+The ModelChecker supports two primary theory architectures:
+
+#### **Simple Theory Pattern** (Single-File Architecture)
+Used by theories with focused semantic frameworks that don't require complex operator hierarchies.
+
+**Structure:**
+- `semantic.py`: Core semantic classes and relations
+- `operators.py`: All operator implementations in a single file
+- `examples.py`: Test cases and demonstrations
+- `tests/`: Unit tests and example validation
+
+**Example:** **Exclusion Theory** - implements unilateral semantics with a small set of operators
+
+**Benefits:**
+- Simple to understand and modify
+- Direct access to all operators
+- Minimal overhead
+- Fast development and testing
+
+#### **Modular Theory Pattern** (Subtheory Architecture)
+Used by theories with complex operator hierarchies that benefit from logical organization.
+
+**Structure:**
+- `semantic.py`: Core semantic framework
+- `operators.py`: Registry and loading system
+- `examples.py`: Cross-subtheory test cases
+- `subtheories/`: Organized operator groups
+  - `extensional/`: Truth-functional operators
+  - `modal/`: Modal logic operators
+  - `constitutive/`: Content operators
+  - `counterfactual/`: Counterfactual operators
+- `tests/`: Multi-level testing infrastructure
+
+**Example:** **Logos Theory** - implements a comprehensive hyperintensional framework with 20+ operators
+
+**Benefits:**
+- Logical organization of complex operator sets
+- Selective loading of operator subsets
+- Independent development of operator groups
+- Manageable complexity for large theories
+
+### Common Interface Elements
+
+All theories implement these standard interfaces regardless of architecture:
+
+1. **Semantic Classes**: `<Theory>Semantics`, `<Theory>Proposition`, `<Theory>Structure`
+2. **Operator Collection**: Unified access through `.operator_dictionary`
+3. **Testing Infrastructure**: Consistent test patterns and validation
+4. **Documentation**: Standard README format with examples and API docs
+5. **Jupyter Integration**: Compatible with interactive exploration tools
+
+### Theory Selection Guide
+
+**Choose Simple Pattern when:**
+- Theory has fewer than 10 operators
+- Operators don't form natural groupings
+- Rapid prototyping is priority
+- Theory is experimental or specialized
+
+**Choose Modular Pattern when:**
+- Theory has 10+ operators
+- Operators fall into logical categories
+- Selective operator loading is needed
+- Multiple developers will contribute
+- Theory integrates multiple logical systems
+
 The library currently includes the following theories:
 
-### _Logos_
+### Logos Theory (Modular Pattern)
 
-The _Logos_ provides a unified hyperintensional semantic theory.
+The Logos provides a unified hyperintensional semantic theory using the **modular subtheory architecture**.
 
 - **Theory Author**: Benjamin Brast-McKie
 - **Contributors**: Benjamin Brast-McKie and Miguel Buitrago
+- **Architecture**: Modular (5 subtheories with 20+ operators)
 - **Description**: Implements a hyperintensional semantics for counterfactuals, constitutive operators, and modal logic.
 - **Key Papers**:
   - Brast-McKie (2021) "Identity and Aboutness", Journal of Philosophical Logic
@@ -32,21 +102,26 @@ The _Logos_ provides a unified hyperintensional semantic theory.
   - Truthmaker semantics for extensional connectives
   - Counterfactual conditionals via alternative world-states
   - Constitutive operators for essence, ground, and propositional identity
+  - Selective subtheory loading: `logos.get_theory(['extensional', 'modal'])`
 
-More information about the _Logos_ can be found in [logos/README.md](logos/README.md).
+More information about the Logos theory can be found in [logos/README.md](logos/README.md).
 
-### Exclusion Theory
+### Exclusion Theory (Simple Pattern)
+
+The Exclusion Theory implements unilateral semantics using the **simple single-file architecture**.
 
 - **Primary Authors**: Lucas Champollion & Paul Bernard
-- **Implementation Authors**: Benjamin Brast-McKie and Buitrago
+- **Implementation Authors**: Benjamin Brast-McKie and Miguel Buitrago
+- **Architecture**: Simple (4 operators in single file)
 - **Description**: Implements exclusion semantics for counterfactuals and related operators.
 - **Key Paper**: Bernard & Champollion "Exclusion Counterfactuals"
 - **Key Features**:
-  - Unilateral operators (conjunction, disjunction)
-  - Exclusion operator
+  - Unilateral operators (conjunction, disjunction, uninegation)
+  - Witness-based exclusion semantics
   - Alternative approach to counterfactual semantics
+  - Compact, focused implementation
 
-More information abut the exclusion theory can be found in [exclusion/README.md](exclusion/README.md).
+More information about the exclusion theory can be found in [exclusion/README.md](exclusion/README.md).
 
 ### Imposition Theory
 
