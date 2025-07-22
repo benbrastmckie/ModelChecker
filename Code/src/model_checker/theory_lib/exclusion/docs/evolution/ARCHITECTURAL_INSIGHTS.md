@@ -4,7 +4,7 @@
 
 The exclusion theory implementation revealed fundamental principles about how computational architectures enable or constrain semantic implementations. This document distills the key architectural insights about information flow, framework design, and the relationship between theoretical elegance and computational realizability.
 
-> **Context**: This document analyzes architectural patterns within the ModelChecker's three-level methodology. For background on this methodology and its theoretical foundations, see the [Methodology Documentation](../../../../../Docs/METHODOLOGY.md). For development practices that emerge from these insights, see the [Development Guide](../../../../../Docs/DEVELOPMENT.md).
+> **Context**: This document analyzes architectural patterns within the ModelChecker framework. For development practices that emerge from these insights, see the [Development Guide](../../../../../docs/DEVELOPMENT.md).
 
 ## The Information Flow Problem
 
