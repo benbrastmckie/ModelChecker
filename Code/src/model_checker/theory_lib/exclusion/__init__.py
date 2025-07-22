@@ -9,6 +9,7 @@ predicates alongside verify and exclude.
 
 from .semantic import WitnessSemantics, WitnessModelAdapter, WitnessProposition, WitnessStructure, WitnessAwareModel, WitnessRegistry, WitnessConstraintGenerator
 from .operators import witness_operators
+from .iterate import ExclusionModelIterator, iterate_example
 
 # For ModelChecker discovery
 DefaultSemantics = WitnessSemantics
@@ -26,5 +27,7 @@ __all__ = [
     'WitnessConstraintGenerator',
     'witness_operators', 
     'DefaultSemantics',
-    'ExclusionStructure'  # Legacy alias
+    'ExclusionStructure',  # Legacy alias
+    'ExclusionModelIterator',
+    'iterate_example'
 ]

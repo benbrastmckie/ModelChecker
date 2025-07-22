@@ -673,7 +673,7 @@ class WitnessSemantics(SemanticDefaults):
         # Disjoint constraint
         if disjoint:
             for other_letter in sentence_letters:
-                if other_letter != letter_id:
+                if not z3.eq(other_letter, letter_id):
                     state = z3.BitVec("state", N)
                     atom_constraints.append(
                         ForAll([state], 
@@ -766,8 +766,11 @@ class WitnessStructure(model.ModelDefaults):
     def _update_model_structure(self, z3_model):
         """Update model structure from Z3 model, including semantic relations."""
         evaluate = z3_model.evaluate
-        self.main_world = self.main_point["world"]
-        self.main_point["world"] = z3_model[self.main_world]
+        
+        # Don't try to re-evaluate main_world if it's already been evaluated by iterator
+        if not hasattr(self, 'z3_main_world') or self.z3_main_world is None:
+            self.main_world = self.main_point["world"]
+            self.main_point["world"] = z3_model.eval(self.main_world, model_completion=True)
         
         # Update possible states with proper Z3 boolean handling
         possible_states = []
@@ -856,6 +859,17 @@ class WitnessStructure(model.ModelDefaults):
                 if z3.is_true(self.z3_model.evaluate(constraint)):
                     result[state_x].add(state_y)
         return result
+    
+    def initialize_from_z3_model(self, z3_model):
+        """Initialize exclusion-specific attributes from Z3 model.
+        
+        This method is called by the iterator when creating new model structures.
+        """
+        # Store the Z3 model first
+        self.z3_model = z3_model
+        
+        # Call the update method that sets z3_excludes and other attributes
+        self._update_model_structure(z3_model)
     
     def print_to(self, default_settings, example_name, theory_name, print_constraints=None, output=sys.__stdout__):
         """Print the model details to the specified output stream."""
@@ -1113,6 +1127,39 @@ class WitnessStructure(model.ModelDefaults):
             f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N)}{RESET}\n",
             file=output,
         )
+    
+    def print_model_differences(self):
+        """Print differences from previous model with witness awareness."""
+        # First call parent implementation
+        if not super().print_model_differences():
+            return False
+        
+        # Add witness-specific differences
+        if hasattr(self, 'model_differences') and self.model_differences:
+            witness_diffs = self.model_differences.get('witnesses', {})
+            
+            if witness_diffs.get('changed_witnesses'):
+                print(f"\n{self.COLORS['world']}Witness Changes:{self.RESET}")
+                for state, change in witness_diffs['changed_witnesses'].items():
+                    print(f"  State {state}: {change['old']} → {change['new']}")
+            
+            if witness_diffs.get('witness_counts'):
+                old_count = witness_diffs['witness_counts']['old']
+                new_count = witness_diffs['witness_counts']['new']
+                if old_count != new_count:
+                    print(f"\n{self.COLORS['world']}Witness Count:{self.RESET}")
+                    print(f"  {old_count} → {new_count} unique witnesses")
+            
+            exclusion_diffs = self.model_differences.get('exclusions', {})
+            if exclusion_diffs:
+                print(f"\n{self.COLORS['world']}Exclusion Changes:{self.RESET}")
+                for relation, change in exclusion_diffs.items():
+                    if change['new']:
+                        print(f"  {self.COLORS['possible']}+ {relation}{self.RESET}")
+                    else:
+                        print(f"  {self.COLORS['impossible']}- {relation}{self.RESET}")
+        
+        return True
 
 
 class WitnessProposition(PropositionDefaults):
