@@ -10,7 +10,7 @@ The core problem that drove this entire journey can be stated simply: **How do y
 
 This question, seemingly technical, reveals deep issues about information flow in computational architectures and the fundamental limitations of two-phase model checking when dealing with existential quantification.
 
-> **Background Reading**: For an introduction to Z3 and SMT solving concepts referenced throughout this documentation, see the [ModelChecker Z3 Background Guide](../../../../../Docs/Z3_BACKGROUND.md). For the overall three-level methodology that provides the architectural context, see the [Methodology Documentation](../../../../../Docs/METHODOLOGY.md).
+> **Background Reading**: For development practices that emerge from these architectural insights, see the [Development Guide](../../../../../docs/DEVELOPMENT.md). The documentation here focuses specifically on the exclusion theory's unique challenges with witness function implementation.
 
 ### The Theoretical Foundation
 
