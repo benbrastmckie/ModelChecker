@@ -1,47 +1,51 @@
 # Theory Architecture in ModelChecker
 
-This document provides a detailed overview of the standardized architecture used by all theories in the ModelChecker framework. Understanding this structure is essential for both using existing theories and developing new ones.
+This document provides detailed implementation guidance for the two architectural patterns supported by ModelChecker theories. For overview and pattern selection guidance, see [README.md](README.md#theory-architecture-patterns).
 
-## Directory Structure
+## Architectural Pattern Implementation
 
-Each theory follows a consistent file organization:
+ModelChecker supports two distinct architectural patterns, each optimized for different theory complexities:
+
+- **Simple Pattern**: Single-file operator organization (e.g., Exclusion Theory)
+- **Modular Pattern**: Subtheory-based operator organization (e.g., Logos Theory)
+
+Both patterns share [common interface elements](README.md#common-interface-elements) while adapting their internal structure to semantic complexity.
+
+## Simple Pattern Architecture
+
+### Directory Structure
 
 ```
 theory_lib/
-└── theory_name/
-    ├── README.md           # Theory-specific documentation
-    ├── __init__.py         # Public API and dependency management
-    ├── semantic.py         # Core semantic framework implementation
-    ├── operators.py        # Operator definitions and semantics
+└── simple_theory/
+    ├── README.md           # Theory documentation
+    ├── __init__.py         # Public API exports
+    ├── semantic.py         # Core semantic framework
+    ├── operators.py        # All operators in single file
     ├── examples.py         # Test cases and examples
-    ├── tests/              # Unit tests for the theory
+    ├── tests/              # Unit tests
     │   ├── __init__.py
-    │   ├── test_theory_name.py
-    │   └── test_iterate.py
-    └── notebooks/          # Jupyter notebook demonstrations
-        └── theory_name_demo.ipynb
+    │   ├── test_operators.py
+    │   ├── test_examples.py
+    │   └── test_semantic.py
+    └── notebooks/          # Jupyter demonstrations (optional)
+        └── simple_theory_demo.ipynb
 ```
 
-## Module Architecture
+### Core Implementation Files
 
-### 1. `semantic.py` - Core Semantic Framework
-
-This module implements the semantic foundation of the theory through three primary classes:
-
-#### 1.1 Semantics Class
-
-The Semantics class (e.g., `DefaultSemantics`, `BimodalSemantics`, `ExclusionSemantics`) provides the foundation of the semantic theory.
-The following is based loosely on the `DefaultSemantics` to illustrate:
+#### 1. `semantic.py` - Semantic Framework
 
 ```python
-class TheorySemantics(SemanticDefaults):
-    """Core semantics for the theory."""
+from model_checker.model import SemanticDefaults, PropositionDefaults, ModelDefaults
+
+class SimpleSemantics(SemanticDefaults):
+    """Core semantics for simple theory."""
     
-    # Settings management
     DEFAULT_EXAMPLE_SETTINGS = {
-        'N': 3,                # Number of atomic states
-        'max_time': 1,         # Maximum solver time
-        'contingent': False,   # Theory-specific settings
+        'N': 3,
+        'max_time': 1,
+        'theory_specific_setting': False,  # Only include relevant settings
     }
     
     DEFAULT_GENERAL_SETTINGS = {
@@ -49,694 +53,425 @@ class TheorySemantics(SemanticDefaults):
         "print_z3": False,
         "save_output": False,
     }
-    
+
     def __init__(self, settings=None):
-        """Initialize semantic primitives and framework."""
         super().__init__(settings)
-        self._initialize_sorts()
-        self._initialize_primitives()
+        self._initialize_theory_primitives()
         
-    def _initialize_sorts(self):
-        """Initialize Z3 sorts, functions, and constants."""
-        # Z3 sorts for basic types
-        self.StateSort = self.z3.BitVecSort(self.settings['N'])
-        # self.TimeSort = z3.IntSort()  # used in the bimodal_theory
+    def _initialize_theory_primitives(self):
+        """Initialize theory-specific semantic primitives."""
+        # Theory-specific Z3 functions and relations
+        self.theory_relation = self.z3.Function('theory_rel', 
+                                               self.StateSort, self.StateSort, self.z3.BoolSort())
         
-    def _initialize_primitives(self):
-        """Initialize Z3 sorts, functions, and constants."""
-        # Z3 functions for primitive relations
-        self.verify = self.z3.Function('verify', self.StateSort, self.z3.BoolSort())
-        self.falsify = self.z3.Function('falsify', self.StateSort, self.z3.BoolSort())
-        
-        # Z3 constants for evaluation
-        self.main_world = self.z3.Const('main_world', self.StateSort)
-        self.main_point = {
-            "world" : self.main_world
-            # "time" : self.main_time  # used in the bimodal theory
-        }
-        
-    def is_part_of(self, s1, s2):
-        """Define part-of relation between states."""
-        return self.z3.And(self.z3.BVAnd(s1, s2) == s1, s1 != 0)
-        
-    def fusion(self, s1, s2):
-        """Compute fusion of two states."""
-        # Theory-specific implementation
+    # Implement core semantic methods specific to your theory
+    def theory_specific_relation(self, s1, s2):
+        """Implement theory-specific semantic relation."""
+        return self.theory_relation(s1, s2)
 
-    # Include other definitions that draw on the primitives introduced above
-        
-    def true_at(self, sentence, point):
-        """Evaluate truth of a sentence at evaluation point."""
-        # Theory-specific implementation
-        
-    def false_at(self, sentence, point):
-        """Evaluate falsity of a sentence at evaluation point."""
-        # Theory-specific implementation
-        
-    def extended_verify(self, formula, s):
-        """Determine if state s verifies formula."""
-        # Theory-specific implementation (hyperintensional)
-        
-    def extended_falsify(self, formula, s):
-        """Determine if state s falsifies formula."""
-        # Theory-specific implementation (hyperintensional)
-        
-    def define_invalidity(self):
-        """Define premise and conclusion evaluation for finding countermodels."""
-        # Create functions for premise/conclusion evaluation
-        premise_behavior = lambda premise: self.true_at(premise, self.main_point)
-        conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
-        
-        return premise_behavior, conclusion_behavior
+class SimpleProposition(PropositionDefaults):
+    """Proposition implementation for simple theory."""
+    # Standard proposition implementation
     
-    def verify_model(self, model, premises, conclusions):
-        """Verify that a model satisfies the invalidity conditions."""
-        # Check that premises are true at main point
-        # Check that conclusions are false at main point
-        # Return verification status dictionary
-    
-    def extract_model_elements(self, model):
-        """Extract semantic elements from a Z3 model."""
-        # Extract basic elements
-        all_states = self._extract_states(model)
-        possible_states = self._extract_possible_states(model)
-        world_states = self._extract_worlds(model)
-        
-        # Extract theory-specific elements
-        # (compatibility, alternatives, accessibility, etc.)
-        
-        # Return semantic representation
-        return {
-            "states": all_states,
-            "possible_states": possible_states,
-            "worlds": world_states,
-        }
-        
-    def get_frame_constraints(self):
-        """Define theory-specific frame constraints."""
-        constraints = []
-        # Add theory-specific constraints
-        return constraints
+class SimpleStructure(ModelDefaults):
+    """Model structure for simple theory."""
+    # Standard model structure implementation
+
+__all__ = ["SimpleSemantics", "SimpleProposition", "SimpleStructure"]
 ```
 
-**Key Responsibilities:**
-
-* Define Z3 sorts, functions and constants (state, verification functions, evaluation points)
-* Implement semantic relations (part-of, compatibility, fusion)
-* Define evaluation context (main evaluation point, frame constraints)
-* Provide truth evaluation methods (true_at/false_at for sentences)
-* Implement verification methods (extended_verify/extended_falsify for complex formulas)
-* Manage theory-specific settings
-
-#### 1.2 Proposition Class
-
-The Proposition class (e.g., `DefaultProposition`, `BimodalProposition`) represents propositional content:
-
-```python
-class TheoryProposition(PropositionDefaults):
-    """Proposition implementation for the theory."""
-    
-    def __init__(self, semantics, sentence, eval_point):
-        """Initialize proposition with semantics and sentence."""
-        super().__init__(semantics, sentence)
-        
-        self.eval_world = eval_point["world"]
-        # self.eval_time = eval_point["time"]  # needed for bimodal theory
-        self.verifiers, self.falsifiers = self.find_proposition()
-
-    def __eq__(self, other):
-        """Check equality with another proposition."""
-        if not isinstance(other, TheoryProposition):
-            return False
-        return self.sentence == other.sentence
-        
-    def __repr__(self):
-        """String representation of proposition."""
-        return f"Proposition({self.sentence})"
-        if self.settings.get('contingent', False):
-            self._add_contingency_constraints(constraints)
-            
-        if self.settings.get('non_empty', False):
-            self._add_non_empty_constraints(constraints)
-            
-        return constraints
-        
-    def get_constraints(self):
-        """Generate constraints for proposition semantics."""
-
-        def _get_basic_constraints():
-            """Get constraints for atomic propositions."""
-            # Return list of constraints for atomic semantics
-        
-        def _add_contingency_constraints():
-            """Add constraints requiring propositions to be contingent."""
-            # Theory-specific implementation
-
-        # Basic constraints from atom semantics
-        basic_constraints = self._get_basic_constraints()
-        
-        # Optional constraints based on settings
-        optional_constraints = []
-        
-        # Add contingency constraints if requested
-        if self.settings.get("contingent", False):
-            optional_constraints.extend(self._get_contingency_constraints())
-            
-        # Combine all constraints
-        return basic_constraints + optional_constraints
-    
-    def find_proposition(self, model):
-        """Extract verifiers and falsifiers from Z3 model."""
-        # Theory-specific implementation
-
-    def print_proposition(self, eval_point, indent_num, use_colors):
-        """Print the proposition with its truth value at the given evaluation point."""
-        # Theory-specific implementation
-```
-
-**Key Responsibilities:**
-
-* Represent propositional content with verifiers and falsifiers
-* Provide equality and string representation methods
-* Generate Z3 constraints for proposition semantics
-* Implement optional constraints based on settings (contingency, non-emptiness)
-* Extract proposition data from Z3 models and specify print pattern
-
-#### 1.3 ModelStructure Class
-
-The ModelStructure class (e.g., `DefaultStructure`, `BimodalStructure`) manages the overall semantic model:
-
-```python
-class TheoryStructure(ModelDefaults):
-    """Model structure for the theory."""
-    
-    def __init__(self, model_constraints, settings=None):
-        """Initialize model structure with constraints and settings."""
-
-        super().__init__(model_constraints, settings)
-        
-        # Process model if available
-        if self.z3_model_status and self.z3_model is not None:
-            self._initialize_model_values()
-            
-    def _initialize_model_values(self):
-        """Initialize model values from Z3 model."""
-        self.z3_main_world = self.z3_model[self.main_world]
-        self.main_point["world"] = self.z3_main_world
-        self.z3_possible_states = [
-            bit for bit in self.all_states
-            if bool(self.z3_model.evaluate(self.semantics.possible(bit)))
-        ]
-        self.z3_world_states = [
-            bit for bit in self.z3_possible_states
-            if bool(self.z3_model.evaluate(self.semantics.is_world(bit)))
-        ]
-        
-    def print_all(self, example_name, theory_name, output=sys.__stdout__):
-        """Print a complete overview of the model structure and evaluation results."""
-
-        # Print basic example information
-        self.print_info(model_status, self.settings, example_name, theory_name, output)
-
-        # Print complete model if it exists
-        if self.z3_model_status:
-            self.print_states(output)
-            self.print_evaluation(output)
-            self.print_input_sentences(output)
-            self.print_model(output)
-            self.print_footer(output)
-            return
-
-    def print_states(self, output=None):
-        """Print all states in the model with their properties."""
-        # Theory-specific implementation
-        
-    def print_evaluation(self, output=None):
-        """Print the evaluation world and evaluate all sentence letters."""
-        # Theory-specific implementation
-        
-    def print_input_sentences(self, world=None):
-        """Prints the premises and conclusions with their semantic interpretations."""
-        # Theory-specific implementation
-        
-    def print_model(self, output=None):
-        """Print model structure with full details."""
-        # Theory-specific implementation for model display
-
-    def print_footer(self, output=None):
-        """Print footer including the time taken to compute."""
-        # Theory-specific implementation for model display
-
-    def detect_model_differences(self, previous_structure):
-        """Calculate differences between this model and a previous one."""
-        # Theory-specific implementation for iteration (optional)
-```
-
-**Key Responsibilities:**
-
-* Initialize and manage Z3 model data through `_initialize_model_values`
-* Extract model elements (states, worlds, relations) from Z3 model
-* Provide visualization methods (`print_states`, `print_evaluation`, `print_input_sentences`, `print_model`)
-* Support model comparison through `detect_model_differences`
-* Evaluate formulas at specific points in the model
-
-#### 1.4 `semantic.py` API
-
-Include the following to expose the defined classes to be imported elsewhere.
-
-```python
-# Define the public API for semantic.py
-__all__ = [
-    "TheorySemantics",        # Core semantic framework implementation
-    "TheoryProposition",      # Proposition representation and evaluation
-    "TheoryStructure",   # Model structure management
-]
-```
-
-### 2. `operators.py` - Logical Operators
-
-This module defines the logical operators used in the theory:
+#### 2. `operators.py` - Unified Operator Collection
 
 ```python
 from model_checker.syntactic import Operator, DefinedOperator, OperatorCollection
 
-class SomeOperator(Operator):
-    """A primitive logical operator in the theory."""
-
-    name = "\\some_operator"
-    arity = 2
-    
+class TheorySpecificOperator(Operator):
+    """Primary operator unique to this theory."""
     def __init__(self):
-        """Initialize operator with name, symbol, and arity."""
-        super().__init__("name", "\\symbol", arity)
-        
-    def true_at(self, leftarg, rightarg, eval_point):
-        """Evaluate truth of operator at evaluation point."""
-        # Theory-specific truth conditions
-        
-    def false_at(self, leftarg, rightarg, eval_point):
-        """Evaluate falsity of operator at evaluation point."""
-        # Theory-specific falsity conditions
-        
-    def extended_verify(self, state, leftarg, rightarg, eval_point):  # (hyperintensional only)
-        """Determine verification conditions for operator."""
-        # Theory-specific verification
-        
-    def extended_falsify(self, state, leftarg, rightarg, eval_point):  # (hyperintensional only)
-        """Determine falsification conditions for operator."""
-        # Theory-specific falsification
-        
-    def find_truth_condition(self, leftarg, rightarg, eval_point):
-        """Gets truth-condition for the conjunction of two arguments."""
-
-    def print_method(self, sentence, eval_point, indent_num, use_colors):
-        """Custom printing for operator evaluation."""
-        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
-        # Other options can be imported from model_checker.syntactic
-        
-class SomeDerivedOperator(DefinedOperator):
-    """A derived operator defined in terms of primitives."""
+        super().__init__("theory_op", "\\theoryop", 2)
     
-    def derived_definition(self, leftarg, rightarg): # type: ignore
-        """Defines the material conditional A → B as ¬A ∨ B."""
-        # Definition in prefix form
+    def semantic_clause(self, sentence):
+        """Implement operator semantics using theory primitives."""
+        # Use semantics from semantic.py
         
-# Create operator collection with all operators
-theory_operators = OperatorCollection(
-    # Extensional operators
+class AnotherOperator(Operator):
+    """Another operator in the theory."""
+    # Implementation...
+
+# Single collection containing all operators
+simple_operators = OperatorCollection(
+    # Standard extensional operators
     NegationOperator,
-    AndOperator,
+    AndOperator, 
     OrOperator,
     
     # Theory-specific operators
-    ModalOperator,
-    CounterfactualOperator,
+    TheorySpecificOperator,
+    AnotherOperator,
 )
 
-# Export operators
-__all__ = ["theory_operators"]
+__all__ = ["simple_operators"]
 ```
 
-**Key Components:**
-
-* **Primary Operator Classes**: Implementations of logical operators (inherit from `Operator`)
-* **Derived Operator Classes**: Operators defined in terms of others (inherit from `DefinedOperator`)
-* **Operator Collection**: Collection of operators used in the theory (using `OperatorCollection`)
-
-**Common Operator Types:**
-
-* **Truth-Functional Operators**: Negation, conjunction, disjunction, implication
-* **Theory-Specific Operators**: Modal operators, counterfactual operators, etc.
-
-### 3. `examples.py` - Test Cases and Examples
-
-This module contains examples and test cases for the theory:
+#### 3. `examples.py` - Theory Examples
 
 ```python
-# Import the theory components
-from .semantic import TheorySemantics, TheoryProposition, TheoryStructure
-from .operators import theory_operators
+from .semantic import SimpleSemantics, SimpleProposition, SimpleStructure
+from .operators import simple_operators
 
-# Define examples with standardized naming conventions
-# Countermodels (expectations=True, should find a countermodel)
-ML_CM_1_premises = ['A']
-ML_CM_1_conclusions = ['\\Box A']
-ML_CM_1_settings = {
-    'N': 3,
-    'contingent': True,
-    'non_empty': True,
-    'disjoint': False,
-    'max_time': 1,
-    'expectation': True,  # Expect to find a countermodel
-}
-ML_CM_1_example = [
-    ML_CM_1_premises,
-    ML_CM_1_conclusions,
-    ML_CM_1_settings,
+# Example definitions using standard format
+SIMPLE_CM_1_example = [
+    ['premise'],           # premises
+    ['conclusion'],        # conclusions  
+    {'N': 2, 'expectation': True}  # settings
 ]
 
-# Theorems (expectation=False, should NOT find a countermodel)
-CL_TH_2_premises = []
-CL_TH_2_conclusions = ['((A = B) \\imp (A \\Ground B))']
-CL_TH_2_settings = {
-    'N': 3,
-    'contingent': False,
-    'non_empty': True, 
-    'disjoint': False,
-    'max_time': 1,
-    'expectation': False,  # Expect no countermodel (theorem is valid)
-}
-CL_TH_2_example = [
-    CL_TH_2_premises,
-    CL_TH_2_conclusions,
-    CL_TH_2_settings,
+SIMPLE_TH_1_example = [
+    [],                    # premises
+    ['valid_formula'],     # conclusions
+    {'N': 2, 'expectation': False}  # settings
 ]
 
-# Required module definitions
+# Required dictionaries
 semantic_theories = {
-    "TheoryName": {
-        "semantics": TheorySemantics,
-        "proposition": TheoryProposition,
-        "model": TheoryStructure,
-        "operators": theory_operators
+    "SimpleTheory": {
+        "semantics": SimpleSemantics,
+        "proposition": SimpleProposition,
+        "model": SimpleStructure,
+        "operators": simple_operators
     }
 }
 
-# Example range dictionary specifies which examples to include in manual testing
 example_range = {
-    "ML_CM_1": ML_CM_1_example,
-    "CL_TH_2": CL_TH_2_example,
+    "SIMPLE_CM_1": SIMPLE_CM_1_example,
+    "SIMPLE_TH_1": SIMPLE_TH_1_example,
 }
 
-# Test example range for automated unit testing
-test_example_range = {
-    "ML_CM_1": ML_CM_1_example,
-    "CL_TH_2": CL_TH_2_example,
-}
+test_example_range = example_range  # Same as example_range for simple theories
 
-# Global settings for all examples
 general_settings = {
     "print_constraints": False,
-    "print_impossible": True,
     "print_z3": False,
     "save_output": False,
 }
 
-# Export variables
-__all__ = [
-    'general_settings',
-    'semantic_theories',
-    'example_range',
-    'test_example_range',
-]
+__all__ = ['semantic_theories', 'example_range', 'test_example_range', 'general_settings']
 ```
 
-**Key Requirements:**
-
-* **Example Categories**:
-  * Countermodels (XX_CM_#): Invalid arguments expected to find countermodels
-  * Theorems (XX_TH_#): Valid arguments expected to have no countermodels
-
-* **Required Dictionaries**:
-  * `semantic_theories`: Maps theory names to components (semantics, proposition, model, operators)
-  * `example_range`: Specifies which examples to run in manual testing
-  * `test_example_range`: Specifies examples for unit testing
-  * `general_settings`: Global settings for all examples
-
-* **Example Definition Format**:
-  ```python
-  EXAMPLE_NAME_premises = [premise1, premise2]
-  EXAMPLE_NAME_conclusions = [conclusion1, conclusion2]
-  EXAMPLE_NAME_settings = {settings_dict}
-  EXAMPLE_NAME_example = [premises, conclusions, settings]
-  ```
-
-### 4. `__init__.py` - Public API
-
-This module provides the public API for the theory:
+#### 4. `__init__.py` - Public API
 
 ```python
 """
-TheoryName - A semantic theory for ModelChecker
+SimpleTheory - A semantic theory for ModelChecker
 
-This theory implements [brief description of theory].
+Brief description of theory and its key features.
 """
 
-# Export public classes and functions
-from .semantic import TheorySemantics, TheoryProposition, TheoryStructure
-from .operators import theory_operators
+from .semantic import SimpleSemantics, SimpleProposition, SimpleStructure
+from .operators import simple_operators
+from .examples import semantic_theories, example_range, general_settings
 
-# Optional: Export convenience functions
-from .examples import example_range, test_example_range, general_settings
-
-# Define exported symbols
+# For theories with simple APIs, export everything directly
 __all__ = [
-    'TheorySemantics', 
-    'TheoryProposition', 
-    'TheoryStructure',
-    'theory_operators',
-    'example_range', 
-    'test_example_range', 
-    'general_settings'
+    'SimpleSemantics', 'SimpleProposition', 'SimpleStructure',
+    'simple_operators', 'semantic_theories', 'example_range', 'general_settings'
 ]
-
-# Optional: Version and metadata
-__version__ = '0.1.0'
-__author__ = 'Author Name'
 ```
 
-**Key Components:**
+## Modular Pattern Architecture
 
-* **Import Management**: Expose classes and functions for public use
-* **Dependency Management**: Import necessary components from other modules
-* **API Construction**: Functions to build the theory's API
-* **Convenience Functions**: Simplified access to common operations
+### Directory Structure
 
-### 5. `tests/` - Unit Tests
+```
+theory_lib/
+└── modular_theory/
+    ├── README.md           # Theory documentation
+    ├── __init__.py         # Public API with get_theory() function
+    ├── semantic.py         # Core semantic framework
+    ├── operators.py        # Registry and loading system
+    ├── examples.py         # Cross-subtheory examples
+    ├── subtheories/        # Organized operator groups
+    │   ├── __init__.py
+    │   ├── extensional/
+    │   │   ├── __init__.py
+    │   │   ├── operators.py
+    │   │   ├── examples.py
+    │   │   └── tests/
+    │   ├── modal/
+    │   │   ├── __init__.py
+    │   │   ├── operators.py
+    │   │   ├── examples.py
+    │   │   └── tests/
+    │   └── constitutive/
+    │       ├── __init__.py
+    │       ├── operators.py
+    │       ├── examples.py
+    │       └── tests/
+    ├── tests/              # Integration and core tests
+    │   ├── __init__.py
+    │   ├── test_registry.py
+    │   ├── test_semantic_methods.py
+    │   └── test_integration.py
+    └── notebooks/          # Jupyter demonstrations
+        ├── modular_theory_intro.ipynb
+        └── subtheory_demos/
+            ├── extensional_demo.ipynb
+            └── modal_demo.ipynb
+```
 
-The tests directory contains unit tests for the theory:
+### Core Implementation Files
+
+#### 1. `semantic.py` - Shared Semantic Framework
 
 ```python
-# test_theory_name.py
-import unittest
-from model_checker.builder import BuildExample
-from model_checker.theory_lib import theory_name
-from model_checker.theory_lib.theory_name.examples import test_example_range
+from model_checker.model import SemanticDefaults, PropositionDefaults, ModelDefaults
 
-class TestTheoryName(unittest.TestCase):
-    """Test cases for TheoryName."""
+class ModularSemantics(SemanticDefaults):
+    """Shared semantic framework for modular theory."""
     
-    def test_countermodels(self):
-        """Test that countermodels are found correctly."""
-        for name, example in test_example_range.items():
-            if name.startswith("ML_CM_"):
-                with self.subTest(name=name):
-                    # Create BuildExample with theory components
-                    build = BuildExample(
-                        name,
-                        theory_name.semantic_theories["TheoryName"],
-                        example[0],  # premises
-                        example[1],  # conclusions
-                        example[2],  # settings
-                    )
-                    # Run the example
-                    result = build.run()
-                    # Check expectation
-                    if example[2].get("expectation", False):
-                        self.assertTrue(result, f"Expected countermodel for {name}")
-                    else:
-                        self.assertFalse(result, f"Expected no countermodel for {name}")
-                        
-    def test_theorems(self):
-        """Test that theorems are valid."""
-        # Similar implementation for theorems
+    DEFAULT_EXAMPLE_SETTINGS = {
+        'N': 3,
+        'max_time': 1,
+        # Include settings relevant across subtheories
+    }
+    
+    def __init__(self, settings=None):
+        super().__init__(settings)
+        self.loaded_subtheories = set()
+        
+    def load_subtheories(self, subtheory_names):
+        """Load specified subtheories into the semantic framework."""
+        for name in subtheory_names:
+            if name not in self.loaded_subtheories:
+                self._load_subtheory_primitives(name)
+                self.loaded_subtheories.add(name)
+                
+    def _load_subtheory_primitives(self, subtheory_name):
+        """Load semantic primitives for a specific subtheory."""
+        if subtheory_name == "modal":
+            self._initialize_modal_primitives()
+        elif subtheory_name == "constitutive":
+            self._initialize_constitutive_primitives()
+        # Add other subtheories...
+        
+    def _initialize_modal_primitives(self):
+        """Initialize modal-specific semantic primitives."""
+        self.accessibility = self.z3.Function('accessible', 
+                                            self.StateSort, self.StateSort, self.z3.BoolSort())
+
+class ModularProposition(PropositionDefaults):
+    """Proposition implementation supporting multiple subtheories."""
+    # Implementation that works across subtheories
+    
+class ModularStructure(ModelDefaults):  
+    """Model structure supporting multiple subtheories."""
+    # Implementation that handles different operator types
+
+__all__ = ["ModularSemantics", "ModularProposition", "ModularStructure"]
 ```
 
-**Key Test Categories:**
-
-* **Theory Tests**: Validate the theory's fundamental principles
-* **Operator Tests**: Test individual operator behavior
-* **Regression Tests**: Ensure specific bugs remain fixed
-* **Iteration Tests**: Verify iterative model finding (in test_iterate.py)
-
-### 6. `notebooks/` - Jupyter Notebooks
-
-Jupyter notebooks provide interactive demonstrations of the theory:
+#### 2. `operators.py` - Registry and Loading System
 
 ```python
-# Example notebook code cells
-# Import theory components
-from model_checker.theory_lib import theory_name
-from model_checker import BuildExample
+from model_checker.syntactic import OperatorCollection
 
-# Create a model
-theory = theory_name.semantic_theories["TheoryName"]
-model = BuildExample("example_name", theory)
+class ModularOperatorRegistry:
+    """Registry for loading operators from subtheories."""
+    
+    def __init__(self):
+        self.loaded_subtheories = {}
+        self.operator_collection = None
+        
+    def load_subtheories(self, subtheory_names):
+        """Load operators from specified subtheories."""
+        all_operators = []
+        
+        for name in subtheory_names:
+            if name not in self.loaded_subtheories:
+                operators = self._load_subtheory_operators(name)
+                self.loaded_subtheories[name] = operators
+                all_operators.extend(operators)
+                
+        self.operator_collection = OperatorCollection(*all_operators)
+        return self.operator_collection
+        
+    def _load_subtheory_operators(self, subtheory_name):
+        """Load operators from a specific subtheory."""
+        if subtheory_name == "extensional":
+            from .subtheories.extensional import get_operators
+            return list(get_operators().values())
+        elif subtheory_name == "modal":
+            from .subtheories.modal import get_operators  
+            return list(get_operators().values())
+        # Add other subtheories...
+        
+    def get_operators(self):
+        """Get the current operator collection."""
+        return self.operator_collection
 
-# Test a formula
-result = model.check_formula("\\Box A -> A")
-print(f"Formula is {'valid' if not result else 'invalid'}")
-
-# Visualize model
-model.print_model()
+__all__ = ["ModularOperatorRegistry"]
 ```
 
-**Key Notebook Types:**
-
-* **Introduction Notebooks**: Basic theory concepts and examples
-* **Operator Notebooks**: Demonstrate operator behavior
-* **Countermodel Notebooks**: Showcase interesting countermodels
-* **Feature Demonstration Notebooks**: Highlight unique theory features
-
-## Theory API Flow
-
-The API flow shows how components interact within and between theories:
-
-### 1. Internal Module Dependencies
-
-```
-┌─────────────┐     ┌──────────────┐
-│ semantic.py │<────│ operators.py │
-└─────┬───────┘     └─────┬────────┘
-      │                   │
-      │                   │
-      ▼                   ▼
-┌─────────────┐     ┌──────────────┐
-│ examples.py │<────│  __init__.py │
-└─────────────┘     └──────────────┘
-```
-
-* `semantic.py` provides the foundation for operator implementation
-* `operators.py` depends on semantic primitives from `semantic.py`
-* `examples.py` imports and uses both semantics and operators
-* `__init__.py` exports all components for external use
-
-### 2. Theory Usage Pattern
+#### 3. `subtheories/extensional/operators.py` - Subtheory Operators
 
 ```python
-# Direct component access
-from model_checker.theory_lib.theory_name import TheorySemantics, theory_operators
+from model_checker.syntactic import Operator, DefinedOperator
 
-# High-level API (in model_checker/__init__.py)
-from model_checker import get_theory
-theory = get_theory("theory_name")
+class NegationOperator(Operator):
+    """Negation operator for extensional logic."""
+    def __init__(self):
+        super().__init__("negation", "\\neg", 1)
+    
+    def semantic_clause(self, sentence):
+        """Implement negation semantics."""
+        # Implementation using shared semantic framework
 
-# Example running
-from model_checker import BuildExample
-model = BuildExample("example_name", get_theory("theory_name"))
+class ConjunctionOperator(Operator):
+    """Conjunction operator for extensional logic."""
+    def __init__(self):
+        super().__init__("conjunction", "\\wedge", 2)
+    
+    def semantic_clause(self, sentence):
+        """Implement conjunction semantics."""
+        # Implementation...
+
+def get_operators():
+    """Return dictionary of extensional operators."""
+    return {
+        '\\neg': NegationOperator,
+        '\\wedge': ConjunctionOperator,
+    }
+
+__all__ = ['get_operators']
 ```
 
-### 3. Testing Integration
+#### 4. `__init__.py` - Modular Public API
 
 ```python
-# In tests/test_theory_name.py
-from model_checker.theory_lib.theory_name.examples import test_example_range
+"""
+ModularTheory - A comprehensive semantic theory for ModelChecker
 
-# Run through BuildExample
-for name, example in test_example_range.items():
-    # Test code...
+This theory provides selective loading of operator subtheories.
+"""
+
+from .semantic import ModularSemantics, ModularProposition, ModularStructure
+from .operators import ModularOperatorRegistry
+
+def get_theory(subtheories=None):
+    """
+    Get theory instance with specified subtheories.
+    
+    Args:
+        subtheories: List of subtheory names to load, or None for default set
+        
+    Returns:
+        Dict with 'semantics', 'proposition', 'model' classes and 'operators' collection
+    """
+    registry = ModularOperatorRegistry()
+    
+    if subtheories is None:
+        # Default subtheories
+        subtheories = ['extensional', 'modal']
+    
+    operators = registry.load_subtheories(subtheories)
+    
+    return {
+        'semantics': ModularSemantics,
+        'proposition': ModularProposition, 
+        'model': ModularStructure,
+        'operators': operators
+    }
+
+# Convenience exports
+Semantics = ModularSemantics
+Proposition = ModularProposition
+ModelStructure = ModularStructure
+
+__all__ = [
+    'get_theory', 'Semantics', 'Proposition', 'ModelStructure'
+]
 ```
 
-The `test_example_range` dictionary in `examples.py` specifies which examples to include in automated testing.
+## Common Implementation Requirements
 
-### 4. Jupyter Notebook Integration
+### Testing Infrastructure
+
+Both patterns must implement [standardized testing](THEORY_TESTING.md):
+
+- **Simple Pattern**: Tests in single `tests/` directory
+- **Modular Pattern**: Tests at both theory and subtheory levels
+
+### Jupyter Integration
+
+Both patterns must support [Jupyter integration](../jupyter/README.md):
 
 ```python
-# In notebooks/theory_name_demo.ipynb
-from model_checker.theory_lib import theory_name
-from model_checker.jupyter import ModelExplorer, FormulaChecker
-
-# Direct theory access
-semantics = theory_name.TheorySemantics()
-operators = theory_name.theory_operators
-
-# High-level API
-explorer = ModelExplorer(theory="theory_name")
-explorer.display()
-
-# Formula checking
-result = FormulaChecker.check("A -> A", theory="theory_name")
+# Both patterns work with:
+from model_checker.jupyter.interactive import check_formula
+result = check_formula("p → q", theory_name="your_theory")
 ```
 
-Jupyter notebooks import from the theory's public API to create interactive demonstrations.
+### Documentation Standards
 
-## Extension Points
+Both patterns require:
 
-When developing a new theory, these are the key extension points:
+- Comprehensive `README.md` following [standard format](README.md)
+- Examples demonstrating key features
+- API documentation for all public classes and methods
 
-1. **Semantic Relations**:
-   * Specify theory-specific primitives
-   * Implement theory-specific semantics definitions
+## Pattern Selection Guidelines
 
-2. **Truth Conditions**:
-   * Implement `true_at` and `false_at` with your theory's truth conditions
-   * Include verification/falsification methods in hyperintensional
+### Choose Simple Pattern When:
+- Theory has fewer than 10 operators
+- Operators don't form natural logical groupings
+- Rapid prototyping is priority
+- Theory addresses a focused semantic question
 
-3. **Constraints**:
-   * Implement theory-specific frame constraints
-   * Add specialized model constraints
+### Choose Modular Pattern When:
+- Theory has 10+ operators across logical domains
+- Operators benefit from categorical organization
+- Selective operator loading is valuable
+- Multiple developers will contribute
+- Theory integrates multiple logical systems
 
-4. **Evaluation Point**:
-   * Expand the `main_point` and `eval_point` dictionaries
-   * For instance, the `bimodal/` theory includes worlds and times
+## Migration Between Patterns
 
-5. **Operator Semantics**:
-   * Implement operator classes with theory-specific semantics
-   * Create an operator collection dictionary
+### Simple to Modular Migration
 
-6. **Model Visualization**:
-   * Override `print_model` for theory-specific visualization
-   * Add Jupyter notebook integration
+1. Create `subtheories/` directory structure
+2. Group operators by logical domain
+3. Implement operator registry system
+4. Add `get_theory()` function with selective loading
+5. Update tests to handle both unified and selective testing
 
-7. **Unit Tests**:
-   * Once a range of examples are working, add these to `test_example_range`
-   * The unit testing for the theory will then run each of these examples
+### Modular to Simple Migration
+
+1. Flatten all operators into single `operators.py`
+2. Remove registry and loading system
+3. Simplify `__init__.py` to direct exports
+4. Consolidate tests into single directory
+5. Update documentation to reflect unified approach
 
 ## Best Practices
 
-1. **Follow Naming Conventions**:
-   * Class names: `TheorySemantics`, `TheoryProposition`, `TheoryStructure`
-   * Operators: `SomeOperator` (for primitive operators)
-   * Examples: `ML_CM_1`, `CL_TH_2` (with standard prefixes)
+### For Both Patterns:
+- Follow [common interface standards](README.md#common-interface-elements)
+- Implement comprehensive testing per [THEORY_TESTING.md](THEORY_TESTING.md)
+- Provide clear documentation and examples
+- Support Jupyter integration
+- Use consistent naming conventions
 
-2. **Complete Required Components**:
-   * Implement all three core classes (Semantics, Proposition, Structure)
-   * Provide standard operators (negation, conjunction, disjunction)
-   * Include test examples in the required dictionaries
+### Simple Pattern Specific:
+- Keep operator count reasonable (< 10)
+- Organize operators logically within single file
+- Focus on clarity and direct access
+- Minimize abstraction overhead
 
-3. **Document Theory Specifics**:
-   * Explain theory-specific operators and relations
-   * Document theory-specific settings
-   * Provide examples demonstrating key features
+### Modular Pattern Specific:
+- Organize subtheories by logical domains
+- Implement dependency resolution between subtheories
+- Provide clear subtheory documentation
+- Support selective loading efficiently
+- Maintain consistency across subtheories
 
-4. **Test Thoroughly**:
-   * Include countermodels for important invalid arguments
-   * Include theorems for fundamental valid principles
-   * Test boundary cases and theory-specific features
-
-5. **Use Jupyter Notebooks**:
-   * Create demonstration notebooks
-   * Showcase theory-specific features
-   * Provide educational examples
-
-By following this architecture, theories can be consistently implemented, compared, and extended within the ModelChecker framework.
+This architecture documentation ensures both simple and modular theories can be implemented effectively while maintaining consistency and interoperability within the ModelChecker framework.
