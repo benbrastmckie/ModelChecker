@@ -65,7 +65,7 @@ CL_CM_1_settings = {
     'non_empty' : False,
     'disjoint' : True,
     'max_time' : 1,
-    'iterate' : 2,
+    'iterate' : 3,
     'expectation' : True,
 }
 CL_CM_1_example = [
@@ -771,8 +771,8 @@ example_range = {
     "CL_CM_1": CL_CM_1_example,   # EQUIVALENCE OF TAUTOLOGIES
 
     # Test some failing theorem examples  
-    "CL_TH_1": CL_TH_1_example,   # GROUND TO ESSENCE
-    "CL_TH_3": CL_TH_3_example,   # ESSENCE TO IDENTITY
+    # "CL_TH_1": CL_TH_1_example,   # GROUND TO ESSENCE
+    # "CL_TH_3": CL_TH_3_example,   # ESSENCE TO IDENTITY
     
 }
 

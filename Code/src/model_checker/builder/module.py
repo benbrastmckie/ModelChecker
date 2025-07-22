@@ -544,11 +544,12 @@ class BuildModule:
                 # This mapping handles cases where theory_name is a display name (like "Brast-McKie")
                 # rather than the actual module name used for imports
                 theory_display_to_module = {
-                    "Brast-McKie": "default",
+                    "Brast-McKie": "logos",  # Brast-McKie is the logos theory
                     "Default": "default",
                     "Exclusion": "exclusion",
                     "Imposition": "imposition",
-                    "Bimodal": "bimodal"
+                    "Bimodal": "bimodal",
+                    "Logos": "logos"
                 }
                 
                 # Get the module name from the mapping or use the theory name directly
@@ -602,18 +603,20 @@ class BuildModule:
                             previous_model = model_structures[previous_idx]
                                 
                             # Use the model structure's detect_model_differences if available
-                            try:
-                                # First try using theory-specific difference detection
-                                if hasattr(structure, 'detect_model_differences'):
-                                    structure.model_differences = structure.detect_model_differences(previous_model)
-                                    structure.previous_structure = previous_model
-                                else:
-                                    # Check if structure has calculate_model_differences for legacy support
-                                    if hasattr(structure, 'calculate_model_differences'):
-                                        structure.model_differences = structure.calculate_model_differences(previous_model)
+                            # BUT only if model_differences hasn't already been set by the iterator
+                            if not hasattr(structure, 'model_differences') or structure.model_differences is None:
+                                try:
+                                    # First try using theory-specific difference detection
+                                    if hasattr(structure, 'detect_model_differences'):
+                                        structure.model_differences = structure.detect_model_differences(previous_model)
                                         structure.previous_structure = previous_model
-                            except Exception as e:
-                                print(f"\nError calculating detailed differences: {str(e)}")
+                                    else:
+                                        # Check if structure has calculate_model_differences for legacy support
+                                        if hasattr(structure, 'calculate_model_differences'):
+                                            structure.model_differences = structure.calculate_model_differences(previous_model)
+                                            structure.previous_structure = previous_model
+                                except Exception as e:
+                                    print(f"\nError calculating detailed differences: {str(e)}")
                         
                         # Now print the differences
                         try:
@@ -660,6 +663,16 @@ class BuildModule:
             
             # Print summary after all models have been displayed
             distinct_count = sum(1 for s in model_structures if not hasattr(s, '_is_isomorphic') or not s._is_isomorphic)
+            
+            # Print any iteration debug messages if available
+            if hasattr(example, '_iterator') and hasattr(example._iterator, 'get_debug_messages'):
+                debug_messages = example._iterator.get_debug_messages()
+                if debug_messages:
+                    # Print a separator line first
+                    print()
+                    for msg in debug_messages:
+                        print(msg)
+            
             print(f"\nFound {distinct_count}/{expected_total} distinct models.")
             
             # Check if there was any partial output

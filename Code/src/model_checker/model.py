@@ -1210,7 +1210,8 @@ class ModelDefaults:
             output (file, optional): Output stream to write to. Defaults to sys.stdout.
         """
         if not hasattr(self, 'model_differences') or not self.model_differences:
-            print("No previous model to compare with.", file=output)
+            # print("No previous model to compare with.", file=output)
+            # print(f"DEBUG: hasattr model_differences = {hasattr(self, 'model_differences')}, value = {getattr(self, 'model_differences', 'N/A')}", file=output)
             return
         
         print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)

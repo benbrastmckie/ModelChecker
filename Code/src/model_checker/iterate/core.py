@@ -121,7 +121,14 @@ class BaseModelIterator:
     
     def _create_persistent_solver(self):
         """Create a persistent solver with the initial model's constraints."""
+        # Try to get the solver, fallback to stored_solver if solver was cleaned up
         original_solver = self.build_example.model_structure.solver
+        if original_solver is None:
+            original_solver = getattr(self.build_example.model_structure, 'stored_solver', None)
+            
+        if original_solver is None:
+            raise RuntimeError("No solver available - both solver and stored_solver are None")
+            
         persistent_solver = z3.Solver()
         for assertion in original_solver.assertions():
             persistent_solver.add(assertion)
@@ -142,17 +149,29 @@ class BaseModelIterator:
         iteration_timeout = max(max_time * 10, 30.0)
         start_time = time.time()
         
+        # Set solver timeout
+        solver_timeout = self.settings.get('iteration_solver_timeout', 5000)  # 5 seconds default
+        self.solver.set("timeout", solver_timeout)
+        
         # Track attempts to escape isomorphic models
         self.escape_attempts = 0
         escape_attempts = self.settings.get('escape_attempts', 3)
         
+        # Track consecutive invalid models to prevent infinite loops
+        consecutive_invalid = 0
+        max_consecutive_invalid = self.settings.get('max_invalid_attempts', 5)
+        
         # Start iteration from second model
         while self.current_iteration < self.max_iterations:
             try:
+                # Show progress (store for later display)
+                self.debug_messages.append(f"[ITERATION] Searching for model {self.current_iteration + 1}/{self.max_iterations}...")
+                
                 # Check timeout
                 current_time = time.time()
                 if current_time - start_time > iteration_timeout:
                     self.debug_messages.append(f"Iteration process exceeded timeout of {iteration_timeout} seconds")
+                    self.debug_messages.append(f"[ITERATION] Timeout exceeded after {iteration_timeout} seconds")
                     break
                 
                 # Create extended constraints requiring difference from all previous models
@@ -163,9 +182,19 @@ class BaseModelIterator:
                     break
                 
                 # Solve with extended constraints
+                check_start = time.time()
                 result = self.solver.check()
+                check_time = time.time() - check_start
+                
+                # Log slow checks
+                if check_time > 1.0:
+                    logger.warning(f"Solver check took {check_time:.2f} seconds for model {self.current_iteration + 1}")
+                else:
+                    logger.debug(f"Solver check took {check_time:.2f} seconds, result: {result}")
+                
                 if result != z3.sat:
                     self.debug_messages.append("No more models satisfy the extended constraints")
+                    self.debug_messages.append(f"[ITERATION] Stopped at model {self.current_iteration}/{self.max_iterations} - no more satisfiable models")
                     break
                 
                 # Get the new model
@@ -179,6 +208,22 @@ class BaseModelIterator:
                     self.debug_messages.append("Could not create new model structure, stopping iteration")
                     break
                 
+                # Validate the new model has at least one possible world
+                if not hasattr(new_structure, 'z3_world_states') or not new_structure.z3_world_states:
+                    self.debug_messages.append("Found model with no possible worlds - skipping as invalid")
+                    consecutive_invalid += 1
+                    self.debug_messages.append(f"[ITERATION] Found invalid model (no possible worlds) - attempt {consecutive_invalid}/{max_consecutive_invalid}")
+                    
+                    if consecutive_invalid >= max_consecutive_invalid:
+                        self.debug_messages.append(f"Found {max_consecutive_invalid} consecutive invalid models - stopping search")
+                        self.debug_messages.append(f"[ITERATION] Too many consecutive invalid models ({max_consecutive_invalid}) - no more valid models exist")
+                        break
+                    
+                    # Add constraint to exclude this invalid model
+                    logger.debug("Adding constraint to exclude invalid model")
+                    self.solver.add(self._create_difference_constraint([new_model]))
+                    continue
+                
                 # Check for isomorphism if NetworkX is available
                 is_isomorphic = False
                 if HAS_NETWORKX:
@@ -188,6 +233,7 @@ class BaseModelIterator:
                     # Mark the structure as isomorphic for reference
                     new_structure._is_isomorphic = True
                     logger.debug(f"Found an isomorphic model (check #{self.checked_model_count})")
+                    self.debug_messages.append(f"[ITERATION] Found isomorphic model #{self.checked_model_count} - will try different constraints")
                     
                     # Track number of consecutive isomorphic models found
                     if not hasattr(self, '_isomorphic_attempts'):
@@ -201,6 +247,7 @@ class BaseModelIterator:
                         
                         if self.escape_attempts >= escape_attempts:
                             self.debug_messages.append(f"Made {escape_attempts} attempts to escape isomorphic models without success. Stopping search.")
+                            self.debug_messages.append(f"[ITERATION] Exhausted {escape_attempts} escape attempts - no more distinct models found")
                             break
                             
                         # Store the message instead of printing it immediately
@@ -249,10 +296,13 @@ class BaseModelIterator:
                             # If we couldn't satisfy the constraint within timeout, stop
                             if self.solver.check() != z3.sat:
                                 self.debug_messages.append("Failed to satisfy stronger constraints, stopping search")
+                                self.debug_messages.append(f"[ITERATION] Failed to satisfy stronger constraints - stopping")
                                 break
                         else:
                             self.debug_messages.append("Could not create stronger constraints, stopping search")
+                            self.debug_messages.append(f"[ITERATION] Could not create stronger constraints - stopping")
                             break
+                        # Continue to next iteration to try the stronger constraints
                         continue
                     
                     # Add a non-isomorphism constraint and try again
@@ -271,11 +321,12 @@ class BaseModelIterator:
                 # Reset counters on successful distinct model
                 self._isomorphic_attempts = 0
                 self.escape_attempts = 0
+                consecutive_invalid = 0  # Reset invalid counter too
                 
                 # Calculate and store differences for the presentation layer to use
                 differences = self._calculate_differences(new_structure, self.model_structures[-1])
                 new_structure.model_differences = differences
-                # print(f"DEBUG CORE: Setting model_differences = {bool(differences)}")
+                # print(f"DEBUG CORE: Setting model_differences = {bool(differences)}, differences = {differences}")
                 
                 # Store reference to previous structure for comparison
                 new_structure.previous_structure = self.model_structures[-1]
@@ -298,6 +349,15 @@ class BaseModelIterator:
         # Return all model structures without printing summary here
         # Summary will be printed by the presentation layer (process_example)
         return self.model_structures
+    
+    def get_debug_messages(self):
+        """Get all debug messages collected during iteration.
+        
+        Returns:
+            list: List of debug messages to display
+        """
+        # Filter to only return [ITERATION] messages for user display
+        return [msg for msg in self.debug_messages if "[ITERATION]" in msg]
     
     def reset_iterator(self):
         """Reset the iterator to its initial state.
@@ -359,7 +419,15 @@ class BaseModelIterator:
             RuntimeError: If constraint generation fails
         """
         # Get original constraints from the first model
-        original_constraints = list(self.build_example.model_structure.solver.assertions())
+        # Try to get the solver, fallback to stored_solver if solver was cleaned up
+        original_solver = self.build_example.model_structure.solver
+        if original_solver is None:
+            original_solver = getattr(self.build_example.model_structure, 'stored_solver', None)
+            
+        if original_solver is None:
+            raise RuntimeError("No solver available - both solver and stored_solver are None")
+            
+        original_constraints = list(original_solver.assertions())
         
         # Create difference constraints for all previous models
         difference_constraints = []
@@ -488,7 +556,7 @@ class BaseModelIterator:
         model_structure.z3_world_states = None
         
         # Initialize difference tracking
-        model_structure.model_differences = None
+        # model_structure.model_differences = None  # Don't initialize, will be set later
         
     def _initialize_z3_dependent_attributes(self, model_structure, z3_model):
         """Initialize attributes that depend on the Z3 model.
