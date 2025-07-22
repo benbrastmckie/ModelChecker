@@ -4,8 +4,8 @@ Modal operators for necessity and possibility.
 This module implements modal logical operators:
 - Necessity (�)
 - Possibility (�)  
-- Counterfactual Necessity (\CFBox)
-- Counterfactual Possibility (\CFDiamond)
+- Counterfactual Necessity (\\CFBox)
+- Counterfactual Possibility (\\CFDiamond)
 """
 
 import z3

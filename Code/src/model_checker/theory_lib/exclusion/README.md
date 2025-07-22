@@ -797,7 +797,9 @@ The implementation provides:
 
 ## Integration Examples
 
-### Jupyter Notebook Usage
+### Jupyter Integration
+
+The Exclusion theory includes comprehensive interactive notebooks demonstrating unilateral semantics and architectural innovations. See **[notebooks/README.md](notebooks/README.md)** for the complete learning environment.
 
 ```python
 # In Jupyter notebooks
@@ -813,6 +815,9 @@ countermodel = find_countermodel(
     theory='exclusion'
 )
 ```
+
+**Available Notebooks**:
+- **[Exclusion Theory Demo](notebooks/exclusion_demo.ipynb)**: Complete introduction to unilateral semantics, witness predicates, and the three-level methodology
 
 ### Custom Settings
 

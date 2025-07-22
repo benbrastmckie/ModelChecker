@@ -238,7 +238,7 @@ This testing approach provides:
 - **Granular Control**: Precise targeting for debugging
 - **Fast Development**: Quick testing of specific components
 
-**Template Available**: See `docs/THEORY_TESTING_TEMPLATE.md` for implementing similar testing in other theories.
+**Template Available**: See [Theory Testing Framework Guide](../src/model_checker/theory_lib/tests/README.md#theory-testing-framework-guide) for implementing similar testing in other theories.
 
 ### Output Format
 

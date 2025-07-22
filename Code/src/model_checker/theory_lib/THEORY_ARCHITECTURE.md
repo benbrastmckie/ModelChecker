@@ -396,7 +396,7 @@ __all__ = [
 
 ### Testing Infrastructure
 
-Both patterns must implement [standardized testing](THEORY_TESTING.md):
+Both patterns must implement [standardized testing](tests/README.md#theory-testing-framework-guide):
 
 - **Simple Pattern**: Tests in single `tests/` directory
 - **Modular Pattern**: Tests at both theory and subtheory levels
@@ -456,7 +456,7 @@ Both patterns require:
 
 ### For Both Patterns:
 - Follow [common interface standards](README.md#common-interface-elements)
-- Implement comprehensive testing per [THEORY_TESTING.md](THEORY_TESTING.md)
+- Implement comprehensive testing per [Theory Testing Framework Guide](tests/README.md#theory-testing-framework-guide)
 - Provide clear documentation and examples
 - Support Jupyter integration
 - Use consistent naming conventions
