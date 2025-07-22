@@ -787,6 +787,87 @@ class LogosModelStructure(ModelDefaults):
         if print_constraints and self.unsat_core is not None:
             self.print_grouped_constraints(output)
 
+    def print_model_differences(self, output=sys.stdout):
+        """Print differences between this model and the previous one.
+        
+        Logos-specific implementation that understands hyperintensional semantics.
+        
+        Args:
+            output (file, optional): Output stream to write to. Defaults to sys.stdout.
+        """
+        if not hasattr(self, 'model_differences') or not self.model_differences:
+            return
+        
+        diffs = self.model_differences
+        
+        # Use colors if outputting to terminal
+        if output is sys.stdout:
+            GREEN = "\033[32m"
+            RED = "\033[31m"
+            YELLOW = "\033[33m"
+            BLUE = "\033[34m"
+            RESET = "\033[0m"
+        else:
+            GREEN = RED = YELLOW = BLUE = RESET = ""
+        
+        print(f"\n{YELLOW}=== DIFFERENCES FROM PREVIOUS MODEL ==={RESET}\n", file=output)
+        
+        # Print world changes
+        if diffs.get('worlds', {}).get('added') or diffs.get('worlds', {}).get('removed'):
+            print(f"{BLUE}World Changes:{RESET}", file=output)
+            for world in diffs['worlds'].get('added', []):
+                world_str = bitvec_to_substates(world, self.N)
+                print(f"  {GREEN}+ {world_str} (now a world){RESET}", file=output)
+            for world in diffs['worlds'].get('removed', []):
+                world_str = bitvec_to_substates(world, self.N)
+                print(f"  {RED}- {world_str} (no longer a world){RESET}", file=output)
+            print("", file=output)
+        
+        # Print possible state changes
+        if diffs.get('possible_states', {}).get('added') or diffs.get('possible_states', {}).get('removed'):
+            print(f"{BLUE}Possible State Changes:{RESET}", file=output)
+            for state in diffs['possible_states'].get('added', []):
+                state_str = bitvec_to_substates(state, self.N)
+                print(f"  {GREEN}+ {state_str} (now possible){RESET}", file=output)
+            for state in diffs['possible_states'].get('removed', []):
+                state_str = bitvec_to_substates(state, self.N)
+                print(f"  {RED}- {state_str} (now impossible){RESET}", file=output)
+            print("", file=output)
+        
+        # Print verification changes
+        if diffs.get('verify'):
+            print(f"{BLUE}Verification Changes:{RESET}", file=output)
+            for letter, state_changes in diffs['verify'].items():
+                print(f"  Letter {letter}:", file=output)
+                for state_str, change in state_changes.items():
+                    if change['new']:
+                        print(f"    {GREEN}+ {state_str} now verifies {letter}{RESET}", file=output)
+                    else:
+                        print(f"    {RED}- {state_str} no longer verifies {letter}{RESET}", file=output)
+            print("", file=output)
+        
+        # Print falsification changes
+        if diffs.get('falsify'):
+            print(f"{BLUE}Falsification Changes:{RESET}", file=output)
+            for letter, state_changes in diffs['falsify'].items():
+                print(f"  Letter {letter}:", file=output)
+                for state_str, change in state_changes.items():
+                    if change['new']:
+                        print(f"    {GREEN}+ {state_str} now falsifies {letter}{RESET}", file=output)
+                    else:
+                        print(f"    {RED}- {state_str} no longer falsifies {letter}{RESET}", file=output)
+            print("", file=output)
+        
+        # Print parthood changes
+        if diffs.get('parthood'):
+            print(f"{BLUE}Part-of Relation Changes:{RESET}", file=output)
+            for relation, change in diffs['parthood'].items():
+                if change['new']:
+                    print(f"  {GREEN}+ {relation}{RESET}", file=output)
+                else:
+                    print(f"  {RED}- {relation}{RESET}", file=output)
+            print("", file=output)
+    
     def print_evaluation(self, output=sys.__stdout__):
         """Print the evaluation world and evaluate all sentence letters at that world."""
         BLUE = ""

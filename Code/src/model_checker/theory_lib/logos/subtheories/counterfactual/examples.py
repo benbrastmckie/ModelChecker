@@ -54,13 +54,13 @@ from ...operators import LogosOperatorRegistry
 CF_CM_1_premises = ['\\neg A', '(A \\boxright C)']
 CF_CM_1_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_CM_1_settings = {
-    'N' : 4,
+    'N' : 6,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'iterate' : 1,
+    'iterate' : 3,
     'expectation' : True,
 }
 CF_CM_1_example = [
@@ -779,14 +779,14 @@ semantic_theories = {
 # Or set specific examples
 example_range = {
 
-    # Test some failing theorem examples
-    "CF_TH_1": CF_TH_1_example,  # COUNTERFACTUAL IDENTITY
-    "CF_TH_2": CF_TH_2_example,  # COUNTERFACTUAL MODUS PONENS
-    "CF_TH_9": CF_TH_9_example,  # COUNTERFACTUAL CONJUNCTION INTRODUCTION
-    
     # Also test a countermodel that should pass
     "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
 
+    # Test some failing theorem examples
+    # "CF_TH_1": CF_TH_1_example,  # COUNTERFACTUAL IDENTITY
+    # "CF_TH_2": CF_TH_2_example,  # COUNTERFACTUAL MODUS PONENS
+    # "CF_TH_9": CF_TH_9_example,  # COUNTERFACTUAL CONJUNCTION INTRODUCTION
+    
 }
 
 
