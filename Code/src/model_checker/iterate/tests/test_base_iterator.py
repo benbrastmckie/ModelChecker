@@ -158,6 +158,7 @@ def create_mock_example():
     mock_structure.solver = z3.Solver()
     mock_structure.all_states = [z3.BitVecVal(i, 4) for i in range(4)]
     mock_structure.z3_world_states = [z3.BitVecVal(0, 4)]
+    mock_structure.z3_possible_states = [z3.BitVecVal(0, 4), z3.BitVecVal(1, 4)]
     mock_structure.sentence_letters = []
     mock_structure.semantics = Mock()
     

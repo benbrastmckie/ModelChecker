@@ -6,362 +6,465 @@ The ModelChecker's iteration system provides a framework for systematically find
 
 The iteration system allows you to:
 
-1. Find multiple semantically distinct models for a logical formula
-2. Generate constraints that ensure each new model differs from previous ones
-3. Check for model isomorphism to avoid structural duplicates
-4. Handle edge cases where no more distinct models exist
-5. Visualize differences between models for analysis
+1. **Find Multiple Models**: Generate multiple semantically distinct models for a logical formula
+2. **Ensure Distinctness**: Create constraints that ensure each new model differs from previous ones
+3. **Avoid Duplicates**: Check for structural isomorphism to avoid equivalent models
+4. **Handle Edge Cases**: Gracefully manage cases where no more distinct models exist
+5. **Track Progress**: Provide real-time progress updates with timing information
+6. **Analyze Differences**: Visualize semantic differences between models
 
 This functionality is valuable for:
 
-- Exploring the space of possible models for a formula
-- Analyzing the semantic range of a theory
-- Testing the robustness of logical principles
-- Demonstrating semantic diversity in countermodels
-- Understanding the limits of model variation
+- **Semantic Exploration**: Understanding the full space of possible models for a formula
+- **Theory Analysis**: Examining how different theories handle the same logical principles
+- **Countermodel Discovery**: Finding diverse counterexamples to logical arguments
+- **Robustness Testing**: Verifying that logical principles hold across model variations
+- **Educational Purposes**: Demonstrating the semantic diversity within logical theories
 
 ## Architecture
 
-The iteration system follows a modular architecture with clear separation between theory-agnostic and theory-specific components:
+The iteration system follows a modular architecture with clear separation between theory-agnostic core functionality and theory-specific implementations:
 
 ```
-BaseModelIterator (in iterate/core.py)
-├── DefaultModelIterator (in theory_lib/default/iterate.py)
-├── BimodalModelIterator (in theory_lib/bimodal/iterate.py)
-├── ExclusionModelIterator (in theory_lib/exclusion/iterate.py)
-├── ImpositionModelIterator (in theory_lib/imposition/iterate.py)
-└── LogosModelIterator (in theory_lib/logos/iterate.py)
+iterate/
+├── core.py                  # BaseModelIterator abstract class
+├── progress.py             # Progress bar and timing utilities
+├── stats.py               # Model statistics collection
+├── parallel.py            # Parallel constraint generation utilities
+└── graph_utils.py         # Graph-based isomorphism checking
+
+theory_lib/<theory>/iterate.py  # Theory-specific implementations:
+├── logos/iterate.py           # LogosModelIterator
+├── exclusion/iterate.py       # ExclusionModelIterator (extends LogosModelIterator)
+├── default/iterate.py         # DefaultModelIterator
+├── bimodal/iterate.py         # BimodalModelIterator
+└── imposition/iterate.py      # ImpositionModelIterator
 ```
 
 ### Key Components
 
-1. **BaseModelIterator** (`iterate/core.py`)
-   - Abstract base class providing the theory-agnostic iteration framework
-   - Handles solver management, model building, and iteration control
-   - Manages invalid model detection and consecutive failure limits
-   - Provides isomorphism detection using NetworkX when available
-   - Collects and stores debug messages for later display
+#### 1. BaseModelIterator (`iterate/core.py`)
+The abstract base class providing the theory-agnostic iteration framework:
 
-2. **Theory-Specific Iterators** (`theory_lib/<theory>/iterate.py`)
-   - Extend BaseModelIterator with theory-specific implementations
-   - Implement constraint generation based on theory's semantic primitives
-   - Provide theory-specific model comparison and difference detection
-   - Define visualization methods for model differences
+- **Solver Management**: Handles Z3 solver lifecycle and constraint application
+- **Model Building**: Orchestrates the process of finding and validating new models
+- **Iteration Control**: Manages retry logic, failure limits, and termination conditions
+- **Invalid Model Detection**: Automatically excludes models with no possible worlds
+- **Isomorphism Detection**: Uses graph-based comparison to identify structurally identical models
+- **Progress Tracking**: Integrates with progress reporting and timing systems
+- **Debug Collection**: Gathers detailed iteration information for analysis
 
-3. **Supporting Infrastructure**
-   - `iterate/graph_utils.py`: Graph-based model representation for isomorphism checking
-   - Theory-specific `iterate_example` functions for simplified usage
-   - Integration with the builder system for seamless iteration support
+**Key Features**:
+- Automatic retry with stronger constraints when stuck on isomorphic models
+- Configurable limits for consecutive failures and escape attempts
+- Smart constraint ordering for improved performance
+- Comprehensive error handling and recovery
+
+#### 2. Theory-Specific Iterators
+Each theory extends BaseModelIterator with specialized implementations:
+
+- **Constraint Generation**: Creates difference constraints using theory's semantic primitives
+- **Model Comparison**: Detects meaningful differences based on theory's concepts
+- **Isomorphism Handling**: Defines structural similarity for the theory's models
+- **Visualization**: Provides theory-appropriate display of model differences
+
+**Current Implementations**:
+- **LogosModelIterator**: Handles hyperintensional semantics with verification/falsification
+- **ExclusionModelIterator**: Extends LogosModelIterator for witness-aware exclusion semantics
+- **DefaultModelIterator**: Basic classical logic implementation
+- **BimodalModelIterator**: Supports temporal and modal operators
+- **ImpositionModelIterator**: Handles imposition theory semantics
+
+#### 3. Supporting Infrastructure
+
+**Progress System** (`iterate/progress.py`):
+- Real-time progress bars with timing information
+- Configurable display options for different environments
+- Integration with model counting and iteration statistics
+
+**Statistics Collection** (`iterate/stats.py`):
+- Model diversity analysis and difference categorization
+- Performance metrics and timing breakdowns
+- Summary reports for iteration sessions
+
+**Performance Optimizations**:
+- Parallel constraint generation for complex theories
+- Isomorphism caching to avoid repeated comparisons
+- Smart constraint ordering based on constraint priority
 
 ## Usage
 
 ### Basic Usage in Examples
 
-When defining examples in a theory's `examples.py` file, enable iteration by setting the `iterate` parameter:
+Enable iteration by adding the `iterate` parameter to your example settings:
 
 ```python
-# In theory_lib/logos/subtheories/counterfactual/examples.py
+# In theory_lib/exclusion/examples.py
 
-CF_CM_1_settings = {
-    'N': 4,
-    'contingent': True,
-    'non_null': True,
-    'non_empty': True,
+EX_CM_21_settings = {
+    'N': 3,
+    'possible': False,
+    'contingent': False,
+    'non_empty': False,
+    'non_null': False,
     'disjoint': False,
-    'max_time': 1,
-    'iterate': 3,  # Request 3 models
+    'fusion_closure': False,
+    'max_time': 5,
+    'iterate': 2,        # Request 2 distinct models
     'expectation': True,
 }
-
-CF_CM_1_example = [
-    CF_CM_1_premises,
-    CF_CM_1_conclusions,
-    CF_CM_1_settings,
-]
 ```
 
-### Programmatic Usage
+When you run this example, the system will:
+1. Find and display the first model normally
+2. Search for a second model that differs semantically from the first
+3. Display differences between the models
+4. Show progress with timing information
 
-Each theory provides its own `iterate_example` function:
+### Advanced Configuration
 
-```python
-from model_checker.theory_lib.logos import iterate_example
-from model_checker import BuildExample, get_theory
-
-# Create an example with a valid model
-theory = get_theory(['extensional'])
-example = BuildExample("example_name", theory)
-
-# Find multiple models (up to 5)
-model_structures = iterate_example(example, max_iterations=5)
-
-# Process the results
-for i, structure in enumerate(model_structures, start=1):
-    print(f"=== Model {i} ===")
-    structure.print_model()
-```
-
-### Iteration Process
-
-When iteration is enabled, the following process occurs:
-
-1. The first model is found and displayed normally
-2. An iterator is created using the theory-specific implementation
-3. The iterator searches for additional models by:
-   - Adding constraints to differ from previous models
-   - Checking new models for validity (at least one possible world)
-   - Checking for isomorphism with previous models
-   - Applying stronger constraints if stuck in isomorphic models
-4. Each distinct model is displayed with differences from the previous
-5. Debug messages are collected and shown after all models
-6. A summary shows how many distinct models were found
-
-### Handling Edge Cases
-
-The iterator handles several edge cases gracefully:
-
-- **Invalid Models**: Models with no possible worlds are automatically excluded
-- **Isomorphic Models**: Structurally identical models are detected and skipped
-- **Insufficient Models**: If fewer than requested models exist, iteration stops early
-- **Consecutive Failures**: After 5 consecutive invalid models, iteration stops
-- **Escape Attempts**: After 3 failed attempts to escape isomorphism, iteration stops
-
-## Abstract Methods
-
-Theory-specific iterators must implement these methods from BaseModelIterator:
-
-### 1. _calculate_differences(new_structure, previous_structure)
-
-Calculate semantic differences between models based on theory-specific primitives:
-
-```python
-def _calculate_differences(self, new_structure, previous_structure):
-    """Calculate differences between two model structures.
-    
-    For logos theory, this focuses on:
-    - Changes in which states are worlds
-    - Changes in verification and falsification of sentence letters
-    - Changes in part-whole relationships
-    - Changes in modal accessibility relations
-    
-    Returns:
-        dict: Structured differences between the models
-    """
-```
-
-### 2. _create_difference_constraint(previous_models)
-
-Create Z3 constraints ensuring the next model differs from all previous ones:
-
-```python
-def _create_difference_constraint(self, previous_models):
-    """Create a Z3 constraint requiring difference from all previous models.
-    
-    For logos theory, we create constraints that require at least one of:
-    - Different verification/falsification for some sentence letter
-    - Different world structure
-    - Different possible states
-    
-    Returns:
-        z3.ExprRef: Z3 constraint expression
-    """
-```
-
-### 3. _create_non_isomorphic_constraint(z3_model)
-
-Create constraints to avoid isomorphic models:
-
-```python
-def _create_non_isomorphic_constraint(self, z3_model):
-    """Create a constraint that forces structural differences.
-    
-    For logos theory, we focus on breaking symmetries in the state space
-    by requiring specific structural differences.
-    
-    Returns:
-        z3.ExprRef: Z3 constraint or None if creation fails
-    """
-```
-
-### 4. _create_stronger_constraint(isomorphic_model)
-
-Create aggressive constraints when stuck in isomorphic models:
-
-```python
-def _create_stronger_constraint(self, isomorphic_model):
-    """Create stronger constraints after multiple isomorphism failures.
-    
-    This is called when we've found too many isomorphic models in a row.
-    For logos theory, we create more aggressive constraints that force
-    significant structural differences.
-    
-    Returns:
-        z3.ExprRef: Z3 constraint or None if creation fails
-    """
-```
-
-## Implementing a New Theory Iterator
-
-To add iteration support to a new theory:
-
-1. **Create the iterator class** in `theory_lib/<theory>/iterate.py`:
-
-```python
-from model_checker.iterate.core import BaseModelIterator
-import z3
-
-class MyTheoryModelIterator(BaseModelIterator):
-    """Model iterator for my theory."""
-    
-    def _calculate_differences(self, new_structure, previous_structure):
-        # Get Z3 models
-        new_model = new_structure.z3_model
-        previous_model = previous_structure.z3_model
-        
-        # Initialize differences structure
-        differences = {
-            "worlds": {"added": [], "removed": []},
-            "theory_specific": {}
-        }
-        
-        # Calculate theory-specific differences
-        # ...
-        
-        return differences
-    
-    def _create_difference_constraint(self, previous_models):
-        semantics = self.build_example.model_structure.semantics
-        
-        # Create constraints for each previous model
-        model_constraints = []
-        for prev_model in previous_models:
-            differences = []
-            
-            # Add theory-specific difference requirements
-            # ...
-            
-            model_constraints.append(z3.Or(*differences))
-        
-        return z3.And(*model_constraints)
-    
-    def _create_non_isomorphic_constraint(self, z3_model):
-        try:
-            semantics = self.build_example.model_structure.semantics
-            constraints = []
-            
-            # Add structural difference constraints
-            # ...
-            
-            return z3.Or(*constraints) if constraints else None
-        except Exception:
-            return None
-    
-    def _create_stronger_constraint(self, isomorphic_model):
-        try:
-            # Create very strong constraints
-            # ...
-            
-            return constraint
-        except Exception:
-            return None
-```
-
-2. **Add the convenience function**:
-
-```python
-def iterate_example(example, max_iterations=None):
-    """Iterate a my_theory example to find multiple models."""
-    if max_iterations is not None:
-        if not hasattr(example, 'settings'):
-            example.settings = {}
-        example.settings['iterate'] = max_iterations
-    
-    iterator = MyTheoryModelIterator(example)
-    models = iterator.iterate()
-    
-    # Store iterator for debug message access
-    example._iterator = iterator
-    
-    return models
-```
-
-3. **Export from `__init__.py`**:
-
-```python
-from .iterate import MyTheoryModelIterator, iterate_example
-
-__all__ = [
-    # ... existing exports ...
-    "MyTheoryModelIterator",
-    "iterate_example"
-]
-```
-
-## Debug Messages and Progress Tracking
-
-The iteration system collects debug messages during execution:
-
-- Messages are stored in `iterator.debug_messages`
-- Only `[ITERATION]` prefixed messages are shown to users
-- Messages appear after all models are displayed
-- Progress includes:
-  - Which model is being searched for
-  - Invalid models found and excluded
-  - Isomorphic models detected
-  - Escape attempts and stronger constraints
-  - Final status (success or reason for stopping)
-
-## Configuration Options
-
-Control iteration behavior through settings:
+Control iteration behavior with additional settings:
 
 ```python
 settings = {
     # Basic iteration
-    'iterate': 5,                    # Max models to find
+    'iterate': 5,                    # Maximum models to find
     
-    # Advanced options
-    'max_invalid_attempts': 5,       # Max consecutive invalid models
-    'iteration_attempts': 5,         # Max isomorphic models before stronger constraints
-    'escape_attempts': 3,            # Max attempts to escape isomorphism
+    # Failure handling
+    'max_invalid_attempts': 5,       # Max consecutive invalid models before stopping
+    'iteration_attempts': 5,         # Max isomorphic models before using stronger constraints
+    'escape_attempts': 3,            # Max attempts to escape isomorphism loops
+    
+    # Performance tuning
     'iteration_timeout': 1.0,        # Timeout for isomorphism check (seconds)
-    'iteration_solver_timeout': 5000 # Solver timeout per iteration (milliseconds)
+    'iteration_solver_timeout': 5000,# Z3 solver timeout per iteration (milliseconds)
+    
+    # Theory-specific options (varies by theory)
+    'max_time': 5,                   # Overall timeout for model finding
+    'contingent': True,              # Enable contingent valuations
+    'non_empty': True,               # Require non-empty state spaces
 }
 ```
 
-## Integration with Process Example
+### Programmatic Usage
 
-The builder system automatically handles iteration when the `iterate` setting is present:
+Each theory provides its own `iterate_example` function for direct use:
 
-1. Prints "MODEL 1/N" header for the first model
-2. Finds additional models using theory-specific iterator
-3. Displays differences between consecutive models
-4. Shows debug messages after all models
-5. Prints summary "Found X/N distinct models"
+```python
+# Logos theory example
+from model_checker.theory_lib.logos import iterate_example
+from model_checker import BuildExample, get_theory
+
+# Create example with logos theory
+theory = get_theory('logos')
+example = BuildExample("counterfactual_example", theory, 
+                      premises=['(A □→ B)'], 
+                      conclusions=['(A → B)'])
+
+# Find up to 5 distinct models
+model_structures = iterate_example(example, max_iterations=5)
+
+# Process results
+print(f"Found {len(model_structures)} distinct models")
+for i, structure in enumerate(model_structures, 1):
+    print(f"\n=== Model {i} ===")
+    structure.print_model()
+
+# Access iteration debug information
+if hasattr(example, '_iterator'):
+    iterator = example._iterator
+    print("\nIteration Summary:")
+    for message in iterator.debug_messages:
+        if message.startswith('[ITERATION]'):
+            print(message)
+```
+
+```python
+# Exclusion theory example
+from model_checker.theory_lib.exclusion import iterate_example
+
+# Example with exclusion theory
+example = BuildExample("exclusion_example", exclusion_theory,
+                      premises=['A'], 
+                      conclusions=['B'])
+
+# Find multiple models showing different exclusion patterns
+models = iterate_example(example, max_iterations=3)
+
+# Models will differ in their exclusion relations and witness structures
+for structure in models:
+    structure.print_model()  # Shows exclusion relations and coherence patterns
+```
+
+### Integration with Dev CLI
+
+The iteration system integrates seamlessly with the development CLI:
+
+```bash
+# Run exclusion examples with iteration enabled
+./dev_cli.py /path/to/exclusion/examples.py
+
+# The system automatically detects 'iterate' settings and:
+# 1. Shows "MODEL 1/N" headers
+# 2. Displays progress bars during iteration
+# 3. Shows differences between consecutive models
+# 4. Provides iteration summary at the end
+```
+
+## Theory-Specific Behavior
+
+### Logos Theory
+The LogosModelIterator focuses on hyperintensional differences:
+
+- **Verification Changes**: Different truth values for sentence letters at specific states
+- **World Structure**: Changes in which states count as possible worlds
+- **Part-Whole Relations**: Modifications to the mereological structure
+- **Modal Relations**: Different accessibility relations for modal operators
+- **Constitutive Relations**: Changes in grounding and essence relationships
+
+**Example Output**:
+```
+=== DIFFERENCES FROM PREVIOUS MODEL ===
+Verification Changes:
+  □ verifies A: False → True
+  a.b falsifies B: True → False
+
+Structural Properties:
+  Worlds: 2 → 3
+  Possible States: {□, a, b, a.b} → {□, a, c, a.c}
+```
+
+### Exclusion Theory
+The ExclusionModelIterator extends LogosModelIterator with exclusion-specific features:
+
+- **Exclusion Relations**: Changes in which states exclude each other
+- **Witness Structures**: Modifications to witness predicate assignments
+- **Coherence Patterns**: Different coherence relationships between states
+- **Verification Differences**: Similar to Logos but with unilateral negation semantics
+
+**Example Output**:
+```
+=== DIFFERENCES FROM PREVIOUS MODEL ===
+Exclusion Changes:
+  a.b excludes a.b: False → True
+
+Verification Changes:
+  □ verifies A: True → False
+  
+Structural Properties:
+  Worlds: 1 → 2
+  Conflicts: Added conflict between a.b and a.b.c
+```
+
+## Abstract Methods for New Theories
+
+When implementing iteration for a new theory, you must provide these methods:
+
+### 1. _calculate_differences(new_structure, previous_structure)
+
+Calculate theory-specific semantic differences between models:
+
+```python
+def _calculate_differences(self, new_structure, previous_structure):
+    """Calculate semantic differences between models.
+    
+    Args:
+        new_structure: The new model structure
+        previous_structure: The previous model structure
+        
+    Returns:
+        dict: Structured differences categorized by type
+    """
+    differences = {
+        "theory_specific_category1": {},
+        "theory_specific_category2": {},
+        "structural": {}
+    }
+    
+    # Implementation varies by theory
+    # Compare semantic primitives (verify, falsify, modal relations, etc.)
+    # Focus on differences that matter for the theory's semantics
+    
+    return differences
+```
+
+### 2. _create_difference_constraint(previous_models)
+
+Generate Z3 constraints ensuring new models differ from all previous ones:
+
+```python
+def _create_difference_constraint(self, previous_models):
+    """Create constraints requiring difference from all previous models.
+    
+    Args:
+        previous_models: List of Z3 models to differ from
+        
+    Returns:
+        z3.ExprRef: Constraint ensuring semantic difference
+    """
+    semantics = self.build_example.model_structure.semantics
+    all_states = self.build_example.model_structure.all_states
+    
+    model_constraints = []
+    
+    for prev_model in previous_models:
+        differences = []
+        
+        # Add constraints based on theory's semantic primitives
+        for state in all_states:
+            for atom in sentence_letters:
+                # Example: require different verification
+                prev_verifies = prev_model.eval(semantics.verify(state, atom))
+                differences.append(semantics.verify(state, atom) != prev_verifies)
+        
+        # Combine all possible differences with OR
+        if differences:
+            model_constraints.append(z3.Or(*differences))
+    
+    # Must differ from ALL previous models
+    return z3.And(*model_constraints) if model_constraints else z3.BoolVal(True)
+```
+
+### 3. _create_non_isomorphic_constraint(z3_model)
+
+Generate constraints to break structural symmetries:
+
+```python
+def _create_non_isomorphic_constraint(self, z3_model):
+    """Create constraints to avoid structurally identical models.
+    
+    Args:
+        z3_model: Z3 model to differ from structurally
+        
+    Returns:
+        z3.ExprRef or None: Constraint to break isomorphism
+    """
+    try:
+        semantics = self.build_example.model_structure.semantics
+        constraints = []
+        
+        # Force specific structural differences
+        # Example: require different world count or different state properties
+        
+        return z3.Or(*constraints) if constraints else None
+        
+    except Exception as e:
+        # Return None if constraint generation fails
+        return None
+```
+
+### 4. _create_stronger_constraint(isomorphic_model)
+
+Create aggressive constraints when stuck in isomorphic loops:
+
+```python
+def _create_stronger_constraint(self, isomorphic_model):
+    """Create stronger constraints after repeated isomorphism.
+    
+    Args:
+        isomorphic_model: Z3 model we're stuck being isomorphic to
+        
+    Returns:
+        z3.ExprRef or None: Strong constraint to escape isomorphism
+    """
+    try:
+        # Create very restrictive constraints
+        # Often involves forcing specific values for key predicates
+        
+        return strong_constraint
+        
+    except Exception:
+        return None
+```
+
+## Performance Considerations
+
+### Optimization Strategies
+
+1. **Smart Constraint Ordering**: Prioritize constraints most likely to produce distinct models
+2. **Isomorphism Caching**: Cache graph representations to avoid repeated isomorphism checks
+3. **Parallel Processing**: Generate constraints in parallel for complex theories
+4. **Early Termination**: Stop iteration early when patterns indicate no more distinct models exist
+
+### Common Performance Issues
+
+**Large State Spaces**: 
+- **Problem**: Theories with high N values create exponentially large state spaces
+- **Solution**: Use focused constraints, reduce N for iteration testing, add timeouts
+
+**Complex Semantic Relations**: 
+- **Problem**: Theories with many semantic primitives generate complex constraints
+- **Solution**: Prioritize key differences, use parallel constraint generation
+
+**Isomorphism Detection**: 
+- **Problem**: Graph isomorphism checking can be expensive for large models
+- **Solution**: Use heuristics, caching, and timeouts
+
+### Configuration for Performance
+
+```python
+# For large models or complex theories
+settings = {
+    'iterate': 3,                     # Start with fewer models
+    'iteration_solver_timeout': 10000,# Increase solver timeout
+    'iteration_timeout': 2.0,         # Increase isomorphism timeout
+    'max_invalid_attempts': 3,        # Reduce failure tolerance
+}
+```
+
+## Debug Information and Diagnostics
+
+The iteration system provides comprehensive debugging information:
+
+### Debug Message Categories
+
+```
+[ITERATION] Searching for model 2/3...
+[ITERATION] Found isomorphic model #2 - will try different constraints  
+[ITERATION] Found invalid model (no possible worlds) - attempt 1/5
+[ITERATION] Using stronger constraints after 3 isomorphic failures
+[ITERATION] Successfully found distinct model 2/3
+```
+
+### Accessing Debug Information
+
+```python
+# After iteration completes
+iterator = example._iterator
+debug_messages = iterator.debug_messages
+
+# Filter for user-facing messages
+iteration_messages = [msg for msg in debug_messages if msg.startswith('[ITERATION]')]
+
+# Get performance statistics if available
+if hasattr(iterator, 'statistics'):
+    stats = iterator.statistics.get_summary()
+    print(f"Total time: {stats['total_time']:.2f}s")
+    print(f"Models checked: {stats['models_checked']}")
+```
 
 ## Best Practices
 
-1. **Start Small**: Begin with `iterate: 2` or `3` to test iteration
-2. **Reasonable Limits**: Most examples have 1-5 distinct models
-3. **Handle Failures**: Expect that requested models may not exist
-4. **Theory Specifics**: Focus constraints on theory's key semantic primitives
-5. **Performance**: Add timeouts for complex theories
-6. **Debug Output**: Use debug messages to understand iteration behavior
+### For Theory Implementers
 
-## Common Issues and Solutions
+1. **Focus on Semantic Primitives**: Base difference detection on your theory's core semantic concepts
+2. **Handle Edge Cases**: Provide graceful fallbacks when constraint generation fails
+3. **Test Thoroughly**: Verify iteration works with various example types
+4. **Document Theory-Specific Behavior**: Explain what makes models "different" in your theory
 
-### "Too many consecutive invalid models"
-- The constraints are generating models with no possible worlds
-- Solution: Review constraint generation logic
+### For Users
 
-### "Exhausted escape attempts"
-- The iterator is stuck finding isomorphic models
-- Solution: Strengthen the non-isomorphic constraints
+1. **Start Small**: Begin with `iterate: 2` or `3` to understand your examples
+2. **Expect Variation**: Not all examples will have multiple distinct models
+3. **Use Timeouts**: Add reasonable time limits for complex examples
+4. **Monitor Progress**: Pay attention to progress messages for stuck iterations
+5. **Analyze Differences**: Study the difference output to understand your theory better
 
-### Performance Issues
-- Large state spaces or complex constraints slow iteration
-- Solution: Reduce N, add timeouts, or optimize constraints
+### For Performance
 
-### No Additional Models Found
-- Only one model may satisfy all constraints
-- This is often expected behavior, not an error
+1. **Optimize Constraints**: Make difference constraints as specific as possible
+2. **Use Appropriate N Values**: Smaller state spaces iterate faster
+3. **Configure Timeouts**: Balance thoroughness with performance needs
+4. **Profile Complex Cases**: Use debug output to identify bottlenecks
+
+This iteration system provides a powerful foundation for exploring the semantic space of logical theories while maintaining flexibility for theory-specific requirements and optimizations.

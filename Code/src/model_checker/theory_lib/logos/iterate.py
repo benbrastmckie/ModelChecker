@@ -195,12 +195,14 @@ class LogosModelIterator(BaseModelIterator):
         return differences
     
     def _create_difference_constraint(self, previous_models):
-        """Create a Z3 constraint requiring difference from all previous models.
+        """Create a Z3 constraint requiring difference from all previous models with smart ordering.
         
         For logos theory, we create constraints that require at least one of:
         - Different verification/falsification for some sentence letter
         - Different world structure
         - Different possible states
+        
+        Constraints are ordered by expected effectiveness for faster solving.
         
         Args:
             previous_models: List of Z3 models to differ from
@@ -208,17 +210,90 @@ class LogosModelIterator(BaseModelIterator):
         Returns:
             z3.ExprRef: Z3 constraint expression
         """
+        # Sort constraints by expected effectiveness
+        constraint_generators = [
+            # Most likely to produce different models first
+            (self._create_world_count_constraint, 1),
+            (self._create_letter_value_constraint, 2),
+            (self._create_semantic_function_constraint, 3),
+            # More complex constraints last
+            (self._create_structural_constraint, 4),
+        ]
+        
+        # Sort by priority
+        constraint_generators.sort(key=lambda x: x[1])
+        
+        # Generate constraints in priority order
+        all_constraints = []
+        for generator, _ in constraint_generators:
+            constraints = generator(previous_models)
+            if constraints:
+                all_constraints.extend(constraints)
+                
+                # Early termination if we have enough constraints
+                if len(all_constraints) > 10:
+                    break
+        
+        return z3.And(*all_constraints) if all_constraints else z3.BoolVal(True)
+    
+    def _create_world_count_constraint(self, previous_models):
+        """Create constraints based on world count differences."""
+        constraints = []
+        semantics = self.build_example.model_structure.semantics
+        all_states = self.build_example.model_structure.all_states
+        
+        for prev_model in previous_models:
+            # Count worlds in previous model
+            prev_world_count = sum(1 for state in all_states 
+                                 if bool(prev_model.eval(semantics.is_world(state), model_completion=True)))
+            
+            # Create constraint for different world count
+            current_world_count = z3.Sum([z3.If(semantics.is_world(state), 1, 0) for state in all_states])
+            constraints.append(current_world_count != prev_world_count)
+        
+        return constraints
+    
+    def _create_letter_value_constraint(self, previous_models):
+        """Create constraints based on sentence letter verification/falsification."""
+        constraints = []
         semantics = self.build_example.model_structure.semantics
         all_states = self.build_example.model_structure.all_states
         sentence_letters = self.build_example.model_structure.sentence_letters
-        
-        # For each previous model, create a constraint that ensures difference
-        model_constraints = []
         
         for prev_model in previous_models:
             differences = []
             
             # Require different verification for at least one state/letter pair
+            for state in all_states[:min(3, len(all_states))]:  # Limit to first 3 states
+                for letter in sentence_letters[:min(2, len(sentence_letters))]:  # Limit to first 2 letters
+                    # Get the Z3 atom for this sentence letter
+                    if hasattr(letter, 'sentence_letter') and letter.sentence_letter is not None:
+                        atom = letter.sentence_letter
+                    else:
+                        continue
+                    
+                    prev_verify = prev_model.eval(semantics.verify(state, atom), model_completion=True)
+                    differences.append(semantics.verify(state, atom) != prev_verify)
+                    
+                    prev_falsify = prev_model.eval(semantics.falsify(state, atom), model_completion=True)
+                    differences.append(semantics.falsify(state, atom) != prev_falsify)
+            
+            if differences:
+                constraints.append(z3.Or(*differences))
+        
+        return constraints
+    
+    def _create_semantic_function_constraint(self, previous_models):
+        """Create constraints based on semantic functions."""
+        constraints = []
+        semantics = self.build_example.model_structure.semantics
+        all_states = self.build_example.model_structure.all_states
+        sentence_letters = self.build_example.model_structure.sentence_letters
+        
+        for prev_model in previous_models:
+            differences = []
+            
+            # Full verification/falsification differences
             for state in all_states:
                 for letter in sentence_letters:
                     # Get the Z3 atom for this sentence letter
@@ -228,44 +303,46 @@ class LogosModelIterator(BaseModelIterator):
                         continue
                     
                     prev_verify = prev_model.eval(semantics.verify(state, atom), model_completion=True)
-                    differences.append(
-                        semantics.verify(state, atom) != prev_verify
-                    )
-            
-            # Require different falsification for at least one state/letter pair
-            for state in all_states:
-                for letter in sentence_letters:
-                    # Get the Z3 atom for this sentence letter
-                    if hasattr(letter, 'sentence_letter') and letter.sentence_letter is not None:
-                        atom = letter.sentence_letter
-                    else:
-                        continue
-                        
+                    differences.append(semantics.verify(state, atom) != prev_verify)
+                    
                     prev_falsify = prev_model.eval(semantics.falsify(state, atom), model_completion=True)
-                    differences.append(
-                        semantics.falsify(state, atom) != prev_falsify
-                    )
+                    differences.append(semantics.falsify(state, atom) != prev_falsify)
+            
+            if differences:
+                constraints.append(z3.Or(*differences))
+        
+        return constraints
+    
+    def _create_structural_constraint(self, previous_models):
+        """Create constraints based on structural differences."""
+        constraints = []
+        semantics = self.build_example.model_structure.semantics
+        all_states = self.build_example.model_structure.all_states
+        
+        for prev_model in previous_models:
+            differences = []
             
             # Require different world status for at least one state
             for state in all_states:
                 prev_is_world = prev_model.eval(semantics.is_world(state), model_completion=True)
-                differences.append(
-                    semantics.is_world(state) != prev_is_world
-                )
+                differences.append(semantics.is_world(state) != prev_is_world)
             
             # Require different possible status for at least one state
             for state in all_states:
                 prev_possible = prev_model.eval(semantics.possible(state), model_completion=True)
-                differences.append(
-                    semantics.possible(state) != prev_possible
-                )
+                differences.append(semantics.possible(state) != prev_possible)
             
-            # Require at least one difference
+            # Require different parthood relations
+            for i, s1 in enumerate(all_states[:min(3, len(all_states))]):
+                for j, s2 in enumerate(all_states[:min(3, len(all_states))]):
+                    if i != j:  # Compare indices instead of Z3 expressions
+                        prev_part = prev_model.eval(semantics.is_part_of(s1, s2), model_completion=True)
+                        differences.append(semantics.is_part_of(s1, s2) != prev_part)
+            
             if differences:
-                model_constraints.append(z3.Or(*differences))
+                constraints.append(z3.Or(*differences))
         
-        # Must differ from all previous models
-        return z3.And(*model_constraints) if model_constraints else z3.BoolVal(True)
+        return constraints
     
     def _create_non_isomorphic_constraint(self, z3_model):
         """Create a constraint that forces structural differences to avoid isomorphism.
