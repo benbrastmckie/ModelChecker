@@ -6,9 +6,14 @@
   - [x] implement new strategy
   - [x] test and compare with old
   - [x] document process
+  - [ ] computational complexity of Fine's imposition relation
+    - [ ] compare size of models for `N = ?` in total for both theories
+    - [ ] where does the model_checker tap out for each?
+    - [ ] demo via running their theories in parallel
   - [ ] manicure example (adjusting settings for each)
-  - [ ] check data with Lucas
-  - [ ] compare with bilateral semantics
+    - [ ] go through `examples.py` one by one, finding the best and worst models for each example
+    - [ ] compare with bilateral semantics
+    - [ ] check data with Lucas
 - [ ] paper
   - [ ] outline sections
     - [ ] ideological simplicity motivates unilateral
