@@ -320,16 +320,8 @@ class WitnessSemantics(SemanticDefaults):
         self.premise_behavior = self._premise_behavior_method
         self.conclusion_behavior = self._conclusion_behavior_method
         
-        # Define additional semantic relations
-        self._define_semantic_relations()
-        
         # Define frame constraints
         self._setup_frame_constraints()
-        
-    def _define_semantic_relations(self):
-        """Define semantic relations using the same definitions as the main uninegation theory."""
-        # These are defined as methods, not Z3 primitives, following attempt1_refactor_old
-        pass
         
     def conflicts(self, bit_e1, bit_e2):
         """Check if two states conflict (have parts that exclude each other)."""
@@ -396,7 +388,7 @@ class WitnessSemantics(SemanticDefaults):
         solver = z3.Solver()
         
         # Add frame constraints
-        for constraint in self._get_frame_constraints():
+        for constraint in self.frame_constraints:
             solver.add(constraint)
             
         # Process premises and conclusions
@@ -632,11 +624,6 @@ class WitnessSemantics(SemanticDefaults):
             # excluders,
             # partial_excluders,
         ]
-        
-    def _get_frame_constraints(self):
-        """Get all frame constraints for the model."""
-        return self.frame_constraints
-        
         
     def atom_constraints(self, letter_id, sentence_letters, settings):
         """

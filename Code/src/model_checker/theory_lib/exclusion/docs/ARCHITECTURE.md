@@ -19,15 +19,34 @@ Phase 2: Z3 Model → Truth Evaluation
 
 Bernard and Champollion's unilateral semantics requires witness functions created during constraint generation to be accessible during truth evaluation. This circular dependency violates the linear information flow of traditional architectures.
 
+### Understanding the False Premise Problem
+
+In exclusion semantics, a state s verifies ¬A if there exist witness functions h and y such that:
+1. For every verifier v of A: y(v) ⊑ v and h(v) excludes y(v)
+2. For every verifier v of A: h(v) ⊑ s
+3. s is minimal with respect to these conditions
+
+Without access to witness values during truth evaluation:
+- Computing verifiers for ¬¬A requires knowing what verifies ¬A
+- Computing verifiers for ¬A requires the witness functions h and y
+- But these were only temporary variables in the constraint system
+
+This led to the "False Premise Problem" where formulas incorrectly evaluated as having no verifiers.
+
 ### The Witness Predicate Solution
 
-Instead of treating witness functions as temporary constraint artifacts, we make them **first-class model predicates**:
+The breakthrough was recognizing that **Z3 Function objects persist in models** while existential variables do not:
 
-```
-Phase 1: Syntax → Z3 Constraints + Witness Predicates
-   ↓ (witness functions registered in model)
-Phase 2: Z3 Model with Witnesses → Truth Evaluation
-   ↓ (witnesses accessible through predicate queries)
+```python
+# FAILED: Witnesses as existentially quantified variables
+h_val = z3.BitVec('h_val', N)  # Temporary variable
+y_val = z3.BitVec('y_val', N)  # Lost after solving
+constraint = z3.Exists([h_val, y_val], conditions)
+
+# SUCCESS: Witnesses as persistent Z3 functions  
+h_pred = z3.Function(f"{formula}_h", z3.BitVecSort(N), z3.BitVecSort(N))
+y_pred = z3.Function(f"{formula}_y", z3.BitVecSort(N), z3.BitVecSort(N))
+# These functions become part of the model and are queryable!
 ```
 
 This architectural innovation enables the circular information flow required by unilateral semantics:

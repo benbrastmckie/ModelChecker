@@ -1,5 +1,30 @@
 # Exclusion Theory: Complete Computational Realization of Unilateral Semantics
 
+## File Structure
+
+```
+exclusion/
+├── README.md                    # This file - comprehensive theory overview
+├── semantic.py                  # Core implementation with witness predicates
+├── operators.py                 # Unilateral operators (negation, conjunction, etc.)
+├── examples.py                  # 38 test examples (22 countermodels, 16 theorems)
+├── __init__.py                  # Theory registration
+└── docs/                        # Documentation directory
+    ├── README.md                # Documentation navigation guide
+    ├── USER_GUIDE.md            # Accessible introduction to unilateral semantics
+    ├── TECHNICAL_REFERENCE.md   # Complete API reference and code examples
+    ├── ARCHITECTURE.md          # System design and witness predicate pattern
+    ├── IMPLEMENTATION_STORY.md  # Journey through nine attempts to breakthrough
+    ├── LESSONS_LEARNED.md       # Practical wisdom for semantic implementations
+    ├── DATA.md                  # Test results and countermodel analysis
+    └── ITERATE.md               # Iterator support documentation
+
+theory_lib/                      # Parent directory
+├── README.md                    # Theory library overview
+├── __init__.py                  # Available theories registry
+└── [other theories]             # bimodal, deontic, epistemic, logos, etc.
+```
+
 ## Theoretical Overview
 
 The exclusion theory implements **Bernard and Champollion's unilateral exclusion semantics** within the ModelChecker framework, providing the first complete computational realization of witness-aware negation. This implementation demonstrates how architectural innovation can solve fundamental computational barriers while preserving theoretical elegance.
@@ -292,27 +317,23 @@ if hasattr(model.model_structure, 'get_h_witness'):
 ## Documentation and Learning Resources
 
 ### Core Documentation
+- **[docs/README.md](docs/README.md)** - Documentation navigation and quick start guide
 - **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** - Accessible introduction to unilateral semantics and usage
 - **[docs/TECHNICAL_REFERENCE.md](docs/TECHNICAL_REFERENCE.md)** - Complete API reference and implementation details  
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System design and witness predicate patterns
 - **[docs/ITERATE.md](docs/ITERATE.md)** - Guide to model iteration features
 
 ### Educational Journey
-- **[docs/evolution/](docs/evolution/)** - Complete learning journey through nine implementation attempts
-  - **[README.md](docs/evolution/README.md)** - Educational overview and learning paths
-  - **[THE_EVOLUTION.md](docs/evolution/THE_EVOLUTION.md)** - Complete narrative from failure to breakthrough
-  - **[THE_BREAKTHROUGH.md](docs/evolution/THE_BREAKTHROUGH.md)** - Deep dive into witness predicate solution
-  - **[ARCHITECTURAL_INSIGHTS.md](docs/evolution/ARCHITECTURAL_INSIGHTS.md)** - Framework design principles
-
-### Historical Context  
-- **[docs/history/](docs/history/)** - Development decisions and implementation tracker
-  - **[IMPLEMENTATION_JOURNEY.md](docs/history/IMPLEMENTATION_JOURNEY.md)** - Nine attempts and key breakthroughs
-  - **[DESIGN_DECISIONS.md](docs/history/DESIGN_DECISIONS.md)** - Rationale for architectural choices
-  - **[TODO_COMPLETE.md](docs/history/TODO_COMPLETE.md)** - Complete implementation journey
+- **[docs/IMPLEMENTATION_STORY.md](docs/IMPLEMENTATION_STORY.md)** - Complete narrative through nine attempts to breakthrough
+- **[docs/LESSONS_LEARNED.md](docs/LESSONS_LEARNED.md)** - Practical wisdom for implementing complex semantic theories
 
 ### Data and Analysis
 - **[docs/DATA.md](docs/DATA.md)** - Comprehensive test results with explicit countermodels
-- **[docs/ISSUE.md](docs/ISSUE.md)** - GitHub issue report for repository
+
+### Related Framework Documentation
+- **[../README.md](../README.md)** - Theory library overview
+- **[../../README.md](../../README.md)** - ModelChecker framework documentation
+- **[../../../../../../../SEMANTIC_IMPLEMENTATION_WISDOM.md](../../../../../../../SEMANTIC_IMPLEMENTATION_WISDOM.md)** - General semantic implementation guide
 
 ## Theoretical Significance
 
@@ -374,4 +395,4 @@ This implementation enables researchers, students, and practitioners to explore 
 
 ---
 
-**For detailed usage instructions, see [docs/USER_GUIDE.md](docs/USER_GUIDE.md). For the complete technical journey, explore [docs/evolution/THE_EVOLUTION.md](docs/evolution/THE_EVOLUTION.md).**
+**For detailed usage instructions, see [docs/USER_GUIDE.md](docs/USER_GUIDE.md). For the complete technical journey, explore [docs/IMPLEMENTATION_STORY.md](docs/IMPLEMENTATION_STORY.md).**
