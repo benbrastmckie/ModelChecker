@@ -549,6 +549,7 @@ class BuildModule:
                     "Exclusion": "exclusion",
                     "unilateral_theory": "exclusion",  # Exclusion theory's internal name
                     "Imposition": "imposition",
+                    "Fine": "imposition",  # Fine is the imposition theory
                     "Bimodal": "bimodal",
                     "Logos": "logos"
                 }
@@ -624,23 +625,11 @@ class BuildModule:
                             # Force setting to properly colorize output
                             print("\033[1m\033[0m", end="")  # Force ANSI escape sequence processing
                             
-                            # Use format_model_differences if available (theory-specific detailed formatting)
-                            if hasattr(structure, 'format_model_differences') and structure.model_differences:
-                                structure.format_model_differences(structure.model_differences)
-                            # Fall back to generic print_model_differences
-                            elif hasattr(structure, 'print_model_differences'):
-                                # Print the color test first to ensure terminal capabilities are recognized
-                                if not structure.print_model_differences():
-                                    # If method returns False, no differences were found or displayed
-                                    pass  # Let's suppress the "No differences" message per requirements
-                            # Last resort: use the ModelStructure's generic methods
-                            elif hasattr(structure, 'model_differences') and structure.model_differences:
-                                # Just print the differences directly
-                                print("\n=== MODEL DIFFERENCES ===\n")
-                                print(structure.model_differences)
+                            # Each theory must provide its own print_model_differences method
+                            if hasattr(structure, 'print_model_differences'):
+                                structure.print_model_differences()
                             else:
-                                # Let's also suppress this message as it's similar to "No model differences"
-                                pass
+                                print("Error: Theory does not provide print_model_differences method")
                         except Exception as e:
                             print(f"Error printing model differences: {str(e)}")
                                 

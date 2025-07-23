@@ -71,7 +71,7 @@ class ImpositionOperator(syntactic.Operator):
         """Print counterfactual and the antecedent in the eval_point. Then
         print the consequent in each alternative to the evaluation world.
         """
-        is_outcome = self.semantics.calculate_outcome_worlds
+        is_outcome = self.semantics.calculate_alternative_worlds
         model_structure = sentence_obj.proposition.model_structure
         left_argument_obj = sentence_obj.original_arguments[0]
         left_argument_verifiers = left_argument_obj.proposition.verifiers
@@ -101,12 +101,19 @@ class MightImpositionOperator(syntactic.DefinedOperator):
         """Print counterfactual and the antecedent in the eval_point. Then
         print the consequent in each alternative to the evaluation world.
         """
-        is_outcome = self.semantics.calculate_outcome_worlds
+        is_outcome = self.semantics.calculate_alternative_worlds
         model_structure = sentence_obj.proposition.model_structure
         left_argument_obj = sentence_obj.original_arguments[0]
         left_argument_verifiers = left_argument_obj.proposition.verifiers
         alt_worlds = is_outcome(left_argument_verifiers, eval_point, model_structure)
         self.print_over_worlds(sentence_obj, eval_point, alt_worlds, indent_num, use_colors)
+
+# First, we need to filter out the conflicting operators from default_operators
+filtered_default_operators = syntactic.OperatorCollection()
+for op_name, op_class in default_operators.items():
+    # Skip the imposition operators from default theory as we have our own
+    if op_name not in ["\\imposition", "\\could"]:
+        filtered_default_operators.add_operator(op_class)
 
 imposition_operators = syntactic.OperatorCollection(
     # primitive operators
@@ -114,4 +121,4 @@ imposition_operators = syntactic.OperatorCollection(
     # defined operators
     MightImpositionOperator,
 )
-imposition_operators.add_operator(default_operators)
+imposition_operators.add_operator(filtered_default_operators)
