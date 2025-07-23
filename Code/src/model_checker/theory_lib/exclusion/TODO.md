@@ -14,6 +14,10 @@
     - [ ] go through `examples.py` one by one, finding the best and worst models for each example
     - [ ] compare with bilateral semantics
     - [ ] check data with Lucas
+  - [ ] model_checker tools
+    - [x] iterator
+    - [:] compare theories in parallel
+    - [ ] model_lib
 - [ ] paper
   - [ ] outline sections
     - [ ] ideological simplicity motivates unilateral
