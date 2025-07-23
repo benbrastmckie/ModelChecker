@@ -292,7 +292,7 @@ For questions or assistance, please open an [issue](https://github.com/benbrastm
 
 ### Implementation Guides
 
-- **[Theory Architecture Guide](THEORY_ARCHITECTURE.md)**: Choose between Simple and Modular patterns based on your theory's complexity
+- **[Theory Architecture Guide](docs/THEORY_ARCHITECTURE.md)**: Choose between Simple and Modular patterns based on your theory's complexity
 - **[Theory Testing Framework Guide](tests/README.md#theory-testing-framework-guide)**: Comprehensive testing implementation for both architectural patterns
 - **[Jupyter Integration](../jupyter/README.md)**: Make your theory available in interactive notebooks
 
