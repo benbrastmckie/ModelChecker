@@ -61,4 +61,4 @@ Iterator support documentation for exclusion theory.
 - **Main Theory README**: [../README.md](../README.md)
 - **Source Code**: [../semantic.py](../semantic.py), [../operators.py](../operators.py)
 - **Examples**: [../examples.py](../examples.py)
-- **Framework Wisdom**: [../../../../../../../../SEMANTIC_IMPLEMENTATION_WISDOM.md](../../../../../../../../SEMANTIC_IMPLEMENTATION_WISDOM.md)
+- **Framework Wisdom**: [../../../../../FINDINGS.md](../../../../../FINDINGS.md)
