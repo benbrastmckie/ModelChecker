@@ -54,16 +54,7 @@ class ImpositionModelIterator(BaseModelIterator):
         Returns:
             dict: Structured differences between the models
         """
-        # Try to use the theory-specific detect_model_differences method on the structure
-        if hasattr(new_structure, 'detect_model_differences'):
-            try:
-                differences = new_structure.detect_model_differences(previous_structure)
-                if differences:
-                    return differences
-            except Exception as e:
-                logger.warning(f"Error in imposition theory difference detection: {e}")
-        
-        # Fall back to our own implementation
+        # Use imposition theory-specific difference detection
         differences = self._calculate_imposition_differences(new_structure, previous_structure)
         
         return differences
@@ -85,12 +76,14 @@ class ImpositionModelIterator(BaseModelIterator):
         # Get Z3 models
         new_model = new_structure.z3_model
         previous_model = previous_structure.z3_model
+        semantics = new_structure.semantics
         
         # Initialize imposition theory-specific differences structure
         differences = {
             "worlds": {"added": [], "removed": []},
             "possible_states": {"added": [], "removed": []},
-            "sentence_letters": {},
+            "verification": {},  # Changed from "sentence_letters" to match logos
+            "falsification": {},
             "imposition_relations": {}
         }
         
@@ -121,70 +114,80 @@ class ImpositionModelIterator(BaseModelIterator):
                 differences["possible_states"]["removed"].append(state)
         
         # Compare verification and falsification for each sentence letter
-        semantics = new_structure.semantics
+        all_states = list(old_states.union(new_states))
+        
         for letter in new_structure.sentence_letters:
-            old_verifiers = []
-            new_verifiers = []
-            old_falsifiers = []
-            new_falsifiers = []
-            
-            # Check verifiers
-            for state in old_states.union(new_states):
-                try:
-                    # For previously possible states
-                    if state in old_states:
-                        if bool(previous_model.eval(semantics.verifies(letter, state), model_completion=True)):
-                            old_verifiers.append(state)
+            try:
+                # Get the atom for this letter
+                atom = None
+                if hasattr(letter, 'sentence_letter') and letter.sentence_letter is not None:
+                    atom = letter.sentence_letter
+                else:
+                    continue
                 
-                    # For currently possible states
-                    if state in new_states:
-                        if bool(new_model.eval(semantics.verifies(letter, state), model_completion=True)):
-                            new_verifiers.append(state)
-                            
-                    # For falsifiers
-                    if state in old_states:
-                        if bool(previous_model.eval(semantics.falsifies(letter, state), model_completion=True)):
-                            old_falsifiers.append(state)
-                    
-                    if state in new_states:
-                        if bool(new_model.eval(semantics.falsifies(letter, state), model_completion=True)):
-                            new_falsifiers.append(state)
-                except Exception:
-                    # Skip problematic states
-                    pass
-            
-            # Only record differences if something changed
-            old_verifiers_set = set(old_verifiers)
-            new_verifiers_set = set(new_verifiers)
-            old_falsifiers_set = set(old_falsifiers)
-            new_falsifiers_set = set(new_falsifiers)
-            
-            added_verifiers = [state for state in new_verifiers if state not in old_verifiers_set]
-            removed_verifiers = [state for state in old_verifiers if state not in new_verifiers_set]
-            
-            added_falsifiers = [state for state in new_falsifiers if state not in old_falsifiers_set]
-            removed_falsifiers = [state for state in old_falsifiers if state not in new_falsifiers_set]
-            
-            if added_verifiers or removed_verifiers or added_falsifiers or removed_falsifiers:
-                differences["sentence_letters"][str(letter)] = {
-                    "old": (old_verifiers, old_falsifiers),
-                    "new": (new_verifiers, new_falsifiers),
-                    "verifiers": {
-                        "added": added_verifiers,
-                        "removed": removed_verifiers
-                    },
-                    "falsifiers": {
-                        "added": added_falsifiers,
-                        "removed": removed_falsifiers
+                letter_str = str(letter)
+                
+                # Check verification changes
+                verify_added = []
+                verify_removed = []
+                
+                for state in all_states:
+                    try:
+                        old_verify = False
+                        new_verify = False
+                        
+                        if state in old_states:
+                            old_verify = bool(previous_model.eval(semantics.verify(state, atom), model_completion=True))
+                        if state in new_states:
+                            new_verify = bool(new_model.eval(semantics.verify(state, atom), model_completion=True))
+                        
+                        if not old_verify and new_verify:
+                            verify_added.append(state)
+                        elif old_verify and not new_verify:
+                            verify_removed.append(state)
+                    except:
+                        pass
+                
+                if verify_added or verify_removed:
+                    differences["verification"][letter_str] = {
+                        "added": verify_added,
+                        "removed": verify_removed
                     }
-                }
+                
+                # Check falsification changes
+                falsify_added = []
+                falsify_removed = []
+                
+                for state in all_states:
+                    try:
+                        old_falsify = False
+                        new_falsify = False
+                        
+                        if state in old_states:
+                            old_falsify = bool(previous_model.eval(semantics.falsify(state, atom), model_completion=True))
+                        if state in new_states:
+                            new_falsify = bool(new_model.eval(semantics.falsify(state, atom), model_completion=True))
+                        
+                        if not old_falsify and new_falsify:
+                            falsify_added.append(state)
+                        elif old_falsify and not new_falsify:
+                            falsify_removed.append(state)
+                    except:
+                        pass
+                
+                if falsify_added or falsify_removed:
+                    differences["falsification"][letter_str] = {
+                        "added": falsify_added,
+                        "removed": falsify_removed
+                    }
+                    
+            except Exception:
+                continue
                 
         # Compare imposition relationships if available
-        if hasattr(semantics, 'imposes'):
-            all_states = list(old_states.union(new_states))
+        if hasattr(semantics, 'imposition'):
             for i, state1 in enumerate(all_states):
                 for j, state2 in enumerate(all_states[i:], i):
-                    # Skip identical states
                     if state1 == state2:
                         continue
                         
@@ -194,10 +197,17 @@ class ImpositionModelIterator(BaseModelIterator):
                         new_imposes = False
                         
                         if state1 in old_states and state2 in old_states:
-                            old_imposes = bool(previous_model.eval(semantics.imposes(state1, state2), model_completion=True))
+                            # Imposition takes three arguments: (imposed_state, world, outcome_world)
+                            for outcome in all_states:
+                                if bool(previous_model.eval(semantics.imposition(state1, state2, outcome), model_completion=True)):
+                                    old_imposes = True
+                                    break
                             
                         if state1 in new_states and state2 in new_states:
-                            new_imposes = bool(new_model.eval(semantics.imposes(state1, state2), model_completion=True))
+                            for outcome in all_states:
+                                if bool(new_model.eval(semantics.imposition(state1, state2, outcome), model_completion=True)):
+                                    new_imposes = True
+                                    break
                             
                         if old_imposes != new_imposes:
                             state_pair = f"{state1},{state2}"
@@ -206,7 +216,6 @@ class ImpositionModelIterator(BaseModelIterator):
                                 "new": new_imposes
                             }
                     except Exception:
-                        # Skip problematic state pairs
                         pass
                 
         return differences
@@ -242,8 +251,8 @@ class ImpositionModelIterator(BaseModelIterator):
             for letter in model_structure.sentence_letters:
                 for state in model_structure.all_states:
                     try:
-                        prev_value = prev_model.eval(semantics.verifies(letter, state), model_completion=True)
-                        diff_components.append(semantics.verifies(letter, state) != prev_value)
+                        prev_value = prev_model.eval(semantics.verify(state, letter), model_completion=True)
+                        diff_components.append(semantics.verify(state, letter) != prev_value)
                     except Exception:
                         pass
             
@@ -251,20 +260,21 @@ class ImpositionModelIterator(BaseModelIterator):
             for letter in model_structure.sentence_letters:
                 for state in model_structure.all_states:
                     try:
-                        prev_value = prev_model.eval(semantics.falsifies(letter, state), model_completion=True)
-                        diff_components.append(semantics.falsifies(letter, state) != prev_value)
+                        prev_value = prev_model.eval(semantics.falsify(state, letter), model_completion=True)
+                        diff_components.append(semantics.falsify(state, letter) != prev_value)
                     except Exception:
                         pass
             
             # 3. Differences in imposition relationships
-            if hasattr(semantics, 'imposes'):
+            if hasattr(semantics, 'imposition'):
                 for state1 in model_structure.all_states:
                     for state2 in model_structure.all_states:
-                        try:
-                            prev_value = prev_model.eval(semantics.imposes(state1, state2), model_completion=True)
-                            diff_components.append(semantics.imposes(state1, state2) != prev_value)
-                        except Exception:
-                            pass
+                        for outcome in model_structure.all_states:
+                            try:
+                                prev_value = prev_model.eval(semantics.imposition(state1, state2, outcome), model_completion=True)
+                                diff_components.append(semantics.imposition(state1, state2, outcome) != prev_value)
+                            except Exception:
+                                pass
             
             # 4. Differences in possible states
             for state in model_structure.all_states:
@@ -335,12 +345,12 @@ class ImpositionModelIterator(BaseModelIterator):
         try:
             for letter in model_structure.sentence_letters:
                 # Force different verification pattern
-                ver_count = z3.Sum([z3.If(semantics.verifies(letter, state), 1, 0) 
+                ver_count = z3.Sum([z3.If(semantics.verify(state, letter), 1, 0) 
                                    for state in model_structure.all_states])
                 
                 # Count current verifiers
                 current_ver = sum(1 for state in model_structure.all_states 
-                                if bool(z3_model.eval(semantics.verifies(letter, state), model_completion=True)))
+                                if bool(z3_model.eval(semantics.verify(state, letter), model_completion=True)))
                 
                 if current_ver > 1:
                     constraints.append(ver_count < current_ver - 1)
@@ -348,12 +358,12 @@ class ImpositionModelIterator(BaseModelIterator):
                     constraints.append(ver_count > current_ver + 1)
                 
                 # Force different falsification pattern
-                fals_count = z3.Sum([z3.If(semantics.falsifies(letter, state), 1, 0) 
+                fals_count = z3.Sum([z3.If(semantics.falsify(state, letter), 1, 0) 
                                     for state in model_structure.all_states])
                 
                 # Count current falsifiers
                 current_fals = sum(1 for state in model_structure.all_states 
-                                 if bool(z3_model.eval(semantics.falsifies(letter, state), model_completion=True)))
+                                 if bool(z3_model.eval(semantics.falsify(state, letter), model_completion=True)))
                 
                 if current_fals > 1:
                     constraints.append(fals_count < current_fals - 1)
@@ -363,27 +373,27 @@ class ImpositionModelIterator(BaseModelIterator):
             logger.debug(f"Error creating verification constraint: {e}")
         
         # Try to force different imposition patterns
-        if hasattr(semantics, 'imposes'):
+        if hasattr(semantics, 'imposition'):
             try:
                 # Count current impositions
                 imposition_count = 0
                 for state1 in model_structure.all_states:
                     for state2 in model_structure.all_states:
-                        if state1 != state2:
+                        for outcome in model_structure.all_states:
                             try:
-                                if bool(z3_model.eval(semantics.imposes(state1, state2), model_completion=True)):
+                                if bool(z3_model.eval(semantics.imposition(state1, state2, outcome), model_completion=True)):
                                     imposition_count += 1
                             except:
                                 pass
                 
                 # Imposition count expression
-                imp_count = z3.Sum([z3.If(semantics.imposes(s1, s2), 1, 0) 
+                imp_count = z3.Sum([z3.If(semantics.imposition(s1, s2, s3), 1, 0) 
                                    for s1 in model_structure.all_states 
-                                   for s2 in model_structure.all_states 
-                                   if s1 != s2])
+                                   for s2 in model_structure.all_states
+                                   for s3 in model_structure.all_states])
                 
                 # Force significantly different imposition count
-                max_possible = len(model_structure.all_states) * (len(model_structure.all_states) - 1)
+                max_possible = len(model_structure.all_states) ** 3
                 
                 if imposition_count > max_possible // 2:
                     # If many impositions, force few
@@ -456,8 +466,8 @@ class ImpositionModelIterator(BaseModelIterator):
                 letter_flip = []
                 for state in model_structure.all_states:
                     try:
-                        prev_value = isomorphic_model.eval(semantics.verifies(letter, state), model_completion=True)
-                        letter_flip.append(semantics.verifies(letter, state) != prev_value)
+                        prev_value = isomorphic_model.eval(semantics.verify(state, letter), model_completion=True)
+                        letter_flip.append(semantics.verify(state, letter) != prev_value)
                     except:
                         pass
                 
@@ -481,8 +491,8 @@ class ImpositionModelIterator(BaseModelIterator):
                 letter_flip = []
                 for state in model_structure.all_states:
                     try:
-                        prev_value = isomorphic_model.eval(semantics.falsifies(letter, state), model_completion=True)
-                        letter_flip.append(semantics.falsifies(letter, state) != prev_value)
+                        prev_value = isomorphic_model.eval(semantics.falsify(state, letter), model_completion=True)
+                        letter_flip.append(semantics.falsify(state, letter) != prev_value)
                     except:
                         pass
                 
@@ -503,16 +513,16 @@ class ImpositionModelIterator(BaseModelIterator):
             logger.debug(f"Error creating verification flip constraint: {e}")
         
         # 3. Force dramatically different imposition relations
-        if hasattr(semantics, 'imposes'):
+        if hasattr(semantics, 'imposition'):
             try:
                 # Try to flip imposition relations
                 imposition_flips = []
                 for state1 in model_structure.all_states:
                     for state2 in model_structure.all_states:
-                        if state1 != state2:
+                        for outcome in model_structure.all_states:
                             try:
-                                prev_value = isomorphic_model.eval(semantics.imposes(state1, state2), model_completion=True)
-                                imposition_flips.append(semantics.imposes(state1, state2) != prev_value)
+                                prev_value = isomorphic_model.eval(semantics.imposition(state1, state2, outcome), model_completion=True)
+                                imposition_flips.append(semantics.imposition(state1, state2, outcome) != prev_value)
                             except:
                                 pass
                 
@@ -539,139 +549,102 @@ class ImpositionModelIterator(BaseModelIterator):
             
         differences = model_structure.model_differences
         
-        print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
+        # Use colors like logos theory
+        print("\n\033[33m=== DIFFERENCES FROM PREVIOUS MODEL ===\033[0m\n", file=output)
         
         # Print world changes
         if 'worlds' in differences and (differences['worlds'].get('added') or differences['worlds'].get('removed')):
-            print("World Changes:", file=output)
+            print("\033[34mWorld Changes:\033[0m", file=output)
             
             if differences['worlds'].get('added'):
                 for world in differences['worlds']['added']:
                     try:
                         world_str = bitvec_to_substates(world, model_structure.semantics.N)
-                        print(f"  + {world_str} (world)", file=output)
+                        print(f"  \033[32m+ {world_str} (now a world)\033[0m", file=output)
                     except:
-                        print(f"  + {world} (world)", file=output)
+                        print(f"  \033[32m+ {world} (now a world)\033[0m", file=output)
             
             if differences['worlds'].get('removed'):
                 for world in differences['worlds']['removed']:
                     try:
                         world_str = bitvec_to_substates(world, model_structure.semantics.N)
-                        print(f"  - {world_str} (world)", file=output)
+                        print(f"  \033[31m- {world_str} (no longer a world)\033[0m", file=output)
                     except:
-                        print(f"  - {world} (world)", file=output)
+                        print(f"  \033[31m- {world} (no longer a world)\033[0m", file=output)
         
         # Print possible state changes
         if 'possible_states' in differences and (differences['possible_states'].get('added') or differences['possible_states'].get('removed')):
-            print("\nPossible State Changes:", file=output)
+            print("\n\033[34mPossible State Changes:\033[0m", file=output)
             
             if differences['possible_states'].get('added'):
                 for state in differences['possible_states']['added']:
                     try:
                         state_str = bitvec_to_substates(state, model_structure.semantics.N)
-                        print(f"  + {state_str}", file=output)
+                        print(f"  \033[32m+ {state_str} (now possible)\033[0m", file=output)
                     except:
-                        print(f"  + {state}", file=output)
+                        print(f"  \033[32m+ {state} (now possible)\033[0m", file=output)
             
             if differences['possible_states'].get('removed'):
                 for state in differences['possible_states']['removed']:
                     try:
                         state_str = bitvec_to_substates(state, model_structure.semantics.N)
-                        print(f"  - {state_str}", file=output)
+                        print(f"  \033[31m- {state_str} (now impossible)\033[0m", file=output)
                     except:
-                        print(f"  - {state}", file=output)
+                        print(f"  \033[31m- {state} (now impossible)\033[0m", file=output)
         
-        # Print sentence letter changes
-        if 'sentence_letters' in differences and differences['sentence_letters']:
-            print("\nSentence Letter Changes:", file=output)
+        # Print verification changes
+        if 'verification' in differences and differences['verification']:
+            print("\n\033[34mVerification Changes:\033[0m", file=output)
             
-            for letter, changes in differences['sentence_letters'].items():
-                # Get the right letter name
-                letter_name = letter
-                if hasattr(model_structure, '_get_friendly_letter_name'):
-                    try:
-                        letter_name = model_structure._get_friendly_letter_name(letter)
-                    except:
-                        pass
+            for letter_str, changes in differences['verification'].items():
+                # Extract just the letter name (A, B, C, etc.)
+                letter_name = letter_str.replace('Proposition_', '').replace('(', '').replace(')', '')
+                print(f"  Letter {letter_name}:", file=output)
                 
-                # Print letter changes
-                print(f"  {letter_name}:", file=output)
+                if changes.get('added'):
+                    for state in changes['added']:
+                        try:
+                            state_str = bitvec_to_substates(state, model_structure.semantics.N)
+                            print(f"    \033[32m+ {state_str} now verifies {letter_name}\033[0m", file=output)
+                        except:
+                            print(f"    \033[32m+ {state} now verifies {letter_name}\033[0m", file=output)
                 
-                # Handle detailed verifier/falsifier changes
-                if isinstance(changes, dict) and 'verifiers' in changes:
-                    # Verifier changes
-                    if changes['verifiers'].get('added') or changes['verifiers'].get('removed'):
-                        if changes['verifiers'].get('added'):
-                            added_states = []
-                            for state in changes['verifiers']['added']:
-                                try:
-                                    state_str = bitvec_to_substates(state, model_structure.semantics.N)
-                                    added_states.append(state_str)
-                                except:
-                                    added_states.append(str(state))
-                            added_str = ', '.join(added_states)
-                            print(f"    Verifiers: + {{{added_str}}}", file=output)
-                            
-                        if changes['verifiers'].get('removed'):
-                            removed_states = []
-                            for state in changes['verifiers']['removed']:
-                                try:
-                                    state_str = bitvec_to_substates(state, model_structure.semantics.N)
-                                    removed_states.append(state_str)
-                                except:
-                                    removed_states.append(str(state))
-                            removed_str = ', '.join(removed_states)
-                            print(f"    Verifiers: - {{{removed_str}}}", file=output)
-                    
-                    # Falsifier changes
-                    if changes['falsifiers'].get('added') or changes['falsifiers'].get('removed'):
-                        if changes['falsifiers'].get('added'):
-                            added_states = []
-                            for state in changes['falsifiers']['added']:
-                                try:
-                                    state_str = bitvec_to_substates(state, model_structure.semantics.N)
-                                    added_states.append(state_str)
-                                except:
-                                    added_states.append(str(state))
-                            added_str = ', '.join(added_states)
-                            print(f"    Falsifiers: + {{{added_str}}}", file=output)
-                            
-                        if changes['falsifiers'].get('removed'):
-                            removed_states = []
-                            for state in changes['falsifiers']['removed']:
-                                try:
-                                    state_str = bitvec_to_substates(state, model_structure.semantics.N)
-                                    removed_states.append(state_str)
-                                except:
-                                    removed_states.append(str(state))
-                            removed_str = ', '.join(removed_states)
-                            print(f"    Falsifiers: - {{{removed_str}}}", file=output)
+                if changes.get('removed'):
+                    for state in changes['removed']:
+                        try:
+                            state_str = bitvec_to_substates(state, model_structure.semantics.N)
+                            print(f"    \033[31m- {state_str} no longer verifies {letter_name}\033[0m", file=output)
+                        except:
+                            print(f"    \033[31m- {state} no longer verifies {letter_name}\033[0m", file=output)
+        
+        # Print falsification changes
+        if 'falsification' in differences and differences['falsification']:
+            print("\n\033[34mFalsification Changes:\033[0m", file=output)
+            
+            for letter_str, changes in differences['falsification'].items():
+                # Extract just the letter name (A, B, C, etc.)
+                letter_name = letter_str.replace('Proposition_', '').replace('(', '').replace(')', '')
+                print(f"  Letter {letter_name}:", file=output)
                 
-                # Simpler format showing old and new values
-                elif isinstance(changes, dict) and 'old' in changes and 'new' in changes:
-                    old_verifiers, old_falsifiers = changes['old']
-                    new_verifiers, new_falsifiers = changes['new']
-                    
-                    try:
-                        old_ver_str = pretty_set_print([bitvec_to_substates(v, model_structure.semantics.N) for v in old_verifiers])
-                        new_ver_str = pretty_set_print([bitvec_to_substates(v, model_structure.semantics.N) for v in new_verifiers])
-                        old_fals_str = pretty_set_print([bitvec_to_substates(f, model_structure.semantics.N) for f in old_falsifiers])
-                        new_fals_str = pretty_set_print([bitvec_to_substates(f, model_structure.semantics.N) for f in new_falsifiers])
-                        
-                        print(f"    Verifiers: {old_ver_str} -> {new_ver_str}", file=output)
-                        print(f"    Falsifiers: {old_fals_str} -> {new_fals_str}", file=output)
-                    except:
-                        # Fall back to simple representation
-                        print(f"    Verifiers: {old_verifiers} -> {new_verifiers}", file=output)
-                        print(f"    Falsifiers: {old_falsifiers} -> {new_falsifiers}", file=output)
+                if changes.get('added'):
+                    for state in changes['added']:
+                        try:
+                            state_str = bitvec_to_substates(state, model_structure.semantics.N)
+                            print(f"    \033[32m+ {state_str} now falsifies {letter_name}\033[0m", file=output)
+                        except:
+                            print(f"    \033[32m+ {state} now falsifies {letter_name}\033[0m", file=output)
                 
-                # Handle very simple changes
-                else:
-                    print(f"    Changed from previous model", file=output)
+                if changes.get('removed'):
+                    for state in changes['removed']:
+                        try:
+                            state_str = bitvec_to_substates(state, model_structure.semantics.N)
+                            print(f"    \033[31m- {state_str} no longer falsifies {letter_name}\033[0m", file=output)
+                        except:
+                            print(f"    \033[31m- {state} no longer falsifies {letter_name}\033[0m", file=output)
         
         # Print imposition relationship changes
         if 'imposition_relations' in differences and differences['imposition_relations']:
-            print("\nImposition Relationship Changes:", file=output)
+            print("\n\033[34mImposition Changes:\033[0m", file=output)
             
             for pair, change in differences['imposition_relations'].items():
                 # Try to parse the state pair
@@ -685,17 +658,19 @@ class ImpositionModelIterator(BaseModelIterator):
                         state2_str = bitvec_to_substates(state2_bitvec, model_structure.semantics.N)
                         
                         if change.get('new'):
-                            print(f"  {state1_str} now imposes {state2_str}", file=output)
+                            print(f"  \033[32m+ {state1_str} can now impose on {state2_str}\033[0m", file=output)
                         else:
-                            print(f"  {state1_str} no longer imposes {state2_str}", file=output)
+                            print(f"  \033[31m- {state1_str} can no longer impose on {state2_str}\033[0m", file=output)
                         continue
                 except:
                     pass
                 
                 # Fall back to simple representation
                 if isinstance(change, dict) and 'old' in change and 'new' in change:
-                    status = "now imposes" if change['new'] else "no longer imposes"
-                    print(f"  {pair}: {status}", file=output)
+                    if change['new']:
+                        print(f"  \033[32m+ {pair}: can now impose\033[0m", file=output)
+                    else:
+                        print(f"  \033[31m- {pair}: can no longer impose\033[0m", file=output)
                 else:
                     print(f"  {pair}: changed", file=output)
 
@@ -722,4 +697,18 @@ def iterate_example(example, max_iterations=None):
         iterator.max_iterations = max_iterations
     
     # Perform iteration
-    return iterator.iterate()
+    model_structures = iterator.iterate()
+    
+    # Attach the display method to each structure so it can be called by module.py
+    for structure in model_structures:
+        if hasattr(structure, 'model_differences') and structure.model_differences:
+            # Create a bound method that calls the iterator's display_model_differences
+            # Use a closure to capture the correct structure reference
+            def create_print_method(struct):
+                def print_method(output=None):
+                    iterator.display_model_differences(struct, output or sys.stdout)
+                    return True  # Return True to indicate successful display
+                return print_method
+            structure.print_model_differences = create_print_method(structure)
+    
+    return model_structures

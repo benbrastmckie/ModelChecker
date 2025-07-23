@@ -30,6 +30,7 @@ class ImpositionSemantics(SemanticDefaults):
         'non_null' : False,
         'disjoint' : False,
         'max_time' : 1,
+        'iterate' : 1,
         'expectation' : None,
     }
     
