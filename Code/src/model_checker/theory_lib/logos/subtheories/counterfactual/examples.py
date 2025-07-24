@@ -60,7 +60,7 @@ CF_CM_1_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'iterate' : 2,
+    'iterate' : 1,
     'expectation' : True,
 }
 CF_CM_1_example = [
@@ -780,7 +780,7 @@ semantic_theories = {
 example_range = {
 
     # Also test a countermodel that should pass
-    # "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
 
     # Test some failing theorem examples
     # "CF_TH_1": CF_TH_1_example,  # COUNTERFACTUAL IDENTITY

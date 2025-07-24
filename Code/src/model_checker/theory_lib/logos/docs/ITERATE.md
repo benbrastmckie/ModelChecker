@@ -64,8 +64,8 @@ CF_CM_1_settings = {
 }
 
 CF_CM_1_example = [
-    ['¬A', '(A ¡’ C)'],                    # Premises
-    ['((A ' B) ¡’ C)'],                    # Conclusions  
+    ['ï¿½A', '(A ï¿½ï¿½ C)'],                    # Premises
+    ['((A ' B) ï¿½ï¿½ C)'],                    # Conclusions  
     CF_CM_1_settings
 ]
 ```
@@ -86,7 +86,7 @@ settings = {
     'iteration_attempts': 7,               # More isomorphism attempts
     'escape_attempts': 4,                  # More escape attempts  
     'iteration_timeout': 2.0,              # Longer isomorphism checking
-    'iteration_solver_timeout': 8000,      # Extended solver timeout
+    'iteration_solver_timeout': 8.0,       # Extended solver timeout (seconds)
 }
 ```
 
@@ -101,8 +101,8 @@ logos_theory = get_theory('logos')
 example = BuildExample(
     "counterfactual_antecedent_strengthening",
     logos_theory,
-    premises=['¬A', '(A ¡’ C)'],
-    conclusions=['((A ' B) ¡’ C)'],
+    premises=['ï¿½A', '(A ï¿½ï¿½ C)'],
+    conclusions=['((A ' B) ï¿½ï¿½ C)'],
     settings={'N': 4, 'contingent': True}
 )
 
@@ -147,9 +147,9 @@ def _calculate_verification_differences(self, new_structure, previous_structure)
 **Example Output:**
 ```
 Verification Changes:
-  ¡ verifies A: False ’ True
-  a.b verifies B: True ’ False
-  a.c falsifies C: False ’ True
+  ï¿½ verifies A: False ï¿½ True
+  a.b verifies B: True ï¿½ False
+  a.c falsifies C: False ï¿½ True
 ```
 
 ### World Structure Changes
@@ -175,10 +175,10 @@ def _calculate_world_differences(self, new_structure, previous_structure):
 **Example Output:**
 ```
 Structural Properties:
-  Worlds: 2 ’ 3
+  Worlds: 2 ï¿½ 3
   Added worlds: [a.c]
   Removed worlds: []
-  Possible states: {¡, a, b, a.b} ’ {¡, a, b, a.b, c, a.c}
+  Possible states: {ï¿½, a, b, a.b} ï¿½ {ï¿½, a, b, a.b, c, a.c}
 ```
 
 ### Modal Relation Changes
@@ -197,7 +197,7 @@ def _calculate_modal_differences(self, new_structure, previous_structure):
             new_accessible = bool(new_model.eval(semantics.accessible(world1, world2)))
             
             if old_accessible != new_accessible:
-                differences["accessibility"][f"{world1_name} ’ {world2_name}"] = {
+                differences["accessibility"][f"{world1_name} ï¿½ {world2_name}"] = {
                     "old": old_accessible, "new": new_accessible
                 }
 ```
@@ -338,7 +338,7 @@ def _calculate_counterfactual_differences(self, new_structure, previous_structur
             ))
             
             if old_cf_true != new_cf_true:
-                differences["counterfactuals"][f"{antecedent} ¡’ {consequent} at {world}"] = {
+                differences["counterfactuals"][f"{antecedent} ï¿½ï¿½ {consequent} at {world}"] = {
                     "old": old_cf_true, "new": new_cf_true
                 }
 ```
@@ -359,7 +359,7 @@ def _calculate_modal_differences(self, new_structure, previous_structure):
             old_acc = bool(previous_model.eval(semantics.accessible(w1, w2)))
             new_acc = bool(new_model.eval(semantics.accessible(w1, w2)))
             if old_acc != new_acc:
-                differences["modal"]["accessibility"][f"{w1} ’ {w2}"] = {
+                differences["modal"]["accessibility"][f"{w1} ï¿½ {w2}"] = {
                     "old": old_acc, "new": new_acc
                 }
     
@@ -369,7 +369,7 @@ def _calculate_modal_differences(self, new_structure, previous_structure):
             old_nec = bool(previous_model.eval(semantics.necessary(world, letter)))
             new_nec = bool(new_model.eval(semantics.necessary(world, letter)))
             if old_nec != new_nec:
-                differences["modal"]["necessity"][f"¡{letter} at {world}"] = {
+                differences["modal"]["necessity"][f"ï¿½{letter} at {world}"] = {
                     "old": old_nec, "new": new_nec
                 }
 ```
@@ -389,7 +389,7 @@ MODEL 1/3
 EXAMPLE CF_CM_1: there is a countermodel.
 
 State Space:
-  ¡ (empty state)
+  ï¿½ (empty state)
   a (atomic state)  
   b (atomic state)
   a.b (fusion state)
@@ -397,22 +397,22 @@ State Space:
 Worlds: {a.b} (1 possible world)
 
 Verification:
-  ¡ verifies: ¬A
+  ï¿½ verifies: ï¿½A
   a verifies: A  
   b verifies: nothing
   a.b verifies: A
 
 Counterfactual Evaluation:
-  A ¡’ C: True at a.b
-  (A ' B) ¡’ C: False at a.b   Counterexample found
+  A ï¿½ï¿½ C: True at a.b
+  (A ' B) ï¿½ï¿½ C: False at a.b   Counterexample found
 ```
 
 **Progress During Iteration:**
 ```
-Finding 3 models: [ˆˆˆˆˆˆˆˆˆˆ‘‘‘‘‘‘‘‘‘‘] 1/3 (checked 1) 0.2s
-Finding 3 models: [ˆˆˆˆˆˆˆˆˆˆ‘‘‘‘‘‘‘‘‘‘] 1/3 (checked 3) 0.8s  
-Finding 3 models: [ˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆ‘‘‘‘] 2/3 (checked 4) 1.1s
-Finding 3 models: [ˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆ] 3/3 (checked 6) 1.7s
+Finding 3 models: [ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½] 1/3 (checked 1) 0.2s
+Finding 3 models: [ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½] 1/3 (checked 3) 0.8s  
+Finding 3 models: [ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½] 2/3 (checked 4) 1.1s
+Finding 3 models: [ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½] 3/3 (checked 6) 1.7s
 Successfully found all 3 requested models
 ```
 
@@ -421,16 +421,16 @@ Successfully found all 3 requested models
 === DIFFERENCES FROM PREVIOUS MODEL ===
 
 Verification Changes:
-  ¡ verifies A: False ’ True
-  a verifies ¬A: True ’ False
+  ï¿½ verifies A: False ï¿½ True
+  a verifies ï¿½A: True ï¿½ False
   
 Structural Properties:
-  Worlds: 1 ’ 2
-  Added worlds: [¡]
+  Worlds: 1 ï¿½ 2
+  Added worlds: [ï¿½]
   
 Counterfactual Changes:
-  A ¡’ C at ¡: True ’ False
-  (A ' B) ¡’ C at ¡: False ’ True
+  A ï¿½ï¿½ C at ï¿½: True ï¿½ False
+  (A ' B) ï¿½ï¿½ C at ï¿½: False ï¿½ True
 ```
 
 **Model 3 Differences:**  
@@ -438,19 +438,19 @@ Counterfactual Changes:
 === DIFFERENCES FROM PREVIOUS MODEL ===
 
 Structural Properties:
-  Worlds: 2 ’ 1
-  Removed worlds: [¡]
+  Worlds: 2 ï¿½ 1
+  Removed worlds: [ï¿½]
   Added worlds: [b.c]
   
 Verification Changes:
-  b.c verifies B: False ’ True
-  b.c verifies C: False ’ True
+  b.c verifies B: False ï¿½ True
+  b.c verifies C: False ï¿½ True
   
 Part-Whole Changes:
-  c ‘ b.c: False ’ True
+  c ï¿½ b.c: False ï¿½ True
   
 Modal Changes:
-  ¡{A ¡’ C} at b.c: True ’ False
+  ï¿½{A ï¿½ï¿½ C} at b.c: True ï¿½ False
 ```
 
 ## Performance Tuning
@@ -540,7 +540,7 @@ def analyze_model_diversity(models):
         for state in model.all_states:
             for letter in model.sentence_letters:
                 if model.z3_model.eval(model.semantics.verify(state, letter.sentence_letter)):
-                    pattern[f"{state}¨{letter}"] = True
+                    pattern[f"{state}ï¿½{letter}"] = True
         verification_patterns.append(pattern)
     
     print(f"World count diversity: {set(world_counts)}")

@@ -51,3 +51,13 @@ For more detailed debugging information, see:
 ## For Developers
 
 When adding new features to ModelChecker, especially to the Jupyter integration, consider adding appropriate tests to these debugging tools to ensure compatibility and robustness.
+
+## Advanced ModelChecker Features
+
+For documentation on advanced ModelChecker features beyond debugging, including:
+- Using the iterate setting to find multiple models
+- Comparing theories with semantic_theories dictionary
+- Performance testing with the maximize flag (-m)
+- Additional debugging flags (-i, -p, -z, -s)
+
+See [Docs/TOOLS.md](../../../../../Docs/TOOLS.md)

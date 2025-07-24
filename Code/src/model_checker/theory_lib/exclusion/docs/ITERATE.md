@@ -88,7 +88,7 @@ settings = {
     'iteration_attempts': 6,               # More isomorphism attempts for complex exclusions
     'escape_attempts': 5,                  # More escape attempts for exclusion constraints
     'iteration_timeout': 2.5,              # Extended isomorphism checking for exclusions
-    'iteration_solver_timeout': 10000,     # Longer solver timeout for complex exclusion reasoning
+    'iteration_solver_timeout': 10.0,      # Longer solver timeout for complex exclusion reasoning (seconds)
 }
 ```
 
@@ -159,9 +159,9 @@ def _calculate_exclusion_differences(self, new_structure, previous_structure):
 **Example Output:**
 ```
 Exclusion Changes:
-  a.b excludes a.b: False ’ True
-  ¡ excludes a.c: True ’ False
-  b.c excludes ¡: False ’ True
+  a.b excludes a.b: False ï¿½ True
+  ï¿½ excludes a.c: True ï¿½ False
+  b.c excludes ï¿½: False ï¿½ True
 ```
 
 ### Verification Changes with Unilateral Negation
@@ -195,8 +195,8 @@ def _calculate_verification_differences(self, new_structure, previous_structure)
 **Example Output:**
 ```
 Verification Changes:
-  ¡ verifies A: True ’ False
-  a.b verifies B: False ’ True
+  ï¿½ verifies A: True ï¿½ False
+  a.b verifies B: False ï¿½ True
   
 Note: Exclusion theory uses unilateral negation - states either verify or remain neutral
 ```
@@ -335,7 +335,7 @@ MODEL 1/2
 EXAMPLE EX_CM_21: there is a countermodel.
 
 State Space:
-  ¡ (empty state)
+  ï¿½ (empty state)
   a (atomic state)
   b (atomic state)
   a.b (fusion state)
@@ -343,7 +343,7 @@ State Space:
 Worlds: {a.b} (1 possible world)
 
 Verification:
-  ¡ verifies: nothing (neutral)
+  ï¿½ verifies: nothing (neutral)
   a verifies: A
   b verifies: nothing (neutral)
   a.b verifies: A
@@ -356,9 +356,9 @@ Counterexample: A does not imply B at world a.b
 
 **Progress During Iteration:**
 ```
-Finding 2 models: [ˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆ] 1/2 (checked 1) 0.3s
-Finding 2 models: [ˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆ] 1/2 (checked 3) 0.9s
-Finding 2 models: [ˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆ] 2/2 (checked 4) 1.2s
+Finding 2 models: [ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½] 1/2 (checked 1) 0.3s
+Finding 2 models: [ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½] 1/2 (checked 3) 0.9s
+Finding 2 models: [ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½] 2/2 (checked 4) 1.2s
 Successfully found all 2 requested models
 ```
 
@@ -367,15 +367,15 @@ Successfully found all 2 requested models
 === DIFFERENCES FROM PREVIOUS MODEL ===
 
 Exclusion Changes:
-  a.b excludes a.b: False ’ True
+  a.b excludes a.b: False ï¿½ True
 
 Verification Changes:
-  ¡ verifies A: False ’ True
-  a verifies A: True ’ False
+  ï¿½ verifies A: False ï¿½ True
+  a verifies A: True ï¿½ False
   
 Structural Properties:
-  Worlds: 1 ’ 2
-  Added worlds: [¡]
+  Worlds: 1 ï¿½ 2
+  Added worlds: [ï¿½]
   Self-exclusions: Added [a.b excludes a.b]
 ```
 
@@ -402,7 +402,7 @@ witness_settings = {
     'non_null': True,                  # Require witness functions
     'non_empty': True,                 # Ensure witness assignments exist
     'max_time': 8,                     # Much longer timeout
-    'iteration_solver_timeout': 15000, # Very extended solver timeout
+    'iteration_solver_timeout': 15.0,  # Very extended solver timeout (seconds)
 }
 ```
 

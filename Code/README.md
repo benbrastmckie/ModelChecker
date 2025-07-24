@@ -210,6 +210,8 @@ Additional flags have been included in order to manage the package version:
 - Include `-v` to print the installed version number.
 - Include `-u` to upgrade to the latest version.
 
+For comprehensive documentation on advanced features including the iterate setting, theory comparison, maximize mode, and debugging tools, see [Docs/TOOLS.md](../Docs/TOOLS.md).
+
 ## Jupyter Notebook Integration
 
 ModelChecker can be used interactively in Jupyter notebooks, allowing for dynamic exploration of logical models with an interactive interface.

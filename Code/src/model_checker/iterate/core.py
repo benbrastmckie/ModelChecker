@@ -159,9 +159,9 @@ class BaseModelIterator:
         iteration_timeout = max(max_time * 10, 30.0)
         start_time = time.time()
         
-        # Set solver timeout
-        solver_timeout = self.settings.get('iteration_solver_timeout', 5000)  # 5 seconds default
-        self.solver.set("timeout", solver_timeout)
+        # Set solver timeout (convert from seconds to milliseconds for Z3)
+        solver_timeout = self.settings.get('iteration_solver_timeout', 5.0)  # 5 seconds default
+        self.solver.set("timeout", int(solver_timeout * 1000))
         
         # Track attempts to escape isomorphic models
         self.escape_attempts = 0

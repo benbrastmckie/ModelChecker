@@ -517,4 +517,14 @@ The architecture follows a modular design with clean separation of concerns:
 - `unicode.py`: Unicode operator handling and LaTeX conversions
 - `utils.py`: Shared utilities
 
+## Advanced Features Documentation
+
+For comprehensive documentation on additional ModelChecker features including:
+- The iterate setting for finding multiple models
+- Comparing multiple theories in example files
+- Using the maximize flag for performance comparison
+- Debugging flags (-i, -p, -z, -s) for detailed output
+
+See [Docs/TOOLS.md](../../../../Docs/TOOLS.md)
+
 For further development guidance, see the implementation strategy in `notes/jupyter.md`.

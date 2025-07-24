@@ -137,7 +137,7 @@ settings = {
     
     # Performance tuning
     'iteration_timeout': 1.0,        # Timeout for isomorphism check (seconds)
-    'iteration_solver_timeout': 5000,# Z3 solver timeout per iteration (milliseconds)
+    'iteration_solver_timeout': 5.0, # Z3 solver timeout per iteration (seconds)
     
     # Theory-specific options (varies by theory)
     'max_time': 5,                   # Overall timeout for model finding
@@ -406,8 +406,8 @@ def _create_stronger_constraint(self, isomorphic_model):
 # For large models or complex theories
 settings = {
     'iterate': 3,                     # Start with fewer models
-    'iteration_solver_timeout': 10000,# Increase solver timeout
-    'iteration_timeout': 2.0,         # Increase isomorphism timeout
+    'iteration_solver_timeout': 10.0, # Increase solver timeout (seconds)
+    'iteration_timeout': 2.0,         # Increase isomorphism timeout (seconds)
     'max_invalid_attempts': 3,        # Reduce failure tolerance
 }
 ```

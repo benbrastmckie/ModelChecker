@@ -1,8 +1,351 @@
+# ModelChecker Settings Architecture Analysis
+
+## Executive Summary
+
+This document provides a comprehensive analysis of the ModelChecker settings architecture, revealing how settings flow through the system and identifying key patterns for future development.
+
+## Table of Contents
+
+1. [Current Architecture Overview](#current-architecture-overview)
+2. [Key Architectural Patterns](#key-architectural-patterns)
+3. [Integration Points for New Features](#integration-points-for-new-features)
+4. [Design Principles](#design-principles)
+5. [Common Patterns for Extending Settings](#common-patterns-for-extending-settings)
+6. [Best Practices](#best-practices)
+7. [Future Considerations](#future-considerations)
+8. [Exclusion Theory Implementation Strategies](#exclusion-theory-implementation-strategies)
+
+---
+
+## Current Architecture Overview
+
+### 1. Settings Definition Points
+
+Settings are defined at two levels within each semantic theory:
+
+1. **DEFAULT_EXAMPLE_SETTINGS**: Settings specific to individual examples
+   - Controls model generation parameters (N, max_time, etc.)
+   - Includes semantic constraints (contingent, disjoint, etc.)
+   - Theory-specific parameters (iterate, iteration_timeout, etc.)
+
+2. **DEFAULT_GENERAL_SETTINGS**: Module-wide settings
+   - Output control (print_impossible, print_constraints, etc.)
+   - Debugging options (print_z3, save_output)
+   - Theory-specific display options (align_vertically for bimodal)
+
+### 2. Settings Management via SettingsManager
+
+The `SettingsManager` class in `settings/settings.py` provides centralized management:
+
+```python
+class SettingsManager:
+    def __init__(self, semantic_theory, global_defaults=None)
+    def validate_general_settings(self, user_general_settings)
+    def validate_example_settings(self, user_example_settings)
+    def apply_flag_overrides(self, settings, module_flags)
+    def get_complete_settings(self, user_general_settings, user_example_settings, module_flags)
+```
+
+**Key Features:**
+- Validates settings against theory-specific defaults
+- Warns about unknown settings without failing
+- Merges settings according to priority rules
+- Applies command-line flag overrides as final step
+
+### 3. Settings Flow Through the System
+
+The settings flow follows this path:
+
+1. **BuildModule initialization** (`builder/module.py`):
+   - Creates SettingsManager with first semantic theory
+   - Validates and stores general_settings
+   - Applies flag overrides to general settings
+
+2. **BuildExample creation** (`builder/example.py`):
+   - Creates its own SettingsManager for the specific theory
+   - Merges: defaults → general → example → flags
+   - Passes final settings to model components
+
+3. **Model Components**:
+   - `SemanticDefaults.__init__(combined_settings)`: Extracts N, M, etc.
+   - `ModelDefaults.__init__(model_constraints, settings)`: Uses for solver config
+   - Theory-specific classes access via `self.settings`
+
+### 4. Priority Order
+
+Settings follow a clear priority order (lowest to highest):
+
+1. Theory DEFAULT_EXAMPLE_SETTINGS
+2. Theory DEFAULT_GENERAL_SETTINGS (if applicable)
+3. User-defined general_settings in module
+4. User-defined settings in specific example
+5. Command-line flags (highest priority)
+
+## Key Architectural Patterns
+
+### 1. Theory-Specific Settings
+
+Each theory defines only the settings relevant to it:
+
+```python
+# Logos theory includes hyperintensional settings
+DEFAULT_EXAMPLE_SETTINGS = {
+    'N': 16,
+    'contingent': True,
+    'non_empty': True,
+    'non_null': True,
+    'disjoint': True,
+    'iterate': False,
+    # ...
+}
+
+# Exclusion theory has different defaults
+DEFAULT_EXAMPLE_SETTINGS = {
+    'N': 3,
+    'possible': False,
+    'contingent': False,
+    'non_empty': False,
+    'iterate': 1,
+    # ...
+}
+```
+
+### 2. Settings Validation Pattern
+
+The system validates settings but doesn't fail on unknown settings:
+
+```python
+# In validate_example_settings
+for key in user_example_settings:
+    if key not in self.DEFAULT_EXAMPLE_SETTINGS:
+        print(f"Warning: Unknown example setting '{key}'...")
+```
+
+This allows theories to be flexible while warning about potential typos.
+
+### 3. Flag Override Implementation
+
+Command-line flags are carefully handled to only override when explicitly provided:
+
+```python
+# Detects which flags were actually provided by user
+user_provided_flags = set()
+for arg in module_flags._parsed_args:
+    if arg.startswith('--'):
+        flag_name = arg[2:].split('=')[0]
+        user_provided_flags.add(flag_name)
+```
+
+### 4. Settings Access Pattern
+
+Components access settings through a consistent pattern:
+
+```python
+# In semantic classes
+def __init__(self, combined_settings):
+    self.N = combined_settings['N']
+    self.settings = combined_settings  # Store for later use
+
+# In model classes  
+def __init__(self, model_constraints, settings):
+    self.settings = settings
+    self.max_time = self.settings["max_time"]
+```
+
+## Integration Points for New Features
+
+### 1. Theory Registration
+
+When adding a new theory, settings are automatically handled if you:
+
+1. Define DEFAULT_EXAMPLE_SETTINGS in your semantic class
+2. Optionally define DEFAULT_GENERAL_SETTINGS
+3. Access settings via self.settings in your implementation
+
+### 2. Iterator Integration
+
+The iteration system integrates through settings:
+
+```python
+# Check if iteration is requested
+iterate_count = example.settings.get('iterate', 1)
+
+# Access iteration-specific settings
+iteration_timeout = example.settings.get('iteration_timeout', 1.0)
+iteration_attempts = example.settings.get('iteration_attempts', 5)
+```
+
+### 3. Display and Output Control
+
+Output behavior is controlled through general settings:
+
+```python
+if self.settings.get('print_impossible', False):
+    # Include impossible states in output
+
+if self.settings.get('print_constraints', False):
+    # Show constraints when no model found
+```
+
+## Design Principles
+
+### 1. Fail-Fast Philosophy
+
+The settings system follows ModelChecker's fail-fast philosophy:
+- Invalid settings trigger warnings, not silent failures
+- Type mismatches cause immediate errors
+- Missing required settings fail at point of use
+
+### 2. Explicit Over Implicit
+
+- All defaults are explicitly defined in theory classes
+- Settings flow is explicit through method calls
+- No hidden global configuration
+
+### 3. Theory Independence
+
+- Each theory defines its own settings namespace
+- No requirement to support all possible settings
+- Theories can add custom settings as needed
+
+### 4. Backwards Compatibility
+
+The system maintains compatibility by:
+- Supporting both old attribute access and new settings dict
+- Providing sensible defaults for all settings
+- Warning rather than failing on unknown settings
+
+## Common Patterns for Extending Settings
+
+### 1. Adding a New Setting to a Theory
+
+```python
+class YourSemantics(SemanticDefaults):
+    DEFAULT_EXAMPLE_SETTINGS = {
+        # ... existing settings ...
+        'your_new_setting': default_value,
+    }
+    
+    def your_method(self):
+        if self.settings['your_new_setting']:
+            # Implement behavior
+```
+
+### 2. Adding a Command-Line Flag
+
+In `cli.py`:
+```python
+parser.add_argument(
+    '--your-flag', '-y',
+    dest='your_new_setting',
+    action='store_true',
+    help='Description of flag'
+)
+```
+
+### 3. Creating Theory-Specific General Settings
+
+```python
+class YourSemantics(SemanticDefaults):
+    DEFAULT_GENERAL_SETTINGS = {
+        'print_impossible': False,
+        'your_display_option': True,  # Theory-specific
+    }
+```
+
+### 4. Accessing Settings in Model Components
+
+```python
+class YourModel(ModelDefaults):
+    def custom_method(self):
+        # Access through self.settings
+        if self.settings.get('your_setting', default):
+            # Handle setting
+```
+
+## Best Practices
+
+### 1. Setting Naming Conventions
+
+- Use lowercase with underscores: `iteration_timeout`
+- Be descriptive: `print_impossible` not `pi`
+- Group related settings: `iteration_*` for iteration features
+
+### 2. Default Values
+
+- Choose defaults that work without user intervention
+- Make defaults conservative (smaller N, shorter timeouts)
+- Document why specific defaults were chosen
+
+### 3. Setting Documentation
+
+- Document each setting in DEFAULT_*_SETTINGS
+- Include type, purpose, and impact
+- Provide examples in theory documentation
+
+### 4. Setting Validation
+
+- Validate at point of use, not just at input
+- Provide helpful error messages
+- Consider setting interdependencies
+
+## Future Considerations
+
+### 1. Type System
+
+Consider adding type annotations:
+```python
+from typing import TypedDict
+
+class ExampleSettings(TypedDict):
+    N: int
+    max_time: float
+    contingent: bool
+    # ...
+```
+
+### 2. Setting Schemas
+
+Could add JSON Schema validation:
+```python
+EXAMPLE_SETTINGS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "N": {"type": "integer", "minimum": 1},
+        "max_time": {"type": "number", "minimum": 0},
+        # ...
+    }
+}
+```
+
+### 3. Setting Groups
+
+Could organize settings into logical groups:
+```python
+SOLVER_SETTINGS = ['max_time', 'iteration_timeout']
+SEMANTIC_SETTINGS = ['contingent', 'disjoint', 'non_empty']
+OUTPUT_SETTINGS = ['print_impossible', 'print_constraints']
+```
+
+### 4. Dynamic Setting Discovery
+
+Could implement automatic flag generation from settings:
+```python
+def generate_cli_flags(settings_dict):
+    for key, default in settings_dict.items():
+        if isinstance(default, bool):
+            add_boolean_flag(key)
+        else:
+            add_value_flag(key, type(default))
+```
+
+---
+
 # Exclusion Theory Implementation Strategies
 
 ## Overview
 
-This document comprehensively describes the various implementation strategies for the exclusion operator in the unilateral semantics framework. Each strategy represents a different approach to solving the **False Premise Problem** - the fundamental challenge of preserving witness function information across the two-phase model checking architecture.
+This section comprehensively describes the various implementation strategies for the exclusion operator in the unilateral semantics framework. Each strategy represents a different approach to solving the **False Premise Problem** - the fundamental challenge of preserving witness function information across the two-phase model checking architecture.
 
 ## The Core Problem
 

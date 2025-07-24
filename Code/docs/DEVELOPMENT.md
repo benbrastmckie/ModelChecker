@@ -31,6 +31,8 @@
   - Combine flags: `./dev_cli.py -p -z <example_file.py>`
 - Run jupyter notebooks: `./run_jupyter.sh`
 
+For detailed documentation on advanced features like iterate settings, theory comparison, maximize mode, and debugging flags, see [TOOLS.md](../../Docs/TOOLS.md).
+
 ### NixOS-specific Testing
 When working on NixOS, always use the provided scripts (`test_theories.py`, `test_package.py`, `dev_cli.py`) rather than direct Python commands to ensure proper PYTHONPATH configuration.
 

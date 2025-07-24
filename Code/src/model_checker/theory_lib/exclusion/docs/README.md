@@ -8,6 +8,7 @@ Welcome to the documentation for the exclusion theory implementation. This guide
 - **Need API reference?** → See [TECHNICAL_REFERENCE.md](TECHNICAL_REFERENCE.md)
 - **Understanding the architecture?** → Read [ARCHITECTURE.md](ARCHITECTURE.md)
 - **Implementing a semantic theory?** → Study [LESSONS_LEARNED.md](LESSONS_LEARNED.md)
+- **Configuring settings?** → See [SETTINGS.md](SETTINGS.md)
 
 ## Core Documentation
 
@@ -34,6 +35,9 @@ Analysis of formulas, operators, and test coverage across the implementation.
 ### **[ITERATE.md](ITERATE.md)**
 Iterator support documentation for exclusion theory.
 
+### **[SETTINGS.md](SETTINGS.md)**
+Complete documentation of all settings available in exclusion theory, including example settings, general settings, and advanced iteration configuration.
+
 ## Quick Navigation by Topic
 
 ### **Theoretical Foundation**
@@ -55,6 +59,12 @@ Iterator support documentation for exclusion theory.
 - Z3 patterns → [LESSONS_LEARNED.md#z3smt-solver-wisdom](LESSONS_LEARNED.md#z3smt-solver-wisdom)
 - Design principles → [LESSONS_LEARNED.md#design-principles](LESSONS_LEARNED.md#design-principles)
 - Implementation journey → [IMPLEMENTATION_STORY.md](IMPLEMENTATION_STORY.md)
+
+### **Configuration and Settings**
+- Settings overview → [SETTINGS.md](SETTINGS.md)
+- Example settings → [SETTINGS.md#example-settings](SETTINGS.md#example-settings)
+- General settings → [SETTINGS.md#general-settings](SETTINGS.md#general-settings)
+- Iteration settings → [SETTINGS.md#iteration-settings](SETTINGS.md#iteration-settings)
 
 ## Related Resources
 
