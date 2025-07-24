@@ -1,6 +1,6 @@
 # Logos Theory Model Iteration
 
-This documentation explains how model iteration works specifically within the Logos theory, including its hyperintensional semantics, difference detection mechanisms, and practical usage patterns.
+This documentation provides a comprehensive guide to model iteration in the Logos theory, covering the sophisticated mechanisms for finding multiple distinct hyperintensional models, practical usage patterns, and advanced features unique to the Logos semantic framework.
 
 ## Overview
 
@@ -574,4 +574,83 @@ for i, model in enumerate(models[1:], 2):
     iterator.display_differences(models[i-2], model)
 ```
 
+## Best Practices
+
+### Choosing Iteration Parameters
+
+1. **State Space Size (N)**
+   - N=3-4: Quick exploration, suitable for most examples
+   - N=5-6: Richer models, longer computation times
+   - N>6: Only for specific research needs
+
+2. **Model Count**
+   - 2-3 models: Basic diversity demonstration
+   - 5-10 models: Comprehensive exploration
+   - >10 models: Diminishing returns, risk of timeout
+
+3. **Timeout Settings**
+   - Base timeout: 1-2 seconds for simple formulas
+   - Iteration timeout: 2-3 seconds for isomorphism checking
+   - Solver timeout: 5-15 seconds for complex constraints
+
+### Subtheory Considerations
+
+Different Logos subtheories have different computational profiles:
+
+- **Extensional**: Fastest, simple verification patterns
+- **Modal**: Moderate, accessibility relation adds complexity
+- **Constitutive**: Moderate, content relationships well-structured
+- **Counterfactual**: Slowest, similarity orderings complex
+- **Relevance**: Moderate, depends on formula complexity
+
+### Common Patterns
+
+```python
+# Quick exploration pattern
+quick_settings = {
+    'N': 3,
+    'iterate': 3,
+    'max_time': 1,
+    'iteration_timeout': 1.0
+}
+
+# Thorough investigation pattern
+thorough_settings = {
+    'N': 4,
+    'iterate': 5,
+    'contingent': True,
+    'non_empty': True,
+    'max_time': 2,
+    'iteration_timeout': 2.0,
+    'iteration_solver_timeout': 10000
+}
+
+# Research-grade pattern
+research_settings = {
+    'N': 5,
+    'iterate': 10,
+    'contingent': True,
+    'non_empty': True,
+    'non_null': True,
+    'disjoint': True,
+    'max_time': 5,
+    'iteration_timeout': 3.0,
+    'iteration_solver_timeout': 30000,
+    'escape_attempts': 10
+}
+```
+
+## Conclusion
+
+The Logos iteration system provides powerful tools for exploring the rich landscape of hyperintensional models. By understanding the various difference dimensions, constraint mechanisms, and performance considerations, you can effectively use model iteration to:
+
+- Discover unexpected semantic phenomena
+- Validate logical principles across diverse models
+- Explore the boundaries of hyperintensional distinctions
+- Generate comprehensive test cases for theoretical work
+
 This comprehensive iteration system makes the Logos theory's rich hyperintensional structure accessible for detailed semantic exploration and analysis.
+
+---
+
+**Navigation**: [README](README.md) | [User Guide](USER_GUIDE.md) | [Architecture](ARCHITECTURE.md) | [Settings](SETTINGS.md) | [Main README](../README.md)

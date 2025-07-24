@@ -41,7 +41,7 @@ The BuildProject system automatically creates license files for new theories:
 ```python
 # Creating a new theory project
 from model_checker import BuildProject
-project = BuildProject("default")
+project = BuildProject("logos")
 project_dir = project.generate("my_theory")
 ```
 
@@ -81,11 +81,11 @@ version = get_model_checker_version()
 
 # Get a specific theory's version
 from model_checker.utils import get_theory_version
-theory_version = get_theory_version("default")
+theory_version = get_theory_version("logos")
 
 # Check compatibility
 from model_checker.utils import check_theory_compatibility
-is_compatible = check_theory_compatibility("default")
+is_compatible = check_theory_compatibility("logos")
 ```
 
 ### Managing Theory Versions

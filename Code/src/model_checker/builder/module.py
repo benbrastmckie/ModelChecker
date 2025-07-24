@@ -675,7 +675,6 @@ class BuildModule:
                 # rather than the actual module name used for imports
                 theory_display_to_module = {
                     "Brast-McKie": "logos",  # Brast-McKie is the logos theory
-                    "Default": "default",
                     "Exclusion": "exclusion",
                     "unilateral_theory": "exclusion",  # Exclusion theory's internal name
                     "Imposition": "imposition",

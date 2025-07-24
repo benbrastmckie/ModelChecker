@@ -84,19 +84,16 @@ The typical API usage flow follows these steps:
 
 ```python
 # A typical workflow might look like:
-from model_checker import BuildExample, get_theory
+from model_checker import check_formula
 
-# 1. Load a theory
-theory = get_theory("logos")
+# 1. Check if a modal formula is valid
+result = check_formula("(\\Box A \\rightarrow A)", theory_name="logos")
 
-# 2. Create a model
-model = BuildExample("simple_modal", theory)
-
-# 3. Check a formula
-result = model.check_formula("(\\Box A \\rightarrow A)")
-
-# 4. Analyze the result
+# 2. Analyze the result
 print(f"Formula is {'valid' if result else 'invalid'}")
+
+# 3. Check with premises (modus ponens with box)
+result = check_formula("A", premises=["\\Box A", "(\\Box A \\rightarrow A)"], theory_name="logos")
 ```
 
 ### Advanced Features

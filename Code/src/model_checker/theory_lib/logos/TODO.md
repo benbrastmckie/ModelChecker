@@ -2,6 +2,15 @@
 
 Tasks that remain before the next release.
 
+## Version Tracking
+
+- Add version tracking to logos/__init__.py similar to default/:
+  - Add `__version__` variable for the logos theory version (e.g., "1.0.0")
+  - Add `__model_checker_version__` using `get_model_checker_version()` utility
+  - Import the `get_model_checker_version` utility from model_checker.utils
+  - Include version variables in __all__ exports
+  - This will help track compatibility and theory evolution
+
 ## Jupyter Notebooks
 
 - Look at the default/ theory to see how to implement Jupyter Notebooks for the logos/ theory

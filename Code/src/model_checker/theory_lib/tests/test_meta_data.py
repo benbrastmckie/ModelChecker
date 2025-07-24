@@ -56,8 +56,8 @@ class TestMetadataSystem:
         assert isinstance(version, str)
         
         # Get theory version for a known theory
-        # This test may be fragile if the default theory version changes
-        theory_version = get_theory_version("default")
+        # This test may be fragile if the logos theory version changes
+        theory_version = get_theory_version("logos")
         assert theory_version is not None
         assert isinstance(theory_version, str)
     
@@ -69,10 +69,10 @@ class TestMetadataSystem:
         # Basic checks
         assert result is not None
         assert isinstance(result, dict)
-        assert "default" in result
+        assert "logos" in result
         
         # Check structure
-        theory_data = result["default"]
+        theory_data = result["logos"]
         assert "version" in theory_data
         assert "license" in theory_data
         assert "citation" in theory_data
@@ -92,7 +92,7 @@ class TestMetadataSystem:
     
     @pytest.mark.parametrize(
         "theory_name", 
-        ["default", "exclusion", "imposition", "bimodal"]
+        ["logos", "exclusion", "imposition", "bimodal"]
     )
     def test_theory_version_format(self, theory_name):
         """Test that theory versions follow the expected format."""

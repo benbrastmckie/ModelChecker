@@ -11,8 +11,8 @@ recursive-include src *.ipynb
 
 # Specifically include theory README files
 recursive-include src/model_checker/theory_lib README.md
+recursive-include src/model_checker/theory_lib/logos README.md
 recursive-include src/model_checker/theory_lib/bimodal README.md
-recursive-include src/model_checker/theory_lib/default README.md
 recursive-include src/model_checker/theory_lib/exclusion README.md
 recursive-include src/model_checker/theory_lib/imposition README.md
 

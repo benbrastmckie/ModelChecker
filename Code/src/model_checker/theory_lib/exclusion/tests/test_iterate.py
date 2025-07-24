@@ -16,9 +16,20 @@ class TestExclusionIterator:
     
     def test_basic_iteration(self):
         """Test that iteration works with exclusion theory."""
-        # Create a mock build module
+        # Create semantic theory
+        semantic_theory = {
+            "semantics": WitnessSemantics,
+            "proposition": WitnessProposition,
+            "model": WitnessStructure,
+            "operators": witness_operators,
+        }
+        
+        # Create a mock build module with proper attributes
         mock_module = Mock()
-        mock_module.general_settings = {
+        mock_module.semantic_theories = {"exclusion": semantic_theory}  # Add this for len() call
+        
+        # Set up general_settings as a real dictionary (not a Mock)
+        general_settings = {
             'N': 3,
             'contingent': False,
             'disjoint': False,
@@ -30,6 +41,8 @@ class TestExclusionIterator:
             'print_z3': False,
             'max_time': 1
         }
+        mock_module.general_settings = general_settings
+        mock_module.raw_general_settings = general_settings  # Also set this
         mock_module.module_flags = SimpleNamespace(
             contingent=False,
             disjoint=False,
@@ -41,14 +54,6 @@ class TestExclusionIterator:
             print_z3=False,
             maximize=False
         )
-        
-        # Create semantic theory
-        semantic_theory = {
-            "semantics": WitnessSemantics,
-            "proposition": WitnessProposition,
-            "model": WitnessStructure,
-            "operators": witness_operators,
-        }
         
         # Create example case
         example_case = [
@@ -67,9 +72,20 @@ class TestExclusionIterator:
         
     def test_iterate_example_function(self):
         """Test the iterate_example convenience function."""
-        # Create a mock build module
+        # Create semantic theory
+        semantic_theory = {
+            "semantics": WitnessSemantics,
+            "proposition": WitnessProposition,
+            "model": WitnessStructure,
+            "operators": witness_operators,
+        }
+        
+        # Create a mock build module with proper attributes
         mock_module = Mock()
-        mock_module.general_settings = {
+        mock_module.semantic_theories = {"exclusion": semantic_theory}  # Add this for len() call
+        
+        # Set up general_settings as a real dictionary (not a Mock)
+        general_settings = {
             'N': 2,
             'contingent': False,
             'disjoint': False,
@@ -81,6 +97,8 @@ class TestExclusionIterator:
             'print_z3': False,
             'max_time': 1
         }
+        mock_module.general_settings = general_settings
+        mock_module.raw_general_settings = general_settings  # Also set this
         mock_module.module_flags = SimpleNamespace(
             contingent=False,
             disjoint=False,
@@ -92,14 +110,6 @@ class TestExclusionIterator:
             print_z3=False,
             maximize=False
         )
-        
-        # Create semantic theory
-        semantic_theory = {
-            "semantics": WitnessSemantics,
-            "proposition": WitnessProposition,
-            "model": WitnessStructure,
-            "operators": witness_operators,
-        }
         
         # Create example case - use a formula that should have multiple models
         example_case = [

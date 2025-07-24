@@ -4,26 +4,27 @@
 
 ### High Priority
 
+- [.] unit tests
+  - [.] fix failing tests
+  - [ ] check coverage
+  - [ ] update documentation
+- [ ] API
+  - [ ] check throughout
+  - [ ] update documentation
+- [ ] CLI
+  - [ ] is `save_to` needed or can output be piped to files via standard cli commands?
 - [ ] theory maintenance
   - [ ] improve `CLAUDE.md`
+  - [ ] change log
   - [ ] add `MAINTENANCE.md`
-    - [ ] what docs to include in `docs/` for each theory
-      - [ ] `SETTINGS.md`
-      - [ ] `ITERATE.md`
-      - [ ] `ARCHITECTURE.md`
-      - [ ] `USER_GUIDE.md`
-      - [ ] `README.md`
-- [ ] remove default
-  - [ ] confirm nothing is missing from logos
-  - [ ] remove
-  - [ ] update all references in docs
-- [ ] settings
-  - [x] refactor
-  - [x] warnings per theory when comparing
-  - [ ] update general docs
-  - [ ] docs for each theory
+  - [ ] what docs to include in `docs/` for each theory
+    - [ ] `SETTINGS.md`
+    - [ ] `ITERATE.md`
+    - [ ] `ARCHITECTURE.md`
+    - [ ] `USER_GUIDE.md`
+    - [ ] `README.md`
+  - [ ] standardize all theories
 - [ ] iterate
-  - [ ] test each theory
   - [ ] docs for each theory
   - [ ] report networkx not available
   - [ ] move iterate components out of semantic.py
@@ -36,11 +37,11 @@
   - [:] versioning
     - [ ] theory versioning
     - [ ] model_checker versioning
-- [ ] docs
+- [.] docs
   - [x] general
     - [x] installation
     - [x] development
-    - [ ] unify
+  - [ ] systematic review
 
 ### Refactoring
 
@@ -62,16 +63,10 @@
   - model
   - print
 
-- unit tests
-  - test coverage
-
-- [ ] builder refactor
-  - [ ] tools
-    - [ ] maximize
+- [.] builder refactor
+  - [.] tools
+    - [x] maximize
     - [ ] minimize
-
-- [ ] logging changes
-- [ ] refactor `save_to`
 
 ### Semantic Theories
 
@@ -85,17 +80,23 @@
     - [ ] develop bimodal lambda only strategy
   - [.] add iterator to bimodal theory
 
+- [ ] imposition semantics
+  - [ ] `tests/README.md`
+  - [ ] `docs/` to contain all standard files
+
 - [.] exclusion semantics
   - [x] build range of examples
   - [x] test frame constraints
     - [x] add constraint that exclusion is nonempty?
     - [ ] go from complete lattice to boolean lattice
   - [x] test settings
-  - [.] compare with bilateral semantics
+  - [ ] compare with bilateral semantics
   - [.] test theorems proven in the paper
     - [ ] do the proofs require all the axioms?
     - [x] are any of the other axioms derivable?
   - [.] documentation and cleanup
+    - [ ] update links to docs moved to `history/`
+    - [ ] integrate `TECHNICAL_REFERENCE.md` into `ARCHITECTURE.md`
   - [x] unit tests
     - [x] setup tests
   - [ ] run comparisons with bilateral semantics
@@ -106,12 +107,9 @@
 ### Documentation
 
 - [ ] overhaul
+  - [ ] add methodology
 - [ ] wiki
-- [:] code base
-  - [ ] wiki
-    - [ ] methodology
-    - [ ] architecture
-    - [ ] semantics
+- [x] code base
   - [x] readme
   - [x] docstrings
     - [x] `__init__.py`
