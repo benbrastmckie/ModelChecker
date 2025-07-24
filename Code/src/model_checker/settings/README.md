@@ -94,6 +94,29 @@ The settings system has been designed to only warn about unknown settings when:
 
 This means that if a flag like `-e` (non_empty) is provided but the theory doesn't define 'non_empty' in its settings, a warning will be displayed - but only if the user explicitly used that flag.
 
+### Theory Comparison Mode
+
+When comparing multiple theories (e.g., exclusion vs. logos), the settings system automatically detects comparison mode and adjusts warning behavior:
+
+- **Single Theory Mode**: Normal warnings for unknown settings
+- **Comparison Mode**: Warnings are suppressed by default since different theories support different settings
+
+#### Environment Variables
+
+You can control warning behavior using environment variables:
+
+- `MODELCHECKER_VERBOSE=true` - Shows detailed info messages during theory comparison
+- `MODELCHECKER_SUPPRESS_COMPARISON_WARNINGS=true` - Suppresses all comparison warnings
+
+Example:
+```bash
+# Show detailed comparison info
+MODELCHECKER_VERBOSE=true ./dev_cli.py examples.py
+
+# Suppress all comparison warnings
+MODELCHECKER_SUPPRESS_COMPARISON_WARNINGS=true ./dev_cli.py examples.py
+```
+
 ## Usage
 
 To use the settings system in a semantic theory:

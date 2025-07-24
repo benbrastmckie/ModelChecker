@@ -12,6 +12,14 @@ The settings system follows a clear priority order:
 The module ensures appropriate validation and warning messages for unknown settings.
 """
 
+import os
+
+# Configuration via environment variables
+VERBOSE_SETTINGS = os.environ.get('MODELCHECKER_VERBOSE', '').lower() == 'true'
+SUPPRESS_COMPARISON_WARNINGS = os.environ.get(
+    'MODELCHECKER_SUPPRESS_COMPARISON_WARNINGS', ''
+).lower() == 'true'
+
 class SettingsManager:
     """Manages settings across different sources with proper validation and overriding.
     
@@ -27,14 +35,18 @@ class SettingsManager:
         DEFAULT_EXAMPLE_SETTINGS: Example-specific settings defaults
     """
     
-    def __init__(self, semantic_theory, global_defaults=None):
+    def __init__(self, semantic_theory, global_defaults=None, theory_name=None, is_comparison=False):
         """Initialize SettingsManager with a semantic theory.
         
         Args:
             semantic_theory: Dictionary containing semantic theory implementation
             global_defaults: Optional global defaults to use if theory doesn't define them
+            theory_name: Name of the theory for context in warnings
+            is_comparison: Whether multiple theories are being compared
         """
         self.semantic_theory = semantic_theory
+        self.theory_name = theory_name
+        self.is_comparison = is_comparison
         
         # Get DEFAULT_GENERAL_SETTINGS from theory or fall back to global defaults
         semantics_class = semantic_theory.get("semantics")
@@ -45,6 +57,10 @@ class SettingsManager:
         
         # Get DEFAULT_EXAMPLE_SETTINGS from theory
         self.DEFAULT_EXAMPLE_SETTINGS = semantic_theory["semantics"].DEFAULT_EXAMPLE_SETTINGS
+        
+        # If no theory name provided, try to get it from the semantics class
+        if self.theory_name is None:
+            self.theory_name = getattr(semantics_class, '__name__', 'unknown').replace('Semantics', '')
     
     def validate_general_settings(self, user_general_settings):
         """Validate user general settings against defaults and warn about unknown settings.
@@ -67,7 +83,7 @@ class SettingsManager:
         # Check for unknown settings (but don't warn if they're valid example settings)
         for key in user_general_settings:
             if key not in self.DEFAULT_GENERAL_SETTINGS and key not in self.DEFAULT_EXAMPLE_SETTINGS:
-                print(f"Warning: Unknown general setting '{key}' not found in any settings definition")
+                self._warn_unknown_setting(key, 'general')
         
         # Merge valid settings
         valid_keys = set(user_general_settings.keys()).intersection(self.DEFAULT_GENERAL_SETTINGS.keys())
@@ -97,7 +113,7 @@ class SettingsManager:
         # Check for unknown settings
         for key in user_example_settings:
             if key not in self.DEFAULT_EXAMPLE_SETTINGS:
-                print(f"Warning: Unknown example setting '{key}' not in DEFAULT_EXAMPLE_SETTINGS")
+                self._warn_unknown_setting(key, 'example')
         
         # Merge valid settings
         valid_keys = set(user_example_settings.keys()).intersection(self.DEFAULT_EXAMPLE_SETTINGS.keys())
@@ -172,6 +188,22 @@ class SettingsManager:
                     print(f"Warning: Flag '{key}' doesn't correspond to any known setting")
                 
         return merged_settings
+    
+    def _warn_unknown_setting(self, setting_name, setting_type):
+        """Centralized warning logic with context awareness.
+        
+        Args:
+            setting_name: Name of the unknown setting
+            setting_type: Type of setting ('general' or 'example')
+        """
+        if self.is_comparison:
+            # During comparison, suppress warnings unless verbose mode is on
+            if VERBOSE_SETTINGS and not SUPPRESS_COMPARISON_WARNINGS:
+                print(f"Info: Setting '{setting_name}' not supported by {self.theory_name}")
+        else:
+            # Normal warning for single theory usage
+            print(f"Warning: Unknown {setting_type} setting '{setting_name}' "
+                  f"not in {self.theory_name}'s DEFAULT_{setting_type.upper()}_SETTINGS")
     
     def get_complete_settings(self, user_general_settings, user_example_settings, module_flags):
         """Get complete settings with all validations and overrides applied.

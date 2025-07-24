@@ -987,12 +987,12 @@ example_range = {
     
     # Basic countermodel examples
     # "EX_CM_21": EX_CM_21_example,  # BASIC TEST
-    "EX_TH_2": EX_TH_2_example,    # DISJUNCTIVE SYLLOGISM
+    # "EX_TH_2": EX_TH_2_example,    # DISJUNCTIVE SYLLOGISM
     
     # # Bilateral negation examples (Problematic in static)
     # "EX_CM_4": EX_CM_4_example,    # NEGATION TO SENTENCE (FALSE PREMISE PROBLEM)
     # "EX_CM_5": EX_CM_5_example,    # SENTENCE TO NEGATION (FALSE PREMISE PROBLEM)
-    # "EX_CM_6": EX_CM_6_example,    # DOUBLE NEGATION ELIMINATION (FALSE PREMISE PROBLEM)
+    "EX_CM_6": EX_CM_6_example,    # DOUBLE NEGATION ELIMINATION (FALSE PREMISE PROBLEM)
     # "EX_CM_7": EX_CM_7_example,    # DOUBLE NEGATION INTRODUCTION (FALSE PREMISE PROBLEM)
     # "EX_CM_8": EX_CM_8_example,    # TRIPLE NEGATION ENTAILMENT (FALSE PREMISE PROBLEM)
     # "EX_CM_9": EX_CM_9_example,    # QUADRUPLE NEGATION ENTAILMENT (FALSE PREMISE PROBLEM)
