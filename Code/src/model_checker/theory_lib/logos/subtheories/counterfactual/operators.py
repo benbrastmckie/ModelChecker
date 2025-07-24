@@ -89,8 +89,33 @@ class CounterfactualOperator(syntactic.Operator):
         )
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Prints the counterfactual conditional with proper indentation and formatting."""
-        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
+        """Prints the counterfactual conditional with proper indentation and formatting.
+        
+        Shows the antecedent in the evaluation world and then the consequent in each
+        alternative world where the antecedent holds.
+        """
+        # Calculate alternative worlds based on the antecedent
+        semantics = self.semantics
+        model_structure = sentence_obj.proposition.model_structure
+        left_argument_obj = sentence_obj.original_arguments[0]
+        
+        # Get worlds where the antecedent is verified
+        left_verifiers = left_argument_obj.proposition.verifiers
+        
+        # Fallback: find worlds that are alternatives via the antecedent states
+        N = semantics.N
+        eval = model_structure.z3_model.evaluate
+        world_states = model_structure.z3_world_states
+        eval_world = eval_point["world"]
+        alt_worlds = set()
+        
+        for state in left_verifiers:
+            for world in world_states:
+                if eval(semantics.is_alternative(world, state, eval_world)):
+                    alt_worlds.add(world)
+        
+        # Use print_over_worlds to show alternatives
+        self.print_over_worlds(sentence_obj, eval_point, alt_worlds, indent_num, use_colors)
 
 
 class MightCounterfactualOperator(syntactic.DefinedOperator):
@@ -109,98 +134,45 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
         return [NegationOperator, [CounterfactualOperator, leftarg, [NegationOperator, rightarg]]]
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Prints the might counterfactual with proper indentation and formatting."""
-        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
-
-
-class ImpositionOperator(syntactic.Operator):
-    """Implementation of the imposition operator.
-    
-    This operator represents the imposition relation between propositions, where
-    A imposes B. The semantics involves verifiers and falsifiers with specific 
-    imposition conditions.
-    """
-
-    name = "\\imposition"
-    arity = 2
-
-    def true_at(self, leftarg, rightarg, eval_point):
-        """Defines truth conditions for imposition at an evaluation point."""
-        sem = self.semantics
-        u = z3.BitVec("t_imp_u", sem.N)
-        v = z3.BitVec("t_imp_v", sem.N)
+        """Prints the might counterfactual with proper indentation and formatting.
         
-        return ForAll(
-            [u, v],
-            z3.Implies(
-                z3.And(
-                    sem.extended_verify(u, leftarg, eval_point),
-                    sem.extended_verify(v, rightarg, eval_point)
-                ),
-                sem.extended_verify(sem.fusion(u, v), rightarg, eval_point)
-            ),
-        )
-
-    def false_at(self, leftarg, rightarg, eval_point):
-        """Defines falsity conditions for imposition at an evaluation point."""
-        sem = self.semantics
-        u = z3.BitVec("f_imp_u", sem.N)
-        v = z3.BitVec("f_imp_v", sem.N)
+        Shows the antecedent in the evaluation world and then the consequent in each
+        alternative world where the antecedent holds.
+        """
+        # For defined operators, we need to get the original arguments
+        # The might counterfactual is defined as ¬(A □→ ¬B)
+        # So we want to show alternatives based on A
+        left_argument_obj = sentence_obj.original_arguments[0]
         
-        return Exists(
-            [u, v],
-            z3.And(
-                sem.extended_verify(u, leftarg, eval_point),
-                sem.extended_verify(v, rightarg, eval_point),
-                z3.Not(sem.extended_verify(sem.fusion(u, v), rightarg, eval_point))
-            ),
-        )
-
-    def extended_verify(self, state, leftarg, rightarg, eval_point):
-        """Defines verification conditions for imposition in the extended semantics."""
-        return z3.And(
-            state == self.semantics.null_state,
-            self.true_at(leftarg, rightarg, eval_point)
-        )
-
-    def extended_falsify(self, state, leftarg, rightarg, eval_point):
-        """Defines falsification conditions for imposition in the extended semantics."""
-        return z3.And(
-            state == self.semantics.null_state,
-            self.false_at(leftarg, rightarg, eval_point)
-        )
-
-    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_point):
-        """Finds the verifiers and falsifiers for an imposition relation."""
-        product = self.semantics.product
-        Y_V, Y_F = left_sent_obj.proposition.find_proposition()
-        Z_V, Z_F = right_sent_obj.proposition.find_proposition()
-        if product(Y_V, Z_V).issubset(Z_V):
-            return {self.semantics.null_state}, set()
-        return set(), {self.semantics.null_state}
-
-    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Prints the imposition relation with proper indentation and formatting."""
-        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
+        # Get the semantics and model structure
+        semantics = self.semantics
+        model_structure = sentence_obj.proposition.model_structure
+        
+        # Get worlds where the antecedent is verified
+        left_verifiers = left_argument_obj.proposition.verifiers
+        
+        # Find alternative worlds using the semantics
+        if hasattr(semantics, 'calculate_alternative_worlds'):
+            alt_worlds = semantics.calculate_alternative_worlds(
+                left_verifiers, eval_point, model_structure
+            )
+        else:
+            # Fallback: find worlds that are alternatives via the antecedent states
+            N = semantics.N
+            eval = model_structure.z3_model.evaluate
+            world_states = model_structure.z3_world_states
+            eval_world = eval_point["world"]
+            alt_worlds = set()
+            
+            for state in left_verifiers:
+                for world in world_states:
+                    if eval(semantics.is_alternative(world, state, eval_world)):
+                        alt_worlds.add(world)
+        
+        # Use print_over_worlds to show alternatives
+        self.print_over_worlds(sentence_obj, eval_point, alt_worlds, indent_num, use_colors)
 
 
-class MightImpositionOperator(syntactic.DefinedOperator):
-    """Implementation of the might imposition operator.
-    
-    This operator represents the might imposition 'A could impose B'. 
-    It is defined as the negation of the imposition with negated consequent.
-    """
-
-    name = "\\could"
-    arity = 2
-
-    def derived_definition(self, leftarg, rightarg):
-        """Defines might imposition as negation of imposition with negated consequent."""
-        return [NegationOperator, [ImpositionOperator, leftarg, [NegationOperator, rightarg]]]
-
-    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Prints the might imposition with proper indentation and formatting."""
-        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 def get_operators():
@@ -213,6 +185,4 @@ def get_operators():
     return {
         "\\boxright": CounterfactualOperator,
         "\\diamondright": MightCounterfactualOperator,
-        "\\imposition": ImpositionOperator,
-        "\\could": MightImpositionOperator,
     }

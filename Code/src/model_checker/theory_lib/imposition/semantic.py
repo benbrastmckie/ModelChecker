@@ -4,9 +4,7 @@
 
 import z3
 
-from model_checker.model import (
-    SemanticDefaults,
-)
+from model_checker.theory_lib.logos import LogosSemantics
 from model_checker.utils import (
     ForAll,
     Exists,
@@ -19,9 +17,20 @@ from model_checker import syntactic
 ######################### SEMANTICS AND PROPOSITIONS #########################
 ##############################################################################
 
-class ImpositionSemantics(SemanticDefaults):
-    """Includes the semantic primitives, semantic definitions, frame
-    constraints, truth and falsity theories, and premise/conclusion behavior."""
+class ImpositionSemantics(LogosSemantics):
+    """
+    Kit Fine's imposition semantics as an independent theory.
+    
+    Inherits logos base functionality for consistency and code reuse,
+    while implementing Fine's distinctive counterfactual semantics
+    through the imposition operation. Developed as a separate theory
+    for comparison with Brast-McKie hyperintensional semantics.
+    
+    This theory extends LogosSemantics with:
+    - The imposition operation for counterfactual reasoning
+    - Alternative world calculation based on imposition
+    - Fine's specific semantic constraints
+    """
 
     DEFAULT_EXAMPLE_SETTINGS = {
         'N' : 3,
@@ -44,25 +53,28 @@ class ImpositionSemantics(SemanticDefaults):
     }
 
     def __init__(self, settings):
-
-        # Initialize the superclass to set defaults
-        super().__init__(settings)
-
-        # Define the Z3 primitives
-        self.verify = z3.Function("verify", z3.BitVecSort(self.N), syntactic.AtomSort, z3.BoolSort())
-        self.falsify = z3.Function("falsify", z3.BitVecSort(self.N), syntactic.AtomSort, z3.BoolSort())
-        self.possible = z3.Function("possible", z3.BitVecSort(self.N), z3.BoolSort())
-        self.imposition = z3.Function( # needed to encode Fine's semantics
+        # Merge settings with defaults
+        combined_settings = {}
+        combined_settings.update(self.DEFAULT_EXAMPLE_SETTINGS)
+        combined_settings.update(self.DEFAULT_GENERAL_SETTINGS)
+        combined_settings.update(settings)  # User settings override defaults
+        
+        # Initialize the parent LogosSemantics with combined_settings
+        super().__init__(combined_settings=combined_settings)
+        
+        # Define imposition-specific operations
+        self._define_imposition_operation()
+    
+    def _define_imposition_operation(self):
+        """Define the imposition operation as a Z3 function."""
+        # Define the imposition function for Fine's semantics
+        self.imposition = z3.Function(
             "imposition",
-            z3.BitVecSort(self.N), # state imposed
-            z3.BitVecSort(self.N), # world being imposed on
-            z3.BitVecSort(self.N), # outcome world
-            z3.BoolSort()     # bool
+            z3.BitVecSort(self.N),  # state imposed
+            z3.BitVecSort(self.N),  # world being imposed on
+            z3.BitVecSort(self.N),  # outcome world
+            z3.BoolSort()           # boolean result
         )
-        self.main_world = z3.BitVec("w", self.N)
-        self.main_point = {
-            "world" : self.main_world
-        }
 
         # Define the frame constraints
         x, y, z, u = z3.BitVecs("frame_x frame_y, frame_z, frame_u", self.N)
@@ -123,8 +135,8 @@ class ImpositionSemantics(SemanticDefaults):
         ]
 
         # Define invalidity conditions
-        self.premise_behavior = lambda premise: self.true_at(premise, self.main_point["world"])
-        self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point["world"])
+        self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
+        self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
 
     def compatible(self, bit_x, bit_y):
         """the fusion of bit_x and bit_y is possible
@@ -153,33 +165,11 @@ class ImpositionSemantics(SemanticDefaults):
 
     def is_alternative(self, outcome_world, state, eval_point):
         """Returns whether outcome_world is an alternative to eval_point via state"""
-        return self.imposition(state, eval_point, outcome_world)
+        eval_world = eval_point["world"]
+        return self.imposition(state, eval_world, outcome_world)
 
-    def true_at(self, sentence, eval_world):
-        """
-        derived_object is always a list, eval world a BitVector
-        derived_object is the third kind of derived_object
-        """
-        sentence_letter = sentence.sentence_letter
-        if sentence_letter is not None:
-            x = z3.BitVec("t_atom_x", self.N)
-            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
-        operator = sentence.operator
-        arguments = sentence.arguments or ()
-        return operator.true_at(*arguments, eval_world)
-
-    def false_at(self, sentence, eval_world):
-        """
-        derived_object is always a list, eval world a BitVector
-        derived_object is the third kind of derived_object
-        """
-        sentence_letter = sentence.sentence_letter
-        if sentence_letter is not None:
-            x = z3.BitVec("f_atom_x", self.N)
-            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
-        operator = sentence.operator
-        arguments = sentence.arguments or ()
-        return operator.false_at(*arguments, eval_world)
+    # Remove overridden true_at and false_at to use parent's implementation
+    # The parent LogosSemantics already handles eval_point correctly
 
     def extended_verify(self, state, sentence, eval_point):
         sentence_letter = sentence.sentence_letter

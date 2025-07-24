@@ -4,8 +4,6 @@ Counterfactual Subtheory for Logos Theory
 This subtheory implements counterfactual logical operators:
 - Counterfactual Conditional (□→)
 - Might Counterfactual (◇→)
-- Imposition (◦)
-- Might Imposition (◯)
 
 API:
     get_operators(): Returns dictionary of operator name -> operator class mappings
@@ -17,8 +15,6 @@ from .operators import (
     get_operators,
     CounterfactualOperator,
     MightCounterfactualOperator,
-    ImpositionOperator,
-    MightImpositionOperator
 )
 from .examples import get_examples
 
@@ -27,6 +23,4 @@ __all__ = [
     'get_examples',
     'CounterfactualOperator',
     'MightCounterfactualOperator',
-    'ImpositionOperator',
-    'MightImpositionOperator'
 ]

@@ -516,6 +516,11 @@ class BuildModule:
         z3.reset_params()
         z3.set_param(verbose=0)
         
+        # Apply translation if needed
+        dictionary = semantic_theory.get("dictionary", None)
+        if dictionary:
+            example_case = self.translate(example_case, dictionary)
+        
         # Create and solve the example
         example = BuildExample(self, semantic_theory, example_case)
         
