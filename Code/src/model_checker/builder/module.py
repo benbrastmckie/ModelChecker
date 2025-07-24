@@ -11,10 +11,16 @@ import concurrent.futures
 import time
 from concurrent.futures.thread import ThreadPoolExecutor
 import sys
+import threading
 
 # Relative imports
 from model_checker.builder.progress import Spinner
 from model_checker.syntactic import Syntax
+from model_checker.builder.serialize import (
+    serialize_semantic_theory,
+    deserialize_semantic_theory
+)
+
 
 class BuildModule:
     """Manages loading and executing model checking examples from Python modules.
@@ -380,6 +386,96 @@ class BuildModule:
                 f"N = {example_case[2]['N']}."
             )
         return success, run_time
+    
+    @staticmethod
+    def try_single_N_static(theory_name, theory_config, example_case):
+        """
+        Static version of try_single_N that can be pickled for multiprocessing.
+        
+        This method is designed to be called by ProcessPoolExecutor with
+        serialized data that can be pickled across process boundaries.
+        
+        Args:
+            theory_name: Name of the theory
+            theory_config: Serialized theory configuration
+            example_case: Example case with premises, conclusions, settings
+            
+        Returns:
+            tuple: (success, runtime)
+        """
+        from model_checker.model import ModelConstraints
+        from model_checker.syntactic import Syntax
+        from model_checker.builder.serialize import deserialize_semantic_theory
+        
+        # Reconstruct the semantic theory from serialized data
+        semantic_theory = deserialize_semantic_theory(theory_config)
+        
+        # Recreate the logic from try_single_N
+        premises, conclusions, settings = example_case
+        semantics_class = semantic_theory["semantics"]
+        model_structure_class = semantic_theory["model"]
+        operators = semantic_theory["operators"]
+        syntax = Syntax(premises, conclusions, operators)
+        # Different theories have different initialization patterns
+        if 'Logos' in semantics_class.__name__:
+            semantics = semantics_class(combined_settings=settings)
+        else:
+            semantics = semantics_class(settings)
+        model_constraints = ModelConstraints(
+            settings,
+            syntax,
+            semantics,
+            semantic_theory["proposition"],
+        )
+        model_structure = model_structure_class(model_constraints, settings)
+        run_time = model_structure.z3_model_runtime
+        success = run_time < settings['max_time']
+        
+        # Define color constants
+        GREEN = "\033[32m"
+        RED = "\033[31m"
+        RESET = "\033[0m"
+        
+        if success:
+            # Green color for successful runs
+            output = (
+                f"{GREEN}{model_structure.semantics.name} ({theory_name}):\n"
+                f"  RUN TIME = {run_time}, " +
+                f"MAX TIME = {settings['max_time']}, " +
+                f"N = {settings['N']}.{RESET}\n"
+            )
+            print(output, end='', flush=True)
+        else:
+            # Red color for timeouts
+            output = (
+                f"{RED}{model_structure.semantics.name} ({theory_name}): "
+                f"TIMED OUT\n  RUN TIME = {run_time}, " +
+                f"MAX TIME = {settings['max_time']}, " +
+                f"N = {example_case[2]['N']}.{RESET}\n"
+            )
+            print(output, end='', flush=True)
+        return success, run_time
+    
+    def try_single_N_serialized(self, theory_name, theory_config, example_case):
+        """
+        Wrapper for try_single_N that deserializes the semantic theory first.
+        
+        This method is designed to be called by ProcessPoolExecutor with
+        serialized data that can be pickled across process boundaries.
+        
+        Args:
+            theory_name: Name of the theory
+            theory_config: Serialized theory configuration
+            example_case: Example case with premises, conclusions, settings
+            
+        Returns:
+            tuple: (success, runtime)
+        """
+        # Reconstruct the semantic theory from serialized data
+        semantic_theory = deserialize_semantic_theory(theory_config)
+        
+        # Call the original method with reconstructed objects
+        return self.try_single_N(theory_name, semantic_theory, example_case)
 
     def compare_semantics(self, example_theory_tuples):
         """Compare different semantic theories by finding maximum model sizes.
@@ -387,6 +483,8 @@ class BuildModule:
         This method attempts to find the maximum model size (N) for each semantic theory
         by incrementally testing larger values of N until a timeout occurs. It runs the
         tests concurrently using a ProcessPoolExecutor for better performance.
+        
+        The method now uses serialization to avoid pickle errors with complex objects.
         
         Args:
             example_theory_tuples: List of tuples containing (theory_name, semantic_theory, example_case)
@@ -403,14 +501,25 @@ class BuildModule:
             # Initialize first run for each case
             futures = {}
             all_times = []
+            
             for case in example_theory_tuples:
                 theory_name, semantic_theory, (premises, conclusions, settings) = case
+                
+                # Serialize the semantic theory for pickling
+                theory_config = serialize_semantic_theory(theory_name, semantic_theory)
+                
+                # Create example case with copied settings
                 example_case = [premises, conclusions, settings.copy()]
                 active_cases[theory_name] = settings['N']  # Store initial N
                 all_times.append(settings['max_time'])
-                new_case = (theory_name, semantic_theory, example_case)
-                futures[executor.submit(self.try_single_N, *new_case)] = new_case
-            max_time = max(all_times)
+                
+                # Submit with serialized data
+                new_case = (theory_name, theory_config, example_case)
+                futures[executor.submit(BuildModule.try_single_N_static, *new_case)] = (
+                    theory_name, theory_config, example_case, semantic_theory
+                )
+            
+            max_time = max(all_times) if all_times else 1
                 
             while futures:
                 done, _ = concurrent.futures.wait(
@@ -418,26 +527,34 @@ class BuildModule:
                     return_when=concurrent.futures.FIRST_COMPLETED
                 )
                 for future in done:
-                    case = futures.pop(future)
-                    theory_name, semantic_theory, example_case = case
+                    theory_name, theory_config, example_case, semantic_theory = futures.pop(future)
                     max_time = example_case[2]['max_time']
                     
                     try:
                         success, runtime = future.result()
+                        
                         if success and runtime < max_time:
                             # Increment N and submit new case
                             example_case[2]['N'] = active_cases[theory_name] + 1
                             active_cases[theory_name] = example_case[2]['N']
-                            futures[executor.submit(self.try_single_N, *case)] = case
+                            
+                            # Submit with same serialized config but updated N
+                            new_case = (theory_name, theory_config, example_case)
+                            futures[executor.submit(BuildModule.try_single_N_static, *new_case)] = (
+                                theory_name, theory_config, example_case, semantic_theory
+                            )
                         else:
                             # Found max N for this case
                             results.append((theory_name, active_cases[theory_name] - 1))
+                            
                     except Exception as e:
+                        import traceback
                         print(
-                            f"\nERROR: {case[1]['semantics'].__name__} " +
-                            f"({case[0]}) for N = {example_case[2]['N']}."
-                            f"  {str(e)}"
+                            f"\nERROR: {semantic_theory['semantics'].__name__} "
+                            f"({theory_name}) for N = {example_case[2]['N']}. {str(e)}"
                         )
+                        # Log the error but try to continue with other theories
+                        results.append((theory_name, active_cases.get(theory_name, 0) - 1))
                         
         return results
     
