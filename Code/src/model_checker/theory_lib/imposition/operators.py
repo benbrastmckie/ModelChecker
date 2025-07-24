@@ -1,14 +1,18 @@
 import z3
 
-# Try installed package imports first
 from model_checker.utils import (
     ForAll,
     Exists,
 )
 from model_checker import syntactic
-from model_checker.theory_lib.default.operators import (
-    default_operators,
+
+# Import operator collections from logos subtheories for reuse
+from model_checker.theory_lib.logos.subtheories.extensional.operators import (
+    get_operators as get_extensional_operators,
     NegationOperator,
+)
+from model_checker.theory_lib.logos.subtheories.modal.operators import (
+    get_operators as get_modal_operators,
 )
 
 ##############################################################################
@@ -24,14 +28,15 @@ class ImpositionOperator(syntactic.Operator):
         N = sem.N
         x = z3.BitVec("t_imp_x", N)
         u = z3.BitVec("t_imp_u", N)
+        eval_world = eval_point["world"]
         return ForAll(
             [x, u],
             z3.Implies(
                 z3.And(
                     sem.extended_verify(x, leftarg, eval_point),
-                    sem.imposition(x, eval_point, u)
+                    sem.imposition(x, eval_world, u)
                 ),
-                sem.true_at(rightarg, u),
+                sem.true_at(rightarg, {"world": u}),
             ),
         )
     
@@ -40,12 +45,13 @@ class ImpositionOperator(syntactic.Operator):
         N = sem.N
         x = z3.BitVec("f_imp_x", N)
         u = z3.BitVec("f_imp_u", N)
+        eval_world = eval_point["world"]
         return Exists(
             [x, u],
             z3.And(
                 sem.extended_verify(x, leftarg, eval_point),
-                sem.imposition(x, eval_point, u),
-                sem.false_at(rightarg, u)),
+                sem.imposition(x, eval_world, u),
+                sem.false_at(rightarg, {"world": u})),
             )
 
     def extended_verify(self, state, leftarg, rightarg, eval_point):
@@ -58,10 +64,12 @@ class ImpositionOperator(syntactic.Operator):
 
     def find_verifiers_and_falsifiers(self, leftarg, rightarg, eval_point):
         evaluate = leftarg.proposition.model_structure.z3_model.evaluate
+        N = leftarg.proposition.model_structure.semantics.N
+        nullstate = z3.BitVecVal(0, N)  # The null state is always 0
         if bool(evaluate(self.true_at(leftarg, rightarg, eval_point))):
-            return {self.semantics.null_state}, set()
+            return {nullstate}, set()
         if bool(evaluate(self.false_at(leftarg, rightarg, eval_point))):
-            return set(), {self.semantics.null_state}
+            return set(), {nullstate}
         raise ValueError(
             f"{leftarg.name} {self.name} {rightarg.name} "
             f"is neither true nor false in the world {eval_point}."
@@ -108,17 +116,27 @@ class MightImpositionOperator(syntactic.DefinedOperator):
         alt_worlds = is_outcome(left_argument_verifiers, eval_point, model_structure)
         self.print_over_worlds(sentence_obj, eval_point, alt_worlds, indent_num, use_colors)
 
-# First, we need to filter out the conflicting operators from default_operators
-filtered_default_operators = syntactic.OperatorCollection()
-for op_name, op_class in default_operators.items():
-    # Skip the imposition operators from default theory as we have our own
-    if op_name not in ["\\imposition", "\\could"]:
-        filtered_default_operators.add_operator(op_class)
+def get_imposition_operators():
+    """Get imposition-specific operators."""
+    return {
+        '\\imposition': ImpositionOperator,
+        '\\could': MightImpositionOperator,
+    }
 
-imposition_operators = syntactic.OperatorCollection(
-    # primitive operators
-    ImpositionOperator,
-    # defined operators
-    MightImpositionOperator,
-)
-imposition_operators.add_operator(filtered_default_operators)
+def get_all_operators():
+    """Get all operators including inherited ones from logos."""
+    operators = {}
+    
+    # Import base operators from logos subtheories
+    operators.update(get_extensional_operators())  # Basic logical operators
+    operators.update(get_modal_operators())        # Modal operators
+    
+    # Add imposition-specific operators
+    operators.update(get_imposition_operators())
+    
+    return operators
+
+# Create operator collection for backward compatibility
+imposition_operators = syntactic.OperatorCollection()
+for op_name, op_class in get_all_operators().items():
+    imposition_operators.add_operator(op_class)

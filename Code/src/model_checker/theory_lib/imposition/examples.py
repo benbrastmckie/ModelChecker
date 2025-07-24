@@ -46,12 +46,15 @@ if current_dir not in sys.path:
 
 # Import imposition components
 from .semantic import ImpositionSemantics
-from .operators import imposition_operators
+from .operators import imposition_operators  # Use the OperatorCollection
+from . import Proposition, ModelStructure  # Now imported from logos via __init__.py
 
-# Import default theory components for compatibility
-from model_checker.theory_lib.default import (
-    Proposition,
-    ModelStructure,
+# Import logos theory components for comparison
+from model_checker.theory_lib.logos import (
+    LogosSemantics,
+    LogosProposition,
+    LogosModelStructure,
+    LogosOperatorRegistry,
 )
 
 
@@ -69,7 +72,7 @@ IM_CM_1_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 1,
-    'iterate' : 2,
+    'iterate' : 1,
     'expectation' : True,
 }
 IM_CM_1_example = [
@@ -775,17 +778,39 @@ general_settings = {
     "maximize": False,
 }
 
+# Create operator registry for logos theory with counterfactual operators
+logos_registry = LogosOperatorRegistry()
+logos_registry.load_subtheories(['extensional', 'modal', 'counterfactual'])
+
+# Translation dictionary from imposition to logos operators
+imposition_to_logos = {
+    "\\imposition": "\\boxright",     # Fine's must-counterfactual to logos must-counterfactual
+    "\\could": "\\diamondright",      # Fine's might-counterfactual to logos might-counterfactual
+}
+
 # Theory definition for imposition
 imposition_theory = {
     "semantics": ImpositionSemantics,
     "proposition": Proposition,
     "model": ModelStructure,
-    "operators": imposition_operators,
+    "operators": imposition_operators,  # Use the OperatorCollection
+    "dictionary": {}  # No translation needed when using imposition theory
 }
 
-# Specify which theories to use
+# Theory definition for logos
+logos_theory = {
+    "semantics": LogosSemantics,
+    "proposition": LogosProposition,
+    "model": LogosModelStructure,
+    "operators": logos_registry.get_operators(),  # Returns static dict
+    "dictionary": imposition_to_logos  # Translation from imposition to logos operators
+}
+
+# Specify which theories to use for comparison
+# NOTE: The translation dictionary will convert \imposition to \boxright for logos
 semantic_theories = {
     "Fine": imposition_theory,
+    "Brast-McKie": logos_theory,
 }
 
 # Default example range (curated subset for direct execution)
@@ -793,40 +818,40 @@ example_range = {
 
     # Countermodels
     "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    "IM_CM_2": IM_CM_2_example,   # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    "IM_CM_3": IM_CM_3_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
-    "IM_CM_4": IM_CM_4_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
-    "IM_CM_5": IM_CM_5_example,   # COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
-    "IM_CM_6": IM_CM_6_example,   # WEAKENED MONOTONICITY
-    "IM_CM_7": IM_CM_7_example,   # COUNTERFACTUAL CONTRAPOSITION
-    "IM_CM_8": IM_CM_8_example,   # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
-    "IM_CM_9": IM_CM_9_example,   # COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
-    "IM_CM_10": IM_CM_10_example, # TRANSITIVITY
-    "IM_CM_11": IM_CM_11_example, # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
-    "IM_CM_12": IM_CM_12_example, # COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
-    "IM_CM_13": IM_CM_13_example, # SOBEL SEQUENCE
-    "IM_CM_14": IM_CM_14_example, # SOBEL SEQUENCE WITH POSSIBILITY
-    "IM_CM_15": IM_CM_15_example, # COUNTERFACTUAL EXCLUDED MIDDLE
-    "IM_CM_16": IM_CM_16_example, # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
-    "IM_CM_17": IM_CM_17_example, # INTRODUCTION OF DISJUNCTIVE ANTECEDENT
-    "IM_CM_18": IM_CM_18_example, # MUST FACTIVITY
-    "IM_CM_19": IM_CM_19_example, # COUNTERFACTUAL EXPORTATION
-    "IM_CM_20": IM_CM_20_example, # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
-    "IM_CM_21": IM_CM_21_example, # COUNTERFACTUAL NEGATION DISTRIBUTION
-
-    # Theorems
-    "IM_TH_1": IM_TH_1_example,   # COUNTERFACTUAL IDENTITY
-    "IM_TH_2": IM_TH_2_example,   # COUNTERFACTUAL MODUS PONENS
-    "IM_TH_3": IM_TH_3_example,   # WEAKENED TRANSITIVITY
-    "IM_TH_4": IM_TH_4_example,   # ANTECEDENT DISJUNCTION TO CONJUNCTION
-    "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-    "IM_TH_6": IM_TH_6_example,   # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-    "IM_TH_7": IM_TH_7_example,   # COUNTERFACTUAL DISJUNCTION INTRODUCTION
-    "IM_TH_8": IM_TH_8_example,   # COUNTERFACTUAL CONSEQUENT WEAKENING
-    "IM_TH_9": IM_TH_9_example,   # COUNTERFACTUAL CONJUNCTION INTRODUCTION
-    "IM_TH_10": IM_TH_10_example, # MIGHT FACTIVITY
-    "IM_TH_11": IM_TH_11_example, # DEFINITION OF NEC
-    "IM_TH_12": IM_TH_12_example, # CONTRADICTION TO IMPOSSIBILITY
+    # "IM_CM_2": IM_CM_2_example,   # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # "IM_CM_3": IM_CM_3_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
+    # "IM_CM_4": IM_CM_4_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
+    # "IM_CM_5": IM_CM_5_example,   # COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
+    # "IM_CM_6": IM_CM_6_example,   # WEAKENED MONOTONICITY
+    # "IM_CM_7": IM_CM_7_example,   # COUNTERFACTUAL CONTRAPOSITION
+    # "IM_CM_8": IM_CM_8_example,   # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
+    # "IM_CM_9": IM_CM_9_example,   # COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
+    # "IM_CM_10": IM_CM_10_example, # TRANSITIVITY
+    # "IM_CM_11": IM_CM_11_example, # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
+    # "IM_CM_12": IM_CM_12_example, # COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
+    # "IM_CM_13": IM_CM_13_example, # SOBEL SEQUENCE
+    # "IM_CM_14": IM_CM_14_example, # SOBEL SEQUENCE WITH POSSIBILITY
+    # "IM_CM_15": IM_CM_15_example, # COUNTERFACTUAL EXCLUDED MIDDLE
+    # "IM_CM_16": IM_CM_16_example, # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
+    # "IM_CM_17": IM_CM_17_example, # INTRODUCTION OF DISJUNCTIVE ANTECEDENT
+    # "IM_CM_18": IM_CM_18_example, # MUST FACTIVITY
+    # "IM_CM_19": IM_CM_19_example, # COUNTERFACTUAL EXPORTATION
+    # "IM_CM_20": IM_CM_20_example, # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
+    # "IM_CM_21": IM_CM_21_example, # COUNTERFACTUAL NEGATION DISTRIBUTION
+    #
+    # # Theorems
+    # "IM_TH_1": IM_TH_1_example,   # COUNTERFACTUAL IDENTITY
+    # "IM_TH_2": IM_TH_2_example,   # COUNTERFACTUAL MODUS PONENS
+    # "IM_TH_3": IM_TH_3_example,   # WEAKENED TRANSITIVITY
+    # "IM_TH_4": IM_TH_4_example,   # ANTECEDENT DISJUNCTION TO CONJUNCTION
+    # "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    # "IM_TH_6": IM_TH_6_example,   # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    # "IM_TH_7": IM_TH_7_example,   # COUNTERFACTUAL DISJUNCTION INTRODUCTION
+    # "IM_TH_8": IM_TH_8_example,   # COUNTERFACTUAL CONSEQUENT WEAKENING
+    # "IM_TH_9": IM_TH_9_example,   # COUNTERFACTUAL CONJUNCTION INTRODUCTION
+    # "IM_TH_10": IM_TH_10_example, # MIGHT FACTIVITY
+    # "IM_TH_11": IM_TH_11_example, # DEFINITION OF NEC
+    # "IM_TH_12": IM_TH_12_example, # CONTRADICTION TO IMPOSSIBILITY
     
 }
 

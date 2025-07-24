@@ -52,20 +52,17 @@ from .semantic import (
     ImpositionSemantics,
 )
 
-# Import version utilities
-from model_checker.utils import get_model_checker_version
+# Import Proposition and ModelStructure from logos for reuse
+from model_checker.theory_lib.logos import (
+    LogosProposition as Proposition,
+    LogosModelStructure as ModelStructure,
+)
 
 # Import all operators
 from .operators import imposition_operators
 
-# Import version utilities
-from model_checker.utils import get_model_checker_version
-
 # Import iteration functionality
 from .iterate import ImpositionModelIterator, iterate_example
-
-# Import version utilities
-from model_checker.utils import get_model_checker_version
 
 # Define the public API of the package
 
@@ -73,6 +70,8 @@ from model_checker.utils import get_model_checker_version
 __model_checker_version__ = "0.9.20"  # ModelChecker version this was built with
 __all__ = [
     "ImpositionSemantics",    # Semantic framework with imposition operations
+    "Proposition",            # Reused from logos for consistency
+    "ModelStructure",         # Reused from logos for consistency
     "imposition_operators",   # Logical operators including imposition (↪) and could (⟂)
     "ImpositionModelIterator", # Iterator for finding multiple distinct models
     "iterate_example",        # Function to find multiple distinct models
