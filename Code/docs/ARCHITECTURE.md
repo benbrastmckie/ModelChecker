@@ -113,6 +113,7 @@ The `jupyter/` package provides interactive notebook capabilities:
 | `src/model_checker/README.md` | API architecture, components | Understanding architecture |
 | `src/model_checker/theory_lib/README.md` | Theory library overview | Adding/modifying theories |
 | `src/model_checker/jupyter/README.md` | Jupyter integration | Interactive usage |
+| `../Docs/TOOLS.md` | Advanced tools and features | Using iterate, maximize, debugging flags |
 
 ### Theory Documentation
 | Document Path | Description | When to Use |

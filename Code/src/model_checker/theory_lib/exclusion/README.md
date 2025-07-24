@@ -17,7 +17,8 @@ exclusion/
     ├── IMPLEMENTATION_STORY.md  # Journey through nine attempts to breakthrough
     ├── LESSONS_LEARNED.md       # Practical wisdom for semantic implementations
     ├── DATA.md                  # Test results and countermodel analysis
-    └── ITERATE.md               # Iterator support documentation
+    ├── ITERATE.md               # Iterator support documentation
+    └── SETTINGS.md              # Complete documentation of all exclusion theory settings
 
 theory_lib/                      # Parent directory
 ├── README.md                    # Theory library overview
@@ -298,6 +299,10 @@ if hasattr(model.model_structure, 'get_h_witness'):
 ./dev_cli.py -p -z examples.py --settings "{'iterate': 3}"
 ```
 
+### Settings and Configuration
+
+The exclusion theory supports numerous settings to control model generation, semantic constraints, and iteration behavior. For comprehensive documentation of all available settings, see **[docs/SETTINGS.md](docs/SETTINGS.md)**.
+
 ## Performance and Scalability
 
 ### Computational Characteristics
@@ -322,6 +327,7 @@ if hasattr(model.model_structure, 'get_h_witness'):
 - **[docs/TECHNICAL_REFERENCE.md](docs/TECHNICAL_REFERENCE.md)** - Complete API reference and implementation details  
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System design and witness predicate patterns
 - **[docs/ITERATE.md](docs/ITERATE.md)** - Guide to model iteration features
+- **[docs/SETTINGS.md](docs/SETTINGS.md)** - Complete documentation of all exclusion theory settings
 
 ### Educational Journey
 - **[docs/IMPLEMENTATION_STORY.md](docs/IMPLEMENTATION_STORY.md)** - Complete narrative through nine attempts to breakthrough

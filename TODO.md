@@ -4,36 +4,35 @@
 
 ### High Priority
 
-- [ ] logos
-  - [x] unit tests
-  - [ ] settings
-  - [ ] tools
-    - [ ] jupyter
-    - [ ] iteration
-    - [ ] minimizer
-    - [ ] maximizer
+- [ ] theory maintence
+- [ ] remove default
+  - [ ] confirm nothing is missing from logos
+  - [ ] remove
+  - [ ] update all references in docs
+- [ ] settings
+  - [ ] refactor
+  - [ ] warnings per theory when comparing
+  - [ ] update general docs
+  - [ ] docs for each theory
+- [ ] iteration
+  - [ ] test each theory
+  - [ ] docs for each theory
+  - [ ] report networkx not available
+  - [ ] move iterate components out of semantic.py
+- [ ] jupyter
+  - [ ] check examples
 - [.] theory metadata
   - [:] licence
     - [x] implement licensing
     - [ ] add licence content
-    - [ ] test
   - [:] versioning
-    - [x] theory versioning
-    - [x] model_checker versioning
-    - [ ] test
+    - [ ] theory versioning
+    - [ ] model_checker versioning
 - [ ] docs
-  - [ ] general
-    - [ ] installation
-    - [ ] development
-  - [ ] logos
-    - [ ] readme
-    - [ ] tests
-- [ ] clean up
-  - [ ]
-  - [ ] tests in main dir
-  - [ ] syntactic
-    - [ ] don't require outer parentheses
-    - [ ] remove TODOs from docs to be consistent
+  - [x] general
+    - [x] installation
+    - [x] development
+    - [ ] unify
 
 ### Refactoring
 
@@ -44,11 +43,9 @@
     - [ ] logos
     - [x] default
     - [x] exclusion
-  - [x] `jupyter/README.md`
-
-- [ ] `verify_model`
-  - [ ] merge from other branch
-  - [ ] move to `model.py`
+  - [ ] docs
+    - [ ] docs for each theory
+    - [x] `jupyter/README.md`
 
 - make subpackage
   - utils
@@ -57,39 +54,16 @@
   - model
   - print
 
-- [:] package unit tests
-  - [:] settings
-  - [:] builder
-  - [:] iterate
-  - [:] jupyter
+- unit tests
+  - test coverage
 
-- [.] iterator for theories
-  - [:] bimodal
-  - [:] default
-  - [:] exclusion
-  - [ ] imposition
-
-- [ ] builder cleanup
+- [ ] builder refactor
   - [ ] tools
     - [ ] maximize
     - [ ] minimize
-  - [ ] final polish
 
-- [ ] Logging improvements
-- [ ] Remove `save_to`
-
-- [ ] report issues
-  - [ ] report networkx not available
-  - [ ] move iterate components out of semantic.py
-
-- [ ] unit tests
-  - [ ] bimodal
-  - [ ] default
-  - [ ] exclusion
-  - [ ] imposition
-  - [ ] builder
-  - [ ] iterate
-  - [ ] jupyter
+- [ ] logging changes
+- [ ] refactor `save_to`
 
 ### Semantic Theories
 
@@ -103,34 +77,26 @@
     - [ ] develop bimodal lambda only strategy
   - [.] add iterator to bimodal theory
 
-- [ ] default semantic
-  - [ ] subject-matter
-  - [ ] relevance
-  - [ ] improve name: LoT
-  - [ ] unit test circular defs
-  - [ ] benchmarking
-  - [ ] make examples compare relevant alternatives
-
 - [.] exclusion semantics
-  - [.] build range of examples
+  - [x] build range of examples
   - [x] test frame constraints
-    - [ ] add constraint that exclusion is nonempty?
+    - [x] add constraint that exclusion is nonempty?
     - [ ] go from complete lattice to boolean lattice
-  - [ ] test settings
+  - [x] test settings
   - [.] compare with bilateral semantics
   - [.] test theorems proven in the paper
     - [ ] do the proofs require all the axioms?
     - [x] are any of the other axioms derivable?
   - [.] documentation and cleanup
-  - [.] unit tests
+  - [x] unit tests
     - [x] setup tests
   - [ ] run comparisons with bilateral semantics
     - [ ] max atomic complexity `N` before timeout
     - [ ] max sentence/atomic complexity before too many constraints to build
-  - [ ] add comparison
+  - [x] add comparison
 
-- imposition semantics
-  - test comparison and iterator
+- [x] imposition semantics
+  - [x] test comparison and iterator
 
 ### Documentation
 

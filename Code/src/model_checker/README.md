@@ -99,6 +99,16 @@ result = model.check_formula("(\\Box A \\rightarrow A)")
 print(f"Formula is {'valid' if result else 'invalid'}")
 ```
 
+### Advanced Features
+
+For comprehensive documentation on advanced features including:
+- The iterate setting for finding multiple models
+- Comparing multiple theories
+- Using the maximize flag for performance testing
+- Debugging and output flags (-i, -p, -z, -s)
+
+See [Docs/TOOLS.md](../../../Docs/TOOLS.md)
+
 ### Object Hierarchy
 
 The object hierarchy for model checking flows as follows:
