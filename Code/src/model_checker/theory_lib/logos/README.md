@@ -277,6 +277,18 @@ conclusion = "(\\Box q \\wedge r)"
 result = model.check_validity(premises, [conclusion])
 ```
 
+## Settings
+
+The logos theory supports extensive configuration through settings. For a complete reference of all available settings and their impacts, see [docs/SETTINGS.md](docs/SETTINGS.md).
+
+Key settings include:
+- **N**: Number of atomic states (default: 16)
+- **contingent**: Require contingent propositions (default: True)
+- **non_empty**: Prevent empty verifier/falsifier sets (default: True)
+- **iterate**: Find multiple models (default: False)
+
+For general settings that apply across all theories, see the [main settings documentation](../../settings/README.md).
+
 ## Testing
 
 The Logos theory implements a comprehensive testing framework covering both implementation-level unit tests and logical validation through examples.

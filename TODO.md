@@ -4,17 +4,25 @@
 
 ### High Priority
 
-- [ ] theory maintence
+- [ ] theory maintenance
+  - [ ] improve `CLAUDE.md`
+  - [ ] add `MAINTENANCE.md`
+    - [ ] what docs to include in `docs/` for each theory
+      - [ ] `SETTINGS.md`
+      - [ ] `ITERATE.md`
+      - [ ] `ARCHITECTURE.md`
+      - [ ] `USER_GUIDE.md`
+      - [ ] `README.md`
 - [ ] remove default
   - [ ] confirm nothing is missing from logos
   - [ ] remove
   - [ ] update all references in docs
 - [ ] settings
-  - [ ] refactor
-  - [ ] warnings per theory when comparing
+  - [x] refactor
+  - [x] warnings per theory when comparing
   - [ ] update general docs
   - [ ] docs for each theory
-- [ ] iteration
+- [ ] iterate
   - [ ] test each theory
   - [ ] docs for each theory
   - [ ] report networkx not available
@@ -95,37 +103,10 @@
     - [ ] max sentence/atomic complexity before too many constraints to build
   - [x] add comparison
 
-- [x] imposition semantics
-  - [x] test comparison and iterator
-
 ### Documentation
 
 - [ ] overhaul
-  - [ ] `tests/README.md`
-  - [:] `README.md`
-    - [ ] reorganize
-  - [ ] revise `iterate/README.md`
-  - [ ] revise `builder/README.md`
-  - [ ] revise `theory_lib/README.md`
-  - [ ] revise `model_checker/README.md`
-  - [ ] wiki
-- [:] theories
-  - exclusion
-    - docstrings
-    - [.] readme
-    - design
-  - imposition
-    - docstrings
-    - readme
-    - design
-  - [x] default
-    - [x] docstrings
-    - [x] readme
-    - [x] design
-  - [x] bimodal
-    - [x] docstrings
-    - [x] readme
-    - [x] design
+- [ ] wiki
 - [:] code base
   - [ ] wiki
     - [ ] methodology
@@ -138,15 +119,9 @@
     - [x] `syntactic.py`
     - [x] `model.py`
     - [x] `utils.py`
-- [x] clean up project directory
+- [:] clean up project directory
   - [x] delete old
-  - [x] decapitalize directories
-
-### Z3 Research
-
-- [ ] create Z3 issue
-- [ ] lambda worlds
-
+  - [ ] decapitalize directories
 
 
 
@@ -156,6 +131,26 @@
 
 ### Implementation
 
+- [x] documentation
+  - [x] theories
+    - [x] exclusion
+      - [x] docstrings
+      - [x] readme
+      - [x] design
+    - [x] imposition
+      - [x] docstrings
+      - [x] readme
+      - [x] design
+    - [x] default
+      - [x] docstrings
+      - [x] readme
+      - [x] design
+    - [x] bimodal
+      - [x] docstrings
+      - [x] readme
+      - [x] design
+- [x] imposition semantics
+  - [x] test comparison and iterator
 - [x] the Operator class itself
   - [x] attribute for arity
   - [x] attribute for name

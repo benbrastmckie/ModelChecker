@@ -48,13 +48,14 @@ class BuildExample:
         model_structure: The resulting model structure after solving
     """
 
-    def __init__(self, build_module, semantic_theory, example_case):
+    def __init__(self, build_module, semantic_theory, example_case, theory_name=None):
         """Initialize a model checking example.
         
         Args:
             build_module: Parent BuildModule instance
             semantic_theory: Dictionary containing the semantic theory implementation
             example_case: List containing [premises, conclusions, settings]
+            theory_name: Name of the theory for warning context
             
         Raises:
             TypeError: If parameters are invalid
@@ -82,15 +83,22 @@ class BuildExample:
         # Validate and extract components from example_case
         self.premises, self.conclusions, self.example_settings = validate_example_case(example_case)
         
-        # Create settings manager for this theory
+        # Determine if we're in comparison mode
+        is_comparison = len(build_module.semantic_theories) > 1
+        
+        # Create settings manager for this theory with context
         self.settings_manager = SettingsManager(
             {"semantics": self.semantics},
-            build_module.general_settings
+            build_module.general_settings,
+            theory_name=theory_name,
+            is_comparison=is_comparison
         )
         
-        # Get complete settings
+        # Get complete settings with theory-aware validation
+        # Use raw_general_settings if available for proper validation
+        raw_general = getattr(build_module, 'raw_general_settings', build_module.general_settings)
         self.settings = self.settings_manager.get_complete_settings(
-            build_module.general_settings,
+            raw_general,
             self.example_settings,
             build_module.module_flags
         )

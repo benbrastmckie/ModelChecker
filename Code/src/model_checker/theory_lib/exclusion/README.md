@@ -303,6 +303,14 @@ if hasattr(model.model_structure, 'get_h_witness'):
 
 The exclusion theory supports numerous settings to control model generation, semantic constraints, and iteration behavior. For comprehensive documentation of all available settings, see **[docs/SETTINGS.md](docs/SETTINGS.md)**.
 
+Key settings include:
+- **possible**: Enable/disable possibility constraints (default: False)
+- **fusion_closure**: Enable fusion closure constraints (default: False)
+- **iterate**: Number of models to find (default: 1)
+- **N**: Number of atomic states (default: 3)
+
+For general settings that apply across all theories, see the [main settings documentation](../../settings/README.md).
+
 ## Performance and Scalability
 
 ### Computational Characteristics

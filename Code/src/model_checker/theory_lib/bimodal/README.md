@@ -99,6 +99,10 @@ The `BimodalStructure` class manages the model structure extracted from a Z3 mod
 
 The bimodal theory provides a framework for working with temporal and modal operators in combination. This section explains how to use the theory's main components and run examples.
 
+For comprehensive documentation of all available settings including theory-specific options like `M` (time points) and `align_vertically`, see **[docs/SETTINGS.md](docs/SETTINGS.md)**.
+
+For general settings that apply across all theories, see the [main settings documentation](../../settings/README.md).
+
 ### Settings
 
 The bimodal theory supports the following configurable settings:

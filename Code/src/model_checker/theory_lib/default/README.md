@@ -89,7 +89,9 @@ The default theory explicitly omits settings that aren't applicable to it, follo
 
 If you provide command-line flags for settings that don't exist in a theory (like using `-e` for 'non_empty' with the default theory), you'll see a warning that the flag doesn't correspond to any known setting, but the system will continue running normally.
 
-For more information about how the settings system handles theory-specific settings, please see the [Settings Documentation](../../settings/README.md).
+For comprehensive documentation of all settings available in the default theory, see **[docs/SETTINGS.md](docs/SETTINGS.md)**.
+
+For general information about how the settings system handles theory-specific settings, please see the [Main Settings Documentation](../../settings/README.md).
 
 ### Example Structure
 

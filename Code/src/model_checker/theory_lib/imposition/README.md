@@ -1,17 +1,35 @@
-# Model-Checker Instructions
+# Imposition Theory
 
-> TODO: expand these instructions
+The imposition theory implements Kit Fine's imposition semantics for counterfactual reasoning. This theory provides an alternative approach to counterfactuals through the imposition operation, developed as a separate theory for comparison with the default theory's hyperintensional semantics.
+
+## Overview
+
+The imposition theory extends logos semantics with Fine's distinctive counterfactual framework based on the imposition operation. This enables sophisticated reasoning about alternative worlds and counterfactual scenarios through a different semantic approach than the default theory.
 
 ## Contents
 
-This package includes the following templates:
-  - `README.md` to document usage and changes.
-  - `__init__.py` to expose definitions.
-  - `examples.py` defines a number of examples to test.
-  - `operators.py` defines the primitive and derived operators.
-  - `semantic.py` defines the default semantics for the operators included.
+This package includes the following components:
+  - `README.md` - This documentation file
+  - `__init__.py` - Public API and theory registration
+  - `examples.py` - Test examples for counterfactual reasoning
+  - `operators.py` - Imposition and counterfactual operators
+  - `semantic.py` - Core imposition semantics implementation
+  - `docs/` - Additional documentation
+    - `SETTINGS.md` - Complete settings reference
   
-### Accessing Examples
+## Settings
+
+The imposition theory supports various settings to control model generation and semantic constraints. For comprehensive documentation of all available settings, see **[docs/SETTINGS.md](docs/SETTINGS.md)**.
+
+Key settings include:
+- **N**: Number of atomic states (default: 3)
+- **contingent**: Require contingent propositions (default: False)
+- **non_empty**: Prevent empty verifier/falsifier sets (default: False)
+- **max_time**: Solver timeout in seconds (default: 1)
+
+For general settings that apply across all theories, see the [main settings documentation](../../settings/README.md).
+
+## Accessing Examples
 
 You can access examples from this theory using the parent module's functions:
 
@@ -34,9 +52,40 @@ theories = get_semantic_theories('imposition')
 
 ## Basic Usage
 
-> TO BE CONTINUED...
+```python
+from model_checker import BuildExample, get_theory
+
+# Load the imposition theory
+theory = get_theory("imposition")
+
+# Create a model
+model = BuildExample("imposition_example", theory,
+    premises=['A \\imposition B'],
+    conclusions=['A \\boxright B'],
+    settings={'N': 3}
+)
+
+# Check validity
+result = model.check_formula()
+```
+
+## Comparison with Default Theory
+
+While both theories handle counterfactuals, they differ in approach:
+- **Default theory**: Uses alternative world semantics
+- **Imposition theory**: Uses Fine's imposition operation
+
+This allows for direct comparison of the two semantic frameworks.
 
 ## Testing
 
-Run `pytest` from the project directory to quickly evaluate whether the examples included in `examples.py` return the expected result.
+Run `pytest` from the project directory to evaluate the examples included in `examples.py`:
+
+```bash
+# Run all imposition tests
+python test_theories.py --theories imposition
+
+# Run specific test
+python test_theories.py --theories imposition --examples
+```
 

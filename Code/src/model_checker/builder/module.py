@@ -66,16 +66,24 @@ class BuildModule:
         self.semantic_theories = self._load_attribute("semantic_theories")
         self.example_range = self._load_attribute("example_range")
 
-        # Initialize settings manager with first semantic theory
-        first_theory = next(iter(self.semantic_theories.values()))
-        self.settings_manager = SettingsManager(first_theory, DEFAULT_GENERAL_SETTINGS)
+        # Store raw settings - validation happens per-theory in BuildExample
+        self.raw_general_settings = getattr(self.module, "general_settings", None)
         
-        # Load general settings
-        user_general_settings = getattr(self.module, "general_settings", None)
-        self.general_settings = self.settings_manager.validate_general_settings(user_general_settings)
-        
-        # Apply flag overrides for general settings
-        self.general_settings = self.settings_manager.apply_flag_overrides(self.general_settings, self.module_flags)
+        # For backward compatibility, create general_settings dict
+        # We need this for attributes and existing code that expects it
+        if self.raw_general_settings is not None:
+            # Use first theory's defaults as baseline (preserving existing behavior)
+            first_theory = next(iter(self.semantic_theories.values()))
+            # Create a temporary manager just to get the merged defaults
+            # Don't print warnings during this setup phase
+            import contextlib
+            import io
+            with contextlib.redirect_stdout(io.StringIO()):
+                temp_manager = SettingsManager(first_theory, DEFAULT_GENERAL_SETTINGS)
+                self.general_settings = temp_manager.validate_general_settings(self.raw_general_settings)
+                self.general_settings = temp_manager.apply_flag_overrides(self.general_settings, self.module_flags)
+        else:
+            self.general_settings = DEFAULT_GENERAL_SETTINGS.copy()
         
         # Set attributes for backward compatibility
         for key, value in self.general_settings.items():
@@ -332,7 +340,7 @@ class BuildModule:
         spinner.start()
         
         try:
-            example = BuildExample(self, semantic_theory, example_case)
+            example = BuildExample(self, semantic_theory, example_case, theory_name)
             return example
         finally:
             spinner.stop()
@@ -639,7 +647,7 @@ class BuildModule:
             example_case = self.translate(example_case, dictionary)
         
         # Create and solve the example
-        example = BuildExample(self, semantic_theory, example_case)
+        example = BuildExample(self, semantic_theory, example_case, theory_name)
         
         # Check if a model was found
         if not example.model_structure.z3_model_status:
