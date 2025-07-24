@@ -355,8 +355,8 @@ examples = load_examples("default")
 # Group examples by category
 categories = get_example_categories(examples)
 
-# Use an example
-example = examples["example_name"]
+# Use an example (e.g., counterfactual theorem)
+example = examples["CF_TH_1"]  # Counterfactual theorem from logos
 premises, conclusions, settings = example
 ```
 

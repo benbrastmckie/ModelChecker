@@ -16,32 +16,6 @@ class TestLogosIterator:
     
     def test_basic_iteration(self):
         """Test that iteration works with logos theory."""
-        # Create a mock build module
-        mock_module = Mock()
-        mock_module.general_settings = {
-            'N': 2,
-            'contingent': False,
-            'disjoint': False,
-            'non_empty': True,
-            'non_null': True,
-            'print_constraints': False,
-            'save_output': False,
-            'print_impossible': False,
-            'print_z3': False,
-            'max_time': 1
-        }
-        mock_module.module_flags = SimpleNamespace(
-            contingent=False,
-            disjoint=False,
-            non_empty=False,
-            non_null=False,
-            print_constraints=False,
-            save_output=False,
-            print_impossible=False,
-            print_z3=False,
-            maximize=False
-        )
-        
         # Create operator registry
         logos_registry = LogosOperatorRegistry()
         logos_registry.load_subtheories(['extensional', 'modal'])
@@ -53,6 +27,37 @@ class TestLogosIterator:
             "model": LogosModelStructure,
             "operators": logos_registry.get_operators(),
         }
+        
+        # Create a mock build module with proper attributes
+        mock_module = Mock()
+        mock_module.semantic_theories = {"logos": semantic_theory}
+        
+        # Set up general_settings as a real dictionary (not a Mock)
+        general_settings = {
+            'N': 2,
+            'contingent': False,
+            'disjoint': False,
+            'non_empty': True,
+            'non_null': True,
+            'print_constraints': False,
+            'save_output': False,
+            'print_impossible': False,
+            'print_z3': False,
+            'max_time': 1
+        }
+        mock_module.general_settings = general_settings
+        mock_module.raw_general_settings = general_settings  # Also set this
+        mock_module.module_flags = SimpleNamespace(
+            contingent=False,
+            disjoint=False,
+            non_empty=False,
+            non_null=False,
+            print_constraints=False,
+            save_output=False,
+            print_impossible=False,
+            print_z3=False,
+            maximize=False
+        )
         
         # Create example case
         example_case = [
@@ -71,32 +76,6 @@ class TestLogosIterator:
         
     def test_iterate_example_function(self):
         """Test the iterate_example convenience function."""
-        # Create a mock build module
-        mock_module = Mock()
-        mock_module.general_settings = {
-            'N': 2,
-            'contingent': False,
-            'disjoint': False,
-            'non_empty': True,
-            'non_null': True,
-            'print_constraints': False,
-            'save_output': False,
-            'print_impossible': False,
-            'print_z3': False,
-            'max_time': 1
-        }
-        mock_module.module_flags = SimpleNamespace(
-            contingent=False,
-            disjoint=False,
-            non_empty=False,
-            non_null=False,
-            print_constraints=False,
-            save_output=False,
-            print_impossible=False,
-            print_z3=False,
-            maximize=False
-        )
-        
         # Create operator registry
         logos_registry = LogosOperatorRegistry()
         logos_registry.load_subtheories(['extensional'])
@@ -108,6 +87,37 @@ class TestLogosIterator:
             "model": LogosModelStructure,
             "operators": logos_registry.get_operators(),
         }
+        
+        # Create a mock build module with proper attributes
+        mock_module = Mock()
+        mock_module.semantic_theories = {"logos": semantic_theory}
+        
+        # Set up general_settings as a real dictionary (not a Mock)
+        general_settings = {
+            'N': 2,
+            'contingent': False,
+            'disjoint': False,
+            'non_empty': True,
+            'non_null': True,
+            'print_constraints': False,
+            'save_output': False,
+            'print_impossible': False,
+            'print_z3': False,
+            'max_time': 1
+        }
+        mock_module.general_settings = general_settings
+        mock_module.raw_general_settings = general_settings  # Also set this
+        mock_module.module_flags = SimpleNamespace(
+            contingent=False,
+            disjoint=False,
+            non_empty=False,
+            non_null=False,
+            print_constraints=False,
+            save_output=False,
+            print_impossible=False,
+            print_z3=False,
+            maximize=False
+        )
         
         # Create example case - use a formula that should have multiple models
         example_case = [
@@ -128,32 +138,6 @@ class TestLogosIterator:
     
     def test_difference_detection(self):
         """Test that differences are properly detected between models."""
-        # Create a mock build module
-        mock_module = Mock()
-        mock_module.general_settings = {
-            'N': 2,
-            'contingent': False,
-            'disjoint': False,
-            'non_empty': True,
-            'non_null': True,
-            'print_constraints': False,
-            'save_output': False,
-            'print_impossible': False,
-            'print_z3': False,
-            'max_time': 1
-        }
-        mock_module.module_flags = SimpleNamespace(
-            contingent=False,
-            disjoint=False,
-            non_empty=False,
-            non_null=False,
-            print_constraints=False,
-            save_output=False,
-            print_impossible=False,
-            print_z3=False,
-            maximize=False
-        )
-        
         # Create operator registry
         logos_registry = LogosOperatorRegistry()
         logos_registry.load_subtheories(['extensional'])
@@ -165,6 +149,37 @@ class TestLogosIterator:
             "model": LogosModelStructure,
             "operators": logos_registry.get_operators(),
         }
+        
+        # Create a mock build module with proper attributes
+        mock_module = Mock()
+        mock_module.semantic_theories = {"logos": semantic_theory}
+        
+        # Set up general_settings as a real dictionary (not a Mock)
+        general_settings = {
+            'N': 2,
+            'contingent': False,
+            'disjoint': False,
+            'non_empty': True,
+            'non_null': True,
+            'print_constraints': False,
+            'save_output': False,
+            'print_impossible': False,
+            'print_z3': False,
+            'max_time': 1
+        }
+        mock_module.general_settings = general_settings
+        mock_module.raw_general_settings = general_settings  # Also set this
+        mock_module.module_flags = SimpleNamespace(
+            contingent=False,
+            disjoint=False,
+            non_empty=False,
+            non_null=False,
+            print_constraints=False,
+            save_output=False,
+            print_impossible=False,
+            print_z3=False,
+            maximize=False
+        )
         
         # Create example case
         example_case = [

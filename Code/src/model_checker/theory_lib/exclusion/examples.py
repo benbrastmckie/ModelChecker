@@ -53,13 +53,8 @@ from .operators import witness_operators
 # Import custom structure that includes witness printing
 from .semantic import WitnessStructure
 
-# Import default theory for comparison
-from model_checker.theory_lib.default import (
-    Semantics,
-    Proposition,
-    ModelStructure,
-    default_operators,
-)
+# NOTE: The default theory has been removed.
+# For comparison with standard bilateral semantics, use the logos theory instead.
 
 # Import logos theory components for comparison
 from model_checker.theory_lib.logos import (
@@ -952,29 +947,15 @@ logos_theory = {
     "dictionary": exclusion_to_logos  # Translation from exclusion to logos operators
 }
 
-# Translation dictionary from exclusion to default classical operators
-exclusion_to_default = {
-    "\\func_unineg": "\\neg",
-    "\\uniwedge": "\\wedge",
-    "\\univee": "\\vee",
-    "\\uniequiv": "\\equiv",
-}
-
-# Theory definition for default (classical bilateral semantics)
-default_theory = {
-    "semantics": Semantics,
-    "proposition": Proposition,
-    "model": ModelStructure,
-    "operators": default_operators,
-    "dictionary": exclusion_to_default,
-}
+# NOTE: The default theory has been removed. 
+# For comparison with classical bilateral semantics, use the logos theory instead.
 
 # Specify which theories to use for comparison
 # NOTE: The translation dictionaries will convert unilateral operators to bilateral equivalents
 semantic_theories = {
     "BernardChampollion": unilateral_theory,  # Unilateral exclusion semantics
     "Brast-McKie": logos_theory,               # Bilateral hyperintensional semantics
-    # "Classical": default_theory,              # Uncomment to also compare with classical logic
+    # "Classical": logos_theory,              # Use logos for classical bilateral comparison
 }
 
 # Default example range (curated subset for direct execution)

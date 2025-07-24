@@ -1,18 +1,18 @@
 """
 1. To run all tests in the file run from your PROJECT_DIRECTORY:
-pytest PROJECT_DIRECTORY/test/test_default.py
+pytest PROJECT_DIRECTORY/test/test_imposition.py
 
 2. To run a specific example test by name:
-pytest PROJECT_DIRECTORY/test/test_default.py -k "example_name"
+pytest PROJECT_DIRECTORY/test/test_imposition.py -k "example_name"
 
 3. To see more detailed output including print statements:
-pytest -v PROJECT_DIRECTORY/test/test_default.py
+pytest -v PROJECT_DIRECTORY/test/test_imposition.py
 
 4. To see the most detailed output with full traceback:
-pytest -vv PROJECT_DIRECTORY/test/test_default.py
+pytest -vv PROJECT_DIRECTORY/test/test_imposition.py
 
 5. To see test progress in real-time:
-pytest -v PROJECT_DIRECTORY/test/test_default.py --capture=no
+pytest -v PROJECT_DIRECTORY/test/test_imposition.py --capture=no
 """
 
 import pytest
@@ -21,9 +21,9 @@ from model_checker import (
     ModelConstraints,
     Syntax,
 )
-from model_checker.theory_lib.default import (
-    ModelStructure,
-    Proposition,
+from model_checker.theory_lib.logos import (
+    LogosModelStructure as ModelStructure,
+    LogosProposition as Proposition,
 )
 from model_checker.theory_lib.imposition import (
     ImpositionSemantics,

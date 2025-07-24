@@ -240,23 +240,23 @@ from model_checker.theory_lib import get_examples
 theory = get_theory("logos")  # or "exclusion", "imposition", "bimodal"
 
 # Get examples from the theory
-examples = get_examples("default")
+examples = get_examples("logos")
 
-# Create a model from an example
-from model_checker import BuildExample
-model = BuildExample("example_name", theory)
+# Example: Check a counterfactual formula
+from model_checker import check_formula
+result = check_formula("(A \\boxright B)", theory_name="logos")
+print(f"Valid: {result}")
 
-# Check a formula
-result = model.check_formula("\\Box p -> p")
-print(result)
+# Or check with premises
+result = check_formula("B", premises=["A", "(A \\boxright B)"], theory_name="logos")
 ```
 
 ### Theory Selection and Configuration
 
 ```python
-from model_checker import BuildExample
+from model_checker import check_formula
 
-# Load with specific settings
+# Check a formula with specific settings
 settings = {
     "N": 4,               # Number of atomic states
     "contingent": True,   # Require contingent valuations
@@ -265,8 +265,12 @@ settings = {
     "max_time": 5         # Maximum solving time (seconds)
 }
 
-# Build example with theory and settings
-model = BuildExample("example_name", get_theory("logos"), settings=settings)
+# Check modal formula with custom settings
+result = check_formula("\\Box p -> p", theory_name="logos", settings=settings)
+
+# Or load specific subtheories
+from model_checker.theory_lib import logos
+theory = logos.get_theory(['extensional', 'counterfactual'])  # Only load specific subtheories
 ```
 
 ### Comparing Theories
@@ -278,7 +282,7 @@ from model_checker import BuildModule
 module = BuildModule("comparison")
 
 # Add theories to compare
-module.add_theory("default")
+module.add_theory("logos")
 module.add_theory("exclusion")
 
 # Run tests across theories
@@ -351,7 +355,7 @@ Follow these steps to develop and contribute a new theory to the ModelChecker pr
    ```
 
 3. **Generate a Template Project**:
-   Choose the existing `THEORY_NAME` that most closely resembles your intended theory (e.g., default, bimodal, exclusion, imposition) and use it as a template:
+   Choose the existing `THEORY_NAME` that most closely resembles your intended theory (e.g., logos, bimodal, exclusion, imposition) and use it as a template:
    ```bash
    model-checker -l THEORY_NAME
    ```
@@ -389,7 +393,7 @@ Follow these steps to develop and contribute a new theory to the ModelChecker pr
    Add your theory to the `__all__` list in `Code/src/model_checker/theory_lib/__init__.py`:
    ```python
    __all__ = [
-       "default",
+       "logos",
        "exclusion",
        "imposition",
        "bimodal",
@@ -507,9 +511,10 @@ class MySemantics(SemanticDefaults):
 For detailed information about the settings system and how theory-specific settings are managed, see the [Settings Documentation](../settings/README.md).
 You can also find theory specific settings here:
 
-- [Default Theory Settings](theory_lib/default/README.md#default-theory-settings)
-- [Bimodal Theory Settings](theory_lib/bimodal/README.md#bimodal-specific-settings)
-- [Exclusion Theory Settings](theory_lib/exclusion/README.md#theory-specific-settings)
+- [Logos Theory Settings](logos/docs/SETTINGS.md)
+- [Bimodal Theory Settings](bimodal/docs/SETTINGS.md)
+- [Exclusion Theory Settings](exclusion/docs/SETTINGS.md)
+- [Imposition Theory Settings](imposition/docs/SETTINGS.md)
 
 ### Operator Constraints and Syntax Rules
 

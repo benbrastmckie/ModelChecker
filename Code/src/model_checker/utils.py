@@ -549,9 +549,6 @@ def get_theory(name, semantic_theories=None):
         except ValueError as e:
             raise ValueError(f"Theory '{name}' not found in theory_lib") from e
     
-    # Handle special case for default theory which may have a different name
-    if name == "default" and "default" not in semantic_theories and "Brast-McKie" in semantic_theories:
-        return semantic_theories["Brast-McKie"]
     
     # For theories with only one variant, return that variant regardless of name
     if len(semantic_theories) == 1:

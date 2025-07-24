@@ -14,10 +14,10 @@ Key Features:
     - Jupyter notebook integration
 
 Basic Usage:
-    >>> from model_checker import BuildExample, get_theory
-    >>> theory = get_theory("logos")
-    >>> model = BuildExample("simple_modal", theory)
-    >>> model.check_formula("\\Box p -> p")
+    >>> from model_checker import check_formula
+    >>> # Check if a counterfactual formula is valid
+    >>> result = check_formula("(A \\boxright B)", theory_name="logos")
+    >>> print(f"Valid: {result}")
 
 For more examples and detailed documentation, please see:
 https://github.com/benbrastmckie/ModelChecker

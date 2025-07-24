@@ -120,12 +120,17 @@ module.run_examples()
 # Or run a comparison across different semantic theories
 module.run_comparison()
 
-# Or run a single example
+# Or run a single example (e.g., a counterfactual theorem)
+# Get an example from the logos theory
+from model_checker.theory_lib import get_examples
+logos_examples = get_examples("logos")
+cf_example = logos_examples["CF_TH_1"]  # Counterfactual theorem 1
+
 example = module.run_model_check(
-    example_case,
-    example_name="Example 1",
-    theory_name="Default",
-    semantic_theory=module.semantic_theories["default"]
+    cf_example,
+    example_name="CF_TH_1",
+    theory_name="logos",
+    semantic_theory=module.semantic_theories["logos"]
 )
 
 # Get and display results
@@ -137,17 +142,17 @@ print(f"Runtime: {result['runtime']} seconds")
 ### Finding Multiple Models
 
 ```python
-from model_checker import BuildExample, get_theory
-from model_checker.builder.iterate import ModelIterator
-
-# Create a model with the default theory
-theory = get_theory("logos")
-example = BuildExample("simple_modal", theory, settings={"iterate": 3, "max_time": 5})
+# Continuing from the previous example where we created a BuildExample
+# Assume we have: module = BuildModule(module_flags)
+# And we ran: example = module.run_model_check(...)
 
 # Check if the model is satisfiable
 if example.model_structure.z3_model_status:
+    # Import the appropriate iterator for the theory
+    from model_checker.theory_lib.logos.iterate import LogosModelIterator
+    
     # Create an iterator to find multiple models
-    iterator = ModelIterator(example)
+    iterator = LogosModelIterator(example)
     
     # Find up to 3 distinct models
     models = iterator.iterate()

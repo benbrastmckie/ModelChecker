@@ -11,7 +11,7 @@ Each theory implements:
 - Example models demonstrating the theory's principles
 
 Available Theories:
-- default: Standard bilateral truthmaker semantics
+- logos: Standard bilateral truthmaker semantics with modular subtheories
 - exclusion: Unilateral semantics with exclusion relations 
 - imposition: Semantics with imposition relations
 - bimodal: Bimodal semantics for counterfactuals and imposition (experimental)
@@ -24,19 +24,23 @@ The module supports theory extension through a central registry. To add a new th
 
 Usage Examples:
     # Import a specific theory
-    from model_checker.theory_lib import default
+    from model_checker.theory_lib import logos
     
-    # Use with BuildExample constructor
-    from model_checker import BuildExample
-    model = BuildExample("simple_modal", default)
+    # Get a theory configuration
+    theory = logos.get_theory()
     
     # Access examples from a theory
     from model_checker.theory_lib import get_examples
-    examples = get_examples('default')
+    examples = get_examples('logos')
+    cf_theorem = examples['CF_TH_1']  # Counterfactual theorem
+    
+    # Use with model checking via check_formula
+    from model_checker import check_formula
+    result = check_formula("(A \\boxright B)", theory_name="logos")
     
     # Get test examples for unit testing
     from model_checker.theory_lib import get_test_examples
-    test_examples = get_test_examples('default')
+    test_examples = get_test_examples('logos')
     
     # Discover all available theories
     from model_checker.theory_lib import discover_theories
@@ -49,11 +53,10 @@ import datetime
 
 # Registry of available theories - add new theories here
 AVAILABLE_THEORIES = [
-    'default',      # Standard bilateral truthmaker semantics
+    'logos',        # Standard bilateral truthmaker semantics with modular subtheories
     'exclusion',    # Unilateral semantics with exclusion relations
     'imposition',   # Semantics with imposition relations
     'bimodal',      # Bimodal semantics
-    'logos',        # Modular logos theory with subtheories
 ]
 
 # Dictionary to cache loaded theory modules
@@ -82,9 +85,9 @@ def get_examples(theory_name):
         
     Example:
         >>> from model_checker.theory_lib import get_examples
-        >>> default_examples = get_examples('default')
-        >>> print(list(default_examples.keys()))
-        ['CF_CM_1', 'CF_TH_14']
+        >>> logos_examples = get_examples('logos')
+        >>> print(list(logos_examples.keys())[:5])
+        ['EXT_TH_1', 'EXT_TH_2', 'EXT_TH_3', 'EXT_TH_4', 'EXT_TH_5']
     """
     if theory_name not in AVAILABLE_THEORIES:
         raise ValueError(f"Unknown theory: {theory_name}")
@@ -112,7 +115,7 @@ def get_test_examples(theory_name):
         
     Example:
         >>> from model_checker.theory_lib import get_test_examples
-        >>> tests = get_test_examples('default')
+        >>> tests = get_test_examples('logos')
         >>> # Use with pytest parametrization
         >>> @pytest.mark.parametrize("example_name, example_case", tests.items())
         >>> def test_examples(example_name, example_case):
@@ -144,9 +147,9 @@ def get_semantic_theories(theory_name):
         
     Example:
         >>> from model_checker.theory_lib import get_semantic_theories
-        >>> semantics = get_semantic_theories('default')
-        >>> # Access a specific semantic theory variant
-        >>> bilateral = semantics.get('bilateral')
+        >>> semantics = get_semantic_theories('logos')
+        >>> # The logos theory uses a modular architecture
+        >>> # with semantic theories loaded from subtheories
     """
     if theory_name not in AVAILABLE_THEORIES:
         raise ValueError(f"Unknown theory: {theory_name}")
@@ -372,8 +375,8 @@ def __getattr__(name):
         AttributeError: If the name is not a registered theory
         
     Example:
-        # This triggers __getattr__('default')
-        from model_checker.theory_lib import default
+        # This triggers __getattr__('logos')
+        from model_checker.theory_lib import logos
     """
     if name in AVAILABLE_THEORIES:
         # Load and cache the module if not already loaded

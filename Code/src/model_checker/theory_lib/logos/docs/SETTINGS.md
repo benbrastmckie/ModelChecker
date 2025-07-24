@@ -1,10 +1,21 @@
 # Logos Theory Settings Documentation
 
-This document describes all available settings for the logos theory implementation in ModelChecker.
+This document provides a complete reference for all configuration options available in the Logos semantic theory, including detailed explanations, usage patterns, and performance considerations.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Example Settings](#example-settings)
+- [General Settings](#general-settings)
+- [Advanced Settings](#advanced-settings)
+- [Subtheory-Specific Considerations](#subtheory-specific-considerations)
+- [Performance Tuning](#performance-tuning)
+- [Common Configurations](#common-configurations)
+- [Troubleshooting](#troubleshooting)
 
 ## Overview
 
-The logos theory provides hyperintensional truthmaker semantics with support for modular operator loading and subtheory coordination. Settings control state generation, frame constraints, and solver behavior.
+The Logos theory provides hyperintensional truthmaker semantics with support for modular operator loading and subtheory coordination. Settings control state generation, frame constraints, solver behavior, and model iteration. Understanding these settings is crucial for effective use of the theory's advanced features.
 
 ## Example Settings
 
@@ -108,8 +119,205 @@ The logos theory implements several key features that interact with these settin
 
 5. **Monitor solver timeouts** - If you frequently hit max_time limits, either increase the timeout or reduce N.
 
+## Advanced Settings
+
+### Model Iteration Settings
+
+These settings control the behavior when finding multiple models:
+
+- **iteration_solver_timeout** (integer, default: 10000): Maximum milliseconds for Z3 solver during iteration attempts. Separate from base max_time.
+
+- **max_invalid_attempts** (integer, default: 5): Maximum consecutive invalid models before giving up. Invalid models have no possible worlds.
+
+- **escape_attempts** (integer, default: 5): Number of attempts to escape isomorphic models using stronger constraints.
+
+### Experimental Settings
+
+These settings are for advanced users and researchers:
+
+- **world_limit** (integer, optional): Maximum number of possible worlds to allow. Can help control model complexity.
+
+- **verification_limit** (integer, optional): Maximum number of verifiers per proposition. Useful for constraining model size.
+
+## Subtheory-Specific Considerations
+
+Different Logos subtheories may interpret settings differently:
+
+### Modal Subtheory
+- **N**: Affects the complexity of accessibility relations
+- **disjoint**: Important for distinguishing modal operators
+- **iterate**: Useful for exploring different modal structures
+
+### Constitutive Subtheory
+- **non_empty**: Critical for meaningful ground/essence relations
+- **disjoint**: Helps create clear content boundaries
+- **contingent**: Important for testing constitutive principles
+
+### Counterfactual Subtheory
+- **N**: Keep smaller (3-4) due to computational complexity
+- **non_null**: Essential for proper similarity orderings
+- **max_time**: May need higher values (20000-30000)
+
+### Relevance Subtheory
+- **disjoint**: Critical for relevance distinctions
+- **non_empty**: Ensures meaningful relevance relations
+
+## Performance Tuning
+
+### Memory vs. Speed Trade-offs
+
+```python
+# Memory-efficient configuration
+memory_settings = {
+    'N': 3,  # Minimal state space
+    'max_time': 5000,  # Moderate timeout
+    'iterate': False,  # Single model only
+}
+
+# Speed-optimized configuration
+speed_settings = {
+    'N': 4,  # Balanced state space
+    'contingent': True,  # Reduce search space
+    'disjoint': True,  # Clear boundaries
+    'max_time': 2000,  # Quick timeout
+}
+
+# Comprehensive exploration
+thorough_settings = {
+    'N': 5,  # Larger state space
+    'iterate': 10,  # Multiple models
+    'max_time': 30000,  # Extended timeout
+    'iteration_solver_timeout': 20000,
+}
+```
+
+### Solver Timeout Guidelines
+
+Based on formula complexity and N value:
+
+| N Value | Simple Formula | Complex Formula | With Iteration |
+|---------|---------------|-----------------|----------------|
+| 3 | 1000ms | 5000ms | 10000ms |
+| 4 | 2000ms | 10000ms | 20000ms |
+| 5 | 5000ms | 20000ms | 40000ms |
+| 6+ | 10000ms | 60000ms | 120000ms |
+
+## Common Configurations
+
+### Research Configuration
+For academic research and thorough investigation:
+
+```python
+research_settings = {
+    'N': 16,  # Default for rich models
+    'contingent': True,
+    'non_empty': True,
+    'non_null': True,
+    'disjoint': True,
+    'max_time': 30000,
+    'iterate': 5,
+    'iteration_timeout': 3.0,
+    'iteration_solver_timeout': 20000,
+}
+```
+
+### Teaching Configuration
+For classroom demonstrations:
+
+```python
+teaching_settings = {
+    'N': 3,  # Quick and clear
+    'contingent': True,
+    'non_empty': True,
+    'max_time': 2000,
+    'iterate': 2,  # Show variation
+}
+```
+
+### Testing Configuration
+For automated testing:
+
+```python
+test_settings = {
+    'N': 4,
+    'max_time': 5000,
+    'expectation': True,  # Or False
+    'iterate': False,  # Deterministic
+}
+```
+
+### Development Configuration
+For developing new operators:
+
+```python
+dev_settings = {
+    'N': 3,  # Fast iteration
+    'max_time': 1000,
+    'print_constraints': True,  # Debug
+    'print_z3': True,  # Full output
+}
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **"Z3 timeout" with default settings**
+   - Reduce N to 3 or 4
+   - Increase max_time to 20000 or more
+   - Enable fewer constraints (set some to False)
+
+2. **"No model found" when model should exist**
+   - Check constraint conflicts (all True may be too restrictive)
+   - Try disabling disjoint or non_empty
+   - Verify formula syntax
+
+3. **"Too many consecutive invalid models" during iteration**
+   - Ensure non_empty is True
+   - Reduce N to avoid empty model space
+   - Check that premises aren't contradictory
+
+4. **Memory errors with large N**
+   - N=6 creates 64 possible states
+   - N=7 creates 128 possible states
+   - Consider using world_limit setting
+
+### Debugging Settings
+
+```python
+debug_settings = {
+    'N': 3,
+    'print_impossible': True,  # See all states
+    'print_constraints': True,  # See Z3 constraints
+    'print_z3': True,  # See solver output
+    'max_time': 60000,  # Don't timeout
+}
+```
+
+## Setting Interactions
+
+Some settings interact in important ways:
+
+1. **contingent + non_empty**: Ensures meaningful propositions
+2. **non_null + non_empty**: Prevents trivial models
+3. **disjoint + high N**: May make models impossible
+4. **iterate + low max_time**: May prevent finding all models
+
+## Environment Variables
+
+In addition to settings, environment variables affect behavior:
+
+- `MODELCHECKER_VERBOSE`: Shows detailed theory loading
+- `MODELCHECKER_SUPPRESS_COMPARISON_WARNINGS`: Relevant when comparing theories
+
 ## See Also
 
-- [General Settings Documentation](../../settings/README.md)
-- [Logos Theory README](../README.md)
-- [Logos Theory Notebooks](../notebooks/README.md)
+- [General Settings Documentation](../../settings/README.md) - Framework-wide settings
+- [User Guide](USER_GUIDE.md) - Practical usage examples
+- [Architecture](ARCHITECTURE.md) - How settings affect internals
+- [Model Iteration](ITERATE.md) - Iteration-specific settings
+- [Main README](../README.md) - Theory overview
+
+---
+
+**Navigation**: [README](README.md) | [User Guide](USER_GUIDE.md) | [Architecture](ARCHITECTURE.md) | [Iteration](ITERATE.md) | [Main README](../README.md)

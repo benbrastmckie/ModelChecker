@@ -78,7 +78,7 @@ class TheoryAdapter(ABC):
         """
         # Registry of theory adapters
         registry = {
-            "default": DefaultTheoryAdapter,
+            "logos": DefaultTheoryAdapter,  # Logos uses the generic adapter
             "exclusion": ExclusionTheoryAdapter,
             "imposition": ImpositionTheoryAdapter,
             "bimodal": BimodalTheoryAdapter,
