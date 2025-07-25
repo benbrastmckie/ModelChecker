@@ -194,7 +194,7 @@ model.check_validity(["p \\leq q", "p"], ["q"])
 ```
 
 #### Counterfactual Operators
-Hypothetical reasoning:
+Counterfactual reasoning:
 ```python
 # Counterfactual modus ponens
 model.check_validity(["p", "p \\boxright q"], ["q"])
