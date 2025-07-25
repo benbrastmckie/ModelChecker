@@ -156,7 +156,7 @@ result = theory.evaluate("p \\wedge q \\wedge r", partial_state)  # Undefined
 
 ### Semantic Distinction Examples
 
-**Content Differences** between logically equivalent formulas:
+**Content Differences** between necessarily equivalent formulas:
 - `"p ∧ q"` vs `"q ∧ p"`: Same verifiers, different syntactic content
 - `"□p"` vs `"¬◇¬p"`: Equivalent but different modal content
 - `"A ≡ B"` vs `"A ≤ B ∧ B ≤ A"`: Same truth conditions, different constitutive relations

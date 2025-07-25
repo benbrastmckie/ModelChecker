@@ -104,7 +104,7 @@ Now let's explore what makes Logos modal logic hyperintensional:
 
 ### Substitution Failures
 
-In hyperintensional logic, logically equivalent formulas may not be substitutable in modal contexts:
+In hyperintensional logic, necessarily equivalent formulas may not be substitutable in modal contexts:
 
 ```python
 # Test substitution of logical equivalents

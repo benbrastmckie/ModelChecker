@@ -66,7 +66,7 @@ The Logos theory implements a unified formal language of thought with 20 logical
 ### Hyperintensional Semantics
 The Logos theory implements truthmaker semantics where:
 - Propositions have both **verifiers** and **falsifiers**
-- Content is distinguished even for logically equivalent formulas
+- Content is distinguished even for necessarily equivalent formulas
 - States are represented as bit vectors for efficient computation
 
 ### Modular Architecture
