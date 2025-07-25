@@ -1,6 +1,22 @@
-# Relevance Subtheory Tests
+# Relevance Subtheory Tests: Content-Based Logic Validation
 
-This directory contains comprehensive tests for the Relevance Subtheory of the Logos theory, which extends the constitutive operators with relevance-sensitive logical principles and refined content relationships.
+[← Back to Relevance](../README.md) | [Logos Tests →](../../../tests/README.md) | [Subtheories →](../../README.md)
+
+## Directory Structure
+```
+tests/
+├── README.md                      # This file - relevance test documentation
+├── __init__.py                   # Test module initialization
+└── test_relevance_examples.py    # Integration tests with 20 comprehensive examples
+```
+
+## Overview
+
+This directory contains comprehensive tests for the Relevance Subtheory of the Logos theory, which explores relevance-sensitive logical principles through focused examples using the relevance operator imported from the constitutive subtheory.
+
+The test suite validates relevance logic through **20 integration examples** organized into countermodel examples (invalid relevance principles) and theorem examples (valid relevance principles). These tests demonstrate content-based reasoning where logical validity depends on relevance relationships between propositions.
+
+All tests use the ModelChecker framework's constraint-based validation approach with hyperintensional semantics, verifying relevance relationships based on fusion closure conditions for both verifiers and falsifiers.
 
 ## Test Files
 
@@ -226,6 +242,10 @@ These tests are part of the comprehensive Logos theory testing framework:
 
 For more information about relevance logic and testing strategy, see:
 - [Logos Theory README](../../README.md)
-- [Logos Unit Testing Policy](../../UNIT_TESTS.md)
 - [Relevance Subtheory README](../README.md)
-- [Constitutive Subtheory README](../constitutive/README.md)
+- [Constitutive Subtheory README](../../constitutive/README.md)
+- [Logos Testing Framework](../../../tests/README.md)
+
+---
+
+[← Back to Relevance](../README.md) | [Logos Tests →](../../../tests/README.md) | [Subtheories →](../../README.md)

@@ -1,101 +1,85 @@
-# Counterfactual Subtheory: Hypothetical Reasoning in Logos Theory
+# Counterfactual Subtheory: Hypothetical Reasoning Operators
 
-The **Counterfactual Subtheory** implements operators for hypothetical reasoning within the Logos theory framework. This subtheory provides four specialized operators for evaluating counterfactual conditionals and imposition relations, enabling sophisticated analysis of "what if" scenarios and alternative possibilities.
+[← Back to Subtheories](../README.md) | [Tests →](tests/README.md) | [Examples →](examples.py)
+
+## Directory Structure
+```
+counterfactual/
+├── README.md               # This file - counterfactual subtheory overview
+├── __init__.py            # Module initialization and public API
+├── examples.py            # Example formulas and test cases (33 examples)
+├── operators.py           # Counterfactual operator definitions (2 operators)
+└── tests/                 # Test suite (see tests/README.md)
+    ├── README.md          # Test documentation and methodology
+    ├── __init__.py        # Test module initialization
+    └── test_counterfactual_examples.py  # Integration tests with 33 examples
+```
 
 ## Overview
 
-The Counterfactual Subtheory implements **4 logical operators** for hypothetical reasoning:
+The **Counterfactual Subtheory** implements operators for hypothetical reasoning within the Logos theory framework, providing two specialized operators for evaluating counterfactual conditionals that enable sophisticated analysis of "what if" scenarios and alternative possibilities. This subtheory demonstrates the non-monotonic nature of counterfactual reasoning where adding information can change truth values.
 
-- **Counterfactual Conditional** (`\\boxright`): "If A were the case, B would be the case"
-- **Might Counterfactual** (`\\diamondright`): "If A were the case, B might be the case"  
-- **Imposition** (`\\imposition`): "A imposes B" (Fine's semantics for counterfactuals)
-- **Might Imposition** (`\\could`): "A could impose B"
+The implementation includes **two counterfactual operators**: counterfactual conditional (□→) and might counterfactual (◇→). These operators follow hyperintensional truthmaker semantics with an alternative worlds relation, allowing evaluation of hypothetical scenarios based on verification conditions rather than mere truth-functional analysis.
 
-This implementation follows the semantic theory developed in:
-- Brast-McKie (2025) ["Counterfactual Worlds"](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf), Journal of Philosophical Logic
-
-For details about the underlying semantic framework, see the [Logos Theory README](../../README.md).
-
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [Operator Reference](#operator-reference)
-  - [Counterfactual Conditional](#counterfactual-conditional)
-  - [Might Counterfactual](#might-counterfactual)
-  - [Imposition](#imposition)
-  - [Might Imposition](#might-imposition)
-- [Examples](#examples)
-  - [Example Categories](#example-categories)
-  - [Running Examples](#running-examples)
-  - [Example Structure](#example-structure)
-- [Semantic Theory](#semantic-theory)
-  - [Theoretical Background](#theoretical-background)
-  - [Truth Conditions](#truth-conditions)
-  - [Verification Semantics](#verification-semantics)
-- [Testing and Validation](#testing-and-validation)
-  - [Theorem Examples](#theorem-examples)
-  - [Countermodel Examples](#countermodel-examples)
-  - [Logical Properties](#logical-properties)
-- [Integration](#integration)
-  - [Dependencies](#dependencies)
-  - [Usage with Other Subtheories](#usage-with-other-subtheories)
-  - [API Reference](#api-reference)
-- [Advanced Topics](#advanced-topics)
-  - [Sobel Sequences](#sobel-sequences)
-  - [Antecedent Strengthening](#antecedent-strengthening)
-  - [Factivity Properties](#factivity-properties)
+This subtheory serves as the foundation for counterfactual reasoning within the Logos framework, implementing the semantic theory developed in Brast-McKie (2025) and providing essential operators for hypothetical reasoning while maintaining integration with modal, extensional, and constitutive operators.
 
 ## Quick Start
 
-### Basic Usage
-
 ```python
 from model_checker.theory_lib import logos
+from model_checker import BuildExample
 
 # Load counterfactual subtheory (automatically loads extensional dependency)
 theory = logos.get_theory(['counterfactual'])
-
-# Check a simple counterfactual
-from model_checker import BuildExample
 model = BuildExample("cf_example", theory)
 
-# Counterfactual modus ponens: If A and (A �� B), then B
-result = model.check_validity(["A", "(A \\boxright B)"], ["B"])
-print(f"Counterfactual Modus Ponens: {'Valid' if result else 'Invalid'}")
+# Test basic counterfactual principles
+result1 = model.check_validity([], ["(A \\boxright A)"])  # Identity
+result2 = model.check_validity(["A", "(A \\boxright B)"], ["B"])  # Modus ponens
+result3 = model.check_validity(["(A \\boxright C)"], ["((A \\wedge B) \\boxright C)"])  # Invalid: strengthening
+
+print(f"Counterfactual identity: {result1}")  # False (valid argument)
+print(f"Counterfactual modus ponens: {result2}")  # False (valid argument)  
+print(f"Antecedent strengthening: {result3}")  # True (invalid argument)
 ```
 
-### Running Examples
+## Subdirectories
 
-```bash
-# Run all counterfactual examples
-model-checker src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py
+### [tests/](tests/)
+Comprehensive test suite with 33 integration examples covering both counterfactual operators. Includes countermodel examples (invalid classical principles like antecedent strengthening, contraposition, transitivity) and theorem examples (valid counterfactual principles like identity, modus ponens, weakened transitivity). Tests demonstrate the non-monotonic nature of counterfactual reasoning. See [tests/README.md](tests/README.md) for complete testing methodology.
 
-# Run in development mode
-./dev_cli.py src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py
+## Documentation
 
-# Run with constraints printed
-./dev_cli.py -p src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py
-```
+### For New Users
+- **[Quick Start](#quick-start)** - Basic counterfactual reasoning examples
+- **[Operator Reference](#operator-reference)** - Complete guide to counterfactual operators
+- **[Testing Guide](tests/README.md)** - How to run and understand counterfactual tests
 
-### Project Generation
+### For Researchers
+- **[Semantic Theory](#semantic-theory)** - Alternative worlds semantics and truth conditions
+- **[Test Examples](tests/README.md#test-categories)** - Valid and invalid counterfactual patterns
+- **[Academic References](#references)** - Primary sources and theoretical foundations
 
-```bash
-# Generate a project focused on counterfactual logic
-./dev_cli.py -l logos  # Select counterfactual subtheory during setup
-```
+### For Developers
+- **[Implementation Details](operators.py)** - Counterfactual operator definitions
+- **[Examples Module](examples.py)** - Test cases and example formulas (33 examples)
+- **[Integration Testing](tests/test_counterfactual_examples.py)** - Complete test implementation
 
 ## Operator Reference
 
 ### Counterfactual Conditional
 
-**Symbol**: `\\boxright` (��)  
+**Symbol**: `\\boxright` (□→)  
 **Name**: Counterfactual Conditional  
 **Arity**: 2 (binary)  
 **Type**: Primitive operator
 
 **Meaning**: "If A were the case, then B would be the case"
 
-**Truth Conditions**: A counterfactual conditional A �� B is true at an evaluation point when, for all states x that verify A and all alternative worlds u to x, B is true at u.
+**Truth Conditions**: A counterfactual conditional A □→ B is true at an evaluation point w when:
+```
+For all x,u: (x verifies A and u is alternative to x relative to w) implies B is true at u
+```
 
 **Usage Examples**:
 ```python
@@ -117,14 +101,14 @@ model-checker src/model_checker/theory_lib/logos/subtheories/counterfactual/exam
 
 ### Might Counterfactual
 
-**Symbol**: `\\diamondright` (ǒ)  
+**Symbol**: `\\diamondright` (◇→)  
 **Name**: Might Counterfactual  
 **Arity**: 2 (binary)  
 **Type**: Defined operator
 
 **Meaning**: "If A were the case, then B might be the case"
 
-**Definition**: `�(A �� �B)` - Defined as the negation of the counterfactual conditional with negated consequent.
+**Definition**: `\\neg(A \\boxright \\neg B)` - Defined as the negation of the counterfactual conditional with negated consequent.
 
 **Usage Examples**:
 ```python
@@ -139,51 +123,6 @@ model-checker src/model_checker/theory_lib/logos/subtheories/counterfactual/exam
 - **Factivity**: From `A` and `B`, infer `(A \\diamondright B)` (see theorem CF_TH_10)
 - **Weaker than Would**: `(A \\boxright B)` implies `(A \\diamondright B)`
 - **Non-factivity for Would**: `A` and `B` do not imply `(A \\boxright B)` (see countermodel CF_CM_18)
-
-### Imposition
-
-**Symbol**: `\\imposition`  
-**Name**: Imposition  
-**Arity**: 2 (binary)  
-**Type**: Primitive operator
-
-**Meaning**: "A imposes B" - Fine's semantics for counterfactuals
-
-**Truth Conditions**: A imposes B when for all verifiers u of A and v of B, the fusion of u and v verifies B.
-
-**Usage Examples**:
-```python
-# Basic imposition relation
-"(p \\imposition q)"  # p imposes q
-
-# Comparison with counterfactual conditional
-# Imposition and counterfactual conditional may differ in truth conditions
-```
-
-**Key Properties**:
-- **Alternative Semantics**: Provides Fine's approach to counterfactual reasoning
-- **Verifier-based**: Truth conditions defined in terms of verifier fusion
-- **Comparison Point**: Allows testing differences between semantic approaches
-
-### Might Imposition
-
-**Symbol**: `\\could`  
-**Name**: Might Imposition  
-**Arity**: 2 (binary)  
-**Type**: Defined operator
-
-**Meaning**: "A could impose B"
-
-**Definition**: `�(A imposition �B)` - Defined as the negation of imposition with negated consequent.
-
-**Usage Examples**:
-```python
-# Expressing possibility under imposition
-"(p \\could q)"  # p could impose q
-
-# Relationship to imposition
-"(A \\imposition B) \\rightarrow (A \\could B)"  # Imposition implies might imposition
-```
 
 ## Examples
 
@@ -518,15 +457,44 @@ conclusions = ['(A \\boxright B)']  # Invalid - countermodel exists
 
 This distinction captures the intuition that actual truth guarantees counterfactual possibility but not counterfactual necessity.
 
----
+## Dependencies
+
+The counterfactual subtheory depends on the **extensional subtheory** for:
+- `NegationOperator`: Required for defining might counterfactual as negation of counterfactual with negated consequent
+- Basic logical operators used in complex counterfactual formulas
+
+```python
+# Automatic dependency loading
+theory = logos.get_theory(['counterfactual'])  # Also loads extensional
+```
+
+## Testing
+
+The counterfactual subtheory includes **33 comprehensive test examples** covering both counterfactual operators through countermodel examples (invalid principles) and theorem examples (valid counterfactual reasoning).
+
+```bash
+# Run all counterfactual tests
+pytest src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/
+
+# Run specific example
+pytest src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py -k "CF_CM_1"
+
+# Run via project test runner
+python test_theories.py --theories logos --counterfactual --examples
+```
 
 ## References
 
+### Primary Sources
 - Brast-McKie (2025) ["Counterfactual Worlds"](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf), Journal of Philosophical Logic
-- Fine (2012) ["Counterfactuals without Possible Worlds"](https://link.springer.com/article/10.1007/BF00248737), Journal of Philosophy  
-- Lewis (1973) "Counterfactuals", Harvard University Press
-- For semantic framework details, see [Logos Theory README](../../README.md)
+- Lewis (1973) ["Counterfactuals"](https://www.hup.harvard.edu/books/9780674127241), Harvard University Press
+- Fine (2012) ["Counterfactuals without Possible Worlds"](https://doi.org/10.5840/jphil2012109312), Journal of Philosophy
 
-## License
+### Related Resources
+- **[Extensional Subtheory](../extensional/)** - Truth-functional foundation for counterfactual operators
+- **[Modal Subtheory](../modal/)** - Integration with necessity and possibility
+- **[Logos Theory](../../README.md)** - Complete hyperintensional framework documentation
 
-The counterfactual subtheory is part of the ModelChecker package and follows the same licensing terms. See `LICENSE.md` for details.
+---
+
+[← Back to Subtheories](../README.md) | [Tests →](tests/README.md) | [Examples →](examples.py)

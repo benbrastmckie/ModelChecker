@@ -1,6 +1,22 @@
-# Constitutive Subtheory Tests
+# Constitutive Subtheory Tests: Hyperintensional Content Validation
+
+[← Back to Constitutive](../README.md) | [Logos Tests →](../../../tests/README.md) | [Subtheories →](../../README.md)
+
+## Directory Structure
+```
+tests/
+├── README.md                        # This file - constitutive test documentation
+├── __init__.py                     # Test module initialization
+└── test_constitutive_examples.py   # Integration tests with 33 comprehensive examples
+```
+
+## Overview
 
 This directory contains comprehensive tests for the Constitutive Subtheory of the Logos theory, covering all five constitutive operators: identity (`\\equiv`), ground (`\\leq`), essence (`\\sqsubseteq`), relevance (`\\preceq`), and reduction (`\\Rightarrow`).
+
+The test suite validates hyperintensional content relationships through **33 integration examples** organized into countermodel examples (invalid classical principles) and theorem examples (valid hyperintensional principles). These tests demonstrate the key distinction between classical truth-functional logic and hyperintensional content-sensitive logic.
+
+All tests use the ModelChecker framework's constraint-based validation approach with truthmaker semantics, verifying content relationships based on verifier and falsifier sets rather than mere truth conditions.
 
 ## Test Files
 
@@ -146,5 +162,9 @@ These tests are part of the comprehensive Logos theory testing framework:
 
 For more information about the overall testing strategy, see:
 - [Logos Theory README](../../README.md)
-- [Logos Unit Testing Policy](../../UNIT_TESTS.md)
 - [Constitutive Subtheory README](../README.md)
+- [Logos Testing Framework](../../../tests/README.md)
+
+---
+
+[← Back to Constitutive](../README.md) | [Logos Tests →](../../../tests/README.md) | [Subtheories →](../../README.md)

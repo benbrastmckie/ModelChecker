@@ -1,90 +1,69 @@
-# Constitutive Subtheory: Propositional Content Relationships in Logos Theory
+# Constitutive Subtheory: Propositional Content Relationships
 
-The **Constitutive Subtheory** implements operators for analyzing relationships between propositional content within the Logos theory framework. This subtheory provides five specialized operators for evaluating identity, grounding, essence, relevance, and reduction relations between propositions, enabling sophisticated analysis of hyperintensional content relationships.
+[← Back to Subtheories](../README.md) | [Tests →](tests/README.md) | [Examples →](examples.py)
+
+## Directory Structure
+```
+constitutive/
+├── README.md               # This file - constitutive subtheory overview
+├── __init__.py            # Module initialization and public API
+├── examples.py            # Example formulas and test cases (33 examples)
+├── operators.py           # Content relationship operator definitions (5 operators)
+└── tests/                 # Test suite (see tests/README.md)
+    ├── README.md          # Test documentation and methodology
+    ├── __init__.py        # Test module initialization
+    └── test_constitutive_examples.py  # Integration tests with 33 examples
+```
 
 ## Overview
 
-The Constitutive Subtheory implements **5 logical operators** for content relationships:
+The **Constitutive Subtheory** implements operators for analyzing relationships between propositional content within the Logos theory framework, providing five specialized operators for evaluating identity, grounding, essence, relevance, and reduction relations between propositions. This subtheory provides analysis of hyperintensional relationships that distinguish between logically equivalent but content-distinct propositions.
 
-- **Identity** (`\\equiv`): "A has exactly the same content as B"
-- **Ground** (`\\leq`): "A grounds B" or "A is a disjunctive-part of B"
-- **Essence** (`\\sqsubseteq`): "A is essential to B" or "A is a conjunctive-part of B"
-- **Relevance** (`\\preceq`): "A is relevant to B"
-- **Reduction** (`\\Rightarrow`): "A reduces to B" (ground + essence)
+The implementation includes **five content operators**: identity (≡), ground (≤), essence (⊑), relevance (⪯), and reduction (⇒). All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained analysis of propositional content that goes beyond classical truth-functional equivalence.
 
-This implementation follows the semantic theory developed in:
-- Brast-McKie (2021) ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w), Journal of Philosophical Logic
-
-For details about the underlying semantic framework, see the [Logos Theory README](../../README.md).
-
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [Operator Reference](#operator-reference)
-  - [Identity](#identity)
-  - [Ground](#ground)
-  - [Essence](#essence)
-  - [Relevance](#relevance)
-  - [Reduction](#reduction)
-- [Examples](#examples)
-  - [Example Categories](#example-categories)
-  - [Running Examples](#running-examples)
-  - [Example Structure](#example-structure)
-- [Semantic Theory](#semantic-theory)
-  - [Theoretical Background](#theoretical-background)
-  - [Truth Conditions](#truth-conditions)
-  - [Hyperintensional Content](#hyperintensional-content)
-- [Testing and Validation](#testing-and-validation)
-  - [Theorem Examples](#theorem-examples)
-  - [Countermodel Examples](#countermodel-examples)
-  - [Logical Properties](#logical-properties)
-- [Integration](#integration)
-  - [Dependencies](#dependencies)
-  - [Usage with Other Subtheories](#usage-with-other-subtheories)
-  - [API Reference](#api-reference)
-- [Advanced Topics](#advanced-topics)
-  - [Classical vs Hyperintensional Logic](#classical-vs-hyperintensional-logic)
-  - [Operator Interdefinability](#operator-interdefinability)
-  - [Content Sensitivity](#content-sensitivity)
+This subtheory serves as the foundation for hyperintensional reasoning within the Logos framework, implementing the semantic theory developed in Brast-McKie (2021) and providing essential operators for expressing content relationships while maintaining integration with modal, extensional, and counterfactual reasoning.
 
 ## Quick Start
 
-### Basic Usage
-
 ```python
 from model_checker.theory_lib import logos
+from model_checker import BuildExample
 
 # Load constitutive subtheory (automatically loads extensional dependency)
 theory = logos.get_theory(['constitutive'])
-
-# Check identity relationship
-from model_checker import BuildExample
 model = BuildExample("constitutive_example", theory)
 
-# Identity is reflexive: A equiv A is always valid
-result = model.check_validity([], ["(A \\equiv A)"])
-print(f"Identity Reflexivity: {'Valid' if result else 'Invalid'}")
+# Test basic content relationships
+result1 = model.check_validity([], ["(A \\equiv A)"])  # Identity reflexivity
+result2 = model.check_validity(["(A \\leq B)", "(B \\leq A)"], ["(A \\equiv B)"])  # Anti-symmetry
+result3 = model.check_validity([], ["((A \\vee \\neg A) \\equiv (B \\vee \\neg B))"])  # Invalid: tautology equivalence
+
+print(f"Identity reflexivity: {result1}")  # False (valid argument)
+print(f"Grounding anti-symmetry: {result2}")  # False (valid argument)  
+print(f"Tautology equivalence: {result3}")  # True (invalid argument - hyperintensional distinction)
 ```
 
-### Running Examples
+## Subdirectories
 
-```bash
-# Run all constitutive examples
-model-checker src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
+### [tests/](tests/)
+Comprehensive test suite with 33 integration examples covering all five content operators. Includes countermodel examples (invalid classical principles), theorem examples (valid hyperintensional principles), and exploration of content-sensitive reasoning. Tests validate hyperintensional distinctions that classical logic cannot capture. See [tests/README.md](tests/README.md) for complete testing methodology.
 
-# Run in development mode
-./dev_cli.py src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
+## Documentation
 
-# Run with constraints printed
-./dev_cli.py -p src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
-```
+### For New Users
+- **[Quick Start](#quick-start)** - Basic content relationship examples with identity and grounding
+- **[Operator Reference](#operator-reference)** - Complete guide to all five content operators
+- **[Testing Guide](tests/README.md)** - How to run and understand hyperintensional tests
 
-### Project Generation
+### For Researchers
+- **[Semantic Theory](#semantic-theory)** - Hyperintensional truthmaker semantics and theoretical background
+- **[Test Examples](tests/README.md#test-categories)** - Valid and invalid content reasoning patterns
+- **[Academic References](#references)** - Primary sources and theoretical foundations
 
-```bash
-# Generate a project focused on constitutive logic
-./dev_cli.py -l logos  # Select constitutive subtheory during setup
-```
+### For Developers
+- **[Implementation Details](operators.py)** - Content operator definitions and truthmaker semantics
+- **[Examples Module](examples.py)** - Test cases and example formulas (33 examples)
+- **[Integration Testing](tests/test_constitutive_examples.py)** - Complete test implementation
 
 ## Operator Reference
 
@@ -128,7 +107,7 @@ model-checker src/model_checker/theory_lib/logos/subtheories/constitutive/exampl
 
 **Truth Conditions**: A grounds B when:
 1. Every verifier of A is a verifier of B
-2. The falsifiers interact appropriately (fusion conditions)
+2. For any A-falsifier and B-falsifier, their fusion falsifies B
 3. Every falsifier of B contains some falsifier of A as a part
 
 **Usage Examples**:
@@ -159,7 +138,7 @@ model-checker src/model_checker/theory_lib/logos/subtheories/constitutive/exampl
 **Meaning**: "A is essential to B" or "A is a conjunctive-part of B"
 
 **Truth Conditions**: A is essential to B when:
-1. Verifiers interact appropriately (fusion conditions)  
+1. For any A-verifier and B-verifier, their fusion verifies B  
 2. Every verifier of B contains some verifier of A as a part
 3. Every falsifier of A is a falsifier of B
 
@@ -381,30 +360,30 @@ The constitutive subtheory implements the semantic theory developed in Brast-McK
 For all x: (x verifies A iff x verifies B) and (x falsifies A iff x falsifies B)
 ```
 
-#### Ground (A leq B)
+#### Ground (A ≤ B)
 
 **True** when A is a disjunctive-part of B:
 ```
 1. For all x: x verifies A implies x verifies B
-2. For all x,y: (x falsifies A and y falsifies B) implies (x fusion y) falsifies B  
-3. For all x: x falsifies B implies exists y: (y falsifies A and y part-of x)
+2. For all x,y: (x falsifies A and y falsifies B) implies (fusion(x,y) falsifies B)  
+3. For all x: x falsifies B implies exists y: (y falsifies A and y is-part-of x)
 ```
 
-#### Essence (A sqsubseteq B)
+#### Essence (A ⊑ B)
 
-**True** when A is a conjunctive-part of B:
+**True** when A is essence of B (conjunctive-part):
 ```
-1. For all x,y: (x verifies A and y verifies B) implies (x fusion y) verifies B
-2. For all x: x verifies B implies exists y: (y verifies A and y part-of x)
+1. For all x,y: (x verifies A and y verifies B) implies fusion(x,y) verifies B
+2. For all x: x verifies B implies exists y: (y verifies A and y is-part-of x)
 3. For all x: x falsifies A implies x falsifies B
 ```
 
-#### Relevance (A preceq B)
+#### Relevance (A ⪯ B)
 
 **True** when A is relevant to B:
 ```
-1. For all x,y: (x verifies A and y verifies B) implies (x fusion y) verifies B
-2. For all x,y: (x falsifies A and y falsifies B) implies (x fusion y) falsifies B
+1. For all x,y: (x verifies A and y verifies B) implies fusion(x,y) verifies B
+2. For all x,y: (x falsifies A and y falsifies B) implies fusion(x,y) falsifies B
 ```
 
 ### Hyperintensional Content
@@ -612,14 +591,44 @@ The constitutive operators enable analysis of **content sensitivity**:
 - Analyzing content relationships
 - Understanding aboutness and topicality
 
----
+## Dependencies
+
+The constitutive subtheory depends on the **extensional subtheory** for:
+- `AndOperator`: Required for defining reduction operator as conjunction of ground and essence
+- Basic logical operators used in complex constitutive formulas
+
+```python
+# Automatic dependency loading
+theory = logos.get_theory(['constitutive'])  # Also loads extensional
+```
+
+## Testing
+
+The constitutive subtheory includes **33 comprehensive test examples** covering all five content operators through countermodel examples (invalid classical principles) and theorem examples (valid hyperintensional principles).
+
+```bash
+# Run all constitutive tests
+pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/
+
+# Run specific example
+pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py -k "CL_CM_1"
+
+# Run via project test runner
+python test_theories.py --theories logos --constitutive --examples
+```
 
 ## References
 
+### Primary Sources
 - Brast-McKie (2021) ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w), Journal of Philosophical Logic
 - Fine (2017) ["A Theory of Truthmaker Content I"](https://link.springer.com/article/10.1007/s10992-016-9413-y), Journal of Philosophical Logic
 - Fine (2017) ["A Theory of Truthmaker Content II"](https://doi.org/10.1007/s10992-016-9419-5), Journal of Philosophical Logic
 
-## License
+### Related Resources
+- **[Extensional Subtheory](../extensional/)** - Truth-functional foundation for constitutive operators
+- **[Modal Subtheory](../modal/)** - Integration with necessity and possibility
+- **[Logos Theory](../../README.md)** - Complete hyperintensional framework documentation
 
-The constitutive subtheory is part of the ModelChecker package and follows the same licensing terms. See `LICENSE.md` for details.
+---
+
+[← Back to Subtheories](../README.md) | [Tests →](tests/README.md) | [Examples →](examples.py)
