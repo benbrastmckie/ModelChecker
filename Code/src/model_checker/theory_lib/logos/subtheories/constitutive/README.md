@@ -18,7 +18,7 @@ constitutive/
 
 ## Overview
 
-The **Constitutive Subtheory** implements hyperintensional a semantics for identity (≡), ground (≤), essence (⊑), relevance (⪯), and reduction (⇒). All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond truth-functional equivalence or necessary equivalence.
+The **Constitutive Subtheory** implements hyperintensional semantics for identity (≡), ground (≤), essence (⊑), and relevance (⪯) as primitive operators, with reduction (⇒) as a defined operator. All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond truth-functional equivalence or necessary equivalence.
 
 This subtheory serves as the foundation for hyperintensional reasoning within the Logos framework, implementing the semantic theory developed in Brast-McKie (2021) and providing essential operators for expressing content relationships while maintaining integration with modal, extensional, and counterfactual reasoning which are also included in the Logos.
 
@@ -78,6 +78,17 @@ Comprehensive test suite with 33 integration examples covering all five content 
 - **[Integration Testing](tests/test_constitutive_examples.py)** - Complete test implementation
 
 ## Operator Reference
+
+The constitutive subtheory provides five operators: four primitive operators that directly implement truthmaker semantics, and one defined operator constructed from the primitives.
+
+**Primitive Operators:**
+- Identity (≡) - Content identity relation
+- Ground (≤) - Disjunctive-part/grounding relation  
+- Essence (⊑) - Conjunctive-part/essence relation
+- Relevance (⪯) - Subject-matter overlap relation
+
+**Defined Operator:**
+- Reduction (⇒) - Defined as conjunction of ground and essence: (A ⇒ B) ≡ (A ≤ B) ∧ (A ⊑ B)
 
 ### Identity
 
@@ -249,7 +260,7 @@ Comprehensive test suite with 33 integration examples covering all five content 
 
 ### Example Categories
 
-The constitutive subtheory includes **33 comprehensive examples** organized into two main categories:
+The constitutive subtheory includes **33 comprehensive examples** organized into two main categories, testing both primitive operators (identity, ground, essence, relevance) and the defined reduction operator:
 
 #### Countermodels (CL_CM_*): 14 Examples
 
