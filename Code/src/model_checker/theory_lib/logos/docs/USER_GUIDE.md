@@ -16,7 +16,7 @@ A practical guide to using the Logos semantic theory for hyperintensional logic 
 
 ## Introduction
 
-The Logos theory provides a powerful framework for working with hyperintensional logic, where even logically equivalent formulas can have different content. This guide will help you:
+The Logos theory provides a powerful framework for working with hyperintensional logic, where even necessarily equivalent formulas can have different content. This guide will help you:
 
 - Understand the basic concepts
 - Write and check logical formulas
@@ -527,7 +527,7 @@ check_argument("Modus Ponens",
 # Content sensitivity examples
 model = BuildExample("content_difference", theory)
 
-# These are logically equivalent but have different content
+# These are necessarily equivalent but have different content
 f1 = "(p \\wedge (q \\vee r))"
 f2 = "((p \\wedge q) \\vee (p \\wedge r))"
 

@@ -41,7 +41,7 @@ The Logos theory implements a unified formal language of thought with **20 logic
 - **Necessity and Possibility**: □ and ◇ operators with truthmaker semantics
 - **Counterfactual Modality**: CFBox and CFDiamond for counterfactual reasoning
 - **Modal Axioms Testing**: K, T, 4, 5, B axioms in hyperintensional context
-- **Content Sensitivity**: How Logos distinguishes logically equivalent necessities
+- **Content Sensitivity**: How Logos distinguishes necessarily equivalent propositions
 
 **Learning Path**: After main demo, for deeper modal logic understanding
 

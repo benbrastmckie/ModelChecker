@@ -22,7 +22,7 @@
 
 ## Introduction
 
-Hyperintensional semantics provides a framework for making semantic distinctions that are invisible to classical intensional semantics. In ModelChecker, hyperintensional theories use **truthmaker semantics** where propositions are characterized by their verifiers and falsifiers, allowing for fine-grained content distinctions even between logically equivalent formulas.
+Hyperintensional semantics provides a framework for making semantic distinctions that are invisible to classical intensional semantics. In ModelChecker, hyperintensional theories use **truthmaker semantics** where propositions are characterized by their verifiers and falsifiers, allowing for fine-grained content distinctions even between necessarily equivalent formulas.
 
 The key insight is that sentences are evaluated at **states** which may be partial rather than total, fixing the truth values of only some sentence letters. This allows the framework to distinguish between different ways of making a sentence true or false.
 
@@ -171,7 +171,7 @@ theory = logos.get_theory()
 
 # Check hyperintensional distinctions
 model = BuildExample("hyperintensional", theory)
-# p ∧ q and q ∧ p are logically equivalent but not identical
+# p ∧ q and q ∧ p are necessarily equivalent but not identical
 result = model.check_formula("(p \\wedge q) \\equiv (q \\wedge p)")
 ```
 

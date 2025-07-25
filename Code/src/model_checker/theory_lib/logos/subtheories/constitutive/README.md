@@ -3,6 +3,7 @@
 [← Back to Subtheories](../README.md) | [Tests →](tests/README.md) | [Examples →](examples.py)
 
 ## Directory Structure
+
 ```
 constitutive/
 ├── README.md               # This file - constitutive subtheory overview
@@ -17,11 +18,9 @@ constitutive/
 
 ## Overview
 
-The **Constitutive Subtheory** implements operators for analyzing relationships between propositional content within the Logos theory framework, providing five specialized operators for evaluating identity, grounding, essence, relevance, and reduction relations between propositions. This subtheory provides analysis of hyperintensional relationships that distinguish between logically equivalent but content-distinct propositions.
+The **Constitutive Subtheory** implements hyperintensional a semantics for identity (≡), ground (≤), essence (⊑), relevance (⪯), and reduction (⇒). All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond truth-functional equivalence or necessary equivalence.
 
-The implementation includes **five content operators**: identity (≡), ground (≤), essence (⊑), relevance (⪯), and reduction (⇒). All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained analysis of propositional content that goes beyond classical truth-functional equivalence.
-
-This subtheory serves as the foundation for hyperintensional reasoning within the Logos framework, implementing the semantic theory developed in Brast-McKie (2021) and providing essential operators for expressing content relationships while maintaining integration with modal, extensional, and counterfactual reasoning.
+This subtheory serves as the foundation for hyperintensional reasoning within the Logos framework, implementing the semantic theory developed in Brast-McKie (2021) and providing essential operators for expressing content relationships while maintaining integration with modal, extensional, and counterfactual reasoning which are also included in the Logos.
 
 ## Quick Start
 
@@ -34,33 +33,42 @@ theory = logos.get_theory(['constitutive'])
 model = BuildExample("constitutive_example", theory)
 
 # Test basic content relationships
-result1 = model.check_validity([], ["(A \\equiv A)"])  # Identity reflexivity
-result2 = model.check_validity(["(A \\leq B)", "(B \\leq A)"], ["(A \\equiv B)"])  # Anti-symmetry
-result3 = model.check_validity([], ["((A \\vee \\neg A) \\equiv (B \\vee \\neg B))"])  # Invalid: tautology equivalence
+result1 = model.check_validity(   # Identity reflexivity
+  [],                             # Premises
+  ["(A \\equiv A)"]               # Conclusions
+)
+# TODO: make the next lines follow the pattern above to make this more readable to new users
+result2 = model.check_validity(["(A \\leq B)", "(B \\leq A)"], ["(A \\equiv B)"])       # Anti-symmetry
+result3 = model.check_validity([], ["((A \\vee \\neg A) \\equiv (B \\vee \\neg B))"])   # Invalid: tautology equivalence
 
+# TODO: this is confusing, since it seems like 'False' means 'not valid' when it actually means 'no countermodel'
 print(f"Identity reflexivity: {result1}")  # False (valid argument)
-print(f"Grounding anti-symmetry: {result2}")  # False (valid argument)  
+print(f"Grounding anti-symmetry: {result2}")  # False (valid argument)
 print(f"Tautology equivalence: {result3}")  # True (invalid argument - hyperintensional distinction)
 ```
 
 ## Subdirectories
 
 ### [tests/](tests/)
-Comprehensive test suite with 33 integration examples covering all five content operators. Includes countermodel examples (invalid classical principles), theorem examples (valid hyperintensional principles), and exploration of content-sensitive reasoning. Tests validate hyperintensional distinctions that classical logic cannot capture. See [tests/README.md](tests/README.md) for complete testing methodology.
+
+Comprehensive test suite with 33 integration examples covering all five content operators. Includes countermodel examples (invalid intensional principles), theorem examples (valid hyperintensional principles), and exploration of content-sensitive reasoning. Tests validate hyperintensional distinctions that intensional logic cannot capture. See [tests/README.md](tests/README.md) for complete testing methodology.
 
 ## Documentation
 
 ### For New Users
+
 - **[Quick Start](#quick-start)** - Basic content relationship examples with identity and grounding
 - **[Operator Reference](#operator-reference)** - Complete guide to all five content operators
 - **[Testing Guide](tests/README.md)** - How to run and understand hyperintensional tests
 
 ### For Researchers
+
 - **[Semantic Theory](#semantic-theory)** - Hyperintensional truthmaker semantics and theoretical background
 - **[Test Examples](tests/README.md#test-categories)** - Valid and invalid content reasoning patterns
 - **[Academic References](#references)** - Primary sources and theoretical foundations
 
 ### For Developers
+
 - **[Implementation Details](operators.py)** - Content operator definitions and truthmaker semantics
 - **[Examples Module](examples.py)** - Test cases and example formulas (33 examples)
 - **[Integration Testing](tests/test_constitutive_examples.py)** - Complete test implementation
@@ -69,9 +77,9 @@ Comprehensive test suite with 33 integration examples covering all five content 
 
 ### Identity
 
-**Symbol**: `\\equiv`  
-**Name**: Identity  
-**Arity**: 2 (binary)  
+**Symbol**: `\\equiv`
+**Name**: Identity
+**Arity**: 2 (binary)
 **Type**: Primitive operator
 
 **Meaning**: "A has exactly the same content as B"
@@ -79,6 +87,7 @@ Comprehensive test suite with 33 integration examples covering all five content 
 **Truth Conditions**: Two propositions A and B are identical when they have exactly the same verifiers and exactly the same falsifiers.
 
 **Usage Examples**:
+
 ```python
 # Basic identity
 "(p \\equiv q)"  # p is identical to q
@@ -91,6 +100,7 @@ Comprehensive test suite with 33 integration examples covering all five content 
 ```
 
 **Key Properties**:
+
 - **Reflexivity**: `(A \\equiv A)` is always valid
 - **Symmetry**: `(A \\equiv B)` implies `(B \\equiv A)`
 - **Transitivity**: `(A \\equiv B)` and `(B \\equiv C)` imply `(A \\equiv C)`
@@ -98,19 +108,21 @@ Comprehensive test suite with 33 integration examples covering all five content 
 
 ### Ground
 
-**Symbol**: `\\leq`  
-**Name**: Ground (Disjunctive-Part)  
-**Arity**: 2 (binary)  
+**Symbol**: `\\leq`
+**Name**: Ground (Disjunctive-Part)
+**Arity**: 2 (binary)
 **Type**: Primitive operator
 
 **Meaning**: "A grounds B" or "A is a disjunctive-part of B"
 
 **Truth Conditions**: A grounds B when:
+
 1. Every verifier of A is a verifier of B
 2. For any A-falsifier and B-falsifier, their fusion falsifies B
 3. Every falsifier of B contains some falsifier of A as a part
 
 **Usage Examples**:
+
 ```python
 # Basic grounding
 "(p \\leq q)"  # p grounds q
@@ -123,6 +135,7 @@ Comprehensive test suite with 33 integration examples covering all five content 
 ```
 
 **Key Properties**:
+
 - **Reflexivity**: `(A \\leq A)` is always valid
 - **Transitivity**: `(A \\leq B)` and `(B \\leq C)` imply `(A \\leq C)`
 - **Anti-symmetry**: `(A \\leq B)` and `(B \\leq A)` imply `(A \\equiv B)`
@@ -130,19 +143,21 @@ Comprehensive test suite with 33 integration examples covering all five content 
 
 ### Essence
 
-**Symbol**: `\\sqsubseteq`  
-**Name**: Essence (Conjunctive-Part)  
-**Arity**: 2 (binary)  
+**Symbol**: `\\sqsubseteq`
+**Name**: Essence (Conjunctive-Part)
+**Arity**: 2 (binary)
 **Type**: Primitive operator
 
 **Meaning**: "A is essential to B" or "A is a conjunctive-part of B"
 
 **Truth Conditions**: A is essential to B when:
-1. For any A-verifier and B-verifier, their fusion verifies B  
+
+1. For any A-verifier and B-verifier, their fusion verifies B
 2. Every verifier of B contains some verifier of A as a part
 3. Every falsifier of A is a falsifier of B
 
 **Usage Examples**:
+
 ```python
 # Basic essence
 "(p \\sqsubseteq q)"  # p is essential to q
@@ -155,6 +170,7 @@ Comprehensive test suite with 33 integration examples covering all five content 
 ```
 
 **Key Properties**:
+
 - **Reflexivity**: `(A \\sqsubseteq A)` is always valid
 - **Transitivity**: `(A \\sqsubseteq B)` and `(B \\sqsubseteq C)` imply `(A \\sqsubseteq C)`
 - **Anti-symmetry**: `(A \\sqsubseteq B)` and `(B \\sqsubseteq A)` imply `(A \\equiv B)`
@@ -162,18 +178,20 @@ Comprehensive test suite with 33 integration examples covering all five content 
 
 ### Relevance
 
-**Symbol**: `\\preceq`  
-**Name**: Relevance  
-**Arity**: 2 (binary)  
+**Symbol**: `\\preceq`
+**Name**: Relevance
+**Arity**: 2 (binary)
 **Type**: Primitive operator
 
 **Meaning**: "A is relevant to B"
 
 **Truth Conditions**: A is relevant to B when:
+
 1. The fusion of any A-verifier with any B-verifier verifies B
 2. The fusion of any A-falsifier with any B-falsifier falsifies B
 
 **Usage Examples**:
+
 ```python
 # Basic relevance
 "(p \\preceq q)"  # p is relevant to q
@@ -186,6 +204,7 @@ Comprehensive test suite with 33 integration examples covering all five content 
 ```
 
 **Key Properties**:
+
 - **Reflexivity**: `(A \\preceq A)` is always valid
 - **Transitivity**: Generally valid
 - **Weakest Relation**: Implied by both ground and essence
@@ -193,9 +212,9 @@ Comprehensive test suite with 33 integration examples covering all five content 
 
 ### Reduction
 
-**Symbol**: `\\Rightarrow`  
-**Name**: Reduction  
-**Arity**: 2 (binary)  
+**Symbol**: `\\Rightarrow`
+**Name**: Reduction
+**Arity**: 2 (binary)
 **Type**: Defined operator
 
 **Meaning**: "A reduces to B" (A both grounds and is essential to B)
@@ -203,6 +222,7 @@ Comprehensive test suite with 33 integration examples covering all five content 
 **Definition**: `(A \\leq B) \\wedge (A \\sqsubseteq B)` - Defined as the conjunction of ground and essence.
 
 **Usage Examples**:
+
 ```python
 # Basic reduction
 "(p \\Rightarrow q)"  # p reduces to q
@@ -215,6 +235,7 @@ Comprehensive test suite with 33 integration examples covering all five content 
 ```
 
 **Key Properties**:
+
 - **Strongest Relation**: Combines both ground and essence
 - **Absorption Laws**: Valid for absorption formulas
 - **Distribution Laws**: Valid for certain distribution patterns
@@ -226,8 +247,9 @@ Comprehensive test suite with 33 integration examples covering all five content 
 
 The constitutive subtheory includes **33 comprehensive examples** organized into two main categories:
 
-#### Countermodels (CL_CM_*): 14 Examples
-Tests for **invalid** constitutive arguments, demonstrating where classical principles fail in hyperintensional logic:
+#### Countermodels (CL*CM*\*): 14 Examples
+
+Tests for **invalid** constitutive arguments, demonstrating where intensional principles fail in hyperintensional logic:
 
 - **CL_CM_1**: Equivalence of Tautologies (tautologies are not identical)
 - **CL_CM_2**: Equivalence of Contradictions (contradictions are not identical)
@@ -244,7 +266,8 @@ Tests for **invalid** constitutive arguments, demonstrating where classical prin
 - **CL_CM_13**: Shannon Expansion (invalid)
 - **CL_CM_14**: Dual Shannon Expansion (invalid)
 
-#### Theorems (CL_TH_*): 19 Examples
+#### Theorems (CL*TH*\*): 19 Examples
+
 Tests for **valid** constitutive arguments, confirming valid hyperintensional principles:
 
 - **CL_TH_1**: Ground to Essence (interconversion)
@@ -276,7 +299,7 @@ model-checker src/model_checker/theory_lib/logos/subtheories/constitutive/exampl
 
 #### Running Tests
 
-The constitutive subtheory includes **33 comprehensive test examples** covering all five operators through both countermodel and theorem examples. Tests validate hyperintensional content relationships and demonstrate where classical principles fail.
+The constitutive subtheory includes **33 comprehensive test examples** covering all five operators through both countermodel and theorem examples. Tests validate hyperintensional content relationships and demonstrate where intensional principles fail.
 
 ```bash
 # Run all constitutive tests
@@ -296,7 +319,7 @@ python test_theories.py --theories logos --constitutive --examples
 ```python
 from model_checker.theory_lib.logos.subtheories.constitutive.examples import (
     constitutive_cm_examples,    # All countermodel examples
-    constitutive_th_examples,    # All theorem examples  
+    constitutive_th_examples,    # All theorem examples
     constitutive_examples        # Combined collection
 )
 
@@ -333,9 +356,10 @@ CL_TH_16_example = [CL_TH_16_premises, CL_TH_16_conclusions, CL_TH_16_settings]
 ```
 
 **Settings Explanation**:
+
 - `N`: Controls state space size (smaller N often sufficient for constitutive logic)
 - `M`: Additional parameter for complex constraints
-- `contingent`: Whether atomic propositions must be contingent  
+- `contingent`: Whether atomic propositions must be contingent
 - `disjoint`: Whether propositions must have disjoint subject matters
 - `expectation`: Expected model-finding result (False for valid arguments, True for invalid)
 
@@ -346,16 +370,18 @@ CL_TH_16_example = [CL_TH_16_premises, CL_TH_16_conclusions, CL_TH_16_settings]
 The constitutive subtheory implements the semantic theory developed in Brast-McKie (2021), which provides a hyperintensional approach to content relationships based on truthmaker semantics.
 
 **Key Innovations**:
+
 1. **Hyperintensional Propositions**: Propositions individuated by verifier and falsifier sets
 2. **Content-Based Relations**: Operators defined in terms of content overlap and containment
 3. **Bilateral Semantics**: Both positive (verifiers) and negative (falsifiers) conditions
-4. **Fine-Grained Distinctions**: Distinguishes logically equivalent but content-distinct propositions
+4. **Fine-Grained Distinctions**: Distinguishes necessarily equivalent but content-distinct propositions
 
 ### Truth Conditions
 
 #### Identity (A equiv B)
 
 **True** when A and B have identical content:
+
 ```
 For all x: (x verifies A iff x verifies B) and (x falsifies A iff x falsifies B)
 ```
@@ -363,15 +389,17 @@ For all x: (x verifies A iff x verifies B) and (x falsifies A iff x falsifies B)
 #### Ground (A ≤ B)
 
 **True** when A is a disjunctive-part of B:
+
 ```
 1. For all x: x verifies A implies x verifies B
-2. For all x,y: (x falsifies A and y falsifies B) implies (fusion(x,y) falsifies B)  
+2. For all x,y: (x falsifies A and y falsifies B) implies (fusion(x,y) falsifies B)
 3. For all x: x falsifies B implies exists y: (y falsifies A and y is-part-of x)
 ```
 
 #### Essence (A ⊑ B)
 
 **True** when A is essence of B (conjunctive-part):
+
 ```
 1. For all x,y: (x verifies A and y verifies B) implies fusion(x,y) verifies B
 2. For all x: x verifies B implies exists y: (y verifies A and y is-part-of x)
@@ -381,6 +409,7 @@ For all x: (x verifies A iff x verifies B) and (x falsifies A iff x falsifies B)
 #### Relevance (A ⪯ B)
 
 **True** when A is relevant to B:
+
 ```
 1. For all x,y: (x verifies A and y verifies B) implies fusion(x,y) verifies B
 2. For all x,y: (x falsifies A and y falsifies B) implies fusion(x,y) falsifies B
@@ -388,14 +417,15 @@ For all x: (x verifies A iff x verifies B) and (x falsifies A iff x falsifies B)
 
 ### Hyperintensional Content
 
-The constitutive operators are **hyperintensional**, meaning they distinguish between logically equivalent but content-distinct propositions:
+The constitutive operators are **hyperintensional**, meaning they distinguish between necessarily equivalent but content-distinct propositions:
 
-**Classical Logic**: `(A or neg A) iff (B or neg B)` (all tautologies equivalent)  
+**Intensional Logic**: `(A or neg A) iff (B or neg B)` (all tautologies equivalent)
 **Hyperintensional Logic**: `(A or neg A) not-equiv (B or neg B)` (different tautologies not identical)
 
 This allows for fine-grained analysis of:
+
 - **Topic sensitivity**: What a proposition is about
-- **Content overlap**: How propositions share subject matter  
+- **Content overlap**: How propositions share subject matter
 - **Dependence relations**: How propositions depend on each other
 
 ## Testing and Validation
@@ -405,14 +435,17 @@ This allows for fine-grained analysis of:
 **Valid Principles** (should always find models for premises but not conclusions):
 
 1. **CL_TH_16 - Grounding Anti-symmetry**:
+
    - `[(A \\leq B), (B \\leq A)] entails (A \\equiv B)`
    - If A grounds B and B grounds A, then A is identical to B
 
 2. **CL_TH_7 - Negation Transparency**:
+
    - `[(A \\equiv B)] entails (\\neg A \\equiv \\neg B)`
    - If A is identical to B, then it not being the case that A is identical to it not being the case that B
 
 3. **CL_TH_3 - Essence to Identity**:
+
    - `[(A \\sqsubseteq B)] entails ((A \\wedge B) \\equiv B)`
    - If A is essential for B, then A and B is identical to B
 
@@ -425,14 +458,17 @@ This allows for fine-grained analysis of:
 **Invalid Principles** (should find countermodels where premises are true but conclusions false):
 
 1. **CL_CM_1 - Equivalence of Tautologies**:
+
    - `[] does-not-entail ((A \\vee \\neg A) \\equiv (B \\vee \\neg B))`
    - A or it not being the case that A is not necessarily identical to B or it not being the case that B
 
 2. **CL_CM_7 - Identity Distribution**:
+
    - `[] does-not-entail ((A \\wedge (B \\vee C)) \\equiv ((A \\wedge B) \\vee (A \\wedge C)))`
    - Distribution law fails for identity
 
 3. **CL_CM_9 - Strict Implication to Ground**:
+
    - `[Box(A -> B)] does-not-entail (A \\leq B)`
    - Necessarily if A then B does not imply that A grounds B
 
@@ -443,6 +479,7 @@ This allows for fine-grained analysis of:
 ### Logical Properties
 
 **Properties that HOLD**:
+
 - Reflexivity: All operators are reflexive
 - Transitivity: Ground, essence, and relevance are transitive
 - Anti-symmetry: Ground and essence satisfy anti-symmetry
@@ -450,16 +487,18 @@ This allows for fine-grained analysis of:
 - Interconversion: Ground and essence convert through negation
 
 **Properties that FAIL**:
-- Classical Distribution: Identity doesn't satisfy classical distribution laws
+
+- Truth-functional Distribution: Identity doesn't satisfy truth-functional distribution laws
 - Tautology Equivalence: All tautologies are not identical
 - Modal Conversion: Strict implication doesn't convert to content relations
-- Supplementation: Content relations don't satisfy classical supplementation
+- Supplementation: Content relations don't satisfy intensional supplementation
 
 ## Integration
 
 ### Dependencies
 
 The constitutive subtheory depends on the **extensional subtheory** for:
+
 - `AndOperator`: Required for defining reduction operator
 - Basic logical operators used in complex examples
 
@@ -479,7 +518,7 @@ premises = ["(p \\leq q)", "\\Box p"]
 conclusion = "\\Box q"
 result = model.check_validity(premises, [conclusion])
 
-# Combined with counterfactual operators  
+# Combined with counterfactual operators
 theory = logos.get_theory(['constitutive', 'counterfactual'])
 
 # Identity and counterfactual interaction
@@ -530,16 +569,18 @@ from model_checker.theory_lib.logos.subtheories.constitutive.operators import (
 
 ## Advanced Topics
 
-### Classical vs Hyperintensional Logic
+### Intensional vs Hyperintensional Logic
 
-The constitutive subtheory reveals key differences between classical and hyperintensional logic:
+The constitutive subtheory reveals key differences between intensional and hyperintensional logic:
 
-**Classical Logic** (extensional):
+**Intensional Logic** (modal/possible worlds):
+
 - All tautologies are equivalent: `(A or neg A) iff (B or neg B)`
 - Distribution laws: `A and (B or C) iff (A and B) or (A and C)`
 - Absorption laws: `A iff A and (A or B)`
 
 **Hyperintensional Logic** (content-sensitive):
+
 - Tautologies differ in content: `(A or neg A) not-equiv (B or neg B)`
 - Distribution fails: `A not-equiv A and (A or B)` (generally)
 - Content matters: Same truth conditions not-equal same content
@@ -549,6 +590,7 @@ The constitutive subtheory reveals key differences between classical and hyperin
 The constitutive operators exhibit interesting interdefinability patterns:
 
 **Ground-Essence Duality**:
+
 ```python
 # A grounds B iff it not being the case that A is essential for it not being the case that B
 "(A \\leq B) \\equiv (\\neg A \\sqsubseteq \\neg B)"  # Valid
@@ -558,6 +600,7 @@ The constitutive operators exhibit interesting interdefinability patterns:
 ```
 
 **Identity Characterizations**:
+
 ```python
 # A is identical to B iff A grounds B and B grounds A
 "(A \\equiv B) \\equiv ((A \\leq B) \\wedge (B \\leq A))"  # Valid
@@ -567,6 +610,7 @@ The constitutive operators exhibit interesting interdefinability patterns:
 ```
 
 **Reduction Decomposition**:
+
 ```python
 # A reduces to B iff A grounds B and A is essential for B
 "(A \\Rightarrow B) \\equiv ((A \\leq B) \\wedge (A \\sqsubseteq B))"  # By definition
@@ -577,16 +621,19 @@ The constitutive operators exhibit interesting interdefinability patterns:
 The constitutive operators enable analysis of **content sensitivity**:
 
 **Topic Individuation**:
+
 - What makes propositions about the same topic?
 - How do we individuate propositional content?
 - When do propositions share subject matter?
 
 **Dependence Analysis**:
+
 - What does it mean for one proposition to depend on another?
 - How do ground and essence capture different dependency relations?
 - When is content overlap sufficient for logical connection?
 
 **Hyperintensional Reasoning**:
+
 - Moving beyond truth-functional logic
 - Analyzing content relationships
 - Understanding aboutness and topicality
@@ -594,6 +641,7 @@ The constitutive operators enable analysis of **content sensitivity**:
 ## Dependencies
 
 The constitutive subtheory depends on the **extensional subtheory** for:
+
 - `AndOperator`: Required for defining reduction operator as conjunction of ground and essence
 - Basic logical operators used in complex constitutive formulas
 
@@ -604,7 +652,7 @@ theory = logos.get_theory(['constitutive'])  # Also loads extensional
 
 ## Testing
 
-The constitutive subtheory includes **33 comprehensive test examples** covering all five content operators through countermodel examples (invalid classical principles) and theorem examples (valid hyperintensional principles).
+The constitutive subtheory includes **33 comprehensive test examples** covering all five content operators through countermodel examples (invalid intensional principles) and theorem examples (valid hyperintensional principles).
 
 ```bash
 # Run all constitutive tests
@@ -620,11 +668,13 @@ python test_theories.py --theories logos --constitutive --examples
 ## References
 
 ### Primary Sources
+
 - Brast-McKie (2021) ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w), Journal of Philosophical Logic
 - Fine (2017) ["A Theory of Truthmaker Content I"](https://link.springer.com/article/10.1007/s10992-016-9413-y), Journal of Philosophical Logic
 - Fine (2017) ["A Theory of Truthmaker Content II"](https://doi.org/10.1007/s10992-016-9419-5), Journal of Philosophical Logic
 
 ### Related Resources
+
 - **[Extensional Subtheory](../extensional/)** - Truth-functional foundation for constitutive operators
 - **[Modal Subtheory](../modal/)** - Integration with necessity and possibility
 - **[Logos Theory](../../README.md)** - Complete hyperintensional framework documentation

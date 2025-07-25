@@ -1,276 +1,308 @@
-# Logos Subtheories: Modular Operator Systems
+# Logos Subtheories: Modular Hyperintensional Logic
 
-This directory contains the implementation of the Logos theory's modular subtheory system. Each subtheory provides specialized logical operators organized by domain, enabling selective loading and clean separation of logical concerns.
+[← Back to Logos Theory](../README.md) | [Extensional →](extensional/README.md) | [Modal →](modal/README.md)
 
-## Available Subtheories
+## Directory Structure
+```
+subtheories/
+├── README.md                # This file - subtheory coordination
+├── __init__.py             # Public API for subtheory loading
+├── extensional/            # Truth-functional operators (7 operators)
+│   ├── README.md          # Extensional documentation
+│   ├── __init__.py        # Public API exports
+│   ├── operators.py       # Operator implementations
+│   ├── examples.py        # Test examples (32 examples)
+│   └── tests/             # Test suite
+├── modal/                  # Necessity and possibility (4 operators)
+│   ├── README.md          # Modal documentation
+│   ├── __init__.py        # Public API exports
+│   ├── operators.py       # Operator implementations
+│   ├── examples.py        # Test examples (21 examples)
+│   └── tests/             # Test suite
+├── constitutive/           # Content relationships (5 operators)
+│   ├── README.md          # Constitutive documentation
+│   ├── __init__.py        # Public API exports
+│   ├── operators.py       # Operator implementations
+│   ├── examples.py        # Test examples (33 examples)
+│   └── tests/             # Test suite
+├── counterfactual/         # Counterfactual reasoning (2 operators)
+│   ├── README.md          # Counterfactual documentation
+│   ├── __init__.py        # Public API exports
+│   ├── operators.py       # Operator implementations
+│   ├── examples.py        # Test examples (2 examples)
+│   └── tests/             # Test suite
+└── relevance/              # Content-sensitive relevance (1 operator)
+    ├── README.md          # Relevance documentation
+    ├── __init__.py        # Public API exports
+    ├── operators.py       # Operator implementations
+    ├── examples.py        # Test examples (3 examples)
+    └── tests/             # Test suite
+```
 
-### Core Subtheories (Default Set)
+## Overview
 
-| Subtheory | Operators | Description |
-|-----------|-----------|-------------|
-| **extensional** | 7 operators | Truth-functional operators (¬,∧,∨,→,↔,⊤,⊥) |
-| **modal** | 4 operators | Necessity and possibility operators (□,◇,CFBox,CFDiamond) |
-| **constitutive** | 5 operators | Content relations (≡,≤,⊑,≼,⇒) |
-| **counterfactual** | 4 operators | Counterfactual reasoning (□→,◇→) |
+The **Logos Subtheories** implement a modular approach to hyperintensional logic, organizing 19 logical operators into 5 domain-specific modules. This architecture enables selective loading of logical capabilities, clean separation of concerns, and efficient memory usage while maintaining semantic coherence across all operators.
 
-### Experimental Subtheories
+Each subtheory provides a self-contained logical system with its own operators, examples, and tests. Subtheories automatically resolve dependencies—requesting modal logic includes extensional operators, while relevance logic brings in the full constitutive framework. This modular design supports both theoretical exploration and practical applications.
 
-| Subtheory | Operators | Description |
-|-----------|-----------|-------------|
-| **relevance** | 1 operator | Content-sensitive relevance logic (≼) |
+The subtheory system exemplifies the Logos framework's commitment to **hyperintensional semantics**, where even necessarily equivalent formulas can have different content. By organizing operators into coherent modules, researchers can focus on specific logical phenomena while maintaining access to the full power of truthmaker semantics when needed.
 
 ## Quick Start
 
-### Selective Subtheory Loading
-
 ```python
-from model_checker import BuildExample
 from model_checker.theory_lib import logos
+from model_checker import BuildExample
 
-# Modal reasoning only
+# Load only what you need - modal logic
 theory = logos.get_theory(['extensional', 'modal'])
-model = BuildExample("modal_logic", theory)
-result = model.check_formula("□(p → q) → (□p → □q)")
+model = BuildExample("modal_example", theory)
+result = model.check_formula("\\Box(p \\rightarrow q) \\rightarrow (\\Box p \\rightarrow \\Box q)")
 
-# Counterfactual reasoning
-theory = logos.get_theory(['extensional', 'counterfactual'])
-model = BuildExample("counterfactuals", theory)
-result = model.check_formula("(p □→ q) → ¬(p □→ ¬q)")
+# Hyperintensional content relationships
+theory = logos.get_theory(['constitutive'])  # Auto-loads extensional
+model = BuildExample("content_example", theory)
+result = model.check_validity(["(A \\leq B)", "(B \\leq A)"], ["(A \\equiv B)"])
 
-# Full hyperintensional system
-theory = logos.get_theory()  # All core subtheories
-model = BuildExample("full_system", theory)
+# Full system with all core subtheories
+theory = logos.get_theory()  # Loads extensional, modal, constitutive, counterfactual
+model = BuildExample("full_example", theory)
 ```
 
-### Direct Subtheory Access
+## Subdirectories
 
-```python
-# Individual subtheory loading
-from model_checker.theory_lib.logos.subtheories import extensional, modal
+### [extensional/](extensional/)
+Foundation of truth-functional logic with 7 operators (¬, ∧, ∨, →, ↔, ⊤, ⊥). Implements bilateral truthmaker semantics where even basic operators distinguish content. Includes 32 comprehensive examples testing logical principles. Required by all other subtheories. See [extensional/README.md](extensional/README.md) for operator details.
 
-# Get operators and examples
-ext_operators = extensional.get_operators()
-modal_operators = modal.get_operators()
-examples = extensional.get_examples()
+### [modal/](modal/) 
+Hyperintensional modal logic with 4 operators (□, ◇, CFBox, CFDiamond). Goes beyond S5 semantics to distinguish necessarily equivalent modal formulas. Includes 21 examples exploring modal axioms and hyperintensional phenomena. Depends on extensional subtheory. See [modal/README.md](modal/README.md) for modal semantics.
 
-# Direct operator class access
-from model_checker.theory_lib.logos.subtheories.extensional import NegationOperator
-from model_checker.theory_lib.logos.subtheories.modal import NecessityOperator
-```
+### [constitutive/](constitutive/)
+Content relationship operators with 5 operators (≡, ≤, ⊑, ⪯, ⇒) for identity, ground, essence, relevance, and reduction. Enables fine-grained analysis of propositional content and dependencies. Includes 33 examples validating hyperintensional principles. See [constitutive/README.md](constitutive/README.md) for truth conditions.
+
+### [counterfactual/](counterfactual/)
+Counterfactual conditionals with 2 operators (□→, ◇→) implementing alternative world-state semantics. Validates key counterfactual principles while avoiding problematic inferences. Includes focused test examples. See [counterfactual/README.md](counterfactual/README.md) for counterfactual reasoning.
+
+### [relevance/](relevance/)
+Experimental relevance logic with 1 operator (⪯) imported from constitutive subtheory. Provides content-sensitive relevance without additional operators. Includes 3 test examples. See [relevance/README.md](relevance/README.md) for relevance semantics.
+
+## Documentation
+
+### For New Users
+- **[Quick Start](#quick-start)** - Basic examples of subtheory loading and usage
+- **[Dependency Management](#dependency-management)** - How subtheories resolve dependencies
+- **[Running Examples](#running-examples)** - Command-line testing of subtheories
+
+### For Researchers
+- **[Integration Patterns](#integration-patterns)** - Combining subtheories for complex reasoning
+- **[API Reference](#api-reference)** - Complete function and class documentation
+- **[Individual Testing](#individual-subtheory-testing)** - Testing specific logical systems
+
+### For Developers
+- **[Subtheory Structure](#subtheory-structure)** - Standard organization and requirements
+- **[Adding New Subtheories](#adding-new-subtheories)** - How to extend the system
+- **[Unit Testing](#unit-testing)** - Comprehensive test suite documentation
+
+## Examples
 
 ### Dependency Management
 
-Subtheories automatically resolve dependencies:
+Subtheories automatically resolve their dependencies:
 
 ```python
-# Requesting 'modal' automatically loads 'extensional'
-theory = logos.get_theory(['modal'])  # Loads both extensional + modal
+# Requesting modal automatically includes extensional
+theory = logos.get_theory(['modal'])
+print(len(theory['operators'].operator_dictionary))  # 11 operators (7 + 4)
 
-# Requesting 'relevance' loads full dependency chain
-theory = logos.get_theory(['relevance'])  # Loads extensional + constitutive + relevance
+# Requesting relevance loads full dependency chain
+theory = logos.get_theory(['relevance'])
+# Loads: extensional → constitutive → relevance
 
-# Dependency chain visualization:
-# extensional (base)
-#   → modal, counterfactual (depend on extensional)
-#   → constitutive (depends on extensional)
-#     → relevance (depends on constitutive)
+# Dependency visualization:
+# extensional (base - required by all)
+#   ├── modal (needs negation for possibility)
+#   ├── counterfactual (needs basic connectives)
+#   └── constitutive (needs conjunction for reduction)
+#       └── relevance (imports from constitutive)
 ```
-
-## Subtheory Structure
-
-Each subtheory follows a consistent structure:
-
-```
-subtheory_name/
-├── __init__.py        # Public API exports
-├── README.md          # Documentation and examples
-├── operators.py       # Operator implementations
-├── examples.py        # Test examples and demos
-└── tests/            # Unit tests and validation
-    ├── __init__.py
-    ├── README.md      # Testing documentation
-    └── test_*.py      # Test implementations
-```
-
-### API Consistency
-
-All subtheories provide:
-
-```python
-# Core functions (available from __init__.py)
-get_operators()  # Returns {name: operator_class} mapping
-get_examples()   # Returns example collections
-
-# Direct imports (available from __init__.py)
-# Individual operator classes for type checking
-```
-
-## Examples and Testing
 
 ### Running Examples
 
+#### Command Line
 ```bash
-# Run all examples for a subtheory
+# Run individual subtheory examples
 ./dev_cli.py src/model_checker/theory_lib/logos/subtheories/modal/examples.py
 
-# Run with detailed output
-./dev_cli.py -p -z src/model_checker/theory_lib/logos/subtheories/modal/examples.py
+# With detailed output
+./dev_cli.py -p -z src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
+
+# Run all logos examples
+./dev_cli.py src/model_checker/theory_lib/logos/examples.py
 ```
 
-### Running Tests
-
-```bash
-# Test specific subtheory
-pytest src/model_checker/theory_lib/logos/subtheories/modal/tests/
-
-# Test all logos subtheories
-python test_theories.py --theories logos
-
-# Test specific examples
-pytest src/model_checker/theory_lib/logos/subtheories/modal/tests/ -k "MOD_TH_1"
-```
-
-### Example Categories
-
-Each subtheory includes comprehensive examples:
-
-- **Countermodels** (*_CM_*): Invalid arguments that should find countermodels
-- **Theorems** (*_TH_*): Valid arguments that should be proven
-- **Definitions** (*_DEF_*): Definitional equivalences between operators
-
-## Integration Patterns
-
-### Combining Subtheories
-
+#### Programmatic Access
 ```python
-# Modal + Counterfactual interaction
-theory = logos.get_theory(['modal', 'counterfactual'])
-model = BuildExample("mixed_modal_cf", theory)
+# Import specific subtheory
+from model_checker.theory_lib.logos.subtheories import modal
 
-# Test interaction between necessity and counterfactuals
+# Get operators and examples
+operators = modal.get_operators()
+examples = modal.get_examples()
+
+# Direct operator access
+from model_checker.theory_lib.logos.subtheories.modal import NecessityOperator
+```
+
+### Integration Patterns
+
+#### Combining Modal and Constitutive Logic
+```python
+theory = logos.get_theory(['modal', 'constitutive'])
+model = BuildExample("modal_content", theory)
+
+# Test if grounding implies necessity
+premises = ["(p \\leq q)", "\\Box p"]
+conclusion = "\\Box q"
+result = model.check_validity(premises, [conclusion])
+```
+
+#### Cross-Subtheory Reasoning
+```python
+# Counterfactual and modal interaction
+theory = logos.get_theory(['modal', 'counterfactual'])
+model = BuildExample("modal_cf", theory)
+
+# If necessarily p, then if p were true, q would be true
 premises = ["\\Box p", "(p \\boxright q)"]
 conclusion = "\\Box q"
 result = model.check_validity(premises, [conclusion])
 ```
 
-### Cross-Subtheory Dependencies
+## API Reference
 
-- **Modal** operators use **extensional** negation for possibility definitions
-- **Relevance** operators build on **constitutive** relations
-- **Counterfactual** operators combine with **modal** operators for complex reasoning
+### Main Module Functions
+
+```python
+from model_checker.theory_lib.logos.subtheories import (
+    AVAILABLE_SUBTHEORIES,      # List['extensional', 'modal', ...]
+    SUBTHEORY_DESCRIPTIONS,     # Dict[str, str] - name to description
+    get_subtheory_module,       # (name: str) -> ModuleType
+    list_subtheories           # () -> Dict[str, str]
+)
+```
+
+### Per-Subtheory API
+
+Each subtheory exports a consistent API:
+
+```python
+# Core functions (from subtheory.__init__)
+get_operators()  # Dict[str, Type[Operator]] - operator name to class
+get_examples()   # Dict[str, List] - example collections
+
+# Operator classes (from subtheory.__init__)
+# Extensional: NegationOperator, AndOperator, OrOperator, ...
+# Modal: NecessityOperator, PossibilityOperator, ...
+# Constitutive: IdentityOperator, GroundOperator, ...
+```
+
+### Subtheory Structure
+
+Each subtheory follows this standard structure:
+
+```python
+subtheory_name/
+├── __init__.py        # Public API exports
+├── README.md          # Documentation (9-section format)
+├── operators.py       # Operator implementations
+├── examples.py        # Test examples and demos
+└── tests/            # Unit tests and validation
+    ├── __init__.py
+    ├── README.md      # Test documentation
+    └── test_*.py      # Test implementations
+```
+
+## Testing and Validation
+
+### Individual Subtheory Testing
+
+Test specific subtheories from the project root:
+
+```bash
+# Developer mode with detailed output
+./dev_cli.py src/model_checker/theory_lib/logos/subtheories/modal/examples.py
+./dev_cli.py -p -z src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
+
+# Using model-checker command
+model-checker src/model_checker/theory_lib/logos/subtheories/extensional/examples.py
+```
+
+### Unit Testing
+
+Run comprehensive test suites:
+
+```bash
+# Test all logos subtheories
+python test_theories.py --theories logos
+
+# Test specific subtheory
+pytest src/model_checker/theory_lib/logos/subtheories/modal/tests/
+
+# Test specific examples by name
+pytest src/model_checker/theory_lib/logos/tests/ -k "MOD_TH_1"
+
+# Verbose output for debugging
+python test_theories.py --theories logos -v
+```
+
+### Test Categories
+
+Each subtheory includes standardized test categories:
+
+- **Countermodels (*_CM_*)**: Invalid arguments that should find countermodels
+- **Theorems (*_TH_*)**: Valid arguments that should not find countermodels
+- **Definitions (*_DEF_*)**: Operator interdefinability and equivalences
 
 ## Development
 
 ### Adding New Subtheories
 
-1. Create directory: `mkdir logos/subtheories/new_subtheory`
-2. Implement required files: `operators.py`, `examples.py`, `__init__.py`, `README.md`
-3. Add to `AVAILABLE_SUBTHEORIES` in `__init__.py`
-4. Update dependency chain if needed
-5. Create comprehensive test suite
+1. Create directory structure:
+   ```bash
+   mkdir -p logos/subtheories/new_theory/tests
+   ```
+
+2. Implement required files:
+   - `operators.py`: Operator classes extending `model_checker.syntactic.Operator`
+   - `examples.py`: Test examples in standard format
+   - `__init__.py`: Public API exports
+   - `README.md`: Documentation following 9-section format
+   - `tests/test_*.py`: Unit tests
+
+3. Update `AVAILABLE_SUBTHEORIES` in main `__init__.py`
+
+4. Add dependency resolution if needed
+
+5. Create comprehensive test coverage
 
 ### Modifying Existing Subtheories
 
-1. Follow existing patterns in `operators.py` for new operators
-2. Add examples in `examples.py` using standard format
+1. Follow patterns in `operators.py` for consistency
+2. Add examples using standard format in `examples.py`
 3. Update `__init__.py` exports for new operators
-4. Document in subtheory's `README.md`
-5. Add unit tests in `tests/`
+4. Document changes in subtheory README
+5. Add unit tests for new functionality
 
-## Individual Subtheory Testing
+## References
 
-To test a specific subtheory, use these commands from the project root:
+### Implementation Documentation
+- Individual subtheory READMEs contain detailed operator semantics and truth conditions
+- Test documentation in each `tests/README.md` explains validation methodology
 
-**Developer mode (using dev_cli.py):**
-- `./dev_cli.py src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py`
-- `./dev_cli.py src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py`
-- `./dev_cli.py src/model_checker/theory_lib/logos/subtheories/modal/examples.py`
-- `./dev_cli.py src/model_checker/theory_lib/logos/subtheories/extensional/examples.py`
-- `./dev_cli.py src/model_checker/theory_lib/logos/subtheories/relevance/examples.py`
-
-**Using model-checker command:**
-- `model-checker src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py`
-- `model-checker src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py`
-- `model-checker src/model_checker/theory_lib/logos/subtheories/modal/examples.py`
-- `model-checker src/model_checker/theory_lib/logos/subtheories/extensional/examples.py`
-- `model-checker src/model_checker/theory_lib/logos/subtheories/relevance/examples.py`
-
-### Complete Logos Theory Testing
-
-To test the entire Logos theory including all subtheories:
-
-**Developer mode:**
-- `./dev_cli.py src/model_checker/theory_lib/logos/examples.py`
-
-**Using model-checker command:**
-- `model-checker src/model_checker/theory_lib/logos/examples.py`
-
-## Unit Testing
-
-**Unit test suite (includes all examples from all subtheories):**
-- `python test_theories.py --theories logos`
-
-**Run only the unified subtheory examples:**
-- `python -m pytest src/model_checker/theory_lib/logos/tests/test_logos_examples.py -v`
-
-**Run specific examples by name:**
-- `python -m pytest src/model_checker/theory_lib/logos/tests/test_logos_examples.py -k "EXT_CM_1" -v`
-
-### Debugging Test Failures
-
-To see detailed information about test failures, use verbose mode:
-
-**Verbose output:**
-- `python test_theories.py --theories logos -v`
-
-**Stop on first failure:**
-- `python test_theories.py --theories logos -x`
-
-**Direct pytest for more control:**
-- `python -m pytest src/model_checker/theory_lib/logos/tests/ -v`
-- `python -m pytest src/model_checker/theory_lib/logos/tests/test_logos.py::TestLogosSemantics::test_semantics_instantiation -v -s`
-
-**With timeout for hanging tests:**
-- `python -m pytest src/model_checker/theory_lib/logos/tests/ -v --timeout=30`
-
-The `-v` flag shows verbose output including which specific test failed and why. The `-s` flag shows print statements and other output from tests. The `--timeout=30` flag kills tests that run longer than 30 seconds, useful for identifying hanging tests.
-
-## API Reference
-
-### Main Functions
-
-```python
-from model_checker.theory_lib.logos.subtheories import (
-    AVAILABLE_SUBTHEORIES,     # List of all subtheory names
-    SUBTHEORY_DESCRIPTIONS,    # Name -> description mapping
-    get_subtheory_module,      # Load specific subtheory module
-    list_subtheories          # Get descriptions dictionary
-)
-```
-
-### Per-Subtheory APIs
-
-Each subtheory exports:
-
-```python
-# Core API (all subtheories)
-get_operators()    # {operator_name: operator_class}
-get_examples()     # Example collections
-
-# Operator classes (subtheory-specific)
-# e.g., for extensional:
-NegationOperator, AndOperator, OrOperator, ...
-
-# e.g., for modal:  
-NecessityOperator, PossibilityOperator, ...
-```
+### Related Resources
+- **[Logos Theory Documentation](../README.md)** - Complete framework overview
+- **[Theory Library Documentation](../../README.md)** - All available theories
+- **[ModelChecker Documentation](../../../../README.md)** - System documentation
 
 ---
 
-For detailed documentation on individual subtheories, see their respective README files:
-
-- [Extensional README](extensional/README.md) - Truth-functional operators
-- [Modal README](modal/README.md) - Necessity and possibility 
-- [Constitutive README](constitutive/README.md) - Content relations
-- [Counterfactual README](counterfactual/README.md) - counterfactual reasoning
-- [Relevance README](relevance/README.md) - Relevance logic
+[← Back to Logos Theory](../README.md) | [Extensional →](extensional/README.md) | [Modal →](modal/README.md)

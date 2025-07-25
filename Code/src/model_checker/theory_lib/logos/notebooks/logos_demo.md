@@ -396,7 +396,7 @@ hyperintensional_tests = [
     ("□(p ∧ q)", "□(q ∧ p)", "Are conjunctions commutative in modal contexts?"),
     
     # Test content sensitivity
-    ("□((p → q) → p)", "□((r → s) → r)", "Do logically equivalent schemas substitute?"),
+    ("□((p → q) → p)", "□((r → s) → r)", "Do necessarily equivalent schemas substitute?"),
 ]
 
 print("Testing hyperintensional distinctions:\n")
