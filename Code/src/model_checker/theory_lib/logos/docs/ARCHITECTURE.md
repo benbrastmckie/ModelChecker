@@ -1,19 +1,52 @@
-# Logos Theory Architecture
+# Logos Theory Architecture: Technical Implementation Guide
 
-This document provides a comprehensive technical overview of the Logos theory's architecture, design patterns, and implementation details.
+[← Back to Documentation](README.md) | [API Reference →](API_REFERENCE.md)
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Core Design Principles](#core-design-principles)
-- [System Architecture](#system-architecture)
-- [Component Deep Dive](#component-deep-dive)
-- [Operator Registry System](#operator-registry-system)
-- [Semantic Framework](#semantic-framework)
-- [Model Construction](#model-construction)
-- [Integration Points](#integration-points)
-- [Performance Considerations](#performance-considerations)
-- [Extension Patterns](#extension-patterns)
+1. [Overview](#overview)
+2. [Core Design Principles](#core-design-principles)
+   - [Modularity First](#1-modularity-first)
+   - [Semantic Consistency](#2-semantic-consistency)
+   - [Dynamic Composition](#3-dynamic-composition)
+   - [Performance Optimization](#4-performance-optimization)
+3. [System Architecture](#system-architecture)
+   - [Layer 1: Core Framework](#layer-1-core-framework)
+   - [Layer 2: Subtheory Modules](#layer-2-subtheory-modules)
+   - [Layer 3: Integration Layer](#layer-3-integration-layer)
+4. [Component Deep Dive](#component-deep-dive)
+   - [LogosSemantics Class](#logossemantics-class)
+   - [LogosOperatorRegistry](#logosoperatorregistry)
+   - [Operator Implementation Pattern](#operator-implementation-pattern)
+5. [Operator Registry System](#operator-registry-system)
+   - [Registry Architecture](#registry-architecture)
+   - [Dependency Management](#dependency-management)
+   - [Operator Discovery](#operator-discovery)
+6. [Semantic Framework](#semantic-framework)
+   - [Truthmaker Semantics](#truthmaker-semantics)
+   - [Evaluation Process](#evaluation-process)
+   - [Constraint Patterns](#constraint-patterns)
+7. [Model Construction](#model-construction)
+   - [BuildExample Integration](#buildexample-integration)
+   - [Model Structure](#model-structure)
+   - [Constraint Optimization](#constraint-optimization)
+8. [Integration Points](#integration-points)
+   - [ModelChecker Framework](#modelchecker-framework)
+   - [Theory Comparison](#theory-comparison)
+   - [Jupyter Integration](#jupyter-integration)
+9. [Performance Considerations](#performance-considerations)
+   - [Memory Management](#memory-management)
+   - [Computational Complexity](#computational-complexity)
+   - [Optimization Strategies](#optimization-strategies)
+10. [Extension Patterns](#extension-patterns)
+    - [Adding New Operators](#adding-new-operators)
+    - [Creating New Subtheories](#creating-new-subtheories)
+    - [Custom Semantic Variants](#custom-semantic-variants)
+11. [Best Practices](#best-practices)
+    - [Design Guidelines](#design-guidelines)
+    - [Code Organization](#code-organization)
+    - [Testing Strategy](#testing-strategy)
+    - [Documentation Standards](#documentation-standards)
 
 ## Overview
 
@@ -30,6 +63,7 @@ The Logos theory implements a **three-layer modular architecture** that provides
 ## Core Design Principles
 
 ### 1. Modularity First
+
 Each subtheory (extensional, modal, constitutive, counterfactual, relevance) is completely self-contained:
 - Independent operator definitions
 - Isolated test suites
@@ -37,6 +71,7 @@ Each subtheory (extensional, modal, constitutive, counterfactual, relevance) is 
 - Clear dependency declarations
 
 ### 2. Semantic Consistency
+
 All operators share the same underlying semantic framework:
 - Bilateral propositions (verifiers and falsifiers)
 - State-based truthmaker semantics
@@ -44,6 +79,7 @@ All operators share the same underlying semantic framework:
 - Unified constraint generation
 
 ### 3. Dynamic Composition
+
 The system supports runtime composition of logical systems:
 - Load any combination of subtheories
 - Automatic dependency resolution
@@ -51,6 +87,7 @@ The system supports runtime composition of logical systems:
 - Flexible theory construction
 
 ### 4. Performance Optimization
+
 Architecture designed for efficiency:
 - Lazy module loading
 - Operator caching
@@ -314,7 +351,7 @@ The Logos theory integrates with ModelChecker's BuildExample:
 from model_checker import check_formula
 
 # Check a modal identity formula
-result = check_formula("(A ≡ A)", theory_name="logos")
+result = check_formula("(A \\equiv A)", theory_name="logos")
 
 # Or check with specific subtheories
 theory = logos.get_theory(['modal', 'constitutive'])
@@ -474,16 +511,6 @@ class VariantSemantics(LogosSemantics):
 3. Example explanations
 4. API documentation
 
-## Conclusion
-
-The Logos architecture represents a sophisticated approach to implementing logical systems:
-- **Modular** - Load what you need
-- **Extensible** - Easy to add operators
-- **Performant** - Optimized for common cases
-- **Maintainable** - Clear separation of concerns
-
-This architecture enables researchers and developers to work with one of the most advanced semantic frameworks while maintaining clarity and efficiency.
-
 ---
 
-**Navigation**: [README](README.md) | [User Guide](USER_GUIDE.md) | [Settings](SETTINGS.md) | [Iteration](ITERATE.md) | [Main README](../README.md)
+[← Back to Documentation](README.md) | [Settings →](SETTINGS.md)

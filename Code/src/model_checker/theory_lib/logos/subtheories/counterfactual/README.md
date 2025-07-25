@@ -3,6 +3,7 @@
 [← Back to Subtheories](../README.md) | [Tests →](tests/README.md) | [Examples →](examples.py)
 
 ## Directory Structure
+
 ```
 counterfactual/
 ├── README.md               # This file - counterfactual subtheory overview
@@ -19,7 +20,7 @@ counterfactual/
 
 The **Counterfactual Subtheory** implements hyperintensional semantics for counterfactual operators (counterfactual conditional, might counterfactual). All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond truth-functional equivalence or necessary equivalence.
 
-Within the Logos framework, the counterfactual subtheory provides operators for sophisticated hypothetical reasoning and "what if" analysis. The two operators implement the semantic theory developed in Brast-McKie (2025), using an alternative worlds relation that enables non-monotonic reasoning where adding information can change truth values. This allows counterfactual operators to capture the context-sensitivity of hypothetical claims while integrating seamlessly with modal, constitutive, and relevance operators.
+Within the Logos framework, the counterfactual subtheory implements the semantics developed in Brast-McKie (2025) which defines an alternative worlds relation given a primitive space of states closed under parthood together with a semantic primitive for possibility. In addition to integrating seamlessly with modal, constitutive, and relevance operators, this theory is much more commutable and memory efficient than the imposition framework which posits a primitive three-place imposition relation in addition to possibility.
 
 ## Quick Start
 
@@ -37,28 +38,32 @@ result2 = model.check_validity(["A", "(A \\boxright B)"], ["B"])  # Modus ponens
 result3 = model.check_validity(["(A \\boxright C)"], ["((A \\wedge B) \\boxright C)"])  # Invalid: strengthening
 
 print(f"Counterfactual identity: {result1}")  # False (valid argument)
-print(f"Counterfactual modus ponens: {result2}")  # False (valid argument)  
+print(f"Counterfactual modus ponens: {result2}")  # False (valid argument)
 print(f"Antecedent strengthening: {result3}")  # True (invalid argument)
 ```
 
 ## Subdirectories
 
 ### [tests/](tests/)
+
 Comprehensive test suite with 33 integration examples covering both counterfactual operators. Includes countermodel examples (invalid classical principles like antecedent strengthening, contraposition, transitivity) and theorem examples (valid counterfactual principles like identity, modus ponens, weakened transitivity). Tests demonstrate the non-monotonic nature of counterfactual reasoning. See [tests/README.md](tests/README.md) for complete testing methodology.
 
 ## Documentation
 
 ### For New Users
+
 - **[Quick Start](#quick-start)** - Basic counterfactual reasoning examples
 - **[Operator Reference](#operator-reference)** - Complete guide to counterfactual operators
 - **[Testing Guide](tests/README.md)** - How to run and understand counterfactual tests
 
 ### For Researchers
+
 - **[Semantic Theory](#semantic-theory)** - Alternative worlds semantics and truth conditions
 - **[Test Examples](tests/README.md#test-categories)** - Valid and invalid counterfactual patterns
 - **[Academic References](#references)** - Primary sources and theoretical foundations
 
 ### For Developers
+
 - **[Implementation Details](operators.py)** - Counterfactual operator definitions
 - **[Examples Module](examples.py)** - Test cases and example formulas (33 examples)
 - **[Integration Testing](tests/test_counterfactual_examples.py)** - Complete test implementation
@@ -67,19 +72,21 @@ Comprehensive test suite with 33 integration examples covering both counterfactu
 
 ### Counterfactual Conditional
 
-**Symbol**: `\\boxright` (□→)  
-**Name**: Counterfactual Conditional  
-**Arity**: 2 (binary)  
+**Symbol**: `\\boxright` (□→)
+**Name**: Counterfactual Conditional
+**Arity**: 2 (binary)
 **Type**: Primitive operator
 
 **Meaning**: "If A were the case, then B would be the case"
 
 **Truth Conditions**: A counterfactual conditional A □→ B is true at an evaluation point w when:
+
 ```
 For all x,u: (x verifies A and u is alternative to x relative to w) implies B is true at u
 ```
 
 **Usage Examples**:
+
 ```python
 # Basic counterfactual reasoning
 "(p \\boxright q)"  # If p were the case, q would be the case
@@ -92,6 +99,7 @@ For all x,u: (x verifies A and u is alternative to x relative to w) implies B is
 ```
 
 **Key Properties**:
+
 - **Identity**: `(A \\boxright A)` is always valid
 - **Modus Ponens**: From `A` and `(A \\boxright B)`, infer `B`
 - **Transitivity**: Generally invalid (see countermodel CF_CM_10)
@@ -99,9 +107,9 @@ For all x,u: (x verifies A and u is alternative to x relative to w) implies B is
 
 ### Might Counterfactual
 
-**Symbol**: `\\diamondright` (◇→)  
-**Name**: Might Counterfactual  
-**Arity**: 2 (binary)  
+**Symbol**: `\\diamondright` (◇→)
+**Name**: Might Counterfactual
+**Arity**: 2 (binary)
 **Type**: Defined operator
 
 **Meaning**: "If A were the case, then B might be the case"
@@ -109,6 +117,7 @@ For all x,u: (x verifies A and u is alternative to x relative to w) implies B is
 **Definition**: `\\neg(A \\boxright \\neg B)` - Defined as the negation of the counterfactual conditional with negated consequent.
 
 **Usage Examples**:
+
 ```python
 # Expressing possibility under counterfactual assumption
 "(p \\diamondright q)"  # If p were the case, q might be the case
@@ -118,6 +127,7 @@ For all x,u: (x verifies A and u is alternative to x relative to w) implies B is
 ```
 
 **Key Properties**:
+
 - **Factivity**: From `A` and `B`, infer `(A \\diamondright B)` (see theorem CF_TH_10)
 - **Weaker than Would**: `(A \\boxright B)` implies `(A \\diamondright B)`
 - **Non-factivity for Would**: `A` and `B` do not imply `(A \\boxright B)` (see countermodel CF_CM_18)
@@ -128,29 +138,31 @@ For all x,u: (x verifies A and u is alternative to x relative to w) implies B is
 
 The counterfactual subtheory includes **33 comprehensive examples** organized into two main categories:
 
-#### Countermodels (CF_CM_*): 21 Examples
+#### Countermodels (CF*CM*\*): 21 Examples
+
 Tests for **invalid** counterfactual arguments, demonstrating where counterfactual principles fail:
 
-- **CF_CM_1**: Counterfactual Antecedent Strengthening  
-- **CF_CM_2**: Might Counterfactual Antecedent Strengthening  
-- **CF_CM_7**: Counterfactual Contraposition  
-- **CF_CM_10**: Transitivity  
-- **CF_CM_13**: Sobel Sequence (complex)  
-- **CF_CM_15**: Counterfactual Excluded Middle  
-- **CF_CM_18**: Must Factivity  
-- **CF_CM_19**: Counterfactual Exportation  
+- **CF_CM_1**: Counterfactual Antecedent Strengthening
+- **CF_CM_2**: Might Counterfactual Antecedent Strengthening
+- **CF_CM_7**: Counterfactual Contraposition
+- **CF_CM_10**: Transitivity
+- **CF_CM_13**: Sobel Sequence (complex)
+- **CF_CM_15**: Counterfactual Excluded Middle
+- **CF_CM_18**: Must Factivity
+- **CF_CM_19**: Counterfactual Exportation
 
-#### Theorems (CF_TH_*): 12 Examples  
+#### Theorems (CF*TH*\*): 12 Examples
+
 Tests for **valid** counterfactual arguments, confirming valid principles:
 
-- **CF_TH_1**: Counterfactual Identity  
-- **CF_TH_2**: Counterfactual Modus Ponens  
-- **CF_TH_3**: Weakened Transitivity  
-- **CF_TH_5**: Simplification of Disjunctive Antecedent  
-- **CF_TH_9**: Counterfactual Conjunction Introduction  
-- **CF_TH_10**: Might Factivity  
-- **CF_TH_11**: Definition of Necessity  
-- **CF_TH_12**: Contradiction to Impossibility  
+- **CF_TH_1**: Counterfactual Identity
+- **CF_TH_2**: Counterfactual Modus Ponens
+- **CF_TH_3**: Weakened Transitivity
+- **CF_TH_5**: Simplification of Disjunctive Antecedent
+- **CF_TH_9**: Counterfactual Conjunction Introduction
+- **CF_TH_10**: Might Factivity
+- **CF_TH_11**: Definition of Necessity
+- **CF_TH_12**: Contradiction to Impossibility
 
 ### Running Examples
 
@@ -186,7 +198,7 @@ python test_theories.py --theories logos --counterfactual --examples
 ```python
 from model_checker.theory_lib.logos.subtheories.counterfactual.examples import (
     counterfactual_cm_examples,    # All countermodel examples
-    counterfactual_th_examples,    # All theorem examples  
+    counterfactual_th_examples,    # All theorem examples
     counterfactual_examples        # Combined collection
 )
 
@@ -224,6 +236,7 @@ CF_TH_2_example = [CF_TH_2_premises, CF_TH_2_conclusions, CF_TH_2_settings]
 ```
 
 **Settings Explanation**:
+
 - `N`: Controls state space size (larger N allows more complex models)
 - `contingent`: Whether atomic propositions must be contingent
 - `non_empty`: Whether propositions must have non-empty truth sets
@@ -237,8 +250,9 @@ CF_TH_2_example = [CF_TH_2_premises, CF_TH_2_conclusions, CF_TH_2_settings]
 The counterfactual subtheory implements the semantic theory developed in Brast-McKie (2025), which provides a hyperintensional approach to counterfactual reasoning based on truthmaker semantics.
 
 **Key Innovations**:
+
 1. **Hyperintensional Semantics**: Propositions individuated by verifier and falsifier sets
-2. **Alternative Worlds**: Semantic relation determining counterfactual evaluation points  
+2. **Alternative Worlds**: Semantic relation determining counterfactual evaluation points
 3. **Verification-based Truth**: Truth conditions defined in terms of state verification
 4. **Bilateral Semantics**: Both positive (verifiers) and negative (falsifiers) truth conditions
 
@@ -247,11 +261,13 @@ The counterfactual subtheory implements the semantic theory developed in Brast-M
 #### Counterfactual Conditional (A �� B)
 
 **True at evaluation point w** when:
+
 ```
  x,u: (x verifies A ' u is alternative to x relative to w) � B is true at u
 ```
 
 **False at evaluation point w** when:
+
 ```
 x,u: (x verifies A ' u is alternative to x relative to w) ' B is false at u
 ```
@@ -259,9 +275,11 @@ The counterfactual subtheory implements the semantic theory developed in Brast-M
 #### Imposition (A imposition B)
 
 **True at evaluation point w** when:
+
 ```
  u,v: (u verifies A ' v verifies B) � (u  v) verifies B
 ```
+
 Where `` represents the fusion operation on states.
 
 ### Verification Semantics
@@ -280,15 +298,18 @@ This ensures counterfactuals behave as **world-sensitive** rather than **state-s
 
 **Valid Principles** (should always find models for premises but not conclusions):
 
-1. **CF_TH_1 - Counterfactual Identity**: 
+1. **CF_TH_1 - Counterfactual Identity**:
+
    - `[] � (A \\boxright A)`
    - Counterfactuals are reflexive
 
 2. **CF_TH_2 - Counterfactual Modus Ponens**:
-   - `[A, (A \\boxright B)] � B`  
+
+   - `[A, (A \\boxright B)] � B`
    - Basic inference rule for counterfactuals
 
 3. **CF_TH_3 - Weakened Transitivity**:
+
    - `[(A \\boxright B), ((A \\wedge B) \\boxright C)] � (A \\boxright C)`
    - Restricted form of transitivity that remains valid
 
@@ -301,14 +322,17 @@ This ensures counterfactuals behave as **world-sensitive** rather than **state-s
 **Invalid Principles** (should find countermodels where premises are true but conclusions false):
 
 1. **CF_CM_1 - Counterfactual Antecedent Strengthening**:
+
    - `[\\neg A, (A \\boxright C)] � ((A \\wedge B) \\boxright C)`
    - Strengthening antecedent can change truth value
 
 2. **CF_CM_7 - Counterfactual Contraposition**:
+
    - `[(A \\boxright B)] � (\\neg B \\boxright \\neg A)`
    - Contraposition fails for counterfactuals
 
 3. **CF_CM_10 - Transitivity**:
+
    - `[(A \\boxright B), (B \\boxright C)] � (A \\boxright C)`
    - Transitivity is generally invalid
 
@@ -319,13 +343,15 @@ This ensures counterfactuals behave as **world-sensitive** rather than **state-s
 ### Logical Properties
 
 **Properties that HOLD**:
-- Reflexivity: `(A \\boxright A)` 
+
+- Reflexivity: `(A \\boxright A)`
 - Modus Ponens: `A, (A \\boxright B) � B`
 - Weakened Transitivity: `(A \\boxright B), ((A ' B) \\boxright C) � (A \\boxright C)`
 - Would-to-Might: `(A \\boxright B) � (A \\diamondright B)`
 - Might Factivity: `A, B � (A \\diamondright B)`
 
 **Properties that FAIL**:
+
 - Antecedent Strengthening: `(A \\boxright C) � ((A ' B) \\boxright C)`
 - Contraposition: `(A \\boxright B) � (�B \\boxright �A)`
 - Transitivity: `(A \\boxright B), (B \\boxright C) � (A \\boxright C)`
@@ -337,6 +363,7 @@ This ensures counterfactuals behave as **world-sensitive** rather than **state-s
 ### Dependencies
 
 The counterfactual subtheory depends on the **extensional subtheory** for:
+
 - `NegationOperator`: Required for defining might counterfactual and might imposition
 - Basic logical operators used in complex examples
 
@@ -356,7 +383,7 @@ premises = ["\\Box p", "(p \\boxright q)"]
 conclusion = "\\Diamond q"
 result = model.check_validity(premises, [conclusion])
 
-# Combined with constitutive operators  
+# Combined with constitutive operators
 theory = logos.get_theory(['counterfactual', 'constitutive'])
 
 # Ground and counterfactual interaction
@@ -376,7 +403,7 @@ from model_checker.theory_lib.logos.subtheories.counterfactual import get_operat
 operators = get_operators()
 # Returns: {
 #     "\\boxright": CounterfactualOperator,
-#     "\\diamondright": MightCounterfactualOperator, 
+#     "\\diamondright": MightCounterfactualOperator,
 #     "\\imposition": ImpositionOperator,
 #     "\\could": MightImpositionOperator
 # }
@@ -414,7 +441,7 @@ from model_checker.theory_lib.logos.subtheories.counterfactual.operators import 
 # CF_CM_13: SOBEL SEQUENCE
 premises = [
     '(A \\boxright X)',                                    # A would lead to X
-    '\\neg ((A \\wedge B) \\boxright X)',                 # A'B would not lead to X  
+    '\\neg ((A \\wedge B) \\boxright X)',                 # A'B would not lead to X
     '(((A \\wedge B) \\wedge C) \\boxright X)',          # A'B'C would lead to X
     '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',  # But A'B'C'D would not
     # ... continues with more specific antecedents
@@ -440,14 +467,16 @@ This failure reflects the **context-sensitive** nature of counterfactual reasoni
 The subtheory distinguishes between **must factivity** and **might factivity**:
 
 **Might Factivity (VALID)**:
+
 ```python
 # CF_TH_10: If A and B are both true, then "if A were the case, B might be the case"
-premises = ['A', 'B'] 
+premises = ['A', 'B']
 conclusions = ['(A \\diamondright B)']  # Valid
 ```
 
 **Must Factivity (INVALID)**:
-```python  
+
+```python
 # CF_CM_18: A and B being true doesn't guarantee "if A were the case, B would be the case"
 premises = ['A', 'B']
 conclusions = ['(A \\boxright B)']  # Invalid - countermodel exists
@@ -458,6 +487,7 @@ This distinction captures the intuition that actual truth guarantees counterfact
 ## Dependencies
 
 The counterfactual subtheory depends on the **extensional subtheory** for:
+
 - `NegationOperator`: Required for defining might counterfactual as negation of counterfactual with negated consequent
 - Basic logical operators used in complex counterfactual formulas
 
@@ -484,11 +514,13 @@ python test_theories.py --theories logos --counterfactual --examples
 ## References
 
 ### Primary Sources
+
 - Brast-McKie (2025) ["Counterfactual Worlds"](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf), Journal of Philosophical Logic
 - Lewis (1973) ["Counterfactuals"](https://www.hup.harvard.edu/books/9780674127241), Harvard University Press
 - Fine (2012) ["Counterfactuals without Possible Worlds"](https://doi.org/10.5840/jphil2012109312), Journal of Philosophy
 
 ### Related Resources
+
 - **[Extensional Subtheory](../extensional/)** - Truth-functional foundation for counterfactual operators
 - **[Modal Subtheory](../modal/)** - Integration with necessity and possibility
 - **[Logos Theory](../../README.md)** - Complete hyperintensional framework documentation
