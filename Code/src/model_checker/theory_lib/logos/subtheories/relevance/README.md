@@ -17,11 +17,9 @@ relevance/
 
 ## Overview
 
-The **Relevance Subtheory** extends the Logos framework with specialized focus on the relevance operator (⪯), providing formal tools for analyzing when propositions are relevant to each other. This subtheory demonstrates relevance logic principles through comprehensive examples while leveraging the relevance operator already defined in the constitutive subtheory.
+The **Relevance Subtheory** implements hyperintensional semantics for the relevance operator (⪯). All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond truth-functional equivalence or necessary equivalence.
 
-The implementation provides **one relevance operator**: relevance (⪯), which is imported from the constitutive subtheory where it is defined alongside other content relationship operators. The relevance relation captures content relationships between propositions beyond mere truth-conditional connections, testing when the content of one proposition appropriately interacts with another.
-
-This subtheory serves as a specialized exploration of relevance logic within the Logos framework, providing 20 carefully crafted examples that demonstrate valid and invalid relevance principles while maintaining integration with constitutive, modal, and extensional reasoning.
+Within the Logos framework, the relevance subtheory provides specialized exploration of relevance logic through the relevance operator, which is imported from the constitutive subtheory where it is defined alongside other content relationship operators. The relevance relation captures content relationships between propositions through fusion closure conditions on verifiers and falsifiers, enabling formal analysis of when propositions are appropriately connected by content. This subtheory's 20 carefully crafted examples demonstrate valid and invalid relevance principles while maintaining integration with all other hyperintensional operators.
 
 ## Quick Start
 

@@ -17,11 +17,9 @@ extensional/
 
 ## Overview
 
-The **Extensional Subtheory** implements truth-functional operators following classical propositional logic semantics. These operators form the foundational layer for all other Logos subtheories, providing the basic truth-functional building blocks for modal, constitutive, counterfactual, and relevance reasoning.
+The **Extensional Subtheory** implements hyperintensional semantics for truth-functional operators (negation, conjunction, disjunction, material conditional, biconditional, top, bottom). All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond truth-functional equivalence or necessary equivalence.
 
-This subtheory includes **seven operators**: five primitive operators (negation, conjunction, disjunction, top, bottom) and two defined operators (material conditional, biconditional). All operators follow classical two-valued logic with standard truth-functional semantics, making this subtheory equivalent to classical propositional logic.
-
-The implementation serves as a dependency for all other subtheories in the Logos framework, ensuring a consistent logical foundation for hyperintensional reasoning while maintaining compatibility with classical inference patterns.
+Within the Logos framework, the extensional subtheory provides the foundational layer for all logical reasoning. While implementing classical truth-functional behavior, it does so within the hyperintensional semantic framework, enabling integration with modal, constitutive, counterfactual, and relevance operators. The seven operators (five primitive, two defined) maintain classical logical principles while supporting the fine-grained content distinctions required by other subtheories.
 
 ## Quick Start
 

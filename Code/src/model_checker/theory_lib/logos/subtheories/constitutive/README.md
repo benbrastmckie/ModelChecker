@@ -37,22 +37,25 @@ result1 = model.check_validity(   # Identity reflexivity
   [],                             # Premises
   ["(A \\equiv A)"]               # Conclusions
 )
-# TODO: make the next lines follow the pattern above to make this more readable to new users
-result2 = model.check_validity(["(A \\leq B)", "(B \\leq A)"], ["(A \\equiv B)"])       # Anti-symmetry
-result3 = model.check_validity([], ["((A \\vee \\neg A) \\equiv (B \\vee \\neg B))"])   # Invalid: tautology equivalence
+result2 = model.check_validity(   # Grounding anti-symmetry
+  ["(A \\leq B)", "(B \\leq A)"],  # Premises
+  ["(A \\equiv B)"]                # Conclusions
+)
+result3 = model.check_validity(   # Invalid: tautology equivalence
+  [],                             # Premises
+  ["((A \\vee \\neg A) \\equiv (B \\vee \\neg B))"]  # Conclusions
+)
 
-# TODO: this is confusing, since it seems like 'False' means 'not valid' when it actually means 'no countermodel'
-print(f"Identity reflexivity: {result1}")  # False (valid argument)
-print(f"Grounding anti-symmetry: {result2}")  # False (valid argument)
-print(f"Tautology equivalence: {result3}")  # True (invalid argument - hyperintensional distinction)
+print(f"Identity reflexivity: {result1}")  # No countermodel found (valid argument)
+print(f"Grounding anti-symmetry: {result2}")  # No countermodel found (valid argument)
+print(f"Tautology equivalence: {result3}")  # Countermodel found (invalid argument - hyperintensional distinction)
 ```
 
 ## Subdirectories
 
 ### [tests/](tests/)
 
-<!-- TODO: 'content-sensitive reasoning' should be replaced with 'reasoning that is sensitive to differences in subject-matter' -->
-Comprehensive test suite with 33 integration examples covering all five content operators. Includes countermodel examples (invalid intensional principles), theorem examples (valid hyperintensional principles), and exploration of content-sensitive reasoning. Tests validate hyperintensional distinctions that intensional logic cannot capture. See [tests/README.md](tests/README.md) for complete testing methodology.
+Comprehensive test suite with 33 integration examples covering all five content operators. Includes countermodel examples (invalid intensional principles), theorem examples (valid hyperintensional principles), and exploration of reasoning that is sensitive to differences in subject-matter. Tests validate hyperintensional distinctions that intensional logic cannot capture. See [tests/README.md](tests/README.md) for complete testing methodology.
 
 ## Documentation
 
@@ -207,9 +210,9 @@ Comprehensive test suite with 33 integration examples covering all five content 
 **Key Properties**:
 
 - **Reflexivity**: `(A \\preceq A)` is always valid
-- **Transitivity**: Generally valid
 - **Weakest Relation**: Implied by both ground and essence
-- **Content Interaction**: Captures content overlap without direction
+- **Transitivity**: Generally valid
+- **Content Interaction**: Captures subject-matter inclusion
 
 ### Reduction
 
@@ -248,7 +251,7 @@ Comprehensive test suite with 33 integration examples covering all five content 
 
 The constitutive subtheory includes **33 comprehensive examples** organized into two main categories:
 
-#### Countermodels (CL*CM*\*): 14 Examples
+#### Countermodels (CL_CM_*): 14 Examples
 
 Tests for **invalid** constitutive arguments, demonstrating where intensional principles fail in hyperintensional logic:
 
@@ -267,7 +270,7 @@ Tests for **invalid** constitutive arguments, demonstrating where intensional pr
 - **CL_CM_13**: Shannon Expansion (invalid)
 - **CL_CM_14**: Dual Shannon Expansion (invalid)
 
-#### Theorems (CL*TH*\*): 19 Examples
+#### Theorems (CL_TH_*): 19 Examples
 
 Tests for **valid** constitutive arguments, confirming valid hyperintensional principles:
 
@@ -347,7 +350,6 @@ CL_TH_16_premises = ['(A \\leq B)', '(B \\leq A)']     # What must be true
 CL_TH_16_conclusions = ['(A \\equiv B)']                # What we're testing
 CL_TH_16_settings = {                                   # Model constraints
     'N' : 2,                                           # Number of atomic states
-    'M' : 2,                                           # Additional constraint
     'contingent' : False,                              # Non-contingent propositions
     'disjoint' : False,                                # Allow overlapping content
     'max_time' : 2,                                    # Solver timeout (seconds)
@@ -359,7 +361,6 @@ CL_TH_16_example = [CL_TH_16_premises, CL_TH_16_conclusions, CL_TH_16_settings]
 **Settings Explanation**:
 
 - `N`: Controls state space size (smaller N often sufficient for constitutive logic)
-- `M`: Additional parameter for complex constraints
 - `contingent`: Whether atomic propositions must be contingent
 - `disjoint`: Whether propositions must have disjoint subject matters
 - `expectation`: Expected model-finding result (False for valid arguments, True for invalid)
@@ -379,55 +380,123 @@ The constitutive subtheory implements the semantic theory developed in Brast-McK
 
 ### Truth Conditions
 
-#### Identity (A equiv B)
+#### Identity (A ≡ B)
 
-**True** when A and B have identical content:
+**Z3 Implementation** (simplified from operators.py):
 
-```
-For all x: (x verifies A iff x verifies B) and (x falsifies A iff x falsifies B)
+```python
+# Identity requires exact same verifiers and falsifiers
+ForAll([x], 
+    z3.And(
+        # Same verifiers
+        semantics.extended_verify(x, leftarg, eval_point) == 
+        semantics.extended_verify(x, rightarg, eval_point),
+        # Same falsifiers
+        semantics.extended_falsify(x, leftarg, eval_point) == 
+        semantics.extended_falsify(x, rightarg, eval_point)
+    )
+)
 ```
 
 #### Ground (A ≤ B)
 
-**True** when A is a disjunctive-part of B:
+**Z3 Implementation** (from operators.py):
 
-```
-1. For all x: x verifies A implies x verifies B
-2. For all x,y: (x falsifies A and y falsifies B) implies (fusion(x,y) falsifies B)
-3. For all x: x falsifies B implies exists y: (y falsifies A and y is-part-of x)
+```python
+# Ground has three conditions
+conditions = [
+    # 1. All A-verifiers are B-verifiers
+    ForAll([x], z3.Implies(
+        semantics.extended_verify(x, leftarg, eval_point),
+        semantics.extended_verify(x, rightarg, eval_point)
+    )),
+    # 2. Fusion condition for falsifiers
+    ForAll([x, y], z3.Implies(
+        z3.And(
+            semantics.extended_falsify(x, leftarg, eval_point),
+            semantics.extended_falsify(y, rightarg, eval_point)
+        ),
+        semantics.extended_falsify(semantics.fusion(x, y), rightarg, eval_point)
+    )),
+    # 3. Every B-falsifier contains an A-falsifier
+    ForAll([x], z3.Implies(
+        semantics.extended_falsify(x, rightarg, eval_point),
+        z3.Exists([y], z3.And(
+            semantics.extended_falsify(y, leftarg, eval_point),
+            semantics.part_of(y, x)
+        ))
+    ))
+]
 ```
 
 #### Essence (A ⊑ B)
 
-**True** when A is essence of B (conjunctive-part):
+**Z3 Implementation** (from operators.py):
 
-```
-1. For all x,y: (x verifies A and y verifies B) implies fusion(x,y) verifies B
-2. For all x: x verifies B implies exists y: (y verifies A and y is-part-of x)
-3. For all x: x falsifies A implies x falsifies B
+```python
+# Essence has three conditions
+conditions = [
+    # 1. Fusion condition for verifiers
+    ForAll([x, y], z3.Implies(
+        z3.And(
+            semantics.extended_verify(x, leftarg, eval_point),
+            semantics.extended_verify(y, rightarg, eval_point)
+        ),
+        semantics.extended_verify(semantics.fusion(x, y), rightarg, eval_point)
+    )),
+    # 2. Every B-verifier contains an A-verifier
+    ForAll([x], z3.Implies(
+        semantics.extended_verify(x, rightarg, eval_point),
+        z3.Exists([y], z3.And(
+            semantics.extended_verify(y, leftarg, eval_point),
+            semantics.part_of(y, x)
+        ))
+    )),
+    # 3. All A-falsifiers are B-falsifiers
+    ForAll([x], z3.Implies(
+        semantics.extended_falsify(x, leftarg, eval_point),
+        semantics.extended_falsify(x, rightarg, eval_point)
+    ))
+]
 ```
 
 #### Relevance (A ⪯ B)
 
-**True** when A is relevant to B:
+**Z3 Implementation** (from operators.py):
 
-```
-1. For all x,y: (x verifies A and y verifies B) implies fusion(x,y) verifies B
-2. For all x,y: (x falsifies A and y falsifies B) implies fusion(x,y) falsifies B
+```python
+# Relevance has two fusion conditions
+conditions = [
+    # 1. Fusion of verifiers verifies B
+    ForAll([x, y], z3.Implies(
+        z3.And(
+            semantics.extended_verify(x, leftarg, eval_point),
+            semantics.extended_verify(y, rightarg, eval_point)
+        ),
+        semantics.extended_verify(semantics.fusion(x, y), rightarg, eval_point)
+    )),
+    # 2. Fusion of falsifiers falsifies B
+    ForAll([x, y], z3.Implies(
+        z3.And(
+            semantics.extended_falsify(x, leftarg, eval_point),
+            semantics.extended_falsify(y, rightarg, eval_point)
+        ),
+        semantics.extended_falsify(semantics.fusion(x, y), rightarg, eval_point)
+    ))
+]
 ```
 
 ### Hyperintensional Content
 
-The constitutive operators are **hyperintensional**, meaning they distinguish between necessarily equivalent but content-distinct propositions:
+The constitutive operators are **hyperintensional**, meaning they distinguish between necessarily equivalent propositions with distinct subject-matter:
 
-**Intensional Logic**: `(A or neg A) iff (B or neg B)` (all tautologies equivalent)
-**Hyperintensional Logic**: `(A or neg A) not-equiv (B or neg B)` (different tautologies not identical)
+**Intensional Logic**: (A ∨ ¬A) ↔ (B ∨ ¬B) (all tautologies equivalent)
+**Hyperintensional Logic**: (A ∨ ¬A) ≢ (B ∨ ¬B) (different tautologies not identical)
 
 This allows for fine-grained analysis of:
 
-- **Topic sensitivity**: What a proposition is about
-- **Content overlap**: How propositions share subject matter
-- **Dependence relations**: How propositions depend on each other
+- **Subject-Matter Sensitivity**: Tracks what a proposition is about
+- **Constitutive Relations**: Captures constitutive dependence needed to track explanatory relationships
 
 ## Testing and Validation
 
@@ -489,10 +558,11 @@ This allows for fine-grained analysis of:
 
 **Properties that FAIL**:
 
-- Truth-functional Distribution: Identity doesn't satisfy truth-functional distribution laws
-- Tautology Equivalence: All tautologies are not identical
-- Modal Conversion: Strict implication doesn't convert to content relations
-- Supplementation: Content relations don't satisfy intensional supplementation
+- Hyperintensional Equivalence: More fine-grained than either truth-functional equivalence and necessary equivalence
+- Absorption Laws: Only hold in one direction
+- Distribution Laws: Only hold in one direction
+- Essence Supplementation: Essence only satisfies conjunction supplementation
+- Ground Supplementation: Ground only satisfies disjunction supplementation
 
 ## Integration
 
@@ -500,8 +570,13 @@ This allows for fine-grained analysis of:
 
 The constitutive subtheory depends on the **extensional subtheory** for:
 
-- `AndOperator`: Required for defining reduction operator
-- Basic logical operators used in complex examples
+- `NegationOperator` (¬): Used in operator interdefinability
+- `AndOperator` (∧): Required for defining reduction operator
+- `OrOperator` (∨): Used in example formulas
+- `ImplicationOperator` (→): Used in test examples
+- `BiconditionalOperator` (↔): Used in equivalence tests
+- `TopOperator` (⊤): Truth constant
+- `BottomOperator` (⊥): Falsity constant
 
 ```python
 # Automatic dependency loading
@@ -516,16 +591,16 @@ theory = logos.get_theory(['constitutive', 'modal'])
 
 # Ground and necessity interaction
 premises = ["(p \\leq q)", "\\Box p"]
-conclusion = "\\Box q"
-result = model.check_validity(premises, [conclusion])
+conclusions = ["\\Box q"]
+result = model.check_validity(premises, conclusions)
 
 # Combined with counterfactual operators
 theory = logos.get_theory(['constitutive', 'counterfactual'])
 
 # Identity and counterfactual interaction
 premises = ["(p \\equiv q)", "(p \\boxright r)"]
-conclusion = "(q \\boxright r)"
-result = model.check_validity(premises, [conclusion])
+conclusions = ["(q \\boxright r)"]
+result = model.check_validity(premises, conclusions)
 ```
 
 ### API Reference
@@ -574,17 +649,17 @@ from model_checker.theory_lib.logos.subtheories.constitutive.operators import (
 
 The constitutive subtheory reveals key differences between intensional and hyperintensional logic:
 
-**Intensional Logic** (modal/possible worlds):
+**Intensional Logic** (possible worlds):
 
-- All tautologies are equivalent: `(A or neg A) iff (B or neg B)`
-- Distribution laws: `A and (B or C) iff (A and B) or (A and C)`
-- Absorption laws: `A iff A and (A or B)`
+- All tautologies are equivalent: (A ∨ ¬A) ↔ (B ∨ ¬B)
+- Distribution laws: A ∧ (B ∨ C) ↔ (A ∧ B) ∨ (A ∧ C)
+- Absorption laws: A ↔ A ∧ (A ∨ B)
 
-**Hyperintensional Logic** (content-sensitive):
+**Hyperintensional Logic** (states):
 
-- Tautologies differ in content: `(A or neg A) not-equiv (B or neg B)`
-- Distribution fails: `A not-equiv A and (A or B)` (generally)
-- Content matters: Same truth conditions not-equal same content
+- Tautologies differ in subject-matter: (A ∨ ¬A) ≢ (B ∨ ¬B)
+- Distribution fails: A ∧ (B ∨ C) ≢ (A ∧ B) ∨ (A ∧ C)
+- Absorption fails: A ≢ A ∧ (A ∨ B)
 
 ### Operator Interdefinability
 
@@ -617,34 +692,39 @@ The constitutive operators exhibit interesting interdefinability patterns:
 "(A \\Rightarrow B) \\equiv ((A \\leq B) \\wedge (A \\sqsubseteq B))"  # By definition
 ```
 
-### Content Sensitivity
+### Subject-Matter Sensitivity
 
-The constitutive operators enable analysis of **content sensitivity**:
+The constitutive operators enable analysis of **subject-matter sensitivity**:
 
-**Topic Individuation**:
+**Subject-Matter Individuation**:
 
-- What makes propositions about the same topic?
-- How do we individuate propositional content?
-- When do propositions share subject matter?
+- What makes propositions about the same subject-matter?
+- How do we individuate propositional subject-matter?
+- When do propositions share subject-matter?
 
 **Dependence Analysis**:
 
 - What does it mean for one proposition to depend on another?
 - How do ground and essence capture different dependency relations?
-- When is content overlap sufficient for logical connection?
+- When is subject-matter overlap sufficient for logical connection?
 
 **Hyperintensional Reasoning**:
 
 - Moving beyond truth-functional logic
-- Analyzing content relationships
+- Analyzing subject-matter relationships
 - Understanding aboutness and topicality
 
 ## Dependencies
 
 The constitutive subtheory depends on the **extensional subtheory** for:
 
-- `AndOperator`: Required for defining reduction operator as conjunction of ground and essence
-- Basic logical operators used in complex constitutive formulas
+- `NegationOperator` (¬): Used in operator interdefinability (ground-essence duality)
+- `AndOperator` (∧): Required for defining reduction operator as conjunction of ground and essence
+- `OrOperator` (∨): Used in complex example formulas
+- `ImplicationOperator` (→): Used in test examples and logical principles
+- `BiconditionalOperator` (↔): Used in equivalence tests and definitions
+- `TopOperator` (⊤): Truth constant for semantic testing
+- `BottomOperator` (⊥): Falsity constant for semantic testing
 
 ```python
 # Automatic dependency loading
