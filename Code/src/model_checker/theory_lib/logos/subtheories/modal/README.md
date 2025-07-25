@@ -1,104 +1,69 @@
-# Modal Subtheory: Necessity and Possibility in Logos Theory
+# Modal Subtheory: Necessity and Possibility Operators
 
-The **Modal Subtheory** implements operators for modal reasoning within the Logos theory framework. This subtheory provides four specialized operators for evaluating necessity, possibility, and their counterfactual variants, enabling sophisticated analysis of modal logic principles and their interactions with other logical systems.
+[← Back to Subtheories](../README.md) | [Tests →](tests/README.md) | [Examples →](examples.py)
+
+## Directory Structure
+```
+modal/
+├── README.md               # This file - modal subtheory overview
+├── __init__.py            # Module initialization and public API
+├── examples.py            # Example formulas and test cases (23 examples)
+├── operators.py           # Modal operator definitions (4 operators)
+└── tests/                 # Test suite (see tests/README.md)
+    ├── README.md          # Test documentation and methodology
+    ├── __init__.py        # Test module initialization
+    └── test_modal_examples.py  # Integration tests with 23 examples
+```
 
 ## Overview
 
-The Modal Subtheory implements **4 logical operators** for modal reasoning:
+The **Modal Subtheory** implements operators for modal reasoning within the Logos theory framework, providing four specialized operators for evaluating necessity, possibility, and their counterfactual variants. This subtheory enables sophisticated analysis of modal logic principles including S5 modal axioms, modal duality relationships, and their interactions with other logical systems.
 
-- **Necessity** (`\\Box`): "It is necessarily the case that A"
-- **Possibility** (`\\Diamond`): "It is possibly the case that A"  
-- **Counterfactual Necessity** (`\\CFBox`): "Under counterfactual evaluation, it is necessarily the case that A"
-- **Counterfactual Possibility** (`\\CFDiamond`): "Under counterfactual evaluation, it is possibly the case that A"
+The implementation includes **four modal operators**: necessity (□), possibility (◇), counterfactual necessity (CFBox), and counterfactual possibility (CFDiamond). All operators follow classical modal logic principles while integrating with the hyperintensional truthmaker semantics of the Logos framework.
 
-This implementation follows standard modal logic principles while integrating with the hyperintensional truthmaker semantics of the Logos theory framework.
-
-For details about the underlying semantic framework, see the [Logos Theory README](../../README.md).
-
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [Operator Reference](#operator-reference)
-  - [Necessity](#necessity)
-  - [Possibility](#possibility)
-  - [Counterfactual Necessity](#counterfactual-necessity)
-  - [Counterfactual Possibility](#counterfactual-possibility)
-- [Examples](#examples)
-  - [Example Categories](#example-categories)
-  - [Running Examples](#running-examples)
-  - [Example Structure](#example-structure)
-- [Modal Logic Theory](#modal-logic-theory)
-  - [Classical Modal Logic](#classical-modal-logic)
-  - [Modal Axioms](#modal-axioms)
-  - [Modal Duality](#modal-duality)
-- [Testing and Validation](#testing-and-validation)
-  - [Theorem Examples](#theorem-examples)
-  - [Countermodel Examples](#countermodel-examples)
-  - [Definitional Examples](#definitional-examples)
-- [Integration](#integration)
-  - [Dependencies](#dependencies)
-  - [Usage with Other Subtheories](#usage-with-other-subtheories)
-  - [API Reference](#api-reference)
-- [Advanced Topics](#advanced-topics)
-  - [Modal Systems](#modal-systems)
-  - [Counterfactual Modal Operators](#counterfactual-modal-operators)
-  - [Truth-functional vs Modal](#truth-functional-vs-modal)
+This subtheory serves as a foundation for modal reasoning within hyperintensional logic, providing essential operators for expressing necessity and possibility while maintaining compatibility with classical modal inference patterns and supporting integration with counterfactual and constitutive reasoning.
 
 ## Quick Start
 
-### Basic Usage
-
 ```python
 from model_checker.theory_lib import logos
+from model_checker import BuildExample
 
 # Load modal subtheory (automatically loads extensional dependency)
 theory = logos.get_theory(['modal'])
-
-# Check modal reasoning
-from model_checker import BuildExample
 model = BuildExample("modal_example", theory)
 
-# Necessity implies truth: If Box A, then A
-result = model.check_validity(["\\Box A"], ["A"])
-print(f"Necessity implies truth: {'Valid' if result else 'Invalid'}")
+# Test basic modal principles
+result1 = model.check_validity(["\\Box A"], ["A"])  # Necessity implies truth (T axiom)
+result2 = model.check_validity(["\\Box (A \\rightarrow B)", "\\Box A"], ["\\Box B"])  # K axiom
+result3 = model.check_validity(["\\Diamond A"], ["\\Box A"])  # Invalid: possibility ≠ necessity
+
+print(f"T axiom: {result1}")  # False (valid argument)
+print(f"K axiom: {result2}")  # False (valid argument)  
+print(f"Possibility to necessity: {result3}")  # True (invalid argument)
 ```
 
-### Running Examples
+## Subdirectories
 
-```bash
-# Run all modal examples
-model-checker src/model_checker/theory_lib/logos/subtheories/modal/examples.py
+### [tests/](tests/)
+Comprehensive test suite with 23 integration examples covering all four modal operators. Includes countermodel examples (invalid arguments), theorem examples (valid modal principles), and definitional examples (operator relationships). Tests validate S5 modal logic principles including K, T, 4, and 5 axioms. See [tests/README.md](tests/README.md) for complete testing methodology.
 
-# Run in development mode
-./dev_cli.py src/model_checker/theory_lib/logos/subtheories/modal/examples.py
+## Documentation
 
-# Run with constraints printed
-./dev_cli.py -p src/model_checker/theory_lib/logos/subtheories/modal/examples.py
-```
+### For New Users
+- **[Quick Start](#quick-start)** - Basic modal reasoning examples with necessity and possibility
+- **[Operator Reference](#operator-reference)** - Complete guide to all four modal operators
+- **[Testing Guide](tests/README.md)** - How to run and understand modal logic tests
 
-### Project Generation
+### For Researchers
+- **[Modal Logic Theory](#modal-logic-theory)** - S5 modal logic principles and axioms
+- **[Test Examples](tests/README.md#test-categories)** - Valid and invalid modal reasoning patterns
+- **[Dependencies](#dependencies)** - Integration with extensional foundation
 
-```bash
-# Generate a project focused on modal logic
-./dev_cli.py -l logos  # Select modal subtheory during setup
-```
-
-### Running Tests
-
-The modal subtheory includes **23 comprehensive test examples** covering all four modal operators through both countermodel and theorem examples. Tests validate modal logic principles and demonstrate interactions with necessity and possibility.
-
-```bash
-# Run all modal tests
-pytest src/model_checker/theory_lib/logos/subtheories/modal/tests/
-
-# Run specific example
-pytest src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py -k "MOD_TH_1"
-
-# Run via project test runner
-python test_theories.py --theories logos --modal --examples
-```
-
-**For detailed test documentation, examples, and debugging guidance, see [tests/README.md](tests/README.md)**
+### For Developers
+- **[Implementation Details](operators.py)** - Modal operator definitions and semantics
+- **[Examples Module](examples.py)** - Test cases and example formulas (23 examples)
+- **[Integration Testing](tests/test_modal_examples.py)** - Complete test implementation
 
 ## Operator Reference
 
@@ -575,15 +540,44 @@ The modal subtheory reveals the distinction between truth-functional and modal o
 "(\\Diamond A \\wedge \\Box \\neg A)"  # Inconsistent
 ```
 
----
+## Dependencies
+
+The modal subtheory depends on the **extensional subtheory** for:
+- `NegationOperator`: Required for defining possibility as negation of necessity of negation
+- Basic logical operators used in complex modal formulas
+
+```python
+# Automatic dependency loading
+theory = logos.get_theory(['modal'])  # Also loads extensional
+```
+
+## Testing
+
+The modal subtheory includes **23 comprehensive test examples** covering all four modal operators through countermodel, theorem, and definitional examples. Tests validate S5 modal logic principles including K, T, 4, and 5 axioms.
+
+```bash
+# Run all modal tests
+pytest src/model_checker/theory_lib/logos/subtheories/modal/tests/
+
+# Run specific example
+pytest src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py -k "MOD_TH_5"
+
+# Run via project test runner
+python test_theories.py --theories logos --modal --examples
+```
 
 ## References
 
-- Lewis (1973) "Counterfactuals", Harvard University Press
-- Kripke (1963) "Semantical Analysis of Modal Logic", Zeitschrift f�r mathematische Logik
-- Hughes & Cresswell (1996) "A New Introduction to Modal Logic", Routledge
-- For semantic framework details, see [Logos Theory README](../../README.md)
+### Primary Sources
+- Lewis (1973) ["Counterfactuals"](https://press.princeton.edu/books/paperback/9780631224259/counterfactuals), Harvard University Press
+- Kripke (1963) ["Semantical Analysis of Modal Logic"](https://doi.org/10.1007/BF01028024), Zeitschrift für mathematische Logik
+- Hughes & Cresswell (1996) ["A New Introduction to Modal Logic"](https://www.routledge.com/A-New-Introduction-to-Modal-Logic/Hughes-Cresswell/p/book/9780415125994), Routledge
 
-## License
+### Related Resources
+- **[Extensional Subtheory](../extensional/)** - Truth-functional foundation for modal operators
+- **[Logos Theory](../../README.md)** - Complete hyperintensional framework documentation
+- **[Counterfactual Subtheory](../counterfactual/)** - Integration with counterfactual reasoning
 
-The modal subtheory is part of the ModelChecker package and follows the same licensing terms. See `LICENSE.md` for details.
+---
+
+[← Back to Subtheories](../README.md) | [Tests →](tests/README.md) | [Examples →](examples.py)

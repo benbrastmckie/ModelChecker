@@ -1,6 +1,22 @@
-# Modal Subtheory Tests
+# Modal Subtheory Tests: Modal Logic Validation
+
+[← Back to Modal](../README.md) | [Logos Tests →](../../../tests/README.md) | [Subtheories →](../../README.md)
+
+## Directory Structure
+```
+tests/
+├── README.md                    # This file - modal test documentation and methodology
+├── __init__.py                 # Test module initialization
+└── test_modal_examples.py     # Integration tests with 23 comprehensive examples
+```
+
+## Overview
 
 This directory contains comprehensive tests for the Modal Subtheory of the Logos theory, covering all four modal operators: necessity (`\\Box`), possibility (`\\Diamond`), counterfactual necessity (`\\CFBox`), and counterfactual possibility (`\\CFDiamond`).
+
+The test suite validates S5 modal logic through **23 integration examples** organized into countermodel examples (invalid arguments), theorem examples (valid modal principles), and definitional examples (operator relationships). These tests ensure the modal subtheory provides sound modal reasoning while maintaining compatibility with classical modal inference patterns.
+
+All tests use the ModelChecker framework's constraint-based validation approach, demonstrating modal axioms (K, T, 4, 5), modal duality relationships, and the integration of necessity and possibility operators within hyperintensional semantics.
 
 ## Test Files
 
@@ -210,5 +226,9 @@ These tests are part of the comprehensive Logos theory testing framework:
 
 For more information about modal logic and testing strategy, see:
 - [Logos Theory README](../../README.md)
-- [Logos Unit Testing Policy](../../UNIT_TESTS.md)
 - [Modal Subtheory README](../README.md)
+- [Logos Testing Framework](../../../tests/README.md)
+
+---
+
+[← Back to Modal](../README.md) | [Logos Tests →](../../../tests/README.md) | [Subtheories →](../../README.md)
