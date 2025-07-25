@@ -1,14 +1,51 @@
-# Logos Theory Model Iteration
+# Logos Theory Model Iteration: Finding Multiple Hyperintensional Models
 
-This documentation provides a comprehensive guide to model iteration in the Logos theory, covering the sophisticated mechanisms for finding multiple distinct hyperintensional models, practical usage patterns, and advanced features unique to the Logos semantic framework.
+[← Back to Documentation](README.md) | [API Reference →](API_REFERENCE.md)
+
+## Table of Contents
+
+1. [Overview](#overview)
+   - [Hyperintensional Distinctness](#hyperintensional-distinctness)
+2. [Architecture](#architecture)
+   - [Integration with Logos Subtheories](#integration-with-logos-subtheories)
+3. [Usage](#usage)
+   - [Basic Example Configuration](#basic-example-configuration)
+   - [Advanced Configuration](#advanced-configuration)
+   - [Programmatic Usage](#programmatic-usage)
+4. [Semantic Difference Detection](#semantic-difference-detection)
+   - [Verification/Falsification Changes](#verificationfalsification-changes)
+   - [World Structure Changes](#world-structure-changes)
+   - [Modal Relation Changes](#modal-relation-changes)
+   - [Constitutive Relation Changes](#constitutive-relation-changes)
+5. [Constraint Generation](#constraint-generation)
+   - [Basic Difference Constraints](#basic-difference-constraints)
+   - [Smart Constraint Ordering](#smart-constraint-ordering)
+   - [Isomorphism Breaking](#isomorphism-breaking)
+6. [Subtheory-Specific Features](#subtheory-specific-features)
+   - [Counterfactual Iteration](#counterfactual-iteration)
+   - [Modal Iteration](#modal-iteration)
+7. [Example Output Analysis](#example-output-analysis)
+   - [Typical Iteration Session](#typical-iteration-session)
+8. [Performance Tuning](#performance-tuning)
+   - [Optimizing for Large State Spaces](#optimizing-for-large-state-spaces)
+   - [Subtheory-Specific Optimization](#subtheory-specific-optimization)
+9. [Debugging and Analysis](#debugging-and-analysis)
+   - [Debug Output Interpretation](#debug-output-interpretation)
+   - [Common Issues and Solutions](#common-issues-and-solutions)
+   - [Model Analysis Tools](#model-analysis-tools)
+10. [Integration with Logos Notebooks](#integration-with-logos-notebooks)
+11. [Best Practices](#best-practices)
+    - [Choosing Iteration Parameters](#choosing-iteration-parameters)
+    - [Subtheory Considerations](#subtheory-considerations)
+    - [Common Patterns](#common-patterns)
 
 ## Overview
 
-The Logos theory implements a sophisticated hyperintensional semantic framework that goes beyond classical truth-functional logic. The LogosModelIterator leverages this rich semantic structure to find multiple distinct models that differ in meaningful ways according to the theory's hyperintensional distinctions.
+The Logos theory implements a sophisticated hyperintensional semantic framework that goes beyond truth-functional logic. The LogosModelIterator leverages this rich semantic structure to find multiple distinct models that differ in meaningful ways according to the theory's hyperintensional distinctions.
 
 ### Hyperintensional Distinctness
 
-Unlike classical logic where models are distinguished primarily by truth value assignments, Logos theory models can differ across multiple semantic dimensions:
+Unlike intensional logic where models are distinguished primarily by truth value assignments, Logos theory models can differ across multiple semantic dimensions:
 
 1. **Verification/Falsification**: Which states verify or falsify sentence letters
 2. **World Structure**: Which states count as possible worlds vs. impossible/merely possible states  
@@ -44,7 +81,7 @@ The iterator automatically adapts to different Logos subtheory configurations:
 - **Modal**: Adds necessity/possibility and accessibility relation differences
 - **Constitutive**: Incorporates grounding, essence, and identity relation differences
 - **Counterfactual**: Includes similarity ordering and counterfactual evaluation differences  
-- **Relevance**: Adds content-based relevance relation differences
+- **Relevance**: Adds subject-matter-based relevance relation differences
 
 ## Usage
 
@@ -64,8 +101,8 @@ CF_CM_1_settings = {
 }
 
 CF_CM_1_example = [
-    ['�A', '(A �� C)'],                    # Premises
-    ['((A ' B) �� C)'],                    # Conclusions  
+    ['\\Box A', '(A \\boxright C)'],        # Premises
+    ['((A \\wedge B) \\boxright C)'],       # Conclusions  
     CF_CM_1_settings
 ]
 ```
@@ -101,8 +138,8 @@ logos_theory = get_theory('logos')
 example = BuildExample(
     "counterfactual_antecedent_strengthening",
     logos_theory,
-    premises=['�A', '(A �� C)'],
-    conclusions=['((A ' B) �� C)'],
+    premises=['\\Box A', '(A \\boxright C)'],
+    conclusions=['((A \\wedge B) \\boxright C)'],
     settings={'N': 4, 'contingent': True}
 )
 
@@ -147,9 +184,9 @@ def _calculate_verification_differences(self, new_structure, previous_structure)
 **Example Output:**
 ```
 Verification Changes:
-  � verifies A: False � True
-  a.b verifies B: True � False
-  a.c falsifies C: False � True
+  ε verifies A: False → True
+  a.b verifies B: True → False
+  a.c falsifies C: False → True
 ```
 
 ### World Structure Changes
@@ -175,10 +212,10 @@ def _calculate_world_differences(self, new_structure, previous_structure):
 **Example Output:**
 ```
 Structural Properties:
-  Worlds: 2 � 3
+  Worlds: 2 → 3
   Added worlds: [a.c]
   Removed worlds: []
-  Possible states: {�, a, b, a.b} � {�, a, b, a.b, c, a.c}
+  Possible states: {ε, a, b, a.b} → {ε, a, b, a.b, c, a.c}
 ```
 
 ### Modal Relation Changes
@@ -197,7 +234,7 @@ def _calculate_modal_differences(self, new_structure, previous_structure):
             new_accessible = bool(new_model.eval(semantics.accessible(world1, world2)))
             
             if old_accessible != new_accessible:
-                differences["accessibility"][f"{world1_name} � {world2_name}"] = {
+                differences["accessibility"][f"{world1_name} → {world2_name}"] = {
                     "old": old_accessible, "new": new_accessible
                 }
 ```
@@ -219,7 +256,7 @@ def _calculate_constitutive_differences(self, new_structure, previous_structure)
                 new_grounds = bool(new_model.eval(semantics.grounds(prop1, prop2)))
                 
                 if old_grounds != new_grounds:
-                    differences["grounding"][f"{prop1} d {prop2}"] = {
+                    differences["grounding"][f"{prop1} ≤ {prop2}"] = {
                         "old": old_grounds, "new": new_grounds
                     }
 ```
@@ -338,7 +375,7 @@ def _calculate_counterfactual_differences(self, new_structure, previous_structur
             ))
             
             if old_cf_true != new_cf_true:
-                differences["counterfactuals"][f"{antecedent} �� {consequent} at {world}"] = {
+                differences["counterfactuals"][f"{antecedent} \\boxright {consequent} at {world}"] = {
                     "old": old_cf_true, "new": new_cf_true
                 }
 ```
@@ -359,7 +396,7 @@ def _calculate_modal_differences(self, new_structure, previous_structure):
             old_acc = bool(previous_model.eval(semantics.accessible(w1, w2)))
             new_acc = bool(new_model.eval(semantics.accessible(w1, w2)))
             if old_acc != new_acc:
-                differences["modal"]["accessibility"][f"{w1} � {w2}"] = {
+                differences["modal"]["accessibility"][f"{w1} → {w2}"] = {
                     "old": old_acc, "new": new_acc
                 }
     
@@ -369,7 +406,7 @@ def _calculate_modal_differences(self, new_structure, previous_structure):
             old_nec = bool(previous_model.eval(semantics.necessary(world, letter)))
             new_nec = bool(new_model.eval(semantics.necessary(world, letter)))
             if old_nec != new_nec:
-                differences["modal"]["necessity"][f"�{letter} at {world}"] = {
+                differences["modal"]["necessity"][f"\\Box{letter} at {world}"] = {
                     "old": old_nec, "new": new_nec
                 }
 ```
@@ -389,7 +426,7 @@ MODEL 1/3
 EXAMPLE CF_CM_1: there is a countermodel.
 
 State Space:
-  � (empty state)
+  ε (empty state)
   a (atomic state)  
   b (atomic state)
   a.b (fusion state)
@@ -397,22 +434,22 @@ State Space:
 Worlds: {a.b} (1 possible world)
 
 Verification:
-  � verifies: �A
+  ε verifies: ¬A
   a verifies: A  
   b verifies: nothing
   a.b verifies: A
 
 Counterfactual Evaluation:
-  A �� C: True at a.b
-  (A ' B) �� C: False at a.b   Counterexample found
+  A \\boxright C: True at a.b
+  (A \\wedge B) \\boxright C: False at a.b   ✗ Counterexample found
 ```
 
 **Progress During Iteration:**
 ```
-Finding 3 models: [��������������������] 1/3 (checked 1) 0.2s
-Finding 3 models: [��������������������] 1/3 (checked 3) 0.8s  
-Finding 3 models: [��������������������] 2/3 (checked 4) 1.1s
-Finding 3 models: [��������������������] 3/3 (checked 6) 1.7s
+Finding 3 models: [■■■■■■■■■■■■■■■■■■■■] 1/3 (checked 1) 0.2s
+Finding 3 models: [■■■■■■■■■■■■■■■■■■■■] 1/3 (checked 3) 0.8s  
+Finding 3 models: [■■■■■■■■■■■■■■■■■■■■] 2/3 (checked 4) 1.1s
+Finding 3 models: [■■■■■■■■■■■■■■■■■■■■] 3/3 (checked 6) 1.7s
 Successfully found all 3 requested models
 ```
 
@@ -421,16 +458,16 @@ Successfully found all 3 requested models
 === DIFFERENCES FROM PREVIOUS MODEL ===
 
 Verification Changes:
-  � verifies A: False � True
-  a verifies �A: True � False
+  ε verifies A: False → True
+  a verifies ¬A: True → False
   
 Structural Properties:
-  Worlds: 1 � 2
-  Added worlds: [�]
+  Worlds: 1 → 2
+  Added worlds: [ε]
   
 Counterfactual Changes:
-  A �� C at �: True � False
-  (A ' B) �� C at �: False � True
+  A \\boxright C at ε: True → False
+  (A \\wedge B) \\boxright C at ε: False → True
 ```
 
 **Model 3 Differences:**  
@@ -438,19 +475,19 @@ Counterfactual Changes:
 === DIFFERENCES FROM PREVIOUS MODEL ===
 
 Structural Properties:
-  Worlds: 2 � 1
-  Removed worlds: [�]
+  Worlds: 2 → 1
+  Removed worlds: [ε]
   Added worlds: [b.c]
   
 Verification Changes:
-  b.c verifies B: False � True
-  b.c verifies C: False � True
+  b.c verifies B: False → True
+  b.c verifies C: False → True
   
 Part-Whole Changes:
-  c � b.c: False � True
+  c ⊆ b.c: False → True
   
 Modal Changes:
-  �{A �� C} at b.c: True � False
+  \\Box{A \\boxright C} at b.c: True → False
 ```
 
 ## Performance Tuning
@@ -540,7 +577,7 @@ def analyze_model_diversity(models):
         for state in model.all_states:
             for letter in model.sentence_letters:
                 if model.z3_model.eval(model.semantics.verify(state, letter.sentence_letter)):
-                    pattern[f"{state}�{letter}"] = True
+                    pattern[f"{state}→{letter}"] = True
         verification_patterns.append(pattern)
     
     print(f"World count diversity: {set(world_counts)}")
@@ -640,17 +677,6 @@ research_settings = {
 }
 ```
 
-## Conclusion
-
-The Logos iteration system provides powerful tools for exploring the rich landscape of hyperintensional models. By understanding the various difference dimensions, constraint mechanisms, and performance considerations, you can effectively use model iteration to:
-
-- Discover unexpected semantic phenomena
-- Validate logical principles across diverse models
-- Explore the boundaries of hyperintensional distinctions
-- Generate comprehensive test cases for theoretical work
-
-This comprehensive iteration system makes the Logos theory's rich hyperintensional structure accessible for detailed semantic exploration and analysis.
-
 ---
 
-**Navigation**: [README](README.md) | [User Guide](USER_GUIDE.md) | [Architecture](ARCHITECTURE.md) | [Settings](SETTINGS.md) | [Main README](../README.md)
+[← Back to Documentation](README.md) | [Settings →](SETTINGS.md)

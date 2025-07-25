@@ -79,8 +79,8 @@ The ModelChecker parser expects the following LaTeX notation:
 | Negation      | ¬                   | `\\neg`                  | Logical NOT          |
 | Conjunction   | ∧                   | `\\wedge`                | Logical AND          |
 | Disjunction   | ∨                   | `\\vee`                  | Logical OR           |
-| Implication   | →                   | `\\rightarrow` | Material conditional |
-| Biconditional | ↔                  | `\\leftrightarrow`       | If and only if       |
+| Implication   | →                   | `\\rightarrow`           | Material conditional |
+| Biconditional | ↔                   | `\\leftrightarrow`       | If and only if       |
 | Necessity     | □                   | `\\Box`                  | Modal necessity      |
 | Possibility   | ◇                   | `\\Diamond`              | Modal possibility    |
 | Future        | ⏵                   | `\\future`               | Temporal future      |

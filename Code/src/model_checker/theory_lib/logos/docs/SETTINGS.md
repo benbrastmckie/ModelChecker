@@ -1,17 +1,42 @@
-# Logos Theory Settings Documentation
+# Logos Theory Settings Documentation: Configuration Reference
 
-This document provides a complete reference for all configuration options available in the Logos semantic theory, including detailed explanations, usage patterns, and performance considerations.
+[← Back to Documentation](README.md) | [Iteration →](ITERATE.md)
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Example Settings](#example-settings)
-- [General Settings](#general-settings)
-- [Advanced Settings](#advanced-settings)
-- [Subtheory-Specific Considerations](#subtheory-specific-considerations)
-- [Performance Tuning](#performance-tuning)
-- [Common Configurations](#common-configurations)
-- [Troubleshooting](#troubleshooting)
+1. [Overview](#overview)
+2. [Example Settings](#example-settings)
+   - [Core Settings](#core-settings)
+   - [Solver Settings](#solver-settings)
+3. [General Settings](#general-settings)
+4. [Usage Examples](#usage-examples)
+   - [Finding Complex Countermodels](#finding-complex-countermodels)
+   - [Testing Logical Principles](#testing-logical-principles)
+   - [Exploring Hyperintensional Phenomena](#exploring-hyperintensional-phenomena)
+5. [Theory-Specific Behavior](#theory-specific-behavior)
+6. [Tips and Best Practices](#tips-and-best-practices)
+7. [Advanced Settings](#advanced-settings)
+   - [Model Iteration Settings](#model-iteration-settings)
+   - [Experimental Settings](#experimental-settings)
+8. [Subtheory-Specific Considerations](#subtheory-specific-considerations)
+   - [Modal Subtheory](#modal-subtheory)
+   - [Constitutive Subtheory](#constitutive-subtheory)
+   - [Counterfactual Subtheory](#counterfactual-subtheory)
+   - [Relevance Subtheory](#relevance-subtheory)
+9. [Performance Tuning](#performance-tuning)
+   - [Memory vs Speed Trade-offs](#memory-vs-speed-trade-offs)
+   - [Solver Timeout Guidelines](#solver-timeout-guidelines)
+10. [Common Configurations](#common-configurations)
+    - [Research Configuration](#research-configuration)
+    - [Teaching Configuration](#teaching-configuration)
+    - [Testing Configuration](#testing-configuration)
+    - [Development Configuration](#development-configuration)
+11. [Troubleshooting](#troubleshooting)
+    - [Common Issues](#common-issues)
+    - [Debugging Settings](#debugging-settings)
+    - [Setting Interactions](#setting-interactions)
+12. [Environment Variables](#environment-variables)
+13. [See Also](#see-also)
 
 ## Overview
 
@@ -57,6 +82,7 @@ The logos theory uses the standard general settings defined in the base semantic
 ## Usage Examples
 
 ### Finding Complex Countermodels
+
 ```python
 logos_complex_settings = {
     'N': 32,  # More states for complex models
@@ -70,6 +96,7 @@ logos_complex_settings = {
 ```
 
 ### Testing Logical Principles
+
 ```python
 logos_test_settings = {
     'N': 8,  # Smaller for faster testing
@@ -83,6 +110,7 @@ logos_test_settings = {
 ```
 
 ### Exploring Hyperintensional Phenomena
+
 ```python
 logos_hyperintensional_settings = {
     'N': 16,
@@ -150,7 +178,7 @@ Different Logos subtheories may interpret settings differently:
 
 ### Constitutive Subtheory
 - **non_empty**: Critical for meaningful ground/essence relations
-- **disjoint**: Helps create clear content boundaries
+- **disjoint**: Helps create clear subject-matter boundaries
 - **contingent**: Important for testing constitutive principles
 
 ### Counterfactual Subtheory
@@ -164,7 +192,7 @@ Different Logos subtheories may interpret settings differently:
 
 ## Performance Tuning
 
-### Memory vs. Speed Trade-offs
+### Memory vs Speed Trade-offs
 
 ```python
 # Memory-efficient configuration
@@ -205,6 +233,7 @@ Based on formula complexity and N value:
 ## Common Configurations
 
 ### Research Configuration
+
 For academic research and thorough investigation:
 
 ```python
@@ -222,6 +251,7 @@ research_settings = {
 ```
 
 ### Teaching Configuration
+
 For classroom demonstrations:
 
 ```python
@@ -235,6 +265,7 @@ teaching_settings = {
 ```
 
 ### Testing Configuration
+
 For automated testing:
 
 ```python
@@ -247,6 +278,7 @@ test_settings = {
 ```
 
 ### Development Configuration
+
 For developing new operators:
 
 ```python
@@ -294,7 +326,7 @@ debug_settings = {
 }
 ```
 
-## Setting Interactions
+### Setting Interactions
 
 Some settings interact in important ways:
 
@@ -312,12 +344,12 @@ In addition to settings, environment variables affect behavior:
 
 ## See Also
 
-- [General Settings Documentation](../../settings/README.md) - Framework-wide settings
-- [User Guide](USER_GUIDE.md) - Practical usage examples
-- [Architecture](ARCHITECTURE.md) - How settings affect internals
-- [Model Iteration](ITERATE.md) - Iteration-specific settings
-- [Main README](../README.md) - Theory overview
+- **[General Settings Documentation](../../settings/README.md)** - Framework-wide settings
+- **[User Guide](USER_GUIDE.md)** - Practical usage examples
+- **[Architecture](ARCHITECTURE.md)** - How settings affect internals
+- **[Model Iteration](ITERATE.md)** - Iteration-specific settings
+- **[Main README](../README.md)** - Theory overview
 
 ---
 
-**Navigation**: [README](README.md) | [User Guide](USER_GUIDE.md) | [Architecture](ARCHITECTURE.md) | [Iteration](ITERATE.md) | [Main README](../README.md)
+[← Back to Documentation](README.md) | [User Guide →](USER_GUIDE.md)

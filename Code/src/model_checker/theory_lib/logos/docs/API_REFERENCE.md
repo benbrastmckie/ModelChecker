@@ -1,5 +1,47 @@
 # Logos Theory API Reference
 
+[← Back to Documentation](README.md) | [User Guide →](USER_GUIDE.md)
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Core Functions](#core-functions)
+   - [get_theory()](#get_theorysubtheoriesnone)
+   - [get_examples()](#get_examples)
+   - [get_test_examples()](#get_test_examples)
+   - [list_subtheories()](#list_subtheories)
+   - [get_examples_by_subtheory()](#get_examples_by_subtheorysubtheory_name)
+   - [get_examples_by_type()](#get_examples_by_typeexample_type)
+   - [get_example_stats()](#get_example_stats)
+3. [Classes](#classes)
+   - [LogosSemantics](#logossemantics)
+   - [LogosProposition](#logosproposition)
+   - [LogosModelStructure](#logosmodelstructure)
+   - [LogosOperatorRegistry](#logosoperatorregistry)
+4. [Operators](#operators)
+   - [Extensional Operators](#extensional-operators)
+   - [Modal Operators](#modal-operators)
+   - [Constitutive Operators](#constitutive-operators)
+   - [Counterfactual Operators](#counterfactual-operators)
+   - [Relevance Operators](#relevance-operators)
+5. [Model Iteration](#model-iteration)
+   - [LogosModelIterator](#logosmodeliterator)
+   - [iterate_example()](#iterate_exampleexample-max_iterationsnone)
+6. [Type Definitions](#type-definitions)
+   - [Constants](#constants)
+   - [Default Settings](#default-settings)
+7. [Examples](#examples)
+   - [Basic Model Checking](#basic-model-checking)
+   - [Using Specific Subtheories](#using-specific-subtheories)
+   - [Working with Propositions](#working-with-propositions)
+   - [Model Iteration Example](#model-iteration-example)
+   - [Custom Settings](#custom-settings)
+8. [Error Handling](#error-handling)
+   - [Common Exceptions](#common-exceptions)
+   - [Error Examples](#error-examples)
+   - [Validation](#validation)
+9. [See Also](#see-also)
+
 ## Overview
 
 The Logos Theory provides a modular implementation of hyperintensional truthmaker semantics with support for extensional, modal, constitutive, counterfactual, and relevance operators. This API reference documents all public functions, classes, and operators available in the logos theory.
@@ -14,9 +56,9 @@ Get a logos theory instance with specified subtheories.
 - `subtheories` (list[str], optional): List of subtheory names to load. Available options:
   - `'extensional'` - Truth-functional operators
   - `'modal'` - Necessity and possibility operators
-  - `'constitutive'` - Ground, essence, and identity operators
+  - `'constitutive'` - Identity, ground, essence, and relevance operators
   - `'counterfactual'` - Counterfactual conditional operators
-  - `'relevance'` - Content-sensitive relevance operators
+  - `'relevance'` - Content relevance operators (loads from constitutive)
   
   If None, loads default set: ['extensional', 'modal', 'constitutive', 'counterfactual']
 
@@ -162,7 +204,7 @@ Determines if a state falsifies a sentence at an evaluation point.
 Determines if state_x is the maximal part of state_w compatible with state_y.
 
 #### `is_alternative(state_u, state_y, state_w)`
-Determines if a state represents an alternative world.
+Determines if a state represents an alternative world for counterfactual evaluation.
 
 #### `calculate_alternative_worlds(verifiers, eval_point, model_structure)`
 Calculates alternative worlds for counterfactual evaluation.
@@ -315,11 +357,14 @@ The logos theory provides operators through its modular subtheory system. Below 
 
 ### Constitutive Operators
 
+**Primitive Operators:**
 - **Identity** (`\\equiv`): Hyperintensional identity
 - **Ground** (`\\leq`): Grounding relation
 - **Essence** (`\\sqsubseteq`): Essential dependence
-- **Relevance** (`\\preceq`): Relevance relation
-- **Reduction** (`\\Rightarrow`): Reductive explanation
+- **Relevance** (`\\preceq`): Subject-matter relevance
+
+**Defined Operator:**
+- **Reduction** (`\\Rightarrow`): Reductive explanation (defined as ground and essence)
 
 ### Counterfactual Operators
 
@@ -328,7 +373,7 @@ The logos theory provides operators through its modular subtheory system. Below 
 
 ### Relevance Operators
 
-Content-sensitive operators that capture relevance relations between propositions.
+The relevance operator (`\\preceq`) is imported from the constitutive subtheory and explored in depth with specialized examples.
 
 **Example Usage:**
 ```python
@@ -340,9 +385,9 @@ theory = get_theory(['extensional', 'modal'])
 operators = theory['operators']
 
 # Parse formulas using LaTeX notation
-formula1 = parse("\\Box p \\to p")  # Box p implies p
-formula2 = parse("p \\wedge q")     # p and q
-formula3 = parse("\\neg (p \\vee q)")  # not (p or q)
+formula1 = parse("\\Box p \\rightarrow p")  # Box p implies p
+formula2 = parse("p \\wedge q")           # p and q
+formula3 = parse("\\neg (p \\vee q)")      # not (p or q)
 ```
 
 ## Model Iteration
@@ -383,22 +428,21 @@ from model_checker.theory_lib.logos import get_theory, iterate_example
 # Create example
 theory = get_theory()
 example = BuildExample("my_example", theory)
-example.add_constraint("\\Box p \\to p")
+example.add_constraint("\\Box p \\rightarrow p")
 
 # Find multiple models
 models = iterate_example(example, max_iterations=5)
 print(f"Found {len(models)} distinct models")
 ```
 
-## Type Definitions and Constants
+## Type Definitions
 
-### `AVAILABLE_SUBTHEORIES`
+### Constants
 
-List of all available subtheory names:
 ```python
 AVAILABLE_SUBTHEORIES = [
     'extensional',
-    'modal',
+    'modal', 
     'constitutive',
     'counterfactual',
     'relevance'
@@ -408,6 +452,7 @@ AVAILABLE_SUBTHEORIES = [
 ### Default Settings
 
 The logos theory uses these default settings:
+
 ```python
 DEFAULT_EXAMPLE_SETTINGS = {
     'N': 16,                    # Bit vector size
@@ -436,7 +481,7 @@ theory = get_theory()
 
 # Build a model
 model = BuildExample("modal_example", theory)
-model.add_formula("\\Box p \\to p")  # T axiom
+model.add_formula("\\Box p \\rightarrow p")  # T axiom
 
 # Check validity
 if model.check_validity():
@@ -481,7 +526,7 @@ truth_value = prop.truth_value_at(model.model_structure.main_world)
 print(f"True at main world: {truth_value}")
 ```
 
-### Model Iteration
+### Model Iteration Example
 
 ```python
 from model_checker.theory_lib.logos import get_theory, iterate_example
@@ -550,8 +595,12 @@ The logos theory validates:
 
 ## See Also
 
-- [User Guide](USER_GUIDE.md) - Practical usage guide
-- [Architecture](ARCHITECTURE.md) - Technical implementation details
-- [Settings](SETTINGS.md) - Configuration options
-- [Model Iteration](ITERATE.md) - Finding multiple models
-- [Documentation Hub](README.md) - All documentation
+- **[User Guide](USER_GUIDE.md)** - Practical usage guide
+- **[Architecture](ARCHITECTURE.md)** - Technical implementation details  
+- **[Settings](SETTINGS.md)** - Configuration options
+- **[Model Iteration](ITERATE.md)** - Finding multiple models
+- **[Documentation Hub](README.md)** - All documentation
+
+---
+
+[← Back to Documentation](README.md) | [Architecture →](ARCHITECTURE.md)
