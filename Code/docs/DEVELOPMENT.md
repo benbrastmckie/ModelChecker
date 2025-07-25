@@ -103,52 +103,97 @@ When working on NixOS, always use the provided scripts (`test_theories.py`, `tes
 
 4. **Jupyter Widget Display**: If widgets don't display properly, ensure ipywidgets is properly installed and nbextensions are enabled.
 
-## Key API Examples
+## Documentation
 
-### Basic Model Checking
+### For New Contributors
+- **[Installation Guide](INSTALLATION.md)** - Environment setup and dependencies
+- **[Style Guide](STYLE_GUIDE.md)** - Coding standards and conventions
+- **[Architecture Overview](ARCHITECTURE.md)** - System design and component relationships
+
+### For Theory Developers  
+- **[Theory Library Guide](../src/model_checker/theory_lib/README.md)** - Theory implementation patterns
+- **[API Reference](../src/model_checker/README.md)** - Core framework APIs
+- **[Example Theories](../src/model_checker/theory_lib/)** - Reference implementations
+
+### For Core Developers
+- **[Testing Guide](TESTS.md)** - Comprehensive testing methodology
+- **[Cleanup Recommendations](CLEANUP_RECOMMENDATIONS.md)** - Technical debt and improvements
+- **[Advanced Tools](../../Docs/TOOLS.md)** - Framework debugging and analysis tools
+
+## API Reference Examples
+
+### Core Framework Usage
 ```python
 from model_checker import BuildExample, get_theory
 
-# Load a theory
+# 1. Load a semantic theory
 theory = get_theory("logos")
 
-# Create a model
-model = BuildExample("simple_modal", theory)
+# 2. Create example with premises and conclusions
+model = BuildExample("modus_ponens", theory)
+model.add_premises(["p", "p \\rightarrow q"])
+model.add_conclusions(["q"])
 
-# Check a formula 
-result = model.check_formula("\\Box p -> p")
-
-# Analyze the result
-print(f"Formula is {'valid' if result else 'invalid'}")
+# 3. Check validity and analyze results
+valid = model.check_validity()
+if not valid:
+    model.print_countermodel()
+    print(f"Countermodel found with {model.model_size} states")
 ```
 
-### Jupyter Integration
+### Advanced Theory Usage
 ```python
-# Simple formula checking
-from model_checker import check_formula
-result = check_formula("p → (q → p)")
+# Custom settings and iteration
+settings = {
+    'N': 4,                    # Larger state space
+    'contingent': True,        # Contingent propositions
+    'iterate': 3,              # Find multiple models
+    'max_time': 5000          # Extended timeout
+}
 
-# With premises
-check_formula("q", premises=["p", "p → q"])
+model = BuildExample("complex_modal", theory, settings=settings)
+result = model.check_formula("\\Box (p \\rightarrow q) \\rightarrow (\\Box p \\rightarrow \\Box q)")
+
+# Access iteration results
+if hasattr(model, '_iterator'):
+    models = model.get_all_models()
+    for i, m in enumerate(models, 1):
+        print(f"Model {i}: {m.get_differences()}")
+```
+
+### Jupyter Integration Patterns
+```python
+# High-level interactive functions
+from model_checker.jupyter import check_formula, ModelExplorer, find_countermodel
+
+# Quick validation
+result = check_formula("(p \\wedge q) \\rightarrow p")
+
+# Countermodel discovery
+counter = find_countermodel("p \\rightarrow \\Box p")
+if counter:
+    print(f"Countermodel: {counter}")
 
 # Interactive exploration
-from model_checker import ModelExplorer
-explorer = ModelExplorer()
-explorer.display()
+explorer = ModelExplorer(theory_name="exclusion")
+explorer.display()  # Launches widget interface
 ```
 
-### Creating a New Theory
-```python
-# In theory_lib/__init__.py
-AVAILABLE_THEORIES = [
-    'logos',
-    'exclusion',
-    'imposition',
-    'my_new_theory',  # Add your theory here
-]
+## References
 
-# Then implement:
-# theory_lib/my_new_theory/semantic.py
-# theory_lib/my_new_theory/operators.py 
-# theory_lib/my_new_theory/examples.py
-```
+### Implementation Documentation
+- Development workflow follows modular design principles described in [ARCHITECTURE.md](ARCHITECTURE.md)
+- Testing methodology detailed in [TESTS.md](TESTS.md) with dual-system approach
+
+### Related Resources
+- **[Main Documentation Hub](README.md)** - Development documentation overview
+- **[Theory Library](../src/model_checker/theory_lib/README.md)** - Semantic theory implementations
+- **[Jupyter Integration](../src/model_checker/jupyter/README.md)** - Interactive development tools
+
+## License
+
+All development documentation is licensed under GPL-3.0 as part of the ModelChecker framework.
+
+---
+
+[← Back to Development Hub](README.md) | [Architecture →](ARCHITECTURE.md) | [Testing Guide →](TESTS.md)

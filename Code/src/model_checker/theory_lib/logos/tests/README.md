@@ -2,26 +2,50 @@
 
 This directory contains the core test suite for the Logos theory implementation, focusing on general theory functionality, cross-subtheory integration, and implementation-level unit testing.
 
+## Directory Structure
+```
+tests/
+├── README.md                  # This file
+├── __init__.py               # Test package initialization
+├── conftest.py               # Pytest configuration and fixtures
+├── test_iterate.py           # Model iteration tests
+├── test_operators.py         # Operator implementation tests
+├── test_proposition.py       # Proposition class tests
+├── test_registry.py          # Operator registry tests
+├── test_semantic_coverage.py # Additional semantic method coverage
+└── test_semantic_methods.py  # Core semantic method tests
+```
+
 ## Test Files Overview
 
-### Integration Tests
-
-#### test_logos_examples.py
-**Purpose**: Cross-subtheory integration testing that validates the complete Logos theory
-
-**Coverage**: Comprehensive examples testing interactions between all subtheories
-- Tests that use multiple subtheories simultaneously
-- Cross-operator validation and interaction testing
-- Full Logos theory validation examples
-- Integration of extensional, modal, constitutive, counterfactual, and relevance operators
-
-**Key Test Categories**:
-- **Multi-Subtheory Arguments**: Examples using operators from different subtheories
-- **Theory Completeness**: Validation that all 20+ operators work together
-- **Complex Logical Reasoning**: Advanced examples combining multiple logical systems
-- **Regression Testing**: Critical examples that ensure overall theory stability
-
 ### Unit Tests
+
+#### test_iterate.py
+**Purpose**: Tests for model iteration functionality in logos theory
+
+**Coverage**:
+- `LogosModelIterator` class functionality
+- `iterate_example()` function for finding multiple models
+- Basic iteration with different subtheory combinations
+- Model difference detection and constraints
+
+**Key Test Areas**:
+- **Basic Iteration**: Simple tests with minimal settings
+- **Subtheory Combinations**: Iteration with different loaded subtheories
+- **Mock Integration**: Tests using mock build modules
+
+#### test_semantic_coverage.py
+**Purpose**: Additional test coverage for LogosSemantics methods
+
+**Coverage**: Tests for semantic methods identified as needing additional coverage
+- Semantic method availability checks
+- World-related method testing
+- Core semantic relation methods
+
+**Key Test Areas**:
+- **Method Availability**: Verifies key semantic methods exist
+- **World Methods**: Tests world-related semantic operations
+- **Semantic Relations**: Tests compatibility, maximality, and other relations
 
 #### test_semantic_methods.py
 **Purpose**: Tests for the core LogosSemantics class and LogosProposition implementation
@@ -104,8 +128,9 @@ pytest -v src/model_checker/theory_lib/logos/tests/
 
 ### Specific Test Categories
 ```bash
-# Run only integration tests
-pytest src/model_checker/theory_lib/logos/tests/test_logos_examples.py
+# Run only specific test files
+pytest src/model_checker/theory_lib/logos/tests/test_iterate.py  # Iteration tests
+pytest src/model_checker/theory_lib/logos/tests/test_semantic_coverage.py  # Coverage tests
 
 # Run only unit tests
 pytest src/model_checker/theory_lib/logos/tests/test_semantic_methods.py src/model_checker/theory_lib/logos/tests/test_operators.py src/model_checker/theory_lib/logos/tests/test_registry.py src/model_checker/theory_lib/logos/tests/test_proposition.py
@@ -179,13 +204,13 @@ Common fixtures available in `conftest.py`:
 
 ## Debugging Failed Tests
 
-### Integration Test Failures
-When `test_logos_examples.py` tests fail:
+### Test Failures
+When tests fail:
 1. **Check Subtheory Loading**: Ensure all required subtheories are available
-2. **Verify Example Logic**: Confirm the logical argument is correct
-3. **Model Size**: Some integration tests need larger N values
+2. **Verify Test Logic**: Confirm the logical argument or test case is correct
+3. **Model Size**: Some tests may need larger N values
 4. **Operator Interactions**: Check for conflicts between subtheory operators
-5. **Timeout Issues**: Complex examples may need longer timeouts
+5. **Timeout Issues**: Complex tests may need longer timeouts
 
 ### Unit Test Failures
 When unit tests fail:
@@ -202,11 +227,11 @@ When unit tests fail:
 
 ## Test Coverage Goals
 
-### Integration Coverage
+### Coverage Goals
 - **All Subtheory Combinations**: Test major combinations of 2-3 subtheories
 - **Cross-Operator Validation**: Ensure operators from different subtheories work together
-- **Complex Reasoning**: Advanced examples that stress-test the complete system
-- **Regression Prevention**: Critical examples that catch breaking changes
+- **Complex Reasoning**: Advanced tests that stress-test the complete system
+- **Regression Prevention**: Critical tests that catch breaking changes
 
 ### Unit Coverage
 - **All Public Methods**: Every public method in core classes should be tested
@@ -223,9 +248,8 @@ When unit tests fail:
 
 ### Test Hierarchy
 1. **Unit Tests (This Directory)**: Test individual components in isolation
-2. **Integration Tests (This Directory)**: Test complete theory with cross-subtheory examples
-3. **Subtheory Tests**: Test specific logical systems and their principles
-4. **System Tests**: End-to-end testing via project test runners
+2. **Subtheory Tests**: Test specific logical systems and their principles
+3. **System Tests**: End-to-end testing via project test runners
 
 ## Documentation Links
 
@@ -242,7 +266,7 @@ For related testing documentation:
 ## Contributing to Tests
 
 ### Adding New Integration Tests
-1. Add examples to `test_logos_examples.py`
+1. Add integration tests to appropriate test files based on the feature being tested
 2. Follow standard example format with premises, conclusions, settings
 3. Include proper expectation values
 4. Document the logical principle being tested
@@ -259,3 +283,7 @@ For related testing documentation:
 2. **Preserve Regression Tests**: Don't remove tests that caught bugs
 3. **Improve Coverage**: Add tests for uncovered code paths
 4. **Performance Monitoring**: Watch for tests that become slow over time
+
+---
+
+[← Back to Logos Theory Documentation](../README.md) | [Back to Theory Library](../../README.md)

@@ -77,4 +77,51 @@ __all__ = [
     "iterate_example",        # Function to find multiple distinct models
     "__version__",            # Package version information,
     "__model_checker_version__",  # Compatible ModelChecker version
+    "get_theory",
+    "get_examples",
+    "get_test_examples"
 ]
+
+
+def get_theory(config=None):
+    """Get imposition theory configuration.
+    
+    Args:
+        config: Optional configuration (currently unused)
+        
+    Returns:
+        dict: Theory configuration with semantics, proposition, model, and operators
+        
+    Examples:
+        >>> theory = get_theory()
+        >>> 'semantics' in theory
+        True
+        >>> 'operators' in theory
+        True
+    """
+    return {
+        "semantics": ImpositionSemantics,
+        "proposition": Proposition,
+        "model": ModelStructure,
+        "operators": imposition_operators
+    }
+
+
+def get_examples():
+    """Get imposition theory example range.
+    
+    Returns:
+        dict: Mapping of example names to example cases
+    """
+    from .examples import example_range
+    return example_range
+
+
+def get_test_examples():
+    """Get imposition theory test example range.
+    
+    Returns:
+        dict: Mapping of test names to test cases
+    """
+    from .examples import test_example_range
+    return test_example_range

@@ -1,5 +1,16 @@
 # Logos Theory Documentation
 
+## Directory Structure
+```
+docs/
+├── README.md          # This file - documentation hub
+├── API_REFERENCE.md   # Complete API documentation
+├── ARCHITECTURE.md    # System design and implementation
+├── USER_GUIDE.md      # Practical usage guide
+├── ITERATE.md         # Model iteration features
+└── SETTINGS.md        # Configuration reference
+```
+
 Welcome to the comprehensive documentation for the Logos semantic theory. This guide will help you understand, use, and extend the most advanced hyperintensional semantic framework in ModelChecker.
 
 ## Documentation Overview
@@ -63,7 +74,7 @@ Five independent but interoperable subtheories:
 1. **Extensional** - Truth-functional operators (¬, ∧, ∨, →, ↔, ⊤, ⊥)
 2. **Modal** - Necessity and possibility (□, ◇, CFBox, CFDiamond)
 3. **Constitutive** - Content relationships (≡, ≤, ⊑, ≼, ⇒)
-4. **Counterfactual** - Hypothetical reasoning (□→, ◇→)
+4. **Counterfactual** - counterfactual reasoning (□→, ◇→)
 5. **Relevance** - Relevance logic (≼ and derived operators)
 
 ### Unified Framework
@@ -162,4 +173,4 @@ We welcome contributions! See the [Contributing section](../README.md#contributi
 
 ---
 
-**Navigation**: [User Guide](USER_GUIDE.md) | [Architecture](ARCHITECTURE.md) | [Settings](SETTINGS.md) | [Iteration](ITERATE.md) | [Main README](../README.md)
+[← Back to Logos Theory](../README.md) | [API Reference →](API_REFERENCE.md) | [User Guide →](USER_GUIDE.md)

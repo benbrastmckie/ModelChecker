@@ -63,9 +63,31 @@ Proposition = LogosProposition
 ModelStructure = LogosModelStructure
 OperatorRegistry = LogosOperatorRegistry
 
+def get_examples():
+    """Get logos theory example range.
+    
+    Returns:
+        dict: Mapping of example names to example cases
+    """
+    from .examples import example_range
+    return example_range
+
+
+def get_test_examples():
+    """Get logos theory test example range.
+    
+    Returns:
+        dict: Mapping of test names to test cases
+    """
+    from .examples import unit_tests
+    return unit_tests
+
+
 __all__ = [
     # Main API
     'get_theory',
+    'get_examples',
+    'get_test_examples',
     'list_subtheories',
     'get_examples_by_subtheory',
     'get_examples_by_type', 

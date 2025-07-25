@@ -11,7 +11,7 @@ This directory contains the implementation of the Logos theory's modular subtheo
 | **extensional** | 7 operators | Truth-functional operators (¬,∧,∨,→,↔,⊤,⊥) |
 | **modal** | 4 operators | Necessity and possibility operators (□,◇,CFBox,CFDiamond) |
 | **constitutive** | 5 operators | Content relations (≡,≤,⊑,≼,⇒) |
-| **counterfactual** | 4 operators | Hypothetical reasoning (□→,◇→,◦,◯) |
+| **counterfactual** | 4 operators | Counterfactual reasoning (□→,◇→) |
 
 ### Experimental Subtheories
 
@@ -21,48 +21,59 @@ This directory contains the implementation of the Logos theory's modular subtheo
 
 ## Quick Start
 
-### Loading Subtheories
+### Selective Subtheory Loading
 
 ```python
+from model_checker import BuildExample
 from model_checker.theory_lib import logos
 
-# Load default set (excludes experimental relevance)
-theory = logos.get_theory()
-
-# Load specific subtheories
+# Modal reasoning only
 theory = logos.get_theory(['extensional', 'modal'])
+model = BuildExample("modal_logic", theory)
+result = model.check_formula("□(p → q) → (□p → □q)")
 
-# Load all including experimental
-theory = logos.get_theory(['extensional', 'modal', 'constitutive', 'counterfactual', 'relevance'])
+# Counterfactual reasoning
+theory = logos.get_theory(['extensional', 'counterfactual'])
+model = BuildExample("counterfactuals", theory)
+result = model.check_formula("(p □→ q) → ¬(p □→ ¬q)")
 
-# Access operators
-operators = theory['operators']
-```
-
-### Dependency Management
-
-Subtheories automatically load their dependencies:
-
-```
-extensional (base - no dependencies)
-    ↳ modal (depends on extensional)
-    ↳ counterfactual (depends on extensional)
-    ↳ constitutive (no dependencies beyond extensional)
-        ↳ relevance (depends on constitutive)
+# Full hyperintensional system
+theory = logos.get_theory()  # All core subtheories
+model = BuildExample("full_system", theory)
 ```
 
 ### Direct Subtheory Access
 
 ```python
-# Load individual subtheory
-from model_checker.theory_lib.logos.subtheories import extensional
+# Individual subtheory loading
+from model_checker.theory_lib.logos.subtheories import extensional, modal
 
-# Get operators from subtheory
-operators = extensional.get_operators()
+# Get operators and examples
+ext_operators = extensional.get_operators()
+modal_operators = modal.get_operators()
 examples = extensional.get_examples()
 
-# Access specific operator classes
+# Direct operator class access
 from model_checker.theory_lib.logos.subtheories.extensional import NegationOperator
+from model_checker.theory_lib.logos.subtheories.modal import NecessityOperator
+```
+
+### Dependency Management
+
+Subtheories automatically resolve dependencies:
+
+```python
+# Requesting 'modal' automatically loads 'extensional'
+theory = logos.get_theory(['modal'])  # Loads both extensional + modal
+
+# Requesting 'relevance' loads full dependency chain
+theory = logos.get_theory(['relevance'])  # Loads extensional + constitutive + relevance
+
+# Dependency chain visualization:
+# extensional (base)
+#   → modal, counterfactual (depend on extensional)
+#   → constitutive (depends on extensional)
+#     → relevance (depends on constitutive)
 ```
 
 ## Subtheory Structure
@@ -261,5 +272,5 @@ For detailed documentation on individual subtheories, see their respective READM
 - [Extensional README](extensional/README.md) - Truth-functional operators
 - [Modal README](modal/README.md) - Necessity and possibility 
 - [Constitutive README](constitutive/README.md) - Content relations
-- [Counterfactual README](counterfactual/README.md) - Hypothetical reasoning
+- [Counterfactual README](counterfactual/README.md) - counterfactual reasoning
 - [Relevance README](relevance/README.md) - Relevance logic

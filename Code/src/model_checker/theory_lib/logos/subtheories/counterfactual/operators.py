@@ -1,5 +1,5 @@
 """
-Counterfactual operators for hypothetical reasoning.
+Counterfactual operators for counterfactual reasoning.
 
 This module implements counterfactual logical operators:
 - Counterfactual Conditional 
