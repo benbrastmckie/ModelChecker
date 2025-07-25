@@ -92,7 +92,7 @@ The constitutive subtheory provides five operators: four primitive operators tha
 
 ### Identity
 
-**Symbol**: `\\equiv`
+**Symbol**: `\\equiv` (displayed as ≡)
 **Name**: Identity
 **Arity**: 2 (binary)
 **Type**: Primitive operator
@@ -123,7 +123,7 @@ The constitutive subtheory provides five operators: four primitive operators tha
 
 ### Ground
 
-**Symbol**: `\\leq`
+**Symbol**: `\\leq` (displayed as ≤)
 **Name**: Ground (Disjunctive-Part)
 **Arity**: 2 (binary)
 **Type**: Primitive operator
@@ -158,7 +158,7 @@ The constitutive subtheory provides five operators: four primitive operators tha
 
 ### Essence
 
-**Symbol**: `\\sqsubseteq`
+**Symbol**: `\\sqsubseteq` (displayed as ⊑)
 **Name**: Essence (Conjunctive-Part)
 **Arity**: 2 (binary)
 **Type**: Primitive operator
@@ -193,7 +193,7 @@ The constitutive subtheory provides five operators: four primitive operators tha
 
 ### Relevance
 
-**Symbol**: `\\preceq`
+**Symbol**: `\\preceq` (displayed as ⪯)
 **Name**: Relevance
 **Arity**: 2 (binary)
 **Type**: Primitive operator
