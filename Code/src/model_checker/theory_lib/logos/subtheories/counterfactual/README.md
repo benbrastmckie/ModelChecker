@@ -17,11 +17,9 @@ counterfactual/
 
 ## Overview
 
-The **Counterfactual Subtheory** implements operators for hypothetical reasoning within the Logos theory framework, providing two specialized operators for evaluating counterfactual conditionals that enable sophisticated analysis of "what if" scenarios and alternative possibilities. This subtheory demonstrates the non-monotonic nature of counterfactual reasoning where adding information can change truth values.
+The **Counterfactual Subtheory** implements hyperintensional semantics for counterfactual operators (counterfactual conditional, might counterfactual). All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond truth-functional equivalence or necessary equivalence.
 
-The implementation includes **two counterfactual operators**: counterfactual conditional (□→) and might counterfactual (◇→). These operators follow hyperintensional truthmaker semantics with an alternative worlds relation, allowing evaluation of hypothetical scenarios based on verification conditions rather than mere truth-functional analysis.
-
-This subtheory serves as the foundation for counterfactual reasoning within the Logos framework, implementing the semantic theory developed in Brast-McKie (2025) and providing essential operators for hypothetical reasoning while maintaining integration with modal, extensional, and constitutive operators.
+Within the Logos framework, the counterfactual subtheory provides operators for sophisticated hypothetical reasoning and "what if" analysis. The two operators implement the semantic theory developed in Brast-McKie (2025), using an alternative worlds relation that enables non-monotonic reasoning where adding information can change truth values. This allows counterfactual operators to capture the context-sensitivity of hypothetical claims while integrating seamlessly with modal, constitutive, and relevance operators.
 
 ## Quick Start
 
