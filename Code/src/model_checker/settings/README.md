@@ -1,311 +1,466 @@
-# Settings System Implementation
+# Settings Package: Configuration Management Framework
 
-This document describes the implementation of the settings management system for ModelChecker.
+[← Back to ModelChecker API](../README.md) | [Theory Library →](../theory_lib/README.md) | [Builder Package →](../builder/README.md)
+
+## Directory Structure
+```
+settings/
+├── README.md               # This file - settings system overview
+├── __init__.py            # Package exports and SettingsManager
+├── settings_manager.py     # Core settings management and validation
+├── default_settings.py     # Global default settings definitions
+└── validation.py          # Settings validation utilities
+```
 
 ## Overview
 
-We have implemented a centralized settings management system using the SettingsManager class. This implementation provides:
+The **Settings Package** provides comprehensive configuration management for the ModelChecker framework, enabling **centralized settings coordination**, **theory-specific validation**, and **flexible parameter customization** across all components and semantic theories.
 
-1. **Explicit Defaults**: Each semantic theory defines its own appropriate default settings
-2. **Validation**: Settings are validated against theory-specific defaults with warnings for unknown settings
-3. **Clear Priority**: Settings flow from defaults to user general settings to example settings to flags
-4. **No Silent Failures**: Unknown settings trigger warnings rather than being silently ignored
-5. **Clear Data Flow**: Settings are explicitly passed between components
+The system implements a **priority-based configuration hierarchy** where settings flow from theory defaults through user preferences to command-line overrides. It handles **theory-specific settings**, **validation and warnings**, and **comparison mode adaptation** to ensure consistent behavior across different semantic frameworks.
 
-## Implementation Details
+This centralized approach eliminates configuration inconsistencies, provides clear error messages for invalid settings, and enables seamless integration between command-line interfaces, interactive notebooks, and programmatic usage patterns throughout the framework.
 
-### 1. SettingsManager Class
-
-The core of the implementation is the `SettingsManager` class in `settings.py`. This class handles:
-
-- Validating general and example settings against their theory-specific defaults
-- Warning about unknown settings without failing
-- Merging settings according to priority rules
-- Applying command-line flag overrides as the final step
-
-The class follows these guidelines:
-- Only settings defined in DEFAULT_GENERAL_SETTINGS and DEFAULT_EXAMPLE_SETTINGS are allowed for a theory
-- Unknown settings trigger warnings when provided by the user
-- Flag overrides are applied as the final step and only trigger warnings when explicitly provided by the user
-
-### 2. Integration with BuildModule and BuildExample
-
-Both `BuildModule` and `BuildExample` have been updated to use the `SettingsManager`:
-
-- `BuildModule` initializes a SettingsManager with the default theory
-- Each `BuildExample` gets its own SettingsManager with its specific theory
-- The full settings pipeline flows consistently through both classes
-
-### 3. Theory-Specific Settings
-
-Importantly, **each theory only needs to define settings that are relevant to it**. There's no requirement to include every possible setting in every theory. For example:
+## Quick Start
 
 ```python
-# Bimodal-specific general settings include align_vertically
-DEFAULT_GENERAL_SETTINGS = {
-    "print_impossible": False,
-    "print_constraints": False,
-    "print_z3": False,
-    "save_output": False,
-    "maximize": False,
-    "align_vertically": False,  # Only relevant for bimodal theory
-}
+from model_checker.settings import SettingsManager
+from model_checker import get_theory
 
-# Default theory doesn't include align_vertically as it's not applicable
-DEFAULT_GENERAL_SETTINGS = {
-    "print_impossible": False,
-    "print_constraints": False,
-    "print_z3": False,
-    "save_output": False,
-    "maximize": False,
-}
+# Create settings manager for a theory
+theory = get_theory("logos")
+manager = SettingsManager(theory)
+
+# Merge settings with user preferences
+settings = manager.merge_settings(
+    example_settings={'N': 4, 'contingent': True},
+    general_settings={'print_z3': True},
+    flags={'maximize': True}
+)
+
+# Access final merged settings
+print(f"State space size: {settings['N']}")
+print(f"Z3 output enabled: {settings['print_z3']}")
 ```
 
-Similarly, DEFAULT_EXAMPLE_SETTINGS should only include settings that make sense for the specific theory:
+## Files in This Directory
+
+### settings_manager.py
+Core `SettingsManager` class providing centralized configuration coordination. Handles settings validation, priority merging, warning generation, and theory-specific customization. This is the primary interface for all settings operations throughout the framework.
+
+### default_settings.py  
+Global default settings definitions and documentation for all framework-wide configuration options. Provides baseline defaults that individual theories can override or extend based on their semantic requirements.
+
+### validation.py
+Settings validation utilities providing detailed error messages, type checking, and compatibility verification. Ensures settings are properly formatted and compatible with target theories before constraint generation begins.
+
+## Configuration Architecture
+
+### Priority-Based Configuration Hierarchy
+
+Settings flow through a structured priority system:
 
 ```python
-# Bimodal example settings include 'M' for temporal dimension
-DEFAULT_EXAMPLE_SETTINGS = {
-    'N': 2,           # Number of world states
-    'M': 2,           # Number of times (only relevant for bimodal)
-    'contingent': False,
-    'disjoint': False,
-    'max_time': 1,
-    'expectation': True,
-}
-
-# Default theory doesn't include 'M' since it doesn't have a temporal dimension
-DEFAULT_EXAMPLE_SETTINGS = {
-    'N': 3,
-    'contingent': False,
-    'disjoint': False,
-    'max_time': 1,
-    'expectation': True,
-}
+# Priority order (highest to lowest)
+1. Command-line flags          # --print-z3, -N 4, etc.
+2. Example-specific settings   # settings={'N': 3} in BuildExample
+3. User general preferences    # general_settings in configuration
+4. Theory-specific defaults    # DEFAULT_EXAMPLE_SETTINGS per theory
+5. Framework global defaults   # Baseline settings for all theories
 ```
 
-### Warnings
+### SettingsManager Core Features
 
-The settings system has been designed to only warn about unknown settings when:
+The `SettingsManager` provides centralized coordination:
 
-1. A user explicitly provides a flag that doesn't correspond to a setting in the theory
-2. A user includes a setting in example_settings that isn't defined in the theory's DEFAULT_EXAMPLE_SETTINGS
-3. A user includes a setting in general_settings that isn't defined in the theory's DEFAULT_GENERAL_SETTINGS
+- **Theory-Specific Validation**: Only settings defined in theory defaults are accepted
+- **Warning System**: Unknown settings trigger warnings without failing operations
+- **Comparison Mode Detection**: Automatically adjusts behavior for multi-theory operations
+- **Type Checking**: Validates setting values against expected types and ranges
+- **Clear Error Messages**: Specific guidance for configuration issues
 
-This means that if a flag like `-e` (non_empty) is provided but the theory doesn't define 'non_empty' in its settings, a warning will be displayed - but only if the user explicitly used that flag.
+### Framework Integration
 
-### Theory Comparison Mode
+The settings system integrates across all ModelChecker components:
 
-When comparing multiple theories (e.g., exclusion vs. logos), the settings system automatically detects comparison mode and adjusts warning behavior:
+- **Builder Package**: `BuildExample` and `BuildModule` use theory-specific settings managers
+- **Command-Line Interface**: CLI flags are automatically mapped to settings validation  
+- **Jupyter Integration**: Interactive widgets respect settings priorities and validation
+- **Theory Implementations**: Each theory defines only settings relevant to its semantics
 
-- **Single Theory Mode**: Normal warnings for unknown settings
-- **Comparison Mode**: Warnings are suppressed by default since different theories support different settings
+## Theory-Specific Configuration
 
-#### Environment Variables
+### Semantic Theory Settings
 
-You can control warning behavior using environment variables:
+Each theory defines only settings relevant to its semantic framework:
 
-- `MODELCHECKER_VERBOSE=true` - Shows detailed info messages during theory comparison
-- `MODELCHECKER_SUPPRESS_COMPARISON_WARNINGS=true` - Suppresses all comparison warnings
+```python
+# Bimodal theory includes temporal settings
+class BimodalSemantics(SemanticDefaults):
+    DEFAULT_EXAMPLE_SETTINGS = {
+        'N': 2,                    # World states
+        'M': 2,                    # Time points (bimodal-specific)
+        'max_time': 1,
+        'contingent': False,
+        'align_vertically': False,  # Display setting for temporal models
+    }
 
-Example:
+# Logos theory focuses on hyperintensional settings
+class LogosSemantics(SemanticDefaults):
+    DEFAULT_EXAMPLE_SETTINGS = {
+        'N': 3,                    # More states for complex hyperintensional models
+        'max_time': 1,
+        'contingent': False,
+        'disjoint': False,         # Subject-matter separation
+        'non_empty': False,        # Verifier/falsifier requirements
+    }
+
+# Exclusion theory adds unilateral semantics settings
+class ExclusionSemantics(SemanticDefaults):
+    DEFAULT_EXAMPLE_SETTINGS = {
+        'N': 3,
+        'max_time': 1,
+        'contingent': False,
+        'coherence_check': True,   # Exclusion-specific validation
+        'witness_optimization': False,  # Performance tuning
+    }
+```
+
+### Settings Categories
+
+**General Settings** (theory-wide behavior):
+- Output control (`print_z3`, `print_constraints`, `save_output`)
+- Debugging options (`print_impossible`, `maximize`)
+- Theory-specific display (`align_vertically` for bimodal)
+
+**Example Settings** (per-model configuration):
+- Model size (`N` for states, `M` for time points)
+- Semantic constraints (`contingent`, `disjoint`, `non_empty`)
+- Solver configuration (`max_time`, `expectation`)
+- Theory-specific options (coherence checks, optimization flags)
+
+## Usage Patterns
+
+### Basic Settings Management
+
+```python
+from model_checker import BuildExample, get_theory
+
+# Create model with custom settings
+theory = get_theory("exclusion")
+model = BuildExample("test", theory,
+                     settings={'N': 4, 'contingent': True, 'max_time': 5000})
+
+# Settings are automatically validated against theory defaults
+result = model.check_validity()
+```
+
+### Command-Line Integration
+
 ```bash
-# Show detailed comparison info
+# Flag overrides take highest priority
+./dev_cli.py -N 4 --contingent --print-z3 examples/modal.py
+
+# Settings in example files are merged with flag overrides
+# Example file: settings = {'N': 3, 'max_time': 2000}
+# Final result: N=4 (from flag), max_time=2000 (from file), print_z3=True (from flag)
+```
+
+### Multi-Theory Comparison
+
+```python
+# Comparison mode automatically handles theory differences
+from model_checker.builder import BuildModule
+
+module = BuildModule({'compare': True, 'theories': ['logos', 'exclusion']})
+module.run_comparison()  # Warnings suppressed for theory-specific settings
+```
+
+### Environment Variable Control
+
+```bash
+# Debug theory comparison behavior
 MODELCHECKER_VERBOSE=true ./dev_cli.py examples.py
 
-# Suppress all comparison warnings
+# Suppress comparison warnings entirely
 MODELCHECKER_SUPPRESS_COMPARISON_WARNINGS=true ./dev_cli.py examples.py
 ```
 
-## Usage
+## Validation and Warning System
 
-To use the settings system in a semantic theory:
+### Warning Behavior
 
-1. Define DEFAULT_EXAMPLE_SETTINGS in your semantic theory class with **only the settings relevant to your theory**
-2. Optionally define DEFAULT_GENERAL_SETTINGS for theory-specific general settings, again only including relevant settings
-3. Access the merged settings via self.settings in your components
+The settings system warns about unknown settings only when explicitly provided:
 
-For example:
+1. **Command-line flags** not defined in theory settings
+2. **Example settings** not in theory's `DEFAULT_EXAMPLE_SETTINGS`
+3. **General settings** not in theory's `DEFAULT_GENERAL_SETTINGS`
+
+```python
+# Example: logos theory doesn't define 'M' (time points)
+# This triggers warning only if user explicitly sets it
+model = BuildExample("test", logos_theory, settings={'M': 3})
+# Warning: "Unknown setting 'M' for logos theory"
+```
+
+### Comparison Mode Adaptation
+
+**Single Theory Mode**: Normal validation and warnings
+**Multi-Theory Mode**: Suppressed warnings since theories have different capabilities
+
+```python
+# Single theory - warnings shown
+check_formula("□p → p", theory_name="logos", settings={'M': 2})  # Warning
+
+# Multi-theory comparison - warnings suppressed  
+compare_theories(["logos", "bimodal"], formula="□p → p", settings={'M': 2})  # No warning
+```
+
+## Documentation
+
+### For New Users
+- **[ModelChecker API Guide](../README.md)** - Basic framework usage and configuration
+- **[Theory Selection Guide](../theory_lib/README.md#theory-selection-guide)** - Understanding theory-specific settings
+- **[Command-Line Reference](../../../../CLAUDE.md#quick-reference)** - CLI flags and options
+
+### For Researchers  
+- **[Advanced Configuration](#advanced-configuration)** - Complex settings patterns and optimization
+- **[Multi-Theory Comparison](#multi-theory-comparison)** - Settings behavior across semantic frameworks
+- **[Environment Variables](#environment-variable-control)** - Debug and control options
+
+### For Developers
+- **[Implementing New Settings](#implementing-new-settings)** - Adding settings to theories and CLI
+- **[Architecture Documentation](#configuration-architecture)** - Settings system design and extension points
+- **[Testing Guide](#testing-new-settings)** - Validation and testing procedures
+
+## Settings Reference
+
+### Core Framework Settings
+
+Required by all theories:
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `N` | integer | 3 | Number of atomic states in model space |
+| `max_time` | integer | 1 | Maximum Z3 solver execution time (milliseconds) |
+| `expectation` | boolean | True | Whether a model is expected to exist (for testing) |
+
+### Optional Framework Settings
+
+Available to theories that support them:
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `contingent` | boolean | False | Make atomic propositions contingent |
+| `disjoint` | boolean | False | Require disjoint subject-matters |
+| `non_empty` | boolean | False | Require non-empty verifier/falsifier sets |
+| `non_null` | boolean | False | Prevent null states as verifiers/falsifiers |
+| `iterate` | integer | 1 | Number of distinct models to find |
+
+### Theory-Specific Settings
+
+**Bimodal Theory**:
+- `M` (integer): Number of time points for temporal dimension
+- `align_vertically` (boolean): Display world histories vertically
+
+**Exclusion Theory**:
+- `coherence_check` (boolean): Enable exclusion coherence validation
+- `witness_optimization` (boolean): Optimize witness structure generation
+
+**Imposition Theory**:
+- `imposition_depth` (integer): Maximum depth for imposition operations
+- `state_modification` (boolean): Allow state modification patterns
+
+### General Settings (Output and Debugging)
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `print_impossible` | boolean | False | Show impossible states in output |
+| `print_constraints` | boolean | False | Display Z3 constraints when no model found |
+| `print_z3` | boolean | False | Show raw Z3 model or unsat core |
+| `save_output` | boolean | False | Prompt to save output to file |
+| `maximize` | boolean | False | Compare theories by maximizing model size |
+
+## Advanced Configuration
+
+### Custom Settings Profiles
+
+```python
+# Define reusable settings profiles
+DEBUG_PROFILE = {
+    'print_z3': True,
+    'print_constraints': True,
+    'print_impossible': True,
+    'max_time': 10000
+}
+
+PERFORMANCE_PROFILE = {
+    'N': 2,
+    'max_time': 500,
+    'iterate': 1
+}
+
+# Apply profiles
+model = BuildExample("debug_test", theory, settings=DEBUG_PROFILE)
+fast_model = BuildExample("quick_check", theory, settings=PERFORMANCE_PROFILE)
+```
+
+### Settings Inheritance
+
+```python
+# Base settings for a research project
+BASE_RESEARCH_SETTINGS = {
+    'N': 4,
+    'contingent': True,
+    'max_time': 5000
+}
+
+# Specialized settings for specific experiments
+COUNTERFACTUAL_SETTINGS = {**BASE_RESEARCH_SETTINGS, 'disjoint': True}
+MODAL_SETTINGS = {**BASE_RESEARCH_SETTINGS, 'non_empty': True, 'N': 5}
+
+# Use in examples
+cf_model = BuildExample("counterfactual", theory, settings=COUNTERFACTUAL_SETTINGS)
+modal_model = BuildExample("modal", theory, settings=MODAL_SETTINGS)
+```
+
+### Dynamic Settings Adaptation
+
+```python
+# Automatically adjust settings based on formula complexity
+def adaptive_settings(formula, base_settings):
+    adapted = base_settings.copy()
+    
+    # Complex formulas need more time and space
+    if formula.count('\\') > 5:  # Many operators
+        adapted['N'] = min(adapted['N'] + 1, 6)
+        adapted['max_time'] *= 2
+    
+    # Modal formulas benefit from contingency
+    if '\\Box' in formula or '\\Diamond' in formula:
+        adapted['contingent'] = True
+        
+    return adapted
+
+formula = "\\Box (p \\rightarrow \\Diamond q) \\wedge \\Diamond (q \\rightarrow \\Box r)"
+settings = adaptive_settings(formula, {'N': 3, 'max_time': 1000})
+model = BuildExample("complex", theory, settings=settings)
+```
+
+## Implementing New Settings
+
+### Development Guidelines
+
+When adding new settings to theories or the framework:
+
+#### 1. Theory-Specific Settings
 
 ```python
 class YourSemantics(SemanticDefaults):
     DEFAULT_EXAMPLE_SETTINGS = {
-        'N': 3,                # Always include N for state count
-        'max_time': 1,         # Always include max_time for solver timeout
-        'contingent': False,   # Include if your theory supports contingency
-        # Do NOT include settings that don't apply to your theory
+        'N': 3,                    # Required: state space size
+        'max_time': 1,             # Required: solver timeout
+        'your_theory_setting': False,  # New theory-specific setting
     }
     
     DEFAULT_GENERAL_SETTINGS = {
-        'print_z3': False,     # Include debugging settings as needed
-        'save_output': False,  # Include output settings as needed
-        # Only include settings that make sense for your theory
+        'print_z3': False,         # Debugging options
+        'custom_display': False,   # Theory-specific display option
     }
+    
+    def generate_constraints(self):
+        # Use the setting in constraint generation
+        if self.settings['your_theory_setting']:
+            # Implement theory-specific behavior
+            pass
 ```
 
-## Benefits
+#### 2. Command-Line Integration
 
-This implementation offers several advantages:
+```python
+# In cli.py - add argument parser entries
+parser.add_argument(
+    '--your-setting', '-ys',
+    dest='your_theory_setting',
+    action='store_true',
+    help='Enable your theory-specific feature'
+)
 
-1. **Centralized Management**: All settings logic is in one place
-2. **Explicit Validation**: Unknown settings are caught and warned about only when explicitly provided
-3. **Clearer Errors**: Specific warnings about unknown settings
-4. **Theory-Specific Settings**: Each theory defines only the settings relevant to it
-5. **Maintainability**: Simpler code that follows the Single Responsibility Principle
+# For non-boolean settings
+parser.add_argument(
+    '--complexity-level', '-cl',
+    dest='complexity_level',
+    type=int,
+    default=None,
+    help='Set theory complexity level (1-5)'
+)
+```
 
-## Common Settings by Category
+#### 3. Testing Implementation
 
-### General Settings
-
-These settings control output, debugging, and general behavior:
-
-- **print_impossible**: Print impossible states in output (boolean)
-- **print_constraints**: Print constraints when no model found (boolean)
-- **print_z3**: Print raw Z3 model or unsat core (boolean)
-- **save_output**: Prompt to save output (boolean)
-- **maximize**: Compare semantic theories by maximizing model size (boolean)
-- **align_vertically**: Display world histories vertically (boolean, primarily for bimodal theory)
-
-### Example Settings
-
-These settings control model generation for specific examples:
-
-- **N**: Number of atomic states (integer, required by all theories)
-- **M**: Number of time points (integer, required only by temporal theories like bimodal)
-- **contingent**: Make atomic propositions contingent (boolean)
-- **disjoint**: Make atomic propositions have disjoint subject-matters (boolean)
-- **non_empty**: Make atomic propositions have non-empty verifier/falsifier sets (boolean)
-- **non_null**: Prevent null states from being verifiers/falsifiers (boolean)
-- **max_time**: Maximum solver execution time (integer, required by all theories)
-- **expectation**: Whether a model is expected to exist (boolean, for testing)
-
-## Future Improvements
-
-Potential enhancements for the future:
-
-1. **Type Checking**: Validate that settings have the correct types
-2. **Required vs Optional**: Distinguish between required and optional settings
-3. **Documentation**: Generate settings documentation from the code
-4. **Schema Validation**: More sophisticated schema validation for complex settings
-5. **UI Components**: Settings UI for interactive environments
-
-## Implementing New Settings
-
-When implementing new settings for existing or new theories in the ModelChecker framework, follow these guidelines to ensure consistency and proper integration with the settings system.
-
-### Adding Settings to a Theory
-
-1. **Identify Need**: Determine if your theory genuinely needs a new setting. New settings should:
-   - Control specific aspects of semantics relevant to your theory
-   - Modify constraint generation behavior
-   - Configure output or visualization features
-
-2. **Define in DEFAULT_EXAMPLE_SETTINGS or DEFAULT_GENERAL_SETTINGS**:
-   ```python
-   class YourSemantics(SemanticDefaults):
-       DEFAULT_EXAMPLE_SETTINGS = {
-           # Existing settings
-           'N': 3,
-           'max_time': 1,
-           # New setting with default value
-           'your_new_setting': default_value,
-       }
-   ```
-
-3. **Use the Setting in Code**: Access through the `self.settings` dictionary:
-   ```python
-   if self.settings['your_new_setting']:
-       # Implement behavior when setting is enabled
-   ```
-
-4. **Document the Setting**: Add comments explaining the purpose and impact of your setting.
-
-### Adding Command-Line Flags
-
-To expose a setting as a command-line flag:
-
-1. **Update the CLI Module**: Add your flag to the appropriate argument parser in `cli.py`:
-   ```python
-   parser.add_argument(
-       '--your-flag', '-y',  # Long and short forms
-       dest='your_new_setting',  # Must match the setting name
-       action='store_true',  # For boolean flags
-       help='Description of what this flag does'
-   )
-   ```
-
-2. **For Non-Boolean Settings**: Use appropriate argument type:
-   ```python
-   parser.add_argument(
-       '--value-flag', '-v',
-       dest='value_setting',
-       type=int,  # Specify type (int, float, str)
-       default=None,  # Allow None to detect if user provided it
-       help='Description of what this flag does'
-   )
-   ```
-
-### Testing New Settings
-
-1. **Add Unit Tests**: Create test cases that verify:
-   - Setting is properly passed from CLI to example
-   - Setting triggers expected behavior changes
-   - Setting defaults work correctly
-
-2. **Test Flag Overrides**: Verify command-line flags properly override defaults:
-   ```python
-   # In test_settings.py
-   def test_your_new_setting_flag_override():
-       # Setup mock args with your flag
-       mock_args = Mock()
-       mock_args.your_new_setting = True
-       # Verify it overrides the default in the final settings
-   ```
-
-### Example: Adding a "normalize" Setting
-
-Here's a complete example of adding a new "normalize" setting that normalizes state representations:
-
-1. **Update the Semantic Class**:
-   ```python
-   class YourSemantics(SemanticDefaults):
-       DEFAULT_EXAMPLE_SETTINGS = {
-           'N': 3,
-           'max_time': 1,
-           'normalize': False,  # New setting
-       }
-       
-       def process_state(self, state):
-           if self.settings['normalize']:
-               return self.normalize_state(state)
-           return state
-           
-       def normalize_state(self, state):
-           # Implementation of normalization
-           pass
-   ```
-
-2. **Add CLI Flag**:
-   ```python
-   # In cli.py
-   parser.add_argument(
-       '--normalize', '-n',
-       dest='normalize',
-       action='store_true',
-       help='Normalize state representations for cleaner output'
-   )
-   ```
-
-3. **Document the Setting**:
-   - Add to this README.md under "Example Settings"
-   - Update any relevant theory documentation
-   - Include examples of usage in docstrings
+```python
+# In test_settings.py
+def test_new_setting_integration():
+    theory = get_theory("your_theory")
+    manager = SettingsManager(theory)
+    
+    # Test default behavior
+    settings = manager.merge_settings()
+    assert settings['your_theory_setting'] == False
+    
+    # Test override behavior
+    settings = manager.merge_settings(
+        example_settings={'your_theory_setting': True}
+    )
+    assert settings['your_theory_setting'] == True
+    
+    # Test flag override
+    mock_flags = {'your_theory_setting': True}
+    settings = manager.merge_settings(flags=mock_flags)
+    assert settings['your_theory_setting'] == True
+```
 
 ### Best Practices
 
-1. **Theory-Specific vs. Global**: Consider if your setting should be theory-specific or available to all theories
-2. **Default Values**: Choose defaults that make the system work without user intervention
-3. **Naming**: Use clear, descriptive names that indicate the setting's purpose
-4. **Fail Fast**: If a setting is used incorrectly, let errors occur naturally rather than adding complex validation
-5. **Consistency**: Follow existing naming patterns and behavior conventions
-6. **Documentation**: Always update this documentation when adding new settings
+1. **Semantic Relevance**: Only add settings that control semantic behavior or essential functionality
+2. **Theory Specificity**: Define settings only in theories where they're meaningful
+3. **Clear Naming**: Use descriptive names that indicate purpose and scope
+4. **Documentation**: Update this README and theory documentation
+5. **Default Values**: Choose defaults that work without user intervention
+6. **Type Safety**: Ensure settings have appropriate types and validation
+
+## Testing
+
+The settings package includes comprehensive testing:
+
+```bash
+# Test settings system
+python test_package.py --components settings
+
+# Test settings with specific theories
+python test_theories.py --theories logos exclusion --settings-tests
+
+# Test CLI integration
+python test_package.py --components settings.cli --verbose
+
+# Test validation behavior
+python test_package.py --components settings.validation
+```
+
+## References
+
+### Implementation Architecture
+- Settings system follows centralized management patterns with theory-specific specialization
+- Priority-based configuration hierarchy ensures predictable behavior across components
+
+### Related Components
+- **[Builder Package](../builder/README.md)** - Model construction with settings integration
+- **[Theory Library](../theory_lib/README.md)** - Theory-specific settings definitions
+- **[Command-Line Interface](../../../../CLAUDE.md#quick-reference)** - CLI flags and configuration
+
+## License
+
+Part of the ModelChecker framework, licensed under GPL-3.0.
+
+---
+
+[← Back to ModelChecker API](../README.md) | [Builder Package →](../builder/README.md) | [Theory Library →](../theory_lib/README.md)
