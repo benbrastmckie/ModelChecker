@@ -5,14 +5,17 @@
 ### High Priority
 
 - [.] unit tests
-  - [.] fix failing tests
+  - [x] fix failing tests
   - [ ] check coverage
   - [ ] update documentation
-- [ ] API
-  - [ ] check throughout
-  - [ ] update documentation
+- [.] API
+  - [x] check throughout
+  - [x] uniform refactor
+  - [x] run tests
+  - [x] create `MAINTENANCE.md`
+  - [ ] standardize documentation
 - [ ] CLI
-  - [ ] is `save_to` needed or can output be piped to files via standard cli commands?
+  - [ ] is the `save_to` functionality needed or can output be piped to files via standard cli commands?
 - [ ] theory maintenance
   - [ ] improve `CLAUDE.md`
   - [ ] change log
