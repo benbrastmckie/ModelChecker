@@ -1,5 +1,15 @@
 # Logos Theory Jupyter Notebooks
 
+## Directory Structure
+```
+notebooks/
+├── README.md                          # This file
+├── logos_demo.ipynb                   # Main comprehensive demo
+└── subtheories/                       # Subtheory-specific notebooks
+    ├── modal_operators_demo.ipynb     # Modal logic exploration
+    └── extensional_operators_demo.ipynb # Truth-functional operators
+```
+
 This directory contains interactive Jupyter notebooks for exploring and learning the Logos semantic theory. The notebooks provide hands-on demonstrations of hyperintensional logic, truthmaker semantics, and the modular architecture of the Logos framework.
 
 ## Overview
@@ -29,7 +39,7 @@ The Logos theory implements a unified formal language of thought with **20 logic
 
 - **Hyperintensional Modality**: Beyond classical S5 modal logic
 - **Necessity and Possibility**: □ and ◇ operators with truthmaker semantics
-- **Counterfactual Modality**: CFBox and CFDiamond for hypothetical reasoning
+- **Counterfactual Modality**: CFBox and CFDiamond for counterfactual reasoning
 - **Modal Axioms Testing**: K, T, 4, 5, B axioms in hyperintensional context
 - **Content Sensitivity**: How Logos distinguishes logically equivalent necessities
 
@@ -169,7 +179,7 @@ if not result:
 - **[Extensional Subtheory](../subtheories/extensional/README.md)**: Truth-functional operators
 - **[Modal Subtheory](../subtheories/modal/README.md)**: Necessity and possibility
 - **[Constitutive Subtheory](../subtheories/constitutive/README.md)**: Ground and essence
-- **[Counterfactual Subtheory](../subtheories/counterfactual/README.md)**: Hypothetical reasoning
+- **[Counterfactual Subtheory](../subtheories/counterfactual/README.md)**: counterfactual reasoning
 - **[Relevance Subtheory](../subtheories/relevance/README.md)**: Relevance logic
 
 ### Testing and Validation
@@ -239,3 +249,7 @@ if not result:
 ---
 
 **Note**: These notebooks are designed for both learning and research. They provide a practical introduction to one of the most sophisticated semantic frameworks for logical reasoning, making advanced theoretical concepts accessible through interactive exploration.
+
+---
+
+[← Back to Logos Theory](../README.md) | [Logos Documentation →](../docs/README.md)

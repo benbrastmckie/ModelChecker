@@ -5,7 +5,7 @@ This directory contains comprehensive tests for the Counterfactual Subtheory of 
 ## Test Files
 
 ### test_counterfactual_examples.py
-**Purpose**: Integration tests that validate counterfactual operators using realistic hypothetical reasoning examples
+**Purpose**: Integration tests that validate counterfactual operators using realistic counterfactual reasoning examples
 
 **Coverage**: 33 comprehensive examples testing counterfactual reasoning
 - **14 Countermodel Examples** (CF_CM_*): Invalid arguments showing limitations of counterfactual logic

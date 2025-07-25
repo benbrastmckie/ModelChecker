@@ -5,7 +5,7 @@ Welcome to the documentation for the exclusion theory implementation. This guide
 ## Quick Start
 
 - **New to unilateral semantics?** → Start with [USER_GUIDE.md](USER_GUIDE.md)
-- **Need API reference?** → See [TECHNICAL_REFERENCE.md](TECHNICAL_REFERENCE.md)
+- **Need API reference?** → See [API_REFERENCE.md](API_REFERENCE.md)
 - **Understanding the architecture?** → Read [ARCHITECTURE.md](ARCHITECTURE.md)
 - **Implementing a semantic theory?** → Study [LESSONS_LEARNED.md](LESSONS_LEARNED.md)
 - **Configuring settings?** → See [SETTINGS.md](SETTINGS.md)
@@ -15,7 +15,7 @@ Welcome to the documentation for the exclusion theory implementation. This guide
 ### **[USER_GUIDE.md](USER_GUIDE.md)**
 Accessible introduction to unilateral semantics with practical examples. Covers theoretical background, getting started, and common usage patterns.
 
-### **[TECHNICAL_REFERENCE.md](TECHNICAL_REFERENCE.md)**
+### **[API_REFERENCE.md](API_REFERENCE.md)**
 Complete API documentation including all classes, methods, operators, and code examples. Essential reference for developers.
 
 ### **[ARCHITECTURE.md](ARCHITECTURE.md)**

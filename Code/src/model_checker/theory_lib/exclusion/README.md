@@ -1,6 +1,8 @@
 # Exclusion Theory: Complete Computational Realization of Unilateral Semantics
 
-## File Structure
+[← Back to Theory Library](../README.md) | [Documentation →](docs/README.md) | [Notebooks →](notebooks/README.md)
+
+## Directory Structure
 
 ```
 exclusion/
@@ -43,6 +45,8 @@ The exclusion theory implements **Bernard and Champollion's unilateral exclusion
 - Negation is a **primitive operation** 
 - Direct computation without witness functions
 - Simpler computational requirements
+
+For a comprehensive introduction to hyperintensional semantics and the differences between unilateral and bilateral approaches, see the [Hyperintensional Semantics Guide](../../../../../Docs/HYPERINTENSIONAL.md).
 
 ### The Central Challenge: Witness Functions
 
@@ -410,3 +414,7 @@ This implementation enables researchers, students, and practitioners to explore 
 ---
 
 **For detailed usage instructions, see [docs/USER_GUIDE.md](docs/USER_GUIDE.md). For the complete technical journey, explore [docs/IMPLEMENTATION_STORY.md](docs/IMPLEMENTATION_STORY.md).**
+
+---
+
+[← Back to Theory Library](../README.md) | [Documentation →](docs/README.md) | [Notebooks →](notebooks/README.md)

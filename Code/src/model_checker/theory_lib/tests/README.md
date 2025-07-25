@@ -1,5 +1,13 @@
 # Theory Library Test Suite
 
+## Directory Structure
+```
+tests/
+├── README.md          # This file
+├── __init__.py        # Test module initialization
+└── test_meta_data.py  # Metadata system tests
+```
+
 This directory contains tests for the core theory library infrastructure that supports all semantic theories in the ModelChecker framework. These tests focus on cross-theory functionality rather than theory-specific implementations.
 
 ## Overview
@@ -674,3 +682,7 @@ Infrastructure tests should be lightweight and fast:
 ---
 
 This testing infrastructure ensures the reliability and maintainability of the theory library framework while supporting the development of new semantic theories and the integration of existing ones.
+
+---
+
+[← Back to Theory Library](../README.md)

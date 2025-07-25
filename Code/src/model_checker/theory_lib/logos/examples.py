@@ -140,7 +140,7 @@ logos_theory = {
 
 # Specify which theories to use
 semantic_theories = {
-    "Logos-Full": logos_theory,
+    "Primary": logos_theory,  # Logos hyperintensional semantics
 }
 
 # Default example range (for compatibility with existing framework)
