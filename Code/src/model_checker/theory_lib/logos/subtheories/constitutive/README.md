@@ -51,6 +51,7 @@ print(f"Tautology equivalence: {result3}")  # True (invalid argument - hyperinte
 
 ### [tests/](tests/)
 
+<!-- TODO: 'content-sensitive reasoning' should be replaced with 'reasoning that is sensitive to differences in subject-matter' -->
 Comprehensive test suite with 33 integration examples covering all five content operators. Includes countermodel examples (invalid intensional principles), theorem examples (valid hyperintensional principles), and exploration of content-sensitive reasoning. Tests validate hyperintensional distinctions that intensional logic cannot capture. See [tests/README.md](tests/README.md) for complete testing methodology.
 
 ## Documentation
@@ -139,7 +140,7 @@ Comprehensive test suite with 33 integration examples covering all five content 
 - **Reflexivity**: `(A \\leq A)` is always valid
 - **Transitivity**: `(A \\leq B)` and `(B \\leq C)` imply `(A \\leq C)`
 - **Anti-symmetry**: `(A \\leq B)` and `(B \\leq A)` imply `(A \\equiv B)`
-- **Strict Implication**: `(A \\leq B)` implies `Box(A -> B)`
+- **Strict Implication**: `(A \\leq B)` implies `Box(A \\rightarrow B)`
 
 ### Essence
 
@@ -174,7 +175,7 @@ Comprehensive test suite with 33 integration examples covering all five content 
 - **Reflexivity**: `(A \\sqsubseteq A)` is always valid
 - **Transitivity**: `(A \\sqsubseteq B)` and `(B \\sqsubseteq C)` imply `(A \\sqsubseteq C)`
 - **Anti-symmetry**: `(A \\sqsubseteq B)` and `(B \\sqsubseteq A)` imply `(A \\equiv B)`
-- **Converse Strict Implication**: `(A \\sqsubseteq B)` implies `Box(B -> A)`
+- **Converse Strict Implication**: `(A \\sqsubseteq B)` implies `Box(B \\rightarrow A)`
 
 ### Relevance
 
