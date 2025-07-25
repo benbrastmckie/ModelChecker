@@ -1,6 +1,22 @@
-# Extensional Subtheory Tests
+# Extensional Subtheory Tests: Truth-Functional Logic Validation
+
+[← Back to Extensional](../README.md) | [Logos Tests →](../../../tests/README.md) | [Subtheories →](../../README.md)
+
+## Directory Structure
+```
+tests/
+├── README.md                      # This file - test documentation and methodology
+├── __init__.py                   # Test module initialization
+└── test_extensional_examples.py # Integration tests with 14 comprehensive examples
+```
+
+## Overview
 
 This directory contains comprehensive tests for the Extensional Subtheory of the Logos theory, covering all seven truth-functional operators: negation (`\\neg`), conjunction (`\\wedge`), disjunction (`\\vee`), conditional (`\\rightarrow`), biconditional (`\\leftrightarrow`), top (`\\top`), and bottom (`\\bot`).
+
+The test suite validates classical propositional logic through **14 integration examples** organized into countermodel examples (invalid arguments) and theorem examples (valid arguments). These tests ensure the extensional subtheory provides a sound foundation for hyperintensional reasoning while maintaining compatibility with classical inference patterns.
+
+All tests use the ModelChecker framework's constraint-based validation approach, demonstrating both the limits of truth-functional reasoning and the validity of classical logical principles.
 
 ## Test Files
 
@@ -197,5 +213,9 @@ These tests are part of the comprehensive Logos theory testing framework:
 
 For more information about the extensional foundation and testing strategy, see:
 - [Logos Theory README](../../README.md)
-- [Logos Unit Testing Policy](../../UNIT_TESTS.md)
 - [Extensional Subtheory README](../README.md)
+- [Logos Testing Framework](../../../tests/README.md)
+
+---
+
+[← Back to Extensional](../README.md) | [Logos Tests →](../../../tests/README.md) | [Subtheories →](../../README.md)
