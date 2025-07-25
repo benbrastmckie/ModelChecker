@@ -1,6 +1,22 @@
-# Counterfactual Subtheory Tests
+# Counterfactual Subtheory Tests: Hypothetical Reasoning Validation
 
-This directory contains comprehensive tests for the Counterfactual Subtheory of the Logos theory, covering all four counterfactual operators: counterfactual conditional (`\\boxright`), might counterfactual (`\\diamondright`), imposition (`\\imposition`), and might imposition (`\\could`).
+[← Back to Counterfactual](../README.md) | [Logos Tests →](../../../tests/README.md) | [Subtheories →](../../README.md)
+
+## Directory Structure
+```
+tests/
+├── README.md                          # This file - counterfactual test documentation
+├── __init__.py                       # Test module initialization
+└── test_counterfactual_examples.py   # Integration tests with 33 comprehensive examples
+```
+
+## Overview
+
+This directory contains comprehensive tests for the Counterfactual Subtheory of the Logos theory, covering both counterfactual operators: counterfactual conditional (`\\boxright`) and might counterfactual (`\\diamondright`).
+
+The test suite validates hypothetical reasoning through **33 integration examples** organized into countermodel examples (invalid classical principles) and theorem examples (valid counterfactual principles). These tests demonstrate the non-monotonic nature of counterfactual reasoning where principles like antecedent strengthening, contraposition, and transitivity fail.
+
+All tests use the ModelChecker framework's constraint-based validation approach with alternative worlds semantics, verifying counterfactual relationships based on verification conditions and world-relative evaluation.
 
 ## Test Files
 
@@ -176,6 +192,9 @@ These tests are part of the comprehensive Logos theory testing framework:
 
 For more information about counterfactual logic and testing strategy, see:
 - [Logos Theory README](../../README.md)
-- [Logos Unit Testing Policy](../../UNIT_TESTS.md)
 - [Counterfactual Subtheory README](../README.md)
-- [Paper](https://link.springer.com/article/10.1007/s10992-025-09793-8)
+- [Logos Testing Framework](../../../tests/README.md)
+
+---
+
+[← Back to Counterfactual](../README.md) | [Logos Tests →](../../../tests/README.md) | [Subtheories →](../../README.md)

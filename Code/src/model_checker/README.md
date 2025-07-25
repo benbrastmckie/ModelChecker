@@ -45,14 +45,6 @@ explorer = ModelExplorer()
 explorer.display()  # Launch interactive widget in Jupyter
 ```
 
-## Files in This Directory
-
-### __init__.py
-Main API exports providing convenient access to core functionality. Contains the primary functions `check_formula()`, `get_theory()`, `BuildExample`, and imports from major modules. This is the primary entry point for most ModelChecker usage.
-
-### __main__.py
-Command-line interface and entry points for the development CLI. Handles argument parsing, dispatch to appropriate modules, and integration with development workflow tools. Supports theory testing, example running, and project generation.
-
 ## Subdirectories
 
 ### [builder/](builder/)

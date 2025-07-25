@@ -42,17 +42,6 @@ print(f"State space size: {settings['N']}")
 print(f"Z3 output enabled: {settings['print_z3']}")
 ```
 
-## Files in This Directory
-
-### settings_manager.py
-Core `SettingsManager` class providing centralized configuration coordination. Handles settings validation, priority merging, warning generation, and theory-specific customization. This is the primary interface for all settings operations throughout the framework.
-
-### default_settings.py  
-Global default settings definitions and documentation for all framework-wide configuration options. Provides baseline defaults that individual theories can override or extend based on their semantic requirements.
-
-### validation.py
-Settings validation utilities providing detailed error messages, type checking, and compatibility verification. Ensures settings are properly formatted and compatible with target theories before constraint generation begins.
-
 ## Configuration Architecture
 
 ### Priority-Based Configuration Hierarchy

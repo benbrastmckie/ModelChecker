@@ -189,30 +189,7 @@ print(f"T axiom is {'valid' if result else 'invalid'}")
 - Include expected output where helpful
 - Keep examples simple but meaningful
 
-### 5. File Descriptions
-
-**REQUIRED**: Describe every file in the current directory:
-
-```markdown
-## Files in This Directory
-
-### semantic.py
-Core semantic framework implementing [specific semantics type]. Contains the main [SemanticClass] class that defines truth conditions, model constraints, and evaluation methods. This is the theoretical heart of the implementation.
-
-### operators.py  
-Operator registry and definitions for all [theory] operators. Dynamically loads operators from subtheories and provides the unified operator collection used throughout the framework.
-
-### examples.py
-Comprehensive test examples including [X] countermodels and [Y] theorems that validate the theory implementation. Each example tests specific logical principles and edge cases.
-```
-
-**Best Practices:**
-- Explain the purpose and role of each file
-- Mention key classes, functions, or patterns  
-- Describe how files relate to each other
-- Include quantitative details when available (number of operators, examples, etc.)
-
-### 6. Subdirectory Summaries
+### 5. Subdirectory Summaries
 
 **REQUIRED**: Provide a summary for each subdirectory with links:
 
@@ -235,7 +212,7 @@ Interactive Jupyter notebooks providing hands-on learning experiences with the t
 - Always link to the subdirectory's README.md
 - Use consistent formatting and depth across summaries
 
-### 7. Documentation Links Section
+### 6. Documentation Links Section
 
 **REQUIRED**: Organize documentation by user type and purpose:
 
@@ -264,7 +241,7 @@ Interactive Jupyter notebooks providing hands-on learning experiences with the t
 - Include both internal and external documentation references
 - Maintain consistent formatting across sections
 
-### 8. References and Related Resources
+### 7. References and Related Resources
 
 **ENCOURAGED**: Include academic references and related resources:
 
@@ -281,7 +258,7 @@ Interactive Jupyter notebooks providing hands-on learning experiences with the t
 - **[External Resource](link)** - Description of external relevance
 ```
 
-### 9. Navigation Links (Bottom)
+### 8. Navigation Links (Bottom)
 
 ```markdown
 ---
@@ -371,12 +348,10 @@ Must include:
 3. Complete directory structure
 4. Theory overview (2-3 paragraphs)
 5. Quick start example
-6. Key features list
-7. File descriptions for all files in root
-8. Subdirectory summaries with links
-9. Documentation links
-10. Academic references
-11. Navigation links at bottom
+6. Subdirectory summaries with links
+7. Documentation links
+8. Academic references
+9. Navigation links at bottom
 
 #### docs/API_REFERENCE.md
 
@@ -531,11 +506,6 @@ from model_checker.component import main_function
 result = main_function("example")
 ```
 
-## Files in This Directory
-
-### core_file.py
-[Description of file purpose, key classes/functions, and role in system]
-
 ## Subdirectories
 
 ### [docs/](docs/)
@@ -609,7 +579,6 @@ When modifying or adding to the repository:
 
 - [ ] Every directory has a README.md with complete file tree (except /Code/README.md)
 - [ ] All README.md files have navigation links at top and bottom (except /Code/README.md)
-- [ ] All README.md files describe every file in their directory
 - [ ] All README.md files summarize and link to subdirectories
 - [ ] All non-README docs have table of contents with links
 - [ ] All non-README docs have navigation links at top and bottom
