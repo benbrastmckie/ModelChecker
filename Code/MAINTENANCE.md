@@ -48,6 +48,28 @@ class Negation(Operator):
 formula = "p ∧ q"  # WRONG: Must use "p \\wedge q"
 ```
 
+### Documentation Symbol Standards
+
+When documenting operators in README files:
+
+1. **Format**: Always show both LaTeX command and Unicode display
+   - Example: `\\equiv` (displayed as ≡)
+   
+2. **Preferred Unicode Symbols**:
+   - Use clean, proportional symbols that display well
+   - For double arrows: Use ⟹ (U+27F9) instead of ⇒ (U+21D2)
+   - For less-than-or-equal: Use ≤ (U+2264)
+   - For square subset: Use ⊑ (U+2291)
+
+3. **Constitutive Logic Symbols**:
+   | LaTeX | Unicode | Name | Usage |
+   |-------|---------|------|-------|
+   | `\\equiv` | ≡ | IDENTICAL TO | Identity operator |
+   | `\\leq` | ≤ | LESS-THAN OR EQUAL TO | Ground operator |
+   | `\\sqsubseteq` | ⊑ | SQUARE IMAGE OF OR EQUAL TO | Essence operator |
+   | `\\preceq` | ⪯ | PRECEDES ABOVE SINGLE-LINE EQUALS SIGN | Relevance operator |
+   | `\\Rightarrow` | ⟹ | LONG RIGHTWARDS DOUBLE ARROW | Reduction operator |
+
 ### LaTeX Notation Reference
 
 The ModelChecker parser expects the following LaTeX notation:
@@ -57,7 +79,7 @@ The ModelChecker parser expects the following LaTeX notation:
 | Negation      | ¬                   | `\\neg`                  | Logical NOT          |
 | Conjunction   | ∧                   | `\\wedge`                | Logical AND          |
 | Disjunction   | ∨                   | `\\vee`                  | Logical OR           |
-| Implication   | →                   | `\\to` or `\\rightarrow` | Material conditional |
+| Implication   | →                   | `\\rightarrow` | Material conditional |
 | Biconditional | ↔                  | `\\leftrightarrow`       | If and only if       |
 | Necessity     | □                   | `\\Box`                  | Modal necessity      |
 | Possibility   | ◇                   | `\\Diamond`              | Modal possibility    |
@@ -367,6 +389,89 @@ Must include:
 8. Examples
 9. Error handling
 10. Navigation links at bottom
+
+### Subtheory Documentation Standards
+
+For theories with modular subtheories (e.g., Logos), each subtheory must follow these conventions:
+
+#### Subtheory README.md Structure
+
+Each subtheory README must follow the standard 9-section format with specific requirements:
+
+1. **Title and Navigation**
+   - Clear title: `# [Subtheory Name] Subtheory: [Description]`
+   - Navigation links: `[← Back to Subtheories](../README.md) | [Tests →](tests/README.md) | [Examples →](examples.py)`
+
+2. **Directory Structure**
+   - Complete file tree showing all contents
+   - Brief description for each file/directory
+
+3. **Overview**
+   - First paragraph: State that the subtheory "implements hyperintensional semantics for [operators]. All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond truth-functional equivalence or necessary equivalence."
+   - Second paragraph: Explain the role in the parent theory and integration with other subtheories
+   - Clearly distinguish primitive vs defined operators
+
+4. **Quick Start**
+   - Working code example with proper formatting
+   - Use expanded format for readability:
+     ```python
+     result = model.check_validity(   # Description
+       [...],                         # Premises
+       [...]                          # Conclusions
+     )
+     ```
+   - Explain output clearly (e.g., "No countermodel found" instead of "False")
+
+5. **Subdirectories**
+   - One paragraph per subdirectory
+   - Focus on what makes each unique
+   - Include cross-references
+
+6. **Documentation**
+   - Three subsections: For New Users, For Researchers, For Developers
+   - Link to relevant sections and files
+
+7. **Operator Reference**
+   - Summary distinguishing primitive vs defined operators
+   - For each operator include:
+     - **Symbol**: LaTeX command and Unicode display (e.g., `\\equiv` (displayed as ≡))
+     - **Name**: Official name
+     - **Arity**: Number of arguments
+     - **Type**: Primitive or Defined operator
+     - **Meaning**: One-line informal description
+     - **Truth Conditions**: For primitive operators, show Z3 implementation
+     - **Usage Examples**: Multiple examples with comments
+     - **Key Properties**: Logical properties that hold
+
+8. **Examples**
+   - Categorize examples (e.g., Countermodels vs Theorems)
+   - Use consistent naming (e.g., `CL_CM_*`, `CL_TH_*`)
+   - Show how to run examples via CLI and programmatically
+   - Explain example structure and settings
+
+9. **Additional Sections** (as needed)
+   - **Semantic Theory**: Theoretical background and key innovations
+   - **Testing and Validation**: How to verify the implementation
+   - **Integration**: Dependencies and usage with other subtheories
+   - **Advanced Topics**: Operator interdefinability, philosophical implications
+   - **References**: Academic sources and related resources
+
+#### Operator Documentation Standards
+
+1. **Primitive vs Defined**: Clearly indicate operator type
+2. **Symbol Specification**: Always show both LaTeX command and Unicode
+3. **Truth Conditions**: 
+   - For primitive operators: Show actual Z3 implementation from operators.py
+   - For defined operators: Show the definition in terms of other operators
+4. **Terminology**: Use "subject-matter" instead of "content" or "topic" for precision
+5. **Examples**: Include both simple and complex usage patterns
+
+#### Code Example Standards
+
+1. **Validity Checking**: Always use lists for conclusions
+2. **Comments**: Explain what each example tests
+3. **Output Explanation**: Clarify what return values mean
+4. **Settings**: Document only relevant parameters (avoid legacy parameters like 'M')
 
 ## Code Organization Standards
 
