@@ -445,7 +445,7 @@ class TestRunner:
         return results
     
     def _discover_theories(self) -> List[str]:
-        """Discover available theories, excluding 'default' by design."""
+        """Discover available theories."""
         theories = []
         theory_lib_dir = self.code_dir / "src" / "model_checker" / "theory_lib"
         
@@ -455,7 +455,7 @@ class TestRunner:
         for item in theory_lib_dir.iterdir():
             if (item.is_dir() and 
                 not item.name.startswith('__') and 
-                item.name != 'default' and  # Exclude default theory
+                item.name != 'bimodal' and  # Exclude bimodal theory (not finished)
                 (item / "tests").exists() and
                 (item / "examples.py").exists()):
                 theories.append(item.name)

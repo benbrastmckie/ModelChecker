@@ -34,7 +34,7 @@ from model_checker import BuildExample
 
 # Test unilateral negation
 model = BuildExample("demo", exclusion_theory,
-    premises=['\\¬func_unineg A'],
+    premises=['\\¬unineg A'],
     conclusions=['A'],
     settings={'N': 3}
 )
@@ -190,7 +190,7 @@ if hasattr(model_structure, 'get_h_witness'):
 
 ```python
 # Compare exclusion approaches
-cb_result = model.check_formula("\\\\func_unineg A")  # Champollion-Bernard
+cb_result = model.check_formula("\\\\unineg A")  # Champollion-Bernard
 fine_result = model.check_formula("\\\\set_unineg A")   # Fine's approach
 
 # Debug witness mappings

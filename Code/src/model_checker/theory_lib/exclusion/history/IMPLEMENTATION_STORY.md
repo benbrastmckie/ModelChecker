@@ -242,7 +242,7 @@ theory = get_theory("exclusion")
 
 # Test ¬¬A ⊢ A (double negation elimination)
 model = BuildExample("double_neg", theory,
-    premises=['\\func_unineg \\func_unineg A'],
+    premises=['\\unineg \\unineg A'],
     conclusions=['A'],
     settings={'N': 3}
 )
@@ -254,7 +254,7 @@ print(f"¬¬A ⊨ A: {result}")  # False
 # We can even inspect the witness functions
 if not result:  # Countermodel found
     structure = model.get_model()
-    h_value = structure.get_h_witness("\\func_unineg(\\func_unineg(A))", 0)
+    h_value = structure.get_h_witness("\\unineg(\\unineg(A))", 0)
     print(f"Witness h(∅) = {h_value}")
 ```
 

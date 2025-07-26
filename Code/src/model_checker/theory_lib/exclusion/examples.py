@@ -133,7 +133,7 @@ EX_CM_3_example = [
 ]
 
 # EX_CM_4: NEGATION TO SENTENCE (FALSE PREMISE PROBLEM)
-EX_CM_4_premises = ['\\func_unineg A']
+EX_CM_4_premises = ['\\unineg A']
 EX_CM_4_conclusions = ['A']
 EX_CM_4_settings = {
     'N': 3,
@@ -155,7 +155,7 @@ EX_CM_4_example = [
 
 # EX_CM_5: SENTENCE TO NEGATION (FALSE PREMISE PROBLEM)
 EX_CM_5_premises = ['A']
-EX_CM_5_conclusions = ['\\func_unineg A']
+EX_CM_5_conclusions = ['\\unineg A']
 EX_CM_5_settings = {
     'N': 3,
     'possible': False,
@@ -175,7 +175,7 @@ EX_CM_5_example = [
 ]
 
 # EX_CM_6: DOUBLE NEGATION ELIMINATION (FALSE PREMISE PROBLEM)
-EX_CM_6_premises = ['\\func_unineg \\func_unineg A']
+EX_CM_6_premises = ['\\unineg \\unineg A']
 EX_CM_6_conclusions = ['A']
 EX_CM_6_settings = {
     'N': 3,
@@ -197,7 +197,7 @@ EX_CM_6_example = [
 
 # EX_CM_7: DOUBLE NEGATION INTRODUCTION (FALSE PREMISE PROBLEM)
 EX_CM_7_premises = ['A']
-EX_CM_7_conclusions = ['\\func_unineg \\func_unineg A']
+EX_CM_7_conclusions = ['\\unineg \\unineg A']
 EX_CM_7_settings = {
     'N': 3,
     'possible': False,
@@ -217,8 +217,8 @@ EX_CM_7_example = [
 ]
 
 # EX_CM_8: TRIPLE NEGATION ENTAILMENT (FALSE PREMISE PROBLEM)
-EX_CM_8_premises = ['\\func_unineg \\func_unineg \\func_unineg A']
-EX_CM_8_conclusions = ['\\func_unineg A']
+EX_CM_8_premises = ['\\unineg \\unineg \\unineg A']
+EX_CM_8_conclusions = ['\\unineg A']
 EX_CM_8_settings = {
     'N': 3,
     'possible': False,
@@ -237,7 +237,7 @@ EX_CM_8_example = [
 ]
 
 # EX_CM_9: QUADRUPLE NEGATION ENTAILMENT (FALSE PREMISE PROBLEM)
-EX_CM_9_premises = ['\\func_unineg \\func_unineg \\func_unineg \\func_unineg A']
+EX_CM_9_premises = ['\\unineg \\unineg \\unineg \\unineg A']
 EX_CM_9_conclusions = ['A']
 EX_CM_9_settings = {
     'N': 3,
@@ -257,8 +257,8 @@ EX_CM_9_example = [
 ]
 
 # EX_CM_10: CONJUNCTION DEMORGAN LR (FALSE PREMISE PROBLEM)
-EX_CM_10_premises = ['(\\func_unineg A \\univee \\func_unineg B)']
-EX_CM_10_conclusions = ['\\func_unineg (A \\uniwedge B)']
+EX_CM_10_premises = ['(\\unineg A \\univee \\unineg B)']
+EX_CM_10_conclusions = ['\\unineg (A \\uniwedge B)']
 EX_CM_10_settings = {
     'N': 3,
     'possible': False,
@@ -277,8 +277,8 @@ EX_CM_10_example = [
 ]
 
 # EX_CM_11: CONJUNCTION DEMORGAN RL (FALSE PREMISE PROBLEM)
-EX_CM_11_premises = ['\\func_unineg (A \\uniwedge B)']
-EX_CM_11_conclusions = ['(\\func_unineg A \\univee \\func_unineg B)']
+EX_CM_11_premises = ['\\unineg (A \\uniwedge B)']
+EX_CM_11_conclusions = ['(\\unineg A \\univee \\unineg B)']
 EX_CM_11_settings = {
     'N': 3,
     'possible': False,
@@ -297,8 +297,8 @@ EX_CM_11_example = [
 ]
 
 # EX_CM_12: DISJUNCTION DEMORGAN LR (FALSE PREMISE PROBLEM)
-EX_CM_12_premises = ['\\func_unineg (A \\univee B)']
-EX_CM_12_conclusions = ['(\\func_unineg A \\uniwedge \\func_unineg B)']
+EX_CM_12_premises = ['\\unineg (A \\univee B)']
+EX_CM_12_conclusions = ['(\\unineg A \\uniwedge \\unineg B)']
 EX_CM_12_settings = {
     'N': 3,
     'possible': False,
@@ -317,8 +317,8 @@ EX_CM_12_example = [
 ]
 
 # EX_CM_13: DISJUNCTION DEMORGAN RL (FALSE PREMISE PROBLEM)
-EX_CM_13_premises = ['(\\func_unineg A \\uniwedge \\func_unineg B)']
-EX_CM_13_conclusions = ['\\func_unineg (A \\univee B)']
+EX_CM_13_premises = ['(\\unineg A \\uniwedge \\unineg B)']
+EX_CM_13_conclusions = ['\\unineg (A \\univee B)']
 EX_CM_13_settings = {
     'N': 3,
     'possible': False,
@@ -338,7 +338,7 @@ EX_CM_13_example = [
 
 # EX_CM_14: DOUBLE NEGATION IDENTITY
 EX_CM_14_premises = []
-EX_CM_14_conclusions = ['(\\func_unineg \\func_unineg A \\uniequiv A)']
+EX_CM_14_conclusions = ['(\\unineg \\unineg A \\uniequiv A)']
 EX_CM_14_settings = {
     'N': 3,
     'possible': False,
@@ -359,7 +359,7 @@ EX_CM_14_example = [
 
 # EX_CM_15: TRIPLE NEGATION IDENTITY
 EX_CM_15_premises = []
-EX_CM_15_conclusions = ['(\\func_unineg \\func_unineg \\func_unineg A \\uniequiv \\func_unineg A)']
+EX_CM_15_conclusions = ['(\\unineg \\unineg \\unineg A \\uniequiv \\unineg A)']
 EX_CM_15_settings = {
     'N': 3,
     'possible': False,
@@ -380,7 +380,7 @@ EX_CM_15_example = [
 
 # EX_CM_16: CONJUNCTION DEMORGAN IDENTITY
 EX_CM_16_premises = []
-EX_CM_16_conclusions = ['(\\func_unineg (A \\uniwedge B) \\uniequiv (\\func_unineg A \\univee \\func_unineg B))']
+EX_CM_16_conclusions = ['(\\unineg (A \\uniwedge B) \\uniequiv (\\unineg A \\univee \\unineg B))']
 EX_CM_16_settings = {
     'N': 3,
     'possible': False,
@@ -401,7 +401,7 @@ EX_CM_16_example = [
 
 # EX_CM_17: DISJUNCTION DEMORGAN IDENTITY
 EX_CM_17_premises = []
-EX_CM_17_conclusions = ['(\\func_unineg (A \\univee B) \\uniequiv (\\func_unineg A \\uniwedge \\func_unineg B))']
+EX_CM_17_conclusions = ['(\\unineg (A \\univee B) \\uniequiv (\\unineg A \\uniwedge \\unineg B))']
 EX_CM_17_settings = {
     'N': 3,
     'possible': False,
@@ -443,7 +443,7 @@ EX_CM_18_example = [
 
 # EX_CM_19: COMPLEX DEMORGAN (THEOREM 17)
 EX_CM_19_premises = []
-EX_CM_19_conclusions = ['((\\func_unineg (A \\univee B) \\uniequiv (\\func_unineg A \\uniwedge \\func_unineg B)) \\uniwedge (\\func_unineg (A \\uniwedge B) \\uniequiv (\\func_unineg A \\univee \\func_unineg B)))']
+EX_CM_19_conclusions = ['((\\unineg (A \\univee B) \\uniequiv (\\unineg A \\uniwedge \\unineg B)) \\uniwedge (\\unineg (A \\uniwedge B) \\uniequiv (\\unineg A \\univee \\unineg B)))']
 EX_CM_19_settings = {
     'N': 4,
     'possible': False,
@@ -463,7 +463,7 @@ EX_CM_19_example = [
 
 # EX_CM_20: DEMORGAN COMPLEX
 EX_CM_20_premises = []
-EX_CM_20_conclusions = ['(\\func_unineg (A \\univee B) \\uniequiv (\\func_unineg A \\uniwedge \\func_unineg B))']
+EX_CM_20_conclusions = ['(\\unineg (A \\univee B) \\uniequiv (\\unineg A \\uniwedge \\unineg B))']
 EX_CM_20_settings = {
     'N': 3,
     'possible': False,
@@ -551,7 +551,7 @@ EX_TH_1_example = [
 ]
 
 # EX_TH_2: DISJUNCTIVE SYLLOGISM
-EX_TH_2_premises = ['(A \\univee B)', '\\func_unineg A']
+EX_TH_2_premises = ['(A \\univee B)', '\\unineg A']
 EX_TH_2_conclusions = ['B']
 EX_TH_2_settings = {
     'N': 3,
@@ -921,10 +921,10 @@ logos_registry.load_subtheories(['extensional'])  # Load basic extensional opera
 
 # Translation dictionary from exclusion (unilateral) to logos (bilateral) operators
 exclusion_to_logos = {
-    "\\func_unineg": "\\neg",        # Unilateral to bilateral negation
+    "\\unineg": "\\neg",        # Unilateral to bilateral negation
     "\\uniwedge": "\\wedge",         # Unilateral to bilateral conjunction
     "\\univee": "\\vee",             # Unilateral to bilateral disjunction
-    "\\func_unibox": "\\Box",        # Unilateral to bilateral box (if used)
+    "\\unibox": "\\Box",        # Unilateral to bilateral box (if used)
     "\\unidiamond": "\\Diamond",     # Unilateral to bilateral diamond (if used)
     "\\uniequiv": "\\equiv",         # Unilateral to bilateral equivalence
 }

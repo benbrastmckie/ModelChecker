@@ -58,7 +58,7 @@ class TestExclusionIterator:
         # Create example case
         example_case = [
             [],  # premises
-            ["\\func_unineg A"],  # conclusions
+            ["\\unineg A"],  # conclusions
             {'N': 3, 'iterate': 2}  # settings
         ]
         

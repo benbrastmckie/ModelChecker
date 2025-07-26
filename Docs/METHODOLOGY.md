@@ -86,7 +86,7 @@ The exclusion theory implements **5 operators** for unilateral (verifier-only) s
 
 ```
 # Unilateral operators (exclusion-based)
-\\func_unineg A   # CB preclusion: function-based exclusion
+\\unineg A   # CB preclusion: function-based exclusion
 \\set_unineg A    # Fine preclusion: set-based exclusion
 A \\uniwedge B    # Unilateral conjunction
 A \\univee B      # Unilateral disjunction
@@ -153,10 +153,10 @@ Unilateral semantics treats propositions as having only **verifiers**. Negation 
 
 ```python
 def extended_verify(self, state, argument, eval_point):
-    """State verifies \\func_unineg A via three-condition semantics"""
+    """State verifies \\unineg A via three-condition semantics"""
     
     # Get witness functions for this formula
-    formula_str = f"\\func_unineg({argument})"
+    formula_str = f"\\unineg({argument})"
     h_pred = self.semantics.witness_registry[f"{formula_str}_h"]
     y_pred = self.semantics.witness_registry[f"{formula_str}_y"]
     
@@ -200,7 +200,7 @@ def extended_verify(self, state, argument, eval_point):
     )
 ```
 
-**Interpretation**: A state verifies `not A` (written `\\func_unineg A`) if there exist witness functions `h` and `y` such that: (1) for every A-verifier, h maps it to something that excludes a part of it, (2) all h-values fit within the state, and (3) the state is minimal with this property.
+**Interpretation**: A state verifies `not A` (written `\\unineg A`) if there exist witness functions `h` and `y` such that: (1) for every A-verifier, h maps it to something that excludes a part of it, (2) all h-values fit within the state, and (3) the state is minimal with this property.
 
 ### Key Difference: Complexity of Truth-Conditions
 
@@ -299,7 +299,7 @@ Exclusion:
   a excludes b                  # Atomic exclusion
   b excludes a
   
-Witness Functions for \\func_unineg(A):
+Witness Functions for \\unineg(A):
   h(a) = b      y(a) = a        # h maps a to its excluder b
   h(b) = a      y(b) = b        # h maps b to its excluder a
 ```
@@ -392,8 +392,8 @@ conclusions = ['A']
 
 **Unilateral Version (Exclusion)**:
 ```python
-# \\func_unineg \\func_unineg A entails A
-premises = ['\\func_unineg \\func_unineg A'] 
+# \\unineg \\unineg A entails A
+premises = ['\\unineg \\unineg A'] 
 conclusions = ['A']
 
 # Result: COUNTERMODEL FOUND
@@ -415,9 +415,9 @@ conclusions = ['(\\neg A \\vee \\neg B)']
 
 **Unilateral Version (Exclusion)**:
 ```python
-# \\func_unineg (A \\uniwedge B) entails (\\func_unineg A \\univee \\func_unineg B)  
-premises = ['\\func_unineg (A \\uniwedge B)']
-conclusions = ['(\\func_unineg A \\univee \\func_unineg B)']
+# \\unineg (A \\uniwedge B) entails (\\unineg A \\univee \\unineg B)  
+premises = ['\\unineg (A \\uniwedge B)']
+conclusions = ['(\\unineg A \\univee \\unineg B)']
 
 # Result: COUNTERMODEL FOUND
 # Reasoning: Unilateral semantics invalidate classical DeMorgan's laws

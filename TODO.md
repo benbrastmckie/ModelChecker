@@ -4,27 +4,11 @@
 
 ### High Priority
 
-- [x] replace 'truth-functional' with 'extensional'
-- [x] fix CFBox and CFDiamond
-  - [x] test CF modal operator in modal/ subtheory
 - [.] unit tests
   - [x] fix failing tests
   - [ ] check coverage
   - [ ] update documentation
-- [.] API
-  - [x] check throughout
-  - [x] uniform refactor
-  - [x] run tests
-  - [x] create `MAINTENANCE.md`
-  - [x] standardize documentation
-- [ ] CLI
-  - [ ] is the `save_to` functionality needed or can output be piped to files via standard cli commands?
-- [:] theory maintenance
-  - [x] improve `CLAUDE.md`
-  - [ ] change log
-  - [x] add `MAINTENANCE.md`
-  - [x] what docs to include in `docs/` for each theory
-  - [x] standardize all theories
+- [ ] change log
 - [.] iterate
   - [x] docs for each theory
   - [ ] report networkx not available
@@ -43,6 +27,7 @@
     - [x] installation
     - [x] development
   - [ ] systematic review
+    - [ ] `model_checker/specs/DOC_LIST.md`
 
 ### Refactoring
 
@@ -105,7 +90,7 @@
     - [ ] max sentence/atomic complexity before too many constraints to build
   - [x] add comparison
 
-### Pure , Impure , and Interaction Logics
+### Pure, Impure, and Interaction Logics
 
 - make relevance primitive in relevance/ subtheory
 
