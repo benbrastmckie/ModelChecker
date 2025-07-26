@@ -1,8 +1,51 @@
-# Exclusion Theory Architecture
+# Architecture: Design Patterns and Architectural Decisions
+
+[← Back to Documentation](README.md) | [API Reference →](API_REFERENCE.md) | [Exclusion Theory →](../README.md)
+
+## Directory Structure
+
+```
+docs/
+├── API_REFERENCE.md   # Complete technical reference
+├── ARCHITECTURE.md    # This file - architectural patterns and design
+├── DATA.md            # Test data analysis and performance metrics
+├── ITERATE.md         # Model iteration and countermodel generation
+├── README.md          # Documentation hub
+├── SETTINGS.md        # Configuration and parameter guide
+└── USER_GUIDE.md      # User-focused tutorial
+```
 
 ## Overview
 
-This document describes the architectural design of the exclusion theory implementation, focusing on the **witness predicate pattern** that solves the False Premise Problem. The architecture demonstrates how thoughtful framework extension can overcome fundamental computational barriers while preserving theoretical elegance.
+The **Architecture** document describes the design patterns and architectural decisions behind the exclusion theory implementation, focusing on the witness predicate pattern that solved the False Premise Problem. This architecture demonstrates how thoughtful framework extension can overcome fundamental computational barriers while preserving theoretical elegance.
+
+Within the exclusion theory development, this architecture represents a paradigm shift from ephemeral constraint variables to persistent model predicates. The witness predicate pattern transforms existentially quantified functions from temporary Z3 variables (lost after solving) into queryable Z3 Functions that persist as first-class model citizens throughout the model checking lifecycle.
+
+This document serves framework architects and theory implementers, providing reusable patterns for handling existential quantification in semantic theories while respecting two-phase model checking architectures.
+
+## Quick Start
+
+```python
+# The architectural breakthrough in action
+# OLD: Lost witness information
+def old_approach():
+    h = z3.BitVec('h', N)  # Temporary variable
+    return z3.Exists([h], conditions)  # h lost after solving!
+
+# NEW: Persistent witness predicates
+def witness_predicate_approach():
+    h_pred = z3.Function('h_witness', domain, range)  # First-class citizen
+    return constraints_using(h_pred)  # h_pred queryable in model!
+
+# Two-phase architecture with witnesses
+class WitnessSemantics:
+    def build_model(self):
+        # Phase 1: Register all witnesses
+        self._register_witness_predicates_recursive(formulas)
+        # Phase 2: Generate constraints using registered predicates
+        constraints = self._generate_all_witness_constraints()
+        # Witnesses persist in resulting model!
+```
 
 ## The Core Innovation: Witness Predicates as Model Citizens
 
@@ -593,79 +636,73 @@ The architecture embodies several design principles:
 - Choose simple solutions that compose well
 - Prioritize understandability and maintainability
 
+## Documentation
+
+### For Framework Architects
+
+- **[Core Innovation](#the-core-innovation-witness-predicates-as-model-citizens)** - How witness predicates solve the False Premise Problem
+- **[Design Patterns](#design-patterns)** - Registry, model extension, two-phase processing
+- **[Architectural Insights](#architectural-insights)** - Extension vs revolution, information persistence
+
+### For Theory Implementers
+
+- **[Architectural Components](#architectural-components)** - WitnessRegistry, WitnessSemantics, WitnessAwareModel
+- **[Information Flow](#information-flow-architecture)** - How data moves through phases
+- **[Integration Points](#integration-points)** - Framework compatibility patterns
+
+### For Performance Engineers
+
+- **[Performance Implications](#performance-implications)** - Complexity analysis and optimization
+- **[Module Organization](#module-organization)** - Dependencies and information flow
+- **[Future Extensions](#future-extensions)** - Optimization opportunities
+
+## The Core Innovation: Witness Predicates as Model Citizens
+
+The breakthrough was recognizing that **Z3 Function objects persist in models** while existential variables do not:
+
+```python
+# FAILED: Witnesses as existentially quantified variables
+h_val = z3.BitVec('h_val', N)  # Temporary variable
+y_val = z3.BitVec('y_val', N)  # Lost after solving
+constraint = z3.Exists([h_val, y_val], conditions)
+
+# SUCCESS: Witnesses as persistent Z3 functions  
+h_pred = z3.Function(f"{formula}_h", z3.BitVecSort(N), z3.BitVecSort(N))
+y_pred = z3.Function(f"{formula}_y", z3.BitVecSort(N), z3.BitVecSort(N))
+# These functions become part of the model and are queryable!
+```
+
+This enables the circular information flow required by unilateral semantics:
+
+```
+Constraint Generation ← Witness Predicates → Truth Evaluation
+        ↓                      ↑                    ↓
+    Z3 Constraints         Z3 Model            Verifier Sets
+```
+
 ## Future Extensions
 
-The witness predicate architecture provides a foundation for further innovation:
+The witness predicate architecture provides a foundation for:
 
-### 1. Generalized Witness Patterns
+1. **Generalized Witness Patterns** - Support for arbitrary witness function signatures
+2. **Multi-Theory Witness Sharing** - Cross-theory witness predicate access
+3. **Witness Visualization** - Graphical representation of witness mappings
+4. **Performance Optimization** - Caching and lazy evaluation strategies
 
-```python
-class GeneralWitnessRegistry:
-    """Support for arbitrary witness function signatures."""
-    
-    def register_witness_function(self, name, domain_sorts, range_sort):
-        """Support witnesses with complex type signatures."""
-        witness_func = z3.Function(name, *domain_sorts, range_sort)
-        self.predicates[name] = witness_func
-        return witness_func
-```
+## References
 
-### 2. Multi-Theory Witness Sharing
+### Implementation Files
 
-```python
-class CrossTheoryWitnessManager:
-    """Share witness predicates across semantic theories."""
-    
-    def register_shared_witness(self, formula_str, theories):
-        """Create witnesses accessible to multiple theories."""
-        for theory in theories:
-            theory.witness_registry.add_shared_predicate(formula_str, witness)
-```
+- **[Semantic Module](../semantic.py)** - Core architectural components
+- **[Operators Module](../operators.py)** - Witness predicate consumers
+- **[Examples Module](../examples.py)** - Architectural validation
 
-### 3. Witness Visualization
+### Related Documentation
 
-```python
-class WitnessVisualizer:
-    """Visualize witness function mappings."""
-    
-    def display_witness_mapping(self, model, formula_str):
-        """Generate graphical representation of witness functions."""
-        h_mapping = {state: model.get_h_witness(formula_str, state) 
-                    for state in range(2**model.semantics.N)}
-        y_mapping = {state: model.get_y_witness(formula_str, state)
-                    for state in range(2**model.semantics.N)}
-        return self._render_mapping_graph(h_mapping, y_mapping)
-```
+- **[API Reference](API_REFERENCE.md)** - Complete technical reference
+- **[Implementation Story](../history/IMPLEMENTATION_STORY.md)** - Journey to this architecture
+- **[Lessons Learned](../history/LESSONS_LEARNED.md)** - Architectural insights
 
-### 4. Performance Optimization
+---
 
-```python
-class OptimizedWitnessModel:
-    """Performance-optimized witness access."""
-    
-    def __init__(self, z3_model, witness_predicates):
-        self.z3_model = z3_model
-        self.witness_cache = {}  # Memoize witness queries
-        self.active_formulas = set()  # Track which witnesses are needed
-        
-    def get_h_witness(self, formula_str, state):
-        """Cached witness access with lazy evaluation."""
-        cache_key = (formula_str, 'h', state)
-        if cache_key not in self.witness_cache:
-            self.witness_cache[cache_key] = self._compute_h_witness(formula_str, state)
-        return self.witness_cache[cache_key]
-```
-
-## Conclusion
-
-The witness predicate architecture demonstrates that seemingly intractable computational problems can be solved through **architectural innovation** rather than algorithmic complexity. By treating witness functions as **first-class model predicates**, we preserve the theoretical elegance of Bernard and Champollion's unilateral semantics while achieving complete computational realizability.
-
-**Key Architectural Principles**:
-
-1. **Extension Over Revolution**: Work with existing framework patterns
-2. **Information Persistence**: Make temporary artifacts permanent when needed across phases
-3. **Clean Abstractions**: Hide complexity behind simple, consistent interfaces  
-4. **Explicit Dependencies**: Make information flow patterns clear and manageable
-5. **Framework Respect**: Preserve the design principles that make the framework successful
-
-The success of this architecture validates the principle that **architectural wisdom matters more than algorithmic cleverness**. The most elegant solution preserves theoretical insights while respecting computational constraints, creating a foundation that enables both current success and future innovation.
+[← Back to Documentation](README.md) | [API Reference →](API_REFERENCE.md) | [Exclusion Theory →](../README.md)

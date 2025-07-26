@@ -21,7 +21,7 @@ class LogosOperatorRegistry:
         self.loaded_subtheories = {}
         self.operator_collection = OperatorCollection()
         self.dependencies = {
-            'modal': ['extensional'],
+            'modal': ['extensional', 'counterfactual'],
             'counterfactual': ['extensional'],
             'constitutive': [],
             'relevance': ['constitutive'],

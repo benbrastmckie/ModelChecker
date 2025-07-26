@@ -1,6 +1,27 @@
-# Exclusion Theory Documentation
+# Documentation Hub: Exclusion Theory Resources
 
-Welcome to the documentation for the exclusion theory implementation. This guide provides streamlined navigation to our core documentation.
+[← Back to Exclusion](../README.md) | [User Guide →](USER_GUIDE.md) | [API Reference →](API_REFERENCE.md)
+
+## Directory Structure
+
+```
+docs/
+├── README.md          # This file - documentation hub
+├── API_REFERENCE.md   # Complete technical reference
+├── ARCHITECTURE.md    # Architectural patterns and design decisions
+├── DATA.md            # Test data analysis and performance metrics
+├── ITERATE.md         # Model iteration and countermodel generation
+├── SETTINGS.md        # Configuration and parameter guide
+└── USER_GUIDE.md      # User-focused tutorial and introduction
+```
+
+## Overview
+
+The **Documentation Hub** provides centralized navigation for all exclusion theory documentation, from user tutorials to architectural deep-dives. The exclusion theory implements Bernard and Champollion's unilateral semantics through the breakthrough witness predicate architecture.
+
+Within the ModelChecker framework, this documentation represents one of the most comprehensive theory implementations, covering the journey from the False Premise Problem to its elegant solution. The witness predicate pattern transforms existentially quantified functions into first-class model citizens, enabling complete computational support for unilateral negation.
+
+This hub serves all audiences: new users learning unilateral semantics, developers implementing semantic theories, and researchers exploring non-classical logics.
 
 ## Quick Start
 
@@ -66,9 +87,55 @@ Complete documentation of all settings available in exclusion theory, including 
 - General settings → [SETTINGS.md#general-settings](SETTINGS.md#general-settings)
 - Iteration settings → [SETTINGS.md#iteration-settings](SETTINGS.md#iteration-settings)
 
-## Related Resources
+## Documentation
 
-- **Main Theory README**: [../README.md](../README.md)
-- **Source Code**: [../semantic.py](../semantic.py), [../operators.py](../operators.py)
-- **Examples**: [../examples.py](../examples.py)
-- **Framework Wisdom**: [../../../../../FINDINGS.md](../../../../../FINDINGS.md)
+### For New Users
+
+- **[User Guide](USER_GUIDE.md)** - Start here! Tutorial introduction to unilateral semantics
+- **[Settings Guide](SETTINGS.md)** - Configure models and understand parameters
+- **[Data Analysis](DATA.md)** - See example results and countermodels
+
+### For Developers
+
+- **[API Reference](API_REFERENCE.md)** - Complete technical documentation
+- **[Architecture](ARCHITECTURE.md)** - Witness predicate design patterns
+- **[Model Iteration](ITERATE.md)** - Finding multiple distinct models
+
+### For Researchers
+
+- **[Implementation Story](../history/IMPLEMENTATION_STORY.md)** - Nine-attempt journey to success
+- **[Lessons Learned](../history/LESSONS_LEARNED.md)** - Architectural insights and patterns
+- **[Strategy Comparison](../history/STRATEGIES.md)** - Technical analysis of approaches
+
+## Quick Navigation
+
+### By Learning Path
+
+1. **Beginners**: USER_GUIDE → SETTINGS → DATA
+2. **Implementers**: API_REFERENCE → ARCHITECTURE → LESSONS_LEARNED
+3. **Researchers**: IMPLEMENTATION_STORY → STRATEGIES → ARCHITECTURE
+
+### By Topic
+
+- **Unilateral Semantics**: USER_GUIDE, DATA
+- **Witness Predicates**: ARCHITECTURE, API_REFERENCE
+- **Model Generation**: SETTINGS, ITERATE
+- **Development Journey**: IMPLEMENTATION_STORY, LESSONS_LEARNED
+
+## References
+
+### Implementation Files
+
+- **[Semantic Module](../semantic.py)** - Core witness-aware semantics
+- **[Operators Module](../operators.py)** - Unilateral negation implementation
+- **[Examples Module](../examples.py)** - 38 comprehensive test cases
+
+### Related Resources
+
+- **[Exclusion Theory](../README.md)** - Main theory overview
+- **[History](../history/)** - Development narrative and lessons
+- **[Archives](../archive/)** - Historical implementations
+
+---
+
+[← Back to Exclusion](../README.md) | [User Guide →](USER_GUIDE.md) | [API Reference →](API_REFERENCE.md)

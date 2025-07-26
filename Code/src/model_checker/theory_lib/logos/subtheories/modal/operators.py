@@ -17,7 +17,8 @@ from model_checker.utils import (
 from model_checker import syntactic
 
 # Import required operators for defined operators
-from ..extensional.operators import NegationOperator
+from ..extensional.operators import NegationOperator, TopOperator
+from ..counterfactual.operators import CounterfactualOperator, MightCounterfactualOperator
 
 
 class NecessityOperator(syntactic.Operator):
@@ -119,7 +120,7 @@ class CFNecessityOperator(syntactic.DefinedOperator):
     
     def derived_definition(self, argument):
         """Defines counterfactual necessity using modal necessity."""
-        return [NecessityOperator, argument]
+        return [CounterfactualOperator, TopOperator, argument]
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints modal operators with evaluation over all worlds."""
@@ -139,7 +140,7 @@ class CFPossibilityOperator(syntactic.DefinedOperator):
     
     def derived_definition(self, argument):
         """Defines counterfactual possibility using modal possibility."""
-        return [PossibilityOperator, argument]
+        return [MightCounterfactualOperator, TopOperator, argument]
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints modal operators with evaluation over all worlds."""

@@ -1,10 +1,56 @@
-# Exclusion Theory Settings Documentation
+# Settings Guide: Configuration Parameters for Exclusion Theory
 
-This document provides comprehensive documentation for all settings available in the exclusion theory implementation, explaining their purpose, usage, and impact on model construction and semantics.
+[← Back to Documentation](README.md) | [User Guide →](USER_GUIDE.md) | [Exclusion Theory →](../README.md)
+
+## Directory Structure
+
+```
+docs/
+├── API_REFERENCE.md   # Complete technical reference
+├── ARCHITECTURE.md    # Architectural patterns and design
+├── DATA.md            # Test data analysis
+├── ITERATE.md         # Model iteration guide
+├── README.md          # Documentation hub
+├── SETTINGS.md        # This file - configuration parameters
+└── USER_GUIDE.md      # User-focused tutorial
+```
 
 ## Overview
 
-The exclusion theory extends the ModelChecker framework with witness-aware semantics for unilateral negation. Settings control various aspects of model construction, from basic constraints to advanced iteration behavior.
+The **Settings Guide** provides comprehensive documentation for all configuration parameters available in the exclusion theory implementation, explaining their purpose, usage, and impact on model construction with witness-aware semantics.
+
+Within the exclusion theory framework, settings control critical aspects of unilateral negation behavior, from basic model constraints to advanced iteration parameters. The witness predicate architecture requires careful configuration to explore the rich semantic landscape of exclusion relations and coherence patterns.
+
+This guide serves developers and researchers configuring exclusion theory models, providing detailed parameter documentation and interaction patterns for effective model generation.
+
+## Quick Start
+
+```python
+# Basic exclusion theory settings
+basic_settings = {
+    'N': 3,               # 8 states (2^3)
+    'possible': False,    # Allow impossible states
+    'max_time': 5,        # 5 second timeout
+    'expectation': True   # Expect countermodel
+}
+
+# Advanced iteration settings
+iteration_settings = {
+    'N': 4,                      # Larger state space
+    'iterate': 3,                # Find 3 distinct models
+    'contingent': True,          # Diverse verification
+    'non_empty': True,           # Meaningful witnesses
+    'iteration_timeout': 2.5,    # Extended comparison time
+    'iteration_attempts': 8      # More retry attempts
+}
+
+# Debug settings
+debug_settings = {
+    'print_constraints': True,   # Show Z3 constraints
+    'print_impossible': True,    # Show excluded states
+    'print_z3': False           # Raw solver output
+}
+```
 
 ## Setting Categories
 
@@ -270,3 +316,49 @@ example = BuildExample(
 ```
 
 Settings flow through the system: CLI flags → general settings → example settings → final merged configuration.
+
+## Documentation
+
+### For Model Builders
+
+- **[Core Settings](#core-settings)** - N, max_time, expectation
+- **[Semantic Constraints](#semantic-constraints)** - possible, contingent, non_empty
+- **[Usage Examples](#usage-examples)** - Common configuration patterns
+
+### For Theory Developers
+
+- **[Iteration Settings](#iteration-settings)** - iterate, iteration_timeout, attempts
+- **[Advanced Settings](#advanced-iteration-settings)** - Fine-tuning parameters
+- **[Setting Interactions](#setting-interactions)** - How parameters affect each other
+
+### For Debuggers
+
+- **[General Settings](#general-settings)** - Output and debugging controls
+- **[Troubleshooting](#troubleshooting)** - Common issues and solutions
+- **[Debug Workflow](#debug-workflow)** - Systematic debugging approach
+
+## Key Setting Categories
+
+1. **Core Model Parameters**: N (state space size), max_time (solver timeout)
+2. **Semantic Constraints**: Control verification patterns and state properties
+3. **Iteration Control**: Parameters for finding multiple distinct models
+4. **Debug Output**: Controls for constraint and model display
+5. **Performance Tuning**: Timeouts and attempt limits for complex models
+
+## References
+
+### Implementation Files
+
+- **[Settings Module](../settings.py)** - Default settings definitions
+- **[Examples Module](../examples.py)** - Settings in practice
+- **[Test Module](../tests/test_settings.py)** - Settings validation
+
+### Related Documentation
+
+- **[Architecture](ARCHITECTURE.md)** - How settings affect witness predicates
+- **[Iterate](ITERATE.md)** - Iteration-specific settings in detail
+- **[User Guide](USER_GUIDE.md)** - Tutorial with settings examples
+
+---
+
+[← Back to Documentation](README.md) | [User Guide →](USER_GUIDE.md) | [Exclusion Theory →](../README.md)

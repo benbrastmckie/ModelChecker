@@ -4,6 +4,9 @@
 
 ### High Priority
 
+- [x] replace 'truth-functional' with 'extensional'
+- [x] fix CFBox and CFDiamond
+  - [x] test CF modal operator in modal/ subtheory
 - [.] unit tests
   - [x] fix failing tests
   - [ ] check coverage
@@ -13,22 +16,17 @@
   - [x] uniform refactor
   - [x] run tests
   - [x] create `MAINTENANCE.md`
-  - [ ] standardize documentation
+  - [x] standardize documentation
 - [ ] CLI
   - [ ] is the `save_to` functionality needed or can output be piped to files via standard cli commands?
-- [ ] theory maintenance
-  - [ ] improve `CLAUDE.md`
+- [:] theory maintenance
+  - [x] improve `CLAUDE.md`
   - [ ] change log
-  - [ ] add `MAINTENANCE.md`
-  - [ ] what docs to include in `docs/` for each theory
-    - [ ] `SETTINGS.md`
-    - [ ] `ITERATE.md`
-    - [ ] `ARCHITECTURE.md`
-    - [ ] `USER_GUIDE.md`
-    - [ ] `README.md`
-  - [ ] standardize all theories
-- [ ] iterate
-  - [ ] docs for each theory
+  - [x] add `MAINTENANCE.md`
+  - [x] what docs to include in `docs/` for each theory
+  - [x] standardize all theories
+- [.] iterate
+  - [x] docs for each theory
   - [ ] report networkx not available
   - [ ] move iterate components out of semantic.py
 - [ ] jupyter
@@ -106,6 +104,10 @@
     - [ ] max atomic complexity `N` before timeout
     - [ ] max sentence/atomic complexity before too many constraints to build
   - [x] add comparison
+
+### Pure , Impure , and Interaction Logics
+
+- make relevance primitive in relevance/ subtheory
 
 ### Documentation
 

@@ -71,7 +71,7 @@ The Logos theory implements truthmaker semantics where:
 
 ### Modular Architecture
 Five independent but interoperable subtheories:
-1. **Extensional** - Truth-functional operators (¬, ∧, ∨, →, ↔, ⊤, ⊥)
+1. **Extensional** - Extensional operators (¬, ∧, ∨, →, ↔, ⊤, ⊥)
 2. **Modal** - Necessity and possibility (□, ◇, CFBox, CFDiamond)
 3. **Constitutive** - Content relationships (≡, ≤, ⊑, ≼, ⇒)
 4. **Counterfactual** - counterfactual reasoning (□→, ◇→)

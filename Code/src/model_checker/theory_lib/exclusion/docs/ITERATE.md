@@ -1,10 +1,57 @@
-# Exclusion Theory Model Iteration
+# Model Iteration: Finding Multiple Distinct Countermodels
 
-This documentation explains how model iteration works specifically within the Exclusion theory, including its witness-aware semantics, exclusion relation handling, and practical usage patterns for unilateral negation.
+[← Back to Documentation](README.md) | [Settings →](SETTINGS.md) | [Exclusion Theory →](../README.md)
+
+## Directory Structure
+
+```
+docs/
+├── API_REFERENCE.md   # Complete technical reference
+├── ARCHITECTURE.md    # Architectural patterns and design
+├── DATA.md            # Test data analysis
+├── ITERATE.md         # This file - model iteration guide
+├── README.md          # Documentation hub
+├── SETTINGS.md        # Configuration and parameter guide
+└── USER_GUIDE.md      # User-focused tutorial
+```
 
 ## Overview
 
-The Exclusion theory implements a witness-aware semantic framework built on unilateral negation, extending the Logos hyperintensional foundation with exclusion relations and coherence patterns. The ExclusionModelIterator leverages these exclusion-specific structures to find multiple distinct models that differ in exclusion relations, witness structures, and coherence patterns.
+The **Model Iteration** document explains how to find multiple distinct countermodels in exclusion theory, leveraging witness-aware semantics and exclusion relations. The ExclusionModelIterator extends LogosModelIterator with exclusion-specific features to discover models that differ in exclusion patterns, witness structures, and coherence relationships.
+
+Within the exclusion theory framework, model iteration enables exploration of the semantic landscape created by unilateral negation. Unlike classical logic where countermodels may differ only in atomic valuations, exclusion theory models can vary across exclusion relations, witness predicates, and coherence patterns, providing rich semantic diversity.
+
+This guide serves developers and researchers exploring the space of possible models in unilateral semantics, demonstrating how witness predicates enable diverse model generation.
+
+## Quick Start
+
+```python
+# Find multiple countermodels with different exclusion patterns
+from model_checker import BuildExample, get_theory
+from model_checker.theory_lib.exclusion import iterate_example
+
+# Configure for multiple models
+settings = {
+    'N': 3,          # Manageable state space
+    'iterate': 3,    # Find 3 distinct models
+    'max_time': 10   # Extended timeout
+}
+
+example = BuildExample("multi", get_theory('exclusion'),
+    premises=['A'],
+    conclusions=['B'], 
+    settings=settings
+)
+
+# Find distinct models
+models = iterate_example(example, max_iterations=3)
+print(f"Found {len(models)} distinct exclusion models")
+
+# Each model differs in exclusion relations or witness patterns
+for i, model in enumerate(models, 1):
+    print(f"\nModel {i}:")
+    model.print_model()  # Shows exclusion relations
+```
 
 ### Exclusion-Specific Distinctness
 
@@ -550,4 +597,48 @@ def _calculate_coherence_differences(self, new_structure, previous_structure):
     pass
 ```
 
-This comprehensive iteration system makes the Exclusion theory's witness-aware semantics and exclusion relations accessible for detailed semantic exploration, building on the robust foundation provided by the Logos theory iterator while adding exclusion-specific capabilities.
+## Documentation
+
+### For Model Explorers
+
+- **[Exclusion-Specific Distinctness](#exclusion-specific-distinctness)** - How models differ in exclusion theory
+- **[Usage Examples](#usage)** - Basic and advanced configuration
+- **[Example Output](#example-output-analysis)** - Understanding iteration results
+
+### For Developers
+
+- **[Architecture](#architecture)** - ExclusionModelIterator design
+- **[Constraint Generation](#constraint-generation)** - Ensuring model diversity
+- **[Performance Tuning](#performance-tuning)** - Optimization strategies
+
+### For Researchers
+
+- **[Semantic Differences](#semantic-difference-detection)** - Types of model variation
+- **[Exclusion Features](#exclusion-theory-specific-features)** - Coherence and self-exclusion
+- **[Future Enhancements](#future-enhancements)** - Planned improvements
+
+## Key Features
+
+1. **Exclusion Relation Diversity**: Models differ in which states exclude each other
+2. **Witness Structure Variation**: Different witness predicate assignments
+3. **Coherence Pattern Analysis**: Varying coherence relationships
+4. **Self-Exclusion Detection**: States that exclude themselves
+5. **Performance Optimization**: Tuned for exclusion reasoning complexity
+
+## References
+
+### Implementation Files
+
+- **[Iterate Module](../iterate.py)** - ExclusionModelIterator implementation
+- **[Examples Module](../examples.py)** - Iteration examples
+- **[Test Module](../tests/test_iterate.py)** - Iteration validation
+
+### Related Documentation
+
+- **[Architecture](ARCHITECTURE.md)** - Witness predicate design enabling iteration
+- **[Settings](SETTINGS.md)** - Iteration-specific parameters
+- **[User Guide](USER_GUIDE.md)** - Tutorial with iteration examples
+
+---
+
+[← Back to Documentation](README.md) | [Settings →](SETTINGS.md) | [Exclusion Theory →](../README.md)

@@ -1,18 +1,54 @@
-# Imposition Theory Architecture
+# Architecture: Design and Implementation of Imposition Theory
+
+[← Back to Documentation](README.md) | [API Reference →](API_REFERENCE.md) | [Imposition Theory →](../README.md)
+
+## Directory Structure
+
+```
+docs/
+├── API_REFERENCE.md   # Complete technical reference
+├── ARCHITECTURE.md    # This file - design and implementation
+├── ITERATE.md         # Model iteration for counterfactuals
+├── README.md          # Documentation hub
+├── SETTINGS.md        # Configuration parameters
+└── USER_GUIDE.md      # Tutorial and introduction
+```
 
 ## Overview
 
-The Imposition theory implements Fine's semantics for counterfactuals through a modular architecture that extends the ModelChecker framework. This document provides a comprehensive technical overview of the theory's design, implementation patterns, and integration with the broader system.
+The **Architecture** document describes the design and implementation of Kit Fine's counterfactual semantics within the ModelChecker framework. The imposition theory extends the Logos hyperintensional foundation with the imposition operation, enabling sophisticated counterfactual reasoning without possible worlds.
 
-## Table of Contents
+Within the imposition theory framework, this architecture implements Fine's innovative approach where counterfactuals are evaluated through state imposition rather than world accessibility. The design emphasizes modularity, reusing Logos components while adding imposition-specific operators and semantics.
 
-- [Core Components](#core-components)
-- [Semantic Framework](#semantic-framework)
-- [Operator Implementation](#operator-implementation)
-- [Model Construction](#model-construction)
-- [Integration Strategy](#integration-strategy)
-- [Performance Considerations](#performance-considerations)
-- [Extension Points](#extension-points)
+This document serves developers implementing or extending counterfactual theories, providing detailed architectural patterns and design decisions.
+
+## Quick Start
+
+```python
+# Architecture in action
+from model_checker.theory_lib.imposition import ImpositionSemantics
+
+# Core semantic framework extends Logos
+class ImpositionSemantics(LogosSemantics):
+    def __init__(self, settings):
+        super().__init__(settings)
+        # Add imposition-specific Z3 function
+        self.imposition = z3.Function(
+            'imposition',
+            z3.BitVecSort(self.N),  # state
+            z3.BitVecSort(self.N),  # world
+            z3.BitVecSort(self.N),  # outcome
+            z3.BoolSort()           # holds?
+        )
+    
+    def is_alternative(self, outcome, state, eval_point):
+        """Core semantic calculation for counterfactuals."""
+        return self.imposition(state, eval_point['world'], outcome)
+
+# Modular operator design
+from model_checker.theory_lib.imposition import imposition_operators
+operators = imposition_operators.get_all_operators()  # 11 total
+```
 
 ## Core Components
 
@@ -506,18 +542,48 @@ def test_operator_behavior():
 2. **Hybrid Theories**: Combining imposition with other semantic approaches
 3. **Performance Optimization**: Specialized constraint solving for imposition
 
-## Conclusion
+## Documentation
 
-The Imposition theory architecture provides a robust, extensible implementation of Fine's counterfactual semantics within the ModelChecker framework. The design emphasizes:
+### For Architects
 
-- **Modularity**: Clean separation between components
-- **Reusability**: Strategic reuse of existing components
-- **Extensibility**: Clear extension points for future development  
-- **Performance**: Optimization strategies for complex semantics
-- **Integration**: Seamless integration with ModelChecker ecosystem
+- **[Core Components](#core-components)** - Theory structure and class hierarchy
+- **[Semantic Framework](#semantic-framework)** - Fine's imposition semantics
+- **[Integration Strategy](#integration-strategy)** - Component reuse philosophy
 
-This architecture enables researchers to work with sophisticated counterfactual reasoning while maintaining the performance and usability expected from the ModelChecker platform.
+### For Implementers
+
+- **[Operator Implementation](#operator-implementation)** - Design patterns and collection
+- **[Model Construction](#model-construction)** - BuildExample integration
+- **[Extension Points](#extension-points)** - Adding operators and semantics
+
+### For Performance Engineers
+
+- **[Performance Considerations](#performance-considerations)** - Complexity and optimization
+- **[Memory Management](#memory-management)** - Efficient constraint generation
+- **[Testing Architecture](#testing-architecture)** - Test organization and patterns
+
+## Key Design Decisions
+
+1. **Extend Logos**: Reuse hyperintensional foundation rather than rebuild
+2. **Modular Operators**: Mix inherited and theory-specific operators
+3. **State-Based**: Counterfactuals via state imposition, not world accessibility
+4. **Z3 Integration**: Direct encoding of Fine's semantics in constraints
+5. **Component Reuse**: Strategic reuse of Proposition and ModelStructure
+
+## References
+
+### Implementation Files
+
+- **[Semantic Module](../semantic.py)** - ImpositionSemantics implementation
+- **[Operators Module](../operators.py)** - Counterfactual operators
+- **[Examples Module](../examples.py)** - 32 test cases
+
+### Related Documentation
+
+- **[API Reference](API_REFERENCE.md)** - Complete technical reference
+- **[User Guide](USER_GUIDE.md)** - Tutorial with examples
+- **[Logos Architecture](../../logos/docs/ARCHITECTURE.md)** - Foundation theory
 
 ---
 
-**Navigation**: [README](../README.md) | [User Guide](USER_GUIDE.md) | [Operators](OPERATORS.md) | [Settings](SETTINGS.md)
+[← Back to Documentation](README.md) | [API Reference →](API_REFERENCE.md) | [Imposition Theory →](../README.md)

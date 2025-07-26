@@ -7,7 +7,7 @@ notebooks/
 ├── logos_demo.ipynb                   # Main comprehensive demo
 └── subtheories/                       # Subtheory-specific notebooks
     ├── modal_operators_demo.ipynb     # Modal logic exploration
-    └── extensional_operators_demo.ipynb # Truth-functional operators
+    └── extensional_operators_demo.ipynb # Extensional operators
 ```
 
 This directory contains interactive Jupyter notebooks for exploring and learning the Logos semantic theory. The notebooks provide hands-on demonstrations of hyperintensional logic, truthmaker semantics, and the modular architecture of the Logos framework.
@@ -46,7 +46,7 @@ The Logos theory implements a unified formal language of thought with **20 logic
 **Learning Path**: After main demo, for deeper modal logic understanding
 
 #### [subtheories/extensional_operators_demo.ipynb](subtheories/extensional_operators_demo.ipynb)
-**Truth-functional logic with hyperintensional semantics** (32 cells)
+**Extensional logic with hyperintensional semantics** (32 cells)
 
 - **Bilateral Propositions**: Verifiers and falsifiers for basic operators
 - **Truthmaker Semantics**: How even extensional logic becomes hyperintensional
@@ -176,7 +176,7 @@ if not result:
 - **[Development Guide](../../../docs/DEVELOPMENT.md)**: Development workflow
 
 ### Subtheory Documentation
-- **[Extensional Subtheory](../subtheories/extensional/README.md)**: Truth-functional operators
+- **[Extensional Subtheory](../subtheories/extensional/README.md)**: Extensional operators
 - **[Modal Subtheory](../subtheories/modal/README.md)**: Necessity and possibility
 - **[Constitutive Subtheory](../subtheories/constitutive/README.md)**: Ground and essence
 - **[Counterfactual Subtheory](../subtheories/counterfactual/README.md)**: counterfactual reasoning

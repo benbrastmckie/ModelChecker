@@ -54,7 +54,7 @@ Get a logos theory instance with specified subtheories.
 
 **Parameters:**
 - `subtheories` (list[str], optional): List of subtheory names to load. Available options:
-  - `'extensional'` - Truth-functional operators
+  - `'extensional'` - Extensional operators
   - `'modal'` - Necessity and possibility operators
   - `'constitutive'` - Identity, ground, essence, and relevance operators
   - `'counterfactual'` - Counterfactual conditional operators
@@ -126,7 +126,7 @@ Get available subtheories with descriptions.
 from model_checker.theory_lib.logos import list_subtheories
 
 subtheories = list_subtheories()
-# {'extensional': 'Truth-functional operators (¬,∧,∨,→,↔,⊤,⊥)', ...}
+# {'extensional': 'Extensional operators (¬,∧,∨,→,↔,⊤,⊥)', ...}
 ```
 
 ### `get_examples_by_subtheory(subtheory_name)`

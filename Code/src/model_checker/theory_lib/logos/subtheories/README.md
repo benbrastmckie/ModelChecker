@@ -7,7 +7,7 @@
 subtheories/
 ├── README.md                # This file - subtheory coordination
 ├── __init__.py             # Public API for subtheory loading
-├── extensional/            # Truth-functional operators (7 operators)
+├── extensional/            # Extensional operators (7 operators)
 │   ├── README.md          # Extensional documentation
 │   ├── __init__.py        # Public API exports
 │   ├── operators.py       # Operator implementations
@@ -71,7 +71,7 @@ model = BuildExample("full_example", theory)
 ## Subdirectories
 
 ### [extensional/](extensional/)
-Foundation of truth-functional logic with 7 operators (¬, ∧, ∨, →, ↔, ⊤, ⊥). Implements bilateral truthmaker semantics where even basic operators distinguish content. Includes 32 comprehensive examples testing logical principles. Required by all other subtheories. See [extensional/README.md](extensional/README.md) for operator details.
+Foundation of extensional logic with 7 operators (¬, ∧, ∨, →, ↔, ⊤, ⊥). Implements bilateral truthmaker semantics where even basic operators distinguish content. Includes 32 comprehensive examples testing logical principles. Required by all other subtheories. See [extensional/README.md](extensional/README.md) for operator details.
 
 ### [modal/](modal/) 
 Hyperintensional modal logic with 4 operators (□, ◇, CFBox, CFDiamond). Goes beyond S5 semantics to distinguish necessarily equivalent modal formulas. Includes 21 examples exploring modal axioms and hyperintensional phenomena. Depends on extensional subtheory. See [modal/README.md](modal/README.md) for modal semantics.

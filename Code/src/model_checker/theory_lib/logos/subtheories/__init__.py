@@ -21,7 +21,7 @@ AVAILABLE_SUBTHEORIES = [
 ]
 
 SUBTHEORY_DESCRIPTIONS = {
-    'extensional': 'Truth-functional operators (¬,∧,∨,→,↔,⊤,⊥)',
+    'extensional': 'Extensional operators (¬,∧,∨,→,↔,⊤,⊥)',
     'modal': 'Necessity and possibility operators (□,◇)',
     'constitutive': 'Ground, essence, and identity operators (≡,≤,⊑,≼)',
     'counterfactual': 'Counterfactual conditional operators (□→,◇→)',

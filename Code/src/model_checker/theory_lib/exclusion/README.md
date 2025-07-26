@@ -21,28 +21,25 @@ exclusion/
     ├── DATA.md                  # Test results and countermodel analysis
     ├── ITERATE.md               # Iterator support documentation
     └── SETTINGS.md              # Complete documentation of all exclusion theory settings
-
-theory_lib/                      # Parent directory
-├── README.md                    # Theory library overview
-├── __init__.py                  # Available theories registry
-└── [other theories]             # bimodal, deontic, epistemic, logos, etc.
 ```
 
 ## Theoretical Overview
 
-The exclusion theory implements **Bernard and Champollion's unilateral exclusion semantics** within the ModelChecker framework, providing the first complete computational realization of witness-aware negation. This implementation demonstrates how architectural innovation can solve fundamental computational barriers while preserving theoretical elegance.
+The exclusion theory implements **Bernard and Champollion's unilateral exclusion semantics** within the ModelChecker framework. This implementation demonstrates how architectural innovation can solve fundamental computational barriers while preserving theoretical elegance.
 
 ### Unilateral vs. Bilateral Semantics
 
 **Unilateral Semantics** (Bernard & Champollion):
 - Propositions have only **verifiers** (states that make them true)
 - No primitive notion of falsification  
-- Negation emerges through an **exclusion relation** between states
+- No primitive notion of possibility
+- Negation emerges through a primitive **exclusion relation** between states
 - Requires **witness functions** for complex existential quantification
 
 **Bilateral Semantics** (Fine & Brast-McKie):  
 - Propositions have both **verifiers and falsifiers**
-- Negation is a **primitive operation** 
+- Primitive notion of possibility
+- Negation swaps the verifiers and falsifiers 
 - Direct computation without witness functions
 - Simpler computational requirements
 
@@ -331,27 +328,25 @@ For general settings that apply across all theories, see the [main settings docu
 | **Memory Usage** | High (complex state) | Low (direct queries) | Efficient |
 | **Debuggability** | Difficult | Clear witness traces | Excellent |
 
-## Documentation and Learning Resources
+## Documentation
 
-### Core Documentation
-- **[docs/README.md](docs/README.md)** - Documentation navigation and quick start guide
-- **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** - Accessible introduction to unilateral semantics and usage
-- **[docs/TECHNICAL_REFERENCE.md](docs/TECHNICAL_REFERENCE.md)** - Complete API reference and implementation details  
-- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System design and witness predicate patterns
-- **[docs/ITERATE.md](docs/ITERATE.md)** - Guide to model iteration features
-- **[docs/SETTINGS.md](docs/SETTINGS.md)** - Complete documentation of all exclusion theory settings
+### For New Users
 
-### Educational Journey
-- **[docs/IMPLEMENTATION_STORY.md](docs/IMPLEMENTATION_STORY.md)** - Complete narrative through nine attempts to breakthrough
-- **[docs/LESSONS_LEARNED.md](docs/LESSONS_LEARNED.md)** - Practical wisdom for implementing complex semantic theories
+- **[User Guide](docs/USER_GUIDE.md)** - Accessible introduction to unilateral semantics
+- **[Settings Guide](docs/SETTINGS.md)** - Configuration parameters explained
+- **[Interactive Notebooks](notebooks/README.md)** - Jupyter tutorials
 
-### Data and Analysis
-- **[docs/DATA.md](docs/DATA.md)** - Comprehensive test results with explicit countermodels
+### For Developers
 
-### Related Framework Documentation
-- **[../README.md](../README.md)** - Theory library overview
-- **[../../README.md](../../README.md)** - ModelChecker framework documentation
-- **[../../../../../../../SEMANTIC_IMPLEMENTATION_WISDOM.md](../../../../../../../SEMANTIC_IMPLEMENTATION_WISDOM.md)** - General semantic implementation guide
+- **[API Reference](docs/API_REFERENCE.md)** - Complete technical documentation
+- **[Architecture Guide](docs/ARCHITECTURE.md)** - Witness predicate design patterns
+- **[Test Suite](tests/README.md)** - Comprehensive test coverage
+
+### For Researchers
+
+- **[Implementation Story](history/IMPLEMENTATION_STORY.md)** - Nine-attempt journey
+- **[Lessons Learned](history/LESSONS_LEARNED.md)** - Architectural insights
+- **[Strategy Comparison](history/STRATEGIES.md)** - Technical analysis of approaches
 
 ## Theoretical Significance
 
@@ -401,17 +396,15 @@ The patterns established here apply beyond exclusion semantics to:
 
 The exclusion theory represents a complete computational realization of Bernard and Champollion's unilateral exclusion semantics. Through the **witness predicate architecture**, we solved the False Premise Problem that prevented eight previous implementation attempts, achieving:
 
-- ✅ **100% test success** (38/38 examples pass)
-- ✅ **Zero false premises** (complete problem resolution)
-- ✅ **Theoretical soundness** (precise implementation of formal semantics)
-- ✅ **Practical performance** (suitable for research and education)
-- ✅ **Framework integration** (seamless ModelChecker compatibility)
+- **100% test success** (38/38 examples pass)
+- **Zero false premises** (complete problem resolution)
+- **Theoretical soundness** (precise implementation of formal semantics)
+- **Practical performance** (suitable for research and education)
+- **Framework integration** (seamless ModelChecker compatibility)
 
 The journey from impossible problem to elegant solution validates the principle that **architectural wisdom combined with systematic exploration** can overcome seemingly intractable computational barriers. The result is not just a working implementation, but a **reusable pattern** for implementing complex semantic theories requiring existential quantification over functions.
 
 This implementation enables researchers, students, and practitioners to explore unilateral semantics with full computational support, opening new avenues for logical investigation and comparative analysis between semantic frameworks.
-
----
 
 **For detailed usage instructions, see [docs/USER_GUIDE.md](docs/USER_GUIDE.md). For the complete technical journey, explore [docs/IMPLEMENTATION_STORY.md](docs/IMPLEMENTATION_STORY.md).**
 

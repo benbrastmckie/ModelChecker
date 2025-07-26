@@ -407,7 +407,7 @@ Each subtheory README must follow the standard 9-section format with specific re
    - Brief description for each file/directory
 
 3. **Overview**
-   - First paragraph: State that the subtheory "implements hyperintensional semantics for [operators]. All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond truth-functional equivalence or necessary equivalence."
+   - First paragraph: State that the subtheory "implements hyperintensional semantics for [operators]. All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond extensional equivalence or necessary equivalence."
    - Second paragraph: Explain the role in the parent theory and integration with other subtheories
    - Clearly distinguish primitive vs defined operators
 
@@ -439,9 +439,10 @@ Each subtheory README must follow the standard 9-section format with specific re
      - **Arity**: Number of arguments
      - **Type**: Primitive or Defined operator
      - **Meaning**: One-line informal description
-     - **Truth Conditions**: For primitive operators, show Z3 implementation
+     - **Truth Conditions**: Informal description first, then Z3 implementation
+     - **Definition** (for defined operators): Show using `:=` with unicode symbols
      - **Usage Examples**: Multiple examples with comments
-     - **Key Properties**: Logical properties that hold
+     - **Key Properties**: Logical properties that hold, using unicode in backticks
 
 8. **Examples**
    - Categorize examples (e.g., Countermodels vs Theorems)
@@ -461,10 +462,17 @@ Each subtheory README must follow the standard 9-section format with specific re
 1. **Primitive vs Defined**: Clearly indicate operator type
 2. **Symbol Specification**: Always show both LaTeX command and Unicode
 3. **Truth Conditions**: 
+   - State informally first, explaining the intuitive meaning
    - For primitive operators: Show actual Z3 implementation from operators.py
-   - For defined operators: Show the definition in terms of other operators
+   - For defined operators: Show the definition using `:=` notation with unicode symbols
 4. **Terminology**: Use "subject-matter" instead of "content" or "topic" for precision
-5. **Examples**: Include both simple and complex usage patterns
+5. **Notation Standards**:
+   - Use unicode symbols instead of LaTeX commands in display text
+   - Use `:=` for definitions instead of `≡` or equivalence
+   - Put all formal expressions in backticks
+   - Avoid unnecessary brackets for cleaner notation
+   - Use `⊢` for entailment and `⊬` for non-entailment
+6. **Examples**: Include both simple and complex usage patterns
 
 #### Code Example Standards
 
@@ -472,6 +480,24 @@ Each subtheory README must follow the standard 9-section format with specific re
 2. **Comments**: Explain what each example tests
 3. **Output Explanation**: Clarify what return values mean
 4. **Settings**: Document only relevant parameters (avoid legacy parameters like 'M')
+5. **Formal Claims**: 
+   - Use unicode symbols inside backticks: `A ∧ B ⊢ A`
+   - State conclusions as lists for consistency
+   - Avoid quasi-formalism like 'not-equiv'
+
+#### Accuracy Requirements
+
+1. **Example Counts**: Must match actual count in examples.py files
+2. **Operator Counts**: Must match actual operators in operators.py files
+3. **Truth Conditions**: Must match actual implementation in code
+4. **Dependencies**: List all actual dependencies, including indirect ones
+5. **Verification**: Use grep/search to verify counts and definitions:
+   ```bash
+   # Count examples
+   grep "^[A-Z]*_[CT][MH]_[0-9]*_example =" examples.py | wc -l
+   # Count operators in get_operators()
+   grep -A20 "def get_operators" operators.py
+   ```
 
 ## Code Organization Standards
 

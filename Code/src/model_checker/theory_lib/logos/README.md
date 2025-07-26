@@ -1,43 +1,46 @@
-# Logos Theory: Unified Formal Language of Thought
+# Logos Theory: Unified Hyperintensional Semantic Framework
 
 [← Back to Theory Library](../README.md) | [Documentation →](docs/README.md) | [Subtheories →](subtheories/README.md)
 
 ## Directory Structure
+
 ```
 logos/
-├── README.md               # This file
-├── __init__.py            # Theory initialization and interfaces
-├── semantic.py            # Core semantic framework
-├── operators.py           # Operator registry and loading
-├── examples.py            # Cross-subtheory examples
+├── README.md               # This file - logos theory overview
+├── __init__.py            # Theory initialization and public API
+├── semantic.py            # Core hyperintensional semantic framework
+├── operators.py           # Operator registry and loading system
+├── examples.py            # Unified examples collection (118 examples)
 ├── iterate.py             # Model iteration functionality
 ├── docs/                  # Comprehensive documentation
+│   ├── README.md          # Documentation hub and navigation
+│   ├── API_REFERENCE.md   # Complete API documentation
+│   ├── ARCHITECTURE.md    # Technical design and implementation
+│   ├── ITERATE.md         # Model iteration guide
+│   ├── SETTINGS.md        # Configuration options
+│   └── USER_GUIDE.md      # Practical usage guide
 ├── notebooks/             # Interactive tutorials
+│   └── README.md          # Notebook navigation guide
 ├── tests/                 # Core theory tests
-└── subtheories/           # Modular operator groups
-    ├── extensional/       # Truth-functional operators
-    ├── modal/            # Necessity and possibility
-    ├── constitutive/     # Content relations
-    ├── counterfactual/   # Counterfactual conditionals
-    └── relevance/        # Relevance logic
+│   ├── README.md          # Test documentation and methodology
+│   ├── __init__.py        # Test module initialization
+│   └── test_logos_examples.py  # Cross-subtheory integration tests
+└── subtheories/           # Modular operator groups (see subtheories/README.md)
+    ├── README.md          # Subtheory coordination and overview
+    ├── extensional/       # Extensional operators (7 operators, 14 examples)
+    ├── modal/            # Necessity and possibility (4 operators, 18 examples)
+    ├── constitutive/     # Content relations (5 operators, 33 examples)
+    ├── counterfactual/   # Counterfactual conditionals (2 operators, 33 examples)
+    └── relevance/        # Relevance logic (1 operator, 20 examples)
 ```
 
 ## Overview
 
-The **Logos Semantic Theory** provides a complete computational realization of **bilateral hyperintensional semantics**, implementing truthmaker semantics through a modular architecture with 20+ logical operators across 5 interoperable subtheories. This unified formal language of thought enables fine-grained semantic distinctions invisible to classical and intensional logic.
+The **Logos Theory** implements hyperintensional semantics through a unified framework of 19 logical operators organized into 5 modular subtheories. Built on bilateral truthmaker semantics, Logos enables fine-grained semantic distinctions between propositions that are necessarily equivalent, capturing differences in content and subject-matter that intensional semantic frameworks overlook.
 
-### Core Features
-- **20+ logical operators** spanning extensional, modal, constitutive, counterfactual, and relevance domains
-- **Modular subtheory system** with selective loading and automatic dependency resolution
-- **Hyperintensional semantics** distinguishing content beyond logical equivalence  
-- **Bilateral evaluation** using both verifiers and falsifiers for comprehensive semantic analysis
+Within the ModelChecker framework, Logos serves as the most comprehensive semantic theory, providing a complete "formal language of thought" for analyzing logical relationships. The modular architecture allows selective loading of subtheories based on analysis needs, with automatic dependency resolution ensuring semantic coherence. This design supports both focused investigations using specific operators and comprehensive analyses leveraging the full hyperintensional framework.
 
-### Theoretical Foundation
-Logos implements **truthmaker semantics** where propositions are evaluated at partial states rather than total possible worlds. This creates a **non-interlaced bilattice structure** enabling semantic distinctions between necessarily equivalent propositions based on their content and subject matter.
-
-### Integration Context
-As one of four semantic theories in the ModelChecker framework, Logos provides the most comprehensive operator coverage while maintaining clean modular architecture for selective feature loading and cross-theory comparative analysis.
-
+The theory's 118 test examples demonstrate valid and invalid inference patterns across extensional, modal, constitutive, counterfactual, and relevance domains, validating both individual operator behavior and cross-subtheory interactions.
 
 ## Quick Start
 
@@ -45,195 +48,256 @@ As one of four semantic theories in the ModelChecker framework, Logos provides t
 from model_checker.theory_lib import logos
 from model_checker import BuildExample
 
-# Load the theory (all subtheories by default)
-theory = logos.get_theory()
-
-# Check a formula
-model = BuildExample("example", theory)
-result = model.check_formula("\\Box p \\rightarrow p")
-print(f"T axiom is {'valid' if result else 'invalid'}")
-
-# Load specific subtheories
-modal_theory = logos.get_theory(['extensional', 'modal'])
-```
-
-## Quick Start
-
-```python
-from model_checker.theory_lib import logos
-from model_checker import BuildExample
-
-# Load complete theory (all 5 subtheories)
+# Load complete theory (all 5 subtheories, 19 operators)
 theory = logos.get_theory()
 model = BuildExample("hyperintensional_test", theory)
 
-# Test semantic distinction between equivalent formulas
-result1 = model.check_formula("\\Box p \\rightarrow p")  # T axiom
-result2 = model.check_formula("\\neg \\Diamond \\neg p \\rightarrow p")  # Equivalent
-# Both valid but different hyperintensional content
+# Test basic modal logic principles
+result1 = model.check_validity(      # T axiom: necessity implies truth
+  ["\\Box p"],                       # Premises
+  ["p"]                              # Conclusions
+)
+result2 = model.check_validity(      # Invalid: possibility doesn't imply necessity
+  ["\\Diamond p"],                   # Premises
+  ["\\Box p"]                        # Conclusions
+)
+result3 = model.check_validity(      # Hyperintensional distinction
+  ["p \\leftrightarrow q"],         # Premises: logical equivalence
+  ["p \\equiv q"]                   # Conclusions: propositional identity
+)
 
-# Selective subtheory loading
-modal_theory = logos.get_theory(['extensional', 'modal'])
-cf_theory = logos.get_theory(['extensional', 'counterfactual'])
+print(f"T axiom: {result1}")         # No countermodel found (valid)
+print(f"Possibility to necessity: {result2}")  # Countermodel found (invalid)
+print(f"Equivalence to identity: {result3}")   # Countermodel found (invalid)
 
-# Cross-subtheory interaction
-full_theory = logos.get_theory()  # All subtheories with dependencies
-example = BuildExample("mixed_modal_cf", full_theory)
+# Selective subtheory loading for focused analysis
+modal_theory = logos.get_theory(['modal'])          # Loads extensional + modal
+cf_theory = logos.get_theory(['counterfactual'])    # Loads extensional + counterfactual
 ```
-
-```bash
-# Test complete theory with examples
-./dev_cli.py src/model_checker/theory_lib/logos/examples.py
-
-# Generate new project template
-./dev_cli.py -l logos my_hyperintensional_project
-
-# Run comprehensive tests
-./run_tests.py logos
-```
-
-## Files in This Directory
-
-### README.md
-This comprehensive theory overview documenting modular architecture, hyperintensional semantics implementation, and integration with the ModelChecker framework's 3-layer system.
-
-### __init__.py
-Theory registration interface providing `get_theory()` function with selective subtheory loading, dependency resolution, and operator registry management.
-
-### semantic.py
-Core semantic framework implementing bilateral hyperintensional semantics with verifier/falsifier evaluation, state space generation, and Z3 constraint integration.
-
-### operators.py
-Operator registry and loading system coordinating 20+ operators across all subtheories with consistent interface patterns and dependency management.
-
-### examples.py
-Cross-subtheory test examples demonstrating operator interactions, semantic principles, and comprehensive validation coverage across all logical domains.
-
-### iterate.py
-Model iteration functionality enabling multiple distinct model discovery with semantic difference constraints and theory-specific optimization patterns.
 
 ## Subdirectories
 
-### [docs/](docs/README.md)
-Comprehensive documentation hub with **user guides**, **technical architecture**, **API references**, and **configuration documentation** for complete theory understanding and practical usage.
+### [docs/](docs/)
 
-### [subtheories/](subtheories/README.md)
-Modular operator system with **5 specialized domains**: extensional (7 operators), modal (4 operators), constitutive (5 operators), counterfactual (4 operators), and relevance (1 operator). Each provides focused logical capabilities with clean interfaces.
+Comprehensive documentation hub containing theoretical foundations, API specifications, and practical guides. Includes technical architecture details explaining the bilateral semantic implementation, complete API reference for all 19 operators, model iteration documentation, configuration settings guide, and user-friendly introduction to hyperintensional logic. Essential resource for understanding both theoretical principles and practical usage. See [docs/README.md](docs/README.md) for navigation.
 
-### [notebooks/](notebooks/README.md)
-Interactive tutorial collection with **hyperintensional semantics introduction**, **operator usage examples**, **advanced configuration**, and **research applications** for hands-on learning.
+### [subtheories/](subtheories/)
 
-### [tests/](tests/README.md)
-Comprehensive test suite with **unit tests**, **integration tests**, **cross-subtheory validation**, and **regression testing** ensuring semantic correctness and framework compatibility.
+Modular operator organization with 5 specialized subtheories: extensional (extensional operators), modal (necessity and possibility), constitutive (content relations including ground, essence, and identity), counterfactual (conditional reasoning), and relevance (content-sensitive logic). Each subtheory includes comprehensive documentation, examples, and tests. Automatic dependency resolution ensures semantic coherence. See [subtheories/README.md](subtheories/README.md) for detailed operator coverage.
 
-## Hyperintensional Semantics Architecture
+### [notebooks/](notebooks/)
 
-### Bilateral Evaluation System
+Interactive Jupyter notebooks providing hands-on tutorials for hyperintensional reasoning. Includes theory introduction, operator exploration across all subtheories, semantic distinction demonstrations, and practical problem-solving examples. Ideal for learning through experimentation and visualization of semantic concepts. See [notebooks/README.md](notebooks/README.md) for tutorial navigation.
 
-Logos implements **truthmaker semantics** where propositions are evaluated using both **verifiers** (states that make them true) and **falsifiers** (states that make them false). This creates a **non-interlaced bilattice structure** rather than classical Boolean logic:
+### [tests/](tests/)
 
-```python
-# Classical logic: necessarily equivalent propositions are identical
-"2+2=4" ≡ "all bachelors are unmarried"  # Both necessarily true
-
-# Hyperintensional logic: different content despite logical equivalence
-logos_theory = get_theory("logos")
-math_truth = model.evaluate_at_state("2+2=4", state_3)
-analytic_truth = model.evaluate_at_state("all bachelors are unmarried", state_3)
-# Different verifier/falsifier patterns despite both being necessary
-```
-
-### Partial State Evaluation
-
-Unlike possible worlds semantics, hyperintensional evaluation occurs at **partial states** that may be incomplete:
-
-```python
-# Partial state s₁ might verify "p ∧ q" without verifying "p ∧ q ∧ r"
-partial_state = {"atomic_props": ["p", "q"], "size": 2}
-result = theory.evaluate("p \\wedge q", partial_state)  # True
-result = theory.evaluate("p \\wedge q \\wedge r", partial_state)  # Undefined
-```
-
-### Semantic Distinction Examples
-
-**Content Differences** between necessarily equivalent formulas:
-- `"p ∧ q"` vs `"q ∧ p"`: Same verifiers, different syntactic content
-- `"□p"` vs `"¬◇¬p"`: Equivalent but different modal content
-- `"A ≡ B"` vs `"A ≤ B ∧ B ≤ A"`: Same truth conditions, different constitutive relations
-
-**Subject Matter Sensitivity**:
-```python
-# Mathematical vs. logical content
-formula1 = "2+2=4 \\rightarrow (p \\vee \\neg p)"
-formula2 = "(q \\wedge \\neg q) \\rightarrow (p \\vee \\neg p)"
-# Both valid, but different subject matter involvement
-```
-
-### Modular Architecture Benefits
-
-**Selective Loading** for targeted analysis:
-```python
-# Modal reasoning only
-modal_theory = logos.get_theory(['extensional', 'modal'])
-result = model.check_formula("\\Box(p \\rightarrow q) \\rightarrow (\\Box p \\rightarrow \\Box q)")
-
-# Counterfactual analysis  
-cf_theory = logos.get_theory(['extensional', 'counterfactual'])
-result = model.check_formula("(p \\boxright q) \\rightarrow \\neg(p \\boxright \\neg q)")
-
-# Full hyperintensional system
-full_theory = logos.get_theory()  # All 5 subtheories
-```
-
-**Automatic Dependency Resolution**:
-```python
-# Requesting 'modal' automatically includes 'extensional'
-theory = logos.get_theory(['modal'])  # Loads extensional + modal
-
-# Dependency chain: extensional → modal, constitutive → relevance
-dependencies = logos.get_dependency_chain(['relevance'])
-# Returns: ['extensional', 'constitutive', 'relevance']
-```
+Comprehensive test suite validating the unified Logos theory implementation. Contains cross-subtheory integration tests ensuring operators work correctly together, semantic coherence validation, and the complete 118-example test collection. Tests verify both individual operator behavior and complex interactions between subtheories. See [tests/README.md](tests/README.md) for testing methodology.
 
 ## Documentation
 
 ### For New Users
-- **[User Guide](docs/USER_GUIDE.md)** - Practical introduction to hyperintensional semantics and operator usage
-- **[Interactive Notebooks](notebooks/README.md)** - Hands-on tutorials with executable examples and semantic explorations
-- **[Quick Start Examples](examples.py)** - Ready-to-run code demonstrations across all subtheories
+
+- **[User Guide](docs/USER_GUIDE.md)** - Introduction to hyperintensional semantics with practical examples
+- **[Interactive Notebooks](notebooks/README.md)** - Hands-on tutorials for learning operator usage
+- **[Quick Start Examples](#quick-start)** - Basic code patterns for common tasks
 
 ### For Researchers
-- **[Architecture Guide](docs/ARCHITECTURE.md)** - Technical design, bilateral semantics implementation, and theoretical foundations
-- **[API Reference](docs/API_REFERENCE.md)** - Complete function documentation with semantic specifications
-- **[Academic References](#references)** - Primary literature on truthmaker semantics and hyperintensional logic
+
+- **[Architecture Guide](docs/ARCHITECTURE.md)** - Bilateral truthmaker semantics implementation
+- **[Subtheory Documentation](subtheories/README.md)** - Detailed operator specifications and theory
+- **[Academic References](#references)** - Primary sources on hyperintensional logic
 
 ### For Developers
-- **[Subtheory Development](subtheories/README.md)** - Modular operator system and extension patterns
-- **[Test Documentation](tests/README.md)** - Comprehensive testing methodology and validation procedures
-- **[Settings Configuration](docs/SETTINGS.md)** - Complete configuration options and theory-specific parameters
 
+- **[API Reference](docs/API_REFERENCE.md)** - Complete function and class documentation
+- **[Test Documentation](tests/README.md)** - Testing methodology and example structure
+- **[Settings Configuration](docs/SETTINGS.md)** - Model configuration and solver parameters
 
+## Operator Summary
+
+The Logos theory provides **19 operators** across **5 subtheories**:
+
+### Primitive Operators (7)
+
+**Extensional** (3):
+- Negation (¬) - Truth reversal
+- Conjunction (∧) - Joint truth requirement
+- Top (⊤) - Universal truth
+
+**Modal** (1):
+- Necessity (□) - Truth at all worlds
+
+**Constitutive** (3):
+- Identity (≡) - Same verifiers and falsifiers
+- Ground (≤) - Sufficient condition relation
+- Relevance (≼) - Content connection relation
+
+### Defined Operators (12)
+
+**Extensional** (4):
+- Disjunction (∨) - Alternative truth
+- Implication (→) - Conditional truth
+- Biconditional (↔) - Mutual implication
+- Bottom (⊥) - Universal falsity
+
+**Modal** (3):
+- Possibility (◇) - Truth at some world
+- Counterfactual Necessity (CFBox) - Counterfactual from ⊤
+- Counterfactual Possibility (CFDiamond) - Might counterfactual from ⊤
+
+**Constitutive** (2):
+- Essence (⊑) - Necessary condition relation
+- Subject Matter (⊓) - Common content
+
+**Counterfactual** (2):
+- Must Counterfactual (□→) - Would be the case
+- Might Counterfactual (◇→) - Could be the case
+
+**Relevance** (1):
+- Relevance (≺) - Imported from constitutive
+
+## Examples
+
+### Example Categories
+
+The Logos theory includes **118 comprehensive examples** organized by subtheory:
+
+- **Extensional**: 14 examples (7 countermodels, 7 theorems)
+- **Modal**: 18 examples (4 countermodels, 14 theorems)
+- **Constitutive**: 33 examples (18 countermodels, 15 theorems)
+- **Counterfactual**: 33 examples (21 countermodels, 12 theorems)
+- **Relevance**: 20 examples (11 countermodels, 9 theorems)
+
+### Running Examples
+
+#### Command Line Execution
+
+```bash
+# Run all 118 examples
+model-checker src/model_checker/theory_lib/logos/examples.py
+
+# Run with debugging output
+./dev_cli.py -p -z src/model_checker/theory_lib/logos/examples.py
+
+# Run specific subtheory examples
+model-checker src/model_checker/theory_lib/logos/subtheories/modal/examples.py
+```
+
+#### Programmatic Access
+
+```python
+from model_checker.theory_lib.logos.examples import (
+    test_example_range,     # All 118 examples
+    logos_cm_examples,      # All countermodel examples
+    logos_th_examples       # All theorem examples
+)
+
+# Access specific example
+example = test_example_range['MOD_TH_5']  # Modal K axiom
+premises, conclusions, settings = example
+
+# Run with custom settings
+from model_checker import BuildExample
+model = BuildExample("test", logos.get_theory())
+result = model.check_validity(premises, conclusions, settings)
+```
+
+## Semantic Theory
+
+### Bilateral Truthmaker Semantics
+
+Logos implements Kit Fine's truthmaker semantics where propositions are characterized by:
+
+- **Verifiers**: States that make the proposition true
+- **Falsifiers**: States that make the proposition false
+
+This creates a non-Boolean algebraic structure enabling distinctions between:
+- Logically equivalent propositions: `p ∧ q` vs `q ∧ p`
+- Necessarily equivalent propositions: `□p` vs `¬◇¬p`
+- Different grounding structures: `p` vs `p ∨ (q ∧ ¬q)`
+
+### Key Innovations
+
+1. **Hyperintensional Distinctions**: Captures content differences invisible to classical logic
+2. **Modular Architecture**: Selective operator loading with automatic dependencies
+3. **Cross-Domain Integration**: Unified treatment of modal, counterfactual, and relevance logic
+4. **Bilateral Evaluation**: Both verification and falsification conditions
+
+### Theoretical Applications
+
+- Philosophy of language: Analyzing propositional content and aboutness
+- Metaphysics: Grounding and essence relations
+- Logic: Non-classical inference patterns and relevance logic
+- AI/Cognitive Science: Formal models of thought and reasoning
+
+## Integration
+
+### Theory Loading
+
+```python
+# Complete theory
+full_theory = logos.get_theory()
+
+# Selective loading
+modal_only = logos.get_theory(['modal'])  # Includes extensional dependency
+relevance_focus = logos.get_theory(['relevance'])  # Includes constitutive + extensional
+
+# Check dependencies
+from model_checker.theory_lib.logos import SUBTHEORY_DEPENDENCIES
+print(SUBTHEORY_DEPENDENCIES['modal'])  # ['extensional']
+```
+
+### Cross-Theory Comparison
+
+```python
+# Compare with other ModelChecker theories
+from model_checker.theory_lib import logos, exclusion
+
+logos_theory = logos.get_theory()
+exclusion_theory = exclusion.get_theory()
+
+# Test same formula in different theories
+formula = "p \\rightarrow (q \\rightarrow p)"
+logos_result = BuildExample("logos_test", logos_theory).check_formula(formula)
+exclusion_result = BuildExample("exclusion_test", exclusion_theory).check_formula(formula)
+```
+
+## Testing
+
+The Logos theory includes comprehensive testing across multiple levels:
+
+```bash
+# Run all Logos tests
+pytest src/model_checker/theory_lib/logos/tests/
+
+# Run subtheory tests
+pytest src/model_checker/theory_lib/logos/subtheories/modal/tests/
+
+# Integration testing
+python test_theories.py --theories logos --examples
+
+# Specific example testing
+python test_theories.py --theories logos --examples MOD_TH_5 CON_CM_1
+```
 
 ## References
 
-### Implementation Documentation
-- Logos theory implements bilateral hyperintensional semantics with 20+ operators across modular subtheories
-- Semantic architecture documented with practical examples and theoretical foundations
+### Primary Sources
+
+- Brast-McKie, B. (2025). ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8). _Journal of Philosophical Logic_.
+- Brast-McKie, B. (2021). ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w). _Journal of Philosophical Logic_, 50, 1471-1503.
+
+### Theoretical Foundations
+
+- Fine, K. (2017). ["A Theory of Truthmaker Content I: Conjunction, Disjunction and Negation"](https://link.springer.com/article/10.1007/s10992-016-9413-y). _Journal of Philosophical Logic_, 46, 625-674.
+- Fine, K. (2017). ["A Theory of Truthmaker Content II: Subject-matter, Common Content, Remainder and Ground"](https://link.springer.com/article/10.1007/s10992-016-9423-1). _Journal of Philosophical Logic_, 46, 675-702.
+- Fine, K. (2017). ["Truthmaker Semantics"](https://doi.org/10.1002/9781118972090.ch22). In _A Companion to the Philosophy of Language_ (2nd ed.). Wiley-Blackwell.
 
 ### Related Resources
-- **[Theory Library Overview](../README.md)** - Comparison across four semantic theories
-- **[ModelChecker Framework](../../../README.md)** - Core framework documentation and 3-layer architecture
-- **[Hyperintensional Semantics Guide](../../../../../Docs/HYPERINTENSIONAL.md)** - Comprehensive introduction to truthmaker semantics
 
-### Academic References
-
-**Primary Sources**:
-- Brast-McKie (2025) ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8), Journal of Philosophical Logic
-- Brast-McKie (2021) ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w), Journal of Philosophical Logic
-
-**Theoretical Foundation**:
-- Fine (2017) ["A Theory of Truthmaker Content I & II"](https://link.springer.com/article/10.1007/s10992-016-9413-y), Journal of Philosophical Logic
-- Fine (2017) ["Truthmaker Semantics"](https://doi.org/10.1002/9781118972090.ch22), Wiley-Blackwell
+- **[Theory Library Overview](../README.md)** - Comparison of ModelChecker's four semantic theories
+- **[Hyperintensional Semantics Guide](../../../../../Docs/HYPERINTENSIONAL.md)** - Introduction to truthmaker semantics
+- **[ModelChecker Architecture](../../../README.md)** - Core framework design and capabilities
 
 ---
 

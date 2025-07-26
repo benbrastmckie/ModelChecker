@@ -3,23 +3,24 @@
 [← Back to Subtheories](../README.md) | [Tests →](tests/README.md) | [Examples →](examples.py)
 
 ## Directory Structure
+
 ```
 modal/
 ├── README.md               # This file - modal subtheory overview
 ├── __init__.py            # Module initialization and public API
-├── examples.py            # Example formulas and test cases (23 examples)
+├── examples.py            # Example formulas and test cases (18 examples)
 ├── operators.py           # Modal operator definitions (4 operators)
 └── tests/                 # Test suite (see tests/README.md)
     ├── README.md          # Test documentation and methodology
     ├── __init__.py        # Test module initialization
-    └── test_modal_examples.py  # Integration tests with 23 examples
+    └── test_modal_examples.py  # Integration tests with 18 examples
 ```
 
 ## Overview
 
-The **Modal Subtheory** implements hyperintensional semantics for modal operators (necessity, possibility, counterfactual necessity, counterfactual possibility). All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond truth-functional equivalence or necessary equivalence.
+The **Modal Subtheory** implements hyperintensional semantics for necessity (□), possibility (◇), counterfactual necessity (CFBox), and counterfactual possibility (CFDiamond) as modal operators. All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond extensional equivalence or necessary equivalence.
 
-Within the Logos framework, the modal subtheory provides essential operators for reasoning about necessity and possibility. The four operators integrate seamlessly with other hyperintensional operators while maintaining classical modal logic principles including S5 modal axioms and modal duality relationships. This enables sophisticated analysis of modal claims alongside counterfactual, constitutive, and relevance reasoning within a unified semantic framework.
+Within the Logos framework, the modal subtheory provides essential operators for reasoning about necessity and possibility. The four operators (one primitive, three defined) integrate seamlessly with other hyperintensional operators while maintaining S5 modal logic principles including modal axioms and duality relationships. This enables sophisticated analysis of modal claims alongside counterfactual, constitutive, and relevance reasoning within a unified semantic framework.
 
 ## Quick Start
 
@@ -32,51 +33,77 @@ theory = logos.get_theory(['modal'])
 model = BuildExample("modal_example", theory)
 
 # Test basic modal principles
-result1 = model.check_validity(["\\Box A"], ["A"])  # Necessity implies truth (T axiom)
-result2 = model.check_validity(["\\Box (A \\rightarrow B)", "\\Box A"], ["\\Box B"])  # K axiom
-result3 = model.check_validity(["\\Diamond A"], ["\\Box A"])  # Invalid: possibility ≠ necessity
+result1 = model.check_validity(   # T axiom: necessity implies truth
+  ["\\Box A"],                    # Premises
+  ["A"]                           # Conclusions
+)
+result2 = model.check_validity(   # K axiom: distribution
+  ["\\Box (A \\rightarrow B)", "\\Box A"],  # Premises
+  ["\\Box B"]                              # Conclusions
+)
+result3 = model.check_validity(   # Invalid: possibility doesn't imply necessity
+  ["\\Diamond A"],                # Premises
+  ["\\Box A"]                     # Conclusions
+)
 
-print(f"T axiom: {result1}")  # False (valid argument)
-print(f"K axiom: {result2}")  # False (valid argument)  
-print(f"Possibility to necessity: {result3}")  # True (invalid argument)
+print(f"T axiom: {result1}")  # No countermodel found (valid argument)
+print(f"K axiom: {result2}")  # No countermodel found (valid argument)
+print(f"Possibility to necessity: {result3}")  # Countermodel found (invalid argument)
 ```
 
 ## Subdirectories
 
 ### [tests/](tests/)
-Comprehensive test suite with 23 integration examples covering all four modal operators. Includes countermodel examples (invalid arguments), theorem examples (valid modal principles), and definitional examples (operator relationships). Tests validate S5 modal logic principles including K, T, 4, and 5 axioms. See [tests/README.md](tests/README.md) for complete testing methodology.
+
+Comprehensive test suite with 18 integration examples covering all four modal operators. Includes countermodel examples (invalid modal inferences) and theorem examples (valid modal principles) to validate S5 modal logic including K, T, 4, and 5 axioms. Tests verify both modal behavior and hyperintensional semantic implementation. See [tests/README.md](tests/README.md) for complete testing methodology.
 
 ## Documentation
 
 ### For New Users
+
 - **[Quick Start](#quick-start)** - Basic modal reasoning examples with necessity and possibility
 - **[Operator Reference](#operator-reference)** - Complete guide to all four modal operators
 - **[Testing Guide](tests/README.md)** - How to run and understand modal logic tests
 
 ### For Researchers
-- **[Modal Logic Theory](#modal-logic-theory)** - S5 modal logic principles and axioms
+
+- **[Semantic Theory](#semantic-theory)** - Hyperintensional implementation of S5 modal logic
 - **[Test Examples](tests/README.md#test-categories)** - Valid and invalid modal reasoning patterns
-- **[Dependencies](#dependencies)** - Integration with extensional foundation
+- **[Academic References](#references)** - Theoretical foundations and related work
 
 ### For Developers
-- **[Implementation Details](operators.py)** - Modal operator definitions and semantics
-- **[Examples Module](examples.py)** - Test cases and example formulas (23 examples)
+
+- **[Implementation Details](operators.py)** - Modal operator definitions and truthmaker semantics
+- **[Examples Module](examples.py)** - Test cases and example formulas (18 examples)
 - **[Integration Testing](tests/test_modal_examples.py)** - Complete test implementation
 
 ## Operator Reference
 
+The modal subtheory provides four operators: one primitive operator that directly implements truthmaker semantics, and three defined operators constructed from the primitives.
+
+**Primitive Operator:**
+
+- Necessity (□) - Modal necessity
+
+**Defined Operators:**
+
+- Possibility (◇) - `◇A := ¬□¬A`
+- Counterfactual Necessity (CFBox) - `CFBox A := ⊤ □→ A`
+- Counterfactual Possibility (CFDiamond) - `CFDiamond A := ⊤ ◇→ A`
+
 ### Necessity
 
-**Symbol**: `\\Box` (Box)  
-**Name**: Necessity  
-**Arity**: 1 (unary)  
+**Symbol**: `\\Box` (displayed as □)
+**Name**: Necessity
+**Arity**: 1 (unary)
 **Type**: Primitive operator
 
 **Meaning**: "It is necessarily the case that A"
 
-**Truth Conditions**: Box A is true at a world when A is true in all possible worlds.
+**Truth Conditions**: □A is true at a world when A is true at all possible worlds in the model.
 
 **Usage Examples**:
+
 ```python
 # Basic necessity
 "\\Box p"  # It is necessarily the case that p
@@ -84,28 +111,33 @@ Comprehensive test suite with 23 integration examples covering all four modal op
 # Necessity with complex formulas
 "\\Box (p \\rightarrow q)"  # It is necessarily the case that if p then q
 
+# Nested modalities
+"\\Box \\Box p"  # It is necessarily the case that necessarily p
+
 # Necessity of tautologies
-"\\Box (p \\vee \\neg p)"  # It is necessarily the case that p or not p
+"\\Box (p \\vee \\neg p)"  # Necessarily, p or not p (always valid)
 ```
 
 **Key Properties**:
-- **Truth implies Necessity**: If A is necessarily true, then A is true
-- **Distribution over Conjunction**: Box(A and B) implies (Box A and Box B)
-- **K Axiom**: Box(A implies B) and Box A together imply Box B
-- **Necessitation**: If A is a theorem, then Box A is a theorem
+
+- **K Axiom**: `□(A → B) → (□A → □B)`
+- **T Axiom**: `□A → A`
+- **B Axiom**: `A → □◇A`
+- **4 Axiom**: `□A → □□A`
 
 ### Possibility
 
-**Symbol**: `\\Diamond` (Diamond)  
-**Name**: Possibility  
-**Arity**: 1 (unary)  
+**Symbol**: `\\Diamond` (displayed as ◇)
+**Name**: Possibility
+**Arity**: 1 (unary)
 **Type**: Defined operator
 
 **Meaning**: "It is possibly the case that A"
 
-**Definition**: `\\neg \\Box \\neg A` - Defined as the negation of the necessity of the negation.
+**Definition**: `◇A := ¬□¬A` - Defined as the negation of the necessity of the negation.
 
 **Usage Examples**:
+
 ```python
 # Basic possibility
 "\\Diamond p"  # It is possibly the case that p
@@ -113,112 +145,115 @@ Comprehensive test suite with 23 integration examples covering all four modal op
 # Possibility with complex formulas
 "\\Diamond (p \\wedge q)"  # It is possibly the case that p and q
 
-# Possibility of contingent statements
-"\\Diamond A"  # A is possibly true
+# Nested modalities
+"\\Diamond \\Box p"  # It is possibly the case that necessarily p
+
+# Possibility of contradictions
+"\\Diamond (p \\wedge \\neg p)"  # Possibly, p and not p (always invalid)
 ```
 
 **Key Properties**:
-- **Dual of Necessity**: Diamond A is equivalent to not Box not A
-- **Distribution over Disjunction**: (Diamond A or Diamond B) implies Diamond(A or B)
-- **Weaker than Truth**: Diamond A does not imply A
-- **Consistency**: Diamond A means A is consistent
+
+- **Dual of Necessity**: `\\Diamond A \\leftrightarrow \\neg \\Box \\neg A` (modal duality)
+- **B Axiom**: `A \\rightarrow \\Box \\Diamond A` (seriality in S5)
+- **Consistency**: `\\Diamond A` means A is consistent with the model
+- **Existential**: True when A holds in at least one possible world
 
 ### Counterfactual Necessity
 
-**Symbol**: `\\CFBox`  
-**Name**: Counterfactual Necessity  
-**Arity**: 1 (unary)  
+**Symbol**: `\\CFBox` (displayed as CFBox)
+**Name**: Counterfactual Necessity
+**Arity**: 1 (unary)
 **Type**: Defined operator
 
 **Meaning**: "Under counterfactual evaluation, it is necessarily the case that A"
 
-**Definition**: `\\Box A` - Currently defined as equivalent to standard necessity.
+**Definition**: `CFBox A := ⊤ □→ A` - Defined as the counterfactual conditional from top to A.
 
 **Usage Examples**:
+
 ```python
 # Counterfactual necessity
 "\\CFBox p"  # Under counterfactual evaluation, necessarily p
 
 # Relationship to standard necessity
-"\\Box A \\rightarrow \\CFBox A"  # Standard necessity implies counterfactual necessity
+"\\Box A \\leftrightarrow \\CFBox A"  # Currently equivalent
 
 # Integration with counterfactuals
 "\\CFBox (p \\rightarrow q)"  # Under counterfactual evaluation, necessarily if p then q
 ```
 
 **Key Properties**:
-- **Currently Equivalent**: CFBox A is currently equivalent to Box A
-- **Future Extension**: Designed for future counterfactual-specific semantics
-- **Integration Point**: Connects modal and counterfactual reasoning
+
+- **Current Equivalence**: `\\CFBox A \\leftrightarrow \\Box A`
+- **Placeholder**: Reserved for future counterfactual-specific semantics
+- **Integration Ready**: Designed to connect modal and counterfactual reasoning
+- **Preserves Modal Properties**: Inherits all properties of standard necessity
 
 ### Counterfactual Possibility
 
-**Symbol**: `\\CFDiamond`  
-**Name**: Counterfactual Possibility  
-**Arity**: 1 (unary)  
+**Symbol**: `\\CFDiamond` (displayed as CFDiamond)
+**Name**: Counterfactual Possibility
+**Arity**: 1 (unary)
 **Type**: Defined operator
 
 **Meaning**: "Under counterfactual evaluation, it is possibly the case that A"
 
-**Definition**: `\\Diamond A` - Currently defined as equivalent to standard possibility.
+**Definition**: `CFDiamond A := ⊤ ◇→ A` - Defined as the might counterfactual from top to A.
 
 **Usage Examples**:
+
 ```python
 # Counterfactual possibility
 "\\CFDiamond p"  # Under counterfactual evaluation, possibly p
 
 # Relationship to standard possibility
-"\\Diamond A \\rightarrow \\CFDiamond A"  # Standard possibility implies counterfactual possibility
+"\\Diamond A \\leftrightarrow \\CFDiamond A"  # Currently equivalent
 
 # Modal duality in counterfactual context
-"\\CFDiamond A \\equiv \\neg \\CFBox \\neg A"  # Counterfactual modal duality
+"\\CFDiamond A \\leftrightarrow \\neg \\CFBox \\neg A"  # Counterfactual modal duality preserved
 ```
 
 **Key Properties**:
-- **Currently Equivalent**: CFDiamond A is currently equivalent to Diamond A
-- **Future Extension**: Designed for future counterfactual-specific semantics
-- **Dual Structure**: Maintains duality with counterfactual necessity
+
+- **Current Equivalence**: `\\CFDiamond A \\leftrightarrow \\Diamond A`
+- **Placeholder**: Reserved for future counterfactual-specific semantics
+- **Maintains Duality**: `\\CFDiamond A \\leftrightarrow \\neg \\CFBox \\neg A`
+- **Preserves Modal Properties**: Inherits all properties of standard possibility
 
 ## Examples
 
 ### Example Categories
 
-The modal subtheory includes **23 comprehensive examples** organized into three main categories:
+The modal subtheory includes **18 comprehensive examples** organized into two main categories, testing all four modal operators:
 
-#### Countermodels (MOD_CM_*): 3 Examples
+#### Countermodels (MOD*CM*\*): 4 Examples
+
 Tests for **invalid** modal arguments, demonstrating where modal principles fail:
 
 - **MOD_CM_1**: Possibility Does Not Entail Necessity (invalid)
 - **MOD_CM_2**: Possibility to Actuality (invalid)
-- **MOD_CM_3**: Counterfactual to Strict Implication (invalid)
+- **MOD_CM_3**: Contingent Possibility (invalid)
+- **MOD_CM_4**: Necessity to Possibility of Negation (invalid)
 
-#### Theorems (MOD_TH_*): 14 Examples
-Tests for **valid** modal arguments, confirming standard modal logic principles:
+#### Theorems (MOD*TH*\*): 14 Examples
+
+Tests for **valid** modal arguments, confirming S5 modal logic principles:
 
 - **MOD_TH_1**: Necessity Distribution over Conjunction
 - **MOD_TH_2**: Possibility Distribution over Disjunction
 - **MOD_TH_3**: Modal Duality (Box to Diamond)
-- **MOD_TH_4**: Modal Duality (Diamond and Box)
+- **MOD_TH_4**: Modal Duality (Diamond to Box)
 - **MOD_TH_5**: Modal K Axiom
-- **MOD_TH_6**: Necessitation Rule
-- **MOD_TH_7**: Counterfactual Necessity Implies Necessity
-- **MOD_TH_8**: Possibility Implies Counterfactual Possibility
-- **MOD_TH_9**: Counterfactual Modal Duality
-- **MOD_TH_10**: Double Necessity (Idempotence)
-- **MOD_TH_11**: 5 Axiom (Euclidean Property)
-- **MOD_TH_12**: Box-to-Top Equivalence
-- **MOD_TH_13**: Top-to-Box Equivalence
-- **MOD_TH_14**: Necessary Equivalence of Tautologies
-
-#### Definitional Examples (MOD_DEF_*): 6 Examples
-Tests for **definitional relationships** between primitive and defined modal operators:
-
-- **MOD_DEF_1**: Primitive vs Defined Necessity
-- **MOD_DEF_2**: Defined vs Primitive Necessity  
-- **MOD_DEF_3**: Primitive vs Defined Possibility
-- **MOD_DEF_4**: Defined vs Primitive Possibility
-- **MOD_DEF_5**: Necessity and Negated Possibility
-- **MOD_DEF_6**: Possibility and Negated Necessity
+- **MOD_TH_6**: T Axiom (Reflexivity)
+- **MOD_TH_7**: 4 Axiom (Transitivity)
+- **MOD_TH_8**: 5 Axiom (Euclidean Property)
+- **MOD_TH_9**: Necessity of Tautologies
+- **MOD_TH_10**: Possibility of Non-Contradictions
+- **MOD_TH_11**: Counterfactual Necessity Equivalence
+- **MOD_TH_12**: Counterfactual Possibility Equivalence
+- **MOD_TH_13**: Counterfactual Modal Duality
+- **MOD_TH_14**: Box Conjunction Distribution
 
 ### Running Examples
 
@@ -238,7 +273,6 @@ model-checker src/model_checker/theory_lib/logos/subtheories/modal/examples.py
 from model_checker.theory_lib.logos.subtheories.modal.examples import (
     modal_cm_examples,     # All countermodel examples
     modal_th_examples,     # All theorem examples
-    modal_def_examples,    # All definitional examples
     modal_examples         # Combined collection
 )
 
@@ -277,134 +311,148 @@ MOD_TH_5_example = [MOD_TH_5_premises, MOD_TH_5_conclusions, MOD_TH_5_settings]
 ```
 
 **Settings Explanation**:
+
 - `N`: Controls state space size (moderate N suitable for modal logic)
 - `contingent`: Whether atomic propositions must be contingent
 - `non_null`: Whether to exclude the null state from consideration
 - `non_empty`: Whether propositions must have non-empty truth sets
 - `expectation`: Expected model-finding result (False for valid arguments, True for invalid)
 
-## Modal Logic Theory
+## Semantic Theory
 
-### Classical Modal Logic
+### Theoretical Background
 
-The modal subtheory implements core principles of classical modal logic:
+The modal subtheory implements S5 modal logic within the hyperintensional truthmaker semantic framework. While modal operators quantify over possible worlds, they are given a hyperintensional implementation using verifier and falsifier sets.
 
-**Basic Principles**:
-1. **Necessity implies Truth**: If something is necessarily true, then it is true
-2. **Possibility from Truth**: If something is true, it could be possibly true (though not required)
-3. **Modal Duality**: Necessity and possibility are dual notions
-4. **Distribution Properties**: Modal operators interact systematically with logical connectives
+**Key Features**:
 
-**Truth Conditions**:
-- **Box A**: True when A is true in all possible worlds
-- **Diamond A**: True when A is true in at least one possible world
+1. **World Quantification**: Modal operators quantify over possible world states
+2. **Hyperintensional Implementation**: Uses verifier/falsifier semantics
+3. **S5 Logic**: No accessibility relation guarantees an S5 modal logic
+4. **Modal Duality**: Necessity and possibility as dual operators
 
-### Modal Axioms
+### Truth Conditions
 
-The subtheory validates key modal axioms:
+#### Necessity (□A)
 
-**K Axiom (Distribution)**:
+**Z3 Implementation** (from operators.py):
+
 ```python
-# Box(A implies B) and Box A together imply Box B
-premises = ["\\Box (A \\rightarrow B)", "\\Box A"]
-conclusion = "\\Box B"  # Valid
+# Truth conditions
+def true_at(self, argument, eval_point):
+    """□A is true when A is true at all possible worlds"""
+    sem = self.semantics
+    u = z3.BitVec("t_nec_u", sem.N)
+    return ForAll(
+        u,
+        z3.Implies(
+            sem.is_world(u),
+            sem.true_at(argument, {"world": u}),
+        ),
+    )
+
+def false_at(self, argument, eval_point):
+    """□A is false when A is false at some possible world"""
+    sem = self.semantics
+    u = z3.BitVec("t_nec_u", sem.N)
+    return Exists(
+        u,
+        z3.And(
+            sem.is_world(u),
+            sem.false_at(argument, {"world": u}),
+        ),
+    )
+
+# Verifier/falsifier conditions (hyperintensional)
+def extended_verify(self, state, argument, eval_point):
+    return z3.And(
+        state == self.semantics.null_state,
+        self.true_at(argument, eval_point)
+    )
+
+def extended_falsify(self, state, argument, eval_point):
+    return z3.And(
+        state == self.semantics.null_state,
+        self.false_at(argument, eval_point)
+    )
 ```
 
-**T Axiom (Reflexivity)**:
-```python
-# Box A implies A
-premises = ["\\Box A"]  
-conclusion = "A"  # Valid
-```
+### Modal Logic Properties
 
-**5 Axiom (Euclidean)**:
-```python
-# Diamond A implies Box Diamond A
-premises = ["\\Diamond A"]
-conclusion = "\\Box \\Diamond A"  # Valid
-```
+The modal operators satisfy S5 modal logic properties:
 
-**4 Axiom (Transitivity)**:
-```python
-# Box A implies Box Box A
-premises = ["\\Box A"]
-conclusion = "\\Box \\Box A"  # Valid (via double necessity)
-```
+**Properties that HOLD**:
 
-### Modal Duality
-
-Modal operators exhibit systematic duality relationships:
-
-**Standard Duality**:
-```python
-# Box A equivalent to not Diamond not A
-"\\Box A \\equiv \\neg \\Diamond \\neg A"  # Valid
-
-# Diamond A equivalent to not Box not A  
-"\\Diamond A \\equiv \\neg \\Box \\neg A"  # Valid
-```
-
-**Counterfactual Duality**:
-```python
-# CFBox A equivalent to not CFDiamond not A
-"\\CFBox A \\equiv \\neg \\CFDiamond \\neg A"  # Valid
-```
+- K Axiom: `□(A → B) → (□A → □B)`
+- T Axiom: `□A → A`
+- B Axiom: `A → □◇A`
+- 4 Axiom: `□A → □□A`
+- 5 Axiom: `◇A → □◇A`
+- Modal Duality: `□A ↔ ¬◇¬A, ◇A ↔ ¬□¬A`
 
 ## Testing and Validation
 
 ### Theorem Examples
 
-**Valid Principles** (should always find models for premises but not conclusions):
+**Valid Principles** (should find no countermodels):
 
 1. **MOD_TH_5 - Modal K Axiom**:
-   - `[Box(A implies B), Box A] entails Box B`
-   - Basic modal inference rule
 
-2. **MOD_TH_1 - Necessity Distribution over Conjunction**:
-   - `[Box(A and B)] entails (Box A and Box B)`
-   - Necessity distributes over conjunction
+   - `□(A → B), □A ⊢ □B`
+   - If necessarily A implies B, and necessarily A, then necessarily B
 
-3. **MOD_TH_11 - 5 Axiom**:
-   - `[Diamond A] entails Box Diamond A`
-   - Euclidean property of modal accessibility
+2. **MOD_TH_6 - T Axiom**:
 
-4. **MOD_TH_14 - Necessary Equivalence of Tautologies**:
-   - `[] entails Box((A or not A) iff (B or not B))`
-   - All tautologies are necessarily equivalent
+   - `□A ⊢ A`
+   - What is necessary is true
+
+3. **MOD_TH_8 - 5 Axiom**:
+
+   - `◇A ⊢ □◇A`
+   - If possibly A, then necessarily possibly A
+
+4. **MOD_TH_3 - Modal Duality**:
+   - `□A ⊢ ¬◇¬A`
+   - Necessity is equivalent to impossibility of negation
 
 ### Countermodel Examples
 
-**Invalid Principles** (should find countermodels where premises are true but conclusions false):
+**Invalid Principles** (should find countermodels):
 
 1. **MOD_CM_1 - Possibility Does Not Entail Necessity**:
-   - `[Diamond A] does-not-entail Box A`
+
+   - `◇A ⊬ □A`
    - Being possibly true does not make something necessarily true
 
 2. **MOD_CM_2 - Possibility to Actuality**:
-   - `[Diamond A] does-not-entail A`
+
+   - `◇A ⊬ A`
    - Being possibly true does not make something actually true
 
-3. **MOD_CM_3 - Counterfactual to Strict Implication**:
-   - `[(A boxright B)] does-not-entail Box(A implies B)`
-   - Counterfactual conditionals do not imply necessary implications
+3. **MOD_CM_3 - Contingent Possibility**:
 
-### Definitional Examples
+   - `◇A, ◇¬A ⊬ ⊥`
+   - Something can be both possibly true and possibly false
 
-**Definitional Equivalences** (testing relationships between primitive and defined operators):
+4. **MOD_CM_4 - Necessity to Possibility of Negation**:
+   - `□A ⊬ ◇¬A`
+   - What is necessary is not possibly false
 
-1. **MOD_DEF_1/DEF_2 - Necessity Equivalences**:
-   - `Box A entails CFBox A` and `CFBox A entails Box A`
-   - Current equivalence of standard and counterfactual necessity
+### Logical Properties
 
-2. **MOD_DEF_5/DEF_6 - Modal Duality**:
-   - `Box A entails not Diamond not A` and `Diamond A entails not Box not A`
-   - Standard modal duality relationships
+**Valid Inference Rules**:
+
+- K Axiom: `□(A → B), □A ⊢ □B`
+- T Axiom: `□A ⊢ A`
+- Necessitation: If `⊢ A` then `⊢ □A`
+- Modal Duality: `□A ↔ ¬◇¬A` and `◇A ↔ ¬□¬A`
 
 ## Integration
 
 ### Dependencies
 
 The modal subtheory depends on the **extensional subtheory** for:
+
 - `NegationOperator`: Required for defining possibility as negation of necessity of negation
 - Basic logical operators used in complex modal formulas
 
@@ -421,16 +469,16 @@ theory = logos.get_theory(['modal', 'counterfactual'])
 
 # Modal and counterfactual interaction
 premises = ["\\Box p", "(p \\boxright q)"]
-conclusion = "\\Box q"
-result = model.check_validity(premises, [conclusion])
+conclusions = ["\\Box q"]
+result = model.check_validity(premises, conclusions)
 
 # Combined with constitutive operators
 theory = logos.get_theory(['modal', 'constitutive'])
 
 # Necessity and identity interaction
 premises = ["\\Box p", "(p \\equiv q)"]
-conclusion = "\\Box q"
-result = model.check_validity(premises, [conclusion])
+conclusions = ["\\Box q"]
+result = model.check_validity(premises, conclusions)
 ```
 
 ### API Reference
@@ -454,10 +502,9 @@ operators = get_operators()
 
 ```python
 from model_checker.theory_lib.logos.subtheories.modal.examples import (
-    modal_cm_examples,      # 3 countermodel examples
+    modal_cm_examples,      # 4 countermodel examples
     modal_th_examples,      # 14 theorem examples
-    modal_def_examples,     # 6 definitional examples
-    modal_examples,         # Combined 23 examples
+    modal_examples,         # Combined 18 examples
 )
 ```
 
@@ -474,61 +521,58 @@ from model_checker.theory_lib.logos.subtheories.modal.operators import (
 
 ## Advanced Topics
 
-### Modal Systems
-
-The modal subtheory currently implements a system similar to **S5 modal logic**:
-
-**S5 Characteristics**:
-- **Reflexive**: Box A implies A (T axiom)
-- **Symmetric**: Diamond A implies Box Diamond A (5 axiom)  
-- **Transitive**: Box A implies Box Box A (4 axiom)
-- **Euclidean**: Diamond A implies Box Diamond A (5 axiom)
-
-**Other Systems**: The framework can be adapted to implement other modal systems (K, T, S4, etc.) by modifying the semantic constraints.
-
 ### Counterfactual Modal Operators
 
 The CFBox and CFDiamond operators provide integration points for counterfactual reasoning:
 
 **Current Implementation**:
-- CFBox A is equivalent to Box A
-- CFDiamond A is equivalent to Diamond A
+
+```python
+# Current definitions
+"\\CFBox A"  # Defined as \\top \\boxright A
+"\\CFDiamond A"  # Defined as \\top \\diamondright A
+```
 
 **Future Extensions**:
+
 - Could implement counterfactual-specific modal semantics
 - Enable context-sensitive modal evaluation
 - Support modal reasoning within counterfactual scenarios
 
 **Design Philosophy**:
+
 ```python
 # Standard modal reasoning
 "\\Box A \\rightarrow A"  # Necessity implies truth
 
-# Counterfactual modal reasoning  
+# Counterfactual modal reasoning
 "\\CFBox A \\rightarrow A"  # Currently equivalent
 
 # Integration potential
-"(\\top \\boxright \\Box A) \\equiv \\CFBox A"  # Future equivalence
+"(\\top \\boxright A) \\equiv \\CFBox A"  # Current equivalence
 ```
 
-### Truth-functional vs Modal
+### Extensional vs Modal
 
-The modal subtheory reveals the distinction between truth-functional and modal operators:
+The modal subtheory reveals the distinction between extensional and modal operators:
 
-**Truth-functional Operators** (extensional):
+**Extensional Operators** (extensional):
+
 - Truth value depends only on truth values of components
 - No world-relative evaluation
 - Examples: and, or, not, implies
 
 **Modal Operators** (intensional):
+
 - Truth value depends on evaluation across possible worlds
 - World-relative semantic clauses
 - Quantification over world-states
 - Examples: Box, Diamond, CFBox, CFDiamond
 
 **Integration**:
+
 ```python
-# Truth-functional: A or not A is always true
+# Extensional: A or not A is always true
 "(A \\vee \\neg A)"  # Tautology
 
 # Modal: Necessarily A or not A
@@ -541,6 +585,7 @@ The modal subtheory reveals the distinction between truth-functional and modal o
 ## Dependencies
 
 The modal subtheory depends on the **extensional subtheory** for:
+
 - `NegationOperator`: Required for defining possibility as negation of necessity of negation
 - Basic logical operators used in complex modal formulas
 
@@ -551,7 +596,7 @@ theory = logos.get_theory(['modal'])  # Also loads extensional
 
 ## Testing
 
-The modal subtheory includes **23 comprehensive test examples** covering all four modal operators through countermodel, theorem, and definitional examples. Tests validate S5 modal logic principles including K, T, 4, and 5 axioms.
+The modal subtheory includes **18 comprehensive test examples** covering all four modal operators through countermodel examples (invalid modal inferences) and theorem examples (valid S5 principles).
 
 ```bash
 # Run all modal tests
@@ -567,14 +612,16 @@ python test_theories.py --theories logos --modal --examples
 ## References
 
 ### Primary Sources
-- Lewis (1973) ["Counterfactuals"](https://press.princeton.edu/books/paperback/9780631224259/counterfactuals), Harvard University Press
-- Kripke (1963) ["Semantical Analysis of Modal Logic"](https://doi.org/10.1007/BF01028024), Zeitschrift für mathematische Logik
-- Hughes & Cresswell (1996) ["A New Introduction to Modal Logic"](https://www.routledge.com/A-New-Introduction-to-Modal-Logic/Hughes-Cresswell/p/book/9780415125994), Routledge
+
+- Brast-McKie, B. (2025). ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8). _Journal of Philosophical Logic_.
+- Kripke (1963) ["Semantical Analysis of Modal Logic"](https://doi.org/10.1007/BF01028024)
 
 ### Related Resources
-- **[Extensional Subtheory](../extensional/)** - Truth-functional foundation for modal operators
+
+- **[Extensional Subtheory](../extensional/)** - Extensional foundation for modal operators
 - **[Logos Theory](../../README.md)** - Complete hyperintensional framework documentation
 - **[Counterfactual Subtheory](../counterfactual/)** - Integration with counterfactual reasoning
+- Hughes & Cresswell (1996) ["A New Introduction to Modal Logic"](https://www.routledge.com/A-New-Introduction-to-Modal-Logic/Hughes-Cresswell/p/book/9780415125994), Routledge
 
 ---
 
