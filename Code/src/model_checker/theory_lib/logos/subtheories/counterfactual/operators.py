@@ -63,30 +63,82 @@ class CounterfactualOperator(syntactic.Operator):
         )
 
     def extended_verify(self, state, leftarg, rightarg, eval_point):
-        """Defines verification conditions for counterfactual conditional in the extended semantics."""
+        """A state verifies A □→ B at a world if the state is that world
+        and A □→ B is true at that world."""
+        world = eval_point["world"]
         return z3.And(
-            state == self.semantics.null_state,
+            state == world,
             self.true_at(leftarg, rightarg, eval_point)
         )
 
     def extended_falsify(self, state, leftarg, rightarg, eval_point):
-        """Defines falsification conditions for counterfactual conditional in the extended semantics."""
+        """A state falsifies A □→ B at a world if the state is that world
+        and A □→ B is false at that world."""
+        world = eval_point["world"]
         return z3.And(
-            state == self.semantics.null_state,
+            state == world,
             self.false_at(leftarg, rightarg, eval_point)
         )
 
-    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_point):
-        """Finds the verifiers and falsifiers for a counterfactual conditional."""
-        evaluate = left_sent_obj.proposition.model_structure.z3_model.evaluate
-        if bool(evaluate(self.true_at(left_sent_obj, right_sent_obj, eval_point))):
-            return {self.semantics.null_state}, set()
-        if bool(evaluate(self.false_at(left_sent_obj, right_sent_obj, eval_point))):
-            return set(), {self.semantics.null_state}
-        raise ValueError(
-            f"{self.name} {left_sent_obj} {right_sent_obj} "
-            f"is neither true nor false in the world {eval_point}."
-        )
+    def find_verifiers_and_falsifiers(self, leftarg, rightarg, eval_point):
+        """Find verifiers and falsifiers for a counterfactual conditional.
+        
+        A counterfactual A □→ B is:
+        - True at world w iff for all verifiers x of A and all worlds u 
+          such that u is an x-alternative to w, B is true at u
+        - False at world w iff there exists a verifier x of A and a world u
+          such that u is an x-alternative to w and B is false at u
+          
+        This method checks each world to determine truth value and builds
+        verifier/falsifier sets accordingly.
+        """
+        # Get model structure and semantics
+        model = leftarg.proposition.model_structure
+        semantics = self.semantics
+        z3_model = model.z3_model
+        
+        # Initialize verifier and falsifier sets
+        verifiers = set()
+        falsifiers = set()
+        
+        # Get the verifiers of the antecedent
+        leftarg_verifiers = leftarg.proposition.verifiers
+        
+        # Check each world to determine if A □→ B is true or false there
+        for world in model.z3_world_states:
+            # For THIS world, check if all A-alternatives satisfy B
+            alternative_found = False
+            all_alternatives_satisfy_B = True
+            
+            for x_state in leftarg_verifiers:
+                # Check all possible alternative worlds
+                for alt_world in model.z3_world_states:
+                    # Check if alt_world is an x-alternative to this world
+                    if z3_model.evaluate(semantics.is_alternative(alt_world, x_state, world)):
+                        alternative_found = True
+                        
+                        # Check if B is true at the alternative world
+                        B_truth = rightarg.proposition.truth_value_at(alt_world)
+                        
+                        if B_truth is False:
+                            all_alternatives_satisfy_B = False
+                            break
+                
+                if not all_alternatives_satisfy_B:
+                    break
+            
+            # Determine truth at this world
+            if not alternative_found:
+                # No A-alternatives from this world - vacuously true
+                verifiers.add(world)
+            elif all_alternatives_satisfy_B:
+                # All A-alternatives satisfy B - true at this world
+                verifiers.add(world)
+            else:
+                # Some A-alternative falsifies B - false at this world
+                falsifiers.add(world)
+        
+        return verifiers, falsifiers
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the counterfactual conditional with proper indentation and formatting.

@@ -666,6 +666,26 @@ CF_CM_21_example = [
     CF_CM_21_settings,
 ]
 
+# IM_CM_24: CONTRADICTION TO IMPOSSIBILITY
+IM_CM_24_premises = ['(A \\boxright B)']
+IM_CM_24_conclusions = ['\\Box (A \\boxright B)']
+IM_CM_24_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+IM_CM_24_example = [
+    IM_CM_24_premises,
+    IM_CM_24_conclusions,
+    IM_CM_24_settings,
+]
+
+
 # CF_TH_11: DEFINITION OF NEC
 CF_TH_11_premises = ['\\Box A']
 CF_TH_11_conclusions = ['(\\top \\boxright A)']
@@ -780,13 +800,14 @@ semantic_theories = {
 example_range = {
 
     # Also test a countermodel that should pass
-    "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    "IM_CM_24": IM_CM_24_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
 
     # Test some failing theorem examples
     # "CF_TH_1": CF_TH_1_example,  # COUNTERFACTUAL IDENTITY
     # "CF_TH_2": CF_TH_2_example,  # COUNTERFACTUAL MODUS PONENS
     # "CF_TH_9": CF_TH_9_example,  # COUNTERFACTUAL CONJUNCTION INTRODUCTION
-    "CF_TH_12": CF_TH_12_example,  # CONTRADICTION TO IMPOSSIBILITY
+    # "CF_TH_12": CF_TH_12_example,  # CONTRADICTION TO IMPOSSIBILITY
     
 }
 
