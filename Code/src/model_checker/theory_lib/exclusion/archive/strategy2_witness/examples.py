@@ -101,7 +101,7 @@ unilateral_theory = {
 }
 
 default_dictionary = {
-    "\\func_unineg": "\\neg",
+    "\\unineg": "\\neg",
     "\\uniwedge": "\\wedge",
     "\\univee": "\\vee",
     "\\uniequiv": "\\equiv",
@@ -190,7 +190,7 @@ ATOMIC_example = [
 #############################
 
 # NEGATION TO SENTENCE
-NEG_TO_SENT_premises = ['\\func_unineg A']
+NEG_TO_SENT_premises = ['\\unineg A']
 NEG_TO_SENT_conclusions = ['A']
 NEG_TO_SENT_settings = {
     'N': 3,
@@ -211,7 +211,7 @@ NEG_TO_SENT_example = [
 
 # SENTENCE TO NEGATION
 SENT_TO_NEG_premises = ['A']
-SENT_TO_NEG_conclusions = ['\\func_unineg A']
+SENT_TO_NEG_conclusions = ['\\unineg A']
 SENT_TO_NEG_settings = {
     'N': 3,
     'possible': False,
@@ -230,7 +230,7 @@ SENT_TO_NEG_example = [
 ]
 
 # DOUBLE NEGATION ELIMINATION (FALSE PREMISE in static approach)
-DN_ELIM_premises = ['\\func_unineg \\func_unineg A']
+DN_ELIM_premises = ['\\unineg \\unineg A']
 DN_ELIM_conclusions = ['A']
 DN_ELIM_settings = {
     'N': 3,
@@ -251,8 +251,8 @@ DN_ELIM_example = [
 ]
 
 # TRIPLE NEGATION ENTAILMENT (False premise in static approach)
-TN_ENTAIL_premises = ['\\func_unineg \\func_unineg \\func_unineg A']
-TN_ENTAIL_conclusions = ['\\func_unineg A']
+TN_ENTAIL_premises = ['\\unineg \\unineg \\unineg A']
+TN_ENTAIL_conclusions = ['\\unineg A']
 TN_ENTAIL_settings = {
     'N': 3,
     'possible': False,
@@ -271,7 +271,7 @@ TN_ENTAIL_example = [
 ]
 
 # DISJUNCTIVE SYLLOGISM (False premise in static approach)
-DISJ_SYLL_premises = ['(A \\univee B)', '\\func_unineg B']
+DISJ_SYLL_premises = ['(A \\univee B)', '\\unineg B']
 DISJ_SYLL_conclusions = ['A']
 DISJ_SYLL_settings = {
     'N': 3,
@@ -291,8 +291,8 @@ DISJ_SYLL_example = [
 ]
 
 # CONJUNCTION DEMORGANS LR (False premise in static approach)
-CONJ_DM_LR_premises = ['\\func_unineg (A \\uniwedge B)']
-CONJ_DM_LR_conclusions = ['(\\func_unineg A \\univee \\func_unineg B)']
+CONJ_DM_LR_premises = ['\\unineg (A \\uniwedge B)']
+CONJ_DM_LR_conclusions = ['(\\unineg A \\univee \\unineg B)']
 CONJ_DM_LR_settings = {
     'N': 3,
     'possible': False,
@@ -312,7 +312,7 @@ CONJ_DM_LR_example = [
 
 # NO GLUTS (False premise in static approach)
 NO_GLUT_premises = []
-NO_GLUT_conclusions = ['\\func_unineg (A \\uniwedge \\func_unineg A)']
+NO_GLUT_conclusions = ['\\unineg (A \\uniwedge \\unineg A)']
 NO_GLUT_settings = {
     'N': 3,
     'possible': False,
@@ -332,7 +332,7 @@ NO_GLUT_example = [
 
 # DOUBLE NEGATION INTRODUCTION
 DN_INTRO_premises = ['A']
-DN_INTRO_conclusions = ['\\func_unineg \\func_unineg A']
+DN_INTRO_conclusions = ['\\unineg \\unineg A']
 DN_INTRO_settings = {
     'N': 3,
     'possible': False,
@@ -352,7 +352,7 @@ DN_INTRO_example = [
 
 # DOUBLE NEGATION IDENTITY
 DN_ID_premises = []
-DN_ID_conclusions = ['(A \\uniequiv \\func_unineg \\func_unineg A)']
+DN_ID_conclusions = ['(A \\uniequiv \\unineg \\unineg A)']
 DN_ID_settings = {
     'N': 2,
     'possible': False,
@@ -373,7 +373,7 @@ DN_ID_example = [
 
 # TRIPLE NEGATION IDENTITY
 TN_ID_premises = []
-TN_ID_conclusions = ['(\\func_unineg A \\uniequiv \\func_unineg \\func_unineg \\func_unineg A)']
+TN_ID_conclusions = ['(\\unineg A \\uniequiv \\unineg \\unineg \\unineg A)']
 TN_ID_settings = {
     'N': 3,
     'possible': False,
@@ -392,8 +392,8 @@ TN_ID_example = [
 ]
 
 # QUADRUPLE NEGATION (False premise in static approach)
-QN_ENTAIL_premises = ['\\func_unineg \\func_unineg \\func_unineg \\func_unineg A']
-QN_ENTAIL_conclusions = ['\\func_unineg \\func_unineg A']
+QN_ENTAIL_premises = ['\\unineg \\unineg \\unineg \\unineg A']
+QN_ENTAIL_conclusions = ['\\unineg \\unineg A']
 QN_ENTAIL_settings = {
     'N': 3,
     'possible': False,
@@ -412,8 +412,8 @@ QN_ENTAIL_example = [
 ]
 
 # CONJUNCTION DEMORGANS RL (False premise in static approach)
-CONJ_DM_RL_premises = ['(\\func_unineg A \\univee \\func_unineg B)']
-CONJ_DM_RL_conclusions = ['\\func_unineg (A \\uniwedge B)']
+CONJ_DM_RL_premises = ['(\\unineg A \\univee \\unineg B)']
+CONJ_DM_RL_conclusions = ['\\unineg (A \\uniwedge B)']
 CONJ_DM_RL_settings = {
     'N': 3,
     'possible': False,
@@ -432,8 +432,8 @@ CONJ_DM_RL_example = [
 ]
 
 # DISJUNCTION DEMORGANS LR (False premise in static approach)
-DISJ_DM_LR_premises = ['\\func_unineg (A \\univee B)']
-DISJ_DM_LR_conclusions = ['(\\func_unineg A \\uniwedge \\func_unineg B)']
+DISJ_DM_LR_premises = ['\\unineg (A \\univee B)']
+DISJ_DM_LR_conclusions = ['(\\unineg A \\uniwedge \\unineg B)']
 DISJ_DM_LR_settings = {
     'N': 3,
     'possible': False,
@@ -452,8 +452,8 @@ DISJ_DM_LR_example = [
 ]
 
 # DISJUNCTION DEMORGANS RL (False premise in static approach)
-DISJ_DM_RL_premises = ['(\\func_unineg A \\uniwedge \\func_unineg B)']
-DISJ_DM_RL_conclusions = ['\\func_unineg (A \\univee B)']
+DISJ_DM_RL_premises = ['(\\unineg A \\uniwedge \\unineg B)']
+DISJ_DM_RL_conclusions = ['\\unineg (A \\univee B)']
 DISJ_DM_RL_settings = {
     'N': 3,
     'possible': False,
@@ -472,7 +472,7 @@ DISJ_DM_RL_example = [
 ]
 
 # GLUTS (Check for contradictions)
-GLUTS_premises = ['(A \\uniwedge \\func_unineg A)']
+GLUTS_premises = ['(A \\uniwedge \\unineg A)']
 GLUTS_conclusions = []
 GLUTS_settings = {
     'N': 3,
@@ -494,7 +494,7 @@ GLUTS_example = [
 
 # NO GAPS
 GAPS_premises = []
-GAPS_conclusions = ['(A \\univee \\func_unineg A)']
+GAPS_conclusions = ['(A \\univee \\unineg A)']
 GAPS_settings = {
     'N': 3,
     'possible': False,
@@ -515,7 +515,7 @@ GAPS_example = [
 
 # THEOREM 17 (Complex unilateral formula)
 T17_premises = []
-T17_conclusions = ['((\\func_unineg (A \\univee B) \\uniequiv (\\func_unineg A \\uniwedge \\func_unineg B)) \\uniwedge (\\func_unineg (A \\uniwedge B) \\uniequiv (\\func_unineg A \\univee \\func_unineg B)))']
+T17_conclusions = ['((\\unineg (A \\univee B) \\uniequiv (\\unineg A \\uniwedge \\unineg B)) \\uniwedge (\\unineg (A \\uniwedge B) \\uniequiv (\\unineg A \\univee \\unineg B)))']
 T17_settings = {
     'N': 4,
     'possible': False,
@@ -790,8 +790,8 @@ DISJ_ASSOC_LR_example = [
 ##############################
 
 # DE MORGAN NOT/OR (from t_unilateral.py test_CMP_T1)
-EX_TH_17_premises = ['\\func_unineg (A \\univee B)']
-EX_TH_17_conclusions = ['(\\func_unineg A \\uniwedge \\func_unineg B)']
+EX_TH_17_premises = ['\\unineg (A \\univee B)']
+EX_TH_17_conclusions = ['(\\unineg A \\uniwedge \\unineg B)']
 EX_TH_17_settings = {
     'N': 3,
     'possible': True,
@@ -876,7 +876,7 @@ DISJ_DIST_ID_example = [
 
 # CONJUNCTIVE DEMORGANS IDENTITY
 CONJ_DM_ID_premises = []
-CONJ_DM_ID_conclusions = ["(\\func_unineg (P \\uniwedge Q) \\uniequiv (\\func_unineg P \\univee \\func_unineg Q))"]
+CONJ_DM_ID_conclusions = ["(\\unineg (P \\uniwedge Q) \\uniequiv (\\unineg P \\univee \\unineg Q))"]
 CONJ_DM_ID_settings = {
     'N': 3,
     'possible': False,
@@ -896,7 +896,7 @@ CONJ_DM_ID_example = [
 
 # DISJUNCTIVE DEMORGANS IDENTITY
 DISJ_DM_ID_premises = []
-DISJ_DM_ID_conclusions = ["(\\func_unineg (P \\univee Q) \\uniequiv (\\func_unineg P \\uniwedge \\func_unineg Q))"]
+DISJ_DM_ID_conclusions = ["(\\unineg (P \\univee Q) \\uniequiv (\\unineg P \\uniwedge \\unineg Q))"]
 DISJ_DM_ID_settings = {
     'N': 3,
     'possible': False,
@@ -914,13 +914,16 @@ DISJ_DM_ID_example = [
     DISJ_DM_ID_settings
 ]
 
+
+
+
 ############################
 ### COUNTERMODEL EXAMPLES ###
 ############################
 
 # CONTRADICTION CASE
 EX_CM_1_premises = []
-EX_CM_1_conclusions = ['\\func_unineg (A \\univee \\func_unineg A)']
+EX_CM_1_conclusions = ['\\unineg (A \\univee \\unineg A)']
 EX_CM_1_settings = {
     'N': 2,
     'possible': False,

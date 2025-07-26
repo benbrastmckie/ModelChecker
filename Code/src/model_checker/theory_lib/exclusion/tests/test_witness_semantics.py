@@ -30,7 +30,7 @@ class TestWitnessRegistry:
         registry = WitnessRegistry(N=3)
         
         # Register predicates for a formula
-        formula = "\\func_unineg(p)"
+        formula = "\\unineg(p)"
         registry.register_witness_predicates(formula)
         
         # Check predicates were registered
@@ -41,7 +41,7 @@ class TestWitnessRegistry:
         """Test getting registered predicate functions."""
         registry = WitnessRegistry(N=3)
         
-        formula = "\\func_unineg(q)"
+        formula = "\\unineg(q)"
         registry.register_witness_predicates(formula)
         
         # Get predicates
@@ -105,7 +105,7 @@ class TestWitnessConstraintGenerator:
         assert hasattr(generator, '_minimality_constraint')
         
         # Register witness predicates
-        formula_str = "\\func_unineg(p)"
+        formula_str = "\\unineg(p)"
         h_pred, y_pred = semantics.witness_registry.register_witness_predicates(formula_str)
         
         # Check predicates were created
@@ -146,4 +146,4 @@ class TestWitnessAwareModel:
         assert hasattr(model, 'get_y_witness')
         
         # Test has_witness_for returns boolean
-        assert isinstance(model.has_witness_for("\\func_unineg(s)"), bool)
+        assert isinstance(model.has_witness_for("\\unineg(s)"), bool)

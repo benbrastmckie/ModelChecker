@@ -162,10 +162,10 @@ The `dictionary` parameter enables automatic operator translation between theori
 ```python
 # Example: Exclusion theory comparing with logos
 exclusion_to_logos = {
-    "\\func_unineg": "\\neg",        # Unilateral to bilateral negation
+    "\\unineg": "\\neg",        # Unilateral to bilateral negation
     "\\uniwedge": "\\wedge",         # Unilateral to bilateral conjunction
     "\\univee": "\\vee",             # Unilateral to bilateral disjunction
-    "\\func_unibox": "\\Box",        # Unilateral to bilateral box
+    "\\unibox": "\\Box",        # Unilateral to bilateral box
 }
 
 semantic_theories = {

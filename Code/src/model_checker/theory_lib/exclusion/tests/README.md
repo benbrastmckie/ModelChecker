@@ -116,7 +116,7 @@ def test_new_semantic_property():
     # Arrange
     theory = get_theory('exclusion')
     model = BuildExample("test", theory, 
-        premises=['\\func_unineg A'],
+        premises=['\\unineg A'],
         conclusions=['A'],
         settings={'N': 3}
     )

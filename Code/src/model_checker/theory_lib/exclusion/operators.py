@@ -19,7 +19,7 @@ class UniNegationOperator(Operator):
     UniNegation operator that queries witness predicates from the model.
     """
     
-    name = "\\func_unineg"
+    name = "\\unineg"
     arity = 1
     
     def true_at(self, arg, eval_point):
@@ -49,7 +49,7 @@ class UniNegationOperator(Operator):
         )
         
         # Get formula string for witness lookup
-        formula_str = f"\\func_unineg({self.semantics._formula_to_string(argument)})"
+        formula_str = f"\\unineg({self.semantics._formula_to_string(argument)})"
         
         verifiers = []
         for state in range(2**self.semantics.N):
@@ -192,7 +192,7 @@ class UniNegationOperator(Operator):
         else:
             arg_str = str(argument)
             
-        formula_str = f"\\func_unineg({arg_str})"
+        formula_str = f"\\unineg({arg_str})"
         
         # Ensure witness predicates are registered for this formula
         if f"{formula_str}_h" not in sem.witness_registry.predicates:

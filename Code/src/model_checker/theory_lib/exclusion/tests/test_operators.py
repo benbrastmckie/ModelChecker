@@ -26,7 +26,7 @@ class TestExclusionOperators:
         operators = exclusion_theory['operators']
         
         # Check essential exclusion operators
-        assert "\\func_unineg" in operators
+        assert "\\unineg" in operators
         assert "\\uniwedge" in operators 
         assert "\\univee" in operators
         assert "\\uniequiv" in operators
@@ -36,8 +36,8 @@ class TestExclusionOperators:
         operators = exclusion_theory['operators']
         
         # Test uninegation properties
-        unineg_op = operators["\\func_unineg"]
-        assert unineg_op.name == "\\func_unineg"
+        unineg_op = operators["\\unineg"]
+        assert unineg_op.name == "\\unineg"
         assert unineg_op.arity == 1
         
         # Test conjunction properties
@@ -58,7 +58,7 @@ class TestExclusionOperators:
     def test_uninegation_operator(self, exclusion_theory):
         """Test uninegation operator implementation."""
         operators = exclusion_theory['operators']
-        unineg_op = operators["\\func_unineg"]
+        unineg_op = operators["\\unineg"]
         
         # Test operator exists and has correct type
         assert unineg_op is not None
@@ -109,7 +109,7 @@ class TestOperatorSemanticClauses:
         """Test semantic clauses can be executed."""
         # Get an operator class
         operators = exclusion_theory['operators']
-        unineg_op_class = operators["\\func_unineg"]
+        unineg_op_class = operators["\\unineg"]
         
         # Set up basic test structures
         semantics = WitnessSemantics(basic_settings)
@@ -127,7 +127,7 @@ class TestOperatorSemanticClauses:
     def test_witness_aware_features(self, exclusion_theory, basic_settings):
         """Test witness-aware features of operators."""
         operators = exclusion_theory['operators']
-        unineg_op_class = operators["\\func_unineg"]
+        unineg_op_class = operators["\\unineg"]
         
         # The uninegation operator should have witness-specific methods
         assert hasattr(unineg_op_class, '_verifies_uninegation_with_predicates')

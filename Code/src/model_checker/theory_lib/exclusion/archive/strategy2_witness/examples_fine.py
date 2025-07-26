@@ -100,7 +100,7 @@ FINE_WITH_PREMISE_example = [
 ]
 
 # Test 3: CLAIM_1_A Verification - CB implies Fine
-COMPARE_CB_FINE_premises = ['\\func_unineg A']
+COMPARE_CB_FINE_premises = ['\\unineg A']
 COMPARE_CB_FINE_conclusions = ['\\set_unineg A']
 COMPARE_CB_FINE_settings = {
     'N': 2,
@@ -161,7 +161,7 @@ FINE_DEMORGAN_example = [
 
 # Test 6: CLAIM_1_B Verification - Fine implies CB
 CLAIM1_CB_IMPLIES_FINE_premises = ['\\set_unineg A']
-CLAIM1_CB_IMPLIES_FINE_conclusions = ['\\func_unineg A']
+CLAIM1_CB_IMPLIES_FINE_conclusions = ['\\unineg A']
 CLAIM1_CB_IMPLIES_FINE_settings = {
     'N': 3,
     'possible': False,

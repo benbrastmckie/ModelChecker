@@ -29,7 +29,7 @@ This analysis serves researchers validating the implementation and understanding
 # Key validation: False Premise Problem solved
 # EX_CM_6: Double negation elimination fails
 model = BuildExample("ex_cm_6", exclusion_theory,
-    premises=['\\¬func_unineg \\¬func_unineg A'],  # ¬¬A
+    premises=['\\¬unineg \\¬unineg A'],  # ¬¬A
     conclusions=['A'],                           # A
     settings={'N': 3}
 )

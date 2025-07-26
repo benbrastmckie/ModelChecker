@@ -22,7 +22,7 @@ strategy2_witness/
 
 The **Witness Predicate Implementation** represents a breakthrough approach to implementing hyperintensional exclusion semantics by solving the fundamental challenge of existentially quantified functions in Z3. This archived version demonstrates how making witness functions explicit as first-class model predicates enables correct handling of complex nested formulas that were previously intractable.
 
-Within the exclusion theory development history, this implementation achieved the first fully correct execution of all test examples by introducing witness predicates for the Champollion-Bernard (CB) preclusion semantics. The architecture provides two distinct approaches: function-based CB preclusion using witness predicates (`\func_unineg`) and set-based Fine preclusion without function quantification (`\set_unineg`).
+Within the exclusion theory development history, this implementation achieved the first fully correct execution of all test examples by introducing witness predicates for the Champollion-Bernard (CB) preclusion semantics. The architecture provides two distinct approaches: function-based CB preclusion using witness predicates (`\unineg`) and set-based Fine preclusion without function quantification (`\set_unineg`).
 
 This archive preserves the successful solution to the "false premise problem" that plagued earlier attempts, with all 39 test examples executing correctly and demonstrating the theoretical relationship between CB and Fine preclusion approaches.
 
@@ -85,7 +85,7 @@ Comprehensive documentation explaining the witness predicate breakthrough. Conta
 The key breakthrough was making existentially quantified functions explicit as model predicates:
 
 ```python
-# For each \func_unineg(φ) formula, create witness functions:
+# For each \unineg(φ) formula, create witness functions:
 h_pred = z3.Function(f"{formula_str}_h", z3.BitVecSort(N), z3.BitVecSort(N))
 y_pred = z3.Function(f"{formula_str}_y", z3.BitVecSort(N), z3.BitVecSort(N))
 ```
@@ -108,7 +108,7 @@ y_pred = z3.Function(f"{formula_str}_y", z3.BitVecSort(N), z3.BitVecSort(N))
 
 The archive includes **5 operators**:
 
-1. **UniNegationOperator** (`\func_unineg`) - CB preclusion with witnesses
+1. **UniNegationOperator** (`\unineg`) - CB preclusion with witnesses
 2. **FineUniNegation** (`\set_unineg`) - Fine's set-based preclusion
 3. **UniConjunctionOperator** (`\uniwedge`) - Standard conjunction
 4. **UniDisjunctionOperator** (`\univee`) - Standard disjunction
@@ -130,8 +130,8 @@ The archive includes **39 comprehensive test examples**:
 ```python
 # Previously failed with false premise
 de_morgan_3 = [
-    ["\\func_unineg(A \\uniwedge B)"],  # ¬(A ∧ B)
-    ["\\func_unineg A \\univee \\func_unineg B"],  # ¬A ∨ ¬B
+    ["\\unineg(A \\uniwedge B)"],  # ¬(A ∧ B)
+    ["\\unineg A \\univee \\unineg B"],  # ¬A ∨ ¬B
     {"N": 3}
 ]
 # Now correctly finds countermodel!
@@ -140,10 +140,10 @@ de_morgan_3 = [
 **Witness Function Output**:
 ```
 Functions
-  \func_unineg(A)_h: □ → □
-  \func_unineg(A)_h: a → b
-  \func_unineg(A)_h: b → a
-  \func_unineg(A)_h: a.b → a.b
+  \unineg(A)_h: □ → □
+  \unineg(A)_h: a → b
+  \unineg(A)_h: b → a
+  \unineg(A)_h: a.b → a.b
 ```
 
 ## Theoretical Foundations

@@ -130,13 +130,13 @@ The `UniNegationOperator` implements CB preclusion using witness predicates:
 
 ```python
 class UniNegationOperator(Operator):
-    name = "\\func_unineg"
+    name = "\\unineg"
     
     def extended_verify(self, state, argument, eval_point):
         """State verifies \exclude(A) using witness predicates"""
         
         # Get pre-registered witness functions
-        formula_str = f"\\func_unineg({argument})"
+        formula_str = f"\\unineg({argument})"
         h_pred = sem.witness_registry[f"{formula_str}_h"]
         y_pred = sem.witness_registry[f"{formula_str}_y"]
         
