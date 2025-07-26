@@ -10,9 +10,11 @@ from model_checker import syntactic
 from model_checker.theory_lib.logos.subtheories.extensional.operators import (
     get_operators as get_extensional_operators,
     NegationOperator,
+    TopOperator,
 )
 from model_checker.theory_lib.logos.subtheories.modal.operators import (
-    get_operators as get_modal_operators,
+    NecessityOperator,
+    PossibilityOperator,
 )
 
 ##############################################################################
@@ -129,7 +131,12 @@ def get_all_operators():
     
     # Import base operators from logos subtheories
     operators.update(get_extensional_operators())  # Basic logical operators
-    operators.update(get_modal_operators())        # Modal operators
+    
+    # Add specific modal operators (without counterfactual dependencies)
+    operators.update({
+        "\\Box": NecessityOperator,
+        "\\Diamond": PossibilityOperator,
+    })
     
     # Add imposition-specific operators
     operators.update(get_imposition_operators())
