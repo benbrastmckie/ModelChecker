@@ -954,8 +954,7 @@ logos_theory = {
 # NOTE: The translation dictionaries will convert unilateral operators to bilateral equivalents
 semantic_theories = {
     "BernardChampollion": unilateral_theory,  # Unilateral exclusion semantics
-    "Brast-McKie": logos_theory,               # Bilateral hyperintensional semantics
-    # "Classical": logos_theory,              # Use logos for classical bilateral comparison
+    # "Brast-McKie": logos_theory,               # Bilateral hyperintensional semantics
 }
 
 # Default example range (curated subset for direct execution)

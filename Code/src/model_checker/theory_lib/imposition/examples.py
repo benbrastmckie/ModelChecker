@@ -484,6 +484,43 @@ IM_CM_21_example = [
     IM_CM_21_settings,
 ]
 
+# IM_TH_22: REVERSE DEFINITION OF NEC
+IM_CM_22_premises = ['(\\top \\imposition A)']
+IM_CM_22_conclusions = ['\\Box A']
+IM_CM_22_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : True,
+    'non_null' : True,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+IM_CM_22_example = [
+    IM_CM_22_premises,
+    IM_CM_22_conclusions,
+    IM_CM_22_settings,
+]
+
+# IM_TH_23: CONTRADICTION TO IMPOSSIBILITY
+IM_CM_23_premises = ['(A \\imposition \\bot)']
+IM_CM_23_conclusions = ['(\\top \\imposition \\neg A)']
+IM_CM_23_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+IM_CM_23_example = [
+    IM_CM_23_premises,
+    IM_CM_23_conclusions,
+    IM_CM_23_settings,
+]
 
 ##################
 ### THEOREMS  ###
@@ -702,24 +739,6 @@ IM_TH_11_example = [
     IM_TH_11_settings,
 ]
 
-# IM_TH_12: CONTRADICTION TO IMPOSSIBILITY
-IM_TH_12_premises = ['(A \\imposition \\bot)']
-IM_TH_12_conclusions = ['(\\top \\imposition \\neg A)']
-IM_TH_12_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
-}
-IM_TH_12_example = [
-    IM_TH_12_premises,
-    IM_TH_12_conclusions,
-    IM_TH_12_settings,
-]
 
 
 # Create collections for different imposition example types
@@ -745,6 +764,8 @@ imposition_cm_examples = {
     "IM_CM_19": IM_CM_19_example, # COUNTERFACTUAL EXPORTATION
     "IM_CM_20": IM_CM_20_example, # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
     "IM_CM_21": IM_CM_21_example, # COUNTERFACTUAL NEGATION DISTRIBUTION
+    "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
+    "IM_CM_23": IM_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
 }
 
 imposition_th_examples = {
@@ -759,7 +780,6 @@ imposition_th_examples = {
     "IM_TH_9": IM_TH_9_example,   # COUNTERFACTUAL CONJUNCTION INTRODUCTION
     "IM_TH_10": IM_TH_10_example, # MIGHT FACTIVITY
     "IM_TH_11": IM_TH_11_example, # DEFINITION OF NEC
-    # "IM_TH_12": IM_TH_12_example, # CONTRADICTION TO IMPOSSIBILITY
 }
 
 # Combined collection of all imposition examples
@@ -810,13 +830,13 @@ logos_theory = {
 # NOTE: The translation dictionary will convert \imposition to \boxright for logos
 semantic_theories = {
     "Fine": imposition_theory,
-    "Brast-McKie": logos_theory,
+    # "Brast-McKie": logos_theory,
 }
 
 # Default example range (curated subset for direct execution)
 example_range = {
 
-    # Countermodels
+    # # Countermodels
     "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_2": IM_CM_2_example,   # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_3": IM_CM_3_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
@@ -838,20 +858,21 @@ example_range = {
     # "IM_CM_19": IM_CM_19_example, # COUNTERFACTUAL EXPORTATION
     # "IM_CM_20": IM_CM_20_example, # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
     # "IM_CM_21": IM_CM_21_example, # COUNTERFACTUAL NEGATION DISTRIBUTION
-    #
+    # "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
+    # "IM_CM_23": IM_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
+
     # # Theorems
     # "IM_TH_1": IM_TH_1_example,   # COUNTERFACTUAL IDENTITY
     # "IM_TH_2": IM_TH_2_example,   # COUNTERFACTUAL MODUS PONENS
     # "IM_TH_3": IM_TH_3_example,   # WEAKENED TRANSITIVITY
     # "IM_TH_4": IM_TH_4_example,   # ANTECEDENT DISJUNCTION TO CONJUNCTION
-    # "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
     # "IM_TH_6": IM_TH_6_example,   # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
     # "IM_TH_7": IM_TH_7_example,   # COUNTERFACTUAL DISJUNCTION INTRODUCTION
     # "IM_TH_8": IM_TH_8_example,   # COUNTERFACTUAL CONSEQUENT WEAKENING
     # "IM_TH_9": IM_TH_9_example,   # COUNTERFACTUAL CONJUNCTION INTRODUCTION
     # "IM_TH_10": IM_TH_10_example, # MIGHT FACTIVITY
     # "IM_TH_11": IM_TH_11_example, # DEFINITION OF NEC
-    # "IM_TH_12": IM_TH_12_example, # CONTRADICTION TO IMPOSSIBILITY
     
 }
 
