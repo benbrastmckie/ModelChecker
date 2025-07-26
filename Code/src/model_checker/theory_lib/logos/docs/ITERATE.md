@@ -41,7 +41,7 @@
 
 ## Overview
 
-The Logos theory implements a sophisticated hyperintensional semantic framework that goes beyond truth-functional logic. The LogosModelIterator leverages this rich semantic structure to find multiple distinct models that differ in meaningful ways according to the theory's hyperintensional distinctions.
+The Logos theory implements a sophisticated hyperintensional semantic framework that goes beyond extensional logic. The LogosModelIterator leverages this rich semantic structure to find multiple distinct models that differ in meaningful ways according to the theory's hyperintensional distinctions.
 
 ### Hyperintensional Distinctness
 

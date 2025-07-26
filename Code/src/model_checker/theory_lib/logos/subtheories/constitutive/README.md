@@ -18,7 +18,7 @@ constitutive/
 
 ## Overview
 
-The **Constitutive Subtheory** implements hyperintensional semantics for identity (≡), ground (≤), essence (⊑), and relevance (⪯) as primitive operators, with reduction (⟹) as a defined operator. All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond truth-functional equivalence or necessary equivalence.
+The **Constitutive Subtheory** implements hyperintensional semantics for identity (≡), ground (≤), essence (⊑), and relevance (⪯) as primitive operators, with reduction (⟹) as a defined operator. All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond extensional equivalence or necessary equivalence.
 
 This subtheory serves as the foundation for hyperintensional reasoning within the Logos framework, implementing the semantic theory developed in Brast-McKie (2021) and providing essential operators for expressing content relationships while maintaining integration with modal, extensional, and counterfactual reasoning which are also included in the Logos.
 
@@ -569,7 +569,7 @@ This allows for fine-grained analysis of:
 
 **Properties that FAIL**:
 
-- Hyperintensional Equivalence: More fine-grained than either truth-functional equivalence and necessary equivalence
+- Hyperintensional Equivalence: More fine-grained than either extensional equivalence and necessary equivalence
 - Absorption Laws: Only hold in one direction
 - Distribution Laws: Only hold in one direction
 - Essence Supplementation: Essence only satisfies conjunction supplementation
@@ -721,7 +721,7 @@ The constitutive operators enable analysis of **subject-matter sensitivity**:
 
 **Hyperintensional Reasoning**:
 
-- Moving beyond truth-functional logic
+- Moving beyond extensional logic
 - Analyzing subject-matter relationships
 - Understanding aboutness and topicality
 
@@ -767,7 +767,7 @@ python test_theories.py --theories logos --constitutive --examples
 
 ### Related Resources
 
-- **[Extensional Subtheory](../extensional/)** - Truth-functional foundation for constitutive operators
+- **[Extensional Subtheory](../extensional/)** - Extensional foundation for constitutive operators
 - **[Modal Subtheory](../modal/)** - Integration with necessity and possibility
 - **[Logos Theory](../../README.md)** - Complete hyperintensional framework documentation
 

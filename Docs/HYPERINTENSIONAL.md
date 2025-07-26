@@ -22,9 +22,9 @@
 
 ## Introduction
 
-Hyperintensional semantics provides a framework for making semantic distinctions that are invisible to classical intensional semantics. In ModelChecker, hyperintensional theories use **truthmaker semantics** where propositions are characterized by their verifiers and falsifiers, allowing for fine-grained content distinctions even between necessarily equivalent formulas.
+Hyperintensional semantics provides a framework for making semantic distinctions that are invisible to classical intensional semantics. In the ModelChecker, hyperintensional theories use the bilateral **truthmaker semantics** pioneered by Kit Fine where propositions are characterized by their verifiers and falsifiers, allowing for fine-grained content distinctions even between necessarily equivalent formulas.
 
-The key insight is that sentences are evaluated at **states** which may be partial rather than total, fixing the truth values of only some sentence letters. This allows the framework to distinguish between different ways of making a sentence true or false.
+The key insight is that sentences are evaluated at **states** which may be partial rather than total, fixing the truth values of only some sentence letters. This allows the framework to distinguish between different ways of making a sentence true or false, allowing for fine-grained distinctions in content that track relevance and subject-matter. Hyperintensionality is especially important for implementing semantic clauses for explanatory operators which require the explanans to be wholly relevant to the explanandum.
 
 ## Core Concepts
 
@@ -39,26 +39,28 @@ States are the fundamental building blocks of hyperintensional semantics:
 - **Null State**: No bits set to 1 (e.g., `#b00000`)
 
 **Notation in ModelChecker**:
+
 ```
 States are named: a, b, c, ...
 Fusions printed as: a.b (fusion of states a and b)
-Part relation: a ≤ b iff a ⊔ b = b
+Part relation: `a ≤ b` iff `a ⊔ b = b`
 ```
 
 ### Possibility and Compatibility
 
 The framework distinguishes between possible and impossible states:
 
-- **Possible States**: States that can exist in the model
+- **Possible States**: States that can exist in the model (formally: `s ∈ P`)
 - **Impossible States**: States that cannot exist (e.g., contradictory combinations)
 - **Constraints**:
   - The null state must be possible
   - Every part of a possible state must be possible
-- **Compatibility**: States a and b are compatible iff a ⊔ b is possible
+- **Compatibility**: States `a` and `b` are compatible iff the fusion of `a` and `b` is possible (`a ∘ b iff a ⊔ b ∈ P`)
 
 ### Worlds and Evaluation
 
 - **World State**: A possible state that is maximal with respect to compatibility
+  - Formal definition: `w` is a world iff `w ∈ P` and for all `s ∈ P`, if `s ∘ w` then `s ⊑ w`
   - Contains every compatible state as a part
   - Represents a complete possible situation
 - **Evaluation**: Formulas are evaluated at world states
@@ -67,89 +69,108 @@ The framework distinguishes between possible and impossible states:
 
 ### Verifiers and Falsifiers
 
-Each proposition has two sets associated with it:
+Propositions are ordered pairs consisting of two sets of states:
 
 - **Verifiers**: States that make the proposition true
 - **Falsifiers**: States that make the proposition false
 
 **Key Properties**:
+
 1. Both sets must be closed under fusion
-2. For atomic propositions, verifiers and falsifiers must be incompatible
+2. Verifiers and falsifiers must be incompatible
 3. Every possible state must be compatible with either a verifier or falsifier
 
 ### Truth Conditions
 
 A sentence is:
-- **True at world w**: w contains a verifier as a part
-- **False at world w**: w contains a falsifier as a part
-- **Neither** (in non-bivalent theories): w contains neither
+
+- **True at world w**: `w ⊨ φ iff ∃s ⊑ w : s ⊩ φ` (w contains a verifier as a part)
 
 ## Logical Operators
 
 ### Extensional Operators
 
 **Negation (¬)**:
+
 - Verifiers: The falsifiers of the negated sentence
 - Falsifiers: The verifiers of the negated sentence
 
 **Conjunction (∧)**:
+
 - Verifiers: Pairwise fusions of verifiers for each conjunct
 - Falsifiers: Falsifiers for either conjunct (or fusions thereof)
 
 **Disjunction (∨)**:
+
 - Verifiers: Verifiers for either disjunct (or fusions thereof)
 - Falsifiers: Pairwise fusions of falsifiers for each disjunct
 
 **Properties**:
+
 - Conjunction and disjunction are dual (De Morgan laws hold)
 - Idempotence laws hold
-- Distribution and absorption laws do NOT hold
+
+See the [extensional/README.md](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/extensional/README.md) for further discussion.
 
 ### Modal Operators
 
-**Necessity (□)**:
-- □A is true at w iff every world contains a verifier for A
+**Necessity (□)**: "A must be the case"
 
-**Possibility (◇)**:
-- ◇A is true at w iff some world contains a verifier for A
+- `w ⊨ □A iff ∀u : u ⊨ A` (A is true at every world)
+
+**Possibility (◇)**: "A might be the case"
+
+- `w ⊨ ◇A iff ∃u : u ⊨ A` (A is true at some world)
+
+See the [modal/README.md](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/modal/README.md) for further discussion.
 
 ### Counterfactual Operators
 
 For counterfactuals, we need the concept of **alternative worlds**:
 
-Given world w and state s, an **s-alternative to w** is any world that contains:
-1. The state s
-2. A maximal part of w that is compatible with s
+Given world `w` and state `s`, an **s-alternative** to `w` is any world `u` that contains:
 
-**Must Counterfactual (□→)**:
-- A □→ B is true at w iff B is true at all s-alternatives to w, for all verifiers s of A
+1. The state `s`
+2. A maximal part of `w` that is compatible with `s`
 
-**Might Counterfactual (◇→)**:
-- A ◇→ B is true at w iff B is true at some s-alternative to w, for some verifier s of A
+**Must Counterfactual (□→)**: "If A were the case, B would be the case"
+
+- `w ⊨ (A □→ B) iff ∀s ∀u : (s ⊩ A ∧ alt(u,s,w)) → u ⊨ B` (B is true at all A-alternatives)
+
+**Might Counterfactual (◇→)**: "If A were the case, B might be the case"
+
+- `w ⊨ (A ◇→ B) iff ∃s ∃u : (s ⊩ A ∧ alt(u,s,w)) ∧ u ⊨ B` (B is true at some A-alternative)
+
+See the [counterfactual/README.md](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/counterfactual/README.md) for further discussion.
 
 ### Constitutive Operators
 
 These operators capture hyperintensional relationships between propositions:
 
 **Ground (≤)**: "A is sufficient for B"
+
 - Every verifier for A is a verifier for B
 - Fusion of falsifiers for A and B is a falsifier for B
 - Every falsifier for B has a part that falsifies A
 
 **Essence (⊑)**: "A is necessary for B"
+
 - Fusion of verifiers for A and B is a verifier for B
 - Every verifier for B has a part that verifies A
 - Every falsifier for A is a falsifier for B
 
 **Identity (≡)**: "A just is B"
+
 - A and B have the same verifiers
 - A and B have the same falsifiers
 
 **Relevance (≼)**: "A is wholly relevant to B"
+
 - Fusion of verifiers for A and B is a verifier for B
 - Fusion of falsifiers for A and B is a falsifier for B
 
 **Interdefinability**:
+
 ```
 A ≤ B   :=  ¬A ⊑ ¬B  :=  (A ∨ B) ≡ B
 A ⊑ B   :=  ¬A ≤ ¬B  :=  (A ∧ B) ≡ B
@@ -157,12 +178,16 @@ A ≡ B   :=  (A ≤ B) ∧ (B ≤ A)
 A ≼ B   :=  (A ∧ B) ≤ B
 ```
 
+See the [constitutive/README.md](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/constitutive/README.md) for further discussion.
+
 ## Implementation in ModelChecker
 
 ModelChecker implements hyperintensional semantics through several theories:
 
 ### Logos Theory
+
 The most comprehensive implementation with all operators:
+
 ```python
 from model_checker.theory_lib import logos
 
@@ -171,15 +196,8 @@ theory = logos.get_theory()
 
 # Check hyperintensional distinctions
 model = BuildExample("hyperintensional", theory)
-# p ∧ q and q ∧ p are necessarily equivalent but not identical
-result = model.check_formula("(p \\wedge q) \\equiv (q \\wedge p)")
-```
-
-### Exclusion Theory
-Implements unilateral semantics (a variant of hyperintensional semantics):
-```python
-from model_checker.theory_lib import exclusion
-theory = exclusion.get_theory()
+# (p ∧ ¬p) and (q ∧ ¬q) are necessarily equivalent but not identical
+result = model.check_formula("((p \\wedge \\neg p) \\equiv (q \\wedge \\neg q))")
 ```
 
 ### Key Implementation Features
@@ -192,6 +210,7 @@ theory = exclusion.get_theory()
 ## Examples and Applications
 
 ### Example 1: Hyperintensional Distinctions
+
 ```python
 # These are logically equivalent but hyperintensionally distinct
 premises = ["p \\leftrightarrow q"]
@@ -200,27 +219,22 @@ conclusions = ["p \\equiv q"]  # Propositional identity
 ```
 
 ### Example 2: Relevance Logic
+
 ```python
 # Classical tautologies may fail when relevance is required
 premises = []
-conclusions = ["p \\to (q \\to p)"]  # May be invalid
+conclusions = ["(p \\preceq (q \\rightarrow p))"]  # May be invalid
 # p is not relevant to "q → p"
 ```
 
 ### Example 3: Counterfactual Reasoning
+
 ```python
 # Fine's semantics for counterfactuals
 premises = ["\\neg p", "p \\boxright q"]
 conclusions = ["p \\boxright r"]  # Doesn't follow
 # Different verifiers for p may lead to different alternatives
 ```
-
-### Applications
-
-1. **Philosophy of Language**: Analyzing propositional content and aboutness
-2. **Formal Epistemology**: Modeling knowledge and belief with fine-grained content
-3. **Metaphysics**: Studying grounding and essence relations
-4. **Logic**: Exploring non-classical logical systems
 
 ## Theoretical Background
 
@@ -232,21 +246,21 @@ The hyperintensional framework in ModelChecker builds on several key theoretical
 
 3. **Non-Boolean Structure**: The space of hyperintensional propositions forms a non-interlaced bilattice rather than a Boolean algebra
 
-4. **Content Sensitivity**: The framework captures distinctions in subject-matter and content that classical logic overlooks
+4. **Subject-Matter Sensitivity**: The framework captures distinctions in subject-matter and content that classical logic overlooks
 
 ## References
 
 ### Primary Sources
 
-- Brast-McKie, B. (2025). ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8). *Journal of Philosophical Logic*.
+- Brast-McKie, B. (2025). ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8). _Journal of Philosophical Logic_.
 
-- Brast-McKie, B. (2021). ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w). *Journal of Philosophical Logic*, 50, 1471-1503.
+- Brast-McKie, B. (2021). ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w). _Journal of Philosophical Logic_, 50, 1471-1503.
 
-- Fine, K. (2017). ["A Theory of Truthmaker Content I: Conjunction, Disjunction and Negation"](https://link.springer.com/article/10.1007/s10992-016-9413-y). *Journal of Philosophical Logic*, 46, 625-674.
+- Fine, K. (2017). ["A Theory of Truthmaker Content I: Conjunction, Disjunction and Negation"](https://link.springer.com/article/10.1007/s10992-016-9413-y). _Journal of Philosophical Logic_, 46, 625-674.
 
-- Fine, K. (2017). ["A Theory of Truthmaker Content II: Subject-matter, Common Content, Remainder and Ground"](https://link.springer.com/article/10.1007/s10992-016-9423-1). *Journal of Philosophical Logic*, 46, 675-702.
+- Fine, K. (2017). ["A Theory of Truthmaker Content II: Subject-matter, Common Content, Remainder and Ground"](https://link.springer.com/article/10.1007/s10992-016-9423-1). _Journal of Philosophical Logic_, 46, 675-702.
 
-- Fine, K. (2017). ["Truthmaker Semantics"](https://doi.org/10.1002/9781118972090.ch22). In *A Companion to the Philosophy of Language* (2nd ed.). Wiley-Blackwell.
+- Fine, K. (2017). ["Truthmaker Semantics"](https://doi.org/10.1002/9781118972090.ch22). In _A Companion to the Philosophy of Language_ (2nd ed.). Wiley-Blackwell.
 
 ### Related Documentation
 

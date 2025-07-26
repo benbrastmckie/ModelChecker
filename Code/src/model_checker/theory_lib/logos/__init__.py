@@ -2,7 +2,7 @@
 Logos Theory: Modular Implementation of Hyperintensional Truthmaker Semantics
 
 This theory provides a modular approach to logical operators organized by domain:
-- Extensional: Truth-functional operators (¬,∧,∨,→,↔,⊤,⊥)
+- Extensional: Extensional operators (¬,∧,∨,→,↔,⊤,⊥)
 - Modal: Necessity and possibility operators (□,◇)
 - Constitutive: Ground, essence, and identity operators (≡,≤,⊑,≼)
 - Counterfactual: Counterfactual conditional operators (□→,◇→)

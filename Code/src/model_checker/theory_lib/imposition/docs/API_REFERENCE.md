@@ -1,10 +1,55 @@
-# Imposition Theory API Reference
+# API Reference: Technical Documentation for Imposition Theory
 
-This document provides comprehensive API documentation for the imposition theory implementation in ModelChecker.
+[← Back to Documentation](README.md) | [Architecture →](ARCHITECTURE.md) | [Imposition Theory →](../README.md)
+
+## Directory Structure
+
+```
+docs/
+├── API_REFERENCE.md   # This file - complete technical reference
+├── ARCHITECTURE.md    # Implementation design and patterns
+├── ITERATE.md         # Model iteration for counterfactuals
+├── README.md          # Documentation hub
+├── SETTINGS.md        # Configuration parameters
+└── USER_GUIDE.md      # Tutorial and introduction
+```
 
 ## Overview
 
-The imposition theory API provides functions, classes, and operators for working with Kit Fine's counterfactual semantics. The theory extends the logos framework with the imposition operation for counterfactual reasoning.
+The **API Reference** provides comprehensive technical documentation for the imposition theory implementation, covering Kit Fine's counterfactual semantics within the ModelChecker framework. The theory implements the imposition operation for counterfactual reasoning, extending the Logos hyperintensional foundation.
+
+Within the imposition theory framework, this API enables exploration of counterfactual logic through Fine's semantics, where "if A then must B" is evaluated by imposing verifiers of A on the evaluation world. The implementation includes both must-counterfactuals (↪) and might-counterfactuals (⟂), providing a complete computational framework for counterfactual reasoning.
+
+This reference serves developers implementing counterfactual logic systems, providing detailed specifications for all components, operators, and integration points.
+
+## Quick Start
+
+```python
+# Core imposition theory usage
+from model_checker.theory_lib.imposition import get_theory
+from model_checker import BuildExample
+
+# Create counterfactual example
+theory = get_theory()
+model = BuildExample("counterfactual", theory,
+    premises=['A', 'A \\imposition B'],  # A is true, if A then must B
+    conclusions=['B'],                    # Therefore B
+    settings={'N': 3}
+)
+
+# Check validity (tests counterfactual modus ponens)
+result = model.check_validity()
+print(f"Counterfactual modus ponens: {result}")  # True - valid
+
+# Access alternative worlds
+if hasattr(model.model_structure, 'semantics'):
+    alt_worlds = model.model_structure.semantics.calculate_alternative_worlds(
+        verifiers={1, 2},  # A's verifiers
+        eval_point={'world': 0},
+        model_structure=model.model_structure
+    )
+    print(f"Alternative worlds: {alt_worlds}")
+```
 
 ## Core Functions
 
@@ -352,9 +397,58 @@ except z3.Z3Exception as e:
     print(f"Solver timeout: {e}")
 ```
 
-## See Also
+## Documentation
 
-- [User Guide](USER_GUIDE.md) - Practical usage guide
-- [Architecture](ARCHITECTURE.md) - Implementation details
-- [Settings Guide](SETTINGS.md) - Configuration options
-- [Model Iteration](ITERATE.md) - Finding multiple models
+### For API Users
+
+- **[Core Functions](#core-functions)** - get_theory, get_examples, get_test_examples
+- **[Classes](#classes)** - ImpositionSemantics, model components
+- **[Operators](#operators)** - Complete operator reference
+
+### For Developers
+
+- **[Model Iteration](#model-iteration)** - Finding multiple counterfactual models
+- **[Type Definitions](#type-definitions)** - Settings and configuration
+- **[Error Handling](#error-handling)** - Common exceptions and scenarios
+
+### For Researchers
+
+- **[Imposition Semantics](#impositionsemantics)** - Fine's counterfactual framework
+- **[Alternative Worlds](#calculate_alternative_worldsself-verifiers-eval_point-model_structure)** - Core semantic calculation
+- **[Examples](#examples)** - Usage patterns and test cases
+
+## Operator Summary
+
+The imposition theory provides 11 operators total:
+
+**Inherited from Logos** (9 operators):
+- Extensional: ¬, ∧, ∨, →, ↔, ⊤, ⊥ (7 operators)
+- Modal: □, ◇ (2 operators)
+
+**Imposition-Specific** (2 operators):
+- **Imposition** (↪): Must-counterfactual
+- **Could** (⟂): Might-counterfactual
+
+## Example Summary
+
+The theory includes 32 comprehensive test examples:
+- **Countermodels** (21): Invalid counterfactual inferences
+- **Theorems** (11): Valid counterfactual principles
+
+## References
+
+### Implementation Files
+
+- **[Semantic Module](../semantic.py)** - ImpositionSemantics implementation
+- **[Operators Module](../operators.py)** - Counterfactual operators
+- **[Examples Module](../examples.py)** - 32 test cases
+
+### Related Documentation
+
+- **[Architecture](ARCHITECTURE.md)** - Design patterns and implementation
+- **[User Guide](USER_GUIDE.md)** - Tutorial with examples
+- **[Settings](SETTINGS.md)** - Configuration options
+
+---
+
+[← Back to Documentation](README.md) | [Architecture →](ARCHITECTURE.md) | [Imposition Theory →](../README.md)

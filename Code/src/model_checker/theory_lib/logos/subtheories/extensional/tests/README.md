@@ -1,4 +1,4 @@
-# Extensional Subtheory Tests: Truth-Functional Logic Validation
+# Extensional Subtheory Tests: Extensional Logic Validation
 
 [← Back to Extensional](../README.md) | [Logos Tests →](../../../tests/README.md) | [Subtheories →](../../README.md)
 
@@ -12,19 +12,19 @@ tests/
 
 ## Overview
 
-This directory contains comprehensive tests for the Extensional Subtheory of the Logos theory, covering all seven truth-functional operators: negation (`\\neg`), conjunction (`\\wedge`), disjunction (`\\vee`), conditional (`\\rightarrow`), biconditional (`\\leftrightarrow`), top (`\\top`), and bottom (`\\bot`).
+This directory contains comprehensive tests for the Extensional Subtheory of the Logos theory, covering all seven extensional operators: negation (`\\neg`), conjunction (`\\wedge`), disjunction (`\\vee`), conditional (`\\rightarrow`), biconditional (`\\leftrightarrow`), top (`\\top`), and bottom (`\\bot`).
 
 The test suite validates classical propositional logic through **14 integration examples** organized into countermodel examples (invalid arguments) and theorem examples (valid arguments). These tests ensure the extensional subtheory provides a sound foundation for hyperintensional reasoning while maintaining compatibility with classical inference patterns.
 
-All tests use the ModelChecker framework's constraint-based validation approach, demonstrating both the limits of truth-functional reasoning and the validity of classical logical principles.
+All tests use the ModelChecker framework's constraint-based validation approach, demonstrating both the limits of extensional reasoning and the validity of classical logical principles.
 
 ## Test Files
 
 ### test_extensional_examples.py
 **Purpose**: Integration tests that validate extensional operators using classical propositional logic examples
 
-**Coverage**: 14 comprehensive examples testing truth-functional reasoning
-- **7 Countermodel Examples** (EXT_CM_*): Invalid arguments showing limits of truth-functional logic
+**Coverage**: 14 comprehensive examples testing extensional reasoning
+- **7 Countermodel Examples** (EXT_CM_*): Invalid arguments showing limits of extensional logic
 - **7 Theorem Examples** (EXT_TH_*): Valid arguments confirming classical propositional principles
 
 **Test Framework**: Uses parametrized testing with pytest to run all examples systematically
@@ -77,7 +77,7 @@ These tests validate that certain invalid arguments remain **invalid** in the ex
 | EXT_CM_4 | Disjunction Elimination Error | Invalid disjunction elimination |
 | EXT_CM_5 | Biconditional Misuse | Invalid biconditional reasoning |
 | EXT_CM_6 | Material Conditional Confusion | Invalid conditional reasoning |
-| EXT_CM_7 | Truth-Value Assignment Error | Invalid truth-functional reasoning |
+| EXT_CM_7 | Truth-Value Assignment Error | Invalid extensional reasoning |
 
 ### Theorem Examples (EXT_TH_*)
 These tests validate that classical propositional principles are **valid**:
@@ -112,7 +112,7 @@ EXT_TH_1_settings = {
 
 ### Settings Explanation
 - **N**: Controls model size (extensional logic typically needs small values)
-- **M**: Additional parameter (usually minimal for truth-functional logic)
+- **M**: Additional parameter (usually minimal for extensional logic)
 - **contingent**: Whether atomic propositions must be contingent
 - **disjoint**: Whether propositions must have disjoint subject matters
 - **expectation**: Expected result (False for valid arguments, True for invalid)
@@ -128,13 +128,13 @@ registry.load_subtheories(['extensional'])
 ```
 
 **Dependencies**:
-- **Extensional**: Only the truth-functional operators being tested
+- **Extensional**: Only the extensional operators being tested
 - **No Modal Dependencies**: Extensional tests are self-contained
 - **No Constitutive Dependencies**: No content-based operators needed
 
-## Truth-Functional Semantics
+## Extensional Semantics
 
-These tests validate the classical truth-functional semantics:
+These tests validate the classical extensional semantics:
 
 ### Basic Operators
 - **Negation** (`¬A`): True when A is false
@@ -174,7 +174,7 @@ These tests validate the classical truth-functional semantics:
 
 When tests fail, check:
 
-1. **Truth Tables**: Verify the expected truth-functional behavior
+1. **Truth Tables**: Verify the expected extensional behavior
 2. **Model Size**: N=2 is usually sufficient for extensional logic
 3. **Operator Loading**: Ensure only extensional operators are loaded
 4. **Settings**: Most extensional tests use simple settings
@@ -196,9 +196,9 @@ The extensional subtheory serves as the foundation for all other Logos subtheori
 - **Constitutive operators** use conjunction and negation
 - **Counterfactual operators** build on extensional and modal operators
 
-### Truth-Functional Base
+### Extensional Base
 - Provides classical propositional logic foundation
-- Establishes truth-functional semantics
+- Establishes extensional semantics
 - Validates basic inference rules
 - Confirms classical logical laws
 

@@ -5,7 +5,7 @@ This module aggregates examples from all logos subtheories into a unified
 `test_example_range` dictionary that can be used by test_theories.py.
 
 The logos theory is modular, with examples distributed across subtheories:
-- Extensional: Truth-functional operators (¬,∧,∨,→,↔,⊤,⊥)
+- Extensional: Extensional operators (¬,∧,∨,→,↔,⊤,⊥)
 - Modal: Necessity and possibility operators (□,◇,CFBox,CFDiamond)
 - Constitutive: Ground, essence, and identity operators (≡,≤,⊑,≼,⊓)
 - Counterfactual: Counterfactual conditional operators (□→,◇→,⊙,♦)

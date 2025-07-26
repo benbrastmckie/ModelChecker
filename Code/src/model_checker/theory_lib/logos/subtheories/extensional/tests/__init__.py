@@ -1,6 +1,6 @@
 """Tests for the extensional subtheory.
 
-This package contains tests for the truth-functional operators that form
+This package contains tests for the extensional operators that form
 the foundation of logos theory, including negation (¬), conjunction (∧),
 disjunction (∨), material conditional (→), biconditional (↔), and the
 truth constants (⊤, ⊥).

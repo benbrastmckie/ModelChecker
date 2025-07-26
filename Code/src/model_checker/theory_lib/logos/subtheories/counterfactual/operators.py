@@ -173,8 +173,6 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
         self.print_over_worlds(sentence_obj, eval_point, alt_worlds, indent_num, use_colors)
 
 
-
-
 def get_operators():
     """
     Get all counterfactual operators.

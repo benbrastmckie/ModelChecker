@@ -164,7 +164,7 @@ most_theory = logos.get_theory(['extensional', 'modal',
 ### Operator Categories
 
 #### Extensional Operators
-Basic truth-functional logic:
+Basic extensional logic:
 ```python
 # Modus ponens
 model.check_validity(["p", "p \\rightarrow q"], ["q"])

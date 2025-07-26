@@ -1,7 +1,7 @@
 """
 Extensional Subtheory for Logos Theory
 
-This subtheory implements truth-functional (extensional) logical operators:
+This subtheory implements extensional (extensional) logical operators:
 - Negation (¬)
 - Conjunction (∧) 
 - Disjunction (∨)

@@ -1,8 +1,51 @@
-# Exclusion Theory Technical Reference
+# API Reference: Technical Documentation for Exclusion Theory
+
+[← Back to Documentation](README.md) | [Architecture →](ARCHITECTURE.md) | [Exclusion Theory →](../README.md)
+
+## Directory Structure
+
+```
+docs/
+├── API_REFERENCE.md   # This file - complete technical reference
+├── ARCHITECTURE.md    # Architectural patterns and design decisions
+├── DATA.md            # Test data analysis and performance metrics
+├── ITERATE.md         # Model iteration and countermodel generation
+├── README.md          # Documentation hub
+├── SETTINGS.md        # Configuration and parameter guide
+└── USER_GUIDE.md      # User-focused tutorial
+```
 
 ## Overview
 
-This document provides complete technical reference for the exclusion theory implementation, including API documentation, implementation patterns, and usage examples. The exclusion theory implements Bernard and Champollion's unilateral semantics using the breakthrough **witness predicate architecture**.
+The **API Reference** provides comprehensive technical documentation for the exclusion theory implementation, covering all classes, methods, and usage patterns. This reference focuses on the witness predicate architecture that enables Bernard and Champollion's unilateral semantics through persistent Z3 functions as first-class model citizens.
+
+Within the exclusion theory implementation, this API represents the successful resolution of the False Premise Problem through architectural innovation. The witness predicate approach transforms existentially quantified functions from ephemeral solver variables into queryable model predicates, enabling correct computation of negation verifiers across the two-phase model checking architecture.
+
+This reference serves developers implementing or extending the exclusion theory, providing detailed specifications for all components, implementation patterns, and integration points with the ModelChecker framework.
+
+## Quick Start
+
+```python
+# Core insight: witness functions as persistent predicates
+from model_checker.theory_lib.exclusion import (
+    WitnessSemantics,      # Two-phase model building
+    WitnessAwareModel,     # Query witness predicates
+    witness_operators,     # 4 operators with witness support
+)
+
+# Build model with witness predicates
+model = BuildExample("test", exclusion_theory,
+    premises=['\\func_unineg A'],  # ¬A  
+    conclusions=['A'],             # A
+    settings={'N': 3}
+)
+
+# Access witness functions in countermodel
+if not model.check_validity():
+    structure = model.get_model()
+    h_val = structure.get_h_witness("\\func_unineg(A)", state=1)
+    print(f"Witness h(1) = {h_val}")
+```
 
 ## Core Classes and API
 
@@ -699,4 +742,144 @@ comparison = compare_theories(['\\func_unineg \\func_unineg A'], ['A'])
 print(comparison)  # Shows different results across theories
 ```
 
-This technical reference provides comprehensive documentation for implementing, using, and extending the exclusion theory within the ModelChecker framework. The witness predicate architecture enables complete computational support for unilateral semantics while maintaining clean integration with existing framework patterns.
+## Documentation
+
+### For API Users
+
+- **[Core Classes](#core-classes-and-api)** - WitnessSemantics, WitnessAwareModel, WitnessRegistry
+- **[Operator Reference](#available-operators)** - All 4 operators with witness support
+- **[Usage Examples](#usage-examples)** - Complete code examples
+
+### For Framework Developers
+
+- **[Implementation Patterns](#implementation-patterns)** - Two-pass building, registry pattern
+- **[Integration Points](#integration-with-modelchecker-framework)** - Framework compatibility
+- **[Performance Tuning](#performance-characteristics)** - Optimization strategies
+
+### For Theory Researchers
+
+- **[Semantic Relations](#core-semantic-relations)** - Exclusion, conflicts, fusion
+- **[Three-Condition Semantics](#three-condition-constraint-generation)** - Bernard-Champollion implementation
+- **[Theory Comparison](#theory-comparison)** - Cross-theory validation
+
+## Available Operators
+
+The exclusion theory implements 4 operators, all with witness predicate support:
+
+| Operator | Symbol | Syntax | Arity | Type | Description |
+|----------|---------|---------|-------|------|-------------|  
+| **Unilateral Negation** | ¬ | `\\func_unineg` | 1 | Primitive | Exclusion-based negation with witness predicates |
+| **Conjunction** | ∧ | `\\uniwedge` | 2 | Primitive | Standard conjunction using verifier products |
+| **Disjunction** | ∨ | `\\univee` | 2 | Primitive | Standard disjunction using verifier union |
+| **Identity** | ≡ | `\\uniequiv` | 2 | Primitive | Verifier set equality check |
+
+### UniNegationOperator
+
+**Symbol**: `\\func_unineg` (displayed as ¬)
+**Arity**: 1
+**Type**: Primitive operator with witness predicates
+
+**Truth Conditions**: A state s verifies ¬A iff there exist witness functions h, y such that:
+1. For all verifiers x of A: y(x) ⊑ x and h(x) excludes y(x)
+2. For all verifiers x of A: h(x) ⊑ s
+3. s is minimal satisfying conditions 1-2
+
+**Implementation**:
+```python
+def compute_verifiers(self, argument, model, eval_point):
+    """Query witness predicates to determine verifiers."""
+    arg_verifiers = argument.compute_verifiers(model, eval_point)
+    formula_str = f"\\func_unineg({self.semantics._formula_to_string(argument)})"
+    
+    verifiers = []
+    for state in range(2**self.semantics.N):
+        if self._verifies_uninegation_with_predicates(
+            state, formula_str, arg_verifiers, model
+        ):
+            verifiers.append(state)
+    return verifiers
+```
+
+### UniConjunctionOperator
+
+**Symbol**: `\\uniwedge` (displayed as ∧)
+**Arity**: 2
+**Type**: Primitive operator
+
+**Truth Conditions**: A state s verifies A ∧ B iff s is the fusion of some verifier of A and some verifier of B
+
+**Implementation**: Standard product of verifier sets with fusion operation
+
+### UniDisjunctionOperator
+
+**Symbol**: `\\univee` (displayed as ∨)
+**Arity**: 2  
+**Type**: Primitive operator
+
+**Truth Conditions**: A state s verifies A ∨ B iff s verifies A or s verifies B
+
+**Implementation**: Union of verifier sets
+
+### UniIdentityOperator
+
+**Symbol**: `\\uniequiv` (displayed as ≡)
+**Arity**: 2
+**Type**: Primitive operator
+
+**Truth Conditions**: Identity holds at all states when A and B have exactly the same verifiers
+
+**Implementation**: Verifier set equality check
+
+## Examples
+
+The exclusion theory includes 38 comprehensive test examples:
+
+### Countermodel Examples (22 total)
+
+**Frame Constraints** (EX_CM_1-3)
+- Empty models, gaps, gluts testing
+
+**False Premise Problems** (EX_CM_4-9)  
+- All resolved by witness predicates:
+  - `EX_CM_4`: ¬A ⊢ A (negation to sentence)
+  - `EX_CM_6`: ¬¬A ⊢ A (double negation elimination)
+  - `EX_CM_8`: ¬¬¬A ⊢ ¬A (triple negation)
+
+**DeMorgan's Laws** (EX_CM_10-13)
+- All four forms correctly find countermodels
+
+**Identity Relations** (EX_CM_14-20)
+- Double negation, DeMorgan identities
+
+### Theorem Examples (16 total)
+
+**Core Validities** (EX_TH_1-2)
+- Reflexivity: A ⊨ A
+- Disjunctive syllogism
+
+**Distribution Laws** (EX_TH_3-6)
+- Conjunction/disjunction distribution both directions
+
+**Absorption Laws** (EX_TH_7-10)
+- Both conjunction and disjunction forms
+
+**Associativity Laws** (EX_TH_11-14)
+- Full associativity for conjunction/disjunction
+
+## References
+
+### Implementation Details
+
+- **[Semantic Module](../semantic.py)** - WitnessSemantics implementation
+- **[Operators Module](../operators.py)** - All 4 operator implementations
+- **[Examples Module](../examples.py)** - Complete test suite
+
+### Related Documentation
+
+- **[Architecture Guide](ARCHITECTURE.md)** - Design patterns and decisions
+- **[User Guide](USER_GUIDE.md)** - Tutorial and walkthrough
+- **[History](../history/)** - Development journey and lessons learned
+
+---
+
+[← Back to Documentation](README.md) | [Architecture →](ARCHITECTURE.md) | [Exclusion Theory →](../README.md)

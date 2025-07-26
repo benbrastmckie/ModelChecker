@@ -3,6 +3,7 @@
 [← Back to Constitutive](../README.md) | [Logos Tests →](../../../tests/README.md) | [Subtheories →](../../README.md)
 
 ## Directory Structure
+
 ```
 tests/
 ├── README.md                        # This file - constitutive test documentation
@@ -14,24 +15,27 @@ tests/
 
 This directory contains comprehensive tests for the Constitutive Subtheory of the Logos theory, covering all five constitutive operators: identity (`\\equiv`), ground (`\\leq`), essence (`\\sqsubseteq`), relevance (`\\preceq`), and reduction (`\\Rightarrow`).
 
-The test suite validates hyperintensional content relationships through **33 integration examples** organized into countermodel examples (invalid classical principles) and theorem examples (valid hyperintensional principles). These tests demonstrate the key distinction between classical truth-functional logic and hyperintensional content-sensitive logic.
+The test suite validates hyperintensional content relationships through **33 integration examples** organized into countermodel examples (invalid classical principles) and theorem examples (valid hyperintensional principles). These tests demonstrate the key distinction between classical extensional logic and hyperintensional content-sensitive logic.
 
 All tests use the ModelChecker framework's constraint-based validation approach with truthmaker semantics, verifying content relationships based on verifier and falsifier sets rather than mere truth conditions.
 
 ## Test Files
 
 ### test_constitutive_examples.py
+
 **Purpose**: Integration tests that validate constitutive operators using realistic logical examples
 
 **Coverage**: 33 comprehensive examples testing constitutive relationships
-- **14 Countermodel Examples** (CL_CM_*): Invalid arguments demonstrating where classical principles fail
-- **19 Theorem Examples** (CL_TH_*): Valid arguments confirming hyperintensional principles
+
+- **14 Countermodel Examples** (CL_CM): Invalid arguments demonstrating where classical principles fail
+- **19 Theorem Examples** (CL_TH): Valid arguments confirming hyperintensional principles
 
 **Test Framework**: Uses parametrized testing with pytest to run all examples systematically
 
 ## Running Tests
 
 ### Basic Execution
+
 ```bash
 # Run all constitutive tests
 pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/
@@ -44,6 +48,7 @@ pytest -v src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test
 ```
 
 ### Specific Example Testing
+
 ```bash
 # Run specific example
 pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py -k "CL_CM_1"
@@ -51,11 +56,12 @@ pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_co
 # Run all countermodel examples
 pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py -k "CL_CM"
 
-# Run all theorem examples  
+# Run all theorem examples
 pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py -k "CL_TH"
 ```
 
 ### Integration with Project Testing
+
 ```bash
 # Run via project test runner
 python test_theories.py --theories logos --constitutive --examples
@@ -66,34 +72,36 @@ python test_theories.py --theories logos --examples CL_CM_1 CL_TH_7
 
 ## Test Categories
 
-### Countermodel Examples (CL_CM_*)
+### Countermodel Examples (CL_CM)
+
 These tests validate that certain classical principles are **invalid** in hyperintensional logic:
 
-| Example | Description | Tests |
-|---------|-------------|-------|
-| CL_CM_1 | Equivalence of Tautologies | `(A ∨ ¬A) ≡ (B ∨ ¬B)` is invalid |
-| CL_CM_2 | Equivalence of Contradictions | `(A ∧ ¬A) ≡ (B ∧ ¬B)` is invalid |
-| CL_CM_3 | Ground Conjunction Supplementation | Invalid classical supplementation |
-| CL_CM_4 | Essence Disjunction Supplementation | Invalid classical supplementation |
-| CL_CM_5-6 | Identity Absorption Laws | Classical absorption fails for identity |
-| CL_CM_7-8 | Identity Distribution Laws | Classical distribution fails for identity |
-| CL_CM_9 | Strict Implication to Ground | `□(A → B)` doesn't imply `A ≤ B` |
-| CL_CM_10 | Strict Implication to Essence | `□(A → B)` doesn't imply `A ⊑ B` |
-| CL_CM_11-12 | Content Relation Distribution | Ground/essence don't distribute |
-| CL_CM_13-14 | Shannon Expansion | Shannon laws fail for identity |
+| Example     | Description                         | Tests                                     |
+| ----------- | ----------------------------------- | ----------------------------------------- |
+| CL_CM_1     | Equivalence of Tautologies          | `(A ∨ ¬A) ≡ (B ∨ ¬B)` is invalid          |
+| CL_CM_2     | Equivalence of Contradictions       | `(A ∧ ¬A) ≡ (B ∧ ¬B)` is invalid          |
+| CL_CM_3     | Ground Conjunction Supplementation  | Invalid classical supplementation         |
+| CL_CM_4     | Essence Disjunction Supplementation | Invalid classical supplementation         |
+| CL_CM_5-6   | Identity Absorption Laws            | Classical absorption fails for identity   |
+| CL_CM_7-8   | Identity Distribution Laws          | Classical distribution fails for identity |
+| CL_CM_9     | Strict Implication to Ground        | `□(A → B)` doesn't imply `A ≤ B`          |
+| CL_CM_10    | Strict Implication to Essence       | `□(A → B)` doesn't imply `A ⊑ B`          |
+| CL_CM_11-12 | Content Relation Distribution       | Ground/essence don't distribute           |
+| CL_CM_13-14 | Shannon Expansion                   | Shannon laws fail for identity            |
 
-### Theorem Examples (CL_TH_*)
+### Theorem Examples (CL_TH)
+
 These tests validate that hyperintensional principles are **valid**:
 
-| Example | Description | Tests |
-|---------|-------------|-------|
-| CL_TH_1-2 | Ground-Essence Interconversion | `A ≤ B ⟷ ¬A ⊑ ¬B` |
-| CL_TH_3-6 | Identity Interactions | How identity relates to ground/essence |
-| CL_TH_7-8 | Negation Transparency | `A ≡ B → ¬A ≡ ¬B` |
-| CL_TH_9-13 | Absorption/Distribution Reductions | Valid absorption patterns |
-| CL_TH_14-15 | Strict Implication | Ground/essence imply strict implication |
-| CL_TH_16-17 | Anti-symmetry Principles | Ground/essence anti-symmetry |
-| CL_TH_18-19 | Transitivity Principles | Transitivity of content relations |
+| Example     | Description                        | Tests                                   |
+| ----------- | ---------------------------------- | --------------------------------------- |
+| CL_TH_1-2   | Ground-Essence Interconversion     | `A ≤ B ⟷ ¬A ⊑ ¬B`                       |
+| CL_TH_3-6   | Identity Interactions              | How identity relates to ground/essence  |
+| CL_TH_7-8   | Negation Transparency              | `A ≡ B → ¬A ≡ ¬B`                       |
+| CL_TH_9-13  | Absorption/Distribution Reductions | Valid absorption patterns               |
+| CL_TH_14-15 | Strict Implication                 | Ground/essence imply strict implication |
+| CL_TH_16-17 | Anti-symmetry Principles           | Ground/essence anti-symmetry            |
+| CL_TH_18-19 | Transitivity Principles            | Transitivity of content relations       |
 
 ## Test Structure
 
@@ -114,6 +122,7 @@ CL_TH_16_settings = {
 ```
 
 ### Settings Explanation
+
 - **N**: Controls model size (smaller values often sufficient for constitutive logic)
 - **M**: Additional parameter for complex semantic constraints
 - **contingent**: Whether atomic propositions must be contingent
@@ -131,6 +140,7 @@ registry.load_subtheories(['extensional', 'modal', 'constitutive'])
 ```
 
 **Dependencies**:
+
 - **Extensional**: Required for conjunction operator used in reduction
 - **Modal**: Required for some examples involving necessity
 - **Constitutive**: The operators being tested
@@ -161,6 +171,7 @@ These tests are part of the comprehensive Logos theory testing framework:
 - **Cross-Theory Tests**: Located in `logos/tests/test_logos_examples.py`
 
 For more information about the overall testing strategy, see:
+
 - [Logos Theory README](../../README.md)
 - [Constitutive Subtheory README](../README.md)
 - [Logos Testing Framework](../../../tests/README.md)

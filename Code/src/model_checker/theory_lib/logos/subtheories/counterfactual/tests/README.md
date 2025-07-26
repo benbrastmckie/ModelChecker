@@ -3,6 +3,7 @@
 [← Back to Counterfactual](../README.md) | [Logos Tests →](../../../tests/README.md) | [Subtheories →](../../README.md)
 
 ## Directory Structure
+
 ```
 tests/
 ├── README.md                          # This file - counterfactual test documentation
@@ -21,17 +22,20 @@ All tests use the ModelChecker framework's constraint-based validation approach 
 ## Test Files
 
 ### test_counterfactual_examples.py
+
 **Purpose**: Integration tests that validate counterfactual operators using realistic counterfactual reasoning examples
 
 **Coverage**: 33 comprehensive examples testing counterfactual reasoning
-- **14 Countermodel Examples** (CF_CM_*): Invalid arguments showing limitations of counterfactual logic
-- **19 Theorem Examples** (CF_TH_*): Valid arguments confirming counterfactual principles
+
+- **21 Countermodel Examples** (CF_CM_\*): Invalid arguments showing limitations of counterfactual logic
+- **12 Theorem Examples** (CF_TH_\*): Valid arguments confirming counterfactual principles
 
 **Test Framework**: Uses parametrized testing with pytest to run all examples systematically
 
 ## Running Tests
 
 ### Basic Execution
+
 ```bash
 # Run all counterfactual tests
 pytest src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/
@@ -44,6 +48,7 @@ pytest -v src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/te
 ```
 
 ### Specific Example Testing
+
 ```bash
 # Run specific example
 pytest src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py -k "CF_CM_1"
@@ -51,11 +56,12 @@ pytest src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_
 # Run all countermodel examples
 pytest src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py -k "CF_CM"
 
-# Run all theorem examples  
+# Run all theorem examples
 pytest src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py -k "CF_TH"
 ```
 
 ### Integration with Project Testing
+
 ```bash
 # Run via project test runner
 python test_theories.py --theories logos --counterfactual --examples
@@ -66,34 +72,36 @@ python test_theories.py --theories logos --examples CF_CM_1 CF_TH_7
 
 ## Test Categories
 
-### Countermodel Examples (CF_CM_*)
+### Countermodel Examples (CF_CM)
+
 These tests validate that certain intuitive counterfactual principles are **invalid**:
 
-| Example | Description | Tests |
-|---------|-------------|-------|
-| CF_CM_1 | Counterfactual Excluded Middle | `(A □→ B) ∨ (A □→ ¬B)` is invalid |
-| CF_CM_2 | Antecedent Strengthening | `(A □→ C) → ((A ∧ B) □→ C)` is invalid |
-| CF_CM_3 | Contraposition | `(A □→ B) → (¬B □→ ¬A)` is invalid |
-| CF_CM_4 | Simplification of Disjunctive Consequent | Invalid simplification |
-| CF_CM_5 | Hypothetical Syllogism | `(A □→ B) ∧ (B □→ C) → (A □→ C)` is invalid |
-| CF_CM_6 | Import-Export | Counterfactuals don't satisfy import-export |
-| CF_CM_7 | Agglomeration | Counterfactuals don't agglomerate |
-| CF_CM_8-9 | Factivity | Counterfactuals are not factive |
-| CF_CM_10-14 | Complex Interaction Failures | Various compound failures |
+| Example     | Description                              | Tests                                       |
+| ----------- | ---------------------------------------- | ------------------------------------------- |
+| CF_CM_1     | Counterfactual Excluded Middle           | `(A □→ B) ∨ (A □→ ¬B)` is invalid           |
+| CF_CM_2     | Antecedent Strengthening                 | `(A □→ C) → ((A ∧ B) □→ C)` is invalid      |
+| CF_CM_3     | Contraposition                           | `(A □→ B) → (¬B □→ ¬A)` is invalid          |
+| CF_CM_4     | Simplification of Disjunctive Consequent | Invalid simplification                      |
+| CF_CM_5     | Hypothetical Syllogism                   | `(A □→ B) ∧ (B □→ C) → (A □→ C)` is invalid |
+| CF_CM_6     | Import-Export                            | Counterfactuals don't satisfy import-export |
+| CF_CM_7     | Agglomeration                            | Counterfactuals don't agglomerate           |
+| CF_CM_8-9   | Factivity                                | Counterfactuals are not factive             |
+| CF_CM_10-14 | Complex Interaction Failures             | Various compound failures                   |
 
-### Theorem Examples (CF_TH_*)
+### Theorem Examples (CF_TH)
+
 These tests validate that key counterfactual principles are **valid**:
 
-| Example | Description | Tests |
-|---------|-------------|-------|
-| CF_TH_1 | Counterfactual Modus Ponens | `A ∧ (A □→ B) ⊢ B` |
-| CF_TH_2 | Reflexivity | `A □→ A` is valid |
-| CF_TH_3-4 | Operator Interactions | How □→ and ◇→ relate |
-| CF_TH_5 | Conjunction in Consequent | Valid conjunction principles |
-| CF_TH_6-7 | Imposition Relations | Valid imposition principles |
-| CF_TH_8-9 | Necessity Interactions | How counterfactuals interact with □ |
-| CF_TH_10-15 | Semantic Principles | Core counterfactual validities |
-| CF_TH_16-19 | Complex Validities | Multi-operator valid patterns |
+| Example     | Description                 | Tests                               |
+| ----------- | --------------------------- | ----------------------------------- |
+| CF_TH_1     | Counterfactual Modus Ponens | `A ∧ (A □→ B) ⊢ B`                  |
+| CF_TH_2     | Reflexivity                 | `A □→ A` is valid                   |
+| CF_TH_3-4   | Operator Interactions       | How □→ and ◇→ relate                |
+| CF_TH_5     | Conjunction in Consequent   | Valid conjunction principles        |
+| CF_TH_6-7   | Semantic Validities         | Valid counterfactual principles     |
+| CF_TH_8-9   | Necessity Interactions      | How counterfactuals interact with □ |
+| CF_TH_10-15 | Semantic Principles         | Core counterfactual validities      |
+| CF_TH_16-19 | Complex Validities          | Multi-operator valid patterns       |
 
 ## Test Structure
 
@@ -114,6 +122,7 @@ CF_TH_1_settings = {
 ```
 
 ### Settings Explanation
+
 - **N**: Controls model size (counterfactuals often need larger values)
 - **M**: Additional parameter for alternative world constraints
 - **contingent**: Whether atomic propositions must be contingent
@@ -131,6 +140,7 @@ registry.load_subtheories(['extensional', 'modal', 'counterfactual'])
 ```
 
 **Dependencies**:
+
 - **Extensional**: Required for basic logical operators (conjunction, negation, etc.)
 - **Modal**: Required for necessity/possibility operators that interact with counterfactuals
 - **Counterfactual**: The operators being tested
@@ -140,30 +150,32 @@ registry.load_subtheories(['extensional', 'modal', 'counterfactual'])
 These tests validate the verification semantics for counterfactuals:
 
 ### Counterfactual Conditional (A □→ B)
-**True** when: For all A-verifiers x and alternative worlds u to x, B is true at u
 
-### Might Counterfactual (A ◇→ B)  
-**True** when: For some A-verifier x and alternative world u to x, B is true at u
+**True at world w** when: `∀x ∀u : (x ⊩ A ∧ alt(u,x,w)) → u ⊨ B`
 
-### Imposition (A ⇒ B)
-**True** when: A imposes B according to Fine's semantics
+**Informal**: For all verifier states x of A and all x-alternative worlds u to w, B is true at u
 
-### Might Imposition (A ⋄⇒ B)
-**True** when: A could impose B in some circumstances
+### Might Counterfactual (A ◇→ B)
+
+**True at world w** when: `∃x ∃u : (x ⊩ A ∧ alt(u,x,w)) ∧ u ⊨ B`
+
+**Informal**: For some verifier state x of A and some x-alternative world u to w, B is true at u
 
 ## Key Logical Properties Tested
 
 ### Valid Principles
-- **Reflexivity**: A □→ A
-- **Modus Ponens**: A ∧ (A □→ B) ⊢ B  
-- **Operator Duality**: ¬(A ◇→ B) ↔ (A □→ ¬B)
-- **Necessity Interaction**: □A → (B □→ A)
+
+- **Reflexivity**: `A □→ A`
+- **Modus Ponens**: `A, (A □→ B) ⊢ B`
+- **Operator Duality**: `¬(A ◇→ B) ↔ (A □→ ¬B)`
+- **Necessity Interaction**: `□A ⊢ (B □→ A)`
 
 ### Invalid Principles
-- **Antecedent Strengthening**: (A □→ C) → ((A ∧ B) □→ C)
-- **Contraposition**: (A □→ B) → (¬B □→ ¬A)
-- **Hypothetical Syllogism**: (A □→ B) ∧ (B □→ C) → (A □→ C)
-- **Excluded Middle**: (A □→ B) ∨ (A □→ ¬B)
+
+- **Antecedent Strengthening**: `(A □→ C) ⊢ ((A ∧ B) □→ C)`
+- **Contraposition**: `(A □→ B) ⊢ (¬B □→ ¬A)`
+- **Hypothetical Syllogism**: `(A □→ B) ∧ (B □→ C) ⊢ (A □→ C)`
+- **Excluded Middle**: `(A □→ B) ∨ (A □→ ¬B)`
 
 ## Debugging Failed Tests
 
@@ -191,6 +203,7 @@ These tests are part of the comprehensive Logos theory testing framework:
 - **Cross-Theory Tests**: Located in `logos/tests/test_logos_examples.py`
 
 For more information about counterfactual logic and testing strategy, see:
+
 - [Logos Theory README](../../README.md)
 - [Counterfactual Subtheory README](../README.md)
 - [Logos Testing Framework](../../../tests/README.md)

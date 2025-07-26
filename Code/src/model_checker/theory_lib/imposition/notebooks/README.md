@@ -1,61 +1,66 @@
-# Notebooks for Imposition Theory
+# Notebooks: Interactive Examples for Imposition Theory
 
-This directory contains Jupyter notebooks that demonstrate various aspects of Fine's imposition theory implementation. These notebooks provide interactive examples and visualizations to help you understand the theory's semantics and counterfactual operators.
+[← Back to Theory](../README.md) | [Documentation →](../docs/README.md) | [Examples →](../examples.py)
+
+## Directory Structure
+
+```
+notebooks/
+├── README.md        # This file - notebook overview
+└── examples.ipynb   # Interactive counterfactual examples
+```
+
+## Overview
+
+The **Notebooks** directory provides interactive Jupyter notebooks demonstrating Kit Fine's imposition theory for counterfactual reasoning. These notebooks enable hands-on exploration of counterfactual semantics through executable examples and visual model representations.
+
+Within the imposition theory framework, these notebooks illustrate how counterfactuals are evaluated through state imposition rather than possible worlds. The examples showcase both valid theorems and invalid principles with countermodels, providing deep insights into Fine's innovative semantic approach.
+
+This collection serves researchers and students learning counterfactual logic, offering interactive tools to explore the differences between various semantic theories and understand the formal structure of counterfactual reasoning.
+
+## Quick Start
+
+```bash
+# Launch Jupyter environment
+./run_jupyter.sh
+
+# Navigate to notebooks
+cd src/model_checker/theory_lib/imposition/notebooks/
+
+# Open examples notebook
+# Select 'examples.ipynb' in Jupyter interface
+```
 
 ## Available Notebooks
 
-| Notebook | Description |
-|----------|-------------|
-| [examples.ipynb](examples.ipynb) | Demonstrates both imposition and counterfactual operators with comprehensive examples of countermodels and theorems |
+### examples.ipynb
 
-## Usage
+**32 Interactive Examples** demonstrating counterfactual reasoning:
 
-Each notebook follows a consistent structure:
+**Structure**:
 1. Setup and imports
-2. Helper function definition for running examples
-3. Countermodels demonstrating invalid arguments
-4. Theorems demonstrating valid arguments
+2. Helper function for running examples
+3. Countermodels (21 examples) - Invalid counterfactual principles
+4. Theorems (11 examples) - Valid counterfactual principles
 
-To run these notebooks:
-```bash
-# From project root directory
-./run_jupyter.sh
-```
+**Key Examples**:
+- Antecedent strengthening (invalid)
+- Contraposition (valid) 
+- Sobel sequences
+- Exportation principles
+- Transitivity tests
 
-Then navigate to the `src/model_checker/theory_lib/imposition/notebooks/` directory and select a notebook to open.
+## Notebook Features
 
-## Relationship to Example Module
+### Output Format
 
-The notebooks directly correspond to the examples module in the imposition theory:
-
-- `examples.ipynb`: [examples.py](../examples.py)
-
-This notebook provides an interactive way to explore the examples defined in the examples.py file, allowing you to see the semantic models that verify or falsify specific logical principles.
-
-## Notebook Output
-
-Each example in these notebooks produces output showing:
-- The model structure (with possible and impossible states)
-- The evaluation world
-- Interpreted premises and conclusions
-- Verification and falsification patterns for each formula
-- Visual indicators of truth values at each world
-
-This allows you to:
-- Understand why certain arguments involving counterfactuals are valid or invalid
-- Visualize the semantic structure underlying imposition operators
-- Compare Fine's imposition approach with Brast-McKie's counterfactual theory
-- Explore the detailed formal semantics for counterfactual reasoning
-
-## Example Output Format
+Each example produces detailed semantic output:
 
 ```
 ========================================
-
-EXAMPLE Example Name: there is a countermodel.
+EXAMPLE Antecedent Strengthening: there is a countermodel.
 
 Atomic States: 3
-
 Semantic Theory: Imposition Semantics
 
 Premise:
@@ -65,7 +70,6 @@ Conclusion:
 2. ((A \wedge B) \imposition C)
 
 Z3 Run Time: 0.004 seconds
-
 ========================================
 State Space:
   #b000 = □
@@ -78,40 +82,137 @@ The evaluation world is: a.b
 
 INTERPRETED PREMISE:
 1. |(A \imposition C)| = < {□}, ∅ >  (True in a.b)
-   |A| = < {a.b}, {b.c} >  (True in a.b)
+   |A| = < {a.b}, {b.c} >
    |A|-alternatives to a.b = {a.b}
      |C| = < {c}, {a.c} >  (True in a.b)
 
 INTERPRETED CONCLUSION:
 2. |((A \wedge B) \imposition C)| = < ∅, {□} >  (False in a.b)
-   |(A \wedge B)| = < {a.b.c}, {a, b} >  (False in a.b)
-     |A| = < {a.b}, {b.c} >  (True in a.b)
-     |B| = < {b.c}, {a} >  (False in a.b)
+   |(A \wedge B)| = < {a.b.c}, {a, b} >
    |(A \wedge B)|-alternatives to a.b = {b.c}
      |C| = < {c}, {a.c} >  (False in b.c)
-
-Total Run Time: 0.085 seconds
 ========================================
 ```
 
-## Imposition vs. Counterfactual Semantics
+### Interactive Features
 
-The notebooks demonstrate both of Fine's imposition operators (`\imposition` and `\could`) alongside Brast-McKie's counterfactual operators (`\boxright` and `\diamondright`), highlighting their similarities and differences:
+1. **Execute cells individually** to explore specific examples
+2. **Modify formulas** to test variations
+3. **Adjust settings** (N, max_time, constraints)
+4. **Compare theories** by changing semantic theory
 
-1. **Imposition Operators**:
-   - `\imposition`: Fine's "would" counterfactual operator
-   - `\could`: Fine's "might" counterfactual operator (possibility under imposition)
+### Visualization Elements
 
-2. **Counterfactual Operators**:
-   - `\boxright`: Brast-McKie's "would" counterfactual operator
-   - `\diamondright`: Brast-McKie's "might" counterfactual operator
+- **State space** representation with world markers
+- **Verification/falsification sets** for each formula
+- **Alternative world calculations** for counterfactuals
+- **Truth value indicators** at evaluation world
 
-The examples show that both semantic approaches validate similar core principles while differing on others, providing insight into the formal semantics of counterfactual reasoning.
+## Usage Patterns
 
-## Next Steps
+### Running All Examples
 
-After exploring these notebooks, you may want to:
-1. Compare the results with the [default theory notebooks](../../default/notebooks/) to understand the differences between Fine's and Brast-McKie's approaches
-2. Explore the implementation in [semantic.py](../semantic.py) and [operators.py](../operators.py)
-3. Try creating your own examples or modifying existing ones to deepen your understanding
-4. Read the papers by Fine and Brast-McKie referenced in the documentation
+```python
+# In notebook cell
+for example_name, example_case in get_test_examples().items():
+    print(f"\n{'='*60}")
+    print(f"Running: {example_name}")
+    run_example(example_name, example_case)
+```
+
+### Exploring Specific Principles
+
+```python
+# Test antecedent strengthening
+example = BuildExample("ant_str", theory,
+    premises=['A \\imposition C'],
+    conclusions=['(A \\wedge B) \\imposition C'],
+    settings={'N': 3, 'expectation': False}
+)
+example.print_model()
+```
+
+### Comparing Semantic Theories
+
+```python
+# Compare imposition with other theories
+theories = {
+    "Imposition": imposition_theory,
+    "Logos": logos_theory
+}
+
+for name, theory in theories.items():
+    example = BuildExample(f"{name}_test", theory, example_case)
+    print(f"{name}: {example.check_validity()}")
+```
+
+## Learning Objectives
+
+### Understanding Countermodels
+
+The notebook demonstrates why certain counterfactual principles fail:
+
+1. **Antecedent Strengthening**: Adding conjuncts can change outcomes
+2. **Transitivity**: Chains of counterfactuals may not compose
+3. **Monotonicity**: Imposition doesn't preserve subset relations
+
+### Understanding Theorems
+
+Valid principles illustrated include:
+
+1. **Modus Ponens**: If A and A→B, then B
+2. **Contraposition**: Preserving logical relationships
+3. **Identity**: A counterfactually implies itself
+
+### Semantic Insights
+
+- How imposition differs from material conditionals
+- Role of alternative worlds in evaluation
+- Bilateral verification/falsification conditions
+- State-based vs world-based semantics
+
+## Documentation
+
+### For Students
+
+- **[Output Format](#output-format)** - Understanding model displays
+- **[Usage Patterns](#usage-patterns)** - Common interaction patterns
+- **[Learning Objectives](#learning-objectives)** - Key concepts to master
+
+### For Researchers
+
+- **[Interactive Features](#interactive-features)** - Advanced exploration tools
+- **[Comparing Theories](#comparing-semantic-theories)** - Cross-theory analysis
+- **[Example Module](../examples.py)** - Source definitions
+
+### For Developers
+
+- **[Notebook Structure](#examplesipynb)** - Implementation details
+- **[Helper Functions](#usage-patterns)** - Code patterns
+- **[API Reference](../docs/API_REFERENCE.md)** - Technical documentation
+
+## Key Insights
+
+1. **32 Examples Total**: 21 countermodels, 11 theorems
+2. **Interactive Exploration**: Modify and test variations
+3. **Visual Understanding**: See semantic structures directly
+4. **Theory Comparison**: Test same formulas across theories
+5. **Fine's Innovation**: State imposition vs possible worlds
+
+## References
+
+### Implementation Files
+
+- **[Examples Module](../examples.py)** - Source for all examples
+- **[Semantic Module](../semantic.py)** - ImpositionSemantics
+- **[Operators Module](../operators.py)** - Counterfactual operators
+
+### Related Resources
+
+- **[User Guide](../docs/USER_GUIDE.md)** - Tutorial introduction
+- **[Theory Documentation](../README.md)** - Comprehensive overview
+- **Fine (2012)** - "Counterfactuals without Possible Worlds"
+
+---
+
+[← Back to Theory](../README.md) | [Documentation →](../docs/README.md) | [Examples →](../examples.py)

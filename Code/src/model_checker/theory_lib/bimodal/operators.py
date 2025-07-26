@@ -49,7 +49,7 @@ class NegationOperator(syntactic.Operator):
         - Involutive: ¬¬A ≡ A
         - Preserves excluded middle: A ∨ ¬A is a tautology
         - Preserves non-contradiction: ¬(A ∧ ¬A) is a tautology
-        - Truth-functional: Value depends only on truth value of argument
+        - Extensional: Value depends only on truth value of argument
         
     Example:
         If p means "it's raining", then ¬p means "it's not raining"
@@ -116,7 +116,7 @@ class AndOperator(syntactic.Operator):
         - Identity: A ∧ ⊤ ≡ A
         - Annihilator: A ∧ ⊥ ≡ ⊥
         - Idempotent: A ∧ A ≡ A
-        - Truth-functional: Value depends only on truth values of arguments
+        - Extensional: Value depends only on truth values of arguments
         
     Example:
         If p means "it's raining" and q means "it's cold", then (p ∧ q) means 
@@ -208,7 +208,7 @@ class OrOperator(syntactic.Operator):
         - Identity: A ∨ ⊥ ≡ A
         - Annihilator: A ∨ ⊤ ≡ ⊤
         - Idempotent: A ∨ A ≡ A
-        - Truth-functional: Value depends only on truth values of arguments
+        - Extensional: Value depends only on truth values of arguments
         
     Example:
         If p means "it's raining" and q means "it's cold", then (p ∨ q) means 
@@ -835,7 +835,7 @@ class ConditionalOperator(syntactic.DefinedOperator):
     Key Properties:
         - Defined as: A → B ≡ ¬A ∨ B
         - Vacuously true when antecedent is false
-        - Truth-functional: Value depends only on truth values of arguments
+        - Extensional: Value depends only on truth values of arguments
         - Not equivalent to natural language "if-then"
         - Supports modus ponens: From A and A → B, infer B
         - Supports modus tollens: From ¬B and A → B, infer ¬A
@@ -867,7 +867,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
         - Defined as: A ↔ B ≡ (A → B) ∧ (B → A)
         - Commutative: A ↔ B ≡ B ↔ A
         - Reflexive: A ↔ A is a tautology
-        - Truth-functional: Value depends only on truth values of arguments
+        - Extensional: Value depends only on truth values of arguments
         - Not equivalent to natural language "if and only if"
         - Represents logical equivalence between formulas
         

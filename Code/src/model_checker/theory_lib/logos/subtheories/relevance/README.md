@@ -3,6 +3,7 @@
 [← Back to Subtheories](../README.md) | [Tests →](tests/README.md) | [Examples →](examples.py)
 
 ## Directory Structure
+
 ```
 relevance/
 ├── README.md               # This file - relevance subtheory overview
@@ -17,9 +18,9 @@ relevance/
 
 ## Overview
 
-The **Relevance Subtheory** implements hyperintensional semantics for the relevance operator (⪯). All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond truth-functional equivalence or necessary equivalence.
+The **Relevance Subtheory** implements hyperintensional semantics for the relevance operator (⪯). All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond extensional equivalence or necessary equivalence.
 
-Within the Logos framework, the relevance subtheory provides specialized exploration of relevance logic through the relevance operator, which is imported from the constitutive subtheory where it is defined alongside other content relationship operators. The relevance relation captures content relationships between propositions through fusion closure conditions on verifiers and falsifiers, enabling formal analysis of when propositions are appropriately connected by content. This subtheory's 20 carefully crafted examples demonstrate valid and invalid relevance principles while maintaining integration with all other hyperintensional operators.
+Within the Logos framework, the relevance subtheory provides specialized exploration of relevance logic through the relevance operator, which is imported from the constitutive subtheory where it is defined alongside other content relationship operators. The relevance relation captures content relationships between propositions through fusion closure conditions on verifiers and falsifiers, enabling formal analysis of when propositions are appropriately connected by content. This subtheory's 20 examples demonstrate valid and invalid relevance principles while maintaining integration with all other hyperintensional operators.
 
 ## Quick Start
 
@@ -32,161 +33,147 @@ theory = logos.get_theory(['relevance'])
 model = BuildExample("relevance_example", theory)
 
 # Test basic relevance principles
-result1 = model.check_validity([], ["(A \\preceq A)"])  # Self-relevance
-result2 = model.check_validity(["(A \\leq B)"], ["(A \\preceq B)"])  # Ground implies relevance
-result3 = model.check_validity([], ["((A \\wedge B) \\preceq A)"])  # Invalid: antecedent strengthening
+result1 = model.check_validity(     # Self-relevance
+  [],                               # Premises
+  ["(A \\preceq A)"]               # Conclusions
+)
+result2 = model.check_validity(     # Ground implies relevance
+  ["(A \\leq B)"],                 # Premises
+  ["(A \\preceq B)"]               # Conclusions
+)
+result3 = model.check_validity(     # Invalid: antecedent strengthening
+  [],                               # Premises
+  ["((A \\wedge B) \\preceq A)"]   # Conclusions
+)
 
-print(f"Self-relevance: {result1}")  # False (valid argument)
-print(f"Ground implies relevance: {result2}")  # False (valid argument)  
-print(f"Antecedent strengthening: {result3}")  # True (invalid argument)
+print(f"Self-relevance: {result1}")  # No countermodel found (valid argument)
+print(f"Ground implies relevance: {result2}")  # No countermodel found (valid argument)  
+print(f"Antecedent strengthening: {result3}")  # Countermodel found (invalid argument)
 ```
 
 ## Subdirectories
 
 ### [tests/](tests/)
-Comprehensive test suite with 20 integration examples focusing exclusively on the relevance operator. Includes countermodel examples (invalid relevance principles like antecedent strengthening, transitivity failure) and theorem examples (valid relevance principles like connections to grounding and essence). Tests demonstrate the hyperintensional nature of relevance logic. See [tests/README.md](tests/README.md) for complete testing methodology.
+
+Comprehensive test suite with 20 integration examples focusing exclusively on the relevance operator. Includes countermodel examples (invalid relevance principles like antecedent strengthening, transitivity failure) and theorem examples (valid relevance principles like connections to grounding and essence). Tests demonstrate the hyperintensional nature of relevance logic and validate fusion closure conditions. See [tests/README.md](tests/README.md) for complete testing methodology.
 
 ## Documentation
 
 ### For New Users
+
 - **[Quick Start](#quick-start)** - Basic relevance logic examples
 - **[Operator Reference](#operator-reference)** - Complete guide to the relevance operator
 - **[Testing Guide](tests/README.md)** - How to run and understand relevance tests
 
 ### For Researchers
-- **[Theoretical Background](#theoretical-background)** - Fusion closure conditions and semantics
+
+- **[Semantic Theory](#semantic-theory)** - Fusion closure conditions and theoretical background
 - **[Test Examples](tests/README.md#test-categories)** - Valid and invalid relevance patterns
-- **[Integration](#integration)** - Connections with other hyperintensional operators
+- **[Academic References](#references)** - Primary sources and theoretical foundations
 
 ### For Developers
-- **[Implementation Note](#implementation-note)** - Relevance operator import structure
+
+- **[Implementation Details](#implementation-note)** - Relevance operator import structure
 - **[Examples Module](examples.py)** - Test cases and example formulas (20 examples)
 - **[Integration Testing](tests/test_relevance_examples.py)** - Complete test implementation
 
-## Theoretical Background
+## Operator Reference
 
-The relevance relation A � B (read as "A is relevant to B") is defined through two key conditions:
+The relevance subtheory provides one operator imported from the constitutive subtheory:
 
-1. **Verifier Fusion Closure**: If x verifies A and y verifies B, then the fusion xy verifies B
-2. **Falsifier Fusion Closure**: If x falsifies A and y falsifies B, then the fusion xy falsifies B
+**Imported Operator:**
+- Relevance (⪯) - Content relevance relation
 
-This captures the intuition that A is relevant to B when the content of A interacts appropriately with the content of B through state fusion operations.
+### Relevance
 
-The relevance relation is weaker than both grounding (d) and essence (�) relations, making it suitable for analyzing looser content connections between propositions.
+**Symbol**: `\\preceq` (displayed as ⪯)
+**Name**: Relevance
+**Arity**: 2 (binary)
+**Type**: Primitive operator (defined in constitutive subtheory)
 
-## Operator
+**Meaning**: "A is relevant to B"
 
-### Relevance Operator (�)
+**Truth Conditions**: A ⪯ B is true when both fusion closure conditions hold: 
 
-**Symbol**: `\\preceq`  
-**Arity**: 2 (binary relation)  
-**Name**: RelevanceOperator
+1. if x verifies A and y verifies B, then the fusion of x and y verifies B;
+2. if x falsifies A and y falsifies B, then the fusion of x and y falsifies B.
 
-The relevance operator implements the hyperintensional relevance relation where A � B means A is relevant to B.
+**Usage Examples**:
 
-**Truth Conditions**:
-- A � B is true iff both verifier and falsifier fusion closure conditions hold
-- A � B is false iff either fusion closure condition fails
+```python
+# Basic relevance
+"(A \\preceq B)"  # A is relevant to B
 
-**Extended Semantics**:
-- Verified by the null state when the relevance relation holds
-- Falsified by the null state when the relevance relation fails
+# Self-relevance
+"(A \\preceq A)"  # A is relevant to itself (always valid)
 
-## Example Categories
+# Relevance chains
+"((A \\preceq B) \\wedge (B \\preceq C))"  # Relevance chain (transitivity may fail)
 
-The relevance subtheory includes 20 carefully crafted examples divided into countermodels and theorems.
+# Relevance with logical operators
+"((A \\wedge B) \\preceq A)"  # Conjunction relevant to conjunct (invalid)
+"(A \\preceq (A \\vee B))"  # Proposition relevant to its disjunction (valid)
+```
 
-### Countermodel Examples
+**Key Properties**:
 
-The countermodel examples (REL_CM_*) demonstrate where relevance principles fail:
+- **Reflexivity**: `(A \\preceq A)` is always valid
+- **Weaker than Ground**: `(A \\leq B) \\rightarrow (A \\preceq B)` is valid
+- **Weaker than Essence**: `(A \\sqsubseteq B) \\rightarrow (A \\preceq B)` is valid
+- **Non-transitive**: Transitivity generally fails
+- **Fusion Closure**: Based on verifier and falsifier fusion conditions
 
-| Example | Name | Description |
-|---------|------|-------------|
-| REL_CM_1 | ANTECEDENT STRENGTHENING | Tests whether (A ' B) � A |
-| REL_CM_2 | ANTECEDENT WEAKENING | Tests whether (A ( B) � A |
-| REL_CM_3 | RELEVANCE TRANSITIVITY | Tests whether A � B, B � C � A � C |
-| REL_CM_4 | RELEVANT IMPLICATION: GROUND | Tests connection between relevance and grounding |
-| REL_CM_5 | RELEVANT IMPLICATION: ESSENCE | Tests connection between relevance and essence |
-| REL_CM_6 | RELEVANT IMPLICATION: IDENTITY | Tests connection between relevance and identity |
-| REL_CM_7 | STRICT IMPLICATION | Tests whether �(A � B) � A � B |
-| REL_CM_8 | REVERSE DISTRIBUTION: DISJUNCTION OVER CONJUNCTION | Tests distributive properties |
-| REL_CM_9 | REVERSE DISTRIBUTION: CONJUNCTION OVER DISJUNCTION | Tests distributive properties |
-| REL_CM_10 | CONJUNCTION INTRODUCTION | Tests whether A � B � A � (B ' C) |
-| REL_CM_11 | DISJUNCTION INTRODUCTION | Tests whether A � B � A � (B ( C) |
+## Examples
 
-### Theorem Examples
+### Example Categories
 
-The theorem examples (REL_TH_*) demonstrate valid relevance principles:
+The relevance subtheory includes **20 comprehensive examples** organized into two main categories:
 
-| Example | Name | Description |
-|---------|------|-------------|
-| REL_TH_1 | RELEVANCE TO CONJUNCTION | Tests valid relevance to conjunction relations |
-| REL_TH_2 | RELEVANCE TO DISJUNCTION | Tests valid relevance to disjunction relations |
-| REL_TH_3 | CONJUNCTION TO RELEVANCE | Tests when conjunction implies relevance |
-| REL_TH_4 | DISJUNCTION TO RELEVANCE | Tests when disjunction implies relevance |
-| REL_TH_5 | CONJUNCTION INTRODUCTION | Tests valid conjunction introduction patterns |
-| REL_TH_6 | DISJUNCTION INTRODUCTION | Tests valid disjunction introduction patterns |
-| REL_TH_7 | GROUNDING RELEVANCE | Tests connections between grounding and relevance |
-| REL_TH_8 | ESSENCE RELEVANCE | Tests connections between essence and relevance |
-| REL_TH_9 | IDENTITY RELEVANCE | Tests connections between identity and relevance |
+#### Countermodels (REL_CM_*): 11 Examples
 
-## Basic Usage
+Tests for **invalid** relevance arguments, demonstrating where relevance principles fail:
+
+- **REL_CM_1**: Antecedent Strengthening
+- **REL_CM_2**: Antecedent Weakening
+- **REL_CM_3**: Relevance Transitivity
+- **REL_CM_4**: Relevant Implication: Ground
+- **REL_CM_5**: Relevant Implication: Essence
+- **REL_CM_6**: Relevant Implication: Identity
+- **REL_CM_7**: Strict Implication
+- **REL_CM_8**: Reverse Distribution: Disjunction over Conjunction
+- **REL_CM_9**: Reverse Distribution: Conjunction over Disjunction
+- **REL_CM_10**: Conjunction Introduction
+- **REL_CM_11**: Disjunction Introduction
+
+#### Theorems (REL_TH_*): 9 Examples
+
+Tests for **valid** relevance arguments, confirming valid principles:
+
+- **REL_TH_1**: Relevance to Conjunction
+- **REL_TH_2**: Relevance to Disjunction
+- **REL_TH_3**: Conjunction to Relevance
+- **REL_TH_4**: Disjunction to Relevance
+- **REL_TH_5**: Conjunction Introduction
+- **REL_TH_6**: Disjunction Introduction
+- **REL_TH_7**: Grounding Relevance
+- **REL_TH_8**: Essence Relevance
+- **REL_TH_9**: Identity Relevance
 
 ### Running Examples
 
-From the command line:
+#### Command Line Execution
+
 ```bash
-# Run all relevance examples
-./dev_cli.py src/model_checker/theory_lib/logos/subtheories/relevance/examples.py
+# Run all examples
+model-checker src/model_checker/theory_lib/logos/subtheories/relevance/examples.py
 
-# Run specific examples by modifying the example_range in examples.py
+# Run with debugging output
+./dev_cli.py -p -z src/model_checker/theory_lib/logos/subtheories/relevance/examples.py
 ```
 
-### Example Structure
+#### Running Tests
 
-Each example follows the standard format:
-```python
-REL_CM_1_premises = []
-REL_CM_1_conclusions = ['((A \\wedge B) \\preceq A)']
-REL_CM_1_settings = {
-    'N': 4,
-    'contingent': True,
-    'non_null': True,
-    'non_empty': True,
-    'disjoint': False,
-    'max_time': 1,
-    'iterate': 1,
-    'expectation': True,
-}
-REL_CM_1_example = [REL_CM_1_premises, REL_CM_1_conclusions, REL_CM_1_settings]
-```
-
-### Integration with Other Operators
-
-The relevance subtheory requires extensional operators (', (, �) and often works with constitutive operators (d, �, a). When used in the logos framework, dependencies are automatically loaded:
-
-```python
-# Relevance typically loads with constitutive dependencies
-counterfactual_registry = LogosOperatorRegistry()
-relevance_registry.load_subtheories(['extensional', 'constitutive', 'relevance'])
-```
-
-## Settings
-
-The relevance subtheory uses standard logos settings with particular attention to:
-
-| Setting | Typical Value | Purpose |
-|---------|---------------|---------|
-| `N` | 3-4 | Sufficient atomic states for relevance testing |
-| `contingent` | True | Allows for non-trivial relevance relations |
-| `non_null` | True | Prevents degenerate null-state-only verifiers |
-| `non_empty` | True | Ensures meaningful proposition content |
-| `disjoint` | False | Allows overlapping subject matters |
-| `max_time` | 1-2 | Relevance examples typically solve quickly |
-
-## Testing
-
-The relevance subtheory includes **20 comprehensive test examples** covering relevance-sensitive logical principles through both countermodel and theorem examples. Tests validate content-based reasoning and demonstrate where classical logic fails in relevance-sensitive contexts.
+The relevance subtheory includes **20 comprehensive test examples** focusing exclusively on relevance logic principles through countermodel and theorem examples. Tests validate content-based reasoning and demonstrate where classical logic fails in relevance-sensitive contexts.
 
 ```bash
 # Run all relevance tests
@@ -201,43 +188,224 @@ python test_theories.py --theories logos --relevance --examples
 
 **For detailed test documentation, examples, and debugging guidance, see [tests/README.md](tests/README.md)**
 
-### Verification Examples
+#### Programmatic Access
 
-The relevance examples serve as both documentation and tests:
-- **Countermodel examples** verify that certain relevance inferences are invalid
-- **Theorem examples** verify that certain relevance inferences are valid
-- All examples include `expectation` settings for automated testing
+```python
+from model_checker.theory_lib.logos.subtheories.relevance.examples import (
+    relevance_cm_examples,    # All countermodel examples
+    relevance_th_examples,    # All theorem examples
+    relevance_examples        # Combined collection
+)
+
+# Access specific example
+rel_cm_1 = relevance_cm_examples['REL_CM_1']
+premises, conclusions, settings = rel_cm_1
+
+# Run example with custom theory
+from model_checker import BuildExample
+from model_checker.theory_lib import logos
+
+theory = logos.get_theory(['relevance'])
+model = BuildExample("relevance_test", theory)
+result = model.check_validity(premises, conclusions, settings)
+```
+
+### Example Structure
+
+Each example follows the standard format:
+
+```python
+# REL_CM_1: ANTECEDENT STRENGTHENING
+REL_CM_1_premises = []                          # What must be true
+REL_CM_1_conclusions = ['((A \\wedge B) \\preceq A)']  # What we're testing
+REL_CM_1_settings = {                           # Model constraints
+    'N': 4,                                     # Number of atomic states
+    'contingent': True,                         # Contingent propositions
+    'non_null': True,                          # Exclude null state from verifiers
+    'non_empty': True,                         # Non-empty verifier/falsifier sets
+    'disjoint': False,                         # Allow overlapping content
+    'max_time': 1,                             # Solver timeout (seconds)
+    'iterate': 1,                              # Number of models to find
+    'expectation': True,                       # Expected result (True = invalid)
+}
+REL_CM_1_example = [REL_CM_1_premises, REL_CM_1_conclusions, REL_CM_1_settings]
+```
+
+**Settings Explanation**:
+
+- `N`: Controls state space size (4 sufficient for relevance testing)
+- `contingent`: Whether atomic propositions must be contingent
+- `non_null`: Whether to exclude the null state from verifiers
+- `non_empty`: Whether propositions must have non-empty truth sets
+- `expectation`: Expected model-finding result (False for valid arguments, True for invalid)
+
+## Semantic Theory
+
+### Theoretical Background
+
+The relevance subtheory implements relevance logic within the hyperintensional truthmaker semantic framework. The relevance relation captures content connections between propositions through fusion closure conditions.
+
+**Key Features**:
+
+1. **Fusion Closure**: Central to relevance semantics
+2. **Bilateral Conditions**: Both verifier and falsifier constraints
+3. **Content Sensitivity**: Goes beyond extensional connections
+4. **Weaker than Constitutive Relations**: More permissive than ground or essence
+
+### Truth Conditions
+
+#### Relevance (A ⪯ B)
+
+**Informal Description**: A ⪯ B is true when A's content is relevant to B's content. This requires that fusing verifiers (falsifiers) of A with verifiers (falsifiers) of B produces verifiers (falsifiers) of B.
+
+**Z3 Implementation** (from constitutive/operators.py):
+
+```python
+# Truth conditions
+def true_at(self, leftarg, rightarg, eval_point):
+    """Defines truth conditions for relevance relation at an evaluation point."""
+    N = self.semantics.N
+    sem = self.semantics
+    x = z3.BitVec("t_peq_x", N)
+    y = z3.BitVec("t_peq_y", N)
+    return z3.And(
+        ForAll(
+            [x, y],
+            z3.Implies(
+                z3.And(
+                    sem.extended_verify(x, leftarg, eval_point),
+                    sem.extended_verify(y, rightarg, eval_point)
+                ),
+                sem.extended_verify(sem.fusion(x, y), rightarg, eval_point)
+            ),
+        ),
+        ForAll(
+            [x, y],
+            z3.Implies(
+                z3.And(
+                    sem.extended_falsify(x, leftarg, eval_point),
+                    sem.extended_falsify(y, rightarg, eval_point)
+                ),
+                sem.extended_falsify(sem.fusion(x, y), rightarg, eval_point)
+            ),
+        ),
+    )
+
+def false_at(self, leftarg, rightarg, eval_point):
+    """Defines falsity conditions for relevance relation at an evaluation point."""
+    sem = self.semantics
+    N = self.semantics.N
+    x = z3.BitVec("f_seq_x", N)
+    y = z3.BitVec("f_seq_y", N)
+    return z3.Or(
+        Exists(
+            [x, y],
+            z3.And(
+                sem.extended_verify(x, leftarg, eval_point),
+                sem.extended_verify(y, rightarg, eval_point),
+                z3.Not(sem.extended_verify(sem.fusion(x, y), rightarg, eval_point))
+            ),
+        ),
+        Exists(
+            [x, y],
+            z3.And(
+                sem.extended_falsify(x, leftarg, eval_point),
+                sem.extended_falsify(y, rightarg, eval_point),
+                z3.Not(sem.extended_falsify(sem.fusion(x, y), rightarg, eval_point))
+            ),
+        ),
+    )
+```
+
+### Verification Semantics
+
+The relevance operator follows the **null-state verification pattern**:
+
+- **Verifiers**: Only the null state verifies true relevance relations
+- **Falsifiers**: Only the null state falsifies false relevance relations
+- **Evaluation**: Truth value determined by fusion closure conditions
+
+**Z3 Implementation** (from constitutive/operators.py):
+
+```python
+# Verifier/falsifier conditions (hyperintensional)
+def extended_verify(self, state, leftarg, rightarg, eval_point):
+    """Defines verification conditions for relevance relation in the extended semantics."""
+    return z3.And(
+        state == self.semantics.null_state,
+        self.true_at(leftarg, rightarg, eval_point)
+    )
+
+def extended_falsify(self, state, leftarg, rightarg, eval_point):
+    """Defines falsification conditions for relevance relation in the extended semantics."""
+    return z3.And(
+        state == self.semantics.null_state,
+        self.false_at(leftarg, rightarg, eval_point)
+    )
+```
+
+## Testing and Validation
+
+### Theorem Examples
+
+**Valid Principles** (should find no countermodels):
+
+1. **REL_TH_1 - Relevance to Conjunction**:
+   - `A, B ⊢ A ≺ (A ∧ B)`
+   - A proposition is relevant to any conjunction containing it
+
+2. **REL_TH_2 - Relevance to Disjunction**:
+   - `⊢ A ≺ (A ∨ B)`
+   - A proposition is relevant to any disjunction containing it
+
+3. **REL_TH_7 - Grounding Relevance**:
+   - `A ≤ B ⊢ A ≺ B`
+   - If A grounds B, then A is relevant to B
+
+4. **REL_TH_9 - Identity Relevance**:
+   - `A ≡ B ⊢ A ≺ B`
+   - If A is identical to B, then A is relevant to B
+
+### Countermodel Examples
+
+**Invalid Principles** (should find countermodels):
+
+1. **REL_CM_1 - Antecedent Strengthening**:
+   - `⊬ (A ∧ B) ≺ A`
+   - A conjunction is not necessarily relevant to its conjunct
+
+2. **REL_CM_3 - Relevance Transitivity**:
+   - `A ≺ B, B ≺ C ⊬ A ≺ C`
+   - Relevance is not transitive
+
+3. **REL_CM_7 - Strict Implication**:
+   - `□(A → B) ⊬ A ≺ B`
+   - Necessary implication doesn't guarantee relevance
+
+4. **REL_CM_10 - Conjunction Introduction**:
+   - `A ≺ B ⊬ A ≺ (B ∧ C)`
+   - Relevance to B doesn't imply relevance to B∧C
+
+### Logical Properties
+
+**Properties that HOLD**:
+
+- Reflexivity: `(A \\preceq A)`
+- Ground implies Relevance: `(A \\leq B) ⊢ (A \\preceq B)`
+- Essence implies Relevance: `(A \\sqsubseteq B) ⊢ (A \\preceq B)`
+- Identity implies Relevance: `(A \\equiv B) ⊢ (A \\preceq B)`
+- Relevance to Disjunction: `(A \\preceq (A \\vee B))`
+
+**Properties that FAIL**:
+
+- Transitivity: `(A \\preceq B), (B \\preceq C) ⊬ (A \\preceq C)`
+- Antecedent Strengthening: `((A \\wedge B) \\preceq A)` is invalid
+- Strict Implication: `\\Box (A \\rightarrow B) ⊬ (A \\preceq B)`
+- Distribution over Conjunction: Various distribution principles fail
 
 ## Integration
 
-The relevance subtheory integrates seamlessly with:
-
-1. **Extensional operators**: For basic logical operations within relevance formulas
-2. **Constitutive operators**: For comparing relevance with grounding, essence, and identity
-3. **Modal operators**: For analyzing relevance in modal contexts
-4. **Counterfactual operators**: For studying relevance in counterfactual reasoning
-
-### Dependency Chain
-
-```
-relevance � constitutive � extensional
-```
-
-This ensures that all necessary operators are available when working with relevance logic.
-
-### Example Applications
-
-The relevance subtheory is particularly useful for:
-
-- Analyzing content relationships between propositions
-- Testing logical principles in relevance logic
-- Exploring connections between relevance and other hyperintensional relations
-- Developing formal models of topic-sensitive reasoning
-- Investigating the logical behavior of content-based inference patterns
-
-The subtheory provides a solid foundation for formal work in relevance logic while maintaining integration with the broader logos semantic framework.
-
-## Dependencies
+### Dependencies
 
 The relevance subtheory depends on:
 - **Constitutive subtheory**: Imports the `RelevanceOperator` from constitutive operators
@@ -246,6 +414,97 @@ The relevance subtheory depends on:
 ```python
 # Automatic dependency loading
 theory = logos.get_theory(['relevance'])  # Loads constitutive and extensional
+```
+
+### Usage with Other Subtheories
+
+```python
+# Combined with modal logic
+theory = logos.get_theory(['relevance', 'modal'])
+
+# Relevance in modal contexts
+premises = ["\\Box (A \\rightarrow B)"]
+conclusion = "(A \\preceq B)"
+result = model.check_validity(premises, [conclusion])  # Invalid
+
+# Combined with counterfactual logic
+theory = logos.get_theory(['relevance', 'counterfactual'])
+
+# Relevance and counterfactuals
+premises = ["(A \\preceq B)", "(B \\boxright C)"]
+conclusion = "(A \\preceq C)"
+result = model.check_validity(premises, [conclusion])  # May be invalid
+```
+
+### API Reference
+
+#### Core Functions
+
+```python
+from model_checker.theory_lib.logos.subtheories.relevance import get_operators
+
+# Get all relevance operators
+operators = get_operators()
+# Returns: {
+#     "\\preceq": RelevanceOperator
+# }
+```
+
+#### Example Collections
+
+```python
+from model_checker.theory_lib.logos.subtheories.relevance.examples import (
+    relevance_cm_examples,     # 11 countermodel examples
+    relevance_th_examples,     # 9 theorem examples
+    relevance_examples,        # Combined 20 examples
+    example_range             # Selected examples for execution
+)
+```
+
+#### Direct Operator Usage
+
+```python
+from model_checker.theory_lib.logos.subtheories.relevance.operators import (
+    RelevanceOperator
+)
+```
+
+## Advanced Topics
+
+### Implementation Note
+
+The relevance operator is implemented in the constitutive subtheory alongside other content relationship operators (ground, essence, identity). The relevance subtheory imports this operator to provide focused exploration of relevance logic principles.
+
+This design choice reflects the theoretical connections between relevance and other hyperintensional relations while allowing specialized study of relevance logic through dedicated examples and tests.
+
+### Fusion Closure Conditions
+
+The relevance relation is defined by two fusion closure conditions:
+
+**Verifier Fusion Closure**: If x verifies A and y verifies B, then x⊕y verifies B
+**Falsifier Fusion Closure**: If x falsifies A and y falsifies B, then x⊕y falsifies B
+
+These conditions capture the intuition that A is relevant to B when A's content can be "combined" with B's content in a meaningful way.
+
+### Relevance Logic Applications
+
+The relevance subtheory is particularly useful for:
+
+- Analyzing relationships between hyperintensional propositions
+- Testing logical principles in relevance logic
+- Exploring connections between relevance and other hyperintensional operators
+- Developing formal models of subject-matter sensitive reasoning
+
+## Dependencies
+
+The relevance subtheory depends on the **constitutive subtheory** for:
+
+- `RelevanceOperator`: The core relevance operator implementation
+- Indirect dependency on extensional operators through constitutive
+
+```python
+# Automatic dependency loading
+theory = logos.get_theory(['relevance'])  # Also loads constitutive and extensional
 ```
 
 ## Testing
@@ -266,13 +525,13 @@ python test_theories.py --theories logos --relevance --examples
 ## References
 
 ### Primary Sources
-- Anderson & Belnap (1975) ["Entailment: The Logic of Relevance and Necessity"](https://press.princeton.edu/books/hardcover/9780691072395/entailment-volume-i), Princeton University Press
-- Dunn & Restall (2002) ["Relevance Logic"](https://plato.stanford.edu/entries/logic-relevance/), Stanford Encyclopedia of Philosophy
-- Fine (2020) ["Truthmaker Semantics"](https://plato.stanford.edu/entries/truthmaker/), Stanford Encyclopedia of Philosophy
+
+- Brast-McKie, B. (2021) ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w), Journal of Philosophical Logic
 
 ### Related Resources
+
 - **[Constitutive Subtheory](../constitutive/)** - Where the relevance operator is defined
-- **[Extensional Subtheory](../extensional/)** - Truth-functional foundation
+- **[Extensional Subtheory](../extensional/)** - Extensional foundation
 - **[Logos Theory](../../README.md)** - Complete hyperintensional framework documentation
 
 ---

@@ -1,8 +1,49 @@
-# Exclusion Theory User Guide
+# User Guide: Tutorial for Exclusion Theory
 
-## Introduction
+[← Back to Documentation](README.md) | [Settings →](SETTINGS.md) | [Exclusion Theory →](../README.md)
 
-The exclusion theory implements **Bernard and Champollion's unilateral semantics** within the ModelChecker framework. This guide provides an accessible introduction to unilateral semantics, explains how it differs from classical logic, and shows you how to use the exclusion theory for your own logical investigations.
+## Directory Structure
+
+```
+docs/
+├── API_REFERENCE.md   # Complete technical reference
+├── ARCHITECTURE.md    # Architectural patterns and design
+├── DATA.md            # Test data analysis
+├── ITERATE.md         # Model iteration guide
+├── README.md          # Documentation hub
+├── SETTINGS.md        # Configuration parameters
+└── USER_GUIDE.md      # This file - user tutorial
+```
+
+## Overview
+
+The **User Guide** provides an accessible tutorial for using Bernard and Champollion's unilateral semantics in the ModelChecker framework. This guide explains how unilateral logic differs from classical logic and demonstrates practical usage through examples.
+
+Within the exclusion theory framework, this guide serves as the primary entry point for new users. Unlike classical bilateral logic where negation simply swaps truth and falsity, unilateral semantics uses an exclusion relation between states to define negation, leading to surprising logical behaviors like the failure of double negation elimination.
+
+This tutorial serves researchers and students exploring non-classical logics, providing hands-on examples demonstrating how witness predicates enable computational investigation of unilateral semantics.
+
+## Quick Start
+
+```python
+# Test a classical principle in unilateral semantics
+from model_checker import BuildExample, get_theory
+
+# Load exclusion theory
+theory = get_theory("exclusion")
+
+# Test double negation elimination: ¬¬A ⊢ A
+model = BuildExample("double_neg", theory,
+    premises=['\\¬func_unineg \\¬func_unineg A'],  # ¬¬A
+    conclusions=['A'],                           # A
+    settings={'N': 3}
+)
+
+result = model.check_validity()
+print(f"¬¬A ⊨ A: {result}")  # False - countermodel found!
+
+# Classical logic would say True, but unilateral finds countermodel
+```
 
 ## What is Unilateral Semantics?
 
@@ -338,16 +379,48 @@ Use the development CLI with debug flags:
 ./dev_cli.py -p -z examples/my_exclusion_test.py
 ```
 
-## Next Steps
+## Documentation
 
-- **For technical details**: See [TECHNICAL_REFERENCE.md](TECHNICAL_REFERENCE.md)
-- **For system architecture**: Read [ARCHITECTURE.md](ARCHITECTURE.md)  
-- **For the complete story**: Explore [evolution/THE_EVOLUTION.md](evolution/THE_EVOLUTION.md)
-- **For advanced iteration**: Reference [ITERATE.md](ITERATE.md)
-- **For interactive exploration**: Try the Jupyter notebooks in `notebooks/`
+### For New Users
 
-## Examples Repository
+- **[What is Unilateral Semantics?](#what-is-unilateral-semantics)** - Core concepts explained
+- **[Basic Usage](#basic-usage)** - Loading the theory and running examples
+- **[Understanding Results](#understanding-the-results)** - Interpreting countermodels
 
-All the examples shown in this guide are available in the test suite. See `examples.py` for the complete collection of 38 test cases demonstrating both valid and invalid principles in unilateral semantics.
+### For Researchers
 
-The exclusion theory opens up a rich space for logical investigation, revealing how fundamental changes in semantic foundations lead to surprising differences in logical consequences. Happy exploring!
+- **[Available Operators](#available-operators)** - Logical operators reference
+- **[Common Use Cases](#common-use-cases)** - Testing logical principles
+- **[Theory Comparison](#3-comparing-with-other-theories)** - Cross-theory validation
+
+### For Advanced Users
+
+- **[Performance Tips](#performance-tips)** - Optimization strategies
+- **[Advanced Features](#advanced-features)** - Custom constraints and debugging
+- **[Troubleshooting](#common-errors-and-troubleshooting)** - Common issues
+
+## Key Concepts
+
+1. **Unilateral vs Bilateral**: Only verifiers, no primitive falsifiers
+2. **Exclusion Relation**: States can exclude other states (asymmetrically)
+3. **Witness Functions**: Negation requires existentially quantified h, y functions
+4. **Classical Failures**: Double negation, DeMorgan's laws fail
+5. **Computational Solution**: Witness predicates solve the False Premise Problem
+
+## References
+
+### Example Files
+
+- **[Examples Module](../examples.py)** - Complete 38-example test suite
+- **[Notebooks](../notebooks/)** - Interactive Jupyter tutorials
+- **[Tests](../tests/)** - Comprehensive test coverage
+
+### Related Documentation
+
+- **[API Reference](API_REFERENCE.md)** - Technical details
+- **[Architecture](ARCHITECTURE.md)** - Witness predicate design
+- **[Implementation Story](../history/IMPLEMENTATION_STORY.md)** - Development journey
+
+---
+
+[← Back to Documentation](README.md) | [Settings →](SETTINGS.md) | [Exclusion Theory →](../README.md)

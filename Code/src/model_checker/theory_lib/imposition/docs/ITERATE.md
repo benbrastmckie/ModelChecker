@@ -1,21 +1,52 @@
-# Model Iteration in Imposition Theory
+# Model Iteration: Finding Multiple Counterfactual Models
 
-This guide explains how to find and explore multiple distinct models for formulas in the imposition theory.
+[← Back to Documentation](README.md) | [Settings →](SETTINGS.md) | [Imposition Theory →](../README.md)
+
+## Directory Structure
+
+```
+docs/
+├── API_REFERENCE.md   # Complete technical reference
+├── ARCHITECTURE.md    # Design and implementation
+├── ITERATE.md         # This file - model iteration guide
+├── README.md          # Documentation hub
+├── SETTINGS.md        # Configuration parameters
+└── USER_GUIDE.md      # Tutorial and introduction
+```
 
 ## Overview
 
-Model iteration allows you to discover multiple distinct models that satisfy or falsify a given set of formulas. This is particularly useful for:
+The **Model Iteration** guide explains how to find and explore multiple distinct models for counterfactual formulas in the imposition theory. This capability is essential for understanding the semantic space of counterfactuals and exploring different imposition patterns.
 
-- Understanding the range of possible interpretations
-- Exploring countermodels to invalid arguments
-- Investigating the semantic space of counterfactual formulas
-- Comparing different imposition patterns
+Within the imposition theory framework, model iteration reveals how different state configurations can satisfy the same counterfactual constraints. The iterator tracks changes in verification patterns, imposition relationships, and alternative world structures, providing insights into the flexibility of Fine's semantics.
 
-The imposition theory provides specialized iteration features that understand:
-- Verification and falsification patterns
-- Imposition relationships between states
-- Alternative world structures
-- Counterfactual semantics
+This guide serves researchers exploring counterfactual semantics and developers building applications that require multiple model generation.
+
+## Quick Start
+
+```python
+# Find multiple counterfactual models
+from model_checker.theory_lib.imposition import get_theory, iterate_example
+from model_checker import BuildExample
+
+# Create counterfactual example
+theory = get_theory()
+example = BuildExample("sobel", theory,
+    premises=['A \\imposition X',           # If A then must X
+              '\\neg ((A \\wedge B) \\imposition X)'],  # Not: if A and B then must X
+    conclusions=[],  # Just exploring models
+    settings={'N': 4, 'iterate': 5}
+)
+
+# Find 5 distinct models
+models = iterate_example(example, max_iterations=5)
+print(f"Found {len(models)} distinct models")
+
+# Examine differences
+for i, model in enumerate(models[1:], 1):
+    print(f"\nModel {i+1} differences:")
+    model.print_model_differences()
+```
 
 ## Basic Usage
 
@@ -360,9 +391,48 @@ If iteration is too slow:
 3. **Limit iterations**: Set reasonable `max_iterations`
 4. **Simplify formulas**: Remove nested operators
 
-## See Also
+## Documentation
 
-- [API Reference](API_REFERENCE.md#model-iteration) - Detailed API documentation
-- [User Guide](USER_GUIDE.md) - General usage patterns
-- [Architecture](ARCHITECTURE.md) - Implementation details
-- [Settings Guide](SETTINGS.md) - Configuration options
+### For Model Explorers
+
+- **[Basic Usage](#basic-usage)** - Finding multiple models
+- **[Understanding Results](#understanding-results)** - Model differences
+- **[Examples](#examples)** - Practical iteration scenarios
+
+### For Developers
+
+- **[Configuration](#configuration)** - Iterator settings
+- **[Advanced Usage](#advanced-usage)** - Custom iteration strategies
+- **[Performance Tips](#performance-tips)** - Optimization techniques
+
+### For Researchers
+
+- **[Types of Differences](#types-of-differences)** - What varies between models
+- **[Theory Comparison](#example-4-theory-comparison)** - Cross-theory exploration
+- **[Troubleshooting](#troubleshooting)** - Common issues and solutions
+
+## Key Features
+
+1. **Imposition Tracking**: Changes in counterfactual relationships
+2. **Alternative Worlds**: Different outcome configurations
+3. **Verification Patterns**: How atomic propositions vary
+4. **Isomorphism Detection**: Avoid duplicate structures
+5. **Performance Optimization**: Efficient constraint generation
+
+## References
+
+### Implementation Files
+
+- **[Iterate Module](../iterate.py)** - ImpositionModelIterator implementation
+- **[Examples Module](../examples.py)** - Iteration examples
+- **[Tests](../tests/test_iterate.py)** - Iterator validation
+
+### Related Documentation
+
+- **[API Reference](API_REFERENCE.md#model-iteration)** - Technical details
+- **[Settings](SETTINGS.md)** - Configuration options
+- **[User Guide](USER_GUIDE.md)** - General usage patterns
+
+---
+
+[← Back to Documentation](README.md) | [Settings →](SETTINGS.md) | [Imposition Theory →](../README.md)

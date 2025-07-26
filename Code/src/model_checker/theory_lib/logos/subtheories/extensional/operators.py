@@ -1,5 +1,5 @@
 """
-Extensional operators for truth-functional logic.
+Extensional operators for extensional logic.
 
 This module implements the basic extensional logical operators:
 - Negation (¬)

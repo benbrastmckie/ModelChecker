@@ -1,10 +1,45 @@
-# Exclusion Theory Jupyter Notebooks
+# Notebooks: Interactive Tutorials for Exclusion Theory
 
-This directory contains interactive Jupyter notebooks for exploring the Exclusion semantic theory. The notebooks demonstrate witness-based unilateral semantics, exclusion relations, and the innovative three-level methodology for computational semantics.
+[← Back to Exclusion](../README.md) | [Documentation →](../docs/README.md) | [Examples →](../examples.py)
+
+## Directory Structure
+
+```
+notebooks/
+├── README.md              # This file - notebook collection guide
+├── exclusion_demo.ipynb   # Main tutorial notebook (31 cells)
+└── [future notebooks]     # Planned expansions
+```
 
 ## Overview
 
-The Exclusion theory implements **unilateral semantics** where propositions have only verifiers, and negation emerges through exclusion relations between states. This contrasts with bilateral semantics and provides unique insights into computational model checking architecture.
+The **Notebooks** directory contains interactive Jupyter tutorials for exploring exclusion theory's unilateral semantics. These notebooks demonstrate witness predicates, exclusion relations, and the architectural innovations that solved the False Premise Problem.
+
+Within the exclusion theory framework, these notebooks serve as hands-on learning resources. Unlike static documentation, the interactive format allows exploration of how witness functions behave, how exclusion relations create negation, and how the two-phase architecture enables complex semantic computations.
+
+These tutorials serve students, researchers, and developers seeking practical understanding of unilateral semantics and its computational implementation.
+
+## Quick Start
+
+```bash
+# Launch Jupyter environment
+./run_jupyter.sh
+
+# Navigate to exclusion notebooks
+# Open: src/model_checker/theory_lib/exclusion/notebooks/exclusion_demo.ipynb
+
+# First cell loads the theory
+from model_checker.theory_lib.exclusion import exclusion_theory
+from model_checker import BuildExample
+
+# Test unilateral negation
+model = BuildExample("demo", exclusion_theory,
+    premises=['\\¬func_unineg A'],
+    conclusions=['A'],
+    settings={'N': 3}
+)
+result = model.check_validity()  # False - countermodel!
+```
 
 ## Notebook Collection
 
@@ -233,4 +268,48 @@ debug_info = model_structure.debug_witnesses("\\\\exclude A")
 
 ---
 
-**Note**: These notebooks document both a sophisticated semantic theory and a significant architectural innovation in computational model checking. They serve as educational resources for understanding how theoretical complexity drives computational innovation.
+## Documentation
+
+### For Interactive Learners
+
+- **[Main Theory Notebook](#main-theory-notebook)** - Comprehensive 31-cell tutorial
+- **[Key Educational Features](#key-educational-features)** - What you'll learn
+- **[Getting Started](#getting-started)** - Prerequisites and setup
+
+### For Researchers
+
+- **[Semantic Innovations](#semantic-innovations)** - Witness predicates as model citizens
+- **[Comparative Analysis](#comparative-analysis)** - Unilateral vs bilateral semantics
+- **[Research Significance](#research-significance)** - Theoretical contributions
+
+### For Educators
+
+- **[Educational Applications](#educational-applications)** - Teaching computational semantics
+- **[Technical Features](#technical-features)** - Three-level architecture explained
+- **[Future Extensions](#future-extensions)** - Planned enhancements
+
+## Notebook Features
+
+1. **Interactive Examples**: Run and modify exclusion theory examples
+2. **Witness Visualization**: See how h and y functions create negation
+3. **Architecture Walkthrough**: Understand two-phase model building
+4. **Comparison Tools**: Contrast with bilateral semantics
+5. **Performance Analysis**: Explore computational characteristics
+
+## References
+
+### Related Files
+
+- **[Examples Module](../examples.py)** - Source for notebook examples
+- **[Semantic Module](../semantic.py)** - Implementation being demonstrated
+- **[User Guide](../docs/USER_GUIDE.md)** - Companion documentation
+
+### Framework Resources
+
+- **[Jupyter Integration](../../jupyter/README.md)** - Notebook infrastructure
+- **[ModelChecker Notebooks](../../../notebooks/README.md)** - Framework tutorials
+- **[Development Guide](../../../docs/DEVELOPMENT.md)** - Notebook development
+
+---
+
+[← Back to Exclusion](../README.md) | [Documentation →](../docs/README.md) | [Examples →](../examples.py)

@@ -1,67 +1,186 @@
-# Imposition Theory Documentation Hub
+# Documentation Hub: Comprehensive Guide to Imposition Theory
 
-Welcome to the comprehensive documentation for Kit Fine's imposition theory implementation in ModelChecker. This hub provides complete documentation for understanding, using, and extending the imposition theory.
+[← Back to Theory](../README.md) | [API Reference →](API_REFERENCE.md) | [User Guide →](USER_GUIDE.md)
+
+## Directory Structure
+
+```
+docs/
+├── API_REFERENCE.md   # Complete technical reference
+├── ARCHITECTURE.md    # Design and implementation 
+├── ITERATE.md         # Model iteration for counterfactuals
+├── README.md          # This file - documentation hub
+├── SETTINGS.md        # Configuration parameters
+└── USER_GUIDE.md      # Tutorial and introduction
+```
 
 ## Overview
 
-The imposition theory implements Kit Fine's distinctive counterfactual semantics through the imposition operation, which imposes a state upon a world to create alternative worlds. This approach enables sophisticated counterfactual reasoning within a hyperintensional framework.
+The **Documentation Hub** provides comprehensive resources for understanding and using Kit Fine's imposition theory within the ModelChecker framework. This collection covers technical references, architectural design, user tutorials, and configuration guides for counterfactual reasoning without possible worlds.
 
-## Documentation Index
+Within the imposition theory framework, this documentation explains how counterfactuals are evaluated through state imposition operations that generate alternative worlds. The theory implements Fine's innovative semantics where "if A then must B" is analyzed through imposing verifiers of A on evaluation worlds.
 
-### Core Documentation
+This hub serves developers, researchers, and students working with counterfactual logic, providing pathways to learn the theory, implement systems, and explore semantic models.
 
-- **[API Reference](API_REFERENCE.md)** - Complete API documentation for all classes, functions, and operators
-- **[User Guide](USER_GUIDE.md)** - Practical guide for using imposition theory in your projects
-- **[Architecture](ARCHITECTURE.md)** - Technical implementation details and design decisions
-- **[Settings Guide](SETTINGS.md)** - Configuration options and their effects
-- **[Model Iteration](ITERATE.md)** - Finding and exploring multiple models
+## Quick Start
 
-### Quick Links
+### For New Users
+```python
+# Start with basic counterfactual reasoning
+from model_checker.theory_lib.imposition import get_theory
+from model_checker import BuildExample
 
-- **Getting Started**: See the [User Guide](USER_GUIDE.md) for basic usage
-- **Available Operators**: Check the [API Reference](API_REFERENCE.md#operators) for operator list
-- **Example Formulas**: Browse [examples.py](../examples.py) for working examples
-- **Configuration**: See [Settings Guide](SETTINGS.md) for all options
+theory = get_theory()
+example = BuildExample("intro", theory,
+    premises=['A', 'A \\imposition B'],
+    conclusions=['B']
+)
 
-## Getting Started
+result = example.check_validity()
+print(f"Valid: {result}")  # True - modus ponens
+```
 
-If you're new to the imposition theory, we recommend reading the documentation in this order:
+### Learning Path
+1. **[User Guide](USER_GUIDE.md)** - Tutorial introduction
+2. **[API Reference](API_REFERENCE.md)** - Technical details
+3. **[Settings](SETTINGS.md)** - Configuration options
+4. **[Model Iteration](ITERATE.md)** - Multiple models
+5. **[Architecture](ARCHITECTURE.md)** - Implementation
 
-1. **[User Guide](USER_GUIDE.md)** - Learn the basics and common usage patterns
-2. **[API Reference](API_REFERENCE.md)** - Understand the available functions and classes
-3. **[Settings Guide](SETTINGS.md)** - Configure the theory for your needs
-4. **[Model Iteration](ITERATE.md)** - Explore multiple models for formulas
-5. **[Architecture](ARCHITECTURE.md)** - Dive into implementation details
+### Technical Reference
+**[API Reference](API_REFERENCE.md)**
+- Complete function and class documentation
+- Operator specifications (11 total)
+- Type definitions and settings
+- 32 example test cases
+
+### User Resources
+**[User Guide](USER_GUIDE.md)**
+- Tutorial introduction
+- Common usage patterns
+- Tips and troubleshooting
+- Interactive examples
+
+### Implementation Details
+**[Architecture](ARCHITECTURE.md)**
+- Design patterns and decisions
+- Class hierarchy and integration
+- Performance considerations
+- Extension points
+
+### Configuration
+**[Settings](SETTINGS.md)**
+- Model parameters (N, constraints)
+- Solver configuration
+- Iteration settings
+- Theory-specific options
+
+### Advanced Features
+**[Model Iteration](ITERATE.md)**
+- Finding multiple models
+- Difference tracking
+- Performance optimization
+- Custom iteration strategies
 
 ## Key Concepts
 
-The imposition theory introduces several distinctive concepts:
+### Semantic Framework
 
-- **Imposition Operation**: The core semantic operation that imposes states on worlds
-- **Alternative Worlds**: Worlds generated through the imposition operation
-- **Verifiers and Falsifiers**: States that make propositions true or false
-- **Counterfactual Operators**: `\\imposition` (must) and `\\could` (might)
+1. **State Imposition**: Core operation imposing states on worlds
+2. **Alternative Worlds**: Outcomes of imposition operations
+3. **Bilateral Semantics**: Verification and falsification conditions
+4. **Hyperintensional Base**: Built on truthmaker semantics
 
-## Related Documentation
+### Operators
 
-- **[Theory Library](../../README.md)** - Overview of all available theories
-- **[Logos Theory](../../logos/docs/README.md)** - Parent theory with hyperintensional semantics
-- **[ModelChecker Guide](../../../../README.md)** - Main framework documentation
+**Imposition Operators** (2):
+- `\\imposition` (↪): Must-counterfactual
+- `\\could` (⟂): Might-counterfactual
 
-## Contributing
+**Inherited Operators** (9):
+- Extensional: ¬, ∧, ∨, →, ↔, ⊤, ⊥
+- Modal: □, ◇
 
-When contributing to the imposition theory documentation:
+### Truth Conditions
 
-1. Use LaTeX notation in all code examples (e.g., `\\imposition`, not Unicode)
-2. Test all code examples before documenting them
-3. Cross-reference related documentation
-4. Follow the style guide in [MAINTENANCE.md](../../../../../MAINTENANCE.md)
+```python
+# Must-counterfactual: A ↪ B
+# Verified when imposing A-verifiers yields B-verifiers
+# Falsified when imposing A-verifiers yields B-falsifiers
 
-## Questions?
+# Might-counterfactual: A ⟂ B := ¬(A ↪ ¬B)
+# Possibility under imposition
+```
 
-If you have questions about the imposition theory:
+## Usage Examples
 
-1. Check the [User Guide](USER_GUIDE.md) for common usage patterns
-2. Review the [API Reference](API_REFERENCE.md) for detailed function documentation
-3. See the [Architecture](ARCHITECTURE.md) for implementation questions
-4. Explore the [examples](../examples.py) for working code
+### Basic Validity Testing
+```python
+# Test counterfactual modus ponens
+example = BuildExample("cf_mp", theory,
+    premises=['A', 'A \\imposition B'],
+    conclusions=['B']
+)
+assert example.check_validity() == True
+```
+
+### Finding Countermodels
+```python
+# Antecedent strengthening (invalid)
+counter = BuildExample("ant_str", theory,
+    premises=['A \\imposition C'],
+    conclusions=['(A \\wedge B) \\imposition C'],
+    settings={'expectation': False}
+)
+counter.print_model()  # Shows countermodel
+```
+
+### Model Iteration
+```python
+from model_checker.theory_lib.imposition import iterate_example
+
+models = iterate_example(example, max_iterations=5)
+for model in models:
+    model.print_model_differences()
+```
+
+## Documentation
+
+### For Beginners
+- **[User Guide](USER_GUIDE.md)** - Start here for tutorials
+- **[Quick Start](#quick-start)** - Basic examples
+- **[Key Concepts](#key-concepts)** - Core ideas
+
+### For Developers
+- **[API Reference](API_REFERENCE.md)** - Complete technical reference
+- **[Architecture](ARCHITECTURE.md)** - Implementation details
+- **[Settings](SETTINGS.md)** - Configuration options
+
+### For Researchers
+- **[Model Iteration](ITERATE.md)** - Exploring semantic space
+- **[Truth Conditions](#truth-conditions)** - Formal semantics
+- **[Examples](../examples.py)** - 32 test cases
+
+## Navigation Guide
+
+1. **New to counterfactuals?** → [User Guide](USER_GUIDE.md)
+2. **Need API details?** → [API Reference](API_REFERENCE.md)
+3. **Configuring models?** → [Settings](SETTINGS.md)
+4. **Multiple models?** → [Model Iteration](ITERATE.md)
+5. **Implementation?** → [Architecture](ARCHITECTURE.md)
+
+## References
+
+### Theory Resources
+- **[Imposition Theory](../README.md)** - Main theory documentation
+- **[Interactive Notebooks](../notebooks/)** - Jupyter examples
+- **[Test Suite](../tests/)** - Validation tests
+
+### Framework Resources
+- **[Theory Library](../../README.md)** - All available theories
+- **[Logos Theory](../../logos/)** - Parent hyperintensional theory
+- **[ModelChecker](../../../../README.md)** - Main framework
+
+---
+
+[← Back to Theory](../README.md) | [API Reference →](API_REFERENCE.md) | [User Guide →](USER_GUIDE.md)

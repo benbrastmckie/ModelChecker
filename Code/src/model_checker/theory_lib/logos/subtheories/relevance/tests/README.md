@@ -24,8 +24,8 @@ All tests use the ModelChecker framework's constraint-based validation approach 
 **Purpose**: Integration tests that validate relevance-sensitive operators and their interactions with constitutive logic
 
 **Coverage**: 20 comprehensive examples testing relevance-based reasoning
-- **10 Countermodel Examples** (REL_CM_*): Invalid arguments showing limits of relevance logic
-- **10 Theorem Examples** (REL_TH_*): Valid arguments confirming relevance principles
+- **11 Countermodel Examples** (REL_CM_*): Invalid arguments showing limits of relevance logic
+- **9 Theorem Examples** (REL_TH_*): Valid arguments confirming relevance principles
 
 **Test Framework**: Uses parametrized testing with pytest to run all examples systematically
 
