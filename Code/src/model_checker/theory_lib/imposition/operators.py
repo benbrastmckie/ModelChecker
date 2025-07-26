@@ -56,22 +56,82 @@ class ImpositionOperator(syntactic.Operator):
             )
 
     def extended_verify(self, state, leftarg, rightarg, eval_point):
-        return self.true_at(leftarg, rightarg, eval_point)
+        """A state verifies A ⊡ B at a world if the state is that world
+        and A ⊡ B is true at that world."""
+        world = eval_point["world"]
+        return z3.And(
+            state == world,
+            self.true_at(leftarg, rightarg, eval_point)
+        )
     
     def extended_falsify(self, state, leftarg, rightarg, eval_point):
-        return self.false_at(leftarg, rightarg, eval_point)
+        """A state falsifies A ⊡ B at a world if the state is that world
+        and A ⊡ B is false at that world."""
+        world = eval_point["world"]
+        return z3.And(
+            state == world,
+            self.false_at(leftarg, rightarg, eval_point)
+        )
 
     def find_verifiers_and_falsifiers(self, leftarg, rightarg, eval_point):
-        evaluate = leftarg.proposition.model_structure.z3_model.evaluate
-        null_state = self.semantics.null_state
-        if bool(evaluate(self.true_at(leftarg, rightarg, eval_point))):
-            return {null_state}, set()
-        if bool(evaluate(self.false_at(leftarg, rightarg, eval_point))):
-            return set(), {null_state}
-        raise ValueError(
-            f"{leftarg.name} {self.name} {rightarg.name} "
-            f"is neither true nor false in the world {eval_point}."
-        )
+        """Find verifiers and falsifiers for an imposition statement.
+        
+        An imposition A ⊡ B is:
+        - True at world w iff for all verifiers x of A and all worlds u 
+          such that imposition(x, w, u) holds, B is true at u
+        - False at world w iff there exists a verifier x of A and a world u
+          such that imposition(x, w, u) holds and B is false at u
+          
+        This method checks each world to determine truth value and builds
+        verifier/falsifier sets accordingly.
+        """
+        # Get model structure and semantics
+        model = leftarg.proposition.model_structure
+        semantics = self.semantics
+        z3_model = model.z3_model
+        
+        # Initialize verifier and falsifier sets
+        verifiers = set()
+        falsifiers = set()
+        
+        # Get the verifiers of the antecedent
+        leftarg_verifiers = leftarg.proposition.verifiers
+        
+        # Check each world to determine if A ⊡ B is true or false there
+        for world in model.z3_world_states:
+            # For THIS world, check if all impositions lead to B being true
+            imposition_found = False
+            all_impositions_satisfy_B = True
+            
+            for x_state in leftarg_verifiers:
+                # Check all possible outcome worlds FROM THIS WORLD
+                for outcome_world in model.z3_world_states:
+                    # Check if imposition(x_state, world, outcome_world) holds
+                    if z3_model.evaluate(semantics.imposition(x_state, world, outcome_world)):
+                        imposition_found = True
+                        
+                        # Check if B is true at the outcome world
+                        B_truth = rightarg.proposition.truth_value_at(outcome_world)
+                        
+                        if B_truth is False:
+                            all_impositions_satisfy_B = False
+                            break
+                
+                if not all_impositions_satisfy_B:
+                    break
+            
+            # Determine truth at this world
+            if not imposition_found:
+                # No impositions from this world - vacuously true
+                verifiers.add(world)
+            elif all_impositions_satisfy_B:
+                # All impositions satisfy B - true at this world
+                verifiers.add(world)
+            else:
+                # Some imposition falsifies B - false at this world
+                falsifiers.add(world)
+        
+        return verifiers, falsifiers
     
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print counterfactual and the antecedent in the eval_point. Then
