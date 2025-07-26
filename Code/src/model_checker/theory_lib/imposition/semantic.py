@@ -9,7 +9,6 @@ from model_checker.utils import (
     ForAll,
     Exists,
 )
-from model_checker import syntactic
 
 
 
@@ -138,39 +137,6 @@ class ImpositionSemantics(LogosSemantics):
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
         self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
 
-    def compatible(self, bit_x, bit_y):
-        """the fusion of bit_x and bit_y is possible
-        returns a Z3 constraint"""
-        return self.possible(self.fusion(bit_x, bit_y))
-
-    def maximal(self, bit_w):
-        """bit_w includes all compatible states as parts.
-        returns a Z3 constraint"""
-        x = z3.BitVec("max_x", self.N)
-        return ForAll(
-            x,
-            z3.Implies(
-                self.compatible(x, bit_w),
-                self.is_part_of(x, bit_w),
-            ),
-        )
-
-    def is_world(self, bit_w):
-        """bit_w is both possible and maximal.
-        returns a Z3 constraint"""
-        return z3.And(
-            self.possible(bit_w),
-            self.maximal(bit_w),
-        )
-
-    def is_alternative(self, outcome_world, state, eval_point):
-        """Returns whether outcome_world is an alternative to eval_point via state"""
-        eval_world = eval_point["world"]
-        return self.imposition(state, eval_world, outcome_world)
-
-    # Remove overridden true_at and false_at to use parent's implementation
-    # The parent LogosSemantics already handles eval_point correctly
-
     def extended_verify(self, state, sentence, eval_point):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
@@ -187,14 +153,13 @@ class ImpositionSemantics(LogosSemantics):
         arguments = sentence.arguments or ()
         return operator.extended_falsify(state, *arguments, eval_point)
 
-    def calculate_alternative_worlds(self, verifiers, eval_point, model_structure):
+    def calculate_outcome_worlds(self, verifiers, eval_point, model_structure):
         """Calculate alternative worlds given verifiers and eval_point."""
-        imposition = model_structure.semantics.imposition
         eval = model_structure.z3_model.evaluate
         world_states = model_structure.z3_world_states
         eval_world = eval_point["world"]
         return {
             pw for ver in verifiers
             for pw in world_states
-            if eval(imposition(ver, eval_world, pw))
+            if eval(self.imposition(ver, eval_world, pw))
         }
