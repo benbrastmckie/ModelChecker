@@ -484,7 +484,7 @@ IM_CM_21_example = [
     IM_CM_21_settings,
 ]
 
-# IM_TH_22: REVERSE DEFINITION OF NEC
+# IM_CM_22: REVERSE DEFINITION OF NEC
 IM_CM_22_premises = ['(\\top \\imposition A)']
 IM_CM_22_conclusions = ['\\Box A']
 IM_CM_22_settings = {
@@ -503,7 +503,7 @@ IM_CM_22_example = [
     IM_CM_22_settings,
 ]
 
-# IM_TH_23: CONTRADICTION TO IMPOSSIBILITY
+# IM_CM_23: CONTRADICTION TO IMPOSSIBILITY
 IM_CM_23_premises = ['(A \\imposition \\bot)']
 IM_CM_23_conclusions = ['(\\top \\imposition \\neg A)']
 IM_CM_23_settings = {
@@ -520,6 +520,44 @@ IM_CM_23_example = [
     IM_CM_23_premises,
     IM_CM_23_conclusions,
     IM_CM_23_settings,
+]
+
+# IM_CM_24: CONTRADICTION TO IMPOSSIBILITY
+IM_CM_24_premises = ['(A \\imposition B)']
+IM_CM_24_conclusions = ['\\Box (A \\imposition B)']
+IM_CM_24_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+IM_CM_24_example = [
+    IM_CM_24_premises,
+    IM_CM_24_conclusions,
+    IM_CM_24_settings,
+]
+
+# IM_CM_25: CONTRADICTION TO IMPOSSIBILITY
+IM_CM_25_premises = ['A', '\\Diamond B', '\\neg \\Diamond (A \\wedge B)']
+IM_CM_25_conclusions = ['(B \\imposition C)']
+IM_CM_25_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+IM_CM_25_example = [
+    IM_CM_25_premises,
+    IM_CM_25_conclusions,
+    IM_CM_25_settings,
 ]
 
 ##################
@@ -766,6 +804,8 @@ imposition_cm_examples = {
     "IM_CM_21": IM_CM_21_example, # COUNTERFACTUAL NEGATION DISTRIBUTION
     "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
     "IM_CM_23": IM_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
+    "IM_CM_24": IM_CM_24_example, # NECESSITY OF COUNTERFACTUALS
+    "IM_CM_25": IM_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
 }
 
 imposition_th_examples = {
@@ -792,7 +832,7 @@ all_imposition_examples = unit_tests
 # Default settings
 general_settings = {
     "print_constraints": False,
-    "print_impossible": False,
+    "print_impossible": True,
     "print_z3": False,
     "save_output": False,
     "maximize": False,
@@ -837,7 +877,7 @@ semantic_theories = {
 example_range = {
 
     # # Countermodels
-    "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_2": IM_CM_2_example,   # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_3": IM_CM_3_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
     # "IM_CM_4": IM_CM_4_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
@@ -860,13 +900,15 @@ example_range = {
     # "IM_CM_21": IM_CM_21_example, # COUNTERFACTUAL NEGATION DISTRIBUTION
     # "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
     # "IM_CM_23": IM_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
+    "IM_CM_24": IM_CM_24_example, # NECESSITY OF COUNTERFACTUALS
+    # "IM_CM_25": IM_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
 
     # # Theorems
     # "IM_TH_1": IM_TH_1_example,   # COUNTERFACTUAL IDENTITY
     # "IM_TH_2": IM_TH_2_example,   # COUNTERFACTUAL MODUS PONENS
     # "IM_TH_3": IM_TH_3_example,   # WEAKENED TRANSITIVITY
     # "IM_TH_4": IM_TH_4_example,   # ANTECEDENT DISJUNCTION TO CONJUNCTION
-    "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    # "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
     # "IM_TH_6": IM_TH_6_example,   # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
     # "IM_TH_7": IM_TH_7_example,   # COUNTERFACTUAL DISJUNCTION INTRODUCTION
     # "IM_TH_8": IM_TH_8_example,   # COUNTERFACTUAL CONSEQUENT WEAKENING
