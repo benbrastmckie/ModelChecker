@@ -4,8 +4,6 @@ Counterfactual operators for counterfactual reasoning.
 This module implements counterfactual logical operators:
 - Counterfactual Conditional 
 - Might Counterfactual
-- Imposition
-- Might Imposition
 """
 
 import z3

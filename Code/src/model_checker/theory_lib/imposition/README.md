@@ -14,16 +14,13 @@ imposition/
 ├── iterate.py          # Model iteration for counterfactuals
 ├── docs/               # Comprehensive documentation
 ├── notebooks/          # Interactive Jupyter examples
-└── tests/              # Unit and integration tests
+├── tests/              # Unit and integration tests
+└── talk/               # Presentation materials
 ```
 
 ## Overview
 
-The **Imposition Theory** implements Kit Fine's groundbreaking approach to counterfactual semantics without possible worlds, using state imposition operations within the ModelChecker framework. This theory evaluates counterfactuals through imposing verifier states on evaluation worlds to generate alternative outcomes.
-
-Within the theory library ecosystem, imposition extends the Logos hyperintensional foundation with Fine's imposition operation, enabling sophisticated counterfactual reasoning. The theory provides must-counterfactuals (↪) and might-counterfactuals (⟂), demonstrating how counterfactuals can be analyzed through state-based rather than world-based semantics.
-
-This implementation serves researchers exploring counterfactual logic, developers building modal reasoning systems, and students learning alternative approaches to conditional semantics beyond the traditional possible worlds framework.
+The **Imposition Theory** implements Kit Fine's counterfactual semantics without possible worlds, using a primitive imposition relation within the ModelChecker framework. This theory evaluates counterfactuals through imposing verifier states on evaluation worlds to generate alternative outcomes. Within the theory library ecosystem, imposition extends the Logos hyperintensional foundation. This implementation serves researchers exploring counterfactual logic, developers building counterfactual reasoning systems, and students learning alternative approaches to conditional semantics beyond the traditional possible worlds framework.
 
 ```python
 # Basic counterfactual reasoning
@@ -53,7 +50,8 @@ counter.print_model()  # Shows countermodel
 
 ### Semantic Framework
 
-**ImpositionSemantics** extends Logos semantics with:
+**ImpositionSemantics** extends the Logos semantics with:
+
 - Imposition operation: `impose(state, world) → outcome`
 - Alternative world calculation for counterfactuals
 - Bilateral verification/falsification conditions
@@ -64,26 +62,31 @@ counter.print_model()  # Shows countermodel
 The theory provides **11 operators** total:
 
 **Imposition-Specific** (2 operators):
-- `\\imposition` (↪): Must-counterfactual ("if A then must B")
-- `\\could` (⟂): Might-counterfactual ("if A then might B")
+
+- `\\imposition`: Must-counterfactual ("if A then must B")
+- `\\could`: Might-counterfactual ("if A then might B")
 
 **Inherited from Logos** (9 operators):
+
 - Extensional: ¬, ∧, ∨, →, ↔, ⊤, ⊥ (7 operators)
 - Modal: □, ◇ (2 operators)
 
 ### Truth Conditions
 
 **Must-Counterfactual**: `A \\imposition B`
+
 - Verified by `x` when: Some part of `x` imposes A-verifiers on the evaluation world, yielding a world where B is verified
 - Falsified by `x` when: Some part of `x` imposes A-verifiers on the evaluation world, yielding a world where B is falsified
 
 **Might-Counterfactual**: `A \\could B` := `\\neg(A \\imposition \\neg B)`
+
 - Defined as the dual of must-counterfactual
 - True when it's not the case that imposing A must yield ¬B
 
 ### Examples
 
 The theory includes **32 comprehensive test examples**:
+
 - **21 Countermodels**: Invalid counterfactual principles (antecedent strengthening, transitivity failures, etc.)
 - **11 Theorems**: Valid counterfactual principles (modus ponens, contraposition, etc.)
 
@@ -104,6 +107,24 @@ settings = {
 ```
 
 See [docs/SETTINGS.md](docs/SETTINGS.md) for complete documentation.
+
+## Subdirectories
+
+### [docs/](docs/)
+
+Comprehensive documentation suite including **user guide** with tutorial examples, **API reference** with complete function documentation, **architecture guide** explaining design patterns, **model iteration** documentation, and **settings guide** for configuration options. All documentation follows 9-section MAINTENANCE.md standards. See [docs/README.md](docs/README.md) for complete documentation navigation.
+
+### [notebooks/](notebooks/)
+
+Interactive Jupyter notebook collection demonstrating counterfactual reasoning with visualizations. Includes basic operator tutorials, model exploration notebooks, theory comparison examples, and debugging workflows. Designed for hands-on learning and experimentation. See [notebooks/README.md](notebooks/README.md) for notebook descriptions.
+
+### [tests/](tests/)
+
+Comprehensive test suite validating all 32 examples from examples.py. Includes unit tests for semantic primitives, integration tests for counterfactual operators, property-based testing for logical principles, and performance benchmarks. Tests ensure theoretical correctness and implementation reliability. See [tests/README.md](tests/README.md) for testing methodology.
+
+### [talk/](talk/)
+
+Presentation materials and resources for talks about imposition semantics and programmatic approaches to counterfactual logic. Includes outline for demonstrations, comparisons with standard methodology, and performance analysis of primitive operations. See [talk/OUTLINE.md](talk/OUTLINE.md) for presentation structure.
 
 ## Advanced Features
 
@@ -137,20 +158,23 @@ for theory_name, theory_func in [("Logos", get_logos), ("Imposition", get_theory
 
 ## Documentation
 
-### For Theory Users
-- **[User Guide](docs/USER_GUIDE.md)** - Tutorial introduction with examples
-- **[API Reference](docs/API_REFERENCE.md)** - Complete function and class documentation
-- **[Settings Guide](docs/SETTINGS.md)** - Configuration parameters explained
+### For New Users
 
-### For Developers
-- **[Architecture](docs/ARCHITECTURE.md)** - Design patterns and implementation
-- **[Model Iteration](docs/ITERATE.md)** - Finding multiple models
-- **[Test Suite](tests/)** - Validation and testing
+- **[User Guide](docs/USER_GUIDE.md)** - Tutorial introduction to imposition semantics with step-by-step examples
+- **[Quick Start](#overview)** - Basic usage examples for counterfactual reasoning
+- **[Interactive Notebooks](notebooks/)** - Hands-on Jupyter tutorials with visualizations
 
 ### For Researchers
-- **[Interactive Notebooks](notebooks/)** - Jupyter examples with visualizations
-- **[Example Collection](examples.py)** - 32 counterfactual test cases
-- **[Semantic Implementation](semantic.py)** - Fine's semantics in Z3
+
+- **[Example Collection](examples.py)** - 32 comprehensive counterfactual test cases
+- **[Semantic Implementation](semantic.py)** - Fine's semantics implemented in Z3
+- **[Academic References](#references)** - Primary sources and theoretical foundations
+
+### For Developers
+
+- **[API Reference](docs/API_REFERENCE.md)** - Complete function and class documentation
+- **[Architecture Guide](docs/ARCHITECTURE.md)** - Design patterns and implementation details
+- **[Test Suite](tests/)** - Comprehensive validation and testing methodology
 
 ## Key Insights
 
@@ -163,11 +187,13 @@ for theory_name, theory_func in [("Logos", get_logos), ("Imposition", get_theory
 ## References
 
 ### Theory Documentation
+
 - **[Documentation Hub](docs/README.md)** - Complete documentation index
 - **[Theory Library](../README.md)** - All available theories
 - **[Logos Theory](../logos/)** - Parent hyperintensional theory
 
 ### Academic References
+
 - Fine, K. (2012). "Counterfactuals without Possible Worlds"
 - Fine, K. (2017). "Truthmaker Semantics"
 - ModelChecker framework documentation
@@ -175,4 +201,3 @@ for theory_name, theory_func in [("Logos", get_logos), ("Imposition", get_theory
 ---
 
 [← Back to Theories](../README.md) | [Documentation →](docs/README.md) | [API Reference →](docs/API_REFERENCE.md)
-

@@ -12,7 +12,7 @@
     - run example
     - theory unit tests
   - model-checker to facilitate
-- imposition relation (10 min)
+- imposition relation (10 min) -- MIGUEL
   - cost of a primitive scales with arity
   - compare one-place, two-place, and three-place
   - other?

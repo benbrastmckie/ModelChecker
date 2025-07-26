@@ -8,12 +8,12 @@
 counterfactual/
 ├── README.md               # This file - counterfactual subtheory overview
 ├── __init__.py            # Module initialization and public API
-├── examples.py            # Example formulas and test cases (33 examples)
+├── examples.py            # Example formulas and test cases (37 examples)
 ├── operators.py           # Counterfactual operator definitions (2 operators)
 └── tests/                 # Test suite (see tests/README.md)
     ├── README.md          # Test documentation and methodology
     ├── __init__.py        # Test module initialization
-    └── test_counterfactual_examples.py  # Integration tests with 33 examples
+    └── test_counterfactual_examples.py  # Integration tests with 37 examples
 ```
 
 ## Overview
@@ -55,7 +55,7 @@ print(f"Antecedent strengthening: {result3}")  # Countermodel found (invalid arg
 
 ### [tests/](tests/)
 
-Comprehensive test suite with 33 integration examples covering both counterfactual operators. Includes countermodel examples (invalid classical principles like antecedent strengthening, contraposition, transitivity) and theorem examples (valid counterfactual principles like identity, modus ponens, weakened transitivity). Tests demonstrate the non-monotonic nature of counterfactual reasoning and validate alternative worlds semantics. See [tests/README.md](tests/README.md) for complete testing methodology.
+Comprehensive test suite with 37 integration examples covering both counterfactual operators. Includes countermodel examples (invalid classical principles like antecedent strengthening, contraposition, transitivity) and theorem examples (valid counterfactual principles like identity, modus ponens, weakened transitivity). Tests demonstrate the non-monotonic nature of counterfactual reasoning and validate alternative worlds semantics. See [tests/README.md](tests/README.md) for complete testing methodology.
 
 ## Documentation
 
@@ -74,7 +74,7 @@ Comprehensive test suite with 33 integration examples covering both counterfactu
 ### For Developers
 
 - **[Implementation Details](operators.py)** - Counterfactual operator definitions and semantics
-- **[Examples Module](examples.py)** - Test cases and example formulas (33 examples)
+- **[Examples Module](examples.py)** - Test cases and example formulas (37 examples)
 - **[Integration Testing](tests/test_counterfactual_examples.py)** - Complete test implementation
 
 ## Operator Reference
@@ -163,7 +163,7 @@ The counterfactual subtheory provides two operators: one primitive operator that
 
 ### Example Categories
 
-The counterfactual subtheory includes **33 comprehensive examples** organized into two main categories:
+The counterfactual subtheory includes **37 comprehensive examples** organized into two main categories:
 
 #### Countermodels (CF_CM): 21 Examples
 
@@ -205,7 +205,7 @@ model-checker src/model_checker/theory_lib/logos/subtheories/counterfactual/exam
 
 #### Running Tests
 
-The counterfactual subtheory includes **33 comprehensive test examples** covering all four operators through both countermodel and theorem examples. Tests validate hypothetical reasoning principles and demonstrate where counterfactual inferences fail.
+The counterfactual subtheory includes **37 comprehensive test examples** covering both operators through countermodel and theorem examples. Tests validate hypothetical reasoning principles and demonstrate where counterfactual inferences fail.
 
 ```bash
 # Run all counterfactual tests
@@ -488,7 +488,7 @@ operators = get_operators()
 from model_checker.theory_lib.logos.subtheories.counterfactual.examples import (
     counterfactual_cm_examples,     # 21 countermodel examples
     counterfactual_th_examples,     # 12 theorem examples
-    counterfactual_examples,        # Combined 33 examples
+    counterfactual_examples,        # Combined 37 examples
     example_range                   # Selected examples for execution
 )
 ```
@@ -575,7 +575,7 @@ theory = logos.get_theory(['counterfactual'])  # Also loads extensional
 
 ## Testing
 
-The counterfactual subtheory includes **33 comprehensive test examples** covering both counterfactual operators through countermodel examples (invalid principles) and theorem examples (valid counterfactual reasoning).
+The counterfactual subtheory includes **37 comprehensive test examples** covering both counterfactual operators through countermodel examples (invalid principles) and theorem examples (valid counterfactual reasoning)
 
 ```bash
 # Run all counterfactual tests
