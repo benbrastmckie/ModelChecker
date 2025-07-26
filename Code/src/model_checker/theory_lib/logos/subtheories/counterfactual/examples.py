@@ -88,200 +88,6 @@ CF_CM_2_example = [
     CF_CM_2_settings,
 ]
 
-# CF_TH_1: COUNTERFACTUAL IDENTITY
-CF_TH_1_premises = []
-CF_TH_1_conclusions = ['(A \\boxright A)']
-CF_TH_1_settings = {
-    'N' : 2,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
-}
-CF_TH_1_example = [
-    CF_TH_1_premises,
-    CF_TH_1_conclusions,
-    CF_TH_1_settings,
-]
-
-# CF_TH_2: COUNTERFACTUAL MODUS PONENS
-CF_TH_2_premises = ['A','(A \\boxright B)']
-CF_TH_2_conclusions = ['B']
-CF_TH_2_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
-}
-CF_TH_2_example = [
-    CF_TH_2_premises,
-    CF_TH_2_conclusions,
-    CF_TH_2_settings,
-]
-
-# CF_TH_3: WEAKENED TRANSITIVITY
-CF_TH_3_premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
-CF_TH_3_conclusions = ['(A \\boxright C)']
-CF_TH_3_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
-}
-CF_TH_3_example = [
-    CF_TH_3_premises,
-    CF_TH_3_conclusions,
-    CF_TH_3_settings,
-]
-
-# CF_TH_4: ANTECEDENT DISJUNCTION TO CONJUNCTION
-CF_TH_4_premises = ['((A \\vee B) \\boxright C)']
-CF_TH_4_conclusions = ['((A \\wedge B) \\boxright C)']
-CF_TH_4_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
-}
-CF_TH_4_example = [
-    CF_TH_4_premises,
-    CF_TH_4_conclusions,
-    CF_TH_4_settings,
-]
-
-# CF_TH_5: SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-CF_TH_5_premises = ['((A \\vee B) \\boxright C)']
-CF_TH_5_conclusions = ['(A \\boxright C)']
-CF_TH_5_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
-}
-CF_TH_5_example = [
-    CF_TH_5_premises,
-    CF_TH_5_conclusions,
-    CF_TH_5_settings,
-]
-
-# CF_TH_6: DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-CF_TH_6_premises = ['((A \\vee B) \\boxright C)']
-CF_TH_6_conclusions = ['((A \\boxright C) \\wedge (B \\boxright C))']
-CF_TH_6_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
-}
-CF_TH_6_example = [
-    CF_TH_6_premises,
-    CF_TH_6_conclusions,
-    CF_TH_6_settings,
-]
-
-# CF_TH_7: COUNTERFACTUAL DISJUNCTION INTRODUCTION
-CF_TH_7_premises = [
-    '(A \\boxright C)',
-    '(B \\boxright C)',
-    '((A \\wedge B) \\boxright C)',
-]
-CF_TH_7_conclusions = ['((A \\vee B) \\boxright C)']
-CF_TH_7_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
-}
-CF_TH_7_example = [
-    CF_TH_7_premises,
-    CF_TH_7_conclusions,
-    CF_TH_7_settings,
-]
-
-# CF_TH_8: COUNTERFACTUAL CONSEQUENT WEAKENING
-CF_TH_8_premises = ['(A \\boxright (B \\wedge C))']
-CF_TH_8_conclusions = ['(A \\boxright B)']
-CF_TH_8_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
-}
-CF_TH_8_example = [
-    CF_TH_8_premises,
-    CF_TH_8_conclusions,
-    CF_TH_8_settings,
-]
-
-# CF_TH_9: COUNTERFACTUAL CONJUNCTION INTRODUCTION
-CF_TH_9_premises = ['(A \\boxright B)','(A \\boxright C)']
-CF_TH_9_conclusions = ['(A \\boxright (B \\wedge C))']
-CF_TH_9_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
-}
-CF_TH_9_example = [
-    CF_TH_9_premises,
-    CF_TH_9_conclusions,
-    CF_TH_9_settings,
-]
-
-# CF_TH_10: MIGHT FACTIVITY
-CF_TH_10_premises = ['A','B']
-CF_TH_10_conclusions = ['(A \\diamondright B)']
-CF_TH_10_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
-}
-CF_TH_10_example = [
-    CF_TH_10_premises,
-    CF_TH_10_conclusions,
-    CF_TH_10_settings,
-]
-
 # CF_CM_3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
 CF_CM_3_premises = ['\\neg A', '(A \\boxright C)', '\\Diamond (A \\wedge B)']
 CF_CM_3_conclusions = ['((A \\wedge B) \\boxright C)']
@@ -666,10 +472,29 @@ CF_CM_21_example = [
     CF_CM_21_settings,
 ]
 
-# IM_CM_24: CONTRADICTION TO IMPOSSIBILITY
-IM_CM_24_premises = ['(A \\boxright B)']
-IM_CM_24_conclusions = ['\\Box (A \\boxright B)']
-IM_CM_24_settings = {
+# CF_CM_22: REVERSE DEFINITION OF NEC
+CF_CM_22_premises = ['(\\top \\imposition A)']
+CF_CM_22_conclusions = ['\\Box A']
+CF_CM_22_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : True,
+    'non_null' : True,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+CF_CM_22_example = [
+    CF_CM_22_premises,
+    CF_CM_22_conclusions,
+    CF_CM_22_settings,
+]
+
+# CF_CM_23: CONTRADICTION TO IMPOSSIBILITY
+CF_CM_23_premises = ['(A \\imposition \\bot)']
+CF_CM_23_conclusions = ['(\\top \\imposition \\neg A)']
+CF_CM_23_settings = {
     'N' : 3,
     'contingent' : False,
     'disjoint' : False,
@@ -679,13 +504,249 @@ IM_CM_24_settings = {
     'iterate' : 1,
     'expectation' : True,
 }
-IM_CM_24_example = [
-    IM_CM_24_premises,
-    IM_CM_24_conclusions,
-    IM_CM_24_settings,
+CF_CM_23_example = [
+    CF_CM_23_premises,
+    CF_CM_23_conclusions,
+    CF_CM_23_settings,
+]
+
+# CF_CM_24: CONTRADICTION TO IMPOSSIBILITY
+CF_CM_24_premises = ['(A \\boxright B)']
+CF_CM_24_conclusions = ['\\Box (A \\boxright B)']
+CF_CM_24_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+CF_CM_24_example = [
+    CF_CM_24_premises,
+    CF_CM_24_conclusions,
+    CF_CM_24_settings,
+]
+
+# CF_CM_25: CONTRADICTION TO IMPOSSIBILITY
+CF_CM_25_premises = ['A', '\\Diamond B', '\\neg \\Diamond (A \\wedge B)']
+CF_CM_25_conclusions = ['(B \\imposition C)']
+CF_CM_25_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+CF_CM_25_example = [
+    CF_CM_25_premises,
+    CF_CM_25_conclusions,
+    CF_CM_25_settings,
 ]
 
 
+
+##################
+### THEOREMS  ###
+##################
+
+# CF_TH_1: COUNTERFACTUAL IDENTITY
+CF_TH_1_premises = []
+CF_TH_1_conclusions = ['(A \\boxright A)']
+CF_TH_1_settings = {
+    'N' : 2,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CF_TH_1_example = [
+    CF_TH_1_premises,
+    CF_TH_1_conclusions,
+    CF_TH_1_settings,
+]
+
+# CF_TH_2: COUNTERFACTUAL MODUS PONENS
+CF_TH_2_premises = ['A','(A \\boxright B)']
+CF_TH_2_conclusions = ['B']
+CF_TH_2_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CF_TH_2_example = [
+    CF_TH_2_premises,
+    CF_TH_2_conclusions,
+    CF_TH_2_settings,
+]
+
+# CF_TH_3: WEAKENED TRANSITIVITY
+CF_TH_3_premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
+CF_TH_3_conclusions = ['(A \\boxright C)']
+CF_TH_3_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CF_TH_3_example = [
+    CF_TH_3_premises,
+    CF_TH_3_conclusions,
+    CF_TH_3_settings,
+]
+
+# CF_TH_4: ANTECEDENT DISJUNCTION TO CONJUNCTION
+CF_TH_4_premises = ['((A \\vee B) \\boxright C)']
+CF_TH_4_conclusions = ['((A \\wedge B) \\boxright C)']
+CF_TH_4_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CF_TH_4_example = [
+    CF_TH_4_premises,
+    CF_TH_4_conclusions,
+    CF_TH_4_settings,
+]
+
+# CF_TH_5: SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+CF_TH_5_premises = ['((A \\vee B) \\boxright C)']
+CF_TH_5_conclusions = ['(A \\boxright C)']
+CF_TH_5_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CF_TH_5_example = [
+    CF_TH_5_premises,
+    CF_TH_5_conclusions,
+    CF_TH_5_settings,
+]
+
+# CF_TH_6: DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+CF_TH_6_premises = ['((A \\vee B) \\boxright C)']
+CF_TH_6_conclusions = ['((A \\boxright C) \\wedge (B \\boxright C))']
+CF_TH_6_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CF_TH_6_example = [
+    CF_TH_6_premises,
+    CF_TH_6_conclusions,
+    CF_TH_6_settings,
+]
+
+# CF_TH_7: COUNTERFACTUAL DISJUNCTION INTRODUCTION
+CF_TH_7_premises = [
+    '(A \\boxright C)',
+    '(B \\boxright C)',
+    '((A \\wedge B) \\boxright C)',
+]
+CF_TH_7_conclusions = ['((A \\vee B) \\boxright C)']
+CF_TH_7_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CF_TH_7_example = [
+    CF_TH_7_premises,
+    CF_TH_7_conclusions,
+    CF_TH_7_settings,
+]
+
+# CF_TH_8: COUNTERFACTUAL CONSEQUENT WEAKENING
+CF_TH_8_premises = ['(A \\boxright (B \\wedge C))']
+CF_TH_8_conclusions = ['(A \\boxright B)']
+CF_TH_8_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CF_TH_8_example = [
+    CF_TH_8_premises,
+    CF_TH_8_conclusions,
+    CF_TH_8_settings,
+]
+
+# CF_TH_9: COUNTERFACTUAL CONJUNCTION INTRODUCTION
+CF_TH_9_premises = ['(A \\boxright B)','(A \\boxright C)']
+CF_TH_9_conclusions = ['(A \\boxright (B \\wedge C))']
+CF_TH_9_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CF_TH_9_example = [
+    CF_TH_9_premises,
+    CF_TH_9_conclusions,
+    CF_TH_9_settings,
+]
+
+# CF_TH_10: MIGHT FACTIVITY
+CF_TH_10_premises = ['A','B']
+CF_TH_10_conclusions = ['(A \\diamondright B)']
+CF_TH_10_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CF_TH_10_example = [
+    CF_TH_10_premises,
+    CF_TH_10_conclusions,
+    CF_TH_10_settings,
+]
 # CF_TH_11: DEFINITION OF NEC
 CF_TH_11_premises = ['\\Box A']
 CF_TH_11_conclusions = ['(\\top \\boxright A)']
@@ -747,6 +808,10 @@ counterfactual_cm_examples = {
     "CF_CM_19": CF_CM_19_example,  # COUNTERFACTUAL EXPORTATION
     "CF_CM_20": CF_CM_20_example,  # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
     "CF_CM_21": CF_CM_21_example,  # COUNTERFACTUAL NEGATION DISTRIBUTION
+    "CF_CM_22": CF_CM_22_example, # REVERSE DEFINITION OF NEC
+    "CF_CM_23": CF_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
+    "CF_CM_24": CF_CM_24_example, # NECESSITY OF COUNTERFACTUALS
+    "CF_CM_25": CF_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
 }
 
 counterfactual_th_examples = {
@@ -799,14 +864,45 @@ semantic_theories = {
 # Or set specific examples
 example_range = {
 
-    # Also test a countermodel that should pass
-    # "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    "IM_CM_24": IM_CM_24_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # COUNTERMODELS
+    "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # "CF_CM_2": CF_CM_2_example,  # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # "CF_CM_3": CF_CM_3_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
+    # "CF_CM_4": CF_CM_4_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
+    # "CF_CM_5": CF_CM_5_example,  # COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
+    # "CF_CM_6": CF_CM_6_example,  # WEAKENED MONOTONICITY
+    # "CF_CM_7": CF_CM_7_example,  # COUNTERFACTUAL CONTRAPOSITION
+    # "CF_CM_8": CF_CM_8_example,  # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
+    # "CF_CM_9": CF_CM_9_example,  # COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
+    # "CF_CM_10": CF_CM_10_example,  # TRANSITIVITY
+    # "CF_CM_11": CF_CM_11_example,  # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
+    # "CF_CM_12": CF_CM_12_example,  # COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
+    # "CF_CM_13": CF_CM_13_example,  # SOBEL SEQUENCE
+    # "CF_CM_14": CF_CM_14_example,  # SOBEL SEQUENCE WITH POSSIBILITY
+    # "CF_CM_15": CF_CM_15_example,  # COUNTERFACTUAL EXCLUDED MIDDLE
+    # "CF_CM_16": CF_CM_16_example,  # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
+    # "CF_CM_17": CF_CM_17_example,  # INTRODUCTION OF DISJUNCTIVE ANTECEDENT
+    # "CF_CM_18": CF_CM_18_example,  # MUST FACTIVITY
+    # "CF_CM_19": CF_CM_19_example,  # COUNTERFACTUAL EXPORTATION
+    # "CF_CM_20": CF_CM_20_example,  # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
+    # "CF_CM_21": CF_CM_21_example,  # COUNTERFACTUAL NEGATION DISTRIBUTION
+    # "CF_CM_22": CF_CM_22_example, # REVERSE DEFINITION OF NEC
+    # "CF_CM_23": CF_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
+    # "CF_CM_24": CF_CM_24_example, # NECESSITY OF COUNTERFACTUALS
+    # "CF_CM_25": CF_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
 
-    # Test some failing theorem examples
+    # # THEOREMS
     # "CF_TH_1": CF_TH_1_example,  # COUNTERFACTUAL IDENTITY
     # "CF_TH_2": CF_TH_2_example,  # COUNTERFACTUAL MODUS PONENS
+    # "CF_TH_3": CF_TH_3_example,  # WEAKENED TRANSITIVITY
+    # "CF_TH_4": CF_TH_4_example,  # ANTECEDENT DISJUNCTION TO CONJUNCTION # TODO: fix discrepancy
+    # "CF_TH_5": CF_TH_5_example,  # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    # "CF_TH_6": CF_TH_6_example,  # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    # "CF_TH_7": CF_TH_7_example,  # COUNTERFACTUAL DISJUNCTION INTRODUCTION
+    # "CF_TH_8": CF_TH_8_example,  # COUNTERFACTUAL CONSEQUENT WEAKENING
     # "CF_TH_9": CF_TH_9_example,  # COUNTERFACTUAL CONJUNCTION INTRODUCTION
+    # "CF_TH_10": CF_TH_10_example,  # MIGHT FACTIVITY
+    # "CF_TH_11": CF_TH_11_example,  # DEFINITION OF NEC
     # "CF_TH_12": CF_TH_12_example,  # CONTRADICTION TO IMPOSSIBILITY
     
 }
