@@ -870,14 +870,14 @@ logos_theory = {
 # NOTE: The translation dictionary will convert \imposition to \boxright for logos
 semantic_theories = {
     "Fine": imposition_theory,
-    # "Brast-McKie": logos_theory,
+    "Brast-McKie": logos_theory,
 }
 
 # Default example range (curated subset for direct execution)
 example_range = {
 
     # # Countermodels
-    # "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_2": IM_CM_2_example,   # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_3": IM_CM_3_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
     # "IM_CM_4": IM_CM_4_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
@@ -900,7 +900,7 @@ example_range = {
     # "IM_CM_21": IM_CM_21_example, # COUNTERFACTUAL NEGATION DISTRIBUTION
     # "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
     # "IM_CM_23": IM_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
-    "IM_CM_24": IM_CM_24_example, # NECESSITY OF COUNTERFACTUALS
+    # "IM_CM_24": IM_CM_24_example, # NECESSITY OF COUNTERFACTUALS
     # "IM_CM_25": IM_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
 
     # # Theorems
