@@ -21,7 +21,7 @@ from model_checker.theory_lib.logos.subtheories.modal.operators import (
 ##############################################################################
 
 class ImpositionOperator(syntactic.Operator):
-    name = "\\imposition"
+    name = "\\boxright"
     arity = 2
 
     def true_at(self, leftarg, rightarg, eval_point):
@@ -151,7 +151,7 @@ class ImpositionOperator(syntactic.Operator):
 
 class MightImpositionOperator(syntactic.DefinedOperator):
 
-    name = "\\could"
+    name = "\\diamondright"
     arity = 2
 
     def derived_definition(self, leftarg, rightarg):
@@ -177,8 +177,8 @@ class MightImpositionOperator(syntactic.DefinedOperator):
 def get_imposition_operators():
     """Get imposition-specific operators."""
     return {
-        '\\imposition': ImpositionOperator,
-        '\\could': MightImpositionOperator,
+        '\\boxright': ImpositionOperator,
+        '\\diamondright': MightImpositionOperator,
     }
 
 def get_all_operators():

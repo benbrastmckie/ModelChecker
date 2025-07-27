@@ -11,7 +11,7 @@ Classes:
 Operators:
     imposition_operators: Dictionary of logical operators including:
         - Extensional: ¬ (neg), ∧ (and), ∨ (or), → (conditional), ↔ (biconditional)
-        - Imposition: ↪ (imposition), ⟂ (could)
+        - Imposition: ▷ (boxright), ◇▷ (diamondright)
         - Extremal: ⊤ (top), ⊥ (bottom)
 
 Functions:
@@ -72,7 +72,7 @@ __all__ = [
     "ImpositionSemantics",    # Semantic framework with imposition operations
     "Proposition",            # Reused from logos for consistency
     "ModelStructure",         # Custom model structure with imposition printing
-    "imposition_operators",   # Logical operators including imposition (↪) and could (⟂)
+    "imposition_operators",   # Logical operators including boxright (▷) and diamondright (◇▷)
     "ImpositionModelIterator", # Iterator for finding multiple distinct models
     "iterate_example",        # Function to find multiple distinct models
     "__version__",            # Package version information,
