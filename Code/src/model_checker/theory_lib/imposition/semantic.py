@@ -140,24 +140,6 @@ class ImpositionSemantics(LogosSemantics):
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
         self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
 
-    # TODO: can this be removed (its in logos semantics)
-    def extended_verify(self, state, sentence, eval_point):
-        sentence_letter = sentence.sentence_letter
-        if sentence_letter is not None:
-            return self.verify(state, sentence_letter)
-        operator = sentence.operator
-        arguments = sentence.arguments or ()
-        return operator.extended_verify(state, *arguments, eval_point)
-    
-    # TODO: can this be removed (its in logos semantics)
-    def extended_falsify(self, state, sentence, eval_point):
-        sentence_letter = sentence.sentence_letter
-        if sentence_letter is not None:
-            return self.falsify(state, sentence_letter)
-        operator = sentence.operator
-        arguments = sentence.arguments or ()
-        return operator.extended_falsify(state, *arguments, eval_point)
-
     def calculate_outcome_worlds(self, verifiers, eval_point, model_structure):
         """Calculate alternative worlds given verifiers and eval_point."""
         eval = model_structure.z3_model.evaluate

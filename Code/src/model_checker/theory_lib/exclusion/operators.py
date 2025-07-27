@@ -53,18 +53,18 @@ class UniNegationOperator(Operator):
         
         verifiers = []
         for state in range(2**self.semantics.N):
-            if self._verifies_uninegation_with_predicates(
+            if self._verifies_negation_with_predicates(
                 state, formula_str, arg_verifiers, model
             ):
                 verifiers.append(state)
                 
         return verifiers
         
-    def _verifies_uninegation_with_predicates(self, state: int, formula_str: str,
+    def _verifies_negation_with_predicates(self, state: int, formula_str: str,
                                           arg_verifiers: List[int],
                                           model: WitnessAwareModel) -> bool:
         """
-        Check if state verifies uninegation using witness predicates.
+        Check if state verifies negation using witness predicates.
         """
         # Require witness predicates for this formula
         assert model.has_witness_for(formula_str), \
@@ -164,9 +164,9 @@ class UniNegationOperator(Operator):
         
     def extended_verify(self, state, argument, eval_point):
         """
-        Implement three-condition uninegation semantics with witness predicates.
+        Implement three-condition negation semantics with witness predicates.
         
-        This implements the full uninegation semantics directly in the operator,
+        This implements the full negation semantics directly in the operator,
         making it modular and self-contained while using witness predicates
         for the existential quantification.
         """
@@ -237,7 +237,7 @@ class UniNegationOperator(Operator):
         )
         
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Print uninegation."""
+        """Print negation."""
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
@@ -381,7 +381,7 @@ class UniIdentityOperator(Operator):
 
 
 def create_operators():
-    """Create operator collection for witness uninegation semantics."""
+    """Create operator collection for witness negation semantics."""
     return OperatorCollection(
         UniNegationOperator,
         UniConjunctionOperator,

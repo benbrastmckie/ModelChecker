@@ -216,7 +216,7 @@ class UniNegationOperator(Operator):
     def compute_verifiers(self, argument, model, eval_point):
         """Compute verifiers by querying witness predicates."""
         arg_verifiers = argument.compute_verifiers(model, eval_point)
-        formula_str = f"\\unineg({self.semantics._formula_to_string(argument)})"
+        formula_str = f"\\neg({self.semantics._formula_to_string(argument)})"
         
         verifiers = []
         for state in range(2**self.semantics.N):
@@ -312,7 +312,7 @@ def _generate_all_witness_constraints(self):
 # Phase 3: Truth Evaluation (Model → Verifiers)
 def compute_verifiers(self, argument, model, eval_point):
     """Query witness predicates for verifier computation."""
-    formula_str = f"\\unineg({self._formula_to_string(argument)})"
+    formula_str = f"\\neg({self._formula_to_string(argument)})"
     
     for state in range(2**self.semantics.N):
         h_value = model.get_h_witness(formula_str, state)
@@ -493,7 +493,7 @@ class UniNegationOperator(Operator):
     """Framework-compatible operator interface."""
     
     def __init__(self):
-        super().__init__("\\unineg", 1)  # Standard operator protocol
+        super().__init__("\\neg", 1)  # Standard operator protocol
     
     def compute_verifiers(self, argument, model, eval_point):
         """Standard verifier computation method."""

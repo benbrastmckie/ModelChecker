@@ -2,8 +2,8 @@
 Witness predicate semantics implementation.
 
 This module implements the core semantics that includes witness functions as
-model predicates. It extends the standard uninegation semantics by registering
-witness predicates for all uninegation formulas and generating constraints
+model predicates. It extends the standard negation semantics by registering
+witness predicates for all negation formulas and generating constraints
 that define their behavior.
 
 This module integrates the WitnessAwareModel, WitnessRegistry, and 
@@ -27,7 +27,7 @@ class WitnessAwareModel:
     Model that treats witness functions as first-class predicates.
     
     In addition to standard predicates (verify, exclude, fusion, etc.),
-    this model includes witness predicates for uninegation formulas.
+    this model includes witness predicates for negation formulas.
     """
     
     def __init__(self, z3_model, semantics, witness_predicates):
@@ -129,7 +129,7 @@ class WitnessRegistry:
 class WitnessConstraintGenerator:
     """
     Generates constraints that define witness predicates
-    based on the three-condition uninegation semantics.
+    based on the three-condition negation semantics.
     """
     
     def __init__(self, semantics):
@@ -142,7 +142,7 @@ class WitnessConstraintGenerator:
                                    eval_point) -> List[z3.BoolRef]:
         """
         Generate constraints that define the witness predicates
-        for a uninegation formula.
+        for a negation formula.
         """
         constraints = []
         
@@ -150,8 +150,8 @@ class WitnessConstraintGenerator:
         for state in range(2**self.N):
             state_bv = z3.BitVecVal(state, self.N)
             
-            # Check if this state could verify the uninegation
-            if self._could_verify_uninegation(state, formula_ast, eval_point):
+            # Check if this state could verify the negation
+            if self._could_verify_negation(state, formula_ast, eval_point):
                 # Generate constraints for witness values at this state
                 state_constraints = self._witness_constraints_for_state(
                     state_bv, formula_ast, h_pred, y_pred, eval_point
@@ -164,9 +164,9 @@ class WitnessConstraintGenerator:
                 
         return constraints
         
-    def _could_verify_uninegation(self, state: int, formula_ast, eval_point) -> bool:
+    def _could_verify_negation(self, state: int, formula_ast, eval_point) -> bool:
         """
-        Heuristic check if a state could potentially verify a uninegation.
+        Heuristic check if a state could potentially verify a negation.
         This helps reduce the number of constraints.
         """
         # For now, consider all states as potential verifiers
@@ -176,13 +176,13 @@ class WitnessConstraintGenerator:
     def _witness_constraints_for_state(self, state, formula_ast,
                                      h_pred, y_pred, eval_point) -> List[z3.BoolRef]:
         """
-        Generate witness constraints for a specific state verifying uninegation.
+        Generate witness constraints for a specific state verifying negation.
         """
         constraints = []
         argument = formula_ast.arguments[0]
         x = z3.BitVec('x', self.N)
         
-        # If state verifies the uninegation, then:
+        # If state verifies the negation, then:
         verify_excl = self.semantics.extended_verify(state, formula_ast, eval_point)
         
         # Condition 1: For all verifiers of argument, h and y satisfy requirements
@@ -207,7 +207,7 @@ class WitnessConstraintGenerator:
         # Condition 3: Minimality
         condition3 = self._minimality_constraint(state, argument, h_pred, y_pred, eval_point)
         
-        # If state verifies uninegation, then all three conditions hold
+        # If state verifies negation, then all three conditions hold
         constraints.append(
             z3.Implies(
                 verify_excl,
@@ -215,7 +215,7 @@ class WitnessConstraintGenerator:
             )
         )
         
-        # Conversely, if all conditions hold, state verifies uninegation
+        # Conversely, if all conditions hold, state verifies negation
         constraints.append(
             z3.Implies(
                 z3.And(condition1, condition2, condition3),
@@ -279,7 +279,7 @@ class WitnessSemantics(SemanticDefaults):
         'expectation': None,
     }
     
-    # Default general settings for the uninegation theory
+    # Default general settings for the negation theory
     DEFAULT_GENERAL_SETTINGS = {
         "print_impossible": False,
         "print_constraints": False,
@@ -295,7 +295,7 @@ class WitnessSemantics(SemanticDefaults):
         self._processed_formulas = set()
         self._formula_ast_mapping = {}  # Store formula string -> AST mapping
         
-        # Define Z3 primitives needed for uninegation semantics
+        # Define Z3 primitives needed for negation semantics
         self.verify = z3.Function(
             "verify",
             z3.BitVecSort(self.N),
@@ -395,7 +395,7 @@ class WitnessSemantics(SemanticDefaults):
         premises = eval_point.get("premises", [])
         conclusions = eval_point.get("conclusions", [])
         
-        # First pass: identify all uninegation formulas and create witness predicates
+        # First pass: identify all negation formulas and create witness predicates
         all_formulas = premises + conclusions
         for formula in all_formulas:
             self._register_witness_predicates_recursive(formula)
@@ -427,14 +427,14 @@ class WitnessSemantics(SemanticDefaults):
             
     def _register_witness_predicates_recursive(self, formula):
         """
-        Recursively register witness predicates for all uninegation
+        Recursively register witness predicates for all negation
         subformulas in the formula.
         """
         if self._is_processed(formula):
             return
             
         if hasattr(formula, 'operator') and formula.operator.name == "\\exclude":
-            # Register witness predicates for this uninegation
+            # Register witness predicates for this negation
             formula_str = self._formula_to_string(formula)
             self.witness_registry.register_witness_predicates(formula_str)
             self._processed_formulas.add(formula_str)
@@ -524,14 +524,14 @@ class WitnessSemantics(SemanticDefaults):
             return sentence.operator.true_at(*sentence.arguments, eval_point)
             
     def _setup_frame_constraints(self):
-        """Setup frame constraints matching the main uninegation theory."""
+        """Setup frame constraints matching the main negation theory."""
         x, y, z = z3.BitVecs("frame_x frame_y frame_z", self.N)
         
         # Actuality constraint
         actuality = self.is_world(self.main_world)
         
-        # Basic uninegation properties
-        uninegation_symmetry = ForAll(
+        # Basic negation properties
+        negation_symmetry = ForAll(
             [x, y],
             z3.Implies(
                 self.excludes(x, y),
@@ -613,7 +613,7 @@ class WitnessSemantics(SemanticDefaults):
         self.frame_constraints = [
             # Core constraints
             actuality,
-            uninegation_symmetry,
+            negation_symmetry,
 
             # Optional complex constraints
             harmony,
@@ -702,7 +702,7 @@ class WitnessModelAdapter(ModelDefaults):
         'expectation': None,
     }
     
-    # Default general settings for the uninegation theory
+    # Default general settings for the negation theory
     DEFAULT_GENERAL_SETTINGS = {
         "print_impossible": False,
         "print_constraints": False,
@@ -786,7 +786,7 @@ class WitnessStructure(model.ModelDefaults):
             if i not in self.z3_possible_states
         ]
         
-        # Update uninegation data
+        # Update negation data
         self.z3_excludes = [
             (bit_x, bit_y)
             for bit_x in self.all_states
@@ -885,7 +885,7 @@ class WitnessStructure(model.ModelDefaults):
         self.print_info(model_status, self.settings, example_name, theory_name, output)
         if model_status:
             self.print_states(output)
-            self.print_uninegation(output)
+            self.print_negation(output)
             self.print_evaluation(output)
             self.print_input_sentences(output)
             self.print_model(output)
@@ -942,8 +942,8 @@ class WitnessStructure(model.ModelDefaults):
             elif self.settings['print_impossible']:
                 format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
                 
-    def print_uninegation(self, output=sys.__stdout__):
-        """Print conflicts, coherence, uninegation relationships, and witness functions."""
+    def print_negation(self, output=sys.__stdout__):
+        """Print conflicts, coherence, negation relationships, and witness functions."""
         from model_checker.utils import bitvec_to_substates
         import sys
         
@@ -995,7 +995,7 @@ class WitnessStructure(model.ModelDefaults):
                 y_state = bitvec_to_substates(bit_y, self.N)
                 print(f"  {color_x}{x_state}{RESET} coheres with {color_y}{y_state}{RESET}", file=output)
         
-        # Filter and print uninegations  
+        # Filter and print negations  
         filtered_excludes = [(x, y) for x, y in self.z3_excludes if should_include_state(x) and should_include_state(y)]
         if filtered_excludes:
             print("\nUnilateral Exclusion", file=output)

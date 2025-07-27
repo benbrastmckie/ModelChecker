@@ -34,7 +34,7 @@ theory = get_theory("exclusion")
 
 # Test double negation elimination: ¬¬A ⊢ A
 model = BuildExample("double_neg", theory,
-    premises=['\\¬unineg \\¬unineg A'],  # ¬¬A
+    premises=['\\neg \\neg A'],  # ¬¬A
     conclusions=['A'],                           # A
     settings={'N': 3}
 )
@@ -104,7 +104,7 @@ Classical logic says ¬¬A should be equivalent to A. Let's test this:
 ```python
 # Create a model to test double negation elimination
 model = BuildExample("double_negation_test", theory,
-    premises=['\\unineg \\unineg A'],  # ¬¬A
+    premises=['\\neg \\neg A'],  # ¬¬A
     conclusions=['A'],                           # A
     settings={'N': 3}
 )
@@ -122,8 +122,8 @@ Classical logic says ¬(A ∧ B) should be equivalent to (¬A ∨ ¬B). Let's te
 ```python
 # Test DeMorgan's law
 model = BuildExample("demorgans_test", theory,
-    premises=['\\unineg (A \\wedge B)'],     # ¬(A ∧ B)
-    conclusions=['\\unineg A \\vee \\unineg B'],  # ¬A ∨ ¬B
+    premises=['\\neg (A \\wedge B)'],     # ¬(A ∧ B)
+    conclusions=['\\neg A \\vee \\neg B'],  # ¬A ∨ ¬B
     settings={'N': 3}
 )
 
@@ -153,7 +153,7 @@ The exclusion theory provides these logical operators:
 
 | Operator | Symbol | Syntax | Description |
 |----------|---------|---------|-------------|
-| **Unilateral Negation** | ¬ | `\\unineg` | Exclusion-based negation |
+| **Unilateral Negation** | ¬ | `\\neg` | Exclusion-based negation |
 | **Conjunction** | ∧ | `\\wedge` | Standard conjunction |
 | **Disjunction** | ∨ | `\\vee` | Standard disjunction |
 | **Identity** | ≡ | `\\equiv` | Verifier set equality |
@@ -207,8 +207,8 @@ The exclusion theory can show you the witness functions that make negation work:
 # After finding a countermodel, inspect witness functions
 model_structure = model.get_model()
 if hasattr(model_structure, 'get_h_witness'):
-    h_value = model_structure.get_h_witness("\\unineg A", 1)
-    y_value = model_structure.get_y_witness("\\unineg A", 1)
+    h_value = model_structure.get_h_witness("\\neg A", 1)
+    y_value = model_structure.get_y_witness("\\neg A", 1)
     print(f"For ¬A at state 1: h(1) = {h_value}, y(1) = {y_value}")
 ```
 
@@ -221,11 +221,11 @@ Use the exclusion theory to discover which classical principles fail in unilater
 ```python
 classical_principles = [
     # Double negation
-    (['\\unineg \\unineg A'], ['A']),
+    (['\\neg \\neg A'], ['A']),
     # DeMorgan's laws  
-    (['\\unineg (A \\wedge B)'], ['\\unineg A \\vee \\unineg B']),
+    (['\\neg (A \\wedge B)'], ['\\neg A \\vee \\neg B']),
     # Explosion
-    (['A', '\\unineg A'], ['B'])
+    (['A', '\\neg A'], ['B'])
 ]
 
 for premises, conclusions in classical_principles:
@@ -245,7 +245,7 @@ unilateral_candidates = [
     # Conjunction introduction
     (['A', 'B'], ['A \\wedge B']),
     # Disjunction elimination  
-    (['A \\vee B', '\\unineg A'], ['B'])
+    (['A \\vee B', '\\neg A'], ['B'])
 ]
 ```
 
@@ -258,7 +258,7 @@ from model_checker.theory_lib.logos import logos_theory
 from model_checker.theory_lib.exclusion import exclusion_theory
 
 # Test the same formula in both theories
-formula_premises = ['\\unineg \\unineg A']
+formula_premises = ['\\neg \\neg A']
 formula_conclusions = ['A']
 
 # Test in logos (bilateral) theory
@@ -340,7 +340,7 @@ Use the correct syntax for exclusion operators:
 
 ```python
 # Correct
-'\\unineg A'      # Unilateral negation
+'\\neg A'      # Unilateral negation
 
 # Incorrect
 '\\neg A'              # Classical negation (not available)

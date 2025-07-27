@@ -35,7 +35,7 @@ from model_checker.theory_lib.exclusion import (
 
 # Build model with witness predicates
 model = BuildExample("test", exclusion_theory,
-    premises=['\\unineg A'],  # ¬A  
+    premises=['\\neg A'],  # ¬A  
     conclusions=['A'],             # A
     settings={'N': 3}
 )
@@ -43,7 +43,7 @@ model = BuildExample("test", exclusion_theory,
 # Access witness functions in countermodel
 if not model.check_validity():
     structure = model.get_model()
-    h_val = structure.get_h_witness("\\unineg(A)", state=1)
+    h_val = structure.get_h_witness("\\neg(A)", state=1)
     print(f"Witness h(1) = {h_val}")
 ```
 
@@ -205,7 +205,7 @@ class UniNegationOperator(Operator):
     """Unilateral negation with witness predicates."""
     
     def __init__(self):
-        super().__init__("\\unineg", 1)
+        super().__init__("\\neg", 1)
 ```
 
 #### Key Methods
@@ -215,7 +215,7 @@ class UniNegationOperator(Operator):
 def compute_verifiers(self, argument, model, eval_point):
     """Compute verifiers by querying witness predicates."""
     arg_verifiers = argument.compute_verifiers(model, eval_point)
-    formula_str = f"\\unineg({self.semantics._formula_to_string(argument)})"
+    formula_str = f"\\neg({self.semantics._formula_to_string(argument)})"
     
     verifiers = []
     for state in range(2**self.semantics.N):
@@ -378,7 +378,7 @@ from model_checker import BuildExample
 
 # Test double negation elimination (should find countermodel)
 model = BuildExample("double_neg_test", exclusion_theory,
-    premises=['\\unineg \\unineg A'],  # ¬¬A
+    premises=['\\neg \\neg A'],  # ¬¬A
     conclusions=['A'],                           # A
     settings={'N': 3}
 )
@@ -391,8 +391,8 @@ if result is False:  # Countermodel found
     model_structure = model.get_model()
     if hasattr(model_structure, 'get_h_witness'):
         # Inspect witness functions
-        h_val = model_structure.get_h_witness("\\unineg(\\unineg(A))", 1)
-        y_val = model_structure.get_y_witness("\\unineg(\\unineg(A))", 1)
+        h_val = model_structure.get_h_witness("\\neg(\\neg(A))", 1)
+        y_val = model_structure.get_y_witness("\\neg(\\neg(A))", 1)
         print(f"Witness functions at state 1: h={h_val}, y={y_val}")
 ```
 
@@ -417,7 +417,7 @@ if result is False:  # Countermodel found
 ```python
 # Countermodel example - expects to find countermodel
 custom_countermodel = [
-    ['\\unineg A'],      # Premises: ¬A
+    ['\\neg A'],      # Premises: ¬A
     ['A'],                    # Conclusions: A
     {                         # Settings
         'N': 3,
@@ -445,17 +445,17 @@ custom_theorem = [
 
 | Operator | Symbol | Syntax | Arity | Description |
 |----------|---------|---------|-------|-------------|
-| **Unilateral Negation** | ¬ | `\\unineg` | 1 | Exclusion-based negation |
-| **Conjunction** | ∧ | `\\uniwedge` | 2 | Standard conjunction |
-| **Disjunction** | ∨ | `\\univee` | 2 | Standard disjunction |
-| **Identity** | ≡ | `\\uniequiv` | 2 | Verifier set equality |
+| **Unilateral Negation** | ¬ | `\\neg` | 1 | Exclusion-based negation |
+| **Conjunction** | ∧ | `\\wedge` | 2 | Standard conjunction |
+| **Disjunction** | ∨ | `\\vee` | 2 | Standard disjunction |
+| **Identity** | ≡ | `\\equiv` | 2 | Verifier set equality |
 
 ### Operator Implementation Pattern
 
 ```python
 class UniNegationOperator(Operator):
     def __init__(self):
-        super().__init__("\\unineg", 1)
+        super().__init__("\\neg", 1)
     
     def compute_verifiers(self, argument, model, eval_point):
         """Query witness predicates to determine verifiers."""
@@ -463,7 +463,7 @@ class UniNegationOperator(Operator):
         arg_verifiers = argument.compute_verifiers(model, eval_point)
         
         # Build formula string for witness lookup
-        formula_str = f"\\unineg({self.semantics._formula_to_string(argument)})"
+        formula_str = f"\\neg({self.semantics._formula_to_string(argument)})"
         
         # Check each state using witness predicates
         verifiers = []
@@ -609,7 +609,7 @@ All operators implement the standard operator interface:
 ```python
 class UniNegationOperator(Operator):
     def __init__(self):
-        super().__init__("\\unineg", 1)  # Name and arity
+        super().__init__("\\neg", 1)  # Name and arity
     
     def compute_verifiers(self, argument, model, eval_point):
         """Standard verifier computation method."""
@@ -624,7 +624,7 @@ class UniNegationOperator(Operator):
 from model_checker.theory_lib.logos import logos_theory
 
 # Compare results across theories
-test_formula = ['\\unineg \\unineg A'], ['A']
+test_formula = ['\\neg \\neg A'], ['A']
 
 exclusion_result = BuildExample("ex", exclusion_theory, *test_formula).check_formula()
 logos_result = BuildExample("logos", logos_theory, *test_formula).check_formula()
@@ -654,10 +654,10 @@ Use development CLI flags for detailed analysis:
 
 ```python
 # Inspect witness functions in countermodels
-if model_structure.has_witness_for("\\unineg(A)"):
+if model_structure.has_witness_for("\\neg(A)"):
     for state in range(8):  # For N=3
-        h = model_structure.get_h_witness("\\unineg(A)", state)
-        y = model_structure.get_y_witness("\\unineg(A)", state)
+        h = model_structure.get_h_witness("\\neg(A)", state)
+        y = model_structure.get_y_witness("\\neg(A)", state)
         if h is not None and y is not None:
             print(f"State {state}: h={h}, y={y}")
 ```
@@ -673,7 +673,7 @@ settings = {'N': 2, 'max_time': 60}
 **Issue**: "No witness predicates found"
 ```python
 # Solution: Check formula string consistency
-formula_str = f"\\unineg({self.semantics._formula_to_string(argument)})"
+formula_str = f"\\neg({self.semantics._formula_to_string(argument)})"
 ```
 
 **Issue**: "Inconsistent witness values"
@@ -695,7 +695,7 @@ settings = {
 }
 
 model = BuildExample("iteration_test", exclusion_theory, 
-    ['\\unineg A'], ['A'], settings)
+    ['\\neg A'], ['A'], settings)
     
 models = model.find_models()  # Returns list of distinct models
 for i, model_structure in enumerate(models):
@@ -738,7 +738,7 @@ def compare_theories(premises, conclusions):
     return results
 
 # Compare double negation across theories
-comparison = compare_theories(['\\unineg \\unineg A'], ['A'])
+comparison = compare_theories(['\\neg \\neg A'], ['A'])
 print(comparison)  # Shows different results across theories
 ```
 
@@ -768,14 +768,14 @@ The exclusion theory implements 4 operators, all with witness predicate support:
 
 | Operator | Symbol | Syntax | Arity | Type | Description |
 |----------|---------|---------|-------|------|-------------|  
-| **Unilateral Negation** | ¬ | `\\unineg` | 1 | Primitive | Exclusion-based negation with witness predicates |
-| **Conjunction** | ∧ | `\\uniwedge` | 2 | Primitive | Standard conjunction using verifier products |
-| **Disjunction** | ∨ | `\\univee` | 2 | Primitive | Standard disjunction using verifier union |
-| **Identity** | ≡ | `\\uniequiv` | 2 | Primitive | Verifier set equality check |
+| **Unilateral Negation** | ¬ | `\\neg` | 1 | Primitive | Exclusion-based negation with witness predicates |
+| **Conjunction** | ∧ | `\\wedge` | 2 | Primitive | Standard conjunction using verifier products |
+| **Disjunction** | ∨ | `\\vee` | 2 | Primitive | Standard disjunction using verifier union |
+| **Identity** | ≡ | `\\equiv` | 2 | Primitive | Verifier set equality check |
 
 ### UniNegationOperator
 
-**Symbol**: `\\unineg` (displayed as ¬)
+**Symbol**: `\\neg` (displayed as ¬)
 **Arity**: 1
 **Type**: Primitive operator with witness predicates
 
@@ -789,7 +789,7 @@ The exclusion theory implements 4 operators, all with witness predicate support:
 def compute_verifiers(self, argument, model, eval_point):
     """Query witness predicates to determine verifiers."""
     arg_verifiers = argument.compute_verifiers(model, eval_point)
-    formula_str = f"\\unineg({self.semantics._formula_to_string(argument)})"
+    formula_str = f"\\neg({self.semantics._formula_to_string(argument)})"
     
     verifiers = []
     for state in range(2**self.semantics.N):
@@ -802,7 +802,7 @@ def compute_verifiers(self, argument, model, eval_point):
 
 ### UniConjunctionOperator
 
-**Symbol**: `\\uniwedge` (displayed as ∧)
+**Symbol**: `\\wedge` (displayed as ∧)
 **Arity**: 2
 **Type**: Primitive operator
 
@@ -812,7 +812,7 @@ def compute_verifiers(self, argument, model, eval_point):
 
 ### UniDisjunctionOperator
 
-**Symbol**: `\\univee` (displayed as ∨)
+**Symbol**: `\\vee` (displayed as ∨)
 **Arity**: 2  
 **Type**: Primitive operator
 
@@ -822,7 +822,7 @@ def compute_verifiers(self, argument, model, eval_point):
 
 ### UniIdentityOperator
 
-**Symbol**: `\\uniequiv` (displayed as ≡)
+**Symbol**: `\\equiv` (displayed as ≡)
 **Arity**: 2
 **Type**: Primitive operator
 

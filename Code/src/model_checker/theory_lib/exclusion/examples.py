@@ -1,10 +1,10 @@
 """
 Examples Module for Exclusion Theory
 
-This module provides examples for the exclusion (witness uninegation) semantic framework,
+This module provides examples for the exclusion (witness negation) semantic framework,
 including both countermodels showing invalidity and theorems showing validity.
 
-The exclusion theory tests witness uninegation semantics implementation,
+The exclusion theory tests witness negation semantics implementation,
 demonstrating that the FALSE PREMISE PROBLEM has been solved through
 witness predicates in the model structure. The witness predicate approach
 makes witness functions first-class model citizens, enabling correct
@@ -46,7 +46,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
-# Import witness uninegation components
+# Import witness negation components
 from .semantic import WitnessSemantics, WitnessModelAdapter, WitnessProposition
 from .operators import witness_operators
 

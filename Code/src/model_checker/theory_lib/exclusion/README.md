@@ -280,9 +280,9 @@ if hasattr(model.model_structure, 'get_h_witness'):
 | Operator | Symbol | Syntax | Description |
 |----------|---------|---------|-------------|
 | **Unilateral Negation** | ¬ | `\\neg` | Exclusion-based negation |
-| **Conjunction** | ∧ | `\\uniwedge` | Standard conjunction |  
-| **Disjunction** | ∨ | `\\univee` | Standard disjunction |
-| **Identity** | ≡ | `\\uniequiv` | Verifier set equality |
+| **Conjunction** | ∧ | `\\wedge` | Standard conjunction |  
+| **Disjunction** | ∨ | `\\vee` | Standard disjunction |
+| **Identity** | ≡ | `\\equiv` | Verifier set equality |
 
 ### Command Line Usage
 
