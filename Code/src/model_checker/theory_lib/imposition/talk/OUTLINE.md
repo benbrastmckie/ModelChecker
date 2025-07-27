@@ -8,11 +8,15 @@
   - SMT solvers (Z3)
   - bitvectors as states
   - primitive sorts in Z3
-  - DEMO IMPOSITION SEMANTICS
-    - run example
-    - theory unit tests
   - model-checker to facilitate
-- imposition relation (10 min) -- MIGUEL
+    - translate into Z3 constraints
+    - find a model if there is one
+    - use model to interpret and print
+  - DEMO 1: IMPOSITION SEMANTICS
+    - run examples
+    - unit tests
+- computability as a theoretical virtue (10 min) -- MIGUEL
+  - imposition relation is three-place
   - cost of a primitive scales with arity
   - compare one-place, two-place, and three-place
   - other?
@@ -21,9 +25,11 @@
   - maximal compatible parts
   - alternative worlds
   - semantics for counterfactuals
-  - DEMO COMPARISON AND UNIT TESTS
+  - DEMO COMPARISON
 - modality defined (5 min)
-  - `\Box A := \top \boxright A` rather than `\Box A := \neg A \boxright \bot`
-  - iterated modals don't force counterfactuals into the antecedent
-  - intuitive reading: if anything were the case, A would be the case
+  - `\Box A := \top \boxright A` over `\Box A := \neg A \boxright \bot`
+    - iterated modals don't force counterfactuals into the antecedent
+    - intuitive reading: if anything were the case, A would be the case
   - imposition theory admits countermodels to this definition
+    - many vacuous countermodels
+    - but good logic

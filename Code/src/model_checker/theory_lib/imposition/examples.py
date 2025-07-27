@@ -62,6 +62,25 @@ from model_checker.theory_lib.logos import (
 ### COUNTERMODELS ###
 #####################
 
+# IM_CM_0: COUNTERFACTUAL ANTECEDENT STRENGTHENING
+IM_CM_0_premises = ['\\neg A', '(A \\could C)', '(A \\imposition C)']
+IM_CM_0_conclusions = ['((A \\wedge B) \\imposition C)']
+IM_CM_0_settings = {
+    'N' : 4,
+    'contingent' : True,
+    'non_null' : True,
+    'non_empty' : True,
+    'disjoint' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+IM_CM_0_example = [
+    IM_CM_0_premises,
+    IM_CM_0_conclusions,
+    IM_CM_0_settings,
+]
+
 # IM_CM_1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
 IM_CM_1_premises = ['\\neg A', '(A \\imposition C)']
 IM_CM_1_conclusions = ['((A \\wedge B) \\imposition C)']
@@ -832,7 +851,7 @@ all_imposition_examples = unit_tests
 # Default settings
 general_settings = {
     "print_constraints": False,
-    "print_impossible": True,
+    "print_impossible": False,
     "print_z3": False,
     "save_output": False,
     "maximize": False,
@@ -870,14 +889,22 @@ logos_theory = {
 # NOTE: The translation dictionary will convert \imposition to \boxright for logos
 semantic_theories = {
     "Fine": imposition_theory,
-    "Brast-McKie": logos_theory,
+    # "Brast-McKie": logos_theory,
 }
 
 # Default example range (curated subset for direct execution)
 example_range = {
 
+    # DEMO 1
+    "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+
+    # RUN UNIT_TEST: ./Code/run_tests.py --examples imposition
+    # RUN MAXIMIZER: ./Code/dev_cli.py /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/imposition/examples.py -m
+
+
     # # Countermodels
-    "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_2": IM_CM_2_example,   # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_3": IM_CM_3_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
     # "IM_CM_4": IM_CM_4_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION

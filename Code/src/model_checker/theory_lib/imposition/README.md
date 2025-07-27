@@ -122,10 +122,6 @@ Interactive Jupyter notebook collection demonstrating counterfactual reasoning w
 
 Comprehensive test suite validating all 32 examples from examples.py. Includes unit tests for semantic primitives, integration tests for counterfactual operators, property-based testing for logical principles, and performance benchmarks. Tests ensure theoretical correctness and implementation reliability. See [tests/README.md](tests/README.md) for testing methodology.
 
-### [talk/](talk/)
-
-Presentation materials and resources for talks about imposition semantics and programmatic approaches to counterfactual logic. Includes outline for demonstrations, comparisons with standard methodology, and performance analysis of primitive operations. See [talk/OUTLINE.md](talk/OUTLINE.md) for presentation structure.
-
 ## Advanced Features
 
 ### Model Iteration
