@@ -12,7 +12,7 @@ Example Categories:
 
 2. Counterfactual Logic Theorems (CF_TH_*):
    - Tests for valid counterfactual arguments
-   - Counterfactual conditional and imposition principles
+   - Counterfactual conditional principles
 
 Usage:
 ------
@@ -472,44 +472,6 @@ CF_CM_21_example = [
     CF_CM_21_settings,
 ]
 
-# CF_CM_22: REVERSE DEFINITION OF NEC
-CF_CM_22_premises = ['(\\top \\imposition A)']
-CF_CM_22_conclusions = ['\\Box A']
-CF_CM_22_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : True,
-    'non_null' : True,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
-}
-CF_CM_22_example = [
-    CF_CM_22_premises,
-    CF_CM_22_conclusions,
-    CF_CM_22_settings,
-]
-
-# CF_CM_23: CONTRADICTION TO IMPOSSIBILITY
-CF_CM_23_premises = ['(A \\imposition \\bot)']
-CF_CM_23_conclusions = ['(\\top \\imposition \\neg A)']
-CF_CM_23_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
-}
-CF_CM_23_example = [
-    CF_CM_23_premises,
-    CF_CM_23_conclusions,
-    CF_CM_23_settings,
-]
-
 # CF_CM_24: CONTRADICTION TO IMPOSSIBILITY
 CF_CM_24_premises = ['(A \\boxright B)']
 CF_CM_24_conclusions = ['\\Box (A \\boxright B)']
@@ -531,7 +493,7 @@ CF_CM_24_example = [
 
 # CF_CM_25: CONTRADICTION TO IMPOSSIBILITY
 CF_CM_25_premises = ['A', '\\Diamond B', '\\neg \\Diamond (A \\wedge B)']
-CF_CM_25_conclusions = ['(B \\imposition C)']
+CF_CM_25_conclusions = ['(B \\boxright C)']
 CF_CM_25_settings = {
     'N' : 3,
     'contingent' : False,
@@ -785,6 +747,45 @@ CF_TH_12_example = [
     CF_TH_12_settings,
 ]
 
+# CF_TH_13: REVERSE DEFINITION OF NEC
+CF_TH_13_premises = ['(\\top \\boxright A)']
+CF_TH_13_conclusions = ['\\Box A']
+CF_TH_13_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : True,
+    'non_null' : True,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CF_TH_13_example = [
+    CF_TH_13_premises,
+    CF_TH_13_conclusions,
+    CF_TH_13_settings,
+]
+
+# CF_CM_14: CONTRADICTION TO IMPOSSIBILITY
+CF_TH_14_premises = ['(A \\boxright \\bot)']
+CF_TH_14_conclusions = ['(\\top \\boxright \\neg A)']
+CF_TH_14_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CF_TH_14_example = [
+    CF_TH_14_premises,
+    CF_TH_14_conclusions,
+    CF_TH_14_settings,
+]
+
+
 # Create collections for different counterfactual example types
 counterfactual_cm_examples = {
     "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
@@ -808,8 +809,6 @@ counterfactual_cm_examples = {
     "CF_CM_19": CF_CM_19_example,  # COUNTERFACTUAL EXPORTATION
     "CF_CM_20": CF_CM_20_example,  # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
     "CF_CM_21": CF_CM_21_example,  # COUNTERFACTUAL NEGATION DISTRIBUTION
-    "CF_CM_22": CF_CM_22_example, # REVERSE DEFINITION OF NEC
-    "CF_CM_23": CF_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
     "CF_CM_24": CF_CM_24_example, # NECESSITY OF COUNTERFACTUALS
     "CF_CM_25": CF_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
 }
@@ -827,6 +826,8 @@ counterfactual_th_examples = {
     "CF_TH_10": CF_TH_10_example,  # MIGHT FACTIVITY
     "CF_TH_11": CF_TH_11_example,  # DEFINITION OF NEC
     "CF_TH_12": CF_TH_12_example,  # CONTRADICTION TO IMPOSSIBILITY
+    "CF_TH_13": CF_TH_13_example, # REVERSE DEFINITION OF NEC
+    "CF_TH_14": CF_TH_14_example, # CONTRADICTION TO IMPOSSIBILITY
 }
 
 # Combined collection of all counterfactual examples
@@ -886,8 +887,6 @@ example_range = {
     # "CF_CM_19": CF_CM_19_example,  # COUNTERFACTUAL EXPORTATION
     # "CF_CM_20": CF_CM_20_example,  # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
     # "CF_CM_21": CF_CM_21_example,  # COUNTERFACTUAL NEGATION DISTRIBUTION
-    # "CF_CM_22": CF_CM_22_example, # REVERSE DEFINITION OF NEC
-    # "CF_CM_23": CF_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
     # "CF_CM_24": CF_CM_24_example, # NECESSITY OF COUNTERFACTUALS
     # "CF_CM_25": CF_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
 
@@ -904,6 +903,8 @@ example_range = {
     # "CF_TH_10": CF_TH_10_example,  # MIGHT FACTIVITY
     # "CF_TH_11": CF_TH_11_example,  # DEFINITION OF NEC
     # "CF_TH_12": CF_TH_12_example,  # CONTRADICTION TO IMPOSSIBILITY
+    # "CF_TH_13": CF_TH_13_example, # REVERSE DEFINITION OF NEC
+    # "CF_TH_14": CF_TH_14_example, # CONTRADICTION TO IMPOSSIBILITY
     
 }
 

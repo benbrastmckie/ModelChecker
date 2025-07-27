@@ -19,7 +19,7 @@ class UniNegationOperator(Operator):
     UniNegation operator that queries witness predicates from the model.
     """
     
-    name = "\\unineg"
+    name = "\\neg"
     arity = 1
     
     def true_at(self, arg, eval_point):
@@ -49,7 +49,7 @@ class UniNegationOperator(Operator):
         )
         
         # Get formula string for witness lookup
-        formula_str = f"\\unineg({self.semantics._formula_to_string(argument)})"
+        formula_str = f"\\neg({self.semantics._formula_to_string(argument)})"
         
         verifiers = []
         for state in range(2**self.semantics.N):
@@ -192,7 +192,7 @@ class UniNegationOperator(Operator):
         else:
             arg_str = str(argument)
             
-        formula_str = f"\\unineg({arg_str})"
+        formula_str = f"\\neg({arg_str})"
         
         # Ensure witness predicates are registered for this formula
         if f"{formula_str}_h" not in sem.witness_registry.predicates:
@@ -244,7 +244,7 @@ class UniNegationOperator(Operator):
 class UniConjunctionOperator(Operator):
     """Conjunction operator for witness semantics."""
     
-    name = "\\uniwedge"
+    name = "\\wedge"
     arity = 2
     
     def true_at(self, leftarg, rightarg, eval_point):
@@ -289,7 +289,7 @@ class UniConjunctionOperator(Operator):
 class UniDisjunctionOperator(Operator):
     """Disjunction operator for witness semantics."""
     
-    name = "\\univee"
+    name = "\\vee"
     arity = 2
     
     def true_at(self, leftarg, rightarg, eval_point):
@@ -323,7 +323,7 @@ class UniDisjunctionOperator(Operator):
 class UniIdentityOperator(Operator):
     """Identity operator for witness semantics."""
     
-    name = "\\uniequiv"
+    name = "\\equiv"
     arity = 2
     
     def true_at(self, leftarg, rightarg, eval_point):

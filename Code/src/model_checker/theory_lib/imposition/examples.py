@@ -579,6 +579,44 @@ IM_CM_25_example = [
     IM_CM_25_settings,
 ]
 
+# IM_CM_26: IMPOSITION TO LOGOS COUNTERFACTUAL
+IM_CM_26_premises = ['(A \\boxright B)']
+IM_CM_26_conclusions = ['(A \\boxrightlogos B)']
+IM_CM_26_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+IM_CM_26_example = [
+    IM_CM_26_premises,
+    IM_CM_26_conclusions,
+    IM_CM_26_settings,
+]
+
+# IM_CM_27: LOGOS TO IMPOSITION COUNTERFACTUAL
+IM_CM_27_premises = ['(A \\boxrightlogos B)']
+IM_CM_27_conclusions = ['(A \\boxright B)']
+IM_CM_27_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : False,
+    'non_null' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : True,
+}
+IM_CM_27_example = [
+    IM_CM_27_premises,
+    IM_CM_27_conclusions,
+    IM_CM_27_settings,
+]
+
 ##################
 ### THEOREMS  ###
 ##################
@@ -800,6 +838,7 @@ IM_TH_11_example = [
 
 # Create collections for different imposition example types
 imposition_cm_examples = {
+    "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
     "IM_CM_2": IM_CM_2_example,   # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     "IM_CM_3": IM_CM_3_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
@@ -825,6 +864,8 @@ imposition_cm_examples = {
     "IM_CM_23": IM_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
     "IM_CM_24": IM_CM_24_example, # NECESSITY OF COUNTERFACTUALS
     "IM_CM_25": IM_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
+    "IM_CM_26": IM_CM_26_example, # IMPOSITION TO LOGOS COUNTERFACTUAL
+    "IM_CM_27": IM_CM_27_example, # LOGOS TO IMPOSITION COUNTERFACTUAL
 }
 
 imposition_th_examples = {
@@ -896,12 +937,16 @@ semantic_theories = {
 example_range = {
 
     # # DEMO 1
-    # "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
 
     # RUN UNIT_TEST: ./Code/run_tests.py --examples imposition
     # RUN MAXIMIZER: ./Code/dev_cli.py /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/imposition/examples.py -m
 
+    # "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
+
+    "IM_CM_26": IM_CM_26_example, # IMPOSITION TO LOGOS COUNTERFACTUAL
+    "IM_CM_27": IM_CM_27_example, # LOGOS TO IMPOSITION COUNTERFACTUAL
 
     # # Countermodels
     # "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
@@ -925,10 +970,12 @@ example_range = {
     # "IM_CM_19": IM_CM_19_example, # COUNTERFACTUAL EXPORTATION
     # "IM_CM_20": IM_CM_20_example, # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
     # "IM_CM_21": IM_CM_21_example, # COUNTERFACTUAL NEGATION DISTRIBUTION
-    "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
+    # "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
     # "IM_CM_23": IM_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
     # "IM_CM_24": IM_CM_24_example, # NECESSITY OF COUNTERFACTUALS
     # "IM_CM_25": IM_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
+    # "IM_CM_26": IM_CM_26_example, # IMPOSITION TO LOGOS COUNTERFACTUAL
+    # "IM_CM_27": IM_CM_27_example, # LOGOS TO IMPOSITION COUNTERFACTUAL
 
     # # Theorems
     # "IM_TH_1": IM_TH_1_example,   # COUNTERFACTUAL IDENTITY

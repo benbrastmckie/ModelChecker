@@ -1,9 +1,9 @@
 # TODO
 
 - [x] Print Imposition Relation
-- Change '\\imposition' to '\\boxright'
-- Change '\\could' to '\\diamondright'
-- Change '\\unineg' to '\\neg', etc.
+- [x] Change '\\imposition' to '\\boxright'
+- [x] Change '\\could' to '\\diamondright'
+- [x] In the exclusion/ theory, change '\\unineg' to '\\neg', and change '\\uniwedge' to '\\wedge', etc., obviating the need for a translation dictionary (you can leave it empty)
 
 ## `IM_CM_24_example`
 

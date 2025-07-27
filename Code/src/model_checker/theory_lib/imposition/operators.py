@@ -15,6 +15,10 @@ from model_checker.theory_lib.logos.subtheories.modal.operators import (
     NecessityOperator,
     PossibilityOperator,
 )
+from model_checker.theory_lib.logos.subtheories.counterfactual.operators import (
+    CounterfactualOperator as LogosCounterfactualOperator,
+    MightCounterfactualOperator as LogosMightCounterfactualOperator,
+)
 
 ##############################################################################
 ####################### PRIMITIVE IMPOSITION OPERATORS #######################
@@ -174,11 +178,42 @@ class MightImpositionOperator(syntactic.DefinedOperator):
         alt_worlds = is_outcome(left_argument_verifiers, eval_point, model_structure)
         self.print_over_worlds(sentence_obj, eval_point, alt_worlds, indent_num, use_colors)
 
+##############################################################################
+##################### LOGOS COUNTERFACTUAL OPERATORS #########################
+##############################################################################
+
+class LogosCounterfactual(LogosCounterfactualOperator):
+    """
+    Logos counterfactual operator imported and renamed for use in imposition theory.
+    This allows using both imposition semantics (\\boxright) and logos semantics 
+    (\\boxrightlogos) in the same example.
+    """
+    name = "\\boxrightlogos"
+    
+class LogosMightCounterfactual(syntactic.DefinedOperator):
+    """
+    Logos might counterfactual operator imported and renamed for use in imposition theory.
+    This allows using both imposition semantics (\\diamondright) and logos semantics
+    (\\diamondrightlogos) in the same example.
+    """
+    name = "\\diamondrightlogos"
+    arity = 2
+    
+    def derived_definition(self, leftarg, rightarg):
+        """Defines might counterfactual as negation of counterfactual with negated consequent."""
+        return [NegationOperator, [LogosCounterfactual, leftarg, [NegationOperator, rightarg]]]
+    
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Delegate to the original print method."""
+        LogosMightCounterfactualOperator.print_method(self, sentence_obj, eval_point, indent_num, use_colors)
+
 def get_imposition_operators():
     """Get imposition-specific operators."""
     return {
         '\\boxright': ImpositionOperator,
         '\\diamondright': MightImpositionOperator,
+        '\\boxrightlogos': LogosCounterfactual,
+        '\\diamondrightlogos': LogosMightCounterfactual,
     }
 
 def get_all_operators():
