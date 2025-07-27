@@ -66,12 +66,12 @@ from model_checker.theory_lib.logos import (
 IM_CM_0_premises = ['\\neg A', '(A \\diamondright C)', '(A \\boxright C)']
 IM_CM_0_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_0_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -85,12 +85,12 @@ IM_CM_0_example = [
 IM_CM_1_premises = ['\\neg A', '(A \\boxright C)']
 IM_CM_1_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_1_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -109,7 +109,7 @@ IM_CM_2_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -123,12 +123,12 @@ IM_CM_2_example = [
 IM_CM_3_premises = ['\\neg A', '(A \\boxright C)', '\\Diamond (A \\wedge B)']
 IM_CM_3_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_3_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -142,12 +142,12 @@ IM_CM_3_example = [
 IM_CM_4_premises = ['\\neg A','(A \\boxright C)']
 IM_CM_4_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_4_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -161,12 +161,12 @@ IM_CM_4_example = [
 IM_CM_5_premises = ['(A \\boxright C)','(B \\boxright C)']
 IM_CM_5_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_5_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -180,7 +180,7 @@ IM_CM_5_example = [
 IM_CM_6_premises = ['\\neg A', '(A \\boxright B)','(A \\boxright C)']
 IM_CM_6_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_6_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -199,12 +199,12 @@ IM_CM_6_example = [
 IM_CM_7_premises = ['(A \\boxright B)']
 IM_CM_7_conclusions = ['(\\neg B \\boxright \\neg A)']
 IM_CM_7_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -218,12 +218,12 @@ IM_CM_7_example = [
 IM_CM_8_premises = ['\\neg B','(A \\boxright B)']
 IM_CM_8_conclusions = ['(\\neg B \\boxright \\neg A)']
 IM_CM_8_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -237,12 +237,12 @@ IM_CM_8_example = [
 IM_CM_9_premises = ['\\neg A','\\neg B','(A \\boxright B)']
 IM_CM_9_conclusions = ['(\\neg B \\boxright \\neg A)']
 IM_CM_9_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -256,12 +256,12 @@ IM_CM_9_example = [
 IM_CM_10_premises = ['(A \\boxright B)','(B \\boxright C)']
 IM_CM_10_conclusions = ['(A \\boxright C)']
 IM_CM_10_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -275,12 +275,12 @@ IM_CM_10_example = [
 IM_CM_11_premises = ['\\neg A','(A \\boxright B)','(B \\boxright C)']
 IM_CM_11_conclusions = ['(A \\boxright C)']
 IM_CM_11_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -294,12 +294,12 @@ IM_CM_11_example = [
 IM_CM_12_premises = ['\\neg A','\\neg B','(A \\boxright B)','(B \\boxright C)']
 IM_CM_12_conclusions = ['(A \\boxright C)']
 IM_CM_12_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -321,7 +321,7 @@ IM_CM_13_premises = [
 ]
 IM_CM_13_conclusions = []
 IM_CM_13_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -355,7 +355,7 @@ IM_CM_14_premises = [
 ]
 IM_CM_14_conclusions = []
 IM_CM_14_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -374,7 +374,7 @@ IM_CM_14_example = [
 IM_CM_15_premises = ['\\neg A']
 IM_CM_15_conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 IM_CM_15_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -412,7 +412,7 @@ IM_CM_16_example = [
 IM_CM_17_premises = ['(A \\boxright C)','(B \\boxright C)']
 IM_CM_17_conclusions = ['((A \\vee B) \\boxright C)']
 IM_CM_17_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -431,7 +431,7 @@ IM_CM_17_example = [
 IM_CM_18_premises = ['A','B']
 IM_CM_18_conclusions = ['(A \\boxright B)']
 IM_CM_18_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -450,7 +450,7 @@ IM_CM_18_example = [
 IM_CM_19_premises = ['((A \\wedge B) \\boxright C)']
 IM_CM_19_conclusions = ['(A \\boxright (B \\boxright C))']
 IM_CM_19_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -469,7 +469,7 @@ IM_CM_19_example = [
 IM_CM_20_premises = ['((A \\wedge B) \\boxright C)','\\Diamond (A \\wedge B)']
 IM_CM_20_conclusions = ['(A \\boxright (B \\boxright C))']
 IM_CM_20_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -488,7 +488,7 @@ IM_CM_20_example = [
 IM_CM_21_premises = ['\\neg A','\\neg (A \\boxright B)']
 IM_CM_21_conclusions = ['(A \\boxright \\neg B)']
 IM_CM_21_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -512,7 +512,7 @@ IM_CM_22_settings = {
     'disjoint' : False,
     'non_empty' : True,
     'non_null' : True,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -531,7 +531,7 @@ IM_CM_23_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -550,7 +550,7 @@ IM_CM_24_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -569,7 +569,7 @@ IM_CM_25_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -588,7 +588,7 @@ IM_CM_26_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -607,7 +607,7 @@ IM_CM_27_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -630,7 +630,7 @@ IM_TH_1_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -644,12 +644,12 @@ IM_TH_1_example = [
 IM_TH_2_premises = ['A','(A \\boxright B)']
 IM_TH_2_conclusions = ['B']
 IM_TH_2_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -663,12 +663,12 @@ IM_TH_2_example = [
 IM_TH_3_premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
 IM_TH_3_conclusions = ['(A \\boxright C)']
 IM_TH_3_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -682,12 +682,12 @@ IM_TH_3_example = [
 IM_TH_4_premises = ['((A \\vee B) \\boxright C)']
 IM_TH_4_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_TH_4_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -701,12 +701,12 @@ IM_TH_4_example = [
 IM_TH_5_premises = ['((A \\vee B) \\boxright C)']
 IM_TH_5_conclusions = ['(A \\boxright C)']
 IM_TH_5_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -720,12 +720,12 @@ IM_TH_5_example = [
 IM_TH_6_premises = ['((A \\vee B) \\boxright C)']
 IM_TH_6_conclusions = ['((A \\boxright C) \\wedge (B \\boxright C))']
 IM_TH_6_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -743,12 +743,12 @@ IM_TH_7_premises = [
 ]
 IM_TH_7_conclusions = ['((A \\vee B) \\boxright C)']
 IM_TH_7_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -762,12 +762,12 @@ IM_TH_7_example = [
 IM_TH_8_premises = ['(A \\boxright (B \\wedge C))']
 IM_TH_8_conclusions = ['(A \\boxright B)']
 IM_TH_8_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -781,12 +781,12 @@ IM_TH_8_example = [
 IM_TH_9_premises = ['(A \\boxright B)','(A \\boxright C)']
 IM_TH_9_conclusions = ['(A \\boxright (B \\wedge C))']
 IM_TH_9_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -800,12 +800,12 @@ IM_TH_9_example = [
 IM_TH_10_premises = ['A','B']
 IM_TH_10_conclusions = ['(A \\diamondright B)']
 IM_TH_10_settings = {
-    'N' : 4,
+    'N' : 5,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -824,7 +824,7 @@ IM_TH_11_settings = {
     'disjoint' : False,
     'non_empty' : True,
     'non_null' : True,
-    'max_time' : 1,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -930,7 +930,7 @@ logos_theory = {
 # NOTE: The translation dictionary is empty as operator names are now consistent
 semantic_theories = {
     "Fine": imposition_theory,
-    # "Brast-McKie": logos_theory,
+    "Brast-McKie": logos_theory,
 }
 
 # Default example range (curated subset for direct execution)
@@ -945,8 +945,8 @@ example_range = {
 
     # "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
 
-    "IM_CM_26": IM_CM_26_example, # IMPOSITION TO LOGOS COUNTERFACTUAL
-    "IM_CM_27": IM_CM_27_example, # LOGOS TO IMPOSITION COUNTERFACTUAL
+    # "IM_CM_26": IM_CM_26_example, # IMPOSITION TO LOGOS COUNTERFACTUAL
+    # "IM_CM_27": IM_CM_27_example, # LOGOS TO IMPOSITION COUNTERFACTUAL
 
     # # Countermodels
     # "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
@@ -979,15 +979,15 @@ example_range = {
 
     # # Theorems
     # "IM_TH_1": IM_TH_1_example,   # COUNTERFACTUAL IDENTITY
-    # "IM_TH_2": IM_TH_2_example,   # COUNTERFACTUAL MODUS PONENS
-    # "IM_TH_3": IM_TH_3_example,   # WEAKENED TRANSITIVITY
-    # "IM_TH_4": IM_TH_4_example,   # ANTECEDENT DISJUNCTION TO CONJUNCTION
-    # "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-    # "IM_TH_6": IM_TH_6_example,   # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-    # "IM_TH_7": IM_TH_7_example,   # COUNTERFACTUAL DISJUNCTION INTRODUCTION
-    # "IM_TH_8": IM_TH_8_example,   # COUNTERFACTUAL CONSEQUENT WEAKENING
-    # "IM_TH_9": IM_TH_9_example,   # COUNTERFACTUAL CONJUNCTION INTRODUCTION
-    # "IM_TH_10": IM_TH_10_example, # MIGHT FACTIVITY
+    "IM_TH_2": IM_TH_2_example,   # COUNTERFACTUAL MODUS PONENS
+    "IM_TH_3": IM_TH_3_example,   # WEAKENED TRANSITIVITY
+    "IM_TH_4": IM_TH_4_example,   # ANTECEDENT DISJUNCTION TO CONJUNCTION
+    "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    "IM_TH_6": IM_TH_6_example,   # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    "IM_TH_7": IM_TH_7_example,   # COUNTERFACTUAL DISJUNCTION INTRODUCTION
+    "IM_TH_8": IM_TH_8_example,   # COUNTERFACTUAL CONSEQUENT WEAKENING
+    "IM_TH_9": IM_TH_9_example,   # COUNTERFACTUAL CONJUNCTION INTRODUCTION
+    "IM_TH_10": IM_TH_10_example, # MIGHT FACTIVITY
     # "IM_TH_11": IM_TH_11_example, # DEFINITION OF NEC
     
 }

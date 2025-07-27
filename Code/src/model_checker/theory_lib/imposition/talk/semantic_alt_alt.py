@@ -291,29 +291,29 @@ class LogosSemantics(SemanticDefaults):
             ),
         )
 
-    def is_alternative(self, state_u, state_y, state_w):
-        """Determines if a state represents an alternative world resulting from
-        imposing one state on another.
+    # def is_alternative(self, state_u, state_y, state_w):
+    #     """Determines if a state represents an alternative world resulting from
+    #     imposing one state on another.
         
-        This method checks whether state_u is a possible world that results from imposing state_y
-        on world state_w. The alternative world must contain state_y as a part and must also
-        contain a maximal part of state_w that is compatible with state_y.
+    #     This method checks whether state_u is a possible world that results from imposing state_y
+    #     on world state_w. The alternative world must contain state_y as a part and must also
+    #     contain a maximal part of state_w that is compatible with state_y.
         
-        Args:
-            state_u (BitVecRef): The state being tested as an alternative world
-            state_y (BitVecRef): The state being imposed
-            state_w (BitVecRef): The world state being modified
+    #     Args:
+    #         state_u (BitVecRef): The state being tested as an alternative world
+    #         state_y (BitVecRef): The state being imposed
+    #         state_w (BitVecRef): The world state being modified
             
-        Returns:
-            BoolRef: Z3 constraint expressing whether state_u is an alternative world
-                    resulting from imposing state_y on state_w
-        """
-        z = z3.BitVec("alt_z", self.N)
-        return z3.And(
-            self.is_world(state_u),
-            self.is_part_of(state_y, state_u),
-            Exists(z, z3.And(self.is_part_of(z, state_u), self.max_compatible_part(z, state_w, state_y))),
-        )
+    #     Returns:
+    #         BoolRef: Z3 constraint expressing whether state_u is an alternative world
+    #                 resulting from imposing state_y on state_w
+    #     """
+    #     z = z3.BitVec("alt_z", self.N)
+    #     return z3.And(
+    #         self.is_world(state_u),
+    #         self.is_part_of(state_y, state_u),
+    #         Exists(z, z3.And(self.is_part_of(z, state_u), self.max_compatible_part(z, state_w, state_y))),
+    #     )
 
     def calculate_alternative_worlds(self, verifiers, eval_point, model_structure):
         """Calculates alternative worlds where a given state is imposed.
