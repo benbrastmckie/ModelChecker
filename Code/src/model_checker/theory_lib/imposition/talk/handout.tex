@@ -356,6 +356,17 @@ We may then derive rather than posit the frame constraints on imposition, making
 
       
 
+\section*{Computational Complexity as a Theoretical Virtue}%
+\begin{enumerate}[leftmargin=1in]
+	\item Z3 saves its `Function' objects as a mix of array-like and lambda-like objects.
+	\item This means Z3 saves every value (that it is forced to for a given countermodel) for every input combination, meaning that the (worst-case) space complexity of functions is proportional to the input space. 
+	\item Defining computational complexity: an algorithm takes $O(n)$ runtime or space if it scales linearly with some quantity $n$ as $n$ grows indefinitely large. 
+	\item With inputs in $A \times B$, $A$ being the space of atomic sentences and $B$ the space of bitvectors, `verify' has a worst-case complexity of $O(\abs{A} \abs{B}) = O(\abs{A} 2^N)$, $N$ the size of the bitvectors.
+	\item With inputs in $B^3$, `imposition' has a complexity of $O(2^{3N})$. 
+	\item In practice, this means much slower runtimes for the imposition semantics: imposition semantics takes about 10 times as long as logos to run for $N=4$. 
+	\item Since the complexity of `imposition' is exponential with $N$, this is only more marked for larger values of $N$, which can be useful for finding easily interpretable models. 
+\end{enumerate}
+
 
 
 \section*{Proofs}%
