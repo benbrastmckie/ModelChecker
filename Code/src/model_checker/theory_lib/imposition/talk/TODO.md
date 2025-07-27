@@ -1,5 +1,10 @@
 # TODO
 
+- [x] Print Imposition Relation
+- Change '\\imposition' to '\\boxright'
+- Change '\\could' to '\\diamondright'
+- Change '\\unineg' to '\\neg', etc.
+
 ## `IM_CM_24_example`
 
 Why is `|(A \imposition B)| = < {□}, ∅ >  (True in b)`?
