@@ -32,7 +32,7 @@ from model_checker import BuildExample
 
 theory = get_theory()
 example = BuildExample("intro", theory,
-    premises=['A', 'A \\imposition B'],
+    premises=['A', 'A \\boxright B'],
     conclusions=['B']
 )
 
@@ -94,8 +94,8 @@ print(f"Valid: {result}")  # True - modus ponens
 ### Operators
 
 **Imposition Operators** (2):
-- `\\imposition` (↪): Must-counterfactual
-- `\\could` (⟂): Might-counterfactual
+- `\\boxright` (↪): Must-counterfactual
+- `\\diamondright` (⟂): Might-counterfactual
 
 **Inherited Operators** (9):
 - Extensional: ¬, ∧, ∨, →, ↔, ⊤, ⊥
@@ -118,7 +118,7 @@ print(f"Valid: {result}")  # True - modus ponens
 ```python
 # Test counterfactual modus ponens
 example = BuildExample("cf_mp", theory,
-    premises=['A', 'A \\imposition B'],
+    premises=['A', 'A \\boxright B'],
     conclusions=['B']
 )
 assert example.check_validity() == True
@@ -128,8 +128,8 @@ assert example.check_validity() == True
 ```python
 # Antecedent strengthening (invalid)
 counter = BuildExample("ant_str", theory,
-    premises=['A \\imposition C'],
-    conclusions=['(A \\wedge B) \\imposition C'],
+    premises=['A \\boxright C'],
+    conclusions=['(A \\wedge B) \\boxright C'],
     settings={'expectation': False}
 )
 counter.print_model()  # Shows countermodel

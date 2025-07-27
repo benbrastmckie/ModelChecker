@@ -140,6 +140,7 @@ class ImpositionSemantics(LogosSemantics):
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
         self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
 
+    # TODO: can this be removed (its in logos semantics)
     def extended_verify(self, state, sentence, eval_point):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
@@ -148,6 +149,7 @@ class ImpositionSemantics(LogosSemantics):
         arguments = sentence.arguments or ()
         return operator.extended_verify(state, *arguments, eval_point)
     
+    # TODO: can this be removed (its in logos semantics)
     def extended_falsify(self, state, sentence, eval_point):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:

@@ -32,8 +32,8 @@ from model_checker import BuildExample
 # Create counterfactual example
 theory = get_theory()
 example = BuildExample("sobel", theory,
-    premises=['A \\imposition X',           # If A then must X
-              '\\neg ((A \\wedge B) \\imposition X)'],  # Not: if A and B then must X
+    premises=['A \\boxright X',           # If A then must X
+              '\\neg ((A \\wedge B) \\boxright X)'],  # Not: if A and B then must X
     conclusions=[],  # Just exploring models
     settings={'N': 4, 'iterate': 5}
 )
@@ -62,8 +62,8 @@ from model_checker.theory_lib.imposition import get_theory, iterate_example
 theory = get_theory()
 example = BuildExample("my_counterfactual", theory)
 example.add_premise("\\neg A")
-example.add_premise("A \\imposition B")
-example.add_conclusion("A \\could C")
+example.add_premise("A \\boxright B")
+example.add_conclusion("A \\diamondright C")
 
 # Find up to 5 distinct models
 models = iterate_example(example, max_iterations=5)
@@ -238,8 +238,8 @@ theory = get_theory()
 # Create the antecedent strengthening example
 example = BuildExample("antecedent_strengthening", theory)
 example.add_premise("\\neg A")
-example.add_premise("A \\imposition C")
-example.add_conclusion("(A \\wedge B) \\imposition C")
+example.add_premise("A \\boxright C")
+example.add_conclusion("(A \\wedge B) \\boxright C")
 
 # Find countermodels
 models = iterate_example(example, max_iterations=5)
@@ -257,8 +257,8 @@ for i, model in enumerate(models):
 ```python
 # Explore Sobel sequences with multiple models
 example = BuildExample("sobel_sequence", theory)
-example.add_premise("A \\imposition X")
-example.add_premise("\\neg ((A \\wedge B) \\imposition X)")
+example.add_premise("A \\boxright X")
+example.add_premise("\\neg ((A \\wedge B) \\boxright X)")
 
 # Find models showing different imposition patterns
 settings = {'N': 4, 'max_time': 2, 'iterate': 3}
@@ -276,7 +276,7 @@ for model in models:
 ```python
 # Find models with different verification patterns
 example = BuildExample("verification_test", theory)
-example.add_premise("A \\could B")
+example.add_premise("A \\diamondright B")
 example.add_premise("\\neg A")
 
 # Configure for diversity in verification

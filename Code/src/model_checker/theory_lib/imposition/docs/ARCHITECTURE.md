@@ -229,7 +229,7 @@ class ImpositionOperator(Operator):
     """Counterfactual conditional with Fine's imposition semantics."""
     
     def __init__(self):
-        super().__init__("\\imposition", 2)
+        super().__init__("\\boxright", 2)
     
     def semantic_clause(self, sentence):
         # Implementation details...
@@ -239,7 +239,7 @@ class CouldOperator(Operator):
     """Possibility operator for imposition framework."""
     
     def __init__(self):
-        super().__init__("\\could", 1)
+        super().__init__("\\diamondright", 1)
     
     def semantic_clause(self, sentence):
         # Implementation details...
@@ -257,8 +257,8 @@ imposition_operators = OperatorCollection({
     "\\bot": Bottom(),
     
     # Imposition-specific
-    "\\imposition": ImpositionOperator(),
-    "\\could": CouldOperator(),
+    "\\boxright": ImpositionOperator(),
+    "\\diamondright": CouldOperator(),
 })
 ```
 

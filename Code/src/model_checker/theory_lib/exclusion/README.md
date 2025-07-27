@@ -261,7 +261,7 @@ theory = get_theory("exclusion")
 
 # Test double negation elimination (finds countermodel)
 model = BuildExample("double_neg", theory,
-    premises=['\\unineg \\unineg A'],
+    premises=['\\neg \\neg A'],
     conclusions=['A'],  
     settings={'N': 3}
 )
@@ -271,7 +271,7 @@ print(f"¬¬A ⊨ A: {result}")  # False - countermodel found
 
 # Inspect witness functions in the countermodel
 if hasattr(model.model_structure, 'get_h_witness'):
-    h_value = model.model_structure.get_h_witness("\\unineg(\\unineg(A))", 0)
+    h_value = model.model_structure.get_h_witness("\\neg(\\neg(A))", 0)
     print(f"Witness h(∅) = {h_value}")
 ```
 
@@ -279,7 +279,7 @@ if hasattr(model.model_structure, 'get_h_witness'):
 
 | Operator | Symbol | Syntax | Description |
 |----------|---------|---------|-------------|
-| **Unilateral Negation** | ¬ | `\\unineg` | Exclusion-based negation |
+| **Unilateral Negation** | ¬ | `\\neg` | Exclusion-based negation |
 | **Conjunction** | ∧ | `\\uniwedge` | Standard conjunction |  
 | **Disjunction** | ∨ | `\\univee` | Standard disjunction |
 | **Identity** | ≡ | `\\uniequiv` | Verifier set equality |

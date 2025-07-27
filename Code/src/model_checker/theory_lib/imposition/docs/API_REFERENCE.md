@@ -32,7 +32,7 @@ from model_checker import BuildExample
 # Create counterfactual example
 theory = get_theory()
 model = BuildExample("counterfactual", theory,
-    premises=['A', 'A \\imposition B'],  # A is true, if A then must B
+    premises=['A', 'A \\boxright B'],  # A is true, if A then must B
     conclusions=['B'],                    # Therefore B
     settings={'N': 3}
 )
@@ -196,8 +196,8 @@ The imposition theory provides the following operators:
 
 | Operator | Symbol | LaTeX | Arity | Description |
 |----------|--------|-------|-------|-------------|
-| Imposition | ↪ | `\\imposition` | 2 | If A then must B |
-| Could | ⟂ | `\\could` | 2 | If A then might B |
+| Imposition | ▷ | `\\boxright` | 2 | If A then must B |
+| Could | ◇▷ | `\\diamondright` | 2 | If A then might B |
 
 ### Extremal Operators
 
@@ -213,7 +213,7 @@ The imposition theory provides the following operators:
 The core counterfactual operator implementing Fine's imposition semantics.
 
 **Attributes:**
-- `name`: "\\imposition"
+- `name`: "\\boxright"
 - `arity`: 2
 
 **Methods:**
@@ -226,10 +226,10 @@ The core counterfactual operator implementing Fine's imposition semantics.
 The might-counterfactual operator, defined as the dual of imposition.
 
 **Attributes:**
-- `name`: "\\could"
+- `name`: "\\diamondright"
 - `arity`: 2
 
-**Definition:** `A \\could B` ≡ `\\neg(A \\imposition \\neg B)`
+**Definition:** `A \\diamondright B` ≡ `\\neg(A \\boxright \\neg B)`
 
 ## Model Iteration
 
@@ -328,8 +328,8 @@ theory = get_theory()
 # Create a simple example
 example = BuildExample("counterfactual_test", theory)
 example.add_premise("\\neg A")
-example.add_premise("A \\imposition B")
-example.add_conclusion("A \\could C")
+example.add_premise("A \\boxright B")
+example.add_conclusion("A \\diamondright C")
 
 # Check validity
 result = example.check_validity()
@@ -362,8 +362,8 @@ for i, model in enumerate(models):
 from model_checker.theory_lib.imposition import imposition_operators
 
 # Access operator classes
-ImpositionOp = imposition_operators.get_operator("\\imposition")
-CouldOp = imposition_operators.get_operator("\\could")
+ImpositionOp = imposition_operators.get_operator("\\boxright")
+CouldOp = imposition_operators.get_operator("\\diamondright")
 
 # Check operator properties
 print(f"Imposition arity: {ImpositionOp.arity}")
