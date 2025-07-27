@@ -8,7 +8,7 @@
 exclusion/
 ├── README.md                    # This file - comprehensive theory overview
 ├── semantic.py                  # Core implementation with witness predicates
-├── operators.py                 # Unilateral operators (negation, conjunction, etc.)
+├── operators.py                 # Unilateral operators (¬, ∧, ∨, ↔)
 ├── examples.py                  # 38 test examples (22 countermodels, 16 theorems)
 ├── __init__.py                  # Theory registration
 └── docs/                        # Documentation directory
