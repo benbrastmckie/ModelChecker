@@ -9,7 +9,7 @@ imposition/
 ├── README.md           # This file - theory overview
 ├── __init__.py         # Public API and theory registration
 ├── semantic.py         # ImpositionSemantics implementation
-├── operators.py        # Counterfactual operators (↪, ⟂)
+├── operators.py        # Counterfactual operators (▷, ◇▷)
 ├── examples.py         # 32 test examples
 ├── iterate.py          # Model iteration for counterfactuals
 ├── docs/               # Comprehensive documentation
@@ -30,7 +30,7 @@ from model_checker import BuildExample
 # Test counterfactual modus ponens
 theory = get_theory()
 example = BuildExample("cf_mp", theory,
-    premises=['A', 'A \\imposition B'],  # A is true, if A then must B
+    premises=['A', 'A \\boxright B'],  # A is true, if A then must B
     conclusions=['B']                    # Therefore B
 )
 
@@ -39,8 +39,8 @@ print(f"Valid: {result}")  # True
 
 # Find countermodel to antecedent strengthening
 counter = BuildExample("ant_str", theory,
-    premises=['A \\imposition C'],
-    conclusions=['(A \\wedge B) \\imposition C'],
+    premises=['A \\boxright C'],
+    conclusions=['(A \\wedge B) \\boxright C'],
     settings={'N': 3, 'expectation': False}
 )
 counter.print_model()  # Shows countermodel
@@ -63,8 +63,8 @@ The theory provides **11 operators** total:
 
 **Imposition-Specific** (2 operators):
 
-- `\\imposition`: Must-counterfactual ("if A then must B")
-- `\\could`: Might-counterfactual ("if A then might B")
+- `\\boxright`: Must-counterfactual ("if A then must B")
+- `\\diamondright`: Might-counterfactual ("if A then might B")
 
 **Inherited from Logos** (9 operators):
 
@@ -73,12 +73,12 @@ The theory provides **11 operators** total:
 
 ### Truth Conditions
 
-**Must-Counterfactual**: `A \\imposition B`
+**Must-Counterfactual**: `A \\boxright B`
 
 - Verified by `x` when: Some part of `x` imposes A-verifiers on the evaluation world, yielding a world where B is verified
 - Falsified by `x` when: Some part of `x` imposes A-verifiers on the evaluation world, yielding a world where B is falsified
 
-**Might-Counterfactual**: `A \\could B` := `\\neg(A \\imposition \\neg B)`
+**Might-Counterfactual**: `A \\diamondright B` := `\\neg(A \\boxright \\neg B)`
 
 - Defined as the dual of must-counterfactual
 - True when it's not the case that imposing A must yield ¬B

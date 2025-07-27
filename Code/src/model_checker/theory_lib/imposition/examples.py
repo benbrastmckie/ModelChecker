@@ -63,8 +63,8 @@ from model_checker.theory_lib.logos import (
 #####################
 
 # IM_CM_0: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-IM_CM_0_premises = ['\\neg A', '(A \\could C)', '(A \\imposition C)']
-IM_CM_0_conclusions = ['((A \\wedge B) \\imposition C)']
+IM_CM_0_premises = ['\\neg A', '(A \\diamondright C)', '(A \\boxright C)']
+IM_CM_0_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_0_settings = {
     'N' : 4,
     'contingent' : True,
@@ -82,8 +82,8 @@ IM_CM_0_example = [
 ]
 
 # IM_CM_1: COUNTERFACTUAL ANTECEDENT STRENGTHENING
-IM_CM_1_premises = ['\\neg A', '(A \\imposition C)']
-IM_CM_1_conclusions = ['((A \\wedge B) \\imposition C)']
+IM_CM_1_premises = ['\\neg A', '(A \\boxright C)']
+IM_CM_1_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_1_settings = {
     'N' : 4,
     'contingent' : True,
@@ -101,8 +101,8 @@ IM_CM_1_example = [
 ]
 
 # IM_CM_2: MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-IM_CM_2_premises = ['\\neg A', '(A \\could C)']
-IM_CM_2_conclusions = ['((A \\wedge B) \\could C)']
+IM_CM_2_premises = ['\\neg A', '(A \\diamondright C)']
+IM_CM_2_conclusions = ['((A \\wedge B) \\diamondright C)']
 IM_CM_2_settings = {
     'N' : 3,
     'contingent' : True,
@@ -120,8 +120,8 @@ IM_CM_2_example = [
 ]
 
 # IM_CM_3: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
-IM_CM_3_premises = ['\\neg A', '(A \\imposition C)', '\\Diamond (A \\wedge B)']
-IM_CM_3_conclusions = ['((A \\wedge B) \\imposition C)']
+IM_CM_3_premises = ['\\neg A', '(A \\boxright C)', '\\Diamond (A \\wedge B)']
+IM_CM_3_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_3_settings = {
     'N' : 4,
     'contingent' : True,
@@ -139,8 +139,8 @@ IM_CM_3_example = [
 ]
 
 # IM_CM_4: COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
-IM_CM_4_premises = ['\\neg A','(A \\imposition C)']
-IM_CM_4_conclusions = ['((A \\wedge B) \\imposition C)']
+IM_CM_4_premises = ['\\neg A','(A \\boxright C)']
+IM_CM_4_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_4_settings = {
     'N' : 4,
     'contingent' : True,
@@ -158,8 +158,8 @@ IM_CM_4_example = [
 ]
 
 # IM_CM_5: COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
-IM_CM_5_premises = ['(A \\imposition C)','(B \\imposition C)']
-IM_CM_5_conclusions = ['((A \\wedge B) \\imposition C)']
+IM_CM_5_premises = ['(A \\boxright C)','(B \\boxright C)']
+IM_CM_5_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_5_settings = {
     'N' : 4,
     'contingent' : True,
@@ -177,8 +177,8 @@ IM_CM_5_example = [
 ]
 
 # IM_CM_6: WEAKENED MONOTONICITY
-IM_CM_6_premises = ['\\neg A', '(A \\imposition B)','(A \\imposition C)']
-IM_CM_6_conclusions = ['((A \\wedge B) \\imposition C)']
+IM_CM_6_premises = ['\\neg A', '(A \\boxright B)','(A \\boxright C)']
+IM_CM_6_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_6_settings = {
     'N' : 4,
     'contingent' : True,
@@ -196,8 +196,8 @@ IM_CM_6_example = [
 ]
 
 # IM_CM_7: COUNTERFACTUAL CONTRAPOSITION
-IM_CM_7_premises = ['(A \\imposition B)']
-IM_CM_7_conclusions = ['(\\neg B \\imposition \\neg A)']
+IM_CM_7_premises = ['(A \\boxright B)']
+IM_CM_7_conclusions = ['(\\neg B \\boxright \\neg A)']
 IM_CM_7_settings = {
     'N' : 4,
     'contingent' : True,
@@ -215,8 +215,8 @@ IM_CM_7_example = [
 ]
 
 # IM_CM_8: COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
-IM_CM_8_premises = ['\\neg B','(A \\imposition B)']
-IM_CM_8_conclusions = ['(\\neg B \\imposition \\neg A)']
+IM_CM_8_premises = ['\\neg B','(A \\boxright B)']
+IM_CM_8_conclusions = ['(\\neg B \\boxright \\neg A)']
 IM_CM_8_settings = {
     'N' : 4,
     'contingent' : True,
@@ -234,8 +234,8 @@ IM_CM_8_example = [
 ]
 
 # IM_CM_9: COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
-IM_CM_9_premises = ['\\neg A','\\neg B','(A \\imposition B)']
-IM_CM_9_conclusions = ['(\\neg B \\imposition \\neg A)']
+IM_CM_9_premises = ['\\neg A','\\neg B','(A \\boxright B)']
+IM_CM_9_conclusions = ['(\\neg B \\boxright \\neg A)']
 IM_CM_9_settings = {
     'N' : 4,
     'contingent' : True,
@@ -253,8 +253,8 @@ IM_CM_9_example = [
 ]
 
 # IM_CM_10: TRANSITIVITY
-IM_CM_10_premises = ['(A \\imposition B)','(B \\imposition C)']
-IM_CM_10_conclusions = ['(A \\imposition C)']
+IM_CM_10_premises = ['(A \\boxright B)','(B \\boxright C)']
+IM_CM_10_conclusions = ['(A \\boxright C)']
 IM_CM_10_settings = {
     'N' : 4,
     'contingent' : True,
@@ -272,8 +272,8 @@ IM_CM_10_example = [
 ]
 
 # IM_CM_11: COUNTERFACTUAL TRANSITIVITY WITH NEGATION
-IM_CM_11_premises = ['\\neg A','(A \\imposition B)','(B \\imposition C)']
-IM_CM_11_conclusions = ['(A \\imposition C)']
+IM_CM_11_premises = ['\\neg A','(A \\boxright B)','(B \\boxright C)']
+IM_CM_11_conclusions = ['(A \\boxright C)']
 IM_CM_11_settings = {
     'N' : 4,
     'contingent' : True,
@@ -291,8 +291,8 @@ IM_CM_11_example = [
 ]
 
 # IM_CM_12: COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
-IM_CM_12_premises = ['\\neg A','\\neg B','(A \\imposition B)','(B \\imposition C)']
-IM_CM_12_conclusions = ['(A \\imposition C)']
+IM_CM_12_premises = ['\\neg A','\\neg B','(A \\boxright B)','(B \\boxright C)']
+IM_CM_12_conclusions = ['(A \\boxright C)']
 IM_CM_12_settings = {
     'N' : 4,
     'contingent' : True,
@@ -311,13 +311,13 @@ IM_CM_12_example = [
 
 # IM_CM_13: SOBEL SEQUENCE
 IM_CM_13_premises = [
-    '(A \\imposition X)',
-    '\\neg ((A \\wedge B) \\imposition X)',
-    '(((A \\wedge B) \\wedge C) \\imposition X)',
-    '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\imposition X)',
-    '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\imposition X)',
-    '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\imposition X)',
-    '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\imposition X)',
+    '(A \\boxright X)',
+    '\\neg ((A \\wedge B) \\boxright X)',
+    '(((A \\wedge B) \\wedge C) \\boxright X)',
+    '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
+    '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)',
+    '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)',
+    '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)',
 ]
 IM_CM_13_conclusions = []
 IM_CM_13_settings = {
@@ -339,19 +339,19 @@ IM_CM_13_example = [
 # IM_CM_14: SOBEL SEQUENCE WITH POSSIBILITY
 IM_CM_14_premises = [
     '\\Diamond A',
-    '(A \\imposition X)',
+    '(A \\boxright X)',
     '\\Diamond (A \\wedge B)',
-    '\\neg ((A \\wedge B) \\imposition X)',
+    '\\neg ((A \\wedge B) \\boxright X)',
     '\\Diamond ((A \\wedge B) \\wedge C)',
-    '(((A \\wedge B) \\wedge C) \\imposition X)',
+    '(((A \\wedge B) \\wedge C) \\boxright X)',
     '\\Diamond (((A \\wedge B) \\wedge C) \\wedge D)',
-    '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\imposition X)',
+    '\\neg ((((A \\wedge B) \\wedge C) \\wedge D) \\boxright X)',
     '\\Diamond ((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E)',
-    '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\imposition X)',
+    '(((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\boxright X)',
     '\\Diamond (((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F)',
-    '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\imposition X)',
+    '\\neg ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\boxright X)',
     '\\Diamond ((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G)',
-    '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\imposition X)',
+    '(((((((A \\wedge B) \\wedge C) \\wedge D) \\wedge E) \\wedge F) \\wedge G) \\boxright X)',
 ]
 IM_CM_14_conclusions = []
 IM_CM_14_settings = {
@@ -372,7 +372,7 @@ IM_CM_14_example = [
 
 # IM_CM_15: COUNTERFACTUAL EXCLUDED MIDDLE
 IM_CM_15_premises = ['\\neg A']
-IM_CM_15_conclusions = ['(A \\imposition B)','(A \\imposition \\neg B)']
+IM_CM_15_conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 IM_CM_15_settings = {
     'N' : 4,
     'contingent' : True,
@@ -390,8 +390,8 @@ IM_CM_15_example = [
 ]
 
 # IM_CM_16: SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
-IM_CM_16_premises = ['\\neg A','(A \\imposition (B \\vee C))']
-IM_CM_16_conclusions = ['(A \\imposition B)','(A \\imposition C)']
+IM_CM_16_premises = ['\\neg A','(A \\boxright (B \\vee C))']
+IM_CM_16_conclusions = ['(A \\boxright B)','(A \\boxright C)']
 IM_CM_16_settings = {
     'N' : 3,
     'contingent' : True,
@@ -409,8 +409,8 @@ IM_CM_16_example = [
 ]
 
 # IM_CM_17: INTRODUCTION OF DISJUNCTIVE ANTECEDENT
-IM_CM_17_premises = ['(A \\imposition C)','(B \\imposition C)']
-IM_CM_17_conclusions = ['((A \\vee B) \\imposition C)']
+IM_CM_17_premises = ['(A \\boxright C)','(B \\boxright C)']
+IM_CM_17_conclusions = ['((A \\vee B) \\boxright C)']
 IM_CM_17_settings = {
     'N' : 4,
     'contingent' : True,
@@ -429,7 +429,7 @@ IM_CM_17_example = [
 
 # IM_CM_18: MUST FACTIVITY
 IM_CM_18_premises = ['A','B']
-IM_CM_18_conclusions = ['(A \\imposition B)']
+IM_CM_18_conclusions = ['(A \\boxright B)']
 IM_CM_18_settings = {
     'N' : 4,
     'contingent' : True,
@@ -447,8 +447,8 @@ IM_CM_18_example = [
 ]
 
 # IM_CM_19: COUNTERFACTUAL EXPORTATION
-IM_CM_19_premises = ['((A \\wedge B) \\imposition C)']
-IM_CM_19_conclusions = ['(A \\imposition (B \\imposition C))']
+IM_CM_19_premises = ['((A \\wedge B) \\boxright C)']
+IM_CM_19_conclusions = ['(A \\boxright (B \\boxright C))']
 IM_CM_19_settings = {
     'N' : 4,
     'contingent' : True,
@@ -466,8 +466,8 @@ IM_CM_19_example = [
 ]
 
 # IM_CM_20: COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
-IM_CM_20_premises = ['((A \\wedge B) \\imposition C)','\\Diamond (A \\wedge B)']
-IM_CM_20_conclusions = ['(A \\imposition (B \\imposition C))']
+IM_CM_20_premises = ['((A \\wedge B) \\boxright C)','\\Diamond (A \\wedge B)']
+IM_CM_20_conclusions = ['(A \\boxright (B \\boxright C))']
 IM_CM_20_settings = {
     'N' : 4,
     'contingent' : True,
@@ -485,8 +485,8 @@ IM_CM_20_example = [
 ]
 
 # IM_CM_21: COUNTERFACTUAL NEGATION DISTRIBUTION
-IM_CM_21_premises = ['\\neg A','\\neg (A \\imposition B)']
-IM_CM_21_conclusions = ['(A \\imposition \\neg B)']
+IM_CM_21_premises = ['\\neg A','\\neg (A \\boxright B)']
+IM_CM_21_conclusions = ['(A \\boxright \\neg B)']
 IM_CM_21_settings = {
     'N' : 4,
     'contingent' : True,
@@ -504,7 +504,7 @@ IM_CM_21_example = [
 ]
 
 # IM_CM_22: REVERSE DEFINITION OF NEC
-IM_CM_22_premises = ['(\\top \\imposition A)']
+IM_CM_22_premises = ['(\\top \\boxright A)']
 IM_CM_22_conclusions = ['\\Box A']
 IM_CM_22_settings = {
     'N' : 3,
@@ -523,8 +523,8 @@ IM_CM_22_example = [
 ]
 
 # IM_CM_23: CONTRADICTION TO IMPOSSIBILITY
-IM_CM_23_premises = ['(A \\imposition \\bot)']
-IM_CM_23_conclusions = ['(\\top \\imposition \\neg A)']
+IM_CM_23_premises = ['(A \\boxright \\bot)']
+IM_CM_23_conclusions = ['(\\top \\boxright \\neg A)']
 IM_CM_23_settings = {
     'N' : 3,
     'contingent' : False,
@@ -542,8 +542,8 @@ IM_CM_23_example = [
 ]
 
 # IM_CM_24: CONTRADICTION TO IMPOSSIBILITY
-IM_CM_24_premises = ['(A \\imposition B)']
-IM_CM_24_conclusions = ['\\Box (A \\imposition B)']
+IM_CM_24_premises = ['(A \\boxright B)']
+IM_CM_24_conclusions = ['\\Box (A \\boxright B)']
 IM_CM_24_settings = {
     'N' : 3,
     'contingent' : False,
@@ -562,7 +562,7 @@ IM_CM_24_example = [
 
 # IM_CM_25: CONTRADICTION TO IMPOSSIBILITY
 IM_CM_25_premises = ['A', '\\Diamond B', '\\neg \\Diamond (A \\wedge B)']
-IM_CM_25_conclusions = ['(B \\imposition C)']
+IM_CM_25_conclusions = ['(B \\boxright C)']
 IM_CM_25_settings = {
     'N' : 3,
     'contingent' : False,
@@ -585,7 +585,7 @@ IM_CM_25_example = [
 
 # IM_TH_1: COUNTERFACTUAL IDENTITY
 IM_TH_1_premises = []
-IM_TH_1_conclusions = ['(A \\imposition A)']
+IM_TH_1_conclusions = ['(A \\boxright A)']
 IM_TH_1_settings = {
     'N' : 2,
     'contingent' : False,
@@ -603,7 +603,7 @@ IM_TH_1_example = [
 ]
 
 # IM_TH_2: COUNTERFACTUAL MODUS PONENS
-IM_TH_2_premises = ['A','(A \\imposition B)']
+IM_TH_2_premises = ['A','(A \\boxright B)']
 IM_TH_2_conclusions = ['B']
 IM_TH_2_settings = {
     'N' : 4,
@@ -622,8 +622,8 @@ IM_TH_2_example = [
 ]
 
 # IM_TH_3: WEAKENED TRANSITIVITY
-IM_TH_3_premises = ['(A \\imposition B)','((A \\wedge B) \\imposition C)']
-IM_TH_3_conclusions = ['(A \\imposition C)']
+IM_TH_3_premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
+IM_TH_3_conclusions = ['(A \\boxright C)']
 IM_TH_3_settings = {
     'N' : 4,
     'contingent' : False,
@@ -641,8 +641,8 @@ IM_TH_3_example = [
 ]
 
 # IM_TH_4: ANTECEDENT DISJUNCTION TO CONJUNCTION
-IM_TH_4_premises = ['((A \\vee B) \\imposition C)']
-IM_TH_4_conclusions = ['((A \\wedge B) \\imposition C)']
+IM_TH_4_premises = ['((A \\vee B) \\boxright C)']
+IM_TH_4_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_TH_4_settings = {
     'N' : 4,
     'contingent' : False,
@@ -660,8 +660,8 @@ IM_TH_4_example = [
 ]
 
 # IM_TH_5: SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-IM_TH_5_premises = ['((A \\vee B) \\imposition C)']
-IM_TH_5_conclusions = ['(A \\imposition C)']
+IM_TH_5_premises = ['((A \\vee B) \\boxright C)']
+IM_TH_5_conclusions = ['(A \\boxright C)']
 IM_TH_5_settings = {
     'N' : 4,
     'contingent' : False,
@@ -679,8 +679,8 @@ IM_TH_5_example = [
 ]
 
 # IM_TH_6: DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-IM_TH_6_premises = ['((A \\vee B) \\imposition C)']
-IM_TH_6_conclusions = ['((A \\imposition C) \\wedge (B \\imposition C))']
+IM_TH_6_premises = ['((A \\vee B) \\boxright C)']
+IM_TH_6_conclusions = ['((A \\boxright C) \\wedge (B \\boxright C))']
 IM_TH_6_settings = {
     'N' : 4,
     'contingent' : False,
@@ -699,11 +699,11 @@ IM_TH_6_example = [
 
 # IM_TH_7: COUNTERFACTUAL DISJUNCTION INTRODUCTION
 IM_TH_7_premises = [
-    '(A \\imposition C)',
-    '(B \\imposition C)',
-    '((A \\wedge B) \\imposition C)',
+    '(A \\boxright C)',
+    '(B \\boxright C)',
+    '((A \\wedge B) \\boxright C)',
 ]
-IM_TH_7_conclusions = ['((A \\vee B) \\imposition C)']
+IM_TH_7_conclusions = ['((A \\vee B) \\boxright C)']
 IM_TH_7_settings = {
     'N' : 4,
     'contingent' : False,
@@ -721,8 +721,8 @@ IM_TH_7_example = [
 ]
 
 # IM_TH_8: COUNTERFACTUAL CONSEQUENT WEAKENING
-IM_TH_8_premises = ['(A \\imposition (B \\wedge C))']
-IM_TH_8_conclusions = ['(A \\imposition B)']
+IM_TH_8_premises = ['(A \\boxright (B \\wedge C))']
+IM_TH_8_conclusions = ['(A \\boxright B)']
 IM_TH_8_settings = {
     'N' : 4,
     'contingent' : False,
@@ -740,8 +740,8 @@ IM_TH_8_example = [
 ]
 
 # IM_TH_9: COUNTERFACTUAL CONJUNCTION INTRODUCTION
-IM_TH_9_premises = ['(A \\imposition B)','(A \\imposition C)']
-IM_TH_9_conclusions = ['(A \\imposition (B \\wedge C))']
+IM_TH_9_premises = ['(A \\boxright B)','(A \\boxright C)']
+IM_TH_9_conclusions = ['(A \\boxright (B \\wedge C))']
 IM_TH_9_settings = {
     'N' : 4,
     'contingent' : False,
@@ -760,7 +760,7 @@ IM_TH_9_example = [
 
 # IM_TH_10: MIGHT FACTIVITY
 IM_TH_10_premises = ['A','B']
-IM_TH_10_conclusions = ['(A \\could B)']
+IM_TH_10_conclusions = ['(A \\diamondright B)']
 IM_TH_10_settings = {
     'N' : 4,
     'contingent' : False,
@@ -779,7 +779,7 @@ IM_TH_10_example = [
 
 # IM_TH_11: DEFINITION OF NEC
 IM_TH_11_premises = ['\\Box A']
-IM_TH_11_conclusions = ['(\\top \\imposition A)']
+IM_TH_11_conclusions = ['(\\top \\boxright A)']
 IM_TH_11_settings = {
     'N' : 3,
     'contingent' : False,
@@ -863,8 +863,8 @@ logos_registry.load_subtheories(['extensional', 'modal', 'counterfactual'])
 
 # Translation dictionary from imposition to logos operators
 imposition_to_logos = {
-    "\\imposition": "\\boxright",     # Fine's must-counterfactual to logos must-counterfactual
-    "\\could": "\\diamondright",      # Fine's might-counterfactual to logos might-counterfactual
+    "\\boxright": "\\boxright",     # Fine's must-counterfactual to logos must-counterfactual
+    "\\diamondright": "\\diamondright",      # Fine's might-counterfactual to logos might-counterfactual
 }
 
 # Theory definition for imposition
@@ -886,7 +886,7 @@ logos_theory = {
 }
 
 # Specify which theories to use for comparison
-# NOTE: The translation dictionary will convert \imposition to \boxright for logos
+# NOTE: The translation dictionary is empty as operator names are now consistent
 semantic_theories = {
     "Fine": imposition_theory,
     # "Brast-McKie": logos_theory,
@@ -895,9 +895,9 @@ semantic_theories = {
 # Default example range (curated subset for direct execution)
 example_range = {
 
-    # DEMO 1
-    "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    # # DEMO 1
+    # "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
 
     # RUN UNIT_TEST: ./Code/run_tests.py --examples imposition
     # RUN MAXIMIZER: ./Code/dev_cli.py /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/imposition/examples.py -m
@@ -925,7 +925,7 @@ example_range = {
     # "IM_CM_19": IM_CM_19_example, # COUNTERFACTUAL EXPORTATION
     # "IM_CM_20": IM_CM_20_example, # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
     # "IM_CM_21": IM_CM_21_example, # COUNTERFACTUAL NEGATION DISTRIBUTION
-    # "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
+    "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
     # "IM_CM_23": IM_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
     # "IM_CM_24": IM_CM_24_example, # NECESSITY OF COUNTERFACTUALS
     # "IM_CM_25": IM_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
