@@ -13,7 +13,7 @@
     - theory unit tests
   - model-checker to facilitate
 - imposition relation (10 min) -- MIGUEL
-  - cost of a primitive scales with arity
+  - cost of a primitive scales exponentially with arity (go through space complexity)
   - compare one-place, two-place, and three-place
   - other?
   - DEMO MAXIMIZER FOR IMPOSITION SEMANTICS
