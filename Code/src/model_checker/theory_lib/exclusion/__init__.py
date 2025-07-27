@@ -1,5 +1,5 @@
 """
-Witness uninegation theory implementation.
+Witness negation theory implementation.
 
 This module implements Strategy E1: Witnesses as Model Predicates, which makes
 witness functions first-class citizens of the model structure. Instead of trying

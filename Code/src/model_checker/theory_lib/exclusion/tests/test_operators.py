@@ -35,7 +35,7 @@ class TestExclusionOperators:
         """Test operator arity, names, and basic properties."""
         operators = exclusion_theory['operators']
         
-        # Test uninegation properties
+        # Test negation properties
         unineg_op = operators["\\unineg"]
         assert unineg_op.name == "\\unineg"
         assert unineg_op.arity == 1
@@ -55,8 +55,8 @@ class TestExclusionOperators:
         assert id_op.name == "\\uniequiv"
         assert id_op.arity == 2
         
-    def test_uninegation_operator(self, exclusion_theory):
-        """Test uninegation operator implementation."""
+    def test_negation_operator(self, exclusion_theory):
+        """Test negation operator implementation."""
         operators = exclusion_theory['operators']
         unineg_op = operators["\\unineg"]
         
@@ -129,8 +129,8 @@ class TestOperatorSemanticClauses:
         operators = exclusion_theory['operators']
         unineg_op_class = operators["\\unineg"]
         
-        # The uninegation operator should have witness-specific methods
-        assert hasattr(unineg_op_class, '_verifies_uninegation_with_predicates')
+        # The negation operator should have witness-specific methods
+        assert hasattr(unineg_op_class, '_verifies_negation_with_predicates')
         assert hasattr(unineg_op_class, '_check_minimality')
         assert hasattr(unineg_op_class, '_eval_is_part_of')
         assert hasattr(unineg_op_class, '_eval_excludes')
