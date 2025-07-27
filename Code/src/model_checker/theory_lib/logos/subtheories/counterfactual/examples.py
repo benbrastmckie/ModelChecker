@@ -59,7 +59,7 @@ CF_CM_1_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -73,12 +73,12 @@ CF_CM_1_example = [
 CF_CM_2_premises = ['\\neg A', '(A \\diamondright C)']
 CF_CM_2_conclusions = ['((A \\wedge B) \\diamondright C)']
 CF_CM_2_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -97,7 +97,7 @@ CF_CM_3_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -116,7 +116,7 @@ CF_CM_4_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -135,7 +135,7 @@ CF_CM_5_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -173,7 +173,7 @@ CF_CM_7_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -192,7 +192,7 @@ CF_CM_8_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -211,7 +211,7 @@ CF_CM_9_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -230,7 +230,7 @@ CF_CM_10_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -249,7 +249,7 @@ CF_CM_11_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -268,7 +268,7 @@ CF_CM_12_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -362,7 +362,7 @@ CF_CM_15_example = [
 CF_CM_16_premises = ['\\neg A','(A \\boxright (B \\vee C))']
 CF_CM_16_conclusions = ['(A \\boxright B)','(A \\boxright C)']
 CF_CM_16_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -476,12 +476,12 @@ CF_CM_21_example = [
 CF_CM_24_premises = ['(A \\boxright B)']
 CF_CM_24_conclusions = ['\\Box (A \\boxright B)']
 CF_CM_24_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -495,12 +495,12 @@ CF_CM_24_example = [
 CF_CM_25_premises = ['A', '\\Diamond B', '\\neg \\Diamond (A \\wedge B)']
 CF_CM_25_conclusions = ['(B \\boxright C)']
 CF_CM_25_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -525,7 +525,7 @@ CF_TH_1_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -544,7 +544,7 @@ CF_TH_2_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -563,7 +563,7 @@ CF_TH_3_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -582,7 +582,7 @@ CF_TH_4_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -601,7 +601,7 @@ CF_TH_5_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -620,7 +620,7 @@ CF_TH_6_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -643,7 +643,7 @@ CF_TH_7_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -662,7 +662,7 @@ CF_TH_8_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -681,7 +681,7 @@ CF_TH_9_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -700,7 +700,7 @@ CF_TH_10_settings = {
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -713,12 +713,12 @@ CF_TH_10_example = [
 CF_TH_11_premises = ['\\Box A']
 CF_TH_11_conclusions = ['(\\top \\boxright A)']
 CF_TH_11_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : True,
     'non_null' : True,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -732,12 +732,12 @@ CF_TH_11_example = [
 CF_TH_12_premises = ['(A \\boxright \\bot)']
 CF_TH_12_conclusions = ['(\\top \\boxright \\neg A)']
 CF_TH_12_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
     'non_null' : False,
-    'max_time' : 1,
+    'max_time' : 100,
     'iterate' : 1,
     'expectation' : False,
 }
@@ -866,7 +866,7 @@ semantic_theories = {
 example_range = {
 
     # COUNTERMODELS
-    "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "CF_CM_2": CF_CM_2_example,  # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "CF_CM_3": CF_CM_3_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
     # "CF_CM_4": CF_CM_4_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
@@ -890,7 +890,7 @@ example_range = {
     # "CF_CM_24": CF_CM_24_example, # NECESSITY OF COUNTERFACTUALS
     # "CF_CM_25": CF_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
 
-    # # THEOREMS
+    # THEOREMS
     # "CF_TH_1": CF_TH_1_example,  # COUNTERFACTUAL IDENTITY
     # "CF_TH_2": CF_TH_2_example,  # COUNTERFACTUAL MODUS PONENS
     # "CF_TH_3": CF_TH_3_example,  # WEAKENED TRANSITIVITY
