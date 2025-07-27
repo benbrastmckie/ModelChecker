@@ -32,7 +32,7 @@ from model_checker import BuildExample
 # Create counterfactual validity test
 theory = get_theory()
 example = BuildExample("modus_ponens", theory,
-    premises=['A', 'A \\imposition B'],  # A is true, if A then must B
+    premises=['A', 'A \\boxright B'],  # A is true, if A then must B
     conclusions=['B'],                    # Therefore B
     settings={'N': 3}
 )
@@ -43,8 +43,8 @@ print(f"Counterfactual modus ponens valid: {result}")  # True
 
 # Find counterexample to antecedent strengthening
 counter = BuildExample("antecedent_str", theory,
-    premises=['A \\imposition C'],
-    conclusions=['(A \\wedge B) \\imposition C'],
+    premises=['A \\boxright C'],
+    conclusions=['(A \\wedge B) \\boxright C'],
     settings={'N': 3, 'expectation': False}
 )
 
@@ -81,16 +81,16 @@ The theory provides 11 operators total:
 - `\\Diamond` (◇): Possibility
 
 **Imposition Operators** (2):
-- `\\imposition` (↪): Must-counterfactual ("if A then must B")
-- `\\could` (⟂): Might-counterfactual ("if A then might B")
+- `\\boxright` (▷): Must-counterfactual ("if A then must B")
+- `\\diamondright` (◇▷): Might-counterfactual ("if A then might B")
 
 ### Truth Conditions
 
-**Must-Counterfactual**: `A \\imposition B`
+**Must-Counterfactual**: `A \\boxright B`
 - Verified when: Some part imposes A-verifiers on world yielding B-verifiers
 - Falsified when: Some part imposes A-verifiers on world yielding B-falsifiers
 
-**Might-Counterfactual**: `A \\could B` := `\\neg(A \\imposition \\neg B)`
+**Might-Counterfactual**: `A \\diamondright B` := `\\neg(A \\boxright \\neg B)`
 - Verified when: Not the case that imposing A must yield ¬B
 - Falsified when: Imposing A necessarily yields ¬B
 
@@ -101,23 +101,23 @@ The theory provides 11 operators total:
 ```python
 # Counterfactual modus ponens (valid)
 example = BuildExample("cf_mp", theory,
-    premises=['A', 'A \\imposition B'],
+    premises=['A', 'A \\boxright B'],
     conclusions=['B']
 )
 assert example.check_validity() == True
 
 # Antecedent strengthening (invalid)
 example = BuildExample("ant_str", theory,
-    premises=['A \\imposition C'],
-    conclusions=['(A \\wedge B) \\imposition C'],
+    premises=['A \\boxright C'],
+    conclusions=['(A \\wedge B) \\boxright C'],
     settings={'expectation': False}
 )
 assert example.check_validity() == False
 
 # Sobel sequences
 example = BuildExample("sobel", theory,
-    premises=['A \\imposition X', '\\neg((A \\wedge B) \\imposition X)'],
-    conclusions=['(A \\wedge B) \\imposition \\neg X'],
+    premises=['A \\boxright X', '\\neg((A \\wedge B) \\boxright X)'],
+    conclusions=['(A \\wedge B) \\boxright \\neg X'],
     settings={'N': 4}
 )
 ```
@@ -129,8 +129,8 @@ from model_checker.theory_lib.imposition import iterate_example
 
 # Find multiple counterfactual models
 example = BuildExample("explore", theory,
-    premises=['\\neg A', 'A \\imposition B'],
-    conclusions=['A \\could C']
+    premises=['\\neg A', 'A \\boxright B'],
+    conclusions=['A \\diamondright C']
 )
 
 models = iterate_example(example, max_iterations=5)
@@ -153,8 +153,8 @@ imp_theory = get_theory()
 # Test exportation principle
 for theory_name, theory in [("Logos", logos_theory), ("Imposition", imp_theory)]:
     example = BuildExample(f"{theory_name}_export", theory,
-        premises=['A \\imposition (B \\imposition C)'],
-        conclusions=['(A \\wedge B) \\imposition C']
+        premises=['A \\boxright (B \\boxright C)'],
+        conclusions=['(A \\wedge B) \\boxright C']
     )
     print(f"{theory_name}: {example.check_validity()}")
 ```
@@ -169,7 +169,7 @@ for theory_name, theory in [("Logos", logos_theory), ("Imposition", imp_theory)]
 
 ### Formula Construction
 
-1. **Use LaTeX Notation**: Write `\\imposition` not `↪` in formulas
+1. **Use LaTeX Notation**: Write `\\boxright` not `↪` in formulas
 2. **Parenthesize Carefully**: Counterfactuals have specific precedence
 3. **Combine Operators**: Mix classical and counterfactual operators
 
