@@ -895,7 +895,7 @@ general_settings = {
     "print_impossible": False,
     "print_z3": False,
     "save_output": False,
-    "maximize": False,
+    "maximize": False,  # Set to False for normal runs, use -m flag for maximize mode
 }
 
 # Create operator registry for logos theory with counterfactual operators
@@ -937,16 +937,17 @@ semantic_theories = {
 example_range = {
 
     # # DEMO 1
-    # "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
 
     # RUN UNIT_TEST: ./Code/run_tests.py --examples imposition
     # RUN MAXIMIZER: ./Code/dev_cli.py /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/imposition/examples.py -m
 
-    # "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
+    "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
 
-    "IM_CM_26": IM_CM_26_example, # IMPOSITION TO LOGOS COUNTERFACTUAL
-    "IM_CM_27": IM_CM_27_example, # LOGOS TO IMPOSITION COUNTERFACTUAL
+    # # DEMO 3: cannot be run with logos_theory
+    # "IM_CM_26": IM_CM_26_example, # IMPOSITION TO LOGOS COUNTERFACTUAL
+    # "IM_CM_27": IM_CM_27_example, # LOGOS TO IMPOSITION COUNTERFACTUAL
 
     # # Countermodels
     # "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
