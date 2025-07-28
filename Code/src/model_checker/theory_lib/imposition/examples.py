@@ -66,7 +66,7 @@ from model_checker.theory_lib.logos import (
 IM_CM_0_premises = ['\\neg A', '(A \\diamondright C)', '(A \\boxright C)']
 IM_CM_0_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_0_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -701,7 +701,7 @@ IM_TH_4_example = [
 IM_TH_5_premises = ['((A \\vee B) \\boxright C)']
 IM_TH_5_conclusions = ['(A \\boxright C)']
 IM_TH_5_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -930,7 +930,7 @@ logos_theory = {
 # NOTE: The translation dictionary is empty as operator names are now consistent
 semantic_theories = {
     "Fine": imposition_theory,
-    "Brast-McKie": logos_theory,
+    # "Brast-McKie": logos_theory,
 }
 
 # Default example range (curated subset for direct execution)
@@ -938,14 +938,17 @@ example_range = {
 
     # # DEMO 1
     "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    # "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
 
     # RUN UNIT_TEST: ./Code/run_tests.py --examples imposition
     # RUN MAXIMIZER: ./Code/dev_cli.py /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/imposition/examples.py -m
 
-    "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
 
-    # # DEMO 3: cannot be run with logos_theory
+    # # DEMO 3
+    # "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
+    # "IM_TH_11": IM_TH_11_example, # DEFINITION OF NEC
+
+    # # EXTRA: cannot be run with logos_theory
     # "IM_CM_26": IM_CM_26_example, # IMPOSITION TO LOGOS COUNTERFACTUAL
     # "IM_CM_27": IM_CM_27_example, # LOGOS TO IMPOSITION COUNTERFACTUAL
 
@@ -980,15 +983,15 @@ example_range = {
 
     # # Theorems
     # "IM_TH_1": IM_TH_1_example,   # COUNTERFACTUAL IDENTITY
-    "IM_TH_2": IM_TH_2_example,   # COUNTERFACTUAL MODUS PONENS
-    "IM_TH_3": IM_TH_3_example,   # WEAKENED TRANSITIVITY
-    "IM_TH_4": IM_TH_4_example,   # ANTECEDENT DISJUNCTION TO CONJUNCTION
-    "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-    "IM_TH_6": IM_TH_6_example,   # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-    "IM_TH_7": IM_TH_7_example,   # COUNTERFACTUAL DISJUNCTION INTRODUCTION
-    "IM_TH_8": IM_TH_8_example,   # COUNTERFACTUAL CONSEQUENT WEAKENING
-    "IM_TH_9": IM_TH_9_example,   # COUNTERFACTUAL CONJUNCTION INTRODUCTION
-    "IM_TH_10": IM_TH_10_example, # MIGHT FACTIVITY
+    # "IM_TH_2": IM_TH_2_example,   # COUNTERFACTUAL MODUS PONENS
+    # "IM_TH_3": IM_TH_3_example,   # WEAKENED TRANSITIVITY
+    # "IM_TH_4": IM_TH_4_example,   # ANTECEDENT DISJUNCTION TO CONJUNCTION
+    # "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    # "IM_TH_6": IM_TH_6_example,   # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    # "IM_TH_7": IM_TH_7_example,   # COUNTERFACTUAL DISJUNCTION INTRODUCTION
+    # "IM_TH_8": IM_TH_8_example,   # COUNTERFACTUAL CONSEQUENT WEAKENING
+    # "IM_TH_9": IM_TH_9_example,   # COUNTERFACTUAL CONJUNCTION INTRODUCTION
+    # "IM_TH_10": IM_TH_10_example, # MIGHT FACTIVITY
     # "IM_TH_11": IM_TH_11_example, # DEFINITION OF NEC
     
 }
