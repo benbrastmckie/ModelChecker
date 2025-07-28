@@ -15,7 +15,7 @@
   - DEMO 1: IMPOSITION SEMANTICS
     - run examples
     - unit tests
-- computability as a theoretical virtue (10 min) -- MIGUEL
+- computational complexity as a theoretical virtue (10 min) -- MIGUEL
   - cost of a primitive scales exponentially with arity (go through space complexity)
   - compare one-place, two-place, and three-place
   - other?
