@@ -22,15 +22,23 @@
     - run examples
     - unit tests
 - computational complexity as a theoretical virtue (10 min) -- MIGUEL
-  - data structure grows exponentially with N
+  - data structure that stores functions that depend on state space grows exponentially with N
     - computability becomes a new theoretical virtue
-    - not just speed, but size of the model that it handles
-  - how Z3 stores models (worst case)
+    - for reasons of speed (bigger data structures take more time), but also in the entire "higher N means higher certainty in theoremhood" convo: size of the model it handles also matters
+  - where this matters: primitive functions
+    - how Z3 stores functions (worst case: basically an array)
     - DEMO WITH -z FLAG
-    - cost of a primitive scales exponentially with arity
-    - go through space complexity
-  - compare with simplicity (computability for humans)
-    - often no objective measure on simplicity
+    - array with larger input _space_ has larger _space complexity_ (go over space complexity here)
+    - larger _space_ complexity means longer runtime to fill that space up: slower programs
+    - TL;DR cost of a primitive scales exponentially with arity
+  - computational costs in action
+    - imposition 10x slower than logos for N=4 for most theorems in the examples.py files
+      - when talking about 0.1 vs 1 or even 0.01 vs 0.1 seconds, not too bad. For countermodels, low N often suffices
+      - but, remember: more N good N. at N=5 many of the imposition theorems take more than 100 seconds. logos could do them in less (from 1 ish second to 70 ish seconds)
+  - so if we are to use this tool for making theories, computability is now a virtue
+  - compare with simplicity (kinda like intuitive computability for humans)
+    - often no objective measure on simplicity. Not the case for computability: time is very easy, even before that space complexity
+    - questions of computability with Z3 are also not always straightforward—sometimes some theorems go through easier than others for reasons not well understood to us, probably having to do with reasoning shortcuts (tactics and goals) Z3 takes—but overall it is a chartable space and arguably even in these areas more measurable than intuitive simplicity
   - DEMO MAXIMIZER FOR IMPOSITION SEMANTICS
 - imposition defined (5 min)
   - maximal compatible parts
