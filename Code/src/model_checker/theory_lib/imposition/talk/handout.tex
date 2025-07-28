@@ -285,15 +285,17 @@
 \section*{Computational Complexity as a Theoretical Virtue}%
 
 \begin{enumerate}[leftmargin=.25in]
-	\item Z3 builds models with a mix of array-like and lambda-like objects.
-	\item This means Z3 saves every value (that it is forced to for a given countermodel) for every input combination, meaning that the (worst-case) space complexity of functions is proportional to the input space. 
-	\item Computational complexity: an algorithm takes $O(n)$ runtime or space if it scales linearly with some input quantity $n$ as $n$ grows indefinitely large. 
+	% \item Z3 builds models with a mix of array-like and lambda-like objects.
+	% \item This means Z3 saves every value (that it is forced to for a given countermodel) for every input combination, meaning that the (worst-case) space complexity of functions is proportional to the input space. 
+	\item Computational complexity: an algorithm takes $O(n)$ space if it scales linearly with some input quantity $n$ as $n$ grows indefinitely large. 
 	\item For our purposes, runtime complexity $\approx$ space complexity: larger space complexity means larger runtime complexity. 
     % NOTE: is it space or runtime or both?
-	\item Definitions: $\mathbb{L}$ is the set of atomic sentences, and $\mathbb{B}$ is the set of all bitvectors. 
-	\item \texttt{verify} : $\mathbb{L} \times \mathbb{B} \to \set{0,1}$. (Worst-case) space complexity: $O(\abs{\mathbb{L}} \abs{\mathbb{B}}) = O(\abs{\mathbb{L}} 2^N)$, $N$ the size of the bitvectors.
-	\item \texttt{imposition} : $\mathbb{B}^3 \to \set{0,1}$. (Worst-case) space complexity: $O(\abs{\mathbb{B}}^3) = O(2^{3N})$.
-	\item Practically speaking: imposition theory approx. 10 times slower (i.e., takes 10 times as long to find countermodels or exhaust search space) than logos with $N=4$, getting worse as $N$ increases. 
+  \begin{itemize}
+    \item $\mathbb{L}$ is the set of atomic sentences, and $\mathbb{B}$ is the set of all bitvectors. 
+    \item \texttt{verify} : $\mathbb{L} \times \mathbb{B} \to \set{0,1}$. Space complexity: $O(\abs{\mathbb{L}} \abs{\mathbb{B}}) = O(\abs{\mathbb{L}} 2^N)$.
+    \item \texttt{imposition} : $\mathbb{B}^3 \to \set{0,1}$. Space complexity: $O(\abs{\mathbb{B}}^3) = O(2^{3N})$.
+  \end{itemize}
+	\item Practically speaking: imposition theory ${\sim}{10}$ times slower than logos with $N=4$, getting worse as $N$ increases. 
 	% \item With inputs in $A \times B$, $A$ being the space of atomic sentences and $B$ the space of bitvectors, `verify' has a worst-case complexity of $O(\abs{A} \abs{B}) = O(\abs{A} 2^N)$, $N$ the size of the bitvectors.
     % NOTE: by 'atomic' sentences you mean using the Z3 primitives, right? Like 'imposition(a, b, c)'
 	% \item With inputs in $B^3$, `imposition' has a complexity of $O(2^{3N})$. 
@@ -438,13 +440,13 @@ We may then derive rather than posit the frame constraints on imposition, making
 
 
 
-% \begin{Pthm}[\sc Completeness] \label{app:Completeness}
-%   If $t \rightarrowtriangle_w u$, then $u$ is a world-state. 
-% \end{Pthm}
-%
-% \begin{proof}
-%   Immediate from the definition of \textit{Imposition}.
-% \end{proof}
+\begin{Pthm}[\sc Completeness] \label{app:Completeness}
+  If $t \rightarrowtriangle_w u$, then $u$ is a world-state. 
+\end{Pthm}
+
+\begin{proof}
+  Immediate from the definition of \textit{Imposition}.
+\end{proof}
 
 
 \vfill
