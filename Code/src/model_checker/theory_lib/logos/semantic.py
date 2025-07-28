@@ -55,10 +55,26 @@ class LogosSemantics(SemanticDefaults):
         super().__init__(combined_settings)
         self.operator_registry = operator_registry
         
-        # Define the Z3 primitives following default theory pattern
-        self.verify = z3.Function("verify", z3.BitVecSort(self.N), syntactic.AtomSort, z3.BoolSort())
-        self.falsify = z3.Function("falsify", z3.BitVecSort(self.N), syntactic.AtomSort, z3.BoolSort())
-        self.possible = z3.Function("possible", z3.BitVecSort(self.N), z3.BoolSort())
+        # Define the Z3 primitives
+        self.verify = z3.Function(
+            "verify",                   # Names the function 'verify'
+            z3.BitVecSort(self.N),      # which maps a bitvector
+            syntactic.AtomSort,         # and a sentence letter
+            z3.BoolSort()               # to a truth-value
+        )
+        self.falsify = z3.Function(
+            "falsify",                  # Names the function 'falsify'
+            z3.BitVecSort(self.N),      # which maps a bitvector
+            syntactic.AtomSort,         # and a sentence letter
+            z3.BoolSort()               # to a truth-value
+        )
+        self.possible = z3.Function(
+            "possible",                 # Names the function 'possible'
+            z3.BitVecSort(self.N),      # which maps a bitvector
+            z3.BoolSort()               # to a truth-value
+        )
+
+        # Define point of evaluation for the premises and conclusions
         self.main_world = z3.BitVec("w", self.N)
         self.main_point = {
             "world": self.main_world

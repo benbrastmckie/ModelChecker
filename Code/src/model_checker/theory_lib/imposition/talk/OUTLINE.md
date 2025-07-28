@@ -4,6 +4,8 @@
   - motivation: standard methodology
   - hard, slow, error prone
   - difficult to scale the expressive power of the language
+  - logos as unified language
+  - TheoryLib
 - programmatic semantics (10 min)
   - SMT solvers (Z3)
   - bitvectors as states
@@ -12,13 +14,23 @@
     - translate into Z3 constraints
     - find a model if there is one
     - use model to interpret and print
+  - can't survey all models (just finite ones below a certain size)
+    - countermodels give certainty in invalidity
+    - theoremhood is supported by ruling out models below a given N
+    - higher N means more higher certainty in theoremhood
   - DEMO 1: IMPOSITION SEMANTICS
     - run examples
     - unit tests
 - computational complexity as a theoretical virtue (10 min) -- MIGUEL
-  - cost of a primitive scales exponentially with arity (go through space complexity)
-  - compare one-place, two-place, and three-place
-  - other?
+  - data structure grows exponentially with N
+    - computability becomes a new theoretical virtue
+    - not just speed, but size of the model that it handles
+  - how Z3 stores models (worst case)
+    - DEMO WITH -z FLAG
+    - cost of a primitive scales exponentially with arity
+    - go through space complexity
+  - compare with simplicity (computability for humans)
+    - often no objective measure on simplicity
   - DEMO MAXIMIZER FOR IMPOSITION SEMANTICS
 - imposition defined (5 min)
   - maximal compatible parts
