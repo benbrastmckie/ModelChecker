@@ -287,17 +287,22 @@
 \begin{enumerate}[leftmargin=.25in]
 	\item Z3 builds models with a mix of array-like and lambda-like objects.
 	\item This means Z3 saves every value (that it is forced to for a given countermodel) for every input combination, meaning that the (worst-case) space complexity of functions is proportional to the input space. 
-	\item Computational complexity: an algorithm takes $O(n)$ runtime or space if it scales linearly with some quantity $n$ as $n$ grows indefinitely large. 
+	\item Computational complexity: an algorithm takes $O(n)$ runtime or space if it scales linearly with some input quantity $n$ as $n$ grows indefinitely large. 
+	\item For our purposes, runtime complexity $\approx$ space complexity: larger space complexity means larger runtime complexity. 
     % NOTE: is it space or runtime or both?
-	\item With inputs in $A \times B$, $A$ being the space of atomic sentences and $B$ the space of bitvectors, `verify' has a worst-case complexity of $O(\abs{A} \abs{B}) = O(\abs{A} 2^N)$, $N$ the size of the bitvectors.
+	\item Definitions: $\mathbb{L}$ is the set of atomic sentences, and $\mathbb{B}$ is the set of all bitvectors. 
+	\item \texttt{verify} : $\mathbb{L} \times \mathbb{B} \to \set{0,1}$. (Worst-case) space complexity: $O(\abs{\mathbb{L}} \abs{\mathbb{B}}) = O(\abs{\mathbb{L}} 2^N)$, $N$ the size of the bitvectors.
+	\item \texttt{imposition} : $\mathbb{B}^3 \to \set{0,1}$. (Worst-case) space complexity: $O(\abs{\mathbb{B}}^3) = O(2^{3N})$.
+	\item Practically speaking: imposition theory approx. 10 times slower (i.e., takes 10 times as long to find countermodels or exhaust search space) than logos with $N=4$, getting worse as $N$ increases. 
+	% \item With inputs in $A \times B$, $A$ being the space of atomic sentences and $B$ the space of bitvectors, `verify' has a worst-case complexity of $O(\abs{A} \abs{B}) = O(\abs{A} 2^N)$, $N$ the size of the bitvectors.
     % NOTE: by 'atomic' sentences you mean using the Z3 primitives, right? Like 'imposition(a, b, c)'
-	\item With inputs in $B^3$, `imposition' has a complexity of $O(2^{3N})$. 
+	% \item With inputs in $B^3$, `imposition' has a complexity of $O(2^{3N})$. 
     % NOTE: confusing to use 'B' again. Do you mean to specify the cost of the arity of a predicate? Maybe use 'F^3' and the word 'predicate'.
-	\item This means much slower runtimes for the imposition semantics: imposition semantics takes about 10 times as long as logos to run for $N=4$. 
-	\item Since the complexity of `imposition' is exponential with $N$, this is only more marked for larger values of $N$, which can be useful for finding easily interpretable models. 
+	% \item This means much slower runtimes for the imposition semantics: imposition semantics takes about 10 times as long as logos to run for $N=4$. 
+	% \item Since the complexity of `imposition' is exponential with $N$, this is only more marked for larger values of $N$, which can be useful for finding easily interpretable models. 
     % NOTE: maybe reword this one. Is there a simpler way to say this?
-	\item This provides a computational reason to favor theories that keep the arity of semantic primitives low.
-	\item This reasoning is not too different from familiar questions of theoretical simplicity: this is just a notion of simplicity with regards to the computer
+	% \item This provides a computational reason to favor theories that keep the arity of semantic primitives low.
+	% \item This reasoning is not too different from familiar questions of theoretical simplicity: this is just a notion of simplicity with regards to the computer
 \end{enumerate}
 
 
