@@ -107,10 +107,10 @@
 
 \nicebox{
 	Extend the standard methodology in semantics to:
-	\begin{itemize}
-		\item Rapidly prototype semantic theories by reducing cognitive load
+  \begin{itemize}
+		\item Prototype semantic theories by shifting computational load
+    \item Develop semantic theories for languages with many operators
 		\item Facilitate collaboration and increase accessibility
-		\item Support the maturity of the discipline
 	\end{itemize}
 }
 
@@ -273,11 +273,32 @@
 		\item Efficiently prototype new semantic theories
 		\item Modular semantics, theory of propositions, operators
 		\item Evaluate unified languages with many operators
-		\item Compare rival theories over large data sets
+		\item Compare different theories over large data sets
 	\end{itemize}
 	Give it a try at: \href{https://pypi.org/project/model-checker/}{\texttt{https://pypi.org/project/model-checker/}}
 }
 
+
+
+
+
+\section*{Computational Complexity as a Theoretical Virtue}%
+
+\begin{enumerate}[leftmargin=.25in]
+	\item Z3 builds models with a mix of array-like and lambda-like objects.
+	\item This means Z3 saves every value (that it is forced to for a given countermodel) for every input combination, meaning that the (worst-case) space complexity of functions is proportional to the input space. 
+	\item Computational complexity: an algorithm takes $O(n)$ runtime or space if it scales linearly with some quantity $n$ as $n$ grows indefinitely large. 
+    % NOTE: is it space or runtime or both?
+	\item With inputs in $A \times B$, $A$ being the space of atomic sentences and $B$ the space of bitvectors, `verify' has a worst-case complexity of $O(\abs{A} \abs{B}) = O(\abs{A} 2^N)$, $N$ the size of the bitvectors.
+    % NOTE: by 'atomic' sentences you mean using the Z3 primitives, right? Like 'imposition(a, b, c)'
+	\item With inputs in $B^3$, `imposition' has a complexity of $O(2^{3N})$. 
+    % NOTE: confusing to use 'B' again. Do you mean to specify the cost of the arity of a predicate? Maybe use 'F^3' and the word 'predicate'.
+	\item This means much slower runtimes for the imposition semantics: imposition semantics takes about 10 times as long as logos to run for $N=4$. 
+	\item Since the complexity of `imposition' is exponential with $N$, this is only more marked for larger values of $N$, which can be useful for finding easily interpretable models. 
+    % NOTE: maybe reword this one. Is there a simpler way to say this?
+	\item This provides a computational reason to favor theories that keep the arity of semantic primitives low.
+	\item This reasoning is not too different from familiar questions of theoretical simplicity: this is just a notion of simplicity with regards to the computer
+\end{enumerate}
 
 
 
@@ -355,19 +376,6 @@ The definition $\Box A \coloneq \top \boxright A$ is preserved by the following 
 We may then derive rather than posit the frame constraints on imposition, making the logic for $\boxright$ both stronger and more computable.
 
       
-
-\section*{Computational Complexity as a Theoretical Virtue}%
-\begin{enumerate}[leftmargin=1in]
-	\item Z3 saves its `Function' objects as a mix of array-like and lambda-like objects.
-	\item This means Z3 saves every value (that it is forced to for a given countermodel) for every input combination, meaning that the (worst-case) space complexity of functions is proportional to the input space. 
-	\item Defining computational complexity: an algorithm takes $O(n)$ runtime or space if it scales linearly with some quantity $n$ as $n$ grows indefinitely large. 
-	\item With inputs in $A \times B$, $A$ being the space of atomic sentences and $B$ the space of bitvectors, `verify' has a worst-case complexity of $O(\abs{A} \abs{B}) = O(\abs{A} 2^N)$, $N$ the size of the bitvectors.
-	\item With inputs in $B^3$, `imposition' has a complexity of $O(2^{3N})$. 
-	\item In practice, this means much slower runtimes for the imposition semantics: imposition semantics takes about 10 times as long as logos to run for $N=4$. 
-	\item Since the complexity of `imposition' is exponential with $N$, this is only more marked for larger values of $N$, which can be useful for finding easily interpretable models. 
-	\item As a result, we now have methodological reason to favor theories that keep the arity of primitives low.
-	\item This reasoning is not too different from familiar questions of theoretical simplicity: this is just a notion of simplicity with regards to the computer
-\end{enumerate}
 
 
 
