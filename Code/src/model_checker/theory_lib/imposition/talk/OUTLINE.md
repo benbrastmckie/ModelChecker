@@ -22,15 +22,28 @@
     - run examples
     - unit tests
 - computational complexity as a theoretical virtue (10 min) -- MIGUEL
-  - data structure grows exponentially with N
+  - data structure that stores functions that depend on state space grows exponentially with N
     - computability becomes a new theoretical virtue
-    - not just speed, but size of the model that it handles
-  - how Z3 stores models (worst case)
+    - for reasons of speed (bigger data structures take more time), but also in the entire "higher N means higher certainty in theoremhood" convo: size of the model it handles also matters
+  - where this matters: primitive functions with the state space as input. TL;DR cost of a primitive scales exponentially with arity
+    - how Z3 stores functions (worst case: basically an array)
     - DEMO WITH -z FLAG
-    - cost of a primitive scales exponentially with arity
-    - go through space complexity
-  - compare with simplicity (computability for humans)
-    - often no objective measure on simplicity
+    - array with larger _input space_ has larger _space complexity_ 
+      - go over space complexity here. 
+      - MENTION how L doesn't matter. 
+      - NOTE how runtime can increase with arity (1 goes to 3) or with a larger N
+    - larger _space_ complexity means longer runtime to fill that space up: slower programs
+      - ONCE TIME ESTABLISHED, go over example math with N=5
+    - TL;DR cost of a primitive scales exponentially with arity
+  - computational costs in action
+    - imposition 10x slower than logos for N=4 for most theorems in the examples.py files
+      - when talking about 0.01 vs 0.1 or even 0.1 vs 1 seconds, not too bad. For countermodels, low N (<5) often suffices
+      - but, remember: more N good N. at N=5 many of theorems imposition (relevant fact: 3 place primitive) took more than 100 seconds. logos (relevant fact: no 3 place primitive) could do them in less (from 1 ish second to 70 ish seconds)
+      - ofc these qns will not become the end all be all, but just shows that a maybe previously overlooked aspect—arity of primitives—starts to matter
+  - so if we are to use this tool for making theories, we should seek to make theories that we can easily reason about with the tools we have. so computability is now a virtue
+  - compare with simplicity (kinda like intuitive computability for humans)
+    - often no objective measure on simplicity. Not the case for computability: time is very easy, even before that space complexity
+    <!-- - questions of computability with Z3 are also not always straightforward—sometimes some theorems go through easier than others for reasons not well understood to us, probably having to do with reasoning shortcuts (tactics and goals) Z3 takes—but overall it is a chartable space and arguably even in these areas more measurable than intuitive simplicity -->
   - DEMO MAXIMIZER FOR IMPOSITION SEMANTICS
 - imposition defined (5 min)
   - maximal compatible parts
