@@ -85,7 +85,7 @@ IM_CM_0_example = [
 IM_CM_1_premises = ['\\neg A', '(A \\boxright C)']
 IM_CM_1_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_1_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -104,7 +104,7 @@ IM_CM_1_example = [
 IM_CM_2_premises = ['\\neg A', '(A \\diamondright C)']
 IM_CM_2_conclusions = ['((A \\wedge B) \\diamondright C)']
 IM_CM_2_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -123,7 +123,7 @@ IM_CM_2_example = [
 IM_CM_3_premises = ['\\neg A', '(A \\boxright C)', '\\Diamond (A \\wedge B)']
 IM_CM_3_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_3_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -142,7 +142,7 @@ IM_CM_3_example = [
 IM_CM_4_premises = ['\\neg A','(A \\boxright C)']
 IM_CM_4_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_4_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -161,7 +161,7 @@ IM_CM_4_example = [
 IM_CM_5_premises = ['(A \\boxright C)','(B \\boxright C)']
 IM_CM_5_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_5_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -180,7 +180,7 @@ IM_CM_5_example = [
 IM_CM_6_premises = ['\\neg A', '(A \\boxright B)','(A \\boxright C)']
 IM_CM_6_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_6_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -199,7 +199,7 @@ IM_CM_6_example = [
 IM_CM_7_premises = ['(A \\boxright B)']
 IM_CM_7_conclusions = ['(\\neg B \\boxright \\neg A)']
 IM_CM_7_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -218,7 +218,7 @@ IM_CM_7_example = [
 IM_CM_8_premises = ['\\neg B','(A \\boxright B)']
 IM_CM_8_conclusions = ['(\\neg B \\boxright \\neg A)']
 IM_CM_8_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -237,7 +237,7 @@ IM_CM_8_example = [
 IM_CM_9_premises = ['\\neg A','\\neg B','(A \\boxright B)']
 IM_CM_9_conclusions = ['(\\neg B \\boxright \\neg A)']
 IM_CM_9_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -256,7 +256,7 @@ IM_CM_9_example = [
 IM_CM_10_premises = ['(A \\boxright B)','(B \\boxright C)']
 IM_CM_10_conclusions = ['(A \\boxright C)']
 IM_CM_10_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -275,7 +275,7 @@ IM_CM_10_example = [
 IM_CM_11_premises = ['\\neg A','(A \\boxright B)','(B \\boxright C)']
 IM_CM_11_conclusions = ['(A \\boxright C)']
 IM_CM_11_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -294,7 +294,7 @@ IM_CM_11_example = [
 IM_CM_12_premises = ['\\neg A','\\neg B','(A \\boxright B)','(B \\boxright C)']
 IM_CM_12_conclusions = ['(A \\boxright C)']
 IM_CM_12_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -321,7 +321,7 @@ IM_CM_13_premises = [
 ]
 IM_CM_13_conclusions = []
 IM_CM_13_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -355,7 +355,7 @@ IM_CM_14_premises = [
 ]
 IM_CM_14_conclusions = []
 IM_CM_14_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -374,7 +374,7 @@ IM_CM_14_example = [
 IM_CM_15_premises = ['\\neg A']
 IM_CM_15_conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 IM_CM_15_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -393,7 +393,7 @@ IM_CM_15_example = [
 IM_CM_16_premises = ['\\neg A','(A \\boxright (B \\vee C))']
 IM_CM_16_conclusions = ['(A \\boxright B)','(A \\boxright C)']
 IM_CM_16_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -412,7 +412,7 @@ IM_CM_16_example = [
 IM_CM_17_premises = ['(A \\boxright C)','(B \\boxright C)']
 IM_CM_17_conclusions = ['((A \\vee B) \\boxright C)']
 IM_CM_17_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -431,7 +431,7 @@ IM_CM_17_example = [
 IM_CM_18_premises = ['A','B']
 IM_CM_18_conclusions = ['(A \\boxright B)']
 IM_CM_18_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -450,7 +450,7 @@ IM_CM_18_example = [
 IM_CM_19_premises = ['((A \\wedge B) \\boxright C)']
 IM_CM_19_conclusions = ['(A \\boxright (B \\boxright C))']
 IM_CM_19_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -469,7 +469,7 @@ IM_CM_19_example = [
 IM_CM_20_premises = ['((A \\wedge B) \\boxright C)','\\Diamond (A \\wedge B)']
 IM_CM_20_conclusions = ['(A \\boxright (B \\boxright C))']
 IM_CM_20_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -488,7 +488,7 @@ IM_CM_20_example = [
 IM_CM_21_premises = ['\\neg A','\\neg (A \\boxright B)']
 IM_CM_21_conclusions = ['(A \\boxright \\neg B)']
 IM_CM_21_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -507,7 +507,7 @@ IM_CM_21_example = [
 IM_CM_22_premises = ['(\\top \\boxright A)']
 IM_CM_22_conclusions = ['\\Box A']
 IM_CM_22_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : True,
@@ -526,7 +526,7 @@ IM_CM_22_example = [
 IM_CM_23_premises = ['(A \\boxright \\bot)']
 IM_CM_23_conclusions = ['(\\top \\boxright \\neg A)']
 IM_CM_23_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -545,7 +545,7 @@ IM_CM_23_example = [
 IM_CM_24_premises = ['(A \\boxright B)']
 IM_CM_24_conclusions = ['\\Box (A \\boxright B)']
 IM_CM_24_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -564,7 +564,7 @@ IM_CM_24_example = [
 IM_CM_25_premises = ['A', '\\Diamond B', '\\neg \\Diamond (A \\wedge B)']
 IM_CM_25_conclusions = ['(B \\boxright C)']
 IM_CM_25_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -583,7 +583,7 @@ IM_CM_25_example = [
 IM_CM_26_premises = ['(A \\boxright B)']
 IM_CM_26_conclusions = ['(A \\boxrightlogos B)']
 IM_CM_26_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -602,7 +602,7 @@ IM_CM_26_example = [
 IM_CM_27_premises = ['(A \\boxrightlogos B)']
 IM_CM_27_conclusions = ['(A \\boxright B)']
 IM_CM_27_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -625,7 +625,7 @@ IM_CM_27_example = [
 IM_TH_1_premises = []
 IM_TH_1_conclusions = ['(A \\boxright A)']
 IM_TH_1_settings = {
-    'N' : 2,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -644,7 +644,7 @@ IM_TH_1_example = [
 IM_TH_2_premises = ['A','(A \\boxright B)']
 IM_TH_2_conclusions = ['B']
 IM_TH_2_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -663,7 +663,7 @@ IM_TH_2_example = [
 IM_TH_3_premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
 IM_TH_3_conclusions = ['(A \\boxright C)']
 IM_TH_3_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -682,7 +682,7 @@ IM_TH_3_example = [
 IM_TH_4_premises = ['((A \\vee B) \\boxright C)']
 IM_TH_4_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_TH_4_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -720,7 +720,7 @@ IM_TH_5_example = [
 IM_TH_6_premises = ['((A \\vee B) \\boxright C)']
 IM_TH_6_conclusions = ['((A \\boxright C) \\wedge (B \\boxright C))']
 IM_TH_6_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -743,7 +743,7 @@ IM_TH_7_premises = [
 ]
 IM_TH_7_conclusions = ['((A \\vee B) \\boxright C)']
 IM_TH_7_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -762,7 +762,7 @@ IM_TH_7_example = [
 IM_TH_8_premises = ['(A \\boxright (B \\wedge C))']
 IM_TH_8_conclusions = ['(A \\boxright B)']
 IM_TH_8_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -781,7 +781,7 @@ IM_TH_8_example = [
 IM_TH_9_premises = ['(A \\boxright B)','(A \\boxright C)']
 IM_TH_9_conclusions = ['(A \\boxright (B \\wedge C))']
 IM_TH_9_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -800,7 +800,7 @@ IM_TH_9_example = [
 IM_TH_10_premises = ['A','B']
 IM_TH_10_conclusions = ['(A \\diamondright B)']
 IM_TH_10_settings = {
-    'N' : 5,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -819,7 +819,7 @@ IM_TH_10_example = [
 IM_TH_11_premises = ['\\Box A']
 IM_TH_11_conclusions = ['(\\top \\boxright A)']
 IM_TH_11_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : True,
@@ -895,7 +895,7 @@ general_settings = {
     "print_impossible": False,
     "print_z3": False,
     "save_output": False,
-    "maximize": False,  # Set to False for normal runs, use -m flag for maximize mode
+    "maximize": True,
 }
 
 # Create operator registry for logos theory with counterfactual operators
@@ -904,8 +904,6 @@ logos_registry.load_subtheories(['extensional', 'modal', 'counterfactual'])
 
 # Translation dictionary from imposition to logos operators
 imposition_to_logos = {
-    "\\boxright": "\\boxright",     # Fine's must-counterfactual to logos must-counterfactual
-    "\\diamondright": "\\diamondright",      # Fine's might-counterfactual to logos might-counterfactual
 }
 
 # Theory definition for imposition
@@ -930,21 +928,23 @@ logos_theory = {
 # NOTE: The translation dictionary is empty as operator names are now consistent
 semantic_theories = {
     "Fine": imposition_theory,
-    # "Brast-McKie": logos_theory,
+    "Brast-McKie": logos_theory,
 }
 
 # Default example range (curated subset for direct execution)
 example_range = {
 
-    # # DEMO 1
+    # DEMO 1
     "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
 
     # # DEMO 2
     # RUN UNIT_TEST: ./Code/run_tests.py --examples imposition
+    # RUN UNIT_TEST: ./Code/run_tests.py --examples logos counterfactuals
     # RUN MAXIMIZER: ./Code/dev_cli.py /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/imposition/examples.py -m
 
     # # DEMO 3
+    # "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
     # "IM_TH_11": IM_TH_11_example, # DEFINITION OF NEC
 
@@ -954,6 +954,7 @@ example_range = {
     # "IM_CM_27": IM_CM_27_example, # LOGOS TO IMPOSITION COUNTERFACTUAL
 
     # # Countermodels
+    # "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_2": IM_CM_2_example,   # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_3": IM_CM_3_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY

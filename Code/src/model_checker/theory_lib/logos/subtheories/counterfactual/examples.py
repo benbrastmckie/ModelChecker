@@ -192,7 +192,7 @@ CF_CM_8_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 100,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -520,7 +520,7 @@ CF_CM_25_example = [
 CF_TH_1_premises = []
 CF_TH_1_conclusions = ['(A \\boxright A)']
 CF_TH_1_settings = {
-    'N' : 2,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -751,7 +751,7 @@ CF_TH_12_example = [
 CF_TH_13_premises = ['(\\top \\boxright A)']
 CF_TH_13_conclusions = ['\\Box A']
 CF_TH_13_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : True,
@@ -770,7 +770,7 @@ CF_TH_13_example = [
 CF_TH_14_premises = ['(A \\boxright \\bot)']
 CF_TH_14_conclusions = ['(\\top \\boxright \\neg A)']
 CF_TH_14_settings = {
-    'N' : 3,
+    'N' : 4,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
