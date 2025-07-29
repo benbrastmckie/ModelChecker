@@ -39,7 +39,7 @@ class LogosSemantics(SemanticDefaults):
         'non_empty': True,
         'non_null': True,
         'disjoint': True,
-        'max_time': 10000,
+        'max_time': 10,
         'iterate': False,
         'iteration_timeout': 1.0,
         'iteration_attempts': 5,

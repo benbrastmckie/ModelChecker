@@ -46,26 +46,6 @@ Check an example file:
 model-checker examples/counterfactual_logic.py
 ```
 
-### Python API Usage
-
-```python
-from model_checker.theory_lib import logos
-from model_checker import BuildExample
-
-# Get a theory
-theory = logos.get_theory()
-
-# Create and check a model
-model = BuildExample("my_example", theory)
-result = model.check_formula("\\Box p \\rightarrow p")
-
-if result:
-    print("Formula is valid")
-else:
-    print("Found countermodel:")
-    model.print_countermodel()
-```
-
 ### Jupyter Notebook Usage
 
 ```python
