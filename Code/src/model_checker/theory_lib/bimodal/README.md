@@ -32,11 +32,14 @@
 
 ## Overview
 
-The bimodal theory implements a semantics for the following operators:
+The bimodal theory provides **15 operators** (9 primitive, 6 defined) across **3 categories** with **22 test examples**:
 
-1. **Temporal operators**: For reasoning about different times (past and future)
-2. **Modal operators**: For reasoning about different world histories
-3. **Extensional operator**: For classical reasoning
+1. **Temporal operators** (4 operators): For reasoning about different times (past and future)
+   - Future (`\Future`), Past (`\Past`), and their duals
+2. **Modal operators** (2 operators): For reasoning about different world histories  
+   - Necessity (`\Box`) and Possibility (`\Diamond`)
+3. **Extensional operators** (9 operators): For classical reasoning
+   - Negation, conjunction, disjunction, conditional, biconditional, top, bottom
 
 This implementation provides a framework to study bimodal logics where:
 

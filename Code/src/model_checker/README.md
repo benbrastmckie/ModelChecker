@@ -26,23 +26,61 @@ This implementation enables computational logic research by providing **Z3-based
 
 ## Quick Start
 
+### Create a New Theory Project
+
+```bash
+# Create a project from a theory template
+model-checker -l logos
+model-checker -l exclusion
+model-checker -l imposition
+model-checker -l bimodal
+```
+
+### Using the Standard Examples.py Workflow
+
 ```python
-from model_checker import BuildExample, get_theory, check_formula
+# Create reflexivity_example.py
+import os
+import sys
 
-# Basic formula checking
-result = check_formula("p \\rightarrow p")  # Test reflexivity
-print(f"Reflexivity: {'valid' if result else 'invalid'}")
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
 
-# Theory-specific checking
-theory = get_theory("logos")
-model = BuildExample("modal_test", theory)
-result = model.check_formula("\\Box p \\rightarrow p")  # T axiom
-print(f"T axiom in logos: {'valid' if result else 'invalid'}")
+from model_checker.theory_lib.logos import get_theory
 
-# Interactive exploration
+# Define examples
+reflexivity_example = [
+    [],                              # No premises
+    ["(A \\rightarrow A)"],          # Reflexivity theorem
+    {'N': 3, 'expectation': False}   # Expect validity
+]
+
+t_axiom_example = [
+    ["\\Box A"],                     # Premise: A is necessary
+    ["A"],                           # Conclusion: A is true
+    {'N': 3, 'expectation': False}   # Expect validity
+]
+
+# Collections
+test_example_range = {
+    "reflexivity": reflexivity_example,
+    "t_axiom": t_axiom_example,
+}
+
+semantic_theories = {
+    "logos": get_theory(),
+}
+
+# Run with: model-checker reflexivity_example.py
+```
+
+### Interactive Exploration (Jupyter)
+
+```python
 from model_checker import ModelExplorer
 explorer = ModelExplorer()
-explorer.display()  # Launch interactive widget in Jupyter
+explorer.display()  # Launch interactive widget
 ```
 
 ## Subdirectories
@@ -89,19 +127,24 @@ from model_checker import get_theory, BuildExample
 theory = get_theory("logos")
 
 # 2. Build a model with premises and conclusions
-model = BuildExample("modus_ponens", theory)
-model.add_premises(["p", "p \\rightarrow q"])
-model.add_conclusions(["q"])
+# Define example with premises and conclusions
+modus_ponens_example = [
+    ["A", "(A \\rightarrow B)"],      # Premises
+    ["B"],                           # Conclusions
+    {'N': 3, 'expectation': False}   # Settings (expect validity)
+]
 
-# 3. Check validity
-valid = model.check_validity()
+# 3. Set up collections
+test_example_range = {
+    "modus_ponens": modus_ponens_example,
+}
 
-# 4. Analyze results
-if valid:
-    print("Argument is valid")
-else:
-    print("Found countermodel:")
-    model.print_countermodel()
+semantic_theories = {
+    "logos": theory,
+}
+
+# 4. Run with: model-checker modus_ponens.py
+# Results show validity or countermodel automatically
 ```
 
 ### Extension Points
@@ -127,18 +170,31 @@ The framework includes **4 semantic theories**:
 ### Theory Comparison
 
 ```python
-# Compare logical principles across theories
-from model_checker import get_theory, BuildExample
+# Compare logical principles across theories: dne_comparison.py
+from model_checker.theory_lib import logos, exclusion, imposition, bimodal
 
-formula = "\\neg \\neg p \\rightarrow p"  # Double negation elimination
-theories = ["logos", "exclusion", "imposition", "bimodal"]
+# Test double negation elimination
+dne_example = [
+    [],                                  # No premises
+    ["(\\neg \\neg A \\rightarrow A)"],      # Double negation elimination
+    {'N': 3}                             # Settings
+]
 
-print("Double negation elimination:")
-for name in theories:
-    theory = get_theory(name)
-    model = BuildExample("dne_test", theory)
-    result = model.check_formula(formula)
-    print(f"  {name}: {'valid' if result else 'invalid'}")
+# Set up for all theories
+test_example_range = {
+    "double_negation": dne_example,
+}
+
+# Load all theories
+semantic_theories = {
+    "logos": logos.get_theory(),
+    "exclusion": exclusion.get_theory(),
+    "imposition": imposition.get_theory(),
+    "bimodal": bimodal.bimodal_theory,
+}
+
+# Run with: model-checker dne_comparison.py
+# Output shows which theories validate the principle
 ```
 
 ### Theory-Specific Features
@@ -173,14 +229,30 @@ Each theory provides:
 Find multiple distinct models for comprehensive analysis:
 
 ```python
-from model_checker import BuildExample
+# Find multiple models: iteration_example.py
+from model_checker.theory_lib.logos import get_theory
 
-# Find multiple models for the same formula
-model = BuildExample("iteration_test", theory, settings={'iterate': 5})
-models = model.find_models()
+# Example that allows multiple models
+contingent_example = [
+    [],                              # No premises
+    ["(A \\vee \\neg A)"],           # Tautology with multiple models
+    {
+        'N': 3,
+        'iterate': 5,                # Find up to 5 models
+        'expectation': False         # Expect validity
+    }
+]
 
-for i, m in enumerate(models):
-    print(f"Model {i+1}: {m.get_model_summary()}")
+test_example_range = {
+    "contingent": contingent_example,
+}
+
+semantic_theories = {
+    "logos": get_theory(),
+}
+
+# Run with: model-checker iteration_example.py
+# Outputs multiple distinct models
 ```
 
 ### Custom Settings
@@ -188,15 +260,21 @@ for i, m in enumerate(models):
 Configure theory-specific behavior:
 
 ```python
-# Logos theory with custom settings
-settings = {
-    'N': 8,                    # Larger state space
-    'contingent': True,        # Require contingent propositions
-    'iterate': 3,              # Find 3 models
-    'max_time': 10000          # 10-second timeout
-}
+# Custom settings in examples.py
+custom_example = [
+    ["\\Box A"],
+    ["A"],
+    {
+        'N': 8,                    # Larger state space
+        'contingent': True,        # Require contingent propositions
+        'iterate': 3,              # Find 3 models
+        'max_time': 10000          # 10-second timeout
+    }
+]
 
-model = BuildExample("custom", theory, settings=settings)
+test_example_range = {
+    "custom_settings": custom_example,
+}
 ```
 
 ### Jupyter Integration

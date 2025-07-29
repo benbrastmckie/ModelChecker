@@ -89,31 +89,70 @@ theory = get_theory("logos")  # or "exclusion", "imposition", "bimodal"
 # Get examples from the theory
 examples = get_examples("logos")
 
-# Example: Check a counterfactual formula
-from model_checker import check_formula
-result = check_formula("(A \\boxright B)", theory_name="logos")
-print(f"Valid: {result}")
+# Example: Create a counterfactual example file
+# Save as: counterfactual_example.py
+from model_checker.theory_lib.logos import get_theory
 
-# Or check with premises
-result = check_formula("B", premises=["A", "(A \\boxright B)"], theory_name="logos")
+# Define examples
+counterfactual_validity = [
+    [],                              # No premises
+    ["(A \\boxright B)"],            # Check if this is a theorem
+    {'N': 3, 'expectation': True}    # Expect countermodel
+]
+
+counterfactual_modus_ponens = [
+    ["A", "(A \\boxright B)"],       # Premises
+    ["B"],                           # Conclusion
+    {'N': 3, 'expectation': False}   # Expect validity
+]
+
+test_example_range = {
+    "cf_validity": counterfactual_validity,
+    "cf_modus_ponens": counterfactual_modus_ponens,
+}
+
+semantic_theories = {"logos": get_theory()}
+
+# Run with: model-checker counterfactual_example.py
 ```
 
-### Using BuildExample for Complex Cases
+### Using the Standard Examples.py Structure
 
 ```python
-from model_checker import BuildExample, get_theory
+# Save as: modal_logic_examples.py
+import os
+import sys
 
-# Load theory and create example
-theory = get_theory("logos")
-model = BuildExample("modal_test", theory)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
 
-# Add premises and conclusions
-model.add_premises(["\\Box p", "\\Box (p \\rightarrow q)"])
-model.add_conclusions(["\\Box q"])
+from model_checker.theory_lib.logos import get_theory
 
-# Check validity
-result = model.check_validity()
-print(f"K axiom: {'valid' if result else 'invalid'}")
+# Define the K axiom example
+k_axiom_example = [
+    ["\\Box A", "\\Box (A \\rightarrow B)"],  # Premises
+    ["\\Box B"],                              # Conclusion
+    {'N': 3, 'expectation': False}            # Should be valid
+]
+
+# Define the T axiom example  
+t_axiom_example = [
+    ["\\Box A"],                              # Premise
+    ["A"],                                    # Conclusion
+    {'N': 3, 'expectation': False}            # Should be valid
+]
+
+test_example_range = {
+    "k_axiom": k_axiom_example,
+    "t_axiom": t_axiom_example,
+}
+
+semantic_theories = {
+    "logos": get_theory(),
+}
+
+# Run with: model-checker modal_logic_examples.py
 ```
 
 ## Theory Selection and Configuration
@@ -132,8 +171,12 @@ settings = {
     "max_time": 5         # Maximum solving time (seconds)
 }
 
-# Check modal formula with custom settings
-result = check_formula("\\Box p -> p", theory_name="logos", settings=settings)
+# Use custom settings in your examples.py file
+example_with_settings = [
+    ["\\Box A"],
+    ["A"],
+    settings  # Custom settings for this example
+]
 ```
 
 ### Selective Subtheory Loading
@@ -190,21 +233,31 @@ module.run_tests(["test1", "test2"])
 ### Formula Testing Across Theories
 
 ```python
-from model_checker import check_formula
+# Save as: theory_comparison.py
+from model_checker.theory_lib import logos, exclusion, imposition, bimodal
 
-# Test the same formula across different theories
-formula = "\\neg \\neg p \\rightarrow p"  # Double negation elimination
+# Test double negation elimination across theories
+double_negation = [
+    [],                                  # No premises
+    ["(\\neg \\neg A \\rightarrow A)"],      # Double negation elimination
+    {'N': 3}                             # Settings
+]
 
-theories = ["logos", "exclusion", "imposition", "bimodal"]
-results = {}
+# Define examples for each theory
+test_example_range = {
+    "double_negation": double_negation,
+}
 
-for theory_name in theories:
-    result = check_formula(formula, theory_name=theory_name)
-    results[theory_name] = result
+# Load all theories for comparison
+semantic_theories = {
+    "logos": logos.get_theory(),
+    "exclusion": exclusion.get_theory(),
+    "imposition": imposition.get_theory(),
+    "bimodal": bimodal.bimodal_theory,
+}
 
-print("Double negation elimination results:")
-for theory, valid in results.items():
-    print(f"  {theory}: {'Valid' if valid else 'Invalid'}")
+# Run with: model-checker theory_comparison.py
+# The output will show which theories validate double negation
 ```
 
 ## Advanced Usage Patterns
