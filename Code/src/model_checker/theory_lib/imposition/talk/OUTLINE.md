@@ -4,7 +4,7 @@
   - motivation: standard methodology
   - hard, slow, error prone
   - difficult to scale the expressive power of the language
-  - logos as unified language
+  - logos is a unified artificial language
   - TheoryLib
 - programmatic semantics (10 min)
   - SMT solvers (Z3)
@@ -19,6 +19,7 @@
     - theoremhood is supported by ruling out models below a given N
     - higher N means more higher certainty in theoremhood
   - DEMO 1: IMPOSITION SEMANTICS
+    - semantics and operators
     - run examples
     - unit tests
 - computational complexity as a theoretical virtue (10 min) -- MIGUEL
