@@ -10,7 +10,6 @@ A unified programmatic semantics framework for modal, counterfactual, and hyperi
 
 - **🔍 Automated Model Finding**: Discovers countermodels to invalid formulas automatically
 - **🧩 Modular Theory Architecture**: Mix and match logical operators from different theories
-- **📊 Interactive Exploration**: Jupyter widgets for real-time semantic exploration
 - **🎯 Hyperintensional Reasoning**: Distinguishes necessarily equivalent propositions
 - **🔄 Multiple Model Generation**: Find diverse models satisfying your constraints
 - **📚 Rich Theory Library**: Pre-built theories for modal, counterfactual, and temporal logic
@@ -63,36 +62,27 @@ semantic_theories = {
 
 ## Available Theories
 
-### 🌟 Logos: Hyperintensional Truthmaker Semantics
+### Logos: Hyperintensional Truthmaker Semantics
 - 19 operators across 5 modular subtheories
 - Tracks what propositions are "about" via verifier/falsifier sets
 - Distinguishes necessarily equivalent but distinct propositions
 
-### 🚫 Exclusion: Unilateral Semantics  
+### Exclusion: Unilateral Semantics  
 - Solves the False Premise Problem
 - First computational implementation of Bernard & Champollion's semantics
 - Uses witness predicates for proper negation handling
 
-### ➡️ Imposition: Fine's Counterfactual Semantics
+### Imposition: Fine's Counterfactual Semantics
 - Evaluates counterfactuals without possible worlds
 - Based on primitive imposition relation between states
 - Implements Fine's five frame constraints
 
-### ⏱️ Bimodal: Temporal-Modal Logic
+### Bimodal: Temporal-Modal Logic
 - Combines reasoning about time and possibility
 - World histories as sequences of states
 - Past, future, and modal operators
 
 ## Advanced Usage
-
-### Interactive Exploration (Jupyter)
-
-```python
-from model_checker import ModelExplorer
-
-explorer = ModelExplorer()
-explorer.display()  # Launch interactive widget
-```
 
 ### Find Multiple Models
 
@@ -146,10 +136,12 @@ We welcome contributions! See our [GitHub repository](https://github.com/benbras
 
 ## Academic Citations
 
+TODO: 
+
 If you use ModelChecker in your research, please cite:
 
-- **Framework**: Brastmckie, B. (2025). ModelChecker: A Unified Programmatic Semantics Framework. https://github.com/benbrastmckie/ModelChecker
-- **Counterfactual Logic**: [Journal of Philosophical Logic](https://link.springer.com/article/10.1007/s10992-025-09793-8)
+- Brast-McKie, B. (2025). Model-Checker: A Unified Programmatic Semantics Framework. https://github.com/benbrastmckie/ModelChecker
+- **Counterfactual Worlds**: [Journal of Philosophical Logic](https://link.springer.com/article/10.1007/s10992-025-09793-8)
 
 ## License
 
