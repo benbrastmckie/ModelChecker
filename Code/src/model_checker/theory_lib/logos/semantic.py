@@ -13,7 +13,6 @@ from model_checker.model import (
     PropositionDefaults,
     SemanticDefaults,
     ModelDefaults,
-    ModelConstraints,
 )
 from model_checker.utils import (
     ForAll,
@@ -299,7 +298,13 @@ class LogosSemantics(SemanticDefaults):
         return z3.And(
             self.is_world(state_u),
             self.is_part_of(state_y, state_u),
-            Exists(z, z3.And(self.is_part_of(z, state_u), self.max_compatible_part(z, state_w, state_y))),
+            Exists(
+                [z],
+                z3.And(
+                    self.is_part_of(z, state_u),
+                    self.max_compatible_part(z, state_w, state_y)
+                )
+            )
         )
 
     def calculate_alternative_worlds(self, verifiers, eval_point, model_structure):

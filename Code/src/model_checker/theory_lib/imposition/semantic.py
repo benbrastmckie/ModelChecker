@@ -75,7 +75,7 @@ class ImpositionSemantics(LogosSemantics):
             z3.BitVecSort(self.N),  # state imposed
             z3.BitVecSort(self.N),  # world being imposed on
             z3.BitVecSort(self.N),  # outcome world
-            z3.BoolSort()           # boolean result
+            z3.BoolSort()           # truth-value
         )
 
         # Define the frame constraints

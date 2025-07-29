@@ -19,8 +19,9 @@ import os
 import sys
 import argparse
 import subprocess
+import time
 from dataclasses import dataclass
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Optional, Union, Tuple
 from pathlib import Path
 
 
@@ -91,6 +92,9 @@ class TestResults:
         self.theory_results: Dict[str, Dict[str, int]] = {}  # theory -> test_type -> exit_code
         self.component_results: Dict[str, int] = {}  # component -> exit_code
         self.overall_success = True
+        self.subtheory_counts: Dict[str, Dict[str, int]] = {}  # theory -> subtheory -> count
+        self.theory_timings: Dict[str, Dict[str, float]] = {}  # theory -> test_type -> time_taken
+        self.subtheory_timings: Dict[str, Dict[str, float]] = {}  # theory -> subtheory -> time_taken
     
     def add_theory_result(self, theory: str, test_type: str, exit_code: int) -> None:
         """Add result for theory test execution."""
@@ -106,6 +110,24 @@ class TestResults:
         if exit_code != 0:
             self.overall_success = False
     
+    def add_subtheory_count(self, theory: str, subtheory: str, count: int) -> None:
+        """Add example count for a subtheory."""
+        if theory not in self.subtheory_counts:
+            self.subtheory_counts[theory] = {}
+        self.subtheory_counts[theory][subtheory] = count
+    
+    def add_theory_timing(self, theory: str, test_type: str, time_taken: float) -> None:
+        """Add timing for theory test execution."""
+        if theory not in self.theory_timings:
+            self.theory_timings[theory] = {}
+        self.theory_timings[theory][test_type] = time_taken
+    
+    def add_subtheory_timing(self, theory: str, subtheory: str, time_taken: float) -> None:
+        """Add timing for subtheory test execution."""
+        if theory not in self.subtheory_timings:
+            self.subtheory_timings[theory] = {}
+        self.subtheory_timings[theory][subtheory] = time_taken
+    
     def merge(self, other: 'TestResults') -> None:
         """Merge another TestResults into this one."""
         for theory, results in other.theory_results.items():
@@ -114,6 +136,25 @@ class TestResults:
             self.theory_results[theory].update(results)
         
         self.component_results.update(other.component_results)
+        
+        # Merge subtheory counts
+        for theory, counts in other.subtheory_counts.items():
+            if theory not in self.subtheory_counts:
+                self.subtheory_counts[theory] = {}
+            self.subtheory_counts[theory].update(counts)
+        
+        # Merge theory timings
+        for theory, timings in other.theory_timings.items():
+            if theory not in self.theory_timings:
+                self.theory_timings[theory] = {}
+            self.theory_timings[theory].update(timings)
+        
+        # Merge subtheory timings
+        for theory, timings in other.subtheory_timings.items():
+            if theory not in self.subtheory_timings:
+                self.subtheory_timings[theory] = {}
+            self.subtheory_timings[theory].update(timings)
+        
         self.overall_success = self.overall_success and other.overall_success
     
     def get_exit_code(self) -> int:
@@ -132,6 +173,28 @@ class TestResults:
                 for test_type, exit_code in results.items():
                     status = "PASSED" if exit_code == 0 else "FAILED"
                     print(f"  {theory} ({test_type}): {status}")
+                    
+                    # Show timing info
+                    if theory in self.theory_timings and test_type in self.theory_timings[theory]:
+                        time_taken = self.theory_timings[theory][test_type]
+                        print(f"    Time: {time_taken:.2f}s")
+                    
+                    # Show example counts for all theories
+                    if test_type == "examples" and theory in self.subtheory_counts:
+                        if theory == "logos":
+                            print(f"    Subtheory example counts:")
+                            for subtheory, count in sorted(self.subtheory_counts[theory].items()):
+                                timing_str = ""
+                                if theory in self.subtheory_timings and subtheory in self.subtheory_timings[theory]:
+                                    timing_str = f" ({self.subtheory_timings[theory][subtheory]:.2f}s)"
+                                print(f"      {subtheory}: {count} examples{timing_str}")
+                            total = sum(self.subtheory_counts[theory].values())
+                            total_time = sum(self.subtheory_timings.get(theory, {}).values())
+                            print(f"      Total: {total} examples ({total_time:.2f}s)")
+                        else:
+                            # For non-logos theories, just show the total
+                            if "total" in self.subtheory_counts[theory]:
+                                print(f"    Example count: {self.subtheory_counts[theory]['total']} examples")
         
         # Component results
         if self.component_results:
@@ -183,14 +246,16 @@ class ExampleTestRunner:
         self.code_dir = code_dir
         self.src_dir = code_dir / "src"
     
-    def run_theory_examples(self, theory: str, subtheories: List[str], config: TestConfig) -> int:
+    def run_theory_examples(self, theory: str, subtheories: List[str], config: TestConfig, 
+                           results: Optional[TestResults] = None) -> int:
         """Run example tests for a specific theory with optional subtheory filtering."""
         if theory == 'logos':
-            return self._run_logos_example_tests(subtheories, config)
+            return self._run_logos_example_tests(subtheories, config, results)
         else:
-            return self._run_standard_example_tests(theory, config)
+            return self._run_standard_example_tests(theory, config, results)
     
-    def _run_logos_example_tests(self, subtheories: List[str], config: TestConfig) -> int:
+    def _run_logos_example_tests(self, subtheories: List[str], config: TestConfig, 
+                                results: Optional[TestResults] = None) -> int:
         """Run logos example tests from subtheory directories."""
         overall_exit_code = 0
         
@@ -206,6 +271,12 @@ class ExampleTestRunner:
             
             print(f"      Testing {subtheory} subtheory examples")
             
+            # Count examples first if results object provided
+            if results:
+                example_count = self._count_subtheory_examples(subtheory)
+                if example_count > 0:
+                    results.add_subtheory_count("logos", subtheory, example_count)
+            
             # Build command for subtheory examples
             command = ["pytest", str(subtheory_test_dir)]
             command.extend(["-k", "example"])  # Only example tests (matches both "examples" and "example_cases")
@@ -215,15 +286,25 @@ class ExampleTestRunner:
             if config.failfast:
                 command.append("-x")
             
-            # Execute tests
+            # Execute tests and measure time
             env = self._setup_environment()
+            start_time = time.time()
             try:
                 result = subprocess.run(command, cwd=self.code_dir, env=env)
+                elapsed_time = time.time() - start_time
+                
+                # Record timing if results object provided
+                if results:
+                    results.add_subtheory_timing("logos", subtheory, elapsed_time)
+                
                 if result.returncode != 0:
                     overall_exit_code = result.returncode
                     if config.failfast:
                         break
             except Exception as e:
+                elapsed_time = time.time() - start_time
+                if results:
+                    results.add_subtheory_timing("logos", subtheory, elapsed_time)
                 print(f"      Error running {subtheory} examples: {e}")
                 overall_exit_code = 1
                 if config.failfast:
@@ -231,13 +312,20 @@ class ExampleTestRunner:
         
         return overall_exit_code
     
-    def _run_standard_example_tests(self, theory: str, config: TestConfig) -> int:
+    def _run_standard_example_tests(self, theory: str, config: TestConfig, 
+                                   results: Optional[TestResults] = None) -> int:
         """Run example tests for standard theories (non-logos)."""
         test_dir = self.src_dir / "model_checker" / "theory_lib" / theory / "tests"
         
         if not test_dir.exists():
             print(f"    Warning: No test directory found for {theory}")
             return 0
+        
+        # Count examples first if results object provided
+        if results:
+            example_count = self._count_theory_examples(theory)
+            if example_count > 0:
+                results.add_subtheory_count(theory, "total", example_count)
         
         # Build pytest command
         command = ["pytest", str(test_dir)]
@@ -256,6 +344,58 @@ class ExampleTestRunner:
         except Exception as e:
             print(f"    Error running example tests for {theory}: {e}")
             return 1
+    
+    def _count_subtheory_examples(self, subtheory: str) -> int:
+        """Count the number of examples for a logos subtheory."""
+        examples_file = self.src_dir / "model_checker" / "theory_lib" / "logos" / "subtheories" / subtheory / "examples.py"
+        
+        if not examples_file.exists():
+            return 0
+        
+        # Count examples by looking for patterns like "XXX_TH_N_example" or "XXX_CM_N_example"
+        count = 0
+        try:
+            with open(examples_file, 'r') as f:
+                content = f.read()
+                # Match patterns like MOD_TH_1_example, CF_CM_2_example, etc.
+                import re
+                pattern = r'^[A-Z]+_(?:TH|CM)_\d+_example\s*='
+                matches = re.findall(pattern, content, re.MULTILINE)
+                count = len(matches)
+        except Exception:
+            pass
+        
+        return count
+    
+    def _count_theory_examples(self, theory: str) -> int:
+        """Count the number of examples for a standard theory."""
+        examples_file = self.src_dir / "model_checker" / "theory_lib" / theory / "examples.py"
+        
+        if not examples_file.exists():
+            return 0
+        
+        # Count examples by looking for patterns
+        count = 0
+        try:
+            with open(examples_file, 'r') as f:
+                content = f.read()
+                # Match patterns - theories use different prefixes
+                import re
+                # Generic pattern to match various naming conventions
+                patterns = [
+                    r'^[A-Z]+_(?:TH|CM)_\d+_example\s*=',  # Standard pattern like MOD_TH_1_example
+                    r'^[A-Za-z_]+_example_\d+\s*=',        # Pattern like exclusion_example_1
+                    r'^example_[A-Za-z_]+_\d+\s*=',        # Pattern like example_counterfactual_1
+                    r'^[A-Za-z]+Example\d+\s*=',           # Pattern like ImpositionExample1
+                ]
+                
+                for pattern in patterns:
+                    matches = re.findall(pattern, content, re.MULTILINE)
+                    count += len(matches)
+        except Exception:
+            pass
+        
+        return count
     
     
     def _setup_environment(self) -> Dict[str, str]:
@@ -575,8 +715,12 @@ class TestRunner:
             if subtheories:
                 print(f"    Subtheories: {', '.join(subtheories)}")
             
-            exit_code = example_runner.run_theory_examples(theory, subtheories, config)
+            start_time = time.time()
+            exit_code = example_runner.run_theory_examples(theory, subtheories, config, results)
+            elapsed_time = time.time() - start_time
+            
             results.add_theory_result(theory, 'examples', exit_code)
+            results.add_theory_timing(theory, 'examples', elapsed_time)
             
             if exit_code != 0 and config.failfast:
                 break
@@ -594,8 +738,12 @@ class TestRunner:
             if subtheories:
                 print(f"    Subtheories: {', '.join(subtheories)}")
             
+            start_time = time.time()
             exit_code = unit_runner.run_theory_units(theory, subtheories, config)
+            elapsed_time = time.time() - start_time
+            
             results.add_theory_result(theory, 'unit', exit_code)
+            results.add_theory_timing(theory, 'unit', elapsed_time)
             
             if exit_code != 0 and config.failfast:
                 break
