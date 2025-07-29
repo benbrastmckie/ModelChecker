@@ -29,26 +29,74 @@ Each theory implements common interface patterns while preserving unique semanti
 
 ## Quick Start
 
+### Create a New Theory Project
+
+```bash
+# Load a theory template
+model-checker -l logos
+model-checker -l exclusion
+model-checker -l imposition
+model-checker -l bimodal
+```
+
+### Run Examples
+
+```bash
+# Run a specific example file
+model-checker examples/my_logic_examples.py
+
+# Or use dev_cli.py for development
+./dev_cli.py examples/my_logic_examples.py
+```
+
+### Example Structure
+
+Create `examples/my_logic_examples.py`:
+
 ```python
-from model_checker import get_theory, check_formula, BuildExample
+# Import theory components
+from model_checker.theory_lib.logos import get_theory
+from model_checker import BuildModule
 
-# Basic formula checking across theories
-formula = "\\neg \\neg p \\rightarrow p"  # Double negation elimination
-theories = ["logos", "exclusion", "imposition", "bimodal"]
+# Load the theory
+theory = get_theory()
 
-for theory_name in theories:
-    result = check_formula(formula, theory_name=theory_name)
-    print(f"{theory_name}: {'Valid' if result else 'Invalid'}")
+# Define an example
+double_negation_example = [
+    [],                              # No premises
+    ["(\\neg \\neg A \\rightarrow A)"],    # Conclusion (should be valid)
+    {'N': 3}                         # Settings
+]
 
-# Theory-specific usage
-theory = get_theory("logos")
-model = BuildExample("modal_test", theory)
-result = model.check_formula("\\Box p \\rightarrow p")  # T axiom
-print(f"T axiom: {'valid' if result else 'invalid'}")
+t_axiom_example = [
+    ["\\Box A"],                      # Premise
+    ["A"],                           # Conclusion
+    {'N': 3}                         # Settings
+]
 
-# Selective subtheory loading (for modular theories)
+# Collection for execution
+test_example_range = {
+    "double_negation": double_negation_example,
+    "t_axiom": t_axiom_example,
+}
+
+# Define semantic theories
+semantic_theories = {
+    "logos": theory,
+}
+
+# Optional: specify which examples to run
+example_range = test_example_range.copy()
+```
+
+### Selective Subtheory Loading
+
+```python
 from model_checker.theory_lib import logos
-modal_theory = logos.get_theory(['extensional', 'modal'])
+
+# Load specific subtheories
+modal_theory = logos.get_theory(['modal'])  # Loads extensional + modal + counterfactual
+counterfactual_theory = logos.get_theory(['counterfactual'])  # Loads extensional + counterfactual
 ```
 
 ## Available Theories

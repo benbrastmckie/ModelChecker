@@ -4,6 +4,8 @@ This document establishes coding, documentation, and maintenance standards for t
 
 ## Table of Contents
 
+- [Formula Formatting Standards](#formula-formatting-standards)
+- [Examples.py Structure Standards](#examplespy-structure-standards)
 - [Unicode Character Guidelines](#unicode-character-guidelines)
 - [Documentation Standards](#documentation-standards)
 - [README.md Standards](#readmemd-standards)
@@ -14,6 +16,185 @@ This document establishes coding, documentation, and maintenance standards for t
 - [Version Control Standards](#version-control-standards)
 - [Performance Guidelines](#performance-guidelines)
 - [Error Handling Standards](#error-handling-standards)
+
+## Formula Formatting Standards
+
+### General Rules
+
+1. **Capital Letters**: Always use capital letters (A, B, C) instead of lowercase (p, q, r) for propositional variables
+2. **Binary Operators**: Formulas with binary main operators MUST have outer parentheses
+3. **Unary Operators**: Formulas with unary main operators MUST NOT have outer parentheses
+4. **LaTeX Notation**: Always use LaTeX notation in code, never Unicode
+
+### Binary Operator Examples
+
+```python
+# CORRECT - Binary operators with outer parentheses
+premises = ["A", "(A \\rightarrow B)"]
+conclusions = ["B"]
+
+# CORRECT - All binary operators need parentheses
+formulas = [
+    "(A \\wedge B)",          # Conjunction
+    "(A \\vee B)",            # Disjunction
+    "(A \\rightarrow B)",     # Implication
+    "(A \\leftrightarrow B)", # Biconditional
+    "(A \\boxright B)",       # Counterfactual
+]
+
+# INCORRECT - Missing parentheses
+formula = "A \\rightarrow B"  # WRONG: Must be "(A \\rightarrow B)"
+```
+
+### Unary Operator Examples
+
+```python
+# CORRECT - Unary operators without outer parentheses
+formulas = [
+    "\\neg A",        # Negation
+    "\\Box A",        # Necessity
+    "\\Diamond A",    # Possibility
+    "\\neg \\Box A",  # Complex unary
+]
+
+# INCORRECT - Unnecessary parentheses
+formula = "(\\neg A)"  # WRONG: Should be "\\neg A"
+```
+
+### Nested Formulas
+
+```python
+# CORRECT - Proper nesting
+formulas = [
+    "\\neg (A \\wedge B)",                    # Negation of conjunction
+    "(\\neg A \\vee \\neg B)",                # Disjunction of negations
+    "\\Box (A \\rightarrow B)",               # Necessity of implication
+    "(\\Box A \\rightarrow \\Box B)",         # Implication of necessities
+    "\\neg \\Box \\neg A",                    # No parentheses for unary chain
+]
+```
+
+## Examples.py Structure Standards
+
+All `examples.py` files must follow this standardized structure to ensure consistency and compatibility with the ModelChecker framework.
+
+### Required Structure
+
+```python
+"""
+[Theory Name] Examples
+
+This module provides example formulas demonstrating [theory description].
+Examples are organized into countermodels (showing invalidity) and 
+theorems (showing validity).
+"""
+
+# Standard imports
+import os
+import sys
+
+# Add current directory to path for imports
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
+# Import theory components
+from .semantic import TheorySemantics, TheoryProposition, TheoryStructure
+from .operators import theory_operators  # or get_operators()
+
+# Default general settings (optional)
+general_settings = {
+    "print_constraints": False,
+    "print_z3": False,
+    "save_output": False,
+    "align_vertically": False,
+}
+
+# Semantic theory definition
+theory_name = {
+    "semantics": TheorySemantics,
+    "proposition": TheoryProposition,
+    "model": TheoryStructure,
+    "operators": theory_operators,
+    "dictionary": {}  # Translation dictionary for theory comparison
+}
+
+# Example naming convention: PREFIX_TYPE_NUMBER
+# PREFIX: Theory abbreviation (e.g., LOG, EX, IMP)
+# TYPE: CM (countermodel) or TH (theorem)
+# NUMBER: Sequential number
+
+# Example definition pattern
+EX_CM_1_premises = ["A", "(A \\rightarrow B)"]
+EX_CM_1_conclusions = ["\\Box B"]
+EX_CM_1_settings = {
+    'N': 4,               # Number of propositions
+    'contingent': True,   # Require contingent propositions
+    'non_empty': True,    # Non-empty verifier/falsifier sets
+    'disjoint': False,    # Allow overlap
+    'max_time': 10,       # Timeout in seconds
+    'iterate': 1,         # Number of models to find
+    'expectation': True,  # True for countermodels, False for theorems
+}
+EX_CM_1_example = [
+    EX_CM_1_premises,
+    EX_CM_1_conclusions,
+    EX_CM_1_settings,
+]
+
+# Collect all examples
+test_example_range = {
+    "EX_CM_1": EX_CM_1_example,
+    # Add all other examples here
+}
+
+# Active examples for execution (subset of test_example_range)
+example_range = {
+    # Include examples you want to run by default
+}
+
+# Semantic theories for comparison (optional)
+semantic_theories = {
+    "Theory1": theory_name,
+    # Add other theories for comparison
+}
+
+# Main execution block
+if __name__ == '__main__':
+    import subprocess
+    file_name = os.path.basename(__file__)
+    subprocess.run(["model-checker", file_name], check=True, cwd=current_dir)
+```
+
+### Key Requirements
+
+1. **Import Structure**: Always include path setup and proper imports
+2. **Naming Convention**: Use consistent PREFIX_TYPE_NUMBER pattern
+3. **Settings Documentation**: Include expectation flag (True for countermodels)
+4. **Formula Formatting**: Follow formula formatting standards (capital letters, proper parentheses)
+5. **Collections**: Maintain both test_example_range and example_range
+6. **Main Block**: Include standard execution block
+
+### Loading Theories with -l Flag
+
+The `-l` (load_theory) flag creates a new project from an existing theory template:
+
+```bash
+# Create new project from logos theory
+model-checker -l logos
+
+# Available theories:
+# - logos: Hyperintensional truthmaker semantics
+# - exclusion: Unilateral semantics  
+# - imposition: Fine's counterfactual semantics
+# - bimodal: Combined temporal-modal logic
+```
+
+This creates a complete project structure with:
+- Properly formatted examples.py
+- All theory components
+- Documentation templates
+- Test suites
 
 ## Unicode Character Guidelines
 
@@ -45,7 +226,7 @@ class Negation(Operator):
         super().__init__("¬", 1)  # WRONG: Parser cannot read this
 
 # INCORRECT - Unicode in formulas
-formula = "p ∧ q"  # WRONG: Must use "p \\wedge q"
+formula = "A ∧ B"  # WRONG: Must use "(A \\wedge B)"
 ```
 
 ### Documentation Symbol Standards
@@ -83,6 +264,7 @@ The ModelChecker parser expects the following LaTeX notation:
 | Biconditional | ↔                   | `\\leftrightarrow`       | If and only if       |
 | Necessity     | □                   | `\\Box`                  | Modal necessity      |
 | Possibility   | ◇                   | `\\Diamond`              | Modal possibility    |
+| Counterfactual| ⥽                   | `\\boxright`             | Counterfactual       |
 | Future        | ⏵                   | `\\future`               | Temporal future      |
 | Past          | ⏴                   | `\\past`                 | Temporal past        |
 | Top           | ⊤                   | `\\top`                  | Logical truth        |
@@ -97,6 +279,7 @@ The ModelChecker parser expects the following LaTeX notation:
 3. **Consistent Formatting**: Use consistent header levels and formatting
 4. **Working Examples**: All code examples must be tested and working
 5. **Cross-References**: Link between related documentation
+6. **Formula Standards**: Follow formula formatting standards in all examples
 
 ### Content Organization Principles
 
@@ -190,24 +373,45 @@ directory_name/
 ```markdown
 ## Quick Start
 
+### Create a New Theory Project
+
+```bash
+# Load a theory template
+model-checker -l logos
+```
+
+### Run Examples
+
 ```python
+# Import theory components
 from model_checker.theory_lib.logos import get_theory
-from model_checker import BuildExample
+from model_checker import BuildModule
 
 # Load the theory
 theory = get_theory()
 
-# Create and check a formula
-model = BuildExample("example", theory)
-result = model.check_formula("\\Box p \\rightarrow p")
-print(f"T axiom is {'valid' if result else 'invalid'}")
+# Create an example
+example = [
+    ["A", "(A \\rightarrow B)"],  # Premises
+    ["B"],                         # Conclusions
+    {'N': 3}                       # Settings
+]
+
+# Check validity
+module = BuildModule({
+    'file_path': 'example.py',
+    'semantic_theories': {'my_theory': theory},
+    'test_example_range': {'test': example}
+})
+result = module.build_examples()
+```
 ```
 
-```
 **Best Practices:**
 - Use realistic, working code examples
 - Show the most common use cases first
 - Use LaTeX notation for formulas, not Unicode
+- Follow formula formatting standards (capital letters, proper parentheses)
 - Include expected output where helpful
 - Keep examples simple but meaningful
 
@@ -416,8 +620,8 @@ Each subtheory README must follow the standard 9-section format with specific re
    - Use expanded format for readability:
      ```python
      result = model.check_validity(   # Description
-       [...],                         # Premises
-       [...]                          # Conclusions
+       ["A", "(A \\rightarrow B)"],   # Premises
+       ["B"]                          # Conclusions
      )
      ```
    - Explain output clearly (e.g., "No countermodel found" instead of "False")
@@ -716,6 +920,7 @@ When modifying or adding to the repository:
 - [ ] No emojis used anywhere
 - [ ] No unicode in code examples (LaTeX notation used instead)
 - [ ] /Code/README.md is formatted for PyPI display
+- [ ] All formulas follow proper formatting (capital letters, parentheses rules)
 
 ### Code Checklist
 
@@ -727,7 +932,10 @@ When modifying or adding to the repository:
 - [ ] No debug code in production files
 - [ ] Imports are properly organized
 - [ ] Error messages are user-friendly
+- [ ] All formulas use capital letters (A, B, C)
+- [ ] Binary operators have outer parentheses
+- [ ] Unary operators have no outer parentheses
 
 ## Conclusion
 
-Following these standards ensures that the ModelChecker remains maintainable, consistent, and user-friendly. When in doubt, prioritize clarity and consistency over cleverness or brevity. Remember: every directory needs a README.md, every README.md needs a file tree, and all documentation needs proper navigation.
+Following these standards ensures that the ModelChecker remains maintainable, consistent, and user-friendly. When in doubt, prioritize clarity and consistency over cleverness or brevity. Remember: every directory needs a README.md, every README.md needs a file tree, and all documentation needs proper navigation. All formulas must follow the formatting standards with capital letters and appropriate parentheses.

@@ -43,7 +43,6 @@
   - so if we are to use this tool for making theories, we should seek to make theories that we can easily reason about with the tools we have. so computability is now a virtue
   - compare with simplicity (kinda like intuitive computability for humans)
     - often no objective measure on simplicity. Not the case for computability: time is very easy, even before that space complexity
-    <!-- - questions of computability with Z3 are also not always straightforward—sometimes some theorems go through easier than others for reasons not well understood to us, probably having to do with reasoning shortcuts (tactics and goals) Z3 takes—but overall it is a chartable space and arguably even in these areas more measurable than intuitive simplicity -->
   - DEMO MAXIMIZER FOR IMPOSITION SEMANTICS
 - imposition defined (5 min)
   - maximal compatible parts
