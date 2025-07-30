@@ -49,27 +49,72 @@ if current_dir not in sys.path:
 
 from model_checker.theory_lib.logos import get_theory
 
-# Define examples
-reflexivity_example = [
-    [],                              # No premises
-    ["(A \\rightarrow A)"],          # Reflexivity theorem
-    {'N': 3, 'expectation': False}   # Expect validity
+# Load the theory
+theory = get_theory()
+
+# Define examples following the naming convention
+LOG_TH_1_premises = []
+LOG_TH_1_conclusions = ["(A \\rightarrow A)"]
+LOG_TH_1_settings = {
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': False,       # Allow non-contingent propositions
+    'non_null': False,         # Allow the null state
+    'non_empty': False,        # Allow empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': False,      # True = expect countermodel, False = expect theorem
+}
+LOG_TH_1_example = [
+    LOG_TH_1_premises,
+    LOG_TH_1_conclusions,
+    LOG_TH_1_settings,
 ]
 
-t_axiom_example = [
-    ["\\Box A"],                     # Premise: A is necessary
-    ["A"],                           # Conclusion: A is true
-    {'N': 3, 'expectation': False}   # Expect validity
+MOD_TH_1_premises = ["\\Box A"]
+MOD_TH_1_conclusions = ["A"]
+MOD_TH_1_settings = {
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': False,       # Allow non-contingent propositions
+    'non_null': False,         # Allow the null state
+    'non_empty': False,        # Allow empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': False,      # True = expect countermodel, False = expect theorem
+}
+MOD_TH_1_example = [
+    MOD_TH_1_premises,
+    MOD_TH_1_conclusions,
+    MOD_TH_1_settings,
 ]
 
-# Collections
-test_example_range = {
-    "reflexivity": reflexivity_example,
-    "t_axiom": t_axiom_example,
+# Collection of all examples (used by test framework)
+unit_tests = {
+    "LOG_TH_1": LOG_TH_1_example,  # Reflexivity theorem
+    "MOD_TH_1": MOD_TH_1_example,  # T-axiom theorem
+    # Add more examples here for comprehensive testing
 }
 
+# The framework expects this to be named 'example_range'
+example_range = {
+    "LOG_TH_1": LOG_TH_1_example,  # Run reflexivity example
+    "MOD_TH_1": MOD_TH_1_example,  # Run T-axiom example
+}
+# Or run all tests: example_range = unit_tests
+
+# Optional: General settings for execution
+general_settings = {
+    "print_constraints": False,
+    "print_impossible": False,
+    "print_z3": False,
+    "save_output": False,
+    "maximize": False,  # Set to True to compare multiple theories
+}
+
+# Define semantic theories to use
 semantic_theories = {
-    "logos": get_theory(),
+    "logos": theory,
 }
 
 # Run with: model-checker reflexivity_example.py
@@ -127,16 +172,41 @@ from model_checker import get_theory, BuildExample
 theory = get_theory("logos")
 
 # 2. Build a model with premises and conclusions
-# Define example with premises and conclusions
-modus_ponens_example = [
-    ["A", "(A \\rightarrow B)"],      # Premises
-    ["B"],                           # Conclusions
-    {'N': 3, 'expectation': False}   # Settings (expect validity)
+# 2. Define example following the naming convention
+EXT_TH_1_premises = ["A", "(A \\rightarrow B)"]
+EXT_TH_1_conclusions = ["B"]
+EXT_TH_1_settings = {
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': False,       # Allow non-contingent propositions
+    'non_null': False,         # Allow the null state
+    'non_empty': False,        # Allow empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': False,      # True = expect countermodel, False = expect theorem
+}
+EXT_TH_1_example = [
+    EXT_TH_1_premises,
+    EXT_TH_1_conclusions,
+    EXT_TH_1_settings,
 ]
 
 # 3. Set up collections
-test_example_range = {
-    "modus_ponens": modus_ponens_example,
+unit_tests = {
+    "EXT_TH_1": EXT_TH_1_example,  # Modus ponens theorem
+}
+
+example_range = {
+    "EXT_TH_1": EXT_TH_1_example,  # Run this example
+}
+
+# Optional: General settings for execution
+general_settings = {
+    "print_constraints": False,
+    "print_impossible": False,
+    "print_z3": False,
+    "save_output": False,
+    "maximize": False,  # Set to True to compare multiple theories
 }
 
 semantic_theories = {
@@ -174,15 +244,41 @@ The framework includes **4 semantic theories**:
 from model_checker.theory_lib import logos, exclusion, imposition, bimodal
 
 # Test double negation elimination
-dne_example = [
-    [],                                  # No premises
-    ["(\\neg \\neg A \\rightarrow A)"],      # Double negation elimination
-    {'N': 3}                             # Settings
+DNE_TH_1_premises = ["\\neg \\neg A"]
+DNE_TH_1_conclusions = ["A"]
+DNE_TH_1_settings = {
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': False,       # Allow non-contingent propositions
+    'non_null': False,         # Allow the null state
+    'non_empty': False,        # Allow empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': False,      # True = expect countermodel, False = expect theorem
+}
+DNE_TH_1_example = [
+    DNE_TH_1_premises,
+    DNE_TH_1_conclusions,
+    DNE_TH_1_settings,
 ]
 
-# Set up for all theories
-test_example_range = {
-    "double_negation": dne_example,
+# Set up collections for all theories
+unit_tests = {
+    "DNE_TH_1": DNE_TH_1_example,  # Double negation elimination
+    # Add more cross-theory tests here
+}
+
+example_range = {
+    "DNE_TH_1": DNE_TH_1_example,  # Run this test
+}
+
+# Optional: General settings for execution
+general_settings = {
+    "print_constraints": False,
+    "print_impossible": False,
+    "print_z3": False,
+    "save_output": False,
+    "maximize": False,  # Set to True to compare multiple theories
 }
 
 # Load all theories
@@ -233,18 +329,39 @@ Find multiple distinct models for comprehensive analysis:
 from model_checker.theory_lib.logos import get_theory
 
 # Example that allows multiple models
-contingent_example = [
-    [],                              # No premises
-    ["(A \\vee \\neg A)"],           # Tautology with multiple models
-    {
-        'N': 3,
-        'iterate': 5,                # Find up to 5 models
-        'expectation': False         # Expect validity
-    }
+LOG_TH_2_premises = []
+LOG_TH_2_conclusions = ["(A \\vee \\neg A)"]
+LOG_TH_2_settings = {
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': True,        # All propositions must be contingent
+    'non_null': True,          # Exclude the null state
+    'non_empty': True,         # Require non-empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 5,              # Find up to 5 distinct models
+    'expectation': False,      # True = expect countermodel, False = expect theorem
+}
+LOG_TH_2_example = [
+    LOG_TH_2_premises,
+    LOG_TH_2_conclusions,
+    LOG_TH_2_settings,
 ]
 
-test_example_range = {
-    "contingent": contingent_example,
+unit_tests = {
+    "LOG_TH_2": LOG_TH_2_example,  # Tautology with multiple models
+}
+
+example_range = {
+    "LOG_TH_2": LOG_TH_2_example,
+}
+
+# Optional: General settings for execution
+general_settings = {
+    "print_constraints": False,
+    "print_impossible": False,
+    "print_z3": False,
+    "save_output": False,
+    "maximize": False,  # Set to True to compare multiple theories
 }
 
 semantic_theories = {

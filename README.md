@@ -65,81 +65,75 @@ theory = get_theory()
 
 # Define examples following the standard format
 
-# Example 1: Modus Ponens (Extensional)
-modus_ponens_premises = ["A", "(A \\rightarrow B)"]
-modus_ponens_conclusions = ["B"]
-modus_ponens_settings = {
-    'N': 3,
-    'contingent': False,
-    'non_null': False,
-    'non_empty': False,
-    'disjoint': False,
-    'max_time': 10,
-    'iterate': 1,
-    'expectation': False,  # False = expecting validity
+# Example 1: Extensional Modus Ponens
+EXT_TH_1_premises = ["A", "(A \\rightarrow B)"]
+EXT_TH_1_conclusions = ["B"]
+EXT_TH_1_settings = {
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': False,       # Allow non-contingent propositions
+    'non_null': False,         # Allow the null state
+    'non_empty': False,        # Allow empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': False,      # True = expect countermodel, False = expect theorem
 }
-modus_ponens_example = [
-    modus_ponens_premises,
-    modus_ponens_conclusions,
-    modus_ponens_settings,
+EXT_TH_1_example = [
+    EXT_TH_1_premises,
+    EXT_TH_1_conclusions,
+    EXT_TH_1_settings,
 ]
 
 # Example 2: Counterfactual Modus Ponens
-cf_modus_ponens_premises = ["A", "(A \\boxright B)"]
-cf_modus_ponens_conclusions = ["B"]
-cf_modus_ponens_settings = {
-    'N': 4,
-    'contingent': False,
-    'non_null': False,
-    'non_empty': False,
-    'disjoint': False,
-    'max_time': 10,
-    'iterate': 1,
-    'expectation': False,
+CF_TH_1_premises = ["A", "(A \\boxright B)"]
+CF_TH_1_conclusions = ["B"]
+CF_TH_1_settings = {
+    'N': 4,                    # Max number of atomic propositions
+    'contingent': False,       # Allow non-contingent propositions
+    'non_null': False,         # Allow the null state
+    'non_empty': False,        # Allow empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': False,      # True = expect countermodel, False = expect theorem
 }
-cf_modus_ponens_example = [
-    cf_modus_ponens_premises,
-    cf_modus_ponens_conclusions,
-    cf_modus_ponens_settings,
+CF_TH_1_example = [
+    CF_TH_1_premises,
+    CF_TH_1_conclusions,
+    CF_TH_1_settings,
 ]
 
-# Example 3: Identity Reflexivity (Constitutive)
-identity_reflexive_premises = []
-identity_reflexive_conclusions = ["(A \\equiv A)"]
-identity_reflexive_settings = {
-    'N': 3,
-    'contingent': False,
-    'non_null': False,
-    'non_empty': False,
-    'disjoint': False,
-    'max_time': 10,
-    'iterate': 1,
-    'expectation': False,
+# Example 3: Constitutive Identity Reflexivity
+CON_TH_1_premises = []
+CON_TH_1_conclusions = ["(A \\equiv A)"]
+CON_TH_1_settings = {
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': False,       # Allow non-contingent propositions
+    'non_null': False,         # Allow the null state
+    'non_empty': False,        # Allow empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': False,      # True = expect countermodel, False = expect theorem
 }
-identity_reflexive_example = [
-    identity_reflexive_premises,
-    identity_reflexive_conclusions,
-    identity_reflexive_settings,
+CON_TH_1_example = [
+    CON_TH_1_premises,
+    CON_TH_1_conclusions,
+    CON_TH_1_settings,
 ]
 
-# Create collections (unit_tests is used internally by theories)
+# Collection of all examples (used by test framework)
 unit_tests = {
-    "EXT_TH_modus_ponens": modus_ponens_example,
-    "CF_TH_modus_ponens": cf_modus_ponens_example,
-    "CON_TH_identity": identity_reflexive_example,
+    "EXT_TH_1": EXT_TH_1_example,  # Modus ponens theorem
+    "CF_TH_1": CF_TH_1_example,    # Counterfactual modus ponens
+    "CON_TH_1": CON_TH_1_example,  # Identity reflexivity
 }
 
 # The framework expects this to be named 'example_range'
-# You can run all examples or select a subset:
 example_range = {
-    "EXT_TH_modus_ponens": modus_ponens_example,
-    "CF_TH_modus_ponens": cf_modus_ponens_example,
-    # "CON_TH_identity": identity_reflexive_example,  # Commented out to run fewer
-}
-
-# Define semantic theories to use
-semantic_theories = {
-    "logos": theory,
+    "EXT_TH_1": EXT_TH_1_example,  # Run modus ponens example
+    "CF_TH_1": CF_TH_1_example,    # Run counterfactual example
+    # "CON_TH_1": CON_TH_1_example,  # Commented out to run fewer
 }
 
 # Optional: General settings for execution
@@ -149,6 +143,11 @@ general_settings = {
     "print_z3": False,
     "save_output": False,
     "maximize": False,  # Set to True to compare multiple theories
+}
+
+# Define semantic theories to use
+semantic_theories = {
+    "logos": theory,
 }
 ```
 

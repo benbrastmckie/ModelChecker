@@ -160,9 +160,7 @@ semantic_theories = {
 ### Custom Settings
 
 ```python
-from model_checker import check_formula
-
-# Check a formula with specific settings
+# Define custom settings for your examples
 settings = {
     "N": 4,               # Number of atomic states
     "contingent": True,   # Require contingent valuations
@@ -290,15 +288,13 @@ For Jupyter notebook usage:
 
 ```python
 from model_checker import ModelExplorer
-from model_checker.jupyter import check_formula, find_countermodel
 
 # Interactive widget-based exploration
 explorer = ModelExplorer()
 explorer.display()
 
-# Direct notebook functions
-result = check_formula("(p \\rightarrow (q \\rightarrow p))")
-countermodel = find_countermodel("\\neg \\neg p", "p")
+# Or use the standard examples.py workflow for formula checking
+# See the Examples Standard documentation for details
 ```
 
 ### Custom Constraint Analysis

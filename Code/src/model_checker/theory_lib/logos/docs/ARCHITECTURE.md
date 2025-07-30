@@ -347,15 +347,14 @@ falsify = z3.Or([
 The Logos theory integrates with ModelChecker's BuildExample:
 
 ```python
-# Theory loading and example checking
-from model_checker import check_formula
+# Theory loading for use with examples.py files
+from model_checker.theory_lib import logos
 
-# Check a modal identity formula
-result = check_formula("(A \\equiv A)", theory_name="logos")
-
-# Or check with specific subtheories
+# Load theory with specific subtheories
 theory = logos.get_theory(['modal', 'constitutive'])
-# Use theory in custom model construction (advanced usage)
+
+# Use theory in examples.py file following standard format
+# See the Examples Standard documentation for details
 ```
 
 ### Model Structure

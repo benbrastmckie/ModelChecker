@@ -54,39 +54,89 @@ model-checker examples/my_logic_examples.py
 Create `examples/my_logic_examples.py`:
 
 ```python
+# Standard imports
+import os
+import sys
+
+# Add current directory to path for imports
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
 # Import theory components
 from model_checker.theory_lib.logos import get_theory
-from model_checker import BuildModule
 
 # Load the theory
 theory = get_theory()
 
-# Define an example
-double_negation_example = [
-    [],                              # No premises
-    ["(\\neg \\neg A \\rightarrow A)"],    # Conclusion (should be valid)
-    {'N': 3}                         # Settings
+# Define examples following naming convention
+LOG_TH_1_premises = []
+LOG_TH_1_conclusions = ["(\\neg \\neg A \\rightarrow A)"]
+LOG_TH_1_settings = {
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': False,       # Allow non-contingent propositions
+    'non_null': False,         # Allow the null state
+    'non_empty': False,        # Allow empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': False,      # True = expect countermodel, False = expect theorem
+}
+LOG_TH_1_example = [
+    LOG_TH_1_premises,
+    LOG_TH_1_conclusions,
+    LOG_TH_1_settings,
 ]
 
-t_axiom_example = [
-    ["\\Box A"],                      # Premise
-    ["A"],                           # Conclusion
-    {'N': 3}                         # Settings
+MOD_TH_1_premises = ["\\Box A"]
+MOD_TH_1_conclusions = ["A"]
+MOD_TH_1_settings = {
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': False,       # Allow non-contingent propositions
+    'non_null': False,         # Allow the null state
+    'non_empty': False,        # Allow empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': False,      # True = expect countermodel, False = expect theorem
+}
+MOD_TH_1_example = [
+    MOD_TH_1_premises,
+    MOD_TH_1_conclusions,
+    MOD_TH_1_settings,
 ]
 
-# Collection for execution
-test_example_range = {
-    "double_negation": double_negation_example,
-    "t_axiom": t_axiom_example,
+# Collection of all examples (used by test framework)
+unit_tests = {
+    "LOG_TH_1": LOG_TH_1_example,  # Double negation elimination
+    "MOD_TH_1": MOD_TH_1_example,  # T-axiom theorem
 }
 
-# Define semantic theories
+# The framework expects this to be named 'example_range'
+example_range = {
+    "LOG_TH_1": LOG_TH_1_example,  # Run specific examples
+    "MOD_TH_1": MOD_TH_1_example,
+}
+
+# Optional: General settings for execution
+general_settings = {
+    "print_constraints": False,
+    "print_impossible": False,
+    "print_z3": False,
+    "save_output": False,
+    "maximize": False,  # Set to True to compare multiple theories
+}
+
+# Define semantic theories to use
 semantic_theories = {
     "logos": theory,
 }
 
-# Optional: specify which examples to run
-example_range = test_example_range.copy()
+# Make module executable
+if __name__ == '__main__':
+    import subprocess
+    file_name = os.path.basename(__file__)
+    subprocess.run(["model-checker", file_name], check=True, cwd=current_dir)
 ```
 
 ### Selective Subtheory Loading
@@ -177,6 +227,7 @@ Each theory directory contains **complete implementations** with semantic classe
 - **[Contributing Guide](docs/CONTRIBUTING.md)** - Complete implementation workflow and requirements
 - **[Testing Framework](tests/README.md#theory-testing-framework-guide)** - Comprehensive testing patterns
 - **[API Integration](../README.md)** - Framework-level interfaces and coordination
+- **[Examples Standard](../../docs/EXAMPLES.md)** - Standard form for examples.py files
 
 ## References
 
