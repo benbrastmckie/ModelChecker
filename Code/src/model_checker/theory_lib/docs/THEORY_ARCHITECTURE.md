@@ -403,12 +403,21 @@ Both patterns must implement [standardized testing](tests/README.md#theory-testi
 
 ### Jupyter Integration
 
-Both patterns must support [Jupyter integration](../jupyter/README.md):
+Both patterns must integrate with the ModelChecker framework:
 
 ```python
-# Both patterns work with:
-from model_checker.jupyter.interactive import check_formula
-result = check_formula("p → q", theory_name="your_theory")
+# Both patterns work with the standard examples.py approach:
+from model_checker.theory_lib.your_theory import get_theory
+
+theory = get_theory()
+example = [
+    ["A"],                    # Premises
+    ["(A \\rightarrow B)"],   # Conclusions
+    {'N': 3}                  # Settings
+]
+
+semantic_theories = {"your_theory": theory}
+test_example_range = {"test": example}
 ```
 
 ### Documentation Standards

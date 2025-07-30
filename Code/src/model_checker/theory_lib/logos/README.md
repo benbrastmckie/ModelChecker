@@ -10,7 +10,7 @@ logos/
 ├── __init__.py            # Theory initialization and public API
 ├── semantic.py            # Core hyperintensional semantic framework
 ├── operators.py           # Operator registry and loading system
-├── examples.py            # Unified examples collection (118 examples)
+├── examples.py            # Unified examples collection (177 examples)
 ├── iterate.py             # Model iteration functionality
 ├── docs/                  # Comprehensive documentation
 │   ├── README.md          # Documentation hub and navigation
@@ -27,11 +27,11 @@ logos/
 │   └── test_logos_examples.py  # Cross-subtheory integration tests
 └── subtheories/           # Modular operator groups (see subtheories/README.md)
     ├── README.md          # Subtheory coordination and overview
-    ├── extensional/       # Extensional operators (7 operators, 14 examples)
-    ├── modal/            # Necessity and possibility (4 operators, 18 examples)
-    ├── constitutive/     # Content relations (5 operators, 33 examples)
-    ├── counterfactual/   # Counterfactual conditionals (2 operators, 33 examples)
-    └── relevance/        # Relevance logic (1 operator, 20 examples)
+    ├── extensional/       # Extensional operators (7 operators, 25 examples)
+    ├── modal/            # Necessity and possibility (4 operators, 21 examples)
+    ├── constitutive/     # Content relations (5 operators, 40 examples)
+    ├── counterfactual/   # Counterfactual conditionals (2 operators, 74 examples)
+    └── relevance/        # Relevance logic (1 operator, 17 examples)
 ```
 
 ## Overview
@@ -54,16 +54,16 @@ model = BuildExample("hyperintensional_test", theory)
 
 # Test basic modal logic principles
 result1 = model.check_validity(      # T axiom: necessity implies truth
-  ["\\Box p"],                       # Premises
-  ["p"]                              # Conclusions
+  ["\\Box A"],                       # Premises
+  ["A"]                              # Conclusions
 )
 result2 = model.check_validity(      # Invalid: possibility doesn't imply necessity
-  ["\\Diamond p"],                   # Premises
-  ["\\Box p"]                        # Conclusions
+  ["\\Diamond A"],                   # Premises
+  ["\\Box A"]                        # Conclusions
 )
 result3 = model.check_validity(      # Hyperintensional distinction
-  ["p \\leftrightarrow q"],         # Premises: logical equivalence
-  ["p \\equiv q"]                   # Conclusions: propositional identity
+  ["(A \\leftrightarrow B)"],         # Premises: logical equivalence
+  ["(A \\equiv B)"]                   # Conclusions: propositional identity
 )
 
 print(f"T axiom: {result1}")         # No countermodel found (valid)
@@ -91,7 +91,7 @@ Interactive Jupyter notebooks providing hands-on tutorials for hyperintensional 
 
 ### [tests/](tests/)
 
-Comprehensive test suite validating the unified Logos theory implementation. Contains cross-subtheory integration tests ensuring operators work correctly together, semantic coherence validation, and the complete 118-example test collection. Tests verify both individual operator behavior and complex interactions between subtheories. See [tests/README.md](tests/README.md) for testing methodology.
+Comprehensive test suite validating the unified Logos theory implementation. Contains cross-subtheory integration tests ensuring operators work correctly together, semantic coherence validation, and the complete 177-example test collection. Tests verify both individual operator behavior and complex interactions between subtheories. See [tests/README.md](tests/README.md) for testing methodology.
 
 ## Documentation
 
@@ -212,9 +212,9 @@ Logos implements Kit Fine's truthmaker semantics where propositions are characte
 - **Falsifiers**: States that make the proposition false
 
 This creates a non-Boolean algebraic structure enabling distinctions between:
-- Logically equivalent propositions: `p ∧ q` vs `q ∧ p`
-- Necessarily equivalent propositions: `□p` vs `¬◇¬p`
-- Different grounding structures: `p` vs `p ∨ (q ∧ ¬q)`
+- Logically equivalent propositions: `A ∧ B` vs `B ∧ A`
+- Necessarily equivalent propositions: `□A` vs `¬◇¬A`
+- Different grounding structures: `A` vs `A ∨ (B ∧ ¬B)`
 
 ### Key Innovations
 
@@ -257,9 +257,22 @@ logos_theory = logos.get_theory()
 exclusion_theory = exclusion.get_theory()
 
 # Test same formula in different theories
-formula = "p \\rightarrow (q \\rightarrow p)"
-logos_result = BuildExample("logos_test", logos_theory).check_formula(formula)
-exclusion_result = BuildExample("exclusion_test", exclusion_theory).check_formula(formula)
+example = [
+    [],  # No premises
+    ["(A \\rightarrow (B \\rightarrow A))"],  # K-axiom
+    {'N': 3}
+]
+
+# Run in each theory
+logos_model = BuildExample("logos_test", logos_theory)
+logos_model.premises, logos_model.conclusions = example[0], example[1]
+logos_model.set_settings(example[2])
+logos_result = logos_model.run_single_test()
+
+exclusion_model = BuildExample("exclusion_test", exclusion_theory)
+exclusion_model.premises, exclusion_model.conclusions = example[0], example[1]
+exclusion_model.set_settings(example[2])
+exclusion_result = exclusion_model.run_single_test()
 ```
 
 ## Testing

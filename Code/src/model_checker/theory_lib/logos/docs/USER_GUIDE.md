@@ -49,21 +49,41 @@ print(f"Loaded {len(theory['operators'].operator_dictionary)} operators")
 
 ### Your First Formula Check
 
-Let's check if necessity implies truth (the T axiom):
+Let's check if necessity implies truth (the T axiom) using the standard examples.py approach:
 
 ```python
-from model_checker.theory_lib import logos
-from model_checker import BuildExample
+# Create a file: t_axiom_example.py
+import os
+import sys
+
+# Add current directory to path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
+from model_checker.theory_lib.logos import get_theory
 
 # Load the theory
-theory = logos.get_theory()
+theory = get_theory()
 
-# Create a model checker
-model = BuildExample("t_axiom", theory)
+# Define the T axiom example
+t_axiom_example = [
+    ["\\Box A"],                      # Premise: A is necessary
+    ["A"],                           # Conclusion: A is true
+    {'N': 3, 'expectation': False}   # Settings (expectation: False = theorem)
+]
 
-# Check the formula
-result = model.check_formula("\\Box p \\rightarrow p")
-print(f"□p → p is {'valid' if result else 'invalid'}")
+# Collection for execution
+test_example_range = {
+    "t_axiom": t_axiom_example,
+}
+
+# Define semantic theories
+semantic_theories = {
+    "logos": theory,
+}
+
+# Run with: model-checker t_axiom_example.py
 ```
 
 ### Understanding the Output

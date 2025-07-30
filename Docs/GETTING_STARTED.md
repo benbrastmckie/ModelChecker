@@ -1,0 +1,479 @@
+# Getting Started with ModelChecker
+
+This guide walks you through the basics of using ModelChecker to explore logical theories and test formulas.
+
+## Table of Contents
+
+1. [Before You Begin: Setting Up Your Editor](#before-you-begin-setting-up-your-editor)
+2. [Creating Your First Project](#creating-your-first-project)
+3. [Understanding the Project Structure](#understanding-the-project-structure)
+4. [Running Examples](#running-examples)
+5. [Modifying Examples](#modifying-examples)
+6. [Exploring Different Theories](#exploring-different-theories)
+7. [Next Steps](#next-steps)
+
+## Before You Begin: Setting Up Your Editor
+
+Working with ModelChecker involves editing Python files containing logical formulas. A properly configured text editor makes this much easier by providing:
+
+- **Syntax highlighting** for Python code
+- **Unicode support** for logical symbols (∧, ∨, ¬, □, ◇)
+- **LaTeX preview** for mathematical notation
+- **Auto-completion** for common patterns
+- **Keybindings** for running examples
+
+### Recommended Editors
+
+#### For Beginners: VSCodium
+
+- **Repository**: [VSCodium Setup Guide](https://github.com/benbrastmckie/VSCodium)
+- Open-source version of VS Code with helpful extensions pre-configured
+- User-friendly interface with point-and-click functionality
+- Great for those new to programming
+
+#### For Advanced Users: NeoVim
+
+- **Repository**: [NeoVim Configuration](https://github.com/benbrastmckie/.config)
+- Powerful text editor with extensive customization
+- Keyboard-driven workflow for efficiency
+- Ideal for experienced developers
+
+## Creating Your First Project
+
+### Step 1: Install ModelChecker
+
+If you haven't already, install ModelChecker:
+
+```bash
+pip install model-checker
+```
+
+### Step 2: Create a New Project
+
+Run the interactive project creator:
+
+```bash
+model-checker
+```
+
+You'll be prompted to:
+
+1. Choose whether to create a new project (type `y`)
+2. Enter a project name (use snake_case, e.g., `my_logic_project`)
+
+This creates a new project with the Logos theory by default.
+
+### Step 3: Load a Specific Theory
+
+To create a project with a different theory:
+
+```bash
+model-checker -l <theory_name>
+```
+
+Available theories:
+
+- `logos` - Hyperintensional bilateral semantics (default)
+- `exclusion` - Unilateral semantics with exclusion
+- `imposition` - Fine's counterfactual semantics
+- `bimodal` - Temporal-modal logic
+
+Example:
+
+```bash
+model-checker -l imposition
+```
+
+## Understanding the Project Structure
+
+After creating a project, you'll have these files:
+
+```
+project_my_logic/
+├── README.md       # Theory-specific documentation
+├── examples.py     # Pre-configured examples to run
+├── __init__.py     # Makes the directory a Python package
+├── semantic.py     # Core semantic definitions
+├── operators.py    # Logical operators for the theory
+├── docs/          # Additional documentation
+└── notebooks/     # Interactive Jupyter notebooks (if available)
+```
+
+### The examples.py File
+
+This is your main working file. It contains:
+
+1. **Import statements** - Load the theory components
+2. **Example definitions** - Logical formulas to test
+3. **Settings** - Control model generation
+4. **Theory configuration** - Specify which semantic theory to use
+
+## Running Examples
+
+### Required Variables in examples.py
+
+For ModelChecker to successfully run an examples.py file, it must contain these essential variables:
+
+#### 1. `semantic_theories` (Required)
+
+A dictionary mapping theory names to their implementations:
+
+```python
+semantic_theories = {
+    "logos": theory,  # Maps a name to the theory object
+}
+```
+
+#### 2. `example_range` (Required)
+
+A dictionary of examples that will be executed when you run the file. Each key is an example name, each value is a list containing `[premises, conclusions, settings]`:
+
+```python
+# Define individual examples first
+EXT_CM_1_premises = ["A", "(A \\rightarrow B)"]
+EXT_CM_1_conclusions = ["\\Box B"]
+EXT_CM_1_settings = {
+    'N': 4,                    # Max number of atomic propositions
+    'contingent': True,        # All propositions must be contingent
+    'non_null': True,          # Exclude the null state
+    'non_empty': True,         # Require non-empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': True,       # True = expect countermodel, False = expect theorem
+}
+EXT_CM_1_example = [
+    EXT_CM_1_premises,
+    EXT_CM_1_conclusions,
+    EXT_CM_1_settings
+]
+
+EXT_TH_1_premises = ["A", "(A \\rightarrow B)"]
+EXT_TH_1_conclusions = ["B"]
+EXT_TH_1_settings = {
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': False,       # Allow non-contingent propositions
+    'non_null': False,         # Allow the null state
+    'non_empty': False,        # Allow empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': False,      # True = expect countermodel, False = expect theorem
+}
+EXT_TH_1_example = [
+    EXT_TH_1_premises,
+    EXT_TH_1_conclusions,
+    EXT_TH_1_settings
+]
+
+# This is what model-checker executes
+example_range = {
+  # Countermodels
+  "EXT_CM_1": EXT_CM_1_example,
+  # ... potentially dozens more
+
+  # Theorems
+  "EXT_TH_1": EXT_TH_1_example,
+  # ... potentially dozens more
+}
+```
+
+#### 3. `unit_tests` (Common but Optional)
+
+A dictionary used by the testing framework (`run_tests.py`) to run comprehensive test suites. Often organized by grouping countermodels and theorems separately:
+
+```python
+# Group examples by type
+ext_cm_examples = {
+    "EXT_CM_1": EXT_CM_1_example,   # ANTECEDENT STRENGTHENING
+    "EXT_CM_2": EXT_CM_2_example,   # CONTRAPOSITION
+    "EXT_CM_3": EXT_CM_3_example,   # TRANSITIVITY FAILURE
+    # ... more countermodels
+}
+
+ext_th_examples = {
+    "EXT_TH_1": EXT_TH_1_example,   # MODUS PONENS
+    "EXT_TH_2": EXT_TH_2_example,   # DISJUNCTIVE SYLLOGISM
+    "EXT_TH_3": EXT_TH_3_example,   # HYPOTHETICAL SYLLOGISM
+    # ... more theorems
+}
+
+# Combine collections using dictionary unpacking
+unit_tests = {**ext_cm_examples, **ext_th_examples}
+
+# Used by: ./run_tests.py --examples logos
+```
+
+#### 4. `general_settings` (Optional)
+
+Controls execution behavior and output formatting:
+
+```python
+general_settings = {
+    "print_impossible": False,    # Show impossible states
+    "print_constraints": False,   # Display Z3 constraints
+    "print_z3": False,           # Show Z3 model/unsat core
+    "save_output": False,        # Prompt to save results
+    "maximize": False,           # Find maximum N for each theory
+    "align_vertically": False,   # Vertical time display (bimodal)
+}
+```
+
+If not provided, all default to `False`.
+
+### Basic Execution
+
+Navigate to your project directory and run:
+
+```bash
+model-checker examples.py
+```
+
+### What You'll See
+
+The output shows:
+
+- Whether the formula is valid (a theorem) or invalid
+- Countermodels when formulas are invalid
+- Model details including propositions and their truth values
+
+### Example Output
+
+#### Valid Formula (Theorem)
+
+```
+========================================
+
+EXAMPLE EXT_TH_1: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. A
+2. (A \rightarrow B)
+
+Conclusion:
+3. B
+
+Z3 Run Time: 0.0098 seconds
+
+========================================
+```
+
+#### Invalid Formula (Countermodel)
+
+```
+========================================
+
+EXAMPLE CF_CM_1: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. \neg A
+2. (A \boxright C)
+
+Conclusion:
+3. ((A \wedge B) \boxright C)
+
+Z3 Run Time: 0.0293 seconds
+
+========================================
+State Space:
+  #b0000 = □
+  #b0001 = a
+  #b0010 = b
+  #b0100 = c
+  #b0101 = a.c (world)
+  #b0110 = b.c (world)
+  ...
+
+The evaluation world is: b.c
+
+INTERPRETED PREMISES:
+
+1.  |\neg A| = < {b.c}, {a, a.b.c.d} >  (True in b.c)
+      |A| = < {a, a.b.c.d}, {b.c} >  (False in b.c)
+
+2.  |(A \boxright C)| = < {a.c, b.c}, {a.d} >  (True in b.c)
+      |A| = < {a, a.b.c.d}, {b.c} >  (False in b.c)
+      |A|-alternatives to b.c = {a.c}
+        |C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} >  (True in a.c)
+
+INTERPRETED CONCLUSION:
+
+3.  |((A \wedge B) \boxright C)| = < ∅, {a.d, b.c} >  (False in b.c)
+      |(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.d}, {a.b.c, a.c, b.c} >  (False in b.c)
+        |A| = < {a, a.b.c.d}, {b.c} >  (False in b.c)
+        |B| = < {a.b, a.b.c, a.b.c.d, a.b.d, b, b.c.d, b.d, d}, {a.c} >  (True in b.c)
+      |(A \wedge B)|-alternatives to b.c = {a.d}
+        |C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} >  (False in a.d)
+
+Total Run Time: 0.2815 seconds
+
+========================================
+```
+
+For countermodels, the output includes:
+
+- **State Space**: All possible states and their status (world, impossible, or base state)
+- **Evaluation World**: The specific world where the premises are true but conclusion is false
+- **Interpreted Formulas**: Shows verifier/falsifier sets and truth values at the evaluation world
+
+## Modifying Examples
+
+### Creating Your Own Example
+
+Edit `examples.py` to add a new test:
+
+```python
+# 1. Define your example following the naming convention
+MY_CM_1_premises = ["A", "(A \\rightarrow \\Box B)"]
+MY_CM_1_conclusions = ["\\Box B"]
+MY_CM_1_settings = {
+    'N': 4,                    # Max number of atomic propositions
+    'contingent': True,        # All propositions must be contingent
+    'non_null': True,          # Exclude the null state
+    'non_empty': True,         # Require non-empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': True,       # True = expect countermodel, False = expect theorem
+}
+MY_CM_1_example = [
+    MY_CM_1_premises,
+    MY_CM_1_conclusions,
+    MY_CM_1_settings,
+]
+
+# 2. Add to unit_tests if you want it in the test suite
+unit_tests["MY_CM_1"] = MY_CM_1_example
+
+# 3. Add to example_range to actually run it
+example_range = {
+    "MY_CM_1": MY_CM_1_example,  # Run just this example
+}
+
+# Or run multiple examples
+example_range = {
+    "EXT_TH_1": EXT_TH_1_example,  # Existing theorem
+    "MY_CM_1": MY_CM_1_example,    # Your new countermodel
+}
+
+# 4. Ensure semantic_theories is defined
+semantic_theories = {
+    "logos": theory,  # The theory object loaded earlier
+}
+```
+
+## Exploring Different Theories
+
+### Theory-Specific Features
+
+Each theory has unique operators and capabilities:
+
+#### Logos Theory
+
+- Full hyperintensional semantics
+- Counterfactual operators: `\boxright`, `\diamondright`
+- Constitutive operators: `\equiv`, `\sqsubseteq`
+- See: [Logos Documentation](../Code/src/model_checker/theory_lib/logos/README.md)
+
+#### Exclusion Theory
+
+- Unilateral negation semantics
+- Exclusion operator: `\exclude`
+- Solves the False Premise Problem
+- See: [Exclusion Documentation](../Code/src/model_checker/theory_lib/exclusion/README.md)
+
+#### Imposition Theory
+
+- Fine's counterfactual semantics
+- Specialized for counterfactual reasoning
+- See: [Imposition Documentation](../Code/src/model_checker/theory_lib/imposition/README.md)
+
+#### Bimodal Theory
+
+- Combines temporal and modal operators
+- Past/Future: `P`, `F`
+- Necessity/Possibility: `\Box`, `\Diamond`
+- See: [Bimodal Documentation](../Code/src/model_checker/theory_lib/bimodal/README.md)
+
+### Comparing Theories
+
+ModelChecker automatically tests each example against all theories in `semantic_theories`:
+
+```python
+# theory_comparison.py
+from model_checker.theory_lib import logos, exclusion
+
+# Test double negation elimination
+dne_example = [
+    ["\\neg \\neg A"],  # Premise: not not A
+    ["A"],              # Conclusion: A
+    {'N': 3}
+]
+
+semantic_theories = {
+    "logos": logos.get_theory(),
+    "exclusion": exclusion.get_theory(),
+}
+
+example_range = {
+    "double_negation": dne_example,
+}
+
+general_settings = {
+    "maximize": False,  # Default: test each theory with given N
+    # "maximize": True,  # Find maximum N each theory can handle
+}
+```
+
+**Comparison Modes:**
+
+- `maximize=False` (default): Tests each example on all theories with the specified N value
+- `maximize=True`: Finds the maximum N value each theory can handle before timing out
+
+## Next Steps
+
+### Essential Documentation
+
+**In this directory (Docs/):**
+
+- [Installation Guide](INSTALLATION.md) - Platform-specific setup
+- [Development Guide](DEVELOPMENT.md) - Contributing to ModelChecker
+- [Tools Guide](TOOLS.md) - Advanced debugging and analysis
+- [Methodology](METHODOLOGY.md) - Research approach and validation
+
+**Theory Documentation:**
+
+- [Theory Library Overview](../Code/src/model_checker/theory_lib/README.md)
+- [Usage Guide](../Code/src/model_checker/theory_lib/docs/USAGE_GUIDE.md)
+- [Examples Guide](../Code/src/model_checker/theory_lib/docs/EXAMPLES.md)
+
+**Framework Documentation:**
+
+- [Core Framework](../Code/src/model_checker/README.md) - Architecture and design
+- [API Reference](../Code/docs/API_REFERENCE.md) - Detailed API documentation
+
+### Advanced Topics
+
+- **Custom Theories**: Create your own semantic theory
+- **Model Iteration**: Find multiple models satisfying constraints
+- **Debugging**: Use print flags (`-p`, `-z`) to see Z3 constraints
+- **Batch Testing**: Run comprehensive test suites
+
+### Getting Help
+
+- Check the [Troubleshooting Guide](TOOLS.md#troubleshooting)
+- Review theory-specific documentation
+- Examine the example files in each theory
+- Create an issue on [GitHub](https://github.com/benbrastmckie/ModelChecker/issues)
+
+---
+
+Welcome to the world of computational logic! Start with simple formulas and gradually explore more complex logical relationships.

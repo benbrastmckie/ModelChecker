@@ -10,7 +10,7 @@ imposition/
 ├── __init__.py         # Public API and theory registration
 ├── semantic.py         # ImpositionSemantics implementation
 ├── operators.py        # Counterfactual operators (▷, ◇▷)
-├── examples.py         # 32 test examples
+├── examples.py         # 86 test examples
 ├── iterate.py          # Model iteration for counterfactuals
 ├── docs/               # Comprehensive documentation
 ├── notebooks/          # Interactive Jupyter examples
@@ -85,10 +85,10 @@ The theory provides **11 operators** total:
 
 ### Examples
 
-The theory includes **32 comprehensive test examples**:
+The theory includes **86 comprehensive test examples**:
 
-- **21 Countermodels**: Invalid counterfactual principles (antecedent strengthening, transitivity failures, etc.)
-- **11 Theorems**: Valid counterfactual principles (modus ponens, contraposition, etc.)
+- **62 Countermodels**: Invalid counterfactual principles (antecedent strengthening, transitivity failures, etc.)
+- **24 Theorems**: Valid counterfactual principles (modus ponens, contraposition, etc.)
 
 ## Settings
 
@@ -120,7 +120,7 @@ Interactive Jupyter notebook collection demonstrating counterfactual reasoning w
 
 ### [tests/](tests/)
 
-Comprehensive test suite validating all 32 examples from examples.py. Includes unit tests for semantic primitives, integration tests for counterfactual operators, property-based testing for logical principles, and performance benchmarks. Tests ensure theoretical correctness and implementation reliability. See [tests/README.md](tests/README.md) for testing methodology.
+Comprehensive test suite validating all 86 examples from examples.py. Includes unit tests for semantic primitives, integration tests for counterfactual operators, property-based testing for logical principles, and performance benchmarks. Tests ensure theoretical correctness and implementation reliability. See [tests/README.md](tests/README.md) for testing methodology.
 
 ## Advanced Features
 
