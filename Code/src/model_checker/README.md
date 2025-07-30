@@ -106,7 +106,7 @@ Collection of semantic theory implementations including logos (hyperintensional)
 
 The ModelChecker framework follows a **three-layer architecture**:
 
-1. **User Interface Layer**: `BuildExample`, `check_formula()`, Jupyter widgets
+1. **User Interface Layer**: `BuildExample`, `BuildModule`, Jupyter widgets
 2. **Coordination Layer**: Model construction, constraint generation, result processing  
 3. **Theory Implementation Layer**: Semantic classes, operators, and constraint definitions
 
@@ -116,7 +116,7 @@ The typical API usage follows these steps:
 
 1. **Theory Selection**: Get a theory via `get_theory("theory_name")`
 2. **Model Building**: Create a model with `BuildExample("name", theory)`
-3. **Formula Evaluation**: Check formulas using `model.check_formula()`
+3. **Formula Evaluation**: Run the model to check validity
 4. **Result Analysis**: Analyze validity and examine countermodels
 
 ```python
@@ -282,16 +282,21 @@ test_example_range = {
 Interactive exploration in notebooks:
 
 ```python
-# High-level functions
-from model_checker.jupyter import check_formula, find_countermodel
-
-result = check_formula("\\Box (p \\rightarrow q) \\rightarrow (\\Box p \\rightarrow \\Box q)")
-countermodel = find_countermodel("\\Box p \\rightarrow p", theory="logos")
-
-# Interactive widgets
+# Interactive widgets for exploration
 from model_checker import ModelExplorer
+
+# Create an interactive explorer
 explorer = ModelExplorer(theory="exclusion")
 explorer.display()
+
+# Or work with BuildExample directly
+from model_checker import get_theory, BuildExample
+
+theory = get_theory("logos")
+model = BuildExample("interactive_test", theory)
+model.premises = ["p", "(p \\rightarrow q)"]
+model.conclusions = ["q"]
+result = model.run_single_test()
 ```
 
 ## Testing and Validation

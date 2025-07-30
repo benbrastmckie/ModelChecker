@@ -257,9 +257,22 @@ logos_theory = logos.get_theory()
 exclusion_theory = exclusion.get_theory()
 
 # Test same formula in different theories
-formula = "(A \\rightarrow (B \\rightarrow A))"
-logos_result = BuildExample("logos_test", logos_theory).check_formula(formula)
-exclusion_result = BuildExample("exclusion_test", exclusion_theory).check_formula(formula)
+example = [
+    [],  # No premises
+    ["(A \\rightarrow (B \\rightarrow A))"],  # K-axiom
+    {'N': 3}
+]
+
+# Run in each theory
+logos_model = BuildExample("logos_test", logos_theory)
+logos_model.premises, logos_model.conclusions = example[0], example[1]
+logos_model.set_settings(example[2])
+logos_result = logos_model.run_single_test()
+
+exclusion_model = BuildExample("exclusion_test", exclusion_theory)
+exclusion_model.premises, exclusion_model.conclusions = example[0], example[1]
+exclusion_model.set_settings(example[2])
+exclusion_result = exclusion_model.run_single_test()
 ```
 
 ## Testing
