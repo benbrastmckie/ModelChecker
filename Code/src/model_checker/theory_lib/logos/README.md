@@ -40,39 +40,107 @@ The **Logos Theory** implements hyperintensional semantics through a unified fra
 
 Within the ModelChecker framework, Logos serves as the most comprehensive semantic theory, providing a complete "formal language of thought" for analyzing logical relationships. The modular architecture allows selective loading of subtheories based on analysis needs, with automatic dependency resolution ensuring semantic coherence. This design supports both focused investigations using specific operators and comprehensive analyses leveraging the full hyperintensional framework.
 
-The theory's 118 test examples demonstrate valid and invalid inference patterns across extensional, modal, constitutive, counterfactual, and relevance domains, validating both individual operator behavior and cross-subtheory interactions.
+The theory's examples demonstrate valid and invalid inference patterns across extensional, modal, constitutive, counterfactual, and relevance domains, validating both individual operator behavior and cross-subtheory interactions.
 
 ## Quick Start
 
 ```python
+# Standard imports
+import os
+import sys
+
+# Add current directory to path for imports
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
+# Import theory components
 from model_checker.theory_lib import logos
-from model_checker import BuildExample
 
-# Load complete theory (all 5 subtheories, 19 operators)
-theory = logos.get_theory()
-model = BuildExample("hyperintensional_test", theory)
+# Option 1: Load complete theory (all subtheories)
+full_theory = logos.get_theory()
 
-# Test basic modal logic principles
-result1 = model.check_validity(      # T axiom: necessity implies truth
-  ["\\Box A"],                       # Premises
-  ["A"]                              # Conclusions
-)
-result2 = model.check_validity(      # Invalid: possibility doesn't imply necessity
-  ["\\Diamond A"],                   # Premises
-  ["\\Box A"]                        # Conclusions
-)
-result3 = model.check_validity(      # Hyperintensional distinction
-  ["(A \\leftrightarrow B)"],         # Premises: logical equivalence
-  ["(A \\equiv B)"]                   # Conclusions: propositional identity
-)
+# Option 2: Load specific subtheories for focused analysis
+# Modal logic only (includes extensional as dependency)
+modal_theory = logos.get_theory(['modal'])
 
-print(f"T axiom: {result1}")         # No countermodel found (valid)
-print(f"Possibility to necessity: {result2}")  # Countermodel found (invalid)
-print(f"Equivalence to identity: {result3}")   # Countermodel found (invalid)
+# Counterfactual reasoning (includes extensional)
+counterfactual_theory = logos.get_theory(['counterfactual'])
 
-# Selective subtheory loading for focused analysis
-modal_theory = logos.get_theory(['modal'])          # Loads extensional + modal
-cf_theory = logos.get_theory(['counterfactual'])    # Loads extensional + counterfactual
+# Multiple subtheories
+constitutive_theory = logos.get_theory(['modal', 'constitutive'])
+
+# Define examples following naming convention
+LOG_TH_1_premises = []
+LOG_TH_1_conclusions = ["(\\neg \\neg A \\rightarrow A)"]
+LOG_TH_1_settings = {
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': False,       # Allow non-contingent propositions
+    'non_null': False,         # Allow the null state
+    'non_empty': False,        # Allow empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': False,      # True = expect countermodel, False = expect theorem
+}
+LOG_TH_1_example = [
+    LOG_TH_1_premises,
+    LOG_TH_1_conclusions,
+    LOG_TH_1_settings,
+]
+
+MOD_TH_1_premises = ["\\Box A"]
+MOD_TH_1_conclusions = ["A"]
+MOD_TH_1_settings = {
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': False,       # Allow non-contingent propositions
+    'non_null': False,         # Allow the null state
+    'non_empty': False,        # Allow empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': False,      # True = expect countermodel, False = expect theorem
+}
+MOD_TH_1_example = [
+    MOD_TH_1_premises,
+    MOD_TH_1_conclusions,
+    MOD_TH_1_settings,
+]
+
+# Collection of all examples (used by test framework)
+unit_tests = {
+    "LOG_TH_1": LOG_TH_1_example,  # Double negation elimination
+    "MOD_TH_1": MOD_TH_1_example,  # T-axiom theorem
+}
+
+# The framework expects this to be named 'example_range'
+example_range = {
+    "LOG_TH_1": LOG_TH_1_example,  # Run specific examples
+    "MOD_TH_1": MOD_TH_1_example,
+}
+
+# Optional: General settings for execution
+general_settings = {
+    "print_constraints": False,
+    "print_impossible": False,
+    "print_z3": False,
+    "save_output": False,
+    "maximize": False,  # Set to True to compare multiple theories
+}
+
+# Define semantic theories to use
+# Can use full theory or selective subtheory loading
+semantic_theories = {
+    "modal_only": modal_theory,           # Just modal operators
+    "full_logos": full_theory,            # All operators
+    # "counterfactual": counterfactual_theory,  # Uncomment to add
+}
+
+# Make module executable
+if __name__ == '__main__':
+    import subprocess
+    file_name = os.path.basename(__file__)
+    subprocess.run(["model-checker", file_name], check=True, cwd=current_dir)
 ```
 
 ## Subdirectories
@@ -156,57 +224,11 @@ The Logos theory provides **19 operators** across **5 subtheories**:
 **Relevance** (1):
 - Relevance (≺) - Imported from constitutive
 
-## Examples
-
-### Example Categories
-
-The Logos theory includes **118 comprehensive examples** organized by subtheory:
-
-- **Extensional**: 14 examples (7 countermodels, 7 theorems)
-- **Modal**: 18 examples (4 countermodels, 14 theorems)
-- **Constitutive**: 33 examples (18 countermodels, 15 theorems)
-- **Counterfactual**: 33 examples (21 countermodels, 12 theorems)
-- **Relevance**: 20 examples (11 countermodels, 9 theorems)
-
-### Running Examples
-
-#### Command Line Execution
-
-```bash
-# Run all 118 examples
-model-checker src/model_checker/theory_lib/logos/examples.py
-
-# Run with debugging output
-./dev_cli.py -p -z src/model_checker/theory_lib/logos/examples.py
-
-# Run specific subtheory examples
-model-checker src/model_checker/theory_lib/logos/subtheories/modal/examples.py
-```
-
-#### Programmatic Access
-
-```python
-from model_checker.theory_lib.logos.examples import (
-    test_example_range,     # All 118 examples
-    logos_cm_examples,      # All countermodel examples
-    logos_th_examples       # All theorem examples
-)
-
-# Access specific example
-example = test_example_range['MOD_TH_5']  # Modal K axiom
-premises, conclusions, settings = example
-
-# Run with custom settings
-from model_checker import BuildExample
-model = BuildExample("test", logos.get_theory())
-result = model.check_validity(premises, conclusions, settings)
-```
-
 ## Semantic Theory
 
 ### Bilateral Truthmaker Semantics
 
-Logos implements Kit Fine's truthmaker semantics where propositions are characterized by:
+Logos implements a bilateral semantics where propositions are characterized by:
 
 - **Verifiers**: States that make the proposition true
 - **Falsifiers**: States that make the proposition false
@@ -230,49 +252,50 @@ This creates a non-Boolean algebraic structure enabling distinctions between:
 - Logic: Non-classical inference patterns and relevance logic
 - AI/Cognitive Science: Formal models of thought and reasoning
 
-## Integration
+## Examples
 
-### Theory Loading
+### Example Categories
 
-```python
-# Complete theory
-full_theory = logos.get_theory()
+The Logos theory includes **118 comprehensive examples** organized by subtheory:
 
-# Selective loading
-modal_only = logos.get_theory(['modal'])  # Includes extensional dependency
-relevance_focus = logos.get_theory(['relevance'])  # Includes constitutive + extensional
+- **Extensional**: 14 examples (7 countermodels, 7 theorems)
+- **Modal**: 18 examples (4 countermodels, 14 theorems)
+- **Constitutive**: 33 examples (18 countermodels, 15 theorems)
+- **Counterfactual**: 33 examples (21 countermodels, 12 theorems)
+- **Relevance**: 20 examples (11 countermodels, 9 theorems)
 
-# Check dependencies
-from model_checker.theory_lib.logos import SUBTHEORY_DEPENDENCIES
-print(SUBTHEORY_DEPENDENCIES['modal'])  # ['extensional']
+### Running Examples
+
+#### Command Line Execution
+
+```bash
+# Run all examples
+model-checker src/model_checker/theory_lib/logos/examples.py
+
+# Run with debugging output
+./dev_cli.py -p -z src/model_checker/theory_lib/logos/examples.py
+
+# Run specific subtheory examples
+model-checker src/model_checker/theory_lib/logos/subtheories/modal/examples.py
 ```
 
-### Cross-Theory Comparison
+#### Programmatic Access
 
 ```python
-# Compare with other ModelChecker theories
-from model_checker.theory_lib import logos, exclusion
+from model_checker.theory_lib.logos.examples import (
+    test_example_range,     # All examples
+    logos_cm_examples,      # All countermodel examples
+    logos_th_examples       # All theorem examples
+)
 
-logos_theory = logos.get_theory()
-exclusion_theory = exclusion.get_theory()
+# Access specific example
+example = test_example_range['MOD_TH_5']  # Modal K axiom
+premises, conclusions, settings = example
 
-# Test same formula in different theories
-example = [
-    [],  # No premises
-    ["(A \\rightarrow (B \\rightarrow A))"],  # K-axiom
-    {'N': 3}
-]
-
-# Run in each theory
-logos_model = BuildExample("logos_test", logos_theory)
-logos_model.premises, logos_model.conclusions = example[0], example[1]
-logos_model.set_settings(example[2])
-logos_result = logos_model.run_single_test()
-
-exclusion_model = BuildExample("exclusion_test", exclusion_theory)
-exclusion_model.premises, exclusion_model.conclusions = example[0], example[1]
-exclusion_model.set_settings(example[2])
-exclusion_result = exclusion_model.run_single_test()
+# Run with custom settings
+from model_checker import BuildExample
+model = BuildExample("test", logos.get_theory())
+result = model.check_validity(premises, conclusions, settings)
 ```
 
 ## Testing

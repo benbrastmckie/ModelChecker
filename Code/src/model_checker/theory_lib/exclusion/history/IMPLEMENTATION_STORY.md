@@ -1,5 +1,25 @@
 # The Implementation Story: From False Premises to Witness Predicates
 
+[← Back to History](README.md) | [Lessons Learned →](LESSONS_LEARNED.md) | [Strategies →](STRATEGIES.md)
+
+## Executive Summary
+
+This document chronicles the nine-attempt journey to implement Bernard and Champollion's unilateral exclusion semantics, culminating in the witness predicate pattern that solved the False Premise Problem. The story demonstrates how systematic exploration and architectural innovation can overcome seemingly impossible computational barriers.
+
+## Table of Contents
+
+1. [The Challenge](#the-challenge)
+2. [The False Premise Problem](#the-false-premise-problem)
+3. [The Journey: Nine Attempts](#the-journey-nine-attempts)
+4. [The Witness Predicate Solution](#the-witness-predicate-solution)
+5. [Success: Complete Problem Resolution](#success-complete-problem-resolution)
+6. [Lessons Learned](#lessons-learned)
+7. [The Broader Impact](#the-broader-impact)
+8. [Code Example: The Complete Solution](#code-example-the-complete-solution)
+9. [Conclusion](#conclusion)
+
+---
+
 ## The Challenge
 
 Implementing Bernard and Champollion's unilateral exclusion semantics seemed straightforward until we encountered a fundamental computational barrier: the **False Premise Problem**. This is the story of how nine implementation attempts led to an architectural breakthrough that solved a seemingly impossible problem.
@@ -242,7 +262,7 @@ theory = get_theory("exclusion")
 
 # Test ¬¬A ⊢ A (double negation elimination)
 model = BuildExample("double_neg", theory,
-    premises=['\\unineg \\unineg A'],
+    premises=['\\neg \\neg A'],
     conclusions=['A'],
     settings={'N': 3}
 )
@@ -254,7 +274,7 @@ print(f"¬¬A ⊨ A: {result}")  # False
 # We can even inspect the witness functions
 if not result:  # Countermodel found
     structure = model.get_model()
-    h_value = structure.get_h_witness("\\unineg(\\unineg(A))", 0)
+    h_value = structure.get_h_witness("\\neg(\\neg(A))", 0)
     print(f"Witness h(∅) = {h_value}")
 ```
 
@@ -265,3 +285,7 @@ The journey from false premises to witness predicates validates a key principle:
 What began as an impossible-seeming barrier—how to make ephemeral witness functions persistent—became an elegant solution through the simple insight of treating witnesses as first-class model predicates. The result is not just a working implementation, but a reusable pattern that advances our understanding of how to computationally realize complex semantic theories.
 
 The False Premise Problem is solved. Unilateral exclusion semantics is now fully computational. The nine-attempt journey was worth it—not just for the solution, but for the insights gained along the way.
+
+---
+
+[← Back to History](README.md) | [Lessons Learned →](LESSONS_LEARNED.md) | [Strategies →](STRATEGIES.md)
