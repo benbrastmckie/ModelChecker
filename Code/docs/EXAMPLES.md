@@ -30,7 +30,7 @@ All examples must follow the **PREFIX_TYPE_NUMBER** naming convention:
 
 ```python
 # PREFIX: Theory abbreviation (2-3 characters)
-# TYPE: CM (countermodel) or TH (theorem)  
+# TYPE: CM (countermodel) or TH (theorem)
 # NUMBER: Sequential number starting from 1
 
 # Correct examples:
@@ -42,17 +42,17 @@ BIM_CM_1_example    # Bimodal countermodel 1
 
 ### Standard Theory Prefixes
 
-| Theory | Prefix | Full Name |
-|--------|--------|-----------|
-| Extensional | EXT | Basic extensional logic |
-| Modal | MOD | Modal operators (□, ◇) |
-| Counterfactual | CF | Counterfactual conditionals |
-| Constitutive | CON | Identity and essence |
-| Relevance | REL | Relevance logic |
-| Logos (general) | LOG | Hyperintensional logic |
-| Exclusion | EX | Unilateral semantics |
-| Imposition | IMP | Fine's counterfactuals |
-| Bimodal | BIM | Temporal-modal logic |
+| Theory          | Prefix | Full Name                   |
+| --------------- | ------ | --------------------------- |
+| Extensional     | EXT    | Basic extensional logic     |
+| Modal           | MOD    | Modal operators (□, ◇)      |
+| Counterfactual  | CF     | Counterfactual conditionals |
+| Constitutive    | CON    | Identity and essence        |
+| Relevance       | REL    | Relevance logic             |
+| Logos (general) | LOG    | Hyperintensional logic      |
+| Exclusion       | EX     | Unilateral semantics        |
+| Imposition      | IMP    | Fine's counterfactuals      |
+| Bimodal         | BIM    | Temporal-modal logic        |
 
 ### Variable Naming Requirements
 
@@ -69,12 +69,13 @@ PREFIX_TYPE_NUMBER_example = [...]       # Combined list
 Every examples.py file must include these components in order:
 
 ### 1. Module Docstring
+
 ```python
 """
 [Theory Name] Examples
 
 This module provides example formulas demonstrating [theory description].
-Examples are organized into countermodels (showing invalidity) and 
+Examples are organized into countermodels (showing invalidity) and
 theorems (showing validity).
 
 Example Categories:
@@ -96,6 +97,7 @@ model-checker path/to/examples.py
 ```
 
 ### 2. Standard Imports
+
 ```python
 # Standard imports
 import os
@@ -108,6 +110,7 @@ if current_dir not in sys.path:
 ```
 
 ### 3. Theory Imports
+
 ```python
 # Import theory components
 from .semantic import TheorySemantics, TheoryProposition, TheoryStructure
@@ -118,6 +121,7 @@ from . import Proposition, ModelStructure  # Imported via __init__.py
 ```
 
 ### 4. Theory Definition
+
 ```python
 # Theory definition
 theory_name = {
@@ -130,6 +134,7 @@ theory_name = {
 ```
 
 ### 5. Example Definitions
+
 ```python
 # Individual example definitions following naming convention
 PREFIX_TYPE_NUMBER_premises = ["A", "(A \\rightarrow B)"]
@@ -152,6 +157,7 @@ PREFIX_TYPE_NUMBER_example = [
 ```
 
 ### 6. Collections
+
 ```python
 # Collection of all examples (used by test framework)
 unit_tests = {
@@ -183,6 +189,7 @@ semantic_theories = {
 ```
 
 ### 7. Main Block
+
 ```python
 # Make module executable
 if __name__ == '__main__':
@@ -198,16 +205,19 @@ if __name__ == '__main__':
 Every examples.py file must define these variables in this order:
 
 1. **unit_tests** (Required)
+
    - Dictionary mapping example names to example definitions
    - Used by the test framework for validation
    - Must include ALL examples defined in the file
 
 2. **example_range** (Required)
+
    - Dictionary of examples to execute when file is run
    - Can be a subset of unit_tests or equal to unit_tests
    - Controls which examples run by default
 
 3. **general_settings** (Optional but Recommended)
+
    - Controls output formatting and debugging
    - Standard keys: print_constraints, print_impossible, print_z3, save_output, maximize
 
@@ -287,23 +297,13 @@ Some theories define additional settings:
 
 ## Formula Formatting
 
-All formulas must follow MAINTENANCE.md standards:
-
-### Propositional Variables
-```python
-# CORRECT - Capital letters
-premises = ["A", "B", "C"]
-
-# INCORRECT - Lowercase letters
-premises = ["p", "q", "r"]  # WRONG
-```
-
 ### Binary Operators
+
 ```python
 # CORRECT - Outer parentheses required
 formulas = [
     "(A \\wedge B)",          # Conjunction
-    "(A \\vee B)",            # Disjunction  
+    "(A \\vee B)",            # Disjunction
     "(A \\rightarrow B)",     # Implication
     "(A \\leftrightarrow B)", # Biconditional
     "(A \\boxright B)",       # Counterfactual
@@ -314,6 +314,7 @@ formula = "A \\rightarrow B"  # WRONG
 ```
 
 ### Unary Operators
+
 ```python
 # CORRECT - No outer parentheses
 formulas = [
@@ -327,6 +328,7 @@ formula = "(\\neg A)"  # WRONG
 ```
 
 ### Complex Formulas
+
 ```python
 # CORRECT - Proper nesting
 formulas = [
@@ -490,14 +492,15 @@ logos_theory = {
 
 For cross-theory comparison examples:
 
+TODO: below, just import the 'counterfactual' subtheory of logos to compare with imposition
+
 ```python
 # Import multiple theories
-from model_checker.theory_lib import logos, exclusion, imposition
+from model_checker.theory_lib import logos, imposition
 
 # Define theories with translation dictionaries
 semantic_theories = {
     "Logos": logos.get_theory(),
-    "Exclusion": exclusion.get_theory(),
     "Imposition": imposition.get_theory(),
 }
 
@@ -507,32 +510,12 @@ general_settings = {
 }
 ```
 
-### Subtheory Examples
-
-For theories with subtheories, organize examples hierarchically:
-
-```python
-# Extensional examples
-extensional_examples = {
-    "EXT_CM_1": EXT_CM_1_example,
-    "EXT_TH_1": EXT_TH_1_example,
-}
-
-# Modal examples
-modal_examples = {
-    "MOD_CM_1": MOD_CM_1_example,
-    "MOD_TH_1": MOD_TH_1_example,
-}
-
-# Combined collection
-unit_tests = {**extensional_examples, **modal_examples}
-```
-
 ## Validation Checklist
 
 Before committing an examples.py file, verify:
 
 ### Structure Compliance
+
 - [ ] Module docstring follows template format
 - [ ] All required imports in correct order
 - [ ] Theory definition includes all required keys
@@ -540,30 +523,35 @@ Before committing an examples.py file, verify:
 - [ ] Main block included for executable support
 
 ### Naming Compliance
+
 - [ ] All examples follow PREFIX_TYPE_NUMBER pattern
 - [ ] Prefixes match theory abbreviations
 - [ ] Sequential numbering without gaps
 - [ ] Variable names match pattern exactly
 
 ### Formula Compliance
-- [ ] All propositions use capital letters (A, B, C)
+
 - [ ] Binary operators have outer parentheses
 - [ ] Unary operators have no outer parentheses
-- [ ] LaTeX notation used throughout (no Unicode)
+- [ ] LaTeX notation used throughout
+- [ ] Only use Unicode only in comments
 
 ### Settings Compliance
+
 - [ ] All core settings included with comments
-- [ ] 'expectation' explicitly set for each example
+- [ ] The 'expectation' explicitly set for each example
 - [ ] Theory-specific settings documented
 - [ ] Comments explain each setting's purpose
 
 ### Testing Compliance
-- [ ] All examples included in unit_tests
-- [ ] example_range properly defined
+
+- [ ] Include well-studied examples in `unit_tests`
+- [ ] The `example_range` is defined with variable names
 - [ ] File runs successfully with model-checker
 - [ ] Examples produce expected results
 
 ### Documentation Compliance
+
 - [ ] Descriptive comments for each example
 - [ ] Clear categorization of countermodels vs theorems
 - [ ] Usage instructions included

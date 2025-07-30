@@ -975,30 +975,6 @@ semantic_theories = {
 # Default example range (curated subset for direct execution)
 example_range = {
 
-    # # DEMO 1
-    "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    # "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-
-    # RUN UNIT_TEST: ./Code/run_tests.py --examples logos counterfactuals
-    # RUN UNIT_TEST: ./Code/run_tests.py --examples imposition
-
-    # # DEMO 2
-    # RUN MAXIMIZER: ./Code/dev_cli.py /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/imposition/examples.py -m
-
-    # # DEMO 3
-    # "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    # "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
-    # "IM_TH_11": IM_TH_11_example, # DEFINITION OF NEC
-
-    # # FLIP DEFINITION
-    # "IM_CM_28": IM_CM_28_example, # REVERSE FLIP DEFINITION OF NEC
-    # "IM_CM_29": IM_CM_29_example, # FLIP DEFINITION OF NEC
-
-    # # EXTRA: cannot be run with logos_theory
-    # "IM_CM_23": IM_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
-    # "IM_CM_26": IM_CM_26_example, # IMPOSITION TO LOGOS COUNTERFACTUAL
-    # "IM_CM_27": IM_CM_27_example, # LOGOS TO IMPOSITION COUNTERFACTUAL
-
     # Countermodels
     # "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING

@@ -1,6 +1,10 @@
 # Lessons Learned: Z3, Architecture, and Design Wisdom
 
-This document distills the key insights gained from implementing unilateral exclusion semantics, focusing on reusable patterns and principles for future semantic theory implementations.
+[← Back to History](README.md) | [Implementation Story →](IMPLEMENTATION_STORY.md) | [Strategies →](STRATEGIES.md)
+
+## Executive Summary
+
+This document distills the key insights gained from implementing unilateral exclusion semantics, focusing on reusable patterns and principles for future semantic theory implementations. These lessons apply broadly to any complex semantic implementation requiring sophisticated information flow between computational phases.
 
 ## Z3/SMT Solver Wisdom
 
@@ -289,3 +293,19 @@ When facing seemingly impossible implementation challenges:
 10. **Document the journey**, not just the destination
 
 These lessons apply beyond exclusion semantics to any complex semantic theory implementation requiring sophisticated information flow between computational phases.
+
+## References
+
+### Related Documentation
+- **[Implementation Story](IMPLEMENTATION_STORY.md)** - The nine-attempt journey
+- **[Strategies](STRATEGIES.md)** - Technical analysis of each approach
+- **[Exclusion Theory Overview](../README.md)** - Theory documentation
+
+### External Resources
+- Z3 SMT Solver Documentation
+- ModelChecker Framework Documentation
+- Bernard & Champollion's Unilateral Semantics Papers
+
+---
+
+[← Back to History](README.md) | [Implementation Story →](IMPLEMENTATION_STORY.md) | [Strategies →](STRATEGIES.md)

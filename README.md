@@ -22,24 +22,52 @@ ModelChecker/
 
 ## Overview
 
-The **ModelChecker** provides a programmatic semantic methodology for developing and exploring modular semantic theories. Drawing on the Z3 SMT solver, it enables researchers to establish logical consequence over finite models, automatically finding and printing readable countermodels when formulas or inferences are invalid. The framework includes the **TheoryLib** which provides a library of semantic theories to which users can clone, adjust, and contribute. The Logos theory currently supports extensional, modal, counterfactual, and constitutive operators, providing a modular architecture for studying hyperintensional logics and promoting transparent and verifiable reasoning.
+The **ModelChecker** provides a programmatic semantic methodology for developing and exploring modular semantic theories. Drawing on the Z3 SMT solver, it enables researchers to establish logical consequence over finite models, automatically finding and printing readable countermodels when formulas or inferences are invalid. The framework includes the **TheoryLib** which provides a library of semantic theories to which users can clone, adjust, and contribute to the project in order make publicly available to share with others. The Logos theory currently supports extensional, modal, counterfactual, and constitutive operators, providing a modular architecture for studying hyperintensional logics and promoting transparent and verifiable reasoning.
 
-The project facilitates the exploration of complex logical systems with many interacting operators that would be intractable to analyze by hand. Whereas the Logos is interpreted over a bilateral hyperintensional semantics, the TheoryLib also includes an implementation of Bernard and Champollion's unilateral semantics for negation based on exclusion, an implementation Fine's imposition semantics for counterfactuals, and a bimodal logic for reasoning with tense and modality. The modular architecture with automatic dependency resolution makes it easy to build one theory off of another while registering their differences in order to study independently.
+The project facilitates the exploration of logical systems with many interacting operators that would be intractable to analyze by hand. Whereas the Logos is interpreted over a bilateral hyperintensional semantics, the TheoryLib also includes an implementation of Bernard and Champollion's unilateral semantics for negation based on exclusion, an implementation Fine's imposition semantics for counterfactuals, and a bimodal logic for reasoning with tense and modality. The modular architecture with automatic dependency resolution makes it easy to build one theory off of another while registering their differences in order to study independently.
+
+## Installation
+
+### Basic Installation
+
+```bash
+pip install model-checker
+```
+
+For detailed installation instructions including platform-specific notes, see the [Installation Guide](Docs/INSTALLATION.md).
+
+### Development Installation
+
+```bash
+git clone https://github.com/benbrastmckie/ModelChecker
+cd ModelChecker/Code
+# Use the development CLI to run locally without installation:
+./dev_cli.py examples/my_example.py
+```
+
+For comprehensive development setup instructions, including virtual environments and platform-specific guidance, see the [Development Guide](Docs/DEVELOPMENT.md). NixOS users can use the provided `shell.nix` configuration for automatic environment setup.
+
+### With Jupyter Support
+
+```bash
+pip install model-checker[jupyter]
+```
+
+For Jupyter notebook features and interactive exploration, see the [Jupyter Integration Guide](Code/src/model_checker/jupyter/README.md).
 
 ## Quick Start
 
 ### Create a New Theory Project
 
 ```bash
-# Install the package
-pip install model-checker
-
 # Create a project from an existing theory
 model-checker -l logos
 model-checker -l exclusion
 model-checker -l imposition
 model-checker -l bimodal
 ```
+
+For detailed installation instructions, see the [Installation Guide](Docs/INSTALLATION.md). Once installed, follow the [Getting Started Guide](Docs/GETTING_STARTED.md) to create your first project and understand the framework basics.
 
 ### Run Examples
 
@@ -151,38 +179,6 @@ semantic_theories = {
 }
 ```
 
-### Making Examples Runnable
-
-For developers using `dev_cli.py` or running examples directly, add this code at the end of your `examples.py` file:
-
-```python
-# Make this module runnable from the command line
-if __name__ == '__main__':
-    import subprocess
-    import os
-    
-    # Get the current directory and file name
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    file_name = os.path.basename(__file__)
-    
-    # Run with model-checker from the correct directory
-    subprocess.run(["model-checker", file_name], check=True, cwd=current_dir)
-```
-
-This enables running the file directly with `python examples.py` or `./examples.py`, which will invoke the model-checker with the correct working directory. This is particularly useful during development when you want to test your examples without specifying the full path.
-
-### Settings and Configuration
-
-The available settings in the examples dictionary vary by theory:
-
-- **Common settings**: `N` (world size), `contingent`, `non_null`, `non_empty`, `disjoint`
-- **Theory-specific**: Each theory may define additional parameters
-- **Execution settings**: The `general_settings` dictionary controls output and comparison modes
-
-For comprehensive documentation on settings and advanced usage, see:
-- [Theory Library Documentation](Code/src/model_checker/theory_lib/README.md) - Theory-specific settings
-- [Development Guide](Docs/DEVELOPMENT.md) - Using `dev_cli.py` for local development
-
 ## Subdirectories
 
 ### [Code/](Code/)
@@ -233,7 +229,6 @@ Visual documentation including architecture diagrams, countermodel visualization
 - **Countermodel Visualization**: Understand why formulas fail
 - **Model Iteration**: Find multiple distinct models satisfying constraints
 - **Semantic Comparison**: Run multiple semantic theories on the same examples
-- **Interactive Exploration**: Jupyter widgets for real-time semantic exploration
 
 ### 3. Development Framework
 
@@ -241,35 +236,6 @@ Visual documentation including architecture diagrams, countermodel visualization
 - **Modular Architecture**: Compose operators with automatic dependencies
 - **Comprehensive Testing**: Unit tests, integration tests, and example validation
 - **Rich Documentation**: From API references to theoretical guides
-
-## Installation
-
-### Basic Installation
-
-```bash
-pip install model-checker
-```
-
-### Development Installation
-
-```bash
-git clone https://github.com/benbrastmckie/ModelChecker
-cd ModelChecker/Code
-# Use the development CLI to run locally without installation:
-./dev_cli.py examples/my_example.py
-```
-
-For comprehensive development setup instructions, including virtual environments and platform-specific guidance, see the [Development Guide](Docs/DEVELOPMENT.md). NixOS users can use the provided `shell.nix` configuration for automatic environment setup.
-
-### With Jupyter Support
-
-```bash
-pip install model-checker[jupyter]
-```
-
-For Jupyter notebook features and interactive exploration, see the [Jupyter Integration Guide](Code/src/model_checker/jupyter/README.md).
-
-For detailed installation instructions including platform-specific notes, see [Docs/INSTALLATION.md](Docs/INSTALLATION.md).
 
 ## Theory Highlights
 
@@ -322,10 +288,12 @@ This project is licensed under GPL-3.0. See [Code/LICENSE](Code/LICENSE) for det
 ## Support
 
 If you find ModelChecker useful, please consider starring the repository to help others discover it. To receive notifications about new releases:
+
 1. Click "Watch" on the [GitHub repository](https://github.com/benbrastmckie/ModelChecker)
 2. Select "Custom" → "Releases" to be notified only about new versions
 
 We encourage users to report bugs and suggest features by [creating issues](https://github.com/benbrastmckie/ModelChecker/issues/new). When creating an issue, please:
+
 - Check existing issues to avoid duplicates
 - Provide minimal reproducible examples for bugs
 - See [troubleshooting guide](Docs/INSTALLATION.md#troubleshooting) for common problems

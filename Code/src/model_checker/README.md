@@ -3,6 +3,7 @@
 [← Back to Root](../README.md) | [Theory Library →](theory_lib/README.md) | [Development →](../../docs/DEVELOPMENT.md)
 
 ## Directory Structure
+
 ```
 model_checker/
 ├── README.md               # This file - API documentation and architecture
@@ -36,10 +37,51 @@ model-checker -l imposition
 model-checker -l bimodal
 ```
 
-### Using the Standard Examples.py Workflow
+## Subdirectories
+
+### [builder/](builder/)
+
+Model construction and example builders providing the `BuildExample` and `BuildModule` classes. Handles theory loading, constraint generation coordination, and result formatting. This is the primary interface between user code and the constraint-solving engine. See [builder/README.md](builder/README.md) for construction patterns.
+
+### [iterate/](iterate/)
+
+Model iteration and constraint generation for finding multiple distinct models. Implements sophisticated difference constraints to ensure model diversity and provides theory-specific iteration strategies. Essential for comprehensive countermodel analysis. See [iterate/README.md](iterate/README.md) for iteration techniques.
+
+### [jupyter/](jupyter/)
+
+Interactive notebook integration providing high-level functions and interactive widgets for logical exploration. Features formula checking, countermodel visualization, and theory comparison tools optimized for research and educational use. See [jupyter/README.md](jupyter/README.md) for interactive features.
+
+### [settings/](settings/)
+
+Centralized settings management system with theory-specific defaults, validation, and command-line flag integration. Implements the relevance principle where theories only define settings applicable to their semantics. See [settings/README.md](settings/README.md) for configuration details.
+
+### [theory_lib/](theory_lib/)
+
+Collection of semantic theory implementations including logos (hyperintensional), exclusion (unilateral), imposition (Fine's counterfactuals), and bimodal (temporal-modal) theories. Each theory follows standardized interfaces while preserving unique semantic characteristics. See [theory_lib/README.md](theory_lib/README.md) for theory details.
+
+## API Architecture
+
+### Core Components
+
+The ModelChecker framework follows a **three-layer architecture**:
+
+1. **User Interface Layer**: `BuildExample`, `BuildModule`, Jupyter widgets
+2. **Coordination Layer**: Model construction, constraint generation, result processing
+3. **Theory Implementation Layer**: Semantic classes, operators, and constraint definitions
+
+### API Flow
+
+The typical API usage follows these steps:
+
+1. **Theory Selection**: Get a theory via `get_theory("theory_name")`
+2. **Model Building**: Create a model with `BuildExample("name", theory)`
+3. **Formula Evaluation**: Run the model to check validity
+4. **Result Analysis**: Analyze validity and examine countermodels
+
+### Using the Standard `examples.py` Workflow
 
 ```python
-# Create reflexivity_example.py
+# Create example.py
 import os
 import sys
 
@@ -117,114 +159,8 @@ semantic_theories = {
     "logos": theory,
 }
 
-# Run with: model-checker reflexivity_example.py
+# Run with: model-checker example.py
 ```
-
-### Interactive Exploration (Jupyter)
-
-```python
-from model_checker import ModelExplorer
-explorer = ModelExplorer()
-explorer.display()  # Launch interactive widget
-```
-
-## Subdirectories
-
-### [builder/](builder/)
-Model construction and example builders providing the `BuildExample` and `BuildModule` classes. Handles theory loading, constraint generation coordination, and result formatting. This is the primary interface between user code and the constraint-solving engine. See [builder/README.md](builder/README.md) for construction patterns.
-
-### [iterate/](iterate/)
-Model iteration and constraint generation for finding multiple distinct models. Implements sophisticated difference constraints to ensure model diversity and provides theory-specific iteration strategies. Essential for comprehensive countermodel analysis. See [iterate/README.md](iterate/README.md) for iteration techniques.
-
-### [jupyter/](jupyter/)
-Interactive notebook integration providing high-level functions and interactive widgets for logical exploration. Features formula checking, countermodel visualization, and theory comparison tools optimized for research and educational use. See [jupyter/README.md](jupyter/README.md) for interactive features.
-
-### [settings/](settings/)
-Centralized settings management system with theory-specific defaults, validation, and command-line flag integration. Implements the relevance principle where theories only define settings applicable to their semantics. See [settings/README.md](settings/README.md) for configuration details.
-
-### [theory_lib/](theory_lib/)
-Collection of semantic theory implementations including logos (hyperintensional), exclusion (unilateral), imposition (Fine's counterfactuals), and bimodal (temporal-modal) theories. Each theory follows standardized interfaces while preserving unique semantic characteristics. See [theory_lib/README.md](theory_lib/README.md) for theory details.
-
-## API Architecture
-
-### Core Components
-
-The ModelChecker framework follows a **three-layer architecture**:
-
-1. **User Interface Layer**: `BuildExample`, `BuildModule`, Jupyter widgets
-2. **Coordination Layer**: Model construction, constraint generation, result processing  
-3. **Theory Implementation Layer**: Semantic classes, operators, and constraint definitions
-
-### API Flow
-
-The typical API usage follows these steps:
-
-1. **Theory Selection**: Get a theory via `get_theory("theory_name")`
-2. **Model Building**: Create a model with `BuildExample("name", theory)`
-3. **Formula Evaluation**: Run the model to check validity
-4. **Result Analysis**: Analyze validity and examine countermodels
-
-```python
-# Complete workflow example
-from model_checker import get_theory, BuildExample
-
-# 1. Load a theory
-theory = get_theory("logos")
-
-# 2. Build a model with premises and conclusions
-# 2. Define example following the naming convention
-EXT_TH_1_premises = ["A", "(A \\rightarrow B)"]
-EXT_TH_1_conclusions = ["B"]
-EXT_TH_1_settings = {
-    'N': 3,                    # Max number of atomic propositions
-    'contingent': False,       # Allow non-contingent propositions
-    'non_null': False,         # Allow the null state
-    'non_empty': False,        # Allow empty verifier/falsifier sets
-    'disjoint': False,         # Allow verifier/falsifier overlap
-    'max_time': 10,            # Timeout in seconds
-    'iterate': 1,              # Number of models to find
-    'expectation': False,      # True = expect countermodel, False = expect theorem
-}
-EXT_TH_1_example = [
-    EXT_TH_1_premises,
-    EXT_TH_1_conclusions,
-    EXT_TH_1_settings,
-]
-
-# 3. Set up collections
-unit_tests = {
-    "EXT_TH_1": EXT_TH_1_example,  # Modus ponens theorem
-}
-
-example_range = {
-    "EXT_TH_1": EXT_TH_1_example,  # Run this example
-}
-
-# Optional: General settings for execution
-general_settings = {
-    "print_constraints": False,
-    "print_impossible": False,
-    "print_z3": False,
-    "save_output": False,
-    "maximize": False,  # Set to True to compare multiple theories
-}
-
-semantic_theories = {
-    "logos": theory,
-}
-
-# 4. Run with: model-checker modus_ponens.py
-# Results show validity or countermodel automatically
-```
-
-### Extension Points
-
-The framework is designed for extension in several ways:
-
-- **New Theories**: Add theory directories to `theory_lib/` with standardized interfaces
-- **New Operators**: Subclass `Operator` or `DefinedOperator` within theories
-- **New Builders**: Extend `BuildExample` for specialized model construction
-- **Custom Settings**: Define theory-specific settings following the relevance principle
 
 ## Theory Integration
 
@@ -296,6 +232,7 @@ semantic_theories = {
 ### Theory-Specific Features
 
 Each theory provides:
+
 - **Standardized Interface**: `get_theory()`, `get_examples()`, `get_test_examples()`
 - **Custom Settings**: Only relevant settings for the semantic framework
 - **Operator Collections**: Theory-appropriate logical operators
@@ -304,99 +241,26 @@ Each theory provides:
 ## Documentation
 
 ### For New Users
+
 - **[Getting Started Guide](../README.md#quick-start)** - Basic usage and installation
 - **[Theory Selection Guide](theory_lib/README.md#theory-selection-guide)** - Choosing appropriate theories
 - **[Jupyter Integration](jupyter/README.md)** - Interactive exploration and learning
 
-### For Researchers  
+### For Researchers
+
 - **[Theory Library](theory_lib/README.md)** - Comprehensive theory documentation and references
 - **[Advanced Features](../../../Docs/TOOLS.md)** - Model iteration, theory comparison, debugging
 - **[Academic References](theory_lib/README.md#references)** - Theoretical foundations and citations
 
 ### For Developers
+
 - **[Development Guide](../../docs/DEVELOPMENT.md)** - Framework development and testing
 - **[Architecture Documentation](../ARCHITECTURE.md)** - System design and implementation
 - **[Contributing Guidelines](theory_lib/README.md#contributing)** - Adding new theories and features
 
-## Advanced Features
-
-### Model Iteration
-
-Find multiple distinct models for comprehensive analysis:
-
-```python
-# Find multiple models: iteration_example.py
-from model_checker.theory_lib.logos import get_theory
-
-# Example that allows multiple models
-LOG_TH_2_premises = []
-LOG_TH_2_conclusions = ["(A \\vee \\neg A)"]
-LOG_TH_2_settings = {
-    'N': 3,                    # Max number of atomic propositions
-    'contingent': True,        # All propositions must be contingent
-    'non_null': True,          # Exclude the null state
-    'non_empty': True,         # Require non-empty verifier/falsifier sets
-    'disjoint': False,         # Allow verifier/falsifier overlap
-    'max_time': 10,            # Timeout in seconds
-    'iterate': 5,              # Find up to 5 distinct models
-    'expectation': False,      # True = expect countermodel, False = expect theorem
-}
-LOG_TH_2_example = [
-    LOG_TH_2_premises,
-    LOG_TH_2_conclusions,
-    LOG_TH_2_settings,
-]
-
-unit_tests = {
-    "LOG_TH_2": LOG_TH_2_example,  # Tautology with multiple models
-}
-
-example_range = {
-    "LOG_TH_2": LOG_TH_2_example,
-}
-
-# Optional: General settings for execution
-general_settings = {
-    "print_constraints": False,
-    "print_impossible": False,
-    "print_z3": False,
-    "save_output": False,
-    "maximize": False,  # Set to True to compare multiple theories
-}
-
-semantic_theories = {
-    "logos": get_theory(),
-}
-
-# Run with: model-checker iteration_example.py
-# Outputs multiple distinct models
-```
-
-### Custom Settings
-
-Configure theory-specific behavior:
-
-```python
-# Custom settings in examples.py
-custom_example = [
-    ["\\Box A"],
-    ["A"],
-    {
-        'N': 8,                    # Larger state space
-        'contingent': True,        # Require contingent propositions
-        'iterate': 3,              # Find 3 models
-        'max_time': 10000          # 10-second timeout
-    }
-]
-
-test_example_range = {
-    "custom_settings": custom_example,
-}
-```
-
 ### Jupyter Integration
 
-Interactive exploration in notebooks:
+Interactive exploration in notebooks (see [jupyter/README.md](jupyter/README.md) for comprehensive documentation):
 
 ```python
 # Interactive widgets for exploration
@@ -424,7 +288,7 @@ The API includes comprehensive testing infrastructure:
 # Test API components
 python test_package.py --components builder iterate jupyter settings
 
-# Test theory implementations  
+# Test theory implementations
 python test_theories.py --theories logos exclusion imposition bimodal
 
 # Test specific functionality
@@ -434,13 +298,10 @@ python test_package.py --components utils --verbose
 ## References
 
 ### Framework Documentation
-- Fine, K. (2017) ["Truthmaker Semantics"](https://doi.org/10.1002/9781118972090.ch22), Wiley-Blackwell
-- Brast-McKie, B. (2021) ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w), Journal of Philosophical Logic
 
-### Implementation Papers
 - See individual theory documentation for comprehensive references:
   - [Logos Theory References](theory_lib/logos/README.md#references)
-  - [Exclusion Theory References](theory_lib/exclusion/README.md#references) 
+  - [Exclusion Theory References](theory_lib/exclusion/README.md#references)
   - [Imposition Theory References](theory_lib/imposition/README.md#references)
 
 ## Related Resources

@@ -10,7 +10,7 @@ imposition/
 ├── __init__.py         # Public API and theory registration
 ├── semantic.py         # ImpositionSemantics implementation
 ├── operators.py        # Counterfactual operators (▷, ◇▷)
-├── examples.py         # 86 test examples
+├── examples.py         # 120 test examples
 ├── iterate.py          # Model iteration for counterfactuals
 ├── docs/               # Comprehensive documentation
 ├── notebooks/          # Interactive Jupyter examples
@@ -22,28 +22,65 @@ imposition/
 
 The **Imposition Theory** implements Kit Fine's counterfactual semantics without possible worlds, using a primitive imposition relation within the ModelChecker framework. This theory evaluates counterfactuals through imposing verifier states on evaluation worlds to generate alternative outcomes. Within the theory library ecosystem, imposition extends the Logos hyperintensional foundation. This implementation serves researchers exploring counterfactual logic, developers building counterfactual reasoning systems, and students learning alternative approaches to conditional semantics beyond the traditional possible worlds framework.
 
+## Quick Start
+
+### Basic Usage
+
 ```python
-# Basic counterfactual reasoning
-from model_checker.theory_lib.imposition import get_theory
-from model_checker import BuildExample
+from model_checker.theory_lib.imposition import imposition_theory
 
-# Test counterfactual modus ponens
-theory = get_theory()
-example = BuildExample("cf_mp", theory,
-    premises=['A', 'A \\boxright B'],  # A is true, if A then must B
-    conclusions=['B']                    # Therefore B
-)
+# Create examples following standard format
+IM_TH_2_premises = ['A', '(A \\boxright B)']  # A is true, if A then must B
+IM_TH_2_conclusions = ['B']                   # Therefore B
+IM_TH_2_settings = {
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': True,        # Allow contingent propositions
+    'non_empty': True,         # Prevent empty verifier sets
+    'disjoint': True,          # Require disjoint atomic propositions
+    'max_time': 1,             # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': True,       # True = expect theorem (no countermodel)
+}
+IM_TH_2_example = [
+    IM_TH_2_premises,
+    IM_TH_2_conclusions,
+    IM_TH_2_settings,
+]
 
-result = example.check_validity()
-print(f"Valid: {result}")  # True
+# Collection of examples
+unit_tests = {
+    "IM_TH_2": IM_TH_2_example,  # Counterfactual modus ponens
+}
 
-# Find countermodel to antecedent strengthening
-counter = BuildExample("ant_str", theory,
-    premises=['A \\boxright C'],
-    conclusions=['(A \\wedge B) \\boxright C'],
-    settings={'N': 3, 'expectation': False}
-)
-counter.print_model()  # Shows countermodel
+example_range = {
+    "IM_TH_2": IM_TH_2_example,
+}
+
+semantic_theories = {
+    "imposition": imposition_theory,
+}
+
+# Optional: General settings for execution
+general_settings = {
+    'print_constraints': False,
+    'print_impossible': False,
+    'print_z3': False,
+    'save_output': False,
+    'maximize': False,  # Set to True to compare multiple theories
+}
+```
+
+### Command Line Usage
+
+```bash
+# Run all imposition examples
+model-checker imposition/examples.py
+
+# Run with constraint output
+./dev_cli.py -p imposition/examples.py
+
+# Find multiple models
+./dev_cli.py imposition/examples.py --settings "{'iterate': 3}"
 ```
 
 ## Core Components
@@ -68,45 +105,34 @@ The theory provides **11 operators** total:
 
 **Inherited from Logos** (9 operators):
 
-- Extensional: ¬, ∧, ∨, →, ↔, ⊤, ⊥ (7 operators)
-- Modal: □, ◇ (2 operators)
+| Category | Operator | Symbol | LaTeX | Description |
+|----------|----------|--------|-------|-------------|
+| **Extensional** | Negation | ¬ | `\\neg` | Truth reversal |
+| **Extensional** | Conjunction | ∧ | `\\wedge` | Joint truth requirement |
+| **Extensional** | Disjunction | ∨ | `\\vee` | Alternative truth |
+| **Extensional** | Implication | → | `\\rightarrow` | Conditional truth |
+| **Extensional** | Biconditional | ↔ | `\\leftrightarrow` | Mutual implication |
+| **Extensional** | Top | ⊤ | `\\top` | Universal truth |
+| **Extensional** | Bottom | ⊥ | `\\bot` | Universal falsity |
+| **Modal** | Necessity | □ | `\\Box` | Truth at all worlds |
+| **Modal** | Possibility | ◇ | `\\Diamond` | Truth at some world |
 
 ### Truth Conditions
 
+The imposition semantics evaluates counterfactuals through a primitive imposition relation that connects states, worlds, and outcomes.
+
 **Must-Counterfactual**: `A \\boxright B`
 
-- Verified by `x` when: Some part of `x` imposes A-verifiers on the evaluation world, yielding a world where B is verified
-- Falsified by `x` when: Some part of `x` imposes A-verifiers on the evaluation world, yielding a world where B is falsified
+- **True at world w**: For all verifiers x of A and all outcome worlds u such that imposition(x, w, u) holds, B is true at u
+- **False at world w**: There exists a verifier x of A and an outcome world u such that imposition(x, w, u) holds and B is false at u
+
+In informal terms: "If A then must B" is true at a world when imposing any way of making A true on that world always results in B being true. It's false when there's at least one way of imposing A that results in B being false.
 
 **Might-Counterfactual**: `A \\diamondright B` := `\\neg(A \\boxright \\neg B)`
 
 - Defined as the dual of must-counterfactual
 - True when it's not the case that imposing A must yield ¬B
-
-### Examples
-
-The theory includes **86 comprehensive test examples**:
-
-- **62 Countermodels**: Invalid counterfactual principles (antecedent strengthening, transitivity failures, etc.)
-- **24 Theorems**: Valid counterfactual principles (modus ponens, contraposition, etc.)
-
-## Settings
-
-Key configuration options:
-
-```python
-settings = {
-    'N': 3,               # Number of atomic states (2^N total states)
-    'contingent': False,  # Require contingent propositions
-    'non_empty': False,   # Prevent empty verifier/falsifier sets
-    'disjoint': False,    # Require disjoint atomic propositions
-    'max_time': 1,        # Z3 solver timeout in seconds
-    'iterate': 1,         # Number of models to find
-    'expectation': None   # Expected result (True/False/None)
-}
-```
-
-See [docs/SETTINGS.md](docs/SETTINGS.md) for complete documentation.
+- Informally: "If A then might B" is true when there's at least one way of imposing A that allows B to be true
 
 ## Subdirectories
 
@@ -120,37 +146,34 @@ Interactive Jupyter notebook collection demonstrating counterfactual reasoning w
 
 ### [tests/](tests/)
 
-Comprehensive test suite validating all 86 examples from examples.py. Includes unit tests for semantic primitives, integration tests for counterfactual operators, property-based testing for logical principles, and performance benchmarks. Tests ensure theoretical correctness and implementation reliability. See [tests/README.md](tests/README.md) for testing methodology.
+Comprehensive test suite validating all 120 examples from examples.py. Includes unit tests for semantic primitives, integration tests for counterfactual operators, property-based testing for logical principles, and performance benchmarks. Tests ensure theoretical correctness and implementation reliability. See [tests/README.md](tests/README.md) for testing methodology.
 
 ## Advanced Features
 
 ### Model Iteration
 
-Find multiple counterfactual models:
+The imposition theory supports finding multiple distinct models through the `iterate` setting. When enabled, the framework explores the semantic space of counterfactual structures, finding models that satisfy the same constraints while differing in their imposition patterns, verification conditions, or alternative world structures.
 
 ```python
-from model_checker.theory_lib.imposition import iterate_example
-
-# Find 5 different models
-models = iterate_example(example, max_iterations=5)
-for i, model in enumerate(models):
-    print(f"\nModel {i+1}:")
-    model.print_model_differences()
+# Find multiple models using the iterate setting
+settings = {
+    'N': 4,
+    'iterate': 5,  # Find up to 5 distinct models
+    'max_time': 2,
+    # ... other settings
+}
 ```
+
+Each iteration generates a new model with different state assignments, imposition relations, or counterfactual truth values while maintaining the validity or invalidity of the target inference. This capability is particularly useful for exploring the flexibility of Fine's imposition semantics and understanding how different state configurations can satisfy the same counterfactual constraints. See [docs/ITERATE.md](docs/ITERATE.md) for comprehensive model iteration documentation.
 
 ### Theory Comparison
 
-Compare with other semantic theories:
+The imposition theory can be compared with other semantic theories in the ModelChecker framework, particularly with the Logos counterfactual semantics. Both theories evaluate counterfactuals but use different approaches:
 
-```python
-# Test same formula in different theories
-from model_checker.theory_lib.logos import get_theory as get_logos
+- **Imposition**: Uses a primitive imposition relation to generate alternative worlds
+- **Logos**: Uses alternative world-states based on possibility and parthood
 
-for theory_name, theory_func in [("Logos", get_logos), ("Imposition", get_theory)]:
-    theory = theory_func()
-    example = BuildExample(f"{theory_name}_test", theory, example_case)
-    print(f"{theory_name}: {example.check_validity()}")
-```
+To explore these differences, you can test the same counterfactual inferences in both theories using the `maximize` setting in general_settings or by loading multiple theories in the same example file. For comprehensive theory comparison capabilities, see the [Theory Library documentation](../README.md#comparing-theories).
 
 ## Documentation
 
@@ -162,7 +185,7 @@ for theory_name, theory_func in [("Logos", get_logos), ("Imposition", get_theory
 
 ### For Researchers
 
-- **[Example Collection](examples.py)** - 32 comprehensive counterfactual test cases
+- **[Example Collection](examples.py)** - comprehensive counterfactual test cases
 - **[Semantic Implementation](semantic.py)** - Fine's semantics implemented in Z3
 - **[Academic References](#references)** - Primary sources and theoretical foundations
 
@@ -178,7 +201,6 @@ for theory_name, theory_func in [("Logos", get_logos), ("Imposition", get_theory
 2. **Imposition Operation**: Core semantic primitive for alternatives
 3. **Bilateral Conditions**: Both verification and falsification matter
 4. **Extends Logos**: Reuses hyperintensional infrastructure
-5. **32 Test Cases**: Comprehensive validation suite
 
 ## References
 
@@ -190,9 +212,9 @@ for theory_name, theory_func in [("Logos", get_logos), ("Imposition", get_theory
 
 ### Academic References
 
-- Fine, K. (2012). "Counterfactuals without Possible Worlds"
-- Fine, K. (2017). "Truthmaker Semantics"
-- ModelChecker framework documentation
+- Fine, K. (2012). ["Counterfactuals without Possible Worlds"](https://doi.org/10.5840/jphil2012109312). _Journal of Philosophy_, 109(3), 221-246.
+- Fine, K. (2012). ["A Difficulty for the Possible Worlds Analysis of Counterfactuals"](https://www.jstor.org/stable/41485149). _Synthese_, 189(1), 29-57.
+- Brast-McKie, B. (2025). ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8). _Journal of Philosophical Logic_.
 
 ---
 

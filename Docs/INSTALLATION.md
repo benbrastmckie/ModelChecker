@@ -321,9 +321,9 @@ For more NixOS details, see the [Development Guide](DEVELOPMENT.md#nixos-setup).
 
 If you encounter issues not covered here:
 
-1. Check the [project repository](https://github.com/benbrastmckie/ModelChecker) for known issues
-2. Search for existing issues or create a new one
-3. Make sure you're using a supported Python version and that the model-checker has been installed
+1. Make sure you're using a supported Python version and that the model-checker has been installed
+2. Check the [project repository](https://github.com/benbrastmckie/ModelChecker) for known issues
+3. Search for existing issues or create a new one
 
 ## Virtual Environments
 
