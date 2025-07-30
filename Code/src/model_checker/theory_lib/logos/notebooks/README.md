@@ -71,10 +71,11 @@ The Logos theory implements a unified formal language of thought with **20 logic
    theory = logos.get_theory()
    ```
 
-3. **Interactive Functions**: High-level functions for exploration
+3. **Interactive Explorer**: Widget-based exploration
    ```python
-   from model_checker.jupyter import check_formula, find_countermodel
    from model_checker import ModelExplorer
+   explorer = ModelExplorer(theory='logos')
+   explorer.display()
    ```
 
 ### Recommended Learning Sequence

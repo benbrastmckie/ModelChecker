@@ -95,10 +95,11 @@ result = model.check_validity()  # False - countermodel!
    from model_checker.theory_lib.exclusion import exclusion_theory
    ```
 
-3. **Interactive Functions**: High-level exploration functions
+3. **Interactive Explorer**: Widget-based exploration
    ```python
-   from model_checker.jupyter import check_formula, find_countermodel
-   result = check_formula("\\\\exclude A", theory='exclusion')
+   from model_checker import ModelExplorer
+   explorer = ModelExplorer(theory='exclusion')
+   explorer.display()
    ```
 
 ### Understanding the Innovation

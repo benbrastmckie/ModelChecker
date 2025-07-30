@@ -11,6 +11,7 @@ docs/
 ├── INSTALLATION.md              # Installation instructions and dependencies
 ├── STYLE_GUIDE.md               # Python coding standards and conventions
 ├── TESTS.md                     # Testing methodology and framework usage
+├── EXAMPLES.md                  # Standard form for examples.py files
 └── CLEANUP_RECOMMENDATIONS.md   # Legacy maintenance recommendations
 ```
 
@@ -82,11 +83,13 @@ See [TESTS.md](TESTS.md) for comprehensive testing documentation.
 - **[Installation Guide](INSTALLATION.md)** - Environment setup and dependencies
 - **[Development Workflow](DEVELOPMENT.md)** - Testing, Git workflow, and contribution procedures
 - **[Style Guide](STYLE_GUIDE.md)** - Coding standards and conventions
+- **[Examples Standard](EXAMPLES.md)** - Standard form for examples.py files
 
 ### For Theory Implementers  
 - **[Architecture Guide](ARCHITECTURE.md)** - System design and extension points
 - **[Theory Library Guide](../src/model_checker/theory_lib/README.md)** - Theory implementation patterns
 - **[Testing Guide](TESTS.md)** - Validation and testing methodology
+- **[Examples Standard](EXAMPLES.md)** - Creating standardized example files
 
 ### For Core Developers
 - **[Architecture Documentation](ARCHITECTURE.md)** - System design principles and component relationships

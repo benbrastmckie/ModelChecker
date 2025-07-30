@@ -34,9 +34,8 @@ Usage Examples:
     examples = get_examples('logos')
     cf_theorem = examples['CF_TH_1']  # Counterfactual theorem
     
-    # Use with model checking via check_formula
-    from model_checker import check_formula
-    result = check_formula("(A \\boxright B)", theory_name="logos")
+    # Use with model checking via examples.py files
+    # See the Examples Standard documentation for the recommended workflow
     
     # Get test examples for unit testing
     from model_checker.theory_lib import get_test_examples

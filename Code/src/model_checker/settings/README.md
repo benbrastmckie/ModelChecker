@@ -197,11 +197,9 @@ model = BuildExample("test", logos_theory, settings={'M': 3})
 **Multi-Theory Mode**: Suppressed warnings since theories have different capabilities
 
 ```python
-# Single theory - warnings shown
-check_formula("□p → p", theory_name="logos", settings={'M': 2})  # Warning
-
-# Multi-theory comparison - warnings suppressed  
-compare_theories(["logos", "bimodal"], formula="□p → p", settings={'M': 2})  # No warning
+# Single theory - settings warnings shown when using non-relevant settings
+# Multi-theory comparison - warnings suppressed since theories have different capabilities
+# See the Examples Standard documentation for how to properly configure settings
 ```
 
 ## Documentation

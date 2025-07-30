@@ -1,107 +1,65 @@
-# Logos Theory Documentation
+# Logos Theory Documentation Hub
+
+[← Back to Logos](../README.md) | [API Reference →](API_REFERENCE.md) | [Architecture →](ARCHITECTURE.md)
 
 ## Directory Structure
 ```
 docs/
-├── README.md          # This file - documentation hub
-├── API_REFERENCE.md   # Complete API documentation
-├── ARCHITECTURE.md    # System design and implementation
-├── USER_GUIDE.md      # Practical usage guide
-├── ITERATE.md         # Model iteration features
-└── SETTINGS.md        # Configuration reference
+├── README.md              # This file - documentation navigation hub
+├── API_REFERENCE.md       # Comprehensive API documentation
+├── ARCHITECTURE.md        # System design and implementation details
+├── USER_GUIDE.md          # Practical usage guide for researchers
+├── ITERATE.md             # Model iteration and difference features
+└── SETTINGS.md            # Configuration parameters and defaults
 ```
 
-Welcome to the comprehensive documentation for the Logos semantic theory. This guide will help you understand, use, and extend the most advanced hyperintensional semantic framework in ModelChecker.
+## Overview
 
-## Documentation Overview
+The **Logos Theory Documentation** provides comprehensive guides for understanding and using the hyperintensional truthmaker semantics framework. This documentation serves researchers using the theory, developers extending it, and users exploring its capabilities.
 
-The Logos theory implements a unified formal language of thought with 20 logical operators across 5 modular subtheories. This documentation is organized to serve different audiences and use cases.
+The documentation covers the **20+ logical operators** across 5 subtheories, **architectural patterns** for modular organization, **practical usage examples**, and **theoretical foundations** from Fine's truthmaker semantics and Brast-McKie's work on identity and aboutness.
 
-## Quick Navigation
+Each document follows a specific purpose: API documentation for technical reference, architecture guide for system understanding, user guide for practical application, and specialized guides for iteration and settings management.
 
-### Getting Started
-- **[User Guide](USER_GUIDE.md)** - Practical guide for using the Logos theory
-- **[Settings Documentation](SETTINGS.md)** - Complete reference for all configuration options
-- **[Main Theory README](../README.md)** - Overview and quick start
+## Quick Reference
 
-### Technical Deep Dives
-- **[Architecture Guide](ARCHITECTURE.md)** - System design and implementation details
-- **[Model Iteration](ITERATE.md)** - Finding multiple models and exploring solution spaces
-- **[Operator Registry](../operators.py)** - Dynamic operator loading system
-
-### Interactive Learning
-- **[Jupyter Notebooks](../notebooks/README.md)** - Interactive tutorials and demonstrations
-- **[Main Demo Notebook](../notebooks/logos_demo.ipynb)** - Comprehensive introduction
-- **[Subtheory Notebooks](../notebooks/subtheories/)** - Focused explorations
-
-### Reference Documentation
-- **[Subtheory Documentation](../subtheories/README.md)** - Individual operator categories
-- **[Test Documentation](../tests/README.md)** - Testing methodology and examples
-- **[API Reference](#api-reference)** - Complete API documentation
-
-## Documentation by Audience
-
-### For New Users
-1. Start with the **[User Guide](USER_GUIDE.md)** for practical examples
-2. Explore the **[Jupyter Notebooks](../notebooks/README.md)** for interactive learning
-3. Review **[Settings Documentation](SETTINGS.md)** to understand configuration options
-
-### For Researchers
-1. Read the **[Architecture Guide](ARCHITECTURE.md)** for theoretical foundations
-2. Study the **[Main Theory README](../README.md)** for academic references
-3. Examine **[Test Examples](../tests/)** for logical principle validation
-
-### For Developers
-1. Understand the **[Architecture Guide](ARCHITECTURE.md)** for system design
-2. Review **[Model Iteration](ITERATE.md)** for advanced features
-3. Check **[Contributing Guidelines](../README.md#contributing)** for development workflow
-
-### For Educators
-1. Use **[Jupyter Notebooks](../notebooks/README.md)** for teaching materials
-2. Reference the **[User Guide](USER_GUIDE.md)** for clear explanations
-3. Explore **[Subtheory Documentation](../subtheories/)** for focused topics
-
-## Key Concepts
-
-### Hyperintensional Semantics
-The Logos theory implements truthmaker semantics where:
-- Propositions have both **verifiers** and **falsifiers**
-- Content is distinguished even for necessarily equivalent formulas
-- States are represented as bit vectors for efficient computation
-
-### Modular Architecture
-Five independent but interoperable subtheories:
-1. **Extensional** - Extensional operators (¬, ∧, ∨, →, ↔, ⊤, ⊥)
-2. **Modal** - Necessity and possibility (□, ◇, CFBox, CFDiamond)
-3. **Constitutive** - Content relationships (≡, ≤, ⊑, ≼, ⇒)
-4. **Counterfactual** - counterfactual reasoning (□→, ◇→)
-5. **Relevance** - Relevance logic (≼ and derived operators)
-
-### Unified Framework
-- **Dynamic Loading** - Load only the operators you need
-- **Dependency Resolution** - Automatic handling of inter-subtheory dependencies
-- **Consistent Semantics** - All operators share the same semantic foundation
-
-## Common Tasks
-
-### Basic Formula Checking
+### Theory Loading
 ```python
 from model_checker.theory_lib import logos
+
+# Load complete theory
+theory = logos.get_theory()
+
+# Load specific subtheories
+modal_theory = logos.get_theory(['modal'])
+constitutive_theory = logos.get_theory(['constitutive'])
+```
+
+### Operator Categories
+- **Extensional**: Basic truthmaker logic (¬, ∧, ∨, →, ↔)
+- **Modal**: Necessity and possibility (□, ◇)
+- **Constitutive**: Identity and grounding (≡, ≤, ⊑, ⪯, ⟹)
+- **Counterfactual**: Conditional reasoning (⥽, ⥽◇)
+- **Relevance**: Bilateral relevance (⤙, ⟷)
+
+### Common Usage Pattern
+```python
+from model_checker import BuildModule
+
+# Create an examples.py file with standard format
+module = BuildModule({
+    'file_path': 'my_examples.py',
+    'semantic_theories': {'logos': theory},
+    'example_range': {'test': [[], ["(A \\rightarrow A)"], {}]}
+})
+results = module.build_examples()
+```
+
+### Model Building
+```python
 from model_checker import BuildExample
 
-theory = logos.get_theory()
-model = BuildExample("my_example", theory)
-result = model.check_formula("\\Box p \\rightarrow p")
-```
-
-### Loading Specific Subtheories
-```python
-# Load only modal and extensional operators
-theory = logos.get_theory(['extensional', 'modal'])
-```
-
-### Finding Countermodels
-```python
+# Direct model building
 model = BuildExample("test", theory,
     premises=["\\Box (p \\rightarrow q)"],
     conclusions=["\\Box p \\rightarrow \\Box q"],
@@ -111,7 +69,7 @@ model = BuildExample("test", theory,
 
 ### Interactive Exploration
 ```python
-from model_checker.jupyter import ModelExplorer
+from model_checker import ModelExplorer
 explorer = ModelExplorer(theory='logos')
 explorer.display()
 ```
@@ -123,54 +81,58 @@ explorer.display()
 - `logos.get_operator_class(op_name)` - Get specific operator implementation
 - `logos.list_operators(subtheory=None)` - List available operators
 
-### Key Classes
-- `LogosSemantics` - Core semantic framework
-- `LogosOperatorRegistry` - Dynamic operator management
-- `LogosProposition` - Bilateral proposition representation
-- `LogosModelStructure` - Model construction and evaluation
+### Theory Structure
+```python
+theory = {
+    "semantics": LogosSemantics,
+    "proposition": LogosProposition,
+    "model": LogosModelStructure,
+    "operators": operator_registry,
+    "dictionary": {}
+}
+```
 
-### Settings
-See **[SETTINGS.md](SETTINGS.md)** for complete configuration reference.
+## Documentation
 
-## Troubleshooting
+### For New Users
+- **[User Guide](USER_GUIDE.md)** - Practical introduction with examples
+- **[Settings Guide](SETTINGS.md)** - Understanding configuration options
+- **[Interactive Notebooks](../notebooks/README.md)** - Hands-on tutorials
 
-### Common Issues
-1. **Import Errors** - Ensure ModelChecker is properly installed
-2. **Operator Not Found** - Check subtheory is loaded
-3. **Z3 Timeouts** - Increase `max_time` setting or reduce `N`
-4. **Memory Issues** - Use smaller models or load fewer subtheories
+### For Researchers  
+- **[Architecture Guide](ARCHITECTURE.md)** - Theoretical foundations and design
+- **[API Reference](API_REFERENCE.md)** - Complete technical documentation
+- **[Iteration Features](ITERATE.md)** - Advanced model exploration
 
-### Getting Help
-- Check existing documentation first
-- Review test examples for similar use cases
-- Consult the [main ModelChecker documentation](../../../../README.md)
-- Open an issue on GitHub for bugs or feature requests
+### For Developers
+- **[Subtheory Architecture](ARCHITECTURE.md#subtheory-patterns)** - Extension patterns
+- **[Operator Implementation](API_REFERENCE.md#operator-reference)** - Adding new operators
+- **[Testing Guide](../tests/README.md)** - Comprehensive test patterns
+
+## Core Concepts
+
+### Truthmaker Semantics
+- States verify or falsify propositions
+- Hyperintensional: distinguishes necessarily equivalent propositions
+- Modular: subtheories can be loaded independently
+
+### Operator Types
+1. **Primitive**: Directly implemented with Z3 constraints
+2. **Defined**: Implemented using other operators
+3. **Convenience**: Alternative notations for usability
+
+### Architectural Principles
+- **Modular Loading**: Load only needed subtheories
+- **Registry Pattern**: Dynamic operator management
+- **Extensibility**: Easy to add new operators and subtheories
 
 ## Related Resources
 
-### Academic Papers
-- Brast-McKie (2021) "Identity and Aboutness"
-- Brast-McKie (2025) "Counterfactual Worlds"
-- Fine (2017) "A Theory of Truthmaker Content I & II"
-
-### Other Theories
-- **[Exclusion Theory](../../exclusion/)** - Unilateral semantics
-- **[Bimodal Theory](../../bimodal/)** - Temporal modal logic
-- **[Imposition Theory](../../imposition/)** - Fine's counterfactual semantics
-
-### Framework Documentation
-- **[ModelChecker Main Docs](../../../../README.md)**
-- **[Settings System](../../../settings/README.md)**
-- **[Development Guide](../../../../docs/DEVELOPMENT.md)**
-
-## Contributing
-
-We welcome contributions! See the [Contributing section](../README.md#contributing) in the main README for guidelines on:
-- Adding new operators
-- Creating subtheories
-- Improving documentation
-- Reporting issues
+- **[Logos Theory Overview](../README.md)** - Main theory documentation
+- **[Subtheory Documentation](../subtheories/README.md)** - Individual subtheory guides
+- **[Test Suite](../tests/README.md)** - Validation and examples
+- **[Theory Library](../../README.md)** - Cross-theory comparison
 
 ---
 
-[← Back to Logos Theory](../README.md) | [API Reference →](API_REFERENCE.md) | [User Guide →](USER_GUIDE.md)
+[← Back to Logos](../README.md) | [User Guide →](USER_GUIDE.md) | [API Reference →](API_REFERENCE.md)
