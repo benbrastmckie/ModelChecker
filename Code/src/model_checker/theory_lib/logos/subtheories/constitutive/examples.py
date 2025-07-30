@@ -323,6 +323,9 @@ CL_CM_14_example = [
 
 
 
+
+
+
 ################
 ### THEOREMS ###
 ################
@@ -688,6 +691,24 @@ CL_TH_19_example = [
     CL_TH_19_settings,
 ]
 
+# CL_TH_20: WEAKENED DISTRIBUTION CLOSURE
+CL_TH_20_premises = ['(((A \\vee B) \\vee (A \\wedge B)) \\equiv (A \\vee B))']
+CL_TH_20_conclusions = ['((A \\vee (A \\wedge B)) \\equiv (A \\wedge (A \\vee B)))']
+CL_TH_20_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'non_null' : False,
+    'non_empty' : False,
+    'disjoint' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CL_TH_20_example = [
+    CL_TH_20_premises,
+    CL_TH_20_conclusions,
+    CL_TH_20_settings,
+]
 
 
 
@@ -768,7 +789,7 @@ semantic_theories = {
 example_range = {
 
     # Also test a countermodel that should pass
-    "CL_CM_1": CL_CM_1_example,   # EQUIVALENCE OF TAUTOLOGIES
+    "CL_TH_20": CL_TH_20_example,   # 
 
     # Test some failing theorem examples  
     # "CL_TH_1": CL_TH_1_example,   # GROUND TO ESSENCE

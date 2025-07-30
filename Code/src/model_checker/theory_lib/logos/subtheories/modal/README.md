@@ -451,14 +451,19 @@ The modal operators satisfy S5 modal logic properties:
 
 ### Dependencies
 
-The modal subtheory depends on the **extensional subtheory** for:
+The modal subtheory depends on:
 
-- `NegationOperator`: Required for defining possibility as negation of necessity of negation
-- Basic logical operators used in complex modal formulas
+1. **Extensional subtheory** for:
+   - `NegationOperator`: Required for defining possibility as negation of necessity of negation
+   - Basic logical operators used in complex modal formulas
+
+2. **Counterfactual subtheory** for:
+   - `CFBox` and `CFDiamond` operators: Modal counterfactual operators
+   - Integration of modal and counterfactual reasoning
 
 ```python
 # Automatic dependency loading
-theory = logos.get_theory(['modal'])  # Also loads extensional
+theory = logos.get_theory(['modal'])  # Also loads extensional and counterfactual
 ```
 
 ### Usage with Other Subtheories
@@ -584,14 +589,19 @@ The modal subtheory reveals the distinction between extensional and modal operat
 
 ## Dependencies
 
-The modal subtheory depends on the **extensional subtheory** for:
+The modal subtheory depends on:
 
-- `NegationOperator`: Required for defining possibility as negation of necessity of negation
-- Basic logical operators used in complex modal formulas
+1. **Extensional subtheory** for:
+   - `NegationOperator`: Required for defining possibility as negation of necessity of negation
+   - Basic logical operators used in complex modal formulas
+
+2. **Counterfactual subtheory** for:
+   - `CFBox` and `CFDiamond` operators: Modal counterfactual operators
+   - Integration of modal and counterfactual reasoning
 
 ```python
 # Automatic dependency loading
-theory = logos.get_theory(['modal'])  # Also loads extensional
+theory = logos.get_theory(['modal'])  # Also loads extensional and counterfactual
 ```
 
 ## Testing

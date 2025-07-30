@@ -1,152 +1,154 @@
-This package draws on the [Z3](https://github.com/Z3Prover/z3) SMT solver to provide a unified programmatic semantics and methodology for developing modular semantic theories and exploring their logics.
-Rather than computing whether a given sentence is a logical consequence of some set of sentences by hand, these resources allow users to establish logical consequence over finite models, finding readable countermodels if there are any.
-Whereas logic has traditionally focused on small language fragments, this project develops a unified semantics for the Logos, a language of thought for AI agents to plan and reason to promote transparent and verifiable reasoning that can be trusted.
+# ModelChecker
 
-In addition to the unified semantics for the Logos, this package provides support for users to develop their own programmatic semantic theories.
-The [`TheoryLib`](src/model_checker/theory_lib/) includes the semantic theories that are available for users to import or use as a template to develop novel theories that can be contributed to the `TheoryLib` by pull request.
+[License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[Z3 SMT Solver](https://img.shields.io/badge/Z3-SMT%20Solver-green.svg)](https://github.com/Z3Prover/z3)
 
-You can find more information about development [here](docs/DEVELOPMENT.md) and the background semantic theory provided for the Logos [here](http://www.benbrastmckie.com/research#access).
-The semantics and logic for counterfactual conditionals is developed in this [paper](https://link.springer.com/article/10.1007/s10992-025-09793-8).
+A unified programmatic semantics framework for modal, counterfactual, and hyperintensional logic, powered by the Z3 SMT solver.
 
-## Quick Start
+## Features
 
-### Installation
+- **🔍 Automated Model Finding**: Discovers countermodels to invalid formulas automatically
+- **🧩 Modular Theory Architecture**: Mix and match logical operators from different theories
+- **🎯 Hyperintensional Reasoning**: Distinguishes necessarily equivalent propositions
+- **🔄 Multiple Model Generation**: Find diverse models satisfying your constraints
+- **📚 Rich Theory Library**: Pre-built theories for modal, counterfactual, and temporal logic
 
-Basic installation with core functionality:
+## Installation
+
 ```bash
 pip install model-checker
 ```
 
-Installation with Jupyter support:
+For Jupyter notebook support:
 ```bash
 pip install model-checker[jupyter]
 ```
 
-Development installation from source:
+## Quick Start
+
+Create a new logic project:
+
 ```bash
-git clone https://github.com/benbrastmckie/ModelChecker
-cd ModelChecker/Code
-pip install -e .[dev]
+model-checker -l logos     # Hyperintensional logic
+model-checker -l exclusion # Unilateral semantics
+model-checker -l imposition # Fine's counterfactuals
+model-checker -l bimodal   # Temporal-modal logic
 ```
 
-### Command Line Usage
-
-Create a new theory project:
-```bash
-model-checker
-```
-
-Create a project from existing theory:
-```bash
-model-checker -l logos
-```
-
-Check an example file:
-```bash
-model-checker examples/counterfactual_logic.py
-```
-
-### Jupyter Notebook Usage
+Check logical validity:
 
 ```python
-from model_checker.jupyter import check_formula, ModelExplorer
+# Create example.py
+from model_checker.theory_lib.logos import get_theory
 
-# Quick formula check
-check_formula("(p \\wedge q) \\equiv (q \\wedge p)")
+# Define logical arguments
+modus_ponens = [
+    ["A", "(A \\rightarrow B)"],  # Premises
+    ["B"],                        # Conclusion
+    {'N': 3}                      # Settings
+]
 
-# Interactive exploration
-explorer = ModelExplorer()
-explorer.display()
+test_example_range = {
+    "modus_ponens": modus_ponens,
+}
+
+semantic_theories = {
+    "logos": get_theory(),
+}
+
+# Run: model-checker example.py
 ```
 
-For comprehensive Jupyter integration documentation, see:
-- [Jupyter Integration Guide](examples/README_jupyter.md)
-- [Interactive Notebooks](src/model_checker/theory_lib/logos/notebooks/README.md)
-- [Example Notebooks](notebooks/)
+## Available Theories
 
-## Development
+### Logos: Hyperintensional Truthmaker Semantics
+- 19 operators across 5 modular subtheories
+- Tracks what propositions are "about" via verifier/falsifier sets
+- Distinguishes necessarily equivalent but distinct propositions
 
-For complete development documentation, see:
-- [Development Guide](docs/DEVELOPMENT.md) - Comprehensive development workflow
-- [Architecture Documentation](ARCHITECTURE.md) - System design and patterns
-- [Maintenance Standards](MAINTENANCE.md) - Coding and documentation guidelines
+### Exclusion: Unilateral Semantics  
+- Solves the False Premise Problem
+- First computational implementation of Bernard & Champollion's semantics
+- Uses witness predicates for proper negation handling
 
-### Running Tests
+### Imposition: Fine's Counterfactual Semantics
+- Evaluates counterfactuals without possible worlds
+- Based on primitive imposition relation between states
+- Implements Fine's five frame constraints
 
-Run all tests:
-```bash
-./run_tests.py
+### Bimodal: Temporal-Modal Logic
+- Combines reasoning about time and possibility
+- World histories as sequences of states
+- Past, future, and modal operators
+
+## Advanced Usage
+
+### Find Multiple Models
+
+```python
+# In your examples.py file
+example_with_iteration = [
+    ["(A \\vee B)"],              # Premise
+    ["C"],                        # Conclusion  
+    {
+        'N': 3,
+        'iterate': 5,             # Find up to 5 models
+        'expectation': True       # Expect countermodels
+    }
+]
 ```
 
-Run theory-specific tests:
-```bash
-./test_theories.py --theories logos exclusion
+### Theory Comparison
+
+```python
+from model_checker.theory_lib import logos, exclusion, imposition, bimodal
+
+# Test the same principle across theories
+double_negation = [
+    [],
+    ["(\\neg \\neg A \\rightarrow A)"],
+    {'N': 3}
+]
+
+semantic_theories = {
+    "logos": logos.get_theory(),
+    "exclusion": exclusion.get_theory(),
+    "imposition": imposition.get_theory(),
+    "bimodal": bimodal.bimodal_theory,
+}
 ```
 
-Run package component tests:
-```bash
-./test_package.py --components utils builder
-```
+## Documentation
 
-For detailed testing documentation, see [Unit Tests Guide](../Docs/UNIT_TESTS.md).
-
-### Creating a New Theory
-
-Use the development CLI to create a new theory:
-```bash
-./dev_cli.py -l my_new_theory
-```
-
-This creates a complete theory template with:
-- Semantic implementation skeleton
-- Operator definitions
-- Example formulas
-- Test structure
-- Documentation templates
-
-For theory development guidance, see:
-- [Theory Library Documentation](src/model_checker/theory_lib/README.md)
-- [Theory Architecture Patterns](src/model_checker/theory_lib/README.md#theory-architecture-patterns)
-
-### Development Tools
-
-Debug an example with constraint printing:
-```bash
-./dev_cli.py -p -z examples/my_example.py
-```
-
-Launch Jupyter for interactive development:
-```bash
-./run_jupyter.sh
-```
-
-For advanced debugging and tools documentation, see [Tools Guide](../Docs/TOOLS.md).
-
-## Package Architecture
-
-ModelChecker follows a modular architecture with clear separation between:
-
-1. **Core Framework** (`src/model_checker/`) - Base classes and interfaces
-2. **Theory Library** (`src/model_checker/theory_lib/`) - Semantic theory implementations
-3. **Utilities** (`src/model_checker/utils/`) - Helper functions and tools
-4. **Jupyter Integration** (`src/model_checker/jupyter/`) - Interactive features
-
-For detailed architecture documentation, see [ARCHITECTURE.md](ARCHITECTURE.md).
+- **[GitHub Repository](https://github.com/benbrastmckie/ModelChecker)** - Full documentation and source code
+- **[Development Guide](https://github.com/benbrastmckie/ModelChecker/blob/master/Docs/DEVELOPMENT.md)** - Contributing and development workflow
+- **[Theory Documentation](https://github.com/benbrastmckie/ModelChecker/tree/master/Code/src/model_checker/theory_lib)** - Detailed theory specifications
+- **[Academic Background](http://www.benbrastmckie.com/research#access)** - Theoretical foundations
 
 ## Contributing
 
-We welcome contributions! Please:
+We welcome contributions! See our [GitHub repository](https://github.com/benbrastmckie/ModelChecker) for:
+- Contributing guidelines
+- Development setup instructions  
+- Issue tracking
+- Pull request procedures
 
-1. Read [MAINTENANCE.md](MAINTENANCE.md) for coding standards
-2. Follow [STYLE_GUIDE.md](STYLE_GUIDE.md) for Python style
-3. See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for workflow
-4. Ensure all tests pass before submitting PRs
-5. Include documentation for new features
+## Academic Citations
 
-## Related Documentation
+TODO: 
 
-- [Project Overview](../README.md) - Main project documentation
-- [Installation Guide](../Docs/INSTALLATION.md) - Detailed installation instructions
-- [Theory Library](src/model_checker/theory_lib/README.md) - Available theories
-- [API Reference](src/model_checker/README.md) - Complete API documentation
-- [Hyperintensional Semantics](../Docs/HYPERINTENSIONAL.md) - Theoretical background
+If you use ModelChecker in your research, please cite:
+
+- Brast-McKie, B. (2025). Model-Checker: A Unified Programmatic Semantics Framework. https://github.com/benbrastmckie/ModelChecker
+- **Counterfactual Worlds**: [Journal of Philosophical Logic](https://link.springer.com/article/10.1007/s10992-025-09793-8)
+
+## License
+
+GPL-3.0 - see [LICENSE](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/LICENSE) for details.
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/benbrastmckie/ModelChecker/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/benbrastmckie/ModelChecker/discussions)
+- **Documentation**: [Project Wiki](https://github.com/benbrastmckie/ModelChecker/wiki)
