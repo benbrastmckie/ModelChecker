@@ -46,12 +46,12 @@ Traditional semantic theories often struggle with the gap between abstract defin
 
 ## Level 1: Syntax - Formula Representation
 
-The **Syntax Level** handles how logical formulas are represented, parsed, and structured. This level is theory-agnosticthe same parsing framework supports radically different semantic approaches.
+The **Syntax Level** handles how logical formulas are represented, parsed, and structured. This level is theory-agnostic so that the same parsing framework supports radically different semantic approaches.
 
 ### Basic Structure
 
 All logical formulas in the ModelChecker are represented as **Abstract Syntax Trees (ASTs)** with:
-- **Atomic propositions**: Basic sentence letters (A, B, C, ...)
+- **Atomic propositions**: Basic sentence letters (`A`, `B`, `C`, ...) or (`ball_is_red`, `mary_loves_john`, ...)
 - **Operators**: Logical connectives with defined arity and precedence
 - **Complex formulas**: Recursive combinations of atoms and operators
 
@@ -86,11 +86,11 @@ The exclusion theory implements **5 operators** for unilateral (verifier-only) s
 
 ```
 # Unilateral operators (exclusion-based)
-\\unineg A   # CB preclusion: function-based exclusion
-\\set_unineg A    # Fine preclusion: set-based exclusion
-A \\uniwedge B    # Unilateral conjunction
-A \\univee B      # Unilateral disjunction
-A \\uniequiv B    # Unilateral identity
+\\neg A   # CB preclusion: function-based exclusion
+\\set_neg A    # Fine preclusion: set-based exclusion
+A \\wedge B    # Unilateral conjunction
+A \\vee B      # Unilateral disjunction
+A \\equiv B    # Unilateral identity
 ```
 
 ### Key Insight: Syntax Independence
@@ -153,10 +153,10 @@ Unilateral semantics treats propositions as having only **verifiers**. Negation 
 
 ```python
 def extended_verify(self, state, argument, eval_point):
-    """State verifies \\unineg A via three-condition semantics"""
+    """State verifies \\neg A via three-condition semantics"""
     
     # Get witness functions for this formula
-    formula_str = f"\\unineg({argument})"
+    formula_str = f"\\neg({argument})"
     h_pred = self.semantics.witness_registry[f"{formula_str}_h"]
     y_pred = self.semantics.witness_registry[f"{formula_str}_y"]
     
@@ -200,7 +200,7 @@ def extended_verify(self, state, argument, eval_point):
     )
 ```
 
-**Interpretation**: A state verifies `not A` (written `\\unineg A`) if there exist witness functions `h` and `y` such that: (1) for every A-verifier, h maps it to something that excludes a part of it, (2) all h-values fit within the state, and (3) the state is minimal with this property.
+**Interpretation**: A state verifies `not A` (written `\\neg A`) if there exist witness functions `h` and `y` such that: (1) for every A-verifier, h maps it to something that excludes a part of it, (2) all h-values fit within the state, and (3) the state is minimal with this property.
 
 ### Key Difference: Complexity of Truth-Conditions
 
@@ -299,7 +299,7 @@ Exclusion:
   a excludes b                  # Atomic exclusion
   b excludes a
   
-Witness Functions for \\unineg(A):
+Witness Functions for \\neg(A):
   h(a) = b      y(a) = a        # h maps a to its excluder b
   h(b) = a      y(b) = b        # h maps b to its excluder a
 ```
@@ -392,8 +392,8 @@ conclusions = ['A']
 
 **Unilateral Version (Exclusion)**:
 ```python
-# \\unineg \\unineg A entails A
-premises = ['\\unineg \\unineg A'] 
+# \\neg \\neg A entails A
+premises = ['\\neg \\neg A'] 
 conclusions = ['A']
 
 # Result: COUNTERMODEL FOUND
@@ -415,9 +415,9 @@ conclusions = ['(\\neg A \\vee \\neg B)']
 
 **Unilateral Version (Exclusion)**:
 ```python
-# \\unineg (A \\uniwedge B) entails (\\unineg A \\univee \\unineg B)  
-premises = ['\\unineg (A \\uniwedge B)']
-conclusions = ['(\\unineg A \\univee \\unineg B)']
+# \\neg (A \\wedge B) entails (\\neg A \\vee \\neg B)  
+premises = ['\\neg (A \\wedge B)']
+conclusions = ['(\\neg A \\vee \\neg B)']
 
 # Result: COUNTERMODEL FOUND
 # Reasoning: Unilateral semantics invalidate classical DeMorgan's laws
