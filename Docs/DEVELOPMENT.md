@@ -4,7 +4,7 @@ This guide provides comprehensive instructions for developing and contributing t
 
 ## Table of Contents
 
-- [Setting Up Development Environment](#setting-up-development-environment)
+- [Setting Up Development Environment](#setting-up-development-environments)
   - [Standard Setup (pip)](#standard-setup-pip)
   - [NixOS Setup](#nixos-setup)
 - [Development Workflow](#development-workflow)
@@ -17,7 +17,7 @@ This guide provides comprehensive instructions for developing and contributing t
   - [Adding a New Theory](#adding-a-new-theory)
 - [Documentation Guide](#documentation-guide)
 
-## Setting Up Development Environment
+## Setting Up Development Environments
 
 ### Standard Setup (pip)
 

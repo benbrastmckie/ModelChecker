@@ -24,6 +24,8 @@ Working with ModelChecker involves editing Python files containing logical formu
 
 ### Recommended Editors
 
+Investing in setting up a good text editor provides an essential foundation for using the `model-checker`.
+
 #### For Beginners: VSCodium
 
 - **Repository**: [VSCodium Setup Guide](https://github.com/benbrastmckie/VSCodium)
@@ -99,7 +101,7 @@ project_my_logic/
 └── notebooks/     # Interactive Jupyter notebooks (if available)
 ```
 
-### The examples.py File
+### The `examples.py` File
 
 This is your main working file. It contains:
 
@@ -178,6 +180,8 @@ example_range = {
 }
 ```
 
+For more detailed information, see the [Examples Documentation](Code/docs/EXAMPLES.md).
+
 #### 3. `unit_tests` (Common but Optional)
 
 A dictionary used by the testing framework (`run_tests.py`) to run comprehensive test suites. Often organized by grouping countermodels and theorems separately:
@@ -204,6 +208,8 @@ unit_tests = {**ext_cm_examples, **ext_th_examples}
 # Used by: ./run_tests.py --examples logos
 ```
 
+For more detailed information, see the [Unit Tests Documentation](Code/UNIT_TESTS.md).
+
 #### 4. `general_settings` (Optional)
 
 Controls execution behavior and output formatting:
@@ -220,6 +226,8 @@ general_settings = {
 ```
 
 If not provided, all default to `False`.
+
+See the [Tools and Settings](TOOLS.md)
 
 ### Basic Execution
 
@@ -370,6 +378,8 @@ semantic_theories = {
 }
 ```
 
+See the [Examples Standard](EXAMPLES.md) for how to create and use example files
+
 ## Exploring Different Theories
 
 ### Theory-Specific Features
@@ -402,41 +412,6 @@ Each theory has unique operators and capabilities:
 - Past/Future: `P`, `F`
 - Necessity/Possibility: `\Box`, `\Diamond`
 - See: [Bimodal Documentation](../Code/src/model_checker/theory_lib/bimodal/README.md)
-
-### Comparing Theories
-
-ModelChecker automatically tests each example against all theories in `semantic_theories`:
-
-```python
-# theory_comparison.py
-from model_checker.theory_lib import logos, exclusion
-
-# Test double negation elimination
-dne_example = [
-    ["\\neg \\neg A"],  # Premise: not not A
-    ["A"],              # Conclusion: A
-    {'N': 3}
-]
-
-semantic_theories = {
-    "logos": logos.get_theory(),
-    "exclusion": exclusion.get_theory(),
-}
-
-example_range = {
-    "double_negation": dne_example,
-}
-
-general_settings = {
-    "maximize": False,  # Default: test each theory with given N
-    # "maximize": True,  # Find maximum N each theory can handle
-}
-```
-
-**Comparison Modes:**
-
-- `maximize=False` (default): Tests each example on all theories with the specified N value
-- `maximize=True`: Finds the maximum N value each theory can handle before timing out
 
 ## Next Steps
 
