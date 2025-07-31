@@ -17,6 +17,7 @@
 The **ModelChecker** framework implements a systematic **three-level methodology** for computational semantics that enables logicians and linguists to implement, test, and compare complex semantic theories. This methodology provides a bridge between abstract logical theories and concrete computational implementations, making formal semantics accessible to researchers without extensive programming background.
 
 This document explains the three-level approach using concrete examples from two implemented theories:
+
 - **Logos Theory**: Bilateral semantics with verifiers and falsifiers
 - **Exclusion Theory**: Unilateral semantics with only verifiers
 
@@ -51,6 +52,7 @@ The **Syntax Level** handles how logical formulas are represented, parsed, and s
 ### Basic Structure
 
 All logical formulas in the ModelChecker are represented as **Abstract Syntax Trees (ASTs)** with:
+
 - **Atomic propositions**: Basic sentence letters (`A`, `B`, `C`, ...) or (`ball_is_red`, `mary_loves_john`, ...)
 - **Operators**: Logical connectives with defined arity and precedence
 - **Complex formulas**: Recursive combinations of atoms and operators
@@ -112,15 +114,15 @@ class NegationOperator(Operator):
     def true_at(self, argument, eval_point):
         """Negation is true when the argument is false"""
         return self.semantics.false_at(argument, eval_point)
-    
+
     def false_at(self, argument, eval_point):
-        """Negation is false when the argument is true"""  
+        """Negation is false when the argument is true"""
         return self.semantics.true_at(argument, eval_point)
-    
+
     def extended_verify(self, state, argument, eval_point):
         """A state verifies not A iff it falsifies A"""
         return self.semantics.extended_falsify(state, argument, eval_point)
-        
+
     def extended_falsify(self, state, argument, eval_point):
         """A state falsifies not A iff it verifies A"""
         return self.semantics.extended_verify(state, argument, eval_point)
@@ -135,7 +137,7 @@ def extended_verify(self, state, leftarg, rightarg, eval_point):
     """A state verifies A'B iff it's the fusion of an A-verifier and B-verifier"""
     x = z3.BitVec("conj_x", self.semantics.N)
     y = z3.BitVec("conj_y", self.semantics.N)
-    
+
     return Exists([x, y], z3.And(
         self.semantics.extended_verify(x, leftarg, eval_point),
         self.semantics.extended_verify(y, rightarg, eval_point),
@@ -154,12 +156,12 @@ Unilateral semantics treats propositions as having only **verifiers**. Negation 
 ```python
 def extended_verify(self, state, argument, eval_point):
     """State verifies \\neg A via three-condition semantics"""
-    
+
     # Get witness functions for this formula
     formula_str = f"\\neg({argument})"
     h_pred = self.semantics.witness_registry[f"{formula_str}_h"]
     y_pred = self.semantics.witness_registry[f"{formula_str}_y"]
-    
+
     return z3.And(
         # Condition 1: Exclusion
         # For every verifier v of A, h(v) excludes y(v) where y(v) is part of v
@@ -170,14 +172,14 @@ def extended_verify(self, state, argument, eval_point):
                 self.semantics.excludes(h_pred(x), y_pred(x))
             )
         )),
-        
-        # Condition 2: Upper Bound  
+
+        # Condition 2: Upper Bound
         # For every verifier v of A, h(v) is part of state
         z3.ForAll([x], z3.Implies(
             self.semantics.extended_verify(x, argument, eval_point),
             self.semantics.is_part_of(h_pred(x), state)
         )),
-        
+
         # Condition 3: Minimality
         # state is the smallest satisfying conditions 1-2
         z3.ForAll([z], z3.Implies(
@@ -218,7 +220,7 @@ Bilateral models include both verification and falsification relations:
 ```python
 # Core model relations
 verify(state, sentence)    # State verifies sentence
-falsify(state, sentence)   # State falsifies sentence  
+falsify(state, sentence)   # State falsifies sentence
 fusion(state1, state2)     # Combine states
 is_part_of(state1, state2) # Part-whole relation
 compatible(state1, state2) # States can coexist
@@ -228,7 +230,7 @@ DEFAULT_EXAMPLE_SETTINGS = {
     'N': 16,           # 16 atomic states (2^16 = 65,536 total states)
     'contingent': True, # Allow contingent propositions
     'non_empty': True,  # Exclude empty state
-    'non_null': True,   # Exclude null state  
+    'non_null': True,   # Exclude null state
     'disjoint': True,   # Atomic states are disjoint
     'max_time': 10,  # Extended timeout for complex reasoning
 }
@@ -249,7 +251,7 @@ is_part_of(state1, state2) # Part-whole relation
 h_pred(state) -> state      # Witness function h
 y_pred(state) -> state      # Witness function y
 
-# Example model settings  
+# Example model settings
 DEFAULT_EXAMPLE_SETTINGS = {
     'N': 3,             # 3 atomic states (2^3 = 8 total states)
     'possible': False,   # No possible worlds constraint
@@ -264,10 +266,11 @@ DEFAULT_EXAMPLE_SETTINGS = {
 ### Model Output Examples
 
 #### Bilateral Model (Logos)
+
 ```
 State Space:
   001 = a
-  010 = b  
+  010 = b
   011 = a.b (world)
   100 = c
   101 = a.c
@@ -278,19 +281,20 @@ Verification:
   |A|⁺ = {a, a.b, a.c, a.b.c}    # A-verifiers
   |B|⁺ = {b, a.b, b.c, a.b.c}    # B-verifiers
 
-Falsification:  
+Falsification:
   |A|⁻ = {b, c, b.c}            # A-falsifiers
   |B|⁻ = {a, c, a.c}            # B-falsifiers
 ```
 
 #### Unilateral Model (Exclusion)
+
 ```
 State Space:
   001 = a
   010 = b
   011 = a.b
   100 = c
-  
+
 Verification:
   |A| = {a, a.b}                # A-verifiers (no falsifiers!)
   |B| = {b, a.b}                # B-verifiers
@@ -298,7 +302,7 @@ Verification:
 Exclusion:
   a excludes b                  # Atomic exclusion
   b excludes a
-  
+
 Witness Functions for \\neg(A):
   h(a) = b      y(a) = a        # h maps a to its excluder b
   h(b) = a      y(b) = b        # h maps b to its excluder a
@@ -316,16 +320,17 @@ Bilateral semantics work with **static linear information flow**:
 Syntax -> Truth-Conditions -> Extensions
   |            |               |
   v            v               v
-Parse       Generate        Solve & 
+Parse       Generate        Solve &
 formulas    constraints     evaluate
 ```
 
 This works because:
+
 - Verifiers and falsifiers are directly computable
 - No circular dependencies between constraint generation and model evaluation
 - Standard Z3 solving techniques suffice
 
-### Circular Flow (Unilateral Semantics) 
+### Circular Flow (Unilateral Semantics)
 
 Unilateral semantics require **circular incremental information flow**:
 
@@ -338,8 +343,9 @@ formulas   constraints     evaluate
 ```
 
 This is necessary because:
+
 - Witness functions must be established during constraint generation
-- But witness values are needed during truth evaluation  
+- But witness values are needed during truth evaluation
 - Requires advanced "witness predicate" architecture
 
 ### Architectural Innovation
@@ -347,7 +353,7 @@ This is necessary because:
 The exclusion theory's solution—**witness predicates as first-class model citizens**—enables circular flow by:
 
 1. **Pre-declaring** witness functions during syntax analysis
-2. **Constraining** their behavior during truth-condition generation  
+2. **Constraining** their behavior during truth-condition generation
 3. **Querying** their values during model evaluation
 
 ## Comparative Examples
@@ -355,19 +361,21 @@ The exclusion theory's solution—**witness predicates as first-class model citi
 ### Example 1: Modus Ponens
 
 **Bilateral Version (Logos)**:
+
 ```python
 # A, A -> B entails B
 premises = ['A', '(A \\rightarrow B)']
-conclusions = ['B'] 
+conclusions = ['B']
 settings = {'N': 3, 'contingent': False}
 
 # Result: THEOREM (no countermodel found)
-# Reasoning: If A is verified and A->B is verified, 
+# Reasoning: If A is verified and A->B is verified,
 # then B must be verified by bilateral semantics
 ```
 
 **Unilateral Version (Exclusion)**:
-```python  
+
+```python
 # A, A -> B entails B (using unilateral conditional)
 premises = ['A', '(A \\rightarrow B)']  # Would need unilateral ?
 conclusions = ['B']
@@ -380,20 +388,22 @@ settings = {'N': 3, 'contingent': False}
 ### Example 2: Double Negation
 
 **Bilateral Version (Logos)**:
+
 ```python
-# not not A entails A  
+# not not A entails A
 premises = ['\\neg \\neg A']
 conclusions = ['A']
 
-# Result: THEOREM  
+# Result: THEOREM
 # Reasoning: Negation swaps verifiers/falsifiers twice,
 # returning to original assignment
 ```
 
 **Unilateral Version (Exclusion)**:
+
 ```python
 # \\neg \\neg A entails A
-premises = ['\\neg \\neg A'] 
+premises = ['\\neg \\neg A']
 conclusions = ['A']
 
 # Result: COUNTERMODEL FOUND
@@ -404,6 +414,7 @@ conclusions = ['A']
 ### Example 3: DeMorgan's Law
 
 **Bilateral Version (Logos)**:
+
 ```python
 # not(A and B) entails (not A or not B)
 premises = ['\\neg (A \\wedge B)']
@@ -414,8 +425,9 @@ conclusions = ['(\\neg A \\vee \\neg B)']
 ```
 
 **Unilateral Version (Exclusion)**:
+
 ```python
-# \\neg (A \\wedge B) entails (\\neg A \\vee \\neg B)  
+# \\neg (A \\wedge B) entails (\\neg A \\vee \\neg B)
 premises = ['\\neg (A \\wedge B)']
 conclusions = ['(\\neg A \\vee \\neg B)']
 
@@ -429,12 +441,13 @@ conclusions = ['(\\neg A \\vee \\neg B)']
 
 The three-level methodology provides logicians with:
 
-1. **Precision**: Formal semantic definitions in computational logic
-2. **Exploration**: Systematic testing of logical principles  
+1. **Precision**: Define semantic primitives and manage definitions
+2. **Exploration**: Systematic testing of logical principles
 3. **Comparison**: Direct comparison between competing theories
 4. **Discovery**: Automated countermodel generation reveals unexpected logical relationships
 
 **Example Application**: Testing whether hyperintensional logics validate classical principles:
+
 ```python
 # Test explosion principle in constitutive logic
 premises = ['A', '\\neg A']           # Contradiction
@@ -444,7 +457,7 @@ theory = 'logos_constitutive'
 # Result: Depends on specific hyperintensional semantics
 ```
 
-### For Linguists  
+### For Linguists
 
 The framework enables linguists to:
 
@@ -453,60 +466,53 @@ The framework enables linguists to:
 3. **Compare Approaches**: Bilateral vs unilateral approaches to content
 4. **Validate Theories**: Check whether linguistic theories have desired logical properties
 
-**Example Application**: Testing scope interactions:
-```python
-# Scope ambiguity: "Every student read some book"
-formula1 = '\forall x (Student(x) \rightarrow \exists y (Book(y) \wedge Read(x,y)))'  # narrow scope
-formula2 = '\exists y (Book(y) \wedge \forall x (Student(x) \rightarrow Read(x,y)))'  # wide scope
-
-# Test whether these are equivalent under different semantic theories
-```
-
 ### For Computational Semantics
 
 The architecture demonstrates:
 
-1. **Information Flow**: How semantic complexity affects computational architecture  
+1. **Information Flow**: How computational architecture impacts semantic complexity
 2. **Constraint Generation**: Translation from semantic definitions to solver constraints
 3. **Model Exploration**: Automated discovery of semantic relationships
 4. **Performance Analysis**: Computational complexity of different semantic approaches
-
-**Key Insight**: Semantic theories aren't just different interpretationsthey require fundamentally different computational architectures.
 
 ## Implementation Guides
 
 ### Getting Started
 
-1. **Choose Your Theory**: 
+1. **Choose Your Theory**:
+
    - Logos theory for bilateral/hyperintensional semantics
    - Exclusion theory for unilateral/exclusion semantics
 
 2. **Run Examples**:
+
    ```bash
    # Bilateral semantics examples
    model-checker src/model_checker/theory_lib/logos/examples.py
-   
-   # Unilateral semantics examples  
-   model-checker src/model_checker/theory_lib/exclusion/strategy2_witness/examples.py
+
+   # Unilateral semantics examples
+   model-checker src/model_checker/theory_lib/exclusion/examples.py
    ```
 
 3. **Study Output**: Examine how formulas are parsed, constraints generated, and models found
 
 4. **Modify Examples**: Change premises, conclusions, or settings to explore logical relationships
 
+Follow the [Getting Started Guide](Code/docs/EXAMPLES.md) to create your first project and understand the framework basics.
+
 ### Theory-Specific Documentation
 
 - **[Logos Theory Documentation](../src/model_checker/theory_lib/logos/README.md)**: Bilateral and hyperintensional semantics
 - **[Exclusion Theory Documentation](../src/model_checker/theory_lib/exclusion/README.md)**: Unilateral semantics with witness predicates
 - **[Witness Predicates Explained](../src/model_checker/theory_lib/exclusion/strategy2_witness/docs/WITNESS.md)**: Accessible introduction to complex semantic architectures
+- **[Hyperintensional Semantics](HYPERINTENSIONAL.md)**: Overview of hyperintensional semantic theories implemented in the model-checker
 
 ## Further Reading
 
 ### Technical Background
+
 - **[Z3 Background](Z3_BACKGROUND.md)**: Introduction to SMT solvers and Z3
 - **[ModelChecker Architecture](../src/model_checker/README.md)**: Framework overview and API
-
-### Semantic Theory References
-- **Fine & Brast-McKie**: Bilateral semantics and hyperintensional logic
-- **Bernard & Champollion**: Unilateral semantics and exclusion relations  
-- **Champollion**: Function-based vs set-based preclusion
+- **[Theory Tools](TOOLS.md)**: Semantic tools for evaluating and comparing semantic theories
+- **[Unit Tests](UNIT_TESTS.md)**: Background on defining and using unit tests to rapidly prototype theories
+- **[Implementation Lessons](FINDINGS.md)**: Hard-won lessons from implementing complex semantic theories

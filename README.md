@@ -67,8 +67,6 @@ model-checker -l imposition
 model-checker -l bimodal
 ```
 
-For detailed installation instructions, see the [Installation Guide](Docs/INSTALLATION.md). Once installed, follow the [Getting Started Guide](Docs/GETTING_STARTED.md) to create your first project and understand the framework basics.
-
 ### Run Examples
 
 When you load an existing theory using `model-checker -l <theory_name>`, it creates a new project directory containing all necessary files, including an `examples.py` file with pre-configured examples. You can then run this file to test the theory:
@@ -178,6 +176,8 @@ semantic_theories = {
     "logos": theory,
 }
 ```
+
+Follow the [Examples Documentation](Docs/GETTING_STARTED.md) to find our more about running `examples.py` files.
 
 ## Subdirectories
 
