@@ -309,7 +309,7 @@ combined = z3.Then('simplify', 'solve-eqs', 'bit-blast')
 
 In the ModelChecker's exclusion theory, we use Z3 to implement two types of unilateral negation:
 
-1. **Function-based uninegation** (`\unineg`): Uses witness functions h and y (Champollion-Bernard semantics)
-2. **Set-based uninegation** (`\set_unineg`): Uses set operations without functions (Fine semantics)
+1. **Function-based negation** (`\neg`): Uses witness functions h and y (Champollion-Bernard semantics)
+2. **Set-based negation** (`\set_neg`): Uses set operations without functions (Fine semantics)
 
-The challenge of implementing `\unineg` motivated the witness predicate architecture described in the exclusion theory documentation.
+The challenge of implementing `\neg` motivated the witness predicate architecture described in the exclusion theory documentation.
