@@ -77,7 +77,6 @@ from .utils import (
 from .builder import (
     BuildModule,
     BuildProject,
-    BuildExample,
 )
 
 # Import specific items from __main__

@@ -555,7 +555,7 @@ modal_def_examples = {
 }
 
 # Combine for unit_tests (used by test framework)
-unit_tests = {**countermodel_examples, **theorem_examples}
+unit_tests = {**modal_cm_examples, **modal_th_examples}
 
 # Default settings
 general_settings = {

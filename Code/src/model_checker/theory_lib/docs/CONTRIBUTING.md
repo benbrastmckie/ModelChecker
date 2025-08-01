@@ -297,17 +297,94 @@ __all__ = [
 ```
 
 ### examples.py
-Create comprehensive test cases:
+Create comprehensive test cases following the standard format:
 
 ```python
-from model_checker import run_test
-# Include test cases that demonstrate your theory's key features
+# Standard imports
+import os
+import sys
 
-unit_tests = {
-    "MY_TH_1": [[], ["A \\rightarrow A"], {"expectation": False}],  # Theorem
-    "MY_CM_1": [["A"], ["\\Box A"], {"expectation": True}],        # Countermodel
-    # Add comprehensive examples
+# Add current directory to path for imports
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
+# Import theory components
+from .semantic import MySemantics, MyProposition, MyModelStructure
+from .operators import my_operators
+
+# Theory definition
+my_theory = {
+    "semantics": MySemantics,
+    "proposition": MyProposition,
+    "model": MyModelStructure,
+    "operators": my_operators,
+    "dictionary": {}
 }
+
+# MY_CM_1: COUNTERMODEL EXAMPLE DESCRIPTION
+MY_CM_1_premises = ["A"]
+MY_CM_1_conclusions = ["\\Box A"]
+MY_CM_1_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+MY_CM_1_example = [
+    MY_CM_1_premises,
+    MY_CM_1_conclusions,
+    MY_CM_1_settings,
+]
+
+# MY_TH_1: THEOREM EXAMPLE DESCRIPTION
+MY_TH_1_premises = []
+MY_TH_1_conclusions = ["(A \\rightarrow A)"]
+MY_TH_1_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+MY_TH_1_example = [
+    MY_TH_1_premises,
+    MY_TH_1_conclusions,
+    MY_TH_1_settings,
+]
+
+# Organize examples by category
+countermodel_examples = {
+    "MY_CM_1": MY_CM_1_example,
+}
+
+theorem_examples = {
+    "MY_TH_1": MY_TH_1_example,
+}
+
+# Combine for unit_tests (used by test framework)
+unit_tests = {**countermodel_examples, **theorem_examples}
+
+# Define which examples to run
+example_range = unit_tests
+
+# Define semantic theories
+semantic_theories = {
+    "MyTheory": my_theory,
+}
+
+# Make module executable
+if __name__ == '__main__':
+    import subprocess
+    file_name = os.path.basename(__file__)
+    subprocess.run(["model-checker", file_name], check=True, cwd=current_dir)
 ```
 
 ### README.md

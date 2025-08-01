@@ -96,19 +96,39 @@ from model_checker.theory_lib import logos
 theory = logos.get_theory(['extensional', 'modal'])
 
 # Example: Modal K Axiom
-MOD_TH_5: MODAL K AXIOM
-- Premises: ["\\Box (A \\rightarrow B)", "\\Box A"]
-- Conclusions: ["\\Box B"]
-- Validates: If necessarily (A implies B) and necessarily A, then necessarily B
+# MOD_TH_5: MODAL K AXIOM
+MOD_TH_5_premises = ["\\Box (A \\rightarrow B)", "\\Box A"]
+MOD_TH_5_conclusions = ["\\Box B"]
+MOD_TH_5_settings = {
+    'N': 4,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': False,
+}
+MOD_TH_5_example = [MOD_TH_5_premises, MOD_TH_5_conclusions, MOD_TH_5_settings]
 
 # Hyperintensional content relationships
 theory = logos.get_theory(['constitutive'])  # Auto-loads extensional
 
 # Example: Grounding Anti-symmetry
-CON_TH_16: GROUNDING ANTI-SYMMETRY
-- Premises: ["(A \\leq B)", "(B \\leq A)"]
-- Conclusions: ["(A \\equiv B)"]
-- Validates: If A grounds B and B grounds A, then A is identical to B
+# CON_TH_16: GROUNDING ANTI-SYMMETRY
+CON_TH_16_premises = ["(A \\leq B)", "(B \\leq A)"]
+CON_TH_16_conclusions = ["(A \\equiv B)"]
+CON_TH_16_settings = {
+    'N': 2,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': False,
+}
+CON_TH_16_example = [CON_TH_16_premises, CON_TH_16_conclusions, CON_TH_16_settings]
 
 # Full system with all core subtheories
 theory = logos.get_theory()  # Loads extensional, modal, constitutive, counterfactual
@@ -154,12 +174,22 @@ theory = logos.get_theory(['relevance'])
 theory = logos.get_theory(['modal', 'constitutive'])
 
 # Example: Modal and Constitutive Interaction
-MOD_CON_1: GROUNDING AND NECESSITY
-- Premises: ["(A \\leq B)", "\\Box A"]
-- Conclusions: ["\\Box B"]
-- Validates: If A grounds B and A is necessary, then B is necessary
+# MOD_CON_1: GROUNDING AND NECESSITY
+MOD_CON_1_premises = ["(A \\leq B)", "\\Box A"]
+MOD_CON_1_conclusions = ["\\Box B"]
+MOD_CON_1_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+MOD_CON_1_example = [MOD_CON_1_premises, MOD_CON_1_conclusions, MOD_CON_1_settings]
 
-For complete implementation, see individual subtheory examples.py files.
+# For complete implementation, see individual subtheory examples.py files.
 ```
 
 #### Cross-Subtheory Reasoning
@@ -168,12 +198,22 @@ For complete implementation, see individual subtheory examples.py files.
 theory = logos.get_theory(['modal', 'counterfactual'])
 
 # Example: Modal and Counterfactual Interaction
-MOD_CF_1: NECESSITY AND COUNTERFACTUALS
-- Premises: ["\\Box A", "(A \\boxright B)"]
-- Conclusions: ["\\Box B"]
-- Validates: If A is necessary and if A were true then B would be true, then B is necessary
+# MOD_CF_1: NECESSITY AND COUNTERFACTUALS
+MOD_CF_1_premises = ["\\Box A", "(A \\boxright B)"]
+MOD_CF_1_conclusions = ["\\Box B"]
+MOD_CF_1_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+MOD_CF_1_example = [MOD_CF_1_premises, MOD_CF_1_conclusions, MOD_CF_1_settings]
 
-For complete implementation, see individual subtheory examples.py files.
+# For complete implementation, see individual subtheory examples.py files.
 ```
 
 ## API Reference
