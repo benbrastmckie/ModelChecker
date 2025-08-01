@@ -23,7 +23,7 @@ Within the exclusion theory framework, model iteration enables exploration of th
 
 This guide serves developers and researchers exploring the space of possible models in unilateral semantics, demonstrating how witness predicates enable diverse model generation.
 
-## Quick Start
+## Finding Multiple Models
 
 ```python
 # Find multiple countermodels with different exclusion patterns

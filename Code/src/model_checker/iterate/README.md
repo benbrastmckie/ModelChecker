@@ -27,18 +27,18 @@ The iteration system follows a modular architecture with clear separation betwee
 
 ```
 iterate/
-├── core.py                  # BaseModelIterator abstract class
-├── progress.py             # Progress bar and timing utilities
-├── stats.py               # Model statistics collection
-├── parallel.py            # Parallel constraint generation utilities
-└── graph_utils.py         # Graph-based isomorphism checking
+├── core.py                         # BaseModelIterator abstract class
+├── progress.py                     # Progress bar and timing utilities
+├── stats.py                        # Model statistics collection
+├── parallel.py                     # Parallel constraint generation utilities
+└── graph_utils.py                  # Graph-based isomorphism checking
 
-theory_lib/<theory>/iterate.py  # Theory-specific implementations:
-├── logos/iterate.py           # LogosModelIterator
-├── exclusion/iterate.py       # ExclusionModelIterator (extends LogosModelIterator)
-├── default/iterate.py         # DefaultModelIterator
-├── bimodal/iterate.py         # BimodalModelIterator
-└── imposition/iterate.py      # ImpositionModelIterator
+theory_lib/<theory>/iterate.py      # Theory-specific implementations:
+├── logos/iterate.py                # LogosModelIterator
+├── exclusion/iterate.py            # ExclusionModelIterator (extends LogosModelIterator)
+├── default/iterate.py              # DefaultModelIterator
+├── bimodal/iterate.py              # BimodalModelIterator
+└── imposition/iterate.py           # ImpositionModelIterator
 ```
 
 ### Key Components
@@ -158,8 +158,8 @@ from model_checker import BuildExample, get_theory
 # Create example with logos theory
 theory = get_theory('logos')
 example = BuildExample("counterfactual_example", theory, 
-                      premises=['(A □→ B)'], 
-                      conclusions=['(A → B)'])
+                      premises=['(A \\boxright B)'], 
+                      conclusions=['(A \\rightarrow B)'])
 
 # Find up to 5 distinct models
 model_structures = iterate_example(example, max_iterations=5)

@@ -23,7 +23,7 @@ Within the exclusion theory framework, settings control critical aspects of unil
 
 This guide serves developers and researchers configuring exclusion theory models, providing detailed parameter documentation and interaction patterns for effective model generation.
 
-## Quick Start
+## Setting Examples
 
 ```python
 # Basic exclusion theory settings

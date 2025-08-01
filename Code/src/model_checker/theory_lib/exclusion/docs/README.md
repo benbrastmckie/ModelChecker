@@ -23,7 +23,7 @@ Within the ModelChecker framework, this documentation represents one of the most
 
 This hub serves all audiences: new users learning unilateral semantics, developers implementing semantic theories, and researchers exploring non-classical logics.
 
-## Quick Start
+## Navigation
 
 - **New to unilateral semantics?** → Start with [USER_GUIDE.md](USER_GUIDE.md)
 - **Need API reference?** → See [API_REFERENCE.md](API_REFERENCE.md)

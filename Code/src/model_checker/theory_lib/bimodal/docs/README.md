@@ -92,7 +92,7 @@ Key innovations:
 ## Contributing
 
 When adding or modifying documentation:
-1. Follow the structure defined in `MAINTENANCE.md`
+1. Follow the structure defined in the [maintenance standards](../../../../maintenance/README.md)
 2. Use LaTeX notation (\\Box, \\Future) in code examples
 3. Avoid emojis and Unicode in code
 4. Test all code examples

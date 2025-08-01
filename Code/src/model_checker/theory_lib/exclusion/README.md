@@ -25,68 +25,6 @@ The implementation features **4 logical operators** with witness predicate archi
 
 This theory exemplifies how architectural innovation can solve fundamental computational barriers while preserving theoretical elegance, making Bernard and Champollion's formal semantics accessible for computational exploration and research.
 
-## Quick Start
-
-### Basic Usage
-
-```python
-from model_checker.theory_lib.exclusion import exclusion_theory
-
-# Create examples following standard format
-EX_CM_1_premises = ["\\neg A"]
-EX_CM_1_conclusions = ["A"]
-EX_CM_1_settings = {
-    'N': 3,                    # Max number of atomic propositions
-    'contingent': False,       # Allow non-contingent propositions
-    'non_null': False,         # Allow the null state
-    'non_empty': False,        # Allow empty verifier sets
-    'disjoint': False,         # Allow overlapping verifiers
-    'max_time': 10,            # Timeout in seconds
-    'iterate': 1,              # Number of models to find
-    'expectation': True,       # True = expect countermodel
-}
-EX_CM_1_example = [
-    EX_CM_1_premises,
-    EX_CM_1_conclusions,
-    EX_CM_1_settings,
-]
-
-# Collection of example unit tests
-unit_tests = {
-    "EX_CM_1": EX_CM_1_example,
-}
-
-example_range = {
-    "EX_CM_1": EX_CM_1_example,
-}
-
-# Optional: General settings for execution
-general_settings = {
-    'print_constraints': False,
-    'print_impossible': False,
-    'print_z3': False,
-    'save_output': False,
-    'maximize': False,  # Set to True to compare multiple theories
-}
-
-semantic_theories = {
-    "exclusion": exclusion_theory,
-}
-```
-
-### Command Line Usage
-
-```bash
-# Run all exclusion examples
-model-checker exclusion/examples.py
-
-# Run with constraint output
-./dev_cli.py -p exclusion/examples.py
-
-# Find multiple models
-./dev_cli.py exclusion/examples.py --settings "{'iterate': 3}"
-```
-
 ## Theoretical Foundation
 
 ### Unilateral vs Bilateral Semantics

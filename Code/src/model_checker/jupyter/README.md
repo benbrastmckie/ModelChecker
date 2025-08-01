@@ -216,17 +216,6 @@ The system automatically normalizes formulas, converting Unicode operators to th
 | ⊥       | `\\bot`          | False       |
 | ⊤       | `\\top`          | True        |
 
-#### Theory-Specific Unicode Operators
-
-Some theories like the exclusion theory have specialized operators with Unicode representations:
-
-| Unicode | LaTeX Equivalent | Description |
-|---------|------------------|-------------|
-| ⦻       | `\\exclude`      | Exclusion   |
-| ⊓       | `\\uniwedge`     | Unilateral conjunction |
-| ⊔       | `\\univee`       | Unilateral disjunction |
-| ≔       | `\\uniequiv`     | Unilateral equivalence |
-
 #### Important Notes on Unicode Usage
 
 1. **Internal Conversion**: All Unicode operators are automatically converted to LaTeX notation before processing.
@@ -260,6 +249,9 @@ The most basic use case is checking if a formula is valid:
 from model_checker.jupyter import check_formula
 
 # Check a simple formula
+# TODO: there should not be unicode in formulas that get run (only comments)
+# TODO: there should be outermost parentheses
+# TODO: no convenience methods from /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md should be used
 result = check_formula("p → (q → p)")
 ```
 
@@ -273,6 +265,7 @@ You can check logical consequences by providing premises:
 from model_checker.jupyter import check_formula
 
 # Check if premises entail a conclusion
+# TODO: ditto above
 check_formula("q", premises=["p", "p → q"])
 ```
 
@@ -284,6 +277,7 @@ To specifically look for countermodels to an invalid formula:
 from model_checker.jupyter import find_countermodel
 
 # Find a countermodel where p doesn't imply q
+# TODO: ditto above
 countermodel = find_countermodel("p → q")
 ```
 
@@ -317,10 +311,11 @@ ModelChecker supports multiple semantic theories. You can specify which theory t
 from model_checker.jupyter import check_formula
 
 # Check a formula in the default theory
+# TODO: ditto above
 check_formula("□(p → q) → (□p → □q)", theory_name="default")
 
 # Check a formula in the exclusion theory (if available)
-check_formula(r"\exclude (P \uniwedge Q)", theory_name="exclusion")
+check_formula(r"\neg (P \wedge Q)", theory_name="exclusion")
 ```
 
 ### Custom Settings
@@ -382,6 +377,7 @@ explorer.display()
   
   ```python
   from model_checker.jupyter import check_formula
+<!-- # TODO: ditto above -->
   check_formula("p → q", premises=["p"])
   ```
 
@@ -398,6 +394,7 @@ explorer.display()
   
   ```python
   from model_checker.jupyter import explore_formula
+<!-- # TODO: ditto above -->
   explore_formula("p → (q → p)")
   ```
 

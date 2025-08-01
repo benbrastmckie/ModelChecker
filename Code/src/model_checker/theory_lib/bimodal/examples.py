@@ -167,10 +167,10 @@ MD_CM_1_premises = ['\\Box (A \\vee B)']
 MD_CM_1_conclusions = ['\\Box A', '\\Box B']
 MD_CM_1_settings = {
     'N' : 1,
-    'M' : 1,  # Changed from 1 to 2 to match TN_CM_1
+    'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,  # Increased from 2 to 5 to match TN_CM_1
+    'max_time' : 5,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -571,15 +571,8 @@ BM_TH_5_example = [
 ### DEFINE EXAMPLES AND THEORIES TO COMPUTE ###
 ###############################################
 
-# NOTE: at least one theory is required, multiple are permitted for comparison
-semantic_theories = {
-    "Brast-McKie" : bimodal_theory,
-    # additional theories will require their own translation dictionaries
-}
-
-test_example_range = {
-    ### COUNTERMODELS ###
-
+# Organize examples by category
+countermodel_examples = {
     # Extensional Countermodels
     "EX_CM_1" : EX_CM_1_example,
     
@@ -600,9 +593,9 @@ test_example_range = {
     "BM_CM_2" : BM_CM_2_example,
     "BM_CM_3" : BM_CM_3_example,
     "BM_CM_4" : BM_CM_4_example,
+}
 
-    ### THEOREMS ###
-
+theorem_examples = {
     # Extensional Theorems
     "EX_TH_1" : EX_TH_1_example,
 
@@ -618,6 +611,15 @@ test_example_range = {
     "BM_TH_2" : BM_TH_2_example,
     "BM_TH_3" : BM_TH_3_example,
     "BM_TH_4" : BM_TH_4_example,
+}
+
+# Combine for unit_tests (used by test framework)
+unit_tests = {**countermodel_examples, **theorem_examples}
+
+# NOTE: at least one theory is required, multiple are permitted for comparison
+semantic_theories = {
+    "Brast-McKie" : bimodal_theory,
+    # additional theories will require their own translation dictionaries
 }
 
 # NOTE: at least one example is required, multiple are permitted for comparison
