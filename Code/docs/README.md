@@ -6,22 +6,27 @@
 
 ```
 docs/
-├── README.md                    # This file - technical documentation hub
-├── DEVELOPMENT.md               # Development workflow and contribution guide
-├── ARCHITECTURE.md              # System architecture and design principles
-├── EXAMPLES.md                  # Standard form for examples.py files
-├── TESTS.md                     # Testing methodology and framework usage
-├── TOOLS.md                     # Advanced debugging and analysis tools
-└── STYLE_GUIDE.md               # Code style quick reference
+├── README.md                       # This file - technical documentation hub
+├── DEVELOPMENT.md                  # Development workflow and contribution guide
+├── ARCHITECTURE.md                 # System architecture and design principles
+├── EXAMPLES.md                     # Standard form for examples.py files
+├── TESTS.md                        # Testing methodology and framework usage
+├── TOOLS.md                        # Advanced debugging and analysis tools
+└── STYLE_GUIDE.md                  # Code style quick reference
 ```
 
 ## Overview
 
 The **Technical Documentation** provides comprehensive guides for contributing to, understanding, and maintaining the ModelChecker framework. This documentation serves developers, researchers implementing new theories, and maintainers working on the core framework. For general project documentation including installation and getting started, see the [General Documentation](../../Docs/README.md).
 
-The documentation covers **development workflow**, **system architecture**, **testing methodology**, and **coding standards** to ensure consistent, high-quality contributions to the ModelChecker ecosystem. Whether you're fixing bugs, adding new theories, or extending core functionality, these guides provide the foundation for effective development.
+The documentation covers key areas essential for framework development:
 
-The development process emphasizes **systematic testing**, **modular design principles**, and **clear documentation standards** to maintain the framework's reliability and extensibility as it grows to support new semantic theories and research applications.
+- **Development workflow** - Git procedures, testing practices, and contribution guidelines
+- **System architecture** - Component design, extension points, and design principles  
+- **Testing methodology** - Comprehensive testing strategies for theories and components
+- **Coding standards** - Style guides, documentation requirements, and best practices
+
+Whether you're fixing bugs, adding new theories, or extending core functionality, these guides provide the foundation for effective development. The development process emphasizes **systematic testing**, **modular design principles**, and **clear documentation standards** to maintain the framework's reliability and extensibility as it grows to support new semantic theories and research applications.
 
 ## Quick Start
 
@@ -116,7 +121,7 @@ See [TESTS.md](TESTS.md) for comprehensive testing documentation.
 
 ### Documentation Standards
 
-- **MAINTENANCE.md Compliance**: All documentation follows repository standards
+- **[MAINTENANCE.md](../MAINTENANCE.md) Compliance**: All documentation follows repository standards
 - **Working Examples**: All code examples must be tested and functional
 - **Audience Segmentation**: Documentation organized by user type and expertise level
 
@@ -138,7 +143,7 @@ See [TESTS.md](TESTS.md) for comprehensive testing documentation.
 
 ### Documentation Contributions
 
-1. **Follow MAINTENANCE.md**: Adhere to documentation standards
+1. **Follow [MAINTENANCE.md](../MAINTENANCE.md)**: Adhere to documentation standards
 2. **Verify Accuracy**: Ensure all examples and references are correct
 3. **Test Links**: Validate all cross-references and navigation links
 4. **Audience Focus**: Write for appropriate user expertise levels
