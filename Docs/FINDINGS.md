@@ -1,5 +1,7 @@
 # Semantic Implementation Wisdom: A Practical Guide
 
+[← Back to Docs](README.md) | [Methodology →](METHODOLOGY.md) | [Theory Library →](../Code/src/model_checker/theory_lib/README.md)
+
 ## Introduction
 
 This guide consolidates hard-won lessons from implementing complex semantic theories in computational frameworks. It focuses on practical, reusable patterns and principles derived from the exclusion theory implementation journey.
@@ -361,3 +363,7 @@ class Component2:
 Successful semantic implementation requires understanding the interplay between theoretical requirements and computational constraints. The patterns and principles in this guide emerged from real implementation challenges and represent practical wisdom for building complex semantic theories in computational frameworks.
 
 Remember: seemingly intractable problems often have elegant solutions when the right abstraction is found. The key is understanding your framework deeply, respecting its design principles, and extending it thoughtfully to meet your needs.
+
+---
+
+[← Back to Docs](README.md) | [Methodology →](METHODOLOGY.md) | [Theory Library →](../Code/src/model_checker/theory_lib/README.md)
