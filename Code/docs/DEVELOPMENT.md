@@ -1,199 +1,397 @@
 # Development Guide
 
+[← Back to Technical Docs](README.md) | [Architecture →](ARCHITECTURE.md) | [Testing →](TESTS.md)
+
+## Table of Contents
+
+1. [Environment Setup](#environment-setup)
+2. [Development Workflow](#development-workflow)
+3. [Testing Commands](#testing-commands)
+4. [Development Commands](#development-commands)
+5. [Git Workflow](#git-workflow)
+6. [Common Development Tasks](#common-development-tasks)
+7. [Error Handling](#error-handling)
+8. [Known Challenges](#known-challenges)
+9. [Contributing Guidelines](#contributing-guidelines)
+
 ## Environment Setup
-- Python version: 3.x (check pyproject.toml for specifics)
-- Key dependencies: z3-solver, jupyter, pytest
-- Virtual environment: Use project's shell.nix on NixOS
-- Platform support: Linux (primary), with NixOS-specific tooling
 
-## Commands
+### Requirements
 
-### Testing Commands
-- Run theory tests: `python test_theories.py` (for all theory_lib tests)
-- Run specific theory tests: `python test_theories.py --theories logos bimodal`
-- Run package tests: `python test_package.py` (for all non-theory component tests)
-- Run specific component tests: `python test_package.py --components builder settings`
-- List available components: `python test_package.py --list`
-- Run Z3 isolation tests: `python test_package.py --components utils.tests`
-- Run with verbose output: Add `-v` flag (e.g., `python test_theories.py -v`)
-- Run with failfast: Add `-x` flag (e.g., `python test_package.py -x`)
-- **Note**: All tests should be run through either `test_theories.py` (for theory-specific tests) or `test_package.py` (for all other tests). Do not create standalone test runners.
+- **Python**: 3.8 or higher (check pyproject.toml for specific version)
+- **Key Dependencies**: z3-solver, jupyter, pytest
+- **Virtual Environment**: Recommended for isolated development
+- **Platform Support**: Linux (primary), macOS, Windows, with NixOS-specific tooling
 
-### Development Commands
-- Package update with testing: `python run_update.py`
-- Run main module: `./dev_cli.py`
-- Create a new theory: `./dev_cli.py -l <theory_name>`
-- Check an example file: `./dev_cli.py <example_file.py>`
-- Development CLI: `./dev_cli.py <example_file.py>` (run from project root)
-  - Always specify a target file: `./dev_cli.py [flags] <example_file.py>`
-  - Use `-p` flag to show constraints: `./dev_cli.py -p <example_file.py>`
-  - Use `-z` flag to show Z3 output: `./dev_cli.py -z <example_file.py>`
-  - Combine flags: `./dev_cli.py -p -z <example_file.py>`
-- Run jupyter notebooks: `./run_jupyter.sh`
+### Standard Setup (pip)
 
-For detailed documentation on advanced features like iterate settings, theory comparison, maximize mode, and debugging flags, see [TOOLS.md](../../Docs/TOOLS.md).
+For macOS, Windows, and non-NixOS Linux:
 
-### NixOS-specific Testing
-When working on NixOS, always use the provided scripts (`test_theories.py`, `test_package.py`, `dev_cli.py`) rather than direct Python commands to ensure proper PYTHONPATH configuration.
+```bash
+# Clone the repository
+git clone https://github.com/benbrastmckie/ModelChecker.git
+cd ModelChecker/Code
+
+# Create and activate virtual environment
+python -m venv venv
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+
+# Install in development mode
+pip install -e .
+
+# Install development dependencies manually
+pip install pytest pytest-cov black mypy
+
+# Optional: Install Jupyter dependencies
+pip install -e ".[jupyter]"
+
+# Verify installation
+python test_package.py
+python test_theories.py
+```
+
+### NixOS Setup
+
+NixOS requires special handling due to its immutable package management:
+
+```bash
+# Clone the repository
+git clone https://github.com/benbrastmckie/ModelChecker.git
+cd ModelChecker/Code
+
+# Enter the development shell
+nix-shell
+```
+
+The provided `shell.nix` file automatically:
+
+- Sets PYTHONPATH to include local source code
+- Installs required dependencies (z3-solver, networkx, etc.)
+- Makes development scripts executable
+
+For automatic environment activation:
+
+```bash
+# Install direnv if you haven't already
+nix-env -i direnv
+
+# Allow the .envrc file once
+direnv allow
+
+# Environment activates automatically when entering directory
+```
+
+## Development Workflow
+
+### Project Structure
+
+```
+Code/
+├── src/model_checker/      # Main package source
+│   ├── theory_lib/        # Semantic theories
+│   ├── builder/           # Model construction
+│   ├── iterate/           # Model iteration
+│   ├── jupyter/           # Jupyter integration
+│   └── settings/          # Configuration management
+├── tests/                 # Integration tests
+├── docs/                  # Technical documentation
+└── dev_cli.py            # Development CLI
+```
+
+### Code Standards
+
+Follow the standards in [MAINTENANCE.md](../MAINTENANCE.md):
+
+- Formula formatting (capital letters, proper parentheses)
+- Examples.py structure (see [EXAMPLES.md](EXAMPLES.md))
+- Documentation standards (9-section README structure)
+- No emojis anywhere in code or documentation
+
+## Testing Commands
+
+Always run tests to ensure changes don't break existing functionality:
+
+### Theory Tests
+
+```bash
+# Run all theory tests
+python test_theories.py
+
+# Test specific theories
+python test_theories.py --theories logos bimodal
+
+# Run with verbose output
+python test_theories.py -v
+
+# Stop on first failure
+python test_theories.py -x
+```
+
+### Package Tests
+
+```bash
+# Run all non-theory component tests
+python test_package.py
+
+# Test specific components
+python test_package.py --components builder settings
+
+# List available components
+python test_package.py --list
+
+# Run Z3 isolation tests
+python test_package.py --components utils.tests
+```
+
+### Test Organization
+
+- **test_theories.py**: For all theory_lib tests
+- **test_package.py**: For all other component tests
+- **Do not create standalone test runners**
+
+### NixOS Testing
+
+On NixOS, always use the provided scripts rather than direct Python commands:
+
+```bash
+./run_tests.py          # Run all tests
+./run_tests.py logos    # Test specific theory
+./run_tests.py --unit   # Unit tests only
+```
+
+## Development Commands
+
+### Development CLI
+
+The development CLI is the primary tool for running examples during development:
+
+```bash
+# Basic usage (always specify target file)
+./dev_cli.py examples/simple_example.py
+
+# Show constraints
+./dev_cli.py -p examples/my_example.py
+
+# Show Z3 output
+./dev_cli.py -z examples/my_example.py
+
+# Combine flags
+./dev_cli.py -p -z examples/my_example.py
+
+# Create new theory from template
+./dev_cli.py -l logos my_new_theory
+```
+
+### Other Development Tools
+
+```bash
+# Package update with testing
+python run_update.py
+
+# Run Jupyter notebooks
+./run_jupyter.sh
+
+# Run specific example file
+model-checker examples.py
+```
+
+For detailed documentation on advanced features like iterate settings, theory comparison, maximize mode, and debugging flags, see [TOOLS.md](TOOLS.md).
 
 ## Git Workflow
-- Main branch: master
-- Test before commit: Run both test suites
-- Breaking changes: Acceptable per design philosophy
-- Commit requirements: Ensure all tests pass before committing
 
-## Common Workflows
+### Branch Strategy
+
+- **Main branch**: master
+- **Feature branches**: feature/description
+- **Bug fixes**: fix/description
+- **Documentation**: docs/description
+
+### Commit Requirements
+
+1. **Test before commit**: Run both test suites
+2. **Commit messages**: Use present tense, be descriptive
+3. **Breaking changes**: Acceptable per design philosophy
+4. **Reference issues**: Include issue numbers when applicable
+
+### Pull Request Process
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Ensure all tests pass
+5. Update documentation as needed
+6. Submit pull request with clear description
+
+## Common Development Tasks
 
 ### Adding a New Theory
-1. Create a new directory in `theory_lib/`: `mkdir theory_lib/new_theory_name`
-2. Implement required files: `semantic.py`, `operators.py`, `examples.py`
-3. Add theory to registry in `theory_lib/__init__.py`: Add 'new_theory_name' to AVAILABLE_THEORIES
-4. Create tests in `theory_lib/new_theory_name/test/`
-5. Verify with `pytest theory_lib/new_theory_name/test/`
+
+1. Create directory structure:
+
+   ```bash
+   mkdir -p src/model_checker/theory_lib/new_theory/{docs,tests,notebooks}
+   ```
+
+2. Implement required files:
+
+   - `semantic.py`: Core semantic implementation
+   - `operators.py`: Operator definitions
+   - `examples.py`: Example formulas
+   - `__init__.py`: Theory registration
+   - `README.md`: Theory documentation
+
+3. Register in `theory_lib/__init__.py`:
+
+   ```python
+   AVAILABLE_THEORIES.append('new_theory')
+   ```
+
+4. Create tests in `tests/` subdirectory
+
+5. Verify with:
+   ```bash
+   python test_theories.py --theories new_theory
+   ```
 
 ### Adding a New Operator
-1. In the relevant theory's `operators.py`:
-   - For primitive operators: Create a subclass of `Operator`
-   - For derived operators: Create a subclass of `DefinedOperator`
-2. Define semantic clauses for the operator
-3. Register the operator in the theory's operator collection
-4. Add test cases in `examples.py` or test files
+
+1. In the theory's `operators.py`:
+
+   ```python
+   # For primitive operators
+   class NewOperator(syntactic.Operator):
+       name = "\\new"
+       arity = 2
+
+       def true_at(self, leftarg, rightarg, eval_point):
+           # Define truth conditions
+           pass
+
+   # For defined operators
+   class DefinedOperator(syntactic.DefinedOperator):
+       name = "\\defined"
+       arity = 1
+
+       def derived_definition(self, arg):
+           # Return operator tree
+           pass
+   ```
+
+2. Register in operator collection
+
+3. Add test cases in `examples.py`
 
 ### Working with Jupyter Integration
-1. Start the Jupyter server: `./run_jupyter.sh`
-2. Use high-level functions: `check_formula()`, `find_countermodel()`
-3. For interactive exploration: `ModelExplorer().display()`
-4. For theory-specific demos: Navigate to theory-specific notebook directories
 
-### Debugging Issues
-1. Check logs and error messages for tracebacks
-2. Use the debugging tools in `jupyter/debug/`
-3. Review the debug logging in `__main__.py` and `cli.py`
-4. Follow the systematic debugging approach in `jupyter/debug/DEBUGGING.md`
+1. Start Jupyter server:
 
-## Common Error Patterns
+   ```bash
+   ./run_jupyter.sh
+   ```
 
-### Z3 Solver Issues
-- **Z3 timeout errors**: Complex models may hit solver timeouts (adjust the max_time setting)
-- **Bitvector capacity**: Some logical structures may exceed bitvector capacity
-- **Undecidable structures**: Some logical structures may be undecidable
+2. Use high-level functions:
 
-### Path and Import Issues
-- **Import path issues**: Use provided scripts, not direct python commands
-- **NixOS Path Issues**: On NixOS, PYTHONPATH management is critical. Use the provided scripts (`run_jupyter.sh`, `dev_cli.py`) instead of direct commands
-- **Module loading**: Always run commands from project root
+   ```python
+   from model_checker import check_formula, find_countermodel
+   from model_checker.jupyter import ModelExplorer
 
-### Theory-Specific Issues
-- **World reference errors**: In bimodal logic, always use consistent world references. World IDs should be explicitly provided where needed rather than attempting conversions
-- **Theory Compatibility**: Different theories may have incompatible operators or semantics. Use the theory adapter system for conversion
+   # Interactive exploration
+   explorer = ModelExplorer()
+   explorer.display()
+   ```
 
-### Jupyter Issues
-- **Widget Display**: If widgets don't display properly, ensure ipywidgets is properly installed and nbextensions are enabled
-- **Kernel issues**: Restart kernel if experiencing import problems
+3. Navigate to theory-specific notebooks for demos
+
+## Error Handling
+
+### Common Error Patterns
+
+#### Z3 Solver Issues
+
+- **Timeout errors**: Adjust `max_time` setting
+- **Bitvector capacity**: Reduce model complexity
+- **Undecidable structures**: Simplify logical formulas
+
+#### Path and Import Issues
+
+- **Import errors**: Run from project root directory
+- **NixOS paths**: Use provided scripts, not direct Python
+- **Module loading**: Check PYTHONPATH configuration
+
+#### Theory-Specific Issues
+
+- **World reference errors**: Use consistent world IDs
+- **Theory compatibility**: Use adapter system for conversion
+- **Operator conflicts**: Check operator namespaces
+
+#### Jupyter Issues
+
+- **Widget display**: Enable nbextensions
+- **Kernel problems**: Restart kernel for import issues
+- **Path issues**: Ensure correct environment activation
+
+### Debugging Tools
+
+1. Check logs and error messages
+2. Use debugging tools in `jupyter/debug/`
+3. Review debug logging in `__main__.py` and `cli.py`
+4. Follow systematic approach in `jupyter/debug/DEBUGGING.md`
 
 ## Known Challenges
 
-1. **Theory Compatibility**: Different theories may have incompatible operators or semantics. Use the theory adapter system for conversion.
+### Theory Compatibility
 
-2. **NixOS Path Issues**: On NixOS, PYTHONPATH management is critical. Use the provided scripts (`run_jupyter.sh`, `dev_cli.py`) instead of direct commands.
+Different theories may have incompatible operators or semantics. Use the theory adapter system for conversion between theories.
 
-3. **Z3 Solver Limitations**: 
-   - Complex models may hit solver timeouts (adjust the max_time setting)
-   - Some logical structures may be undecidable or exceed bitvector capacity
+### NixOS Path Management
 
-4. **Jupyter Widget Display**: If widgets don't display properly, ensure ipywidgets is properly installed and nbextensions are enabled.
+PYTHONPATH management is critical on NixOS. Always use provided scripts (`run_jupyter.sh`, `dev_cli.py`) instead of direct commands.
 
-## Documentation
+### Z3 Solver Limitations
 
-### For New Contributors
-- **[Installation Guide](INSTALLATION.md)** - Environment setup and dependencies
-- **[Style Guide](STYLE_GUIDE.md)** - Coding standards and conventions
-- **[Architecture Overview](ARCHITECTURE.md)** - System design and component relationships
+- Complex models may hit solver timeouts
+- Some logical structures may be undecidable
+- Bitvector arithmetic has capacity limits
 
-### For Theory Developers  
-- **[Theory Library Guide](../src/model_checker/theory_lib/README.md)** - Theory implementation patterns
-- **[API Reference](../src/model_checker/README.md)** - Core framework APIs
-- **[Example Theories](../src/model_checker/theory_lib/)** - Reference implementations
+### Platform-Specific Issues
 
-### For Core Developers
-- **[Testing Guide](TESTS.md)** - Comprehensive testing methodology
-- **[Cleanup Recommendations](CLEANUP_RECOMMENDATIONS.md)** - Technical debt and improvements
-- **[Advanced Tools](../../Docs/TOOLS.md)** - Framework debugging and analysis tools
+- **Windows**: Path separators and line endings
+- **macOS**: SSL certificates for package installation
+- **Linux**: Distribution-specific package names
 
-## API Reference Examples
+## Contributing Guidelines
 
-### Core Framework Usage
-```python
-from model_checker import BuildExample, get_theory
+### Code Quality
 
-# 1. Load a semantic theory
-theory = get_theory("logos")
+1. Follow [MAINTENANCE.md](../MAINTENANCE.md) standards
+2. Write comprehensive docstrings
+3. Include type hints where appropriate
+4. Add unit tests for new functionality
 
-# 2. Create example with premises and conclusions
-model = BuildExample("modus_ponens", theory)
-model.add_premises(["p", "p \\rightarrow q"])
-model.add_conclusions(["q"])
+### Documentation
 
-# 3. Check validity and analyze results
-valid = model.check_validity()
-if not valid:
-    model.print_countermodel()
-    print(f"Countermodel found with {model.model_size} states")
-```
+1. Update relevant README files
+2. Include docstrings for all public APIs
+3. Add examples for new features
+4. Follow 9-section structure for README files
 
-### Advanced Theory Usage
-```python
-# Custom settings and iteration
-settings = {
-    'N': 4,                    # Larger state space
-    'contingent': True,        # Contingent propositions
-    'iterate': 3,              # Find multiple models
-    'max_time': 5000          # Extended timeout
-}
+### Testing
 
-model = BuildExample("complex_modal", theory, settings=settings)
-result = model.check_formula("\\Box (p \\rightarrow q) \\rightarrow (\\Box p \\rightarrow \\Box q)")
+1. Write tests for all new features
+2. Ensure 100% pass rate before submitting
+3. Include both positive and negative test cases
+4. Document test purpose and expectations
 
-# Access iteration results
-if hasattr(model, '_iterator'):
-    models = model.get_all_models()
-    for i, m in enumerate(models, 1):
-        print(f"Model {i}: {m.get_differences()}")
-```
+### Review Process
 
-### Jupyter Integration Patterns
-```python
-# High-level interactive functions
-from model_checker.jupyter import check_formula, ModelExplorer, find_countermodel
-
-# Quick validation
-result = check_formula("(p \\wedge q) \\rightarrow p")
-
-# Countermodel discovery
-counter = find_countermodel("p \\rightarrow \\Box p")
-if counter:
-    print(f"Countermodel: {counter}")
-
-# Interactive exploration
-explorer = ModelExplorer(theory_name="exclusion")
-explorer.display()  # Launches widget interface
-```
-
-## References
-
-### Implementation Documentation
-- Development workflow follows modular design principles described in [ARCHITECTURE.md](ARCHITECTURE.md)
-- Testing methodology detailed in [TESTS.md](TESTS.md) with dual-system approach
-
-### Related Resources
-- **[Main Documentation Hub](README.md)** - Development documentation overview
-- **[Theory Library](../src/model_checker/theory_lib/README.md)** - Semantic theory implementations
-- **[Jupyter Integration](../src/model_checker/jupyter/README.md)** - Interactive development tools
-
-## License
-
-All development documentation is licensed under GPL-3.0 as part of the ModelChecker framework.
+1. Code review by maintainers
+2. All tests must pass
+3. Documentation must be complete
+4. Follow project coding standards
 
 ---
 
-[← Back to Development Hub](README.md) | [Architecture →](ARCHITECTURE.md) | [Testing Guide →](TESTS.md)
+[← Back to Technical Docs](README.md) | [Architecture →](ARCHITECTURE.md) | [Testing →](TESTS.md)
