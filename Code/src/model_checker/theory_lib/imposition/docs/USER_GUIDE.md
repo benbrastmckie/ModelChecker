@@ -22,7 +22,9 @@ Within the imposition theory framework, counterfactuals like "if A then must B" 
 
 This guide serves researchers and developers learning to use the imposition theory, providing practical examples, common patterns, and troubleshooting tips.
 
-## Quick Start
+## Getting Started
+
+### Basic Counterfactual Reasoning
 
 ```python
 # Basic counterfactual reasoning

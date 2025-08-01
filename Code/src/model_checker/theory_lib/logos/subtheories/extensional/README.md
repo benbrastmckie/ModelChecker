@@ -22,35 +22,6 @@ The **Extensional Subtheory** implements hyperintensional semantics for extensio
 
 Within the Logos framework, the extensional subtheory provides the foundational layer for all logical reasoning. While implementing classical extensional behavior, it does so within the hyperintensional semantic framework, enabling integration with modal, constitutive, counterfactual, and relevance operators. The seven operators (five primitive, two defined) maintain classical logical principles while supporting the fine-grained content distinctions required by other subtheories.
 
-## Quick Start
-
-```python
-from model_checker.theory_lib import logos
-from model_checker import BuildExample
-
-# Load extensional subtheory only
-theory = logos.get_theory(['extensional'])
-model = BuildExample("extensional_example", theory)
-
-# Test classical propositional logic principles
-result1 = model.check_validity(   # Reflexivity of implication
-  [],                             # Premises
-  ["(p \\rightarrow p)"]          # Conclusions
-)
-result2 = model.check_validity(   # Modus ponens
-  ["p", "(p \\rightarrow q)"],    # Premises
-  ["q"]                           # Conclusions
-)
-result3 = model.check_validity(   # Invalid: affirming the consequent
-  ["q", "(p \\rightarrow q)"],    # Premises
-  ["p"]                           # Conclusions
-)
-
-print(f"Reflexivity: {result1}")  # No countermodel found (valid argument)
-print(f"Modus ponens: {result2}")  # No countermodel found (valid argument)
-print(f"Affirming consequent: {result3}")  # Countermodel found (invalid argument)
-```
-
 ## Subdirectories
 
 ### [tests/](tests/)
@@ -61,7 +32,7 @@ Comprehensive test suite with 14 integration examples covering all seven extensi
 
 ### For New Users
 
-- **[Quick Start](#quick-start)** - Basic usage examples with extensional reasoning
+- **[Examples](examples.py)** - Complete collection of validated examples
 - **[Operator Reference](#operator-reference)** - Complete guide to all seven extensional operators
 - **[Testing Guide](tests/README.md)** - How to run and understand extensional tests
 
@@ -109,13 +80,13 @@ The extensional subtheory provides seven operators: five primitive operators tha
 
 ```python
 # Basic negation
-"\\neg p"  # It is not the case that p
+'\\neg A'  # It is not the case that A
 
 # Double negation
-"\\neg \\neg p"  # It is not the case that it is not the case that p
+'\\neg \\neg A'  # It is not the case that it is not the case that A
 
 # Negation in complex formulas
-"\\neg (p \\wedge q)"  # It is not the case that both p and q
+'\\neg (A \\wedge B)'  # It is not the case that both A and B
 ```
 
 **Key Properties**:
@@ -140,13 +111,13 @@ The extensional subtheory provides seven operators: five primitive operators tha
 
 ```python
 # Basic conjunction
-"p \\wedge q"  # Both p and q
+'(A \\wedge B)'  # Both A and B
 
 # Conjunction introduction
-# From p and q, infer p ∧ q
+# From A and B, infer (A ∧ B)
 
 # Conjunction elimination
-"(p \\wedge q) \\rightarrow p"  # From p and q, we can infer p
+'((A \\wedge B) \\rightarrow A)'  # From A and B, we can infer A
 ```
 
 **Key Properties**:
@@ -171,13 +142,13 @@ The extensional subtheory provides seven operators: five primitive operators tha
 
 ```python
 # Basic disjunction
-"p \\vee q"  # Either p or q (or both)
+'(A \\vee B)'  # Either A or B (or both)
 
 # Disjunction introduction
-"p \\rightarrow (p \\vee q)"  # From p, we can infer p or q
+'(A \\rightarrow (A \\vee B))'  # From A, we can infer A or B
 
 # Disjunctive syllogism
-# From p ∨ q and ¬p, infer q
+# From (A ∨ B) and ¬A, infer B
 ```
 
 **Key Properties**:
@@ -202,13 +173,13 @@ The extensional subtheory provides seven operators: five primitive operators tha
 
 ```python
 # Top is always true
-"\\top"  # The logical truth
+'\\top'  # The logical truth
 
 # Any tautology implies top
-"(p \\vee \\neg p) \\rightarrow \\top"  # Valid
+'((A \\vee \\neg A) \\rightarrow \\top)'  # Valid
 
 # Top in conditionals
-"\\top \\rightarrow (p \\rightarrow p)"  # Valid
+'(\\top \\rightarrow (A \\rightarrow A))'  # Valid
 ```
 
 **Key Properties**:
@@ -233,13 +204,13 @@ The extensional subtheory provides seven operators: five primitive operators tha
 
 ```python
 # Bottom is always false
-"\\bot"  # The logical falsehood
+'\\bot'  # The logical falsehood
 
 # Contradiction implies bottom
-"(p \\wedge \\neg p) \\rightarrow \\bot"  # Valid
+'((A \\wedge \\neg A) \\rightarrow \\bot)'  # Valid
 
 # Ex falso quodlibet
-"\\bot \\rightarrow p"  # From falsehood, anything follows
+'(\\bot \\rightarrow A)'  # From falsehood, anything follows
 ```
 
 **Key Properties**:
@@ -264,16 +235,16 @@ The extensional subtheory provides seven operators: five primitive operators tha
 
 ```python
 # Basic conditional
-"p \\rightarrow q"  # If p then q
+'(A \\rightarrow B)'  # If A then B
 
 # Modus ponens
-# From p and p → q, infer q
+# From A and (A → B), infer B
 
 # Modus tollens
-# From ¬q and p → q, infer ¬p
+# From ¬B and (A → B), infer ¬A
 
 # Hypothetical syllogism
-# From p → q and q → r, infer p → r
+# From (A → B) and (B → C), infer (A → C)
 ```
 
 **Key Properties**:
@@ -298,16 +269,16 @@ The extensional subtheory provides seven operators: five primitive operators tha
 
 ```python
 # Basic biconditional
-"p \\leftrightarrow q"  # p if and only if q
+'(A \\leftrightarrow B)'  # A if and only if B
 
 # Biconditional elimination (forward)
-# From p ↔ q and p, infer q
+# From (A ↔ B) and A, infer B
 
 # Biconditional elimination (backward)
-# From p ↔ q and q, infer p
+# From (A ↔ B) and B, infer A
 
 # Biconditional with negation
-"(p \\leftrightarrow q) \\rightarrow (\\neg p \\leftrightarrow \\neg q)"  # Valid
+'((A \\leftrightarrow B) \\rightarrow (\\neg A \\leftrightarrow \\neg B))'  # Valid
 ```
 
 **Key Properties**:
@@ -376,57 +347,30 @@ python test_theories.py --theories logos --extensional --examples
 
 **For detailed test documentation, examples, and debugging guidance, see [tests/README.md](tests/README.md)**
 
-#### Programmatic Access
-
-```python
-from model_checker.theory_lib.logos.subtheories.extensional.examples import (
-    extensional_cm_examples,    # All countermodel examples
-    extensional_th_examples,    # All theorem examples
-    extensional_examples        # Combined collection
-)
-
-# Access specific example
-ext_th_1 = extensional_th_examples['EXT_TH_1']
-premises, conclusions, settings = ext_th_1
-
-# Run example with custom theory
-from model_checker import BuildExample
-from model_checker.theory_lib import logos
-
-theory = logos.get_theory(['extensional'])
-model = BuildExample("extensional_test", theory)
-result = model.check_validity(premises, conclusions, settings)
-```
-
 ### Example Structure
 
 Each example follows the standard format:
 
 ```python
 # EXT_TH_1: MODUS PONENS
-EXT_TH_1_premises = ['A', '(A \\rightarrow B)']        # What must be true
-EXT_TH_1_conclusions = ['B']                           # What we're testing
-EXT_TH_1_settings = {                                  # Model constraints
-    'N' : 3,                                          # Number of atomic states
-    'contingent' : False,                             # Allow non-contingent propositions
-    'non_null' : True,                                # Exclude null state
-    'non_empty' : True,                               # Require non-empty sets
-    'disjoint' : False,                               # Allow overlapping content
-    'max_time' : 1,                                   # Solver timeout (seconds)
-    'iterate' : 1,                                    # Number of models
-    'expectation' : False,                            # Expected result (False = valid)
+EXT_TH_1_premises = ["A", "(A \\rightarrow B)"]
+EXT_TH_1_conclusions = ["B"]
+EXT_TH_1_settings = {
+    'N' : 3,                    # Number of atomic states
+    'contingent' : False,       # Allow non-contingent propositions
+    'non_null' : True,          # Exclude null state
+    'non_empty' : True,         # Require non-empty sets
+    'disjoint' : False,         # Allow overlapping content
+    'max_time' : 1,             # Solver timeout (seconds)
+    'iterate' : 1,              # Number of models
+    'expectation' : False,      # Expected result (False = no countermodel)
 }
-EXT_TH_1_example = [EXT_TH_1_premises, EXT_TH_1_conclusions, EXT_TH_1_settings]
+EXT_TH_1_example = [
+    EXT_TH_1_premises,
+    EXT_TH_1_conclusions,
+    EXT_TH_1_settings,
+]
 ```
-
-**Settings Explanation**:
-
-- `N`: Controls state space size (typically 3 for extensional logic)
-- `contingent`: Whether atomic propositions must be contingent
-- `non_null`: Whether to exclude the null state from verifier/falsifier sets
-- `non_empty`: Whether propositions must have non-empty verifier/falsifier sets
-- `disjoint`: Whether propositions must have disjoint subject matters
-- `expectation`: Expected model-finding result (False for valid arguments, True for invalid)
 
 ## Semantic Theory
 
@@ -591,16 +535,16 @@ The extensional subtheory serves as the foundation for all other Logos subtheori
 
 ```python
 # Modal logic uses extensional operators
-"\\Box (p \\rightarrow q)"  # Necessarily, if p then q
+"\\Box (P \\rightarrow Q)"  # Necessarily, if P then Q
 
 # Constitutive logic uses conjunction for reduction
-"(A \\Rightarrow B) \\equiv ((A \\leq B) \\wedge (A \\sqsubseteq B))"
+"((A \\Rightarrow B) \\equiv ((A \\leq B) \\wedge (A \\sqsubseteq B)))"
 
 # Counterfactual logic extends material conditional
-"(p \\boxright q)"  # If p were true, q would be true
+"(P \\boxright Q)"  # If P were true, Q would be true
 
 # All subtheories use negation for operator interdefinability
-"(A \\leq B) \\equiv (\\neg A \\sqsubseteq \\neg B)"  # Ground-essence duality
+"((A \\leq B) \\equiv (\\neg A \\sqsubseteq \\neg B))"  # Ground-essence duality
 ```
 
 ### API Reference

@@ -876,8 +876,8 @@ IM_TH_11_example = [
 
 
 
-# Create collections for different imposition example types
-imposition_cm_examples = {
+# Organize examples by category
+countermodel_examples = {
     "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
     "IM_CM_2": IM_CM_2_example,   # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
@@ -909,7 +909,7 @@ imposition_cm_examples = {
     "IM_CM_28": IM_CM_28_example, # REVERSE FLIP DEFINITION OF NEC
 }
 
-imposition_th_examples = {
+theorem_examples = {
     "IM_TH_1": IM_TH_1_example,   # COUNTERFACTUAL IDENTITY
     "IM_TH_2": IM_TH_2_example,   # COUNTERFACTUAL MODUS PONENS
     "IM_TH_3": IM_TH_3_example,   # WEAKENED TRANSITIVITY
@@ -923,8 +923,8 @@ imposition_th_examples = {
     "IM_TH_11": IM_TH_11_example, # DEFINITION OF NEC
 }
 
-# Combined collection of all imposition examples
-unit_tests = {**imposition_cm_examples, **imposition_th_examples}
+# Combine for unit_tests (used by test framework)
+unit_tests = {**countermodel_examples, **theorem_examples}
 
 # Aliases for main dictionary (backward compatibility)
 test_example_range = unit_tests

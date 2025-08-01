@@ -67,11 +67,18 @@ EXT_TH_1_example = [
     EXT_TH_1_settings,
 ]
 
-# Collection of all examples (used by test framework)
-unit_tests = {
-    "EXT_TH_1": EXT_TH_1_example,  # Modus ponens theorem
-    # Add more examples here for comprehensive testing
+# Organize examples by category
+countermodel_examples = {
+    # Add countermodel examples here
 }
+
+theorem_examples = {
+    "EXT_TH_1": EXT_TH_1_example,  # Modus ponens theorem
+    # Add more theorem examples here
+}
+
+# Combine for unit_tests (used by test framework)
+unit_tests = {**countermodel_examples, **theorem_examples}
 
 # The framework expects this to be named 'example_range'
 example_range = {
@@ -145,11 +152,18 @@ CF_CM_1_example = [
     CF_CM_1_settings,
 ]
 
-# Collection for testing
-unit_tests = {
+# Organize examples by category
+countermodel_examples = {
     "CF_CM_1": CF_CM_1_example,  # Multiple countermodel example
-    # Add more examples here
+    # Add more countermodel examples here
 }
+
+theorem_examples = {
+    # Add theorem examples here
+}
+
+# Combine for unit_tests (used by test framework)
+unit_tests = {**countermodel_examples, **theorem_examples}
 
 example_range = {
     "CF_CM_1": CF_CM_1_example,  # Will find multiple countermodels
@@ -193,11 +207,18 @@ DNE_TH_1_example = [
     DNE_TH_1_settings,
 ]
 
-# Collection of all examples
-unit_tests = {
-    "DNE_TH_1": DNE_TH_1_example,  # Double negation elimination
-    # Could add more cross-theory tests here
+# Organize examples by category
+countermodel_examples = {
+    # Add countermodel examples here
 }
+
+theorem_examples = {
+    "DNE_TH_1": DNE_TH_1_example,  # Double negation elimination
+    # Add more theorem examples here
+}
+
+# Combine for unit_tests (used by test framework)
+unit_tests = {**countermodel_examples, **theorem_examples}
 
 # Example range with the test
 example_range = {

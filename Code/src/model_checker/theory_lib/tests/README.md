@@ -159,24 +159,41 @@ All `examples.py` files must use the standardized variable name regardless of ar
 # REQUIRED: Use 'unit_tests' as the main variable name in ALL examples.py files
 
 # For Simple Pattern (single examples.py):
-unit_tests = {
+countermodel_examples = {
     "THEORY_CM_1": [premises, conclusions, settings],
-    "THEORY_TH_1": [premises, conclusions, settings],
-    # ...
 }
 
+theorem_examples = {
+    "THEORY_TH_1": [premises, conclusions, settings],
+}
+
+# Combine for unit_tests (used by test framework)
+unit_tests = {**countermodel_examples, **theorem_examples}
+
 # For Modular Pattern (main examples.py):
-unit_tests = {
+countermodel_examples = {
+    # Add countermodel examples here
+}
+
+theorem_examples = {
     **cross_subtheory_examples,
     **integration_examples,
 }
 
+# Combine for unit_tests (used by test framework)
+unit_tests = {**countermodel_examples, **theorem_examples}
+
 # For Modular Pattern (subtheory examples.py):
-unit_tests = {
+countermodel_examples = {
     "SUBTHEORY_CM_1": [premises, conclusions, settings],
-    "SUBTHEORY_TH_1": [premises, conclusions, settings],
-    # ...
 }
+
+theorem_examples = {
+    "SUBTHEORY_TH_1": [premises, conclusions, settings],
+}
+
+# Combine for unit_tests (used by test framework)
+unit_tests = {**countermodel_examples, **theorem_examples}
 ```
 
 **Key Requirements**:

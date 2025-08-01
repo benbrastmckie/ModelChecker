@@ -151,15 +151,49 @@ Each notebook follows a consistent structure:
 ### Development Workflow
 
 ```python
-# Create custom examples
-from model_checker import BuildExample
-model = BuildExample("my_logos_example", theory)
+# Create custom examples using standard format
+from model_checker.theory_lib import logos
+from model_checker.theory_lib.logos import LogosSemantics, LogosProposition, LogosModelStructure
+from model_checker.theory_lib.logos import LogosOperatorRegistry
 
-# Debug complex formulas  
-result = model.check_validity(premises, conclusions)
-if not result:
-    countermodel = model.get_countermodel()
-    print(f"Countermodel: {countermodel}")
+# Load theory
+logos_registry = LogosOperatorRegistry()
+logos_registry.load_subtheories(['modal', 'constitutive'])  # Load specific subtheories
+
+# Define example using standard format
+CUSTOM_EX_premises = ["(A \\leq B)", "\\Box A"]
+CUSTOM_EX_conclusions = ["\\Box B"]
+CUSTOM_EX_settings = {
+    'N' : 3,                    # Number of atomic states
+    'contingent' : False,       # Allow non-contingent propositions
+    'non_null' : False,         # Allow null state
+    'non_empty' : False,        # Allow empty verifier/falsifier sets
+    'disjoint' : False,         # Allow overlapping verifier/falsifier sets
+    'max_time' : 1,             # Solver timeout (seconds)
+    'iterate' : 1,              # Number of models to find
+    'expectation' : False,      # Expected result (False = no countermodel)
+}
+CUSTOM_EX_example = [
+    CUSTOM_EX_premises,
+    CUSTOM_EX_conclusions,
+    CUSTOM_EX_settings,
+]
+
+# Define semantic theories
+semantic_theories = {
+    "Logos": {
+        "semantics": LogosSemantics,
+        "proposition": LogosProposition,
+        "model": LogosModelStructure,
+        "operators": logos_registry.get_operators(),
+        "dictionary": {}  # No translation needed
+    }
+}
+
+# Define which examples to run
+example_range = {
+    'CUSTOM_EX': CUSTOM_EX_example,
+}
 ```
 
 ### Theory Development

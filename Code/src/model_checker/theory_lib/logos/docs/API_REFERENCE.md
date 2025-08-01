@@ -414,7 +414,7 @@ Create a constraint that forces structural differences to avoid isomorphism.
 Iterate a logos theory example to find multiple models.
 
 **Parameters:**
-- `example`: A BuildExample instance with logos theory
+- `example`: An example instance with logos theory
 - `max_iterations` (int, optional): Maximum number of models to find
 
 **Returns:**
@@ -422,17 +422,17 @@ Iterate a logos theory example to find multiple models.
 
 **Example:**
 ```python
-from model_checker import BuildExample
 from model_checker.theory_lib.logos import get_theory, iterate_example
 
-# Create example
+# Load theory
 theory = get_theory()
-example = BuildExample("my_example", theory)
-example.add_constraint("\\Box p \\rightarrow p")
 
-# Find multiple models
-models = iterate_example(example, max_iterations=5)
-print(f"Found {len(models)} distinct models")
+# Example formula: Modal T Axiom
+formula = "\\Box p \\rightarrow p"
+# See examples.py for complete implementation
+
+# Model iteration finds multiple satisfying models
+# models = iterate_example(example, max_iterations=5)
 ```
 
 ## Type Definitions
@@ -473,22 +473,18 @@ DEFAULT_EXAMPLE_SETTINGS = {
 ### Basic Model Checking
 
 ```python
-from model_checker import BuildExample
 from model_checker.theory_lib.logos import get_theory
 
-# Create theory with default subtheories
+# Load theory with default subtheories
 theory = get_theory()
 
-# Build a model
-model = BuildExample("modal_example", theory)
-model.add_formula("\\Box p \\rightarrow p")  # T axiom
+# Access components
+semantics_class = theory['semantics']
+operators = theory['operators']
 
-# Check validity
-if model.check_validity():
-    print("Formula is valid")
-else:
-    print("Formula is invalid")
-    model.print_countermodel()
+# Example formula: Modal T Axiom
+formula = "\\Box p \\rightarrow p"
+# See examples.py for complete implementation and validity checking
 ```
 
 ### Using Specific Subtheories
@@ -497,9 +493,9 @@ else:
 # Load only extensional and modal operators
 theory = get_theory(['extensional', 'modal'])
 
-# Create example with limited operators
-model = BuildExample("limited_example", theory)
-model.add_formula("p \\wedge \\Box q")
+# Example formula with limited operators
+formula = "p \\wedge \\Box q"
+# See examples.py for complete implementation
 ```
 
 ### Working with Propositions
@@ -508,22 +504,16 @@ model.add_formula("p \\wedge \\Box q")
 from model_checker import parse
 from model_checker.theory_lib.logos import get_theory
 
+# Load theory
 theory = get_theory()
-model = BuildExample("prop_example", theory)
 
-# Parse a sentence
+# Example sentence: Classical tautology
 sentence = parse("p \\vee \\neg p")
 
-# Create proposition
-prop = theory['proposition'](sentence, model.model_structure)
-
-# Check verifiers and falsifiers
-print(f"Verifiers: {prop.verifiers}")
-print(f"Falsifiers: {prop.falsifiers}")
-
-# Check truth at main world
-truth_value = prop.truth_value_at(model.model_structure.main_world)
-print(f"True at main world: {truth_value}")
+# Access proposition class
+Proposition = theory['proposition']
+# prop = Proposition(sentence, model_structure)
+# See examples.py for complete proposition usage
 ```
 
 ### Model Iteration Example
@@ -531,22 +521,24 @@ print(f"True at main world: {truth_value}")
 ```python
 from model_checker.theory_lib.logos import get_theory, iterate_example
 
+# Load extensional subtheory
 theory = get_theory(['extensional'])
-model = BuildExample("iterate_example", theory)
-model.add_formula("p \\vee q")
 
-# Find up to 5 models
-models = iterate_example(model, max_iterations=5)
+# Example formula: Disjunction
+formula = "p \\vee q"
+# See examples.py for complete iteration implementation
 
-for i, m in enumerate(models):
-    print(f"\nModel {i+1}:")
-    m.print_evaluation()
+# Model iteration finds multiple satisfying models
+# models = iterate_example(example, max_iterations=5)
 ```
 
 ### Custom Settings
 
 ```python
-# Create theory with custom settings
+# Load theory
+theory = get_theory()
+
+# Custom settings for model checking
 custom_settings = {
     'N': 8,                  # Smaller state space
     'contingent': False,     # Allow non-contingent propositions
@@ -554,8 +546,9 @@ custom_settings = {
     'iterate': True,         # Enable iteration
 }
 
-theory = get_theory()
-model = BuildExample("custom_example", theory, **custom_settings)
+# Example formula: Custom evaluation
+formula = "\\Box (p \\rightarrow q)"
+# See examples.py for complete custom settings usage
 ```
 
 ## Error Handling
@@ -577,12 +570,13 @@ except ValueError as e:
     print(f"Error: {e}")
 
 try:
-    # Timeout handling
-    model = BuildExample("complex", theory, max_time=100)
-    model.add_formula("very_complex_formula")
-    model.check_validity()
-except TimeoutError:
-    print("Model search timed out")
+    # Load theory for timeout example
+    theory = get_theory()
+    # Complex formula example
+    formula = "\\Box (p \\wedge q) \\rightarrow (\\Box p \\wedge \\Box q)"
+    # See examples.py for timeout handling in model checking
+except Exception as e:
+    print(f"Error during model checking: {e}")
 ```
 
 ### Validation

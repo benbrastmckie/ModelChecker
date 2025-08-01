@@ -20,8 +20,8 @@ def serialize_operators(operators: Union[OperatorCollection, dict]) -> Dict[str,
     Returns:
         Dictionary mapping operator names to their class info:
         {
-            "\\imposition": {
-                "class_name": "ImpositionOperator",
+            "\\boxright": {
+                "class_name": "BoxRightOperator",
                 "module_name": "model_checker.theory_lib.imposition.operators"
             },
             ...

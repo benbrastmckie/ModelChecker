@@ -22,30 +22,14 @@ Within the imposition theory framework, this documentation explains how counterf
 
 This hub serves developers, researchers, and students working with counterfactual logic, providing pathways to learn the theory, implement systems, and explore semantic models.
 
-## Quick Start
-
-### For New Users
-```python
-# Start with basic counterfactual reasoning
-from model_checker.theory_lib.imposition import get_theory
-from model_checker import BuildExample
-
-theory = get_theory()
-example = BuildExample("intro", theory,
-    premises=['A', 'A \\boxright B'],
-    conclusions=['B']
-)
-
-result = example.check_validity()
-print(f"Valid: {result}")  # True - modus ponens
-```
+## Documentation
 
 ### Learning Path
-1. **[User Guide](USER_GUIDE.md)** - Tutorial introduction
-2. **[API Reference](API_REFERENCE.md)** - Technical details
-3. **[Settings](SETTINGS.md)** - Configuration options
-4. **[Model Iteration](ITERATE.md)** - Multiple models
-5. **[Architecture](ARCHITECTURE.md)** - Implementation
+1. **[User Guide](USER_GUIDE.md)** - Tutorial introduction to counterfactual reasoning
+2. **[API Reference](API_REFERENCE.md)** - Complete technical reference
+3. **[Settings](SETTINGS.md)** - Configuration parameters and options
+4. **[Model Iteration](ITERATE.md)** - Finding multiple counterfactual models
+5. **[Architecture](ARCHITECTURE.md)** - Design and implementation details
 
 ### Technical Reference
 **[API Reference](API_REFERENCE.md)**

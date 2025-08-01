@@ -54,14 +54,14 @@ from ...operators import LogosOperatorRegistry
 CF_CM_1_premises = ['\\neg A', '(A \\boxright C)']
 CF_CM_1_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_CM_1_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_1_example = [
     CF_CM_1_premises,
@@ -73,14 +73,14 @@ CF_CM_1_example = [
 CF_CM_2_premises = ['\\neg A', '(A \\diamondright C)']
 CF_CM_2_conclusions = ['((A \\wedge B) \\diamondright C)']
 CF_CM_2_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_2_example = [
     CF_CM_2_premises,
@@ -92,14 +92,14 @@ CF_CM_2_example = [
 CF_CM_3_premises = ['\\neg A', '(A \\boxright C)', '\\Diamond (A \\wedge B)']
 CF_CM_3_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_CM_3_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_3_example = [
     CF_CM_3_premises,
@@ -111,14 +111,14 @@ CF_CM_3_example = [
 CF_CM_4_premises = ['\\neg A','(A \\boxright C)']
 CF_CM_4_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_CM_4_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_4_example = [
     CF_CM_4_premises,
@@ -130,14 +130,14 @@ CF_CM_4_example = [
 CF_CM_5_premises = ['(A \\boxright C)','(B \\boxright C)']
 CF_CM_5_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_CM_5_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_5_example = [
     CF_CM_5_premises,
@@ -149,14 +149,14 @@ CF_CM_5_example = [
 CF_CM_6_premises = ['\\neg A', '(A \\boxright B)','(A \\boxright C)']
 CF_CM_6_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_CM_6_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_6_example = [
     CF_CM_6_premises,
@@ -168,14 +168,14 @@ CF_CM_6_example = [
 CF_CM_7_premises = ['(A \\boxright B)']
 CF_CM_7_conclusions = ['(\\neg B \\boxright \\neg A)']
 CF_CM_7_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_7_example = [
     CF_CM_7_premises,
@@ -187,14 +187,14 @@ CF_CM_7_example = [
 CF_CM_8_premises = ['\\neg B','(A \\boxright B)']
 CF_CM_8_conclusions = ['(\\neg B \\boxright \\neg A)']
 CF_CM_8_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 10,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 10,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_8_example = [
     CF_CM_8_premises,
@@ -206,14 +206,14 @@ CF_CM_8_example = [
 CF_CM_9_premises = ['\\neg A','\\neg B','(A \\boxright B)']
 CF_CM_9_conclusions = ['(\\neg B \\boxright \\neg A)']
 CF_CM_9_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_9_example = [
     CF_CM_9_premises,
@@ -225,14 +225,14 @@ CF_CM_9_example = [
 CF_CM_10_premises = ['(A \\boxright B)','(B \\boxright C)']
 CF_CM_10_conclusions = ['(A \\boxright C)']
 CF_CM_10_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_10_example = [
     CF_CM_10_premises,
@@ -244,14 +244,14 @@ CF_CM_10_example = [
 CF_CM_11_premises = ['\\neg A','(A \\boxright B)','(B \\boxright C)']
 CF_CM_11_conclusions = ['(A \\boxright C)']
 CF_CM_11_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_11_example = [
     CF_CM_11_premises,
@@ -263,14 +263,14 @@ CF_CM_11_example = [
 CF_CM_12_premises = ['\\neg A','\\neg B','(A \\boxright B)','(B \\boxright C)']
 CF_CM_12_conclusions = ['(A \\boxright C)']
 CF_CM_12_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_12_example = [
     CF_CM_12_premises,
@@ -290,14 +290,14 @@ CF_CM_13_premises = [
 ]
 CF_CM_13_conclusions = []
 CF_CM_13_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_13_example = [
     CF_CM_13_premises,
@@ -324,14 +324,14 @@ CF_CM_14_premises = [
 ]
 CF_CM_14_conclusions = []
 CF_CM_14_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_14_example = [
     CF_CM_14_premises,
@@ -343,14 +343,14 @@ CF_CM_14_example = [
 CF_CM_15_premises = ['\\neg A']
 CF_CM_15_conclusions = ['(A \\boxright B)','(A \\boxright \\neg B)']
 CF_CM_15_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_15_example = [
     CF_CM_15_premises,
@@ -362,14 +362,14 @@ CF_CM_15_example = [
 CF_CM_16_premises = ['\\neg A','(A \\boxright (B \\vee C))']
 CF_CM_16_conclusions = ['(A \\boxright B)','(A \\boxright C)']
 CF_CM_16_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_16_example = [
     CF_CM_16_premises,
@@ -381,14 +381,14 @@ CF_CM_16_example = [
 CF_CM_17_premises = ['(A \\boxright C)','(B \\boxright C)']
 CF_CM_17_conclusions = ['((A \\vee B) \\boxright C)']
 CF_CM_17_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_17_example = [
     CF_CM_17_premises,
@@ -400,14 +400,14 @@ CF_CM_17_example = [
 CF_CM_18_premises = ['A','B']
 CF_CM_18_conclusions = ['(A \\boxright B)']
 CF_CM_18_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_18_example = [
     CF_CM_18_premises,
@@ -419,14 +419,14 @@ CF_CM_18_example = [
 CF_CM_19_premises = ['((A \\wedge B) \\boxright C)']
 CF_CM_19_conclusions = ['(A \\boxright (B \\boxright C))']
 CF_CM_19_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 3,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 3,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_19_example = [
     CF_CM_19_premises,
@@ -438,14 +438,14 @@ CF_CM_19_example = [
 CF_CM_20_premises = ['((A \\wedge B) \\boxright C)','\\Diamond (A \\wedge B)']
 CF_CM_20_conclusions = ['(A \\boxright (B \\boxright C))']
 CF_CM_20_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 3,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 3,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_20_example = [
     CF_CM_20_premises,
@@ -457,14 +457,14 @@ CF_CM_20_example = [
 CF_CM_21_premises = ['\\neg A','\\neg (A \\boxright B)']
 CF_CM_21_conclusions = ['(A \\boxright \\neg B)']
 CF_CM_21_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_21_example = [
     CF_CM_21_premises,
@@ -476,14 +476,14 @@ CF_CM_21_example = [
 CF_CM_24_premises = ['(A \\boxright B)']
 CF_CM_24_conclusions = ['\\Box (A \\boxright B)']
 CF_CM_24_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_24_example = [
     CF_CM_24_premises,
@@ -495,14 +495,14 @@ CF_CM_24_example = [
 CF_CM_25_premises = ['A', '\\Diamond B', '\\neg \\Diamond (A \\wedge B)']
 CF_CM_25_conclusions = ['(B \\boxright C)']
 CF_CM_25_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': True,
 }
 CF_CM_25_example = [
     CF_CM_25_premises,
@@ -520,14 +520,14 @@ CF_CM_25_example = [
 CF_TH_1_premises = []
 CF_TH_1_conclusions = ['(A \\boxright A)']
 CF_TH_1_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': False,
 }
 CF_TH_1_example = [
     CF_TH_1_premises,
@@ -539,14 +539,14 @@ CF_TH_1_example = [
 CF_TH_2_premises = ['A','(A \\boxright B)']
 CF_TH_2_conclusions = ['B']
 CF_TH_2_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': False,
 }
 CF_TH_2_example = [
     CF_TH_2_premises,
@@ -558,14 +558,14 @@ CF_TH_2_example = [
 CF_TH_3_premises = ['(A \\boxright B)','((A \\wedge B) \\boxright C)']
 CF_TH_3_conclusions = ['(A \\boxright C)']
 CF_TH_3_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': False,
 }
 CF_TH_3_example = [
     CF_TH_3_premises,
@@ -577,14 +577,14 @@ CF_TH_3_example = [
 CF_TH_4_premises = ['((A \\vee B) \\boxright C)']
 CF_TH_4_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_TH_4_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': False,
 }
 CF_TH_4_example = [
     CF_TH_4_premises,
@@ -596,14 +596,14 @@ CF_TH_4_example = [
 CF_TH_5_premises = ['((A \\vee B) \\boxright C)']
 CF_TH_5_conclusions = ['(A \\boxright C)']
 CF_TH_5_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': False,
 }
 CF_TH_5_example = [
     CF_TH_5_premises,
@@ -615,14 +615,14 @@ CF_TH_5_example = [
 CF_TH_6_premises = ['((A \\vee B) \\boxright C)']
 CF_TH_6_conclusions = ['((A \\boxright C) \\wedge (B \\boxright C))']
 CF_TH_6_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': False,
 }
 CF_TH_6_example = [
     CF_TH_6_premises,
@@ -638,14 +638,14 @@ CF_TH_7_premises = [
 ]
 CF_TH_7_conclusions = ['((A \\vee B) \\boxright C)']
 CF_TH_7_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': False,
 }
 CF_TH_7_example = [
     CF_TH_7_premises,
@@ -657,14 +657,14 @@ CF_TH_7_example = [
 CF_TH_8_premises = ['(A \\boxright (B \\wedge C))']
 CF_TH_8_conclusions = ['(A \\boxright B)']
 CF_TH_8_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': False,
 }
 CF_TH_8_example = [
     CF_TH_8_premises,
@@ -676,14 +676,14 @@ CF_TH_8_example = [
 CF_TH_9_premises = ['(A \\boxright B)','(A \\boxright C)']
 CF_TH_9_conclusions = ['(A \\boxright (B \\wedge C))']
 CF_TH_9_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': False,
 }
 CF_TH_9_example = [
     CF_TH_9_premises,
@@ -695,14 +695,14 @@ CF_TH_9_example = [
 CF_TH_10_premises = ['A','B']
 CF_TH_10_conclusions = ['(A \\diamondright B)']
 CF_TH_10_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': False,
 }
 CF_TH_10_example = [
     CF_TH_10_premises,
@@ -713,14 +713,14 @@ CF_TH_10_example = [
 CF_TH_11_premises = ['\\Box A']
 CF_TH_11_conclusions = ['(\\top \\boxright A)']
 CF_TH_11_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : True,
-    'non_null' : True,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': True,
+    'non_null': True,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': False,
 }
 CF_TH_11_example = [
     CF_TH_11_premises,
@@ -732,14 +732,14 @@ CF_TH_11_example = [
 CF_TH_12_premises = ['(A \\boxright \\bot)']
 CF_TH_12_conclusions = ['(\\top \\boxright \\neg A)']
 CF_TH_12_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 100,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 100,
+    'iterate': 1,
+    'expectation': False,
 }
 CF_TH_12_example = [
     CF_TH_12_premises,
@@ -751,14 +751,14 @@ CF_TH_12_example = [
 CF_TH_13_premises = ['(\\top \\boxright A)']
 CF_TH_13_conclusions = ['\\Box A']
 CF_TH_13_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : True,
-    'non_null' : True,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': True,
+    'non_null': True,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CF_TH_13_example = [
     CF_TH_13_premises,
@@ -770,14 +770,14 @@ CF_TH_13_example = [
 CF_TH_14_premises = ['(A \\boxright \\bot)']
 CF_TH_14_conclusions = ['(\\top \\boxright \\neg A)']
 CF_TH_14_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CF_TH_14_example = [
     CF_TH_14_premises,
@@ -788,46 +788,46 @@ CF_TH_14_example = [
 
 # Create collections for different counterfactual example types
 counterfactual_cm_examples = {
-    "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    "CF_CM_2": CF_CM_2_example,  # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    "CF_CM_3": CF_CM_3_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
-    "CF_CM_4": CF_CM_4_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
-    "CF_CM_5": CF_CM_5_example,  # COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
-    "CF_CM_6": CF_CM_6_example,  # WEAKENED MONOTONICITY
-    "CF_CM_7": CF_CM_7_example,  # COUNTERFACTUAL CONTRAPOSITION
-    "CF_CM_8": CF_CM_8_example,  # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
-    "CF_CM_9": CF_CM_9_example,  # COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
-    "CF_CM_10": CF_CM_10_example,  # TRANSITIVITY
-    "CF_CM_11": CF_CM_11_example,  # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
-    "CF_CM_12": CF_CM_12_example,  # COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
-    "CF_CM_13": CF_CM_13_example,  # SOBEL SEQUENCE
-    "CF_CM_14": CF_CM_14_example,  # SOBEL SEQUENCE WITH POSSIBILITY
-    "CF_CM_15": CF_CM_15_example,  # COUNTERFACTUAL EXCLUDED MIDDLE
-    "CF_CM_16": CF_CM_16_example,  # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
-    "CF_CM_17": CF_CM_17_example,  # INTRODUCTION OF DISJUNCTIVE ANTECEDENT
-    "CF_CM_18": CF_CM_18_example,  # MUST FACTIVITY
-    "CF_CM_19": CF_CM_19_example,  # COUNTERFACTUAL EXPORTATION
-    "CF_CM_20": CF_CM_20_example,  # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
-    "CF_CM_21": CF_CM_21_example,  # COUNTERFACTUAL NEGATION DISTRIBUTION
-    "CF_CM_24": CF_CM_24_example, # NECESSITY OF COUNTERFACTUALS
-    "CF_CM_25": CF_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
+    "CF_CM_1": CF_CM_1_example,
+    "CF_CM_2": CF_CM_2_example,
+    "CF_CM_3": CF_CM_3_example,
+    "CF_CM_4": CF_CM_4_example,
+    "CF_CM_5": CF_CM_5_example,
+    "CF_CM_6": CF_CM_6_example,
+    "CF_CM_7": CF_CM_7_example,
+    "CF_CM_8": CF_CM_8_example,
+    "CF_CM_9": CF_CM_9_example,
+    "CF_CM_10": CF_CM_10_example,
+    "CF_CM_11": CF_CM_11_example,
+    "CF_CM_12": CF_CM_12_example,
+    "CF_CM_13": CF_CM_13_example,
+    "CF_CM_14": CF_CM_14_example,
+    "CF_CM_15": CF_CM_15_example,
+    "CF_CM_16": CF_CM_16_example,
+    "CF_CM_17": CF_CM_17_example,
+    "CF_CM_18": CF_CM_18_example,
+    "CF_CM_19": CF_CM_19_example,
+    "CF_CM_20": CF_CM_20_example,
+    "CF_CM_21": CF_CM_21_example,
+    "CF_CM_24": CF_CM_24_example,
+    "CF_CM_25": CF_CM_25_example,
 }
 
 counterfactual_th_examples = {
-    "CF_TH_1": CF_TH_1_example,  # COUNTERFACTUAL IDENTITY
-    "CF_TH_2": CF_TH_2_example,  # COUNTERFACTUAL MODUS PONENS
-    "CF_TH_3": CF_TH_3_example,  # WEAKENED TRANSITIVITY
-    "CF_TH_4": CF_TH_4_example,  # ANTECEDENT DISJUNCTION TO CONJUNCTION # TODO: fix discrepancy
-    "CF_TH_5": CF_TH_5_example,  # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-    "CF_TH_6": CF_TH_6_example,  # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-    "CF_TH_7": CF_TH_7_example,  # COUNTERFACTUAL DISJUNCTION INTRODUCTION
-    "CF_TH_8": CF_TH_8_example,  # COUNTERFACTUAL CONSEQUENT WEAKENING
-    "CF_TH_9": CF_TH_9_example,  # COUNTERFACTUAL CONJUNCTION INTRODUCTION
-    "CF_TH_10": CF_TH_10_example,  # MIGHT FACTIVITY
-    "CF_TH_11": CF_TH_11_example,  # DEFINITION OF NEC
-    "CF_TH_12": CF_TH_12_example,  # CONTRADICTION TO IMPOSSIBILITY
-    "CF_TH_13": CF_TH_13_example, # REVERSE DEFINITION OF NEC
-    "CF_TH_14": CF_TH_14_example, # CONTRADICTION TO IMPOSSIBILITY
+    "CF_TH_1": CF_TH_1_example,
+    "CF_TH_2": CF_TH_2_example,
+    "CF_TH_3": CF_TH_3_example,
+    "CF_TH_4": CF_TH_4_example,
+    "CF_TH_5": CF_TH_5_example,
+    "CF_TH_6": CF_TH_6_example,
+    "CF_TH_7": CF_TH_7_example,
+    "CF_TH_8": CF_TH_8_example,
+    "CF_TH_9": CF_TH_9_example,
+    "CF_TH_10": CF_TH_10_example,
+    "CF_TH_11": CF_TH_11_example,
+    "CF_TH_12": CF_TH_12_example,
+    "CF_TH_13": CF_TH_13_example,
+    "CF_TH_14": CF_TH_14_example,
 }
 
 # Combined collection of all counterfactual examples
@@ -864,48 +864,7 @@ semantic_theories = {
 
 # Or set specific examples
 example_range = {
-
-    # COUNTERMODELS
-    "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    # "CF_CM_2": CF_CM_2_example,  # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    # "CF_CM_3": CF_CM_3_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
-    # "CF_CM_4": CF_CM_4_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
-    # "CF_CM_5": CF_CM_5_example,  # COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
-    # "CF_CM_6": CF_CM_6_example,  # WEAKENED MONOTONICITY
-    # "CF_CM_7": CF_CM_7_example,  # COUNTERFACTUAL CONTRAPOSITION
-    # "CF_CM_8": CF_CM_8_example,  # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
-    # "CF_CM_9": CF_CM_9_example,  # COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
-    # "CF_CM_10": CF_CM_10_example,  # TRANSITIVITY
-    # "CF_CM_11": CF_CM_11_example,  # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
-    # "CF_CM_12": CF_CM_12_example,  # COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
-    # "CF_CM_13": CF_CM_13_example,  # SOBEL SEQUENCE
-    # "CF_CM_14": CF_CM_14_example,  # SOBEL SEQUENCE WITH POSSIBILITY
-    # "CF_CM_15": CF_CM_15_example,  # COUNTERFACTUAL EXCLUDED MIDDLE
-    # "CF_CM_16": CF_CM_16_example,  # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
-    # "CF_CM_17": CF_CM_17_example,  # INTRODUCTION OF DISJUNCTIVE ANTECEDENT
-    # "CF_CM_18": CF_CM_18_example,  # MUST FACTIVITY
-    # "CF_CM_19": CF_CM_19_example,  # COUNTERFACTUAL EXPORTATION
-    # "CF_CM_20": CF_CM_20_example,  # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
-    # "CF_CM_21": CF_CM_21_example,  # COUNTERFACTUAL NEGATION DISTRIBUTION
-    # "CF_CM_24": CF_CM_24_example, # NECESSITY OF COUNTERFACTUALS
-    # "CF_CM_25": CF_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
-
-    # THEOREMS
-    # "CF_TH_1": CF_TH_1_example,  # COUNTERFACTUAL IDENTITY
-    # "CF_TH_2": CF_TH_2_example,  # COUNTERFACTUAL MODUS PONENS
-    # "CF_TH_3": CF_TH_3_example,  # WEAKENED TRANSITIVITY
-    # "CF_TH_4": CF_TH_4_example,  # ANTECEDENT DISJUNCTION TO CONJUNCTION # TODO: fix discrepancy
-    # "CF_TH_5": CF_TH_5_example,  # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-    # "CF_TH_6": CF_TH_6_example,  # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-    # "CF_TH_7": CF_TH_7_example,  # COUNTERFACTUAL DISJUNCTION INTRODUCTION
-    # "CF_TH_8": CF_TH_8_example,  # COUNTERFACTUAL CONSEQUENT WEAKENING
-    # "CF_TH_9": CF_TH_9_example,  # COUNTERFACTUAL CONJUNCTION INTRODUCTION
-    # "CF_TH_10": CF_TH_10_example,  # MIGHT FACTIVITY
-    # "CF_TH_11": CF_TH_11_example,  # DEFINITION OF NEC
-    # "CF_TH_12": CF_TH_12_example,  # CONTRADICTION TO IMPOSSIBILITY
-    # "CF_TH_13": CF_TH_13_example, # REVERSE DEFINITION OF NEC
-    # "CF_TH_14": CF_TH_14_example, # CONTRADICTION TO IMPOSSIBILITY
-    
+    "CF_CM_1": CF_CM_1_example,
 }
 
 

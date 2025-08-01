@@ -22,7 +22,9 @@ Within the imposition theory framework, this architecture implements Fine's inno
 
 This document serves developers implementing or extending counterfactual theories, providing detailed architectural patterns and design decisions.
 
-## Quick Start
+## Architecture Overview
+
+The imposition theory extends Logos hyperintensional semantics:
 
 ```python
 # Architecture in action

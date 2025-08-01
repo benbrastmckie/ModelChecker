@@ -22,7 +22,7 @@ Within the imposition theory framework, model iteration reveals how different st
 
 This guide serves researchers exploring counterfactual semantics and developers building applications that require multiple model generation.
 
-## Quick Start
+## Finding Multiple Models
 
 ```python
 # Find multiple counterfactual models

@@ -54,14 +54,14 @@ from ...operators import LogosOperatorRegistry
 EXT_CM_1_premises = ['A']
 EXT_CM_1_conclusions = ['\\neg A']
 EXT_CM_1_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 EXT_CM_1_example = [
     EXT_CM_1_premises,
@@ -73,14 +73,14 @@ EXT_CM_1_example = [
 EXT_CM_2_premises = ['B', '(A \\rightarrow B)']
 EXT_CM_2_conclusions = ['A']
 EXT_CM_2_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 EXT_CM_2_example = [
     EXT_CM_2_premises,
@@ -92,14 +92,14 @@ EXT_CM_2_example = [
 EXT_TH_1_premises = ['A', '(A \\rightarrow B)']
 EXT_TH_1_conclusions = ['B']
 EXT_TH_1_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 EXT_TH_1_example = [
     EXT_TH_1_premises,
@@ -111,14 +111,14 @@ EXT_TH_1_example = [
 EXT_TH_2_premises = ['\\neg B', '(A \\rightarrow B)']
 EXT_TH_2_conclusions = ['\\neg A']
 EXT_TH_2_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 EXT_TH_2_example = [
     EXT_TH_2_premises,
@@ -130,14 +130,14 @@ EXT_TH_2_example = [
 EXT_TH_3_premises = ['(A \\wedge B)']
 EXT_TH_3_conclusions = ['A']
 EXT_TH_3_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 EXT_TH_3_example = [
     EXT_TH_3_premises,
@@ -149,14 +149,14 @@ EXT_TH_3_example = [
 EXT_TH_4_premises = ['A']
 EXT_TH_4_conclusions = ['(A \\vee B)']
 EXT_TH_4_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 EXT_TH_4_example = [
     EXT_TH_4_premises,
@@ -168,14 +168,14 @@ EXT_TH_4_example = [
 EXT_TH_5_premises = ['\\neg \\neg A']
 EXT_TH_5_conclusions = ['A']
 EXT_TH_5_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 EXT_TH_5_example = [
     EXT_TH_5_premises,
@@ -187,14 +187,14 @@ EXT_TH_5_example = [
 EXT_TH_6_premises = []
 EXT_TH_6_conclusions = ['(A \\vee \\neg A)']
 EXT_TH_6_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 EXT_TH_6_example = [
     EXT_TH_6_premises,
@@ -206,14 +206,14 @@ EXT_TH_6_example = [
 EXT_TH_7_premises = ['\\neg (A \\wedge B)']
 EXT_TH_7_conclusions = ['(\\neg A \\vee \\neg B)']
 EXT_TH_7_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 EXT_TH_7_example = [
     EXT_TH_7_premises,
@@ -225,14 +225,14 @@ EXT_TH_7_example = [
 EXT_TH_8_premises = ['\\neg (A \\vee B)']
 EXT_TH_8_conclusions = ['(\\neg A \\wedge \\neg B)']
 EXT_TH_8_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 EXT_TH_8_example = [
     EXT_TH_8_premises,
@@ -244,14 +244,14 @@ EXT_TH_8_example = [
 EXT_TH_9_premises = ['(A \\leftrightarrow B)', 'A']
 EXT_TH_9_conclusions = ['B']
 EXT_TH_9_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 EXT_TH_9_example = [
     EXT_TH_9_premises,
@@ -263,14 +263,14 @@ EXT_TH_9_example = [
 EXT_TH_10_premises = ['(A \\leftrightarrow B)', 'B']
 EXT_TH_10_conclusions = ['A']
 EXT_TH_10_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 EXT_TH_10_example = [
     EXT_TH_10_premises,
@@ -282,14 +282,14 @@ EXT_TH_10_example = [
 EXT_TH_11_premises = []
 EXT_TH_11_conclusions = ['\\top']
 EXT_TH_11_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 EXT_TH_11_example = [
     EXT_TH_11_premises,
@@ -301,14 +301,14 @@ EXT_TH_11_example = [
 EXT_TH_12_premises = ['\\bot']
 EXT_TH_12_conclusions = ['A']
 EXT_TH_12_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 EXT_TH_12_example = [
     EXT_TH_12_premises,
@@ -316,13 +316,13 @@ EXT_TH_12_example = [
     EXT_TH_12_settings,
 ]
 
-# Create collections for different extensional example types
-extensional_cm_examples = {
+# Organize examples by category
+countermodel_examples = {
     "EXT_CM_1": EXT_CM_1_example,
     "EXT_CM_2": EXT_CM_2_example,
 }
 
-extensional_th_examples = {
+theorem_examples = {
     "EXT_TH_1": EXT_TH_1_example,
     "EXT_TH_2": EXT_TH_2_example,
     "EXT_TH_3": EXT_TH_3_example,
@@ -337,8 +337,8 @@ extensional_th_examples = {
     "EXT_TH_12": EXT_TH_12_example,
 }
 
-# Combined collection of all extensional examples - using standardized variable name
-unit_tests = {**extensional_cm_examples, **extensional_th_examples}
+# Combine for unit_tests (used by test framework)
+unit_tests = {**countermodel_examples, **theorem_examples}
 
 # Default settings
 general_settings = {

@@ -22,35 +22,6 @@ The **Constitutive Subtheory** implements hyperintensional semantics for identit
 
 This subtheory serves as the foundation for hyperintensional reasoning within the Logos framework, implementing the semantic theory developed in Brast-McKie (2021) and providing essential operators for expressing content relationships while maintaining integration with modal, extensional, and counterfactual reasoning which are also included in the Logos.
 
-## Quick Start
-
-```python
-from model_checker.theory_lib import logos
-from model_checker import BuildExample
-
-# Load constitutive subtheory (automatically loads extensional dependency)
-theory = logos.get_theory(['constitutive'])
-model = BuildExample("constitutive_example", theory)
-
-# Test basic content relationships
-result1 = model.check_validity(   # Identity reflexivity
-  [],                             # Premises
-  ["(A \\equiv A)"]               # Conclusions
-)
-result2 = model.check_validity(   # Grounding anti-symmetry
-  ["(A \\leq B)", "(B \\leq A)"],  # Premises
-  ["(A \\equiv B)"]                # Conclusions
-)
-result3 = model.check_validity(   # Invalid: tautology equivalence
-  [],                             # Premises
-  ["((A \\vee \\neg A) \\equiv (B \\vee \\neg B))"]  # Conclusions
-)
-
-print(f"Identity reflexivity: {result1}")  # No countermodel found (valid argument)
-print(f"Grounding anti-symmetry: {result2}")  # No countermodel found (valid argument)
-print(f"Tautology equivalence: {result3}")  # Countermodel found (invalid argument - hyperintensional distinction)
-```
-
 ## Subdirectories
 
 ### [tests/](tests/)
@@ -61,7 +32,7 @@ Comprehensive test suite with 33 integration examples covering all five content 
 
 ### For New Users
 
-- **[Quick Start](#quick-start)** - Basic content relationship examples with identity and grounding
+- **[Examples](examples.py)** - Complete collection of validated examples
 - **[Operator Reference](#operator-reference)** - Complete guide to all five content operators
 - **[Testing Guide](tests/README.md)** - How to run and understand hyperintensional tests
 
@@ -329,52 +300,30 @@ python test_theories.py --theories logos --constitutive --examples
 
 **For detailed test documentation, examples, and debugging guidance, see [tests/README.md](tests/README.md)**
 
-#### Programmatic Access
-
-```python
-from model_checker.theory_lib.logos.subtheories.constitutive.examples import (
-    constitutive_cm_examples,    # All countermodel examples
-    constitutive_th_examples,    # All theorem examples
-    constitutive_examples        # Combined collection
-)
-
-# Access specific example
-cl_cm_1 = constitutive_cm_examples['CL_CM_1']
-premises, conclusions, settings = cl_cm_1
-
-# Run example with custom theory
-from model_checker import BuildExample
-from model_checker.theory_lib import logos
-
-theory = logos.get_theory(['constitutive'])
-model = BuildExample("constitutive_test", theory)
-result = model.check_validity(premises, conclusions, settings)
-```
-
 ### Example Structure
 
 Each example follows the standard format:
 
 ```python
 # CL_TH_16: GROUNDING ANTI-SYMMETRY
-CL_TH_16_premises = ['(A \\leq B)', '(B \\leq A)']     # What must be true
-CL_TH_16_conclusions = ['(A \\equiv B)']                # What we're testing
-CL_TH_16_settings = {                                   # Model constraints
-    'N' : 2,                                           # Number of atomic states
-    'contingent' : False,                              # Non-contingent propositions
-    'disjoint' : False,                                # Allow overlapping content
-    'max_time' : 2,                                    # Solver timeout (seconds)
-    'expectation' : False,                             # Expected result (False = valid)
+CL_TH_16_premises = ['(A \\leq B)', '(B \\leq A)']
+CL_TH_16_conclusions = ['(A \\equiv B)']
+CL_TH_16_settings = {
+    'N' : 2,
+    'contingent' : False,
+    'non_null' : False,
+    'non_empty' : False,
+    'disjoint' : False,
+    'max_time' : 2,
+    'iterate' : 1,
+    'expectation' : False,
 }
-CL_TH_16_example = [CL_TH_16_premises, CL_TH_16_conclusions, CL_TH_16_settings]
+CL_TH_16_example = [
+    CL_TH_16_premises,
+    CL_TH_16_conclusions,
+    CL_TH_16_settings,
+]
 ```
-
-**Settings Explanation**:
-
-- `N`: Controls state space size (smaller N often sufficient for constitutive logic)
-- `contingent`: Whether atomic propositions must be contingent
-- `disjoint`: Whether propositions must have disjoint subject matters
-- `expectation`: Expected model-finding result (False for valid arguments, True for invalid)
 
 ## Semantic Theory
 
@@ -598,20 +547,50 @@ theory = logos.get_theory(['constitutive'])  # Also loads extensional
 
 ```python
 # Combined with modal logic
-theory = logos.get_theory(['constitutive', 'modal'])
+logos_registry = LogosOperatorRegistry()
+logos_registry.load_subtheories(['constitutive', 'modal'])
 
-# Ground and necessity interaction
-premises = ["(p \\leq q)", "\\Box p"]
-conclusions = ["\\Box q"]
-result = model.check_validity(premises, conclusions)
+# CON_MOD_1: GROUND AND NECESSITY INTERACTION
+CON_MOD_1_premises = ['(A \\leq B)', '\\Box A']
+CON_MOD_1_conclusions = ['\\Box B']
+CON_MOD_1_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'non_null' : False,
+    'non_empty' : False,
+    'disjoint' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CON_MOD_1_example = [
+    CON_MOD_1_premises,
+    CON_MOD_1_conclusions,
+    CON_MOD_1_settings,
+]
 
 # Combined with counterfactual operators
-theory = logos.get_theory(['constitutive', 'counterfactual'])
+logos_registry2 = LogosOperatorRegistry()
+logos_registry2.load_subtheories(['constitutive', 'counterfactual'])
 
-# Identity and counterfactual interaction
-premises = ["(p \\equiv q)", "(p \\boxright r)"]
-conclusions = ["(q \\boxright r)"]
-result = model.check_validity(premises, conclusions)
+# CON_CF_1: IDENTITY AND COUNTERFACTUAL INTERACTION
+CON_CF_1_premises = ['(A \\equiv B)', '(A \\boxright C)']
+CON_CF_1_conclusions = ['(B \\boxright C)']
+CON_CF_1_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'non_null' : False,
+    'non_empty' : False,
+    'disjoint' : False,
+    'max_time' : 1,
+    'iterate' : 1,
+    'expectation' : False,
+}
+CON_CF_1_example = [
+    CON_CF_1_premises,
+    CON_CF_1_conclusions,
+    CON_CF_1_settings,
+]
 ```
 
 ### API Reference

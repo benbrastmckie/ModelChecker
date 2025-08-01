@@ -2,19 +2,25 @@
 
 ## Current Tasks
 
-- clean up tests in `Code/`
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/UPDATE_DOCS.md`
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/ITERATE_PACK.md`
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/LOAD_THEORIES.md`
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md`
+- lint
+  - many of the imports in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/builder/example.py` are not used
+- docs
+  - [x] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/MAINTENANCE_REFACTOR_PLAN.md`
+  - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/UPDATE_DOCS.md`
+- package
+  - `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/LOAD_THEORIES.md`
+  - `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md`
 
 ### High Priority
+
+somet
 
 - [.] unit tests
   - [x] fix failing tests
   - [ ] check coverage
   - [ ] update documentation
 - [ ] change log
+- [ ] witness subpackage
 - [.] iterate
   - [x] docs for each theory
   - [ ] report networkx not available
@@ -23,6 +29,7 @@
   - [ ] update docs
 - [ ] jupyter
   - [ ] check examples
+  - [ ] convenience methods: `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md`
 - [.] theory metadata
   - [:] licence
     - [x] implement licensing
@@ -40,6 +47,7 @@
 ### Refactoring
 
 - [.] jupyter
+
   - [.] demos
     - [ ] bimodal
     - [ ] imposition
@@ -51,6 +59,7 @@
     - [x] `jupyter/README.md`
 
 - make subpackage
+
   - utils
   - syntactic
     - [ ] permit unicode
@@ -65,6 +74,7 @@
 ### Semantic Theories
 
 - [ ] bimodal
+
   - [:] infinite times refactor
   - [ ] `print_over_times` loops over all times
   - [ ] update pypi doc
@@ -75,6 +85,7 @@
   - [.] add iterator to bimodal theory
 
 - [ ] imposition semantics
+
   - [ ] `tests/README.md`
   - [ ] `docs/` to contain all standard files
 
@@ -118,10 +129,6 @@
 - [:] clean up project directory
   - [x] delete old
   - [ ] decapitalize directories
-
-
-
-
 
 ## Completed Items
 

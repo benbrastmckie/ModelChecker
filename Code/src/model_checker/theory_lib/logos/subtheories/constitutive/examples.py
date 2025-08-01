@@ -59,14 +59,14 @@ from ...operators import LogosOperatorRegistry
 CL_CM_1_premises = []
 CL_CM_1_conclusions = ['((A \\vee \\neg A) \\equiv (B \\vee \\neg B))']
 CL_CM_1_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : False,
-    'non_empty' : False,
-    'disjoint' : True,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': True,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 CL_CM_1_example = [
     CL_CM_1_premises,
@@ -78,14 +78,14 @@ CL_CM_1_example = [
 CL_CM_2_premises = []
 CL_CM_2_conclusions = ['((A \\wedge \\neg A) \\equiv (B \\wedge \\neg B))']
 CL_CM_2_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : False,
-    'non_empty' : False,
-    'disjoint' : True,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': True,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 CL_CM_2_example = [
     CL_CM_2_premises,
@@ -97,14 +97,14 @@ CL_CM_2_example = [
 CL_CM_3_premises = ['(A \\leq B)','(C \\leq D)']
 CL_CM_3_conclusions = ['((A \\wedge C) \\leq (B \\wedge D))']
 CL_CM_3_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 CL_CM_3_example = [
     CL_CM_3_premises,
@@ -116,14 +116,14 @@ CL_CM_3_example = [
 CL_CM_4_premises = ['(A \\sqsubseteq B)','(C \\sqsubseteq D)']
 CL_CM_4_conclusions = ['((A \\vee C) \\sqsubseteq (B \\vee D))']
 CL_CM_4_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 CL_CM_4_example = [
     CL_CM_4_premises,
@@ -135,14 +135,14 @@ CL_CM_4_example = [
 CL_CM_5_premises = []
 CL_CM_5_conclusions = ['(A \\equiv (A \\vee (A \\wedge B)))']
 CL_CM_5_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : False,
-    'non_empty' : False,
-    'disjoint' : True,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': True,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 CL_CM_5_example = [
     CL_CM_5_premises,
@@ -154,14 +154,14 @@ CL_CM_5_example = [
 CL_CM_6_premises = []
 CL_CM_6_conclusions = ['(A \\equiv (A \\wedge (A \\vee B)))']
 CL_CM_6_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : False,
-    'non_empty' : False,
-    'disjoint' : True,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': True,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 CL_CM_6_example = [
     CL_CM_6_premises,
@@ -173,14 +173,14 @@ CL_CM_6_example = [
 CL_CM_7_premises = []
 CL_CM_7_conclusions = ['((A \\wedge (B \\vee C)) \\equiv ((A \\wedge B) \\vee (A \\wedge C)))']
 CL_CM_7_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : False,
-    'non_empty' : False,
-    'disjoint' : True,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': True,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 CL_CM_7_example = [
     CL_CM_7_premises,
@@ -192,14 +192,14 @@ CL_CM_7_example = [
 CL_CM_8_premises = []
 CL_CM_8_conclusions = ['((A \\vee (B \\wedge C)) \\equiv ((A \\vee B) \\wedge (A \\vee C)))']
 CL_CM_8_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : False,
-    'non_empty' : False,
-    'disjoint' : True,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': True,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 CL_CM_8_example = [
     CL_CM_8_premises,
@@ -211,14 +211,14 @@ CL_CM_8_example = [
 CL_CM_9_premises = ['\\Box (A \\rightarrow B)']
 CL_CM_9_conclusions = ['(A \\leq B)']
 CL_CM_9_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 CL_CM_9_example = [
     CL_CM_9_premises,
@@ -230,14 +230,14 @@ CL_CM_9_example = [
 CL_CM_10_premises = ['\\Box (B \\rightarrow A)']
 CL_CM_10_conclusions = ['(A \\sqsubseteq B)']
 CL_CM_10_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 CL_CM_10_example = [
     CL_CM_10_premises,
@@ -249,14 +249,14 @@ CL_CM_10_example = [
 CL_CM_11_premises = []
 CL_CM_11_conclusions = ['(((A \\vee B) \\wedge (A \\vee C)) \\sqsubseteq (A \\vee (B \\wedge C)))']
 CL_CM_11_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 CL_CM_11_example = [
     CL_CM_11_premises,
@@ -268,14 +268,14 @@ CL_CM_11_example = [
 CL_CM_12_premises = []
 CL_CM_12_conclusions = ['(((A \\wedge B) \\vee (A \\wedge C)) \\leq (A \\wedge (B \\vee C)))']
 CL_CM_12_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 CL_CM_12_example = [
     CL_CM_12_premises,
@@ -287,14 +287,14 @@ CL_CM_12_example = [
 CL_CM_13_premises = []
 CL_CM_13_conclusions = ['(A \\equiv ((A \\wedge B) \\vee (A \\wedge \\neg B)))']
 CL_CM_13_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 CL_CM_13_example = [
     CL_CM_13_premises,
@@ -306,14 +306,14 @@ CL_CM_13_example = [
 CL_CM_14_premises = []
 CL_CM_14_conclusions = ['(A \\equiv ((A \\vee B) \\wedge (A \\vee \\neg B)))']
 CL_CM_14_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 CL_CM_14_example = [
     CL_CM_14_premises,
@@ -334,14 +334,14 @@ CL_CM_14_example = [
 CL_TH_1_premises = ['(A \\leq B)']
 CL_TH_1_conclusions = ['(\\neg A \\sqsubseteq \\neg B)']
 CL_TH_1_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_1_example = [
     CL_TH_1_premises,
@@ -353,14 +353,14 @@ CL_TH_1_example = [
 CL_TH_2_premises = ['(A \\sqsubseteq B)']
 CL_TH_2_conclusions = ['(\\neg A \\leq \\neg B)']
 CL_TH_2_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_2_example = [
     CL_TH_2_premises,
@@ -372,14 +372,14 @@ CL_TH_2_example = [
 CL_TH_3_premises = ['(A \\sqsubseteq B)']
 CL_TH_3_conclusions = ['((A \\wedge B) \\equiv B)']
 CL_TH_3_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_3_example = [
     CL_TH_3_premises,
@@ -391,14 +391,14 @@ CL_TH_3_example = [
 CL_TH_4_premises = ['((A \\wedge B) \\equiv B)']
 CL_TH_4_conclusions = ['(A \\sqsubseteq B)']
 CL_TH_4_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_4_example = [
     CL_TH_4_premises,
@@ -410,14 +410,14 @@ CL_TH_4_example = [
 CL_TH_5_premises = ['(A \\leq B)']
 CL_TH_5_conclusions = ['((A \\vee B) \\equiv B)']
 CL_TH_5_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_5_example = [
     CL_TH_5_premises,
@@ -429,14 +429,14 @@ CL_TH_5_example = [
 CL_TH_6_premises = ['((A \\vee B) \\equiv B)']
 CL_TH_6_conclusions = ['(A \\leq B)']
 CL_TH_6_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_6_example = [
     CL_TH_6_premises,
@@ -448,14 +448,14 @@ CL_TH_6_example = [
 CL_TH_7_premises = ['(A \\equiv B)']
 CL_TH_7_conclusions = ['(\\neg A \\equiv \\neg B)']
 CL_TH_7_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_7_example = [
     CL_TH_7_premises,
@@ -467,14 +467,14 @@ CL_TH_7_example = [
 CL_TH_8_premises = ['(\\neg A \\equiv \\neg B)']
 CL_TH_8_conclusions = ['(A \\equiv B)']
 CL_TH_8_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_8_example = [
     CL_TH_8_premises,
@@ -486,14 +486,14 @@ CL_TH_8_example = [
 CL_TH_9_premises = ['(A \\vee (A \\wedge B))']
 CL_TH_9_conclusions = ['(A \\wedge (A \\vee B))']
 CL_TH_9_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_9_example = [
     CL_TH_9_premises,
@@ -505,14 +505,14 @@ CL_TH_9_example = [
 CL_TH_10_premises = []
 CL_TH_10_conclusions = ['(A \\Rightarrow (A \\wedge (A \\vee B)))']
 CL_TH_10_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_10_example = [
     CL_TH_10_premises,
@@ -524,14 +524,14 @@ CL_TH_10_example = [
 CL_TH_11_premises = []
 CL_TH_11_conclusions = ['(A \\Rightarrow (A \\vee (A \\wedge B)))']
 CL_TH_11_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_11_example = [
     CL_TH_11_premises,
@@ -543,14 +543,14 @@ CL_TH_11_example = [
 CL_TH_12_premises = []
 CL_TH_12_conclusions = ['((A \\vee (A \\wedge B)) \\Rightarrow (A \\wedge (A \\vee B)))']
 CL_TH_12_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_12_example = [
     CL_TH_12_premises,
@@ -562,14 +562,14 @@ CL_TH_12_example = [
 CL_TH_13_premises = []
 CL_TH_13_conclusions = ['((A \\wedge (A \\vee B)) \\Rightarrow (A \\vee (A \\wedge B)))']
 CL_TH_13_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_13_example = [
     CL_TH_13_premises,
@@ -581,14 +581,14 @@ CL_TH_13_example = [
 CL_TH_14_premises = ['(A \\leq B)']
 CL_TH_14_conclusions = ['\\Box (A \\rightarrow B)']
 CL_TH_14_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'non_null' : False,
-    'non_empty' : False,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_14_example = [
     CL_TH_14_premises,
@@ -600,14 +600,14 @@ CL_TH_14_example = [
 CL_TH_15_premises = ['(A \\sqsubseteq B)']
 CL_TH_15_conclusions = ['\\Box (B \\rightarrow A)']
 CL_TH_15_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'non_null' : False,
-    'non_empty' : False,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_15_example = [
     CL_TH_15_premises,
@@ -619,14 +619,14 @@ CL_TH_15_example = [
 CL_TH_16_premises = ['(A \\leq B)', '(B \\leq A)']
 CL_TH_16_conclusions = ['(A \\equiv B)']
 CL_TH_16_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 2,
-    'expectation' : False,
+    'N': 2,
+    'M': 2,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 2,
+    'expectation': False,
 }
 CL_TH_16_example = [
     CL_TH_16_premises,
@@ -638,14 +638,14 @@ CL_TH_16_example = [
 CL_TH_17_premises = ['(A \\sqsubseteq B)', '(B \\sqsubseteq A)']
 CL_TH_17_conclusions = ['(A \\equiv B)']
 CL_TH_17_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 2,
-    'expectation' : False,
+    'N': 2,
+    'M': 2,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 2,
+    'expectation': False,
 }
 CL_TH_17_example = [
     CL_TH_17_premises,
@@ -657,14 +657,14 @@ CL_TH_17_example = [
 CL_TH_18_premises = ['(A \\leq B)', '(B \\leq C)']
 CL_TH_18_conclusions = ['(A \\leq C)']
 CL_TH_18_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 2,
-    'expectation' : False,
+    'N': 2,
+    'M': 2,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 2,
+    'expectation': False,
 }
 CL_TH_18_example = [
     CL_TH_18_premises,
@@ -676,14 +676,14 @@ CL_TH_18_example = [
 CL_TH_19_premises = ['(A \\sqsubseteq B)', '(B \\sqsubseteq C)']
 CL_TH_19_conclusions = ['(A \\sqsubseteq C)']
 CL_TH_19_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : False,
-    'disjoint' : False,
-    'non_empty' : False,
-    'non_null' : False,
-    'max_time' : 2,
-    'expectation' : False,
+    'N': 2,
+    'M': 2,
+    'contingent': False,
+    'disjoint': False,
+    'non_empty': False,
+    'non_null': False,
+    'max_time': 2,
+    'expectation': False,
 }
 CL_TH_19_example = [
     CL_TH_19_premises,
@@ -695,14 +695,14 @@ CL_TH_19_example = [
 CL_TH_20_premises = []
 CL_TH_20_conclusions = ['((A \\vee (A \\wedge B)) \\equiv (A \\wedge (A \\vee B)))']
 CL_TH_20_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'non_null' : False,
-    'non_empty' : False,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 CL_TH_20_example = [
     CL_TH_20_premises,
