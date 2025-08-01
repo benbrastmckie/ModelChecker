@@ -1,5 +1,7 @@
 # Getting Started with ModelChecker
 
+[← Back to Docs](README.md) | [Installation →](INSTALLATION.md) | [Technical Docs →](../Code/docs/README.md)
+
 This guide walks you through the basics of using ModelChecker to explore logical theories and test formulas.
 
 ## Table of Contents
@@ -14,6 +16,8 @@ This guide walks you through the basics of using ModelChecker to explore logical
 
 ## Before You Begin: Setting Up Your Editor
 
+> NOTE: Skip this section if you already have an editor set up.
+
 Working with ModelChecker involves editing Python files containing logical formulas. A properly configured text editor makes this much easier by providing:
 
 - **Syntax highlighting** for Python code
@@ -22,9 +26,11 @@ Working with ModelChecker involves editing Python files containing logical formu
 - **Auto-completion** for common patterns
 - **Keybindings** for running examples
 
+Setting up a good text editor provides an essential foundation for using the `model-checker`. In addition to editing Python files, modern editors provide a vastly improved experience for writing in LaTeX and Markdown, consolidating all of your text editing into a single platform which you can configure to suite your exact needs. Especially for academics, no tool is more important than your editor.
+
 ### Recommended Editors
 
-Investing in setting up a good text editor provides an essential foundation for using the `model-checker`.
+It is well worth watching demo videos on YouTube and chatting with an LLM before choosing your editor if you have not already.
 
 #### For Beginners: VSCodium
 
@@ -52,26 +58,16 @@ pip install model-checker
 
 ### Step 2: Create a New Project
 
-Run the interactive project creator:
+To create a project using a given theory as a template, run:
 
 ```bash
-model-checker
+model-checker -l <theory_name>
 ```
 
 You'll be prompted to:
 
 1. Choose whether to create a new project (type `y`)
-2. Enter a project name (use snake_case, e.g., `my_logic_project`)
-
-This creates a new project with the Logos theory by default.
-
-### Step 3: Load a Specific Theory
-
-To create a project with a different theory:
-
-```bash
-model-checker -l <theory_name>
-```
+2. Enter a project name (use snake_case, e.g., `some_name`)
 
 Available theories:
 
@@ -80,11 +76,19 @@ Available theories:
 - `imposition` - Fine's counterfactual semantics
 - `bimodal` - Temporal-modal logic
 
-Example:
+**Example**:
 
 ```bash
 model-checker -l imposition
 ```
+
+You can also load the `logos` theory by simply running:
+
+```bash
+model-checker
+```
+
+This creates a new project with the Logos theory by default.
 
 ## Understanding the Project Structure
 
@@ -110,6 +114,8 @@ This is your main working file. It contains:
 3. **Settings** - Control model generation
 4. **Theory configuration** - Specify which semantic theory to use
 
+Examples files may be saved in an `examples/` directory if you have many example files that you are working with for a given theory.
+
 ## Running Examples
 
 ### Required Variables in examples.py
@@ -118,11 +124,12 @@ For ModelChecker to successfully run an examples.py file, it must contain these 
 
 #### 1. `semantic_theories` (Required)
 
-A dictionary mapping theory names to their implementations:
+A dictionary mapping theory names to their implementations, where at least one must be provided:
 
 ```python
 semantic_theories = {
-    "logos": theory,  # Maps a name to the theory object
+    "logos": logos_theory,            # Maps a name to the theory object
+    "imposition": imposition_theory,  # NOTE: it is often convenient to comment out all but one theory
 }
 ```
 
@@ -227,7 +234,7 @@ general_settings = {
 
 If not provided, all default to `False`.
 
-See the [Tools and Settings](TOOLS.md)
+See the [Tools and Settings](TOOLS.md) as well as the [Examples Standard](EXAMPLES.md) for how to create and use example files.
 
 ### Basic Execution
 
@@ -332,54 +339,6 @@ For countermodels, the output includes:
 - **Evaluation World**: The specific world where the premises are true but conclusion is false
 - **Interpreted Formulas**: Shows verifier/falsifier sets and truth values at the evaluation world
 
-## Modifying Examples
-
-### Creating Your Own Example
-
-Edit `examples.py` to add a new test:
-
-```python
-# 1. Define your example following the naming convention
-MY_CM_1_premises = ["A", "(A \\rightarrow \\Box B)"]
-MY_CM_1_conclusions = ["\\Box B"]
-MY_CM_1_settings = {
-    'N': 4,                    # Max number of atomic propositions
-    'contingent': True,        # All propositions must be contingent
-    'non_null': True,          # Exclude the null state
-    'non_empty': True,         # Require non-empty verifier/falsifier sets
-    'disjoint': False,         # Allow verifier/falsifier overlap
-    'max_time': 10,            # Timeout in seconds
-    'iterate': 1,              # Number of models to find
-    'expectation': True,       # True = expect countermodel, False = expect theorem
-}
-MY_CM_1_example = [
-    MY_CM_1_premises,
-    MY_CM_1_conclusions,
-    MY_CM_1_settings,
-]
-
-# 2. Add to unit_tests if you want it in the test suite
-unit_tests["MY_CM_1"] = MY_CM_1_example
-
-# 3. Add to example_range to actually run it
-example_range = {
-    "MY_CM_1": MY_CM_1_example,  # Run just this example
-}
-
-# Or run multiple examples
-example_range = {
-    "EXT_TH_1": EXT_TH_1_example,  # Existing theorem
-    "MY_CM_1": MY_CM_1_example,    # Your new countermodel
-}
-
-# 4. Ensure semantic_theories is defined
-semantic_theories = {
-    "logos": theory,  # The theory object loaded earlier
-}
-```
-
-See the [Examples Standard](EXAMPLES.md) for how to create and use example files
-
 ## Exploring Different Theories
 
 ### Theory-Specific Features
@@ -433,7 +392,7 @@ Each theory has unique operators and capabilities:
 **Framework Documentation:**
 
 - [Core Framework](../Code/src/model_checker/README.md) - Architecture and design
-- [API Reference](../Code/docs/API_REFERENCE.md) - Detailed API documentation
+- [API Reference](../Code/src/model_checker/README.md) - Framework API documentation
 
 ### Advanced Topics
 
@@ -444,11 +403,11 @@ Each theory has unique operators and capabilities:
 
 ### Getting Help
 
-- Check the [Troubleshooting Guide](TOOLS.md#troubleshooting)
+- Check the [Tools Guide](../Code/docs/TOOLS.md#troubleshooting) for troubleshooting
 - Review theory-specific documentation
 - Examine the example files in each theory
 - Create an issue on [GitHub](https://github.com/benbrastmckie/ModelChecker/issues)
 
 ---
 
-Welcome to the world of computational logic! Start with simple formulas and gradually explore more complex logical relationships.
+[← Back to Docs](README.md) | [Installation →](INSTALLATION.md) | [Technical Docs →](../Code/docs/README.md)
