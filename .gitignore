@@ -7,7 +7,6 @@
 *.synctex.gz
 *.pyc
 *.ipynb_checkpoints
-**/CLAUDE.md
 
 Code/__pycache__
 Examples/__pycache__
