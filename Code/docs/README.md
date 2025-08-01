@@ -28,38 +28,30 @@ The documentation covers key areas essential for framework development:
 
 Whether you're fixing bugs, adding new theories, or extending core functionality, these guides provide the foundation for effective development. The development process emphasizes **systematic testing**, **modular design principles**, and **clear documentation standards** to maintain the framework's reliability and extensibility as it grows to support new semantic theories and research applications.
 
-## Quick Start
-
-```bash
-# Set up development environment
-git clone https://github.com/benbrastmckie/ModelChecker.git
-cd ModelChecker/Code
-
-# Run comprehensive tests
-./run_tests.py                    # All tests
-./run_tests.py --unit            # Unit tests only
-./run_tests.py --examples        # Example validation
-
-# Test specific theory
-./run_tests.py logos exclusion   # Test specific theories
-
-# Development CLI
-./dev_cli.py examples/my_example.py    # Run example
-./dev_cli.py -p -z examples/debug.py   # Debug with constraints
-```
-
 ## Development Workflow
 
 ### Getting Started
 
-1. **Environment Setup**: Follow [INSTALLATION.md](../../Docs/INSTALLATION.md) for installation
+1. **Environment Setup**: 
+   ```bash
+   git clone https://github.com/benbrastmckie/ModelChecker.git
+   cd ModelChecker/Code
+   ```
+   Follow [INSTALLATION.md](../../Docs/INSTALLATION.md) for detailed installation instructions.
+
 2. **Architecture Understanding**: Read [ARCHITECTURE.md](ARCHITECTURE.md) for system overview
 3. **Development Workflow**: Study [DEVELOPMENT.md](DEVELOPMENT.md) for contribution procedures
-4. **Code Standards**: Review [STYLE_GUIDE.md](STYLE_GUIDE.md) and [MAINTENANCE.md](../MAINTENANCE.md)
+4. **Code Standards**: Review [STYLE_GUIDE.md](STYLE_GUIDE.md) and [Maintenance Standards](../maintenance/README.md)
 
 ### Common Development Tasks
 
 ```bash
+# Run comprehensive tests
+./run_tests.py                    # All tests
+./run_tests.py --unit            # Unit tests only
+./run_tests.py --examples        # Example validation
+./run_tests.py logos exclusion   # Test specific theories
+
 # Theory development
 ./dev_cli.py -l new_theory          # Generate theory template
 ./run_tests.py new_theory --examples   # Test theory implementation
@@ -69,6 +61,7 @@ python test_package.py --components builder settings    # Test components
 python test_theories.py --theories logos exclusion      # Test theories
 
 # Debug and analysis
+./dev_cli.py examples/my_example.py    # Run example
 ./dev_cli.py -p -z examples/complex.py    # Show constraints and Z3 output
 ./run_jupyter.sh                          # Interactive development
 ```
@@ -89,7 +82,7 @@ See [TESTS.md](TESTS.md) for comprehensive testing documentation.
 - **[Installation Guide](../../Docs/INSTALLATION.md)** - Environment setup and dependencies
 - **[Development Workflow](DEVELOPMENT.md)** - Testing, Git workflow, and contribution procedures
 - **[Style Guide](STYLE_GUIDE.md)** - Quick reference to coding standards
-- **[Maintenance Standards](../MAINTENANCE.md)** - Comprehensive standards document
+- **[Maintenance Standards](../maintenance/README.md)** - Comprehensive standards document
 - **[Examples Standard](EXAMPLES.md)** - Standard form for examples.py files
 
 ### For Theory Implementers
@@ -121,7 +114,7 @@ See [TESTS.md](TESTS.md) for comprehensive testing documentation.
 
 ### Documentation Standards
 
-- **[MAINTENANCE.md](../MAINTENANCE.md) Compliance**: All documentation follows repository standards
+- **[Maintenance Standards](../maintenance/README.md) Compliance**: All documentation follows repository standards
 - **Working Examples**: All code examples must be tested and functional
 - **Audience Segmentation**: Documentation organized by user type and expertise level
 
@@ -143,7 +136,7 @@ See [TESTS.md](TESTS.md) for comprehensive testing documentation.
 
 ### Documentation Contributions
 
-1. **Follow [MAINTENANCE.md](../MAINTENANCE.md)**: Adhere to documentation standards
+1. **Follow [Maintenance Standards](../maintenance/README.md)**: Adhere to documentation standards
 2. **Verify Accuracy**: Ensure all examples and references are correct
 3. **Test Links**: Validate all cross-references and navigation links
 4. **Audience Focus**: Write for appropriate user expertise levels
