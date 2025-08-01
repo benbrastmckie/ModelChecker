@@ -19,20 +19,6 @@ The integration tests simulate **real-world usage scenarios**, verify **end-to-e
 
 This testing approach follows the project's **fail-fast philosophy** with actual command execution, real file system operations, automatic cleanup, and clear reporting to ensure reliable user experiences.
 
-## Quick Start
-
-```bash
-# Run all integration tests
-cd /path/to/ModelChecker/Code
-python tests/test_project_creation.py
-
-# Run as part of comprehensive test suite
-./run_tests.py --package
-
-# Run with verbose output
-python tests/test_project_creation.py -v
-```
-
 ## Files in This Directory
 
 ### test_project_creation.py

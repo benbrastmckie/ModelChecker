@@ -28,6 +28,7 @@ from model_checker.builder.z3_utils import (
     extract_model_values,
     find_next_model as find_next_z3_model
 )
+from model_checker.theory_lib.logos import semantic
 
 class BuildExample:
     """Handles the creation and evaluation of a single model checking example.

@@ -22,35 +22,6 @@ The **Counterfactual Subtheory** implements hyperintensional semantics for count
 
 Within the Logos framework, the counterfactual subtheory implements alternative worlds semantics developed in Brast-McKie (2025), which defines an alternative worlds relation using a primitive space of states closed under parthood together with a semantic primitive for possibility. The two operators (one primitive, one defined) integrate seamlessly with modal, constitutive, and relevance operators while providing much more computationally efficient reasoning than frameworks requiring primitive three-place imposition relations.
 
-## Quick Start
-
-```python
-from model_checker.theory_lib import logos
-from model_checker import BuildExample
-
-# Load counterfactual subtheory (automatically loads extensional dependency)
-theory = logos.get_theory(['counterfactual'])
-model = BuildExample("counterfactual_example", theory)
-
-# Test basic counterfactual principles
-result1 = model.check_validity(   # Counterfactual identity
-  [],                             # Premises
-  ["(A \\boxright A)"]            # Conclusions
-)
-result2 = model.check_validity(   # Counterfactual modus ponens
-  ["A", "(A \\boxright B)"],      # Premises
-  ["B"]                           # Conclusions
-)
-result3 = model.check_validity(   # Invalid: antecedent strengthening
-  ["(A \\boxright C)"],           # Premises
-  ["((A \\wedge B) \\boxright C)"]  # Conclusions
-)
-
-print(f"Counterfactual identity: {result1}")  # No countermodel found (valid argument)
-print(f"Counterfactual modus ponens: {result2}")  # No countermodel found (valid argument)
-print(f"Antecedent strengthening: {result3}")  # Countermodel found (invalid argument)
-```
-
 ## Subdirectories
 
 ### [tests/](tests/)
@@ -61,7 +32,7 @@ Comprehensive test suite with 37 integration examples covering both counterfactu
 
 ### For New Users
 
-- **[Quick Start](#quick-start)** - Basic counterfactual reasoning examples
+- **[Examples](examples.py)** - Complete collection of validated examples
 - **[Operator Reference](#operator-reference)** - Complete guide to both counterfactual operators
 - **[Testing Guide](tests/README.md)** - How to run and understand counterfactual tests
 
@@ -191,6 +162,30 @@ Tests for **valid** counterfactual arguments, confirming valid principles:
 - **CF_TH_11**: Definition of Necessity
 - **CF_TH_12**: Contradiction to Impossibility
 
+### Example Structure
+
+Each example follows the standard format:
+
+```python
+# CF_TH_2: COUNTERFACTUAL MODUS PONENS
+CF_TH_2_premises = ['A','(A \\boxright B)']
+CF_TH_2_conclusions = ['B']
+CF_TH_2_settings = {
+    'N' : 4,                    # Number of atomic states
+    'contingent' : False,       # Non-contingent propositions
+    'non_empty' : False,        # Allow empty verifier/falsifier sets
+    'non_null' : False,         # Allow null state participation
+    'max_time' : 1,             # Solver timeout (seconds)
+    'iterate' : 1,              # Number of models to find
+    'expectation' : False,      # Expected result (False = valid)
+}
+CF_TH_2_example = [
+    CF_TH_2_premises,
+    CF_TH_2_conclusions,
+    CF_TH_2_settings,
+]
+```
+
 ### Running Examples
 
 #### Command Line Execution
@@ -219,56 +214,6 @@ python test_theories.py --theories logos --counterfactual --examples
 ```
 
 **For detailed test documentation, examples, and debugging guidance, see [tests/README.md](tests/README.md)**
-
-#### Programmatic Access
-
-```python
-from model_checker.theory_lib.logos.subtheories.counterfactual.examples import (
-    counterfactual_cm_examples,    # All countermodel examples
-    counterfactual_th_examples,    # All theorem examples
-    counterfactual_examples        # Combined collection
-)
-
-# Access specific example
-cf_cm_1 = counterfactual_cm_examples['CF_CM_1']
-premises, conclusions, settings = cf_cm_1
-
-# Run example with custom theory
-from model_checker import BuildExample
-from model_checker.theory_lib import logos
-
-theory = logos.get_theory(['counterfactual'])
-model = BuildExample("cf_test", theory)
-result = model.check_validity(premises, conclusions, settings)
-```
-
-### Example Structure
-
-Each example follows the standard format:
-
-```python
-# CF_TH_2: COUNTERFACTUAL MODUS PONENS
-CF_TH_2_premises = ['A','(A \\boxright B)']      # What must be true
-CF_TH_2_conclusions = ['B']                       # What we're testing
-CF_TH_2_settings = {                             # Model constraints
-    'N' : 4,                                     # Number of atomic states
-    'contingent' : False,                        # Non-contingent propositions
-    'non_empty' : False,                         # Allow empty verifier/falsifier sets
-    'non_null' : False,                          # Allow null state participation
-    'max_time' : 1,                              # Solver timeout (seconds)
-    'iterate' : 1,                               # Number of models to find
-    'expectation' : False,                       # Expected result (False = valid)
-}
-CF_TH_2_example = [CF_TH_2_premises, CF_TH_2_conclusions, CF_TH_2_settings]
-```
-
-**Settings Explanation**:
-
-- `N`: Controls state space size (larger N allows more complex models)
-- `contingent`: Whether atomic propositions must be contingent
-- `non_empty`: Whether propositions must have non-empty truth sets
-- `non_null`: Whether null state can participate in verification/falsification
-- `expectation`: Expected model-finding result (False for valid arguments, True for invalid)
 
 ## Semantic Theory
 
@@ -453,18 +398,20 @@ theory = logos.get_theory(['counterfactual'])  # Also loads extensional
 # Combined with modal logic
 theory = logos.get_theory(['counterfactual', 'modal'])
 
-# Mixed reasoning examples
-premises = ["\\Box p", "(p \\boxright q)"]
-conclusions = ["\\Diamond q"]
-result = model.check_validity(premises, conclusions)
+# Mixed reasoning example
+MIXED_MOD_premises = ["\\Box P", "(P \\boxright Q)"]
+MIXED_MOD_conclusions = ["\\Diamond Q"]
+MIXED_MOD_settings = {'N': 3, 'expectation': False}  # Expecting validity
+MIXED_MOD_example = [MIXED_MOD_premises, MIXED_MOD_conclusions, MIXED_MOD_settings]
 
 # Combined with constitutive operators
 theory = logos.get_theory(['counterfactual', 'constitutive'])
 
-# Ground and counterfactual interaction
-premises = ["(p \\leq q)", "(p \\boxright r)"]
-conclusions = ["(q \\boxright r)"]
-result = model.check_validity(premises, conclusions)
+# Ground and counterfactual interaction example
+MIXED_CON_premises = ["(P \\leq Q)", "(P \\boxright R)"]
+MIXED_CON_conclusions = ["(Q \\boxright R)"]
+MIXED_CON_settings = {'N': 3, 'expectation': True}  # May be invalid
+MIXED_CON_example = [MIXED_CON_premises, MIXED_CON_conclusions, MIXED_CON_settings]
 ```
 
 ### API Reference
@@ -594,7 +541,6 @@ python test_theories.py --theories logos --counterfactual --examples
 
 - Brast-McKie (2025) ["Counterfactual Worlds"](https://github.com/benbrastmckie/ModelChecker/blob/master/Counterfactuals.pdf), Journal of Philosophical Logic
 - Fine (2012) ["Counterfactuals without Possible Worlds"](https://doi.org/10.5840/jphil2012109312), Journal of Philosophy
-- Lewis (1973) ["Counterfactuals"](https://www.hup.harvard.edu/books/9780674127241), Harvard University Press
 
 ### Related Resources
 

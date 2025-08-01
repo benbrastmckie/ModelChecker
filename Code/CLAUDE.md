@@ -1,13 +1,13 @@
 # AI Assistant Guide: ModelChecker Framework Development
 
-[← Back to ModelChecker](README.md) | [Development Guide →](docs/DEVELOPMENT.md) | [Maintenance Standards →](MAINTENANCE.md)
+[← Back to ModelChecker](README.md) | [Development Guide →](docs/DEVELOPMENT.md) | [Maintenance Standards →](maintenance/README.md)
 
 ## Directory Structure
 ```
 Code/
 ├── CLAUDE.md                    # This file - AI assistant development guide
 ├── README.md                    # Main package documentation
-├── MAINTENANCE.md               # Documentation and coding standards
+├── maintenance/README.md               # Documentation and coding standards
 ├── docs/                        # Development documentation
 ├── src/model_checker/           # Core framework implementation
 └── tests/                       # Integration test suite
@@ -21,31 +21,13 @@ The ModelChecker creates a **programmatic semantics framework** for implementing
 
 This guide emphasizes **systematic development practices**, **comprehensive testing procedures**, and **rigorous documentation standards** to support both automated assistance and human collaboration in advancing computational logic research.
 
-## Quick Start
-
-```bash
-# Comprehensive testing
-./run_tests.py                    # All tests
-./run_tests.py --unit            # Unit tests only
-./run_tests.py --examples        # Example validation
-./run_tests.py logos exclusion   # Test specific theories
-
-# Development tools
-./dev_cli.py examples/my_example.py    # Run example
-./dev_cli.py -p -z examples/debug.py   # Debug with constraints
-./dev_cli.py -l my_new_theory          # Generate theory template
-
-# Interactive development
-./run_jupyter.sh                       # Launch Jupyter environment
-```
-
 ## Subdirectories
 
 ### [docs/](docs/)
 Development documentation hub containing comprehensive guides for **environment setup**, **testing procedures**, **architecture documentation**, and **contribution guidelines**. See [docs/README.md](docs/README.md) for complete development resource navigation.
 
 ### [src/model_checker/](src/model_checker/)
-Core framework implementation with **API documentation**, **theory library**, **component packages**, and **comprehensive test suites**. Each component includes detailed README documentation following MAINTENANCE.md standards.
+Core framework implementation with **API documentation**, **theory library**, **component packages**, and **comprehensive test suites**. Each component includes detailed README documentation following maintenance/README.md standards.
 
 ## Code Quality Standards
 
@@ -54,7 +36,7 @@ Core framework implementation with **API documentation**, **theory library**, **
 - **NO EMOJIS**: Never use emojis anywhere in the codebase, documentation, or output
 - **Unicode Mathematical Symbols**: Use verified Unicode for logical operators (∧, ∨, ¬, □, ◇) only
 - **LaTeX Notation**: Use LaTeX in code examples (`\\wedge`, `\\Box`, `\\rightarrow`)
-- **Consistent Documentation**: Follow 9-section MAINTENANCE.md structure for all README files
+- **Consistent Documentation**: Follow 9-section maintenance/README.md structure for all README files
 
 ### Character Encoding Standards
 
@@ -153,7 +135,7 @@ src/model_checker/*/tests/                # Component test files
 
 ### For Human Developers  
 - **[Development Guide](docs/DEVELOPMENT.md)** - Comprehensive development workflow
-- **[Maintenance Standards](MAINTENANCE.md)** - Documentation and coding standards
+- **[Maintenance Standards](maintenance/README.md)** - Documentation and coding standards
 - **[Architecture Documentation](docs/ARCHITECTURE.md)** - System design and component relationships
 
 ### For Framework Users
@@ -180,12 +162,17 @@ src/model_checker/*/tests/                # Component test files
 ```bash
 # Generate new theory from template
 ./dev_cli.py -l logos my_counterfactual_theory
+./dev_cli.py -l my_new_theory          # Generate theory template
 
 # Test theory implementation
 ./run_tests.py my_counterfactual_theory --verbose
+./run_tests.py logos exclusion         # Test specific theories
+./run_tests.py --examples              # Example validation only
 
 # Debug theory constraints
 ./dev_cli.py -p -z examples/my_theory_test.py
+./dev_cli.py examples/my_example.py    # Run example
+./dev_cli.py -p -z examples/debug.py   # Debug with constraints
 ```
 
 ### Framework Extension
@@ -198,6 +185,14 @@ python tests/test_project_creation.py
 
 # Comprehensive validation
 ./run_tests.py --unit --examples --package
+./run_tests.py                        # All tests
+./run_tests.py --unit                 # Unit tests only
+```
+
+### Interactive Development
+```bash
+# Launch Jupyter environment for interactive exploration
+./run_jupyter.sh
 ```
 
 ### Documentation Development
@@ -215,7 +210,7 @@ grep -r "^#" docs/ src/*/README.md  # Check section headers
 ## References
 
 ### Implementation Documentation
-- AI assistant guidelines follow MAINTENANCE.md standards for consistent documentation structure
+- AI assistant guidelines follow maintenance/README.md standards for consistent documentation structure
 - Quality assurance procedures documented with verification commands and checklists
 
 ### Related Resources
@@ -229,4 +224,4 @@ Part of the ModelChecker framework, licensed under GPL-3.0.
 
 ---
 
-[← Back to ModelChecker](README.md) | [Development Guide →](docs/DEVELOPMENT.md) | [Maintenance Standards →](MAINTENANCE.md)
+[← Back to ModelChecker](README.md) | [Development Guide →](docs/DEVELOPMENT.md) | [Maintenance Standards →](maintenance/README.md)

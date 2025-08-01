@@ -22,7 +22,7 @@ Within the imposition theory framework, settings determine how alternative world
 
 This guide serves developers and researchers configuring imposition models, providing detailed parameter documentation and usage patterns.
 
-## Quick Start
+## Configuration Examples
 
 ```python
 # Basic counterfactual settings

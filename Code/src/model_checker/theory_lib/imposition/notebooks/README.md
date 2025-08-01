@@ -18,7 +18,7 @@ Within the imposition theory framework, these notebooks illustrate how counterfa
 
 This collection serves researchers and students learning counterfactual logic, offering interactive tools to explore the differences between various semantic theories and understand the formal structure of counterfactual reasoning.
 
-## Quick Start
+## Getting Started
 
 ```bash
 # Launch Jupyter environment
@@ -64,10 +64,10 @@ Atomic States: 3
 Semantic Theory: Imposition Semantics
 
 Premise:
-1. (A \imposition C)
+1. (A \boxright C)
 
 Conclusion:
-2. ((A \wedge B) \imposition C)
+2. ((A \wedge B) \boxright C)
 
 Z3 Run Time: 0.004 seconds
 ========================================
@@ -81,13 +81,13 @@ State Space:
 The evaluation world is: a.b
 
 INTERPRETED PREMISE:
-1. |(A \imposition C)| = < {□}, ∅ >  (True in a.b)
+1. |(A \boxright C)| = < {□}, ∅ >  (True in a.b)
    |A| = < {a.b}, {b.c} >
    |A|-alternatives to a.b = {a.b}
      |C| = < {c}, {a.c} >  (True in a.b)
 
 INTERPRETED CONCLUSION:
-2. |((A \wedge B) \imposition C)| = < ∅, {□} >  (False in a.b)
+2. |((A \wedge B) \boxright C)| = < ∅, {□} >  (False in a.b)
    |(A \wedge B)| = < {a.b.c}, {a, b} >
    |(A \wedge B)|-alternatives to a.b = {b.c}
      |C| = < {c}, {a.c} >  (False in b.c)
@@ -125,8 +125,8 @@ for example_name, example_case in get_test_examples().items():
 ```python
 # Test antecedent strengthening
 example = BuildExample("ant_str", theory,
-    premises=['A \\imposition C'],
-    conclusions=['(A \\wedge B) \\imposition C'],
+    premises=['A \\boxright C'],
+    conclusions=['(A \\wedge B) \\boxright C'],
     settings={'N': 3, 'expectation': False}
 )
 example.print_model()

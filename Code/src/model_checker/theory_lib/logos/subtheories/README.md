@@ -47,26 +47,6 @@ Each subtheory provides a self-contained logical system with its own operators, 
 
 The subtheory system exemplifies the Logos framework's commitment to **hyperintensional semantics**, where even necessarily equivalent formulas can have different content. By organizing operators into coherent modules, researchers can focus on specific logical phenomena while maintaining access to the full power of truthmaker semantics when needed.
 
-## Quick Start
-
-```python
-from model_checker.theory_lib import logos
-from model_checker import BuildExample
-
-# Load only what you need - modal logic
-theory = logos.get_theory(['extensional', 'modal'])
-model = BuildExample("modal_example", theory)
-result = model.check_formula("\\Box(p \\rightarrow q) \\rightarrow (\\Box p \\rightarrow \\Box q)")
-
-# Hyperintensional content relationships
-theory = logos.get_theory(['constitutive'])  # Auto-loads extensional
-model = BuildExample("content_example", theory)
-result = model.check_validity(["(A \\leq B)", "(B \\leq A)"], ["(A \\equiv B)"])
-
-# Full system with all core subtheories
-theory = logos.get_theory()  # Loads extensional, modal, constitutive, counterfactual
-model = BuildExample("full_example", theory)
-```
 
 ## Subdirectories
 
@@ -88,7 +68,6 @@ Experimental relevance logic with 1 operator (⪯) imported from constitutive su
 ## Documentation
 
 ### For New Users
-- **[Quick Start](#quick-start)** - Basic examples of subtheory loading and usage
 - **[Dependency Management](#dependency-management)** - How subtheories resolve dependencies
 - **[Running Examples](#running-examples)** - Command-line testing of subtheories
 
@@ -106,7 +85,36 @@ Experimental relevance logic with 1 operator (⪯) imported from constitutive su
 
 ### Dependency Management
 
-Subtheories automatically resolve their dependencies:
+Subtheories automatically resolve their dependencies.
+
+#### Loading Operators
+
+```python
+from model_checker.theory_lib import logos
+
+# Load only what you need - modal logic
+theory = logos.get_theory(['extensional', 'modal'])
+
+# Example: Modal K Axiom
+MOD_TH_5: MODAL K AXIOM
+- Premises: ["\\Box (A \\rightarrow B)", "\\Box A"]
+- Conclusions: ["\\Box B"]
+- Validates: If necessarily (A implies B) and necessarily A, then necessarily B
+
+# Hyperintensional content relationships
+theory = logos.get_theory(['constitutive'])  # Auto-loads extensional
+
+# Example: Grounding Anti-symmetry
+CON_TH_16: GROUNDING ANTI-SYMMETRY
+- Premises: ["(A \\leq B)", "(B \\leq A)"]
+- Conclusions: ["(A \\equiv B)"]
+- Validates: If A grounds B and B grounds A, then A is identical to B
+
+# Full system with all core subtheories
+theory = logos.get_theory()  # Loads extensional, modal, constitutive, counterfactual
+```
+
+#### Automatic Resolution
 
 ```python
 # Requesting modal automatically includes extensional
@@ -139,42 +147,33 @@ theory = logos.get_theory(['relevance'])
 ./dev_cli.py src/model_checker/theory_lib/logos/examples.py
 ```
 
-#### Programmatic Access
-```python
-# Import specific subtheory
-from model_checker.theory_lib.logos.subtheories import modal
-
-# Get operators and examples
-operators = modal.get_operators()
-examples = modal.get_examples()
-
-# Direct operator access
-from model_checker.theory_lib.logos.subtheories.modal import NecessityOperator
-```
-
 ### Integration Patterns
 
 #### Combining Modal and Constitutive Logic
 ```python
 theory = logos.get_theory(['modal', 'constitutive'])
-model = BuildExample("modal_content", theory)
 
-# Test if grounding implies necessity
-premises = ["(p \\leq q)", "\\Box p"]
-conclusion = "\\Box q"
-result = model.check_validity(premises, [conclusion])
+# Example: Modal and Constitutive Interaction
+MOD_CON_1: GROUNDING AND NECESSITY
+- Premises: ["(A \\leq B)", "\\Box A"]
+- Conclusions: ["\\Box B"]
+- Validates: If A grounds B and A is necessary, then B is necessary
+
+For complete implementation, see individual subtheory examples.py files.
 ```
 
 #### Cross-Subtheory Reasoning
 ```python
 # Counterfactual and modal interaction
 theory = logos.get_theory(['modal', 'counterfactual'])
-model = BuildExample("modal_cf", theory)
 
-# If necessarily p, then if p were true, q would be true
-premises = ["\\Box p", "(p \\boxright q)"]
-conclusion = "\\Box q"
-result = model.check_validity(premises, [conclusion])
+# Example: Modal and Counterfactual Interaction
+MOD_CF_1: NECESSITY AND COUNTERFACTUALS
+- Premises: ["\\Box A", "(A \\boxright B)"]
+- Conclusions: ["\\Box B"]
+- Validates: If A is necessary and if A were true then B would be true, then B is necessary
+
+For complete implementation, see individual subtheory examples.py files.
 ```
 
 ## API Reference

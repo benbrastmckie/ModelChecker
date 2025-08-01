@@ -22,35 +22,6 @@ The **Relevance Subtheory** implements hyperintensional semantics for the releva
 
 Within the Logos framework, the relevance subtheory provides specialized exploration of relevance logic through the relevance operator, which is imported from the constitutive subtheory where it is defined alongside other content relationship operators. The relevance relation captures content relationships between propositions through fusion closure conditions on verifiers and falsifiers, enabling formal analysis of when propositions are appropriately connected by content. This subtheory's 20 examples demonstrate valid and invalid relevance principles while maintaining integration with all other hyperintensional operators.
 
-## Quick Start
-
-```python
-from model_checker.theory_lib import logos
-from model_checker import BuildExample
-
-# Load relevance subtheory (automatically loads constitutive and extensional)
-theory = logos.get_theory(['relevance'])
-model = BuildExample("relevance_example", theory)
-
-# Test basic relevance principles
-result1 = model.check_validity(     # Self-relevance
-  [],                               # Premises
-  ["(A \\preceq A)"]               # Conclusions
-)
-result2 = model.check_validity(     # Ground implies relevance
-  ["(A \\leq B)"],                 # Premises
-  ["(A \\preceq B)"]               # Conclusions
-)
-result3 = model.check_validity(     # Invalid: antecedent strengthening
-  [],                               # Premises
-  ["((A \\wedge B) \\preceq A)"]   # Conclusions
-)
-
-print(f"Self-relevance: {result1}")  # No countermodel found (valid argument)
-print(f"Ground implies relevance: {result2}")  # No countermodel found (valid argument)  
-print(f"Antecedent strengthening: {result3}")  # Countermodel found (invalid argument)
-```
-
 ## Subdirectories
 
 ### [tests/](tests/)
@@ -188,56 +159,31 @@ python test_theories.py --theories logos --relevance --examples
 
 **For detailed test documentation, examples, and debugging guidance, see [tests/README.md](tests/README.md)**
 
-#### Programmatic Access
-
-```python
-from model_checker.theory_lib.logos.subtheories.relevance.examples import (
-    relevance_cm_examples,    # All countermodel examples
-    relevance_th_examples,    # All theorem examples
-    relevance_examples        # Combined collection
-)
-
-# Access specific example
-rel_cm_1 = relevance_cm_examples['REL_CM_1']
-premises, conclusions, settings = rel_cm_1
-
-# Run example with custom theory
-from model_checker import BuildExample
-from model_checker.theory_lib import logos
-
-theory = logos.get_theory(['relevance'])
-model = BuildExample("relevance_test", theory)
-result = model.check_validity(premises, conclusions, settings)
-```
-
 ### Example Structure
 
 Each example follows the standard format:
 
 ```python
 # REL_CM_1: ANTECEDENT STRENGTHENING
-REL_CM_1_premises = []                          # What must be true
-REL_CM_1_conclusions = ['((A \\wedge B) \\preceq A)']  # What we're testing
-REL_CM_1_settings = {                           # Model constraints
-    'N': 4,                                     # Number of atomic states
-    'contingent': True,                         # Contingent propositions
-    'non_null': True,                          # Exclude null state from verifiers
-    'non_empty': True,                         # Non-empty verifier/falsifier sets
-    'disjoint': False,                         # Allow overlapping content
-    'max_time': 1,                             # Solver timeout (seconds)
-    'iterate': 1,                              # Number of models to find
-    'expectation': True,                       # Expected result (True = invalid)
+REL_CM_1_premises = []
+REL_CM_1_conclusions = ["((A \\wedge B) \\preceq A)"]
+REL_CM_1_settings = {
+    'N' : 4,                    # Number of atomic states
+    'contingent' : True,        # Contingent propositions allowed
+    'non_null' : True,          # Exclude null state from verifiers
+    'non_empty' : True,         # Non-empty verifier/falsifier sets
+    'disjoint' : False,         # Allow overlapping content
+    'max_time' : 1,             # Solver timeout (seconds)
+    'iterate' : 1,              # Number of models to find
+    'expectation' : True,       # Expected result (True = countermodel found)
 }
-REL_CM_1_example = [REL_CM_1_premises, REL_CM_1_conclusions, REL_CM_1_settings]
+REL_CM_1_example = [
+    REL_CM_1_premises,
+    REL_CM_1_conclusions,
+    REL_CM_1_settings,
+]
 ```
 
-**Settings Explanation**:
-
-- `N`: Controls state space size (4 sufficient for relevance testing)
-- `contingent`: Whether atomic propositions must be contingent
-- `non_null`: Whether to exclude the null state from verifiers
-- `non_empty`: Whether propositions must have non-empty truth sets
-- `expectation`: Expected model-finding result (False for valid arguments, True for invalid)
 
 ## Semantic Theory
 
@@ -420,20 +366,50 @@ theory = logos.get_theory(['relevance'])  # Loads constitutive and extensional
 
 ```python
 # Combined with modal logic
-theory = logos.get_theory(['relevance', 'modal'])
+logos_registry = LogosOperatorRegistry()
+logos_registry.load_subtheories(['relevance', 'modal'])
 
-# Relevance in modal contexts
-premises = ["\\Box (A \\rightarrow B)"]
-conclusion = "(A \\preceq B)"
-result = model.check_validity(premises, [conclusion])  # Invalid
+# REL_MOD_1: RELEVANCE IN MODAL CONTEXTS
+REL_MOD_1_premises = ["\\Box (A \\rightarrow B)"]
+REL_MOD_1_conclusions = ["(A \\preceq B)"]
+REL_MOD_1_settings = {
+    'N' : 3,                    # Number of atomic states
+    'contingent' : False,       # Allow non-contingent propositions
+    'non_null' : False,         # Allow null state
+    'non_empty' : False,        # Allow empty verifier/falsifier sets
+    'disjoint' : False,         # Allow overlapping verifier/falsifier sets
+    'max_time' : 1,             # Solver timeout (seconds)
+    'iterate' : 1,              # Number of models to find
+    'expectation' : True,       # Expected result (True = countermodel found)
+}
+REL_MOD_1_example = [
+    REL_MOD_1_premises,
+    REL_MOD_1_conclusions,
+    REL_MOD_1_settings,
+]
 
 # Combined with counterfactual logic
-theory = logos.get_theory(['relevance', 'counterfactual'])
+logos_registry2 = LogosOperatorRegistry()
+logos_registry2.load_subtheories(['relevance', 'counterfactual'])
 
-# Relevance and counterfactuals
-premises = ["(A \\preceq B)", "(B \\boxright C)"]
-conclusion = "(A \\preceq C)"
-result = model.check_validity(premises, [conclusion])  # May be invalid
+# REL_CF_1: RELEVANCE AND COUNTERFACTUALS
+REL_CF_1_premises = ["(A \\preceq B)", "(B \\boxright C)"]
+REL_CF_1_conclusions = ["(A \\preceq C)"]
+REL_CF_1_settings = {
+    'N' : 3,                    # Number of atomic states
+    'contingent' : False,       # Allow non-contingent propositions
+    'non_null' : False,         # Allow null state
+    'non_empty' : False,        # Allow empty verifier/falsifier sets
+    'disjoint' : False,         # Allow overlapping verifier/falsifier sets
+    'max_time' : 1,             # Solver timeout (seconds)
+    'iterate' : 1,              # Number of models to find
+    'expectation' : True,       # Expected result (True = countermodel may be found)
+}
+REL_CF_1_example = [
+    REL_CF_1_premises,
+    REL_CF_1_conclusions,
+    REL_CF_1_settings,
+]
 ```
 
 ### API Reference

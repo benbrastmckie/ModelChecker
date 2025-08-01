@@ -36,111 +36,25 @@ logos/
 
 ## Overview
 
-The **Logos Theory** implements hyperintensional semantics through a unified framework of 19 logical operators organized into 5 modular subtheories. Built on bilateral truthmaker semantics, Logos enables fine-grained semantic distinctions between propositions that are necessarily equivalent, capturing differences in content and subject-matter that intensional semantic frameworks overlook.
+The **Logos Theory** implements hyperintensional semantics through a unified framework of logical operators organized into modular subtheories. Built on bilateral truthmaker semantics, Logos enables fine-grained semantic distinctions between propositions that are necessarily equivalent, capturing differences in content and subject-matter that intensional semantic frameworks overlook.
 
-Within the ModelChecker framework, Logos serves as the most comprehensive semantic theory, providing a complete "formal language of thought" for analyzing logical relationships. The modular architecture allows selective loading of subtheories based on analysis needs, with automatic dependency resolution ensuring semantic coherence. This design supports both focused investigations using specific operators and comprehensive analyses leveraging the full hyperintensional framework.
+Within the ModelChecker framework, Logos provides a flexible semantic theory where users can select which subtheories to include based on their analysis needs. The modular architecture supports loading individual subtheories (e.g., just modal and constitutive) or any combination, with automatic dependency resolution ensuring semantic coherence. This design supports both focused investigations using specific operators and comprehensive analyses using multiple subtheories.
 
-The theory's examples demonstrate valid and invalid inference patterns across extensional, modal, constitutive, counterfactual, and relevance domains, validating both individual operator behavior and cross-subtheory interactions.
+### Available Subtheories
 
-## Quick Start
+Logos provides the following subtheories, which can be loaded individually or in combination:
 
-```python
-# Standard imports
-import os
-import sys
+- **extensional**: Basic logical operators (∧, ∨, ¬, →, ↔, ⊤, ⊥)
+- **modal**: Necessity and possibility operators (□, ◇, CFBox, CFDiamond)  
+- **constitutive**: Content relation operators (≡, ≤, ⊑, ≼, ⊓)
+- **counterfactual**: Counterfactual conditionals (□→, ◇→)
+- **relevance**: Relevance logic operator (≼)
 
-# Add current directory to path for imports
-current_dir = os.path.dirname(os.path.abspath(__file__))
-if current_dir not in sys.path:
-    sys.path.insert(0, current_dir)
-
-# Import theory components
-from model_checker.theory_lib import logos
-
-# Option 1: Load complete theory (all subtheories)
-full_theory = logos.get_theory()
-
-# Option 2: Load specific subtheories for focused analysis
-# Modal logic only (includes extensional as dependency)
-modal_theory = logos.get_theory(['modal'])
-
-# Counterfactual reasoning (includes extensional)
-counterfactual_theory = logos.get_theory(['counterfactual'])
-
-# Multiple subtheories
-constitutive_theory = logos.get_theory(['modal', 'constitutive'])
-
-# Define examples following naming convention
-LOG_TH_1_premises = []
-LOG_TH_1_conclusions = ["(\\neg \\neg A \\rightarrow A)"]
-LOG_TH_1_settings = {
-    'N': 3,                    # Max number of atomic propositions
-    'contingent': False,       # Allow non-contingent propositions
-    'non_null': False,         # Allow the null state
-    'non_empty': False,        # Allow empty verifier/falsifier sets
-    'disjoint': False,         # Allow verifier/falsifier overlap
-    'max_time': 10,            # Timeout in seconds
-    'iterate': 1,              # Number of models to find
-    'expectation': False,      # True = expect countermodel, False = expect theorem
-}
-LOG_TH_1_example = [
-    LOG_TH_1_premises,
-    LOG_TH_1_conclusions,
-    LOG_TH_1_settings,
-]
-
-MOD_TH_1_premises = ["\\Box A"]
-MOD_TH_1_conclusions = ["A"]
-MOD_TH_1_settings = {
-    'N': 3,                    # Max number of atomic propositions
-    'contingent': False,       # Allow non-contingent propositions
-    'non_null': False,         # Allow the null state
-    'non_empty': False,        # Allow empty verifier/falsifier sets
-    'disjoint': False,         # Allow verifier/falsifier overlap
-    'max_time': 10,            # Timeout in seconds
-    'iterate': 1,              # Number of models to find
-    'expectation': False,      # True = expect countermodel, False = expect theorem
-}
-MOD_TH_1_example = [
-    MOD_TH_1_premises,
-    MOD_TH_1_conclusions,
-    MOD_TH_1_settings,
-]
-
-# Collection of all examples (used by test framework)
-unit_tests = {
-    "LOG_TH_1": LOG_TH_1_example,  # Double negation elimination
-    "MOD_TH_1": MOD_TH_1_example,  # T-axiom theorem
-}
-
-# The framework expects this to be named 'example_range'
-example_range = {
-    "LOG_TH_1": LOG_TH_1_example,  # Run specific examples
-    "MOD_TH_1": MOD_TH_1_example,
-}
-
-# Optional: General settings for execution
-general_settings = {
-    "print_constraints": False,
-    "print_impossible": False,
-    "print_z3": False,
-    "save_output": False,
-    "maximize": False,  # Set to True to compare multiple theories
-}
-
-# Define semantic theories to use
-# Can use full theory or selective subtheory loading
-semantic_theories = {
-    "modal_only": modal_theory,           # Just modal operators
-    "full_logos": full_theory,            # All operators
-    # "counterfactual": counterfactual_theory,  # Uncomment to add
-}
-
-# Make module executable
-if __name__ == '__main__':
-    import subprocess
-    file_name = os.path.basename(__file__)
-    subprocess.run(["model-checker", file_name], check=True, cwd=current_dir)
+When creating a project, you can select specific subtheories:
+```bash
+model-checker -l logos modal constitutive  # Only modal and constitutive
+model-checker -l logos                     # Default subtheories
+model-checker -l logos all                 # All subtheories
 ```
 
 ## Subdirectories
@@ -151,7 +65,7 @@ Comprehensive documentation hub containing theoretical foundations, API specific
 
 ### [subtheories/](subtheories/)
 
-Modular operator organization with 5 specialized subtheories: extensional (extensional operators), modal (necessity and possibility), constitutive (content relations including ground, essence, and identity), counterfactual (conditional reasoning), and relevance (content-sensitive logic). Each subtheory includes comprehensive documentation, examples, and tests. Automatic dependency resolution ensures semantic coherence. See [subtheories/README.md](subtheories/README.md) for detailed operator coverage.
+Modular operator organization containing the available subtheories. Each subtheory is self-contained with its own operators, examples, tests, and documentation. Users can select which subtheories to include when creating a project. The framework handles dependencies automatically - for example, loading constitutive will also load extensional as it depends on basic logical operators. See [subtheories/README.md](subtheories/README.md) for detailed information about each subtheory.
 
 ### [notebooks/](notebooks/)
 
@@ -167,7 +81,7 @@ Comprehensive test suite validating the unified Logos theory implementation. Con
 
 - **[User Guide](docs/USER_GUIDE.md)** - Introduction to hyperintensional semantics with practical examples
 - **[Interactive Notebooks](notebooks/README.md)** - Hands-on tutorials for learning operator usage
-- **[Quick Start Examples](#quick-start)** - Basic code patterns for common tasks
+- **[Examples](examples.py)** - Complete collection of validated examples
 
 ### For Researchers
 
@@ -183,9 +97,9 @@ Comprehensive test suite validating the unified Logos theory implementation. Con
 
 ## Operator Summary
 
-The Logos theory provides **19 operators** across **5 subtheories**:
+The complete Logos theory includes the following operators organized by subtheory:
 
-### Primitive Operators (7)
+### Primitive Operators
 
 **Extensional** (3):
 - Negation (¬) - Truth reversal
@@ -256,7 +170,7 @@ This creates a non-Boolean algebraic structure enabling distinctions between:
 
 ### Example Categories
 
-The Logos theory includes **118 comprehensive examples** organized by subtheory:
+Each subtheory includes comprehensive examples testing valid and invalid inferences:
 
 - **Extensional**: 14 examples (7 countermodels, 7 theorems)
 - **Modal**: 18 examples (4 countermodels, 14 theorems)
@@ -264,9 +178,9 @@ The Logos theory includes **118 comprehensive examples** organized by subtheory:
 - **Counterfactual**: 33 examples (21 countermodels, 12 theorems)
 - **Relevance**: 20 examples (11 countermodels, 9 theorems)
 
-### Running Examples
+When loading specific subtheories, only the relevant examples are included.
 
-#### Command Line Execution
+### Running Examples
 
 ```bash
 # Run all examples
@@ -277,25 +191,6 @@ model-checker src/model_checker/theory_lib/logos/examples.py
 
 # Run specific subtheory examples
 model-checker src/model_checker/theory_lib/logos/subtheories/modal/examples.py
-```
-
-#### Programmatic Access
-
-```python
-from model_checker.theory_lib.logos.examples import (
-    test_example_range,     # All examples
-    logos_cm_examples,      # All countermodel examples
-    logos_th_examples       # All theorem examples
-)
-
-# Access specific example
-example = test_example_range['MOD_TH_5']  # Modal K axiom
-premises, conclusions, settings = example
-
-# Run with custom settings
-from model_checker import BuildExample
-model = BuildExample("test", logos.get_theory())
-result = model.check_validity(premises, conclusions, settings)
 ```
 
 ## Testing

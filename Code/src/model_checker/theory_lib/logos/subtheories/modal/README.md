@@ -22,35 +22,6 @@ The **Modal Subtheory** implements hyperintensional semantics for necessity (□
 
 Within the Logos framework, the modal subtheory provides essential operators for reasoning about necessity and possibility. The four operators (one primitive, three defined) integrate seamlessly with other hyperintensional operators while maintaining S5 modal logic principles including modal axioms and duality relationships. This enables sophisticated analysis of modal claims alongside counterfactual, constitutive, and relevance reasoning within a unified semantic framework.
 
-## Quick Start
-
-```python
-from model_checker.theory_lib import logos
-from model_checker import BuildExample
-
-# Load modal subtheory (automatically loads extensional dependency)
-theory = logos.get_theory(['modal'])
-model = BuildExample("modal_example", theory)
-
-# Test basic modal principles
-result1 = model.check_validity(   # T axiom: necessity implies truth
-  ["\\Box A"],                    # Premises
-  ["A"]                           # Conclusions
-)
-result2 = model.check_validity(   # K axiom: distribution
-  ["\\Box (A \\rightarrow B)", "\\Box A"],  # Premises
-  ["\\Box B"]                              # Conclusions
-)
-result3 = model.check_validity(   # Invalid: possibility doesn't imply necessity
-  ["\\Diamond A"],                # Premises
-  ["\\Box A"]                     # Conclusions
-)
-
-print(f"T axiom: {result1}")  # No countermodel found (valid argument)
-print(f"K axiom: {result2}")  # No countermodel found (valid argument)
-print(f"Possibility to necessity: {result3}")  # Countermodel found (invalid argument)
-```
-
 ## Subdirectories
 
 ### [tests/](tests/)
@@ -61,7 +32,6 @@ Comprehensive test suite with 18 integration examples covering all four modal op
 
 ### For New Users
 
-- **[Quick Start](#quick-start)** - Basic modal reasoning examples with necessity and possibility
 - **[Operator Reference](#operator-reference)** - Complete guide to all four modal operators
 - **[Testing Guide](tests/README.md)** - How to run and understand modal logic tests
 
@@ -267,28 +237,6 @@ model-checker src/model_checker/theory_lib/logos/subtheories/modal/examples.py
 ./dev_cli.py -p -z src/model_checker/theory_lib/logos/subtheories/modal/examples.py
 ```
 
-#### Programmatic Access
-
-```python
-from model_checker.theory_lib.logos.subtheories.modal.examples import (
-    modal_cm_examples,     # All countermodel examples
-    modal_th_examples,     # All theorem examples
-    modal_examples         # Combined collection
-)
-
-# Access specific example
-mod_th_5 = modal_th_examples['MOD_TH_5']
-premises, conclusions, settings = mod_th_5
-
-# Run example with custom theory
-from model_checker import BuildExample
-from model_checker.theory_lib import logos
-
-theory = logos.get_theory(['modal'])
-model = BuildExample("modal_test", theory)
-result = model.check_validity(premises, conclusions, settings)
-```
-
 ### Example Structure
 
 Each example follows the standard format:
@@ -310,13 +258,6 @@ MOD_TH_5_settings = {                                        # Model constraints
 MOD_TH_5_example = [MOD_TH_5_premises, MOD_TH_5_conclusions, MOD_TH_5_settings]
 ```
 
-**Settings Explanation**:
-
-- `N`: Controls state space size (moderate N suitable for modal logic)
-- `contingent`: Whether atomic propositions must be contingent
-- `non_null`: Whether to exclude the null state from consideration
-- `non_empty`: Whether propositions must have non-empty truth sets
-- `expectation`: Expected model-finding result (False for valid arguments, True for invalid)
 
 ## Semantic Theory
 
@@ -470,20 +411,50 @@ theory = logos.get_theory(['modal'])  # Also loads extensional and counterfactua
 
 ```python
 # Combined with counterfactual logic
-theory = logos.get_theory(['modal', 'counterfactual'])
+logos_registry = LogosOperatorRegistry()
+logos_registry.load_subtheories(['modal', 'counterfactual'])
 
-# Modal and counterfactual interaction
-premises = ["\\Box p", "(p \\boxright q)"]
-conclusions = ["\\Box q"]
-result = model.check_validity(premises, conclusions)
+# MOD_CF_1: MODAL AND COUNTERFACTUAL INTERACTION
+MOD_CF_1_premises = ["\\Box P", "(P \\boxright Q)"]
+MOD_CF_1_conclusions = ["\\Box Q"]
+MOD_CF_1_settings = {
+    'N' : 3,                    # Number of atomic states
+    'contingent' : False,       # Allow non-contingent propositions
+    'non_null' : False,         # Allow null state
+    'non_empty' : False,        # Allow empty verifier/falsifier sets
+    'disjoint' : False,         # Allow overlapping verifier/falsifier sets
+    'max_time' : 1,             # Solver timeout (seconds)
+    'iterate' : 1,              # Number of models to find
+    'expectation' : True,       # Expected result (True = countermodel may be found)
+}
+MOD_CF_1_example = [
+    MOD_CF_1_premises,
+    MOD_CF_1_conclusions,
+    MOD_CF_1_settings,
+]
 
 # Combined with constitutive operators
-theory = logos.get_theory(['modal', 'constitutive'])
+logos_registry2 = LogosOperatorRegistry()
+logos_registry2.load_subtheories(['modal', 'constitutive'])
 
-# Necessity and identity interaction
-premises = ["\\Box p", "(p \\equiv q)"]
-conclusions = ["\\Box q"]
-result = model.check_validity(premises, conclusions)
+# MOD_CON_1: NECESSITY AND IDENTITY INTERACTION
+MOD_CON_1_premises = ["\\Box P", "(P \\equiv Q)"]
+MOD_CON_1_conclusions = ["\\Box Q"]
+MOD_CON_1_settings = {
+    'N' : 3,                    # Number of atomic states
+    'contingent' : False,       # Allow non-contingent propositions
+    'non_null' : False,         # Allow null state
+    'non_empty' : False,        # Allow empty verifier/falsifier sets
+    'disjoint' : False,         # Allow overlapping verifier/falsifier sets
+    'max_time' : 1,             # Solver timeout (seconds)
+    'iterate' : 1,              # Number of models to find
+    'expectation' : False,      # Expected result (False = no countermodel)
+}
+MOD_CON_1_example = [
+    MOD_CON_1_premises,
+    MOD_CON_1_conclusions,
+    MOD_CON_1_settings,
+]
 ```
 
 ### API Reference

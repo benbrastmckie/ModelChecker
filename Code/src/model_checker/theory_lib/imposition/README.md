@@ -22,67 +22,6 @@ imposition/
 
 The **Imposition Theory** implements Kit Fine's counterfactual semantics without possible worlds, using a primitive imposition relation within the ModelChecker framework. This theory evaluates counterfactuals through imposing verifier states on evaluation worlds to generate alternative outcomes. Within the theory library ecosystem, imposition extends the Logos hyperintensional foundation. This implementation serves researchers exploring counterfactual logic, developers building counterfactual reasoning systems, and students learning alternative approaches to conditional semantics beyond the traditional possible worlds framework.
 
-## Quick Start
-
-### Basic Usage
-
-```python
-from model_checker.theory_lib.imposition import imposition_theory
-
-# Create examples following standard format
-IM_TH_2_premises = ['A', '(A \\boxright B)']  # A is true, if A then must B
-IM_TH_2_conclusions = ['B']                   # Therefore B
-IM_TH_2_settings = {
-    'N': 3,                    # Max number of atomic propositions
-    'contingent': True,        # Allow contingent propositions
-    'non_empty': True,         # Prevent empty verifier sets
-    'disjoint': True,          # Require disjoint atomic propositions
-    'max_time': 1,             # Timeout in seconds
-    'iterate': 1,              # Number of models to find
-    'expectation': True,       # True = expect theorem (no countermodel)
-}
-IM_TH_2_example = [
-    IM_TH_2_premises,
-    IM_TH_2_conclusions,
-    IM_TH_2_settings,
-]
-
-# Collection of examples
-unit_tests = {
-    "IM_TH_2": IM_TH_2_example,  # Counterfactual modus ponens
-}
-
-example_range = {
-    "IM_TH_2": IM_TH_2_example,
-}
-
-semantic_theories = {
-    "imposition": imposition_theory,
-}
-
-# Optional: General settings for execution
-general_settings = {
-    'print_constraints': False,
-    'print_impossible': False,
-    'print_z3': False,
-    'save_output': False,
-    'maximize': False,  # Set to True to compare multiple theories
-}
-```
-
-### Command Line Usage
-
-```bash
-# Run all imposition examples
-model-checker imposition/examples.py
-
-# Run with constraint output
-./dev_cli.py -p imposition/examples.py
-
-# Find multiple models
-./dev_cli.py imposition/examples.py --settings "{'iterate': 3}"
-```
-
 ## Core Components
 
 ### Semantic Framework
@@ -138,7 +77,7 @@ In informal terms: "If A then must B" is true at a world when imposing any way o
 
 ### [docs/](docs/)
 
-Comprehensive documentation suite including **user guide** with tutorial examples, **API reference** with complete function documentation, **architecture guide** explaining design patterns, **model iteration** documentation, and **settings guide** for configuration options. All documentation follows 9-section MAINTENANCE.md standards. See [docs/README.md](docs/README.md) for complete documentation navigation.
+Comprehensive documentation suite including **user guide** with tutorial examples, **API reference** with complete function documentation, **architecture guide** explaining design patterns, **model iteration** documentation, and **settings guide** for configuration options. All documentation follows maintenance standards. See [docs/README.md](docs/README.md) for complete documentation navigation.
 
 ### [notebooks/](notebooks/)
 
@@ -180,7 +119,7 @@ To explore these differences, you can test the same counterfactual inferences in
 ### For New Users
 
 - **[User Guide](docs/USER_GUIDE.md)** - Tutorial introduction to imposition semantics with step-by-step examples
-- **[Quick Start](#overview)** - Basic usage examples for counterfactual reasoning
+- **[Examples](examples.py)** - Complete collection of validated examples
 - **[Interactive Notebooks](notebooks/)** - Hands-on Jupyter tutorials with visualizations
 
 ### For Researchers

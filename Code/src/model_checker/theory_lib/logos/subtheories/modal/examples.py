@@ -60,14 +60,14 @@ from ...operators import LogosOperatorRegistry
 MOD_CM_1_premises = ['\\Diamond A']
 MOD_CM_1_conclusions = ['\\Box A']
 MOD_CM_1_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': True,
 }
 MOD_CM_1_example = [
     MOD_CM_1_premises,
@@ -79,14 +79,14 @@ MOD_CM_1_example = [
 MOD_CM_2_premises = ['\\Diamond A']
 MOD_CM_2_conclusions = ['A']
 MOD_CM_2_settings = {
-    'N' : 4,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': True,
 }
 MOD_CM_2_example = [
     MOD_CM_2_premises,
@@ -98,14 +98,14 @@ MOD_CM_2_example = [
 MOD_CM_3_premises = ['(A \\boxright B)']
 MOD_CM_3_conclusions = ['\\Box (A \\rightarrow B)']
 MOD_CM_3_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 MOD_CM_3_example = [
     MOD_CM_3_premises,
@@ -117,14 +117,14 @@ MOD_CM_3_example = [
 MOD_CM_4_premises = ['(A \\rightarrow B)']
 MOD_CM_4_conclusions = ['(A \\boxright B)']
 MOD_CM_4_settings = {
-    'N' : 3,
-    'contingent' : True,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : True,
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
 }
 MOD_CM_4_example = [
     MOD_CM_4_premises,
@@ -141,14 +141,14 @@ MOD_CM_4_example = [
 MOD_TH_1_premises = ['\\Box (A \\wedge B)']
 MOD_TH_1_conclusions = ['(\\Box A \\wedge \\Box B)']
 MOD_TH_1_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_TH_1_example = [
     MOD_TH_1_premises,
@@ -160,14 +160,14 @@ MOD_TH_1_example = [
 MOD_TH_2_premises = ['(\\Diamond A \\vee \\Diamond B)']
 MOD_TH_2_conclusions = ['\\Diamond (A \\vee B)']
 MOD_TH_2_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_TH_2_example = [
     MOD_TH_2_premises,
@@ -179,14 +179,14 @@ MOD_TH_2_example = [
 MOD_TH_3_premises = ['\\Box A']
 MOD_TH_3_conclusions = ['\\neg \\Diamond \\neg A']
 MOD_TH_3_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_TH_3_example = [
     MOD_TH_3_premises,
@@ -198,14 +198,14 @@ MOD_TH_3_example = [
 MOD_TH_4_premises = ['\\Diamond A']
 MOD_TH_4_conclusions = ['\\neg \\Box \\neg A']
 MOD_TH_4_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_TH_4_example = [
     MOD_TH_4_premises,
@@ -217,14 +217,14 @@ MOD_TH_4_example = [
 MOD_TH_5_premises = ['\\Box (A \\rightarrow B)', '\\Box A']
 MOD_TH_5_conclusions = ['\\Box B']
 MOD_TH_5_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_TH_5_example = [
     MOD_TH_5_premises,
@@ -236,14 +236,14 @@ MOD_TH_5_example = [
 MOD_TH_6_premises = []
 MOD_TH_6_conclusions = ['\\Box (A \\rightarrow A)']
 MOD_TH_6_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_TH_6_example = [
     MOD_TH_6_premises,
@@ -255,14 +255,14 @@ MOD_TH_6_example = [
 MOD_TH_7_premises = ['\\CFBox A']
 MOD_TH_7_conclusions = ['\\Box A']
 MOD_TH_7_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_TH_7_example = [
     MOD_TH_7_premises,
@@ -274,14 +274,14 @@ MOD_TH_7_example = [
 MOD_TH_8_premises = ['\\Diamond A']
 MOD_TH_8_conclusions = ['\\CFDiamond A']
 MOD_TH_8_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_TH_8_example = [
     MOD_TH_8_premises,
@@ -293,14 +293,14 @@ MOD_TH_8_example = [
 MOD_TH_9_premises = ['\\CFBox A']
 MOD_TH_9_conclusions = ['\\neg \\CFDiamond \\neg A']
 MOD_TH_9_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_TH_9_example = [
     MOD_TH_9_premises,
@@ -312,14 +312,14 @@ MOD_TH_9_example = [
 MOD_TH_10_premises = ['\\Box \\Box A']
 MOD_TH_10_conclusions = ['\\Box A']
 MOD_TH_10_settings = {
-    'N' : 4,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 2,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 4,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 2,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_TH_10_example = [
     MOD_TH_10_premises,
@@ -331,14 +331,14 @@ MOD_TH_10_example = [
 MOD_TH_11_premises = ['\\Diamond A']
 MOD_TH_11_conclusions = ['\\Box \\Diamond A']
 MOD_TH_11_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_TH_11_example = [
     MOD_TH_11_premises,
@@ -350,14 +350,14 @@ MOD_TH_11_example = [
 MOD_TH_12_premises = ['\\Box A']
 MOD_TH_12_conclusions = ['(\\top \\boxright A)']
 MOD_TH_12_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_TH_12_example = [
     MOD_TH_12_premises,
@@ -369,14 +369,14 @@ MOD_TH_12_example = [
 MOD_TH_13_premises = ['(\\top \\boxright A)']
 MOD_TH_13_conclusions = ['\\Box A']
 MOD_TH_13_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_TH_13_example = [
     MOD_TH_13_premises,
@@ -388,14 +388,14 @@ MOD_TH_13_example = [
 MOD_TH_14_premises = []
 MOD_TH_14_conclusions = ['\\Box ((A \\vee \\neg A) \\leftrightarrow (B \\vee \\neg B))']
 MOD_TH_14_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_TH_14_example = [
     MOD_TH_14_premises,
@@ -411,14 +411,14 @@ MOD_TH_14_example = [
 MOD_DEF_1_premises = ['\\Box A']
 MOD_DEF_1_conclusions = ['\\CFBox A']
 MOD_DEF_1_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_DEF_1_example = [
     MOD_DEF_1_premises,
@@ -430,14 +430,14 @@ MOD_DEF_1_example = [
 MOD_DEF_2_premises = ['\\CFBox A']
 MOD_DEF_2_conclusions = ['\\Box A']
 MOD_DEF_2_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_DEF_2_example = [
     MOD_DEF_2_premises,
@@ -449,14 +449,14 @@ MOD_DEF_2_example = [
 MOD_DEF_3_premises = ['\\Diamond A']
 MOD_DEF_3_conclusions = ['\\CFDiamond A']
 MOD_DEF_3_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_DEF_3_example = [
     MOD_DEF_3_premises,
@@ -468,14 +468,14 @@ MOD_DEF_3_example = [
 MOD_DEF_4_premises = ['\\CFDiamond A']
 MOD_DEF_4_conclusions = ['\\Diamond A']
 MOD_DEF_4_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_DEF_4_example = [
     MOD_DEF_4_premises,
@@ -487,14 +487,14 @@ MOD_DEF_4_example = [
 MOD_DEF_5_premises = ['\\Box A']
 MOD_DEF_5_conclusions = ['\\neg \\Diamond \\neg A']
 MOD_DEF_5_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_DEF_5_example = [
     MOD_DEF_5_premises,
@@ -506,14 +506,14 @@ MOD_DEF_5_example = [
 MOD_DEF_6_premises = ['\\Diamond A']
 MOD_DEF_6_conclusions = ['\\neg \\Box \\neg A']
 MOD_DEF_6_settings = {
-    'N' : 3,
-    'contingent' : False,
-    'non_null' : True,
-    'non_empty' : True,
-    'disjoint' : False,
-    'max_time' : 1,
-    'iterate' : 1,
-    'expectation' : False,
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
 }
 MOD_DEF_6_example = [
     MOD_DEF_6_premises,
@@ -554,8 +554,8 @@ modal_def_examples = {
     "MOD_DEF_6": MOD_DEF_6_example,  # POSSIBILITY AND NEGATED NECESSITY
 }
 
-# Combined collection of all modal examples
-unit_tests = {**modal_cm_examples, **modal_th_examples, **modal_def_examples}
+# Combine for unit_tests (used by test framework)
+unit_tests = {**countermodel_examples, **theorem_examples}
 
 # Default settings
 general_settings = {
