@@ -16,11 +16,11 @@ The package follows the project's design philosophy:
 - No Silent Failures: Don't catch exceptions or provide defaults just to avoid errors
 """
 
-__all__ = ['BuildModule', 'BuildProject', 'BuildExample']
+__all__ = ['BuildModule', 'BuildProject']
 
 # Import the core builder components
 from model_checker.builder.module import BuildModule
 from model_checker.builder.project import BuildProject
-from model_checker.builder.example import BuildExample
+# BuildExample removed from public API - used internally only
 
 # ModelIterator and iterate_example are now imported from theory-specific modules

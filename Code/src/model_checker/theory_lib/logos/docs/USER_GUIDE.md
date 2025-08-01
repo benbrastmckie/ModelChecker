@@ -47,43 +47,41 @@ theory = logos.get_theory()
 print(f"Loaded {len(theory['operators'].operator_dictionary)} operators")
 ```
 
-### Your First Formula Check
+### Your First Example
 
-Let's check if necessity implies truth (the T axiom) using the standard examples.py approach:
+Let's understand the T axiom - that necessity implies truth:
 
 ```python
-# Create a file: t_axiom_example.py
-import os
-import sys
-
-# Add current directory to path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-if current_dir not in sys.path:
-    sys.path.insert(0, current_dir)
-
-from model_checker.theory_lib.logos import get_theory
-
-# Load the theory
-theory = get_theory()
-
-# Define the T axiom example
-t_axiom_example = [
-    ["\\Box A"],                      # Premise: A is necessary
-    ["A"],                           # Conclusion: A is true
-    {'N': 3, 'expectation': False}   # Settings (expectation: False = theorem)
+# EXT_TH_5: T AXIOM
+EXT_TH_5_premises = []
+EXT_TH_5_conclusions = ["\\Box A \\rightarrow A"]
+EXT_TH_5_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+EXT_TH_5_example = [
+    EXT_TH_5_premises,
+    EXT_TH_5_conclusions,
+    EXT_TH_5_settings,
 ]
 
-# Collection for execution
-test_example_range = {
-    "t_axiom": t_axiom_example,
-}
+# See [examples.py](../subtheories/extensional/examples.py) for complete implementation.
+```
 
-# Define semantic theories
-semantic_theories = {
-    "logos": theory,
-}
+To run this example:
 
-# Run with: model-checker t_axiom_example.py
+```bash
+# Navigate to the logos directory
+cd src/model_checker/theory_lib/logos
+
+# Run the extensional examples
+model-checker subtheories/extensional/examples.py
 ```
 
 ### Understanding the Output
@@ -123,45 +121,71 @@ Logos uses LaTeX-style notation for operators:
 
 **Important**: Always use the LaTeX notation (e.g., `\Box`) not Unicode (□) in formulas.
 
-### Checking Validity
+### Understanding Validity
 
-To check if an argument is valid:
-
-```python
-# Set up premises and conclusions
-premises = ["p \rightarrow q", "q \rightarrow r"]
-conclusions = ["p \rightarrow r"]
-
-# Create model with the argument
-model = BuildExample("transitivity", theory,
-    premises=premises,
-    conclusions=conclusions,
-    settings={'N': 4}
-)
-
-# Check validity
-result = model.check_validity(premises, conclusions)
-print(f"The argument is {'valid' if result else 'invalid'}")
-```
-
-### Finding Countermodels
-
-When an argument is invalid, you can examine the countermodel:
+Here's how transitivity of implication works:
 
 ```python
-# Invalid argument: □(p → q) ⊢ □p → □q
-premises = ["\\Box (p \\rightarrow q)"]
-conclusions = ["\\Box p \\rightarrow \\Box q"]
+# EXT_TH_6: TRANSITIVITY OF IMPLICATION
+EXT_TH_6_premises = ["A \\rightarrow B", "B \\rightarrow C"]
+EXT_TH_6_conclusions = ["A \\rightarrow C"]
+EXT_TH_6_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+EXT_TH_6_example = [
+    EXT_TH_6_premises,
+    EXT_TH_6_conclusions,
+    EXT_TH_6_settings,
+]
 
-model = BuildExample("distribution_failure", theory,
-    premises=premises,
-    conclusions=conclusions,
-    settings={'N': 4}
-)
-
-# This will show the countermodel
-# demonstrating why distribution fails
+# See [examples.py](../subtheories/extensional/examples.py) for complete implementation.
 ```
+
+To explore validity:
+1. Look at the examples in the subtheory directories
+2. Run them with the model-checker command
+3. Examine the output to understand countermodels
+
+### Understanding Countermodels
+
+Some modal principles fail in hyperintensional logic:
+
+```python
+# MOD_TH_9: DISTRIBUTION FAILURE
+MOD_TH_9_premises = ["\\Box (A \\rightarrow B)"]
+MOD_TH_9_conclusions = ["\\Box A \\rightarrow \\Box B"]
+MOD_TH_9_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+MOD_TH_9_example = [
+    MOD_TH_9_premises,
+    MOD_TH_9_conclusions,
+    MOD_TH_9_settings,
+]
+
+# Distribution of necessity over implication (FAILS)
+# Status: Invalid - countermodel demonstrates hyperintensional sensitivity
+# See [examples.py](../subtheories/modal/examples.py) for complete implementation.
+```
+
+When you run invalid examples, the output shows:
+1. The countermodel structure
+2. Which states make premises true but conclusions false
+3. Why the argument fails semantically
 
 ## Working with Operators
 
@@ -184,81 +208,229 @@ most_theory = logos.get_theory(['extensional', 'modal',
 ### Operator Categories
 
 #### Extensional Operators
-Basic extensional logic:
-```python
-# Modus ponens
-model.check_validity(["p", "p \\rightarrow q"], ["q"])
+Basic extensional logic principles:
 
-# DeMorgan's law
-model.check_formula("\\neg (p \\wedge q) \\leftrightarrow (\\neg p \\vee \\neg q)")
+```python
+# EXT_TH_1: MODUS PONENS
+EXT_TH_1_premises = ["A", "A \\rightarrow B"]
+EXT_TH_1_conclusions = ["B"]
+EXT_TH_1_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+EXT_TH_1_example = [
+    EXT_TH_1_premises,
+    EXT_TH_1_conclusions,
+    EXT_TH_1_settings,
+]
+
+# EXT_TH_7: DEMORGAN'S LAW
+EXT_TH_7_premises = []
+EXT_TH_7_conclusions = ["\\neg (A \\wedge B) \\leftrightarrow (\\neg A \\vee \\neg B)"]
+EXT_TH_7_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+EXT_TH_7_example = [
+    EXT_TH_7_premises,
+    EXT_TH_7_conclusions,
+    EXT_TH_7_settings,
+]
+
+# See [examples.py](../subtheories/extensional/examples.py) for complete implementations.
 ```
 
 #### Modal Operators
-Necessity and possibility:
-```python
-# T axiom: □p → p
-model.check_formula("\\Box p \\rightarrow p")
+Necessity and possibility relationships:
 
-# Duality: ◇p ↔ ¬□¬p
-model.check_formula("\\Diamond p \\leftrightarrow \\neg \\Box \\neg p")
+```python
+# MOD_TH_1: T AXIOM
+MOD_TH_1_premises = []
+MOD_TH_1_conclusions = ["\\Box A \\rightarrow A"]
+MOD_TH_1_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+MOD_TH_1_example = [
+    MOD_TH_1_premises,
+    MOD_TH_1_conclusions,
+    MOD_TH_1_settings,
+]
+
+# MOD_TH_2: MODAL DUALITY
+MOD_TH_2_premises = []
+MOD_TH_2_conclusions = ["\\Diamond A \\leftrightarrow \\neg \\Box \\neg A"]
+MOD_TH_2_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+MOD_TH_2_example = [
+    MOD_TH_2_premises,
+    MOD_TH_2_conclusions,
+    MOD_TH_2_settings,
+]
+
+# See [examples.py](../subtheories/modal/examples.py) for complete implementations.
 ```
 
 #### Constitutive Operators
-Content relationships:
-```python
-# Identity is reflexive
-model.check_formula("p \\equiv p")
+Content and grounding relationships:
 
-# Ground implies truth
-model.check_validity(["p \\leq q", "p"], ["q"])
+```python
+# CON_TH_1: IDENTITY REFLEXIVITY
+CON_TH_1_premises = []
+CON_TH_1_conclusions = ["A \\equiv A"]
+CON_TH_1_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+CON_TH_1_example = [
+    CON_TH_1_premises,
+    CON_TH_1_conclusions,
+    CON_TH_1_settings,
+]
+
+# CON_TH_2: GROUND MODUS PONENS
+CON_TH_2_premises = ["A \\leq B", "A"]
+CON_TH_2_conclusions = ["B"]
+CON_TH_2_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+CON_TH_2_example = [
+    CON_TH_2_premises,
+    CON_TH_2_conclusions,
+    CON_TH_2_settings,
+]
+
+# See [examples.py](../subtheories/constitutive/examples.py) for complete implementations.
 ```
 
 #### Counterfactual Operators
-Counterfactual reasoning:
-```python
-# Counterfactual modus ponens
-model.check_validity(["p", "p \\boxright q"], ["q"])
+Counterfactual reasoning patterns:
 
-# Testing Sobel sequences
-premises = ["\\neg p", "\\neg q", "p \\boxright q"]
-conclusions = ["(p \\wedge r) \\boxright q"]
-model.check_validity(premises, conclusions)
+```python
+# COU_TH_1: COUNTERFACTUAL MODUS PONENS
+COU_TH_1_premises = ["A", "A \\boxright B"]
+COU_TH_1_conclusions = ["B"]
+COU_TH_1_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+COU_TH_1_example = [
+    COU_TH_1_premises,
+    COU_TH_1_conclusions,
+    COU_TH_1_settings,
+]
+
+# COU_TH_8: SOBEL SEQUENCE FAILURE
+COU_TH_8_premises = ["\\neg A", "\\neg B", "A \\boxright B"]
+COU_TH_8_conclusions = ["(A \\wedge C) \\boxright B"]
+COU_TH_8_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+COU_TH_8_example = [
+    COU_TH_8_premises,
+    COU_TH_8_conclusions,
+    COU_TH_8_settings,
+]
+
+# Antecedent strengthening (FAILS)
+# See [examples.py](../subtheories/counterfactual/examples.py) for complete implementations.
 ```
 
 ## Finding Models and Countermodels
 
-### Single Model Finding
+### Understanding Model Structure
 
-The basic approach finds one model:
-
-```python
-model = BuildExample("example", theory,
-    premises=["\\Diamond p", "\\Diamond \\neg p"],
-    conclusions=["\\Box (p \\vee \\neg p)"],
-    settings={'N': 4, 'max_time': 5}
-)
-```
-
-### Multiple Model Iteration
-
-Find multiple distinct models:
+Logos models show possibility and contingency:
 
 ```python
-# Using settings
-model = BuildExample("multiple", theory,
-    premises=["\\Diamond p"],
-    conclusions=[],
-    settings={
-        'N': 4,
-        'iterate': 5,  # Find up to 5 models
-        'iteration_timeout': 2.0
-    }
-)
+# MOD_TH_4: CONTINGENCY EXAMPLE
+MOD_TH_4_premises = ["\\Diamond A", "\\Diamond \\neg A"]
+MOD_TH_4_conclusions = ["\\Box (A \\vee \\neg A)"]
+MOD_TH_4_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+MOD_TH_4_example = [
+    MOD_TH_4_premises,
+    MOD_TH_4_conclusions,
+    MOD_TH_4_settings,
+]
 
-# Using the iterator directly
-from model_checker.theory_lib.logos.iterate import iterate_example
-models = iterate_example(model, max_iterations=5)
+# Contingent propositions and necessary tautologies
+# Status: Valid - demonstrates modal structure
+# See [examples.py](../subtheories/modal/examples.py) for complete implementation.
 ```
+
+### Multiple Model Exploration
+
+Some formulas have multiple distinct models:
+
+```bash
+# Run examples with iteration enabled
+model-checker subtheories/modal/examples.py --iterate 5
+
+# This explores different ways modal formulas can be satisfied
+```
+
+For interactive exploration, see the [iteration guide](ITERATE.md) and [Jupyter notebooks](../notebooks/).
 
 ### Understanding Model Output
 
@@ -292,147 +464,270 @@ Key elements:
 
 ### Custom Settings
 
-Fine-tune model generation:
+Control model generation through settings in examples:
 
 ```python
-settings = {
-    'N': 8,               # More atomic states
-    'contingent': True,   # Force contingent propositions
-    'non_empty': True,    # No empty verifier/falsifier sets
-    'non_null': True,     # Null state can't verify/falsify
-    'disjoint': True,     # Atomic propositions are disjoint
-    'max_time': 30,       # Longer timeout for complex formulas
-    'iterate': 10,        # Find multiple models
-}
-
-model = BuildExample("complex", theory, 
-                    premises=premises,
-                    conclusions=conclusions,
-                    settings=settings)
+# In your example file (e.g., my_examples.py)
+my_example = [
+    ["\\Diamond A"],           # Premises
+    ["A"],                    # Conclusions
+    {
+        'N': 8,               # More atomic states
+        'contingent': True,    # Force contingent propositions
+        'non_empty': True,     # No empty verifier/falsifier sets
+        'max_time': 30,        # Longer timeout
+        'iterate': 10,         # Find multiple models
+        'expectation': True,   # Expect countermodel
+    }
+]
 ```
+
+See [SETTINGS.md](SETTINGS.md) for complete documentation of available options.
 
 ### Interactive Exploration
 
-Use Jupyter notebooks for interactive work:
+Use Jupyter notebooks for hands-on learning:
 
-```python
-from model_checker.jupyter import ModelExplorer
+```bash
+# Launch Jupyter environment
+./run_jupyter.sh
 
-# Interactive model exploration
-explorer = ModelExplorer(theory='logos')
-explorer.display()
+# Navigate to logos notebooks
+# Open: src/model_checker/theory_lib/logos/notebooks/
 ```
+
+The notebooks provide:
+- Interactive formula testing
+- Visual model exploration
+- Step-by-step tutorials
+- Debugging tools
 
 ### Debugging Complex Formulas
 
 When formulas don't behave as expected:
 
-```python
-# Enable constraint printing
-model = BuildExample("debug", theory,
-    premises=["(p \\leq q) \\wedge (q \\leq r)"],
-    conclusions=["p \\leq r"],
-    settings={'N': 3}
-)
+```bash
+# Run with constraint printing enabled
+model-checker -p -z my_example.py
 
-# Run with debugging
-from model_checker import cli
-cli.main(["-p", "-z", "debug_example.py"])
+# This shows the Z3 constraints and solving process
+# Helpful for understanding why certain models exist
 ```
+
+Debugging strategies:
+1. Start with smaller state spaces (N=3)
+2. Use the `-p` flag to see constraints
+3. Check examples in subtheory directories
+4. Use Jupyter notebooks for step-by-step analysis
 
 ### Theory Comparison
 
-Compare how different theories handle the same formula:
+Compare how different theories handle the same formulas:
 
-```python
-from model_checker.theory_lib import logos, imposition
+```bash
+# Test in logos theory
+model-checker src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py
 
-# Same formula, different theories
-formula = "p \\boxright (q \\boxright p)"
+# Test in imposition theory  
+model-checker src/model_checker/theory_lib/imposition/examples.py
 
-logos_model = BuildExample("logos_test", logos.get_theory())
-logos_result = logos_model.check_formula(formula)
-
-imposition_model = BuildExample("imposition_test", imposition_theory)
-imposition_result = imposition_model.check_formula(formula)
-
-print(f"Logos: {logos_result}, Imposition: {imposition_result}")
+# Compare results for similar principles
 ```
+
+The frameworks show different behaviors for:
+- Counterfactual transitivity
+- Modal distribution principles
+- Relevance constraints
+- Grounding relationships
 
 ## Common Patterns
 
 ### Testing Logical Principles
 
-```python
-def test_principle(name, formula, theory=None):
-    """Test if a logical principle holds."""
-    if theory is None:
-        theory = logos.get_theory()
-    
-    model = BuildExample(name, theory)
-    result = model.check_formula(formula)
-    
-    print(f"{name}: {'✓ Valid' if result else '✗ Invalid'}")
-    return result
+Explore how modal axioms behave in hyperintensional logic:
 
-# Test some principles
-test_principle("K axiom", "\\Box (p \\rightarrow q) \\rightarrow (\\Box p \\rightarrow \\Box q)")
-test_principle("T axiom", "\\Box p \\rightarrow p")
-test_principle("4 axiom", "\\Box p \\rightarrow \\Box \\Box p")
-test_principle("5 axiom", "\\Diamond p \\rightarrow \\Box \\Diamond p")
+```python
+# MOD_TH_5: K AXIOM (DISTRIBUTION)
+MOD_TH_5_premises = []
+MOD_TH_5_conclusions = ["\\Box (A \\rightarrow B) \\rightarrow (\\Box A \\rightarrow \\Box B)"]
+MOD_TH_5_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+MOD_TH_5_example = [
+    MOD_TH_5_premises,
+    MOD_TH_5_conclusions,
+    MOD_TH_5_settings,
+]
+
+# MOD_TH_6: 4 AXIOM
+MOD_TH_6_premises = []
+MOD_TH_6_conclusions = ["\\Box A \\rightarrow \\Box \\Box A"]
+MOD_TH_6_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+MOD_TH_6_example = [
+    MOD_TH_6_premises,
+    MOD_TH_6_conclusions,
+    MOD_TH_6_settings,
+]
+
+# MOD_TH_7: 5 AXIOM
+MOD_TH_7_premises = []
+MOD_TH_7_conclusions = ["\\Diamond A \\rightarrow \\Box \\Diamond A"]
+MOD_TH_7_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+MOD_TH_7_example = [
+    MOD_TH_7_premises,
+    MOD_TH_7_conclusions,
+    MOD_TH_7_settings,
+]
+
+# Distribution of necessity over implication (FAILS)
+# Necessity implies truth (VALID)
+# Necessity of necessity (VALID)
+# Necessity of possibility (FAILS)
+# See [examples.py](../subtheories/modal/examples.py) for complete implementations.
 ```
 
 ### Building Complex Arguments
 
-```python
-def check_argument(name, premises, conclusions, settings=None):
-    """Check a complex argument."""
-    if settings is None:
-        settings = {'N': 4, 'max_time': 10}
-    
-    theory = logos.get_theory()
-    model = BuildExample(name, theory,
-                        premises=premises,
-                        conclusions=conclusions,
-                        settings=settings)
-    
-    result = model.check_validity(premises, conclusions)
-    
-    if result:
-        print(f"✓ {name}: Valid argument")
-    else:
-        print(f"✗ {name}: Invalid - countermodel found")
-        print(f"  Premises true but conclusion false in world {model.model_structure.main_world}")
-    
-    return result
+Examine sophisticated logical patterns:
 
-# Example: Testing hypothetical syllogism for counterfactuals
-check_argument("Hypothetical Syllogism",
-    premises=["p \\boxright q", "q \\boxright r"],
-    conclusions=["p \\boxright r"])
+```python
+# COU_TH_5: HYPOTHETICAL SYLLOGISM
+COU_TH_5_premises = ["A \\boxright B", "B \\boxright C"]
+COU_TH_5_conclusions = ["A \\boxright C"]
+COU_TH_5_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+COU_TH_5_example = [
+    COU_TH_5_premises,
+    COU_TH_5_conclusions,
+    COU_TH_5_settings,
+]
+
+# COU_TH_3: CONTRAPOSITION
+COU_TH_3_premises = ["A \\boxright B"]
+COU_TH_3_conclusions = ["\\neg B \\boxright \\neg A"]
+COU_TH_3_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+COU_TH_3_example = [
+    COU_TH_3_premises,
+    COU_TH_3_conclusions,
+    COU_TH_3_settings,
+]
+
+# Transitivity of counterfactuals (FAILS)
+# Reason: Counterfactuals are not generally transitive
+# Contraposition for counterfactuals (FAILS)
+# Reason: Asymmetry in counterfactual reasoning
+# See [examples.py](../subtheories/counterfactual/examples.py) for complete implementations.
 ```
 
 ### Exploring Operator Interactions
 
-```python
-def explore_interaction(op1, op2, prop="p"):
-    """Explore how two operators interact."""
-    theory = logos.get_theory()
-    
-    formulas = [
-        f"{op1} {op2} {prop}",
-        f"{op2} {op1} {prop}",
-        f"{op1} {prop} \\rightarrow {op2} {prop}",
-        f"{op2} {prop} \\rightarrow {op1} {prop}",
-    ]
-    
-    for formula in formulas:
-        model = BuildExample(f"test_{formula}", theory)
-        result = model.check_formula(formula)
-        print(f"{formula}: {'Valid' if result else 'Invalid'}")
+Understand how different operators relate:
 
-# Explore modal and ground interaction
-explore_interaction("\\Box", "\\leq")
+```python
+# INT_TH_1: NECESSITY AND GROUND
+INT_TH_1_premises = ["\\Box A"]
+INT_TH_1_conclusions = ["A \\leq A"]
+INT_TH_1_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+INT_TH_1_example = [
+    INT_TH_1_premises,
+    INT_TH_1_conclusions,
+    INT_TH_1_settings,
+]
+
+# INT_TH_2: GROUND AND NECESSITY
+INT_TH_2_premises = ["A \\leq B"]
+INT_TH_2_conclusions = ["\\Box A \\rightarrow \\Box B"]
+INT_TH_2_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+INT_TH_2_example = [
+    INT_TH_2_premises,
+    INT_TH_2_conclusions,
+    INT_TH_2_settings,
+]
+
+# INT_TH_3: COUNTERFACTUAL AND IDENTITY
+INT_TH_3_premises = ["A \\boxright B", "A \\equiv B"]
+INT_TH_3_conclusions = ["A \\rightarrow B"]
+INT_TH_3_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+INT_TH_3_example = [
+    INT_TH_3_premises,
+    INT_TH_3_conclusions,
+    INT_TH_3_settings,
+]
+
+# Necessary truths ground themselves (VALID)
+# Grounding preserves necessity (FAILS)
+# Reason: Ground relationships are hyperintensional
+# Identity strengthens counterfactals (VALID)
+# See examples across subtheory directories for operator interactions.
 ```
 
 ## Troubleshooting
@@ -440,44 +735,50 @@ explore_interaction("\\Box", "\\leq")
 ### Common Issues and Solutions
 
 #### "Operator not found" Error
-```python
-# Problem: Operator not loaded
-# Solution: Ensure subtheory is loaded
-theory = logos.get_theory(['extensional', 'modal'])  # Must include both
+```bash
+# Problem: Using operators not in loaded subtheories
+# Solution: Load required subtheories
+# Example: For ground operator (\leq), need constitutive subtheory
 ```
 
 #### Z3 Timeout
 ```python
-# Problem: Formula too complex
-# Solution: Adjust settings
-settings = {
-    'N': 3,           # Reduce state space
-    'max_time': 60,   # Increase timeout
-}
+# Problem: Formula too complex for Z3 solver
+# Solution: Adjust settings in your example
+my_example = [
+    [premises],
+    [conclusions], 
+    {
+        'N': 3,           # Reduce state space
+        'max_time': 60,   # Increase timeout
+    }
+]
 ```
 
 #### Unexpected Invalid Result
-```python
-# Problem: Formula seems valid but isn't
-# Solution: Examine the countermodel
-model = BuildExample("debug", theory,
-    premises=premises,
-    conclusions=conclusions,
-    settings={'N': 3})
+```bash
+# Problem: Formula seems valid but shows countermodel
+# Solution: Run with detailed output
+model-checker -v my_example.py
 
-# Check what makes premises true but conclusion false
-print("Countermodel found:")
-print(f"World: {model.model_structure.main_world}")
-print(f"Premise values: {[p.truth_value_at(model.model_structure.main_world) for p in model.premises]}")
-print(f"Conclusion value: {model.conclusions[0].truth_value_at(model.model_structure.main_world)}")
+# The output shows:
+# - State space structure
+# - Which world makes premises true but conclusion false
+# - Why the argument fails semantically
 ```
 
 #### Memory Issues
 ```python
-# Problem: Large models consume too much memory
-# Solution: Use smaller N or load fewer subtheories
-theory = logos.get_theory(['extensional', 'modal'])  # Minimal
-settings = {'N': 3}  # Smallest useful size
+# Problem: Large state spaces consume memory
+# Solution: Start small and increase gradually
+my_example = [
+    [premises],
+    [conclusions],
+    {'N': 3}  # Start with minimal state space
+]
+
+# Load only needed subtheories:
+# theory = logos.get_theory(['extensional', 'modal'])
 ```
 
 ### Getting Help
@@ -491,75 +792,297 @@ settings = {'N': 3}  # Smallest useful size
 
 ### Modal Logic Examples
 
-```python
-# S5 principles in hyperintensional setting
-examples = {
-    "T": "\\Box p \\rightarrow p",
-    "K": "\\Box (p \\rightarrow q) \\rightarrow (\\Box p \\rightarrow \\Box q)",
-    "4": "\\Box p \\rightarrow \\Box \\Box p", 
-    "5": "\\Diamond p \\rightarrow \\Box \\Diamond p",
-    "B": "p \\rightarrow \\Box \\Diamond p",
-}
+S5 principles in hyperintensional setting:
 
-for name, formula in examples.items():
-    model = BuildExample(f"axiom_{name}", theory)
-    result = model.check_formula(formula)
-    print(f"{name}: {'✓' if result else '✗'}")
+```python
+# MOD_TH_1: T AXIOM
+MOD_TH_1_premises = []
+MOD_TH_1_conclusions = ["\\Box A \\rightarrow A"]
+MOD_TH_1_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+MOD_TH_1_example = [
+    MOD_TH_1_premises,
+    MOD_TH_1_conclusions,
+    MOD_TH_1_settings,
+]
+
+# MOD_TH_5: K AXIOM (Distribution)
+MOD_TH_5_premises = []
+MOD_TH_5_conclusions = ["\\Box (A \\rightarrow B) \\rightarrow (\\Box A \\rightarrow \\Box B)"]
+MOD_TH_5_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+MOD_TH_5_example = [
+    MOD_TH_5_premises,
+    MOD_TH_5_conclusions,
+    MOD_TH_5_settings,
+]
+
+# MOD_TH_6: 4 AXIOM
+MOD_TH_6_premises = []
+MOD_TH_6_conclusions = ["\\Box A \\rightarrow \\Box \\Box A"]
+MOD_TH_6_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+MOD_TH_6_example = [
+    MOD_TH_6_premises,
+    MOD_TH_6_conclusions,
+    MOD_TH_6_settings,
+]
+
+# MOD_TH_7: 5 AXIOM
+MOD_TH_7_premises = []
+MOD_TH_7_conclusions = ["\\Diamond A \\rightarrow \\Box \\Diamond A"]
+MOD_TH_7_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+MOD_TH_7_example = [
+    MOD_TH_7_premises,
+    MOD_TH_7_conclusions,
+    MOD_TH_7_settings,
+]
+
+# MOD_TH_8: B AXIOM
+MOD_TH_8_premises = []
+MOD_TH_8_conclusions = ["A \\rightarrow \\Box \\Diamond A"]
+MOD_TH_8_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+MOD_TH_8_example = [
+    MOD_TH_8_premises,
+    MOD_TH_8_conclusions,
+    MOD_TH_8_settings,
+]
+
+# Status: VALID ✓ Necessity implies truth
+# Status: INVALID ✗ Hyperintensional sensitivity blocks distribution
+# Status: VALID ✓ Necessity of necessity
+# Status: INVALID ✗ Possibility doesn't necessitate possibility
+# Status: INVALID ✗ Truth doesn't necessitate possibility
+# See [examples.py](../subtheories/modal/examples.py) for complete implementations.
 ```
 
 ### Constitutive Logic Examples
 
+Ground and essence relationships:
+
 ```python
-# Ground and essence relationships
-check_argument("Ground Distribution",
-    premises=["(p \\wedge q) \\leq r"],
-    conclusions=["p \\leq r"])
+# CON_TH_7: GROUND DISTRIBUTION FAILURE
+CON_TH_7_premises = ["(A \\wedge B) \\leq C"]
+CON_TH_7_conclusions = ["A \\leq C"]
+CON_TH_7_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+CON_TH_7_example = [
+    CON_TH_7_premises,
+    CON_TH_7_conclusions,
+    CON_TH_7_settings,
+]
 
-check_argument("Essence Transitivity",
-    premises=["p \\sqsubseteq q", "q \\sqsubseteq r"],
-    conclusions=["p \\sqsubseteq r"])
+# CON_TH_5: ESSENCE TRANSITIVITY
+CON_TH_5_premises = ["A \\sqsubseteq B", "B \\sqsubseteq C"]
+CON_TH_5_conclusions = ["A \\sqsubseteq C"]
+CON_TH_5_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+CON_TH_5_example = [
+    CON_TH_5_premises,
+    CON_TH_5_conclusions,
+    CON_TH_5_settings,
+]
 
-check_argument("Identity Reduction",
-    premises=["p \\equiv q"],
-    conclusions=["(p \\leq q) \\wedge (q \\leq p)"])
+# CON_TH_3: IDENTITY REDUCTION
+CON_TH_3_premises = ["A \\equiv B"]
+CON_TH_3_conclusions = ["(A \\leq B) \\wedge (B \\leq A)"]
+CON_TH_3_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+CON_TH_3_example = [
+    CON_TH_3_premises,
+    CON_TH_3_conclusions,
+    CON_TH_3_settings,
+]
+
+# Status: INVALID ✗ Conjunction grounding doesn't distribute to conjuncts
+# Status: VALID ✓ Essence relationships are transitive
+# Status: VALID ✓ Identity reduces to mutual grounding
+# See [examples.py](../subtheories/constitutive/examples.py) for complete implementations.
 ```
 
 ### Counterfactual Examples
 
+Classic counterfactual patterns:
+
 ```python
-# Classic counterfactual patterns
-check_argument("Antecedent Strengthening",
-    premises=["p \\boxright r"],
-    conclusions=["(p \\wedge q) \\boxright r"])  # Invalid!
+# COU_TH_7: ANTECEDENT STRENGTHENING FAILURE
+COU_TH_7_premises = ["A \\boxright C"]
+COU_TH_7_conclusions = ["(A \\wedge B) \\boxright C"]
+COU_TH_7_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+COU_TH_7_example = [
+    COU_TH_7_premises,
+    COU_TH_7_conclusions,
+    COU_TH_7_settings,
+]
 
-check_argument("Transitivity", 
-    premises=["p \\boxright q", "q \\boxright r"],
-    conclusions=["p \\boxright r"])  # Invalid!
+# COU_TH_5: TRANSITIVITY FAILURE
+COU_TH_5_premises = ["A \\boxright B", "B \\boxright C"]
+COU_TH_5_conclusions = ["A \\boxright C"]
+COU_TH_5_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+COU_TH_5_example = [
+    COU_TH_5_premises,
+    COU_TH_5_conclusions,
+    COU_TH_5_settings,
+]
 
-check_argument("Modus Ponens",
-    premises=["p", "p \\boxright q"],
-    conclusions=["q"])  # Valid
+# COU_TH_1: COUNTERFACTUAL MODUS PONENS
+COU_TH_1_premises = ["A", "A \\boxright B"]
+COU_TH_1_conclusions = ["B"]
+COU_TH_1_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+COU_TH_1_example = [
+    COU_TH_1_premises,
+    COU_TH_1_conclusions,
+    COU_TH_1_settings,
+]
+
+# Status: INVALID ✗ Adding conditions can change counterfactual truth
+# Status: INVALID ✗ Counterfactual chains can break
+# Status: VALID ✓ Actual antecedents support counterfactual inference
+# See [examples.py](../subtheories/counterfactual/examples.py) for complete implementations.
 ```
 
 ### Hyperintensional Phenomena
 
+Content sensitivity in logical equivalents:
+
 ```python
-# Content sensitivity examples
-model = BuildExample("content_difference", theory)
+# CON_TH_8: DISTRIBUTIVE IDENTITY FAILURE
+CON_TH_8_premises = []
+CON_TH_8_conclusions = ["(A \\wedge (B \\vee C)) \\equiv ((A \\wedge B) \\vee (A \\wedge C))"]
+CON_TH_8_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+CON_TH_8_example = [
+    CON_TH_8_premises,
+    CON_TH_8_conclusions,
+    CON_TH_8_settings,
+]
 
-# These are necessarily equivalent but have different content
-f1 = "(p \\wedge (q \\vee r))"
-f2 = "((p \\wedge q) \\vee (p \\wedge r))"
+# CON_TH_9: MUTUAL GROUNDING OF EQUIVALENTS
+CON_TH_9_premises = []
+CON_TH_9_conclusions = ["((A \\wedge (B \\vee C)) \\leq ((A \\wedge B) \\vee (A \\wedge C))) \\wedge (((A \\wedge B) \\vee (A \\wedge C)) \\leq (A \\wedge (B \\vee C)))"]
+CON_TH_9_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': False,
+    'non_empty': False,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+CON_TH_9_example = [
+    CON_TH_9_premises,
+    CON_TH_9_conclusions,
+    CON_TH_9_settings,
+]
 
-# Check if they're identical (they shouldn't be)
-result = model.check_formula(f"{f1} \\equiv {f2}")
-print(f"Distributive formulas are identical: {result}")  # False
-
-# But they ground each other
-result1 = model.check_formula(f"{f1} \\leq {f2}")
-result2 = model.check_formula(f"{f2} \\leq {f1}")
-print(f"They ground each other: {result1 and result2}")  # True
+# Status: INVALID ✗ Logically equivalent formulas have different content
+# Status: VALID ✓ Equivalent formulas ground each other despite different content
+# See [examples.py](../subtheories/constitutive/examples.py) for complete implementations.
 ```
+
+This demonstrates the key insight: necessary equivalence ≠ identity in hyperintensional logic.
 
 ## Next Steps
 
