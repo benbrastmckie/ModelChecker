@@ -25,18 +25,6 @@ The API follows a **modular architecture** that separates core functionality fro
 
 This implementation enables computational logic research by providing **Z3-based constraint solving**, **interactive Jupyter integration**, and **systematic testing frameworks** for validating logical principles and discovering countermodels across different semantic theories.
 
-## Quick Start
-
-### Create a New Theory Project
-
-```bash
-# Create a project from a theory template
-model-checker -l logos
-model-checker -l exclusion
-model-checker -l imposition
-model-checker -l bimodal
-```
-
 ## Subdirectories
 
 ### [builder/](builder/)
@@ -131,12 +119,18 @@ MOD_TH_1_example = [
     MOD_TH_1_settings,
 ]
 
-# Collection of all examples (used by test framework)
-unit_tests = {
+# Organize examples by category
+countermodel_examples = {
+    # Add countermodel examples here
+}
+
+theorem_examples = {
     "LOG_TH_1": LOG_TH_1_example,  # Reflexivity theorem
     "MOD_TH_1": MOD_TH_1_example,  # T-axiom theorem
-    # Add more examples here for comprehensive testing
 }
+
+# Combine for unit_tests (used by test framework)
+unit_tests = {**countermodel_examples, **theorem_examples}
 
 # The framework expects this to be named 'example_range'
 example_range = {
@@ -160,6 +154,16 @@ semantic_theories = {
 }
 
 # Run with: model-checker example.py
+```
+
+## Creating a New Theory Project
+
+```bash
+# Create a project from a theory template
+model-checker -l logos
+model-checker -l exclusion
+model-checker -l imposition
+model-checker -l bimodal
 ```
 
 ## Theory Integration
@@ -199,10 +203,16 @@ DNE_TH_1_example = [
 ]
 
 # Set up collections for all theories
-unit_tests = {
-    "DNE_TH_1": DNE_TH_1_example,  # Double negation elimination
-    # Add more cross-theory tests here
+countermodel_examples = {
+    # Add countermodel examples here
 }
+
+theorem_examples = {
+    "DNE_TH_1": DNE_TH_1_example,  # Double negation elimination
+}
+
+# Combine for unit_tests (used by test framework)
+unit_tests = {**countermodel_examples, **theorem_examples}
 
 example_range = {
     "DNE_TH_1": DNE_TH_1_example,  # Run this test

@@ -18,37 +18,32 @@ docs/
 
 The **API Reference** provides comprehensive technical documentation for the imposition theory implementation, covering Kit Fine's counterfactual semantics within the ModelChecker framework. The theory implements the imposition operation for counterfactual reasoning, extending the Logos hyperintensional foundation.
 
-Within the imposition theory framework, this API enables exploration of counterfactual logic through Fine's semantics, where "if A then must B" is evaluated by imposing verifiers of A on the evaluation world. The implementation includes both must-counterfactuals (↪) and might-counterfactuals (⟂), providing a complete computational framework for counterfactual reasoning.
+Within the imposition theory framework, this API enables exploration of counterfactual logic through Fine's semantics, where "if A then must B" is evaluated by imposing verifiers of A on the evaluation world. The implementation includes both must-counterfactuals (□→) and might-counterfactuals (◇→), providing a complete computational framework for counterfactual reasoning.
 
 This reference serves developers implementing counterfactual logic systems, providing detailed specifications for all components, operators, and integration points.
 
-## Quick Start
+## Core Usage
 
 ```python
 # Core imposition theory usage
 from model_checker.theory_lib.imposition import get_theory
-from model_checker import BuildExample
 
-# Create counterfactual example
+# Load the theory
 theory = get_theory()
-model = BuildExample("counterfactual", theory,
-    premises=['A', 'A \\boxright B'],  # A is true, if A then must B
-    conclusions=['B'],                    # Therefore B
-    settings={'N': 3}
-)
+semantics_class = theory['semantics']
+operators = theory['operators']
 
-# Check validity (tests counterfactual modus ponens)
-result = model.check_validity()
-print(f"Counterfactual modus ponens: {result}")  # True - valid
+# Example formulas (conceptual - see examples.py for complete implementation)
+# "A \\boxright B"  # If A then must B (must-counterfactual)
+# "A \\diamondright B"  # If A then might B (might-counterfactual)
 
-# Access alternative worlds
-if hasattr(model.model_structure, 'semantics'):
-    alt_worlds = model.model_structure.semantics.calculate_alternative_worlds(
-        verifiers={1, 2},  # A's verifiers
-        eval_point={'world': 0},
-        model_structure=model.model_structure
-    )
-    print(f"Alternative worlds: {alt_worlds}")
+# Access semantic methods
+# semantics = semantics_class(settings={'N': 3})
+# alt_worlds = semantics.calculate_alternative_worlds(
+#     verifiers={1, 2},  # A's verifiers
+#     eval_point={'world': 0},
+#     model_structure=model_structure
+# )
 ```
 
 ## Core Functions
@@ -74,6 +69,8 @@ from model_checker.theory_lib.imposition import get_theory
 theory = get_theory()
 semantics_class = theory['semantics']
 operators = theory['operators']
+
+# See examples.py for complete implementation examples
 ```
 
 ### `get_examples()`
@@ -91,6 +88,8 @@ examples = get_examples()
 for name, example in examples.items():
     premises, conclusions, settings = example
     print(f"{name}: {premises} => {conclusions}")
+
+# See examples.py for complete implementation examples
 ```
 
 ### `get_test_examples()`
@@ -108,6 +107,8 @@ tests = get_test_examples()
 # Access specific test categories
 countermodels = {k: v for k, v in tests.items() if k.startswith('IM_CM_')}
 theorems = {k: v for k, v in tests.items() if k.startswith('IM_TH_')}
+
+# See examples.py for complete implementation examples
 ```
 
 ## Classes
@@ -196,8 +197,8 @@ The imposition theory provides the following operators:
 
 | Operator | Symbol | LaTeX | Arity | Description |
 |----------|--------|-------|-------|-------------|
-| Imposition | ▷ | `\\boxright` | 2 | If A then must B |
-| Could | ◇▷ | `\\diamondright` | 2 | If A then might B |
+| Imposition | □→ | `\\boxright` | 2 | If A then must B |
+| Could | ◇→  | `\\diamondright` | 2 | If A then might B |
 
 ### Extremal Operators
 
@@ -238,7 +239,7 @@ The might-counterfactual operator, defined as the dual of imposition.
 Find multiple distinct models for an imposition theory example.
 
 **Parameters:**
-- `example`: A BuildExample instance with an imposition theory model
+- `example`: An example instance with an imposition theory model
 - `max_iterations` (int, optional): Maximum number of models to find
 
 **Returns:**
@@ -246,18 +247,16 @@ Find multiple distinct models for an imposition theory example.
 
 **Example:**
 ```python
-from model_checker import BuildExample
 from model_checker.theory_lib.imposition import iterate_example, get_theory
 
-# Create an example
+# Load theory for iteration
 theory = get_theory()
-example = BuildExample("my_example", theory)
 
-# Find up to 5 models
-models = iterate_example(example, max_iterations=5)
-for i, model in enumerate(models):
-    print(f"Model {i+1}:")
-    model.print_model()
+# Example usage (see examples.py for complete implementation):
+# models = iterate_example(example, max_iterations=5)
+# for i, model in enumerate(models):
+#     print(f"Model {i+1}:")
+#     model.print_model()
 ```
 
 ### `ImpositionModelIterator`
@@ -269,10 +268,10 @@ Class for iterating through distinct models for imposition theory formulas.
 **Key Methods:**
 
 #### `__init__(self, build_example)`
-Initialize the iterator with a build example.
+Initialize the iterator with an example instance.
 
 **Parameters:**
-- `build_example`: A BuildExample instance
+- `build_example`: An example instance
 
 #### `iterate(self)`
 Find multiple distinct models.
@@ -320,24 +319,18 @@ DEFAULT_GENERAL_SETTINGS = {
 
 ```python
 from model_checker.theory_lib.imposition import get_theory, get_examples
-from model_checker import BuildExample
 
 # Get the theory
 theory = get_theory()
+semantics_class = theory['semantics']
+operators = theory['operators']
 
-# Create a simple example
-example = BuildExample("counterfactual_test", theory)
-example.add_premise("\\neg A")
-example.add_premise("A \\boxright B")
-example.add_conclusion("A \\diamondright C")
+# Example formulas for counterfactual reasoning:
+# "\\neg A"           # A is false
+# "A \\boxright B"    # If A then must B
+# "A \\diamondright C" # If A then might C
 
-# Check validity
-result = example.check_validity()
-if result:
-    print("The argument is valid")
-else:
-    print("Found countermodel:")
-    example.print_model()
+# See examples.py for complete implementation examples
 ```
 
 ### Using Model Iteration
@@ -345,29 +338,32 @@ else:
 ```python
 from model_checker.theory_lib.imposition import iterate_example
 
-# Find multiple models
-models = iterate_example(example, max_iterations=3)
-print(f"Found {len(models)} distinct models")
-
-for i, model in enumerate(models):
-    print(f"\nModel {i+1}:")
-    model.print_model()
-    if hasattr(model, 'print_model_differences'):
-        model.print_model_differences()
+# Model iteration example (see examples.py for complete implementation):
+# models = iterate_example(example, max_iterations=3)
+# print(f"Found {len(models)} distinct models")
+# 
+# for i, model in enumerate(models):
+#     print(f"\\nModel {i+1}:")
+#     model.print_model()
+#     if hasattr(model, 'print_model_differences'):
+#         model.print_model_differences()
 ```
 
 ### Working with Operators
 
 ```python
-from model_checker.theory_lib.imposition import imposition_operators
+from model_checker.theory_lib.imposition import get_theory
 
-# Access operator classes
-ImpositionOp = imposition_operators.get_operator("\\boxright")
-CouldOp = imposition_operators.get_operator("\\diamondright")
+# Access operators through theory configuration
+theory = get_theory()
+operators = theory['operators']
 
-# Check operator properties
-print(f"Imposition arity: {ImpositionOp.arity}")
-print(f"Could operator name: {CouldOp.name}")
+# Example operator access (see examples.py for complete implementation):
+# ImpositionOp = operators["\\boxright"]
+# CouldOp = operators["\\diamondright"]
+# 
+# print(f"Imposition arity: {ImpositionOp.arity}")
+# print(f"Could operator name: {CouldOp.name}")
 ```
 
 ## Error Handling
@@ -381,20 +377,21 @@ print(f"Could operator name: {CouldOp.name}")
 ### Error Scenarios
 
 ```python
-try:
-    # Attempt to create example
-    example = BuildExample("test", theory)
-    example.add_premise("A \\invalid B")  # Invalid operator
-except ValueError as e:
-    print(f"Formula error: {e}")
-
-try:
-    # Check with insufficient time
-    settings = {'max_time': 0.001}  # Very short timeout
-    example = BuildExample("test", theory, settings)
-    result = example.check_validity()
-except z3.Z3Exception as e:
-    print(f"Solver timeout: {e}")
+# Error handling examples (see examples.py for complete implementation):
+# try:
+#     # Invalid formula syntax
+#     semantics = semantics_class(settings)
+#     # Process formula with invalid operator "A \\invalid B"
+# except ValueError as e:
+#     print(f"Formula error: {e}")
+# 
+# try:
+#     # Solver timeout scenario
+#     settings = {'max_time': 0.001}  # Very short timeout
+#     semantics = semantics_class(settings)
+#     # Attempt complex satisfiability check
+# except z3.Z3Exception as e:
+#     print(f"Solver timeout: {e}")
 ```
 
 ## Documentation
@@ -426,8 +423,8 @@ The imposition theory provides 11 operators total:
 - Modal: □, ◇ (2 operators)
 
 **Imposition-Specific** (2 operators):
-- **Imposition** (↪): Must-counterfactual
-- **Could** (⟂): Might-counterfactual
+- **Imposition** (□→): Must-counterfactual
+- **Could** (◇→): Might-counterfactual
 
 ## Example Summary
 

@@ -100,21 +100,23 @@ test_example_range = unit_tests
 all_logos_examples = unit_tests
 example_range = unit_tests  # Required by get_examples() in theory_lib/__init__.py
 
-# Create collections by type
-logos_cm_examples = {}
-logos_th_examples = {}
+# Organize examples by category
+countermodel_examples = {}
+theorem_examples = {}
 
 # Separate countermodels and theorems
 for name, example in all_logos_examples.items():
     if "_CM_" in name:
-        logos_cm_examples[name] = example
+        countermodel_examples[name] = example
     elif "_TH_" in name:
-        logos_th_examples[name] = example
+        theorem_examples[name] = example
     else:
         # Default to theorem if unclear
-        logos_th_examples[name] = example
+        theorem_examples[name] = example
 
-# Combined collection (for compatibility)
+# Aliases for backward compatibility
+logos_cm_examples = countermodel_examples
+logos_th_examples = theorem_examples
 logos_examples = all_logos_examples
 
 # Default settings
@@ -209,14 +211,14 @@ def get_example_stats():
         'constitutive': len(constitutive_examples),
         'counterfactual': len(counterfactual_examples),
         'relevance': len(relevance_examples),
-        'basic': 0,  # Basic examples removed
+        'basic': 0,
         'total': len(unit_tests)
     }
     return stats
 
 # Make this module runnable from the command line for testing
 if __name__ == '__main__':
-    # Print example statistics
+    
     stats = get_example_stats()
     print("Logos Theory Example Statistics:")
     print("=" * 40)
