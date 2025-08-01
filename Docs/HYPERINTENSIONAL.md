@@ -1,5 +1,7 @@
 # Hyperintensional Semantics in ModelChecker
 
+[← Back to Docs](README.md) | [Methodology →](METHODOLOGY.md) | [Z3 Background →](Z3_BACKGROUND.md)
+
 ## Table of Contents
 
 1. [Introduction](#introduction)
@@ -64,6 +66,35 @@ The framework distinguishes between possible and impossible states:
   - Contains every compatible state as a part
   - Represents a complete possible situation
 - **Evaluation**: Formulas are evaluated at world states
+
+### Alternative Worlds (Counterfactual Semantics)
+
+Alternative worlds are central to the counterfactual subtheory of logos:
+
+- **Definition**: An alternative world is obtained by imposing a state on an existing world
+- **Formal**: `u` is an `x`-alternative to world `w` iff:
+  1. `u` is a world (maximal possible state)
+  2. `x ⊑ u` (the imposed state `x` is part of `u`)
+  3. `u` contains a maximal compatible part of `w` with respect to `x`
+  
+- **Intuition**: When evaluating "if A were true, B would be true" at world `w`:
+  - Find verifiers `x` of A (states that make A true)
+  - For each verifier `x`, construct alternative worlds by:
+    - Taking `x` and adding as much of `w` as possible while maintaining consistency
+    - The result is a minimal change to `w` that accommodates `x`
+  
+- **Implementation**: The `is_alternative(u, x, w)` predicate checks:
+  ```
+  u is a world AND
+  x is part of u AND
+  exists z such that:
+    z is part of u AND
+    z is a maximal part of w compatible with x
+  ```
+
+- **Usage**: In counterfactual "A □→ B" evaluated at world `w`:
+  - True iff for all A-verifiers `x` and all `x`-alternatives `u` to `w`, B is true at `u`
+  - False iff there exists an A-verifier `x` and an `x`-alternative `u` where B is false
 
 ## Truthmaker Semantics
 
@@ -266,9 +297,9 @@ The hyperintensional framework in ModelChecker builds on several key theoretical
 
 - [Logos Theory Documentation](../Code/src/model_checker/theory_lib/logos/README.md)
 - [Exclusion Theory Documentation](../Code/src/model_checker/theory_lib/exclusion/README.md)
-- [ModelChecker Architecture](../Code/ARCHITECTURE.md)
+- [ModelChecker Architecture](../Code/docs/ARCHITECTURE.md)
 - [Development Guide](../Code/docs/DEVELOPMENT.md)
 
 ---
 
-[← Back to Documentation](README.md) | [ModelChecker README →](../Code/README.md)
+[← Back to Docs](README.md) | [Methodology →](METHODOLOGY.md) | [Z3 Background →](Z3_BACKGROUND.md)
