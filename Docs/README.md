@@ -1,19 +1,22 @@
-# ModelChecker Documentation
+# ModelChecker Documentation Hub
+
+[← Back to Project Root](../README.md) | [Technical Docs →](../Code/docs/README.md) | [Code →](../Code/README.md)
+
+## Overview
+
+This directory contains general project documentation for the ModelChecker framework, focusing on installation, getting started, theoretical background, and research methodology. For technical documentation including development guides, architecture, and testing, see the [Technical Documentation](../Code/docs/README.md).
 
 ## Directory Structure
 
 ```
 Docs/
 ├── README.md              # This file - documentation hub
-├── GETTING_STARTED.md     # Beginner's guide to using ModelChecker
-├── INSTALLATION.md        # Detailed installation guide
-├── DEVELOPMENT.md         # Development workflow and guidelines
-├── HYPERINTENSIONAL.md    # Comprehensive guide to truthmaker semantics
-├── TOOLS.md              # Advanced features documentation
+├── INSTALLATION.md        # Comprehensive installation guide
+├── GETTING_STARTED.md     # Quick start tutorial
 ├── METHODOLOGY.md         # Research methodology
-├── FINDINGS.md           # Research findings and insights
-├── UNIT_TESTS.md         # Testing methodology and guidelines
-└── Z3_BACKGROUND.md      # Z3 theorem prover background
+├── HYPERINTENSIONAL.md    # Theoretical background
+├── Z3_BACKGROUND.md       # SMT solver information
+└── FINDINGS.md            # Research findings and insights
 ```
 
 ## Documentation Overview
@@ -24,16 +27,17 @@ This directory contains comprehensive documentation for the ModelChecker project
 
 ### Getting Started
 
-- **[Getting Started Guide](GETTING_STARTED.md)** - Beginner's guide to using ModelChecker
 - **[Installation Guide](INSTALLATION.md)** - Step-by-step installation for all platforms
-- **[Tools Documentation](TOOLS.md)** - Using ModelChecker's advanced features
-- **[Main README](../Code/README.md)** - Project overview and quick start
+- **[Getting Started Guide](GETTING_STARTED.md)** - Create your first ModelChecker project
+- **[Code Package](../Code/README.md)** - ModelChecker implementation and usage
 
-### Development
+### Technical Documentation
 
-- **[Development Guide](DEVELOPMENT.md)** - Contributing and development workflow
-- **[Unit Tests Guide](UNIT_TESTS.md)** - Testing methodology and best practices
-- **[Code Documentation](../Code/src/model_checker/README.md)** - API reference
+- **[Technical Docs Hub](../Code/docs/README.md)** - Development and architecture documentation
+- **[Development Guide](../Code/docs/DEVELOPMENT.md)** - Contributing and development workflow
+- **[Testing Guide](../Code/docs/TESTS.md)** - Testing methodology and best practices
+- **[Tools Guide](../Code/docs/TOOLS.md)** - Advanced features and debugging
+- **[Examples Guide](../Code/docs/EXAMPLES.md)** - Standard example file structure
 
 ### Theory and Background
 
@@ -57,9 +61,10 @@ This directory contains comprehensive documentation for the ModelChecker project
 
 ### For Developers
 
-1. Review **[Development Guide](DEVELOPMENT.md)** for contribution guidelines
-2. Study **[Unit Tests](UNIT_TESTS.md)** for testing practices
+1. Review **[Development Guide](../Code/docs/DEVELOPMENT.md)** for contribution guidelines
+2. Study **[Testing Guide](../Code/docs/TESTS.md)** for testing practices
 3. Check **[API Documentation](../Code/src/model_checker/README.md)** for implementation details
+4. Read **[Architecture](../Code/docs/ARCHITECTURE.md)** for system design
 
 ### For Researchers
 
@@ -95,28 +100,28 @@ The **[Hyperintensional Semantics Guide](HYPERINTENSIONAL.md)** covers:
 
 ### Advanced Features
 
-The **[Tools Documentation](TOOLS.md)** explains:
+The **[Tools Documentation](../Code/docs/TOOLS.md)** explains:
 
 - Model iteration for finding multiple models
 - Theory comparison across semantic frameworks
-- Maximize mode for diverse countermodels
-- Debugging and constraint analysis
+- Maximize mode for performance benchmarking
+- Debugging flags and constraint analysis
 
-### Development Workflow
+### Development Resources
 
-The **[Development Guide](DEVELOPMENT.md)** includes:
+The technical documentation in Code/docs/ includes:
 
-- Contributing new theories
-- Code style and standards
-- Testing requirements
-- Pull request process
+- **[Development Guide](../Code/docs/DEVELOPMENT.md)** - Contributing workflow
+- **[Architecture](../Code/docs/ARCHITECTURE.md)** - System design and components
+- **[Style Guide](../Code/docs/STYLE_GUIDE.md)** - Coding standards quick reference
+- **[Maintenance Standards](../Code/MAINTENANCE.md)** - Comprehensive standards
 
 ## Related Resources
 
 ### Code Documentation
 
 - **[ModelChecker API](../Code/src/model_checker/README.md)** - Core API reference
-- **[Architecture](../Code/ARCHITECTURE.md)** - System design
+- **[Architecture](../Code/docs/ARCHITECTURE.md)** - System design
 - **[Theory Library](../Code/src/model_checker/theory_lib/README.md)** - Semantic theories
 
 ### Theory Documentation
@@ -128,9 +133,12 @@ The **[Development Guide](DEVELOPMENT.md)** includes:
 ### External Resources
 
 - **[GitHub Repository](https://github.com/benbrastmckie/ModelChecker)** - Source code
-- **[Academic Papers](http://www.benbrastmckie.com/research#access)** - Published research
 - **[Z3 Documentation](https://z3prover.github.io/)** - Z3 theorem prover
+
+## References
+
+This documentation hub follows the standards defined in [MAINTENANCE.md](../Code/MAINTENANCE.md) for consistent structure and navigation.
 
 ---
 
-[← Back to Project Root](../README.md) | [ModelChecker Code →](../Code/README.md)
+[← Back to Project Root](../README.md) | [Technical Docs →](../Code/docs/README.md) | [Code →](../Code/README.md)
