@@ -26,39 +26,39 @@ class TestExclusionOperators:
         operators = exclusion_theory['operators']
         
         # Check essential exclusion operators
-        assert "\\unineg" in operators
-        assert "\\uniwedge" in operators 
-        assert "\\univee" in operators
-        assert "\\uniequiv" in operators
+        assert "\\neg" in operators
+        assert "\\wedge" in operators 
+        assert "\\vee" in operators
+        assert "\\equiv" in operators
         
     def test_operator_properties(self, exclusion_theory):
         """Test operator arity, names, and basic properties."""
         operators = exclusion_theory['operators']
         
         # Test negation properties
-        unineg_op = operators["\\unineg"]
-        assert unineg_op.name == "\\unineg"
+        unineg_op = operators["\\neg"]
+        assert unineg_op.name == "\\neg"
         assert unineg_op.arity == 1
         
         # Test conjunction properties
-        conj_op = operators["\\uniwedge"]
-        assert conj_op.name == "\\uniwedge"
+        conj_op = operators["\\wedge"]
+        assert conj_op.name == "\\wedge"
         assert conj_op.arity == 2
         
         # Test disjunction properties
-        disj_op = operators["\\univee"]
-        assert disj_op.name == "\\univee"
+        disj_op = operators["\\vee"]
+        assert disj_op.name == "\\vee"
         assert disj_op.arity == 2
         
         # Test identity properties
-        id_op = operators["\\uniequiv"]
-        assert id_op.name == "\\uniequiv"
+        id_op = operators["\\equiv"]
+        assert id_op.name == "\\equiv"
         assert id_op.arity == 2
         
     def test_negation_operator(self, exclusion_theory):
         """Test negation operator implementation."""
         operators = exclusion_theory['operators']
-        unineg_op = operators["\\unineg"]
+        unineg_op = operators["\\neg"]
         
         # Test operator exists and has correct type
         assert unineg_op is not None
@@ -72,21 +72,21 @@ class TestExclusionOperators:
         operators = exclusion_theory['operators']
         
         # Test conjunction
-        conj_op = operators["\\uniwedge"]
+        conj_op = operators["\\wedge"]
         assert conj_op is not None
         assert conj_op.arity == 2
         assert hasattr(conj_op, 'true_at')
         assert hasattr(conj_op, 'extended_verify')
         
         # Test disjunction
-        disj_op = operators["\\univee"]
+        disj_op = operators["\\vee"]
         assert disj_op is not None
         assert disj_op.arity == 2
         assert hasattr(disj_op, 'true_at')
         assert hasattr(disj_op, 'extended_verify')
         
         # Test identity
-        id_op = operators["\\uniequiv"]
+        id_op = operators["\\equiv"]
         assert id_op is not None
         assert id_op.arity == 2
         assert hasattr(id_op, 'true_at')
@@ -109,7 +109,7 @@ class TestOperatorSemanticClauses:
         """Test semantic clauses can be executed."""
         # Get an operator class
         operators = exclusion_theory['operators']
-        unineg_op_class = operators["\\unineg"]
+        unineg_op_class = operators["\\neg"]
         
         # Set up basic test structures
         semantics = WitnessSemantics(basic_settings)
@@ -127,7 +127,7 @@ class TestOperatorSemanticClauses:
     def test_witness_aware_features(self, exclusion_theory, basic_settings):
         """Test witness-aware features of operators."""
         operators = exclusion_theory['operators']
-        unineg_op_class = operators["\\unineg"]
+        unineg_op_class = operators["\\neg"]
         
         # The negation operator should have witness-specific methods
         assert hasattr(unineg_op_class, '_verifies_negation_with_predicates')

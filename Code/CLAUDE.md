@@ -21,6 +21,15 @@ The ModelChecker creates a **programmatic semantics framework** for implementing
 
 This guide emphasizes **systematic development practices**, **comprehensive testing procedures**, and **rigorous documentation standards** to support both automated assistance and human collaboration in advancing computational logic research.
 
+### Core Development Principles
+
+1. **Architectural Clarity**: Prioritize clean, well-organized code architecture over backwards compatibility
+2. **Test-Driven Development**: Use comprehensive testing to drive design decisions and catch issues early
+3. **Systematic Refactoring**: Continuously improve code quality through thoughtful refactoring
+4. **Unified Design**: Ensure all components follow consistent patterns and interfaces
+5. **Maintainability First**: Choose solutions that minimize complexity and maximize long-term maintainability
+6. **No Legacy Debt**: Remove deprecated patterns and outdated code without hesitation
+
 ## Subdirectories
 
 ### [docs/](docs/)
@@ -37,6 +46,7 @@ Core framework implementation with **API documentation**, **theory library**, **
 - **Unicode Mathematical Symbols**: Use verified Unicode for logical operators (∧, ∨, ¬, □, ◇) only
 - **LaTeX Notation**: Use LaTeX in code examples (`\\wedge`, `\\Box`, `\\rightarrow`)
 - **Consistent Documentation**: Follow 9-section maintenance/README.md structure for all README files
+- **NO DECORATORS**: Avoid decorators without good reason and explicit user permission
 
 ### Character Encoding Standards
 
@@ -57,6 +67,31 @@ find . -name "test_*.py" -o -name "debug_*.py" | grep -v "src/"  # Find temp fil
 ```
 
 ## Development Guidelines
+
+### Refactoring Approach
+
+When improving the codebase:
+
+1. **Break Compatibility When Necessary**: If a cleaner architecture requires breaking changes, make them
+2. **Test First**: Write tests that define the desired behavior before implementing changes
+3. **Simplify Aggressively**: Remove unnecessary abstractions, decorators, and complex patterns
+4. **Unify Interfaces**: Ensure similar components use identical patterns and interfaces
+5. **Document Intent**: Clearly document why architectural decisions were made
+6. **Remove Rather Than Deprecate**: Delete old code rather than maintaining deprecated versions
+
+Example refactoring workflow:
+```bash
+# 1. Write tests for desired behavior
+./run_tests.py --new-feature-tests
+
+# 2. Implement minimal solution that passes tests
+# 3. Refactor to improve code quality
+# 4. Ensure all tests still pass
+./run_tests.py
+
+# 5. Remove old implementation completely
+# 6. Update all documentation
+```
 
 ### Mathematical Symbol Usage
 

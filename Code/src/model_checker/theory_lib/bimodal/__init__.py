@@ -29,9 +29,6 @@ Usage:
     from model_checker.theory_lib.bimodal import bimodal_operators
     from model_checker.theory_lib import get_examples
 
-# Import version utilities
-from model_checker.utils import get_model_checker_version
-
     # Create a semantics and model structure
     semantics = BimodalSemantics(settings)
     model = BimodalStructure(semantics)
@@ -48,9 +45,6 @@ from model_checker.utils import get_model_checker_version
     examples = get_examples('bimodal')
 """
 
-# Import version utilities
-from model_checker.utils import get_model_checker_version
-
 # Import specific items from semantic
 from .semantic import (
     BimodalSemantics,
@@ -58,20 +52,11 @@ from .semantic import (
     BimodalStructure,
 )
 
-# Import version utilities
-from model_checker.utils import get_model_checker_version
-
 # Import operators collection
 from .operators import bimodal_operators
 
-# Import version utilities
-from model_checker.utils import get_model_checker_version
-
 # Import iteration functionality
 from .iterate import BimodalModelIterator, iterate_example
-
-# Import version utilities
-from model_checker.utils import get_model_checker_version
 
 __version__ = "1.0.0"
 

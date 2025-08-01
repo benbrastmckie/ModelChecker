@@ -7,6 +7,9 @@ to extract or reconstruct witness functions, they simply exist as queryable
 predicates alongside verify and exclude.
 """
 
+__version__ = "1.0.0"
+__model_checker_version__ = "0.9.20"  # ModelChecker version this was built with
+
 from .semantic import WitnessSemantics, WitnessModelAdapter, WitnessProposition, WitnessStructure, WitnessAwareModel, WitnessRegistry, WitnessConstraintGenerator
 from .operators import witness_operators
 from .iterate import ExclusionModelIterator, iterate_example

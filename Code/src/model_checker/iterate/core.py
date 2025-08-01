@@ -18,7 +18,8 @@ import traceback
 import logging
 import sys
 
-from model_checker.builder.example import BuildExample
+# Temporarily comment out to fix circular import
+# from model_checker.builder.example import BuildExample
 from model_checker.builder.progress import Spinner
 from model_checker.iterate.graph_utils import ModelGraph
 from model_checker.iterate.progress import IterationProgress
@@ -67,10 +68,11 @@ class BaseModelIterator:
             TypeError: If build_example is not a BuildExample instance
         """
         # Type validation
-        if not isinstance(build_example, BuildExample):
-            raise TypeError(
-                f"Expected BuildExample instance, got {type(build_example).__name__}"
-            )
+        # Temporarily disable type check to fix circular import
+        # if not isinstance(build_example, BuildExample):
+        #     raise TypeError(
+        #         f"Expected BuildExample instance, got {type(build_example).__name__}"
+        #     )
             
         # Model validation
         if not hasattr(build_example, 'model_structure') or build_example.model_structure is None:

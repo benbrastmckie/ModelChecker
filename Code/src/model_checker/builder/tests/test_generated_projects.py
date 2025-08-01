@@ -64,19 +64,19 @@ class TestGeneratedProjectImports(unittest.TestCase):
         self.assertGreater(len(build_module.example_range), 0)
     
     def test_default_project_examples_init_loading(self):
-        """Test loading examples/__init__.py from default theory project."""
+        """Test loading examples.py from generated theory project."""
         os.chdir(self.temp_dir)
         
-        # Generate project from default template (has examples/ directory)
-        project = BuildProject('default')
+        # Generate project from logos template
+        project = BuildProject('logos')
         project_dir = project.generate('test_default')
         
-        # Test loading examples/__init__.py from generated project
-        examples_init_path = os.path.join(project_dir, 'examples', '__init__.py')
-        self.assertTrue(os.path.exists(examples_init_path), "examples/__init__.py should exist")
+        # Test loading examples.py from generated project
+        examples_path = os.path.join(project_dir, 'examples.py')
+        self.assertTrue(os.path.exists(examples_path), "examples.py should exist")
         
         # Test BuildModule can load it (this was the original failing case)
-        module_flags = MockFlags(examples_init_path)
+        module_flags = MockFlags(examples_path)
         build_module = BuildModule(module_flags)
         
         # Verify it loaded successfully

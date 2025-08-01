@@ -122,6 +122,7 @@ git push -u origin theory/my-new-theory
 ```
 
 Then create a pull request on GitHub with:
+
 - A clear description of your theory
 - References to relevant papers or research
 - Examples of what makes your theory unique
@@ -224,6 +225,7 @@ Following these constraints ensures proper parsing and evaluation of logical for
 Each theory must include these core files:
 
 ### semantic.py
+
 Define your semantic framework with the core classes:
 
 ```python
@@ -259,6 +261,7 @@ class MyModelStructure(ModelDefaults):
 ```
 
 ### operators.py
+
 Implement your logical operators:
 
 ```python
@@ -283,7 +286,8 @@ my_operators = OperatorCollection(
 )
 ```
 
-### __init__.py
+### **init**.py
+
 Export your public API:
 
 ```python
@@ -297,6 +301,7 @@ __all__ = [
 ```
 
 ### examples.py
+
 Create comprehensive test cases following the standard format:
 
 ```python
@@ -388,6 +393,7 @@ if __name__ == '__main__':
 ```
 
 ### README.md
+
 Document your theory following the standard structure:
 
 ```markdown
@@ -396,21 +402,27 @@ Document your theory following the standard structure:
 [← Back to Theory Library](../README.md) | [Documentation →](docs/README.md)
 
 ## Directory Structure
+
 [Include complete file tree]
 
 ## Overview
+
 [Theory description, features, theoretical background]
 
 ## Quick Start
+
 [Working code examples]
 
 ## Subdirectories
+
 [Describe docs/, tests/, notebooks/ directories]
 
 ## Documentation
+
 [Organized by user type]
 
 ## References
+
 [Academic references and related resources]
 ```
 
@@ -528,7 +540,7 @@ All theories in the ModelChecker Theory Library are licensed under the GNU Gener
 Each theory includes:
 
 - **LICENSE.md**: Contains the GPL-3.0 license text specific to the theory
-- **CITATION.md**: Contains proper academic citation information 
+- **CITATION.md**: Contains proper academic citation information
 - **Version Tracking**: Each theory has its own version, tracked in `__init__.py`
 
 ### License Compliance for Theory Authors

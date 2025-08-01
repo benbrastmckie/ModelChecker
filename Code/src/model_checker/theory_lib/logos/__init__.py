@@ -15,6 +15,9 @@ API:
     Registry: LogosOperatorRegistry for dynamic operator loading
 """
 
+__version__ = "1.0.0"
+__model_checker_version__ = "0.9.20"  # ModelChecker version this was built with
+
 from .semantic import LogosSemantics, LogosProposition, LogosModelStructure
 from .operators import LogosOperatorRegistry
 from .subtheories import list_subtheories, AVAILABLE_SUBTHEORIES

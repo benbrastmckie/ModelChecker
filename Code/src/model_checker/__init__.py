@@ -33,8 +33,8 @@ __all__ = [
     "ParseFileFlags",                               # main.py
     "ForAll", "Exists", "bitvec_to_substates",      # utils.py
     "get_example", "get_theory", "run_test",
-    "BuildModule", "BuildProject", "BuildExample",  # builder.py
-    "BuildModule", "BuildExample", "main",
+    "BuildModule", "BuildProject",  # builder.py
+    "BuildModule", "main",
     "ModelConstraints",
     "Syntax",
 ]
