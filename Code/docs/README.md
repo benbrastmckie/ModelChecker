@@ -1,23 +1,23 @@
-# Development Documentation Hub
+# Technical Documentation Hub
 
-[← Back to ModelChecker](../README.md) | [Theory Library →](../src/model_checker/theory_lib/README.md) | [API Documentation →](../src/model_checker/README.md)
+[← Back to Code](../README.md) | [General Docs →](../../Docs/README.md) | [Theory Library →](../src/model_checker/theory_lib/README.md)
 
 ## Directory Structure
+
 ```
 docs/
-├── README.md                    # This file - development documentation hub
-├── DEVELOPMENT.md               # Development workflow and testing procedures
+├── README.md                    # This file - technical documentation hub
+├── DEVELOPMENT.md               # Development workflow and contribution guide
 ├── ARCHITECTURE.md              # System architecture and design principles
-├── INSTALLATION.md              # Installation instructions and dependencies
-├── STYLE_GUIDE.md               # Python coding standards and conventions
-├── TESTS.md                     # Testing methodology and framework usage
 ├── EXAMPLES.md                  # Standard form for examples.py files
-└── CLEANUP_RECOMMENDATIONS.md   # Legacy maintenance recommendations
+├── TESTS.md                     # Testing methodology and framework usage
+├── TOOLS.md                     # Advanced debugging and analysis tools
+└── STYLE_GUIDE.md               # Code style quick reference
 ```
 
 ## Overview
 
-The **Development Documentation** provides comprehensive guides for contributing to, understanding, and maintaining the ModelChecker framework. This documentation serves developers, researchers implementing new theories, and maintainers working on the core framework.
+The **Technical Documentation** provides comprehensive guides for contributing to, understanding, and maintaining the ModelChecker framework. This documentation serves developers, researchers implementing new theories, and maintainers working on the core framework. For general project documentation including installation and getting started, see the [General Documentation](../../Docs/README.md).
 
 The documentation covers **development workflow**, **system architecture**, **testing methodology**, and **coding standards** to ensure consistent, high-quality contributions to the ModelChecker ecosystem. Whether you're fixing bugs, adding new theories, or extending core functionality, these guides provide the foundation for effective development.
 
@@ -47,10 +47,10 @@ cd ModelChecker/Code
 
 ### Getting Started
 
-1. **Environment Setup**: Follow [INSTALLATION.md](INSTALLATION.md) for your platform
-2. **Architecture Understanding**: Read [ARCHITECTURE.md](ARCHITECTURE.md) for system overview  
-3. **Development Workflow**: Study [DEVELOPMENT.md](DEVELOPMENT.md) for testing and contribution procedures
-4. **Code Standards**: Review [STYLE_GUIDE.md](STYLE_GUIDE.md) for coding conventions
+1. **Environment Setup**: Follow [INSTALLATION.md](../../Docs/INSTALLATION.md) for installation
+2. **Architecture Understanding**: Read [ARCHITECTURE.md](ARCHITECTURE.md) for system overview
+3. **Development Workflow**: Study [DEVELOPMENT.md](DEVELOPMENT.md) for contribution procedures
+4. **Code Standards**: Review [STYLE_GUIDE.md](STYLE_GUIDE.md) and [MAINTENANCE.md](../MAINTENANCE.md)
 
 ### Common Development Tasks
 
@@ -59,7 +59,7 @@ cd ModelChecker/Code
 ./dev_cli.py -l new_theory          # Generate theory template
 ./run_tests.py new_theory --examples   # Test theory implementation
 
-# Framework development  
+# Framework development
 python test_package.py --components builder settings    # Test components
 python test_theories.py --theories logos exclusion      # Test theories
 
@@ -80,35 +80,42 @@ See [TESTS.md](TESTS.md) for comprehensive testing documentation.
 ## Documentation
 
 ### For New Contributors
-- **[Installation Guide](INSTALLATION.md)** - Environment setup and dependencies
+
+- **[Installation Guide](../../Docs/INSTALLATION.md)** - Environment setup and dependencies
 - **[Development Workflow](DEVELOPMENT.md)** - Testing, Git workflow, and contribution procedures
-- **[Style Guide](STYLE_GUIDE.md)** - Coding standards and conventions
+- **[Style Guide](STYLE_GUIDE.md)** - Quick reference to coding standards
+- **[Maintenance Standards](../MAINTENANCE.md)** - Comprehensive standards document
 - **[Examples Standard](EXAMPLES.md)** - Standard form for examples.py files
 
-### For Theory Implementers  
+### For Theory Implementers
+
 - **[Architecture Guide](ARCHITECTURE.md)** - System design and extension points
 - **[Theory Library Guide](../src/model_checker/theory_lib/README.md)** - Theory implementation patterns
 - **[Testing Guide](TESTS.md)** - Validation and testing methodology
 - **[Examples Standard](EXAMPLES.md)** - Creating standardized example files
 
 ### For Core Developers
+
 - **[Architecture Documentation](ARCHITECTURE.md)** - System design principles and component relationships
-- **[Cleanup Recommendations](CLEANUP_RECOMMENDATIONS.md)** - Technical debt and improvement opportunities
 - **[Development Guide](DEVELOPMENT.md)** - Advanced development workflows and debugging
+- **[Testing Guide](TESTS.md)** - Comprehensive testing strategies and patterns
 
 ## Key Development Principles
 
 ### Modular Architecture
+
 - **Separation of Concerns**: Core framework vs theory implementations
 - **Standardized Interfaces**: Consistent APIs across all theories
 - **Extension Points**: Clear patterns for adding new functionality
 
 ### Testing Philosophy
+
 - **Comprehensive Coverage**: Both unit tests and integration tests
 - **Theory Validation**: Systematic validation of logical principles
 - **Regression Prevention**: Continuous testing of all components
 
 ### Documentation Standards
+
 - **MAINTENANCE.md Compliance**: All documentation follows repository standards
 - **Working Examples**: All code examples must be tested and functional
 - **Audience Segmentation**: Documentation organized by user type and expertise level
@@ -116,18 +123,21 @@ See [TESTS.md](TESTS.md) for comprehensive testing documentation.
 ## Contributing Guidelines
 
 ### Code Contributions
+
 1. **Follow Style Guide**: Adhere to [STYLE_GUIDE.md](STYLE_GUIDE.md) conventions
 2. **Write Tests**: Include comprehensive test coverage for new functionality
 3. **Document Changes**: Update relevant documentation and examples
 4. **Test Thoroughly**: Run both theory and package test suites
 
 ### Theory Contributions
+
 1. **Use Standard Interfaces**: Implement `get_theory()`, `get_examples()`, `get_test_examples()`
 2. **Follow Patterns**: Use existing theories as architectural models
 3. **Provide Documentation**: Include comprehensive README and API documentation
 4. **Academic Attribution**: Include proper citations and licensing
 
 ### Documentation Contributions
+
 1. **Follow MAINTENANCE.md**: Adhere to documentation standards
 2. **Verify Accuracy**: Ensure all examples and references are correct
 3. **Test Links**: Validate all cross-references and navigation links
@@ -135,7 +145,9 @@ See [TESTS.md](TESTS.md) for comprehensive testing documentation.
 
 ## Related Resources
 
-- **[Main Package Documentation](../README.md)** - Package overview and installation
+- **[Code Package Documentation](../README.md)** - Package overview and quick start
+- **[General Documentation](../../Docs/README.md)** - Installation and getting started
+- **[Tools Guide](TOOLS.md)** - Advanced debugging and analysis features
 - **[API Documentation](../src/model_checker/README.md)** - Framework API and usage patterns
 - **[Theory Library](../src/model_checker/theory_lib/README.md)** - Semantic theory implementations
 - **[Jupyter Integration](../src/model_checker/jupyter/README.md)** - Interactive development tools
@@ -146,4 +158,4 @@ All development documentation is licensed under GPL-3.0 as part of the ModelChec
 
 ---
 
-[← Back to ModelChecker](../README.md) | [Development Guide →](DEVELOPMENT.md) | [Architecture →](ARCHITECTURE.md) | [Installation →](INSTALLATION.md)
+[← Back to Code](../README.md) | [General Docs →](../../Docs/README.md) | [Development →](DEVELOPMENT.md)
