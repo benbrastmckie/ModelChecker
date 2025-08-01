@@ -1,5 +1,7 @@
 # Z3 and SMT Solver Background
 
+[← Back to Docs](README.md) | [Methodology →](METHODOLOGY.md) | [Hyperintensional →](HYPERINTENSIONAL.md)
+
 ## Table of Contents
 1. [Introduction to SMT Solvers](#introduction-to-smt-solvers)
 2. [What is Z3?](#what-is-z3)
@@ -313,3 +315,7 @@ In the ModelChecker's exclusion theory, we use Z3 to implement two types of unil
 2. **Set-based negation** (`\set_neg`): Uses set operations without functions (Fine semantics)
 
 The challenge of implementing `\neg` motivated the witness predicate architecture described in the exclusion theory documentation.
+
+---
+
+[← Back to Docs](README.md) | [Methodology →](METHODOLOGY.md) | [Hyperintensional →](HYPERINTENSIONAL.md)
