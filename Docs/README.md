@@ -10,13 +10,19 @@ This directory contains general project documentation for the ModelChecker frame
 
 ```
 Docs/
-├── README.md              # This file - documentation hub
-├── INSTALLATION.md        # Comprehensive installation guide
-├── GETTING_STARTED.md     # Quick start tutorial
-├── METHODOLOGY.md         # Research methodology
-├── HYPERINTENSIONAL.md    # Theoretical background
-├── Z3_BACKGROUND.md       # SMT solver information
-└── FINDINGS.md            # Research findings and insights
+├── README.md                       # This file - documentation hub
+├── installation/                   # Modular installation guides
+│   ├── README.md                   # Installation overview and navigation
+│   ├── BASIC_INSTALLATION.md       # Standard pip installation guide
+│   ├── TROUBLESHOOTING.md          # Platform-specific solutions
+│   ├── VIRTUAL_ENVIRONMENTS.md     # Virtual environment setup
+│   ├── JUPYTER_SETUP.md            # Jupyter notebook configuration
+│   └── DEVELOPER_SETUP.md          # Development environment setup
+├── GETTING_STARTED.md              # Quick start tutorial for new users
+├── METHODOLOGY.md                  # Three-level programmatic semantics approach
+├── HYPERINTENSIONAL.md             # Theoretical background and core concepts
+├── Z3_BACKGROUND.md                # Introduction to Z3 theorem prover
+└── FINDINGS.md                     # Research findings and logical insights
 ```
 
 ## Documentation Overview
@@ -27,7 +33,8 @@ This directory contains comprehensive documentation for the ModelChecker project
 
 ### Getting Started
 
-- **[Installation Guide](INSTALLATION.md)** - Step-by-step installation for all platforms
+- **[Installation Hub](installation/README.md)** - Modular installation guides for all scenarios
+- **[Basic Installation](installation/BASIC_INSTALLATION.md)** - Quick pip installation
 - **[Getting Started Guide](GETTING_STARTED.md)** - Create your first ModelChecker project
 - **[Code Package](../Code/README.md)** - ModelChecker implementation and usage
 
@@ -54,10 +61,10 @@ This directory contains comprehensive documentation for the ModelChecker project
 
 ### For New Users
 
-1. Start with **[Installation](INSTALLATION.md)** to set up ModelChecker
+1. Start with **[Installation](installation/README.md)** to set up ModelChecker
 2. Follow **[Getting Started](GETTING_STARTED.md)** for your first project
 3. Read the **[Main README](../Code/README.md)** for quick start examples
-4. Explore **[Tools](TOOLS.md)** for advanced features
+4. Explore **[Tools](../Code/docs/TOOLS.md)** for advanced features
 
 ### For Developers
 
@@ -75,19 +82,21 @@ This directory contains comprehensive documentation for the ModelChecker project
 ### For Educators
 
 1. Use **[Hyperintensional Semantics](HYPERINTENSIONAL.md)** as teaching material
-2. Reference **[Installation](INSTALLATION.md)** for student setup
-3. Explore **[Jupyter Notebooks](../Code/src/model_checker/theory_lib/logos/notebooks/)** for interactive demos
+2. Reference **[Installation](installation/README.md)** for student setup
+3. See **[Jupyter Setup](installation/JUPYTER_SETUP.md)** for notebook configuration
+4. Explore **[Jupyter Notebooks](../Code/src/model_checker/theory_lib/logos/notebooks/)** for interactive demos
 
 ## Key Topics
 
 ### Installation and Setup
 
-The **[Installation Guide](INSTALLATION.md)** provides:
+The **[Installation Documentation](installation/README.md)** provides:
 
-- Terminal usage for beginners
-- Python installation on all platforms
-- Virtual environment setup
-- Troubleshooting common issues
+- **[Basic Installation](installation/BASIC_INSTALLATION.md)** - pip install with options
+- **[Troubleshooting](installation/TROUBLESHOOTING.md)** - Platform-specific solutions
+- **[Virtual Environments](installation/VIRTUAL_ENVIRONMENTS.md)** - Isolated setups
+- **[Jupyter Setup](installation/JUPYTER_SETUP.md)** - Notebook configuration
+- **[Developer Setup](installation/DEVELOPER_SETUP.md)** - Contributing setup
 
 ### Hyperintensional Logic
 
