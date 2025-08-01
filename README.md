@@ -6,18 +6,20 @@
 
 ```
 ModelChecker/
-├── Code/                   # Main implementation directory (see Code/README.md)
-│   ├── src/               # Source code
-│   ├── docs/              # Development documentation
-│   ├── specs/             # Implementation specifications
-│   └── tests/             # Test suites
-├── Docs/                   # Project documentation (see Docs/README.md)
-│   ├── DEVELOPMENT.md     # Development guide
-│   ├── INSTALLATION.md    # Installation instructions
-│   ├── METHODOLOGY.md     # Research methodology
-│   └── TOOLS.md           # Advanced tooling
-├── Images/                 # Screenshots and diagrams
-└── README.md               # This file - project overview
+├── Code/                           # Main implementation directory (see Code/README.md)
+│   ├── src/                        # Source code
+│   ├── docs/                       # Technical documentation
+│   ├── specs/                      # Implementation specifications
+│   └── tests/                      # Test suites
+├── Docs/                           # General project documentation (see Docs/README.md)
+│   ├── installation/               # Modular installation guides
+│   ├── GETTING_STARTED.md          # Quick start guide
+│   ├── METHODOLOGY.md              # Research methodology
+│   ├── HYPERINTENSIONAL.md         # Theoretical background
+│   ├── Z3_BACKGROUND.md            # SMT solver information
+│   └── FINDINGS.md                 # Research findings
+├── Images/                         # Screenshots and diagrams
+└── README.md                       # This file - project overview
 ```
 
 ## Overview
@@ -25,6 +27,15 @@ ModelChecker/
 The **ModelChecker** provides a programmatic semantic methodology for developing and exploring modular semantic theories. Drawing on the Z3 SMT solver, it enables researchers to establish logical consequence over finite models, automatically finding and printing readable countermodels when formulas or inferences are invalid. The framework includes the **TheoryLib** which provides a library of semantic theories to which users can clone, adjust, and contribute to the project in order make publicly available to share with others. The Logos theory currently supports extensional, modal, counterfactual, and constitutive operators, providing a modular architecture for studying hyperintensional logics and promoting transparent and verifiable reasoning.
 
 The project facilitates the exploration of logical systems with many interacting operators that would be intractable to analyze by hand. Whereas the Logos is interpreted over a bilateral hyperintensional semantics, the TheoryLib also includes an implementation of Bernard and Champollion's unilateral semantics for negation based on exclusion, an implementation Fine's imposition semantics for counterfactuals, and a bimodal logic for reasoning with tense and modality. The modular architecture with automatic dependency resolution makes it easy to build one theory off of another while registering their differences in order to study independently.
+
+## Documentation Organization
+
+The ModelChecker documentation is organized into two main areas:
+
+- **[General Documentation](Docs/README.md)** - Installation, getting started, theoretical background, and research methodology
+- **[Technical Documentation](Code/docs/README.md)** - Development guides, architecture, testing, and implementation details
+
+This separation ensures users can quickly find installation and usage information while developers have easy access to technical specifications and contribution guidelines.
 
 ## Installation
 
@@ -34,7 +45,7 @@ The project facilitates the exploration of logical systems with many interacting
 pip install model-checker
 ```
 
-For detailed installation instructions including platform-specific notes, see the [Installation Guide](Docs/INSTALLATION.md).
+For detailed installation instructions including platform-specific notes, see the [Installation Guide](Docs/installation/README.md).
 
 ### Development Installation
 
@@ -45,7 +56,7 @@ cd ModelChecker/Code
 ./dev_cli.py examples/my_example.py
 ```
 
-For comprehensive development setup instructions, including virtual environments and platform-specific guidance, see the [Development Guide](Docs/DEVELOPMENT.md). NixOS users can use the provided `shell.nix` configuration for automatic environment setup.
+For comprehensive development setup instructions, including virtual environments and platform-specific guidance, see the [Development Guide](Code/docs/DEVELOPMENT.md). NixOS users can use the provided `shell.nix` configuration for automatic environment setup.
 
 ### With Jupyter Support
 
@@ -95,14 +106,14 @@ theory = get_theory()
 EXT_TH_1_premises = ["A", "(A \\rightarrow B)"]
 EXT_TH_1_conclusions = ["B"]
 EXT_TH_1_settings = {
-    'N': 3,                    # Max number of atomic propositions
-    'contingent': False,       # Allow non-contingent propositions
-    'non_null': False,         # Allow the null state
-    'non_empty': False,        # Allow empty verifier/falsifier sets
-    'disjoint': False,         # Allow verifier/falsifier overlap
-    'max_time': 10,            # Timeout in seconds
-    'iterate': 1,              # Number of models to find
-    'expectation': False,      # True = expect countermodel, False = expect theorem
+    'N': 3,                         # Max number of atomic propositions
+    'contingent': False,            # Allow non-contingent propositions
+    'non_null': False,              # Allow the null state
+    'non_empty': False,             # Allow empty verifier/falsifier sets
+    'disjoint': False,              # Allow verifier/falsifier overlap
+    'max_time': 10,                 # Timeout in seconds
+    'iterate': 1,                   # Number of models to find
+    'expectation': False,           # True = expect countermodel, False = expect theorem
 }
 EXT_TH_1_example = [
     EXT_TH_1_premises,
@@ -114,14 +125,14 @@ EXT_TH_1_example = [
 CF_TH_1_premises = ["A", "(A \\boxright B)"]
 CF_TH_1_conclusions = ["B"]
 CF_TH_1_settings = {
-    'N': 4,                    # Max number of atomic propositions
-    'contingent': False,       # Allow non-contingent propositions
-    'non_null': False,         # Allow the null state
-    'non_empty': False,        # Allow empty verifier/falsifier sets
-    'disjoint': False,         # Allow verifier/falsifier overlap
-    'max_time': 10,            # Timeout in seconds
-    'iterate': 1,              # Number of models to find
-    'expectation': False,      # True = expect countermodel, False = expect theorem
+    'N': 4,                         # Max number of atomic propositions
+    'contingent': False,            # Allow non-contingent propositions
+    'non_null': False,              # Allow the null state
+    'non_empty': False,             # Allow empty verifier/falsifier sets
+    'disjoint': False,              # Allow verifier/falsifier overlap
+    'max_time': 10,                 # Timeout in seconds
+    'iterate': 1,                   # Number of models to find
+    'expectation': False,           # True = expect countermodel, False = expect theorem
 }
 CF_TH_1_example = [
     CF_TH_1_premises,
@@ -133,14 +144,14 @@ CF_TH_1_example = [
 CON_TH_1_premises = []
 CON_TH_1_conclusions = ["(A \\equiv A)"]
 CON_TH_1_settings = {
-    'N': 3,                    # Max number of atomic propositions
-    'contingent': False,       # Allow non-contingent propositions
-    'non_null': False,         # Allow the null state
-    'non_empty': False,        # Allow empty verifier/falsifier sets
-    'disjoint': False,         # Allow verifier/falsifier overlap
-    'max_time': 10,            # Timeout in seconds
-    'iterate': 1,              # Number of models to find
-    'expectation': False,      # True = expect countermodel, False = expect theorem
+    'N': 3,                         # Max number of atomic propositions
+    'contingent': False,            # Allow non-contingent propositions
+    'non_null': False,              # Allow the null state
+    'non_empty': False,             # Allow empty verifier/falsifier sets
+    'disjoint': False,              # Allow verifier/falsifier overlap
+    'max_time': 10,                 # Timeout in seconds
+    'iterate': 1,                   # Number of models to find
+    'expectation': False,           # True = expect countermodel, False = expect theorem
 }
 CON_TH_1_example = [
     CON_TH_1_premises,
@@ -197,7 +208,7 @@ Visual documentation including architecture diagrams, countermodel visualization
 
 ### For New Users
 
-- **[Installation Guide](Docs/INSTALLATION.md)** - Setup instructions for all platforms
+- **[Installation Guide](Docs/installation/README.md)** - Setup instructions for all platforms
 - **[Getting Started Guide](Docs/GETTING_STARTED.md)** - Create your first project
 - **[User Guide](Code/src/model_checker/theory_lib/docs/USAGE_GUIDE.md)** - Basic usage patterns
 - **[Interactive Notebooks](Code/src/model_checker/theory_lib/logos/notebooks/README.md)** - Hands-on tutorials
@@ -296,11 +307,11 @@ We encourage users to report bugs and suggest features by [creating issues](http
 
 - Check existing issues to avoid duplicates
 - Provide minimal reproducible examples for bugs
-- See [troubleshooting guide](Docs/INSTALLATION.md#troubleshooting) for common problems
+- See [troubleshooting guide](Docs/installation/TROUBLESHOOTING.md) for common problems
 
 - **Issues**: [GitHub Issues](https://github.com/benbrastmckie/ModelChecker/issues)
 - **Contact**: See repository for contact information
 
 ---
 
-[Code →](Code/README.md) | [Documentation →](Docs/README.md) | [Getting Started →](Docs/INSTALLATION.md)
+[Code →](Code/README.md) | [Documentation →](Docs/README.md) | [Getting Started →](Docs/GETTING_STARTED.md)

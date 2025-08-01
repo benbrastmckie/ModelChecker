@@ -2,6 +2,12 @@
 
 ## Current Tasks
 
+- clean up tests in `Code/`
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/UPDATE_DOCS.md`
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/ITERATE_PACK.md`
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/LOAD_THEORIES.md`
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md`
+
 ### High Priority
 
 - [.] unit tests
@@ -13,6 +19,8 @@
   - [x] docs for each theory
   - [ ] report networkx not available
   - [ ] move iterate components out of semantic.py
+  - [ ] add installation option
+  - [ ] update docs
 - [ ] jupyter
   - [ ] check examples
 - [.] theory metadata

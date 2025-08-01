@@ -10,12 +10,12 @@ This directory contains modular installation guides for the ModelChecker framewo
 
 ```
 installation/
-├── README.md                 # This file - installation documentation hub
-├── BASIC_INSTALLATION.md     # Standard pip installation guide
-├── TROUBLESHOOTING.md        # Platform-specific troubleshooting
-├── VIRTUAL_ENVIRONMENTS.md   # Virtual environment setup guide
-├── JUPYTER_SETUP.md          # Jupyter notebook configuration
-└── DEVELOPER_SETUP.md        # Development environment setup
+├── README.md                       # This file - installation documentation hub
+├── BASIC_INSTALLATION.md           # Standard pip installation guide
+├── TROUBLESHOOTING.md              # Platform-specific troubleshooting
+├── VIRTUAL_ENVIRONMENTS.md         # Virtual environment setup guide
+├── JUPYTER_SETUP.md                # Jupyter notebook configuration
+└── DEVELOPER_SETUP.md              # Development environment setup
 ```
 
 ## Quick Navigation
