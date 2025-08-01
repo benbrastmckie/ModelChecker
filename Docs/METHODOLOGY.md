@@ -1,5 +1,7 @@
 # The Three-Level Methodology for Programmatic Semantics
 
+[← Back to Docs](README.md) | [Hyperintensional →](HYPERINTENSIONAL.md) | [Z3 Background →](Z3_BACKGROUND.md)
+
 ## Table of Contents
 
 1. [Introduction](#introduction)
@@ -28,12 +30,16 @@ This document explains the three-level approach using concrete examples from two
 The methodology systematically transforms between three fundamental levels of semantic analysis:
 
 ```
-Syntax Level          Truth-Conditions Level       Extensions Level
-    |                         |                          |
-    v                         v                          v
-Formulas              Logical Constraints          Concrete Models
-Operators        ->   Semantic Definitions    ->   State Assignments
-AST Trees             Z3 Requirements              Model Checking
+┌─────────────────────┐     ┌──────────────────────────┐     ┌─────────────────────┐
+│   Syntax Level      │     │  Truth-Conditions Level  │     │  Extensions Level   │
+├─────────────────────┤     ├──────────────────────────┤     ├─────────────────────┤
+│ • Formulas          │     │ • Logical Constraints    │     │ • Concrete Models   │
+│ • Operators         │ --> │ • Semantic Definitions   │ --> │ • State Assignments │
+│ • AST Trees         │     │ • Z3 Requirements        │     │ • Model Checking    │
+└─────────────────────┘     └──────────────────────────┘     └─────────────────────┘
+         │                            │                               │
+         └────────────────────────────┴───────────────────────────────┘
+                        Systematic Transformation Flow
 ```
 
 ### Why Three Levels?
@@ -314,47 +320,57 @@ Different semantic theories require different patterns of information flow betwe
 
 ### Linear Flow (Bilateral Semantics)
 
-Bilateral semantics work with **static linear information flow**:
+Bilateral semantics work with **straightforward linear information flow**:
 
 ```
-Syntax -> Truth-Conditions -> Extensions
-  |            |               |
-  v            v               v
-Parse       Generate        Solve &
-formulas    constraints     evaluate
+┌─────────────┐     ┌───────────────────┐     ┌──────────────┐
+│   Syntax    │ --> │ Truth-Conditions  │ --> │  Extensions  │
+├─────────────┤     ├───────────────────┤     ├──────────────┤
+│    Parse    │     │     Generate      │     │   Solve &    │
+│  formulas   │     │   constraints     │     │   evaluate   │
+└─────────────┘     └───────────────────┘     └──────────────┘
+       ↓                     ↓                       ↓
+   Identify             Create direct           Compute 
+   atomic props         constraints for         verifiers &
+   & operators          verifiers/falsifiers    falsifiers
 ```
 
-This works because:
+The direct computation is possible because:
 
-- Verifiers and falsifiers are directly computable
-- No circular dependencies between constraint generation and model evaluation
-- Standard Z3 solving techniques suffice
+- Verifiers and falsifiers are defined by simple recursive rules
+- No witness functions or existential quantification needed
+- Each operator directly specifies its verification/falsification conditions
 
-### Circular Flow (Unilateral Semantics)
+### Linear Flow with Persistence (Unilateral Semantics)
 
-Unilateral semantics require **circular incremental information flow**:
+Unilateral semantics use **linear flow with persistent witness functions**:
 
 ```
-Syntax <-> Truth-Conditions <-> Extensions
-  ^            ^               ^
-  |            |               |
-Parse <->   Generate    <->   Solve &
-formulas   constraints     evaluate
+┌─────────────┐     ┌───────────────────┐     ┌──────────────┐
+│   Syntax    │ --> │ Truth-Conditions  │ --> │  Extensions  │
+├─────────────┤     ├───────────────────┤     ├──────────────┤
+│    Parse    │     │     Generate      │     │   Solve &    │
+│  formulas   │     │   constraints     │     │   evaluate   │
+└─────────────┘     └───────────────────┘     └──────────────┘
+       ↓                     ↓                       ↓
+   Register             Use witness            Query witness
+   witness              functions in           function values
+   functions            constraints            from model
 ```
 
-This is necessary because:
+The key innovation is making witness functions **persistent**:
 
-- Witness functions must be established during constraint generation
-- But witness values are needed during truth evaluation
-- Requires advanced "witness predicate" architecture
+- Traditional approach: Existentially quantified variables (∃h,y) disappear after solving
+- Exclusion approach: Z3 Functions (h_pred, y_pred) persist as part of the model
+- This enables querying witness values when computing verifiers
 
 ### Architectural Innovation
 
-The exclusion theory's solution—**witness predicates as first-class model citizens**—enables circular flow by:
+The exclusion theory's solution—**witness predicates as first-class Z3 Functions**—avoids circularity by:
 
-1. **Pre-declaring** witness functions during syntax analysis
-2. **Constraining** their behavior during truth-condition generation
-3. **Querying** their values during model evaluation
+1. **Pre-registering** witness functions as uninterpreted Z3 Functions during formula analysis
+2. **Using** these persistent functions in constraints (not creating new ones)
+3. **Accessing** their solved values from the model during verification computation
 
 ## Comparative Examples
 
@@ -512,7 +528,11 @@ Follow the [Getting Started Guide](Code/docs/EXAMPLES.md) to create your first p
 ### Technical Background
 
 - **[Z3 Background](Z3_BACKGROUND.md)**: Introduction to SMT solvers and Z3
-- **[ModelChecker Architecture](../src/model_checker/README.md)**: Framework overview and API
-- **[Theory Tools](TOOLS.md)**: Semantic tools for evaluating and comparing semantic theories
-- **[Unit Tests](UNIT_TESTS.md)**: Background on defining and using unit tests to rapidly prototype theories
+- **[ModelChecker Architecture](../Code/src/model_checker/README.md)**: Framework overview and API
+- **[Theory Tools](../Code/docs/TOOLS.md)**: Semantic tools for evaluating and comparing semantic theories
+- **[Testing Guide](../Code/docs/TESTS.md)**: Background on defining and using tests to rapidly prototype theories
 - **[Implementation Lessons](FINDINGS.md)**: Hard-won lessons from implementing complex semantic theories
+
+---
+
+[← Back to Docs](README.md) | [Hyperintensional →](HYPERINTENSIONAL.md) | [Z3 Background →](Z3_BACKGROUND.md)
