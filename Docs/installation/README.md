@@ -46,16 +46,15 @@ installation/
 
 1. **Standard Installation** - `pip install model-checker`
 2. **Jupyter Support** - `pip install model-checker[jupyter]`
-3. **Development Tools** - `pip install model-checker[dev]`
-4. **Everything** - `pip install model-checker[all]`
-5. **Development Setup** - Clone and editable install
+3. **Everything** - `pip install model-checker[all]`
+4. **Development Setup** - Clone repository and editable install
 
 ### Platform Notes
 
 - **Windows**: May need to use `py` instead of `python`
 - **macOS**: May need to update certificates
 - **Linux**: May need to install pip separately
-- **NixOS**: Use repository's `shell.nix` instead of pip
+- **NixOS**: Use repository's `shell.nix` instead of `pip`
 
 ## Quick Start
 
