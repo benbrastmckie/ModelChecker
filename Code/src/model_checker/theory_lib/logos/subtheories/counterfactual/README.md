@@ -53,9 +53,11 @@ Comprehensive test suite with 37 integration examples covering both counterfactu
 The counterfactual subtheory provides two operators: one primitive operator that directly implements alternative worlds semantics, and one defined operator constructed from the primitive.
 
 **Primitive Operator:**
+
 - Counterfactual Conditional (□→) - Would counterfactual
 
 **Defined Operator:**
+
 - Might Counterfactual (◇→) - Defined as ¬(A □→ ¬B)
 
 ### Counterfactual Conditional
@@ -225,7 +227,7 @@ The counterfactual subtheory implements the semantic theory developed in Brast-M
 
 1. **Hyperintensional Semantics**: Propositions individuated by verifier and falsifier sets
 2. **Alternative Worlds**: Defined semantic relation determining counterfactual evaluation points
-4. **Bilateral Semantics**: Both positive (verifiers) and negative (falsifiers) truth conditions
+3. **Bilateral Semantics**: Both positive (verifiers) and negative (falsifiers) truth conditions
 
 ### Truth Conditions
 
@@ -234,6 +236,7 @@ The counterfactual subtheory implements the semantic theory developed in Brast-M
 **Informal Description**: A □→ B is true at a world w when B is true at all alternative worlds where A holds. An alternative world is a minimal change to the current world that accommodates the antecedent A - it contains both a verifier of A and as much of the original world as is compatible with that verifier.
 
 **Alternative Worlds in Z3**: The semantics uses `is_alternative(u, x, w)` predicate where:
+
 - `u` is a candidate alternative world
 - `x` is a verifier state of the antecedent
 - `w` is the evaluation world
@@ -319,17 +322,14 @@ def extended_falsify(self, state, leftarg, rightarg, eval_point):
 **Valid Principles** (should always find models for premises but not conclusions):
 
 1. **CF_TH_1 - Counterfactual Identity**:
-
    - `⊢ (A □→ A)`
    - Counterfactuals are reflexive
 
 2. **CF_TH_2 - Counterfactual Modus Ponens**:
-
    - `A, (A □→ B) ⊢ B`
    - Basic inference rule for counterfactuals
 
 3. **CF_TH_3 - Weakened Transitivity**:
-
    - `(A □→ B), ((A ∧ B) □→ C) ⊢ (A □→ C)`
    - Restricted form of transitivity that remains valid
 
@@ -342,17 +342,14 @@ def extended_falsify(self, state, leftarg, rightarg, eval_point):
 **Invalid Principles** (should find countermodels where premises are true but conclusions false):
 
 1. **CF_CM_1 - Counterfactual Antecedent Strengthening**:
-
    - `¬A, (A □→ C) ⊬ (A ∧ B) □→ C`
    - Strengthening antecedent can change truth value
 
 2. **CF_CM_7 - Counterfactual Contraposition**:
-
    - `(A □→ B) ⊬ ¬B □→ ¬A`
    - Contraposition fails for counterfactuals
 
 3. **CF_CM_10 - Transitivity**:
-
    - `(A □→ B), (B □→ C) ⊬ A □→ C`
    - Transitivity is generally invalid
 
@@ -503,7 +500,6 @@ conclusions = ['(A \\boxright B)']  # Invalid - countermodel exists
 This distinction captures the intuition that actual truth guarantees counterfactual possibility but not counterfactual necessity.
 
 ## Dependencies
-
 
 The counterfactual subtheory depends on the **extensional subtheory** for:
 

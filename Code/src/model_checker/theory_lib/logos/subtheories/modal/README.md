@@ -18,9 +18,9 @@ modal/
 
 ## Overview
 
-The **Modal Subtheory** implements hyperintensional semantics for necessity (□), possibility (◇), counterfactual necessity (CFBox), and counterfactual possibility (CFDiamond) as modal operators. All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond extensional equivalence or necessary equivalence.
+The **Modal Subtheory** implements hyperintensional semantics for necessity (□) and possibility (◇), importing counterfactual necessity (CFBox) and counterfactual possibility (CFDiamond) from the `counterfactual/` theory. All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond extensional equivalence or necessary equivalence.
 
-Within the Logos framework, the modal subtheory provides essential operators for reasoning about necessity and possibility. The four operators (one primitive, three defined) integrate seamlessly with other hyperintensional operators while maintaining S5 modal logic principles including modal axioms and duality relationships. This enables sophisticated analysis of modal claims alongside counterfactual, constitutive, and relevance reasoning within a unified semantic framework.
+Within the Logos framework, the modal subtheory provides essential operators for reasoning about necessity and possibility. The four operators (one primitive, one defined, and two imported) integrate seamlessly with other hyperintensional operators while maintaining S5 modal logic principles including modal axioms and duality relationships. This provides analysis of modal claims alongside counterfactual, constitutive, and relevance reasoning within a unified semantic framework.
 
 ## Subdirectories
 

@@ -10,7 +10,7 @@ from model_checker.builder.project import BuildProject
 
 def test_version_detection():
     """Test that the BuildProject class correctly retrieves the version."""
-    project = BuildProject('default')
+    project = BuildProject('logos')
     version = project._get_current_version()
     
     print(f"Detected version: {version}")

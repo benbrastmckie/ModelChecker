@@ -8,12 +8,11 @@
   - [x] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/MAINTENANCE_REFACTOR_PLAN.md`
   - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/UPDATE_DOCS.md`
 - package
+  - [.] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/BUILDER_IMPORT.md`
+  - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md`
   - `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/LOAD_THEORIES.md`
-  - `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md`
 
 ### High Priority
-
-somet
 
 - [.] unit tests
   - [x] fix failing tests

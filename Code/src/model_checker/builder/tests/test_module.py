@@ -234,12 +234,14 @@ general_settings = {}
     
     def test_flag_overrides(self):
         """Test that module flags properly override general settings."""
-        # Set flags
-        self.mock_flags.print_constraints = True
-        self.mock_flags.print_z3 = True
+        # Create a mock with spec to avoid _parsed_args attribute
+        mock_flags = Mock(spec=['file_path', 'print_constraints', 'print_z3'])
+        mock_flags.file_path = self.mock_flags.file_path
+        mock_flags.print_constraints = True
+        mock_flags.print_z3 = True
         
         self.create_test_module_file("logos")
-        build_module = BuildModule(self.mock_flags)
+        build_module = BuildModule(mock_flags)
         
         # Test that flags overrode the module settings
         self.assertTrue(build_module.print_constraints)
@@ -251,7 +253,7 @@ general_settings = {}
         build_module = BuildModule(self.mock_flags)
         
         # Test with malformed example case
-        with patch('model_checker.builder.module.BuildExample') as mock_build_example:
+        with patch('model_checker.builder.example.BuildExample') as mock_build_example:
             mock_build_example.side_effect = ValueError("Test error")
             
             example_case = [[], ["p"], {"N": 2, "max_time": 1}]

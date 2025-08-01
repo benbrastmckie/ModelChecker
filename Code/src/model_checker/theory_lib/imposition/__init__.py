@@ -28,8 +28,6 @@ Usage:
     from model_checker.theory_lib.imposition import imposition_operators
     from model_checker.theory_lib import get_examples
 
-# Import version utilities
-from model_checker.utils import get_model_checker_version
 
     # Create a semantics and model structure
     semantics = ImpositionSemantics(settings)
@@ -41,9 +39,6 @@ from model_checker.utils import get_model_checker_version
     # Access examples
     examples = get_examples('imposition')
 """
-
-# Import version utilities
-from model_checker.utils import get_model_checker_version
 
 __version__ = "1.0.0"
 
