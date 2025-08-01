@@ -159,17 +159,25 @@ PREFIX_TYPE_NUMBER_example = [
 ### 6. Collections
 
 ```python
-# Collection of all examples (used by test framework)
-unit_tests = {
-    "PREFIX_TYPE_1": PREFIX_TYPE_1_example,
-    "PREFIX_TYPE_2": PREFIX_TYPE_2_example,
-    # ... all examples
+# Organize examples by category
+countermodel_examples = {
+    "PREFIX_CM_1": PREFIX_CM_1_example,
+    "PREFIX_CM_2": PREFIX_CM_2_example,
+    # ... all countermodel examples
 }
+
+theorem_examples = {
+    "PREFIX_TH_1": PREFIX_TH_1_example,
+    "PREFIX_TH_2": PREFIX_TH_2_example,
+    # ... all theorem examples
+}
+
+# Combine for unit_tests (used by test framework)
+unit_tests = {**countermodel_examples, **theorem_examples}
 
 # The framework expects this to be named 'example_range'
 example_range = {
-    "PREFIX_TYPE_1": PREFIX_TYPE_1_example,  # Run specific examples
-    # Or: example_range = unit_tests  # Run all examples
+    "PREFIX_CM_1": PREFIX_CM_1_example,  # Run specific examples
 }
 
 # Optional: General settings for execution
@@ -226,35 +234,12 @@ Every examples.py file must define these variables in this order:
    - Can include multiple theories for comparison
    - Keys become column headers in output
 
-### Advanced Collections
-
-For complex theories with many examples:
-
-```python
-# Organize examples by category
-countermodel_examples = {
-    "PREFIX_CM_1": PREFIX_CM_1_example,
-    "PREFIX_CM_2": PREFIX_CM_2_example,
-}
-
-theorem_examples = {
-    "PREFIX_TH_1": PREFIX_TH_1_example,
-    "PREFIX_TH_2": PREFIX_TH_2_example,
-}
-
-# Combine for unit_tests
-unit_tests = {**countermodel_examples, **theorem_examples}
-
-# Alternative collection names (legacy support)
-test_example_range = unit_tests  # Older name, still supported
-all_prefix_examples = unit_tests  # Theory-specific collection
-```
 
 ## Settings Documentation
 
 ### Core Settings
 
-Every example must include these settings with descriptive comments:
+Every example must include these settings with descriptive comments after each setting:
 
 ```python
 settings = {
@@ -269,23 +254,25 @@ settings = {
 }
 ```
 
+**Important**: All settings dictionaries MUST include inline comments after each setting. This provides crucial context for understanding what each setting controls and how it affects the model checking process.
+
 ### Theory-Specific Settings
 
-Some theories define additional settings:
+Some theories define additional settings beyond the core settings:
 
 ```python
-# Modal logic settings
-'reflexive': True,         # Reflexive accessibility relation
-'transitive': True,        # Transitive accessibility relation
-'symmetric': False,        # Symmetric accessibility relation
+# Bimodal settings (temporal-modal logic)
+'M': 2,                    # Number of time points/steps
 
-# Counterfactual settings
-'similarity': 'nested',    # Similarity ordering type
-'centering': True,         # Strong centering condition
+# Exclusion settings (unilateral semantics)
+'possible': False,         # Require possible propositions
+'fusion_closure': False,   # Enforce fusion closure constraints
 
-# Bimodal settings
-'time_steps': 5,          # Number of time steps
-'branching': False,       # Allow branching futures
+# Logos settings (all subtheories use same core settings)
+# No theory-specific settings - uses standard N, contingent, non_null, etc.
+
+# Imposition settings
+# No theory-specific settings - uses standard settings
 ```
 
 ### Setting Guidelines
@@ -431,11 +418,17 @@ PREFIX_TH_1_example = [
 
 # ===== COLLECTIONS =====
 
-# Collection of all examples (used by test framework)
-unit_tests = {
+# Organize examples by category
+countermodel_examples = {
     "PREFIX_CM_1": PREFIX_CM_1_example,
+}
+
+theorem_examples = {
     "PREFIX_TH_1": PREFIX_TH_1_example,
 }
+
+# Combine for unit_tests (used by test framework)
+unit_tests = {**countermodel_examples, **theorem_examples}
 
 # The framework expects this to be named 'example_range'
 example_range = {
@@ -492,16 +485,18 @@ logos_theory = {
 
 For cross-theory comparison examples:
 
-TODO: below, just import the 'counterfactual' subtheory of logos to compare with imposition
-
 ```python
 # Import multiple theories
 from model_checker.theory_lib import logos, imposition
 
+# Load only the counterfactual subtheory of Logos for focused comparison
+logos_cf_theory = logos.get_theory(['counterfactual'])
+imposition_theory = imposition.get_theory()
+
 # Define theories with translation dictionaries
 semantic_theories = {
-    "Logos": logos.get_theory(),
-    "Imposition": imposition.get_theory(),
+    "Logos-CF": logos_cf_theory,
+    "Imposition": imposition_theory,
 }
 
 # Use general_settings to control comparison
@@ -526,6 +521,7 @@ Before committing an examples.py file, verify:
 
 - [ ] All examples follow PREFIX_TYPE_NUMBER pattern
 - [ ] Prefixes match theory abbreviations
+- [ ] Type indicates whether the example is a theorem or countermodel
 - [ ] Sequential numbering without gaps
 - [ ] Variable names match pattern exactly
 
