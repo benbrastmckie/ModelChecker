@@ -6,6 +6,8 @@
 
 This guide covers the standard installation of ModelChecker using pip, Python's package installer. For development setup or Jupyter configuration, see the specialized guides.
 
+**NixOS Users**: Do not use pip installation. See [NixOS Installation](#nixos-installation) for the correct approach.
+
 ## Prerequisites
 
 Before installing ModelChecker, ensure you have:
@@ -41,19 +43,13 @@ If you get "command not found", try:
 ```bash
 pip install model-checker[jupyter]
 ```
-**Includes**: `ipywidgets`, `jupyter`, visualization tools, notebook integration
-
-**Development Tools** (`[dev]`):
-```bash
-pip install model-checker[dev]
-```
-**Includes**: `pytest`, `black`, `mypy`, linting tools, testing frameworks
+**Includes**: `ipywidgets`, `jupyter`, `matplotlib`, `ipython`, `networkx` for interactive notebooks and visualization
 
 **All Features** (`[all]`):
 ```bash
 pip install model-checker[all]
 ```
-**Includes**: Everything from both jupyter and dev options
+**Includes**: Currently the same as the `[jupyter]` option (all available extras)
 
 ## Verification
 
@@ -116,6 +112,30 @@ sudo dnf install python3 python3-pip
 sudo pacman -S python python-pip
 ```
 
+## NixOS Installation
+
+NixOS users should use the repository's `shell.nix` configuration instead of pip:
+
+```bash
+# Clone the repository
+git clone https://github.com/benbrastmckie/ModelChecker.git
+cd ModelChecker/Code
+
+# Enter the Nix shell environment
+nix-shell
+
+# Run examples using the development CLI
+./dev_cli.py examples/my_example.py
+```
+
+The `nix-shell` command automatically:
+- Sets up Python with all required dependencies
+- Configures the correct PYTHONPATH
+- Provides access to development tools
+- Ensures compatibility with NixOS's unique package management
+
+For more details on NixOS development, see [Developer Setup](DEVELOPER_SETUP.md#nixos-development).
+
 ## Next Steps
 
 - **Having issues?** See [Troubleshooting](TROUBLESHOOTING.md)
@@ -129,7 +149,7 @@ sudo pacman -S python python-pip
 |------|---------|
 | Install | `pip install model-checker` |
 | Install with Jupyter | `pip install model-checker[jupyter]` |
-| Install everything | `pip install model-checker[all]` |
+| Install all extras | `pip install model-checker[all]` |
 | Verify installation | `model-checker --version` |
 | Update | `pip install --upgrade model-checker` |
 | Uninstall | `pip uninstall model-checker` |
