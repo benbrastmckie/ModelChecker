@@ -76,104 +76,79 @@ formulas = [
 
 ## Examples.py Structure Standards
 
-All `examples.py` files must follow this standardized structure to ensure consistency and compatibility with the ModelChecker framework.
+All `examples.py` files must follow the standardized structure detailed in [Code/docs/EXAMPLES.md](docs/EXAMPLES.md). This section provides a quick reference to the key requirements.
 
-### Required Structure
+### Example Naming Convention
+
+All examples must follow the **PREFIX_TYPE_NUMBER** naming convention:
 
 ```python
-"""
-[Theory Name] Examples
-
-This module provides example formulas demonstrating [theory description].
-Examples are organized into countermodels (showing invalidity) and 
-theorems (showing validity).
-"""
-
-# Standard imports
-import os
-import sys
-
-# Add current directory to path for imports
-current_dir = os.path.dirname(os.path.abspath(__file__))
-if current_dir not in sys.path:
-    sys.path.insert(0, current_dir)
-
-# Import theory components
-from .semantic import TheorySemantics, TheoryProposition, TheoryStructure
-from .operators import theory_operators  # or get_operators()
-
-# Default general settings (optional)
-general_settings = {
-    "print_constraints": False,
-    "print_z3": False,
-    "save_output": False,
-    "align_vertically": False,
-}
-
-# Semantic theory definition
-theory_name = {
-    "semantics": TheorySemantics,
-    "proposition": TheoryProposition,
-    "model": TheoryStructure,
-    "operators": theory_operators,
-    "dictionary": {}  # Translation dictionary for theory comparison
-}
-
-# Example naming convention: PREFIX_TYPE_NUMBER
-# PREFIX: Theory abbreviation (e.g., LOG, EX, IMP)
+# PREFIX: Theory abbreviation (2-3 characters)
 # TYPE: CM (countermodel) or TH (theorem)
-# NUMBER: Sequential number
+# NUMBER: Sequential number starting from 1
 
-# Example definition pattern
-EX_CM_1_premises = ["A", "(A \\rightarrow B)"]
-EX_CM_1_conclusions = ["\\Box B"]
-EX_CM_1_settings = {
-    'N': 4,               # Number of propositions
-    'contingent': True,   # Require contingent propositions
-    'non_empty': True,    # Non-empty verifier/falsifier sets
-    'disjoint': False,    # Allow overlap
-    'max_time': 10,       # Timeout in seconds
-    'iterate': 1,         # Number of models to find
-    'expectation': True,  # True for countermodels, False for theorems
-}
-EX_CM_1_example = [
-    EX_CM_1_premises,
-    EX_CM_1_conclusions,
-    EX_CM_1_settings,
-]
-
-# Collect all examples
-test_example_range = {
-    "EX_CM_1": EX_CM_1_example,
-    # Add all other examples here
-}
-
-# Active examples for execution (subset of test_example_range)
-example_range = {
-    # Include examples you want to run by default
-}
-
-# Semantic theories for comparison (optional)
-semantic_theories = {
-    "Theory1": theory_name,
-    # Add other theories for comparison
-}
-
-# Main execution block
-if __name__ == '__main__':
-    import subprocess
-    file_name = os.path.basename(__file__)
-    subprocess.run(["model-checker", file_name], check=True, cwd=current_dir)
+# Correct examples:
+EXT_TH_1_example    # Extensional theorem 1
+LOG_CM_3_example    # Logos countermodel 3
+IMP_TH_2_example    # Imposition theorem 2
+BIM_CM_1_example    # Bimodal countermodel 1
 ```
 
-### Key Requirements
+### Standard Theory Prefixes
 
-1. **Import Structure**: Always include path setup and proper imports
-2. **Naming Convention**: Use consistent PREFIX_TYPE_NUMBER pattern
-3. **Settings Documentation**: Include expectation flag (True for countermodels)
-4. **Formula Formatting**: Follow formula formatting standards (capital letters, proper parentheses)
-5. **Collections**: Maintain both test_example_range and example_range
-6. **Main Block**: Include standard execution block
+| Theory          | Prefix | Full Name                   |
+| --------------- | ------ | --------------------------- |
+| Extensional     | EXT    | Basic extensional logic     |
+| Modal           | MOD    | Modal operators (□, ◇)      |
+| Counterfactual  | CF     | Counterfactual conditionals |
+| Constitutive    | CON    | Identity and essence        |
+| Relevance       | REL    | Relevance logic             |
+| Logos (general) | LOG    | Hyperintensional logic      |
+| Exclusion       | EX     | Unilateral semantics        |
+| Imposition      | IMP    | Fine's counterfactuals      |
+| Bimodal         | BIM    | Temporal-modal logic        |
+
+### Required File Structure
+
+Every examples.py file must include these components in order:
+
+1. **Module Docstring** - Describing the examples and their categories
+2. **Standard Imports** - Including path setup
+3. **Theory Imports** - Importing semantic components
+4. **Theory Definition** - Defining the semantic theory
+5. **Example Definitions** - Following naming convention
+6. **Collections** - unit_tests and example_range dictionaries
+7. **Main Block** - Making the module executable
+
+### Required Variables
+
+Every examples.py file must define:
+
+1. **unit_tests** (Required) - Dictionary of ALL examples for testing
+2. **example_range** (Required) - Dictionary of examples to execute
+3. **general_settings** (Optional but Recommended) - Execution settings
+4. **semantic_theories** (Required) - Theories to use
+
+### Settings Documentation
+
+Every example must include these core settings with descriptive comments:
+
+```python
+settings = {
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': False,       # Allow non-contingent propositions
+    'non_null': False,         # Allow the null state
+    'non_empty': False,        # Allow empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': False,      # True = expect countermodel, False = expect theorem
+}
+```
+
+### Complete Example Template
+
+For a comprehensive template and detailed requirements, see [Code/docs/EXAMPLES.md](docs/EXAMPLES.md).
 
 ### Loading Theories with -l Flag
 
@@ -190,11 +165,7 @@ model-checker -l logos
 # - bimodal: Combined temporal-modal logic
 ```
 
-This creates a complete project structure with:
-- Properly formatted examples.py
-- All theory components
-- Documentation templates
-- Test suites
+This creates a complete project structure with properly formatted examples.py, all theory components, documentation templates, and test suites.
 
 ## Unicode Character Guidelines
 
@@ -280,6 +251,30 @@ The ModelChecker parser expects the following LaTeX notation:
 4. **Working Examples**: All code examples must be tested and working
 5. **Cross-References**: Link between related documentation
 6. **Formula Standards**: Follow formula formatting standards in all examples
+
+### Directory Structure Formatting
+
+When displaying directory structures in documentation:
+
+1. **Comment Alignment**: Tab comments far enough to the right to avoid conflicting with file names
+2. **Minimum Spacing**: Use at least 2-4 spaces between the longest file name and its comment
+3. **Consistent Alignment**: All comments in a directory structure should align vertically
+
+```markdown
+# CORRECT - Comments properly aligned
+Docs/
+├── README.md                       # This file - documentation hub
+├── installation/                   # Modular installation guides
+│   ├── BASIC_INSTALLATION.md       # Standard pip installation guide
+│   └── TROUBLESHOOTING.md          # Platform-specific solutions
+└── GETTING_STARTED.md              # Quick start tutorial for new users
+
+# INCORRECT - Comments too close to file names
+Docs/
+├── README.md # This file
+├── installation/ # Guides
+└── GETTING_STARTED.md # Tutorial
+```
 
 ### Content Organization Principles
 
@@ -390,21 +385,63 @@ from model_checker import BuildModule
 # Load the theory
 theory = get_theory()
 
-# Create an example
-example = [
-    ["A", "(A \\rightarrow B)"],  # Premises
-    ["B"],                         # Conclusions
-    {'N': 3}                       # Settings
-]
+# Create an example following standard form
+MY_TH_1_premises = ["A", "(A \\rightarrow B)"]
+MY_TH_1_conclusions = ["B"]
+MY_TH_1_settings = {
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': False,       # Allow non-contingent propositions  
+    'non_null': False,         # Allow the null state
+    'non_empty': False,        # Allow empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': False,      # False = expect theorem (no countermodel)
+}
+MY_TH_1_example = [MY_TH_1_premises, MY_TH_1_conclusions, MY_TH_1_settings]
 
-# Check validity
-module = BuildModule({
-    'file_path': 'example.py',
-    'semantic_theories': {'my_theory': theory},
-    'test_example_range': {'test': example}
-})
-result = module.build_examples()
+# Collect examples
+unit_tests = {
+    'MY_TH_1': MY_TH_1_example,
+    # Add more examples here
+}
+
+# Define semantic theories
+semantic_theories = {
+    "MyTheory": {
+        "semantics": TheorySemantics,
+        "proposition": TheoryProposition,
+        "model": TheoryModelStructure,
+        "operators": theory_operators,
+        "dictionary": {}  # Translation dictionary if needed
+    }
+}
+
+# Define which examples to run
+example_range = {
+    'MY_TH_1': MY_TH_1_example,
+}
+
+# General settings for output control
+general_settings = {
+    "print_constraints": False,
+    "print_impossible": False,
+    "print_z3": False,
+    "save_output": False,
+    "maximize": False,
+}
 ```
+
+### Running the Examples
+
+Every examples.py file should be executable as a standalone module:
+
+```python
+# Make the module executable
+if __name__ == "__main__":
+    # This allows the file to be run directly with model-checker
+    # or ./dev_cli.py
+    pass
 ```
 
 **Best Practices:**

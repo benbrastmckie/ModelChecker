@@ -3,11 +3,12 @@
 [← Back to ModelChecker](../README.md) | [Development Guide →](../docs/DEVELOPMENT.md) | [Testing Guide →](../docs/TESTS.md)
 
 ## Directory Structure
+
 ```
 tests/
-├── README.md                    # This file - integration test suite overview
-├── test_project_creation.py     # CLI project generation testing
-└── __init__.py                  # Test package initialization (if needed)
+├── README.md                       # This file - integration test suite overview
+├── test_project_creation.py        # CLI project generation testing
+└── __init__.py                     # Test package initialization (if needed)
 ```
 
 ## Overview
@@ -35,6 +36,7 @@ python tests/test_project_creation.py -v
 ## Files in This Directory
 
 ### test_project_creation.py
+
 CLI project generation testing module validating the `dev_cli.py -l <theory>` functionality. Tests project scaffold creation, template copying, file structure validation, and automatic cleanup. Simulates non-interactive usage through piped responses and verifies generated projects have correct structure and dependencies.
 
 ## Testing Philosophy
@@ -68,12 +70,14 @@ python tests/test_project_creation.py
 ### Workflow Validation Scenarios
 
 #### Project Creation Testing
+
 - **Command**: `dev_cli.py -l logos my_new_theory`
 - **Validation**: Directory structure, file contents, import functionality
 - **Cleanup**: Automatic removal of test artifacts
 - **Coverage**: Template copying, customization, validation
 
-#### Non-Interactive Mode Testing  
+#### Non-Interactive Mode Testing
+
 - **Method**: Piped input simulation for automated testing
 - **Scenarios**: Default responses, custom project names, theory selection
 - **Validation**: Correct handling of automated input streams
@@ -114,6 +118,7 @@ python tests/test_project_creation.py --test-theory logos
 When creating new integration tests:
 
 #### 1. Test Scope Definition
+
 ```python
 # Test user-facing CLI functionality
 def test_cli_workflow():
@@ -123,6 +128,7 @@ def test_cli_workflow():
 ```
 
 #### 2. Real Execution Requirements
+
 ```python
 # Use subprocess for actual command execution
 import subprocess
@@ -139,6 +145,7 @@ assert os.path.exists('test_project/semantic.py')
 ```
 
 #### 3. Cleanup and Safety
+
 ```python
 # Automatic cleanup to avoid side effects
 try:
@@ -151,6 +158,7 @@ finally:
 ```
 
 #### 4. Clear Reporting
+
 ```python
 # Provide detailed success/failure messages
 if test_passed:
@@ -162,16 +170,19 @@ else:
 ## Documentation
 
 ### For New Users
+
 - **[Development Guide](../docs/DEVELOPMENT.md)** - Framework development workflow
 - **[Testing Guide](../docs/TESTS.md)** - Comprehensive testing methodology
 - **[CLI Reference](../CLAUDE.md#quick-reference)** - Command-line interface documentation
 
 ### For Developers
+
 - **[Unit Testing](../src/model_checker/*/tests/)** - Component-level test suites
 - **[Theory Testing](../src/model_checker/theory_lib/*/tests/)** - Semantic theory validation
 - **[Integration Testing](#testing-philosophy)** - End-to-end workflow validation
 
 ### For Contributors
+
 - **[Test Architecture](#testing-philosophy)** - Multi-level testing approach
 - **[Development Guidelines](#development-guidelines)** - Creating new integration tests
 - **[Platform Considerations](#usage-patterns)** - Cross-platform testing strategies
@@ -181,11 +192,13 @@ else:
 ### Three-Level Testing Strategy
 
 1. **Unit Tests** (`src/model_checker/*/tests/`)
+
    - Individual component isolation testing
    - Fast execution and focused validation
    - Mocking and stubbing for controlled environments
 
 2. **Theory Tests** (`src/model_checker/theory_lib/*/tests/`)
+
    - Semantic theory validation and correctness
    - Logic verification and countermodel testing
    - Theory-specific functionality validation
@@ -209,10 +222,12 @@ All testing levels coordinate through the unified test runner:
 ## References
 
 ### Implementation Documentation
+
 - Integration testing follows fail-fast philosophy with real execution validation
 - Test cleanup and artifact management documented in individual test files
 
 ### Related Resources
+
 - **[Main Documentation](../README.md)** - Package overview and installation
 - **[Development Workflow](../docs/DEVELOPMENT.md)** - Contributing and development procedures
 - **[CLI Tools](../CLAUDE.md)** - Command-line interface reference
